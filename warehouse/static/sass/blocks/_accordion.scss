@@ -49,7 +49,8 @@
       font-family: "Font Awesome 5 Free";
       font-weight: 900;
       content: "\f139";
-      margin-right: $spacing-unit / 2;
+      margin-right: $spacing-unit / 2 #{"/*rtl:5px*/"};
+
     }
 
     @media only screen and (max-width: $desktop) {

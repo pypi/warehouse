@@ -10,7 +10,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from sqlalchemy import Boolean, CheckConstraint, Column, Integer, Text, sql
+from sqlalchemy import CheckConstraint, Column, Integer, Text
 
 from warehouse import db
 from warehouse.utils.attrs import make_repr
@@ -28,8 +28,3 @@ class Classifier(db.ModelBase):
 
     id = Column(Integer, primary_key=True, nullable=False)
     classifier = Column(Text, unique=True)
-    deprecated = Column(Boolean, nullable=False, server_default=sql.false())
-    l2 = Column(Integer)
-    l3 = Column(Integer)
-    l4 = Column(Integer)
-    l5 = Column(Integer)

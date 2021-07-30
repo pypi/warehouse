@@ -100,15 +100,8 @@ def test_includeme(monkeypatch, settings, expected_level):
                         "stream": "ext://sys.stdout",
                         "formatter": "structlog",
                     },
-                    "sentry": {
-                        "class": "raven.handlers.logging.SentryHandler",
-                        "level": "ERROR",
-                        "release": None,
-                        "dsn": None,
-                        "transport": None,
-                    },
                 },
-                "root": {"level": expected_level, "handlers": ["primary", "sentry"]},
+                "root": {"level": expected_level, "handlers": ["primary"]},
             }
         )
     ]

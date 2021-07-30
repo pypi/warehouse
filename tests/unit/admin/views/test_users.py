@@ -212,7 +212,6 @@ class TestUserDelete:
         db_request.params = {"username": user.username}
         db_request.route_path = pretend.call_recorder(lambda a: "/foobar")
         db_request.user = UserFactory.create()
-        db_request.remote_addr = "10.10.10.10"
 
         result = views.user_delete(db_request)
 
@@ -275,7 +274,6 @@ class TestUserResetPassword:
         db_request.params = {"username": user.username}
         db_request.route_path = pretend.call_recorder(lambda *a, **kw: "/foobar")
         db_request.user = UserFactory.create()
-        db_request.remote_addr = "10.10.10.10"
         service = pretend.stub(
             find_userid=pretend.call_recorder(lambda username: user.id),
             disable_password=pretend.call_recorder(lambda userid, reason: None),
@@ -307,7 +305,6 @@ class TestUserResetPassword:
         db_request.params = {"username": "wrong"}
         db_request.route_path = pretend.call_recorder(lambda *a, **kw: "/foobar")
         db_request.user = UserFactory.create()
-        db_request.remote_addr = "10.10.10.10"
         service = pretend.stub(
             find_userid=pretend.call_recorder(lambda username: user.id),
             disable_password=pretend.call_recorder(lambda userid, reason: None),

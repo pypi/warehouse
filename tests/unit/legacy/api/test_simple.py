@@ -93,10 +93,6 @@ class TestSimpleDetail:
         user = UserFactory.create()
         je = JournalEntryFactory.create(name=project.name, submitted_by=user)
 
-        # Make sure that we get any changes made since the JournalEntry was
-        # saved.
-        db_request.db.refresh(project)
-
         assert simple.simple_detail(project, db_request) == {
             "project": project,
             "files": [],
@@ -117,10 +113,6 @@ class TestSimpleDetail:
         db_request.matchdict["name"] = project.normalized_name
         user = UserFactory.create()
         JournalEntryFactory.create(submitted_by=user)
-
-        # Make sure that we get any changes made since the JournalEntry was
-        # saved.
-        db_request.db.refresh(project)
 
         assert simple.simple_detail(project, db_request) == {
             "project": project,
@@ -143,10 +135,6 @@ class TestSimpleDetail:
         user = UserFactory.create()
         je = JournalEntryFactory.create(name=project.name, submitted_by=user)
 
-        # Make sure that we get any changes made since the JournalEntry was
-        # saved.
-        db_request.db.refresh(project)
-
         assert simple.simple_detail(project, db_request) == {
             "project": project,
             "files": files,
@@ -155,7 +143,6 @@ class TestSimpleDetail:
 
     def test_with_files_with_version_multi_digit(self, db_request):
         project = ProjectFactory.create()
-        releases = [ReleaseFactory.create(project=project) for _ in range(3)]
         release_versions = [
             "0.3.0rc1",
             "0.3.0",
@@ -164,9 +151,10 @@ class TestSimpleDetail:
             "4.2.0",
             "24.2.0",
         ]
-
-        for release, version in zip(releases, release_versions):
-            release.version = version
+        releases = [
+            ReleaseFactory.create(project=project, version=version)
+            for version in release_versions
+        ]
 
         tar_files = [
             FileFactory.create(
@@ -200,10 +188,6 @@ class TestSimpleDetail:
         db_request.matchdict["name"] = project.normalized_name
         user = UserFactory.create()
         je = JournalEntryFactory.create(name=project.name, submitted_by=user)
-
-        # Make sure that we get any changes made since the JournalEntry was
-        # saved.
-        db_request.db.refresh(project)
 
         assert simple.simple_detail(project, db_request) == {
             "project": project,

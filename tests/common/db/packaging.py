@@ -19,16 +19,17 @@ import factory.fuzzy
 import packaging.utils
 
 from warehouse.packaging.models import (
-    BlacklistedProject,
     Dependency,
     DependencyKind,
     Description,
     File,
     JournalEntry,
+    ProhibitedProjectName,
     Project,
     ProjectEvent,
     Release,
     Role,
+    RoleInvitation,
 )
 from warehouse.utils import readme
 
@@ -115,6 +116,16 @@ class RoleFactory(WarehouseFactory):
     project = factory.SubFactory(ProjectFactory)
 
 
+class RoleInvitationFactory(WarehouseFactory):
+    class Meta:
+        model = RoleInvitation
+
+    invite_status = "pending"
+    token = "test_token"
+    user = factory.SubFactory(UserFactory)
+    project = factory.SubFactory(ProjectFactory)
+
+
 class DependencyFactory(WarehouseFactory):
     class Meta:
         model = Dependency
@@ -135,10 +146,10 @@ class JournalEntryFactory(WarehouseFactory):
     submitted_by = factory.SubFactory(UserFactory)
 
 
-class BlacklistedProjectFactory(WarehouseFactory):
+class ProhibitedProjectFactory(WarehouseFactory):
     class Meta:
-        model = BlacklistedProject
+        model = ProhibitedProjectName
 
     created = factory.fuzzy.FuzzyNaiveDateTime(datetime.datetime(2008, 1, 1))
     name = factory.fuzzy.FuzzyText(length=12)
-    blacklisted_by = factory.SubFactory(UserFactory)
+    prohibited_by = factory.SubFactory(UserFactory)

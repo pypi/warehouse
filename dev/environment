@@ -24,6 +24,7 @@ DOCS_URL="https://pythonhosted.org/{project}/"
 
 FILES_BACKEND=warehouse.packaging.services.LocalFileStorage path=/var/opt/warehouse/packages/ url=http://localhost:9001/packages/{path}
 DOCS_BACKEND=warehouse.packaging.services.LocalDocsStorage path=/var/opt/warehouse/docs/
+SPONSORLOGOS_BACKEND=warehouse.admin.services.LocalSponsorLogoStorage path=/var/opt/warehouse/sponsorlogos/
 
 MAIL_BACKEND=warehouse.email.services.SMTPEmailSender host=smtp port=2525 ssl=false sender=noreply@pypi.org
 
@@ -40,3 +41,8 @@ TOKEN_EMAIL_SECRET="an insecure email verification secret key"
 TOKEN_TWO_FACTOR_SECRET="an insecure two-factor auth secret key"
 
 WAREHOUSE_LEGACY_DOMAIN=pypi.python.org
+
+VAULT_URL="http://vault:8200"
+VAULT_TOKEN="an insecure vault access token"
+
+GITHUB_TOKEN_SCANNING_META_API_URL="http://notgithub:8000/meta/public_keys/token_scanning"

@@ -33,3 +33,8 @@ class IRateLimiter(Interface):
         Returns a timedelta indicating how long until the rate limit identified
         by identifiers will reset.
         """
+
+    def clear(*identifiers):
+        """
+        Clears the rate limiter identified by the identifiers.
+        """

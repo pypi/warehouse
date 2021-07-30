@@ -1,0 +1,15 @@
+{% extends "base.xml" %}
+{% block title %}PyPI recent updates for {{ project.name }}{% endblock %}
+{% block description %}Recent updates to the Python Package Index for {{ project.name }}{% endblock %}
+{% block channel_link %}{{ request.route_url('packaging.project', name=project.normalized_name) }}{% endblock %}
+{% block items -%}
+  {% for release, author in latest_releases %}
+    <item>
+      <title>{{ release.version }}</title>
+      <link>{{ request.route_url('packaging.release', name=release.project.normalized_name, version=release.version) }}</link>
+      <description>{{ release.summary }}</description>
+      {% if author %}<author>{{ author }}</author>{% endif %}
+      <pubDate>{{ release.created|format_rfc822_datetime() }}</pubDate>
+    </item>
+  {%- endfor %}
+{%- endblock %}

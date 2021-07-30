@@ -17,7 +17,7 @@
 
 {% macro project_snippet(release) -%}
 <li>
-  <a class="package-snippet" href="{{ request.route_path('packaging.project', name=release.project.normalized_name) }}">
+  <a class="package-snippet" href="{{ request.route_path('packaging.project', name=release.project.normalized_name) }}" rel="nofollow">
     <h3 class="package-snippet__title">
       <span class="package-snippet__name">{{ release.project.name }}</span>
       <span class="package-snippet__version">{{ release.version }}</span>
@@ -51,7 +51,10 @@
 
     <form class="search-form search-form--large search-form--fullwidth" action="{{ request.route_path('search') }}" role="search">
       <label for="search" class="sr-only">{% trans %}Search PyPI{% endtrans %}</label>
+
+      <!-- The following input is intentionally not autofocused, see https://github.com/pypa/warehouse/issues/6088 for more details -->
       <input id="search" class="search-form__search large-input" type="text" name="q" placeholder="{% trans %}Search projects{% endtrans %}" autocomplete="off" autocapitalize="off" spellcheck="false">
+
       <button type="submit" class="search-form__button">
         <i class="fa fa-search" aria-hidden="true"></i>
         <span class="sr-only">{% trans %}Search{% endtrans %}</span>
@@ -64,10 +67,34 @@
 
 <div class="horizontal-section horizontal-section--grey horizontal-section--thin horizontal-section--statistics">
   <div class="statistics-bar">
-    <p class="statistics-bar__statistic">{% trans num_projects=num_projects|format_number %}{{ num_projects }} projects{% endtrans %}</p>
-    <p class="statistics-bar__statistic">{% trans num_releases=num_releases|format_number %}{{ num_releases }} releases{% endtrans %}</p>
-    <p class="statistics-bar__statistic">{% trans num_files=num_files|format_number %}{{ num_files }} files{% endtrans %}</p>
-    <p class="statistics-bar__statistic">{% trans num_users=num_users|format_number %}{{ num_users }} users{% endtrans %}</p>
+    <p class="statistics-bar__statistic">
+    {% trans trimmed num_projects=num_projects, num_projects_formatted=num_projects|format_number %}
+      {{ num_projects_formatted }} project
+    {% pluralize num_projects %}
+      {{ num_projects_formatted }} projects
+    {% endtrans %}
+    </p>
+    <p class="statistics-bar__statistic">
+    {% trans trimmed num_releases=num_releases, num_releases_formatted=num_releases|format_number %}
+      {{ num_releases_formatted }} release
+    {% pluralize num_releases %}
+      {{ num_releases_formatted }} releases
+    {% endtrans %}
+    </p>
+    <p class="statistics-bar__statistic">
+    {% trans trimmed num_files=num_files, num_files_formatted=num_files|format_number %}
+      {{ num_files_formatted }} file
+    {% pluralize num_files %}
+      {{ num_files_formatted }} files
+    {% endtrans %}
+    </p>
+    <p class="statistics-bar__statistic">
+    {% trans trimmed num_users=num_users, num_users_formatted=num_users|format_number %}
+      {{ num_users_formatted }} user
+    {% pluralize num_users %}
+      {{ num_users_formatted }} users
+    {% endtrans %}
+    </p>
   </div>
 </div>
 
@@ -80,11 +107,11 @@
       <p class="lede-paragraph">{% trans %}The Python Package Index (PyPI) is a repository of software for the Python programming language.{% endtrans %}</p>
       <p>
         {% trans %}PyPI helps you find and install software developed and shared by the Python community.{% endtrans %}
-        <a href="https://packaging.python.org/installing/" title="{% trans %}External link{% endtrans %}" target="_blank" rel="noopener">{% trans %}Learn about installing packages</a>.{% endtrans %}
+        <a href="https://packaging.python.org/installing/" title="{% trans %}External link{% endtrans %}" target="_blank" rel="noopener">{% trans %}Learn about installing packages{% endtrans %}</a>.
       </p>
       <p>
         {% trans %}Package authors use PyPI to distribute their software.{% endtrans %}
-        <a href="https://packaging.python.org/tutorials/packaging-projects/" title="{% trans %}External link{% endtrans %}" target="_blank" rel="noopener">{% trans %}Learn how to package your Python code for PyPI</a>.{% endtrans %}
+        <a href="https://packaging.python.org/tutorials/packaging-projects/" title="{% trans %}External link{% endtrans %}" target="_blank" rel="noopener">{% trans %}Learn how to package your Python code for PyPI{% endtrans %}</a>.
       </p>
     </div>
   </div>

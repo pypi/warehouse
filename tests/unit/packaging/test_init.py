@@ -17,13 +17,21 @@ from celery.schedules import crontab
 
 from warehouse import packaging
 from warehouse.accounts.models import Email, User
+from warehouse.manage.tasks import update_role_invitation_status
 from warehouse.packaging.interfaces import IDocsStorage, IFileStorage
 from warehouse.packaging.models import File, Project, Release, Role
-from warehouse.packaging.tasks import compute_trending, update_description_html
+from warehouse.packaging.tasks import (
+    compute_trending,
+    sync_bigquery_release_files,
+    update_description_html,
+)
 
 
-@pytest.mark.parametrize("with_trending", [True, False])
-def test_includeme(monkeypatch, with_trending):
+@pytest.mark.parametrize(
+    ("with_trending", "with_bq_sync"),
+    ([True, True], [True, False], [False, True], [False, False]),
+)
+def test_includeme(monkeypatch, with_trending, with_bq_sync):
     storage_class = pretend.stub(
         create_service=pretend.call_recorder(lambda *a, **kw: pretend.stub())
     )
@@ -32,6 +40,11 @@ def test_includeme(monkeypatch, with_trending):
         return pretend.call(keystring, iterate_on=iterate_on)
 
     monkeypatch.setattr(packaging, "key_factory", key_factory)
+    settings = dict()
+    if with_trending:
+        settings["warehouse.trending_table"] = "foobar"
+    if with_bq_sync:
+        settings["warehouse.release_files_table"] = "fizzbuzz"
 
     config = pretend.stub(
         maybe_dotted=lambda dotted: storage_class,
@@ -42,9 +55,7 @@ def test_includeme(monkeypatch, with_trending):
             settings={"files.backend": "foo.bar", "docs.backend": "wu.tang"}
         ),
         register_origin_cache_keys=pretend.call_recorder(lambda c, **kw: None),
-        get_settings=lambda: (
-            {"warehouse.trending_table": "foobar"} if with_trending else {}
-        ),
+        get_settings=lambda: settings,
         add_periodic_task=pretend.call_recorder(lambda *a, **kw: None),
     )
 
@@ -104,12 +115,27 @@ def test_includeme(monkeypatch, with_trending):
         ),
     ]
 
-    if with_trending:
+    if with_trending and with_bq_sync:
         assert config.add_periodic_task.calls == [
             pretend.call(crontab(minute="*/5"), update_description_html),
+            pretend.call(crontab(minute="*/5"), update_role_invitation_status),
+            pretend.call(crontab(minute=0, hour=3), compute_trending),
+            pretend.call(crontab(minute=0), sync_bigquery_release_files),
+        ]
+    elif with_bq_sync:
+        assert config.add_periodic_task.calls == [
+            pretend.call(crontab(minute="*/5"), update_description_html),
+            pretend.call(crontab(minute="*/5"), update_role_invitation_status),
+            pretend.call(crontab(minute=0), sync_bigquery_release_files),
+        ]
+    elif with_trending:
+        assert config.add_periodic_task.calls == [
+            pretend.call(crontab(minute="*/5"), update_description_html),
+            pretend.call(crontab(minute="*/5"), update_role_invitation_status),
             pretend.call(crontab(minute=0, hour=3), compute_trending),
         ]
     else:
         assert config.add_periodic_task.calls == [
-            pretend.call(crontab(minute="*/5"), update_description_html)
+            pretend.call(crontab(minute="*/5"), update_description_html),
+            pretend.call(crontab(minute="*/5"), update_role_invitation_status),
         ]

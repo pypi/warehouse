@@ -22,11 +22,11 @@ from pyramid.httpexceptions import (
     HTTPSeeOther,
     HTTPServiceUnavailable,
 )
+from trove_classifiers import sorted_classifiers
 from webob.multidict import MultiDict
 
 from warehouse import views
 from warehouse.views import (
-    classifiers,
     current_user_indicator,
     flash_messages,
     forbidden,
@@ -35,12 +35,14 @@ from warehouse.views import (
     health,
     httpexception_view,
     index,
+    list_classifiers,
     locale,
     opensearchxml,
     robotstxt,
     search,
     service_unavailable,
     session_notifications,
+    sidebar_sponsor_logo,
     stats,
 )
 
@@ -246,16 +248,20 @@ class TestLocale:
             assert "Set-Cookie" not in result.headers
 
 
-def test_esi_current_user_indicator():
+def test_csi_current_user_indicator():
     assert current_user_indicator(pretend.stub()) == {}
 
 
-def test_esi_flash_messages():
+def test_csi_flash_messages():
     assert flash_messages(pretend.stub()) == {}
 
 
-def test_esi_session_notifications():
+def test_csi_session_notifications():
     assert session_notifications(pretend.stub()) == {}
+
+
+def test_csi_sidebar_sponsor_logo():
+    assert sidebar_sponsor_logo(pretend.stub()) == {}
 
 
 class TestSearch:
@@ -348,7 +354,7 @@ class TestSearch:
         ]
         assert url_maker_factory.calls == [pretend.call(db_request)]
         assert get_es_query.calls == [
-            pretend.call(db_request.es, params.get("q"), "", params.getall("c"),)
+            pretend.call(db_request.es, params.get("q"), "", params.getall("c"))
         ]
         assert metrics.histogram.calls == [
             pretend.call("warehouse.views.search.results", 1000)
@@ -424,12 +430,7 @@ class TestSearch:
 
 
 def test_classifiers(db_request):
-    classifier_a = ClassifierFactory(classifier="I am first")
-    classifier_b = ClassifierFactory(classifier="I am last")
-
-    assert classifiers(db_request) == {
-        "classifiers": [(classifier_a.classifier,), (classifier_b.classifier,)]
-    }
+    assert list_classifiers(db_request) == {"classifiers": sorted_classifiers}
 
 
 def test_stats(db_request):

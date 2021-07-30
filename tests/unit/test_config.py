@@ -16,6 +16,7 @@ import pretend
 import pytest
 
 from pyramid import renderers
+from pyramid.security import Allow, Authenticated
 from pyramid.tweens import EXCVIEW
 
 from warehouse import config
@@ -183,6 +184,7 @@ def test_configure(monkeypatch, settings, environment, other_settings):
                 "camo.url": "http://camo.example.com/",
                 "pyramid.reload_assets": False,
                 "dirs.packages": "/srv/data/pypi/packages/",
+                "warehouse.xmlrpc.client.ratelimit_string": "3600 per hour",
             }
 
     configurator_settings = other_settings.copy()
@@ -228,8 +230,12 @@ def test_configure(monkeypatch, settings, environment, other_settings):
         "site.name": "Warehouse",
         "token.two_factor.max_age": 300,
         "token.default.max_age": 21600,
+        "warehouse.xmlrpc.client.ratelimit_string": "3600 per hour",
+        "warehouse.xmlrpc.search.enabled": True,
+        "github.token_scanning_meta_api.url": (
+            "https://api.github.com/meta/public_keys/token_scanning"
+        ),
     }
-
     if environment == config.Environment.development:
         expected_settings.update(
             {
@@ -298,10 +304,11 @@ def test_configure(monkeypatch, settings, environment, other_settings):
             pretend.call("pyramid_mailer"),
             pretend.call("pyramid_retry"),
             pretend.call("pyramid_tm"),
+            pretend.call(".legacy.api.xmlrpc"),
             pretend.call(".legacy.api.xmlrpc.cache"),
             pretend.call("pyramid_rpc.xmlrpc"),
             pretend.call(".legacy.action_routing"),
-            pretend.call(".domain"),
+            pretend.call(".predicates"),
             pretend.call(".i18n"),
             pretend.call(".db"),
             pretend.call(".tasks"),
@@ -322,9 +329,11 @@ def test_configure(monkeypatch, settings, environment, other_settings):
             pretend.call(".packaging"),
             pretend.call(".redirects"),
             pretend.call(".routes"),
+            pretend.call(".sponsors"),
+            pretend.call(".banners"),
             pretend.call(".admin"),
             pretend.call(".forklift"),
-            pretend.call(".raven"),
+            pretend.call(".sentry"),
             pretend.call(".csp"),
             pretend.call(".referrer_policy"),
             pretend.call(".http"),
@@ -365,7 +374,6 @@ def test_configure(monkeypatch, settings, environment, other_settings):
             over=[
                 "warehouse.cache.http.conditional_http_tween_factory",
                 "pyramid_debugtoolbar.toolbar_tween_factory",
-                "warehouse.raven.raven_tween_factory",
                 EXCVIEW,
             ],
         ),
@@ -407,3 +415,18 @@ def test_configure(monkeypatch, settings, environment, other_settings):
     ]
 
     assert xmlrpc_renderer_cls.calls == [pretend.call(allow_none=True)]
+
+
+def test_root_factory_access_control_list():
+    acl = config.RootFactory.__acl__
+
+    assert len(acl) == 5
+    assert acl[0] == (Allow, "group:admins", "admin")
+    assert acl[1] == (Allow, "group:moderators", "moderator")
+    assert acl[2] == (Allow, "group:psf_staff", "psf_staff")
+    assert acl[3] == (
+        Allow,
+        "group:with_admin_dashboard_access",
+        "admin_dashboard_access",
+    )
+    assert acl[4] == (Allow, Authenticated, "manage:user")

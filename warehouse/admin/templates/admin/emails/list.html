@@ -36,21 +36,42 @@
 {% endblock %}
 
 {% block content %}
-<div class="box">
-  <div class="box-body">
+<div class="box box-primary">
+  <form method="POST" action={{ request.route_path('admin.emails.mass') }} enctype="multipart/form-data">
+    <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
+    <div class="box-header with-border">
+      <h3 class="box-title">Send mass emails</h3>
+    </div>
+    <div class="box-body with-border">
+      <p>
+      Uploaded files should have the following header: <code>user_id,subject,body_text</code>, where <code>user_id</code> is a user's UUID, <code>subject</code> is the subject, and <code>body_text</code> is the plaintext message body.
+      </p>
+      <p>
+      Including <code>body_html</code> is also supported, but optional.
+      </p>
+      <input name="csvfile" type="file">
+    </div>
+    <div class="box-footer">
+      <div class="pull-right">
+        <button type="submit" class="btn btn-primary">Send</button>
+      </div>
+    </div>
+  </form>
+</div>
+
+<div class="box box-primary">
+  <div class="box-header with-border">
+    <h3 class="box-title">Search</h3>
+  </div>
+  <div class="box-body with-border">
     <form>
       <div class="input-group input-group-lg">
-        <input name="q" type="text" class="form-control input-lg" placeholder="Search"{% if query %} value="{{ query }}"{% endif %}>
+        <input name="q" type="text" class="form-control input-lg" placeholder="Search: supported terms are to: from: subject: status:"{% if query %} value="{{ query }}"{% endif %}>
         <div class="input-group-btn">
           <button type="submit" class="btn btn-default"><i class="fa fa-search"></i></button>
         </div>
       </div>
     </form>
-  </div>
-</div>
-
-<div class="box">
-  <div class="box-body table-responsive no-padding">
     <table class="table table-hover">
       <tr>
         <th></th>

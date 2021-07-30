@@ -105,7 +105,7 @@ class TestAddEmailForm:
             "Use a different email."
         )
 
-    def test_blacklisted_email_error(self, pyramid_config):
+    def test_prohibited_email_error(self, pyramid_config):
         form = forms.AddEmailForm(
             data={"email": "foo@bearsarefuzzy.com"},
             user_service=pretend.stub(find_userid_by_email=lambda _: None),
@@ -486,3 +486,28 @@ class TestDeleteMacaroonForm:
         )
 
         assert form.validate()
+
+
+class TestSaveAccountForm:
+    def test_public_email_verified(self):
+        email = pretend.stub(verified=True, public=False, email="foo@example.com")
+        user = pretend.stub(id=1, username=pretend.stub(), emails=[email])
+        form = forms.SaveAccountForm(
+            name=pretend.stub(),
+            public_email=email.email,
+            user_service=pretend.stub(get_user=lambda _: user),
+            user_id=user.id,
+        )
+        assert form.validate(), str(form.errors)
+
+    def test_public_email_unverified(self):
+        email = pretend.stub(verified=False, public=False, email=pretend.stub())
+        user = pretend.stub(id=1, username=pretend.stub(), emails=[email])
+        form = forms.SaveAccountForm(
+            name=pretend.stub(),
+            public_email=email.email,
+            user_service=pretend.stub(get_user=lambda _: user),
+            user_id=user.id,
+        )
+        assert not form.validate()
+        assert "is not a verified email for" in form.public_email.errors.pop()

@@ -35,9 +35,9 @@ from warehouse.rate_limiting import IRateLimiter, RateLimit
 class TestLogin:
     def test_invalid_route(self, pyramid_request, pyramid_services):
         service = pretend.stub(find_userid=pretend.call_recorder(lambda username: None))
-        pyramid_services.register_service(IUserService, None, service)
+        pyramid_services.register_service(service, IUserService, None)
         pyramid_services.register_service(
-            IPasswordBreachedService, None, pretend.stub()
+            pretend.stub(), IPasswordBreachedService, None
         )
         pyramid_request.matched_route = pretend.stub(name="route_name")
         assert accounts._basic_auth_login("myuser", "mypass", pyramid_request) is None
@@ -45,9 +45,9 @@ class TestLogin:
 
     def test_with_no_user(self, pyramid_request, pyramid_services):
         service = pretend.stub(find_userid=pretend.call_recorder(lambda username: None))
-        pyramid_services.register_service(IUserService, None, service)
+        pyramid_services.register_service(service, IUserService, None)
         pyramid_services.register_service(
-            IPasswordBreachedService, None, pretend.stub()
+            pretend.stub(), IPasswordBreachedService, None
         )
         pyramid_request.matched_route = pretend.stub(name="forklift.legacy.file_upload")
         assert accounts._basic_auth_login("myuser", "mypass", pyramid_request) is None
@@ -63,9 +63,9 @@ class TestLogin:
             ),
             is_disabled=pretend.call_recorder(lambda user_id: (False, None)),
         )
-        pyramid_services.register_service(IUserService, None, service)
+        pyramid_services.register_service(service, IUserService, None)
         pyramid_services.register_service(
-            IPasswordBreachedService, None, pretend.stub()
+            pretend.stub(), IPasswordBreachedService, None
         )
         pyramid_request.matched_route = pretend.stub(name="forklift.legacy.file_upload")
         assert accounts._basic_auth_login("myuser", "mypass", pyramid_request) is None
@@ -86,9 +86,9 @@ class TestLogin:
             ),
             is_disabled=pretend.call_recorder(lambda user_id: (True, None)),
         )
-        pyramid_services.register_service(IUserService, None, service)
+        pyramid_services.register_service(service, IUserService, None)
         pyramid_services.register_service(
-            IPasswordBreachedService, None, pretend.stub()
+            pretend.stub(), IPasswordBreachedService, None
         )
         pyramid_request.matched_route = pretend.stub(name="forklift.legacy.file_upload")
         assert accounts._basic_auth_login("myuser", "mypass", pyramid_request) is None
@@ -111,11 +111,11 @@ class TestLogin:
                 lambda user_id: (True, DisableReason.CompromisedPassword)
             ),
         )
-        pyramid_services.register_service(IUserService, None, service)
+        pyramid_services.register_service(service, IUserService, None)
         pyramid_services.register_service(
+            pretend.stub(failure_message_plain="Bad Password!"),
             IPasswordBreachedService,
             None,
-            pretend.stub(failure_message_plain="Bad Password!"),
         )
         pyramid_request.matched_route = pretend.stub(name="forklift.legacy.file_upload")
 
@@ -149,9 +149,9 @@ class TestLogin:
             check_password=pretend.call_recorder(lambda pw, tags=None: False)
         )
 
-        pyramid_services.register_service(IUserService, None, service)
+        pyramid_services.register_service(service, IUserService, None)
         pyramid_services.register_service(
-            IPasswordBreachedService, None, breach_service
+            breach_service, IPasswordBreachedService, None
         )
 
         pyramid_request.matched_route = pretend.stub(name="forklift.legacy.file_upload")
@@ -199,9 +199,9 @@ class TestLogin:
             failure_message_plain="Bad Password!",
         )
 
-        pyramid_services.register_service(IUserService, None, service)
+        pyramid_services.register_service(service, IUserService, None)
         pyramid_services.register_service(
-            IPasswordBreachedService, None, breach_service
+            breach_service, IPasswordBreachedService, None
         )
 
         pyramid_request.matched_route = pretend.stub(name="forklift.legacy.file_upload")
@@ -227,16 +227,61 @@ class TestLogin:
 
 class TestAuthenticate:
     @pytest.mark.parametrize(
-        ("is_superuser", "is_moderator", "expected"),
+        ("is_superuser", "is_moderator", "is_psf_staff", "expected"),
         [
-            (False, False, []),
-            (True, False, ["group:admins", "group:moderators"]),
-            (False, True, ["group:moderators"]),
-            (True, True, ["group:admins", "group:moderators"]),
+            (False, False, False, []),
+            (
+                True,
+                False,
+                False,
+                [
+                    "group:admins",
+                    "group:moderators",
+                    "group:psf_staff",
+                    "group:with_admin_dashboard_access",
+                ],
+            ),
+            (
+                False,
+                True,
+                False,
+                ["group:moderators", "group:with_admin_dashboard_access"],
+            ),
+            (
+                True,
+                True,
+                False,
+                [
+                    "group:admins",
+                    "group:moderators",
+                    "group:psf_staff",
+                    "group:with_admin_dashboard_access",
+                ],
+            ),
+            (
+                False,
+                False,
+                True,
+                ["group:psf_staff", "group:with_admin_dashboard_access"],
+            ),
+            (
+                False,
+                True,
+                True,
+                [
+                    "group:moderators",
+                    "group:psf_staff",
+                    "group:with_admin_dashboard_access",
+                ],
+            ),
         ],
     )
-    def test_with_user(self, is_superuser, is_moderator, expected):
-        user = pretend.stub(is_superuser=is_superuser, is_moderator=is_moderator)
+    def test_with_user(self, is_superuser, is_moderator, is_psf_staff, expected):
+        user = pretend.stub(
+            is_superuser=is_superuser,
+            is_moderator=is_moderator,
+            is_psf_staff=is_psf_staff,
+        )
         service = pretend.stub(get_user=pretend.call_recorder(lambda userid: user))
         request = pretend.stub(find_service=lambda iface, context: service)
 
@@ -325,6 +370,7 @@ def test_includeme(monkeypatch):
         set_authentication_policy=pretend.call_recorder(lambda p: None),
         set_authorization_policy=pretend.call_recorder(lambda p: None),
         maybe_dotted=pretend.call_recorder(lambda path: path),
+        add_route_predicate=pretend.call_recorder(lambda name, cls: None),
     )
 
     accounts.includeme(config)
@@ -346,6 +392,7 @@ def test_includeme(monkeypatch):
         pretend.call(
             RateLimit("1000 per 5 minutes"), IRateLimiter, name="global.login"
         ),
+        pretend.call(RateLimit("2 per day"), IRateLimiter, name="email.add"),
     ]
     assert config.add_request_method.calls == [
         pretend.call(accounts._user, name="user", reify=True)

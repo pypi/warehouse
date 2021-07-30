@@ -14,7 +14,7 @@ Building
 
 Static files should be automatically built when ``make serve`` is running;
 however, you can trigger a manual build of them by installing
-`NodeJS 8.x <https://nodejs.org/en/download/releases/>`_, installing
+`NodeJS 10.x <https://nodejs.org/en/download/releases/>`_, installing
 the dependencies using ``npm install`` and then running ``gulp dist``.
 
 If you're in a POSIX environment you may find

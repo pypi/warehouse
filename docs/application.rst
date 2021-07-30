@@ -57,7 +57,7 @@ Warehouse serves four main classes of users:
    routine administration tasks such as adding new trove classifiers,
    adjusting upload limits for distribution packages, and reviewing
    malware verdicts.
-4. *PyPI application administrators*, e.g., Ernest W. Durbin III,
+4. *PyPI application administrators*, e.g., Ee W. Durbin III,
    Dustin Ingram, and Donald Stufft, who can ban
    spam/malware projects, help users with account recovery, and so
    on. There are under ten such admins.
@@ -84,7 +84,7 @@ The top-level directory of the Warehouse repo contains files including:
 
 Directories within the repository:
 
-- `bin/ <https://github.com/pypa/warehouse/tree/master/bin>`_ - high-level scripts for Docker, Travis, and Makefile commands
+- `bin/ <https://github.com/pypa/warehouse/tree/master/bin>`_ - high-level scripts for Docker, Continuous Integration, and Makefile commands
 - `dev/ <https://github.com/pypa/warehouse/tree/master/dev>`_ - assets for developer environment
 - `tests/ <https://github.com/pypa/warehouse/tree/master/tests>`_ - tests
 - `warehouse/ <https://github.com/pypa/warehouse/tree/master/warehouse>`_ - code in modules
@@ -110,6 +110,7 @@ Directories within the repository:
   - `rss/ <https://github.com/pypa/warehouse/tree/master/warehouse/rss>`_ - RSS feeds: :doc:`api-reference/feeds`
   - `search/ <https://github.com/pypa/warehouse/tree/master/warehouse/search>`_ - utilities for building and querying the search index
   - `sitemap/ <https://github.com/pypa/warehouse/tree/master/warehouse/sitemap>`_ - site maps
+  - `sponsors/ <https://github.com/pypa/warehouse/tree/master/warehouse/sponsors>`_ - sponsors management
   - `templates/ <https://github.com/pypa/warehouse/tree/master/warehouse/templates>`_ - Jinja templates for web pages, emails, etc.
   - `utils/ <https://github.com/pypa/warehouse/tree/master/warehouse/utils>`_ - various utilities Warehouse uses
 
@@ -134,8 +135,8 @@ may be used to from the legacy site, such as:
 - uploading to pythonhosted.com documentation hosting (`discussion and
   plans <https://github.com/pypa/warehouse/issues/582>`_)
 
-- `download counts visible in the API <https://warehouse.readthedocs.io/api-reference/xml-rpc/#changes-to-legacy-api>`_:
-  instead, use `the Google BigQuery service <https://packaging.python.org/guides/analyzing-pypi-package-downloads/>`_)
+- `download counts visible in the API <https://warehouse.readthedocs.io/api-reference/xml-rpc/#changes-to-legacy-api>`_
+  (instead, use `the Google BigQuery service <https://packaging.python.org/guides/analyzing-pypi-package-downloads/>`_)
 
 - key management: PyPI no longer has a UI for users to manage GPG or
   SSH public keys

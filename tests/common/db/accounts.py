@@ -30,6 +30,7 @@ class UserFactory(WarehouseFactory):
     is_active = True
     is_superuser = False
     is_moderator = False
+    is_psf_staff = False
     date_joined = factory.fuzzy.FuzzyNaiveDateTime(
         datetime.datetime(2005, 1, 1), datetime.datetime(2010, 1, 1)
     )
@@ -51,5 +52,6 @@ class EmailFactory(WarehouseFactory):
     email = FuzzyEmail()
     verified = True
     primary = True
+    public = False
     unverify_reason = None
     transient_bounces = 0

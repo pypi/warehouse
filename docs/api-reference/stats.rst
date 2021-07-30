@@ -40,7 +40,7 @@ Project
           "FlexGet": {
             "size": 4387002448
           },
-          ...
+          "...": "..."
         },
         "total_packages_size": 23965450269
       }

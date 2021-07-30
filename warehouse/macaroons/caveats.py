@@ -86,5 +86,8 @@ class Verifier:
 
         try:
             return self.verifier.verify(self.macaroon, key)
-        except pymacaroons.exceptions.MacaroonInvalidSignatureException:
+        except (
+            pymacaroons.exceptions.MacaroonInvalidSignatureException,
+            Exception,  # https://github.com/ecordell/pymacaroons/issues/50
+        ):
             raise InvalidMacaroon("invalid macaroon signature")

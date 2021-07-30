@@ -1,0 +1,19 @@
+[tool.curlylint]
+# For jinja's i18n extension:
+template_tags = [['trans', 'pluralize', 'endtrans']]
+
+[tool.isort]
+profile = 'black'
+lines_between_types = 1
+combine_as_imports = true
+known_first_party = ['warehouse', 'tests']
+
+[tool.pytest.ini_options]
+norecursedirs = ['build', 'dist', 'node_modules', '*.egg-info', '.state requirements']
+markers = [
+    'unit: Quick running unit tests which test small units of functionality.',
+    'functional: Slower running tests which test the entire system is functioning.',
+]
+filterwarnings = [
+    'ignore::warehouse.packaging.services.InsecureStorageWarning',
+]

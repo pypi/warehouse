@@ -17,10 +17,19 @@ from warehouse.accounts import views as accounts_views
 
 
 def test_includeme(mock_manifest_cache_buster, monkeypatch):
+    storage_class = pretend.stub(
+        create_service=pretend.call_recorder(lambda *a, **kw: pretend.stub())
+    )
     monkeypatch.setattr(admin, "ManifestCacheBuster", mock_manifest_cache_buster)
+    _sponsorlogos_backend = "warehouse.admin.services.LocalSponsorLogoStorage"
     config = pretend.stub(
         get_settings=lambda: {},
-        registry=pretend.stub(settings={"pyramid.reload_assets": False}),
+        registry=pretend.stub(
+            settings={
+                "pyramid.reload_assets": False,
+                "sponsorlogos.backend": _sponsorlogos_backend,
+            }
+        ),
         add_cache_buster=pretend.call_recorder(lambda *a, **kw: None),
         whitenoise_add_files=pretend.call_recorder(lambda *a, **kw: None),
         whitenoise_add_manifest=pretend.call_recorder(lambda *a, **kw: None),
@@ -28,6 +37,10 @@ def test_includeme(mock_manifest_cache_buster, monkeypatch):
         add_static_view=pretend.call_recorder(lambda name, path, cache_max_age: None),
         include=pretend.call_recorder(lambda name: None),
         add_view=pretend.call_recorder(lambda *a, **kw: None),
+        maybe_dotted=pretend.call_recorder(lambda dotted: storage_class),
+        register_service_factory=pretend.call_recorder(
+            lambda factory, iface, name=None: None
+        ),
     )
 
     admin.includeme(config)
@@ -69,3 +82,11 @@ def test_includeme(mock_manifest_cache_buster, monkeypatch):
             has_translations=True,
         ),
     ]
+
+    assert config.maybe_dotted.calls == [
+        pretend.call("warehouse.admin.services.LocalSponsorLogoStorage")
+    ]
+    assert config.register_service_factory.calls == [
+        pretend.call(storage_class.create_service, admin.interfaces.ISponsorLogoStorage)
+    ]
+    assert storage_class.create_service.calls == []

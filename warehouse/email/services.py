@@ -15,7 +15,6 @@ from email.message import EmailMessage as RawEmailMessage
 from email.utils import parseaddr
 from typing import Optional
 
-import attr
 import premailer
 
 from jinja2.exceptions import TemplateNotFound
@@ -33,12 +32,11 @@ def _format_sender(sitename, sender):
         return str(Address(sitename, addr_spec=sender))
 
 
-@attr.s(auto_attribs=True, frozen=True, slots=True)
 class EmailMessage:
-
-    subject: str
-    body_text: str
-    body_html: Optional[str] = None
+    def __init__(self, subject: str, body_text: str, body_html: Optional[str] = None):
+        self.subject = subject
+        self.body_text = body_text
+        self.body_html = body_html
 
     @classmethod
     def from_template(cls, email_name, context, *, request):

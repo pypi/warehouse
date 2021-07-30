@@ -8,12 +8,15 @@
 .coverage
 .state
 .idea
+.envrc
 
 docs/_build/
 build/
 dist/*.tar.gz
 dist/*.whl
 htmlcov/
+
+docker-compose.override.yaml
 
 node_modules/
 

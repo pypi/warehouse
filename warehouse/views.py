@@ -37,7 +37,8 @@ from pyramid.view import (
 )
 from sqlalchemy import func
 from sqlalchemy.orm import aliased, joinedload
-from sqlalchemy.sql import exists
+from sqlalchemy.sql import exists, expression
+from trove_classifiers import deprecated_classifiers, sorted_classifiers
 
 from warehouse.accounts import REDIRECT_FIELD_NAME
 from warehouse.accounts.models import User
@@ -53,8 +54,6 @@ from warehouse.search.queries import SEARCH_FILTER_ORDER, get_es_query
 from warehouse.utils.http import is_safe_url
 from warehouse.utils.paginate import ElasticsearchPage, paginate_url_factory
 from warehouse.utils.row_counter import RowCount
-
-# 403, 404, 410, 500,
 
 
 @view_config(context=HTTPException)
@@ -261,15 +260,8 @@ def locale(request):
 @view_config(
     route_name="classifiers", renderer="pages/classifiers.html", has_translations=True
 )
-def classifiers(request):
-    classifiers = (
-        request.db.query(Classifier.classifier)
-        .filter(Classifier.deprecated.is_(False))
-        .order_by(Classifier.classifier)
-        .all()
-    )
-
-    return {"classifiers": classifiers}
+def list_classifiers(request):
+    return {"classifiers": sorted_classifiers}
 
 
 @view_config(
@@ -313,13 +305,18 @@ def search(request):
     classifiers_q = (
         request.db.query(Classifier)
         .with_entities(Classifier.classifier)
-        .filter(Classifier.deprecated.is_(False))
         .filter(
             exists([release_classifiers.c.trove_id]).where(
                 release_classifiers.c.trove_id == Classifier.id
+            ),
+            Classifier.classifier.notin_(deprecated_classifiers.keys()),
+        )
+        .order_by(
+            expression.case(
+                {c: i for i, c in enumerate(sorted_classifiers)},
+                value=Classifier.classifier,
             )
         )
-        .order_by(Classifier.classifier)
     )
 
     for cls in classifiers_q:
@@ -340,9 +337,9 @@ def search(request):
         the filter's children.
         """
         d = {}
-        for l in split_list:
+        for list_ in split_list:
             current_level = d
-            for part in l:
+            for part in list_:
                 if part not in current_level:
                     current_level[part] = {}
                 current_level = current_level[part]
@@ -407,7 +404,7 @@ def stats(request):
     top_100_packages = (
         request.db.query(Project)
         .with_entities(Project.name, Project.total_size)
-        .order_by(Project.total_size.desc())
+        .order_by(Project.total_size.desc().nullslast())
         .limit(100)
         .all()
     )
@@ -447,6 +444,19 @@ def flash_messages(request):
     has_translations=True,
 )
 def session_notifications(request):
+    return {}
+
+
+@view_config(
+    route_name="includes.sidebar-sponsor-logo",
+    renderer="includes/sidebar-sponsor-logo.html",
+    uses_session=False,
+    has_translations=False,
+    decorator=[
+        cache_control(30),  # 30 seconds
+    ],
+)
+def sidebar_sponsor_logo(request):
     return {}
 
 

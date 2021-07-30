@@ -1,6 +1,5 @@
 #!/bin/bash
 set -e
-set -x
 
 # Click requires us to ensure we have a well configured environment to run
 # our click commands. So we'll set our environment to ensure our locale is
@@ -8,7 +7,32 @@ set -x
 export LC_ALL="${ENCODING:-en_US.UTF-8}"
 export LANG="${ENCODING:-en_US.UTF-8}"
 
+COMMAND_ARGS=$@
+
+# Test the postgres connection
+while [ $# -gt 0 ]; do
+  case $1 in
+    "--postgresql-host") POSTGRES_HOST="$2"
+  esac
+  shift
+done
+
+# Test the postgres connection
+ATTEMPTS=0
+until [ $ATTEMPTS -eq 5 ] || pg_isready -t 10 -h $POSTGRES_HOST; do
+  >&2 echo "Postgres is unavailable, sleeping"
+  sleep $(( ATTEMPTS++ ))
+done
+
+if [ $ATTEMPTS -eq 5 ]; then
+  >&2 echo "Postgres is unavailable, exiting"
+  exit 1
+fi
+
+# Print all the followng commands
+set -x
+
 # Actually run our tests.
-python -m coverage run -m pytest --strict $@
+python -m coverage run -m pytest --strict $COMMAND_ARGS
 python -m coverage html
 python -m coverage report -m --fail-under 100

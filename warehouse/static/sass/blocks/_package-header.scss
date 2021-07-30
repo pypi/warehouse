@@ -36,6 +36,8 @@
 .package-header {
   @include site-container;
   display: flex;
+  direction: ltr;
+  text-align: left;  
 
   button {
     color: $white;

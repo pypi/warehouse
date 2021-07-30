@@ -53,6 +53,7 @@ class RateLimiter:
         if identifiers is None:
             identifiers = []
 
+        self._storage = storage
         self._window = MovingWindowRateLimiter(storage)
         self._limits = parse_many(limit)
         self._identifiers = identifiers
@@ -78,6 +79,11 @@ class RateLimiter:
                 for limit in self._limits
             ]
         )
+
+    @_return_on_exception(None, redis.RedisError)
+    def clear(self, *identifiers):
+        for limit in self._limits:
+            self._storage.clear(limit.key_for(*self._get_identifiers(identifiers)))
 
     @_return_on_exception(None, redis.RedisError)
     def resets_in(self, *identifiers):
@@ -117,6 +123,9 @@ class DummyRateLimiter:
 
     def hit(self, *identifiers):
         return True
+
+    def clear(self, *identifiers):
+        return None
 
     def resets_in(self, *identifiers):
         return None

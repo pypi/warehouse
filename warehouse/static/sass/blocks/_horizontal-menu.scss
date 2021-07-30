@@ -54,6 +54,18 @@
       .fa {
         margin-right: 3px;
       }
+
+      .user-image {
+        margin-right: 5px;
+        border-radius: 10%;
+      }
+
+      &:hover {
+        .fa,
+        .user-image {
+          opacity: 0.8;
+        }
+      }
     }
   }
 

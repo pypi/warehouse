@@ -15,13 +15,13 @@
 
 {% block title %}
   {% if form and form.errors %}{% trans %}Error processing form{% endtrans %} –{% endif %}
-  {% trans %}Recovery Codes{% endtrans %}
+  {% trans %}Recovery codes{% endtrans %}
 {% endblock %}
 
 {% block content %}
   <div class="horizontal-section">
     <div class="site-container">
-      <h1 class="page-title">{% trans %}Login using Recovery Code{% endtrans %}</h1>
+      <h1 class="page-title">{% trans %}Login using recovery codes{% endtrans %}</h1>
       <div class="twofa-login__method">
         <form method="POST" action="{{ request.current_route_path() }}">
           <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
@@ -42,7 +42,7 @@
               <span class="form-group__required">{% trans %}(required){% endtrans %}</span>
               {% endif %}
             </label>
-            {{ form.recovery_code_value(autocapitalize="off", spellcheck="false", required="required", class_="form-group__input", autocomplete="one-time-code", **{"aria-describedby":"recovery_code-errors"}) }}
+            {{ form.recovery_code_value(autocapitalize="off", spellcheck="false", required="required", class_="form-group__field", autocomplete="one-time-code", **{"aria-describedby":"recovery_code-errors"}) }}
             {% if form.recovery_code_value.errors %}
             <ul id="recovery_code-errors" class="form-errors" role="alert">
               {% for error in form.recovery_code_value.errors %}

@@ -24,6 +24,13 @@
 {% endblock %}
 
 {% block main %}
+  {% if testPyPI %}
+    {% set site = "testpypi" %}
+    {% set upload_url = "https://test.pypi.org/legacy/" %}
+  {% else %}
+    {% set site = "pypi" %}
+    {% set upload_url = "https://upload.pypi.org/legacy/" %}
+  {% endif %}
   <h1 class="page-title">{{ title }}</h1>
 
   {% if serialized_macaroon %}
@@ -74,32 +81,32 @@
     {% if macaroon.caveats.permissions == "user" %}
 
     <p>
-      {% trans trimmed href='https://pypi.org/project/virtualenv/', filename='$HOME/.pypirc' %}
+      {% trans trimmed href='https://pypi.org/project/twine/', filename='$HOME/.pypirc' %}
         For example, if you are using <a href="{{ href }}">Twine</a> to upload your projects to PyPI, set up your <code>{{ filename }}</code> file like this:
       {% endtrans %}
     </p>
     <pre class="code-block">
-[pypi]
+[{{ site }}]
   username = __token__
   password = {{ serialized_macaroon }}</pre>
     {% else %}
     <p>
-      {% trans trimmed href='https://pypi.org/project/virtualenv/', filename='$HOME/.pypirc' %}
+      {% trans trimmed href='https://pypi.org/project/twine/', filename='$HOME/.pypirc' %}
         For example, if you are using <a href="{{ href }}">Twine</a> to upload multiple projects to PyPI, you can set up your <code>{{ filename }}</code> file like this:
       {% endtrans %}
     </p>
     <pre class="code-block">
 [distutils]
   index-servers =
-    pypi
+    {{ site }}
     PROJECT_NAME
 
-[pypi]
+[{{ site }}]
   username = __token__
   password = # {% trans %}either a user-scoped token or a project-scoped token you want to set as the default{% endtrans %}
 
 [PROJECT_NAME]
-  repository = https://upload.pypi.org/legacy/
+  repository = {{ upload_url }}
   username = __token__
   password = # {% trans %}a project token{% endtrans %} </pre>
     <p>
@@ -129,7 +136,7 @@
           <span class="form-group__required">{% trans %}(required){% endtrans %}</span>
           {% endif %}
         </label>
-        <input type="text" name="description" id="description" autocomplete="off" autocapitalize="off" spellcheck="false" class="form-group__input" aria-describedby="token-name-errors description-help-text" value="{{ create_macaroon_form.description.data or ""}}">
+        <input type="text" name="description" id="description" autocomplete="off" autocapitalize="off" spellcheck="false" class="form-group__field" aria-describedby="token-name-errors description-help-text" value="{{ create_macaroon_form.description.data or ""}}">
         <div id="token-name-errors">
           {{ field_errors(create_macaroon_form.description) }}
         </div>
@@ -146,7 +153,7 @@
           <span class="form-group__required">{% trans %}(required){% endtrans %}</span>
           {% endif %}
         </label>
-        <select name="token_scope" id="token_scope" class="form-group__input" aria-describedby="scope-errors" autocomplete="off">
+        <select name="token_scope" id="token_scope" class="form-group__field" aria-describedby="scope-errors" autocomplete="off">
           <option disabled {{ "" if create_macaroon_form.token_scope.data else "selected" }} value="scope:unspecified">{% trans %}Select scope...{% endtrans %}</option>
           <option value="scope:user">{% trans %}Entire account (all projects){% endtrans %}</option>
         {% for project in project_names %}

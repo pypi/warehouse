@@ -10,9 +10,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import factory
-import factory.fuzzy
-
 from warehouse.classifiers.models import Classifier
 
 from .base import WarehouseFactory
@@ -21,8 +18,3 @@ from .base import WarehouseFactory
 class ClassifierFactory(WarehouseFactory):
     class Meta:
         model = Classifier
-
-    l2 = factory.fuzzy.FuzzyInteger(0)
-    l3 = factory.fuzzy.FuzzyInteger(0)
-    l4 = factory.fuzzy.FuzzyInteger(0)
-    l5 = factory.fuzzy.FuzzyInteger(0)

@@ -27,18 +27,22 @@
           <h1 class="author-profile__name">{{ user.name }}</h1>
           {% endif %}
           <div class="author-profile__meta">
-            <p>
+            <div class="author-profile__metadiv">
               <i class="fa fa-user-circle" aria-hidden="true"></i>
               <span class="sr-only">{% trans %}Username{% endtrans %}</span>
               &nbsp;&nbsp;
               <span class="break">{{ user.username }}</span>
-            </p>
+            </div>
+            {% if user.public_email %}
+            {% csi request.route_url("includes.profile-public-email", username=user.username), 'div class="author-profile__metadiv"' %}
+            {% endcsi %}
+            {% endif %}
             {% if user.date_joined %}
-            <p>
+            <div class="author-profile__metadiv">
               <i class="fa fa-calendar-alt" aria-hidden="true"></i>
               <span class="sr-only">{% trans %}Date joined{% endtrans %}</span>
-              &nbsp;&nbsp;{% trans start_date=humanize(user.date_joined) %}Joined on {{ start_date }}{% endtrans %}
-            </p>
+              &nbsp;&nbsp;{% trans start_date=humanize(user.date_joined) %}Joined {{ start_date }}{% endtrans %}
+            </div>
             {% endif %}
           </div>
           {% csi request.route_path("includes.profile-actions", username=user.username) %}
@@ -66,7 +70,7 @@
         <a class="package-snippet" href="{{ request.route_path('packaging.project', name=project.normalized_name) }}">
           <h3 class="package-snippet__title">{{ project.name }}</h3>
           <p class="package-snippet__meta">
-            {% trans release_date=humanize(project.releases[0].created) %}Last released on {{ release_date }}{% endtrans %}
+            {% trans release_date=humanize(project.releases[0].created) %}Last released {{ release_date }}{% endtrans %}
           </p>
           <p class="package-snippet__description">{{ project.releases[0].summary }}</p>
         </a>

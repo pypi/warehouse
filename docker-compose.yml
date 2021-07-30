@@ -2,8 +2,27 @@ version: '3'
 
 volumes:
   packages:
+  sponsorlogos:
+  vault:
 
 services:
+  vault:
+    # NOTE: intentionally an older version, for consistency with cabotage
+    image: vault:1.3.4
+    restart: on-failure
+    entrypoint: /bin/sh
+    command: ["/etc/vault/entry.sh"]
+    environment:
+      VAULT_DEV_LISTEN_ADDRESS: 0.0.0.0:8200
+      VAULT_DEV_ROOT_TOKEN_ID: "an insecure vault access token"
+    ports:
+      - "8200:8200"
+    cap_add:
+      - IPC_LOCK
+    volumes:
+      - vault:/vault/file
+      - ./dev/vault:/etc/vault
+
   db:
     image: postgres:10.1
     ports:
@@ -24,9 +43,13 @@ services:
       - "4576:4576"
 
   elasticsearch:
-    image: docker.elastic.co/elasticsearch/elasticsearch:6.2.4
+    image: docker.elastic.co/elasticsearch/elasticsearch:6.8.7
     environment:
       - xpack.security.enabled=false
+    ulimits:
+      nofile:
+        soft: 65536
+        hard: 65536
 
   camo:
     image: pypa/warehouse-camo:latest
@@ -45,7 +68,7 @@ services:
         # working on pypi-theme, this is a private repository due to the fact
         # that other people's IP is contained in it.
         #THEME_REPO:
-    command: hupper -w 'warehouse/locale/**/*.mo' -m gunicorn.app.wsgiapp -b 0.0.0.0:8000 -c gunicorn.conf.py warehouse.wsgi:application
+    command: gunicorn --reload -b 0.0.0.0:8000 warehouse.wsgi:application
     env_file: dev/environment
     volumes:
       # We specify all of these directories instead of just . because we want to
@@ -63,14 +86,10 @@ services:
       - ./htmlcov:/opt/warehouse/src/htmlcov:z
       - .coveragerc:/opt/warehouse/src/.coveragerc:z
       - packages:/var/opt/warehouse/packages
+      - sponsorlogos:/var/opt/warehouse/sponsorlogos
+      - ./bin:/opt/warehouse/src/bin:z
     ports:
       - "80:8000"
-    links:
-      - db
-      - redis
-      - localstack
-      - elasticsearch
-      - notdatadog
 
   files:
     build:
@@ -79,6 +98,7 @@ services:
     command: python -m http.server 9001
     volumes:
       - packages:/var/opt/warehouse/packages
+      - sponsorlogos:/var/opt/warehouse/sponsorlogos
     ports:
       - "9001:9001"
 
@@ -94,13 +114,6 @@ services:
     environment:
       C_FORCE_ROOT: "1"
       FILES_BACKEND: "warehouse.packaging.services.LocalFileStorage path=/var/opt/warehouse/packages/ url=http://files:9001/packages/{path}"
-    links:
-      - db
-      - redis
-      - localstack
-      - elasticsearch
-      - smtp
-      - notdatadog
 
   static:
     build:
@@ -132,3 +145,10 @@ services:
       - "8125:8125/udp"
     volumes:
       - ./dev/notdatadog.py:/opt/warehouse/dev/notdatadog.py
+
+  notgithub:
+    image: ewjoachim/notgithub-token-scanning
+    environment:
+      NOTGITHUB_DEFAULT_URL: "http://web:8000/_/github/disclose-token"
+    ports:
+      - "8964:8000"

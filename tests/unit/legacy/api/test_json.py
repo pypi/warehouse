@@ -118,6 +118,76 @@ class TestJSONProject:
         assert resp is response
         assert json_release.calls == [pretend.call(release, db_request)]
 
+    def test_all_releases_yanked(self, monkeypatch, db_request):
+        """
+        If all releases are yanked, the endpoint should return the same release as
+        if none of the releases are yanked.
+        """
+
+        project = ProjectFactory.create()
+
+        ReleaseFactory.create(project=project, version="1.0", yanked=True)
+        ReleaseFactory.create(project=project, version="2.0", yanked=True)
+        ReleaseFactory.create(project=project, version="4.0.dev0", yanked=True)
+
+        release = ReleaseFactory.create(project=project, version="3.0", yanked=True)
+
+        response = pretend.stub()
+        json_release = pretend.call_recorder(lambda ctx, request: response)
+        monkeypatch.setattr(json, "json_release", json_release)
+
+        resp = json.json_project(project, db_request)
+
+        assert resp is response
+        assert json_release.calls == [pretend.call(release, db_request)]
+
+    def test_latest_release_yanked(self, monkeypatch, db_request):
+        """
+        If the latest version is yanked, the endpoint should fall back on the
+        latest non-prerelease version that is not yanked, if one is available.
+        """
+
+        project = ProjectFactory.create()
+
+        ReleaseFactory.create(project=project, version="1.0")
+        ReleaseFactory.create(project=project, version="3.0", yanked=True)
+        ReleaseFactory.create(project=project, version="3.0.dev0")
+
+        release = ReleaseFactory.create(project=project, version="2.0")
+
+        response = pretend.stub()
+        json_release = pretend.call_recorder(lambda ctx, request: response)
+        monkeypatch.setattr(json, "json_release", json_release)
+
+        resp = json.json_project(project, db_request)
+
+        assert resp is response
+        assert json_release.calls == [pretend.call(release, db_request)]
+
+    def test_all_non_prereleases_yanked(self, monkeypatch, db_request):
+        """
+        If all non-prerelease versions are yanked, the endpoint should return the
+        latest prerelease version that is not yanked.
+        """
+
+        project = ProjectFactory.create()
+
+        ReleaseFactory.create(project=project, version="1.0", yanked=True)
+        ReleaseFactory.create(project=project, version="2.0", yanked=True)
+        ReleaseFactory.create(project=project, version="3.0", yanked=True)
+        ReleaseFactory.create(project=project, version="3.0.dev0", yanked=True)
+
+        release = ReleaseFactory.create(project=project, version="2.0.dev0")
+
+        response = pretend.stub()
+        json_release = pretend.call_recorder(lambda ctx, request: response)
+        monkeypatch.setattr(json, "json_release", json_release)
+
+        resp = json.json_project(project, db_request)
+
+        assert resp is response
+        assert json_release.calls == [pretend.call(release, db_request)]
+
 
 class TestJSONProjectSlash:
     def test_normalizing_redirects(self, db_request):
@@ -260,6 +330,8 @@ class TestJSONRelease:
                 "requires_dist": None,
                 "requires_python": None,
                 "summary": None,
+                "yanked": False,
+                "yanked_reason": None,
                 "version": "3.0",
             },
             "releases": {
@@ -284,6 +356,8 @@ class TestJSONRelease:
                         "upload_time_iso_8601": files[0].upload_time.isoformat() + "Z",
                         "url": "/the/fake/url/",
                         "requires_python": None,
+                        "yanked": False,
+                        "yanked_reason": None,
                     }
                 ],
                 "2.0": [
@@ -306,6 +380,8 @@ class TestJSONRelease:
                         "upload_time_iso_8601": files[1].upload_time.isoformat() + "Z",
                         "url": "/the/fake/url/",
                         "requires_python": None,
+                        "yanked": False,
+                        "yanked_reason": None,
                     }
                 ],
                 "3.0": [
@@ -328,6 +404,8 @@ class TestJSONRelease:
                         "upload_time_iso_8601": files[2].upload_time.isoformat() + "Z",
                         "url": "/the/fake/url/",
                         "requires_python": None,
+                        "yanked": False,
+                        "yanked_reason": None,
                     }
                 ],
             },
@@ -349,6 +427,8 @@ class TestJSONRelease:
                     "upload_time_iso_8601": files[2].upload_time.isoformat() + "Z",
                     "url": "/the/fake/url/",
                     "requires_python": None,
+                    "yanked": False,
+                    "yanked_reason": None,
                 }
             ],
             "last_serial": je.id,
@@ -410,6 +490,8 @@ class TestJSONRelease:
                 "requires_dist": None,
                 "requires_python": None,
                 "summary": None,
+                "yanked": False,
+                "yanked_reason": None,
                 "version": "0.1",
             },
             "releases": {
@@ -431,6 +513,8 @@ class TestJSONRelease:
                         "upload_time_iso_8601": file.upload_time.isoformat() + "Z",
                         "url": "/the/fake/url/",
                         "requires_python": None,
+                        "yanked": False,
+                        "yanked_reason": None,
                     }
                 ]
             },
@@ -449,6 +533,8 @@ class TestJSONRelease:
                     "upload_time_iso_8601": file.upload_time.isoformat() + "Z",
                     "url": "/the/fake/url/",
                     "requires_python": None,
+                    "yanked": False,
+                    "yanked_reason": None,
                 }
             ],
             "last_serial": je.id,
