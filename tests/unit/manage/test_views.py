@@ -4164,6 +4164,30 @@ class TestDeleteProjectRoles:
         assert isinstance(result, HTTPSeeOther)
         assert result.headers["Location"] == "/the-redirect"
 
+    def test_delete_non_owner_role(self, db_request):
+        project = ProjectFactory.create(name="foobar")
+        user = UserFactory.create(username="testuser")
+        role = RoleFactory.create(user=user, project=project, role_name="Owner")
+
+        some_other_user = UserFactory.create(username="someotheruser")
+        some_other_project = ProjectFactory.create(name="someotherproject")
+
+        db_request.method = "POST"
+        db_request.user = some_other_user
+        db_request.POST = MultiDict({"role_id": role.id})
+        db_request.session = pretend.stub(
+            flash=pretend.call_recorder(lambda *a, **kw: None)
+        )
+        db_request.route_path = pretend.call_recorder(lambda *a, **kw: "/the-redirect")
+
+        result = views.delete_project_role(some_other_project, db_request)
+
+        assert db_request.session.flash.calls == [
+            pretend.call("Could not find role", queue="error")
+        ]
+        assert isinstance(result, HTTPSeeOther)
+        assert result.headers["Location"] == "/the-redirect"
+
 
 class TestManageProjectHistory:
     def test_get(self, db_request):
