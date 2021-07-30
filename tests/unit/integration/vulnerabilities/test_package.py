@@ -38,18 +38,11 @@ def test_vulnerability_report_request_from_api_request_error(record, error, reas
     assert exc.value.reason == reason
 
 
-@pytest.mark.parametrize(
-    "versions, expected",
-    [
-        (["0.1", "0.2"], ["0.1", "0.2"]),
-        (["1.0", "2.0"], ["1", "2"]),
-    ],
-)
-def test_vulnerability_report_request_from_api_request(versions, expected):
+def test_vulnerability_report_request_from_api_request():
     request = VulnerabilityReportRequest.from_api_request(
         request={
             "project": "vuln_project",
-            "versions": versions,
+            "versions": ["v1", "v2"],
             "id": "vuln_id",
             "link": "vulns.com/vuln_id",
             "aliases": ["vuln_alias"],
@@ -57,7 +50,7 @@ def test_vulnerability_report_request_from_api_request(versions, expected):
     )
 
     assert request.project == "vuln_project"
-    assert request.versions == expected
+    assert request.versions == ["v1", "v2"]
     assert request.vulnerability_id == "vuln_id"
     assert request.advisory_link == "vulns.com/vuln_id"
     assert request.aliases == ["vuln_alias"]
