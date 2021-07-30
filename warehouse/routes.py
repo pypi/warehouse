@@ -340,6 +340,12 @@ def includeme(config):
         domain=warehouse,
     )
 
+    config.add_route(
+        "integrations.vulnerabilities.osv.report",
+        "/_/vulnerabilities/osv/report",
+        domain=warehouse,
+    )
+
     # Legacy URLs
     config.add_route("legacy.api.simple.index", "/simple/", domain=warehouse)
     config.add_route(
