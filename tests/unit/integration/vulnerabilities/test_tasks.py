@@ -19,22 +19,21 @@ def test_analyze_disclosure_task(monkeypatch):
     analyze_vulnerability = pretend.call_recorder(lambda *a, **k: None)
     monkeypatch.setattr(utils, "analyze_vulnerability", analyze_vulnerability)
 
-    request = pretend.stub()
-    vulnerability_record = pretend.stub()
-    origin = pretend.stub()
     metrics = pretend.stub()
+    request = pretend.stub(find_service=lambda *a, **kw: metrics)
+    vulnerability_report = pretend.stub()
+    origin = pretend.stub()
 
     tasks.analyze_vulnerability_task(
         request=request,
-        vulnerability_record=vulnerability_record,
+        vulnerability_report=vulnerability_report,
         origin=origin,
-        metrics=metrics,
     )
 
     assert analyze_vulnerability.calls == [
         pretend.call(
             request=request,
-            vulnerability_record=vulnerability_record,
+            vulnerability_report=vulnerability_report,
             origin=origin,
             metrics=metrics,
         )
