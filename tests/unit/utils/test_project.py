@@ -192,7 +192,7 @@ def test_remove_documentation(db_request):
 
     remove_documentation(task, db_request, project.name)
 
-    assert service.remove_by_prefix.calls == [call(project.name)]
+    assert service.remove_by_prefix.calls == [call(f"{project.name}/")]
 
     assert db_request.log.info.calls == [
         call("Removing documentation for %s", project.name)

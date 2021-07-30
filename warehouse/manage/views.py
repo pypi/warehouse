@@ -84,7 +84,7 @@ from warehouse.utils.project import confirm_project, destroy_docs, remove_projec
 
 
 def user_projects(request):
-    """ Return all the projects for which the user is a sole owner """
+    """Return all the projects for which the user is a sole owner"""
     projects_owned = (
         request.db.query(Project.id)
         .join(Role.project)
@@ -1771,6 +1771,7 @@ def delete_project_role(project, request):
         role = (
             request.db.query(Role)
             .join(User)
+            .filter(Role.project == project)
             .filter(Role.id == request.POST["role_id"])
             .one()
         )

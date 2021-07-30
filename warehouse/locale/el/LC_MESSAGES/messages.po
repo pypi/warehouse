@@ -7,13 +7,14 @@
 # Dustin Ingram <dustin.ingram@gmail.com>, 2020.
 # Christos Ploutarchou <cploutarchou@gmail.com>, 2020.
 # Michalis <michalisntovas@yahoo.gr>, 2021.
+# Eugenia Russell <eugenia.russell2019@gmail.com>, 2021.
 msgid ""
 msgstr ""
 "Project-Id-Version: Warehouse VERSION\n"
 "Report-Msgid-Bugs-To: admin@pypi.org\n"
 "POT-Creation-Date: 2020-04-06 17:52-0500\n"
-"PO-Revision-Date: 2021-02-07 17:21+0000\n"
-"Last-Translator: Michalis <michalisntovas@yahoo.gr>\n"
+"PO-Revision-Date: 2021-05-12 23:32+0000\n"
+"Last-Translator: Eugenia Russell <eugenia.russell2019@gmail.com>\n"
 "Language-Team: Greek <https://hosted.weblate.org/projects/pypa/warehouse/el/"
 ">\n"
 "Language: el\n"
@@ -21,7 +22,7 @@ msgstr ""
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Generator: Weblate 4.5-dev\n"
+"X-Generator: Weblate 4.7-dev\n"
 "Generated-By: Babel 2.8.0\n"
 
 # | msgid "Stay updated:"
@@ -113,10 +114,8 @@ msgstr "Μη έγκυρο WebAuthn assertion: Bad payload"
 
 # | msgid "Invalid TOTP code."
 #: warehouse/accounts/forms.py:364
-#, fuzzy
-#| msgid "Invalid Recovery Code."
 msgid "Invalid recovery code."
-msgstr "Μη έγκυρος κωδικός TOTP ."
+msgstr "Μη έγκυρος κωδικός ανάκτησης."
 
 #: warehouse/accounts/forms.py:382
 msgid "No user found with that username or email"
@@ -234,10 +233,8 @@ msgid "Email address ${email_address} verified. ${confirm_message}."
 msgstr "Η διεύθυνση email ${email_address} επιβεβαιώθηκε. ${confirm_message}."
 
 #: warehouse/accounts/views.py:768
-#, fuzzy
-#| msgid "Expired token: request a new password reset link"
 msgid "Expired token: request a new project role invite"
-msgstr "Ληγμένο token: ζητήστε ένα νέο σύνδεσμο επαναφοράς κωδικού"
+msgstr "Λειγμένο token: ζητήστε πρόσκληση για νέο ρόλο έργου"
 
 #: warehouse/accounts/views.py:770
 #, fuzzy
@@ -379,7 +376,7 @@ msgstr "Monty Python - The Cheese Shop Sketch"
 #: warehouse/templates/manage/release.html:175
 #: warehouse/templates/manage/releases.html:140
 #: warehouse/templates/manage/releases.html:173
-#: warehouse/templates/packaging/detail.html:314
+#: warehouse/templates/packaging/detail.html:316
 #: warehouse/templates/pages/classifiers.html:25
 #: warehouse/templates/pages/help.html:20
 #: warehouse/templates/pages/help.html:204
@@ -442,11 +439,11 @@ msgstr "Monty Python - The Cheese Shop Sketch"
 #: warehouse/templates/pages/help.html:862
 #: warehouse/templates/pages/help.html:867
 #: warehouse/templates/pages/security.html:36
-#: warehouse/templates/pages/sponsors.html:35
-#: warehouse/templates/pages/sponsors.html:39
-#: warehouse/templates/pages/sponsors.html:43
-#: warehouse/templates/pages/sponsors.html:47
-#: warehouse/templates/pages/sponsors.html:66
+#: warehouse/templates/pages/sponsors.html:33
+#: warehouse/templates/pages/sponsors.html:37
+#: warehouse/templates/pages/sponsors.html:41
+#: warehouse/templates/pages/sponsors.html:45
+#: warehouse/templates/pages/sponsors.html:64
 #: warehouse/templates/upload.html:26
 msgid "External link"
 msgstr "Εξωτερικός σύνδεσμος"
@@ -1022,7 +1019,7 @@ msgstr "Σύνδεση στο %(title)s"
 #: warehouse/templates/accounts/profile.html:32
 #: warehouse/templates/accounts/register.html:89
 #: warehouse/templates/manage/account.html:272
-#: warehouse/templates/manage/account/recovery_codes-provision.html:81
+#: warehouse/templates/manage/account/recovery_codes-provision.html:85
 #: warehouse/templates/manage/roles.html:173
 msgid "Username"
 msgstr "Όνομα χρήστη"
@@ -1686,7 +1683,7 @@ msgstr "Hash digest"
 #: warehouse/templates/manage/account.html:230
 #: warehouse/templates/manage/account/recovery_codes-provision.html:61
 #: warehouse/templates/manage/account/totp-provision.html:57
-#: warehouse/templates/packaging/detail.html:113
+#: warehouse/templates/packaging/detail.html:115
 #: warehouse/templates/pages/classifiers.html:37
 msgid "Copy to clipboard"
 msgstr "Αντιγραφή στο πρόχειρο"
@@ -2363,7 +2360,7 @@ msgstr "Μέθοδος δύο-παραγόντων:"
 
 #: warehouse/templates/manage/account.html:568
 #: warehouse/templates/manage/release.html:58
-#: warehouse/templates/packaging/detail.html:346
+#: warehouse/templates/packaging/detail.html:348
 msgid "None"
 msgstr "None"
 
@@ -2541,21 +2538,21 @@ msgid "Recent account activity"
 msgstr "Πρόσφατη δραστηριότητα λογαριασμού"
 
 #: warehouse/templates/manage/account.html:694
-#: warehouse/templates/manage/history.html:88
+#: warehouse/templates/manage/history.html:97
 msgid "Event"
 msgstr "Συμβάν"
 
 #: warehouse/templates/manage/account.html:695
 #: warehouse/templates/manage/account.html:703
-#: warehouse/templates/manage/history.html:89
 #: warehouse/templates/manage/history.html:98
+#: warehouse/templates/manage/history.html:107
 msgid "Date / time"
 msgstr "Ημερομηνία / ώρα"
 
 #: warehouse/templates/manage/account.html:696
 #: warehouse/templates/manage/account.html:707
-#: warehouse/templates/manage/history.html:90
-#: warehouse/templates/manage/history.html:102
+#: warehouse/templates/manage/history.html:99
+#: warehouse/templates/manage/history.html:111
 msgid "IP address"
 msgstr "Διεύθυνση IP"
 
@@ -2767,7 +2764,23 @@ msgstr "Άδειες: Μπορεί να ανεβάσει σε αυτό το proj
 msgid "Controlled by:"
 msgstr "Ελέγχεται από:"
 
-#: warehouse/templates/manage/history.html:85
+#: warehouse/templates/manage/history.html:79
+#, fuzzy, python-format
+#| msgid "Release version %(version)s"
+msgid "Release version %(version)s yanked"
+msgstr "Έκδοση %(version)s"
+
+#: warehouse/templates/manage/history.html:81
+#, fuzzy
+#| msgid "Changed by:"
+msgid "Yanked by:"
+msgstr "Αλλαγή από:"
+
+#: warehouse/templates/manage/history.html:84
+msgid "Reason:"
+msgstr ""
+
+#: warehouse/templates/manage/history.html:94
 #, python-format
 msgid "Security history for %(project_name)s"
 msgstr "Ιστορικό ασφάλειας για το %(project_name)s"
@@ -2922,7 +2935,7 @@ msgstr "Αυτό το project δεν έχει κυκλοφορίες"
 
 #: warehouse/templates/manage/projects.html:104
 #: warehouse/templates/manage/releases.html:94
-#: warehouse/templates/packaging/detail.html:356
+#: warehouse/templates/packaging/detail.html:358
 msgid "View"
 msgstr "Προβολή"
 
@@ -2968,8 +2981,8 @@ msgstr "Αρχεία για την έκδοση %(version)s του %(project_nam
 
 #: warehouse/templates/manage/release.html:37
 #: warehouse/templates/manage/release.html:48
-#: warehouse/templates/packaging/detail.html:320
-#: warehouse/templates/packaging/detail.html:331
+#: warehouse/templates/packaging/detail.html:322
+#: warehouse/templates/packaging/detail.html:333
 msgid "Filename, size"
 msgstr "Όνομα αρχείου, μέγεθος"
 
@@ -2980,15 +2993,15 @@ msgstr "Τύπος"
 
 #: warehouse/templates/manage/release.html:39
 #: warehouse/templates/manage/release.html:57
-#: warehouse/templates/packaging/detail.html:322
-#: warehouse/templates/packaging/detail.html:342
+#: warehouse/templates/packaging/detail.html:324
+#: warehouse/templates/packaging/detail.html:344
 msgid "Python version"
 msgstr "Έκδοση Python"
 
 #: warehouse/templates/manage/release.html:40
 #: warehouse/templates/manage/release.html:61
-#: warehouse/templates/packaging/detail.html:323
-#: warehouse/templates/packaging/detail.html:350
+#: warehouse/templates/packaging/detail.html:325
+#: warehouse/templates/packaging/detail.html:352
 msgid "Upload date"
 msgstr "Ημερομηνία μεταφόρτωσης"
 
@@ -3413,7 +3426,7 @@ msgstr "Ρόλος"
 msgid "Save role"
 msgstr "Αποθήκευση ρόλου"
 
-#: warehouse/templates/manage/account/recovery_codes-provision.html:65
+#: warehouse/templates/manage/account/recovery_codes-provision.html:69
 #: warehouse/templates/manage/roles.html:95
 msgid "Save"
 msgstr "Αποθήκευση"
@@ -3766,22 +3779,22 @@ msgid "Save your recovery codes"
 msgstr "Κωδικός σφάλματος"
 
 # | msgid "Download files"
-#: warehouse/templates/manage/account/recovery_codes-provision.html:64
+#: warehouse/templates/manage/account/recovery_codes-provision.html:68
 #, fuzzy
 msgid "Download as file"
 msgstr "Κατέβασμα αρχείων"
 
-#: warehouse/templates/manage/account/recovery_codes-provision.html:67
-#: warehouse/templates/manage/account/recovery_codes-provision.html:69
+#: warehouse/templates/manage/account/recovery_codes-provision.html:71
 #: warehouse/templates/manage/account/recovery_codes-provision.html:73
+#: warehouse/templates/manage/account/recovery_codes-provision.html:77
 msgid "Continue"
 msgstr ""
 
-#: warehouse/templates/manage/account/recovery_codes-provision.html:76
+#: warehouse/templates/manage/account/recovery_codes-provision.html:80
 msgid "These codes will not be visible again."
 msgstr ""
 
-#: warehouse/templates/manage/account/recovery_codes-provision.html:79
+#: warehouse/templates/manage/account/recovery_codes-provision.html:83
 msgid "Ensure that you have securely stored them before continuing."
 msgstr ""
 
@@ -3932,116 +3945,116 @@ msgstr ""
 msgid "RSS: latest releases for %(project_name)s"
 msgstr "Εκδόσεις για το %(project_name)s"
 
-#: warehouse/templates/packaging/detail.html:115
+#: warehouse/templates/packaging/detail.html:117
 msgid "Copy PIP instructions"
 msgstr "Αντιγραφή οδηγιών PIP"
 
-#: warehouse/templates/packaging/detail.html:125
+#: warehouse/templates/packaging/detail.html:127
 msgid "This release has been yanked"
 msgstr ""
 
-#: warehouse/templates/packaging/detail.html:131
+#: warehouse/templates/packaging/detail.html:133
 #, python-format
 msgid "Stable version available (%(version)s)"
 msgstr "Διαθέσιμη σταθερή έκδοση (%(version)s)"
 
-#: warehouse/templates/packaging/detail.html:135
+#: warehouse/templates/packaging/detail.html:137
 #, python-format
 msgid "Newer version available (%(version)s)"
 msgstr "Νέα έκδοση διαθέσιμη (%(version)s)"
 
-#: warehouse/templates/packaging/detail.html:139
+#: warehouse/templates/packaging/detail.html:141
 msgid "Latest version"
 msgstr "Τελευταία έκδοση"
 
 # | msgid "Last released: %(release_date)s"
-#: warehouse/templates/packaging/detail.html:144
+#: warehouse/templates/packaging/detail.html:146
 #, fuzzy, python-format
 msgid "Released: %(release_date)s"
 msgstr "Τελευταία εκδόθηκε: %(release_date)s"
 
-#: warehouse/templates/packaging/detail.html:156
+#: warehouse/templates/packaging/detail.html:158
 msgid "No project description provided"
 msgstr "Δεν δόθηκε περιγραφή του project"
 
-#: warehouse/templates/packaging/detail.html:169
+#: warehouse/templates/packaging/detail.html:171
 msgid "Navigation"
 msgstr "Πλοήγηση"
 
-#: warehouse/templates/packaging/detail.html:170
-#: warehouse/templates/packaging/detail.html:202
+#: warehouse/templates/packaging/detail.html:172
+#: warehouse/templates/packaging/detail.html:204
 #, python-format
 msgid "Navigation for %(project)s"
 msgstr "Πλοήγηση για το %(project)s"
 
-#: warehouse/templates/packaging/detail.html:173
-#: warehouse/templates/packaging/detail.html:205
+#: warehouse/templates/packaging/detail.html:175
+#: warehouse/templates/packaging/detail.html:207
 msgid "Project description. Focus will be moved to the description."
 msgstr "Περιγραφή project. Η εστίαση θα μεταφερθεί στην περιγραφή."
 
-#: warehouse/templates/packaging/detail.html:175
-#: warehouse/templates/packaging/detail.html:207
-#: warehouse/templates/packaging/detail.html:235
+#: warehouse/templates/packaging/detail.html:177
+#: warehouse/templates/packaging/detail.html:209
+#: warehouse/templates/packaging/detail.html:237
 msgid "Project description"
 msgstr "Περιγραφή project"
 
-#: warehouse/templates/packaging/detail.html:179
-#: warehouse/templates/packaging/detail.html:217
+#: warehouse/templates/packaging/detail.html:181
+#: warehouse/templates/packaging/detail.html:219
 msgid "Release history. Focus will be moved to the history panel."
 msgstr "Ιστορικό εκδόσεων. Η εστίαση θα μεταφερθεί στον πίνακα ιστορικού."
 
-#: warehouse/templates/packaging/detail.html:181
-#: warehouse/templates/packaging/detail.html:219
-#: warehouse/templates/packaging/detail.html:257
+#: warehouse/templates/packaging/detail.html:183
+#: warehouse/templates/packaging/detail.html:221
+#: warehouse/templates/packaging/detail.html:259
 msgid "Release history"
 msgstr "Ιστορικό εκδόσεων"
 
-#: warehouse/templates/packaging/detail.html:186
-#: warehouse/templates/packaging/detail.html:224
+#: warehouse/templates/packaging/detail.html:188
+#: warehouse/templates/packaging/detail.html:226
 msgid "Download files. Focus will be moved to the project files."
 msgstr "Κατέβασμα αρχείων. Η εστίαση θα μεταφερθεί στα αρχεία του project."
 
-#: warehouse/templates/packaging/detail.html:188
-#: warehouse/templates/packaging/detail.html:226
-#: warehouse/templates/packaging/detail.html:313
+#: warehouse/templates/packaging/detail.html:190
+#: warehouse/templates/packaging/detail.html:228
+#: warehouse/templates/packaging/detail.html:315
 msgid "Download files"
 msgstr "Κατέβασμα αρχείων"
 
-#: warehouse/templates/packaging/detail.html:211
+#: warehouse/templates/packaging/detail.html:213
 msgid "Project details. Focus will be moved to the project details."
 msgstr ""
 "Λεπτομέρειες project. Η εστίαση θα μεταφερθεί στις λεπτομέρειες του ptoject."
 
-#: warehouse/templates/packaging/detail.html:213
-#: warehouse/templates/packaging/detail.html:249
+#: warehouse/templates/packaging/detail.html:215
+#: warehouse/templates/packaging/detail.html:251
 msgid "Project details"
 msgstr "Λεπτομέρειες project"
 
-#: warehouse/templates/packaging/detail.html:242
+#: warehouse/templates/packaging/detail.html:244
 msgid "The author of this package has not provided a project description"
 msgstr "Ο κάτοχος αυτού του πακέτου δεν εισήγαγε περιγραφή για το project"
 
-#: warehouse/templates/packaging/detail.html:259
+#: warehouse/templates/packaging/detail.html:261
 msgid "Release notifications"
 msgstr "Ειδοποιήσεις εκδόσεων"
 
-#: warehouse/templates/packaging/detail.html:260
+#: warehouse/templates/packaging/detail.html:262
 msgid "RSS feed"
 msgstr ""
 
-#: warehouse/templates/packaging/detail.html:272
+#: warehouse/templates/packaging/detail.html:274
 msgid "This version"
 msgstr "Αυτή η έκδοση"
 
-#: warehouse/templates/packaging/detail.html:292
+#: warehouse/templates/packaging/detail.html:294
 msgid "pre-release"
 msgstr "προ-έκδοση"
 
-#: warehouse/templates/packaging/detail.html:297
+#: warehouse/templates/packaging/detail.html:299
 msgid "yanked"
 msgstr ""
 
-#: warehouse/templates/packaging/detail.html:314
+#: warehouse/templates/packaging/detail.html:316
 #, python-format
 msgid ""
 "Download the file for your platform. If you're not sure which to choose, "
@@ -4052,18 +4065,18 @@ msgstr ""
 "μάθετε περισσότερα στη σελίδα <a href=\"%(href)s\" title=\"%(title)s\" "
 "target=\"_blank\" rel=\"noopener\">εγκατάσταση πακέτων</a>."
 
-#: warehouse/templates/packaging/detail.html:317
+#: warehouse/templates/packaging/detail.html:319
 #, python-format
 msgid "Files for %(project_name)s, version %(version)s"
 msgstr "Αρχεία για το %(project_name)s, έκδοση %(version)s"
 
-#: warehouse/templates/packaging/detail.html:321
-#: warehouse/templates/packaging/detail.html:338
+#: warehouse/templates/packaging/detail.html:323
+#: warehouse/templates/packaging/detail.html:340
 msgid "File type"
 msgstr "Τύπος αρχείου"
 
-#: warehouse/templates/packaging/detail.html:324
-#: warehouse/templates/packaging/detail.html:354
+#: warehouse/templates/packaging/detail.html:326
+#: warehouse/templates/packaging/detail.html:356
 msgid "Hashes"
 msgstr "Hashes"
 
@@ -6308,12 +6321,12 @@ msgid "Security policy"
 msgstr "Πολιτική ασφάλειας"
 
 # | msgid "Search and filter projects"
-#: warehouse/templates/pages/sponsors.html:25
+#: warehouse/templates/pages/sponsors.html:23
 #, fuzzy
 msgid "Support PyPI and related projects"
 msgstr "Αναζήτηση και φιλτράρισμα projects"
 
-#: warehouse/templates/pages/sponsors.html:26
+#: warehouse/templates/pages/sponsors.html:24
 msgid "Sponsor the Python Software Foundation"
 msgstr ""
 
@@ -6325,7 +6338,7 @@ msgstr ""
 # "
 # | "to improve and maintain many of the core projects related to Python
 # | "packaging."
-#: warehouse/templates/pages/sponsors.html:29
+#: warehouse/templates/pages/sponsors.html:27
 #, fuzzy
 msgid ""
 "The Python Software Foundation raises and distributes funds to improve "
@@ -6336,11 +6349,11 @@ msgstr ""
 "είναι η βελτίωση και η διατήρηση πολλών κεντρικών projects σχετικά με το "
 "Python packaging."
 
-#: warehouse/templates/pages/sponsors.html:31
+#: warehouse/templates/pages/sponsors.html:29
 msgid "Recent projects funded include:"
 msgstr ""
 
-#: warehouse/templates/pages/sponsors.html:34
+#: warehouse/templates/pages/sponsors.html:32
 msgid ""
 "The successful relaunch of the Python Package Index, powered by the new "
 "'Warehouse' codebase"
@@ -6352,7 +6365,7 @@ msgstr ""
 # | "\"_blank\" rel=\"noopener\">Android</a> or <a href=\"%(ios_href)s\"
 # title="
 # | "\"%(title)s\" target=\"_blank\" rel=\"noopener\">iOS</a>"
-#: warehouse/templates/pages/sponsors.html:35
+#: warehouse/templates/pages/sponsors.html:33
 #, fuzzy, python-format
 msgid ""
 "With <a href=\"%(project_href)s\" title=\"%(title)s\" target=\"_blank\" rel="
@@ -6364,7 +6377,7 @@ msgstr ""
 "target=\"_blank\" rel=\"noopener\">Android</a> ή για <a href=\"%(ios_href)s"
 "\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">iOS</a>"
 
-#: warehouse/templates/pages/sponsors.html:38
+#: warehouse/templates/pages/sponsors.html:36
 msgid ""
 "Improving PyPI's security and accessibility, and adding support for multiple "
 "locales"
@@ -6375,7 +6388,7 @@ msgstr ""
 # title=\"%(title)s\"
 # "
 # | "target=\"_blank\" rel=\"noopener\">Python Packaging User Guide</a>"
-#: warehouse/templates/pages/sponsors.html:39
+#: warehouse/templates/pages/sponsors.html:37
 #, fuzzy, python-format
 msgid ""
 "With $80,000 in funding from the <a href=\"%(funder_href)s\" title="
@@ -6385,7 +6398,7 @@ msgstr ""
 "Μάθετε πως να ανεβάζετε αρχεία στο <a href=\"%(href)s\" title=\"%(title)s\" "
 "target=\"_blank\" rel=\"noopener\">Python Packaging User Guide</a>"
 
-#: warehouse/templates/pages/sponsors.html:42
+#: warehouse/templates/pages/sponsors.html:40
 msgid "Additional security-focused features for PyPI"
 msgstr ""
 
@@ -6395,7 +6408,7 @@ msgstr ""
 # | "\"_blank\" rel=\"noopener\">Android</a> or <a href=\"%(ios_href)s\"
 # title="
 # | "\"%(title)s\" target=\"_blank\" rel=\"noopener\">iOS</a>"
-#: warehouse/templates/pages/sponsors.html:43
+#: warehouse/templates/pages/sponsors.html:41
 #, fuzzy, python-format
 msgid ""
 "With <a href=\"%(project_href)s\" title=\"%(title)s\" target=\"_blank\" rel="
@@ -6407,7 +6420,7 @@ msgstr ""
 "target=\"_blank\" rel=\"noopener\">Android</a> ή για <a href=\"%(ios_href)s"
 "\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">iOS</a>"
 
-#: warehouse/templates/pages/sponsors.html:46
+#: warehouse/templates/pages/sponsors.html:44
 msgid "Overhauling pip's user experience and dependency resolver"
 msgstr ""
 
@@ -6422,7 +6435,7 @@ msgstr ""
 # target=\"_blank\"
 # "
 # | "rel=\"noopener\">Thetis</a>."
-#: warehouse/templates/pages/sponsors.html:47
+#: warehouse/templates/pages/sponsors.html:45
 #, fuzzy, python-format
 msgid ""
 "With <a href=\"%(project_href)s\" title=\"%(title)s\" target=\"_blank\" rel="
@@ -6438,70 +6451,70 @@ msgstr ""
 "και <a href=\"%(thetis_href)s\" title=\"%(title)s\" target=\"_blank\" rel="
 "\"noopener\">Thetis</a>."
 
-#: warehouse/templates/pages/sponsors.html:51
+#: warehouse/templates/pages/sponsors.html:49
 msgid ""
 "With your support, the PSF can continue to fund packaging improvements, "
 "benefiting millions of Python users around the world."
 msgstr ""
 
-#: warehouse/templates/pages/sponsors.html:59
+#: warehouse/templates/pages/sponsors.html:57
 #, fuzzy
 #| msgid "Sponsors"
 msgid "PSF Sponsorship"
 msgstr "Χορηγοί"
 
-#: warehouse/templates/pages/sponsors.html:62
+#: warehouse/templates/pages/sponsors.html:60
 msgid ""
 "All of these initiatives help maintain and support the tools that the Python "
 "community uses daily. This work can only be done with the generous financial "
 "support that you or your organization provides."
 msgstr ""
 
-#: warehouse/templates/pages/sponsors.html:63
+#: warehouse/templates/pages/sponsors.html:61
 msgid ""
 "Your contributions matter and they make an impact. Every donation counts!"
 msgstr ""
 
-#: warehouse/templates/pages/sponsors.html:67
+#: warehouse/templates/pages/sponsors.html:65
 msgid "Become a sponsor"
 msgstr ""
 
-#: warehouse/templates/pages/sponsors.html:69
+#: warehouse/templates/pages/sponsors.html:67
 msgid ""
 "The PSF is recognized by the IRS as a 501(c)(3) non-profit charitable "
 "organization, and donations are tax-deductible for organizations that pay "
 "taxes in the United States."
 msgstr ""
 
-#: warehouse/templates/pages/sponsors.html:80
+#: warehouse/templates/pages/sponsors.html:78
 msgid "Get your logo on PyPI.org"
 msgstr ""
 
-#: warehouse/templates/pages/sponsors.html:81
+#: warehouse/templates/pages/sponsors.html:79
 msgid ""
 "Looking for brand visibility? In the last year*, 21.1 million people from "
 "237 countries visited PyPI.org."
 msgstr ""
 
-#: warehouse/templates/pages/sponsors.html:82
+#: warehouse/templates/pages/sponsors.html:80
 msgid "* Data as of March 2020"
 msgstr ""
 
-#: warehouse/templates/pages/sponsors.html:85
+#: warehouse/templates/pages/sponsors.html:83
 msgid "Strengthen the Python ecosystem"
 msgstr ""
 
-#: warehouse/templates/pages/sponsors.html:86
+#: warehouse/templates/pages/sponsors.html:84
 msgid ""
 "Funds raised by the Python Software Foundation go directly towards improving "
 "the tools your company uses every day."
 msgstr ""
 
-#: warehouse/templates/pages/sponsors.html:89
+#: warehouse/templates/pages/sponsors.html:87
 msgid "Boost your reputation"
 msgstr ""
 
-#: warehouse/templates/pages/sponsors.html:90
+#: warehouse/templates/pages/sponsors.html:88
 msgid ""
 "Enhance your company's reputation by investing in Python and the open source "
 "community."

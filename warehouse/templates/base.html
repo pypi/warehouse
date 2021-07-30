@@ -170,15 +170,6 @@
         </span>
         <span class="notification-bar__message">{% trans %}You are using TestPyPI – a separate instance of the Python Package Index that allows you to try distribution tools and processes without affecting the real index.{% endtrans %}</span>
       </div>
-      {% else %}
-      <div class="notification-bar notification-bar--fundraiser">
-        <span class="notification-bar__icon">
-          <i class="fa fa-chart-line" aria-hidden="true"></i>
-        </span>
-        <span class="notification-bar__message">Python Software Foundation 20th Year Anniversary Fundraiser&nbsp;
-          <a href="https://psfmember.org/civicrm/contribute/transact?reset=1&id=33" class="button button--dark button--small button--primary" target="_blank" rel="noopener">Donate today!</a>
-        </span>
-      </div>
       {% endif %}
       <noscript>
       <div class="notification-bar notification-bar--warning" role="status">
@@ -190,6 +181,11 @@
         <span class="notification-bar__message">{% trans %}Some features may not work without JavaScript. Please try enabling it if you encounter problems.{% endtrans %}</span>
       </div>
       </noscript>
+
+      {% block banner_messages %}
+        {% csi request.route_path("includes.db-banners") %}
+        {% endcsi %}
+      {% endblock %}
     </div>
 
     {% block flash_messages %}

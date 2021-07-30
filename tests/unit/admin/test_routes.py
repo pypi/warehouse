@@ -126,8 +126,18 @@ def test_includeme():
             domain=warehouse,
         ),
         pretend.call(
+            "admin.prohibited_project_names.bulk_add",
+            "/admin/prohibited_project_names/bulk/",
+            domain=warehouse,
+        ),
+        pretend.call(
             "admin.prohibited_project_names.remove",
             "/admin/prohibited_project_names/remove/",
+            domain=warehouse,
+        ),
+        pretend.call(
+            "admin.prohibited_project_names.release",
+            "/admin/prohibited_project_names/release/",
             domain=warehouse,
         ),
         pretend.call("admin.emails.list", "/admin/emails/", domain=warehouse),
@@ -158,6 +168,51 @@ def test_includeme():
         pretend.call(
             "admin.verdicts.review",
             "/admin/verdicts/{verdict_id}/review",
+            domain=warehouse,
+        ),
+        pretend.call(
+            "admin.sponsor.list",
+            "/admin/sponsors/",
+            domain=warehouse,
+        ),
+        pretend.call(
+            "admin.sponsor.create",
+            "/admin/sponsors/create/",
+            domain=warehouse,
+        ),
+        pretend.call(
+            "admin.sponsor.delete",
+            "/admin/sponsors/{sponsor_id}/delete/",
+            domain=warehouse,
+        ),
+        pretend.call(
+            "admin.sponsor.edit",
+            "/admin/sponsors/{sponsor_id}/",
+            domain=warehouse,
+        ),
+        pretend.call(
+            "admin.banner.list",
+            "/admin/banners/",
+            domain=warehouse,
+        ),
+        pretend.call(
+            "admin.banner.create",
+            "/admin/banners/create/",
+            domain=warehouse,
+        ),
+        pretend.call(
+            "admin.banner.delete",
+            "/admin/banners/{banner_id}/delete/",
+            domain=warehouse,
+        ),
+        pretend.call(
+            "admin.banner.preview",
+            "/admin/banners/{banner_id}/preview/",
+            domain=warehouse,
+        ),
+        pretend.call(
+            "admin.banner.edit",
+            "/admin/banners/{banner_id}/",
             domain=warehouse,
         ),
     ]

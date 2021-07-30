@@ -610,6 +610,8 @@
 
       {% elif event.tag  == "account:password:reset:request" %}
       <strong>{% trans %}Password reset requested{% endtrans %}</strong>
+      {% elif event.tag  == "account:password:reset:attempt" %}
+      <strong>{% trans %}Password reset attempted{% endtrans %}</strong>
       {% elif event.tag  == "account:password:reset" %}
       <strong>{% trans %}Password successfully reset{% endtrans %}</strong>
       {% elif event.tag  == "account:password:change" %}

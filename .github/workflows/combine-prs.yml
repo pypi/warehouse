@@ -4,10 +4,6 @@ name: 'Combine PRs'
 on:
   workflow_dispatch:
     inputs:
-      branchPrefix:
-        description: 'Branch prefix to find combinable PRs based on'
-        required: true
-        default: 'dependabot'
       mustBeGreen:
         description: 'Only combine PRs that are green (status is success)'
         required: true
@@ -42,7 +38,7 @@ jobs:
             for (const pull of pulls) {
               const branch = pull['head']['ref'];
               console.log('Pull for branch: ' + branch);
-              if (branch.startsWith('${{ github.event.inputs.branchPrefix }}')) {
+              if (pull['user']['login'].match(/^(dependabot|dependabot-preview)$/)) {
                 console.log('Branch matched: ' + branch);
                 statusOK = true;
                 if(${{ github.event.inputs.mustBeGreen }}) {
@@ -95,7 +91,6 @@ jobs:
           BRANCHES_TO_COMBINE: ${{ steps.fetch-branch-names.outputs.result }}
           COMBINE_BRANCH_NAME: ${{ github.event.inputs.combineBranchName }}
         run: |
-          echo "${{steps.fetch-branch-names.outputs.result}}"
           sourcebranches="${BRANCHES_TO_COMBINE%\"}"
           sourcebranches="${sourcebranches#\"}"
 

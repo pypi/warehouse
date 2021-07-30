@@ -1,7 +1,4 @@
 BINDIR = $(PWD)/.state/env/bin
-TRAVIS := $(shell echo "$${TRAVIS:-false}")
-PR := $(shell echo "$${TRAVIS_PULL_REQUEST:-false}")
-BRANCH := $(shell echo "$${TRAVIS_BRANCH:-master}")
 GITHUB_ACTIONS := $(shell echo "$${GITHUB_ACTIONS:-false}")
 GITHUB_BASE_REF := $(shell echo "$${GITHUB_BASE_REF:-false}")
 DB := example
@@ -130,6 +127,10 @@ deps: .state/env/pyvenv.cfg
 	rm -r $(TMPDIR)
 	$(BINDIR)/pip check
 
+requirements/%.txt: requirements/%.in
+	$(BINDIR)/pip-compile --allow-unsafe --generate-hashes --output-file=$@ $< > /dev/null
+
+
 github-actions-deps:
 ifneq ($(GITHUB_BASE_REF), false)
 	git fetch origin $(GITHUB_BASE_REF):refs/remotes/origin/$(GITHUB_BASE_REF)
@@ -139,15 +140,6 @@ ifneq ($(GITHUB_BASE_REF), false)
 	git diff --name-only FETCH_HEAD | grep '^requirements/' || exit 0 && $(MAKE) deps
 endif
 
-travis-deps:
-ifneq ($(PR), false)
-	git fetch origin $(BRANCH):refs/remotes/origin/$(BRANCH)
-	# Check that the following diff will exit with 0 or 1
-	git diff --name-only $(BRANCH) || test $? -le 1 || exit 1
-	# Make the dependencies if any changed files are requirements files, otherwise exit
-	git diff --name-only $(BRANCH) | grep '^requirements/' || exit 0 && $(MAKE) deps
-endif
-
 initdb:
 	docker-compose run --rm web psql -h db -d postgres -U postgres -c "SELECT pg_terminate_backend(pid) FROM pg_stat_activity WHERE datname ='warehouse';"
 	docker-compose run --rm web psql -h db -d postgres -U postgres -c "DROP DATABASE IF EXISTS warehouse"
@@ -155,6 +147,7 @@ initdb:
 	xz -d -f -k dev/$(DB).sql.xz --stdout | docker-compose run --rm web psql -h db -d warehouse -U postgres -v ON_ERROR_STOP=1 -1 -f -
 	docker-compose run --rm web python -m warehouse db upgrade head
 	$(MAKE) reindex
+	docker-compose run web python -m warehouse sponsors populate-db
 
 reindex:
 	docker-compose run --rm web python -m warehouse search reindex
@@ -203,9 +196,9 @@ build-mos: compile-pot
 		done
 
 translations: compile-pot
-ifneq ($(filter false,$(TRAVIS) $(GITHUB_ACTIONS)),)
+ifneq ($(GITHUB_ACTIONS), false)
 	git diff --quiet ./warehouse/locale/messages.pot || (echo "There are outstanding translations, run 'make translations' and commit the changes."; exit 1)
 else
 endif
 
-.PHONY: default build serve initdb shell tests docs deps travis-deps clean purge debug stop compile-pot
+.PHONY: default build serve initdb shell tests docs deps clean purge debug stop compile-pot

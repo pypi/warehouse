@@ -10,11 +10,19 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from warehouse.admin.services import ISponsorLogoStorage
 from warehouse.utils.static import ManifestCacheBuster
 
 
 def includeme(config):
     from warehouse.accounts.views import login, logout
+
+    sponsorlogos_storage_class = config.maybe_dotted(
+        config.registry.settings["sponsorlogos.backend"]
+    )
+    config.register_service_factory(
+        sponsorlogos_storage_class.create_service, ISponsorLogoStorage
+    )
 
     # Setup Jinja2 Rendering for the Admin application
     config.add_jinja2_search_path("templates", name=".html")

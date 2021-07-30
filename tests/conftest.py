@@ -27,7 +27,8 @@ import webtest as _webtest
 
 from pyramid.i18n import TranslationString
 from pyramid.static import ManifestCacheBuster
-from pytest_postgresql.factories import DatabaseJanitor, get_config
+from pytest_postgresql.config import get_config
+from pytest_postgresql.janitor import DatabaseJanitor
 from sqlalchemy import event
 
 from warehouse import admin, config, static
@@ -178,6 +179,7 @@ def app_config(database):
         "elasticsearch.url": "https://localhost/warehouse",
         "files.backend": "warehouse.packaging.services.LocalFileStorage",
         "docs.backend": "warehouse.packaging.services.LocalFileStorage",
+        "sponsorlogos.backend": "warehouse.admin.services.LocalSponsorLogoStorage",
         "mail.backend": "warehouse.email.services.SMTPEmailSender",
         "malware_check.backend": (
             "warehouse.malware.services.PrinterMalwareCheckService"
