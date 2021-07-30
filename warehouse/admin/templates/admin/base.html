@@ -85,6 +85,7 @@
 
       <ul class="sidebar-menu">
         <li class="header">MAIN NAVIGATION</li>
+        {% if request.has_permission('moderator') %}
         <li>
           <a href="{{ request.route_path('admin.user.list') }}">
             <i class="fa fa-users"></i> <span>Users</span>
@@ -123,6 +124,17 @@
         <li>
           <a href="{{ request.route_path('admin.verdicts.list', _query={'classification':'threat', 'manually_reviewed':'0'}) }}">
             <i class="fa fa-gavel"></i> <span>Verdicts</span>
+          </a>
+        </li>
+        {% endif %}
+        <li>
+          <a href="{{ request.route_path('admin.banner.list') }}">
+            <i class="fa fa-quote-right"></i> <span>Banners</span>
+          </a>
+        </li>
+        <li>
+          <a href="{{ request.route_path('admin.sponsor.list') }}">
+            <i class="fa fa-ad"></i> <span>Sponsors</span>
           </a>
         </li>
       </ul>

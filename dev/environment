@@ -24,6 +24,7 @@ DOCS_URL="https://pythonhosted.org/{project}/"
 
 FILES_BACKEND=warehouse.packaging.services.LocalFileStorage path=/var/opt/warehouse/packages/ url=http://localhost:9001/packages/{path}
 DOCS_BACKEND=warehouse.packaging.services.LocalDocsStorage path=/var/opt/warehouse/docs/
+SPONSORLOGOS_BACKEND=warehouse.admin.services.LocalSponsorLogoStorage path=/var/opt/warehouse/sponsorlogos/
 
 MAIL_BACKEND=warehouse.email.services.SMTPEmailSender host=smtp port=2525 ssl=false sender=noreply@pypi.org
 

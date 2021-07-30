@@ -46,3 +46,26 @@ class FuzzyEmail(fuzzy.BaseFuzzyAttribute):
         chars = string.ascii_letters + string.digits
         username = "".join(random.choice(chars) for i in range(12))
         return "@".join([username, self.domain])
+
+
+class FuzzyList(fuzzy.BaseFuzzyAttribute):
+    def __init__(self, item_factory, item_kwargs=None, size=1, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.item_factory = item_factory
+        self.item_kwargs = item_kwargs or {}
+        self.size = size
+
+    def fuzz(self):
+        return [self.item_factory(**self.item_kwargs).fuzz() for i in range(self.size)]
+
+
+class FuzzyUrl(fuzzy.BaseFuzzyAttribute):
+    def __init__(self, domain="example.com", is_secure=False, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.domain = domain
+        self.protocol = "https" if is_secure else "http"
+
+    def fuzz(self):
+        chars = string.ascii_letters
+        path = "".join(random.choice(chars) for i in range(12))
+        return f"{self.protocol}://{self.domain}/{path}"

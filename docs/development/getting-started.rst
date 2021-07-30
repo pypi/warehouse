@@ -22,9 +22,8 @@ improve the process:
 
 - For bug reports or general problems, file an issue on `GitHub`_;
 - For real-time chat with other PyPA developers, join ``#pypa-dev`` `on
-  Freenode`_;
-- For longer-form questions or discussion, message the `distutils-sig mailing
-  list`_.
+  Libera`_, or the `PyPA Discord`_;
+- For longer-form questions or discussion, visit `Discourse`_.
 
 .. _dev-env-install:
 
@@ -628,7 +627,7 @@ Talk with us
 ^^^^^^^^^^^^
 
 You can find us via a `GitHub`_ issue, ``#pypa`` or ``#pypa-dev`` `on
-Freenode`_, or the `distutils-sig mailing list`_, to ask questions or get
+Libera`_, the `PyPA Discord`_ or `Discourse`_, to ask questions or get
 involved. And you can meet us in person at `packaging sprints`_.
 
 Learn about Warehouse and packaging
@@ -651,7 +650,8 @@ Resources to help you learn Warehouse's context:
 .. _`reStructured Text`: http://sphinx-doc.org/rest.html
 .. _`open issues that are labelled "good first issue"`: https://github.com/pypa/warehouse/issues?q=is%3Aissue+is%3Aopen+label%3A%22good+first+issue%22
 .. _`GitHub`: https://github.com/pypa/warehouse
-.. _`on Freenode`: https://webchat.freenode.net/?channels=%23pypa-dev,pypa
-.. _`distutils-sig mailing list`: https://mail.python.org/mailman3/lists/distutils-sig.python.org/
+.. _`on Libera`: https://web.libera.chat/#pypa,#pypa-dev
+.. _`Discourse` : https://discuss.python.org/c/packaging/14
+.. _`PyPA Discord` : https://discord.gg/pypa
 .. _`Test PyPI`: https://test.pypi.org/
 .. _`packaging sprints`: https://wiki.python.org/psf/PackagingSprints

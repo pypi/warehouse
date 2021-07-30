@@ -3,13 +3,14 @@
 # This file is distributed under the same license as the Warehouse project.
 # FIRST AUTHOR <EMAIL@ADDRESS>, 2019.
 # thomas <thomas@xs4all.nl>, 2019.
+# Robert S. <robert.stokreef@planet.nl>, 2021.
 msgid ""
 msgstr ""
 "Project-Id-Version: Warehouse VERSION\n"
-"Report-Msgid-Bugs-To: https://github.com/pypa/warehouse/issues/new\n"
+"Report-Msgid-Bugs-To: admin@pypi.org\n"
 "POT-Creation-Date: 2020-01-15 20:11+0200\n"
-"PO-Revision-Date: 2019-09-29 13:06+0000\n"
-"Last-Translator: thomas <thomas@xs4all.nl>\n"
+"PO-Revision-Date: 2021-05-15 22:17+0000\n"
+"Last-Translator: Robert S. <robert.stokreef@planet.nl>\n"
 "Language-Team: Dutch <https://hosted.weblate.org/projects/pypa/warehouse/nl/"
 ">\n"
 "Language: nl\n"
@@ -17,12 +18,12 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Generator: Weblate 3.9-dev\n"
+"X-Generator: Weblate 4.7-dev\n"
 "Generated-By: Babel 2.7.0\n"
 
 #: warehouse/views.py:254
 msgid "Locale updated"
-msgstr ""
+msgstr "Taal aangepast"
 
 #: warehouse/accounts/forms.py:43
 msgid "No user found with that username"
@@ -103,20 +104,21 @@ msgid "Invalid WebAuthn assertion: Bad payload"
 msgstr ""
 
 #: warehouse/accounts/forms.py:364
-#, fuzzy
-#| msgid "Invalid TOTP code."
 msgid "Invalid recovery code."
-msgstr "Ongeldige TOTP-code."
+msgstr "Ongeldige herstelcode."
 
 #: warehouse/accounts/forms.py:382
 msgid "No user found with that username or email"
 msgstr "Geen gebruiker gevonden met die gebruikersnaam of e-mailadres"
 
 #: warehouse/accounts/views.py:93
+#, fuzzy
 msgid ""
 "Too many emails have been added to this account without verifying them. "
 "Check your inbox and follow the verification links. (IP: ${ip})"
 msgstr ""
+"Te veel e-mailadressen zijn toegevoegd aan dit account zonder ze te "
+"verifiëren. Controleer uw inbox en volg de verificatielinks. (IP: ${ip})"
 
 #: warehouse/accounts/views.py:232 warehouse/accounts/views.py:289
 #: warehouse/accounts/views.py:291 warehouse/accounts/views.py:318
@@ -129,21 +131,22 @@ msgid "Already authenticated"
 msgstr "Reeds geauthenticeerd"
 
 #: warehouse/accounts/views.py:351
+#, fuzzy
 msgid "Successful WebAuthn assertion"
-msgstr ""
+msgstr "Succesvolle WebAuthn-bewering"
 
 #: warehouse/accounts/views.py:404
 msgid "Recovery code accepted. The supplied code cannot be used again."
 msgstr ""
+"Herstelcode geaccepteerd. De gegeven code kan niet opnieuw gebruikt worden."
 
 #: warehouse/accounts/views.py:490
-#, fuzzy
 msgid ""
 "New user registration temporarily disabled. See https://pypi.org/help#admin-"
 "intervention for details."
 msgstr ""
 "Registratie van nieuwe gebruikers is tijdelijk stopgezet. Zie https://pypi."
-"org/help#admin-intervention [engels] voor meer details."
+"org/help#admin-intervention voor meer details."
 
 #: warehouse/accounts/views.py:589
 msgid "Expired token: request a new password reset link"
@@ -216,35 +219,36 @@ msgstr "E-mailadres ${email_address} geverifieerd. ${confirm_message}."
 #, fuzzy
 #| msgid "Expired token: request a new password reset link"
 msgid "Expired token: request a new project role invite"
-msgstr "Verlopen token: dien een nieuw wachtwoordresetverzoek in"
+msgstr "Verlopen token: dien een nieuw verzoek in voor een projectrol"
 
 #: warehouse/accounts/views.py:770
 #, fuzzy
 #| msgid "Invalid token: request a new password reset link"
 msgid "Invalid token: request a new project role invite"
-msgstr "Ongeldig token: dien een nieuw wachtwoordresetverzoek in"
+msgstr "Ongeldig token: dien een nieuwe uitnodiging voor een projectrol in"
 
 #: warehouse/accounts/views.py:776
 #, fuzzy
 #| msgid "Invalid token: not an email verification token"
 msgid "Invalid token: not a collaboration invitation token"
-msgstr "Ongeldig token: geen correct e-mailverificatietoken"
+msgstr ""
+"Ongeldig token: geen geldige token voor een uitnodiging voor samenwerking"
 
 #: warehouse/accounts/views.py:780
 msgid "Role invitation is not valid."
-msgstr ""
+msgstr "Rol uitnodiging is niet valide."
 
 #: warehouse/accounts/views.py:795
 msgid "Role invitation no longer exists."
-msgstr ""
+msgstr "Rol uitnodiging bestaat niet langer."
 
 #: warehouse/accounts/views.py:807
 msgid "Invitation for '${project_name}' is declined."
-msgstr ""
+msgstr "Uitnodiging voor '${project_name}' is geweigerd."
 
 #: warehouse/accounts/views.py:874
 msgid "You are now ${role} of the '${project_name}' project."
-msgstr ""
+msgstr "U bent nu ${role} van het '${project_name}' project."
 
 #: warehouse/manage/views.py:205
 msgid "Email ${email_address} added - check your email for a verification link"
@@ -255,77 +259,80 @@ msgstr ""
 msgid ""
 "You must provision a two factor method before recovery codes can be generated"
 msgstr ""
+"U moet een tweefactormethode opgeven voordat herstelcodes kunnen worden "
+"gegenereerd"
 
 #: warehouse/manage/views.py:703
 msgid "Recovery codes already generated"
-msgstr ""
+msgstr "Herstelcodes zijn al gegenereerd"
 
 #: warehouse/manage/views.py:704
 msgid "Generating new recovery codes will invalidate your existing codes."
 msgstr ""
+"Als u nieuwe herstelcodes genereert, worden uw bestaande codes ongeldig."
 
 #: warehouse/manage/views.py:755
 msgid "Invalid credentials. Try again"
-msgstr ""
+msgstr "Ongeldige inloggegevens. Probeer het opnieuw"
 
 #: warehouse/manage/views.py:1503
 msgid "User '${username}' already has ${role_name} role for project"
-msgstr ""
+msgstr "Gebruiker '${username}' heeft al de ${role_name} rol voor project"
 
 #: warehouse/manage/views.py:1514
 msgid ""
 "User '${username}' does not have a verified primary email address and cannot "
 "be added as a ${role_name} for project"
 msgstr ""
+"Gebruiker '${gebruikersnaam}' heeft geen geverifieerd primair e-mailadres en "
+"kan niet worden toegevoegd als een ${role_name} voor project"
 
 #: warehouse/manage/views.py:1527
 msgid ""
 "User '${username}' already has an active invite. Please try again later."
 msgstr ""
+"Gebruiker '${username}' heeft al een actieve uitnodiging. Probeer het later "
+"nog eens."
 
 #: warehouse/manage/views.py:1585
 msgid "Invitation sent to '${username}'"
-msgstr ""
+msgstr "Uitnodiging verzonden naar '${gebruikersnaam}'"
 
 #: warehouse/manage/views.py:1632
 msgid "Could not find role invitation."
-msgstr ""
+msgstr "Kan roluitnodiging niet vinden."
 
 #: warehouse/manage/views.py:1643
-#, fuzzy
-#| msgid "Email already verified"
 msgid "Invitation already expired."
-msgstr "E-mailadres al geverifieerd"
+msgstr "Uitnodiging is al verlopen."
 
 #: warehouse/manage/views.py:1667
 msgid "Invitation revoked from '${username}'."
-msgstr ""
+msgstr "Uitnodiging van '${gebruikersnaam}' is ingetrokken."
 
 #: warehouse/templates/403.html:16
 msgid "Access Denied / Forbidden (403)"
-msgstr ""
+msgstr "Toegang geweigerd / Verboden (403)"
 
 #: warehouse/templates/403.html:18
 msgid "You don't have permission to view this page"
-msgstr ""
+msgstr "U heeft geen toestemming om deze pagina te bekijken."
 
 #: warehouse/templates/404.html:16
 msgid "Page Not Found (404)"
-msgstr ""
+msgstr "Pagina niet gevonden (404)"
 
 #: warehouse/templates/404.html:18
 msgid "We looked everywhere but couldn't find this page"
-msgstr ""
+msgstr "We hebben overal gezocht, maar we konden deze pagina niet vinden"
 
 #: warehouse/templates/404.html:29
-#, fuzzy
-#| msgid "And now for something <br><span>completely different"
 msgid "And now for something <br><span>completely different</span>"
-msgstr "\"And now for something <br><span>completely different\""
+msgstr "En nu voor iets <br><span>compleet anders</span>"
 
 #: warehouse/templates/404.html:32
 msgid "Monty Python - The Cheese Shop Sketch"
-msgstr ""
+msgstr "Monty Python - The Cheese Shop Sketch"
 
 #: warehouse/templates/404.html:34 warehouse/templates/500.html:28
 #: warehouse/templates/500.html:29
@@ -355,7 +362,7 @@ msgstr ""
 #: warehouse/templates/manage/release.html:175
 #: warehouse/templates/manage/releases.html:140
 #: warehouse/templates/manage/releases.html:173
-#: warehouse/templates/packaging/detail.html:314
+#: warehouse/templates/packaging/detail.html:316
 #: warehouse/templates/pages/classifiers.html:25
 #: warehouse/templates/pages/help.html:20
 #: warehouse/templates/pages/help.html:204
@@ -418,11 +425,11 @@ msgstr ""
 #: warehouse/templates/pages/help.html:862
 #: warehouse/templates/pages/help.html:867
 #: warehouse/templates/pages/security.html:36
-#: warehouse/templates/pages/sponsors.html:35
-#: warehouse/templates/pages/sponsors.html:39
-#: warehouse/templates/pages/sponsors.html:43
-#: warehouse/templates/pages/sponsors.html:47
-#: warehouse/templates/pages/sponsors.html:66
+#: warehouse/templates/pages/sponsors.html:33
+#: warehouse/templates/pages/sponsors.html:37
+#: warehouse/templates/pages/sponsors.html:41
+#: warehouse/templates/pages/sponsors.html:45
+#: warehouse/templates/pages/sponsors.html:64
 #: warehouse/templates/upload.html:26
 msgid "External link"
 msgstr "Externe link"
@@ -433,19 +440,19 @@ msgstr "Bekijk video-afschrift"
 
 #: warehouse/templates/410.html:16
 msgid "Page removed (410)"
-msgstr ""
+msgstr "Pagina verwijderd (410)"
 
 #: warehouse/templates/410.html:18
 msgid "The page you are looking for has been removed"
-msgstr ""
+msgstr "De pagina waar u naar op zoek bent is verwijderd"
 
 #: warehouse/templates/500.html:16
 msgid "Internal server error (500)"
-msgstr ""
+msgstr "Interne server fout (500)"
 
 #: warehouse/templates/500.html:18
 msgid "Something went wrong"
-msgstr ""
+msgstr "Er ging iets fout"
 
 #: warehouse/templates/500.html:22
 msgid ""
@@ -453,22 +460,25 @@ msgid ""
 "serve you this site.</p> <p>We are aware of the problem and are working to "
 "resolve it as soon as possible.</p>"
 msgstr ""
+"<p>We ondervinden technische problemen die van invloed zijn op ons vermogen "
+"om u van dienst te zijn op deze site.</p> <p>We zijn ons bewust van het "
+"probleem en werken eraan om het zo snel mogelijk op te lossen.</p>"
 
 #: warehouse/templates/500.html:28
 msgid "Check our status page"
-msgstr ""
+msgstr "Kijk op onze statuspagina"
 
 #: warehouse/templates/500.html:29
 msgid "View Python Status on Twitter"
-msgstr ""
+msgstr "Bekijk Python Status op Twitter"
 
 #: warehouse/templates/500.html:32
 msgid "Error code 500"
-msgstr ""
+msgstr "Foutcode 500"
 
 #: warehouse/templates/500.html:36
 msgid "Rely on PyPI to get your job done?"
-msgstr ""
+msgstr "Vertrouw op PyPI om uw klus te klaren?"
 
 #: warehouse/templates/500.html:37
 msgid ""
@@ -477,29 +487,33 @@ msgid ""
 "contribute/transact?reset=1&id=13\" target=\"_blank\" rel=\"noopener\"> "
 "donating </a> to help us build a more stable and secure platform."
 msgstr ""
+"Overweeg om <a href=\"https://github.com/pypa/warehouse\" target=\"_blank\" "
+"rel=\"noopener\"> bij te dragen </a> of <a href=\"https://psfmember.org/"
+"civicrm/contribute/transact?reset=1&id=13\" target=\"_blank\" rel=\"noopener"
+"\"> te doneren </a> om ons te helpen een stabieler en veiliger platform te "
+"creëren."
 
 #: warehouse/templates/base.html:24
 msgid ""
 "Choose a strong password that contains letters (uppercase and lowercase), "
 "numbers and special characters. Avoid common words or repetition."
 msgstr ""
+"Kies een sterk wachtwoord dat letters (hoofdletters en kleine letters), "
+"nummers en speciale tekens bevat. Vermijd veelvoorkomende woorden of "
+"herhaling."
 
 #: warehouse/templates/base.html:27
-#, fuzzy
-#| msgid "Password reset"
 msgid "Password strength:"
-msgstr "Wachtwoord resetten"
+msgstr "Wachtwoord sterkte:"
 
 #: warehouse/templates/base.html:30
-#, fuzzy
-#| msgid "Password reset"
 msgid "Password field is empty"
-msgstr "Wachtwoord resetten"
+msgstr "Wachtwoordveld is leeg"
 
 #: warehouse/templates/base.html:39 warehouse/templates/base.html:47
 #: warehouse/templates/includes/current-user-indicator.html:17
 msgid "Main navigation"
-msgstr ""
+msgstr "Hoofdnavigatie"
 
 #: warehouse/templates/base.html:41 warehouse/templates/base.html:55
 #: warehouse/templates/base.html:258
@@ -507,14 +521,14 @@ msgstr ""
 #: warehouse/templates/pages/help.html:103
 #: warehouse/templates/pages/sitemap.html:27
 msgid "Help"
-msgstr ""
+msgstr "Help"
 
 #: warehouse/templates/base.html:42 warehouse/templates/base.html:56
 #: warehouse/templates/includes/current-user-indicator.html:61
 #: warehouse/templates/pages/sitemap.html:41
 #: warehouse/templates/pages/sponsors.html:15
 msgid "Sponsors"
-msgstr ""
+msgstr "Sponsors"
 
 #: warehouse/templates/accounts/login.html:18
 #: warehouse/templates/accounts/login.html:88 warehouse/templates/base.html:43
@@ -525,43 +539,46 @@ msgstr "Inloggen"
 #: warehouse/templates/base.html:44 warehouse/templates/base.html:58
 #: warehouse/templates/pages/sitemap.html:33
 msgid "Register"
-msgstr ""
+msgstr "Registreer"
 
 #: warehouse/templates/base.html:48
 #: warehouse/templates/includes/current-user-indicator.html:18
 msgid "View menu"
-msgstr ""
+msgstr "Bekijk menu"
 
 #: warehouse/templates/base.html:49
 msgid "Menu"
-msgstr ""
+msgstr "Menu"
 
 #: warehouse/templates/base.html:54
 #: warehouse/templates/includes/current-user-indicator.html:25
 msgid "Main menu"
-msgstr ""
+msgstr "Hoofdmenu"
 
 #: warehouse/templates/base.html:79 warehouse/templates/index.html:107
 msgid ""
 "The Python Package Index (PyPI) is a repository of software for the Python "
 "programming language."
 msgstr ""
+"De Python Package Index (PyPI) is een databank van software voor de Python "
+"programmeertaal."
 
 #: warehouse/templates/base.html:95
 msgid "RSS: 40 latest updates"
-msgstr ""
+msgstr "RSS: 40 recentste updates"
 
 #: warehouse/templates/base.html:96
+#, fuzzy
 msgid "RSS: 40 newest packages"
-msgstr ""
+msgstr "RSS: 40 nieuwste pakketten"
 
 #: warehouse/templates/base.html:148
 msgid "Skip to main content"
-msgstr ""
+msgstr "Ga naar algemene inhoud"
 
 #: warehouse/templates/base.html:151
 msgid "Switch to mobile version"
-msgstr ""
+msgstr "Stap over op mobiele versie"
 
 #: warehouse/templates/base.html:160 warehouse/templates/base.html:169
 #: warehouse/templates/base.html:179
@@ -573,11 +590,13 @@ msgstr ""
 #: warehouse/templates/manage/release.html:163
 #: warehouse/templates/manage/settings.html:76
 msgid "Warning"
-msgstr ""
+msgstr "Waarschuwing"
 
 #: warehouse/templates/base.html:162
 msgid "You are using an unsupported browser, upgrade to a newer version."
 msgstr ""
+"U gebruikt een browser die niet wordt ondersteund, upgrade naar een nieuwere "
+"versie."
 
 #: warehouse/templates/base.html:171
 msgid ""
@@ -585,12 +604,17 @@ msgid ""
 "that allows you to try distribution tools and processes without affecting "
 "the real index."
 msgstr ""
+"U gebruikt TestPyPi - een afzonderlijk exemplaar van de Python-pakketindex "
+"waarmee u distributietools en -processen kunt uitproberen zonder de echte "
+"index te beïnvloeden."
 
 #: warehouse/templates/base.html:181
 msgid ""
 "Some features may not work without JavaScript. Please try enabling it if you "
 "encounter problems."
 msgstr ""
+"Sommige functies werken mogelijk niet zonder JavaScript. Probeer het in te "
+"schakelen als u problemen ondervindt."
 
 #: warehouse/templates/base.html:214 warehouse/templates/base.html:235
 #: warehouse/templates/error-base-with-search.html:20
@@ -612,126 +636,127 @@ msgstr "Zoeken"
 
 #: warehouse/templates/base.html:259
 msgid "Help navigation"
-msgstr ""
+msgstr "Help navigatie"
 
 #: warehouse/templates/base.html:261
+#, fuzzy
 msgid "Installing packages"
-msgstr ""
+msgstr "Pakketten installeren"
 
 #: warehouse/templates/base.html:262
+#, fuzzy
 msgid "Uploading packages"
-msgstr ""
+msgstr "Pakketten uploaden"
 
 #: warehouse/templates/base.html:263
 msgid "User guide"
-msgstr ""
+msgstr "Gebruikershandleiding"
 
 #: warehouse/templates/base.html:264
 msgid "FAQs"
-msgstr ""
+msgstr "Veelgestelde vragen"
 
 #: warehouse/templates/base.html:270 warehouse/templates/pages/sitemap.html:37
 msgid "About PyPI"
-msgstr ""
+msgstr "Over PyPI"
 
 #: warehouse/templates/base.html:271
 msgid "About PyPI navigation"
-msgstr ""
+msgstr "Over PyPI navigatie"
 
 #: warehouse/templates/base.html:273
 msgid "PyPI on Twitter"
-msgstr ""
+msgstr "PyPI op Twitter"
 
 #: warehouse/templates/base.html:274
 msgid "Infrastructure dashboard"
-msgstr ""
+msgstr "Infrastructuur dashboard"
 
 #: warehouse/templates/base.html:275
 msgid "Package index name retention"
-msgstr ""
+msgstr "Behoud van pakketindexnaam"
 
 #: warehouse/templates/base.html:276
 msgid "Our sponsors"
-msgstr ""
+msgstr "Onze sponsors"
 
 #: warehouse/templates/base.html:282
 msgid "Contributing to PyPI"
-msgstr ""
+msgstr "Bijdragen aan PyPI"
 
 #: warehouse/templates/base.html:283
 msgid "How to contribute navigation"
-msgstr ""
+msgstr "Hoe u aan de navigatie kunt bijdragen"
 
 #: warehouse/templates/base.html:285
 msgid "Bugs and feedback"
-msgstr ""
+msgstr "Bugs en feedback"
 
 #: warehouse/templates/base.html:286
 msgid "Contribute on GitHub"
-msgstr ""
+msgstr "Draag bij op GitHub"
 
 #: warehouse/templates/base.html:287
 msgid "Translate PyPI"
-msgstr ""
+msgstr "Vertaal PyPI"
 
 #: warehouse/templates/base.html:288
 msgid "Development credits"
-msgstr ""
+msgstr "Ontwikkelings credits"
 
 #: warehouse/templates/base.html:294 warehouse/templates/pages/sitemap.html:23
 msgid "Using PyPI"
-msgstr ""
+msgstr "PyPI gebruiken"
 
 #: warehouse/templates/base.html:295
 msgid "Using PyPI navigation"
-msgstr ""
+msgstr "PyPI navigatie gebruiken"
 
 #: warehouse/templates/base.html:297
 msgid "Code of conduct"
-msgstr ""
+msgstr "Gedragsregels"
 
 #: warehouse/templates/base.html:298
 msgid "Report security issue"
-msgstr ""
+msgstr "Meld een beveiligingsprobleem"
 
 #: warehouse/templates/base.html:299
 msgid "Privacy policy"
-msgstr ""
+msgstr "Privacybeleid"
 
 #: warehouse/templates/base.html:300 warehouse/templates/pages/sitemap.html:43
 msgid "Terms of use"
-msgstr ""
+msgstr "Gebruiksvoorwaarden"
 
 #: warehouse/templates/base.html:310
 msgid "Status: "
-msgstr ""
+msgstr "Status: "
 
 #: warehouse/templates/base.html:311
 msgid "all systems operational"
-msgstr ""
+msgstr "alle systemen operationeel"
 
 #: warehouse/templates/base.html:315
 msgid ""
 "Developed and maintained by the Python community, for the Python community."
 msgstr ""
+"Ontwikkeld en onderhouden door de Python-community, voor de Python-community."
 
 #: warehouse/templates/base.html:317
 msgid "Donate today!"
-msgstr ""
+msgstr "Doneer vandaag!"
 
 #: warehouse/templates/base.html:320 warehouse/templates/pages/sitemap.html:16
 msgid "Site map"
-msgstr ""
+msgstr "Site map"
 
 #: warehouse/templates/base.html:326
 msgid "Switch to desktop version"
-msgstr ""
+msgstr "Schakel over naar de desktopversie"
 
 #: warehouse/templates/confirm-action.html:17
-#, fuzzy
-#| msgid "Confirm form"
 msgid "Confirm Action"
-msgstr "Formulier bevestigen"
+msgstr "Actie bevestigen"
 
 #: warehouse/templates/error-base.html:31
 msgid "Error code"
@@ -743,70 +768,69 @@ msgstr "Terug naar de hoofdpagina"
 
 #: warehouse/templates/index.html:16
 msgid "The Python Package Index"
-msgstr ""
+msgstr "De Python-pakketindex"
 
 #: warehouse/templates/index.html:43
 msgid "Test Python package publishing with the Test Python Package Index"
-msgstr ""
+msgstr "Test Python-pakketpublicatie met de Test Python-pakketindex"
 
 #: warehouse/templates/index.html:45
 msgid "Find, install and publish Python packages with the Python Package Index"
 msgstr ""
+"Vind, installeer en publiceer Python pakketten met de Python-pakketindex"
 
 #: warehouse/templates/index.html:64
 #, python-format
 msgid "Or <a href=\"%(href)s\">browse projects</a>"
-msgstr ""
+msgstr "Of <a href=\"%(href)s\">blader door projecten</a>"
 
 #: warehouse/templates/index.html:71
-#, fuzzy, python-format
-#| msgid "%(num_projects)s projects"
+#, python-format
 msgid "%(num_projects_formatted)s project"
 msgid_plural "%(num_projects_formatted)s projects"
-msgstr[0] "%(num_projects)s projecten"
-msgstr[1] "%(num_projects)s projecten"
+msgstr[0] "%(num_projects_formatted)s project"
+msgstr[1] "%(num_projects_formatted)s projecten"
 
 #: warehouse/templates/index.html:78
-#, fuzzy, python-format
-#| msgid "%(num_releases)s releases"
+#, python-format
 msgid "%(num_releases_formatted)s release"
 msgid_plural "%(num_releases_formatted)s releases"
-msgstr[0] "%(num_releases)s versies"
-msgstr[1] "%(num_releases)s versies"
+msgstr[0] "%(num_releases_formatted)s vrijgeving"
+msgstr[1] "%(num_releases_formatted)s vrijgevingen"
 
 #: warehouse/templates/index.html:85
-#, fuzzy, python-format
-#| msgid "%(num_files)s files"
+#, python-format
 msgid "%(num_files_formatted)s file"
 msgid_plural "%(num_files_formatted)s files"
-msgstr[0] "%(num_files)s bestanden"
-msgstr[1] "%(num_files)s bestanden"
+msgstr[0] "%(num_files_formatted)s bestand"
+msgstr[1] "%(num_files_formatted)s bestanden"
 
 #: warehouse/templates/index.html:92
-#, fuzzy, python-format
-#| msgid "%(num_users)s users"
+#, python-format
 msgid "%(num_users_formatted)s user"
 msgid_plural "%(num_users_formatted)s users"
-msgstr[0] "%(num_users)s gebruikers"
-msgstr[1] "%(num_users)s gebruikers"
+msgstr[0] "%(num_users_formatted)s gebruiker"
+msgstr[1] "%(num_users_formatted)s gebruikers"
 
 #: warehouse/templates/index.html:109
 msgid ""
 "PyPI helps you find and install software developed and shared by the Python "
 "community."
 msgstr ""
+"PyPI helpt u bij het vinden en installeren van software die is ontwikkeld en "
+"gedeeld door de Python-gemeenschap."
 
 #: warehouse/templates/index.html:110
 msgid "Learn about installing packages"
-msgstr ""
+msgstr "Leer over het installeren van pakketten"
 
 #: warehouse/templates/index.html:113
 msgid "Package authors use PyPI to distribute their software."
-msgstr ""
+msgstr "Pakketauteurs gebruiken PyPI om hun software te distribueren."
 
 #: warehouse/templates/index.html:114
 msgid "Learn how to package your Python code for PyPI"
-msgstr ""
+msgstr "Leer hoe u uw Python-code voor PyPI kunt verpakken"
 
 #: warehouse/templates/index.html:124
 msgid "Trending projects"
@@ -814,15 +838,15 @@ msgstr "Populaire projecten"
 
 #: warehouse/templates/index.html:125
 msgid "Trending projects as downloaded by the community"
-msgstr ""
+msgstr "Trending projecten zoals gedownload door de community"
 
 #: warehouse/templates/index.html:135
 msgid "New releases"
-msgstr ""
+msgstr "Nieuwe uitgaven"
 
 #: warehouse/templates/index.html:136
 msgid "Hot off the press: the newest project releases"
-msgstr ""
+msgstr "Heet van de pers: de nieuwste projectreleases"
 
 #: warehouse/templates/accounts/login.html:17
 #: warehouse/templates/accounts/recovery-code.html:17
@@ -834,7 +858,7 @@ msgstr ""
 #: warehouse/templates/manage/account/totp-provision.html:22
 #: warehouse/templates/manage/token.html:22 warehouse/templates/re-auth.html:17
 msgid "Error processing form"
-msgstr ""
+msgstr "Fout bij het verwerken van het formulier"
 
 #: warehouse/templates/accounts/register.html:135
 #: warehouse/templates/accounts/register.html:140
@@ -846,10 +870,8 @@ msgid "Confirm password"
 msgstr "Wachtwoord bevestigen"
 
 #: warehouse/templates/re-auth.html:30
-#, fuzzy
-#| msgid "Confirm password"
 msgid "Confirm password to continue"
-msgstr "Wachtwoord bevestigen"
+msgstr "Bevestig het wachtwoord om door te gaan"
 
 #: warehouse/templates/accounts/login.html:69
 #: warehouse/templates/accounts/register.html:110
@@ -915,10 +937,19 @@ msgid ""
 "hour.\n"
 "              "
 msgstr ""
+"\n"
+"              <b>Tip:</b> u staat op het punt een <a href=\"%(href)s"
+"\">gevoelige handeling uit te voeren</a>.\n"
+"              Als u geen persoonlijke computer gebruikt, moet u uitloggen "
+"zodra u klaar bent met uw sessie.\n"
+"              We vragen je het komende uur niet om je wachtwoord opnieuw te "
+"bevestigen.\n"
+"              "
 
 #: warehouse/templates/upload.html:25
 msgid "This URL is an API endpoint for uploading files to PyPI."
 msgstr ""
+"Deze URL is een API-eindpunt voor het uploaden van bestanden naar PyPI."
 
 #: warehouse/templates/upload.html:26
 #, python-format
@@ -927,18 +958,21 @@ msgid ""
 "\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">Python "
 "Packaging User Guide</a>."
 msgstr ""
+"Ga voor meer informatie over het uploaden van projecten naar PyPI naar de <a "
+"href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener"
+"\">Python Packaging-gebruikershandleiding </a>"
 
 #: warehouse/templates/upload.html:28
 #, python-format
 msgid ""
 "Otherwise, we suggest you <a href=\"%(href)s\">go to the PyPI homepage</a>."
 msgstr ""
+"Anders bevelen we u aan om naar de <a href=\"%(href)s\">PyPI homepagina</a> "
+"te gaan."
 
 #: warehouse/templates/accounts/invite-confirmation.html:17
-#, fuzzy
-#| msgid "Confirm form"
 msgid "Confirm Invite"
-msgstr "Formulier bevestigen"
+msgstr "Uitnodiging accepteren"
 
 #: warehouse/templates/accounts/invite-confirmation.html:26
 #, python-format
@@ -948,16 +982,20 @@ msgid ""
 "\"%(project_link)s\">%(project_name)s</a>' as a project %(role_name)s?\n"
 "      "
 msgstr ""
+"\n"
+"      Wilt u deze uitnodiging om mee te doen aan '<a href=\"%(project_link)s"
+"\">%(project_name)s</a>' als een project %(role_name)s accepteren?\n"
+"      "
 
 #: warehouse/templates/accounts/invite-confirmation.html:32
 #: warehouse/templates/manage/projects.html:49
 msgid "Accept"
-msgstr ""
+msgstr "Accepteer"
 
 #: warehouse/templates/accounts/invite-confirmation.html:33
 #: warehouse/templates/manage/projects.html:50
 msgid "Decline"
-msgstr ""
+msgstr "Afwijzen"
 
 #: warehouse/templates/accounts/login.html:30
 #, python-format
@@ -968,7 +1006,7 @@ msgstr "Inloggen op %(title)s"
 #: warehouse/templates/accounts/profile.html:32
 #: warehouse/templates/accounts/register.html:89
 #: warehouse/templates/manage/account.html:272
-#: warehouse/templates/manage/account/recovery_codes-provision.html:81
+#: warehouse/templates/manage/account/recovery_codes-provision.html:85
 #: warehouse/templates/manage/roles.html:173
 msgid "Username"
 msgstr "Gebruikersnaam"
@@ -989,26 +1027,25 @@ msgid "Log out of %(account_name)s"
 msgstr "%(account_name)s uitloggen"
 
 #: warehouse/templates/accounts/profile.html:16
-#, fuzzy, python-format
-#| msgid "Select a username"
+#, python-format
 msgid "Profile of %(username)s"
-msgstr "Kies een gebruikersnaam"
+msgstr "Profiel van %(username)s"
 
 #: warehouse/templates/accounts/profile.html:23
 #: warehouse/templates/manage/account.html:247
 #: warehouse/templates/manage/roles.html:62
 #: warehouse/templates/manage/roles.html:125
 msgid "Avatar for {user} from gravatar.com"
-msgstr ""
+msgstr "Avatar voor {user} van gravatar.com"
 
 #: warehouse/templates/accounts/profile.html:43
 msgid "Date joined"
-msgstr ""
+msgstr "Datum lid geworden"
 
 #: warehouse/templates/accounts/profile.html:44
 #, python-format
 msgid "Joined %(start_date)s"
-msgstr ""
+msgstr "Lid geworden op %(start_date)s"
 
 #: warehouse/templates/accounts/profile.html:58
 #, python-format
@@ -1021,13 +1058,17 @@ msgid_plural ""
 "            %(count)s projects\n"
 "          "
 msgstr[0] ""
+"\n"
+"            %(count)s project\n"
+"          "
 msgstr[1] ""
+"\n"
+"            %(count)s projecten\n"
+"          "
 
 #: warehouse/templates/accounts/profile.html:64
-#, fuzzy
-#| msgid "Search projects"
 msgid "No projects"
-msgstr "Doorzoek projecten"
+msgstr "Geen projecten"
 
 #: warehouse/templates/accounts/profile.html:73
 #: warehouse/templates/manage/projects.html:34
@@ -1538,7 +1579,7 @@ msgstr ""
 #: warehouse/templates/manage/account.html:230
 #: warehouse/templates/manage/account/recovery_codes-provision.html:61
 #: warehouse/templates/manage/account/totp-provision.html:57
-#: warehouse/templates/packaging/detail.html:113
+#: warehouse/templates/packaging/detail.html:115
 #: warehouse/templates/pages/classifiers.html:37
 msgid "Copy to clipboard"
 msgstr ""
@@ -2142,7 +2183,7 @@ msgstr ""
 
 #: warehouse/templates/manage/account.html:568
 #: warehouse/templates/manage/release.html:58
-#: warehouse/templates/packaging/detail.html:346
+#: warehouse/templates/packaging/detail.html:348
 msgid "None"
 msgstr ""
 
@@ -2307,21 +2348,21 @@ msgid "Recent account activity"
 msgstr ""
 
 #: warehouse/templates/manage/account.html:694
-#: warehouse/templates/manage/history.html:88
+#: warehouse/templates/manage/history.html:97
 msgid "Event"
 msgstr ""
 
 #: warehouse/templates/manage/account.html:695
 #: warehouse/templates/manage/account.html:703
-#: warehouse/templates/manage/history.html:89
 #: warehouse/templates/manage/history.html:98
+#: warehouse/templates/manage/history.html:107
 msgid "Date / time"
 msgstr ""
 
 #: warehouse/templates/manage/account.html:696
 #: warehouse/templates/manage/account.html:707
-#: warehouse/templates/manage/history.html:90
-#: warehouse/templates/manage/history.html:102
+#: warehouse/templates/manage/history.html:99
+#: warehouse/templates/manage/history.html:111
 msgid "IP address"
 msgstr ""
 
@@ -2501,7 +2542,20 @@ msgstr ""
 msgid "Controlled by:"
 msgstr ""
 
-#: warehouse/templates/manage/history.html:85
+#: warehouse/templates/manage/history.html:79
+#, python-format
+msgid "Release version %(version)s yanked"
+msgstr ""
+
+#: warehouse/templates/manage/history.html:81
+msgid "Yanked by:"
+msgstr ""
+
+#: warehouse/templates/manage/history.html:84
+msgid "Reason:"
+msgstr ""
+
+#: warehouse/templates/manage/history.html:94
 #, python-format
 msgid "Security history for %(project_name)s"
 msgstr ""
@@ -2650,7 +2704,7 @@ msgstr ""
 
 #: warehouse/templates/manage/projects.html:104
 #: warehouse/templates/manage/releases.html:94
-#: warehouse/templates/packaging/detail.html:356
+#: warehouse/templates/packaging/detail.html:358
 msgid "View"
 msgstr ""
 
@@ -2693,8 +2747,8 @@ msgstr ""
 
 #: warehouse/templates/manage/release.html:37
 #: warehouse/templates/manage/release.html:48
-#: warehouse/templates/packaging/detail.html:320
-#: warehouse/templates/packaging/detail.html:331
+#: warehouse/templates/packaging/detail.html:322
+#: warehouse/templates/packaging/detail.html:333
 msgid "Filename, size"
 msgstr ""
 
@@ -2705,15 +2759,15 @@ msgstr ""
 
 #: warehouse/templates/manage/release.html:39
 #: warehouse/templates/manage/release.html:57
-#: warehouse/templates/packaging/detail.html:322
-#: warehouse/templates/packaging/detail.html:342
+#: warehouse/templates/packaging/detail.html:324
+#: warehouse/templates/packaging/detail.html:344
 msgid "Python version"
 msgstr ""
 
 #: warehouse/templates/manage/release.html:40
 #: warehouse/templates/manage/release.html:61
-#: warehouse/templates/packaging/detail.html:323
-#: warehouse/templates/packaging/detail.html:350
+#: warehouse/templates/packaging/detail.html:325
+#: warehouse/templates/packaging/detail.html:352
 msgid "Upload date"
 msgstr ""
 
@@ -3074,7 +3128,7 @@ msgstr ""
 msgid "Save role"
 msgstr ""
 
-#: warehouse/templates/manage/account/recovery_codes-provision.html:65
+#: warehouse/templates/manage/account/recovery_codes-provision.html:69
 #: warehouse/templates/manage/roles.html:95
 msgid "Save"
 msgstr ""
@@ -3375,21 +3429,21 @@ msgstr ""
 msgid "Save your recovery codes"
 msgstr "Error-code"
 
-#: warehouse/templates/manage/account/recovery_codes-provision.html:64
+#: warehouse/templates/manage/account/recovery_codes-provision.html:68
 msgid "Download as file"
 msgstr ""
 
-#: warehouse/templates/manage/account/recovery_codes-provision.html:67
-#: warehouse/templates/manage/account/recovery_codes-provision.html:69
+#: warehouse/templates/manage/account/recovery_codes-provision.html:71
 #: warehouse/templates/manage/account/recovery_codes-provision.html:73
+#: warehouse/templates/manage/account/recovery_codes-provision.html:77
 msgid "Continue"
 msgstr ""
 
-#: warehouse/templates/manage/account/recovery_codes-provision.html:76
+#: warehouse/templates/manage/account/recovery_codes-provision.html:80
 msgid "These codes will not be visible again."
 msgstr ""
 
-#: warehouse/templates/manage/account/recovery_codes-provision.html:79
+#: warehouse/templates/manage/account/recovery_codes-provision.html:83
 msgid "Ensure that you have securely stored them before continuing."
 msgstr ""
 
@@ -3511,114 +3565,114 @@ msgstr ""
 msgid "RSS: latest releases for %(project_name)s"
 msgstr ""
 
-#: warehouse/templates/packaging/detail.html:115
+#: warehouse/templates/packaging/detail.html:117
 msgid "Copy PIP instructions"
 msgstr ""
 
-#: warehouse/templates/packaging/detail.html:125
+#: warehouse/templates/packaging/detail.html:127
 msgid "This release has been yanked"
 msgstr ""
 
-#: warehouse/templates/packaging/detail.html:131
+#: warehouse/templates/packaging/detail.html:133
 #, python-format
 msgid "Stable version available (%(version)s)"
 msgstr ""
 
-#: warehouse/templates/packaging/detail.html:135
+#: warehouse/templates/packaging/detail.html:137
 #, python-format
 msgid "Newer version available (%(version)s)"
 msgstr ""
 
-#: warehouse/templates/packaging/detail.html:139
+#: warehouse/templates/packaging/detail.html:141
 msgid "Latest version"
 msgstr ""
 
-#: warehouse/templates/packaging/detail.html:144
+#: warehouse/templates/packaging/detail.html:146
 #, python-format
 msgid "Released: %(release_date)s"
 msgstr ""
 
-#: warehouse/templates/packaging/detail.html:156
+#: warehouse/templates/packaging/detail.html:158
 msgid "No project description provided"
 msgstr ""
 
-#: warehouse/templates/packaging/detail.html:169
+#: warehouse/templates/packaging/detail.html:171
 msgid "Navigation"
 msgstr ""
 
-#: warehouse/templates/packaging/detail.html:170
-#: warehouse/templates/packaging/detail.html:202
+#: warehouse/templates/packaging/detail.html:172
+#: warehouse/templates/packaging/detail.html:204
 #, python-format
 msgid "Navigation for %(project)s"
 msgstr ""
 
-#: warehouse/templates/packaging/detail.html:173
-#: warehouse/templates/packaging/detail.html:205
+#: warehouse/templates/packaging/detail.html:175
+#: warehouse/templates/packaging/detail.html:207
 msgid "Project description. Focus will be moved to the description."
 msgstr ""
 
-#: warehouse/templates/packaging/detail.html:175
-#: warehouse/templates/packaging/detail.html:207
-#: warehouse/templates/packaging/detail.html:235
+#: warehouse/templates/packaging/detail.html:177
+#: warehouse/templates/packaging/detail.html:209
+#: warehouse/templates/packaging/detail.html:237
 msgid "Project description"
-msgstr ""
-
-#: warehouse/templates/packaging/detail.html:179
-#: warehouse/templates/packaging/detail.html:217
-msgid "Release history. Focus will be moved to the history panel."
 msgstr ""
 
 #: warehouse/templates/packaging/detail.html:181
 #: warehouse/templates/packaging/detail.html:219
-#: warehouse/templates/packaging/detail.html:257
-msgid "Release history"
+msgid "Release history. Focus will be moved to the history panel."
 msgstr ""
 
-#: warehouse/templates/packaging/detail.html:186
-#: warehouse/templates/packaging/detail.html:224
-msgid "Download files. Focus will be moved to the project files."
+#: warehouse/templates/packaging/detail.html:183
+#: warehouse/templates/packaging/detail.html:221
+#: warehouse/templates/packaging/detail.html:259
+msgid "Release history"
 msgstr ""
 
 #: warehouse/templates/packaging/detail.html:188
 #: warehouse/templates/packaging/detail.html:226
-#: warehouse/templates/packaging/detail.html:313
+msgid "Download files. Focus will be moved to the project files."
+msgstr ""
+
+#: warehouse/templates/packaging/detail.html:190
+#: warehouse/templates/packaging/detail.html:228
+#: warehouse/templates/packaging/detail.html:315
 msgid "Download files"
 msgstr ""
 
-#: warehouse/templates/packaging/detail.html:211
+#: warehouse/templates/packaging/detail.html:213
 msgid "Project details. Focus will be moved to the project details."
 msgstr ""
 
-#: warehouse/templates/packaging/detail.html:213
-#: warehouse/templates/packaging/detail.html:249
+#: warehouse/templates/packaging/detail.html:215
+#: warehouse/templates/packaging/detail.html:251
 msgid "Project details"
 msgstr ""
 
-#: warehouse/templates/packaging/detail.html:242
+#: warehouse/templates/packaging/detail.html:244
 msgid "The author of this package has not provided a project description"
 msgstr ""
 
-#: warehouse/templates/packaging/detail.html:259
+#: warehouse/templates/packaging/detail.html:261
 msgid "Release notifications"
 msgstr ""
 
-#: warehouse/templates/packaging/detail.html:260
+#: warehouse/templates/packaging/detail.html:262
 msgid "RSS feed"
 msgstr ""
 
-#: warehouse/templates/packaging/detail.html:272
+#: warehouse/templates/packaging/detail.html:274
 msgid "This version"
 msgstr ""
 
-#: warehouse/templates/packaging/detail.html:292
+#: warehouse/templates/packaging/detail.html:294
 msgid "pre-release"
 msgstr ""
 
-#: warehouse/templates/packaging/detail.html:297
+#: warehouse/templates/packaging/detail.html:299
 msgid "yanked"
 msgstr ""
 
-#: warehouse/templates/packaging/detail.html:314
+#: warehouse/templates/packaging/detail.html:316
 #, python-format
 msgid ""
 "Download the file for your platform. If you're not sure which to choose, "
@@ -3626,18 +3680,18 @@ msgid ""
 "rel=\"noopener\">installing packages</a>."
 msgstr ""
 
-#: warehouse/templates/packaging/detail.html:317
+#: warehouse/templates/packaging/detail.html:319
 #, python-format
 msgid "Files for %(project_name)s, version %(version)s"
 msgstr ""
 
-#: warehouse/templates/packaging/detail.html:321
-#: warehouse/templates/packaging/detail.html:338
+#: warehouse/templates/packaging/detail.html:323
+#: warehouse/templates/packaging/detail.html:340
 msgid "File type"
 msgstr ""
 
-#: warehouse/templates/packaging/detail.html:324
-#: warehouse/templates/packaging/detail.html:354
+#: warehouse/templates/packaging/detail.html:326
+#: warehouse/templates/packaging/detail.html:356
 msgid "Hashes"
 msgstr ""
 
@@ -5228,31 +5282,31 @@ msgstr ""
 msgid "Security policy"
 msgstr ""
 
-#: warehouse/templates/pages/sponsors.html:25
+#: warehouse/templates/pages/sponsors.html:23
 msgid "Support PyPI and related projects"
 msgstr ""
 
-#: warehouse/templates/pages/sponsors.html:26
+#: warehouse/templates/pages/sponsors.html:24
 msgid "Sponsor the Python Software Foundation"
 msgstr ""
 
-#: warehouse/templates/pages/sponsors.html:29
+#: warehouse/templates/pages/sponsors.html:27
 msgid ""
 "The Python Software Foundation raises and distributes funds to improve "
 "Python's packaging ecosystem."
 msgstr ""
 
-#: warehouse/templates/pages/sponsors.html:31
+#: warehouse/templates/pages/sponsors.html:29
 msgid "Recent projects funded include:"
 msgstr ""
 
-#: warehouse/templates/pages/sponsors.html:34
+#: warehouse/templates/pages/sponsors.html:32
 msgid ""
 "The successful relaunch of the Python Package Index, powered by the new "
 "'Warehouse' codebase"
 msgstr ""
 
-#: warehouse/templates/pages/sponsors.html:35
+#: warehouse/templates/pages/sponsors.html:33
 #, python-format
 msgid ""
 "With <a href=\"%(project_href)s\" title=\"%(title)s\" target=\"_blank\" rel="
@@ -5261,13 +5315,13 @@ msgid ""
 "Support Program</a> in 2018"
 msgstr ""
 
-#: warehouse/templates/pages/sponsors.html:38
+#: warehouse/templates/pages/sponsors.html:36
 msgid ""
 "Improving PyPI's security and accessibility, and adding support for multiple "
 "locales"
 msgstr ""
 
-#: warehouse/templates/pages/sponsors.html:39
+#: warehouse/templates/pages/sponsors.html:37
 #, python-format
 msgid ""
 "With $80,000 in funding from the <a href=\"%(funder_href)s\" title="
@@ -5275,11 +5329,11 @@ msgid ""
 "2019"
 msgstr ""
 
-#: warehouse/templates/pages/sponsors.html:42
+#: warehouse/templates/pages/sponsors.html:40
 msgid "Additional security-focused features for PyPI"
 msgstr ""
 
-#: warehouse/templates/pages/sponsors.html:43
+#: warehouse/templates/pages/sponsors.html:41
 #, python-format
 msgid ""
 "With <a href=\"%(project_href)s\" title=\"%(title)s\" target=\"_blank\" rel="
@@ -5288,11 +5342,11 @@ msgid ""
 "2019 and 2020"
 msgstr ""
 
-#: warehouse/templates/pages/sponsors.html:46
+#: warehouse/templates/pages/sponsors.html:44
 msgid "Overhauling pip's user experience and dependency resolver"
 msgstr ""
 
-#: warehouse/templates/pages/sponsors.html:47
+#: warehouse/templates/pages/sponsors.html:45
 #, python-format
 msgid ""
 "With <a href=\"%(project_href)s\" title=\"%(title)s\" target=\"_blank\" rel="
@@ -5303,68 +5357,68 @@ msgid ""
 "in 2020"
 msgstr ""
 
-#: warehouse/templates/pages/sponsors.html:51
+#: warehouse/templates/pages/sponsors.html:49
 msgid ""
 "With your support, the PSF can continue to fund packaging improvements, "
 "benefiting millions of Python users around the world."
 msgstr ""
 
-#: warehouse/templates/pages/sponsors.html:59
+#: warehouse/templates/pages/sponsors.html:57
 msgid "PSF Sponsorship"
 msgstr ""
 
-#: warehouse/templates/pages/sponsors.html:62
+#: warehouse/templates/pages/sponsors.html:60
 msgid ""
 "All of these initiatives help maintain and support the tools that the Python "
 "community uses daily. This work can only be done with the generous financial "
 "support that you or your organization provides."
 msgstr ""
 
-#: warehouse/templates/pages/sponsors.html:63
+#: warehouse/templates/pages/sponsors.html:61
 msgid ""
 "Your contributions matter and they make an impact. Every donation counts!"
 msgstr ""
 
-#: warehouse/templates/pages/sponsors.html:67
+#: warehouse/templates/pages/sponsors.html:65
 msgid "Become a sponsor"
 msgstr ""
 
-#: warehouse/templates/pages/sponsors.html:69
+#: warehouse/templates/pages/sponsors.html:67
 msgid ""
 "The PSF is recognized by the IRS as a 501(c)(3) non-profit charitable "
 "organization, and donations are tax-deductible for organizations that pay "
 "taxes in the United States."
 msgstr ""
 
-#: warehouse/templates/pages/sponsors.html:80
+#: warehouse/templates/pages/sponsors.html:78
 msgid "Get your logo on PyPI.org"
 msgstr ""
 
-#: warehouse/templates/pages/sponsors.html:81
+#: warehouse/templates/pages/sponsors.html:79
 msgid ""
 "Looking for brand visibility? In the last year*, 21.1 million people from "
 "237 countries visited PyPI.org."
 msgstr ""
 
-#: warehouse/templates/pages/sponsors.html:82
+#: warehouse/templates/pages/sponsors.html:80
 msgid "* Data as of March 2020"
 msgstr ""
 
-#: warehouse/templates/pages/sponsors.html:85
+#: warehouse/templates/pages/sponsors.html:83
 msgid "Strengthen the Python ecosystem"
 msgstr ""
 
-#: warehouse/templates/pages/sponsors.html:86
+#: warehouse/templates/pages/sponsors.html:84
 msgid ""
 "Funds raised by the Python Software Foundation go directly towards improving "
 "the tools your company uses every day."
 msgstr ""
 
-#: warehouse/templates/pages/sponsors.html:89
+#: warehouse/templates/pages/sponsors.html:87
 msgid "Boost your reputation"
 msgstr ""
 
-#: warehouse/templates/pages/sponsors.html:90
+#: warehouse/templates/pages/sponsors.html:88
 msgid ""
 "Enhance your company's reputation by investing in Python and the open source "
 "community."

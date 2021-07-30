@@ -125,3 +125,6 @@ where ``project_l`` is the first letter of the project name.
 ``python_version`` can be one of many things, akin to the old file
 structure PyPI used to hold on disk. In general this is only a good idea
 for ``source`` as a ``python_version`` to fetch tar and zip files.
+Otherwise, you will want to match the format of the ``python_version``
+field of the releases in the `JSON
+API <https://warehouse.readthedocs.io/api-reference/json/>`__.

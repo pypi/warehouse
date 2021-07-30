@@ -51,6 +51,7 @@ from trove_classifiers import sorted_classifiers
 from warehouse import db
 from warehouse.accounts.models import User
 from warehouse.classifiers.models import Classifier
+from warehouse.integrations.vulnerabilities.models import VulnerabilityRecord
 from warehouse.sitemap.models import SitemapMixin
 from warehouse.utils import dotted_navigator
 from warehouse.utils.attrs import make_repr
@@ -421,6 +422,13 @@ class Release(db.Model):
         "Dependency",
         backref="release",
         cascade="all, delete-orphan",
+        passive_deletes=True,
+    )
+
+    vulnerabilities = orm.relationship(
+        VulnerabilityRecord,
+        back_populates="releases",
+        secondary="release_vulnerabilities",
         passive_deletes=True,
     )
 

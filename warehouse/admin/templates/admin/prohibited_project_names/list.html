@@ -67,6 +67,15 @@
               <i class="fa fa-times"></i>
             </button>
           </form>
+          <form method="POST" action="{{ request.route_path('admin.prohibited_project_names.release') }}">
+            <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
+            <input name="project_name" type="hidden" value="{{ prohibited_project_name.name }}">
+            <input name="next" type="hidden" value="{{ request.current_route_path() }}">
+            <button type="submit" class="btn btn-link" title="{{ "Submitting requires superuser privileges" if not request.has_permission('admin') }}" {{ "disabled" if not request.has_permission('admin') }}>
+              <i class="fa fa-hands"></i>
+            </button>
+            <input name="username" type="text">
+          </form>
         </td>
       </tr>
       {% endfor %}

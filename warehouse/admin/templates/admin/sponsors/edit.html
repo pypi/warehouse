@@ -1,0 +1,150 @@
+{#
+ # Licensed under the Apache License, Version 2.0 (the "License");
+ # you may not use this file except in compliance with the License.
+ # You may obtain a copy of the License at
+ #
+ # http://www.apache.org/licenses/LICENSE-2.0
+ #
+ # Unless required by applicable law or agreed to in writing, software
+ # distributed under the License is distributed on an "AS IS" BASIS,
+ # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ # See the License for the specific language governing permissions and
+ # limitations under the License.
+-#}
+{% extends "admin/base.html" %}
+
+{% macro render_field(label, field, input_id, placeholder=None, class=None) %}
+<div class="form-group{% if field.errors %} has-error{% endif %}">
+  <label for="{{ input_id }}" class="col-sm-2 control-label">{{ label }}</label>
+
+  <div class="col-sm-10">
+    {{ field(id=input_id, class=class, placeholder=placeholder)}}
+
+    {% if field.errors %}
+    <span class="help-block">
+        {% for error in field.errors %}
+        <div>{{ error }}</div>
+        {% endfor %}
+    </span>
+    {% endif %}
+  </div>
+</div>
+{% endmacro %}
+
+{% block title %}{% if sponsor %}{{ sponsor.name }}{% else %}Create sponsor{% endif %}{% endblock %}
+
+{% block breadcrumb %}
+  <li><a href="{{ request.route_path('admin.sponsor.list') }}">Sponsors</a></li>
+  {% if sponsor %}
+  <li class="active">{{ sponsor.name }}</li>
+  {% else %}
+  <li class="active">Create sponsor</li>
+  {% endif %}
+{% endblock %}
+
+{% block content %}
+  <div class="row">
+    <div class="col-md-12">
+      <div class="box box-primary">
+        <div class="box-header with-border">
+          {% if sponsor %}
+          <h3 class="box-title">Edit Sponsor</h3>
+
+          <div class="navbar-right">
+            <button type="button" class="btn btn-danger" data-toggle="modal" data-target="#deleteSponsor" {{ "disabled" if not request.has_permission('psf_staff') }} value=>
+              <i class="icon fa fa-trash"></i> Delete sponsor
+            </button>
+            &nbsp &nbsp
+          </div>
+          <div class="modal fade" id="deleteSponsor" tabindex="-1" role="dialog">
+            <form method="POST" action="{{ request.route_path('admin.sponsor.delete', sponsor_id=sponsor.id) }}">
+              <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
+              <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                  <div class="modal-header">
+                    <h4 class="modal-title" id="exampleModalLabel">Delete sponsor {{ sponsor.name }}?</h4>
+                    <button type="button" class="close" data-dismiss="modal">
+                      <span>&times;</span>
+                    </button>
+                  </div>
+                  <div class="modal-body">
+                    <p>
+                      This will permanently destroy the sponsor and cannot be undone.
+                    </p>
+                    {% if sponsor.is_active %}
+                    <p>
+                      <b>Important:</b> the sponsor is active and is being currently displayed.
+                    </p>
+                    {% endif %}
+                    <hr>
+                    <p>
+                      Type the sponsor '{{ sponsor.name }}' to confirm:
+                    </p>
+                    <input type="text" name="sponsor" placeholder="{{ sponsor.name }}">
+                  </div>
+                  <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    <button type="submit" class="btn btn-danger">Delete</button>
+                  </div>
+                </div>
+              </form>
+            </div>
+          </div>
+          {% else %}
+          <h3 class="box-title">Create sponsor</h3>
+          {% endif %}
+        </div>
+        <div class="box-body">
+          <form class="form-horizontal" method="POST" action="{{ request.current_route_path() }}" enctype="multipart/form-data">
+            <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
+
+            {% if form.errors.__all__ %}
+              {% for error in form.errors.__all__ %}
+              <div class="alert alert-danger"><i class="icon fa fa-ban"></i> {{ error }}</div>
+              {% endfor %}
+            {% endif %}
+
+            {{ render_field("Name", form.name, "sponsor-name", class="form-control", placeholder="Name") }}
+            {% if sponsor %}
+            {{ render_field("Is Active?", form.is_active, "sponsor-is-active") }}
+            {% endif %}
+            {{ render_field("Service", form.service, "sponsor-service", class="form-control", placeholder="Service") }}
+            {{ render_field("Landing URL", form.link_url, "sponsor-link-url", class="form-control", placeholder="Landing URL") }}
+            {{ render_field("Color logo Upload", form.color_logo, "sponsor-color-logo-upload", class="form-control") }}
+            {% if sponsor %}
+            <div class="form-group">
+              <label for="color-logo-url" class="col-sm-2 control-label">Color Logo URL</label>
+              <div class="col-sm-10">
+                <pre>{{ sponsor.color_logo_url }}</pre>
+              </div>
+            </div>
+            {% endif %}
+            {{ render_field("White logo Upload", form.white_logo, "sponsor-white-logo-upload", class="form-control") }}
+            {% if sponsor %}
+            <div class="form-group">
+              <label for="color-logo-url" class="col-sm-2 control-label">White Logo URL</label>
+              <div class="col-sm-10">
+                <pre>{{ sponsor.white_logo_url }}</pre>
+              </div>
+            </div>
+            {% endif %}
+            {{ render_field("Activity (as Markdown text)", form.activity_markdown, "sponsor-activity-markdown", placeholder="Activity text as markdown format") }}
+
+            {{ render_field("Footer", form.footer, "sponsor-footer") }}
+            {{ render_field("PSF Sponsor", form.psf_sponsor, "sponsor-psf-sponsor") }}
+            {{ render_field("Infra Sponsor", form.infra_sponsor, "sponsor-infra-sponsor") }}
+            {{ render_field("One Time", form.one_time, "sponsor-one-time") }}
+            {{ render_field("Sidebar", form.sidebar, "sponsor-sidebar") }}
+
+            <div class="form-group">
+              <div class="col-sm-offset-10 col-sm-2">
+                <button type="submit" class="btn btn-danger" title="{{ "Submitting requires superuser privileges" if not request.has_permission('psf_staff') }}" {{ "disabled" if not request.has_permission('psf_staff') }}>Submit</button>
+              </div>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
+{% endblock %}
