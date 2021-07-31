@@ -9,6 +9,7 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+import datetime
 import uuid
 
 import pretend
@@ -31,7 +32,7 @@ def banner_data():
         "name": "Sample Banner",
         "text": "This should be the correct text",
         "link_url": "https://samplebanner.com",
-        "end": "2021-07-30",
+        "end": (datetime.date.today() + datetime.timedelta(days=2)).isoformat(),
     }
 
 
