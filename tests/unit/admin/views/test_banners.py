@@ -104,7 +104,7 @@ class TestEditBanner:
             views.edit_banner(db_request)
 
     def test_update_banner(self, db_request, banner_data):
-        banner = BannerFactory.create(fa_icon="custom", **banner_data)
+        banner = BannerFactory.create(fa_icon="custom")
         assert banner.is_live
         form = views.BannerForm(MultiDict({}), banner)
         data = form.data.copy()
