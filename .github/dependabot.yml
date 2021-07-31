@@ -2,8 +2,7 @@ version: 2
 registries:
   python-index-repo-fury-io-dstufft:
     type: python-index
-    url: https://repo.fury.io/dstufft/
-    token: "${{secrets.PYTHON_INDEX_REPO_FURY_IO_DSTUFFT_TOKEN}}"
+    url: "${{secrets.PYTHON_INDEX_REPO_FURY_IO_DSTUFFT}}"
 
 updates:
 - package-ecosystem: pip
