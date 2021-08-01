@@ -65,12 +65,6 @@ RUN set -x \
         build-essential libffi-dev libxml2-dev libxslt-dev libpq-dev libcurl4-openssl-dev libssl-dev \
         $(if [ "$DEVEL" = "yes" ]; then echo 'libjpeg-dev'; fi)
 
-# We need a way for the build system to pass in a repository that will be used
-# to install our theme from. For this we'll add the THEME_REPO build argument
-# which takes a PEP 503 compatible repository URL that must be available to
-# install the requirements/theme.txt requirement file.
-ARG THEME_REPO
-
 # We create an /opt directory with a virtual environment in it to store our
 # application in.
 RUN set -x \
@@ -106,13 +100,11 @@ RUN set -x \
 # that code changes don't require triggering an entire install of all of
 # Warehouse's dependencies.
 RUN set -x \
-    && PIP_EXTRA_INDEX_URL=$THEME_REPO \
-        pip --no-cache-dir --disable-pip-version-check \
+    && pip --no-cache-dir --disable-pip-version-check \
             install --no-binary hiredis \
                     -r /tmp/requirements/deploy.txt \
                     -r /tmp/requirements/main.txt \
                     $(if [ "$DEVEL" = "yes" ]; then echo '-r /tmp/requirements/tests.txt -r /tmp/requirements/lint.txt'; fi) \
-                    $(if [ "$THEME_REPO" != "" ]; then echo '-r /tmp/requirements/theme.txt'; fi) \
     && find /opt/warehouse -name '*.pyc' -delete
 
 
