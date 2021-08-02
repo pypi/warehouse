@@ -14,6 +14,7 @@ import shlex
 
 import wtforms
 import wtforms.fields.html5
+import wtforms.validators
 
 from paginate_sqlalchemy import SqlalchemyOrmPage as SQLAlchemyORMPage
 from pyramid.httpexceptions import HTTPBadRequest, HTTPNotFound, HTTPSeeOther
@@ -95,6 +96,14 @@ class UserForm(forms.Form):
 
     emails = wtforms.fields.FieldList(wtforms.fields.FormField(EmailForm))
 
+    def validate_emails(self, field):
+        # If there's no email on the account, it's ok. Otherwise, ensure
+        # we have 1 primary email.
+        if field.data and len([1 for email in field.data if email["primary"]]) != 1:
+            raise wtforms.validators.ValidationError(
+                "There must be exactly one primary email"
+            )
+
 
 @view_config(
     route_name="admin.user.detail",
@@ -134,6 +143,7 @@ def user_detail(request):
 
     if request.method == "POST" and form.validate():
         form.populate_obj(user)
+        request.session.flash(f"User {user.username!r} updated", queue="success")
         return HTTPSeeOther(location=request.current_route_path())
 
     return {"user": user, "form": form, "roles": roles, "add_email_form": EmailForm()}
@@ -151,6 +161,11 @@ def user_add_email(request):
     form = EmailForm(request.POST)
 
     if form.validate():
+
+        if form.primary.data:
+            for other in user.emails:
+                other.primary = False
+
         email = Email(
             email=form.email.data,
             user=user,

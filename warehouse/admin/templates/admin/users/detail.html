@@ -193,6 +193,11 @@
 
               <div class="box-body">
                 <table class="table table-hover">
+                  {% if form.errors.emails %}
+                    {% for error in form.errors.emails %}
+                      <div class="alert alert-danger"><i class="icon fa fa-ban"></i> {{ error }}</div>
+                    {% endfor %}
+                  {% endif %}
                   {% for field in form.emails.entries %}
                   <tr>
                     <td>
