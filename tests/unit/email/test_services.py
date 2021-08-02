@@ -198,6 +198,10 @@ class TestSESEmailSender:
         [
             ("Foobar <somebody@example.com>", "somebody@example.com"),
             ('"bond, james bond" <007@mi6.uk>', "007@mi6.uk"),
+            (
+                '"RWTH Aachen University, Institute for Energy Efficient Buildings and Indoor Climate" <me@example.com>',
+                "me@example.com",
+            ),
         ],
     )
     def test_send_with_plaintext(self, db_session, recipient, to):
