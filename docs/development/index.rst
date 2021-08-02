@@ -36,6 +36,7 @@ Get involved or find help using:
     legacy-application-structure
     development-database
     cloud
+    email
     malware-checks
     token-scanning
 
