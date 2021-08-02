@@ -193,7 +193,14 @@ class TestSESEmailSender:
         assert sender._sender == "DevPyPI <noreply@example.com>"
         assert sender._db is request.db
 
-    def test_send_with_plaintext(self, db_session):
+    @pytest.mark.parametrize(
+        "recipient, to",
+        [
+            ("Foobar <somebody@example.com>", "somebody@example.com"),
+            ('"bond, james bond" <007@mi6.uk>', "007@mi6.uk"),
+        ],
+    )
+    def test_send_with_plaintext(self, db_session, recipient, to):
         resp = {"MessageId": str(uuid.uuid4()) + "-ses"}
         aws_client = pretend.stub(
             send_raw_email=pretend.call_recorder(lambda *a, **kw: resp)
@@ -203,7 +210,7 @@ class TestSESEmailSender:
         )
 
         sender.send(
-            "Foobar <somebody@example.com>",
+            recipient,
             EmailMessage(
                 subject="This is a Subject", body_text="This is a plain text body"
             ),
@@ -212,12 +219,16 @@ class TestSESEmailSender:
         assert aws_client.send_raw_email.calls == [
             pretend.call(
                 Source="DevPyPI <noreply@example.com>",
-                Destinations=["Foobar <somebody@example.com>"],
+                Destinations=[recipient],
                 RawMessage={
                     "Data": (
                         b"Subject: This is a Subject\n"
                         b"From: DevPyPI <noreply@example.com>\n"
-                        b"To: Foobar <somebody@example.com>\n"
+                        b"To: "
+                    )
+                    + recipient.encode()
+                    + (
+                        b"\n"
                         b'Content-Type: text/plain; charset="utf-8"\n'
                         b"Content-Transfer-Encoding: 7bit\n"
                         b"MIME-Version: 1.0\n"
@@ -235,7 +246,7 @@ class TestSESEmailSender:
         )
 
         assert em.from_ == "noreply@example.com"
-        assert em.to == "somebody@example.com"
+        assert em.to == to
         assert em.subject == "This is a Subject"
 
     def test_send_with_unicode_and_html(self, db_session):

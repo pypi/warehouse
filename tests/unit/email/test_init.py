@@ -54,6 +54,11 @@ from ...common.db.accounts import EmailFactory, UserFactory
             "other@example.com",
             "bar <other@example.com>",
         ),
+        (
+            pretend.stub(name="bond, james bond", username="foo", email="007@mi6.uk"),
+            None,
+            '"bond, james bond" <007@mi6.uk>',
+        ),
     ],
 )
 def test_compute_recipient(user, address, expected):
