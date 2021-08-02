@@ -53,6 +53,8 @@
   {% set icon = "fas fa-cube" %}
 {% elif parsed.netloc == "python.org" or parsed.netloc.endswith(".python.org") %}
   {% set icon = "fab fa-python" %}
+{% elif parsed.netloc == "youtube.com" or parsed.netloc.endswith(".youtube.com") %}
+  {% set icon = "fab fa-youtube" %}
 {% else %}
   {% set icon = "fas fa-external-link-square-alt" %}
 {% endif %}
