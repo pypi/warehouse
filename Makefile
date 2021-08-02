@@ -128,7 +128,7 @@ deps: .state/env/pyvenv.cfg
 	$(BINDIR)/pip check
 
 requirements/%.txt: requirements/%.in
-	$(BINDIR)/pip-compile --allow-unsafe --generate-hashes --output-file=$@ $< > /dev/null
+	$(BINDIR)/pip-compile --allow-unsafe --generate-hashes --output-file=$@ $<
 
 
 github-actions-deps:
