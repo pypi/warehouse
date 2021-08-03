@@ -403,6 +403,8 @@ def configure(settings=None):
 
     config.include(".policy")
 
+    config.include(".blog")
+
     config.include(".search")
 
     # Register the support for AWS and Google Cloud

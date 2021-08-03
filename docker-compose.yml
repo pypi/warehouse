@@ -87,6 +87,7 @@ services:
       - .coveragerc:/opt/warehouse/src/.coveragerc:z
       - packages:/var/opt/warehouse/packages
       - sponsorlogos:/var/opt/warehouse/sponsorlogos
+      - ./blog:/opt/warehouse/src/blog:z
       - ./bin:/opt/warehouse/src/bin:z
     ports:
       - "80:8000"
