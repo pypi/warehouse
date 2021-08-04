@@ -73,6 +73,8 @@
 
     {% if request.registry.settings.get("warehouse.domain") == "test.pypi.org" %}
       {% set testPyPI = true %}
+    {% elif request.registry.settings.get("warehouse.env").value == "development" %}
+      {% set devPyPI = true %}
     {% endif %}
 
     <title>{% block title_base %}{% block title %}{% endblock %}{% if self.title() %} · {% endif %}{{ request.registry.settings['site.name'] }}{% endblock %}</title>
@@ -204,7 +206,7 @@
       {% endcsi %}
     {% endblock %}
 
-    <header class="site-header {% if testPyPI %}site-header--test-pypi{% endif %}">
+    <header class="site-header {% if testPyPI %}site-header--test-pypi{% elif devPyPI %}site-header--dev-pypi{% else %}{% endif %}">
       <div class="site-container">
         <div class="split-layout">
           {% block brand %}

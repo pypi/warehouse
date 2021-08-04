@@ -60,7 +60,6 @@ File            Purpose
 =============== ============================================
 ``dev.txt``     Various development dependencies
 ``ipython.txt`` Specific to using IPython as your shell
-``theme.txt``   Private dependencies for our logos and theme
 =============== ============================================
 
 To add a new dependency:

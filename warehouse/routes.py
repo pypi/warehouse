@@ -51,9 +51,7 @@ def includeme(config):
     config.add_template_view(
         "sponsors",
         "/sponsors/",
-        # Use the full resource path here to make it able to be overridden by
-        # pypi-theme.
-        "warehouse:templates/pages/sponsors.html",
+        "pages/sponsors.html",
         view_kw={"has_translations": True},
     )
 

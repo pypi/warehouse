@@ -161,7 +161,6 @@ def test_maybe_set_compound(monkeypatch, environ, base, name, envvar, expected):
         (None, config.Environment.development, {}),
         ({}, config.Environment.development, {}),
         ({"my settings": "the settings value"}, config.Environment.development, {}),
-        (None, config.Environment.production, {"warehouse.theme": "my_theme"}),
     ],
 )
 def test_configure(monkeypatch, settings, environment, other_settings):

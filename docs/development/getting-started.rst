@@ -252,9 +252,6 @@ At this point all the services are up, and web container is listening on port
 
 .. note::
 
-    In development mode, the official logos are replaced with placeholders due to
-    copyright.
-
     On Firefox, the logos might show up as black rectangles due to  the
     *Content Security Policy* used and an implementation bug in Firefox (see
     `this bug report <https://bugzilla.mozilla.org/show_bug.cgi?id=1262842>`_
