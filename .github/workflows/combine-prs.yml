@@ -38,7 +38,7 @@ jobs:
             for (const pull of pulls) {
               const branch = pull['head']['ref'];
               console.log('Pull for branch: ' + branch);
-              if (pull['user']['login'].match(/^(dependabot|dependabot-preview)$/)) {
+              if (pull['user']['login'].match(/^(dependabot\[bot\]|dependabot-preview\[bot\])$/)) {
                 console.log('Branch matched: ' + branch);
                 statusOK = true;
                 if(${{ github.event.inputs.mustBeGreen }}) {
