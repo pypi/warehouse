@@ -42,6 +42,7 @@ flake8==4.0.1 \
     # via
     #   -r requirements/lint.in
     #   flake8-polyfill
+    #   pep8-naming
 flake8-polyfill==1.0.2 \
     --hash=sha256:12be6a34ee3ab795b19ca73505e7b55826d5f6ad7230d31b18e106400169b9e9 \
     --hash=sha256:e44b087597f6da52ec6393a709e7108b2905317d0c0b744cdca6208e670d8eda
@@ -72,9 +73,9 @@ pbr==5.6.0 \
     --hash=sha256:42df03e7797b796625b1029c0400279c7c34fd7df24a7d7818a1abb5b38710dd \
     --hash=sha256:c68c661ac5cc81058ac94247278eeda6d2e6aecb3e227b0387c30d277e7ef8d4
     # via stevedore
-pep8-naming==0.11.1 \
-    --hash=sha256:a1dd47dd243adfe8a83616e27cf03164960b507530f155db94e10b36a6cd6724 \
-    --hash=sha256:f43bfe3eea7e0d73e8b5d07d6407ab47f2476ccaeff6937c84275cd30b016738
+pep8-naming==0.12.1 \
+    --hash=sha256:4a8daeaeb33cfcde779309fc0c9c0a68a3bbe2ad8a8308b763c5068f86eb9f37 \
+    --hash=sha256:bb2455947757d162aa4cad55dba4ce029005cd1692f2899a21d51d8630ca7841
     # via -r requirements/lint.in
 pycodestyle==2.8.0 \
     --hash=sha256:720f8b39dde8b293825e7ff02c475f3077124006db4f440dcbc9a20b76548a20 \
