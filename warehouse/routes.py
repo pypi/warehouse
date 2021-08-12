@@ -126,6 +126,7 @@ def includeme(config):
     )
 
     # Accounts
+    config.add_redirect("/u/{username}/", "/user/{username}/", domain=warehouse)
     config.add_route(
         "accounts.profile",
         "/user/{username}/",
@@ -346,6 +347,7 @@ def includeme(config):
 
     # Legacy URLs
     config.add_route("legacy.api.simple.index", "/simple/", domain=warehouse)
+    config.add_redirect("/s/{name}/", "/simple/{name}/", domain=warehouse)
     config.add_route(
         "legacy.api.simple.detail",
         "/simple/{name}/",
