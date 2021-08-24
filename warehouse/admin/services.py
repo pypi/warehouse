@@ -50,6 +50,7 @@ class LocalSponsorLogoStorage:
         with open(destination, "wb") as dest_fp:
             with open(file_path, "rb") as src_fp:
                 dest_fp.write(src_fp.read())
+                dest_fp.flush()
         return f"http://files:9001/sponsorlogos/{path}"
 
 
