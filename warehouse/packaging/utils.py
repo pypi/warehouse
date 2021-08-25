@@ -33,7 +33,19 @@ def render_simple_detail(project, request, store=False):
     content_hasher = hashlib.blake2b(digest_size=256 // 8)
     content_hasher.update(content.encode("utf-8"))
     content_hash = content_hasher.hexdigest().lower()
-    simple_detail_path = f"{project.normalized_name}/{content_hash}.html"
+
+    simple_detail_path = f"{content_hash}.{project.normalized_name}"
+    #  should we maybe do something similar to how packages are stored like...
+    #  simple_detail_path = (
+    #      "/".join(
+    #          [
+    #              content_hash[:2],
+    #              content_hash[2:4],
+    #              content_hash[4:],
+    #          ]
+    #      )
+    #      + f".{project.normalized_name}"
+    #  )
 
     if store:
         storage = request.find_service(ISimpleStorage)
@@ -41,6 +53,14 @@ def render_simple_detail(project, request, store=False):
             f.write(content.encode("utf-8"))
             storage.store(
                 simple_detail_path,
+                f.name,
+                meta={
+                    "project": project.normalized_name,
+                    "hash": content_hash,
+                },
+            )
+            storage.store(
+                project.normalized_name,
                 f.name,
                 meta={
                     "project": project.normalized_name,
