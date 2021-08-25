@@ -25,12 +25,16 @@ import pyramid.testing
 import pytest
 import webtest as _webtest
 
+from jinja2 import Environment, FileSystemLoader
 from psycopg2.errors import InvalidCatalogName
 from pyramid.i18n import TranslationString
 from pyramid.static import ManifestCacheBuster
+from pyramid_jinja2 import IJinja2Environment
 from pytest_postgresql.config import get_config
 from pytest_postgresql.janitor import DatabaseJanitor
 from sqlalchemy import event
+
+import warehouse
 
 from warehouse import admin, config, static
 from warehouse.accounts import services as account_services
@@ -76,6 +80,22 @@ def metrics():
     )
 
 
+@pytest.fixture
+def jinja():
+    dir_name = os.path.join(os.path.dirname(warehouse.__file__))
+
+    env = Environment(
+        loader=FileSystemLoader(dir_name),
+        extensions=[
+            "jinja2.ext.i18n",
+            "warehouse.utils.html.ClientSideIncludeExtension",
+        ],
+        cache_size=0,
+    )
+
+    return env
+
+
 class _Services:
     def __init__(self):
         self._services = defaultdict(lambda: defaultdict(dict))
@@ -98,10 +118,12 @@ def pyramid_services(metrics):
 
 
 @pytest.fixture
-def pyramid_request(pyramid_services):
+def pyramid_request(pyramid_services, jinja):
     dummy_request = pyramid.testing.DummyRequest()
     dummy_request.find_service = pyramid_services.find_service
     dummy_request.remote_addr = "1.2.3.4"
+
+    dummy_request.registry.registerUtility(jinja, IJinja2Environment, name=".jinja2")
 
     def localize(message, **kwargs):
         ts = TranslationString(message, **kwargs)
