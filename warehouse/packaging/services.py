@@ -170,37 +170,6 @@ class S3FileStorage(GenericFileStorage):
         self.bucket.upload_file(file_path, path, ExtraArgs=extra_args)
 
 
-@implementer(ISimpleStorage)
-class S3SimpleStorage(GenericFileStorage):
-    @classmethod
-    def create_service(cls, context, request):
-        session = request.find_service(name="aws.session")
-        s3 = session.resource("s3")
-        bucket = s3.Bucket(request.registry.settings["files.bucket"])
-        prefix = request.registry.settings.get("files.prefix")
-        return cls(bucket, prefix=prefix)
-
-    def get(self, path):
-        # Note: this is not actually used in production, instead our CDN is
-        # configured to connect directly to our storage bucket. See:
-        # https://github.com/python/pypi-infra/blob/master/terraform/file-hosting/vcl/main.vcl
-        try:
-            return self.bucket.Object(self._get_path(path)).get()["Body"]
-        except botocore.exceptions.ClientError as exc:
-            if exc.response["Error"]["Code"] != "NoSuchKey":
-                raise
-            raise FileNotFoundError("No such key: {!r}".format(path)) from None
-
-    def store(self, path, file_path, *, meta=None):
-        extra_args = {}
-        if meta is not None:
-            extra_args["Metadata"] = meta
-
-        path = self._get_path(path)
-
-        self.bucket.upload_file(file_path, path, ExtraArgs=extra_args)
-
-
 @implementer(IDocsStorage)
 class S3DocsStorage:
     def __init__(self, s3_client, bucket_name, *, prefix=None):
@@ -294,9 +263,9 @@ class GCSSimpleStorage(GenericFileStorage):
     )
     def create_service(cls, context, request):
         storage_client = request.find_service(name="gcloud.gcs")
-        bucket_name = request.registry.settings["files.bucket"]
+        bucket_name = request.registry.settings["simple.bucket"]
         bucket = storage_client.get_bucket(bucket_name)
-        prefix = request.registry.settings.get("files.prefix")
+        prefix = request.registry.settings.get("simple.prefix")
 
         return cls(bucket, prefix=prefix)
 
