@@ -18,7 +18,7 @@ from sqlalchemy import func
 from warehouse.cache.http import cache_control
 from warehouse.cache.origin import origin_cache
 from warehouse.packaging.models import JournalEntry, Project
-from warehouse.packaging.utils import _simple_detail, render_simple_detail
+from warehouse.packaging.utils import _simple_detail
 
 
 @view_config(
@@ -72,7 +72,5 @@ def simple_detail(project, request):
 
     # Get the latest serial number for this project.
     request.response.headers["X-PyPI-Last-Serial"] = str(project.last_serial)
-
-    render_simple_detail(project, request, store=True)
 
     return _simple_detail(project, request)
