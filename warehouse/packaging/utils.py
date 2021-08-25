@@ -10,7 +10,7 @@ from warehouse.packaging.models import File, Release
 
 
 def _simple_detail(project, request):
-   # Get all of the files for this project.
+    # Get all of the files for this project.
     files = sorted(
         request.db.query(File)
         .options(joinedload(File.release))
@@ -38,7 +38,7 @@ def render_simple_detail(project, request, store=False):
     if store:
         storage = request.find_service(ISimpleStorage)
         with tempfile.NamedTemporaryFile() as f:
-            f.write(content.encode('utf-8'))
+            f.write(content.encode("utf-8"))
             storage.store(
                 simple_detail_path,
                 f.name,

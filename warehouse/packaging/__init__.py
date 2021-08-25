@@ -43,7 +43,9 @@ def includeme(config):
     files_storage_class = config.maybe_dotted(config.registry.settings["files.backend"])
     config.register_service_factory(files_storage_class.create_service, IFileStorage)
 
-    simple_storage_class = config.maybe_dotted(config.registry.settings["simple.backend"])
+    simple_storage_class = config.maybe_dotted(
+        config.registry.settings["simple.backend"]
+    )
     config.register_service_factory(simple_storage_class.create_service, ISimpleStorage)
 
     docs_storage_class = config.maybe_dotted(config.registry.settings["docs.backend"])
