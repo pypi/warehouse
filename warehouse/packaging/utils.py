@@ -11,6 +11,7 @@
 # limitations under the License.
 
 import hashlib
+import os.path
 import tempfile
 
 from packaging.version import parse
@@ -47,17 +48,6 @@ def render_simple_detail(project, request, store=False):
     content_hash = content_hasher.hexdigest().lower()
 
     simple_detail_path = f"{project.normalized_name}/{content_hash}.{project.normalized_name}.html"
-    #  should we maybe do something similar to how packages are stored like...
-    #  simple_detail_path = (
-    #      "/".join(
-    #          [
-    #              content_hash[:2],
-    #              content_hash[2:4],
-    #              content_hash[4:],
-    #          ]
-    #      )
-    #      + f".{project.normalized_name}"
-    #  )
 
     if store:
         storage = request.find_service(ISimpleStorage)
@@ -68,6 +58,7 @@ def render_simple_detail(project, request, store=False):
                 f.name,
                 meta={
                     "project": project.normalized_name,
+                    "pypi-last-serial": project.last_serial,
                     "hash": content_hash,
                 },
             )
@@ -76,6 +67,7 @@ def render_simple_detail(project, request, store=False):
                 f.name,
                 meta={
                     "project": project.normalized_name,
+                    "pypi-last-serial": project.last_serial,
                     "hash": content_hash,
                 },
             )
