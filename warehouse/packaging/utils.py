@@ -46,7 +46,7 @@ def render_simple_detail(project, request, store=False):
     content_hasher.update(content.encode("utf-8"))
     content_hash = content_hasher.hexdigest().lower()
 
-    simple_detail_path = f"{content_hash}.{project.normalized_name}"
+    simple_detail_path = f"{project.normalized_name}/{content_hash}.{project.normalized_name}.html"
     #  should we maybe do something similar to how packages are stored like...
     #  simple_detail_path = (
     #      "/".join(
