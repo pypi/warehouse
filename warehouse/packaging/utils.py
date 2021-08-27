@@ -47,7 +47,9 @@ def render_simple_detail(project, request, store=False):
     content_hasher.update(content.encode("utf-8"))
     content_hash = content_hasher.hexdigest().lower()
 
-    simple_detail_path = f"{project.normalized_name}/{content_hash}.{project.normalized_name}.html"
+    simple_detail_path = (
+        f"{project.normalized_name}/{content_hash}.{project.normalized_name}.html"
+    )
 
     if store:
         storage = request.find_service(ISimpleStorage)

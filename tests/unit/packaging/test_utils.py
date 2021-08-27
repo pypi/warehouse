@@ -43,7 +43,10 @@ def test_render_simple_detail(db_request, monkeypatch, jinja):
     assert fake_hasher.hexdigest.calls == [pretend.call()]
 
     assert content_hash == "deadbeefdeadbeefdeadbeefdeadbeef"
-    assert path == f"{project.normalized_name}/deadbeefdeadbeefdeadbeefdeadbeef.{project.normalized_name}.html"
+    assert path == (
+        f"{project.normalized_name}/deadbeefdeadbeefdeadbeefdeadbeef"
+        + f".{project.normalized_name}.html"
+    )
 
 
 def test_render_simple_detail_with_store(db_request, monkeypatch, jinja):
@@ -97,7 +100,10 @@ def test_render_simple_detail_with_store(db_request, monkeypatch, jinja):
 
     assert storage_service.store.calls == [
         pretend.call(
-            f"{project.normalized_name}/deadbeefdeadbeefdeadbeefdeadbeef.{project.normalized_name}.html",
+            (
+                f"{project.normalized_name}/deadbeefdeadbeefdeadbeefdeadbeef"
+                + f".{project.normalized_name}.html"
+            ),
             "/tmp/wutang",
             meta={
                 "project": project.normalized_name,
@@ -117,4 +123,7 @@ def test_render_simple_detail_with_store(db_request, monkeypatch, jinja):
     ]
 
     assert content_hash == "deadbeefdeadbeefdeadbeefdeadbeef"
-    assert path == f"{project.normalized_name}/deadbeefdeadbeefdeadbeefdeadbeef.{project.normalized_name}.html"
+    assert path == (
+        f"{project.normalized_name}/deadbeefdeadbeefdeadbeefdeadbeef"
+        + f".{project.normalized_name}.html"
+    )
