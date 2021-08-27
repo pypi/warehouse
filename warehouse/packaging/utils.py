@@ -72,7 +72,7 @@ def render_simple_detail(project, request, store=False):
                 },
             )
             storage.store(
-                project.normalized_name,
+                os.path.join(project.normalized_name, "index.html"),
                 f.name,
                 meta={
                     "project": project.normalized_name,
