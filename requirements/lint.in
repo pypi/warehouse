@@ -2,5 +2,5 @@ doc8
 flake8
 curlylint
 pep8-naming
-black==21.7b0
+black==21.8b0
 isort>=5
