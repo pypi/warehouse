@@ -1321,7 +1321,7 @@ def file_upload(request):
         # Also buffer the entire signature file to disk.
         if "gpg_signature" in request.POST:
             has_signature = True
-            with open(os.path.join(tmpdir, filename + ".asc"), "wb") as fp:
+            with open(temporary_filename + ".asc", "wb") as fp:
                 signature_size = 0
                 for chunk in iter(
                     lambda: request.POST["gpg_signature"].file.read(8096), b""
@@ -1332,7 +1332,7 @@ def file_upload(request):
                     fp.write(chunk)
 
             # Check whether signature is ASCII armored
-            with open(os.path.join(tmpdir, filename + ".asc"), "rb") as fp:
+            with open(temporary_filename + ".asc", "rb") as fp:
                 if not fp.read().startswith(b"-----BEGIN PGP SIGNATURE-----"):
                     raise _exc_with_message(
                         HTTPBadRequest, "PGP signature isn't ASCII armored."
@@ -1412,7 +1412,7 @@ def file_upload(request):
         storage = request.find_service(IFileStorage, name="primary")
         storage.store(
             file_.path,
-            os.path.join(tmpdir, filename),
+            temporary_filename,
             meta={
                 "project": file_.release.project.normalized_name,
                 "version": file_.release.version,
@@ -1423,7 +1423,7 @@ def file_upload(request):
         if has_signature:
             storage.store(
                 file_.pgp_path,
-                os.path.join(tmpdir, filename + ".asc"),
+                temporary_filename + ".asc",
                 meta={
                     "project": file_.release.project.normalized_name,
                     "version": file_.release.version,
