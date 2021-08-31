@@ -1308,6 +1308,7 @@ def file_upload(request):
 
         # Check that if it's a binary wheel, it's on a supported platform
         if filename.endswith(".whl"):
+            has_wheel_metadata = True
             wheel_info = _wheel_file_re.match(filename)
             plats = wheel_info.group("plat").split(".")
             for plat in plats:
@@ -1317,6 +1318,14 @@ def file_upload(request):
                         "Binary wheel '{filename}' has an unsupported "
                         "platform tag '{plat}'.".format(filename=filename, plat=plat),
                     )
+            # Extract .metadata file
+            # https://www.python.org/dev/peps/pep-0658/#specification
+            with zipfile.ZipFile(temporary_filename) as zfp:
+                metafile = wheel_info.group("namever") + ".dist-info/METADATA"
+                with open(temporary_filename + ".metadata", "wb") as fp:
+                    fp.write(zfp.read(metafile))
+        else:
+            has_wheel_metadata = False
 
         # Also buffer the entire signature file to disk.
         if "gpg_signature" in request.POST:
@@ -1420,6 +1429,17 @@ def file_upload(request):
                 "python-version": file_.python_version,
             },
         )
+        if has_wheel_metadata:
+            storage.store(
+                file_.path + ".metadata",
+                temporary_filename + ".metadata",
+                meta={
+                    "project": file_.release.project.normalized_name,
+                    "version": file_.release.version,
+                    "package-type": file_.packagetype,
+                    "python-version": file_.python_version,
+                },
+            )
         if has_signature:
             storage.store(
                 file_.pgp_path,
