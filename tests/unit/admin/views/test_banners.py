@@ -31,7 +31,7 @@ def banner_data():
         "name": "Sample Banner",
         "text": "This should be the correct text",
         "link_url": "https://samplebanner.com",
-        "end": "2021-07-30",
+        "end": "2030-07-30",
     }
 
 
