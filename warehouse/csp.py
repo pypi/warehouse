@@ -99,6 +99,7 @@ def includeme(config):
                     config.registry.settings["camo.url"],
                     "www.google-analytics.com",
                     "*.fastly-insights.com",
+                    "*.ethicalads.io"
                 ],
                 "script-src": [
                     SELF,
@@ -106,8 +107,13 @@ def includeme(config):
                     "www.google-analytics.com",
                     "*.fastly-insights.com",
                     "https://cdn.ravenjs.com",
+                    "*.ethicalads.io"
                 ],
-                "style-src": [SELF, "fonts.googleapis.com"],
+                "style-src": [
+                    SELF,
+                    "fonts.googleapis.com",
+                    "*.ethicalads.io"
+                ],
                 "worker-src": ["*.fastly-insights.com"],
             }
         }

@@ -216,6 +216,7 @@ def test_includeme():
                         "camo.url.value",
                         "www.google-analytics.com",
                         "*.fastly-insights.com",
+                        "*.ethicalads.io"
                     ],
                     "script-src": [
                         "'self'",
@@ -223,8 +224,13 @@ def test_includeme():
                         "www.google-analytics.com",
                         "*.fastly-insights.com",
                         "https://cdn.ravenjs.com",
+                        "*.ethicalads.io"
                     ],
-                    "style-src": ["'self'", "fonts.googleapis.com"],
+                    "style-src": [
+                        "'self'",
+                        "fonts.googleapis.com",
+                        "*.ethicalads.io"
+                    ],
                     "worker-src": ["*.fastly-insights.com"],
                 }
             }
