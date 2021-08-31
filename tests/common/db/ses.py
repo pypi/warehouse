@@ -11,35 +11,39 @@
 # limitations under the License.
 
 import datetime
+import random
 
 import factory
-import factory.fuzzy
 
 from warehouse.email.ses.models import EmailMessage, Event, EventTypes
 
-from .base import FuzzyEmail, WarehouseFactory
+from .base import WarehouseFactory
 
 
 class EmailMessageFactory(WarehouseFactory):
     class Meta:
         model = EmailMessage
 
-    created = factory.fuzzy.FuzzyNaiveDateTime(
-        datetime.datetime.utcnow() - datetime.timedelta(days=14)
+    created = factory.faker.Faker(
+        "date_time_between_dates",
+        datetime_start=datetime.datetime.utcnow() - datetime.timedelta(days=14)
     )
-    message_id = factory.fuzzy.FuzzyText(length=12)
-    from_ = FuzzyEmail()
-    to = FuzzyEmail()
-    subject = factory.fuzzy.FuzzyText(length=100)
+    from_ = factory.faker.Faker("email")
+    to = factory.faker.Faker("email")
+    message_id = factory.faker.Faker("password", special_chars=False, length=12)
+    subject = factory.faker.Faker("text", max_nb_chars=100)
 
 
 class EventFactory(WarehouseFactory):
     class Meta:
         model = Event
 
-    created = factory.fuzzy.FuzzyNaiveDateTime(
-        datetime.datetime.utcnow() - datetime.timedelta(days=14)
+    created = factory.faker.Faker(
+        "date_time_between_dates",
+        datetime_start=datetime.datetime.utcnow() - datetime.timedelta(days=14)
     )
     email = factory.SubFactory(EmailMessageFactory)
-    event_id = factory.fuzzy.FuzzyText(length=12)
-    event_type = factory.fuzzy.FuzzyChoice([e.value for e in EventTypes])
+    event_id = factory.faker.Faker("password", special_chars=False, length=12)
+    event_type = factory.LazyFunction(
+        lambda: random.choice([e.value for e in EventTypes])
+    )

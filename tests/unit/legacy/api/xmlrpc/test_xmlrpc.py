@@ -852,7 +852,7 @@ def test_changelog(db_request, with_ids):
             e.id,
         )
         for e in entries
-        if (e.submitted_date.replace(tzinfo=datetime.timezone.utc).timestamp() > since)
+        if (e.submitted_date.replace(tzinfo=datetime.timezone.utc).timestamp() > since - 1)
     ]
 
     if not with_ids:

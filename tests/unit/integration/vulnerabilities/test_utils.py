@@ -12,7 +12,6 @@
 
 import collections
 
-import factory.fuzzy
 import pretend
 import pytest
 
@@ -258,7 +257,7 @@ def test_analyze_vulnerability_project_not_found(db_request, metrics):
         utils.analyze_vulnerability(
             request=db_request,
             vulnerability_report={
-                "project": factory.fuzzy.FuzzyText(length=8).fuzz(),
+                "project": "test_project",
                 "versions": ["1", "2"],
                 "id": "vuln_id",
                 "link": "vulns.com/vuln_id",

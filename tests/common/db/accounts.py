@@ -13,28 +13,33 @@
 import datetime
 
 import factory
-import factory.fuzzy
+import factory.faker
 
 from warehouse.accounts.models import Email, User, UserEvent
 
-from .base import FuzzyEmail, WarehouseFactory
+from .base import WarehouseFactory
 
 
 class UserFactory(WarehouseFactory):
     class Meta:
         model = User
 
-    username = factory.fuzzy.FuzzyText(length=12)
-    name = factory.fuzzy.FuzzyText(length=12)
+    username = factory.faker.Faker("password", special_chars=False)
+    name = factory.faker.Faker("name")
     password = "!"
     is_active = True
     is_superuser = False
     is_moderator = False
     is_psf_staff = False
-    date_joined = factory.fuzzy.FuzzyNaiveDateTime(
-        datetime.datetime(2005, 1, 1), datetime.datetime(2010, 1, 1)
+    date_joined = factory.faker.Faker(
+        "date_time_between_dates",
+        datetime_start=datetime.datetime(2005, 1, 1),
+        datetime_end=datetime.datetime(2010, 1, 1),
     )
-    last_login = factory.fuzzy.FuzzyNaiveDateTime(datetime.datetime(2011, 1, 1))
+    last_login = factory.faker.Faker(
+        "date_time_between_dates",
+        datetime_start=datetime.datetime(2011, 1, 1),
+    )
 
 
 class UserEventFactory(WarehouseFactory):
@@ -49,7 +54,7 @@ class EmailFactory(WarehouseFactory):
         model = Email
 
     user = factory.SubFactory(UserFactory)
-    email = FuzzyEmail()
+    email = factory.faker.Faker("email")
     verified = True
     primary = True
     public = False

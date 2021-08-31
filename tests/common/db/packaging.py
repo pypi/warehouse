@@ -13,9 +13,9 @@
 import datetime
 import hashlib
 import uuid
+import random
 
 import factory
-import factory.fuzzy
 import packaging.utils
 
 from warehouse.packaging.models import (
@@ -42,7 +42,7 @@ class ProjectFactory(WarehouseFactory):
         model = Project
 
     id = factory.LazyFunction(uuid.uuid4)
-    name = factory.fuzzy.FuzzyText(length=12)
+    name = factory.faker.Faker("password", special_chars=False, length=12)
 
 
 class ProjectEventFactory(WarehouseFactory):
@@ -57,7 +57,7 @@ class DescriptionFactory(WarehouseFactory):
         model = Description
 
     id = factory.LazyFunction(uuid.uuid4)
-    raw = factory.fuzzy.FuzzyText(length=100)
+    raw = factory.faker.Faker("text", max_nb_chars=100)
     html = factory.LazyAttribute(lambda o: readme.render(o.raw))
     rendered_by = factory.LazyAttribute(lambda o: readme.renderer_version())
 
@@ -84,7 +84,7 @@ class FileFactory(WarehouseFactory):
 
     release = factory.SubFactory(ReleaseFactory)
     python_version = "source"
-    filename = factory.fuzzy.FuzzyText(length=12)
+    filename = factory.faker.Faker("file_name")
     md5_digest = factory.LazyAttribute(
         lambda o: hashlib.md5(o.filename.encode("utf8")).hexdigest()
     )
@@ -94,7 +94,10 @@ class FileFactory(WarehouseFactory):
     blake2_256_digest = factory.LazyAttribute(
         lambda o: hashlib.blake2b(o.filename.encode("utf8"), digest_size=32).hexdigest()
     )
-    upload_time = factory.fuzzy.FuzzyNaiveDateTime(datetime.datetime(2008, 1, 1))
+    upload_time = factory.faker.Faker(
+        "date_time_between_dates",
+        datetime_start=datetime.datetime(2008, 1, 1)
+    )
     path = factory.LazyAttribute(
         lambda o: "/".join(
             [
@@ -131,8 +134,10 @@ class DependencyFactory(WarehouseFactory):
         model = Dependency
 
     release = factory.SubFactory(ReleaseFactory)
-    kind = factory.fuzzy.FuzzyChoice(int(kind) for kind in DependencyKind)
-    specifier = factory.fuzzy.FuzzyText(length=12)
+    kind = factory.LazyFunction(
+        lambda: random.choice([int(kind) for kind in DependencyKind])
+    )
+    specifier = factory.faker.Faker("word")
 
 
 class JournalEntryFactory(WarehouseFactory):
@@ -140,9 +145,12 @@ class JournalEntryFactory(WarehouseFactory):
         model = JournalEntry
 
     id = factory.Sequence(lambda n: n)
-    name = factory.fuzzy.FuzzyText(length=12)
+    name = factory.faker.Faker("password", special_chars=False, length=12)
     version = factory.Sequence(lambda n: str(n) + ".0")
-    submitted_date = factory.fuzzy.FuzzyNaiveDateTime(datetime.datetime(2008, 1, 1))
+    submitted_date = factory.faker.Faker(
+        "date_time_between_dates",
+        datetime_start=datetime.datetime(2008, 1, 1)
+    )
     submitted_by = factory.SubFactory(UserFactory)
 
 
@@ -150,6 +158,9 @@ class ProhibitedProjectFactory(WarehouseFactory):
     class Meta:
         model = ProhibitedProjectName
 
-    created = factory.fuzzy.FuzzyNaiveDateTime(datetime.datetime(2008, 1, 1))
-    name = factory.fuzzy.FuzzyText(length=12)
+    created = factory.faker.Faker(
+        "date_time_between_dates",
+        datetime_start=datetime.datetime(2008, 1, 1)
+    )
+    name = factory.faker.Faker("password", special_chars=False, length=12)
     prohibited_by = factory.SubFactory(UserFactory)
