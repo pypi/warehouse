@@ -143,8 +143,8 @@ _macosx_major_versions = {
     "11",
 }
 
-# manylinux pep600 is a little more complicated:
-_manylinux_platform_re = re.compile(r"manylinux_(\d+)_(\d+)_(?P<arch>.*)")
+# manylinux pep600 and musllinux pep656 are a little more complicated:
+_manylinux_platform_re = re.compile(r"m(any|usl)linux_(\d+)_(\d+)_(?P<arch>.*)")
 _manylinux_arches = {
     "x86_64",
     "i686",
@@ -154,7 +154,6 @@ _manylinux_arches = {
     "ppc64le",
     "s390x",
 }
-
 
 # Actual checking code;
 def _valid_platform_tag(platform_tag):
