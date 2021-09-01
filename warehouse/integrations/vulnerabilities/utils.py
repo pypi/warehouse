@@ -106,7 +106,6 @@ def _analyze_vulnerability(request, vulnerability_report, origin, metrics):
     for version in report.versions:
         try:
             release = _get_release(request, project, version)
-            report_found_releases.append(release)
             found_releases = True  # at least one release found
         except NoResultFound:
             metrics.increment(
