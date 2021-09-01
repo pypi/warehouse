@@ -101,12 +101,13 @@ def _analyze_vulnerability(request, vulnerability_report, origin, metrics):
         )
         raise
 
-    report_found_releases = []  # store the found releases
+    found_releases = False  # by now, we don't have any release found
 
     for version in report.versions:
         try:
             release = _get_release(request, project, version)
             report_found_releases.append(release)
+            found_releases = True  # at least one release found
         except NoResultFound:
             metrics.increment(
                 "warehouse.vulnerabilities.error.release_not_found",
@@ -116,7 +117,7 @@ def _analyze_vulnerability(request, vulnerability_report, origin, metrics):
         if release not in vulnerability_record.releases:
             vulnerability_record.releases.append(release)
 
-    if len(report_found_releases) < 1:
+    if not found_releases:
         # no releases found, then raise an exception
         raise NoResultFound("None of the releases were found")
 
