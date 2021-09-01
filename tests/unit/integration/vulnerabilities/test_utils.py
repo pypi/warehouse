@@ -269,8 +269,8 @@ def test_analyze_vulnerability_project_not_found(db_request, metrics):
         )
 
     assert metrics_counter == {
-        ("warehouse.vulnerabilities.received", ("origin:test_report_source",)): 1,
-        ("warehouse.vulnerabilities.valid", ("origin:test_report_source",)): 1,
+        ("warehouse.vulnerabilities.received", ("origin:test_report_source",)): 2,
+        ("warehouse.vulnerabilities.valid", ("origin:test_report_source",)): 2,
         (
             "warehouse.vulnerabilities.error.project_not_found",
             ("origin:test_report_source",),
@@ -304,8 +304,8 @@ def test_analyze_vulnerability_release_not_found(db_request, metrics):
         )
 
     assert metrics_counter == {
-        ("warehouse.vulnerabilities.received", ("origin:test_report_source",)): 1,
-        ("warehouse.vulnerabilities.valid", ("origin:test_report_source",)): 1,
+        ("warehouse.vulnerabilities.received", ("origin:test_report_source",)): 2,
+        ("warehouse.vulnerabilities.valid", ("origin:test_report_source",)): 2,
         (
             "warehouse.vulnerabilities.error.release_not_found",
             ("origin:test_report_source",),
