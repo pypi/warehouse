@@ -155,6 +155,7 @@ _manylinux_arches = {
     "s390x",
 }
 
+
 # Actual checking code;
 def _valid_platform_tag(platform_tag):
     if platform_tag in _allowed_platforms:
