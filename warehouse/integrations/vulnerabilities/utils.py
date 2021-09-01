@@ -112,6 +112,7 @@ def _analyze_vulnerability(request, vulnerability_report, origin, metrics):
                 "warehouse.vulnerabilities.error.release_not_found",
                 tags=[f"origin:{origin}"],
             )
+            continue  # skip that release
 
         if release not in vulnerability_record.releases:
             vulnerability_record.releases.append(release)
