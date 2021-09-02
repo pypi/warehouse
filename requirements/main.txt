@@ -345,9 +345,9 @@ google-crc32c==1.1.2 \
     --hash=sha256:ea170341a4a9078a067b431044cd56c73553425833a7c2bb81734777a230ad4b \
     --hash=sha256:ef2ed6d0ac4de4ac602903e203eccd25ec8e37f1446fe1a3d2953a658035e0a5
     # via google-resumable-media
-google-resumable-media==1.3.3 \
-    --hash=sha256:092f39153cd67a4e409924edf08129f43cc72e630a1eb22abec93e80155df4ba \
-    --hash=sha256:ce38555d250bd70b0c2598bf61e99003cb8c569b0176ec0e3f38b86f9ffff581
+google-resumable-media==2.0.2 \
+    --hash=sha256:36d682161fdcbfa29681212c210fabecbf6849a505a0cbc54b7f70a10a5278a2 \
+    --hash=sha256:91f41314433601f94d485c1f56adfa2a7db538d53c95e0994be68cd1a17314b5
     # via
     #   google-cloud-bigquery
     #   google-cloud-storage
@@ -936,7 +936,6 @@ six==1.16.0 \
     #   bleach
     #   elasticsearch-dsl
     #   google-auth
-    #   google-resumable-media
     #   grpcio
     #   html5lib
     #   limits
