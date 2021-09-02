@@ -131,7 +131,7 @@ requirements/%.txt: requirements/%.in
 	$(BINDIR)/pip-compile --allow-unsafe --generate-hashes --output-file=$@ $<
 
 fix-google-deps:
-	# Fixes https://github.com/pypa/warehouse/pull/9422 and related issues
+	# Fixes issues caused by https://github.com/pypa/pip/issues/9644
 	# Whenever you have the following error:
 	#     ERROR: In --require-hashes mode, all requirements must have their versions
 	#     pinned with ==. These do not: google-<something>
