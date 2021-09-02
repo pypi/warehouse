@@ -274,7 +274,7 @@ def test_analyze_vulnerability_project_not_found(db_request, metrics):
         (
             "warehouse.vulnerabilities.error.project_not_found",
             ("origin:test_report_source",),
-        ): 2,
+        ): 1,
     }
 
 
