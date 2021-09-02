@@ -2840,7 +2840,7 @@ class TestFileUpload:
                         file_storage_hash[:2],
                         file_storage_hash[2:4],
                         file_storage_hash[4:],
-                        filename + '.metadata',
+                        filename + ".metadata",
                     ]
                 ),
                 mock.ANY,
@@ -2850,7 +2850,7 @@ class TestFileUpload:
                     "package-type": "bdist_wheel",
                     "python-version": "cp34",
                 },
-            )
+            ),
         ]
 
         # Ensure that a File object has been created.
@@ -2974,7 +2974,7 @@ class TestFileUpload:
                         file_storage_hash[:2],
                         file_storage_hash[2:4],
                         file_storage_hash[4:],
-                        filename + '.metadata',
+                        filename + ".metadata",
                     ]
                 ),
                 mock.ANY,
@@ -2984,7 +2984,7 @@ class TestFileUpload:
                     "package-type": "bdist_wheel",
                     "python-version": "cp34",
                 },
-            )
+            ),
         ]
 
         # Ensure that a File object has been created.
