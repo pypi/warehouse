@@ -2785,7 +2785,7 @@ class TestFileUpload:
                 "content": pretend.stub(
                     filename=filename,
                     file=io.BytesIO(filebody),
-                    type="application/tar",
+                    type="application/octet-stream",
                 ),
             }
         )
@@ -2903,6 +2903,8 @@ class TestFileUpload:
         RoleFactory.create(user=user, project=project)
 
         filename = f"{project.name}-{release.version}-cp34-none-any.whl"
+        filebody = _get_whl_testdata(project.name)
+        file_storage_hash = _storage_hash(filebody)
 
         pyramid_config.testing_securitypolicy(identity=user)
         db_request.user = user
@@ -2914,11 +2916,11 @@ class TestFileUpload:
                 "version": release.version,
                 "filetype": "bdist_wheel",
                 "pyversion": "cp34",
-                "md5_digest": "335c476dc930b959dda9ec82bd65ef19",
+                "md5_digest": hashlib.md5(filebody).hexdigest(),
                 "content": pretend.stub(
                     filename=filename,
-                    file=io.BytesIO(b"A fake file."),
-                    type="application/tar",
+                    file=io.BytesIO(filebody),
+                    type="application/zip",
                 ),
             }
         )
@@ -2926,7 +2928,10 @@ class TestFileUpload:
         @pretend.call_recorder
         def storage_service_store(path, file_path, *, meta):
             with open(file_path, "rb") as fp:
-                assert fp.read() == b"A fake file."
+                if file_path.endswith(".metadata"):
+                    assert fp.read() == b"Fake metadata"
+                else:
+                    assert fp.read() == filebody
 
         storage_service = pretend.stub(store=storage_service_store)
         db_request.find_service = pretend.call_recorder(
@@ -2949,10 +2954,27 @@ class TestFileUpload:
             pretend.call(
                 "/".join(
                     [
-                        "4e",
-                        "6e",
-                        "fa4c0ee2bbad071b4f5b5ea68f1aea89fa716e7754eb13e2314d45a5916e",
+                        file_storage_hash[:2],
+                        file_storage_hash[2:4],
+                        file_storage_hash[4:],
                         filename,
+                    ]
+                ),
+                mock.ANY,
+                meta={
+                    "project": project.normalized_name,
+                    "version": release.version,
+                    "package-type": "bdist_wheel",
+                    "python-version": "cp34",
+                },
+            ),
+            pretend.call(
+                "/".join(
+                    [
+                        file_storage_hash[:2],
+                        file_storage_hash[2:4],
+                        file_storage_hash[4:],
+                        filename + '.metadata',
                     ]
                 ),
                 mock.ANY,
