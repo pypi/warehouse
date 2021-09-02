@@ -72,19 +72,26 @@ def _get_tar_testdata(compression_type=""):
     return temp_f.getvalue()
 
 
+def _get_whl_testdata(name="fake_package", version="1.0"):
+    temp_f = io.BytesIO()
+    with zipfile.ZipFile(file=temp_f, mode="w") as zfp:
+        zfp.writestr(f"{name}-{version}.dist-info/METADATA", "Fake metadata")
+    return temp_f.getvalue()
+
+
+def _storage_hash(data):
+    return hashlib.blake2b(data, digest_size=256 // 8).hexdigest()
+
+
 _TAR_GZ_PKG_TESTDATA = _get_tar_testdata("gz")
 _TAR_GZ_PKG_MD5 = hashlib.md5(_TAR_GZ_PKG_TESTDATA).hexdigest()
 _TAR_GZ_PKG_SHA256 = hashlib.sha256(_TAR_GZ_PKG_TESTDATA).hexdigest()
-_TAR_GZ_PKG_STORAGE_HASH = hashlib.blake2b(
-    _TAR_GZ_PKG_TESTDATA, digest_size=256 // 8
-).hexdigest()
+_TAR_GZ_PKG_STORAGE_HASH = _storage_hash(_TAR_GZ_PKG_TESTDATA)
 
 _TAR_BZ2_PKG_TESTDATA = _get_tar_testdata("bz2")
 _TAR_BZ2_PKG_MD5 = hashlib.md5(_TAR_BZ2_PKG_TESTDATA).hexdigest()
 _TAR_BZ2_PKG_SHA256 = hashlib.sha256(_TAR_BZ2_PKG_TESTDATA).hexdigest()
-_TAR_BZ2_PKG_STORAGE_HASH = hashlib.blake2b(
-    _TAR_BZ2_PKG_TESTDATA, digest_size=256 // 8
-).hexdigest()
+_TAR_BZ2_PKG_STORAGE_HASH = _storage_hash(_TAR_BZ2_PKG_TESTDATA)
 
 
 class TestExcWithMessage:
@@ -2761,6 +2768,8 @@ class TestFileUpload:
         RoleFactory.create(user=user, project=project)
 
         filename = f"{project.name}-{release.version}-cp34-none-{plat}.whl"
+        filebody = _get_whl_testdata(project.name)
+        file_storage_hash = _storage_hash(filebody)
 
         pyramid_config.testing_securitypolicy(identity=user)
         db_request.user = user
@@ -2772,10 +2781,10 @@ class TestFileUpload:
                 "version": release.version,
                 "filetype": "bdist_wheel",
                 "pyversion": "cp34",
-                "md5_digest": _TAR_GZ_PKG_MD5,
+                "md5_digest": hashlib.md5(filebody).hexdigest(),
                 "content": pretend.stub(
                     filename=filename,
-                    file=io.BytesIO(_TAR_GZ_PKG_TESTDATA),
+                    file=io.BytesIO(filebody),
                     type="application/tar",
                 ),
             }
@@ -2784,7 +2793,10 @@ class TestFileUpload:
         @pretend.call_recorder
         def storage_service_store(path, file_path, *, meta):
             with open(file_path, "rb") as fp:
-                assert fp.read() == _TAR_GZ_PKG_TESTDATA
+                if file_path.endswith(".metadata"):
+                    assert fp.read() == b"Fake metadata"
+                else:
+                    assert fp.read() == filebody
 
         storage_service = pretend.stub(store=storage_service_store)
 
@@ -2808,10 +2820,27 @@ class TestFileUpload:
             pretend.call(
                 "/".join(
                     [
-                        _TAR_GZ_PKG_STORAGE_HASH[:2],
-                        _TAR_GZ_PKG_STORAGE_HASH[2:4],
-                        _TAR_GZ_PKG_STORAGE_HASH[4:],
+                        file_storage_hash[:2],
+                        file_storage_hash[2:4],
+                        file_storage_hash[4:],
                         filename,
+                    ]
+                ),
+                mock.ANY,
+                meta={
+                    "project": project.normalized_name,
+                    "version": release.version,
+                    "package-type": "bdist_wheel",
+                    "python-version": "cp34",
+                },
+            ),
+            pretend.call(
+                "/".join(
+                    [
+                        file_storage_hash[:2],
+                        file_storage_hash[2:4],
+                        file_storage_hash[4:],
+                        filename + '.metadata',
                     ]
                 ),
                 mock.ANY,
