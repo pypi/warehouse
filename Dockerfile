@@ -60,11 +60,6 @@ FROM python:3.8.2-slim-buster as build
 # test dependencies.
 ARG DEVEL=no
 
-# To enable Ipython in the development environment set to yes (for using ipython
-# as the warehouse shell interpreter,
-# i.e. 'docker-compose run --rm web python -m warehouse shell --type=ipython')
-ARG IPYTHON=no
-
 # By default, Docker has special steps to avoid keeping APT caches in the layers, which
 # is good, but in our case, we're going to mount a special cache volume (kept between
 # builds), so we WANT the cache to persist.
@@ -86,59 +81,75 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
         libssl-dev \
         libxml2-dev \
         libxslt-dev \
-    $(if [ "$DEVEL" = "yes" ]; then echo 'libjpeg-dev'; fi);
+    ;
 
 # We create an /opt directory with a virtual environment in it to store our
 # application in.
 RUN python3 -m venv /opt/warehouse
 
-
 # Now that we've created our virtual environment, we'll go ahead and update
 # our $PATH to refer to it first.
 ENV PATH="/opt/warehouse/bin:${PATH}"
 
-# Next, we want to update pip, setuptools, and wheel inside of this virtual
-# environment to ensure that we have the latest versions of them.
-# TODO: We use --require-hashes in our requirements files, but not here, making
-#       the ones in the requirements files kind of a moot point. We should
-#       probably pin these too, and update them as we do anything else.
-RUN pip --no-cache-dir --disable-pip-version-check install --upgrade pip setuptools wheel
+# Pip configuration (https://github.com/pypa/warehouse/pull/4584)
+ENV PIP_NO_BINARY=hiredis PIP_DISABLE_PIP_VERSION_CHECK=1
 
 # We copy this into the docker container prior to copying in the rest of our
 # application so that we can skip installing requirements if the only thing
 # that has changed is the Warehouse code itself.
 COPY requirements /tmp/requirements
 
-# Install our development dependencies if we're building a development install
-# otherwise this will do nothing.
-RUN set -x \
-    && if [ "$DEVEL" = "yes" ]; then pip --no-cache-dir --disable-pip-version-check install -r /tmp/requirements/dev.txt; fi
-
-RUN set -x \
-    && if [ "$DEVEL" = "yes" ] && [ "$IPYTHON" = "yes" ]; then pip --no-cache-dir --disable-pip-version-check install -r /tmp/requirements/ipython.txt; fi
+# Next, we want to update pip, setuptools, and wheel inside of this virtual
+# environment to ensure that we have the latest versions of them.
+RUN --mount=type=cache,target=/root/.cache \
+    pip install -r /tmp/requirements/pip.txt
 
 # Install the Python level Warehouse requirements, this is done after copying
 # the requirements but prior to copying Warehouse itself into the container so
 # that code changes don't require triggering an entire install of all of
 # Warehouse's dependencies.
-RUN set -eux; \
-    pip --no-cache-dir --disable-pip-version-check \
-        install --no-binary hiredis \
-        -r /tmp/requirements/deploy.txt \
-        -r /tmp/requirements/main.txt \
-    ; \
-    [ "$DEVEL" = "yes" ] && echo '-r /tmp/requirements/tests.txt -r /tmp/requirements/lint.txt'; fi) \
+RUN --mount=type=cache,target=/root/.cache \
+    set -eux; \
+    pip install -r /tmp/requirements/all-base.txt; \
     find /opt/warehouse -name '*.pyc' -delete;
 
+# ---------------------------------- DEV ----------------------------------
 
+FROM build as dev
 
+# To enable Ipython in the development environment set to yes (for using ipython
+# as the warehouse shell interpreter,
+# i.e. 'docker-compose run --rm web python -m warehouse shell --type=ipython')
+ARG IPYTHON=no
 
+# This is a work around because otherwise postgresql-client bombs out trying
+# to create symlinks to these directories.
+RUN set -eux; \
+    mkdir -p /usr/share/man/man1; \
+    mkdir -p /usr/share/man/man7
 
+# Install System level Warehouse build requirements, this is done before
+# everything else because these are rarely ever going to change.
+RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
+    --mount=type=cache,target=/var/lib/apt,sharing=locked \
+    set -eux; \
+    apt-get update; \
+    apt-get install --no-install-recommends -y \
+        bash \
+        libjpeg-dev \
+        libjpeg62 \
+        postgresql-client \
+    ;
+
+# Install our development dependencies
+RUN pip install -r /tmp/requirements/all-dev.txt
+
+RUN [ "$IPYTHON" = "yes" ] && pip install -r /tmp/requirements/all-ipython.txt
 # ---------------------------------- APP ----------------------------------
 
 # Now we're going to build our actual application image, which will eventually
 # pull in the static files that were built above.
-FROM python:3.8.2-slim-buster
+FROM python:3.8.2-slim-buster as app
 
 # Setup some basic environment variables that are ~never going to change.
 ENV PYTHONUNBUFFERED 1
@@ -146,17 +157,6 @@ ENV PYTHONPATH /opt/warehouse/src/
 ENV PATH="/opt/warehouse/bin:${PATH}"
 
 WORKDIR /opt/warehouse/src/
-
-# Define whether we're building a production or a development image. This will
-# generally be used to control whether or not we install our development and
-# test dependencies.
-ARG DEVEL=no
-
-# This is a work around because otherwise postgresql-client bombs out trying
-# to create symlinks to these directories.
-RUN set -eux; \
-    mkdir -p /usr/share/man/man1; \
-    mkdir -p /usr/share/man/man7
 
 # By default, Docker has special steps to avoid keeping APT caches in the layers, which
 # is good, but in our case, we're going to mount a special cache volume (kept between
@@ -177,10 +177,7 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
         libxml2 \
         libxslt1.1 \
         libcurl4 \
-    ; \
-    $(if [ "$DEVEL" = "yes" ]; then echo 'bash libjpeg62 postgresql-client'; fi) \
-    apt-get clean; \
-    rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*;
+    ;
 
 # Copy the directory into the container, this is done last so that changes to
 # Warehouse itself require the least amount of layers being invalidated from
