@@ -70,7 +70,14 @@
         <span class="form-group__required">{% trans %}(required){% endtrans %}</span>
         {% endif %}
       </label>
-      {{ pending_github_publisher_form.repository(placeholder=gettext("repository"), autocomplete="off", autocapitalize="off", spellcheck="false", class_="form-group__field", **{"aria-describedby":"repository-errors"}) }}
+      {{ pending_github_publisher_form.repository(
+        placeholder=gettext("repository"),
+        autocomplete="off",
+        autocapitalize="off",
+        spellcheck="false",
+        class_="form-group__field",
+        aria_describedby="repository-errors",
+      ) }}
       <p class="form-group__help-text">
       {% trans %}The name of the GitHub repository that contains the publishing workflow{% endtrans %}
       </p>
@@ -85,7 +92,12 @@
         <span class="form-group__required">{% trans %}(required){% endtrans %}</span>
         {% endif %}
       </label>
-      {{ pending_github_publisher_form.workflow_filename(placeholder=gettext("workflow.yml"), class_="form-group__field", autocomplete="off", **{"aria-describedby":"workflow_filename-errors"}) }}
+      {{ pending_github_publisher_form.workflow_filename(
+        placeholder=gettext("workflow.yml"),
+        class_="form-group__field",
+        autocomplete="off",
+        aria_describedby="workflow_filename-errors",
+      ) }}
       <p class="form-group__help-text">
         {% trans %}The filename of the publishing workflow. This file should exist in the <code>.github/workflows/</code> directory in the repository configured above.{% endtrans %}
       </p>
@@ -102,7 +114,12 @@
         <span class="form-group__required">{% trans %}(optional){% endtrans %}</span>
         {% endif %}
       </label>
-      {{ pending_github_publisher_form.environment(placeholder=gettext("release"), class_="form-group__field", autocomplete="off", **{"aria-describedby":"environment-errors"}) }}
+      {{ pending_github_publisher_form.environment(
+        placeholder=gettext("release"),
+        class_="form-group__field",
+        autocomplete="off",
+        aria_describedby="environment-errors",
+      ) }}
       <p class="form-group__help-text">
         {% trans href="https://docs.github.com/en/actions/deployment/targeting-different-environments/using-environments-for-deployment" %}
         The name of the <a href="{{ href }}">GitHub Actions environment</a>
@@ -174,7 +191,14 @@
         <span class="form-group__required">{% trans %}(optional){% endtrans %}</span>
         {% endif %}
       </label>
-      {{ pending_google_publisher_form.sub(placeholder=gettext("subject"), autocomplete="off", autocapitalize="off", spellcheck="false", class_="form-group__field", **{"aria-describedby":"sub-errors"}) }}
+      {{ pending_google_publisher_form.sub(
+        placeholder=gettext("subject"),
+        autocomplete="off",
+        autocapitalize="off",
+        spellcheck="false",
+        class_="form-group__field",
+        aria_describedby="sub-errors",
+      ) }}
       <p class="form-group__help-text">
       {% trans href="https://cloud.google.com/docs/authentication/token-types#id-contents" %}The subject is the numeric ID that represents the principal making the request. While not required, providing the subject further restricts the identity used for publishing. <a href="{{ href }}">More details here.</a>{% endtrans %}
       </p>

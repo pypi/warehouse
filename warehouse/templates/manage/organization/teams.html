@@ -88,7 +88,10 @@
           {% trans %}️Team name{% endtrans %}
           <span class="form-group__required">{% trans %}(required){% endtrans %}</span>
         </label>
-        {{ create_team_form.name(class_="form-group__field", **{"aria-describedby": "name-errors"}) }}
+        {{ create_team_form.name(
+          class_="form-group__field",
+          aria_describedby="name-errors",
+        ) }}
         <div id="existing-team-name-errors">
           {{ field_errors(create_team_form.name) }}
         </div>

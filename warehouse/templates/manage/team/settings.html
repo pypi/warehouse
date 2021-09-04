@@ -36,7 +36,14 @@
           {% endif %}
         </label>
         {% if request.has_permission("manage:team") %}
-        {{ save_team_form.name(placeholder=gettext("Name of your team"), autocomplete="off", autocapitalize="off", spellcheck="false", class_="form-group__field", **{"aria-describedby":"name-errors"}) }}
+        {{ save_team_form.name(
+          placeholder=gettext("Name of your team"),
+          autocomplete="off",
+          autocapitalize="off",
+          spellcheck="false",
+          class_="form-group__field",
+          aria_describedby="name-errors",
+        ) }}
         {% else %}
         <p class="form-group__text">
           {{ save_team_form.name.data }}
