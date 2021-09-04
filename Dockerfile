@@ -4,10 +4,17 @@ FROM node:14.4.0 as static
 
 WORKDIR /opt/warehouse/src/
 
+# By default, Docker has special steps to avoid keeping APT caches in the layers, which
+# is good, but in our case, we're going to mount a special cache volume (kept between
+# builds), so we WANT the cache to persist.
+RUN rm -f /etc/apt/apt.conf.d/docker-clean \
+    && echo 'Binary::apt::APT::Keep-Downloaded-Packages "true";' > /etc/apt/apt.conf.d/keep-cache
+
 # The list of C packages we need are almost never going to change, so installing
 # them first, right off the bat lets us cache that and having node.js level
 # dependency changes not trigger a reinstall.
-RUN set -x \
+RUN --mount=type=cache,target=/var/cache/apt \
+    set -x \
     && apt-get update \
     && apt-get install --no-install-recommends -y \
         libjpeg-dev nasm
@@ -55,9 +62,16 @@ ARG DEVEL=no
 # i.e. 'docker-compose run --rm web python -m warehouse shell --type=ipython')
 ARG IPYTHON=no
 
+# By default, Docker has special steps to avoid keeping APT caches in the layers, which
+# is good, but in our case, we're going to mount a special cache volume (kept between
+# builds), so we WANT the cache to persist.
+RUN rm -f /etc/apt/apt.conf.d/docker-clean \
+    && echo 'Binary::apt::APT::Keep-Downloaded-Packages "true";' > /etc/apt/apt.conf.d/keep-cache
+
 # Install System level Warehouse build requirements, this is done before
 # everything else because these are rarely ever going to change.
-RUN set -x \
+RUN  --mount=type=cache,target=/var/cache/apt \
+    set -x \
     && apt-get update \
     && apt-get install --no-install-recommends -y \
         build-essential libffi-dev libxml2-dev libxslt-dev libpq-dev libcurl4-openssl-dev libssl-dev \
@@ -131,9 +145,17 @@ RUN set -x \
     && mkdir -p /usr/share/man/man1 \
     && mkdir -p /usr/share/man/man7
 
+# By default, Docker has special steps to avoid keeping APT caches in the layers, which
+# is good, but in our case, we're going to mount a special cache volume (kept between
+# builds), so we WANT the cache to persist.
+RUN rm -f /etc/apt/apt.conf.d/docker-clean \
+    && echo 'Binary::apt::APT::Keep-Downloaded-Packages "true";' > /etc/apt/apt.conf.d/keep-cache
+
+
 # Install System level Warehouse requirements, this is done before everything
 # else because these are rarely ever going to change.
-RUN set -x \
+RUN  --mount=type=cache,target=/var/cache/apt \
+    set -x \
     && apt-get update \
     && apt-get install --no-install-recommends -y \
         libpq5 libxml2 libxslt1.1 libcurl4  \
