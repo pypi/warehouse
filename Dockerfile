@@ -158,9 +158,9 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
 # Install our development dependencies
 RUN set -eux; \
     pip install -r /tmp/requirements/dev.txt; \
-    pip install -r /tmp/requirements/all-lint-test.txt;
+    if [ "$IPYTHON" = "yes" ]; then pip install -r /tmp/requirements/all-ipython.txt; fi;
 
-RUN if [ "$IPYTHON" = "yes" ]; then pip install -r /tmp/requirements/all-ipython.txt; fi
+RUN pip install -r /tmp/requirements/all-lint-test.txt;
 
 
 # ---------------------------------- APP ----------------------------------

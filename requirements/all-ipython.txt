@@ -1,2 +1,2 @@
--r all-dev.txt
+-r dev.txt
 -r ipython.txt
