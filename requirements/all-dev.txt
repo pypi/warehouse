@@ -1,0 +1,4 @@
+-r all-base.txt
+-r dev.txt
+-r tests.txt
+-r lint.txt
