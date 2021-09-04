@@ -61,6 +61,7 @@ services:
   web:
     build:
       context: .
+      target: dev
       args:
         DEVEL: "yes"
         IPYTHON: "no"
@@ -101,6 +102,7 @@ services:
   worker:
     build:
       context: .
+      target: dev
       args:
         DEVEL: "yes"
     command: hupper -m celery -A warehouse worker -B -S redbeat.RedBeatScheduler -l info
