@@ -1,7 +1,5 @@
 # First things first, we build an image which is where we're going to compile
-# our static assets with. It is important that the steps in this remain the
-# same as the steps in Dockerfile.static, EXCEPT this may include additional
-# steps appended onto the end.
+# our static assets with.
 FROM node:14.4.0 as static
 
 WORKDIR /opt/warehouse/src/

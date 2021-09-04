@@ -114,7 +114,7 @@ services:
   static:
     build:
       context: .
-      dockerfile: Dockerfile.static
+      target: static
     command: bash -c "node --trace-warnings `which gulp` watch"
     volumes:
       - ./warehouse:/opt/warehouse/src/warehouse:z
