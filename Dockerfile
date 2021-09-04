@@ -49,23 +49,41 @@ COPY Gulpfile.babel.js /opt/warehouse/src/
 RUN gulp dist
 
 
-# ---------------------------------- BUILD ----------------------------------
+# ---------------------------------- BASE -----------------------------------
+FROM python:3.8.2-slim-buster as base
 
-# Now we're going to build our actual application, but not the actual production
-# image that it gets deployed into.
-FROM python:3.8.2-slim-buster as build
+# Setup some basic environment variables that are ~never going to change.
+ENV PYTHONUNBUFFERED 1
+ENV PYTHONPATH /opt/warehouse/src/
+ENV PATH="/opt/warehouse/bin:${PATH}"
 
-# Define whether we're building a production or a development image. This will
-# generally be used to control whether or not we install our development and
-# test dependencies.
-ARG DEVEL=no
+WORKDIR /opt/warehouse/src/
 
 # By default, Docker has special steps to avoid keeping APT caches in the layers, which
 # is good, but in our case, we're going to mount a special cache volume (kept between
 # builds), so we WANT the cache to persist.
-RUN set -eux; \
+RUN set -eux \
     rm -f /etc/apt/apt.conf.d/docker-clean; \
-    echo 'Binary::apt::APT::Keep-Downloaded-Packages "true";' > /etc/apt/apt.conf.d/keep-cache;
+    echo 'Binary::apt::APT::Keep-Downloaded-Packages "true";' > /etc/apt/apt.conf.d/keep-cache
+
+# Install System level Warehouse requirements, this is done before everything
+# else because these are rarely ever going to change.
+RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
+    --mount=type=cache,target=/var/lib/apt,sharing=locked \
+    set -eux; \
+    apt-get update; \
+    apt-get install --no-install-recommends -y \
+        libpq5 \
+        libxml2 \
+        libxslt1.1 \
+        libcurl4 \
+    ;
+
+# ---------------------------------- BUILD ----------------------------------
+
+# Now we're going to build our actual application, but not the actual production
+# image that it gets deployed into.
+FROM base as build
 
 # Install System level Warehouse build requirements, this is done before
 # everything else because these are rarely ever going to change.
@@ -86,10 +104,6 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
 # We create an /opt directory with a virtual environment in it to store our
 # application in.
 RUN python3 -m venv /opt/warehouse
-
-# Now that we've created our virtual environment, we'll go ahead and update
-# our $PATH to refer to it first.
-ENV PATH="/opt/warehouse/bin:${PATH}"
 
 # Pip configuration (https://github.com/pypa/warehouse/pull/4584)
 ENV PIP_NO_BINARY=hiredis PIP_DISABLE_PIP_VERSION_CHECK=1
@@ -145,39 +159,12 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
 RUN pip install -r /tmp/requirements/all-dev.txt
 
 RUN [ "$IPYTHON" = "yes" ] && pip install -r /tmp/requirements/all-ipython.txt
-# ---------------------------------- APP ----------------------------------
 
+
+# ---------------------------------- APP ----------------------------------
+FROM base as app
 # Now we're going to build our actual application image, which will eventually
 # pull in the static files that were built above.
-FROM python:3.8.2-slim-buster as app
-
-# Setup some basic environment variables that are ~never going to change.
-ENV PYTHONUNBUFFERED 1
-ENV PYTHONPATH /opt/warehouse/src/
-ENV PATH="/opt/warehouse/bin:${PATH}"
-
-WORKDIR /opt/warehouse/src/
-
-# By default, Docker has special steps to avoid keeping APT caches in the layers, which
-# is good, but in our case, we're going to mount a special cache volume (kept between
-# builds), so we WANT the cache to persist.
-RUN set -eux \
-    rm -f /etc/apt/apt.conf.d/docker-clean; \
-    echo 'Binary::apt::APT::Keep-Downloaded-Packages "true";' > /etc/apt/apt.conf.d/keep-cache
-
-
-# Install System level Warehouse requirements, this is done before everything
-# else because these are rarely ever going to change.
-RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
-    --mount=type=cache,target=/var/lib/apt,sharing=locked \
-    set -eux; \
-    apt-get update; \
-    apt-get install --no-install-recommends -y \
-        libpq5 \
-        libxml2 \
-        libxslt1.1 \
-        libcurl4 \
-    ;
 
 # Copy the directory into the container, this is done last so that changes to
 # Warehouse itself require the least amount of layers being invalidated from
