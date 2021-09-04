@@ -9,17 +9,19 @@ WORKDIR /opt/warehouse/src/
 # By default, Docker has special steps to avoid keeping APT caches in the layers, which
 # is good, but in our case, we're going to mount a special cache volume (kept between
 # builds), so we WANT the cache to persist.
-RUN rm -f /etc/apt/apt.conf.d/docker-clean \
-    && echo 'Binary::apt::APT::Keep-Downloaded-Packages "true";' > /etc/apt/apt.conf.d/keep-cache
+RUN set -eux; \
+    rm -f /etc/apt/apt.conf.d/docker-clean; \
+    echo 'Binary::apt::APT::Keep-Downloaded-Packages "true";' > /etc/apt/apt.conf.d/keep-cache;
 
 # The list of C packages we need are almost never going to change, so installing
 # them first, right off the bat lets us cache that and having node.js level
 # dependency changes not trigger a reinstall.
 RUN --mount=type=cache,target=/var/cache/apt \
-    set -x \
-    && apt-get update \
-    && apt-get install --no-install-recommends -y \
-        libjpeg-dev nasm
+    set -eux; \
+    apt-get update; \
+    apt-get install --no-install-recommends -y \
+        libjpeg-dev \
+        nasm
 
 # However, we do want to trigger a reinstall of our node.js dependencies anytime
 # our package.json changes, so we'll ensure that we're copying that into our
@@ -29,10 +31,10 @@ COPY package.json package-lock.json .babelrc /opt/warehouse/src/
 # Installing npm dependencies is done as a distinct step and *prior* to copying
 # over our static files so that, you guessed it, we don't invalidate the cache
 # of installed dependencies just because files have been modified.
-RUN set -x \
-    && npm install -g npm@latest \
-    && npm install -g gulp-cli \
-    && npm ci
+RUN set -eux \
+    npm install -g npm@latest; \
+    npm install -g gulp-cli; \
+    npm ci;
 
 # Actually copy over our static files, we only copy over the static files to
 # save a small amount of space in our image and because we don't need them. We
@@ -65,22 +67,28 @@ ARG IPYTHON=no
 # By default, Docker has special steps to avoid keeping APT caches in the layers, which
 # is good, but in our case, we're going to mount a special cache volume (kept between
 # builds), so we WANT the cache to persist.
-RUN rm -f /etc/apt/apt.conf.d/docker-clean \
-    && echo 'Binary::apt::APT::Keep-Downloaded-Packages "true";' > /etc/apt/apt.conf.d/keep-cache
+RUN set -eux; \
+    rm -f /etc/apt/apt.conf.d/docker-clean; \
+    echo 'Binary::apt::APT::Keep-Downloaded-Packages "true";' > /etc/apt/apt.conf.d/keep-cache;
 
 # Install System level Warehouse build requirements, this is done before
 # everything else because these are rarely ever going to change.
-RUN  --mount=type=cache,target=/var/cache/apt \
-    set -x \
-    && apt-get update \
-    && apt-get install --no-install-recommends -y \
-        build-essential libffi-dev libxml2-dev libxslt-dev libpq-dev libcurl4-openssl-dev libssl-dev \
-        $(if [ "$DEVEL" = "yes" ]; then echo 'libjpeg-dev'; fi)
+RUN --mount=type=cache,target=/var/cache/apt \
+    set -eux; \
+    apt-get update; \
+    apt-get install --no-install-recommends -y \
+        build-essential \
+        libffi-dev \
+        libxml2-dev \
+        libxslt-dev \
+        libpq-dev \
+        libcurl4-openssl-dev \
+        libssl-dev; \
+    $(if [ "$DEVEL" = "yes" ]; then echo 'libjpeg-dev'; fi);
 
 # We create an /opt directory with a virtual environment in it to store our
 # application in.
-RUN set -x \
-    && python3 -m venv /opt/warehouse
+RUN python3 -m venv /opt/warehouse
 
 
 # Now that we've created our virtual environment, we'll go ahead and update
@@ -111,13 +119,14 @@ RUN set -x \
 # the requirements but prior to copying Warehouse itself into the container so
 # that code changes don't require triggering an entire install of all of
 # Warehouse's dependencies.
-RUN set -x \
-    && pip --no-cache-dir --disable-pip-version-check \
-            install --no-binary hiredis \
-                    -r /tmp/requirements/deploy.txt \
-                    -r /tmp/requirements/main.txt \
-                    $(if [ "$DEVEL" = "yes" ]; then echo '-r /tmp/requirements/tests.txt -r /tmp/requirements/lint.txt'; fi) \
-    && find /opt/warehouse -name '*.pyc' -delete
+RUN set -eux; \
+    pip --no-cache-dir --disable-pip-version-check \
+        install --no-binary hiredis \
+        -r /tmp/requirements/deploy.txt \
+        -r /tmp/requirements/main.txt \
+    ; \
+    [ "$DEVEL" = "yes" ] && echo '-r /tmp/requirements/tests.txt -r /tmp/requirements/lint.txt'; fi) \
+    find /opt/warehouse -name '*.pyc' -delete;
 
 
 
@@ -143,27 +152,32 @@ ARG DEVEL=no
 
 # This is a work around because otherwise postgresql-client bombs out trying
 # to create symlinks to these directories.
-RUN set -x \
-    && mkdir -p /usr/share/man/man1 \
-    && mkdir -p /usr/share/man/man7
+RUN set -eux; \
+    mkdir -p /usr/share/man/man1; \
+    mkdir -p /usr/share/man/man7
 
 # By default, Docker has special steps to avoid keeping APT caches in the layers, which
 # is good, but in our case, we're going to mount a special cache volume (kept between
 # builds), so we WANT the cache to persist.
-RUN rm -f /etc/apt/apt.conf.d/docker-clean \
-    && echo 'Binary::apt::APT::Keep-Downloaded-Packages "true";' > /etc/apt/apt.conf.d/keep-cache
+RUN set -eux \
+    rm -f /etc/apt/apt.conf.d/docker-clean; \
+    echo 'Binary::apt::APT::Keep-Downloaded-Packages "true";' > /etc/apt/apt.conf.d/keep-cache
 
 
 # Install System level Warehouse requirements, this is done before everything
 # else because these are rarely ever going to change.
-RUN  --mount=type=cache,target=/var/cache/apt \
-    set -x \
-    && apt-get update \
-    && apt-get install --no-install-recommends -y \
-        libpq5 libxml2 libxslt1.1 libcurl4  \
-        $(if [ "$DEVEL" = "yes" ]; then echo 'bash libjpeg62 postgresql-client'; fi) \
-    && apt-get clean \
-    && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
+RUN --mount=type=cache,target=/var/cache/apt \
+    set -eux; \
+    apt-get update; \
+    apt-get install --no-install-recommends -y \
+        libpq5 \
+        libxml2 \
+        libxslt1.1 \
+        libcurl4 \
+    ; \
+    $(if [ "$DEVEL" = "yes" ]; then echo 'bash libjpeg62 postgresql-client'; fi) \
+    apt-get clean; \
+    rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*;
 
 # Copy the directory into the container, this is done last so that changes to
 # Warehouse itself require the least amount of layers being invalidated from
