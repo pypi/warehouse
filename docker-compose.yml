@@ -89,8 +89,7 @@ services:
       - "80:8000"
 
   files:
-    build:
-      context: .
+    image: python:3.8.2-slim-buster
     working_dir: /var/opt/warehouse
     command: python -m http.server 9001
     volumes:
@@ -132,8 +131,7 @@ services:
       - "1080:80"
 
   notdatadog:
-    build:
-      context: .
+    image: python:3.8.2-slim-buster
     command: python /opt/warehouse/dev/notdatadog.py 0.0.0.0:8125
     ports:
       - "8125:8125/udp"
