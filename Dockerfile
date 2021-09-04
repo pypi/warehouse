@@ -1,3 +1,5 @@
+# ---------------------------------- STATIC ----------------------------------
+
 # First things first, we build an image which is where we're going to compile
 # our static assets with.
 FROM node:14.4.0 as static
@@ -44,9 +46,7 @@ COPY Gulpfile.babel.js /opt/warehouse/src/
 RUN gulp dist
 
 
-
-
-
+# ---------------------------------- BUILD ----------------------------------
 
 # Now we're going to build our actual application, but not the actual production
 # image that it gets deployed into.
@@ -122,6 +122,8 @@ RUN set -x \
 
 
 
+
+# ---------------------------------- APP ----------------------------------
 
 # Now we're going to build our actual application image, which will eventually
 # pull in the static files that were built above.
