@@ -16,7 +16,8 @@ RUN set -eux; \
 # The list of C packages we need are almost never going to change, so installing
 # them first, right off the bat lets us cache that and having node.js level
 # dependency changes not trigger a reinstall.
-RUN --mount=type=cache,target=/var/cache/apt \
+RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
+    --mount=type=cache,target=/var/lib/apt,sharing=locked \
     set -eux; \
     apt-get update; \
     apt-get install --no-install-recommends -y \
@@ -73,7 +74,8 @@ RUN set -eux; \
 
 # Install System level Warehouse build requirements, this is done before
 # everything else because these are rarely ever going to change.
-RUN --mount=type=cache,target=/var/cache/apt \
+RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
+    --mount=type=cache,target=/var/lib/apt,sharing=locked \
     set -eux; \
     apt-get update; \
     apt-get install --no-install-recommends -y \
@@ -166,7 +168,8 @@ RUN set -eux \
 
 # Install System level Warehouse requirements, this is done before everything
 # else because these are rarely ever going to change.
-RUN --mount=type=cache,target=/var/cache/apt \
+RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
+    --mount=type=cache,target=/var/lib/apt,sharing=locked \
     set -eux; \
     apt-get update; \
     apt-get install --no-install-recommends -y \
