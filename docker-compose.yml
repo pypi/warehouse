@@ -63,7 +63,6 @@ services:
       context: .
       target: dev
       args:
-        DEVEL: "yes"
         IPYTHON: "no"
     command: gunicorn --reload -b 0.0.0.0:8000 warehouse.wsgi:application
     env_file: dev/environment
@@ -102,8 +101,6 @@ services:
     build:
       context: .
       target: dev
-      args:
-        DEVEL: "yes"
     command: hupper -m celery -A warehouse worker -B -S redbeat.RedBeatScheduler -l info
     volumes:
       - ./warehouse:/opt/warehouse/src/warehouse:z
