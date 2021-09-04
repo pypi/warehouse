@@ -144,7 +144,7 @@ _macosx_major_versions = {
 }
 
 # manylinux pep600 and musllinux pep656 are a little more complicated:
-_manylinux_re = re.compile(r"(?P<libc>m(any|usl))linux_(\d+)_(\d+)_(?P<arch>.*)")
+_manylinux_re = re.compile(r"(?P<libc>(many|musl))linux_(\d+)_(\d+)_(?P<arch>.*)")
 _manylinux_arches = {
     "x86_64",
     "i686",
