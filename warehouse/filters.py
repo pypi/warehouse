@@ -63,7 +63,7 @@ def _camo_url(request, url):
     return urllib.parse.urljoin(camo_url, path)
 
 
-@jinja2.contextfilter
+@jinja2.pass_context
 def camoify(ctx, value):
     request = ctx.get("request") or get_current_request()
 
