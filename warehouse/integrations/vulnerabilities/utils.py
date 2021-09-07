@@ -10,6 +10,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from pyramid.httpexceptions import HTTPBadRequest
 
 from sqlalchemy import func, orm
 from sqlalchemy.orm.exc import NoResultFound
@@ -119,7 +120,7 @@ def _analyze_vulnerability(request, vulnerability_report, origin, metrics):
 
     if not found_releases:
         # no releases found, then raise an exception
-        raise NoResultFound("None of the releases were found")
+        raise HTTPBadRequest("None of the releases were found")
 
     # Unassociate any releases that no longer apply.
     for release in list(vulnerability_record.releases):
