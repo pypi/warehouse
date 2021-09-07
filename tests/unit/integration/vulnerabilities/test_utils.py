@@ -289,7 +289,7 @@ def test_analyze_vulnerability_release_not_found(db_request, metrics):
 
     metrics = pretend.stub(increment=metrics_increment, timed=metrics.timed)
 
-    with pytest.raises(NoResultFound):
+    with pytest.raises(HTTPBadRequest):
         utils.analyze_vulnerability(
             request=db_request,
             vulnerability_report={
