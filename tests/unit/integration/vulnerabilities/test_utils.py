@@ -16,6 +16,7 @@ import factory.fuzzy
 import pretend
 import pytest
 
+from pyramid.httpexceptions import HTTPBadRequest
 from sqlalchemy.orm.exc import NoResultFound
 
 from tests.common.db.packaging import ProjectFactory, ReleaseFactory
