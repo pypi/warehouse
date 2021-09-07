@@ -11,7 +11,6 @@
 # limitations under the License.
 
 from pyramid.httpexceptions import HTTPBadRequest
-
 from sqlalchemy import func, orm
 from sqlalchemy.orm.exc import NoResultFound
 
