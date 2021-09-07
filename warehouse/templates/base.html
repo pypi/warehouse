@@ -139,7 +139,11 @@
     <script async src="https://www.googletagmanager.com/gtag/js?id={{ request.registry.settings['ga.tracking_id'] }}"></script>
     {% endif -%}
     <script defer src="https://www.fastly-insights.com/insights.js?k=6a52360a-f306-421e-8ed5-7417d0d4a4e9&dnt=true"></script>
-    <script async src="https://media.ethicalads.io/media/client/ethicalads.min.js"></script>
+    <script async
+      src="https://media.ethicalads.io/media/client/ethicalads.min.js"
+      integrity="sha384-09b96ad0b934a6bfd31d07eb5dd16cc879fa40b25817b8c0bf7fc4584e4361be1f44a35fa631144d997277ad29766a56"
+      crossorigin="anonymous">
+    </script>
   </head>
 
   <body data-controller="viewport-toggle">
