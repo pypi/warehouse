@@ -1,6 +1,10 @@
-.git/*
+.git
 node_modules
-dev/*
+dev
 **/*.pyc
 htmlcov
 warehouse/static/dist
+.mypy_cache
+.state
+tests
+.github
