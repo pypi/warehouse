@@ -1,0 +1,2 @@
+-r main.txt
+-r deploy.txt
