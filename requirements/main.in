@@ -1,4 +1,3 @@
--r pip.txt
 alembic>=0.7.0
 Automat
 argon2-cffi

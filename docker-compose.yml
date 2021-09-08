@@ -61,8 +61,8 @@ services:
   web:
     build:
       context: .
-      target: dev
       args:
+        DEVEL: "yes"
         IPYTHON: "no"
     command: gunicorn --reload -b 0.0.0.0:8000 warehouse.wsgi:application
     env_file: dev/environment
@@ -88,7 +88,8 @@ services:
       - "80:8000"
 
   files:
-    image: python:3.8.2-slim-buster
+    build:
+      context: .
     working_dir: /var/opt/warehouse
     command: python -m http.server 9001
     volumes:
@@ -100,7 +101,8 @@ services:
   worker:
     build:
       context: .
-      target: dev
+      args:
+        DEVEL: "yes"
     command: hupper -m celery -A warehouse worker -B -S redbeat.RedBeatScheduler -l info
     volumes:
       - ./warehouse:/opt/warehouse/src/warehouse:z
@@ -112,7 +114,7 @@ services:
   static:
     build:
       context: .
-      target: static
+      dockerfile: Dockerfile.static
     command: bash -c "node --trace-warnings `which gulp` watch"
     volumes:
       - ./warehouse:/opt/warehouse/src/warehouse:z
@@ -128,7 +130,8 @@ services:
       - "1080:80"
 
   notdatadog:
-    image: python:3.8.2-slim-buster
+    build:
+      context: .
     command: python /opt/warehouse/dev/notdatadog.py 0.0.0.0:8125
     ports:
       - "8125:8125/udp"
