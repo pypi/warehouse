@@ -315,6 +315,7 @@ def configure(settings=None):
 
     # We'll want to configure some filters for Jinja2 as well.
     filters = config.get_settings().setdefault("jinja2.filters", {})
+    filters.setdefault("format_classifiers", "warehouse.filters:format_classifiers")
     filters.setdefault("classifier_id", "warehouse.filters:classifier_id")
     filters.setdefault("format_tags", "warehouse.filters:format_tags")
     filters.setdefault("json", "warehouse.filters:tojson")
