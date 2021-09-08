@@ -125,7 +125,7 @@
 <div class="sidebar-section">
   <h3 class="sidebar-section__title">{% trans %}Classifiers{% endtrans %}</h3>
   <ul class="sidebar-section__classifiers">
-    {% for classifier_head, classifier_tail in (release.classifiers|format_classifiers()).items() %}
+    {% for classifier_head, classifier_tail in release.classifiers.items() %}
     <li>
       <strong>{{ classifier_head }}</strong>
       <ul>
