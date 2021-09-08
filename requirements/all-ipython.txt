@@ -1,2 +1,0 @@
--r dev.txt
--r ipython.txt

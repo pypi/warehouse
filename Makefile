@@ -64,9 +64,9 @@ endif
 
 .state/docker-build: Dockerfile package.json package-lock.json requirements/main.txt requirements/deploy.txt
 	# Build our docker containers for this project.
-	docker-compose build --force-rm static
 	docker-compose build --build-arg IPYTHON=$(IPYTHON) --force-rm web
 	docker-compose build --force-rm worker
+	docker-compose build --force-rm static
 
 	# Mark the state so we don't rebuild this needlessly.
 	mkdir -p .state
