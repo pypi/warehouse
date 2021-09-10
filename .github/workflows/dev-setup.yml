@@ -20,5 +20,7 @@ jobs:
       - run: |
           # `make serve` daemonized
           docker-compose up -d
+      - run: docker-compose ps
+      - run: ./bin/wait-for-db.sh
       - run: make initdb
       - run: make tests

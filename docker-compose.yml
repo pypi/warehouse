@@ -29,6 +29,11 @@ services:
     ports:
       # 5432 may already in use by another PostgreSQL on host
       - "5433:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
 
   redis:
     image: redis:4.0
