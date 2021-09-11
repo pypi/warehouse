@@ -10,13 +10,14 @@
 # Çağatay Onur Şengör <cagataysengor@gmail.com>, 2020.
 # Oğuz Ersen <oguzersen@protonmail.com>, 2020.
 # birhat s <birhat@gmail.com>, 2021.
+# turkdevops <turkdevops@gmail.com>, 2021.
 msgid ""
 msgstr ""
 "Project-Id-Version: Warehouse VERSION\n"
 "Report-Msgid-Bugs-To: admin@pypi.org\n"
 "POT-Creation-Date: 2020-01-15 20:11+0200\n"
-"PO-Revision-Date: 2021-03-03 08:29+0000\n"
-"Last-Translator: birhat s <birhat@gmail.com>\n"
+"PO-Revision-Date: 2021-08-11 01:37+0000\n"
+"Last-Translator: turkdevops <turkdevops@gmail.com>\n"
 "Language-Team: Turkish <https://hosted.weblate.org/projects/pypa/warehouse/"
 "tr/>\n"
 "Language: tr\n"
@@ -24,7 +25,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Generator: Weblate 4.5.1-dev\n"
+"X-Generator: Weblate 4.8-dev\n"
 "Generated-By: Babel 2.7.0\n"
 
 #: warehouse/views.py:254
@@ -2356,8 +2357,6 @@ msgid "Password reset requested"
 msgstr "Parola sıfırlama istendi"
 
 #: warehouse/templates/manage/account.html:614
-#, fuzzy
-#| msgid "Password reset requested"
 msgid "Password reset attempted"
 msgstr "Parola sıfırlama istendi"
 

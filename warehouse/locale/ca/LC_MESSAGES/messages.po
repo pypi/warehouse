@@ -4,7 +4,7 @@ msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: admin@pypi.org\n"
 "POT-Creation-Date: 2020-08-24 00:15+0200\n"
-"PO-Revision-Date: 2021-06-22 04:32+0000\n"
+"PO-Revision-Date: 2021-08-26 05:28+0000\n"
 "Last-Translator: Adolfo Jayme Barrientos <fitojb@ubuntu.com>\n"
 "Language-Team: Catalan <https://hosted.weblate.org/projects/pypa/warehouse/"
 "ca/>\n"
@@ -13,7 +13,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Generator: Weblate 4.7\n"
+"X-Generator: Weblate 4.8.1-dev\n"
 
 #: warehouse/views.py:254
 msgid "Locale updated"
@@ -258,7 +258,7 @@ msgstr "Ara sou ${role} del projecte «${project_name}»."
 
 #: warehouse/admin/templates/admin/banners/preview.html:15
 msgid "Banner Preview"
-msgstr ""
+msgstr "Previsualització del bàner"
 
 #: warehouse/manage/views.py:205
 msgid "Email ${email_address} added - check your email for a verification link"
@@ -1840,11 +1840,11 @@ msgstr "Torna a enviar el missatge de verificació"
 
 #: warehouse/templates/manage/account.html:110
 msgid "Set this email address as primary"
-msgstr ""
+msgstr "Defineix aquesta adreça electrònica com a principal"
 
 #: warehouse/templates/manage/account.html:112
 msgid "Set as primary"
-msgstr ""
+msgstr "Defineix com a primària"
 
 #: warehouse/templates/manage/account.html:122
 msgid "Remove this email address"
@@ -2099,11 +2099,11 @@ msgstr ""
 
 #: warehouse/templates/manage/account.html:480
 msgid "Remove device"
-msgstr ""
+msgstr "Elimina el dispositiu"
 
 #: warehouse/templates/manage/account.html:486
 msgid "Device name"
-msgstr ""
+msgstr "Nom del dispositiu"
 
 #: warehouse/templates/manage/account.html:493
 #, python-format
@@ -2240,10 +2240,8 @@ msgid "Password reset requested"
 msgstr "S’ha sol·licitat una reinicialització de la contrasenya"
 
 #: warehouse/templates/manage/account.html:614
-#, fuzzy
-#| msgid "Password reset requested"
 msgid "Password reset attempted"
-msgstr "S’ha sol·licitat una reinicialització de la contrasenya"
+msgstr "S’ha intentat reinicialitzar la contrasenya"
 
 #: warehouse/templates/manage/account.html:616
 msgid "Password successfully reset"
