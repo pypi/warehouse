@@ -84,8 +84,16 @@ debug: .state/docker-build
 	docker-compose run --rm --service-ports web
 
 tests: .state/docker-build
+	docker-compose up -d db
 	docker-compose run --rm web env -i ENCODING="C.UTF-8" \
 								  PATH="/opt/warehouse/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin" \
+								  bin/tests --postgresql-host db $(T) $(TESTARGS)
+
+test-shell: .state/docker-build
+	docker-compose up -d db
+	docker-compose run --rm web env -i ENCODING="C.UTF-8" \
+								  PATH="/opt/warehouse/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin" \
+								  OPEN_SHELL=1 \
 								  bin/tests --postgresql-host db $(T) $(TESTARGS)
 
 static_tests: .state/docker-build

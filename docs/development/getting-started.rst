@@ -552,6 +552,21 @@ If you want to run a specific test, you can use the ``T`` variable:
 
     T=tests/unit/i18n/test_filters.py make tests
 
+If you find yourself launching some tests multiple times in a row, you may
+find out that the startup time of docker can get in the way of a quick
+feedback loop. In this case, you may want to run:
+
+.. code-block:: console
+
+    make test-shell
+
+This will open a bash console in a configured docker-container, where you can
+run ``pytest`` directly. `Some pytest options`__ such as ``--last-failed`` or
+``--stepwise`` which keep a cache between test runs and allow a faster
+feedback loop, are much easier to use in a test-shell.
+
+.. __: https://docs.pytest.org/en/6.2.x/cache.html
+
 You can run linters, programs that check the code, with:
 
 .. code-block:: console

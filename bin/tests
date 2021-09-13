@@ -29,6 +29,12 @@ if [ $ATTEMPTS -eq 5 ]; then
   exit 1
 fi
 
+if [ -n "${OPEN_SHELL:-}" ]; then
+    export PYTHONPATH=/opt/warehouse/src/
+    echo "Welcome to the test shell. Use 'pytest' to run the tests."
+    exec bash
+fi
+
 # Print all the followng commands
 set -x
 
