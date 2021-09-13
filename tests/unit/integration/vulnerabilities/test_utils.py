@@ -312,8 +312,8 @@ def test_analyze_vulnerability_release_not_found(db_request, metrics):
             ("origin:test_report_source",),
         ): 2,
         (
-            'warehouse.vulnerabilities.error.unknown',
-            ('origin:test_report_source',),
+            "warehouse.vulnerabilities.error.unknown",
+            ("origin:test_report_source",),
         ): 1
     }
 
