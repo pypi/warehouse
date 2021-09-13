@@ -311,6 +311,10 @@ def test_analyze_vulnerability_release_not_found(db_request, metrics):
             "warehouse.vulnerabilities.error.release_not_found",
             ("origin:test_report_source",),
         ): 2,
+        (
+            'warehouse.vulnerabilities.error.unknown',
+            ('origin:test_report_source',),
+        ): 1
     }
 
 
