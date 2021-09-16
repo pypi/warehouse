@@ -143,7 +143,11 @@ def analyze_vulnerability(request, vulnerability_report, origin, metrics):
         metrics.increment(
             "warehouse.vulnerabilities.processed", tags=[f"origin:{origin}"]
         )
-    except (vulnerabilities.InvalidVulnerabilityReportRequest, NoResultFound):
+    except (
+        vulnerabilities.InvalidVulnerabilityReportRequest,
+        NoResultFound,
+        HTTPBadRequest
+    ):
         raise
     except Exception:
         metrics.increment(
