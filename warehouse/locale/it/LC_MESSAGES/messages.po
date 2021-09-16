@@ -14,13 +14,14 @@
 # Lory ~ <dury.lorenzo@gmail.com>, 2021.
 # pamaron <ernesto.arbitrio@gmail.com>, 2021.
 # Alessio Izzo <alessio.izzo86@gmail.com>, 2021.
+# GUILHERME FERNANDES NETO <gfneto4@gmail.com>, 2021.
 msgid ""
 msgstr ""
 "Project-Id-Version: Warehouse VERSION\n"
 "Report-Msgid-Bugs-To: admin@pypi.org\n"
 "POT-Creation-Date: 2020-01-15 20:11+0200\n"
-"PO-Revision-Date: 2021-07-27 11:15+0000\n"
-"Last-Translator: Alessio Izzo <alessio.izzo86@gmail.com>\n"
+"PO-Revision-Date: 2021-08-19 16:08+0000\n"
+"Last-Translator: GUILHERME FERNANDES NETO <gfneto4@gmail.com>\n"
 "Language-Team: Italian <https://hosted.weblate.org/projects/pypa/warehouse/"
 "it/>\n"
 "Language: it\n"
@@ -28,7 +29,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Generator: Weblate 4.7.2-dev\n"
+"X-Generator: Weblate 4.8-dev\n"
 "Generated-By: Babel 2.7.0\n"
 
 #: warehouse/views.py:254
@@ -252,7 +253,7 @@ msgstr "Token invalido: non è un token di verifica di un indirizzo email"
 
 #: warehouse/accounts/views.py:798
 msgid "Role invitation is not valid."
-msgstr ""
+msgstr "L'invito al ruolo non è valido."
 
 #: warehouse/accounts/views.py:813
 msgid "Role invitation no longer exists."
