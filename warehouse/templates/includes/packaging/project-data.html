@@ -125,14 +125,14 @@
 <div class="sidebar-section">
   <h3 class="sidebar-section__title">{% trans %}Classifiers{% endtrans %}</h3>
   <ul class="sidebar-section__classifiers">
-    {% for classifier_head, classifier_tail in (release.classifiers|format_classifiers()).items() %}
+    {% for classifier_head, classifier_tails in (release.classifiers|format_classifiers()).items() %}
     <li>
       <strong>{{ classifier_head }}</strong>
       <ul>
-        {% for classifier in classifier_tail %}
+        {% for classifier_tail in classifier_tails %}
         <li>
-          <a href="{{ request.route_path('search', _query={'c': ' :: '.join((classifier_head, classifier))}) }}">
-            {{ classifier }}
+          <a href="{{ request.route_path('search', _query={'c': ' :: '.join((classifier_head, classifier_tail))}) }}">
+            {{ classifier_tail }}
           </a>
         </li>
         {% endfor %}
