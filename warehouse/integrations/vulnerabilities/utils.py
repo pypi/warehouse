@@ -146,7 +146,7 @@ def analyze_vulnerability(request, vulnerability_report, origin, metrics):
     except (
         vulnerabilities.InvalidVulnerabilityReportRequest,
         NoResultFound,
-        HTTPBadRequest
+        HTTPBadRequest,
     ):
         raise
     except Exception:
