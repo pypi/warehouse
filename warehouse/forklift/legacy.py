@@ -10,6 +10,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import base64
 import email
 import hashlib
 import hmac
@@ -1323,7 +1324,6 @@ def file_upload(request):
 
         # Check that if it's a binary wheel, it's on a supported platform
         if filename.endswith(".whl"):
-            has_wheel_metadata = True
             wheel_info = _wheel_file_re.match(filename)
             plats = wheel_info.group("plat").split(".")
             for plat in plats:
@@ -1336,8 +1336,11 @@ def file_upload(request):
             wheel_metadata = extract_wheel_metadata(temporary_filename)
             with open(temporary_filename + ".metadata", "wb") as fp:
                 fp.write(wheel_metadata)
+            metadata_hash = base64.b64encode(
+                hashlib.blake2s(wheel_metadata, digest_size=128 // 8).digest()
+            ).decode("utf-8")
         else:
-            has_wheel_metadata = False
+            metadata_hash = None
 
         # Also buffer the entire signature file to disk.
         if "gpg_signature" in request.POST:
@@ -1441,7 +1444,7 @@ def file_upload(request):
                 "python-version": file_.python_version,
             },
         )
-        if has_wheel_metadata:
+        if metadata_hash is not None:
             storage.store(
                 file_.path + ".metadata",
                 temporary_filename + ".metadata",
