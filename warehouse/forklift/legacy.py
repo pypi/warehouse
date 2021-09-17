@@ -790,6 +790,21 @@ def _is_duplicate_file(db_session, filename, hashes):
     return None
 
 
+def extract_wheel_metadata(path):
+    """
+    Extract METADATA file and return it as a content. The name of the
+    .whl file is used to find the corresponding .dist-info dir.
+
+    See https://www.python.org/dev/peps/pep-0658/#specification
+    """
+    global _wheel_file_re
+    filename = os.path.basename(path)
+    namever = _wheel_file_re.match(filename).group("namever")
+    metafile = namever + ".dist-info/METADATA"
+    with zipfile.ZipFile(path) as zfp:
+        return zfp.read(metafile)
+
+
 @view_config(
     route_name="forklift.legacy.file_upload",
     uses_session=True,
@@ -1318,12 +1333,9 @@ def file_upload(request):
                         "Binary wheel '{filename}' has an unsupported "
                         "platform tag '{plat}'.".format(filename=filename, plat=plat),
                     )
-            # Extract .metadata file
-            # https://www.python.org/dev/peps/pep-0658/#specification
-            with zipfile.ZipFile(temporary_filename) as zfp:
-                metafile = wheel_info.group("namever") + ".dist-info/METADATA"
-                with open(temporary_filename + ".metadata", "wb") as fp:
-                    fp.write(zfp.read(metafile))
+            wheel_metadata = extract_wheel_metadata(temporary_filename)
+            with open(temporary_filename + ".metadata", "wb") as fp:
+                fp.write(wheel_metadata)
         else:
             has_wheel_metadata = False
 
