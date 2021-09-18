@@ -666,6 +666,7 @@ class File(HasEvents, db.Model):
     md5_digest = Column(Text, unique=True, nullable=False)
     sha256_digest = Column(CIText, unique=True, nullable=False)
     blake2_256_digest = Column(CIText, unique=True, nullable=False)
+    metadata_hash = Column(Text, unique=False, nullable=True)
     upload_time = Column(DateTime(timezone=False), server_default=func.now())
     uploaded_via = Column(Text)
 

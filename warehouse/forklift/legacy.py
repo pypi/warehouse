@@ -1381,6 +1381,7 @@ def file_upload(request):
             md5_digest=file_hashes["md5"],
             sha256_digest=file_hashes["sha256"],
             blake2_256_digest=file_hashes["blake2_256"],
+            metadata_hash=metadata_hash,
             # Figure out what our filepath is going to be, we're going to use a
             # directory structure based on the hash of the file contents. This
             # will ensure that the contents of the file cannot change without
