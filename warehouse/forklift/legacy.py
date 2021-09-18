@@ -144,17 +144,8 @@ _macosx_major_versions = {
 }
 
 # manylinux pep600 and musllinux pep656 are a little more complicated:
-_manylinux_re = re.compile(r"(?P<libc>(many|musl))linux_(\d+)_(\d+)_(?P<arch>.*)")
-_manylinux_arches = {
-    "x86_64",
-    "i686",
-    "aarch64",
-    "armv7l",
-    "ppc64",
-    "ppc64le",
-    "s390x",
-}
-_musllinux_arches = {
+_linux_platform_re = re.compile(r"(?P<libc>(many|musl))linux_(\d+)_(\d+)_(?P<arch>.*)")
+_jointlinux_arches = {
     "x86_64",
     "i686",
     "aarch64",
@@ -162,7 +153,8 @@ _musllinux_arches = {
     "ppc64le",
     "s390x",
 }
-
+_manylinux_arches = set.union(_jointlinux_arches, {"ppc64"})
+_musllinux_arches = _jointlinux_arches 
 
 # Actual checking code;
 def _valid_platform_tag(platform_tag):
@@ -175,7 +167,7 @@ def _valid_platform_tag(platform_tag):
         and m.group("arch") in _macosx_arches
     ):
         return True
-    m = _manylinux_re.match(platform_tag)
+    m = _linux_platform_re.match(platform_tag)
     if m and m.group("libc") == "musl":
         return m.group("arch") in _musllinux_arches
     if m and m.group("libc") == "many":
