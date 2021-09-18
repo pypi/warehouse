@@ -154,7 +154,8 @@ _jointlinux_arches = {
     "s390x",
 }
 _manylinux_arches = _jointlinux_arches | {"ppc64"}
-_musllinux_arches = _jointlinux_arches 
+_musllinux_arches = _jointlinux_arches
+
 
 # Actual checking code;
 def _valid_platform_tag(platform_tag):
