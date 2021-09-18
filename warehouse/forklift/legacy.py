@@ -153,7 +153,7 @@ _jointlinux_arches = {
     "ppc64le",
     "s390x",
 }
-_manylinux_arches = set.union(_jointlinux_arches, {"ppc64"})
+_manylinux_arches = _jointlinux_arches | {"ppc64"}
 _musllinux_arches = _jointlinux_arches 
 
 # Actual checking code;
