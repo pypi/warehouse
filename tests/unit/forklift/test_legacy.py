@@ -2573,6 +2573,7 @@ class TestFileUpload:
             "manylinux_2_17_ppc64",
             "manylinux_2_17_ppc64le",
             "manylinux_3_0_s390x",
+            "musllinux_1_1_x86_64",
             "macosx_10_6_intel",
             "macosx_10_13_x86_64",
             "macosx_11_0_x86_64",
