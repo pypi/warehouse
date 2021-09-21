@@ -54,7 +54,6 @@ rooms, and mailing lists is expected to follow the `PSF Code of Conduct`_.
 .. _`Getting started`: https://warehouse.readthedocs.io/development/getting-started/
 .. _`Github issue tracker`: https://github.com/pypa/warehouse/issues
 .. _`pypi.org`: https://pypi.org/
-.. _`distutils-sig mailing list`: https://mail.python.org/mailman3/lists/distutils-sig.python.org/
 .. _`Running tests and linters section`: https://warehouse.readthedocs.io/development/getting-started/#running-tests-and-linters
 .. _BrowserStack: https://browserstack.com/
 .. _`supported browsers`: https://warehouse.readthedocs.io/development/frontend/#browser-support

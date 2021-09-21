@@ -41,6 +41,8 @@
 
 {% if testPyPI %}
   {% set banner = _("Test Python package publishing with the Test Python Package Index") %}
+{% elif devPyPI %}
+  {% set banner = _("Develop the codebase behind PyPI with the Dev Python Package Index") %}
 {% else %}
   {% set banner = _("Find, install and publish Python packages with the Python Package Index") %}
 {% endif %}

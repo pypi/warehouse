@@ -23,7 +23,7 @@ def remove_documentation(task, request, project_name):
     request.log.info("Removing documentation for %s", project_name)
     storage = request.find_service(IDocsStorage)
     try:
-        storage.remove_by_prefix(project_name)
+        storage.remove_by_prefix(f"{project_name}/")
     except Exception as exc:
         task.retry(exc=exc)
 

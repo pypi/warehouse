@@ -1326,7 +1326,9 @@ class TestRequestPasswordReset:
         self, monkeypatch, pyramid_request, pyramid_config, user_service, token_service
     ):
 
-        stub_user = pretend.stub(id=pretend.stub(), username=pretend.stub())
+        stub_user = pretend.stub(
+            id=pretend.stub(), username=pretend.stub(), can_reset_password=True
+        )
         pyramid_request.method = "POST"
         token_service.dumps = pretend.call_recorder(lambda a: "TOK")
         user_service.get_user_by_username = pretend.call_recorder(lambda a: stub_user)
@@ -1383,6 +1385,7 @@ class TestRequestPasswordReset:
             id=pretend.stub(),
             email="foo@example.com",
             emails=[pretend.stub(email="foo@example.com")],
+            can_reset_password=True,
         )
         pyramid_request.method = "POST"
         token_service.dumps = pretend.call_recorder(lambda a: "TOK")
@@ -1445,6 +1448,7 @@ class TestRequestPasswordReset:
                 pretend.stub(email="foo@example.com"),
                 pretend.stub(email="other@example.com"),
             ],
+            can_reset_password=True,
         )
         pyramid_request.method = "POST"
         token_service.dumps = pretend.call_recorder(lambda a: "TOK")
@@ -1494,6 +1498,43 @@ class TestRequestPasswordReset:
             pretend.call(
                 stub_user.id,
                 tag="account:password:reset:request",
+                ip_address=pyramid_request.remote_addr,
+            )
+        ]
+
+    def test_password_reset_prohibited(
+        self, monkeypatch, pyramid_request, pyramid_config, user_service
+    ):
+        stub_user = pretend.stub(
+            id=pretend.stub(), username=pretend.stub(), can_reset_password=False
+        )
+        pyramid_request.method = "POST"
+        pyramid_request.route_path = pretend.call_recorder(lambda a: "/the-redirect")
+        user_service.get_user_by_username = pretend.call_recorder(lambda a: stub_user)
+        user_service.record_event = pretend.call_recorder(lambda *a, **kw: None)
+        pyramid_request.find_service = pretend.call_recorder(
+            lambda interface, **kw: {
+                IUserService: user_service,
+            }[interface]
+        )
+        form_obj = pretend.stub(
+            username_or_email=pretend.stub(data=stub_user.username),
+            validate=pretend.call_recorder(lambda: True),
+        )
+        form_class = pretend.call_recorder(lambda d, user_service: form_obj)
+
+        result = views.request_password_reset(pyramid_request, _form_class=form_class)
+
+        assert isinstance(result, HTTPSeeOther)
+        assert pyramid_request.route_path.calls == [
+            pretend.call("accounts.request-password-reset")
+        ]
+        assert result.headers["Location"] == "/the-redirect"
+
+        assert user_service.record_event.calls == [
+            pretend.call(
+                stub_user.id,
+                tag="account:password:reset:attempt",
                 ip_address=pyramid_request.remote_addr,
             )
         ]

@@ -152,7 +152,6 @@ def configure(settings=None):
     # Pull in default configuration from the environment.
     maybe_set(settings, "warehouse.token", "WAREHOUSE_TOKEN")
     maybe_set(settings, "warehouse.num_proxies", "WAREHOUSE_NUM_PROXIES", int)
-    maybe_set(settings, "warehouse.theme", "WAREHOUSE_THEME")
     maybe_set(settings, "warehouse.domain", "WAREHOUSE_DOMAIN")
     maybe_set(settings, "forklift.domain", "FORKLIFT_DOMAIN")
     maybe_set(settings, "warehouse.legacy_domain", "WAREHOUSE_LEGACY_DOMAIN")
@@ -225,6 +224,7 @@ def configure(settings=None):
     )
     maybe_set_compound(settings, "files", "backend", "FILES_BACKEND")
     maybe_set_compound(settings, "docs", "backend", "DOCS_BACKEND")
+    maybe_set_compound(settings, "sponsorlogos", "backend", "SPONSORLOGOS_BACKEND")
     maybe_set_compound(settings, "origin_cache", "backend", "ORIGIN_CACHE")
     maybe_set_compound(settings, "mail", "backend", "MAIL_BACKEND")
     maybe_set_compound(settings, "metrics", "backend", "METRICS_BACKEND")
@@ -518,10 +518,6 @@ def configure(settings=None):
 
     config.add_settings({"http": {"verify": "/etc/ssl/certs/"}})
     config.include(".http")
-
-    # Add our theme if one was configured
-    if config.get_settings().get("warehouse.theme"):
-        config.include(config.get_settings()["warehouse.theme"])
 
     # Scan everything for configuration
     config.scan(

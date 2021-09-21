@@ -125,8 +125,18 @@ def includeme(config):
         domain=warehouse,
     )
     config.add_route(
+        "admin.prohibited_project_names.bulk_add",
+        "/admin/prohibited_project_names/bulk/",
+        domain=warehouse,
+    )
+    config.add_route(
         "admin.prohibited_project_names.remove",
         "/admin/prohibited_project_names/remove/",
+        domain=warehouse,
+    )
+    config.add_route(
+        "admin.prohibited_project_names.release",
+        "/admin/prohibited_project_names/release/",
         domain=warehouse,
     )
 

@@ -2,6 +2,7 @@ version: '3'
 
 volumes:
   packages:
+  sponsorlogos:
   vault:
 
 services:
@@ -63,10 +64,6 @@ services:
       args:
         DEVEL: "yes"
         IPYTHON: "no"
-        # Uncomment the line below and add the private repo URL if you're
-        # working on pypi-theme, this is a private repository due to the fact
-        # that other people's IP is contained in it.
-        #THEME_REPO:
     command: gunicorn --reload -b 0.0.0.0:8000 warehouse.wsgi:application
     env_file: dev/environment
     volumes:
@@ -85,6 +82,7 @@ services:
       - ./htmlcov:/opt/warehouse/src/htmlcov:z
       - .coveragerc:/opt/warehouse/src/.coveragerc:z
       - packages:/var/opt/warehouse/packages
+      - sponsorlogos:/var/opt/warehouse/sponsorlogos
       - ./bin:/opt/warehouse/src/bin:z
     ports:
       - "80:8000"
@@ -96,6 +94,7 @@ services:
     command: python -m http.server 9001
     volumes:
       - packages:/var/opt/warehouse/packages
+      - sponsorlogos:/var/opt/warehouse/sponsorlogos
     ports:
       - "9001:9001"
 
@@ -125,14 +124,10 @@ services:
       - ./tests/frontend:/opt/warehouse/src/tests/frontend:z
       - ./bin:/opt/warehouse/src/bin:z
 
-  smtp:
-    build:
-      context: .
-    command: python /opt/warehouse/dev/smtp.py 0.0.0.0:2525
+  maildev:
+    image: maildev/maildev
     ports:
-      - "2525:2525"
-    volumes:
-      - ./dev/smtp.py:/opt/warehouse/dev/smtp.py
+      - "1080:80"
 
   notdatadog:
     build:

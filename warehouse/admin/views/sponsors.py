@@ -10,12 +10,18 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import os
+import secrets
+import tempfile
+
 import wtforms
 
 from pyramid.httpexceptions import HTTPNotFound, HTTPSeeOther
 from pyramid.view import view_config
+from slugify import slugify
 from sqlalchemy.orm.exc import NoResultFound
 
+from warehouse.admin.interfaces import ISponsorLogoStorage
 from warehouse.forms import Form, URIValidator
 from warehouse.sponsors.models import Sponsor
 
@@ -37,11 +43,13 @@ class SponsorForm(Form):
             URIValidator(),
         ]
     )
+    color_logo = wtforms.fields.FileField()
     color_logo_url = wtforms.fields.StringField(
         validators=[
             URIValidator(),
         ]
     )
+    white_logo = wtforms.fields.FileField()
     white_logo_url = wtforms.fields.StringField(
         validators=[
             wtforms.validators.Optional(),
@@ -64,8 +72,8 @@ class SponsorForm(Form):
 
         require_white_logo = self.footer.data or self.infra_sponsor.data
         if require_white_logo and not self.white_logo_url.data:
-            self.white_logo_url.errors.append(
-                "Must have white logo if is a footer sponsor."
+            self.white_logo.errors.append(
+                "Must upload white logo if is a footer sponsor."
             )
             return False
 
@@ -95,6 +103,21 @@ def sponsor_list(request):
     return {"sponsors": sponsors}
 
 
+def _upload_image(image_name, request, form):
+    sponsor_name = slugify(form.name.data)
+    if request.POST.get(image_name) not in [None, b""]:
+        with tempfile.NamedTemporaryFile() as fp:
+            fp.write(request.POST[image_name].file.read())
+            fp.flush()
+            content_type = request.POST[image_name].type
+            storage = request.find_service(ISponsorLogoStorage)
+            extension = os.path.splitext(request.POST[image_name].filename)[-1]
+            fingerprint = secrets.token_urlsafe(6)
+            filename = f"{sponsor_name}-{slugify(image_name)}-{fingerprint}{extension}"
+            return storage.store(filename, fp.name, content_type)
+    return ""
+
+
 @view_config(
     route_name="admin.sponsor.edit",
     renderer="admin/sponsors/edit.html",
@@ -122,10 +145,15 @@ def edit_sponsor(request):
 
     form = SponsorForm(request.POST if request.method == "POST" else None, sponsor)
 
-    if request.method == "POST" and form.validate():
-        form.populate_obj(sponsor)
-        request.session.flash("Sponsor updated", queue="success")
-        return HTTPSeeOther(location=request.current_route_path())
+    if request.method == "POST":
+        if _color_logo_url := _upload_image("color_logo", request, form):
+            form.color_logo_url.data = _color_logo_url
+        if _white_logo_url := _upload_image("white_logo", request, form):
+            form.white_logo_url.data = _white_logo_url
+        if form.validate():
+            form.populate_obj(sponsor)
+            request.session.flash("Sponsor updated", queue="success")
+            return HTTPSeeOther(location=request.current_route_path())
 
     return {"sponsor": sponsor, "form": form}
 
@@ -151,15 +179,20 @@ def edit_sponsor(request):
 def create_sponsor(request):
     form = SponsorForm(request.POST if request.method == "POST" else None)
 
-    if request.method == "POST" and form.validate():
-        sponsor = Sponsor(**form.data)
-        request.db.add(sponsor)
-        request.session.flash(
-            f"Added new sponsor '{sponsor.name}'",
-            queue="success",
-        )
-        redirect_url = request.route_url("admin.sponsor.list")
-        return HTTPSeeOther(location=redirect_url)
+    if request.method == "POST":
+        form.color_logo_url.data = _upload_image("color_logo", request, form)
+        form.white_logo_url.data = _upload_image("white_logo", request, form)
+        if form.validate():
+            del form.color_logo
+            del form.white_logo
+            sponsor = Sponsor(**form.data)
+            request.db.add(sponsor)
+            request.session.flash(
+                f"Added new sponsor '{sponsor.name}'",
+                queue="success",
+            )
+            redirect_url = request.route_url("admin.sponsor.list")
+            return HTTPSeeOther(location=redirect_url)
 
     return {"form": form}
 
