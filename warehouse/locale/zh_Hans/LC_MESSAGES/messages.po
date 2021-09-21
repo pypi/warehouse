@@ -3300,7 +3300,9 @@ msgid "Project settings"
 msgstr "项目设置"
 
 #: warehouse/templates/manage/settings.html:23
-msgid "Project size :"
+#, fuzzy
+#| msgid "Project size :"
+msgid "Project size:"
 msgstr "项目规模 :"
 
 #: warehouse/templates/manage/settings.html:31

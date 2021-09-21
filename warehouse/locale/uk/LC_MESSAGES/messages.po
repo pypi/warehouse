@@ -975,9 +975,9 @@ msgid ""
 "\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">Python "
 "Packaging User Guide</a>."
 msgstr ""
-"Щоб дізнатися більше про завантаження проєктів до PyPI, відвідайте <a href=\""
-"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener\""
-">користувацьке керівництво з пакування Python</a>."
+"Щоб дізнатися більше про завантаження проєктів до PyPI, відвідайте <a href="
+"\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener"
+"\">користувацьке керівництво з пакування Python</a>."
 
 #: warehouse/templates/upload.html:28
 #, python-format
@@ -999,8 +999,8 @@ msgid ""
 "      "
 msgstr ""
 "\n"
-"      Бажаєте прийняти запрошення приєднатися до '<a href=\"%(project_link)"
-"s\">%(project_name)s</a>' у якості %(role_name)s проєкту?\n"
+"      Бажаєте прийняти запрошення приєднатися до '<a href=\"%(project_link)s"
+"\">%(project_name)s</a>' у якості %(role_name)s проєкту?\n"
 "      "
 
 #: warehouse/templates/accounts/invite-confirmation.html:32
@@ -1739,8 +1739,8 @@ msgid ""
 "using <a href=\"%(gbq_href)s\" target=\"_blank\" rel=\"noopener\">our public "
 "dataset on Google BigQuery</a>"
 msgstr ""
-"Дивіться статистику своїх проєктів на <a href=\"%(libs_io_href)s\" title=\""
-"%(title)s\" target=\"_blank\" rel=\"noopener\">Libraries.io</a>, або за "
+"Дивіться статистику своїх проєктів на <a href=\"%(libs_io_href)s\" title="
+"\"%(title)s\" target=\"_blank\" rel=\"noopener\">Libraries.io</a>, або за "
 "допомогою <a href=\"%(gbq_href)s\" target=\"_blank\" rel=\"noopener\">нашого "
 "відкритого набору даних на Google BigQuery</a>"
 
@@ -1754,8 +1754,8 @@ msgid ""
 msgstr ""
 "Дивіться статистику проєктів %(username)s на <a href=\"%(libs_io_href)s\" "
 "title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">Libraries.io</a>, або "
-"за допомогою <a href=\"%(gbq_href)s\" target=\"_blank\" rel=\"noopener\""
-">нашого відкритого набору даних на Google BigQuery</a>"
+"за допомогою <a href=\"%(gbq_href)s\" target=\"_blank\" rel=\"noopener"
+"\">нашого відкритого набору даних на Google BigQuery</a>"
 
 #: warehouse/templates/includes/accounts/profile-callout.html:18
 #, python-format
@@ -1840,8 +1840,8 @@ msgid ""
 msgstr ""
 "Переглядайте статистику для цього проєкта на <a href=\"%(libs_io_href)s\" "
 "title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">Libraries.io</a>, або "
-"використовуючи <a href=\"%(gbq_href)s\" target=\"_blank\" rel=\"noopener\""
-">наш публічний набір даних на Google BigQuery</a>"
+"використовуючи <a href=\"%(gbq_href)s\" target=\"_blank\" rel=\"noopener"
+"\">наш публічний набір даних на Google BigQuery</a>"
 
 #: warehouse/templates/includes/packaging/project-data.html:74
 msgid "Meta"
@@ -2584,8 +2584,8 @@ msgid ""
 "<a href=\"%(transfer_href)s\">transfer ownership</a> or <a href="
 "\"%(delete_href)s\">delete project</a>"
 msgstr ""
-"<a href=\"%(transfer_href)s\">перенести право власності</a> чи <a href=\""
-"%(delete_href)s\">видалити проєкт</a>"
+"<a href=\"%(transfer_href)s\">перенести право власності</a> чи <a href="
+"\"%(delete_href)s\">видалити проєкт</a>"
 
 #: warehouse/templates/manage/account.html:753
 #: warehouse/templates/manage/token.html:169
@@ -2699,7 +2699,8 @@ msgstr "<a href=\"%(href)s\">%(username)s</a> додано як %(role_name)s п
 #: warehouse/templates/manage/history.html:55
 #, python-format
 msgid "<a href=\"%(href)s\">%(username)s</a> removed as project %(role_name)s"
-msgstr "<a href=\"%(href)s\">%(username)s</a> видалено як %(role_name)s проєкту"
+msgstr ""
+"<a href=\"%(href)s\">%(username)s</a> видалено як %(role_name)s проєкту"
 
 #: warehouse/templates/manage/history.html:60
 #, python-format
@@ -2898,8 +2899,8 @@ msgid ""
 "\">Python Packaging User Guide</a>"
 msgstr ""
 "Ви не ще завантажили жодного проєкту до PyPI. Аби дізнатися, звідки почати, "
-"відвідайте <a href=\"%(href)s\" target=\"_blank\" rel=\"noopener\""
-">користувацьке керівництво з пакування Python</a>"
+"відвідайте <a href=\"%(href)s\" target=\"_blank\" rel=\"noopener"
+"\">користувацьке керівництво з пакування Python</a>"
 
 #: warehouse/templates/manage/release.html:18
 #, python-format
@@ -3446,7 +3447,9 @@ msgid "Project settings"
 msgstr "Налаштування проєкту"
 
 #: warehouse/templates/manage/settings.html:23
-msgid "Project size :"
+#, fuzzy
+#| msgid "Project size :"
+msgid "Project size:"
 msgstr "Розмір проєкту:"
 
 #: warehouse/templates/manage/settings.html:31
@@ -3629,8 +3632,8 @@ msgid ""
 "projects to PyPI, set up your <code>%(filename)s</code> file like this:"
 msgstr ""
 "Наприклад, якщо ви користуєтеся <a href=\"%(href)s\">Twine</a> для "
-"завантаження своїх проєктів до PyPI, налаштуйте свій файл "
-"<code>%(filename)s</code> таким чином:"
+"завантаження своїх проєктів до PyPI, налаштуйте свій файл <code>"
+"%(filename)s</code> таким чином:"
 
 #: warehouse/templates/manage/token.html:94
 #, python-format
@@ -4071,9 +4074,9 @@ msgstr ""
 "Ви можете знайти інструкції щодо додавання trove-класифікаторів до проєкту в "
 "<a href=\"%(ppug_href)s\" title=\"%(title)s\" target=\"_blank\" rel="
 "\"noopener\">користувацькому керівництві з пакування Python</a>. Щоб "
-"прочитати оригінальну специфікацію класифікаторів, зверніться до <a href=\""
-"%(pep301_href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener\""
-"><abbr title=\"Пропозиція покращення Python\">PEP</abbr> 301</a>."
+"прочитати оригінальну специфікацію класифікаторів, зверніться до <a href="
+"\"%(pep301_href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener"
+"\"><abbr title=\"Пропозиція покращення Python\">PEP</abbr> 301</a>."
 
 #: warehouse/templates/pages/classifiers.html:31
 msgid "List of classifiers"
@@ -4225,8 +4228,8 @@ msgstr "Як мені отримувати сповіщення щойно но�
 msgid ""
 "Where can I see statistics about PyPI, downloads, and project/package usage?"
 msgstr ""
-"Де мені подивитися статистику щодо PyPI, завантаження і використання "
-"проєкта/пакунка?"
+"Де мені подивитися статистику щодо PyPI, завантаження і використання проєкта/"
+"пакунка?"
 
 #: warehouse/templates/pages/help.html:75
 msgid "I forgot my PyPI password. Can you help me?"
@@ -4420,8 +4423,8 @@ msgstr ""
 "інформація про них. Проєкти на PyPI створюються і поширюються іншими "
 "учасниками спільноти Python, щоб ви могли ними користуватися.</p>\n"
 "          <p>«Випуском» на PyPI є певна версія проєкту. Наприклад, проєкт <a "
-"href=\"%(requests_href)s\">requests</a> має багато випусків, таких як «"
-"requests 2.10» та «requests 1.2.1». Випуск складається із одного або більше "
+"href=\"%(requests_href)s\">requests</a> має багато випусків, таких як "
+"«requests 2.10» та «requests 1.2.1». Випуск складається із одного або більше "
 "«файлів».</p>\n"
 "          <p>«Файл», також відомий як «пакунок», на PyPI це щось, що ви "
 "можете завантажити і встановити. Через різне обладнання, операційні системи "
@@ -4457,8 +4460,8 @@ msgstr ""
 "Python-проєкту, зверніться до <a href=\"%(packaging_tutorial_href)s\" title="
 "\"%(title)s\" target=\"_blank\" rel=\"noopener\">навчальну інструкцію з "
 "пакування</a> у <a href=\"%(user_guide_href)s\" title=\"%(title)s\" target="
-"\"_blank\" rel=\"noopener\">користувацькому керівництві з пакування "
-"Python</a>."
+"\"_blank\" rel=\"noopener\">користувацькому керівництві з пакування Python</"
+"a>."
 
 #: warehouse/templates/pages/help.html:218
 #, python-format
@@ -5190,8 +5193,8 @@ msgstr ""
 "Ви можете підписатися на <a href=\"%(rss_href)s\" title=\"%(title)s\" target="
 "\"_blank\" rel=\"noopener\">RSS-стрічку проєкту</a>. Крім того, є сторонні "
 "служби, які пропонують всеосяжний моніторинг та сповіщення про публікації "
-"проєктів та переліки вразливостей у вигляді <a href=\"%(href)s\" title=\""
-"%(title)s\" target=\"_blank\" rel=\"noopener\">GitHub-застосунків</a>."
+"проєктів та переліки вразливостей у вигляді <a href=\"%(href)s\" title="
+"\"%(title)s\" target=\"_blank\" rel=\"noopener\">GitHub-застосунків</a>."
 
 #: warehouse/templates/pages/help.html:524
 #, python-format
@@ -5219,12 +5222,12 @@ msgid ""
 "\"noopener\">other relevant factors</a>."
 msgstr ""
 "<a href=\"%(libs_io_href)s\" title=\"%(title)s\" target=\"_blank\" rel="
-"\"noopener\">Libraries.io надає статистику проєктів на PyPI</a> (<a href=\""
-"%(libs_io_example_href)s\" title=\"%(title)s\" target=\"_blank\" rel="
-"\"noopener\">example</a>, <a href=\"%(libs_io_api_href)s\" title=\"%(title)"
-"s\" target=\"_blank\" rel=\"noopener\">API</a>) включно із зірочками та "
-"форками на GitHub, відстежуванням залежностей (<a href=\"%(in_progress_href)"
-"s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">в процесі "
+"\"noopener\">Libraries.io надає статистику проєктів на PyPI</a> (<a href="
+"\"%(libs_io_example_href)s\" title=\"%(title)s\" target=\"_blank\" rel="
+"\"noopener\">example</a>, <a href=\"%(libs_io_api_href)s\" title=\"%(title)s"
+"\" target=\"_blank\" rel=\"noopener\">API</a>) включно із зірочками та "
+"форками на GitHub, відстежуванням залежностей (<a href=\"%(in_progress_href)s"
+"\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">в процесі "
 "розробки</a>) та <a href=\"%(other_factors_href)s\" title=\"%(title)s\" "
 "target=\"_blank\" rel=\"noopener\">інші доречні фактори</a>."
 
@@ -5246,8 +5249,8 @@ msgid ""
 "your own deployment of the <a href=\"%(href)s\">devpi project</a>."
 msgstr ""
 "PyPI не публікує приватних пакунків. Якщо вам необхідно публікувати приватні "
-"пакунки до індексу пакунків, ми радимо вам розгорнути <a href=\"%(href)s\""
-">проєкт devpi</a> власноруч."
+"пакунки до індексу пакунків, ми радимо вам розгорнути <a href=\"%(href)s"
+"\">проєкт devpi</a> власноруч."
 
 #: warehouse/templates/pages/help.html:545
 msgid ""
@@ -5268,8 +5271,8 @@ msgid ""
 "target=\"_blank\" rel=\"noopener\">Python Standard Library</a> module from "
 "any major version from 2.5 to present."
 msgstr ""
-"Назва проєкту конфліктує з модулем зі <a href=\"%(href)s\" title=\"%(title)"
-"s\" target=\"_blank\" rel=\"noopener\">стандартної бібліотеки Python</a> із "
+"Назва проєкту конфліктує з модулем зі <a href=\"%(href)s\" title=\"%(title)s"
+"\" target=\"_blank\" rel=\"noopener\">стандартної бібліотеки Python</a> із "
 "будь-якої основної версії починаючи з 2.5 донині."
 
 #: warehouse/templates/pages/help.html:548
@@ -5280,9 +5283,9 @@ msgid ""
 "%(correct_code)s</code>, and should not surprise the user with a malicious "
 "package."
 msgstr ""
-"Ця назва проєкту явно заборонена адміністраторами PyPI. Наприклад, "
-"<code>%(incorrect_code)s</code> — поширена помилка написання "
-"<code>%(correct_code)s</code>, і не має несподівано для користувачів містити "
+"Ця назва проєкту явно заборонена адміністраторами PyPI. Наприклад, <code>"
+"%(incorrect_code)s</code> — поширена помилка написання <code>"
+"%(correct_code)s</code>, і не має несподівано для користувачів містити "
 "зловмисний пакунок."
 
 #: warehouse/templates/pages/help.html:549
@@ -5398,11 +5401,11 @@ msgstr ""
 "Якщо вам не вдається завантажити випуск свого проєкту до PyPI через те, що "
 "ви досягаєте обмеження розміру завантажуваних файлів, іноді ми можемо "
 "збільшити ваш ліміт. Переконайтеся, що ви завантажили хоча б один випуск "
-"проєкту, <em>меншого</em> розміру за цей ліміт (<a href=\"%(dev_release_href)"
-"s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">розробницька "
-"версія випуску</a> підходить). Тоді, <a href=\"%(file_issue_href)s\" title=\""
-"%(title)s\" target=\"_blank\" rel=\"noopener\">створіть іш'ю</a> і повідомте "
-"нас:"
+"проєкту, <em>меншого</em> розміру за цей ліміт (<a href="
+"\"%(dev_release_href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener"
+"\">розробницька версія випуску</a> підходить). Тоді, <a href="
+"\"%(file_issue_href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener"
+"\">створіть іш'ю</a> і повідомте нас:"
 
 #: warehouse/templates/pages/help.html:580
 #: warehouse/templates/pages/help.html:601
@@ -5711,8 +5714,8 @@ msgid ""
 msgstr ""
 "Коли адміністратори PyPI переповнені спамом <strong>або</strong> з'ясовують "
 "що існує якась інша загроза для PyPI, реєстрацію нових користувачів і/або "
-"нових проєктів може бути вимкнуто. Перевіряйте <a href=\"%(href)s\" title=\""
-"%(title)s\" target=\"_blank\" rel=\"noopener\">нашу сторінку статусу</a>, "
+"нових проєктів може бути вимкнуто. Перевіряйте <a href=\"%(href)s\" title="
+"\"%(title)s\" target=\"_blank\" rel=\"noopener\">нашу сторінку статусу</a>, "
 "щоб дізнатися більше, оскільки ми швидше за все публікуватимемо там "
 "оновлення щодо причин втручання."
 
@@ -5770,9 +5773,9 @@ msgid ""
 "brief justification of why it is important."
 msgstr ""
 "Якщо ви бажаєте попросити новий trove-класифікатор, надішліть пул-реквест до "
-"<a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener\""
-">проєкту <code>pypa/trove-classifiers</code></a>. Не забудьте додати коротке "
-"пояснення того, чому це важливо."
+"<a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener"
+"\">проєкту <code>pypa/trove-classifiers</code></a>. Не забудьте додати "
+"коротке пояснення того, чому це важливо."
 
 #: warehouse/templates/pages/help.html:736
 #, python-format
@@ -5808,10 +5811,10 @@ msgid ""
 "Authority (PyPA) and supported by the Python Packaging Working Group "
 "(PackagingWG)."
 msgstr ""
-"PyPI працює на базі проєкту Warehouse; <a href=\"%(href)s\" title=\"%(title)"
-"s\" target=\"_blank\" rel=\"noopener\">Warehouse</a> — це проєкт із "
-"відкритим кодом, який розробляється під егідою управління з пакування Python "
-"(PyPA) та підтримується робочою групою з пакування Python (PackagingWG)."
+"PyPI працює на базі проєкту Warehouse; <a href=\"%(href)s\" title=\"%(title)s"
+"\" target=\"_blank\" rel=\"noopener\">Warehouse</a> — це проєкт із відкритим "
+"кодом, який розробляється під егідою управління з пакування Python (PyPA) та "
+"підтримується робочою групою з пакування Python (PackagingWG)."
 
 #: warehouse/templates/pages/help.html:757
 #, python-format
@@ -5820,8 +5823,8 @@ msgid ""
 "\">PyPA</a> is an independent group of developers whose goal is to improve "
 "and maintain many of the core projects related to Python packaging."
 msgstr ""
-"<a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener\""
-">PyPA</a> — незалежна група розробників, метою якої є покращення та догляд "
+"<a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener"
+"\">PyPA</a> — незалежна група розробників, метою якої є покращення та догляд "
 "за багатьма основоположними проєктами, пов'язаними з пакуванням Python."
 
 #: warehouse/templates/pages/help.html:762
@@ -5982,11 +5985,11 @@ msgid ""
 "\"%(discourse_forum_href)s\" title=\"%(title)s\" target=\"_blank\" rel="
 "\"noopener\">Python packaging forum on Discourse</a>."
 msgstr ""
-"Також, ви можете стежити за процесом розробки проєкту через <a href=\""
-"%(mailing_list_href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener"
-"\">список розсилки distutils-sig</a> та <a href=\"%(discourse_forum_href)s\" "
-"title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">форум, присвячений "
-"пакуванню Python на Discourse</a>."
+"Також, ви можете стежити за процесом розробки проєкту через <a href="
+"\"%(mailing_list_href)s\" title=\"%(title)s\" target=\"_blank\" rel="
+"\"noopener\">список розсилки distutils-sig</a> та <a href="
+"\"%(discourse_forum_href)s\" title=\"%(title)s\" target=\"_blank\" rel="
+"\"noopener\">форум, присвячений пакуванню Python на Discourse</a>."
 
 #: warehouse/templates/pages/help.html:829
 #, python-format
@@ -6032,8 +6035,8 @@ msgid ""
 "language."
 msgstr ""
 "«PyPI» має вимовлятися як «пай пі ай», зокрема «PI» має вимовлятися як "
-"окремі літери, а не один звук. Це зменшує плутанину з проєктом <a href=\""
-"%(href)s\" title=\"%(title)s\">PyPy</a>, який є відомою альтернативною "
+"окремі літери, а не один звук. Це зменшує плутанину з проєктом <a href="
+"\"%(href)s\" title=\"%(title)s\">PyPy</a>, який є відомою альтернативною "
 "реалізацією мови Python."
 
 #: warehouse/templates/pages/help.html:856

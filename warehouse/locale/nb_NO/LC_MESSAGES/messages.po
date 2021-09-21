@@ -3236,7 +3236,7 @@ msgstr "Prosjektinnstillinger"
 #: warehouse/templates/manage/settings.html:23
 #, fuzzy
 #| msgid "Project:"
-msgid "Project size :"
+msgid "Project size:"
 msgstr "Prosjekt:"
 
 #: warehouse/templates/manage/settings.html:31

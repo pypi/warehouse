@@ -3193,7 +3193,7 @@ msgid "Project settings"
 msgstr ""
 
 #: warehouse/templates/manage/settings.html:23
-msgid "Project size :"
+msgid "Project size:"
 msgstr ""
 
 #: warehouse/templates/manage/settings.html:31

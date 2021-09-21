@@ -3343,7 +3343,7 @@ msgstr "프로젝트 설정"
 #: warehouse/templates/manage/settings.html:23
 #, fuzzy
 #| msgid "Project:"
-msgid "Project size :"
+msgid "Project size:"
 msgstr "프로젝트:"
 
 #: warehouse/templates/manage/settings.html:31

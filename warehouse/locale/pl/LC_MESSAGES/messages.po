@@ -3330,7 +3330,7 @@ msgstr ""
 #: warehouse/templates/manage/settings.html:23
 #, fuzzy
 #| msgid "Project links"
-msgid "Project size :"
+msgid "Project size:"
 msgstr "Linki do projektu"
 
 #: warehouse/templates/manage/settings.html:31

@@ -3444,7 +3444,9 @@ msgid "Project settings"
 msgstr "Configuración del proyecto"
 
 #: warehouse/templates/manage/settings.html:23
-msgid "Project size :"
+#, fuzzy
+#| msgid "Project size :"
+msgid "Project size:"
 msgstr "Tamaño del proyecto:"
 
 #: warehouse/templates/manage/settings.html:31
@@ -5668,8 +5670,8 @@ msgid ""
 msgstr ""
 "Para obtener ayuda, visite <a href=\"%(irc_href)s\" title=\"%(title)s\" "
 "target=\"_blank\" rel=\"noopener\">el canal <code>#pypa</code> de IRC en "
-"Libera</a>, cree un informe en <a href=\"%(issue_tracker_href)s\" title=\""
-"%(title)s\" target=\"_blank\" rel=\"noopener\">pypa/packaging-problems/"
+"Libera</a>, cree un informe en <a href=\"%(issue_tracker_href)s\" title="
+"\"%(title)s\" target=\"_blank\" rel=\"noopener\">pypa/packaging-problems/"
 "issues</a> o <a href=\"%(discourse_href)s\" title=\"%(title)s\" target="
 "\"_blank\" rel=\"noopener\">publique un mensaje en Discourse</a>; incluya su "
 "SO, detalles de la instalación y la salida de <code>%(command)s</code>."
