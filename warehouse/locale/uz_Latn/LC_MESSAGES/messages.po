@@ -180,7 +180,8 @@ msgstr ""
 msgid ""
 "Invalid token: password has already been changed since this token was "
 "requested"
-msgstr "Yaroqsiz token: token so'ralgandan beri parol allaqachon o'zgartirilgan"
+msgstr ""
+"Yaroqsiz token: token so'ralgandan beri parol allaqachon o'zgartirilgan"
 
 #: warehouse/accounts/views.py:663
 msgid "You have reset your password"
@@ -3130,7 +3131,7 @@ msgid "Project settings"
 msgstr ""
 
 #: warehouse/templates/manage/settings.html:23
-msgid "Project size :"
+msgid "Project size:"
 msgstr ""
 
 #: warehouse/templates/manage/settings.html:31

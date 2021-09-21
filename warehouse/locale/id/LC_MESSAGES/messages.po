@@ -3384,7 +3384,9 @@ msgid "Project settings"
 msgstr "Pengaturan proyek"
 
 #: warehouse/templates/manage/settings.html:23
-msgid "Project size :"
+#, fuzzy
+#| msgid "Project size :"
+msgid "Project size:"
 msgstr "Ukuran proyek :"
 
 #: warehouse/templates/manage/settings.html:31

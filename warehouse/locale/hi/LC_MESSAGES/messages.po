@@ -3401,7 +3401,7 @@ msgstr "परियोजना सेटिंग्स"
 #: warehouse/templates/manage/settings.html:23
 #, fuzzy
 #| msgid "Project name"
-msgid "Project size :"
+msgid "Project size:"
 msgstr "परियोजना का नाम"
 
 #: warehouse/templates/manage/settings.html:31

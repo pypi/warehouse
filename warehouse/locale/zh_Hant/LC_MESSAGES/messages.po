@@ -755,7 +755,9 @@ msgstr ""
 
 #: warehouse/templates/index.html:45
 msgid "Develop the codebase behind PyPI with the Dev Python Package Index"
-msgstr "使用測試 Python 套件軟體索引（Test Python Package Index）測試 Python 套件軟體發佈"
+msgstr ""
+"使用測試 Python 套件軟體索引（Test Python Package Index）測試 Python 套件軟體"
+"發佈"
 
 #: warehouse/templates/index.html:47
 msgid "Find, install and publish Python packages with the Python Package Index"
@@ -3263,7 +3265,9 @@ msgid "Project settings"
 msgstr "專案設定"
 
 #: warehouse/templates/manage/settings.html:23
-msgid "Project size :"
+#, fuzzy
+#| msgid "Project size :"
+msgid "Project size:"
 msgstr "專案連結："
 
 #: warehouse/templates/manage/settings.html:31
@@ -5262,12 +5266,13 @@ msgid ""
 "\">discuss on the Discourse</a>, including your OS and installation details "
 "and the output of <code>%(command)s</code>."
 msgstr ""
-"如需幫助，請轉至 <a href=\"%(irc_href)s\" title=\"%(title)s\" target=\"_blank\" rel="
-"\"noopener\">Libera</a> 上的 <code>#pypa</code> IRC 頻道，在 <a href=\""
-"%(issue_tracker_href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener"
-"\">pypa/packaging-problems/issues</a>, 或 <a href=\"%(mailing_list_href)s\" "
-"title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">張貼到 python-help "
-"郵件列表</a>，包括您的操作系統和安裝詳細信息以及 <code>%(command)s</code> 的輸出。"
+"如需幫助，請轉至 <a href=\"%(irc_href)s\" title=\"%(title)s\" target=\"_blank"
+"\" rel=\"noopener\">Libera</a> 上的 <code>#pypa</code> IRC 頻道，在 <a href="
+"\"%(issue_tracker_href)s\" title=\"%(title)s\" target=\"_blank\" rel="
+"\"noopener\">pypa/packaging-problems/issues</a>, 或 <a href="
+"\"%(mailing_list_href)s\" title=\"%(title)s\" target=\"_blank\" rel="
+"\"noopener\">張貼到 python-help 郵件列表</a>，包括您的操作系統和安裝詳細信息"
+"以及 <code>%(command)s</code> 的輸出。"
 
 #: warehouse/templates/pages/help.html:680
 #, python-format

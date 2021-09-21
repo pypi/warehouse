@@ -2374,7 +2374,8 @@ msgstr "تأیید دو عاملی اضافه شد"
 #: warehouse/templates/manage/account.html:634
 msgid ""
 "Method: Security device (<abbr title=\"web authentication\">WebAuthn</abbr>)"
-msgstr "(</abbr>WebAuthn<abbr title=\"web authentication\">) روش: دستگاه امنیتی"
+msgstr ""
+"(</abbr>WebAuthn<abbr title=\"web authentication\">) روش: دستگاه امنیتی"
 
 #: warehouse/templates/manage/account.html:625
 #: warehouse/templates/manage/account.html:635
@@ -3292,8 +3293,10 @@ msgid "Project settings"
 msgstr ""
 
 #: warehouse/templates/manage/settings.html:23
-msgid "Project size :"
-msgstr ""
+#, fuzzy
+#| msgid "Project:"
+msgid "Project size:"
+msgstr "برنامه:"
 
 #: warehouse/templates/manage/settings.html:31
 #: warehouse/templates/manage/settings.html:39
