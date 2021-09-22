@@ -26,7 +26,6 @@ import packaging.requirements
 import packaging.specifiers
 import packaging.utils
 import packaging.version
-import pkg_resources
 import requests
 import stdlib_list
 import wtforms
@@ -628,6 +627,22 @@ class MetadataForm(forms.Form):
             )
 
 
+def _is_valid_filename(filename, specified_normalized_name):
+    if filename.endswith(".whl"):
+        parse_func = packaging.utils.parse_wheel_filename
+    else:
+        parse_func = packaging.utils.parse_sdist_filename
+    try:
+        parsed_parts = parse_func(filename)
+    except (
+        packaging.utils.InvalidSdistFilename,
+        packaging.utils.InvalidWheelFilename,
+        packaging.version.InvalidVersion,
+    ):
+        return False
+    return parsed_parts[0] == specified_normalized_name
+
+
 _safe_zipnames = re.compile(r"(purelib|platlib|headers|scripts|data).+", re.I)
 # .tar uncompressed, .tar.gz .tgz, .tar.bz2 .tbz2
 _tar_filenames_re = re.compile(r"\.(?:tar$|t(?:ar\.)?(?P<z_type>gz|bz2)$)")
@@ -1194,11 +1209,11 @@ def file_upload(request):
 
     # Make sure that our filename matches the project that it is being uploaded
     # to.
-    prefix = pkg_resources.safe_name(project.name).lower()
-    if not pkg_resources.safe_name(filename).lower().startswith(prefix):
+    normalized_name = project.normalized_name
+    if not _is_valid_filename(filename, normalized_name):
         raise _exc_with_message(
             HTTPBadRequest,
-            "Start filename for {!r} with {!r}.".format(project.name, prefix),
+            "Filename {!r} must match project {!r}.".format(filename, normalized_name),
         )
 
     # Check the content type of what is being uploaded

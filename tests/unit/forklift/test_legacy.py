@@ -20,7 +20,6 @@ import zipfile
 from cgi import FieldStorage
 from unittest import mock
 
-import pkg_resources
 import pretend
 import pytest
 import requests
@@ -2354,7 +2353,7 @@ class TestFileUpload:
                 "filetype": "sdist",
                 "md5_digest": hashlib.md5(file_content.getvalue()).hexdigest(),
                 "content": pretend.stub(
-                    filename="{}-fake.tar.gz".format(project.name),
+                    filename="{}-0.1.tar.gz".format(project.name),
                     file=file_content,
                     type="application/tar",
                 ),
@@ -2388,7 +2387,18 @@ class TestFileUpload:
             "400 File already exists. See /the/help/url/ for more information."
         )
 
-    def test_upload_fails_with_wrong_filename(self, pyramid_config, db_request):
+    @pytest.mark.parametrize(
+        "filename",
+        [
+            "nope-{version}.tar.gz",
+            "nope-{version}-py3-none-any.whl",
+            "nope-notaversion.tar.gz",
+            "nope-notaversion-py3-none-any.whl",
+        ],
+    )
+    def test_upload_fails_with_wrong_filename(
+        self, pyramid_config, db_request, filename
+    ):
         pyramid_config.testing_securitypolicy(userid=1)
 
         user = UserFactory.create()
@@ -2398,7 +2408,7 @@ class TestFileUpload:
         release = ReleaseFactory.create(project=project, version="1.0")
         RoleFactory.create(user=user, project=project)
 
-        filename = "nope-{}.tar.gz".format(release.version)
+        filename = filename.format(version=release.version)
 
         db_request.POST = MultiDict(
             {
@@ -2422,8 +2432,8 @@ class TestFileUpload:
 
         assert resp.status_code == 400
         assert resp.status == (
-            "400 Start filename for {!r} with {!r}.".format(
-                project.name, pkg_resources.safe_name(project.name).lower()
+            "400 Filename {!r} must match project {!r}.".format(
+                filename, project.normalized_name
             )
         )
 
