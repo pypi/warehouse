@@ -35,7 +35,7 @@ services:
       POSTGRES_DB: warehouse
       POSTGRES_PASSWORD: password
     volumes:
-      - ./dev/example.sql.xz:/docker-entrypoint-initdb.d/example.sql.xz
+      - ./dev/example.sql.xz:/docker-entrypoint-initdb.d/example.sql.xz:ro
 
   redis:
     image: redis:4.0
