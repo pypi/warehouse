@@ -1,10 +1,4 @@
-<<<<<<< HEAD
-=======
-BINDIR = $(PWD)/.state/env/bin
 COMPOSE_PROJECT_NAME ?= $(notdir $(abspath .))
-GITHUB_ACTIONS := $(shell echo "$${GITHUB_ACTIONS:-false}")
-GITHUB_BASE_REF := $(shell echo "$${GITHUB_BASE_REF:-false}")
->>>>>>> e1349bda (Calculate compose project name instead of hardcoding it)
 DB := example
 IPYTHON := no
 
