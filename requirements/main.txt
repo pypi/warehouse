@@ -1087,9 +1087,9 @@ yara-python==4.1.0 \
     --hash=sha256:f5d95c4dd5d954972a06aadcf59aa2f427c5593376dcf550b349a09106c2dc48 \
     --hash=sha256:f7fa1776106bcb870a9ef604ae17f45b58bb69a0a60ccde46a1bb08529117bbd
     # via -r requirements/main.in
-zipp==3.5.0 \
-    --hash=sha256:957cfda87797e389580cb8b9e3870841ca991e2125350677b2ca83a0e99390a3 \
-    --hash=sha256:f5812b1e007e48cff63449a5e9f4e7ebea716b4111f9c4f9a645f91d579bf0c4
+zipp==3.5.1 \
+    --hash=sha256:1fc9641b26f3bd81069b7738b039f2819cab6e3fc3399a953e19d92cc81eff4d \
+    --hash=sha256:8dc6c4d5a809d659067cc713f76bcf42fae8ae641db12fddfa93694a15abc96b
     # via importlib-resources
 zope.deprecation==4.4.0 \
     --hash=sha256:0d453338f04bacf91bbfba545d8bcdf529aa829e67b705eac8c1a7fdce66e2df \
