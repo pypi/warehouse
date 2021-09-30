@@ -144,13 +144,14 @@ class TestLoginForm:
         ]
 
     def test_validate_password_notok(self, db_session):
-        request = pretend.stub()
+        request = pretend.stub(remote_addr="127.0.0.1")
         user_service = pretend.stub(
             find_userid=pretend.call_recorder(lambda userid: 1),
             check_password=pretend.call_recorder(
                 lambda userid, password, tags=None: False
             ),
             is_disabled=pretend.call_recorder(lambda userid: (False, None)),
+            record_event=pretend.call_recorder(lambda *a, **kw: None),
         )
         breach_service = pretend.stub()
         form = forms.LoginForm(
@@ -170,6 +171,14 @@ class TestLoginForm:
         ]
         assert user_service.is_disabled.calls == [pretend.call(1)]
         assert user_service.check_password.calls == [pretend.call(1, "pw", tags=None)]
+        assert user_service.record_event.calls == [
+            pretend.call(
+                1,
+                tag="account:login:failure",
+                ip_address="127.0.0.1",
+                additional={"reason": "invalid_password"},
+            )
+        ]
 
     def test_validate_password_too_many_failed(self):
         @pretend.call_recorder
