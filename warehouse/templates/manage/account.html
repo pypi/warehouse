@@ -567,7 +567,7 @@
         {% if event.additional.two_factor_method == None %}
           {% trans %}None{% endtrans %}
         {% elif event.additional.two_factor_method  == "webauthn" %}
-          {% trans %}Security device (<abbr title="web authentication">WebAuthn</abbr>){% endtrans %}{% if event.additional.two_factor_label %} - "{{ event.additional.two_factor_label }}"{% endif %}
+          {% if event.additional.two_factor_label %}<strong>"{{ event.additional.two_factor_label }}"</strong> - {% endif %}{% trans %}Security device (<abbr title="web authentication">WebAuthn</abbr>){% endtrans %}
         {% elif event.additional.two_factor_method  == "totp" %}
           {% trans %}Authentication application (<abbr title="time-based one-time password">TOTP</abbr>){% endtrans %}
         {% elif event.additional.two_factor_method  == "recovery-code" %}
