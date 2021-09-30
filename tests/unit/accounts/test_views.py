@@ -243,7 +243,7 @@ class TestLogin:
                 user_id,
                 tag="account:login:success",
                 ip_address=pyramid_request.remote_addr,
-                additional={"two_factor_method": None},
+                additional={"two_factor_method": None, "two_factor_label": None},
             )
         ]
 
@@ -302,7 +302,7 @@ class TestLogin:
                 1,
                 tag="account:login:success",
                 ip_address=pyramid_request.remote_addr,
-                additional={"two_factor_method": None},
+                additional={"two_factor_method": None, "two_factor_label": None},
             )
         ]
         assert pyramid_request.session.record_auth_timestamp.calls == [pretend.call()]
@@ -608,7 +608,7 @@ class TestTwoFactor:
                 "1",
                 tag="account:login:success",
                 ip_address=pyramid_request.remote_addr,
-                additional={"two_factor_method": "totp"},
+                additional={"two_factor_method": "totp", "two_factor_label": "totp"},
             )
         ]
         assert pyramid_request.session.record_auth_timestamp.calls == [pretend.call()]
@@ -835,7 +835,7 @@ class TestWebAuthn:
         user_service = pretend.stub(
             get_user=pretend.call_recorder(lambda uid: user),
             get_webauthn_by_credential_id=pretend.call_recorder(
-                lambda *a: pretend.stub()
+                lambda *a: pretend.stub(label="webauthn_label")
             ),
         )
         pyramid_request.session = pretend.stub(
@@ -856,7 +856,12 @@ class TestWebAuthn:
 
         assert _get_two_factor_data.calls == [pretend.call(pyramid_request)]
         assert _login_user.calls == [
-            pretend.call(pyramid_request, 1, two_factor_method="webauthn")
+            pretend.call(
+                pyramid_request,
+                1,
+                two_factor_method="webauthn",
+                two_factor_label="webauthn_label",
+            )
         ]
         assert pyramid_request.session.get_webauthn_challenge.calls == [pretend.call()]
         assert pyramid_request.session.clear_webauthn_challenge.calls == [
@@ -1021,7 +1026,10 @@ class TestRecoveryCode:
                 "1",
                 tag="account:login:success",
                 ip_address=pyramid_request.remote_addr,
-                additional={"two_factor_method": "recovery-code"},
+                additional={
+                    "two_factor_method": "recovery-code",
+                    "two_factor_label": None,
+                },
             ),
             pretend.call(
                 "1",
@@ -1266,7 +1274,7 @@ class TestRegister:
                 user.id,
                 tag="account:login:success",
                 ip_address=db_request.remote_addr,
-                additional={"two_factor_method": None},
+                additional={"two_factor_method": None, "two_factor_label": None},
             ),
         ]
 
