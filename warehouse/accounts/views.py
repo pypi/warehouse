@@ -254,7 +254,9 @@ def two_factor_and_totp_validate(request, _form_class=TOTPAuthenticationForm):
     if request.method == "POST":
         form = two_factor_state["totp_form"]
         if form.validate():
-            _login_user(request, userid, two_factor_method="totp")
+            _login_user(
+                request, userid, two_factor_method="totp", two_factor_label="totp"
+            )
             user_service.update_user(userid, last_totp_value=form.totp_value.data)
 
             resp = HTTPSeeOther(redirect_to)
@@ -339,7 +341,12 @@ def webauthn_authentication_validate(request):
         webauthn = user_service.get_webauthn_by_credential_id(userid, credential_id)
         webauthn.sign_count = sign_count
 
-        _login_user(request, userid, two_factor_method="webauthn")
+        _login_user(
+            request,
+            userid,
+            two_factor_method="webauthn",
+            two_factor_label=webauthn.label,
+        )
 
         request.response.set_cookie(
             USER_ID_INSECURE_COOKIE,
@@ -904,7 +911,7 @@ def verify_project_role(request):
         return HTTPSeeOther(request.route_path("packaging.project", name=project.name))
 
 
-def _login_user(request, userid, two_factor_method=None):
+def _login_user(request, userid, two_factor_method=None, two_factor_label=None):
     # We have a session factory associated with this request, so in order
     # to protect against session fixation attacks we're going to make sure
     # that we create a new session (which for sessions with an identifier
@@ -947,7 +954,10 @@ def _login_user(request, userid, two_factor_method=None):
         userid,
         tag="account:login:success",
         ip_address=request.remote_addr,
-        additional={"two_factor_method": two_factor_method},
+        additional={
+            "two_factor_method": two_factor_method,
+            "two_factor_label": two_factor_label,
+        },
     )
     request.session.record_auth_timestamp()
     return headers
