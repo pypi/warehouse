@@ -87,6 +87,7 @@ def get_credential_options(user, *, challenge, rp_name, rp_id):
         user.username,
         user.name or user.username,
         None,
+        attestation=None,
         user_verification="discouraged",
     )
 
@@ -119,7 +120,12 @@ def verify_registration_response(response, challenge, *, rp_id, origin):
     # for the individual challenge.
     encoded_challenge = _webauthn_b64encode(challenge.encode()).decode()
     response = pywebauthn.WebAuthnRegistrationResponse(
-        rp_id, origin, response, encoded_challenge, self_attestation_permitted=True
+        rp_id,
+        origin,
+        response,
+        encoded_challenge,
+        self_attestation_permitted=True,
+        none_attestation_permitted=True,
     )
     try:
         return response.verify()
