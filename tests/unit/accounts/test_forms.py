@@ -586,18 +586,24 @@ class TestTOTPAuthenticationForm:
     def test_creation(self):
         user_id = pretend.stub()
         user_service = pretend.stub()
-        form = forms.TOTPAuthenticationForm(user_id=user_id, user_service=user_service)
+        form = forms.TOTPAuthenticationForm(
+            request=pretend.stub(), user_id=user_id, user_service=user_service
+        )
 
         assert form.user_service is user_service
 
     def test_totp_secret_exists(self, pyramid_config):
         form = forms.TOTPAuthenticationForm(
-            data={"totp_value": ""}, user_id=pretend.stub(), user_service=pretend.stub()
+            request=pretend.stub(),
+            data={"totp_value": ""},
+            user_id=pretend.stub(),
+            user_service=pretend.stub(),
         )
         assert not form.validate()
         assert form.totp_value.errors.pop() == "This field is required."
 
         form = forms.TOTPAuthenticationForm(
+            request=pretend.stub(),
             data={"totp_value": "not_a_real_value"},
             user_id=pretend.stub(),
             user_service=pretend.stub(check_totp_value=lambda *a: True),
@@ -606,6 +612,7 @@ class TestTOTPAuthenticationForm:
         assert str(form.totp_value.errors.pop()) == "TOTP code must be 6 digits."
 
         form = forms.TOTPAuthenticationForm(
+            request=pretend.stub(),
             data={"totp_value": "1 2 3 4 5 6 7"},
             user_id=pretend.stub(),
             user_service=pretend.stub(check_totp_value=lambda *a: True),
@@ -613,15 +620,29 @@ class TestTOTPAuthenticationForm:
         assert not form.validate()
         assert str(form.totp_value.errors.pop()) == "TOTP code must be 6 digits."
 
+        user_service = pretend.stub(
+            record_event=pretend.call_recorder(lambda *a, **kw: None),
+            check_totp_value=lambda *a: False,
+        )
         form = forms.TOTPAuthenticationForm(
+            request=pretend.stub(remote_addr="127.0.0.1"),
             data={"totp_value": "123456"},
-            user_id=pretend.stub(),
-            user_service=pretend.stub(check_totp_value=lambda *a: False),
+            user_id=1,
+            user_service=user_service,
         )
         assert not form.validate()
         assert str(form.totp_value.errors.pop()) == "Invalid TOTP code."
+        assert user_service.record_event.calls == [
+            pretend.call(
+                1,
+                tag="account:login:failure",
+                ip_address="127.0.0.1",
+                additional={"reason": "invalid_totp"},
+            )
+        ]
 
         form = forms.TOTPAuthenticationForm(
+            request=pretend.stub(),
             data={"totp_value": "123456"},
             user_id=pretend.stub(),
             user_service=pretend.stub(check_totp_value=lambda *a: True),
@@ -629,6 +650,7 @@ class TestTOTPAuthenticationForm:
         assert form.validate()
 
         form = forms.TOTPAuthenticationForm(
+            request=pretend.stub(),
             data={"totp_value": " 1 2 3 4  5 6 "},
             user_id=pretend.stub(),
             user_service=pretend.stub(check_totp_value=lambda *a: True),
@@ -636,6 +658,7 @@ class TestTOTPAuthenticationForm:
         assert form.validate()
 
         form = forms.TOTPAuthenticationForm(
+            request=pretend.stub(),
             data={"totp_value": "123 456"},
             user_id=pretend.stub(),
             user_service=pretend.stub(check_totp_value=lambda *a: True),
@@ -645,6 +668,7 @@ class TestTOTPAuthenticationForm:
 
 class TestWebAuthnAuthenticationForm:
     def test_creation(self):
+        request = pretend.stub()
         user_id = pretend.stub()
         user_service = pretend.stub()
         challenge = pretend.stub()
@@ -652,6 +676,7 @@ class TestWebAuthnAuthenticationForm:
         rp_id = pretend.stub()
 
         form = forms.WebAuthnAuthenticationForm(
+            request=request,
             user_id=user_id,
             user_service=user_service,
             challenge=challenge,
@@ -662,7 +687,9 @@ class TestWebAuthnAuthenticationForm:
         assert form.challenge is challenge
 
     def test_credential_bad_payload(self, pyramid_config):
+        request = pretend.stub()
         form = forms.WebAuthnAuthenticationForm(
+            request=request,
             credential="not valid json",
             user_id=pretend.stub(),
             user_service=pretend.stub(),
@@ -677,23 +704,37 @@ class TestWebAuthnAuthenticationForm:
         )
 
     def test_credential_invalid(self):
-        form = forms.WebAuthnAuthenticationForm(
-            credential=json.dumps({}),
-            user_id=pretend.stub(),
-            user_service=pretend.stub(
-                verify_webauthn_assertion=pretend.raiser(
-                    AuthenticationRejectedException("foo")
-                )
+        request = pretend.stub(remote_addr="127.0.0.1")
+        user_service = pretend.stub(
+            record_event=pretend.call_recorder(lambda *a, **kw: None),
+            verify_webauthn_assertion=pretend.raiser(
+                AuthenticationRejectedException("foo")
             ),
+        )
+        form = forms.WebAuthnAuthenticationForm(
+            request=request,
+            credential=json.dumps({}),
+            user_id=1,
+            user_service=user_service,
             challenge=pretend.stub(),
             origin=pretend.stub(),
             rp_id=pretend.stub(),
         )
         assert not form.validate()
         assert form.credential.errors.pop() == "foo"
+        assert user_service.record_event.calls == [
+            pretend.call(
+                1,
+                tag="account:login:failure",
+                ip_address="127.0.0.1",
+                additional={"reason": "invalid_webauthn"},
+            )
+        ]
 
     def test_credential_valid(self):
+        request = pretend.stub()
         form = forms.WebAuthnAuthenticationForm(
+            request=request,
             credential=json.dumps({}),
             user_id=pretend.stub(),
             user_service=pretend.stub(
@@ -729,17 +770,20 @@ class TestReAuthenticateForm:
 
 class TestRecoveryCodeForm:
     def test_creation(self):
+        request = pretend.stub()
         user_id = pretend.stub()
         user_service = pretend.stub()
         form = forms.RecoveryCodeAuthenticationForm(
-            user_id=user_id, user_service=user_service
+            request=request, user_id=user_id, user_service=user_service
         )
 
         assert form.user_id is user_id
         assert form.user_service is user_service
 
     def test_missing_value(self):
+        request = pretend.stub()
         form = forms.RecoveryCodeAuthenticationForm(
+            request=request,
             data={"recovery_code_value": ""},
             user_id=pretend.stub(),
             user_service=pretend.stub(),
@@ -748,19 +792,33 @@ class TestRecoveryCodeForm:
         assert form.recovery_code_value.errors.pop() == "This field is required."
 
     def test_invalid_recovery_code(self, pyramid_config):
+        request = pretend.stub(remote_addr="127.0.0.1")
+        user_service = pretend.stub(
+            check_recovery_code=pretend.call_recorder(lambda *a, **kw: False),
+            record_event=pretend.call_recorder(lambda *a, **kw: None),
+        )
         form = forms.RecoveryCodeAuthenticationForm(
+            request=request,
             data={"recovery_code_value": "invalid"},
-            user_id=pretend.stub(),
-            user_service=pretend.stub(
-                check_recovery_code=pretend.call_recorder(lambda *a, **kw: False)
-            ),
+            user_id=1,
+            user_service=user_service,
         )
 
         assert not form.validate()
         assert str(form.recovery_code_value.errors.pop()) == "Invalid recovery code."
+        assert user_service.record_event.calls == [
+            pretend.call(
+                1,
+                tag="account:login:failure",
+                ip_address="127.0.0.1",
+                additional={"reason": "invalid_recovery_code"},
+            )
+        ]
 
     def test_valid_recovery_code(self):
+        request = pretend.stub()
         form = forms.RecoveryCodeAuthenticationForm(
+            request=request,
             data={"recovery_code_value": "valid"},
             user_id=pretend.stub(),
             user_service=pretend.stub(
