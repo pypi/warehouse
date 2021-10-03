@@ -88,6 +88,7 @@
     display: block;
     padding: $spacing-unit / 2;
     margin: $spacing-unit 0 0;
+    overflow-x: auto;
   }
 
   pre code {
