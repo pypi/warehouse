@@ -7,13 +7,15 @@
 # Sebghatullah Yusuf <sebghatyusuf@gmail.com>, 2021.
 # reza gh <iranianboy200017@gmail.com>, 2021.
 # javad noori <cpuintelamd@yahoo.com>, 2021.
+# Reza Maanijou <reza.maanijou@gmail.com>, 2021.
+# arshia farshad <nooneisme02@gmail.com>, 2021.
 msgid ""
 msgstr ""
 "Project-Id-Version: Warehouse VERSION\n"
 "Report-Msgid-Bugs-To: admin@pypi.org\n"
 "POT-Creation-Date: 2020-01-15 20:11+0200\n"
-"PO-Revision-Date: 2021-04-05 19:53+0000\n"
-"Last-Translator: javad noori <cpuintelamd@yahoo.com>\n"
+"PO-Revision-Date: 2021-09-03 22:02+0000\n"
+"Last-Translator: arshia farshad <nooneisme02@gmail.com>\n"
 "Language-Team: Persian <https://hosted.weblate.org/projects/pypa/warehouse/"
 "fa/>\n"
 "Language: fa\n"
@@ -21,7 +23,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n > 1;\n"
-"X-Generator: Weblate 4.6-dev\n"
+"X-Generator: Weblate 4.8.1-dev\n"
 "Generated-By: Babel 2.7.0\n"
 
 #: warehouse/views.py:254
@@ -249,7 +251,7 @@ msgstr "شما اکنون $ {role} از پروژه '$ {project_name}' هستید
 
 #: warehouse/admin/templates/admin/banners/preview.html:15
 msgid "Banner Preview"
-msgstr ""
+msgstr "پیش نمایش بنر"
 
 #: warehouse/manage/views.py:205
 msgid "Email ${email_address} added - check your email for a verification link"
@@ -2288,98 +2290,97 @@ msgstr "وارد شده در"
 
 #: warehouse/templates/manage/account.html:566
 msgid "Two factor method:"
-msgstr ""
+msgstr "روش دو عاملی:"
 
 #: warehouse/templates/manage/account.html:568
 #: warehouse/templates/manage/release.html:58
 #: warehouse/templates/packaging/detail.html:350
 msgid "None"
-msgstr ""
+msgstr "هیچ"
 
 #: warehouse/templates/manage/account.html:574
 msgid "Recovery code"
-msgstr ""
+msgstr "کد بازیابی"
 
 #: warehouse/templates/manage/account.html:579
 msgid "Email added to account"
-msgstr ""
+msgstr "ایمیل به اکانت اضافه شد"
 
 #: warehouse/templates/manage/account.html:582
 msgid "Email removed from account"
-msgstr ""
+msgstr "ایمیل از اکانت حذف شد"
 
 #: warehouse/templates/manage/account.html:585
 msgid "Email verified"
-msgstr ""
+msgstr "ایمیل تایید شد"
 
 #: warehouse/templates/manage/account.html:588
 msgid "Email reverified"
-msgstr ""
+msgstr "ایمیل دوباره تأیید شد"
 
 #: warehouse/templates/manage/account.html:592
 msgid "Primary email changed"
-msgstr ""
+msgstr "ایمیل اصلی تغییر کرد"
 
 #: warehouse/templates/manage/account.html:594
 msgid "Old primary email:"
-msgstr ""
+msgstr "ایمیل اصلی قبلی:"
 
 #: warehouse/templates/manage/account.html:595
 msgid "New primary email:"
-msgstr ""
+msgstr "ایمیل اصلی جدید:"
 
 #: warehouse/templates/manage/account.html:598
 msgid "Primary email set"
-msgstr ""
+msgstr "ایمیل اصلی تنظیم شد"
 
 #: warehouse/templates/manage/account.html:604
 msgid "Email sent"
-msgstr ""
+msgstr "ایمیل ارسال شد"
 
 #: warehouse/templates/manage/account.html:606
 msgid "From:"
-msgstr ""
+msgstr "از:"
 
 #: warehouse/templates/manage/account.html:607
 msgid "To:"
-msgstr ""
+msgstr "به:"
 
 #: warehouse/templates/manage/account.html:608
 msgid "Subject:"
-msgstr ""
+msgstr "موضوع:"
 
 #: warehouse/templates/manage/account.html:612
 msgid "Password reset requested"
-msgstr ""
+msgstr "تنظیم مجدد رمز عبور درخواست شد"
 
 #: warehouse/templates/manage/account.html:614
-#, fuzzy
-#| msgid "Password reset"
 msgid "Password reset attempted"
-msgstr "تنظیم مجدد رمز عبور"
+msgstr "تلاش برای تنظیم مجدد رمز عبور"
 
 #: warehouse/templates/manage/account.html:616
 msgid "Password successfully reset"
-msgstr ""
+msgstr "رمز عبور با موفقیت مجددا تنظیم شد"
 
 #: warehouse/templates/manage/account.html:618
 msgid "Password successfully changed"
-msgstr ""
+msgstr "رمز عبور با موفقیت تغییر کرد"
 
 #: warehouse/templates/manage/account.html:621
 msgid "Two factor authentication added"
-msgstr ""
+msgstr "تأیید دو عاملی اضافه شد"
 
 #: warehouse/templates/manage/account.html:624
 #: warehouse/templates/manage/account.html:634
 msgid ""
 "Method: Security device (<abbr title=\"web authentication\">WebAuthn</abbr>)"
 msgstr ""
+"(</abbr>WebAuthn<abbr title=\"web authentication\">) روش: دستگاه امنیتی"
 
 #: warehouse/templates/manage/account.html:625
 #: warehouse/templates/manage/account.html:635
 msgid "Device name:"
-msgstr ""
+msgstr "نام دستگاه:"
 
 #: warehouse/templates/manage/account.html:627
 #: warehouse/templates/manage/account.html:637
@@ -2390,19 +2391,19 @@ msgstr ""
 
 #: warehouse/templates/manage/account.html:631
 msgid "Two factor authentication removed"
-msgstr ""
+msgstr "تأیید دو عاملی حذف شد"
 
 #: warehouse/templates/manage/account.html:642
 msgid "Recovery codes generated"
-msgstr ""
+msgstr "کد های بازیابی ایجاد شدند"
 
 #: warehouse/templates/manage/account.html:646
 msgid "Recovery codes regenerated"
-msgstr ""
+msgstr "کد های بازیابی دوباره ایجاد شدند"
 
 #: warehouse/templates/manage/account.html:650
 msgid "Recovery code used for login"
-msgstr ""
+msgstr "کد بازیابی استفاده شده برای ورود"
 
 #: warehouse/templates/manage/account.html:656
 #: warehouse/templates/manage/history.html:65
@@ -3292,8 +3293,10 @@ msgid "Project settings"
 msgstr ""
 
 #: warehouse/templates/manage/settings.html:23
-msgid "Project size :"
-msgstr ""
+#, fuzzy
+#| msgid "Project:"
+msgid "Project size:"
+msgstr "برنامه:"
 
 #: warehouse/templates/manage/settings.html:31
 #: warehouse/templates/manage/settings.html:39

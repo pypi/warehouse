@@ -3350,7 +3350,9 @@ msgid "Project settings"
 msgstr "Nastavení projektu"
 
 #: warehouse/templates/manage/settings.html:23
-msgid "Project size :"
+#, fuzzy
+#| msgid "Project size :"
+msgid "Project size:"
 msgstr "Velikost projektu:"
 
 #: warehouse/templates/manage/settings.html:31

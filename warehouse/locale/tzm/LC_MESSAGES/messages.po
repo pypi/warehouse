@@ -3080,8 +3080,10 @@ msgid "Project settings"
 msgstr ""
 
 #: warehouse/templates/manage/settings.html:23
-msgid "Project size :"
-msgstr ""
+#, fuzzy
+#| msgid "Project:"
+msgid "Project size:"
+msgstr "Asenfaṛ:"
 
 #: warehouse/templates/manage/settings.html:31
 #: warehouse/templates/manage/settings.html:39

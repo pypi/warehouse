@@ -3288,8 +3288,10 @@ msgid "Project settings"
 msgstr ""
 
 #: warehouse/templates/manage/settings.html:23
-msgid "Project size :"
-msgstr ""
+#, fuzzy
+#| msgid "Project links"
+msgid "Project size:"
+msgstr "روابط المشروع"
 
 #: warehouse/templates/manage/settings.html:31
 #: warehouse/templates/manage/settings.html:39

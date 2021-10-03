@@ -16,6 +16,11 @@ labels: "bug :bug:"
 
     Furthermore, this issue should NOT be for any non-PyPI properties (like
     python.org, docs.python.org, etc.)
+
+    If your problem is related to search (a new or updated project doesn't
+    appear in the PyPI search results), please wait for a couple of hours
+    and check again before reporting it. The search index may take some
+    time to be updated.
 -->
 
 **Describe the bug**
