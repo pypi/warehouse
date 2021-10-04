@@ -592,6 +592,17 @@
         {% endif %}
       </small>
 
+      {% elif event.tag == "account:reauthenticate:failure" %}
+      <strong>{% trans %}Session reauthentication failed{% endtrans %}</strong><br>
+      <small>
+        {% trans %}Reason:{% endtrans %}
+        {% if event.additional.reason == "invalid_password" %}
+          {% trans %}Incorrect Password{% endtrans %}
+        {% else %}
+          {{ event.additional.reason }}
+        {% endif %}
+      </small>
+
       {% elif event.tag  == "account:email:add" %}
       <strong>{% trans %}Email added to account{% endtrans %}</strong><br>
       <small>{{ event.additional.email }}</small>

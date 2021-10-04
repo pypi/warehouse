@@ -2326,6 +2326,7 @@ class TestReAuthentication:
                 username=pyramid_request.user.username,
                 next_route=pyramid_request.matched_route.name,
                 next_route_matchdict=json.dumps(pyramid_request.matchdict),
+                action="reauthenticate",
                 user_service=user_service,
                 check_password_metrics_tags=[
                     "method:reauth",

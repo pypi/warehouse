@@ -149,7 +149,9 @@ class ManageAccountViews:
                 user_service=self.user_service, user_id=self.request.user.id
             ),
             "change_password_form": ChangePasswordForm(
-                user_service=self.user_service, breach_service=self.breach_service
+                request=self.request,
+                user_service=self.user_service,
+                breach_service=self.breach_service,
             ),
             "active_projects": self.active_projects,
         }
