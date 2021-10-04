@@ -441,6 +441,7 @@ class TestTwoFactor:
         assert form_class.calls == [
             pretend.call(
                 pyramid_request.POST,
+                request=pyramid_request,
                 user_id=1,
                 user_service=user_service,
                 check_password_metrics_tags=["method:auth", "auth_method:login_form"],
@@ -945,7 +946,12 @@ class TestRecoveryCode:
         ]
         assert result == {"form": form_obj}
         assert form_class.calls == [
-            pretend.call(pyramid_request.POST, user_id=1, user_service=user_service)
+            pretend.call(
+                pyramid_request.POST,
+                request=pyramid_request,
+                user_id=1,
+                user_service=user_service,
+            )
         ]
 
     @pytest.mark.parametrize("redirect_url", ["test_redirect_url", None])
