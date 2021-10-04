@@ -362,6 +362,7 @@ class ManageAccountViews:
             return self.default_response
 
         form = ConfirmPasswordForm(
+            request=self.request,
             password=confirm_password,
             username=self.request.user.username,
             user_service=self.user_service,
@@ -526,6 +527,7 @@ class ProvisionTOTPViews:
             return HTTPSeeOther(self.request.route_path("manage.account"))
 
         form = DeleteTOTPForm(
+            request=self.request,
             password=self.request.POST["confirm_password"],
             username=self.request.user.username,
             user_service=self.user_service,
@@ -736,6 +738,7 @@ class ProvisionRecoveryCodesViews:
             return HTTPSeeOther(self.request.route_path("manage.account"))
 
         form = ConfirmPasswordForm(
+            request=self.request,
             password=self.request.POST["confirm_password"],
             username=self.request.user.username,
             user_service=self.user_service,
@@ -789,6 +792,7 @@ class ProvisionMacaroonViews:
                 project_names=self.project_names,
             ),
             "delete_macaroon_form": DeleteMacaroonForm(
+                request=self.request,
                 username=self.request.user.username,
                 user_service=self.user_service,
                 macaroon_service=self.macaroon_service,
@@ -863,6 +867,7 @@ class ProvisionMacaroonViews:
     )
     def delete_macaroon(self):
         form = DeleteMacaroonForm(
+            request=self.request,
             password=self.request.POST["confirm_password"],
             macaroon_id=self.request.POST["macaroon_id"],
             macaroon_service=self.macaroon_service,
