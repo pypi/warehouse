@@ -1020,6 +1020,7 @@ def reauthenticate(request, _form_class=ReAuthenticateForm):
         next_route=request.matched_route.name,
         next_route_matchdict=json.dumps(request.matchdict),
         user_service=user_service,
+        action="reauthenticate",
         check_password_metrics_tags=[
             "method:reauth",
             "auth_method:reauthenticate_form",

@@ -753,8 +753,9 @@ class TestWebAuthnAuthenticationForm:
 class TestReAuthenticateForm:
     def test_creation(self):
         user_service = pretend.stub()
+        request = pretend.stub()
 
-        form = forms.ReAuthenticateForm(user_service=user_service)
+        form = forms.ReAuthenticateForm(request=request, user_service=user_service)
 
         assert form.user_service is user_service
         assert form.__params__ == [

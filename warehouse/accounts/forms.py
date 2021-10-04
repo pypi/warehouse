@@ -109,7 +109,11 @@ class PasswordMixin:
 
     password = wtforms.PasswordField(validators=[wtforms.validators.DataRequired()])
 
-    def __init__(self, *args, check_password_metrics_tags=None, **kwargs):
+    def __init__(
+        self, *args, request, action="login", check_password_metrics_tags=None, **kwargs
+    ):
+        self.request = request
+        self.action = action
         self._check_password_metrics_tags = check_password_metrics_tags
         super().__init__(*args, **kwargs)
 
@@ -122,7 +126,7 @@ class PasswordMixin:
                 ):
                     self.user_service.record_event(
                         userid,
-                        tag="account:login:failure",
+                        tag=f"account:{self.action}:failure",
                         ip_address=self.request.remote_addr,
                         additional={"reason": "invalid_password"},
                     )
@@ -258,9 +262,8 @@ class RegistrationForm(
 
 
 class LoginForm(PasswordMixin, UsernameMixin, forms.Form):
-    def __init__(self, *args, request, user_service, breach_service, **kwargs):
+    def __init__(self, *args, user_service, breach_service, **kwargs):
         super().__init__(*args, **kwargs)
-        self.request = request
         self.user_service = user_service
         self.breach_service = breach_service
 
