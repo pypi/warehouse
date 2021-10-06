@@ -330,6 +330,7 @@ class ManageAccountViews:
     def change_password(self):
         form = ChangePasswordForm(
             **self.request.POST,
+            request=self.request,
             username=self.request.user.username,
             full_name=self.request.user.name,
             email=self.request.user.email,
