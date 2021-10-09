@@ -12,7 +12,6 @@
 
 from unittest import mock
 
-import alembic.config
 import pretend
 import psycopg2.extensions
 import pytest
@@ -85,24 +84,14 @@ def test_listens_for(monkeypatch):
 
 
 def test_configure_alembic(monkeypatch):
-    config_obj = pretend.stub(set_main_option=pretend.call_recorder(lambda *a: None))
-
-    def config_cls():
-        return config_obj
-
-    monkeypatch.setattr(alembic.config, "Config", config_cls)
-
-    config = pretend.stub(
-        registry=pretend.stub(settings={"database.url": pretend.stub()})
-    )
+    config = pretend.stub(registry=pretend.stub(settings={"database.url": "whatever"}))
 
     alembic_config = _configure_alembic(config)
 
-    assert alembic_config is config_obj
-    assert alembic_config.set_main_option.calls == [
-        pretend.call("script_location", "warehouse:migrations"),
-        pretend.call("url", config.registry.settings["database.url"]),
-    ]
+    configparser = alembic_config.file_config
+    assert configparser.get("alembic", "script_location") == "warehouse:migrations"
+    assert configparser.get("alembic", "url") == "whatever"
+    assert configparser.has_section("post_write_hooks")
 
 
 @pytest.mark.parametrize("needs_reset", [True, False, None])
