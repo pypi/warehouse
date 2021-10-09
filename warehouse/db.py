@@ -131,8 +131,7 @@ def listens_for(target, identifier, *args, **kwargs):
 
 
 def _configure_alembic(config):
-    alembic_cfg = alembic.config.Config()
-    alembic_cfg.set_main_option("script_location", "warehouse:migrations")
+    alembic_cfg = alembic.config.Config("warehouse/migrations/alembic.ini")
     alembic_cfg.set_main_option("url", config.registry.settings["database.url"])
     return alembic_cfg
 
