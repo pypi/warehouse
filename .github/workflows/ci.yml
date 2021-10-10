@@ -80,7 +80,7 @@ jobs:
       - uses: actions/setup-node@v2
         if: ${{ matrix.needs-node }}
         with:
-          node-version: 14.4.0
+          node-version: 14.15
       - name: Cache Node dependencies
         if: ${{ matrix.needs-node }}
         uses: actions/cache@v2
