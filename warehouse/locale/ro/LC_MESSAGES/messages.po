@@ -4,13 +4,15 @@
 # FIRST AUTHOR <EMAIL@ADDRESS>, 2019.
 # Bernát Gábor <gaborjbernat@gmail.com>, 2019.
 # Lucian-Mihai Cosovanu <lucian.mihai.cosovanu@gmail.com>, 2021.
+# GUILHERME FERNANDES NETO <gfneto4@gmail.com>, 2021.
+# Adolfo Jayme Barrientos <fitojb@ubuntu.com>, 2021.
 msgid ""
 msgstr ""
 "Project-Id-Version: Warehouse VERSION\n"
 "Report-Msgid-Bugs-To: admin@pypi.org\n"
 "POT-Creation-Date: 2020-01-15 20:11+0200\n"
-"PO-Revision-Date: 2021-03-02 22:30+0000\n"
-"Last-Translator: Lucian-Mihai Cosovanu <lucian.mihai.cosovanu@gmail.com>\n"
+"PO-Revision-Date: 2021-08-26 05:28+0000\n"
+"Last-Translator: Adolfo Jayme Barrientos <fitojb@ubuntu.com>\n"
 "Language-Team: Romanian <https://hosted.weblate.org/projects/pypa/warehouse/"
 "ro/>\n"
 "Language: ro\n"
@@ -19,7 +21,7 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=n==1 ? 0 : (n==0 || (n%100 > 0 && n%100 < "
 "20)) ? 1 : 2;\n"
-"X-Generator: Weblate 4.5\n"
+"X-Generator: Weblate 4.8.1-dev\n"
 "Generated-By: Babel 2.7.0\n"
 
 #: warehouse/views.py:254
@@ -149,69 +151,73 @@ msgid ""
 "New user registration temporarily disabled. See https://pypi.org/help#admin-"
 "intervention for details."
 msgstr ""
+"Înregistrarea unui nou utilizator a fost dezactivată temporar. Consultați "
+"https://pypi.org/help#admin-intervention pentru detalii."
 
 #: warehouse/accounts/views.py:607
 msgid "Expired token: request a new password reset link"
-msgstr ""
+msgstr "Token expirat: solicitați un nou link de resetare a parolei"
 
 #: warehouse/accounts/views.py:609
 msgid "Invalid token: request a new password reset link"
-msgstr ""
+msgstr "Token nevalid: solicitați un nou link de resetare a parolei"
 
 #: warehouse/accounts/views.py:611 warehouse/accounts/views.py:694
 #: warehouse/accounts/views.py:790
 msgid "Invalid token: no token supplied"
-msgstr ""
+msgstr "Token nevalid: nu este furnizat niciun jeton"
 
 #: warehouse/accounts/views.py:615
 msgid "Invalid token: not a password reset token"
-msgstr ""
+msgstr "Token nevalid: nu un jeton de resetare a parolei"
 
 #: warehouse/accounts/views.py:620
 msgid "Invalid token: user not found"
-msgstr ""
+msgstr "Token nevalid: utilizatorul nu a fost găsit"
 
 #: warehouse/accounts/views.py:627
 msgid "Invalid token: user has logged in since this token was requested"
 msgstr ""
+"Token nevalid: utilizatorul s-a conectat de când a fost solicitat acest jeton"
 
 #: warehouse/accounts/views.py:636
 msgid ""
 "Invalid token: password has already been changed since this token was "
 "requested"
 msgstr ""
+"Token nevalid: parola a fost deja modificată de la solicitarea acestui jeton"
 
 #: warehouse/accounts/views.py:663
 msgid "You have reset your password"
-msgstr ""
+msgstr "V-ați resetat parola"
 
 #: warehouse/accounts/views.py:690
 msgid "Expired token: request a new email verification link"
-msgstr ""
+msgstr "Token expirat: solicitați un nou link de verificare prin e-mail"
 
 #: warehouse/accounts/views.py:692
 msgid "Invalid token: request a new email verification link"
-msgstr ""
+msgstr "Token nevalid: solicitați un nou link de verificare prin e-mail"
 
 #: warehouse/accounts/views.py:698
 msgid "Invalid token: not an email verification token"
-msgstr ""
+msgstr "Token nevalid: nu un Token de verificare prin e-mail"
 
 #: warehouse/accounts/views.py:707
 msgid "Email not found"
-msgstr ""
+msgstr "E-mailul nu a fost găsit"
 
 #: warehouse/accounts/views.py:710
 msgid "Email already verified"
-msgstr ""
+msgstr "E-mailul a fost deja verificat"
 
 #: warehouse/accounts/views.py:725
 msgid "You can now set this email as your primary address"
-msgstr ""
+msgstr "Acum puteți seta acest e-mail ca adresă principală"
 
 #: warehouse/accounts/views.py:729
 msgid "This is your primary address"
-msgstr ""
+msgstr "Aceasta este adresa dvs. principală"
 
 #: warehouse/accounts/views.py:734
 msgid "Email address ${email_address} verified. ${confirm_message}."
@@ -231,19 +237,19 @@ msgstr ""
 
 #: warehouse/accounts/views.py:798
 msgid "Role invitation is not valid."
-msgstr ""
+msgstr "Invitația la rol nu este validă."
 
 #: warehouse/accounts/views.py:813
 msgid "Role invitation no longer exists."
-msgstr ""
+msgstr "Invitația la rol nu mai există."
 
 #: warehouse/accounts/views.py:825
 msgid "Invitation for '${project_name}' is declined."
-msgstr ""
+msgstr "Invitația pentru „${project_name}” este refuzată."
 
 #: warehouse/accounts/views.py:892
 msgid "You are now ${role} of the '${project_name}' project."
-msgstr ""
+msgstr "Acum sunteți ${role} din proiectul „${project_name}”."
 
 #: warehouse/admin/templates/admin/banners/preview.html:15
 msgid "Banner Preview"
@@ -257,10 +263,12 @@ msgstr ""
 msgid ""
 "You must provision a two factor method before recovery codes can be generated"
 msgstr ""
+"Trebuie să furnizați o metodă cu doi factori înainte ca codurile de "
+"recuperare să poată fi generate"
 
 #: warehouse/manage/views.py:703
 msgid "Recovery codes already generated"
-msgstr ""
+msgstr "Coduri de recuperare deja generate"
 
 #: warehouse/manage/views.py:704
 msgid "Generating new recovery codes will invalidate your existing codes."
@@ -3100,7 +3108,7 @@ msgid "Project settings"
 msgstr ""
 
 #: warehouse/templates/manage/settings.html:23
-msgid "Project size :"
+msgid "Project size:"
 msgstr ""
 
 #: warehouse/templates/manage/settings.html:31

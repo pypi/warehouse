@@ -13,13 +13,14 @@
 # ChuanPo Lee <chuanpolee@gmail.com>, 2020.
 # 吳靜澄 <wolf952@gmail.com>, 2020.
 # meowmeowmeowcat <meowmeowcat1211@gmail.com>, 2021.
+# JI YH <3178879831@qq.com>, 2021.
 msgid ""
 msgstr ""
 "Project-Id-Version: Warehouse VERSION\n"
 "Report-Msgid-Bugs-To: admin@pypi.org\n"
 "POT-Creation-Date: 2020-01-15 20:11+0200\n"
-"PO-Revision-Date: 2021-07-30 14:28+0000\n"
-"Last-Translator: meowmeowmeowcat <meowmeowcat1211@gmail.com>\n"
+"PO-Revision-Date: 2021-09-11 01:37+0000\n"
+"Last-Translator: JI YH <3178879831@qq.com>\n"
 "Language-Team: Chinese (Traditional) <https://hosted.weblate.org/projects/"
 "pypa/warehouse/zh_Hant/>\n"
 "Language: zh_Hant\n"
@@ -27,7 +28,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Generator: Weblate 4.7.2-dev\n"
+"X-Generator: Weblate 4.9-dev\n"
 "Generated-By: Babel 2.7.0\n"
 
 #: warehouse/views.py:254
@@ -753,8 +754,6 @@ msgstr ""
 "發佈"
 
 #: warehouse/templates/index.html:45
-#, fuzzy
-#| msgid "Test Python package publishing with the Test Python Package Index"
 msgid "Develop the codebase behind PyPI with the Dev Python Package Index"
 msgstr ""
 "使用測試 Python 套件軟體索引（Test Python Package Index）測試 Python 套件軟體"
@@ -3266,7 +3265,9 @@ msgid "Project settings"
 msgstr "專案設定"
 
 #: warehouse/templates/manage/settings.html:23
-msgid "Project size :"
+#, fuzzy
+#| msgid "Project size :"
+msgid "Project size:"
 msgstr "專案連結："
 
 #: warehouse/templates/manage/settings.html:31
@@ -5255,16 +5256,7 @@ msgstr ""
 "<code>setuptools</code> ，和<code>pip</code>。"
 
 #: warehouse/templates/pages/help.html:669
-#, fuzzy, python-format
-#| msgid ""
-#| "For help, go to <a href=\"%(irc_href)s\" title=\"%(title)s\" target="
-#| "\"_blank\" rel=\"noopener\">the <code>#pypa</code> IRC channel on Libera</"
-#| "a>, file an issue at <a href=\"%(issue_tracker_href)s\" title=\"%(title)s"
-#| "\" target=\"_blank\" rel=\"noopener\">pypa/packaging-problems/issues</a>, "
-#| "or <a href=\"%(mailing_list_href)s\" title=\"%(title)s\" target=\"_blank"
-#| "\" rel=\"noopener\">post to the python-help mailing list</a>, including "
-#| "your OS and installation details and the output of <code>%(command)s</"
-#| "code>."
+#, python-format
 msgid ""
 "For help, go to <a href=\"%(irc_href)s\" title=\"%(title)s\" target=\"_blank"
 "\" rel=\"noopener\">the <code>#pypa</code> IRC channel on Libera</a>, file "

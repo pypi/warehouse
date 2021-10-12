@@ -108,6 +108,7 @@ def _upload_image(image_name, request, form):
     if request.POST.get(image_name) not in [None, b""]:
         with tempfile.NamedTemporaryFile() as fp:
             fp.write(request.POST[image_name].file.read())
+            fp.flush()
             content_type = request.POST[image_name].type
             storage = request.find_service(ISponsorLogoStorage)
             extension = os.path.splitext(request.POST[image_name].filename)[-1]

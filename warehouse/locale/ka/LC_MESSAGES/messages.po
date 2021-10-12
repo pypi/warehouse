@@ -1,36 +1,33 @@
-# Ville Skyttä <ville.skytta@iki.fi>, 2020.
-# Markus Mikkonen <markus.mikkonen@outlook.com>, 2021.
+# Luka Mamukashvili <ultraluka0@gmail.com>, 2021.
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
-"Report-Msgid-Bugs-To: admin@pypi.org\n"
-"POT-Creation-Date: 2020-05-02 23:30+0200\n"
-"PO-Revision-Date: 2021-05-15 22:17+0000\n"
-"Last-Translator: Markus Mikkonen <markus.mikkonen@outlook.com>\n"
-"Language-Team: Finnish <https://hosted.weblate.org/projects/pypa/warehouse/"
-"fi/>\n"
-"Language: fi\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2021-08-15 14:00+0200\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: Automatically generated\n"
+"Language-Team: none\n"
+"Language: ka\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Generator: Weblate 4.7-dev\n"
+"X-Generator: Translate Toolkit 3.3.6\n"
 
 #: warehouse/views.py:254
 msgid "Locale updated"
-msgstr "Kieliasetus päivitetty"
+msgstr ""
 
 #: warehouse/accounts/forms.py:43
 msgid "No user found with that username"
-msgstr "Käyttäjätunnuksella ei löytynyt käyttäjää"
+msgstr ""
 
 #: warehouse/accounts/forms.py:54
 msgid "TOTP code must be ${totp_length} digits."
-msgstr "TOTP-koodin pitää olla ${totp_length} numeroa pitkä."
+msgstr ""
 
 #: warehouse/accounts/forms.py:81
 msgid "Choose a username with 50 characters or less."
-msgstr "Valitse käyttäjätunnus, jossa on korkeintaan 50 merkkiä."
+msgstr ""
 
 #: warehouse/accounts/forms.py:87
 msgid ""
@@ -38,215 +35,189 @@ msgid ""
 "dots, hyphens and underscores. And must also start and finish with a letter "
 "or number. Choose a different username."
 msgstr ""
-"Käyttäjätunnus on virheellinen. Käyttäjätunnusten pitää koostua kirjaimista, "
-"numeroista, pisteistä, viivoista, ja alaviivoista, ja niiden pitää myös "
-"alkaa ja päättyä kirjaimella tai numerolla. Valitse toinen käyttäjätunnus."
 
 #: warehouse/accounts/forms.py:101
 msgid ""
 "This username is already being used by another account. Choose a different "
 "username."
 msgstr ""
-"Tämä käyttäjätunnus on jo toisen tilin käytössä. Valitse toinen "
-"käyttäjätunnus."
 
 #: warehouse/accounts/forms.py:124
 msgid "The password is invalid. Try again."
-msgstr "Salasana on virheellinen. Yritä uudelleen."
+msgstr ""
 
 #: warehouse/accounts/forms.py:128 warehouse/accounts/views.py:76
 msgid "There have been too many unsuccessful login attempts. Try again later."
 msgstr ""
-"Liian monta epäonnistunutta kirjautumisyritystä. Yritä uudelleen myöhemmin."
 
 #: warehouse/accounts/forms.py:150
 msgid "Your passwords don't match. Try again."
-msgstr "Salasanasi eivät täsmää. Yritä uudelleen."
+msgstr ""
 
 #: warehouse/accounts/forms.py:181 warehouse/accounts/forms.py:192
 msgid "The email address isn't valid. Try again."
-msgstr "Sähköpostiosoite on virheellinen. Yritä uudelleen."
+msgstr ""
 
 #: warehouse/accounts/forms.py:200
 msgid "You can't use an email address from this domain. Use a different email."
 msgstr ""
-"Et voi käyttää sähköpostiosoitetta tästä domainista. Käytä toista "
-"sähköpostiosoitetta."
 
 #: warehouse/accounts/forms.py:211
 msgid ""
 "This email address is already being used by this account. Use a different "
 "email."
 msgstr ""
-"Sähköpostiosoite on jo käytössä tässä tilissä. Käytä toista "
-"sähköpostiosoitetta."
 
 #: warehouse/accounts/forms.py:218
 msgid ""
 "This email address is already being used by another account. Use a different "
 "email."
 msgstr ""
-"Sähköpostiosoite on jo käytössä toisessa tilissä. Käytä toista "
-"sähköpostiosoitetta."
 
 #: warehouse/accounts/forms.py:240
 msgid "The name is too long. Choose a name with 100 characters or less."
-msgstr "Nimi on liian pitkä. Valitse nimi, jossa on korkeintaan 100 merkkiä."
+msgstr ""
 
 #: warehouse/accounts/forms.py:304
 msgid "Invalid TOTP code."
-msgstr "Virheellinen TOTP-koodi."
+msgstr ""
 
 #: warehouse/accounts/forms.py:321
 msgid "Invalid WebAuthn assertion: Bad payload"
-msgstr "Virheellinen WebAuthn-vahvistus: Virheellinen hyötykuorma"
+msgstr ""
 
 #: warehouse/accounts/forms.py:364
 msgid "Invalid recovery code."
-msgstr "Virheellinen palautuskoodi."
+msgstr ""
 
 #: warehouse/accounts/forms.py:382
 msgid "No user found with that username or email"
-msgstr "Käyttäjätunnuksella tai sähköpostiosoitteella ei löytynyt käyttäjää"
+msgstr ""
 
 #: warehouse/accounts/views.py:93
 msgid ""
 "Too many emails have been added to this account without verifying them. "
 "Check your inbox and follow the verification links. (IP: ${ip})"
 msgstr ""
-"Tiliin on lisätty liian monta sähköpostiosoitetta vahvistamatta niitä. "
-"Tarkista sähköpostisi ja seuraa vahvistuslinkkejä. (IP: ${ip})"
 
 #: warehouse/accounts/views.py:232 warehouse/accounts/views.py:289
 #: warehouse/accounts/views.py:291 warehouse/accounts/views.py:318
 #: warehouse/accounts/views.py:320 warehouse/accounts/views.py:375
 msgid "Invalid or expired two factor login."
-msgstr "Virheellinen tai vanhentunut kahden tekijän kirjautuminen."
+msgstr ""
 
 #: warehouse/accounts/views.py:283
 msgid "Already authenticated"
-msgstr "Jo todennettu"
+msgstr ""
 
 #: warehouse/accounts/views.py:351
 msgid "Successful WebAuthn assertion"
-msgstr "Onnistunut WebAuthn-vahvistus"
+msgstr ""
 
 #: warehouse/accounts/views.py:404
 msgid "Recovery code accepted. The supplied code cannot be used again."
-msgstr "Palautuskoodi hyväksytty. Annettua koodia ei voi käyttää uudelleen."
+msgstr ""
 
 #: warehouse/accounts/views.py:490
 msgid ""
 "New user registration temporarily disabled. See https://pypi.org/help#admin-"
 "intervention for details."
 msgstr ""
-"Uuden käyttäjän rekisteröinti on väliaikaisesti poistettu käytöstä. Katso "
-"lisätietoja kohdasta https://pypi.org/help#admin-interventio."
 
 #: warehouse/accounts/views.py:607
 msgid "Expired token: request a new password reset link"
-msgstr "Vanhentunut tunnussanoma: pyydä uusi salasanan palautuslinkki"
+msgstr ""
 
 #: warehouse/accounts/views.py:609
 msgid "Invalid token: request a new password reset link"
-msgstr "Virheellinen tunnussanoma: pyydä uusi salasanan palautuslinkki"
+msgstr ""
 
 #: warehouse/accounts/views.py:611 warehouse/accounts/views.py:694
 #: warehouse/accounts/views.py:790
 msgid "Invalid token: no token supplied"
-msgstr "Virheellinen tunnussanoma: tunnusta ei annettu"
+msgstr ""
 
 #: warehouse/accounts/views.py:615
 msgid "Invalid token: not a password reset token"
-msgstr "Virheellinen tunnussanoma: ei salasanan palautustunnus"
+msgstr ""
 
 #: warehouse/accounts/views.py:620
 msgid "Invalid token: user not found"
-msgstr "Virheellinen tunnussanoma: käyttäjää ei löydy"
+msgstr ""
 
 #: warehouse/accounts/views.py:627
 msgid "Invalid token: user has logged in since this token was requested"
 msgstr ""
-"Virheellinen tunnussanoma: käyttäjä on kirjautunut sisään tämän tunnuksen "
-"pyytämisen jälkeen"
 
 #: warehouse/accounts/views.py:636
 msgid ""
 "Invalid token: password has already been changed since this token was "
 "requested"
 msgstr ""
-"Virheellinen tunnussanoma: salasana on jo muutettu tämän tunnuksen "
-"pyytämisen jälkeen"
 
 #: warehouse/accounts/views.py:663
 msgid "You have reset your password"
-msgstr "Olet nollannut salasanasi"
+msgstr ""
 
 #: warehouse/accounts/views.py:690
 msgid "Expired token: request a new email verification link"
-msgstr "Vanhentunut tunnussanoma: pyydä uusi sähköpostin vahvistuslinkki"
+msgstr ""
 
 #: warehouse/accounts/views.py:692
 msgid "Invalid token: request a new email verification link"
-msgstr "Virheellinen tunnussanoma: pyydä uusi sähköpostin vahvistuslinkki"
+msgstr ""
 
 #: warehouse/accounts/views.py:698
 msgid "Invalid token: not an email verification token"
-msgstr "Virheellinen tunnussanoma: ei sähköpostin vahvistustunnus"
+msgstr ""
 
 #: warehouse/accounts/views.py:707
 msgid "Email not found"
-msgstr "Sähköpostiosoitetta ei löytynyt"
+msgstr ""
 
 #: warehouse/accounts/views.py:710
 msgid "Email already verified"
-msgstr "Sähköpostiosoite on jo vahvistettu"
+msgstr ""
 
 #: warehouse/accounts/views.py:725
 msgid "You can now set this email as your primary address"
-msgstr "Voit nyt asettaa tämän sähköpostiosoitteen ensisijaiseksi"
+msgstr ""
 
 #: warehouse/accounts/views.py:729
 msgid "This is your primary address"
-msgstr "Tämä on ensisijainen osoitteesi"
+msgstr ""
 
 #: warehouse/accounts/views.py:734
 msgid "Email address ${email_address} verified. ${confirm_message}."
-msgstr "Sähköpostiosoite ${email_address} vahvistettu. ${confirm_message}."
+msgstr ""
 
 #: warehouse/accounts/views.py:786
-#, fuzzy
-#| msgid "Expired token: request a new password reset link"
 msgid "Expired token: request a new project role invite"
-msgstr "Vanhentunut tunnussanoma: pyydä uusi salasanan palautuslinkki"
+msgstr ""
 
 #: warehouse/accounts/views.py:788
-#, fuzzy
-#| msgid "Invalid token: request a new password reset link"
 msgid "Invalid token: request a new project role invite"
-msgstr "Virheellinen tunnussanoma: pyydä uusi salasanan palautuslinkki"
+msgstr ""
 
 #: warehouse/accounts/views.py:794
-#, fuzzy
-#| msgid "Invalid token: not an email verification token"
 msgid "Invalid token: not a collaboration invitation token"
-msgstr "Virheellinen tunnussanoma: ei sähköpostin vahvistustunnus"
+msgstr ""
 
 #: warehouse/accounts/views.py:798
 msgid "Role invitation is not valid."
-msgstr "Roolikutsu on virheellinen."
+msgstr ""
 
 #: warehouse/accounts/views.py:813
 msgid "Role invitation no longer exists."
-msgstr "Roolikutsua ei enää ole."
+msgstr ""
 
 #: warehouse/accounts/views.py:825
 msgid "Invitation for '${project_name}' is declined."
-msgstr "Kutsu projektiin '${project_name}' on hylätty."
+msgstr ""
 
 #: warehouse/accounts/views.py:892
 msgid "You are now ${role} of the '${project_name}' project."
-msgstr "Olet nyt ${role} projektissa '${project_name}'."
+msgstr ""
 
 #: warehouse/admin/templates/admin/banners/preview.html:15
 msgid "Banner Preview"
@@ -255,27 +226,23 @@ msgstr ""
 #: warehouse/manage/views.py:205
 msgid "Email ${email_address} added - check your email for a verification link"
 msgstr ""
-"Sähköpostiosoite ${email_address} lisätty - tarkista sähköpostistasi "
-"vahvistuslinkki"
 
 #: warehouse/manage/views.py:692 warehouse/manage/views.py:728
 msgid ""
 "You must provision a two factor method before recovery codes can be generated"
 msgstr ""
-"Sinun on asetettava kahden tekijän kirjautumismenetelmä ennen "
-"palautuskoodien luomista"
 
 #: warehouse/manage/views.py:703
 msgid "Recovery codes already generated"
-msgstr "Palautuskoodit on jo luotu"
+msgstr ""
 
 #: warehouse/manage/views.py:704
 msgid "Generating new recovery codes will invalidate your existing codes."
-msgstr "Uusien palautuskoodien luominen mitätöi olemassa olevat koodisi."
+msgstr ""
 
 #: warehouse/manage/views.py:755
 msgid "Invalid credentials. Try again"
-msgstr "Virheelliset tunnistetiedot. Yritä uudelleen"
+msgstr ""
 
 #: warehouse/manage/views.py:1503
 msgid "User '${username}' already has ${role_name} role for project"
@@ -294,7 +261,7 @@ msgstr ""
 
 #: warehouse/manage/views.py:1585
 msgid "Invitation sent to '${username}'"
-msgstr "Kutsu lähetetty käyttäjälle '${username}'"
+msgstr ""
 
 #: warehouse/manage/views.py:1632
 msgid "Could not find role invitation."
@@ -302,7 +269,7 @@ msgstr ""
 
 #: warehouse/manage/views.py:1643
 msgid "Invitation already expired."
-msgstr "Kutsu on jo vanhentunut."
+msgstr ""
 
 #: warehouse/manage/views.py:1667
 msgid "Invitation revoked from '${username}'."
@@ -310,27 +277,27 @@ msgstr ""
 
 #: warehouse/templates/403.html:16
 msgid "Access Denied / Forbidden (403)"
-msgstr "Pääsy estetty / kielletty (403)"
+msgstr ""
 
 #: warehouse/templates/403.html:18
 msgid "You don't have permission to view this page"
-msgstr "Sinulla ei ole lupaa nähdä tätä sivua"
+msgstr ""
 
 #: warehouse/templates/404.html:16
 msgid "Page Not Found (404)"
-msgstr "Sivua ei löydy (404)"
+msgstr ""
 
 #: warehouse/templates/404.html:18
 msgid "We looked everywhere but couldn't find this page"
-msgstr "Etsimme kaikkialta, mutta emme löytäneet tätä sivua"
+msgstr ""
 
 #: warehouse/templates/404.html:29
 msgid "And now for something <br><span>completely different</span>"
-msgstr "Ja nyt jotain <br><span>täysin erilaista</span>"
+msgstr ""
 
 #: warehouse/templates/404.html:32
 msgid "Monty Python - The Cheese Shop Sketch"
-msgstr "Monty Python - juustokauppasketsi"
+msgstr ""
 
 #: warehouse/templates/404.html:34 warehouse/templates/500.html:28
 #: warehouse/templates/500.html:29
@@ -430,27 +397,27 @@ msgstr "Monty Python - juustokauppasketsi"
 #: warehouse/templates/pages/sponsors.html:64
 #: warehouse/templates/upload.html:26
 msgid "External link"
-msgstr "Ulkoinen linkki"
+msgstr ""
 
 #: warehouse/templates/404.html:34
 msgid "View video transcript"
-msgstr "Katso videotranskriptio"
+msgstr ""
 
 #: warehouse/templates/410.html:16
 msgid "Page removed (410)"
-msgstr "Sivu poistettu (410)"
+msgstr ""
 
 #: warehouse/templates/410.html:18
 msgid "The page you are looking for has been removed"
-msgstr "Etsimäsi sivu on poistettu"
+msgstr ""
 
 #: warehouse/templates/500.html:16
 msgid "Internal server error (500)"
-msgstr "Sisäinen palvelinvirhe (500)"
+msgstr ""
 
 #: warehouse/templates/500.html:18
 msgid "Something went wrong"
-msgstr "Jokin meni pieleen"
+msgstr ""
 
 #: warehouse/templates/500.html:22
 msgid ""
@@ -458,25 +425,22 @@ msgid ""
 "serve you this site.</p> <p>We are aware of the problem and are working to "
 "resolve it as soon as possible.</p>"
 msgstr ""
-"<p>Meillä on teknisiä ongelmia, jotka vaikuttavat kykyymme palvella sinua "
-"tällä sivustolla.</p> <p>Olemme tietoisia ongelmasta ja pyrimme ratkaisemaan "
-"sen mahdollisimman pian.</p>"
 
 #: warehouse/templates/500.html:28
 msgid "Check our status page"
-msgstr "Tarkista tilasivumme"
+msgstr ""
 
 #: warehouse/templates/500.html:29
 msgid "View Python Status on Twitter"
-msgstr "Näytä Python Status Twitterissä"
+msgstr ""
 
 #: warehouse/templates/500.html:32
 msgid "Error code 500"
-msgstr "Virhekoodi 500"
+msgstr ""
 
 #: warehouse/templates/500.html:36
 msgid "Rely on PyPI to get your job done?"
-msgstr "Luotatko PyPI:in saadaksesi työsi tehtyä?"
+msgstr ""
 
 #: warehouse/templates/500.html:37
 msgid ""
@@ -485,32 +449,25 @@ msgid ""
 "contribute/transact?reset=1&id=13\" target=\"_blank\" rel=\"noopener\"> "
 "donating </a> to help us build a more stable and secure platform."
 msgstr ""
-"Harkitse <a href=\"https://github.com/pypa/warehouse\" target=\"_blank\" rel="
-"\"noopener\">auttamista</a> tai <a href=\"https://psfmember.org/civicrm/"
-"contribute/transact?reset=1&id=13\" target=\"_blank\" rel=\"noopener"
-"\">lahjoittamista</a> auttaksesi meitä rakentamaan vakaamman ja "
-"turvallisemman alustan."
 
 #: warehouse/templates/base.html:24
 msgid ""
 "Choose a strong password that contains letters (uppercase and lowercase), "
 "numbers and special characters. Avoid common words or repetition."
 msgstr ""
-"Valitse vahva salasana, joka sisältää kirjaimia (isoja ja pieniä), numeroita "
-"ja erikoismerkkejä. Vältä yleisiä sanoja tai toistoa."
 
 #: warehouse/templates/base.html:27
 msgid "Password strength:"
-msgstr "Salasanan vahvuus:"
+msgstr ""
 
 #: warehouse/templates/base.html:30
 msgid "Password field is empty"
-msgstr "Salasanakenttä on tyhjä"
+msgstr ""
 
 #: warehouse/templates/base.html:39 warehouse/templates/base.html:47
 #: warehouse/templates/includes/current-user-indicator.html:17
 msgid "Main navigation"
-msgstr "Päänavigointi"
+msgstr ""
 
 #: warehouse/templates/base.html:41 warehouse/templates/base.html:55
 #: warehouse/templates/base.html:265
@@ -518,62 +475,61 @@ msgstr "Päänavigointi"
 #: warehouse/templates/pages/help.html:103
 #: warehouse/templates/pages/sitemap.html:27
 msgid "Help"
-msgstr "Ohje"
+msgstr ""
 
 #: warehouse/templates/base.html:42 warehouse/templates/base.html:56
 #: warehouse/templates/includes/current-user-indicator.html:61
 #: warehouse/templates/pages/sitemap.html:41
 #: warehouse/templates/pages/sponsors.html:15
 msgid "Sponsors"
-msgstr "Sponsorit"
+msgstr ""
 
 #: warehouse/templates/accounts/login.html:18
 #: warehouse/templates/accounts/login.html:88 warehouse/templates/base.html:43
 #: warehouse/templates/base.html:57
 msgid "Log in"
-msgstr "Kirjaudu sisään"
+msgstr ""
 
 #: warehouse/templates/base.html:44 warehouse/templates/base.html:58
 #: warehouse/templates/pages/sitemap.html:33
 msgid "Register"
-msgstr "Rekisteröidy"
+msgstr ""
 
 #: warehouse/templates/base.html:48
 #: warehouse/templates/includes/current-user-indicator.html:18
 msgid "View menu"
-msgstr "Näytä-valikko"
+msgstr ""
 
 #: warehouse/templates/base.html:49
 msgid "Menu"
-msgstr "Valikko"
+msgstr ""
 
 #: warehouse/templates/base.html:54
 #: warehouse/templates/includes/current-user-indicator.html:25
 msgid "Main menu"
-msgstr "Päävalikko"
+msgstr ""
 
 #: warehouse/templates/base.html:81 warehouse/templates/index.html:109
 msgid ""
 "The Python Package Index (PyPI) is a repository of software for the Python "
 "programming language."
 msgstr ""
-"Python Package Index (PyPI) on ohjelmistovarasto Python-ohjelmointikielelle."
 
 #: warehouse/templates/base.html:97
 msgid "RSS: 40 latest updates"
-msgstr "RSS: 40 viimeisintä päivitystä"
+msgstr ""
 
 #: warehouse/templates/base.html:98
 msgid "RSS: 40 newest packages"
-msgstr "RSS: 40 uusinta pakettia"
+msgstr ""
 
 #: warehouse/templates/base.html:150
 msgid "Skip to main content"
-msgstr "Siirry pääsisältöön"
+msgstr ""
 
 #: warehouse/templates/base.html:153
 msgid "Switch to mobile version"
-msgstr "Vaihda mobiiliversioon"
+msgstr ""
 
 #: warehouse/templates/base.html:162 warehouse/templates/base.html:171
 #: warehouse/templates/base.html:181
@@ -585,11 +541,11 @@ msgstr "Vaihda mobiiliversioon"
 #: warehouse/templates/manage/release.html:163
 #: warehouse/templates/manage/settings.html:76
 msgid "Warning"
-msgstr "Varoitus"
+msgstr ""
 
 #: warehouse/templates/base.html:164
 msgid "You are using an unsupported browser, upgrade to a newer version."
-msgstr "Käytät selainta jota ei tueta, päivitä uudempaan versioon."
+msgstr ""
 
 #: warehouse/templates/base.html:173
 msgid ""
@@ -597,99 +553,94 @@ msgid ""
 "that allows you to try distribution tools and processes without affecting "
 "the real index."
 msgstr ""
-"Käytät TestPyPI:ä - erillistä Python Package Index:n instanssia, jonka "
-"avulla voit kokeilla jakeluvälineitä ja -prosesseja vaikuttamatta "
-"todelliseen hakemistoon."
 
 #: warehouse/templates/base.html:183
 msgid ""
 "Some features may not work without JavaScript. Please try enabling it if you "
 "encounter problems."
 msgstr ""
-"Jotkut ominaisuudet eivät välttämättä toimi ilman JavaScriptiä. Yritä ottaa "
-"se käyttöön, jos huomaat ongelmia."
 
 #: warehouse/templates/base.html:221 warehouse/templates/base.html:242
 #: warehouse/templates/error-base-with-search.html:20
 #: warehouse/templates/index.html:55
 msgid "Search PyPI"
-msgstr "Etsi PyPI:stä"
+msgstr ""
 
 #: warehouse/templates/base.html:222 warehouse/templates/base.html:243
 #: warehouse/templates/error-base-with-search.html:21
 #: warehouse/templates/index.html:58
 msgid "Search projects"
-msgstr "Etsi projekteja"
+msgstr ""
 
 #: warehouse/templates/base.html:226 warehouse/templates/base.html:247
 #: warehouse/templates/error-base-with-search.html:24
 #: warehouse/templates/index.html:62
 msgid "Search"
-msgstr "Etsi"
+msgstr ""
 
 #: warehouse/templates/base.html:266
 msgid "Help navigation"
-msgstr "Ohje navigointiin"
+msgstr ""
 
 #: warehouse/templates/base.html:268
 msgid "Installing packages"
-msgstr "Pakettien asentaminen"
+msgstr ""
 
 #: warehouse/templates/base.html:269
 msgid "Uploading packages"
-msgstr "Pakettien lataaminen"
+msgstr ""
 
 #: warehouse/templates/base.html:270
 msgid "User guide"
-msgstr "Käyttöopas"
+msgstr ""
 
 #: warehouse/templates/base.html:271
 msgid "FAQs"
-msgstr "UKK"
+msgstr ""
 
 #: warehouse/templates/base.html:277 warehouse/templates/pages/sitemap.html:37
 msgid "About PyPI"
-msgstr "Tietoja PyPI:stä"
+msgstr ""
 
 #: warehouse/templates/base.html:278
 msgid "About PyPI navigation"
-msgstr "Tietoja PyPI-navigoinnista"
+msgstr ""
 
 #: warehouse/templates/base.html:280
 msgid "PyPI on Twitter"
-msgstr "PyPI Twitterissä"
+msgstr ""
 
 #: warehouse/templates/base.html:281
 msgid "Infrastructure dashboard"
-msgstr "Infrastruktuurin koontinäyttö"
+msgstr ""
 
 #: warehouse/templates/base.html:282
 msgid "Package index name retention"
-msgstr "Paketin hakemistonimen säilyttäminen"
+msgstr ""
 
 #: warehouse/templates/base.html:283
 msgid "Our sponsors"
-msgstr "Sponsorimme"
+msgstr ""
 
 #: warehouse/templates/base.html:289
 msgid "Contributing to PyPI"
-msgstr "PyPI:n edistäminen"
+msgstr ""
 
 #: warehouse/templates/base.html:290
 msgid "How to contribute navigation"
-msgstr "Kuinka edistää navigointia"
+msgstr ""
 
 #: warehouse/templates/base.html:292
 msgid "Bugs and feedback"
-msgstr "Virheet ja palaute"
+msgstr ""
 
 #: warehouse/templates/base.html:293
 msgid "Contribute on GitHub"
-msgstr "Osallistu GitHubissa"
+msgstr ""
 
 #: warehouse/templates/base.html:294
 msgid "Translate PyPI"
-msgstr "Käännä PyPI:ä"
+msgstr ""
 
 #: warehouse/templates/base.html:295
 msgid "Development credits"
@@ -697,142 +648,135 @@ msgstr ""
 
 #: warehouse/templates/base.html:301 warehouse/templates/pages/sitemap.html:23
 msgid "Using PyPI"
-msgstr "PyPI:n käyttäminen"
+msgstr ""
 
 #: warehouse/templates/base.html:302
 msgid "Using PyPI navigation"
-msgstr "PyPI-navigoinnin käyttäminen"
+msgstr ""
 
 #: warehouse/templates/base.html:304
 msgid "Code of conduct"
-msgstr "Käytännesäännöt"
+msgstr ""
 
 #: warehouse/templates/base.html:305
 msgid "Report security issue"
-msgstr "Ilmoita tietoturvaongelmasta"
+msgstr ""
 
 #: warehouse/templates/base.html:306
 msgid "Privacy policy"
-msgstr "Tietosuojakäytäntö"
+msgstr ""
 
 #: warehouse/templates/base.html:307 warehouse/templates/pages/sitemap.html:43
 msgid "Terms of use"
-msgstr "Käyttöehdot"
+msgstr ""
 
 #: warehouse/templates/base.html:317
 msgid "Status: "
-msgstr "Tila: "
+msgstr ""
 
 #: warehouse/templates/base.html:318
 msgid "all systems operational"
-msgstr "kaikki järjestelmät toimivat"
+msgstr ""
 
 #: warehouse/templates/base.html:322
 msgid ""
 "Developed and maintained by the Python community, for the Python community."
-msgstr "Python-yhteisön kehittämä ja ylläpitämä, Python-yhteisölle."
+msgstr ""
 
 #: warehouse/templates/base.html:324
 msgid "Donate today!"
-msgstr "Lahjoita tänään!"
+msgstr ""
 
 #: warehouse/templates/base.html:327 warehouse/templates/pages/sitemap.html:16
 msgid "Site map"
-msgstr "Sivustokartta"
+msgstr ""
 
 #: warehouse/templates/base.html:333
 msgid "Switch to desktop version"
-msgstr "Vaihda työpöytäversioon"
+msgstr ""
 
 #: warehouse/templates/confirm-action.html:17
-#, fuzzy
-#| msgid "Confirm form"
 msgid "Confirm Action"
-msgstr "Vahvista lomake"
+msgstr ""
 
 #: warehouse/templates/error-base.html:31
 msgid "Error code"
-msgstr "Virhekoodi"
+msgstr ""
 
 #: warehouse/templates/error-base.html:33
 msgid "Back to the homepage"
-msgstr "Takaisin kotisivulle"
+msgstr ""
 
 #: warehouse/templates/index.html:16
 msgid "The Python Package Index"
-msgstr "Python Package Index"
+msgstr ""
 
 #: warehouse/templates/index.html:43
 msgid "Test Python package publishing with the Test Python Package Index"
-msgstr "Testaa Python-pakettijulkaisua Python Package Index:n testiversiolla"
+msgstr ""
 
 #: warehouse/templates/index.html:45
-#, fuzzy
-#| msgid "Test Python package publishing with the Test Python Package Index"
 msgid "Develop the codebase behind PyPI with the Dev Python Package Index"
-msgstr "Testaa Python-pakettijulkaisua Python Package Index:n testiversiolla"
+msgstr ""
 
 #: warehouse/templates/index.html:47
 msgid "Find, install and publish Python packages with the Python Package Index"
 msgstr ""
-"Etsi, asenna ja julkaise Python-paketteja Python Package Index:n avulla"
 
 #: warehouse/templates/index.html:66
 #, python-format
 msgid "Or <a href=\"%(href)s\">browse projects</a>"
-msgstr "Tai <a href=\"%(href)s\">selaa projekteja</a>"
+msgstr ""
 
 #: warehouse/templates/index.html:73
 #, python-format
 msgid "%(num_projects_formatted)s project"
 msgid_plural "%(num_projects_formatted)s projects"
-msgstr[0] "%(num_projects_formatted)s projekti"
-msgstr[1] "%(num_projects_formatted)s projektia"
+msgstr[0] ""
+msgstr[1] ""
 
 #: warehouse/templates/index.html:80
 #, python-format
 msgid "%(num_releases_formatted)s release"
 msgid_plural "%(num_releases_formatted)s releases"
-msgstr[0] "%(num_releases_formatted)s julkaisu"
-msgstr[1] "%(num_releases_formatted)s julkaisua"
+msgstr[0] ""
+msgstr[1] ""
 
 #: warehouse/templates/index.html:87
 #, python-format
 msgid "%(num_files_formatted)s file"
 msgid_plural "%(num_files_formatted)s files"
-msgstr[0] "%(num_files_formatted)s tiedosto"
-msgstr[1] "%(num_files_formatted)s tiedostoa"
+msgstr[0] ""
+msgstr[1] ""
 
 #: warehouse/templates/index.html:94
 #, python-format
 msgid "%(num_users_formatted)s user"
 msgid_plural "%(num_users_formatted)s users"
-msgstr[0] "%(num_users_formatted)s käyttäjä"
-msgstr[1] "%(num_users_formatted)s käyttäjää"
+msgstr[0] ""
+msgstr[1] ""
 
 #: warehouse/templates/index.html:111
 msgid ""
 "PyPI helps you find and install software developed and shared by the Python "
 "community."
 msgstr ""
-"PyPI auttaa löytämään ja asentamaan Python-yhteisön kehittämiä ja jakamia "
-"ohjelmistoja."
 
 #: warehouse/templates/index.html:112
 msgid "Learn about installing packages"
-msgstr "Lisätietoja pakettien asentamisesta"
+msgstr ""
 
 #: warehouse/templates/index.html:115
 msgid "Package authors use PyPI to distribute their software."
-msgstr "Paketin tekijät käyttävät PyPI:ä ohjelmistojensa jakeluun."
+msgstr ""
 
 #: warehouse/templates/index.html:116
 msgid "Learn how to package your Python code for PyPI"
-msgstr "Opi kuinka paketoida Python-koodisi PyPI:ä varten"
+msgstr ""
 
 #: warehouse/templates/index.html:126
 msgid "Trending projects"
-msgstr "Trendaavia projekteja"
+msgstr ""
 
 #: warehouse/templates/index.html:127
 msgid "Trending projects as downloaded by the community"
@@ -840,11 +784,11 @@ msgstr ""
 
 #: warehouse/templates/index.html:137
 msgid "New releases"
-msgstr "Uudet julkaisut"
+msgstr ""
 
 #: warehouse/templates/index.html:138
 msgid "Hot off the press: the newest project releases"
-msgstr "Kuumat lehdistöltä: uusimmat projektien julkaisut"
+msgstr ""
 
 #: warehouse/templates/accounts/login.html:17
 #: warehouse/templates/accounts/recovery-code.html:17
@@ -856,7 +800,7 @@ msgstr "Kuumat lehdistöltä: uusimmat projektien julkaisut"
 #: warehouse/templates/manage/account/totp-provision.html:22
 #: warehouse/templates/manage/token.html:22 warehouse/templates/re-auth.html:17
 msgid "Error processing form"
-msgstr "Virhe käsiteltäessä lomaketta"
+msgstr ""
 
 #: warehouse/templates/accounts/register.html:135
 #: warehouse/templates/accounts/register.html:140
@@ -865,11 +809,11 @@ msgstr "Virhe käsiteltäessä lomaketta"
 #: warehouse/templates/manage/account.html:429
 #: warehouse/templates/re-auth.html:18 warehouse/templates/re-auth.html:68
 msgid "Confirm password"
-msgstr "Vahvista salasana"
+msgstr ""
 
 #: warehouse/templates/re-auth.html:30
 msgid "Confirm password to continue"
-msgstr "Vahvista salasana jatkaaksesi"
+msgstr ""
 
 #: warehouse/templates/accounts/login.html:69
 #: warehouse/templates/accounts/register.html:110
@@ -877,7 +821,7 @@ msgstr "Vahvista salasana jatkaaksesi"
 #: warehouse/templates/manage/manage_base.html:167
 #: warehouse/templates/re-auth.html:49
 msgid "Password"
-msgstr "Salasana"
+msgstr ""
 
 #: warehouse/templates/accounts/login.html:51
 #: warehouse/templates/accounts/login.html:71
@@ -905,23 +849,23 @@ msgstr "Salasana"
 #: warehouse/templates/manage/token.html:153
 #: warehouse/templates/re-auth.html:51
 msgid "(required)"
-msgstr "(pakollinen)"
+msgstr ""
 
 #: warehouse/templates/accounts/login.html:75
 #: warehouse/templates/re-auth.html:55
 msgid "Your password"
-msgstr "Salasanasi"
+msgstr ""
 
 #: warehouse/templates/accounts/login.html:92
 #: warehouse/templates/manage/manage_base.html:170
 #: warehouse/templates/re-auth.html:72
 msgid "Show password"
-msgstr "Näytä salasana"
+msgstr ""
 
 #: warehouse/templates/accounts/login.html:96
 #: warehouse/templates/re-auth.html:76
 msgid "Forgot password?"
-msgstr "Unohditko salasanan?"
+msgstr ""
 
 #: warehouse/templates/re-auth.html:80
 #, python-format
@@ -938,7 +882,7 @@ msgstr ""
 
 #: warehouse/templates/upload.html:25
 msgid "This URL is an API endpoint for uploading files to PyPI."
-msgstr "Tämä URL on API-päätepiste tiedostojen lataamiseksi PyPI:in."
+msgstr ""
 
 #: warehouse/templates/upload.html:26
 #, python-format
@@ -947,21 +891,16 @@ msgid ""
 "\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">Python "
 "Packaging User Guide</a>."
 msgstr ""
-"Lisätietoja projektien lataamisesta PyPI:in on <a href=\"%(href)s\" title="
-"\"%(title)s\" target=\"_blank\" rel=\"noopener\">Python Packaging User "
-"Guidessa</a>."
 
 #: warehouse/templates/upload.html:28
 #, python-format
 msgid ""
 "Otherwise, we suggest you <a href=\"%(href)s\">go to the PyPI homepage</a>."
 msgstr ""
-"Muussa tapauksessa suosittelemme, että <a href=\"%(href)s\">siirryt PyPI:n "
-"kotisivulle</a>."
 
 #: warehouse/templates/accounts/invite-confirmation.html:17
 msgid "Confirm Invite"
-msgstr "Vahvista kutsu"
+msgstr ""
 
 #: warehouse/templates/accounts/invite-confirmation.html:26
 #, python-format
@@ -975,17 +914,17 @@ msgstr ""
 #: warehouse/templates/accounts/invite-confirmation.html:32
 #: warehouse/templates/manage/projects.html:49
 msgid "Accept"
-msgstr "Hyväksy"
+msgstr ""
 
 #: warehouse/templates/accounts/invite-confirmation.html:33
 #: warehouse/templates/manage/projects.html:50
 msgid "Decline"
-msgstr "Hylkää"
+msgstr ""
 
 #: warehouse/templates/accounts/login.html:30
 #, python-format
 msgid "Log in to %(title)s"
-msgstr "Sisäänkirjautuminen: %(title)s"
+msgstr ""
 
 #: warehouse/templates/accounts/login.html:49
 #: warehouse/templates/accounts/profile.html:32
@@ -994,43 +933,43 @@ msgstr "Sisäänkirjautuminen: %(title)s"
 #: warehouse/templates/manage/account/recovery_codes-provision.html:85
 #: warehouse/templates/manage/roles.html:173
 msgid "Username"
-msgstr "Käyttäjätunnus"
+msgstr ""
 
 #: warehouse/templates/accounts/login.html:54
 msgid "Your username"
-msgstr "Käyttäjätunnuksesi"
+msgstr ""
 
 #: warehouse/templates/accounts/logout.html:16
 #: warehouse/templates/accounts/logout.html:25
 #: warehouse/templates/includes/current-user-indicator.html:69
 msgid "Log out"
-msgstr "Kirjaudu ulos"
+msgstr ""
 
 #: warehouse/templates/accounts/logout.html:19
 #, python-format
 msgid "Log out of %(account_name)s"
-msgstr "Kirjaa ulos %(account_name)s"
+msgstr ""
 
 #: warehouse/templates/accounts/profile.html:16
 #, python-format
 msgid "Profile of %(username)s"
-msgstr "Käyttäjän %(username)s profiili"
+msgstr ""
 
 #: warehouse/templates/accounts/profile.html:23
 #: warehouse/templates/manage/account.html:247
 #: warehouse/templates/manage/roles.html:62
 #: warehouse/templates/manage/roles.html:125
 msgid "Avatar for {user} from gravatar.com"
-msgstr "Käyttäjän {user} avatar gravatar.com:sta"
+msgstr ""
 
 #: warehouse/templates/accounts/profile.html:43
 msgid "Date joined"
-msgstr "Liittymispäivämäärä"
+msgstr ""
 
 #: warehouse/templates/accounts/profile.html:44
 #, python-format
 msgid "Joined %(start_date)s"
-msgstr "Liittynyt %(start_date)s"
+msgstr ""
 
 #: warehouse/templates/accounts/profile.html:58
 #, python-format
@@ -1043,48 +982,42 @@ msgid_plural ""
 "            %(count)s projects\n"
 "          "
 msgstr[0] ""
-"\n"
-"            %(count)s projekti\n"
-"          "
 msgstr[1] ""
-"\n"
-"            %(count)s projektia\n"
-"          "
 
 #: warehouse/templates/accounts/profile.html:64
 msgid "No projects"
-msgstr "Ei projekteja"
+msgstr ""
 
 #: warehouse/templates/accounts/profile.html:73
 #: warehouse/templates/manage/projects.html:34
 #: warehouse/templates/manage/projects.html:73
 #, python-format
 msgid "Last released %(release_date)s"
-msgstr "Viimeksi julkaistu %(release_date)s"
+msgstr ""
 
 #: warehouse/templates/accounts/profile.html:81
 #, python-format
 msgid "%(user)s has not uploaded any projects to PyPI, yet"
-msgstr "%(user)s ei ole ladannut vielä yhtään projektia PyPI:in"
+msgstr ""
 
 #: warehouse/templates/accounts/recovery-code.html:18
 #: warehouse/templates/manage/account.html:493
 msgid "Recovery codes"
-msgstr "Palautuskoodit"
+msgstr ""
 
 #: warehouse/templates/accounts/recovery-code.html:24
 #: warehouse/templates/accounts/two-factor.html:119
 msgid "Login using recovery codes"
-msgstr "Kirjaudu sisään käyttämällä palautuskoodeja"
+msgstr ""
 
 #: warehouse/templates/accounts/recovery-code.html:40
 msgid "Enter recovery code"
-msgstr "Anna palautuskoodi"
+msgstr ""
 
 #: warehouse/templates/accounts/recovery-code.html:55
 #: warehouse/templates/accounts/two-factor.html:102
 msgid "Verify"
-msgstr "Vahvista"
+msgstr ""
 
 #: warehouse/templates/accounts/recovery-code.html:58
 msgid ""
@@ -1093,62 +1026,58 @@ msgid ""
 "in the form to verify your identity. Once used, the recovery code will no "
 "longer be valid."
 msgstr ""
-"PyPI mahdollistaa palautuskoodien generoinnin turvallisesti offline-tilaan "
-"tallentamista varten, jos laite tai sovellus katoaa. Kirjoita yksi näistä "
-"koodeista lomakkeeseen henkilöllisyytesi vahvistamiseksi. Kun palautuskoodi "
-"on käytetty, se ei enää ole voimassa."
 
 #: warehouse/templates/accounts/recovery-code.html:59
 #, python-format
 msgid "<p>Not working? <a href=\"%(href)s\">Get help</a>.</p>"
-msgstr "<p> Ei toimi? <a href=\"%(href)s\">Hanki ohjeita</a>.</p>"
+msgstr ""
 
 #: warehouse/templates/accounts/register.html:18
 msgid "Create an account"
-msgstr "Luo tili"
+msgstr ""
 
 #: warehouse/templates/accounts/register.html:30
 #, python-format
 msgid "Create an account on %(title)s"
-msgstr "Luo tili kohteeseen %(title)s"
+msgstr ""
 
 #: warehouse/templates/accounts/register.html:45
 #: warehouse/templates/manage/account.html:163
 #: warehouse/templates/manage/account.html:529
 msgid "Name"
-msgstr "Nimi"
+msgstr ""
 
 #: warehouse/templates/accounts/register.html:50
 msgid "Your name"
-msgstr "Nimesi"
+msgstr ""
 
 #: warehouse/templates/accounts/register.html:64
 #: warehouse/templates/manage/account.html:350
 msgid "Email address"
-msgstr "Sähköpostiosoite"
+msgstr ""
 
 #: warehouse/templates/accounts/register.html:69
 #: warehouse/templates/manage/account.html:371
 msgid "Your email address"
-msgstr "Sähköpostiosoitteesi"
+msgstr ""
 
 #: warehouse/templates/accounts/register.html:83
 msgid "Confirm form"
-msgstr "Vahvista lomake"
+msgstr ""
 
 #: warehouse/templates/accounts/register.html:94
 msgid "Select a username"
-msgstr "Valitse käyttäjätunnus"
+msgstr ""
 
 #: warehouse/templates/accounts/register.html:117
 #: warehouse/templates/accounts/reset-password.html:44
 #: warehouse/templates/manage/account.html:398
 msgid "Show passwords"
-msgstr "Näytä salasanat"
+msgstr ""
 
 #: warehouse/templates/accounts/register.html:120
 msgid "Select a password"
-msgstr "Valitse salasana"
+msgstr ""
 
 #: warehouse/templates/accounts/register.html:157
 msgid ""
@@ -1156,39 +1085,35 @@ msgid ""
 "cannot be used. Please refer to the <a href=\"/help/#compromised-password"
 "\">FAQ</a> for more information."
 msgstr ""
-"Tämä salasana on mukana tietovuodossa tai on vaarantunut, eikä sitä voida "
-"käyttää. Lisätietoja <a href=\"/help/#compromised-password\">usein "
-"kysytyistä kysymyksistä</a>."
 
 #: warehouse/templates/accounts/register.html:162
 msgid "Create account"
-msgstr "Luo tili"
+msgstr ""
 
 #: warehouse/templates/accounts/request-password-reset.html:18
 #: warehouse/templates/accounts/request-password-reset.html:24
 msgid "Password reset"
-msgstr "Salasanan nollaminen"
+msgstr ""
 
 #: warehouse/templates/accounts/request-password-reset.html:27
 msgid "To reset your password, enter your username or email."
 msgstr ""
-"Voit nollata salasanasi antamalla käyttäjänimesi tai sähköpostiosoitteesi."
 
 #: warehouse/templates/accounts/request-password-reset.html:39
 msgid "Username or email"
-msgstr "Käyttäjätunnus tai sähköpostiosoite"
+msgstr ""
 
 #: warehouse/templates/accounts/request-password-reset.html:46
 msgid "Request password reset"
-msgstr "Pyydä salasanan nollaamista"
+msgstr ""
 
 #: warehouse/templates/accounts/request-password-reset.html:50
 msgid "Reset email sent"
-msgstr "Nollaussähköposti lähetetty"
+msgstr ""
 
 #: warehouse/templates/accounts/request-password-reset.html:51
 msgid "An email has been sent to your registered email address."
-msgstr "Rekisteröityyn sähköpostiosoitteeseesi on lähetetty sähköpostiviesti."
+msgstr ""
 
 #: warehouse/templates/accounts/request-password-reset.html:52
 #, python-format
@@ -1196,28 +1121,26 @@ msgid ""
 "The email contains a link to reset your password. This link will expire in "
 "%(n_hours)s hours."
 msgstr ""
-"Sähköpostiviestissä on linkki salasanan nollaamiseen. Tämä linkki vanhenee "
-"%(n_hours)s tunnissa."
 
 #: warehouse/templates/accounts/reset-password.html:18
 #: warehouse/templates/accounts/reset-password.html:24
 #: warehouse/templates/pages/sitemap.html:34
 msgid "Reset your password"
-msgstr "Nollaa salasanasi"
+msgstr ""
 
 #: warehouse/templates/accounts/reset-password.html:47
 #: warehouse/templates/manage/account.html:415
 msgid "Select a new password"
-msgstr "Valitse uusi salasana"
+msgstr ""
 
 #: warehouse/templates/accounts/reset-password.html:81
 msgid "Reset password"
-msgstr "Nollaa salasana"
+msgstr ""
 
 #: warehouse/templates/accounts/two-factor.html:18
 #: warehouse/templates/accounts/two-factor.html:30
 msgid "Two-factor authentication"
-msgstr "Kaksivaiheinen tunnistautuminen"
+msgstr ""
 
 #: warehouse/templates/accounts/two-factor.html:36
 msgid "Authenticate with a security device (e.g. USB key)"
@@ -1235,7 +1158,7 @@ msgstr ""
 
 #: warehouse/templates/accounts/two-factor.html:51
 msgid "Authenticate with device"
-msgstr "Tunnistaudu laitteella"
+msgstr ""
 
 #: warehouse/templates/accounts/two-factor.html:55
 #, python-format
@@ -1251,11 +1174,11 @@ msgstr ""
 
 #: warehouse/templates/accounts/two-factor.html:72
 msgid "Authenticate with an app"
-msgstr "Tunnistaudu sovelluksella"
+msgstr ""
 
 #: warehouse/templates/accounts/two-factor.html:87
 msgid "Enter authentication code"
-msgstr "Syötä tunnistautumiskoodi"
+msgstr ""
 
 #: warehouse/templates/accounts/two-factor.html:105
 #, python-format
@@ -1280,7 +1203,7 @@ msgstr ""
 #: warehouse/templates/email/account-deleted/body.html:18
 #, python-format
 msgid "Your PyPI account <strong>%(username)s</strong> has been deleted."
-msgstr "PyPi-tilisi <strong>%(username)s</strong> on poistettu."
+msgstr ""
 
 #: warehouse/templates/email/account-deleted/body.html:20
 #: warehouse/templates/email/password-change/body.html:20
@@ -1338,7 +1261,7 @@ msgstr ""
 #: warehouse/templates/email/password-compromised-hibp/body.html:32
 #: warehouse/templates/email/password-compromised/body.html:31
 msgid "What should I do?"
-msgstr "Mitä minun pitäisi tehdä?"
+msgstr ""
 
 #: warehouse/templates/email/password-compromised/body.html:33
 #, python-format
@@ -1428,13 +1351,13 @@ msgstr ""
 #, python-format
 msgid "This link will expire in %(n_hours)s hour."
 msgid_plural "This link will expire in %(n_hours)s hours."
-msgstr[0] "Tämä linkki vanhenee %(n_hours)s tunnissa."
-msgstr[1] "Tämä linkki vanhenee %(n_hours)s tunnissa."
+msgstr[0] ""
+msgstr[1] ""
 
 #: warehouse/templates/email/password-reset/body.html:24
 #: warehouse/templates/email/verify-email/body.html:24
 msgid "If you did not make this request, you can safely ignore this email."
-msgstr "Jos et tehnyt tätä pyyntöä, voit turvallisesti ohittaa tämän viestin."
+msgstr ""
 
 #: warehouse/templates/email/primary-email-change/body.html:18
 #, python-format
@@ -1480,28 +1403,28 @@ msgstr ""
 #: warehouse/templates/manage/manage_base.html:52
 #: warehouse/templates/manage/projects.html:18
 msgid "Your projects"
-msgstr "Projektisi"
+msgstr ""
 
 #: warehouse/templates/includes/current-user-indicator.html:43
 #: warehouse/templates/manage/account.html:17
 #: warehouse/templates/manage/manage_base.html:38
 #: warehouse/templates/manage/manage_base.html:58
 msgid "Account settings"
-msgstr "Tilin asetukset"
+msgstr ""
 
 #: warehouse/templates/includes/current-user-indicator.html:49
 msgid "Public profile"
-msgstr "Julkinen profiili"
+msgstr ""
 
 #: warehouse/templates/includes/flash-messages.html:19
 msgid "Error"
-msgstr "Virhe"
+msgstr ""
 
 #: warehouse/templates/includes/flash-messages.html:22
 #: warehouse/templates/includes/flash-messages.html:29
 #: warehouse/templates/includes/flash-messages.html:40
 msgid "Dismiss this notification"
-msgstr "Hylkää tämä ilmoitus"
+msgstr ""
 
 #: warehouse/templates/includes/flash-messages.html:22
 #: warehouse/templates/includes/flash-messages.html:29
@@ -1521,7 +1444,7 @@ msgstr "Hylkää tämä ilmoitus"
 #: warehouse/templates/manage/settings.html:70
 #: warehouse/templates/search/results.html:199
 msgid "Close"
-msgstr "Sulje"
+msgstr ""
 
 #: warehouse/templates/includes/flash-messages.html:37
 msgid "Success"
@@ -1541,7 +1464,7 @@ msgstr ""
 
 #: warehouse/templates/includes/hash-modal.html:31
 msgid "Algorithm"
-msgstr "Algoritmi"
+msgstr ""
 
 #: warehouse/templates/includes/hash-modal.html:32
 msgid "Hash digest"
@@ -1556,7 +1479,7 @@ msgstr ""
 #: warehouse/templates/packaging/detail.html:117
 #: warehouse/templates/pages/classifiers.html:37
 msgid "Copy to clipboard"
-msgstr "Kopioi leikepöydälle"
+msgstr ""
 
 #: warehouse/templates/includes/hash-modal.html:42
 #: warehouse/templates/includes/hash-modal.html:51
@@ -1566,7 +1489,7 @@ msgstr "Kopioi leikepöydälle"
 #: warehouse/templates/manage/account/totp-provision.html:58
 #: warehouse/templates/pages/classifiers.html:38
 msgid "Copy"
-msgstr "Kopioi"
+msgstr ""
 
 #: warehouse/templates/includes/manage-project-button.html:16
 msgid "Manage project"
@@ -1575,12 +1498,12 @@ msgstr ""
 #: warehouse/templates/includes/pagination.html:21
 #: warehouse/templates/includes/pagination.html:23
 msgid "Previous"
-msgstr "Edellinen"
+msgstr ""
 
 #: warehouse/templates/includes/pagination.html:48
 #: warehouse/templates/includes/pagination.html:50
 msgid "Next"
-msgstr "Seuraava"
+msgstr ""
 
 #: warehouse/templates/includes/session-notifications.html:23
 #, python-format
@@ -1593,7 +1516,7 @@ msgstr ""
 
 #: warehouse/templates/includes/session-notifications.html:28
 msgid "Verify your email or add a new address."
-msgstr "Vahvista sähköpostiosoitteesi tai lisää uusi osoite."
+msgstr ""
 
 #: warehouse/templates/includes/session-notifications.html:37
 #, python-format
@@ -1604,7 +1527,7 @@ msgstr ""
 
 #: warehouse/templates/includes/accounts/profile-actions.html:16
 msgid "Edit profile"
-msgstr "Muokkaa profiilia"
+msgstr ""
 
 #: warehouse/templates/includes/accounts/profile-actions.html:19
 #: warehouse/templates/includes/accounts/profile-actions.html:28
@@ -1612,7 +1535,7 @@ msgstr "Muokkaa profiilia"
 #: warehouse/templates/pages/sitemap.html:40
 #: warehouse/templates/pages/stats.html:16
 msgid "Statistics"
-msgstr "Tilastot"
+msgstr ""
 
 #: warehouse/templates/includes/accounts/profile-actions.html:21
 #, python-format
@@ -1647,7 +1570,7 @@ msgstr ""
 
 #: warehouse/templates/includes/accounts/profile-public-email.html:17
 msgid "Email"
-msgstr "Sähköposti"
+msgstr ""
 
 #: warehouse/templates/includes/manage/manage-project-menu.html:14
 #, python-format
@@ -1676,11 +1599,11 @@ msgstr ""
 #: warehouse/templates/includes/manage/manage-project-menu.html:44
 #: warehouse/templates/manage/documentation.html:21
 msgid "Documentation"
-msgstr "Dokumentaatio"
+msgstr ""
 
 #: warehouse/templates/includes/manage/manage-project-menu.html:51
 msgid "Settings"
-msgstr "Astukset"
+msgstr ""
 
 #: warehouse/templates/includes/packaging/project-data.html:17
 msgid "Project links"
@@ -1692,7 +1615,7 @@ msgstr ""
 
 #: warehouse/templates/includes/packaging/project-data.html:42
 msgid "Stars:"
-msgstr "Tähdet:"
+msgstr ""
 
 #: warehouse/templates/includes/packaging/project-data.html:50
 msgid "Forks:"
@@ -1717,12 +1640,12 @@ msgstr ""
 
 #: warehouse/templates/includes/packaging/project-data.html:76
 msgid "License:"
-msgstr "Lisenssi:"
+msgstr ""
 
 #: warehouse/templates/includes/packaging/project-data.html:79
 #: warehouse/templates/includes/packaging/project-data.html:81
 msgid "Author:"
-msgstr "Tekijä:"
+msgstr ""
 
 #: warehouse/templates/includes/packaging/project-data.html:84
 #: warehouse/templates/includes/packaging/project-data.html:86
@@ -1755,7 +1678,7 @@ msgstr ""
 
 #: warehouse/templates/manage/account.html:33
 msgid "Verified*"
-msgstr "Vahvistettu*"
+msgstr ""
 
 #: warehouse/templates/manage/account.html:35
 msgid "*Intermittent delivery problems may lead to verification loss"
@@ -1763,7 +1686,7 @@ msgstr ""
 
 #: warehouse/templates/manage/account.html:39
 msgid "Verified"
-msgstr "Vahvistettu"
+msgstr ""
 
 #: warehouse/templates/manage/account.html:46
 #: warehouse/templates/manage/account.html:52
@@ -1822,11 +1745,11 @@ msgstr ""
 
 #: warehouse/templates/manage/account.html:122
 msgid "Remove this email address"
-msgstr "Poista tämä sähköpostiosoite"
+msgstr ""
 
 #: warehouse/templates/manage/account.html:124
 msgid "Remove email"
-msgstr "Poista sähköposti"
+msgstr ""
 
 #: warehouse/templates/manage/account.html:139
 msgid ""
@@ -1842,7 +1765,7 @@ msgstr ""
 
 #: warehouse/templates/manage/account.html:143
 msgid "Generate recovery codes"
-msgstr "Luo palautuskoodit"
+msgstr ""
 
 #: warehouse/templates/manage/account.html:148
 #: warehouse/templates/manage/account/webauthn-provision.html:37
@@ -1868,21 +1791,21 @@ msgstr ""
 
 #: warehouse/templates/manage/account.html:169
 msgid "All projects"
-msgstr "Kaikki projektit"
+msgstr ""
 
 #: warehouse/templates/manage/account.html:177
 #: warehouse/templates/manage/account.html:531
 msgid "Created"
-msgstr "Luotu"
+msgstr ""
 
 #: warehouse/templates/manage/account.html:181
 #: warehouse/templates/manage/account.html:532
 msgid "Last used"
-msgstr "Viimeksi käytetty"
+msgstr ""
 
 #: warehouse/templates/manage/account.html:182
 msgid "Never"
-msgstr "Ei koskaan"
+msgstr ""
 
 #: warehouse/templates/manage/account.html:186
 msgid "View token options"
@@ -1917,7 +1840,7 @@ msgstr ""
 
 #: warehouse/templates/manage/account.html:246
 msgid "Profile picture"
-msgstr "Profiilikuva"
+msgstr ""
 
 #: warehouse/templates/manage/account.html:252
 #, python-format
@@ -1929,11 +1852,11 @@ msgstr ""
 
 #: warehouse/templates/manage/account.html:259
 msgid "Change image on gravatar.com"
-msgstr "Vaihda kuva gravatar.com:ssa"
+msgstr ""
 
 #: warehouse/templates/manage/account.html:269
 msgid "Account details"
-msgstr "Tilin tiedot"
+msgstr ""
 
 #: warehouse/templates/manage/account.html:275
 msgid "Date Joined"
@@ -1947,11 +1870,11 @@ msgstr ""
 
 #: warehouse/templates/manage/account.html:292
 msgid "Full name"
-msgstr "Täysi nimi"
+msgstr ""
 
 #: warehouse/templates/manage/account.html:297
 msgid "No name set"
-msgstr "Ei nimeä asetettu"
+msgstr ""
 
 #: warehouse/templates/manage/account.html:302
 #, python-format
@@ -1960,7 +1883,7 @@ msgstr ""
 
 #: warehouse/templates/manage/account.html:309
 msgid "️Public email"
-msgstr "Julkinen sähköposti"
+msgstr ""
 
 #: warehouse/templates/manage/account.html:321
 #, python-format
@@ -1971,11 +1894,11 @@ msgstr ""
 
 #: warehouse/templates/manage/account.html:326
 msgid "Update account"
-msgstr "Päivitä tili"
+msgstr ""
 
 #: warehouse/templates/manage/account.html:334
 msgid "Account emails"
-msgstr "Tilin sähköpostit"
+msgstr ""
 
 #: warehouse/templates/manage/account.html:336
 msgid ""
@@ -1991,40 +1914,40 @@ msgstr ""
 
 #: warehouse/templates/manage/account.html:351
 msgid "Status"
-msgstr "Tila"
+msgstr ""
 
 #: warehouse/templates/manage/account.html:366
 #: warehouse/templates/manage/account.html:376
 msgid "Add email"
-msgstr "Lisää sähköposti"
+msgstr ""
 
 #: warehouse/templates/manage/account.html:383
 msgid "Change password"
-msgstr "Vaihda salasana"
+msgstr ""
 
 #: warehouse/templates/manage/account.html:391
 msgid "Old password"
-msgstr "Vanha salasana"
+msgstr ""
 
 #: warehouse/templates/manage/account.html:401
 msgid "Your current password"
-msgstr "Tämänhetkinen salasanasi"
+msgstr ""
 
 #: warehouse/templates/manage/account.html:408
 msgid "New password"
-msgstr "Uusi salasana"
+msgstr ""
 
 #: warehouse/templates/manage/account.html:424
 msgid "Confirm new password"
-msgstr "Vahvista uusi salasana"
+msgstr ""
 
 #: warehouse/templates/manage/account.html:440
 msgid "Update password"
-msgstr "Päivitä salasana"
+msgstr ""
 
 #: warehouse/templates/manage/account.html:447
 msgid "Two factor authentication (2FA)"
-msgstr "Kaksivaiheinen tunnistautuminen (2FA)"
+msgstr ""
 
 #: warehouse/templates/manage/account.html:448
 #, python-format
@@ -2052,15 +1975,15 @@ msgstr ""
 #: warehouse/templates/manage/account.html:464
 #: warehouse/templates/manage/account.html:478
 msgid "Remove"
-msgstr "Poista"
+msgstr ""
 
 #: warehouse/templates/manage/account.html:465
 msgid "Remove authentication application"
-msgstr "Poista tunnistautumissovellus"
+msgstr ""
 
 #: warehouse/templates/manage/account.html:466
 msgid "Remove application"
-msgstr "Poista sovellus"
+msgstr ""
 
 #: warehouse/templates/manage/account.html:475
 #: warehouse/templates/manage/account.html:570
@@ -2073,11 +1996,11 @@ msgstr ""
 
 #: warehouse/templates/manage/account.html:480
 msgid "Remove device"
-msgstr "Poista laite"
+msgstr ""
 
 #: warehouse/templates/manage/account.html:486
 msgid "Device name"
-msgstr "Laitteen nimi"
+msgstr ""
 
 #: warehouse/templates/manage/account.html:493
 #, python-format
@@ -2086,7 +2009,7 @@ msgstr ""
 
 #: warehouse/templates/manage/account.html:496
 msgid "Regenerate"
-msgstr "Luo uudelleen"
+msgstr ""
 
 #: warehouse/templates/manage/account.html:497
 #: warehouse/templates/manage/account.html:498
@@ -2141,11 +2064,11 @@ msgstr ""
 
 #: warehouse/templates/manage/account.html:561
 msgid "Account created"
-msgstr "Tili luotu"
+msgstr ""
 
 #: warehouse/templates/manage/account.html:564
 msgid "Logged in"
-msgstr "Kirjauduttu sisään"
+msgstr ""
 
 #: warehouse/templates/manage/account.html:566
 msgid "Two factor method:"
@@ -2155,27 +2078,27 @@ msgstr ""
 #: warehouse/templates/manage/release.html:58
 #: warehouse/templates/packaging/detail.html:350
 msgid "None"
-msgstr "Ei mikään"
+msgstr ""
 
 #: warehouse/templates/manage/account.html:574
 msgid "Recovery code"
-msgstr "Palautuskoodi"
+msgstr ""
 
 #: warehouse/templates/manage/account.html:579
 msgid "Email added to account"
-msgstr "Sähköposti lisätty tiliin"
+msgstr ""
 
 #: warehouse/templates/manage/account.html:582
 msgid "Email removed from account"
-msgstr "Sähköposti poistettu tililtä"
+msgstr ""
 
 #: warehouse/templates/manage/account.html:585
 msgid "Email verified"
-msgstr "Sähköposti vahvistettu"
+msgstr ""
 
 #: warehouse/templates/manage/account.html:588
 msgid "Email reverified"
-msgstr "Sähköposti vahvistettu uudelleen"
+msgstr ""
 
 #: warehouse/templates/manage/account.html:592
 msgid "Primary email changed"
@@ -2195,7 +2118,7 @@ msgstr ""
 
 #: warehouse/templates/manage/account.html:604
 msgid "Email sent"
-msgstr "Sähköposti lähetetty"
+msgstr ""
 
 #: warehouse/templates/manage/account.html:606
 msgid "From:"
@@ -2211,21 +2134,19 @@ msgstr ""
 
 #: warehouse/templates/manage/account.html:612
 msgid "Password reset requested"
-msgstr "Salasanan nollausta pyydetty"
+msgstr ""
 
 #: warehouse/templates/manage/account.html:614
-#, fuzzy
-#| msgid "Password reset requested"
 msgid "Password reset attempted"
-msgstr "Salasanan nollausta pyydetty"
+msgstr ""
 
 #: warehouse/templates/manage/account.html:616
 msgid "Password successfully reset"
-msgstr "Salasana nollattiin onnistuneesti"
+msgstr ""
 
 #: warehouse/templates/manage/account.html:618
 msgid "Password successfully changed"
-msgstr "Salasana vaihdettiin onnistuneesti"
+msgstr ""
 
 #: warehouse/templates/manage/account.html:621
 msgid "Two factor authentication added"
@@ -2240,7 +2161,7 @@ msgstr ""
 #: warehouse/templates/manage/account.html:625
 #: warehouse/templates/manage/account.html:635
 msgid "Device name:"
-msgstr "Laitteen nimi:"
+msgstr ""
 
 #: warehouse/templates/manage/account.html:627
 #: warehouse/templates/manage/account.html:637
@@ -2251,19 +2172,19 @@ msgstr ""
 
 #: warehouse/templates/manage/account.html:631
 msgid "Two factor authentication removed"
-msgstr "Kaksivaiheinen tunnistautuminen poistettu"
+msgstr ""
 
 #: warehouse/templates/manage/account.html:642
 msgid "Recovery codes generated"
-msgstr "Palautuskoodit luotu"
+msgstr ""
 
 #: warehouse/templates/manage/account.html:646
 msgid "Recovery codes regenerated"
-msgstr "Palautuskoodit luotu uudelleen"
+msgstr ""
 
 #: warehouse/templates/manage/account.html:650
 msgid "Recovery code used for login"
-msgstr "Palautuskoodi käytetty kirjautumiseen"
+msgstr ""
 
 #: warehouse/templates/manage/account.html:656
 #: warehouse/templates/manage/history.html:65
@@ -2329,14 +2250,14 @@ msgstr ""
 #: warehouse/templates/manage/history.html:98
 #: warehouse/templates/manage/history.html:107
 msgid "Date / time"
-msgstr "Päivämäärä / aika"
+msgstr ""
 
 #: warehouse/templates/manage/account.html:698
 #: warehouse/templates/manage/account.html:709
 #: warehouse/templates/manage/history.html:99
 #: warehouse/templates/manage/history.html:111
 msgid "IP address"
-msgstr "IP-osoite"
+msgstr ""
 
 #: warehouse/templates/manage/account.html:717
 msgid ""
@@ -2345,11 +2266,11 @@ msgstr ""
 
 #: warehouse/templates/manage/account.html:724
 msgid "Delete account"
-msgstr "Poista tili"
+msgstr ""
 
 #: warehouse/templates/manage/account.html:727
 msgid "Cannot delete account"
-msgstr "Ei voida poistaa tiliä"
+msgstr ""
 
 #: warehouse/templates/manage/account.html:729
 #, python-format
@@ -2394,11 +2315,11 @@ msgstr ""
 
 #: warehouse/templates/manage/account.html:756
 msgid "You will not be able to recover your account after you delete it"
-msgstr "Et voi palauttaa tiliä poistamisen jälkeen"
+msgstr ""
 
 #: warehouse/templates/manage/account.html:758
 msgid "Delete your PyPI account"
-msgstr "Poista PyPI-tilisi"
+msgstr ""
 
 #: warehouse/templates/manage/documentation.html:18
 #, python-format
@@ -2407,7 +2328,7 @@ msgstr ""
 
 #: warehouse/templates/manage/documentation.html:25
 msgid "Destroy documentation"
-msgstr "Tuhoa dokumentaatio"
+msgstr ""
 
 #: warehouse/templates/manage/documentation.html:28
 #, python-format
@@ -2425,20 +2346,20 @@ msgstr ""
 #: warehouse/templates/manage/release.html:104
 #: warehouse/templates/pages/stats.html:42
 msgid "Project name"
-msgstr "Projektin nimi"
+msgstr ""
 
 #: warehouse/templates/manage/documentation.html:39
 msgid "Project documentation"
-msgstr "Projektin dokumentaatio"
+msgstr ""
 
 #: warehouse/templates/manage/documentation.html:41
 msgid "Uploading new documentation is no longer supported"
-msgstr "Uuden dokumentaation lataaminen ei ole enää tuettua"
+msgstr ""
 
 #: warehouse/templates/manage/history.html:20
 #, python-format
 msgid "'%(project_name)s' project history"
-msgstr "Projektin '%(project_name)s' historia"
+msgstr ""
 
 #: warehouse/templates/manage/history.html:25
 msgid ""
@@ -2448,11 +2369,11 @@ msgstr ""
 
 #: warehouse/templates/manage/history.html:29
 msgid "Project created"
-msgstr "Projekti luotu"
+msgstr ""
 
 #: warehouse/templates/manage/history.html:31
 msgid "Created by:"
-msgstr "Luonut:"
+msgstr ""
 
 #: warehouse/templates/manage/history.html:34
 #, python-format
@@ -2462,7 +2383,7 @@ msgstr ""
 #: warehouse/templates/manage/history.html:36
 #: warehouse/templates/manage/history.html:52
 msgid "Added by:"
-msgstr "Lisännyt:"
+msgstr ""
 
 #: warehouse/templates/manage/history.html:39
 #, python-format
@@ -2473,7 +2394,7 @@ msgstr ""
 #: warehouse/templates/manage/history.html:47
 #: warehouse/templates/manage/history.html:57
 msgid "Removed by:"
-msgstr "Poistanut:"
+msgstr ""
 
 #: warehouse/templates/manage/history.html:44
 #, python-format
@@ -2483,7 +2404,7 @@ msgstr ""
 #: warehouse/templates/manage/history.html:45
 #: warehouse/templates/manage/release.html:99
 msgid "Filename:"
-msgstr "Tiedostonimi:"
+msgstr ""
 
 #: warehouse/templates/manage/history.html:50
 #, python-format
@@ -2525,7 +2446,7 @@ msgstr ""
 
 #: warehouse/templates/manage/history.html:84
 msgid "Reason:"
-msgstr "Syy:"
+msgstr ""
 
 #: warehouse/templates/manage/history.html:94
 #, python-format
@@ -2557,7 +2478,7 @@ msgstr ""
 #: warehouse/templates/manage/journal.html:32
 #, python-format
 msgid "History for %(project_name)s"
-msgstr "Projektin %(project_name)s historia"
+msgstr ""
 
 #: warehouse/templates/manage/journal.html:35
 #: warehouse/templates/manage/journal.html:44
@@ -2567,14 +2488,14 @@ msgstr ""
 #: warehouse/templates/manage/journal.html:36
 #: warehouse/templates/manage/journal.html:48
 msgid "Date"
-msgstr "Päivämäärä"
+msgstr ""
 
 #: warehouse/templates/manage/journal.html:37
 #: warehouse/templates/manage/journal.html:52
 #: warehouse/templates/manage/roles.html:51
 #: warehouse/templates/manage/roles.html:168
 msgid "User"
-msgstr "Käyttäjä"
+msgstr ""
 
 #: warehouse/templates/manage/journal.html:45
 #, python-format
@@ -2594,7 +2515,7 @@ msgstr ""
 
 #: warehouse/templates/manage/manage_base.html:26
 msgid "Your account"
-msgstr "Tilisi"
+msgstr ""
 
 #: warehouse/templates/manage/manage_base.html:27
 #: warehouse/templates/manage/manage_base.html:47
@@ -2608,7 +2529,7 @@ msgstr ""
 
 #: warehouse/templates/manage/manage_base.html:115
 msgid "Confirm your username to continue."
-msgstr "Vahvista käyttäjätunnuksesi jatkaaksesi."
+msgstr ""
 
 #: warehouse/templates/manage/manage_base.html:117
 #, python-format
@@ -2618,15 +2539,15 @@ msgstr ""
 #: warehouse/templates/manage/manage_base.html:125
 #: warehouse/templates/manage/manage_base.html:177
 msgid "Cancel"
-msgstr "Peruuta"
+msgstr ""
 
 #: warehouse/templates/manage/manage_base.html:148
 msgid "close"
-msgstr "sulje"
+msgstr ""
 
 #: warehouse/templates/manage/manage_base.html:164
 msgid "Enter your password to continue."
-msgstr "Syötä salasanasi jatkaaksesi."
+msgstr ""
 
 #: warehouse/templates/manage/manage_project_base.html:21
 #, python-format
@@ -2637,11 +2558,11 @@ msgstr ""
 #: warehouse/templates/manage/projects.html:58
 #, python-format
 msgid "Your projects (%(project_count)s)"
-msgstr "Projektisi (%(project_count)s)"
+msgstr ""
 
 #: warehouse/templates/manage/manage_project_base.html:41
 msgid "Back to projects"
-msgstr "Takaisin projekteihin"
+msgstr ""
 
 #: warehouse/templates/manage/projects.html:22
 #, python-format
@@ -2652,7 +2573,7 @@ msgstr ""
 #: warehouse/templates/manage/projects.html:80
 #, python-format
 msgid "Created %(creation_date)s"
-msgstr "Luotu %(creation_date)s"
+msgstr ""
 
 #: warehouse/templates/manage/projects.html:68
 msgid "Sole owner"
@@ -2664,7 +2585,7 @@ msgstr ""
 
 #: warehouse/templates/manage/projects.html:92
 msgid "You are not an owner of this project"
-msgstr "Et ole tämän projektin omistaja"
+msgstr ""
 
 #: warehouse/templates/manage/projects.html:99
 msgid "View this project's public page"
@@ -3149,10 +3070,8 @@ msgid "Project settings"
 msgstr ""
 
 #: warehouse/templates/manage/settings.html:23
-#, fuzzy
-#| msgid "Project name"
 msgid "Project size:"
-msgstr "Projektin nimi"
+msgstr ""
 
 #: warehouse/templates/manage/settings.html:31
 #: warehouse/templates/manage/settings.html:39
@@ -3371,7 +3290,7 @@ msgstr ""
 
 #: warehouse/templates/manage/account/recovery_codes-provision.html:17
 msgid "Account recovery codes"
-msgstr "Tilin palautuskoodit"
+msgstr ""
 
 #: warehouse/templates/manage/account/recovery_codes-provision.html:46
 msgid ""
@@ -3395,7 +3314,7 @@ msgstr ""
 
 #: warehouse/templates/manage/account/recovery_codes-provision.html:52
 msgid "Save your recovery codes"
-msgstr "Tallenna palautuskoodisi"
+msgstr ""
 
 #: warehouse/templates/manage/account/recovery_codes-provision.html:68
 msgid "Download as file"
@@ -3697,19 +3616,12 @@ msgid "Note:"
 msgstr ""
 
 #: warehouse/templates/pages/help.html:20
-#, fuzzy, python-format
-#| msgid ""
-#| "For more information on uploading projects to PyPI, visit the <a href="
-#| "\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener"
-#| "\">Python Packaging User Guide</a>."
+#, python-format
 msgid ""
 "All users submitting feedback, reporting issues or contributing to Warehouse "
 "are expected to follow the <a href=\"%(href)s\" title=\"%(title)s\" target="
 "\"_blank\" rel=\"noopener\">PSF Code of Conduct</a>."
 msgstr ""
-"Lisätietoja projektien lataamisesta PyPI:in on <a href=\"%(href)s\" title="
-"\"%(title)s\" target=\"_blank\" rel=\"noopener\">Python Packaging User "
-"Guidessa</a>."
 
 #: warehouse/templates/pages/help.html:31
 #, python-format
@@ -4699,19 +4611,12 @@ msgid ""
 msgstr ""
 
 #: warehouse/templates/pages/help.html:596
-#, fuzzy, python-format
-#| msgid ""
-#| "For more information on uploading projects to PyPI, visit the <a href="
-#| "\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener"
-#| "\">Python Packaging User Guide</a>."
+#, python-format
 msgid ""
 "If that is not possible, we can sometimes increase your limit. <a href="
 "\"%(file_issue_href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener"
 "\">File an issue</a> and tell us:"
 msgstr ""
-"Lisätietoja projektien lataamisesta PyPI:in on <a href=\"%(href)s\" title="
-"\"%(title)s\" target=\"_blank\" rel=\"noopener\">Python Packaging User "
-"Guidessa</a>."
 
 #: warehouse/templates/pages/help.html:602
 msgid "The total size of your project, in gigabytes"
@@ -4805,18 +4710,11 @@ msgid ""
 msgstr ""
 
 #: warehouse/templates/pages/help.html:650
-#, fuzzy, python-format
-#| msgid ""
-#| "For more information on uploading projects to PyPI, visit the <a href="
-#| "\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener"
-#| "\">Python Packaging User Guide</a>."
+#, python-format
 msgid ""
 "This is a <a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel="
 "\"noopener\">known issue</a> with Python's <code>getpass</code> module."
 msgstr ""
-"Lisätietoja projektien lataamisesta PyPI:in on <a href=\"%(href)s\" title="
-"\"%(title)s\" target=\"_blank\" rel=\"noopener\">Python Packaging User "
-"Guidessa</a>."
 
 #: warehouse/templates/pages/help.html:657
 #, python-format
@@ -5294,8 +5192,6 @@ msgid ""
 "The successful relaunch of the Python Package Index, powered by the new "
 "'Warehouse' codebase"
 msgstr ""
-"Python Package Index:n onnistunut uudelleenkäynnistys, perustuen uuteen "
-"\"Warehouse\"-koodipohjaan"
 
 #: warehouse/templates/pages/sponsors.html:33
 #, python-format
@@ -5355,10 +5251,8 @@ msgid ""
 msgstr ""
 
 #: warehouse/templates/pages/sponsors.html:57
-#, fuzzy
-#| msgid "Sponsor"
 msgid "PSF Sponsorship"
-msgstr "Sponsori"
+msgstr ""
 
 #: warehouse/templates/pages/sponsors.html:60
 msgid ""
@@ -5565,8 +5459,3 @@ msgid_plural ""
 "                "
 msgstr[0] ""
 msgstr[1] ""
-
-#, fuzzy
-#~| msgid "Privacy policy"
-#~ msgid "PyPI security policy"
-#~ msgstr "Tietosuojakäytäntö"

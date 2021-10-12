@@ -1,12 +1,13 @@
 # lu$er <team19devs@gmail.com>, 2020.
 # Beck Jacob <jp-beck@outlook.com>, 2021.
+# behzod musurmonqulov <behzodmusurmonqulov@gmail.com>, 2021.
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: admin@pypi.org\n"
 "POT-Creation-Date: 2020-09-09 20:34+0200\n"
-"PO-Revision-Date: 2021-02-06 17:50+0000\n"
-"Last-Translator: Beck Jacob <jp-beck@outlook.com>\n"
+"PO-Revision-Date: 2021-08-31 15:46+0000\n"
+"Last-Translator: behzod musurmonqulov <behzodmusurmonqulov@gmail.com>\n"
 "Language-Team: Uzbek (latin) <https://hosted.weblate.org/projects/pypa/"
 "warehouse/uz_Latn/>\n"
 "Language: uz_Latn\n"
@@ -14,11 +15,11 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Generator: Weblate 4.5-dev\n"
+"X-Generator: Weblate 4.8.1-dev\n"
 
 #: warehouse/views.py:254
 msgid "Locale updated"
-msgstr ""
+msgstr "Mahalliy til yangilandi"
 
 #: warehouse/accounts/forms.py:43
 msgid "No user found with that username"
@@ -99,7 +100,7 @@ msgstr ""
 
 #: warehouse/accounts/forms.py:304
 msgid "Invalid TOTP code."
-msgstr ""
+msgstr "TOTP kodi not`g`ri"
 
 #: warehouse/accounts/forms.py:321
 msgid "Invalid WebAuthn assertion: Bad payload"
@@ -107,216 +108,238 @@ msgstr ""
 
 #: warehouse/accounts/forms.py:364
 msgid "Invalid recovery code."
-msgstr ""
+msgstr "Qayta tiklash kodi yaroqsiz."
 
 #: warehouse/accounts/forms.py:382
 msgid "No user found with that username or email"
-msgstr ""
+msgstr "Bu foydalanuvchi nomi elektron pochtasi bilan hech kim topilmadi"
 
 #: warehouse/accounts/views.py:93
 msgid ""
 "Too many emails have been added to this account without verifying them. "
 "Check your inbox and follow the verification links. (IP: ${ip})"
 msgstr ""
+"Bu hisobga tasdiqlanmagan juda ko'p elektron pochta xabarlari qo'shilgan. "
+"Kirish qutisini tekshiring va havolalarni tekshiring. (IP: ${ip})"
 
 #: warehouse/accounts/views.py:232 warehouse/accounts/views.py:289
 #: warehouse/accounts/views.py:291 warehouse/accounts/views.py:318
 #: warehouse/accounts/views.py:320 warehouse/accounts/views.py:375
 msgid "Invalid or expired two factor login."
-msgstr ""
+msgstr "Noto'g'ri yoki muddati ikki faktorli kirish."
 
 #: warehouse/accounts/views.py:283
 msgid "Already authenticated"
-msgstr ""
+msgstr "Allaqachon tasdiqlangan"
 
 #: warehouse/accounts/views.py:351
 msgid "Successful WebAuthn assertion"
-msgstr ""
+msgstr "Muvaffaqiyatli WebAuthn tasdiqlash"
 
 #: warehouse/accounts/views.py:404
 msgid "Recovery code accepted. The supplied code cannot be used again."
 msgstr ""
+"Qayta tiklash kodi qabul qilindi. Taqdim etilgan kodni qayta ishlatib "
+"bo'lmaydi."
 
 #: warehouse/accounts/views.py:490
 msgid ""
 "New user registration temporarily disabled. See https://pypi.org/help#admin-"
 "intervention for details."
 msgstr ""
+"Yangi foydalanuvchilarni ro'yxatga olish vaqtincha o'chirilgan. Tafsilotlar "
+"uchun https://pypi.org/help#admin-intervention ga qarang."
 
 #: warehouse/accounts/views.py:607
 msgid "Expired token: request a new password reset link"
-msgstr ""
+msgstr "Muddati o' tgan token: parolni qayta tiklash havolasini so'rang"
 
 #: warehouse/accounts/views.py:609
 msgid "Invalid token: request a new password reset link"
-msgstr ""
+msgstr "Noto'g'ri belgi: yangi parolni tiklash havolasini so'rang"
 
 #: warehouse/accounts/views.py:611 warehouse/accounts/views.py:694
 #: warehouse/accounts/views.py:790
 msgid "Invalid token: no token supplied"
-msgstr ""
+msgstr "Noto'g'ri token: hech qanday token berilmagan"
 
 #: warehouse/accounts/views.py:615
 msgid "Invalid token: not a password reset token"
-msgstr ""
+msgstr "Noto'g'ri belgi: parolni tiklash belgisi emas"
 
 #: warehouse/accounts/views.py:620
 msgid "Invalid token: user not found"
-msgstr ""
+msgstr "Xato token: foydalanuvchi mavjud emas"
 
 #: warehouse/accounts/views.py:627
 msgid "Invalid token: user has logged in since this token was requested"
 msgstr ""
+"Noto'g'ri token: foydalanuvchi bu token so'ralganidan beri tizimga kirgan"
 
 #: warehouse/accounts/views.py:636
 msgid ""
 "Invalid token: password has already been changed since this token was "
 "requested"
 msgstr ""
+"Yaroqsiz token: token so'ralgandan beri parol allaqachon o'zgartirilgan"
 
 #: warehouse/accounts/views.py:663
 msgid "You have reset your password"
-msgstr ""
+msgstr "siz parolingizni qayta tiklagansiz"
 
 #: warehouse/accounts/views.py:690
 msgid "Expired token: request a new email verification link"
 msgstr ""
+"Muddati tugagan token: elektron pochtani tasdiqlash uchun yangi havolani "
+"so'rang"
 
 #: warehouse/accounts/views.py:692
 msgid "Invalid token: request a new email verification link"
 msgstr ""
+"Noto'g'ri belgi: elektron pochtani tasdiqlash uchun yangi havolani so'rang"
 
 #: warehouse/accounts/views.py:698
 msgid "Invalid token: not an email verification token"
-msgstr ""
+msgstr "Noto'g'ri token: elektron pochta tasdiqlash belgisi emas"
 
 #: warehouse/accounts/views.py:707
 msgid "Email not found"
-msgstr ""
+msgstr "Email topilmadi"
 
 #: warehouse/accounts/views.py:710
 msgid "Email already verified"
-msgstr ""
+msgstr "E -pochta manzili allaqachon tasdiqlangan"
 
 #: warehouse/accounts/views.py:725
 msgid "You can now set this email as your primary address"
 msgstr ""
+"Endi siz ushbu elektron pochtani asosiy manzil sifatida belgilashingiz mumkin"
 
 #: warehouse/accounts/views.py:729
 msgid "This is your primary address"
-msgstr ""
+msgstr "Bu sizning asosiy manzilingiz"
 
 #: warehouse/accounts/views.py:734
 msgid "Email address ${email_address} verified. ${confirm_message}."
-msgstr ""
+msgstr "Email adress ${email_address} tasdiqlangan. ${confirm_message}."
 
 #: warehouse/accounts/views.py:786
 msgid "Expired token: request a new project role invite"
-msgstr ""
+msgstr "Muddati o'tgan token: yangi loyiha rolini taklif qilishni so'rang"
 
 #: warehouse/accounts/views.py:788
 msgid "Invalid token: request a new project role invite"
-msgstr ""
+msgstr "Noto'g'ri belgi: yangi loyiha rolini taklif qilishni so'rang"
 
 #: warehouse/accounts/views.py:794
 msgid "Invalid token: not a collaboration invitation token"
-msgstr ""
+msgstr "Noto'g'ri token: hamkorlik taklifnomasi emas"
 
 #: warehouse/accounts/views.py:798
 msgid "Role invitation is not valid."
-msgstr ""
+msgstr "Rol taklifi haqiqiy emas."
 
 #: warehouse/accounts/views.py:813
 msgid "Role invitation no longer exists."
-msgstr ""
+msgstr "Rol taklifnomasi endi yo'q."
 
 #: warehouse/accounts/views.py:825
 msgid "Invitation for '${project_name}' is declined."
-msgstr ""
+msgstr "\"$ {Project_name}\" taklifi rad etildi."
 
 #: warehouse/accounts/views.py:892
 msgid "You are now ${role} of the '${project_name}' project."
-msgstr ""
+msgstr "Siz hozir \"$ {project_name}\" loyihasining $ {role} a'zosisiz."
 
 #: warehouse/admin/templates/admin/banners/preview.html:15
 msgid "Banner Preview"
-msgstr ""
+msgstr "Bannerni oldindan ko'rish"
 
 #: warehouse/manage/views.py:205
 msgid "Email ${email_address} added - check your email for a verification link"
 msgstr ""
+"$ {Email_address} elektron pochtasi qo'shildi - elektron pochta manzilini "
+"tekshirish havolasini tekshiring"
 
 #: warehouse/manage/views.py:692 warehouse/manage/views.py:728
 msgid ""
 "You must provision a two factor method before recovery codes can be generated"
 msgstr ""
+"Qayta tiklash kodlari yaratilishidan oldin siz ikki faktorli usulni taqdim "
+"etishingiz kerak"
 
 #: warehouse/manage/views.py:703
 msgid "Recovery codes already generated"
-msgstr ""
+msgstr "Qayta tiklash kodlari allaqachon yaratilgan"
 
 #: warehouse/manage/views.py:704
 msgid "Generating new recovery codes will invalidate your existing codes."
-msgstr ""
+msgstr "Yangi qutqaruv kodlarini yaratish mavjud kodlarni bekor qiladi."
 
 #: warehouse/manage/views.py:755
 msgid "Invalid credentials. Try again"
-msgstr ""
+msgstr "Hisob ma'lumotlari noto'g'ri. Qayta urinib ko'ring"
 
 #: warehouse/manage/views.py:1503
 msgid "User '${username}' already has ${role_name} role for project"
 msgstr ""
+"\"$ {Username}\" foydalanuvchisi allaqachon loyiha uchun $ {role_name} "
+"roliga ega"
 
 #: warehouse/manage/views.py:1514
 msgid ""
 "User '${username}' does not have a verified primary email address and cannot "
 "be added as a ${role_name} for project"
 msgstr ""
+"\"$ {Username}\" foydalanuvchisi tasdiqlangan asosiy elektron pochta "
+"manziliga ega emas va uni loyihaga $ {role_name} sifatida qo'shib bo'lmaydi"
 
 #: warehouse/manage/views.py:1527
 msgid ""
 "User '${username}' already has an active invite. Please try again later."
 msgstr ""
+"\"$ {Username}\" foydalanuvchisida allaqachon faol taklif mavjud. Iltimos "
+"keyinroq qayta urinib ko'ring."
 
 #: warehouse/manage/views.py:1585
 msgid "Invitation sent to '${username}'"
-msgstr ""
+msgstr "\"$ {Username}\" ga taklifnoma yuborildi"
 
 #: warehouse/manage/views.py:1632
 msgid "Could not find role invitation."
-msgstr ""
+msgstr "Rol taklifnomasi topilmadi."
 
 #: warehouse/manage/views.py:1643
 msgid "Invitation already expired."
-msgstr ""
+msgstr "Taklif muddati tugagan."
 
 #: warehouse/manage/views.py:1667
 msgid "Invitation revoked from '${username}'."
-msgstr ""
+msgstr "\"$ {Username}\" dan taklifnoma bekor qilindi."
 
 #: warehouse/templates/403.html:16
 msgid "Access Denied / Forbidden (403)"
-msgstr ""
+msgstr "Kirish taqiqlangan / taqiqlangan (403)"
 
 #: warehouse/templates/403.html:18
 msgid "You don't have permission to view this page"
-msgstr ""
+msgstr "Sizda bu sahifani ko'rishga ruxsat yo'q"
 
 #: warehouse/templates/404.html:16
 msgid "Page Not Found (404)"
-msgstr ""
+msgstr "Sahifa topilmadi (404)"
 
 #: warehouse/templates/404.html:18
 msgid "We looked everywhere but couldn't find this page"
-msgstr ""
+msgstr "Biz hamma joyga qaradik, lekin bu sahifani topa olmadik"
 
 #: warehouse/templates/404.html:29
 msgid "And now for something <br><span>completely different</span>"
-msgstr ""
+msgstr "Va endi <span> butunlay boshqacha </span>"
 
 #: warehouse/templates/404.html:32
 msgid "Monty Python - The Cheese Shop Sketch"
-msgstr ""
+msgstr "Monti Python - pishloq do'konining eskizi"
 
 #: warehouse/templates/404.html:34 warehouse/templates/500.html:28
 #: warehouse/templates/500.html:29
@@ -416,27 +439,27 @@ msgstr ""
 #: warehouse/templates/pages/sponsors.html:64
 #: warehouse/templates/upload.html:26
 msgid "External link"
-msgstr ""
+msgstr "Tashqi havola"
 
 #: warehouse/templates/404.html:34
 msgid "View video transcript"
-msgstr ""
+msgstr "Video transkriptini ko'rish"
 
 #: warehouse/templates/410.html:16
 msgid "Page removed (410)"
-msgstr ""
+msgstr "Sahifa olib tashlandi (410)"
 
 #: warehouse/templates/410.html:18
 msgid "The page you are looking for has been removed"
-msgstr ""
+msgstr "Siz qidirayotgan sahifa o'chirildi"
 
 #: warehouse/templates/500.html:16
 msgid "Internal server error (500)"
-msgstr ""
+msgstr "Ichki server xatosi (500)"
 
 #: warehouse/templates/500.html:18
 msgid "Something went wrong"
-msgstr ""
+msgstr "Nimadir noto'g'ri bajarildi"
 
 #: warehouse/templates/500.html:22
 msgid ""
@@ -444,22 +467,25 @@ msgid ""
 "serve you this site.</p> <p>We are aware of the problem and are working to "
 "resolve it as soon as possible.</p>"
 msgstr ""
+"<p>Sizga texnik xizmat ko'rsatishda muammolarga duch kelmoqdamiz.</p> <p>Biz "
+"muammodan xabardormiz va uni imkon qadar tezroq hal qilishga harakat "
+"qilyapmiz.</p>"
 
 #: warehouse/templates/500.html:28
 msgid "Check our status page"
-msgstr ""
+msgstr "Bizning status sahifamizni tekshiring"
 
 #: warehouse/templates/500.html:29
 msgid "View Python Status on Twitter"
-msgstr ""
+msgstr "Twitter -da Python holatini ko'rish"
 
 #: warehouse/templates/500.html:32
 msgid "Error code 500"
-msgstr ""
+msgstr "Xato kodi 500"
 
 #: warehouse/templates/500.html:36
 msgid "Rely on PyPI to get your job done?"
-msgstr ""
+msgstr "Ishingizni bajarish uchun PyPI -ga ishonasizmi?"
 
 #: warehouse/templates/500.html:37
 msgid ""
@@ -468,25 +494,32 @@ msgid ""
 "contribute/transact?reset=1&id=13\" target=\"_blank\" rel=\"noopener\"> "
 "donating </a> to help us build a more stable and secure platform."
 msgstr ""
+"<a href=\"https://github.com/ pypa /warehouse\" target=\"_blank\" rel="
+"\"noopener\"> hissa qo'shish </a> yoki <a href = \"https://psfmember.org/"
+"civicrm/ hissa/trakt? reset = 1 & id = 13 \"target =\" _ blank \"rel =\" "
+"noopener \"> xayriya qilish </a> bizga yanada barqaror va xavfsizroq "
+"platforma yaratishga yordam beradi."
 
 #: warehouse/templates/base.html:24
 msgid ""
 "Choose a strong password that contains letters (uppercase and lowercase), "
 "numbers and special characters. Avoid common words or repetition."
 msgstr ""
+"Harflardan(katta va kichik), raqamlardan va maxsus belgilardan tashkil "
+"topgan qiyin parol tanlang. Oddiy so'zlardan yoki takrorlashdan saqlaning."
 
 #: warehouse/templates/base.html:27
 msgid "Password strength:"
-msgstr ""
+msgstr "Kalit so'z mustahkamligi:"
 
 #: warehouse/templates/base.html:30
 msgid "Password field is empty"
-msgstr ""
+msgstr "Parol maydoni bo'sh"
 
 #: warehouse/templates/base.html:39 warehouse/templates/base.html:47
 #: warehouse/templates/includes/current-user-indicator.html:17
 msgid "Main navigation"
-msgstr ""
+msgstr "Asosiy navigatsiya"
 
 #: warehouse/templates/base.html:41 warehouse/templates/base.html:55
 #: warehouse/templates/base.html:265
@@ -494,61 +527,63 @@ msgstr ""
 #: warehouse/templates/pages/help.html:103
 #: warehouse/templates/pages/sitemap.html:27
 msgid "Help"
-msgstr ""
+msgstr "Yordam"
 
 #: warehouse/templates/base.html:42 warehouse/templates/base.html:56
 #: warehouse/templates/includes/current-user-indicator.html:61
 #: warehouse/templates/pages/sitemap.html:41
 #: warehouse/templates/pages/sponsors.html:15
 msgid "Sponsors"
-msgstr ""
+msgstr "Hamkorlar"
 
 #: warehouse/templates/accounts/login.html:18
 #: warehouse/templates/accounts/login.html:88 warehouse/templates/base.html:43
 #: warehouse/templates/base.html:57
 msgid "Log in"
-msgstr ""
+msgstr "Kirish"
 
 #: warehouse/templates/base.html:44 warehouse/templates/base.html:58
 #: warehouse/templates/pages/sitemap.html:33
 msgid "Register"
-msgstr ""
+msgstr "Ro'yxatdan o'tish"
 
 #: warehouse/templates/base.html:48
 #: warehouse/templates/includes/current-user-indicator.html:18
 msgid "View menu"
-msgstr ""
+msgstr "Ko'rish menyusi"
 
 #: warehouse/templates/base.html:49
 msgid "Menu"
-msgstr ""
+msgstr "Menyu"
 
 #: warehouse/templates/base.html:54
 #: warehouse/templates/includes/current-user-indicator.html:25
 msgid "Main menu"
-msgstr ""
+msgstr "Asosiy menyu"
 
 #: warehouse/templates/base.html:81 warehouse/templates/index.html:109
 msgid ""
 "The Python Package Index (PyPI) is a repository of software for the Python "
 "programming language."
 msgstr ""
+"Python Paket indeksi (PyPI) - Python dasturlash tili uchun dasturiy ta'minot "
+"ombori."
 
 #: warehouse/templates/base.html:97
 msgid "RSS: 40 latest updates"
-msgstr ""
+msgstr "RSS: 40 ta so'nggi yangilanishlar"
 
 #: warehouse/templates/base.html:98
 msgid "RSS: 40 newest packages"
-msgstr ""
+msgstr "RSS: 40 ta eng yangi to'plam"
 
 #: warehouse/templates/base.html:150
 msgid "Skip to main content"
-msgstr ""
+msgstr "Asosiy tarkibga o'tish"
 
 #: warehouse/templates/base.html:153
 msgid "Switch to mobile version"
-msgstr ""
+msgstr "Mobil versiyaga o'tish"
 
 #: warehouse/templates/base.html:162 warehouse/templates/base.html:171
 #: warehouse/templates/base.html:181
@@ -560,11 +595,13 @@ msgstr ""
 #: warehouse/templates/manage/release.html:163
 #: warehouse/templates/manage/settings.html:76
 msgid "Warning"
-msgstr ""
+msgstr "Ogohlantirish"
 
 #: warehouse/templates/base.html:164
 msgid "You are using an unsupported browser, upgrade to a newer version."
 msgstr ""
+"Siz qo'llab -quvvatlanmaydigan brauzerdan foydalanmoqdasiz, yangi versiyaga "
+"yangilang."
 
 #: warehouse/templates/base.html:173
 msgid ""
@@ -572,94 +609,99 @@ msgid ""
 "that allows you to try distribution tools and processes without affecting "
 "the real index."
 msgstr ""
+"Siz TestPyPI -dan foydalanayapsiz - bu haqiqiy indeksga ta'sir qilmasdan "
+"tarqatish vositalari va jarayonlarini sinab ko'rish imkonini beruvchi Python "
+"Paket indeksining alohida namunasi ."
 
 #: warehouse/templates/base.html:183
 msgid ""
 "Some features may not work without JavaScript. Please try enabling it if you "
 "encounter problems."
 msgstr ""
+"Ba'zi funktsiyalar JavaScriptsiz ishlamasligi mumkin. Agar muammoga duch "
+"kelsangiz, uni yoqishga harakat qiling."
 
 #: warehouse/templates/base.html:221 warehouse/templates/base.html:242
 #: warehouse/templates/error-base-with-search.html:20
 #: warehouse/templates/index.html:55
 msgid "Search PyPI"
-msgstr ""
+msgstr "PyPI -ni qidiring"
 
 #: warehouse/templates/base.html:222 warehouse/templates/base.html:243
 #: warehouse/templates/error-base-with-search.html:21
 #: warehouse/templates/index.html:58
 msgid "Search projects"
-msgstr ""
+msgstr "Loyihalarni qidirish"
 
 #: warehouse/templates/base.html:226 warehouse/templates/base.html:247
 #: warehouse/templates/error-base-with-search.html:24
 #: warehouse/templates/index.html:62
 msgid "Search"
-msgstr ""
+msgstr "Qidirish"
 
 #: warehouse/templates/base.html:266
 msgid "Help navigation"
-msgstr ""
+msgstr "Navigatsiya yordami"
 
 #: warehouse/templates/base.html:268
 msgid "Installing packages"
-msgstr ""
+msgstr "Paketlarni o'rnatish"
 
 #: warehouse/templates/base.html:269
 msgid "Uploading packages"
-msgstr ""
+msgstr "Paketlar yuklanmoqda"
 
 #: warehouse/templates/base.html:270
 msgid "User guide"
-msgstr ""
+msgstr "Foydalanuvchi uchun qo'llanma"
 
 #: warehouse/templates/base.html:271
 msgid "FAQs"
-msgstr ""
+msgstr "Tez -tez beriladigan savollar"
 
 #: warehouse/templates/base.html:277 warehouse/templates/pages/sitemap.html:37
 msgid "About PyPI"
-msgstr ""
+msgstr "PyPI haqida"
 
 #: warehouse/templates/base.html:278
 msgid "About PyPI navigation"
-msgstr ""
+msgstr "PyPI navigatsiyasi haqida"
 
 #: warehouse/templates/base.html:280
 msgid "PyPI on Twitter"
-msgstr ""
+msgstr "Twitterda PyPI"
 
 #: warehouse/templates/base.html:281
 msgid "Infrastructure dashboard"
-msgstr ""
+msgstr "Infratuzilma asboblar paneli"
 
 #: warehouse/templates/base.html:282
 msgid "Package index name retention"
-msgstr ""
+msgstr "Paket indeksining nomini saqlash"
 
 #: warehouse/templates/base.html:283
 msgid "Our sponsors"
-msgstr ""
+msgstr "Bizning homiylarimiz"
 
 #: warehouse/templates/base.html:289
 msgid "Contributing to PyPI"
-msgstr ""
+msgstr "PyPI -ga hissa qo'shish"
 
 #: warehouse/templates/base.html:290
 msgid "How to contribute navigation"
-msgstr ""
+msgstr "Navigatsiyaga qanday hissa qo'shish kerak"
 
 #: warehouse/templates/base.html:292
 msgid "Bugs and feedback"
-msgstr ""
+msgstr "Xato va mulohazalar"
 
 #: warehouse/templates/base.html:293
 msgid "Contribute on GitHub"
-msgstr ""
+msgstr "GitHub -ga o'z hissangizni qo'shing"
 
 #: warehouse/templates/base.html:294
 msgid "Translate PyPI"
-msgstr ""
+msgstr "PyPI -ni tarjima qiling"
 
 #: warehouse/templates/base.html:295
 msgid "Development credits"
@@ -3089,7 +3131,7 @@ msgid "Project settings"
 msgstr ""
 
 #: warehouse/templates/manage/settings.html:23
-msgid "Project size :"
+msgid "Project size:"
 msgstr ""
 
 #: warehouse/templates/manage/settings.html:31

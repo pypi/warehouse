@@ -16,6 +16,7 @@ import factory.fuzzy
 import pretend
 import pytest
 
+from pyramid.httpexceptions import HTTPBadRequest
 from sqlalchemy.orm.exc import NoResultFound
 
 from tests.common.db.packaging import ProjectFactory, ReleaseFactory
@@ -289,7 +290,7 @@ def test_analyze_vulnerability_release_not_found(db_request, metrics):
 
     metrics = pretend.stub(increment=metrics_increment, timed=metrics.timed)
 
-    with pytest.raises(NoResultFound):
+    with pytest.raises(HTTPBadRequest):
         utils.analyze_vulnerability(
             request=db_request,
             vulnerability_report={
@@ -309,7 +310,7 @@ def test_analyze_vulnerability_release_not_found(db_request, metrics):
         (
             "warehouse.vulnerabilities.error.release_not_found",
             ("origin:test_report_source",),
-        ): 1,
+        ): 2,
     }
 
 

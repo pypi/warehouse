@@ -19,8 +19,8 @@ msgstr ""
 "Project-Id-Version: Warehouse VERSION\n"
 "Report-Msgid-Bugs-To: admin@pypi.org\n"
 "POT-Creation-Date: 2020-04-06 17:52-0500\n"
-"PO-Revision-Date: 2021-07-16 09:45+0000\n"
-"Last-Translator: STAM <stam@epicm.org>\n"
+"PO-Revision-Date: 2021-08-30 11:28+0000\n"
+"Last-Translator: Mingun <Alexander_Sergey@mail.ru>\n"
 "Language-Team: Russian <https://hosted.weblate.org/projects/pypa/warehouse/"
 "ru/>\n"
 "Language: ru\n"
@@ -29,7 +29,7 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=n%10==1 && n%100!=11 ? 0 : n%10>=2 && n"
 "%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2;\n"
-"X-Generator: Weblate 4.7.2-dev\n"
+"X-Generator: Weblate 4.8.1-dev\n"
 "Generated-By: Babel 2.8.0\n"
 
 #: warehouse/views.py:254
@@ -795,11 +795,10 @@ msgstr ""
 "Тестовая публикация Python’ьего пакета в тестовом указателе пакетов Python’а"
 
 #: warehouse/templates/index.html:45
-#, fuzzy
-#| msgid "Test Python package publishing with the Test Python Package Index"
 msgid "Develop the codebase behind PyPI with the Dev Python Package Index"
 msgstr ""
-"Тестовая публикация Python’ьего пакета в тестовом указателе пакетов Python’а"
+"Разрабатывайте кодовую базу для PyPI с помощью разработческого указателя "
+"пакетов Python’а"
 
 #: warehouse/templates/index.html:47
 msgid "Find, install and publish Python packages with the Python Package Index"
@@ -3476,7 +3475,9 @@ msgid "Project settings"
 msgstr "Настройки проекта"
 
 #: warehouse/templates/manage/settings.html:23
-msgid "Project size :"
+#, fuzzy
+#| msgid "Project size :"
+msgid "Project size:"
 msgstr "Размер проекта:"
 
 #: warehouse/templates/manage/settings.html:31
@@ -5702,16 +5703,7 @@ msgstr ""
 "<code>setuptools</code> и <code>pip</code>."
 
 #: warehouse/templates/pages/help.html:669
-#, fuzzy, python-format
-#| msgid ""
-#| "For help, go to <a href=\"%(irc_href)s\" title=\"%(title)s\" target="
-#| "\"_blank\" rel=\"noopener\">the <code>#pypa</code> IRC channel on Libera</"
-#| "a>, file an issue at <a href=\"%(issue_tracker_href)s\" title=\"%(title)s"
-#| "\" target=\"_blank\" rel=\"noopener\">pypa/packaging-problems/issues</a>, "
-#| "or <a href=\"%(mailing_list_href)s\" title=\"%(title)s\" target=\"_blank"
-#| "\" rel=\"noopener\">post to the python-help mailing list</a>, including "
-#| "your OS and installation details and the output of <code>%(command)s</"
-#| "code>."
+#, python-format
 msgid ""
 "For help, go to <a href=\"%(irc_href)s\" title=\"%(title)s\" target=\"_blank"
 "\" rel=\"noopener\">the <code>#pypa</code> IRC channel on Libera</a>, file "
@@ -5725,8 +5717,8 @@ msgstr ""
 "\" target=\"_blank\" rel=\"noopener\">IRC-канал <code>#pypa</code> на "
 "Libera</a>, заведите замечание на <a href=\"%(issue_tracker_href)s\" title="
 "\"%(title)s\" target=\"_blank\" rel=\"noopener\">pypa/packaging-problems/"
-"issues</a> или <a href=\"%(mailing_list_href)s\" title=\"%(title)s\" target="
-"\"_blank\" rel=\"noopener\">напишите в список рассылки python-help</a>, "
+"issues</a> или <a href=\"%(discourse_href)s\" title=\"%(title)s\" target="
+"\"_blank\" rel=\"noopener\">присоединитесь к обсуждению в Discourse</a>, "
 "включив в сообщение сведения о вашей операционной системе и сведения об "
 "установке, а также вывод команды <code>%(command)s</code>."
 
@@ -6159,15 +6151,7 @@ msgid "Contact"
 msgstr "Контактная информация"
 
 #: warehouse/templates/pages/help.html:867
-#, fuzzy, python-format
-#| msgid ""
-#| "The <a href=\"%(pypa_href)s\" title=\"%(title)s\" target=\"_blank\" rel="
-#| "\"noopener\">Python Packaging Authority (PyPA)</a> is a working group who "
-#| "work together to improve Python packaging. If you'd like to get in touch "
-#| "with a core packaging developer, use <a href=\"%(irc_href)s\" title="
-#| "\"%(title)s\" target=\"_blank\" rel=\"noopener\">#pypa on IRC (Libera)</"
-#| "a>, or <a href=\"%(discuss_href)s\" title=\"%(title)s\" target=\"_blank\" "
-#| "rel=\"noopener\">browse the online board</a>."
+#, python-format
 msgid ""
 "The <a href=\"%(pypa_href)s\" title=\"%(title)s\" target=\"_blank\" rel="
 "\"noopener\">Python Packaging Authority (PyPA)</a> is a working group who "
@@ -6183,7 +6167,7 @@ msgstr ""
 "пакетирования в Python’е. Если вы хотите связаться с ключевыми "
 "разработчиками инструментов пакетирования, войдите в комнату <a href="
 "\"%(irc_href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener"
-"\">#pypa на IRC (Libera)</a> или <a href=\"%(discuss_href)s\" title="
+"\">#pypa на IRC (Libera)</a> или <a href=\"%(discourse_href)s\" title="
 "\"%(title)s\" target=\"_blank\" rel=\"noopener\">посмотрите эту онлайн-доску "
 "объявлений</a>."
 

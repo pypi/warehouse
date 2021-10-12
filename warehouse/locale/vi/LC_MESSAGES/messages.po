@@ -3403,7 +3403,7 @@ msgstr "Thiết lập dự án"
 #: warehouse/templates/manage/settings.html:23
 #, fuzzy
 #| msgid "Project:"
-msgid "Project size :"
+msgid "Project size:"
 msgstr "Dự án:"
 
 #: warehouse/templates/manage/settings.html:31

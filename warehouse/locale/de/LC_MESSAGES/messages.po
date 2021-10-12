@@ -14,13 +14,15 @@
 # Jeannette L <j.lavoie@net-c.ca>, 2020.
 # Clicks <bruno778.whiteelfie@gmail.com>, 2020.
 # J. Lavoie <j.lavoie@net-c.ca>, 2020.
+# Weiter Leitung <weiterleitung4@gmail.com>, 2021.
+# Pascal Vallaster <pascalvallaster@gmail.com>, 2021.
 msgid ""
 msgstr ""
 "Project-Id-Version: Warehouse VERSION\n"
 "Report-Msgid-Bugs-To: admin@pypi.org\n"
 "POT-Creation-Date: 2020-04-06 17:52-0500\n"
-"PO-Revision-Date: 2020-07-13 17:15+0000\n"
-"Last-Translator: J. Lavoie <j.lavoie@net-c.ca>\n"
+"PO-Revision-Date: 2021-09-08 10:05+0000\n"
+"Last-Translator: Weiter Leitung <weiterleitung4@gmail.com>\n"
 "Language-Team: German <https://hosted.weblate.org/projects/pypa/warehouse/de/"
 ">\n"
 "Language: de\n"
@@ -28,7 +30,7 @@ msgstr ""
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Generator: Weblate 4.2-dev\n"
+"X-Generator: Weblate 4.8.1-dev\n"
 "Generated-By: Babel 2.8.0\n"
 
 # | msgid "Stay updated:"
@@ -235,50 +237,42 @@ msgid "Email address ${email_address} verified. ${confirm_message}."
 msgstr "E-Mail-Adresse ${email_address} bestätigt. ${confirm_message}."
 
 #: warehouse/accounts/views.py:786
-#, fuzzy
-#| msgid "Expired token: request a new password reset link"
 msgid "Expired token: request a new project role invite"
-msgstr "Abgelaufenes Token: bitte neuen Passwort-Zurücksetzen-Link anfordern"
+msgstr "Abgelaufenes Token: Bitte neue Projekt-Rollen-Einladung anfordern"
 
 #: warehouse/accounts/views.py:788
-#, fuzzy
-#| msgid "Invalid token: request a new password reset link"
 msgid "Invalid token: request a new project role invite"
-msgstr "Ungültiges Token: bitte neuen Passwort-Zurücksetzen-Link anfordern"
+msgstr "Ungültiges Token: Bitte neue Projekt-Rollen-Einladung anfordern"
 
 #: warehouse/accounts/views.py:794
-#, fuzzy
-#| msgid "Invalid token: not an email verification token"
 msgid "Invalid token: not a collaboration invitation token"
-msgstr "Ungültiges Token: dies ist kein E-Mail-Bestätigungs-Token"
+msgstr "Ungültiges Token: Dies ist keine Einladung für eine Zusammenarbeit"
 
 #: warehouse/accounts/views.py:798
 msgid "Role invitation is not valid."
-msgstr ""
+msgstr "Rolleneinladung ist nicht gültig."
 
 #: warehouse/accounts/views.py:813
 msgid "Role invitation no longer exists."
-msgstr ""
+msgstr "Rolleneinladung ist nicht mehr existent."
 
 #: warehouse/accounts/views.py:825
 msgid "Invitation for '${project_name}' is declined."
-msgstr ""
+msgstr "Die Einladung für '${project_name}' wurde abgelehnt."
 
 #: warehouse/accounts/views.py:892
-#, fuzzy
-#| msgid "You are not an owner of this project"
 msgid "You are now ${role} of the '${project_name}' project."
-msgstr "Sie sind kein Besitzer dieses Projekts"
+msgstr "Sie sind nun '${role}' vom Projekt '${project_name}'."
 
 #: warehouse/admin/templates/admin/banners/preview.html:15
 msgid "Banner Preview"
-msgstr ""
+msgstr "Banner Vorschau"
 
 #: warehouse/manage/views.py:205
 msgid "Email ${email_address} added - check your email for a verification link"
 msgstr ""
-"E-Mail-Adresse ${email_address} hinzugefügt. Bitte mit dem Bestätigungslink "
-"in der eben verschickten E-Mail bestätigen."
+"E-Mail-Adresse ${email_address} hinzugefügt - Bitte überprüfen Sie ihre E-"
+"Mails auf einen Überprüfungslink."
 
 #: warehouse/manage/views.py:692 warehouse/manage/views.py:728
 msgid ""
@@ -303,36 +297,38 @@ msgstr "Ungültige Anmeldedaten. Erneut versuchen"
 
 #: warehouse/manage/views.py:1503
 msgid "User '${username}' already has ${role_name} role for project"
-msgstr ""
+msgstr "Der Benutzer '${username}' ist schon ${role_name} vom Projekt"
 
 #: warehouse/manage/views.py:1514
 msgid ""
 "User '${username}' does not have a verified primary email address and cannot "
 "be added as a ${role_name} for project"
 msgstr ""
+"Der Benutzer '${username}' hat keine gültige email Adresse und konnte nicht "
+"als '${role_name}' hinzugefügt werden"
 
 #: warehouse/manage/views.py:1527
 msgid ""
 "User '${username}' already has an active invite. Please try again later."
 msgstr ""
+"Der Benutzer '${username}' hat schon eine Einladung bekommen. Bitte versuche "
+"es später noch einmal."
 
 #: warehouse/manage/views.py:1585
 msgid "Invitation sent to '${username}'"
-msgstr ""
+msgstr "Die Einladung wurde '${username}' zugestellt"
 
 #: warehouse/manage/views.py:1632
 msgid "Could not find role invitation."
-msgstr ""
+msgstr "Es konnte keine Einladung für eine Berechtigungsrolle gefunden werden."
 
 #: warehouse/manage/views.py:1643
-#, fuzzy
-#| msgid "Email already verified"
 msgid "Invitation already expired."
-msgstr "E-Mail-Adresse ist schon verifiziert"
+msgstr "Die Einladung ist schon angelaufen."
 
 #: warehouse/manage/views.py:1667
 msgid "Invitation revoked from '${username}'."
-msgstr ""
+msgstr "Einladung von '${username}' wurde annuliert."
 
 #: warehouse/templates/403.html:16
 msgid "Access Denied / Forbidden (403)"
@@ -351,14 +347,12 @@ msgid "We looked everywhere but couldn't find this page"
 msgstr "Wir haben überall nachgesehen, konnten diese Seite aber nicht finden"
 
 #: warehouse/templates/404.html:29
-#, fuzzy
-#| msgid "And now for something <br><span>completely different"
 msgid "And now for something <br><span>completely different</span>"
-msgstr "Und nun zu etwas <br><span>völlig anderem"
+msgstr "Und nun zu etwas <br><span>völlig anderem</span>"
 
 #: warehouse/templates/404.html:32
 msgid "Monty Python - The Cheese Shop Sketch"
-msgstr "Monty Python - Der Cheese-Shop-Sketch"
+msgstr "Monty Python - Der Cheese-Shop Sketch"
 
 #: warehouse/templates/404.html:34 warehouse/templates/500.html:28
 #: warehouse/templates/500.html:29
@@ -777,10 +771,8 @@ msgid "Switch to desktop version"
 msgstr "Zur Desktop-Version wechseln"
 
 #: warehouse/templates/confirm-action.html:17
-#, fuzzy
-#| msgid "Confirm form"
 msgid "Confirm Action"
-msgstr "Bestätigungsformular"
+msgstr "Bestätige diese Aktion"
 
 #: warehouse/templates/error-base.html:31
 msgid "Error code"
@@ -866,11 +858,8 @@ msgid "Package authors use PyPI to distribute their software."
 msgstr "Paket-Entwickler benutzen PyPI, um ihre Software zu veröffentlichen."
 
 #: warehouse/templates/index.html:116
-#, fuzzy
-#| msgid "Learn how to package your Python code for PyPI</a>."
 msgid "Learn how to package your Python code for PyPI"
-msgstr ""
-"Wie wird Python-Software für die Veröffentlichung auf PyPI vorbereitet</a>?"
+msgstr "Erfahren sie hier wie sie ihren Python-Code für PyPI vorbereiten."
 
 #: warehouse/templates/index.html:126
 msgid "Trending projects"
@@ -1362,10 +1351,7 @@ msgstr ""
 "treten."
 
 #: warehouse/templates/email/added-as-collaborator/body.html:19
-#, fuzzy, python-format
-#| msgid ""
-#| "You have been added as <strong>%(role)s</strong> to the %(site)s project "
-#| "%(project)s by %(submitter)s."
+#, python-format
 msgid ""
 "You have been added as <strong>%(role)s</strong> to the %(site)s project "
 "%(project_name)s by %(initiator_username)s."
@@ -1374,16 +1360,13 @@ msgstr ""
 "Projekt %(project)s hinzugefügt."
 
 #: warehouse/templates/email/added-as-collaborator/body.html:24
-#, fuzzy, python-format
-#| msgid ""
-#| "You are receiving this because you have been added by %(submitter)s to a "
-#| "project on %(site)s."
+#, python-format
 msgid ""
 "You are receiving this because you have been added by %(initiator_username)s "
 "to a project on %(site)s."
 msgstr ""
-"Sie erhalten dies, weil sie von %(submitter)s zu einem Projekt auf %(site)s "
-"hinzugefügt wurden."
+"Sie erhalten dies, weil sie von %(initiator_username)s zu einem Projekt auf "
+"%(site)s hinzugefügt wurden."
 
 #: warehouse/templates/email/password-change/body.html:18
 #, python-format
@@ -1575,13 +1558,14 @@ msgstr ""
 # account "
 # | "<strong>%(username)s</strong>."
 #: warehouse/templates/email/two-factor-added/body.html:18
-#, fuzzy, python-format
+#, python-format
 msgid ""
 "Someone, perhaps you, has added a %(method)s two-factor authentication "
 "method to your PyPI account <strong>%(username)s</strong>."
 msgstr ""
-"Jemand, möglicherweise Sie selbst, hat das Passwort des PyPI-Kontos <strong>"
-"%(username)s</strong> geändert."
+"Jemand, möglicherweise Sie selbst, hat eine %(method)s "
+"Zweifaktorauthentifizerungsmethode zu Ihrem PyPI-Konto <strong>%(username)s</"
+"strong> hinzugefügt."
 
 # | msgid ""
 # | "Someone, perhaps you, has changed the password for your PyPI
@@ -3493,7 +3477,7 @@ msgstr "Projekt-Einstellungen"
 #: warehouse/templates/manage/settings.html:23
 #, fuzzy
 #| msgid "Project:"
-msgid "Project size :"
+msgid "Project size:"
 msgstr "Projekt:"
 
 #: warehouse/templates/manage/settings.html:31
