@@ -43,7 +43,7 @@
 
 // RESETS LAYER: applies CSS resets and sensible defaults
 @import "resets/boxsizing";
-@import "resets/normalize";
+@import "normalize.css/normalize.css";
 @import "resets/reset";
 
 // BASE LAYER: adds styles to anything without a class
