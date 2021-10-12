@@ -20,7 +20,7 @@ from zope.interface import implementer
 from warehouse.cache.http import add_vary_callback
 from warehouse.errors import WarehouseDenied
 from warehouse.macaroons.interfaces import IMacaroonService
-from warehouse.macaroons.services import InvalidMacaroon
+from warehouse.macaroons.services import InvalidMacaroonError
 
 
 def _extract_basic_macaroon(auth):
@@ -137,7 +137,7 @@ class MacaroonAuthorizationPolicy:
 
             try:
                 macaroon_service.verify(macaroon, context, principals, permission)
-            except InvalidMacaroon as exc:
+            except InvalidMacaroonError as exc:
                 return WarehouseDenied(
                     f"Invalid API Token: {exc!r}", reason="invalid_api_token"
                 )
