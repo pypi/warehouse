@@ -27,14 +27,14 @@ class TestCache:
     def test_get_no_cache(self):
         cache = integrations.PublicKeysCache(cache_time=10)
 
-        with pytest.raises(integrations.CacheMiss):
+        with pytest.raises(integrations.CacheMissError):
             cache.get(now=1)
 
     def test_get_old_cache(self):
         cache = integrations.PublicKeysCache(cache_time=10)
         cache.set(now=5, value="foo")
 
-        with pytest.raises(integrations.CacheMiss):
+        with pytest.raises(integrations.CacheMissError):
             cache.get(now=20)
 
     def test_get_valid(self):

@@ -218,14 +218,14 @@ class TestWarehouseTask:
         ]
 
     def test_run_retries_failed_transaction(self, metrics):
-        class RetryThisException(RetryableException):
+        class RetryThisError(RetryableException):
             pass
 
-        class Retry(Exception):
+        class RetryError(Exception):
             pass
 
         def run():
-            raise RetryThisException
+            raise RetryThisError
 
         task_type = type(
             "Foo",
@@ -233,7 +233,7 @@ class TestWarehouseTask:
             {
                 "name": "warehouse.test.task",
                 "run": staticmethod(run),
-                "retry": lambda *a, **kw: Retry(),
+                "retry": lambda *a, **kw: RetryError(),
             },
         )
 
@@ -248,11 +248,13 @@ class TestWarehouseTask:
         obj = task_type()
         obj.get_request = lambda: request
 
-        with pytest.raises(Retry):
+        with pytest.raises(RetryError):
             obj.run()
 
         assert request.tm.__enter__.calls == [pretend.call()]
-        assert request.tm.__exit__.calls == [pretend.call(Retry, mock.ANY, mock.ANY)]
+        assert request.tm.__exit__.calls == [
+            pretend.call(RetryError, mock.ANY, mock.ANY)
+        ]
         assert metrics.timed.calls == [
             pretend.call("warehouse.task.run", tags=["task:warehouse.test.task"])
         ]
@@ -261,11 +263,11 @@ class TestWarehouseTask:
         ]
 
     def test_run_doesnt_retries_failed_transaction(self, metrics):
-        class DontRetryThisException(Exception):
+        class DontRetryThisError(Exception):
             pass
 
         def run():
-            raise DontRetryThisException
+            raise DontRetryThisError
 
         task_type = type(
             "Foo",
@@ -284,12 +286,12 @@ class TestWarehouseTask:
         obj = task_type()
         obj.get_request = lambda: request
 
-        with pytest.raises(DontRetryThisException):
+        with pytest.raises(DontRetryThisError):
             obj.run()
 
         assert request.tm.__enter__.calls == [pretend.call()]
         assert request.tm.__exit__.calls == [
-            pretend.call(DontRetryThisException, mock.ANY, mock.ANY)
+            pretend.call(DontRetryThisError, mock.ANY, mock.ANY)
         ]
         assert metrics.timed.calls == [
             pretend.call("warehouse.task.run", tags=["task:warehouse.test.task"])

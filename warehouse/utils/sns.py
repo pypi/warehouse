@@ -26,7 +26,7 @@ from cryptography.hazmat.primitives.hashes import SHA1
 _signing_url_host_re = re.compile(r"^sns\.[a-zA-Z0-9\-]{3,}\.amazonaws\.com(\.cn)?$")
 
 
-class InvalidMessage(Exception):
+class InvalidMessageError(Exception):
     pass
 
 
@@ -37,7 +37,7 @@ class MessageVerifier:
 
     def verify(self, message):
         if message.get("SignatureVersion") != "1":
-            raise InvalidMessage("Unknown SignatureVersion")
+            raise InvalidMessageError("Unknown SignatureVersion")
 
         self._validate_signature(message)
         self._validate_timestamp(message["Timestamp"])
@@ -45,7 +45,7 @@ class MessageVerifier:
 
     def _validate_topic(self, topic):
         if topic not in self.topics:
-            raise InvalidMessage("Invalid TopicArn")
+            raise InvalidMessageError("Invalid TopicArn")
 
     def _validate_timestamp(self, timestamp_str):
         now = datetime.datetime.utcnow()
@@ -55,11 +55,11 @@ class MessageVerifier:
                 timestamp_str, "%Y-%m-%dT%H:%M:%S.%fZ"
             )
         except ValueError:
-            raise InvalidMessage("Unknown Timestamp format")
+            raise InvalidMessageError("Unknown Timestamp format")
 
         age = now - timestamp
         if age > datetime.timedelta(hours=1):
-            raise InvalidMessage("Message has expired")
+            raise InvalidMessageError("Message has expired")
 
     def _validate_signature(self, message):
         pubkey = self._get_pubkey(message["SigningCertURL"])
@@ -69,7 +69,7 @@ class MessageVerifier:
         try:
             pubkey.verify(signature, data, PKCS1v15(), SHA1())
         except _InvalidSignature:
-            raise InvalidMessage("Invalid Signature") from None
+            raise InvalidMessageError("Invalid Signature") from None
 
     def _get_pubkey(self, cert_url):
         # Before we do anything, we need to verify that the URL for the
@@ -78,9 +78,9 @@ class MessageVerifier:
         cert_scheme = cert_url_p.scheme
         cert_host = cert_url_p.netloc
         if cert_scheme != "https":
-            raise InvalidMessage("Invalid scheme for SigningCertURL")
+            raise InvalidMessageError("Invalid scheme for SigningCertURL")
         if _signing_url_host_re.fullmatch(cert_host) is None:
-            raise InvalidMessage("Invalid location for SigningCertURL")
+            raise InvalidMessageError("Invalid location for SigningCertURL")
 
         resp = self.http.get(cert_url)
         resp.raise_for_status()
@@ -97,7 +97,7 @@ class MessageVerifier:
         elif message["Type"] in {"SubscriptionConfirmation", "UnsubscribeConfirmation"}:
             parts = self._get_parts_to_sign_subscription(message)
         else:
-            raise InvalidMessage("Invalid Type")
+            raise InvalidMessageError("Invalid Type")
 
         return ("\n".join(parts) + "\n").encode("utf8")
 
