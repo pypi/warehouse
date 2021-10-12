@@ -136,6 +136,23 @@ def test_format_tags(inp, expected):
 
 
 @pytest.mark.parametrize(
+    ("inp", "expected"),
+    [
+        (
+            ["Foo :: Bar :: Baz", "Foo :: Bar :: Qux", "Vleep"],
+            [("Foo", ["Bar :: Baz", "Bar :: Qux"])],
+        ),
+        (
+            ["Foo :: Bar :: Baz", "Vleep :: Foo", "Foo :: Bar :: Qux"],
+            [("Foo", ["Bar :: Baz", "Bar :: Qux"]), ("Vleep", ["Foo"])],
+        ),
+    ],
+)
+def test_format_classifiers(inp, expected):
+    assert list(filters.format_classifiers(inp).items()) == expected
+
+
+@pytest.mark.parametrize(
     ("inp", "expected"), [("Foo", "Foo"), ("Foo :: Foo", "Foo_._Foo")]
 )
 def test_classifier_id(inp, expected):

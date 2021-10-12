@@ -42,7 +42,7 @@ class TestPurgeKey:
             requests.ConnectionError,
             requests.HTTPError,
             requests.Timeout,
-            fastly.UnsuccessfulPurge,
+            fastly.UnsuccessfulPurgeError,
         ],
     )
     def test_purges_fails(self, monkeypatch, exception_type):
@@ -204,7 +204,7 @@ class TestFastlyCache:
         requests_post = pretend.call_recorder(lambda *a, **kw: response)
         monkeypatch.setattr(requests, "post", requests_post)
 
-        with pytest.raises(fastly.UnsuccessfulPurge):
+        with pytest.raises(fastly.UnsuccessfulPurgeError):
             cacher.purge_key("one")
 
         assert requests_post.calls == [

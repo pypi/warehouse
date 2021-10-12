@@ -17,7 +17,7 @@ import pytest
 
 from pymacaroons.exceptions import MacaroonInvalidSignatureException
 
-from warehouse.macaroons.caveats import Caveat, InvalidMacaroon, V1Caveat, Verifier
+from warehouse.macaroons.caveats import Caveat, InvalidMacaroonError, V1Caveat, Verifier
 
 from ...common.db.packaging import ProjectFactory
 
@@ -28,9 +28,9 @@ class TestCaveat:
         caveat = Caveat(verifier)
 
         assert caveat.verifier is verifier
-        with pytest.raises(InvalidMacaroon):
+        with pytest.raises(InvalidMacaroonError):
             caveat.verify(pretend.stub())
-        with pytest.raises(InvalidMacaroon):
+        with pytest.raises(InvalidMacaroonError):
             caveat(pretend.stub())
 
 
@@ -47,7 +47,7 @@ class TestV1Caveat:
         verifier = pretend.stub()
         caveat = V1Caveat(verifier)
 
-        with pytest.raises(InvalidMacaroon):
+        with pytest.raises(InvalidMacaroonError):
             caveat(predicate)
 
     def test_verify_valid_predicate(self):
@@ -62,7 +62,7 @@ class TestV1Caveat:
         caveat = V1Caveat(verifier)
 
         predicate = {"version": 1, "permissions": {"projects": ["notfoobar"]}}
-        with pytest.raises(InvalidMacaroon):
+        with pytest.raises(InvalidMacaroonError):
             caveat(json.dumps(predicate))
 
     def test_verify_project_invalid_project_name(self, db_request):
@@ -71,7 +71,7 @@ class TestV1Caveat:
         caveat = V1Caveat(verifier)
 
         predicate = {"version": 1, "permissions": {"projects": ["notfoobar"]}}
-        with pytest.raises(InvalidMacaroon):
+        with pytest.raises(InvalidMacaroonError):
             caveat(json.dumps(predicate))
 
     def test_verify_project_no_projects_object(self, db_request):
@@ -83,7 +83,7 @@ class TestV1Caveat:
             "version": 1,
             "permissions": {"somethingthatisntprojects": ["blah"]},
         }
-        with pytest.raises(InvalidMacaroon):
+        with pytest.raises(InvalidMacaroonError):
             caveat(json.dumps(predicate))
 
     def test_verify_project(self, db_request):
@@ -120,6 +120,6 @@ class TestVerifier:
         verifier = Verifier(macaroon, context, principals, permission)
 
         monkeypatch.setattr(verifier.verifier, "verify", verify)
-        with pytest.raises(InvalidMacaroon):
+        with pytest.raises(InvalidMacaroonError):
             verifier.verify(key)
         assert verify.calls == [pretend.call(macaroon, key)]

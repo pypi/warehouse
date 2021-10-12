@@ -147,7 +147,7 @@ class TestVulnerabilityReportVerifier:
             public_keys_cache=cache,
         )
         vuln_report_verifier.retrieve_public_key_payload = pretend.raiser(
-            integrations.InvalidPayloadSignature("Bla", "bla")
+            integrations.InvalidPayloadSignatureError("Bla", "bla")
         )
 
         assert (
@@ -220,7 +220,7 @@ class TestVulnerabilityReportVerifier:
             public_keys_cache=cache,
         )
 
-        with pytest.raises(integrations.CacheMiss):
+        with pytest.raises(integrations.CacheMissError):
             vuln_report_verifier._get_cached_public_keys()
 
     def test_retrieve_public_key_payload_http_error(self):
@@ -376,7 +376,7 @@ class TestVulnerabilityReportVerifier:
             public_keys_cache=pretend.stub(),
         )
 
-        with pytest.raises(integrations.InvalidPayloadSignature) as exc:
+        with pytest.raises(integrations.InvalidPayloadSignatureError) as exc:
             vuln_report_verifier._check_public_key(public_keys=[], key_id="c")
 
         assert str(exc.value) == "Key c not found in public keys"
@@ -437,7 +437,7 @@ class TestVulnerabilityReportVerifier:
             b'"link":"vulns.com/vuln_id",'
             b'"aliases":["vuln_alias"]}]'
         )
-        with pytest.raises(integrations.InvalidPayloadSignature) as exc:
+        with pytest.raises(integrations.InvalidPayloadSignatureError) as exc:
             vuln_report_verifier._check_signature(
                 payload=payload, public_key=public_key, signature=signature
             )
@@ -457,7 +457,7 @@ class TestVulnerabilityReportVerifier:
 
         payload = "yeah, nope, that won't pass"
 
-        with pytest.raises(integrations.InvalidPayloadSignature) as exc:
+        with pytest.raises(integrations.InvalidPayloadSignatureError) as exc:
             vuln_report_verifier._check_signature(
                 payload=payload, public_key=public_key, signature=signature
             )

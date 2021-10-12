@@ -11,6 +11,7 @@
 # limitations under the License.
 
 import binascii
+import collections
 import enum
 import hmac
 import json
@@ -120,6 +121,20 @@ def format_tags(tags):
     formatted_tags = [t for t in stripped_tags if t]
 
     return formatted_tags
+
+
+def format_classifiers(classifiers):
+    structured = collections.OrderedDict()
+
+    # Split up our classifiers into our data structure
+    for classifier in classifiers:
+        key, *value = classifier.split(" :: ", 1)
+        if value:
+            if key not in structured:
+                structured[key] = []
+            structured[key].append(value[0])
+
+    return structured
 
 
 def classifier_id(classifier):

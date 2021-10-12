@@ -243,7 +243,7 @@ class TestLogin:
                 user_id,
                 tag="account:login:success",
                 ip_address=pyramid_request.remote_addr,
-                additional={"two_factor_method": None},
+                additional={"two_factor_method": None, "two_factor_label": None},
             )
         ]
 
@@ -302,7 +302,7 @@ class TestLogin:
                 1,
                 tag="account:login:success",
                 ip_address=pyramid_request.remote_addr,
-                additional={"two_factor_method": None},
+                additional={"two_factor_method": None, "two_factor_label": None},
             )
         ]
         assert pyramid_request.session.record_auth_timestamp.calls == [pretend.call()]
@@ -441,6 +441,7 @@ class TestTwoFactor:
         assert form_class.calls == [
             pretend.call(
                 pyramid_request.POST,
+                request=pyramid_request,
                 user_id=1,
                 user_service=user_service,
                 check_password_metrics_tags=["method:auth", "auth_method:login_form"],
@@ -608,7 +609,7 @@ class TestTwoFactor:
                 "1",
                 tag="account:login:success",
                 ip_address=pyramid_request.remote_addr,
-                additional={"two_factor_method": "totp"},
+                additional={"two_factor_method": "totp", "two_factor_label": "totp"},
             )
         ]
         assert pyramid_request.session.record_auth_timestamp.calls == [pretend.call()]
@@ -835,7 +836,7 @@ class TestWebAuthn:
         user_service = pretend.stub(
             get_user=pretend.call_recorder(lambda uid: user),
             get_webauthn_by_credential_id=pretend.call_recorder(
-                lambda *a: pretend.stub()
+                lambda *a: pretend.stub(label="webauthn_label")
             ),
         )
         pyramid_request.session = pretend.stub(
@@ -856,7 +857,12 @@ class TestWebAuthn:
 
         assert _get_two_factor_data.calls == [pretend.call(pyramid_request)]
         assert _login_user.calls == [
-            pretend.call(pyramid_request, 1, two_factor_method="webauthn")
+            pretend.call(
+                pyramid_request,
+                1,
+                two_factor_method="webauthn",
+                two_factor_label="webauthn_label",
+            )
         ]
         assert pyramid_request.session.get_webauthn_challenge.calls == [pretend.call()]
         assert pyramid_request.session.clear_webauthn_challenge.calls == [
@@ -940,7 +946,12 @@ class TestRecoveryCode:
         ]
         assert result == {"form": form_obj}
         assert form_class.calls == [
-            pretend.call(pyramid_request.POST, user_id=1, user_service=user_service)
+            pretend.call(
+                pyramid_request.POST,
+                request=pyramid_request,
+                user_id=1,
+                user_service=user_service,
+            )
         ]
 
     @pytest.mark.parametrize("redirect_url", ["test_redirect_url", None])
@@ -1021,7 +1032,10 @@ class TestRecoveryCode:
                 "1",
                 tag="account:login:success",
                 ip_address=pyramid_request.remote_addr,
-                additional={"two_factor_method": "recovery-code"},
+                additional={
+                    "two_factor_method": "recovery-code",
+                    "two_factor_label": None,
+                },
             ),
             pretend.call(
                 "1",
@@ -1266,7 +1280,7 @@ class TestRegister:
                 user.id,
                 tag="account:login:success",
                 ip_address=db_request.remote_addr,
-                additional={"two_factor_method": None},
+                additional={"two_factor_method": None, "two_factor_label": None},
             ),
         ]
 
@@ -2312,6 +2326,7 @@ class TestReAuthentication:
                 username=pyramid_request.user.username,
                 next_route=pyramid_request.matched_route.name,
                 next_route_matchdict=json.dumps(pyramid_request.matchdict),
+                action="reauthenticate",
                 user_service=user_service,
                 check_password_metrics_tags=[
                     "method:reauth",

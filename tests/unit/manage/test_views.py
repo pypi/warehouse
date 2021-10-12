@@ -114,7 +114,11 @@ class TestManageAccount:
             pretend.call(user_id=user_id, user_service=user_service)
         ]
         assert change_pass_cls.calls == [
-            pretend.call(user_service=user_service, breach_service=breach_service)
+            pretend.call(
+                request=request,
+                user_service=user_service,
+                breach_service=breach_service,
+            )
         ]
 
     def test_active_projects(self, db_request):
