@@ -32,7 +32,7 @@ def _verify_sns_message(request, message):
 
     try:
         verifier.verify(message)
-    except sns.InvalidMessage as exc:
+    except sns.InvalidMessageError as exc:
         raise HTTPBadRequest(str(exc)) from None
 
 
