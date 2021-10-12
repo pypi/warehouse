@@ -246,14 +246,14 @@ class TestReindex:
             lambda *a, **kw: es_client,
         )
 
-        class TestException(Exception):
+        class TestError(Exception):
             pass
 
         def parallel_bulk(client, iterable, index=None):
             assert client is es_client
             assert iterable is docs
             assert index == "warehouse-cbcbcbcbcb"
-            raise TestException
+            raise TestError
 
         monkeypatch.setattr(
             redis.StrictRedis, "from_url", lambda *a, **kw: pretend.stub(lock=NotLock)
@@ -263,7 +263,7 @@ class TestReindex:
 
         monkeypatch.setattr(os, "urandom", lambda n: b"\xcb" * n)
 
-        with pytest.raises(TestException):
+        with pytest.raises(TestError):
             reindex(task, db_request)
 
         assert es_client.indices.delete.calls == [
@@ -513,20 +513,20 @@ class TestPartialReindex:
             {"elasticsearch.client": es_client, "elasticsearch.index": "warehouse"}
         )
 
-        class TestException(Exception):
+        class TestError(Exception):
             pass
 
         def parallel_bulk(client, iterable, index=None):
             assert client is es_client
             assert iterable is docs
-            raise TestException
+            raise TestError
 
         monkeypatch.setattr(warehouse.search.tasks, "parallel_bulk", parallel_bulk)
         monkeypatch.setattr(
             redis.StrictRedis, "from_url", lambda *a, **kw: pretend.stub(lock=NotLock)
         )
 
-        with pytest.raises(TestException):
+        with pytest.raises(TestError):
             reindex_project(task, db_request, "foo")
 
         assert es_client.indices.put_settings.calls == []
@@ -534,11 +534,11 @@ class TestPartialReindex:
     def test_unindex_fails_when_raising(self, db_request, monkeypatch):
         task = pretend.stub()
 
-        class TestException(Exception):
+        class TestError(Exception):
             pass
 
         es_client = FakeESClient()
-        es_client.delete = pretend.raiser(TestException)
+        es_client.delete = pretend.raiser(TestError)
         monkeypatch.setattr(
             redis.StrictRedis, "from_url", lambda *a, **kw: pretend.stub(lock=NotLock)
         )
@@ -547,7 +547,7 @@ class TestPartialReindex:
             {"elasticsearch.client": es_client, "elasticsearch.index": "warehouse"}
         )
 
-        with pytest.raises(TestException):
+        with pytest.raises(TestError):
             unindex_project(task, db_request, "foo")
 
     def test_unindex_accepts_defeat(self, db_request, monkeypatch):

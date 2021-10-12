@@ -411,7 +411,7 @@ class DatabaseUserService:
         assertions during authentication.
 
         Returns the validated credential on success, raises
-        webauthn.RegistrationRejectedException on failure.
+        webauthn.RegistrationRejectedError on failure.
         """
         validated_credential = webauthn.verify_registration_response(
             credential, challenge=challenge, rp_id=rp_id, origin=origin
@@ -424,7 +424,7 @@ class DatabaseUserService:
         )
 
         if webauthn_cred is not None:
-            raise webauthn.RegistrationRejectedException("Credential ID already in use")
+            raise webauthn.RegistrationRejectedError("Credential ID already in use")
 
         return validated_credential
 
@@ -436,7 +436,7 @@ class DatabaseUserService:
         device.
 
         Returns the updated signage count on success, raises
-        webauthn.AuthenticationRejectedException on failure.
+        webauthn.AuthenticationRejectedError on failure.
         """
         user = self.get_user(user_id)
 

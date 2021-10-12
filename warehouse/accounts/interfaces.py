@@ -175,7 +175,7 @@ class IUserService(Interface):
         assertions during authentication.
 
         Returns the validated credential on success, raises
-        webauthn.RegistrationRejectedException on failure.
+        webauthn.RegistrationRejectedError on failure.
         """
 
     def verify_webauthn_assertion(user_id, assertion, *, challenge, origin, rp_id):
@@ -184,7 +184,7 @@ class IUserService(Interface):
         device.
 
         Returns the updated signage count on success, raises
-        webauthn.AuthenticationRejectedException on failure.
+        webauthn.AuthenticationRejectedError on failure.
         """
 
     def get_webauthn_by_label(user_id, label):

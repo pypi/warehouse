@@ -64,7 +64,7 @@ def report_vulnerabilities(request):
             origin="osv",
             metrics=metrics,
         )
-    except vulnerabilities.InvalidVulnerabilityReportRequest:
+    except vulnerabilities.InvalidVulnerabilityReportError:
         return Response(status=400)
     except NoResultFound:
         return Response(status=404)
