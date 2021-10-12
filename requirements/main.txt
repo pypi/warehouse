@@ -785,8 +785,8 @@ pycparser==2.20 \
     --hash=sha256:2d475327684562c3a96cc71adf7dc8c4f0565175cf86b6d7a404ff4c771f15f0 \
     --hash=sha256:7582ad22678f0fcd81102833f60ef8d0e57288b6b5fb00323d101be910e35705
     # via cffi
-pycurl==7.43.0.6 \
-    --hash=sha256:8301518689daefa53726b59ded6b48f33751c383cf987b0ccfbbc4ed40281325
+pycurl==7.44.1 \
+    --hash=sha256:5bcef4d988b74b99653602101e17d8401338d596b9234d263c728a0c3df003e8
     # via -r requirements/main.in
 pygments==2.10.0 \
     --hash=sha256:b8e67fe6af78f492b3c4b3e2970c0624cbf08beb1e493b2c99b9fa1b67a20380 \
