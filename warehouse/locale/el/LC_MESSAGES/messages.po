@@ -61,29 +61,29 @@ msgstr ""
 "Αυτό το όνομα χρήστη χρησιμοποιείται ήδη από άλλον λογαριασμό. Διαλέξτε ένα "
 "διαφορετικό όνομα χρήστη."
 
-#: warehouse/accounts/forms.py:124
+#: warehouse/accounts/forms.py:134
 msgid "The password is invalid. Try again."
 msgstr "Ο κωδικός χρήστη δεν είναι έγκυρος. Δοκιμάστε ξανά."
 
-#: warehouse/accounts/forms.py:128 warehouse/accounts/views.py:76
+#: warehouse/accounts/forms.py:138 warehouse/accounts/views.py:76
 msgid "There have been too many unsuccessful login attempts. Try again later."
 msgstr "Έγιναν πολλές ανεπιτυχείς απόπειρες σύνδεσης. Δοκιμάστε ξανά αργότερα."
 
-#: warehouse/accounts/forms.py:150
+#: warehouse/accounts/forms.py:160
 msgid "Your passwords don't match. Try again."
 msgstr "Οι κωδικοί δεν ταιριάζουν. Δοκιμάστε ξανά."
 
-#: warehouse/accounts/forms.py:181 warehouse/accounts/forms.py:192
+#: warehouse/accounts/forms.py:191 warehouse/accounts/forms.py:202
 msgid "The email address isn't valid. Try again."
 msgstr "Το email δεν είναι έγκυρο. Δοκιμάστε ξανά."
 
-#: warehouse/accounts/forms.py:200
+#: warehouse/accounts/forms.py:210
 msgid "You can't use an email address from this domain. Use a different email."
 msgstr ""
 "Δεν μπορείτε να χρησιμοποιήσετε ένα email από αυτό το domain. Δοκιμάστε με "
 "άλλο email."
 
-#: warehouse/accounts/forms.py:211
+#: warehouse/accounts/forms.py:221
 msgid ""
 "This email address is already being used by this account. Use a different "
 "email."
@@ -91,7 +91,7 @@ msgstr ""
 "Αυτό το email χρησιμοποιείται ήδη από αυτόν τον λογαριασμό. Χρησιμοποιήστε "
 "ένα διαφορετικό email."
 
-#: warehouse/accounts/forms.py:218
+#: warehouse/accounts/forms.py:228
 msgid ""
 "This email address is already being used by another account. Use a different "
 "email."
@@ -99,25 +99,25 @@ msgstr ""
 "Αυτό το email χρησιμοποιείται ήδη από άλλο λογαριασμό. Χρησιμοποιήστε ένα "
 "διαφορετικό email."
 
-#: warehouse/accounts/forms.py:240
+#: warehouse/accounts/forms.py:250
 msgid "The name is too long. Choose a name with 100 characters or less."
 msgstr ""
 "Το όνομα είναι πολύ μεγάλο. Διαλέξτε ένα όνομα με μέγιστο 100 χαρακτήρες."
 
-#: warehouse/accounts/forms.py:304
+#: warehouse/accounts/forms.py:320
 msgid "Invalid TOTP code."
 msgstr "Μη έγκυρος TOTP κωδικός."
 
-#: warehouse/accounts/forms.py:321
+#: warehouse/accounts/forms.py:337
 msgid "Invalid WebAuthn assertion: Bad payload"
 msgstr "Μη έγκυρο WebAuthn assertion: Bad payload"
 
 # | msgid "Invalid TOTP code."
-#: warehouse/accounts/forms.py:364
+#: warehouse/accounts/forms.py:392
 msgid "Invalid recovery code."
 msgstr "Μη έγκυρος κωδικός ανάκτησης."
 
-#: warehouse/accounts/forms.py:382
+#: warehouse/accounts/forms.py:410
 msgid "No user found with that username or email"
 msgstr "Δεν βρέθηκε χρήστης με αυτό το όνομα ή email"
 
@@ -134,27 +134,27 @@ msgstr ""
 "χωρίς να τα επαληθεύσετε. Ελέγξτε τα εισερχόμενά σας και ακολουθήστε τους "
 "συνδέσμους επαλήθευσης."
 
-#: warehouse/accounts/views.py:232 warehouse/accounts/views.py:289
-#: warehouse/accounts/views.py:291 warehouse/accounts/views.py:318
-#: warehouse/accounts/views.py:320 warehouse/accounts/views.py:375
+#: warehouse/accounts/views.py:232 warehouse/accounts/views.py:292
+#: warehouse/accounts/views.py:294 warehouse/accounts/views.py:321
+#: warehouse/accounts/views.py:323 warehouse/accounts/views.py:384
 msgid "Invalid or expired two factor login."
 msgstr "Μη έγκυρη ή ληγμένη σύνδεση two factor."
 
-#: warehouse/accounts/views.py:283
+#: warehouse/accounts/views.py:286
 msgid "Already authenticated"
 msgstr "Ήδη πιστοποιημένος"
 
-#: warehouse/accounts/views.py:351
+#: warehouse/accounts/views.py:360
 msgid "Successful WebAuthn assertion"
 msgstr "Επιτυχής WebAuthn assertion"
 
-#: warehouse/accounts/views.py:404
+#: warehouse/accounts/views.py:415
 msgid "Recovery code accepted. The supplied code cannot be used again."
 msgstr ""
 "Ο κωδικός ανάκτησης έγινε δεκτός. Ο παρεχόμενος κωδικός δεν μπορεί να "
 "χρησιμοποιηθεί ξανά."
 
-#: warehouse/accounts/views.py:490
+#: warehouse/accounts/views.py:501
 msgid ""
 "New user registration temporarily disabled. See https://pypi.org/help#admin-"
 "intervention for details."
@@ -162,33 +162,33 @@ msgstr ""
 "Η εγγραφή του νέου χρήστη είναι προσωρινά απενεργοποιημένη. Δείτε στο "
 "https://pypi.org/help#admin-intervention για λεπτομέρειες."
 
-#: warehouse/accounts/views.py:607
+#: warehouse/accounts/views.py:618
 msgid "Expired token: request a new password reset link"
 msgstr "Ληγμένο token: ζητήστε ένα νέο σύνδεσμο επαναφοράς κωδικού"
 
-#: warehouse/accounts/views.py:609
+#: warehouse/accounts/views.py:620
 msgid "Invalid token: request a new password reset link"
 msgstr "Μη έγκυρο token: ζητήστε ένα νέο σύνδεσμο επαναφοράς κωδικού"
 
-#: warehouse/accounts/views.py:611 warehouse/accounts/views.py:694
-#: warehouse/accounts/views.py:790
+#: warehouse/accounts/views.py:622 warehouse/accounts/views.py:705
+#: warehouse/accounts/views.py:801
 msgid "Invalid token: no token supplied"
 msgstr "Μη έγκυρο token: δεν έγινε παροχή του token"
 
-#: warehouse/accounts/views.py:615
+#: warehouse/accounts/views.py:626
 msgid "Invalid token: not a password reset token"
 msgstr "Μη έγκυρο token: δεν αποτελεί token επαναφοράς κωδικού"
 
-#: warehouse/accounts/views.py:620
+#: warehouse/accounts/views.py:631
 msgid "Invalid token: user not found"
 msgstr "Μη έγκυρο token: ο χρήστης δεν βρέθηκε"
 
-#: warehouse/accounts/views.py:627
+#: warehouse/accounts/views.py:638
 msgid "Invalid token: user has logged in since this token was requested"
 msgstr ""
 "Μη έγκυρο token: ο χρήστης συνδέθηκε από τότε που ζητήθηκε αυτό το token"
 
-#: warehouse/accounts/views.py:636
+#: warehouse/accounts/views.py:647
 msgid ""
 "Invalid token: password has already been changed since this token was "
 "requested"
@@ -196,71 +196,71 @@ msgstr ""
 "Μη έγκυρο token: ο κωδικός έχει ήδη αλλάξει από τότε που ζητήθηκε αυτό το "
 "token"
 
-#: warehouse/accounts/views.py:663
+#: warehouse/accounts/views.py:674
 msgid "You have reset your password"
 msgstr "Έχετε μηδενίσει τον κωδικό χρήστη σας"
 
-#: warehouse/accounts/views.py:690
+#: warehouse/accounts/views.py:701
 msgid "Expired token: request a new email verification link"
 msgstr "Ληγμένο token: ζητήστε ένα νέο email επιβεβαίωσης συνδέσμου"
 
-#: warehouse/accounts/views.py:692
+#: warehouse/accounts/views.py:703
 msgid "Invalid token: request a new email verification link"
 msgstr "Μη έγκυρο token: ζητήστε ένα νέο email επιβεβαίωσης συνδέσμου"
 
-#: warehouse/accounts/views.py:698
+#: warehouse/accounts/views.py:709
 msgid "Invalid token: not an email verification token"
 msgstr "Μη έγκυρο token: αυτό δεν αποτελεί ένα email επιβεβαίωσης token"
 
-#: warehouse/accounts/views.py:707
+#: warehouse/accounts/views.py:718
 msgid "Email not found"
 msgstr "Το email δεν βρέθηκε"
 
-#: warehouse/accounts/views.py:710
+#: warehouse/accounts/views.py:721
 msgid "Email already verified"
 msgstr "Το email είναι ήδη επιβεβαιωμένο"
 
-#: warehouse/accounts/views.py:725
+#: warehouse/accounts/views.py:736
 msgid "You can now set this email as your primary address"
 msgstr "Μπορείτε, πλέον, να θέσετε αυτό το email ως την κύρια διεύθυνση σας"
 
-#: warehouse/accounts/views.py:729
+#: warehouse/accounts/views.py:740
 msgid "This is your primary address"
 msgstr "Αυτή είναι η κύρια διεύθυνση σας"
 
-#: warehouse/accounts/views.py:734
+#: warehouse/accounts/views.py:745
 msgid "Email address ${email_address} verified. ${confirm_message}."
 msgstr "Η διεύθυνση email ${email_address} επιβεβαιώθηκε. ${confirm_message}."
 
-#: warehouse/accounts/views.py:786
+#: warehouse/accounts/views.py:797
 msgid "Expired token: request a new project role invite"
 msgstr "Λειγμένο token: ζητήστε πρόσκληση για νέο ρόλο έργου"
 
-#: warehouse/accounts/views.py:788
+#: warehouse/accounts/views.py:799
 #, fuzzy
 #| msgid "Invalid token: request a new password reset link"
 msgid "Invalid token: request a new project role invite"
 msgstr "Μη έγκυρο token: ζητήστε ένα νέο σύνδεσμο επαναφοράς κωδικού"
 
-#: warehouse/accounts/views.py:794
+#: warehouse/accounts/views.py:805
 #, fuzzy
 #| msgid "Invalid token: not an email verification token"
 msgid "Invalid token: not a collaboration invitation token"
 msgstr "Μη έγκυρο token: αυτό δεν αποτελεί ένα email επιβεβαίωσης token"
 
-#: warehouse/accounts/views.py:798
+#: warehouse/accounts/views.py:809
 msgid "Role invitation is not valid."
 msgstr ""
 
-#: warehouse/accounts/views.py:813
+#: warehouse/accounts/views.py:824
 msgid "Role invitation no longer exists."
 msgstr ""
 
-#: warehouse/accounts/views.py:825
+#: warehouse/accounts/views.py:836
 msgid "Invitation for '${project_name}' is declined."
 msgstr ""
 
-#: warehouse/accounts/views.py:892
+#: warehouse/accounts/views.py:903
 #, fuzzy
 #| msgid "You are not an owner of this project"
 msgid "You are now ${role} of the '${project_name}' project."
@@ -270,59 +270,59 @@ msgstr "Δεν είστε ο κάτοχος αυτού του project"
 msgid "Banner Preview"
 msgstr ""
 
-#: warehouse/manage/views.py:205
+#: warehouse/manage/views.py:207
 msgid "Email ${email_address} added - check your email for a verification link"
 msgstr ""
 "Το email ${email_address} προστέθηκε - ελέγξτε το email σας για τον σύνδεσμο "
 "επαλήθευσης"
 
-#: warehouse/manage/views.py:692 warehouse/manage/views.py:728
+#: warehouse/manage/views.py:697 warehouse/manage/views.py:733
 msgid ""
 "You must provision a two factor method before recovery codes can be generated"
 msgstr ""
 
-#: warehouse/manage/views.py:703
+#: warehouse/manage/views.py:708
 msgid "Recovery codes already generated"
 msgstr "Οι κωδικοί ανάκτησης έχουν ήδη δημιουργηθεί"
 
-#: warehouse/manage/views.py:704
+#: warehouse/manage/views.py:709
 msgid "Generating new recovery codes will invalidate your existing codes."
 msgstr ""
 
-#: warehouse/manage/views.py:755
+#: warehouse/manage/views.py:761
 msgid "Invalid credentials. Try again"
 msgstr "Λάθος διαπιστευτήρια. Προσπάθησε ξανά"
 
-#: warehouse/manage/views.py:1503
+#: warehouse/manage/views.py:1511
 msgid "User '${username}' already has ${role_name} role for project"
 msgstr ""
 
-#: warehouse/manage/views.py:1514
+#: warehouse/manage/views.py:1522
 msgid ""
 "User '${username}' does not have a verified primary email address and cannot "
 "be added as a ${role_name} for project"
 msgstr ""
 
-#: warehouse/manage/views.py:1527
+#: warehouse/manage/views.py:1535
 msgid ""
 "User '${username}' already has an active invite. Please try again later."
 msgstr ""
 
-#: warehouse/manage/views.py:1585
+#: warehouse/manage/views.py:1593
 msgid "Invitation sent to '${username}'"
 msgstr ""
 
-#: warehouse/manage/views.py:1632
+#: warehouse/manage/views.py:1640
 msgid "Could not find role invitation."
 msgstr ""
 
-#: warehouse/manage/views.py:1643
+#: warehouse/manage/views.py:1651
 #, fuzzy
 #| msgid "Email already verified"
 msgid "Invitation already expired."
 msgstr "Το email είναι ήδη επιβεβαιωμένο"
 
-#: warehouse/manage/views.py:1667
+#: warehouse/manage/views.py:1675
 msgid "Invitation revoked from '${username}'."
 msgstr ""
 
@@ -600,7 +600,7 @@ msgstr "Αλλαγή στην έκδοση για κινητά"
 #: warehouse/templates/base.html:162 warehouse/templates/base.html:171
 #: warehouse/templates/base.html:181
 #: warehouse/templates/includes/session-notifications.html:19
-#: warehouse/templates/manage/account.html:755
+#: warehouse/templates/manage/account.html:783
 #: warehouse/templates/manage/documentation.html:27
 #: warehouse/templates/manage/manage_base.html:106
 #: warehouse/templates/manage/manage_base.html:158
@@ -2382,94 +2382,136 @@ msgid "Recovery code"
 msgstr "Κωδικός σφάλματος"
 
 #: warehouse/templates/manage/account.html:579
+msgid "Login failed"
+msgstr ""
+
+#: warehouse/templates/manage/account.html:581
+#: warehouse/templates/manage/account.html:598
+#: warehouse/templates/manage/history.html:84
+msgid "Reason:"
+msgstr ""
+
+#: warehouse/templates/manage/account.html:583
+#: warehouse/templates/manage/account.html:600
+#, fuzzy
+#| msgid "Your current password"
+msgid "Incorrect Password"
+msgstr "Τρέχον κωδικός πρόσβασης"
+
+#: warehouse/templates/manage/account.html:585
+#, fuzzy
+#| msgid "Invalid or expired two factor login."
+msgid "Invalid two factor (TOTP)"
+msgstr "Μη έγκυρη ή ληγμένη σύνδεση two factor."
+
+#: warehouse/templates/manage/account.html:587
+#, fuzzy
+#| msgid "Invalid or expired two factor login."
+msgid "Invalid two factor (WebAuthn)"
+msgstr "Μη έγκυρη ή ληγμένη σύνδεση two factor."
+
+# | msgid "Invalid TOTP code."
+#: warehouse/templates/manage/account.html:589
+#, fuzzy
+#| msgid "Invalid recovery code."
+msgid "Invalid two factor (Recovery code)"
+msgstr "Μη έγκυρος κωδικός ανάκτησης."
+
+#: warehouse/templates/manage/account.html:596
+#, fuzzy
+#| msgid "Two factor authentication added"
+msgid "Session reauthentication failed"
+msgstr "Προστέθηκε η πιστοποίηση δύο-παραγόντων"
+
+#: warehouse/templates/manage/account.html:607
 msgid "Email added to account"
 msgstr "Το email προστέθηκε στον λογαριασμό"
 
-#: warehouse/templates/manage/account.html:582
+#: warehouse/templates/manage/account.html:610
 msgid "Email removed from account"
 msgstr "Το email αφαιρέθηκε από τον λογαριασμό"
 
-#: warehouse/templates/manage/account.html:585
+#: warehouse/templates/manage/account.html:613
 msgid "Email verified"
 msgstr "Το email επιβεβαιώθηκε"
 
-#: warehouse/templates/manage/account.html:588
+#: warehouse/templates/manage/account.html:616
 msgid "Email reverified"
 msgstr "Το email επαναβεβαιώθηκε"
 
-#: warehouse/templates/manage/account.html:592
+#: warehouse/templates/manage/account.html:620
 msgid "Primary email changed"
 msgstr "Το κύριο email άλλαξε"
 
-#: warehouse/templates/manage/account.html:594
+#: warehouse/templates/manage/account.html:622
 msgid "Old primary email:"
 msgstr "Παλιό κύριο email:"
 
-#: warehouse/templates/manage/account.html:595
+#: warehouse/templates/manage/account.html:623
 msgid "New primary email:"
 msgstr "Νέο κύριο email:"
 
-#: warehouse/templates/manage/account.html:598
+#: warehouse/templates/manage/account.html:626
 msgid "Primary email set"
 msgstr "Το κύριο email ενεργοποιήθηκε"
 
-#: warehouse/templates/manage/account.html:604
+#: warehouse/templates/manage/account.html:632
 #, fuzzy
 #| msgid "Reset email sent"
 msgid "Email sent"
 msgstr "Το email, για μηδενισμό του κωδικού χρήστη, στάλθηκε"
 
-#: warehouse/templates/manage/account.html:606
+#: warehouse/templates/manage/account.html:634
 msgid "From:"
 msgstr ""
 
-#: warehouse/templates/manage/account.html:607
+#: warehouse/templates/manage/account.html:635
 msgid "To:"
 msgstr ""
 
-#: warehouse/templates/manage/account.html:608
+#: warehouse/templates/manage/account.html:636
 #, fuzzy
 #| msgid "Project:"
 msgid "Subject:"
 msgstr "Project:"
 
-#: warehouse/templates/manage/account.html:612
+#: warehouse/templates/manage/account.html:640
 msgid "Password reset requested"
 msgstr "Ζητήθηκε μηδενισμός κωδικού"
 
-#: warehouse/templates/manage/account.html:614
+#: warehouse/templates/manage/account.html:642
 #, fuzzy
 #| msgid "Password reset requested"
 msgid "Password reset attempted"
 msgstr "Ζητήθηκε μηδενισμός κωδικού"
 
-#: warehouse/templates/manage/account.html:616
+#: warehouse/templates/manage/account.html:644
 msgid "Password successfully reset"
 msgstr "Ο κωδικός μηδενίστηκε επιτυχώς"
 
-#: warehouse/templates/manage/account.html:618
+#: warehouse/templates/manage/account.html:646
 msgid "Password successfully changed"
 msgstr "Ο κωδικός άλλαξε επιτυχώς"
 
-#: warehouse/templates/manage/account.html:621
+#: warehouse/templates/manage/account.html:649
 msgid "Two factor authentication added"
 msgstr "Προστέθηκε η πιστοποίηση δύο-παραγόντων"
 
-#: warehouse/templates/manage/account.html:624
-#: warehouse/templates/manage/account.html:634
+#: warehouse/templates/manage/account.html:652
+#: warehouse/templates/manage/account.html:662
 msgid ""
 "Method: Security device (<abbr title=\"web authentication\">WebAuthn</abbr>)"
 msgstr ""
 "Μέθοδος: Συσκευή ασφάλειας (<abbr title=\"web authentication\">WebAuthn</"
 "abbr>)"
 
-#: warehouse/templates/manage/account.html:625
-#: warehouse/templates/manage/account.html:635
+#: warehouse/templates/manage/account.html:653
+#: warehouse/templates/manage/account.html:663
 msgid "Device name:"
 msgstr "Όνομα συσκευής:"
 
-#: warehouse/templates/manage/account.html:627
-#: warehouse/templates/manage/account.html:637
+#: warehouse/templates/manage/account.html:655
+#: warehouse/templates/manage/account.html:665
 msgid ""
 "Method: Authentication application (<abbr title=\"time-based one-time "
 "password\">TOTP</abbr>)"
@@ -2477,72 +2519,72 @@ msgstr ""
 "Μέθοδος: Εφαρμογή πιστοποίησης (<abbr title=\"time-based one-time password"
 "\">TOTP</abbr>)"
 
-#: warehouse/templates/manage/account.html:631
+#: warehouse/templates/manage/account.html:659
 msgid "Two factor authentication removed"
 msgstr "Η πιστοποίηση δύο-παραγόντων αφαιρέθηκε"
 
-#: warehouse/templates/manage/account.html:642
+#: warehouse/templates/manage/account.html:670
 #, fuzzy
 #| msgid "Recovery codes already generated"
 msgid "Recovery codes generated"
 msgstr "Οι κωδικοί ανάκτησης έχουν ήδη δημιουργηθεί"
 
-#: warehouse/templates/manage/account.html:646
+#: warehouse/templates/manage/account.html:674
 #, fuzzy
 #| msgid "Recovery codes already generated"
 msgid "Recovery codes regenerated"
 msgstr "Οι κωδικοί ανάκτησης έχουν ήδη δημιουργηθεί"
 
-#: warehouse/templates/manage/account.html:650
+#: warehouse/templates/manage/account.html:678
 #, fuzzy
 #| msgid "Recovery codes already generated"
 msgid "Recovery code used for login"
 msgstr "Οι κωδικοί ανάκτησης έχουν ήδη δημιουργηθεί"
 
-#: warehouse/templates/manage/account.html:656
+#: warehouse/templates/manage/account.html:684
 #: warehouse/templates/manage/history.html:65
 msgid "API token added"
 msgstr "Το API token προστέθηκε"
 
-#: warehouse/templates/manage/account.html:658
-#: warehouse/templates/manage/account.html:673
+#: warehouse/templates/manage/account.html:686
+#: warehouse/templates/manage/account.html:701
 #: warehouse/templates/manage/history.html:69
 #: warehouse/templates/manage/history.html:76
 msgid "Token name:"
 msgstr "Όνομα token:"
 
-#: warehouse/templates/manage/account.html:660
-#: warehouse/templates/manage/account.html:676
+#: warehouse/templates/manage/account.html:688
+#: warehouse/templates/manage/account.html:704
 msgid "Token scope: entire account"
 msgstr "Πεδίο εφαρμογής token: ολόκληρος ο λογαριασμός"
 
-#: warehouse/templates/manage/account.html:662
-#: warehouse/templates/manage/account.html:678
+#: warehouse/templates/manage/account.html:690
+#: warehouse/templates/manage/account.html:706
 #, python-format
 msgid "Token scope: Project %(project_name)s"
 msgstr "Πεδίο εφαρμογής token: %(project_name)s"
 
-#: warehouse/templates/manage/account.html:667
+#: warehouse/templates/manage/account.html:695
 #: warehouse/templates/manage/history.html:72
 msgid "API token removed"
 msgstr "Το API token αφαιρέθηκε"
 
-#: warehouse/templates/manage/account.html:668
-#: warehouse/templates/manage/account.html:674
+#: warehouse/templates/manage/account.html:696
+#: warehouse/templates/manage/account.html:702
 msgid "Unique identifier:"
 msgstr "Μοναδικό αναγνωριστικό:"
 
-#: warehouse/templates/manage/account.html:671
+#: warehouse/templates/manage/account.html:699
 msgid "API token automatically removed for security reasons"
 msgstr ""
 
-#: warehouse/templates/manage/account.html:680
+#: warehouse/templates/manage/account.html:708
 #, fuzzy, python-format
 #| msgid "Displayed on your <a href=\"%(href)s\">public profile</a>"
 msgid "Reason: Token found at <a href=\"%(public_url)s\">public url</a>"
 msgstr "Εμφανίστηκε στο <a href=\"%(href)s\">δημόσιο προφίλ σας</a>"
 
-#: warehouse/templates/manage/account.html:689
+#: warehouse/templates/manage/account.html:717
 #, python-format
 msgid ""
 "Events appear here as security-related actions occur on your account. If you "
@@ -2550,45 +2592,45 @@ msgid ""
 "account</a> as soon as possible."
 msgstr ""
 
-#: warehouse/templates/manage/account.html:694
+#: warehouse/templates/manage/account.html:722
 msgid "Recent account activity"
 msgstr "Πρόσφατη δραστηριότητα λογαριασμού"
 
-#: warehouse/templates/manage/account.html:696
+#: warehouse/templates/manage/account.html:724
 #: warehouse/templates/manage/history.html:97
 msgid "Event"
 msgstr "Συμβάν"
 
-#: warehouse/templates/manage/account.html:697
-#: warehouse/templates/manage/account.html:705
+#: warehouse/templates/manage/account.html:725
+#: warehouse/templates/manage/account.html:733
 #: warehouse/templates/manage/history.html:98
 #: warehouse/templates/manage/history.html:107
 msgid "Date / time"
 msgstr "Ημερομηνία / ώρα"
 
-#: warehouse/templates/manage/account.html:698
-#: warehouse/templates/manage/account.html:709
+#: warehouse/templates/manage/account.html:726
+#: warehouse/templates/manage/account.html:737
 #: warehouse/templates/manage/history.html:99
 #: warehouse/templates/manage/history.html:111
 msgid "IP address"
 msgstr "Διεύθυνση IP"
 
-#: warehouse/templates/manage/account.html:717
+#: warehouse/templates/manage/account.html:745
 msgid ""
 "Events will appear here as security-related actions occur on your account."
 msgstr ""
 "Συμβάντα θα εμφανίζονται εδώ όταν δράσεις σχετιζόμενες με θέματα ασφάλειας "
 "θα προκύπτουν στον λογαριασμό σας."
 
-#: warehouse/templates/manage/account.html:724
+#: warehouse/templates/manage/account.html:752
 msgid "Delete account"
 msgstr "Διαγραφή λογαριασμού"
 
-#: warehouse/templates/manage/account.html:727
+#: warehouse/templates/manage/account.html:755
 msgid "Cannot delete account"
 msgstr "Αδύνατη η διαγραφή του λογαριασμού"
 
-#: warehouse/templates/manage/account.html:729
+#: warehouse/templates/manage/account.html:757
 #, python-format
 msgid ""
 "\n"
@@ -2611,7 +2653,7 @@ msgstr[1] ""
 "strong> %(count)s projects.\n"
 "        "
 
-#: warehouse/templates/manage/account.html:734
+#: warehouse/templates/manage/account.html:762
 msgid ""
 "\n"
 "          You must transfer ownership or delete this project before you can "
@@ -2633,7 +2675,7 @@ msgstr[1] ""
 "projects προτού διαγράψετε τον λογαριασμό σας.\n"
 "        "
 
-#: warehouse/templates/manage/account.html:744
+#: warehouse/templates/manage/account.html:772
 #, python-format
 msgid ""
 "<a href=\"%(transfer_href)s\">transfer ownership</a> or <a href="
@@ -2642,17 +2684,17 @@ msgstr ""
 "<a href=\"%(transfer_href)s\">μεταφορά κυριότητας</a> ή <a href="
 "\"%(delete_href)s\">διαγραφή project</a>"
 
-#: warehouse/templates/manage/account.html:753
+#: warehouse/templates/manage/account.html:781
 #: warehouse/templates/manage/token.html:169
 msgid "Proceed with caution!"
 msgstr "Προχωρήστε με προσοχή!"
 
-#: warehouse/templates/manage/account.html:756
+#: warehouse/templates/manage/account.html:784
 msgid "You will not be able to recover your account after you delete it"
 msgstr ""
 "Δεν θα έχετε τη δυνατότητα να ανακτήσετε τον λογαριασμό σας αφού διαγραφεί"
 
-#: warehouse/templates/manage/account.html:758
+#: warehouse/templates/manage/account.html:786
 msgid "Delete your PyPI account"
 msgstr "Διαγραφή του PyPI λογαριασμού σας"
 
@@ -2792,10 +2834,6 @@ msgstr "Έκδοση %(version)s"
 #| msgid "Changed by:"
 msgid "Yanked by:"
 msgstr "Αλλαγή από:"
-
-#: warehouse/templates/manage/history.html:84
-msgid "Reason:"
-msgstr ""
 
 #: warehouse/templates/manage/history.html:94
 #, python-format
