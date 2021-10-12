@@ -1091,9 +1091,9 @@ yara-python==4.1.2 \
     --hash=sha256:e03f46e7674d4424651ce8b6f433462d27db5949786bc526e457e26e054ae322 \
     --hash=sha256:f9e772e993f82939555518570ac5fbda1a0a3eed2db1f6d3463f72cc4dbcfb83
     # via -r requirements/main.in
-zipp==3.5.0 \
-    --hash=sha256:957cfda87797e389580cb8b9e3870841ca991e2125350677b2ca83a0e99390a3 \
-    --hash=sha256:f5812b1e007e48cff63449a5e9f4e7ebea716b4111f9c4f9a645f91d579bf0c4
+zipp==3.6.0 \
+    --hash=sha256:71c644c5369f4a6e07636f0aa966270449561fcea2e3d6747b8d23efaa9d7832 \
+    --hash=sha256:9fe5ea21568a0a70e50f273397638d39b03353731e6cbbb3fd8502a33fec40bc
     # via
     #   importlib-metadata
     #   importlib-resources
