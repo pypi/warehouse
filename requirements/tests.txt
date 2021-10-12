@@ -87,9 +87,9 @@ faker==8.11.0 \
     --hash=sha256:3e737576ff50cd98dfed643d6b3fd63194eca9df00e7f595960fe7da5220723d \
     --hash=sha256:b9e81e9da3dda3ac54189e034cfb943de576a259caeb226ccab43fcbcf6a7891
     # via factory-boy
-fakeredis==1.5.2 \
-    --hash=sha256:18fc1808d2ce72169d3f11acdb524a00ef96bd29970c6d34cfeb2edb3fc0c020 \
-    --hash=sha256:f1ffdb134538e6d7c909ddfb4fc5edeb4a73d0ea07245bc69b8135fbc4144b04
+fakeredis==1.6.1 \
+    --hash=sha256:0d06a9384fb79da9f2164ce96e34eb9d4e2ea46215070805ea6fd3c174590b47 \
+    --hash=sha256:5eb1516f1fe1813e9da8f6c482178fc067af09f53de587ae03887ef5d9d13024
     # via -r requirements/tests.in
 freezegun==1.1.0 \
     --hash=sha256:177f9dd59861d871e27a484c3332f35a6e3f5d14626f2bf91be37891f18927f3 \
@@ -113,7 +113,9 @@ mirakuru==2.4.1 \
 packaging==21.0 \
     --hash=sha256:7dc96269f53a4ccec5c0670940a4281106dd0bb343f47b7471f779df49c2fbe7 \
     --hash=sha256:c86254f9220d55e31cc94d69bade760f0847da8000def4dfe1c6b872fd14ff14
-    # via pytest
+    # via
+    #   fakeredis
+    #   pytest
 pluggy==0.13.1 \
     --hash=sha256:15b2acde666561e1298d71b523007ed7364de07029219b604cf808bfa1c765b0 \
     --hash=sha256:966c145cd83c96502c3c3868f50408687b38434af77734af1e9ca461a4081d2d
