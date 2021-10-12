@@ -13,7 +13,7 @@
 import pytest
 
 from warehouse.integrations.vulnerabilities import (
-    InvalidVulnerabilityReportRequest,
+    InvalidVulnerabilityReportError,
     VulnerabilityReportRequest,
 )
 
@@ -31,7 +31,7 @@ from warehouse.integrations.vulnerabilities import (
 )
 def test_vulnerability_report_request_from_api_request_error(record, error, reason):
 
-    with pytest.raises(InvalidVulnerabilityReportRequest) as exc:
+    with pytest.raises(InvalidVulnerabilityReportError) as exc:
         VulnerabilityReportRequest.from_api_request(record)
 
     assert str(exc.value) == error
@@ -57,7 +57,7 @@ def test_vulnerability_report_request_from_api_request():
 
 
 def test_invalid_vulnerability_report():
-    exc = InvalidVulnerabilityReportRequest("error string", "reason")
+    exc = InvalidVulnerabilityReportError("error string", "reason")
 
     assert str(exc) == "error string"
     assert exc.reason == "reason"
