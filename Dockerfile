@@ -2,7 +2,7 @@
 # our static assets with. It is important that the steps in this remain the
 # same as the steps in Dockerfile.static, EXCEPT this may include additional
 # steps appended onto the end.
-FROM node:14.4.0 as static
+FROM node:14.15.5 as static
 
 WORKDIR /opt/warehouse/src/
 
@@ -23,7 +23,6 @@ COPY package.json package-lock.json .babelrc /opt/warehouse/src/
 # over our static files so that, you guessed it, we don't invalidate the cache
 # of installed dependencies just because files have been modified.
 RUN set -x \
-    && npm install -g npm@latest \
     && npm install -g gulp-cli \
     && npm ci
 
