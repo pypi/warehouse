@@ -197,7 +197,7 @@ class ProvisionWebAuthnForm(WebAuthnCredentialMixin, forms.Form):
                 rp_id=self.rp_id,
                 origin=self.origin,
             )
-        except webauthn.RegistrationRejectedException as e:
+        except webauthn.RegistrationRejectedError as e:
             raise wtforms.validators.ValidationError(str(e))
 
         self.validated_credential = validated_credential

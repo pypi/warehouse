@@ -62,7 +62,7 @@ pyramid_retry.mark_error_retryable(IntegrityError)
 
 # A generic wrapper exception that we'll raise when the database isn't available, we
 # use this so we can catch it later and turn it into a generic 5xx error.
-class DatabaseNotAvailable(Exception):
+class DatabaseNotAvailableError(Exception):
     ...
 
 
@@ -173,7 +173,7 @@ def _create_session(request):
         # this is a transient error that will go away.
         logger.warning("Got an error connecting to PostgreSQL", exc_info=True)
         metrics.increment("warehouse.db.session.error", tags=["error_in:connecting"])
-        raise DatabaseNotAvailable()
+        raise DatabaseNotAvailableError()
 
     if (
         connection.connection.get_transaction_status()
