@@ -20,7 +20,7 @@ from warehouse import tasks
 from warehouse.cache.origin.interfaces import IOriginCache
 
 
-class UnsuccessfulPurge(Exception):
+class UnsuccessfulPurgeError(Exception):
     pass
 
 
@@ -34,7 +34,7 @@ def purge_key(task, request, key):
         requests.ConnectionError,
         requests.HTTPError,
         requests.Timeout,
-        UnsuccessfulPurge,
+        UnsuccessfulPurgeError,
     ) as exc:
         request.log.error("Error purging %s: %s", key, str(exc))
         raise task.retry(exc=exc)
@@ -105,4 +105,4 @@ class FastlyCache:
         resp.raise_for_status()
 
         if resp.json().get("status") != "ok":
-            raise UnsuccessfulPurge("Could not purge {!r}".format(key))
+            raise UnsuccessfulPurgeError("Could not purge {!r}".format(key))

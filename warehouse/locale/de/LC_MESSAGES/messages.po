@@ -14,13 +14,15 @@
 # Jeannette L <j.lavoie@net-c.ca>, 2020.
 # Clicks <bruno778.whiteelfie@gmail.com>, 2020.
 # J. Lavoie <j.lavoie@net-c.ca>, 2020.
+# Weiter Leitung <weiterleitung4@gmail.com>, 2021.
+# Pascal Vallaster <pascalvallaster@gmail.com>, 2021.
 msgid ""
 msgstr ""
 "Project-Id-Version: Warehouse VERSION\n"
 "Report-Msgid-Bugs-To: admin@pypi.org\n"
 "POT-Creation-Date: 2020-04-06 17:52-0500\n"
-"PO-Revision-Date: 2020-07-13 17:15+0000\n"
-"Last-Translator: J. Lavoie <j.lavoie@net-c.ca>\n"
+"PO-Revision-Date: 2021-09-08 10:05+0000\n"
+"Last-Translator: Weiter Leitung <weiterleitung4@gmail.com>\n"
 "Language-Team: German <https://hosted.weblate.org/projects/pypa/warehouse/de/"
 ">\n"
 "Language: de\n"
@@ -28,7 +30,7 @@ msgstr ""
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Generator: Weblate 4.2-dev\n"
+"X-Generator: Weblate 4.8.1-dev\n"
 "Generated-By: Babel 2.8.0\n"
 
 # | msgid "Stay updated:"
@@ -66,29 +68,29 @@ msgstr ""
 "Dieser Benutzername wird schon von einem anderen Konto verwendet. Bitte "
 "einen anderen Benutzername wählen."
 
-#: warehouse/accounts/forms.py:124
+#: warehouse/accounts/forms.py:134
 msgid "The password is invalid. Try again."
 msgstr "Das Passwort ist ungültig. Bitte erneut versuchen."
 
-#: warehouse/accounts/forms.py:128 warehouse/accounts/views.py:76
+#: warehouse/accounts/forms.py:138 warehouse/accounts/views.py:76
 msgid "There have been too many unsuccessful login attempts. Try again later."
 msgstr "Es gab zu viele erfolglose Login-Versuche. Versuche es später erneut."
 
-#: warehouse/accounts/forms.py:150
+#: warehouse/accounts/forms.py:160
 msgid "Your passwords don't match. Try again."
 msgstr "Die Passwörter stimmen nicht überein. Bitte erneut versuchen."
 
-#: warehouse/accounts/forms.py:181 warehouse/accounts/forms.py:192
+#: warehouse/accounts/forms.py:191 warehouse/accounts/forms.py:202
 msgid "The email address isn't valid. Try again."
 msgstr "Die E-Mail-Adresse ist nicht gültig. Bitte erneut versuchen."
 
-#: warehouse/accounts/forms.py:200
+#: warehouse/accounts/forms.py:210
 msgid "You can't use an email address from this domain. Use a different email."
 msgstr ""
 "E-Mail-Adressen dieser Domain können nicht verwendet werden. Bitte eine "
 "andere E-Mail-Adresse verwenden."
 
-#: warehouse/accounts/forms.py:211
+#: warehouse/accounts/forms.py:221
 msgid ""
 "This email address is already being used by this account. Use a different "
 "email."
@@ -96,7 +98,7 @@ msgstr ""
 "Diese E-Mail-Adresse wird schon von diesem Konto verwendet. Bitte eine "
 "andere verwenden."
 
-#: warehouse/accounts/forms.py:218
+#: warehouse/accounts/forms.py:228
 msgid ""
 "This email address is already being used by another account. Use a different "
 "email."
@@ -104,26 +106,26 @@ msgstr ""
 "Diese E-Mail-Adresse wird schon von einem anderen Konto verwendet. Bitte "
 "eine andere E-Mail-Adresse verwenden."
 
-#: warehouse/accounts/forms.py:240
+#: warehouse/accounts/forms.py:250
 msgid "The name is too long. Choose a name with 100 characters or less."
 msgstr ""
 "Der Name ist zu lang. Bitte  einen Namen mit 100 Zeichen oder weniger "
 "verwenden."
 
-#: warehouse/accounts/forms.py:304
+#: warehouse/accounts/forms.py:320
 msgid "Invalid TOTP code."
 msgstr "Ungültiger TOTP-Code."
 
-#: warehouse/accounts/forms.py:321
+#: warehouse/accounts/forms.py:337
 msgid "Invalid WebAuthn assertion: Bad payload"
 msgstr "Ungültige WebAuthn-Assertion: Bad payload"
 
 # | msgid "Invalid TOTP code."
-#: warehouse/accounts/forms.py:364
+#: warehouse/accounts/forms.py:392
 msgid "Invalid recovery code."
 msgstr "Ungültiger Wiederherstellungs-Code."
 
-#: warehouse/accounts/forms.py:382
+#: warehouse/accounts/forms.py:410
 msgid "No user found with that username or email"
 msgstr "Kein Benutzer mit diesem Benutzernamen oder E-Mail-Adresse gefunden"
 
@@ -136,27 +138,27 @@ msgstr ""
 "Überprüfen Sie Ihren Posteingang und folgen Sie den Verifizierungslinks. "
 "(IP: ${ip})"
 
-#: warehouse/accounts/views.py:232 warehouse/accounts/views.py:289
-#: warehouse/accounts/views.py:291 warehouse/accounts/views.py:318
-#: warehouse/accounts/views.py:320 warehouse/accounts/views.py:375
+#: warehouse/accounts/views.py:232 warehouse/accounts/views.py:292
+#: warehouse/accounts/views.py:294 warehouse/accounts/views.py:321
+#: warehouse/accounts/views.py:323 warehouse/accounts/views.py:384
 msgid "Invalid or expired two factor login."
 msgstr "Ungültiger oder abgelaufener Zweifaktor-Login."
 
-#: warehouse/accounts/views.py:283
+#: warehouse/accounts/views.py:286
 msgid "Already authenticated"
 msgstr "Schon authentifiziert"
 
-#: warehouse/accounts/views.py:351
+#: warehouse/accounts/views.py:360
 msgid "Successful WebAuthn assertion"
 msgstr "Erfolgreiche WebAuthn-Assertion"
 
-#: warehouse/accounts/views.py:404
+#: warehouse/accounts/views.py:415
 msgid "Recovery code accepted. The supplied code cannot be used again."
 msgstr ""
 "Wiederherstellungscode akzeptiert. Der eingegebene Code kann nicht erneut "
 "verwendet werden."
 
-#: warehouse/accounts/views.py:490
+#: warehouse/accounts/views.py:501
 msgid ""
 "New user registration temporarily disabled. See https://pypi.org/help#admin-"
 "intervention for details."
@@ -164,175 +166,169 @@ msgstr ""
 "Die Registrierung neuer Benutzer ist vorübergehend deaktiviert. Siehe "
 "https://pypi.org/help#admin-intervention für Details."
 
-#: warehouse/accounts/views.py:607
+#: warehouse/accounts/views.py:618
 msgid "Expired token: request a new password reset link"
 msgstr "Abgelaufenes Token: bitte neuen Passwort-Zurücksetzen-Link anfordern"
 
-#: warehouse/accounts/views.py:609
+#: warehouse/accounts/views.py:620
 msgid "Invalid token: request a new password reset link"
 msgstr "Ungültiges Token: bitte neuen Passwort-Zurücksetzen-Link anfordern"
 
-#: warehouse/accounts/views.py:611 warehouse/accounts/views.py:694
-#: warehouse/accounts/views.py:790
+#: warehouse/accounts/views.py:622 warehouse/accounts/views.py:705
+#: warehouse/accounts/views.py:801
 msgid "Invalid token: no token supplied"
 msgstr "Ungültiges Token: kein Token angegeben"
 
-#: warehouse/accounts/views.py:615
+#: warehouse/accounts/views.py:626
 msgid "Invalid token: not a password reset token"
 msgstr "Ungültiges Token: dies ist kein Passwort-Zurücksetzen-Token"
 
-#: warehouse/accounts/views.py:620
+#: warehouse/accounts/views.py:631
 msgid "Invalid token: user not found"
 msgstr "Ungültiges Token: Benutzer nicht gefunden"
 
-#: warehouse/accounts/views.py:627
+#: warehouse/accounts/views.py:638
 msgid "Invalid token: user has logged in since this token was requested"
 msgstr ""
 "Ungültiges Token: Benutzer hat sich angemeldet seit dieses Token angefordert "
 "wurde"
 
-#: warehouse/accounts/views.py:636
+#: warehouse/accounts/views.py:647
 msgid ""
 "Invalid token: password has already been changed since this token was "
 "requested"
 msgstr ""
 "Ungültiges Token: Passwort wurde geändert seit dieses Token angefordert wurde"
 
-#: warehouse/accounts/views.py:663
+#: warehouse/accounts/views.py:674
 msgid "You have reset your password"
 msgstr "Sie haben Ihr Passwort zurückgesetzt"
 
-#: warehouse/accounts/views.py:690
+#: warehouse/accounts/views.py:701
 msgid "Expired token: request a new email verification link"
 msgstr "Abgelaufenes Token: bitte neuen E-Mail-Bestätigungslink anfordern"
 
-#: warehouse/accounts/views.py:692
+#: warehouse/accounts/views.py:703
 msgid "Invalid token: request a new email verification link"
 msgstr "Ungültiges Token: bitte neuen E-Mail-Bestätigungslink anfordern"
 
-#: warehouse/accounts/views.py:698
+#: warehouse/accounts/views.py:709
 msgid "Invalid token: not an email verification token"
 msgstr "Ungültiges Token: dies ist kein E-Mail-Bestätigungs-Token"
 
-#: warehouse/accounts/views.py:707
+#: warehouse/accounts/views.py:718
 msgid "Email not found"
 msgstr "E-Mail nicht gefunden"
 
-#: warehouse/accounts/views.py:710
+#: warehouse/accounts/views.py:721
 msgid "Email already verified"
 msgstr "E-Mail-Adresse ist schon verifiziert"
 
-#: warehouse/accounts/views.py:725
+#: warehouse/accounts/views.py:736
 msgid "You can now set this email as your primary address"
 msgstr "Diese E-Mail-Adresse kann nun als Haupt-Addresse markiert werden"
 
-#: warehouse/accounts/views.py:729
+#: warehouse/accounts/views.py:740
 msgid "This is your primary address"
 msgstr "Dies ist Ihre primäre E-Mail-Adresse"
 
-#: warehouse/accounts/views.py:734
+#: warehouse/accounts/views.py:745
 msgid "Email address ${email_address} verified. ${confirm_message}."
 msgstr "E-Mail-Adresse ${email_address} bestätigt. ${confirm_message}."
 
-#: warehouse/accounts/views.py:786
-#, fuzzy
-#| msgid "Expired token: request a new password reset link"
+#: warehouse/accounts/views.py:797
 msgid "Expired token: request a new project role invite"
-msgstr "Abgelaufenes Token: bitte neuen Passwort-Zurücksetzen-Link anfordern"
+msgstr "Abgelaufenes Token: Bitte neue Projekt-Rollen-Einladung anfordern"
 
-#: warehouse/accounts/views.py:788
-#, fuzzy
-#| msgid "Invalid token: request a new password reset link"
+#: warehouse/accounts/views.py:799
 msgid "Invalid token: request a new project role invite"
-msgstr "Ungültiges Token: bitte neuen Passwort-Zurücksetzen-Link anfordern"
+msgstr "Ungültiges Token: Bitte neue Projekt-Rollen-Einladung anfordern"
 
-#: warehouse/accounts/views.py:794
-#, fuzzy
-#| msgid "Invalid token: not an email verification token"
+#: warehouse/accounts/views.py:805
 msgid "Invalid token: not a collaboration invitation token"
-msgstr "Ungültiges Token: dies ist kein E-Mail-Bestätigungs-Token"
+msgstr "Ungültiges Token: Dies ist keine Einladung für eine Zusammenarbeit"
 
-#: warehouse/accounts/views.py:798
+#: warehouse/accounts/views.py:809
 msgid "Role invitation is not valid."
-msgstr ""
+msgstr "Rolleneinladung ist nicht gültig."
 
-#: warehouse/accounts/views.py:813
+#: warehouse/accounts/views.py:824
 msgid "Role invitation no longer exists."
-msgstr ""
+msgstr "Rolleneinladung ist nicht mehr existent."
 
-#: warehouse/accounts/views.py:825
+#: warehouse/accounts/views.py:836
 msgid "Invitation for '${project_name}' is declined."
-msgstr ""
+msgstr "Die Einladung für '${project_name}' wurde abgelehnt."
 
-#: warehouse/accounts/views.py:892
-#, fuzzy
-#| msgid "You are not an owner of this project"
+#: warehouse/accounts/views.py:903
 msgid "You are now ${role} of the '${project_name}' project."
-msgstr "Sie sind kein Besitzer dieses Projekts"
+msgstr "Sie sind nun '${role}' vom Projekt '${project_name}'."
 
 #: warehouse/admin/templates/admin/banners/preview.html:15
 msgid "Banner Preview"
-msgstr ""
+msgstr "Banner Vorschau"
 
-#: warehouse/manage/views.py:205
+#: warehouse/manage/views.py:207
 msgid "Email ${email_address} added - check your email for a verification link"
 msgstr ""
-"E-Mail-Adresse ${email_address} hinzugefügt. Bitte mit dem Bestätigungslink "
-"in der eben verschickten E-Mail bestätigen."
+"E-Mail-Adresse ${email_address} hinzugefügt - Bitte überprüfen Sie ihre E-"
+"Mails auf einen Überprüfungslink."
 
-#: warehouse/manage/views.py:692 warehouse/manage/views.py:728
+#: warehouse/manage/views.py:697 warehouse/manage/views.py:733
 msgid ""
 "You must provision a two factor method before recovery codes can be generated"
 msgstr ""
 "Du musst eine Zwei-Faktor-Authentifizierung einrichten, bevor "
 "Wiederherstellungscodes erzeugt werden können"
 
-#: warehouse/manage/views.py:703
+#: warehouse/manage/views.py:708
 msgid "Recovery codes already generated"
 msgstr "Wiederherstellungscodes wurden bereits generiert"
 
-#: warehouse/manage/views.py:704
+#: warehouse/manage/views.py:709
 msgid "Generating new recovery codes will invalidate your existing codes."
 msgstr ""
 "Das Generieren von neuen Wiederherstellungscodes macht die bestehenden Codes "
 "ungültig."
 
-#: warehouse/manage/views.py:755
+#: warehouse/manage/views.py:761
 msgid "Invalid credentials. Try again"
 msgstr "Ungültige Anmeldedaten. Erneut versuchen"
 
-#: warehouse/manage/views.py:1503
+#: warehouse/manage/views.py:1511
 msgid "User '${username}' already has ${role_name} role for project"
-msgstr ""
+msgstr "Der Benutzer '${username}' ist schon ${role_name} vom Projekt"
 
-#: warehouse/manage/views.py:1514
+#: warehouse/manage/views.py:1522
 msgid ""
 "User '${username}' does not have a verified primary email address and cannot "
 "be added as a ${role_name} for project"
 msgstr ""
+"Der Benutzer '${username}' hat keine gültige email Adresse und konnte nicht "
+"als '${role_name}' hinzugefügt werden"
 
-#: warehouse/manage/views.py:1527
+#: warehouse/manage/views.py:1535
 msgid ""
 "User '${username}' already has an active invite. Please try again later."
 msgstr ""
+"Der Benutzer '${username}' hat schon eine Einladung bekommen. Bitte versuche "
+"es später noch einmal."
 
-#: warehouse/manage/views.py:1585
+#: warehouse/manage/views.py:1593
 msgid "Invitation sent to '${username}'"
-msgstr ""
+msgstr "Die Einladung wurde '${username}' zugestellt"
 
-#: warehouse/manage/views.py:1632
+#: warehouse/manage/views.py:1640
 msgid "Could not find role invitation."
-msgstr ""
+msgstr "Es konnte keine Einladung für eine Berechtigungsrolle gefunden werden."
 
-#: warehouse/manage/views.py:1643
-#, fuzzy
-#| msgid "Email already verified"
+#: warehouse/manage/views.py:1651
 msgid "Invitation already expired."
-msgstr "E-Mail-Adresse ist schon verifiziert"
+msgstr "Die Einladung ist schon angelaufen."
 
-#: warehouse/manage/views.py:1667
+#: warehouse/manage/views.py:1675
 msgid "Invitation revoked from '${username}'."
-msgstr ""
+msgstr "Einladung von '${username}' wurde annuliert."
 
 #: warehouse/templates/403.html:16
 msgid "Access Denied / Forbidden (403)"
@@ -351,14 +347,12 @@ msgid "We looked everywhere but couldn't find this page"
 msgstr "Wir haben überall nachgesehen, konnten diese Seite aber nicht finden"
 
 #: warehouse/templates/404.html:29
-#, fuzzy
-#| msgid "And now for something <br><span>completely different"
 msgid "And now for something <br><span>completely different</span>"
-msgstr "Und nun zu etwas <br><span>völlig anderem"
+msgstr "Und nun zu etwas <br><span>völlig anderem</span>"
 
 #: warehouse/templates/404.html:32
 msgid "Monty Python - The Cheese Shop Sketch"
-msgstr "Monty Python - Der Cheese-Shop-Sketch"
+msgstr "Monty Python - Der Cheese-Shop Sketch"
 
 #: warehouse/templates/404.html:34 warehouse/templates/500.html:28
 #: warehouse/templates/500.html:29
@@ -607,7 +601,7 @@ msgstr "Zur mobilen Version wechseln"
 #: warehouse/templates/base.html:162 warehouse/templates/base.html:171
 #: warehouse/templates/base.html:181
 #: warehouse/templates/includes/session-notifications.html:19
-#: warehouse/templates/manage/account.html:755
+#: warehouse/templates/manage/account.html:783
 #: warehouse/templates/manage/documentation.html:27
 #: warehouse/templates/manage/manage_base.html:106
 #: warehouse/templates/manage/manage_base.html:158
@@ -777,10 +771,8 @@ msgid "Switch to desktop version"
 msgstr "Zur Desktop-Version wechseln"
 
 #: warehouse/templates/confirm-action.html:17
-#, fuzzy
-#| msgid "Confirm form"
 msgid "Confirm Action"
-msgstr "Bestätigungsformular"
+msgstr "Bestätige diese Aktion"
 
 #: warehouse/templates/error-base.html:31
 msgid "Error code"
@@ -866,11 +858,8 @@ msgid "Package authors use PyPI to distribute their software."
 msgstr "Paket-Entwickler benutzen PyPI, um ihre Software zu veröffentlichen."
 
 #: warehouse/templates/index.html:116
-#, fuzzy
-#| msgid "Learn how to package your Python code for PyPI</a>."
 msgid "Learn how to package your Python code for PyPI"
-msgstr ""
-"Wie wird Python-Software für die Veröffentlichung auf PyPI vorbereitet</a>?"
+msgstr "Erfahren sie hier wie sie ihren Python-Code für PyPI vorbereiten."
 
 #: warehouse/templates/index.html:126
 msgid "Trending projects"
@@ -1362,10 +1351,7 @@ msgstr ""
 "treten."
 
 #: warehouse/templates/email/added-as-collaborator/body.html:19
-#, fuzzy, python-format
-#| msgid ""
-#| "You have been added as <strong>%(role)s</strong> to the %(site)s project "
-#| "%(project)s by %(submitter)s."
+#, python-format
 msgid ""
 "You have been added as <strong>%(role)s</strong> to the %(site)s project "
 "%(project_name)s by %(initiator_username)s."
@@ -1374,16 +1360,13 @@ msgstr ""
 "Projekt %(project)s hinzugefügt."
 
 #: warehouse/templates/email/added-as-collaborator/body.html:24
-#, fuzzy, python-format
-#| msgid ""
-#| "You are receiving this because you have been added by %(submitter)s to a "
-#| "project on %(site)s."
+#, python-format
 msgid ""
 "You are receiving this because you have been added by %(initiator_username)s "
 "to a project on %(site)s."
 msgstr ""
-"Sie erhalten dies, weil sie von %(submitter)s zu einem Projekt auf %(site)s "
-"hinzugefügt wurden."
+"Sie erhalten dies, weil sie von %(initiator_username)s zu einem Projekt auf "
+"%(site)s hinzugefügt wurden."
 
 #: warehouse/templates/email/password-change/body.html:18
 #, python-format
@@ -1575,13 +1558,14 @@ msgstr ""
 # account "
 # | "<strong>%(username)s</strong>."
 #: warehouse/templates/email/two-factor-added/body.html:18
-#, fuzzy, python-format
+#, python-format
 msgid ""
 "Someone, perhaps you, has added a %(method)s two-factor authentication "
 "method to your PyPI account <strong>%(username)s</strong>."
 msgstr ""
-"Jemand, möglicherweise Sie selbst, hat das Passwort des PyPI-Kontos <strong>"
-"%(username)s</strong> geändert."
+"Jemand, möglicherweise Sie selbst, hat eine %(method)s "
+"Zweifaktorauthentifizerungsmethode zu Ihrem PyPI-Konto <strong>%(username)s</"
+"strong> hinzugefügt."
 
 # | msgid ""
 # | "Someone, perhaps you, has changed the password for your PyPI
@@ -2377,94 +2361,136 @@ msgid "Recovery code"
 msgstr "Wiederherstellungscodes"
 
 #: warehouse/templates/manage/account.html:579
+msgid "Login failed"
+msgstr ""
+
+#: warehouse/templates/manage/account.html:581
+#: warehouse/templates/manage/account.html:598
+#: warehouse/templates/manage/history.html:84
+msgid "Reason:"
+msgstr ""
+
+#: warehouse/templates/manage/account.html:583
+#: warehouse/templates/manage/account.html:600
+#, fuzzy
+#| msgid "Your current password"
+msgid "Incorrect Password"
+msgstr "Ihr aktuelles Passwort"
+
+#: warehouse/templates/manage/account.html:585
+#, fuzzy
+#| msgid "Invalid or expired two factor login."
+msgid "Invalid two factor (TOTP)"
+msgstr "Ungültiger oder abgelaufener Zweifaktor-Login."
+
+#: warehouse/templates/manage/account.html:587
+#, fuzzy
+#| msgid "Invalid or expired two factor login."
+msgid "Invalid two factor (WebAuthn)"
+msgstr "Ungültiger oder abgelaufener Zweifaktor-Login."
+
+# | msgid "Invalid TOTP code."
+#: warehouse/templates/manage/account.html:589
+#, fuzzy
+#| msgid "Invalid recovery code."
+msgid "Invalid two factor (Recovery code)"
+msgstr "Ungültiger Wiederherstellungs-Code."
+
+#: warehouse/templates/manage/account.html:596
+#, fuzzy
+#| msgid "Two factor authentication added"
+msgid "Session reauthentication failed"
+msgstr "Zwei-Faktor-Authentifizierung hinzugefügt"
+
+#: warehouse/templates/manage/account.html:607
 msgid "Email added to account"
 msgstr "E-Mail zum Konto hinzugefügt"
 
-#: warehouse/templates/manage/account.html:582
+#: warehouse/templates/manage/account.html:610
 msgid "Email removed from account"
 msgstr "E-Mail vom Konto entfernt"
 
-#: warehouse/templates/manage/account.html:585
+#: warehouse/templates/manage/account.html:613
 msgid "Email verified"
 msgstr "E-Mail bestätigt"
 
-#: warehouse/templates/manage/account.html:588
+#: warehouse/templates/manage/account.html:616
 msgid "Email reverified"
 msgstr "E-Mail-Adresse erneut bestätigt"
 
-#: warehouse/templates/manage/account.html:592
+#: warehouse/templates/manage/account.html:620
 msgid "Primary email changed"
 msgstr "Primäre E-Mail-Adresse geändert"
 
-#: warehouse/templates/manage/account.html:594
+#: warehouse/templates/manage/account.html:622
 msgid "Old primary email:"
 msgstr "Alte primäre E-Mail-Adresse:"
 
-#: warehouse/templates/manage/account.html:595
+#: warehouse/templates/manage/account.html:623
 msgid "New primary email:"
 msgstr "Neue primäre E-Mail-Adresse:"
 
-#: warehouse/templates/manage/account.html:598
+#: warehouse/templates/manage/account.html:626
 msgid "Primary email set"
 msgstr "Primäre E-Mail-Adresse eingestellt"
 
-#: warehouse/templates/manage/account.html:604
+#: warehouse/templates/manage/account.html:632
 #, fuzzy
 #| msgid "Reset email sent"
 msgid "Email sent"
 msgstr "E-Mail zum Zurücksetzen des Passwortes gesendet"
 
-#: warehouse/templates/manage/account.html:606
+#: warehouse/templates/manage/account.html:634
 msgid "From:"
 msgstr ""
 
-#: warehouse/templates/manage/account.html:607
+#: warehouse/templates/manage/account.html:635
 msgid "To:"
 msgstr ""
 
-#: warehouse/templates/manage/account.html:608
+#: warehouse/templates/manage/account.html:636
 #, fuzzy
 #| msgid "Project:"
 msgid "Subject:"
 msgstr "Projekt:"
 
-#: warehouse/templates/manage/account.html:612
+#: warehouse/templates/manage/account.html:640
 msgid "Password reset requested"
 msgstr "Passwort-Rücksetzung angefragt"
 
-#: warehouse/templates/manage/account.html:614
+#: warehouse/templates/manage/account.html:642
 #, fuzzy
 #| msgid "Password reset requested"
 msgid "Password reset attempted"
 msgstr "Passwort-Rücksetzung angefragt"
 
-#: warehouse/templates/manage/account.html:616
+#: warehouse/templates/manage/account.html:644
 msgid "Password successfully reset"
 msgstr "Passwort erfolgreich zurückgesetzt"
 
-#: warehouse/templates/manage/account.html:618
+#: warehouse/templates/manage/account.html:646
 msgid "Password successfully changed"
 msgstr "Passwort erfolgreich geändert"
 
-#: warehouse/templates/manage/account.html:621
+#: warehouse/templates/manage/account.html:649
 msgid "Two factor authentication added"
 msgstr "Zwei-Faktor-Authentifizierung hinzugefügt"
 
-#: warehouse/templates/manage/account.html:624
-#: warehouse/templates/manage/account.html:634
+#: warehouse/templates/manage/account.html:652
+#: warehouse/templates/manage/account.html:662
 msgid ""
 "Method: Security device (<abbr title=\"web authentication\">WebAuthn</abbr>)"
 msgstr ""
 "Verfahren: Sicherheitsgerät (<abbr title=\"Web Authentication\">WebAuthn</"
 "abbr>)"
 
-#: warehouse/templates/manage/account.html:625
-#: warehouse/templates/manage/account.html:635
+#: warehouse/templates/manage/account.html:653
+#: warehouse/templates/manage/account.html:663
 msgid "Device name:"
 msgstr "Gerätename:"
 
-#: warehouse/templates/manage/account.html:627
-#: warehouse/templates/manage/account.html:637
+#: warehouse/templates/manage/account.html:655
+#: warehouse/templates/manage/account.html:665
 msgid ""
 "Method: Authentication application (<abbr title=\"time-based one-time "
 "password\">TOTP</abbr>)"
@@ -2472,72 +2498,72 @@ msgstr ""
 "Verfahren: Authentifizierungsanwendung (<abbr title=\"Time-based One-time "
 "Password\">TOTP</abbr>)"
 
-#: warehouse/templates/manage/account.html:631
+#: warehouse/templates/manage/account.html:659
 msgid "Two factor authentication removed"
 msgstr "Zwei-Faktor-Authentifizierung entfernt"
 
-#: warehouse/templates/manage/account.html:642
+#: warehouse/templates/manage/account.html:670
 #, fuzzy
 #| msgid "Recovery codes already generated"
 msgid "Recovery codes generated"
 msgstr "Wiederherstellungscodes wurden bereits generiert"
 
-#: warehouse/templates/manage/account.html:646
+#: warehouse/templates/manage/account.html:674
 #, fuzzy
 #| msgid "Recovery codes already generated"
 msgid "Recovery codes regenerated"
 msgstr "Wiederherstellungscodes wurden bereits generiert"
 
-#: warehouse/templates/manage/account.html:650
+#: warehouse/templates/manage/account.html:678
 #, fuzzy
 #| msgid "Recovery codes already generated"
 msgid "Recovery code used for login"
 msgstr "Wiederherstellungscodes wurden bereits generiert"
 
-#: warehouse/templates/manage/account.html:656
+#: warehouse/templates/manage/account.html:684
 #: warehouse/templates/manage/history.html:65
 msgid "API token added"
 msgstr "API-Token hinzugefügt"
 
-#: warehouse/templates/manage/account.html:658
-#: warehouse/templates/manage/account.html:673
+#: warehouse/templates/manage/account.html:686
+#: warehouse/templates/manage/account.html:701
 #: warehouse/templates/manage/history.html:69
 #: warehouse/templates/manage/history.html:76
 msgid "Token name:"
 msgstr "Token-Bezeichnung:"
 
-#: warehouse/templates/manage/account.html:660
-#: warehouse/templates/manage/account.html:676
+#: warehouse/templates/manage/account.html:688
+#: warehouse/templates/manage/account.html:704
 msgid "Token scope: entire account"
 msgstr "Token-Geltungsbereich: gesamtes Konto"
 
-#: warehouse/templates/manage/account.html:662
-#: warehouse/templates/manage/account.html:678
+#: warehouse/templates/manage/account.html:690
+#: warehouse/templates/manage/account.html:706
 #, python-format
 msgid "Token scope: Project %(project_name)s"
 msgstr "Token-Geltungsbereich: Projekt %(project_name)s"
 
-#: warehouse/templates/manage/account.html:667
+#: warehouse/templates/manage/account.html:695
 #: warehouse/templates/manage/history.html:72
 msgid "API token removed"
 msgstr "API-Token entfernt"
 
-#: warehouse/templates/manage/account.html:668
-#: warehouse/templates/manage/account.html:674
+#: warehouse/templates/manage/account.html:696
+#: warehouse/templates/manage/account.html:702
 msgid "Unique identifier:"
 msgstr "Eindeutiger Bezeichner:"
 
-#: warehouse/templates/manage/account.html:671
+#: warehouse/templates/manage/account.html:699
 msgid "API token automatically removed for security reasons"
 msgstr ""
 
-#: warehouse/templates/manage/account.html:680
+#: warehouse/templates/manage/account.html:708
 #, fuzzy, python-format
 #| msgid "Displayed on your <a href=\"%(href)s\">public profile</a>"
 msgid "Reason: Token found at <a href=\"%(public_url)s\">public url</a>"
 msgstr "Wird auf dem <a href=\"%(href)s\">öffentlichen Profil</a> angezeigt"
 
-#: warehouse/templates/manage/account.html:689
+#: warehouse/templates/manage/account.html:717
 #, python-format
 msgid ""
 "Events appear here as security-related actions occur on your account. If you "
@@ -2545,45 +2571,45 @@ msgid ""
 "account</a> as soon as possible."
 msgstr ""
 
-#: warehouse/templates/manage/account.html:694
+#: warehouse/templates/manage/account.html:722
 msgid "Recent account activity"
 msgstr "Kürzliche Konto-Aktivitäten"
 
-#: warehouse/templates/manage/account.html:696
+#: warehouse/templates/manage/account.html:724
 #: warehouse/templates/manage/history.html:97
 msgid "Event"
 msgstr "Ereignis"
 
-#: warehouse/templates/manage/account.html:697
-#: warehouse/templates/manage/account.html:705
+#: warehouse/templates/manage/account.html:725
+#: warehouse/templates/manage/account.html:733
 #: warehouse/templates/manage/history.html:98
 #: warehouse/templates/manage/history.html:107
 msgid "Date / time"
 msgstr "Datum / Zeit"
 
-#: warehouse/templates/manage/account.html:698
-#: warehouse/templates/manage/account.html:709
+#: warehouse/templates/manage/account.html:726
+#: warehouse/templates/manage/account.html:737
 #: warehouse/templates/manage/history.html:99
 #: warehouse/templates/manage/history.html:111
 msgid "IP address"
 msgstr "IP-Adresse"
 
-#: warehouse/templates/manage/account.html:717
+#: warehouse/templates/manage/account.html:745
 msgid ""
 "Events will appear here as security-related actions occur on your account."
 msgstr ""
 "Hier erscheinen Ereignisse wenn sicherheitsrelevante Aktionen auf dem Konto "
 "ausgeführt werden."
 
-#: warehouse/templates/manage/account.html:724
+#: warehouse/templates/manage/account.html:752
 msgid "Delete account"
 msgstr "Konto entfernen"
 
-#: warehouse/templates/manage/account.html:727
+#: warehouse/templates/manage/account.html:755
 msgid "Cannot delete account"
 msgstr "Konto kann nicht entfernt werden"
 
-#: warehouse/templates/manage/account.html:729
+#: warehouse/templates/manage/account.html:757
 #, python-format
 msgid ""
 "\n"
@@ -2606,7 +2632,7 @@ msgstr[1] ""
 "von %(count)s Projekten.\n"
 "        "
 
-#: warehouse/templates/manage/account.html:734
+#: warehouse/templates/manage/account.html:762
 msgid ""
 "\n"
 "          You must transfer ownership or delete this project before you can "
@@ -2628,7 +2654,7 @@ msgstr[1] ""
 "löschen.\n"
 "        "
 
-#: warehouse/templates/manage/account.html:744
+#: warehouse/templates/manage/account.html:772
 #, python-format
 msgid ""
 "<a href=\"%(transfer_href)s\">transfer ownership</a> or <a href="
@@ -2637,16 +2663,16 @@ msgstr ""
 "<a href=\"%(transfer_href)s\">Eigentum übertragen</a> oder <a href="
 "\"%(delete_href)s\">Projekt löschen</a>"
 
-#: warehouse/templates/manage/account.html:753
+#: warehouse/templates/manage/account.html:781
 #: warehouse/templates/manage/token.html:169
 msgid "Proceed with caution!"
 msgstr "Mit Vorsicht fortfahren!"
 
-#: warehouse/templates/manage/account.html:756
+#: warehouse/templates/manage/account.html:784
 msgid "You will not be able to recover your account after you delete it"
 msgstr "Konto kann nach dem Löschen nicht wiederhergestellt werden"
 
-#: warehouse/templates/manage/account.html:758
+#: warehouse/templates/manage/account.html:786
 msgid "Delete your PyPI account"
 msgstr "PyPI-Konto löschen"
 
@@ -2786,10 +2812,6 @@ msgstr "Version %(version)s veröffentlichen"
 #| msgid "Changed by:"
 msgid "Yanked by:"
 msgstr "Geändert von:"
-
-#: warehouse/templates/manage/history.html:84
-msgid "Reason:"
-msgstr ""
 
 #: warehouse/templates/manage/history.html:94
 #, python-format
@@ -3493,7 +3515,7 @@ msgstr "Projekt-Einstellungen"
 #: warehouse/templates/manage/settings.html:23
 #, fuzzy
 #| msgid "Project:"
-msgid "Project size :"
+msgid "Project size:"
 msgstr "Projekt:"
 
 #: warehouse/templates/manage/settings.html:31

@@ -19,7 +19,7 @@ from warehouse import integrations
 from warehouse.integrations import vulnerabilities
 
 
-class OSVPublicKeyAPIError(vulnerabilities.InvalidVulnerabilityReportRequest):
+class OSVPublicKeyAPIError(vulnerabilities.InvalidVulnerabilityReportError):
     pass
 
 
