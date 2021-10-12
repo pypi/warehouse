@@ -63,7 +63,7 @@ def _analyze_vulnerability(request, vulnerability_report, origin, metrics):
         report = vulnerabilities.VulnerabilityReportRequest.from_api_request(
             request=vulnerability_report
         )
-    except vulnerabilities.InvalidVulnerabilityReportRequest as exc:
+    except vulnerabilities.InvalidVulnerabilityReportError as exc:
         metrics.increment(
             f"warehouse.vulnerabilities.error.{exc.reason}", tags=[f"origin:{origin}"]
         )
@@ -144,7 +144,7 @@ def analyze_vulnerability(request, vulnerability_report, origin, metrics):
             "warehouse.vulnerabilities.processed", tags=[f"origin:{origin}"]
         )
     except (
-        vulnerabilities.InvalidVulnerabilityReportRequest,
+        vulnerabilities.InvalidVulnerabilityReportError,
         NoResultFound,
         HTTPBadRequest,
     ):
@@ -163,7 +163,7 @@ def analyze_vulnerabilities(request, vulnerability_reports, origin, metrics):
         metrics.increment(
             "warehouse.vulnerabilities.error.format", tags=[f"origin:{origin}"]
         )
-        raise vulnerabilities.InvalidVulnerabilityReportRequest(
+        raise vulnerabilities.InvalidVulnerabilityReportError(
             "Invalid format: payload is not a list", "format"
         )
 
