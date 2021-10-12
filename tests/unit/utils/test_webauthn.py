@@ -47,6 +47,7 @@ def test_verify_registration_response(monkeypatch):
             {},
             webauthn._webauthn_b64encode("not_a_real_challenge".encode()).decode(),
             self_attestation_permitted=True,
+            none_attestation_permitted=True,
         )
     ]
     assert resp == "not a real object"
@@ -59,7 +60,7 @@ def test_verify_registration_response_failure(monkeypatch):
     response_cls = pretend.call_recorder(lambda *a, **kw: response_obj)
     monkeypatch.setattr(pywebauthn, "WebAuthnRegistrationResponse", response_cls)
 
-    with pytest.raises(webauthn.RegistrationRejectedException):
+    with pytest.raises(webauthn.RegistrationRejectedError):
         webauthn.verify_registration_response(
             {}, "not_a_real_challenge", rp_id="fake_rp_id", origin="fake_origin"
         )
@@ -110,7 +111,7 @@ def test_verify_assertion_response_failure(monkeypatch):
     )
     monkeypatch.setattr(webauthn, "_get_webauthn_users", get_webauthn_users)
 
-    with pytest.raises(webauthn.AuthenticationRejectedException):
+    with pytest.raises(webauthn.AuthenticationRejectedError):
         webauthn.verify_assertion_response(
             pretend.stub(),
             challenge="not_a_real_challenge",

@@ -595,7 +595,7 @@ class TestDatabaseUserService:
             webauthn, "verify_registration_response", verify_registration_response
         )
 
-        with pytest.raises(webauthn.RegistrationRejectedException):
+        with pytest.raises(webauthn.RegistrationRejectedError):
             user_service.verify_webauthn_credential(
                 pretend.stub(),
                 challenge=pretend.stub(),
