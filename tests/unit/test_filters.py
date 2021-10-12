@@ -143,7 +143,7 @@ def test_format_tags(inp, expected):
             [("Foo", ["Bar :: Baz", "Bar :: Qux"])],
         ),
         (
-            ["Vleep :: Foo", "Foo :: Bar :: Qux", "Foo :: Bar :: Baz"],
+            ["Foo :: Bar :: Baz", "Vleep :: Foo", "Foo :: Bar :: Qux"],
             [("Foo", ["Bar :: Baz", "Bar :: Qux"]), ("Vleep", ["Foo"])],
         ),
     ],

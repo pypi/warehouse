@@ -122,11 +122,12 @@ class TestAddEmailForm:
 
 class TestChangePasswordForm:
     def test_creation(self):
+        request = pretend.stub()
         user_service = pretend.stub()
         breach_service = pretend.stub()
 
         form = forms.ChangePasswordForm(
-            user_service=user_service, breach_service=breach_service
+            request=request, user_service=user_service, breach_service=breach_service
         )
 
         assert form.user_service is user_service
@@ -162,12 +163,14 @@ class TestProvisionTOTPForm:
 
 class TestDeleteTOTPForm:
     def test_creation(self):
+        request = pretend.stub()
         user_service = pretend.stub()
-        form = forms.DeleteTOTPForm(user_service=user_service)
+        form = forms.DeleteTOTPForm(request=request, user_service=user_service)
 
         assert form.user_service is user_service
 
     def test_validate_confirm_password(self):
+        request = pretend.stub()
         user_service = pretend.stub(
             find_userid=pretend.call_recorder(lambda userid: 1),
             check_password=pretend.call_recorder(
@@ -175,7 +178,10 @@ class TestDeleteTOTPForm:
             ),
         )
         form = forms.DeleteTOTPForm(
-            username="username", user_service=user_service, password="password"
+            username="username",
+            request=request,
+            user_service=user_service,
+            password="password",
         )
 
         assert form.validate()
@@ -446,9 +452,12 @@ class TestCreateMacaroonForm:
 class TestDeleteMacaroonForm:
     def test_creation(self):
         macaroon_service = pretend.stub()
+        request = pretend.stub()
         user_service = pretend.stub()
         form = forms.DeleteMacaroonForm(
-            macaroon_service=macaroon_service, user_service=user_service
+            request=request,
+            macaroon_service=macaroon_service,
+            user_service=user_service,
         )
 
         assert form.macaroon_service is macaroon_service
@@ -461,8 +470,10 @@ class TestDeleteMacaroonForm:
         user_service = pretend.stub(
             find_userid=lambda *a, **kw: 1, check_password=lambda *a, **kw: True
         )
+        request = pretend.stub()
         form = forms.DeleteMacaroonForm(
             data={"macaroon_id": pretend.stub(), "password": "password"},
+            request=request,
             macaroon_service=macaroon_service,
             user_service=user_service,
             username="username",
@@ -478,8 +489,10 @@ class TestDeleteMacaroonForm:
         user_service = pretend.stub(
             find_userid=lambda *a, **kw: 1, check_password=lambda *a, **kw: True
         )
+        request = pretend.stub()
         form = forms.DeleteMacaroonForm(
             data={"macaroon_id": pretend.stub(), "password": "password"},
+            request=request,
             macaroon_service=macaroon_service,
             username="username",
             user_service=user_service,

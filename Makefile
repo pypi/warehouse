@@ -130,6 +130,19 @@ deps: .state/env/pyvenv.cfg
 requirements/%.txt: requirements/%.in
 	$(BINDIR)/pip-compile --allow-unsafe --generate-hashes --output-file=$@ $<
 
+fix-google-deps:
+	# Fixes issues caused by https://github.com/pypa/pip/issues/9644
+	# Whenever you have the following error:
+	#     ERROR: In --require-hashes mode, all requirements must have their versions
+	#     pinned with ==. These do not: google-<something>
+	# Launch this target on a new branch against main, and submit a PR with the result.
+
+	pip-compile --allow-unsafe --generate-hashes --output-file=requirements/main.txt \
+	    --upgrade-package google-cloud-storage \
+	    --upgrade-package google-cloud-bigquery \
+	    --upgrade-package google-cloud-core \
+	    --upgrade-package google-api-core \
+	    requirements/main.in
 
 github-actions-deps:
 ifneq ($(GITHUB_BASE_REF), false)
