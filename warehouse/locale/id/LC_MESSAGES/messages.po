@@ -66,57 +66,57 @@ msgstr ""
 "Nama pengguna ini sudah digunakan oleh akun lain. Pilih nama pengguna yang "
 "berbeda."
 
-#: warehouse/accounts/forms.py:124
+#: warehouse/accounts/forms.py:134
 msgid "The password is invalid. Try again."
 msgstr "Kata sandi salah. Coba lagi."
 
-#: warehouse/accounts/forms.py:128 warehouse/accounts/views.py:76
+#: warehouse/accounts/forms.py:138 warehouse/accounts/views.py:76
 msgid "There have been too many unsuccessful login attempts. Try again later."
 msgstr "Terlalu banyak upaya masuk yang gagal. Coba lagi nanti."
 
-#: warehouse/accounts/forms.py:150
+#: warehouse/accounts/forms.py:160
 msgid "Your passwords don't match. Try again."
 msgstr "Kata sandi tidak cocok. Coba lagi."
 
-#: warehouse/accounts/forms.py:181 warehouse/accounts/forms.py:192
+#: warehouse/accounts/forms.py:191 warehouse/accounts/forms.py:202
 msgid "The email address isn't valid. Try again."
 msgstr "Alamat email tidak valid. Coba lagi."
 
-#: warehouse/accounts/forms.py:200
+#: warehouse/accounts/forms.py:210
 msgid "You can't use an email address from this domain. Use a different email."
 msgstr ""
 "Anda tidak dapat menggunakan alamat email dari domain ini. Gunakan email "
 "lain."
 
-#: warehouse/accounts/forms.py:211
+#: warehouse/accounts/forms.py:221
 msgid ""
 "This email address is already being used by this account. Use a different "
 "email."
 msgstr "Alamat email ini sudah digunakan oleh akun ini. Gunakan email lain."
 
-#: warehouse/accounts/forms.py:218
+#: warehouse/accounts/forms.py:228
 msgid ""
 "This email address is already being used by another account. Use a different "
 "email."
 msgstr "Alamat email ini sudah digunakan oleh akun lain. Gunakan email lain."
 
-#: warehouse/accounts/forms.py:240
+#: warehouse/accounts/forms.py:250
 msgid "The name is too long. Choose a name with 100 characters or less."
 msgstr "Nama terlalu panjang. Pilih nama dengan panjang kurang dari 100 huruf."
 
-#: warehouse/accounts/forms.py:304
+#: warehouse/accounts/forms.py:320
 msgid "Invalid TOTP code."
 msgstr "Kode TOTP tidak valid."
 
-#: warehouse/accounts/forms.py:321
+#: warehouse/accounts/forms.py:337
 msgid "Invalid WebAuthn assertion: Bad payload"
 msgstr "Pernyataan WebAuthn tidak valid: Muatan buruk"
 
-#: warehouse/accounts/forms.py:364
+#: warehouse/accounts/forms.py:392
 msgid "Invalid recovery code."
 msgstr "Kode pemulihan tidak valid."
 
-#: warehouse/accounts/forms.py:382
+#: warehouse/accounts/forms.py:410
 msgid "No user found with that username or email"
 msgstr "Tidak ada pengguna yang ditemukan dengan nama pengguna atau email itu"
 
@@ -128,26 +128,26 @@ msgstr ""
 "Terlalu banyak email telah ditambahkan ke akun ini tanpa dilakukan "
 "verifikasi. Periksa kotak masuk Anda dan ikuti tautan verifikasi. (IP: ${ip})"
 
-#: warehouse/accounts/views.py:232 warehouse/accounts/views.py:289
-#: warehouse/accounts/views.py:291 warehouse/accounts/views.py:318
-#: warehouse/accounts/views.py:320 warehouse/accounts/views.py:375
+#: warehouse/accounts/views.py:232 warehouse/accounts/views.py:292
+#: warehouse/accounts/views.py:294 warehouse/accounts/views.py:321
+#: warehouse/accounts/views.py:323 warehouse/accounts/views.py:384
 msgid "Invalid or expired two factor login."
 msgstr "Masuk dengan 2 faktor tidak valid atau kadaluwarsa."
 
-#: warehouse/accounts/views.py:283
+#: warehouse/accounts/views.py:286
 msgid "Already authenticated"
 msgstr "Sudah diotentikasi"
 
-#: warehouse/accounts/views.py:351
+#: warehouse/accounts/views.py:360
 msgid "Successful WebAuthn assertion"
 msgstr "Pernyataan WebAuthn yang berhasil"
 
-#: warehouse/accounts/views.py:404
+#: warehouse/accounts/views.py:415
 msgid "Recovery code accepted. The supplied code cannot be used again."
 msgstr ""
 "Kode pemulihan diterima. Kode yang diberikan tidak dapat digunakan lagi."
 
-#: warehouse/accounts/views.py:490
+#: warehouse/accounts/views.py:501
 msgid ""
 "New user registration temporarily disabled. See https://pypi.org/help#admin-"
 "intervention for details."
@@ -155,98 +155,98 @@ msgstr ""
 "Registrasi pengguna baru sementara dinonaktifkan. Lihat https://pypi.org/"
 "help#admin-intervention untuk detailnya."
 
-#: warehouse/accounts/views.py:607
+#: warehouse/accounts/views.py:618
 msgid "Expired token: request a new password reset link"
 msgstr "Token Kadaluarsa: minta tautan setel ulang kata sandi baru"
 
-#: warehouse/accounts/views.py:609
+#: warehouse/accounts/views.py:620
 msgid "Invalid token: request a new password reset link"
 msgstr "Token tidak valid: minta tautan setel ulang kata sandi baru"
 
-#: warehouse/accounts/views.py:611 warehouse/accounts/views.py:694
-#: warehouse/accounts/views.py:790
+#: warehouse/accounts/views.py:622 warehouse/accounts/views.py:705
+#: warehouse/accounts/views.py:801
 msgid "Invalid token: no token supplied"
 msgstr "Token tidak valid: tidak disediakan token"
 
-#: warehouse/accounts/views.py:615
+#: warehouse/accounts/views.py:626
 msgid "Invalid token: not a password reset token"
 msgstr "Token tidak valid: bukan token atur ulang kata sandi"
 
-#: warehouse/accounts/views.py:620
+#: warehouse/accounts/views.py:631
 msgid "Invalid token: user not found"
 msgstr "Token tidak valid: pengguna tidak ditemukan"
 
-#: warehouse/accounts/views.py:627
+#: warehouse/accounts/views.py:638
 msgid "Invalid token: user has logged in since this token was requested"
 msgstr "Token tidak valid: pengguna telah masuk karena token ini diminta"
 
-#: warehouse/accounts/views.py:636
+#: warehouse/accounts/views.py:647
 msgid ""
 "Invalid token: password has already been changed since this token was "
 "requested"
 msgstr "Token tidak valid: kata sandi telah diubah sejak token ini diminta"
 
-#: warehouse/accounts/views.py:663
+#: warehouse/accounts/views.py:674
 msgid "You have reset your password"
 msgstr "Anda telah mengatur ulang kata sandi Anda"
 
-#: warehouse/accounts/views.py:690
+#: warehouse/accounts/views.py:701
 msgid "Expired token: request a new email verification link"
 msgstr "Token Kadaluarsa: minta email tautan verifikasi baru"
 
-#: warehouse/accounts/views.py:692
+#: warehouse/accounts/views.py:703
 msgid "Invalid token: request a new email verification link"
 msgstr "Token tidak valid: minta email tautan verifikasi baru"
 
-#: warehouse/accounts/views.py:698
+#: warehouse/accounts/views.py:709
 msgid "Invalid token: not an email verification token"
 msgstr "Token tidak valid: bukan token verifikasi email"
 
-#: warehouse/accounts/views.py:707
+#: warehouse/accounts/views.py:718
 msgid "Email not found"
 msgstr "Email tidak ditemukan"
 
-#: warehouse/accounts/views.py:710
+#: warehouse/accounts/views.py:721
 msgid "Email already verified"
 msgstr "Email sudah diverifikasi"
 
-#: warehouse/accounts/views.py:725
+#: warehouse/accounts/views.py:736
 msgid "You can now set this email as your primary address"
 msgstr "Anda sekarang dapat mengatur email ini sebagai alamat utama Anda"
 
-#: warehouse/accounts/views.py:729
+#: warehouse/accounts/views.py:740
 msgid "This is your primary address"
 msgstr "Ini adalah alamat utama Anda"
 
-#: warehouse/accounts/views.py:734
+#: warehouse/accounts/views.py:745
 msgid "Email address ${email_address} verified. ${confirm_message}."
 msgstr "Alamat email ${email_address} terverifikasi. ${confirm_message}."
 
-#: warehouse/accounts/views.py:786
+#: warehouse/accounts/views.py:797
 msgid "Expired token: request a new project role invite"
 msgstr "Token kedaluwarsa: minta undangan peran proyek baru"
 
-#: warehouse/accounts/views.py:788
+#: warehouse/accounts/views.py:799
 msgid "Invalid token: request a new project role invite"
 msgstr "Token tidak valid: minta undangan peran proyek baru"
 
-#: warehouse/accounts/views.py:794
+#: warehouse/accounts/views.py:805
 msgid "Invalid token: not a collaboration invitation token"
 msgstr "Token tidak valid: bukan token undangan kolaborasi"
 
-#: warehouse/accounts/views.py:798
+#: warehouse/accounts/views.py:809
 msgid "Role invitation is not valid."
 msgstr "Undangan peran tidak valid."
 
-#: warehouse/accounts/views.py:813
+#: warehouse/accounts/views.py:824
 msgid "Role invitation no longer exists."
 msgstr "Undangan peran sudah tidak ada."
 
-#: warehouse/accounts/views.py:825
+#: warehouse/accounts/views.py:836
 msgid "Invitation for '${project_name}' is declined."
 msgstr "Undangan untuk '${project_name}' ditolak."
 
-#: warehouse/accounts/views.py:892
+#: warehouse/accounts/views.py:903
 msgid "You are now ${role} of the '${project_name}' project."
 msgstr "Anda sekarang menjadi ${role} dari proyek '${project_name}'."
 
@@ -254,36 +254,36 @@ msgstr "Anda sekarang menjadi ${role} dari proyek '${project_name}'."
 msgid "Banner Preview"
 msgstr "Pratinjau Spanduk"
 
-#: warehouse/manage/views.py:205
+#: warehouse/manage/views.py:207
 msgid "Email ${email_address} added - check your email for a verification link"
 msgstr ""
 "Email ${email_address} ditambahkan - periksa email Anda untuk tautan "
 "verifikasi"
 
-#: warehouse/manage/views.py:692 warehouse/manage/views.py:728
+#: warehouse/manage/views.py:697 warehouse/manage/views.py:733
 msgid ""
 "You must provision a two factor method before recovery codes can be generated"
 msgstr ""
 "Anda harus menyediakan metode dua faktor sebelum kode pemulihan dapat dibuat"
 
-#: warehouse/manage/views.py:703
+#: warehouse/manage/views.py:708
 msgid "Recovery codes already generated"
 msgstr "Kode pemulihan sudah dibuat"
 
-#: warehouse/manage/views.py:704
+#: warehouse/manage/views.py:709
 msgid "Generating new recovery codes will invalidate your existing codes."
 msgstr ""
 "Membuat kode pemulihan baru akan membuat kode yang sudah ada tidak valid."
 
-#: warehouse/manage/views.py:755
+#: warehouse/manage/views.py:761
 msgid "Invalid credentials. Try again"
 msgstr "Kredensial tidak valid. Coba lagi"
 
-#: warehouse/manage/views.py:1503
+#: warehouse/manage/views.py:1511
 msgid "User '${username}' already has ${role_name} role for project"
 msgstr "Pengguna '${username}' sudah memiliki peran ${role_name} di proyek"
 
-#: warehouse/manage/views.py:1514
+#: warehouse/manage/views.py:1522
 msgid ""
 "User '${username}' does not have a verified primary email address and cannot "
 "be added as a ${role_name} for project"
@@ -291,26 +291,26 @@ msgstr ""
 "Pengguna '${username}' tidak memiliki alamat email primer yang diverifikasi "
 "dan tidak dapat ditambahkan sebagai ${role_name} di proyek"
 
-#: warehouse/manage/views.py:1527
+#: warehouse/manage/views.py:1535
 msgid ""
 "User '${username}' already has an active invite. Please try again later."
 msgstr ""
 "Pengguna '${username}' sudah memiliki undangan aktif. Silakan coba lagi "
 "nanti."
 
-#: warehouse/manage/views.py:1585
+#: warehouse/manage/views.py:1593
 msgid "Invitation sent to '${username}'"
 msgstr "Undangan dikirim ke '${username}'"
 
-#: warehouse/manage/views.py:1632
+#: warehouse/manage/views.py:1640
 msgid "Could not find role invitation."
 msgstr "Tidak dapat menemukan undangan peran."
 
-#: warehouse/manage/views.py:1643
+#: warehouse/manage/views.py:1651
 msgid "Invitation already expired."
 msgstr "Undangan sudah kedaluwarsa."
 
-#: warehouse/manage/views.py:1667
+#: warehouse/manage/views.py:1675
 msgid "Invitation revoked from '${username}'."
 msgstr "Undangan dibatalkan dari '${username}'."
 
@@ -585,7 +585,7 @@ msgstr "Beralih ke versi seluler"
 #: warehouse/templates/base.html:162 warehouse/templates/base.html:171
 #: warehouse/templates/base.html:181
 #: warehouse/templates/includes/session-notifications.html:19
-#: warehouse/templates/manage/account.html:755
+#: warehouse/templates/manage/account.html:783
 #: warehouse/templates/manage/documentation.html:27
 #: warehouse/templates/manage/manage_base.html:106
 #: warehouse/templates/manage/manage_base.html:158
@@ -2307,90 +2307,131 @@ msgid "Recovery code"
 msgstr "Kode pemulihan"
 
 #: warehouse/templates/manage/account.html:579
+msgid "Login failed"
+msgstr ""
+
+#: warehouse/templates/manage/account.html:581
+#: warehouse/templates/manage/account.html:598
+#: warehouse/templates/manage/history.html:84
+msgid "Reason:"
+msgstr "Alasan:"
+
+#: warehouse/templates/manage/account.html:583
+#: warehouse/templates/manage/account.html:600
+#, fuzzy
+#| msgid "Your current password"
+msgid "Incorrect Password"
+msgstr "Kata sandi Anda saat ini"
+
+#: warehouse/templates/manage/account.html:585
+#, fuzzy
+#| msgid "Invalid or expired two factor login."
+msgid "Invalid two factor (TOTP)"
+msgstr "Masuk dengan 2 faktor tidak valid atau kadaluwarsa."
+
+#: warehouse/templates/manage/account.html:587
+#, fuzzy
+#| msgid "Invalid or expired two factor login."
+msgid "Invalid two factor (WebAuthn)"
+msgstr "Masuk dengan 2 faktor tidak valid atau kadaluwarsa."
+
+#: warehouse/templates/manage/account.html:589
+#, fuzzy
+#| msgid "Invalid recovery code."
+msgid "Invalid two factor (Recovery code)"
+msgstr "Kode pemulihan tidak valid."
+
+#: warehouse/templates/manage/account.html:596
+#, fuzzy
+#| msgid "Two factor authentication added"
+msgid "Session reauthentication failed"
+msgstr "Autentikasi dua faktor ditambahkan"
+
+#: warehouse/templates/manage/account.html:607
 msgid "Email added to account"
 msgstr "Email ditambahkan ke akun"
 
-#: warehouse/templates/manage/account.html:582
+#: warehouse/templates/manage/account.html:610
 msgid "Email removed from account"
 msgstr "Email dihapus dari akun"
 
-#: warehouse/templates/manage/account.html:585
+#: warehouse/templates/manage/account.html:613
 msgid "Email verified"
 msgstr "Email terverifikasi"
 
-#: warehouse/templates/manage/account.html:588
+#: warehouse/templates/manage/account.html:616
 msgid "Email reverified"
 msgstr "Email diverifikasi ulang"
 
-#: warehouse/templates/manage/account.html:592
+#: warehouse/templates/manage/account.html:620
 msgid "Primary email changed"
 msgstr "Email utama diubah"
 
-#: warehouse/templates/manage/account.html:594
+#: warehouse/templates/manage/account.html:622
 msgid "Old primary email:"
 msgstr "Email utama lama:"
 
-#: warehouse/templates/manage/account.html:595
+#: warehouse/templates/manage/account.html:623
 msgid "New primary email:"
 msgstr "Email utama baru:"
 
-#: warehouse/templates/manage/account.html:598
+#: warehouse/templates/manage/account.html:626
 msgid "Primary email set"
 msgstr "Kumpulan email utama"
 
-#: warehouse/templates/manage/account.html:604
+#: warehouse/templates/manage/account.html:632
 msgid "Email sent"
 msgstr "Email terkirim"
 
-#: warehouse/templates/manage/account.html:606
+#: warehouse/templates/manage/account.html:634
 msgid "From:"
 msgstr "Dari:"
 
-#: warehouse/templates/manage/account.html:607
+#: warehouse/templates/manage/account.html:635
 msgid "To:"
 msgstr "Untuk:"
 
-#: warehouse/templates/manage/account.html:608
+#: warehouse/templates/manage/account.html:636
 msgid "Subject:"
 msgstr "Subjek:"
 
-#: warehouse/templates/manage/account.html:612
+#: warehouse/templates/manage/account.html:640
 msgid "Password reset requested"
 msgstr "Atur ulang kata sandi telah diminta"
 
-#: warehouse/templates/manage/account.html:614
+#: warehouse/templates/manage/account.html:642
 #, fuzzy
 #| msgid "Password reset requested"
 msgid "Password reset attempted"
 msgstr "Atur ulang kata sandi telah diminta"
 
-#: warehouse/templates/manage/account.html:616
+#: warehouse/templates/manage/account.html:644
 msgid "Password successfully reset"
 msgstr "Kata sandi berhasil direset"
 
-#: warehouse/templates/manage/account.html:618
+#: warehouse/templates/manage/account.html:646
 msgid "Password successfully changed"
 msgstr "Kata sandi berhasil diubah"
 
-#: warehouse/templates/manage/account.html:621
+#: warehouse/templates/manage/account.html:649
 msgid "Two factor authentication added"
 msgstr "Autentikasi dua faktor ditambahkan"
 
-#: warehouse/templates/manage/account.html:624
-#: warehouse/templates/manage/account.html:634
+#: warehouse/templates/manage/account.html:652
+#: warehouse/templates/manage/account.html:662
 msgid ""
 "Method: Security device (<abbr title=\"web authentication\">WebAuthn</abbr>)"
 msgstr ""
 "Metode: Perangkat keamanan (<abbr title=\"web authentication\">WebAuthn</"
 "abbr>)"
 
-#: warehouse/templates/manage/account.html:625
-#: warehouse/templates/manage/account.html:635
+#: warehouse/templates/manage/account.html:653
+#: warehouse/templates/manage/account.html:663
 msgid "Device name:"
 msgstr "Nama perangkat:"
 
-#: warehouse/templates/manage/account.html:627
-#: warehouse/templates/manage/account.html:637
+#: warehouse/templates/manage/account.html:655
+#: warehouse/templates/manage/account.html:665
 msgid ""
 "Method: Authentication application (<abbr title=\"time-based one-time "
 "password\">TOTP</abbr>)"
@@ -2398,66 +2439,66 @@ msgstr ""
 "Metode: Aplikasi otentikasi (<abbr title=\"time-based one-time password"
 "\">TOTP </abbr>)"
 
-#: warehouse/templates/manage/account.html:631
+#: warehouse/templates/manage/account.html:659
 msgid "Two factor authentication removed"
 msgstr "Autentikasi dua faktor dihapus"
 
-#: warehouse/templates/manage/account.html:642
+#: warehouse/templates/manage/account.html:670
 msgid "Recovery codes generated"
 msgstr "Kode pemulihan dibuat"
 
-#: warehouse/templates/manage/account.html:646
+#: warehouse/templates/manage/account.html:674
 msgid "Recovery codes regenerated"
 msgstr "Kode pemulihan dibuat ulang"
 
-#: warehouse/templates/manage/account.html:650
+#: warehouse/templates/manage/account.html:678
 msgid "Recovery code used for login"
 msgstr "Kode pemulihan digunakan untuk login"
 
-#: warehouse/templates/manage/account.html:656
+#: warehouse/templates/manage/account.html:684
 #: warehouse/templates/manage/history.html:65
 msgid "API token added"
 msgstr "Token API ditambahkan"
 
-#: warehouse/templates/manage/account.html:658
-#: warehouse/templates/manage/account.html:673
+#: warehouse/templates/manage/account.html:686
+#: warehouse/templates/manage/account.html:701
 #: warehouse/templates/manage/history.html:69
 #: warehouse/templates/manage/history.html:76
 msgid "Token name:"
 msgstr "Nama token:"
 
-#: warehouse/templates/manage/account.html:660
-#: warehouse/templates/manage/account.html:676
+#: warehouse/templates/manage/account.html:688
+#: warehouse/templates/manage/account.html:704
 msgid "Token scope: entire account"
 msgstr "Cakupan token: seluruh akun"
 
-#: warehouse/templates/manage/account.html:662
-#: warehouse/templates/manage/account.html:678
+#: warehouse/templates/manage/account.html:690
+#: warehouse/templates/manage/account.html:706
 #, python-format
 msgid "Token scope: Project %(project_name)s"
 msgstr "Cakupan token: Proyek %(project_name)s"
 
-#: warehouse/templates/manage/account.html:667
+#: warehouse/templates/manage/account.html:695
 #: warehouse/templates/manage/history.html:72
 msgid "API token removed"
 msgstr "Token API dihapus"
 
-#: warehouse/templates/manage/account.html:668
-#: warehouse/templates/manage/account.html:674
+#: warehouse/templates/manage/account.html:696
+#: warehouse/templates/manage/account.html:702
 msgid "Unique identifier:"
 msgstr "Pengidentifikasi unik:"
 
-#: warehouse/templates/manage/account.html:671
+#: warehouse/templates/manage/account.html:699
 msgid "API token automatically removed for security reasons"
 msgstr "Token API otomatis dihapus demi alasan keamanan"
 
-#: warehouse/templates/manage/account.html:680
+#: warehouse/templates/manage/account.html:708
 #, python-format
 msgid "Reason: Token found at <a href=\"%(public_url)s\">public url</a>"
 msgstr ""
 "Alasan: Token ditemukan di <a href=\"%(public_url)s\">url publik</a> anda"
 
-#: warehouse/templates/manage/account.html:689
+#: warehouse/templates/manage/account.html:717
 #, python-format
 msgid ""
 "Events appear here as security-related actions occur on your account. If you "
@@ -2468,45 +2509,45 @@ msgstr ""
 "Anda. Jika Anda melihat sesuatu yang mencurigakan, tolong <a href="
 "\"%(faq_url)s\">amankan akun anda</a> secepatnya."
 
-#: warehouse/templates/manage/account.html:694
+#: warehouse/templates/manage/account.html:722
 msgid "Recent account activity"
 msgstr "Aktivitas akun terbaru"
 
-#: warehouse/templates/manage/account.html:696
+#: warehouse/templates/manage/account.html:724
 #: warehouse/templates/manage/history.html:97
 msgid "Event"
 msgstr "Peristiwa"
 
-#: warehouse/templates/manage/account.html:697
-#: warehouse/templates/manage/account.html:705
+#: warehouse/templates/manage/account.html:725
+#: warehouse/templates/manage/account.html:733
 #: warehouse/templates/manage/history.html:98
 #: warehouse/templates/manage/history.html:107
 msgid "Date / time"
 msgstr "Tanggal / waktu"
 
-#: warehouse/templates/manage/account.html:698
-#: warehouse/templates/manage/account.html:709
+#: warehouse/templates/manage/account.html:726
+#: warehouse/templates/manage/account.html:737
 #: warehouse/templates/manage/history.html:99
 #: warehouse/templates/manage/history.html:111
 msgid "IP address"
 msgstr "Alamat IP"
 
-#: warehouse/templates/manage/account.html:717
+#: warehouse/templates/manage/account.html:745
 msgid ""
 "Events will appear here as security-related actions occur on your account."
 msgstr ""
 "Peristiwa akan muncul di sini karena tindakan terkait keamanan terjadi di "
 "akun Anda."
 
-#: warehouse/templates/manage/account.html:724
+#: warehouse/templates/manage/account.html:752
 msgid "Delete account"
 msgstr "Hapus akun"
 
-#: warehouse/templates/manage/account.html:727
+#: warehouse/templates/manage/account.html:755
 msgid "Cannot delete account"
 msgstr "Tidak dapat menghapus akun"
 
-#: warehouse/templates/manage/account.html:729
+#: warehouse/templates/manage/account.html:757
 #, python-format
 msgid ""
 "\n"
@@ -2524,7 +2565,7 @@ msgstr[0] ""
 "strong> dari%(count)s proyek.\n"
 "        "
 
-#: warehouse/templates/manage/account.html:734
+#: warehouse/templates/manage/account.html:762
 msgid ""
 "\n"
 "          You must transfer ownership or delete this project before you can "
@@ -2541,7 +2582,7 @@ msgstr[0] ""
 "sebelum Anda dapat menghapus akun Anda.\n"
 "        "
 
-#: warehouse/templates/manage/account.html:744
+#: warehouse/templates/manage/account.html:772
 #, python-format
 msgid ""
 "<a href=\"%(transfer_href)s\">transfer ownership</a> or <a href="
@@ -2550,16 +2591,16 @@ msgstr ""
 "<a href=\"%(transfer_href)s\"> transfer kepemilikan </a> atau<a href="
 "\"%(delete_href)s\">hapus proyek</a>"
 
-#: warehouse/templates/manage/account.html:753
+#: warehouse/templates/manage/account.html:781
 #: warehouse/templates/manage/token.html:169
 msgid "Proceed with caution!"
 msgstr "Lanjutkan dengan hati-hati!"
 
-#: warehouse/templates/manage/account.html:756
+#: warehouse/templates/manage/account.html:784
 msgid "You will not be able to recover your account after you delete it"
 msgstr "Anda tidak akan dapat memulihkan akun setelah menghapusnya"
 
-#: warehouse/templates/manage/account.html:758
+#: warehouse/templates/manage/account.html:786
 msgid "Delete your PyPI account"
 msgstr "Hapus akun PyPI Anda"
 
@@ -2694,10 +2735,6 @@ msgstr "Rilis versi %(version)s diubah"
 #: warehouse/templates/manage/history.html:81
 msgid "Yanked by:"
 msgstr "Diubah oleh:"
-
-#: warehouse/templates/manage/history.html:84
-msgid "Reason:"
-msgstr "Alasan:"
 
 #: warehouse/templates/manage/history.html:94
 #, python-format
@@ -3384,7 +3421,9 @@ msgid "Project settings"
 msgstr "Pengaturan proyek"
 
 #: warehouse/templates/manage/settings.html:23
-msgid "Project size :"
+#, fuzzy
+#| msgid "Project size :"
+msgid "Project size:"
 msgstr "Ukuran proyek :"
 
 #: warehouse/templates/manage/settings.html:31
