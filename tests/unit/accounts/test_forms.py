@@ -19,7 +19,7 @@ import wtforms
 from warehouse.accounts import forms
 from warehouse.accounts.interfaces import TooManyFailedLogins
 from warehouse.accounts.models import DisableReason
-from warehouse.utils.webauthn import AuthenticationRejectedException
+from warehouse.utils.webauthn import AuthenticationRejectedError
 
 
 class TestLoginForm:
@@ -708,7 +708,7 @@ class TestWebAuthnAuthenticationForm:
         user_service = pretend.stub(
             record_event=pretend.call_recorder(lambda *a, **kw: None),
             verify_webauthn_assertion=pretend.raiser(
-                AuthenticationRejectedException("foo")
+                AuthenticationRejectedError("foo")
             ),
         )
         form = forms.WebAuthnAuthenticationForm(

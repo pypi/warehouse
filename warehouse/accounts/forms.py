@@ -346,7 +346,7 @@ class WebAuthnAuthenticationForm(WebAuthnCredentialMixin, _TwoFactorAuthenticati
                 rp_id=self.rp_id,
             )
 
-        except webauthn.AuthenticationRejectedException as e:
+        except webauthn.AuthenticationRejectedError as e:
             self.user_service.record_event(
                 self.user_id,
                 tag="account:login:failure",
