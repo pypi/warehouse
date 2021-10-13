@@ -575,6 +575,34 @@
         {% endif %}
       </small>
 
+      {% elif event.tag == "account:login:failure" %}
+      <strong>{% trans %}Login failed{% endtrans %}</strong><br>
+      <small>
+        {% trans %}Reason:{% endtrans %}
+        {% if event.additional.reason == "invalid_password" %}
+          {% trans %}Incorrect Password{% endtrans %}
+        {% elif event.additional.reason == "invalid_totp" %}
+          {% trans %}Invalid two factor (TOTP){% endtrans %}
+        {% elif event.additional.reason == "invalid_webauthn" %}
+          {% trans %}Invalid two factor (WebAuthn){% endtrans %}
+        {% elif event.additional.reason == "invalid_recovery_code" %}
+          {% trans %}Invalid two factor (Recovery code){% endtrans %}
+        {% else %}
+          {{ event.additional.reason }}
+        {% endif %}
+      </small>
+
+      {% elif event.tag == "account:reauthenticate:failure" %}
+      <strong>{% trans %}Session reauthentication failed{% endtrans %}</strong><br>
+      <small>
+        {% trans %}Reason:{% endtrans %}
+        {% if event.additional.reason == "invalid_password" %}
+          {% trans %}Incorrect Password{% endtrans %}
+        {% else %}
+          {{ event.additional.reason }}
+        {% endif %}
+      </small>
+
       {% elif event.tag  == "account:email:add" %}
       <strong>{% trans %}Email added to account{% endtrans %}</strong><br>
       <small>{{ event.additional.email }}</small>

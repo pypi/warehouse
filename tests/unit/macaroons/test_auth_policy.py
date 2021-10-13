@@ -21,7 +21,7 @@ from zope.interface.verify import verifyClass
 
 from warehouse.macaroons import auth_policy
 from warehouse.macaroons.interfaces import IMacaroonService
-from warehouse.macaroons.services import InvalidMacaroon
+from warehouse.macaroons.services import InvalidMacaroonError
 
 
 @pytest.mark.parametrize(
@@ -194,7 +194,9 @@ class TestMacaroonAuthorizationPolicy:
         assert result == permits
 
     def test_permits_invalid_macaroon(self, monkeypatch):
-        macaroon_service = pretend.stub(verify=pretend.raiser(InvalidMacaroon("foo")))
+        macaroon_service = pretend.stub(
+            verify=pretend.raiser(InvalidMacaroonError("foo"))
+        )
         request = pretend.stub(
             find_service=pretend.call_recorder(lambda interface, **kw: macaroon_service)
         )
@@ -214,7 +216,7 @@ class TestMacaroonAuthorizationPolicy:
         result = policy.permits(pretend.stub(), pretend.stub(), pretend.stub())
 
         assert result == Denied("")
-        assert result.s == "Invalid API Token: InvalidMacaroon('foo')"
+        assert result.s == "Invalid API Token: InvalidMacaroonError('foo')"
 
     def test_permits_valid_macaroon(self, monkeypatch):
         macaroon_service = pretend.stub(

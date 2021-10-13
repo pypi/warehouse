@@ -242,6 +242,7 @@ def two_factor_and_totp_validate(request, _form_class=TOTPAuthenticationForm):
     if user_service.has_totp(userid):
         two_factor_state["totp_form"] = _form_class(
             request.POST,
+            request=request,
             user_id=userid,
             user_service=user_service,
             check_password_metrics_tags=["method:auth", "auth_method:login_form"],
@@ -327,6 +328,7 @@ def webauthn_authentication_validate(request):
     user_service = request.find_service(IUserService, context=None)
     form = WebAuthnAuthenticationForm(
         **request.POST,
+        request=request,
         user_id=userid,
         user_service=user_service,
         challenge=request.session.get_webauthn_challenge(),
@@ -387,7 +389,9 @@ def recovery_code(request, _form_class=RecoveryCodeAuthenticationForm):
 
     user_service = request.find_service(IUserService, context=None)
 
-    form = _form_class(request.POST, user_id=userid, user_service=user_service)
+    form = _form_class(
+        request.POST, request=request, user_id=userid, user_service=user_service
+    )
 
     if request.method == "POST":
         if form.validate():
@@ -1016,6 +1020,7 @@ def reauthenticate(request, _form_class=ReAuthenticateForm):
         next_route=request.matched_route.name,
         next_route_matchdict=json.dumps(request.matchdict),
         user_service=user_service,
+        action="reauthenticate",
         check_password_metrics_tags=[
             "method:reauth",
             "auth_method:reauthenticate_form",
