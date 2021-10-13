@@ -20,13 +20,13 @@ from cryptography.hazmat.primitives.asymmetric.ec import ECDSA
 from cryptography.hazmat.primitives.hashes import SHA256
 
 
-class InvalidPayloadSignature(Exception):
+class InvalidPayloadSignatureError(Exception):
     def __init__(self, message, reason):
         self.reason = reason
         super().__init__(message)
 
 
-class CacheMiss(Exception):
+class CacheMissError(Exception):
     pass
 
 
@@ -42,11 +42,11 @@ class PublicKeysCache:
 
     def get(self, now):
         if not self.cache:
-            raise CacheMiss
+            raise CacheMissError
 
         if self.cached_at + self.cache_time < now:
             self.cache = None
-            raise CacheMiss
+            raise CacheMissError
 
         return self.cache
 
@@ -74,7 +74,7 @@ class PayloadVerifier:
         try:
             public_keys = self._get_cached_public_keys()
             public_key = self._check_public_key(public_keys=public_keys, key_id=key_id)
-        except (CacheMiss, InvalidPayloadSignature):
+        except (CacheMissError, InvalidPayloadSignatureError):
             # No cache or outdated cache, it's ok, we'll do a real call.
             # Just record a metric so that we can know if all calls lead to
             # cache misses
@@ -93,7 +93,7 @@ class PayloadVerifier:
             self._check_signature(
                 payload=payload, public_key=public_key, signature=signature
             )
-        except InvalidPayloadSignature as exc:
+        except InvalidPayloadSignatureError as exc:
             self._metrics.increment(
                 f"warehouse.{self.metric_name}.auth.error.{exc.reason}"
             )
@@ -116,7 +116,7 @@ class PayloadVerifier:
             if record["key_id"] == key_id:
                 return record["key"]
 
-        raise InvalidPayloadSignature(
+        raise InvalidPayloadSignatureError(
             f"Key {key_id} not found in public keys", reason="wrong_key_id"
         )
 
@@ -132,12 +132,12 @@ class PayloadVerifier:
                 signature_algorithm=ECDSA(algorithm=SHA256()),
             )
         except InvalidSignature as exc:
-            raise InvalidPayloadSignature(
+            raise InvalidPayloadSignatureError(
                 "Invalid signature", "invalid_signature"
             ) from exc
         except Exception as exc:
             # Maybe the key is not a valid ECDSA key, maybe the data is not properly
             # padded, etc. So many things can go wrong...
-            raise InvalidPayloadSignature(
+            raise InvalidPayloadSignatureError(
                 "Invalid cryptographic values", "invalid_crypto"
             ) from exc

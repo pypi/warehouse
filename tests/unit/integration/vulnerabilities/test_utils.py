@@ -225,7 +225,7 @@ def test_analyze_vulnerability_invalid_request(db_request, metrics):
 
     metrics = pretend.stub(increment=metrics_increment, timed=metrics.timed)
 
-    with pytest.raises(vulnerabilities.InvalidVulnerabilityReportRequest) as exc:
+    with pytest.raises(vulnerabilities.InvalidVulnerabilityReportError) as exc:
         utils.analyze_vulnerability(
             request=db_request,
             vulnerability_report={
