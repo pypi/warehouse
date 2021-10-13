@@ -12,9 +12,9 @@ black==21.9b0 \
     --hash=sha256:380f1b5da05e5a1429225676655dddb96f5ae8c75bdf91e53d798871b902a115 \
     --hash=sha256:7de4cfc7eb6b710de325712d40125689101d21d25283eed7e9998722cf10eb91
     # via -r requirements/lint.in
-click==8.0.1 \
-    --hash=sha256:8c04c11192119b1ef78ea049e0a6f0463e4c48ef00a30160c704337586f3ad7a \
-    --hash=sha256:fba402a4a47334742d782209a7c79bc448911afe1149d07bdabdf480b3e2f4b6
+click==8.0.3 \
+    --hash=sha256:353f466495adaeb40b6b5f592f9f91cb22372351c84caeb068132442a4518ef3 \
+    --hash=sha256:410e932b050f5eed773c4cda94de75971c89cdb3155a72a0831139a79e5ecb5b
     # via
     #   black
     #   curlylint
@@ -22,9 +22,9 @@ curlylint==0.13.0 \
     --hash=sha256:0d38839f126b3fdd2561a7efa65d15a1c842aac98e555b2381f7c79478e1ff25 \
     --hash=sha256:63e5fc98f99c7b0eab0c4e3390356ad569b7bb3eecb6da115e6cb9ee98eb738f
     # via -r requirements/lint.in
-doc8==0.9.0 \
-    --hash=sha256:380b660474be40ce88b5f04fa93470449124dbc850a0318f2ef186162bc1360b \
-    --hash=sha256:91f6459a4b15c3aee2152e0cf59b7537ce199fe66b4df547dae63cfa92499e86
+doc8==0.9.1 \
+    --hash=sha256:0aa46f489dc8cdc908c0125c7b5c1c01eafe2f8c09b4bf3946cabeec90489d68 \
+    --hash=sha256:0e967db31ea10699667dd07790f98cf9d612ee6864df162c64e4954a8e30f90d
     # via -r requirements/lint.in
 docutils==0.16 \
     --hash=sha256:0c5b78adfbf7762415433f5515cd5c9e762339e23369dbe8000d84a4bf4ab3af \
