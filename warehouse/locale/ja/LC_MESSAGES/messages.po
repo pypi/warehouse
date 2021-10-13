@@ -11,13 +11,14 @@
 # Masashi Kondo <m-kondo@safie.jp>, 2019.
 # Dustin Ingram <dustin.ingram@gmail.com>, 2020.
 # Kenichi Maehashi <webmaster@kenichimaehashi.com>, 2021.
+# Nanashi. <sevenc_nanashi@yahoo.co.jp>, 2021.
 msgid ""
 msgstr ""
 "Project-Id-Version: Warehouse VERSION\n"
 "Report-Msgid-Bugs-To: admin@pypi.org\n"
 "POT-Creation-Date: 2020-04-06 17:52-0500\n"
-"PO-Revision-Date: 2021-09-23 12:38+0000\n"
-"Last-Translator: Kenichi Maehashi <webmaster@kenichimaehashi.com>\n"
+"PO-Revision-Date: 2021-10-13 18:59+0000\n"
+"Last-Translator: Nanashi. <sevenc_nanashi@yahoo.co.jp>\n"
 "Language-Team: Japanese <https://hosted.weblate.org/projects/pypa/warehouse/"
 "ja/>\n"
 "Language: ja\n"
@@ -2560,6 +2561,8 @@ msgid ""
 "notice anything suspicious, please <a href=\"%(faq_url)s\">secure your "
 "account</a> as soon as possible."
 msgstr ""
+"セキュリティ関連のイベントがここに表示されます。見覚えのないものを見つけた場合、今すぐ<a href=\"%(faq_url)s\""
+">アカウントのセキリュティを強化</a>してください。"
 
 #: warehouse/templates/manage/account.html:722
 msgid "Recent account activity"
