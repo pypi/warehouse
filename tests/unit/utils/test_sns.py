@@ -32,7 +32,7 @@ from cryptography.hazmat.primitives.serialization import (
 )
 from cryptography.x509.oid import NameOID
 
-from warehouse.utils.sns import InvalidMessage, MessageVerifier
+from warehouse.utils.sns import InvalidMessageError, MessageVerifier
 
 VALID_SIGNATURE = object()
 
@@ -202,7 +202,7 @@ class TestMessageVerifier:
             )
             data["Signature"] = base64.b64encode(signature_bytes)
 
-        with pytest.raises(InvalidMessage, match=error):
+        with pytest.raises(InvalidMessageError, match=error):
             verifier.verify(data)
 
     @pytest.mark.parametrize(

@@ -22,7 +22,7 @@ from sqlalchemy.orm.exc import NoResultFound
 from zope.interface import implementer
 
 from warehouse.accounts.models import User
-from warehouse.macaroons.caveats import InvalidMacaroon, Verifier
+from warehouse.macaroons.caveats import InvalidMacaroonError, Verifier
 from warehouse.macaroons.interfaces import IMacaroonService
 from warehouse.macaroons.models import Macaroon
 
@@ -70,7 +70,7 @@ class DatabaseMacaroonService:
         raw_macaroon = self._extract_raw_macaroon(raw_macaroon)
 
         if raw_macaroon is None:
-            raise InvalidMacaroon("malformed or nonexistent macaroon")
+            raise InvalidMacaroonError("malformed or nonexistent macaroon")
 
         try:
             return pymacaroons.Macaroon.deserialize(raw_macaroon)
@@ -78,7 +78,7 @@ class DatabaseMacaroonService:
             MacaroonDeserializationException,
             Exception,  # https://github.com/ecordell/pymacaroons/issues/50
         ):
-            raise InvalidMacaroon("malformed macaroon")
+            raise InvalidMacaroonError("malformed macaroon")
 
     def find_userid(self, raw_macaroon):
         """
@@ -87,7 +87,7 @@ class DatabaseMacaroonService:
         """
         try:
             m = self._deserialize_raw_macaroon(raw_macaroon)
-        except InvalidMacaroon:
+        except InvalidMacaroonError:
             return None
 
         dm = self.find_macaroon(m.identifier.decode())
@@ -99,12 +99,12 @@ class DatabaseMacaroonService:
 
     def find_from_raw(self, raw_macaroon):
         """
-        Returns a DB macaroon matching the imput, or raises InvalidMacaroon
+        Returns a DB macaroon matching the imput, or raises InvalidMacaroonError
         """
         m = self._deserialize_raw_macaroon(raw_macaroon)
         dm = self.find_macaroon(m.identifier.decode())
         if not dm:
-            raise InvalidMacaroon("Macaroon not found")
+            raise InvalidMacaroonError("Macaroon not found")
         return dm
 
     def verify(self, raw_macaroon, context, principals, permission):
@@ -112,20 +112,20 @@ class DatabaseMacaroonService:
         Returns True if the given raw (serialized) macaroon is
         valid for the context, principals, and requested permission.
 
-        Raises InvalidMacaroon if the macaroon is not valid.
+        Raises InvalidMacaroonError if the macaroon is not valid.
         """
         m = self._deserialize_raw_macaroon(raw_macaroon)
         dm = self.find_macaroon(m.identifier.decode())
 
         if dm is None:
-            raise InvalidMacaroon("deleted or nonexistent macaroon")
+            raise InvalidMacaroonError("deleted or nonexistent macaroon")
 
         verifier = Verifier(m, context, principals, permission)
         if verifier.verify(dm.key):
             dm.last_used = datetime.datetime.now()
             return True
 
-        raise InvalidMacaroon("invalid macaroon")
+        raise InvalidMacaroonError("invalid macaroon")
 
     def create_macaroon(self, location, user_id, description, caveats):
         """
