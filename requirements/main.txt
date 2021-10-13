@@ -157,9 +157,9 @@ charset-normalizer==2.0.4 \
     --hash=sha256:0c8911edd15d19223366a194a513099a302055a962bca2cec0f54b8b63175d8b \
     --hash=sha256:f23667ebe1084be45f6ae0538e4a5a865206544097e4e8bbcacf42cd02a348f3
     # via requests
-click==8.0.1 \
-    --hash=sha256:8c04c11192119b1ef78ea049e0a6f0463e4c48ef00a30160c704337586f3ad7a \
-    --hash=sha256:fba402a4a47334742d782209a7c79bc448911afe1149d07bdabdf480b3e2f4b6
+click==8.0.3 \
+    --hash=sha256:353f466495adaeb40b6b5f592f9f91cb22372351c84caeb068132442a4518ef3 \
+    --hash=sha256:410e932b050f5eed773c4cda94de75971c89cdb3155a72a0831139a79e5ecb5b
     # via -r requirements/main.in
 cmarkgfm==0.5.3 \
     --hash=sha256:00c58c885742519fccdc495b583c875c2db1d3dd26ca805779d6ad476a774df1 \
