@@ -20,6 +20,7 @@ from warehouse.legacy.api import json
 from warehouse.packaging.models import Dependency, DependencyKind
 
 from ....common.db.accounts import UserFactory
+from ....common.db.integrations import VulnerabilityRecordFactory
 from ....common.db.packaging import (
     DescriptionFactory,
     FileFactory,
@@ -432,6 +433,7 @@ class TestJSONRelease:
                 }
             ],
             "last_serial": je.id,
+            "vulnerabilities": [],
         }
 
     def test_minimal_renders(self, pyramid_config, db_request):
@@ -538,7 +540,37 @@ class TestJSONRelease:
                 }
             ],
             "last_serial": je.id,
+            "vulnerabilities": [],
         }
+
+    def test_vulnerabilities_renders(self, pyramid_config, db_request):
+        project = ProjectFactory.create(has_docs=False)
+        release = ReleaseFactory.create(project=project, version="0.1")
+        VulnerabilityRecordFactory.create(
+            id="PYSEC-001",
+            source="the source",
+            link="the link",
+            aliases=["alias1", "alias2"],
+            details="some details",
+            events=[{"introduced": "3.1"}, {"fixed": "3.3.2"}],
+            releases=[release],
+        )
+
+        url = "/the/fake/url/"
+        db_request.route_url = pretend.call_recorder(lambda *args, **kw: url)
+
+        result = json.json_release(release, db_request)
+
+        assert result["vulnerabilities"] == [
+            {
+                "id": "PYSEC-001",
+                "source": "the source",
+                "link": "the link",
+                "aliases": ["alias1", "alias2"],
+                "details": "some details",
+                "fixed_in": ["3.3.2"],
+            },
+        ]
 
 
 class TestJSONReleaseSlash:
