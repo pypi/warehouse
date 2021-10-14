@@ -11,8 +11,8 @@
 # limitations under the License.
 
 
-from sqlalchemy import Column, ForeignKey, ForeignKeyConstraint, String, Table, orm
-from sqlalchemy.dialects.postgresql import ARRAY
+from sqlalchemy import Column, ForeignKey, ForeignKeyConstraint, String, Table, orm, sql
+from sqlalchemy.dialects.postgresql import ARRAY, JSONB
 
 from warehouse import db
 
@@ -57,6 +57,12 @@ class VulnerabilityRecord(db.Model):
     # Alternative IDs for this vulnerability
     # e.g. "CVE-2021-12345"
     aliases = Column(ARRAY(String))
+
+    # Details about the vulnerability
+    details = Column(String)
+
+    # Events of introduced/fixed versions
+    events = Column(JSONB, nullable=False, server_default=sql.text("'[]'"))
 
     releases = orm.relationship(
         "Release",

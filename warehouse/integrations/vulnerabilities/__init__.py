@@ -11,7 +11,7 @@
 # limitations under the License.
 
 
-from typing import List
+from typing import Dict, List
 
 from warehouse import integrations
 
@@ -30,12 +30,16 @@ class VulnerabilityReportRequest:
         vulnerability_id: str,
         advisory_link: str,
         aliases: List[str],
+        details: str,
+        events: List[Dict[str, str]],
     ):
         self.project = project
         self.versions = versions
         self.vulnerability_id = vulnerability_id
         self.advisory_link = advisory_link
         self.aliases = aliases
+        self.details = details
+        self.events = events
 
     @classmethod
     def from_api_request(cls, request):
@@ -59,6 +63,8 @@ class VulnerabilityReportRequest:
             vulnerability_id=request["id"],
             advisory_link=request["link"],
             aliases=request["aliases"],
+            details=request.get("details"),
+            events=request.get("events", []),
         )
 
 
