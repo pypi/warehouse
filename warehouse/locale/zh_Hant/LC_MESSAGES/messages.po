@@ -14,13 +14,14 @@
 # 吳靜澄 <wolf952@gmail.com>, 2020.
 # meowmeowmeowcat <meowmeowcat1211@gmail.com>, 2021.
 # JI YH <3178879831@qq.com>, 2021.
+# Dustin Ingram <dustin.ingram@gmail.com>, 2021.
 msgid ""
 msgstr ""
 "Project-Id-Version: Warehouse VERSION\n"
 "Report-Msgid-Bugs-To: admin@pypi.org\n"
 "POT-Creation-Date: 2020-01-15 20:11+0200\n"
-"PO-Revision-Date: 2021-09-11 01:37+0000\n"
-"Last-Translator: JI YH <3178879831@qq.com>\n"
+"PO-Revision-Date: 2021-10-15 16:45+0000\n"
+"Last-Translator: Dustin Ingram <dustin.ingram@gmail.com>\n"
 "Language-Team: Chinese (Traditional) <https://hosted.weblate.org/projects/"
 "pypa/warehouse/zh_Hant/>\n"
 "Language: zh_Hant\n"
@@ -5303,13 +5304,12 @@ msgid ""
 "\">discuss on the Discourse</a>, including your OS and installation details "
 "and the output of <code>%(command)s</code>."
 msgstr ""
-"如需幫助，請轉至 <a href=\"%(irc_href)s\" title=\"%(title)s\" target=\"_blank"
-"\" rel=\"noopener\">Libera</a> 上的 <code>#pypa</code> IRC 頻道，在 <a href="
-"\"%(issue_tracker_href)s\" title=\"%(title)s\" target=\"_blank\" rel="
-"\"noopener\">pypa/packaging-problems/issues</a>, 或 <a href="
-"\"%(mailing_list_href)s\" title=\"%(title)s\" target=\"_blank\" rel="
-"\"noopener\">張貼到 python-help 郵件列表</a>，包括您的操作系統和安裝詳細信息"
-"以及 <code>%(command)s</code> 的輸出。"
+"如需幫助，請轉至 <a href=\"%(irc_href)s\" title=\"%(title)s\" target=\"_blank\" rel="
+"\"noopener\">Libera</a> 上的 <code>#pypa</code> IRC 頻道，在 <a href=\""
+"%(issue_tracker_href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener"
+"\">pypa/packaging-problems/issues</a>, 或 <a href=\"%(discourse_href)s\" "
+"title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">張貼到 python-help "
+"郵件列表</a>，包括您的操作系統和安裝詳細信息以及 <code>%(command)s</code> 的輸出。"
 
 #: warehouse/templates/pages/help.html:680
 #, python-format
