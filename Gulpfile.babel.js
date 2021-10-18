@@ -134,12 +134,11 @@ gulp.task("dist:js", () => {
 
 gulp.task("dist:noscript", () => {
   let sassPath = path.join(staticPrefix, "sass");
-  let nodeModules = "node_modules";
 
   return gulp.src(path.join(sassPath, "noscript.scss"))
     .pipe(sourcemaps.init())
     .pipe(
-      sass({ includePaths: [sassPath, nodeModules] })
+      sass({ includePaths: [sassPath] })
         .on("error", sass.logError))
     .pipe(postcss(postCSSPlugins))
     .pipe(sourcemaps.write("."))
