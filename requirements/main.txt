@@ -1090,9 +1090,9 @@ vine==1.3.0 \
     # via
     #   amqp
     #   celery
-webauthn==1.0.0 \
-    --hash=sha256:1c068b93ab0f03fc6905e42e42e6ad24caa4f2632ff13ab846d5e2ef0bf1aa37 \
-    --hash=sha256:6710b8b3d846010fcf303d4fb96ca42de154aeeec379ead4e18cc582a11f9abc
+webauthn==1.0.1 \
+    --hash=sha256:11b02195ee7875bd6c9a786dfee8eb0170ad3292ce168e1a47160c56b23d3362 \
+    --hash=sha256:984ab4964e5e1dae5b9d27ffb1b781cac7678491811e3dec5de672e5f58aa57a
     # via -r requirements/main.in
 webencodings==0.5.1 \
     --hash=sha256:a0af1213f3c2226497a97e2b3aa01a7e4bee4f403f95be16fc9acd2947514a78 \
