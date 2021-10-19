@@ -106,4 +106,13 @@
       max-width: calc(100% - 50px);
     }
   }
+
+  .ethical-content {
+    img {
+      width: 60%;
+      display: inline-block;
+    }
+    text-align-last: center;
+    text-align: left;
+  }
 }
