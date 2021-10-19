@@ -552,7 +552,7 @@ class TestJSONRelease:
             link="the link",
             aliases=["alias1", "alias2"],
             details="some details",
-            events=[{"introduced": "3.1"}, {"fixed": "3.3.2"}],
+            fixed_in=["3.3.2"],
             releases=[release],
         )
 

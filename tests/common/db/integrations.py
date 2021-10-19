@@ -26,5 +26,6 @@ class VulnerabilityRecordFactory(WarehouseFactory):
     source = factory.fuzzy.FuzzyText(length=12)
     link = factory.fuzzy.FuzzyText(length=12)
     aliases = factory.Sequence(lambda n: "alias" + str(n))
-    details = factory.fuzzy.FuzzyText(length=12)
     releases = factory.SubFactory(ReleaseFactory)
+    details = factory.fuzzy.FuzzyText(length=12)
+    fixed_in = factory.Sequence(lambda n: str(n) + ".0")

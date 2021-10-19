@@ -47,7 +47,7 @@ def test_vulnerability_report_request_from_api_request():
             "link": "vulns.com/vuln_id",
             "aliases": ["vuln_alias"],
             "details": "some details",
-            "events": [{"introduced": "1.0.0"}, {"fixed": "2.0.0"}],
+            "events": [{"introduced": "1.0.0"}, {"fixed": "1.0.1"}, {"fixed": "2.0.0"}],
         }
     )
 
@@ -57,7 +57,7 @@ def test_vulnerability_report_request_from_api_request():
     assert request.advisory_link == "vulns.com/vuln_id"
     assert request.aliases == ["vuln_alias"]
     assert request.details == "some details"
-    assert request.events == [{"introduced": "1.0.0"}, {"fixed": "2.0.0"}]
+    assert request.fixed_in == ["1.0.1", "2.0.0"]
 
 
 def test_invalid_vulnerability_report():

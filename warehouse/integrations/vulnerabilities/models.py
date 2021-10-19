@@ -11,8 +11,8 @@
 # limitations under the License.
 
 
-from sqlalchemy import Column, ForeignKey, ForeignKeyConstraint, String, Table, orm, sql
-from sqlalchemy.dialects.postgresql import ARRAY, JSONB
+from sqlalchemy import Column, ForeignKey, ForeignKeyConstraint, String, Table, orm
+from sqlalchemy.dialects.postgresql import ARRAY
 
 from warehouse import db
 
@@ -62,7 +62,7 @@ class VulnerabilityRecord(db.Model):
     details = Column(String)
 
     # Events of introduced/fixed versions
-    events = Column(JSONB, nullable=False, server_default=sql.text("'[]'"))
+    fixed_in = Column(ARRAY(String))
 
     releases = orm.relationship(
         "Release",

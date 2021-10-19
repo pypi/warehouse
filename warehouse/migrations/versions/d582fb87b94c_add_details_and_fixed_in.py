@@ -10,7 +10,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 """
-Add details and events to VulnerabilityRecords
+Add details and fixed_in to VulnerabilityRecords
 
 Revision ID: d582fb87b94c
 Revises: 1dbb95161e5a
@@ -30,15 +30,10 @@ def upgrade():
     op.add_column("vulnerabilities", sa.Column("details", sa.String(), nullable=True))
     op.add_column(
         "vulnerabilities",
-        sa.Column(
-            "events",
-            postgresql.JSONB(astext_type=sa.Text()),
-            server_default=sa.text("'[]'"),
-            nullable=False,
-        ),
+        sa.Column("fixed_in", postgresql.ARRAY(sa.String()), nullable=True),
     )
 
 
 def downgrade():
-    op.drop_column("vulnerabilities", "events")
+    op.drop_column("vulnerabilities", "fixed_in")
     op.drop_column("vulnerabilities", "details")

@@ -11,7 +11,7 @@
 # limitations under the License.
 
 
-from typing import Dict, List
+from typing import List
 
 from warehouse import integrations
 
@@ -31,7 +31,7 @@ class VulnerabilityReportRequest:
         advisory_link: str,
         aliases: List[str],
         details: str,
-        events: List[Dict[str, str]],
+        fixed_in: List[str],
     ):
         self.project = project
         self.versions = versions
@@ -39,7 +39,7 @@ class VulnerabilityReportRequest:
         self.advisory_link = advisory_link
         self.aliases = aliases
         self.details = details
-        self.events = events
+        self.fixed_in = fixed_in
 
     @classmethod
     def from_api_request(cls, request):
@@ -64,7 +64,12 @@ class VulnerabilityReportRequest:
             advisory_link=request["link"],
             aliases=request["aliases"],
             details=request.get("details"),
-            events=request.get("events", []),
+            fixed_in=[
+                version
+                for event in request.get("events", [])
+                for event_type, version in event.items()
+                if event_type == "fixed"
+            ],
         )
 
 

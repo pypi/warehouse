@@ -171,12 +171,7 @@ def json_release(release, request):
             "link": vulnerability_record.link,
             "aliases": vulnerability_record.aliases,
             "details": vulnerability_record.details,
-            "fixed_in": [
-                version
-                for event in vulnerability_record.events
-                for event_type, version in event.items()
-                if event_type == "fixed"
-            ],
+            "fixed_in": vulnerability_record.fixed_in,
         }
         for vulnerability_record in release.vulnerabilities
     ]
