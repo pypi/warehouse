@@ -89,6 +89,8 @@ def _analyze_vulnerability(request, vulnerability_report, origin, metrics):
             source=origin,
             link=report.advisory_link,
             aliases=report.aliases,
+            details=report.details,
+            fixed_in=report.fixed_in,
         )
         _add_vuln_record(request, vulnerability_record)
 

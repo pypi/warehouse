@@ -30,12 +30,16 @@ class VulnerabilityReportRequest:
         vulnerability_id: str,
         advisory_link: str,
         aliases: List[str],
+        details: str,
+        fixed_in: List[str],
     ):
         self.project = project
         self.versions = versions
         self.vulnerability_id = vulnerability_id
         self.advisory_link = advisory_link
         self.aliases = aliases
+        self.details = details
+        self.fixed_in = fixed_in
 
     @classmethod
     def from_api_request(cls, request):
@@ -59,6 +63,13 @@ class VulnerabilityReportRequest:
             vulnerability_id=request["id"],
             advisory_link=request["link"],
             aliases=request["aliases"],
+            details=request.get("details"),
+            fixed_in=[
+                version
+                for event in request.get("events", [])
+                for event_type, version in event.items()
+                if event_type == "fixed"
+            ],
         )
 
 
