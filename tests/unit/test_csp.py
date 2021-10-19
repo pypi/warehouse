@@ -216,7 +216,7 @@ def test_includeme():
                         "camo.url.value",
                         "www.google-analytics.com",
                         "*.fastly-insights.com",
-                        "*.ethicalads.io"
+                        "*.ethicalads.io",
                     ],
                     "script-src": [
                         "'self'",
@@ -224,12 +224,15 @@ def test_includeme():
                         "www.google-analytics.com",
                         "*.fastly-insights.com",
                         "https://cdn.ravenjs.com",
-                        "*.ethicalads.io"
+                        "*.ethicalads.io",
+                        "'sha256-ozc1u5ldloj5JQ7atdxk8OzBc9sWZf84E9kk+qQuqfU='",
                     ],
                     "style-src": [
                         "'self'",
                         "fonts.googleapis.com",
-                        "*.ethicalads.io"
+                        "*.ethicalads.io",
+                        "'sha256-3SFGwf4pbwaaParsaRO14/phF13lRoCzJal+Qb8dOlk='",
+                        "'sha256-47DEQpj8HBSa+/TImW+5JCeuQeRkm5NMpJWZG3hSuFU='",
                     ],
                     "worker-src": ["*.fastly-insights.com"],
                 }
