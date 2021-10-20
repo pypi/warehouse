@@ -58,6 +58,12 @@ class VulnerabilityRecord(db.Model):
     # e.g. "CVE-2021-12345"
     aliases = Column(ARRAY(String))
 
+    # Details about the vulnerability
+    details = Column(String)
+
+    # Events of introduced/fixed versions
+    fixed_in = Column(ARRAY(String))
+
     releases = orm.relationship(
         "Release",
         back_populates="vulnerabilities",

@@ -163,6 +163,19 @@ def json_release(release, request):
         for r, fs in releases.items()
     }
 
+    # Serialize a list of vulnerabilties for this release
+    vulnerabilities = [
+        {
+            "id": vulnerability_record.id,
+            "source": vulnerability_record.source,
+            "link": vulnerability_record.link,
+            "aliases": vulnerability_record.aliases,
+            "details": vulnerability_record.details,
+            "fixed_in": vulnerability_record.fixed_in,
+        }
+        for vulnerability_record in release.vulnerabilities
+    ]
+
     return {
         "info": {
             "name": project.name,
@@ -198,6 +211,7 @@ def json_release(release, request):
         },
         "urls": releases[release.version],
         "releases": releases,
+        "vulnerabilities": vulnerabilities,
         "last_serial": project.last_serial,
     }
 
