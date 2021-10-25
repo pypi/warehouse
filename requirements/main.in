@@ -32,7 +32,7 @@ premailer
 psycopg2
 pycurl
 pyqrcode
-pyramid>=2.0,<2.1
+pyramid>=2.0
 pymacaroons
 pyramid_jinja2>=2.5
 pyramid_mailer>=0.14.1
