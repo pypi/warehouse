@@ -20,7 +20,7 @@ def doc_type(cls):
         types_ = scanner.config.registry.setdefault("search.doc_types", set())
         types_.add(item)
 
-    venusian.attach(cls, callback)
+    venusian.attach(cls, callback, category="warehouse")
 
     return cls
 
