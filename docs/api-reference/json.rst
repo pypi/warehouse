@@ -121,6 +121,14 @@ Project
                     }
                 ]
             },
+            vulnerabilities : {
+            "id": 123,
+            "source": "vulnerability_record source",
+            "link": "https://pypi.org/project/sampleproject/1.2.0/",
+            "aliases": "Aliases",
+            "details": "vulnerability_record Details",
+            "fixed_in": 1.0,
+            },
             "urls": [
                 {
                     "comment_text": "",
