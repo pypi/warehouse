@@ -521,7 +521,11 @@ def configure(settings=None):
 
     # Scan everything for configuration
     config.scan(
-        ignore=["warehouse.migrations.env", "warehouse.celery", "warehouse.wsgi"]
+        categories=(
+            "pyramid",
+            "warehouse",
+        ),
+        ignore=["warehouse.migrations.env", "warehouse.celery", "warehouse.wsgi"],
     )
 
     # Sanity check our request and responses.

@@ -205,7 +205,7 @@ def test_configure(monkeypatch, settings, environment, other_settings):
         whitenoise_serve_static=pretend.call_recorder(lambda *a, **kw: None),
         whitenoise_add_files=pretend.call_recorder(lambda *a, **kw: None),
         whitenoise_add_manifest=pretend.call_recorder(lambda *a, **kw: None),
-        scan=pretend.call_recorder(lambda ignore: None),
+        scan=pretend.call_recorder(lambda categories, ignore: None),
         commit=pretend.call_recorder(lambda: None),
     )
     configurator_cls = pretend.call_recorder(lambda settings: configurator_obj)
@@ -400,7 +400,11 @@ def test_configure(monkeypatch, settings, environment, other_settings):
     ]
     assert configurator_obj.scan.calls == [
         pretend.call(
-            ignore=["warehouse.migrations.env", "warehouse.celery", "warehouse.wsgi"]
+            categories=(
+                "pyramid",
+                "warehouse",
+            ),
+            ignore=["warehouse.migrations.env", "warehouse.celery", "warehouse.wsgi"],
         )
     ]
     assert configurator_obj.commit.calls == [pretend.call()]

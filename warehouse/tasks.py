@@ -134,7 +134,7 @@ def task(**kwargs):
             celery_app = scanner.config.registry["celery.app"]
             celery_app.task(**kwargs)(wrapped)
 
-        venusian.attach(wrapped, callback)
+        venusian.attach(wrapped, callback, category="warehouse")
 
         return wrapped
 
