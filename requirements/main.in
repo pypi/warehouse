@@ -31,9 +31,9 @@ passlib>=1.6.4
 premailer
 psycopg2
 pycurl
+pypitoken
 pyqrcode
 pyramid>=2.0
-pymacaroons
 pyramid_jinja2>=2.5
 pyramid_mailer>=0.14.1
 pyramid_multiauth
