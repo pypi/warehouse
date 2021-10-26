@@ -723,9 +723,9 @@ premailer==3.10.0 \
     --hash=sha256:021b8196364d7df96d04f9ade51b794d0b77bcc19e998321c515633a2273be1a \
     --hash=sha256:d1875a8411f5dc92b53ef9f193db6c0f879dc378d618e0ad292723e388bfe4c2
     # via -r requirements/main.in
-proto-plus==1.19.5 \
-    --hash=sha256:ae34ba29c9a2759b3b7c93b0d51d8c2d72933b92a7385820e9248d1975cf7508 \
-    --hash=sha256:f64036ae34d74f8c036aec0e135891ccaa0fe70c9e7413d0f465e5a573fc64a1
+proto-plus==1.19.6 \
+    --hash=sha256:16faf434c79caa569e9e9c5d9ecdb9430a91d69b26a3b9fe761e124dcb9bfc21 \
+    --hash=sha256:4445815a550e61bf071a46be900cb4c53491c915c11fba5eb93a20c4998f8aab
     # via google-cloud-bigquery
 protobuf==3.19.0 \
     --hash=sha256:01a0645ef3acddfbc90237e1cdfae1086130fc7cb480b5874656193afd657083 \
