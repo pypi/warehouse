@@ -24,7 +24,7 @@ from pyramid.security import Allow, Authenticated
 from pyramid.tweens import EXCVIEW
 from pyramid_rpc.xmlrpc import XMLRPCRenderer
 
-from warehouse.errors import BasicAuthBreachedPassword
+from warehouse.errors import BasicAuthBreachedPassword, BasicAuthFailedPassword
 from warehouse.utils.static import ManifestCacheBuster
 from warehouse.utils.wsgi import HostRewrite, ProxyFixer, VhmRootRemover
 
@@ -96,10 +96,14 @@ def activate_hook(request):
 def commit_veto(request, response):
     # By default pyramid_tm will veto the commit anytime request.exc_info is not None,
     # we are going to copy that logic with one difference, we are still going to commit
-    # if the exception was for a BreachedPassword.
+    # if the exception was for a BasicAuthFailedPassword or BreachedPassword.
     # TODO: We should probably use a registry or something instead of hardcoded.
     exc_info = getattr(request, "exc_info", None)
-    if exc_info is not None and not isinstance(exc_info[1], BasicAuthBreachedPassword):
+    if (
+        exc_info is not None
+        and not isinstance(exc_info[1], BasicAuthBreachedPassword)
+        and not isinstance(exc_info[1], BasicAuthFailedPassword)
+    ):
         return True
 
 

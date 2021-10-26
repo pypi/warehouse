@@ -28,7 +28,7 @@ from warehouse.accounts.services import (
     TokenServiceFactory,
     database_login_factory,
 )
-from warehouse.errors import BasicAuthBreachedPassword
+from warehouse.errors import BasicAuthBreachedPassword, BasicAuthFailedPassword
 from warehouse.rate_limiting import IRateLimiter, RateLimit
 
 
@@ -54,7 +54,10 @@ class TestLogin:
         assert service.find_userid.calls == [pretend.call("myuser")]
 
     def test_with_invalid_password(self, pyramid_request, pyramid_services):
-        user = pretend.stub(id=1)
+        user = pretend.stub(
+            id=1,
+            record_event=pretend.call_recorder(lambda *a, **kw: None),
+        )
         service = pretend.stub(
             get_user=pretend.call_recorder(lambda user_id: user),
             find_userid=pretend.call_recorder(lambda username: 1),
@@ -68,16 +71,36 @@ class TestLogin:
             pretend.stub(), IPasswordBreachedService, None
         )
         pyramid_request.matched_route = pretend.stub(name="forklift.legacy.file_upload")
-        assert accounts._basic_auth_login("myuser", "mypass", pyramid_request) is None
+        pyramid_request.help_url = pretend.call_recorder(lambda **kw: "/the/help/url/")
+
+        with pytest.raises(BasicAuthFailedPassword) as excinfo:
+            assert (
+                accounts._basic_auth_login("myuser", "mypass", pyramid_request) is None
+            )
+
+        assert excinfo.value.status == (
+            "403 Invalid or non-existent authentication information. "
+            "See /the/help/url/ for more information."
+        )
         assert service.find_userid.calls == [pretend.call("myuser")]
         assert service.get_user.calls == [pretend.call(1)]
         assert service.is_disabled.calls == [pretend.call(1)]
         assert service.check_password.calls == [
             pretend.call(1, "mypass", tags=["method:auth", "auth_method:basic"])
         ]
+        assert user.record_event.calls == [
+            pretend.call(
+                tag="account:login:failure",
+                ip_address="1.2.3.4",
+                additional={"reason": "invalid_password", "auth_method": "basic"},
+            )
+        ]
 
     def test_with_disabled_user_no_reason(self, pyramid_request, pyramid_services):
-        user = pretend.stub(id=1)
+        user = pretend.stub(
+            id=1,
+            record_event=pretend.call_recorder(lambda *a, **kw: None),
+        )
         service = pretend.stub(
             get_user=pretend.call_recorder(lambda user_id: user),
             find_userid=pretend.call_recorder(lambda username: 1),
@@ -91,12 +114,29 @@ class TestLogin:
             pretend.stub(), IPasswordBreachedService, None
         )
         pyramid_request.matched_route = pretend.stub(name="forklift.legacy.file_upload")
-        assert accounts._basic_auth_login("myuser", "mypass", pyramid_request) is None
+        pyramid_request.help_url = pretend.call_recorder(lambda **kw: "/the/help/url/")
+
+        with pytest.raises(BasicAuthFailedPassword) as excinfo:
+            assert (
+                accounts._basic_auth_login("myuser", "mypass", pyramid_request) is None
+            )
+
+        assert excinfo.value.status == (
+            "403 Invalid or non-existent authentication information. "
+            "See /the/help/url/ for more information."
+        )
         assert service.find_userid.calls == [pretend.call("myuser")]
         assert service.get_user.calls == [pretend.call(1)]
         assert service.is_disabled.calls == [pretend.call(1)]
         assert service.check_password.calls == [
             pretend.call(1, "mypass", tags=["method:auth", "auth_method:basic"])
+        ]
+        assert user.record_event.calls == [
+            pretend.call(
+                tag="account:login:failure",
+                ip_address="1.2.3.4",
+                additional={"reason": "invalid_password", "auth_method": "basic"},
+            )
         ]
 
     def test_with_disabled_user_compromised_pw(self, pyramid_request, pyramid_services):
