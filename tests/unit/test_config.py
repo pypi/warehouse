@@ -16,11 +16,12 @@ import pretend
 import pytest
 
 from pyramid import renderers
+from pyramid.httpexceptions import HTTPForbidden, HTTPUnauthorized
 from pyramid.security import Allow, Authenticated
 from pyramid.tweens import EXCVIEW
 
 from warehouse import config
-from warehouse.errors import BasicAuthBreachedPassword
+from warehouse.errors import BasicAuthBreachedPassword, BasicAuthFailedPassword
 from warehouse.utils.wsgi import HostRewrite, ProxyFixer, VhmRootRemover
 
 
@@ -78,7 +79,10 @@ def test_activate_hook(path, expected):
     [
         (None, False),
         ((ValueError, ValueError(), None), True),
+        ((HTTPForbidden, HTTPForbidden(), None), True),
+        ((HTTPUnauthorized, HTTPUnauthorized(), None), True),
         ((BasicAuthBreachedPassword, BasicAuthBreachedPassword(), None), False),
+        ((BasicAuthFailedPassword, BasicAuthFailedPassword(), None), False),
     ],
 )
 def test_commit_veto(exc_info, expected):
