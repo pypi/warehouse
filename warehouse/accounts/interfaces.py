@@ -69,7 +69,7 @@ class IUserService(Interface):
         is no user with the given username.
         """
 
-    def check_password(user_id, password, *, tags=None):
+    def check_password(user_id, password, ip_address, *, tags=None):
         """
         Returns a boolean representing whether the given password is valid for
         the given userid.
@@ -145,7 +145,7 @@ class IUserService(Interface):
         allowed to use a second factor, returns None.
         """
 
-    def check_totp_value(user_id, totp_value, *, tags=None):
+    def check_totp_value(user_id, totp_value, ip_address, *, tags=None):
         """
         Returns True if the given TOTP code is valid.
         """
@@ -214,7 +214,7 @@ class IUserService(Interface):
         Returns a list of plain-text codes.
         """
 
-    def check_recovery_code(user_id, code):
+    def check_recovery_code(user_id, code, ip_address):
         """
         Checks if supplied code matches a valid hashed recovery code for the given user.
 
