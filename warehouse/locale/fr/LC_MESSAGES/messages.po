@@ -24,7 +24,7 @@ msgstr ""
 "Project-Id-Version: Warehouse VERSION\n"
 "Report-Msgid-Bugs-To: admin@pypi.org\n"
 "POT-Creation-Date: 2020-04-06 17:52-0500\n"
-"PO-Revision-Date: 2021-10-20 21:38+0000\n"
+"PO-Revision-Date: 2021-10-21 20:59+0000\n"
 "Last-Translator: Nathan <bonnemainsnathan@gmail.com>\n"
 "Language-Team: French <https://hosted.weblate.org/projects/pypa/warehouse/fr/"
 ">\n"
@@ -38,7 +38,7 @@ msgstr ""
 
 #: warehouse/views.py:254
 msgid "Locale updated"
-msgstr "Locale mise à jour"
+msgstr "Langue mise à jour"
 
 #: warehouse/accounts/forms.py:43
 msgid "No user found with that username"
@@ -612,7 +612,7 @@ msgstr "Passer à la version mobile"
 #: warehouse/templates/base.html:162 warehouse/templates/base.html:171
 #: warehouse/templates/base.html:181
 #: warehouse/templates/includes/session-notifications.html:19
-#: warehouse/templates/manage/account.html:783
+#: warehouse/templates/manage/account.html:789
 #: warehouse/templates/manage/documentation.html:27
 #: warehouse/templates/manage/manage_base.html:106
 #: warehouse/templates/manage/manage_base.html:158
@@ -1047,7 +1047,7 @@ msgstr "Se connecter à %(title)s"
 #: warehouse/templates/manage/account/recovery_codes-provision.html:85
 #: warehouse/templates/manage/roles.html:173
 msgid "Username"
-msgstr "nom de profil"
+msgstr "Nom de profil"
 
 #: warehouse/templates/accounts/login.html:54
 msgid "Your username"
@@ -2366,116 +2366,120 @@ msgstr "Code de récupération"
 msgid "Login failed"
 msgstr "Échec de la connexion"
 
-#: warehouse/templates/manage/account.html:581
-#: warehouse/templates/manage/account.html:598
+#: warehouse/templates/manage/account.html:582
+msgid "- Basic Auth (Upload endpoint)"
+msgstr ""
+
+#: warehouse/templates/manage/account.html:587
+#: warehouse/templates/manage/account.html:604
 #: warehouse/templates/manage/history.html:84
 msgid "Reason:"
 msgstr "Motif :"
 
-#: warehouse/templates/manage/account.html:583
-#: warehouse/templates/manage/account.html:600
+#: warehouse/templates/manage/account.html:589
+#: warehouse/templates/manage/account.html:606
 msgid "Incorrect Password"
 msgstr "Mot de passe incorrect"
 
-#: warehouse/templates/manage/account.html:585
+#: warehouse/templates/manage/account.html:591
 msgid "Invalid two factor (TOTP)"
 msgstr "Authentification à deux facteurs invalide (TOTP)"
 
-#: warehouse/templates/manage/account.html:587
+#: warehouse/templates/manage/account.html:593
 msgid "Invalid two factor (WebAuthn)"
 msgstr "Authentification à deux facteurs invalide (WebAuthn)"
 
-#: warehouse/templates/manage/account.html:589
+#: warehouse/templates/manage/account.html:595
 msgid "Invalid two factor (Recovery code)"
 msgstr "Authentification à deux facteurs invalide (Code de récupération)"
 
-#: warehouse/templates/manage/account.html:596
+#: warehouse/templates/manage/account.html:602
 msgid "Session reauthentication failed"
 msgstr "Échec de la réauthentification"
 
-#: warehouse/templates/manage/account.html:607
+#: warehouse/templates/manage/account.html:613
 msgid "Email added to account"
 msgstr "E-mail ajouté au compte"
 
-#: warehouse/templates/manage/account.html:610
+#: warehouse/templates/manage/account.html:616
 msgid "Email removed from account"
 msgstr "E-mail supprimé du compte"
 
-#: warehouse/templates/manage/account.html:613
+#: warehouse/templates/manage/account.html:619
 msgid "Email verified"
 msgstr "E-mail vérifié"
 
-#: warehouse/templates/manage/account.html:616
+#: warehouse/templates/manage/account.html:622
 msgid "Email reverified"
 msgstr "E-mail revérifié"
 
-#: warehouse/templates/manage/account.html:620
+#: warehouse/templates/manage/account.html:626
 msgid "Primary email changed"
 msgstr "E-mail principal modifié"
 
-#: warehouse/templates/manage/account.html:622
+#: warehouse/templates/manage/account.html:628
 msgid "Old primary email:"
 msgstr "Ancien e-mail principal :"
 
-#: warehouse/templates/manage/account.html:623
+#: warehouse/templates/manage/account.html:629
 msgid "New primary email:"
 msgstr "Nouvel e-mail principal :"
 
-#: warehouse/templates/manage/account.html:626
+#: warehouse/templates/manage/account.html:632
 msgid "Primary email set"
 msgstr "E-mail principal défini"
 
-#: warehouse/templates/manage/account.html:632
+#: warehouse/templates/manage/account.html:638
 msgid "Email sent"
 msgstr "E-mail envoyé"
 
-#: warehouse/templates/manage/account.html:634
+#: warehouse/templates/manage/account.html:640
 msgid "From:"
 msgstr "De :"
 
-#: warehouse/templates/manage/account.html:635
+#: warehouse/templates/manage/account.html:641
 msgid "To:"
 msgstr "À :"
 
-#: warehouse/templates/manage/account.html:636
+#: warehouse/templates/manage/account.html:642
 msgid "Subject:"
 msgstr "Sujet :"
 
-#: warehouse/templates/manage/account.html:640
+#: warehouse/templates/manage/account.html:646
 msgid "Password reset requested"
 msgstr "Réinitialisation de mot de passe demandée"
 
-#: warehouse/templates/manage/account.html:642
+#: warehouse/templates/manage/account.html:648
 msgid "Password reset attempted"
 msgstr "Tentative de réinitialisation de mot de passe"
 
-#: warehouse/templates/manage/account.html:644
+#: warehouse/templates/manage/account.html:650
 msgid "Password successfully reset"
 msgstr "Mot de passe réinitialisé avec succès"
 
-#: warehouse/templates/manage/account.html:646
+#: warehouse/templates/manage/account.html:652
 msgid "Password successfully changed"
 msgstr "Mot de passe modifié avec succès"
 
-#: warehouse/templates/manage/account.html:649
+#: warehouse/templates/manage/account.html:655
 msgid "Two factor authentication added"
 msgstr "Authentification à deux facteurs ajoutée"
 
-#: warehouse/templates/manage/account.html:652
-#: warehouse/templates/manage/account.html:662
+#: warehouse/templates/manage/account.html:658
+#: warehouse/templates/manage/account.html:668
 msgid ""
 "Method: Security device (<abbr title=\"web authentication\">WebAuthn</abbr>)"
 msgstr ""
 "Méthode : Périphérique de sécurité (<abbr title=\"Web Authentication"
 "\">WebAuthn</abbr>)"
 
-#: warehouse/templates/manage/account.html:653
-#: warehouse/templates/manage/account.html:663
+#: warehouse/templates/manage/account.html:659
+#: warehouse/templates/manage/account.html:669
 msgid "Device name:"
 msgstr "Nom du périphérique :"
 
-#: warehouse/templates/manage/account.html:655
-#: warehouse/templates/manage/account.html:665
+#: warehouse/templates/manage/account.html:661
+#: warehouse/templates/manage/account.html:671
 msgid ""
 "Method: Authentication application (<abbr title=\"time-based one-time "
 "password\">TOTP</abbr>)"
@@ -2483,66 +2487,66 @@ msgstr ""
 "Méthode : Application d'authentification (<abbr title=\"Time-based One-Time "
 "Password\">TOTP</abbr>)"
 
-#: warehouse/templates/manage/account.html:659
+#: warehouse/templates/manage/account.html:665
 msgid "Two factor authentication removed"
 msgstr "Authentification à deux facteurs supprimée"
 
-#: warehouse/templates/manage/account.html:670
+#: warehouse/templates/manage/account.html:676
 msgid "Recovery codes generated"
 msgstr "Codes de récupération générés"
 
-#: warehouse/templates/manage/account.html:674
+#: warehouse/templates/manage/account.html:680
 msgid "Recovery codes regenerated"
 msgstr "Codes de récupération régénérés"
 
-#: warehouse/templates/manage/account.html:678
+#: warehouse/templates/manage/account.html:684
 msgid "Recovery code used for login"
 msgstr "Code de récupération utilisé pour la connexion"
 
-#: warehouse/templates/manage/account.html:684
+#: warehouse/templates/manage/account.html:690
 #: warehouse/templates/manage/history.html:65
 msgid "API token added"
 msgstr "Jeton d'API ajouté"
 
-#: warehouse/templates/manage/account.html:686
-#: warehouse/templates/manage/account.html:701
+#: warehouse/templates/manage/account.html:692
+#: warehouse/templates/manage/account.html:707
 #: warehouse/templates/manage/history.html:69
 #: warehouse/templates/manage/history.html:76
 msgid "Token name:"
 msgstr "Nom du jeton :"
 
-#: warehouse/templates/manage/account.html:688
-#: warehouse/templates/manage/account.html:704
+#: warehouse/templates/manage/account.html:694
+#: warehouse/templates/manage/account.html:710
 msgid "Token scope: entire account"
 msgstr "Portée du jeton : Ensemble du compte"
 
-#: warehouse/templates/manage/account.html:690
-#: warehouse/templates/manage/account.html:706
+#: warehouse/templates/manage/account.html:696
+#: warehouse/templates/manage/account.html:712
 #, python-format
 msgid "Token scope: Project %(project_name)s"
 msgstr "Portée du jeton : Projet %(project_name)s"
 
-#: warehouse/templates/manage/account.html:695
+#: warehouse/templates/manage/account.html:701
 #: warehouse/templates/manage/history.html:72
 msgid "API token removed"
 msgstr "Jeton d'API supprimé"
 
-#: warehouse/templates/manage/account.html:696
 #: warehouse/templates/manage/account.html:702
+#: warehouse/templates/manage/account.html:708
 msgid "Unique identifier:"
 msgstr "Identifiant unique :"
 
-#: warehouse/templates/manage/account.html:699
+#: warehouse/templates/manage/account.html:705
 msgid "API token automatically removed for security reasons"
 msgstr "Jeton d'API supprimé automatiquement pour des raisons de sécurité"
 
-#: warehouse/templates/manage/account.html:708
+#: warehouse/templates/manage/account.html:714
 #, python-format
 msgid "Reason: Token found at <a href=\"%(public_url)s\">public url</a>"
 msgstr ""
 "Motif : Jeton trouvé sur une <a href=\"%(public_url)s\">URL publique</a>"
 
-#: warehouse/templates/manage/account.html:717
+#: warehouse/templates/manage/account.html:723
 #, python-format
 msgid ""
 "Events appear here as security-related actions occur on your account. If you "
@@ -2553,45 +2557,45 @@ msgstr ""
 "compte. Si vous remarquez quelque chose d'inhabituel, veuillez <a href="
 "\"%(faq_url)s\">sécuriser votre compte</a> au plus vite."
 
-#: warehouse/templates/manage/account.html:722
+#: warehouse/templates/manage/account.html:728
 msgid "Recent account activity"
 msgstr "Activité récente du compte"
 
-#: warehouse/templates/manage/account.html:724
+#: warehouse/templates/manage/account.html:730
 #: warehouse/templates/manage/history.html:97
 msgid "Event"
 msgstr "Événement"
 
-#: warehouse/templates/manage/account.html:725
-#: warehouse/templates/manage/account.html:733
+#: warehouse/templates/manage/account.html:731
+#: warehouse/templates/manage/account.html:739
 #: warehouse/templates/manage/history.html:98
 #: warehouse/templates/manage/history.html:107
 msgid "Date / time"
 msgstr "Date / heure"
 
-#: warehouse/templates/manage/account.html:726
-#: warehouse/templates/manage/account.html:737
+#: warehouse/templates/manage/account.html:732
+#: warehouse/templates/manage/account.html:743
 #: warehouse/templates/manage/history.html:99
 #: warehouse/templates/manage/history.html:111
 msgid "IP address"
 msgstr "Adresse IP"
 
-#: warehouse/templates/manage/account.html:745
+#: warehouse/templates/manage/account.html:751
 msgid ""
 "Events will appear here as security-related actions occur on your account."
 msgstr ""
 "Des entrées apparaîtront ici à chaque fois que des événements liées à la "
 "sécurité sur votre compte surviendront."
 
-#: warehouse/templates/manage/account.html:752
+#: warehouse/templates/manage/account.html:758
 msgid "Delete account"
 msgstr "Supprimer le compte"
 
-#: warehouse/templates/manage/account.html:755
+#: warehouse/templates/manage/account.html:761
 msgid "Cannot delete account"
 msgstr "Impossible de supprimer le compte"
 
-#: warehouse/templates/manage/account.html:757
+#: warehouse/templates/manage/account.html:763
 #, python-format
 msgid ""
 "\n"
@@ -2614,7 +2618,7 @@ msgstr[1] ""
 "strong> de %(count)s projets.\n"
 "        "
 
-#: warehouse/templates/manage/account.html:762
+#: warehouse/templates/manage/account.html:768
 msgid ""
 "\n"
 "          You must transfer ownership or delete this project before you can "
@@ -2636,7 +2640,7 @@ msgstr[1] ""
 "avant de pouvoir supprimer votre compte.\n"
 "        "
 
-#: warehouse/templates/manage/account.html:772
+#: warehouse/templates/manage/account.html:778
 #, python-format
 msgid ""
 "<a href=\"%(transfer_href)s\">transfer ownership</a> or <a href="
@@ -2645,17 +2649,17 @@ msgstr ""
 "<a href=\"%(transfer_href)s\">transférer la propriété</a> ou <a href="
 "\"%(delete_href)s\">supprimer le projet</a>"
 
-#: warehouse/templates/manage/account.html:781
+#: warehouse/templates/manage/account.html:787
 #: warehouse/templates/manage/token.html:169
 msgid "Proceed with caution!"
 msgstr "Procédez avec précaution !"
 
-#: warehouse/templates/manage/account.html:784
+#: warehouse/templates/manage/account.html:790
 msgid "You will not be able to recover your account after you delete it"
 msgstr ""
 "Vous ne serez pas en mesure de récupérer votre compte après l'avoir supprimé"
 
-#: warehouse/templates/manage/account.html:786
+#: warehouse/templates/manage/account.html:792
 msgid "Delete your PyPI account"
 msgstr "Supprimer votre compte PyPI"
 
@@ -5561,13 +5565,7 @@ msgid "The total size of your project, in gigabytes"
 msgstr "La taille totale de votre projet, en gigaoctets"
 
 #: warehouse/templates/pages/help.html:612
-#, fuzzy, python-format
-#| msgid ""
-#| "To learn how to install a file from PyPI, visit the <a href="
-#| "\"%(installation_href)s\" title=\"%(title)s\" target=\"_blank\" rel="
-#| "\"noopener\">installation tutorial</a> on the <a href="
-#| "\"%(user_guide_href)s\" title=\"%(title)s\" target=\"_blank\" rel="
-#| "\"noopener\">Python Packaging User Guide</a>."
+#, python-format
 msgid ""
 "PyPI receives reports on vulnerabilities in the packages hosted on it from "
 "the <a href=\"%(osv_href)s\" title=\"%(title)s\" target=\"_blank\" rel="
@@ -5575,26 +5573,24 @@ msgid ""
 "vulnerabilities from the <a href=\"%(vulns_href)s\" title=\"%(title)s\" "
 "target=\"_blank\" rel=\"noopener\">Python Packaging Advisory Database</a>."
 msgstr ""
-"Pour apprendre à installer un fichier depuis PyPI, consultez le <a href="
-"\"%(installation_href)s\" title=\"%(title)s\" target=\"_blank\" rel="
-"\"noopener\">tutoriel d'installation</a> dans le <a href="
-"\"%(user_guide_href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener"
-"\">Guide d'Utilisation des Paquets Python</a>."
+"PyPI reçoit des rapports sur les vulnérabilités dans les paquets qu'il "
+"héberge depuis le <a href=\"%(osv_href)s\" title=\"%(title)s\" target="
+"\"_blank\" rel=\"noopener\">projet Open Source Vulnerabilities</a> qui lui-"
+"même récupère les vulnérabilités depuis la <a href=\"%(vulns_href)s\" title="
+"\"%(title)s\" target=\"_blank\" rel=\"noopener\">base de données Python "
+"Packaging Advisory</a>."
 
 #: warehouse/templates/pages/help.html:617
-#, fuzzy, python-format
-#| msgid ""
-#| "If that is not possible, we can sometimes increase your limit. <a href="
-#| "\"%(file_issue_href)s\" title=\"%(title)s\" target=\"_blank\" rel="
-#| "\"noopener\">File an issue</a> and tell us:"
+#, python-format
 msgid ""
 "If you believe vulnerability data for your project is invalid or incorrect, "
 "<a href=\"%(file_issue_href)s\" title=\"%(title)s\" target=\"_blank\" rel="
 "\"noopener\">file an issue</a> with details."
 msgstr ""
-"Si ce n'est pas possible, nous pouvons parfois augmenter votre limite. <a "
-"href=\"%(file_issue_href)s\" title=\"%(title)s\" target=\"_blank\" rel="
-"\"noopener\">Ouvrez un ticket</a> dans lequel vous mentionnerez :"
+"Si vous pensez que les données de vulnérabilités pour votre projet sont "
+"invalides ou incorrectes, <a href=\"%(file_issue_href)s\" title=\"%(title)s"
+"\" target=\"_blank\" rel=\"noopener\">ouvrez un ticket</a> avec les "
+"informations détaillées."
 
 #: warehouse/templates/pages/help.html:628
 msgid ""
