@@ -34,5 +34,5 @@ set -x
 
 # Actually run our tests.
 python -m coverage run -m pytest --strict $COMMAND_ARGS
-python -m coverage html
+python -m coverage html --show-contexts
 python -m coverage report -m --fail-under 100
