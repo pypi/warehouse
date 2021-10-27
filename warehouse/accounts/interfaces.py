@@ -28,6 +28,10 @@ class TooManyEmailsAdded(RateLimiterException):
     pass
 
 
+class TooManyPasswordResetRequests(RateLimiterException):
+    pass
+
+
 class TokenException(Exception):
     pass
 
