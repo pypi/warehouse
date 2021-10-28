@@ -74,7 +74,10 @@ def _basic_auth_login(username, password, request):
                 BasicAuthBreachedPassword(), breach_service.failure_message_plain
             )
         elif login_service.check_password(
-            user.id, password, tags=["method:auth", "auth_method:basic"]
+            user.id,
+            password,
+            request.remote_addr,
+            tags=["mechanism:basic_auth", "method:auth", "auth_method:basic"],
         ):
             if breach_service.check_password(
                 password, tags=["method:auth", "auth_method:basic"]
@@ -190,12 +193,33 @@ def includeme(config):
 
     # Register the rate limits that we're going to be using for our login
     # attempts and account creation
-    config.register_service_factory(
-        RateLimit("10 per 5 minutes"), IRateLimiter, name="user.login"
+    user_login_ratelimit_string = config.registry.settings.get(
+        "warehouse.account.user_login_ratelimit_string"
     )
     config.register_service_factory(
-        RateLimit("1000 per 5 minutes"), IRateLimiter, name="global.login"
+        RateLimit(user_login_ratelimit_string), IRateLimiter, name="user.login"
+    )
+    ip_login_ratelimit_string = config.registry.settings.get(
+        "warehouse.account.ip_login_ratelimit_string"
     )
     config.register_service_factory(
-        RateLimit("2 per day"), IRateLimiter, name="email.add"
+        RateLimit(ip_login_ratelimit_string), IRateLimiter, name="ip.login"
+    )
+    global_login_ratelimit_string = config.registry.settings.get(
+        "warehouse.account.global_login_ratelimit_string"
+    )
+    config.register_service_factory(
+        RateLimit(global_login_ratelimit_string), IRateLimiter, name="global.login"
+    )
+    email_add_ratelimit_string = config.registry.settings.get(
+        "warehouse.account.email_add_ratelimit_string"
+    )
+    config.register_service_factory(
+        RateLimit(email_add_ratelimit_string), IRateLimiter, name="email.add"
+    )
+    password_reset_ratelimit_string = config.registry.settings.get(
+        "warehouse.account.password_reset_ratelimit_string"
+    )
+    config.register_service_factory(
+        RateLimit(password_reset_ratelimit_string), IRateLimiter, name="password.reset"
     )

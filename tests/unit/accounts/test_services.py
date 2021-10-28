@@ -118,23 +118,32 @@ class TestDatabaseUserService:
         user_service.ratelimiters["global.login"] = limiter
 
         with pytest.raises(TooManyFailedLogins) as excinfo:
-            user_service.check_password(uuid.uuid4(), None, tags=["foo"])
+            user_service.check_password(uuid.uuid4(), None, "1.2.3.4", tags=["foo"])
 
         assert excinfo.value.resets_in is resets
         assert metrics.increment.calls == [
-            pretend.call("warehouse.authentication.start", tags=["foo"]),
+            pretend.call(
+                "warehouse.authentication.start",
+                tags=["foo", "mechanism:check_password"],
+            ),
             pretend.call(
                 "warehouse.authentication.ratelimited",
-                tags=["foo", "ratelimiter:global"],
+                tags=["foo", "mechanism:check_password", "ratelimiter:global"],
             ),
         ]
 
     def test_check_password_nonexistent_user(self, user_service, metrics):
-        assert not user_service.check_password(uuid.uuid4(), None, tags=["foo"])
+        assert not user_service.check_password(
+            uuid.uuid4(), None, "1.2.3.4", tags=["foo"]
+        )
         assert metrics.increment.calls == [
-            pretend.call("warehouse.authentication.start", tags=["foo"]),
             pretend.call(
-                "warehouse.authentication.failure", tags=["foo", "failure_reason:user"]
+                "warehouse.authentication.start",
+                tags=["foo", "mechanism:check_password"],
+            ),
+            pretend.call(
+                "warehouse.authentication.failure",
+                tags=["foo", "mechanism:check_password", "failure_reason:user"],
             ),
         ]
 
@@ -148,15 +157,43 @@ class TestDatabaseUserService:
         user_service.ratelimiters["user.login"] = limiter
 
         with pytest.raises(TooManyFailedLogins) as excinfo:
-            user_service.check_password(user.id, None)
+            user_service.check_password(user.id, None, "1.2.3.4")
 
         assert excinfo.value.resets_in is resets
         assert limiter.test.calls == [pretend.call(user.id)]
         assert limiter.resets_in.calls == [pretend.call(user.id)]
         assert metrics.increment.calls == [
-            pretend.call("warehouse.authentication.start", tags=[]),
             pretend.call(
-                "warehouse.authentication.ratelimited", tags=["ratelimiter:user"]
+                "warehouse.authentication.start", tags=["mechanism:check_password"]
+            ),
+            pretend.call(
+                "warehouse.authentication.ratelimited",
+                tags=["mechanism:check_password", "ratelimiter:user"],
+            ),
+        ]
+
+    def test_check_password_ip_rate_limited(self, user_service, metrics):
+        user = UserFactory.create()
+        resets = pretend.stub()
+        limiter = pretend.stub(
+            test=pretend.call_recorder(lambda uid: False),
+            resets_in=pretend.call_recorder(lambda ipaddr: resets),
+        )
+        user_service.ratelimiters["ip.login"] = limiter
+
+        with pytest.raises(TooManyFailedLogins) as excinfo:
+            user_service.check_password(user.id, None, "1.2.3.4")
+
+        assert excinfo.value.resets_in is resets
+        assert limiter.test.calls == [pretend.call("1.2.3.4")]
+        assert limiter.resets_in.calls == [pretend.call("1.2.3.4")]
+        assert metrics.increment.calls == [
+            pretend.call(
+                "warehouse.authentication.start", tags=["mechanism:check_password"]
+            ),
+            pretend.call(
+                "warehouse.authentication.ratelimited",
+                tags=["mechanism:check_password", "ratelimiter:ip"],
             ),
         ]
 
@@ -166,14 +203,17 @@ class TestDatabaseUserService:
             verify_and_update=pretend.call_recorder(lambda l, r: (False, None))
         )
 
-        assert not user_service.check_password(user.id, "user password")
+        assert not user_service.check_password(user.id, "user password", "1.2.3.4")
         assert user_service.hasher.verify_and_update.calls == [
             pretend.call("user password", user.password)
         ]
         assert metrics.increment.calls == [
-            pretend.call("warehouse.authentication.start", tags=[]),
             pretend.call(
-                "warehouse.authentication.failure", tags=["failure_reason:password"]
+                "warehouse.authentication.start", tags=["mechanism:check_password"]
+            ),
+            pretend.call(
+                "warehouse.authentication.failure",
+                tags=["mechanism:check_password", "failure_reason:password"],
             ),
         ]
 
@@ -183,13 +223,20 @@ class TestDatabaseUserService:
             verify_and_update=pretend.call_recorder(lambda l, r: (True, None))
         )
 
-        assert user_service.check_password(user.id, "user password", tags=["bar"])
+        assert user_service.check_password(
+            user.id, "user password", "1.2.3.4", tags=["bar"]
+        )
         assert user_service.hasher.verify_and_update.calls == [
             pretend.call("user password", user.password)
         ]
         assert metrics.increment.calls == [
-            pretend.call("warehouse.authentication.start", tags=["bar"]),
-            pretend.call("warehouse.authentication.ok", tags=["bar"]),
+            pretend.call(
+                "warehouse.authentication.start",
+                tags=["bar", "mechanism:check_password"],
+            ),
+            pretend.call(
+                "warehouse.authentication.ok", tags=["bar", "mechanism:check_password"]
+            ),
         ]
 
     def test_check_password_updates(self, user_service):
@@ -199,7 +246,7 @@ class TestDatabaseUserService:
             verify_and_update=pretend.call_recorder(lambda l, r: (True, "new password"))
         )
 
-        assert user_service.check_password(user.id, "user password")
+        assert user_service.check_password(user.id, "user password", "1.2.3.4")
         assert user_service.hasher.verify_and_update.calls == [
             pretend.call("user password", password)
         ]
@@ -301,13 +348,13 @@ class TestDatabaseUserService:
 
         assert user.id is not None
         # now make sure that we can log in as that user
-        assert user_service.check_password(user.id, "test_password")
+        assert user_service.check_password(user.id, "test_password", "1.2.3.4")
 
     def test_create_login_error(self, user_service):
         user = user_service.create_user("test_user", "test_name", "test_password")
 
         assert user.id is not None
-        assert not user_service.check_password(user.id, "bad_password")
+        assert not user_service.check_password(user.id, "bad_password", "1.2.3.4")
 
     def test_get_user_by_username(self, user_service):
         user = UserFactory.create()
@@ -417,7 +464,7 @@ class TestDatabaseUserService:
             user.id, "foo@bar.com", "0.0.0.0", primary=True, verified=True
         )
 
-        assert user_service.check_totp_value(user.id, b"123456") == valid
+        assert user_service.check_totp_value(user.id, b"123456", "0.0.0.0") == valid
 
     def test_check_totp_value_reused(self, user_service):
         user = UserFactory.create()
@@ -425,11 +472,11 @@ class TestDatabaseUserService:
             user.id, last_totp_value="123456", totp_secret=b"foobar"
         )
 
-        assert not user_service.check_totp_value(user.id, b"123456")
+        assert not user_service.check_totp_value(user.id, b"123456", "0.0.0.0")
 
     def test_check_totp_value_no_secret(self, user_service):
         user = UserFactory.create()
-        assert not user_service.check_totp_value(user.id, b"123456")
+        assert not user_service.check_totp_value(user.id, b"123456", "0.0.0.0")
 
     def test_check_totp_global_rate_limited(self, user_service, metrics):
         resets = pretend.stub()
@@ -437,14 +484,19 @@ class TestDatabaseUserService:
         user_service.ratelimiters["global.login"] = limiter
 
         with pytest.raises(TooManyFailedLogins) as excinfo:
-            user_service.check_totp_value(uuid.uuid4(), b"123456", tags=["foo"])
+            user_service.check_totp_value(
+                uuid.uuid4(), b"123456", "0.0.0.0", tags=["foo"]
+            )
 
         assert excinfo.value.resets_in is resets
         assert metrics.increment.calls == [
-            pretend.call("warehouse.authentication.two_factor.start", tags=["foo"]),
             pretend.call(
-                "warehouse.authentication.two_factor.ratelimited",
-                tags=["foo", "ratelimiter:global"],
+                "warehouse.authentication.two_factor.start",
+                tags=["foo", "mechanism:check_totp_value"],
+            ),
+            pretend.call(
+                "warehouse.authentication.ratelimited",
+                tags=["foo", "mechanism:check_totp_value", "ratelimiter:global"],
             ),
         ]
 
@@ -458,16 +510,19 @@ class TestDatabaseUserService:
         user_service.ratelimiters["user.login"] = limiter
 
         with pytest.raises(TooManyFailedLogins) as excinfo:
-            user_service.check_totp_value(user.id, b"123456")
+            user_service.check_totp_value(user.id, b"123456", "0.0.0.0")
 
         assert excinfo.value.resets_in is resets
         assert limiter.test.calls == [pretend.call(user.id)]
         assert limiter.resets_in.calls == [pretend.call(user.id)]
         assert metrics.increment.calls == [
-            pretend.call("warehouse.authentication.two_factor.start", tags=[]),
             pretend.call(
-                "warehouse.authentication.two_factor.ratelimited",
-                tags=["ratelimiter:user"],
+                "warehouse.authentication.two_factor.start",
+                tags=["mechanism:check_totp_value"],
+            ),
+            pretend.call(
+                "warehouse.authentication.ratelimited",
+                tags=["mechanism:check_totp_value", "ratelimiter:user"],
             ),
         ]
 
@@ -479,7 +534,7 @@ class TestDatabaseUserService:
         user_service.ratelimiters["user.login"] = limiter
         user_service.ratelimiters["global.login"] = limiter
 
-        valid = user_service.check_totp_value(user.id, b"123456")
+        valid = user_service.check_totp_value(user.id, b"123456", "0.0.0.0")
 
         assert not valid
         assert limiter.hit.calls == [pretend.call(user.id), pretend.call()]
@@ -494,7 +549,7 @@ class TestDatabaseUserService:
         user_service.ratelimiters["user.login"] = limiter
         user_service.ratelimiters["global.login"] = limiter
 
-        valid = user_service.check_totp_value(user.id, b"123456")
+        valid = user_service.check_totp_value(user.id, b"123456", "0.0.0.0")
 
         assert not valid
         assert limiter.hit.calls == [pretend.call(user.id), pretend.call()]
@@ -699,16 +754,16 @@ class TestDatabaseUserService:
 
     def test_check_recovery_code(self, user_service, metrics):
         user = UserFactory.create()
-        assert not user_service.check_recovery_code(user.id, "no codes yet")
+        assert not user_service.check_recovery_code(user.id, "no codes yet", "1.2.3.4")
 
         codes = user_service.generate_recovery_codes(user.id)
         assert len(codes) == 8
         assert len(user_service.get_recovery_codes(user.id)) == 8
-        assert user_service.check_recovery_code(user.id, codes[0])
+        assert user_service.check_recovery_code(user.id, codes[0], "1.2.3.4")
 
         # Once used, the code should not be accepted again.
         assert len(user_service.get_recovery_codes(user.id)) == 7
-        assert not user_service.check_recovery_code(user.id, codes[0])
+        assert not user_service.check_recovery_code(user.id, codes[0], "1.2.3.4")
 
         assert metrics.increment.calls == [
             pretend.call("warehouse.authentication.recovery_code.start"),
@@ -731,14 +786,14 @@ class TestDatabaseUserService:
         user_service.ratelimiters["global.login"] = limiter
 
         with pytest.raises(TooManyFailedLogins) as excinfo:
-            user_service.check_recovery_code(uuid.uuid4(), "recovery_code")
+            user_service.check_recovery_code(uuid.uuid4(), "recovery_code", "1.2.3.4")
 
         assert excinfo.value.resets_in is resets
         assert metrics.increment.calls == [
             pretend.call("warehouse.authentication.recovery_code.start"),
             pretend.call(
-                "warehouse.authentication.recovery_code.ratelimited",
-                tags=["ratelimiter:global"],
+                "warehouse.authentication.ratelimited",
+                tags=["mechanism:check_recovery_code", "ratelimiter:global"],
             ),
         ]
 
@@ -752,7 +807,7 @@ class TestDatabaseUserService:
         user_service.ratelimiters["user.login"] = limiter
 
         with pytest.raises(TooManyFailedLogins) as excinfo:
-            user_service.check_recovery_code(user.id, "recovery_code")
+            user_service.check_recovery_code(user.id, "recovery_code", "1.2.3.4")
 
         assert excinfo.value.resets_in is resets
         assert limiter.test.calls == [pretend.call(user.id)]
@@ -760,8 +815,8 @@ class TestDatabaseUserService:
         assert metrics.increment.calls == [
             pretend.call("warehouse.authentication.recovery_code.start"),
             pretend.call(
-                "warehouse.authentication.recovery_code.ratelimited",
-                tags=["ratelimiter:user"],
+                "warehouse.authentication.ratelimited",
+                tags=["mechanism:check_recovery_code", "ratelimiter:user"],
             ),
         ]
 
@@ -843,7 +898,9 @@ def test_database_login_factory(monkeypatch, pyramid_services, metrics):
 
     global_login_ratelimiter = pretend.stub()
     user_login_ratelimiter = pretend.stub()
+    ip_login_ratelimiter = pretend.stub()
     email_add_ratelimiter = pretend.stub()
+    password_reset_ratelimiter = pretend.stub()
 
     def find_service(iface, name=None, context=None):
         if iface != IRateLimiter and name is None:
@@ -851,13 +908,21 @@ def test_database_login_factory(monkeypatch, pyramid_services, metrics):
 
         assert iface is IRateLimiter
         assert context is None
-        assert name in {"global.login", "user.login", "email.add"}
+        assert name in {
+            "global.login",
+            "user.login",
+            "ip.login",
+            "email.add",
+            "password.reset",
+        }
 
         return (
             {
                 "global.login": global_login_ratelimiter,
                 "user.login": user_login_ratelimiter,
+                "ip.login": ip_login_ratelimiter,
                 "email.add": email_add_ratelimiter,
+                "password.reset": password_reset_ratelimiter,
             }
         ).get(name)
 
@@ -872,7 +937,9 @@ def test_database_login_factory(monkeypatch, pyramid_services, metrics):
             ratelimiters={
                 "global.login": global_login_ratelimiter,
                 "user.login": user_login_ratelimiter,
+                "ip.login": ip_login_ratelimiter,
                 "email.add": email_add_ratelimiter,
+                "password.reset": password_reset_ratelimiter,
             },
         )
     ]
