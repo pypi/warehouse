@@ -33,7 +33,7 @@ msgstr ""
 "Project-Id-Version: Warehouse VERSION\n"
 "Report-Msgid-Bugs-To: admin@pypi.org\n"
 "POT-Creation-Date: 2020-04-06 17:52-0500\n"
-"PO-Revision-Date: 2021-10-20 21:38+0000\n"
+"PO-Revision-Date: 2021-10-27 13:11+0000\n"
 "Last-Translator: Eric <spice2wolf@gmail.com>\n"
 "Language-Team: Chinese (Simplified) <https://hosted.weblate.org/projects/"
 "pypa/warehouse/zh_Hans/>\n"
@@ -586,7 +586,7 @@ msgstr "切换到手机版本"
 #: warehouse/templates/base.html:162 warehouse/templates/base.html:171
 #: warehouse/templates/base.html:181
 #: warehouse/templates/includes/session-notifications.html:19
-#: warehouse/templates/manage/account.html:783
+#: warehouse/templates/manage/account.html:789
 #: warehouse/templates/manage/documentation.html:27
 #: warehouse/templates/manage/manage_base.html:106
 #: warehouse/templates/manage/manage_base.html:158
@@ -2264,115 +2264,119 @@ msgstr "恢复代码"
 msgid "Login failed"
 msgstr "登录失败"
 
-#: warehouse/templates/manage/account.html:581
-#: warehouse/templates/manage/account.html:598
+#: warehouse/templates/manage/account.html:582
+msgid "- Basic Auth (Upload endpoint)"
+msgstr "- 基础身份验证（上传端点）"
+
+#: warehouse/templates/manage/account.html:587
+#: warehouse/templates/manage/account.html:604
 #: warehouse/templates/manage/history.html:84
 msgid "Reason:"
 msgstr "原因："
 
-#: warehouse/templates/manage/account.html:583
-#: warehouse/templates/manage/account.html:600
+#: warehouse/templates/manage/account.html:589
+#: warehouse/templates/manage/account.html:606
 msgid "Incorrect Password"
 msgstr "不正确的密码"
 
-#: warehouse/templates/manage/account.html:585
+#: warehouse/templates/manage/account.html:591
 msgid "Invalid two factor (TOTP)"
 msgstr "无效的双因素 （TOTP）"
 
-#: warehouse/templates/manage/account.html:587
+#: warehouse/templates/manage/account.html:593
 msgid "Invalid two factor (WebAuthn)"
 msgstr "无效的双因素（WebAuthn）"
 
 # | msgid "Invalid TOTP code."
-#: warehouse/templates/manage/account.html:589
+#: warehouse/templates/manage/account.html:595
 msgid "Invalid two factor (Recovery code)"
 msgstr "无效的双因素（恢复代码）"
 
-#: warehouse/templates/manage/account.html:596
+#: warehouse/templates/manage/account.html:602
 msgid "Session reauthentication failed"
 msgstr "会话重新认证失败"
 
-#: warehouse/templates/manage/account.html:607
+#: warehouse/templates/manage/account.html:613
 msgid "Email added to account"
 msgstr "电子邮件已添加到帐户"
 
-#: warehouse/templates/manage/account.html:610
+#: warehouse/templates/manage/account.html:616
 msgid "Email removed from account"
 msgstr "电子邮件已从帐户中删除"
 
-#: warehouse/templates/manage/account.html:613
+#: warehouse/templates/manage/account.html:619
 msgid "Email verified"
 msgstr "电子邮件已验证"
 
-#: warehouse/templates/manage/account.html:616
+#: warehouse/templates/manage/account.html:622
 msgid "Email reverified"
 msgstr "电子邮件已重新验证"
 
-#: warehouse/templates/manage/account.html:620
+#: warehouse/templates/manage/account.html:626
 msgid "Primary email changed"
 msgstr "主电子邮件已更改"
 
-#: warehouse/templates/manage/account.html:622
+#: warehouse/templates/manage/account.html:628
 msgid "Old primary email:"
 msgstr "原主要电子邮件："
 
-#: warehouse/templates/manage/account.html:623
+#: warehouse/templates/manage/account.html:629
 msgid "New primary email:"
 msgstr "新主电子邮件："
 
-#: warehouse/templates/manage/account.html:626
+#: warehouse/templates/manage/account.html:632
 msgid "Primary email set"
 msgstr "主要的电子邮件"
 
-#: warehouse/templates/manage/account.html:632
+#: warehouse/templates/manage/account.html:638
 msgid "Email sent"
 msgstr "邮件已发送"
 
-#: warehouse/templates/manage/account.html:634
+#: warehouse/templates/manage/account.html:640
 msgid "From:"
 msgstr "来自:"
 
-#: warehouse/templates/manage/account.html:635
+#: warehouse/templates/manage/account.html:641
 msgid "To:"
 msgstr "至:"
 
-#: warehouse/templates/manage/account.html:636
+#: warehouse/templates/manage/account.html:642
 msgid "Subject:"
 msgstr "标题:"
 
-#: warehouse/templates/manage/account.html:640
+#: warehouse/templates/manage/account.html:646
 msgid "Password reset requested"
 msgstr "密码重置请求已提交"
 
-#: warehouse/templates/manage/account.html:642
+#: warehouse/templates/manage/account.html:648
 msgid "Password reset attempted"
 msgstr "已尝试密码重置"
 
-#: warehouse/templates/manage/account.html:644
+#: warehouse/templates/manage/account.html:650
 msgid "Password successfully reset"
 msgstr "密码重置成功"
 
-#: warehouse/templates/manage/account.html:646
+#: warehouse/templates/manage/account.html:652
 msgid "Password successfully changed"
 msgstr "密码已成功更改"
 
-#: warehouse/templates/manage/account.html:649
+#: warehouse/templates/manage/account.html:655
 msgid "Two factor authentication added"
 msgstr "已添加双因素身份验证"
 
-#: warehouse/templates/manage/account.html:652
-#: warehouse/templates/manage/account.html:662
+#: warehouse/templates/manage/account.html:658
+#: warehouse/templates/manage/account.html:668
 msgid ""
 "Method: Security device (<abbr title=\"web authentication\">WebAuthn</abbr>)"
 msgstr "方式：安全设备（<abbr title=\"web authentication\">WebAuthn</abbr>）"
 
-#: warehouse/templates/manage/account.html:653
-#: warehouse/templates/manage/account.html:663
+#: warehouse/templates/manage/account.html:659
+#: warehouse/templates/manage/account.html:669
 msgid "Device name:"
 msgstr "设备名称："
 
-#: warehouse/templates/manage/account.html:655
-#: warehouse/templates/manage/account.html:665
+#: warehouse/templates/manage/account.html:661
+#: warehouse/templates/manage/account.html:671
 msgid ""
 "Method: Authentication application (<abbr title=\"time-based one-time "
 "password\">TOTP</abbr>)"
@@ -2380,65 +2384,65 @@ msgstr ""
 "方式：身份验证程序（<abbr title=\"time-based one-time password\">TOTP</"
 "abbr>）"
 
-#: warehouse/templates/manage/account.html:659
+#: warehouse/templates/manage/account.html:665
 msgid "Two factor authentication removed"
 msgstr "已删除双因素身份验证"
 
-#: warehouse/templates/manage/account.html:670
+#: warehouse/templates/manage/account.html:676
 msgid "Recovery codes generated"
 msgstr "生成的恢复代码"
 
-#: warehouse/templates/manage/account.html:674
+#: warehouse/templates/manage/account.html:680
 msgid "Recovery codes regenerated"
 msgstr "重新生成的恢复代码"
 
-#: warehouse/templates/manage/account.html:678
+#: warehouse/templates/manage/account.html:684
 msgid "Recovery code used for login"
 msgstr "用于登录的恢复代码"
 
-#: warehouse/templates/manage/account.html:684
+#: warehouse/templates/manage/account.html:690
 #: warehouse/templates/manage/history.html:65
 msgid "API token added"
 msgstr "已添加 API 令牌"
 
-#: warehouse/templates/manage/account.html:686
-#: warehouse/templates/manage/account.html:701
+#: warehouse/templates/manage/account.html:692
+#: warehouse/templates/manage/account.html:707
 #: warehouse/templates/manage/history.html:69
 #: warehouse/templates/manage/history.html:76
 msgid "Token name:"
 msgstr "令牌名称："
 
-#: warehouse/templates/manage/account.html:688
-#: warehouse/templates/manage/account.html:704
+#: warehouse/templates/manage/account.html:694
+#: warehouse/templates/manage/account.html:710
 msgid "Token scope: entire account"
 msgstr "令牌作用域：整个帐户"
 
-#: warehouse/templates/manage/account.html:690
-#: warehouse/templates/manage/account.html:706
+#: warehouse/templates/manage/account.html:696
+#: warehouse/templates/manage/account.html:712
 #, python-format
 msgid "Token scope: Project %(project_name)s"
 msgstr "令牌作用域：%(project_name)s 项目"
 
-#: warehouse/templates/manage/account.html:695
+#: warehouse/templates/manage/account.html:701
 #: warehouse/templates/manage/history.html:72
 msgid "API token removed"
 msgstr "已删除 API 令牌"
 
-#: warehouse/templates/manage/account.html:696
 #: warehouse/templates/manage/account.html:702
+#: warehouse/templates/manage/account.html:708
 msgid "Unique identifier:"
 msgstr "唯一标识符："
 
-#: warehouse/templates/manage/account.html:699
+#: warehouse/templates/manage/account.html:705
 msgid "API token automatically removed for security reasons"
 msgstr "出于安全原因，API令牌被自动删除"
 
-#: warehouse/templates/manage/account.html:708
+#: warehouse/templates/manage/account.html:714
 #, python-format
 msgid "Reason: Token found at <a href=\"%(public_url)s\">public url</a>"
 msgstr "原因：在 <a href=\"%(public_url)s\">公开 url</a>中找到了令牌"
 
-#: warehouse/templates/manage/account.html:717
+#: warehouse/templates/manage/account.html:723
 #, python-format
 msgid ""
 "Events appear here as security-related actions occur on your account. If you "
@@ -2448,43 +2452,43 @@ msgstr ""
 "这里将宣示您账户的安全相关操作。如有可疑操作，请尽快<a href=\"%(faq_url)s\">"
 "确保您的帐户安全</a>。"
 
-#: warehouse/templates/manage/account.html:722
+#: warehouse/templates/manage/account.html:728
 msgid "Recent account activity"
 msgstr "最近的帐户活动"
 
-#: warehouse/templates/manage/account.html:724
+#: warehouse/templates/manage/account.html:730
 #: warehouse/templates/manage/history.html:97
 msgid "Event"
 msgstr "事件"
 
-#: warehouse/templates/manage/account.html:725
-#: warehouse/templates/manage/account.html:733
+#: warehouse/templates/manage/account.html:731
+#: warehouse/templates/manage/account.html:739
 #: warehouse/templates/manage/history.html:98
 #: warehouse/templates/manage/history.html:107
 msgid "Date / time"
 msgstr "日期/时间"
 
-#: warehouse/templates/manage/account.html:726
-#: warehouse/templates/manage/account.html:737
+#: warehouse/templates/manage/account.html:732
+#: warehouse/templates/manage/account.html:743
 #: warehouse/templates/manage/history.html:99
 #: warehouse/templates/manage/history.html:111
 msgid "IP address"
 msgstr "IP 地址"
 
-#: warehouse/templates/manage/account.html:745
+#: warehouse/templates/manage/account.html:751
 msgid ""
 "Events will appear here as security-related actions occur on your account."
 msgstr "当您的帐户发生与安全相关的操作时，事件将显示在此处。"
 
-#: warehouse/templates/manage/account.html:752
+#: warehouse/templates/manage/account.html:758
 msgid "Delete account"
 msgstr "删除帐户"
 
-#: warehouse/templates/manage/account.html:755
+#: warehouse/templates/manage/account.html:761
 msgid "Cannot delete account"
 msgstr "无法删除帐户"
 
-#: warehouse/templates/manage/account.html:757
+#: warehouse/templates/manage/account.html:763
 #, python-format
 msgid ""
 "\n"
@@ -2501,7 +2505,7 @@ msgstr[0] ""
 "          您当前是 %(count)s 个项目的<strong>唯一所有者</strong>。\n"
 "        "
 
-#: warehouse/templates/manage/account.html:762
+#: warehouse/templates/manage/account.html:768
 msgid ""
 "\n"
 "          You must transfer ownership or delete this project before you can "
@@ -2517,7 +2521,7 @@ msgstr[0] ""
 "          在删除您的帐号前，您必须将这些项目转移给他人或删除。\n"
 "        "
 
-#: warehouse/templates/manage/account.html:772
+#: warehouse/templates/manage/account.html:778
 #, python-format
 msgid ""
 "<a href=\"%(transfer_href)s\">transfer ownership</a> or <a href="
@@ -2526,16 +2530,16 @@ msgstr ""
 "<a href=\"%(transfer_href)s\">转移</a>或者<a href=\"%(delete_href)s\">删除</"
 "a>"
 
-#: warehouse/templates/manage/account.html:781
+#: warehouse/templates/manage/account.html:787
 #: warehouse/templates/manage/token.html:169
 msgid "Proceed with caution!"
 msgstr "小心操作！"
 
-#: warehouse/templates/manage/account.html:784
+#: warehouse/templates/manage/account.html:790
 msgid "You will not be able to recover your account after you delete it"
 msgstr "删除帐户后将无法恢复帐户"
 
-#: warehouse/templates/manage/account.html:786
+#: warehouse/templates/manage/account.html:792
 msgid "Delete your PyPI account"
 msgstr "删除您的 PyPI 帐户"
 
@@ -5216,9 +5220,9 @@ msgid ""
 "target=\"_blank\" rel=\"noopener\">Python Packaging Advisory Database</a>."
 msgstr ""
 "PyPi 从 <a href=\"%(osv_href)s\" title=\"%(title)s\" target=\"_blank\" rel="
-"\"noopener\">开源漏洞项目</a>收到了托管于 PyPi 上包的漏洞报告，进而从 <a href=\"%(vulns_href)s\" "
-"title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">Python "
-"包安全通告数据库</a>摄取漏洞信息。"
+"\"noopener\">开源漏洞项目</a>收到了托管于 PyPi 上包的漏洞报告，进而从 <a "
+"href=\"%(vulns_href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener"
+"\">Python 包安全通告数据库</a>摄取漏洞信息。"
 
 #: warehouse/templates/pages/help.html:617
 #, python-format
@@ -5227,8 +5231,9 @@ msgid ""
 "<a href=\"%(file_issue_href)s\" title=\"%(title)s\" target=\"_blank\" rel="
 "\"noopener\">file an issue</a> with details."
 msgstr ""
-"如果你认为你项目的漏洞数据无效或不准确，请<a href=\"%(file_issue_href)s\" title=\"%(title)s\" "
-"target=\"_blank\" rel=\"noopener\">提交问题</a>并提供详细信息。"
+"如果你认为你项目的漏洞数据无效或不准确，请<a href=\"%(file_issue_href)s\" "
+"title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">提交问题</a>并提供详细"
+"信息。"
 
 #: warehouse/templates/pages/help.html:628
 msgid ""

@@ -32,7 +32,7 @@ from warehouse.accounts.services import (
     database_login_factory,
 )
 from warehouse.email import send_password_compromised_email_hibp
-from warehouse.errors import BasicAuthBreachedPassword
+from warehouse.errors import BasicAuthBreachedPassword, BasicAuthFailedPassword
 from warehouse.macaroons.auth_policy import (
     MacaroonAuthenticationPolicy,
     MacaroonAuthorizationPolicy,
@@ -91,6 +91,19 @@ def _basic_auth_login(username, password, request):
                     user.id, last_login=datetime.datetime.utcnow()
                 )
                 return _authenticate(user.id, request)
+        else:
+            user.record_event(
+                tag="account:login:failure",
+                ip_address=request.remote_addr,
+                additional={"reason": "invalid_password", "auth_method": "basic"},
+            )
+            raise _format_exc_status(
+                BasicAuthFailedPassword(),
+                "Invalid or non-existent authentication information. "
+                "See {projecthelp} for more information.".format(
+                    projecthelp=request.help_url(_anchor="invalid-auth")
+                ),
+            )
 
 
 def _authenticate(userid, request):
