@@ -238,6 +238,11 @@ def test_configure(monkeypatch, settings, environment, other_settings):
         "github.token_scanning_meta_api.url": (
             "https://api.github.com/meta/public_keys/token_scanning"
         ),
+        "warehouse.account.user_login_ratelimit_string": "10 per 5 minutes",
+        "warehouse.account.ip_login_ratelimit_string": "10 per 5 minutes",
+        "warehouse.account.global_login_ratelimit_string": "1000 per 5 minutes",
+        "warehouse.account.email_add_ratelimit_string": "2 per day",
+        "warehouse.account.password_reset_ratelimit_string": "5 per day",
     }
     if environment == config.Environment.development:
         expected_settings.update(

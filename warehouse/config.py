@@ -234,6 +234,38 @@ def configure(settings=None):
     maybe_set_compound(settings, "breached_passwords", "backend", "BREACHED_PASSWORDS")
     maybe_set_compound(settings, "malware_check", "backend", "MALWARE_CHECK_BACKEND")
 
+    # Configure our ratelimiters
+    maybe_set(
+        settings,
+        "warehouse.account.user_login_ratelimit_string",
+        "USER_LOGIN_RATELIMIT_STRING",
+        default="10 per 5 minutes",
+    )
+    maybe_set(
+        settings,
+        "warehouse.account.ip_login_ratelimit_string",
+        "IP_LOGIN_RATELIMIT_STRING",
+        default="10 per 5 minutes",
+    )
+    maybe_set(
+        settings,
+        "warehouse.account.global_login_ratelimit_string",
+        "GLOBAL_LOGIN_RATELIMIT_STRING",
+        default="1000 per 5 minutes",
+    )
+    maybe_set(
+        settings,
+        "warehouse.account.email_add_ratelimit_string",
+        "EMAIL_ADD_RATELIMIT_STRING",
+        default="2 per day",
+    )
+    maybe_set(
+        settings,
+        "warehouse.account.password_reset_ratelimit_string",
+        "PASSWORD_RESET_RATELIMIT_STRING",
+        default="5 per day",
+    )
+
     # Add the settings we use when the environment is set to development.
     if settings["warehouse.env"] == Environment.development:
         settings.setdefault("enforce_https", False)
