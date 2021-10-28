@@ -607,7 +607,7 @@ class TestTOTPAuthenticationForm:
         assert form.totp_value.errors.pop() == "This field is required."
 
         form = forms.TOTPAuthenticationForm(
-            request=pretend.stub(),
+            request=pretend.stub(remote_addr="1.2.3.4"),
             data={"totp_value": "not_a_real_value"},
             user_id=pretend.stub(),
             user_service=pretend.stub(check_totp_value=lambda *a: True),
@@ -616,7 +616,7 @@ class TestTOTPAuthenticationForm:
         assert str(form.totp_value.errors.pop()) == "TOTP code must be 6 digits."
 
         form = forms.TOTPAuthenticationForm(
-            request=pretend.stub(),
+            request=pretend.stub(remote_addr="1.2.3.4"),
             data={"totp_value": "1 2 3 4 5 6 7"},
             user_id=pretend.stub(),
             user_service=pretend.stub(check_totp_value=lambda *a: True),
@@ -646,7 +646,7 @@ class TestTOTPAuthenticationForm:
         ]
 
         form = forms.TOTPAuthenticationForm(
-            request=pretend.stub(),
+            request=pretend.stub(remote_addr="1.2.3.4"),
             data={"totp_value": "123456"},
             user_id=pretend.stub(),
             user_service=pretend.stub(check_totp_value=lambda *a: True),
@@ -654,7 +654,7 @@ class TestTOTPAuthenticationForm:
         assert form.validate()
 
         form = forms.TOTPAuthenticationForm(
-            request=pretend.stub(),
+            request=pretend.stub(remote_addr="1.2.3.4"),
             data={"totp_value": " 1 2 3 4  5 6 "},
             user_id=pretend.stub(),
             user_service=pretend.stub(check_totp_value=lambda *a: True),
@@ -662,7 +662,7 @@ class TestTOTPAuthenticationForm:
         assert form.validate()
 
         form = forms.TOTPAuthenticationForm(
-            request=pretend.stub(),
+            request=pretend.stub(remote_addr="1.2.3.4"),
             data={"totp_value": "123 456"},
             user_id=pretend.stub(),
             user_service=pretend.stub(check_totp_value=lambda *a: True),
