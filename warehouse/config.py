@@ -263,7 +263,7 @@ def configure(settings=None):
         settings,
         "warehouse.account.password_reset_ratelimit_string",
         "PASSWORD_RESET_RATELIMIT_STRING",
-        default="2 per day",
+        default="5 per day",
     )
 
     # Add the settings we use when the environment is set to development.
