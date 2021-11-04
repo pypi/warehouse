@@ -35,7 +35,7 @@ class FakeResult:
 
     @property
     def hits(self):
-        return pretend.stub(total={'value': self.total})
+        return pretend.stub(total={"value": self.total})
 
     def __iter__(self):
         for i in self.data:

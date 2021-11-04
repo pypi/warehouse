@@ -564,9 +564,7 @@ class TestPartialReindex:
 
         unindex_project(task, db_request, "foo")
 
-        assert es_client.delete.calls == [
-            pretend.call(index="warehouse", id="foo")
-        ]
+        assert es_client.delete.calls == [pretend.call(index="warehouse", id="foo")]
 
     def test_unindex_retry_on_lock(self, db_request, monkeypatch):
         task = pretend.stub(
