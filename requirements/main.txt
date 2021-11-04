@@ -303,9 +303,9 @@ google-auth==2.3.0 \
     #   google-api-core
     #   google-cloud-core
     #   google-cloud-storage
-google-cloud-bigquery==2.28.1 \
-    --hash=sha256:0e2353d97e5292dc8ce54447b712fb9e89496e714b5cacfc3d536614d1c461dc \
-    --hash=sha256:910d9a44aa684cb91782c55e2c60cd4d059eb4b4f405002280b9da307ee76afe
+google-cloud-bigquery==2.30.0 \
+    --hash=sha256:f6546ee96d57f45eaac8c4b24b52228a7f21a33669730efc9e69569bc88a04ad \
+    --hash=sha256:fdb57aa5e8af7d692eb5835739d9339dc1b5e89836430fe88dd1ddc1b0047639
     # via -r requirements/main.in
 google-cloud-core==2.1.0 \
     --hash=sha256:35a1f5f02a86e0fa2e28c669f0db4a76d928671a28fbbbb493ab59ba9d1cb9a9 \
@@ -897,6 +897,7 @@ python-dateutil==2.8.2 \
     #   botocore
     #   celery-redbeat
     #   elasticsearch-dsl
+    #   google-cloud-bigquery
 python-slugify==5.0.2 \
     --hash=sha256:6d8c5df75cd4a7c3a2d21e257633de53f52ab0265cd2d1dc62a730e8194a7380 \
     --hash=sha256:f13383a0b9fcbe649a1892b9c8eb4f8eab1d6d84b84bb7a624317afa98159cab
