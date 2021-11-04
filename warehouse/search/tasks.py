@@ -101,7 +101,7 @@ def _project_docs(db, project_name=None):
         .outerjoin(Release.project)
     )
 
-    for release in windowed_query(release_data, Release.project_id, 50000):
+    for release in windowed_query(release_data, Project.id, 25000):
         p = ProjectDocument.from_db(release)
         p._index = None
         p.full_clean()
