@@ -70,35 +70,35 @@ msgid ""
 msgstr ""
 "다른 계정에서 이미 사용중인 사용자 이름입니다. 다른 사용자 이름을 선택하세요."
 
-#: warehouse/accounts/forms.py:134
+#: warehouse/accounts/forms.py:137
 msgid "The password is invalid. Try again."
 msgstr "올바른 패스워드가 아닙니다. 올바른 패스워드를 입력하세요."
 
-#: warehouse/accounts/forms.py:138 warehouse/accounts/views.py:76
+#: warehouse/accounts/forms.py:141 warehouse/accounts/views.py:77
 msgid "There have been too many unsuccessful login attempts. Try again later."
 msgstr "너무 많은 잘못된 로그인 시도가 있었습니다. 나중에 다시 시도해주세요."
 
-#: warehouse/accounts/forms.py:160
+#: warehouse/accounts/forms.py:163
 msgid "Your passwords don't match. Try again."
 msgstr "패스워드가 일치하지 않습니다. 다시 시도해 주세요."
 
-#: warehouse/accounts/forms.py:191 warehouse/accounts/forms.py:202
+#: warehouse/accounts/forms.py:194 warehouse/accounts/forms.py:205
 msgid "The email address isn't valid. Try again."
 msgstr "유효하지 않은 이메일입니다. 다시 시도해 주세요."
 
-#: warehouse/accounts/forms.py:210
+#: warehouse/accounts/forms.py:213
 msgid "You can't use an email address from this domain. Use a different email."
 msgstr ""
 "이 도메인의 이메일 주소는 사용할 수 없습니다. 다른 이메일을 사용하세요."
 
-#: warehouse/accounts/forms.py:221
+#: warehouse/accounts/forms.py:224
 msgid ""
 "This email address is already being used by this account. Use a different "
 "email."
 msgstr ""
 "이 계정에서 이미 사용중인 이메일 주소 입니다. 다른 이메일을 사용하세요."
 
-#: warehouse/accounts/forms.py:228
+#: warehouse/accounts/forms.py:231
 msgid ""
 "This email address is already being used by another account. Use a different "
 "email."
@@ -106,27 +106,27 @@ msgstr ""
 "해당 이메일은 다른 계정에서 이미 사용되고 있습니다. 다른 이메일을 사용해 주세"
 "요."
 
-#: warehouse/accounts/forms.py:250
+#: warehouse/accounts/forms.py:253
 msgid "The name is too long. Choose a name with 100 characters or less."
 msgstr "너무 긴 이름입니다. 100글자 이하의 이름을 입력해주세요."
 
-#: warehouse/accounts/forms.py:320
+#: warehouse/accounts/forms.py:325
 msgid "Invalid TOTP code."
 msgstr "잘못된 TOTP 코드입니다."
 
-#: warehouse/accounts/forms.py:337
+#: warehouse/accounts/forms.py:342
 msgid "Invalid WebAuthn assertion: Bad payload"
 msgstr "잘못된 WebAuthn 승인: 잘못된 페이로드"
 
-#: warehouse/accounts/forms.py:392
+#: warehouse/accounts/forms.py:399
 msgid "Invalid recovery code."
 msgstr "잘못된 복구 코드입니다."
 
-#: warehouse/accounts/forms.py:410
+#: warehouse/accounts/forms.py:417
 msgid "No user found with that username or email"
 msgstr "해당 사용자 이름이나 이메일로 사용자를 찾을 수 없습니다"
 
-#: warehouse/accounts/views.py:93
+#: warehouse/accounts/views.py:94
 msgid ""
 "Too many emails have been added to this account without verifying them. "
 "Check your inbox and follow the verification links. (IP: ${ip})"
@@ -134,25 +134,38 @@ msgstr ""
 "이 계정에 인증되지 않은 이메일이 너무 많이 추가되었습니다. 당신의 수신함을 확"
 "인하고 인증 주소를 따르세요. (IP: ${ip})"
 
-#: warehouse/accounts/views.py:232 warehouse/accounts/views.py:292
-#: warehouse/accounts/views.py:294 warehouse/accounts/views.py:321
-#: warehouse/accounts/views.py:323 warehouse/accounts/views.py:384
+#: warehouse/accounts/views.py:106
+#, fuzzy
+#| msgid ""
+#| "Too many emails have been added to this account without verifying them. "
+#| "Check your inbox and follow the verification links. (IP: ${ip})"
+msgid ""
+"Too many password resets have been requested for this account without "
+"completing them. Check your inbox and follow the verification links. (IP: "
+"${ip})"
+msgstr ""
+"이 계정에 인증되지 않은 이메일이 너무 많이 추가되었습니다. 당신의 수신함을 확"
+"인하고 인증 주소를 따르세요. (IP: ${ip})"
+
+#: warehouse/accounts/views.py:246 warehouse/accounts/views.py:306
+#: warehouse/accounts/views.py:308 warehouse/accounts/views.py:335
+#: warehouse/accounts/views.py:337 warehouse/accounts/views.py:398
 msgid "Invalid or expired two factor login."
 msgstr "2단계 인증 로그인이 잘못되거나 만료되었습니다."
 
-#: warehouse/accounts/views.py:286
+#: warehouse/accounts/views.py:300
 msgid "Already authenticated"
 msgstr "이미 인증됨"
 
-#: warehouse/accounts/views.py:360
+#: warehouse/accounts/views.py:374
 msgid "Successful WebAuthn assertion"
 msgstr "WebAuthn 승인 성공"
 
-#: warehouse/accounts/views.py:415
+#: warehouse/accounts/views.py:429
 msgid "Recovery code accepted. The supplied code cannot be used again."
 msgstr "복구 코드가 승인되었습니다. 주어진 코드는 재사용이 불가능합니다."
 
-#: warehouse/accounts/views.py:501
+#: warehouse/accounts/views.py:515
 msgid ""
 "New user registration temporarily disabled. See https://pypi.org/help#admin-"
 "intervention for details."
@@ -160,98 +173,98 @@ msgstr ""
 "새 사용자 등록이 잠시 불가능한 상태입니다. https://pypi.org/help#admin-"
 "intervention 에서 자세한 내용을 확인하세요."
 
-#: warehouse/accounts/views.py:618
+#: warehouse/accounts/views.py:638
 msgid "Expired token: request a new password reset link"
 msgstr "만료된 토큰: 새로운 암호 설정 링크를 요청하세요"
 
-#: warehouse/accounts/views.py:620
+#: warehouse/accounts/views.py:640
 msgid "Invalid token: request a new password reset link"
 msgstr "잘못된 토큰: 새로운 암호 설정 링크를 요청하세요"
 
-#: warehouse/accounts/views.py:622 warehouse/accounts/views.py:705
-#: warehouse/accounts/views.py:801
+#: warehouse/accounts/views.py:642 warehouse/accounts/views.py:729
+#: warehouse/accounts/views.py:825
 msgid "Invalid token: no token supplied"
 msgstr "잘못된 토큰: 토큰이 제공되지 않음"
 
-#: warehouse/accounts/views.py:626
+#: warehouse/accounts/views.py:646
 msgid "Invalid token: not a password reset token"
 msgstr "잘못된 토큰: 암호 재설정 토큰이 아님"
 
-#: warehouse/accounts/views.py:631
+#: warehouse/accounts/views.py:651
 msgid "Invalid token: user not found"
 msgstr "잘못된 토큰: 사용자 없음"
 
-#: warehouse/accounts/views.py:638
+#: warehouse/accounts/views.py:658
 msgid "Invalid token: user has logged in since this token was requested"
 msgstr "잘못된 토큰: 이 토큰이 요청된 이후로 사용자가 로그인함"
 
-#: warehouse/accounts/views.py:647
+#: warehouse/accounts/views.py:667
 msgid ""
 "Invalid token: password has already been changed since this token was "
 "requested"
 msgstr "잘못된 토큰: 이 토큰이 요청된 이후로 패스워드가 변경됨"
 
-#: warehouse/accounts/views.py:674
+#: warehouse/accounts/views.py:698
 msgid "You have reset your password"
 msgstr "패스워드를 재설정해야 합니다"
 
-#: warehouse/accounts/views.py:701
+#: warehouse/accounts/views.py:725
 msgid "Expired token: request a new email verification link"
 msgstr "만료된 토큰: 새로운 이메일 확인 링크를 요청하세요"
 
-#: warehouse/accounts/views.py:703
+#: warehouse/accounts/views.py:727
 msgid "Invalid token: request a new email verification link"
 msgstr "잘못된 토큰: 새로운 이메일 확인 링크를 요청하세요"
 
-#: warehouse/accounts/views.py:709
+#: warehouse/accounts/views.py:733
 msgid "Invalid token: not an email verification token"
 msgstr "잘못된 토큰: 이메일 확인 토큰이 아님"
 
-#: warehouse/accounts/views.py:718
+#: warehouse/accounts/views.py:742
 msgid "Email not found"
 msgstr "이메일을 찾을 수 없음"
 
-#: warehouse/accounts/views.py:721
+#: warehouse/accounts/views.py:745
 msgid "Email already verified"
 msgstr "이미 확인된 이메일"
 
-#: warehouse/accounts/views.py:736
+#: warehouse/accounts/views.py:760
 msgid "You can now set this email as your primary address"
 msgstr "이 이메일을 기본 이메일 주소로 지정할 수 있습니다"
 
-#: warehouse/accounts/views.py:740
+#: warehouse/accounts/views.py:764
 msgid "This is your primary address"
 msgstr "기본 이메일 주소입니다"
 
-#: warehouse/accounts/views.py:745
+#: warehouse/accounts/views.py:769
 msgid "Email address ${email_address} verified. ${confirm_message}."
 msgstr "이메일 주소 ${email_address}가 확인되었습니다. ${confirm_message}."
 
-#: warehouse/accounts/views.py:797
+#: warehouse/accounts/views.py:821
 msgid "Expired token: request a new project role invite"
 msgstr "만료된 토큰: 새로운 역할 초대를 요청하세요"
 
-#: warehouse/accounts/views.py:799
+#: warehouse/accounts/views.py:823
 msgid "Invalid token: request a new project role invite"
 msgstr "잘못된 토큰: 새로운 초대를 요청하세요"
 
-#: warehouse/accounts/views.py:805
+#: warehouse/accounts/views.py:829
 msgid "Invalid token: not a collaboration invitation token"
 msgstr "잘못된 토큰 : 공동 작업 초대 토큰이 아닙니다"
 
-#: warehouse/accounts/views.py:809
+#: warehouse/accounts/views.py:833
 msgid "Role invitation is not valid."
 msgstr "역할 초대가 유효하지 않습니다."
 
-#: warehouse/accounts/views.py:824
+#: warehouse/accounts/views.py:848
 msgid "Role invitation no longer exists."
 msgstr "그 역할 초대는 더 이상 존재하지 않습니다."
 
-#: warehouse/accounts/views.py:836
+#: warehouse/accounts/views.py:860
 msgid "Invitation for '${project_name}' is declined."
 msgstr "'${project_name}'의 초대가 거부되었습니다."
 
-#: warehouse/accounts/views.py:903
+#: warehouse/accounts/views.py:927
 msgid "You are now ${role} of the '${project_name}' project."
 msgstr "당신은 이제 '${project_name}' 프로젝트의 ${role} 역할 입니다."
 
