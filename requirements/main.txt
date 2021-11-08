@@ -8,9 +8,9 @@ alembic==1.7.4 \
     --hash=sha256:9d33f3ff1488c4bfab1e1a6dfebbf085e8a8e1a3e047a43ad29ad1f67f012a1d \
     --hash=sha256:e3cab9e59778b3b6726bb2da9ced451c6622d558199fd3ef914f3b1e8f4ef704
     # via -r requirements/main.in
-amqp==2.6.1 \
-    --hash=sha256:70cdb10628468ff14e57ec2f751c7aa9e48e7e3651cfd62d431213c0c4e58f21 \
-    --hash=sha256:aa7f313fb887c91f15474c1229907a04dac0b8135822d6603437803424c0aa59
+amqp==5.0.6 \
+    --hash=sha256:03e16e94f2b34c31f8bf1206d8ddd3ccaa4c315f7f6a1879b7b1210d229568c2 \
+    --hash=sha256:493a2ac6788ce270a2f6a765b017299f60c1998f5a8617908ee9be082f7300fb
     # via kombu
 argon2-cffi==21.1.0 \
     --hash=sha256:165cadae5ac1e26644f5ade3bd9c18d89963be51d9ea8817bd671006d7909057 \
@@ -85,9 +85,9 @@ cbor2==5.4.2 \
     --hash=sha256:d9f64241bb30439f6ebde74101683e9dceecab95afe105560ac9d0e54d1b3c2e \
     --hash=sha256:e283e70b55a049ff364cc5e648fde587e4d9b0e87e4b2664c69e639135e6b3b8
     # via webauthn
-celery==4.4.7 \
-    --hash=sha256:a92e1d56e650781fb747032a3997d16236d037c8199eacd5217d1a72893bca45 \
-    --hash=sha256:d220b13a8ed57c78149acf82c006785356071844afe0b27012a4991d44026f9f
+celery==5.2.0 \
+    --hash=sha256:1664b8cf5051c86188e86f1afb85213927f92b8818e2315e34b010da0d767b98 \
+    --hash=sha256:4d858a8fe53c07a9f0cbf8cf1da28e8abe5464d0aba5713bf83908e74277734b
     # via
     #   -r requirements/main.in
     #   celery-redbeat
@@ -166,7 +166,24 @@ charset-normalizer==2.0.7 \
 click==8.0.3 \
     --hash=sha256:353f466495adaeb40b6b5f592f9f91cb22372351c84caeb068132442a4518ef3 \
     --hash=sha256:410e932b050f5eed773c4cda94de75971c89cdb3155a72a0831139a79e5ecb5b
-    # via -r requirements/main.in
+    # via
+    #   -r requirements/main.in
+    #   celery
+    #   click-didyoumean
+    #   click-plugins
+    #   click-repl
+click-didyoumean==0.3.0 \
+    --hash=sha256:a0713dc7a1de3f06bc0df5a9567ad19ead2d3d5689b434768a6145bff77c0667 \
+    --hash=sha256:f184f0d851d96b6d29297354ed981b7dd71df7ff500d82fa6d11f0856bee8035
+    # via celery
+click-plugins==1.1.1 \
+    --hash=sha256:46ab999744a9d831159c3411bb0c79346d94a444df9a3a3742e9ed63645f264b \
+    --hash=sha256:5d262006d3222f5057fd81e1623d4443e41dcda5dc815c06b442aa3c02889fc8
+    # via celery
+click-repl==0.2.0 \
+    --hash=sha256:94b3fbbc9406a236f176e0506524b2937e4b23b6f4c0c0b2a0a83f8a64e9194b \
+    --hash=sha256:cd12f68d745bf6151210790540b4cb064c7b13e571bc64b6957d98d120dacfd8
+    # via celery
 cmarkgfm==0.6.0 \
     --hash=sha256:02f14c7e77fcddf044df14cc227d7703027ee720bac719616ac505af29812b73 \
     --hash=sha256:0c5d762351f14479b07bfda6773905caa0fa7f132f6478c35e467d0be21e9f2e \
@@ -560,9 +577,9 @@ jmespath==0.10.0 \
     # via
     #   boto3
     #   botocore
-kombu==4.6.11 \
-    --hash=sha256:be48cdffb54a2194d93ad6533d73f69408486483d189fe9f5990ee24255b0e0a \
-    --hash=sha256:ca1b45faac8c0b18493d02a8571792f3c40291cf2bcf1f55afed3d8f3aa7ba74
+kombu==5.2.1 \
+    --hash=sha256:31bd287191bf56b1addba54a28eced8d6b6b5ba57ad184f48b065578f73c8e33 \
+    --hash=sha256:f262a2adc71b53e5b7dad4933bbdee65d8766ca4df6a9043b13edaad2144aaec
     # via celery
 limits==1.5.1 \
     --hash=sha256:0e5f8b10f18dd809eb2342f5046eb9aa5e4e69a0258567b5f4aa270647d438b3 \
@@ -724,6 +741,10 @@ premailer==3.10.0 \
     --hash=sha256:021b8196364d7df96d04f9ade51b794d0b77bcc19e998321c515633a2273be1a \
     --hash=sha256:d1875a8411f5dc92b53ef9f193db6c0f879dc378d618e0ad292723e388bfe4c2
     # via -r requirements/main.in
+prompt-toolkit==3.0.22 \
+    --hash=sha256:449f333dd120bd01f5d296a8ce1452114ba3a71fae7288d2f0ae2c918764fa72 \
+    --hash=sha256:48d85cdca8b6c4f16480c7ce03fd193666b62b0a21667ca56b4bb5ad679d1170
+    # via click-repl
 proto-plus==1.19.5 \
     --hash=sha256:ae34ba29c9a2759b3b7c93b0d51d8c2d72933b92a7385820e9248d1975cf7508 \
     --hash=sha256:f64036ae34d74f8c036aec0e135891ccaa0fe70c9e7413d0f465e5a573fc64a1
@@ -959,6 +980,7 @@ six==1.16.0 \
     #   automat
     #   bcrypt
     #   bleach
+    #   click-repl
     #   elasticsearch-dsl
     #   google-cloud-storage
     #   grpcio
@@ -1073,12 +1095,17 @@ venusian==3.0.0 \
     # via
     #   pyramid
     #   pyramid-rpc
-vine==1.3.0 \
-    --hash=sha256:133ee6d7a9016f177ddeaf191c1f58421a1dcc6ee9a42c58b34bed40e1d2cd87 \
-    --hash=sha256:ea4947cc56d1fd6f2095c8d543ee25dad966f78692528e68b4fada11ba3f98af
+vine==5.0.0 \
+    --hash=sha256:4c9dceab6f76ed92105027c49c823800dd33cacce13bdedc5b914e3514b7fb30 \
+    --hash=sha256:7d3b1624a953da82ef63462013bbd271d3eb75751489f9807598e8f340bd637e
     # via
     #   amqp
     #   celery
+    #   kombu
+wcwidth==0.2.5 \
+    --hash=sha256:beb4802a9cebb9144e99086eff703a642a13d6a0052920003a230f3294bbe784 \
+    --hash=sha256:c4d647b99872929fdb7bdcaa4fbe7f01413ed3d98077df798530e5b04f116c83
+    # via prompt-toolkit
 webauthn==0.4.7 \
     --hash=sha256:238391b2e2cc60fb51a2cd2d2d6be149920b9af6184651353d9f95856617a9e7 \
     --hash=sha256:8ad9072ff1d6169f3be30d4dc8733ea563dd266962397bc58b40f674a6af74ac
@@ -1193,6 +1220,7 @@ setuptools==58.2.0 \
     --hash=sha256:2c55bdb85d5bb460bd2e3b12052b677879cffcf46c0c688f2e5bf51d36001145
     # via
     #   -r requirements/main.in
+    #   celery
     #   google-api-core
     #   google-auth
     #   pastedeploy
