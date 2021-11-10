@@ -60,27 +60,27 @@ msgstr ""
 "यह उपयोगकर्ता नाम पहले से ही किसी अन्य खाते द्वारा उपयोग किया जा रहा है। एक अलग "
 "उपयोगकर्ता नाम चुनें।"
 
-#: warehouse/accounts/forms.py:134
+#: warehouse/accounts/forms.py:137
 msgid "The password is invalid. Try again."
 msgstr "पासवर्ड अमान्य है। पुनः प्रयास करें।"
 
-#: warehouse/accounts/forms.py:138 warehouse/accounts/views.py:76
+#: warehouse/accounts/forms.py:141 warehouse/accounts/views.py:77
 msgid "There have been too many unsuccessful login attempts. Try again later."
 msgstr "बहुत से असफल लॉगिन प्रयास हुए हैं। बाद में पुन: प्रयास करें।"
 
-#: warehouse/accounts/forms.py:160
+#: warehouse/accounts/forms.py:163
 msgid "Your passwords don't match. Try again."
 msgstr "आपके पासवर्ड मेल नहीं खाते हैं। पुनः प्रयास करें।"
 
-#: warehouse/accounts/forms.py:191 warehouse/accounts/forms.py:202
+#: warehouse/accounts/forms.py:194 warehouse/accounts/forms.py:205
 msgid "The email address isn't valid. Try again."
 msgstr "ईमेल पता मान्य नहीं है। पुनः प्रयास करें।"
 
-#: warehouse/accounts/forms.py:210
+#: warehouse/accounts/forms.py:213
 msgid "You can't use an email address from this domain. Use a different email."
 msgstr "आप इस डोमेन के ईमेल पते का उपयोग नहीं कर सकते। एक अलग ईमेल का उपयोग करें।"
 
-#: warehouse/accounts/forms.py:221
+#: warehouse/accounts/forms.py:224
 msgid ""
 "This email address is already being used by this account. Use a different "
 "email."
@@ -88,7 +88,7 @@ msgstr ""
 "इस ईमेल एड्रेस का इस्तेमाल पहले से ही इस अकाउंट द्वारा किया जा रहा है। एक अलग ईमेल का "
 "उपयोग करें।"
 
-#: warehouse/accounts/forms.py:228
+#: warehouse/accounts/forms.py:231
 msgid ""
 "This email address is already being used by another account. Use a different "
 "email."
@@ -96,29 +96,29 @@ msgstr ""
 "इस ईमेल पते का उपयोग पहले से ही किसी अन्य खाते द्वारा किया जा रहा है। एक अलग ईमेल का "
 "उपयोग करें।"
 
-#: warehouse/accounts/forms.py:250
+#: warehouse/accounts/forms.py:253
 msgid "The name is too long. Choose a name with 100 characters or less."
 msgstr "नाम बहुत लंबा है। 100 अक्षरों या उससे कम के साथ एक नाम चुनें।"
 
-#: warehouse/accounts/forms.py:320
+#: warehouse/accounts/forms.py:325
 msgid "Invalid TOTP code."
 msgstr "अमान्य TOTP कोड।"
 
-#: warehouse/accounts/forms.py:337
+#: warehouse/accounts/forms.py:342
 msgid "Invalid WebAuthn assertion: Bad payload"
 msgstr "अमान्य WebAuthn दावा: खराब पेलोड"
 
-#: warehouse/accounts/forms.py:392
+#: warehouse/accounts/forms.py:399
 #, fuzzy
 #| msgid "Invalid Recovery Code."
 msgid "Invalid recovery code."
 msgstr "पुनर्प्राप्ति कुंजी अमान्य।"
 
-#: warehouse/accounts/forms.py:410
+#: warehouse/accounts/forms.py:417
 msgid "No user found with that username or email"
 msgstr "उस username या ईमेल से सम्बद्धित कोई user नहीं मिला"
 
-#: warehouse/accounts/views.py:93
+#: warehouse/accounts/views.py:94
 msgid ""
 "Too many emails have been added to this account without verifying them. "
 "Check your inbox and follow the verification links. (IP: ${ip})"
@@ -126,25 +126,38 @@ msgstr ""
 "इस अकाउटं के साथ काफी सारे ईमेल जोडे गए है जो कि सत्यापित नहीं है। अपने इनबोक्स कि जाँच "
 "करें और सत्यापन लिंकों का अनुसरण करें। (IP: ${ip})"
 
-#: warehouse/accounts/views.py:232 warehouse/accounts/views.py:292
-#: warehouse/accounts/views.py:294 warehouse/accounts/views.py:321
-#: warehouse/accounts/views.py:323 warehouse/accounts/views.py:384
+#: warehouse/accounts/views.py:106
+#, fuzzy
+#| msgid ""
+#| "Too many emails have been added to this account without verifying them. "
+#| "Check your inbox and follow the verification links. (IP: ${ip})"
+msgid ""
+"Too many password resets have been requested for this account without "
+"completing them. Check your inbox and follow the verification links. (IP: "
+"${ip})"
+msgstr ""
+"इस अकाउटं के साथ काफी सारे ईमेल जोडे गए है जो कि सत्यापित नहीं है। अपने इनबोक्स कि जाँच "
+"करें और सत्यापन लिंकों का अनुसरण करें। (IP: ${ip})"
+
+#: warehouse/accounts/views.py:246 warehouse/accounts/views.py:306
+#: warehouse/accounts/views.py:308 warehouse/accounts/views.py:335
+#: warehouse/accounts/views.py:337 warehouse/accounts/views.py:398
 msgid "Invalid or expired two factor login."
 msgstr "अमान्य या खारिज दो कारक लॉगिन।"
 
-#: warehouse/accounts/views.py:286
+#: warehouse/accounts/views.py:300
 msgid "Already authenticated"
 msgstr "पहले से ही प्रमाणित"
 
-#: warehouse/accounts/views.py:360
+#: warehouse/accounts/views.py:374
 msgid "Successful WebAuthn assertion"
 msgstr "सफल WebAuthn दावा"
 
-#: warehouse/accounts/views.py:415
+#: warehouse/accounts/views.py:429
 msgid "Recovery code accepted. The supplied code cannot be used again."
 msgstr "पुनर्प्राप्ति कुंजी स्वीकृत। प्रदत्त कुंजी का पुनः उपयोग वर्जित।"
 
-#: warehouse/accounts/views.py:501
+#: warehouse/accounts/views.py:515
 msgid ""
 "New user registration temporarily disabled. See https://pypi.org/help#admin-"
 "intervention for details."
@@ -152,100 +165,100 @@ msgstr ""
 "नए user पंजीकरण अस्थायी रूप से अक्षम। विवरण के लिए https://pypi.org/help#admin-"
 "intervention देखें।"
 
-#: warehouse/accounts/views.py:618
+#: warehouse/accounts/views.py:638
 msgid "Expired token: request a new password reset link"
 msgstr "खारिज टोकन: एक नया पासवर्ड रीसेट लिंक का अनुरोध करें"
 
-#: warehouse/accounts/views.py:620
+#: warehouse/accounts/views.py:640
 msgid "Invalid token: request a new password reset link"
 msgstr "अमान्य टोकन: एक नया पासवर्ड रीसेट लिंक का अनुरोध करें"
 
-#: warehouse/accounts/views.py:622 warehouse/accounts/views.py:705
-#: warehouse/accounts/views.py:801
+#: warehouse/accounts/views.py:642 warehouse/accounts/views.py:729
+#: warehouse/accounts/views.py:825
 msgid "Invalid token: no token supplied"
 msgstr "अमान्य टोकन: कोई टोकन की आपूर्ति नहीं"
 
-#: warehouse/accounts/views.py:626
+#: warehouse/accounts/views.py:646
 msgid "Invalid token: not a password reset token"
 msgstr "अमान्य टोकन: पासवर्ड रीसेट टोकन नहीं"
 
-#: warehouse/accounts/views.py:631
+#: warehouse/accounts/views.py:651
 msgid "Invalid token: user not found"
 msgstr "अमान्य टोकन: उपयोगकर्ता नहीं मिला"
 
-#: warehouse/accounts/views.py:638
+#: warehouse/accounts/views.py:658
 msgid "Invalid token: user has logged in since this token was requested"
 msgstr ""
 "अमान्य टोकन: क्योंकि इस टोकन के अनुरोध किए जाने के बाद उपयोगकर्ता लॉग इन कर चुके हैं"
 
-#: warehouse/accounts/views.py:647
+#: warehouse/accounts/views.py:667
 msgid ""
 "Invalid token: password has already been changed since this token was "
 "requested"
 msgstr "अमान्य टोकन: टोकन के अनुरोध के बाद से अब तक के दौरान पासवर्ड पहले ही बदला"
 
-#: warehouse/accounts/views.py:674
+#: warehouse/accounts/views.py:698
 msgid "You have reset your password"
 msgstr "आपने अपना पासवर्ड रीसेट कर दिया है"
 
-#: warehouse/accounts/views.py:701
+#: warehouse/accounts/views.py:725
 msgid "Expired token: request a new email verification link"
 msgstr "खारिज टोकन: एक नया पासवर्ड रीसेट लिंक का अनुरोध करें"
 
-#: warehouse/accounts/views.py:703
+#: warehouse/accounts/views.py:727
 msgid "Invalid token: request a new email verification link"
 msgstr "अमान्य टोकन: एक नए ईमेल सत्यापन लिंक का अनुरोध करें"
 
-#: warehouse/accounts/views.py:709
+#: warehouse/accounts/views.py:733
 msgid "Invalid token: not an email verification token"
 msgstr "अमान्य टोकन: ईमेल सत्यापन टोकन नहीं है"
 
-#: warehouse/accounts/views.py:718
+#: warehouse/accounts/views.py:742
 msgid "Email not found"
 msgstr "ईमेल नहीं मिला"
 
-#: warehouse/accounts/views.py:721
+#: warehouse/accounts/views.py:745
 msgid "Email already verified"
 msgstr "ईमेल पहले से सत्यापित है"
 
-#: warehouse/accounts/views.py:736
+#: warehouse/accounts/views.py:760
 msgid "You can now set this email as your primary address"
 msgstr "अब आप इस ईमेल को अपने प्राथमिक पते के रूप में सेट कर सकते हैं"
 
-#: warehouse/accounts/views.py:740
+#: warehouse/accounts/views.py:764
 msgid "This is your primary address"
 msgstr "यह आपका प्राथमिक पता है"
 
-#: warehouse/accounts/views.py:745
+#: warehouse/accounts/views.py:769
 msgid "Email address ${email_address} verified. ${confirm_message}."
 msgstr "ईमेल पता ${email_address} सत्यापित। ${confirm_message}।"
 
-#: warehouse/accounts/views.py:797
+#: warehouse/accounts/views.py:821
 msgid "Expired token: request a new project role invite"
 msgstr "खारिज टोकन: एक नई परियोजना भूमिका का अनुरोध करें"
 
-#: warehouse/accounts/views.py:799
+#: warehouse/accounts/views.py:823
 msgid "Invalid token: request a new project role invite"
 msgstr "अमान्य टोकन: एक नई परियोजना भूमिका का अनुरोध करें"
 
-#: warehouse/accounts/views.py:805
+#: warehouse/accounts/views.py:829
 msgid "Invalid token: not a collaboration invitation token"
 msgstr "अमान्य टोकन: यह सहकार्यता टोकन नहीं है"
 
-#: warehouse/accounts/views.py:809
+#: warehouse/accounts/views.py:833
 msgid "Role invitation is not valid."
 msgstr "कृत्य आमंत्रण अमान्य है।"
 
-#: warehouse/accounts/views.py:824
+#: warehouse/accounts/views.py:848
 #, fuzzy
 msgid "Role invitation no longer exists."
 msgstr "रोल आमंत्रण अब मौजूद नहीं है।"
 
-#: warehouse/accounts/views.py:836
+#: warehouse/accounts/views.py:860
 msgid "Invitation for '${project_name}' is declined."
 msgstr "'$ {project_name} के लिए निमंत्रण अस्वीकार कर दिया गया है।"
 
-#: warehouse/accounts/views.py:903
+#: warehouse/accounts/views.py:927
 msgid "You are now ${role} of the '${project_name}' project."
 msgstr "आप इस परियोजना '${project_name}' के ${role} हैं।"
 

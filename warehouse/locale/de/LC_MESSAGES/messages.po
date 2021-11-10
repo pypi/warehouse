@@ -68,29 +68,29 @@ msgstr ""
 "Dieser Benutzername wird schon von einem anderen Konto verwendet. Bitte "
 "einen anderen Benutzername wählen."
 
-#: warehouse/accounts/forms.py:134
+#: warehouse/accounts/forms.py:137
 msgid "The password is invalid. Try again."
 msgstr "Das Passwort ist ungültig. Bitte erneut versuchen."
 
-#: warehouse/accounts/forms.py:138 warehouse/accounts/views.py:76
+#: warehouse/accounts/forms.py:141 warehouse/accounts/views.py:77
 msgid "There have been too many unsuccessful login attempts. Try again later."
 msgstr "Es gab zu viele erfolglose Login-Versuche. Versuche es später erneut."
 
-#: warehouse/accounts/forms.py:160
+#: warehouse/accounts/forms.py:163
 msgid "Your passwords don't match. Try again."
 msgstr "Die Passwörter stimmen nicht überein. Bitte erneut versuchen."
 
-#: warehouse/accounts/forms.py:191 warehouse/accounts/forms.py:202
+#: warehouse/accounts/forms.py:194 warehouse/accounts/forms.py:205
 msgid "The email address isn't valid. Try again."
 msgstr "Die E-Mail-Adresse ist nicht gültig. Bitte erneut versuchen."
 
-#: warehouse/accounts/forms.py:210
+#: warehouse/accounts/forms.py:213
 msgid "You can't use an email address from this domain. Use a different email."
 msgstr ""
 "E-Mail-Adressen dieser Domain können nicht verwendet werden. Bitte eine "
 "andere E-Mail-Adresse verwenden."
 
-#: warehouse/accounts/forms.py:221
+#: warehouse/accounts/forms.py:224
 msgid ""
 "This email address is already being used by this account. Use a different "
 "email."
@@ -98,7 +98,7 @@ msgstr ""
 "Diese E-Mail-Adresse wird schon von diesem Konto verwendet. Bitte eine "
 "andere verwenden."
 
-#: warehouse/accounts/forms.py:228
+#: warehouse/accounts/forms.py:231
 msgid ""
 "This email address is already being used by another account. Use a different "
 "email."
@@ -106,30 +106,30 @@ msgstr ""
 "Diese E-Mail-Adresse wird schon von einem anderen Konto verwendet. Bitte "
 "eine andere E-Mail-Adresse verwenden."
 
-#: warehouse/accounts/forms.py:250
+#: warehouse/accounts/forms.py:253
 msgid "The name is too long. Choose a name with 100 characters or less."
 msgstr ""
 "Der Name ist zu lang. Bitte  einen Namen mit 100 Zeichen oder weniger "
 "verwenden."
 
-#: warehouse/accounts/forms.py:320
+#: warehouse/accounts/forms.py:325
 msgid "Invalid TOTP code."
 msgstr "Ungültiger TOTP-Code."
 
-#: warehouse/accounts/forms.py:337
+#: warehouse/accounts/forms.py:342
 msgid "Invalid WebAuthn assertion: Bad payload"
 msgstr "Ungültige WebAuthn-Assertion: Bad payload"
 
 # | msgid "Invalid TOTP code."
-#: warehouse/accounts/forms.py:392
+#: warehouse/accounts/forms.py:399
 msgid "Invalid recovery code."
 msgstr "Ungültiger Wiederherstellungs-Code."
 
-#: warehouse/accounts/forms.py:410
+#: warehouse/accounts/forms.py:417
 msgid "No user found with that username or email"
 msgstr "Kein Benutzer mit diesem Benutzernamen oder E-Mail-Adresse gefunden"
 
-#: warehouse/accounts/views.py:93
+#: warehouse/accounts/views.py:94
 msgid ""
 "Too many emails have been added to this account without verifying them. "
 "Check your inbox and follow the verification links. (IP: ${ip})"
@@ -138,27 +138,41 @@ msgstr ""
 "Überprüfen Sie Ihren Posteingang und folgen Sie den Verifizierungslinks. "
 "(IP: ${ip})"
 
-#: warehouse/accounts/views.py:232 warehouse/accounts/views.py:292
-#: warehouse/accounts/views.py:294 warehouse/accounts/views.py:321
-#: warehouse/accounts/views.py:323 warehouse/accounts/views.py:384
+#: warehouse/accounts/views.py:106
+#, fuzzy
+#| msgid ""
+#| "Too many emails have been added to this account without verifying them. "
+#| "Check your inbox and follow the verification links. (IP: ${ip})"
+msgid ""
+"Too many password resets have been requested for this account without "
+"completing them. Check your inbox and follow the verification links. (IP: "
+"${ip})"
+msgstr ""
+"Zu viele E-Mails wurden diesem Konto hinzugefügt, ohne sie zu überprüfen. "
+"Überprüfen Sie Ihren Posteingang und folgen Sie den Verifizierungslinks. "
+"(IP: ${ip})"
+
+#: warehouse/accounts/views.py:246 warehouse/accounts/views.py:306
+#: warehouse/accounts/views.py:308 warehouse/accounts/views.py:335
+#: warehouse/accounts/views.py:337 warehouse/accounts/views.py:398
 msgid "Invalid or expired two factor login."
 msgstr "Ungültiger oder abgelaufener Zweifaktor-Login."
 
-#: warehouse/accounts/views.py:286
+#: warehouse/accounts/views.py:300
 msgid "Already authenticated"
 msgstr "Schon authentifiziert"
 
-#: warehouse/accounts/views.py:360
+#: warehouse/accounts/views.py:374
 msgid "Successful WebAuthn assertion"
 msgstr "Erfolgreiche WebAuthn-Assertion"
 
-#: warehouse/accounts/views.py:415
+#: warehouse/accounts/views.py:429
 msgid "Recovery code accepted. The supplied code cannot be used again."
 msgstr ""
 "Wiederherstellungscode akzeptiert. Der eingegebene Code kann nicht erneut "
 "verwendet werden."
 
-#: warehouse/accounts/views.py:501
+#: warehouse/accounts/views.py:515
 msgid ""
 "New user registration temporarily disabled. See https://pypi.org/help#admin-"
 "intervention for details."
@@ -166,101 +180,101 @@ msgstr ""
 "Die Registrierung neuer Benutzer ist vorübergehend deaktiviert. Siehe "
 "https://pypi.org/help#admin-intervention für Details."
 
-#: warehouse/accounts/views.py:618
+#: warehouse/accounts/views.py:638
 msgid "Expired token: request a new password reset link"
 msgstr "Abgelaufenes Token: bitte neuen Passwort-Zurücksetzen-Link anfordern"
 
-#: warehouse/accounts/views.py:620
+#: warehouse/accounts/views.py:640
 msgid "Invalid token: request a new password reset link"
 msgstr "Ungültiges Token: bitte neuen Passwort-Zurücksetzen-Link anfordern"
 
-#: warehouse/accounts/views.py:622 warehouse/accounts/views.py:705
-#: warehouse/accounts/views.py:801
+#: warehouse/accounts/views.py:642 warehouse/accounts/views.py:729
+#: warehouse/accounts/views.py:825
 msgid "Invalid token: no token supplied"
 msgstr "Ungültiges Token: kein Token angegeben"
 
-#: warehouse/accounts/views.py:626
+#: warehouse/accounts/views.py:646
 msgid "Invalid token: not a password reset token"
 msgstr "Ungültiges Token: dies ist kein Passwort-Zurücksetzen-Token"
 
-#: warehouse/accounts/views.py:631
+#: warehouse/accounts/views.py:651
 msgid "Invalid token: user not found"
 msgstr "Ungültiges Token: Benutzer nicht gefunden"
 
-#: warehouse/accounts/views.py:638
+#: warehouse/accounts/views.py:658
 msgid "Invalid token: user has logged in since this token was requested"
 msgstr ""
 "Ungültiges Token: Benutzer hat sich angemeldet seit dieses Token angefordert "
 "wurde"
 
-#: warehouse/accounts/views.py:647
+#: warehouse/accounts/views.py:667
 msgid ""
 "Invalid token: password has already been changed since this token was "
 "requested"
 msgstr ""
 "Ungültiges Token: Passwort wurde geändert seit dieses Token angefordert wurde"
 
-#: warehouse/accounts/views.py:674
+#: warehouse/accounts/views.py:698
 msgid "You have reset your password"
 msgstr "Sie haben Ihr Passwort zurückgesetzt"
 
-#: warehouse/accounts/views.py:701
+#: warehouse/accounts/views.py:725
 msgid "Expired token: request a new email verification link"
 msgstr "Abgelaufenes Token: bitte neuen E-Mail-Bestätigungslink anfordern"
 
-#: warehouse/accounts/views.py:703
+#: warehouse/accounts/views.py:727
 msgid "Invalid token: request a new email verification link"
 msgstr "Ungültiges Token: bitte neuen E-Mail-Bestätigungslink anfordern"
 
-#: warehouse/accounts/views.py:709
+#: warehouse/accounts/views.py:733
 msgid "Invalid token: not an email verification token"
 msgstr "Ungültiges Token: dies ist kein E-Mail-Bestätigungs-Token"
 
-#: warehouse/accounts/views.py:718
+#: warehouse/accounts/views.py:742
 msgid "Email not found"
 msgstr "E-Mail nicht gefunden"
 
-#: warehouse/accounts/views.py:721
+#: warehouse/accounts/views.py:745
 msgid "Email already verified"
 msgstr "E-Mail-Adresse ist schon verifiziert"
 
-#: warehouse/accounts/views.py:736
+#: warehouse/accounts/views.py:760
 msgid "You can now set this email as your primary address"
 msgstr "Diese E-Mail-Adresse kann nun als Haupt-Addresse markiert werden"
 
-#: warehouse/accounts/views.py:740
+#: warehouse/accounts/views.py:764
 msgid "This is your primary address"
 msgstr "Dies ist Ihre primäre E-Mail-Adresse"
 
-#: warehouse/accounts/views.py:745
+#: warehouse/accounts/views.py:769
 msgid "Email address ${email_address} verified. ${confirm_message}."
 msgstr "E-Mail-Adresse ${email_address} bestätigt. ${confirm_message}."
 
-#: warehouse/accounts/views.py:797
+#: warehouse/accounts/views.py:821
 msgid "Expired token: request a new project role invite"
 msgstr "Abgelaufenes Token: Bitte neue Projekt-Rollen-Einladung anfordern"
 
-#: warehouse/accounts/views.py:799
+#: warehouse/accounts/views.py:823
 msgid "Invalid token: request a new project role invite"
 msgstr "Ungültiges Token: Bitte neue Projekt-Rollen-Einladung anfordern"
 
-#: warehouse/accounts/views.py:805
+#: warehouse/accounts/views.py:829
 msgid "Invalid token: not a collaboration invitation token"
 msgstr "Ungültiges Token: Dies ist keine Einladung für eine Zusammenarbeit"
 
-#: warehouse/accounts/views.py:809
+#: warehouse/accounts/views.py:833
 msgid "Role invitation is not valid."
 msgstr "Rolleneinladung ist nicht gültig."
 
-#: warehouse/accounts/views.py:824
+#: warehouse/accounts/views.py:848
 msgid "Role invitation no longer exists."
 msgstr "Rolleneinladung ist nicht mehr existent."
 
-#: warehouse/accounts/views.py:836
+#: warehouse/accounts/views.py:860
 msgid "Invitation for '${project_name}' is declined."
 msgstr "Die Einladung für '${project_name}' wurde abgelehnt."
 
-#: warehouse/accounts/views.py:903
+#: warehouse/accounts/views.py:927
 msgid "You are now ${role} of the '${project_name}' project."
 msgstr "Sie sind nun '${role}' vom Projekt '${project_name}'."
 
