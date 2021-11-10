@@ -142,6 +142,7 @@ _macosx_arches = {
 _macosx_major_versions = {
     "10",
     "11",
+    "12",
 }
 
 # manylinux pep600 and musllinux pep656 are a little more complicated:
