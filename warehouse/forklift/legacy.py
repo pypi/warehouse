@@ -107,6 +107,7 @@ STDLIB_PROHIBITED = {
 _allowed_platforms = {
     "any",
     "win32",
+    "win_arm64",
     "win_amd64",
     "win_ia64",
     "manylinux1_x86_64",
