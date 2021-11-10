@@ -82,6 +82,8 @@
 {% macro admin_intervention() %}{% trans %}Why did my package or user registration get blocked?{% endtrans %}{% endmacro %}
 {% macro file_size_limit() %}{% trans %}How do I get a file size limit exemption or increase for my project?{% endtrans %}{% endmacro %}
 {% macro project_size_limit() %}{% trans %}How do I get a total project size limit exemption or increase for my project?{% endtrans %}{% endmacro %}
+{% macro vulnerability_data() %}{% trans %}Where does PyPI get its data on project vulnerabilities from, and how can I correct it?{% endtrans %}{% endmacro %}
+
 
 {% macro file_name_reuse() %}{% trans %}Why am I getting a "Filename or contents already exists" or "Filename has been previously used" error?{% endtrans %}{% endmacro %}
 {% macro project_name() %}{% trans %}Why isn't my desired project name available?{% endtrans %}{% endmacro %}
@@ -156,6 +158,7 @@
           <li><a href="#description-content-type">{{ description_content_type() }}</a></li>
           <li><a href="#file-size-limit">{{ file_size_limit() }}</a></li>
           <li><a href="#project-size-limit">{{ project_size_limit() }}</a></li>
+          <li><a href="#vulnerability-data">{{ vulnerability_data() }}</a></li>
         </ul>
       </section>
 
@@ -603,6 +606,19 @@
           <li>{% trans %}A brief description of your project, including the reason for the additional size.{% endtrans %}</li>
         </ul>
         {{ code_of_conduct() }}
+
+        <h3 id="vulnerability-data">{{ vulnerability_data() }}</h3>
+        <p>
+          {% trans trimmed osv_href='https://osv.dev/', title=gettext('External link'), vulns_href='https://github.com/pypa/advisory-db' %}
+          PyPI receives reports on vulnerabilities in the packages hosted on it from the <a href="{{ osv_href }}" title="{{ title }}" target="_blank" rel="noopener">Open Source Vulnerabilities project</a>, which in turn ingests vulnerabilities from the <a href="{{ vulns_href }}" title="{{ title }}" target="_blank" rel="noopener">Python Packaging Advisory Database</a>.
+          {% endtrans %}
+        </p>
+        <p>
+          {% trans trimmed file_issue_href='https://github.com/pypa/advisory-db/issues', title=gettext('External link') %}
+            If you believe vulnerability data for your project is invalid or incorrect, <a href="{{ file_issue_href }}" title="{{ title }}" target="_blank" rel="noopener">file an issue</a> with details.
+          {% endtrans %}
+        </p>
+
       </section>
 
       <section class="faq-group" id="troubleshooting">

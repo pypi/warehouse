@@ -257,6 +257,7 @@ docReady(() => {
 // Bind again when client-side includes have been loaded (for the logged-in
 // user dropdown)
 document.addEventListener("CSILoaded", bindDropdowns);
+document.addEventListener("CSILoaded", PositionWarning);
 
 const application = Application.start();
 const context = require.context("./controllers", true, /\.js$/);

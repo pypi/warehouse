@@ -72,7 +72,7 @@ def test_execute_unindex_success(app_config):
 def test_es(monkeypatch):
     search_obj = pretend.stub()
     index_obj = pretend.stub(
-        doc_type=pretend.call_recorder(lambda d: None),
+        document=pretend.call_recorder(lambda d: None),
         search=pretend.call_recorder(lambda: search_obj),
         settings=pretend.call_recorder(lambda **kw: None),
     )
@@ -94,7 +94,7 @@ def test_es(monkeypatch):
 
     assert es is search_obj
     assert index_cls.calls == [pretend.call("warehouse", using=client)]
-    assert index_obj.doc_type.calls == [pretend.call(d) for d in doc_types]
+    assert index_obj.document.calls == [pretend.call(d) for d in doc_types]
     assert index_obj.settings.calls == [
         pretend.call(number_of_shards=1, number_of_replicas=0, refresh_interval="1s")
     ]
