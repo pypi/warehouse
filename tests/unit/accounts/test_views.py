@@ -32,6 +32,7 @@ from warehouse.accounts.interfaces import (
     TokenMissing,
     TooManyEmailsAdded,
     TooManyFailedLogins,
+    TooManyPasswordResetRequests,
 )
 from warehouse.admin.flags import AdminFlag, AdminFlagValue
 from warehouse.packaging.models import Role, RoleInvitation
@@ -62,6 +63,19 @@ class TestFailedLoginView:
         assert resp.detail == (
             "Too many emails have been added to this account without verifying "
             "them. Check your inbox and follow the verification links. (IP: "
+            f"{ pyramid_request.remote_addr })"
+        )
+        assert dict(resp.headers).get("Retry-After") == "600"
+
+    def test_too_many_password_reset_requests(self, pyramid_request):
+        exc = TooManyPasswordResetRequests(resets_in=datetime.timedelta(seconds=600))
+
+        resp = views.incomplete_password_resets(exc, pyramid_request)
+
+        assert resp.status == "429 Too Many Requests"
+        assert resp.detail == (
+            "Too many password resets have been requested for this account without "
+            "completing them. Check your inbox and follow the verification links. (IP: "
             f"{ pyramid_request.remote_addr })"
         )
         assert dict(resp.headers).get("Retry-After") == "600"
@@ -243,7 +257,7 @@ class TestLogin:
                 user_id,
                 tag="account:login:success",
                 ip_address=pyramid_request.remote_addr,
-                additional={"two_factor_method": None},
+                additional={"two_factor_method": None, "two_factor_label": None},
             )
         ]
 
@@ -302,7 +316,7 @@ class TestLogin:
                 1,
                 tag="account:login:success",
                 ip_address=pyramid_request.remote_addr,
-                additional={"two_factor_method": None},
+                additional={"two_factor_method": None, "two_factor_label": None},
             )
         ]
         assert pyramid_request.session.record_auth_timestamp.calls == [pretend.call()]
@@ -441,6 +455,7 @@ class TestTwoFactor:
         assert form_class.calls == [
             pretend.call(
                 pyramid_request.POST,
+                request=pyramid_request,
                 user_id=1,
                 user_service=user_service,
                 check_password_metrics_tags=["method:auth", "auth_method:login_form"],
@@ -608,7 +623,7 @@ class TestTwoFactor:
                 "1",
                 tag="account:login:success",
                 ip_address=pyramid_request.remote_addr,
-                additional={"two_factor_method": "totp"},
+                additional={"two_factor_method": "totp", "two_factor_label": "totp"},
             )
         ]
         assert pyramid_request.session.record_auth_timestamp.calls == [pretend.call()]
@@ -835,7 +850,7 @@ class TestWebAuthn:
         user_service = pretend.stub(
             get_user=pretend.call_recorder(lambda uid: user),
             get_webauthn_by_credential_id=pretend.call_recorder(
-                lambda *a: pretend.stub()
+                lambda *a: pretend.stub(label="webauthn_label")
             ),
         )
         pyramid_request.session = pretend.stub(
@@ -856,7 +871,12 @@ class TestWebAuthn:
 
         assert _get_two_factor_data.calls == [pretend.call(pyramid_request)]
         assert _login_user.calls == [
-            pretend.call(pyramid_request, 1, two_factor_method="webauthn")
+            pretend.call(
+                pyramid_request,
+                1,
+                two_factor_method="webauthn",
+                two_factor_label="webauthn_label",
+            )
         ]
         assert pyramid_request.session.get_webauthn_challenge.calls == [pretend.call()]
         assert pyramid_request.session.clear_webauthn_challenge.calls == [
@@ -940,7 +960,12 @@ class TestRecoveryCode:
         ]
         assert result == {"form": form_obj}
         assert form_class.calls == [
-            pretend.call(pyramid_request.POST, user_id=1, user_service=user_service)
+            pretend.call(
+                pyramid_request.POST,
+                request=pyramid_request,
+                user_id=1,
+                user_service=user_service,
+            )
         ]
 
     @pytest.mark.parametrize("redirect_url", ["test_redirect_url", None])
@@ -1021,7 +1046,10 @@ class TestRecoveryCode:
                 "1",
                 tag="account:login:success",
                 ip_address=pyramid_request.remote_addr,
-                additional={"two_factor_method": "recovery-code"},
+                additional={
+                    "two_factor_method": "recovery-code",
+                    "two_factor_label": None,
+                },
             ),
             pretend.call(
                 "1",
@@ -1266,7 +1294,7 @@ class TestRegister:
                 user.id,
                 tag="account:login:success",
                 ip_address=db_request.remote_addr,
-                additional={"two_factor_method": None},
+                additional={"two_factor_method": None, "two_factor_label": None},
             ),
         ]
 
@@ -1382,7 +1410,7 @@ class TestRequestPasswordReset:
     ):
 
         stub_user = pretend.stub(
-            id=pretend.stub(),
+            id=uuid.uuid4(),
             email="foo@example.com",
             emails=[pretend.stub(email="foo@example.com")],
             can_reset_password=True,
@@ -1392,6 +1420,12 @@ class TestRequestPasswordReset:
         user_service.get_user_by_username = pretend.call_recorder(lambda a: None)
         user_service.get_user_by_email = pretend.call_recorder(lambda a: stub_user)
         user_service.record_event = pretend.call_recorder(lambda *a, **kw: None)
+        user_service.ratelimiters = {
+            "password.reset": pretend.stub(
+                test=pretend.call_recorder(lambda *a, **kw: True),
+                hit=pretend.call_recorder(lambda *a, **kw: None),
+            )
+        }
         pyramid_request.find_service = pretend.call_recorder(
             lambda interface, **kw: {
                 IUserService: user_service,
@@ -1436,13 +1470,19 @@ class TestRequestPasswordReset:
                 ip_address=pyramid_request.remote_addr,
             )
         ]
+        assert user_service.ratelimiters["password.reset"].test.calls == [
+            pretend.call(stub_user.id)
+        ]
+        assert user_service.ratelimiters["password.reset"].hit.calls == [
+            pretend.call(stub_user.id)
+        ]
 
     def test_request_password_reset_with_non_primary_email(
         self, monkeypatch, pyramid_request, pyramid_config, user_service, token_service
     ):
 
         stub_user = pretend.stub(
-            id=pretend.stub(),
+            id=uuid.uuid4(),
             email="foo@example.com",
             emails=[
                 pretend.stub(email="foo@example.com"),
@@ -1455,6 +1495,12 @@ class TestRequestPasswordReset:
         user_service.get_user_by_username = pretend.call_recorder(lambda a: None)
         user_service.get_user_by_email = pretend.call_recorder(lambda a: stub_user)
         user_service.record_event = pretend.call_recorder(lambda *a, **kw: None)
+        user_service.ratelimiters = {
+            "password.reset": pretend.stub(
+                test=pretend.call_recorder(lambda *a, **kw: True),
+                hit=pretend.call_recorder(lambda *a, **kw: None),
+            )
+        }
         pyramid_request.find_service = pretend.call_recorder(
             lambda interface, **kw: {
                 IUserService: user_service,
@@ -1500,6 +1546,68 @@ class TestRequestPasswordReset:
                 tag="account:password:reset:request",
                 ip_address=pyramid_request.remote_addr,
             )
+        ]
+        assert user_service.ratelimiters["password.reset"].test.calls == [
+            pretend.call(stub_user.id)
+        ]
+        assert user_service.ratelimiters["password.reset"].hit.calls == [
+            pretend.call(stub_user.id)
+        ]
+
+    def test_too_many_password_reset_requests(
+        self,
+        monkeypatch,
+        pyramid_request,
+        pyramid_config,
+        user_service,
+    ):
+
+        stub_user = pretend.stub(
+            id=uuid.uuid4(),
+            email="foo@example.com",
+            emails=[pretend.stub(email="foo@example.com")],
+            can_reset_password=True,
+        )
+        pyramid_request.method = "POST"
+        user_service.get_user_by_username = pretend.call_recorder(lambda a: None)
+        user_service.get_user_by_email = pretend.call_recorder(lambda a: stub_user)
+        user_service.record_event = pretend.call_recorder(lambda *a, **kw: None)
+        user_service.ratelimiters = {
+            "password.reset": pretend.stub(
+                test=pretend.call_recorder(lambda *a, **kw: False),
+                resets_in=pretend.call_recorder(lambda *a, **kw: 600),
+            )
+        }
+        pyramid_request.find_service = pretend.call_recorder(
+            lambda interface, **kw: {
+                IUserService: user_service,
+            }[interface]
+        )
+        form_obj = pretend.stub(
+            username_or_email=pretend.stub(data=stub_user.email),
+            validate=pretend.call_recorder(lambda: True),
+        )
+        form_class = pretend.call_recorder(lambda d, user_service: form_obj)
+
+        with pytest.raises(TooManyPasswordResetRequests):
+            views.request_password_reset(pyramid_request, _form_class=form_class)
+
+        assert user_service.get_user_by_username.calls == [
+            pretend.call(stub_user.email)
+        ]
+        assert user_service.get_user_by_email.calls == [pretend.call(stub_user.email)]
+        assert pyramid_request.find_service.calls == [
+            pretend.call(IUserService, context=None),
+        ]
+        assert form_obj.validate.calls == [pretend.call()]
+        assert form_class.calls == [
+            pretend.call(pyramid_request.POST, user_service=user_service)
+        ]
+        assert user_service.ratelimiters["password.reset"].test.calls == [
+            pretend.call(stub_user.id)
+        ]
+        assert user_service.ratelimiters["password.reset"].resets_in.calls == [
+            pretend.call(stub_user.id)
         ]
 
     def test_password_reset_prohibited(
@@ -1605,6 +1713,10 @@ class TestResetPassword:
 
         breach_service = pretend.stub(check_password=lambda pw: False)
 
+        ratelimiter_service = pretend.stub(
+            clear=pretend.call_recorder(lambda *a, **kw: None)
+        )
+
         send_email = pretend.call_recorder(lambda *a: None)
         monkeypatch.setattr(views, "send_password_change_email", send_email)
 
@@ -1623,6 +1735,7 @@ class TestResetPassword:
                 IUserService: user_service,
                 ITokenService: token_service,
                 IPasswordBreachedService: breach_service,
+                IRateLimiter: ratelimiter_service,
             }[interface]
         )
         db_request.session.flash = pretend.call_recorder(lambda *a, **kw: None)
@@ -1658,6 +1771,10 @@ class TestResetPassword:
             pretend.call(IUserService, context=None),
             pretend.call(IPasswordBreachedService, context=None),
             pretend.call(ITokenService, name="password"),
+            pretend.call(IRateLimiter, name="password.reset"),
+        ]
+        assert ratelimiter_service.clear.calls == [
+            pretend.call(user.id),
         ]
 
     @pytest.mark.parametrize(
@@ -2312,6 +2429,7 @@ class TestReAuthentication:
                 username=pyramid_request.user.username,
                 next_route=pyramid_request.matched_route.name,
                 next_route_matchdict=json.dumps(pyramid_request.matchdict),
+                action="reauthenticate",
                 user_service=user_service,
                 check_password_metrics_tags=[
                     "method:reauth",

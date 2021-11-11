@@ -109,7 +109,11 @@ class PasswordMixin:
 
     password = wtforms.PasswordField(validators=[wtforms.validators.DataRequired()])
 
-    def __init__(self, *args, check_password_metrics_tags=None, **kwargs):
+    def __init__(
+        self, *args, request, action="login", check_password_metrics_tags=None, **kwargs
+    ):
+        self.request = request
+        self.action = action
         self._check_password_metrics_tags = check_password_metrics_tags
         super().__init__(*args, **kwargs)
 
@@ -118,8 +122,17 @@ class PasswordMixin:
         if userid is not None:
             try:
                 if not self.user_service.check_password(
-                    userid, field.data, tags=self._check_password_metrics_tags
+                    userid,
+                    field.data,
+                    self.request.remote_addr,
+                    tags=self._check_password_metrics_tags,
                 ):
+                    self.user_service.record_event(
+                        userid,
+                        tag=f"account:{self.action}:failure",
+                        ip_address=self.request.remote_addr,
+                        additional={"reason": "invalid_password"},
+                    )
                     raise wtforms.validators.ValidationError(
                         _("The password is invalid. Try again.")
                     )
@@ -252,9 +265,8 @@ class RegistrationForm(
 
 
 class LoginForm(PasswordMixin, UsernameMixin, forms.Form):
-    def __init__(self, *args, request, user_service, breach_service, **kwargs):
+    def __init__(self, *args, user_service, breach_service, **kwargs):
         super().__init__(*args, **kwargs)
-        self.request = request
         self.user_service = user_service
         self.breach_service = breach_service
 
@@ -290,8 +302,9 @@ class LoginForm(PasswordMixin, UsernameMixin, forms.Form):
 
 
 class _TwoFactorAuthenticationForm(forms.Form):
-    def __init__(self, *args, user_id, user_service, **kwargs):
+    def __init__(self, *args, request, user_id, user_service, **kwargs):
         super().__init__(*args, **kwargs)
+        self.request = request
         self.user_id = user_id
         self.user_service = user_service
 
@@ -300,7 +313,15 @@ class TOTPAuthenticationForm(TOTPValueMixin, _TwoFactorAuthenticationForm):
     def validate_totp_value(self, field):
         totp_value = field.data.replace(" ", "").encode("utf8")
 
-        if not self.user_service.check_totp_value(self.user_id, totp_value):
+        if not self.user_service.check_totp_value(
+            self.user_id, totp_value, self.request.remote_addr
+        ):
+            self.user_service.record_event(
+                self.user_id,
+                tag="account:login:failure",
+                ip_address=self.request.remote_addr,
+                additional={"reason": "invalid_totp"},
+            )
             raise wtforms.validators.ValidationError(_("Invalid TOTP code."))
 
 
@@ -330,7 +351,13 @@ class WebAuthnAuthenticationForm(WebAuthnCredentialMixin, _TwoFactorAuthenticati
                 rp_id=self.rp_id,
             )
 
-        except webauthn.AuthenticationRejectedException as e:
+        except webauthn.AuthenticationRejectedError as e:
+            self.user_service.record_event(
+                self.user_id,
+                tag="account:login:failure",
+                ip_address=self.request.remote_addr,
+                additional={"reason": "invalid_webauthn"},
+            )
             raise wtforms.validators.ValidationError(str(e))
 
         self.validated_credential = validated_credential
@@ -360,7 +387,15 @@ class RecoveryCodeAuthenticationForm(
     def validate_recovery_code_value(self, field):
         recovery_code_value = field.data.encode("utf-8")
 
-        if not self.user_service.check_recovery_code(self.user_id, recovery_code_value):
+        if not self.user_service.check_recovery_code(
+            self.user_id, recovery_code_value, self.request.remote_addr
+        ):
+            self.user_service.record_event(
+                self.user_id,
+                tag="account:login:failure",
+                ip_address=self.request.remote_addr,
+                additional={"reason": "invalid_recovery_code"},
+            )
             raise wtforms.validators.ValidationError(_("Invalid recovery code."))
 
 

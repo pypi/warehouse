@@ -127,7 +127,7 @@ deps: .state/env/pyvenv.cfg
 	rm -r $(TMPDIR)
 	$(BINDIR)/pip check
 
-requirements/%.txt: requirements/%.in
+requirements/%.txt: requirements/%.in .state/env/pyvenv.cfg
 	$(BINDIR)/pip-compile --allow-unsafe --generate-hashes --output-file=$@ $<
 
 fix-google-deps:

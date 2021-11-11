@@ -99,7 +99,7 @@ class TestSessionAuthenticationPolicy:
 
         userid = pretend.stub()
         request = pretend.stub(
-            session={policy.userid_key: userid},
+            session={policy.helper.userid_key: userid},
             add_response_callback=pretend.call_recorder(lambda cb: None),
         )
 

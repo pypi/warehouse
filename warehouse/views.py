@@ -45,7 +45,7 @@ from warehouse.accounts.models import User
 from warehouse.cache.http import add_vary, cache_control
 from warehouse.cache.origin import origin_cache
 from warehouse.classifiers.models import Classifier
-from warehouse.db import DatabaseNotAvailable
+from warehouse.db import DatabaseNotAvailableError
 from warehouse.forms import SetLocaleForm
 from warehouse.i18n import LOCALE_ATTR
 from warehouse.metrics import IMetricsService
@@ -116,7 +116,7 @@ def forbidden_include(exc, request):
     return Response(status=403)
 
 
-@view_config(context=DatabaseNotAvailable)
+@view_config(context=DatabaseNotAvailableError)
 def service_unavailable(exc, request):
     return httpexception_view(HTTPServiceUnavailable(), request)
 

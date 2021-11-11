@@ -27,7 +27,7 @@ from warehouse import db
 from warehouse.admin.flags import AdminFlagValue
 from warehouse.db import (
     DEFAULT_ISOLATION,
-    DatabaseNotAvailable,
+    DatabaseNotAvailableError,
     ModelBase,
     _configure_alembic,
     _create_engine,
@@ -57,7 +57,7 @@ def test_model_base_repr(monkeypatch):
 
 
 def test_listens_for(monkeypatch):
-    venusian_attach = pretend.call_recorder(lambda fn, cb: None)
+    venusian_attach = pretend.call_recorder(lambda fn, cb, category=None: None)
     monkeypatch.setattr(venusian, "attach", venusian_attach)
 
     event_listen = pretend.call_recorder(lambda *a, **kw: None)
@@ -72,7 +72,9 @@ def test_listens_for(monkeypatch):
     def handler(config):
         pass
 
-    assert venusian_attach.calls == [pretend.call(handler, mock.ANY)]
+    assert venusian_attach.calls == [
+        pretend.call(handler, mock.ANY, category="warehouse")
+    ]
 
     scanner = pretend.stub(config=pretend.stub())
     venusian_attach.calls[0].args[1](scanner, None, handler)
@@ -158,7 +160,7 @@ def test_raises_db_available_error(pyramid_services, metrics):
         registry={"sqlalchemy.engine": engine},
     )
 
-    with pytest.raises(DatabaseNotAvailable):
+    with pytest.raises(DatabaseNotAvailableError):
         _create_session(request)
 
     assert metrics.increment.calls == [
