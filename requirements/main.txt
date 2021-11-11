@@ -971,7 +971,7 @@ six==1.16.0 \
     #   requests-aws4auth
     #   sqlalchemy-utils
     #   webauthn
-sqlalchemy==1.4.26 \
+sqlalchemy[asyncio]==1.4.26 \
     --hash=sha256:07ac4461a1116b317519ddf6f34bcb00b011b5c1370ebeaaf56595504ffc7e84 \
     --hash=sha256:090536fd23bf49077ee94ff97142bc5ee8bad24294c3d7c8d5284267c885dde7 \
     --hash=sha256:1dee515578d04bc80c4f9a8c8cfe93f455db725059e885f1b1da174d91c4d077 \
