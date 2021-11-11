@@ -107,6 +107,7 @@ STDLIB_PROHIBITED = {
 _allowed_platforms = {
     "any",
     "win32",
+    "win_arm64",
     "win_amd64",
     "win_ia64",
     "manylinux1_x86_64",
@@ -141,6 +142,7 @@ _macosx_arches = {
 _macosx_major_versions = {
     "10",
     "11",
+    "12",
 }
 
 # manylinux pep600 and musllinux pep656 are a little more complicated:
