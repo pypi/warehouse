@@ -256,9 +256,9 @@ datadog==0.42.0 \
     --hash=sha256:140b51f5db3f46d6f3ec022c05830c6b3e13e4f62c19c823e1227ac322b26667 \
     --hash=sha256:7a6fac17a7d09f1883ab9a45ce4ff7a16aa1a5eb3cc4c6cddac7f8c53e7d1e9b
     # via -r requirements/main.in
-disposable-email-domains==0.0.65 \
-    --hash=sha256:8ee5f52d7971c2b15e85c452d26be6dd8b520508807e4ed2f5bdb2c098a8da3c \
-    --hash=sha256:cca260936d0a9222d4319eba31ad83dd32a5801c8c0cba555721f879b5664570
+disposable-email-domains==0.0.66 \
+    --hash=sha256:7a31510182de3f38a09d6101561ca608b0433f118a8a2ea9ed3821f22269c3db \
+    --hash=sha256:9f855e2212bab46915f563a179e116c71ddbb23c25693347d4a130bec7aa2de5
     # via -r requirements/main.in
 dnspython==2.1.0 \
     --hash=sha256:95d12f6ef0317118d2a1a6fc49aac65ffec7eb8087474158f42f26a639135216 \
