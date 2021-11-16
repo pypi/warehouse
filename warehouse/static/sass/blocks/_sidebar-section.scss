@@ -36,7 +36,16 @@
   .sidebar-section__user-gravatar {
     @include link-without-underline;
     @include link-focus-state($primary-color);
+  }
 
+  .ethical-content {
+    text-align-last: center;
+    text-align: left;
+
+    img {
+      width: 60%;
+      display: inline-block;
+    }
   }
 
   &:last-of-type {

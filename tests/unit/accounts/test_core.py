@@ -62,7 +62,7 @@ class TestLogin:
             get_user=pretend.call_recorder(lambda user_id: user),
             find_userid=pretend.call_recorder(lambda username: 1),
             check_password=pretend.call_recorder(
-                lambda userid, password, tags=None: False
+                lambda userid, password, ip_address, tags=None: False
             ),
             is_disabled=pretend.call_recorder(lambda user_id: (False, None)),
         )
@@ -86,7 +86,12 @@ class TestLogin:
         assert service.get_user.calls == [pretend.call(1)]
         assert service.is_disabled.calls == [pretend.call(1)]
         assert service.check_password.calls == [
-            pretend.call(1, "mypass", tags=["method:auth", "auth_method:basic"])
+            pretend.call(
+                1,
+                "mypass",
+                "1.2.3.4",
+                tags=["mechanism:basic_auth", "method:auth", "auth_method:basic"],
+            )
         ]
         assert user.record_event.calls == [
             pretend.call(
@@ -105,7 +110,7 @@ class TestLogin:
             get_user=pretend.call_recorder(lambda user_id: user),
             find_userid=pretend.call_recorder(lambda username: 1),
             check_password=pretend.call_recorder(
-                lambda userid, password, tags=None: False
+                lambda userid, password, ip_address, tags=None: False
             ),
             is_disabled=pretend.call_recorder(lambda user_id: (True, None)),
         )
@@ -129,7 +134,12 @@ class TestLogin:
         assert service.get_user.calls == [pretend.call(1)]
         assert service.is_disabled.calls == [pretend.call(1)]
         assert service.check_password.calls == [
-            pretend.call(1, "mypass", tags=["method:auth", "auth_method:basic"])
+            pretend.call(
+                1,
+                "mypass",
+                "1.2.3.4",
+                tags=["mechanism:basic_auth", "method:auth", "auth_method:basic"],
+            )
         ]
         assert user.record_event.calls == [
             pretend.call(
@@ -145,7 +155,7 @@ class TestLogin:
             get_user=pretend.call_recorder(lambda user_id: user),
             find_userid=pretend.call_recorder(lambda username: 1),
             check_password=pretend.call_recorder(
-                lambda userid, password, tags=None: False
+                lambda userid, password, ip_address, tags=None: False
             ),
             is_disabled=pretend.call_recorder(
                 lambda user_id: (True, DisableReason.CompromisedPassword)
@@ -180,7 +190,7 @@ class TestLogin:
             get_user=pretend.call_recorder(lambda user_id: user),
             find_userid=pretend.call_recorder(lambda username: 2),
             check_password=pretend.call_recorder(
-                lambda userid, password, tags=None: True
+                lambda userid, password, ip_address, tags=None: True
             ),
             update_user=pretend.call_recorder(lambda userid, last_login: None),
             is_disabled=pretend.call_recorder(lambda user_id: (False, None)),
@@ -208,7 +218,12 @@ class TestLogin:
         assert service.get_user.calls == [pretend.call(2)]
         assert service.is_disabled.calls == [pretend.call(2)]
         assert service.check_password.calls == [
-            pretend.call(2, "mypass", tags=["method:auth", "auth_method:basic"])
+            pretend.call(
+                2,
+                "mypass",
+                "1.2.3.4",
+                tags=["mechanism:basic_auth", "method:auth", "auth_method:basic"],
+            )
         ]
         assert breach_service.check_password.calls == [
             pretend.call("mypass", tags=["method:auth", "auth_method:basic"])
@@ -229,7 +244,7 @@ class TestLogin:
             get_user=pretend.call_recorder(lambda user_id: user),
             find_userid=pretend.call_recorder(lambda username: 2),
             check_password=pretend.call_recorder(
-                lambda userid, password, tags=None: True
+                lambda userid, password, ip_address, tags=None: True
             ),
             is_disabled=pretend.call_recorder(lambda user_id: (False, None)),
             disable_password=pretend.call_recorder(lambda user_id, reason=None: None),
@@ -254,7 +269,12 @@ class TestLogin:
         assert service.get_user.calls == [pretend.call(2)]
         assert service.is_disabled.calls == [pretend.call(2)]
         assert service.check_password.calls == [
-            pretend.call(2, "mypass", tags=["method:auth", "auth_method:basic"])
+            pretend.call(
+                2,
+                "mypass",
+                "1.2.3.4",
+                tags=["mechanism:basic_auth", "method:auth", "auth_method:basic"],
+            )
         ]
         assert breach_service.check_password.calls == [
             pretend.call("mypass", tags=["method:auth", "auth_method:basic"])
@@ -402,7 +422,15 @@ def test_includeme(monkeypatch):
     monkeypatch.setattr(accounts, "MacaroonAuthorizationPolicy", authz_cls)
 
     config = pretend.stub(
-        registry=pretend.stub(settings={}),
+        registry=pretend.stub(
+            settings={
+                "warehouse.account.user_login_ratelimit_string": "10 per 5 minutes",
+                "warehouse.account.ip_login_ratelimit_string": "10 per 5 minutes",
+                "warehouse.account.global_login_ratelimit_string": "1000 per 5 minutes",
+                "warehouse.account.email_add_ratelimit_string": "2 per day",
+                "warehouse.account.password_reset_ratelimit_string": "5 per day",
+            }
+        ),
         register_service_factory=pretend.call_recorder(
             lambda factory, iface, name=None: None
         ),
@@ -429,10 +457,12 @@ def test_includeme(monkeypatch):
             IPasswordBreachedService,
         ),
         pretend.call(RateLimit("10 per 5 minutes"), IRateLimiter, name="user.login"),
+        pretend.call(RateLimit("10 per 5 minutes"), IRateLimiter, name="ip.login"),
         pretend.call(
             RateLimit("1000 per 5 minutes"), IRateLimiter, name="global.login"
         ),
         pretend.call(RateLimit("2 per day"), IRateLimiter, name="email.add"),
+        pretend.call(RateLimit("5 per day"), IRateLimiter, name="password.reset"),
     ]
     assert config.add_request_method.calls == [
         pretend.call(accounts._user, name="user", reify=True)
