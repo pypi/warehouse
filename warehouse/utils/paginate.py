@@ -52,7 +52,9 @@ class _ElasticsearchWrapper:
     def __len__(self):
         if self.results is None:
             raise RuntimeError("Cannot get length until a slice.")
-        return min(self.results.hits.total, self.max_results)
+        if isinstance(self.results.hits.total, int):
+            return min(self.results.hits.total, self.max_results)
+        return min(self.results.hits.total["value"], self.max_results)
 
 
 def ElasticsearchPage(*args, **kwargs):  # noqa

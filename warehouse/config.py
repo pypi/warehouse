@@ -24,7 +24,7 @@ from pyramid.security import Allow, Authenticated
 from pyramid.tweens import EXCVIEW
 from pyramid_rpc.xmlrpc import XMLRPCRenderer
 
-from warehouse.errors import BasicAuthBreachedPassword
+from warehouse.errors import BasicAuthBreachedPassword, BasicAuthFailedPassword
 from warehouse.utils.static import ManifestCacheBuster
 from warehouse.utils.wsgi import HostRewrite, ProxyFixer, VhmRootRemover
 
@@ -96,11 +96,14 @@ def activate_hook(request):
 def commit_veto(request, response):
     # By default pyramid_tm will veto the commit anytime request.exc_info is not None,
     # we are going to copy that logic with one difference, we are still going to commit
-    # if the exception was for a BreachedPassword.
+    # if the exception was for a BasicAuthFailedPassword or BreachedPassword.
     # TODO: We should probably use a registry or something instead of hardcoded.
-    exc_info = getattr(request, "exc_info", None)
-    if exc_info is not None and not isinstance(exc_info[1], BasicAuthBreachedPassword):
-        return True
+    allowed_types = (BasicAuthBreachedPassword, BasicAuthFailedPassword)
+
+    try:
+        return not isinstance(request.exc_info[1], allowed_types)
+    except (AttributeError, TypeError):
+        return False
 
 
 def template_view(config, name, route, template, route_kw=None, view_kw=None):
@@ -230,6 +233,38 @@ def configure(settings=None):
     maybe_set_compound(settings, "metrics", "backend", "METRICS_BACKEND")
     maybe_set_compound(settings, "breached_passwords", "backend", "BREACHED_PASSWORDS")
     maybe_set_compound(settings, "malware_check", "backend", "MALWARE_CHECK_BACKEND")
+
+    # Configure our ratelimiters
+    maybe_set(
+        settings,
+        "warehouse.account.user_login_ratelimit_string",
+        "USER_LOGIN_RATELIMIT_STRING",
+        default="10 per 5 minutes",
+    )
+    maybe_set(
+        settings,
+        "warehouse.account.ip_login_ratelimit_string",
+        "IP_LOGIN_RATELIMIT_STRING",
+        default="10 per 5 minutes",
+    )
+    maybe_set(
+        settings,
+        "warehouse.account.global_login_ratelimit_string",
+        "GLOBAL_LOGIN_RATELIMIT_STRING",
+        default="1000 per 5 minutes",
+    )
+    maybe_set(
+        settings,
+        "warehouse.account.email_add_ratelimit_string",
+        "EMAIL_ADD_RATELIMIT_STRING",
+        default="2 per day",
+    )
+    maybe_set(
+        settings,
+        "warehouse.account.password_reset_ratelimit_string",
+        "PASSWORD_RESET_RATELIMIT_STRING",
+        default="5 per day",
+    )
 
     # Add the settings we use when the environment is set to development.
     if settings["warehouse.env"] == Environment.development:
@@ -521,7 +556,11 @@ def configure(settings=None):
 
     # Scan everything for configuration
     config.scan(
-        ignore=["warehouse.migrations.env", "warehouse.celery", "warehouse.wsgi"]
+        categories=(
+            "pyramid",
+            "warehouse",
+        ),
+        ignore=["warehouse.migrations.env", "warehouse.celery", "warehouse.wsgi"],
     )
 
     # Sanity check our request and responses.

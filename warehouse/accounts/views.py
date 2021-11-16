@@ -46,6 +46,7 @@ from warehouse.accounts.interfaces import (
     TokenMissing,
     TooManyEmailsAdded,
     TooManyFailedLogins,
+    TooManyPasswordResetRequests,
 )
 from warehouse.accounts.models import Email, User
 from warehouse.admin.flags import AdminFlagValue
@@ -93,6 +94,19 @@ def unverified_emails(exc, request):
         request._(
             "Too many emails have been added to this account without verifying "
             "them. Check your inbox and follow the verification links. (IP: ${ip})",
+            mapping={"ip": request.remote_addr},
+        ),
+        retry_after=exc.resets_in.total_seconds(),
+    )
+
+
+@view_config(context=TooManyPasswordResetRequests, has_translations=True)
+def incomplete_password_resets(exc, request):
+    return HTTPTooManyRequests(
+        request._(
+            "Too many password resets have been requested for this account without "
+            "completing them. Check your inbox and follow the verification links. "
+            "(IP: ${ip})",
             mapping={"ip": request.remote_addr},
         ),
         retry_after=exc.resets_in.total_seconds(),
@@ -560,6 +574,11 @@ def request_password_reset(request, _form_class=RequestPasswordResetForm):
                 user.emails, key=lambda e: e.email == form.username_or_email.data
             )
 
+        if not user_service.ratelimiters["password.reset"].test(user.id):
+            raise TooManyPasswordResetRequests(
+                resets_in=user_service.ratelimiters["password.reset"].resets_in(user.id)
+            )
+
         if user.can_reset_password:
             send_password_reset_email(request, (user, email))
             user_service.record_event(
@@ -567,6 +586,7 @@ def request_password_reset(request, _form_class=RequestPasswordResetForm):
                 tag="account:password:reset:request",
                 ip_address=request.remote_addr,
             )
+            user_service.ratelimiters["password.reset"].hit(user.id)
 
             token_service = request.find_service(ITokenService, name="password")
             n_hours = token_service.max_age // 60 // 60
@@ -660,11 +680,15 @@ def reset_password(request, _form_class=ResetPasswordForm):
     )
 
     if request.method == "POST" and form.validate():
+        password_reset_limiter = request.find_service(
+            IRateLimiter, name="password.reset"
+        )
         # Update password.
         user_service.update_user(user.id, password=form.new_password.data)
         user_service.record_event(
             user.id, tag="account:password:reset", ip_address=request.remote_addr
         )
+        password_reset_limiter.clear(user.id)
 
         # Send password change email
         send_password_change_email(request, user)

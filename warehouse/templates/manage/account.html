@@ -576,7 +576,13 @@
       </small>
 
       {% elif event.tag == "account:login:failure" %}
-      <strong>{% trans %}Login failed{% endtrans %}</strong><br>
+      <strong>{% trans %}Login failed{% endtrans %}</strong>
+      {% if event.additional.auth_method %}
+        {% if event.additional.auth_method == "basic" %}
+          {% trans %}- Basic Auth (Upload endpoint){% endtrans %}
+        {% endif %}
+      {% endif %}
+      <br>
       <small>
         {% trans %}Reason:{% endtrans %}
         {% if event.additional.reason == "invalid_password" %}
