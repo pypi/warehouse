@@ -4,7 +4,7 @@ updates:
 - package-ecosystem: pip
   directory: "/"
   schedule:
-    interval: daily
+    interval: monthly
   open-pull-requests-limit: 99
   allow:
   - dependency-type: direct
