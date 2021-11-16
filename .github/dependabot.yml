@@ -9,3 +9,4 @@ updates:
   allow:
   - dependency-type: direct
   - dependency-type: indirect
+  rebase-strategy: "disabled"
