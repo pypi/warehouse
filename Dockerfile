@@ -24,7 +24,7 @@ COPY package.json package-lock.json .babelrc /opt/warehouse/src/
 # of installed dependencies just because files have been modified.
 RUN set -x \
     && npm install -g gulp-cli \
-    && npm ci
+    && export CFLAGS="-DPNG_ARM_NEON_OPT=0" && npm ci
 
 # Actually copy over our static files, we only copy over the static files to
 # save a small amount of space in our image and because we don't need them. We
