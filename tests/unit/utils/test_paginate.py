@@ -35,6 +35,20 @@ class FakeResult:
 
     @property
     def hits(self):
+        return pretend.stub(total={"value": self.total})
+
+    def __iter__(self):
+        for i in self.data:
+            yield i
+
+
+class FakeResult6:
+    def __init__(self, data, total):
+        self.data = data
+        self.total = total
+
+    @property
+    def hits(self):
         return pretend.stub(total=self.total)
 
     def __iter__(self):
@@ -71,6 +85,23 @@ class FakeQuery:
 
     def execute(self):
         return FakeResult(self.fake[self.range], len(self.fake))
+
+
+class FakeQuery6:
+    def __init__(self, fake):
+        self.fake = fake
+        self.range = slice(None)
+
+    def __getitem__(self, range):
+        self.range = range
+        return self
+
+    @property
+    def results(self):
+        return pretend.stub(hits=pretend.stub(total=len(self.fake)))
+
+    def execute(self):
+        return FakeResult6(self.fake[self.range], len(self.fake))
 
 
 class FakeSuggestQuery(FakeQuery):
@@ -112,6 +143,60 @@ class TestElasticsearchWrapper:
 
     def test_len_before_slice_fails(self):
         wrapper = paginate._ElasticsearchWrapper(FakeQuery([1, 2, 3, 4, 5, 6]))
+
+        with pytest.raises(RuntimeError):
+            len(wrapper)
+
+    def test_best_guess_suggestion(self):
+        fake_option = pretend.stub()
+        query = FakeSuggestQuery([1, 2, 3, 4, 5, 6], options=[fake_option])
+        wrapper = paginate._ElasticsearchWrapper(query)
+        wrapper[1:3]
+
+        assert wrapper.best_guess == fake_option
+
+    def test_best_guess_suggestion_no_suggestions(self):
+        query = FakeSuggestQuery([1, 2, 3, 4, 5, 6], suggestion=[])
+        wrapper = paginate._ElasticsearchWrapper(query)
+        wrapper[1:3]
+
+        assert wrapper.best_guess is None
+
+    def test_best_guess_suggestion_no_options(self):
+        query = FakeSuggestQuery([1, 2, 3, 4, 5, 6], options=[])
+        wrapper = paginate._ElasticsearchWrapper(query)
+        wrapper[1:3]
+
+        assert wrapper.best_guess is None
+
+
+class TestElasticsearchWrapper6:
+    def test_slices_and_length(self):
+        wrapper = paginate._ElasticsearchWrapper(FakeQuery6([1, 2, 3, 4, 5, 6]))
+        assert wrapper[1:3] == [2, 3]
+        assert len(wrapper) == 6
+
+    def test_slice_start_clamps_to_max(self):
+        wrapper = paginate._ElasticsearchWrapper(FakeQuery6([1, 2, 3, 4, 5, 6]))
+        wrapper.max_results = 5
+        assert wrapper[6:10] == []
+        assert len(wrapper) == 5
+
+    def test_slice_end_clamps_to_max(self):
+        wrapper = paginate._ElasticsearchWrapper(FakeQuery6([1, 2, 3, 4, 5, 6]))
+        wrapper.max_results = 5
+        assert wrapper[1:10] == [2, 3, 4, 5]
+        assert len(wrapper) == 5
+
+    def test_second_slice_fails(self):
+        wrapper = paginate._ElasticsearchWrapper(FakeQuery6([1, 2, 3, 4, 5, 6]))
+        wrapper[1:3]
+
+        with pytest.raises(RuntimeError):
+            wrapper[1:3]
+
+    def test_len_before_slice_fails(self):
+        wrapper = paginate._ElasticsearchWrapper(FakeQuery6([1, 2, 3, 4, 5, 6]))
 
         with pytest.raises(RuntimeError):
             len(wrapper)
