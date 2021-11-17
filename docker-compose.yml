@@ -33,19 +33,21 @@ services:
     image: redis:4.0
 
   localstack:
-    image: localstack/localstack:0.8.7
+    image: localstack/localstack:0.12.19.1
     environment:
       SERVICES: "sqs"
       HOSTNAME: "localstack"
       HOSTNAME_EXTERNAL: "localstack"
       DEFAULT_REGION: "us-east-2"
     ports:
-      - "4576:4576"
+      - "4566:4566"
 
   elasticsearch:
-    image: docker.elastic.co/elasticsearch/elasticsearch:6.8.7
+    image: elasticsearch:7.10.1
     environment:
       - xpack.security.enabled=false
+      - node.name=node-1
+      - cluster.initial_master_nodes=node-1
     ulimits:
       nofile:
         soft: 65536

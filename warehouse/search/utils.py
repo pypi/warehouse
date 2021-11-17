@@ -28,7 +28,7 @@ def doc_type(cls):
 def get_index(name, doc_types, *, using, shards=1, replicas=0, interval="1s"):
     index = Index(name, using=using)
     for doc_type in doc_types:
-        index.doc_type(doc_type)
+        index.document(doc_type)
     index.settings(
         number_of_shards=shards, number_of_replicas=replicas, refresh_interval=interval
     )
