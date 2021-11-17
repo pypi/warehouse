@@ -11,8 +11,8 @@ click
 cryptography
 datadog>=0.19.0
 disposable-email-domains
-elasticsearch>=6.0.0,<7.0.0
-elasticsearch_dsl>=6.0.0,<7.0.0
+elasticsearch>=7.0.0,<7.11.0
+elasticsearch_dsl>=7.0.0,<8.0.0
 first
 google-cloud-bigquery
 google-cloud-storage
@@ -45,11 +45,11 @@ python-slugify
 readme-renderer[md]>=0.7.0
 requests
 requests-aws4auth
-redis>=2.8.0
+redis>=2.8.0,<4.0.0  # https://github.com/pypa/warehouse/pull/10369
 rfc3986
 sentry-sdk
 setuptools
-sqlalchemy>=0.9,<1.5.0  # https://github.com/pypa/warehouse/pull/9228
+sqlalchemy[asyncio]>=0.9,<1.5.0  # https://github.com/pypa/warehouse/pull/9228
 sqlalchemy-citext
 sqlalchemy-utils
 stdlib-list
