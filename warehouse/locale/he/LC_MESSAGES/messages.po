@@ -346,13 +346,13 @@ msgstr "מונטי פייתון - מערכון חנות הגבינות"
 #: warehouse/templates/404.html:34 warehouse/templates/500.html:28
 #: warehouse/templates/500.html:29
 #: warehouse/templates/accounts/two-factor.html:55
-#: warehouse/templates/base.html:268 warehouse/templates/base.html:269
-#: warehouse/templates/base.html:270 warehouse/templates/base.html:280
-#: warehouse/templates/base.html:281 warehouse/templates/base.html:282
-#: warehouse/templates/base.html:293 warehouse/templates/base.html:294
-#: warehouse/templates/base.html:295 warehouse/templates/base.html:304
-#: warehouse/templates/base.html:306 warehouse/templates/base.html:317
-#: warehouse/templates/base.html:326
+#: warehouse/templates/base.html:273 warehouse/templates/base.html:274
+#: warehouse/templates/base.html:275 warehouse/templates/base.html:285
+#: warehouse/templates/base.html:286 warehouse/templates/base.html:287
+#: warehouse/templates/base.html:298 warehouse/templates/base.html:299
+#: warehouse/templates/base.html:300 warehouse/templates/base.html:309
+#: warehouse/templates/base.html:311 warehouse/templates/base.html:322
+#: warehouse/templates/base.html:331
 #: warehouse/templates/includes/accounts/profile-actions.html:21
 #: warehouse/templates/includes/accounts/profile-actions.html:30
 #: warehouse/templates/includes/accounts/profile-callout.html:18
@@ -371,7 +371,7 @@ msgstr "מונטי פייתון - מערכון חנות הגבינות"
 #: warehouse/templates/manage/release.html:175
 #: warehouse/templates/manage/releases.html:140
 #: warehouse/templates/manage/releases.html:173
-#: warehouse/templates/packaging/detail.html:318
+#: warehouse/templates/packaging/detail.html:317
 #: warehouse/templates/pages/classifiers.html:25
 #: warehouse/templates/pages/help.html:20
 #: warehouse/templates/pages/help.html:207
@@ -524,7 +524,7 @@ msgid "Main navigation"
 msgstr "ניווט ראשי"
 
 #: warehouse/templates/base.html:41 warehouse/templates/base.html:55
-#: warehouse/templates/base.html:265
+#: warehouse/templates/base.html:270
 #: warehouse/templates/includes/current-user-indicator.html:55
 #: warehouse/templates/pages/help.html:105
 #: warehouse/templates/pages/sitemap.html:27
@@ -578,16 +578,16 @@ msgstr "‏RSS‏: 40 העדכונים האחרונים"
 msgid "RSS: 40 newest packages"
 msgstr "‏RSS‏: 40 החבילות החדשות ביותר"
 
-#: warehouse/templates/base.html:150
+#: warehouse/templates/base.html:155
 msgid "Skip to main content"
 msgstr "דילוג אל התוכן העיקרי"
 
-#: warehouse/templates/base.html:153
+#: warehouse/templates/base.html:158
 msgid "Switch to mobile version"
 msgstr "מעבר לגרסת המובייל"
 
-#: warehouse/templates/base.html:162 warehouse/templates/base.html:171
-#: warehouse/templates/base.html:181
+#: warehouse/templates/base.html:167 warehouse/templates/base.html:176
+#: warehouse/templates/base.html:186
 #: warehouse/templates/includes/session-notifications.html:19
 #: warehouse/templates/manage/account.html:789
 #: warehouse/templates/manage/documentation.html:27
@@ -598,11 +598,11 @@ msgstr "מעבר לגרסת המובייל"
 msgid "Warning"
 msgstr "אזהרה"
 
-#: warehouse/templates/base.html:164
+#: warehouse/templates/base.html:169
 msgid "You are using an unsupported browser, upgrade to a newer version."
 msgstr "הדפדפן שבשימוש אינו נתמך, יש לשדרג לגרסה חדשה יותר."
 
-#: warehouse/templates/base.html:173
+#: warehouse/templates/base.html:178
 msgid ""
 "You are using TestPyPI – a separate instance of the Python Package Index "
 "that allows you to try distribution tools and processes without affecting "
@@ -611,7 +611,7 @@ msgstr ""
 "הינך משתמש/ת ב-TestPyPI‏ - מופע נפרד של אינדקס החבילות של פייתון שמאפשר לנסות "
 "כלי הפצה ותהליכים מבלי להשפיע על האינדקס האמיתי."
 
-#: warehouse/templates/base.html:183
+#: warehouse/templates/base.html:188
 msgid ""
 "Some features may not work without JavaScript. Please try enabling it if you "
 "encounter problems."
@@ -619,138 +619,138 @@ msgstr ""
 "יכולות מסוימות עלולות לא לפעול ללא Javascript. יש לנסות לאפשר את JavaScript "
 "במקרה של בעיות."
 
-#: warehouse/templates/base.html:221 warehouse/templates/base.html:242
+#: warehouse/templates/base.html:226 warehouse/templates/base.html:247
 #: warehouse/templates/error-base-with-search.html:20
 #: warehouse/templates/index.html:55
 msgid "Search PyPI"
 msgstr "חיפוש ב-PyPI"
 
-#: warehouse/templates/base.html:222 warehouse/templates/base.html:243
+#: warehouse/templates/base.html:227 warehouse/templates/base.html:248
 #: warehouse/templates/error-base-with-search.html:21
 #: warehouse/templates/index.html:58
 msgid "Search projects"
 msgstr "חיפוש פרוייקטים"
 
-#: warehouse/templates/base.html:226 warehouse/templates/base.html:247
+#: warehouse/templates/base.html:231 warehouse/templates/base.html:252
 #: warehouse/templates/error-base-with-search.html:24
 #: warehouse/templates/index.html:62
 msgid "Search"
 msgstr "חיפוש"
 
-#: warehouse/templates/base.html:266
+#: warehouse/templates/base.html:271
 msgid "Help navigation"
 msgstr "ניווט תפריט העזרה"
 
-#: warehouse/templates/base.html:268
+#: warehouse/templates/base.html:273
 msgid "Installing packages"
 msgstr "התקנת חבילות"
 
-#: warehouse/templates/base.html:269
+#: warehouse/templates/base.html:274
 msgid "Uploading packages"
 msgstr "העלאת חבילות"
 
-#: warehouse/templates/base.html:270
+#: warehouse/templates/base.html:275
 msgid "User guide"
 msgstr "מדריך למשתמש"
 
-#: warehouse/templates/base.html:271
+#: warehouse/templates/base.html:276
 msgid "FAQs"
 msgstr "שאלות נפוצות"
 
-#: warehouse/templates/base.html:277 warehouse/templates/pages/sitemap.html:37
+#: warehouse/templates/base.html:282 warehouse/templates/pages/sitemap.html:37
 msgid "About PyPI"
 msgstr "אודות PyPI"
 
-#: warehouse/templates/base.html:278
+#: warehouse/templates/base.html:283
 msgid "About PyPI navigation"
 msgstr "ניווט אודות PyPI"
 
-#: warehouse/templates/base.html:280
+#: warehouse/templates/base.html:285
 msgid "PyPI on Twitter"
 msgstr "PyPI‏ בטוויטר"
 
-#: warehouse/templates/base.html:281
+#: warehouse/templates/base.html:286
 msgid "Infrastructure dashboard"
 msgstr "לוח מחוונים של התשתיות"
 
-#: warehouse/templates/base.html:282
+#: warehouse/templates/base.html:287
 msgid "Package index name retention"
 msgstr "שימור שמות באינדקס החבילות"
 
-#: warehouse/templates/base.html:283
+#: warehouse/templates/base.html:288
 msgid "Our sponsors"
 msgstr "נותני החסות שלנו"
 
-#: warehouse/templates/base.html:289
+#: warehouse/templates/base.html:294
 msgid "Contributing to PyPI"
 msgstr "לקיחת חלק בפיתוח PyPI"
 
-#: warehouse/templates/base.html:290
+#: warehouse/templates/base.html:295
 msgid "How to contribute navigation"
 msgstr "ניווט לקיחת חלק בפיתוח"
 
-#: warehouse/templates/base.html:292
+#: warehouse/templates/base.html:297
 msgid "Bugs and feedback"
 msgstr "באגים ומשוב"
 
-#: warehouse/templates/base.html:293
+#: warehouse/templates/base.html:298
 msgid "Contribute on GitHub"
 msgstr "לקיחת חלק בפיתוח ב-GitHub"
 
-#: warehouse/templates/base.html:294
+#: warehouse/templates/base.html:299
 msgid "Translate PyPI"
 msgstr "תרגום PyPI"
 
-#: warehouse/templates/base.html:295
+#: warehouse/templates/base.html:300
 msgid "Development credits"
 msgstr "רשימת המפתחים"
 
-#: warehouse/templates/base.html:301 warehouse/templates/pages/sitemap.html:23
+#: warehouse/templates/base.html:306 warehouse/templates/pages/sitemap.html:23
 msgid "Using PyPI"
 msgstr "שימוש ב-PyPI"
 
-#: warehouse/templates/base.html:302
+#: warehouse/templates/base.html:307
 msgid "Using PyPI navigation"
 msgstr "ניווט שימוש ב-PyPI"
 
-#: warehouse/templates/base.html:304
+#: warehouse/templates/base.html:309
 msgid "Code of conduct"
 msgstr "קוד התנהגות"
 
-#: warehouse/templates/base.html:305
+#: warehouse/templates/base.html:310
 msgid "Report security issue"
 msgstr "דווח על בעיית אבטחה"
 
-#: warehouse/templates/base.html:306
+#: warehouse/templates/base.html:311
 msgid "Privacy policy"
 msgstr "מדיניות פרטיות"
 
-#: warehouse/templates/base.html:307 warehouse/templates/pages/sitemap.html:43
+#: warehouse/templates/base.html:312 warehouse/templates/pages/sitemap.html:43
 msgid "Terms of use"
 msgstr "תנאי שימוש"
 
-#: warehouse/templates/base.html:317
+#: warehouse/templates/base.html:322
 msgid "Status: "
 msgstr "סטטוס: "
 
-#: warehouse/templates/base.html:318
+#: warehouse/templates/base.html:323
 msgid "all systems operational"
 msgstr "כל המערכות פעילות"
 
-#: warehouse/templates/base.html:322
+#: warehouse/templates/base.html:327
 msgid ""
 "Developed and maintained by the Python community, for the Python community."
 msgstr "מפותח ומתוחזק על ידי קהילת הפייתון, לטובת קהילת הפייתון."
 
-#: warehouse/templates/base.html:324
+#: warehouse/templates/base.html:329
 msgid "Donate today!"
 msgstr "תרמו היום!"
 
-#: warehouse/templates/base.html:327 warehouse/templates/pages/sitemap.html:16
+#: warehouse/templates/base.html:332 warehouse/templates/pages/sitemap.html:16
 msgid "Site map"
 msgstr "מפת האתר"
 
-#: warehouse/templates/base.html:333
+#: warehouse/templates/base.html:338
 msgid "Switch to desktop version"
 msgstr "מעבר לגרסת המחשב"
 
@@ -2279,7 +2279,7 @@ msgstr "אמצעי אימות דו-גורמי:"
 
 #: warehouse/templates/manage/account.html:568
 #: warehouse/templates/manage/release.html:58
-#: warehouse/templates/packaging/detail.html:350
+#: warehouse/templates/packaging/detail.html:349
 msgid "None"
 msgstr "אין"
 
@@ -2891,7 +2891,7 @@ msgstr "לפרויקט זה אין גרסאות"
 
 #: warehouse/templates/manage/projects.html:104
 #: warehouse/templates/manage/releases.html:94
-#: warehouse/templates/packaging/detail.html:360
+#: warehouse/templates/packaging/detail.html:359
 msgid "View"
 msgstr "צפייה"
 
@@ -2937,8 +2937,8 @@ msgstr "קבצים עבור גרסה %(version)s של %(project_name)s"
 
 #: warehouse/templates/manage/release.html:37
 #: warehouse/templates/manage/release.html:48
-#: warehouse/templates/packaging/detail.html:324
-#: warehouse/templates/packaging/detail.html:335
+#: warehouse/templates/packaging/detail.html:323
+#: warehouse/templates/packaging/detail.html:334
 msgid "Filename, size"
 msgstr "שם קובץ, גודל"
 
@@ -2949,15 +2949,15 @@ msgstr "סוג"
 
 #: warehouse/templates/manage/release.html:39
 #: warehouse/templates/manage/release.html:57
-#: warehouse/templates/packaging/detail.html:326
-#: warehouse/templates/packaging/detail.html:346
+#: warehouse/templates/packaging/detail.html:325
+#: warehouse/templates/packaging/detail.html:345
 msgid "Python version"
 msgstr "גרסת פייתון"
 
 #: warehouse/templates/manage/release.html:40
 #: warehouse/templates/manage/release.html:61
-#: warehouse/templates/packaging/detail.html:327
-#: warehouse/templates/packaging/detail.html:354
+#: warehouse/templates/packaging/detail.html:326
+#: warehouse/templates/packaging/detail.html:353
 msgid "Upload date"
 msgstr "תאריך העלאה"
 
@@ -3935,78 +3935,78 @@ msgid "Navigation"
 msgstr "ניווט"
 
 #: warehouse/templates/packaging/detail.html:174
-#: warehouse/templates/packaging/detail.html:206
+#: warehouse/templates/packaging/detail.html:205
 #, python-format
 msgid "Navigation for %(project)s"
 msgstr "ניווט עבור %(project)s"
 
 #: warehouse/templates/packaging/detail.html:177
-#: warehouse/templates/packaging/detail.html:209
+#: warehouse/templates/packaging/detail.html:208
 msgid "Project description. Focus will be moved to the description."
 msgstr "תיאור הפרויקט. המיקוד יועבר אל התיאור."
 
 #: warehouse/templates/packaging/detail.html:179
-#: warehouse/templates/packaging/detail.html:211
-#: warehouse/templates/packaging/detail.html:239
+#: warehouse/templates/packaging/detail.html:210
+#: warehouse/templates/packaging/detail.html:238
 msgid "Project description"
 msgstr "תיאור הפרויקט"
 
 #: warehouse/templates/packaging/detail.html:183
-#: warehouse/templates/packaging/detail.html:221
+#: warehouse/templates/packaging/detail.html:220
 msgid "Release history. Focus will be moved to the history panel."
 msgstr "היסטוריית גרסאות. המיקוד יועבר אל פאנל ההיסטוריה."
 
 #: warehouse/templates/packaging/detail.html:185
-#: warehouse/templates/packaging/detail.html:223
-#: warehouse/templates/packaging/detail.html:261
+#: warehouse/templates/packaging/detail.html:222
+#: warehouse/templates/packaging/detail.html:260
 msgid "Release history"
 msgstr "היסטוריית גרסאות"
 
 #: warehouse/templates/packaging/detail.html:190
-#: warehouse/templates/packaging/detail.html:228
+#: warehouse/templates/packaging/detail.html:227
 msgid "Download files. Focus will be moved to the project files."
 msgstr "הורדת קבצים. המיקוד יועבר אל קבצי הפרויקט."
 
 #: warehouse/templates/packaging/detail.html:192
-#: warehouse/templates/packaging/detail.html:230
-#: warehouse/templates/packaging/detail.html:317
+#: warehouse/templates/packaging/detail.html:229
+#: warehouse/templates/packaging/detail.html:316
 msgid "Download files"
 msgstr "הורדת קבצים"
 
-#: warehouse/templates/packaging/detail.html:215
+#: warehouse/templates/packaging/detail.html:214
 msgid "Project details. Focus will be moved to the project details."
 msgstr "פרטי הפרויקט. המיקוד יועבר אל פרטי הפרויקט."
 
-#: warehouse/templates/packaging/detail.html:217
-#: warehouse/templates/packaging/detail.html:253
+#: warehouse/templates/packaging/detail.html:216
+#: warehouse/templates/packaging/detail.html:252
 msgid "Project details"
 msgstr "פרטי הפרויקט"
 
-#: warehouse/templates/packaging/detail.html:246
+#: warehouse/templates/packaging/detail.html:245
 msgid "The author of this package has not provided a project description"
 msgstr "מחבר חבילה זו לא סיפק תיאור עבור הפרויקט"
 
-#: warehouse/templates/packaging/detail.html:263
+#: warehouse/templates/packaging/detail.html:262
 msgid "Release notifications"
 msgstr "התראות שחרורים"
 
-#: warehouse/templates/packaging/detail.html:264
+#: warehouse/templates/packaging/detail.html:263
 msgid "RSS feed"
 msgstr "ערוץ RSS"
 
-#: warehouse/templates/packaging/detail.html:276
+#: warehouse/templates/packaging/detail.html:275
 msgid "This version"
 msgstr "גרסה זו"
 
-#: warehouse/templates/packaging/detail.html:296
+#: warehouse/templates/packaging/detail.html:295
 msgid "pre-release"
 msgstr "שחרור מקדמי"
 
-#: warehouse/templates/packaging/detail.html:301
+#: warehouse/templates/packaging/detail.html:300
 msgid "yanked"
 msgstr "נגרע"
 
-#: warehouse/templates/packaging/detail.html:318
+#: warehouse/templates/packaging/detail.html:317
 #, python-format
 msgid ""
 "Download the file for your platform. If you're not sure which to choose, "
@@ -4017,18 +4017,18 @@ msgstr ""
 "אודות <a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel="
 "\"noopener\">התקנת חבילות</a>."
 
-#: warehouse/templates/packaging/detail.html:321
+#: warehouse/templates/packaging/detail.html:320
 #, python-format
 msgid "Files for %(project_name)s, version %(version)s"
 msgstr "קבצים עבור %(project_name)s, גרסה %(version)s"
 
-#: warehouse/templates/packaging/detail.html:325
-#: warehouse/templates/packaging/detail.html:342
+#: warehouse/templates/packaging/detail.html:324
+#: warehouse/templates/packaging/detail.html:341
 msgid "File type"
 msgstr "סוג קובץ"
 
-#: warehouse/templates/packaging/detail.html:328
-#: warehouse/templates/packaging/detail.html:358
+#: warehouse/templates/packaging/detail.html:327
+#: warehouse/templates/packaging/detail.html:357
 msgid "Hashes"
 msgstr "גיבובים (hash-ים)"
 
