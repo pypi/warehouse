@@ -16,11 +16,12 @@ import pretend
 import pytest
 
 from pyramid import renderers
+from pyramid.httpexceptions import HTTPForbidden, HTTPUnauthorized
 from pyramid.security import Allow, Authenticated
 from pyramid.tweens import EXCVIEW
 
 from warehouse import config
-from warehouse.errors import BasicAuthBreachedPassword
+from warehouse.errors import BasicAuthBreachedPassword, BasicAuthFailedPassword
 from warehouse.utils.wsgi import HostRewrite, ProxyFixer, VhmRootRemover
 
 
@@ -78,7 +79,10 @@ def test_activate_hook(path, expected):
     [
         (None, False),
         ((ValueError, ValueError(), None), True),
+        ((HTTPForbidden, HTTPForbidden(), None), True),
+        ((HTTPUnauthorized, HTTPUnauthorized(), None), True),
         ((BasicAuthBreachedPassword, BasicAuthBreachedPassword(), None), False),
+        ((BasicAuthFailedPassword, BasicAuthFailedPassword(), None), False),
     ],
 )
 def test_commit_veto(exc_info, expected):
@@ -205,7 +209,7 @@ def test_configure(monkeypatch, settings, environment, other_settings):
         whitenoise_serve_static=pretend.call_recorder(lambda *a, **kw: None),
         whitenoise_add_files=pretend.call_recorder(lambda *a, **kw: None),
         whitenoise_add_manifest=pretend.call_recorder(lambda *a, **kw: None),
-        scan=pretend.call_recorder(lambda ignore: None),
+        scan=pretend.call_recorder(lambda categories, ignore: None),
         commit=pretend.call_recorder(lambda: None),
     )
     configurator_cls = pretend.call_recorder(lambda settings: configurator_obj)
@@ -234,6 +238,11 @@ def test_configure(monkeypatch, settings, environment, other_settings):
         "github.token_scanning_meta_api.url": (
             "https://api.github.com/meta/public_keys/token_scanning"
         ),
+        "warehouse.account.user_login_ratelimit_string": "10 per 5 minutes",
+        "warehouse.account.ip_login_ratelimit_string": "10 per 5 minutes",
+        "warehouse.account.global_login_ratelimit_string": "1000 per 5 minutes",
+        "warehouse.account.email_add_ratelimit_string": "2 per day",
+        "warehouse.account.password_reset_ratelimit_string": "5 per day",
     }
     if environment == config.Environment.development:
         expected_settings.update(
@@ -400,7 +409,11 @@ def test_configure(monkeypatch, settings, environment, other_settings):
     ]
     assert configurator_obj.scan.calls == [
         pretend.call(
-            ignore=["warehouse.migrations.env", "warehouse.celery", "warehouse.wsgi"]
+            categories=(
+                "pyramid",
+                "warehouse",
+            ),
+            ignore=["warehouse.migrations.env", "warehouse.celery", "warehouse.wsgi"],
         )
     ]
     assert configurator_obj.commit.calls == [pretend.call()]

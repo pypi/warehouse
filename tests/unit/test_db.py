@@ -57,7 +57,7 @@ def test_model_base_repr(monkeypatch):
 
 
 def test_listens_for(monkeypatch):
-    venusian_attach = pretend.call_recorder(lambda fn, cb: None)
+    venusian_attach = pretend.call_recorder(lambda fn, cb, category=None: None)
     monkeypatch.setattr(venusian, "attach", venusian_attach)
 
     event_listen = pretend.call_recorder(lambda *a, **kw: None)
@@ -72,7 +72,9 @@ def test_listens_for(monkeypatch):
     def handler(config):
         pass
 
-    assert venusian_attach.calls == [pretend.call(handler, mock.ANY)]
+    assert venusian_attach.calls == [
+        pretend.call(handler, mock.ANY, category="warehouse")
+    ]
 
     scanner = pretend.stub(config=pretend.stub())
     venusian_attach.calls[0].args[1](scanner, None, handler)

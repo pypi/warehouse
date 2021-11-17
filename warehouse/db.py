@@ -123,7 +123,7 @@ def listens_for(target, identifier, *args, **kwargs):
             wrapped = functools.partial(wrapped, scanner.config)
             event.listen(target, identifier, wrapped, *args, **kwargs)
 
-        venusian.attach(wrapped, callback)
+        venusian.attach(wrapped, callback, category="warehouse")
 
         return wrapped
 

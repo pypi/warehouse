@@ -58,7 +58,6 @@ def test_project_docs(db_session):
     assert list(_project_docs(db_session)) == [
         {
             "_id": p.normalized_name,
-            "_type": "doc",
             "_source": {
                 "created": p.created,
                 "name": p.name,
@@ -98,7 +97,6 @@ def test_single_project_doc(db_session):
     assert list(_project_docs(db_session, project_name=projects[1].name)) == [
         {
             "_id": p.normalized_name,
-            "_type": "doc",
             "_source": {
                 "created": p.created,
                 "name": p.name,
@@ -139,7 +137,6 @@ def test_project_docs_empty(db_session):
     assert list(_project_docs(db_session)) == [
         {
             "_id": p.normalized_name,
-            "_type": "doc",
             "_source": {
                 "created": p.created,
                 "name": p.name,
@@ -567,9 +564,7 @@ class TestPartialReindex:
 
         unindex_project(task, db_request, "foo")
 
-        assert es_client.delete.calls == [
-            pretend.call(index="warehouse", doc_type="doc", id="foo")
-        ]
+        assert es_client.delete.calls == [pretend.call(index="warehouse", id="foo")]
 
     def test_unindex_retry_on_lock(self, db_request, monkeypatch):
         task = pretend.stub(

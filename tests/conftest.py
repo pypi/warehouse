@@ -111,13 +111,13 @@ def pyramid_request(pyramid_services):
     return dummy_request
 
 
-@pytest.yield_fixture
+@pytest.fixture
 def pyramid_config(pyramid_request):
     with pyramid.testing.testConfig(request=pyramid_request) as config:
         yield config
 
 
-@pytest.yield_fixture
+@pytest.fixture
 def cli():
     runner = click.testing.CliRunner()
     with runner.isolated_filesystem():
@@ -201,7 +201,7 @@ def app_config(database):
     return cfg
 
 
-@pytest.yield_fixture
+@pytest.fixture
 def db_session(app_config):
     engine = app_config.registry["sqlalchemy.engine"]
     conn = engine.connect()
@@ -227,17 +227,17 @@ def db_session(app_config):
         engine.dispose()
 
 
-@pytest.yield_fixture
+@pytest.fixture
 def user_service(db_session, metrics):
     return account_services.DatabaseUserService(db_session, metrics=metrics)
 
 
-@pytest.yield_fixture
+@pytest.fixture
 def macaroon_service(db_session):
     return macaroon_services.DatabaseMacaroonService(db_session)
 
 
-@pytest.yield_fixture
+@pytest.fixture
 def token_service(app_config):
     return account_services.TokenService(secret="secret", salt="salt", max_age=21600)
 
@@ -267,7 +267,7 @@ class QueryRecorder:
         self.queries = []
 
 
-@pytest.yield_fixture
+@pytest.fixture
 def query_recorder(app_config):
     recorder = QueryRecorder()
 
@@ -294,7 +294,7 @@ class _TestApp(_webtest.TestApp):
         return xmlrpc.client.loads(resp.body)
 
 
-@pytest.yield_fixture
+@pytest.fixture
 def webtest(app_config):
     # TODO: Ensure that we have per test isolation of the database level
     #       changes. This probably involves flushing the database or something

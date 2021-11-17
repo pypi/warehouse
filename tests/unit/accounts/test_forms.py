@@ -109,11 +109,11 @@ class TestLoginForm:
         assert user_service.is_disabled.calls == [pretend.call(1)]
 
     def test_validate_password_ok(self):
-        request = pretend.stub()
+        request = pretend.stub(remote_addr="1.2.3.4")
         user_service = pretend.stub(
             find_userid=pretend.call_recorder(lambda userid: 1),
             check_password=pretend.call_recorder(
-                lambda userid, password, tags=None: True
+                lambda userid, password, ip_address, tags=None: True
             ),
             is_disabled=pretend.call_recorder(lambda userid: (False, None)),
         )
@@ -137,7 +137,7 @@ class TestLoginForm:
         ]
         assert user_service.is_disabled.calls == [pretend.call(1)]
         assert user_service.check_password.calls == [
-            pretend.call(1, "pw", tags=["bar"])
+            pretend.call(1, "pw", "1.2.3.4", tags=["bar"])
         ]
         assert breach_service.check_password.calls == [
             pretend.call("pw", tags=["method:auth", "auth_method:login_form"])
@@ -148,7 +148,7 @@ class TestLoginForm:
         user_service = pretend.stub(
             find_userid=pretend.call_recorder(lambda userid: 1),
             check_password=pretend.call_recorder(
-                lambda userid, password, tags=None: False
+                lambda userid, password, ip_address, tags=None: False
             ),
             is_disabled=pretend.call_recorder(lambda userid: (False, None)),
             record_event=pretend.call_recorder(lambda *a, **kw: None),
@@ -170,7 +170,9 @@ class TestLoginForm:
             pretend.call("my_username"),
         ]
         assert user_service.is_disabled.calls == [pretend.call(1)]
-        assert user_service.check_password.calls == [pretend.call(1, "pw", tags=None)]
+        assert user_service.check_password.calls == [
+            pretend.call(1, "pw", "127.0.0.1", tags=None)
+        ]
         assert user_service.record_event.calls == [
             pretend.call(
                 1,
@@ -182,10 +184,10 @@ class TestLoginForm:
 
     def test_validate_password_too_many_failed(self):
         @pretend.call_recorder
-        def check_password(userid, password, tags=None):
+        def check_password(userid, password, ip_address, tags=None):
             raise TooManyFailedLogins(resets_in=None)
 
-        request = pretend.stub()
+        request = pretend.stub(remote_addr="1.2.3.4")
         user_service = pretend.stub(
             find_userid=pretend.call_recorder(lambda userid: 1),
             check_password=check_password,
@@ -208,18 +210,20 @@ class TestLoginForm:
             pretend.call("my_username"),
         ]
         assert user_service.is_disabled.calls == [pretend.call(1)]
-        assert user_service.check_password.calls == [pretend.call(1, "pw", tags=None)]
+        assert user_service.check_password.calls == [
+            pretend.call(1, "pw", "1.2.3.4", tags=None)
+        ]
 
     def test_password_breached(self, monkeypatch):
         send_email = pretend.call_recorder(lambda *a, **kw: None)
         monkeypatch.setattr(forms, "send_password_compromised_email_hibp", send_email)
 
         user = pretend.stub(id=1)
-        request = pretend.stub()
+        request = pretend.stub(remote_addr="1.2.3.4")
         user_service = pretend.stub(
             find_userid=lambda _: 1,
             get_user=lambda _: user,
-            check_password=lambda userid, pw, tags=None: True,
+            check_password=lambda userid, pw, ip_address, tags=None: True,
             disable_password=pretend.call_recorder(lambda user_id, reason=None: None),
             is_disabled=lambda userid: (False, None),
         )
@@ -603,7 +607,7 @@ class TestTOTPAuthenticationForm:
         assert form.totp_value.errors.pop() == "This field is required."
 
         form = forms.TOTPAuthenticationForm(
-            request=pretend.stub(),
+            request=pretend.stub(remote_addr="1.2.3.4"),
             data={"totp_value": "not_a_real_value"},
             user_id=pretend.stub(),
             user_service=pretend.stub(check_totp_value=lambda *a: True),
@@ -612,7 +616,7 @@ class TestTOTPAuthenticationForm:
         assert str(form.totp_value.errors.pop()) == "TOTP code must be 6 digits."
 
         form = forms.TOTPAuthenticationForm(
-            request=pretend.stub(),
+            request=pretend.stub(remote_addr="1.2.3.4"),
             data={"totp_value": "1 2 3 4 5 6 7"},
             user_id=pretend.stub(),
             user_service=pretend.stub(check_totp_value=lambda *a: True),
@@ -642,7 +646,7 @@ class TestTOTPAuthenticationForm:
         ]
 
         form = forms.TOTPAuthenticationForm(
-            request=pretend.stub(),
+            request=pretend.stub(remote_addr="1.2.3.4"),
             data={"totp_value": "123456"},
             user_id=pretend.stub(),
             user_service=pretend.stub(check_totp_value=lambda *a: True),
@@ -650,7 +654,7 @@ class TestTOTPAuthenticationForm:
         assert form.validate()
 
         form = forms.TOTPAuthenticationForm(
-            request=pretend.stub(),
+            request=pretend.stub(remote_addr="1.2.3.4"),
             data={"totp_value": " 1 2 3 4  5 6 "},
             user_id=pretend.stub(),
             user_service=pretend.stub(check_totp_value=lambda *a: True),
@@ -658,7 +662,7 @@ class TestTOTPAuthenticationForm:
         assert form.validate()
 
         form = forms.TOTPAuthenticationForm(
-            request=pretend.stub(),
+            request=pretend.stub(remote_addr="1.2.3.4"),
             data={"totp_value": "123 456"},
             user_id=pretend.stub(),
             user_service=pretend.stub(check_totp_value=lambda *a: True),
@@ -817,7 +821,7 @@ class TestRecoveryCodeForm:
         ]
 
     def test_valid_recovery_code(self):
-        request = pretend.stub()
+        request = pretend.stub(remote_addr="1.2.3.4")
         form = forms.RecoveryCodeAuthenticationForm(
             request=request,
             data={"recovery_code_value": "valid"},
