@@ -340,13 +340,13 @@ msgstr "蒙提·派森（Monty Python） - The Cheese Shop Sketch"
 #: warehouse/templates/404.html:34 warehouse/templates/500.html:28
 #: warehouse/templates/500.html:29
 #: warehouse/templates/accounts/two-factor.html:55
-#: warehouse/templates/base.html:268 warehouse/templates/base.html:269
-#: warehouse/templates/base.html:270 warehouse/templates/base.html:280
-#: warehouse/templates/base.html:281 warehouse/templates/base.html:282
-#: warehouse/templates/base.html:293 warehouse/templates/base.html:294
-#: warehouse/templates/base.html:295 warehouse/templates/base.html:304
-#: warehouse/templates/base.html:306 warehouse/templates/base.html:317
-#: warehouse/templates/base.html:326
+#: warehouse/templates/base.html:273 warehouse/templates/base.html:274
+#: warehouse/templates/base.html:275 warehouse/templates/base.html:285
+#: warehouse/templates/base.html:286 warehouse/templates/base.html:287
+#: warehouse/templates/base.html:298 warehouse/templates/base.html:299
+#: warehouse/templates/base.html:300 warehouse/templates/base.html:309
+#: warehouse/templates/base.html:311 warehouse/templates/base.html:322
+#: warehouse/templates/base.html:331
 #: warehouse/templates/includes/accounts/profile-actions.html:21
 #: warehouse/templates/includes/accounts/profile-actions.html:30
 #: warehouse/templates/includes/accounts/profile-callout.html:18
@@ -365,7 +365,7 @@ msgstr "蒙提·派森（Monty Python） - The Cheese Shop Sketch"
 #: warehouse/templates/manage/release.html:175
 #: warehouse/templates/manage/releases.html:140
 #: warehouse/templates/manage/releases.html:173
-#: warehouse/templates/packaging/detail.html:318
+#: warehouse/templates/packaging/detail.html:317
 #: warehouse/templates/pages/classifiers.html:25
 #: warehouse/templates/pages/help.html:20
 #: warehouse/templates/pages/help.html:207
@@ -518,7 +518,7 @@ msgid "Main navigation"
 msgstr "主導航欄"
 
 #: warehouse/templates/base.html:41 warehouse/templates/base.html:55
-#: warehouse/templates/base.html:265
+#: warehouse/templates/base.html:270
 #: warehouse/templates/includes/current-user-indicator.html:55
 #: warehouse/templates/pages/help.html:105
 #: warehouse/templates/pages/sitemap.html:27
@@ -571,16 +571,16 @@ msgstr "RSS：40個最近的更新"
 msgid "RSS: 40 newest packages"
 msgstr "RSS：40 個最新的套件"
 
-#: warehouse/templates/base.html:150
+#: warehouse/templates/base.html:155
 msgid "Skip to main content"
 msgstr "跳到主要内容"
 
-#: warehouse/templates/base.html:153
+#: warehouse/templates/base.html:158
 msgid "Switch to mobile version"
 msgstr "轉換至行動裝置版本"
 
-#: warehouse/templates/base.html:162 warehouse/templates/base.html:171
-#: warehouse/templates/base.html:181
+#: warehouse/templates/base.html:167 warehouse/templates/base.html:176
+#: warehouse/templates/base.html:186
 #: warehouse/templates/includes/session-notifications.html:19
 #: warehouse/templates/manage/account.html:789
 #: warehouse/templates/manage/documentation.html:27
@@ -591,11 +591,11 @@ msgstr "轉換至行動裝置版本"
 msgid "Warning"
 msgstr "警告"
 
-#: warehouse/templates/base.html:164
+#: warehouse/templates/base.html:169
 msgid "You are using an unsupported browser, upgrade to a newer version."
 msgstr "不支援你正在使用的瀏覽器，請更新至新的版本。"
 
-#: warehouse/templates/base.html:173
+#: warehouse/templates/base.html:178
 msgid ""
 "You are using TestPyPI – a separate instance of the Python Package Index "
 "that allows you to try distribution tools and processes without affecting "
@@ -604,7 +604,7 @@ msgstr ""
 "您正在使用 TestPyPI – 一個 Python 套件索引的實例，可以讓您嘗試發佈工具且可以"
 "讓您不會影響實際索引地進行。"
 
-#: warehouse/templates/base.html:183
+#: warehouse/templates/base.html:188
 msgid ""
 "Some features may not work without JavaScript. Please try enabling it if you "
 "encounter problems."
@@ -612,138 +612,138 @@ msgstr ""
 "在沒有啟用JavaScript的情況下，某些功能可能無法正常運作。如果你遇到問題，請嘗"
 "試重新啟用JavaScript。"
 
-#: warehouse/templates/base.html:221 warehouse/templates/base.html:242
+#: warehouse/templates/base.html:226 warehouse/templates/base.html:247
 #: warehouse/templates/error-base-with-search.html:20
 #: warehouse/templates/index.html:55
 msgid "Search PyPI"
 msgstr "搜索 PyPI套件"
 
-#: warehouse/templates/base.html:222 warehouse/templates/base.html:243
+#: warehouse/templates/base.html:227 warehouse/templates/base.html:248
 #: warehouse/templates/error-base-with-search.html:21
 #: warehouse/templates/index.html:58
 msgid "Search projects"
 msgstr "搜尋專案"
 
-#: warehouse/templates/base.html:226 warehouse/templates/base.html:247
+#: warehouse/templates/base.html:231 warehouse/templates/base.html:252
 #: warehouse/templates/error-base-with-search.html:24
 #: warehouse/templates/index.html:62
 msgid "Search"
 msgstr "搜尋"
 
-#: warehouse/templates/base.html:266
+#: warehouse/templates/base.html:271
 msgid "Help navigation"
 msgstr "說明導航欄"
 
-#: warehouse/templates/base.html:268
+#: warehouse/templates/base.html:273
 msgid "Installing packages"
 msgstr "安裝軟體套件"
 
-#: warehouse/templates/base.html:269
+#: warehouse/templates/base.html:274
 msgid "Uploading packages"
 msgstr "正在上載軟體套件"
 
-#: warehouse/templates/base.html:270
+#: warehouse/templates/base.html:275
 msgid "User guide"
 msgstr "使用者指南"
 
-#: warehouse/templates/base.html:271
+#: warehouse/templates/base.html:276
 msgid "FAQs"
 msgstr "常見疑難"
 
-#: warehouse/templates/base.html:277 warehouse/templates/pages/sitemap.html:37
+#: warehouse/templates/base.html:282 warehouse/templates/pages/sitemap.html:37
 msgid "About PyPI"
 msgstr "關於 PyPI"
 
-#: warehouse/templates/base.html:278
+#: warehouse/templates/base.html:283
 msgid "About PyPI navigation"
 msgstr "關於 PyPI 導航欄"
 
-#: warehouse/templates/base.html:280
+#: warehouse/templates/base.html:285
 msgid "PyPI on Twitter"
 msgstr "Twitter 上的 PyPI"
 
-#: warehouse/templates/base.html:281
+#: warehouse/templates/base.html:286
 msgid "Infrastructure dashboard"
 msgstr "基礎架構儀表板"
 
-#: warehouse/templates/base.html:282
+#: warehouse/templates/base.html:287
 msgid "Package index name retention"
 msgstr "套件索引名稱保留"
 
-#: warehouse/templates/base.html:283
+#: warehouse/templates/base.html:288
 msgid "Our sponsors"
 msgstr "我們的贊助商"
 
-#: warehouse/templates/base.html:289
+#: warehouse/templates/base.html:294
 msgid "Contributing to PyPI"
 msgstr "為 PyPI 貢獻"
 
-#: warehouse/templates/base.html:290
+#: warehouse/templates/base.html:295
 msgid "How to contribute navigation"
 msgstr "如何貢獻導航欄"
 
-#: warehouse/templates/base.html:292
+#: warehouse/templates/base.html:297
 msgid "Bugs and feedback"
 msgstr "錯誤回報"
 
-#: warehouse/templates/base.html:293
+#: warehouse/templates/base.html:298
 msgid "Contribute on GitHub"
 msgstr "在 GitHub 上做出貢獻"
 
-#: warehouse/templates/base.html:294
+#: warehouse/templates/base.html:299
 msgid "Translate PyPI"
 msgstr "翻譯 PyPI"
 
-#: warehouse/templates/base.html:295
+#: warehouse/templates/base.html:300
 msgid "Development credits"
 msgstr "開發功勞"
 
-#: warehouse/templates/base.html:301 warehouse/templates/pages/sitemap.html:23
+#: warehouse/templates/base.html:306 warehouse/templates/pages/sitemap.html:23
 msgid "Using PyPI"
 msgstr "使用 PyPI"
 
-#: warehouse/templates/base.html:302
+#: warehouse/templates/base.html:307
 msgid "Using PyPI navigation"
 msgstr "使用 PyPI 導航欄"
 
-#: warehouse/templates/base.html:304
+#: warehouse/templates/base.html:309
 msgid "Code of conduct"
 msgstr "行為守則"
 
-#: warehouse/templates/base.html:305
+#: warehouse/templates/base.html:310
 msgid "Report security issue"
 msgstr "回報安全問題"
 
-#: warehouse/templates/base.html:306
+#: warehouse/templates/base.html:311
 msgid "Privacy policy"
 msgstr "隱私政策"
 
-#: warehouse/templates/base.html:307 warehouse/templates/pages/sitemap.html:43
+#: warehouse/templates/base.html:312 warehouse/templates/pages/sitemap.html:43
 msgid "Terms of use"
 msgstr "使用條款"
 
-#: warehouse/templates/base.html:317
+#: warehouse/templates/base.html:322
 msgid "Status: "
 msgstr "狀態： "
 
-#: warehouse/templates/base.html:318
+#: warehouse/templates/base.html:323
 msgid "all systems operational"
 msgstr "所有系統都運行"
 
-#: warehouse/templates/base.html:322
+#: warehouse/templates/base.html:327
 msgid ""
 "Developed and maintained by the Python community, for the Python community."
 msgstr "由 Python 社群為 Python 社群開發和維護。"
 
-#: warehouse/templates/base.html:324
+#: warehouse/templates/base.html:329
 msgid "Donate today!"
 msgstr "捐助我們！"
 
-#: warehouse/templates/base.html:327 warehouse/templates/pages/sitemap.html:16
+#: warehouse/templates/base.html:332 warehouse/templates/pages/sitemap.html:16
 msgid "Site map"
 msgstr "網站地圖"
 
-#: warehouse/templates/base.html:333
+#: warehouse/templates/base.html:338
 msgid "Switch to desktop version"
 msgstr "轉換到桌上版"
 
@@ -2232,7 +2232,7 @@ msgstr "雙重驗證方法："
 
 #: warehouse/templates/manage/account.html:568
 #: warehouse/templates/manage/release.html:58
-#: warehouse/templates/packaging/detail.html:350
+#: warehouse/templates/packaging/detail.html:349
 msgid "None"
 msgstr "無"
 
@@ -2808,7 +2808,7 @@ msgstr "此專案沒有釋出版本"
 
 #: warehouse/templates/manage/projects.html:104
 #: warehouse/templates/manage/releases.html:94
-#: warehouse/templates/packaging/detail.html:360
+#: warehouse/templates/packaging/detail.html:359
 msgid "View"
 msgstr "檢視"
 
@@ -2853,8 +2853,8 @@ msgstr "專案 %(project_name)s 版本 %(version)s 的檔案"
 
 #: warehouse/templates/manage/release.html:37
 #: warehouse/templates/manage/release.html:48
-#: warehouse/templates/packaging/detail.html:324
-#: warehouse/templates/packaging/detail.html:335
+#: warehouse/templates/packaging/detail.html:323
+#: warehouse/templates/packaging/detail.html:334
 msgid "Filename, size"
 msgstr "檔案名稱，大小"
 
@@ -2865,15 +2865,15 @@ msgstr "類型"
 
 #: warehouse/templates/manage/release.html:39
 #: warehouse/templates/manage/release.html:57
-#: warehouse/templates/packaging/detail.html:326
-#: warehouse/templates/packaging/detail.html:346
+#: warehouse/templates/packaging/detail.html:325
+#: warehouse/templates/packaging/detail.html:345
 msgid "Python version"
 msgstr "Python 版本"
 
 #: warehouse/templates/manage/release.html:40
 #: warehouse/templates/manage/release.html:61
-#: warehouse/templates/packaging/detail.html:327
-#: warehouse/templates/packaging/detail.html:354
+#: warehouse/templates/packaging/detail.html:326
+#: warehouse/templates/packaging/detail.html:353
 msgid "Upload date"
 msgstr "上載日期"
 
@@ -3782,78 +3782,78 @@ msgid "Navigation"
 msgstr "導覽列"
 
 #: warehouse/templates/packaging/detail.html:174
-#: warehouse/templates/packaging/detail.html:206
+#: warehouse/templates/packaging/detail.html:205
 #, python-format
 msgid "Navigation for %(project)s"
 msgstr "%(project)s 導覽列"
 
 #: warehouse/templates/packaging/detail.html:177
-#: warehouse/templates/packaging/detail.html:209
+#: warehouse/templates/packaging/detail.html:208
 msgid "Project description. Focus will be moved to the description."
 msgstr "專案敘述。焦點將被移至敘述。"
 
 #: warehouse/templates/packaging/detail.html:179
-#: warehouse/templates/packaging/detail.html:211
-#: warehouse/templates/packaging/detail.html:239
+#: warehouse/templates/packaging/detail.html:210
+#: warehouse/templates/packaging/detail.html:238
 msgid "Project description"
 msgstr "專案敘述"
 
 #: warehouse/templates/packaging/detail.html:183
-#: warehouse/templates/packaging/detail.html:221
+#: warehouse/templates/packaging/detail.html:220
 msgid "Release history. Focus will be moved to the history panel."
 msgstr "發行歷史。焦點將被移至歷史面板。"
 
 #: warehouse/templates/packaging/detail.html:185
-#: warehouse/templates/packaging/detail.html:223
-#: warehouse/templates/packaging/detail.html:261
+#: warehouse/templates/packaging/detail.html:222
+#: warehouse/templates/packaging/detail.html:260
 msgid "Release history"
 msgstr "發行歷史"
 
 #: warehouse/templates/packaging/detail.html:190
-#: warehouse/templates/packaging/detail.html:228
+#: warehouse/templates/packaging/detail.html:227
 msgid "Download files. Focus will be moved to the project files."
 msgstr "下載檔案。焦點將被移至專案中的檔案。"
 
 #: warehouse/templates/packaging/detail.html:192
-#: warehouse/templates/packaging/detail.html:230
-#: warehouse/templates/packaging/detail.html:317
+#: warehouse/templates/packaging/detail.html:229
+#: warehouse/templates/packaging/detail.html:316
 msgid "Download files"
 msgstr "下載檔案"
 
-#: warehouse/templates/packaging/detail.html:215
+#: warehouse/templates/packaging/detail.html:214
 msgid "Project details. Focus will be moved to the project details."
 msgstr "專案詳細。焦點將被移至專案詳細。"
 
-#: warehouse/templates/packaging/detail.html:217
-#: warehouse/templates/packaging/detail.html:253
+#: warehouse/templates/packaging/detail.html:216
+#: warehouse/templates/packaging/detail.html:252
 msgid "Project details"
 msgstr "專案詳細"
 
-#: warehouse/templates/packaging/detail.html:246
+#: warehouse/templates/packaging/detail.html:245
 msgid "The author of this package has not provided a project description"
 msgstr "該軟件包的作者沒有提供專案描述"
 
-#: warehouse/templates/packaging/detail.html:263
+#: warehouse/templates/packaging/detail.html:262
 msgid "Release notifications"
 msgstr "發行通知"
 
-#: warehouse/templates/packaging/detail.html:264
+#: warehouse/templates/packaging/detail.html:263
 msgid "RSS feed"
 msgstr "RSS訂閱"
 
-#: warehouse/templates/packaging/detail.html:276
+#: warehouse/templates/packaging/detail.html:275
 msgid "This version"
 msgstr "這個版本"
 
-#: warehouse/templates/packaging/detail.html:296
+#: warehouse/templates/packaging/detail.html:295
 msgid "pre-release"
 msgstr "預先發行版本"
 
-#: warehouse/templates/packaging/detail.html:301
+#: warehouse/templates/packaging/detail.html:300
 msgid "yanked"
 msgstr "被撤銷"
 
-#: warehouse/templates/packaging/detail.html:318
+#: warehouse/templates/packaging/detail.html:317
 #, python-format
 msgid ""
 "Download the file for your platform. If you're not sure which to choose, "
@@ -3863,18 +3863,18 @@ msgstr ""
 "下載適合您平台的文件。 如果不確定要選擇哪個，請詳細了解<a href=\"%(href)s\" "
 "title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">安裝程式包</a> 。"
 
-#: warehouse/templates/packaging/detail.html:321
+#: warehouse/templates/packaging/detail.html:320
 #, python-format
 msgid "Files for %(project_name)s, version %(version)s"
 msgstr "專案%(project_name)s 的檔案，版本%(version)s"
 
-#: warehouse/templates/packaging/detail.html:325
-#: warehouse/templates/packaging/detail.html:342
+#: warehouse/templates/packaging/detail.html:324
+#: warehouse/templates/packaging/detail.html:341
 msgid "File type"
 msgstr "檔案型態"
 
-#: warehouse/templates/packaging/detail.html:328
-#: warehouse/templates/packaging/detail.html:358
+#: warehouse/templates/packaging/detail.html:327
+#: warehouse/templates/packaging/detail.html:357
 msgid "Hashes"
 msgstr "雜湊值"
 

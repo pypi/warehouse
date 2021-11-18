@@ -81,6 +81,7 @@ def includeme(config):
                     SELF,
                     "https://api.github.com/repos/",
                     "*.fastly-insights.com",
+                    "*.ethicalads.io",
                     "sentry.io",
                     "https://api.pwnedpasswords.com",
                 ]
