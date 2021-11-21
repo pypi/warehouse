@@ -89,6 +89,10 @@ Browser Support
  IE       11+
 ========= ====================
 
+See the ``browserslist`` key in ``package.json`` for the configuration of
+supported browsers.
+You can see the full list of supported browsers by running ``npx browerslist``
+in the root of the project.
 
 HTML Code Style
 ---------------

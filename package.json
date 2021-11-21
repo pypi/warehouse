@@ -62,6 +62,12 @@
     "node-webcrypto-ossl": "1.0.48",
     "sass-lint": "1.13.1"
   },
+  "browserslist": [
+    "last 2 versions",
+    "Safari >= 9",
+    "IE >= 11",
+    "not dead"
+  ],
   "eslintConfig": {
     "env": {
       "browser": true,
