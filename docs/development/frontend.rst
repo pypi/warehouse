@@ -78,20 +78,10 @@ of some pages, but the "new" version of others.
 Browser Support
 ---------------
 
-========= ====================
- Browser  Supported Versions
-========= ====================
- Chrome   Current, Current - 1
- Firefox  Current, Current - 1
- Edge     Current, Current - 1
- Opera    Current, Current - 1
- Safari   9.0+
- IE       11+
-========= ====================
+We aim to support all major browsers, including IE11. We also support one-back,
+and follow the ``defaults`` recommendation from ``browserslist``.
 
-See the ``browserslist`` key in ``package.json`` for the configuration of
-supported browsers.
-You can see the full list of supported browsers by running ``npx browerslist``
+You can see the full list of supported browsers by running ``npx browserslist``
 in the root of the project.
 
 HTML Code Style
