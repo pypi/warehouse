@@ -17,14 +17,11 @@ import { Controller } from "stimulus";
 export default class extends Controller {
   static targets = ["searchField"];
 
-  connect() {
-    // Listen for the "/" key pressed
-    document.addEventListener("keydown", (event) => {
-      if (event.code === "Slash") {
-        // Prevent the key from being handled as an actual input
-        event.preventDefault();
-        this.searchFieldTarget.focus();
-      }
-    });
+  focusSearchField(event) {
+    if (event.code === "Slash") {
+      // Prevent the key from being handled as an actual input
+      event.preventDefault();
+      this.searchFieldTarget.focus();
+    }
   }
 }
