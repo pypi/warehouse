@@ -43,4 +43,4 @@ def format_number(ctx, number, locale=None):
     request = ctx.get("request") or get_current_request()
     if locale is None:
         locale = request.locale
-    return babel.numbers.format_number(number, locale=locale)
+    return babel.numbers.format_decimal(number, locale=locale)
