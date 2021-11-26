@@ -592,3 +592,10 @@ class TestJSONReleaseSlash:
             )
         ]
         assert resp.headers["Location"] == "/project/the-redirect"
+
+
+class TestJSONProhibitedProjectNames:
+    def test_get_prohibited_names(self, db_request):
+        resp = json.json_prohibited_project_names(db_request)
+        _assert_has_cors_headers(db_request.response.headers)
+        assert "names" in resp
