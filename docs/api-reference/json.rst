@@ -264,3 +264,36 @@ Release
         }
 
     :statuscode 200: no error
+
+
+    .. _api_json_latest:
+
+    There are three special ``<version>`` names that can be passed for any
+    ``<project_name>``, to obtain a `Release`_ JSON response for various flavors
+    of the latest available release for that project:
+
+    * ``/pypi/<project_name>/latest/json``
+
+        Supplies the latest non-prerelease version of ``<project_name>``,
+        if any exists. If none does exist, supplies instead the latest
+        pre-release version of ``<project_name>``.
+
+        As of May 2021, this behavior matches that of the
+        `Project`_ endpoint, and *should* return an identical JSON response.
+
+    * ``/pypi/<project_name>/latest-stable/json``
+
+        Supplies the latest non-prerelease version of ``<project_name>``.
+        If no non-prerelease versions exist, returns |http404|_.
+
+    * ``/pypi/<project_name>/latest-unstable/json``
+
+        Supplies the latest version of ``<project_name>``,
+        regardless of pre-release status.
+
+    In all cases, if a project has no releases, returns |http404|_.
+
+
+.. |http404| replace:: ``404 Not Found``
+
+.. _http404: https://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html#sec10.4.5

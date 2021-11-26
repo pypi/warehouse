@@ -309,6 +309,27 @@ def includeme(config):
         domain=warehouse,
     )
     config.add_route(
+        "packaging.project_latest",
+        "/project/{name}/latest/",
+        factory="warehouse.packaging.models:ProjectFactory",
+        traverse="/{name}",
+        domain=warehouse,
+    )
+    config.add_route(
+        "packaging.project_latest_stable",
+        "/project/{name}/latest-stable/",
+        factory="warehouse.packaging.models:ProjectFactory",
+        traverse="/{name}",
+        domain=warehouse,
+    )
+    config.add_route(
+        "packaging.project_latest_unstable",
+        "/project/{name}/latest-unstable/",
+        factory="warehouse.packaging.models:ProjectFactory",
+        traverse="/{name}",
+        domain=warehouse,
+    )
+    config.add_route(
         "packaging.release",
         "/project/{name}/{version}/",
         factory="warehouse.packaging.models:ProjectFactory",
@@ -368,6 +389,60 @@ def includeme(config):
     config.add_route(
         "legacy.api.json.project_slash",
         "/pypi/{name}/json/",
+        factory="warehouse.packaging.models:ProjectFactory",
+        traverse="/{name}",
+        read_only=True,
+        domain=warehouse,
+    )
+
+    config.add_route(
+        "legacy.api.json.latest",
+        "/pypi/{name}/latest/json",
+        factory="warehouse.packaging.models:ProjectFactory",
+        traverse="/{name}",
+        read_only=True,
+        domain=warehouse,
+    )
+
+    config.add_route(
+        "legacy.api.json.latest_slash",
+        "/pypi/{name}/latest/json/",
+        factory="warehouse.packaging.models:ProjectFactory",
+        traverse="/{name}",
+        read_only=True,
+        domain=warehouse,
+    )
+
+    config.add_route(
+        "legacy.api.json.latest_stable",
+        "/pypi/{name}/latest-stable/json",
+        factory="warehouse.packaging.models:ProjectFactory",
+        traverse="/{name}",
+        read_only=True,
+        domain=warehouse,
+    )
+
+    config.add_route(
+        "legacy.api.json.latest_stable_slash",
+        "/pypi/{name}/latest-stable/json/",
+        factory="warehouse.packaging.models:ProjectFactory",
+        traverse="/{name}",
+        read_only=True,
+        domain=warehouse,
+    )
+
+    config.add_route(
+        "legacy.api.json.latest_unstable",
+        "/pypi/{name}/latest-unstable/json",
+        factory="warehouse.packaging.models:ProjectFactory",
+        traverse="/{name}",
+        read_only=True,
+        domain=warehouse,
+    )
+
+    config.add_route(
+        "legacy.api.json.latest_unstable_slash",
+        "/pypi/{name}/latest-unstable/json/",
         factory="warehouse.packaging.models:ProjectFactory",
         traverse="/{name}",
         read_only=True,

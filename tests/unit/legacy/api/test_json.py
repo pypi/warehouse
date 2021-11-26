@@ -13,6 +13,7 @@
 from collections import OrderedDict
 
 import pretend
+import pytest
 
 from pyramid.httpexceptions import HTTPMovedPermanently, HTTPNotFound
 
@@ -67,57 +68,41 @@ class TestJSONProject:
         assert isinstance(resp, HTTPNotFound)
         _assert_has_cors_headers(resp.headers)
 
-    def test_calls_release_detail(self, monkeypatch, db_request):
-        project = ProjectFactory.create()
-
-        ReleaseFactory.create(project=project, version="1.0")
-        ReleaseFactory.create(project=project, version="2.0")
-
-        release = ReleaseFactory.create(project=project, version="3.0")
-
+    def test_calls_release_detail(self, monkeypatch, db_request, project_no_pre):
         response = pretend.stub()
         json_release = pretend.call_recorder(lambda ctx, request: response)
         monkeypatch.setattr(json, "json_release", json_release)
 
-        resp = json.json_project(project, db_request)
+        resp = json.json_project(project_no_pre.project, db_request)
 
         assert resp is response
-        assert json_release.calls == [pretend.call(release, db_request)]
+        assert json_release.calls == [
+            pretend.call(project_no_pre.latest_stable, db_request)
+        ]
 
-    def test_with_prereleases(self, monkeypatch, db_request):
-        project = ProjectFactory.create()
-
-        ReleaseFactory.create(project=project, version="1.0")
-        ReleaseFactory.create(project=project, version="2.0")
-        ReleaseFactory.create(project=project, version="4.0.dev0")
-
-        release = ReleaseFactory.create(project=project, version="3.0")
-
+    def test_with_prereleases(self, monkeypatch, db_request, project_with_pre):
         response = pretend.stub()
         json_release = pretend.call_recorder(lambda ctx, request: response)
         monkeypatch.setattr(json, "json_release", json_release)
 
-        resp = json.json_project(project, db_request)
+        resp = json.json_project(project_with_pre.project, db_request)
 
         assert resp is response
-        assert json_release.calls == [pretend.call(release, db_request)]
+        assert json_release.calls == [
+            pretend.call(project_with_pre.latest_stable, db_request)
+        ]
 
-    def test_only_prereleases(self, monkeypatch, db_request):
-        project = ProjectFactory.create()
-
-        ReleaseFactory.create(project=project, version="1.0.dev0")
-        ReleaseFactory.create(project=project, version="2.0.dev0")
-
-        release = ReleaseFactory.create(project=project, version="3.0.dev0")
-
+    def test_only_prereleases(self, monkeypatch, db_request, project_only_pre):
         response = pretend.stub()
         json_release = pretend.call_recorder(lambda ctx, request: response)
         monkeypatch.setattr(json, "json_release", json_release)
 
-        resp = json.json_project(project, db_request)
+        resp = json.json_project(project_only_pre.project, db_request)
 
         assert resp is response
-        assert json_release.calls == [pretend.call(release, db_request)]
+        assert json_release.calls == [
+            pretend.call(project_only_pre.latest_pre, db_request)
+        ]
 
     def test_all_releases_yanked(self, monkeypatch, db_request):
         """
@@ -204,6 +189,141 @@ class TestJSONProjectSlash:
         assert db_request.route_path.calls == [
             pretend.call("legacy.api.json.project", name=project.name)
         ]
+        assert resp.headers["Location"] == "/project/the-redirect"
+
+
+class TestJSONLatestReleases:
+    @pytest.fixture
+    def check_json_release(self, monkeypatch):
+        response = pretend.stub()
+        json_release = pretend.call_recorder(lambda ctx, request: response)
+        monkeypatch.setattr(json, "json_release", json_release)
+
+        def check_function(db_request, project, release, endpoint):
+            resp = getattr(json, endpoint)(project, db_request)
+
+            assert resp is response
+            assert json_release.calls == [pretend.call(release, db_request)]
+
+        return check_function
+
+    def test_latest_no_pre(self, db_request, project_no_pre, check_json_release):
+        """Confirm 'latest' gives latest-stable for project with no pre-releases."""
+        check_json_release(
+            db_request,
+            project_no_pre.project,
+            project_no_pre.latest_stable,
+            "json_latest",
+        )
+
+    def test_latest_with_pre(self, db_request, project_with_pre, check_json_release):
+        """Confirm 'latest' gives latest-stable with both stable and pre-releases."""
+        check_json_release(
+            db_request,
+            project_with_pre.project,
+            project_with_pre.latest_stable,
+            "json_latest",
+        )
+
+    def test_latest_only_pre(self, db_request, project_only_pre, check_json_release):
+        """Confirm 'latest' gives latest-pre for project with only pre-releases."""
+        check_json_release(
+            db_request,
+            project_only_pre.project,
+            project_only_pre.latest_pre,
+            "json_latest",
+        )
+
+    def test_latest_stable_no_pre(self, db_request, project_no_pre, check_json_release):
+        """Confirm 'latest-stable' gives latest-stable with no pre-releases."""
+        check_json_release(
+            db_request,
+            project_no_pre.project,
+            project_no_pre.latest_stable,
+            "json_latest_stable",
+        )
+
+    def test_latest_stable_with_pre(
+        self, db_request, project_with_pre, check_json_release
+    ):
+        """Confirm 'latest-stable' gives latest-stable with no pre-releases."""
+        check_json_release(
+            db_request,
+            project_with_pre.project,
+            project_with_pre.latest_stable,
+            "json_latest_stable",
+        )
+
+    def test_latest_stable_only_pre(self, db_request, project_only_pre):
+        """Confirm 'latest-stable' fails for project with no pre-releases."""
+        db_request.route_path = pretend.call_recorder(
+            lambda *a, **kw: "/project/the-redirect"
+        )
+
+        resp = json.json_latest_stable(project_only_pre.project, db_request)
+        assert isinstance(resp, HTTPNotFound)
+
+    def test_latest_unstable_no_pre(
+        self, db_request, project_no_pre, check_json_release
+    ):
+        check_json_release(
+            db_request,
+            project_no_pre.project,
+            project_no_pre.latest_stable,
+            "json_latest_unstable",
+        )
+
+    def test_latest_unstable_with_pre(
+        self, db_request, project_with_pre, check_json_release
+    ):
+        check_json_release(
+            db_request,
+            project_with_pre.project,
+            project_with_pre.latest_pre,
+            "json_latest_unstable",
+        )
+
+    def test_latest_unstable_only_pre(
+        self, db_request, project_only_pre, check_json_release
+    ):
+        check_json_release(
+            db_request,
+            project_only_pre.project,
+            project_only_pre.latest_pre,
+            "json_latest_unstable",
+        )
+
+    @pytest.mark.parametrize(
+        "endpoint",
+        ["json_latest", "json_latest_stable", "json_latest_unstable"],
+    )
+    def test_missing_release(self, db_request, endpoint):
+        project = ProjectFactory.create()
+
+        resp = getattr(json, endpoint)(project, db_request)
+        assert isinstance(resp, HTTPNotFound)
+
+
+class TestJSONLatestSlash:
+    @pytest.mark.parametrize(
+        ("endpoint", "route"),
+        [
+            ("json_latest_slash", "legacy.api.json.latest"),
+            ("json_latest_stable_slash", "legacy.api.json.latest_stable"),
+            ("json_latest_unstable_slash", "legacy.api.json.latest_unstable"),
+        ],
+    )
+    def test_normalizing_redirects(self, db_request, endpoint, route):
+        project = ProjectFactory.create()
+
+        db_request.route_path = pretend.call_recorder(
+            lambda *a, **kw: "/project/the-redirect"
+        )
+
+        resp = getattr(json, endpoint)(project, db_request)
+
+        assert isinstance(resp, HTTPMovedPermanently)
+        assert db_request.route_path.calls == [pretend.call(route, name=project.name)]
         assert resp.headers["Location"] == "/project/the-redirect"
 
 

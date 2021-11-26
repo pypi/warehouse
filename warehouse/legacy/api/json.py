@@ -231,3 +231,96 @@ def json_release_slash(release, request):
         ),
         headers=_CORS_HEADERS,
     )
+
+
+@view_config(
+    route_name="legacy.api.json.latest",
+    context=Project,
+    renderer="json",
+    decorator=_CACHE_DECORATOR,
+)
+def json_latest(project, request):
+    release = project.latest_version
+
+    if release is None:
+        return HTTPNotFound(headers=_CORS_HEADERS)
+
+    return json_release(release, request)
+
+
+@view_config(
+    route_name="legacy.api.json.latest_slash",
+    context=Project,
+    decorator=_CACHE_DECORATOR,
+)
+def json_latest_slash(project, request):
+    # Respond with redirect to url without trailing slash
+    return HTTPMovedPermanently(
+        request.route_path(
+            "legacy.api.json.latest",
+            name=project.name,
+        ),
+        headers=_CORS_HEADERS,
+    )
+
+
+@view_config(
+    route_name="legacy.api.json.latest_stable",
+    context=Project,
+    renderer="json",
+    decorator=_CACHE_DECORATOR,
+)
+def json_latest_stable(project, request):
+    release = project.latest_stable_version
+
+    if release is None:
+        return HTTPNotFound(headers=_CORS_HEADERS)
+
+    return json_release(release, request)
+
+
+@view_config(
+    route_name="legacy.api.json.latest_stable_slash",
+    context=Project,
+    decorator=_CACHE_DECORATOR,
+)
+def json_latest_stable_slash(project, request):
+    # Respond with redirect to url without trailing slash
+    return HTTPMovedPermanently(
+        request.route_path(
+            "legacy.api.json.latest_stable",
+            name=project.name,
+        ),
+        headers=_CORS_HEADERS,
+    )
+
+
+@view_config(
+    route_name="legacy.api.json.latest_unstable",
+    context=Project,
+    renderer="json",
+    decorator=_CACHE_DECORATOR,
+)
+def json_latest_unstable(project, request):
+    release = project.latest_unstable_version
+
+    if release is None:
+        return HTTPNotFound(headers=_CORS_HEADERS)
+
+    return json_release(release, request)
+
+
+@view_config(
+    route_name="legacy.api.json.latest_unstable_slash",
+    context=Project,
+    decorator=_CACHE_DECORATOR,
+)
+def json_latest_unstable_slash(project, request):
+    # Respond with redirect to url without trailing slash
+    return HTTPMovedPermanently(
+        request.route_path(
+            "legacy.api.json.latest_unstable",
+            name=project.name,
+        ),
+        headers=_CORS_HEADERS,
+    )

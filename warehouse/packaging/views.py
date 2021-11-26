@@ -10,7 +10,11 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from pyramid.httpexceptions import HTTPMovedPermanently, HTTPNotFound
+from pyramid.httpexceptions import (
+    HTTPMovedPermanently,
+    HTTPNotFound,
+    HTTPTemporaryRedirect,
+)
 from pyramid.view import view_config
 from sqlalchemy.orm.exc import NoResultFound
 
@@ -51,6 +55,63 @@ def project_detail(project, request):
         raise HTTPNotFound
 
     return release_detail(release, request)
+
+
+@view_config(
+    route_name="packaging.project_latest",
+    context=Project,
+)
+def project_latest(project, request):
+    release = project.latest_version
+
+    if release:
+        return HTTPTemporaryRedirect(
+            request.route_path(
+                "packaging.release",
+                name=project.name,
+                version=release.version,
+            )
+        )
+    else:
+        return HTTPNotFound()
+
+
+@view_config(
+    route_name="packaging.project_latest_stable",
+    context=Project,
+)
+def project_latest_stable(project, request):
+    release = project.latest_stable_version
+
+    if release:
+        return HTTPTemporaryRedirect(
+            request.route_path(
+                "packaging.release",
+                name=project.name,
+                version=release.version,
+            )
+        )
+    else:
+        return HTTPNotFound()
+
+
+@view_config(
+    route_name="packaging.project_latest_unstable",
+    context=Project,
+)
+def project_latest_unstable(project, request):
+    release = project.latest_unstable_version
+
+    if release:
+        return HTTPTemporaryRedirect(
+            request.route_path(
+                "packaging.release",
+                name=project.name,
+                version=release.version,
+            )
+        )
+    else:
+        return HTTPNotFound()
 
 
 @view_config(

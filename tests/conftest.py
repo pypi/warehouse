@@ -14,7 +14,7 @@ import os
 import os.path
 import xmlrpc.client
 
-from collections import defaultdict
+from collections import defaultdict, namedtuple
 from contextlib import contextmanager
 from unittest import mock
 
@@ -37,6 +37,7 @@ from warehouse.macaroons import services as macaroon_services
 from warehouse.metrics import IMetricsService
 
 from .common.db import Session
+from .common.db.packaging import ProjectFactory, ReleaseFactory
 
 
 def pytest_collection_modifyitems(items):
@@ -339,3 +340,49 @@ def monkeypatch_session():
     m = MonkeyPatch()
     yield m
     m.undo()
+
+
+# Standardized dummy projects for testing version-search
+# behavior under different stable/prerelease circumstances.
+# In particular, created to support the 'latest' endpoints of
+# https://github.com/pypa/warehouse/pull/8615
+
+ProjectData = namedtuple("ProjectData", ["project", "latest_stable", "latest_pre"])
+
+
+@pytest.fixture
+def project_no_pre():
+    project = ProjectFactory.create()
+
+    ReleaseFactory.create(project=project, version="1.0")
+    ReleaseFactory.create(project=project, version="2.0")
+    latest_stable = ReleaseFactory.create(project=project, version="3.0")
+
+    return ProjectData(project=project, latest_stable=latest_stable, latest_pre=None)
+
+
+@pytest.fixture
+def project_with_pre():
+    project = ProjectFactory.create()
+
+    ReleaseFactory.create(project=project, version="1.0")
+    ReleaseFactory.create(project=project, version="2.0")
+
+    latest_stable = ReleaseFactory.create(project=project, version="3.0")
+    latest_pre = ReleaseFactory.create(project=project, version="4.0.dev0")
+
+    return ProjectData(
+        project=project, latest_stable=latest_stable, latest_pre=latest_pre
+    )
+
+
+@pytest.fixture
+def project_only_pre():
+    project = ProjectFactory.create()
+
+    ReleaseFactory.create(project=project, version="1.0.dev0")
+    ReleaseFactory.create(project=project, version="2.0.dev0")
+
+    latest_pre = ReleaseFactory.create(project=project, version="3.0.dev0")
+
+    return ProjectData(project=project, latest_stable=None, latest_pre=latest_pre)

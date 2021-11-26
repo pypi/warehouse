@@ -36,6 +36,27 @@ Here are some tips.
   ``https://pypi.org/pypi/{name}`` (with or without a trailing slash)
   redirects to ``https://pypi.org/project/{name}/``.
 
+* The PyPI page for a specific version of project ``{name}`` can be
+  reached via ``https://pypi.org/project/{name}/{version}/``.
+
+    * E.g., for Django v2.0, browse to
+      ``https://pypi.org/project/Django/2.0``.
+
+    * Special redirects for various flavors of the latest available
+      version of ``{name}`` have been implemented, with version selection
+      semantics identical to the analogous
+      :ref:`JSON endpoints <api_json_latest>`:
+
+        * ``https://pypi.org/project/{name}/latest/``:
+          Latest non-prerelease version if any exists;
+          else, latest pre-release version.
+
+        * ``https://pypi.org/project/{name}/latest-stable/``:
+          Latest non-prerelease version.
+
+        * ``https://pypi.org/project/{name}/latest-unstable/``
+          Latest version regardless of pre-release status.
+
 * Shorter URL: ``https://pypi.org/p/{name}/`` will redirect to
   ``https://pypi.org/project/{name}/``.
 
