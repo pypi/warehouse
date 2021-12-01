@@ -164,9 +164,10 @@ Project
 
     :statuscode 200: no error
 
-    The ``vulnerabilities`` array is always empty for this endpoint. To get a list
-    of known vulnerabilities for a version of a project, refer to the endpoint
-    documented below.
+    On this endpoint, the ``vulnerabilities`` array provides a listing for
+    any known vulnerabilities in the most recent release (none, for the example
+    above). Use the release-specific endpoint documented below for precise
+    control over this field.
 
 Release
 -------
