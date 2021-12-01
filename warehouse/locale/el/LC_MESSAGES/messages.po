@@ -369,13 +369,13 @@ msgstr "Monty Python - The Cheese Shop Sketch"
 #: warehouse/templates/404.html:34 warehouse/templates/500.html:28
 #: warehouse/templates/500.html:29
 #: warehouse/templates/accounts/two-factor.html:55
-#: warehouse/templates/base.html:268 warehouse/templates/base.html:269
-#: warehouse/templates/base.html:270 warehouse/templates/base.html:280
-#: warehouse/templates/base.html:281 warehouse/templates/base.html:282
-#: warehouse/templates/base.html:293 warehouse/templates/base.html:294
-#: warehouse/templates/base.html:295 warehouse/templates/base.html:304
-#: warehouse/templates/base.html:306 warehouse/templates/base.html:317
-#: warehouse/templates/base.html:326
+#: warehouse/templates/base.html:273 warehouse/templates/base.html:274
+#: warehouse/templates/base.html:275 warehouse/templates/base.html:285
+#: warehouse/templates/base.html:286 warehouse/templates/base.html:287
+#: warehouse/templates/base.html:298 warehouse/templates/base.html:299
+#: warehouse/templates/base.html:300 warehouse/templates/base.html:309
+#: warehouse/templates/base.html:311 warehouse/templates/base.html:322
+#: warehouse/templates/base.html:331
 #: warehouse/templates/includes/accounts/profile-actions.html:21
 #: warehouse/templates/includes/accounts/profile-actions.html:30
 #: warehouse/templates/includes/accounts/profile-callout.html:18
@@ -394,7 +394,7 @@ msgstr "Monty Python - The Cheese Shop Sketch"
 #: warehouse/templates/manage/release.html:175
 #: warehouse/templates/manage/releases.html:140
 #: warehouse/templates/manage/releases.html:173
-#: warehouse/templates/packaging/detail.html:318
+#: warehouse/templates/packaging/detail.html:317
 #: warehouse/templates/pages/classifiers.html:25
 #: warehouse/templates/pages/help.html:20
 #: warehouse/templates/pages/help.html:207
@@ -550,7 +550,7 @@ msgid "Main navigation"
 msgstr "Κύρια πλοήγηση"
 
 #: warehouse/templates/base.html:41 warehouse/templates/base.html:55
-#: warehouse/templates/base.html:265
+#: warehouse/templates/base.html:270
 #: warehouse/templates/includes/current-user-indicator.html:55
 #: warehouse/templates/pages/help.html:105
 #: warehouse/templates/pages/sitemap.html:27
@@ -605,16 +605,16 @@ msgstr "RSS: 40 τελευταίες ενημερώσεις"
 msgid "RSS: 40 newest packages"
 msgstr "RSS: 40 νέα πακέτα"
 
-#: warehouse/templates/base.html:150
+#: warehouse/templates/base.html:155
 msgid "Skip to main content"
 msgstr "Μετάβαση στο κυρίως περιεχόμενο"
 
-#: warehouse/templates/base.html:153
+#: warehouse/templates/base.html:158
 msgid "Switch to mobile version"
 msgstr "Αλλαγή στην έκδοση για κινητά"
 
-#: warehouse/templates/base.html:162 warehouse/templates/base.html:171
-#: warehouse/templates/base.html:181
+#: warehouse/templates/base.html:167 warehouse/templates/base.html:176
+#: warehouse/templates/base.html:186
 #: warehouse/templates/includes/session-notifications.html:19
 #: warehouse/templates/manage/account.html:789
 #: warehouse/templates/manage/documentation.html:27
@@ -625,13 +625,13 @@ msgstr "Αλλαγή στην έκδοση για κινητά"
 msgid "Warning"
 msgstr "Προειδοποίηση"
 
-#: warehouse/templates/base.html:164
+#: warehouse/templates/base.html:169
 msgid "You are using an unsupported browser, upgrade to a newer version."
 msgstr ""
 "Χρησιμοποιείτε ένα μη υποστηριζόμενο περιηγητή. Αναβαθμίστε τον σε μια "
 "νεώτερη έκδοση."
 
-#: warehouse/templates/base.html:173
+#: warehouse/templates/base.html:178
 msgid ""
 "You are using TestPyPI – a separate instance of the Python Package Index "
 "that allows you to try distribution tools and processes without affecting "
@@ -641,7 +641,7 @@ msgstr ""
 "Index η οποία σας επιτρέπει να δοκιμάσετε τα εργαλεία διανομής καθώς και τις "
 "διεργασίες χωρίς να επηρεάζεται η πραγματική βάση δεδομένων."
 
-#: warehouse/templates/base.html:183
+#: warehouse/templates/base.html:188
 msgid ""
 "Some features may not work without JavaScript. Please try enabling it if you "
 "encounter problems."
@@ -649,139 +649,139 @@ msgstr ""
 "Μερικά χαρακτηριστικά δεν θα λειτουργούν χωρίς την JavaScript. Αν "
 "αντιμετωπίζετε προβλήματα, παρακαλούμε, ενεργοποιήστε την."
 
-#: warehouse/templates/base.html:221 warehouse/templates/base.html:242
+#: warehouse/templates/base.html:226 warehouse/templates/base.html:247
 #: warehouse/templates/error-base-with-search.html:20
 #: warehouse/templates/index.html:55
 msgid "Search PyPI"
 msgstr "Αναζήτηση στο PyPI"
 
-#: warehouse/templates/base.html:222 warehouse/templates/base.html:243
+#: warehouse/templates/base.html:227 warehouse/templates/base.html:248
 #: warehouse/templates/error-base-with-search.html:21
 #: warehouse/templates/index.html:58
 msgid "Search projects"
 msgstr "Αναζήτηση projects"
 
-#: warehouse/templates/base.html:226 warehouse/templates/base.html:247
+#: warehouse/templates/base.html:231 warehouse/templates/base.html:252
 #: warehouse/templates/error-base-with-search.html:24
 #: warehouse/templates/index.html:62
 msgid "Search"
 msgstr "Αναζήτηση"
 
-#: warehouse/templates/base.html:266
+#: warehouse/templates/base.html:271
 msgid "Help navigation"
 msgstr "Βοήθεια πλοήγησης"
 
-#: warehouse/templates/base.html:268
+#: warehouse/templates/base.html:273
 msgid "Installing packages"
 msgstr "Εγκατάσταση πακέτων"
 
-#: warehouse/templates/base.html:269
+#: warehouse/templates/base.html:274
 msgid "Uploading packages"
 msgstr "Ανέβασμα πακέτων"
 
-#: warehouse/templates/base.html:270
+#: warehouse/templates/base.html:275
 msgid "User guide"
 msgstr "Οδηγός χρήστη"
 
-#: warehouse/templates/base.html:271
+#: warehouse/templates/base.html:276
 msgid "FAQs"
 msgstr "FAQs"
 
-#: warehouse/templates/base.html:277 warehouse/templates/pages/sitemap.html:37
+#: warehouse/templates/base.html:282 warehouse/templates/pages/sitemap.html:37
 msgid "About PyPI"
 msgstr "Σχετικά με το PyPI"
 
-#: warehouse/templates/base.html:278
+#: warehouse/templates/base.html:283
 msgid "About PyPI navigation"
 msgstr "Σχετικά με την πλοήγηση στο PyPI"
 
-#: warehouse/templates/base.html:280
+#: warehouse/templates/base.html:285
 msgid "PyPI on Twitter"
 msgstr "Το PyPI στο Twitter"
 
-#: warehouse/templates/base.html:281
+#: warehouse/templates/base.html:286
 msgid "Infrastructure dashboard"
 msgstr "Ταμπλό υποδομής"
 
-#: warehouse/templates/base.html:282
+#: warehouse/templates/base.html:287
 msgid "Package index name retention"
 msgstr "Αρχείο ονομάτων πακέτων"
 
-#: warehouse/templates/base.html:283
+#: warehouse/templates/base.html:288
 msgid "Our sponsors"
 msgstr "Οι χορηγοί μας"
 
-#: warehouse/templates/base.html:289
+#: warehouse/templates/base.html:294
 msgid "Contributing to PyPI"
 msgstr "Συνεισφορά στο PyPI"
 
-#: warehouse/templates/base.html:290
+#: warehouse/templates/base.html:295
 msgid "How to contribute navigation"
 msgstr "Πλοήγηση στο πως να συνεισφέρετε"
 
-#: warehouse/templates/base.html:292
+#: warehouse/templates/base.html:297
 msgid "Bugs and feedback"
 msgstr "Σφάλματα και ανατροφοδότηση"
 
-#: warehouse/templates/base.html:293
+#: warehouse/templates/base.html:298
 msgid "Contribute on GitHub"
 msgstr "Συνεισφέρετε στο GitHub"
 
-#: warehouse/templates/base.html:294
+#: warehouse/templates/base.html:299
 msgid "Translate PyPI"
 msgstr "Μεταφράστε το PyPI"
 
-#: warehouse/templates/base.html:295
+#: warehouse/templates/base.html:300
 msgid "Development credits"
 msgstr "Έπαινοι ανάπτυξης"
 
-#: warehouse/templates/base.html:301 warehouse/templates/pages/sitemap.html:23
+#: warehouse/templates/base.html:306 warehouse/templates/pages/sitemap.html:23
 msgid "Using PyPI"
 msgstr "Χρησιμοποιώντας το PyPI"
 
-#: warehouse/templates/base.html:302
+#: warehouse/templates/base.html:307
 msgid "Using PyPI navigation"
 msgstr "Χρησιμοποιώντας την πλοήγηση του PyPI"
 
-#: warehouse/templates/base.html:304
+#: warehouse/templates/base.html:309
 msgid "Code of conduct"
 msgstr "Κώδικας δεοντολογίας"
 
-#: warehouse/templates/base.html:305
+#: warehouse/templates/base.html:310
 msgid "Report security issue"
 msgstr "Αναφορά θέματος ασφάλειας"
 
-#: warehouse/templates/base.html:306
+#: warehouse/templates/base.html:311
 msgid "Privacy policy"
 msgstr "Πολιτική απορρήτου"
 
-#: warehouse/templates/base.html:307 warehouse/templates/pages/sitemap.html:43
+#: warehouse/templates/base.html:312 warehouse/templates/pages/sitemap.html:43
 msgid "Terms of use"
 msgstr "Όροι χρήσης"
 
-#: warehouse/templates/base.html:317
+#: warehouse/templates/base.html:322
 msgid "Status: "
 msgstr "Κατάσταση: "
 
-#: warehouse/templates/base.html:318
+#: warehouse/templates/base.html:323
 msgid "all systems operational"
 msgstr "όλα τα συστήματα δουλεύουν"
 
-#: warehouse/templates/base.html:322
+#: warehouse/templates/base.html:327
 msgid ""
 "Developed and maintained by the Python community, for the Python community."
 msgstr ""
 "Ανάπτυξη και υποστήριξη από την κοινότητα Python, για την κοινότητα Python."
 
-#: warehouse/templates/base.html:324
+#: warehouse/templates/base.html:329
 msgid "Donate today!"
 msgstr "Δωρίστε σήμερα!"
 
-#: warehouse/templates/base.html:327 warehouse/templates/pages/sitemap.html:16
+#: warehouse/templates/base.html:332 warehouse/templates/pages/sitemap.html:16
 msgid "Site map"
 msgstr "Χάρτης ιστότοπου"
 
-#: warehouse/templates/base.html:333
+#: warehouse/templates/base.html:338
 msgid "Switch to desktop version"
 msgstr "Μετάβαση στην έκδοση για υπολογιστές"
 
@@ -2387,7 +2387,7 @@ msgstr "Μέθοδος δύο-παραγόντων:"
 
 #: warehouse/templates/manage/account.html:568
 #: warehouse/templates/manage/release.html:58
-#: warehouse/templates/packaging/detail.html:350
+#: warehouse/templates/packaging/detail.html:349
 msgid "None"
 msgstr "None"
 
@@ -3010,7 +3010,7 @@ msgstr "Αυτό το project δεν έχει κυκλοφορίες"
 
 #: warehouse/templates/manage/projects.html:104
 #: warehouse/templates/manage/releases.html:94
-#: warehouse/templates/packaging/detail.html:360
+#: warehouse/templates/packaging/detail.html:359
 msgid "View"
 msgstr "Προβολή"
 
@@ -3056,8 +3056,8 @@ msgstr "Αρχεία για την έκδοση %(version)s του %(project_nam
 
 #: warehouse/templates/manage/release.html:37
 #: warehouse/templates/manage/release.html:48
-#: warehouse/templates/packaging/detail.html:324
-#: warehouse/templates/packaging/detail.html:335
+#: warehouse/templates/packaging/detail.html:323
+#: warehouse/templates/packaging/detail.html:334
 msgid "Filename, size"
 msgstr "Όνομα αρχείου, μέγεθος"
 
@@ -3068,15 +3068,15 @@ msgstr "Τύπος"
 
 #: warehouse/templates/manage/release.html:39
 #: warehouse/templates/manage/release.html:57
-#: warehouse/templates/packaging/detail.html:326
-#: warehouse/templates/packaging/detail.html:346
+#: warehouse/templates/packaging/detail.html:325
+#: warehouse/templates/packaging/detail.html:345
 msgid "Python version"
 msgstr "Έκδοση Python"
 
 #: warehouse/templates/manage/release.html:40
 #: warehouse/templates/manage/release.html:61
-#: warehouse/templates/packaging/detail.html:327
-#: warehouse/templates/packaging/detail.html:354
+#: warehouse/templates/packaging/detail.html:326
+#: warehouse/templates/packaging/detail.html:353
 msgid "Upload date"
 msgstr "Ημερομηνία μεταφόρτωσης"
 
@@ -4057,79 +4057,79 @@ msgid "Navigation"
 msgstr "Πλοήγηση"
 
 #: warehouse/templates/packaging/detail.html:174
-#: warehouse/templates/packaging/detail.html:206
+#: warehouse/templates/packaging/detail.html:205
 #, python-format
 msgid "Navigation for %(project)s"
 msgstr "Πλοήγηση για το %(project)s"
 
 #: warehouse/templates/packaging/detail.html:177
-#: warehouse/templates/packaging/detail.html:209
+#: warehouse/templates/packaging/detail.html:208
 msgid "Project description. Focus will be moved to the description."
 msgstr "Περιγραφή project. Η εστίαση θα μεταφερθεί στην περιγραφή."
 
 #: warehouse/templates/packaging/detail.html:179
-#: warehouse/templates/packaging/detail.html:211
-#: warehouse/templates/packaging/detail.html:239
+#: warehouse/templates/packaging/detail.html:210
+#: warehouse/templates/packaging/detail.html:238
 msgid "Project description"
 msgstr "Περιγραφή project"
 
 #: warehouse/templates/packaging/detail.html:183
-#: warehouse/templates/packaging/detail.html:221
+#: warehouse/templates/packaging/detail.html:220
 msgid "Release history. Focus will be moved to the history panel."
 msgstr "Ιστορικό εκδόσεων. Η εστίαση θα μεταφερθεί στον πίνακα ιστορικού."
 
 #: warehouse/templates/packaging/detail.html:185
-#: warehouse/templates/packaging/detail.html:223
-#: warehouse/templates/packaging/detail.html:261
+#: warehouse/templates/packaging/detail.html:222
+#: warehouse/templates/packaging/detail.html:260
 msgid "Release history"
 msgstr "Ιστορικό εκδόσεων"
 
 #: warehouse/templates/packaging/detail.html:190
-#: warehouse/templates/packaging/detail.html:228
+#: warehouse/templates/packaging/detail.html:227
 msgid "Download files. Focus will be moved to the project files."
 msgstr "Κατέβασμα αρχείων. Η εστίαση θα μεταφερθεί στα αρχεία του project."
 
 #: warehouse/templates/packaging/detail.html:192
-#: warehouse/templates/packaging/detail.html:230
-#: warehouse/templates/packaging/detail.html:317
+#: warehouse/templates/packaging/detail.html:229
+#: warehouse/templates/packaging/detail.html:316
 msgid "Download files"
 msgstr "Κατέβασμα αρχείων"
 
-#: warehouse/templates/packaging/detail.html:215
+#: warehouse/templates/packaging/detail.html:214
 msgid "Project details. Focus will be moved to the project details."
 msgstr ""
 "Λεπτομέρειες project. Η εστίαση θα μεταφερθεί στις λεπτομέρειες του ptoject."
 
-#: warehouse/templates/packaging/detail.html:217
-#: warehouse/templates/packaging/detail.html:253
+#: warehouse/templates/packaging/detail.html:216
+#: warehouse/templates/packaging/detail.html:252
 msgid "Project details"
 msgstr "Λεπτομέρειες project"
 
-#: warehouse/templates/packaging/detail.html:246
+#: warehouse/templates/packaging/detail.html:245
 msgid "The author of this package has not provided a project description"
 msgstr "Ο κάτοχος αυτού του πακέτου δεν εισήγαγε περιγραφή για το project"
 
-#: warehouse/templates/packaging/detail.html:263
+#: warehouse/templates/packaging/detail.html:262
 msgid "Release notifications"
 msgstr "Ειδοποιήσεις εκδόσεων"
 
-#: warehouse/templates/packaging/detail.html:264
+#: warehouse/templates/packaging/detail.html:263
 msgid "RSS feed"
 msgstr ""
 
-#: warehouse/templates/packaging/detail.html:276
+#: warehouse/templates/packaging/detail.html:275
 msgid "This version"
 msgstr "Αυτή η έκδοση"
 
-#: warehouse/templates/packaging/detail.html:296
+#: warehouse/templates/packaging/detail.html:295
 msgid "pre-release"
 msgstr "προ-έκδοση"
 
-#: warehouse/templates/packaging/detail.html:301
+#: warehouse/templates/packaging/detail.html:300
 msgid "yanked"
 msgstr ""
 
-#: warehouse/templates/packaging/detail.html:318
+#: warehouse/templates/packaging/detail.html:317
 #, python-format
 msgid ""
 "Download the file for your platform. If you're not sure which to choose, "
@@ -4140,18 +4140,18 @@ msgstr ""
 "μάθετε περισσότερα στη σελίδα <a href=\"%(href)s\" title=\"%(title)s\" "
 "target=\"_blank\" rel=\"noopener\">εγκατάσταση πακέτων</a>."
 
-#: warehouse/templates/packaging/detail.html:321
+#: warehouse/templates/packaging/detail.html:320
 #, python-format
 msgid "Files for %(project_name)s, version %(version)s"
 msgstr "Αρχεία για το %(project_name)s, έκδοση %(version)s"
 
-#: warehouse/templates/packaging/detail.html:325
-#: warehouse/templates/packaging/detail.html:342
+#: warehouse/templates/packaging/detail.html:324
+#: warehouse/templates/packaging/detail.html:341
 msgid "File type"
 msgstr "Τύπος αρχείου"
 
-#: warehouse/templates/packaging/detail.html:328
-#: warehouse/templates/packaging/detail.html:358
+#: warehouse/templates/packaging/detail.html:327
+#: warehouse/templates/packaging/detail.html:357
 msgid "Hashes"
 msgstr "Hashes"
 
