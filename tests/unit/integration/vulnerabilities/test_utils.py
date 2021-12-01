@@ -12,7 +12,7 @@
 
 import collections
 
-import factory.fuzzy
+import faker
 import pretend
 import pytest
 
@@ -259,7 +259,7 @@ def test_analyze_vulnerability_project_not_found(db_request, metrics):
         utils.analyze_vulnerability(
             request=db_request,
             vulnerability_report={
-                "project": factory.fuzzy.FuzzyText(length=8).fuzz(),
+                "project": faker.Faker().text(max_nb_chars=8),
                 "versions": ["1", "2"],
                 "id": "vuln_id",
                 "link": "vulns.com/vuln_id",
