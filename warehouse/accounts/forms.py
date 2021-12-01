@@ -16,7 +16,7 @@ from email.errors import HeaderParseError
 from email.headerregistry import Address
 
 import disposable_email_domains
-import jinja2
+import markupsafe
 import wtforms
 import wtforms.fields
 import wtforms.fields.html5
@@ -181,7 +181,7 @@ class NewPasswordMixin:
             field.data, tags=["method:new_password"]
         ):
             raise wtforms.validators.ValidationError(
-                jinja2.Markup(self._breach_service.failure_message)
+                markupsafe.Markup(self._breach_service.failure_message)
             )
 
 
@@ -278,7 +278,7 @@ class LoginForm(PasswordMixin, UsernameMixin, forms.Form):
             is_disabled, disabled_for = self.user_service.is_disabled(userid)
             if is_disabled and disabled_for == DisableReason.CompromisedPassword:
                 raise wtforms.validators.ValidationError(
-                    jinja2.Markup(self.breach_service.failure_message)
+                    markupsafe.Markup(self.breach_service.failure_message)
                 )
 
         # Do our typical validation of the password.
@@ -297,7 +297,7 @@ class LoginForm(PasswordMixin, UsernameMixin, forms.Form):
                     user.id, reason=DisableReason.CompromisedPassword
                 )
                 raise wtforms.validators.ValidationError(
-                    jinja2.Markup(self.breach_service.failure_message)
+                    markupsafe.Markup(self.breach_service.failure_message)
                 )
 
 
