@@ -18,7 +18,7 @@ from urllib.parse import urlparse
 import packaging.utils
 
 from citext import CIText
-from pyramid.security import Allow
+from pyramid.authorization import Allow
 from pyramid.threadlocal import get_current_request
 from sqlalchemy import (
     BigInteger,
