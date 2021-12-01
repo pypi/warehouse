@@ -12,13 +12,4 @@
  # limitations under the License.
 -#}
 
-{% set sponsor = request.sponsors | selectattr("sidebar", "equalto", true) | list | random %}
-
-<div class="sponsor-grid__sponsor">
-  <div class="sponsor-grid__sponsor-img">
-    {{ sponsor.color_logo_img|camoify|safe }}
-  </div>
-  <div class="sponsor-grid__sponsor-activity">
-  {{ sponsor.activity|safe }}
-  </div>
-</div>
+<div class="sidebar-section" data-ea-publisher="psf" data-ea-type="psf" data-ea-keywords="pypi-sidebar"></div>
