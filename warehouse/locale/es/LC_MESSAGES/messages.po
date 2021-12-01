@@ -13,7 +13,7 @@ msgstr ""
 "Project-Id-Version: Warehouse VERSION\n"
 "Report-Msgid-Bugs-To: admin@pypi.org\n"
 "POT-Creation-Date: 2020-04-06 17:52-0500\n"
-"PO-Revision-Date: 2021-08-09 11:34+0000\n"
+"PO-Revision-Date: 2021-11-29 18:25+0000\n"
 "Last-Translator: Adolfo Jayme Barrientos <fitojb@ubuntu.com>\n"
 "Language-Team: Spanish <https://hosted.weblate.org/projects/pypa/warehouse/"
 "es/>\n"
@@ -22,7 +22,7 @@ msgstr ""
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Generator: Weblate 4.8-dev\n"
+"X-Generator: Weblate 4.10-dev\n"
 "Generated-By: Babel 2.8.0\n"
 
 #: warehouse/views.py:254
@@ -129,17 +129,14 @@ msgstr ""
 "verificarlas. Revise su buzón y siga los enlaces de verificación. (IP: ${ip})"
 
 #: warehouse/accounts/views.py:106
-#, fuzzy
-#| msgid ""
-#| "Too many emails have been added to this account without verifying them. "
-#| "Check your inbox and follow the verification links. (IP: ${ip})"
 msgid ""
 "Too many password resets have been requested for this account without "
 "completing them. Check your inbox and follow the verification links. (IP: "
 "${ip})"
 msgstr ""
-"Se han añadido demasiadas direcciones de correo a la cuenta sin "
-"verificarlas. Revise su buzón y siga los enlaces de verificación. (IP: ${ip})"
+"Se han solicitado demasiados restablecimientos de contraseña para esta "
+"cuenta sin completarlos. Revise su buzón y siga los enlaces de verificación. "
+"(IP: ${ip})"
 
 #: warehouse/accounts/views.py:246 warehouse/accounts/views.py:306
 #: warehouse/accounts/views.py:308 warehouse/accounts/views.py:335
@@ -2357,11 +2354,11 @@ msgstr "Código de recuperación"
 
 #: warehouse/templates/manage/account.html:579
 msgid "Login failed"
-msgstr ""
+msgstr "Falló el acceso"
 
 #: warehouse/templates/manage/account.html:582
 msgid "- Basic Auth (Upload endpoint)"
-msgstr ""
+msgstr "- Autenticación básica (extremo de carga)"
 
 #: warehouse/templates/manage/account.html:587
 #: warehouse/templates/manage/account.html:604
@@ -2371,34 +2368,24 @@ msgstr "Razón:"
 
 #: warehouse/templates/manage/account.html:589
 #: warehouse/templates/manage/account.html:606
-#, fuzzy
-#| msgid "Your current password"
 msgid "Incorrect Password"
-msgstr "Su contraseña actual"
+msgstr "Contraseña incorrecta"
 
 #: warehouse/templates/manage/account.html:591
-#, fuzzy
-#| msgid "Invalid or expired two factor login."
 msgid "Invalid two factor (TOTP)"
-msgstr "El acceso en dos fases no es válido o ha caducado."
+msgstr "Acceso en dos fases no válido (TOTP)."
 
 #: warehouse/templates/manage/account.html:593
-#, fuzzy
-#| msgid "Invalid or expired two factor login."
 msgid "Invalid two factor (WebAuthn)"
-msgstr "El acceso en dos fases no es válido o ha caducado."
+msgstr "Acceso en dos fases no válido (WebAuthn)"
 
 #: warehouse/templates/manage/account.html:595
-#, fuzzy
-#| msgid "Invalid recovery code."
 msgid "Invalid two factor (Recovery code)"
-msgstr "El código de recuperación no es válido."
+msgstr "Acceso en dos fases no válido (código de recuperación)"
 
 #: warehouse/templates/manage/account.html:602
-#, fuzzy
-#| msgid "Two factor authentication added"
 msgid "Session reauthentication failed"
-msgstr "Adición de autenticación en dos fases"
+msgstr "Falló la reautenticación de la sesión"
 
 #: warehouse/templates/manage/account.html:613
 msgid "Email added to account"
@@ -3500,8 +3487,6 @@ msgid "Project settings"
 msgstr "Configuración del proyecto"
 
 #: warehouse/templates/manage/settings.html:23
-#, fuzzy
-#| msgid "Project size :"
 msgid "Project size:"
 msgstr "Tamaño del proyecto:"
 
@@ -4354,6 +4339,8 @@ msgid ""
 "Where does PyPI get its data on project vulnerabilities from, and how can I "
 "correct it?"
 msgstr ""
+"¿De dónde obtiene PyPI sus datos sobre vulnerabilidades en los proyectos? ¿"
+"Cómo la corrijo?"
 
 #: warehouse/templates/pages/help.html:88
 msgid ""
@@ -5538,13 +5525,7 @@ msgid "The total size of your project, in gigabytes"
 msgstr "El tamaño total de su proyecto, en gigabytes"
 
 #: warehouse/templates/pages/help.html:612
-#, fuzzy, python-format
-#| msgid ""
-#| "To learn how to install a file from PyPI, visit the <a href="
-#| "\"%(installation_href)s\" title=\"%(title)s\" target=\"_blank\" rel="
-#| "\"noopener\">installation tutorial</a> on the <a href="
-#| "\"%(user_guide_href)s\" title=\"%(title)s\" target=\"_blank\" rel="
-#| "\"noopener\">Python Packaging User Guide</a>."
+#, python-format
 msgid ""
 "PyPI receives reports on vulnerabilities in the packages hosted on it from "
 "the <a href=\"%(osv_href)s\" title=\"%(title)s\" target=\"_blank\" rel="
@@ -5552,26 +5533,24 @@ msgid ""
 "vulnerabilities from the <a href=\"%(vulns_href)s\" title=\"%(title)s\" "
 "target=\"_blank\" rel=\"noopener\">Python Packaging Advisory Database</a>."
 msgstr ""
-"Para aprender a instalar un archivo proveniente de PyPI, visite el <a href="
-"\"%(installation_href)s\" title=\"%(title)s\" target=\"_blank\" rel="
-"\"noopener\">tutorial de instalación</a> en el <a href=\"%(user_guide_href)s"
-"\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">manual de uso del "
-"empaquetamiento de Python</a>."
+"PyPI recibe informes sobre vulnerabilidades en los paquetes que alberga del "
+"<a href=\"%(osv_href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener"
+"\">proyecto Open Source Vulnerabilities</a>, que a su vez recibe las "
+"vulnerabilidades de la <a href=\"%(vulns_href)s\" title=\"%(title)s\" target="
+"\"_blank\" rel=\"noopener\">Base de datos de avisos de empaquetamiento de "
+"Python</a>."
 
 #: warehouse/templates/pages/help.html:617
-#, fuzzy, python-format
-#| msgid ""
-#| "If that is not possible, we can sometimes increase your limit. <a href="
-#| "\"%(file_issue_href)s\" title=\"%(title)s\" target=\"_blank\" rel="
-#| "\"noopener\">File an issue</a> and tell us:"
+#, python-format
 msgid ""
 "If you believe vulnerability data for your project is invalid or incorrect, "
 "<a href=\"%(file_issue_href)s\" title=\"%(title)s\" target=\"_blank\" rel="
 "\"noopener\">file an issue</a> with details."
 msgstr ""
-"Si eso no es posible, en ocasiones podremos aumentar su límite. <a href="
-"\"%(file_issue_href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener"
-"\">Cree un informe</a> y cuéntenos su situación:"
+"Si cree que los datos de vulnerabilidades sobre su proyecto no son válidos o "
+"correctos, <a href=\"%(file_issue_href)s\" title=\"%(title)s\" target="
+"\"_blank\" rel=\"noopener\">envíe un informe de error</a> y proporcione "
+"detalles al respecto."
 
 #: warehouse/templates/pages/help.html:628
 msgid ""
