@@ -202,6 +202,7 @@ def test_includeme():
                         "'self'",
                         "https://api.github.com/repos/",
                         "*.fastly-insights.com",
+                        "*.ethicalads.io",
                         "sentry.io",
                         "https://api.pwnedpasswords.com",
                         "https://2p66nmmycsj3.statuspage.io",
