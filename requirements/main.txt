@@ -269,9 +269,9 @@ docutils==0.17.1 \
     --hash=sha256:686577d2e4c32380bb50cbb22f575ed742d58168cee37e99117a854bcd88f125 \
     --hash=sha256:cf316c8370a737a022b72b56874f6602acf974a37a9fba42ec2876387549fc61
     # via readme-renderer
-elasticsearch==7.10.1 \
-    --hash=sha256:4ebd34fd223b31c99d9f3b6b6236d3ac18b3046191a37231e8235b06ae7db955 \
-    --hash=sha256:a725dd923d349ca0652cf95d6ce23d952e2153740cf4ab6daf4a2d804feeed48
+elasticsearch==7.15.2 \
+    --hash=sha256:436f871848a5020bf9b47495812b229b59bd0c5d7e40adbd5e3c89896b311704 \
+    --hash=sha256:83c299a08fc8737c72454e6d3b2a01ba1b194e4f4d9e4f8bae7058cec326f39f
     # via
     #   -r requirements/main.in
     #   elasticsearch-dsl
@@ -308,9 +308,9 @@ google-cloud-bigquery==2.30.1 \
     --hash=sha256:4e3b5e3dcc475d5a601d84872ac0b63e059540be2251b1c4165c51106d572855 \
     --hash=sha256:c62d601aa0f62388e1909d11de40db7597b02fb8602ccb7f21a3ac2a0997495b
     # via -r requirements/main.in
-google-cloud-core==2.1.0 \
-    --hash=sha256:35a1f5f02a86e0fa2e28c669f0db4a76d928671a28fbbbb493ab59ba9d1cb9a9 \
-    --hash=sha256:8d5fed11731dae8bc8656a2c9fa8ff17bdfdfd083cba97569324e35b94e7e002
+google-cloud-core==2.2.1 \
+    --hash=sha256:476d1f71ab78089e0638e0aaf34bfdc99bab4fce8f4170ba6321a5243d13c5c7 \
+    --hash=sha256:ab6cee07791afe4e210807ceeab749da6a076ab16d496ac734bf7e6ffea27486
     # via
     #   google-cloud-bigquery
     #   google-cloud-storage
@@ -549,9 +549,9 @@ itsdangerous==1.1.0 \
     --hash=sha256:321b033d07f2a4136d3ec762eac9f16a10ccd60f53c0c91af90217ace7ba1f19 \
     --hash=sha256:b12271b2047cb23eeb98c8b5622e2e5c5e9abd9784a153e9d8ef9cb4dd09d749
     # via -r requirements/main.in
-jinja2==3.0.2 \
-    --hash=sha256:827a0e32839ab1600d4eb1c4c33ec5a8edfbc5cb42dafa13b81f182f97784b45 \
-    --hash=sha256:8569982d3f0889eed11dd620c706d39b60c36d6d25843961f33f77fb6bc6b20c
+jinja2==3.0.3 \
+    --hash=sha256:077ce6014f7b40d03b47d1f1ca4b0fc8328a692bd284016f806ed0eaca390ad8 \
+    --hash=sha256:611bb273cd68f3b993fabdc4064fc858c5b47a973cb5aa7999ec1ba405c87cd7
     # via
     #   -r requirements/main.in
     #   pyramid-jinja2
@@ -749,9 +749,9 @@ premailer==3.10.0 \
     --hash=sha256:021b8196364d7df96d04f9ade51b794d0b77bcc19e998321c515633a2273be1a \
     --hash=sha256:d1875a8411f5dc92b53ef9f193db6c0f879dc378d618e0ad292723e388bfe4c2
     # via -r requirements/main.in
-proto-plus==1.19.5 \
-    --hash=sha256:ae34ba29c9a2759b3b7c93b0d51d8c2d72933b92a7385820e9248d1975cf7508 \
-    --hash=sha256:f64036ae34d74f8c036aec0e135891ccaa0fe70c9e7413d0f465e5a573fc64a1
+proto-plus==1.19.8 \
+    --hash=sha256:3434eadaed845a337d6c488d2b7d055d733aaa231c0c0d4c778ec720bb91cf87 \
+    --hash=sha256:bdf45f0e0be71510eb2ec9db4da78afde7b5fb8b0a507a36340a9b6ce8e48e58
     # via google-cloud-bigquery
 protobuf==3.19.1 \
     --hash=sha256:038daf4fa38a7e818dd61f51f22588d61755160a98db087a046f80d66b855942 \
