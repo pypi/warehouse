@@ -141,6 +141,11 @@
     <script async src="https://www.googletagmanager.com/gtag/js?id={{ request.registry.settings['ga.tracking_id'] }}"></script>
     {% endif -%}
     <script defer src="https://www.fastly-insights.com/insights.js?k=6a52360a-f306-421e-8ed5-7417d0d4a4e9&dnt=true"></script>
+    <script async
+        src="https://media.ethicalads.io/media/client/beta/ethicalads-v1.3.0.min.js"
+        integrity="sha256-ozc1u5ldloj5JQ7atdxk8OzBc9sWZf84E9kk+qQuqfU= sha384-C30tUJYyeARcz5LNsmM0zHJhdRX0n/HteN5drhPfPJAogLYQkLvdXfSOxP/7iCiB sha512-gWx6VDZfmNbtEprb54AFnggpbJjm48OVJMnT+ne7htSwXVyRk9J7s7emc6dW8+Dzh27IOPf/hqN52Z7pp2jCIw=="
+        crossorigin="anonymous"
+    ></script>
   </head>
 
   <body data-controller="viewport-toggle">
@@ -219,7 +224,7 @@
 
             <form class="search-form search-form--primary" action="{{ request.route_path('search') }}" role="search">
               <label for="search" class="sr-only">{% trans %}Search PyPI{% endtrans %}</label>
-              <input id="search" class="search-form__search" type="text" name="q" placeholder="{% trans %}Search projects{% endtrans %}" value="{{ term }}" autocomplete="off" autocapitalize="off" spellcheck="false">
+              <input id="search" class="search-form__search" type="text" name="q" placeholder="{% trans %}Search projects{% endtrans %}" value="{{ term }}" autocomplete="off" autocapitalize="off" spellcheck="false" data-controller="search-focus" data-action="keydown@window->search-focus#focusSearchField" data-target="search-focus.searchField">
               {% block search_form_extra_inputs %}{% endblock %}
               <button type="submit" class="search-form__button">
                 <i class="fa fa-search" aria-hidden="true"></i>

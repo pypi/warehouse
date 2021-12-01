@@ -70,7 +70,7 @@ def test_format_rfc822_datetime(monkeypatch):
 def test_format_number(monkeypatch):
     formatted = pretend.stub()
     format_number = pretend.call_recorder(lambda *a, **kw: formatted)
-    monkeypatch.setattr(babel.numbers, "format_number", format_number)
+    monkeypatch.setattr(babel.numbers, "format_decimal", format_number)
 
     request = pretend.stub(locale=pretend.stub())
     ctx = pretend.stub(get=pretend.call_recorder(lambda k: request))
