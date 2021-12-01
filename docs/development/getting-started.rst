@@ -324,6 +324,11 @@ Errors when executing ``make build``
 
     snap install docker
 
+* If you receive the error: ``python3.8: command not found`` , ensure you have
+  Python 3.8 installed on your system.
+  This is the "base" Python version that Warehouse uses to create the rest of
+  the development environment.
+
 Errors when executing ``make serve``
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 

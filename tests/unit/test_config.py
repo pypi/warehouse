@@ -16,8 +16,8 @@ import pretend
 import pytest
 
 from pyramid import renderers
+from pyramid.authorization import Allow, Authenticated
 from pyramid.httpexceptions import HTTPForbidden, HTTPUnauthorized
-from pyramid.security import Allow, Authenticated
 from pyramid.tweens import EXCVIEW
 
 from warehouse import config
