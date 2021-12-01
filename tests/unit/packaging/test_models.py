@@ -15,8 +15,8 @@ from collections import OrderedDict
 import pretend
 import pytest
 
+from pyramid.authorization import Allow
 from pyramid.location import lineage
-from pyramid.security import Allow
 
 from warehouse.packaging.models import Dependency, DependencyKind, File, ProjectFactory
 
