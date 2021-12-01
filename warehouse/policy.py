@@ -13,7 +13,7 @@
 import os.path
 
 import html5lib
-import jinja2
+import markupsafe
 import mistune
 
 import warehouse
@@ -39,7 +39,7 @@ def markdown_view_factory(*, filename):
 
         title = html.find("//h1[1]").text
 
-        return {"title": title, "html": jinja2.Markup(rendered)}
+        return {"title": title, "html": markupsafe.Markup(rendered)}
 
     return markdown_view
 

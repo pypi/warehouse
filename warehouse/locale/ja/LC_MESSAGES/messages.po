@@ -12,13 +12,14 @@
 # Dustin Ingram <dustin.ingram@gmail.com>, 2020.
 # Kenichi Maehashi <webmaster@kenichimaehashi.com>, 2021.
 # Nanashi. <sevenc_nanashi@yahoo.co.jp>, 2021.
+# moto kawasaki <moto@kawasaki3.org>, 2021.
 msgid ""
 msgstr ""
 "Project-Id-Version: Warehouse VERSION\n"
 "Report-Msgid-Bugs-To: admin@pypi.org\n"
 "POT-Creation-Date: 2020-04-06 17:52-0500\n"
-"PO-Revision-Date: 2021-10-13 18:59+0000\n"
-"Last-Translator: Nanashi. <sevenc_nanashi@yahoo.co.jp>\n"
+"PO-Revision-Date: 2021-11-26 00:50+0000\n"
+"Last-Translator: moto kawasaki <moto@kawasaki3.org>\n"
 "Language-Team: Japanese <https://hosted.weblate.org/projects/pypa/warehouse/"
 "ja/>\n"
 "Language: ja\n"
@@ -26,7 +27,7 @@ msgstr ""
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Generator: Weblate 4.9-dev\n"
+"X-Generator: Weblate 4.10-dev\n"
 "Generated-By: Babel 2.8.0\n"
 
 # | msgid "Stay updated:"
@@ -3026,7 +3027,7 @@ msgstr "種類"
 #: warehouse/templates/packaging/detail.html:325
 #: warehouse/templates/packaging/detail.html:345
 msgid "Python version"
-msgstr "Pythonバージョン"
+msgstr "Pythonのバージョン"
 
 #: warehouse/templates/manage/release.html:40
 #: warehouse/templates/manage/release.html:61
