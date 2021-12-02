@@ -13,33 +13,34 @@
 import datetime
 
 import factory
-import factory.fuzzy
 
 from warehouse.email.ses.models import EmailMessage, Event, EventTypes
 
-from .base import FuzzyEmail, WarehouseFactory
+from .base import WarehouseFactory
 
 
 class EmailMessageFactory(WarehouseFactory):
     class Meta:
         model = EmailMessage
 
-    created = factory.fuzzy.FuzzyNaiveDateTime(
-        datetime.datetime.utcnow() - datetime.timedelta(days=14)
+    created = factory.Faker(
+        "date_time_between_dates",
+        datetime_start=datetime.datetime.utcnow() - datetime.timedelta(days=14),
     )
-    message_id = factory.fuzzy.FuzzyText(length=12)
-    from_ = FuzzyEmail()
-    to = FuzzyEmail()
-    subject = factory.fuzzy.FuzzyText(length=100)
+    message_id = factory.Faker("pystr", max_chars=12)
+    from_ = factory.Faker("safe_email")
+    to = factory.Faker("safe_email")
+    subject = factory.Faker("sentence")
 
 
 class EventFactory(WarehouseFactory):
     class Meta:
         model = Event
 
-    created = factory.fuzzy.FuzzyNaiveDateTime(
-        datetime.datetime.utcnow() - datetime.timedelta(days=14)
+    created = factory.Faker(
+        "date_time_between_dates",
+        datetime_start=datetime.datetime.utcnow() - datetime.timedelta(days=14),
     )
     email = factory.SubFactory(EmailMessageFactory)
-    event_id = factory.fuzzy.FuzzyText(length=12)
-    event_type = factory.fuzzy.FuzzyChoice([e.value for e in EventTypes])
+    event_id = factory.Faker("pystr", max_chars=12)
+    event_type = factory.Faker("random_element", elements=[e.value for e in EventTypes])
