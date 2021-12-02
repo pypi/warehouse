@@ -14,6 +14,7 @@ import datetime
 import hashlib
 
 import factory
+import faker
 import packaging.utils
 
 from warehouse.packaging.models import (
@@ -33,6 +34,8 @@ from warehouse.utils import readme
 
 from .accounts import UserFactory
 from .base import WarehouseFactory
+
+fake = faker.Faker()
 
 
 class ProjectFactory(WarehouseFactory):
@@ -82,7 +85,8 @@ class FileFactory(WarehouseFactory):
 
     release = factory.SubFactory(ReleaseFactory)
     python_version = "source"
-    filename = factory.Faker("file_name")
+    # TODO: Replace when factory_boy supports `unique`. See https://git.io/JM6kx
+    filename = factory.Sequence(lambda _: fake.unique.file_name())
     md5_digest = factory.LazyAttribute(
         lambda o: hashlib.md5(o.filename.encode("utf8")).hexdigest()
     )
