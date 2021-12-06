@@ -13,7 +13,7 @@
 Add a metadata_hash column to File
 
 Revision ID: 9b9778779fe2
-Revises: 1dbb95161e5a
+Revises: d582fb87b94c
 Create Date: 2021-09-18 07:34:31.828437
 """
 
@@ -22,7 +22,7 @@ import sqlalchemy as sa
 from alembic import op
 
 revision = "9b9778779fe2"
-down_revision = "1dbb95161e5a"
+down_revision = "d582fb87b94c"
 
 
 def upgrade():
