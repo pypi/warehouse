@@ -565,9 +565,9 @@ kombu==4.6.11 \
     --hash=sha256:be48cdffb54a2194d93ad6533d73f69408486483d189fe9f5990ee24255b0e0a \
     --hash=sha256:ca1b45faac8c0b18493d02a8571792f3c40291cf2bcf1f55afed3d8f3aa7ba74
     # via celery
-limits==1.5.1 \
-    --hash=sha256:0e5f8b10f18dd809eb2342f5046eb9aa5e4e69a0258567b5f4aa270647d438b3 \
-    --hash=sha256:f0c3319f032c4bfad68438ed1325c0fac86dac64582c7c25cddc87a0b658fa20
+limits==2.0.3 \
+    --hash=sha256:66b35577e3824484712b6d1f1c774ba45628db58cb25b729101eaee06fcf32a0 \
+    --hash=sha256:a014be021cdcb4e4340ab7b2ec79cba676cf8ebcbd6ff88742f0407f0e7f2e27
     # via -r requirements/main.in
 lxml==4.6.4 \
     --hash=sha256:08eb9200d88b376a8ed5e50f1dc1d1a45b49305169674002a3b5929943390591 \
@@ -986,7 +986,6 @@ six==1.16.0 \
     #   google-cloud-storage
     #   grpcio
     #   html5lib
-    #   limits
     #   pymacaroons
     #   pynacl
     #   pyopenssl
