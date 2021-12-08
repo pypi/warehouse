@@ -31,7 +31,7 @@
     "gulp-concat": "2.6.1",
     "gulp-dart-sass": "^1.0.2",
     "gulp-gzip": "1.4.2",
-    "gulp-image": "^6.1.0",
+    "gulp-image": "^6.3.1",
     "gulp-postcss": "8.0.0",
     "gulp-rename": "^2.0.0",
     "gulp-rev-all": "0.9.8",
