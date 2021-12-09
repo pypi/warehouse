@@ -74,7 +74,7 @@ msgid ""
 "email."
 msgstr ""
 
-#: warehouse/accounts/forms.py:253
+#: warehouse/accounts/forms.py:253 warehouse/manage/forms.py:73
 msgid "The name is too long. Choose a name with 100 characters or less."
 msgstr ""
 

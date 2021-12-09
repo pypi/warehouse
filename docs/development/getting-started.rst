@@ -215,7 +215,10 @@ or that the ``static`` container has finished compiling the static assets:
     static_1 | [20:28:37] Starting 'watch'...
     static_1 | [20:28:37] Finished 'watch' after 11 ms
 
-After the docker containers are setup in the previous step, run:
+or maybe something else.
+
+After the docker containers are setup in the previous step, in a separate
+terminal session, run:
 
 .. code-block:: console
 
