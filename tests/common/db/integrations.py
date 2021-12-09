@@ -22,10 +22,10 @@ class VulnerabilityRecordFactory(WarehouseFactory):
     class Meta:
         model = VulnerabilityRecord
 
-    id = factory.fuzzy.FuzzyText(length=12)
-    source = factory.fuzzy.FuzzyText(length=12)
-    link = factory.fuzzy.FuzzyText(length=12)
+    id = factory.Faker("word")
+    source = factory.Faker("word")
+    link = factory.Faker("uri")
     aliases = factory.Sequence(lambda n: "alias" + str(n))
     releases = factory.SubFactory(ReleaseFactory)
-    details = factory.fuzzy.FuzzyText(length=12)
+    details = factory.Faker("word")
     fixed_in = factory.Sequence(lambda n: str(n) + ".0")

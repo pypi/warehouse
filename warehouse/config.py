@@ -18,9 +18,9 @@ import shlex
 import transaction
 
 from pyramid import renderers
+from pyramid.authorization import Allow, Authenticated
 from pyramid.config import Configurator as _Configurator
 from pyramid.response import Response
-from pyramid.security import Allow, Authenticated
 from pyramid.tweens import EXCVIEW
 from pyramid_rpc.xmlrpc import XMLRPCRenderer
 

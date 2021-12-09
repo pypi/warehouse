@@ -16,6 +16,7 @@ from ...common.db.admin import AdminFlagFactory
 
 
 class TestAdminFlagValues(enum.Enum):
+    __test__ = False
     NOT_A_REAL_FLAG = "not-a-real-flag"
     THIS_FLAG_IS_ENABLED = "this-flag-is-enabled"
 
