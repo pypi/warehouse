@@ -83,7 +83,7 @@ msgid ""
 msgstr ""
 "Denne e-mail-adresse bruges allerede af en anden konto. Brug en anden e-mail."
 
-#: warehouse/accounts/forms.py:253
+#: warehouse/accounts/forms.py:253 warehouse/manage/forms.py:73
 msgid "The name is too long. Choose a name with 100 characters or less."
 msgstr "Navnet er for langt. Vælg et navn på 100 tegn eller mindre"
 
