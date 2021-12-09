@@ -91,7 +91,7 @@ msgstr ""
 "Địa chỉ email này đã được sử dụng bởi một tài khoản khác. Sử dụng một email "
 "khác."
 
-#: warehouse/accounts/forms.py:253
+#: warehouse/accounts/forms.py:253 warehouse/manage/forms.py:73
 msgid "The name is too long. Choose a name with 100 characters or less."
 msgstr "Tên quá dài. Chọn một tên có tối đa 100 ký tự."
 

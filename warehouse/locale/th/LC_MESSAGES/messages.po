@@ -86,7 +86,7 @@ msgid ""
 "email."
 msgstr "อีเมล์นี้ได้ถูกใช้งานโดยบัญชีอื่นแล้ว กรุณาเลือกอีเมล์ใหม่"
 
-#: warehouse/accounts/forms.py:253
+#: warehouse/accounts/forms.py:253 warehouse/manage/forms.py:73
 msgid "The name is too long. Choose a name with 100 characters or less."
 msgstr "ชื่อยาวเกินไป กรุณาระบุชื่อโดยมีความยาวไม่เกิน 100 ตัวอักษร"
 
