@@ -10,6 +10,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from natsort import natsorted
 from pyramid.httpexceptions import HTTPMovedPermanently, HTTPNotFound
 from pyramid.view import view_config
 from sqlalchemy.orm.exc import NoResultFound
@@ -125,7 +126,8 @@ def release_detail(release, request):
         "project": project,
         "release": release,
         "description": description,
-        "files": release.files.all(),
+        # We cannot easily sort naturally in SQL, sort here and pass to template
+        "files": natsorted(release.files.all(), reverse=True, key=lambda f: f.filename),
         "latest_version": project.latest_version,
         "all_versions": project.all_versions,
         "maintainers": maintainers,

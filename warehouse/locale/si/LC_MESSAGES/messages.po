@@ -81,7 +81,7 @@ msgid ""
 msgstr ""
 "මෙම විද්‍යුත් තැපැල් ලිපිනය දැනටමත් වෙනත් ගිණුමක් භාවිතා කරයි. වෙනස් විද්‍යුත් තැපෑලක් භාවිතා කරන්න."
 
-#: warehouse/accounts/forms.py:253
+#: warehouse/accounts/forms.py:253 warehouse/manage/forms.py:73
 msgid "The name is too long. Choose a name with 100 characters or less."
 msgstr "නම දිග වැඩියි. අක්ෂර 100 ක් හෝ ඊට අඩු නමක් තෝරන්න."
 
