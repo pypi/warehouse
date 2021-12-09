@@ -506,7 +506,7 @@ class TestSaveAccountForm:
         email = pretend.stub(verified=True, public=False, email="foo@example.com")
         user = pretend.stub(id=1, username=pretend.stub(), emails=[email])
         form = forms.SaveAccountForm(
-            name=pretend.stub(),
+            name="some name",
             public_email=email.email,
             user_service=pretend.stub(get_user=lambda _: user),
             user_id=user.id,
@@ -517,10 +517,26 @@ class TestSaveAccountForm:
         email = pretend.stub(verified=False, public=False, email=pretend.stub())
         user = pretend.stub(id=1, username=pretend.stub(), emails=[email])
         form = forms.SaveAccountForm(
-            name=pretend.stub(),
+            name="some name",
             public_email=email.email,
             user_service=pretend.stub(get_user=lambda _: user),
             user_id=user.id,
         )
         assert not form.validate()
         assert "is not a verified email for" in form.public_email.errors.pop()
+
+    def test_name_too_long(self, pyramid_config):
+        email = pretend.stub(verified=True, public=False, email="foo@example.com")
+        user = pretend.stub(id=1, username=pretend.stub(), emails=[email])
+        form = forms.SaveAccountForm(
+            name="x" * 101,
+            public_email=email.email,
+            user_service=pretend.stub(get_user=lambda _: user),
+            user_id=user.id,
+        )
+
+        assert not form.validate()
+        assert (
+            str(form.name.errors.pop())
+            == "The name is too long. Choose a name with 100 characters or less."
+        )

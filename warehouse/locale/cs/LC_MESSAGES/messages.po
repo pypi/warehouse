@@ -95,7 +95,7 @@ msgstr ""
 "Tuto e-mailovou adresu již používá jiný uživatel. Zadejte jinou e-mailovou "
 "adresu."
 
-#: warehouse/accounts/forms.py:253
+#: warehouse/accounts/forms.py:253 warehouse/manage/forms.py:73
 msgid "The name is too long. Choose a name with 100 characters or less."
 msgstr "Jméno je příliš dlouhé. Maximální délka je 100 znaků."
 

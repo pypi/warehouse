@@ -99,7 +99,7 @@ msgid ""
 msgstr ""
 "هذا البريد الاليكتروني يستخدمه حساب آخر. برجاء استخدام بريد اليكتروني مختلف."
 
-#: warehouse/accounts/forms.py:253
+#: warehouse/accounts/forms.py:253 warehouse/manage/forms.py:73
 msgid "The name is too long. Choose a name with 100 characters or less."
 msgstr "هذا الاسم طويل للغاية. برجاء اختيار اسم طوله 100 حرفاً أو أقل."
 
