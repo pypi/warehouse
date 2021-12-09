@@ -4,7 +4,7 @@ msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: admin@pypi.org\n"
 "POT-Creation-Date: 2020-08-24 00:15+0200\n"
-"PO-Revision-Date: 2021-08-26 05:28+0000\n"
+"PO-Revision-Date: 2021-11-22 22:05+0000\n"
 "Last-Translator: Adolfo Jayme Barrientos <fitojb@ubuntu.com>\n"
 "Language-Team: Catalan <https://hosted.weblate.org/projects/pypa/warehouse/"
 "ca/>\n"
@@ -13,7 +13,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Generator: Weblate 4.8.1-dev\n"
+"X-Generator: Weblate 4.10-dev\n"
 
 #: warehouse/views.py:254
 msgid "Locale updated"
@@ -87,7 +87,7 @@ msgstr ""
 "Un altre compte ja utilitza aquesta adreça electrònica. Feu servir-ne una de "
 "diferent."
 
-#: warehouse/accounts/forms.py:253
+#: warehouse/accounts/forms.py:253 warehouse/manage/forms.py:73
 msgid "The name is too long. Choose a name with 100 characters or less."
 msgstr "El nom és massa llarg. Trieu un nom amb 100 caràcters o menys."
 
@@ -1534,7 +1534,7 @@ msgstr "Perfil públic"
 
 #: warehouse/templates/includes/flash-messages.html:19
 msgid "Error"
-msgstr ""
+msgstr "Error"
 
 #: warehouse/templates/includes/flash-messages.html:22
 #: warehouse/templates/includes/flash-messages.html:29
@@ -1564,7 +1564,7 @@ msgstr "Tanca"
 
 #: warehouse/templates/includes/flash-messages.html:37
 msgid "Success"
-msgstr ""
+msgstr "Èxit"
 
 #: warehouse/templates/includes/hash-modal.html:23
 #, python-format
@@ -2093,7 +2093,7 @@ msgstr ""
 #: warehouse/templates/manage/account.html:464
 #: warehouse/templates/manage/account.html:478
 msgid "Remove"
-msgstr ""
+msgstr "Elimina"
 
 #: warehouse/templates/manage/account.html:465
 msgid "Remove authentication application"
@@ -2101,7 +2101,7 @@ msgstr ""
 
 #: warehouse/templates/manage/account.html:466
 msgid "Remove application"
-msgstr ""
+msgstr "Elimina l’aplicació"
 
 #: warehouse/templates/manage/account.html:475
 #: warehouse/templates/manage/account.html:570
@@ -2242,10 +2242,8 @@ msgid "Invalid two factor (Recovery code)"
 msgstr "El codi de recuperació no és vàlid."
 
 #: warehouse/templates/manage/account.html:602
-#, fuzzy
-#| msgid "Enter authentication code"
 msgid "Session reauthentication failed"
-msgstr "Introduïu el codi d’autenticació"
+msgstr "Ha fallat la reautenticació de la sessió"
 
 #: warehouse/templates/manage/account.html:613
 msgid "Email added to account"
@@ -3241,8 +3239,6 @@ msgid "Project settings"
 msgstr "Paràmetres del projecte"
 
 #: warehouse/templates/manage/settings.html:23
-#, fuzzy
-#| msgid "Project size :"
 msgid "Project size:"
 msgstr "Mida del projecte:"
 
@@ -4862,7 +4858,7 @@ msgstr ""
 
 #: warehouse/templates/pages/help.html:637
 msgid "If you've lost access to your PyPI account due to:"
-msgstr ""
+msgstr "Si heu perdut accés al vostre compte del PyPI a causa de:"
 
 #: warehouse/templates/pages/help.html:639
 msgid "Lost access to the email address associated with your account"

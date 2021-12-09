@@ -158,10 +158,16 @@ Project
                     "yanked": false,
                     "yanked_reason": null
                 }
-            ]
+            ],
+            "vulnerabilities": []
         }
 
     :statuscode 200: no error
+
+    On this endpoint, the ``vulnerabilities`` array provides a listing for
+    any known vulnerabilities in the most recent release (none, for the example
+    above). Use the release-specific endpoint documented below for precise
+    control over this field.
 
 Release
 -------
@@ -260,7 +266,45 @@ Release
                     }
                 ]
             },
-            "urls": []
+            "urls": [],
+            "vulnerabilities": []
         }
 
     :statuscode 200: no error
+
+Known vulnerabilities
+~~~~~~~~~~~~~~~~~~~~~
+
+In the example above, the combination of the requested project and version
+had no `known vulnerabilities <https://github.com/pypa/advisory-db>`_.
+An example of a response for a project with known vulnerabilities is
+provided below, with unrelated fields collapsed for readability.
+
+.. code:: http
+
+    GET /pypi/Django/3.0.2/json HTTP/1.1
+    Host: pypi.org
+    Accept: application/json
+
+    {
+        "info": {},
+        "last_serial": 12089094,
+        "releases": {},
+        "urls": [],
+        "vulnerabilities": [
+            {
+                "aliases": [
+                    "CVE-2021-3281"
+                ],
+                "details": "In Django 2.2 before 2.2.18, 3.0 before 3.0.12, and 3.1 before 3.1.6, the django.utils.archive.extract method (used by \"startapp --template\" and \"startproject --template\") allows directory traversal via an archive with absolute paths or relative paths with dot segments.",
+                "fixed_in": [
+                    "2.2.18",
+                    "3.0.12",
+                    "3.1.6"
+                ],
+                "id": "PYSEC-2021-9",
+                "link": "https://osv.dev/vulnerability/PYSEC-2021-9",
+                "source": "osv"
+            },
+        ]
+    }

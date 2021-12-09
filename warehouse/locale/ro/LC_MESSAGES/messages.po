@@ -99,7 +99,7 @@ msgstr ""
 "Această adresă de e-mail este deja utilizată de un alt cont. Utilizați un "
 "alt e-mail."
 
-#: warehouse/accounts/forms.py:253
+#: warehouse/accounts/forms.py:253 warehouse/manage/forms.py:73
 msgid "The name is too long. Choose a name with 100 characters or less."
 msgstr "Numele e prea lung. Alegeți un nume cu 100 de caractere sau mai puțin."
 

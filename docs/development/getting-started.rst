@@ -215,7 +215,10 @@ or that the ``static`` container has finished compiling the static assets:
     static_1 | [20:28:37] Starting 'watch'...
     static_1 | [20:28:37] Finished 'watch' after 11 ms
 
-After the docker containers are setup in the previous step, run:
+or maybe something else.
+
+After the docker containers are setup in the previous step, in a separate
+terminal session, run:
 
 .. code-block:: console
 
@@ -323,6 +326,11 @@ Errors when executing ``make build``
 .. code-block:: console
 
     snap install docker
+
+* If you receive the error: ``python3.8: command not found`` , ensure you have
+  Python 3.8 installed on your system.
+  This is the "base" Python version that Warehouse uses to create the rest of
+  the development environment.
 
 Errors when executing ``make serve``
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
