@@ -81,9 +81,9 @@ faker==9.5.1 \
     --hash=sha256:46c854dbb3fab592dd1de97445ddd4408ab28e80a35962fe5392e87be13c9ee3 \
     --hash=sha256:7fea2020671dbe3c8888d2df445b2ef3b10ce1d196af8f12971b56cdaab153b1
     # via factory-boy
-fakeredis==1.6.1 \
-    --hash=sha256:0d06a9384fb79da9f2164ce96e34eb9d4e2ea46215070805ea6fd3c174590b47 \
-    --hash=sha256:5eb1516f1fe1813e9da8f6c482178fc067af09f53de587ae03887ef5d9d13024
+fakeredis==1.7.0 \
+    --hash=sha256:6f1e04f64557ad3b6835bdc6e5a8d022cbace4bdc24a47ad58f6a72e0fbff760 \
+    --hash=sha256:c9bd12e430336cbd3e189fae0e91eb99997b93e76dbfdd6ed67fa352dc684c71
     # via -r requirements/tests.in
 freezegun==1.1.0 \
     --hash=sha256:177f9dd59861d871e27a484c3332f35a6e3f5d14626f2bf91be37891f18927f3 \
