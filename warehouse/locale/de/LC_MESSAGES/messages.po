@@ -106,7 +106,7 @@ msgstr ""
 "Diese E-Mail-Adresse wird schon von einem anderen Konto verwendet. Bitte "
 "eine andere E-Mail-Adresse verwenden."
 
-#: warehouse/accounts/forms.py:253
+#: warehouse/accounts/forms.py:253 warehouse/manage/forms.py:73
 msgid "The name is too long. Choose a name with 100 characters or less."
 msgstr ""
 "Der Name ist zu lang. Bitte  einen Namen mit 100 Zeichen oder weniger "

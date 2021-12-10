@@ -10,23 +10,21 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from datetime import date, timedelta
-
-from factory import fuzzy
+import factory
 
 from warehouse.banners.models import Banner
 
-from .base import FuzzyUrl, WarehouseFactory
+from .base import WarehouseFactory
 
 
 class BannerFactory(WarehouseFactory):
     class Meta:
         model = Banner
 
-    name = fuzzy.FuzzyText(length=12)
-    text = fuzzy.FuzzyText(length=30)
-    link_url = FuzzyUrl()
-    link_label = fuzzy.FuzzyText(length=10)
+    name = factory.Faker("word")
+    text = factory.Faker("sentence")
+    link_url = factory.Faker("uri")
+    link_label = factory.Faker("word")
 
     active = True
-    end = date.today() + timedelta(days=2)
+    end = factory.Faker("future_date")
