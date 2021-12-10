@@ -25,6 +25,7 @@ from warehouse.accounts.forms import (
     TOTPValueMixin,
     WebAuthnCredentialMixin,
 )
+from warehouse.i18n import localize as _
 
 
 class RoleNameMixin:
@@ -65,7 +66,17 @@ class SaveAccountForm(forms.Form):
 
     __params__ = ["name", "public_email"]
 
-    name = wtforms.StringField()
+    name = wtforms.StringField(
+        validators=[
+            wtforms.validators.Length(
+                max=100,
+                message=_(
+                    "The name is too long. "
+                    "Choose a name with 100 characters or less."
+                ),
+            )
+        ]
+    )
     public_email = wtforms.SelectField(choices=[("", "Not displayed")])
 
     def __init__(self, *args, user_service, user_id, **kwargs):

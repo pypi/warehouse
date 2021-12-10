@@ -110,7 +110,7 @@ msgid ""
 "email."
 msgstr "此电子邮件地址已被另一个帐户使用。使用一个不同的电子邮件。"
 
-#: warehouse/accounts/forms.py:253
+#: warehouse/accounts/forms.py:253 warehouse/manage/forms.py:73
 msgid "The name is too long. Choose a name with 100 characters or less."
 msgstr "用户名太长。请选择一个不超过100个字符的用户名。"
 
