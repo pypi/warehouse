@@ -99,7 +99,7 @@ msgstr ""
 "این آدرس ایمیل در حال حاضر توسط حساب دیگری استفاده می شود. از یک ایمیل دیگر "
 "استفاده کنید."
 
-#: warehouse/accounts/forms.py:253
+#: warehouse/accounts/forms.py:253 warehouse/manage/forms.py:73
 msgid "The name is too long. Choose a name with 100 characters or less."
 msgstr "نام خیلی طولانی است یک نام با 100 کاراکتر یا کمتر انتخاب کنید."
 
