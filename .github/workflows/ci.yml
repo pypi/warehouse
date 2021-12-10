@@ -75,7 +75,7 @@ jobs:
         if: ${{ matrix.needs-python }}
         run: |
           pip install -U pip setuptools wheel
-          pip install -r requirements.txt
+          pip install -r requirements.txt --no-deps
           pip install -r requirements/dev.txt
       - uses: actions/setup-node@v2
         if: ${{ matrix.needs-node }}
