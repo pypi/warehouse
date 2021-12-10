@@ -92,7 +92,7 @@ msgid ""
 "email."
 msgstr "এই ইমেইলটি ইতোমধ্যে অন্য একটি একাউন্টে ব্যবহৃত। ভিন্ন ইমেইল ব্যবহার করুন"
 
-#: warehouse/accounts/forms.py:253
+#: warehouse/accounts/forms.py:253 warehouse/manage/forms.py:73
 msgid "The name is too long. Choose a name with 100 characters or less."
 msgstr "নামটি অনেক দীর্ঘ। 100 টি অক্ষর বা তারও কম সংখ্যক নাম চয়ন করুন।"
 
