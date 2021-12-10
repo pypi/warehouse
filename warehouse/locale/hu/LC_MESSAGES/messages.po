@@ -89,7 +89,7 @@ msgid ""
 msgstr ""
 "Ezt az e-mail címet egy másik fiók már használja. Használjon másik e-mailt."
 
-#: warehouse/accounts/forms.py:253
+#: warehouse/accounts/forms.py:253 warehouse/manage/forms.py:73
 msgid "The name is too long. Choose a name with 100 characters or less."
 msgstr "A név túl hosszú. Válasszon egy nevet, legfeljebb 100 karakterből."
 

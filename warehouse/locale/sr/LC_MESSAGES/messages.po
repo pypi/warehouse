@@ -79,7 +79,7 @@ msgstr ""
 "Ова имејл адреса је већ коришћена од стране другог налога. Користите други "
 "имејл."
 
-#: warehouse/accounts/forms.py:253
+#: warehouse/accounts/forms.py:253 warehouse/manage/forms.py:73
 msgid "The name is too long. Choose a name with 100 characters or less."
 msgstr "Ово име је предуго. Изаберите име са мање од 100 слова."
 

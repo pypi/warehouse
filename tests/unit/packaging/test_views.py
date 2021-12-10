@@ -13,6 +13,7 @@
 import pretend
 import pytest
 
+from natsort import natsorted
 from pyramid.httpexceptions import HTTPMovedPermanently, HTTPNotFound
 
 from warehouse.packaging import views
@@ -270,6 +271,27 @@ class TestReleaseDetail:
         assert render_description.calls == [
             pretend.call("unrendered description", "text/plain")
         ]
+
+    def test_detail_renders_files_natural_sort(self, db_request):
+        """Tests that when a release has multiple versions of Python,
+        the sort order is most recent Python version first."""
+        project = ProjectFactory.create()
+        release = ReleaseFactory.create(project=project, version="3.0")
+        files = [
+            FileFactory.create(
+                release=release,
+                filename="{}-{}-{}.tar.gz".format(
+                    project.name, release.version, py_ver
+                ),
+                python_version="source",
+            )
+            for py_ver in ["cp27", "cp310", "cp39"]  # intentionally out of order
+        ]
+        sorted_files = natsorted(files, reverse=True, key=lambda f: f.filename)
+
+        result = views.release_detail(release, db_request)
+
+        assert result["files"] == sorted_files
 
     def test_license_from_classifier(self, db_request):
         """A license label is added when a license classifier exists."""
