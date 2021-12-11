@@ -3,7 +3,6 @@ GITHUB_ACTIONS := $(shell echo "$${GITHUB_ACTIONS:-false}")
 GITHUB_BASE_REF := $(shell echo "$${GITHUB_BASE_REF:-false}")
 DB := example
 IPYTHON := no
-LOCALES := $(shell .state/env/bin/python -c "from warehouse.i18n import KNOWN_LOCALES; print(' '.join(set(KNOWN_LOCALES)-{'en'}))")
 
 # set environment variable WAREHOUSE_IPYTHON_SHELL=1 if IPython
 # needed in development environment
@@ -211,6 +210,7 @@ compile-po: .state/02install
 		--locale="$(L)"
 
 build-mos: compile-pot
+	$(eval LOCALES := $(shell .state/env/bin/python -c "from warehouse.i18n import KNOWN_LOCALES; print(' '.join(set(KNOWN_LOCALES)-{'en'}))"))
 	for LOCALE in $(LOCALES) ; do \
 		L=$$LOCALE $(MAKE) compile-po ; \
 		done
