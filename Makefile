@@ -44,10 +44,15 @@ default:
 	@echo
 	@exit 1
 
-.state/env/pyvenv.cfg: requirements/dev.txt requirements/docs.txt requirements/lint.txt requirements/ipython.txt
-	# Create our Python 3.8 virtual environment
+.state/01bootstrap: requirements/bootstrap.txt
+	# Create Python 3.8 virtual environment with `pip-compile` for updating
+	# dependecy hashes
 	rm -rf .state/env
 	python3.8 -m venv .state/env
+	.state/env/bin/python -m pip install -r requirements/bootstrap.txt
+	touch .state/01bootstrap
+
+.state/02install: .state/01bootstrap requirements/dev.txt requirements/docs.txt requirements/lint.txt requirements/ipython.txt
 
 	# install/upgrade general requirements
 	.state/env/bin/python -m pip install --upgrade pip setuptools wheel
@@ -61,6 +66,8 @@ default:
 ifeq ($(IPYTHON),"yes")
 	.state/env/bin/python -m pip install -r requirements/ipython.txt
 endif
+
+	touch .state/02install
 
 .state/docker-build: Dockerfile package.json package-lock.json requirements/main.txt requirements/deploy.txt
 	# Build our docker containers for this project.
@@ -108,7 +115,7 @@ lint: .state/docker-build
 								  PATH="/opt/warehouse/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin" \
 								  bin/lint && bin/static_lint
 
-docs: .state/env/pyvenv.cfg
+docs: .state/02install
 	$(MAKE) -C docs/ doctest SPHINXOPTS="-W" SPHINXBUILD="$(BINDIR)/sphinx-build"
 	$(MAKE) -C docs/ html SPHINXOPTS="-W" SPHINXBUILD="$(BINDIR)/sphinx-build"
 
@@ -116,7 +123,7 @@ licenses:
 	bin/licenses
 
 export DEPCHECKER
-deps: .state/env/pyvenv.cfg
+deps: .state/01bootstrap
 	$(eval TMPDIR := $(shell mktemp -d))
 	$(BINDIR)/pip-compile --upgrade --allow-unsafe -o $(TMPDIR)/deploy.txt requirements/deploy.in > /dev/null
 	$(BINDIR)/pip-compile --upgrade --allow-unsafe -o $(TMPDIR)/main.txt requirements/main.in > /dev/null
@@ -127,7 +134,7 @@ deps: .state/env/pyvenv.cfg
 	rm -r $(TMPDIR)
 	$(BINDIR)/pip check
 
-requirements/%.txt: requirements/%.in .state/env/pyvenv.cfg
+requirements/%.txt: .state/01bootstrap requirements/%.in
 	$(BINDIR)/pip-compile --allow-unsafe --generate-hashes --output-file=$@ $<
 
 fix-google-deps:
@@ -178,26 +185,26 @@ purge: stop clean
 stop:
 	docker-compose down -v
 
-compile-pot: .state/env/pyvenv.cfg
+compile-pot: .state/02install
 	PYTHONPATH=$(PWD) $(BINDIR)/pybabel extract \
 		-F babel.cfg \
 		--omit-header \
 		--output="warehouse/locale/messages.pot" \
 		warehouse
 
-init-po: .state/env/pyvenv.cfg
+init-po: .state/02install
 	$(BINDIR)/pybabel init \
 		--input-file="warehouse/locale/messages.pot" \
 		--output-dir="warehouse/locale/" \
 		--locale="$(L)"
 
-update-po: .state/env/pyvenv.cfg
+update-po: .state/02install
 	$(BINDIR)/pybabel update \
 		--input-file="warehouse/locale/messages.pot" \
 		--output-file="warehouse/locale/$(L)/LC_MESSAGES/messages.po" \
 		--locale="$(L)"
 
-compile-po: .state/env/pyvenv.cfg
+compile-po: .state/02install
 	$(BINDIR)/pybabel compile \
 		--input-file="warehouse/locale/$(L)/LC_MESSAGES/messages.po" \
 		--directory="warehouse/locale/" \
