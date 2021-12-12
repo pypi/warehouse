@@ -267,9 +267,9 @@ cssutils==2.3.0 \
     --hash=sha256:0cf1f6086b020dee18048ff3999339499f725934017ef9ae2cd5bb77f9ab5f46 \
     --hash=sha256:b2d3b16047caae82e5c590036935bafa1b621cf45c2f38885af4be4838f0fd00
     # via premailer
-datadog==0.42.0 \
-    --hash=sha256:140b51f5db3f46d6f3ec022c05830c6b3e13e4f62c19c823e1227ac322b26667 \
-    --hash=sha256:7a6fac17a7d09f1883ab9a45ce4ff7a16aa1a5eb3cc4c6cddac7f8c53e7d1e9b
+datadog==0.43.0 \
+    --hash=sha256:1f2123083d9e1add6f238c62714b76ac2fc134d7d1c435cd82b976487b191b96 \
+    --hash=sha256:fe82d6c1d74a713371768f1851b004c8df7ec074bae10ad4509036601f84b605
     # via -r requirements/main.in
 disposable-email-domains==0.0.66 \
     --hash=sha256:7a31510182de3f38a09d6101561ca608b0433f118a8a2ea9ed3821f22269c3db \
