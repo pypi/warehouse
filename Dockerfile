@@ -99,8 +99,8 @@ RUN set -x \
 # that code changes don't require triggering an entire install of all of
 # Warehouse's dependencies.
 RUN set -x \
-    && pip --no-deps --no-cache-dir --disable-pip-version-check \
-            install --no-binary hiredis \
+    && pip --no-cache-dir --disable-pip-version-check \
+            install --no-deps --no-binary hiredis \
                     -r /tmp/requirements/deploy.txt \
                     -r /tmp/requirements/main.txt \
                     $(if [ "$DEVEL" = "yes" ]; then echo '-r /tmp/requirements/tests.txt -r /tmp/requirements/lint.txt'; fi) \
