@@ -99,7 +99,7 @@ msgstr ""
 "Otra cuenta ya utiliza esta dirección de correo. Utilice una dirección "
 "distinta."
 
-#: warehouse/accounts/forms.py:253
+#: warehouse/accounts/forms.py:253 warehouse/manage/forms.py:73
 msgid "The name is too long. Choose a name with 100 characters or less."
 msgstr ""
 "El nombre es demasiado extenso. Elija un nombre con 100 caracteres o menos."
@@ -4339,8 +4339,8 @@ msgid ""
 "Where does PyPI get its data on project vulnerabilities from, and how can I "
 "correct it?"
 msgstr ""
-"¿De dónde obtiene PyPI sus datos sobre vulnerabilidades en los proyectos? ¿"
-"Cómo la corrijo?"
+"¿De dónde obtiene PyPI sus datos sobre vulnerabilidades en los proyectos? "
+"¿Cómo la corrijo?"
 
 #: warehouse/templates/pages/help.html:88
 msgid ""
