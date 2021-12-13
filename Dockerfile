@@ -100,7 +100,7 @@ RUN set -x \
 # Warehouse's dependencies.
 RUN set -x \
     && pip --no-cache-dir --disable-pip-version-check \
-            install --no-binary hiredis \
+            install --no-deps --no-binary hiredis \
                     -r /tmp/requirements/deploy.txt \
                     -r /tmp/requirements/main.txt \
                     $(if [ "$DEVEL" = "yes" ]; then echo '-r /tmp/requirements/tests.txt -r /tmp/requirements/lint.txt'; fi) \
