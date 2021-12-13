@@ -383,9 +383,9 @@ google-resumable-media==2.1.0 \
     # via
     #   google-cloud-bigquery
     #   google-cloud-storage
-googleapis-common-protos==1.53.0 \
-    --hash=sha256:a88ee8903aa0a81f6c3cec2d5cf62d3c8aa67c06439b0496b49048fb1854ebf4 \
-    --hash=sha256:f6d561ab8fb16b30020b940e2dd01cd80082f4762fa9f3ee670f4419b4b8dbd0
+googleapis-common-protos==1.54.0 \
+    --hash=sha256:a4031d6ec6c2b1b6dc3e0be7e10a1bd72fb0b18b07ef9be7b51f2c1004ce2437 \
+    --hash=sha256:e54345a2add15dc5e1a7891c27731ff347b4c33765d79b5ed7026a6c0c7cbcae
     # via
     #   google-api-core
     #   grpcio-status
@@ -949,9 +949,9 @@ pytz==2021.3 \
     # via
     #   babel
     #   celery
-readme-renderer[md]==30.0 \
-    --hash=sha256:3286806450d9961d6e3b5f8a59f77e61503799aca5155c8d8d40359b4e1e1adc \
-    --hash=sha256:8299700d7a910c304072a7601eafada6712a5b011a20139417e1b1e9f04645d8
+readme-renderer[md]==32.0 \
+    --hash=sha256:a50a0f2123a4c1145ac6f420e1a348aafefcc9211c846e3d51df05fe3d865b7d \
+    --hash=sha256:b512beafa6798260c7d5af3e1b1f097e58bfcd9a575da7c4ddd5e037490a5b85
     # via -r requirements/main.in
 redis==3.5.3 \
     --hash=sha256:0e7e0cfca8660dea8b7d5cd8c4f6c5e29e11f31158c0b0ae91a397f00e5a05a2 \
