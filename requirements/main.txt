@@ -39,10 +39,17 @@ argon2-cffi-bindings==21.2.0 \
     --hash=sha256:f1152ac548bd5b8bcecfb0b0371f082037e47128653df2e8ba6e914d384f3c3e \
     --hash=sha256:f9f8b450ed0547e3d473fdc8612083fd08dd2120d6ac8f73828df9b7d45bb351
     # via argon2-cffi
+asn1crypto==1.4.0 \
+    --hash=sha256:4bcdf33c861c7d40bdcd74d8e4dd7661aac320fcdf40b9a3f95b4ee12fde2fa8 \
+    --hash=sha256:f4f6e119474e58e04a2b1af817eb585b4fd72bdd89b998624712b5c99be7641c
+    # via webauthn
 attrs==21.2.0 \
     --hash=sha256:149e90d6d8ac20db7a955ad60cf0e6881a3f20d37096140088356da6c716b0b1 \
     --hash=sha256:ef6aaac3ca6cd92904cdd0d83f629a15f18053ec84e6432106f7a4d04ae4f5fb
-    # via automat
+    # via
+    #   automat
+    #   cattrs
+    #   webauthn
 automat==20.2.0 \
     --hash=sha256:7979803c74610e11ef0c0d68a2942b152df52da55336e0c9d58daf1831cbdf33 \
     --hash=sha256:b6feb6455337df834f6c9962d6ccf771515b7d939bca142b29c20c2376bc6111
@@ -84,6 +91,10 @@ cachetools==4.2.4 \
     # via
     #   google-auth
     #   premailer
+cattrs==1.9.0 \
+    --hash=sha256:1ef33f089e0a494e8d1b487508356f055c865b1955b125c00c991a4358543c80 \
+    --hash=sha256:8eca49962b1bfc09c24d442aa55688be88efe5c24aeef89d3be135614b95c678
+    # via webauthn
 cbor2==5.4.2 \
     --hash=sha256:0153635a78e62d70f26f5b3469cb8de822420eda69c996304fb3d0dc1a53d7f3 \
     --hash=sha256:0e27c52abdccadadab858437f6d98d5e8711aa84f0af7417dd1404d16127db7f \
@@ -301,9 +312,6 @@ first==2.0.2 \
     --hash=sha256:8d8e46e115ea8ac652c76123c0865e3ff18372aef6f03c22809ceefcea9dec86 \
     --hash=sha256:ff285b08c55f8c97ce4ea7012743af2495c9f1291785f163722bd36f6af6d3bf
     # via -r requirements/main.in
-future==0.18.2 \
-    --hash=sha256:b1bead90b70cf6ec3f0710ae53a525360fa360d306a86583adc6bf83a4db537d
-    # via webauthn
 google-api-core[grpc]==2.2.0 \
     --hash=sha256:8d20c8919fa32bfc9e2f67f98def477218102aae6b70e4912818aeb53fd4c256 \
     --hash=sha256:dca67b5e369a5127ec00c8ea02de48517e39c1aad882e2e6d85da8050520cab6
@@ -1012,7 +1020,6 @@ six==1.16.0 \
     #   python-dateutil
     #   requests-aws4auth
     #   sqlalchemy-utils
-    #   webauthn
 sqlalchemy[asyncio]==1.4.28 \
     --hash=sha256:08e39d65b38d4c3f77c4c9bf090b0ba4ec5721a6e0a74b63d2a9781cdcacf142 \
     --hash=sha256:2019b332cf4f9a513133fdf056dc4cecec7fbae7016ebc574d0f310103eed7ee \
@@ -1120,9 +1127,9 @@ vine==1.3.0 \
     # via
     #   amqp
     #   celery
-webauthn==0.4.7 \
-    --hash=sha256:238391b2e2cc60fb51a2cd2d2d6be149920b9af6184651353d9f95856617a9e7 \
-    --hash=sha256:8ad9072ff1d6169f3be30d4dc8733ea563dd266962397bc58b40f674a6af74ac
+webauthn==1.2.0 \
+    --hash=sha256:681b71d803c085d0911e29f2e2bbb0e49feda1ecdaa3982bae3d63b3377efdda \
+    --hash=sha256:ecae0f99a6dc1a6d53e72f4be323cf58b418c02fe66dffae752eedc1d2ee6a70
     # via -r requirements/main.in
 webencodings==0.5.1 \
     --hash=sha256:a0af1213f3c2226497a97e2b3aa01a7e4bee4f403f95be16fc9acd2947514a78 \

@@ -58,7 +58,7 @@ structlog
 transaction
 trove-classifiers
 typeguard
-webauthn<1.0.0  # https://github.com/pypa/warehouse/pull/10202
+webauthn>=1.0.0,<2.0.0
 whitenoise
 WTForms[email]>=2.0.0
 yara-python
