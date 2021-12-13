@@ -2392,11 +2392,55 @@ class TestFileUpload:
         [
             "nope-{version}.tar.gz",
             "nope-{version}-py3-none-any.whl",
+        ],
+    )
+    def test_upload_fails_with_wrong_prefix(self, pyramid_config, db_request, filename):
+        pyramid_config.testing_securitypolicy(userid=1)
+
+        user = UserFactory.create()
+        db_request.user = user
+        EmailFactory.create(user=user)
+        project = ProjectFactory.create()
+        release = ReleaseFactory.create(project=project, version="1.0")
+        RoleFactory.create(user=user, project=project)
+
+        filename = filename.format(version=release.version)
+
+        db_request.POST = MultiDict(
+            {
+                "metadata_version": "1.2",
+                "name": project.name,
+                "version": release.version,
+                "filetype": "sdist",
+                "md5_digest": "nope!",
+                "content": pretend.stub(
+                    filename=filename,
+                    file=io.BytesIO(b"a" * (legacy.MAX_FILESIZE + 1)),
+                    type="application/tar",
+                ),
+            }
+        )
+
+        with pytest.raises(HTTPBadRequest) as excinfo:
+            legacy.file_upload(db_request)
+
+        resp = excinfo.value
+
+        assert resp.status_code == 400
+        assert resp.status == (
+            "400 Invalid filename: Start filename for project {!r} with {!r}.".format(
+                project.name, project.normalized_name.replace("-", "_")
+            )
+        )
+
+    @pytest.mark.parametrize(
+        "filename",
+        [
             "nope-notaversion.tar.gz",
             "nope-notaversion-py3-none-any.whl",
         ],
     )
-    def test_upload_fails_with_wrong_filename(
+    def test_upload_fails_with_invalid_version(
         self, pyramid_config, db_request, filename
     ):
         pyramid_config.testing_securitypolicy(userid=1)
@@ -2431,11 +2475,7 @@ class TestFileUpload:
         resp = excinfo.value
 
         assert resp.status_code == 400
-        assert resp.status == (
-            "400 Filename {!r} must match project {!r}.".format(
-                filename, project.normalized_name
-            )
-        )
+        assert resp.status == "400 Invalid filename: Invalid version: 'notaversion'."
 
     def test_upload_fails_with_invalid_extension(self, pyramid_config, db_request):
         pyramid_config.testing_securitypolicy(userid=1)

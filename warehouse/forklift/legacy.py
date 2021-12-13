@@ -627,22 +627,6 @@ class MetadataForm(forms.Form):
             )
 
 
-def _is_valid_filename(filename, specified_normalized_name):
-    if filename.endswith(".whl"):
-        parse_func = packaging.utils.parse_wheel_filename
-    else:
-        parse_func = packaging.utils.parse_sdist_filename
-    try:
-        parsed_parts = parse_func(filename)
-    except (
-        packaging.utils.InvalidSdistFilename,
-        packaging.utils.InvalidWheelFilename,
-        packaging.version.InvalidVersion,
-    ):
-        return False
-    return parsed_parts[0] == specified_normalized_name
-
-
 _safe_zipnames = re.compile(r"(purelib|platlib|headers|scripts|data).+", re.I)
 # .tar uncompressed, .tar.gz .tgz, .tar.bz2 .tbz2
 _tar_filenames_re = re.compile(r"\.(?:tar$|t(?:ar\.)?(?P<z_type>gz|bz2)$)")
@@ -748,6 +732,15 @@ def _is_valid_dist_file(filename, filetype):
     # If we haven't yet decided it's not valid, then we'll assume it is and
     # allow it.
     return True
+
+
+def _parse_filename(filename):
+    if filename.endswith(".whl"):
+        parse_func = packaging.utils.parse_wheel_filename
+    else:
+        parse_func = packaging.utils.parse_sdist_filename
+
+    return parse_func(filename)
 
 
 def _is_duplicate_file(db_session, filename, hashes):
@@ -1207,13 +1200,29 @@ def file_upload(request):
             "for more information.",
         )
 
-    # Make sure that our filename matches the project that it is being uploaded
-    # to.
-    normalized_name = project.normalized_name
-    if not _is_valid_filename(filename, normalized_name):
+    try:
+        parsed_filename_parts = _parse_filename(filename)
+    except (
+        packaging.utils.InvalidSdistFilename,
+        packaging.utils.InvalidWheelFilename,
+        packaging.version.InvalidVersion,
+    ) as e:
+        raise _exc_with_message(HTTPBadRequest, f"Invalid filename: {e}.")
+
+    # Make sure that the normalized version of the project name in the filename
+    # matches the normalized project name that it is being uploaded to.
+    #
+    # NB: This allows periods the project name, which violates the wheel spec
+    # at [1], which requires that the filename start with the PEP 503
+    # normalization of the project name, followed by replacing - with _.
+    #
+    # [1] https://packaging.python.org/specifications/binary-distribution-format/
+    if not parsed_filename_parts[0] == project.normalized_name:
         raise _exc_with_message(
             HTTPBadRequest,
-            "Filename {!r} must match project {!r}.".format(filename, normalized_name),
+            "Invalid filename: Start filename for project {!r} with {!r}.".format(
+                project.name, project.normalized_name.replace("-", "_")
+            ),
         )
 
     # Check the content type of what is being uploaded
