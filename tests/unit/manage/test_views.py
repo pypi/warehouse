@@ -22,6 +22,7 @@ from pyramid.httpexceptions import HTTPBadRequest, HTTPNotFound, HTTPSeeOther
 from pyramid.response import Response
 from sqlalchemy.orm import joinedload
 from sqlalchemy.orm.exc import NoResultFound
+from webauthn.helpers import bytes_to_base64url
 from webob.multidict import MultiDict
 
 import warehouse.utils.otp as otp
@@ -1338,7 +1339,7 @@ class TestProvisionWebAuthn:
             validate=lambda: True,
             validated_credential=pretend.stub(
                 credential_id=b"fake_credential_id",
-                public_key=b"fake_public_key",
+                credential_public_key=b"fake_public_key",
                 sign_count=1,
             ),
             label=pretend.stub(data="fake_label"),
@@ -1360,8 +1361,8 @@ class TestProvisionWebAuthn:
             pretend.call(
                 1234,
                 label="fake_label",
-                credential_id="fake_credential_id",
-                public_key="fake_public_key",
+                credential_id=bytes_to_base64url(b"fake_credential_id"),
+                public_key=bytes_to_base64url(b"fake_public_key"),
                 sign_count=1,
             )
         ]

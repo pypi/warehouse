@@ -195,7 +195,7 @@ class ProvisionWebAuthnForm(WebAuthnCredentialMixin, forms.Form):
 
     def validate_credential(self, field):
         try:
-            credential_dict = json.loads(field.data.encode("utf8"))
+            json.loads(field.data.encode("utf-8"))
         except json.JSONDecodeError:
             raise wtforms.validators.ValidationError(
                 "Invalid WebAuthn credential: Bad payload"
@@ -203,7 +203,7 @@ class ProvisionWebAuthnForm(WebAuthnCredentialMixin, forms.Form):
 
         try:
             validated_credential = self.user_service.verify_webauthn_credential(
-                credential_dict,
+                field.data.encode("utf-8"),
                 challenge=self.challenge,
                 rp_id=self.rp_id,
                 origin=self.origin,

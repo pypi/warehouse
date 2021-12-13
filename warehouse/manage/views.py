@@ -22,6 +22,7 @@ from pyramid.view import view_config, view_defaults
 from sqlalchemy import func
 from sqlalchemy.orm import Load, joinedload
 from sqlalchemy.orm.exc import NoResultFound
+from webauthn.helpers import bytes_to_base64url
 
 import warehouse.utils.otp as otp
 
@@ -612,8 +613,12 @@ class ProvisionWebAuthnViews:
             self.user_service.add_webauthn(
                 self.request.user.id,
                 label=form.label.data,
-                credential_id=form.validated_credential.credential_id.decode(),
-                public_key=form.validated_credential.public_key.decode(),
+                credential_id=bytes_to_base64url(
+                    form.validated_credential.credential_id
+                ),
+                public_key=bytes_to_base64url(
+                    form.validated_credential.credential_public_key
+                ),
                 sign_count=form.validated_credential.sign_count,
             )
             self.user_service.record_event(

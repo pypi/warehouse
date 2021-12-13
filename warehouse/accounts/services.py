@@ -23,6 +23,7 @@ import requests
 from passlib.context import CryptContext
 from sqlalchemy.orm import joinedload
 from sqlalchemy.orm.exc import NoResultFound
+from webauthn.helpers import bytes_to_base64url
 from zope.interface import implementer
 
 import warehouse.utils.otp as otp
@@ -419,7 +420,9 @@ class DatabaseUserService:
 
         webauthn_cred = (
             self.db.query(WebAuthn)
-            .filter_by(credential_id=validated_credential.credential_id.decode())
+            .filter_by(
+                credential_id=bytes_to_base64url(validated_credential.credential_id)
+            )
             .first()
         )
 

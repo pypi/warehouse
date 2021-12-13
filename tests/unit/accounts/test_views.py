@@ -20,6 +20,9 @@ import pytest
 
 from pyramid.httpexceptions import HTTPMovedPermanently, HTTPSeeOther
 from sqlalchemy.orm.exc import NoResultFound
+from webauthn.authentication.verify_authentication_response import (
+    VerifiedAuthentication,
+)
 
 from warehouse.accounts import views
 from warehouse.accounts.interfaces import (
@@ -862,7 +865,9 @@ class TestWebAuthn:
         form_obj = pretend.stub(
             validate=pretend.call_recorder(lambda: True),
             credential=pretend.stub(errors=["Fake validation failure"]),
-            validated_credential=(pretend.stub(), pretend.stub()),
+            validated_credential=VerifiedAuthentication(
+                credential_id=b"", new_sign_count=1
+            ),
         )
         form_class = pretend.call_recorder(lambda *a, **kw: form_obj)
         monkeypatch.setattr(views, "WebAuthnAuthenticationForm", form_class)
