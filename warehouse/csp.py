@@ -80,6 +80,7 @@ def includeme(config):
                 "connect-src": [
                     SELF,
                     "https://api.github.com/repos/",
+                    "fastly-insights.com",
                     "*.fastly-insights.com",
                     "*.ethicalads.io",
                     "sentry.io",

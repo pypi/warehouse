@@ -201,6 +201,7 @@ def test_includeme():
                     "connect-src": [
                         "'self'",
                         "https://api.github.com/repos/",
+                        "fastly-insights.com",
                         "*.fastly-insights.com",
                         "*.ethicalads.io",
                         "sentry.io",
