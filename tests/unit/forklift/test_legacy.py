@@ -2433,6 +2433,59 @@ class TestFileUpload:
             )
         )
 
+    def test_wheel_upload_passes_with_period_in_prefix(
+        self, pyramid_config, db_request, metrics, monkeypatch
+    ):
+        """
+        This tests existing behavior which allows periods in the project name,
+        which violates the wheel spec at [1], which requires that the filename
+        start with the PEP 503 normalization of the project name, followed by
+        replacing - with _.
+
+        [1] https://packaging.python.org/specifications/binary-distribution-format/
+        """
+        pyramid_config.testing_securitypolicy(userid=1)
+
+        user = UserFactory.create()
+        db_request.user = user
+        EmailFactory.create(user=user)
+        project = ProjectFactory.create(name="some.project")
+        release = ReleaseFactory.create(project=project, version="1.0")
+        RoleFactory.create(user=user, project=project)
+
+        filename = "{project_name}-{version}-py3-none-any.whl".format(
+            version=release.version, project_name=project.name
+        )
+        monkeypatch.setattr(legacy, "_is_valid_dist_file", lambda *a, **kw: True)
+
+        db_request.find_service = pretend.call_recorder(
+            lambda svc, name=None, context=None: {
+                IFileStorage: pretend.stub(store=lambda *a, **kw: None),
+                IMetricsService: metrics,
+            }.get(svc)
+        )
+
+        db_request.user_agent = "warehouse-tests/6.6.6"
+        db_request.POST = MultiDict(
+            {
+                "metadata_version": "1.2",
+                "name": project.name,
+                "version": release.version,
+                "filetype": "bdist_wheel",
+                "pyversion": "py3",
+                "md5_digest": _TAR_GZ_PKG_MD5,
+                "content": pretend.stub(
+                    filename=filename,
+                    file=io.BytesIO(_TAR_GZ_PKG_TESTDATA),
+                    type="application/tar",
+                ),
+            }
+        )
+
+        resp = legacy.file_upload(db_request)
+
+        assert resp.status_code == 200
+
     @pytest.mark.parametrize(
         "filename",
         [
