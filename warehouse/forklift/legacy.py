@@ -766,7 +766,8 @@ def _is_duplicate_file(db_session, filename, hashes):
 
     if file_ is not None:
         return (
-            file_.filename == filename
+            # This has the effect of canonicalizing the project name and version
+            _parse_filename(file_.filename) == _parse_filename(filename)
             and file_.sha256_digest == hashes["sha256"]
             and file_.md5_digest == hashes["md5"]
             and file_.blake2_256_digest == hashes["blake2_256"]

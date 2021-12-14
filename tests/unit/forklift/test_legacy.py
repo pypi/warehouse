@@ -666,6 +666,45 @@ class TestIsDuplicateFile:
 
         assert legacy._is_duplicate_file(db_request.db, filename, hashes)
 
+    @pytest.mark.parametrize("file_name_prefix", ["foo_bar", "foo.bar"])
+    @pytest.mark.parametrize("project_name", ["foo_bar", "foo.bar"])
+    def test_is_duplicate_true_non_normalized_filename(
+        self, pyramid_config, db_request, file_name_prefix, project_name
+    ):
+        pyramid_config.testing_securitypolicy(userid=1)
+
+        user = UserFactory.create()
+        EmailFactory.create(user=user)
+        project = ProjectFactory.create(name=project_name)
+        release = ReleaseFactory.create(project=project, version="1.0")
+        RoleFactory.create(user=user, project=project)
+
+        filename = "{}-{}.tar.gz".format(project_name, release.version)
+        file_content = io.BytesIO(_TAR_GZ_PKG_TESTDATA)
+        file_value = file_content.getvalue()
+
+        hashes = {
+            "sha256": hashlib.sha256(file_value).hexdigest(),
+            "md5": hashlib.md5(file_value).hexdigest(),
+            "blake2_256": hashlib.blake2b(file_value, digest_size=256 // 8).hexdigest(),
+        }
+        db_request.db.add(
+            File(
+                release=release,
+                filename=filename,
+                md5_digest=hashes["md5"],
+                sha256_digest=hashes["sha256"],
+                blake2_256_digest=hashes["blake2_256"],
+                path="source/{name[0]}/{name}/{filename}".format(
+                    name=project.name, filename=filename
+                ),
+            )
+        )
+
+        duplicate_filename = "{}-{}.tar.gz".format(file_name_prefix, release.version)
+
+        assert legacy._is_duplicate_file(db_request.db, duplicate_filename, hashes)
+
     def test_is_duplicate_none(self, pyramid_config, db_request):
         pyramid_config.testing_securitypolicy(userid=1)
 
