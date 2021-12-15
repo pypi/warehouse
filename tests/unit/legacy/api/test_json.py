@@ -236,7 +236,6 @@ class TestJSONRelease:
         url = "/the/fake/url/"
         project_urls = [
             "url," + url,
-            "Homepage,https://example.com/home2/",
             "Source Code,https://example.com/source-code/",
             "uri,http://john.doe@www.example.com:123/forum/questions/?tag=networking&order=newest#top",  # noqa: E501
             "ldap,ldap://[2001:db8::7]/c=GB?objectClass?one",
@@ -246,7 +245,7 @@ class TestJSONRelease:
             "reservedchars,http://example.com?&$+/:;=@#",  # Commas don't work!
             r"unsafechars,http://example.com <>[]{}|\^%",
         ]
-        expected_urls = []
+        expected_urls = [("Homepage", "https://example.com/home2/")]
         for project_url in project_urls:
             expected_urls.append(tuple(project_url.split(",")))
         expected_urls = OrderedDict(tuple(expected_urls))
@@ -262,6 +261,7 @@ class TestJSONRelease:
                 description=DescriptionFactory.create(
                     content_type=description_content_type
                 ),
+                home_page="https://example.com/home2/",
             )
         ]
 
@@ -317,7 +317,7 @@ class TestJSONRelease:
                 "docs_url": "/the/fake/url/",
                 "download_url": None,
                 "downloads": {"last_day": -1, "last_week": -1, "last_month": -1},
-                "home_page": None,
+                "home_page": "https://example.com/home2/",
                 "keywords": None,
                 "license": None,
                 "maintainer": None,
