@@ -133,7 +133,7 @@ deps: .state/01bootstrap
 	rm -r $(TMPDIR)
 	$(BINDIR)/pip check
 
-requirements/%.txt: .state/01bootstrap requirements/%.in
+requirements/%.txt: requirements/%.in .state/01bootstrap
 	$(BINDIR)/pip-compile --allow-unsafe --generate-hashes --output-file=$@ $<
 
 fix-google-deps:
