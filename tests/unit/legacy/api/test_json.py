@@ -10,6 +10,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from collections import OrderedDict
+
 import pretend
 
 from pyramid.httpexceptions import HTTPMovedPermanently, HTTPNotFound
@@ -245,9 +247,9 @@ class TestJSONRelease:
             r"unsafechars,http://example.com <>[]{}|\^%",
         ]
         expected_urls = []
-        for project_url in reversed(project_urls):
+        for project_url in project_urls:
             expected_urls.append(tuple(project_url.split(",")))
-        expected_urls = dict(tuple(expected_urls))
+        expected_urls = OrderedDict(tuple(expected_urls))
 
         releases = [
             ReleaseFactory.create(project=project, version=v)
