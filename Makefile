@@ -43,6 +43,14 @@ default:
 	@echo
 	@exit 1
 
+requirements/bootstrap.txt: export CUSTOM_COMPILE_COMMAND=make requirements/bootstrap.txt
+requirements/bootstrap.txt:
+	# Regenerates hash file for initial `pip-compile` installation.
+	# To avoid circular dependency, the `pip-tools` for this operation
+	# need to be already installed.
+	echo $${CUSTOM_COMPILE_COMMAND}
+	echo "pip-tools" | pip-compile --allow-unsafe --generate-hashes --output-file=requirements/bootstrap.txt -
+
 .state/01bootstrap: requirements/bootstrap.txt
 	# Create Python 3.8 virtual environment with `pip-compile` for updating
 	# dependecy hashes
