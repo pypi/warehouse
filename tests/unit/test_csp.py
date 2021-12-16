@@ -201,6 +201,7 @@ def test_includeme():
                     "connect-src": [
                         "'self'",
                         "https://api.github.com/repos/",
+                        "fastly-insights.com",
                         "*.fastly-insights.com",
                         "*.ethicalads.io",
                         "sentry.io",
@@ -226,13 +227,13 @@ def test_includeme():
                         "*.fastly-insights.com",
                         "https://cdn.ravenjs.com",
                         "*.ethicalads.io",
-                        "'sha256-ozc1u5ldloj5JQ7atdxk8OzBc9sWZf84E9kk+qQuqfU='",
+                        "'sha256-U3hKDidudIaxBDEzwGJApJgPEf2mWk6cfMWghrAa6i0='",
                     ],
                     "style-src": [
                         "'self'",
                         "fonts.googleapis.com",
                         "*.ethicalads.io",
-                        "'sha256-3SFGwf4pbwaaParsaRO14/phF13lRoCzJal+Qb8dOlk='",
+                        "'sha256-2YHqZokjiizkHi1Zt+6ar0XJ0OeEy/egBnlm+MDMtrM='",
                         "'sha256-47DEQpj8HBSa+/TImW+5JCeuQeRkm5NMpJWZG3hSuFU='",
                     ],
                     "worker-src": ["*.fastly-insights.com"],
