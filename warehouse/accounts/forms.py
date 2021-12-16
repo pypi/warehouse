@@ -336,7 +336,7 @@ class WebAuthnAuthenticationForm(WebAuthnCredentialMixin, _TwoFactorAuthenticati
 
     def validate_credential(self, field):
         try:
-            assertion_dict = json.loads(field.data.encode("utf8"))
+            json.loads(field.data.encode("utf8"))
         except json.JSONDecodeError:
             raise wtforms.validators.ValidationError(
                 _("Invalid WebAuthn assertion: Bad payload")
@@ -345,7 +345,7 @@ class WebAuthnAuthenticationForm(WebAuthnCredentialMixin, _TwoFactorAuthenticati
         try:
             validated_credential = self.user_service.verify_webauthn_assertion(
                 self.user_id,
-                assertion_dict,
+                field.data.encode("utf8"),
                 challenge=self.challenge,
                 origin=self.origin,
                 rp_id=self.rp_id,

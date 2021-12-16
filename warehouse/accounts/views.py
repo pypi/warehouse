@@ -24,6 +24,7 @@ from pyramid.httpexceptions import (
 from pyramid.security import forget, remember
 from pyramid.view import view_config
 from sqlalchemy.orm.exc import NoResultFound
+from webauthn.helpers import bytes_to_base64url
 
 from warehouse.accounts import REDIRECT_FIELD_NAME
 from warehouse.accounts.forms import (
@@ -353,9 +354,10 @@ def webauthn_authentication_validate(request):
     request.session.clear_webauthn_challenge()
 
     if form.validate():
-        credential_id, sign_count = form.validated_credential
-        webauthn = user_service.get_webauthn_by_credential_id(userid, credential_id)
-        webauthn.sign_count = sign_count
+        webauthn = user_service.get_webauthn_by_credential_id(
+            userid, bytes_to_base64url(form.validated_credential.credential_id)
+        )
+        webauthn.sign_count = form.validated_credential.new_sign_count
 
         _login_user(
             request,

@@ -19,6 +19,9 @@ import pretend
 import pytest
 import requests
 
+from webauthn.helpers import bytes_to_base64url
+from webauthn.helpers.structs import AttestationFormat, PublicKeyCredentialType
+from webauthn.registration.verify_registration_response import VerifiedRegistration
 from zope.interface.verify import verifyClass
 
 import warehouse.utils.otp as otp
@@ -554,24 +557,21 @@ class TestDatabaseUserService:
         assert not valid
         assert limiter.hit.calls == [pretend.call(user.id), pretend.call()]
 
-    @pytest.mark.parametrize(
-        ("challenge", "rp_name", "rp_id"),
-        (["fake_challenge", "fake_rp_name", "fake_rp_id"], [None, None, None]),
-    )
-    def test_get_webauthn_credential_options(
-        self, user_service, challenge, rp_name, rp_id
-    ):
+    def test_get_webauthn_credential_options(self, user_service):
         user = UserFactory.create()
         options = user_service.get_webauthn_credential_options(
-            user.id, challenge=challenge, rp_name=rp_name, rp_id=rp_id
+            user.id,
+            challenge=b"fake_challenge",
+            rp_name="fake_rp_name",
+            rp_id="fake_rp_id",
         )
 
-        assert options["user"]["id"] == str(user.id)
+        assert options["user"]["id"] == bytes_to_base64url(str(user.id).encode())
         assert options["user"]["name"] == user.username
         assert options["user"]["displayName"] == user.name
-        assert options["challenge"] == challenge
-        assert options["rp"]["name"] == rp_name
-        assert options["rp"]["id"] == rp_id
+        assert options["challenge"] == bytes_to_base64url(b"fake_challenge")
+        assert options["rp"]["name"] == "fake_rp_name"
+        assert options["rp"]["id"] == "fake_rp_id"
         assert "icon" not in options["user"]
 
     def test_get_webauthn_credential_options_for_blank_name(self, user_service):
@@ -579,7 +579,7 @@ class TestDatabaseUserService:
 
         options = user_service.get_webauthn_credential_options(
             user.id,
-            challenge="fake_challenge",
+            challenge=b"fake_challenge",
             rp_name="fake_rp_name",
             rp_id="fake_rp_id",
         )
@@ -598,10 +598,10 @@ class TestDatabaseUserService:
         )
 
         options = user_service.get_webauthn_assertion_options(
-            user.id, challenge="fake_challenge", rp_id="fake_rp_id"
+            user.id, challenge=b"fake_challenge", rp_id="fake_rp_id"
         )
 
-        assert options["challenge"] == "fake_challenge"
+        assert options["challenge"] == bytes_to_base64url(b"fake_challenge")
         assert options["rpId"] == "fake_rp_id"
         assert options["allowCredentials"][0]["id"] == user.webauthn[0].credential_id
 
@@ -637,12 +637,21 @@ class TestDatabaseUserService:
         user_service.add_webauthn(
             user.id,
             label="test_label",
-            credential_id="foo",
-            public_key="bar",
+            credential_id=bytes_to_base64url(b"foo"),
+            public_key=b"bar",
             sign_count=1,
         )
 
-        fake_validated_credential = pretend.stub(credential_id=b"foo")
+        fake_validated_credential = VerifiedRegistration(
+            credential_id=b"foo",
+            credential_public_key=b"bar",
+            sign_count=0,
+            aaguid="wutang",
+            fmt=AttestationFormat.NONE,
+            credential_type=PublicKeyCredentialType.PUBLIC_KEY,
+            user_verified=False,
+            attestation_object=b"foobar",
+        )
         verify_registration_response = pretend.call_recorder(
             lambda *a, **kw: fake_validated_credential
         )
