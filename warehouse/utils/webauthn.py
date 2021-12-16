@@ -159,9 +159,9 @@ def verify_assertion_response(assertion, *, challenge, user, origin, rp_id):
     # first for the entire clientData payload, and then again
     # for the individual challenge.
     encoded_challenge = _webauthn_b64encode(challenge)
-    webauthn_users = _get_webauthn_user_public_keys(user, rp_id=rp_id)
+    webauthn_user_public_keys = _get_webauthn_user_public_keys(user, rp_id=rp_id)
 
-    for webauthn_user in webauthn_users:
+    for public_key, current_sign_count in webauthn_user_public_keys:
         try:
             _credential = AuthenticationCredential.parse_raw(assertion)
             return pywebauthn.verify_authentication_response(
@@ -169,8 +169,8 @@ def verify_assertion_response(assertion, *, challenge, user, origin, rp_id):
                 expected_challenge=encoded_challenge,
                 expected_rp_id=rp_id,
                 expected_origin=origin,
-                credential_public_key=webauthn_user[0],
-                credential_current_sign_count=webauthn_user[1],
+                credential_public_key=public_key,
+                credential_current_sign_count=current_sign_count,
                 require_user_verification=False,
             )
         except InvalidAuthenticationResponse:
