@@ -210,8 +210,9 @@ class GCSFileStorage(GenericFileStorage):
         # due missing DB entries for this file, and due to our object store
         # disallowing overwrites.
         #
-        # Because the file_path always includes the file's hash, we can be
-        # assured that any attempt to upload a blob that already exists is a
-        # result of this edge case, and we can safely skip the upload.
+        # Because the file_path always includes the file's hash (that we
+        # calculate on upload) we can be assured that any attempt to upload a
+        # blob that already exists is a result of this edge case, and we can
+        # safely skip the upload.
         if not blob.exists():
             blob.upload_from_filename(file_path)
