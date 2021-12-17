@@ -17,6 +17,7 @@ import warnings
 import botocore.exceptions
 import google.api_core.exceptions
 import google.api_core.retry
+import sentry_sdk
 
 from zope.interface import implementer
 
@@ -216,3 +217,5 @@ class GCSFileStorage(GenericFileStorage):
         # safely skip the upload.
         if not blob.exists():
             blob.upload_from_filename(file_path)
+        else:
+            sentry_sdk.capture_message(f"Skipped uploading duplicate file: {file_path}")
