@@ -42,7 +42,14 @@ def upgrade():
             RETURNS NULL ON NULL INPUT;
     """
     )
+    op.execute(
+        """ CREATE INDEX project_name_ultranormalized
+            ON packages
+            (ultranormalize_name(name))
+        """
+    )
 
 
 def downgrade():
+    op.execute("DROP INDEX project_name_ultranormalized")
     op.execute("DROP FUNCTION ultranormalize_name(text)")
