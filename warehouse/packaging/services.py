@@ -17,6 +17,7 @@ import warnings
 import botocore.exceptions
 import google.api_core.exceptions
 import google.api_core.retry
+import sentry_sdk
 
 from zope.interface import implementer
 
@@ -202,4 +203,19 @@ class GCSFileStorage(GenericFileStorage):
         blob = self.bucket.blob(path)
         if meta is not None:
             blob.metadata = meta
-        blob.upload_from_filename(file_path)
+
+        # Our upload is not fully transactional, meaning that this upload may
+        # succeed, and the corresponding write to DB may fail. If/when that
+        # happens, the distribution will not be on PyPI, but the file will be
+        # in the object store, and future repeated upload attempts will fail
+        # due missing DB entries for this file, and due to our object store
+        # disallowing overwrites.
+        #
+        # Because the file_path always includes the file's hash (that we
+        # calculate on upload) we can be assured that any attempt to upload a
+        # blob that already exists is a result of this edge case, and we can
+        # safely skip the upload.
+        if not blob.exists():
+            blob.upload_from_filename(file_path)
+        else:
+            sentry_sdk.capture_message(f"Skipped uploading duplicate file: {file_path}")

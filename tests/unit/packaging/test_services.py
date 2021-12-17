@@ -20,6 +20,8 @@ import pytest
 
 from zope.interface.verify import verifyClass
 
+import warehouse.packaging.services
+
 from warehouse.packaging.interfaces import IDocsStorage, IFileStorage
 from warehouse.packaging.services import (
     GCSFileStorage,
@@ -302,7 +304,8 @@ class TestGCSFileStorage:
             fp.write(b"Test File!")
 
         blob = pretend.stub(
-            upload_from_filename=pretend.call_recorder(lambda file_path: None)
+            upload_from_filename=pretend.call_recorder(lambda file_path: None),
+            exists=lambda: False,
         )
         bucket = pretend.stub(blob=pretend.call_recorder(lambda path: blob))
         storage = GCSFileStorage(bucket)
@@ -321,7 +324,8 @@ class TestGCSFileStorage:
             fp.write(b"Second Test File!")
 
         blob = pretend.stub(
-            upload_from_filename=pretend.call_recorder(lambda file_path: None)
+            upload_from_filename=pretend.call_recorder(lambda file_path: None),
+            exists=lambda: False,
         )
         bucket = pretend.stub(blob=pretend.call_recorder(lambda path: blob))
         storage = GCSFileStorage(bucket)
@@ -345,6 +349,7 @@ class TestGCSFileStorage:
         blob = pretend.stub(
             upload_from_filename=pretend.call_recorder(lambda file_path: None),
             patch=pretend.call_recorder(lambda: None),
+            exists=lambda: False,
         )
         bucket = pretend.stub(blob=pretend.call_recorder(lambda path: blob))
         storage = GCSFileStorage(bucket)
@@ -352,6 +357,30 @@ class TestGCSFileStorage:
         storage.store("foo/bar.txt", filename, meta=meta)
 
         assert blob.metadata == meta
+
+    def test_skips_upload_if_file_exists(self, tmpdir, monkeypatch):
+        filename = str(tmpdir.join("testfile.txt"))
+        with open(filename, "wb") as fp:
+            fp.write(b"Test File!")
+
+        blob = pretend.stub(
+            upload_from_filename=pretend.call_recorder(lambda file_path: None),
+            exists=lambda: True,
+        )
+        bucket = pretend.stub(blob=pretend.call_recorder(lambda path: blob))
+        storage = GCSFileStorage(bucket)
+        capture_message = pretend.call_recorder(lambda message: None)
+        monkeypatch.setattr(
+            warehouse.packaging.services.sentry_sdk, "capture_message", capture_message
+        )
+
+        storage.store("foo/bar.txt", filename)
+
+        assert bucket.blob.calls == [pretend.call("foo/bar.txt")]
+        assert blob.upload_from_filename.calls == []
+        assert capture_message.calls == [
+            pretend.call(f"Skipped uploading duplicate file: {filename}")
+        ]
 
 
 class TestS3DocsStorage:
