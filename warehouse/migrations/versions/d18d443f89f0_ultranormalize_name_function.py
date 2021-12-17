@@ -44,7 +44,7 @@ def upgrade():
     )
     op.execute(
         """ CREATE INDEX project_name_ultranormalized
-            ON packages
+            ON projects
             (ultranormalize_name(name))
         """
     )
