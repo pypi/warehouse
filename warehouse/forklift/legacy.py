@@ -913,18 +913,38 @@ def file_upload(request):
                 ).format(projecthelp=request.help_url(_anchor="admin-intervention")),
             ) from None
 
-        # Before we create the project, we're going to check our prohibited names to
-        # see if this project is even allowed to be registered. If it is not,
+        # Before we create the project, we're going to check our prohibited
+        # names to see if this project name prohibited, or if the project name
+        # is a close approximation of an existing project name. If it is,
         # then we're going to deny the request to create this project.
-        if request.db.query(
+        _prohibited_name = request.db.query(
             exists().where(
                 ProhibitedProjectName.name == func.normalize_pep426_name(form.name.data)
             )
-        ).scalar():
+        ).scalar()
+        if _prohibited_name:
             raise _exc_with_message(
                 HTTPBadRequest,
                 (
                     "The name {name!r} isn't allowed. "
+                    "See {projecthelp} for more information."
+                ).format(
+                    name=form.name.data,
+                    projecthelp=request.help_url(_anchor="project-name"),
+                ),
+            ) from None
+
+        _ultranormalize_collision = request.db.query(
+            exists().where(
+                func.ultranormalize_name(Project.name)
+                == func.ultranormalize_name(form.name.data)
+            )
+        ).scalar()
+        if _ultranormalize_collision:
+            raise _exc_with_message(
+                HTTPBadRequest,
+                (
+                    "The name {name!r} is too similar to an existing project. "
                     "See {projecthelp} for more information."
                 ).format(
                     name=form.name.data,

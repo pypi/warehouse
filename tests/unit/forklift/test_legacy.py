@@ -1044,6 +1044,57 @@ class TestFileUpload:
         ).format(name)
 
     @pytest.mark.parametrize(
+        "conflicting_name",
+        [
+            "toast1ng",
+            "toastlng",
+            "t0asting",
+            "toast-ing",
+            "toast.ing",
+            "toast_ing",
+        ],
+    )
+    def test_fails_with_ultranormalized_names(
+        self, pyramid_config, db_request, conflicting_name
+    ):
+        pyramid_config.testing_securitypolicy(userid=1)
+        user = UserFactory.create()
+        EmailFactory.create(user=user)
+        ProjectFactory.create(name="toasting")
+        db_request.user = user
+        db_request.db.flush()
+
+        db_request.POST = MultiDict(
+            {
+                "metadata_version": "1.2",
+                "name": conflicting_name,
+                "version": "1.0",
+                "filetype": "sdist",
+                "md5_digest": "a fake md5 digest",
+                "content": pretend.stub(
+                    filename=f"{conflicting_name}-1.0.tar.gz",
+                    file=io.BytesIO(_TAR_GZ_PKG_TESTDATA),
+                    type="application/tar",
+                ),
+            }
+        )
+
+        db_request.help_url = pretend.call_recorder(lambda **kw: "/the/help/url/")
+
+        with pytest.raises(HTTPBadRequest) as excinfo:
+            legacy.file_upload(db_request)
+
+        resp = excinfo.value
+
+        assert db_request.help_url.calls == [pretend.call(_anchor="project-name")]
+
+        assert resp.status_code == 400
+        assert resp.status == (
+            "400 The name {!r} is too similar to an existing project. "
+            "See /the/help/url/ for more information."
+        ).format(conflicting_name)
+
+    @pytest.mark.parametrize(
         ("description_content_type", "description", "message"),
         [
             (
