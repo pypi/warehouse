@@ -1090,9 +1090,8 @@ class TestFileUpload:
 
         assert resp.status_code == 400
         assert resp.status == (
-            "400 The name {!r} isn't allowed. "
-            "See /the/help/url/ "
-            "for more information."
+            "400 The name {!r} is too similar to an existing project. "
+            "See /the/help/url/ for more information."
         ).format(conflicting_name)
 
     @pytest.mark.parametrize(
