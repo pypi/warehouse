@@ -869,7 +869,12 @@ def file_upload(request):
             if field.description and isinstance(field, wtforms.StringField):
                 error_message = (
                     "{value!r} is an invalid value for {field}. ".format(
-                        value=field.data, field=field.description
+                        value=(
+                            field.data[:30] + "..." + field.data[-30:]
+                            if len(field.data) > 60
+                            else field.data
+                        ),
+                        field=field.description,
                     )
                     + "Error: {} ".format(form.errors[field_name][0])
                     + "See "

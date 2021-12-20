@@ -943,7 +943,11 @@ class TestFileUpload:
                     "md5_digest": "a fake md5 digest",
                     "summary": "A" * 513,
                 },
-                "'" + "A" * 513 + "' is an invalid value for Summary. "
+                "'"
+                + "A" * 30
+                + "..."
+                + "A" * 30
+                + "' is an invalid value for Summary. "
                 "Error: Field cannot be longer than 512 characters. "
                 "See "
                 "https://packaging.python.org/specifications/core-metadata"
