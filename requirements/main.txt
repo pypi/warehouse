@@ -1065,9 +1065,9 @@ sqlalchemy[asyncio]==1.4.28 \
 sqlalchemy-citext==1.8.0 \
     --hash=sha256:a1740e693a9a334e7c8f60ae731083fe75ce6c1605bb9ca6644a6f1f63b15b77
     # via -r requirements/main.in
-sqlalchemy-utils==0.37.9 \
-    --hash=sha256:4667edbdcb1ece011076b69772ef524bfbb17cc97e03f11ee6b85d98e7741d61 \
-    --hash=sha256:bb6f4da8ac044cb0dd4d0278b1fb434141a5ee9d1881c757a076830ddbb04160
+sqlalchemy-utils==0.38.0 \
+    --hash=sha256:72b00a99941c376e03e4b4dd4df128b8237b1fc4f36601ab116ceab18cb22e1b \
+    --hash=sha256:8ed14babfd05c40884d416cf7719c92cec390bb8ee9e5c4a3eb8e603e15fe784
     # via -r requirements/main.in
 stdlib-list==0.8.0 \
     --hash=sha256:2ae0712a55b68f3fbbc9e58d6fa1b646a062188f49745b495f94d3310a9fdd3e \
