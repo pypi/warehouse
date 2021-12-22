@@ -1148,9 +1148,9 @@ wired==0.3 \
     --hash=sha256:08dcb4ccfe8c0ee5d7a65e73520b4cd838420491a640b5c8d12d39e26aee8e84 \
     --hash=sha256:1122ff2df20aed18e8fe318daba13afc80640bc81f4bb0c2499c73c6a1dc4df0
     # via pyramid-services
-wtforms[email]==2.3.3 \
-    --hash=sha256:7b504fc724d0d1d4d5d5c114e778ec88c37ea53144683e084215eed5155ada4c \
-    --hash=sha256:81195de0ac94fbc8368abbaf9197b88c4f3ffd6c2719b5bf5fc9da744f3d829c
+wtforms[email]==3.0.0 \
+    --hash=sha256:232dbb0094847dca2f45c72136b5ca1d5dca2a3e24ccd2229823b8b74b3c6698 \
+    --hash=sha256:4abfbaa1d529a1d0ac927d44af8dbb9833afd910e56448a103f1893b0b176886
     # via -r requirements/main.in
 yara-python==4.1.3 \
     --hash=sha256:0dde7a7458dd519e49c3c64a46dc3d1b4f614d27455f2669d4e113ff02ba6c66 \
