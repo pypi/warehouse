@@ -586,9 +586,9 @@ kombu==4.6.11 \
     --hash=sha256:be48cdffb54a2194d93ad6533d73f69408486483d189fe9f5990ee24255b0e0a \
     --hash=sha256:ca1b45faac8c0b18493d02a8571792f3c40291cf2bcf1f55afed3d8f3aa7ba74
     # via celery
-limits==2.0.3 \
-    --hash=sha256:66b35577e3824484712b6d1f1c774ba45628db58cb25b729101eaee06fcf32a0 \
-    --hash=sha256:a014be021cdcb4e4340ab7b2ec79cba676cf8ebcbd6ff88742f0407f0e7f2e27
+limits==2.1.0 \
+    --hash=sha256:a98a9577b80eb8bf96c45eb96397b5a05b7a796d45183b5687a5a931a1e05faf \
+    --hash=sha256:f9d2a4957c231de1ff85d7a856f59c0ff285e1b16e76df8645a687f5e2ca1128
     # via -r requirements/main.in
 lxml==4.6.5 \
     --hash=sha256:11ae552a78612620afd15625be9f1b82e3cc2e634f90d6b11709b10a100cba59 \
