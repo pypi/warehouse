@@ -188,6 +188,7 @@ class WebAuthn(db.Model):
         UUID(as_uuid=True),
         ForeignKey("users.id", deferrable=True, initially="DEFERRED"),
         nullable=False,
+        index=True,
     )
     label = Column(String, nullable=False)
     credential_id = Column(String, unique=True, nullable=False)
@@ -202,6 +203,7 @@ class RecoveryCode(db.Model):
         UUID(as_uuid=True),
         ForeignKey("users.id", deferrable=True, initially="DEFERRED"),
         nullable=False,
+        index=True,
     )
     code = Column(String(length=128), nullable=False)
     generated = Column(DateTime, nullable=False, server_default=sql.func.now())
@@ -214,6 +216,7 @@ class UserEvent(db.Model):
         UUID(as_uuid=True),
         ForeignKey("users.id", deferrable=True, initially="DEFERRED"),
         nullable=False,
+        index=True,
     )
     tag = Column(String, nullable=False)
     time = Column(DateTime, nullable=False, server_default=sql.func.now())

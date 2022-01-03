@@ -23,6 +23,7 @@ release_vulnerabilities = Table(
         "release_id",
         ForeignKey("releases.id", onupdate="CASCADE", ondelete="CASCADE"),
         nullable=False,
+        index=True,
     ),
     Column(
         "vulnerability_source",
