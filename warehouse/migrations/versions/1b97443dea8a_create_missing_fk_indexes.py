@@ -17,8 +17,6 @@ Revises: d18d443f89f0
 Create Date: 2022-01-03 20:52:20.615419
 """
 
-import sqlalchemy as sa
-
 from alembic import op
 
 revision = "1b97443dea8a"
