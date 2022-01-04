@@ -110,18 +110,6 @@
 
     <link rel="search" type="application/opensearchdescription+xml" title="PyPI" href="{{ request.route_path('opensearch.xml') }}">
 
-    {# This needs to be included first (in order to capture errors when
-     # executing other JS scripts. It also can't be async, because then order
-     # of execution is not guaranteed, and it can't be deferred, because most
-     # of our JS would then execute before it, and we might miss exceptions.
-     #}
-    {% if request.registry.settings.get("sentry.frontend_dsn") -%}
-    <script
-      src="https://cdn.ravenjs.com/3.26.2/raven.min.js"
-      integrity="sha384-D6LXy67EIC102DTuqypxwQsTHgiatlbvg7q/1YAWFb6lRyZ1lIZ6bGDsX7jxHNKA"
-      crossorigin="anonymous">
-    </script>
-    {% endif -%}
     {# All of our JavaScript should be loaded using the async attribute so it's
      # fine to have it in the header. This will allow the browser to start
      # downloading it ASAP while still not blocking the parser.
@@ -129,9 +117,6 @@
     <script async
             {% if request.registry.settings.get("ga.tracking_id") -%}
             data-ga-id="{{ request.registry.settings['ga.tracking_id'] }}"
-            {% endif -%}
-            {% if request.registry.settings.get("sentry.frontend_dsn") -%}
-            data-sentry-frontend-dsn="{{ request.registry.settings['sentry.frontend_dsn'] }}"
             {% endif -%}
             src="{{ request.static_path('warehouse:static/dist/js/warehouse.js') }}">
     </script>
