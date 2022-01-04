@@ -91,9 +91,9 @@ cachetools==4.2.4 \
     # via
     #   google-auth
     #   premailer
-cattrs==1.9.0 \
-    --hash=sha256:1ef33f089e0a494e8d1b487508356f055c865b1955b125c00c991a4358543c80 \
-    --hash=sha256:8eca49962b1bfc09c24d442aa55688be88efe5c24aeef89d3be135614b95c678
+cattrs==1.10.0 \
+    --hash=sha256:211800f725cdecedcbcf4c753bbd22d248312b37d130f06045434acb7d9b34e1 \
+    --hash=sha256:35dd9063244263e63bd0bd24ea61e3015b00272cead084b2c40d788b0f857c46
     # via webauthn
 cbor2==5.4.2 \
     --hash=sha256:0153635a78e62d70f26f5b3469cb8de822420eda69c996304fb3d0dc1a53d7f3 \
