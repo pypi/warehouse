@@ -15,5 +15,6 @@ markers = [
     'functional: Slower running tests which test the entire system is functioning.',
 ]
 filterwarnings = [
+    'ignore::warehouse.admin.services.InsecureStorageWarning',
     'ignore::warehouse.packaging.services.InsecureStorageWarning',
 ]
