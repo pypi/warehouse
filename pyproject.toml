@@ -17,4 +17,5 @@ markers = [
 filterwarnings = [
     'ignore::warehouse.admin.services.InsecureStorageWarning',
     'ignore::warehouse.packaging.services.InsecureStorageWarning',
+    'ignore:UserDefinedType CIText.*:sqlalchemy.exc.SAWarning'  # See https://github.com/mahmoudimus/sqlalchemy-citext/issues/25
 ]
