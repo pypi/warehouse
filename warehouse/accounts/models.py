@@ -140,7 +140,7 @@ class User(SitemapMixin, db.Model):
         return (
             select([Email.email])
             .where((Email.user_id == self.id) & (Email.primary.is_(True)))
-            .as_scalar()
+            .scalar_subquery()
         )
 
     @property
