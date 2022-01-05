@@ -14,9 +14,14 @@ from pyramid.authentication import (
     BasicAuthAuthenticationPolicy as _BasicAuthAuthenticationPolicy,
     SessionAuthenticationPolicy as _SessionAuthenticationPolicy,
 )
+from pyramid.interfaces import IAuthorizationPolicy
+from pyramid.threadlocal import get_current_request
+from zope.interface import implementer
 
 from warehouse.accounts.interfaces import IUserService
 from warehouse.cache.http import add_vary_callback
+from warehouse.errors import WarehouseDenied
+from warehouse.packaging.models import TwoFactorRequireable
 
 
 class BasicAuthAuthenticationPolicy(_BasicAuthAuthenticationPolicy):
@@ -45,3 +50,46 @@ class SessionAuthenticationPolicy(_SessionAuthenticationPolicy):
 
         # Dispatch to the real SessionAuthenticationPolicy
         return super().unauthenticated_userid(request)
+
+
+@implementer(IAuthorizationPolicy)
+class TwoFactorAuthorizationPolicy:
+    def __init__(self, policy):
+        self.policy = policy
+
+    def permits(self, context, principals, permission):
+        # The Pyramid API doesn't let us access the request here, so we have to pull it
+        # out of the thread local instead.
+        # TODO: Work with Pyramid devs to figure out if there is a better way to support
+        #       the worklow we are using here or not.
+        request = get_current_request()
+
+        # Our request could possibly be a None, if there isn't an active request, in
+        # that case we're going to always deny, because without a request, we can't
+        # determine if this request is authorized or not.
+        if request is None:
+            return WarehouseDenied(
+                "There was no active request.", reason="no_active_request"
+            )
+
+        # Check if the subpolicy permits authorization
+        subpolicy_permits = self.policy.permits(context, principals, permission)
+
+        # If the request is permitted by the subpolicy, check if the context is
+        # 2FA requireable, if 2FA is indeed required, and if the user has 2FA
+        # enabled
+        if subpolicy_permits and isinstance(context, TwoFactorRequireable):
+            if context.two_factor_required and not request.user.has_two_factor:
+                return WarehouseDenied(
+                    "This project requires two factor authentication to be enabled "
+                    "for all contributors.",
+                    reason="two_factor_required",
+                )
+
+        return subpolicy_permits
+
+    def principals_allowed_by_permission(self, context, permission):
+        # We just dispatch this, because this policy doesn't restrict what
+        # principals are allowed by a particular permission, it just restricts
+        # specific requests to not have that permission.
+        return self.policy.principals_allowed_by_permission(context, permission)

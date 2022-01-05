@@ -18,6 +18,7 @@ from pyramid_multiauth import MultiAuthenticationPolicy
 from warehouse.accounts.auth_policy import (
     BasicAuthAuthenticationPolicy,
     SessionAuthenticationPolicy,
+    TwoFactorAuthorizationPolicy,
 )
 from warehouse.accounts.interfaces import (
     IPasswordBreachedService,
@@ -185,7 +186,9 @@ def includeme(config):
         )
     )
     config.set_authorization_policy(
-        MacaroonAuthorizationPolicy(policy=ACLAuthorizationPolicy())
+        TwoFactorAuthorizationPolicy(
+            policy=MacaroonAuthorizationPolicy(policy=ACLAuthorizationPolicy())
+        )
     )
 
     # Add a request method which will allow people to access the user object.

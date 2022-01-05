@@ -420,6 +420,7 @@ def test_includeme(monkeypatch):
     monkeypatch.setattr(accounts, "MultiAuthenticationPolicy", authn_cls)
     monkeypatch.setattr(accounts, "ACLAuthorizationPolicy", authz_cls)
     monkeypatch.setattr(accounts, "MacaroonAuthorizationPolicy", authz_cls)
+    monkeypatch.setattr(accounts, "TwoFactorAuthorizationPolicy", authz_cls)
 
     config = pretend.stub(
         registry=pretend.stub(
@@ -476,4 +477,8 @@ def test_includeme(monkeypatch):
     assert authn_cls.calls == [
         pretend.call([session_authn_obj, basic_authn_obj, macaroon_authn_obj])
     ]
-    assert authz_cls.calls == [pretend.call(), pretend.call(policy=authz_obj)]
+    assert authz_cls.calls == [
+        pretend.call(),
+        pretend.call(policy=authz_obj),
+        pretend.call(policy=authz_obj),
+    ]
