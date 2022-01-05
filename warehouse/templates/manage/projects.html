@@ -58,6 +58,7 @@
   <h1 class="page-title">{% trans project_count=projects|length %}Your projects ({{ project_count }}){% endtrans %}</h1>
   <div class="package-list">
     {% if projects %}
+    {% set user_has_two_factor = request.user.has_two_factor %}
     {% for project in projects %}
     {% set release = project.releases[0] if project.releases else None %}
     <div class="package-snippet">
@@ -82,6 +83,15 @@
           {% endif %}
         </div>
         <div class="package-snippet__buttons">
+
+          {% if not user_has_two_factor and project.name in projects_requiring_2fa %}
+          <a
+            href="{{ request.route_path('manage.account.two-factor') }}"
+            class="button button--danger"
+            title="{% trans %}This project requires 2FA to be enabled to manage{% endtrans %}"
+          >{% trans %}2FA Required{% endtrans %}</a>
+
+          {% else %}
           <a
             href="{{ request.route_path('manage.project.releases', project_name=project.normalized_name) }}"
             class="button button--primary"
@@ -92,6 +102,7 @@
             title="{% trans %}You are not an owner of this project{% endtrans %}"
             {% endif %}
             >{% trans %}Manage{% endtrans %}</a>
+          {% endif %}
           <a
             href="{{ request.route_path('packaging.project', name=project.normalized_name) }}"
             class="button"

@@ -2246,6 +2246,12 @@ class TestManageProjects:
         newer_project_with_no_releases = ProjectFactory(
             releases=[], created=datetime.datetime(2018, 1, 1)
         )
+        project_where_owners_require_2fa = ProjectFactory(
+            releases=[], created=datetime.datetime(2022, 1, 1), owners_require_2fa=True
+        )
+        project_where_pypi_mandates_2fa = ProjectFactory(
+            releases=[], created=datetime.datetime(2022, 1, 2), pypi_mandates_2fa=True
+        )
         db_request.user = UserFactory()
         RoleFactory.create(
             user=db_request.user,
@@ -2281,9 +2287,21 @@ class TestManageProjects:
             project=project_with_newer_release,
             role_name="Owner",
         )
+        RoleFactory.create(
+            user=db_request.user,
+            project=project_where_owners_require_2fa,
+            role_name="Owner",
+        )
+        RoleFactory.create(
+            user=db_request.user,
+            project=project_where_pypi_mandates_2fa,
+            role_name="Owner",
+        )
 
         assert views.manage_projects(db_request) == {
             "projects": [
+                project_where_pypi_mandates_2fa,
+                project_where_owners_require_2fa,
                 newer_project_with_no_releases,
                 project_with_newer_release,
                 older_project_with_no_releases,
@@ -2292,8 +2310,18 @@ class TestManageProjects:
             "projects_owned": {
                 project_with_newer_release.name,
                 newer_project_with_no_releases.name,
+                project_where_owners_require_2fa.name,
+                project_where_pypi_mandates_2fa.name,
             },
-            "projects_sole_owned": {newer_project_with_no_releases.name},
+            "projects_sole_owned": {
+                newer_project_with_no_releases.name,
+                project_where_owners_require_2fa.name,
+                project_where_pypi_mandates_2fa.name,
+            },
+            "projects_requiring_2fa": {
+                project_where_owners_require_2fa.name,
+                project_where_pypi_mandates_2fa.name,
+            },
             "project_invites": [],
         }
 
