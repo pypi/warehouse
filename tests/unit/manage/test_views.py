@@ -812,6 +812,12 @@ class TestManageAccount:
         ]
 
 
+class Test2FA:
+    def test_manage_two_factor(self):
+        request = pretend.stub()
+        assert views.manage_two_factor(request) == {}
+
+
 class TestProvisionTOTP:
     def test_generate_totp_qr(self, monkeypatch):
         user_service = pretend.stub(get_totp_secret=lambda id: None)

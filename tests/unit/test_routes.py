@@ -185,6 +185,11 @@ def test_routes(warehouse):
         ),
         pretend.call("manage.account", "/manage/account/", domain=warehouse),
         pretend.call(
+            "manage.account.two-factor",
+            "/manage/account/two-factor/",
+            domain=warehouse,
+        ),
+        pretend.call(
             "manage.account.totp-provision",
             "/manage/account/totp-provision",
             domain=warehouse,

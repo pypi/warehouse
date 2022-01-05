@@ -407,6 +407,20 @@ class ManageAccountViews:
         return logout(self.request)
 
 
+@view_config(
+    route_name="manage.account.two-factor",
+    renderer="manage/account/two-factor.html",
+    uses_session=True,
+    require_csrf=True,
+    require_methods=False,
+    permission="manage:user",
+    has_translations=True,
+    require_reauth=True,
+)
+def manage_two_factor(request):
+    return {}
+
+
 @view_defaults(
     route_name="manage.account.totp-provision",
     renderer="manage/account/totp-provision.html",
