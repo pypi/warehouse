@@ -134,7 +134,18 @@ class ProjectFactory:
             raise KeyError from None
 
 
-class Project(SitemapMixin, db.Model):
+class TwoFactorRequireable:
+    # Project owner requires 2FA for this project
+    owners_require_2fa = Column(Boolean, nullable=False, server_default=sql.false())
+    # PyPI requires 2FA for this project
+    pypi_mandates_2fa = Column(Boolean, nullable=False, server_default=sql.false())
+
+    @hybrid_property
+    def two_factor_required(self):
+        return self.owners_require_2fa | self.pypi_mandates_2fa
+
+
+class Project(SitemapMixin, TwoFactorRequireable, db.Model):
 
     __tablename__ = "projects"
     __table_args__ = (
