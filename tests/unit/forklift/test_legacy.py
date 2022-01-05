@@ -104,6 +104,7 @@ class TestValidation:
         form, field = pretend.stub(), pretend.stub(data=version)
         legacy._validate_pep440_version(form, field)
 
+    @pytest.mark.filterwarnings("ignore:Creating a LegacyVersion.*:DeprecationWarning")
     @pytest.mark.parametrize("version", ["dog", "1.0.dev.a1", "1.0+local"])
     def test_validates_invalid_pep440_version(self, version):
         form, field = pretend.stub(), pretend.stub(data=version)
@@ -992,6 +993,7 @@ class TestFileUpload:
             ),
         ],
     )
+    @pytest.mark.filterwarnings("ignore:Creating a LegacyVersion.*:DeprecationWarning")
     def test_fails_invalid_post_data(
         self, pyramid_config, db_request, post_data, message
     ):

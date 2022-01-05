@@ -83,7 +83,6 @@ def includeme(config):
                     "fastly-insights.com",
                     "*.fastly-insights.com",
                     "*.ethicalads.io",
-                    "sentry.io",
                     "https://api.pwnedpasswords.com",
                 ]
                 + [
@@ -108,7 +107,6 @@ def includeme(config):
                     "www.googletagmanager.com",
                     "www.google-analytics.com",
                     "*.fastly-insights.com",
-                    "https://cdn.ravenjs.com",
                     "*.ethicalads.io",
                     # Hash for v1.4.0 of ethicalads.min.js
                     "'sha256-U3hKDidudIaxBDEzwGJApJgPEf2mWk6cfMWghrAa6i0='",
