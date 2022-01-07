@@ -4,6 +4,10 @@ msgid ""
 " action."
 msgstr ""
 
+#: warehouse/views.py:272
+msgid "Locale updated"
+msgstr ""
+
 #: warehouse/accounts/forms.py:43
 msgid "No user found with that username"
 msgstr ""

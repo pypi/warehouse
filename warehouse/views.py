@@ -268,8 +268,8 @@ def locale(request):
         # message indicating success to be in the new language as well, we need
         # to do it here.
         tdirs = request.registry.queryUtility(ITranslationDirectories)
-        localizer = make_localizer(form.locale_id.data, tdirs).translate
-        request.session.flash(localizer("Locale updated"), queue="success")
+        _ = make_localizer(form.locale_id.data, tdirs).translate
+        request.session.flash(_("Locale updated"), queue="success")
         resp.set_cookie(LOCALE_ATTR, form.locale_id.data)
 
     return resp
