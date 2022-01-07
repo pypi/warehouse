@@ -12,6 +12,7 @@
 
 import functools
 import logging
+import os
 import time
 import urllib.parse
 
@@ -181,6 +182,7 @@ def includeme(config):
         # Celery doesn't handle paths/query arms being passed into the SQS broker,
         # so we'll just remove them from here.
         broker_url = urllib.parse.urlunparse(parsed_url[:2] + ("", "", "", ""))
+        os.environ['BROKER_URL'] = broker_url
 
         if "queue_name_prefix" in parsed_query:
             broker_transport_options["queue_name_prefix"] = (
