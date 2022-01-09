@@ -190,6 +190,7 @@ def json_release(release, request):
             "author_email": release.author_email,
             "maintainer": release.maintainer,
             "maintainer_email": release.maintainer_email,
+            "uploader": release.uploader,
             "requires_python": release.requires_python,
             "platform": release.platform,
             "downloads": {"last_day": -1, "last_week": -1, "last_month": -1},
