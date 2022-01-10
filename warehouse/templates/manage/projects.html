@@ -88,7 +88,11 @@
           <a
             href="{{ request.route_path('manage.account.two-factor') }}"
             class="button button--danger"
+            {% if project.pypi_mandates_2fa %}
+            title="{% trans %}PyPI requires 2FA to be enabled to manage this project{% endtrans %}"
+            {% else %}
             title="{% trans %}This project requires 2FA to be enabled to manage{% endtrans %}"
+            {% endif %}
           >{% trans %}2FA Required{% endtrans %}</a>
 
           {% else %}

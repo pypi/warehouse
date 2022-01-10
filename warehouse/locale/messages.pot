@@ -2450,7 +2450,7 @@ msgid "from %(ip_address)s"
 msgstr ""
 
 #: warehouse/templates/manage/manage_base.html:16
-#: warehouse/templates/manage/projects.html:104
+#: warehouse/templates/manage/projects.html:108
 #: warehouse/templates/manage/releases.html:88
 msgid "Manage"
 msgstr ""
@@ -2626,37 +2626,41 @@ msgstr ""
 msgid "Sole owner"
 msgstr ""
 
-#: warehouse/templates/manage/projects.html:91
+#: warehouse/templates/manage/projects.html:92
+msgid "PyPI requires 2FA to be enabled to manage this project"
+msgstr ""
+
+#: warehouse/templates/manage/projects.html:94
 msgid "This project requires 2FA to be enabled to manage"
 msgstr ""
 
-#: warehouse/templates/manage/projects.html:92
+#: warehouse/templates/manage/projects.html:96
 msgid "2FA Required"
 msgstr ""
 
-#: warehouse/templates/manage/projects.html:99
+#: warehouse/templates/manage/projects.html:103
 msgid "Manage this project"
 msgstr ""
 
-#: warehouse/templates/manage/projects.html:102
+#: warehouse/templates/manage/projects.html:106
 msgid "You are not an owner of this project"
 msgstr ""
 
-#: warehouse/templates/manage/projects.html:110
+#: warehouse/templates/manage/projects.html:114
 msgid "View this project's public page"
 msgstr ""
 
-#: warehouse/templates/manage/projects.html:113
+#: warehouse/templates/manage/projects.html:117
 msgid "This project has no releases"
 msgstr ""
 
-#: warehouse/templates/manage/projects.html:115
+#: warehouse/templates/manage/projects.html:119
 #: warehouse/templates/manage/releases.html:94
 #: warehouse/templates/packaging/detail.html:359
 msgid "View"
 msgstr ""
 
-#: warehouse/templates/manage/projects.html:122
+#: warehouse/templates/manage/projects.html:126
 #, python-format
 msgid ""
 "You have not uploaded any projects to PyPI, yet. To learn how to get "

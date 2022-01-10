@@ -107,7 +107,7 @@ def forbidden(exc, request):
     if isinstance(exc.result, WarehouseDenied):
         # If the forbidden error is because the user doesn't have 2FA enabled, we'll
         # redirect them to the 2FA page
-        if exc.result.reason == "two_factor_required":
+        if exc.result.reason in {"owners_require_2fa", "pypi_mandates_2fa"}:
             request.session.flash(
                 request._(
                     "Two-factor authentication must be enabled on your account to "

@@ -79,11 +79,17 @@ class TwoFactorAuthorizationPolicy:
         # 2FA requireable, if 2FA is indeed required, and if the user has 2FA
         # enabled
         if subpolicy_permits and isinstance(context, TwoFactorRequireable):
-            if context.two_factor_required and not request.user.has_two_factor:
+            if context.owners_require_2fa and not request.user.has_two_factor:
                 return WarehouseDenied(
                     "This project requires two factor authentication to be enabled "
                     "for all contributors.",
-                    reason="two_factor_required",
+                    reason="owners_require_2fa",
+                )
+            if context.pypi_mandates_2fa and not request.user.has_two_factor:
+                return WarehouseDenied(
+                    "PyPI requires two factor authentication to be enabled "
+                    "for all contributors to this project.",
+                    reason="pypi_mandates_2fa",
                 )
 
         return subpolicy_permits

@@ -205,15 +205,15 @@ class TestTwoFactorAuthorizationPolicy:
         assert result == permits_result
 
     @pytest.mark.parametrize(
-        "owners_require_2fa, pypi_mandates_2fa",
+        "owners_require_2fa, pypi_mandates_2fa, reason",
         [
-            (True, False),
-            (False, True),
-            (True, True),
+            (True, False, "owners_require_2fa"),
+            (False, True, "pypi_mandates_2fa"),
+            (True, True, "pypi_mandates_2fa"),
         ],
     )
     def test_denies_if_2fa_is_required_but_user_doesnt_have_2fa(
-        self, monkeypatch, owners_require_2fa, pypi_mandates_2fa, db_request
+        self, monkeypatch, owners_require_2fa, pypi_mandates_2fa, reason, db_request
     ):
         user = pretend.stub(has_two_factor=False)
         db_request.user = user
@@ -230,11 +230,18 @@ class TestTwoFactorAuthorizationPolicy:
         )
         result = policy.permits(context, pretend.stub(), pretend.stub())
 
-        assert result == WarehouseDenied(
-            "This project requires two factor authentication to be enabled "
-            "for all contributors.",
-            reason="two_factor_required",
-        )
+        summary = {
+            "owners_require_2fa": (
+                "This project requires two factor authentication to be enabled "
+                "for all contributors.",
+            ),
+            "pypi_mandates_2fa": (
+                "PyPI requires two factor authentication to be enabled "
+                "for all contributors to this project.",
+            ),
+        }[reason]
+
+        assert result == WarehouseDenied(summary, reason="two_factor_required")
 
     def test_principals_allowed_by_permission(self):
         principals = pretend.stub()

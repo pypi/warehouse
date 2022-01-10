@@ -151,12 +151,9 @@ class TestForbiddenView:
         assert resp.status_code == 303
         assert resp.headers["Location"] == "/accounts/login/?next=/foo/bar/%3Fb%3Ds"
 
-    def test_two_factor_required(self):
-        result = WarehouseDenied(
-            "This project requires two factor authentication to be enabled "
-            "for all contributors.",
-            reason="two_factor_required",
-        )
+    @pytest.mark.parametrize("reason", ("owners_require_2fa", "pypi_mandates_2fa"))
+    def test_two_factor_required(self, reason):
+        result = WarehouseDenied("Some summary", reason=reason)
         exc = pretend.stub(result=result)
         request = pretend.stub(
             authenticated_userid=1,
