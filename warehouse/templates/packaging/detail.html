@@ -86,11 +86,13 @@
     {% set project_version = "==" + release.version %}
   {%- endif -%}
 
+  <span data-package-name="{{ release.project.name }}" data-project-version="{{ project_version }}" data-index-url="{{ index_url }}">
   {%- if release.version.epoch -%}
     pip install{{ index_url }} '{{ release.project.name }}{{ project_version }}'
   {%- else -%}
     pip install{{ index_url }} {{ release.project.name }}{{ project_version }}
   {%- endif -%}
+  </span>
 {%- endmacro -%}
 
 {%- macro file_table(files) -%}
@@ -153,6 +155,28 @@
           <i class="fa fa-copy" aria-hidden="true"></i>
           <span class="sr-only">{% trans %}Copy PIP instructions{% endtrans %}</span>
         </button>
+        <button type="button" class="package-manager-settings-toggle">
+          <i class="fa fa-cog" aria-hidden="true"></i>
+          <span class="sr-only">{% trans %}Package manager settings{% endtrans %}</span>
+        </button>
+        <form class="package-manager-settings hidden">
+          <label>
+            <input type="radio" name="package-manager" value="pip" checked />
+            <span>pip</span>
+          </label>
+          <label>
+            <input type="radio" name="package-manager" value="poetry" />
+            <span>poetry</span>
+          </label>
+          <label>
+            <input type="radio" name="package-manager" value="pipenv" />
+            <span>pipenv</span>
+          </label>
+          <label>
+            <input type="radio" name="package-manager" value="pdm" />
+            <span>pdm</span>
+          </label>
+        </form>
       </p>
       {% endif %}
     </div>

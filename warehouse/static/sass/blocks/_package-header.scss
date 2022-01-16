@@ -73,12 +73,20 @@
     margin-top: -10px;
   }
 
+  .package-manager-settings {
+    margin-top: 10px;
+
+    label {
+      margin-right: 20px;
+    }
+  }
+
   &__pip-instructions {
     @include clearfix;
     margin: 10px 0 0;
     padding-bottom: 0;
 
-    span {
+    > span {
       font-family: $code-font;
       font-weight: 500;
       font-size: 1.2rem;
