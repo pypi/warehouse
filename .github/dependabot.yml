@@ -10,3 +10,8 @@ updates:
   - dependency-type: direct
   - dependency-type: indirect
   rebase-strategy: "disabled"
+  ignore:
+    - dependency-name: "pytest-postgresql"
+      # Version 4 and up requires psycopg version 3.
+      # Needs to update in project first, along with SQLAlchemy
+      versions: ["4.x"]
