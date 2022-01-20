@@ -16,6 +16,10 @@
 # (e.g. HS256) in the foreseeable future.
 VALID_ALGS = {"RS256"}
 
+# This is a map of OIDC providers supported by Warehouse.
+# The keys are human-readable names for each provider, and the values
+# are the "issuer" (i.e., `iss`) FQDN that JWTs signed by their respective
+# JWKs are checked against.
 OIDC_PROVIDERS = {
     "github": "https://token.actions.githubusercontent.com",
 }
