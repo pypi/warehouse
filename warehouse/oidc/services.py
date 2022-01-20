@@ -10,8 +10,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import json
 import logging
 
+import redis
 import requests
 
 from zope.interface import implementer
@@ -24,14 +26,14 @@ logger = logging.getLogger(__name__)
 
 @implementer(IJWKService)
 class JWKService:
-    def __init__(self):
-        pass
+    def __init__(self, config):
+        self._config = config
 
     @classmethod
-    def create_service(cls, context, request):
-        return cls()
+    def create_service(cls, _context, config):
+        return cls(config)
 
-    def fetch_keysets():
+    def fetch_keysets(self):
         for provider, oidc_url in oidc.OIDC_PROVIDERS.items():
             resp = requests.get(oidc_url)
 
@@ -61,4 +63,7 @@ class JWKService:
             yield (provider, keys)
 
     def keyset_for_provider(self, provider):
-        pass
+        with redis.StrictRedis.from_url(
+            self._config.registry.settings.get("oidc.jwk_cache_url")
+        ) as r:
+            return json.loads(r.get(oidc.jwk_cache_key(provider)))

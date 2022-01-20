@@ -19,3 +19,10 @@ VALID_ALGS = {"RS256"}
 OIDC_PROVIDERS = {
     "github": "https://token.actions.githubusercontent.com/.well-known/openid-configuration",
 }
+
+
+def jwk_cache_key(provider):
+    """
+    Returns a reasonable Redis cache key for the given provider name.
+    """
+    return f"/warehouse/oidc/jwks/{provider}"
