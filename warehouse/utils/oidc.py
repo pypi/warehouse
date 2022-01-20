@@ -17,8 +17,10 @@
 VALID_ALGS = {"RS256"}
 
 OIDC_PROVIDERS = {
-    "github": "https://token.actions.githubusercontent.com/.well-known/openid-configuration",
+    "github": "https://token.actions.githubusercontent.com",
 }
+
+WELL_KNOWN_OIDC_CONF = ".well-known/openid-configuration"
 
 
 def jwk_cache_key(provider):

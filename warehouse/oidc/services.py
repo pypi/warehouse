@@ -35,6 +35,10 @@ class JWKService:
 
     def fetch_keysets(self):
         for provider, oidc_url in oidc.OIDC_PROVIDERS.items():
+            # OIDC_PROVIDERS provides the issuer URL, which needs to be
+            # built up to reach the actual configuration.
+            oidc_url = f"{oidc_url}/{oidc.WELL_KNOWN_OIDC_CONF}"
+
             resp = requests.get(oidc_url)
 
             # For whatever reason, an OIDC provider's configuration URL might be
