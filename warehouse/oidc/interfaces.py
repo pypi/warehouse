@@ -22,6 +22,13 @@ class IJWKService(Interface):
         """
         pass
 
+    def fetch_keysets():
+        """
+        Fetch the JWKs known to Warehouse and yield them as tuples of
+        `(provider-name, key-list)`.
+        """
+        pass
+
     def keyset_for_provider(provider):
         """
         Return a list of JWKs for the given provider.

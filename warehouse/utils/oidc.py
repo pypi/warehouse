@@ -16,6 +16,6 @@
 # (e.g. HS256) in the foreseeable future.
 VALID_ALGS = {"RS256"}
 
-PYPI_OIDC_PROVIDERS = {
+OIDC_PROVIDERS = {
     "github": "https://token.actions.githubusercontent.com/.well-known/openid-configuration",
 }

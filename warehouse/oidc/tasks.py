@@ -12,8 +12,12 @@
 
 
 from warehouse import tasks
+from warehouse.oidc.interfaces import IJWKService
 
 
 @tasks.task(bind=True, ignore_result=True, acks_late=True)
 def update_oidc_jwks(self, request):
-    pass
+    jwk_service = request.find_service(IJWKService)
+    for (provider_name, keys) in jwk_service.fetch_keysets():
+        # TODO: These need to go into a persistent store.
+        pass

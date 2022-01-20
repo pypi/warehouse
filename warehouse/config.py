@@ -458,6 +458,9 @@ def configure(settings=None):
     # Register support for Macaroon based authentication
     config.include(".macaroons")
 
+    # Register support for OIDC provider based authentication
+    config.include(".oidc")
+
     # Register support for malware checks
     config.include(".malware")
 
