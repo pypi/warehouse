@@ -321,16 +321,26 @@ Errors when executing ``make build``
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 * If you are using Ubuntu and ``invalid reference format`` error is displayed,
-  you can fix it by installing Docker through `Snap <https://snapcraft.io/docker>`.
+  you can fix it by installing Docker through `Snap <https://snapcraft.io/docker>`_.
 
-.. code-block:: console
+  .. code-block:: console
 
-    snap install docker
+      snap install docker
 
-* If you receive the error: ``python3.8: command not found`` , ensure you have
+* If you receive the error: ``python3.8: command not found``, ensure you have
   Python 3.8 installed on your system.
   This is the "base" Python version that Warehouse uses to create the rest of
   the development environment.
+
+* If you are using macOS and you see an
+  ``Error: pg_config executable not found.`` message while building ``psycopg``,
+  you can fix it by installing ``libpq`` via ``brew`` and adding it to your
+  ``PATH``:
+
+  .. code-block:: console
+
+      brew install libpq
+      export PATH="/usr/local/opt/libpq/bin:$PATH"
 
 Errors when executing ``make serve``
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^

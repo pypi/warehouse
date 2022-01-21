@@ -105,11 +105,14 @@ class RoleInvitation(db.Model):
     )
     token = Column(Text, nullable=False)
     user_id = Column(
-        ForeignKey("users.id", onupdate="CASCADE", ondelete="CASCADE"), nullable=False
+        ForeignKey("users.id", onupdate="CASCADE", ondelete="CASCADE"),
+        nullable=False,
+        index=True,
     )
     project_id = Column(
         ForeignKey("projects.id", onupdate="CASCADE", ondelete="CASCADE"),
         nullable=False,
+        index=True,
     )
 
     user = orm.relationship(User, lazy=False)
@@ -279,6 +282,7 @@ class ProjectEvent(db.Model):
             "projects.id", deferrable=True, initially="DEFERRED", ondelete="CASCADE"
         ),
         nullable=False,
+        index=True,
     )
     tag = Column(String, nullable=False)
     time = Column(DateTime, nullable=False, server_default=sql.func.now())
@@ -380,6 +384,7 @@ class Release(db.Model):
     description_id = Column(
         ForeignKey("release_descriptions.id", onupdate="CASCADE", ondelete="CASCADE"),
         nullable=False,
+        index=True,
     )
     description = orm.relationship(
         "Description",

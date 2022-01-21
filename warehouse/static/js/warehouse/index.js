@@ -40,15 +40,6 @@ import BindModalKeys from "warehouse/utils/bind-modal-keys";
 import BindFilterKeys from "warehouse/utils/bind-filter-keys";
 import {GuardWebAuthn, AuthenticateWebAuthn, ProvisionWebAuthn} from "warehouse/utils/webauthn";
 
-// Do this before anything else, to potentially capture errors down the line
-docReady(() => {
-  /* global Raven */
-  let element = document.querySelector("script[data-sentry-frontend-dsn]");
-  if (element && typeof Raven !== "undefined") {
-    Raven.config(element.dataset.sentryFrontendDsn).install();
-  }
-});
-
 // Show unsupported browser warning if necessary
 docReady(() => {
   if (navigator.appVersion.includes("MSIE 10")) {

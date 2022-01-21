@@ -99,6 +99,7 @@
     .button {
       display: inline-block;
       float: left;
+      pointer-events: auto;
     }
 
     .button--primary {
