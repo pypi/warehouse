@@ -112,6 +112,13 @@ def user_projects(request):
         "projects_sole_owned": (
             request.db.query(Project).join(with_sole_owner).order_by(Project.name).all()
         ),
+        "projects_requiring_2fa": (
+            request.db.query(Project)
+            .join(projects_owned, Project.id == projects_owned.c.id)
+            .filter(Project.two_factor_required)
+            .order_by(Project.name)
+            .all()
+        ),
     }
 
 
@@ -405,6 +412,20 @@ class ManageAccountViews:
         self.request.db.delete(self.request.user)
 
         return logout(self.request)
+
+
+@view_config(
+    route_name="manage.account.two-factor",
+    renderer="manage/account/two-factor.html",
+    uses_session=True,
+    require_csrf=True,
+    require_methods=False,
+    permission="manage:user",
+    has_translations=True,
+    require_reauth=True,
+)
+def manage_two_factor(request):
+    return {}
 
 
 @view_defaults(
@@ -938,6 +959,10 @@ def manage_projects(request):
     projects_sole_owned = set(
         project.name for project in all_user_projects["projects_sole_owned"]
     )
+    projects_requiring_2fa = set(
+        project.name for project in all_user_projects["projects_requiring_2fa"]
+    )
+
     project_invites = (
         request.db.query(RoleInvitation)
         .filter(RoleInvitation.invite_status == RoleInvitationStatus.Pending)
@@ -951,6 +976,7 @@ def manage_projects(request):
         "projects": sorted(request.user.projects, key=_key, reverse=True),
         "projects_owned": projects_owned,
         "projects_sole_owned": projects_sole_owned,
+        "projects_requiring_2fa": projects_requiring_2fa,
         "project_invites": project_invites,
     }
 

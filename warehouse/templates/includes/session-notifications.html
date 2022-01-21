@@ -34,7 +34,7 @@
 {% if request.user and request.user.primary_email.verified and not request.user.has_two_factor %}
 <div class="notification-bar notification-bar--dismissable" data-controller="notification" data-target="notification.notification">
   <span class="notification-bar__message">
-    {% trans trimmed href=request.route_path('manage.account', _anchor="two-factor") %}
+    {% trans trimmed href=request.route_path('manage.account.two-factor') %}
       Two factor authentication is available, <a href="{{ href }}">enable it now for your account.</a>
     {% endtrans %}
   </span>

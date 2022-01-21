@@ -17,7 +17,13 @@ msgstr ""
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
 "X-Generator: Weblate 4.9-dev\n"
 
-#: warehouse/views.py:254
+#: warehouse/views.py:112
+msgid ""
+"Two-factor authentication must be enabled on your account to perform this "
+"action."
+msgstr ""
+
+#: warehouse/views.py:272
 msgid "Locale updated"
 msgstr "Lokaĵaro ĝisdatigita"
 
@@ -250,35 +256,35 @@ msgstr "Vi estas nun ${role} de la projekto '${project_name}'."
 msgid "Banner Preview"
 msgstr "Antaŭrigardo de Rubando"
 
-#: warehouse/manage/views.py:208
+#: warehouse/manage/views.py:215
 msgid "Email ${email_address} added - check your email for a verification link"
 msgstr ""
 "Retpoŝta adreso ${email_address} aldonita — kontrolu vian enirkeston pri "
 "ligilo de kontrolado"
 
-#: warehouse/manage/views.py:702 warehouse/manage/views.py:738
+#: warehouse/manage/views.py:723 warehouse/manage/views.py:759
 msgid ""
 "You must provision a two factor method before recovery codes can be generated"
 msgstr "Vi devas agordi dupaŝan metodon por generi restaŭrajn kodojn"
 
-#: warehouse/manage/views.py:713
+#: warehouse/manage/views.py:734
 msgid "Recovery codes already generated"
 msgstr "Restaŭraj kodoj jam generitaj"
 
-#: warehouse/manage/views.py:714
+#: warehouse/manage/views.py:735
 msgid "Generating new recovery codes will invalidate your existing codes."
 msgstr "Generado de novaj restaŭraj kodoj eksvalidigos viajn aktualajn kodojn."
 
-#: warehouse/manage/views.py:766
+#: warehouse/manage/views.py:787
 msgid "Invalid credentials. Try again"
 msgstr "Ne validaj ensalutiloj. Reprovu"
 
-#: warehouse/manage/views.py:1516
+#: warehouse/manage/views.py:1542
 msgid "User '${username}' already has ${role_name} role for project"
 msgstr ""
 "La uzanto '${username}' jam havas la rolon ${role_name} por la projekto"
 
-#: warehouse/manage/views.py:1527
+#: warehouse/manage/views.py:1553
 msgid ""
 "User '${username}' does not have a verified primary email address and cannot "
 "be added as a ${role_name} for project"
@@ -286,25 +292,25 @@ msgstr ""
 "Uzanto '${username}' ne havas kontrolitan ĉefan retpoŝtan adreson, kaj tial "
 "ne rajtas esti aldonita kiel ${role_name} de projekto"
 
-#: warehouse/manage/views.py:1540
+#: warehouse/manage/views.py:1566
 msgid ""
 "User '${username}' already has an active invite. Please try again later."
 msgstr ""
 "La uzanto '${username}' ankoraŭ havas aktivan inviton. Bonvolu reprovi poste."
 
-#: warehouse/manage/views.py:1598
+#: warehouse/manage/views.py:1624
 msgid "Invitation sent to '${username}'"
 msgstr "Invito sendita al '${username}'"
 
-#: warehouse/manage/views.py:1645
+#: warehouse/manage/views.py:1671
 msgid "Could not find role invitation."
 msgstr "Ne povis trovi inviton al rolo."
 
-#: warehouse/manage/views.py:1656
+#: warehouse/manage/views.py:1682
 msgid "Invitation already expired."
 msgstr "Invito jam eksvalidiĝis."
 
-#: warehouse/manage/views.py:1680
+#: warehouse/manage/views.py:1706
 msgid "Invitation revoked from '${username}'."
 msgstr "Invito de '${username}' eksvalidiĝis."
 
@@ -348,14 +354,14 @@ msgstr "Monty Python - La Sceno de la Fromaĝobutiko"
 #: warehouse/templates/includes/hash-modal.html:23
 #: warehouse/templates/includes/packaging/project-data.html:66
 #: warehouse/templates/index.html:112 warehouse/templates/index.html:116
-#: warehouse/templates/manage/account.html:153
-#: warehouse/templates/manage/account.html:252
-#: warehouse/templates/manage/account.html:258
+#: warehouse/templates/manage/account.html:228
+#: warehouse/templates/manage/account.html:234
 #: warehouse/templates/manage/account/totp-provision.html:32
 #: warehouse/templates/manage/account/webauthn-provision.html:26
 #: warehouse/templates/manage/account/webauthn-provision.html:28
 #: warehouse/templates/manage/account/webauthn-provision.html:53
 #: warehouse/templates/manage/account/webauthn-provision.html:74
+#: warehouse/templates/manage/manage_base.html:38
 #: warehouse/templates/manage/release.html:119
 #: warehouse/templates/manage/release.html:175
 #: warehouse/templates/manage/releases.html:140
@@ -580,10 +586,10 @@ msgstr "Ŝalti poŝaparatan version"
 #: warehouse/templates/base.html:152 warehouse/templates/base.html:161
 #: warehouse/templates/base.html:171
 #: warehouse/templates/includes/session-notifications.html:19
-#: warehouse/templates/manage/account.html:789
+#: warehouse/templates/manage/account.html:694
 #: warehouse/templates/manage/documentation.html:27
-#: warehouse/templates/manage/manage_base.html:106
-#: warehouse/templates/manage/manage_base.html:158
+#: warehouse/templates/manage/manage_base.html:204
+#: warehouse/templates/manage/manage_base.html:256
 #: warehouse/templates/manage/release.html:163
 #: warehouse/templates/manage/settings.html:76
 msgid "Warning"
@@ -861,7 +867,7 @@ msgstr "Eraro dum traktado de formularo"
 #: warehouse/templates/accounts/register.html:140
 #: warehouse/templates/accounts/reset-password.html:60
 #: warehouse/templates/accounts/reset-password.html:65
-#: warehouse/templates/manage/account.html:429
+#: warehouse/templates/manage/account.html:405
 #: warehouse/templates/re-auth.html:18 warehouse/templates/re-auth.html:68
 msgid "Confirm password"
 msgstr "Konfirmi pasvorton"
@@ -873,7 +879,7 @@ msgstr "Konfirmu pasvorton por daŭrigo"
 #: warehouse/templates/accounts/login.html:69
 #: warehouse/templates/accounts/register.html:110
 #: warehouse/templates/accounts/reset-password.html:38
-#: warehouse/templates/manage/manage_base.html:167
+#: warehouse/templates/manage/manage_base.html:265
 #: warehouse/templates/re-auth.html:49
 msgid "Password"
 msgstr "Pasvorto"
@@ -890,12 +896,12 @@ msgstr "Pasvorto"
 #: warehouse/templates/accounts/reset-password.html:40
 #: warehouse/templates/accounts/reset-password.html:62
 #: warehouse/templates/accounts/two-factor.html:89
-#: warehouse/templates/manage/account.html:294
-#: warehouse/templates/manage/account.html:311
-#: warehouse/templates/manage/account.html:368
-#: warehouse/templates/manage/account.html:393
-#: warehouse/templates/manage/account.html:410
-#: warehouse/templates/manage/account.html:426
+#: warehouse/templates/manage/account.html:270
+#: warehouse/templates/manage/account.html:287
+#: warehouse/templates/manage/account.html:344
+#: warehouse/templates/manage/account.html:369
+#: warehouse/templates/manage/account.html:386
+#: warehouse/templates/manage/account.html:402
 #: warehouse/templates/manage/account/totp-provision.html:69
 #: warehouse/templates/manage/account/webauthn-provision.html:44
 #: warehouse/templates/manage/roles.html:170
@@ -912,7 +918,7 @@ msgid "Your password"
 msgstr "Via pasvorto"
 
 #: warehouse/templates/accounts/login.html:92
-#: warehouse/templates/manage/manage_base.html:170
+#: warehouse/templates/manage/manage_base.html:268
 #: warehouse/templates/re-auth.html:72
 msgid "Show password"
 msgstr "Montri pasvorton"
@@ -1000,7 +1006,7 @@ msgstr "Ensaluti al %(title)s"
 #: warehouse/templates/accounts/login.html:49
 #: warehouse/templates/accounts/profile.html:32
 #: warehouse/templates/accounts/register.html:89
-#: warehouse/templates/manage/account.html:272
+#: warehouse/templates/manage/account.html:248
 #: warehouse/templates/manage/account/recovery_codes-provision.html:85
 #: warehouse/templates/manage/roles.html:173
 msgid "Username"
@@ -1027,7 +1033,7 @@ msgid "Profile of %(username)s"
 msgstr "Profilo de %(username)s"
 
 #: warehouse/templates/accounts/profile.html:23
-#: warehouse/templates/manage/account.html:247
+#: warehouse/templates/manage/account.html:223
 #: warehouse/templates/manage/roles.html:62
 #: warehouse/templates/manage/roles.html:125
 msgid "Avatar for {user} from gravatar.com"
@@ -1067,7 +1073,7 @@ msgstr "Neniu projekto"
 
 #: warehouse/templates/accounts/profile.html:73
 #: warehouse/templates/manage/projects.html:34
-#: warehouse/templates/manage/projects.html:73
+#: warehouse/templates/manage/projects.html:74
 #, python-format
 msgid "Last released %(release_date)s"
 msgstr "Laste eldonita je %(release_date)s"
@@ -1078,7 +1084,7 @@ msgid "%(user)s has not uploaded any projects to PyPI, yet"
 msgstr "%(user)s ankoraŭ eldonis neniun al PyPI, sed"
 
 #: warehouse/templates/accounts/recovery-code.html:18
-#: warehouse/templates/manage/account.html:493
+#: warehouse/templates/manage/manage_base.html:93
 msgid "Recovery codes"
 msgstr "Restaŭraj kodoj"
 
@@ -1123,8 +1129,8 @@ msgid "Create an account on %(title)s"
 msgstr "Krei konton ĉe %(title)s"
 
 #: warehouse/templates/accounts/register.html:45
-#: warehouse/templates/manage/account.html:163
-#: warehouse/templates/manage/account.html:529
+#: warehouse/templates/manage/account.html:139
+#: warehouse/templates/manage/account.html:434
 msgid "Name"
 msgstr "Nomo"
 
@@ -1133,12 +1139,12 @@ msgid "Your name"
 msgstr "Via nomo"
 
 #: warehouse/templates/accounts/register.html:64
-#: warehouse/templates/manage/account.html:350
+#: warehouse/templates/manage/account.html:326
 msgid "Email address"
 msgstr "Retpoŝta adreso"
 
 #: warehouse/templates/accounts/register.html:69
-#: warehouse/templates/manage/account.html:371
+#: warehouse/templates/manage/account.html:347
 msgid "Your email address"
 msgstr "Via retpoŝta adreso"
 
@@ -1152,7 +1158,7 @@ msgstr "Elektu salutnomon"
 
 #: warehouse/templates/accounts/register.html:117
 #: warehouse/templates/accounts/reset-password.html:44
-#: warehouse/templates/manage/account.html:398
+#: warehouse/templates/manage/account.html:374
 msgid "Show passwords"
 msgstr "Montri pasvortojn"
 
@@ -1216,7 +1222,7 @@ msgid "Reset your password"
 msgstr "Restarigi vian pasvorton"
 
 #: warehouse/templates/accounts/reset-password.html:47
-#: warehouse/templates/manage/account.html:415
+#: warehouse/templates/manage/account.html:391
 msgid "Select a new password"
 msgstr "Elektu novan pasvorton"
 
@@ -1554,16 +1560,17 @@ msgid "Admin"
 msgstr "Administranto"
 
 #: warehouse/templates/includes/current-user-indicator.html:37
-#: warehouse/templates/manage/manage_base.html:32
-#: warehouse/templates/manage/manage_base.html:52
+#: warehouse/templates/manage/manage_base.html:130
+#: warehouse/templates/manage/manage_base.html:150
 #: warehouse/templates/manage/projects.html:18
 msgid "Your projects"
 msgstr "Viaj projektoj"
 
 #: warehouse/templates/includes/current-user-indicator.html:43
 #: warehouse/templates/manage/account.html:17
-#: warehouse/templates/manage/manage_base.html:38
-#: warehouse/templates/manage/manage_base.html:58
+#: warehouse/templates/manage/account/two-factor.html:17
+#: warehouse/templates/manage/manage_base.html:136
+#: warehouse/templates/manage/manage_base.html:156
 msgid "Account settings"
 msgstr "Agordoj pri la konto"
 
@@ -1588,11 +1595,11 @@ msgstr "Fermi ĉi tiun sciigon"
 #: warehouse/templates/includes/hash-modal.html:19
 #: warehouse/templates/includes/hash-modal.html:68
 #: warehouse/templates/includes/session-notifications.html:41
-#: warehouse/templates/manage/account.html:223
-#: warehouse/templates/manage/account.html:225
-#: warehouse/templates/manage/account.html:235
-#: warehouse/templates/manage/manage_base.html:94
-#: warehouse/templates/manage/manage_base.html:96
+#: warehouse/templates/manage/account.html:199
+#: warehouse/templates/manage/account.html:201
+#: warehouse/templates/manage/account.html:211
+#: warehouse/templates/manage/manage_base.html:192
+#: warehouse/templates/manage/manage_base.html:194
 #: warehouse/templates/manage/release.html:118
 #: warehouse/templates/manage/releases.html:172
 #: warehouse/templates/manage/roles.html:38
@@ -1630,7 +1637,7 @@ msgstr "Haketaĵa digesto"
 #: warehouse/templates/includes/hash-modal.html:41
 #: warehouse/templates/includes/hash-modal.html:50
 #: warehouse/templates/includes/hash-modal.html:59
-#: warehouse/templates/manage/account.html:230
+#: warehouse/templates/manage/account.html:206
 #: warehouse/templates/manage/account/recovery_codes-provision.html:61
 #: warehouse/templates/manage/account/totp-provision.html:57
 #: warehouse/templates/packaging/detail.html:117
@@ -1641,7 +1648,7 @@ msgstr "Kopii en tondujon"
 #: warehouse/templates/includes/hash-modal.html:42
 #: warehouse/templates/includes/hash-modal.html:51
 #: warehouse/templates/includes/hash-modal.html:60
-#: warehouse/templates/manage/account.html:231
+#: warehouse/templates/manage/account.html:207
 #: warehouse/templates/manage/account/recovery_codes-provision.html:62
 #: warehouse/templates/manage/account/totp-provision.html:58
 #: warehouse/templates/pages/classifiers.html:38
@@ -1757,7 +1764,7 @@ msgid "Collaborators"
 msgstr "Kunlaborantoj"
 
 #: warehouse/templates/includes/manage/manage-project-menu.html:31
-#: warehouse/templates/manage/account.html:554
+#: warehouse/templates/manage/account.html:459
 #: warehouse/templates/manage/history.html:23
 msgid "Security history"
 msgstr "Historio pri sekureco"
@@ -1893,7 +1900,7 @@ msgid "View email options"
 msgstr "Vidi opciojn pri retpoŝto"
 
 #: warehouse/templates/manage/account.html:87
-#: warehouse/templates/manage/account.html:187
+#: warehouse/templates/manage/account.html:163
 #: warehouse/templates/manage/release.html:67
 #: warehouse/templates/manage/releases.html:68
 msgid "Options"
@@ -1925,106 +1932,66 @@ msgstr "Forigi ĉi tiun retpoŝtan adreson"
 msgid "Remove email"
 msgstr "Forigi retpoŝtan adreson"
 
-#: warehouse/templates/manage/account.html:139
-msgid ""
-"Add <abbr title=\"two factor authentication\">2FA</abbr> with authentication "
-"application"
-msgstr ""
-"Aldoni <abbr title=\"dupaŝan aŭtentigon\">2PA</abbr> per aŭtentiga aplikaĵo"
-
-#: warehouse/templates/manage/account.html:141
-msgid ""
-"Add <abbr title=\"two factor authentication\">2FA</abbr> with security "
-"device (e.g. USB key)"
-msgstr ""
-"Aldoni <abbr title=\"dupaŝan aŭtentigon\">2PA</abbr> per sekuriga aparato "
-"(ekz. USB-ŝlosilo)"
-
 #: warehouse/templates/manage/account.html:143
-msgid "Generate recovery codes"
-msgstr "Generi restaŭrajn kodojn"
-
-#: warehouse/templates/manage/account.html:148
-#: warehouse/templates/manage/account/webauthn-provision.html:37
-msgid ""
-"Enable JavaScript to set up two factor authentication with a security device "
-"(e.g. USB key)"
-msgstr ""
-"Ŝaltu JavaScript por ebligi dupaŝan aŭtentigon per sekuriga aparato (ekz. "
-"USB-ŝlosilo)"
-
-#: warehouse/templates/manage/account.html:153
-#: warehouse/templates/manage/account/webauthn-provision.html:53
-#, python-format
-msgid ""
-"<a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener"
-"\">Upgrade your browser</a> to set up two factor authentication with a "
-"security device (e.g. USB key)"
-msgstr ""
-"<a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener"
-"\">Ĝisdatigu vian TTT-legilon</a> por ebligi dupaŝan aŭtentigon per sekuriga "
-"aparato (ekz. USB-ŝlosilo)"
-
-#: warehouse/templates/manage/account.html:167
-#: warehouse/templates/manage/account.html:530
+#: warehouse/templates/manage/account.html:435
 #: warehouse/templates/manage/token.html:151
 msgid "Scope"
 msgstr "Amplekso"
 
-#: warehouse/templates/manage/account.html:169
+#: warehouse/templates/manage/account.html:145
 msgid "All projects"
 msgstr "Ĉiuj projektoj"
 
-#: warehouse/templates/manage/account.html:177
-#: warehouse/templates/manage/account.html:531
+#: warehouse/templates/manage/account.html:153
+#: warehouse/templates/manage/account.html:436
 msgid "Created"
 msgstr "Kreita"
 
-#: warehouse/templates/manage/account.html:181
-#: warehouse/templates/manage/account.html:532
+#: warehouse/templates/manage/account.html:157
+#: warehouse/templates/manage/account.html:437
 msgid "Last used"
 msgstr "Laste uzita"
 
-#: warehouse/templates/manage/account.html:182
+#: warehouse/templates/manage/account.html:158
 msgid "Never"
 msgstr "Neniam"
 
-#: warehouse/templates/manage/account.html:186
+#: warehouse/templates/manage/account.html:162
 msgid "View token options"
 msgstr "Vidi opciojn pri ĵetono"
 
-#: warehouse/templates/manage/account.html:196
+#: warehouse/templates/manage/account.html:172
 #: warehouse/templates/manage/token.html:57
 msgid "Remove token"
 msgstr "Forigi ĵetonon"
 
-#: warehouse/templates/manage/account.html:202
+#: warehouse/templates/manage/account.html:178
 msgid "View unique identifier"
 msgstr "Vidi unikan identigilon"
 
-#: warehouse/templates/manage/account.html:210
-#: warehouse/templates/manage/account.html:212
+#: warehouse/templates/manage/account.html:186
+#: warehouse/templates/manage/account.html:188
 #: warehouse/templates/manage/token.html:60
 #: warehouse/templates/manage/token.html:61
 msgid "Remove API token"
 msgstr "Forigi API-ĵetonon"
 
-#: warehouse/templates/manage/account.html:217
+#: warehouse/templates/manage/account.html:193
 #: warehouse/templates/manage/token.html:66
 msgid ""
 "Applications or scripts using this token will no longer have access to PyPI."
 msgstr "Aplikaĵoj aŭ programoj uzantaj ĉi tiun ĵetonon ne plu povos uzi PyPI."
 
-#: warehouse/templates/manage/account.html:228
+#: warehouse/templates/manage/account.html:204
 #, python-format
 msgid "Unique identifier for API token \"%(token_description)s\""
 msgstr "Unika identigilo de la API-ĵetono \"%(token_description)s\""
 
-#: warehouse/templates/manage/account.html:246
+#: warehouse/templates/manage/account.html:222
 msgid "Profile picture"
 msgstr "Profila bildo"
 
-#: warehouse/templates/manage/account.html:252
+#: warehouse/templates/manage/account.html:228
 #, python-format
 msgid ""
 "We use <a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel="
@@ -2035,43 +2002,43 @@ msgstr ""
 "\"noopener\">gravatar.com</a> por generi vian profilan bildon uzante vian "
 "ĉefan retpoŝtan adreson"
 
-#: warehouse/templates/manage/account.html:259
+#: warehouse/templates/manage/account.html:235
 msgid "Change image on gravatar.com"
 msgstr "Ŝanĝi bildon ĉe gravatar.com"
 
-#: warehouse/templates/manage/account.html:269
+#: warehouse/templates/manage/account.html:245
 msgid "Account details"
 msgstr "Detaloj pri konto"
 
-#: warehouse/templates/manage/account.html:275
+#: warehouse/templates/manage/account.html:251
 msgid "Date Joined"
 msgstr "Dato de aliĝo"
 
-#: warehouse/templates/manage/account.html:281
+#: warehouse/templates/manage/account.html:257
 #, python-format
 msgid ""
 "Displayed on your <a href=\"%(href)s\">public profile</a>. Cannot be changed."
 msgstr ""
 "Montrata sur via <a href=\"%(href)s\">publika profilo</a>. Ne ŝanĝebla."
 
-#: warehouse/templates/manage/account.html:292
+#: warehouse/templates/manage/account.html:268
 msgid "Full name"
 msgstr "Plena nomo"
 
-#: warehouse/templates/manage/account.html:297
+#: warehouse/templates/manage/account.html:273
 msgid "No name set"
 msgstr "Neniu nomo donita"
 
-#: warehouse/templates/manage/account.html:302
+#: warehouse/templates/manage/account.html:278
 #, python-format
 msgid "Displayed on your <a href=\"%(href)s\">public profile</a>"
 msgstr "Montrata sur via <a href=\"%(href)s\">publika profilo</a>"
 
-#: warehouse/templates/manage/account.html:309
+#: warehouse/templates/manage/account.html:285
 msgid "️Public email"
 msgstr "Publika retpoŝta adreso"
 
-#: warehouse/templates/manage/account.html:321
+#: warehouse/templates/manage/account.html:297
 #, python-format
 msgid ""
 "One of your verified emails can be displayed on your <a href=\"%(href)s"
@@ -2080,15 +2047,15 @@ msgstr ""
 "Unu el viaj kontrolitaj retpoŝtaj adresoj povas esti montrata sur via <a "
 "href=\"%(href)s\">publika profilo</a> al ensalutintoj."
 
-#: warehouse/templates/manage/account.html:326
+#: warehouse/templates/manage/account.html:302
 msgid "Update account"
 msgstr "Ĝisdatigi konton"
 
-#: warehouse/templates/manage/account.html:334
+#: warehouse/templates/manage/account.html:310
 msgid "Account emails"
 msgstr "Kontaj retpoŝtaj adresoj"
 
-#: warehouse/templates/manage/account.html:336
+#: warehouse/templates/manage/account.html:312
 msgid ""
 "You can associate several emails with your account. You can use any <span "
 "class=\"badge badge--success\"><i class=\"fa fa-check\" aria-hidden=\"true"
@@ -2101,139 +2068,49 @@ msgstr ""
 "sed nur via <span class=\"badge\">Ĉefa</span> retpoŝta adreso ricevos "
 "sciigojn."
 
-#: warehouse/templates/manage/account.html:347
+#: warehouse/templates/manage/account.html:323
 msgid "Emails associated with your account"
 msgstr "Retpoŝtaj adresoj asociitaj kun via konto"
 
-#: warehouse/templates/manage/account.html:351
+#: warehouse/templates/manage/account.html:327
 msgid "Status"
 msgstr "Stato"
 
-#: warehouse/templates/manage/account.html:366
-#: warehouse/templates/manage/account.html:376
+#: warehouse/templates/manage/account.html:342
+#: warehouse/templates/manage/account.html:352
 msgid "Add email"
 msgstr "Aldoni retpoŝtan adreson"
 
-#: warehouse/templates/manage/account.html:383
+#: warehouse/templates/manage/account.html:359
 msgid "Change password"
 msgstr "Ŝanĝi pasvorton"
 
-#: warehouse/templates/manage/account.html:391
+#: warehouse/templates/manage/account.html:367
 msgid "Old password"
 msgstr "Malnova pasvorto"
 
-#: warehouse/templates/manage/account.html:401
+#: warehouse/templates/manage/account.html:377
 msgid "Your current password"
 msgstr "Via aktuala pasvorto"
 
-#: warehouse/templates/manage/account.html:408
+#: warehouse/templates/manage/account.html:384
 msgid "New password"
 msgstr "Nova pasvorto"
 
-#: warehouse/templates/manage/account.html:424
+#: warehouse/templates/manage/account.html:400
 msgid "Confirm new password"
 msgstr "Konfirmi novan pasvorton"
 
-#: warehouse/templates/manage/account.html:440
+#: warehouse/templates/manage/account.html:416
 msgid "Update password"
 msgstr "Ĝisdatigi pasvorton"
 
-#: warehouse/templates/manage/account.html:447
-msgid "Two factor authentication (2FA)"
-msgstr "Dupaŝa aŭtentigo (2PA)"
-
-#: warehouse/templates/manage/account.html:448
-#, python-format
-msgid ""
-"Two factor authentication adds an additional layer of security to your "
-"account. <a href=\"%(href)s\">Learn more about <abbr title=\"two factor "
-"authentication\">2FA</abbr></a>."
-msgstr ""
-"Dupaŝa aŭtentigo aldonas kroman tavolon de sekureco al via konto. <a href="
-"\"%(href)s\">Lernu plu pri <abbr title=\"dupaŝa aŭtentigo\">2PA</abbr></a>."
-
-#: warehouse/templates/manage/account.html:453
-msgid "Two factor authentication methods enabled"
-msgstr "Dupaŝaj aŭtentigaj metodoj ŝaltitaj"
-
-#: warehouse/templates/manage/account.html:456
-msgid "Two factor method"
-msgstr "Dupaŝa metodo"
-
-#: warehouse/templates/manage/account.html:462
-#: warehouse/templates/manage/account.html:572
-msgid ""
-"Authentication application (<abbr title=\"time-based one-time password"
-"\">TOTP</abbr>)"
-msgstr ""
-"Aŭtentiga aplikaĵo (<abbr title=\"tempo-baza unufoja pasvorto\">TOTP</abbr>)"
-
-#: warehouse/templates/manage/account.html:464
-#: warehouse/templates/manage/account.html:478
-msgid "Remove"
-msgstr "Forigi"
-
-#: warehouse/templates/manage/account.html:465
-msgid "Remove authentication application"
-msgstr "Forigi aŭtentigan aplikaĵon"
-
-#: warehouse/templates/manage/account.html:466
-msgid "Remove application"
-msgstr "Forigi aplikaĵon"
-
-#: warehouse/templates/manage/account.html:475
-#: warehouse/templates/manage/account.html:570
-msgid "Security device (<abbr title=\"web authentication\">WebAuthn</abbr>)"
-msgstr "Sekuriga aparato (<abbr title=\"reta aŭtentigo\">WebAuthn</abbr>)"
-
-#: warehouse/templates/manage/account.html:479
-msgid "Remove two factor security device"
-msgstr "Forigi dupaŝan sekurigan aparaton"
-
-#: warehouse/templates/manage/account.html:480
-msgid "Remove device"
-msgstr "Forigi aparaton"
-
-#: warehouse/templates/manage/account.html:486
-msgid "Device name"
-msgstr "Nomo de la aparato"
-
-#: warehouse/templates/manage/account.html:493
-#, python-format
-msgid "generated %(generated_datetime)s"
-msgstr "generita je %(generated_datetime)s"
-
-#: warehouse/templates/manage/account.html:496
-msgid "Regenerate"
-msgstr "Regeneri"
-
-#: warehouse/templates/manage/account.html:497
-#: warehouse/templates/manage/account.html:498
-#: warehouse/templates/manage/account/recovery_codes-provision.html:36
-#: warehouse/templates/manage/account/recovery_codes-provision.html:37
-#: warehouse/templates/manage/account/recovery_codes-provision.html:38
-msgid "Regenerate recovery codes"
-msgstr "Regeneri restaŭrajn kodojn"
-
-#: warehouse/templates/manage/account.html:509
-msgid "You have not enabled two factor authentication on your account."
-msgstr "Vi ankoraŭ ne ŝaltis dupaŝan aŭtentigon por via konto."
-
-#: warehouse/templates/manage/account.html:514
-#, python-format
-msgid ""
-"<a href=\"%(href)s\">Verify your primary email address</a> to add two factor "
-"authentication to your account."
-msgstr ""
-"<a href=\"%(href)s\">Kontrolu vian ĉefan retpoŝtan adreson</a> por aldoni "
-"dupaŝan aŭtentigon al via konto."
-
-#: warehouse/templates/manage/account.html:521
+#: warehouse/templates/manage/account.html:426
 #: warehouse/templates/manage/settings.html:43
 msgid "API tokens"
 msgstr "API-ĵetonoj"
 
-#: warehouse/templates/manage/account.html:522
+#: warehouse/templates/manage/account.html:427
 #: warehouse/templates/manage/settings.html:44
 msgid ""
 "API tokens provide an alternative way to authenticate when uploading "
@@ -2241,20 +2118,20 @@ msgid ""
 msgstr ""
 "API-ĵetonoj estas alternativa metodo de aŭtentigo por alŝuti pakojn al PyPI."
 
-#: warehouse/templates/manage/account.html:522
+#: warehouse/templates/manage/account.html:427
 msgid "Learn more about API tokens"
 msgstr "Lerni plu pri API-ĵetonoj"
 
-#: warehouse/templates/manage/account.html:526
+#: warehouse/templates/manage/account.html:431
 msgid "Active API tokens for this account"
 msgstr "Aktivaj API-ĵetonoj de ĉi tiu konto"
 
-#: warehouse/templates/manage/account.html:544
+#: warehouse/templates/manage/account.html:449
 #: warehouse/templates/manage/token.html:17
 msgid "Add API token"
 msgstr "Aldoni API-ĵetonon"
 
-#: warehouse/templates/manage/account.html:546
+#: warehouse/templates/manage/account.html:451
 #, python-format
 msgid ""
 "<a href=\"%(href)s\">Verify your primary email address</a> to add API tokens "
@@ -2263,145 +2140,158 @@ msgstr ""
 "<a href=\"%(href)s\">Kontrolu vian ĉefan retpoŝtan adreson</a> por aldoni "
 "API-ĵetonojn al via konto."
 
-#: warehouse/templates/manage/account.html:561
+#: warehouse/templates/manage/account.html:466
 msgid "Account created"
 msgstr "Konto kreiĝis"
 
-#: warehouse/templates/manage/account.html:564
+#: warehouse/templates/manage/account.html:469
 msgid "Logged in"
 msgstr "Ensalutinta"
 
-#: warehouse/templates/manage/account.html:566
+#: warehouse/templates/manage/account.html:471
 msgid "Two factor method:"
 msgstr "Dupaŝa metodo:"
 
-#: warehouse/templates/manage/account.html:568
+#: warehouse/templates/manage/account.html:473
 #: warehouse/templates/manage/release.html:58
 #: warehouse/templates/packaging/detail.html:349
 msgid "None"
 msgstr "Nenio"
 
-#: warehouse/templates/manage/account.html:574
+#: warehouse/templates/manage/account.html:475
+#: warehouse/templates/manage/manage_base.html:75
+msgid "Security device (<abbr title=\"web authentication\">WebAuthn</abbr>)"
+msgstr "Sekuriga aparato (<abbr title=\"reta aŭtentigo\">WebAuthn</abbr>)"
+
+#: warehouse/templates/manage/account.html:477
+#: warehouse/templates/manage/manage_base.html:62
+msgid ""
+"Authentication application (<abbr title=\"time-based one-time password"
+"\">TOTP</abbr>)"
+msgstr ""
+"Aŭtentiga aplikaĵo (<abbr title=\"tempo-baza unufoja pasvorto\">TOTP</abbr>)"
+
+#: warehouse/templates/manage/account.html:479
 msgid "Recovery code"
 msgstr "Restaŭra kodo"
 
-#: warehouse/templates/manage/account.html:579
+#: warehouse/templates/manage/account.html:484
 msgid "Login failed"
 msgstr "Salutado malsukcesis"
 
-#: warehouse/templates/manage/account.html:582
+#: warehouse/templates/manage/account.html:487
 msgid "- Basic Auth (Upload endpoint)"
 msgstr "- Baza aŭtentigo (alŝuta finpunkto)"
 
-#: warehouse/templates/manage/account.html:587
-#: warehouse/templates/manage/account.html:604
+#: warehouse/templates/manage/account.html:492
+#: warehouse/templates/manage/account.html:509
 #: warehouse/templates/manage/history.html:84
 msgid "Reason:"
 msgstr "Kialo:"
 
-#: warehouse/templates/manage/account.html:589
-#: warehouse/templates/manage/account.html:606
+#: warehouse/templates/manage/account.html:494
+#: warehouse/templates/manage/account.html:511
 msgid "Incorrect Password"
 msgstr "Neĝusta pasvorto"
 
-#: warehouse/templates/manage/account.html:591
+#: warehouse/templates/manage/account.html:496
 msgid "Invalid two factor (TOTP)"
 msgstr "Nevalida dua faktoro (TOTP)"
 
-#: warehouse/templates/manage/account.html:593
+#: warehouse/templates/manage/account.html:498
 msgid "Invalid two factor (WebAuthn)"
 msgstr "Nevalida dua faktoro (WebAuthn)"
 
-#: warehouse/templates/manage/account.html:595
+#: warehouse/templates/manage/account.html:500
 msgid "Invalid two factor (Recovery code)"
 msgstr "Nevalida dua faktoro (restaŭra kodo)"
 
-#: warehouse/templates/manage/account.html:602
+#: warehouse/templates/manage/account.html:507
 msgid "Session reauthentication failed"
 msgstr "Raŭtentigo de seanco malsukcesis"
 
-#: warehouse/templates/manage/account.html:613
+#: warehouse/templates/manage/account.html:518
 msgid "Email added to account"
 msgstr "Retpoŝta adreso aldonita al la konto"
 
-#: warehouse/templates/manage/account.html:616
+#: warehouse/templates/manage/account.html:521
 msgid "Email removed from account"
 msgstr "Retpoŝta adreso forigita for de la konto"
 
-#: warehouse/templates/manage/account.html:619
+#: warehouse/templates/manage/account.html:524
 msgid "Email verified"
 msgstr "Retpoŝta adreso kontrolita"
 
-#: warehouse/templates/manage/account.html:622
+#: warehouse/templates/manage/account.html:527
 msgid "Email reverified"
 msgstr "Retpoŝta adreso rekontrolita"
 
-#: warehouse/templates/manage/account.html:626
+#: warehouse/templates/manage/account.html:531
 msgid "Primary email changed"
 msgstr "Ĉefa retpoŝta adreso ŝanĝita"
 
-#: warehouse/templates/manage/account.html:628
+#: warehouse/templates/manage/account.html:533
 msgid "Old primary email:"
 msgstr "Malnova ĉefa retpoŝta adreso:"
 
-#: warehouse/templates/manage/account.html:629
+#: warehouse/templates/manage/account.html:534
 msgid "New primary email:"
 msgstr "Nova ĉefa retpoŝta adreso:"
 
-#: warehouse/templates/manage/account.html:632
+#: warehouse/templates/manage/account.html:537
 msgid "Primary email set"
 msgstr "Ĉefa retpoŝta adreso donita"
 
-#: warehouse/templates/manage/account.html:638
+#: warehouse/templates/manage/account.html:543
 msgid "Email sent"
 msgstr "Retmesaĝo sendita"
 
-#: warehouse/templates/manage/account.html:640
+#: warehouse/templates/manage/account.html:545
 msgid "From:"
 msgstr "De:"
 
-#: warehouse/templates/manage/account.html:641
+#: warehouse/templates/manage/account.html:546
 msgid "To:"
 msgstr "Al:"
 
-#: warehouse/templates/manage/account.html:642
+#: warehouse/templates/manage/account.html:547
 msgid "Subject:"
 msgstr "Temo:"
 
-#: warehouse/templates/manage/account.html:646
+#: warehouse/templates/manage/account.html:551
 msgid "Password reset requested"
 msgstr "Pasvorta restarigo petita"
 
-#: warehouse/templates/manage/account.html:648
+#: warehouse/templates/manage/account.html:553
 msgid "Password reset attempted"
 msgstr "Oni provis restarigi la pasvorton"
 
-#: warehouse/templates/manage/account.html:650
+#: warehouse/templates/manage/account.html:555
 msgid "Password successfully reset"
 msgstr "Pasvorto sukcese restarigita"
 
-#: warehouse/templates/manage/account.html:652
+#: warehouse/templates/manage/account.html:557
 msgid "Password successfully changed"
 msgstr "Pasvorto sukcese ŝanĝita"
 
-#: warehouse/templates/manage/account.html:655
+#: warehouse/templates/manage/account.html:560
 msgid "Two factor authentication added"
 msgstr "Dupaŝa aŭtentigo aldonita"
 
-#: warehouse/templates/manage/account.html:658
-#: warehouse/templates/manage/account.html:668
+#: warehouse/templates/manage/account.html:563
+#: warehouse/templates/manage/account.html:573
 msgid ""
 "Method: Security device (<abbr title=\"web authentication\">WebAuthn</abbr>)"
 msgstr ""
 "Metodo: Sekuriga aparato (<abbr title=\"reta aŭtentigo\">WebAuthn</abbr>)"
 
-#: warehouse/templates/manage/account.html:659
-#: warehouse/templates/manage/account.html:669
+#: warehouse/templates/manage/account.html:564
+#: warehouse/templates/manage/account.html:574
 msgid "Device name:"
 msgstr "Nomo de la aparato:"
 
-#: warehouse/templates/manage/account.html:661
-#: warehouse/templates/manage/account.html:671
+#: warehouse/templates/manage/account.html:566
+#: warehouse/templates/manage/account.html:576
 msgid ""
 "Method: Authentication application (<abbr title=\"time-based one-time "
 "password\">TOTP</abbr>)"
@@ -2409,65 +2299,65 @@ msgstr ""
 "Metodo: Aŭtentiga aplikaĵo (<abbr title=\"tempo-baza unufoja pasvorto"
 "\">TOTP</abbr>)"
 
-#: warehouse/templates/manage/account.html:665
+#: warehouse/templates/manage/account.html:570
 msgid "Two factor authentication removed"
 msgstr "Dupaŝa aŭtentigo forigita"
 
-#: warehouse/templates/manage/account.html:676
+#: warehouse/templates/manage/account.html:581
 msgid "Recovery codes generated"
 msgstr "Restaŭraj kodoj generitaj"
 
-#: warehouse/templates/manage/account.html:680
+#: warehouse/templates/manage/account.html:585
 msgid "Recovery codes regenerated"
 msgstr "Restaŭraj kodoj regeneritaj"
 
-#: warehouse/templates/manage/account.html:684
+#: warehouse/templates/manage/account.html:589
 msgid "Recovery code used for login"
 msgstr "Restaŭra kodo uzita por ensaluto"
 
-#: warehouse/templates/manage/account.html:690
+#: warehouse/templates/manage/account.html:595
 #: warehouse/templates/manage/history.html:65
 msgid "API token added"
 msgstr "API-ĵetono aldonita"
 
-#: warehouse/templates/manage/account.html:692
-#: warehouse/templates/manage/account.html:707
+#: warehouse/templates/manage/account.html:597
+#: warehouse/templates/manage/account.html:612
 #: warehouse/templates/manage/history.html:69
 #: warehouse/templates/manage/history.html:76
 msgid "Token name:"
 msgstr "Nomo de ĵetono:"
 
-#: warehouse/templates/manage/account.html:694
-#: warehouse/templates/manage/account.html:710
+#: warehouse/templates/manage/account.html:599
+#: warehouse/templates/manage/account.html:615
 msgid "Token scope: entire account"
 msgstr "Amplekso de la ĵetono: tuta konto"
 
-#: warehouse/templates/manage/account.html:696
-#: warehouse/templates/manage/account.html:712
+#: warehouse/templates/manage/account.html:601
+#: warehouse/templates/manage/account.html:617
 #, python-format
 msgid "Token scope: Project %(project_name)s"
 msgstr "Amplekso de la ĵetono: Projekto %(project_name)s"
 
-#: warehouse/templates/manage/account.html:701
+#: warehouse/templates/manage/account.html:606
 #: warehouse/templates/manage/history.html:72
 msgid "API token removed"
 msgstr "API-ĵetono forigita"
 
-#: warehouse/templates/manage/account.html:702
-#: warehouse/templates/manage/account.html:708
+#: warehouse/templates/manage/account.html:607
+#: warehouse/templates/manage/account.html:613
 msgid "Unique identifier:"
 msgstr "Unika identigilo:"
 
-#: warehouse/templates/manage/account.html:705
+#: warehouse/templates/manage/account.html:610
 msgid "API token automatically removed for security reasons"
 msgstr "API-ĵetono aŭtomate forigita por sekureco"
 
-#: warehouse/templates/manage/account.html:714
+#: warehouse/templates/manage/account.html:619
 #, python-format
 msgid "Reason: Token found at <a href=\"%(public_url)s\">public url</a>"
 msgstr "Kialo: Ĵetono trovita ĉe <a href=\"%(public_url)s\">publika URL</a>"
 
-#: warehouse/templates/manage/account.html:723
+#: warehouse/templates/manage/account.html:628
 #, python-format
 msgid ""
 "Events appear here as security-related actions occur on your account. If you "
@@ -2478,43 +2368,43 @@ msgstr ""
 "rimarkas suspektindaĵon, bonvolu <a href=\"%(faq_url)s\">sekurigi vian "
 "konton</a> baldaŭ laŭeble."
 
-#: warehouse/templates/manage/account.html:728
+#: warehouse/templates/manage/account.html:633
 msgid "Recent account activity"
 msgstr "Ĵusa aktiveco pri la konto"
 
-#: warehouse/templates/manage/account.html:730
+#: warehouse/templates/manage/account.html:635
 #: warehouse/templates/manage/history.html:97
 msgid "Event"
 msgstr "Evento"
 
-#: warehouse/templates/manage/account.html:731
-#: warehouse/templates/manage/account.html:739
+#: warehouse/templates/manage/account.html:636
+#: warehouse/templates/manage/account.html:644
 #: warehouse/templates/manage/history.html:98
 #: warehouse/templates/manage/history.html:107
 msgid "Date / time"
 msgstr "Dato / tempo"
 
-#: warehouse/templates/manage/account.html:732
-#: warehouse/templates/manage/account.html:743
+#: warehouse/templates/manage/account.html:637
+#: warehouse/templates/manage/account.html:648
 #: warehouse/templates/manage/history.html:99
 #: warehouse/templates/manage/history.html:111
 msgid "IP address"
 msgstr "IP-adreso"
 
-#: warehouse/templates/manage/account.html:751
+#: warehouse/templates/manage/account.html:656
 msgid ""
 "Events will appear here as security-related actions occur on your account."
 msgstr "Eventoj aperos ĉi tie, kiam okazos agoj pri sekureco de via konto."
 
-#: warehouse/templates/manage/account.html:758
+#: warehouse/templates/manage/account.html:663
 msgid "Delete account"
 msgstr "Forigi konton"
 
-#: warehouse/templates/manage/account.html:761
+#: warehouse/templates/manage/account.html:666
 msgid "Cannot delete account"
 msgstr "Ne povas forigi konton"
 
-#: warehouse/templates/manage/account.html:763
+#: warehouse/templates/manage/account.html:668
 #, python-format
 msgid ""
 "\n"
@@ -2537,7 +2427,7 @@ msgstr[1] ""
 "%(count)s projektoj.\n"
 "        "
 
-#: warehouse/templates/manage/account.html:768
+#: warehouse/templates/manage/account.html:673
 msgid ""
 "\n"
 "          You must transfer ownership or delete this project before you can "
@@ -2559,7 +2449,7 @@ msgstr[1] ""
 "antaŭ forigo de via konto.\n"
 "        "
 
-#: warehouse/templates/manage/account.html:778
+#: warehouse/templates/manage/account.html:683
 #, python-format
 msgid ""
 "<a href=\"%(transfer_href)s\">transfer ownership</a> or <a href="
@@ -2568,16 +2458,16 @@ msgstr ""
 "<a href=\"%(transfer_href)s\">transdoni posedrajton</a> aŭ <a href="
 "\"%(delete_href)s\">forigi projekton</a>"
 
-#: warehouse/templates/manage/account.html:787
+#: warehouse/templates/manage/account.html:692
 #: warehouse/templates/manage/token.html:169
 msgid "Proceed with caution!"
 msgstr "Sekvu singarde!"
 
-#: warehouse/templates/manage/account.html:790
+#: warehouse/templates/manage/account.html:695
 msgid "You will not be able to recover your account after you delete it"
 msgstr "Vi ne povos restaŭri vian konton post ĝia forigo"
 
-#: warehouse/templates/manage/account.html:792
+#: warehouse/templates/manage/account.html:697
 msgid "Delete your PyPI account"
 msgstr "Forigi vian PyPI-konton"
 
@@ -2776,44 +2666,161 @@ msgid "from %(ip_address)s"
 msgstr "de %(ip_address)s"
 
 #: warehouse/templates/manage/manage_base.html:16
-#: warehouse/templates/manage/projects.html:94
+#: warehouse/templates/manage/projects.html:108
 #: warehouse/templates/manage/releases.html:88
 msgid "Manage"
 msgstr "Mastrumi"
 
+#: warehouse/templates/manage/manage_base.html:24
+msgid ""
+"Add <abbr title=\"two factor authentication\">2FA</abbr> with authentication "
+"application"
+msgstr ""
+"Aldoni <abbr title=\"dupaŝan aŭtentigon\">2PA</abbr> per aŭtentiga aplikaĵo"
+
 #: warehouse/templates/manage/manage_base.html:26
+msgid ""
+"Add <abbr title=\"two factor authentication\">2FA</abbr> with security "
+"device (e.g. USB key)"
+msgstr ""
+"Aldoni <abbr title=\"dupaŝan aŭtentigon\">2PA</abbr> per sekuriga aparato "
+"(ekz. USB-ŝlosilo)"
+
+#: warehouse/templates/manage/manage_base.html:28
+msgid "Generate recovery codes"
+msgstr "Generi restaŭrajn kodojn"
+
+#: warehouse/templates/manage/account/webauthn-provision.html:37
+#: warehouse/templates/manage/manage_base.html:33
+msgid ""
+"Enable JavaScript to set up two factor authentication with a security device "
+"(e.g. USB key)"
+msgstr ""
+"Ŝaltu JavaScript por ebligi dupaŝan aŭtentigon per sekuriga aparato (ekz. "
+"USB-ŝlosilo)"
+
+#: warehouse/templates/manage/account/webauthn-provision.html:53
+#: warehouse/templates/manage/manage_base.html:38
+#, python-format
+msgid ""
+"<a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener"
+"\">Upgrade your browser</a> to set up two factor authentication with a "
+"security device (e.g. USB key)"
+msgstr ""
+"<a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener"
+"\">Ĝisdatigu vian TTT-legilon</a> por ebligi dupaŝan aŭtentigon per sekuriga "
+"aparato (ekz. USB-ŝlosilo)"
+
+#: warehouse/templates/manage/manage_base.html:47
+msgid "Two factor authentication (2FA)"
+msgstr "Dupaŝa aŭtentigo (2PA)"
+
+#: warehouse/templates/manage/manage_base.html:48
+#, python-format
+msgid ""
+"Two factor authentication adds an additional layer of security to your "
+"account. <a href=\"%(href)s\">Learn more about <abbr title=\"two factor "
+"authentication\">2FA</abbr></a>."
+msgstr ""
+"Dupaŝa aŭtentigo aldonas kroman tavolon de sekureco al via konto. <a href="
+"\"%(href)s\">Lernu plu pri <abbr title=\"dupaŝa aŭtentigo\">2PA</abbr></a>."
+
+#: warehouse/templates/manage/manage_base.html:53
+msgid "Two factor authentication methods enabled"
+msgstr "Dupaŝaj aŭtentigaj metodoj ŝaltitaj"
+
+#: warehouse/templates/manage/manage_base.html:56
+msgid "Two factor method"
+msgstr "Dupaŝa metodo"
+
+#: warehouse/templates/manage/manage_base.html:64
+#: warehouse/templates/manage/manage_base.html:78
+msgid "Remove"
+msgstr "Forigi"
+
+#: warehouse/templates/manage/manage_base.html:65
+msgid "Remove authentication application"
+msgstr "Forigi aŭtentigan aplikaĵon"
+
+#: warehouse/templates/manage/manage_base.html:66
+msgid "Remove application"
+msgstr "Forigi aplikaĵon"
+
+#: warehouse/templates/manage/manage_base.html:79
+msgid "Remove two factor security device"
+msgstr "Forigi dupaŝan sekurigan aparaton"
+
+#: warehouse/templates/manage/manage_base.html:80
+msgid "Remove device"
+msgstr "Forigi aparaton"
+
+#: warehouse/templates/manage/manage_base.html:86
+msgid "Device name"
+msgstr "Nomo de la aparato"
+
+#: warehouse/templates/manage/manage_base.html:93
+#, python-format
+msgid "generated %(generated_datetime)s"
+msgstr "generita je %(generated_datetime)s"
+
+#: warehouse/templates/manage/manage_base.html:96
+msgid "Regenerate"
+msgstr "Regeneri"
+
+#: warehouse/templates/manage/account/recovery_codes-provision.html:36
+#: warehouse/templates/manage/account/recovery_codes-provision.html:37
+#: warehouse/templates/manage/account/recovery_codes-provision.html:38
+#: warehouse/templates/manage/manage_base.html:97
+#: warehouse/templates/manage/manage_base.html:98
+msgid "Regenerate recovery codes"
+msgstr "Regeneri restaŭrajn kodojn"
+
+#: warehouse/templates/manage/manage_base.html:109
+msgid "You have not enabled two factor authentication on your account."
+msgstr "Vi ankoraŭ ne ŝaltis dupaŝan aŭtentigon por via konto."
+
+#: warehouse/templates/manage/manage_base.html:114
+#, python-format
+msgid ""
+"<a href=\"%(href)s\">Verify your primary email address</a> to add two factor "
+"authentication to your account."
+msgstr ""
+"<a href=\"%(href)s\">Kontrolu vian ĉefan retpoŝtan adreson</a> por aldoni "
+"dupaŝan aŭtentigon al via konto."
+
+#: warehouse/templates/manage/manage_base.html:124
 msgid "Your account"
 msgstr "Via konto"
 
-#: warehouse/templates/manage/manage_base.html:27
-#: warehouse/templates/manage/manage_base.html:47
+#: warehouse/templates/manage/manage_base.html:125
+#: warehouse/templates/manage/manage_base.html:145
 msgid "Account navigation"
 msgstr "Navigilo de konto"
 
-#: warehouse/templates/manage/manage_base.html:107
-#: warehouse/templates/manage/manage_base.html:159
+#: warehouse/templates/manage/manage_base.html:205
+#: warehouse/templates/manage/manage_base.html:257
 msgid "This action cannot be undone!"
 msgstr "Ĉi tiu ago ne povas esti malfarita!"
 
-#: warehouse/templates/manage/manage_base.html:115
+#: warehouse/templates/manage/manage_base.html:213
 msgid "Confirm your username to continue."
 msgstr "Konfirmu vian salutnomon por daŭrigi."
 
-#: warehouse/templates/manage/manage_base.html:117
+#: warehouse/templates/manage/manage_base.html:215
 #, python-format
 msgid "Confirm the %(item)s to continue."
 msgstr "La %(item)s konfirmiĝu por daŭrigi."
 
-#: warehouse/templates/manage/manage_base.html:125
-#: warehouse/templates/manage/manage_base.html:177
+#: warehouse/templates/manage/manage_base.html:223
+#: warehouse/templates/manage/manage_base.html:275
 msgid "Cancel"
 msgstr "Rezigni"
 
-#: warehouse/templates/manage/manage_base.html:148
+#: warehouse/templates/manage/manage_base.html:246
 msgid "close"
 msgstr "fermi"
 
-#: warehouse/templates/manage/manage_base.html:164
+#: warehouse/templates/manage/manage_base.html:262
 msgid "Enter your password to continue."
 msgstr "Entajpu vian pasvorton por daŭrigi."
 
@@ -2838,38 +2845,52 @@ msgid "Pending invitations (%(project_count)s)"
 msgstr "Ne eksvalidiĝintaj invitoj (%(project_count)s)"
 
 #: warehouse/templates/manage/projects.html:41
-#: warehouse/templates/manage/projects.html:80
+#: warehouse/templates/manage/projects.html:81
 #, python-format
 msgid "Created %(creation_date)s"
 msgstr "Kreita je %(creation_date)s"
 
-#: warehouse/templates/manage/projects.html:68
+#: warehouse/templates/manage/projects.html:69
 msgid "Sole owner"
 msgstr "Sola posedanto"
 
-#: warehouse/templates/manage/projects.html:89
+#: warehouse/templates/manage/projects.html:92
+msgid "PyPI requires 2FA to be enabled to manage this project"
+msgstr ""
+
+#: warehouse/templates/manage/projects.html:94
+msgid "This project requires 2FA to be enabled to manage"
+msgstr ""
+
+#: warehouse/templates/manage/projects.html:96
+#, fuzzy
+#| msgid "Requires:"
+msgid "2FA Required"
+msgstr "Postulas:"
+
+#: warehouse/templates/manage/projects.html:103
 msgid "Manage this project"
 msgstr "Mastrumi ĉi tiun projekton"
 
-#: warehouse/templates/manage/projects.html:92
+#: warehouse/templates/manage/projects.html:106
 msgid "You are not an owner of this project"
 msgstr "Vi ne estas posedanto de ĉi tiu projekto"
 
-#: warehouse/templates/manage/projects.html:99
+#: warehouse/templates/manage/projects.html:114
 msgid "View this project's public page"
 msgstr "Vidi la publikan paĝon de ĉi tiu projekto"
 
-#: warehouse/templates/manage/projects.html:102
+#: warehouse/templates/manage/projects.html:117
 msgid "This project has no releases"
 msgstr "Ĉi tiu projekto ne havas eldonojn"
 
-#: warehouse/templates/manage/projects.html:104
+#: warehouse/templates/manage/projects.html:119
 #: warehouse/templates/manage/releases.html:94
 #: warehouse/templates/packaging/detail.html:359
 msgid "View"
 msgstr "Vidi"
 
-#: warehouse/templates/manage/projects.html:111
+#: warehouse/templates/manage/projects.html:126
 #, python-format
 msgid ""
 "You have not uploaded any projects to PyPI, yet. To learn how to get "
