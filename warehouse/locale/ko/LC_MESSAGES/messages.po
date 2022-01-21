@@ -37,7 +37,13 @@ msgstr ""
 "X-Generator: Weblate 4.4-dev\n"
 "Generated-By: Babel 2.7.0\n"
 
-#: warehouse/views.py:254
+#: warehouse/views.py:112
+msgid ""
+"Two-factor authentication must be enabled on your account to perform this "
+"action."
+msgstr ""
+
+#: warehouse/views.py:272
 msgid "Locale updated"
 msgstr "지역이 변경되었습니다"
 
@@ -272,36 +278,36 @@ msgstr "당신은 이제 '${project_name}' 프로젝트의 ${role} 역할 입니
 msgid "Banner Preview"
 msgstr ""
 
-#: warehouse/manage/views.py:208
+#: warehouse/manage/views.py:215
 msgid "Email ${email_address} added - check your email for a verification link"
 msgstr ""
 "이메일 주소 ${email_address}가 추가되었습니다 - 이메일에서 확인 링크를 살펴보"
 "세요"
 
-#: warehouse/manage/views.py:702 warehouse/manage/views.py:738
+#: warehouse/manage/views.py:723 warehouse/manage/views.py:759
 msgid ""
 "You must provision a two factor method before recovery codes can be generated"
 msgstr "복구 코드를 생성하려면 2단계 인증이 설정되어야 합니다"
 
-#: warehouse/manage/views.py:713
+#: warehouse/manage/views.py:734
 msgid "Recovery codes already generated"
 msgstr "복구 코드가 이미 생성되었습니다"
 
-#: warehouse/manage/views.py:714
+#: warehouse/manage/views.py:735
 msgid "Generating new recovery codes will invalidate your existing codes."
 msgstr "복구 코드를 새로 생성하면 기존 코드가 무효화됩니다."
 
-#: warehouse/manage/views.py:766
+#: warehouse/manage/views.py:787
 msgid "Invalid credentials. Try again"
 msgstr "잘못된 자격 증명입니다. 다시 한 번 시도해 보세요"
 
-#: warehouse/manage/views.py:1516
+#: warehouse/manage/views.py:1542
 msgid "User '${username}' already has ${role_name} role for project"
 msgstr ""
 "사용자 '${username}'는 이미 ${role_name}이라는 이 프로젝트의 역할을 가지고 있"
 "습니다"
 
-#: warehouse/manage/views.py:1527
+#: warehouse/manage/views.py:1553
 msgid ""
 "User '${username}' does not have a verified primary email address and cannot "
 "be added as a ${role_name} for project"
@@ -309,26 +315,26 @@ msgstr ""
 "사용자 '${username}'는 인증된 이메일을 가지고있지 않으므로 이 프로젝트에서 "
 "${role_name}으로 추가될 수 없습니다"
 
-#: warehouse/manage/views.py:1540
+#: warehouse/manage/views.py:1566
 msgid ""
 "User '${username}' already has an active invite. Please try again later."
 msgstr ""
 "사용자 '${username}'는 이미 활성화되어 있는 초대를 가지고 있습니다. 나중에 다"
 "시 시도해보세요."
 
-#: warehouse/manage/views.py:1598
+#: warehouse/manage/views.py:1624
 msgid "Invitation sent to '${username}'"
 msgstr "'${username}'에게 초대가 전송되었습니다"
 
-#: warehouse/manage/views.py:1645
+#: warehouse/manage/views.py:1671
 msgid "Could not find role invitation."
 msgstr "역할 초대를 찾을 수 없습니다."
 
-#: warehouse/manage/views.py:1656
+#: warehouse/manage/views.py:1682
 msgid "Invitation already expired."
 msgstr "초대가 이미 만료되었습니다."
 
-#: warehouse/manage/views.py:1680
+#: warehouse/manage/views.py:1706
 msgid "Invitation revoked from '${username}'."
 msgstr "'${username}'의 초대가 취소되었습니다."
 
@@ -372,14 +378,14 @@ msgstr "몬티 파이썬 - 치즈 샵 스케치"
 #: warehouse/templates/includes/hash-modal.html:23
 #: warehouse/templates/includes/packaging/project-data.html:66
 #: warehouse/templates/index.html:112 warehouse/templates/index.html:116
-#: warehouse/templates/manage/account.html:153
-#: warehouse/templates/manage/account.html:252
-#: warehouse/templates/manage/account.html:258
+#: warehouse/templates/manage/account.html:228
+#: warehouse/templates/manage/account.html:234
 #: warehouse/templates/manage/account/totp-provision.html:32
 #: warehouse/templates/manage/account/webauthn-provision.html:26
 #: warehouse/templates/manage/account/webauthn-provision.html:28
 #: warehouse/templates/manage/account/webauthn-provision.html:53
 #: warehouse/templates/manage/account/webauthn-provision.html:74
+#: warehouse/templates/manage/manage_base.html:38
 #: warehouse/templates/manage/release.html:119
 #: warehouse/templates/manage/release.html:175
 #: warehouse/templates/manage/releases.html:140
@@ -603,10 +609,10 @@ msgstr "모바일 버전으로 전환"
 #: warehouse/templates/base.html:152 warehouse/templates/base.html:161
 #: warehouse/templates/base.html:171
 #: warehouse/templates/includes/session-notifications.html:19
-#: warehouse/templates/manage/account.html:789
+#: warehouse/templates/manage/account.html:694
 #: warehouse/templates/manage/documentation.html:27
-#: warehouse/templates/manage/manage_base.html:106
-#: warehouse/templates/manage/manage_base.html:158
+#: warehouse/templates/manage/manage_base.html:204
+#: warehouse/templates/manage/manage_base.html:256
 #: warehouse/templates/manage/release.html:163
 #: warehouse/templates/manage/settings.html:76
 msgid "Warning"
@@ -882,7 +888,7 @@ msgstr "입력값을 처리하는데 오류가 발생했습니다"
 #: warehouse/templates/accounts/register.html:140
 #: warehouse/templates/accounts/reset-password.html:60
 #: warehouse/templates/accounts/reset-password.html:65
-#: warehouse/templates/manage/account.html:429
+#: warehouse/templates/manage/account.html:405
 #: warehouse/templates/re-auth.html:18 warehouse/templates/re-auth.html:68
 msgid "Confirm password"
 msgstr "패스워드 확인"
@@ -894,7 +900,7 @@ msgstr "다음으로 행하기 위해 비밀번호를 확인해주세요"
 #: warehouse/templates/accounts/login.html:69
 #: warehouse/templates/accounts/register.html:110
 #: warehouse/templates/accounts/reset-password.html:38
-#: warehouse/templates/manage/manage_base.html:167
+#: warehouse/templates/manage/manage_base.html:265
 #: warehouse/templates/re-auth.html:49
 msgid "Password"
 msgstr "패스워드"
@@ -911,12 +917,12 @@ msgstr "패스워드"
 #: warehouse/templates/accounts/reset-password.html:40
 #: warehouse/templates/accounts/reset-password.html:62
 #: warehouse/templates/accounts/two-factor.html:89
-#: warehouse/templates/manage/account.html:294
-#: warehouse/templates/manage/account.html:311
-#: warehouse/templates/manage/account.html:368
-#: warehouse/templates/manage/account.html:393
-#: warehouse/templates/manage/account.html:410
-#: warehouse/templates/manage/account.html:426
+#: warehouse/templates/manage/account.html:270
+#: warehouse/templates/manage/account.html:287
+#: warehouse/templates/manage/account.html:344
+#: warehouse/templates/manage/account.html:369
+#: warehouse/templates/manage/account.html:386
+#: warehouse/templates/manage/account.html:402
 #: warehouse/templates/manage/account/totp-provision.html:69
 #: warehouse/templates/manage/account/webauthn-provision.html:44
 #: warehouse/templates/manage/roles.html:170
@@ -933,7 +939,7 @@ msgid "Your password"
 msgstr "패스워드를 입력하세요"
 
 #: warehouse/templates/accounts/login.html:92
-#: warehouse/templates/manage/manage_base.html:170
+#: warehouse/templates/manage/manage_base.html:268
 #: warehouse/templates/re-auth.html:72
 msgid "Show password"
 msgstr "패스워드 보이기"
@@ -1019,7 +1025,7 @@ msgstr "%(title)s에 로그인"
 #: warehouse/templates/accounts/login.html:49
 #: warehouse/templates/accounts/profile.html:32
 #: warehouse/templates/accounts/register.html:89
-#: warehouse/templates/manage/account.html:272
+#: warehouse/templates/manage/account.html:248
 #: warehouse/templates/manage/account/recovery_codes-provision.html:85
 #: warehouse/templates/manage/roles.html:173
 msgid "Username"
@@ -1046,7 +1052,7 @@ msgid "Profile of %(username)s"
 msgstr "%(username)s 프로필"
 
 #: warehouse/templates/accounts/profile.html:23
-#: warehouse/templates/manage/account.html:247
+#: warehouse/templates/manage/account.html:223
 #: warehouse/templates/manage/roles.html:62
 #: warehouse/templates/manage/roles.html:125
 msgid "Avatar for {user} from gravatar.com"
@@ -1083,7 +1089,7 @@ msgstr "프로젝트 없음"
 
 #: warehouse/templates/accounts/profile.html:73
 #: warehouse/templates/manage/projects.html:34
-#: warehouse/templates/manage/projects.html:73
+#: warehouse/templates/manage/projects.html:74
 #, fuzzy, python-format
 #| msgid "Last released on %(release_date)s"
 msgid "Last released %(release_date)s"
@@ -1095,7 +1101,7 @@ msgid "%(user)s has not uploaded any projects to PyPI, yet"
 msgstr "%(user)s 사용자는 아직 PyPI에 프로젝트를 등록하지 않았습니다"
 
 #: warehouse/templates/accounts/recovery-code.html:18
-#: warehouse/templates/manage/account.html:493
+#: warehouse/templates/manage/manage_base.html:93
 msgid "Recovery codes"
 msgstr "복구 코드"
 
@@ -1140,8 +1146,8 @@ msgid "Create an account on %(title)s"
 msgstr "%(title)s에 계정 생성하기"
 
 #: warehouse/templates/accounts/register.html:45
-#: warehouse/templates/manage/account.html:163
-#: warehouse/templates/manage/account.html:529
+#: warehouse/templates/manage/account.html:139
+#: warehouse/templates/manage/account.html:434
 msgid "Name"
 msgstr "이름"
 
@@ -1150,12 +1156,12 @@ msgid "Your name"
 msgstr "이름을 입력해주세요"
 
 #: warehouse/templates/accounts/register.html:64
-#: warehouse/templates/manage/account.html:350
+#: warehouse/templates/manage/account.html:326
 msgid "Email address"
 msgstr "이메일 주소"
 
 #: warehouse/templates/accounts/register.html:69
-#: warehouse/templates/manage/account.html:371
+#: warehouse/templates/manage/account.html:347
 msgid "Your email address"
 msgstr "이메일 주소를 입력해주세요"
 
@@ -1169,7 +1175,7 @@ msgstr "사용자명을 입력해주세요"
 
 #: warehouse/templates/accounts/register.html:117
 #: warehouse/templates/accounts/reset-password.html:44
-#: warehouse/templates/manage/account.html:398
+#: warehouse/templates/manage/account.html:374
 msgid "Show passwords"
 msgstr "패스워드 보이기"
 
@@ -1231,7 +1237,7 @@ msgid "Reset your password"
 msgstr "패스워드 재설정"
 
 #: warehouse/templates/accounts/reset-password.html:47
-#: warehouse/templates/manage/account.html:415
+#: warehouse/templates/manage/account.html:391
 msgid "Select a new password"
 msgstr "새로운 패스워드를 입력하세요"
 
@@ -1564,16 +1570,17 @@ msgid "Admin"
 msgstr "관리자"
 
 #: warehouse/templates/includes/current-user-indicator.html:37
-#: warehouse/templates/manage/manage_base.html:32
-#: warehouse/templates/manage/manage_base.html:52
+#: warehouse/templates/manage/manage_base.html:130
+#: warehouse/templates/manage/manage_base.html:150
 #: warehouse/templates/manage/projects.html:18
 msgid "Your projects"
 msgstr "프로젝트 목록"
 
 #: warehouse/templates/includes/current-user-indicator.html:43
 #: warehouse/templates/manage/account.html:17
-#: warehouse/templates/manage/manage_base.html:38
-#: warehouse/templates/manage/manage_base.html:58
+#: warehouse/templates/manage/account/two-factor.html:17
+#: warehouse/templates/manage/manage_base.html:136
+#: warehouse/templates/manage/manage_base.html:156
 msgid "Account settings"
 msgstr "계정 설정"
 
@@ -1598,11 +1605,11 @@ msgstr "이 알림 지우기"
 #: warehouse/templates/includes/hash-modal.html:19
 #: warehouse/templates/includes/hash-modal.html:68
 #: warehouse/templates/includes/session-notifications.html:41
-#: warehouse/templates/manage/account.html:223
-#: warehouse/templates/manage/account.html:225
-#: warehouse/templates/manage/account.html:235
-#: warehouse/templates/manage/manage_base.html:94
-#: warehouse/templates/manage/manage_base.html:96
+#: warehouse/templates/manage/account.html:199
+#: warehouse/templates/manage/account.html:201
+#: warehouse/templates/manage/account.html:211
+#: warehouse/templates/manage/manage_base.html:192
+#: warehouse/templates/manage/manage_base.html:194
 #: warehouse/templates/manage/release.html:118
 #: warehouse/templates/manage/releases.html:172
 #: warehouse/templates/manage/roles.html:38
@@ -1640,7 +1647,7 @@ msgstr "해시 다이제스트"
 #: warehouse/templates/includes/hash-modal.html:41
 #: warehouse/templates/includes/hash-modal.html:50
 #: warehouse/templates/includes/hash-modal.html:59
-#: warehouse/templates/manage/account.html:230
+#: warehouse/templates/manage/account.html:206
 #: warehouse/templates/manage/account/recovery_codes-provision.html:61
 #: warehouse/templates/manage/account/totp-provision.html:57
 #: warehouse/templates/packaging/detail.html:117
@@ -1651,7 +1658,7 @@ msgstr "클립보드로 복사하기"
 #: warehouse/templates/includes/hash-modal.html:42
 #: warehouse/templates/includes/hash-modal.html:51
 #: warehouse/templates/includes/hash-modal.html:60
-#: warehouse/templates/manage/account.html:231
+#: warehouse/templates/manage/account.html:207
 #: warehouse/templates/manage/account/recovery_codes-provision.html:62
 #: warehouse/templates/manage/account/totp-provision.html:58
 #: warehouse/templates/pages/classifiers.html:38
@@ -1765,7 +1772,7 @@ msgid "Collaborators"
 msgstr "공동작업자"
 
 #: warehouse/templates/includes/manage/manage-project-menu.html:31
-#: warehouse/templates/manage/account.html:554
+#: warehouse/templates/manage/account.html:459
 #: warehouse/templates/manage/history.html:23
 msgid "Security history"
 msgstr "보안 이력"
@@ -1901,7 +1908,7 @@ msgid "View email options"
 msgstr "이메일 옵션 보기"
 
 #: warehouse/templates/manage/account.html:87
-#: warehouse/templates/manage/account.html:187
+#: warehouse/templates/manage/account.html:163
 #: warehouse/templates/manage/release.html:67
 #: warehouse/templates/manage/releases.html:68
 msgid "Options"
@@ -1933,90 +1940,51 @@ msgstr "이 이메일 주소 삭제"
 msgid "Remove email"
 msgstr "이메일 삭제"
 
-#: warehouse/templates/manage/account.html:139
-msgid ""
-"Add <abbr title=\"two factor authentication\">2FA</abbr> with authentication "
-"application"
-msgstr ""
-"인증 앱으로 <abbr title=\"two factor authentication\">2FA</abbr> 추가하기"
-
-#: warehouse/templates/manage/account.html:141
-msgid ""
-"Add <abbr title=\"two factor authentication\">2FA</abbr> with security "
-"device (e.g. USB key)"
-msgstr ""
-"보안 장치(예: USB 키)로 <abbr title=\"two factor authentication\">2FA</abbr> "
-"추가하기"
-
 #: warehouse/templates/manage/account.html:143
-msgid "Generate recovery codes"
-msgstr "복구 코드를 생성하기"
-
-#: warehouse/templates/manage/account.html:148
-#: warehouse/templates/manage/account/webauthn-provision.html:37
-msgid ""
-"Enable JavaScript to set up two factor authentication with a security device "
-"(e.g. USB key)"
-msgstr ""
-"인증 장치(예: USB 키)로 2단계 인증을 설정하려면 자바스크립트를 활성화하세요"
-
-#: warehouse/templates/manage/account.html:153
-#: warehouse/templates/manage/account/webauthn-provision.html:53
-#, python-format
-msgid ""
-"<a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener"
-"\">Upgrade your browser</a> to set up two factor authentication with a "
-"security device (e.g. USB key)"
-msgstr ""
-"인증 장치(예: USB키)로 2단계 인증을 설정하려면 <a href=\"%(href)s\" title="
-"\"%(title)s\" target=\"_blank\" rel=\"noopener\">브라우저를 업그레이드</a>하"
-"세요"
-
-#: warehouse/templates/manage/account.html:167
-#: warehouse/templates/manage/account.html:530
+#: warehouse/templates/manage/account.html:435
 #: warehouse/templates/manage/token.html:151
 msgid "Scope"
 msgstr "범위"
 
-#: warehouse/templates/manage/account.html:169
+#: warehouse/templates/manage/account.html:145
 msgid "All projects"
 msgstr "모든 프로젝트"
 
-#: warehouse/templates/manage/account.html:177
-#: warehouse/templates/manage/account.html:531
+#: warehouse/templates/manage/account.html:153
+#: warehouse/templates/manage/account.html:436
 msgid "Created"
 msgstr "생성일"
 
-#: warehouse/templates/manage/account.html:181
-#: warehouse/templates/manage/account.html:532
+#: warehouse/templates/manage/account.html:157
+#: warehouse/templates/manage/account.html:437
 msgid "Last used"
 msgstr "마지막으로 사용됨"
 
-#: warehouse/templates/manage/account.html:182
+#: warehouse/templates/manage/account.html:158
 msgid "Never"
 msgstr "사용된 적 없음"
 
-#: warehouse/templates/manage/account.html:186
+#: warehouse/templates/manage/account.html:162
 msgid "View token options"
 msgstr "토큰 옵션 보기"
 
-#: warehouse/templates/manage/account.html:196
+#: warehouse/templates/manage/account.html:172
 #: warehouse/templates/manage/token.html:57
 msgid "Remove token"
 msgstr "토큰 제거"
 
-#: warehouse/templates/manage/account.html:202
+#: warehouse/templates/manage/account.html:178
 msgid "View unique identifier"
 msgstr "고유 식별자 보기"
 
-#: warehouse/templates/manage/account.html:210
-#: warehouse/templates/manage/account.html:212
+#: warehouse/templates/manage/account.html:186
+#: warehouse/templates/manage/account.html:188
 #: warehouse/templates/manage/token.html:60
 #: warehouse/templates/manage/token.html:61
 msgid "Remove API token"
 msgstr "API 토큰 제거"
 
-#: warehouse/templates/manage/account.html:217
+#: warehouse/templates/manage/account.html:193
 #: warehouse/templates/manage/token.html:66
 msgid ""
 "Applications or scripts using this token will no longer have access to PyPI."
@@ -2024,16 +1992,16 @@ msgstr ""
 "이 토큰을 사용하는 애플리케이션이나 스크립트는 더 이상 PyPI에 접근할 수 없습"
 "니다."
 
-#: warehouse/templates/manage/account.html:228
+#: warehouse/templates/manage/account.html:204
 #, python-format
 msgid "Unique identifier for API token \"%(token_description)s\""
 msgstr "API 토큰 \"%(token_description)s\"의 고유 식별자"
 
-#: warehouse/templates/manage/account.html:246
+#: warehouse/templates/manage/account.html:222
 msgid "Profile picture"
 msgstr "프로필 이미지"
 
-#: warehouse/templates/manage/account.html:252
+#: warehouse/templates/manage/account.html:228
 #, python-format
 msgid ""
 "We use <a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel="
@@ -2043,42 +2011,42 @@ msgstr ""
 "기본 이메일 주소를 기반한 <a href=\"%(href)s\" title=\"%(title)s\" target="
 "\"_blank\" rel=\"noopener\">gravatar.com</a>의 프로필 이미지를 가져옵니다"
 
-#: warehouse/templates/manage/account.html:259
+#: warehouse/templates/manage/account.html:235
 msgid "Change image on gravatar.com"
 msgstr "gravatar.com에서 이미지 변경하기"
 
-#: warehouse/templates/manage/account.html:269
+#: warehouse/templates/manage/account.html:245
 msgid "Account details"
 msgstr "계정 상세 정보"
 
-#: warehouse/templates/manage/account.html:275
+#: warehouse/templates/manage/account.html:251
 msgid "Date Joined"
 msgstr "가입한 날짜"
 
-#: warehouse/templates/manage/account.html:281
+#: warehouse/templates/manage/account.html:257
 #, python-format
 msgid ""
 "Displayed on your <a href=\"%(href)s\">public profile</a>. Cannot be changed."
 msgstr "<a href=\"%(href)s\">공개 프로필</a>에 표시됩니다. 변경할 수 없습니다."
 
-#: warehouse/templates/manage/account.html:292
+#: warehouse/templates/manage/account.html:268
 msgid "Full name"
 msgstr "이름"
 
-#: warehouse/templates/manage/account.html:297
+#: warehouse/templates/manage/account.html:273
 msgid "No name set"
 msgstr "이름이 설정되지 않음"
 
-#: warehouse/templates/manage/account.html:302
+#: warehouse/templates/manage/account.html:278
 #, python-format
 msgid "Displayed on your <a href=\"%(href)s\">public profile</a>"
 msgstr "<a href=\"%(href)s\">공개 프로필</a>에 표시됩니다"
 
-#: warehouse/templates/manage/account.html:309
+#: warehouse/templates/manage/account.html:285
 msgid "️Public email"
 msgstr "공개 이메일"
 
-#: warehouse/templates/manage/account.html:321
+#: warehouse/templates/manage/account.html:297
 #, python-format
 msgid ""
 "One of your verified emails can be displayed on your <a href=\"%(href)s"
@@ -2087,15 +2055,15 @@ msgstr ""
 "인증된 이메일중 하나는 당신의 <a href=\"%(href)s\">공개 프로필</a>에 로그인"
 "된 유저에게 보여질수 있습니다."
 
-#: warehouse/templates/manage/account.html:326
+#: warehouse/templates/manage/account.html:302
 msgid "Update account"
 msgstr "계정 수정하기"
 
-#: warehouse/templates/manage/account.html:334
+#: warehouse/templates/manage/account.html:310
 msgid "Account emails"
 msgstr "계정 이메일"
 
-#: warehouse/templates/manage/account.html:336
+#: warehouse/templates/manage/account.html:312
 msgid ""
 "You can associate several emails with your account. You can use any <span "
 "class=\"badge badge--success\"><i class=\"fa fa-check\" aria-hidden=\"true"
@@ -2107,159 +2075,69 @@ msgstr ""
 "메일 주소 중 어떤 것으로도 계정을 복구하는데 사용할 수 있지만, <span class="
 "\"badge\">기본</span> 이메일로만 알림이 가능합니다."
 
-#: warehouse/templates/manage/account.html:347
+#: warehouse/templates/manage/account.html:323
 msgid "Emails associated with your account"
 msgstr "계정과 연결된 이메일"
 
-#: warehouse/templates/manage/account.html:351
+#: warehouse/templates/manage/account.html:327
 msgid "Status"
 msgstr "상태"
 
-#: warehouse/templates/manage/account.html:366
-#: warehouse/templates/manage/account.html:376
+#: warehouse/templates/manage/account.html:342
+#: warehouse/templates/manage/account.html:352
 msgid "Add email"
 msgstr "이메일 추가"
 
-#: warehouse/templates/manage/account.html:383
+#: warehouse/templates/manage/account.html:359
 msgid "Change password"
 msgstr "패스워드 변경"
 
-#: warehouse/templates/manage/account.html:391
+#: warehouse/templates/manage/account.html:367
 msgid "Old password"
 msgstr "이전 패스워드"
 
-#: warehouse/templates/manage/account.html:401
+#: warehouse/templates/manage/account.html:377
 msgid "Your current password"
 msgstr "현재 패스워드"
 
-#: warehouse/templates/manage/account.html:408
+#: warehouse/templates/manage/account.html:384
 msgid "New password"
 msgstr "새 패스워드"
 
-#: warehouse/templates/manage/account.html:424
+#: warehouse/templates/manage/account.html:400
 msgid "Confirm new password"
 msgstr "새 패스워드 확인"
 
-#: warehouse/templates/manage/account.html:440
+#: warehouse/templates/manage/account.html:416
 msgid "Update password"
 msgstr "패스워드 변경"
 
-#: warehouse/templates/manage/account.html:447
-msgid "Two factor authentication (2FA)"
-msgstr "2단계 인증 (2FA)"
-
-#: warehouse/templates/manage/account.html:448
-#, python-format
-msgid ""
-"Two factor authentication adds an additional layer of security to your "
-"account. <a href=\"%(href)s\">Learn more about <abbr title=\"two factor "
-"authentication\">2FA</abbr></a>."
-msgstr ""
-"2단계 인증을 추가해서 계정의 보안 수준을 높여보세요. <a href=\"%(href)s"
-"\"><abbr title=\"two factor authentication\">2FA</abbr>에 대해 더 알아보세요"
-"</a>."
-
-#: warehouse/templates/manage/account.html:453
-msgid "Two factor authentication methods enabled"
-msgstr "2단계 인증 방법이 활성화됨"
-
-#: warehouse/templates/manage/account.html:456
-msgid "Two factor method"
-msgstr "2단계 인증 방법"
-
-#: warehouse/templates/manage/account.html:462
-#: warehouse/templates/manage/account.html:572
-msgid ""
-"Authentication application (<abbr title=\"time-based one-time password"
-"\">TOTP</abbr>)"
-msgstr "인증 앱 (<abbr title=\"time-based one-time password\">TOTP</abbr>)"
-
-#: warehouse/templates/manage/account.html:464
-#: warehouse/templates/manage/account.html:478
-msgid "Remove"
-msgstr "삭제"
-
-#: warehouse/templates/manage/account.html:465
-msgid "Remove authentication application"
-msgstr "인증 앱 삭제"
-
-#: warehouse/templates/manage/account.html:466
-msgid "Remove application"
-msgstr "앱 삭제"
-
-#: warehouse/templates/manage/account.html:475
-#: warehouse/templates/manage/account.html:570
-msgid "Security device (<abbr title=\"web authentication\">WebAuthn</abbr>)"
-msgstr "보안 장치 (<abbr title=\"web authentication\">WebAuthn</abbr>)"
-
-#: warehouse/templates/manage/account.html:479
-msgid "Remove two factor security device"
-msgstr "2단계 인증 장치 삭제"
-
-#: warehouse/templates/manage/account.html:480
-msgid "Remove device"
-msgstr "장치 삭제"
-
-#: warehouse/templates/manage/account.html:486
-msgid "Device name"
-msgstr "장치 이름"
-
-#: warehouse/templates/manage/account.html:493
-#, python-format
-msgid "generated %(generated_datetime)s"
-msgstr "%(generated_datetime)s에 생성됨"
-
-#: warehouse/templates/manage/account.html:496
-msgid "Regenerate"
-msgstr "재생성"
-
-#: warehouse/templates/manage/account.html:497
-#: warehouse/templates/manage/account.html:498
-#: warehouse/templates/manage/account/recovery_codes-provision.html:36
-#: warehouse/templates/manage/account/recovery_codes-provision.html:37
-#: warehouse/templates/manage/account/recovery_codes-provision.html:38
-msgid "Regenerate recovery codes"
-msgstr "복구 코드 재설정"
-
-#: warehouse/templates/manage/account.html:509
-msgid "You have not enabled two factor authentication on your account."
-msgstr "계정에 2단계 인증을 활성화하지 않았습니다."
-
-#: warehouse/templates/manage/account.html:514
-#, python-format
-msgid ""
-"<a href=\"%(href)s\">Verify your primary email address</a> to add two factor "
-"authentication to your account."
-msgstr ""
-"2단계 인증을 추가하기 위해서는 먼저 <a href=\"%(href)s\">기본 이메일 주소를 "
-"인증</a>해야 합니다."
-
-#: warehouse/templates/manage/account.html:521
+#: warehouse/templates/manage/account.html:426
 #: warehouse/templates/manage/settings.html:43
 msgid "API tokens"
 msgstr "API 토큰"
 
-#: warehouse/templates/manage/account.html:522
+#: warehouse/templates/manage/account.html:427
 #: warehouse/templates/manage/settings.html:44
 msgid ""
 "API tokens provide an alternative way to authenticate when uploading "
 "packages to PyPI."
 msgstr "API 토큰은 PyPI에 패키지를 등록할 때 인증을 위한 대안을 제공합니다."
 
-#: warehouse/templates/manage/account.html:522
+#: warehouse/templates/manage/account.html:427
 msgid "Learn more about API tokens"
 msgstr "API 토큰에 대해 알아보기"
 
-#: warehouse/templates/manage/account.html:526
+#: warehouse/templates/manage/account.html:431
 msgid "Active API tokens for this account"
 msgstr "이 계정에 활성화된 API 토큰"
 
-#: warehouse/templates/manage/account.html:544
+#: warehouse/templates/manage/account.html:449
 #: warehouse/templates/manage/token.html:17
 msgid "Add API token"
 msgstr "API 토큰 추가하기"
 
-#: warehouse/templates/manage/account.html:546
+#: warehouse/templates/manage/account.html:451
 #, python-format
 msgid ""
 "<a href=\"%(href)s\">Verify your primary email address</a> to add API tokens "
@@ -2268,222 +2146,234 @@ msgstr ""
 "API 토큰을 추가하기 위해 먼저 <a href=\"%(href)s\">기본 이메일 주소를 인증</"
 "a>해야 합니다."
 
-#: warehouse/templates/manage/account.html:561
+#: warehouse/templates/manage/account.html:466
 msgid "Account created"
 msgstr "계정 생성일"
 
-#: warehouse/templates/manage/account.html:564
+#: warehouse/templates/manage/account.html:469
 msgid "Logged in"
 msgstr "로그인 됨"
 
-#: warehouse/templates/manage/account.html:566
+#: warehouse/templates/manage/account.html:471
 msgid "Two factor method:"
 msgstr "2단계 인증 방법:"
 
-#: warehouse/templates/manage/account.html:568
+#: warehouse/templates/manage/account.html:473
 #: warehouse/templates/manage/release.html:58
 #: warehouse/templates/packaging/detail.html:349
 msgid "None"
 msgstr "없음"
 
-#: warehouse/templates/manage/account.html:574
+#: warehouse/templates/manage/account.html:475
+#: warehouse/templates/manage/manage_base.html:75
+msgid "Security device (<abbr title=\"web authentication\">WebAuthn</abbr>)"
+msgstr "보안 장치 (<abbr title=\"web authentication\">WebAuthn</abbr>)"
+
+#: warehouse/templates/manage/account.html:477
+#: warehouse/templates/manage/manage_base.html:62
+msgid ""
+"Authentication application (<abbr title=\"time-based one-time password"
+"\">TOTP</abbr>)"
+msgstr "인증 앱 (<abbr title=\"time-based one-time password\">TOTP</abbr>)"
+
+#: warehouse/templates/manage/account.html:479
 msgid "Recovery code"
 msgstr "복구 코드"
 
-#: warehouse/templates/manage/account.html:579
+#: warehouse/templates/manage/account.html:484
 msgid "Login failed"
 msgstr ""
 
-#: warehouse/templates/manage/account.html:582
+#: warehouse/templates/manage/account.html:487
 msgid "- Basic Auth (Upload endpoint)"
 msgstr ""
 
-#: warehouse/templates/manage/account.html:587
-#: warehouse/templates/manage/account.html:604
+#: warehouse/templates/manage/account.html:492
+#: warehouse/templates/manage/account.html:509
 #: warehouse/templates/manage/history.html:84
 msgid "Reason:"
 msgstr ""
 
-#: warehouse/templates/manage/account.html:589
-#: warehouse/templates/manage/account.html:606
+#: warehouse/templates/manage/account.html:494
+#: warehouse/templates/manage/account.html:511
 #, fuzzy
 #| msgid "Your current password"
 msgid "Incorrect Password"
 msgstr "현재 패스워드"
 
-#: warehouse/templates/manage/account.html:591
+#: warehouse/templates/manage/account.html:496
 #, fuzzy
 #| msgid "Invalid or expired two factor login."
 msgid "Invalid two factor (TOTP)"
 msgstr "2단계 인증 로그인이 잘못되거나 만료되었습니다."
 
-#: warehouse/templates/manage/account.html:593
+#: warehouse/templates/manage/account.html:498
 #, fuzzy
 #| msgid "Invalid or expired two factor login."
 msgid "Invalid two factor (WebAuthn)"
 msgstr "2단계 인증 로그인이 잘못되거나 만료되었습니다."
 
-#: warehouse/templates/manage/account.html:595
+#: warehouse/templates/manage/account.html:500
 #, fuzzy
 #| msgid "Invalid recovery code."
 msgid "Invalid two factor (Recovery code)"
 msgstr "잘못된 복구 코드입니다."
 
-#: warehouse/templates/manage/account.html:602
+#: warehouse/templates/manage/account.html:507
 #, fuzzy
 #| msgid "Two factor authentication added"
 msgid "Session reauthentication failed"
 msgstr "2단계 인증 추가됨"
 
-#: warehouse/templates/manage/account.html:613
+#: warehouse/templates/manage/account.html:518
 msgid "Email added to account"
 msgstr "계정에 이메일 추가됨"
 
-#: warehouse/templates/manage/account.html:616
+#: warehouse/templates/manage/account.html:521
 msgid "Email removed from account"
 msgstr "계정에 이메일 제거됨"
 
-#: warehouse/templates/manage/account.html:619
+#: warehouse/templates/manage/account.html:524
 msgid "Email verified"
 msgstr "이메일 확인됨"
 
-#: warehouse/templates/manage/account.html:622
+#: warehouse/templates/manage/account.html:527
 msgid "Email reverified"
 msgstr "이메일 재확인됨"
 
-#: warehouse/templates/manage/account.html:626
+#: warehouse/templates/manage/account.html:531
 msgid "Primary email changed"
 msgstr "기본 이메일 변경됨"
 
-#: warehouse/templates/manage/account.html:628
+#: warehouse/templates/manage/account.html:533
 msgid "Old primary email:"
 msgstr "이전 기본 이메일:"
 
-#: warehouse/templates/manage/account.html:629
+#: warehouse/templates/manage/account.html:534
 msgid "New primary email:"
 msgstr "새로운 기존 이메일:"
 
-#: warehouse/templates/manage/account.html:632
+#: warehouse/templates/manage/account.html:537
 msgid "Primary email set"
 msgstr "기본 이메일 설정됨"
 
-#: warehouse/templates/manage/account.html:638
+#: warehouse/templates/manage/account.html:543
 msgid "Email sent"
 msgstr "이메일 전송됨"
 
-#: warehouse/templates/manage/account.html:640
+#: warehouse/templates/manage/account.html:545
 msgid "From:"
 msgstr "에서:"
 
-#: warehouse/templates/manage/account.html:641
+#: warehouse/templates/manage/account.html:546
 msgid "To:"
 msgstr "에게:"
 
-#: warehouse/templates/manage/account.html:642
+#: warehouse/templates/manage/account.html:547
 msgid "Subject:"
 msgstr "제목:"
 
-#: warehouse/templates/manage/account.html:646
+#: warehouse/templates/manage/account.html:551
 msgid "Password reset requested"
 msgstr "패스워드 재설정 요청됨"
 
-#: warehouse/templates/manage/account.html:648
+#: warehouse/templates/manage/account.html:553
 #, fuzzy
 #| msgid "Password reset requested"
 msgid "Password reset attempted"
 msgstr "패스워드 재설정 요청됨"
 
-#: warehouse/templates/manage/account.html:650
+#: warehouse/templates/manage/account.html:555
 msgid "Password successfully reset"
 msgstr "패스워드 재설정 성공"
 
-#: warehouse/templates/manage/account.html:652
+#: warehouse/templates/manage/account.html:557
 msgid "Password successfully changed"
 msgstr "패스워드 변경 성공"
 
-#: warehouse/templates/manage/account.html:655
+#: warehouse/templates/manage/account.html:560
 msgid "Two factor authentication added"
 msgstr "2단계 인증 추가됨"
 
-#: warehouse/templates/manage/account.html:658
-#: warehouse/templates/manage/account.html:668
+#: warehouse/templates/manage/account.html:563
+#: warehouse/templates/manage/account.html:573
 msgid ""
 "Method: Security device (<abbr title=\"web authentication\">WebAuthn</abbr>)"
 msgstr "방법: 보안 장치 (<abbr title=\"web authentication\">WebAuthn</abbr>)"
 
-#: warehouse/templates/manage/account.html:659
-#: warehouse/templates/manage/account.html:669
+#: warehouse/templates/manage/account.html:564
+#: warehouse/templates/manage/account.html:574
 msgid "Device name:"
 msgstr "장치 이름:"
 
-#: warehouse/templates/manage/account.html:661
-#: warehouse/templates/manage/account.html:671
+#: warehouse/templates/manage/account.html:566
+#: warehouse/templates/manage/account.html:576
 msgid ""
 "Method: Authentication application (<abbr title=\"time-based one-time "
 "password\">TOTP</abbr>)"
 msgstr ""
 "방법: 인증 앱 (<abbr title=\"time-based one-time password\">TOTP</abbr>)"
 
-#: warehouse/templates/manage/account.html:665
+#: warehouse/templates/manage/account.html:570
 msgid "Two factor authentication removed"
 msgstr "2단계 인증 제거됨"
 
-#: warehouse/templates/manage/account.html:676
+#: warehouse/templates/manage/account.html:581
 msgid "Recovery codes generated"
 msgstr "복구 코드 생성됨"
 
-#: warehouse/templates/manage/account.html:680
+#: warehouse/templates/manage/account.html:585
 msgid "Recovery codes regenerated"
 msgstr "복구 코드 재설정됨"
 
-#: warehouse/templates/manage/account.html:684
+#: warehouse/templates/manage/account.html:589
 msgid "Recovery code used for login"
 msgstr "복구 코드가 로그인에 사용됨"
 
-#: warehouse/templates/manage/account.html:690
+#: warehouse/templates/manage/account.html:595
 #: warehouse/templates/manage/history.html:65
 msgid "API token added"
 msgstr "API 토큰 추가됨"
 
-#: warehouse/templates/manage/account.html:692
-#: warehouse/templates/manage/account.html:707
+#: warehouse/templates/manage/account.html:597
+#: warehouse/templates/manage/account.html:612
 #: warehouse/templates/manage/history.html:69
 #: warehouse/templates/manage/history.html:76
 msgid "Token name:"
 msgstr "토큰 이름:"
 
-#: warehouse/templates/manage/account.html:694
-#: warehouse/templates/manage/account.html:710
+#: warehouse/templates/manage/account.html:599
+#: warehouse/templates/manage/account.html:615
 msgid "Token scope: entire account"
 msgstr "토큰 범위: 계정 전체"
 
-#: warehouse/templates/manage/account.html:696
-#: warehouse/templates/manage/account.html:712
+#: warehouse/templates/manage/account.html:601
+#: warehouse/templates/manage/account.html:617
 #, python-format
 msgid "Token scope: Project %(project_name)s"
 msgstr "토큰 범위: %(project_name)s 프로젝트"
 
-#: warehouse/templates/manage/account.html:701
+#: warehouse/templates/manage/account.html:606
 #: warehouse/templates/manage/history.html:72
 msgid "API token removed"
 msgstr "API 토큰 제거됨"
 
-#: warehouse/templates/manage/account.html:702
-#: warehouse/templates/manage/account.html:708
+#: warehouse/templates/manage/account.html:607
+#: warehouse/templates/manage/account.html:613
 msgid "Unique identifier:"
 msgstr "고유 식별자:"
 
-#: warehouse/templates/manage/account.html:705
+#: warehouse/templates/manage/account.html:610
 msgid "API token automatically removed for security reasons"
 msgstr ""
 
-#: warehouse/templates/manage/account.html:714
+#: warehouse/templates/manage/account.html:619
 #, fuzzy, python-format
 #| msgid "Displayed on your <a href=\"%(href)s\">public profile</a>"
 msgid "Reason: Token found at <a href=\"%(public_url)s\">public url</a>"
 msgstr "<a href=\"%(href)s\">공개 프로필</a>에 표시됩니다"
 
-#: warehouse/templates/manage/account.html:723
+#: warehouse/templates/manage/account.html:628
 #, python-format
 msgid ""
 "Events appear here as security-related actions occur on your account. If you "
@@ -2493,43 +2383,43 @@ msgstr ""
 "계정에서 보안 관련 활동이 발생되면 여기에 이벤트가 표시됩니다. 당신이 수상한 "
 "이벤트를 보았다면, <a href=\"%(faq_url)s\">당신의 계정 보안을 고려하세요</a>."
 
-#: warehouse/templates/manage/account.html:728
+#: warehouse/templates/manage/account.html:633
 msgid "Recent account activity"
 msgstr "최근 계정 활동"
 
-#: warehouse/templates/manage/account.html:730
+#: warehouse/templates/manage/account.html:635
 #: warehouse/templates/manage/history.html:97
 msgid "Event"
 msgstr "이벤트"
 
-#: warehouse/templates/manage/account.html:731
-#: warehouse/templates/manage/account.html:739
+#: warehouse/templates/manage/account.html:636
+#: warehouse/templates/manage/account.html:644
 #: warehouse/templates/manage/history.html:98
 #: warehouse/templates/manage/history.html:107
 msgid "Date / time"
 msgstr "날짜 / 시간"
 
-#: warehouse/templates/manage/account.html:732
-#: warehouse/templates/manage/account.html:743
+#: warehouse/templates/manage/account.html:637
+#: warehouse/templates/manage/account.html:648
 #: warehouse/templates/manage/history.html:99
 #: warehouse/templates/manage/history.html:111
 msgid "IP address"
 msgstr "IP 어드레스"
 
-#: warehouse/templates/manage/account.html:751
+#: warehouse/templates/manage/account.html:656
 msgid ""
 "Events will appear here as security-related actions occur on your account."
 msgstr "계정에서 발생한 보안 관련 행동 목록이 표시됩니다."
 
-#: warehouse/templates/manage/account.html:758
+#: warehouse/templates/manage/account.html:663
 msgid "Delete account"
 msgstr "계정 삭제"
 
-#: warehouse/templates/manage/account.html:761
+#: warehouse/templates/manage/account.html:666
 msgid "Cannot delete account"
 msgstr "계정을 삭제할 수 없음"
 
-#: warehouse/templates/manage/account.html:763
+#: warehouse/templates/manage/account.html:668
 #, python-format
 msgid ""
 "\n"
@@ -2547,7 +2437,7 @@ msgstr[0] ""
 "입니다.\n"
 "        "
 
-#: warehouse/templates/manage/account.html:768
+#: warehouse/templates/manage/account.html:673
 msgid ""
 "\n"
 "          You must transfer ownership or delete this project before you can "
@@ -2564,7 +2454,7 @@ msgstr[0] ""
 "다.\n"
 "        "
 
-#: warehouse/templates/manage/account.html:778
+#: warehouse/templates/manage/account.html:683
 #, python-format
 msgid ""
 "<a href=\"%(transfer_href)s\">transfer ownership</a> or <a href="
@@ -2573,16 +2463,16 @@ msgstr ""
 "<a href=\"%(transfer_href)s\">소유권 이전</a> 또는 <a href=\"%(delete_href)s"
 "\">프로젝트 삭제</a>"
 
-#: warehouse/templates/manage/account.html:787
+#: warehouse/templates/manage/account.html:692
 #: warehouse/templates/manage/token.html:169
 msgid "Proceed with caution!"
 msgstr "실행하는데 주의를 요합니다!"
 
-#: warehouse/templates/manage/account.html:790
+#: warehouse/templates/manage/account.html:695
 msgid "You will not be able to recover your account after you delete it"
 msgstr "한 번 삭제된 계정은 복구할 수 없습니다"
 
-#: warehouse/templates/manage/account.html:792
+#: warehouse/templates/manage/account.html:697
 msgid "Delete your PyPI account"
 msgstr "PyPI 계정 삭제"
 
@@ -2787,44 +2677,161 @@ msgid "from %(ip_address)s"
 msgstr "%(ip_address)s 에서"
 
 #: warehouse/templates/manage/manage_base.html:16
-#: warehouse/templates/manage/projects.html:94
+#: warehouse/templates/manage/projects.html:108
 #: warehouse/templates/manage/releases.html:88
 msgid "Manage"
 msgstr "관리"
 
+#: warehouse/templates/manage/manage_base.html:24
+msgid ""
+"Add <abbr title=\"two factor authentication\">2FA</abbr> with authentication "
+"application"
+msgstr ""
+"인증 앱으로 <abbr title=\"two factor authentication\">2FA</abbr> 추가하기"
+
 #: warehouse/templates/manage/manage_base.html:26
+msgid ""
+"Add <abbr title=\"two factor authentication\">2FA</abbr> with security "
+"device (e.g. USB key)"
+msgstr ""
+"보안 장치(예: USB 키)로 <abbr title=\"two factor authentication\">2FA</abbr> "
+"추가하기"
+
+#: warehouse/templates/manage/manage_base.html:28
+msgid "Generate recovery codes"
+msgstr "복구 코드를 생성하기"
+
+#: warehouse/templates/manage/account/webauthn-provision.html:37
+#: warehouse/templates/manage/manage_base.html:33
+msgid ""
+"Enable JavaScript to set up two factor authentication with a security device "
+"(e.g. USB key)"
+msgstr ""
+"인증 장치(예: USB 키)로 2단계 인증을 설정하려면 자바스크립트를 활성화하세요"
+
+#: warehouse/templates/manage/account/webauthn-provision.html:53
+#: warehouse/templates/manage/manage_base.html:38
+#, python-format
+msgid ""
+"<a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener"
+"\">Upgrade your browser</a> to set up two factor authentication with a "
+"security device (e.g. USB key)"
+msgstr ""
+"인증 장치(예: USB키)로 2단계 인증을 설정하려면 <a href=\"%(href)s\" title="
+"\"%(title)s\" target=\"_blank\" rel=\"noopener\">브라우저를 업그레이드</a>하"
+"세요"
+
+#: warehouse/templates/manage/manage_base.html:47
+msgid "Two factor authentication (2FA)"
+msgstr "2단계 인증 (2FA)"
+
+#: warehouse/templates/manage/manage_base.html:48
+#, python-format
+msgid ""
+"Two factor authentication adds an additional layer of security to your "
+"account. <a href=\"%(href)s\">Learn more about <abbr title=\"two factor "
+"authentication\">2FA</abbr></a>."
+msgstr ""
+"2단계 인증을 추가해서 계정의 보안 수준을 높여보세요. <a href=\"%(href)s"
+"\"><abbr title=\"two factor authentication\">2FA</abbr>에 대해 더 알아보세요"
+"</a>."
+
+#: warehouse/templates/manage/manage_base.html:53
+msgid "Two factor authentication methods enabled"
+msgstr "2단계 인증 방법이 활성화됨"
+
+#: warehouse/templates/manage/manage_base.html:56
+msgid "Two factor method"
+msgstr "2단계 인증 방법"
+
+#: warehouse/templates/manage/manage_base.html:64
+#: warehouse/templates/manage/manage_base.html:78
+msgid "Remove"
+msgstr "삭제"
+
+#: warehouse/templates/manage/manage_base.html:65
+msgid "Remove authentication application"
+msgstr "인증 앱 삭제"
+
+#: warehouse/templates/manage/manage_base.html:66
+msgid "Remove application"
+msgstr "앱 삭제"
+
+#: warehouse/templates/manage/manage_base.html:79
+msgid "Remove two factor security device"
+msgstr "2단계 인증 장치 삭제"
+
+#: warehouse/templates/manage/manage_base.html:80
+msgid "Remove device"
+msgstr "장치 삭제"
+
+#: warehouse/templates/manage/manage_base.html:86
+msgid "Device name"
+msgstr "장치 이름"
+
+#: warehouse/templates/manage/manage_base.html:93
+#, python-format
+msgid "generated %(generated_datetime)s"
+msgstr "%(generated_datetime)s에 생성됨"
+
+#: warehouse/templates/manage/manage_base.html:96
+msgid "Regenerate"
+msgstr "재생성"
+
+#: warehouse/templates/manage/account/recovery_codes-provision.html:36
+#: warehouse/templates/manage/account/recovery_codes-provision.html:37
+#: warehouse/templates/manage/account/recovery_codes-provision.html:38
+#: warehouse/templates/manage/manage_base.html:97
+#: warehouse/templates/manage/manage_base.html:98
+msgid "Regenerate recovery codes"
+msgstr "복구 코드 재설정"
+
+#: warehouse/templates/manage/manage_base.html:109
+msgid "You have not enabled two factor authentication on your account."
+msgstr "계정에 2단계 인증을 활성화하지 않았습니다."
+
+#: warehouse/templates/manage/manage_base.html:114
+#, python-format
+msgid ""
+"<a href=\"%(href)s\">Verify your primary email address</a> to add two factor "
+"authentication to your account."
+msgstr ""
+"2단계 인증을 추가하기 위해서는 먼저 <a href=\"%(href)s\">기본 이메일 주소를 "
+"인증</a>해야 합니다."
+
+#: warehouse/templates/manage/manage_base.html:124
 msgid "Your account"
 msgstr "사용자 계정"
 
-#: warehouse/templates/manage/manage_base.html:27
-#: warehouse/templates/manage/manage_base.html:47
+#: warehouse/templates/manage/manage_base.html:125
+#: warehouse/templates/manage/manage_base.html:145
 msgid "Account navigation"
 msgstr "계정 내비게이션"
 
-#: warehouse/templates/manage/manage_base.html:107
-#: warehouse/templates/manage/manage_base.html:159
+#: warehouse/templates/manage/manage_base.html:205
+#: warehouse/templates/manage/manage_base.html:257
 msgid "This action cannot be undone!"
 msgstr "이 작업은 되돌릴 수 없습니다!"
 
-#: warehouse/templates/manage/manage_base.html:115
+#: warehouse/templates/manage/manage_base.html:213
 msgid "Confirm your username to continue."
 msgstr "계속하기 위해 사용자 이름을 확인해주세요."
 
-#: warehouse/templates/manage/manage_base.html:117
+#: warehouse/templates/manage/manage_base.html:215
 #, python-format
 msgid "Confirm the %(item)s to continue."
 msgstr "계속하기 위해 %(item)s 를 확인해주세요."
 
-#: warehouse/templates/manage/manage_base.html:125
-#: warehouse/templates/manage/manage_base.html:177
+#: warehouse/templates/manage/manage_base.html:223
+#: warehouse/templates/manage/manage_base.html:275
 msgid "Cancel"
 msgstr "취소"
 
-#: warehouse/templates/manage/manage_base.html:148
+#: warehouse/templates/manage/manage_base.html:246
 msgid "close"
 msgstr "닫기"
 
-#: warehouse/templates/manage/manage_base.html:164
+#: warehouse/templates/manage/manage_base.html:262
 msgid "Enter your password to continue."
 msgstr "계속하기 위해 패스워드를 확인해주세요."
 
@@ -2849,39 +2856,53 @@ msgid "Pending invitations (%(project_count)s)"
 msgstr "대기중인 초대 개수 (%(project_count)s)"
 
 #: warehouse/templates/manage/projects.html:41
-#: warehouse/templates/manage/projects.html:80
+#: warehouse/templates/manage/projects.html:81
 #, fuzzy, python-format
 #| msgid "Created on %(creation_date)s"
 msgid "Created %(creation_date)s"
 msgstr "%(creation_date)s에 생성됨"
 
-#: warehouse/templates/manage/projects.html:68
+#: warehouse/templates/manage/projects.html:69
 msgid "Sole owner"
 msgstr "단독 소유자"
 
-#: warehouse/templates/manage/projects.html:89
+#: warehouse/templates/manage/projects.html:92
+msgid "PyPI requires 2FA to be enabled to manage this project"
+msgstr ""
+
+#: warehouse/templates/manage/projects.html:94
+msgid "This project requires 2FA to be enabled to manage"
+msgstr ""
+
+#: warehouse/templates/manage/projects.html:96
+#, fuzzy
+#| msgid "Requires:"
+msgid "2FA Required"
+msgstr "요구사항:"
+
+#: warehouse/templates/manage/projects.html:103
 msgid "Manage this project"
 msgstr "이 프로젝트 관리하기"
 
-#: warehouse/templates/manage/projects.html:92
+#: warehouse/templates/manage/projects.html:106
 msgid "You are not an owner of this project"
 msgstr "이 프로젝트의 소유자가 아닙니다"
 
-#: warehouse/templates/manage/projects.html:99
+#: warehouse/templates/manage/projects.html:114
 msgid "View this project's public page"
 msgstr "프로젝트의 공개 페이지 보기"
 
-#: warehouse/templates/manage/projects.html:102
+#: warehouse/templates/manage/projects.html:117
 msgid "This project has no releases"
 msgstr "이 프로젝트에는 릴리즈가 없습니다"
 
-#: warehouse/templates/manage/projects.html:104
+#: warehouse/templates/manage/projects.html:119
 #: warehouse/templates/manage/releases.html:94
 #: warehouse/templates/packaging/detail.html:359
 msgid "View"
 msgstr "보기"
 
-#: warehouse/templates/manage/projects.html:111
+#: warehouse/templates/manage/projects.html:126
 #, python-format
 msgid ""
 "You have not uploaded any projects to PyPI, yet. To learn how to get "
