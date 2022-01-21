@@ -57,10 +57,10 @@
           </li>
 
           <li>
-              <form id="admin-logout" method="POST" action="{{ request.route_path('admin.logout') }}">
+              <form id="logout" method="POST" action="{{ request.route_path('accounts.logout') }}">
                 <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
               </form>
-              <a data-form-submit="admin-logout" href="{{ request.route_path('admin.logout') }}">
+              <a data-form-submit="logout" href="{{ request.route_path('accounts.logout') }}">
                 <i class="fa fa-sign-out-alt"></i>
               </a>
           </li>
