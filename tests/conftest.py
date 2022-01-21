@@ -25,6 +25,7 @@ import pyramid.testing
 import pytest
 import webtest as _webtest
 
+from psycopg2.errors import InvalidCatalogName
 from pyramid.i18n import TranslationString
 from pyramid.static import ManifestCacheBuster
 from pytest_postgresql.config import get_config
@@ -137,7 +138,12 @@ def database(request):
 
     # In case the database already exists, possibly due to an aborted test run,
     # attempt to drop it before creating
-    janitor.drop()
+    try:
+        janitor.drop()
+    except InvalidCatalogName:
+        # We can safely ignore this exception as that means there was
+        # no leftover database
+        pass
 
     # Create our Database.
     janitor.init()
