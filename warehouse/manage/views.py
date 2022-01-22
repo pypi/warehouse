@@ -706,6 +706,7 @@ class ProvisionWebAuthnViews:
     permission="manage:user",
     http_cache=0,
     has_translations=True,
+    require_reauth=True,
 )
 class ProvisionRecoveryCodesViews:
     def __init__(self, request):
@@ -764,29 +765,16 @@ class ProvisionRecoveryCodesViews:
             )
             return HTTPSeeOther(self.request.route_path("manage.account"))
 
-        form = ConfirmPasswordForm(
-            request=self.request,
-            password=self.request.POST["confirm_password"],
-            username=self.request.user.username,
-            user_service=self.user_service,
+        self.user_service.record_event(
+            self.request.user.id,
+            tag="account:recovery_codes:regenerated",
+            ip_address=self.request.remote_addr,
         )
-
-        if form.validate():
-            self.user_service.record_event(
-                self.request.user.id,
-                tag="account:recovery_codes:regenerated",
-                ip_address=self.request.remote_addr,
+        return {
+            "recovery_codes": self.user_service.generate_recovery_codes(
+                self.request.user.id
             )
-            return {
-                "recovery_codes": self.user_service.generate_recovery_codes(
-                    self.request.user.id
-                )
-            }
-
-        self.request.session.flash(
-            self.request._("Invalid credentials. Try again"), queue="error"
-        )
-        return HTTPSeeOther(self.request.route_path("manage.account"))
+        }
 
 
 @view_defaults(
