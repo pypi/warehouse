@@ -1558,35 +1558,6 @@ class TestProvisionRecoveryCodes:
 
         assert result == {"recovery_codes": ["aaaaaaaaaaaa", "bbbbbbbbbbbb"]}
 
-    def test_recovery_codes_generate_no_two_factor(self, pyramid_request):
-        user_service = pretend.stub(has_two_factor=lambda user_id: False)
-        pyramid_request.session = pretend.stub(
-            flash=pretend.call_recorder(lambda *a, **kw: None),
-        )
-        pyramid_request.find_service = lambda interface, **kw: {
-            IUserService: user_service
-        }[interface]
-        pyramid_request.user = pretend.stub(id=pretend.stub())
-        pyramid_request.route_path = pretend.call_recorder(
-            lambda *a, **kw: "/the/route"
-        )
-
-        view = views.ProvisionRecoveryCodesViews(pyramid_request)
-        result = view.recovery_codes_generate()
-
-        assert pyramid_request.session.flash.calls == [
-            pretend.call(
-                (
-                    "You must provision a two factor method before recovery "
-                    "codes can be generated"
-                ),
-                queue="error",
-            )
-        ]
-        assert pyramid_request.route_path.calls == [pretend.call("manage.account")]
-
-        assert isinstance(result, HTTPSeeOther)
-
     def test_recovery_codes_generate_already_exist(self, pyramid_request):
         user_service = pretend.stub(
             has_two_factor=lambda user_id: True, has_recovery_codes=lambda user_id: True
@@ -1644,45 +1615,6 @@ class TestProvisionRecoveryCodes:
         ]
 
         assert result == {"recovery_codes": ["cccccccccccc", "dddddddddddd"]}
-
-    def test_recovery_codes_regenerate_no_two_factor(
-        self, monkeypatch, pyramid_request
-    ):
-        confirm_password_cls = pretend.call_recorder(
-            lambda *a, **kw: pretend.stub(validate=lambda: True)
-        )
-        monkeypatch.setattr(views, "ConfirmPasswordForm", confirm_password_cls)
-
-        user_service = pretend.stub(
-            has_two_factor=lambda user_id: False,
-            generate_recovery_codes=lambda user_id: ["cccccccccccc", "dddddddddddd"],
-            record_event=pretend.call_recorder(lambda *a, **kw: None),
-        )
-        pyramid_request.POST = {"confirm_password": "correct password"}
-        pyramid_request.find_service = lambda interface, **kw: {
-            IUserService: user_service
-        }[interface]
-        pyramid_request.user = pretend.stub(id=1, username="username")
-        pyramid_request.session = pretend.stub(
-            flash=pretend.call_recorder(lambda *a, **kw: None),
-        )
-        pyramid_request.route_path = pretend.call_recorder(lambda *a, **kw: "/foo/bar/")
-
-        view = views.ProvisionRecoveryCodesViews(pyramid_request)
-        result = view.recovery_codes_regenerate()
-
-        assert pyramid_request.session.flash.calls == [
-            pretend.call(
-                (
-                    "You must provision a two factor method before recovery "
-                    "codes can be generated"
-                ),
-                queue="error",
-            )
-        ]
-        assert pyramid_request.route_path.calls == [pretend.call("manage.account")]
-
-        assert isinstance(result, HTTPSeeOther)
 
 
 class TestProvisionMacaroonViews:
