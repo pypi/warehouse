@@ -58,12 +58,12 @@
                 <li><code>{{ recovery_code }}</code></li>
                 {% endfor %}
               </ul>
-              <button type="button" class="button button--small copy-tooltip copy-tooltip-w" data-tooltip-label="{% trans %}Copy to clipboard{% endtrans %}" data-clipboard-text="{{ 'PyPI recovery codes\n' + recovery_codes|join('\n') }}">
+              <button class="button button-secondary copy-tooltip copy-tooltip-w" data-tooltip-label="{% trans %}Copy to clipboard{% endtrans %}" data-clipboard-text="{{ 'PyPI recovery codes\n' + recovery_codes|join('\n') }}">
                 {% trans %}Copy{% endtrans %}
               </button>
               {% set _sitename = "TestPyPI" if testPyPI else "PyPI" %}
               {% set _recovery_codes_filename = _sitename + "-Recovery-Codes-" + request.user.recovery_codes[0].generated.isoformat() + ".txt" %}
-              <a href="data:text/plain;,{{ recovery_codes|join('%0A') }}" download="{{ _recovery_codes_filename }}" class="button button--small" data-tooltip-label="{% trans %}Download as file{% endtrans %}">
+              <a href="data:text/plain;,{{ recovery_codes|join('%0A') }}" download="{{ _recovery_codes_filename }}" class="button button-secondary" data-tooltip-label="{% trans %}Download as file{% endtrans %}">
                 {% trans %}Save{% endtrans %}&nbsp;<span class="fa fa-download"></span>
               </a>
               {% set title = gettext("Continue") %}
@@ -71,7 +71,7 @@
               {% set confirm_button_label = gettext("Continue") %}
               {% set slug = "complete" %}
               {% set action = request.route_path('manage.account') %}
-              <a href="#complete" class="button button--small button--primary">
+              <a href="#complete" class="button  button--primary">
                 {% trans %}Continue{% endtrans %}
               </a>
               {% set custom_warning_text %}
