@@ -269,7 +269,7 @@ the string ``password``. You can log in as any account at
 http://localhost:80/account/login/.
 
 To log in as an admin user, log in as ``ewdurbin`` with the password
-``password`` at http://localhost:80/admin/login/.
+``password``.
 
 
 Stopping Warehouse and other services

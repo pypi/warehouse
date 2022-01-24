@@ -26,8 +26,6 @@ def test_includeme():
 
     assert config.add_route.calls == [
         pretend.call("admin.dashboard", "/admin/", domain=warehouse),
-        pretend.call("admin.login", "/admin/login/", domain=warehouse),
-        pretend.call("admin.logout", "/admin/logout/", domain=warehouse),
         pretend.call("admin.user.list", "/admin/users/", domain=warehouse),
         pretend.call("admin.user.detail", "/admin/users/{user_id}/", domain=warehouse),
         pretend.call(
