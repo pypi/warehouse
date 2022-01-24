@@ -22,15 +22,13 @@ class IJWKService(Interface):
         """
         pass
 
-    def fetch_keysets():
+    def get_key(provider, key_id):
         """
-        Fetch the JWKs known to Warehouse and yield them as tuples of
-        `(provider-name, key-list)`.
-        """
-        pass
+        Return the JWK identified by the given KID for the given provider,
+        fetching it if not already cached locally.
 
-    def keyset_for_provider(provider):
-        """
-        Return a list of JWKs for the given provider.
+        Returns None if the JWK does not exist or the access pattern is
+        invalid (i.e., exceeds our internal limit on JWK requests to
+        each provider).
         """
         pass

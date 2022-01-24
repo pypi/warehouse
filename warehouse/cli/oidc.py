@@ -10,10 +10,11 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import json
+
 import click
 
 from warehouse.cli import warehouse
-from warehouse.oidc.tasks import update_oidc_jwks as _update_oidc_jwks
 
 
 @warehouse.group()  # pragma: no branch
@@ -25,27 +26,32 @@ def oidc():
 
 @oidc.command()
 @click.pass_obj
-def update_oidc_jwks(config):
+@click.argument("provider")
+def prime_provider(config, provider):
     """
-    Update Warehouse's JWK sets for all known OIDC providers.
-    """
-
-    request = config.task(_update_oidc_jwks).get_request()
-    config.task(_update_oidc_jwks).run(request)
-
-
-@oidc.command()
-@click.pass_obj
-@click.option(
-    "--provider", "provider_", help="the name of the provider to list JWKs for"
-)
-def list_jwks(config, provider_):
-    """
-    Dump a JSON blob of all JWK sets known to Warehouse for the given provider
+    Update Warehouse's JWK sets for the given provider.
     """
 
     from warehouse.oidc.services import JWKService
 
     jwk_service = JWKService.create_service(None, config)
 
-    print(jwk_service.keyset_for_provider(provider_))
+    # "cachebuster" is not a real ID; we use it to force a refresh.
+    jwk_service.get_key(provider, "cachebuster")
+
+
+@oidc.command()
+@click.pass_obj
+@click.argument("provider")
+@click.argument("key-id")
+def get_key(config, provider, key_id):
+    """
+    Return the JWK for the given provider's key ID.
+    """
+
+    from warehouse.oidc.services import JWKService
+
+    jwk_service = JWKService.create_service(None, config)
+
+    key = jwk_service.get_key(provider, key_id)
+    print(json.dumps(key._jwk_data))

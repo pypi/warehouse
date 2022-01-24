@@ -10,15 +10,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from celery.schedules import crontab
-
 from warehouse.oidc.interfaces import IJWKService
 from warehouse.oidc.services import JWKService
 
 
 def includeme(config):
     config.register_service_factory(JWKService.create_service, IJWKService)
-
-    from warehouse.oidc.tasks import update_oidc_jwks
-
-    config.add_periodic_task(crontab(minute=0, hour=8), update_oidc_jwks)

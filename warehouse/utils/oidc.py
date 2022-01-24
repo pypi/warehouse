@@ -25,10 +25,3 @@ OIDC_PROVIDERS = {
 }
 
 WELL_KNOWN_OIDC_CONF = ".well-known/openid-configuration"
-
-
-def jwk_cache_key(provider):
-    """
-    Returns a reasonable Redis cache key for the given provider name.
-    """
-    return f"/warehouse/oidc/jwks/{provider}"
