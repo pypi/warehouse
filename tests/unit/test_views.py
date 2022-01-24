@@ -26,6 +26,7 @@ from trove_classifiers import sorted_classifiers
 from webob.multidict import MultiDict
 
 from warehouse import views
+from warehouse.errors import WarehouseDenied
 from warehouse.views import (
     current_user_indicator,
     flash_messages,
@@ -127,7 +128,9 @@ class TestForbiddenView:
     def test_logged_in_returns_exception(self, pyramid_config):
         renderer = pyramid_config.testing_add_renderer("403.html")
 
-        exc = pretend.stub(status_code=403, status="403 Forbidden", headers={})
+        exc = pretend.stub(
+            status_code=403, status="403 Forbidden", headers={}, result=pretend.stub()
+        )
         request = pretend.stub(authenticated_userid=1)
         resp = forbidden(exc, request)
         assert resp.status_code == 403
@@ -147,6 +150,53 @@ class TestForbiddenView:
 
         assert resp.status_code == 303
         assert resp.headers["Location"] == "/accounts/login/?next=/foo/bar/%3Fb%3Ds"
+
+    @pytest.mark.parametrize("reason", ("owners_require_2fa", "pypi_mandates_2fa"))
+    def test_two_factor_required(self, reason):
+        result = WarehouseDenied("Some summary", reason=reason)
+        exc = pretend.stub(result=result)
+        request = pretend.stub(
+            authenticated_userid=1,
+            session=pretend.stub(flash=pretend.call_recorder(lambda x, queue: None)),
+            path_qs="/foo/bar/?b=s",
+            route_url=pretend.call_recorder(
+                lambda route, _query: "/the/url/?next=/foo/bar/%3Fb%3Ds"
+            ),
+            _=lambda x: x,
+        )
+
+        resp = forbidden(exc, request)
+
+        assert resp.status_code == 303
+        assert resp.headers["Location"] == "/the/url/?next=/foo/bar/%3Fb%3Ds"
+        assert request.route_url.calls == [
+            pretend.call("manage.account.two-factor", _query={"next": "/foo/bar/?b=s"})
+        ]
+        assert request.session.flash.calls == [
+            pretend.call(
+                "Two-factor authentication must be enabled on your account to "
+                "perform this action.",
+                queue="error",
+            )
+        ]
+
+    def test_generic_warehousedeined(self, pyramid_config):
+        result = WarehouseDenied(
+            "This project requires two factor authentication to be enabled "
+            "for all contributors.",
+            reason="some_other_reason",
+        )
+        exc = pretend.stub(result=result)
+
+        renderer = pyramid_config.testing_add_renderer("403.html")
+
+        exc = pretend.stub(
+            status_code=403, status="403 Forbidden", headers={}, result=result
+        )
+        request = pretend.stub(authenticated_userid=1)
+        resp = forbidden(exc, request)
+        assert resp.status_code == 403
+        renderer.assert_()
 
 
 class TestForbiddenIncludeView:
