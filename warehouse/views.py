@@ -104,7 +104,8 @@ def forbidden(exc, request):
         )
         return HTTPSeeOther(url)
 
-    if isinstance(exc.result, WarehouseDenied):
+    # Check if the error has a "result" attribute and if it is a WarehouseDenied
+    if hasattr(exc, "result") and isinstance(exc.result, WarehouseDenied):
         # If the forbidden error is because the user doesn't have 2FA enabled, we'll
         # redirect them to the 2FA page
         if exc.result.reason in {"owners_require_2fa", "pypi_mandates_2fa"}:

@@ -10,14 +10,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from pyramid.view import forbidden_view_config, view_config
-
-from warehouse.views import forbidden as forbidden_view
-
-
-@forbidden_view_config(path_info=r"^/admin/")
-def forbidden(exc, request):
-    return forbidden_view(exc, request, redirect_to="admin.login")
+from pyramid.view import view_config
 
 
 @view_config(

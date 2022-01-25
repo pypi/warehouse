@@ -19,8 +19,6 @@ def includeme(config):
 
     # General Admin pages
     config.add_route("admin.dashboard", "/admin/", domain=warehouse)
-    config.add_route("admin.login", "/admin/login/", domain=warehouse)
-    config.add_route("admin.logout", "/admin/logout/", domain=warehouse)
 
     # User related Admin pages
     config.add_route("admin.user.list", "/admin/users/", domain=warehouse)

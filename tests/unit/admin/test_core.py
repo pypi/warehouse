@@ -13,7 +13,6 @@
 import pretend
 
 from warehouse import admin
-from warehouse.accounts import views as accounts_views
 
 
 def test_includeme(mock_manifest_cache_buster, monkeypatch):
@@ -62,26 +61,6 @@ def test_includeme(mock_manifest_cache_buster, monkeypatch):
         )
     ]
     assert config.include.calls == [pretend.call(".routes"), pretend.call(".flags")]
-    assert config.add_view.calls == [
-        pretend.call(
-            accounts_views.login,
-            route_name="admin.login",
-            renderer="admin/login.html",
-            uses_session=True,
-            require_csrf=True,
-            require_methods=False,
-            has_translations=True,
-        ),
-        pretend.call(
-            accounts_views.logout,
-            route_name="admin.logout",
-            renderer="admin/logout.html",
-            uses_session=True,
-            require_csrf=True,
-            require_methods=False,
-            has_translations=True,
-        ),
-    ]
 
     assert config.maybe_dotted.calls == [
         pretend.call("warehouse.admin.services.LocalSponsorLogoStorage")

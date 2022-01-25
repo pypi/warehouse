@@ -15,8 +15,6 @@ from warehouse.utils.static import ManifestCacheBuster
 
 
 def includeme(config):
-    from warehouse.accounts.views import login, logout
-
     sponsorlogos_storage_class = config.maybe_dotted(
         config.registry.settings["sponsorlogos.backend"]
     )
@@ -54,22 +52,3 @@ def includeme(config):
 
     # Add our flags
     config.include(".flags")
-
-    config.add_view(
-        login,
-        route_name="admin.login",
-        renderer="admin/login.html",
-        uses_session=True,
-        require_csrf=True,
-        require_methods=False,
-        has_translations=True,
-    )
-    config.add_view(
-        logout,
-        route_name="admin.logout",
-        renderer="admin/logout.html",
-        uses_session=True,
-        require_csrf=True,
-        require_methods=False,
-        has_translations=True,
-    )
