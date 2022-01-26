@@ -998,9 +998,9 @@ requests-aws4auth==1.1.1 \
     --hash=sha256:c0883346ce30b5018903a67da88df72f73ff06e1a320845bba9cd85e811ba0ba \
     --hash=sha256:dfd9f930ffde48a756b72b55698a8522875ea6358dcffbcc44a66700ace31783
     # via -r requirements/main.in
-rfc3986==1.5.0 \
-    --hash=sha256:270aaf10d87d0d4e095063c65bf3ddbc6ee3d0b226328ce21e036f946e421835 \
-    --hash=sha256:a86d6e1f5b1dc238b218b012df0aa79409667bb209e58da56d0b94704e712a97
+rfc3986==2.0.0 \
+    --hash=sha256:50b1502b60e289cb37883f3dfd34532b8873c7de9f49bb546641ce9cbd256ebd \
+    --hash=sha256:97aacf9dbd4bfd829baad6e6309fa6573aaf1be3f6fa735c8ab05e46cecb261c
     # via -r requirements/main.in
 rsa==4.8 \
     --hash=sha256:5c6bd9dc7a543b7fe4304a631f8a8a3b674e2bbfc49c2ae96200cdbe55df6b17 \
