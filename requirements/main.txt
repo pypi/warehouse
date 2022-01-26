@@ -310,9 +310,9 @@ docutils==0.17.1 \
     --hash=sha256:686577d2e4c32380bb50cbb22f575ed742d58168cee37e99117a854bcd88f125 \
     --hash=sha256:cf316c8370a737a022b72b56874f6602acf974a37a9fba42ec2876387549fc61
     # via readme-renderer
-elasticsearch==7.10.1 \
-    --hash=sha256:4ebd34fd223b31c99d9f3b6b6236d3ac18b3046191a37231e8235b06ae7db955 \
-    --hash=sha256:a725dd923d349ca0652cf95d6ce23d952e2153740cf4ab6daf4a2d804feeed48
+elasticsearch==7.16.3 \
+    --hash=sha256:213eaae9937924a9c523792748e7b0fc7ea2041d32a646538cbe81e52f852e1f \
+    --hash=sha256:8adf8bc351ed55df7296be1009d38a1c999c0abc7d8700fa88533f1ad6087c5e
     # via
     #   -r requirements/main.in
     #   elasticsearch-dsl
