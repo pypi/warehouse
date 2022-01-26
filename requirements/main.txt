@@ -352,9 +352,9 @@ google-cloud-core==2.2.1 \
     # via
     #   google-cloud-bigquery
     #   google-cloud-storage
-google-cloud-storage==1.43.0 \
-    --hash=sha256:bb3e4088054d50616bd57e4b81bb158db804c91faed39279d666e2fd07d2c118 \
-    --hash=sha256:f3b4f4be5c8a1b5727a8f7136c94d3bacdd4b7bf11f9553f51ae4c1d876529d3
+google-cloud-storage==2.1.0 \
+    --hash=sha256:0a5e7ab1a38d2c24be8e566e50b8b0daa8af8fd49d4ab312b1fda5c147429893 \
+    --hash=sha256:53e4f6030d771526e4dbe9c6000cca44eab812f39ae8c7a810be999473e4f02c
     # via -r requirements/main.in
 google-crc32c==1.3.0 \
     --hash=sha256:04e7c220798a72fd0f08242bc8d7a05986b2a08a0573396187fd32c1dcdd58b3 \
@@ -1024,7 +1024,6 @@ six==1.16.0 \
     #   click-repl
     #   elasticsearch-dsl
     #   google-auth
-    #   google-cloud-storage
     #   grpcio
     #   html5lib
     #   pymacaroons
