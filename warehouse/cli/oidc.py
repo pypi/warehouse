@@ -27,22 +27,6 @@ def oidc():
 @oidc.command()
 @click.pass_obj
 @click.argument("provider")
-def prime_provider(config, provider):
-    """
-    Update Warehouse's JWK sets for the given provider.
-    """
-
-    from warehouse.oidc.services import JWKService
-
-    jwk_service = JWKService.create_service(None, config)
-
-    # "cachebuster" is not a real ID; we use it to force a refresh.
-    jwk_service.get_key(provider, "cachebuster")
-
-
-@oidc.command()
-@click.pass_obj
-@click.argument("provider")
 @click.argument("key-id")
 def get_key(config, provider, key_id):
     """
@@ -51,7 +35,8 @@ def get_key(config, provider, key_id):
 
     from warehouse.oidc.services import JWKService
 
-    jwk_service = JWKService.create_service(None, config)
+    cache_url = config.registry.settings["oidc.jwk_cache_url"]
+    jwk_service = JWKService(provider, cache_url)
 
     key = jwk_service.get_key(provider, key_id)
     print(json.dumps(key._jwk_data))

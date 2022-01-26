@@ -11,8 +11,10 @@
 # limitations under the License.
 
 from warehouse.oidc.interfaces import IJWKService
-from warehouse.oidc.services import JWKService
+from warehouse.oidc.services import JWKServiceFactory
 
 
 def includeme(config):
-    config.register_service_factory(JWKService.create_service, IJWKService)
+    config.register_service_factory(
+        JWKServiceFactory(provider="github"), IJWKService, name="github"
+    )

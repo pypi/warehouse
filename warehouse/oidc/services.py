@@ -11,10 +11,10 @@
 # limitations under the License.
 
 import json
-import logging
 
 import redis
 import requests
+import sentry_sdk
 
 from jwt import PyJWK
 from zope.interface import implementer
@@ -22,58 +22,57 @@ from zope.interface import implementer
 from warehouse.oidc.interfaces import IJWKService
 from warehouse.utils import oidc
 
-logger = logging.getLogger(__name__)
-
 
 @implementer(IJWKService)
 class JWKService:
-    def __init__(self, config):
-        self._cache_url = config.registry.settings.get("oidc.jwk_cache_url")
+    def __init__(self, provider, cache_url):
+        self.provider
+        self.cache_url = cache_url
 
-    @classmethod
-    def create_service(cls, _context, config):
-        return cls(config)
+        self._provider_jwk_key = f"/warehouse/oidc/jwks/{self.provider}"
+        self._provider_timeout_key = f"{self._provider_jwk_key}/timeout"
 
-    def _provider_jwk_key(self, provider):
-        """
-        Returns a reasonable Redis key for storing JWKs for the given provider.
-        """
-        return f"/warehouse/oidc/jwks/{provider}"
-
-    def _provider_timeout_key(self, provider):
-        """
-        Returns a reasonable Redis key for storing the "timeout" flag for the
-        given provider, indicating whether we should attempt to refresh the
-        keyset.
-        """
-        # NOTE: We could use a TTL on the actual Redis key for the keyset,
-        # but only once Warehouse upgrades to Redis >= 6.0.
-        return f"{self._provider_jwk_key(provider)}/timeout"
-
-    def _store_keyset(self, provider, keys):
+    def _store_keyset(self, keys):
         """
         Store the given keyset for the given provider, setting the timeout key
         in the process.
         """
-        with redis.StrictRedis.from_url(self._cache_url) as r:
-            r.set(self._provider_jwk_key(provider), json.dumps(keys))
-            r.setex(self._provider_timeout_key(provider), 60, "placeholder")
 
-    def _get_keyset(self, provider):
+        with redis.StrictRedis.from_url(self.cache_url) as r:
+            r.set(self._provider_jwk_key, json.dumps(keys))
+            r.setex(self._provider_timeout_key, 60, "placeholder")
+
+    def _get_keyset(self):
         """
-        Return the cached keyset for the given provider, if it exists,
-        along with the timeout state.
+        Return the cached keyset for the given provider, or an empty
+        keyset if no keys are currently cached.
         """
-        with redis.StrictRedis.from_url(self._cache_url) as r:
-            keys = r.get(self._provider_jwk_key(provider))
-            timeout = bool(r.exists(self._provider_timeout_key(provider)))
+
+        with redis.StrictRedis.from_url(self.cache_url) as r:
+            keys = r.get(self._provider_jwk_key)
+            timeout = bool(r.exists(self._provider_timeout_key))
             if keys is not None:
                 return (json.loads(keys), timeout)
             else:
-                return (None, timeout)
+                return ({}, timeout)
 
-    def _fetch_keyset(self, provider):
-        oidc_url = f"{oidc.OIDC_PROVIDERS[provider]}/{oidc.WELL_KNOWN_OIDC_CONF}"
+    def _refresh_keyset(self):
+        """
+        Attempt to refresh the keyset from the OIDC provider, assuming no
+        timeout is in effect.
+
+        Returns the refreshed keyset, or the cached keyset if a timeout is
+        in effect.
+
+        Returns the cached keyset on any provider access or format errors.
+        """
+
+        # Fast path: we're in a cooldown from a previous refresh.
+        keys, timeout = self._get_keyset()
+        if timeout:
+            return keys
+
+        oidc_url = f"{oidc.OIDC_PROVIDERS[self.provider]}/{oidc.WELL_KNOWN_OIDC_CONF}"
 
         resp = requests.get(oidc_url)
 
@@ -82,20 +81,30 @@ class JWKService:
         # providers might still be online (and need updating), so we spit
         # out an error and return None instead of raising.
         if not resp.ok:
-            logger.error(
-                f"error querying OIDC configuration for {provider}: {oidc_url}"
+            sentry_sdk.capture_message(
+                f"OIDC provider {self.provider} failed to return configuration: {oidc_url}"
             )
-            return None
+            return keys
 
         oidc_conf = resp.json()
         jwks_url = oidc_conf.get("jwks_uri")
+
+        # A valid OIDC configuration MUST have a `jwks_uri`, but we
+        # defend against its absence anyways.
+        if jwks_url is None:
+            sentry_sdk.capture_message(
+                f"OIDC provider {self.provider} is returning malformed configuration (no jwks_uri)"
+            )
+            return keys
 
         resp = requests.get(jwks_url)
 
         # Same reasoning as above.
         if not resp.ok:
-            logger.error(f"error querying JWKS JSON for {provider}: {jwks_url}")
-            return None
+            sentry_sdk.capture_message(
+                f"OIDC provider {self.provider} failed to return JWKS JSON: {jwks_url}"
+            )
+            return keys
 
         jwks_conf = resp.json()
         keys = jwks_conf.get("keys")
@@ -103,79 +112,48 @@ class JWKService:
         # Another sanity test: an OIDC provider should never return an empty
         # keyset, but there's nothing stopping them from doing so. We don't
         # want to cache an empty keyset just in case it's a short-lived error,
-        # so we check here, error, and return None instead.
+        # so we check here, error, and return the current cache instead.
         if not keys:
-            logger.error(f"{provider} returned JWKS conf but no keys")
-            return None
+            sentry_sdk.capture_message(
+                f"OIDC provider {self.provider} returned JWKS but no keys"
+            )
+            return keys
+
+        keys = {key["kid"]: key for key in keys}
+        self._store_keyset(keys)
 
         return keys
 
-    def get_key(self, provider, key_id):
-        # The key retrieval logic is as follows:
-        # 1. Check the Redis store for the provider's keyset.
-        # 2. If the keyset is not present, try to retrieve it
-        #    (fetch on first use).
-        # 3. Search the keyset for a key matching the key ID.
-        # 4. If we have a match, return the corresponding key.
-        # 5. If there's no match and we're in a timeout, return None.
-        # 6. Otherwise, try to update the keyset and match the key ID again.
-        #
-        # In this scheme, we perform:
-        # * No fetches in the happy case (keyset is already updated)
-        # * One fetch in the FOFU case (keyset doesn't exist yet)
-        # * One fetch in the sad case (keyset is stale and needs to be updated)
-        # * Two fetches in the pathological case (FOFU returns nothing + sad)
-        #
-        # The pathological case should almost never happen (it requires
-        # the OIDC provider to have a JWKS serving bug on their end), so we
-        # don't attempt to optimize for avoiding it. We also don't subject
-        # it to the timeout restrictions, since we want to cache the actual
-        # keyset when it becomes available again ASAP.
+    def get_key(self, key_id):
+        """
+        Return a JWK for the given key ID, or None if the key can't be found
+        in this provider's keyset.
+        """
 
-        (keys, timeout) = self._get_keyset(provider)
-
-        if keys is None:
-            # FOFU case: no keys means that we're either starting from scratch
-            # or the OIDC provider returned an empty keyset, which is an error
-            # on the provider's side.
-
-            # If we don't have any keys and we're in an active timeout, return None.
-            if timeout:
-                logger.warning(f"no keys for {provider} during active timeout")
-                return None
-
-            keys = self._fetch_keyset(provider)
-
-            # `None` indicates an error on the OIDC provider's side, which
-            # we don't want to cache or timeout against.
-            if keys is None:
-                return None
-
-            # Update the keyset for future retrieval.
-            self._store_keyset(provider, keys)
-
-        # If we do have keys, then check them against the given key ID.
-        key = next((k for k in keys if k["kid"] == key_id), None)
-
-        if key is not None:
-            # Happy case: we already have the key.
-            return PyJWK(key)
-        elif key is None and timeout:
-            logger.warning(f"no keys match {key_id} during active timeout")
-            # Sad case: we don't have the key, and a timeout is pending
-            # from the last keyset fetch.
+        keyset, _ = self._get_keyset()
+        if key_id not in keyset:
+            keyset = self._refresh_keyset()
+        if key_id not in keyset:
+            # TODO: Metrics
             return None
-        else:
-            # Maybe case: we don't have the key, but the keyset might have
-            # changed since we last checked. Perform the same updates as
-            # the FOFU case above.
-            keys = self._fetch_keyset(provider)
+        return PyJWK(keyset[key_id])
 
-            # `None` indicates an error on the OIDC provider's side, which
-            # we don't want to cache or timeout against.
-            if keys is None:
-                return None
 
-            self._store_keyset(provider, keys)
+class JWKServiceFactory:
+    def __init__(self, provider, service_class=JWKService):
+        self.provider = provider
+        self.service_class = service_class
 
-            return next((PyJWK(k) for k in keys if k["kid"] == key_id), None)
+    def __call__(self, context, request):
+        cache_url = request.registry.settings["oidc.jwk_cache_url"]
+
+        return self.service_class(self.provider, cache_url)
+
+    def __eq__(self, other):
+        if not isinstance(other, JWKServiceFactory):
+            return NotImplemented
+
+        return (self.provider, self.service_class) == (
+            other.provider,
+            other.service_class,
+        )
