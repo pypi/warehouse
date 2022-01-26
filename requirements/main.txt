@@ -755,9 +755,9 @@ msgpack==1.0.3 \
     --hash=sha256:f201d34dc89342fabb2a10ed7c9a9aaaed9b7af0f16a5923f1ae562b31258dea \
     --hash=sha256:f74da1e5fcf20ade12c6bf1baa17a2dc3604958922de8dc83cbe3eff22e8b611
     # via -r requirements/main.in
-natsort==8.0.1 \
-    --hash=sha256:2e8fbc2b9e44ed7cbdf55d782375d706ba8742591c1c5910992542f3899abbed \
-    --hash=sha256:c504a229c38926e047e9c3952a08920bc585efb62d7d160514ace9898b00ac0b
+natsort==8.0.2 \
+    --hash=sha256:09cff3cabb617f9794f643758ab5b337c1c0af1a6df11edf5c04de496fd7fb26 \
+    --hash=sha256:feb87e0ce1dc1f8f3f21e18a85216c790e746d76a5ff6889563394605f504a2b
     # via -r requirements/main.in
 packaging==21.3 \
     --hash=sha256:dd47c42927d89ab911e606518907cc2d3a1f38bbd026385970643f9c5b8ecfeb \
