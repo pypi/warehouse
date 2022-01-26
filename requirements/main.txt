@@ -335,9 +335,9 @@ google-api-core[grpc]==2.2.0 \
     #   google-cloud-bigquery
     #   google-cloud-core
     #   google-cloud-storage
-google-auth==2.3.3 \
-    --hash=sha256:a348a50b027679cb7dae98043ac8dbcc1d7951f06d8387496071a1e05a2465c0 \
-    --hash=sha256:d83570a664c10b97a1dc6f8df87e5fdfff012f48f62be131e449c20dfc32630e
+google-auth==2.5.0 \
+    --hash=sha256:6577bbf990ef342a24e12e0c8e9d364af6642acdf206c9045bdb8e039fb4fec9 \
+    --hash=sha256:ee6199b602594c0dcaa00dc3492e62569f24a788f0aca867b989cef444e4a202
     # via
     #   google-api-core
     #   google-cloud-core
@@ -1260,7 +1260,6 @@ setuptools==59.6.0 \
     #   -r requirements/main.in
     #   celery
     #   google-api-core
-    #   google-auth
     #   pastedeploy
     #   plaster
     #   pyramid
