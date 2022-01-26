@@ -88,7 +88,7 @@ class JWKService:
             return None
 
         oidc_conf = resp.json()
-        jwks_url = oidc_conf["jwks_uri"]
+        jwks_url = oidc_conf.get("jwks_uri")
 
         resp = requests.get(jwks_url)
 
@@ -98,13 +98,13 @@ class JWKService:
             return None
 
         jwks_conf = resp.json()
-        keys = jwks_conf["keys"]
+        keys = jwks_conf.get("keys")
 
         # Another sanity test: an OIDC provider should never return an empty
         # keyset, but there's nothing stopping them from doing so. We don't
         # want to cache an empty keyset just in case it's a short-lived error,
         # so we check here, error, and return None instead.
-        if len(keys) == 0:
+        if not keys:
             logger.error(f"{provider} returned JWKS conf but no keys")
             return None
 
