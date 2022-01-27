@@ -25,12 +25,13 @@ from warehouse.oidc.interfaces import IOIDCProviderService
 
 @implementer(IOIDCProviderService)
 class OIDCProviderService:
-    def __init__(self, issuer_url, cache_url, metrics):
+    def __init__(self, provider, issuer_url, cache_url, metrics):
+        self.provider
         self.issuer_url = issuer_url
         self.cache_url = cache_url
         self.metrics = metrics
 
-        self._provider_jwk_key = f"/warehouse/oidc/jwks/{self.issuer_url}"
+        self._provider_jwk_key = f"/warehouse/oidc/jwks/{self.provider}"
         self._provider_timeout_key = f"{self._provider_jwk_key}/timeout"
 
     def _store_keyset(self, keys):
@@ -71,7 +72,10 @@ class OIDCProviderService:
         # Fast path: we're in a cooldown from a previous refresh.
         keys, timeout = self._get_keyset()
         if timeout:
-            self.metrics.increment("warehouse.oidc.refresh_keyset.timeout")
+            self.metrics.increment(
+                "warehouse.oidc.refresh_keyset.timeout",
+                tags=[f"provider:{self.provider}"],
+            )
             return keys
 
         oidc_url = f"{self.issuer_url}/.well-known/openid-configuration"
@@ -84,7 +88,8 @@ class OIDCProviderService:
         # out an error and return None instead of raising.
         if not resp.ok:
             sentry_sdk.capture_message(
-                f"OIDC provider failed to return configuration: {oidc_url}"
+                f"OIDC provider {self.provider} failed to return configuration: "
+                f"{oidc_url}"
             )
             return keys
 
@@ -95,7 +100,7 @@ class OIDCProviderService:
         # defend against its absence anyways.
         if jwks_url is None:
             sentry_sdk.capture_message(
-                f"OIDC provider {self.issuer_url} is returning malformed "
+                f"OIDC provider {self.provider} is returning malformed "
                 "configuration (no jwks_uri)"
             )
             return keys
@@ -105,7 +110,7 @@ class OIDCProviderService:
         # Same reasoning as above.
         if not resp.ok:
             sentry_sdk.capture_message(
-                f"OIDC provider {self.issuer_url} failed to return JWKS JSON: "
+                f"OIDC provider {self.provider} failed to return JWKS JSON: "
                 f"{jwks_url}"
             )
             return keys
@@ -119,7 +124,7 @@ class OIDCProviderService:
         # so we check here, error, and return the current cache instead.
         if not keys:
             sentry_sdk.capture_message(
-                f"OIDC provider {self.issuer_url} returned JWKS but no keys"
+                f"OIDC provider {self.provider} returned JWKS but no keys"
             )
             return keys
 
@@ -139,7 +144,8 @@ class OIDCProviderService:
             keyset = self._refresh_keyset()
         if key_id not in keyset:
             self.metrics.increment(
-                "warehouse.oidc.get_key.error", tags=[f"key_id:{key_id}"]
+                "warehouse.oidc.get_key.error",
+                tags=[f"provider:{self.provider}", f"key_id:{key_id}"],
             )
             return None
         return PyJWK(keyset[key_id])
@@ -149,7 +155,8 @@ class OIDCProviderService:
 
 
 class OIDCProviderServiceFactory:
-    def __init__(self, issuer_url, service_class=OIDCProviderService):
+    def __init__(self, provider, issuer_url, service_class=OIDCProviderService):
+        self.provider = provider
         self.issuer_url = issuer_url
         self.service_class = service_class
 
@@ -157,13 +164,14 @@ class OIDCProviderServiceFactory:
         cache_url = request.registry.settings["oidc.jwk_cache_url"]
         metrics = request.find_service(IMetricsService, context=None)
 
-        return self.service_class(self.issuer_url, cache_url, metrics)
+        return self.service_class(self.provider, self.issuer_url, cache_url, metrics)
 
     def __eq__(self, other):
         if not isinstance(other, OIDCProviderServiceFactory):
             return NotImplemented
 
-        return (self.issuer_url, self.service_class) == (
+        return (self.provider, self.issuer_url, self.service_class) == (
+            other.provider,
             other.issuer_url,
             other.service_class,
         )
