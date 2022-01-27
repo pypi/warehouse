@@ -33,10 +33,10 @@ def get_key(config, provider, key_id):
     Return the JWK for the given provider's key ID.
     """
 
-    from warehouse.oidc.services import JWKService
+    from warehouse.oidc.services import JWKServiceFactory
 
-    cache_url = config.registry.settings["oidc.jwk_cache_url"]
-    jwk_service = JWKService(provider, cache_url)
+    jwk_service_class = JWKServiceFactory(provider)
+    jwk_service = jwk_service_class(None, config)
 
-    key = jwk_service.get_key(provider, key_id)
+    key = jwk_service.get_key(key_id)
     print(json.dumps(key._jwk_data))

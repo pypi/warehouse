@@ -25,9 +25,10 @@ from warehouse.utils import oidc
 
 @implementer(IJWKService)
 class JWKService:
-    def __init__(self, provider, cache_url):
+    def __init__(self, provider, cache_url, metrics):
         self.provider
         self.cache_url = cache_url
+        self.metrics = metrics
 
         self._provider_jwk_key = f"/warehouse/oidc/jwks/{self.provider}"
         self._provider_timeout_key = f"{self._provider_jwk_key}/timeout"
@@ -70,6 +71,7 @@ class JWKService:
         # Fast path: we're in a cooldown from a previous refresh.
         keys, timeout = self._get_keyset()
         if timeout:
+            self.metrics.increment("warehouse.oidc.refresh_keyset.timeout")
             return keys
 
         oidc_url = f"{oidc.OIDC_PROVIDERS[self.provider]}/{oidc.WELL_KNOWN_OIDC_CONF}"
@@ -137,7 +139,9 @@ class JWKService:
         if key_id not in keyset:
             keyset = self._refresh_keyset()
         if key_id not in keyset:
-            # TODO: Metrics
+            self.metrics.increment(
+                "warehouse.oidc.get_key.error", tags=[f"key_id:{key_id}"]
+            )
             return None
         return PyJWK(keyset[key_id])
 
@@ -147,10 +151,11 @@ class JWKServiceFactory:
         self.provider = provider
         self.service_class = service_class
 
-    def __call__(self, context, request):
+    def __call__(self, _context, request):
         cache_url = request.registry.settings["oidc.jwk_cache_url"]
+        metrics = request.find_service(IMetricsService, context=None)
 
-        return self.service_class(self.provider, cache_url)
+        return self.service_class(self.provider, cache_url, metrics)
 
     def __eq__(self, other):
         if not isinstance(other, JWKServiceFactory):
