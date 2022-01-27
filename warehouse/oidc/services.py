@@ -21,18 +21,16 @@ from zope.interface import implementer
 
 from warehouse.metrics.interfaces import IMetricsService
 from warehouse.oidc.interfaces import IOIDCProviderService
-from warehouse.utils import oidc
 
 
 @implementer(IOIDCProviderService)
 class OIDCProviderService:
-    def __init__(self, provider, cache_url, metrics):
-        self.provider = provider
+    def __init__(self, issuer_url, cache_url, metrics):
+        self.issuer_url = issuer_url
         self.cache_url = cache_url
         self.metrics = metrics
 
-        self._issuer_url = oidc.OIDC_PROVIDERS[self.provider]
-        self._provider_jwk_key = f"/warehouse/oidc/jwks/{self.provider}"
+        self._provider_jwk_key = f"/warehouse/oidc/jwks/{self.issuer_url}"
         self._provider_timeout_key = f"{self._provider_jwk_key}/timeout"
 
     def _store_keyset(self, keys):
@@ -76,7 +74,7 @@ class OIDCProviderService:
             self.metrics.increment("warehouse.oidc.refresh_keyset.timeout")
             return keys
 
-        oidc_url = f"{self._issuer_url}/.well-known/openid-configuration"
+        oidc_url = f"{self.issuer_url}/.well-known/openid-configuration"
 
         resp = requests.get(oidc_url)
 
@@ -86,8 +84,7 @@ class OIDCProviderService:
         # out an error and return None instead of raising.
         if not resp.ok:
             sentry_sdk.capture_message(
-                f"OIDC provider {self.provider} failed to return configuration: "
-                f"{oidc_url}"
+                f"OIDC provider failed to return configuration: {oidc_url}"
             )
             return keys
 
@@ -98,7 +95,7 @@ class OIDCProviderService:
         # defend against its absence anyways.
         if jwks_url is None:
             sentry_sdk.capture_message(
-                f"OIDC provider {self.provider} is returning malformed "
+                f"OIDC provider {self.issuer_url} is returning malformed "
                 "configuration (no jwks_uri)"
             )
             return keys
@@ -108,7 +105,7 @@ class OIDCProviderService:
         # Same reasoning as above.
         if not resp.ok:
             sentry_sdk.capture_message(
-                f"OIDC provider {self.provider} failed to return JWKS JSON: "
+                f"OIDC provider {self.issuer_url} failed to return JWKS JSON: "
                 f"{jwks_url}"
             )
             return keys
@@ -122,7 +119,7 @@ class OIDCProviderService:
         # so we check here, error, and return the current cache instead.
         if not keys:
             sentry_sdk.capture_message(
-                f"OIDC provider {self.provider} returned JWKS but no keys"
+                f"OIDC provider {self.issuer_url} returned JWKS but no keys"
             )
             return keys
 
@@ -152,21 +149,21 @@ class OIDCProviderService:
 
 
 class OIDCProviderServiceFactory:
-    def __init__(self, provider, service_class=OIDCProviderService):
-        self.provider = provider
+    def __init__(self, issuer_url, service_class=OIDCProviderService):
+        self.issuer_url = issuer_url
         self.service_class = service_class
 
     def __call__(self, _context, request):
         cache_url = request.registry.settings["oidc.jwk_cache_url"]
         metrics = request.find_service(IMetricsService, context=None)
 
-        return self.service_class(self.provider, cache_url, metrics)
+        return self.service_class(self.issuer_url, cache_url, metrics)
 
     def __eq__(self, other):
         if not isinstance(other, OIDCProviderServiceFactory):
             return NotImplemented
 
-        return (self.provider, self.service_class) == (
-            other.provider,
+        return (self.issuer_url, self.service_class) == (
+            other.issuer_url,
             other.service_class,
         )

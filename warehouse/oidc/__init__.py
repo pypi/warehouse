@@ -16,7 +16,9 @@ from warehouse.oidc.services import OIDCProviderServiceFactory
 
 def includeme(config):
     config.register_service_factory(
-        OIDCProviderServiceFactory(provider="github"),
+        OIDCProviderServiceFactory(
+            issuer_url="https://token.actions.githubusercontent.com"
+        ),
         IOIDCProviderService,
         name="github",
     )
