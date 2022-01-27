@@ -82,7 +82,8 @@ class JWKService:
         # out an error and return None instead of raising.
         if not resp.ok:
             sentry_sdk.capture_message(
-                f"OIDC provider {self.provider} failed to return configuration: {oidc_url}"
+                f"OIDC provider {self.provider} failed to return configuration: "
+                f"{oidc_url}"
             )
             return keys
 
@@ -93,7 +94,8 @@ class JWKService:
         # defend against its absence anyways.
         if jwks_url is None:
             sentry_sdk.capture_message(
-                f"OIDC provider {self.provider} is returning malformed configuration (no jwks_uri)"
+                f"OIDC provider {self.provider} is returning malformed "
+                "configuration (no jwks_uri)"
             )
             return keys
 
@@ -102,7 +104,8 @@ class JWKService:
         # Same reasoning as above.
         if not resp.ok:
             sentry_sdk.capture_message(
-                f"OIDC provider {self.provider} failed to return JWKS JSON: {jwks_url}"
+                f"OIDC provider {self.provider} failed to return JWKS JSON: "
+                f"{jwks_url}"
             )
             return keys
 
