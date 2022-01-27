@@ -55,6 +55,8 @@ def render_simple_detail(project, request, store=False):
         storage = request.find_service(ISimpleStorage)
         with tempfile.NamedTemporaryFile() as f:
             f.write(content.encode("utf-8"))
+            f.flush()
+
             storage.store(
                 simple_detail_path,
                 f.name,
