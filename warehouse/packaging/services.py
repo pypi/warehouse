@@ -84,7 +84,6 @@ class LocalSimpleStorage:
 
     def store(self, path, file_path, *, meta=None):
         destination = os.path.join(self.base, path)
-        print(destination)
         os.makedirs(os.path.dirname(destination), exist_ok=True)
         with open(destination, "wb") as dest_fp:
             with open(file_path, "rb") as src_fp:
