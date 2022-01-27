@@ -20,17 +20,18 @@ from jwt import PyJWK
 from zope.interface import implementer
 
 from warehouse.metrics.interfaces import IMetricsService
-from warehouse.oidc.interfaces import IJWKService
+from warehouse.oidc.interfaces import IOIDCProviderService
 from warehouse.utils import oidc
 
 
-@implementer(IJWKService)
-class JWKService:
+@implementer(IOIDCProviderService)
+class OIDCProviderService:
     def __init__(self, provider, cache_url, metrics):
-        self.provider
+        self.provider = provider
         self.cache_url = cache_url
         self.metrics = metrics
 
+        self._issuer_url = oidc.OIDC_PROVIDERS[self.provider]
         self._provider_jwk_key = f"/warehouse/oidc/jwks/{self.provider}"
         self._provider_timeout_key = f"{self._provider_jwk_key}/timeout"
 
@@ -75,7 +76,7 @@ class JWKService:
             self.metrics.increment("warehouse.oidc.refresh_keyset.timeout")
             return keys
 
-        oidc_url = f"{oidc.OIDC_PROVIDERS[self.provider]}/{oidc.WELL_KNOWN_OIDC_CONF}"
+        oidc_url = f"{self._issuer_url}/.well-known/openid-configuration"
 
         resp = requests.get(oidc_url)
 
@@ -146,9 +147,12 @@ class JWKService:
             return None
         return PyJWK(keyset[key_id])
 
+    def verify(self, token):
+        return NotImplemented
 
-class JWKServiceFactory:
-    def __init__(self, provider, service_class=JWKService):
+
+class OIDCProviderServiceFactory:
+    def __init__(self, provider, service_class=OIDCProviderService):
         self.provider = provider
         self.service_class = service_class
 
@@ -159,7 +163,7 @@ class JWKServiceFactory:
         return self.service_class(self.provider, cache_url, metrics)
 
     def __eq__(self, other):
-        if not isinstance(other, JWKServiceFactory):
+        if not isinstance(other, OIDCProviderServiceFactory):
             return NotImplemented
 
         return (self.provider, self.service_class) == (

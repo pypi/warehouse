@@ -14,17 +14,10 @@
 from zope.interface import Interface
 
 
-class IJWKService(Interface):
-    def create_service(context, request):
+class IOIDCProviderService(Interface):
+    def get_key(key_id):
         """
-        Create the service, given the context and request for which it is
-        being created.
-        """
-        pass
-
-    def get_key(provider, key_id):
-        """
-        Return the JWK identified by the given KID for the given provider,
+        Return the JWK identified by the given KID,
         fetching it if not already cached locally.
 
         Returns None if the JWK does not exist or the access pattern is
@@ -32,3 +25,8 @@ class IJWKService(Interface):
         each provider).
         """
         pass
+
+    def verify(token):
+        """
+        Verify the given JWT.
+        """

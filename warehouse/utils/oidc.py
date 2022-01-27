@@ -10,12 +10,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-
-# For now, only RS256 is supported.
-# We probably won't need to support providers with only symmetric keys
-# (e.g. HS256) in the foreseeable future.
-VALID_ALGS = {"RS256"}
-
 # This is a map of OIDC providers supported by Warehouse.
 # The keys are human-readable names for each provider, and the values
 # are the "issuer" (i.e., `iss`) FQDN that JWTs signed by their respective
@@ -23,5 +17,3 @@ VALID_ALGS = {"RS256"}
 OIDC_PROVIDERS = {
     "github": "https://token.actions.githubusercontent.com",
 }
-
-WELL_KNOWN_OIDC_CONF = ".well-known/openid-configuration"
