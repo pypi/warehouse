@@ -10,11 +10,13 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from warehouse.oidc.interfaces import IJWKService
-from warehouse.oidc.services import JWKServiceFactory
+from warehouse.oidc.interfaces import IOIDCProviderService
+from warehouse.oidc.services import OIDCProviderServiceFactory
 
 
 def includeme(config):
     config.register_service_factory(
-        JWKServiceFactory(provider="github"), IJWKService, name="github"
+        OIDCProviderServiceFactory(provider="github"),
+        IOIDCProviderService,
+        name="github",
     )
