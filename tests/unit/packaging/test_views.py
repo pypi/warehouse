@@ -196,6 +196,7 @@ class TestReleaseDetail:
                 release=r,
                 filename="{}-{}.tar.gz".format(project.name, r.version),
                 python_version="source",
+                packagetype="sdist",
             )
             for r in releases
         ]
@@ -210,6 +211,8 @@ class TestReleaseDetail:
             "project": project,
             "release": releases[1],
             "files": [files[1]],
+            "sdists": [files[1]],
+            "bdists": [],
             "description": "rendered description",
             "latest_version": project.latest_version,
             "all_versions": [
@@ -238,6 +241,7 @@ class TestReleaseDetail:
                 release=r,
                 filename="{}-{}.tar.gz".format(project.name, r.version),
                 python_version="source",
+                packagetype="sdist",
             )
             for r in releases
         ]
@@ -258,6 +262,8 @@ class TestReleaseDetail:
             "project": project,
             "release": releases[1],
             "files": [files[1]],
+            "sdists": [files[1]],
+            "bdists": [],
             "description": "rendered description",
             "latest_version": project.latest_version,
             "all_versions": [
@@ -280,10 +286,9 @@ class TestReleaseDetail:
         files = [
             FileFactory.create(
                 release=release,
-                filename="{}-{}-{}.tar.gz".format(
-                    project.name, release.version, py_ver
-                ),
-                python_version="source",
+                filename="{}-{}-{}.whl".format(project.name, release.version, py_ver),
+                python_version="py2.py3",
+                packagetype="bdist_wheel",
             )
             for py_ver in ["cp27", "cp310", "cp39"]  # intentionally out of order
         ]

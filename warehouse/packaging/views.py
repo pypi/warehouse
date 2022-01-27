@@ -17,7 +17,7 @@ from sqlalchemy.orm.exc import NoResultFound
 
 from warehouse.accounts.models import User
 from warehouse.cache.origin import origin_cache
-from warehouse.packaging.models import Project, Release, Role
+from warehouse.packaging.models import File, Project, Release, Role
 from warehouse.utils import readme
 
 
@@ -122,12 +122,25 @@ def release_detail(release, request):
     else:
         license = license_classifiers or short_license or None
 
+    # We cannot easily sort naturally in SQL, sort here and pass to template
+    sdists = natsorted(
+        release.files.filter(File.packagetype == "sdist").all(),
+        reverse=True,
+        key=lambda f: f.filename,
+    )
+    bdists = natsorted(
+        release.files.filter(File.packagetype != "sdist").all(),
+        reverse=True,
+        key=lambda f: f.filename,
+    )
+
     return {
         "project": project,
         "release": release,
         "description": description,
-        # We cannot easily sort naturally in SQL, sort here and pass to template
-        "files": natsorted(release.files.all(), reverse=True, key=lambda f: f.filename),
+        "files": sdists + bdists,
+        "sdists": sdists,
+        "bdists": bdists,
         "latest_version": project.latest_version,
         "all_versions": project.all_versions,
         "maintainers": maintainers,
