@@ -19,6 +19,7 @@ import sentry_sdk
 from jwt import PyJWK
 from zope.interface import implementer
 
+from warehouse.metrics.interfaces import IMetricsService
 from warehouse.oidc.interfaces import IJWKService
 from warehouse.utils import oidc
 
