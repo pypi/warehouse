@@ -26,7 +26,7 @@ from warehouse.oidc.interfaces import IOIDCProviderService
 @implementer(IOIDCProviderService)
 class OIDCProviderService:
     def __init__(self, provider, issuer_url, cache_url, metrics):
-        self.provider
+        self.provider = provider
         self.issuer_url = issuer_url
         self.cache_url = cache_url
         self.metrics = metrics
@@ -116,19 +116,19 @@ class OIDCProviderService:
             return keys
 
         jwks_conf = resp.json()
-        keys = jwks_conf.get("keys")
+        new_keys = jwks_conf.get("keys")
 
         # Another sanity test: an OIDC provider should never return an empty
         # keyset, but there's nothing stopping them from doing so. We don't
         # want to cache an empty keyset just in case it's a short-lived error,
         # so we check here, error, and return the current cache instead.
-        if not keys:
+        if not new_keys:
             sentry_sdk.capture_message(
-                f"OIDC provider {self.provider} returned JWKS but no keys"
+                f"OIDC provider {self.provider} returned JWKS JSON but no keys"
             )
             return keys
 
-        keys = {key["kid"]: key for key in keys}
+        keys = {key["kid"]: key for key in new_keys}
         self._store_keyset(keys)
 
         return keys
