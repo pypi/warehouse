@@ -578,7 +578,8 @@ class TestGCSSimpleStorage:
             fp.write(b"Test File!")
 
         blob = pretend.stub(
-            upload_from_filename=pretend.call_recorder(lambda file_path: None)
+            upload_from_filename=pretend.call_recorder(lambda file_path: None),
+            exists=lambda: False,
         )
         bucket = pretend.stub(blob=pretend.call_recorder(lambda path: blob))
         storage = GCSSimpleStorage(bucket)
@@ -597,7 +598,8 @@ class TestGCSSimpleStorage:
             fp.write(b"Second Test File!")
 
         blob = pretend.stub(
-            upload_from_filename=pretend.call_recorder(lambda file_path: None)
+            upload_from_filename=pretend.call_recorder(lambda file_path: None),
+            exists=lambda: False,
         )
         bucket = pretend.stub(blob=pretend.call_recorder(lambda path: blob))
         storage = GCSSimpleStorage(bucket)
@@ -621,6 +623,7 @@ class TestGCSSimpleStorage:
         blob = pretend.stub(
             upload_from_filename=pretend.call_recorder(lambda file_path: None),
             patch=pretend.call_recorder(lambda: None),
+            exists=lambda: False,
         )
         bucket = pretend.stub(blob=pretend.call_recorder(lambda path: blob))
         storage = GCSSimpleStorage(bucket)
