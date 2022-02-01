@@ -82,6 +82,8 @@
 {% macro admin_intervention() %}{% trans %}Why did my package or user registration get blocked?{% endtrans %}{% endmacro %}
 {% macro file_size_limit() %}{% trans %}How do I get a file size limit exemption or increase for my project?{% endtrans %}{% endmacro %}
 {% macro project_size_limit() %}{% trans %}How do I get a total project size limit exemption or increase for my project?{% endtrans %}{% endmacro %}
+{% macro vulnerability_data() %}{% trans %}Where does PyPI get its data on project vulnerabilities from, and how can I correct it?{% endtrans %}{% endmacro %}
+
 
 {% macro file_name_reuse() %}{% trans %}Why am I getting a "Filename or contents already exists" or "Filename has been previously used" error?{% endtrans %}{% endmacro %}
 {% macro project_name() %}{% trans %}Why isn't my desired project name available?{% endtrans %}{% endmacro %}
@@ -156,6 +158,7 @@
           <li><a href="#description-content-type">{{ description_content_type() }}</a></li>
           <li><a href="#file-size-limit">{{ file_size_limit() }}</a></li>
           <li><a href="#project-size-limit">{{ project_size_limit() }}</a></li>
+          <li><a href="#vulnerability-data">{{ vulnerability_data() }}</a></li>
         </ul>
       </section>
 
@@ -545,6 +548,7 @@
         <p>{% trans %}Your publishing tool may return an error that your new project can't be created with your desired name, despite no evidence of a project or release of the same name on PyPI. Currently, there are three primary reasons this may occur:{% endtrans %}</p>
         <ul>
           <li>{% trans href='https://docs.python.org/3/library/index.html', title=gettext('External link') %}The project name conflicts with a <a href="{{ href }}" title="{{ title }}" target="_blank" rel="noopener">Python Standard Library</a> module from any major version from 2.5 to present.{% endtrans %}</li>
+          <li>{% trans %}The project name is too similar to an existing project and may be confusable.{% endtrans %}</li>
           <li>{% trans incorrect_code='pip install requirements.txt', correct_code='pip install -r requirements.txt' %}The project name has been explicitly prohibited by the PyPI administrators. For example, <code>{{ incorrect_code }}</code> is a common typo for <code>{{ correct_code }}</code>, and should not surprise the user with a malicious package.{% endtrans %}</li>
           <li>{% trans %}The project name has been registered by another user, but no releases have been created.{% endtrans %}</li>
         </ul>
@@ -603,6 +607,19 @@
           <li>{% trans %}A brief description of your project, including the reason for the additional size.{% endtrans %}</li>
         </ul>
         {{ code_of_conduct() }}
+
+        <h3 id="vulnerability-data">{{ vulnerability_data() }}</h3>
+        <p>
+          {% trans trimmed osv_href='https://osv.dev/', title=gettext('External link'), vulns_href='https://github.com/pypa/advisory-db' %}
+          PyPI receives reports on vulnerabilities in the packages hosted on it from the <a href="{{ osv_href }}" title="{{ title }}" target="_blank" rel="noopener">Open Source Vulnerabilities project</a>, which in turn ingests vulnerabilities from the <a href="{{ vulns_href }}" title="{{ title }}" target="_blank" rel="noopener">Python Packaging Advisory Database</a>.
+          {% endtrans %}
+        </p>
+        <p>
+          {% trans trimmed file_issue_href='https://github.com/pypa/advisory-db/issues', title=gettext('External link') %}
+            If you believe vulnerability data for your project is invalid or incorrect, <a href="{{ file_issue_href }}" title="{{ title }}" target="_blank" rel="noopener">file an issue</a> with details.
+          {% endtrans %}
+        </p>
+
       </section>
 
       <section class="faq-group" id="troubleshooting">
@@ -666,10 +683,10 @@
         <p>{% trans %}If you see an error like <code>There was a problem confirming the ssl certificate</code> or <code>tlsv1 alert protocol version</code> or <code>TLSV1_ALERT_PROTOCOL_VERSION</code>, you need to be connecting to PyPI with a newer TLS support library.{% endtrans %}</p>
         <p>{% trans %}The specific steps you need to take will depend on your operating system version, where your installation of Python originated (python.org, your OS vendor, or an intermediate distributor), and the installed versions of Python, <code>setuptools</code>, and <code>pip</code>.{% endtrans %}</p>
         <p>
-          {% trans trimmed irc_href='https://webchat.freenode.net/?channels=%23pypa', issue_tracker_href='https://github.com/pypa/packaging-problems/issues', mailing_list_href='https://www.python.org/community/lists/', title=gettext('External link'), command='pip install --upgrade -vvv pip' %}
-            For help, go to <a href="{{ irc_href }}" title="{{ title }}" target="_blank" rel="noopener">the <code>#pypa</code> IRC channel on Freenode</a>,
+          {% trans trimmed irc_href='https://web.libera.chat/#pypa', issue_tracker_href='https://github.com/pypa/packaging-problems/issues', discourse_href='https://discuss.python.org/c/packaging/14', title=gettext('External link'), command='pip install --upgrade -vvv pip' %}
+            For help, go to <a href="{{ irc_href }}" title="{{ title }}" target="_blank" rel="noopener">the <code>#pypa</code> IRC channel on Libera</a>,
             file an issue at <a href="{{ issue_tracker_href }}" title="{{ title }}" target="_blank" rel="noopener">pypa/packaging-problems/issues</a>,
-            or <a href="{{ mailing_list_href }}" title="{{ title }}" target="_blank" rel="noopener">post to the python-help mailing list</a>,
+            or <a href="{{ discourse_href }}" title="{{ title }}" target="_blank" rel="noopener">discuss on the Discourse</a>,
             including your OS and installation details and the output of <code>{{ command }}</code>.
           {% endtrans %}
         </p>
@@ -864,11 +881,11 @@
 
       <h3>{% trans %}Contact{% endtrans %}</h3>
       <p>
-        {% trans trimmed pypa_href='https://pypa.io', irc_href='https://webchat.freenode.net/?channels=%23pypa', discuss_href='https://discuss.python.org/c/packaging/14', title=gettext('External link') %}
+        {% trans trimmed pypa_href='https://pypa.io', irc_href='https://web.libera.chat/#pypa', discourse_href='https://discuss.python.org/c/packaging/14', title=gettext('External link') %}
           The <a href="{{ pypa_href }}" title="{{ title }}" target="_blank" rel="noopener">Python Packaging Authority (PyPA)</a>
           is a working group who work together to improve Python packaging. If you'd like to get in touch with a core packaging developer,
-          use <a href="{{ irc_href }}" title="{{ title }}" target="_blank" rel="noopener">#pypa on IRC (freenode)</a>,
-          or <a href="{{ discuss_href }}" title="{{ title }}" target="_blank" rel="noopener">browse the online board</a>.
+          use <a href="{{ irc_href }}" title="{{ title }}" target="_blank" rel="noopener">#pypa on IRC (Libera)</a>,
+          or <a href="{{ discourse_href }}" title="{{ title }}" target="_blank" rel="noopener">browse the online board</a>.
         {% endtrans %}
       </p>
 

@@ -25,6 +25,7 @@ from warehouse.accounts.forms import (
     TOTPValueMixin,
     WebAuthnCredentialMixin,
 )
+from warehouse.i18n import localize as _
 
 
 class RoleNameMixin:
@@ -65,7 +66,17 @@ class SaveAccountForm(forms.Form):
 
     __params__ = ["name", "public_email"]
 
-    name = wtforms.StringField()
+    name = wtforms.StringField(
+        validators=[
+            wtforms.validators.Length(
+                max=100,
+                message=_(
+                    "The name is too long. "
+                    "Choose a name with 100 characters or less."
+                ),
+            )
+        ]
+    )
     public_email = wtforms.SelectField(choices=[("", "Not displayed")])
 
     def __init__(self, *args, user_service, user_id, **kwargs):
@@ -184,7 +195,7 @@ class ProvisionWebAuthnForm(WebAuthnCredentialMixin, forms.Form):
 
     def validate_credential(self, field):
         try:
-            credential_dict = json.loads(field.data.encode("utf8"))
+            json.loads(field.data.encode("utf-8"))
         except json.JSONDecodeError:
             raise wtforms.validators.ValidationError(
                 "Invalid WebAuthn credential: Bad payload"
@@ -192,12 +203,12 @@ class ProvisionWebAuthnForm(WebAuthnCredentialMixin, forms.Form):
 
         try:
             validated_credential = self.user_service.verify_webauthn_credential(
-                credential_dict,
+                field.data.encode("utf-8"),
                 challenge=self.challenge,
                 rp_id=self.rp_id,
                 origin=self.origin,
             )
-        except webauthn.RegistrationRejectedException as e:
+        except webauthn.RegistrationRejectedError as e:
             raise wtforms.validators.ValidationError(str(e))
 
         self.validated_credential = validated_credential

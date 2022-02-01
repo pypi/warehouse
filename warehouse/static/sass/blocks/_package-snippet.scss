@@ -99,9 +99,11 @@
     .button {
       display: inline-block;
       float: left;
+      pointer-events: auto;
     }
 
-    .button--primary {
+    .button--primary,
+    .button--danger {
       margin-right: 5px;
     }
   }

@@ -74,10 +74,6 @@
     margin-top: $spacing-unit / 2;
   }
 
-  li p:first-child {
-    margin-top: 0;
-  }
-
   strong,
   b {
     font-weight: $bold-font-weight;
@@ -92,6 +88,7 @@
     display: block;
     padding: $spacing-unit / 2;
     margin: $spacing-unit 0 0;
+    overflow-x: auto;
   }
 
   pre code {
@@ -127,6 +124,14 @@
 
   li {
     padding: 2px 0;
+  }
+
+  li p:first-child {
+    margin-top: 0;
+  }
+
+  li pre {
+    margin-bottom: 15px;
   }
 
   blockquote {

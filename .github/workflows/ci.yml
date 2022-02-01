@@ -58,7 +58,7 @@ jobs:
       - uses: actions/setup-python@v2
         if: ${{ matrix.needs-python }}
         with:
-          python-version: 3.8.2
+          python-version: 3.8.9
       - name: Cache Python dependencies
         if: ${{ matrix.needs-python }}
         uses: actions/cache@v2
@@ -75,12 +75,12 @@ jobs:
         if: ${{ matrix.needs-python }}
         run: |
           pip install -U pip setuptools wheel
-          pip install -r requirements.txt
+          pip install -r requirements.txt --no-deps
           pip install -r requirements/dev.txt
       - uses: actions/setup-node@v2
         if: ${{ matrix.needs-node }}
         with:
-          node-version: 14.4.0
+          node-version: 14.15.5
       - name: Cache Node dependencies
         if: ${{ matrix.needs-node }}
         uses: actions/cache@v2

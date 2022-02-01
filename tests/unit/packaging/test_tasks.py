@@ -404,6 +404,9 @@ class TestUpdateBigQueryMetadata:
 
 
 class TestSyncBigQueryMetadata:
+    @pytest.mark.filterwarnings(
+        "ignore:This collection has been invalidated.:sqlalchemy.exc.SAWarning"
+    )
     @pytest.mark.parametrize(
         ("release_files_table", "expected_get_table_calls"),
         [

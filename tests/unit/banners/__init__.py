@@ -9,24 +9,3 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-
-import asyncore
-import quopri
-import smtpd
-
-
-class DebuggingServer(smtpd.SMTPServer):
-
-    def process_message(self, peer, mailfrom, rcpttos, data, **kwargs):
-        print('---------- MESSAGE FOLLOWS ----------')
-        print(quopri.decodestring(data).decode())
-        print('------------ END MESSAGE ------------')
-
-
-if __name__ == '__main__':
-    options = smtpd.parseargs()
-    DebuggingServer(
-        (options.localhost, options.localport),
-        (options.remotehost, options.remoteport),
-    )
-    asyncore.loop()

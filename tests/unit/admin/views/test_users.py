@@ -147,10 +147,55 @@ class TestUserDetail:
         assert resp.location == "/admin/users/{}/".format(user.id)
         assert user.name == "Jane Doe"
 
+    def test_updates_user_no_primary_email(self, db_request):
+        email = EmailFactory.create(primary=True)
+        user = UserFactory.create(emails=[email])
+        db_request.matchdict["user_id"] = str(user.id)
+        db_request.method = "POST"
+        db_request.POST["name"] = "Jane Doe"
+        db_request.POST["emails-0-email"] = email.email
+        # No primary = checkbox unchecked
+
+        db_request.POST = MultiDict(db_request.POST)
+        db_request.current_route_path = pretend.call_recorder(
+            lambda: "/admin/users/{}/".format(user.id)
+        )
+
+        resp = views.user_detail(db_request)
+
+        assert resp["form"].errors == {
+            "emails": ["There must be exactly one primary email"]
+        }
+
+    def test_updates_user_multiple_primary_emails(self, db_request):
+        email1 = EmailFactory.create(primary=True)
+        email2 = EmailFactory.create(primary=True)
+        user = UserFactory.create(emails=[email1, email2])
+        db_request.matchdict["user_id"] = str(user.id)
+        db_request.method = "POST"
+        db_request.POST["name"] = "Jane Doe"
+        db_request.POST["emails-0-email"] = email1.email
+        db_request.POST["emails-0-primary"] = "true"
+        db_request.POST["emails-1-email"] = email2.email
+        db_request.POST["emails-1-primary"] = "true"
+        # No primary = checkbox unchecked
+
+        db_request.POST = MultiDict(db_request.POST)
+        db_request.current_route_path = pretend.call_recorder(
+            lambda: "/admin/users/{}/".format(user.id)
+        )
+
+        resp = views.user_detail(db_request)
+
+        assert resp["form"].errors == {
+            "emails": ["There must be exactly one primary email"]
+        }
+
 
 class TestUserAddEmail:
-    def test_add_email(self, db_request):
-        user = UserFactory.create(emails=[])
+    def test_add_primary_email(self, db_request):
+        old_email = EmailFactory.create(email="old@bar.com", primary=True)
+        user = UserFactory.create(emails=[old_email])
         db_request.matchdict["user_id"] = str(user.id)
         db_request.method = "POST"
         db_request.POST["email"] = "foo@bar.com"
@@ -167,13 +212,39 @@ class TestUserAddEmail:
 
         assert resp.status_code == 303
         assert resp.location == "/admin/users/{}/".format(user.id)
-        assert len(user.emails) == 1
+        assert len(user.emails) == 2
 
-        email = user.emails[0]
+        emails = {e.email: e for e in user.emails}
 
-        assert email.email == "foo@bar.com"
-        assert email.primary
-        assert email.verified
+        assert not emails["old@bar.com"].primary
+        assert emails["foo@bar.com"].primary
+        assert emails["foo@bar.com"].verified
+
+    def test_add_non_primary_email(self, db_request):
+        old_email = EmailFactory.create(email="old@bar.com", primary=True)
+        user = UserFactory.create(emails=[old_email])
+        db_request.matchdict["user_id"] = str(user.id)
+        db_request.method = "POST"
+        db_request.POST["email"] = "foo@bar.com"
+        # No "primary" field
+        db_request.POST["verified"] = True
+        db_request.POST = MultiDict(db_request.POST)
+        db_request.route_path = pretend.call_recorder(
+            lambda *a, **kw: "/admin/users/{}/".format(user.id)
+        )
+
+        resp = views.user_add_email(db_request)
+
+        db_request.db.flush()
+
+        assert resp.status_code == 303
+        assert resp.location == "/admin/users/{}/".format(user.id)
+        assert len(user.emails) == 2
+
+        emails = {e.email: e for e in user.emails}
+
+        assert emails["old@bar.com"].primary
+        assert not emails["foo@bar.com"].primary
 
     def test_add_invalid(self, db_request):
         user = UserFactory.create(emails=[])

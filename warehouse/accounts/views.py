@@ -24,6 +24,7 @@ from pyramid.httpexceptions import (
 from pyramid.security import forget, remember
 from pyramid.view import view_config
 from sqlalchemy.orm.exc import NoResultFound
+from webauthn.helpers import bytes_to_base64url
 
 from warehouse.accounts import REDIRECT_FIELD_NAME
 from warehouse.accounts.forms import (
@@ -46,6 +47,7 @@ from warehouse.accounts.interfaces import (
     TokenMissing,
     TooManyEmailsAdded,
     TooManyFailedLogins,
+    TooManyPasswordResetRequests,
 )
 from warehouse.accounts.models import Email, User
 from warehouse.admin.flags import AdminFlagValue
@@ -93,6 +95,19 @@ def unverified_emails(exc, request):
         request._(
             "Too many emails have been added to this account without verifying "
             "them. Check your inbox and follow the verification links. (IP: ${ip})",
+            mapping={"ip": request.remote_addr},
+        ),
+        retry_after=exc.resets_in.total_seconds(),
+    )
+
+
+@view_config(context=TooManyPasswordResetRequests, has_translations=True)
+def incomplete_password_resets(exc, request):
+    return HTTPTooManyRequests(
+        request._(
+            "Too many password resets have been requested for this account without "
+            "completing them. Check your inbox and follow the verification links. "
+            "(IP: ${ip})",
             mapping={"ip": request.remote_addr},
         ),
         retry_after=exc.resets_in.total_seconds(),
@@ -242,6 +257,7 @@ def two_factor_and_totp_validate(request, _form_class=TOTPAuthenticationForm):
     if user_service.has_totp(userid):
         two_factor_state["totp_form"] = _form_class(
             request.POST,
+            request=request,
             user_id=userid,
             user_service=user_service,
             check_password_metrics_tags=["method:auth", "auth_method:login_form"],
@@ -254,7 +270,9 @@ def two_factor_and_totp_validate(request, _form_class=TOTPAuthenticationForm):
     if request.method == "POST":
         form = two_factor_state["totp_form"]
         if form.validate():
-            _login_user(request, userid, two_factor_method="totp")
+            _login_user(
+                request, userid, two_factor_method="totp", two_factor_label="totp"
+            )
             user_service.update_user(userid, last_totp_value=form.totp_value.data)
 
             resp = HTTPSeeOther(redirect_to)
@@ -325,6 +343,7 @@ def webauthn_authentication_validate(request):
     user_service = request.find_service(IUserService, context=None)
     form = WebAuthnAuthenticationForm(
         **request.POST,
+        request=request,
         user_id=userid,
         user_service=user_service,
         challenge=request.session.get_webauthn_challenge(),
@@ -335,11 +354,17 @@ def webauthn_authentication_validate(request):
     request.session.clear_webauthn_challenge()
 
     if form.validate():
-        credential_id, sign_count = form.validated_credential
-        webauthn = user_service.get_webauthn_by_credential_id(userid, credential_id)
-        webauthn.sign_count = sign_count
+        webauthn = user_service.get_webauthn_by_credential_id(
+            userid, bytes_to_base64url(form.validated_credential.credential_id)
+        )
+        webauthn.sign_count = form.validated_credential.new_sign_count
 
-        _login_user(request, userid, two_factor_method="webauthn")
+        _login_user(
+            request,
+            userid,
+            two_factor_method="webauthn",
+            two_factor_label=webauthn.label,
+        )
 
         request.response.set_cookie(
             USER_ID_INSECURE_COOKIE,
@@ -380,7 +405,9 @@ def recovery_code(request, _form_class=RecoveryCodeAuthenticationForm):
 
     user_service = request.find_service(IUserService, context=None)
 
-    form = _form_class(request.POST, user_id=userid, user_service=user_service)
+    form = _form_class(
+        request.POST, request=request, user_id=userid, user_service=user_service
+    )
 
     if request.method == "POST":
         if form.validate():
@@ -541,6 +568,7 @@ def request_password_reset(request, _form_class=RequestPasswordResetForm):
     form = _form_class(request.POST, user_service=user_service)
     if request.method == "POST" and form.validate():
         user = user_service.get_user_by_username(form.username_or_email.data)
+
         email = None
         if user is None:
             user = user_service.get_user_by_email(form.username_or_email.data)
@@ -548,16 +576,39 @@ def request_password_reset(request, _form_class=RequestPasswordResetForm):
                 user.emails, key=lambda e: e.email == form.username_or_email.data
             )
 
-        send_password_reset_email(request, (user, email))
-        user_service.record_event(
-            user.id,
-            tag="account:password:reset:request",
-            ip_address=request.remote_addr,
-        )
+        if not user_service.ratelimiters["password.reset"].test(user.id):
+            raise TooManyPasswordResetRequests(
+                resets_in=user_service.ratelimiters["password.reset"].resets_in(user.id)
+            )
 
-        token_service = request.find_service(ITokenService, name="password")
-        n_hours = token_service.max_age // 60 // 60
-        return {"n_hours": n_hours}
+        if user.can_reset_password:
+            send_password_reset_email(request, (user, email))
+            user_service.record_event(
+                user.id,
+                tag="account:password:reset:request",
+                ip_address=request.remote_addr,
+            )
+            user_service.ratelimiters["password.reset"].hit(user.id)
+
+            token_service = request.find_service(ITokenService, name="password")
+            n_hours = token_service.max_age // 60 // 60
+            return {"n_hours": n_hours}
+        else:
+            user_service.record_event(
+                user.id,
+                tag="account:password:reset:attempt",
+                ip_address=request.remote_addr,
+            )
+            request.session.flash(
+                request._(
+                    (
+                        "Automated password reset prohibited for your user. "
+                        "Contact a PyPI administrator for assistance"
+                    ),
+                ),
+                queue="error",
+            )
+            return HTTPSeeOther(request.route_path("accounts.request-password-reset"))
 
     return {"form": form}
 
@@ -631,11 +682,15 @@ def reset_password(request, _form_class=ResetPasswordForm):
     )
 
     if request.method == "POST" and form.validate():
+        password_reset_limiter = request.find_service(
+            IRateLimiter, name="password.reset"
+        )
         # Update password.
         user_service.update_user(user.id, password=form.new_password.data)
         user_service.record_event(
             user.id, tag="account:password:reset", ip_address=request.remote_addr
         )
+        password_reset_limiter.clear(user.id)
 
         # Send password change email
         send_password_change_email(request, user)
@@ -886,7 +941,7 @@ def verify_project_role(request):
         return HTTPSeeOther(request.route_path("packaging.project", name=project.name))
 
 
-def _login_user(request, userid, two_factor_method=None):
+def _login_user(request, userid, two_factor_method=None, two_factor_label=None):
     # We have a session factory associated with this request, so in order
     # to protect against session fixation attacks we're going to make sure
     # that we create a new session (which for sessions with an identifier
@@ -929,7 +984,10 @@ def _login_user(request, userid, two_factor_method=None):
         userid,
         tag="account:login:success",
         ip_address=request.remote_addr,
-        additional={"two_factor_method": two_factor_method},
+        additional={
+            "two_factor_method": two_factor_method,
+            "two_factor_label": two_factor_label,
+        },
     )
     request.session.record_auth_timestamp()
     return headers
@@ -988,6 +1046,7 @@ def reauthenticate(request, _form_class=ReAuthenticateForm):
         next_route=request.matched_route.name,
         next_route_matchdict=json.dumps(request.matchdict),
         user_service=user_service,
+        action="reauthenticate",
         check_password_metrics_tags=[
             "method:reauth",
             "auth_method:reauthenticate_form",

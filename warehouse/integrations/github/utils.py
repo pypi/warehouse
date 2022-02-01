@@ -10,7 +10,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import base64
 import json
 import re
 import time
@@ -19,20 +18,15 @@ from typing import Optional
 
 import requests
 
-from cryptography.exceptions import InvalidSignature
-from cryptography.hazmat.backends import default_backend
-from cryptography.hazmat.primitives import serialization
-from cryptography.hazmat.primitives.asymmetric.ec import ECDSA
-from cryptography.hazmat.primitives.hashes import SHA256
-
+from warehouse import integrations
 from warehouse.accounts.interfaces import IUserService
 from warehouse.email import send_token_compromised_email_leak
-from warehouse.macaroons.caveats import InvalidMacaroon
+from warehouse.macaroons.caveats import InvalidMacaroonError
 from warehouse.macaroons.interfaces import IMacaroonService
 from warehouse.metrics import IMetricsService
 
 
-class ExtractionFailed(Exception):
+class ExtractionFailedError(Exception):
     pass
 
 
@@ -69,7 +63,7 @@ TOKEN_LEAK_MATCHERS = {
 }
 
 
-class InvalidTokenLeakRequest(Exception):
+class InvalidTokenLeakRequestError(Exception):
     def __init__(self, message, reason):
         self.reason = reason
         super().__init__(message)
@@ -84,13 +78,13 @@ class TokenLeakDisclosureRequest:
     def from_api_record(cls, record, *, matchers=TOKEN_LEAK_MATCHERS):
 
         if not isinstance(record, dict):
-            raise InvalidTokenLeakRequest(
+            raise InvalidTokenLeakRequestError(
                 f"Record is not a dict but: {str(record)[:100]}", reason="format"
             )
 
         missing_keys = sorted({"token", "type", "url"} - set(record))
         if missing_keys:
-            raise InvalidTokenLeakRequest(
+            raise InvalidTokenLeakRequestError(
                 f"Record is missing attribute(s): {', '.join(missing_keys)}",
                 reason="format",
             )
@@ -99,7 +93,7 @@ class TokenLeakDisclosureRequest:
 
         matcher = matchers.get(matcher_code)
         if not matcher:
-            raise InvalidTokenLeakRequest(
+            raise InvalidTokenLeakRequestError(
                 f"Matcher with code {matcher_code} not found. "
                 f"Available codes are: {', '.join(matchers)}",
                 reason="invalid_matcher",
@@ -107,52 +101,23 @@ class TokenLeakDisclosureRequest:
 
         try:
             extracted_token = matcher.extract(record["token"])
-        except ExtractionFailed:
-            raise InvalidTokenLeakRequest(
+        except ExtractionFailedError:
+            raise InvalidTokenLeakRequestError(
                 "Cannot extract token from recieved match", reason="extraction"
             )
 
         return cls(token=extracted_token, public_url=record["url"])
 
 
-class GitHubPublicKeyMetaAPIError(InvalidTokenLeakRequest):
+class GitHubPublicKeyMetaAPIError(InvalidTokenLeakRequestError):
     pass
-
-
-class CacheMiss(Exception):
-    pass
-
-
-class PublicKeysCache:
-    """
-    In-memory time-based cache. store with set(), retrieve with get().
-    """
-
-    def __init__(self, cache_time):
-        self.cached_at = 0
-        self.cache = None
-        self.cache_time = cache_time
-
-    def get(self, now):
-        if not self.cache:
-            raise CacheMiss
-
-        if self.cached_at + self.cache_time < now:
-            self.cache = None
-            raise CacheMiss
-
-        return self.cache
-
-    def set(self, now, value):
-        self.cached_at = now
-        self.cache = value
 
 
 PUBLIC_KEYS_CACHE_TIME = 60 * 30  # 30 minutes
-PUBLIC_KEYS_CACHE = PublicKeysCache(cache_time=PUBLIC_KEYS_CACHE_TIME)
+PUBLIC_KEYS_CACHE = integrations.PublicKeysCache(cache_time=PUBLIC_KEYS_CACHE_TIME)
 
 
-class GitHubTokenScanningPayloadVerifier:
+class GitHubTokenScanningPayloadVerifier(integrations.PayloadVerifier):
     """
     Checks payload signature using:
     - `requests` for HTTP calls
@@ -161,71 +126,29 @@ class GitHubTokenScanningPayloadVerifier:
 
     def __init__(
         self,
-        *,
         session,
         metrics,
+        api_url: str,
         api_token: Optional[str] = None,
         public_keys_cache=PUBLIC_KEYS_CACHE,
     ):
-        self._metrics = metrics
+        super().__init__(metrics=metrics, public_keys_cache=public_keys_cache)
         self._session = session
         self._api_token = api_token
-        self._public_keys_cache = public_keys_cache
+        self._api_url = api_url
 
-    def verify(self, *, payload, key_id, signature):
-
-        public_key = None
-        try:
-            public_keys = self._get_cached_public_keys()
-            public_key = self._check_public_key(
-                github_public_keys=public_keys, key_id=key_id
-            )
-        except (CacheMiss, InvalidTokenLeakRequest):
-            # No cache or outdated cache, it's ok, we'll do a real call.
-            # Just record a metric so that we can know if all calls lead to
-            # cache misses
-            self._metrics.increment("warehouse.token_leak.github.auth.cache.miss")
-        else:
-            self._metrics.increment("warehouse.token_leak.github.auth.cache.hit")
-
-        try:
-            if not public_key:
-                pubkey_api_data = self._retrieve_public_key_payload()
-                public_keys = self._extract_public_keys(pubkey_api_data)
-                public_key = self._check_public_key(
-                    github_public_keys=public_keys, key_id=key_id
-                )
-
-            self._check_signature(
-                payload=payload, public_key=public_key, signature=signature
-            )
-        except InvalidTokenLeakRequest as exc:
-            self._metrics.increment(
-                f"warehouse.token_leak.github.auth.error.{exc.reason}"
-            )
-            return False
-
-        self._metrics.increment("warehouse.token_leak.github.auth.success")
-        return True
-
-    def _get_cached_public_keys(self):
-        return self._public_keys_cache.get(now=time.time())
+    @property
+    def metric_name(self):
+        return "token_leak.github"
 
     def _headers_auth(self):
         if not self._api_token:
             return {}
         return {"Authorization": f"token {self._api_token}"}
 
-    def _retrieve_public_key_payload(self):
-
-        token_scanning_pubkey_api_url = (
-            "https://api.github.com/meta/public_keys/token_scanning"
-        )
-
+    def retrieve_public_key_payload(self):
         try:
-            response = self._session.get(
-                token_scanning_pubkey_api_url, headers=self._headers_auth()
-            )
+            response = self._session.get(self._api_url, headers=self._headers_auth())
             response.raise_for_status()
             return response.json()
         except requests.HTTPError as exc:
@@ -243,7 +166,7 @@ class GitHubTokenScanningPayloadVerifier:
                 "Could not connect to GitHub", "public_key_api.network_error"
             ) from exc
 
-    def _extract_public_keys(self, pubkey_api_data):
+    def extract_public_keys(self, pubkey_api_data):
         if not isinstance(pubkey_api_data, dict):
             raise GitHubPublicKeyMetaAPIError(
                 f"Payload is not a dict but: {str(pubkey_api_data)[:100]}",
@@ -286,37 +209,6 @@ class GitHubTokenScanningPayloadVerifier:
         self._public_keys_cache.set(now=time.time(), value=result)
         return result
 
-    def _check_public_key(self, github_public_keys, key_id):
-        for record in github_public_keys:
-            if record["key_id"] == key_id:
-                return record["key"]
-
-        raise InvalidTokenLeakRequest(
-            f"Key {key_id} not found in github public keys", reason="wrong_key_id"
-        )
-
-    def _check_signature(self, payload, public_key, signature):
-        try:
-            loaded_public_key = serialization.load_pem_public_key(
-                data=public_key.encode("utf-8"), backend=default_backend()
-            )
-            loaded_public_key.verify(
-                signature=base64.b64decode(signature),
-                data=payload,
-                # This validates the ECDSA and SHA256 part
-                signature_algorithm=ECDSA(algorithm=SHA256()),
-            )
-        except InvalidSignature as exc:
-            raise InvalidTokenLeakRequest(
-                "Invalid signature", "invalid_signature"
-            ) from exc
-        except Exception as exc:
-            # Maybe the key is not a valid ECDSA key, maybe the data is not properly
-            # padded, etc. So many things can go wrong...
-            raise InvalidTokenLeakRequest(
-                "Invalid cryptographic values", "invalid_crypto"
-            ) from exc
-
 
 def _analyze_disclosure(request, disclosure_record, origin):
 
@@ -328,7 +220,7 @@ def _analyze_disclosure(request, disclosure_record, origin):
         disclosure = TokenLeakDisclosureRequest.from_api_record(
             record=disclosure_record
         )
-    except InvalidTokenLeakRequest as exc:
+    except InvalidTokenLeakRequestError as exc:
         metrics.increment(f"warehouse.token_leak.{origin}.error.{exc.reason}")
         return
 
@@ -337,7 +229,7 @@ def _analyze_disclosure(request, disclosure_record, origin):
         database_macaroon = macaroon_service.find_from_raw(
             raw_macaroon=disclosure.token
         )
-    except InvalidMacaroon:
+    except InvalidMacaroonError:
         metrics.increment(f"warehouse.token_leak.{origin}.error.invalid")
         return
 
@@ -385,7 +277,9 @@ def analyze_disclosures(request, disclosure_records, origin, metrics):
 
     if not isinstance(disclosure_records, list):
         metrics.increment(f"warehouse.token_leak.{origin}.error.format")
-        raise InvalidTokenLeakRequest("Invalid format: payload is not a list", "format")
+        raise InvalidTokenLeakRequestError(
+            "Invalid format: payload is not a list", "format"
+        )
 
     for disclosure_record in disclosure_records:
         request.task(tasks.analyze_disclosure_task).delay(

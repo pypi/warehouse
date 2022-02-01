@@ -47,6 +47,7 @@ def github_disclose_token(request):
     verifier = utils.GitHubTokenScanningPayloadVerifier(
         session=request.http,
         metrics=metrics,
+        api_url=request.registry.settings["github.token_scanning_meta_api.url"],
         api_token=request.registry.settings.get("github.token"),
     )
 
@@ -66,7 +67,7 @@ def github_disclose_token(request):
             origin="github",
             metrics=metrics,
         )
-    except utils.InvalidTokenLeakRequest:
+    except utils.InvalidTokenLeakRequestError:
         return Response(status=400)
 
     # 204 No Content: we acknowledge but we won't comment on the outcome.

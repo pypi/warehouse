@@ -127,6 +127,13 @@ def test_routes(warehouse):
             "/_includes/sidebar-sponsor-logo/",
             domain=warehouse,
         ),
+        pretend.call(
+            "includes.administer-project-include",
+            "/_includes/administer-project-include/{project_name}",
+            factory="warehouse.packaging.models:ProjectFactory",
+            traverse="/{project_name}",
+            domain=warehouse,
+        ),
         pretend.call("classifiers", "/classifiers/", domain=warehouse),
         pretend.call("search", "/search/", domain=warehouse),
         pretend.call("stats", "/stats/", accept="text/html", domain=warehouse),
@@ -177,6 +184,11 @@ def test_routes(warehouse):
             domain=warehouse,
         ),
         pretend.call("manage.account", "/manage/account/", domain=warehouse),
+        pretend.call(
+            "manage.account.two-factor",
+            "/manage/account/two-factor/",
+            domain=warehouse,
+        ),
         pretend.call(
             "manage.account.totp-provision",
             "/manage/account/totp-provision",
@@ -336,6 +348,11 @@ def test_routes(warehouse):
             "/_/github/disclose-token",
             domain=warehouse,
         ),
+        pretend.call(
+            "integrations.vulnerabilities.osv.report",
+            "/_/vulnerabilities/osv/report",
+            domain=warehouse,
+        ),
         pretend.call("legacy.api.simple.index", "/simple/", domain=warehouse),
         pretend.call(
             "legacy.api.simple.detail",
@@ -399,13 +416,14 @@ def test_routes(warehouse):
         pretend.call(
             "sponsors",
             "/sponsors/",
-            "warehouse:templates/pages/sponsors.html",
+            "pages/sponsors.html",
             view_kw={"has_translations": True},
         ),
     ]
 
     assert config.add_redirect.calls == [
         pretend.call("/sponsor/", "/sponsors/", domain=warehouse),
+        pretend.call("/u/{username}/", "/user/{username}/", domain=warehouse),
         pretend.call("/p/{name}/", "/project/{name}/", domain=warehouse),
         pretend.call("/pypi/{name}/", "/project/{name}/", domain=warehouse),
         pretend.call(

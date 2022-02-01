@@ -22,6 +22,7 @@ from pyramid.httpexceptions import HTTPBadRequest, HTTPNotFound, HTTPSeeOther
 from pyramid.response import Response
 from sqlalchemy.orm import joinedload
 from sqlalchemy.orm.exc import NoResultFound
+from webauthn.helpers import bytes_to_base64url
 from webob.multidict import MultiDict
 
 import warehouse.utils.otp as otp
@@ -114,7 +115,11 @@ class TestManageAccount:
             pretend.call(user_id=user_id, user_service=user_service)
         ]
         assert change_pass_cls.calls == [
-            pretend.call(user_service=user_service, breach_service=breach_service)
+            pretend.call(
+                request=request,
+                user_service=user_service,
+                breach_service=breach_service,
+            )
         ]
 
     def test_active_projects(self, db_request):
@@ -807,6 +812,12 @@ class TestManageAccount:
         ]
 
 
+class Test2FA:
+    def test_manage_two_factor(self):
+        request = pretend.stub()
+        assert views.manage_two_factor(request) == {}
+
+
 class TestProvisionTOTP:
     def test_generate_totp_qr(self, monkeypatch):
         user_service = pretend.stub(get_totp_secret=lambda id: None)
@@ -1334,7 +1345,7 @@ class TestProvisionWebAuthn:
             validate=lambda: True,
             validated_credential=pretend.stub(
                 credential_id=b"fake_credential_id",
-                public_key=b"fake_public_key",
+                credential_public_key=b"fake_public_key",
                 sign_count=1,
             ),
             label=pretend.stub(data="fake_label"),
@@ -1356,8 +1367,8 @@ class TestProvisionWebAuthn:
             pretend.call(
                 1234,
                 label="fake_label",
-                credential_id="fake_credential_id",
-                public_key="fake_public_key",
+                credential_id=bytes_to_base64url(b"fake_credential_id"),
+                public_key=bytes_to_base64url(b"fake_public_key"),
                 sign_count=1,
             )
         ]
@@ -2235,6 +2246,12 @@ class TestManageProjects:
         newer_project_with_no_releases = ProjectFactory(
             releases=[], created=datetime.datetime(2018, 1, 1)
         )
+        project_where_owners_require_2fa = ProjectFactory(
+            releases=[], created=datetime.datetime(2022, 1, 1), owners_require_2fa=True
+        )
+        project_where_pypi_mandates_2fa = ProjectFactory(
+            releases=[], created=datetime.datetime(2022, 1, 2), pypi_mandates_2fa=True
+        )
         db_request.user = UserFactory()
         RoleFactory.create(
             user=db_request.user,
@@ -2270,9 +2287,21 @@ class TestManageProjects:
             project=project_with_newer_release,
             role_name="Owner",
         )
+        RoleFactory.create(
+            user=db_request.user,
+            project=project_where_owners_require_2fa,
+            role_name="Owner",
+        )
+        RoleFactory.create(
+            user=db_request.user,
+            project=project_where_pypi_mandates_2fa,
+            role_name="Owner",
+        )
 
         assert views.manage_projects(db_request) == {
             "projects": [
+                project_where_pypi_mandates_2fa,
+                project_where_owners_require_2fa,
                 newer_project_with_no_releases,
                 project_with_newer_release,
                 older_project_with_no_releases,
@@ -2281,8 +2310,18 @@ class TestManageProjects:
             "projects_owned": {
                 project_with_newer_release.name,
                 newer_project_with_no_releases.name,
+                project_where_owners_require_2fa.name,
+                project_where_pypi_mandates_2fa.name,
             },
-            "projects_sole_owned": {newer_project_with_no_releases.name},
+            "projects_sole_owned": {
+                newer_project_with_no_releases.name,
+                project_where_owners_require_2fa.name,
+                project_where_pypi_mandates_2fa.name,
+            },
+            "projects_requiring_2fa": {
+                project_where_owners_require_2fa.name,
+                project_where_pypi_mandates_2fa.name,
+            },
             "project_invites": [],
         }
 
@@ -4160,6 +4199,30 @@ class TestDeleteProjectRoles:
 
         assert db_request.session.flash.calls == [
             pretend.call("Cannot remove yourself as Owner", queue="error")
+        ]
+        assert isinstance(result, HTTPSeeOther)
+        assert result.headers["Location"] == "/the-redirect"
+
+    def test_delete_non_owner_role(self, db_request):
+        project = ProjectFactory.create(name="foobar")
+        user = UserFactory.create(username="testuser")
+        role = RoleFactory.create(user=user, project=project, role_name="Owner")
+
+        some_other_user = UserFactory.create(username="someotheruser")
+        some_other_project = ProjectFactory.create(name="someotherproject")
+
+        db_request.method = "POST"
+        db_request.user = some_other_user
+        db_request.POST = MultiDict({"role_id": role.id})
+        db_request.session = pretend.stub(
+            flash=pretend.call_recorder(lambda *a, **kw: None)
+        )
+        db_request.route_path = pretend.call_recorder(lambda *a, **kw: "/the-redirect")
+
+        result = views.delete_project_role(some_other_project, db_request)
+
+        assert db_request.session.flash.calls == [
+            pretend.call("Could not find role", queue="error")
         ]
         assert isinstance(result, HTTPSeeOther)
         assert result.headers["Location"] == "/the-redirect"

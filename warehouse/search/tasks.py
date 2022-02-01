@@ -61,7 +61,7 @@ def _project_docs(db, project_name=None):
         db.query(func.array_agg(r.version))
         .filter(r.project_id == Release.project_id)
         .correlate(Release)
-        .as_scalar()
+        .scalar_subquery()
         .label("all_versions")
     )
 
@@ -71,7 +71,7 @@ def _project_docs(db, project_name=None):
         .join(Classifier, Classifier.id == release_classifiers.c.trove_id)
         .filter(Release.id == release_classifiers.c.release_id)
         .correlate(Release)
-        .as_scalar()
+        .scalar_subquery()
         .label("classifiers")
     )
 
@@ -101,7 +101,7 @@ def _project_docs(db, project_name=None):
         .outerjoin(Release.project)
     )
 
-    for release in windowed_query(release_data, Release.project_id, 50000):
+    for release in windowed_query(release_data, Project.id, 25000):
         p = ProjectDocument.from_db(release)
         p._index = None
         p.full_clean()
@@ -258,7 +258,7 @@ def unindex_project(self, request, project_name):
             client = request.registry["elasticsearch.client"]
             index_name = request.registry["elasticsearch.index"]
             try:
-                client.delete(index=index_name, doc_type="doc", id=project_name)
+                client.delete(index=index_name, id=project_name)
             except elasticsearch.exceptions.NotFoundError:
                 pass
     except redis.exceptions.LockError as exc:

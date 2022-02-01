@@ -43,7 +43,7 @@
 
 // RESETS LAYER: applies CSS resets and sensible defaults
 @import "resets/boxsizing";
-@import "resets/normalize";
+@import "node_modules/normalize.css/normalize";
 @import "resets/reset";
 
 // BASE LAYER: adds styles to anything without a class
@@ -65,6 +65,7 @@
 // blocks LAYER: some warehouse specific, some generic/reusable
 @import "blocks/about-pypi";
 @import "blocks/accordion";
+@import "blocks/admin-include";
 @import "blocks/applied-filters";
 @import "blocks/author-profile";
 @import "blocks/badge";
@@ -107,6 +108,7 @@
 /*rtl:begin:ignore*/
 @import "blocks/project-description";
 /*rtl:end:ignore*/
+@import "blocks/files";
 @import "blocks/release";
 @import "blocks/release-timeline";
 @import "blocks/search-form";

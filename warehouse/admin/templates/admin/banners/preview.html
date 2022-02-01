@@ -12,20 +12,19 @@
  # limitations under the License.
 -#}
 {% extends "base.html" %}
+{% block title %}{% trans %}Banner Preview{% endtrans %}{% endblock %}
 
-{% block title %}Sign out{% endblock %}
-
+{% block banner_messages %}
+  {% csi request.route_url("includes.db-banners", _query={'single_banner': banner.id}) %}
+  {% endcsi %}
+{% endblock %}
 
 {% block content %}
-<div class="box">
-  <div class="box-body">
-      <form method="POST" action="{{ request.current_route_path() }}">
-        <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
-        {% if redirect.data %}
-        <input name="{{ redirect.field }}" type="hidden" value="{{ redirect.data }}">
-        {% endif %}
-        <input type="submit" class="btn btn-primary" value="Sign out">
-      </form>
-  </div>
+<div class="horizontal-section">
+  <div class="about-pypi">
+  <b>This is just a preview page</b>
+
+   {{ lipsum(2) }}
+   </div>
 </div>
 {% endblock %}

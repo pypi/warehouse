@@ -25,9 +25,11 @@ import pyramid.testing
 import pytest
 import webtest as _webtest
 
+from psycopg2.errors import InvalidCatalogName
 from pyramid.i18n import TranslationString
 from pyramid.static import ManifestCacheBuster
-from pytest_postgresql.factories import DatabaseJanitor, get_config
+from pytest_postgresql.config import get_config
+from pytest_postgresql.janitor import DatabaseJanitor
 from sqlalchemy import event
 
 from warehouse import admin, config, static
@@ -110,13 +112,13 @@ def pyramid_request(pyramid_services):
     return dummy_request
 
 
-@pytest.yield_fixture
+@pytest.fixture
 def pyramid_config(pyramid_request):
     with pyramid.testing.testConfig(request=pyramid_request) as config:
         yield config
 
 
-@pytest.yield_fixture
+@pytest.fixture
 def cli():
     runner = click.testing.CliRunner()
     with runner.isolated_filesystem():
@@ -136,7 +138,12 @@ def database(request):
 
     # In case the database already exists, possibly due to an aborted test run,
     # attempt to drop it before creating
-    janitor.drop()
+    try:
+        janitor.drop()
+    except InvalidCatalogName:
+        # We can safely ignore this exception as that means there was
+        # no leftover database
+        pass
 
     # Create our Database.
     janitor.init()
@@ -178,6 +185,7 @@ def app_config(database):
         "elasticsearch.url": "https://localhost/warehouse",
         "files.backend": "warehouse.packaging.services.LocalFileStorage",
         "docs.backend": "warehouse.packaging.services.LocalFileStorage",
+        "sponsorlogos.backend": "warehouse.admin.services.LocalSponsorLogoStorage",
         "mail.backend": "warehouse.email.services.SMTPEmailSender",
         "malware_check.backend": (
             "warehouse.malware.services.PrinterMalwareCheckService"
@@ -199,7 +207,7 @@ def app_config(database):
     return cfg
 
 
-@pytest.yield_fixture
+@pytest.fixture
 def db_session(app_config):
     engine = app_config.registry["sqlalchemy.engine"]
     conn = engine.connect()
@@ -225,17 +233,17 @@ def db_session(app_config):
         engine.dispose()
 
 
-@pytest.yield_fixture
+@pytest.fixture
 def user_service(db_session, metrics):
     return account_services.DatabaseUserService(db_session, metrics=metrics)
 
 
-@pytest.yield_fixture
+@pytest.fixture
 def macaroon_service(db_session):
     return macaroon_services.DatabaseMacaroonService(db_session)
 
 
-@pytest.yield_fixture
+@pytest.fixture
 def token_service(app_config):
     return account_services.TokenService(secret="secret", salt="salt", max_age=21600)
 
@@ -265,7 +273,7 @@ class QueryRecorder:
         self.queries = []
 
 
-@pytest.yield_fixture
+@pytest.fixture
 def query_recorder(app_config):
     recorder = QueryRecorder()
 
@@ -292,7 +300,7 @@ class _TestApp(_webtest.TestApp):
         return xmlrpc.client.loads(resp.body)
 
 
-@pytest.yield_fixture
+@pytest.fixture
 def webtest(app_config):
     # TODO: Ensure that we have per test isolation of the database level
     #       changes. This probably involves flushing the database or something

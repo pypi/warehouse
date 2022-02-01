@@ -19,13 +19,13 @@ from warehouse.search.utils import doc_type
 EmailAnalyzer = analyzer(
     "email",
     tokenizer="uax_url_email",
-    filter=["standard", "lowercase", "stop", "snowball"],
+    filter=["lowercase", "stop", "snowball"],
 )
 
 NameAnalyzer = analyzer(
     "normalized_name",
     tokenizer="lowercase",
-    filter=["standard", "lowercase", "word_delimiter"],
+    filter=["lowercase", "word_delimiter"],
 )
 
 

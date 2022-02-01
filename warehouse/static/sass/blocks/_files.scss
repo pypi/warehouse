@@ -1,0 +1,62 @@
+/*!
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+/*
+  Individual file information represented as a card with meta data
+
+  <div class="file">
+    <div class="file__meta">
+      // Badge here
+    </div>
+    <div class="file__graphic"> // Node graphic with connecting line
+      <div class="file__line"></div>
+      <img class="file__node">
+    </div>
+    <a class="file__card" href="/link/to/version">
+      <p class="file__version"></p>
+      <p class="file__version-date"></p>
+    </a>
+  </div>
+*/
+
+.file {
+  @include clearfix;
+  display: table;
+  table-layout: fixed;
+  width: 100%;
+
+  &__meta {
+    font-size: 0.8rem;
+    padding-top: ($spacing-unit / 4);
+  }
+
+  &__graphic {
+    width: 26px;
+    display: table-cell;
+    text-align: center;
+    vertical-align: middle;
+    position: relative;
+    padding-right: $spacing-unit / 4;
+
+    @media screen and (max-width: $tablet) {
+      display: none;
+    }
+  }
+
+  &__card {
+    display: block;
+    margin: ($spacing-unit / 4) 0;
+  }
+
+}

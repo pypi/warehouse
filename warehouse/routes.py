@@ -51,9 +51,7 @@ def includeme(config):
     config.add_template_view(
         "sponsors",
         "/sponsors/",
-        # Use the full resource path here to make it able to be overridden by
-        # pypi-theme.
-        "warehouse:templates/pages/sponsors.html",
+        "pages/sponsors.html",
         view_kw={"has_translations": True},
     )
 
@@ -107,6 +105,13 @@ def includeme(config):
         "/_includes/sidebar-sponsor-logo/",
         domain=warehouse,
     )
+    config.add_route(
+        "includes.administer-project-include",
+        "/_includes/administer-project-include/{project_name}",
+        factory="warehouse.packaging.models:ProjectFactory",
+        traverse="/{project_name}",
+        domain=warehouse,
+    )
 
     # Classifier Routes
     config.add_route("classifiers", "/classifiers/", domain=warehouse)
@@ -121,6 +126,7 @@ def includeme(config):
     )
 
     # Accounts
+    config.add_redirect("/u/{username}/", "/user/{username}/", domain=warehouse)
     config.add_route(
         "accounts.profile",
         "/user/{username}/",
@@ -166,6 +172,9 @@ def includeme(config):
     )
     # Management (views for logged-in users)
     config.add_route("manage.account", "/manage/account/", domain=warehouse)
+    config.add_route(
+        "manage.account.two-factor", "/manage/account/two-factor/", domain=warehouse
+    )
     config.add_route(
         "manage.account.totp-provision",
         "/manage/account/totp-provision",
@@ -330,6 +339,12 @@ def includeme(config):
     config.add_route(
         "integrations.github.disclose-token",
         "/_/github/disclose-token",
+        domain=warehouse,
+    )
+
+    config.add_route(
+        "integrations.vulnerabilities.osv.report",
+        "/_/vulnerabilities/osv/report",
         domain=warehouse,
     )
 

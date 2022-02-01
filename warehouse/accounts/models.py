@@ -15,7 +15,6 @@ import enum
 
 from citext import CIText
 from sqlalchemy import (
-    Binary,
     Boolean,
     CheckConstraint,
     Column,
@@ -24,6 +23,7 @@ from sqlalchemy import (
     ForeignKey,
     Index,
     Integer,
+    LargeBinary,
     String,
     UniqueConstraint,
     orm,
@@ -75,6 +75,10 @@ class User(SitemapMixin, db.Model):
     is_active = Column(Boolean, nullable=False, server_default=sql.false())
     is_superuser = Column(Boolean, nullable=False, server_default=sql.false())
     is_moderator = Column(Boolean, nullable=False, server_default=sql.false())
+    is_psf_staff = Column(Boolean, nullable=False, server_default=sql.false())
+    prohibit_password_reset = Column(
+        Boolean, nullable=False, server_default=sql.false()
+    )
     date_joined = Column(DateTime, server_default=sql.func.now())
     last_login = Column(DateTime, nullable=False, server_default=sql.func.now())
     disabled_for = Column(
@@ -82,7 +86,7 @@ class User(SitemapMixin, db.Model):
         nullable=True,
     )
 
-    totp_secret = Column(Binary(length=20), nullable=True)
+    totp_secret = Column(LargeBinary(length=20), nullable=True)
     last_totp_value = Column(String, nullable=True)
 
     webauthn = orm.relationship(
@@ -136,7 +140,7 @@ class User(SitemapMixin, db.Model):
         return (
             select([Email.email])
             .where((Email.user_id == self.id) & (Email.primary.is_(True)))
-            .as_scalar()
+            .scalar_subquery()
         )
 
     @property
@@ -162,6 +166,17 @@ class User(SitemapMixin, db.Model):
             .all()
         )
 
+    @property
+    def can_reset_password(self):
+        return not any(
+            [
+                self.is_superuser,
+                self.is_moderator,
+                self.is_psf_staff,
+                self.prohibit_password_reset,
+            ]
+        )
+
 
 class WebAuthn(db.Model):
     __tablename__ = "user_security_keys"
@@ -173,6 +188,7 @@ class WebAuthn(db.Model):
         UUID(as_uuid=True),
         ForeignKey("users.id", deferrable=True, initially="DEFERRED"),
         nullable=False,
+        index=True,
     )
     label = Column(String, nullable=False)
     credential_id = Column(String, unique=True, nullable=False)
@@ -187,6 +203,7 @@ class RecoveryCode(db.Model):
         UUID(as_uuid=True),
         ForeignKey("users.id", deferrable=True, initially="DEFERRED"),
         nullable=False,
+        index=True,
     )
     code = Column(String(length=128), nullable=False)
     generated = Column(DateTime, nullable=False, server_default=sql.func.now())
@@ -199,6 +216,7 @@ class UserEvent(db.Model):
         UUID(as_uuid=True),
         ForeignKey("users.id", deferrable=True, initially="DEFERRED"),
         nullable=False,
+        index=True,
     )
     tag = Column(String, nullable=False)
     time = Column(DateTime, nullable=False, server_default=sql.func.now())

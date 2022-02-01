@@ -41,6 +41,8 @@
 
 {% if testPyPI %}
   {% set banner = _("Test Python package publishing with the Test Python Package Index") %}
+{% elif devPyPI %}
+  {% set banner = _("Develop the codebase behind PyPI with the Dev Python Package Index") %}
 {% else %}
   {% set banner = _("Find, install and publish Python packages with the Python Package Index") %}
 {% endif %}
@@ -53,7 +55,7 @@
       <label for="search" class="sr-only">{% trans %}Search PyPI{% endtrans %}</label>
 
       <!-- The following input is intentionally not autofocused, see https://github.com/pypa/warehouse/issues/6088 for more details -->
-      <input id="search" class="search-form__search large-input" type="text" name="q" placeholder="{% trans %}Search projects{% endtrans %}" autocomplete="off" autocapitalize="off" spellcheck="false">
+      <input id="search" class="search-form__search large-input" type="text" name="q" placeholder="{% trans %}Search projects{% endtrans %}" autocomplete="off" autocapitalize="off" spellcheck="false" data-controller="search-focus" data-action="keydown@window->search-focus#focusSearchField" data-target="search-focus.searchField">
 
       <button type="submit" class="search-form__button">
         <i class="fa fa-search" aria-hidden="true"></i>

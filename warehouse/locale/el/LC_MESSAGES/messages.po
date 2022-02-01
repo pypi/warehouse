@@ -7,13 +7,14 @@
 # Dustin Ingram <dustin.ingram@gmail.com>, 2020.
 # Christos Ploutarchou <cploutarchou@gmail.com>, 2020.
 # Michalis <michalisntovas@yahoo.gr>, 2021.
+# Eugenia Russell <eugenia.russell2019@gmail.com>, 2021.
 msgid ""
 msgstr ""
 "Project-Id-Version: Warehouse VERSION\n"
 "Report-Msgid-Bugs-To: admin@pypi.org\n"
 "POT-Creation-Date: 2020-04-06 17:52-0500\n"
-"PO-Revision-Date: 2021-02-07 17:21+0000\n"
-"Last-Translator: Michalis <michalisntovas@yahoo.gr>\n"
+"PO-Revision-Date: 2021-05-12 23:32+0000\n"
+"Last-Translator: Eugenia Russell <eugenia.russell2019@gmail.com>\n"
 "Language-Team: Greek <https://hosted.weblate.org/projects/pypa/warehouse/el/"
 ">\n"
 "Language: el\n"
@@ -21,11 +22,17 @@ msgstr ""
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Generator: Weblate 4.5-dev\n"
+"X-Generator: Weblate 4.7-dev\n"
 "Generated-By: Babel 2.8.0\n"
 
+#: warehouse/views.py:112
+msgid ""
+"Two-factor authentication must be enabled on your account to perform this "
+"action."
+msgstr ""
+
 # | msgid "Stay updated:"
-#: warehouse/views.py:254
+#: warehouse/views.py:272
 msgid "Locale updated"
 msgstr "Μείνετε ενημερωμένοι"
 
@@ -60,29 +67,29 @@ msgstr ""
 "Αυτό το όνομα χρήστη χρησιμοποιείται ήδη από άλλον λογαριασμό. Διαλέξτε ένα "
 "διαφορετικό όνομα χρήστη."
 
-#: warehouse/accounts/forms.py:124
+#: warehouse/accounts/forms.py:137
 msgid "The password is invalid. Try again."
 msgstr "Ο κωδικός χρήστη δεν είναι έγκυρος. Δοκιμάστε ξανά."
 
-#: warehouse/accounts/forms.py:128 warehouse/accounts/views.py:76
+#: warehouse/accounts/forms.py:141 warehouse/accounts/views.py:78
 msgid "There have been too many unsuccessful login attempts. Try again later."
 msgstr "Έγιναν πολλές ανεπιτυχείς απόπειρες σύνδεσης. Δοκιμάστε ξανά αργότερα."
 
-#: warehouse/accounts/forms.py:150
+#: warehouse/accounts/forms.py:163
 msgid "Your passwords don't match. Try again."
 msgstr "Οι κωδικοί δεν ταιριάζουν. Δοκιμάστε ξανά."
 
-#: warehouse/accounts/forms.py:181 warehouse/accounts/forms.py:192
+#: warehouse/accounts/forms.py:194 warehouse/accounts/forms.py:205
 msgid "The email address isn't valid. Try again."
 msgstr "Το email δεν είναι έγκυρο. Δοκιμάστε ξανά."
 
-#: warehouse/accounts/forms.py:200
+#: warehouse/accounts/forms.py:213
 msgid "You can't use an email address from this domain. Use a different email."
 msgstr ""
 "Δεν μπορείτε να χρησιμοποιήσετε ένα email από αυτό το domain. Δοκιμάστε με "
 "άλλο email."
 
-#: warehouse/accounts/forms.py:211
+#: warehouse/accounts/forms.py:224
 msgid ""
 "This email address is already being used by this account. Use a different "
 "email."
@@ -90,7 +97,7 @@ msgstr ""
 "Αυτό το email χρησιμοποιείται ήδη από αυτόν τον λογαριασμό. Χρησιμοποιήστε "
 "ένα διαφορετικό email."
 
-#: warehouse/accounts/forms.py:218
+#: warehouse/accounts/forms.py:231
 msgid ""
 "This email address is already being used by another account. Use a different "
 "email."
@@ -98,31 +105,29 @@ msgstr ""
 "Αυτό το email χρησιμοποιείται ήδη από άλλο λογαριασμό. Χρησιμοποιήστε ένα "
 "διαφορετικό email."
 
-#: warehouse/accounts/forms.py:240
+#: warehouse/accounts/forms.py:253 warehouse/manage/forms.py:73
 msgid "The name is too long. Choose a name with 100 characters or less."
 msgstr ""
 "Το όνομα είναι πολύ μεγάλο. Διαλέξτε ένα όνομα με μέγιστο 100 χαρακτήρες."
 
-#: warehouse/accounts/forms.py:304
+#: warehouse/accounts/forms.py:325
 msgid "Invalid TOTP code."
 msgstr "Μη έγκυρος TOTP κωδικός."
 
-#: warehouse/accounts/forms.py:321
+#: warehouse/accounts/forms.py:342
 msgid "Invalid WebAuthn assertion: Bad payload"
 msgstr "Μη έγκυρο WebAuthn assertion: Bad payload"
 
 # | msgid "Invalid TOTP code."
-#: warehouse/accounts/forms.py:364
-#, fuzzy
-#| msgid "Invalid Recovery Code."
+#: warehouse/accounts/forms.py:399
 msgid "Invalid recovery code."
-msgstr "Μη έγκυρος κωδικός TOTP ."
+msgstr "Μη έγκυρος κωδικός ανάκτησης."
 
-#: warehouse/accounts/forms.py:382
+#: warehouse/accounts/forms.py:417
 msgid "No user found with that username or email"
 msgstr "Δεν βρέθηκε χρήστης με αυτό το όνομα ή email"
 
-#: warehouse/accounts/views.py:93
+#: warehouse/accounts/views.py:95
 #, fuzzy
 #| msgid ""
 #| "Too many emails have been added to this account without verifying them. "
@@ -135,27 +140,41 @@ msgstr ""
 "χωρίς να τα επαληθεύσετε. Ελέγξτε τα εισερχόμενά σας και ακολουθήστε τους "
 "συνδέσμους επαλήθευσης."
 
-#: warehouse/accounts/views.py:232 warehouse/accounts/views.py:289
-#: warehouse/accounts/views.py:291 warehouse/accounts/views.py:318
-#: warehouse/accounts/views.py:320 warehouse/accounts/views.py:375
+#: warehouse/accounts/views.py:107
+#, fuzzy
+#| msgid ""
+#| "Too many emails have been added to this account without verifying them. "
+#| "Check your inbox and follow the verification links."
+msgid ""
+"Too many password resets have been requested for this account without "
+"completing them. Check your inbox and follow the verification links. (IP: "
+"${ip})"
+msgstr ""
+"Έχουν προστεθεί πάρα πολλά ηλεκτρονικα μηνύματα σε αυτόν τον λογαριασμό "
+"χωρίς να τα επαληθεύσετε. Ελέγξτε τα εισερχόμενά σας και ακολουθήστε τους "
+"συνδέσμους επαλήθευσης."
+
+#: warehouse/accounts/views.py:247 warehouse/accounts/views.py:307
+#: warehouse/accounts/views.py:309 warehouse/accounts/views.py:336
+#: warehouse/accounts/views.py:338 warehouse/accounts/views.py:400
 msgid "Invalid or expired two factor login."
 msgstr "Μη έγκυρη ή ληγμένη σύνδεση two factor."
 
-#: warehouse/accounts/views.py:283
+#: warehouse/accounts/views.py:301
 msgid "Already authenticated"
 msgstr "Ήδη πιστοποιημένος"
 
-#: warehouse/accounts/views.py:351
+#: warehouse/accounts/views.py:376
 msgid "Successful WebAuthn assertion"
 msgstr "Επιτυχής WebAuthn assertion"
 
-#: warehouse/accounts/views.py:404
+#: warehouse/accounts/views.py:431
 msgid "Recovery code accepted. The supplied code cannot be used again."
 msgstr ""
 "Ο κωδικός ανάκτησης έγινε δεκτός. Ο παρεχόμενος κωδικός δεν μπορεί να "
 "χρησιμοποιηθεί ξανά."
 
-#: warehouse/accounts/views.py:490
+#: warehouse/accounts/views.py:517
 msgid ""
 "New user registration temporarily disabled. See https://pypi.org/help#admin-"
 "intervention for details."
@@ -163,33 +182,33 @@ msgstr ""
 "Η εγγραφή του νέου χρήστη είναι προσωρινά απενεργοποιημένη. Δείτε στο "
 "https://pypi.org/help#admin-intervention για λεπτομέρειες."
 
-#: warehouse/accounts/views.py:589
+#: warehouse/accounts/views.py:640
 msgid "Expired token: request a new password reset link"
 msgstr "Ληγμένο token: ζητήστε ένα νέο σύνδεσμο επαναφοράς κωδικού"
 
-#: warehouse/accounts/views.py:591
+#: warehouse/accounts/views.py:642
 msgid "Invalid token: request a new password reset link"
 msgstr "Μη έγκυρο token: ζητήστε ένα νέο σύνδεσμο επαναφοράς κωδικού"
 
-#: warehouse/accounts/views.py:593 warehouse/accounts/views.py:676
-#: warehouse/accounts/views.py:772
+#: warehouse/accounts/views.py:644 warehouse/accounts/views.py:731
+#: warehouse/accounts/views.py:827
 msgid "Invalid token: no token supplied"
 msgstr "Μη έγκυρο token: δεν έγινε παροχή του token"
 
-#: warehouse/accounts/views.py:597
+#: warehouse/accounts/views.py:648
 msgid "Invalid token: not a password reset token"
 msgstr "Μη έγκυρο token: δεν αποτελεί token επαναφοράς κωδικού"
 
-#: warehouse/accounts/views.py:602
+#: warehouse/accounts/views.py:653
 msgid "Invalid token: user not found"
 msgstr "Μη έγκυρο token: ο χρήστης δεν βρέθηκε"
 
-#: warehouse/accounts/views.py:609
+#: warehouse/accounts/views.py:660
 msgid "Invalid token: user has logged in since this token was requested"
 msgstr ""
 "Μη έγκυρο token: ο χρήστης συνδέθηκε από τότε που ζητήθηκε αυτό το token"
 
-#: warehouse/accounts/views.py:618
+#: warehouse/accounts/views.py:669
 msgid ""
 "Invalid token: password has already been changed since this token was "
 "requested"
@@ -197,131 +216,133 @@ msgstr ""
 "Μη έγκυρο token: ο κωδικός έχει ήδη αλλάξει από τότε που ζητήθηκε αυτό το "
 "token"
 
-#: warehouse/accounts/views.py:645
+#: warehouse/accounts/views.py:700
 msgid "You have reset your password"
 msgstr "Έχετε μηδενίσει τον κωδικό χρήστη σας"
 
-#: warehouse/accounts/views.py:672
+#: warehouse/accounts/views.py:727
 msgid "Expired token: request a new email verification link"
 msgstr "Ληγμένο token: ζητήστε ένα νέο email επιβεβαίωσης συνδέσμου"
 
-#: warehouse/accounts/views.py:674
+#: warehouse/accounts/views.py:729
 msgid "Invalid token: request a new email verification link"
 msgstr "Μη έγκυρο token: ζητήστε ένα νέο email επιβεβαίωσης συνδέσμου"
 
-#: warehouse/accounts/views.py:680
+#: warehouse/accounts/views.py:735
 msgid "Invalid token: not an email verification token"
 msgstr "Μη έγκυρο token: αυτό δεν αποτελεί ένα email επιβεβαίωσης token"
 
-#: warehouse/accounts/views.py:689
+#: warehouse/accounts/views.py:744
 msgid "Email not found"
 msgstr "Το email δεν βρέθηκε"
 
-#: warehouse/accounts/views.py:692
+#: warehouse/accounts/views.py:747
 msgid "Email already verified"
 msgstr "Το email είναι ήδη επιβεβαιωμένο"
 
-#: warehouse/accounts/views.py:707
+#: warehouse/accounts/views.py:762
 msgid "You can now set this email as your primary address"
 msgstr "Μπορείτε, πλέον, να θέσετε αυτό το email ως την κύρια διεύθυνση σας"
 
-#: warehouse/accounts/views.py:711
+#: warehouse/accounts/views.py:766
 msgid "This is your primary address"
 msgstr "Αυτή είναι η κύρια διεύθυνση σας"
 
-#: warehouse/accounts/views.py:716
+#: warehouse/accounts/views.py:771
 msgid "Email address ${email_address} verified. ${confirm_message}."
 msgstr "Η διεύθυνση email ${email_address} επιβεβαιώθηκε. ${confirm_message}."
 
-#: warehouse/accounts/views.py:768
-#, fuzzy
-#| msgid "Expired token: request a new password reset link"
+#: warehouse/accounts/views.py:823
 msgid "Expired token: request a new project role invite"
-msgstr "Ληγμένο token: ζητήστε ένα νέο σύνδεσμο επαναφοράς κωδικού"
+msgstr "Λειγμένο token: ζητήστε πρόσκληση για νέο ρόλο έργου"
 
-#: warehouse/accounts/views.py:770
+#: warehouse/accounts/views.py:825
 #, fuzzy
 #| msgid "Invalid token: request a new password reset link"
 msgid "Invalid token: request a new project role invite"
 msgstr "Μη έγκυρο token: ζητήστε ένα νέο σύνδεσμο επαναφοράς κωδικού"
 
-#: warehouse/accounts/views.py:776
+#: warehouse/accounts/views.py:831
 #, fuzzy
 #| msgid "Invalid token: not an email verification token"
 msgid "Invalid token: not a collaboration invitation token"
 msgstr "Μη έγκυρο token: αυτό δεν αποτελεί ένα email επιβεβαίωσης token"
 
-#: warehouse/accounts/views.py:780
+#: warehouse/accounts/views.py:835
 msgid "Role invitation is not valid."
 msgstr ""
 
-#: warehouse/accounts/views.py:795
+#: warehouse/accounts/views.py:850
 msgid "Role invitation no longer exists."
 msgstr ""
 
-#: warehouse/accounts/views.py:807
+#: warehouse/accounts/views.py:862
 msgid "Invitation for '${project_name}' is declined."
 msgstr ""
 
-#: warehouse/accounts/views.py:874
+#: warehouse/accounts/views.py:929
 #, fuzzy
 #| msgid "You are not an owner of this project"
 msgid "You are now ${role} of the '${project_name}' project."
 msgstr "Δεν είστε ο κάτοχος αυτού του project"
 
-#: warehouse/manage/views.py:205
+#: warehouse/admin/templates/admin/banners/preview.html:15
+msgid "Banner Preview"
+msgstr ""
+
+#: warehouse/manage/views.py:215
 msgid "Email ${email_address} added - check your email for a verification link"
 msgstr ""
 "Το email ${email_address} προστέθηκε - ελέγξτε το email σας για τον σύνδεσμο "
 "επαλήθευσης"
 
-#: warehouse/manage/views.py:692 warehouse/manage/views.py:728
+#: warehouse/manage/views.py:723 warehouse/manage/views.py:759
 msgid ""
 "You must provision a two factor method before recovery codes can be generated"
 msgstr ""
 
-#: warehouse/manage/views.py:703
+#: warehouse/manage/views.py:734
 msgid "Recovery codes already generated"
 msgstr "Οι κωδικοί ανάκτησης έχουν ήδη δημιουργηθεί"
 
-#: warehouse/manage/views.py:704
+#: warehouse/manage/views.py:735
 msgid "Generating new recovery codes will invalidate your existing codes."
 msgstr ""
 
-#: warehouse/manage/views.py:755
+#: warehouse/manage/views.py:787
 msgid "Invalid credentials. Try again"
 msgstr "Λάθος διαπιστευτήρια. Προσπάθησε ξανά"
 
-#: warehouse/manage/views.py:1503
+#: warehouse/manage/views.py:1542
 msgid "User '${username}' already has ${role_name} role for project"
 msgstr ""
 
-#: warehouse/manage/views.py:1514
+#: warehouse/manage/views.py:1553
 msgid ""
 "User '${username}' does not have a verified primary email address and cannot "
 "be added as a ${role_name} for project"
 msgstr ""
 
-#: warehouse/manage/views.py:1527
+#: warehouse/manage/views.py:1566
 msgid ""
 "User '${username}' already has an active invite. Please try again later."
 msgstr ""
 
-#: warehouse/manage/views.py:1585
+#: warehouse/manage/views.py:1624
 msgid "Invitation sent to '${username}'"
 msgstr ""
 
-#: warehouse/manage/views.py:1632
+#: warehouse/manage/views.py:1671
 msgid "Could not find role invitation."
 msgstr ""
 
-#: warehouse/manage/views.py:1643
+#: warehouse/manage/views.py:1682
 #, fuzzy
 #| msgid "Email already verified"
 msgid "Invitation already expired."
 msgstr "Το email είναι ήδη επιβεβαιωμένο"
 
-#: warehouse/manage/views.py:1667
+#: warehouse/manage/views.py:1706
 msgid "Invitation revoked from '${username}'."
 msgstr ""
 
@@ -354,99 +375,101 @@ msgstr "Monty Python - The Cheese Shop Sketch"
 #: warehouse/templates/404.html:34 warehouse/templates/500.html:28
 #: warehouse/templates/500.html:29
 #: warehouse/templates/accounts/two-factor.html:55
-#: warehouse/templates/base.html:261 warehouse/templates/base.html:262
-#: warehouse/templates/base.html:263 warehouse/templates/base.html:273
-#: warehouse/templates/base.html:274 warehouse/templates/base.html:275
-#: warehouse/templates/base.html:286 warehouse/templates/base.html:287
-#: warehouse/templates/base.html:288 warehouse/templates/base.html:297
-#: warehouse/templates/base.html:299 warehouse/templates/base.html:310
-#: warehouse/templates/base.html:319
+#: warehouse/templates/base.html:258 warehouse/templates/base.html:259
+#: warehouse/templates/base.html:260 warehouse/templates/base.html:270
+#: warehouse/templates/base.html:271 warehouse/templates/base.html:272
+#: warehouse/templates/base.html:283 warehouse/templates/base.html:284
+#: warehouse/templates/base.html:285 warehouse/templates/base.html:294
+#: warehouse/templates/base.html:296 warehouse/templates/base.html:307
+#: warehouse/templates/base.html:316
 #: warehouse/templates/includes/accounts/profile-actions.html:21
 #: warehouse/templates/includes/accounts/profile-actions.html:30
 #: warehouse/templates/includes/accounts/profile-callout.html:18
 #: warehouse/templates/includes/hash-modal.html:23
 #: warehouse/templates/includes/packaging/project-data.html:66
-#: warehouse/templates/index.html:110 warehouse/templates/index.html:114
-#: warehouse/templates/manage/account.html:153
-#: warehouse/templates/manage/account.html:252
-#: warehouse/templates/manage/account.html:258
+#: warehouse/templates/index.html:112 warehouse/templates/index.html:116
+#: warehouse/templates/manage/account.html:228
+#: warehouse/templates/manage/account.html:234
 #: warehouse/templates/manage/account/totp-provision.html:32
 #: warehouse/templates/manage/account/webauthn-provision.html:26
 #: warehouse/templates/manage/account/webauthn-provision.html:28
 #: warehouse/templates/manage/account/webauthn-provision.html:53
 #: warehouse/templates/manage/account/webauthn-provision.html:74
+#: warehouse/templates/manage/manage_base.html:38
 #: warehouse/templates/manage/release.html:119
 #: warehouse/templates/manage/release.html:175
 #: warehouse/templates/manage/releases.html:140
 #: warehouse/templates/manage/releases.html:173
-#: warehouse/templates/packaging/detail.html:314
+#: warehouse/templates/packaging/detail.html:317
 #: warehouse/templates/pages/classifiers.html:25
 #: warehouse/templates/pages/help.html:20
-#: warehouse/templates/pages/help.html:202
-#: warehouse/templates/pages/help.html:209
-#: warehouse/templates/pages/help.html:223
-#: warehouse/templates/pages/help.html:239
-#: warehouse/templates/pages/help.html:243
-#: warehouse/templates/pages/help.html:290
-#: warehouse/templates/pages/help.html:317
-#: warehouse/templates/pages/help.html:322
-#: warehouse/templates/pages/help.html:327
-#: warehouse/templates/pages/help.html:329
-#: warehouse/templates/pages/help.html:334
-#: warehouse/templates/pages/help.html:335
-#: warehouse/templates/pages/help.html:336
-#: warehouse/templates/pages/help.html:340
-#: warehouse/templates/pages/help.html:373
-#: warehouse/templates/pages/help.html:375
-#: warehouse/templates/pages/help.html:378
-#: warehouse/templates/pages/help.html:414
-#: warehouse/templates/pages/help.html:419
-#: warehouse/templates/pages/help.html:425
-#: warehouse/templates/pages/help.html:483
-#: warehouse/templates/pages/help.html:503
-#: warehouse/templates/pages/help.html:509
-#: warehouse/templates/pages/help.html:512
-#: warehouse/templates/pages/help.html:514
-#: warehouse/templates/pages/help.html:523
-#: warehouse/templates/pages/help.html:535
-#: warehouse/templates/pages/help.html:541
-#: warehouse/templates/pages/help.html:553
-#: warehouse/templates/pages/help.html:554
-#: warehouse/templates/pages/help.html:559
-#: warehouse/templates/pages/help.html:584
-#: warehouse/templates/pages/help.html:615
-#: warehouse/templates/pages/help.html:638
-#: warehouse/templates/pages/help.html:645
-#: warehouse/templates/pages/help.html:657
-#: warehouse/templates/pages/help.html:668
-#: warehouse/templates/pages/help.html:673
-#: warehouse/templates/pages/help.html:681
-#: warehouse/templates/pages/help.html:692
-#: warehouse/templates/pages/help.html:709
-#: warehouse/templates/pages/help.html:716
-#: warehouse/templates/pages/help.html:724
-#: warehouse/templates/pages/help.html:740
+#: warehouse/templates/pages/help.html:207
+#: warehouse/templates/pages/help.html:214
+#: warehouse/templates/pages/help.html:228
+#: warehouse/templates/pages/help.html:244
+#: warehouse/templates/pages/help.html:248
+#: warehouse/templates/pages/help.html:305
+#: warehouse/templates/pages/help.html:332
+#: warehouse/templates/pages/help.html:337
+#: warehouse/templates/pages/help.html:342
+#: warehouse/templates/pages/help.html:344
+#: warehouse/templates/pages/help.html:349
+#: warehouse/templates/pages/help.html:350
+#: warehouse/templates/pages/help.html:351
+#: warehouse/templates/pages/help.html:355
+#: warehouse/templates/pages/help.html:388
+#: warehouse/templates/pages/help.html:390
+#: warehouse/templates/pages/help.html:393
+#: warehouse/templates/pages/help.html:429
+#: warehouse/templates/pages/help.html:434
+#: warehouse/templates/pages/help.html:440
+#: warehouse/templates/pages/help.html:498
+#: warehouse/templates/pages/help.html:518
+#: warehouse/templates/pages/help.html:524
+#: warehouse/templates/pages/help.html:527
+#: warehouse/templates/pages/help.html:529
+#: warehouse/templates/pages/help.html:538
+#: warehouse/templates/pages/help.html:550
+#: warehouse/templates/pages/help.html:557
+#: warehouse/templates/pages/help.html:569
+#: warehouse/templates/pages/help.html:570
+#: warehouse/templates/pages/help.html:575
+#: warehouse/templates/pages/help.html:600
+#: warehouse/templates/pages/help.html:613
+#: warehouse/templates/pages/help.html:618
+#: warehouse/templates/pages/help.html:644
+#: warehouse/templates/pages/help.html:667
+#: warehouse/templates/pages/help.html:674
+#: warehouse/templates/pages/help.html:686
+#: warehouse/templates/pages/help.html:697
+#: warehouse/templates/pages/help.html:702
+#: warehouse/templates/pages/help.html:710
+#: warehouse/templates/pages/help.html:721
+#: warehouse/templates/pages/help.html:738
 #: warehouse/templates/pages/help.html:745
-#: warehouse/templates/pages/help.html:750
-#: warehouse/templates/pages/help.html:760
+#: warehouse/templates/pages/help.html:753
 #: warehouse/templates/pages/help.html:769
-#: warehouse/templates/pages/help.html:783
-#: warehouse/templates/pages/help.html:791
-#: warehouse/templates/pages/help.html:799
-#: warehouse/templates/pages/help.html:807
-#: warehouse/templates/pages/help.html:817
-#: warehouse/templates/pages/help.html:832
-#: warehouse/templates/pages/help.html:847
-#: warehouse/templates/pages/help.html:848
-#: warehouse/templates/pages/help.html:849
-#: warehouse/templates/pages/help.html:850
-#: warehouse/templates/pages/help.html:855
+#: warehouse/templates/pages/help.html:774
+#: warehouse/templates/pages/help.html:779
+#: warehouse/templates/pages/help.html:789
+#: warehouse/templates/pages/help.html:798
+#: warehouse/templates/pages/help.html:812
+#: warehouse/templates/pages/help.html:820
+#: warehouse/templates/pages/help.html:828
+#: warehouse/templates/pages/help.html:836
+#: warehouse/templates/pages/help.html:846
+#: warehouse/templates/pages/help.html:861
+#: warehouse/templates/pages/help.html:876
+#: warehouse/templates/pages/help.html:877
+#: warehouse/templates/pages/help.html:878
+#: warehouse/templates/pages/help.html:879
+#: warehouse/templates/pages/help.html:884
 #: warehouse/templates/pages/security.html:36
-#: warehouse/templates/pages/sponsors.html:35
-#: warehouse/templates/pages/sponsors.html:39
-#: warehouse/templates/pages/sponsors.html:43
-#: warehouse/templates/pages/sponsors.html:47
-#: warehouse/templates/pages/sponsors.html:66
+#: warehouse/templates/pages/sponsors.html:33
+#: warehouse/templates/pages/sponsors.html:37
+#: warehouse/templates/pages/sponsors.html:41
+#: warehouse/templates/pages/sponsors.html:45
+#: warehouse/templates/pages/sponsors.html:64
 #: warehouse/templates/upload.html:26
 msgid "External link"
 msgstr "Εξωτερικός σύνδεσμος"
@@ -533,9 +556,9 @@ msgid "Main navigation"
 msgstr "Κύρια πλοήγηση"
 
 #: warehouse/templates/base.html:41 warehouse/templates/base.html:55
-#: warehouse/templates/base.html:258
+#: warehouse/templates/base.html:255
 #: warehouse/templates/includes/current-user-indicator.html:55
-#: warehouse/templates/pages/help.html:102
+#: warehouse/templates/pages/help.html:105
 #: warehouse/templates/pages/sitemap.html:27
 msgid "Help"
 msgstr "Βοήθεια"
@@ -572,7 +595,7 @@ msgstr "Μενού"
 msgid "Main menu"
 msgstr "Κυρίως μενού"
 
-#: warehouse/templates/base.html:79 warehouse/templates/index.html:107
+#: warehouse/templates/base.html:81 warehouse/templates/index.html:109
 msgid ""
 "The Python Package Index (PyPI) is a repository of software for the Python "
 "programming language."
@@ -580,41 +603,41 @@ msgstr ""
 "Το Python Package Index (PyPI) είναι ένα αποθετήριο λογισμικού για την "
 "γλώσσα προγραμματισμού Python."
 
-#: warehouse/templates/base.html:95
+#: warehouse/templates/base.html:97
 msgid "RSS: 40 latest updates"
 msgstr "RSS: 40 τελευταίες ενημερώσεις"
 
-#: warehouse/templates/base.html:96
+#: warehouse/templates/base.html:98
 msgid "RSS: 40 newest packages"
 msgstr "RSS: 40 νέα πακέτα"
 
-#: warehouse/templates/base.html:148
+#: warehouse/templates/base.html:140
 msgid "Skip to main content"
 msgstr "Μετάβαση στο κυρίως περιεχόμενο"
 
-#: warehouse/templates/base.html:151
+#: warehouse/templates/base.html:143
 msgid "Switch to mobile version"
 msgstr "Αλλαγή στην έκδοση για κινητά"
 
-#: warehouse/templates/base.html:160 warehouse/templates/base.html:169
-#: warehouse/templates/base.html:179
+#: warehouse/templates/base.html:152 warehouse/templates/base.html:161
+#: warehouse/templates/base.html:171
 #: warehouse/templates/includes/session-notifications.html:19
-#: warehouse/templates/manage/account.html:739
+#: warehouse/templates/manage/account.html:694
 #: warehouse/templates/manage/documentation.html:27
-#: warehouse/templates/manage/manage_base.html:106
-#: warehouse/templates/manage/manage_base.html:158
+#: warehouse/templates/manage/manage_base.html:204
+#: warehouse/templates/manage/manage_base.html:256
 #: warehouse/templates/manage/release.html:163
 #: warehouse/templates/manage/settings.html:76
 msgid "Warning"
 msgstr "Προειδοποίηση"
 
-#: warehouse/templates/base.html:162
+#: warehouse/templates/base.html:154
 msgid "You are using an unsupported browser, upgrade to a newer version."
 msgstr ""
 "Χρησιμοποιείτε ένα μη υποστηριζόμενο περιηγητή. Αναβαθμίστε τον σε μια "
 "νεώτερη έκδοση."
 
-#: warehouse/templates/base.html:171
+#: warehouse/templates/base.html:163
 msgid ""
 "You are using TestPyPI – a separate instance of the Python Package Index "
 "that allows you to try distribution tools and processes without affecting "
@@ -624,7 +647,7 @@ msgstr ""
 "Index η οποία σας επιτρέπει να δοκιμάσετε τα εργαλεία διανομής καθώς και τις "
 "διεργασίες χωρίς να επηρεάζεται η πραγματική βάση δεδομένων."
 
-#: warehouse/templates/base.html:181
+#: warehouse/templates/base.html:173
 msgid ""
 "Some features may not work without JavaScript. Please try enabling it if you "
 "encounter problems."
@@ -632,139 +655,139 @@ msgstr ""
 "Μερικά χαρακτηριστικά δεν θα λειτουργούν χωρίς την JavaScript. Αν "
 "αντιμετωπίζετε προβλήματα, παρακαλούμε, ενεργοποιήστε την."
 
-#: warehouse/templates/base.html:214 warehouse/templates/base.html:235
+#: warehouse/templates/base.html:211 warehouse/templates/base.html:232
 #: warehouse/templates/error-base-with-search.html:20
-#: warehouse/templates/index.html:53
+#: warehouse/templates/index.html:55
 msgid "Search PyPI"
 msgstr "Αναζήτηση στο PyPI"
 
-#: warehouse/templates/base.html:215 warehouse/templates/base.html:236
+#: warehouse/templates/base.html:212 warehouse/templates/base.html:233
 #: warehouse/templates/error-base-with-search.html:21
-#: warehouse/templates/index.html:56
+#: warehouse/templates/index.html:58
 msgid "Search projects"
 msgstr "Αναζήτηση projects"
 
-#: warehouse/templates/base.html:219 warehouse/templates/base.html:240
+#: warehouse/templates/base.html:216 warehouse/templates/base.html:237
 #: warehouse/templates/error-base-with-search.html:24
-#: warehouse/templates/index.html:60
+#: warehouse/templates/index.html:62
 msgid "Search"
 msgstr "Αναζήτηση"
 
-#: warehouse/templates/base.html:259
+#: warehouse/templates/base.html:256
 msgid "Help navigation"
 msgstr "Βοήθεια πλοήγησης"
 
-#: warehouse/templates/base.html:261
+#: warehouse/templates/base.html:258
 msgid "Installing packages"
 msgstr "Εγκατάσταση πακέτων"
 
-#: warehouse/templates/base.html:262
+#: warehouse/templates/base.html:259
 msgid "Uploading packages"
 msgstr "Ανέβασμα πακέτων"
 
-#: warehouse/templates/base.html:263
+#: warehouse/templates/base.html:260
 msgid "User guide"
 msgstr "Οδηγός χρήστη"
 
-#: warehouse/templates/base.html:264
+#: warehouse/templates/base.html:261
 msgid "FAQs"
 msgstr "FAQs"
 
-#: warehouse/templates/base.html:270 warehouse/templates/pages/sitemap.html:37
+#: warehouse/templates/base.html:267 warehouse/templates/pages/sitemap.html:37
 msgid "About PyPI"
 msgstr "Σχετικά με το PyPI"
 
-#: warehouse/templates/base.html:271
+#: warehouse/templates/base.html:268
 msgid "About PyPI navigation"
 msgstr "Σχετικά με την πλοήγηση στο PyPI"
 
-#: warehouse/templates/base.html:273
+#: warehouse/templates/base.html:270
 msgid "PyPI on Twitter"
 msgstr "Το PyPI στο Twitter"
 
-#: warehouse/templates/base.html:274
+#: warehouse/templates/base.html:271
 msgid "Infrastructure dashboard"
 msgstr "Ταμπλό υποδομής"
 
-#: warehouse/templates/base.html:275
+#: warehouse/templates/base.html:272
 msgid "Package index name retention"
 msgstr "Αρχείο ονομάτων πακέτων"
 
-#: warehouse/templates/base.html:276
+#: warehouse/templates/base.html:273
 msgid "Our sponsors"
 msgstr "Οι χορηγοί μας"
 
-#: warehouse/templates/base.html:282
+#: warehouse/templates/base.html:279
 msgid "Contributing to PyPI"
 msgstr "Συνεισφορά στο PyPI"
 
-#: warehouse/templates/base.html:283
+#: warehouse/templates/base.html:280
 msgid "How to contribute navigation"
 msgstr "Πλοήγηση στο πως να συνεισφέρετε"
 
-#: warehouse/templates/base.html:285
+#: warehouse/templates/base.html:282
 msgid "Bugs and feedback"
 msgstr "Σφάλματα και ανατροφοδότηση"
 
-#: warehouse/templates/base.html:286
+#: warehouse/templates/base.html:283
 msgid "Contribute on GitHub"
 msgstr "Συνεισφέρετε στο GitHub"
 
-#: warehouse/templates/base.html:287
+#: warehouse/templates/base.html:284
 msgid "Translate PyPI"
 msgstr "Μεταφράστε το PyPI"
 
-#: warehouse/templates/base.html:288
+#: warehouse/templates/base.html:285
 msgid "Development credits"
 msgstr "Έπαινοι ανάπτυξης"
 
-#: warehouse/templates/base.html:294 warehouse/templates/pages/sitemap.html:23
+#: warehouse/templates/base.html:291 warehouse/templates/pages/sitemap.html:23
 msgid "Using PyPI"
 msgstr "Χρησιμοποιώντας το PyPI"
 
-#: warehouse/templates/base.html:295
+#: warehouse/templates/base.html:292
 msgid "Using PyPI navigation"
 msgstr "Χρησιμοποιώντας την πλοήγηση του PyPI"
 
-#: warehouse/templates/base.html:297
+#: warehouse/templates/base.html:294
 msgid "Code of conduct"
 msgstr "Κώδικας δεοντολογίας"
 
-#: warehouse/templates/base.html:298
+#: warehouse/templates/base.html:295
 msgid "Report security issue"
 msgstr "Αναφορά θέματος ασφάλειας"
 
-#: warehouse/templates/base.html:299
+#: warehouse/templates/base.html:296
 msgid "Privacy policy"
 msgstr "Πολιτική απορρήτου"
 
-#: warehouse/templates/base.html:300 warehouse/templates/pages/sitemap.html:43
+#: warehouse/templates/base.html:297 warehouse/templates/pages/sitemap.html:43
 msgid "Terms of use"
 msgstr "Όροι χρήσης"
 
-#: warehouse/templates/base.html:310
+#: warehouse/templates/base.html:307
 msgid "Status: "
 msgstr "Κατάσταση: "
 
-#: warehouse/templates/base.html:311
+#: warehouse/templates/base.html:308
 msgid "all systems operational"
 msgstr "όλα τα συστήματα δουλεύουν"
 
-#: warehouse/templates/base.html:315
+#: warehouse/templates/base.html:312
 msgid ""
 "Developed and maintained by the Python community, for the Python community."
 msgstr ""
 "Ανάπτυξη και υποστήριξη από την κοινότητα Python, για την κοινότητα Python."
 
-#: warehouse/templates/base.html:317
+#: warehouse/templates/base.html:314
 msgid "Donate today!"
 msgstr "Δωρίστε σήμερα!"
 
-#: warehouse/templates/base.html:320 warehouse/templates/pages/sitemap.html:16
+#: warehouse/templates/base.html:317 warehouse/templates/pages/sitemap.html:16
 msgid "Site map"
 msgstr "Χάρτης ιστότοπου"
 
-#: warehouse/templates/base.html:326
+#: warehouse/templates/base.html:323
 msgid "Switch to desktop version"
 msgstr "Μετάβαση στην έκδοση για υπολογιστές"
 
@@ -792,45 +815,52 @@ msgstr ""
 "Δοκιμάστε την δημοσίευση πακέτων χρησιμοποιώντας το Test Python Package Index"
 
 #: warehouse/templates/index.html:45
+#, fuzzy
+#| msgid "Test Python package publishing with the Test Python Package Index"
+msgid "Develop the codebase behind PyPI with the Dev Python Package Index"
+msgstr ""
+"Δοκιμάστε την δημοσίευση πακέτων χρησιμοποιώντας το Test Python Package Index"
+
+#: warehouse/templates/index.html:47
 msgid "Find, install and publish Python packages with the Python Package Index"
 msgstr ""
 "Αναζητήστε, εγκαταστήστε και δημοσιεύστε πακέτα Python με το Python Package "
 "Index"
 
-#: warehouse/templates/index.html:64
+#: warehouse/templates/index.html:66
 #, python-format
 msgid "Or <a href=\"%(href)s\">browse projects</a>"
 msgstr "Ή <a href=\"%(href)s\">αναζητήστε projects</a>"
 
-#: warehouse/templates/index.html:71
+#: warehouse/templates/index.html:73
 #, python-format
 msgid "%(num_projects_formatted)s project"
 msgid_plural "%(num_projects_formatted)s projects"
 msgstr[0] ""
 msgstr[1] ""
 
-#: warehouse/templates/index.html:78
+#: warehouse/templates/index.html:80
 #, python-format
 msgid "%(num_releases_formatted)s release"
 msgid_plural "%(num_releases_formatted)s releases"
 msgstr[0] ""
 msgstr[1] ""
 
-#: warehouse/templates/index.html:85
+#: warehouse/templates/index.html:87
 #, python-format
 msgid "%(num_files_formatted)s file"
 msgid_plural "%(num_files_formatted)s files"
 msgstr[0] ""
 msgstr[1] ""
 
-#: warehouse/templates/index.html:92
+#: warehouse/templates/index.html:94
 #, python-format
 msgid "%(num_users_formatted)s user"
 msgid_plural "%(num_users_formatted)s users"
 msgstr[0] ""
 msgstr[1] ""
 
-#: warehouse/templates/index.html:109
+#: warehouse/templates/index.html:111
 msgid ""
 "PyPI helps you find and install software developed and shared by the Python "
 "community."
@@ -838,38 +868,38 @@ msgstr ""
 "Το PyPI σας βοηθά να βρείτε και να εγκαταστήσετε λογισμικό που αναπτύχθηκε "
 "και μοιράστηκε από τον κοινότητα Python."
 
-#: warehouse/templates/index.html:110
+#: warehouse/templates/index.html:112
 #, fuzzy
 #| msgid "Learn about installing packages</a>."
 msgid "Learn about installing packages"
 msgstr "Μάθετε περισσότερα σχετικά με την εγκατάσταση πακέτων</a>."
 
-#: warehouse/templates/index.html:113
+#: warehouse/templates/index.html:115
 msgid "Package authors use PyPI to distribute their software."
 msgstr ""
 "Οι συγγραφείς των πακέτων χρησιμοποιούν το PyPI για να διανείμουν το "
 "λογισμικό τους."
 
-#: warehouse/templates/index.html:114
+#: warehouse/templates/index.html:116
 #, fuzzy
 #| msgid "Learn how to package your Python code for PyPI</a>."
 msgid "Learn how to package your Python code for PyPI"
 msgstr ""
 "Μάθετε πως να μετατρέψετε τον Python κώδικα σας σε πακέτο για το PyPI</a>."
 
-#: warehouse/templates/index.html:124
+#: warehouse/templates/index.html:126
 msgid "Trending projects"
 msgstr "Τα projects στην τάση"
 
-#: warehouse/templates/index.html:125
+#: warehouse/templates/index.html:127
 msgid "Trending projects as downloaded by the community"
 msgstr "Τα projects στην τάση όπως έγιναν download από την κοινότητα"
 
-#: warehouse/templates/index.html:135
+#: warehouse/templates/index.html:137
 msgid "New releases"
 msgstr "Νέες κυκλοφορίες"
 
-#: warehouse/templates/index.html:136
+#: warehouse/templates/index.html:138
 msgid "Hot off the press: the newest project releases"
 msgstr "Νέα από τον τύπο: οι τελευταίες κυκλοφορίες των project"
 
@@ -889,7 +919,7 @@ msgstr "Σφάλμα επεξεργασίας της φόρμας"
 #: warehouse/templates/accounts/register.html:140
 #: warehouse/templates/accounts/reset-password.html:60
 #: warehouse/templates/accounts/reset-password.html:65
-#: warehouse/templates/manage/account.html:429
+#: warehouse/templates/manage/account.html:405
 #: warehouse/templates/re-auth.html:18 warehouse/templates/re-auth.html:68
 msgid "Confirm password"
 msgstr "Επιβεβαίωση κωδικού"
@@ -903,7 +933,7 @@ msgstr "Εισάγετε τον κωδικό χρήστη σας για να σ�
 #: warehouse/templates/accounts/login.html:69
 #: warehouse/templates/accounts/register.html:110
 #: warehouse/templates/accounts/reset-password.html:38
-#: warehouse/templates/manage/manage_base.html:167
+#: warehouse/templates/manage/manage_base.html:265
 #: warehouse/templates/re-auth.html:49
 msgid "Password"
 msgstr "Κωδικός πρόσβασης"
@@ -920,16 +950,16 @@ msgstr "Κωδικός πρόσβασης"
 #: warehouse/templates/accounts/reset-password.html:40
 #: warehouse/templates/accounts/reset-password.html:62
 #: warehouse/templates/accounts/two-factor.html:89
-#: warehouse/templates/manage/account.html:294
-#: warehouse/templates/manage/account.html:311
-#: warehouse/templates/manage/account.html:368
-#: warehouse/templates/manage/account.html:393
-#: warehouse/templates/manage/account.html:410
-#: warehouse/templates/manage/account.html:426
+#: warehouse/templates/manage/account.html:270
+#: warehouse/templates/manage/account.html:287
+#: warehouse/templates/manage/account.html:344
+#: warehouse/templates/manage/account.html:369
+#: warehouse/templates/manage/account.html:386
+#: warehouse/templates/manage/account.html:402
 #: warehouse/templates/manage/account/totp-provision.html:69
 #: warehouse/templates/manage/account/webauthn-provision.html:44
-#: warehouse/templates/manage/roles.html:153
-#: warehouse/templates/manage/roles.html:165
+#: warehouse/templates/manage/roles.html:170
+#: warehouse/templates/manage/roles.html:182
 #: warehouse/templates/manage/token.html:136
 #: warehouse/templates/manage/token.html:153
 #: warehouse/templates/re-auth.html:51
@@ -942,7 +972,7 @@ msgid "Your password"
 msgstr "Ο κωδικός σας"
 
 #: warehouse/templates/accounts/login.html:92
-#: warehouse/templates/manage/manage_base.html:170
+#: warehouse/templates/manage/manage_base.html:268
 #: warehouse/templates/re-auth.html:72
 msgid "Show password"
 msgstr "Εμφάνιση κωδικού"
@@ -1021,9 +1051,9 @@ msgstr "Σύνδεση στο %(title)s"
 #: warehouse/templates/accounts/login.html:49
 #: warehouse/templates/accounts/profile.html:32
 #: warehouse/templates/accounts/register.html:89
-#: warehouse/templates/manage/account.html:272
-#: warehouse/templates/manage/account/recovery_codes-provision.html:81
-#: warehouse/templates/manage/roles.html:156
+#: warehouse/templates/manage/account.html:248
+#: warehouse/templates/manage/account/recovery_codes-provision.html:85
+#: warehouse/templates/manage/roles.html:173
 msgid "Username"
 msgstr "Όνομα χρήστη"
 
@@ -1048,9 +1078,9 @@ msgid "Profile of %(username)s"
 msgstr "Προφίλ %(username)s"
 
 #: warehouse/templates/accounts/profile.html:23
-#: warehouse/templates/manage/account.html:247
-#: warehouse/templates/manage/roles.html:47
-#: warehouse/templates/manage/roles.html:109
+#: warehouse/templates/manage/account.html:223
+#: warehouse/templates/manage/roles.html:62
+#: warehouse/templates/manage/roles.html:125
 msgid "Avatar for {user} from gravatar.com"
 msgstr "Το avatar του χρήστη {user} από το gravatar.com"
 
@@ -1089,7 +1119,7 @@ msgstr "Χωρίς projects"
 
 #: warehouse/templates/accounts/profile.html:73
 #: warehouse/templates/manage/projects.html:34
-#: warehouse/templates/manage/projects.html:73
+#: warehouse/templates/manage/projects.html:74
 #, fuzzy, python-format
 #| msgid "Last released on %(release_date)s"
 msgid "Last released %(release_date)s"
@@ -1102,7 +1132,7 @@ msgstr "Ο χρήστης %(user)s δεν έχει ανεβάσει projects σ�
 
 # | msgid "Error code"
 #: warehouse/templates/accounts/recovery-code.html:18
-#: warehouse/templates/manage/account.html:493
+#: warehouse/templates/manage/manage_base.html:93
 #, fuzzy
 msgid "Recovery codes"
 msgstr "Κωδικός σφάλματος"
@@ -1151,8 +1181,8 @@ msgid "Create an account on %(title)s"
 msgstr "Δημιουργία λογαριασμού στο %(title)s"
 
 #: warehouse/templates/accounts/register.html:45
-#: warehouse/templates/manage/account.html:163
-#: warehouse/templates/manage/account.html:529
+#: warehouse/templates/manage/account.html:139
+#: warehouse/templates/manage/account.html:434
 msgid "Name"
 msgstr "Όνομα"
 
@@ -1161,12 +1191,12 @@ msgid "Your name"
 msgstr "Το όνομα σας"
 
 #: warehouse/templates/accounts/register.html:64
-#: warehouse/templates/manage/account.html:350
+#: warehouse/templates/manage/account.html:326
 msgid "Email address"
 msgstr "Διεύθυνση email"
 
 #: warehouse/templates/accounts/register.html:69
-#: warehouse/templates/manage/account.html:371
+#: warehouse/templates/manage/account.html:347
 msgid "Your email address"
 msgstr "Την διεύθυνση email σας"
 
@@ -1180,7 +1210,7 @@ msgstr "Επιλέξτε ένα όνομα χρήστη"
 
 #: warehouse/templates/accounts/register.html:117
 #: warehouse/templates/accounts/reset-password.html:44
-#: warehouse/templates/manage/account.html:398
+#: warehouse/templates/manage/account.html:374
 msgid "Show passwords"
 msgstr "Εμφάνιση κωδικών"
 
@@ -1241,7 +1271,7 @@ msgid "Reset your password"
 msgstr "Μηδενίστε τον κωδικό σας"
 
 #: warehouse/templates/accounts/reset-password.html:47
-#: warehouse/templates/manage/account.html:415
+#: warehouse/templates/manage/account.html:391
 msgid "Select a new password"
 msgstr "Επιλέξετε έναν νέο κωδικό"
 
@@ -1607,16 +1637,17 @@ msgid "Admin"
 msgstr "Διαχείριση"
 
 #: warehouse/templates/includes/current-user-indicator.html:37
-#: warehouse/templates/manage/manage_base.html:32
-#: warehouse/templates/manage/manage_base.html:52
+#: warehouse/templates/manage/manage_base.html:130
+#: warehouse/templates/manage/manage_base.html:150
 #: warehouse/templates/manage/projects.html:18
 msgid "Your projects"
 msgstr "Τα project σας"
 
 #: warehouse/templates/includes/current-user-indicator.html:43
 #: warehouse/templates/manage/account.html:17
-#: warehouse/templates/manage/manage_base.html:38
-#: warehouse/templates/manage/manage_base.html:58
+#: warehouse/templates/manage/account/two-factor.html:17
+#: warehouse/templates/manage/manage_base.html:136
+#: warehouse/templates/manage/manage_base.html:156
 msgid "Account settings"
 msgstr "Ρυθμίσεις λογαριασμού"
 
@@ -1641,14 +1672,14 @@ msgstr "Απαλοιφή αυτής της ειδοποίησης"
 #: warehouse/templates/includes/hash-modal.html:19
 #: warehouse/templates/includes/hash-modal.html:68
 #: warehouse/templates/includes/session-notifications.html:41
-#: warehouse/templates/manage/account.html:223
-#: warehouse/templates/manage/account.html:225
-#: warehouse/templates/manage/account.html:235
-#: warehouse/templates/manage/manage_base.html:94
-#: warehouse/templates/manage/manage_base.html:96
+#: warehouse/templates/manage/account.html:199
+#: warehouse/templates/manage/account.html:201
+#: warehouse/templates/manage/account.html:211
+#: warehouse/templates/manage/manage_base.html:192
+#: warehouse/templates/manage/manage_base.html:194
 #: warehouse/templates/manage/release.html:118
 #: warehouse/templates/manage/releases.html:172
-#: warehouse/templates/manage/roles.html:24
+#: warehouse/templates/manage/roles.html:38
 #: warehouse/templates/manage/settings.html:70
 #: warehouse/templates/search/results.html:199
 msgid "Close"
@@ -1683,10 +1714,10 @@ msgstr "Hash digest"
 #: warehouse/templates/includes/hash-modal.html:41
 #: warehouse/templates/includes/hash-modal.html:50
 #: warehouse/templates/includes/hash-modal.html:59
-#: warehouse/templates/manage/account.html:230
+#: warehouse/templates/manage/account.html:206
 #: warehouse/templates/manage/account/recovery_codes-provision.html:61
 #: warehouse/templates/manage/account/totp-provision.html:57
-#: warehouse/templates/packaging/detail.html:113
+#: warehouse/templates/packaging/detail.html:117
 #: warehouse/templates/pages/classifiers.html:37
 msgid "Copy to clipboard"
 msgstr "Αντιγραφή στο πρόχειρο"
@@ -1694,7 +1725,7 @@ msgstr "Αντιγραφή στο πρόχειρο"
 #: warehouse/templates/includes/hash-modal.html:42
 #: warehouse/templates/includes/hash-modal.html:51
 #: warehouse/templates/includes/hash-modal.html:60
-#: warehouse/templates/manage/account.html:231
+#: warehouse/templates/manage/account.html:207
 #: warehouse/templates/manage/account/recovery_codes-provision.html:62
 #: warehouse/templates/manage/account/totp-provision.html:58
 #: warehouse/templates/pages/classifiers.html:38
@@ -1813,12 +1844,12 @@ msgid "Releases"
 msgstr "Κυκλοφορίες"
 
 #: warehouse/templates/includes/manage/manage-project-menu.html:25
-#: warehouse/templates/manage/roles.html:21
+#: warehouse/templates/manage/roles.html:35
 msgid "Collaborators"
 msgstr "Συνεργάτες"
 
 #: warehouse/templates/includes/manage/manage-project-menu.html:31
-#: warehouse/templates/manage/account.html:554
+#: warehouse/templates/manage/account.html:459
 #: warehouse/templates/manage/history.html:23
 msgid "Security history"
 msgstr "Ιστορικό ασφάλειας"
@@ -1893,7 +1924,7 @@ msgstr "Συγγραφέας:"
 
 #: warehouse/templates/includes/packaging/project-data.html:84
 #: warehouse/templates/includes/packaging/project-data.html:86
-#: warehouse/templates/pages/help.html:545
+#: warehouse/templates/pages/help.html:561
 msgid "Maintainer:"
 msgstr "Συντηρητής:"
 
@@ -1963,7 +1994,7 @@ msgid "View email options"
 msgstr "Προβολή επιλογών email"
 
 #: warehouse/templates/manage/account.html:87
-#: warehouse/templates/manage/account.html:187
+#: warehouse/templates/manage/account.html:163
 #: warehouse/templates/manage/release.html:67
 #: warehouse/templates/manage/releases.html:68
 msgid "Options"
@@ -1995,94 +2026,51 @@ msgstr "Αφαίρεση αυτής της διεύθυνσης email"
 msgid "Remove email"
 msgstr "Αφαίρεση email"
 
-#: warehouse/templates/manage/account.html:139
-msgid ""
-"Add <abbr title=\"two factor authentication\">2FA</abbr> with authentication "
-"application"
-msgstr ""
-"Προσθήκη <abbr title=\"πιστοποίηση δύο-παραγόντων\">2FA</abbr> με εφαρμογή "
-"πιστοποίησης"
-
-#: warehouse/templates/manage/account.html:141
-msgid ""
-"Add <abbr title=\"two factor authentication\">2FA</abbr> with security "
-"device (e.g. USB key)"
-msgstr ""
-"Προσθήκη <abbr title=\"πιστοποίηση δύο-παραγόντων\">2FA</abbr> με συσκευή "
-"ασφαλείας (πχ USB key)"
-
-# | msgid "Error code"
 #: warehouse/templates/manage/account.html:143
-#, fuzzy
-msgid "Generate recovery codes"
-msgstr "Κωδικός σφάλματος"
-
-#: warehouse/templates/manage/account.html:148
-#: warehouse/templates/manage/account/webauthn-provision.html:37
-msgid ""
-"Enable JavaScript to set up two factor authentication with a security device "
-"(e.g. USB key)"
-msgstr ""
-"Ενεργοποιήστε την JavaScript για να ρυθμίσετε την πιστοποίηση δύο-παραγόντων "
-"με μια συσκευή ασφάλειας (πχ USB key)"
-
-#: warehouse/templates/manage/account.html:153
-#: warehouse/templates/manage/account/webauthn-provision.html:53
-#, python-format
-msgid ""
-"<a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener"
-"\">Upgrade your browser</a> to set up two factor authentication with a "
-"security device (e.g. USB key)"
-msgstr ""
-"<a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener"
-"\">Αναβαθμίστε τον περιηγητή σας</a> για να ρυθμίσετε την πιστοποίηση δύο-"
-"παραγόντων με μια συσκευή ασφαλείας (πχ USB key)"
-
-#: warehouse/templates/manage/account.html:167
-#: warehouse/templates/manage/account.html:530
+#: warehouse/templates/manage/account.html:435
 #: warehouse/templates/manage/token.html:151
 msgid "Scope"
 msgstr "Πεδίο εφαρμογής"
 
-#: warehouse/templates/manage/account.html:169
+#: warehouse/templates/manage/account.html:145
 msgid "All projects"
 msgstr "Όλα τα έργα"
 
-#: warehouse/templates/manage/account.html:177
-#: warehouse/templates/manage/account.html:531
+#: warehouse/templates/manage/account.html:153
+#: warehouse/templates/manage/account.html:436
 msgid "Created"
 msgstr "Δημιουργήθηκε"
 
-#: warehouse/templates/manage/account.html:181
-#: warehouse/templates/manage/account.html:532
+#: warehouse/templates/manage/account.html:157
+#: warehouse/templates/manage/account.html:437
 msgid "Last used"
 msgstr "Τελευταία χρησιμοποιήθηκε"
 
-#: warehouse/templates/manage/account.html:182
+#: warehouse/templates/manage/account.html:158
 msgid "Never"
 msgstr "Ποτέ"
 
-#: warehouse/templates/manage/account.html:186
+#: warehouse/templates/manage/account.html:162
 msgid "View token options"
 msgstr "Προβολή επιλογών token"
 
-#: warehouse/templates/manage/account.html:196
+#: warehouse/templates/manage/account.html:172
 #: warehouse/templates/manage/token.html:57
 msgid "Remove token"
 msgstr "Αφαίρεση token"
 
-#: warehouse/templates/manage/account.html:202
+#: warehouse/templates/manage/account.html:178
 msgid "View unique identifier"
 msgstr "Προβολή μοναδικού αναγνωριστικού"
 
-#: warehouse/templates/manage/account.html:210
-#: warehouse/templates/manage/account.html:212
+#: warehouse/templates/manage/account.html:186
+#: warehouse/templates/manage/account.html:188
 #: warehouse/templates/manage/token.html:60
 #: warehouse/templates/manage/token.html:61
 msgid "Remove API token"
 msgstr "Αφαίρεση API token"
 
-#: warehouse/templates/manage/account.html:217
+#: warehouse/templates/manage/account.html:193
 #: warehouse/templates/manage/token.html:66
 msgid ""
 "Applications or scripts using this token will no longer have access to PyPI."
@@ -2090,16 +2078,16 @@ msgstr ""
 "Οι εφαρμογές ή τα scripts που χρησιμοποιούν αυτό το token δεν θα έχουν πλέον "
 "πρόσβαση στο PyPI."
 
-#: warehouse/templates/manage/account.html:228
+#: warehouse/templates/manage/account.html:204
 #, python-format
 msgid "Unique identifier for API token \"%(token_description)s\""
 msgstr "Μοναδικό αναγνωριστικό για το API token \"%(token_description)s\""
 
-#: warehouse/templates/manage/account.html:246
+#: warehouse/templates/manage/account.html:222
 msgid "Profile picture"
 msgstr "Φωτογραφία προφίλ"
 
-#: warehouse/templates/manage/account.html:252
+#: warehouse/templates/manage/account.html:228
 #, python-format
 msgid ""
 "We use <a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel="
@@ -2110,19 +2098,19 @@ msgstr ""
 "rel=\"noopener\">gravatar.com</a> για να δημιουργήσουμε φωτογραφίες προφίλ "
 "βασισμένες στην διεύθυνση email σας"
 
-#: warehouse/templates/manage/account.html:259
+#: warehouse/templates/manage/account.html:235
 msgid "Change image on gravatar.com"
 msgstr "Αλλαγή εικόνας στο gravatar.com"
 
-#: warehouse/templates/manage/account.html:269
+#: warehouse/templates/manage/account.html:245
 msgid "Account details"
 msgstr "Λεπτομέρειες λογαριασμού"
 
-#: warehouse/templates/manage/account.html:275
+#: warehouse/templates/manage/account.html:251
 msgid "Date Joined"
 msgstr "Ημερομηνία συμμετοχής"
 
-#: warehouse/templates/manage/account.html:281
+#: warehouse/templates/manage/account.html:257
 #, python-format
 msgid ""
 "Displayed on your <a href=\"%(href)s\">public profile</a>. Cannot be changed."
@@ -2130,21 +2118,21 @@ msgstr ""
 "Εμφανίστηκε στο <a href=\"%(href)s\">δημόσιο προφίλ σας</a>. Δεν μπορεί να "
 "αλλαχθεί."
 
-#: warehouse/templates/manage/account.html:292
+#: warehouse/templates/manage/account.html:268
 msgid "Full name"
 msgstr "Πλήρες όνομα"
 
-#: warehouse/templates/manage/account.html:297
+#: warehouse/templates/manage/account.html:273
 msgid "No name set"
 msgstr "Δεν έχει οριστεί όνομα"
 
-#: warehouse/templates/manage/account.html:302
+#: warehouse/templates/manage/account.html:278
 #, python-format
 msgid "Displayed on your <a href=\"%(href)s\">public profile</a>"
 msgstr "Εμφανίστηκε στο <a href=\"%(href)s\">δημόσιο προφίλ σας</a>"
 
 # | msgid "Public profile"
-#: warehouse/templates/manage/account.html:309
+#: warehouse/templates/manage/account.html:285
 #, fuzzy
 msgid "️Public email"
 msgstr "Δημόσιο προφίλ"
@@ -2153,7 +2141,7 @@ msgstr "Δημόσιο προφίλ"
 # | "Displayed on your <a href=\"%(href)s\">public profile</a>. Cannot
 # be "
 # | "changed."
-#: warehouse/templates/manage/account.html:321
+#: warehouse/templates/manage/account.html:297
 #, fuzzy, python-format
 msgid ""
 "One of your verified emails can be displayed on your <a href=\"%(href)s"
@@ -2162,15 +2150,15 @@ msgstr ""
 "Εμφανίστηκε στο <a href=\"%(href)s\">δημόσιο προφίλ σας</a>. Δεν μπορεί να "
 "αλλαχθεί."
 
-#: warehouse/templates/manage/account.html:326
+#: warehouse/templates/manage/account.html:302
 msgid "Update account"
 msgstr "Αναβάθμιση λογαριασμού"
 
-#: warehouse/templates/manage/account.html:334
+#: warehouse/templates/manage/account.html:310
 msgid "Account emails"
 msgstr "Emails λογαριασμού"
 
-#: warehouse/templates/manage/account.html:336
+#: warehouse/templates/manage/account.html:312
 msgid ""
 "You can associate several emails with your account. You can use any <span "
 "class=\"badge badge--success\"><i class=\"fa fa-check\" aria-hidden=\"true"
@@ -2183,142 +2171,49 @@ msgstr ""
 "ανακτήστε τον λογαριασμό σας, αλλά μόνο το <span class=\"badge\">Κύριο</"
 "span> email θα λαμβάνει ειδοποιήσεις."
 
-#: warehouse/templates/manage/account.html:347
+#: warehouse/templates/manage/account.html:323
 msgid "Emails associated with your account"
 msgstr "Emails που συσχετίζονται με τον λογαριασμό σας"
 
-#: warehouse/templates/manage/account.html:351
+#: warehouse/templates/manage/account.html:327
 msgid "Status"
 msgstr "Κατάσταση"
 
-#: warehouse/templates/manage/account.html:366
-#: warehouse/templates/manage/account.html:376
+#: warehouse/templates/manage/account.html:342
+#: warehouse/templates/manage/account.html:352
 msgid "Add email"
 msgstr "Προσθήκη ηλεκτρονικού ταχυδρομείου"
 
-#: warehouse/templates/manage/account.html:383
+#: warehouse/templates/manage/account.html:359
 msgid "Change password"
 msgstr "Αλλαγή κωδικού πρόσβασης"
 
-#: warehouse/templates/manage/account.html:391
+#: warehouse/templates/manage/account.html:367
 msgid "Old password"
 msgstr "Παλιός κωδικός πρόσβασης"
 
-#: warehouse/templates/manage/account.html:401
+#: warehouse/templates/manage/account.html:377
 msgid "Your current password"
 msgstr "Τρέχον κωδικός πρόσβασης"
 
-#: warehouse/templates/manage/account.html:408
+#: warehouse/templates/manage/account.html:384
 msgid "New password"
 msgstr "Νέος κωδικός πρόσβασης"
 
-#: warehouse/templates/manage/account.html:424
+#: warehouse/templates/manage/account.html:400
 msgid "Confirm new password"
 msgstr "Επιβεβαίωση νέου κωδικού πρόσβασης"
 
-#: warehouse/templates/manage/account.html:440
+#: warehouse/templates/manage/account.html:416
 msgid "Update password"
 msgstr "Ενημέρωση κωδικού πρόσβασης"
 
-#: warehouse/templates/manage/account.html:447
-msgid "Two factor authentication (2FA)"
-msgstr "Πιστοποίηση δύο-παραγόντων (2FA)"
-
-#: warehouse/templates/manage/account.html:448
-#, python-format
-msgid ""
-"Two factor authentication adds an additional layer of security to your "
-"account. <a href=\"%(href)s\">Learn more about <abbr title=\"two factor "
-"authentication\">2FA</abbr></a>."
-msgstr ""
-"Η πιστοποίηση δύο-παραγόντων προσθέτει ένα επιπλέον επίπεδο ασφάλειας στο "
-"λογαριασμό σας. <a href=\"%(href)s\">Μάθετε περισσότερα σχετικά με το <abbr "
-"title=\"two factor authentication\">2FA</abbr></a>."
-
-#: warehouse/templates/manage/account.html:453
-msgid "Two factor authentication methods enabled"
-msgstr "Η πιστοποίηση δύο-παραγόντων είναι ενεργοποιημένη"
-
-#: warehouse/templates/manage/account.html:456
-msgid "Two factor method"
-msgstr "Μέθοδος δύο-παραγόντων"
-
-#: warehouse/templates/manage/account.html:462
-#: warehouse/templates/manage/account.html:572
-msgid ""
-"Authentication application (<abbr title=\"time-based one-time password"
-"\">TOTP</abbr>)"
-msgstr ""
-"Εφαρμογή πιστοποίησης (<abbr title=\"time-based one-time password\">TOTP</"
-"abbr>)"
-
-#: warehouse/templates/manage/account.html:464
-#: warehouse/templates/manage/account.html:478
-msgid "Remove"
-msgstr "Αφαίρεση"
-
-#: warehouse/templates/manage/account.html:465
-msgid "Remove authentication application"
-msgstr "Αφαίρεση εφαρμογής πιστοποίησης"
-
-#: warehouse/templates/manage/account.html:466
-msgid "Remove application"
-msgstr "Αφαίρεση εφαρμογής"
-
-#: warehouse/templates/manage/account.html:475
-#: warehouse/templates/manage/account.html:570
-msgid "Security device (<abbr title=\"web authentication\">WebAuthn</abbr>)"
-msgstr "Συσκευή ασφαλείας (<abbr title=\"web authentication\">WebAuthn</abbr>)"
-
-#: warehouse/templates/manage/account.html:479
-msgid "Remove two factor security device"
-msgstr "Αφαίρεση συσκευής ασφαλείας δύο-παραγόντων"
-
-#: warehouse/templates/manage/account.html:480
-msgid "Remove device"
-msgstr "Αφαίρεση συσκευής"
-
-#: warehouse/templates/manage/account.html:486
-msgid "Device name"
-msgstr "Όνομα συσκευής"
-
-#: warehouse/templates/manage/account.html:493
-#, python-format
-msgid "generated %(generated_datetime)s"
-msgstr "Τελευταία εκδόθηκε: %(generated_datetime)s"
-
-#: warehouse/templates/manage/account.html:496
-msgid "Regenerate"
-msgstr ""
-
-#: warehouse/templates/manage/account.html:497
-#: warehouse/templates/manage/account.html:498
-#: warehouse/templates/manage/account/recovery_codes-provision.html:36
-#: warehouse/templates/manage/account/recovery_codes-provision.html:37
-#: warehouse/templates/manage/account/recovery_codes-provision.html:38
-msgid "Regenerate recovery codes"
-msgstr ""
-
-#: warehouse/templates/manage/account.html:509
-msgid "You have not enabled two factor authentication on your account."
-msgstr ""
-"Δεν έχετε ενεργοποιήσει την πιστοποίηση δύο-παραγόντων στο λογαριασμό σας."
-
-#: warehouse/templates/manage/account.html:514
-#, python-format
-msgid ""
-"<a href=\"%(href)s\">Verify your primary email address</a> to add two factor "
-"authentication to your account."
-msgstr ""
-"<a href=\"%(href)s\">Επιβεβαιώστε την κύρια διεύθυνση email σας</a> "
-"προκειμένου να προσθέσετε την πιστοποίηση δύο-παραγόντων στο λογαριασμό σας."
-
-#: warehouse/templates/manage/account.html:521
+#: warehouse/templates/manage/account.html:426
 #: warehouse/templates/manage/settings.html:43
 msgid "API tokens"
 msgstr "API tokens"
 
-#: warehouse/templates/manage/account.html:522
+#: warehouse/templates/manage/account.html:427
 #: warehouse/templates/manage/settings.html:44
 msgid ""
 "API tokens provide an alternative way to authenticate when uploading "
@@ -2327,20 +2222,20 @@ msgstr ""
 "Τα API tokens παρέχουν έναν εναλλακτικό τρόπο για να πιστοποιηθείτε όταν "
 "ανεβάζετε πακέτα στο PyPI."
 
-#: warehouse/templates/manage/account.html:522
+#: warehouse/templates/manage/account.html:427
 msgid "Learn more about API tokens"
 msgstr "Μάθετε περισσότερα για τα API tokens"
 
-#: warehouse/templates/manage/account.html:526
+#: warehouse/templates/manage/account.html:431
 msgid "Active API tokens for this account"
 msgstr "Ενεργά API tokens για αυτόν τον λογαριασμό"
 
-#: warehouse/templates/manage/account.html:544
+#: warehouse/templates/manage/account.html:449
 #: warehouse/templates/manage/token.html:17
 msgid "Add API token"
 msgstr "Προσθήκη API token"
 
-#: warehouse/templates/manage/account.html:546
+#: warehouse/templates/manage/account.html:451
 #, python-format
 msgid ""
 "<a href=\"%(href)s\">Verify your primary email address</a> to add API tokens "
@@ -2349,113 +2244,179 @@ msgstr ""
 "<a href=\"%(href)s\">Επιβεβαιώστε την κύρια διεύθυνση email σας</a> "
 "προκειμένου να προσθέσετε API tokens στο λογαριασμό σας."
 
-#: warehouse/templates/manage/account.html:561
+#: warehouse/templates/manage/account.html:466
 msgid "Account created"
 msgstr "Ο λογαριασμός δημιουργήθηκε"
 
-#: warehouse/templates/manage/account.html:564
+#: warehouse/templates/manage/account.html:469
 msgid "Logged in"
 msgstr "Συνδεδεμένος"
 
-#: warehouse/templates/manage/account.html:566
+#: warehouse/templates/manage/account.html:471
 msgid "Two factor method:"
 msgstr "Μέθοδος δύο-παραγόντων:"
 
-#: warehouse/templates/manage/account.html:568
+#: warehouse/templates/manage/account.html:473
 #: warehouse/templates/manage/release.html:58
-#: warehouse/templates/packaging/detail.html:346
+#: warehouse/templates/packaging/detail.html:349
 msgid "None"
 msgstr "None"
 
+#: warehouse/templates/manage/account.html:475
+#: warehouse/templates/manage/manage_base.html:75
+msgid "Security device (<abbr title=\"web authentication\">WebAuthn</abbr>)"
+msgstr "Συσκευή ασφαλείας (<abbr title=\"web authentication\">WebAuthn</abbr>)"
+
+#: warehouse/templates/manage/account.html:477
+#: warehouse/templates/manage/manage_base.html:62
+msgid ""
+"Authentication application (<abbr title=\"time-based one-time password"
+"\">TOTP</abbr>)"
+msgstr ""
+"Εφαρμογή πιστοποίησης (<abbr title=\"time-based one-time password\">TOTP</"
+"abbr>)"
+
 # | msgid "Error code"
-#: warehouse/templates/manage/account.html:574
+#: warehouse/templates/manage/account.html:479
 #, fuzzy
 msgid "Recovery code"
 msgstr "Κωδικός σφάλματος"
 
-#: warehouse/templates/manage/account.html:579
+#: warehouse/templates/manage/account.html:484
+msgid "Login failed"
+msgstr ""
+
+#: warehouse/templates/manage/account.html:487
+msgid "- Basic Auth (Upload endpoint)"
+msgstr ""
+
+#: warehouse/templates/manage/account.html:492
+#: warehouse/templates/manage/account.html:509
+#: warehouse/templates/manage/history.html:84
+msgid "Reason:"
+msgstr ""
+
+#: warehouse/templates/manage/account.html:494
+#: warehouse/templates/manage/account.html:511
+#, fuzzy
+#| msgid "Your current password"
+msgid "Incorrect Password"
+msgstr "Τρέχον κωδικός πρόσβασης"
+
+#: warehouse/templates/manage/account.html:496
+#, fuzzy
+#| msgid "Invalid or expired two factor login."
+msgid "Invalid two factor (TOTP)"
+msgstr "Μη έγκυρη ή ληγμένη σύνδεση two factor."
+
+#: warehouse/templates/manage/account.html:498
+#, fuzzy
+#| msgid "Invalid or expired two factor login."
+msgid "Invalid two factor (WebAuthn)"
+msgstr "Μη έγκυρη ή ληγμένη σύνδεση two factor."
+
+# | msgid "Invalid TOTP code."
+#: warehouse/templates/manage/account.html:500
+#, fuzzy
+#| msgid "Invalid recovery code."
+msgid "Invalid two factor (Recovery code)"
+msgstr "Μη έγκυρος κωδικός ανάκτησης."
+
+#: warehouse/templates/manage/account.html:507
+#, fuzzy
+#| msgid "Two factor authentication added"
+msgid "Session reauthentication failed"
+msgstr "Προστέθηκε η πιστοποίηση δύο-παραγόντων"
+
+#: warehouse/templates/manage/account.html:518
 msgid "Email added to account"
 msgstr "Το email προστέθηκε στον λογαριασμό"
 
-#: warehouse/templates/manage/account.html:582
+#: warehouse/templates/manage/account.html:521
 msgid "Email removed from account"
 msgstr "Το email αφαιρέθηκε από τον λογαριασμό"
 
-#: warehouse/templates/manage/account.html:585
+#: warehouse/templates/manage/account.html:524
 msgid "Email verified"
 msgstr "Το email επιβεβαιώθηκε"
 
-#: warehouse/templates/manage/account.html:588
+#: warehouse/templates/manage/account.html:527
 msgid "Email reverified"
 msgstr "Το email επαναβεβαιώθηκε"
 
-#: warehouse/templates/manage/account.html:592
+#: warehouse/templates/manage/account.html:531
 msgid "Primary email changed"
 msgstr "Το κύριο email άλλαξε"
 
-#: warehouse/templates/manage/account.html:594
+#: warehouse/templates/manage/account.html:533
 msgid "Old primary email:"
 msgstr "Παλιό κύριο email:"
 
-#: warehouse/templates/manage/account.html:595
+#: warehouse/templates/manage/account.html:534
 msgid "New primary email:"
 msgstr "Νέο κύριο email:"
 
-#: warehouse/templates/manage/account.html:598
+#: warehouse/templates/manage/account.html:537
 msgid "Primary email set"
 msgstr "Το κύριο email ενεργοποιήθηκε"
 
-#: warehouse/templates/manage/account.html:604
+#: warehouse/templates/manage/account.html:543
 #, fuzzy
 #| msgid "Reset email sent"
 msgid "Email sent"
 msgstr "Το email, για μηδενισμό του κωδικού χρήστη, στάλθηκε"
 
-#: warehouse/templates/manage/account.html:606
+#: warehouse/templates/manage/account.html:545
 msgid "From:"
 msgstr ""
 
-#: warehouse/templates/manage/account.html:607
+#: warehouse/templates/manage/account.html:546
 msgid "To:"
 msgstr ""
 
-#: warehouse/templates/manage/account.html:608
+#: warehouse/templates/manage/account.html:547
 #, fuzzy
 #| msgid "Project:"
 msgid "Subject:"
 msgstr "Project:"
 
-#: warehouse/templates/manage/account.html:612
+#: warehouse/templates/manage/account.html:551
 msgid "Password reset requested"
 msgstr "Ζητήθηκε μηδενισμός κωδικού"
 
-#: warehouse/templates/manage/account.html:614
+#: warehouse/templates/manage/account.html:553
+#, fuzzy
+#| msgid "Password reset requested"
+msgid "Password reset attempted"
+msgstr "Ζητήθηκε μηδενισμός κωδικού"
+
+#: warehouse/templates/manage/account.html:555
 msgid "Password successfully reset"
 msgstr "Ο κωδικός μηδενίστηκε επιτυχώς"
 
-#: warehouse/templates/manage/account.html:616
+#: warehouse/templates/manage/account.html:557
 msgid "Password successfully changed"
 msgstr "Ο κωδικός άλλαξε επιτυχώς"
 
-#: warehouse/templates/manage/account.html:619
+#: warehouse/templates/manage/account.html:560
 msgid "Two factor authentication added"
 msgstr "Προστέθηκε η πιστοποίηση δύο-παραγόντων"
 
-#: warehouse/templates/manage/account.html:622
-#: warehouse/templates/manage/account.html:632
+#: warehouse/templates/manage/account.html:563
+#: warehouse/templates/manage/account.html:573
 msgid ""
 "Method: Security device (<abbr title=\"web authentication\">WebAuthn</abbr>)"
 msgstr ""
 "Μέθοδος: Συσκευή ασφάλειας (<abbr title=\"web authentication\">WebAuthn</"
 "abbr>)"
 
-#: warehouse/templates/manage/account.html:623
-#: warehouse/templates/manage/account.html:633
+#: warehouse/templates/manage/account.html:564
+#: warehouse/templates/manage/account.html:574
 msgid "Device name:"
 msgstr "Όνομα συσκευής:"
 
-#: warehouse/templates/manage/account.html:625
-#: warehouse/templates/manage/account.html:635
+#: warehouse/templates/manage/account.html:566
+#: warehouse/templates/manage/account.html:576
 msgid ""
 "Method: Authentication application (<abbr title=\"time-based one-time "
 "password\">TOTP</abbr>)"
@@ -2463,58 +2424,72 @@ msgstr ""
 "Μέθοδος: Εφαρμογή πιστοποίησης (<abbr title=\"time-based one-time password"
 "\">TOTP</abbr>)"
 
-#: warehouse/templates/manage/account.html:629
+#: warehouse/templates/manage/account.html:570
 msgid "Two factor authentication removed"
 msgstr "Η πιστοποίηση δύο-παραγόντων αφαιρέθηκε"
 
-#: warehouse/templates/manage/account.html:640
+#: warehouse/templates/manage/account.html:581
 #, fuzzy
 #| msgid "Recovery codes already generated"
 msgid "Recovery codes generated"
 msgstr "Οι κωδικοί ανάκτησης έχουν ήδη δημιουργηθεί"
 
-#: warehouse/templates/manage/account.html:644
+#: warehouse/templates/manage/account.html:585
 #, fuzzy
 #| msgid "Recovery codes already generated"
 msgid "Recovery codes regenerated"
 msgstr "Οι κωδικοί ανάκτησης έχουν ήδη δημιουργηθεί"
 
-#: warehouse/templates/manage/account.html:648
+#: warehouse/templates/manage/account.html:589
 #, fuzzy
 #| msgid "Recovery codes already generated"
 msgid "Recovery code used for login"
 msgstr "Οι κωδικοί ανάκτησης έχουν ήδη δημιουργηθεί"
 
-#: warehouse/templates/manage/account.html:654
+#: warehouse/templates/manage/account.html:595
 #: warehouse/templates/manage/history.html:65
 msgid "API token added"
 msgstr "Το API token προστέθηκε"
 
-#: warehouse/templates/manage/account.html:656
+#: warehouse/templates/manage/account.html:597
+#: warehouse/templates/manage/account.html:612
 #: warehouse/templates/manage/history.html:69
 #: warehouse/templates/manage/history.html:76
 msgid "Token name:"
 msgstr "Όνομα token:"
 
-#: warehouse/templates/manage/account.html:658
+#: warehouse/templates/manage/account.html:599
+#: warehouse/templates/manage/account.html:615
 msgid "Token scope: entire account"
 msgstr "Πεδίο εφαρμογής token: ολόκληρος ο λογαριασμός"
 
-#: warehouse/templates/manage/account.html:660
+#: warehouse/templates/manage/account.html:601
+#: warehouse/templates/manage/account.html:617
 #, python-format
 msgid "Token scope: Project %(project_name)s"
 msgstr "Πεδίο εφαρμογής token: %(project_name)s"
 
-#: warehouse/templates/manage/account.html:665
+#: warehouse/templates/manage/account.html:606
 #: warehouse/templates/manage/history.html:72
 msgid "API token removed"
 msgstr "Το API token αφαιρέθηκε"
 
-#: warehouse/templates/manage/account.html:666
+#: warehouse/templates/manage/account.html:607
+#: warehouse/templates/manage/account.html:613
 msgid "Unique identifier:"
 msgstr "Μοναδικό αναγνωριστικό:"
 
-#: warehouse/templates/manage/account.html:673
+#: warehouse/templates/manage/account.html:610
+msgid "API token automatically removed for security reasons"
+msgstr ""
+
+#: warehouse/templates/manage/account.html:619
+#, fuzzy, python-format
+#| msgid "Displayed on your <a href=\"%(href)s\">public profile</a>"
+msgid "Reason: Token found at <a href=\"%(public_url)s\">public url</a>"
+msgstr "Εμφανίστηκε στο <a href=\"%(href)s\">δημόσιο προφίλ σας</a>"
+
+#: warehouse/templates/manage/account.html:628
 #, python-format
 msgid ""
 "Events appear here as security-related actions occur on your account. If you "
@@ -2522,45 +2497,45 @@ msgid ""
 "account</a> as soon as possible."
 msgstr ""
 
-#: warehouse/templates/manage/account.html:678
+#: warehouse/templates/manage/account.html:633
 msgid "Recent account activity"
 msgstr "Πρόσφατη δραστηριότητα λογαριασμού"
 
-#: warehouse/templates/manage/account.html:680
-#: warehouse/templates/manage/history.html:88
+#: warehouse/templates/manage/account.html:635
+#: warehouse/templates/manage/history.html:97
 msgid "Event"
 msgstr "Συμβάν"
 
-#: warehouse/templates/manage/account.html:681
-#: warehouse/templates/manage/account.html:689
-#: warehouse/templates/manage/history.html:89
+#: warehouse/templates/manage/account.html:636
+#: warehouse/templates/manage/account.html:644
 #: warehouse/templates/manage/history.html:98
+#: warehouse/templates/manage/history.html:107
 msgid "Date / time"
 msgstr "Ημερομηνία / ώρα"
 
-#: warehouse/templates/manage/account.html:682
-#: warehouse/templates/manage/account.html:693
-#: warehouse/templates/manage/history.html:90
-#: warehouse/templates/manage/history.html:102
+#: warehouse/templates/manage/account.html:637
+#: warehouse/templates/manage/account.html:648
+#: warehouse/templates/manage/history.html:99
+#: warehouse/templates/manage/history.html:111
 msgid "IP address"
 msgstr "Διεύθυνση IP"
 
-#: warehouse/templates/manage/account.html:701
+#: warehouse/templates/manage/account.html:656
 msgid ""
 "Events will appear here as security-related actions occur on your account."
 msgstr ""
 "Συμβάντα θα εμφανίζονται εδώ όταν δράσεις σχετιζόμενες με θέματα ασφάλειας "
 "θα προκύπτουν στον λογαριασμό σας."
 
-#: warehouse/templates/manage/account.html:708
+#: warehouse/templates/manage/account.html:663
 msgid "Delete account"
 msgstr "Διαγραφή λογαριασμού"
 
-#: warehouse/templates/manage/account.html:711
+#: warehouse/templates/manage/account.html:666
 msgid "Cannot delete account"
 msgstr "Αδύνατη η διαγραφή του λογαριασμού"
 
-#: warehouse/templates/manage/account.html:713
+#: warehouse/templates/manage/account.html:668
 #, python-format
 msgid ""
 "\n"
@@ -2583,7 +2558,7 @@ msgstr[1] ""
 "strong> %(count)s projects.\n"
 "        "
 
-#: warehouse/templates/manage/account.html:718
+#: warehouse/templates/manage/account.html:673
 msgid ""
 "\n"
 "          You must transfer ownership or delete this project before you can "
@@ -2605,7 +2580,7 @@ msgstr[1] ""
 "projects προτού διαγράψετε τον λογαριασμό σας.\n"
 "        "
 
-#: warehouse/templates/manage/account.html:728
+#: warehouse/templates/manage/account.html:683
 #, python-format
 msgid ""
 "<a href=\"%(transfer_href)s\">transfer ownership</a> or <a href="
@@ -2614,17 +2589,17 @@ msgstr ""
 "<a href=\"%(transfer_href)s\">μεταφορά κυριότητας</a> ή <a href="
 "\"%(delete_href)s\">διαγραφή project</a>"
 
-#: warehouse/templates/manage/account.html:737
+#: warehouse/templates/manage/account.html:692
 #: warehouse/templates/manage/token.html:169
 msgid "Proceed with caution!"
 msgstr "Προχωρήστε με προσοχή!"
 
-#: warehouse/templates/manage/account.html:740
+#: warehouse/templates/manage/account.html:695
 msgid "You will not be able to recover your account after you delete it"
 msgstr ""
 "Δεν θα έχετε τη δυνατότητα να ανακτήσετε τον λογαριασμό σας αφού διαγραφεί"
 
-#: warehouse/templates/manage/account.html:742
+#: warehouse/templates/manage/account.html:697
 msgid "Delete your PyPI account"
 msgstr "Διαγραφή του PyPI λογαριασμού σας"
 
@@ -2753,7 +2728,19 @@ msgstr "Άδειες: Μπορεί να ανεβάσει σε αυτό το proj
 msgid "Controlled by:"
 msgstr "Ελέγχεται από:"
 
-#: warehouse/templates/manage/history.html:85
+#: warehouse/templates/manage/history.html:79
+#, fuzzy, python-format
+#| msgid "Release version %(version)s"
+msgid "Release version %(version)s yanked"
+msgstr "Έκδοση %(version)s"
+
+#: warehouse/templates/manage/history.html:81
+#, fuzzy
+#| msgid "Changed by:"
+msgid "Yanked by:"
+msgstr "Αλλαγή από:"
+
+#: warehouse/templates/manage/history.html:94
 #, python-format
 msgid "Security history for %(project_name)s"
 msgstr "Ιστορικό ασφάλειας για το %(project_name)s"
@@ -2801,8 +2788,8 @@ msgstr "Ημερομηνία"
 
 #: warehouse/templates/manage/journal.html:37
 #: warehouse/templates/manage/journal.html:52
-#: warehouse/templates/manage/roles.html:37
-#: warehouse/templates/manage/roles.html:151
+#: warehouse/templates/manage/roles.html:51
+#: warehouse/templates/manage/roles.html:168
 msgid "User"
 msgstr "Χρήστης"
 
@@ -2817,44 +2804,166 @@ msgid "from %(ip_address)s"
 msgstr "από %(ip_address)s"
 
 #: warehouse/templates/manage/manage_base.html:16
-#: warehouse/templates/manage/projects.html:94
+#: warehouse/templates/manage/projects.html:108
 #: warehouse/templates/manage/releases.html:88
 msgid "Manage"
 msgstr "Διαχείριση"
 
+#: warehouse/templates/manage/manage_base.html:24
+msgid ""
+"Add <abbr title=\"two factor authentication\">2FA</abbr> with authentication "
+"application"
+msgstr ""
+"Προσθήκη <abbr title=\"πιστοποίηση δύο-παραγόντων\">2FA</abbr> με εφαρμογή "
+"πιστοποίησης"
+
 #: warehouse/templates/manage/manage_base.html:26
+msgid ""
+"Add <abbr title=\"two factor authentication\">2FA</abbr> with security "
+"device (e.g. USB key)"
+msgstr ""
+"Προσθήκη <abbr title=\"πιστοποίηση δύο-παραγόντων\">2FA</abbr> με συσκευή "
+"ασφαλείας (πχ USB key)"
+
+# | msgid "Error code"
+#: warehouse/templates/manage/manage_base.html:28
+#, fuzzy
+msgid "Generate recovery codes"
+msgstr "Κωδικός σφάλματος"
+
+#: warehouse/templates/manage/account/webauthn-provision.html:37
+#: warehouse/templates/manage/manage_base.html:33
+msgid ""
+"Enable JavaScript to set up two factor authentication with a security device "
+"(e.g. USB key)"
+msgstr ""
+"Ενεργοποιήστε την JavaScript για να ρυθμίσετε την πιστοποίηση δύο-παραγόντων "
+"με μια συσκευή ασφάλειας (πχ USB key)"
+
+#: warehouse/templates/manage/account/webauthn-provision.html:53
+#: warehouse/templates/manage/manage_base.html:38
+#, python-format
+msgid ""
+"<a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener"
+"\">Upgrade your browser</a> to set up two factor authentication with a "
+"security device (e.g. USB key)"
+msgstr ""
+"<a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener"
+"\">Αναβαθμίστε τον περιηγητή σας</a> για να ρυθμίσετε την πιστοποίηση δύο-"
+"παραγόντων με μια συσκευή ασφαλείας (πχ USB key)"
+
+#: warehouse/templates/manage/manage_base.html:47
+msgid "Two factor authentication (2FA)"
+msgstr "Πιστοποίηση δύο-παραγόντων (2FA)"
+
+#: warehouse/templates/manage/manage_base.html:48
+#, python-format
+msgid ""
+"Two factor authentication adds an additional layer of security to your "
+"account. <a href=\"%(href)s\">Learn more about <abbr title=\"two factor "
+"authentication\">2FA</abbr></a>."
+msgstr ""
+"Η πιστοποίηση δύο-παραγόντων προσθέτει ένα επιπλέον επίπεδο ασφάλειας στο "
+"λογαριασμό σας. <a href=\"%(href)s\">Μάθετε περισσότερα σχετικά με το <abbr "
+"title=\"two factor authentication\">2FA</abbr></a>."
+
+#: warehouse/templates/manage/manage_base.html:53
+msgid "Two factor authentication methods enabled"
+msgstr "Η πιστοποίηση δύο-παραγόντων είναι ενεργοποιημένη"
+
+#: warehouse/templates/manage/manage_base.html:56
+msgid "Two factor method"
+msgstr "Μέθοδος δύο-παραγόντων"
+
+#: warehouse/templates/manage/manage_base.html:64
+#: warehouse/templates/manage/manage_base.html:78
+msgid "Remove"
+msgstr "Αφαίρεση"
+
+#: warehouse/templates/manage/manage_base.html:65
+msgid "Remove authentication application"
+msgstr "Αφαίρεση εφαρμογής πιστοποίησης"
+
+#: warehouse/templates/manage/manage_base.html:66
+msgid "Remove application"
+msgstr "Αφαίρεση εφαρμογής"
+
+#: warehouse/templates/manage/manage_base.html:79
+msgid "Remove two factor security device"
+msgstr "Αφαίρεση συσκευής ασφαλείας δύο-παραγόντων"
+
+#: warehouse/templates/manage/manage_base.html:80
+msgid "Remove device"
+msgstr "Αφαίρεση συσκευής"
+
+#: warehouse/templates/manage/manage_base.html:86
+msgid "Device name"
+msgstr "Όνομα συσκευής"
+
+#: warehouse/templates/manage/manage_base.html:93
+#, python-format
+msgid "generated %(generated_datetime)s"
+msgstr "Τελευταία εκδόθηκε: %(generated_datetime)s"
+
+#: warehouse/templates/manage/manage_base.html:96
+msgid "Regenerate"
+msgstr ""
+
+#: warehouse/templates/manage/account/recovery_codes-provision.html:36
+#: warehouse/templates/manage/account/recovery_codes-provision.html:37
+#: warehouse/templates/manage/account/recovery_codes-provision.html:38
+#: warehouse/templates/manage/manage_base.html:97
+#: warehouse/templates/manage/manage_base.html:98
+msgid "Regenerate recovery codes"
+msgstr ""
+
+#: warehouse/templates/manage/manage_base.html:109
+msgid "You have not enabled two factor authentication on your account."
+msgstr ""
+"Δεν έχετε ενεργοποιήσει την πιστοποίηση δύο-παραγόντων στο λογαριασμό σας."
+
+#: warehouse/templates/manage/manage_base.html:114
+#, python-format
+msgid ""
+"<a href=\"%(href)s\">Verify your primary email address</a> to add two factor "
+"authentication to your account."
+msgstr ""
+"<a href=\"%(href)s\">Επιβεβαιώστε την κύρια διεύθυνση email σας</a> "
+"προκειμένου να προσθέσετε την πιστοποίηση δύο-παραγόντων στο λογαριασμό σας."
+
+#: warehouse/templates/manage/manage_base.html:124
 msgid "Your account"
 msgstr "Ο λογαριασμός σας"
 
-#: warehouse/templates/manage/manage_base.html:27
-#: warehouse/templates/manage/manage_base.html:47
+#: warehouse/templates/manage/manage_base.html:125
+#: warehouse/templates/manage/manage_base.html:145
 msgid "Account navigation"
 msgstr "Πλοήγηση λογαριασμού"
 
-#: warehouse/templates/manage/manage_base.html:107
-#: warehouse/templates/manage/manage_base.html:159
+#: warehouse/templates/manage/manage_base.html:205
+#: warehouse/templates/manage/manage_base.html:257
 msgid "This action cannot be undone!"
 msgstr "Αυτή η ενέργεια δεν μπορεί να αναιρεθεί!"
 
-#: warehouse/templates/manage/manage_base.html:115
+#: warehouse/templates/manage/manage_base.html:213
 msgid "Confirm your username to continue."
 msgstr "Επιβεβαιώστε τον όνομα χρήστη σας για να συνεχίσετε."
 
-#: warehouse/templates/manage/manage_base.html:117
+#: warehouse/templates/manage/manage_base.html:215
 #, python-format
 msgid "Confirm the %(item)s to continue."
 msgstr "Επιβεβαιώστε τα %(item)s για να συνεχίσετε."
 
-#: warehouse/templates/manage/manage_base.html:125
-#: warehouse/templates/manage/manage_base.html:177
+#: warehouse/templates/manage/manage_base.html:223
+#: warehouse/templates/manage/manage_base.html:275
 msgid "Cancel"
 msgstr "Άκυρο"
 
-#: warehouse/templates/manage/manage_base.html:148
+#: warehouse/templates/manage/manage_base.html:246
 msgid "close"
 msgstr "κλείσιμο"
 
-#: warehouse/templates/manage/manage_base.html:164
+#: warehouse/templates/manage/manage_base.html:262
 msgid "Enter your password to continue."
 msgstr "Εισάγετε τον κωδικό χρήστη σας για να συνεχίσετε."
 
@@ -2880,39 +2989,53 @@ msgid "Pending invitations (%(project_count)s)"
 msgstr "Τα projects σας (%(project_count)s)"
 
 #: warehouse/templates/manage/projects.html:41
-#: warehouse/templates/manage/projects.html:80
+#: warehouse/templates/manage/projects.html:81
 #, fuzzy, python-format
 #| msgid "Created on %(creation_date)s"
 msgid "Created %(creation_date)s"
 msgstr "Δημιουργήθηκε στις %(creation_date)s"
 
-#: warehouse/templates/manage/projects.html:68
+#: warehouse/templates/manage/projects.html:69
 msgid "Sole owner"
 msgstr "Μοναδικός κάτοχος"
 
-#: warehouse/templates/manage/projects.html:89
+#: warehouse/templates/manage/projects.html:92
+msgid "PyPI requires 2FA to be enabled to manage this project"
+msgstr ""
+
+#: warehouse/templates/manage/projects.html:94
+msgid "This project requires 2FA to be enabled to manage"
+msgstr ""
+
+#: warehouse/templates/manage/projects.html:96
+#, fuzzy
+#| msgid "Requires:"
+msgid "2FA Required"
+msgstr "Απαιτήσεις:"
+
+#: warehouse/templates/manage/projects.html:103
 msgid "Manage this project"
 msgstr "Διαχείριση αυτού του project"
 
-#: warehouse/templates/manage/projects.html:92
+#: warehouse/templates/manage/projects.html:106
 msgid "You are not an owner of this project"
 msgstr "Δεν είστε ο κάτοχος αυτού του project"
 
-#: warehouse/templates/manage/projects.html:99
+#: warehouse/templates/manage/projects.html:114
 msgid "View this project's public page"
 msgstr "Προβολή της δημόσιας σελίδας αυτού του project"
 
-#: warehouse/templates/manage/projects.html:102
+#: warehouse/templates/manage/projects.html:117
 msgid "This project has no releases"
 msgstr "Αυτό το project δεν έχει κυκλοφορίες"
 
-#: warehouse/templates/manage/projects.html:104
+#: warehouse/templates/manage/projects.html:119
 #: warehouse/templates/manage/releases.html:94
-#: warehouse/templates/packaging/detail.html:356
+#: warehouse/templates/packaging/detail.html:359
 msgid "View"
 msgstr "Προβολή"
 
-#: warehouse/templates/manage/projects.html:111
+#: warehouse/templates/manage/projects.html:126
 #, python-format
 msgid ""
 "You have not uploaded any projects to PyPI, yet. To learn how to get "
@@ -2954,8 +3077,8 @@ msgstr "Αρχεία για την έκδοση %(version)s του %(project_nam
 
 #: warehouse/templates/manage/release.html:37
 #: warehouse/templates/manage/release.html:48
-#: warehouse/templates/packaging/detail.html:320
-#: warehouse/templates/packaging/detail.html:331
+#: warehouse/templates/packaging/detail.html:323
+#: warehouse/templates/packaging/detail.html:334
 msgid "Filename, size"
 msgstr "Όνομα αρχείου, μέγεθος"
 
@@ -2966,15 +3089,15 @@ msgstr "Τύπος"
 
 #: warehouse/templates/manage/release.html:39
 #: warehouse/templates/manage/release.html:57
-#: warehouse/templates/packaging/detail.html:322
-#: warehouse/templates/packaging/detail.html:342
+#: warehouse/templates/packaging/detail.html:325
+#: warehouse/templates/packaging/detail.html:345
 msgid "Python version"
 msgstr "Έκδοση Python"
 
 #: warehouse/templates/manage/release.html:40
 #: warehouse/templates/manage/release.html:61
-#: warehouse/templates/packaging/detail.html:323
-#: warehouse/templates/packaging/detail.html:350
+#: warehouse/templates/packaging/detail.html:326
+#: warehouse/templates/packaging/detail.html:353
 msgid "Upload date"
 msgstr "Ημερομηνία μεταφόρτωσης"
 
@@ -3017,7 +3140,7 @@ msgstr "Δεν βρέθηκαν αρχεία"
 
 #: warehouse/templates/manage/release.html:118
 #: warehouse/templates/manage/releases.html:172
-#: warehouse/templates/manage/roles.html:24
+#: warehouse/templates/manage/roles.html:38
 #: warehouse/templates/manage/settings.html:70
 msgid "Dismiss"
 msgstr "Κλείσιμο"
@@ -3321,6 +3444,20 @@ msgid "Manage '%(project_name)s' collaborators"
 msgstr "Διαχείριση συνεργατών για το '%(project_name)s'"
 
 #: warehouse/templates/manage/roles.html:22
+msgid "2FA enabled"
+msgstr ""
+
+#: warehouse/templates/manage/roles.html:23
+#: warehouse/templates/manage/roles.html:28
+#: warehouse/templates/manage/roles.html:53
+msgid "2FA"
+msgstr ""
+
+#: warehouse/templates/manage/roles.html:27
+msgid "2FA disabled"
+msgstr ""
+
+#: warehouse/templates/manage/roles.html:36
 #, python-format
 msgid ""
 "Use this page to control which PyPI users can help you to manage "
@@ -3329,18 +3466,18 @@ msgstr ""
 "Χρησιμοποιήστε αυτή τη σελίδα για να ελέγξετε ποιοι χρήστες του PyPI μπορούν "
 "να σας βοηθήσουν στη διαχείριση του %(project_name)s"
 
-#: warehouse/templates/manage/roles.html:25
-#: warehouse/templates/pages/help.html:544
+#: warehouse/templates/manage/roles.html:39
+#: warehouse/templates/pages/help.html:560
 msgid "There are two possible roles for collaborators:"
 msgstr "Υπάρχουν δύο πιθανοί ρόλοι για τους συνεργάτες:"
 
-#: warehouse/templates/manage/roles.html:27
-#: warehouse/templates/manage/roles.html:64
-#: warehouse/templates/manage/roles.html:73
+#: warehouse/templates/manage/roles.html:41
+#: warehouse/templates/manage/roles.html:79
+#: warehouse/templates/manage/roles.html:88
 msgid "Maintainer"
 msgstr "Συντηρητής"
 
-#: warehouse/templates/manage/roles.html:28
+#: warehouse/templates/manage/roles.html:42
 #, fuzzy
 #| msgid ""
 #| "Can upload releases for a package. Cannot add collaborators. Cannot "
@@ -3352,13 +3489,13 @@ msgstr ""
 "Μπορεί να ανεβάζει εκδόσεις για ένα πακέτο. Δεν μπορεί να προσθέτει "
 "συνεργάτες. Δεν μπορεί να διαγράφει αρχεία, εκδόσεις ή το ίδιο το project."
 
-#: warehouse/templates/manage/roles.html:29
-#: warehouse/templates/manage/roles.html:62
-#: warehouse/templates/manage/roles.html:73
+#: warehouse/templates/manage/roles.html:43
+#: warehouse/templates/manage/roles.html:77
+#: warehouse/templates/manage/roles.html:88
 msgid "Owner"
 msgstr "Κάτοχος"
 
-#: warehouse/templates/manage/roles.html:30
+#: warehouse/templates/manage/roles.html:44
 #, fuzzy
 #| msgid ""
 #| "Can upload releases. Can add other collaborators. Can delete files, "
@@ -3370,60 +3507,60 @@ msgstr ""
 "Μπορεί να ανεβάζει εκδόσεις. Μπορεί να προσθέτει συνεργάτες. Μπορεί να "
 "διαγράφει αρχεία, εκδόσεις ή όλο το project."
 
-#: warehouse/templates/manage/roles.html:34
+#: warehouse/templates/manage/roles.html:48
 #, python-format
 msgid "Users who can manage %(project_name)s"
 msgstr "Χρήστες που μπορούν να διαχειριστούν το %(project_name)s"
 
-#: warehouse/templates/manage/roles.html:38
-#: warehouse/templates/manage/roles.html:71
-#: warehouse/templates/manage/roles.html:163
+#: warehouse/templates/manage/roles.html:52
+#: warehouse/templates/manage/roles.html:86
+#: warehouse/templates/manage/roles.html:180
 msgid "Role"
 msgstr "Ρόλος"
 
-#: warehouse/templates/manage/roles.html:79
+#: warehouse/templates/manage/roles.html:94
 msgid "Save role"
 msgstr "Αποθήκευση ρόλου"
 
-#: warehouse/templates/manage/account/recovery_codes-provision.html:65
-#: warehouse/templates/manage/roles.html:80
+#: warehouse/templates/manage/account/recovery_codes-provision.html:69
+#: warehouse/templates/manage/roles.html:95
 msgid "Save"
 msgstr "Αποθήκευση"
 
-#: warehouse/templates/manage/roles.html:93
+#: warehouse/templates/manage/roles.html:109
 msgid "Cannot remove yourself as owner"
 msgstr "Δεν μπορείτε να αφαιρέσετε τον εαυτό σας από κάτοχο"
 
-#: warehouse/templates/manage/roles.html:96
+#: warehouse/templates/manage/roles.html:112
 #, python-format
 msgid "Remove %(user)s from this project"
 msgstr "Αφαίρεση του χρήστη %(user)s από αυτό το project"
 
-#: warehouse/templates/manage/roles.html:123
+#: warehouse/templates/manage/roles.html:139
 msgid "Invite pending"
 msgstr ""
 
-#: warehouse/templates/manage/roles.html:125
+#: warehouse/templates/manage/roles.html:141
 msgid "Invite expired"
 msgstr ""
 
-#: warehouse/templates/manage/roles.html:135
+#: warehouse/templates/manage/roles.html:152
 #, fuzzy, python-format
 #| msgid "Navigation for %(project)s"
 msgid "Revoke invitation for %(user)s"
 msgstr "Πλοήγηση για το %(project)s"
 
-#: warehouse/templates/manage/roles.html:137
+#: warehouse/templates/manage/roles.html:154
 msgid "Revoke invite"
 msgstr ""
 
-#: warehouse/templates/manage/roles.html:146
+#: warehouse/templates/manage/roles.html:163
 #, fuzzy
 #| msgid "Add collaborator"
 msgid "Invite collaborator"
 msgstr "Προσθήκη συνεργάτη"
 
-#: warehouse/templates/manage/roles.html:174
+#: warehouse/templates/manage/roles.html:191
 msgid "Invite"
 msgstr ""
 
@@ -3439,7 +3576,7 @@ msgstr "Ρυθμίσεις project"
 #: warehouse/templates/manage/settings.html:23
 #, fuzzy
 #| msgid "Project:"
-msgid "Project size :"
+msgid "Project size:"
 msgstr "Project:"
 
 #: warehouse/templates/manage/settings.html:31
@@ -3738,22 +3875,22 @@ msgid "Save your recovery codes"
 msgstr "Κωδικός σφάλματος"
 
 # | msgid "Download files"
-#: warehouse/templates/manage/account/recovery_codes-provision.html:64
+#: warehouse/templates/manage/account/recovery_codes-provision.html:68
 #, fuzzy
 msgid "Download as file"
 msgstr "Κατέβασμα αρχείων"
 
-#: warehouse/templates/manage/account/recovery_codes-provision.html:67
-#: warehouse/templates/manage/account/recovery_codes-provision.html:69
+#: warehouse/templates/manage/account/recovery_codes-provision.html:71
 #: warehouse/templates/manage/account/recovery_codes-provision.html:73
+#: warehouse/templates/manage/account/recovery_codes-provision.html:77
 msgid "Continue"
 msgstr ""
 
-#: warehouse/templates/manage/account/recovery_codes-provision.html:76
+#: warehouse/templates/manage/account/recovery_codes-provision.html:80
 msgid "These codes will not be visible again."
 msgstr ""
 
-#: warehouse/templates/manage/account/recovery_codes-provision.html:79
+#: warehouse/templates/manage/account/recovery_codes-provision.html:83
 msgid "Ensure that you have securely stored them before continuing."
 msgstr ""
 
@@ -3898,122 +4035,122 @@ msgstr ""
 "Σημειώστε ότι κάποια παλιά USB keys δεν είναι συμβατά με το FIDO στάνταρ και "
 "δεν θα δουλέψουν με το PyPI."
 
-#: warehouse/templates/packaging/detail.html:97
+#: warehouse/templates/packaging/detail.html:99
 #, fuzzy, python-format
 #| msgid "Releases for %(project_name)s"
 msgid "RSS: latest releases for %(project_name)s"
 msgstr "Εκδόσεις για το %(project_name)s"
 
-#: warehouse/templates/packaging/detail.html:115
+#: warehouse/templates/packaging/detail.html:119
 msgid "Copy PIP instructions"
 msgstr "Αντιγραφή οδηγιών PIP"
 
-#: warehouse/templates/packaging/detail.html:125
+#: warehouse/templates/packaging/detail.html:129
 msgid "This release has been yanked"
 msgstr ""
 
-#: warehouse/templates/packaging/detail.html:131
+#: warehouse/templates/packaging/detail.html:135
 #, python-format
 msgid "Stable version available (%(version)s)"
 msgstr "Διαθέσιμη σταθερή έκδοση (%(version)s)"
 
-#: warehouse/templates/packaging/detail.html:135
+#: warehouse/templates/packaging/detail.html:139
 #, python-format
 msgid "Newer version available (%(version)s)"
 msgstr "Νέα έκδοση διαθέσιμη (%(version)s)"
 
-#: warehouse/templates/packaging/detail.html:139
+#: warehouse/templates/packaging/detail.html:143
 msgid "Latest version"
 msgstr "Τελευταία έκδοση"
 
 # | msgid "Last released: %(release_date)s"
-#: warehouse/templates/packaging/detail.html:144
+#: warehouse/templates/packaging/detail.html:148
 #, fuzzy, python-format
 msgid "Released: %(release_date)s"
 msgstr "Τελευταία εκδόθηκε: %(release_date)s"
 
-#: warehouse/templates/packaging/detail.html:156
+#: warehouse/templates/packaging/detail.html:160
 msgid "No project description provided"
 msgstr "Δεν δόθηκε περιγραφή του project"
 
-#: warehouse/templates/packaging/detail.html:169
+#: warehouse/templates/packaging/detail.html:173
 msgid "Navigation"
 msgstr "Πλοήγηση"
 
-#: warehouse/templates/packaging/detail.html:170
-#: warehouse/templates/packaging/detail.html:202
+#: warehouse/templates/packaging/detail.html:174
+#: warehouse/templates/packaging/detail.html:205
 #, python-format
 msgid "Navigation for %(project)s"
 msgstr "Πλοήγηση για το %(project)s"
 
-#: warehouse/templates/packaging/detail.html:173
-#: warehouse/templates/packaging/detail.html:205
+#: warehouse/templates/packaging/detail.html:177
+#: warehouse/templates/packaging/detail.html:208
 msgid "Project description. Focus will be moved to the description."
 msgstr "Περιγραφή project. Η εστίαση θα μεταφερθεί στην περιγραφή."
 
-#: warehouse/templates/packaging/detail.html:175
-#: warehouse/templates/packaging/detail.html:207
-#: warehouse/templates/packaging/detail.html:235
+#: warehouse/templates/packaging/detail.html:179
+#: warehouse/templates/packaging/detail.html:210
+#: warehouse/templates/packaging/detail.html:238
 msgid "Project description"
 msgstr "Περιγραφή project"
 
-#: warehouse/templates/packaging/detail.html:179
-#: warehouse/templates/packaging/detail.html:217
+#: warehouse/templates/packaging/detail.html:183
+#: warehouse/templates/packaging/detail.html:220
 msgid "Release history. Focus will be moved to the history panel."
 msgstr "Ιστορικό εκδόσεων. Η εστίαση θα μεταφερθεί στον πίνακα ιστορικού."
 
-#: warehouse/templates/packaging/detail.html:181
-#: warehouse/templates/packaging/detail.html:219
-#: warehouse/templates/packaging/detail.html:257
+#: warehouse/templates/packaging/detail.html:185
+#: warehouse/templates/packaging/detail.html:222
+#: warehouse/templates/packaging/detail.html:260
 msgid "Release history"
 msgstr "Ιστορικό εκδόσεων"
 
-#: warehouse/templates/packaging/detail.html:186
-#: warehouse/templates/packaging/detail.html:224
+#: warehouse/templates/packaging/detail.html:190
+#: warehouse/templates/packaging/detail.html:227
 msgid "Download files. Focus will be moved to the project files."
 msgstr "Κατέβασμα αρχείων. Η εστίαση θα μεταφερθεί στα αρχεία του project."
 
-#: warehouse/templates/packaging/detail.html:188
-#: warehouse/templates/packaging/detail.html:226
-#: warehouse/templates/packaging/detail.html:313
+#: warehouse/templates/packaging/detail.html:192
+#: warehouse/templates/packaging/detail.html:229
+#: warehouse/templates/packaging/detail.html:316
 msgid "Download files"
 msgstr "Κατέβασμα αρχείων"
 
-#: warehouse/templates/packaging/detail.html:211
+#: warehouse/templates/packaging/detail.html:214
 msgid "Project details. Focus will be moved to the project details."
 msgstr ""
 "Λεπτομέρειες project. Η εστίαση θα μεταφερθεί στις λεπτομέρειες του ptoject."
 
-#: warehouse/templates/packaging/detail.html:213
-#: warehouse/templates/packaging/detail.html:249
+#: warehouse/templates/packaging/detail.html:216
+#: warehouse/templates/packaging/detail.html:252
 msgid "Project details"
 msgstr "Λεπτομέρειες project"
 
-#: warehouse/templates/packaging/detail.html:242
+#: warehouse/templates/packaging/detail.html:245
 msgid "The author of this package has not provided a project description"
 msgstr "Ο κάτοχος αυτού του πακέτου δεν εισήγαγε περιγραφή για το project"
 
-#: warehouse/templates/packaging/detail.html:259
+#: warehouse/templates/packaging/detail.html:262
 msgid "Release notifications"
 msgstr "Ειδοποιήσεις εκδόσεων"
 
-#: warehouse/templates/packaging/detail.html:260
+#: warehouse/templates/packaging/detail.html:263
 msgid "RSS feed"
 msgstr ""
 
-#: warehouse/templates/packaging/detail.html:272
+#: warehouse/templates/packaging/detail.html:275
 msgid "This version"
 msgstr "Αυτή η έκδοση"
 
-#: warehouse/templates/packaging/detail.html:292
+#: warehouse/templates/packaging/detail.html:295
 msgid "pre-release"
 msgstr "προ-έκδοση"
 
-#: warehouse/templates/packaging/detail.html:297
+#: warehouse/templates/packaging/detail.html:300
 msgid "yanked"
 msgstr ""
 
-#: warehouse/templates/packaging/detail.html:314
+#: warehouse/templates/packaging/detail.html:317
 #, python-format
 msgid ""
 "Download the file for your platform. If you're not sure which to choose, "
@@ -4024,18 +4161,18 @@ msgstr ""
 "μάθετε περισσότερα στη σελίδα <a href=\"%(href)s\" title=\"%(title)s\" "
 "target=\"_blank\" rel=\"noopener\">εγκατάσταση πακέτων</a>."
 
-#: warehouse/templates/packaging/detail.html:317
+#: warehouse/templates/packaging/detail.html:320
 #, python-format
 msgid "Files for %(project_name)s, version %(version)s"
 msgstr "Αρχεία για το %(project_name)s, έκδοση %(version)s"
 
-#: warehouse/templates/packaging/detail.html:321
-#: warehouse/templates/packaging/detail.html:338
+#: warehouse/templates/packaging/detail.html:324
+#: warehouse/templates/packaging/detail.html:341
 msgid "File type"
 msgstr "Τύπος αρχείου"
 
-#: warehouse/templates/packaging/detail.html:324
-#: warehouse/templates/packaging/detail.html:354
+#: warehouse/templates/packaging/detail.html:327
+#: warehouse/templates/packaging/detail.html:357
 msgid "Hashes"
 msgstr "Hashes"
 
@@ -4158,11 +4295,17 @@ msgid "What should I do if I notice suspicious activity on my account?"
 msgstr ""
 
 #: warehouse/templates/pages/help.html:61
+#, fuzzy
+#| msgid "Why is PyPI telling me my password is compromised?"
+msgid "Why is PyPI telling me my API token is compromised?"
+msgstr "Γιατί το PyPI μου λέει ότι ο κωδικός χρήστη έχει εκτεθεί;"
+
+#: warehouse/templates/pages/help.html:62
 msgid "What is two factor authentication and how does it work on PyPI?"
 msgstr ""
 "Τι είναι η πιστοποίηση δυο-παραγόντων (2FA) και πως δουλεύει με το PyPI;"
 
-#: warehouse/templates/pages/help.html:62
+#: warehouse/templates/pages/help.html:63
 msgid ""
 "How does two factor authentication with an authentication application (<abbr "
 "title=\"time-based one-time password\">TOTP</abbr>) work? How do I set it up "
@@ -4172,7 +4315,7 @@ msgstr ""
 "πιστοποίησης (<abbr title=\"time-based one-time password\">TOTP</abbr>); Πως "
 "το ρυθμίζω στο PyPI;"
 
-#: warehouse/templates/pages/help.html:63
+#: warehouse/templates/pages/help.html:64
 msgid ""
 "How does two factor authentication with a security device (e.g. USB key) "
 "work? How do I set it up on PyPI?"
@@ -4180,7 +4323,7 @@ msgstr ""
 "Πως δουλεύουν μεταξύ τους η πιστοποίηση δυο-παραγόντων με μια συσκευή "
 "ασφάλειας (πχ USB key); Πως το ρυθμίζω στο PyPI;"
 
-#: warehouse/templates/pages/help.html:64
+#: warehouse/templates/pages/help.html:65
 msgid "What devices (other than a USB key) can I use as a security device?"
 msgstr ""
 "Ποιες συσκευές (πέρα από ένα USB key) μπορώ να χρησιμοποιήσω ως συσκευή "
@@ -4191,7 +4334,7 @@ msgstr ""
 # key)
 # "
 # | "work? How do I set it up on PyPI?"
-#: warehouse/templates/pages/help.html:65
+#: warehouse/templates/pages/help.html:66
 #, fuzzy
 msgid ""
 "How does two factor authentication with a recovery code work? How do I set "
@@ -4200,50 +4343,50 @@ msgstr ""
 "Πως δουλεύουν μεταξύ τους η πιστοποίηση δυο-παραγόντων με μια συσκευή "
 "ασφάλειας (πχ USB key); Πως το ρυθμίζω στο PyPI;"
 
-#: warehouse/templates/pages/help.html:66
+#: warehouse/templates/pages/help.html:67
 msgid "How can I use API tokens to authenticate with PyPI?"
 msgstr "Πως μπορώ να χρησιμοποιήσω τα API tokens για να πιστοποιηθώ στο PyPI;"
 
-#: warehouse/templates/pages/help.html:67
+#: warehouse/templates/pages/help.html:68
 msgid "Why do certain actions require me to confirm my password?"
 msgstr ""
 
-#: warehouse/templates/pages/help.html:69
+#: warehouse/templates/pages/help.html:70
 msgid "How can I run a mirror of PyPI?"
 msgstr "Πως μπορώ να τρέξω έναν καθρέπτη (mirror) του PyPI;"
 
-#: warehouse/templates/pages/help.html:70
+#: warehouse/templates/pages/help.html:71
 msgid "Does PyPI have APIs I can use?"
 msgstr "Έχει το PyPI κάποια APIs που μπορώ να χρησιμοποιήσω;"
 
-#: warehouse/templates/pages/help.html:71
+#: warehouse/templates/pages/help.html:72
 msgid "How do I get notified when a new version of a project is released?"
 msgstr "Πως ενημερώνομαι όταν μια νέα έκδοση ενός project εκδοθεί;"
 
-#: warehouse/templates/pages/help.html:72
+#: warehouse/templates/pages/help.html:73
 msgid ""
 "Where can I see statistics about PyPI, downloads, and project/package usage?"
 msgstr ""
 "Που μπορώ να δω στατιστικά σχετικά με το PyPI, τα downloads και τη χρήση του "
 "project/πακέτου;"
 
-#: warehouse/templates/pages/help.html:74
+#: warehouse/templates/pages/help.html:75
 msgid "I forgot my PyPI password. Can you help me?"
 msgstr "Ξέχασα τον κωδικό χρήστη του PyPI. Μπορείτε να με βοηθήσετε;"
 
 # | msgid "I forgot my PyPI password. Can you help me?"
-#: warehouse/templates/pages/help.html:75
+#: warehouse/templates/pages/help.html:76
 #, fuzzy
 msgid "I've lost access to my PyPI account. Can you help me?"
 msgstr "Ξέχασα τον κωδικό χρήστη του PyPI. Μπορείτε να με βοηθήσετε;"
 
-#: warehouse/templates/pages/help.html:76
+#: warehouse/templates/pages/help.html:77
 msgid ""
 "Why am I getting a \"Invalid or non-existent authentication information.\" "
 "error when uploading files?"
 msgstr ""
 
-#: warehouse/templates/pages/help.html:77
+#: warehouse/templates/pages/help.html:78
 msgid ""
 "Why am I getting \"No matching distribution found\" or \"Could not fetch URL"
 "\" errors during <code>pip install</code>?"
@@ -4251,34 +4394,34 @@ msgstr ""
 "Γιατί εμφανίζονται τα σφάλματα \"No matching distribution found\" ή \"Could "
 "not fetch URL\" κατά τη διάρκεια του <code>pip install</code>;"
 
-#: warehouse/templates/pages/help.html:78
+#: warehouse/templates/pages/help.html:79
 msgid "I am having trouble using the PyPI website. Can you help me?"
 msgstr ""
 "Αντιμετωπίζω πρόβλημα στη χρήση της ιστοσελίδας του PyPI. Μπορείτε να με "
 "βοηθήσετε;"
 
-#: warehouse/templates/pages/help.html:79
+#: warehouse/templates/pages/help.html:80
 msgid ""
 "Why can't I manually upload files to PyPI, through the browser interface?"
 msgstr ""
 "Γιατί δεν μπορώ να ανεβάσω χειροκίνητα αρχεία στο PyPI, μέσα από το "
 "interface του περιηγητή;"
 
-#: warehouse/templates/pages/help.html:80
+#: warehouse/templates/pages/help.html:81
 msgid "How can I publish my private packages to PyPI?"
 msgstr "Πως μπορώ να ανεβάσω τα ιδιωτικά πακέτα μου στο PyPI;"
 
-#: warehouse/templates/pages/help.html:81
+#: warehouse/templates/pages/help.html:82
 msgid "Why did my package or user registration get blocked?"
 msgstr "Γιατί το πακέτο μου ή η εγγραφή χρήστη μπλοκαρίστηκε;"
 
-#: warehouse/templates/pages/help.html:82
+#: warehouse/templates/pages/help.html:83
 msgid "How do I get a file size limit exemption or increase for my project?"
 msgstr ""
 "Πως μπορώ να έχω μια εξαίρεση στο μέγεθος ενός αρχείου ή μια αύξηση στο "
 "project μου;"
 
-#: warehouse/templates/pages/help.html:83
+#: warehouse/templates/pages/help.html:84
 #, fuzzy
 #| msgid "How do I get a file size limit exemption or increase for my project?"
 msgid ""
@@ -4289,65 +4432,71 @@ msgstr ""
 
 #: warehouse/templates/pages/help.html:85
 msgid ""
+"Where does PyPI get its data on project vulnerabilities from, and how can I "
+"correct it?"
+msgstr ""
+
+#: warehouse/templates/pages/help.html:88
+msgid ""
 "Why am I getting a \"Filename or contents already exists\" or \"Filename has "
 "been previously used\" error?"
 msgstr ""
 "Γιατί εμφανίζονται τα σφάλματα \"Filename or contents already exists\" ή "
 "\"Filename has been previously used\";"
 
-#: warehouse/templates/pages/help.html:86
+#: warehouse/templates/pages/help.html:89
 msgid "Why isn't my desired project name available?"
 msgstr "Γιατί δεν είναι διαθέσιμο το επιθυμητό όνομα για το project μου;"
 
-#: warehouse/templates/pages/help.html:87
+#: warehouse/templates/pages/help.html:90
 msgid "How do I claim an abandoned or previously registered project name?"
 msgstr ""
 "Πως μπορώ να διεκδικήσω ένα εγκαταλελειμμένο ή πρότερα εγγεγραμμένο όνομα "
 "project;"
 
-#: warehouse/templates/pages/help.html:88
+#: warehouse/templates/pages/help.html:91
 msgid "What collaborator roles are available for a project on PyPI?"
 msgstr "Ποιοι ρόλοι συνεργατών είναι διαθέσιμοι για ένα project στο PyPI;"
 
 # | msgid "How do I become a owner/maintainer of a project on PyPI?"
-#: warehouse/templates/pages/help.html:89
+#: warehouse/templates/pages/help.html:92
 #, fuzzy
 msgid "How do I become an owner/maintainer of a project on PyPI?"
 msgstr "Πως γίνομαι κάτοχος/συντηρητής ενός project στο PyPI;"
 
-#: warehouse/templates/pages/help.html:90
+#: warehouse/templates/pages/help.html:93
 msgid "How can I upload a project description in a different format?"
 msgstr "Πως μπορώ να ανεβάσω την περιγραφή ενός project σε άλλη μορφή;"
 
-#: warehouse/templates/pages/help.html:91
+#: warehouse/templates/pages/help.html:94
 msgid "How do I request a new trove classifier?"
 msgstr "Πως αιτούμαι ένα νέο trove classifier;"
 
-#: warehouse/templates/pages/help.html:92
+#: warehouse/templates/pages/help.html:95
 msgid "Where can I report a bug or provide feedback about PyPI?"
 msgstr "Που μπορώ να αναφέρω ένα σφάλμα ή να δώσω feedback σχετικά με το PyPI;"
 
-#: warehouse/templates/pages/help.html:94
+#: warehouse/templates/pages/help.html:97
 msgid "Who maintains PyPI?"
 msgstr "Ποιος διατηρεί το PyPI;"
 
-#: warehouse/templates/pages/help.html:95
+#: warehouse/templates/pages/help.html:98
 msgid "What powers PyPI?"
 msgstr "Πως δουλεύει το PyPI;"
 
-#: warehouse/templates/pages/help.html:96
+#: warehouse/templates/pages/help.html:99
 msgid "Can I depend on PyPI being available?"
 msgstr "Μπορώ να εξαρτώμαι από την διαθεσιμότητα του PyPI;"
 
-#: warehouse/templates/pages/help.html:97
+#: warehouse/templates/pages/help.html:100
 msgid "How can I contribute to PyPI?"
 msgstr "Πως μπορώ να συνεισφέρω στο PyPI;"
 
-#: warehouse/templates/pages/help.html:98
+#: warehouse/templates/pages/help.html:101
 msgid "How do I keep up with upcoming changes to PyPI?"
 msgstr "Πως μπορώ να συμβαδίζω με τις επερχόμενες αλλαγές στο PyPI;"
 
-#: warehouse/templates/pages/help.html:99
+#: warehouse/templates/pages/help.html:102
 msgid ""
 "What does the \"beta feature\" badge mean? What are Warehouse's current beta "
 "features?"
@@ -4355,44 +4504,44 @@ msgstr ""
 "Τι σημαίνει το σήμα \"beta feature\"; Ποια είναι τα τωρινά beta features του "
 "Warehouse;"
 
-#: warehouse/templates/pages/help.html:100
+#: warehouse/templates/pages/help.html:103
 msgid "How do I pronounce \"PyPI\"?"
 msgstr "Πως προφέρω το \"PyPI\";"
 
-#: warehouse/templates/pages/help.html:107
+#: warehouse/templates/pages/help.html:110
 msgid "Common questions"
 msgstr "Κοινές ερωτήσεις"
 
-#: warehouse/templates/pages/help.html:110
-#: warehouse/templates/pages/help.html:190
+#: warehouse/templates/pages/help.html:113
+#: warehouse/templates/pages/help.html:195
 msgid "Basics"
 msgstr "Βασικά"
 
-#: warehouse/templates/pages/help.html:121
+#: warehouse/templates/pages/help.html:124
 msgid "My Account"
 msgstr "Ο λογαριασμός μου"
 
-#: warehouse/templates/pages/help.html:137
-#: warehouse/templates/pages/help.html:500
+#: warehouse/templates/pages/help.html:141
+#: warehouse/templates/pages/help.html:515
 msgid "Integrating"
 msgstr "Ενσωμάτωση"
 
-#: warehouse/templates/pages/help.html:147
-#: warehouse/templates/pages/help.html:527
+#: warehouse/templates/pages/help.html:151
+#: warehouse/templates/pages/help.html:542
 msgid "Administration of projects on PyPI"
 msgstr "Διαχείριση των projects στο PyPI"
 
-#: warehouse/templates/pages/help.html:161
-#: warehouse/templates/pages/help.html:597
+#: warehouse/templates/pages/help.html:166
+#: warehouse/templates/pages/help.html:626
 msgid "Troubleshooting"
 msgstr "Αντιμετώπιση προβλημάτων"
 
-#: warehouse/templates/pages/help.html:177
-#: warehouse/templates/pages/help.html:736
+#: warehouse/templates/pages/help.html:182
+#: warehouse/templates/pages/help.html:765
 msgid "About"
 msgstr "Σχετικά"
 
-#: warehouse/templates/pages/help.html:193
+#: warehouse/templates/pages/help.html:198
 #, python-format
 msgid ""
 "\n"
@@ -4435,7 +4584,7 @@ msgstr ""
 "κώδικα ή το binary <a href=\"%(wheel_href)s\">wheel</a>.</p>\n"
 "        "
 
-#: warehouse/templates/pages/help.html:202
+#: warehouse/templates/pages/help.html:207
 #, python-format
 msgid ""
 "To learn how to install a file from PyPI, visit the <a href="
@@ -4450,7 +4599,7 @@ msgstr ""
 "\"%(user_guide_href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener"
 "\">Python Packaging User Guide</a>."
 
-#: warehouse/templates/pages/help.html:209
+#: warehouse/templates/pages/help.html:214
 #, python-format
 msgid ""
 "For full instructions on configuring, packaging and distributing your Python "
@@ -4466,7 +4615,7 @@ msgstr ""
 "\"%(user_guide_href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener"
 "\">Python Packaging User Guide</a>."
 
-#: warehouse/templates/pages/help.html:216
+#: warehouse/templates/pages/help.html:221
 #, python-format
 msgid ""
 "Classifiers are used to categorize projects on PyPI. See <a href=\"%(href)s"
@@ -4478,7 +4627,7 @@ msgstr ""
 "περισσότερες πληροφορίες καθώς και για μια λίστα από έγκυρους classifiers, "
 "δείτε στη <a href=\"%(href)s\">σελίδα των classifiers</a>."
 
-#: warehouse/templates/pages/help.html:223
+#: warehouse/templates/pages/help.html:228
 #, fuzzy, python-format
 #| msgid ""
 #| "There is currently no established process for performing this "
@@ -4499,11 +4648,11 @@ msgstr ""
 "href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener"
 "\"><abbr title=\"Python enhancement proposal\">PEP</abbr> 541</a>."
 
-#: warehouse/templates/pages/help.html:230
+#: warehouse/templates/pages/help.html:235
 msgid "My account"
 msgstr "Ο λογαριασμός μου"
 
-#: warehouse/templates/pages/help.html:233
+#: warehouse/templates/pages/help.html:238
 msgid ""
 "Currently, PyPI requires a verified email address to perform the following "
 "operations:"
@@ -4511,15 +4660,15 @@ msgstr ""
 "Προς το παρόν, το PyPI απαιτεί μια επιβεβαιωμένη διεύθυνση email προκειμένου "
 "να εκτελέσει τις ακόλουθες ενέργειες:"
 
-#: warehouse/templates/pages/help.html:235
+#: warehouse/templates/pages/help.html:240
 msgid "Register a new project."
 msgstr "Εγγραφή ενός νέου project."
 
-#: warehouse/templates/pages/help.html:236
+#: warehouse/templates/pages/help.html:241
 msgid "Upload a new version or file."
 msgstr "Ανέβασμα μιας καινούργιας έκδοσης ή αρχείου."
 
-#: warehouse/templates/pages/help.html:238
+#: warehouse/templates/pages/help.html:243
 msgid ""
 "The list of activities that require a verified email address is likely to "
 "grow over time."
@@ -4527,7 +4676,7 @@ msgstr ""
 "Η λίστα με τις ενέργειες που απαιτούν επιβεβαιωμένη διεύθυνση email "
 "ενδέχεται να μεγαλώσει με τον καιρό."
 
-#: warehouse/templates/pages/help.html:239
+#: warehouse/templates/pages/help.html:244
 #, python-format
 msgid ""
 "This policy will allow us to enforce a key policy of <a href=\"%(href)s\" "
@@ -4542,7 +4691,7 @@ msgstr ""
 "την προσβασιμότητα του διατηρητή. Επίσης, ελαττώνει τις επιθέσεις spam "
 "αυτόματης δημιουργίας πολλαπλών λογαριασμών."
 
-#: warehouse/templates/pages/help.html:240
+#: warehouse/templates/pages/help.html:245
 #, python-format
 msgid ""
 "You can manage your account's email addresses in your <a href=\"%(href)s"
@@ -4555,7 +4704,7 @@ msgstr ""
 "επιτρέπει την αποστολή νέων email επιβεβαίωσης για τους χρήστες που "
 "εγγράφηκαν στο παρελθόν προτού ξεκινήσουμε να επιβάλλουμε αυτή την πολιτική."
 
-#: warehouse/templates/pages/help.html:243
+#: warehouse/templates/pages/help.html:248
 #, python-format
 msgid ""
 "<p> PyPI itself has not suffered a breach. This is a protective measure to "
@@ -4604,7 +4753,7 @@ msgstr ""
 "έχει μηδενιστεί και δεν θα μπορείτε να συνδεθείτε στο PyPI μέχρις ότου <a "
 "href=\"%(reset_pwd_href)s\">μηδενίσετε τον κωδικό σας</a>. </p>"
 
-#: warehouse/templates/pages/help.html:278
+#: warehouse/templates/pages/help.html:283
 #, python-format
 msgid ""
 "<p> All PyPI user events are stored under security history in account "
@@ -4614,7 +4763,15 @@ msgid ""
 "%(admin_email)s\">%(admin_email)s</a></li> </ul> </p>"
 msgstr ""
 
-#: warehouse/templates/pages/help.html:290
+#: warehouse/templates/pages/help.html:295
+msgid ""
+"<p> A PyPI API token linked to your account was posted on a public website. "
+"It was automatically revoked, but before regenerating a new one, please "
+"check the email you received and attempt to determine the cause. The <a href="
+"\"#suspicious-activity\">suspicious activity</a> section applies too. </p>"
+msgstr ""
+
+#: warehouse/templates/pages/help.html:305
 #, python-format
 msgid ""
 "<p> Two factor authentication (2FA) makes your account more secure by "
@@ -4646,7 +4803,7 @@ msgstr ""
 "\"two factor authentication\">2FA</abbr> στο <a href=\"%(href)s\" title="
 "\"%(title)s\" target=\"_blank\" rel=\"noopener\">discuss.python.org</a>.</p>"
 
-#: warehouse/templates/pages/help.html:317
+#: warehouse/templates/pages/help.html:332
 #, python-format
 msgid ""
 "PyPI users can set up two-factor authentication using any authentication "
@@ -4659,7 +4816,7 @@ msgstr ""
 "href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener"
 "\"><abbr title=\"time-based one-time password\">TOTP</abbr> στάνταρ</a>."
 
-#: warehouse/templates/pages/help.html:318
+#: warehouse/templates/pages/help.html:333
 msgid ""
 "<abbr title=\"time-based one-time password\">TOTP</abbr> authentication "
 "applications generate a regularly changing authentication code to use when "
@@ -4670,7 +4827,7 @@ msgstr ""
 "ο χρήστης να τον χρησιμοποιήσει για να συνδεθεί στον λογαριασμό του "
 "(προσοχή, σε καμία περίπτωση δεν αποτελεί τον κωδικό χρήστη)."
 
-#: warehouse/templates/pages/help.html:319
+#: warehouse/templates/pages/help.html:334
 msgid ""
 "Because <abbr title=\"time-based one-time password\">TOTP</abbr> is an open "
 "standard, there are many applications that are compatible with your PyPI "
@@ -4680,7 +4837,7 @@ msgstr ""
 "ανοικτό στάνταρ, υπάρχουν πολλές εφαρμογές που είναι συμβατές με τον "
 "λογαριασμό σας στο PyPI. Οι πιο δημοφιλείς είναι:"
 
-#: warehouse/templates/pages/help.html:322
+#: warehouse/templates/pages/help.html:337
 #, python-format
 msgid ""
 "Google Authenticator for <a href=\"%(android_href)s\" title=\"%(title)s\" "
@@ -4692,14 +4849,14 @@ msgstr ""
 "\"%(ios_href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">iOS</"
 "a>"
 
-#: warehouse/templates/pages/help.html:325
-#: warehouse/templates/pages/help.html:327
-#: warehouse/templates/pages/help.html:332
-#: warehouse/templates/pages/help.html:334
+#: warehouse/templates/pages/help.html:340
+#: warehouse/templates/pages/help.html:342
+#: warehouse/templates/pages/help.html:347
+#: warehouse/templates/pages/help.html:349
 msgid "(proprietary)"
 msgstr "(ιδιόκτητο)"
 
-#: warehouse/templates/pages/help.html:329
+#: warehouse/templates/pages/help.html:344
 #, python-format
 msgid ""
 "Duo Mobile for <a href=\"%(android_href)s\" title=\"%(title)s\" target="
@@ -4710,12 +4867,12 @@ msgstr ""
 "target=\"_blank\" rel=\"noopener\">Android</a> ή για <a href=\"%(ios_href)s"
 "\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">iOS</a>"
 
-#: warehouse/templates/pages/help.html:335
-#: warehouse/templates/pages/help.html:336
+#: warehouse/templates/pages/help.html:350
+#: warehouse/templates/pages/help.html:351
 msgid "(open source)"
 msgstr "(ανοικτού λογισμικού)"
 
-#: warehouse/templates/pages/help.html:340
+#: warehouse/templates/pages/help.html:355
 #, python-format
 msgid ""
 "Some password managers (e.g. <a href=\"%(href)s\" title=\"%(title)s\" target="
@@ -4728,7 +4885,7 @@ msgstr ""
 "a>μπορεί επίσης να παράξει κωδικούς πιστοποίησης. Για λόγους ασφαλείας, το "
 "PyPI σας επιτρέπει να ορίσετε μόνο μια εφαρμογή ανά λογαριασμό."
 
-#: warehouse/templates/pages/help.html:348
+#: warehouse/templates/pages/help.html:363
 msgid ""
 "To set up <abbr title=\"two factor authentication\">2FA</abbr> with an "
 "authentication application:"
@@ -4736,7 +4893,7 @@ msgstr ""
 "Για να ρυθμίσετε το <abbr title=\"πιστοποίηση δυο-παραγόντων\">2FA</abbr> με "
 "μια εφαρμογή πιστοποίησης:"
 
-#: warehouse/templates/pages/help.html:350
+#: warehouse/templates/pages/help.html:365
 msgid ""
 "Open an authentication (<abbr title=\"time-based one-time password\">TOTP</"
 "abbr>) application"
@@ -4744,7 +4901,7 @@ msgstr ""
 "Ανοίξτε μια εφαρμογή (<abbr title=\"time-based one-time password\">TOTP</"
 "abbr>) πιστοποίησης"
 
-#: warehouse/templates/pages/help.html:351
+#: warehouse/templates/pages/help.html:366
 msgid ""
 "Log in to your PyPI account, go to your account settings, and choose \"Add "
 "<abbr title=\"two factor authentication\">2FA</abbr> with authentication "
@@ -4754,7 +4911,7 @@ msgstr ""
 "λογαριασμού και διαλέξτε \"Προσθήκη <abbr title=\"πιστοποίηση δυο-παραγόντων"
 "\">2FA</abbr> με εφαρμογή πιστοποίησης\""
 
-#: warehouse/templates/pages/help.html:352
+#: warehouse/templates/pages/help.html:367
 msgid ""
 "PyPI will generate a secret key, specific to your account. This is displayed "
 "as a QR code, and as a text code."
@@ -4762,7 +4919,7 @@ msgstr ""
 "Το PyPI θα δημιουργήσει ένα μυστικό κλειδί συγκεκριμένα για τον λογαριασμό "
 "σας. Αυτό θα φαίνεται ως ένας κώδικας σε μορφή QR και κειμένου."
 
-#: warehouse/templates/pages/help.html:353
+#: warehouse/templates/pages/help.html:368
 msgid ""
 "Scan the QR code with your authentication application, or type it in "
 "manually. The method of input will depend on the application you have chosen."
@@ -4771,7 +4928,7 @@ msgstr ""
 "χειροκίνητα. Η μέθοδος εισαγωγής θα εξαρτηθεί από την εφαρμογή που επιλέξατε "
 "να χρησιμοποιήσετε."
 
-#: warehouse/templates/pages/help.html:354
+#: warehouse/templates/pages/help.html:369
 msgid ""
 "Your application will generate an authentication code - use this to verify "
 "your set up on PyPI"
@@ -4779,7 +4936,7 @@ msgstr ""
 "Η εφαρμογή θα παράξει έναν κωδικό πιστοποίησης - χρησιμοποιήστε αυτόν για να "
 "επιβεβαιώσετε τη ρύθμιση στο PyPI"
 
-#: warehouse/templates/pages/help.html:357
+#: warehouse/templates/pages/help.html:372
 msgid ""
 "The PyPI server and your application now share your PyPI secret key, "
 "allowing your application to generate valid authentication codes for your "
@@ -4789,28 +4946,28 @@ msgstr ""
 "σας στο PyPI επιτρέποντας στην εφαρμογή σας να παράγει έγκυρους κωδικούς "
 "πιστοποίησης για τον λογαριασμό σας στο PyPI."
 
-#: warehouse/templates/pages/help.html:359
-#: warehouse/templates/pages/help.html:401
+#: warehouse/templates/pages/help.html:374
+#: warehouse/templates/pages/help.html:416
 msgid "Next time you log in to PyPI you'll need to:"
 msgstr "Την επόμενη φορά που θα συνδεθείτε στο PyPI θα χρειαστεί να:"
 
-#: warehouse/templates/pages/help.html:361
-#: warehouse/templates/pages/help.html:453
+#: warehouse/templates/pages/help.html:376
+#: warehouse/templates/pages/help.html:468
 msgid "Provide your username and password, as normal"
 msgstr "Παρέχετε το όνομα χρήστη και τον κωδικό χρήστη, ως συνήθως"
 
-#: warehouse/templates/pages/help.html:362
+#: warehouse/templates/pages/help.html:377
 msgid "Open your authentication application to generate an authentication code"
 msgstr ""
 "Να ανοίξετε την εφαρμογή πιστοποίησης για να παραχθεί ο κωδικός πιστοποίησης"
 
-#: warehouse/templates/pages/help.html:363
+#: warehouse/templates/pages/help.html:378
 msgid "Use this code to finish logging into PyPI"
 msgstr ""
 "Να χρησιμοποιήσετε αυτόν τον κωδικό για να ολοκληρώσετε τη σύνδεση σας στο "
 "PyPI"
 
-#: warehouse/templates/pages/help.html:369
+#: warehouse/templates/pages/help.html:384
 msgid ""
 "A security device is a USB key or <a href=\"#utfdevices\">other device</a> "
 "that generates a one-time password and sends that password to the browser. "
@@ -4821,14 +4978,14 @@ msgstr ""
 "browser. Αυτός ο κωδικός χρησιμοποιείται από το PyPI για να πιστοποιήσει "
 "εσάς ως χρήστη."
 
-#: warehouse/templates/pages/help.html:371
+#: warehouse/templates/pages/help.html:386
 msgid ""
 "To set up two factor authentication with a <em>USB key</em>, you'll need:"
 msgstr ""
 "Για να ρυθμίσετε την πιστοποίηση δυο-παραγόντων με ένα <em>USB key</em>, θα "
 "χρειαστεί:"
 
-#: warehouse/templates/pages/help.html:373
+#: warehouse/templates/pages/help.html:388
 #, python-format
 msgid ""
 "To use a <a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel="
@@ -4841,11 +4998,11 @@ msgstr ""
 "authentication\">το WebAuthn</abbr> και το PublicKeyCredential</a>, καθώς "
 "αυτά έχουν υλοποιηθεί από το PyPI."
 
-#: warehouse/templates/pages/help.html:374
+#: warehouse/templates/pages/help.html:389
 msgid "To be running JavaScript on your browser"
 msgstr "Να τρέχετε την JavaScript στον browser σας"
 
-#: warehouse/templates/pages/help.html:375
+#: warehouse/templates/pages/help.html:390
 #, python-format
 msgid ""
 "To use a USB key that adheres to the <a href=\"%(href)s\" title=\"%(title)s"
@@ -4855,7 +5012,7 @@ msgstr ""
 "\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">FIDO "
 "U2F</a>:"
 
-#: warehouse/templates/pages/help.html:378
+#: warehouse/templates/pages/help.html:393
 #, python-format
 msgid ""
 "Popular keys include <a href=\"%(yubikey_href)s\" title=\"%(title)s\" target="
@@ -4870,7 +5027,7 @@ msgstr ""
 "και <a href=\"%(thetis_href)s\" title=\"%(title)s\" target=\"_blank\" rel="
 "\"noopener\">Thetis</a>."
 
-#: warehouse/templates/pages/help.html:385
+#: warehouse/templates/pages/help.html:400
 msgid ""
 "Note that some older Yubico USB keys <strong>do not follow the FIDO "
 "specification</strong>, and will therefore not work with PyPI"
@@ -4878,11 +5035,11 @@ msgstr ""
 "Σημειώστε ότι κάποια παλαιότερα Yubico USB keys <strong>δεν ακολουθούν την "
 "προδιαγραφή FIDO</strong> με αποτέλεσμα να μην είναι συμβατά με το PyPI"
 
-#: warehouse/templates/pages/help.html:390
+#: warehouse/templates/pages/help.html:405
 msgid "Follow these steps:"
 msgstr "Ακολουθήστε τα ακόλουθα βήματα:"
 
-#: warehouse/templates/pages/help.html:392
+#: warehouse/templates/pages/help.html:407
 msgid ""
 "\n"
 "          <li>Log in to your PyPI account, go to your account settings, and "
@@ -4906,7 +5063,7 @@ msgstr ""
 "browser</li>\n"
 "          "
 
-#: warehouse/templates/pages/help.html:399
+#: warehouse/templates/pages/help.html:414
 msgid ""
 "Once complete, your USB key will be registered to your PyPI account and can "
 "be used during the log in process."
@@ -4915,7 +5072,7 @@ msgstr ""
 "θα μπορεί πλέον να χρησιμοποιείται κατά τη διάρκεια της διαδικασίας εισόδου "
 "στο PyPI."
 
-#: warehouse/templates/pages/help.html:403
+#: warehouse/templates/pages/help.html:418
 msgid ""
 "\n"
 "          <li>Provide your username and password, as normal</li>\n"
@@ -4929,7 +5086,7 @@ msgstr ""
 "σύνδεση σας στο PyPI</li>\n"
 "          "
 
-#: warehouse/templates/pages/help.html:414
+#: warehouse/templates/pages/help.html:429
 #, python-format
 msgid ""
 "There is a growing ecosystem of <a href=\"%(href)s\" title=\"%(title)s\" "
@@ -4941,7 +5098,7 @@ msgstr ""
 "συμβατές με το FIDO στάνταρ</a> και συνεπώς μπορούν αν χρησιμοποιηθούν με το "
 "PyPI."
 
-#: warehouse/templates/pages/help.html:419
+#: warehouse/templates/pages/help.html:434
 #, python-format
 msgid ""
 "Emerging solutions include biometric (facial and fingerprint) scanners and "
@@ -4955,7 +5112,7 @@ msgstr ""
 "target=\"_blank\" rel=\"noopener\">κινητά τηλέφωνα τα οποία θα δρουν ως "
 "συσκευές ασφάλειας</a>."
 
-#: warehouse/templates/pages/help.html:425
+#: warehouse/templates/pages/help.html:440
 #, python-format
 msgid ""
 "As PyPI's two factor implementation follows the <a href=\"%(href)s\" title="
@@ -4968,14 +5125,14 @@ msgstr ""
 "authentication\">WebAuthn</abbr> standard</a> οι χρήστες του PyPI θα έχουν "
 "το πλεονέκτημα οποιασδήποτε ανάπτυξης πάνω σε αυτό το πεδίο."
 
-#: warehouse/templates/pages/help.html:434
+#: warehouse/templates/pages/help.html:449
 msgid ""
 "If you lose access to your <a href=\"#totp\">authentication application</a> "
 "or <a href=\"#utfkey\">security device</a>, you can use these codes to sign "
 "into PyPI."
 msgstr ""
 
-#: warehouse/templates/pages/help.html:437
+#: warehouse/templates/pages/help.html:452
 msgid ""
 "Recovery codes are <strong>one time use</strong>. They are not a substitute "
 "for a <a href=\"#totp\">authentication application</a> or <a href=\"#utfkey"
@@ -4983,7 +5140,7 @@ msgid ""
 "recovery code to sign in, it becomes inactive."
 msgstr ""
 
-#: warehouse/templates/pages/help.html:443
+#: warehouse/templates/pages/help.html:458
 msgid "To provision recovery codes:"
 msgstr ""
 
@@ -4992,7 +5149,7 @@ msgstr ""
 # choose "
 # | "\"Add <abbr title=\"two factor authentication\">2FA</abbr> with "
 # | "authentication application\""
-#: warehouse/templates/pages/help.html:445
+#: warehouse/templates/pages/help.html:460
 #, fuzzy
 msgid ""
 "Log in to your PyPI account, go to your account settings, and choose "
@@ -5002,35 +5159,35 @@ msgstr ""
 "λογαριασμού και διαλέξτε \"Προσθήκη <abbr title=\"πιστοποίηση δυο-παραγόντων"
 "\">2FA</abbr> με εφαρμογή πιστοποίησης\""
 
-#: warehouse/templates/pages/help.html:446
+#: warehouse/templates/pages/help.html:461
 msgid ""
 "Securely store the displayed recovery codes! Consider printing them out and "
 "storing them in a safe location or saving them in a password manager."
 msgstr ""
 
-#: warehouse/templates/pages/help.html:449
+#: warehouse/templates/pages/help.html:464
 msgid ""
 "If you lose access to your stored recovery codes or use all of them, you can "
 "get new ones by selecting \"Regenerate recovery codes\" in your account "
 "settings."
 msgstr ""
 
-#: warehouse/templates/pages/help.html:451
+#: warehouse/templates/pages/help.html:466
 msgid "To sign in with a recovery code:"
 msgstr ""
 
-#: warehouse/templates/pages/help.html:454
+#: warehouse/templates/pages/help.html:469
 msgid ""
 "When prompted for two factor authentication, select \"Login using recovery "
 "codes\""
 msgstr ""
 
-#: warehouse/templates/pages/help.html:455
+#: warehouse/templates/pages/help.html:470
 msgid ""
 "As each code can be used only once, you might want to mark the code as used"
 msgstr ""
 
-#: warehouse/templates/pages/help.html:456
+#: warehouse/templates/pages/help.html:471
 msgid ""
 "If you have few recovery codes remaining, you may also want to generate a "
 "new set using the \"Regenerate recovery codes\" button in your account "
@@ -5055,7 +5212,7 @@ msgstr ""
 # API "
 # | "token where possible.</strong></p>\n"
 # | "        "
-#: warehouse/templates/pages/help.html:461
+#: warehouse/templates/pages/help.html:476
 #, fuzzy
 msgid ""
 "\n"
@@ -5082,20 +5239,20 @@ msgstr ""
 "είναι δυνατόν.</strong></p>\n"
 "        "
 
-#: warehouse/templates/pages/help.html:468
+#: warehouse/templates/pages/help.html:483
 msgid "To make an API token:"
 msgstr "Για τη δημιουργία ενός API token:"
 
-#: warehouse/templates/pages/help.html:471
+#: warehouse/templates/pages/help.html:486
 msgid "Verify your email address"
 msgstr "Επιβεβαιώστε τη διεύθυνση email σας"
 
-#: warehouse/templates/pages/help.html:471
+#: warehouse/templates/pages/help.html:486
 #, python-format
 msgid "(check your <a href=\"%(href)s\">account settings</a>)"
 msgstr "(ελέγξτε τις <a href=\"%(href)s\">ρυθμίσεις λογαριασμού</a>)"
 
-#: warehouse/templates/pages/help.html:472
+#: warehouse/templates/pages/help.html:487
 #, python-format
 msgid ""
 "In your <a href=\"%(href)s\">account settings</a>, go to the API tokens "
@@ -5104,22 +5261,22 @@ msgstr ""
 "Μέσα από τις <a href=\"%(href)s\">ρυθμίσεις λογαριασμού</a>, πηγαίνετε στο "
 "πεδίο API tokens και επιλέξτε \"Προσθήκη API token\""
 
-#: warehouse/templates/pages/help.html:475
+#: warehouse/templates/pages/help.html:490
 msgid "To use an API token:"
 msgstr "Για να χρησιμοποιήσετε ένα API token:"
 
-#: warehouse/templates/pages/help.html:478
+#: warehouse/templates/pages/help.html:493
 msgid "Set your username to <code>__token__</code>"
 msgstr "Ορίστε το όνομα χρήστη ως <code>__token__</code>"
 
-#: warehouse/templates/pages/help.html:479
+#: warehouse/templates/pages/help.html:494
 msgid ""
 "Set your password to the token value, including the <code>pypi-</code> prefix"
 msgstr ""
 "Ορίστε τον κωδικό ως την τιμή του token, περιλαμβάνοντας το πρόθεμα "
 "<code>pypi-</code>"
 
-#: warehouse/templates/pages/help.html:483
+#: warehouse/templates/pages/help.html:498
 #, python-format
 msgid ""
 "Where you edit or add these values will depend on your individual use case. "
@@ -5137,7 +5294,7 @@ msgstr ""
 "\"%(travis_href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener"
 "\"><code>.travis.yml</code> αν χρησιμοποιείτε την υπηρεσία Travis</a>)."
 
-#: warehouse/templates/pages/help.html:487
+#: warehouse/templates/pages/help.html:502
 msgid ""
 "Advanced users may wish to inspect their token by decoding it with base64, "
 "and checking the output against the unique identifier displayed on PyPI."
@@ -5146,7 +5303,7 @@ msgstr ""
 "αποκωδικοποιώντας το με base64 και να ελέγξουν την έξοδο σε σχέση με το "
 "μοναδικό αναγνωριστικό που εμφανίζεται στο PyPI."
 
-#: warehouse/templates/pages/help.html:491
+#: warehouse/templates/pages/help.html:506
 msgid ""
 "\n"
 "          <p>PyPI asks you to confirm your password before you want to "
@@ -5160,15 +5317,15 @@ msgid ""
 "        "
 msgstr ""
 
-#: warehouse/templates/pages/help.html:503
+#: warehouse/templates/pages/help.html:518
 msgid "Yes, including RSS feeds of new packages and new releases."
 msgstr "Ναι, περιλαμβάνοντας RSS feeds νέων πακέτων και νέων εκδόσεων."
 
-#: warehouse/templates/pages/help.html:503
+#: warehouse/templates/pages/help.html:518
 msgid "See the API reference."
 msgstr "Δείτε στο API reference."
 
-#: warehouse/templates/pages/help.html:506
+#: warehouse/templates/pages/help.html:521
 #, python-format
 msgid ""
 "If you need to run your own mirror of PyPI, the <a href=\"%(href)s"
@@ -5180,7 +5337,7 @@ msgstr ""
 "ότι οι απαιτήσεις αποθηκευτικού χώρου για ένα καθρέπτη PyPI θα υπερβούν το 1 "
 "terabyte—και θα συνεχίσουν να ανεβαίνουν!"
 
-#: warehouse/templates/pages/help.html:509
+#: warehouse/templates/pages/help.html:524
 #, fuzzy, python-format
 #| msgid ""
 #| "PyPI itself does not offer a way to get notified when a project uploads "
@@ -5208,7 +5365,7 @@ msgstr ""
 # | "\"noopener\">analyze PyPI download usage statistics via Google
 # BigQuery</"
 # | "a>."
-#: warehouse/templates/pages/help.html:512
+#: warehouse/templates/pages/help.html:527
 #, fuzzy, python-format
 msgid ""
 "You can analyze PyPI project/package metadata and <a href=\"%(href)s\" title="
@@ -5219,7 +5376,7 @@ msgstr ""
 "\"noopener\">αναλύσετε τα στατιστικά των downloads του PyPI μέσω του Google "
 "BigQuery</a>."
 
-#: warehouse/templates/pages/help.html:514
+#: warehouse/templates/pages/help.html:529
 #, python-format
 msgid ""
 "<a href=\"%(libs_io_href)s\" title=\"%(title)s\" target=\"_blank\" rel="
@@ -5243,7 +5400,7 @@ msgstr ""
 "\"%(title)s\" target=\"_blank\" rel=\"noopener\">άλλους σχετικούς "
 "παράγοντες</a>."
 
-#: warehouse/templates/pages/help.html:523
+#: warehouse/templates/pages/help.html:538
 #, python-format
 msgid ""
 "For recent statistics on uptime and performance, see <a href=\"%(href)s\" "
@@ -5253,7 +5410,7 @@ msgstr ""
 "href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener"
 "\">σελίδα κατάστασης μας</a>."
 
-#: warehouse/templates/pages/help.html:530
+#: warehouse/templates/pages/help.html:545
 #, python-format
 msgid ""
 "PyPI does not support publishing private packages. If you need to publish "
@@ -5265,7 +5422,7 @@ msgstr ""
 "είναι τρέξετε το δικό σας deployment του <a href=\"%(href)s\">devpi project</"
 "a>."
 
-#: warehouse/templates/pages/help.html:533
+#: warehouse/templates/pages/help.html:548
 msgid ""
 "Your publishing tool may return an error that your new project can't be "
 "created with your desired name, despite no evidence of a project or release "
@@ -5277,7 +5434,7 @@ msgstr ""
 "όνομα φαίνεται να μην υπάρχει πουθενά στο PyPI. Προς το παρόν, υπάρχουν "
 "τρεις πιθανοί λόγοι που μπορεί να συμβαίνει αυτό:"
 
-#: warehouse/templates/pages/help.html:535
+#: warehouse/templates/pages/help.html:550
 #, python-format
 msgid ""
 "The project name conflicts with a <a href=\"%(href)s\" title=\"%(title)s\" "
@@ -5288,7 +5445,12 @@ msgstr ""
 "\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">Python "
 "Standard Library</a> από οποιαδήποτε major version από την 2.5 μέχρι σήμερα."
 
-#: warehouse/templates/pages/help.html:536
+#: warehouse/templates/pages/help.html:551
+msgid ""
+"The project name is too similar to an existing project and may be confusable."
+msgstr ""
+
+#: warehouse/templates/pages/help.html:552
 #, python-format
 msgid ""
 "The project name has been explicitly prohibited by the PyPI administrators. "
@@ -5301,7 +5463,7 @@ msgstr ""
 "τυπογραφικό λάθος για το <code>%(correct_code)s</code> και δεν θα έπρεπε να "
 "εκπλήξει τον χρήση ότι πρόκειται για ένα επιβλαβές project."
 
-#: warehouse/templates/pages/help.html:537
+#: warehouse/templates/pages/help.html:553
 msgid ""
 "The project name has been registered by another user, but no releases have "
 "been created."
@@ -5315,7 +5477,7 @@ msgstr ""
 # | "rel=\"noopener\">Python Packaging User Guide</a> for details on the
 # "
 # | "available formats."
-#: warehouse/templates/pages/help.html:541
+#: warehouse/templates/pages/help.html:557
 #, fuzzy, python-format
 msgid ""
 "Follow the <a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel="
@@ -5326,7 +5488,7 @@ msgstr ""
 "rel=\"noopener\">Python Packaging User Guide</a> για λεπτομέρειες σχετικά με "
 "τις διαθέσιμες μορφές."
 
-#: warehouse/templates/pages/help.html:545
+#: warehouse/templates/pages/help.html:561
 msgid ""
 "Can upload releases for a package. Cannot add collaborators. Cannot delete "
 "files, releases, or the project."
@@ -5334,11 +5496,11 @@ msgstr ""
 "Μπορεί να ανεβάζει εκδόσεις για ένα πακέτο. Δεν μπορεί να προσθέτει "
 "συνεργάτες. Δεν μπορεί να διαγράφει αρχεία, εκδόσεις ή το ίδιο το project."
 
-#: warehouse/templates/pages/help.html:546
+#: warehouse/templates/pages/help.html:562
 msgid "Owner:"
 msgstr "Κάτοχος:"
 
-#: warehouse/templates/pages/help.html:546
+#: warehouse/templates/pages/help.html:562
 msgid ""
 "Can upload releases. Can add other collaborators. Can delete files, "
 "releases, or the entire project."
@@ -5346,7 +5508,7 @@ msgstr ""
 "Μπορεί να ανεβάζει εκδόσεις. Μπορεί να προσθέτει συνεργάτες. Μπορεί να "
 "διαγράφει αρχεία, εκδόσεις ή όλο το project."
 
-#: warehouse/templates/pages/help.html:549
+#: warehouse/templates/pages/help.html:565
 msgid ""
 "Only the current owners of a project have the ability to add new owners or "
 "maintainers. If you need to request ownership, you should contact the "
@@ -5360,7 +5522,7 @@ msgstr ""
 "project. Πολλοί κάτοχοι project παρέχουν στοιχεία επικοινωνίας κάτω από το "
 "πεδίο \"Κάτοχος\" στις λεπτομέρειες \"Meta\" στη σελίδα του project."
 
-#: warehouse/templates/pages/help.html:550
+#: warehouse/templates/pages/help.html:566
 #, python-format
 msgid ""
 "If the owner is unresponsive, see <a href=\"%(href)s\">%(anchor_text)s</a>"
@@ -5368,7 +5530,7 @@ msgstr ""
 "Αν ο κάτοχος δεν επικοινωνήσει μαζί σας ανατρέξτε στο <a href=\"%(href)s\">"
 "%(anchor_text)s</a>"
 
-#: warehouse/templates/pages/help.html:553
+#: warehouse/templates/pages/help.html:569
 #, python-format
 msgid ""
 "By default, an upload's description will render with <a href=\"%(href)s\" "
@@ -5384,7 +5546,7 @@ msgstr ""
 "<code>long_description_content_type</code> μέσα στο αρχείο <code>setup.py</"
 "code> σε μια διαφορετική μορφή."
 
-#: warehouse/templates/pages/help.html:554
+#: warehouse/templates/pages/help.html:570
 #, python-format
 msgid ""
 "Refer to the <a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel="
@@ -5395,7 +5557,7 @@ msgstr ""
 "rel=\"noopener\">Python Packaging User Guide</a> για λεπτομέρειες σχετικά με "
 "τις διαθέσιμες μορφές."
 
-#: warehouse/templates/pages/help.html:555
+#: warehouse/templates/pages/help.html:571
 #, python-format
 msgid ""
 "PyPI will reject uploads if the description fails to render. To check a "
@@ -5407,7 +5569,7 @@ msgstr ""
 "χρήση του <a href=\"%(href)s\">readme_renderer</a>, το ίδιο ακριβώς που "
 "χρησιμοποιεί το PyPI."
 
-#: warehouse/templates/pages/help.html:559
+#: warehouse/templates/pages/help.html:575
 #, fuzzy, python-format
 #| msgid ""
 #| "If you can't upload your project's release to PyPI because you're hitting "
@@ -5436,23 +5598,23 @@ msgstr ""
 "href=\"%(file_issue_href)s\" title=\"%(title)s\" target=\"_blank\" rel="
 "\"noopener\">ανοίξτε ένα θέμα</a> και πείτε μας:</p>"
 
-#: warehouse/templates/pages/help.html:568
-#: warehouse/templates/pages/help.html:589
+#: warehouse/templates/pages/help.html:584
+#: warehouse/templates/pages/help.html:605
 msgid "A link to your project on PyPI (or Test PyPI)"
 msgstr "Τον σύνδεσμο για το project σας στο PyPI (ή στο Test PyPI)"
 
-#: warehouse/templates/pages/help.html:569
+#: warehouse/templates/pages/help.html:585
 msgid "The size of your release, in megabytes"
 msgstr "Το μέγεθος της έκδοσης σας, σε megabytes"
 
-#: warehouse/templates/pages/help.html:570
+#: warehouse/templates/pages/help.html:586
 msgid ""
 "Which index/indexes you need the increase for (PyPI, Test PyPI, or both)"
 msgstr ""
 "Για ποιο αποθετήριο χρειάζεστε αύξηση ορίου (PyPI, Test PyPI ή και τα δυο)"
 
-#: warehouse/templates/pages/help.html:571
-#: warehouse/templates/pages/help.html:591
+#: warehouse/templates/pages/help.html:587
+#: warehouse/templates/pages/help.html:607
 msgid ""
 "A brief description of your project, including the reason for the additional "
 "size."
@@ -5460,14 +5622,14 @@ msgstr ""
 "Μια συνοπτική περιγραφή του project σας, συμπεριλαμβάνοντας τον λόγο για τον "
 "επιπλέον χώρο."
 
-#: warehouse/templates/pages/help.html:577
+#: warehouse/templates/pages/help.html:593
 msgid ""
 "If you can't upload your project's release to PyPI because you're hitting "
 "the project size limit, first remove any unnecessary releases or individual "
 "files to lower your overall project size."
 msgstr ""
 
-#: warehouse/templates/pages/help.html:584
+#: warehouse/templates/pages/help.html:600
 #, fuzzy, python-format
 #| msgid ""
 #| "Learn how to create a new release on the <a href=\"%(href)s\" title="
@@ -5482,13 +5644,49 @@ msgstr ""
 "\"%(title)s\" target=\"_blank\" rel=\"noopener\">Python Packaging User "
 "Guide</a>"
 
-#: warehouse/templates/pages/help.html:590
+#: warehouse/templates/pages/help.html:606
 #, fuzzy
 #| msgid "The size of your release, in megabytes"
 msgid "The total size of your project, in gigabytes"
 msgstr "Το μέγεθος της έκδοσης σας, σε megabytes"
 
-#: warehouse/templates/pages/help.html:600
+#: warehouse/templates/pages/help.html:613
+#, fuzzy, python-format
+#| msgid ""
+#| "To learn how to install a file from PyPI, visit the <a href="
+#| "\"%(installation_href)s\" title=\"%(title)s\" target=\"_blank\" rel="
+#| "\"noopener\">installation tutorial</a> on the <a href="
+#| "\"%(user_guide_href)s\" title=\"%(title)s\" target=\"_blank\" rel="
+#| "\"noopener\">Python Packaging User Guide</a>."
+msgid ""
+"PyPI receives reports on vulnerabilities in the packages hosted on it from "
+"the <a href=\"%(osv_href)s\" title=\"%(title)s\" target=\"_blank\" rel="
+"\"noopener\">Open Source Vulnerabilities project</a>, which in turn ingests "
+"vulnerabilities from the <a href=\"%(vulns_href)s\" title=\"%(title)s\" "
+"target=\"_blank\" rel=\"noopener\">Python Packaging Advisory Database</a>."
+msgstr ""
+"Για να μέθετε πων να εγκταστείσετε ένα αρχείο από το PyPI, επισκεφτείτε τον "
+"<a href=\"%(installation_href)s\" title=\"%(title)s\" target=\"_blank\" rel="
+"\"noopener\">οδηγό εγκατάστασης</a> στη σελίδα του <a href="
+"\"%(user_guide_href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener"
+"\">Python Packaging User Guide</a>."
+
+#: warehouse/templates/pages/help.html:618
+#, fuzzy, python-format
+#| msgid ""
+#| "Learn how to create a new release on the <a href=\"%(href)s\" title="
+#| "\"%(title)s\" target=\"_blank\" rel=\"noopener\">Python Packaging User "
+#| "Guide</a>"
+msgid ""
+"If you believe vulnerability data for your project is invalid or incorrect, "
+"<a href=\"%(file_issue_href)s\" title=\"%(title)s\" target=\"_blank\" rel="
+"\"noopener\">file an issue</a> with details."
+msgstr ""
+"Μάθετε πως να δημιουργήσετε μια νέα έκδοση στο <a href=\"%(href)s\" title="
+"\"%(title)s\" target=\"_blank\" rel=\"noopener\">Python Packaging User "
+"Guide</a>"
+
+#: warehouse/templates/pages/help.html:629
 msgid ""
 "If you've forgotten your PyPI password but you remember your email address "
 "or username, follow these steps to reset your password:"
@@ -5497,36 +5695,36 @@ msgstr ""
 "ή το όνομα χρήστη σας, ακολουθήστε τα ακόλουθα βήματα για να μηδενίσετε τον "
 "κωδικό σας:"
 
-#: warehouse/templates/pages/help.html:602
+#: warehouse/templates/pages/help.html:631
 #, python-format
 msgid "Go to <a href=\"%(href)s\">reset your password</a>."
 msgstr ""
 "Μεταβείτε στο σύνδεσμο <a href=\"%(href)s\">για μηδενισμό του κωδικού σας</"
 "a>."
 
-#: warehouse/templates/pages/help.html:603
+#: warehouse/templates/pages/help.html:632
 msgid ""
 "Enter the email address or username you used for PyPI and submit the form."
 msgstr ""
 "Εισάγετε τη διεύθυνση email ή το όνομα χρήστη σας που χρησιμοποιήσατε στο "
 "PyPI και καταθέστε τη φόρμα."
 
-#: warehouse/templates/pages/help.html:604
+#: warehouse/templates/pages/help.html:633
 msgid "You'll receive an email with a password reset link."
 msgstr ""
 "Θα λάβετε ένα email που θα περιέχει ένα σύνδεσμο για μηδενισμό του κωδικού."
 
-#: warehouse/templates/pages/help.html:609
+#: warehouse/templates/pages/help.html:638
 msgid "If you've lost access to your PyPI account due to:"
 msgstr ""
 
 # | msgid "Emails associated with your account"
-#: warehouse/templates/pages/help.html:611
+#: warehouse/templates/pages/help.html:640
 #, fuzzy
 msgid "Lost access to the email address associated with your account"
 msgstr "Emails που συσχετίζονται με τον λογαριασμό σας"
 
-#: warehouse/templates/pages/help.html:612
+#: warehouse/templates/pages/help.html:641
 msgid ""
 "Lost two factor authentication <a href=\"#totp\">application</a>, <a href="
 "\"#utfkey\">device</a>, and <a href=\"#recoverycodes\">recovery codes</a>"
@@ -5538,7 +5736,7 @@ msgstr ""
 # | "account, <a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\"
 # rel="
 # | "\"noopener\">file an issue on our tracker</a>."
-#: warehouse/templates/pages/help.html:615
+#: warehouse/templates/pages/help.html:644
 #, fuzzy, python-format
 msgid ""
 "You can proceed to <a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank"
@@ -5550,44 +5748,44 @@ msgstr ""
 "\"_blank\" rel=\"noopener\">ανοίξτε ένα θέμα στον tracker μας</a>."
 
 # | msgid "Provide your username and password, as normal"
-#: warehouse/templates/pages/help.html:622
+#: warehouse/templates/pages/help.html:651
 #, fuzzy
 msgid "If you are using a username and password for uploads:"
 msgstr "Παρέχετε το όνομα χρήστη και τον κωδικό χρήστη, ως συνήθως"
 
 # | msgid "Provide your username and password, as normal"
-#: warehouse/templates/pages/help.html:624
+#: warehouse/templates/pages/help.html:653
 #, fuzzy
 msgid "Ensure that your username and password are correct."
 msgstr "Παρέχετε το όνομα χρήστη και τον κωδικό χρήστη, ως συνήθως"
 
-#: warehouse/templates/pages/help.html:625
+#: warehouse/templates/pages/help.html:654
 msgid ""
 "Ensure that your username and password do not contain any trailing "
 "characters such as newlines."
 msgstr ""
 
-#: warehouse/templates/pages/help.html:627
+#: warehouse/templates/pages/help.html:656
 msgid "If you are using an <a href=\"#apitoken\">API Token</a> for uploads:"
 msgstr ""
 
-#: warehouse/templates/pages/help.html:629
+#: warehouse/templates/pages/help.html:658
 msgid "Ensure that your API Token is valid and has not been revoked."
 msgstr ""
 
-#: warehouse/templates/pages/help.html:630
+#: warehouse/templates/pages/help.html:659
 msgid ""
 "Ensure that your API Token is <a href=\"#apitoken\">properly formatted</a> "
 "and does not contain any trailing characters such as newlines."
 msgstr ""
 
-#: warehouse/templates/pages/help.html:632
+#: warehouse/templates/pages/help.html:661
 msgid ""
 "In both cases, remember that PyPI and TestPyPI each require you to create an "
 "account, so your credentials may be different."
 msgstr ""
 
-#: warehouse/templates/pages/help.html:634
+#: warehouse/templates/pages/help.html:663
 msgid ""
 "\n"
 "            If you're using Windows and trying to paste your password or "
@@ -5598,7 +5796,7 @@ msgid ""
 "          "
 msgstr ""
 
-#: warehouse/templates/pages/help.html:638
+#: warehouse/templates/pages/help.html:667
 #, fuzzy, python-format
 #| msgid ""
 #| "<a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener"
@@ -5610,7 +5808,7 @@ msgstr ""
 "<a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener"
 "\">Hashes</a> για %(filename)s"
 
-#: warehouse/templates/pages/help.html:645
+#: warehouse/templates/pages/help.html:674
 #, python-format
 msgid ""
 "Transport Layer Security, or TLS, is part of how we make sure connections "
@@ -5630,7 +5828,7 @@ msgstr ""
 "\"%(reason_href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener"
 "\">Μάθετε γιατί στο PSF blog</a>."
 
-#: warehouse/templates/pages/help.html:652
+#: warehouse/templates/pages/help.html:681
 #, python-format
 msgid ""
 "If you are having trouble with <code>%(command)s</code> and get a <code>No "
@@ -5642,7 +5840,7 @@ msgstr ""
 "code>, προσπαθήστε να προσθέσετε το <code>-v</code> (πρώτο γράμμα από τη "
 "λέξη verbose) στην εντολή για να πάρετε παραπάνω πληροφορίες:"
 
-#: warehouse/templates/pages/help.html:654
+#: warehouse/templates/pages/help.html:683
 msgid ""
 "If you see an error like <code>There was a problem confirming the ssl "
 "certificate</code> or <code>tlsv1 alert protocol version</code> or "
@@ -5654,7 +5852,7 @@ msgstr ""
 "<code>TLSV1_ALERT_PROTOCOL_VERSION</code>, θα χρειαστεί να συνδεθείτε στο "
 "PyPI με μια νεώτερη έκδοση του TLS."
 
-#: warehouse/templates/pages/help.html:655
+#: warehouse/templates/pages/help.html:684
 msgid ""
 "The specific steps you need to take will depend on your operating system "
 "version, where your installation of Python originated (python.org, your OS "
@@ -5667,16 +5865,25 @@ msgstr ""
 "μεσολαβητή) και από την έκδοση της εγκατεστημένης Python, του πακέτου "
 "<code>setuptools</code> και του πακέτου <code>pip</code>."
 
-#: warehouse/templates/pages/help.html:657
-#, python-format
+#: warehouse/templates/pages/help.html:686
+#, fuzzy, python-format
+#| msgid ""
+#| "For help, go to <a href=\"%(irc_href)s\" title=\"%(title)s\" target="
+#| "\"_blank\" rel=\"noopener\">the <code>#pypa</code> IRC channel on "
+#| "Freenode</a>, file an issue at <a href=\"%(issue_tracker_href)s\" title="
+#| "\"%(title)s\" target=\"_blank\" rel=\"noopener\">pypa/packaging-problems/"
+#| "issues</a>, or <a href=\"%(mailing_list_href)s\" title=\"%(title)s\" "
+#| "target=\"_blank\" rel=\"noopener\">post to the python-help mailing list</"
+#| "a>, including your OS and installation details and the output of <code>"
+#| "%(command)s</code>."
 msgid ""
 "For help, go to <a href=\"%(irc_href)s\" title=\"%(title)s\" target=\"_blank"
-"\" rel=\"noopener\">the <code>#pypa</code> IRC channel on Freenode</a>, file "
+"\" rel=\"noopener\">the <code>#pypa</code> IRC channel on Libera</a>, file "
 "an issue at <a href=\"%(issue_tracker_href)s\" title=\"%(title)s\" target="
 "\"_blank\" rel=\"noopener\">pypa/packaging-problems/issues</a>, or <a href="
-"\"%(mailing_list_href)s\" title=\"%(title)s\" target=\"_blank\" rel="
-"\"noopener\">post to the python-help mailing list</a>, including your OS and "
-"installation details and the output of <code>%(command)s</code>."
+"\"%(discourse_href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener"
+"\">discuss on the Discourse</a>, including your OS and installation details "
+"and the output of <code>%(command)s</code>."
 msgstr ""
 "Για βοήθεια μεταβείτε <a href=\"%(irc_href)s\" title=\"%(title)s\" target="
 "\"_blank\" rel=\"noopener\">στο κανάλι IRC <code>#pypa</code> στο Freenode</"
@@ -5687,7 +5894,7 @@ msgstr ""
 "λειτουργικό σας σύστημα και οδηγίες εγκατάστασης του καθώς και την έξοδο από "
 "την εντολή <code>%(command)s</code>."
 
-#: warehouse/templates/pages/help.html:668
+#: warehouse/templates/pages/help.html:697
 #, python-format
 msgid ""
 "We take <a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel="
@@ -5698,7 +5905,7 @@ msgstr ""
 "target=\"_blank\" rel=\"noopener\">προσβασιμότητα</a> και θέλουμε να κάνουμε "
 "την ιστοσελίδα εύκολα προσβάσιμη από όλους."
 
-#: warehouse/templates/pages/help.html:673
+#: warehouse/templates/pages/help.html:702
 #, python-format
 msgid ""
 "If you are experiencing an accessibility problem, <a href=\"%(href)s\" title="
@@ -5710,7 +5917,7 @@ msgstr ""
 "GitHub</a>, ούτως ώστε να προσπαθήσουμε να διορθώσουμε το πρόβλημα τόσο για "
 "εσάς όσο και για τους άλλους."
 
-#: warehouse/templates/pages/help.html:681
+#: warehouse/templates/pages/help.html:710
 #, python-format
 msgid ""
 "In a previous version of PyPI, it used to be possible for maintainers to "
@@ -5726,7 +5933,7 @@ msgstr ""
 "\"%(title)s\" target=\"_blank\" rel=\"noopener\">twine για το ανέβασμα του "
 "project σας στο PyPI</a>."
 
-#: warehouse/templates/pages/help.html:690
+#: warehouse/templates/pages/help.html:719
 msgid ""
 "Spammers return to PyPI with some regularity hoping to place their Search "
 "Engine Optimized phishing, scam, and click-farming content on the site. "
@@ -5740,7 +5947,7 @@ msgstr ""
 "γίνεται index η περιγραφή καθώς και άλλα δεδομένα του project και έχει "
 "γενικά πολύ καλή φήμη στην αναζήτηση, το καθιστά πρωταρχικό στόχο."
 
-#: warehouse/templates/pages/help.html:692
+#: warehouse/templates/pages/help.html:721
 #, python-format
 msgid ""
 "When the PyPI administrators are overwhelmed by spam <strong>or</strong> "
@@ -5757,24 +5964,24 @@ msgstr ""
 "κατάστασης μας</a> για περισσότερες πληροφορίες, καθώς θα έχουμε σχετική "
 "ανακοίνωση εκεί για το λόγο της διακοπής αυτών των υπηρεσιών."
 
-#: warehouse/templates/pages/help.html:701
+#: warehouse/templates/pages/help.html:730
 msgid "PyPI will return these errors for one of these reasons:"
 msgstr ""
 "Το PyPI θα επιστρέψει αυτά τα σφάλματα για έναν από τους ακόλουθους λόγους:"
 
-#: warehouse/templates/pages/help.html:703
+#: warehouse/templates/pages/help.html:732
 msgid "Filename has been used and file exists"
 msgstr "Το όνομα αρχείου χρησιμοποιείται και το αρχείο υπάρχει ήδη"
 
-#: warehouse/templates/pages/help.html:704
+#: warehouse/templates/pages/help.html:733
 msgid "Filename has been used but file no longer exists"
 msgstr "Το όνομα αρχείου χρησιμοποιείται αλλά το αρχείο δεν υπάρχει"
 
-#: warehouse/templates/pages/help.html:705
+#: warehouse/templates/pages/help.html:734
 msgid "A file with the exact same content exists"
 msgstr "Το αρχείο υπάρχει με ακριβώς το ίδιο όνομα"
 
-#: warehouse/templates/pages/help.html:707
+#: warehouse/templates/pages/help.html:736
 msgid ""
 "PyPI does not allow for a filename to be reused, even once a project has "
 "been deleted and recreated."
@@ -5782,7 +5989,7 @@ msgstr ""
 "Το PyPI δεν επιτρέπει σε ένα όνομα αρχείου να επαναχρησιμοποιείται ακόμα και "
 "όταν ένα project διαγραφεί ή επαναδημιουργηθεί."
 
-#: warehouse/templates/pages/help.html:709
+#: warehouse/templates/pages/help.html:738
 #, python-format
 msgid ""
 "To avoid this situation, <a href=\"%(test_pypi_href)s\" title=\"%(title)s\" "
@@ -5803,7 +6010,7 @@ msgstr ""
 # | "\">issue tracker</a>. Include the name of the requested classifier
 # and a
 # | "brief justification of why it is important."
-#: warehouse/templates/pages/help.html:716
+#: warehouse/templates/pages/help.html:745
 #, fuzzy, python-format
 msgid ""
 "If you would like to request a new trove classifier file a pull request on "
@@ -5816,7 +6023,7 @@ msgstr ""
 "\">issue tracker μας</a>. Συμπεριλάβετε το όνομα του επιθυμητού classifier "
 "και μια μικρή αιτιολόγηση γιατί αυτό είναι σημαντικό."
 
-#: warehouse/templates/pages/help.html:724
+#: warehouse/templates/pages/help.html:753
 #, python-format
 msgid ""
 "If you're experiencing an issue with PyPI itself, we welcome "
@@ -5833,7 +6040,7 @@ msgstr ""
 "μόνο για θέματα λογισμικού που τρέχουν στο PyPI. Προτού γράψετε ένα νέο "
 "θέμα, ελέγξτε πρώτα αν κάποιο παρόμοιο υπάρχει ήδη."
 
-#: warehouse/templates/pages/help.html:731
+#: warehouse/templates/pages/help.html:760
 msgid ""
 "If you are having an issue is with a specific package installed from PyPI, "
 "you should reach out to the maintainers of that project directly instead."
@@ -5841,7 +6048,7 @@ msgstr ""
 "Αν το θέμα σας αφορά ένα συγκεκριμένο πακέτο εγκατεστημένο από το PyPI, θα "
 "πρέπει να επικοινωνήσετε με τους συντηρητές αυτού του project."
 
-#: warehouse/templates/pages/help.html:740
+#: warehouse/templates/pages/help.html:769
 #, python-format
 msgid ""
 "PyPI is powered by the Warehouse project; <a href=\"%(href)s\" title="
@@ -5856,7 +6063,7 @@ msgstr ""
 "Packaging Authority (PyPA) και υποστηριζόμενο από το Python Packaging "
 "Working Group (PackagingWG)."
 
-#: warehouse/templates/pages/help.html:745
+#: warehouse/templates/pages/help.html:774
 #, python-format
 msgid ""
 "The <a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener"
@@ -5868,7 +6075,7 @@ msgstr ""
 "είναι η βελτίωση και η διατήρηση πολλών κεντρικών projects σχετικά με το "
 "Python packaging."
 
-#: warehouse/templates/pages/help.html:750
+#: warehouse/templates/pages/help.html:779
 #, python-format
 msgid ""
 "The <a href=\"%(packaging_wg_href)s\" title=\"%(title)s\" target=\"_blank\" "
@@ -5888,7 +6095,7 @@ msgstr ""
 "του οποίου η χρηματοδότηση επιτρέπει στους developers να βελτιώσουν την "
 "ασφάλεια και την προσβασιμότητα του Warehouse."
 
-#: warehouse/templates/pages/help.html:760
+#: warehouse/templates/pages/help.html:789
 #, python-format
 msgid ""
 "PyPI is powered by <a href=\"%(warehouse_href)s\" title=\"%(title)s\" target="
@@ -5900,7 +6107,7 @@ msgstr ""
 "εργαλεία και υπηρεσίες που παρέχονται από τους <a href=\"%(sponsors_href)s"
 "\">γενναιόδωρους χορηγούς μας</a>."
 
-#: warehouse/templates/pages/help.html:767
+#: warehouse/templates/pages/help.html:796
 msgid ""
 "As of April 16, 2018, PyPI.org is at \"production\" status, meaning that it "
 "has moved out of beta and replaced the old site (pypi.python.org). It is now "
@@ -5911,7 +6118,7 @@ msgstr ""
 "ιστοσελίδα (pypi.python.org). Είναι πλέον στιβαρό, τεσταρισμένο και έτοιμο "
 "για την αναμενόμενη κυκλοφορία σε επίπεδο browser και API."
 
-#: warehouse/templates/pages/help.html:769
+#: warehouse/templates/pages/help.html:798
 #, python-format
 msgid ""
 "PyPI is heavily cached and distributed via <abbr title=\"content delivery "
@@ -5940,7 +6147,7 @@ msgstr ""
 "κάποιον <a href=\"%(mirror_href)s\">καθρέπτη</a> είτε να φτιάξετε ένα <a "
 "href=\"%(private_index_href)s\">ιδιωτικό αποθετήριο</a>."
 
-#: warehouse/templates/pages/help.html:783
+#: warehouse/templates/pages/help.html:812
 #, python-format
 msgid ""
 "We have a huge amount of work to do to continue to maintain and improve PyPI "
@@ -5952,11 +6159,11 @@ msgstr ""
 "title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">το Warehouse project</"
 "a>)."
 
-#: warehouse/templates/pages/help.html:788
+#: warehouse/templates/pages/help.html:817
 msgid "Financial:"
 msgstr "Οικονομικά:"
 
-#: warehouse/templates/pages/help.html:788
+#: warehouse/templates/pages/help.html:817
 #, python-format
 msgid ""
 "We would deeply appreciate <a href=\"%(href)s\">your donations to fund "
@@ -5965,11 +6172,11 @@ msgstr ""
 "Θα εκτιμούσαμε βαθύτατα <a href=\"%(href)s\">τις δωρεές σας για τη "
 "χρηματοδότηση της ανάπτυξης και της συντήρησης</a>."
 
-#: warehouse/templates/pages/help.html:789
+#: warehouse/templates/pages/help.html:818
 msgid "Development:"
 msgstr "Ανάπτυξη:"
 
-#: warehouse/templates/pages/help.html:789
+#: warehouse/templates/pages/help.html:818
 msgid ""
 "Warehouse is open source, and we would love to see some new faces working on "
 "the project. You <strong>do not</strong> need to be an experienced open-"
@@ -5982,7 +6189,7 @@ msgstr ""
 "πραγματικότητα, θα χαρούμε να σας βοηθήσουμε να κάνετε το πρώτο σας pull "
 "request ανοικτού-κώδικα!"
 
-#: warehouse/templates/pages/help.html:791
+#: warehouse/templates/pages/help.html:820
 #, python-format
 msgid ""
 "If you have skills in Python, ElasticSearch, HTML, SCSS, JavaScript, or "
@@ -6003,7 +6210,7 @@ msgstr ""
 "title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">'Good first issue'</"
 "a> – προτείνουμε να ξεκινήσετε από εκεί."
 
-#: warehouse/templates/pages/help.html:799
+#: warehouse/templates/pages/help.html:828
 #, python-format
 msgid ""
 "Issues are grouped into <a href=\"%(href)s\" title=\"%(title)s\" target="
@@ -6018,11 +6225,11 @@ msgstr ""
 "Αν ενδιαφέρεστε να δουλέψετε πάνω σε ένα συγκεκριμένο issue, αφήστε ένα "
 "σχόλιο και θα σας καθοδηγήσουμε στη διαδικασία συνεισφοράς."
 
-#: warehouse/templates/pages/help.html:806
+#: warehouse/templates/pages/help.html:835
 msgid "Stay updated:"
 msgstr "Μείνετε ενημερωμένοι:"
 
-#: warehouse/templates/pages/help.html:807
+#: warehouse/templates/pages/help.html:836
 #, fuzzy, python-format
 #| msgid ""
 #| "You can also follow the ongoing development of the project on the <a href="
@@ -6043,7 +6250,7 @@ msgstr ""
 "\"%(message_group_href)s\" title=\"%(title)s\" target=\"_blank\" rel="
 "\"noopener\">PyPA Dev message group</a>."
 
-#: warehouse/templates/pages/help.html:817
+#: warehouse/templates/pages/help.html:846
 #, python-format
 msgid ""
 "Changes to PyPI are generally announced on both the <a href="
@@ -6064,7 +6271,7 @@ msgstr ""
 "title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">RSS</a> feeds για την "
 "ετικέτα \"pypi\"."
 
-#: warehouse/templates/pages/help.html:827
+#: warehouse/templates/pages/help.html:856
 msgid ""
 "When Warehouse's maintainers are deploying new features, at first we mark "
 "them with a small \"beta feature\" symbol to tell you: this should probably "
@@ -6076,12 +6283,12 @@ msgstr ""
 "άλλη λειτουργία της ιστοσελίδας."
 
 # | msgid "Currently, the following features are in beta:"
-#: warehouse/templates/pages/help.html:828
+#: warehouse/templates/pages/help.html:857
 #, fuzzy
 msgid "Currently, no features are in beta."
 msgstr "Προς το παρόν, τα ακόλουθα χαρακτηριστικά είναι σε beta:"
 
-#: warehouse/templates/pages/help.html:832
+#: warehouse/templates/pages/help.html:861
 #, python-format
 msgid ""
 "\"PyPI\" should be pronounced like \"pie pea eye\", specifically with the "
@@ -6096,39 +6303,39 @@ msgstr ""
 "project, το οποίο είναι ένα δημοφιλές εναλλακτικό implementation της γλώσσας "
 "προγραμματισμού Python."
 
-#: warehouse/templates/pages/help.html:844
+#: warehouse/templates/pages/help.html:873
 msgid "Resources"
 msgstr "Πόροι"
 
-#: warehouse/templates/pages/help.html:845
+#: warehouse/templates/pages/help.html:874
 msgid "Looking for something else? Perhaps these links will help:"
 msgstr "Ψάχνετε για κάτι άλλο; Ίσως οι παρακάτω σύνδέσμοι να βοηθήσουν:"
 
-#: warehouse/templates/pages/help.html:847
+#: warehouse/templates/pages/help.html:876
 msgid "Python Packaging User Guide"
 msgstr "Python Packaging User Guide"
 
-#: warehouse/templates/pages/help.html:848
+#: warehouse/templates/pages/help.html:877
 msgid "Python documentation"
 msgstr "Τεκμηρίωση Python"
 
-#: warehouse/templates/pages/help.html:849
+#: warehouse/templates/pages/help.html:878
 msgid "(main Python website)"
 msgstr "(κύρια ιστοσελίδα της Python)"
 
-#: warehouse/templates/pages/help.html:850
+#: warehouse/templates/pages/help.html:879
 msgid "Python community page"
 msgstr "Ιστοσελίδα κοινότητας της Python"
 
-#: warehouse/templates/pages/help.html:850
+#: warehouse/templates/pages/help.html:879
 msgid "(lists IRC channels, mailing lists, etc.)"
 msgstr "(προβολή καναλιών IRC, mailing lists, κλπ)"
 
-#: warehouse/templates/pages/help.html:853
+#: warehouse/templates/pages/help.html:882
 msgid "Contact"
 msgstr "Επικοινωνία"
 
-#: warehouse/templates/pages/help.html:855
+#: warehouse/templates/pages/help.html:884
 #, fuzzy, python-format
 #| msgid ""
 #| "The <a href=\"%(pypa_href)s\" title=\"%(title)s\" target=\"_blank\" rel="
@@ -6143,9 +6350,9 @@ msgid ""
 "\"noopener\">Python Packaging Authority (PyPA)</a> is a working group who "
 "work together to improve Python packaging. If you'd like to get in touch "
 "with a core packaging developer, use <a href=\"%(irc_href)s\" title="
-"\"%(title)s\" target=\"_blank\" rel=\"noopener\">#pypa on IRC (freenode)</"
-"a>, or <a href=\"%(discuss_href)s\" title=\"%(title)s\" target=\"_blank\" "
-"rel=\"noopener\">browse the online board</a>."
+"\"%(title)s\" target=\"_blank\" rel=\"noopener\">#pypa on IRC (Libera)</a>, "
+"or <a href=\"%(discourse_href)s\" title=\"%(title)s\" target=\"_blank\" rel="
+"\"noopener\">browse the online board</a>."
 msgstr ""
 "Το <a href=\"%(pypa_href)s\" title=\"%(title)s\" target=\"_blank\" rel="
 "\"noopener\">Python Packaging Authority (PyPA)</a> είναι μια ομάδα εργασίας, "
@@ -6266,12 +6473,12 @@ msgid "Security policy"
 msgstr "Πολιτική ασφάλειας"
 
 # | msgid "Search and filter projects"
-#: warehouse/templates/pages/sponsors.html:25
+#: warehouse/templates/pages/sponsors.html:23
 #, fuzzy
 msgid "Support PyPI and related projects"
 msgstr "Αναζήτηση και φιλτράρισμα projects"
 
-#: warehouse/templates/pages/sponsors.html:26
+#: warehouse/templates/pages/sponsors.html:24
 msgid "Sponsor the Python Software Foundation"
 msgstr ""
 
@@ -6283,7 +6490,7 @@ msgstr ""
 # "
 # | "to improve and maintain many of the core projects related to Python
 # | "packaging."
-#: warehouse/templates/pages/sponsors.html:29
+#: warehouse/templates/pages/sponsors.html:27
 #, fuzzy
 msgid ""
 "The Python Software Foundation raises and distributes funds to improve "
@@ -6294,11 +6501,11 @@ msgstr ""
 "είναι η βελτίωση και η διατήρηση πολλών κεντρικών projects σχετικά με το "
 "Python packaging."
 
-#: warehouse/templates/pages/sponsors.html:31
+#: warehouse/templates/pages/sponsors.html:29
 msgid "Recent projects funded include:"
 msgstr ""
 
-#: warehouse/templates/pages/sponsors.html:34
+#: warehouse/templates/pages/sponsors.html:32
 msgid ""
 "The successful relaunch of the Python Package Index, powered by the new "
 "'Warehouse' codebase"
@@ -6310,7 +6517,7 @@ msgstr ""
 # | "\"_blank\" rel=\"noopener\">Android</a> or <a href=\"%(ios_href)s\"
 # title="
 # | "\"%(title)s\" target=\"_blank\" rel=\"noopener\">iOS</a>"
-#: warehouse/templates/pages/sponsors.html:35
+#: warehouse/templates/pages/sponsors.html:33
 #, fuzzy, python-format
 msgid ""
 "With <a href=\"%(project_href)s\" title=\"%(title)s\" target=\"_blank\" rel="
@@ -6322,7 +6529,7 @@ msgstr ""
 "target=\"_blank\" rel=\"noopener\">Android</a> ή για <a href=\"%(ios_href)s"
 "\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">iOS</a>"
 
-#: warehouse/templates/pages/sponsors.html:38
+#: warehouse/templates/pages/sponsors.html:36
 msgid ""
 "Improving PyPI's security and accessibility, and adding support for multiple "
 "locales"
@@ -6333,7 +6540,7 @@ msgstr ""
 # title=\"%(title)s\"
 # "
 # | "target=\"_blank\" rel=\"noopener\">Python Packaging User Guide</a>"
-#: warehouse/templates/pages/sponsors.html:39
+#: warehouse/templates/pages/sponsors.html:37
 #, fuzzy, python-format
 msgid ""
 "With $80,000 in funding from the <a href=\"%(funder_href)s\" title="
@@ -6343,7 +6550,7 @@ msgstr ""
 "Μάθετε πως να ανεβάζετε αρχεία στο <a href=\"%(href)s\" title=\"%(title)s\" "
 "target=\"_blank\" rel=\"noopener\">Python Packaging User Guide</a>"
 
-#: warehouse/templates/pages/sponsors.html:42
+#: warehouse/templates/pages/sponsors.html:40
 msgid "Additional security-focused features for PyPI"
 msgstr ""
 
@@ -6353,7 +6560,7 @@ msgstr ""
 # | "\"_blank\" rel=\"noopener\">Android</a> or <a href=\"%(ios_href)s\"
 # title="
 # | "\"%(title)s\" target=\"_blank\" rel=\"noopener\">iOS</a>"
-#: warehouse/templates/pages/sponsors.html:43
+#: warehouse/templates/pages/sponsors.html:41
 #, fuzzy, python-format
 msgid ""
 "With <a href=\"%(project_href)s\" title=\"%(title)s\" target=\"_blank\" rel="
@@ -6365,7 +6572,7 @@ msgstr ""
 "target=\"_blank\" rel=\"noopener\">Android</a> ή για <a href=\"%(ios_href)s"
 "\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">iOS</a>"
 
-#: warehouse/templates/pages/sponsors.html:46
+#: warehouse/templates/pages/sponsors.html:44
 msgid "Overhauling pip's user experience and dependency resolver"
 msgstr ""
 
@@ -6380,7 +6587,7 @@ msgstr ""
 # target=\"_blank\"
 # "
 # | "rel=\"noopener\">Thetis</a>."
-#: warehouse/templates/pages/sponsors.html:47
+#: warehouse/templates/pages/sponsors.html:45
 #, fuzzy, python-format
 msgid ""
 "With <a href=\"%(project_href)s\" title=\"%(title)s\" target=\"_blank\" rel="
@@ -6396,70 +6603,70 @@ msgstr ""
 "και <a href=\"%(thetis_href)s\" title=\"%(title)s\" target=\"_blank\" rel="
 "\"noopener\">Thetis</a>."
 
-#: warehouse/templates/pages/sponsors.html:51
+#: warehouse/templates/pages/sponsors.html:49
 msgid ""
 "With your support, the PSF can continue to fund packaging improvements, "
 "benefiting millions of Python users around the world."
 msgstr ""
 
-#: warehouse/templates/pages/sponsors.html:59
+#: warehouse/templates/pages/sponsors.html:57
 #, fuzzy
 #| msgid "Sponsors"
 msgid "PSF Sponsorship"
 msgstr "Χορηγοί"
 
-#: warehouse/templates/pages/sponsors.html:62
+#: warehouse/templates/pages/sponsors.html:60
 msgid ""
 "All of these initiatives help maintain and support the tools that the Python "
 "community uses daily. This work can only be done with the generous financial "
 "support that you or your organization provides."
 msgstr ""
 
-#: warehouse/templates/pages/sponsors.html:63
+#: warehouse/templates/pages/sponsors.html:61
 msgid ""
 "Your contributions matter and they make an impact. Every donation counts!"
 msgstr ""
 
-#: warehouse/templates/pages/sponsors.html:67
+#: warehouse/templates/pages/sponsors.html:65
 msgid "Become a sponsor"
 msgstr ""
 
-#: warehouse/templates/pages/sponsors.html:69
+#: warehouse/templates/pages/sponsors.html:67
 msgid ""
 "The PSF is recognized by the IRS as a 501(c)(3) non-profit charitable "
 "organization, and donations are tax-deductible for organizations that pay "
 "taxes in the United States."
 msgstr ""
 
-#: warehouse/templates/pages/sponsors.html:80
+#: warehouse/templates/pages/sponsors.html:78
 msgid "Get your logo on PyPI.org"
 msgstr ""
 
-#: warehouse/templates/pages/sponsors.html:81
+#: warehouse/templates/pages/sponsors.html:79
 msgid ""
 "Looking for brand visibility? In the last year*, 21.1 million people from "
 "237 countries visited PyPI.org."
 msgstr ""
 
-#: warehouse/templates/pages/sponsors.html:82
+#: warehouse/templates/pages/sponsors.html:80
 msgid "* Data as of March 2020"
 msgstr ""
 
-#: warehouse/templates/pages/sponsors.html:85
+#: warehouse/templates/pages/sponsors.html:83
 msgid "Strengthen the Python ecosystem"
 msgstr ""
 
-#: warehouse/templates/pages/sponsors.html:86
+#: warehouse/templates/pages/sponsors.html:84
 msgid ""
 "Funds raised by the Python Software Foundation go directly towards improving "
 "the tools your company uses every day."
 msgstr ""
 
-#: warehouse/templates/pages/sponsors.html:89
+#: warehouse/templates/pages/sponsors.html:87
 msgid "Boost your reputation"
 msgstr ""
 
-#: warehouse/templates/pages/sponsors.html:90
+#: warehouse/templates/pages/sponsors.html:88
 msgid ""
 "Enhance your company's reputation by investing in Python and the open source "
 "community."
@@ -6910,11 +7117,6 @@ msgstr[1] ""
 #~| msgid "Security policy"
 #~ msgid "PyPI security policy"
 #~ msgstr "Πολιτική ασφάλειας"
-
-#, fuzzy
-#~| msgid "Why is PyPI telling me my password is compromised?"
-#~ msgid "Why is PyPI telling me my API token is compromised?"
-#~ msgstr "Γιατί το PyPI μου λέει ότι ο κωδικός χρήστη έχει εκτεθεί;"
 
 #, fuzzy
 #~| msgid "Authentication"

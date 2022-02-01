@@ -16,10 +16,12 @@ import pretend
 import pytest
 
 from pyramid import renderers
+from pyramid.authorization import Allow, Authenticated
+from pyramid.httpexceptions import HTTPForbidden, HTTPUnauthorized
 from pyramid.tweens import EXCVIEW
 
 from warehouse import config
-from warehouse.errors import BasicAuthBreachedPassword
+from warehouse.errors import BasicAuthBreachedPassword, BasicAuthFailedPassword
 from warehouse.utils.wsgi import HostRewrite, ProxyFixer, VhmRootRemover
 
 
@@ -77,7 +79,10 @@ def test_activate_hook(path, expected):
     [
         (None, False),
         ((ValueError, ValueError(), None), True),
+        ((HTTPForbidden, HTTPForbidden(), None), True),
+        ((HTTPUnauthorized, HTTPUnauthorized(), None), True),
         ((BasicAuthBreachedPassword, BasicAuthBreachedPassword(), None), False),
+        ((BasicAuthFailedPassword, BasicAuthFailedPassword(), None), False),
     ],
 )
 def test_commit_veto(exc_info, expected):
@@ -160,7 +165,6 @@ def test_maybe_set_compound(monkeypatch, environ, base, name, envvar, expected):
         (None, config.Environment.development, {}),
         ({}, config.Environment.development, {}),
         ({"my settings": "the settings value"}, config.Environment.development, {}),
-        (None, config.Environment.production, {"warehouse.theme": "my_theme"}),
     ],
 )
 def test_configure(monkeypatch, settings, environment, other_settings):
@@ -205,7 +209,7 @@ def test_configure(monkeypatch, settings, environment, other_settings):
         whitenoise_serve_static=pretend.call_recorder(lambda *a, **kw: None),
         whitenoise_add_files=pretend.call_recorder(lambda *a, **kw: None),
         whitenoise_add_manifest=pretend.call_recorder(lambda *a, **kw: None),
-        scan=pretend.call_recorder(lambda ignore: None),
+        scan=pretend.call_recorder(lambda categories, ignore: None),
         commit=pretend.call_recorder(lambda: None),
     )
     configurator_cls = pretend.call_recorder(lambda settings: configurator_obj)
@@ -231,6 +235,14 @@ def test_configure(monkeypatch, settings, environment, other_settings):
         "token.default.max_age": 21600,
         "warehouse.xmlrpc.client.ratelimit_string": "3600 per hour",
         "warehouse.xmlrpc.search.enabled": True,
+        "github.token_scanning_meta_api.url": (
+            "https://api.github.com/meta/public_keys/token_scanning"
+        ),
+        "warehouse.account.user_login_ratelimit_string": "10 per 5 minutes",
+        "warehouse.account.ip_login_ratelimit_string": "10 per 5 minutes",
+        "warehouse.account.global_login_ratelimit_string": "1000 per 5 minutes",
+        "warehouse.account.email_add_ratelimit_string": "2 per day",
+        "warehouse.account.password_reset_ratelimit_string": "5 per day",
     }
     if environment == config.Environment.development:
         expected_settings.update(
@@ -325,6 +337,8 @@ def test_configure(monkeypatch, settings, environment, other_settings):
             pretend.call(".packaging"),
             pretend.call(".redirects"),
             pretend.call(".routes"),
+            pretend.call(".sponsors"),
+            pretend.call(".banners"),
             pretend.call(".admin"),
             pretend.call(".forklift"),
             pretend.call(".sentry"),
@@ -395,7 +409,11 @@ def test_configure(monkeypatch, settings, environment, other_settings):
     ]
     assert configurator_obj.scan.calls == [
         pretend.call(
-            ignore=["warehouse.migrations.env", "warehouse.celery", "warehouse.wsgi"]
+            categories=(
+                "pyramid",
+                "warehouse",
+            ),
+            ignore=["warehouse.migrations.env", "warehouse.celery", "warehouse.wsgi"],
         )
     ]
     assert configurator_obj.commit.calls == [pretend.call()]
@@ -409,3 +427,18 @@ def test_configure(monkeypatch, settings, environment, other_settings):
     ]
 
     assert xmlrpc_renderer_cls.calls == [pretend.call(allow_none=True)]
+
+
+def test_root_factory_access_control_list():
+    acl = config.RootFactory.__acl__
+
+    assert len(acl) == 5
+    assert acl[0] == (Allow, "group:admins", "admin")
+    assert acl[1] == (Allow, "group:moderators", "moderator")
+    assert acl[2] == (Allow, "group:psf_staff", "psf_staff")
+    assert acl[3] == (
+        Allow,
+        "group:with_admin_dashboard_access",
+        "admin_dashboard_access",
+    )
+    assert acl[4] == (Allow, Authenticated, "manage:user")

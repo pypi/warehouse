@@ -28,6 +28,10 @@ class TooManyEmailsAdded(RateLimiterException):
     pass
 
 
+class TooManyPasswordResetRequests(RateLimiterException):
+    pass
+
+
 class TokenException(Exception):
     pass
 
@@ -69,7 +73,7 @@ class IUserService(Interface):
         is no user with the given username.
         """
 
-    def check_password(user_id, password, *, tags=None):
+    def check_password(user_id, password, ip_address, *, tags=None):
         """
         Returns a boolean representing whether the given password is valid for
         the given userid.
@@ -145,7 +149,7 @@ class IUserService(Interface):
         allowed to use a second factor, returns None.
         """
 
-    def check_totp_value(user_id, totp_value, *, tags=None):
+    def check_totp_value(user_id, totp_value, ip_address, *, tags=None):
         """
         Returns True if the given TOTP code is valid.
         """
@@ -175,7 +179,7 @@ class IUserService(Interface):
         assertions during authentication.
 
         Returns the validated credential on success, raises
-        webauthn.RegistrationRejectedException on failure.
+        webauthn.RegistrationRejectedError on failure.
         """
 
     def verify_webauthn_assertion(user_id, assertion, *, challenge, origin, rp_id):
@@ -184,7 +188,7 @@ class IUserService(Interface):
         device.
 
         Returns the updated signage count on success, raises
-        webauthn.AuthenticationRejectedException on failure.
+        webauthn.AuthenticationRejectedError on failure.
         """
 
     def get_webauthn_by_label(user_id, label):
@@ -214,7 +218,7 @@ class IUserService(Interface):
         Returns a list of plain-text codes.
         """
 
-    def check_recovery_code(user_id, code):
+    def check_recovery_code(user_id, code, ip_address):
         """
         Checks if supplied code matches a valid hashed recovery code for the given user.
 

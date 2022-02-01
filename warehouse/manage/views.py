@@ -22,6 +22,7 @@ from pyramid.view import view_config, view_defaults
 from sqlalchemy import func
 from sqlalchemy.orm import Load, joinedload
 from sqlalchemy.orm.exc import NoResultFound
+from webauthn.helpers import bytes_to_base64url
 
 import warehouse.utils.otp as otp
 
@@ -84,7 +85,7 @@ from warehouse.utils.project import confirm_project, destroy_docs, remove_projec
 
 
 def user_projects(request):
-    """ Return all the projects for which the user is a sole owner """
+    """Return all the projects for which the user is a sole owner"""
     projects_owned = (
         request.db.query(Project.id)
         .join(Role.project)
@@ -110,6 +111,13 @@ def user_projects(request):
         ),
         "projects_sole_owned": (
             request.db.query(Project).join(with_sole_owner).order_by(Project.name).all()
+        ),
+        "projects_requiring_2fa": (
+            request.db.query(Project)
+            .join(projects_owned, Project.id == projects_owned.c.id)
+            .filter(Project.two_factor_required)
+            .order_by(Project.name)
+            .all()
         ),
     }
 
@@ -149,7 +157,9 @@ class ManageAccountViews:
                 user_service=self.user_service, user_id=self.request.user.id
             ),
             "change_password_form": ChangePasswordForm(
-                user_service=self.user_service, breach_service=self.breach_service
+                request=self.request,
+                user_service=self.user_service,
+                breach_service=self.breach_service,
             ),
             "active_projects": self.active_projects,
         }
@@ -328,6 +338,7 @@ class ManageAccountViews:
     def change_password(self):
         form = ChangePasswordForm(
             **self.request.POST,
+            request=self.request,
             username=self.request.user.username,
             full_name=self.request.user.name,
             email=self.request.user.email,
@@ -360,6 +371,7 @@ class ManageAccountViews:
             return self.default_response
 
         form = ConfirmPasswordForm(
+            request=self.request,
             password=confirm_password,
             username=self.request.user.username,
             user_service=self.user_service,
@@ -400,6 +412,20 @@ class ManageAccountViews:
         self.request.db.delete(self.request.user)
 
         return logout(self.request)
+
+
+@view_config(
+    route_name="manage.account.two-factor",
+    renderer="manage/account/two-factor.html",
+    uses_session=True,
+    require_csrf=True,
+    require_methods=False,
+    permission="manage:user",
+    has_translations=True,
+    require_reauth=True,
+)
+def manage_two_factor(request):
+    return {}
 
 
 @view_defaults(
@@ -524,6 +550,7 @@ class ProvisionTOTPViews:
             return HTTPSeeOther(self.request.route_path("manage.account"))
 
         form = DeleteTOTPForm(
+            request=self.request,
             password=self.request.POST["confirm_password"],
             username=self.request.user.username,
             user_service=self.user_service,
@@ -607,8 +634,12 @@ class ProvisionWebAuthnViews:
             self.user_service.add_webauthn(
                 self.request.user.id,
                 label=form.label.data,
-                credential_id=form.validated_credential.credential_id.decode(),
-                public_key=form.validated_credential.public_key.decode(),
+                credential_id=bytes_to_base64url(
+                    form.validated_credential.credential_id
+                ),
+                public_key=bytes_to_base64url(
+                    form.validated_credential.credential_public_key
+                ),
                 sign_count=form.validated_credential.sign_count,
             )
             self.user_service.record_event(
@@ -734,6 +765,7 @@ class ProvisionRecoveryCodesViews:
             return HTTPSeeOther(self.request.route_path("manage.account"))
 
         form = ConfirmPasswordForm(
+            request=self.request,
             password=self.request.POST["confirm_password"],
             username=self.request.user.username,
             user_service=self.user_service,
@@ -787,6 +819,7 @@ class ProvisionMacaroonViews:
                 project_names=self.project_names,
             ),
             "delete_macaroon_form": DeleteMacaroonForm(
+                request=self.request,
                 username=self.request.user.username,
                 user_service=self.user_service,
                 macaroon_service=self.macaroon_service,
@@ -861,6 +894,7 @@ class ProvisionMacaroonViews:
     )
     def delete_macaroon(self):
         form = DeleteMacaroonForm(
+            request=self.request,
             password=self.request.POST["confirm_password"],
             macaroon_id=self.request.POST["macaroon_id"],
             macaroon_service=self.macaroon_service,
@@ -925,6 +959,10 @@ def manage_projects(request):
     projects_sole_owned = set(
         project.name for project in all_user_projects["projects_sole_owned"]
     )
+    projects_requiring_2fa = set(
+        project.name for project in all_user_projects["projects_requiring_2fa"]
+    )
+
     project_invites = (
         request.db.query(RoleInvitation)
         .filter(RoleInvitation.invite_status == RoleInvitationStatus.Pending)
@@ -938,6 +976,7 @@ def manage_projects(request):
         "projects": sorted(request.user.projects, key=_key, reverse=True),
         "projects_owned": projects_owned,
         "projects_sole_owned": projects_sole_owned,
+        "projects_requiring_2fa": projects_requiring_2fa,
         "project_invites": project_invites,
     }
 
@@ -1771,6 +1810,7 @@ def delete_project_role(project, request):
         role = (
             request.db.query(Role)
             .join(User)
+            .filter(Role.project == project)
             .filter(Role.id == request.POST["role_id"])
             .one()
         )

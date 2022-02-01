@@ -104,6 +104,7 @@ class TestValidation:
         form, field = pretend.stub(), pretend.stub(data=version)
         legacy._validate_pep440_version(form, field)
 
+    @pytest.mark.filterwarnings("ignore:Creating a LegacyVersion.*:DeprecationWarning")
     @pytest.mark.parametrize("version", ["dog", "1.0.dev.a1", "1.0+local"])
     def test_validates_invalid_pep440_version(self, version):
         form, field = pretend.stub(), pretend.stub(data=version)
@@ -943,7 +944,11 @@ class TestFileUpload:
                     "md5_digest": "a fake md5 digest",
                     "summary": "A" * 513,
                 },
-                "'" + "A" * 513 + "' is an invalid value for Summary. "
+                "'"
+                + "A" * 30
+                + "..."
+                + "A" * 30
+                + "' is an invalid value for Summary. "
                 "Error: Field cannot be longer than 512 characters. "
                 "See "
                 "https://packaging.python.org/specifications/core-metadata"
@@ -988,6 +993,7 @@ class TestFileUpload:
             ),
         ],
     )
+    @pytest.mark.filterwarnings("ignore:Creating a LegacyVersion.*:DeprecationWarning")
     def test_fails_invalid_post_data(
         self, pyramid_config, db_request, post_data, message
     ):
@@ -1042,6 +1048,57 @@ class TestFileUpload:
             "See /the/help/url/ "
             "for more information."
         ).format(name)
+
+    @pytest.mark.parametrize(
+        "conflicting_name",
+        [
+            "toast1ng",
+            "toastlng",
+            "t0asting",
+            "toast-ing",
+            "toast.ing",
+            "toast_ing",
+        ],
+    )
+    def test_fails_with_ultranormalized_names(
+        self, pyramid_config, db_request, conflicting_name
+    ):
+        pyramid_config.testing_securitypolicy(userid=1)
+        user = UserFactory.create()
+        EmailFactory.create(user=user)
+        ProjectFactory.create(name="toasting")
+        db_request.user = user
+        db_request.db.flush()
+
+        db_request.POST = MultiDict(
+            {
+                "metadata_version": "1.2",
+                "name": conflicting_name,
+                "version": "1.0",
+                "filetype": "sdist",
+                "md5_digest": "a fake md5 digest",
+                "content": pretend.stub(
+                    filename=f"{conflicting_name}-1.0.tar.gz",
+                    file=io.BytesIO(_TAR_GZ_PKG_TESTDATA),
+                    type="application/tar",
+                ),
+            }
+        )
+
+        db_request.help_url = pretend.call_recorder(lambda **kw: "/the/help/url/")
+
+        with pytest.raises(HTTPBadRequest) as excinfo:
+            legacy.file_upload(db_request)
+
+        resp = excinfo.value
+
+        assert db_request.help_url.calls == [pretend.call(_anchor="project-name")]
+
+        assert resp.status_code == 400
+        assert resp.status == (
+            "400 The name {!r} is too similar to an existing project. "
+            "See /the/help/url/ for more information."
+        ).format(conflicting_name)
 
     @pytest.mark.parametrize(
         ("description_content_type", "description", "message"),
@@ -2573,6 +2630,7 @@ class TestFileUpload:
             "manylinux_2_17_ppc64",
             "manylinux_2_17_ppc64le",
             "manylinux_3_0_s390x",
+            "musllinux_1_1_x86_64",
             "macosx_10_6_intel",
             "macosx_10_13_x86_64",
             "macosx_11_0_x86_64",
@@ -2808,7 +2866,7 @@ class TestFileUpload:
             "linux_x86_64",
             "linux_x86_64.win32",
             "macosx_9_2_x86_64",
-            "macosx_12_2_arm64",
+            "macosx_13_2_arm64",
             "macosx_10_15_amd64",
         ],
     )

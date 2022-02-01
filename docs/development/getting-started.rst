@@ -22,9 +22,8 @@ improve the process:
 
 - For bug reports or general problems, file an issue on `GitHub`_;
 - For real-time chat with other PyPA developers, join ``#pypa-dev`` `on
-  Freenode`_;
-- For longer-form questions or discussion, message the `distutils-sig mailing
-  list`_.
+  Libera`_, or the `PyPA Discord`_;
+- For longer-form questions or discussion, visit `Discourse`_.
 
 .. _dev-env-install:
 
@@ -216,7 +215,10 @@ or that the ``static`` container has finished compiling the static assets:
     static_1 | [20:28:37] Starting 'watch'...
     static_1 | [20:28:37] Finished 'watch' after 11 ms
 
-After the docker containers are setup in the previous step, run:
+or maybe something else.
+
+After the docker containers are setup in the previous step, in a separate
+terminal session, run:
 
 .. code-block:: console
 
@@ -253,9 +255,6 @@ At this point all the services are up, and web container is listening on port
 
 .. note::
 
-    In development mode, the official logos are replaced with placeholders due to
-    copyright.
-
     On Firefox, the logos might show up as black rectangles due to  the
     *Content Security Policy* used and an implementation bug in Firefox (see
     `this bug report <https://bugzilla.mozilla.org/show_bug.cgi?id=1262842>`_
@@ -270,7 +269,7 @@ the string ``password``. You can log in as any account at
 http://localhost:80/account/login/.
 
 To log in as an admin user, log in as ``ewdurbin`` with the password
-``password`` at http://localhost:80/admin/login/.
+``password``.
 
 
 Stopping Warehouse and other services
@@ -322,11 +321,26 @@ Errors when executing ``make build``
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 * If you are using Ubuntu and ``invalid reference format`` error is displayed,
-  you can fix it by installing Docker through `Snap <https://snapcraft.io/docker>`.
+  you can fix it by installing Docker through `Snap <https://snapcraft.io/docker>`_.
 
-.. code-block:: console
+  .. code-block:: console
 
-    snap install docker
+      snap install docker
+
+* If you receive the error: ``python3.8: command not found``, ensure you have
+  Python 3.8 installed on your system.
+  This is the "base" Python version that Warehouse uses to create the rest of
+  the development environment.
+
+* If you are using macOS and you see an
+  ``Error: pg_config executable not found.`` message while building ``psycopg``,
+  you can fix it by installing ``libpq`` via ``brew`` and adding it to your
+  ``PATH``:
+
+  .. code-block:: console
+
+      brew install libpq
+      export PATH="/usr/local/opt/libpq/bin:$PATH"
 
 Errors when executing ``make serve``
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -628,7 +642,7 @@ Talk with us
 ^^^^^^^^^^^^
 
 You can find us via a `GitHub`_ issue, ``#pypa`` or ``#pypa-dev`` `on
-Freenode`_, or the `distutils-sig mailing list`_, to ask questions or get
+Libera`_, the `PyPA Discord`_ or `Discourse`_, to ask questions or get
 involved. And you can meet us in person at `packaging sprints`_.
 
 Learn about Warehouse and packaging
@@ -651,7 +665,8 @@ Resources to help you learn Warehouse's context:
 .. _`reStructured Text`: http://sphinx-doc.org/rest.html
 .. _`open issues that are labelled "good first issue"`: https://github.com/pypa/warehouse/issues?q=is%3Aissue+is%3Aopen+label%3A%22good+first+issue%22
 .. _`GitHub`: https://github.com/pypa/warehouse
-.. _`on Freenode`: https://webchat.freenode.net/?channels=%23pypa-dev,pypa
-.. _`distutils-sig mailing list`: https://mail.python.org/mailman3/lists/distutils-sig.python.org/
+.. _`on Libera`: https://web.libera.chat/#pypa,#pypa-dev
+.. _`Discourse` : https://discuss.python.org/c/packaging/14
+.. _`PyPA Discord` : https://discord.gg/pypa
 .. _`Test PyPI`: https://test.pypi.org/
 .. _`packaging sprints`: https://wiki.python.org/psf/PackagingSprints

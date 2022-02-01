@@ -10,11 +10,17 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from warehouse.admin.services import ISponsorLogoStorage
 from warehouse.utils.static import ManifestCacheBuster
 
 
 def includeme(config):
-    from warehouse.accounts.views import login, logout
+    sponsorlogos_storage_class = config.maybe_dotted(
+        config.registry.settings["sponsorlogos.backend"]
+    )
+    config.register_service_factory(
+        sponsorlogos_storage_class.create_service, ISponsorLogoStorage
+    )
 
     # Setup Jinja2 Rendering for the Admin application
     config.add_jinja2_search_path("templates", name=".html")
@@ -46,22 +52,3 @@ def includeme(config):
 
     # Add our flags
     config.include(".flags")
-
-    config.add_view(
-        login,
-        route_name="admin.login",
-        renderer="admin/login.html",
-        uses_session=True,
-        require_csrf=True,
-        require_methods=False,
-        has_translations=True,
-    )
-    config.add_view(
-        logout,
-        route_name="admin.logout",
-        renderer="admin/logout.html",
-        uses_session=True,
-        require_csrf=True,
-        require_methods=False,
-        has_translations=True,
-    )
