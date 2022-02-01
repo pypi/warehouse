@@ -26,6 +26,7 @@ from warehouse.packaging.interfaces import IDocsStorage, IFileStorage, ISimpleSt
 from warehouse.packaging.services import (
     GCSFileStorage,
     GCSSimpleStorage,
+    GenericLocalBlobStorage,
     LocalDocsStorage,
     LocalFileStorage,
     LocalSimpleStorage,
@@ -631,3 +632,9 @@ class TestGCSSimpleStorage:
         storage.store("foo/bar.txt", filename, meta=meta)
 
         assert blob.metadata == meta
+
+
+class TestGenericLocalBlobStorage:
+    def test_notimplementederror(self):
+        with pytest.raises(NotImplementedError):
+            GenericLocalBlobStorage.create_service(pretend.stub(), pretend.stub())

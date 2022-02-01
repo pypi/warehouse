@@ -28,8 +28,7 @@ class InsecureStorageWarning(UserWarning):
     pass
 
 
-@implementer(IFileStorage)
-class LocalFileStorage:
+class GenericLocalBlobStorage:
     def __init__(self, base):
         # This class should not be used in production, it's trivial for it to
         # be used to read arbitrary files from the disk. It is intended ONLY
@@ -46,7 +45,7 @@ class LocalFileStorage:
 
     @classmethod
     def create_service(cls, context, request):
-        return cls(request.registry.settings["files.path"])
+        raise NotImplementedError
 
     def get(self, path):
         return open(os.path.join(self.base, path), "rb")
@@ -57,37 +56,20 @@ class LocalFileStorage:
         with open(destination, "wb") as dest_fp:
             with open(file_path, "rb") as src_fp:
                 dest_fp.write(src_fp.read())
+
+
+@implementer(IFileStorage)
+class LocalFileStorage(GenericLocalBlobStorage):
+    @classmethod
+    def create_service(cls, context, request):
+        return cls(request.registry.settings["files.path"])
 
 
 @implementer(ISimpleStorage)
-class LocalSimpleStorage:
-    def __init__(self, base):
-        # This class should not be used in production, it's trivial for it to
-        # be used to read arbitrary files from the disk. It is intended ONLY
-        # for local development with trusted users. To make this clear, we'll
-        # raise a warning.
-        warnings.warn(
-            "LocalSimpleStorage is intended only for use in development, you "
-            "should not use it in production due to the lack of safe guards "
-            "for safely locating files on disk.",
-            InsecureStorageWarning,
-        )
-
-        self.base = base
-
+class LocalSimpleStorage(GenericLocalBlobStorage):
     @classmethod
     def create_service(cls, context, request):
         return cls(request.registry.settings["simple.path"])
-
-    def get(self, path):
-        return open(os.path.join(self.base, path), "rb")
-
-    def store(self, path, file_path, *, meta=None):
-        destination = os.path.join(self.base, path)
-        os.makedirs(os.path.dirname(destination), exist_ok=True)
-        with open(destination, "wb") as dest_fp:
-            with open(file_path, "rb") as src_fp:
-                dest_fp.write(src_fp.read())
 
 
 @implementer(IDocsStorage)
@@ -118,7 +100,7 @@ class LocalDocsStorage:
             pass
 
 
-class GenericFileStorage:
+class GenericBlobStorage:
     def __init__(self, bucket, *, prefix=None):
         self.bucket = bucket
         self.prefix = prefix
@@ -138,16 +120,7 @@ class GenericFileStorage:
         return path
 
 
-@implementer(IFileStorage)
-class S3FileStorage(GenericFileStorage):
-    @classmethod
-    def create_service(cls, context, request):
-        session = request.find_service(name="aws.session")
-        s3 = session.resource("s3")
-        bucket = s3.Bucket(request.registry.settings["files.bucket"])
-        prefix = request.registry.settings.get("files.prefix")
-        return cls(bucket, prefix=prefix)
-
+class GenericS3BlobStorage(GenericBlobStorage):
     def get(self, path):
         # Note: this is not actually used in production, instead our CDN is
         # configured to connect directly to our storage bucket. See:
@@ -167,6 +140,17 @@ class S3FileStorage(GenericFileStorage):
         path = self._get_path(path)
 
         self.bucket.upload_file(file_path, path, ExtraArgs=extra_args)
+
+
+@implementer(IFileStorage)
+class S3FileStorage(GenericS3BlobStorage):
+    @classmethod
+    def create_service(cls, context, request):
+        session = request.find_service(name="aws.session")
+        s3 = session.resource("s3")
+        bucket = s3.Bucket(request.registry.settings["files.bucket"])
+        prefix = request.registry.settings.get("files.prefix")
+        return cls(bucket, prefix=prefix)
 
 
 @implementer(IDocsStorage)
@@ -202,8 +186,43 @@ class S3DocsStorage:
             )
 
 
+class GenericGCSBlobStorage(GenericBlobStorage):
+    def get(self, path):
+        # Note: this is not actually used in production, instead our CDN is
+        # configured to connect directly to our storage bucket. See:
+        # https://github.com/python/pypi-infra/blob/master/terraform/file-hosting/vcl/main.vcl
+        raise NotImplementedError
+
+    @google.api_core.retry.Retry(
+        predicate=google.api_core.retry.if_exception_type(
+            google.api_core.exceptions.ServiceUnavailable
+        )
+    )
+    def store(self, path, file_path, *, meta=None):
+        path = self._get_path(path)
+        blob = self.bucket.blob(path)
+        if meta is not None:
+            blob.metadata = meta
+
+        # Our upload is not fully transactional, meaning that this upload may
+        # succeed, and the corresponding write to DB may fail. If/when that
+        # happens, the distribution will not be on PyPI, but the file will be
+        # in the object store, and future repeated upload attempts will fail
+        # due missing DB entries for this file, and due to our object store
+        # disallowing overwrites.
+        #
+        # Because the file_path always includes the file's hash (that we
+        # calculate on upload) we can be assured that any attempt to upload a
+        # blob that already exists is a result of this edge case, and we can
+        # safely skip the upload.
+        if not blob.exists():
+            blob.upload_from_filename(file_path)
+        else:
+            sentry_sdk.capture_message(f"Skipped uploading duplicate file: {file_path}")
+
+
 @implementer(IFileStorage)
-class GCSFileStorage(GenericFileStorage):
+class GCSFileStorage(GenericGCSBlobStorage):
     @classmethod
     @google.api_core.retry.Retry(
         predicate=google.api_core.retry.if_exception_type(
@@ -218,42 +237,9 @@ class GCSFileStorage(GenericFileStorage):
 
         return cls(bucket, prefix=prefix)
 
-    def get(self, path):
-        # Note: this is not actually used in production, instead our CDN is
-        # configured to connect directly to our storage bucket. See:
-        # https://github.com/python/pypi-infra/blob/master/terraform/file-hosting/vcl/main.vcl
-        raise NotImplementedError
-
-    @google.api_core.retry.Retry(
-        predicate=google.api_core.retry.if_exception_type(
-            google.api_core.exceptions.ServiceUnavailable
-        )
-    )
-    def store(self, path, file_path, *, meta=None):
-        path = self._get_path(path)
-        blob = self.bucket.blob(path)
-        if meta is not None:
-            blob.metadata = meta
-
-        # Our upload is not fully transactional, meaning that this upload may
-        # succeed, and the corresponding write to DB may fail. If/when that
-        # happens, the distribution will not be on PyPI, but the file will be
-        # in the object store, and future repeated upload attempts will fail
-        # due missing DB entries for this file, and due to our object store
-        # disallowing overwrites.
-        #
-        # Because the file_path always includes the file's hash (that we
-        # calculate on upload) we can be assured that any attempt to upload a
-        # blob that already exists is a result of this edge case, and we can
-        # safely skip the upload.
-        if not blob.exists():
-            blob.upload_from_filename(file_path)
-        else:
-            sentry_sdk.capture_message(f"Skipped uploading duplicate file: {file_path}")
-
 
 @implementer(ISimpleStorage)
-class GCSSimpleStorage(GenericFileStorage):
+class GCSSimpleStorage(GenericGCSBlobStorage):
     @classmethod
     @google.api_core.retry.Retry(
         predicate=google.api_core.retry.if_exception_type(
@@ -267,36 +253,3 @@ class GCSSimpleStorage(GenericFileStorage):
         prefix = request.registry.settings.get("simple.prefix")
 
         return cls(bucket, prefix=prefix)
-
-    def get(self, path):
-        # Note: this is not actually used in production, instead our CDN is
-        # configured to connect directly to our storage bucket. See:
-        # https://github.com/python/pypi-infra/blob/master/terraform/file-hosting/vcl/main.vcl
-        raise NotImplementedError
-
-    @google.api_core.retry.Retry(
-        predicate=google.api_core.retry.if_exception_type(
-            google.api_core.exceptions.ServiceUnavailable
-        )
-    )
-    def store(self, path, file_path, *, meta=None):
-        path = self._get_path(path)
-        blob = self.bucket.blob(path)
-        if meta is not None:
-            blob.metadata = meta
-
-        # Our upload is not fully transactional, meaning that this upload may
-        # succeed, and the corresponding write to DB may fail. If/when that
-        # happens, the distribution will not be on PyPI, but the file will be
-        # in the object store, and future repeated upload attempts will fail
-        # due missing DB entries for this file, and due to our object store
-        # disallowing overwrites.
-        #
-        # Because the file_path always includes the file's hash (that we
-        # calculate on upload) we can be assured that any attempt to upload a
-        # blob that already exists is a result of this edge case, and we can
-        # safely skip the upload.
-        if not blob.exists():
-            blob.upload_from_filename(file_path)
-        else:
-            sentry_sdk.capture_message(f"Skipped uploading duplicate file: {file_path}")
