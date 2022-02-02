@@ -378,6 +378,29 @@ class TestGCSFileStorage:
         assert bucket.blob.calls == [pretend.call("foo/bar.txt")]
         assert blob.upload_from_filename.calls == [pretend.call(filename)]
 
+    @pytest.mark.parametrize(
+        "path, expected",
+        [
+            ("xx/foo/bar.txt", "myprefix/xx/foo/bar.txt"),
+            ("foo/bar.txt", "myprefix/foo/bar.txt"),
+        ],
+    )
+    def test_stores_file_with_prefix(self, tmpdir, path, expected):
+        filename = str(tmpdir.join("testfile.txt"))
+        with open(filename, "wb") as fp:
+            fp.write(b"Test File!")
+
+        blob = pretend.stub(
+            upload_from_filename=pretend.call_recorder(lambda file_path: None),
+            exists=lambda: False,
+        )
+        bucket = pretend.stub(blob=pretend.call_recorder(lambda path: blob))
+        storage = GCSFileStorage(bucket, prefix="myprefix/")
+        storage.store(path, filename)
+
+        assert bucket.blob.calls == [pretend.call(expected)]
+        assert blob.upload_from_filename.calls == [pretend.call(filename)]
+
     def test_stores_two_files(self, tmpdir):
         filename1 = str(tmpdir.join("testfile1.txt"))
         with open(filename1, "wb") as fp:

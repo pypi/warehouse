@@ -106,11 +106,6 @@ class GenericBlobStorage:
         self.prefix = prefix
 
     def _get_path(self, path):
-        # Legacy paths will have a first directory of something like 2.7, we
-        # want to just continue to support them for now.
-        if len(path.split("/")[0]) > 2:
-            return path
-
         # If we have a prefix, then prepend it to our path. This will let us
         # store items inside of a sub directory without exposing that to end
         # users.
