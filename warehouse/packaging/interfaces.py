@@ -13,7 +13,7 @@
 from zope.interface import Interface
 
 
-class IFileStorage(Interface):
+class IGenericFileStorage(Interface):
     def create_service(context, request):
         """
         Create the service, given the context and request for which it is being
@@ -32,6 +32,14 @@ class IFileStorage(Interface):
         specified by path. An additional meta keyword argument may contain
         extra information that an implementation may or may not store.
         """
+
+
+class IFileStorage(IGenericFileStorage):
+    pass
+
+
+class ISimpleStorage(IGenericFileStorage):
+    pass
 
 
 class IDocsStorage(Interface):
