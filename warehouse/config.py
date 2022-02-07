@@ -178,6 +178,7 @@ def configure(settings=None):
     maybe_set(settings, "celery.broker_url", "BROKER_URL")
     maybe_set(settings, "celery.result_url", "REDIS_URL")
     maybe_set(settings, "celery.scheduler_url", "REDIS_URL")
+    maybe_set(settings, "oidc.jwk_cache_url", "REDIS_URL")
     maybe_set(settings, "database.url", "DATABASE_URL")
     maybe_set(settings, "elasticsearch.url", "ELASTICSEARCH_URL")
     maybe_set(settings, "elasticsearch.url", "ELASTICSEARCH_SIX_URL")
@@ -458,6 +459,9 @@ def configure(settings=None):
 
     # Register support for Macaroon based authentication
     config.include(".macaroons")
+
+    # Register support for OIDC provider based authentication
+    config.include(".oidc")
 
     # Register support for malware checks
     config.include(".malware")
