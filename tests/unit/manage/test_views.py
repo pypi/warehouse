@@ -276,7 +276,6 @@ class TestManageAccount:
             pretend.call(
                 pyramid_request.user.id,
                 tag="account:email:add",
-                ip_address=pyramid_request.remote_addr,
                 additional={"email": email_address},
             )
         ]
@@ -347,7 +346,6 @@ class TestManageAccount:
             pretend.call(
                 request.user.id,
                 tag="account:email:remove",
-                ip_address=request.remote_addr,
                 additional={"email": email.email},
             )
         ]
@@ -440,7 +438,6 @@ class TestManageAccount:
             pretend.call(
                 user.id,
                 tag="account:email:primary:change",
-                ip_address=db_request.remote_addr,
                 additional={"old_primary": "old", "new_primary": "new"},
             )
         ]
@@ -476,7 +473,6 @@ class TestManageAccount:
             pretend.call(
                 user.id,
                 tag="account:email:primary:change",
-                ip_address=db_request.remote_addr,
                 additional={"old_primary": None, "new_primary": new_primary.email},
             )
         ]
@@ -645,11 +641,7 @@ class TestManageAccount:
             pretend.call(request.user.id, password=new_password)
         ]
         assert user_service.record_event.calls == [
-            pretend.call(
-                request.user.id,
-                tag="account:password:change",
-                ip_address=request.remote_addr,
-            )
+            pretend.call(request.user.id, tag="account:password:change")
         ]
 
     def test_change_password_validation_fails(self, monkeypatch):
@@ -1029,7 +1021,6 @@ class TestProvisionTOTP:
             pretend.call(
                 request.user.id,
                 tag="account:two_factor:method_added",
-                ip_address=request.remote_addr,
                 additional={"method": "totp"},
             )
         ]
@@ -1185,7 +1176,6 @@ class TestProvisionTOTP:
             pretend.call(
                 request.user.id,
                 tag="account:two_factor:method_removed",
-                ip_address=request.remote_addr,
                 additional={"method": "totp"},
             )
         ]
@@ -1380,7 +1370,6 @@ class TestProvisionWebAuthn:
             pretend.call(
                 request.user.id,
                 tag="account:two_factor:method_added",
-                ip_address=request.remote_addr,
                 additional={
                     "method": "webauthn",
                     "label": provision_webauthn_obj.label.data,
@@ -1474,7 +1463,6 @@ class TestProvisionWebAuthn:
             pretend.call(
                 request.user.id,
                 tag="account:two_factor:method_removed",
-                ip_address=request.remote_addr,
                 additional={
                     "method": "webauthn",
                     "label": delete_webauthn_obj.label.data,
@@ -1551,9 +1539,7 @@ class TestProvisionRecoveryCodes:
         result = view.recovery_codes_generate()
 
         assert user_service.record_event.calls == [
-            pretend.call(
-                1, tag="account:recovery_codes:generated", ip_address="0.0.0.0"
-            )
+            pretend.call(1, tag="account:recovery_codes:generated")
         ]
 
         assert result == {"recovery_codes": ["aaaaaaaaaaaa", "bbbbbbbbbbbb"]}
@@ -1609,9 +1595,7 @@ class TestProvisionRecoveryCodes:
         result = view.recovery_codes_regenerate()
 
         assert user_service.record_event.calls == [
-            pretend.call(
-                1, tag="account:recovery_codes:regenerated", ip_address="0.0.0.0"
-            )
+            pretend.call(1, tag="account:recovery_codes:regenerated")
         ]
 
         assert result == {"recovery_codes": ["cccccccccccc", "dddddddddddd"]}
@@ -1820,7 +1804,6 @@ class TestProvisionMacaroonViews:
             pretend.call(
                 request.user.id,
                 tag="account:api_token:added",
-                ip_address=request.remote_addr,
                 additional={
                     "description": create_macaroon_obj.description.data,
                     "caveats": {
@@ -1838,8 +1821,9 @@ class TestProvisionMacaroonViews:
                 lambda *a, **kw: ("not a real raw macaroon", macaroon)
             )
         )
-        record_event = pretend.call_recorder(lambda *a, **kw: None)
-        user_service = pretend.stub(record_event=record_event)
+        record_user_event = pretend.call_recorder(lambda *a, **kw: None)
+        record_project_event = pretend.call_recorder(lambda *a, **kw: None)
+        user_service = pretend.stub(record_event=record_user_event)
         request = pretend.stub(
             POST={},
             domain=pretend.stub(),
@@ -1848,8 +1832,12 @@ class TestProvisionMacaroonViews:
                 has_primary_verified_email=True,
                 username=pretend.stub(),
                 projects=[
-                    pretend.stub(normalized_name="foo", record_event=record_event),
-                    pretend.stub(normalized_name="bar", record_event=record_event),
+                    pretend.stub(
+                        normalized_name="foo", record_event=record_project_event
+                    ),
+                    pretend.stub(
+                        normalized_name="bar", record_event=record_project_event
+                    ),
                 ],
             ),
             find_service=lambda interface, **kw: {
@@ -1899,11 +1887,10 @@ class TestProvisionMacaroonViews:
             "macaroon": macaroon,
             "create_macaroon_form": create_macaroon_obj,
         }
-        assert record_event.calls == [
+        assert record_user_event.calls == [
             pretend.call(
                 request.user.id,
                 tag="account:api_token:added",
-                ip_address=request.remote_addr,
                 additional={
                     "description": create_macaroon_obj.description.data,
                     "caveats": {
@@ -1911,7 +1898,9 @@ class TestProvisionMacaroonViews:
                         "version": 1,
                     },
                 },
-            ),
+            )
+        ]
+        assert record_project_event.calls == [
             pretend.call(
                 tag="project:api_token:added",
                 ip_address=request.remote_addr,
@@ -2048,7 +2037,6 @@ class TestProvisionMacaroonViews:
             pretend.call(
                 request.user.id,
                 tag="account:api_token:removed",
-                ip_address=request.remote_addr,
                 additional={"macaroon_id": delete_macaroon_obj.macaroon_id.data},
             )
         ]
@@ -2062,10 +2050,9 @@ class TestProvisionMacaroonViews:
             delete_macaroon=pretend.call_recorder(lambda id: pretend.stub()),
             find_macaroon=pretend.call_recorder(lambda id: macaroon),
         )
-        record_event = pretend.call_recorder(
-            pretend.call_recorder(lambda *a, **kw: None)
-        )
-        user_service = pretend.stub(record_event=record_event)
+        record_user_event = pretend.call_recorder(lambda *a, **kw: None)
+        record_project_event = pretend.call_recorder(lambda *a, **kw: None)
+        user_service = pretend.stub(record_event=record_user_event)
         request = pretend.stub(
             POST={"confirm_password": pretend.stub(), "macaroon_id": pretend.stub()},
             route_path=pretend.call_recorder(lambda x: pretend.stub()),
@@ -2080,8 +2067,12 @@ class TestProvisionMacaroonViews:
                 id=pretend.stub(),
                 username=pretend.stub(),
                 projects=[
-                    pretend.stub(normalized_name="foo", record_event=record_event),
-                    pretend.stub(normalized_name="bar", record_event=record_event),
+                    pretend.stub(
+                        normalized_name="foo", record_event=record_project_event
+                    ),
+                    pretend.stub(
+                        normalized_name="bar", record_event=record_project_event
+                    ),
                 ],
             ),
             remote_addr="0.0.0.0",
@@ -2110,13 +2101,14 @@ class TestProvisionMacaroonViews:
         assert request.session.flash.calls == [
             pretend.call("Deleted API token 'fake macaroon'.", queue="success")
         ]
-        assert record_event.calls == [
+        assert record_user_event.calls == [
             pretend.call(
                 request.user.id,
                 tag="account:api_token:removed",
-                ip_address=request.remote_addr,
                 additional={"macaroon_id": delete_macaroon_obj.macaroon_id.data},
-            ),
+            )
+        ]
+        assert record_project_event.calls == [
             pretend.call(
                 tag="project:api_token:removed",
                 ip_address=request.remote_addr,

@@ -424,7 +424,6 @@ def recovery_code(request, _form_class=RecoveryCodeAuthenticationForm):
             user_service.record_event(
                 userid,
                 tag="account:recovery_codes:used",
-                ip_address=request.remote_addr,
             )
 
             request.session.flash(
@@ -539,7 +538,6 @@ def register(request, _form_class=RegistrationForm):
         user_service.record_event(
             user.id,
             tag="account:create",
-            ip_address=request.remote_addr,
             additional={"email": form.email.data},
         )
 
@@ -586,7 +584,6 @@ def request_password_reset(request, _form_class=RequestPasswordResetForm):
             user_service.record_event(
                 user.id,
                 tag="account:password:reset:request",
-                ip_address=request.remote_addr,
             )
             user_service.ratelimiters["password.reset"].hit(user.id)
 
@@ -597,7 +594,6 @@ def request_password_reset(request, _form_class=RequestPasswordResetForm):
             user_service.record_event(
                 user.id,
                 tag="account:password:reset:attempt",
-                ip_address=request.remote_addr,
             )
             request.session.flash(
                 request._(
@@ -687,9 +683,7 @@ def reset_password(request, _form_class=ResetPasswordForm):
         )
         # Update password.
         user_service.update_user(user.id, password=form.new_password.data)
-        user_service.record_event(
-            user.id, tag="account:password:reset", ip_address=request.remote_addr
-        )
+        user_service.record_event(user.id, tag="account:password:reset")
         password_reset_limiter.clear(user.id)
 
         # Send password change email
@@ -983,7 +977,6 @@ def _login_user(request, userid, two_factor_method=None, two_factor_label=None):
     user_service.record_event(
         userid,
         tag="account:login:success",
-        ip_address=request.remote_addr,
         additional={
             "two_factor_method": two_factor_method,
             "two_factor_label": two_factor_label,

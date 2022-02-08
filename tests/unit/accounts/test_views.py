@@ -259,7 +259,6 @@ class TestLogin:
             pretend.call(
                 user_id,
                 tag="account:login:success",
-                ip_address=pyramid_request.remote_addr,
                 additional={"two_factor_method": None, "two_factor_label": None},
             )
         ]
@@ -318,7 +317,6 @@ class TestLogin:
             pretend.call(
                 1,
                 tag="account:login:success",
-                ip_address=pyramid_request.remote_addr,
                 additional={"two_factor_method": None, "two_factor_label": None},
             )
         ]
@@ -625,7 +623,6 @@ class TestTwoFactor:
             pretend.call(
                 "1",
                 tag="account:login:success",
-                ip_address=pyramid_request.remote_addr,
                 additional={"two_factor_method": "totp", "two_factor_label": "totp"},
             )
         ]
@@ -1050,7 +1047,6 @@ class TestRecoveryCode:
             pretend.call(
                 "1",
                 tag="account:login:success",
-                ip_address=pyramid_request.remote_addr,
                 additional={
                     "two_factor_method": "recovery-code",
                     "two_factor_label": None,
@@ -1059,7 +1055,6 @@ class TestRecoveryCode:
             pretend.call(
                 "1",
                 tag="account:recovery_codes:used",
-                ip_address=pyramid_request.remote_addr,
             ),
         ]
         assert pyramid_request.session.flash.calls == [
@@ -1292,13 +1287,11 @@ class TestRegister:
             pretend.call(
                 user.id,
                 tag="account:create",
-                ip_address=db_request.remote_addr,
                 additional={"email": "foo@bar.com"},
             ),
             pretend.call(
                 user.id,
                 tag="account:login:success",
-                ip_address=db_request.remote_addr,
                 additional={"two_factor_method": None, "two_factor_label": None},
             ),
         ]
@@ -1406,7 +1399,6 @@ class TestRequestPasswordReset:
             pretend.call(
                 stub_user.id,
                 tag="account:password:reset:request",
-                ip_address=pyramid_request.remote_addr,
             )
         ]
 
@@ -1472,7 +1464,6 @@ class TestRequestPasswordReset:
             pretend.call(
                 stub_user.id,
                 tag="account:password:reset:request",
-                ip_address=pyramid_request.remote_addr,
             )
         ]
         assert user_service.ratelimiters["password.reset"].test.calls == [
@@ -1549,7 +1540,6 @@ class TestRequestPasswordReset:
             pretend.call(
                 stub_user.id,
                 tag="account:password:reset:request",
-                ip_address=pyramid_request.remote_addr,
             )
         ]
         assert user_service.ratelimiters["password.reset"].test.calls == [
@@ -1648,7 +1638,6 @@ class TestRequestPasswordReset:
             pretend.call(
                 stub_user.id,
                 tag="account:password:reset:attempt",
-                ip_address=pyramid_request.remote_addr,
             )
         ]
 

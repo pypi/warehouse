@@ -73,7 +73,7 @@ class IUserService(Interface):
         is no user with the given username.
         """
 
-    def check_password(user_id, password, ip_address, *, tags=None):
+    def check_password(user_id, password, *, tags=None):
         """
         Returns a boolean representing whether the given password is valid for
         the given userid.
@@ -90,9 +90,7 @@ class IUserService(Interface):
         A UserAlreadyExists Exception is raised if the user already exists.
         """
 
-    def add_email(
-        user_id, email_address, ip_address, primary=False, verified=False, public=False
-    ):
+    def add_email(user_id, email_address, primary=False, verified=False, public=False):
         """
         Adds an email for the provided user_id
         """
@@ -149,7 +147,7 @@ class IUserService(Interface):
         allowed to use a second factor, returns None.
         """
 
-    def check_totp_value(user_id, totp_value, ip_address, *, tags=None):
+    def check_totp_value(user_id, totp_value, *, tags=None):
         """
         Returns True if the given TOTP code is valid.
         """
@@ -203,7 +201,7 @@ class IUserService(Interface):
         or None of the user doesn't have a credential with this ID.
         """
 
-    def record_event(user_id, *, tag, ip_address, additional=None):
+    def record_event(user_id, *, tag, additional=None):
         """
         Creates a new UserEvent for the given user with the given
         tag, IP address, and additional metadata.
@@ -218,7 +216,7 @@ class IUserService(Interface):
         Returns a list of plain-text codes.
         """
 
-    def check_recovery_code(user_id, code, ip_address):
+    def check_recovery_code(user_id, code):
         """
         Checks if supplied code matches a valid hashed recovery code for the given user.
 
