@@ -1520,7 +1520,7 @@ class TestProvisionWebAuthn:
 
 
 class TestProvisionRecoveryCodes:
-    def test_recovery_codes_generate(self):
+    def test_recovery_codes_generate(self, monkeypatch):
         user_service = pretend.stub(
             has_recovery_codes=lambda user_id: False,
             has_two_factor=lambda user_id: True,
@@ -1535,6 +1535,15 @@ class TestProvisionRecoveryCodes:
             remote_addr="0.0.0.0",
         )
 
+        send_recovery_codes_generated_email = pretend.call_recorder(
+            lambda request, user: None
+        )
+        monkeypatch.setattr(
+            views,
+            "send_recovery_codes_generated_email",
+            send_recovery_codes_generated_email,
+        )
+
         view = views.ProvisionRecoveryCodesViews(request)
         result = view.recovery_codes_generate()
 
@@ -1543,6 +1552,9 @@ class TestProvisionRecoveryCodes:
         ]
 
         assert result == {"recovery_codes": ["aaaaaaaaaaaa", "bbbbbbbbbbbb"]}
+        assert send_recovery_codes_generated_email.calls == [
+            pretend.call(request, request.user)
+        ]
 
     def test_recovery_codes_generate_already_exist(self, pyramid_request):
         user_service = pretend.stub(
@@ -1590,6 +1602,14 @@ class TestProvisionRecoveryCodes:
             user=pretend.stub(id=1, username="username"),
             remote_addr="0.0.0.0",
         )
+        send_recovery_codes_generated_email = pretend.call_recorder(
+            lambda request, user: None
+        )
+        monkeypatch.setattr(
+            views,
+            "send_recovery_codes_generated_email",
+            send_recovery_codes_generated_email,
+        )
 
         view = views.ProvisionRecoveryCodesViews(request)
         result = view.recovery_codes_regenerate()
@@ -1599,6 +1619,9 @@ class TestProvisionRecoveryCodes:
         ]
 
         assert result == {"recovery_codes": ["cccccccccccc", "dddddddddddd"]}
+        assert send_recovery_codes_generated_email.calls == [
+            pretend.call(request, request.user)
+        ]
 
 
 class TestProvisionMacaroonViews:

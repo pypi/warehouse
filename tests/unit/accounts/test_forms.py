@@ -829,15 +829,24 @@ class TestRecoveryCodeForm:
             )
         ]
 
-    def test_valid_recovery_code(self):
+    def test_valid_recovery_code(self, monkeypatch):
         request = pretend.stub(remote_addr="1.2.3.4")
+        user = pretend.stub(id=pretend.stub(), username="foobar")
         form = forms.RecoveryCodeAuthenticationForm(
             request=request,
             data={"recovery_code_value": "valid"},
             user_id=pretend.stub(),
             user_service=pretend.stub(
-                check_recovery_code=pretend.call_recorder(lambda *a, **kw: True)
+                check_recovery_code=pretend.call_recorder(lambda *a, **kw: True),
+                get_user=lambda _: user,
             ),
+        )
+        send_recovery_code_used_email = pretend.call_recorder(
+            lambda request, user: None
+        )
+        monkeypatch.setattr(
+            forms, "send_recovery_code_used_email", send_recovery_code_used_email
         )
 
         assert form.validate()
+        assert send_recovery_code_used_email.calls == [pretend.call(request, user)]

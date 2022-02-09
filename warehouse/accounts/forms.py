@@ -31,7 +31,10 @@ from warehouse.accounts.interfaces import (
     TooManyFailedLogins,
 )
 from warehouse.accounts.models import DisableReason
-from warehouse.email import send_password_compromised_email_hibp
+from warehouse.email import (
+    send_password_compromised_email_hibp,
+    send_recovery_code_used_email,
+)
 from warehouse.i18n import localize as _
 from warehouse.utils.otp import TOTP_LENGTH
 
@@ -387,8 +390,9 @@ class RecoveryCodeAuthenticationForm(
         recovery_code_value = field.data.encode("utf-8")
 
         try:
-            self.user_service.check_recovery_code(
-                self.user_id, recovery_code_value, self.request.remote_addr
+            self.user_service.check_recovery_code(self.user_id, recovery_code_value)
+            send_recovery_code_used_email(
+                self.request, self.user_service.get_user(self.user_id)
             )
         except (InvalidRecoveryCode, NoRecoveryCodes):
             self.user_service.record_event(

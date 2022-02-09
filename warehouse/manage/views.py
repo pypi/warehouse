@@ -43,6 +43,7 @@ from warehouse.email import (
     send_password_change_email,
     send_primary_email_change_email,
     send_project_role_verification_email,
+    send_recovery_codes_generated_email,
     send_removed_as_collaborator_email,
     send_removed_project_email,
     send_removed_project_release_email,
@@ -720,15 +721,14 @@ class ProvisionRecoveryCodesViews:
                 ),
             }
 
+        recovery_codes = self.user_service.generate_recovery_codes(self.request.user.id)
+        send_recovery_codes_generated_email(self.request, self.request.user)
         self.user_service.record_event(
             self.request.user.id,
             tag="account:recovery_codes:generated",
         )
-        return {
-            "recovery_codes": self.user_service.generate_recovery_codes(
-                self.request.user.id
-            )
-        }
+
+        return {"recovery_codes": recovery_codes}
 
     @view_config(
         request_method="POST",
@@ -736,15 +736,14 @@ class ProvisionRecoveryCodesViews:
         renderer="manage/account/recovery_codes-provision.html",
     )
     def recovery_codes_regenerate(self):
+        recovery_codes = self.user_service.generate_recovery_codes(self.request.user.id)
+        send_recovery_codes_generated_email(self.request, self.request.user)
         self.user_service.record_event(
             self.request.user.id,
             tag="account:recovery_codes:regenerated",
         )
-        return {
-            "recovery_codes": self.user_service.generate_recovery_codes(
-                self.request.user.id
-            )
-        }
+
+        return {"recovery_codes": recovery_codes}
 
 
 @view_defaults(
