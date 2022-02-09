@@ -401,7 +401,6 @@ class RecoveryCodeAuthenticationForm(
             self.user_service.record_event(
                 self.user_id,
                 tag="account:login:failure",
-                ip_address=self.request.remote_addr,
                 additional={"reason": "burned_recovery_code"},
             )
             raise wtforms.validators.ValidationError(

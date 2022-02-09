@@ -825,7 +825,6 @@ class TestRecoveryCodeForm:
             pretend.call(
                 1,
                 tag="account:login:failure",
-                ip_address="127.0.0.1",
                 additional={"reason": expected_reason},
             )
         ]
