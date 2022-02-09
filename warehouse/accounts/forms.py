@@ -24,7 +24,11 @@ import wtforms.fields.html5
 import warehouse.utils.webauthn as webauthn
 
 from warehouse import forms
-from warehouse.accounts.interfaces import TooManyFailedLogins
+from warehouse.accounts.interfaces import (
+    InvalidRecoveryCode,
+    NoRecoveryCodes,
+    TooManyFailedLogins,
+)
 from warehouse.accounts.models import DisableReason
 from warehouse.email import send_password_compromised_email_hibp
 from warehouse.i18n import localize as _
@@ -381,7 +385,11 @@ class RecoveryCodeAuthenticationForm(
     def validate_recovery_code_value(self, field):
         recovery_code_value = field.data.encode("utf-8")
 
-        if not self.user_service.check_recovery_code(self.user_id, recovery_code_value):
+        try:
+            self.user_service.check_recovery_code(
+                self.user_id, recovery_code_value, self.request.remote_addr
+            )
+        except (InvalidRecoveryCode, NoRecoveryCodes):
             self.user_service.record_event(
                 self.user_id,
                 tag="account:login:failure",

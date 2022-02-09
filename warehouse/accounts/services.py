@@ -30,9 +30,11 @@ import warehouse.utils.otp as otp
 import warehouse.utils.webauthn as webauthn
 
 from warehouse.accounts.interfaces import (
+    InvalidRecoveryCode,
     IPasswordBreachedService,
     ITokenService,
     IUserService,
+    NoRecoveryCodes,
     TokenExpired,
     TokenInvalid,
     TokenMissing,
@@ -314,9 +316,45 @@ class DatabaseUserService:
         return user.has_recovery_codes
 
     def get_recovery_codes(self, user_id):
+        """
+        Returns all recovery codes for the user
+        """
         user = self.get_user(user_id)
 
-        return self.db.query(RecoveryCode).filter_by(user=user).all()
+        stored_recovery_codes = self.db.query(RecoveryCode).filter_by(user=user).all()
+
+        if stored_recovery_codes:
+            return stored_recovery_codes
+
+        self._metrics.increment(
+            "warehouse.authentication.recovery_code.failure",
+            tags=["failure_reason:no_recovery_codes"],
+        )
+        # If we've gotten here, then we'll want to record a failed attempt in our
+        # rate limiting before raising an exception to indicate a failed
+        # recovery code verification.
+        self._hit_ratelimits(userid=user_id)
+        raise NoRecoveryCodes
+
+    def get_recovery_code(self, user_id, code):
+        """
+        Returns a specific recovery code if it exists
+        """
+        user = self.get_user(user_id)
+
+        for stored_recovery_code in self.get_recovery_codes(user.id):
+            if self.hasher.verify(code, stored_recovery_code.code):
+                return stored_recovery_code
+
+        self._metrics.increment(
+            "warehouse.authentication.recovery_code.failure",
+            tags=["failure_reason:invalid_recovery_code"],
+        )
+        # If we've gotten here, then we'll want to record a failed attempt in our
+        # rate limiting before returning False to indicate a failed recovery code
+        # verification.
+        self._hit_ratelimits(userid=user_id)
+        raise InvalidRecoveryCode
 
     def get_totp_secret(self, user_id):
         """
@@ -524,38 +562,13 @@ class DatabaseUserService:
         )
 
         user = self.get_user(user_id)
+        stored_recovery_code = self.get_recovery_code(user.id, code)
 
-        if not user.has_recovery_codes:
-            self._metrics.increment(
-                "warehouse.authentication.recovery_code.failure",
-                tags=["failure_reason:no_recovery_codes"],
-            )
-            # If we've gotten here, then we'll want to record a failed attempt in our
-            # rate limiting before returning False to indicate a failed recovery code
-            # verification.
-            self._hit_ratelimits(userid=user_id)
-            return False
-
-        valid = False
-        for stored_recovery_code in self.get_recovery_codes(user.id):
-            if self.hasher.verify(code, stored_recovery_code.code):
-                self.db.delete(stored_recovery_code)
-                self.db.flush()
-                valid = True
-
-        if valid:
-            self._metrics.increment("warehouse.authentication.recovery_code.ok")
-        else:
-            self._metrics.increment(
-                "warehouse.authentication.recovery_code.failure",
-                tags=["failure_reason:invalid_recovery_code"],
-            )
-            # If we've gotten here, then we'll want to record a failed attempt in our
-            # rate limiting before returning False to indicate a failed recovery code
-            # verification.
-            self._hit_ratelimits(userid=user_id)
-
-        return valid
+        # The code is valid. Delete it.
+        self.db.delete(stored_recovery_code)
+        self.db.flush()
+        self._metrics.increment("warehouse.authentication.recovery_code.ok")
+        return True
 
 
 @implementer(ITokenService)

@@ -29,9 +29,11 @@ import warehouse.utils.webauthn as webauthn
 
 from warehouse.accounts import services
 from warehouse.accounts.interfaces import (
+    InvalidRecoveryCode,
     IPasswordBreachedService,
     ITokenService,
     IUserService,
+    NoRecoveryCodes,
     TokenExpired,
     TokenInvalid,
     TokenMissing,
@@ -760,25 +762,50 @@ class TestDatabaseUserService:
 
     def test_get_recovery_codes(self, user_service):
         user = UserFactory.create()
-        assert len(user_service.get_recovery_codes(user.id)) == 0
+
+        with pytest.raises(NoRecoveryCodes):
+            user_service.get_recovery_codes(user.id)
+
         user_service.generate_recovery_codes(user.id)
+
         assert len(user_service.get_recovery_codes(user.id)) == 8
+
+    def test_get_recovery_code(self, user_service):
+        user = UserFactory.create()
+
+        with pytest.raises(NoRecoveryCodes):
+            user_service.get_recovery_code(user.id, "invalid")
+
+        codes = user_service.generate_recovery_codes(user.id)
+
+        with pytest.raises(InvalidRecoveryCode):
+            user_service.get_recovery_code(user.id, "invalid")
+
+        code = user_service.get_recovery_code(user.id, codes[0])
+
+        assert user_service.hasher.verify(codes[0], code.code)
 
     def test_generate_recovery_codes(self, user_service):
         user = UserFactory.create()
 
         assert not user_service.has_recovery_codes(user.id)
-        assert len(user_service.get_recovery_codes(user.id)) == 0
+
+        with pytest.raises(NoRecoveryCodes):
+            user_service.get_recovery_codes(user.id)
 
         codes = user_service.generate_recovery_codes(user.id)
+
         assert len(codes) == 8
         assert len(user_service.get_recovery_codes(user.id)) == 8
 
     def test_check_recovery_code(self, user_service, metrics):
         user = UserFactory.create()
-        assert not user_service.check_recovery_code(user.id, "no codes yet")
+
+        with pytest.raises(NoRecoveryCodes):
+            user_service.check_recovery_code(user.id, "no codes yet")
 
         codes = user_service.generate_recovery_codes(user.id)
+
         assert len(codes) == 8
         assert len(user_service.get_recovery_codes(user.id)) == 8
         assert user_service.check_recovery_code(user.id, codes[0])
@@ -844,12 +871,18 @@ class TestDatabaseUserService:
 
     def test_regenerate_recovery_codes(self, user_service):
         user = UserFactory.create()
-        assert len(user_service.get_recovery_codes(user.id)) == 0
+
+        with pytest.raises(NoRecoveryCodes):
+            user_service.get_recovery_codes(user.id)
+
         user_service.generate_recovery_codes(user.id)
         initial_codes = user_service.get_recovery_codes(user.id)
+
         assert len(initial_codes) == 8
+
         user_service.generate_recovery_codes(user.id)
         new_codes = user_service.get_recovery_codes(user.id)
+
         assert len(new_codes) == 8
         assert [c.id for c in initial_codes] != [c.id for c in new_codes]
 

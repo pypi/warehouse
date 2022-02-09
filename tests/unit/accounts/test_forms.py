@@ -17,7 +17,11 @@ import pytest
 import wtforms
 
 from warehouse.accounts import forms
-from warehouse.accounts.interfaces import TooManyFailedLogins
+from warehouse.accounts.interfaces import (
+    InvalidRecoveryCode,
+    NoRecoveryCodes,
+    TooManyFailedLogins,
+)
 from warehouse.accounts.models import DisableReason
 from warehouse.utils.webauthn import AuthenticationRejectedError
 
@@ -787,10 +791,19 @@ class TestRecoveryCodeForm:
         assert not form.validate()
         assert form.recovery_code_value.errors.pop() == "This field is required."
 
-    def test_invalid_recovery_code(self, pyramid_config):
+    @pytest.mark.parametrize(
+        "exception, expected_reason, expected_error",
+        [
+            (InvalidRecoveryCode, "invalid_recovery_code", "Invalid recovery code."),
+            (NoRecoveryCodes, "invalid_recovery_code", "Invalid recovery code."),
+        ],
+    )
+    def test_invalid_recovery_code(
+        self, pyramid_config, exception, expected_reason, expected_error
+    ):
         request = pretend.stub(remote_addr="127.0.0.1")
         user_service = pretend.stub(
-            check_recovery_code=pretend.call_recorder(lambda *a, **kw: False),
+            check_recovery_code=pretend.raiser(exception),
             record_event=pretend.call_recorder(lambda *a, **kw: None),
         )
         form = forms.RecoveryCodeAuthenticationForm(
@@ -801,12 +814,13 @@ class TestRecoveryCodeForm:
         )
 
         assert not form.validate()
-        assert str(form.recovery_code_value.errors.pop()) == "Invalid recovery code."
+        assert str(form.recovery_code_value.errors.pop()) == expected_error
         assert user_service.record_event.calls == [
             pretend.call(
                 1,
                 tag="account:login:failure",
-                additional={"reason": "invalid_recovery_code"},
+                ip_address="127.0.0.1",
+                additional={"reason": expected_reason},
             )
         ]
 

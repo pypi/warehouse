@@ -48,6 +48,18 @@ class TokenMissing(TokenException):
     pass
 
 
+class RecoveryCodeException(Exception):
+    pass
+
+
+class InvalidRecoveryCode(RecoveryCodeException):
+    pass
+
+
+class NoRecoveryCodes(RecoveryCodeException):
+    pass
+
+
 class IUserService(Interface):
     def get_user(user_id):
         """
@@ -137,6 +149,12 @@ class IUserService(Interface):
     def get_recovery_codes(user_id):
         """
         Returns RecoveryCode objects associated with the user.
+        """
+
+    def get_recovery_code(user_id, code):
+        """
+        Returns a specific RecoveryCode object associated with the user and the
+        provided code.
         """
 
     def get_totp_secret(user_id):
