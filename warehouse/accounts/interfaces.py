@@ -56,6 +56,10 @@ class InvalidRecoveryCode(RecoveryCodeException):
     pass
 
 
+class BurnedRecoveryCode(RecoveryCodeException):
+    pass
+
+
 class NoRecoveryCodes(RecoveryCodeException):
     pass
 
@@ -238,7 +242,8 @@ class IUserService(Interface):
         """
         Checks if supplied code matches a valid hashed recovery code for the given user.
 
-        Returns True if supplied recovery code is valid, and destroys stored code.
+        Returns True if supplied recovery code is valid, and marks the stored code as
+        burned.
         """
 
 

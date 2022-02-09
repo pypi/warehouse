@@ -11,6 +11,7 @@
 # limitations under the License.
 
 import collections
+import datetime
 import functools
 import hashlib
 import logging
@@ -30,6 +31,7 @@ import warehouse.utils.otp as otp
 import warehouse.utils.webauthn as webauthn
 
 from warehouse.accounts.interfaces import (
+    BurnedRecoveryCode,
     InvalidRecoveryCode,
     IPasswordBreachedService,
     ITokenService,
@@ -564,8 +566,15 @@ class DatabaseUserService:
         user = self.get_user(user_id)
         stored_recovery_code = self.get_recovery_code(user.id, code)
 
-        # The code is valid. Delete it.
-        self.db.delete(stored_recovery_code)
+        if stored_recovery_code.burned:
+            self._metrics.increment(
+                "warehouse.authentication.recovery_code.failure",
+                tags=["failure_reason:burned_recovery_code"],
+            )
+            raise BurnedRecoveryCode
+
+        # The code is valid and not burned. Mark it as burned
+        stored_recovery_code.burned = datetime.datetime.now()
         self.db.flush()
         self._metrics.increment("warehouse.authentication.recovery_code.ok")
         return True

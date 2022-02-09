@@ -18,6 +18,7 @@ import wtforms
 
 from warehouse.accounts import forms
 from warehouse.accounts.interfaces import (
+    BurnedRecoveryCode,
     InvalidRecoveryCode,
     NoRecoveryCodes,
     TooManyFailedLogins,
@@ -796,6 +797,11 @@ class TestRecoveryCodeForm:
         [
             (InvalidRecoveryCode, "invalid_recovery_code", "Invalid recovery code."),
             (NoRecoveryCodes, "invalid_recovery_code", "Invalid recovery code."),
+            (
+                BurnedRecoveryCode,
+                "burned_recovery_code",
+                "Recovery code has been previously used.",
+            ),
         ],
     )
     def test_invalid_recovery_code(

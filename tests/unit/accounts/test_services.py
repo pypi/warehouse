@@ -29,6 +29,7 @@ import warehouse.utils.webauthn as webauthn
 
 from warehouse.accounts import services
 from warehouse.accounts.interfaces import (
+    BurnedRecoveryCode,
     InvalidRecoveryCode,
     IPasswordBreachedService,
     ITokenService,
@@ -808,11 +809,17 @@ class TestDatabaseUserService:
 
         assert len(codes) == 8
         assert len(user_service.get_recovery_codes(user.id)) == 8
+        assert not user_service.get_recovery_code(user.id, codes[0]).burned
+
         assert user_service.check_recovery_code(user.id, codes[0])
 
         # Once used, the code should not be accepted again.
-        assert len(user_service.get_recovery_codes(user.id)) == 7
-        assert not user_service.check_recovery_code(user.id, codes[0])
+        assert len(user_service.get_recovery_codes(user.id)) == 8
+
+        with pytest.raises(BurnedRecoveryCode):
+            user_service.check_recovery_code(user.id, codes[0])
+
+        assert user_service.get_recovery_code(user.id, codes[0]).burned
 
         assert metrics.increment.calls == [
             pretend.call("warehouse.authentication.recovery_code.start"),
@@ -825,7 +832,7 @@ class TestDatabaseUserService:
             pretend.call("warehouse.authentication.recovery_code.start"),
             pretend.call(
                 "warehouse.authentication.recovery_code.failure",
-                tags=["failure_reason:invalid_recovery_code"],
+                tags=["failure_reason:burned_recovery_code"],
             ),
         ]
 

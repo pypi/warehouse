@@ -25,6 +25,7 @@ import warehouse.utils.webauthn as webauthn
 
 from warehouse import forms
 from warehouse.accounts.interfaces import (
+    BurnedRecoveryCode,
     InvalidRecoveryCode,
     NoRecoveryCodes,
     TooManyFailedLogins,
@@ -396,6 +397,16 @@ class RecoveryCodeAuthenticationForm(
                 additional={"reason": "invalid_recovery_code"},
             )
             raise wtforms.validators.ValidationError(_("Invalid recovery code."))
+        except BurnedRecoveryCode:
+            self.user_service.record_event(
+                self.user_id,
+                tag="account:login:failure",
+                ip_address=self.request.remote_addr,
+                additional={"reason": "burned_recovery_code"},
+            )
+            raise wtforms.validators.ValidationError(
+                _("Recovery code has been previously used.")
+            )
 
 
 class RequestPasswordResetForm(forms.Form):
