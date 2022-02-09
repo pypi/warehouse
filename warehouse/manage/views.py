@@ -699,7 +699,7 @@ class ProvisionWebAuthnViews:
     permission="manage:user",
     http_cache=0,
     has_translations=True,
-    require_reauth=True,
+    require_reauth=10,  # 10 seconds
 )
 class ProvisionRecoveryCodesViews:
     def __init__(self, request):
