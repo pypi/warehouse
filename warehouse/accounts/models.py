@@ -207,6 +207,7 @@ class RecoveryCode(db.Model):
     )
     code = Column(String(length=128), nullable=False)
     generated = Column(DateTime, nullable=False, server_default=sql.func.now())
+    burned = Column(DateTime, nullable=True)
 
 
 class UserEvent(db.Model):
