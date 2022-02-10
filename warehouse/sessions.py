@@ -83,8 +83,6 @@ def _changed_method(method):
 
 @implementer(ISession)
 class Session(dict):
-    time_to_reauth = 30 * 60  # 30 minutes
-
     _csrf_token_key = "_csrf_token"
     _flash_key = "_flash_messages"
     _totp_secret_key = "_totp_secret"
@@ -147,11 +145,11 @@ class Session(dict):
         self[self._reauth_timestamp_key] = datetime.datetime.now().timestamp()
         self.changed()
 
-    def needs_reauthentication(self):
+    def needs_reauthentication(self, time_to_reauth):
         reauth_timestamp = self.get(self._reauth_timestamp_key, 0)
         current_time = datetime.datetime.now().timestamp()
 
-        return current_time - reauth_timestamp >= self.time_to_reauth
+        return current_time - reauth_timestamp >= time_to_reauth
 
     # Flash Messages Methods
     def _get_flash_queue_key(self, queue):

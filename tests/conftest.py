@@ -81,6 +81,11 @@ def metrics():
 
 
 @pytest.fixture
+def remote_addr():
+    return "1.2.3.4"
+
+
+@pytest.fixture
 def jinja():
     dir_name = os.path.join(os.path.dirname(warehouse.__file__))
 
@@ -118,10 +123,10 @@ def pyramid_services(metrics):
 
 
 @pytest.fixture
-def pyramid_request(pyramid_services, jinja):
+def pyramid_request(pyramid_services, jinja, remote_addr):
     dummy_request = pyramid.testing.DummyRequest()
     dummy_request.find_service = pyramid_services.find_service
-    dummy_request.remote_addr = "1.2.3.4"
+    dummy_request.remote_addr = remote_addr
 
     dummy_request.registry.registerUtility(jinja, IJinja2Environment, name=".jinja2")
 
@@ -257,8 +262,10 @@ def db_session(app_config):
 
 
 @pytest.fixture
-def user_service(db_session, metrics):
-    return account_services.DatabaseUserService(db_session, metrics=metrics)
+def user_service(db_session, metrics, remote_addr):
+    return account_services.DatabaseUserService(
+        db_session, metrics=metrics, remote_addr=remote_addr
+    )
 
 
 @pytest.fixture

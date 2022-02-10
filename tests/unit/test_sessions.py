@@ -167,16 +167,16 @@ class TestSession:
     def test_reauth_unneeded(self):
         session = Session()
         session.record_auth_timestamp()
-        assert not session.needs_reauthentication()
+        assert not session.needs_reauthentication(666)
 
     def test_reauth_needed(self):
         session = Session()
         session[session._reauth_timestamp_key] = 0
-        assert session.needs_reauthentication()
+        assert session.needs_reauthentication(666)
 
     def test_reauth_needed_no_value(self):
         session = Session()
-        assert session.needs_reauthentication()
+        assert session.needs_reauthentication(666)
 
     @pytest.mark.parametrize(
         ("data", "method", "args"),
