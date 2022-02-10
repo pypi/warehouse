@@ -32,7 +32,7 @@
       <h1 class="page-title page-title--wsubtitle heading-wsubtitle__heading">{{ title }}</h1>
       <p>
       {% trans %}
-        In order to verify that you have downloaded your recovery codes for use in the event of a lost 2FA device, submit one of your recovery codes here.
+        In order to verify that you have safely stored your recovery codes for use in the event of a lost 2FA device, submit one of your recovery codes here.
       {% endtrans %}
       </p>
       <p>
@@ -42,7 +42,7 @@
       </p>
       <p>
       {% trans %}
-      <strong>Forgot to save your recovery codes?</strong> You'll need to generate a them again.
+      <strong>Forgot to safely store your recovery codes?</strong> You'll need to generate a them again.
       {% endtrans %}
       </p>
       <a href="{{ request.route_path('manage.account.recovery-codes.regenerate') }}" class="button button--secondary">

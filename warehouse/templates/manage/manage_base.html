@@ -113,12 +113,12 @@
       <p>
       {% if user.has_two_factor %}
         {% trans href='#account-emails' %}
-        Generate recovery codes before adding additional two factor
+        You must generate and safely store recovery codes before adding additional two factor
         authentication methods to your account.
         {% endtrans %}
       {% else %}
         {% trans %}
-        Generate recovery codes before enabling two factor authentication on your account.
+        You must generate and safely store recovery codes before enabling two factor authentication on your account.
         {% endtrans %}
       {% endif %}
       </p>
@@ -141,6 +141,9 @@
         Use a recovery code before enabling two factor authentication on your account.
         {% endtrans %}
       {% endif %}
+      </p>
+      <p>
+          This is in order to verify that you have safely stored your recovery codes for use in the event of a lost 2FA device.
       </p>
       <a href="{{ request.route_path('manage.account.recovery-codes.burn') }}" class="button button--primary">
         {% trans %}
