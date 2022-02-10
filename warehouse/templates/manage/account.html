@@ -498,6 +498,8 @@
           {% trans %}Invalid two factor (WebAuthn){% endtrans %}
         {% elif event.additional.reason == "invalid_recovery_code" %}
           {% trans %}Invalid two factor (Recovery code){% endtrans %}
+        {% elif event.additional.reason == "burned_recovery_code" %}
+          {% trans %}Invalid two factor (Recovery code){% endtrans %}
         {% else %}
           {{ event.additional.reason }}
         {% endif %}
