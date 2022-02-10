@@ -17,7 +17,12 @@ import pytest
 import wtforms
 
 from warehouse.accounts import forms
-from warehouse.accounts.interfaces import TooManyFailedLogins
+from warehouse.accounts.interfaces import (
+    BurnedRecoveryCode,
+    InvalidRecoveryCode,
+    NoRecoveryCodes,
+    TooManyFailedLogins,
+)
 from warehouse.accounts.models import DisableReason
 from warehouse.utils.webauthn import AuthenticationRejectedError
 
@@ -113,7 +118,7 @@ class TestLoginForm:
         user_service = pretend.stub(
             find_userid=pretend.call_recorder(lambda userid: 1),
             check_password=pretend.call_recorder(
-                lambda userid, password, ip_address, tags=None: True
+                lambda userid, password, tags=None: True
             ),
             is_disabled=pretend.call_recorder(lambda userid: (False, None)),
         )
@@ -137,7 +142,7 @@ class TestLoginForm:
         ]
         assert user_service.is_disabled.calls == [pretend.call(1)]
         assert user_service.check_password.calls == [
-            pretend.call(1, "pw", "1.2.3.4", tags=["bar"])
+            pretend.call(1, "pw", tags=["bar"])
         ]
         assert breach_service.check_password.calls == [
             pretend.call("pw", tags=["method:auth", "auth_method:login_form"])
@@ -148,7 +153,7 @@ class TestLoginForm:
         user_service = pretend.stub(
             find_userid=pretend.call_recorder(lambda userid: 1),
             check_password=pretend.call_recorder(
-                lambda userid, password, ip_address, tags=None: False
+                lambda userid, password, tags=None: False
             ),
             is_disabled=pretend.call_recorder(lambda userid: (False, None)),
             record_event=pretend.call_recorder(lambda *a, **kw: None),
@@ -170,27 +175,22 @@ class TestLoginForm:
             pretend.call("my_username"),
         ]
         assert user_service.is_disabled.calls == [pretend.call(1)]
-        assert user_service.check_password.calls == [
-            pretend.call(1, "pw", "127.0.0.1", tags=None)
-        ]
+        assert user_service.check_password.calls == [pretend.call(1, "pw", tags=None)]
         assert user_service.record_event.calls == [
             pretend.call(
                 1,
                 tag="account:login:failure",
-                ip_address="127.0.0.1",
                 additional={"reason": "invalid_password"},
             )
         ]
 
     def test_validate_password_too_many_failed(self):
-        @pretend.call_recorder
-        def check_password(userid, password, ip_address, tags=None):
-            raise TooManyFailedLogins(resets_in=None)
-
         request = pretend.stub(remote_addr="1.2.3.4")
         user_service = pretend.stub(
             find_userid=pretend.call_recorder(lambda userid: 1),
-            check_password=check_password,
+            check_password=pretend.call_recorder(
+                pretend.raiser(TooManyFailedLogins(resets_in=None))
+            ),
             is_disabled=pretend.call_recorder(lambda userid: (False, None)),
         )
         breach_service = pretend.stub()
@@ -210,9 +210,7 @@ class TestLoginForm:
             pretend.call("my_username"),
         ]
         assert user_service.is_disabled.calls == [pretend.call(1)]
-        assert user_service.check_password.calls == [
-            pretend.call(1, "pw", "1.2.3.4", tags=None)
-        ]
+        assert user_service.check_password.calls == [pretend.call(1, "pw", tags=None)]
 
     def test_password_breached(self, monkeypatch):
         send_email = pretend.call_recorder(lambda *a, **kw: None)
@@ -223,7 +221,7 @@ class TestLoginForm:
         user_service = pretend.stub(
             find_userid=lambda _: 1,
             get_user=lambda _: user,
-            check_password=lambda userid, pw, ip_address, tags=None: True,
+            check_password=lambda userid, pw, tags=None: True,
             disable_password=pretend.call_recorder(lambda user_id, reason=None: None),
             is_disabled=lambda userid: (False, None),
         )
@@ -640,7 +638,6 @@ class TestTOTPAuthenticationForm:
             pretend.call(
                 1,
                 tag="account:login:failure",
-                ip_address="127.0.0.1",
                 additional={"reason": "invalid_totp"},
             )
         ]
@@ -730,7 +727,6 @@ class TestWebAuthnAuthenticationForm:
             pretend.call(
                 1,
                 tag="account:login:failure",
-                ip_address="127.0.0.1",
                 additional={"reason": "invalid_webauthn"},
             )
         ]
@@ -796,10 +792,24 @@ class TestRecoveryCodeForm:
         assert not form.validate()
         assert form.recovery_code_value.errors.pop() == "This field is required."
 
-    def test_invalid_recovery_code(self, pyramid_config):
+    @pytest.mark.parametrize(
+        "exception, expected_reason, expected_error",
+        [
+            (InvalidRecoveryCode, "invalid_recovery_code", "Invalid recovery code."),
+            (NoRecoveryCodes, "invalid_recovery_code", "Invalid recovery code."),
+            (
+                BurnedRecoveryCode,
+                "burned_recovery_code",
+                "Recovery code has been previously used.",
+            ),
+        ],
+    )
+    def test_invalid_recovery_code(
+        self, pyramid_config, exception, expected_reason, expected_error
+    ):
         request = pretend.stub(remote_addr="127.0.0.1")
         user_service = pretend.stub(
-            check_recovery_code=pretend.call_recorder(lambda *a, **kw: False),
+            check_recovery_code=pretend.raiser(exception),
             record_event=pretend.call_recorder(lambda *a, **kw: None),
         )
         form = forms.RecoveryCodeAuthenticationForm(
@@ -810,25 +820,33 @@ class TestRecoveryCodeForm:
         )
 
         assert not form.validate()
-        assert str(form.recovery_code_value.errors.pop()) == "Invalid recovery code."
+        assert str(form.recovery_code_value.errors.pop()) == expected_error
         assert user_service.record_event.calls == [
             pretend.call(
                 1,
                 tag="account:login:failure",
-                ip_address="127.0.0.1",
-                additional={"reason": "invalid_recovery_code"},
+                additional={"reason": expected_reason},
             )
         ]
 
-    def test_valid_recovery_code(self):
+    def test_valid_recovery_code(self, monkeypatch):
         request = pretend.stub(remote_addr="1.2.3.4")
+        user = pretend.stub(id=pretend.stub(), username="foobar")
         form = forms.RecoveryCodeAuthenticationForm(
             request=request,
             data={"recovery_code_value": "valid"},
             user_id=pretend.stub(),
             user_service=pretend.stub(
-                check_recovery_code=pretend.call_recorder(lambda *a, **kw: True)
+                check_recovery_code=pretend.call_recorder(lambda *a, **kw: True),
+                get_user=lambda _: user,
             ),
+        )
+        send_recovery_code_used_email = pretend.call_recorder(
+            lambda request, user: None
+        )
+        monkeypatch.setattr(
+            forms, "send_recovery_code_used_email", send_recovery_code_used_email
         )
 
         assert form.validate()
+        assert send_recovery_code_used_email.calls == [pretend.call(request, user)]

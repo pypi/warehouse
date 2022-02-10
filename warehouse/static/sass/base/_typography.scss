@@ -164,6 +164,7 @@ a {
 button {
   @include link-without-underline;
   @include link-focus-state($primary-color);
+  line-height: $base-line-height;
 }
 
 @include selection {

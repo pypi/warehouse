@@ -18,13 +18,21 @@ from pyramid.renderers import render_to_response
 from warehouse.accounts.forms import ReAuthenticateForm
 from warehouse.accounts.interfaces import IUserService
 
+DEFAULT_TIME_TO_REAUTH = 30 * 60  # 30 minutes
+
 
 def reauth_view(view, info):
-    if info.options.get("require_reauth"):
+    require_reauth = info.options.get("require_reauth")
+
+    if require_reauth:
+        # If it's True, we use the default, otherwise use the value provided
+        time_to_reauth = (
+            DEFAULT_TIME_TO_REAUTH if require_reauth is True else require_reauth
+        )
 
         @functools.wraps(view)
         def wrapped(context, request):
-            if request.session.needs_reauthentication():
+            if request.session.needs_reauthentication(time_to_reauth):
                 user_service = request.find_service(IUserService, context=None)
 
                 form = ReAuthenticateForm(

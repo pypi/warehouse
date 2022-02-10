@@ -11,6 +11,7 @@
 # limitations under the License.
 
 import collections
+import datetime
 import functools
 import hashlib
 import logging
@@ -30,9 +31,12 @@ import warehouse.utils.otp as otp
 import warehouse.utils.webauthn as webauthn
 
 from warehouse.accounts.interfaces import (
+    BurnedRecoveryCode,
+    InvalidRecoveryCode,
     IPasswordBreachedService,
     ITokenService,
     IUserService,
+    NoRecoveryCodes,
     TokenExpired,
     TokenInvalid,
     TokenMissing,
@@ -52,7 +56,7 @@ RECOVERY_CODE_COUNT = 8
 
 @implementer(IUserService)
 class DatabaseUserService:
-    def __init__(self, session, *, ratelimiters=None, metrics):
+    def __init__(self, session, *, ratelimiters=None, remote_addr, metrics):
         if ratelimiters is None:
             ratelimiters = {}
         ratelimiters = collections.defaultdict(DummyRateLimiter, ratelimiters)
@@ -74,6 +78,7 @@ class DatabaseUserService:
             argon2__parallelism=6,
             argon2__time_cost=6,
         )
+        self.remote_addr = remote_addr
         self._metrics = metrics
 
     @functools.lru_cache()
@@ -113,19 +118,19 @@ class DatabaseUserService:
 
         return user_id
 
-    def _check_ratelimits(self, userid=None, ip_address=None, tags=None):
+    def _check_ratelimits(self, userid=None, tags=None):
         tags = tags if tags is not None else []
 
         # First we want to check if a single IP is exceeding our rate limiter.
-        if ip_address is not None:
-            if not self.ratelimiters["ip.login"].test(ip_address):
+        if self.remote_addr is not None:
+            if not self.ratelimiters["ip.login"].test(self.remote_addr):
                 logger.warning("IP failed login threshold reached.")
                 self._metrics.increment(
                     "warehouse.authentication.ratelimited",
                     tags=tags + ["ratelimiter:ip"],
                 )
                 raise TooManyFailedLogins(
-                    resets_in=self.ratelimiters["ip.login"].resets_in(ip_address)
+                    resets_in=self.ratelimiters["ip.login"].resets_in(self.remote_addr)
                 )
 
         # Next check to see if we've hit our global rate limit or not,
@@ -152,19 +157,19 @@ class DatabaseUserService:
                     resets_in=self.ratelimiters["user.login"].resets_in(userid)
                 )
 
-    def _hit_ratelimits(self, ip_address, userid=None):
+    def _hit_ratelimits(self, userid=None):
         if userid is not None:
             self.ratelimiters["user.login"].hit(userid)
         self.ratelimiters["global.login"].hit()
-        self.ratelimiters["ip.login"].hit(ip_address)
+        self.ratelimiters["ip.login"].hit(self.remote_addr)
 
-    def check_password(self, userid, password, ip_address, *, tags=None):
+    def check_password(self, userid, password, *, tags=None):
         tags = tags if tags is not None else []
         tags.append("mechanism:check_password")
 
         self._metrics.increment("warehouse.authentication.start", tags=tags)
 
-        self._check_ratelimits(userid=None, ip_address=ip_address, tags=tags)
+        self._check_ratelimits(userid=None, tags=tags)
 
         user = self.get_user(userid)
         if user is not None:
@@ -198,7 +203,7 @@ class DatabaseUserService:
         # If we've gotten here, then we'll want to record a failed login in our
         # rate limiting before returning False to indicate a failed password
         # verification.
-        self._hit_ratelimits(ip_address, userid=(user.id if user is not None else None))
+        self._hit_ratelimits(userid=(user.id if user is not None else None))
         return False
 
     def create_user(self, username, name, password):
@@ -212,18 +217,17 @@ class DatabaseUserService:
         self,
         user_id,
         email_address,
-        ip_address,
         primary=None,
         verified=False,
         public=False,
     ):
         # Check to make sure that we haven't hitten the rate limit for this IP
-        if not self.ratelimiters["email.add"].test(ip_address):
+        if not self.ratelimiters["email.add"].test(self.remote_addr):
             self._metrics.increment(
                 "warehouse.email.add.ratelimited", tags=["ratelimiter:email.add"]
             )
             raise TooManyEmailsAdded(
-                resets_in=self.ratelimiters["email.add"].resets_in(ip_address)
+                resets_in=self.ratelimiters["email.add"].resets_in(self.remote_addr)
             )
 
         user = self.get_user(user_id)
@@ -245,7 +249,7 @@ class DatabaseUserService:
         self.db.add(email)
         self.db.flush()  # flush the db now so email.id is available
 
-        self.ratelimiters["email.add"].hit(ip_address)
+        self.ratelimiters["email.add"].hit(self.remote_addr)
         self._metrics.increment("warehouse.email.add.ok")
 
         return email
@@ -314,9 +318,45 @@ class DatabaseUserService:
         return user.has_recovery_codes
 
     def get_recovery_codes(self, user_id):
+        """
+        Returns all recovery codes for the user
+        """
         user = self.get_user(user_id)
 
-        return self.db.query(RecoveryCode).filter_by(user=user).all()
+        stored_recovery_codes = self.db.query(RecoveryCode).filter_by(user=user).all()
+
+        if stored_recovery_codes:
+            return stored_recovery_codes
+
+        self._metrics.increment(
+            "warehouse.authentication.recovery_code.failure",
+            tags=["failure_reason:no_recovery_codes"],
+        )
+        # If we've gotten here, then we'll want to record a failed attempt in our
+        # rate limiting before raising an exception to indicate a failed
+        # recovery code verification.
+        self._hit_ratelimits(userid=user_id)
+        raise NoRecoveryCodes
+
+    def get_recovery_code(self, user_id, code):
+        """
+        Returns a specific recovery code if it exists
+        """
+        user = self.get_user(user_id)
+
+        for stored_recovery_code in self.get_recovery_codes(user.id):
+            if self.hasher.verify(code, stored_recovery_code.code):
+                return stored_recovery_code
+
+        self._metrics.increment(
+            "warehouse.authentication.recovery_code.failure",
+            tags=["failure_reason:invalid_recovery_code"],
+        )
+        # If we've gotten here, then we'll want to record a failed attempt in our
+        # rate limiting before returning False to indicate a failed recovery code
+        # verification.
+        self._hit_ratelimits(userid=user_id)
+        raise InvalidRecoveryCode
 
     def get_totp_secret(self, user_id):
         """
@@ -339,7 +379,7 @@ class DatabaseUserService:
 
         return user.last_totp_value
 
-    def check_totp_value(self, user_id, totp_value, ip_address, *, tags=None):
+    def check_totp_value(self, user_id, totp_value, *, tags=None):
         """
         Returns True if the given TOTP is valid against the user's secret.
 
@@ -350,7 +390,7 @@ class DatabaseUserService:
         tags.append("mechanism:check_totp_value")
         self._metrics.increment("warehouse.authentication.two_factor.start", tags=tags)
 
-        self._check_ratelimits(userid=user_id, ip_address=ip_address, tags=tags)
+        self._check_ratelimits(userid=user_id, tags=tags)
 
         totp_secret = self.get_totp_secret(user_id)
 
@@ -362,7 +402,7 @@ class DatabaseUserService:
             # If we've gotten here, then we'll want to record a failed attempt in our
             # rate limiting before returning False to indicate a failed totp
             # verification.
-            self._hit_ratelimits(ip_address, userid=user_id)
+            self._hit_ratelimits(userid=user_id)
             return False
 
         last_totp_value = self.get_last_totp_value(user_id)
@@ -382,7 +422,7 @@ class DatabaseUserService:
             # If we've gotten here, then we'll want to record a failed attempt in our
             # rate limiting before returning False to indicate a failed totp
             # verification.
-            self._hit_ratelimits(ip_address, userid=user_id)
+            self._hit_ratelimits(userid=user_id)
 
         return valid
 
@@ -489,7 +529,7 @@ class DatabaseUserService:
             None,
         )
 
-    def record_event(self, user_id, *, tag, ip_address, additional=None):
+    def record_event(self, user_id, *, tag, additional=None):
         """
         Creates a new UserEvent for the given user with the given
         tag, IP address, and additional metadata.
@@ -497,7 +537,9 @@ class DatabaseUserService:
         Returns the event.
         """
         user = self.get_user(user_id)
-        return user.record_event(tag=tag, ip_address=ip_address, additional=additional)
+        return user.record_event(
+            tag=tag, ip_address=self.remote_addr, additional=additional
+        )
 
     def generate_recovery_codes(self, user_id):
         user = self.get_user(user_id)
@@ -513,48 +555,29 @@ class DatabaseUserService:
 
         return recovery_codes
 
-    def check_recovery_code(self, user_id, code, ip_address):
+    def check_recovery_code(self, user_id, code):
         self._metrics.increment("warehouse.authentication.recovery_code.start")
 
         self._check_ratelimits(
             userid=user_id,
-            ip_address=ip_address,
             tags=["mechanism:check_recovery_code"],
         )
 
         user = self.get_user(user_id)
+        stored_recovery_code = self.get_recovery_code(user.id, code)
 
-        if not user.has_recovery_codes:
+        if stored_recovery_code.burned:
             self._metrics.increment(
                 "warehouse.authentication.recovery_code.failure",
-                tags=["failure_reason:no_recovery_codes"],
+                tags=["failure_reason:burned_recovery_code"],
             )
-            # If we've gotten here, then we'll want to record a failed attempt in our
-            # rate limiting before returning False to indicate a failed recovery code
-            # verification.
-            self._hit_ratelimits(ip_address, userid=user_id)
-            return False
+            raise BurnedRecoveryCode
 
-        valid = False
-        for stored_recovery_code in self.get_recovery_codes(user.id):
-            if self.hasher.verify(code, stored_recovery_code.code):
-                self.db.delete(stored_recovery_code)
-                self.db.flush()
-                valid = True
-
-        if valid:
-            self._metrics.increment("warehouse.authentication.recovery_code.ok")
-        else:
-            self._metrics.increment(
-                "warehouse.authentication.recovery_code.failure",
-                tags=["failure_reason:invalid_recovery_code"],
-            )
-            # If we've gotten here, then we'll want to record a failed attempt in our
-            # rate limiting before returning False to indicate a failed recovery code
-            # verification.
-            self._hit_ratelimits(ip_address, userid=user_id)
-
-        return valid
+        # The code is valid and not burned. Mark it as burned
+        stored_recovery_code.burned = datetime.datetime.now()
+        self.db.flush()
+        self._metrics.increment("warehouse.authentication.recovery_code.ok")
+        return True
 
 
 @implementer(ITokenService)
@@ -586,6 +609,7 @@ def database_login_factory(context, request):
     return DatabaseUserService(
         request.db,
         metrics=request.find_service(IMetricsService, context=None),
+        remote_addr=request.remote_addr,
         ratelimiters={
             "ip.login": request.find_service(
                 IRateLimiter, name="ip.login", context=None

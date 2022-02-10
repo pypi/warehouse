@@ -28,29 +28,29 @@ msgstr ""
 "X-Generator: Weblate 4.8-dev\n"
 "Generated-By: Babel 2.7.0\n"
 
-#: warehouse/views.py:112
+#: warehouse/views.py:113
 msgid ""
 "Two-factor authentication must be enabled on your account to perform this "
 "action."
 msgstr ""
 
-#: warehouse/views.py:272
+#: warehouse/views.py:273
 msgid "Locale updated"
 msgstr "Yerel ayarlarlar güncellendi"
 
-#: warehouse/accounts/forms.py:43
+#: warehouse/accounts/forms.py:51
 msgid "No user found with that username"
 msgstr "Bu kullanıcı adıyla kayıtlı bir kullanıcı bulunamadı"
 
-#: warehouse/accounts/forms.py:54
+#: warehouse/accounts/forms.py:62
 msgid "TOTP code must be ${totp_length} digits."
 msgstr "TOTP kodu ${totp_length} rakamdan oluşmalıdır."
 
-#: warehouse/accounts/forms.py:81
+#: warehouse/accounts/forms.py:89
 msgid "Choose a username with 50 characters or less."
 msgstr "En fazla 50 karakter olan bir kullanıcı adı seçin."
 
-#: warehouse/accounts/forms.py:87
+#: warehouse/accounts/forms.py:95
 msgid ""
 "The username is invalid. Usernames must be composed of letters, numbers, "
 "dots, hyphens and underscores. And must also start and finish with a letter "
@@ -60,7 +60,7 @@ msgstr ""
 "çizgiden oluşmak zorundadır. Ayrıca bir harf veya rakam ile başlayıp "
 "bitmelidir. Farklı bir kullanıcı adı seçin."
 
-#: warehouse/accounts/forms.py:101
+#: warehouse/accounts/forms.py:109
 msgid ""
 "This username is already being used by another account. Choose a different "
 "username."
@@ -68,29 +68,29 @@ msgstr ""
 "Bu kullanıcı adı başka bir hesap tarafından kullanılıyor. Başka bir "
 "kullanıcı adı seçin."
 
-#: warehouse/accounts/forms.py:137
+#: warehouse/accounts/forms.py:143
 msgid "The password is invalid. Try again."
 msgstr "Geçersiz parola. Tekrar deneyin."
 
-#: warehouse/accounts/forms.py:141 warehouse/accounts/views.py:78
+#: warehouse/accounts/forms.py:147 warehouse/accounts/views.py:78
 msgid "There have been too many unsuccessful login attempts. Try again later."
 msgstr "Çok fazla başarısız giriş denemesi oldu. Sonra tekrar deneyin."
 
-#: warehouse/accounts/forms.py:163
+#: warehouse/accounts/forms.py:169
 msgid "Your passwords don't match. Try again."
 msgstr "Parolalarınız eşleşmiyor. Tekrar deneyin."
 
-#: warehouse/accounts/forms.py:194 warehouse/accounts/forms.py:205
+#: warehouse/accounts/forms.py:200 warehouse/accounts/forms.py:211
 msgid "The email address isn't valid. Try again."
 msgstr "E-posta adresi geçerli değil. Tekrar deneyin."
 
-#: warehouse/accounts/forms.py:213
+#: warehouse/accounts/forms.py:219
 msgid "You can't use an email address from this domain. Use a different email."
 msgstr ""
 "Bu alan adından bir e-posta adresi kullanamazsınız. Başka bir e-posta "
 "kullanın."
 
-#: warehouse/accounts/forms.py:224
+#: warehouse/accounts/forms.py:230
 msgid ""
 "This email address is already being used by this account. Use a different "
 "email."
@@ -98,7 +98,7 @@ msgstr ""
 "Bu e-posta adresi zaten bu hesap tarafından kullanılıyor. Başka bir e-posta "
 "kullanın."
 
-#: warehouse/accounts/forms.py:231
+#: warehouse/accounts/forms.py:237
 msgid ""
 "This email address is already being used by another account. Use a different "
 "email."
@@ -106,24 +106,30 @@ msgstr ""
 "Bu e-posta adresi farklı bir hesap tarafından kullanılıyor. Başka bir e-"
 "posta kullanın."
 
-#: warehouse/accounts/forms.py:253 warehouse/manage/forms.py:73
+#: warehouse/accounts/forms.py:259 warehouse/manage/forms.py:73
 msgid "The name is too long. Choose a name with 100 characters or less."
 msgstr ""
 "İsim çok uzun. En fazla 100 karakter olacak şekilde başka bir isim seçin."
 
-#: warehouse/accounts/forms.py:325
+#: warehouse/accounts/forms.py:328
 msgid "Invalid TOTP code."
 msgstr "Geçersiz TOTP kodu."
 
-#: warehouse/accounts/forms.py:342
+#: warehouse/accounts/forms.py:345
 msgid "Invalid WebAuthn assertion: Bad payload"
 msgstr "Geçersiz WebAuthn önermesi: Kötü yük"
 
-#: warehouse/accounts/forms.py:399
+#: warehouse/accounts/forms.py:403
 msgid "Invalid recovery code."
 msgstr "Geçersiz kurtarma kodu."
 
-#: warehouse/accounts/forms.py:417
+#: warehouse/accounts/forms.py:411
+#, fuzzy
+#| msgid "Recovery codes regenerated"
+msgid "Recovery code has been previously used."
+msgstr "Kurtarma kodları yeniden oluşturuldu"
+
+#: warehouse/accounts/forms.py:430
 msgid "No user found with that username or email"
 msgstr "Bu kullanıcı adı veya e-posta ile alakalı hiçbir kullanıcı bulunamadı"
 
@@ -162,11 +168,11 @@ msgstr "Zaten giriş yapılmış"
 msgid "Successful WebAuthn assertion"
 msgstr "Başarılı WebAuthn önermesi"
 
-#: warehouse/accounts/views.py:431
+#: warehouse/accounts/views.py:430 warehouse/manage/views.py:778
 msgid "Recovery code accepted. The supplied code cannot be used again."
 msgstr "Kurtarma kodu kabul edildi. Bu kod yeniden kullanılamaz."
 
-#: warehouse/accounts/views.py:517
+#: warehouse/accounts/views.py:516
 msgid ""
 "New user registration temporarily disabled. See https://pypi.org/help#admin-"
 "intervention for details."
@@ -174,98 +180,98 @@ msgstr ""
 "Yeni kullanıcı kayıtları geçici olarak kapatıldı. Detaylar için https://pypi."
 "org/help#admin-intervention sayfasını inceleyin."
 
-#: warehouse/accounts/views.py:640
+#: warehouse/accounts/views.py:634
 msgid "Expired token: request a new password reset link"
 msgstr "Süresi dolmuş belirteç: yeni bir parola sıfırlama bağlantısı isteyin"
 
-#: warehouse/accounts/views.py:642
+#: warehouse/accounts/views.py:636
 msgid "Invalid token: request a new password reset link"
 msgstr "Geçersiz belirteç: yeni bir parola sıfırlama bağlantısı isteyin"
 
-#: warehouse/accounts/views.py:644 warehouse/accounts/views.py:731
-#: warehouse/accounts/views.py:827
+#: warehouse/accounts/views.py:638 warehouse/accounts/views.py:723
+#: warehouse/accounts/views.py:819
 msgid "Invalid token: no token supplied"
 msgstr "Geçersiz belirteç: belirteç verilmedi"
 
-#: warehouse/accounts/views.py:648
+#: warehouse/accounts/views.py:642
 msgid "Invalid token: not a password reset token"
 msgstr "Geçersiz belirteç: bir parola sıfırlama belirteci değil"
 
-#: warehouse/accounts/views.py:653
+#: warehouse/accounts/views.py:647
 msgid "Invalid token: user not found"
 msgstr "Geçersiz belirteç: kullanıcı bulunamadı"
 
-#: warehouse/accounts/views.py:660
+#: warehouse/accounts/views.py:654
 msgid "Invalid token: user has logged in since this token was requested"
 msgstr "Geçersiz belirteç: kullanıcı bu belirteç istendikten sonra giriş yaptı"
 
-#: warehouse/accounts/views.py:669
+#: warehouse/accounts/views.py:663
 msgid ""
 "Invalid token: password has already been changed since this token was "
 "requested"
 msgstr "Geçersiz belirteç: parola bu belirteç istendikten sonra zaten değişti"
 
-#: warehouse/accounts/views.py:700
+#: warehouse/accounts/views.py:692
 msgid "You have reset your password"
 msgstr "Parolanızı sıfırladınız"
 
-#: warehouse/accounts/views.py:727
+#: warehouse/accounts/views.py:719
 msgid "Expired token: request a new email verification link"
 msgstr "Süresi dolmuş belirteç: yeni bir e-posta doğrulama bağlantısı isteyin"
 
-#: warehouse/accounts/views.py:729
+#: warehouse/accounts/views.py:721
 msgid "Invalid token: request a new email verification link"
 msgstr "Geçersiz belirteç: yeni bir e-posta doğrulama bağlantısı isteyin"
 
-#: warehouse/accounts/views.py:735
+#: warehouse/accounts/views.py:727
 msgid "Invalid token: not an email verification token"
 msgstr "Geçersiz belirteç: e-posta doğrulama belirteci değil"
 
-#: warehouse/accounts/views.py:744
+#: warehouse/accounts/views.py:736
 msgid "Email not found"
 msgstr "E-posta bulunamadı"
 
-#: warehouse/accounts/views.py:747
+#: warehouse/accounts/views.py:739
 msgid "Email already verified"
 msgstr "E-posta zaten onaylanmış"
 
-#: warehouse/accounts/views.py:762
+#: warehouse/accounts/views.py:754
 msgid "You can now set this email as your primary address"
 msgstr "Artık sen bu e-postayı birincil adresin olarak ayarlayabilirsin"
 
-#: warehouse/accounts/views.py:766
+#: warehouse/accounts/views.py:758
 msgid "This is your primary address"
 msgstr "Bu senin birincil adresin"
 
-#: warehouse/accounts/views.py:771
+#: warehouse/accounts/views.py:763
 msgid "Email address ${email_address} verified. ${confirm_message}."
 msgstr "E-posta adresin ${email_address} onaylandı. ${confirm_message}."
 
-#: warehouse/accounts/views.py:823
+#: warehouse/accounts/views.py:815
 msgid "Expired token: request a new project role invite"
 msgstr "Süresi dolmuş belirteç: yeni bir proje rolü daveti isteyin"
 
-#: warehouse/accounts/views.py:825
+#: warehouse/accounts/views.py:817
 msgid "Invalid token: request a new project role invite"
 msgstr "Geçersiz belirteç: yeni bir proje rolü daveti isteyin"
 
-#: warehouse/accounts/views.py:831
+#: warehouse/accounts/views.py:823
 msgid "Invalid token: not a collaboration invitation token"
 msgstr "Geçersiz belirteç: iş birliği daveti belirteci değil"
 
-#: warehouse/accounts/views.py:835
+#: warehouse/accounts/views.py:827
 msgid "Role invitation is not valid."
 msgstr "Rol daveti geçerli değil."
 
-#: warehouse/accounts/views.py:850
+#: warehouse/accounts/views.py:842
 msgid "Role invitation no longer exists."
 msgstr "Görev daveti artık mevcut değil."
 
-#: warehouse/accounts/views.py:862
+#: warehouse/accounts/views.py:854
 msgid "Invitation for '${project_name}' is declined."
 msgstr "'${project_name}' proje davetiyesi reddedildi."
 
-#: warehouse/accounts/views.py:929
+#: warehouse/accounts/views.py:921
 msgid "You are now ${role} of the '${project_name}' project."
 msgstr "Artık '${project_name}' projesinde ${role} oldunuz."
 
@@ -273,38 +279,27 @@ msgstr "Artık '${project_name}' projesinde ${role} oldunuz."
 msgid "Banner Preview"
 msgstr ""
 
-#: warehouse/manage/views.py:215
+#: warehouse/manage/views.py:214
 msgid "Email ${email_address} added - check your email for a verification link"
 msgstr ""
 "${email_address} e-postan eklendi - e-postanı doğrulama bağlantısı için "
 "kontrol et"
 
-#: warehouse/manage/views.py:723 warehouse/manage/views.py:759
-msgid ""
-"You must provision a two factor method before recovery codes can be generated"
-msgstr ""
-"Kurtarma kodlarının üretilebilmesi için iki faktörlü(2FA) bir method "
-"sağlamalısınız"
-
-#: warehouse/manage/views.py:734
+#: warehouse/manage/views.py:726
 msgid "Recovery codes already generated"
 msgstr "Kurtarma kodları zaten oluşturuldu"
 
-#: warehouse/manage/views.py:735
+#: warehouse/manage/views.py:727
 msgid "Generating new recovery codes will invalidate your existing codes."
 msgstr ""
 "Yeni kurtarma kodlarının oluşturulması, mevcut kodlarınızı geçersiz "
 "kılacaktır."
 
-#: warehouse/manage/views.py:787
-msgid "Invalid credentials. Try again"
-msgstr "Geçersiz kimlik bilgileri. Tekrar deneyin"
-
-#: warehouse/manage/views.py:1542
+#: warehouse/manage/views.py:1536
 msgid "User '${username}' already has ${role_name} role for project"
 msgstr "Kullanıcı '${username}' projede zaten ${role_name} rolüne sahip"
 
-#: warehouse/manage/views.py:1553
+#: warehouse/manage/views.py:1547
 msgid ""
 "User '${username}' does not have a verified primary email address and cannot "
 "be added as a ${role_name} for project"
@@ -312,26 +307,26 @@ msgstr ""
 "'${username}' adlı kullanıcıya ait doğrulanmış birincil e-posta adresi "
 "mevcut değil ve bu yüzden projeye ${role_name} rolünde atanamıyor"
 
-#: warehouse/manage/views.py:1566
+#: warehouse/manage/views.py:1560
 msgid ""
 "User '${username}' already has an active invite. Please try again later."
 msgstr ""
 "'${username}' adlı kullanıcıda zaten aktif bir davetiye bulunmaktadır. "
 "Lütfen daha sonra tekrar deneyiniz."
 
-#: warehouse/manage/views.py:1624
+#: warehouse/manage/views.py:1618
 msgid "Invitation sent to '${username}'"
 msgstr "'${username}' adlı kullanıcıya davetiye gönderildi"
 
-#: warehouse/manage/views.py:1671
+#: warehouse/manage/views.py:1665
 msgid "Could not find role invitation."
 msgstr "Rol davetiyesi bulunamadı."
 
-#: warehouse/manage/views.py:1682
+#: warehouse/manage/views.py:1676
 msgid "Invitation already expired."
 msgstr "Davetin süresi zaten dolmuş."
 
-#: warehouse/manage/views.py:1706
+#: warehouse/manage/views.py:1700
 msgid "Invitation revoked from '${username}'."
 msgstr "'${username}' adlı kullanıcıdan gelen davetiye iptal edildi."
 
@@ -382,12 +377,12 @@ msgstr "Monty Python - The Cheese Shop skeci"
 #: warehouse/templates/manage/account/webauthn-provision.html:28
 #: warehouse/templates/manage/account/webauthn-provision.html:53
 #: warehouse/templates/manage/account/webauthn-provision.html:74
-#: warehouse/templates/manage/manage_base.html:38
+#: warehouse/templates/manage/manage_base.html:185
 #: warehouse/templates/manage/release.html:119
 #: warehouse/templates/manage/release.html:175
 #: warehouse/templates/manage/releases.html:140
 #: warehouse/templates/manage/releases.html:173
-#: warehouse/templates/packaging/detail.html:317
+#: warehouse/templates/packaging/detail.html:344
 #: warehouse/templates/pages/classifiers.html:25
 #: warehouse/templates/pages/help.html:20
 #: warehouse/templates/pages/help.html:207
@@ -607,11 +602,11 @@ msgstr "Mobil sürüme geç"
 
 #: warehouse/templates/base.html:152 warehouse/templates/base.html:161
 #: warehouse/templates/base.html:171
-#: warehouse/templates/includes/session-notifications.html:19
-#: warehouse/templates/manage/account.html:694
+#: warehouse/templates/includes/session-notifications.html:20
+#: warehouse/templates/manage/account.html:696
 #: warehouse/templates/manage/documentation.html:27
-#: warehouse/templates/manage/manage_base.html:204
-#: warehouse/templates/manage/manage_base.html:256
+#: warehouse/templates/manage/manage_base.html:278
+#: warehouse/templates/manage/manage_base.html:330
 #: warehouse/templates/manage/release.html:163
 #: warehouse/templates/manage/settings.html:76
 msgid "Warning"
@@ -902,7 +897,7 @@ msgstr "Devam etmek için parolayı onaylayın"
 #: warehouse/templates/accounts/login.html:69
 #: warehouse/templates/accounts/register.html:110
 #: warehouse/templates/accounts/reset-password.html:38
-#: warehouse/templates/manage/manage_base.html:265
+#: warehouse/templates/manage/manage_base.html:339
 #: warehouse/templates/re-auth.html:49
 msgid "Password"
 msgstr "Parola"
@@ -925,6 +920,7 @@ msgstr "Parola"
 #: warehouse/templates/manage/account.html:369
 #: warehouse/templates/manage/account.html:386
 #: warehouse/templates/manage/account.html:402
+#: warehouse/templates/manage/account/recovery_codes-burn.html:70
 #: warehouse/templates/manage/account/totp-provision.html:69
 #: warehouse/templates/manage/account/webauthn-provision.html:44
 #: warehouse/templates/manage/roles.html:170
@@ -941,7 +937,7 @@ msgid "Your password"
 msgstr "Sizin parolanız"
 
 #: warehouse/templates/accounts/login.html:92
-#: warehouse/templates/manage/manage_base.html:268
+#: warehouse/templates/manage/manage_base.html:342
 #: warehouse/templates/re-auth.html:72
 msgid "Show password"
 msgstr "Parolayı göster"
@@ -1031,7 +1027,6 @@ msgstr "%(title)s 'a giriş yap"
 #: warehouse/templates/accounts/profile.html:32
 #: warehouse/templates/accounts/register.html:89
 #: warehouse/templates/manage/account.html:248
-#: warehouse/templates/manage/account/recovery_codes-provision.html:85
 #: warehouse/templates/manage/roles.html:173
 msgid "Username"
 msgstr "Kullanıcı adı"
@@ -1110,7 +1105,7 @@ msgid "%(user)s has not uploaded any projects to PyPI, yet"
 msgstr "%(user)s PyPI'a henüz bir proje yüklemedi"
 
 #: warehouse/templates/accounts/recovery-code.html:18
-#: warehouse/templates/manage/manage_base.html:93
+#: warehouse/templates/manage/manage_base.html:39
 msgid "Recovery codes"
 msgstr "Kurtarma kodları"
 
@@ -1120,11 +1115,13 @@ msgid "Login using recovery codes"
 msgstr "Kurtarma kodlarını kullanarak oturum aç"
 
 #: warehouse/templates/accounts/recovery-code.html:40
+#: warehouse/templates/manage/account/recovery_codes-burn.html:68
 msgid "Enter recovery code"
 msgstr "Kurtarma kodunu girin"
 
 #: warehouse/templates/accounts/recovery-code.html:55
 #: warehouse/templates/accounts/two-factor.html:102
+#: warehouse/templates/manage/account/recovery_codes-burn.html:83
 msgid "Verify"
 msgstr "Onayla"
 
@@ -1547,6 +1544,38 @@ msgstr ""
 "PyPI hesabınız <strong>%(username)s</strong> için birincil e-posta <code>"
 "%(old_email)s</code>'dan <code>%(new_email)s</code> olarak değişti"
 
+#: warehouse/templates/email/recovery-code-used/body.html:19
+#, fuzzy, python-format
+#| msgid "Your PyPI account <strong>%(username)s</strong> has been deleted."
+msgid ""
+"\n"
+"A recovery code for your PyPI account <strong>%(username)s</strong> has been "
+"used.\n"
+msgstr "PyPI hesabınız <strong>%(username)s</strong> silindi."
+
+#: warehouse/templates/email/recovery-code-used/body.html:25
+#: warehouse/templates/email/recovery-codes-generated/body.html:25
+#, fuzzy, python-format
+#| msgid ""
+#| "If you did not make this change, you can email <a href=\"%(href)s\">"
+#| "%(email_address)s</a> to communicate with the PyPI administrators."
+msgid ""
+"\n"
+"If you did not make this change, you can email <a href=\"%(href)s\">"
+"%(email_address)s</a> to communicate with the PyPI administrators.\n"
+msgstr ""
+"Bu değişikliği siz yapmadıysanız, PyPI yöneticileri ile iletişime geçmek "
+"için <a href=\"%(href)s\">%(email_address)s</a> e-posta gönderebilirsiniz."
+
+#: warehouse/templates/email/recovery-codes-generated/body.html:19
+#, fuzzy, python-format
+#| msgid "Your PyPI account <strong>%(username)s</strong> has been deleted."
+msgid ""
+"\n"
+"New recovery codes for your PyPI account <strong>%(username)s</strong> have "
+"been generated.\n"
+msgstr "PyPI hesabınız <strong>%(username)s</strong> silindi."
+
 #: warehouse/templates/email/two-factor-added/body.html:18
 #, python-format
 msgid ""
@@ -1588,8 +1617,8 @@ msgid "Admin"
 msgstr "Yönetici"
 
 #: warehouse/templates/includes/current-user-indicator.html:37
-#: warehouse/templates/manage/manage_base.html:130
-#: warehouse/templates/manage/manage_base.html:150
+#: warehouse/templates/manage/manage_base.html:204
+#: warehouse/templates/manage/manage_base.html:224
 #: warehouse/templates/manage/projects.html:18
 msgid "Your projects"
 msgstr "Sizin projeleriniz"
@@ -1597,8 +1626,8 @@ msgstr "Sizin projeleriniz"
 #: warehouse/templates/includes/current-user-indicator.html:43
 #: warehouse/templates/manage/account.html:17
 #: warehouse/templates/manage/account/two-factor.html:17
-#: warehouse/templates/manage/manage_base.html:136
-#: warehouse/templates/manage/manage_base.html:156
+#: warehouse/templates/manage/manage_base.html:210
+#: warehouse/templates/manage/manage_base.html:230
 msgid "Account settings"
 msgstr "Hesap ayarları"
 
@@ -1622,12 +1651,12 @@ msgstr "Bu bildirimi kapat"
 #: warehouse/templates/includes/hash-modal.html:17
 #: warehouse/templates/includes/hash-modal.html:19
 #: warehouse/templates/includes/hash-modal.html:68
-#: warehouse/templates/includes/session-notifications.html:41
+#: warehouse/templates/includes/session-notifications.html:40
 #: warehouse/templates/manage/account.html:199
 #: warehouse/templates/manage/account.html:201
 #: warehouse/templates/manage/account.html:211
-#: warehouse/templates/manage/manage_base.html:192
-#: warehouse/templates/manage/manage_base.html:194
+#: warehouse/templates/manage/manage_base.html:266
+#: warehouse/templates/manage/manage_base.html:268
 #: warehouse/templates/manage/release.html:118
 #: warehouse/templates/manage/releases.html:172
 #: warehouse/templates/manage/roles.html:38
@@ -1666,9 +1695,9 @@ msgstr "Hash özeti"
 #: warehouse/templates/includes/hash-modal.html:50
 #: warehouse/templates/includes/hash-modal.html:59
 #: warehouse/templates/manage/account.html:206
-#: warehouse/templates/manage/account/recovery_codes-provision.html:61
+#: warehouse/templates/manage/account/recovery_codes-provision.html:57
 #: warehouse/templates/manage/account/totp-provision.html:57
-#: warehouse/templates/packaging/detail.html:117
+#: warehouse/templates/packaging/detail.html:144
 #: warehouse/templates/pages/classifiers.html:37
 msgid "Copy to clipboard"
 msgstr "Kopyala"
@@ -1677,7 +1706,7 @@ msgstr "Kopyala"
 #: warehouse/templates/includes/hash-modal.html:51
 #: warehouse/templates/includes/hash-modal.html:60
 #: warehouse/templates/manage/account.html:207
-#: warehouse/templates/manage/account/recovery_codes-provision.html:62
+#: warehouse/templates/manage/account/recovery_codes-provision.html:58
 #: warehouse/templates/manage/account/totp-provision.html:58
 #: warehouse/templates/pages/classifiers.html:38
 msgid "Copy"
@@ -1697,24 +1726,36 @@ msgstr "Önceki"
 msgid "Next"
 msgstr "Sonraki"
 
-#: warehouse/templates/includes/session-notifications.html:23
+#: warehouse/templates/includes/session-notifications.html:24
 #, python-format
 msgid "Your primary email address (%(email_address)s) is unverified."
 msgstr "Birincil e-posta adresiniz (%(email_address)s) doğrulanmadı."
 
-#: warehouse/templates/includes/session-notifications.html:25
+#: warehouse/templates/includes/session-notifications.html:26
 msgid "You do not have a primary email address."
 msgstr "Birincil e-posta adresiniz bulunmamakta."
 
-#: warehouse/templates/includes/session-notifications.html:28
+#: warehouse/templates/includes/session-notifications.html:29
 msgid "Verify your email or add a new address."
 msgstr "E-postanızı doğrulayın ya da yeni bir adres ekleyin."
 
-#: warehouse/templates/includes/session-notifications.html:37
+#: warehouse/templates/includes/session-notifications.html:36
 #, python-format
 msgid ""
 "Two factor authentication is available, <a href=\"%(href)s\">enable it now "
 "for your account.</a>"
+msgstr ""
+"2-aşamalı kimlik doğrulama hizmeti mevcut, <a href=\"%(href)s\">hesabınız "
+"için kurulum yapın.</a>"
+
+#: warehouse/templates/includes/session-notifications.html:45
+#, fuzzy, python-format
+#| msgid ""
+#| "Two factor authentication is available, <a href=\"%(href)s\">enable it "
+#| "now for your account.</a>"
+msgid ""
+"Two-factor recovery codes are available, <a href=\"%(href)s\">generate them "
+"now for your account.</a>"
 msgstr ""
 "2-aşamalı kimlik doğrulama hizmeti mevcut, <a href=\"%(href)s\">hesabınız "
 "için kurulum yapın.</a>"
@@ -2185,7 +2226,6 @@ msgstr "Çift Faktör Yöntemi:"
 
 #: warehouse/templates/manage/account.html:473
 #: warehouse/templates/manage/release.html:58
-#: warehouse/templates/packaging/detail.html:349
 msgid "None"
 msgstr "Mevcut değil"
 
@@ -2216,13 +2256,13 @@ msgid "- Basic Auth (Upload endpoint)"
 msgstr ""
 
 #: warehouse/templates/manage/account.html:492
-#: warehouse/templates/manage/account.html:509
+#: warehouse/templates/manage/account.html:511
 #: warehouse/templates/manage/history.html:84
 msgid "Reason:"
 msgstr ""
 
 #: warehouse/templates/manage/account.html:494
-#: warehouse/templates/manage/account.html:511
+#: warehouse/templates/manage/account.html:513
 #, fuzzy
 #| msgid "Your current password"
 msgid "Incorrect Password"
@@ -2241,99 +2281,100 @@ msgid "Invalid two factor (WebAuthn)"
 msgstr "Geçersiz veya süresi dolmuş 2-aşamalı giriş."
 
 #: warehouse/templates/manage/account.html:500
+#: warehouse/templates/manage/account.html:502
 #, fuzzy
 #| msgid "Invalid recovery code."
 msgid "Invalid two factor (Recovery code)"
 msgstr "Geçersiz kurtarma kodu."
 
-#: warehouse/templates/manage/account.html:507
+#: warehouse/templates/manage/account.html:509
 #, fuzzy
 #| msgid "Two factor authentication added"
 msgid "Session reauthentication failed"
 msgstr "Çift faktörlü doğrulama eklendi"
 
-#: warehouse/templates/manage/account.html:518
+#: warehouse/templates/manage/account.html:520
 msgid "Email added to account"
 msgstr "E-posta hesaba eklendi"
 
-#: warehouse/templates/manage/account.html:521
+#: warehouse/templates/manage/account.html:523
 msgid "Email removed from account"
 msgstr "E-posta hesaptan kaldırıldı"
 
-#: warehouse/templates/manage/account.html:524
+#: warehouse/templates/manage/account.html:526
 msgid "Email verified"
 msgstr "E-posta onaylandı"
 
-#: warehouse/templates/manage/account.html:527
+#: warehouse/templates/manage/account.html:529
 msgid "Email reverified"
 msgstr "E-posta yeniden onaylandı"
 
-#: warehouse/templates/manage/account.html:531
+#: warehouse/templates/manage/account.html:533
 msgid "Primary email changed"
 msgstr "Birincil e-posta değiştirildi"
 
-#: warehouse/templates/manage/account.html:533
+#: warehouse/templates/manage/account.html:535
 msgid "Old primary email:"
 msgstr "Eski Birincil E-posta:"
 
-#: warehouse/templates/manage/account.html:534
+#: warehouse/templates/manage/account.html:536
 msgid "New primary email:"
 msgstr "Yeni Birincil E-Posta:"
 
-#: warehouse/templates/manage/account.html:537
+#: warehouse/templates/manage/account.html:539
 msgid "Primary email set"
 msgstr "Birincil e-posta ayarlandı"
 
-#: warehouse/templates/manage/account.html:543
+#: warehouse/templates/manage/account.html:545
 msgid "Email sent"
 msgstr "E-posta gönderildi"
 
-#: warehouse/templates/manage/account.html:545
+#: warehouse/templates/manage/account.html:547
 msgid "From:"
 msgstr "Kimden:"
 
-#: warehouse/templates/manage/account.html:546
+#: warehouse/templates/manage/account.html:548
 msgid "To:"
 msgstr "Kime:"
 
-#: warehouse/templates/manage/account.html:547
+#: warehouse/templates/manage/account.html:549
 msgid "Subject:"
 msgstr "Konu:"
 
-#: warehouse/templates/manage/account.html:551
+#: warehouse/templates/manage/account.html:553
 msgid "Password reset requested"
 msgstr "Parola sıfırlama istendi"
 
-#: warehouse/templates/manage/account.html:553
+#: warehouse/templates/manage/account.html:555
 msgid "Password reset attempted"
 msgstr "Parola sıfırlama istendi"
 
-#: warehouse/templates/manage/account.html:555
+#: warehouse/templates/manage/account.html:557
 msgid "Password successfully reset"
 msgstr "Şifre başarılı bir şekilde sıfırlandı"
 
-#: warehouse/templates/manage/account.html:557
+#: warehouse/templates/manage/account.html:559
 msgid "Password successfully changed"
 msgstr "Şifre başarılı bir şekilde değiştirildi"
 
-#: warehouse/templates/manage/account.html:560
+#: warehouse/templates/manage/account.html:562
 msgid "Two factor authentication added"
 msgstr "Çift faktörlü doğrulama eklendi"
 
-#: warehouse/templates/manage/account.html:563
-#: warehouse/templates/manage/account.html:573
+#: warehouse/templates/manage/account.html:565
+#: warehouse/templates/manage/account.html:575
 msgid ""
 "Method: Security device (<abbr title=\"web authentication\">WebAuthn</abbr>)"
 msgstr ""
 "Yöntem: Güvenlik Aygıtı (<abbr title=\"web authentication\">WebAuthn</abbr>)"
 
-#: warehouse/templates/manage/account.html:564
-#: warehouse/templates/manage/account.html:574
+#: warehouse/templates/manage/account.html:566
+#: warehouse/templates/manage/account.html:576
 msgid "Device name:"
 msgstr "Aygıt Adı:"
 
-#: warehouse/templates/manage/account.html:566
-#: warehouse/templates/manage/account.html:576
+#: warehouse/templates/manage/account.html:568
+#: warehouse/templates/manage/account.html:578
 msgid ""
 "Method: Authentication application (<abbr title=\"time-based one-time "
 "password\">TOTP</abbr>)"
@@ -2341,66 +2382,66 @@ msgstr ""
 "Yöntem: Kimlik Doğrulama Uygulaması (<abbr title=\"time-based one-time "
 "password\">TOTP</abbr>)"
 
-#: warehouse/templates/manage/account.html:570
+#: warehouse/templates/manage/account.html:572
 msgid "Two factor authentication removed"
 msgstr "Çift faktör kimlik doğrulama kaldırıldı"
 
-#: warehouse/templates/manage/account.html:581
+#: warehouse/templates/manage/account.html:583
 msgid "Recovery codes generated"
 msgstr "Kurtarma kodları oluşturuldu"
 
-#: warehouse/templates/manage/account.html:585
+#: warehouse/templates/manage/account.html:587
 msgid "Recovery codes regenerated"
 msgstr "Kurtarma kodları yeniden oluşturuldu"
 
-#: warehouse/templates/manage/account.html:589
+#: warehouse/templates/manage/account.html:591
 msgid "Recovery code used for login"
 msgstr "Oturum açma için kullanılan kurtarma kodu"
 
-#: warehouse/templates/manage/account.html:595
+#: warehouse/templates/manage/account.html:597
 #: warehouse/templates/manage/history.html:65
 msgid "API token added"
 msgstr "API tokeni eklendi"
 
-#: warehouse/templates/manage/account.html:597
-#: warehouse/templates/manage/account.html:612
+#: warehouse/templates/manage/account.html:599
+#: warehouse/templates/manage/account.html:614
 #: warehouse/templates/manage/history.html:69
 #: warehouse/templates/manage/history.html:76
 msgid "Token name:"
 msgstr "Token Adı:"
 
-#: warehouse/templates/manage/account.html:599
-#: warehouse/templates/manage/account.html:615
+#: warehouse/templates/manage/account.html:601
+#: warehouse/templates/manage/account.html:617
 msgid "Token scope: entire account"
 msgstr "Token Kapsamı: Tüm Hesap"
 
-#: warehouse/templates/manage/account.html:601
-#: warehouse/templates/manage/account.html:617
+#: warehouse/templates/manage/account.html:603
+#: warehouse/templates/manage/account.html:619
 #, python-format
 msgid "Token scope: Project %(project_name)s"
 msgstr "Token Kapsamı: %(project_name)s Projesi"
 
-#: warehouse/templates/manage/account.html:606
+#: warehouse/templates/manage/account.html:608
 #: warehouse/templates/manage/history.html:72
 msgid "API token removed"
 msgstr "API tokeni kaldırıldı"
 
-#: warehouse/templates/manage/account.html:607
-#: warehouse/templates/manage/account.html:613
+#: warehouse/templates/manage/account.html:609
+#: warehouse/templates/manage/account.html:615
 msgid "Unique identifier:"
 msgstr "Benzersiz tanımlayıcı:"
 
-#: warehouse/templates/manage/account.html:610
+#: warehouse/templates/manage/account.html:612
 msgid "API token automatically removed for security reasons"
 msgstr ""
 
-#: warehouse/templates/manage/account.html:619
+#: warehouse/templates/manage/account.html:621
 #, fuzzy, python-format
 #| msgid "Displayed on your <a href=\"%(href)s\">public profile</a>"
 msgid "Reason: Token found at <a href=\"%(public_url)s\">public url</a>"
 msgstr "<a href=\"%(href)s\">Açık profil</a>inizde görüntülenmektedir"
 
-#: warehouse/templates/manage/account.html:628
+#: warehouse/templates/manage/account.html:630
 #, python-format
 msgid ""
 "Events appear here as security-related actions occur on your account. If you "
@@ -2411,45 +2452,45 @@ msgstr ""
 "şüpheli bir durum olduğunu düşünüyorsanız, lütfen en kısa sürede hesabınızı "
 "<a href=\"%(faq_url)s\">güvene alın</a>."
 
-#: warehouse/templates/manage/account.html:633
+#: warehouse/templates/manage/account.html:635
 msgid "Recent account activity"
 msgstr "Son Hesap Hareketleri"
 
-#: warehouse/templates/manage/account.html:635
+#: warehouse/templates/manage/account.html:637
 #: warehouse/templates/manage/history.html:97
 msgid "Event"
 msgstr "Olay"
 
-#: warehouse/templates/manage/account.html:636
-#: warehouse/templates/manage/account.html:644
+#: warehouse/templates/manage/account.html:638
+#: warehouse/templates/manage/account.html:646
 #: warehouse/templates/manage/history.html:98
 #: warehouse/templates/manage/history.html:107
 msgid "Date / time"
 msgstr "Tarih / Zaman"
 
-#: warehouse/templates/manage/account.html:637
-#: warehouse/templates/manage/account.html:648
+#: warehouse/templates/manage/account.html:639
+#: warehouse/templates/manage/account.html:650
 #: warehouse/templates/manage/history.html:99
 #: warehouse/templates/manage/history.html:111
 msgid "IP address"
 msgstr "IP Adresi"
 
-#: warehouse/templates/manage/account.html:656
+#: warehouse/templates/manage/account.html:658
 msgid ""
 "Events will appear here as security-related actions occur on your account."
 msgstr ""
 "Hesabınızda güvenlikle ilgili eylemler gerçekleştiğinde olaylar burada "
 "görünür."
 
-#: warehouse/templates/manage/account.html:663
+#: warehouse/templates/manage/account.html:665
 msgid "Delete account"
 msgstr "Hesabı Kaldır"
 
-#: warehouse/templates/manage/account.html:666
+#: warehouse/templates/manage/account.html:668
 msgid "Cannot delete account"
 msgstr "Hesap kaldırılamıyor"
 
-#: warehouse/templates/manage/account.html:668
+#: warehouse/templates/manage/account.html:670
 #, python-format
 msgid ""
 "\n"
@@ -2470,7 +2511,7 @@ msgstr[1] ""
 "          Hesabınız şu anda %(count)s projenin <strong>tek sahibi</strong>.\n"
 "        "
 
-#: warehouse/templates/manage/account.html:673
+#: warehouse/templates/manage/account.html:675
 msgid ""
 "\n"
 "          You must transfer ownership or delete this project before you can "
@@ -2492,7 +2533,7 @@ msgstr[1] ""
 "kaldırmanız gerekmektedir.\n"
 "        "
 
-#: warehouse/templates/manage/account.html:683
+#: warehouse/templates/manage/account.html:685
 #, python-format
 msgid ""
 "<a href=\"%(transfer_href)s\">transfer ownership</a> or <a href="
@@ -2501,16 +2542,16 @@ msgstr ""
 "<a href=\"%(transfer_href)s\">devret</a> veya <a href=\"%(delete_href)s"
 "\">kaldır</a>"
 
-#: warehouse/templates/manage/account.html:692
+#: warehouse/templates/manage/account.html:694
 #: warehouse/templates/manage/token.html:169
 msgid "Proceed with caution!"
 msgstr "Dikkat edin!"
 
-#: warehouse/templates/manage/account.html:695
+#: warehouse/templates/manage/account.html:697
 msgid "You will not be able to recover your account after you delete it"
 msgstr "Hesabınızı kaldırdıktan sonra tekrar kurtaramazsınız"
 
-#: warehouse/templates/manage/account.html:697
+#: warehouse/templates/manage/account.html:699
 msgid "Delete your PyPI account"
 msgstr "PyPI hesabını kaldır"
 
@@ -2720,52 +2761,11 @@ msgstr "%(ip_address)s Adresi"
 msgid "Manage"
 msgstr "Yönet"
 
-#: warehouse/templates/manage/manage_base.html:24
-msgid ""
-"Add <abbr title=\"two factor authentication\">2FA</abbr> with authentication "
-"application"
-msgstr ""
-"Kinlik doğrulama uygulamasıyla <abbr title=\"two factor authentication\">2-"
-"aşamalı kimlik doğrulama</abbr> ekleyin"
-
-#: warehouse/templates/manage/manage_base.html:26
-msgid ""
-"Add <abbr title=\"two factor authentication\">2FA</abbr> with security "
-"device (e.g. USB key)"
-msgstr ""
-"Güvenlik cihazı (örneğin USB anahtarı) ile <abbr title=\"two factor "
-"authentication\">2FA</abbr> ekleyin"
-
-#: warehouse/templates/manage/manage_base.html:28
-msgid "Generate recovery codes"
-msgstr "Kurtarma kodlarını oluştur"
-
-#: warehouse/templates/manage/account/webauthn-provision.html:37
-#: warehouse/templates/manage/manage_base.html:33
-msgid ""
-"Enable JavaScript to set up two factor authentication with a security device "
-"(e.g. USB key)"
-msgstr ""
-"Donanımla (örn. USB bellek) çift faktörlü kimlik doğrulamayı kurmak için "
-"JavaScript'i etkinleştirin"
-
-#: warehouse/templates/manage/account/webauthn-provision.html:53
-#: warehouse/templates/manage/manage_base.html:38
-#, python-format
-msgid ""
-"<a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener"
-"\">Upgrade your browser</a> to set up two factor authentication with a "
-"security device (e.g. USB key)"
-msgstr ""
-"Güvenlik cihazıyla (örneğin USB anahtar) 2-aşamalı kimlik doğrulamayı kurmak "
-"için <a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel="
-"\"noopener\"> tarayıcınızın güncelleyin </a>"
-
-#: warehouse/templates/manage/manage_base.html:47
+#: warehouse/templates/manage/manage_base.html:23
 msgid "Two factor authentication (2FA)"
 msgstr "Çift Faktörlü Kimlik Doğrulama (2FA)"
 
-#: warehouse/templates/manage/manage_base.html:48
+#: warehouse/templates/manage/manage_base.html:25
 #, python-format
 msgid ""
 "Two factor authentication adds an additional layer of security to your "
@@ -2775,6 +2775,28 @@ msgstr ""
 "Çift faktörlü kimlik doğrulama hesabınıza ilave bir güvenlik duvarı "
 "eklemektedir. <a href=\"%(href)s\"><abbr title=\"two factor authentication"
 "\">2FA</abbr> ile ilgili daha fazla bilgi edinin</a>."
+
+#: warehouse/templates/manage/manage_base.html:30
+#, fuzzy
+#| msgid "Recovery codes generated"
+msgid "Recovery methods enabled"
+msgstr "Kurtarma kodları oluşturuldu"
+
+#: warehouse/templates/manage/manage_base.html:33
+#, fuzzy
+#| msgid "Recovery code"
+msgid "Recovery method"
+msgstr "Kurtarma kodu"
+
+#: warehouse/templates/manage/manage_base.html:39
+#, python-format
+msgid "generated %(generated_datetime)s"
+msgstr "%(generated_datetime)s tarihinde oluşturuldu"
+
+#: warehouse/templates/manage/account/recovery_codes-burn.html:49
+#: warehouse/templates/manage/manage_base.html:43
+msgid "Regenerate"
+msgstr "Yeniden oluştur"
 
 #: warehouse/templates/manage/manage_base.html:53
 msgid "Two factor authentication methods enabled"
@@ -2809,69 +2831,205 @@ msgstr "Aygıtı kaldır"
 msgid "Device name"
 msgstr "Aygıt Adı"
 
-#: warehouse/templates/manage/manage_base.html:93
-#, python-format
-msgid "generated %(generated_datetime)s"
-msgstr "%(generated_datetime)s tarihinde oluşturuldu"
-
-#: warehouse/templates/manage/manage_base.html:96
-msgid "Regenerate"
-msgstr "Yeniden oluştur"
-
-#: warehouse/templates/manage/account/recovery_codes-provision.html:36
-#: warehouse/templates/manage/account/recovery_codes-provision.html:37
-#: warehouse/templates/manage/account/recovery_codes-provision.html:38
-#: warehouse/templates/manage/manage_base.html:97
-#: warehouse/templates/manage/manage_base.html:98
-msgid "Regenerate recovery codes"
-msgstr "Kurtarma kodlarını yeniden oluştur"
-
-#: warehouse/templates/manage/manage_base.html:109
-msgid "You have not enabled two factor authentication on your account."
-msgstr "Hesabınızda çift faktörlü kimlik doğrulamayı etkinleştirmediniz."
-
-#: warehouse/templates/manage/manage_base.html:114
-#, python-format
+#: warehouse/templates/manage/manage_base.html:99
+#, fuzzy, python-format
+#| msgid ""
+#| "<a href=\"%(href)s\">Verify your primary email address</a> to add two "
+#| "factor authentication to your account."
 msgid ""
-"<a href=\"%(href)s\">Verify your primary email address</a> to add two factor "
-"authentication to your account."
+"\n"
+"        <a href=\"%(href)s\">Verify your primary email address</a>\n"
+"        before adding additional two factor authentication methods to your "
+"account.\n"
+"        "
 msgstr ""
 "Çift faktörlü kimlik doğrulamayı eklemek için <a href=\"%(href)s\">e-posta "
 "adresinizi doğrulayın</a>."
 
-#: warehouse/templates/manage/manage_base.html:124
+#: warehouse/templates/manage/manage_base.html:104
+#, fuzzy, python-format
+#| msgid ""
+#| "<a href=\"%(href)s\">Verify your primary email address</a> to add two "
+#| "factor authentication to your account."
+msgid ""
+"\n"
+"        <a href=\"%(href)s\">Verify your primary email address</a>\n"
+"        before enabling two factor authentication on your account.\n"
+"        "
+msgstr ""
+"Çift faktörlü kimlik doğrulamayı eklemek için <a href=\"%(href)s\">e-posta "
+"adresinizi doğrulayın</a>."
+
+#: warehouse/templates/manage/manage_base.html:115
+#, fuzzy
+#| msgid "You have not enabled two factor authentication on your account."
+msgid ""
+"\n"
+"        You must generate and safely store recovery codes before adding "
+"additional two factor\n"
+"        authentication methods to your account.\n"
+"        "
+msgstr "Hesabınızda çift faktörlü kimlik doğrulamayı etkinleştirmediniz."
+
+#: warehouse/templates/manage/manage_base.html:120
+#, fuzzy
+#| msgid "You have not enabled two factor authentication on your account."
+msgid ""
+"\n"
+"        You must generate and safely store recovery codes before enabling "
+"two factor authentication on your account.\n"
+"        "
+msgstr "Hesabınızda çift faktörlü kimlik doğrulamayı etkinleştirmediniz."
+
+#: warehouse/templates/manage/manage_base.html:126
+#, fuzzy
+#| msgid ""
+#| "\n"
+#| "            %(count)s project\n"
+#| "          "
+#| msgid_plural ""
+#| "\n"
+#| "            %(count)s projects\n"
+#| "          "
+msgid ""
+"\n"
+"        Generate recovery codes\n"
+"        "
+msgstr ""
+"\n"
+"            %(count)s proje\n"
+"          "
+
+#: warehouse/templates/manage/manage_base.html:135
+#, fuzzy
+#| msgid "You have not enabled two factor authentication on your account."
+msgid ""
+"\n"
+"        Use a recovery code before adding additional two factor\n"
+"        authentication methods to your account.\n"
+"        "
+msgstr "Hesabınızda çift faktörlü kimlik doğrulamayı etkinleştirmediniz."
+
+#: warehouse/templates/manage/manage_base.html:140
+#, fuzzy
+#| msgid "You have not enabled two factor authentication on your account."
+msgid ""
+"\n"
+"        Use a recovery code before enabling two factor authentication on "
+"your account.\n"
+"        "
+msgstr "Hesabınızda çift faktörlü kimlik doğrulamayı etkinleştirmediniz."
+
+#: warehouse/templates/manage/manage_base.html:149
+#, fuzzy
+#| msgid ""
+#| "\n"
+#| "            %(count)s project\n"
+#| "          "
+#| msgid_plural ""
+#| "\n"
+#| "            %(count)s projects\n"
+#| "          "
+msgid ""
+"\n"
+"        Use a recovery code\n"
+"        "
+msgstr ""
+"\n"
+"            %(count)s proje\n"
+"          "
+
+#: warehouse/templates/manage/manage_base.html:160
+#, fuzzy
+#| msgid "You have not enabled two factor authentication on your account."
+msgid ""
+"\n"
+"        You have not enabled two factor authentication on your account.\n"
+"        "
+msgstr "Hesabınızda çift faktörlü kimlik doğrulamayı etkinleştirmediniz."
+
+#: warehouse/templates/manage/manage_base.html:168
+#, fuzzy
+#| msgid ""
+#| "Add <abbr title=\"two factor authentication\">2FA</abbr> with "
+#| "authentication application"
+msgid ""
+"\n"
+"        Add <abbr title=\"two factor authentication\">2FA</abbr> with "
+"authentication application\n"
+"        "
+msgstr ""
+"Kinlik doğrulama uygulamasıyla <abbr title=\"two factor authentication\">2-"
+"aşamalı kimlik doğrulama</abbr> ekleyin"
+
+#: warehouse/templates/manage/manage_base.html:173
+#, fuzzy
+#| msgid ""
+#| "Add <abbr title=\"two factor authentication\">2FA</abbr> with security "
+#| "device (e.g. USB key)"
+msgid ""
+"\n"
+"        Add <abbr title=\"two factor authentication\">2FA</abbr> with "
+"security device (e.g. USB key)\n"
+"        "
+msgstr ""
+"Güvenlik cihazı (örneğin USB anahtarı) ile <abbr title=\"two factor "
+"authentication\">2FA</abbr> ekleyin"
+
+#: warehouse/templates/manage/account/webauthn-provision.html:37
+#: warehouse/templates/manage/manage_base.html:180
+msgid ""
+"Enable JavaScript to set up two factor authentication with a security device "
+"(e.g. USB key)"
+msgstr ""
+"Donanımla (örn. USB bellek) çift faktörlü kimlik doğrulamayı kurmak için "
+"JavaScript'i etkinleştirin"
+
+#: warehouse/templates/manage/account/webauthn-provision.html:53
+#: warehouse/templates/manage/manage_base.html:185
+#, python-format
+msgid ""
+"<a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener"
+"\">Upgrade your browser</a> to set up two factor authentication with a "
+"security device (e.g. USB key)"
+msgstr ""
+"Güvenlik cihazıyla (örneğin USB anahtar) 2-aşamalı kimlik doğrulamayı kurmak "
+"için <a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel="
+"\"noopener\"> tarayıcınızın güncelleyin </a>"
+
+#: warehouse/templates/manage/manage_base.html:198
 msgid "Your account"
 msgstr "Hesabınız"
 
-#: warehouse/templates/manage/manage_base.html:125
-#: warehouse/templates/manage/manage_base.html:145
+#: warehouse/templates/manage/manage_base.html:199
+#: warehouse/templates/manage/manage_base.html:219
 msgid "Account navigation"
 msgstr "Hesap Menüsü"
 
-#: warehouse/templates/manage/manage_base.html:205
-#: warehouse/templates/manage/manage_base.html:257
+#: warehouse/templates/manage/manage_base.html:279
+#: warehouse/templates/manage/manage_base.html:331
 msgid "This action cannot be undone!"
 msgstr "Bu eylem geri alınamaz!"
 
-#: warehouse/templates/manage/manage_base.html:213
+#: warehouse/templates/manage/manage_base.html:287
 msgid "Confirm your username to continue."
 msgstr "Devam etmek için kullanıcı adınızı doğrulayın."
 
-#: warehouse/templates/manage/manage_base.html:215
+#: warehouse/templates/manage/manage_base.html:289
 #, python-format
 msgid "Confirm the %(item)s to continue."
 msgstr "Devam etmek için %(item)s 'ı onaylayın."
 
-#: warehouse/templates/manage/manage_base.html:223
-#: warehouse/templates/manage/manage_base.html:275
+#: warehouse/templates/manage/manage_base.html:297
+#: warehouse/templates/manage/manage_base.html:349
 msgid "Cancel"
 msgstr "İptal Et"
 
-#: warehouse/templates/manage/manage_base.html:246
+#: warehouse/templates/manage/manage_base.html:320
 msgid "close"
 msgstr "Kapat"
 
-#: warehouse/templates/manage/manage_base.html:262
+#: warehouse/templates/manage/manage_base.html:336
 msgid "Enter your password to continue."
 msgstr "Devam etmek için parolanızı girin."
 
@@ -2938,7 +3096,6 @@ msgstr "Bu proje için hiçbir sürüm yayınlanmadı"
 
 #: warehouse/templates/manage/projects.html:119
 #: warehouse/templates/manage/releases.html:94
-#: warehouse/templates/packaging/detail.html:359
 msgid "View"
 msgstr "Görüntüle"
 
@@ -2984,8 +3141,6 @@ msgstr "%(project_name)s %(version)s Sürümünün Dosyaları"
 
 #: warehouse/templates/manage/release.html:37
 #: warehouse/templates/manage/release.html:48
-#: warehouse/templates/packaging/detail.html:323
-#: warehouse/templates/packaging/detail.html:334
 msgid "Filename, size"
 msgstr "Dosya Adı, Boyut"
 
@@ -2996,15 +3151,11 @@ msgstr "Tür"
 
 #: warehouse/templates/manage/release.html:39
 #: warehouse/templates/manage/release.html:57
-#: warehouse/templates/packaging/detail.html:325
-#: warehouse/templates/packaging/detail.html:345
 msgid "Python version"
 msgstr "Python Sürümü"
 
 #: warehouse/templates/manage/release.html:40
 #: warehouse/templates/manage/release.html:61
-#: warehouse/templates/packaging/detail.html:326
-#: warehouse/templates/packaging/detail.html:353
 msgid "Upload date"
 msgstr "Yüklenme Tarihi"
 
@@ -3423,7 +3574,7 @@ msgstr "Rol"
 msgid "Save role"
 msgstr "Rolü kaydet"
 
-#: warehouse/templates/manage/account/recovery_codes-provision.html:69
+#: warehouse/templates/manage/account/recovery_codes-provision.html:63
 #: warehouse/templates/manage/roles.html:95
 msgid "Save"
 msgstr "Kaydet"
@@ -3734,11 +3885,46 @@ msgstr ""
 msgid "Add token"
 msgstr "Belirteç ekle"
 
+#: warehouse/templates/manage/account/recovery_codes-burn.html:17
+#, fuzzy
+#| msgid "Enter recovery code"
+msgid "Use a recovery code"
+msgstr "Kurtarma kodunu girin"
+
+#: warehouse/templates/manage/account/recovery_codes-burn.html:34
+msgid ""
+"\n"
+"        In order to verify that you have safely stored your recovery codes "
+"for use in the event of a lost 2FA device, submit one of your recovery codes "
+"here.\n"
+"      "
+msgstr ""
+
+#: warehouse/templates/manage/account/recovery_codes-burn.html:39
+msgid ""
+"\n"
+"        The recovery code you choose will be considered used and no longer "
+"be available to bypass 2FA.\n"
+"      "
+msgstr ""
+
+#: warehouse/templates/manage/account/recovery_codes-burn.html:44
+msgid ""
+"\n"
+"      <strong>Forgot to safely store your recovery codes?</strong> You'll "
+"need to generate a them again.\n"
+"      "
+msgstr ""
+
 #: warehouse/templates/manage/account/recovery_codes-provision.html:17
 msgid "Account recovery codes"
 msgstr "Hesap kurtarma kodları"
 
-#: warehouse/templates/manage/account/recovery_codes-provision.html:46
+#: warehouse/templates/manage/account/recovery_codes-provision.html:36
+msgid "Regenerate recovery codes"
+msgstr "Kurtarma kodlarını yeniden oluştur"
+
+#: warehouse/templates/manage/account/recovery_codes-provision.html:42
 msgid ""
 "If you lose access to your authentication application or security key(s), "
 "you’ll need to use one of these recovery codes to log into your PyPI "
@@ -3749,7 +3935,7 @@ msgstr ""
 "birini kullanmanız gerekecektir. Her bir kod <strong>yalnız</strong> bir kez "
 "kullanılabilir."
 
-#: warehouse/templates/manage/account/recovery_codes-provision.html:47
+#: warehouse/templates/manage/account/recovery_codes-provision.html:43
 msgid ""
 "These codes should <strong>only</strong> be used for account recovery, not "
 "for typical logins."
@@ -3757,7 +3943,7 @@ msgstr ""
 "Bu kodlar <strong>sadece</strong> hesap kurtarmak için kullanılmalıdır, "
 "normal oturum açmalar için değil."
 
-#: warehouse/templates/manage/account/recovery_codes-provision.html:48
+#: warehouse/templates/manage/account/recovery_codes-provision.html:44
 msgid ""
 "<strong>Keep these somewhere safe</strong>. If you lose your authentication "
 "application or security key(s) and do not have access to these recovery "
@@ -3768,25 +3954,23 @@ msgstr ""
 "kodlarına da erişiminiz yoksa, PyPI hesabınıza olan erişiminizi kalıcı "
 "olarak kaybedebilirsiniz!"
 
-#: warehouse/templates/manage/account/recovery_codes-provision.html:52
+#: warehouse/templates/manage/account/recovery_codes-provision.html:48
 msgid "Save your recovery codes"
 msgstr "Kurtarma kodlarınızı kaydedin"
 
-#: warehouse/templates/manage/account/recovery_codes-provision.html:68
+#: warehouse/templates/manage/account/recovery_codes-provision.html:62
 msgid "Download as file"
 msgstr "Dosya olarak indirin"
 
-#: warehouse/templates/manage/account/recovery_codes-provision.html:71
-#: warehouse/templates/manage/account/recovery_codes-provision.html:73
-#: warehouse/templates/manage/account/recovery_codes-provision.html:77
+#: warehouse/templates/manage/account/recovery_codes-provision.html:66
 msgid "Continue"
 msgstr "Devam"
 
-#: warehouse/templates/manage/account/recovery_codes-provision.html:80
+#: warehouse/templates/manage/account/recovery_codes-provision.html:69
 msgid "These codes will not be visible again."
 msgstr "Bu kodlar bir daha görünebilir olmayacak."
 
-#: warehouse/templates/manage/account/recovery_codes-provision.html:83
+#: warehouse/templates/manage/account/recovery_codes-provision.html:72
 msgid "Ensure that you have securely stored them before continuing."
 msgstr ""
 "Devam etmeden önce bunları güvenli bir şekilde sakladığınızdan emin olun."
@@ -3930,119 +4114,125 @@ msgstr ""
 "Bazı USB aygıtları FIDO gereksinimlerini uygulamadığından PyPI'da "
 "çalışmamaktadır."
 
-#: warehouse/templates/packaging/detail.html:99
+#: warehouse/templates/packaging/detail.html:106
+#, fuzzy
+#| msgid "View Hashes"
+msgid "view hashes"
+msgstr "Hashleri Gör"
+
+#: warehouse/templates/packaging/detail.html:126
 #, python-format
 msgid "RSS: latest releases for %(project_name)s"
 msgstr "RSS: Son %(project_name)s sürümleri"
 
-#: warehouse/templates/packaging/detail.html:119
+#: warehouse/templates/packaging/detail.html:146
 msgid "Copy PIP instructions"
 msgstr "PIP yönergelerini kopyala"
 
-#: warehouse/templates/packaging/detail.html:129
+#: warehouse/templates/packaging/detail.html:156
 msgid "This release has been yanked"
 msgstr ""
 
-#: warehouse/templates/packaging/detail.html:135
+#: warehouse/templates/packaging/detail.html:162
 #, python-format
 msgid "Stable version available (%(version)s)"
 msgstr "Kararlı sürüm mevcut (%(version)s)"
 
-#: warehouse/templates/packaging/detail.html:139
+#: warehouse/templates/packaging/detail.html:166
 #, python-format
 msgid "Newer version available (%(version)s)"
 msgstr "Daha yeni bir sürüm mevcut (%(version)s)"
 
-#: warehouse/templates/packaging/detail.html:143
+#: warehouse/templates/packaging/detail.html:170
 msgid "Latest version"
 msgstr "En son sürüm"
 
-#: warehouse/templates/packaging/detail.html:148
+#: warehouse/templates/packaging/detail.html:175
 #, python-format
 msgid "Released: %(release_date)s"
 msgstr "Yayınlanma tarihi: %(release_date)s"
 
-#: warehouse/templates/packaging/detail.html:160
+#: warehouse/templates/packaging/detail.html:187
 msgid "No project description provided"
 msgstr "Proje açıklaması bulunmuyor"
 
-#: warehouse/templates/packaging/detail.html:173
+#: warehouse/templates/packaging/detail.html:200
 msgid "Navigation"
 msgstr "Navigasyon"
 
-#: warehouse/templates/packaging/detail.html:174
-#: warehouse/templates/packaging/detail.html:205
+#: warehouse/templates/packaging/detail.html:201
+#: warehouse/templates/packaging/detail.html:232
 #, python-format
 msgid "Navigation for %(project)s"
 msgstr "%(project)s için navigasyon"
 
-#: warehouse/templates/packaging/detail.html:177
-#: warehouse/templates/packaging/detail.html:208
+#: warehouse/templates/packaging/detail.html:204
+#: warehouse/templates/packaging/detail.html:235
 msgid "Project description. Focus will be moved to the description."
 msgstr "Proje açıklaması. Dikkat, bu açıklamaya yönelir."
 
-#: warehouse/templates/packaging/detail.html:179
-#: warehouse/templates/packaging/detail.html:210
-#: warehouse/templates/packaging/detail.html:238
+#: warehouse/templates/packaging/detail.html:206
+#: warehouse/templates/packaging/detail.html:237
+#: warehouse/templates/packaging/detail.html:265
 msgid "Project description"
 msgstr "Proje açıklaması"
 
-#: warehouse/templates/packaging/detail.html:183
-#: warehouse/templates/packaging/detail.html:220
+#: warehouse/templates/packaging/detail.html:210
+#: warehouse/templates/packaging/detail.html:247
 msgid "Release history. Focus will be moved to the history panel."
 msgstr "Yayın geçmişi. Dikkat, tarih paneline yönelir."
 
-#: warehouse/templates/packaging/detail.html:185
-#: warehouse/templates/packaging/detail.html:222
-#: warehouse/templates/packaging/detail.html:260
+#: warehouse/templates/packaging/detail.html:212
+#: warehouse/templates/packaging/detail.html:249
+#: warehouse/templates/packaging/detail.html:287
 msgid "Release history"
 msgstr "Yayın geçmişi"
 
-#: warehouse/templates/packaging/detail.html:190
-#: warehouse/templates/packaging/detail.html:227
+#: warehouse/templates/packaging/detail.html:217
+#: warehouse/templates/packaging/detail.html:254
 msgid "Download files. Focus will be moved to the project files."
 msgstr "Dosya indirme. Dikkat, proje dosyalarına yönelir."
 
-#: warehouse/templates/packaging/detail.html:192
-#: warehouse/templates/packaging/detail.html:229
-#: warehouse/templates/packaging/detail.html:316
+#: warehouse/templates/packaging/detail.html:219
+#: warehouse/templates/packaging/detail.html:256
+#: warehouse/templates/packaging/detail.html:343
 msgid "Download files"
 msgstr "Dosyaları indir"
 
-#: warehouse/templates/packaging/detail.html:214
+#: warehouse/templates/packaging/detail.html:241
 msgid "Project details. Focus will be moved to the project details."
 msgstr "Proje ayrıntıları. Dikkat, proje ayrıntılarına yönelir."
 
-#: warehouse/templates/packaging/detail.html:216
-#: warehouse/templates/packaging/detail.html:252
+#: warehouse/templates/packaging/detail.html:243
+#: warehouse/templates/packaging/detail.html:279
 msgid "Project details"
 msgstr "Proje ayrıntıları"
 
-#: warehouse/templates/packaging/detail.html:245
+#: warehouse/templates/packaging/detail.html:272
 msgid "The author of this package has not provided a project description"
 msgstr "Bu paketin yazarı herhangi bir proje açıklaması yazmamış"
 
-#: warehouse/templates/packaging/detail.html:262
+#: warehouse/templates/packaging/detail.html:289
 msgid "Release notifications"
 msgstr "Yayın bildirimleri"
 
-#: warehouse/templates/packaging/detail.html:263
+#: warehouse/templates/packaging/detail.html:290
 msgid "RSS feed"
 msgstr "RSS kaynağı"
 
-#: warehouse/templates/packaging/detail.html:275
+#: warehouse/templates/packaging/detail.html:302
 msgid "This version"
 msgstr "Bu sürüm"
 
-#: warehouse/templates/packaging/detail.html:295
+#: warehouse/templates/packaging/detail.html:322
 msgid "pre-release"
 msgstr "ön sürüm"
 
-#: warehouse/templates/packaging/detail.html:300
+#: warehouse/templates/packaging/detail.html:327
 msgid "yanked"
 msgstr ""
 
-#: warehouse/templates/packaging/detail.html:317
+#: warehouse/templates/packaging/detail.html:344
 #, python-format
 msgid ""
 "Download the file for your platform. If you're not sure which to choose, "
@@ -4053,20 +4243,59 @@ msgstr ""
 "href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener"
 "\">paket yüklemeleri</a> hakkında daha fazla bilgi edinin."
 
-#: warehouse/templates/packaging/detail.html:320
-#, python-format
-msgid "Files for %(project_name)s, version %(version)s"
-msgstr "%(project_name)s için dosyalar, sürüm %(version)s"
+#: warehouse/templates/packaging/detail.html:348
+#, fuzzy
+#| msgid ""
+#| "\n"
+#| "            %(count)s project\n"
+#| "          "
+#| msgid_plural ""
+#| "\n"
+#| "            %(count)s projects\n"
+#| "          "
+msgid ""
+"\n"
+"                Source Distribution\n"
+"              "
+msgid_plural ""
+"\n"
+"                Source Distributions\n"
+"              "
+msgstr[0] ""
+"\n"
+"            %(count)s proje\n"
+"          "
+msgstr[1] ""
+"\n"
+"            %(count)s proje\n"
+"          "
 
-#: warehouse/templates/packaging/detail.html:324
-#: warehouse/templates/packaging/detail.html:341
-msgid "File type"
-msgstr "Dosya türü"
-
-#: warehouse/templates/packaging/detail.html:327
-#: warehouse/templates/packaging/detail.html:357
-msgid "Hashes"
-msgstr "Hash'ler"
+#: warehouse/templates/packaging/detail.html:360
+#, fuzzy
+#| msgid ""
+#| "\n"
+#| "            %(count)s project\n"
+#| "          "
+#| msgid_plural ""
+#| "\n"
+#| "            %(count)s projects\n"
+#| "          "
+msgid ""
+"\n"
+"                Built Distribution\n"
+"              "
+msgid_plural ""
+"\n"
+"                Built Distributions\n"
+"              "
+msgstr[0] ""
+"\n"
+"            %(count)s proje\n"
+"          "
+msgstr[1] ""
+"\n"
+"            %(count)s proje\n"
+"          "
 
 #: warehouse/templates/pages/classifiers.html:22
 msgid ""
@@ -6579,6 +6808,29 @@ msgid_plural ""
 "                "
 msgstr[0] ""
 msgstr[1] ""
+
+#~ msgid ""
+#~ "You must provision a two factor method before recovery codes can be "
+#~ "generated"
+#~ msgstr ""
+#~ "Kurtarma kodlarının üretilebilmesi için iki faktörlü(2FA) bir method "
+#~ "sağlamalısınız"
+
+#~ msgid "Invalid credentials. Try again"
+#~ msgstr "Geçersiz kimlik bilgileri. Tekrar deneyin"
+
+#~ msgid "Generate recovery codes"
+#~ msgstr "Kurtarma kodlarını oluştur"
+
+#, python-format
+#~ msgid "Files for %(project_name)s, version %(version)s"
+#~ msgstr "%(project_name)s için dosyalar, sürüm %(version)s"
+
+#~ msgid "File type"
+#~ msgstr "Dosya türü"
+
+#~ msgid "Hashes"
+#~ msgstr "Hash'ler"
 
 #~ msgid "Sponsor"
 #~ msgstr "Sponsor"
