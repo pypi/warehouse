@@ -457,7 +457,7 @@ class ProvisionTOTPViews:
             self.request.session.flash(
                 "Verify your email to modify two factor authentication", queue="error"
             )
-            return Response(status=403)
+            return HTTPSeeOther(self.request.route_path("manage.account"))
 
         totp_secret = self.user_service.get_totp_secret(self.request.user.id)
         if totp_secret:
@@ -475,7 +475,7 @@ class ProvisionTOTPViews:
             self.request.session.flash(
                 "Verify your email to modify two factor authentication", queue="error"
             )
-            return Response(status=403)
+            return HTTPSeeOther(self.request.route_path("manage.account"))
 
         totp_secret = self.user_service.get_totp_secret(self.request.user.id)
         if totp_secret:
@@ -494,7 +494,7 @@ class ProvisionTOTPViews:
             self.request.session.flash(
                 "Verify your email to modify two factor authentication", queue="error"
             )
-            return Response(status=403)
+            return HTTPSeeOther(self.request.route_path("manage.account"))
 
         totp_secret = self.user_service.get_totp_secret(self.request.user.id)
         if totp_secret:
@@ -534,7 +534,7 @@ class ProvisionTOTPViews:
             self.request.session.flash(
                 "Verify your email to modify two factor authentication", queue="error"
             )
-            return Response(status=403)
+            return HTTPSeeOther(self.request.route_path("manage.account"))
 
         totp_secret = self.user_service.get_totp_secret(self.request.user.id)
         if not totp_secret:

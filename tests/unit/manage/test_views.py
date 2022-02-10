@@ -862,13 +862,15 @@ class TestProvisionTOTP:
                 interface
             ],
             user=pretend.stub(has_primary_verified_email=False),
+            route_path=lambda *a, **kw: "/foo/bar/",
         )
 
         view = views.ProvisionTOTPViews(request)
         result = view.generate_totp_qr()
 
-        assert isinstance(result, Response)
-        assert result.status_code == 403
+        assert isinstance(result, HTTPSeeOther)
+        assert result.status_code == 303
+        assert result.headers["Location"] == "/foo/bar/"
         assert request.session.flash.calls == [
             pretend.call(
                 "Verify your email to modify two factor authentication", queue="error"
@@ -938,6 +940,7 @@ class TestProvisionTOTP:
         result = view.totp_provision()
 
         assert isinstance(result, HTTPSeeOther)
+        assert result.status_code == 303
         assert result.headers["Location"] == "/foo/bar/"
         assert request.session.flash.calls == [
             pretend.call(
@@ -955,13 +958,15 @@ class TestProvisionTOTP:
                 interface
             ],
             user=pretend.stub(has_primary_verified_email=False),
+            route_path=lambda *a, **kw: "/foo/bar/",
         )
 
         view = views.ProvisionTOTPViews(request)
         result = view.totp_provision()
 
-        assert isinstance(result, Response)
-        assert result.status_code == 403
+        assert isinstance(result, HTTPSeeOther)
+        assert result.status_code == 303
+        assert result.headers["Location"] == "/foo/bar/"
         assert request.session.flash.calls == [
             pretend.call(
                 "Verify your email to modify two factor authentication", queue="error"
@@ -1113,13 +1118,15 @@ class TestProvisionTOTP:
                 interface
             ],
             user=pretend.stub(has_primary_verified_email=False),
+            route_path=lambda *a, **kw: "/foo/bar/",
         )
 
         view = views.ProvisionTOTPViews(request)
         result = view.validate_totp_provision()
 
-        assert isinstance(result, Response)
-        assert result.status_code == 403
+        assert isinstance(result, HTTPSeeOther)
+        assert result.status_code == 303
+        assert result.headers["Location"] == "/foo/bar/"
         assert request.session.flash.calls == [
             pretend.call(
                 "Verify your email to modify two factor authentication", queue="error"
@@ -1257,13 +1264,15 @@ class TestProvisionTOTP:
                 interface
             ],
             user=pretend.stub(has_primary_verified_email=False),
+            route_path=lambda *a, **kw: "/foo/bar/",
         )
 
         view = views.ProvisionTOTPViews(request)
         result = view.delete_totp()
 
-        assert isinstance(result, Response)
-        assert result.status_code == 403
+        assert isinstance(result, HTTPSeeOther)
+        assert result.status_code == 303
+        assert result.headers["Location"] == "/foo/bar/"
         assert request.session.flash.calls == [
             pretend.call(
                 "Verify your email to modify two factor authentication", queue="error"
