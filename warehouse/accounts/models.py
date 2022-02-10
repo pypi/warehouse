@@ -152,6 +152,10 @@ class User(SitemapMixin, db.Model):
         return any(not code.burned for code in self.recovery_codes)
 
     @property
+    def has_burned_recovery_codes(self):
+        return any(code.burned for code in self.recovery_codes)
+
+    @property
     def has_primary_verified_email(self):
         return self.primary_email is not None and self.primary_email.verified
 
