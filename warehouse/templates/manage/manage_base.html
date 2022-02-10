@@ -23,36 +23,7 @@
     <h2 class="sub-title">{% trans %}Two factor authentication (2FA){% endtrans %}</h2>
     <p>
       {% trans href='/help#twofa' %}Two factor authentication adds an additional layer of security to your account. <a href="{{ href }}">Learn more about <abbr title="two factor authentication">2FA</abbr></a>.{% endtrans %}</p>
-      {% if not user.has_two_factor %}
-        <div class="callout-block">
 
-          {% if not user.has_primary_verified_email %}
-            <p>
-              {% trans href='#account-emails' %}
-              <a href="{{ href }}">Verify your primary email address</a>
-              before enabling two factor authentication on your account.
-              {% endtrans %}
-            </p>
-          {% elif not user.has_recovery_codes %}
-            <p>
-              {% trans %}
-              Generate recovery codes before enabling two factor authentication on your account.
-              {% endtrans %}
-            </p>
-            <a href="{{ request.route_path('manage.account.recovery-codes.generate') }}" class="button button--primary">
-              {% trans %}
-              Generate recovery codes
-              {% endtrans %}
-            </a>
-          {% else %}
-            <p>
-            {% trans %}
-            You have not enabled two factor authentication on your account.
-            {% endtrans %}
-            </p>
-          {% endif %}
-          </div>
-      {% endif %}
 
     {% if user.has_recovery_codes %}
     <table class="table table--2fa">
@@ -121,10 +92,85 @@
     </table>
     {% endif %}
 
-    {% if user.has_recovery_codes %}
+    {% if not user.has_primary_verified_email %}
+    <div class="callout-block">
+      <p>
+      {% if user.has_two_factor %}
+        {% trans href='#account-emails' %}
+        <a href="{{ href }}">Verify your primary email address</a>
+        before adding additional two factor authentication methods to your account.
+        {% endtrans %}
+      {% else %}
+        {% trans href='#account-emails' %}
+        <a href="{{ href }}">Verify your primary email address</a>
+        before enabling two factor authentication on your account.
+        {% endtrans %}
+      {% endif %}
+      </p>
+    </div>
+    {% elif not user.has_recovery_codes %}
+    <div class="callout-block">
+      <p>
+      {% if user.has_two_factor %}
+        {% trans href='#account-emails' %}
+        Generate recovery codes before adding additional two factor
+        authentication methods to your account.
+        {% endtrans %}
+      {% else %}
+        {% trans %}
+        Generate recovery codes before enabling two factor authentication on your account.
+        {% endtrans %}
+      {% endif %}
+      </p>
+      <a href="{{ request.route_path('manage.account.recovery-codes.generate') }}" class="button button--primary">
+        {% trans %}
+        Generate recovery codes
+        {% endtrans %}
+      </a>
+    </div>
+    {% elif not user.has_burned_recovery_codes %}
+    <div class="callout-block">
+      <p>
+      {% if user.has_two_factor %}
+        {% trans href='#account-emails' %}
+        Use a recovery code before adding additional two factor
+        authentication methods to your account.
+        {% endtrans %}
+      {% else %}
+        {% trans %}
+        Use a recovery code before enabling two factor authentication on your account.
+        {% endtrans %}
+      {% endif %}
+      </p>
+      <a href="{{ request.route_path('manage.account.recovery-codes.burn') }}" class="button button--primary">
+        {% trans %}
+        Use a recovery code
+        {% endtrans %}
+      </a>
+    </div>
+    {% endif %}
+
+    {% set disabled = not user.has_burned_recovery_codes or not user.has_primary_verified_email %}
+    {% if not user.has_two_factor %}
+     <div class="callout-block">
+        <p>
+        {% trans %}
+        You have not enabled two factor authentication on your account.
+        {% endtrans %}
+        </p>
+      </div>
+    {% endif %}
     <div class="wrap-children">
-      <a href="{{ request.route_path('manage.account.totp-provision') }}" class="button button--primary">{% trans %}Add <abbr title="two factor authentication">2FA</abbr> with authentication application{% endtrans %}</a>
-      <a href="{{ request.route_path('manage.account.webauthn-provision') }}" class="button button--primary" id="webauthn-button" aria-describedby="webauthn-errors">{% trans %}Add <abbr title="two factor authentication">2FA</abbr> with security device (e.g. USB key){% endtrans %}</a>
+      <a href="{{ request.route_path('manage.account.totp-provision') }}" class="button button--primary {{ "button--disabled" if disabled else "" }}">
+        {% trans %}
+        Add <abbr title="two factor authentication">2FA</abbr> with authentication application
+        {% endtrans %}
+      </a>
+      <a href="{{ request.route_path('manage.account.webauthn-provision') }}" class="button button--primary {{ "button--disabled" if disabled else "" }}" id="webauthn-button" aria-describedby="webauthn-errors">
+        {% trans %}
+        Add <abbr title="two factor authentication">2FA</abbr> with security device (e.g. USB key)
+        {% endtrans %}
+      </a>
     </div>
 
     <noscript>
@@ -138,7 +184,6 @@
         {% endtrans %}
       </li>
     </ul>
-    {% endif %}
   </section>
 {% endmacro %}
 
