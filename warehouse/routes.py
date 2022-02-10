@@ -215,6 +215,11 @@ def includeme(config):
         "/manage/account/recovery-codes/regenerate",
         domain=warehouse,
     )
+    config.add_route(
+        "manage.account.recovery-codes.burn",
+        "/manage/account/recovery-codes/burn",
+        domain=warehouse,
+    )
     config.add_route("manage.account.token", "/manage/account/token/", domain=warehouse)
     config.add_route("manage.projects", "/manage/projects/", domain=warehouse)
     config.add_route(

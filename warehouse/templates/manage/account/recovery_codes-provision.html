@@ -62,12 +62,7 @@
               <a href="data:text/plain;,{{ recovery_codes|join('%0A') }}" download="{{ _recovery_codes_filename }}" class="button button-secondary" data-tooltip-label="{% trans %}Download as file{% endtrans %}">
                 {% trans %}Save{% endtrans %}&nbsp;<span class="fa fa-download"></span>
               </a>
-              {% set title = gettext("Continue") %}
-              {% set confirm_name = "username" %}
-              {% set confirm_button_label = gettext("Continue") %}
-              {% set slug = "complete" %}
-              {% set action = request.route_path('manage.account.two-factor') %}
-              <a href="#complete" class="button  button--primary">
+              <a href="{{ request.route_path('manage.account.recovery-codes.burn') }}" class="button  button--primary">
                 {% trans %}Continue{% endtrans %}
               </a>
               {% set custom_warning_text %}
@@ -76,7 +71,6 @@
               {% set extra_description %}
                 <p>{% trans %}Ensure that you have securely stored them before continuing.{% endtrans %}</p>
               {% endset %}
-              {{ confirm_modal(title, gettext("Username"), "username", request.user.username, slug, confirm_button_label=confirm_button_label, extra_description=extra_description, confirm_string_in_title=False, custom_warning_text=custom_warning_text, action=action, method="GET") }}
             </div>
           </div>
         </div>
