@@ -62,7 +62,7 @@ class TestLogin:
             get_user=pretend.call_recorder(lambda user_id: user),
             find_userid=pretend.call_recorder(lambda username: 1),
             check_password=pretend.call_recorder(
-                lambda userid, password, ip_address, tags=None: False
+                lambda userid, password, tags=None: False
             ),
             is_disabled=pretend.call_recorder(lambda user_id: (False, None)),
         )
@@ -89,7 +89,6 @@ class TestLogin:
             pretend.call(
                 1,
                 "mypass",
-                "1.2.3.4",
                 tags=["mechanism:basic_auth", "method:auth", "auth_method:basic"],
             )
         ]
@@ -110,7 +109,7 @@ class TestLogin:
             get_user=pretend.call_recorder(lambda user_id: user),
             find_userid=pretend.call_recorder(lambda username: 1),
             check_password=pretend.call_recorder(
-                lambda userid, password, ip_address, tags=None: False
+                lambda userid, password, tags=None: False
             ),
             is_disabled=pretend.call_recorder(lambda user_id: (True, None)),
         )
@@ -137,7 +136,6 @@ class TestLogin:
             pretend.call(
                 1,
                 "mypass",
-                "1.2.3.4",
                 tags=["mechanism:basic_auth", "method:auth", "auth_method:basic"],
             )
         ]
@@ -155,7 +153,7 @@ class TestLogin:
             get_user=pretend.call_recorder(lambda user_id: user),
             find_userid=pretend.call_recorder(lambda username: 1),
             check_password=pretend.call_recorder(
-                lambda userid, password, ip_address, tags=None: False
+                lambda userid, password, tags=None: False
             ),
             is_disabled=pretend.call_recorder(
                 lambda user_id: (True, DisableReason.CompromisedPassword)
@@ -190,7 +188,7 @@ class TestLogin:
             get_user=pretend.call_recorder(lambda user_id: user),
             find_userid=pretend.call_recorder(lambda username: 2),
             check_password=pretend.call_recorder(
-                lambda userid, password, ip_address, tags=None: True
+                lambda userid, password, tags=None: True
             ),
             update_user=pretend.call_recorder(lambda userid, last_login: None),
             is_disabled=pretend.call_recorder(lambda user_id: (False, None)),
@@ -221,7 +219,6 @@ class TestLogin:
             pretend.call(
                 2,
                 "mypass",
-                "1.2.3.4",
                 tags=["mechanism:basic_auth", "method:auth", "auth_method:basic"],
             )
         ]
@@ -244,7 +241,7 @@ class TestLogin:
             get_user=pretend.call_recorder(lambda user_id: user),
             find_userid=pretend.call_recorder(lambda username: 2),
             check_password=pretend.call_recorder(
-                lambda userid, password, ip_address, tags=None: True
+                lambda userid, password, tags=None: True
             ),
             is_disabled=pretend.call_recorder(lambda user_id: (False, None)),
             disable_password=pretend.call_recorder(lambda user_id, reason=None: None),
@@ -272,7 +269,6 @@ class TestLogin:
             pretend.call(
                 2,
                 "mypass",
-                "1.2.3.4",
                 tags=["mechanism:basic_auth", "method:auth", "auth_method:basic"],
             )
         ]
