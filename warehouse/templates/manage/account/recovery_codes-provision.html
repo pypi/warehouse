@@ -33,11 +33,7 @@
       <div class="callout-block callout-block--warning">
         <p><strong>{{ _error }}</strong></p>
         <p>{{ _message }}</p>
-        <a href="#regenerate-recovery-codes" class="button button--secondary">{% trans %}Regenerate recovery codes{% endtrans %}</a>
-        {% set title=gettext("Regenerate recovery codes") %}
-        {% set confirm_button_label=gettext("Regenerate recovery codes") %}
-        {% set action=request.route_path('manage.account.recovery-codes.regenerate') %}
-        {{ confirm_password_modal(title=title, action=action, slug="regenerate-recovery-codes", warning=False, confirm_button_label=confirm_button_label) }}
+        <a href="{{ request.route_path('manage.account.recovery-codes.regenerate') }}" class="button button--secondary">{% trans %}Regenerate recovery codes{% endtrans %}</a>
       </div>
     </div>
     {% else %}

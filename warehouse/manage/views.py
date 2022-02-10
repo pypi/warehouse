@@ -693,6 +693,7 @@ class ProvisionWebAuthnViews:
 
 
 @view_defaults(
+    request_method="GET",
     uses_session=True,
     require_csrf=True,
     require_methods=False,
@@ -707,7 +708,6 @@ class ProvisionRecoveryCodesViews:
         self.user_service = request.find_service(IUserService, context=None)
 
     @view_config(
-        request_method="GET",
         route_name="manage.account.recovery-codes.generate",
         renderer="manage/account/recovery_codes-provision.html",
     )
@@ -731,7 +731,6 @@ class ProvisionRecoveryCodesViews:
         return {"recovery_codes": recovery_codes}
 
     @view_config(
-        request_method="POST",
         route_name="manage.account.recovery-codes.regenerate",
         renderer="manage/account/recovery_codes-provision.html",
     )
