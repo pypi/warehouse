@@ -258,9 +258,7 @@ class TestManageAccount:
 
         assert view.add_email() == view.default_response
         assert user_service.add_email.calls == [
-            pretend.call(
-                pyramid_request.user.id, email_address, pyramid_request.remote_addr
-            )
+            pretend.call(pyramid_request.user.id, email_address)
         ]
         assert pyramid_request.session.flash.calls == [
             pretend.call(

@@ -200,9 +200,7 @@ class ManageAccountViews:
         )
 
         if form.validate():
-            email = self.user_service.add_email(
-                self.request.user.id, form.email.data, self.request.remote_addr
-            )
+            email = self.user_service.add_email(self.request.user.id, form.email.data)
             self.user_service.record_event(
                 self.request.user.id,
                 tag="account:email:add",
