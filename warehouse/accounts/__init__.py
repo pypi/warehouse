@@ -77,7 +77,6 @@ def _basic_auth_login(username, password, request):
         elif login_service.check_password(
             user.id,
             password,
-            request.remote_addr,
             tags=["mechanism:basic_auth", "method:auth", "auth_method:basic"],
         ):
             if breach_service.check_password(

@@ -532,9 +532,7 @@ def register(request, _form_class=RegistrationForm):
         user = user_service.create_user(
             form.username.data, form.full_name.data, form.new_password.data
         )
-        email = user_service.add_email(
-            user.id, form.email.data, request.remote_addr, primary=True
-        )
+        email = user_service.add_email(user.id, form.email.data, primary=True)
         user_service.record_event(
             user.id,
             tag="account:create",
