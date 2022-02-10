@@ -100,9 +100,9 @@ lazy==1.4 \
     --hash=sha256:2c6d27a5ab130fb85435320651a47403adcb37ecbcc501b0c6606391f65f5b43 \
     --hash=sha256:9f293fd531546f3eda039da8f919b513b94f219e562764e3ceefc26fa503bf03
     # via bok-choy
-mirakuru==2.4.1 \
-    --hash=sha256:097324abe7479b3e6a8b745d0e3980664c8f6d3aec06cdeff8fc38cb2c9abc93 \
-    --hash=sha256:7025d121d2f04e957bd6ae3239531d60ebba787839c89d6052479beb58b0cd0b
+mirakuru==2.4.2 \
+    --hash=sha256:ec84d4d81b4bca96cb0e598c6b3d198a92f036a0c1223c881482c02a98508226 \
+    --hash=sha256:fdb67d141cc9f7abd485a515d618daf3272c3e6ff48380749997ff8e8c5f2cb2
     # via pytest-postgresql
 packaging==21.3 \
     --hash=sha256:dd47c42927d89ab911e606518907cc2d3a1f38bbd026385970643f9c5b8ecfeb \
