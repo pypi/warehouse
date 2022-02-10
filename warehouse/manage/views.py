@@ -26,6 +26,7 @@ from webauthn.helpers import bytes_to_base64url
 
 import warehouse.utils.otp as otp
 
+from warehouse.accounts.forms import RecoveryCodeAuthenticationForm
 from warehouse.accounts.interfaces import (
     IPasswordBreachedService,
     ITokenService,
@@ -691,14 +692,12 @@ class ProvisionWebAuthnViews:
 
 
 @view_defaults(
-    request_method="GET",
     uses_session=True,
     require_csrf=True,
     require_methods=False,
     permission="manage:user",
     http_cache=0,
     has_translations=True,
-    require_reauth=10,  # 10 seconds
 )
 class ProvisionRecoveryCodesViews:
     def __init__(self, request):
@@ -706,8 +705,10 @@ class ProvisionRecoveryCodesViews:
         self.user_service = request.find_service(IUserService, context=None)
 
     @view_config(
+        request_method="GET",
         route_name="manage.account.recovery-codes.generate",
         renderer="manage/account/recovery_codes-provision.html",
+        require_reauth=10,  # 10 seconds
     )
     def recovery_codes_generate(self):
         if self.user_service.has_recovery_codes(self.request.user.id):
@@ -729,8 +730,10 @@ class ProvisionRecoveryCodesViews:
         return {"recovery_codes": recovery_codes}
 
     @view_config(
+        request_method="GET",
         route_name="manage.account.recovery-codes.regenerate",
         renderer="manage/account/recovery_codes-provision.html",
+        require_reauth=10,  # 10 seconds
     )
     def recovery_codes_regenerate(self):
         recovery_codes = self.user_service.generate_recovery_codes(self.request.user.id)
@@ -741,6 +744,36 @@ class ProvisionRecoveryCodesViews:
         )
 
         return {"recovery_codes": recovery_codes}
+
+    @view_config(
+        route_name="manage.account.recovery-codes.burn",
+        renderer="manage/account/recovery_codes-burn.html",
+    )
+    def recovery_codes_burn(self, _form_class=RecoveryCodeAuthenticationForm):
+        user = self.user_service.get_user(self.request.user.id)
+
+        if not user.has_recovery_codes:
+            return HTTPSeeOther(self.request.route_path("manage.account"))
+        if user.has_burned_recovery_codes:
+            return HTTPSeeOther(self.request.route_path("manage.account.two-factor"))
+
+        form = _form_class(
+            self.request.POST,
+            request=self.request,
+            user_id=user.id,
+            user_service=self.user_service,
+        )
+
+        if self.request.method == "POST" and form.validate():
+            self.request.session.flash(
+                self.request._(
+                    "Recovery code accepted. The supplied code cannot be used again."
+                ),
+                queue="success",
+            )
+            return HTTPSeeOther(self.request.route_path("manage.account.two-factor"))
+
+        return {"form": form}
 
 
 @view_defaults(

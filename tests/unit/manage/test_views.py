@@ -1630,6 +1630,92 @@ class TestProvisionRecoveryCodes:
             pretend.call(request, request.user)
         ]
 
+    def test_recovery_codes_burn_get(self):
+        form = pretend.stub()
+        recovery_code_form_cls = pretend.call_recorder(lambda *a, **kw: form)
+        user = pretend.stub(
+            id=pretend.stub(),
+            has_recovery_codes=True,
+            has_burned_recovery_codes=False,
+        )
+        request = pretend.stub(
+            method="GET",
+            POST={},
+            user=user,
+            find_service=lambda *a, **kw: pretend.stub(get_user=lambda *a: user),
+        )
+
+        view = views.ProvisionRecoveryCodesViews(request)
+        result = view.recovery_codes_burn(_form_class=recovery_code_form_cls)
+
+        assert result == {"form": form}
+
+    def test_recovery_codes_burn_post(self):
+        form = pretend.stub(validate=pretend.call_recorder(lambda: True))
+        recovery_code_form_cls = pretend.call_recorder(lambda *a, **kw: form)
+        user = pretend.stub(
+            id=pretend.stub(),
+            has_recovery_codes=True,
+            has_burned_recovery_codes=False,
+        )
+        request = pretend.stub(
+            method="POST",
+            POST={},
+            _=lambda a: a,
+            user=user,
+            find_service=lambda *a, **kw: pretend.stub(get_user=lambda *a: user),
+            route_path=pretend.call_recorder(lambda x: "/foo/bar"),
+            session=pretend.stub(flash=pretend.call_recorder(lambda *a, **kw: None)),
+        )
+
+        view = views.ProvisionRecoveryCodesViews(request)
+        result = view.recovery_codes_burn(_form_class=recovery_code_form_cls)
+
+        assert isinstance(result, HTTPSeeOther)
+        assert result.location == "/foo/bar"
+
+        assert request.route_path.calls == [pretend.call("manage.account.two-factor")]
+        assert form.validate.calls == [pretend.call()]
+        assert request.session.flash.calls == [
+            pretend.call(
+                "Recovery code accepted. The supplied code cannot be used again.",
+                queue="success",
+            )
+        ]
+
+    @pytest.mark.parametrize(
+        "user, expected",
+        [
+            (
+                pretend.stub(
+                    id=pretend.stub(),
+                    has_recovery_codes=False,
+                ),
+                "manage.account",
+            ),
+            (
+                pretend.stub(
+                    id=pretend.stub(),
+                    has_recovery_codes=True,
+                    has_burned_recovery_codes=True,
+                ),
+                "manage.account.two-factor",
+            ),
+        ],
+    )
+    def test_recovery_codes_burn_redirect(self, user, expected):
+        request = pretend.stub(
+            user=user,
+            find_service=lambda *a, **kw: pretend.stub(get_user=lambda *a: user),
+            route_path=pretend.call_recorder(lambda x: "/foo/bar"),
+        )
+
+        view = views.ProvisionRecoveryCodesViews(request)
+        result = view.recovery_codes_burn()
+
+        assert isinstance(result, HTTPSeeOther)
+        assert result.location == "/foo/bar"
+
 
 class TestProvisionMacaroonViews:
     def test_default_response(self, monkeypatch):

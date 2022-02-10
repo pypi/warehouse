@@ -230,6 +230,11 @@ def test_routes(warehouse):
             domain=warehouse,
         ),
         pretend.call(
+            "manage.account.recovery-codes.burn",
+            "/manage/account/recovery-codes/burn",
+            domain=warehouse,
+        ),
+        pretend.call(
             "manage.account.token", "/manage/account/token/", domain=warehouse
         ),
         pretend.call("manage.projects", "/manage/projects/", domain=warehouse),
