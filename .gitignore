@@ -20,7 +20,7 @@ docker-compose.override.yaml
 
 node_modules/
 
-dev/tuf.*
+dev/tufkeys/
 dev/example.sql
 dev/prod.sql
 dev/prod.sql.xz

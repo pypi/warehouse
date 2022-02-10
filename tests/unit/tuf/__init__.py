@@ -9,22 +9,3 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-
-import enum
-
-
-@enum.unique
-class Role(enum.Enum):
-    ROOT: str = "root"
-    SNAPSHOT: str = "snapshot"
-    TARGETS: str = "targets"
-    TIMESTAMP: str = "timestamp"
-    BINS: str = "bins"
-    BIN_N: str = "bin-n"
-
-
-HASH_ALGORITHM = "blake2b"
-
-TUF_REPO_LOCK = "tuf-repo"
-
-BIN_N_COUNT = 16384

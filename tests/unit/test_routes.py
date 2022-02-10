@@ -26,6 +26,7 @@ def test_routes(warehouse):
                 settings={
                     "docs.url": docs_route_url,
                     "files.url": "https://files.example.com/packages/{path}",
+                    "tuf.url": "https://files.example.com/metadata/{path}",
                 }
             )
             if warehouse:
@@ -474,6 +475,7 @@ def test_routes(warehouse):
             domain=warehouse,
         ),
         pretend.call("packaging.file", "https://files.example.com/packages/{path}"),
+        pretend.call("tuf.metadata", "https://files.example.com/metadata/{path}"),
         pretend.call("ses.hook", "/_/ses-hook/", domain=warehouse),
         pretend.call("rss.updates", "/rss/updates.xml", domain=warehouse),
         pretend.call("rss.packages", "/rss/packages.xml", domain=warehouse),
@@ -575,7 +577,6 @@ def test_routes(warehouse):
             view_kw={"has_translations": True},
         ),
     ]
-
     assert config.add_redirect.calls == [
         pretend.call("/sponsor/", "/sponsors/", domain=warehouse),
         pretend.call("/u/{username}/", "/user/{username}/", domain=warehouse),
@@ -589,6 +590,11 @@ def test_routes(warehouse):
         pretend.call(
             "/packages/{path:.*}",
             "https://files.example.com/packages/{path}",
+            domain=warehouse,
+        ),
+        pretend.call(
+            "/metadata/{path:.*}",
+            "https://files.example.com/metadata/{path}",
             domain=warehouse,
         ),
     ]

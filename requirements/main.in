@@ -53,6 +53,7 @@ requests
 requests-aws4auth
 redis>=2.8.0,<5.0.0
 rfc3986
+securesystemslib
 sentry-sdk
 setuptools
 sqlalchemy[asyncio]>=0.9,<1.5.0  # https://github.com/pypi/warehouse/pull/9228
@@ -63,7 +64,7 @@ stripe
 structlog
 transaction
 trove-classifiers
-tuf==0.15.0
+tuf==1.0.0
 typeguard
 webauthn>=1.0.0,<2.0.0
 whitenoise

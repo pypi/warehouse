@@ -4,6 +4,7 @@ volumes:
   simple:
   packages:
   sponsorlogos:
+  tuf_metadata:
   vault:
 
 services:
@@ -88,6 +89,7 @@ services:
       # The :z option fixes permission issues with SELinux by setting a
       # permissive security context.
       - ./dev:/opt/warehouse/src/dev:z
+      - ./dev/tufkeys:/opt/warehouse/src/dev/tufkeys:z
       - ./docs:/opt/warehouse/src/docs:z
       - ./warehouse:/opt/warehouse/src/warehouse:z
       - ./tests:/opt/warehouse/src/tests:z
@@ -96,6 +98,7 @@ services:
       - packages:/var/opt/warehouse/packages
       - sponsorlogos:/var/opt/warehouse/sponsorlogos
       - simple:/var/opt/warehouse/simple
+      - tuf_metadata:/var/opt/warehouse/tuf_metadata
       - ./bin:/opt/warehouse/src/bin:z
       - ./requirements:/opt/warehouse/src/requirements:z
     ports:
@@ -119,6 +122,7 @@ services:
       - packages:/var/opt/warehouse/packages
       - sponsorlogos:/var/opt/warehouse/sponsorlogos
       - simple:/var/opt/warehouse/simple
+      - tuf_metadata:/var/opt/warehouse/metadata
     ports:
       - "9001:9001"
 
@@ -131,6 +135,7 @@ services:
     volumes:
       - ./dev:/opt/warehouse/src/dev:z
       - ./warehouse:/opt/warehouse/src/warehouse:z
+      - tuf_metadata:/var/opt/warehouse/tuf_metadata
     env_file: dev/environment
     environment:
       C_FORCE_ROOT: "1"

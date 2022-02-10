@@ -13,7 +13,8 @@
 from celery.schedules import crontab
 
 from warehouse.tuf.interfaces import IKeyService, IRepositoryService, IStorageService
-from warehouse.tuf.tasks import bump_bin_ns, bump_snapshot
+from warehouse.tuf.repository import SPEC_VERSION
+from warehouse.tuf.tasks import bump_bin_n_roles, bump_snapshot
 
 
 def includeme(config):
@@ -24,7 +25,7 @@ def includeme(config):
             "tuf.root.expiry": 31536000,
             "tuf.snapshot.threshold": 1,
             "tuf.snapshot.expiry": 86400,
-            "tuf.targets.threshold": 1,
+            "tuf.targets.threshold": 2,
             "tuf.targets.expiry": 31536000,
             "tuf.timestamp.threshold": 1,
             "tuf.timestamp.expiry": 86400,
@@ -38,7 +39,7 @@ def includeme(config):
             # An amended version of the PEP should be published, at which point
             # this note can be removed.
             "tuf.bin-n.expiry": 604800,
-            "tuf.spec_version": "1.0.0",
+            "tuf.spec_version": SPEC_VERSION,
         }
     )
 
@@ -52,11 +53,11 @@ def includeme(config):
         storage_service_class.create_service, IStorageService
     )
 
-    repo_service_class = config.maybe_dotted(
-        config.registry.settings["tuf.repo_backend"]
+    repository_service_class = config.maybe_dotted(
+        config.registry.settings["tuf.repository_backend"]
     )
     config.register_service_factory(
-        repo_service_class.create_service, IRepositoryService
+        repository_service_class.create_service, IRepositoryService
     )
 
     # Per PEP 458: The snapshot and timestamp metadata expire every 24 hours.
@@ -68,4 +69,4 @@ def includeme(config):
     # note in tuf/__init__.py.
     # We conservatively bump all delegated bins at least once daily.
     config.add_periodic_task(crontab(minute=0, hour="*/6"), bump_snapshot)
-    config.add_periodic_task(crontab(minute=0, hour=0), bump_bin_ns)
+    config.add_periodic_task(crontab(minute=0, hour=0), bump_bin_n_roles)

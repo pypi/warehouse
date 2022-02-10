@@ -72,6 +72,9 @@ def _simple_detail(project, request):
 def render_simple_detail(project, request, store=False):
     context = _simple_detail(project, request)
 
+    if len(context.get("files")) == 0:
+        return {"content_hash": None, "path": None, "length": None}
+
     env = request.registry.queryUtility(IJinja2Environment, name=".jinja2")
     template = env.get_template("templates/api/simple/detail.html")
     content = template.render(**context, request=request)
@@ -89,7 +92,6 @@ def render_simple_detail(project, request, store=False):
         with tempfile.NamedTemporaryFile() as f:
             f.write(content.encode("utf-8"))
             f.flush()
-
             storage.store(
                 simple_detail_path,
                 f.name,
@@ -99,6 +101,7 @@ def render_simple_detail(project, request, store=False):
                     "hash": content_hash,
                 },
             )
+            length = os.path.getsize(f.name)
             storage.store(
                 os.path.join(project.normalized_name, "index.html"),
                 f.name,
@@ -108,5 +111,4 @@ def render_simple_detail(project, request, store=False):
                     "hash": content_hash,
                 },
             )
-
-    return (content_hash, simple_detail_path)
+    return {"content_hash": content_hash, "path": simple_detail_path, "length": length}

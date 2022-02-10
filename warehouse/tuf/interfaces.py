@@ -20,15 +20,8 @@ class IKeyService(Interface):
         created.
         """
 
-    def pubkeys_for_role(rolename):
-        """
-        Return a list of (TUF-formatted) public keys for the given TUF role.
-        """
-
-    def privkeys_for_role(rolename):
-        """
-        Return a list of (TUF-formatted) private keys for the given TUF role.
-        """
+    def get(rolename, key_type):
+        """Return a key from specific rolename"""
 
 
 class IStorageService(Interface):
@@ -38,9 +31,22 @@ class IStorageService(Interface):
         created.
         """
 
-    def get_backend():
+    def get(rolename, version):
         """
-        Return an implementation of `securesystemslib.storage.StorageBackendInterface`.
+        Return metadata from specific role name, optionally specific version.
+        """
+
+    def put(file_object, filename):
+        """
+        Stores file object with a specific filename.
+
+        An alias to store() to be compatible with
+        ``tuf.api.metadata.StorageBackendInterface``
+        """
+
+    def store(file_object, filename):
+        """
+        Stores file object with a specific filename.
         """
 
 
@@ -51,18 +57,49 @@ class IRepositoryService(Interface):
         created.
         """
 
-    def load_repository():
+    def init_repository():
         """
-        Return a TUF Repository object for direct manipulation of the underlying
-        repository.
-
-        NOTE: The Repository object returned from this method cannot be manipulated
-        safely by multiple tasks or threads, especially. It should only be used during
-        TUF initialization or offline maintenance tasks.
+        Initializes a Metadata Repository from scratch, including a new root.
         """
 
-    def add_target(file, backsigned=False):
+    def init_targets_delegation():
         """
-        Given a warehouse.packaging.models.File, add it to the TUF
-        repository.
+        Delegate targets role bins further delegates to the bin-n roles,
+        which sign for all distribution files belonging to registered PyPI
+        projects.
+        """
+
+    def bump_snapshot():
+        """
+        Bump the Snapshot Metadata Role
+        """
+
+    def bump_bin_n_roles():
+        """
+        Bump all BIN-N delegate roles Metadata
+        """
+
+    def add_hashed_targets(targets):
+        """
+        Add hashed Targets
+
+        Args:
+            targets: list of dictionary with file ``info`` and ``path``.
+
+                ``info`` contains a dict with ``lenght``, ``hashes`` optionally
+                ``custom`` nested dictionary.
+                ``path`` file path
+
+                Example:
+                ```
+                [
+                    {
+                        "info": {
+                            "hashes": {"blake2b-256": file.blake2_256_digest},
+                            "lenght": 256,
+                            "custom": {"key": "value},
+                        },
+                        "path": "/xx/yy/file.tar.gz"
+                    }
+                ]
         """

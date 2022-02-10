@@ -245,7 +245,7 @@ def configure(settings=None):
     maybe_set_compound(settings, "malware_check", "backend", "MALWARE_CHECK_BACKEND")
     maybe_set_compound(settings, "tuf", "key_backend", "TUF_KEY_BACKEND")
     maybe_set_compound(settings, "tuf", "storage_backend", "TUF_STORAGE_BACKEND")
-    maybe_set_compound(settings, "tuf", "repo_backend", "TUF_REPO_BACKEND")
+    maybe_set_compound(settings, "tuf", "repository_backend", "TUF_REPOSITORY_BACKEND")
 
     # Pythondotorg integration settings
     maybe_set(settings, "pythondotorg.host", "PYTHONDOTORG_HOST", default="python.org")
@@ -580,10 +580,6 @@ def configure(settings=None):
 
     # Register TUF support for package integrity
     config.include(".tuf")
-
-    # Serve the TUF metadata files.
-    # TODO: This should be routed to the TUF GCS bucket.
-    config.add_static_view("tuf", "warehouse:tuf/dist/metadata.staged/")
 
     # Configure redirection support
     config.include(".redirects")
