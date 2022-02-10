@@ -893,6 +893,7 @@ class TestProvisionTOTP:
                 email=pretend.stub(),
                 name=pretend.stub(),
                 has_primary_verified_email=True,
+                has_burned_recovery_codes=True,
             ),
             registry=pretend.stub(settings={"site.name": "not_a_real_site_name"}),
         )
@@ -932,6 +933,7 @@ class TestProvisionTOTP:
                 email=pretend.stub(),
                 name=pretend.stub(),
                 has_primary_verified_email=True,
+                has_burned_recovery_codes=True,
             ),
             route_path=lambda *a, **kw: "/foo/bar/",
         )
@@ -950,14 +952,36 @@ class TestProvisionTOTP:
             )
         ]
 
-    def test_totp_provision_two_factor_not_allowed(self):
+    @pytest.mark.parametrize(
+        "user, expected_flash_calls",
+        [
+            (
+                pretend.stub(
+                    has_burned_recovery_codes=False, has_primary_verified_email=True
+                ),
+                [],
+            ),
+            (
+                pretend.stub(
+                    has_burned_recovery_codes=True, has_primary_verified_email=False
+                ),
+                [
+                    pretend.call(
+                        "Verify your email to modify two factor authentication",
+                        queue="error",
+                    )
+                ],
+            ),
+        ],
+    )
+    def test_totp_provision_two_factor_not_allowed(self, user, expected_flash_calls):
         user_service = pretend.stub()
         request = pretend.stub(
             session=pretend.stub(flash=pretend.call_recorder(lambda *a, **kw: None)),
             find_service=lambda interface, **kw: {IUserService: user_service}[
                 interface
             ],
-            user=pretend.stub(has_primary_verified_email=False),
+            user=user,
             route_path=lambda *a, **kw: "/foo/bar/",
         )
 
@@ -967,11 +991,7 @@ class TestProvisionTOTP:
         assert isinstance(result, HTTPSeeOther)
         assert result.status_code == 303
         assert result.headers["Location"] == "/foo/bar/"
-        assert request.session.flash.calls == [
-            pretend.call(
-                "Verify your email to modify two factor authentication", queue="error"
-            )
-        ]
+        assert request.session.flash.calls == expected_flash_calls
 
     def test_validate_totp_provision(self, monkeypatch):
         user_service = pretend.stub(
@@ -1283,12 +1303,29 @@ class TestProvisionTOTP:
 class TestProvisionWebAuthn:
     def test_get_webauthn_view(self):
         user_service = pretend.stub()
-        request = pretend.stub(find_service=lambda *a, **kw: user_service)
+        request = pretend.stub(
+            find_service=lambda *a, **kw: user_service,
+            user=pretend.stub(has_burned_recovery_codes=True),
+        )
 
         view = views.ProvisionWebAuthnViews(request)
         result = view.webauthn_provision()
 
         assert result == {}
+
+    def test_get_webauthn_view_redirect(self):
+        user_service = pretend.stub()
+        request = pretend.stub(
+            find_service=lambda *a, **kw: user_service,
+            user=pretend.stub(has_burned_recovery_codes=False),
+            route_path=lambda x: "/foo/bar",
+        )
+
+        view = views.ProvisionWebAuthnViews(request)
+        result = view.webauthn_provision()
+
+        assert isinstance(result, HTTPSeeOther)
+        assert result.headers["Location"] == "/foo/bar"
 
     def test_get_webauthn_options(self):
         user_service = pretend.stub(

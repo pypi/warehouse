@@ -472,6 +472,11 @@ class ProvisionTOTPViews:
 
     @view_config(request_method="GET")
     def totp_provision(self):
+        if not self.request.user.has_burned_recovery_codes:
+            return HTTPSeeOther(
+                self.request.route_path("manage.account.recovery-codes.burn")
+            )
+
         if not self.request.user.has_primary_verified_email:
             self.request.session.flash(
                 "Verify your email to modify two factor authentication", queue="error"
@@ -591,6 +596,10 @@ class ProvisionWebAuthnViews:
         renderer="manage/account/webauthn-provision.html",
     )
     def webauthn_provision(self):
+        if not self.request.user.has_burned_recovery_codes:
+            return HTTPSeeOther(
+                self.request.route_path("manage.account.recovery-codes.burn")
+            )
         return {}
 
     @view_config(
