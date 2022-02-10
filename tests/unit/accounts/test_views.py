@@ -1279,9 +1279,7 @@ class TestRegister:
         assert create_user.calls == [
             pretend.call("username_value", "full_name", "MyStr0ng!shP455w0rd")
         ]
-        assert add_email.calls == [
-            pretend.call(user.id, "foo@bar.com", db_request.remote_addr, primary=True)
-        ]
+        assert add_email.calls == [pretend.call(user.id, "foo@bar.com", primary=True)]
         assert send_email.calls == [pretend.call(db_request, (user, email))]
         assert record_event.calls == [
             pretend.call(
