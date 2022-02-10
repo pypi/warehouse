@@ -24,9 +24,17 @@ import wtforms.fields.html5
 import warehouse.utils.webauthn as webauthn
 
 from warehouse import forms
-from warehouse.accounts.interfaces import TooManyFailedLogins
+from warehouse.accounts.interfaces import (
+    BurnedRecoveryCode,
+    InvalidRecoveryCode,
+    NoRecoveryCodes,
+    TooManyFailedLogins,
+)
 from warehouse.accounts.models import DisableReason
-from warehouse.email import send_password_compromised_email_hibp
+from warehouse.email import (
+    send_password_compromised_email_hibp,
+    send_recovery_code_used_email,
+)
 from warehouse.i18n import localize as _
 from warehouse.utils.otp import TOTP_LENGTH
 
@@ -124,13 +132,11 @@ class PasswordMixin:
                 if not self.user_service.check_password(
                     userid,
                     field.data,
-                    self.request.remote_addr,
                     tags=self._check_password_metrics_tags,
                 ):
                     self.user_service.record_event(
                         userid,
                         tag=f"account:{self.action}:failure",
-                        ip_address=self.request.remote_addr,
                         additional={"reason": "invalid_password"},
                     )
                     raise wtforms.validators.ValidationError(
@@ -313,13 +319,10 @@ class TOTPAuthenticationForm(TOTPValueMixin, _TwoFactorAuthenticationForm):
     def validate_totp_value(self, field):
         totp_value = field.data.replace(" ", "").encode("utf8")
 
-        if not self.user_service.check_totp_value(
-            self.user_id, totp_value, self.request.remote_addr
-        ):
+        if not self.user_service.check_totp_value(self.user_id, totp_value):
             self.user_service.record_event(
                 self.user_id,
                 tag="account:login:failure",
-                ip_address=self.request.remote_addr,
                 additional={"reason": "invalid_totp"},
             )
             raise wtforms.validators.ValidationError(_("Invalid TOTP code."))
@@ -355,7 +358,6 @@ class WebAuthnAuthenticationForm(WebAuthnCredentialMixin, _TwoFactorAuthenticati
             self.user_service.record_event(
                 self.user_id,
                 tag="account:login:failure",
-                ip_address=self.request.remote_addr,
                 additional={"reason": "invalid_webauthn"},
             )
             raise wtforms.validators.ValidationError(str(e))
@@ -387,16 +389,27 @@ class RecoveryCodeAuthenticationForm(
     def validate_recovery_code_value(self, field):
         recovery_code_value = field.data.encode("utf-8")
 
-        if not self.user_service.check_recovery_code(
-            self.user_id, recovery_code_value, self.request.remote_addr
-        ):
+        try:
+            self.user_service.check_recovery_code(self.user_id, recovery_code_value)
+            send_recovery_code_used_email(
+                self.request, self.user_service.get_user(self.user_id)
+            )
+        except (InvalidRecoveryCode, NoRecoveryCodes):
             self.user_service.record_event(
                 self.user_id,
                 tag="account:login:failure",
-                ip_address=self.request.remote_addr,
                 additional={"reason": "invalid_recovery_code"},
             )
             raise wtforms.validators.ValidationError(_("Invalid recovery code."))
+        except BurnedRecoveryCode:
+            self.user_service.record_event(
+                self.user_id,
+                tag="account:login:failure",
+                additional={"reason": "burned_recovery_code"},
+            )
+            raise wtforms.validators.ValidationError(
+                _("Recovery code has been previously used.")
+            )
 
 
 class RequestPasswordResetForm(forms.Form):

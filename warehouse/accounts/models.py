@@ -149,7 +149,7 @@ class User(SitemapMixin, db.Model):
 
     @property
     def has_recovery_codes(self):
-        return len(self.recovery_codes) > 0
+        return any(not code.burned for code in self.recovery_codes)
 
     @property
     def has_primary_verified_email(self):
@@ -207,6 +207,7 @@ class RecoveryCode(db.Model):
     )
     code = Column(String(length=128), nullable=False)
     generated = Column(DateTime, nullable=False, server_default=sql.func.now())
+    burned = Column(DateTime, nullable=True)
 
 
 class UserEvent(db.Model):

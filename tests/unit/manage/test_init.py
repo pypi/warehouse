@@ -20,8 +20,16 @@ class TestReAuthView:
     def test_has_options(self):
         assert set(manage.reauth_view.options) == {"require_reauth"}
 
-    @pytest.mark.parametrize("requires_reauth", [True, False])
-    def test_unneeded_reauth(self, requires_reauth):
+    @pytest.mark.parametrize(
+        "require_reauth, needs_reauth_calls",
+        [
+            (True, [pretend.call(manage.DEFAULT_TIME_TO_REAUTH)]),
+            (666, [pretend.call(666)]),
+            (False, []),
+            (None, []),
+        ],
+    )
+    def test_unneeded_reauth(self, require_reauth, needs_reauth_calls):
         context = pretend.stub()
         request = pretend.stub(
             matchdict="{}",
@@ -36,16 +44,21 @@ class TestReAuthView:
             return response
 
         info = pretend.stub(options={}, exception_only=False)
-        info.options["require_reauth"] = requires_reauth
+        info.options["require_reauth"] = require_reauth
         derived_view = manage.reauth_view(view, info)
 
         assert derived_view(context, request) is response
         assert view.calls == [pretend.call(context, request)]
-        assert request.session.needs_reauthentication.calls == (
-            [pretend.call()] if requires_reauth else []
-        )
+        assert request.session.needs_reauthentication.calls == needs_reauth_calls
 
-    def test_reauth(self, monkeypatch):
+    @pytest.mark.parametrize(
+        "require_reauth, needs_reauth_calls",
+        [
+            (True, [pretend.call(manage.DEFAULT_TIME_TO_REAUTH)]),
+            (666, [pretend.call(666)]),
+        ],
+    )
+    def test_reauth(self, monkeypatch, require_reauth, needs_reauth_calls):
         context = pretend.stub()
         request = pretend.stub(
             find_service=pretend.call_recorder(lambda service, context: pretend.stub()),
@@ -73,12 +86,12 @@ class TestReAuthView:
             return response
 
         info = pretend.stub(options={}, exception_only=False)
-        info.options["require_reauth"] = True
+        info.options["require_reauth"] = require_reauth
         derived_view = manage.reauth_view(view, info)
 
         assert derived_view(context, request) is not response
         assert view.calls == []
-        assert request.session.needs_reauthentication.calls == [pretend.call()]
+        assert request.session.needs_reauthentication.calls == needs_reauth_calls
 
 
 def test_includeme():
