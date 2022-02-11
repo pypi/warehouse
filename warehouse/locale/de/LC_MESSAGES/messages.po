@@ -78,7 +78,7 @@ msgstr ""
 msgid "The password is invalid. Try again."
 msgstr "Das Passwort ist ungültig. Bitte erneut versuchen."
 
-#: warehouse/accounts/forms.py:147 warehouse/accounts/views.py:78
+#: warehouse/accounts/forms.py:147 warehouse/accounts/views.py:79
 msgid "There have been too many unsuccessful login attempts. Try again later."
 msgstr "Es gab zu viele erfolglose Login-Versuche. Versuche es später erneut."
 
@@ -141,7 +141,7 @@ msgstr "Wiederherstellungscodes wurden bereits generiert"
 msgid "No user found with that username or email"
 msgstr "Kein Benutzer mit diesem Benutzernamen oder E-Mail-Adresse gefunden"
 
-#: warehouse/accounts/views.py:95
+#: warehouse/accounts/views.py:96
 msgid ""
 "Too many emails have been added to this account without verifying them. "
 "Check your inbox and follow the verification links. (IP: ${ip})"
@@ -150,7 +150,7 @@ msgstr ""
 "Überprüfen Sie Ihren Posteingang und folgen Sie den Verifizierungslinks. "
 "(IP: ${ip})"
 
-#: warehouse/accounts/views.py:107
+#: warehouse/accounts/views.py:108
 #, fuzzy
 #| msgid ""
 #| "Too many emails have been added to this account without verifying them. "
@@ -164,27 +164,27 @@ msgstr ""
 "Überprüfen Sie Ihren Posteingang und folgen Sie den Verifizierungslinks. "
 "(IP: ${ip})"
 
-#: warehouse/accounts/views.py:247 warehouse/accounts/views.py:307
-#: warehouse/accounts/views.py:309 warehouse/accounts/views.py:336
-#: warehouse/accounts/views.py:338 warehouse/accounts/views.py:400
+#: warehouse/accounts/views.py:248 warehouse/accounts/views.py:312
+#: warehouse/accounts/views.py:314 warehouse/accounts/views.py:341
+#: warehouse/accounts/views.py:343 warehouse/accounts/views.py:409
 msgid "Invalid or expired two factor login."
 msgstr "Ungültiger oder abgelaufener Zweifaktor-Login."
 
-#: warehouse/accounts/views.py:301
+#: warehouse/accounts/views.py:306
 msgid "Already authenticated"
 msgstr "Schon authentifiziert"
 
-#: warehouse/accounts/views.py:376
+#: warehouse/accounts/views.py:385
 msgid "Successful WebAuthn assertion"
 msgstr "Erfolgreiche WebAuthn-Assertion"
 
-#: warehouse/accounts/views.py:430 warehouse/manage/views.py:778
+#: warehouse/accounts/views.py:439 warehouse/manage/views.py:778
 msgid "Recovery code accepted. The supplied code cannot be used again."
 msgstr ""
 "Wiederherstellungscode akzeptiert. Der eingegebene Code kann nicht erneut "
 "verwendet werden."
 
-#: warehouse/accounts/views.py:516
+#: warehouse/accounts/views.py:525
 msgid ""
 "New user registration temporarily disabled. See https://pypi.org/help#admin-"
 "intervention for details."
@@ -192,101 +192,101 @@ msgstr ""
 "Die Registrierung neuer Benutzer ist vorübergehend deaktiviert. Siehe "
 "https://pypi.org/help#admin-intervention für Details."
 
-#: warehouse/accounts/views.py:634
+#: warehouse/accounts/views.py:643
 msgid "Expired token: request a new password reset link"
 msgstr "Abgelaufenes Token: bitte neuen Passwort-Zurücksetzen-Link anfordern"
 
-#: warehouse/accounts/views.py:636
+#: warehouse/accounts/views.py:645
 msgid "Invalid token: request a new password reset link"
 msgstr "Ungültiges Token: bitte neuen Passwort-Zurücksetzen-Link anfordern"
 
-#: warehouse/accounts/views.py:638 warehouse/accounts/views.py:723
-#: warehouse/accounts/views.py:819
+#: warehouse/accounts/views.py:647 warehouse/accounts/views.py:732
+#: warehouse/accounts/views.py:828
 msgid "Invalid token: no token supplied"
 msgstr "Ungültiges Token: kein Token angegeben"
 
-#: warehouse/accounts/views.py:642
+#: warehouse/accounts/views.py:651
 msgid "Invalid token: not a password reset token"
 msgstr "Ungültiges Token: dies ist kein Passwort-Zurücksetzen-Token"
 
-#: warehouse/accounts/views.py:647
+#: warehouse/accounts/views.py:656
 msgid "Invalid token: user not found"
 msgstr "Ungültiges Token: Benutzer nicht gefunden"
 
-#: warehouse/accounts/views.py:654
+#: warehouse/accounts/views.py:663
 msgid "Invalid token: user has logged in since this token was requested"
 msgstr ""
 "Ungültiges Token: Benutzer hat sich angemeldet seit dieses Token angefordert "
 "wurde"
 
-#: warehouse/accounts/views.py:663
+#: warehouse/accounts/views.py:672
 msgid ""
 "Invalid token: password has already been changed since this token was "
 "requested"
 msgstr ""
 "Ungültiges Token: Passwort wurde geändert seit dieses Token angefordert wurde"
 
-#: warehouse/accounts/views.py:692
+#: warehouse/accounts/views.py:701
 msgid "You have reset your password"
 msgstr "Sie haben Ihr Passwort zurückgesetzt"
 
-#: warehouse/accounts/views.py:719
+#: warehouse/accounts/views.py:728
 msgid "Expired token: request a new email verification link"
 msgstr "Abgelaufenes Token: bitte neuen E-Mail-Bestätigungslink anfordern"
 
-#: warehouse/accounts/views.py:721
+#: warehouse/accounts/views.py:730
 msgid "Invalid token: request a new email verification link"
 msgstr "Ungültiges Token: bitte neuen E-Mail-Bestätigungslink anfordern"
 
-#: warehouse/accounts/views.py:727
+#: warehouse/accounts/views.py:736
 msgid "Invalid token: not an email verification token"
 msgstr "Ungültiges Token: dies ist kein E-Mail-Bestätigungs-Token"
 
-#: warehouse/accounts/views.py:736
+#: warehouse/accounts/views.py:745
 msgid "Email not found"
 msgstr "E-Mail nicht gefunden"
 
-#: warehouse/accounts/views.py:739
+#: warehouse/accounts/views.py:748
 msgid "Email already verified"
 msgstr "E-Mail-Adresse ist schon verifiziert"
 
-#: warehouse/accounts/views.py:754
+#: warehouse/accounts/views.py:763
 msgid "You can now set this email as your primary address"
 msgstr "Diese E-Mail-Adresse kann nun als Haupt-Addresse markiert werden"
 
-#: warehouse/accounts/views.py:758
+#: warehouse/accounts/views.py:767
 msgid "This is your primary address"
 msgstr "Dies ist Ihre primäre E-Mail-Adresse"
 
-#: warehouse/accounts/views.py:763
+#: warehouse/accounts/views.py:772
 msgid "Email address ${email_address} verified. ${confirm_message}."
 msgstr "E-Mail-Adresse ${email_address} bestätigt. ${confirm_message}."
 
-#: warehouse/accounts/views.py:815
+#: warehouse/accounts/views.py:824
 msgid "Expired token: request a new project role invite"
 msgstr "Abgelaufenes Token: Bitte neue Projekt-Rollen-Einladung anfordern"
 
-#: warehouse/accounts/views.py:817
+#: warehouse/accounts/views.py:826
 msgid "Invalid token: request a new project role invite"
 msgstr "Ungültiges Token: Bitte neue Projekt-Rollen-Einladung anfordern"
 
-#: warehouse/accounts/views.py:823
+#: warehouse/accounts/views.py:832
 msgid "Invalid token: not a collaboration invitation token"
 msgstr "Ungültiges Token: Dies ist keine Einladung für eine Zusammenarbeit"
 
-#: warehouse/accounts/views.py:827
+#: warehouse/accounts/views.py:836
 msgid "Role invitation is not valid."
 msgstr "Rolleneinladung ist nicht gültig."
 
-#: warehouse/accounts/views.py:842
+#: warehouse/accounts/views.py:851
 msgid "Role invitation no longer exists."
 msgstr "Rolleneinladung ist nicht mehr existent."
 
-#: warehouse/accounts/views.py:854
+#: warehouse/accounts/views.py:863
 msgid "Invitation for '${project_name}' is declined."
 msgstr "Die Einladung für '${project_name}' wurde abgelehnt."
 
-#: warehouse/accounts/views.py:921
+#: warehouse/accounts/views.py:930
 msgid "You are now ${role} of the '${project_name}' project."
 msgstr "Sie sind nun '${role}' vom Projekt '${project_name}'."
 
@@ -1571,6 +1571,38 @@ msgid ""
 msgstr ""
 "Die primäre E-Mail-Adresse für Ihr PyPI-Konto <strong>%(username)s</strong> "
 "wurde von <code>%(old_email)s</code> zu <code>%(new_email)s</code> geändert"
+
+#: warehouse/templates/email/recovery-code-reminder/body.html:19
+#, python-format
+msgid ""
+"\n"
+"We noticed you recently logged into your PyPI account <strong>%(username)s</"
+"strong>, which has two-factor authentication enabled, but haven't generated\n"
+"recovery codes for this account.\n"
+msgstr ""
+
+#: warehouse/templates/email/recovery-code-reminder/body.html:27
+msgid ""
+"\n"
+"If you lose your authentication application or security key(s) and do not "
+"have\n"
+"access to these recovery codes, you may permanently lose access to your "
+"PyPI\n"
+"account!\n"
+msgstr ""
+
+#: warehouse/templates/email/recovery-code-reminder/body.html:35
+#, fuzzy, python-format
+#| msgid ""
+#| "To regain access to your account, <a href=\"%(href)s\">reset your "
+#| "password</a> on PyPI."
+msgid ""
+"\n"
+"You can generate recovery codes for your account here:\n"
+"<a href=\"%(href)s\">%(href)s</a>\n"
+msgstr ""
+"Sie können wieder auf Ihr Konto zugreifen, wenn Sie das <a href=\"%(href)s"
+"\">Passwort zurücksetzen</a>."
 
 #: warehouse/templates/email/recovery-code-used/body.html:19
 #, fuzzy, python-format

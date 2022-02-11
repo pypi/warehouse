@@ -76,7 +76,7 @@ msgstr "此使用者名稱已被另一個帳戶使用。 選擇其他使用者�
 msgid "The password is invalid. Try again."
 msgstr "密碼無效。 請再試一次。"
 
-#: warehouse/accounts/forms.py:147 warehouse/accounts/views.py:78
+#: warehouse/accounts/forms.py:147 warehouse/accounts/views.py:79
 msgid "There have been too many unsuccessful login attempts. Try again later."
 msgstr "登錄嘗試失敗的次數過多，請稍後再試。"
 
@@ -130,7 +130,7 @@ msgstr "重設碼已重新生成"
 msgid "No user found with that username or email"
 msgstr "找不到使用該使用者名稱或電子郵件的使用者"
 
-#: warehouse/accounts/views.py:95
+#: warehouse/accounts/views.py:96
 msgid ""
 "Too many emails have been added to this account without verifying them. "
 "Check your inbox and follow the verification links. (IP: ${ip})"
@@ -138,7 +138,7 @@ msgstr ""
 "此帳戶已加入過多未驗證的電郵地址。請檢查收件信箱，然後點按一下驗證連結。(IP: "
 "${ip})"
 
-#: warehouse/accounts/views.py:107
+#: warehouse/accounts/views.py:108
 msgid ""
 "Too many password resets have been requested for this account without "
 "completing them. Check your inbox and follow the verification links. (IP: "
@@ -147,123 +147,123 @@ msgstr ""
 "此帳戶的密碼重置請求過多，但未完成。 查看你的收件箱，並點擊驗證連結。 （IP:"
 "${IP}）"
 
-#: warehouse/accounts/views.py:247 warehouse/accounts/views.py:307
-#: warehouse/accounts/views.py:309 warehouse/accounts/views.py:336
-#: warehouse/accounts/views.py:338 warehouse/accounts/views.py:400
+#: warehouse/accounts/views.py:248 warehouse/accounts/views.py:312
+#: warehouse/accounts/views.py:314 warehouse/accounts/views.py:341
+#: warehouse/accounts/views.py:343 warehouse/accounts/views.py:409
 msgid "Invalid or expired two factor login."
 msgstr "兩階段驗證登入失效或過期。"
 
-#: warehouse/accounts/views.py:301
+#: warehouse/accounts/views.py:306
 msgid "Already authenticated"
 msgstr "已驗證身份"
 
-#: warehouse/accounts/views.py:376
+#: warehouse/accounts/views.py:385
 msgid "Successful WebAuthn assertion"
 msgstr "成功的 WebAuthn 斷言"
 
-#: warehouse/accounts/views.py:430 warehouse/manage/views.py:778
+#: warehouse/accounts/views.py:439 warehouse/manage/views.py:778
 msgid "Recovery code accepted. The supplied code cannot be used again."
 msgstr "重設碼已接受，提供的重設碼將無法再次使用。"
 
-#: warehouse/accounts/views.py:516
+#: warehouse/accounts/views.py:525
 msgid ""
 "New user registration temporarily disabled. See https://pypi.org/help#admin-"
 "intervention for details."
 msgstr ""
 "暫時不開放新的使用者註冊。詳情請見 https://pypi.org/help#admin-intervention。"
 
-#: warehouse/accounts/views.py:634
+#: warehouse/accounts/views.py:643
 msgid "Expired token: request a new password reset link"
 msgstr "密鑰過期：請求新的密碼重設連結"
 
-#: warehouse/accounts/views.py:636
+#: warehouse/accounts/views.py:645
 msgid "Invalid token: request a new password reset link"
 msgstr "密鑰無效：請求新的密碼重置連結"
 
-#: warehouse/accounts/views.py:638 warehouse/accounts/views.py:723
-#: warehouse/accounts/views.py:819
+#: warehouse/accounts/views.py:647 warehouse/accounts/views.py:732
+#: warehouse/accounts/views.py:828
 msgid "Invalid token: no token supplied"
 msgstr "密鑰無效：未提供密鑰"
 
-#: warehouse/accounts/views.py:642
+#: warehouse/accounts/views.py:651
 msgid "Invalid token: not a password reset token"
 msgstr "密鑰無效：不是重置密碼的密鑰"
 
-#: warehouse/accounts/views.py:647
+#: warehouse/accounts/views.py:656
 msgid "Invalid token: user not found"
 msgstr "密鑰無效：找不到使用者"
 
-#: warehouse/accounts/views.py:654
+#: warehouse/accounts/views.py:663
 msgid "Invalid token: user has logged in since this token was requested"
 msgstr "密鑰無效：自密鑰申請後，使用者已經登錄"
 
-#: warehouse/accounts/views.py:663
+#: warehouse/accounts/views.py:672
 msgid ""
 "Invalid token: password has already been changed since this token was "
 "requested"
 msgstr "密鑰無效：自請求密鑰後，密碼已經被更改"
 
-#: warehouse/accounts/views.py:692
+#: warehouse/accounts/views.py:701
 msgid "You have reset your password"
 msgstr "您已重置密碼"
 
-#: warehouse/accounts/views.py:719
+#: warehouse/accounts/views.py:728
 msgid "Expired token: request a new email verification link"
 msgstr "密鑰過期：請求新的電子郵件驗證連結"
 
-#: warehouse/accounts/views.py:721
+#: warehouse/accounts/views.py:730
 msgid "Invalid token: request a new email verification link"
 msgstr "密鑰無效：請求新的電子郵件驗證連結"
 
-#: warehouse/accounts/views.py:727
+#: warehouse/accounts/views.py:736
 msgid "Invalid token: not an email verification token"
 msgstr "密鑰無效：不是電子郵件驗證密鑰"
 
-#: warehouse/accounts/views.py:736
+#: warehouse/accounts/views.py:745
 msgid "Email not found"
 msgstr "未找到電子郵件"
 
-#: warehouse/accounts/views.py:739
+#: warehouse/accounts/views.py:748
 msgid "Email already verified"
 msgstr "已驗證的電子郵件"
 
-#: warehouse/accounts/views.py:754
+#: warehouse/accounts/views.py:763
 msgid "You can now set this email as your primary address"
 msgstr "您現在可以將此電子郵件設定為您的主地址"
 
-#: warehouse/accounts/views.py:758
+#: warehouse/accounts/views.py:767
 msgid "This is your primary address"
 msgstr "這是您的主地址"
 
-#: warehouse/accounts/views.py:763
+#: warehouse/accounts/views.py:772
 msgid "Email address ${email_address} verified. ${confirm_message}."
 msgstr "電子郵件地址 ${email_address} 已驗證。${confirm_message}。"
 
-#: warehouse/accounts/views.py:815
+#: warehouse/accounts/views.py:824
 msgid "Expired token: request a new project role invite"
 msgstr "過期密鑰：請求新專案角色邀請"
 
-#: warehouse/accounts/views.py:817
+#: warehouse/accounts/views.py:826
 msgid "Invalid token: request a new project role invite"
 msgstr "密鑰無效：請求新的項目角色邀請"
 
-#: warehouse/accounts/views.py:823
+#: warehouse/accounts/views.py:832
 msgid "Invalid token: not a collaboration invitation token"
 msgstr "密鑰無效：不是協作邀請密鑰"
 
-#: warehouse/accounts/views.py:827
+#: warehouse/accounts/views.py:836
 msgid "Role invitation is not valid."
 msgstr "身份邀請已過期。"
 
-#: warehouse/accounts/views.py:842
+#: warehouse/accounts/views.py:851
 msgid "Role invitation no longer exists."
 msgstr "角色邀請不再存在。"
 
-#: warehouse/accounts/views.py:854
+#: warehouse/accounts/views.py:863
 msgid "Invitation for '${project_name}' is declined."
 msgstr "邀請加入專案 ${project_name} 被拒絕."
 
-#: warehouse/accounts/views.py:921
+#: warehouse/accounts/views.py:930
 msgid "You are now ${role} of the '${project_name}' project."
 msgstr "你不是此專案的擁有者。"
 
@@ -1481,6 +1481,44 @@ msgid ""
 msgstr ""
 "你的 PYPI 帳號主要信箱 <strong>%(username)s</strong> 已經從 <code>"
 "%(old_email)s</code> 改成 <code>%(new_email)s</code>"
+
+#: warehouse/templates/email/recovery-code-reminder/body.html:19
+#, python-format
+msgid ""
+"\n"
+"We noticed you recently logged into your PyPI account <strong>%(username)s</"
+"strong>, which has two-factor authentication enabled, but haven't generated\n"
+"recovery codes for this account.\n"
+msgstr ""
+
+#: warehouse/templates/email/recovery-code-reminder/body.html:27
+#, fuzzy
+#| msgid ""
+#| "<strong>Keep these somewhere safe</strong>. If you lose your "
+#| "authentication application or security key(s) and do not have access to "
+#| "these recovery codes, you may permanently lose access to your PyPI "
+#| "account!"
+msgid ""
+"\n"
+"If you lose your authentication application or security key(s) and do not "
+"have\n"
+"access to these recovery codes, you may permanently lose access to your "
+"PyPI\n"
+"account!\n"
+msgstr ""
+"<strong>將其保存在安全的地方</strong>。 如果您丟失了身份驗證應用程序或安全密"
+"鑰，並且無權訪問這些恢復代碼，則可能會永久失去對PyPI帳戶的訪問權限！"
+
+#: warehouse/templates/email/recovery-code-reminder/body.html:35
+#, fuzzy, python-format
+#| msgid ""
+#| "To regain access to your account, <a href=\"%(href)s\">reset your "
+#| "password</a> on PyPI."
+msgid ""
+"\n"
+"You can generate recovery codes for your account here:\n"
+"<a href=\"%(href)s\">%(href)s</a>\n"
+msgstr "要重新存取你的帳戶，請<a href=\"%(href)s\">重置你的密碼</a>。"
 
 #: warehouse/templates/email/recovery-code-used/body.html:19
 #, fuzzy, python-format
