@@ -76,7 +76,7 @@ msgstr ""
 msgid "The password is invalid. Try again."
 msgstr "パスワードが無効です。もう一度やり直してください。"
 
-#: warehouse/accounts/forms.py:147 warehouse/accounts/views.py:78
+#: warehouse/accounts/forms.py:147 warehouse/accounts/views.py:79
 msgid "There have been too many unsuccessful login attempts. Try again later."
 msgstr "ログインの失敗が多数発生しました。後でやり直してください。"
 
@@ -138,7 +138,7 @@ msgstr "リカバリーコード"
 msgid "No user found with that username or email"
 msgstr "そのユーザ名またはメールアドレスのユーザは見つかりませんでした"
 
-#: warehouse/accounts/views.py:95
+#: warehouse/accounts/views.py:96
 msgid ""
 "Too many emails have been added to this account without verifying them. "
 "Check your inbox and follow the verification links. (IP: ${ip})"
@@ -146,7 +146,7 @@ msgstr ""
 "このアカウントに追加されている未確認のメールアドレスが多すぎます。受信トレイ"
 "を確認し、確認リンクをクリックしてください。(IP: ${ip})"
 
-#: warehouse/accounts/views.py:107
+#: warehouse/accounts/views.py:108
 #, fuzzy
 #| msgid ""
 #| "Too many emails have been added to this account without verifying them. "
@@ -159,27 +159,27 @@ msgstr ""
 "このアカウントに追加されている未確認のメールアドレスが多すぎます。受信トレイ"
 "を確認し、確認リンクをクリックしてください。(IP: ${ip})"
 
-#: warehouse/accounts/views.py:247 warehouse/accounts/views.py:307
-#: warehouse/accounts/views.py:309 warehouse/accounts/views.py:336
-#: warehouse/accounts/views.py:338 warehouse/accounts/views.py:400
+#: warehouse/accounts/views.py:248 warehouse/accounts/views.py:312
+#: warehouse/accounts/views.py:314 warehouse/accounts/views.py:341
+#: warehouse/accounts/views.py:343 warehouse/accounts/views.py:409
 msgid "Invalid or expired two factor login."
 msgstr "不正または期限切れの二要素ログイン。"
 
-#: warehouse/accounts/views.py:301
+#: warehouse/accounts/views.py:306
 msgid "Already authenticated"
 msgstr "既に認証済みです"
 
-#: warehouse/accounts/views.py:376
+#: warehouse/accounts/views.py:385
 msgid "Successful WebAuthn assertion"
 msgstr "WebAuthnアサーションに成功しました"
 
-#: warehouse/accounts/views.py:430 warehouse/manage/views.py:778
+#: warehouse/accounts/views.py:439 warehouse/manage/views.py:778
 msgid "Recovery code accepted. The supplied code cannot be used again."
 msgstr ""
 "リカバリーコードを受け付けました。今回入力されたコードを再度使用することはで"
 "きません。"
 
-#: warehouse/accounts/views.py:516
+#: warehouse/accounts/views.py:525
 msgid ""
 "New user registration temporarily disabled. See https://pypi.org/help#admin-"
 "intervention for details."
@@ -187,108 +187,108 @@ msgstr ""
 "新規ユーザ登録が一時的に無効になっています。詳細については https://pypi.org/"
 "help#admin-intervention を参照してください。"
 
-#: warehouse/accounts/views.py:634
+#: warehouse/accounts/views.py:643
 msgid "Expired token: request a new password reset link"
 msgstr ""
 "期限切れのトークン: 新しいパスワード リセット リンクをリクエストして下さい"
 
-#: warehouse/accounts/views.py:636
+#: warehouse/accounts/views.py:645
 msgid "Invalid token: request a new password reset link"
 msgstr "無効なトークン: 新しいパスワード リセット リンクをリクエストして下さい"
 
-#: warehouse/accounts/views.py:638 warehouse/accounts/views.py:723
-#: warehouse/accounts/views.py:819
+#: warehouse/accounts/views.py:647 warehouse/accounts/views.py:732
+#: warehouse/accounts/views.py:828
 msgid "Invalid token: no token supplied"
 msgstr "無効なトークン: トークンがありません"
 
-#: warehouse/accounts/views.py:642
+#: warehouse/accounts/views.py:651
 msgid "Invalid token: not a password reset token"
 msgstr "無効なトークン: パスワード リセット トークンではありません"
 
-#: warehouse/accounts/views.py:647
+#: warehouse/accounts/views.py:656
 msgid "Invalid token: user not found"
 msgstr "無効なトークン: ユーザが見つかりません"
 
-#: warehouse/accounts/views.py:654
+#: warehouse/accounts/views.py:663
 msgid "Invalid token: user has logged in since this token was requested"
 msgstr "無効なトークン: このトークンのリクエスト後にユーザがログインしました"
 
-#: warehouse/accounts/views.py:663
+#: warehouse/accounts/views.py:672
 msgid ""
 "Invalid token: password has already been changed since this token was "
 "requested"
 msgstr "無効なトークン: このトークンのリクエスト後にパスワードが変更されました"
 
-#: warehouse/accounts/views.py:692
+#: warehouse/accounts/views.py:701
 msgid "You have reset your password"
 msgstr "パスワードをリセットしました"
 
-#: warehouse/accounts/views.py:719
+#: warehouse/accounts/views.py:728
 msgid "Expired token: request a new email verification link"
 msgstr ""
 "期限切れのトークン: 新しいメールアドレス確認リンクをリクエストして下さい"
 
-#: warehouse/accounts/views.py:721
+#: warehouse/accounts/views.py:730
 msgid "Invalid token: request a new email verification link"
 msgstr "無効なトークン: 新しいメールアドレス確認リンクをリクエストして下さい"
 
-#: warehouse/accounts/views.py:727
+#: warehouse/accounts/views.py:736
 msgid "Invalid token: not an email verification token"
 msgstr "無効なトークン: メールアドレス確認トークンではありません"
 
-#: warehouse/accounts/views.py:736
+#: warehouse/accounts/views.py:745
 msgid "Email not found"
 msgstr "メールアドレスが見つかりません"
 
-#: warehouse/accounts/views.py:739
+#: warehouse/accounts/views.py:748
 msgid "Email already verified"
 msgstr "メールアドレスは確認済みです"
 
-#: warehouse/accounts/views.py:754
+#: warehouse/accounts/views.py:763
 msgid "You can now set this email as your primary address"
 msgstr "これで、このメールを主要なアドレスとして設定できるようになります"
 
-#: warehouse/accounts/views.py:758
+#: warehouse/accounts/views.py:767
 msgid "This is your primary address"
 msgstr "これが主要メールアドレスです"
 
-#: warehouse/accounts/views.py:763
+#: warehouse/accounts/views.py:772
 msgid "Email address ${email_address} verified. ${confirm_message}."
 msgstr ""
 "メールアドレス ${email_address} が確認されました。 ${confirm_message}。"
 
-#: warehouse/accounts/views.py:815
+#: warehouse/accounts/views.py:824
 #, fuzzy
 #| msgid "Expired token: request a new password reset link"
 msgid "Expired token: request a new project role invite"
 msgstr ""
 "期限切れのトークン: 新しいパスワード リセット リンクをリクエストして下さい"
 
-#: warehouse/accounts/views.py:817
+#: warehouse/accounts/views.py:826
 #, fuzzy
 #| msgid "Invalid token: request a new password reset link"
 msgid "Invalid token: request a new project role invite"
 msgstr "無効なトークン: 新しいパスワード リセット リンクをリクエストして下さい"
 
-#: warehouse/accounts/views.py:823
+#: warehouse/accounts/views.py:832
 #, fuzzy
 #| msgid "Invalid token: not an email verification token"
 msgid "Invalid token: not a collaboration invitation token"
 msgstr "無効なトークン: メールアドレス確認トークンではありません"
 
-#: warehouse/accounts/views.py:827
+#: warehouse/accounts/views.py:836
 msgid "Role invitation is not valid."
 msgstr "ロールへの招待が無効です。"
 
-#: warehouse/accounts/views.py:842
+#: warehouse/accounts/views.py:851
 msgid "Role invitation no longer exists."
 msgstr "ロールへの招待が存在しません。"
 
-#: warehouse/accounts/views.py:854
+#: warehouse/accounts/views.py:863
 msgid "Invitation for '${project_name}' is declined."
 msgstr "'${project_name}' への招待を辞退しました。"
 
-#: warehouse/accounts/views.py:921
+#: warehouse/accounts/views.py:930
 msgid "You are now ${role} of the '${project_name}' project."
 msgstr "プロジェクト '${project_name}' の ${role} になりました。"
 
@@ -1572,6 +1572,38 @@ msgstr ""
 "あなたの PyPI アカウント <strong>%(username)s</strong> の主要メールアドレス"
 "は、 <code>%(old_email)s</code> から <code>%(new_email)s</code> へ変更されま"
 "した"
+
+#: warehouse/templates/email/recovery-code-reminder/body.html:19
+#, python-format
+msgid ""
+"\n"
+"We noticed you recently logged into your PyPI account <strong>%(username)s</"
+"strong>, which has two-factor authentication enabled, but haven't generated\n"
+"recovery codes for this account.\n"
+msgstr ""
+
+#: warehouse/templates/email/recovery-code-reminder/body.html:27
+msgid ""
+"\n"
+"If you lose your authentication application or security key(s) and do not "
+"have\n"
+"access to these recovery codes, you may permanently lose access to your "
+"PyPI\n"
+"account!\n"
+msgstr ""
+
+#: warehouse/templates/email/recovery-code-reminder/body.html:35
+#, fuzzy, python-format
+#| msgid ""
+#| "To regain access to your account, <a href=\"%(href)s\">reset your "
+#| "password</a> on PyPI."
+msgid ""
+"\n"
+"You can generate recovery codes for your account here:\n"
+"<a href=\"%(href)s\">%(href)s</a>\n"
+msgstr ""
+"あなたのアカウントへのアクセスを回復するには、 PyPI で<a href=\"%(href)s\">パ"
+"スワードをリセット</a>して下さい。"
 
 #: warehouse/templates/email/recovery-code-used/body.html:19
 #, fuzzy, python-format
