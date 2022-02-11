@@ -11,7 +11,7 @@ click
 cryptography
 datadog>=0.19.0
 disposable-email-domains
-elasticsearch>=7.0.0,<7.11.0
+elasticsearch>=7.0.0,<7.18.0
 elasticsearch_dsl>=7.0.0,<8.0.0
 first
 google-cloud-bigquery
