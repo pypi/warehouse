@@ -544,7 +544,10 @@ class TestTwoFactor:
         assert result == {"has_recovery_codes": True}
 
     @pytest.mark.parametrize("redirect_url", ["test_redirect_url", None])
-    def test_totp_auth(self, monkeypatch, pyramid_request, redirect_url):
+    @pytest.mark.parametrize("has_recovery_codes", [True, False])
+    def test_totp_auth(
+        self, monkeypatch, pyramid_request, redirect_url, has_recovery_codes
+    ):
         remember = pretend.call_recorder(lambda request, user_id: [("foo", "bar")])
         monkeypatch.setattr(views, "remember", remember)
 
@@ -558,13 +561,13 @@ class TestTwoFactor:
             )
         )
 
+        user = pretend.stub(
+            last_login=(datetime.datetime.utcnow() - datetime.timedelta(days=1)),
+            has_recovery_codes=has_recovery_codes,
+        )
         user_service = pretend.stub(
             find_userid=pretend.call_recorder(lambda username: 1),
-            get_user=pretend.call_recorder(
-                lambda userid: pretend.stub(
-                    last_login=(datetime.datetime.utcnow() - datetime.timedelta(days=1))
-                )
-            ),
+            get_user=pretend.call_recorder(lambda userid: user),
             update_user=lambda *a, **k: None,
             has_totp=lambda userid: True,
             has_webauthn=lambda userid: False,
@@ -606,6 +609,11 @@ class TestTwoFactor:
         pyramid_request.params = pretend.stub(
             get=pretend.call_recorder(lambda k: query_params.get(k))
         )
+        pyramid_request.user = user
+
+        send_email = pretend.call_recorder(lambda *a: None)
+        monkeypatch.setattr(views, "send_recovery_code_reminder_email", send_email)
+
         result = views.two_factor_and_totp_validate(
             pyramid_request, _form_class=form_class
         )
@@ -627,6 +635,9 @@ class TestTwoFactor:
             )
         ]
         assert pyramid_request.session.record_auth_timestamp.calls == [pretend.call()]
+        assert send_email.calls == (
+            [] if has_recovery_codes else [pretend.call(pyramid_request, user)]
+        )
 
     def test_totp_auth_already_authed(self):
         request = pretend.stub(
@@ -735,6 +746,7 @@ class TestTwoFactor:
 class TestWebAuthn:
     def test_webauthn_get_options_already_authenticated(self, pyramid_request):
         request = pretend.stub(authenticated_userid=pretend.stub(), _=lambda a: a)
+
         result = views.webauthn_authentication_options(request)
 
         assert result == {"fail": {"errors": ["Already authenticated"]}}
@@ -836,7 +848,8 @@ class TestWebAuthn:
 
         assert result == {"fail": {"errors": ["Fake validation failure"]}}
 
-    def test_webauthn_validate(self, monkeypatch, pyramid_request):
+    @pytest.mark.parametrize("has_recovery_codes", [True, False])
+    def test_webauthn_validate(self, monkeypatch, pyramid_request, has_recovery_codes):
         _get_two_factor_data = pretend.call_recorder(
             lambda r: {"redirect_to": "foobar", "userid": 1}
         )
@@ -845,7 +858,10 @@ class TestWebAuthn:
         _login_user = pretend.call_recorder(lambda *a, **kw: pretend.stub())
         monkeypatch.setattr(views, "_login_user", _login_user)
 
-        user = pretend.stub(webauthn=pretend.stub(sign_count=pretend.stub()))
+        user = pretend.stub(
+            webauthn=pretend.stub(sign_count=pretend.stub()),
+            has_recovery_codes=has_recovery_codes,
+        )
 
         user_service = pretend.stub(
             get_user=pretend.call_recorder(lambda uid: user),
@@ -858,6 +874,7 @@ class TestWebAuthn:
             clear_webauthn_challenge=pretend.call_recorder(lambda: pretend.stub()),
         )
         pyramid_request.find_service = lambda *a, **kw: user_service
+        pyramid_request.user = user
 
         form_obj = pretend.stub(
             validate=pretend.call_recorder(lambda: True),
@@ -868,6 +885,9 @@ class TestWebAuthn:
         )
         form_class = pretend.call_recorder(lambda *a, **kw: form_obj)
         monkeypatch.setattr(views, "WebAuthnAuthenticationForm", form_class)
+
+        send_email = pretend.call_recorder(lambda *a: None)
+        monkeypatch.setattr(views, "send_recovery_code_reminder_email", send_email)
 
         result = views.webauthn_authentication_validate(pyramid_request)
 
@@ -884,6 +904,9 @@ class TestWebAuthn:
         assert pyramid_request.session.clear_webauthn_challenge.calls == [
             pretend.call()
         ]
+        assert send_email.calls == (
+            [] if has_recovery_codes else [pretend.call(pyramid_request, user)]
+        )
 
         assert result == {
             "success": "Successful WebAuthn assertion",

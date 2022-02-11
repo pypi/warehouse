@@ -3467,6 +3467,7 @@ class TestRecoveryCodeEmails:
         [
             (email.send_recovery_codes_generated_email, "recovery-codes-generated"),
             (email.send_recovery_code_used_email, "recovery-code-used"),
+            (email.send_recovery_code_reminder_email, "recovery-code-reminder"),
         ],
     )
     def test_recovery_code_emails(

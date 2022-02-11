@@ -58,6 +58,7 @@ from warehouse.email import (
     send_email_verification_email,
     send_password_change_email,
     send_password_reset_email,
+    send_recovery_code_reminder_email,
 )
 from warehouse.packaging.models import (
     JournalEntry,
@@ -282,6 +283,10 @@ def two_factor_and_totp_validate(request, _form_class=TOTPAuthenticationForm):
                 .hexdigest()
                 .lower(),
             )
+
+            if not request.user.has_recovery_codes:
+                send_recovery_code_reminder_email(request, request.user)
+
             return resp
         else:
             form.totp_value.data = ""
@@ -372,6 +377,10 @@ def webauthn_authentication_validate(request):
             .hexdigest()
             .lower(),
         )
+
+        if not request.user.has_recovery_codes:
+            send_recovery_code_reminder_email(request, request.user)
+
         return {
             "success": request._("Successful WebAuthn assertion"),
             "redirect_to": redirect_to,
