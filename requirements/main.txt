@@ -1267,9 +1267,9 @@ zope-interface==5.1.0 \
     #   transaction
     #   wired
     #   zope-sqlalchemy
-zope-sqlalchemy==1.3 \
-    --hash=sha256:607d65c7974b2aa586f0608ca740b03ddb582ad84ceb3545b55ad5a402fd6dff \
-    --hash=sha256:b9c689d39d83856b5a81ac45dbd3317762bf6a2b576c5dd13aaa2c56e0168154
+zope-sqlalchemy==1.6 \
+    --hash=sha256:63c4560fdd2d55c6e5658a22f6835a3c12eac1a3af8140a01400f7367aac91ed \
+    --hash=sha256:9c53be9a57275566595ada79bdffcd624a12fcf6435f6e6807416541b912f5ab
     # via -r requirements/main.in
 zxcvbn==4.4.28 \
     --hash=sha256:151bd816817e645e9064c354b13544f85137ea3320ca3be1fb6873ea75ef7dc1
