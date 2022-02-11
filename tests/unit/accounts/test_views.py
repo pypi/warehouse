@@ -571,7 +571,7 @@ class TestTwoFactor:
             update_user=lambda *a, **k: None,
             has_totp=lambda userid: True,
             has_webauthn=lambda userid: False,
-            has_recovery_codes=lambda userid: False,
+            has_recovery_codes=lambda userid: has_recovery_codes,
             check_totp_value=lambda userid, totp_value: True,
             record_event=pretend.call_recorder(lambda *a, **kw: None),
         )

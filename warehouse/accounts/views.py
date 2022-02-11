@@ -284,7 +284,7 @@ def two_factor_and_totp_validate(request, _form_class=TOTPAuthenticationForm):
                 .lower(),
             )
 
-            if not request.user.has_recovery_codes:
+            if not two_factor_state.get("has_recovery_codes", False):
                 send_recovery_code_reminder_email(request, request.user)
 
             return resp
