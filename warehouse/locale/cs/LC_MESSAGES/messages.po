@@ -69,7 +69,7 @@ msgstr ""
 msgid "The password is invalid. Try again."
 msgstr "Toto heslo je neplatné. Zkuste to prosím znovu."
 
-#: warehouse/accounts/forms.py:147 warehouse/accounts/views.py:78
+#: warehouse/accounts/forms.py:147 warehouse/accounts/views.py:79
 msgid "There have been too many unsuccessful login attempts. Try again later."
 msgstr ""
 "Přiliš mnoho neúspěšných pokusů o přihlášení. Zkuste to prosím později."
@@ -127,7 +127,7 @@ msgstr "Obnovovací kódy byly znovu vygenerovány"
 msgid "No user found with that username or email"
 msgstr "Žádný uživatel s daným uživatelským jménem nebo emailem nebyl nalezen"
 
-#: warehouse/accounts/views.py:95
+#: warehouse/accounts/views.py:96
 msgid ""
 "Too many emails have been added to this account without verifying them. "
 "Check your inbox and follow the verification links. (IP: ${ip})"
@@ -136,7 +136,7 @@ msgstr ""
 "Zkontrolujte svou e-mailovou schránku a klikněte na ověřovací odkaz. (IP: "
 "${ip})"
 
-#: warehouse/accounts/views.py:107
+#: warehouse/accounts/views.py:108
 #, fuzzy
 #| msgid ""
 #| "Too many emails have been added to this account without verifying them. "
@@ -150,25 +150,25 @@ msgstr ""
 "Zkontrolujte svou e-mailovou schránku a klikněte na ověřovací odkaz. (IP: "
 "${ip})"
 
-#: warehouse/accounts/views.py:247 warehouse/accounts/views.py:307
-#: warehouse/accounts/views.py:309 warehouse/accounts/views.py:336
-#: warehouse/accounts/views.py:338 warehouse/accounts/views.py:400
+#: warehouse/accounts/views.py:248 warehouse/accounts/views.py:312
+#: warehouse/accounts/views.py:314 warehouse/accounts/views.py:341
+#: warehouse/accounts/views.py:343 warehouse/accounts/views.py:409
 msgid "Invalid or expired two factor login."
 msgstr "Neplatné či expirované dvoufaktorové přihlášení."
 
-#: warehouse/accounts/views.py:301
+#: warehouse/accounts/views.py:306
 msgid "Already authenticated"
 msgstr "Již autenizován"
 
-#: warehouse/accounts/views.py:376
+#: warehouse/accounts/views.py:385
 msgid "Successful WebAuthn assertion"
 msgstr "Úspšená aserce WebAuthn"
 
-#: warehouse/accounts/views.py:430 warehouse/manage/views.py:778
+#: warehouse/accounts/views.py:439 warehouse/manage/views.py:778
 msgid "Recovery code accepted. The supplied code cannot be used again."
 msgstr "Obnovovací kód byl již přijat. Poskytnutý kód nelze použít znovu."
 
-#: warehouse/accounts/views.py:516
+#: warehouse/accounts/views.py:525
 msgid ""
 "New user registration temporarily disabled. See https://pypi.org/help#admin-"
 "intervention for details."
@@ -176,98 +176,98 @@ msgstr ""
 "Nový registrace jsou dočasně zakázány. Více informací na https://pypi.org/"
 "help#admin-intervention."
 
-#: warehouse/accounts/views.py:634
+#: warehouse/accounts/views.py:643
 msgid "Expired token: request a new password reset link"
 msgstr "Expirovaný token: požádejte o novou adresu pro reset hesla"
 
-#: warehouse/accounts/views.py:636
+#: warehouse/accounts/views.py:645
 msgid "Invalid token: request a new password reset link"
 msgstr "Neplatný token: požádejte o novou adresu pro reset hesla"
 
-#: warehouse/accounts/views.py:638 warehouse/accounts/views.py:723
-#: warehouse/accounts/views.py:819
+#: warehouse/accounts/views.py:647 warehouse/accounts/views.py:732
+#: warehouse/accounts/views.py:828
 msgid "Invalid token: no token supplied"
 msgstr "Neplatný token: token neposkytnut"
 
-#: warehouse/accounts/views.py:642
+#: warehouse/accounts/views.py:651
 msgid "Invalid token: not a password reset token"
 msgstr "Neplatný token: nejedná se o token pro reset hesla"
 
-#: warehouse/accounts/views.py:647
+#: warehouse/accounts/views.py:656
 msgid "Invalid token: user not found"
 msgstr "Neplatný token: uživatel nenalezen"
 
-#: warehouse/accounts/views.py:654
+#: warehouse/accounts/views.py:663
 msgid "Invalid token: user has logged in since this token was requested"
 msgstr "Neplatný token: uživatel se po vygenerování tokenu již přihlásil"
 
-#: warehouse/accounts/views.py:663
+#: warehouse/accounts/views.py:672
 msgid ""
 "Invalid token: password has already been changed since this token was "
 "requested"
 msgstr "Neplatný token: heslo již bylo po vygenerování tokenu změněno"
 
-#: warehouse/accounts/views.py:692
+#: warehouse/accounts/views.py:701
 msgid "You have reset your password"
 msgstr "Vaše heslo bylo změněno"
 
-#: warehouse/accounts/views.py:719
+#: warehouse/accounts/views.py:728
 msgid "Expired token: request a new email verification link"
 msgstr "Expirovaný token: vyžádejte nový odkaz pro reset hesla"
 
-#: warehouse/accounts/views.py:721
+#: warehouse/accounts/views.py:730
 msgid "Invalid token: request a new email verification link"
 msgstr "Neplatný token: vyžádejte nový odkaz pro reset hesla"
 
-#: warehouse/accounts/views.py:727
+#: warehouse/accounts/views.py:736
 msgid "Invalid token: not an email verification token"
 msgstr "Neplatný token: nejedná se o token pro reset e-mailové adresy"
 
-#: warehouse/accounts/views.py:736
+#: warehouse/accounts/views.py:745
 msgid "Email not found"
 msgstr "E-mail nenalezen"
 
-#: warehouse/accounts/views.py:739
+#: warehouse/accounts/views.py:748
 msgid "Email already verified"
 msgstr "E-mail již byl ověřen"
 
-#: warehouse/accounts/views.py:754
+#: warehouse/accounts/views.py:763
 msgid "You can now set this email as your primary address"
 msgstr "Nyní můžete nastavit tento e-mail jako vaši primární adresu"
 
-#: warehouse/accounts/views.py:758
+#: warehouse/accounts/views.py:767
 msgid "This is your primary address"
 msgstr "Toto je vaše primární adresa"
 
-#: warehouse/accounts/views.py:763
+#: warehouse/accounts/views.py:772
 msgid "Email address ${email_address} verified. ${confirm_message}."
 msgstr "E-mailová adresa ${email_address} byla oveřena. ${confirm_message}."
 
-#: warehouse/accounts/views.py:815
+#: warehouse/accounts/views.py:824
 msgid "Expired token: request a new project role invite"
 msgstr "Expirovaný token: požádejte o novou pozvánku pro roli v projektu"
 
-#: warehouse/accounts/views.py:817
+#: warehouse/accounts/views.py:826
 msgid "Invalid token: request a new project role invite"
 msgstr "Neplatný token: požádejte o novou pozvánku pro roli v projektu"
 
-#: warehouse/accounts/views.py:823
+#: warehouse/accounts/views.py:832
 msgid "Invalid token: not a collaboration invitation token"
 msgstr "Neplatný token: nejedná se o token pozvánky ke spolupráci"
 
-#: warehouse/accounts/views.py:827
+#: warehouse/accounts/views.py:836
 msgid "Role invitation is not valid."
 msgstr "Pozvánka pro roli je neplatná."
 
-#: warehouse/accounts/views.py:842
+#: warehouse/accounts/views.py:851
 msgid "Role invitation no longer exists."
 msgstr "Pozvánka pro roli již neexistuje."
 
-#: warehouse/accounts/views.py:854
+#: warehouse/accounts/views.py:863
 msgid "Invitation for '${project_name}' is declined."
 msgstr "Pozvánka pro '${project_name}' byla odmítnuta."
 
-#: warehouse/accounts/views.py:921
+#: warehouse/accounts/views.py:930
 msgid "You are now ${role} of the '${project_name}' project."
 msgstr "Nyní jste ${role} projektu '${project_name}'."
 
@@ -1528,6 +1528,38 @@ msgid ""
 msgstr ""
 "Primární emailová adresa pro váš PyPI účet <strong>%(username)s</strong> "
 "byla změněna z <code>%(old_email)s</code> na <code>%(new_email)s</code>"
+
+#: warehouse/templates/email/recovery-code-reminder/body.html:19
+#, python-format
+msgid ""
+"\n"
+"We noticed you recently logged into your PyPI account <strong>%(username)s</"
+"strong>, which has two-factor authentication enabled, but haven't generated\n"
+"recovery codes for this account.\n"
+msgstr ""
+
+#: warehouse/templates/email/recovery-code-reminder/body.html:27
+msgid ""
+"\n"
+"If you lose your authentication application or security key(s) and do not "
+"have\n"
+"access to these recovery codes, you may permanently lose access to your "
+"PyPI\n"
+"account!\n"
+msgstr ""
+
+#: warehouse/templates/email/recovery-code-reminder/body.html:35
+#, fuzzy, python-format
+#| msgid ""
+#| "To regain access to your account, <a href=\"%(href)s\">reset your "
+#| "password</a> on PyPI."
+msgid ""
+"\n"
+"You can generate recovery codes for your account here:\n"
+"<a href=\"%(href)s\">%(href)s</a>\n"
+msgstr ""
+"K opětovnému získání přístupu ke svému účtu <a href=\"%(href)s\">resetujte "
+"vaše heslo</a> na PyPI."
 
 #: warehouse/templates/email/recovery-code-used/body.html:19
 #, fuzzy, python-format
