@@ -421,6 +421,11 @@ def send_recovery_code_used_email(request, user):
     return {"username": user.username}
 
 
+@_email("recovery-code-reminder")
+def send_recovery_code_reminder_email(request, user):
+    return {"username": user.username}
+
+
 def includeme(config):
     email_sending_class = config.maybe_dotted(config.registry.settings["mail.backend"])
     config.register_service_factory(email_sending_class.create_service, IEmailSender)
