@@ -612,9 +612,9 @@ kombu==5.2.3 \
     --hash=sha256:81a90c1de97e08d3db37dbf163eaaf667445e1068c98bfd89f051a40e9f6dbbd \
     --hash=sha256:eeaeb8024f3a5cfc71c9250e45cddb8493f269d74ada2f74909a93c59c4b4179
     # via celery
-limits==2.0.3 \
-    --hash=sha256:66b35577e3824484712b6d1f1c774ba45628db58cb25b729101eaee06fcf32a0 \
-    --hash=sha256:a014be021cdcb4e4340ab7b2ec79cba676cf8ebcbd6ff88742f0407f0e7f2e27
+limits==2.3.3 \
+    --hash=sha256:9ead6236a71eb1d9a18d7e3b1faa58d588ea3510e55514fae58babc0a3223986 \
+    --hash=sha256:d4270d29591cc5eceab19be053455a4e619ba395062502bde2b5681af7dc1be8
     # via -r requirements/main.in
 lxml==4.7.1 \
     --hash=sha256:0607ff0988ad7e173e5ddf7bf55ee65534bd18a5461183c33e8e41a59e89edf4 \
@@ -1284,6 +1284,7 @@ setuptools==60.8.2 \
     #   celery
     #   google-api-core
     #   google-auth
+    #   limits
     #   pastedeploy
     #   plaster
     #   pyramid
