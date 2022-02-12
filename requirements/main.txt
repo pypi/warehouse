@@ -75,13 +75,13 @@ bleach==4.1.0 \
     --hash=sha256:0900d8b37eba61a802ee40ac0061f8c2b5dee29c1927dd1d233e075ebf5a71da \
     --hash=sha256:4d2651ab93271d1129ac9cbc679f524565cc8a1b791909c4a51eac4446a15994
     # via readme-renderer
-boto3==1.20.53 \
-    --hash=sha256:96f50e95bded5612ac8bd116d5d56a0cce4868870177805cb974d1f4f0a24b73 \
-    --hash=sha256:d96c1aa3edebff6466362e574af6d8a6f2f6c9c1d902d3c7efb0835e09f34ddb
+boto3==1.20.54 \
+    --hash=sha256:1a272a1dd36414b1626a47bb580425203be0b5a34caa117f38a5e18adf21f918 \
+    --hash=sha256:8129ad42cc0120d1c63daa18512d6f0b1439e385b2b6e0fe987f116bdf795546
     # via -r requirements/main.in
-botocore==1.23.53 \
-    --hash=sha256:7a628bc8bb2573fbc77709c9e7a02061b750f6ebb8e961562de658eda98e140d \
-    --hash=sha256:a97834aee61177e11618348ed8fe1963c37f319af628e6f875f1e0fbd587a9ec
+botocore==1.23.54 \
+    --hash=sha256:06ae8076c4dcf3d72bec4d37e5f2dce4a92a18a8cdaa3bfaa6e3b7b5e30a8d7e \
+    --hash=sha256:4bb9ba16cccee5f5a2602049bc3e2db6865346b2550667f3013bdf33b0a01ceb
     # via
     #   boto3
     #   s3transfer
