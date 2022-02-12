@@ -10,7 +10,7 @@
 # gabriel-tessier <tessier@luxeys.com>, 2019.
 # Matthieu Melot <matthieu.melot@gmail.com>, 2019.
 # Nathan <bonnemainsnathan@gmail.com>, 2019, 2020, 2021, 2022.
-# Adolfo Jayme Barrientos <fitojb@ubuntu.com>, 2020.
+# Adolfo Jayme Barrientos <fitojb@ubuntu.com>, 2020, 2022.
 # Bruno Alla <alla.brunoo@gmail.com>, 2020.
 # Jeannette L <j.lavoie@net-c.ca>, 2020.
 # anonymous <noreply@weblate.org>, 2020.
@@ -24,7 +24,7 @@ msgstr ""
 "Project-Id-Version: Warehouse VERSION\n"
 "Report-Msgid-Bugs-To: admin@pypi.org\n"
 "POT-Creation-Date: 2020-04-06 17:52-0500\n"
-"PO-Revision-Date: 2022-01-28 20:19+0000\n"
+"PO-Revision-Date: 2022-02-11 15:17+0000\n"
 "Last-Translator: Nathan <bonnemainsnathan@gmail.com>\n"
 "Language-Team: French <https://hosted.weblate.org/projects/pypa/warehouse/fr/"
 ">\n"
@@ -82,7 +82,7 @@ msgstr ""
 msgid "The password is invalid. Try again."
 msgstr "Le mot de passe est invalide. Veuillez réessayer."
 
-#: warehouse/accounts/forms.py:147 warehouse/accounts/views.py:78
+#: warehouse/accounts/forms.py:147 warehouse/accounts/views.py:79
 msgid "There have been too many unsuccessful login attempts. Try again later."
 msgstr ""
 "Il y a eu trop de tentatives de connexion infructueuses. Veuillez réessayer "
@@ -135,16 +135,14 @@ msgid "Invalid recovery code."
 msgstr "Code de récupération invalide."
 
 #: warehouse/accounts/forms.py:411
-#, fuzzy
-#| msgid "Recovery codes regenerated"
 msgid "Recovery code has been previously used."
-msgstr "Codes de récupération régénérés"
+msgstr "Le code de récupération a été utilisé précédemment."
 
 #: warehouse/accounts/forms.py:430
 msgid "No user found with that username or email"
 msgstr "Aucun profil trouvé pour ce nom de profil ou e-mail"
 
-#: warehouse/accounts/views.py:95
+#: warehouse/accounts/views.py:96
 msgid ""
 "Too many emails have been added to this account without verifying them. "
 "Check your inbox and follow the verification links. (IP: ${ip})"
@@ -153,7 +151,7 @@ msgstr ""
 "vérifiées. Veuillez consulter votre boîte de messagerie et suivre les liens "
 "de vérification. (IP : ${ip})"
 
-#: warehouse/accounts/views.py:107
+#: warehouse/accounts/views.py:108
 msgid ""
 "Too many password resets have been requested for this account without "
 "completing them. Check your inbox and follow the verification links. (IP: "
@@ -163,26 +161,26 @@ msgstr ""
 "ce compte qu'elles n'aient abouti. Veuillez consulter votre boîte de "
 "messagerie et suivre les liens de vérification. (IP : ${ip})"
 
-#: warehouse/accounts/views.py:247 warehouse/accounts/views.py:307
-#: warehouse/accounts/views.py:309 warehouse/accounts/views.py:336
-#: warehouse/accounts/views.py:338 warehouse/accounts/views.py:400
+#: warehouse/accounts/views.py:248 warehouse/accounts/views.py:312
+#: warehouse/accounts/views.py:314 warehouse/accounts/views.py:341
+#: warehouse/accounts/views.py:343 warehouse/accounts/views.py:409
 msgid "Invalid or expired two factor login."
 msgstr "Connexion à deux facteurs invalide ou expirée."
 
-#: warehouse/accounts/views.py:301
+#: warehouse/accounts/views.py:306
 msgid "Already authenticated"
 msgstr "Authentification déjà active"
 
-#: warehouse/accounts/views.py:376
+#: warehouse/accounts/views.py:385
 msgid "Successful WebAuthn assertion"
 msgstr "Vérification WebAuthn réussie"
 
-#: warehouse/accounts/views.py:430 warehouse/manage/views.py:778
+#: warehouse/accounts/views.py:439 warehouse/manage/views.py:778
 msgid "Recovery code accepted. The supplied code cannot be used again."
 msgstr ""
 "Code de récupération accepté. Le code fourni ne peut plus être utilisé."
 
-#: warehouse/accounts/views.py:516
+#: warehouse/accounts/views.py:525
 msgid ""
 "New user registration temporarily disabled. See https://pypi.org/help#admin-"
 "intervention for details."
@@ -190,36 +188,36 @@ msgstr ""
 "L’enregistrement de nouveaux profils est temporairement désactivé. Voir "
 "https://pypi.org/help#admin-intervention pour plus de détails."
 
-#: warehouse/accounts/views.py:634
+#: warehouse/accounts/views.py:643
 msgid "Expired token: request a new password reset link"
 msgstr ""
 "Jeton expiré : demandez un nouveau lien de réinitialisation de mot de passe"
 
-#: warehouse/accounts/views.py:636
+#: warehouse/accounts/views.py:645
 msgid "Invalid token: request a new password reset link"
 msgstr ""
 "Jeton invalide : demandez un nouveau lien de réinitialisation de mot de passe"
 
-#: warehouse/accounts/views.py:638 warehouse/accounts/views.py:723
-#: warehouse/accounts/views.py:819
+#: warehouse/accounts/views.py:647 warehouse/accounts/views.py:732
+#: warehouse/accounts/views.py:828
 msgid "Invalid token: no token supplied"
 msgstr "Jeton invalide : aucun jeton fourni"
 
-#: warehouse/accounts/views.py:642
+#: warehouse/accounts/views.py:651
 msgid "Invalid token: not a password reset token"
 msgstr ""
 "Jeton invalide : ce n’est pas un jeton de réinitialisation de mot de passe"
 
-#: warehouse/accounts/views.py:647
+#: warehouse/accounts/views.py:656
 msgid "Invalid token: user not found"
 msgstr "Jeton invalide : profil introuvable"
 
-#: warehouse/accounts/views.py:654
+#: warehouse/accounts/views.py:663
 msgid "Invalid token: user has logged in since this token was requested"
 msgstr ""
 "Jeton invalide : Une connexion a eu lieu après que ce jeton a été demandé"
 
-#: warehouse/accounts/views.py:663
+#: warehouse/accounts/views.py:672
 msgid ""
 "Invalid token: password has already been changed since this token was "
 "requested"
@@ -227,68 +225,68 @@ msgstr ""
 "Jeton invalide : le mot de passe a déjà été changé après que ce jeton a été "
 "demandé"
 
-#: warehouse/accounts/views.py:692
+#: warehouse/accounts/views.py:701
 msgid "You have reset your password"
 msgstr "Vous avez réinitialisé votre mot de passe"
 
-#: warehouse/accounts/views.py:719
+#: warehouse/accounts/views.py:728
 msgid "Expired token: request a new email verification link"
 msgstr "Jeton expiré : demandez un nouveau lien de vérification d'e-mail"
 
-#: warehouse/accounts/views.py:721
+#: warehouse/accounts/views.py:730
 msgid "Invalid token: request a new email verification link"
 msgstr "Jeton invalide : demandez un nouveau lien de vérification d'e-mail"
 
-#: warehouse/accounts/views.py:727
+#: warehouse/accounts/views.py:736
 msgid "Invalid token: not an email verification token"
 msgstr "Jeton invalide : ce n'est pas un jeton de vérification d'e-mail"
 
-#: warehouse/accounts/views.py:736
+#: warehouse/accounts/views.py:745
 msgid "Email not found"
 msgstr "E-mail non trouvé"
 
-#: warehouse/accounts/views.py:739
+#: warehouse/accounts/views.py:748
 msgid "Email already verified"
 msgstr "E-mail déjà vérifié"
 
-#: warehouse/accounts/views.py:754
+#: warehouse/accounts/views.py:763
 msgid "You can now set this email as your primary address"
 msgstr ""
 "Vous pouvez dorénavant configurer cet e-mail comme votre adresse principale"
 
-#: warehouse/accounts/views.py:758
+#: warehouse/accounts/views.py:767
 msgid "This is your primary address"
 msgstr "Ceci est votre adresse principale"
 
-#: warehouse/accounts/views.py:763
+#: warehouse/accounts/views.py:772
 msgid "Email address ${email_address} verified. ${confirm_message}."
 msgstr "Adresse e-mail ${email_address} verifiée. ${confirm_message}."
 
-#: warehouse/accounts/views.py:815
+#: warehouse/accounts/views.py:824
 msgid "Expired token: request a new project role invite"
 msgstr "Jeton expiré : demandez une nouvelle invitation au projet"
 
-#: warehouse/accounts/views.py:817
+#: warehouse/accounts/views.py:826
 msgid "Invalid token: request a new project role invite"
 msgstr "Jeton invalide : demandez une nouvelle invitation au projet"
 
-#: warehouse/accounts/views.py:823
+#: warehouse/accounts/views.py:832
 msgid "Invalid token: not a collaboration invitation token"
 msgstr "Jeton invalide : ce n'est pas un jeton d'invitation à collaborer"
 
-#: warehouse/accounts/views.py:827
+#: warehouse/accounts/views.py:836
 msgid "Role invitation is not valid."
 msgstr "L'invitation n'est pas valide."
 
-#: warehouse/accounts/views.py:842
+#: warehouse/accounts/views.py:851
 msgid "Role invitation no longer exists."
 msgstr "L'invitation a été révoquée."
 
-#: warehouse/accounts/views.py:854
+#: warehouse/accounts/views.py:863
 msgid "Invitation for '${project_name}' is declined."
 msgstr "L'invitation au projet « ${project_name} » a été refusée."
 
-#: warehouse/accounts/views.py:921
+#: warehouse/accounts/views.py:930
 msgid "You are now ${role} of the '${project_name}' project."
 msgstr ""
 "Vous avez désormais le rôle « ${role} » au sein du projet "
@@ -1592,38 +1590,82 @@ msgstr ""
 "strong> a été changée de <code>%(old_email)s</code> à <code>%(new_email)s</"
 "code>"
 
-#: warehouse/templates/email/recovery-code-used/body.html:19
+#: warehouse/templates/email/recovery-code-reminder/body.html:19
+#, python-format
+msgid ""
+"\n"
+"We noticed you recently logged into your PyPI account <strong>%(username)s</"
+"strong>, which has two-factor authentication enabled, but haven't generated\n"
+"recovery codes for this account.\n"
+msgstr ""
+
+#: warehouse/templates/email/recovery-code-reminder/body.html:27
+#, fuzzy
+#| msgid ""
+#| "<strong>Keep these somewhere safe</strong>. If you lose your "
+#| "authentication application or security key(s) and do not have access to "
+#| "these recovery codes, you may permanently lose access to your PyPI "
+#| "account!"
+msgid ""
+"\n"
+"If you lose your authentication application or security key(s) and do not "
+"have\n"
+"access to these recovery codes, you may permanently lose access to your "
+"PyPI\n"
+"account!\n"
+msgstr ""
+"<strong>Conservez-les dans un endroit sûr</strong>. Si vous perdez l'accès à "
+"votre application ou à votre/vos clé(s) de sécurité et n'avez plus accès à "
+"ces codes de récupération, vous pourriez perdre définitivement l'accès à "
+"votre compte PyPI !"
+
+#: warehouse/templates/email/recovery-code-reminder/body.html:35
 #, fuzzy, python-format
-#| msgid "Your PyPI account <strong>%(username)s</strong> has been deleted."
+#| msgid ""
+#| "To regain access to your account, <a href=\"%(href)s\">reset your "
+#| "password</a> on PyPI."
+msgid ""
+"\n"
+"You can generate recovery codes for your account here:\n"
+"<a href=\"%(href)s\">%(href)s</a>\n"
+msgstr ""
+"Pour récupérer l'accès à votre compte, veuillez <a href=\"%(href)s"
+"\">réinitialiser votre mot de passe</a> sur PyPI."
+
+#: warehouse/templates/email/recovery-code-used/body.html:19
+#, python-format
 msgid ""
 "\n"
 "A recovery code for your PyPI account <strong>%(username)s</strong> has been "
 "used.\n"
-msgstr "Votre compte PyPI <strong>%(username)s</strong> a été supprimé."
+msgstr ""
+"\n"
+"Un code de récupération pour votre compte PyPI <strong>%(username)s</strong> "
+"a été utilisé.\n"
 
 #: warehouse/templates/email/recovery-code-used/body.html:25
 #: warehouse/templates/email/recovery-codes-generated/body.html:25
-#, fuzzy, python-format
-#| msgid ""
-#| "If you did not make this change, you can email <a href=\"%(href)s\">"
-#| "%(email_address)s</a> to communicate with the PyPI administrators."
+#, python-format
 msgid ""
 "\n"
 "If you did not make this change, you can email <a href=\"%(href)s\">"
 "%(email_address)s</a> to communicate with the PyPI administrators.\n"
 msgstr ""
+"\n"
 "Si vous n'avez pas effectué ces modifications, vous pouvez nous écrire à <a "
 "href=\"%(href)s\">%(email_address)s</a> pour communiquer avec les "
-"responsables de PyPI."
+"responsables de PyPI.\n"
 
 #: warehouse/templates/email/recovery-codes-generated/body.html:19
-#, fuzzy, python-format
-#| msgid "Your PyPI account <strong>%(username)s</strong> has been deleted."
+#, python-format
 msgid ""
 "\n"
 "New recovery codes for your PyPI account <strong>%(username)s</strong> have "
 "been generated.\n"
-msgstr "Votre compte PyPI <strong>%(username)s</strong> a été supprimé."
+msgstr ""
+"\n"
+"De nouveaux codes de récupération pour votre compte PyPI <strong>"
+"%(username)s</strong> ont été générés.\n"
 
 #: warehouse/templates/email/two-factor-added/body.html:18
 #, python-format
@@ -1799,16 +1841,13 @@ msgstr ""
 "\">l'activer maintenant pour votre compte.</a>"
 
 #: warehouse/templates/includes/session-notifications.html:45
-#, fuzzy, python-format
-#| msgid ""
-#| "Two factor authentication is available, <a href=\"%(href)s\">enable it "
-#| "now for your account.</a>"
+#, python-format
 msgid ""
 "Two-factor recovery codes are available, <a href=\"%(href)s\">generate them "
 "now for your account.</a>"
 msgstr ""
-"L'authentification à deux facteurs est disponible, <a href=\"%(href)s"
-"\">l'activer maintenant pour votre compte.</a>"
+"Les codes de récupération à deux facteurs sont disponibles, <a href="
+"\"%(href)s\">générez-les maintenant pour votre compte.</a>"
 
 #: warehouse/templates/includes/accounts/profile-actions.html:16
 msgid "Edit profile"
@@ -2823,16 +2862,12 @@ msgstr ""
 "<abbr title=\"Authentification à deux facteurs\">2FA</abbr></a>."
 
 #: warehouse/templates/manage/manage_base.html:30
-#, fuzzy
-#| msgid "Recovery codes generated"
 msgid "Recovery methods enabled"
-msgstr "Codes de récupération générés"
+msgstr "Méthodes de récupération activées"
 
 #: warehouse/templates/manage/manage_base.html:33
-#, fuzzy
-#| msgid "Recovery code"
 msgid "Recovery method"
-msgstr "Code de récupération"
+msgstr "Méthode de récupération"
 
 #: warehouse/templates/manage/manage_base.html:39
 #, python-format
@@ -2878,10 +2913,7 @@ msgid "Device name"
 msgstr "Nom du périphérique"
 
 #: warehouse/templates/manage/manage_base.html:99
-#, fuzzy, python-format
-#| msgid ""
-#| "<a href=\"%(href)s\">Verify your primary email address</a> to add two "
-#| "factor authentication to your account."
+#, python-format
 msgid ""
 "\n"
 "        <a href=\"%(href)s\">Verify your primary email address</a>\n"
@@ -2889,26 +2921,27 @@ msgid ""
 "account.\n"
 "        "
 msgstr ""
-"<a href=\"%(href)s\">Vérifiez votre adresse e-mail principale</a> pour "
-"ajouter l'authentification à deux facteurs à votre compte."
+"\n"
+"        <a href=\"%(href)s\">Vérifiez votre adresse e-mail principale</a>\n"
+"        avant d'ajouter de nouvelles méthodes d'authentification à deux "
+"facteurs sur votre compte.\n"
+"        "
 
 #: warehouse/templates/manage/manage_base.html:104
-#, fuzzy, python-format
-#| msgid ""
-#| "<a href=\"%(href)s\">Verify your primary email address</a> to add two "
-#| "factor authentication to your account."
+#, python-format
 msgid ""
 "\n"
 "        <a href=\"%(href)s\">Verify your primary email address</a>\n"
 "        before enabling two factor authentication on your account.\n"
 "        "
 msgstr ""
-"<a href=\"%(href)s\">Vérifiez votre adresse e-mail principale</a> pour "
-"ajouter l'authentification à deux facteurs à votre compte."
+"\n"
+"        <a href=\"%(href)s\">Vérifiez votre adresse e-mail principale</a>\n"
+"        avant d'activer l'authentification à deux facteurs sur votre "
+"compte.\n"
+"        "
 
 #: warehouse/templates/manage/manage_base.html:115
-#, fuzzy
-#| msgid "You have not enabled two factor authentication on your account."
 msgid ""
 "\n"
 "        You must generate and safely store recovery codes before adding "
@@ -2916,116 +2949,105 @@ msgid ""
 "        authentication methods to your account.\n"
 "        "
 msgstr ""
-"Vous n'avez pas activé l'authentification à deux facteurs pour votre compte."
+"\n"
+"        Vous devez générer et conserver en sécurité les codes de "
+"récupération avant d'ajouter des méthodes d'authentification à deux "
+"facteurs\n"
+"          supplémentaires sur votre compte.\n"
+"        "
 
 #: warehouse/templates/manage/manage_base.html:120
-#, fuzzy
-#| msgid "You have not enabled two factor authentication on your account."
 msgid ""
 "\n"
 "        You must generate and safely store recovery codes before enabling "
 "two factor authentication on your account.\n"
 "        "
 msgstr ""
-"Vous n'avez pas activé l'authentification à deux facteurs pour votre compte."
+"\n"
+"        Vous devez générer et conserver en sécurité les codes de "
+"récupération avant d'activer l'authentification à deux facteurs sur votre "
+"compte.\n"
+"        "
 
 #: warehouse/templates/manage/manage_base.html:126
-#, fuzzy
-#| msgid ""
-#| "\n"
-#| "                Source Distribution\n"
-#| "              "
-#| msgid_plural ""
-#| "\n"
-#| "                Source Distributions\n"
-#| "              "
 msgid ""
 "\n"
 "        Generate recovery codes\n"
 "        "
 msgstr ""
 "\n"
-"                avec le classifieur sélectionné\n"
-"              "
+"        Générez des codes de récupération\n"
+"        "
 
 #: warehouse/templates/manage/manage_base.html:135
-#, fuzzy
-#| msgid "You have not enabled two factor authentication on your account."
 msgid ""
 "\n"
 "        Use a recovery code before adding additional two factor\n"
 "        authentication methods to your account.\n"
 "        "
 msgstr ""
-"Vous n'avez pas activé l'authentification à deux facteurs pour votre compte."
+"\n"
+"        Utilisez un code de récupération avant d'ajouter des méthodes\n"
+"        d'authentification à deux facteurs supplémentaires sur votre "
+"compte.\n"
+"        "
 
 #: warehouse/templates/manage/manage_base.html:140
-#, fuzzy
-#| msgid "You have not enabled two factor authentication on your account."
 msgid ""
 "\n"
 "        Use a recovery code before enabling two factor authentication on "
 "your account.\n"
 "        "
 msgstr ""
-"Vous n'avez pas activé l'authentification à deux facteurs pour votre compte."
+"\n"
+"        Utilisez un code de récupération avant d'activer l'authentification "
+"à deux facteurs sur votre compte.\n"
+"        "
 
 #: warehouse/templates/manage/manage_base.html:149
-#, fuzzy
-#| msgid ""
-#| "\n"
-#| "                Source Distribution\n"
-#| "              "
-#| msgid_plural ""
-#| "\n"
-#| "                Source Distributions\n"
-#| "              "
 msgid ""
 "\n"
 "        Use a recovery code\n"
 "        "
 msgstr ""
 "\n"
-"                avec le classifieur sélectionné\n"
-"              "
+"        Utilisez un code de récupération\n"
+"        "
 
 #: warehouse/templates/manage/manage_base.html:160
-#, fuzzy
-#| msgid "You have not enabled two factor authentication on your account."
 msgid ""
 "\n"
 "        You have not enabled two factor authentication on your account.\n"
 "        "
 msgstr ""
-"Vous n'avez pas activé l'authentification à deux facteurs pour votre compte."
+"\n"
+"        Vous n'avez pas activé l'authentification à deux facteurs pour votre "
+"compte.\n"
+"        "
 
 #: warehouse/templates/manage/manage_base.html:168
-#, fuzzy
-#| msgid ""
-#| "Add <abbr title=\"two factor authentication\">2FA</abbr> with "
-#| "authentication application"
 msgid ""
 "\n"
 "        Add <abbr title=\"two factor authentication\">2FA</abbr> with "
 "authentication application\n"
 "        "
 msgstr ""
-"Ajouter la <abbr title=\"Authentification à deux facteurs\">2FA</abbr> avec "
-"une application d'authentification"
+"\n"
+"        Ajouter la <abbr title=\"Authentification à deux facteurs\">2FA</"
+"abbr> avec une application d'authentification\n"
+"        "
 
 #: warehouse/templates/manage/manage_base.html:173
-#, fuzzy
-#| msgid ""
-#| "Add <abbr title=\"two factor authentication\">2FA</abbr> with security "
-#| "device (e.g. USB key)"
 msgid ""
 "\n"
 "        Add <abbr title=\"two factor authentication\">2FA</abbr> with "
 "security device (e.g. USB key)\n"
 "        "
 msgstr ""
-"Ajouter la <abbr title=\"Authentification à Deux Facteurs\">2FA</abbr> avec "
-"un périphérique de sécurité (ex : clé USB)"
+"\n"
+"        Ajouter la <abbr title=\"Authentification à Deux Facteurs\">2FA</"
+"abbr> avec un périphérique de sécurité (par ex. clé USB)\n"
+"        "
 
 #: warehouse/templates/manage/account/webauthn-provision.html:37
 #: warehouse/templates/manage/manage_base.html:180
@@ -3951,10 +3973,8 @@ msgid "Add token"
 msgstr "Ajouter un jeton"
 
 #: warehouse/templates/manage/account/recovery_codes-burn.html:17
-#, fuzzy
-#| msgid "Enter recovery code"
 msgid "Use a recovery code"
-msgstr "Entrez le code de récupération"
+msgstr "Utilisez un code de récupération"
 
 #: warehouse/templates/manage/account/recovery_codes-burn.html:34
 msgid ""
@@ -3964,6 +3984,12 @@ msgid ""
 "here.\n"
 "      "
 msgstr ""
+"\n"
+"        Afin de vérifier si vous avez bien stocké vos codes de récupération "
+"de façon sécurisée pour une utilisation en cas de perte du dispositif "
+"d'authentification à deux facteurs, veuillez saisir l'un de vos codes de "
+"récupération ici.\n"
+"      "
 
 #: warehouse/templates/manage/account/recovery_codes-burn.html:39
 msgid ""
@@ -3972,6 +3998,11 @@ msgid ""
 "be available to bypass 2FA.\n"
 "      "
 msgstr ""
+"\n"
+"        Le code de récupération que vous choisissez sera considéré comme "
+"utilisé et ne sera plus disponible pour contourner le système "
+"d'authentification à deux facteurs.\n"
+"      "
 
 #: warehouse/templates/manage/account/recovery_codes-burn.html:44
 msgid ""
@@ -3980,6 +4011,10 @@ msgid ""
 "need to generate a them again.\n"
 "      "
 msgstr ""
+"\n"
+"      <strong>Vous avez oublié de conserver vos codes de récupération de "
+"façon sécurisée ?</strong> Vous devez les générer de nouveau.\n"
+"      "
 
 #: warehouse/templates/manage/account/recovery_codes-provision.html:17
 msgid "Account recovery codes"
