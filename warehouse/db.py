@@ -14,6 +14,8 @@ import functools
 import logging
 
 import alembic.config
+import psycopg
+import psycopg.extensions
 import pyramid_retry
 import sqlalchemy
 import venusian

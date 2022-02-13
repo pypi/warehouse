@@ -427,7 +427,7 @@ compilation errors due to your system not including libraries
 or binaries required by some of Warehouse's dependencies.
 
 An example of such dependency is
-`psycopg2 <https://www.psycopg.org/docs/install.html#prerequisites>`_
+`psycopg <http://initd.org/psycopg/docs/install.html#prerequisites>`_
 which requires PostgreSQL binaries and will fail if not present.
 
 If there's a specific use case you think requires development outside

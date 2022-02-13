@@ -14,7 +14,7 @@ from unittest import mock
 
 import alembic.config
 import pretend
-import psycopg2.extensions
+import psycopg.extensions
 import pytest
 import sqlalchemy
 import venusian
@@ -114,7 +114,7 @@ def test_configure_alembic(monkeypatch):
 
 def test_raises_db_available_error(pyramid_services, metrics):
     def raiser():
-        raise OperationalError("foo", {}, psycopg2.OperationalError())
+        raise OperationalError("foo", {}, psycopg.OperationalError())
 
     engine = pretend.stub(connect=raiser)
     request = pretend.stub(
@@ -131,7 +131,16 @@ def test_raises_db_available_error(pyramid_services, metrics):
     ]
 
 
-def test_create_session(monkeypatch, pyramid_services):
+@pytest.mark.parametrize(
+    ("read_only", "tx_status"),
+    [
+        (True, psycopg.extensions.TRANSACTION_STATUS_IDLE),
+        (True, psycopg.extensions.TRANSACTION_STATUS_INTRANS),
+        (False, psycopg.extensions.TRANSACTION_STATUS_IDLE),
+        (False, psycopg.extensions.TRANSACTION_STATUS_INTRANS),
+    ],
+)
+def test_create_session(monkeypatch, pyramid_services, read_only, tx_status):
     session_obj = pretend.stub(
         close=pretend.call_recorder(lambda: None),
         get=pretend.call_recorder(lambda *a: None),
@@ -165,6 +174,15 @@ def test_create_session(monkeypatch, pyramid_services):
     request.add_finished_callback.calls[0].args[0](request2)
     assert session_obj.close.calls == [pretend.call()]
     assert connection.close.calls == [pretend.call()]
+
+    if read_only:
+        assert connection.info == {"warehouse.needs_reset": True}
+        assert connection.connection.set_session.calls == [
+            pretend.call(isolation_level="SERIALIZABLE", readonly=True, deferrable=True)
+        ]
+
+    if tx_status != psycopg.extensions.TRANSACTION_STATUS_IDLE:
+        connection.connection.rollback.calls == [pretend.call()]
 
 
 @pytest.mark.parametrize(
