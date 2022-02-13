@@ -15,7 +15,6 @@ import logging
 
 import alembic.config
 import psycopg
-import psycopg.extensions
 import pyramid_retry
 import sqlalchemy
 import venusian
@@ -138,6 +137,24 @@ def _create_session(request):
         logger.warning("Got an error connecting to PostgreSQL", exc_info=True)
         metrics.increment("warehouse.db.session.error", tags=["error_in:connecting"])
         raise DatabaseNotAvailableError()
+
+    if (
+        connection.connection.get_transaction_status()
+        != psycopg.pq.TransactionStatus.IDLE
+    ):
+        # Work around a bug where SQLALchemy leaves the initial connection in
+        # a pool inside of a transaction.
+        # TODO: Remove this in the future, brand new connections on a fresh
+        #       instance should not raise an Exception.
+        connection.connection.rollback()
+
+    # Now that we have a connection, we're going to go and set it to the
+    # correct isolation level.
+    if request.read_only:
+        connection.info["warehouse.needs_reset"] = True
+        connection.connection.set_session(
+            isolation_level="SERIALIZABLE", readonly=True, deferrable=True
+        )
 
     # Now, create a session from our connection
     session = Session(bind=connection)
