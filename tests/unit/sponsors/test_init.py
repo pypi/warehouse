@@ -12,8 +12,8 @@
 
 import pretend
 
-from sqlalchemy import true
 from celery.schedules import crontab
+from sqlalchemy import true
 
 from warehouse import sponsors
 from warehouse.sponsors.models import Sponsor

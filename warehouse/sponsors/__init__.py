@@ -10,8 +10,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from sqlalchemy import true
 from celery.schedules import crontab
+from sqlalchemy import true
 
 from warehouse.sponsors.models import Sponsor
 from warehouse.sponsors.tasks import update_pypi_sponsors
@@ -26,4 +26,6 @@ def includeme(config):
     config.add_request_method(_sponsors, name="sponsors", reify=True)
 
     # Add a periodic task to update sponsors table
-    config.add_periodic_task(crontab(minute=0, hour=3, day_of_week=0), update_pypi_sponsors)
+    config.add_periodic_task(
+        crontab(minute=0, hour=3, day_of_week=0), update_pypi_sponsors
+    )

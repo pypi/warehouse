@@ -10,7 +10,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from sqlalchemy import Boolean, Column, String, Text, Integer
+from sqlalchemy import Boolean, Column, Integer, String, Text
 from sqlalchemy_utils.types.url import URLType
 
 from warehouse import db
