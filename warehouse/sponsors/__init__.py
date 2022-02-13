@@ -11,8 +11,10 @@
 # limitations under the License.
 
 from sqlalchemy import true
+from celery.schedules import crontab
 
 from warehouse.sponsors.models import Sponsor
+from warehouse.sponsors.tasks import update_pypi_sponsors
 
 
 def _sponsors(request):
@@ -22,3 +24,6 @@ def _sponsors(request):
 def includeme(config):
     # Add a request method which will allow to list sponsors
     config.add_request_method(_sponsors, name="sponsors", reify=True)
+
+    # Add a periodic task to update sponsors table
+    config.add_periodic_task(crontab(minute=0, hour=3, day_of_week=0), update_pypi_sponsors)

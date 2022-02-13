@@ -13,22 +13,28 @@
 import pretend
 
 from sqlalchemy import true
+from celery.schedules import crontab
 
 from warehouse import sponsors
 from warehouse.sponsors.models import Sponsor
+from warehouse.sponsors.tasks import update_pypi_sponsors
 
 from ...common.db.sponsors import SponsorFactory
 
 
 def test_includeme():
     config = pretend.stub(
-        add_request_method=pretend.call_recorder(lambda f, name, reify: None)
+        add_request_method=pretend.call_recorder(lambda f, name, reify: None),
+        add_periodic_task=pretend.call_recorder(lambda crontab, task: None),
     )
 
     sponsors.includeme(config)
 
     assert config.add_request_method.calls == [
         pretend.call(sponsors._sponsors, name="sponsors", reify=True),
+    ]
+    assert config.add_periodic_task.calls == [
+        pretend.call(crontab(minute=0, hour=3, day_of_week=0), update_pypi_sponsors),
     ]
 
 
