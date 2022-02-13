@@ -235,6 +235,10 @@ def configure(settings=None):
     maybe_set_compound(settings, "breached_passwords", "backend", "BREACHED_PASSWORDS")
     maybe_set_compound(settings, "malware_check", "backend", "MALWARE_CHECK_BACKEND")
 
+    # Pythondotorg integration settings
+    maybe_set(settings, "pythondotorg.host", "PYTHONDOTORG_HOST", default="python.org")
+    maybe_set(settings, "pythondotorg.api_toke", "PYTHONDOTORG_API_TOKEN")
+
     # Configure our ratelimiters
     maybe_set(
         settings,
