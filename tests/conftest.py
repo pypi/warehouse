@@ -124,6 +124,7 @@ def pyramid_services(metrics):
 
 @pytest.fixture
 def pyramid_request(pyramid_services, jinja, remote_addr):
+    pyramid.testing.setUp()
     dummy_request = pyramid.testing.DummyRequest()
     dummy_request.find_service = pyramid_services.find_service
     dummy_request.remote_addr = remote_addr
@@ -136,7 +137,9 @@ def pyramid_request(pyramid_services, jinja, remote_addr):
 
     dummy_request._ = localize
 
-    return dummy_request
+    yield dummy_request
+
+    pyramid.testing.tearDown()
 
 
 @pytest.fixture
