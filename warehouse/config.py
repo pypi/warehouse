@@ -237,7 +237,7 @@ def configure(settings=None):
 
     # Pythondotorg integration settings
     maybe_set(settings, "pythondotorg.host", "PYTHONDOTORG_HOST", default="python.org")
-    maybe_set(settings, "pythondotorg.api_toke", "PYTHONDOTORG_API_TOKEN")
+    maybe_set(settings, "pythondotorg.api_token", "PYTHONDOTORG_API_TOKEN")
 
     # Configure our ratelimiters
     maybe_set(
