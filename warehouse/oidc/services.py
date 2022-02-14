@@ -12,11 +12,11 @@
 
 import json
 
+import jwt
 import redis
 import requests
 import sentry_sdk
 
-from jwt import PyJWK
 from zope.interface import implementer
 
 from warehouse.metrics.interfaces import IMetricsService
@@ -148,10 +148,51 @@ class OIDCProviderService:
                 tags=[f"provider:{self.provider}", f"key_id:{key_id}"],
             )
             return None
-        return PyJWK(keyset[key_id])
+        return jwt.PyJWK(keyset[key_id])
+
+    def _get_key_for_token(self, token):
+        """
+        Return a JWK suitable for verifying the given JWT.
+
+        The JWT is not verified at this point, and this step happens
+        prior to any verification.
+        """
+        unverified_header = jwt.get_unverified_header(token)
+        return self.get_key(unverified_header["kid"])
 
     def verify(self, token):
-        return NotImplemented
+        key = self._get_key_for_token(token)
+
+        try:
+            # NOTE: Many of the keyword arguments here are defaults, but we
+            # set them explicitly to assert the intended verification behavior.
+            valid_token = jwt.decode(
+                token,
+                key=key,
+                algorithms=["RS256"],
+                verify_signature=True,
+                # "require" only checks for the presence of these claims, not
+                # their validity. Each has a corresponding "verify_" kwarg
+                # that enforces their actual validity.
+                require=["iss", "iat", "nbf", "exp", "aud"],
+                verify_iss=True,
+                verify_iat=True,
+                verify_nbf=True,
+                verify_exp=True,
+                verify_aud=True,
+                issuer=self.issuer_url,
+                audience="pypi",
+                leeway=60,
+            )
+            return True, valid_token
+        except jwt.PyJWTError:
+            return False, None
+        except Exception as e:
+            # We expect pyjwt to only raise subclasses of PyJWTError, but
+            # we can't enforce this. Other exceptions indicate an abstraction
+            # leak, so we log them for upstream reporting.
+            sentry_sdk.capture_message(f"JWT verify raised generic error: {e}")
+            return False, None
 
 
 class OIDCProviderServiceFactory:

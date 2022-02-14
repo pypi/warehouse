@@ -24,7 +24,7 @@ class OIDCProvider(db.Model):
 
     __mapper_args__ = {"polymorphic_on": discriminator}
 
-    def verify_claims(self, token):
+    def verify_claims(self, signed_token):
         return NotImplemented
 
 
@@ -44,5 +44,10 @@ class GitHubProvider(OIDCProvider):
     def job_workflow_ref(self):
         return f"{self.repository}/.github/workflows/{self.workflow_name}.yml"
 
-    def verify_claims(self, token):
+    def verify_claims(self, signed_token):
+        """
+        Given a JWT that has been successfully decoded (checked for a valid
+        signature and basic claims), verify it against the more specific
+        claims of this provider.
+        """
         return NotImplemented
