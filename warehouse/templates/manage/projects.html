@@ -85,18 +85,30 @@
         <div class="package-snippet__buttons">
 
           {% if project.name in projects_owned %}
-            {% if not user_has_two_factor and project.name in projects_requiring_2fa %}
+            {% if (
+              not user_has_two_factor
+              and project.name in projects_requiring_2fa
+              and project.pypi_mandates_2fa
+              and request.registry.settings["warehouse.two_factor_mandate.enabled"]
+            ) %}
+            {# Show 2FA mandated button #}
+            <a
+              href="{{ request.route_path('manage.account.two-factor') }}"
+              class="button button--danger"
+              title="{% trans %}PyPI requires 2FA to be enabled to manage this project{% endtrans %}"
+            >{% trans %}2FA Mandated{% endtrans %}</a>
+            {% elif (
+              not user_has_two_factor
+              and project.name in projects_requiring_2fa
+              and project.owners_require_2fa
+              and request.registry.settings["warehouse.two_factor_requirement.enabled"]
+            ) %}
             {# Show 2FA required button #}
             <a
               href="{{ request.route_path('manage.account.two-factor') }}"
               class="button button--danger"
-              {% if project.pypi_mandates_2fa %}
-              title="{% trans %}PyPI requires 2FA to be enabled to manage this project{% endtrans %}"
-              {% else %}
               title="{% trans %}This project requires 2FA to be enabled to manage{% endtrans %}"
-              {% endif %}
             >{% trans %}2FA Required{% endtrans %}</a>
-
             {% else %}
             {# Show manage button #}
             <a

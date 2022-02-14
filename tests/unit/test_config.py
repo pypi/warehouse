@@ -244,6 +244,9 @@ def test_configure(monkeypatch, settings, environment, other_settings):
         "warehouse.account.global_login_ratelimit_string": "1000 per 5 minutes",
         "warehouse.account.email_add_ratelimit_string": "2 per day",
         "warehouse.account.password_reset_ratelimit_string": "5 per day",
+        "warehouse.two_factor_requirement.enabled": False,
+        "warehouse.two_factor_mandate.available": False,
+        "warehouse.two_factor_mandate.enabled": False,
     }
     if environment == config.Environment.development:
         expected_settings.update(
