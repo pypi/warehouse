@@ -182,7 +182,7 @@ class OIDCProviderService:
                 verify_aud=True,
                 issuer=self.issuer_url,
                 audience="pypi",
-                leeway=60,
+                leeway=30,
             )
             return True, valid_token
         except jwt.PyJWTError:
