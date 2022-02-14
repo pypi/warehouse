@@ -11,7 +11,8 @@
 # limitations under the License.
 
 
-from sqlalchemy import UUID, Column, ForeignKey, String
+from sqlalchemy import Column, ForeignKey, String
+from sqlalchemy.dialects.postgresql import UUID
 
 from warehouse import db
 
