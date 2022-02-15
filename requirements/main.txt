@@ -584,9 +584,9 @@ idna==3.3 \
     # via
     #   email-validator
     #   requests
-importlib-metadata==4.11.0 \
-    --hash=sha256:6affcdb3aec542dd98df8211e730bba6c5f2bec8288d47bacacde898f548c9ad \
-    --hash=sha256:9e5e553bbba1843cb4a00823014b907616be46ee503d2b9ba001d214a8da218f
+importlib-metadata==4.11.1 \
+    --hash=sha256:175f4ee440a0317f6e8d81b7f8d4869f93316170a65ad2b007d2929186c8052c \
+    --hash=sha256:e0bc84ff355328a4adfc5240c4f211e0ab386f80aa640d1b11f0618a1d282094
     # via alembic
 importlib-resources==5.4.0 \
     --hash=sha256:33a95faed5fc19b4bc16b29a6eeae248a3fe69dd55d4d229d2b480e23eeaad45 \
