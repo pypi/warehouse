@@ -38,7 +38,7 @@ class OIDCProvider(db.Model):
 
     discriminator = Column(String)
     projects = orm.relationship(
-        Project, secondary=OIDCProviderProjectAssociation, backref="oidc_providers"
+        Project, secondary=OIDCProviderProjectAssociation.__table__, backref="oidc_providers"
     )
 
     __mapper_args__ = {"polymorphic_on": discriminator}
