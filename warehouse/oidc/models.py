@@ -114,3 +114,11 @@ class GitHubProvider(OIDCProvider):
     @property
     def job_workflow_ref(self):
         return f"{self.repository}/.github/workflows/{self.workflow_name}.yml"
+
+    @property
+    def actor(self):
+        return self.owner
+
+    @property
+    def workflow(self):
+        return self.workflow_name
