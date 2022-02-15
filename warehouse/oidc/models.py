@@ -12,16 +12,34 @@
 
 import sentry_sdk
 
-from sqlalchemy import Column, ForeignKey, String
+from sqlalchemy import Column, ForeignKey, String, orm
 from sqlalchemy.dialects.postgresql import UUID
 
 from warehouse import db
+from warehouse.packaging.models import Project
+
+
+class OIDCProviderProjectAssociation(db.Model):
+    __tablename__ = "oidc_provider_project_association"
+
+    oidc_provider_id = Column(
+        UUID(as_uuid=True),
+        ForeignKey("oidc_providers.id"),
+        nullable=False,
+        primary_key=True,
+    )
+    project_id = Column(
+        UUID(as_uuid=True), ForeignKey("projects.id"), nullable=False, primary_key=True
+    )
 
 
 class OIDCProvider(db.Model):
     __tablename__ = "oidc_providers"
 
     discriminator = Column(String)
+    projects = orm.relationship(
+        Project, secondary=OIDCProviderProjectAssociation, backref="oidc_providers"
+    )
 
     __mapper_args__ = {"polymorphic_on": discriminator}
 
