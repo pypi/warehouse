@@ -14,6 +14,7 @@ from urllib.parse import urlencode
 import requests
 
 from warehouse import tasks
+from warehouse.sponsors.models import Sponsor
 
 
 @tasks.task(ignore_result=True, acks_late=True)
@@ -33,6 +34,20 @@ def update_pypi_sponsors(request):
     url = f"{protocol}://{host}/api/v2/sponsors/logo-placement/?{qs}"
     response = requests.get(url, headers=headers)
     response.raise_for_status()
-    data = response.json()
 
-    print("sponsor information:", len(data))
+    for sponsor_info in response.json():
+        sponsor = Sponsor(
+            name=sponsor_info["sponsor"],
+            slug=sponsor_info["sponsor_slug"],
+            service=sponsor_info["description"], # activity markdown??????
+            link_url=sponsor_info["sponsor_url"],
+            color_logo_url=sponsor_info["logo"],
+            level_name=sponsor_info["level_name"],
+            level_order=sponsor_info["level_order"],
+            is_active=True,
+            psf_sponsor=True,
+            origin="remote",
+        )
+        request.db.add(sponsor)
+
+    request.db.commit()
