@@ -30,9 +30,9 @@ def update_pypi_sponsors(request):
         protocol = "http"
 
     qs = urlencode({"publisher": "pypi", "flight": "sponsors"})
-    url = f"{protocol}://{host}/api/v2/sponsors/logo-placement/"
+    url = f"{protocol}://{host}/api/v2/sponsors/logo-placement/?{qs}"
     response = requests.get(url, headers=headers)
-    response = response.raise_for_status()
+    response.raise_for_status()
     data = response.json()
 
     print("sponsor information:", len(data))
