@@ -160,7 +160,7 @@ class OIDCProviderService:
         unverified_header = jwt.get_unverified_header(token)
         return self.get_key(unverified_header["kid"])
 
-    def verify(self, token):
+    def verify_signature_only(self, token):
         key = self._get_key_for_token(token)
 
         try:

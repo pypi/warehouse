@@ -26,7 +26,7 @@ class IOIDCProviderService(Interface):
         """
         pass
 
-    def verify(token):
+    def verify_signature_only(token):
         """
         Verify the given JWT's signature and basic claims, returning
         a tuple of (valid, decoded) where `valid` indicates
