@@ -992,6 +992,19 @@ def manage_project_settings(project, request):
     }
 
 
+@view_config(
+    route_name="manage.project.settings.oidc",
+    context=Project,
+    renderer="manage/oidc.html",
+    uses_session=True,
+    permission="manage:project",
+    has_translations=True,
+    require_reauth=True,
+)
+def manage_project_oidc(project, request):
+    return {"project": project}
+
+
 def get_user_role_in_project(project, user, request):
     return (
         request.db.query(Role)
