@@ -9,6 +9,8 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+from sqlalchemy import true, or_
+from sqlalchemy.exc import NoResultFound
 from urllib.parse import urlencode
 
 import requests
@@ -35,19 +37,32 @@ def update_pypi_sponsors(request):
     response = requests.get(url, headers=headers)
     response.raise_for_status()
 
+    # deactivate current PSF sponsors to keep it up to date with API
+    request.db.query(Sponsor).filter(Sponsor.psf_sponsor == true()).update({'psf_sponsor': False})
+
     for sponsor_info in response.json():
-        sponsor = Sponsor(
-            name=sponsor_info["sponsor"],
-            slug=sponsor_info["sponsor_slug"],
-            service=sponsor_info["description"], # activity markdown??????
-            link_url=sponsor_info["sponsor_url"],
-            color_logo_url=sponsor_info["logo"],
-            level_name=sponsor_info["level_name"],
-            level_order=sponsor_info["level_order"],
-            is_active=True,
-            psf_sponsor=True,
-            origin="remote",
-        )
-        request.db.add(sponsor)
+        name = sponsor_info["sponsor"]
+        slug = sponsor_info["sponsor_slug"]
+        query = request.db.query(Sponsor)
+        try:
+            sponsor = query.filter(or_(Sponsor.name == name, Sponsor.slug == slug)).one()
+            if sponsor.infra_sponsor or sponsor.one_time:
+                continue
+        except NoResultFound:
+            sponsor = Sponsor()
+
+        sponsor.name = name
+        sponsor.slug = slug
+        sponsor.service = sponsor_info["description"]
+        sponsor.link_url = sponsor_info["sponsor_url"]
+        sponsor.color_logo_url = sponsor_info["logo"]
+        sponsor.level_name = sponsor_info["level_name"]
+        sponsor.level_order = sponsor_info["level_order"]
+        sponsor.is_active = True
+        sponsor.psf_sponsor = True
+        sponsor.origin = "remote"
+
+        if not sponsor.id:
+            request.db.add(sponsor)
 
     request.db.commit()
