@@ -24,7 +24,7 @@ from ...common.db.sponsors import SponsorFactory
 
 @pytest.fixture
 def fake_task_request():
-    cfg = {"pythondotorg.host": "API_HOST", "pythondotorg.api_token": "API_TOKEN"}
+    cfg = {"pythondotorg.host": "https://API_HOST", "pythondotorg.api_token": "API_TOKEN"}
     request = pretend.stub(registry=pretend.stub(settings=cfg))
     return request
 

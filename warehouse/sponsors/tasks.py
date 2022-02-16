@@ -29,12 +29,9 @@ def update_pypi_sponsors(request):
     host = request.registry.settings["pythondotorg.host"]
     token = request.registry.settings["pythondotorg.api_token"]
     headers = {"Authorization": f"Token {token}"}
-    protocol = "https"
-    if "localhost" in host:
-        protocol = "http"
 
     qs = urlencode({"publisher": "pypi", "flight": "sponsors"})
-    url = f"{protocol}://{host}/api/v2/sponsors/logo-placement/?{qs}"
+    url = f"{host}/api/v2/sponsors/logo-placement/?{qs}"
     response = requests.get(url, headers=headers)
     response.raise_for_status()
 
