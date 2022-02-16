@@ -10,13 +10,15 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 from urllib.parse import urlencode
-from requests.exceptions import HTTPError
 
 import pretend
 import pytest
 
+from requests.exceptions import HTTPError
+
 from warehouse.sponsors import tasks
 from warehouse.sponsors.models import Sponsor
+
 from ...common.db.sponsors import SponsorFactory
 
 
@@ -26,21 +28,24 @@ def fake_task_request():
     request = pretend.stub(registry=pretend.stub(settings=cfg))
     return request
 
+
 @pytest.fixture
 def sponsor_api_data():
-    return [{
-      "publisher": "pypi",
-      "flight": "sponsors",
-      "sponsor": "Sponsor Name",
-      "sponsor_slug": "sponsor-name",
-      "description": "Sponsor description",
-      "logo": "https://logourl.com",
-      "start_date": "2021-02-17",
-      "end_date": "2022-02-17",
-      "sponsor_url": "https://sponsor.example.com/",
-      "level_name": "Partner",
-      "level_order": 5
-    }]
+    return [
+        {
+            "publisher": "pypi",
+            "flight": "sponsors",
+            "sponsor": "Sponsor Name",
+            "sponsor_slug": "sponsor-name",
+            "description": "Sponsor description",
+            "logo": "https://logourl.com",
+            "start_date": "2021-02-17",
+            "end_date": "2022-02-17",
+            "sponsor_url": "https://sponsor.example.com/",
+            "level_name": "Partner",
+            "level_order": 5,
+        }
+    ]
 
 
 def test_raise_error_if_invalid_response(monkeypatch, db_request, fake_task_request):
@@ -61,8 +66,12 @@ def test_raise_error_if_invalid_response(monkeypatch, db_request, fake_task_requ
     assert requests.get.calls == [pretend.call(expected_url, headers=headers)]
 
 
-def test_create_new_sponsor_if_no_matching(monkeypatch, db_request, fake_task_request, sponsor_api_data):
-    response = pretend.stub(raise_for_status=lambda: None, json=lambda: sponsor_api_data)
+def test_create_new_sponsor_if_no_matching(
+    monkeypatch, db_request, fake_task_request, sponsor_api_data
+):
+    response = pretend.stub(
+        raise_for_status=lambda: None, json=lambda: sponsor_api_data
+    )
     requests = pretend.stub(get=pretend.call_recorder(lambda url, headers: response))
     monkeypatch.setattr(tasks, "requests", requests)
     assert 0 == len(db_request.db.query(Sponsor).all())
@@ -89,8 +98,12 @@ def test_create_new_sponsor_if_no_matching(monkeypatch, db_request, fake_task_re
     assert 5 == db_sponsor.level_order
 
 
-def test_update_remote_sponsor_with_same_name_with_new_logo(monkeypatch, db_request, fake_task_request, sponsor_api_data):
-    response = pretend.stub(raise_for_status=lambda: None, json=lambda: sponsor_api_data)
+def test_update_remote_sponsor_with_same_name_with_new_logo(
+    monkeypatch, db_request, fake_task_request, sponsor_api_data
+):
+    response = pretend.stub(
+        raise_for_status=lambda: None, json=lambda: sponsor_api_data
+    )
     requests = pretend.stub(get=pretend.call_recorder(lambda url, headers: response))
     monkeypatch.setattr(tasks, "requests", requests)
     created_sponsor = SponsorFactory.create(
@@ -125,8 +138,12 @@ def test_update_remote_sponsor_with_same_name_with_new_logo(monkeypatch, db_requ
     assert 5 == db_sponsor.level_order
 
 
-def test_do_not_update_if_not_psf_sponsor(monkeypatch, db_request, fake_task_request, sponsor_api_data):
-    response = pretend.stub(raise_for_status=lambda: None, json=lambda: sponsor_api_data)
+def test_do_not_update_if_not_psf_sponsor(
+    monkeypatch, db_request, fake_task_request, sponsor_api_data
+):
+    response = pretend.stub(
+        raise_for_status=lambda: None, json=lambda: sponsor_api_data
+    )
     requests = pretend.stub(get=pretend.call_recorder(lambda url, headers: response))
     monkeypatch.setattr(tasks, "requests", requests)
     infra_sponsor = SponsorFactory.create(
@@ -146,8 +163,12 @@ def test_do_not_update_if_not_psf_sponsor(monkeypatch, db_request, fake_task_req
     assert "sponsor-name" != db_sponsor.slug
 
 
-def test_update_remote_sponsor_with_same_slug_with_new_logo(monkeypatch, db_request, fake_task_request, sponsor_api_data):
-    response = pretend.stub(raise_for_status=lambda: None, json=lambda: sponsor_api_data)
+def test_update_remote_sponsor_with_same_slug_with_new_logo(
+    monkeypatch, db_request, fake_task_request, sponsor_api_data
+):
+    response = pretend.stub(
+        raise_for_status=lambda: None, json=lambda: sponsor_api_data
+    )
     requests = pretend.stub(get=pretend.call_recorder(lambda url, headers: response))
     monkeypatch.setattr(tasks, "requests", requests)
     created_sponsor = SponsorFactory.create(
@@ -169,8 +190,12 @@ def test_update_remote_sponsor_with_same_slug_with_new_logo(monkeypatch, db_requ
     assert "Sponsor description" == db_sponsor.service
 
 
-def test_flag_existing_psf_sponsor_to_false_if_not_present_in_api_response(monkeypatch, db_request, fake_task_request, sponsor_api_data):
-    response = pretend.stub(raise_for_status=lambda: None, json=lambda: sponsor_api_data)
+def test_flag_existing_psf_sponsor_to_false_if_not_present_in_api_response(
+    monkeypatch, db_request, fake_task_request, sponsor_api_data
+):
+    response = pretend.stub(
+        raise_for_status=lambda: None, json=lambda: sponsor_api_data
+    )
     requests = pretend.stub(get=pretend.call_recorder(lambda url, headers: response))
     monkeypatch.setattr(tasks, "requests", requests)
     created_sponsor = SponsorFactory.create(
@@ -186,7 +211,9 @@ def test_flag_existing_psf_sponsor_to_false_if_not_present_in_api_response(monke
     tasks.update_pypi_sponsors(fake_task_request)
 
     assert 2 == len(db_request.db.query(Sponsor).all())
-    created_sponsor = db_request.db.query(Sponsor).filter(Sponsor.id == created_sponsor.id).one()
+    created_sponsor = (
+        db_request.db.query(Sponsor).filter(Sponsor.id == created_sponsor.id).one()
+    )
     # no longer PSF sponsor but stay active as sidebar/footer sponsor
     assert created_sponsor.psf_sponsor is False
     assert created_sponsor.sidebar is True

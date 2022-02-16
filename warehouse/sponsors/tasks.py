@@ -9,11 +9,12 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-from sqlalchemy import true, or_
-from sqlalchemy.exc import NoResultFound
 from urllib.parse import urlencode
 
 import requests
+
+from sqlalchemy import or_, true
+from sqlalchemy.exc import NoResultFound
 
 from warehouse import tasks
 from warehouse.sponsors.models import Sponsor
@@ -38,14 +39,18 @@ def update_pypi_sponsors(request):
     response.raise_for_status()
 
     # deactivate current PSF sponsors to keep it up to date with API
-    request.db.query(Sponsor).filter(Sponsor.psf_sponsor == true()).update({'psf_sponsor': False})
+    request.db.query(Sponsor).filter(Sponsor.psf_sponsor == true()).update(
+        {"psf_sponsor": False}
+    )
 
     for sponsor_info in response.json():
         name = sponsor_info["sponsor"]
         slug = sponsor_info["sponsor_slug"]
         query = request.db.query(Sponsor)
         try:
-            sponsor = query.filter(or_(Sponsor.name == name, Sponsor.slug == slug)).one()
+            sponsor = query.filter(
+                or_(Sponsor.name == name, Sponsor.slug == slug)
+            ).one()
             if sponsor.infra_sponsor or sponsor.one_time:
                 continue
         except NoResultFound:
