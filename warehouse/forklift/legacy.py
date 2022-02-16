@@ -1131,6 +1131,9 @@ def file_upload(request):
                     },
                 )
             ),
+            # This has the effect of removing any preceding v character
+            # https://www.python.org/dev/peps/pep-0440/#preceding-v-character
+            version=str(packaging.version.parse(form.version.data)),
             canonical_version=canonical_version,
             description=Description(
                 content_type=form.description_content_type.data,
@@ -1143,7 +1146,6 @@ def file_upload(request):
                 for k in {
                     # This is a list of all the fields in the form that we
                     # should pull off and insert into our new release.
-                    "version",
                     "summary",
                     "license",
                     "author",
