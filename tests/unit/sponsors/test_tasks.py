@@ -24,7 +24,10 @@ from ...common.db.sponsors import SponsorFactory
 
 @pytest.fixture
 def fake_task_request():
-    cfg = {"pythondotorg.host": "https://API_HOST", "pythondotorg.api_token": "API_TOKEN"}
+    cfg = {
+        "pythondotorg.host": "https://API_HOST",
+        "pythondotorg.api_token": "API_TOKEN",
+    }
     request = pretend.stub(registry=pretend.stub(settings=cfg))
     return request
 
@@ -159,6 +162,7 @@ def test_do_not_update_if_not_psf_sponsor(
 
     assert 1 == len(db_request.db.query(Sponsor).all())
     db_sponsor = db_request.db.query(Sponsor).one()
+    assert db_sponsor.id == infra_sponsor.id
     assert "manual" == db_sponsor.origin
     assert "sponsor-name" != db_sponsor.slug
 
