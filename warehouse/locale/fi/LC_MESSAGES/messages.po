@@ -2603,7 +2603,8 @@ msgid "from %(ip_address)s"
 msgstr ""
 
 #: warehouse/templates/manage/manage_base.html:16
-#: warehouse/templates/manage/projects.html:108
+#: warehouse/templates/manage/projects.html:106
+#: warehouse/templates/manage/projects.html:111
 #: warehouse/templates/manage/releases.html:88
 msgid "Manage"
 msgstr ""
@@ -2870,42 +2871,43 @@ msgstr "Luotu %(creation_date)s"
 msgid "Sole owner"
 msgstr ""
 
-#: warehouse/templates/manage/projects.html:92
+#: warehouse/templates/manage/projects.html:94
 msgid "PyPI requires 2FA to be enabled to manage this project"
 msgstr ""
 
-#: warehouse/templates/manage/projects.html:94
+#: warehouse/templates/manage/projects.html:96
 msgid "This project requires 2FA to be enabled to manage"
 msgstr ""
 
-#: warehouse/templates/manage/projects.html:96
+#: warehouse/templates/manage/projects.html:98
 #, fuzzy
 #| msgid "(required)"
 msgid "2FA Required"
 msgstr "(pakollinen)"
 
-#: warehouse/templates/manage/projects.html:103
+#: warehouse/templates/manage/projects.html:105
 msgid "Manage this project"
 msgstr ""
 
-#: warehouse/templates/manage/projects.html:106
+#: warehouse/templates/manage/projects.html:110
 msgid "You are not an owner of this project"
 msgstr "Et ole tämän projektin omistaja"
 
-#: warehouse/templates/manage/projects.html:114
+#: warehouse/templates/manage/projects.html:118
 msgid "View this project's public page"
 msgstr ""
 
-#: warehouse/templates/manage/projects.html:117
-msgid "This project has no releases"
-msgstr ""
-
 #: warehouse/templates/manage/projects.html:119
+#: warehouse/templates/manage/projects.html:122
 #: warehouse/templates/manage/releases.html:94
 msgid "View"
 msgstr ""
 
-#: warehouse/templates/manage/projects.html:126
+#: warehouse/templates/manage/projects.html:121
+msgid "This project has no releases"
+msgstr ""
+
+#: warehouse/templates/manage/projects.html:131
 #, python-format
 msgid ""
 "You have not uploaded any projects to PyPI, yet. To learn how to get "
