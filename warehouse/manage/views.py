@@ -71,6 +71,8 @@ from warehouse.manage.forms import (
     ProvisionWebAuthnForm,
     SaveAccountForm,
 )
+from warehouse.oidc.forms import GitHubProviderForm
+from warehouse.oidc.models import GitHubProvider
 from warehouse.packaging.models import (
     File,
     JournalEntry,
@@ -992,17 +994,65 @@ def manage_project_settings(project, request):
     }
 
 
-@view_config(
-    route_name="manage.project.settings.oidc",
+@view_defaults(
     context=Project,
+    route_name="manage.project.settings.oidc",
     renderer="manage/oidc.html",
     uses_session=True,
+    require_csrf=True,
+    require_methods=False,
     permission="manage:project",
     has_translations=True,
     require_reauth=True,
 )
-def manage_project_oidc(project, request):
-    return {"project": project}
+class ManageOIDCProviderViews:
+    def __init__(self, project, request):
+        self.request = request
+        self.project = project
+
+    @property
+    def default_response(self):
+        return {
+            "project": self.project,
+            "github_provider_form": GitHubProviderForm(),
+        }
+
+    @view_config(request_method="GET")
+    def manage_project_oidc_providers(self):
+        return self.default_response
+
+    @view_config(request_method="POST")
+    def add_github_oidc_provider(self, _form_class=GitHubProviderForm):
+        form = _form_class(self.request.POST)
+
+        if form.validate():
+            provider = GitHubProvider(
+                repository_name=form.repository,
+                owner=form.owner,
+                owner_id=form.owner_id,
+                workflow_name=form.workflow_name.data,
+            )
+
+            self.request.db.add(provider)
+            self.project.oidc_providers.append(provider)
+
+            self.project.record_event(
+                tag="project:oidc:provider-added",
+                ip_address=self.request.remote_addr,
+                additional={
+                    "provider": "github",
+                    "repository": form.repository_slug.data,
+                    "workflow": form.workflow_name.data,
+                },
+            )
+
+            self.request.session.flash(
+                f"Added {form.workflow_name.data} on {form.repository_slug.data} "
+                f"to {self.project.name}",
+                queue="success",
+            )
+
+        return {**self.default_response, "github_provider_form": form}
 
 
 def get_user_role_in_project(project, user, request):

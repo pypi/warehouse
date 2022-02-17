@@ -62,25 +62,15 @@
     OIDC providers provide a credential-free way to authenticate when uploading packages to PyPI.
     {% endtrans %}
   </p>
-  <!-- if OIDC is enabled for user -->
-  <p class="no-bottom-padding">
-    {% if project.oidc_providers %}
-    <p>{% trans %}Current providers:{% endtrans %}</p>
-    <ul>
-      {% for provider in project.oidc_providers %}
-      <li>{{ provider }}</li>
-      {% endfor %}
-    </ul>
-    {% else %}
-    <p>{% trans %}No providers are currently configured.{% endtrans %}</p>
-    {% endif %}
-
-    {% trans href=request.route_path('manage.project.settings.oidc'), project_name=project.name %}
+  <!-- if OIDC is enabled for project -->
+  <p>
+    {% trans href=request.route_path('manage.project.settings.oidc', project_name=project.name), project_name=project.name %}
     <a href="{{ href }}" class="button button--primary">
-      Add an OIDC provider to {{ project_name }}
+      Manage OIDC providers for {{ project_name }}
     </a>
     {% endtrans %}
   </p>
+
   <hr>
 
   <div class="callout-block" data-controller="dismissable" data-dismissable-identifier="settings">

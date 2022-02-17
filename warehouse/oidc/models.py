@@ -43,7 +43,10 @@ class OIDCProvider(db.Model):
         backref="oidc_providers",
     )
 
-    __mapper_args__ = {"polymorphic_on": discriminator}
+    __mapper_args__ = {
+        "polymorphic_identity": "oidc_providers",
+        "polymorphic_on": discriminator,
+    }
 
     # A map of claim names to "check" functions, each of which
     # has the signature `check(ground-truth, signed-claim) -> bool`.
@@ -85,7 +88,8 @@ class OIDCProvider(db.Model):
         unaccounted_claims = known_claims.difference(signed_claims.keys())
         if unaccounted_claims:
             sentry_sdk.capture_message(
-                f"JWT for {self.__class__.__name__} has unaccounted claims: {unaccounted_claims}"
+                f"JWT for {self.__class__.__name__} has unaccounted claims: "
+                f"{unaccounted_claims}"
             )
 
         # Finally, perform the actual claim verification.
@@ -95,10 +99,15 @@ class OIDCProvider(db.Model):
 
         return True
 
+    @property
+    def provider_name():
+        # Only concrete subclasses of OIDCProvider are constructed.
+        return NotImplemented
+
 
 class GitHubProvider(OIDCProvider):
     __tablename__ = "github_oidc_providers"
-    __mapper_args__ = {"polymorphic_identity": "GitHubProvider"}
+    __mapper_args__ = {"polymorphic_identity": "github_oidc_providers"}
 
     id = Column(UUID(as_uuid=True), ForeignKey(OIDCProvider.id), primary_key=True)
     repository_name = Column(String)
@@ -126,6 +135,10 @@ class GitHubProvider(OIDCProvider):
         "event_name",
         "ref_type",
     }
+
+    @property
+    def provider_name():
+        return "github"
 
     @property
     def repository(self):
