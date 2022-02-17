@@ -559,7 +559,7 @@ def test_analyze_disclosure(monkeypatch):
 
     find = pretend.call_recorder(lambda *a, **kw: database_macaroon)
     delete = pretend.call_recorder(lambda *a, **kw: None)
-    record_event = pretend.call_recorder(lambda *a, **kw: None)
+    record_event = pretend.call_recorder(lambda user_id, *, tag, additional=None: None)
     svc = {
         utils.IMetricsService: pretend.stub(increment=metrics_increment),
         utils.IMacaroonService: pretend.stub(
@@ -596,7 +596,6 @@ def test_analyze_disclosure(monkeypatch):
         pretend.call(
             user_id,
             tag="account:api_token:removed_leak",
-            ip_address="127.0.0.1",
             additional={
                 "macaroon_id": "12",
                 "public_url": "http://example.com",

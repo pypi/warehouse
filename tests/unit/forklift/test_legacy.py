@@ -99,7 +99,7 @@ class TestExcWithMessage:
 
 
 class TestValidation:
-    @pytest.mark.parametrize("version", ["1.0", "30a1", "1!1", "1.0-1"])
+    @pytest.mark.parametrize("version", ["1.0", "30a1", "1!1", "1.0-1", "v1.0"])
     def test_validates_valid_pep440_version(self, version):
         form, field = pretend.stub(), pretend.stub(data=version)
         legacy._validate_pep440_version(form, field)
@@ -2968,7 +2968,17 @@ class TestFileUpload:
 
         assert release.uploaded_via == "warehouse-tests/6.6.6"
 
-    def test_upload_succeeds_creates_release(self, pyramid_config, db_request, metrics):
+    # here
+    @pytest.mark.parametrize(
+        "version, expected_version",
+        [
+            ("1.0", "1.0"),
+            ("v1.0", "1.0"),
+        ],
+    )
+    def test_upload_succeeds_creates_release(
+        self, pyramid_config, db_request, metrics, version, expected_version
+    ):
         pyramid_config.testing_securitypolicy(userid=1)
 
         user = UserFactory.create()
@@ -2987,7 +2997,7 @@ class TestFileUpload:
             {
                 "metadata_version": "1.2",
                 "name": project.name,
-                "version": "1.0",
+                "version": version,
                 "summary": "This is my summary!",
                 "filetype": "sdist",
                 "md5_digest": _TAR_GZ_PKG_MD5,
@@ -3023,7 +3033,9 @@ class TestFileUpload:
         # Ensure that a Release object has been created.
         release = (
             db_request.db.query(Release)
-            .filter((Release.project == project) & (Release.version == "1.0"))
+            .filter(
+                (Release.project == project) & (Release.version == expected_version)
+            )
             .one()
         )
         assert release.summary == "This is my summary!"
@@ -3035,6 +3047,7 @@ class TestFileUpload:
         assert set(release.project_urls) == {"Test, https://example.com/"}
         assert set(release.requires_external) == {"Cheese (>1.0)"}
         assert set(release.provides) == {"testing"}
+        assert release.version == expected_version
         assert release.canonical_version == "1"
         assert release.uploaded_via == "warehouse-tests/6.6.6"
 
