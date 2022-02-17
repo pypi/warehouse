@@ -1004,6 +1004,7 @@ def manage_project_settings(project, request):
     permission="manage:project",
     has_translations=True,
     require_reauth=True,
+    http_cache=0,
 )
 class ManageOIDCProviderViews:
     def __init__(self, project, request):
@@ -1053,6 +1054,8 @@ class ManageOIDCProviderViews:
             )
 
         return {**self.default_response, "github_provider_form": form}
+
+    # TODO: DELETE handler for removing OIDC providers
 
 
 def get_user_role_in_project(project, user, request):
