@@ -84,39 +84,44 @@
         </div>
         <div class="package-snippet__buttons">
 
-          {% if not user_has_two_factor and project.name in projects_requiring_2fa %}
-          <a
-            href="{{ request.route_path('manage.account.two-factor') }}"
-            class="button button--danger"
-            {% if project.pypi_mandates_2fa %}
-            title="{% trans %}PyPI requires 2FA to be enabled to manage this project{% endtrans %}"
-            {% else %}
-            title="{% trans %}This project requires 2FA to be enabled to manage{% endtrans %}"
-            {% endif %}
-          >{% trans %}2FA Required{% endtrans %}</a>
+          {% if project.name in projects_owned %}
+            {% if not user_has_two_factor and project.name in projects_requiring_2fa %}
+            {# Show 2FA required button #}
+            <a
+              href="{{ request.route_path('manage.account.two-factor') }}"
+              class="button button--danger"
+              {% if project.pypi_mandates_2fa %}
+              title="{% trans %}PyPI requires 2FA to be enabled to manage this project{% endtrans %}"
+              {% else %}
+              title="{% trans %}This project requires 2FA to be enabled to manage{% endtrans %}"
+              {% endif %}
+            >{% trans %}2FA Required{% endtrans %}</a>
 
-          {% else %}
-          <a
+            {% else %}
+            {# Show manage button #}
+            <a
             href="{{ request.route_path('manage.project.releases', project_name=project.normalized_name) }}"
             class="button button--primary"
-            {% if project.name in projects_owned %}
             title="{% trans %}Manage this project{% endtrans %}"
-            {% else %}
-            disabled
-            title="{% trans %}You are not an owner of this project{% endtrans %}"
-            {% endif %}
             >{% trans %}Manage{% endtrans %}</a>
+            {% endif %}
+          {% else %}
+          {# Show disabled button #}
+          <button class="button button--primary" disabled title="{% trans %}You are not an owner of this project{% endtrans %}">
+            {% trans %}Manage{% endtrans %}
+          </button>
           {% endif %}
+          {% if project.releases %}
           <a
             href="{{ request.route_path('packaging.project', name=project.normalized_name) }}"
             class="button"
-            {% if project.releases %}
             title="{% trans %}View this project's public page{% endtrans %}"
-            {% else %}
-            disabled
-            title="{% trans %}This project has no releases{% endtrans %}"
-            {% endif %}
             >{% trans %}View{% endtrans %}</a>
+          {% else %}
+          <button class="button" disabled title="{% trans %}This project has no releases{% endtrans %}" >
+            {% trans %}View{% endtrans %}
+          </button>
+          {% endif %}
         </div>
       </div>
     </div>
