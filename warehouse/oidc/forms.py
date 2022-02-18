@@ -25,14 +25,16 @@ _VALID_GITHUB_OWNER_REPO_SLUG = re.compile(
 
 
 class GitHubProviderForm(forms.Form):
+    __params__ = ["repository_slug", "workflow_name"]
+
     repository_slug = wtforms.StringField(
         validators=[
-            wtforms.validators.DataRequired(message="Specify repository slug"),
+            wtforms.validators.DataRequired(message=_("Specify repository slug")),
         ]
     )
 
     workflow_name = wtforms.StringField(
-        validators=[wtforms.validators.DataRequired(message="Specify workflow name")]
+        validators=[wtforms.validators.DataRequired(message=_("Specify workflow name"))]
     )
 
     def validate_repository_slug(self, field):
@@ -78,3 +80,18 @@ class GitHubProviderForm(forms.Form):
             raise wtforms.validators.ValidationError(
                 _("Workflow name must end with .yml or .yaml")
             )
+
+        if "/" in workflow_name:
+            raise wtforms.validators.ValidationError(
+                _("Workflow name must be a basename, without directories")
+            )
+
+
+class DeleteProviderForm(forms.Form):
+    __params__ = ["provider_id"]
+
+    provider_id = wtforms.StringField(
+        validators=[
+            wtforms.validators.UUID(message=_("Provider must be specified by ID"))
+        ]
+    )

@@ -100,7 +100,7 @@ class OIDCProvider(db.Model):
         return True
 
     @property
-    def provider_name():
+    def provider_name(self):
         # Only concrete subclasses of OIDCProvider are constructed.
         return NotImplemented
 
@@ -108,6 +108,10 @@ class OIDCProvider(db.Model):
 class GitHubProvider(OIDCProvider):
     __tablename__ = "github_oidc_providers"
     __mapper_args__ = {"polymorphic_identity": "github_oidc_providers"}
+
+    # TODO: We could make the constraints here smarter, e.g. make every
+    # GitHubProvider unique on (repository_name, owner_id, workflow_name).
+    # Is it worth it?
 
     id = Column(UUID(as_uuid=True), ForeignKey(OIDCProvider.id), primary_key=True)
     repository_name = Column(String)
@@ -137,8 +141,8 @@ class GitHubProvider(OIDCProvider):
     }
 
     @property
-    def provider_name():
-        return "github"
+    def provider_name(self):
+        return "GitHub"
 
     @property
     def repository(self):
@@ -155,3 +159,6 @@ class GitHubProvider(OIDCProvider):
     @property
     def workflow(self):
         return self.workflow_name
+
+    def __str__(self):
+        return f"{self.workflow_name} @ {self.repository}"

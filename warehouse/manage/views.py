@@ -71,8 +71,8 @@ from warehouse.manage.forms import (
     ProvisionWebAuthnForm,
     SaveAccountForm,
 )
-from warehouse.oidc.forms import GitHubProviderForm
-from warehouse.oidc.models import GitHubProvider
+from warehouse.oidc.forms import DeleteProviderForm, GitHubProviderForm
+from warehouse.oidc.models import GitHubProvider, OIDCProvider
 from warehouse.packaging.models import (
     File,
     JournalEntry,
@@ -1022,9 +1022,9 @@ class ManageOIDCProviderViews:
     def manage_project_oidc_providers(self):
         return self.default_response
 
-    @view_config(request_method="POST")
-    def add_github_oidc_provider(self, _form_class=GitHubProviderForm):
-        form = _form_class(self.request.POST)
+    @view_config(request_method="POST", request_param=GitHubProviderForm.__params__)
+    def add_github_oidc_provider(self):
+        form = GitHubProviderForm(self.request.POST)
 
         if form.validate():
             provider = GitHubProvider(
@@ -1048,14 +1048,24 @@ class ManageOIDCProviderViews:
             )
 
             self.request.session.flash(
-                f"Added {form.workflow_name.data} on {form.repository_slug.data} "
-                f"to {self.project.name}",
+                f"Added {provider} to {self.project.name}",
                 queue="success",
             )
 
         return {**self.default_response, "github_provider_form": form}
 
-    # TODO: DELETE handler for removing OIDC providers
+    @view_config(request_method="POST", request_param=DeleteProviderForm.__params__)
+    def delete_oidc_provider(self):
+        form = DeleteProviderForm(self.request.POST)
+
+        if form.validate():
+            provider = self.request.db.query(OIDCProvider).get(form.provider_id.data)
+            # TODO: Check that provider is not None here?
+            self.project.oidc_providers.remove(provider)
+
+            self.request.session.flash(f"Removed {provider} from {self.project.name}")
+
+        return self.default_response
 
 
 def get_user_role_in_project(project, user, request):

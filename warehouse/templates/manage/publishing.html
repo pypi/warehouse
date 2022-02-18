@@ -27,6 +27,25 @@
 {% set title = "PyPI" %}
 {% endif %}
 
+{% macro provider_row(provider) -%}
+<form id="delete-provider-{{ provider.id }}" method="POST" action="{{ request.route_path('manage.project.settings.oidc', project_name=project.name) }}">
+  <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
+  <input name="provider_id" type="hidden" value="{{ provider.id }}">
+</form>
+
+<tr>
+  <td scope="row">
+    {{ provider.provider_name }}
+  </td>
+  <td scope="row">
+    {{ provider|string }}
+  </td>
+  <td scope="row">
+    <input form="delete-provider-{{ provider.id }}" type="submit" value="{% trans %}Remove{% endtrans %}" class="button button--danger"></input>
+  </td>
+</tr>
+{%- endmacro %}
+
 <div class="horizontal-section">
   <div class="site-container">
     <h1 class="page-title">{% trans %}OIDC provider management{% endtrans %}</h1>
@@ -83,11 +102,23 @@
 
     <h2>{% trans %}Manage current providers{% endtrans %}</h2>
     {% if project.oidc_providers %}
-    <ul>
-      {% for provider in project.oidc_providers %}
-      <li>{{ provider }}</li>
-      {% endfor %}
-    </ul>
+    <table class="table">
+      <caption class="sr-only">
+        {% trans project_name=project.name %}OIDC providers associated with {{ project_name }}{% endtrans %}
+      </caption>
+      <thead>
+        <tr>
+          <th scope="col">{% trans %}Provider{% endtrans %}</th>
+          <th scope="col">{% trans %}Specification{% endtrans %}</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for provider in project.oidc_providers %}
+        {{ provider_row(provider) }}
+        {% endfor %}
+      </tbody>
+    </table>
     {% else %}
     <p class="no-bottom-padding">{% trans %}No providers are currently configured.{% endtrans %}</p>
     {% endif %}
