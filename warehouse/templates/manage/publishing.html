@@ -12,13 +12,15 @@
  # limitations under the License.
 -#}
 
-{% extends "manage_base.html" %}
+{% extends "manage_project_base.html" %}
+
+{% set active_tab = 'publishing' %}
 
 {% block title %}
   {% trans %}OIDC provider management{% endtrans %}
 {% endblock %}
 
-{% block content %}
+{% block main %}
 {% if testPyPI %}
 {% set title = "TestPyPI" %}
 {% else %}

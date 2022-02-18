@@ -997,7 +997,7 @@ def manage_project_settings(project, request):
 @view_defaults(
     context=Project,
     route_name="manage.project.settings.oidc",
-    renderer="manage/oidc.html",
+    renderer="manage/publishing.html",
     uses_session=True,
     require_csrf=True,
     require_methods=False,
