@@ -52,8 +52,7 @@ def update_pypi_sponsors(request):
                 continue
         except NoResultFound:
             sponsor = Sponsor()
-            if not sponsor.id:
-                request.db.add(sponsor)
+            request.db.add(sponsor)
 
         sponsor.name = name
         sponsor.slug = slug
