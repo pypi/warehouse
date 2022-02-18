@@ -83,7 +83,7 @@
 {% macro file_size_limit() %}{% trans %}How do I get a file size limit exemption or increase for my project?{% endtrans %}{% endmacro %}
 {% macro project_size_limit() %}{% trans %}How do I get a total project size limit exemption or increase for my project?{% endtrans %}{% endmacro %}
 {% macro vulnerability_data() %}{% trans %}Where does PyPI get its data on project vulnerabilities from, and how can I correct it?{% endtrans %}{% endmacro %}
-
+{% macro description_render_failure() %}{% trans %}Why am I getting "the description failed to render" error?{% endtrans %}{% endmacro %}
 
 {% macro file_name_reuse() %}{% trans %}Why am I getting a "Filename or contents already exists" or "Filename has been previously used" error?{% endtrans %}{% endmacro %}
 {% macro project_name() %}{% trans %}Why isn't my desired project name available?{% endtrans %}{% endmacro %}
@@ -165,6 +165,7 @@
       <section class="faq-group faq-group--list">
         <h2><a href="#troubleshooting">{% trans %}Troubleshooting{% endtrans %}</a></h2>
         <ul>
+          <li><a href="#description-render-failure">{{ description_render_failure() }}</a></li>
           <li><a href="#uploading">{{ uploading() }}</a></li>
           <li><a href="#login-problem">{{ login_problem() }}</a></li>
           <li><a href="#account-recovery">{{ account_recovery() }}</a></li>
@@ -861,6 +862,13 @@
           {% trans trimmed href='https://pypy.org/', title=gettext('External link') %}
             "PyPI" should be pronounced like "pie pea eye", specifically with the "PI" pronounced as individual letters, rather as a single sound.
             This minimizes confusion with the <a href="{{ href }}" title="{{ title }}">PyPy</a> project, which is a popular alternative implementation of the Python language.
+          {% endtrans %}
+        </p>
+
+        <h3 id="description-render-failure">{{ description_render_failure() }}</h3>
+        <p>
+          {% trans trimmed href='https://twine.readthedocs.io/en/latest/#twine-check', title=gettext('External link') %}
+            To diagnose a description render error, use twine's <a href="{{ href }}" title="{{ title }}">check command</a>.
           {% endtrans %}
         </p>
 
