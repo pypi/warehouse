@@ -27,6 +27,4 @@ def includeme(config):
 
     # Add a periodic task to update sponsors table
     if config.registry.settings.get("pythondotorg.api_token"):
-        config.add_periodic_task(
-            crontab(minute=10), update_pypi_sponsors
-        )
+        config.add_periodic_task(crontab(minute=10), update_pypi_sponsors)

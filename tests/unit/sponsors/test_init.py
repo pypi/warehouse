@@ -27,7 +27,7 @@ def test_includeme():
     config = pretend.stub(
         add_request_method=pretend.call_recorder(lambda f, name, reify: None),
         add_periodic_task=pretend.call_recorder(lambda crontab, task: None),
-        registry=pretend.stub(settings=settings)
+        registry=pretend.stub(settings=settings),
     )
 
     sponsors.includeme(config)
@@ -45,7 +45,7 @@ def test_do_not_schedule_sponsor_api_integration_if_no_token():
     config = pretend.stub(
         add_request_method=pretend.call_recorder(lambda f, name, reify: None),
         add_periodic_task=pretend.call_recorder(lambda crontab, task: None),
-        registry=pretend.stub(settings=settings)
+        registry=pretend.stub(settings=settings),
     )
 
     sponsors.includeme(config)
