@@ -1027,21 +1027,45 @@ class ManageOIDCProviderViews:
         form = GitHubProviderForm(self.request.POST)
 
         if form.validate():
-            provider = GitHubProvider(
-                repository_name=form.repository,
-                owner=form.owner,
-                owner_id=form.owner_id,
-                workflow_name=form.workflow_name.data,
+            # GitHub OIDC providers are unique on the tuple of
+            # (repository_name, owner, workflow_name), so we check for
+            # an already registered one before creating.
+            provider = (
+                self.request.db.query(GitHubProvider)
+                .filter(
+                    GitHubProvider.repository_name == form.repository,
+                    GitHubProvider.owner == form.owner,
+                    GitHubProvider.workflow_name == form.workflow_name.data,
+                )
+                .one_or_none()
             )
+            if provider is None:
+                provider = GitHubProvider(
+                    repository_name=form.repository,
+                    owner=form.owner,
+                    owner_id=form.owner_id,
+                    workflow_name=form.workflow_name.data,
+                )
 
-            self.request.db.add(provider)
+                self.request.db.add(provider)
+
+            # Each project has a unique registration of OIDC providers,
+            # even though the relationship is many-many.
+            if provider in self.project.oidc_providers:
+                self.request.session.flash(
+                    f"{provider} is already registered with {self.project.name}",
+                    queue="error",
+                )
+                return {**self.default_response, "github_provider_form": form}
+
             self.project.oidc_providers.append(provider)
 
             self.project.record_event(
                 tag="project:oidc:provider-added",
                 ip_address=self.request.remote_addr,
                 additional={
-                    "provider": "github",
+                    "provider": provider.provider_name,
+                    "id": str(provider.id),
                     "repository": form.repository_slug.data,
                     "workflow": form.workflow_name.data,
                 },
@@ -1052,7 +1076,7 @@ class ManageOIDCProviderViews:
                 queue="success",
             )
 
-        return {**self.default_response, "github_provider_form": form}
+        return self.default_response
 
     @view_config(request_method="POST", request_param=DeleteProviderForm.__params__)
     def delete_oidc_provider(self):
@@ -1060,8 +1084,23 @@ class ManageOIDCProviderViews:
 
         if form.validate():
             provider = self.request.db.query(OIDCProvider).get(form.provider_id.data)
-            # TODO: Check that provider is not None here?
+            if provider not in self.project.oidc_providers:
+                self.request.session.flash(
+                    f"{provider} is not registered to {self.project.name}",
+                    queue="error",
+                )
+                return self.default_response
+
             self.project.oidc_providers.remove(provider)
+
+            self.project.record_event(
+                tag="project:oidc:provider-removed",
+                ip_address=self.request.remote_addr,
+                additional={
+                    "provider": provider.provider_name,
+                    "id": str(provider.id),
+                },
+            )
 
             self.request.session.flash(f"Removed {provider} from {self.project.name}")
 

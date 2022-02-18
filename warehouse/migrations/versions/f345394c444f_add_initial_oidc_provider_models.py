@@ -60,6 +60,9 @@ def upgrade():
             ["oidc_providers.id"],
         ),
         sa.PrimaryKeyConstraint("id"),
+        sa.UniqueConstraint(
+            "repository_name", "owner", "workflow_name", name="_github_oidc_provider_uc"
+        ),
     )
     op.create_table(
         "oidc_provider_project_association",

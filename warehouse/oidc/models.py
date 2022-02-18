@@ -12,7 +12,7 @@
 
 import sentry_sdk
 
-from sqlalchemy import Column, ForeignKey, String, orm
+from sqlalchemy import Column, ForeignKey, String, UniqueConstraint, orm
 from sqlalchemy.dialects.postgresql import UUID
 
 from warehouse import db
@@ -108,10 +108,14 @@ class OIDCProvider(db.Model):
 class GitHubProvider(OIDCProvider):
     __tablename__ = "github_oidc_providers"
     __mapper_args__ = {"polymorphic_identity": "github_oidc_providers"}
-
-    # TODO: We could make the constraints here smarter, e.g. make every
-    # GitHubProvider unique on (repository_name, owner_id, workflow_name).
-    # Is it worth it?
+    __table_args__ = (
+        UniqueConstraint(
+            "repository_name",
+            "owner",
+            "workflow_name",
+            name="_github_oidc_provider_uc",
+        ),
+    )
 
     id = Column(UUID(as_uuid=True), ForeignKey(OIDCProvider.id), primary_key=True)
     repository_name = Column(String)
