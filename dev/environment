@@ -43,6 +43,3 @@ VAULT_URL="http://vault:8200"
 VAULT_TOKEN="an insecure vault access token"
 
 GITHUB_TOKEN_SCANNING_META_API_URL="http://notgithub:8000/meta/public_keys/token_scanning"
-
-PYTHONDOTORG_HOST="http://localhost:8000"
-PYTHONDOTORG_API_TOKEN="an insecure api token"
