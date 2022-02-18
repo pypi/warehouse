@@ -34,7 +34,7 @@ def test_includeme():
         pretend.call(sponsors._sponsors, name="sponsors", reify=True),
     ]
     assert config.add_periodic_task.calls == [
-        pretend.call(crontab(minute=0, hour=3, day_of_week=0), update_pypi_sponsors),
+        pretend.call(crontab(minute=10), update_pypi_sponsors),
     ]
 
 

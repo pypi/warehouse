@@ -27,5 +27,5 @@ def includeme(config):
 
     # Add a periodic task to update sponsors table
     config.add_periodic_task(
-        crontab(minute=0, hour=3, day_of_week=0), update_pypi_sponsors
+        crontab(minute=10), update_pypi_sponsors
     )
