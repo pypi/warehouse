@@ -11,13 +11,14 @@
 # Murtaja Ziad <murtaja.ziad2014@gmail.com>, 2020.
 # mfezzat <muhammedezzat@yahoo.com>, 2021.
 # AbdulRahman Ahmed <abdo1ahmed2saad@gmail.com>, 2021.
+# Hassani Mohammed <mouhamedtec@gmail.com>, 2022.
 msgid ""
 msgstr ""
 "Project-Id-Version: Warehouse VERSION\n"
 "Report-Msgid-Bugs-To: admin@pypi.org\n"
 "POT-Creation-Date: 2020-01-15 20:11+0200\n"
-"PO-Revision-Date: 2021-05-05 02:13+0000\n"
-"Last-Translator: AbdulRahman Ahmed <abdo1ahmed2saad@gmail.com>\n"
+"PO-Revision-Date: 2022-02-18 15:37+0000\n"
+"Last-Translator: Hassani Mohammed <mouhamedtec@gmail.com>\n"
 "Language-Team: Arabic <https://hosted.weblate.org/projects/pypa/warehouse/ar/"
 ">\n"
 "Language: ar\n"
@@ -26,14 +27,14 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=6; plural=n==0 ? 0 : n==1 ? 1 : n==2 ? 2 : n%100>=3 "
 "&& n%100<=10 ? 3 : n%100>=11 ? 4 : 5;\n"
-"X-Generator: Weblate 4.7-dev\n"
+"X-Generator: Weblate 4.11-dev\n"
 "Generated-By: Babel 2.7.0\n"
 
 #: warehouse/views.py:113
 msgid ""
 "Two-factor authentication must be enabled on your account to perform this "
 "action."
-msgstr ""
+msgstr "يجب تمكين المصادقة الثنائية على حسابك لتنفيذ هذا الإجراء."
 
 #: warehouse/views.py:273
 msgid "Locale updated"
@@ -123,7 +124,7 @@ msgstr "رمز الاسترداد غير صالح."
 
 #: warehouse/accounts/forms.py:411
 msgid "Recovery code has been previously used."
-msgstr ""
+msgstr "تم استخدام رمز الاسترداد مسبقًا."
 
 #: warehouse/accounts/forms.py:430
 msgid "No user found with that username or email"
@@ -273,7 +274,7 @@ msgstr "تم تحديث صلاحياتك لتكن ${role} فى المشروع ${
 
 #: warehouse/admin/templates/admin/banners/preview.html:15
 msgid "Banner Preview"
-msgstr ""
+msgstr "معاينة البانر"
 
 #: warehouse/manage/views.py:214
 msgid "Email ${email_address} added - check your email for a verification link"
@@ -716,27 +717,27 @@ msgstr "استخدام فهرس حزم بايثون"
 
 #: warehouse/templates/base.html:292
 msgid "Using PyPI navigation"
-msgstr ""
+msgstr "استخدام تنقل PyPI"
 
 #: warehouse/templates/base.html:294
 msgid "Code of conduct"
-msgstr ""
+msgstr "مدونة قواعد السلوك"
 
 #: warehouse/templates/base.html:295
 msgid "Report security issue"
-msgstr ""
+msgstr "الإبلاغ عن مشكلة أمنية"
 
 #: warehouse/templates/base.html:296
 msgid "Privacy policy"
-msgstr ""
+msgstr "سياسة الخصوصية"
 
 #: warehouse/templates/base.html:297 warehouse/templates/pages/sitemap.html:43
 msgid "Terms of use"
-msgstr ""
+msgstr "شروط الاستخدام"
 
 #: warehouse/templates/base.html:307
 msgid "Status: "
-msgstr ""
+msgstr "الحالة: "
 
 #: warehouse/templates/base.html:308
 msgid "all systems operational"
@@ -745,25 +746,23 @@ msgstr ""
 #: warehouse/templates/base.html:312
 msgid ""
 "Developed and maintained by the Python community, for the Python community."
-msgstr ""
+msgstr "تم تطويره وصيانته من قبل مجتمع Python لمجتمع Python."
 
 #: warehouse/templates/base.html:314
 msgid "Donate today!"
-msgstr ""
+msgstr "تبرع الآن!"
 
 #: warehouse/templates/base.html:317 warehouse/templates/pages/sitemap.html:16
 msgid "Site map"
-msgstr ""
+msgstr "خارطة الموقع"
 
 #: warehouse/templates/base.html:323
 msgid "Switch to desktop version"
-msgstr ""
+msgstr "انتقل إلى إصدار سطح المكتب"
 
 #: warehouse/templates/confirm-action.html:17
-#, fuzzy
-#| msgid "Confirm form"
 msgid "Confirm Action"
-msgstr "استمارة التأكيد"
+msgstr "تأكيد الإجراء"
 
 #: warehouse/templates/error-base.html:31
 msgid "Error code"
@@ -782,10 +781,8 @@ msgid "Test Python package publishing with the Test Python Package Index"
 msgstr "اختبر نشر حزمات بايثون باستخدام ال Test Python Package Index"
 
 #: warehouse/templates/index.html:45
-#, fuzzy
-#| msgid "Test Python package publishing with the Test Python Package Index"
 msgid "Develop the codebase behind PyPI with the Dev Python Package Index"
-msgstr "اختبر نشر حزمات بايثون باستخدام ال Test Python Package Index"
+msgstr "طوّر قاعدة الكود وراء PyPI باستخدام فهرس حزم Python Dev"
 
 #: warehouse/templates/index.html:47
 msgid "Find, install and publish Python packages with the Python Package Index"
@@ -853,19 +850,16 @@ msgstr ""
 "وتثبيتها."
 
 #: warehouse/templates/index.html:112
-#, fuzzy
-#| msgid "Learn about installing packages</a>."
 msgid "Learn about installing packages"
-msgstr "تعرف على تثبيت الحزمات</a>."
+msgstr "تعرف على كيفية تثبيت الحزم"
 
 #: warehouse/templates/index.html:115
 msgid "Package authors use PyPI to distribute their software."
 msgstr "مؤلفو الحزمات يستخدمون PyPI لتوزيع برمجياتهم."
 
 #: warehouse/templates/index.html:116
-#, fuzzy
 msgid "Learn how to package your Python code for PyPI"
-msgstr "تعرف على كيفية تعبئة كود بايثون الخاص بك لPyPI."
+msgstr "تعرف على كيفية تجميع حزمة من كود البايثون الخاص بك لـ PyPI"
 
 #: warehouse/templates/index.html:126
 msgid "Trending projects"
@@ -905,10 +899,8 @@ msgid "Confirm password"
 msgstr "تأكيد كلمة السر"
 
 #: warehouse/templates/re-auth.html:30
-#, fuzzy
-#| msgid "Confirm password"
 msgid "Confirm password to continue"
-msgstr "تأكيد كلمة السر"
+msgstr "قم بتأكيد كلمة المرور للمتابعة"
 
 #: warehouse/templates/accounts/login.html:69
 #: warehouse/templates/accounts/register.html:110
@@ -998,10 +990,8 @@ msgid ""
 msgstr "غير ذلك، نقترح <a href=\"%(href)s\">زيارة صفحة PyPI الرئيسية</a>."
 
 #: warehouse/templates/accounts/invite-confirmation.html:17
-#, fuzzy
-#| msgid "Confirm form"
 msgid "Confirm Invite"
-msgstr "استمارة التأكيد"
+msgstr "تأكيد الدعوة"
 
 #: warehouse/templates/accounts/invite-confirmation.html:26
 #, python-format
@@ -1015,12 +1005,12 @@ msgstr ""
 #: warehouse/templates/accounts/invite-confirmation.html:32
 #: warehouse/templates/manage/projects.html:49
 msgid "Accept"
-msgstr ""
+msgstr "موافق"
 
 #: warehouse/templates/accounts/invite-confirmation.html:33
 #: warehouse/templates/manage/projects.html:50
 msgid "Decline"
-msgstr ""
+msgstr "رفض"
 
 #: warehouse/templates/accounts/login.html:30
 #, python-format
@@ -1051,26 +1041,25 @@ msgid "Log out of %(account_name)s"
 msgstr "تسجيل الخروج من %(account_name)s"
 
 #: warehouse/templates/accounts/profile.html:16
-#, fuzzy, python-format
-#| msgid "Select a username"
+#, python-format
 msgid "Profile of %(username)s"
-msgstr "اختيار اسم مستخدم"
+msgstr "حساب المستخدم %(username)s"
 
 #: warehouse/templates/accounts/profile.html:23
 #: warehouse/templates/manage/account.html:223
 #: warehouse/templates/manage/roles.html:62
 #: warehouse/templates/manage/roles.html:125
 msgid "Avatar for {user} from gravatar.com"
-msgstr ""
+msgstr "صورة رمزية للمستخدم {user} من gravatar.com"
 
 #: warehouse/templates/accounts/profile.html:43
 msgid "Date joined"
-msgstr ""
+msgstr "تاريخ الانضمام"
 
 #: warehouse/templates/accounts/profile.html:44
 #, python-format
 msgid "Joined %(start_date)s"
-msgstr ""
+msgstr "انضم بتاريخ %(start_date)s"
 
 #: warehouse/templates/accounts/profile.html:58
 #, python-format
@@ -1090,43 +1079,35 @@ msgstr[4] ""
 msgstr[5] ""
 
 #: warehouse/templates/accounts/profile.html:64
-#, fuzzy
-#| msgid "Search projects"
 msgid "No projects"
-msgstr "بحث في المشاريع"
+msgstr "لا توجد مشاريع"
 
 #: warehouse/templates/accounts/profile.html:73
 #: warehouse/templates/manage/projects.html:34
 #: warehouse/templates/manage/projects.html:74
 #, python-format
 msgid "Last released %(release_date)s"
-msgstr ""
+msgstr "آخر إصدار بتاريخ %(release_date)s"
 
 #: warehouse/templates/accounts/profile.html:81
 #, python-format
 msgid "%(user)s has not uploaded any projects to PyPI, yet"
-msgstr ""
+msgstr "لم يقم المستخدم %(user)s ، برفع أي مشروع بعد."
 
 #: warehouse/templates/accounts/recovery-code.html:18
 #: warehouse/templates/manage/manage_base.html:39
-#, fuzzy
-#| msgid "Error code"
 msgid "Recovery codes"
-msgstr "كود خطأ"
+msgstr "كود الإستعادة"
 
 #: warehouse/templates/accounts/recovery-code.html:24
 #: warehouse/templates/accounts/two-factor.html:119
-#, fuzzy
-#| msgid "Error code"
 msgid "Login using recovery codes"
-msgstr "كود خطأ"
+msgstr "قم بالدخول بإستعمال رمز الإستعادة"
 
 #: warehouse/templates/accounts/recovery-code.html:40
 #: warehouse/templates/manage/account/recovery_codes-burn.html:68
-#, fuzzy
-#| msgid "Error code"
 msgid "Enter recovery code"
-msgstr "كود خطأ"
+msgstr "أدخل رمز الإستعادة"
 
 #: warehouse/templates/accounts/recovery-code.html:55
 #: warehouse/templates/accounts/two-factor.html:102
@@ -1141,12 +1122,14 @@ msgid ""
 "in the form to verify your identity. Once used, the recovery code will no "
 "longer be valid."
 msgstr ""
+"يسمح PyPI بإنشاء أكواد الإستعادة ليتم تخزينها بشكل آمن في وضع عدم الاتصال في "
+"حالة فقد جهازك أو تطبيقك. أدخل أحد هذه الرموز في النموذج للتحقق من هويتك. "
+"بمجرد استخدامه ، لن يعد رمز الإستعادة صالحًا."
 
 #: warehouse/templates/accounts/recovery-code.html:59
-#, fuzzy, python-format
-#| msgid "Lost your device? Not working? <a href=\"%(href)s\">Get help</a>."
+#, python-format
 msgid "<p>Not working? <a href=\"%(href)s\">Get help</a>.</p>"
-msgstr "هل فقدت جهازك؟ لا يعمل؟ <a href=\"%(href)s\">اعثر على مساعدة</a>."
+msgstr "<p>لا يزال لا يعمل ؟ <a href=\"%(href)s\">أحصل على مساعدة</a></p>"
 
 #: warehouse/templates/accounts/register.html:18
 msgid "Create an account"
@@ -1201,6 +1184,9 @@ msgid ""
 "cannot be used. Please refer to the <a href=\"/help/#compromised-password"
 "\">FAQ</a> for more information."
 msgstr ""
+"تظهر كلمة المرور هذه في خرق أمني أو تم اختراقها ولا يمكن استخدامها. يرجى "
+"الرجوع إلى <a href=\"/help/#compromised-password\"> الأسئلة الشائعة </a> "
+"لمزيد من المعلومات."
 
 #: warehouse/templates/accounts/register.html:162
 msgid "Create account"
@@ -1315,7 +1301,7 @@ msgstr ""
 
 #: warehouse/templates/accounts/two-factor.html:117
 msgid "Lost your security key or application?"
-msgstr ""
+msgstr "هل فقدت مفتاح الأمان أو التطبيق الخاص بك؟"
 
 #: warehouse/templates/accounts/two-factor.html:122
 #, python-format
@@ -1356,15 +1342,13 @@ msgstr ""
 "عن طريق %(submitter)s."
 
 #: warehouse/templates/email/added-as-collaborator/body.html:24
-#, fuzzy, python-format
-#| msgid ""
-#| "You are receiving this because you have been added by %(submitter)s to a "
-#| "project on %(site)s."
+#, python-format
 msgid ""
 "You are receiving this because you have been added by %(initiator_username)s "
 "to a project on %(site)s."
 msgstr ""
-"تتلقى هذه الرسالة لأن تمت إضافتك عن طريق %(submitter)s لمشروع على %(site)s."
+"تتلقى هذه الرسالة لأن تمت إضافتك عن طريق %(initiator_username)s لمشروع على "
+"%(site)s."
 
 #: warehouse/templates/email/password-change/body.html:18
 #, python-format
@@ -1563,28 +1547,32 @@ msgid ""
 "PyPI\n"
 "account!\n"
 msgstr ""
+"\n"
+"إذا فقدت تطبيق المصادقة أو مفتاح (مفاتيح) الأمان ولم يكن لديك\n"
+"الوصول إلى رموز الاسترداد هذه ، قد تفقد الوصول إلى حساب PyPI الخاص بك بشكل "
+"دائم!\n"
 
 #: warehouse/templates/email/recovery-code-reminder/body.html:35
-#, fuzzy, python-format
-#| msgid ""
-#| "To regain access to your account, <a href=\"%(href)s\">reset your "
-#| "password</a> on PyPI."
+#, python-format
 msgid ""
 "\n"
 "You can generate recovery codes for your account here:\n"
 "<a href=\"%(href)s\">%(href)s</a>\n"
 msgstr ""
+"\n"
 "لإستعادة الوصول الى حسابك، برجاء <a href=\"%(href)s\">تغيير كلمة السر الخاصة "
-"بك</a> على PyPI."
+"بك</a> على PyPI.\n"
 
 #: warehouse/templates/email/recovery-code-used/body.html:19
-#, fuzzy, python-format
-#| msgid "Your PyPI account <strong>%(username)s</strong> has been deleted."
+#, python-format
 msgid ""
 "\n"
 "A recovery code for your PyPI account <strong>%(username)s</strong> has been "
 "used.\n"
-msgstr "حساب PyPI الخاص بك <strong>%(username)s</strong> تمت إزالته."
+msgstr ""
+"\n"
+"رمز الاسترداد الخاص بحساب المستخدم<strong>%(username)s</strong>مستعمل سابقا ."
+"\n"
 
 #: warehouse/templates/email/recovery-code-used/body.html:25
 #: warehouse/templates/email/recovery-codes-generated/body.html:25
@@ -1597,17 +1585,19 @@ msgid ""
 "If you did not make this change, you can email <a href=\"%(href)s\">"
 "%(email_address)s</a> to communicate with the PyPI administrators.\n"
 msgstr ""
-"إذا لم تقم بهذا التغيير، تستطيع إرسال رسالة الى <a href=\"%(href)s\">"
-"%(email_address)s</a> للتواصل مع مديري PyPI."
+"\n"
+"إذا لم تقم بهذا التغيير، تستطيع إرسال رسالة الى <a href=\"%(href)s\""
+">%(email_address)s</a> للتواصل مع مديري PyPI.\n"
 
 #: warehouse/templates/email/recovery-codes-generated/body.html:19
-#, fuzzy, python-format
-#| msgid "Your PyPI account <strong>%(username)s</strong> has been deleted."
+#, python-format
 msgid ""
 "\n"
 "New recovery codes for your PyPI account <strong>%(username)s</strong> have "
 "been generated.\n"
-msgstr "حساب PyPI الخاص بك <strong>%(username)s</strong> تمت إزالته."
+msgstr ""
+"\n"
+"تم توليد رمز الاسترداد الجديد لحساب المستخدم %(username)s\n"
 
 #: warehouse/templates/email/two-factor-added/body.html:18
 #, fuzzy, python-format
@@ -2730,7 +2720,8 @@ msgid "from %(ip_address)s"
 msgstr ""
 
 #: warehouse/templates/manage/manage_base.html:16
-#: warehouse/templates/manage/projects.html:108
+#: warehouse/templates/manage/projects.html:106
+#: warehouse/templates/manage/projects.html:111
 #: warehouse/templates/manage/releases.html:88
 msgid "Manage"
 msgstr ""
@@ -2977,42 +2968,43 @@ msgstr ""
 msgid "Sole owner"
 msgstr ""
 
-#: warehouse/templates/manage/projects.html:92
+#: warehouse/templates/manage/projects.html:94
 msgid "PyPI requires 2FA to be enabled to manage this project"
 msgstr ""
 
-#: warehouse/templates/manage/projects.html:94
+#: warehouse/templates/manage/projects.html:96
 msgid "This project requires 2FA to be enabled to manage"
 msgstr ""
 
-#: warehouse/templates/manage/projects.html:96
+#: warehouse/templates/manage/projects.html:98
 #, fuzzy
 #| msgid "Requires:"
 msgid "2FA Required"
 msgstr "يتطلب:"
 
-#: warehouse/templates/manage/projects.html:103
+#: warehouse/templates/manage/projects.html:105
 msgid "Manage this project"
 msgstr ""
 
-#: warehouse/templates/manage/projects.html:106
+#: warehouse/templates/manage/projects.html:110
 msgid "You are not an owner of this project"
 msgstr ""
 
-#: warehouse/templates/manage/projects.html:114
+#: warehouse/templates/manage/projects.html:118
 msgid "View this project's public page"
 msgstr ""
 
-#: warehouse/templates/manage/projects.html:117
-msgid "This project has no releases"
-msgstr ""
-
 #: warehouse/templates/manage/projects.html:119
+#: warehouse/templates/manage/projects.html:122
 #: warehouse/templates/manage/releases.html:94
 msgid "View"
 msgstr ""
 
-#: warehouse/templates/manage/projects.html:126
+#: warehouse/templates/manage/projects.html:121
+msgid "This project has no releases"
+msgstr ""
+
+#: warehouse/templates/manage/projects.html:131
 #, python-format
 msgid ""
 "You have not uploaded any projects to PyPI, yet. To learn how to get "

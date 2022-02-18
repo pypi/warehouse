@@ -24,7 +24,7 @@ msgstr ""
 "Project-Id-Version: Warehouse VERSION\n"
 "Report-Msgid-Bugs-To: admin@pypi.org\n"
 "POT-Creation-Date: 2020-04-06 17:52-0500\n"
-"PO-Revision-Date: 2022-02-11 15:17+0000\n"
+"PO-Revision-Date: 2022-02-14 11:21+0000\n"
 "Last-Translator: Nathan <bonnemainsnathan@gmail.com>\n"
 "Language-Team: French <https://hosted.weblate.org/projects/pypa/warehouse/fr/"
 ">\n"
@@ -1598,14 +1598,13 @@ msgid ""
 "strong>, which has two-factor authentication enabled, but haven't generated\n"
 "recovery codes for this account.\n"
 msgstr ""
+"\n"
+"Nous avons remarqué que vous vous êtes récemment connecté à votre compte "
+"PyPI <strong>%(username)s</strong>, pour lequel l'authentification à deux "
+"facteurs est activée, mais que vous n'avez pas\n"
+"généré de codes de récupération pour ce compte.\n"
 
 #: warehouse/templates/email/recovery-code-reminder/body.html:27
-#, fuzzy
-#| msgid ""
-#| "<strong>Keep these somewhere safe</strong>. If you lose your "
-#| "authentication application or security key(s) and do not have access to "
-#| "these recovery codes, you may permanently lose access to your PyPI "
-#| "account!"
 msgid ""
 "\n"
 "If you lose your authentication application or security key(s) and do not "
@@ -1614,23 +1613,23 @@ msgid ""
 "PyPI\n"
 "account!\n"
 msgstr ""
-"<strong>Conservez-les dans un endroit sûr</strong>. Si vous perdez l'accès à "
-"votre application ou à votre/vos clé(s) de sécurité et n'avez plus accès à "
-"ces codes de récupération, vous pourriez perdre définitivement l'accès à "
-"votre compte PyPI !"
+"\n"
+"Si vous perdez l'accès à votre application ou à votre/vos clé(s) de sécurité "
+"et n'avez\n"
+"plus accès à ces codes de récupération, vous pourriez perdre définitivement "
+"l'accès à\n"
+"votre compte PyPI !\n"
 
 #: warehouse/templates/email/recovery-code-reminder/body.html:35
-#, fuzzy, python-format
-#| msgid ""
-#| "To regain access to your account, <a href=\"%(href)s\">reset your "
-#| "password</a> on PyPI."
+#, python-format
 msgid ""
 "\n"
 "You can generate recovery codes for your account here:\n"
 "<a href=\"%(href)s\">%(href)s</a>\n"
 msgstr ""
-"Pour récupérer l'accès à votre compte, veuillez <a href=\"%(href)s"
-"\">réinitialiser votre mot de passe</a> sur PyPI."
+"\n"
+"Vous pouvez générer des codes de récupération pour votre compte ici :\n"
+"<a href=\"%(href)s\">%(href)s</a>\n"
 
 #: warehouse/templates/email/recovery-code-used/body.html:19
 #, python-format
@@ -2841,7 +2840,8 @@ msgid "from %(ip_address)s"
 msgstr "depuis %(ip_address)s"
 
 #: warehouse/templates/manage/manage_base.html:16
-#: warehouse/templates/manage/projects.html:108
+#: warehouse/templates/manage/projects.html:106
+#: warehouse/templates/manage/projects.html:111
 #: warehouse/templates/manage/releases.html:88
 msgid "Manage"
 msgstr "Gérer"
@@ -3136,44 +3136,45 @@ msgstr "Créé le %(creation_date)s"
 msgid "Sole owner"
 msgstr "Unique propriétaire"
 
-#: warehouse/templates/manage/projects.html:92
+#: warehouse/templates/manage/projects.html:94
 msgid "PyPI requires 2FA to be enabled to manage this project"
 msgstr ""
 "PyPI nécessite que l'authentification à deux facteurs soit activée pour "
 "gérer ce projet"
 
-#: warehouse/templates/manage/projects.html:94
+#: warehouse/templates/manage/projects.html:96
 msgid "This project requires 2FA to be enabled to manage"
 msgstr ""
 "Ce projet nécessite que l'authentification à deux facteurs soit activée pour "
 "être géré"
 
-#: warehouse/templates/manage/projects.html:96
+#: warehouse/templates/manage/projects.html:98
 msgid "2FA Required"
 msgstr "Authentification à deux facteurs nécessaire"
 
-#: warehouse/templates/manage/projects.html:103
+#: warehouse/templates/manage/projects.html:105
 msgid "Manage this project"
 msgstr "Gérer ce projet"
 
-#: warehouse/templates/manage/projects.html:106
+#: warehouse/templates/manage/projects.html:110
 msgid "You are not an owner of this project"
 msgstr "Vous n'êtes pas propriétaire de ce projet"
 
-#: warehouse/templates/manage/projects.html:114
+#: warehouse/templates/manage/projects.html:118
 msgid "View this project's public page"
 msgstr "Consulter la page publique de ce projet"
 
-#: warehouse/templates/manage/projects.html:117
-msgid "This project has no releases"
-msgstr "Ce projet n'a pas de version"
-
 #: warehouse/templates/manage/projects.html:119
+#: warehouse/templates/manage/projects.html:122
 #: warehouse/templates/manage/releases.html:94
 msgid "View"
 msgstr "Voir"
 
-#: warehouse/templates/manage/projects.html:126
+#: warehouse/templates/manage/projects.html:121
+msgid "This project has no releases"
+msgstr "Ce projet n'a pas de version"
+
+#: warehouse/templates/manage/projects.html:131
 #, python-format
 msgid ""
 "You have not uploaded any projects to PyPI, yet. To learn how to get "

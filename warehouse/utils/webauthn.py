@@ -11,6 +11,7 @@
 # limitations under the License.
 
 import base64
+import json
 
 import webauthn as pywebauthn
 
@@ -19,7 +20,7 @@ from webauthn.helpers.exceptions import (
     InvalidAuthenticationResponse,
     InvalidRegistrationResponse,
 )
-from webauthn.helpers.options_to_json import converter
+from webauthn.helpers.options_to_json import options_to_json
 from webauthn.helpers.structs import (
     AttestationConveyancePreference,
     AuthenticationCredential,
@@ -100,7 +101,7 @@ def get_credential_options(user, *, challenge, rp_name, rp_id):
         attestation=AttestationConveyancePreference.NONE,
         authenticator_selection=_authenticator_selection,
     )
-    return converter.unstructure(options)
+    return json.loads(options_to_json(options))
 
 
 def get_assertion_options(user, *, challenge, rp_id):
@@ -116,8 +117,7 @@ def get_assertion_options(user, *, challenge, rp_id):
         ),
         user_verification=UserVerificationRequirement.DISCOURAGED,
     )
-
-    return converter.unstructure(options)
+    return json.loads(options_to_json(options))
 
 
 def verify_registration_response(response, challenge, *, rp_id, origin):
