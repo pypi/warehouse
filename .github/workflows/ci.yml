@@ -33,7 +33,7 @@ jobs:
             needs-python: ${{ true }}
             needs-node: ${{ false }}
           - name: Translations
-            command: make translations BINDIR="$(dirname $(which python))"
+            command: bin/translations
             needs-python: ${{ true }}
             needs-node: ${{ false }}
           - name: Static Tests

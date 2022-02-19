@@ -165,40 +165,11 @@ purge: stop clean
 stop:
 	docker-compose down -v
 
-compile-pot: .state/env/pyvenv.cfg
-	PYTHONPATH=$(PWD) $(BINDIR)/pybabel extract \
-		-F babel.cfg \
-		--omit-header \
-		--output="warehouse/locale/messages.pot" \
-		warehouse
+translations: .state/docker-build
+	docker-compose run --rm web env -i ENCODING="C.UTF-8" \
+								  PATH="/opt/warehouse/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin" \
+								  bin/translations
 
-init-po: .state/env/pyvenv.cfg
-	$(BINDIR)/pybabel init \
-		--input-file="warehouse/locale/messages.pot" \
-		--output-dir="warehouse/locale/" \
-		--locale="$(L)"
 
-update-po: .state/env/pyvenv.cfg
-	$(BINDIR)/pybabel update \
-		--input-file="warehouse/locale/messages.pot" \
-		--output-file="warehouse/locale/$(L)/LC_MESSAGES/messages.po" \
-		--locale="$(L)"
-
-compile-po: .state/env/pyvenv.cfg
-	$(BINDIR)/pybabel compile \
-		--input-file="warehouse/locale/$(L)/LC_MESSAGES/messages.po" \
-		--directory="warehouse/locale/" \
-		--locale="$(L)"
-
-build-mos: compile-pot
-	for LOCALE in $(LOCALES) ; do \
-		L=$$LOCALE $(MAKE) compile-po ; \
-		done
-
-translations: compile-pot
-ifneq ($(GITHUB_ACTIONS), false)
-	git diff --quiet ./warehouse/locale/messages.pot || (echo "There are outstanding translations, run 'make translations' and commit the changes."; exit 1)
-else
-endif
 
 .PHONY: default build serve initdb shell tests docs deps clean purge debug stop compile-pot
