@@ -21,7 +21,7 @@ jobs:
             needs-python: ${{ true }}
             needs-node: ${{ false }}
           - name: Documentation
-            command: make docs BINDIR="$(dirname $(which python))"
+            command: bin/docs
             needs-python: ${{ true }}
             needs-node: ${{ false }}
           - name: Dependencies
