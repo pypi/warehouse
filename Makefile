@@ -1,38 +1,13 @@
 BINDIR = $(PWD)/.state/env/bin
-GITHUB_ACTIONS := $(shell echo "$${GITHUB_ACTIONS:-false}")
 GITHUB_BASE_REF := $(shell echo "$${GITHUB_BASE_REF:-false}")
 DB := example
 IPYTHON := no
-LOCALES := $(shell .state/env/bin/python -c "from warehouse.i18n import KNOWN_LOCALES; print(' '.join(set(KNOWN_LOCALES)-{'en'}))")
 
 # set environment variable WAREHOUSE_IPYTHON_SHELL=1 if IPython
 # needed in development environment
 ifeq ($(WAREHOUSE_IPYTHON_SHELL), 1)
     IPYTHON = yes
 endif
-
-define DEPCHECKER
-import sys
-from pip_api import parse_requirements
-
-left, right = sys.argv[1:3]
-left_reqs = parse_requirements(left).keys()
-right_reqs = parse_requirements(right).keys()
-
-extra_in_left = left_reqs - right_reqs
-extra_in_right = right_reqs - left_reqs
-
-if extra_in_left:
-	for dep in sorted(extra_in_left):
-		print("- {}".format(dep))
-
-if extra_in_right:
-	for dep in sorted(extra_in_right):
-		print("+ {}".format(dep))
-
-if extra_in_left or extra_in_right:
-	sys.exit(1)
-endef
 
 default:
 	@echo "Call a specific subcommand:"
@@ -116,17 +91,10 @@ docs: .state/docker-build
 licenses:
 	bin/licenses
 
-export DEPCHECKER
-deps: .state/env/pyvenv.cfg
-	$(eval TMPDIR := $(shell mktemp -d))
-	$(BINDIR)/pip-compile --upgrade --allow-unsafe -o $(TMPDIR)/deploy.txt requirements/deploy.in > /dev/null
-	$(BINDIR)/pip-compile --upgrade --allow-unsafe -o $(TMPDIR)/main.txt requirements/main.in > /dev/null
-	$(BINDIR)/pip-compile --upgrade --allow-unsafe -o $(TMPDIR)/lint.txt requirements/lint.in > /dev/null
-	echo "$$DEPCHECKER" | $(BINDIR)/python - $(TMPDIR)/deploy.txt requirements/deploy.txt
-	echo "$$DEPCHECKER" | $(BINDIR)/python - $(TMPDIR)/main.txt requirements/main.txt
-	echo "$$DEPCHECKER" | $(BINDIR)/python - $(TMPDIR)/lint.txt requirements/lint.txt
-	rm -r $(TMPDIR)
-	$(BINDIR)/pip check
+deps: .state/docker-build
+	docker-compose run --rm web env -i ENCODING="C.UTF-8" \
+								  PATH="/opt/warehouse/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin" \
+								  bin/deps
 
 requirements/%.txt: requirements/%.in .state/env/pyvenv.cfg
 	$(BINDIR)/pip-compile --allow-unsafe --generate-hashes --output-file=$@ $<
@@ -137,7 +105,7 @@ ifneq ($(GITHUB_BASE_REF), false)
 	# Check that the following diff will exit with 0 or 1
 	git diff --name-only FETCH_HEAD || test $? -le 1 || exit 1
 	# Make the dependencies if any changed files are requirements files, otherwise exit
-	git diff --name-only FETCH_HEAD | grep '^requirements/' || exit 0 && $(MAKE) deps
+	git diff --name-only FETCH_HEAD | grep '^requirements/' || exit 0 && bin/deps
 endif
 
 initdb:
