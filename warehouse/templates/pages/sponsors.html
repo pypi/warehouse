@@ -111,7 +111,7 @@
         </div>
         <a href="https://www.python.org/sponsors/application/" target="_blank" rel="noopener" class="sponsor-grid__sponsor-link button button--primary">See sponsorship packages</a>
       </div>
-      {% for sponsor in request.sponsors %}
+      {% for sponsor in request.sponsors | sort(attribute="level_order") %}
         {% if sponsor.psf_sponsor %}
         <div class="sponsor-grid__sponsor">
           <div class="sponsor-grid__sponsor-img">
