@@ -14,7 +14,7 @@ from urllib.parse import urlencode
 import requests
 
 from sqlalchemy import or_, true
-from sqlalchemy.exc import NoResultFound
+from sqlalchemy.exc import MultipleResultsFound, NoResultFound
 
 from warehouse import tasks
 from warehouse.sponsors.models import Sponsor
@@ -50,6 +50,8 @@ def update_pypi_sponsors(request):
             ).one()
             if sponsor.infra_sponsor or sponsor.one_time:
                 continue
+        except MultipleResultsFound:
+            pass
         except NoResultFound:
             sponsor = Sponsor()
             request.db.add(sponsor)
@@ -65,4 +67,4 @@ def update_pypi_sponsors(request):
         sponsor.psf_sponsor = True
         sponsor.origin = "remote"
 
-    request.db.commit()
+    request.db.flush()
