@@ -85,10 +85,10 @@ def test_create_new_sponsor_if_no_matching(
     db_sponsor = db_request.db.query(Sponsor).one()
     assert "sponsor-name" == db_sponsor.slug
     assert "Sponsor Name" == db_sponsor.name
-    assert "Sponsor description" == db_sponsor.service
+    assert "Sponsor description" == db_sponsor.activity_markdown
     assert "https://sponsor.example.com/" == db_sponsor.link_url
     assert "https://logourl.com" == db_sponsor.color_logo_url
-    assert db_sponsor.activity_markdown is None
+    assert db_sponsor.service is None
     assert db_sponsor.white_logo_url is None
     assert db_sponsor.is_active is True
     assert db_sponsor.psf_sponsor is True
@@ -125,7 +125,7 @@ def test_update_remote_sponsor_with_same_name_with_new_logo(
     db_sponsor = db_request.db.query(Sponsor).one()
     assert db_sponsor.id == created_sponsor.id
     assert "sponsor-name" == db_sponsor.slug
-    assert "Sponsor description" == db_sponsor.service
+    assert "Sponsor description" == db_sponsor.activity_markdown
     assert "https://sponsor.example.com/" == db_sponsor.link_url
     assert "https://logourl.com" == db_sponsor.color_logo_url
     assert db_sponsor.activity_markdown is created_sponsor.activity_markdown
@@ -191,7 +191,7 @@ def test_update_remote_sponsor_with_same_slug_with_new_logo(
     db_sponsor = db_request.db.query(Sponsor).one()
     assert db_sponsor.id == created_sponsor.id
     assert "Sponsor Name" == db_sponsor.name
-    assert "Sponsor description" == db_sponsor.service
+    assert "Sponsor description" == db_sponsor.activity_markdown
 
 
 def test_flag_existing_psf_sponsor_to_false_if_not_present_in_api_response(

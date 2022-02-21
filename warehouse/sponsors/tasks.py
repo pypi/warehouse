@@ -56,7 +56,7 @@ def update_pypi_sponsors(request):
 
         sponsor.name = name
         sponsor.slug = slug
-        sponsor.service = sponsor_info["description"]
+        sponsor.activity_markdown = sponsor_info["description"]
         sponsor.link_url = sponsor_info["sponsor_url"]
         sponsor.color_logo_url = sponsor_info["logo"]
         sponsor.level_name = sponsor_info["level_name"]
