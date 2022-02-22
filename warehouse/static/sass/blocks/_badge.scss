@@ -77,6 +77,21 @@
       outline: 1px solid $warning-color;
     }
   }
+
+  &--neutral {
+    background-color: $base-grey;
+    border-color: $base-grey;
+    color: darken($base-grey, 50);
+
+    &:hover {
+      color: darken($base-grey, 60);
+    }
+
+    &:focus,
+    &:active {
+      outline: 1px solid darken($base-grey, 50);
+    }
+  }
 }
 
 a.badge {
