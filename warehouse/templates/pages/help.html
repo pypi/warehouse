@@ -628,8 +628,8 @@
 
         <h3 id="description-render-failure">{{ description_render_failure() }}</h3>
         <p>
-          {% trans trimmed readme_renderer_href='https://pypi.org/project/readme_renderer/', twine_check_href='https://twine.readthedocs.io/en/latest/#twine-check', title=gettext('External link') %}
-            PyPI will reject uploads if the package description fails to render. You may <a href="{{ twine_check_href }}" title="{{ title }}">use twine's check command</a> or <a href="{{ readme_renderer_href }}">readme_renderer</a>, the same description renderer used by PyPI, to locally check a description for validity.
+          {% trans trimmed href='https://twine.readthedocs.io/en/latest/#twine-check', title=gettext('External link') %}
+            PyPI will reject uploads if the package description fails to render. You may <a href="{{ href }}" title="{{ title }}">use twine's check command</a> to locally check a description for validity.
           {% endtrans %}
         </p>
 
