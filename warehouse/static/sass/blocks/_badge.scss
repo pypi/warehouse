@@ -30,6 +30,7 @@
   padding: 0 7px;
   border-radius: 3px;
   font-weight: 600;
+  white-space: nowrap;
   @include link-without-underline;
 
   &:hover {
