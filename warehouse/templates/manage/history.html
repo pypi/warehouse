@@ -84,6 +84,16 @@
       {% trans %}Reason:{% endtrans %} {{ event.additional.yanked_reason }}
     </small></p>
     {% endif %}
+    {% elif event.tag == "project:owners_require_2fa:enabled" %}
+    <strong>{% trans %}2FA requirement enabled{% endtrans %}</strong><br>
+    <small>
+      {% trans %}Enabled by:{% endtrans %} <a href="{{ request.route_path('accounts.profile', username=event.additional.modified_by) }}">{{ event.additional.modified_by }}</a>
+    </small>
+    {% elif event.tag == "project:owners_require_2fa:disabled" %}
+    <strong>{% trans %}2FA requirement disabled{% endtrans %}</strong><br>
+    <small>
+      {% trans %}Disabled by:{% endtrans %} <a href="{{ request.route_path('accounts.profile', username=event.additional.modified_by) }}">{{ event.additional.modified_by }}</a>
+    </small>
     {% else %}
     <strong>{{ event.tag }}</strong>
     {% endif %}

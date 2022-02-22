@@ -1019,12 +1019,22 @@ class ManageProjectSettingsViews:
             )
         elif self.project.owners_require_2fa:
             self.project.owners_require_2fa = False
+            self.project.record_event(
+                tag="project:owners_require_2fa:disabled",
+                ip_address=self.request.remote_addr,
+                additional={"modified_by": self.request.user.username},
+            )
             self.request.session.flash(
                 f"2FA requirement disabled for { self.project.name }",
                 queue="success",
             )
         else:
             self.project.owners_require_2fa = True
+            self.project.record_event(
+                tag="project:owners_require_2fa:enabled",
+                ip_address=self.request.remote_addr,
+                additional={"modified_by": self.request.user.username},
+            )
             self.request.session.flash(
                 f"2FA requirement enabled for { self.project.name }",
                 queue="success",

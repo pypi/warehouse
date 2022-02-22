@@ -2402,23 +2402,10 @@ class TestManageProjectSettings:
             view.toggle_2fa_requirement()
 
     @pytest.mark.parametrize(
-        "owners_require_2fa, pypi_mandates_2fa, expected, expected_flash_calls",
+        "owners_require_2fa, expected, expected_flash_calls",
         [
             (
                 False,
-                False,
-                True,
-                [pretend.call("2FA requirement enabled for foo", queue="success")],
-            ),
-            (
-                True,
-                False,
-                False,
-                [pretend.call("2FA requirement disabled for foo", queue="success")],
-            ),
-            (
-                False,
-                True,
                 False,
                 [
                     pretend.call(
@@ -2428,7 +2415,6 @@ class TestManageProjectSettings:
                 ],
             ),
             (
-                True,
                 True,
                 True,
                 [
@@ -2440,35 +2426,33 @@ class TestManageProjectSettings:
             ),
         ],
     )
-    def test_toggle_2fa_requirement(
+    def test_toggle_2fa_requirement_critical(
         self,
         owners_require_2fa,
-        pypi_mandates_2fa,
         expected,
         expected_flash_calls,
         db_request,
     ):
-        db_request = pretend.stub(
-            registry=pretend.stub(
-                settings={"warehouse.two_factor_requirement.enabled": True}
-            ),
-            session=pretend.stub(
-                flash=pretend.call_recorder(lambda message, queue: None)
-            ),
-            route_path=pretend.call_recorder(lambda *a, **kw: "/foo/bar/"),
+        db_request.registry = pretend.stub(
+            settings={"warehouse.two_factor_requirement.enabled": True}
         )
+        db_request.session = pretend.stub(
+            flash=pretend.call_recorder(lambda message, queue: None)
+        )
+        db_request.route_path = pretend.call_recorder(lambda *a, **kw: "/foo/bar/")
+        db_request.user = pretend.stub(username="foo")
 
         project = ProjectFactory.create(
             name="foo",
             owners_require_2fa=owners_require_2fa,
-            pypi_mandates_2fa=pypi_mandates_2fa,
+            pypi_mandates_2fa=True,
         )
         view = views.ManageProjectSettingsViews(project, db_request)
 
         result = view.toggle_2fa_requirement()
 
         assert project.owners_require_2fa == expected
-        assert project.pypi_mandates_2fa == pypi_mandates_2fa
+        assert project.pypi_mandates_2fa
         assert db_request.session.flash.calls == expected_flash_calls
         assert db_request.route_path.calls == [
             pretend.call("manage.project.settings", project_name="foo")
@@ -2476,6 +2460,68 @@ class TestManageProjectSettings:
         assert isinstance(result, HTTPSeeOther)
         assert result.status_code == 303
         assert result.headers["Location"] == "/foo/bar/"
+
+    @pytest.mark.parametrize(
+        "owners_require_2fa, expected, expected_flash_calls, tag",
+        [
+            (
+                False,
+                True,
+                [pretend.call("2FA requirement enabled for foo", queue="success")],
+                "project:owners_require_2fa:enabled",
+            ),
+            (
+                True,
+                False,
+                [pretend.call("2FA requirement disabled for foo", queue="success")],
+                "project:owners_require_2fa:disabled",
+            ),
+        ],
+    )
+    def test_toggle_2fa_requirement_non_critical(
+        self,
+        owners_require_2fa,
+        expected,
+        expected_flash_calls,
+        tag,
+        db_request,
+    ):
+        db_request.registry = pretend.stub(
+            settings={"warehouse.two_factor_requirement.enabled": True}
+        )
+        db_request.session = pretend.stub(
+            flash=pretend.call_recorder(lambda message, queue: None)
+        )
+        db_request.route_path = pretend.call_recorder(lambda *a, **kw: "/foo/bar/")
+        db_request.user = pretend.stub(username="foo")
+
+        project = ProjectFactory.create(
+            name="foo",
+            owners_require_2fa=owners_require_2fa,
+            pypi_mandates_2fa=False,
+        )
+        view = views.ManageProjectSettingsViews(project, db_request)
+
+        result = view.toggle_2fa_requirement()
+
+        assert project.owners_require_2fa == expected
+        assert not project.pypi_mandates_2fa
+        assert db_request.session.flash.calls == expected_flash_calls
+        assert db_request.route_path.calls == [
+            pretend.call("manage.project.settings", project_name="foo")
+        ]
+        assert isinstance(result, HTTPSeeOther)
+        assert result.status_code == 303
+        assert result.headers["Location"] == "/foo/bar/"
+
+        event = (
+            db_request.db.query(ProjectEvent)
+            .join(ProjectEvent.project)
+            .filter(ProjectEvent.project_id == project.id)
+            .one()
+        )
+        assert event.tag == tag
+        assert event.additional == {"modified_by": db_request.user.username}
 
     def test_delete_project_no_confirm(self):
         project = pretend.stub(normalized_name="foo")
