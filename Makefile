@@ -96,8 +96,10 @@ deps: .state/docker-build
 								  PATH="/opt/warehouse/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin" \
 								  bin/deps
 
-requirements/%.txt: requirements/%.in .state/env/pyvenv.cfg
-	$(BINDIR)/pip-compile --allow-unsafe --generate-hashes --output-file=$@ $<
+requirements/%.txt: requirements/%.in
+	docker-compose run --rm web env -i ENCODING="C.UTF-8" \
+								  PATH="/opt/warehouse/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin" \
+								  bin/pip-compile --allow-unsafe --generate-hashes --output-file=$@ $<
 
 github-actions-deps:
 ifneq ($(GITHUB_BASE_REF), false)
