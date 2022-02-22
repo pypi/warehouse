@@ -89,7 +89,9 @@ docs: .state/docker-build
 								  bin/docs
 
 licenses:
-	bin/licenses
+	docker-compose run --rm web env -i ENCODING="C.UTF-8" \
+	  PATH="/opt/warehouse/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin" \
+	  bin/licenses
 
 deps: .state/docker-build
 	docker-compose run --rm web env -i ENCODING="C.UTF-8" \
