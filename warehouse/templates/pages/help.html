@@ -83,7 +83,7 @@
 {% macro file_size_limit() %}{% trans %}How do I get a file size limit exemption or increase for my project?{% endtrans %}{% endmacro %}
 {% macro project_size_limit() %}{% trans %}How do I get a total project size limit exemption or increase for my project?{% endtrans %}{% endmacro %}
 {% macro vulnerability_data() %}{% trans %}Where does PyPI get its data on project vulnerabilities from, and how can I correct it?{% endtrans %}{% endmacro %}
-
+{% macro description_render_failure() %}{% trans %}Why am I getting "the description failed to render" error?{% endtrans %}{% endmacro %}
 
 {% macro file_name_reuse() %}{% trans %}Why am I getting a "Filename or contents already exists" or "Filename has been previously used" error?{% endtrans %}{% endmacro %}
 {% macro project_name() %}{% trans %}Why isn't my desired project name available?{% endtrans %}{% endmacro %}
@@ -165,6 +165,7 @@
       <section class="faq-group faq-group--list">
         <h2><a href="#troubleshooting">{% trans %}Troubleshooting{% endtrans %}</a></h2>
         <ul>
+          <li><a href="#description-render-failure">{{ description_render_failure() }}</a></li>
           <li><a href="#uploading">{{ uploading() }}</a></li>
           <li><a href="#login-problem">{{ login_problem() }}</a></li>
           <li><a href="#account-recovery">{{ account_recovery() }}</a></li>
@@ -568,7 +569,7 @@
         <h3 id="description-content-type">{{ description_content_type() }}</h3>
         <p>{% trans href='http://docutils.sourceforge.net/rst.html', title=gettext('External link') %}By default, an upload's description will render with <a href="{{ href }}" title="{{ title }}" target="_blank" rel="noopener">reStructuredText</a>. If the description is in an alternate format like Markdown, a package may set the <code>long_description_content_type</code> in <code>setup.py</code> to the alternate format.{% endtrans %}</p>
         <p>{% trans href='https://packaging.python.org/tutorials/distributing-packages/#description', title=gettext('External link') %}Refer to the <a href="{{ href }}" title="{{ title }}" target="_blank" rel="noopener">Python Packaging User Guide</a> for details on the available formats.{% endtrans %}</p>
-        <p>{% trans href='https://pypi.org/project/readme_renderer/' %}PyPI will reject uploads if the description fails to render. To check a description locally for validity, you may use <a href="{{ href }}">readme_renderer</a>, which is the same description renderer used by PyPI.{% endtrans %}</p>
+        <p>For how to check a description for validity, see also: <a href="#description-render-failure">{{ description_render_failure() }}</a></p>
 
         <h3 id="file-size-limit">{{ file_size_limit() }}</h3>
         <p>
@@ -624,6 +625,13 @@
 
       <section class="faq-group" id="troubleshooting">
         <h2>{% trans %}Troubleshooting{% endtrans %}</h2>
+
+        <h3 id="description-render-failure">{{ description_render_failure() }}</h3>
+        <p>
+          {% trans trimmed href='https://twine.readthedocs.io/en/latest/#twine-check', title=gettext('External link') %}
+            PyPI will reject uploads if the package description fails to render. You may <a href="{{ href }}" title="{{ title }}">use twine's check command</a> to locally check a description for validity.
+          {% endtrans %}
+        </p>
 
         <h3 id="login-problem">{{ login_problem() }}</h3>
         <p>{% trans %}If you've forgotten your PyPI password but you remember your email address or username, follow these steps to reset your password:{% endtrans %}</p>

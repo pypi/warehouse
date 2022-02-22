@@ -148,6 +148,11 @@ run all of the needed services. The Warehouse repository will be mounted inside
 the Docker container at :file:`/opt/warehouse/src/`. After the initial build,
 you should not have to run this command again.
 
+.. note::
+
+   On some systems ``make build`` may require the prior installation of libpq
+   and its headers so that psycopg2 can be compiled and installed.
+
 
 .. _running-warehouse-containers:
 
