@@ -65,7 +65,7 @@ jobs:
       - uses: actions/setup-python@v2
         if: ${{ matrix.needs-python }}
         with:
-          python-version: 3.8.9
+          python-version: 3.9.10
       - name: Cache Python dependencies
         if: ${{ matrix.needs-python }}
         uses: actions/cache@v2
