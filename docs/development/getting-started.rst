@@ -58,9 +58,9 @@ Configure the development environment
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. note::
-   In case you are used to using a venv/virtualenv or virtual environment for Python development:
-   don't use one for warehouse development. Our Makefile scripts and Docker container development flow
-   creates and removes virtualenvs as needed while you are building and testing your work locally.
+   In case you are used to using a virtual environment for Python development:
+   it's unnecessary for Warehouse development. Our Makefile scripts execute all
+   developer actions inside Docker containers.
 
 Why Docker?
 ~~~~~~~~~~~
@@ -68,10 +68,10 @@ Why Docker?
 Docker simplifies development environment set up.
 
 Warehouse uses Docker and `Docker Compose <https://docs.docker.com/compose/>`_
-to automate setting up a "batteries included" development environment.
-The Dockerfile and :file:`docker-compose.yml` files include all the required steps
-for installing and configuring all the required external services of the
-development environment.
+to automate setting up a "batteries included" development environment. The
+:file:`Dockerfile` and :file:`docker-compose.yml` files include all the
+required steps for installing and configuring all the required external
+services of the development environment.
 
 
 Installing Docker
@@ -157,12 +157,6 @@ This will pull down all of the required docker containers, build Warehouse and
 run all of the needed services. The Warehouse repository will be mounted inside
 the Docker container at :file:`/opt/warehouse/src/`. After the initial build,
 you should not have to run this command again.
-
-.. note::
-
-   On some systems ``make build`` may require the prior installation of libpq
-   and its headers so that psycopg2 can be compiled and installed.
-
 
 .. _running-warehouse-containers:
 
@@ -344,21 +338,6 @@ Errors when executing ``make build``
 
       snap install docker
 
-* If you receive the error: ``python3.9: command not found``, ensure you have
-  Python 3.9 installed on your system.
-  This is the "base" Python version that Warehouse uses to create the rest of
-  the development environment.
-
-* If you are using macOS and you see an
-  ``Error: pg_config executable not found.`` message while building ``psycopg``,
-  you can fix it by installing ``libpq`` via ``brew`` and adding it to your
-  ``PATH``:
-
-  .. code-block:: console
-
-      brew install libpq
-      export PATH="/usr/local/opt/libpq/bin:$PATH"
-
 Errors when executing ``make serve``
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
@@ -425,6 +404,9 @@ https://github.com/chadoe/docker-cleanup-volumes)
 This typically occur when Docker is not allocated enough memory to perform the
 migrations. Try modifying your Docker configuration to allow more RAM for each
 container, temporarily stop ``make_serve`` and run ``make initdb`` again.
+
+This may also be due to enabling Compose V2 (see
+https://github.com/pypa/warehouse/issues/10772 for more details).
 
 
 ``make initdb`` complains about PostgreSQL Version
