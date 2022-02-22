@@ -1,4 +1,3 @@
-BINDIR = $(PWD)/.state/env/bin
 GITHUB_BASE_REF := $(shell echo "$${GITHUB_BASE_REF:-false}")
 DB := example
 IPYTHON := no
@@ -18,24 +17,6 @@ default:
 	| egrep -v -e '^[^[:alnum:]]' -e '^$@$$'
 	@echo
 	@exit 1
-
-.state/env/pyvenv.cfg: requirements/dev.txt requirements/docs.txt requirements/lint.txt requirements/ipython.txt
-	# Create our Python 3.9 virtual environment
-	rm -rf .state/env
-	python3.9 -m venv .state/env
-
-	# install/upgrade general requirements
-	.state/env/bin/python -m pip install --upgrade pip setuptools wheel
-
-	# install various types of requirements
-	.state/env/bin/python -m pip install -r requirements/dev.txt
-	.state/env/bin/python -m pip install -r requirements/docs.txt
-	.state/env/bin/python -m pip install -r requirements/lint.txt
-
-	# install ipython if enabled
-ifeq ($(IPYTHON),"yes")
-	.state/env/bin/python -m pip install -r requirements/ipython.txt
-endif
 
 .state/docker-build: Dockerfile package.json package-lock.json requirements/main.txt requirements/deploy.txt
 	# Build our docker containers for this project.
@@ -60,33 +41,33 @@ debug: .state/docker-build
 
 tests: .state/docker-build
 	docker-compose run --rm web env -i ENCODING="C.UTF-8" \
-								  PATH="/opt/warehouse/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin" \
-								  bin/tests --postgresql-host db $(T) $(TESTARGS)
+	  PATH="/opt/warehouse/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin" \
+	  bin/tests --postgresql-host db $(T) $(TESTARGS)
 
 static_tests: .state/docker-build
 	docker-compose run --rm static env -i ENCODING="C.UTF-8" \
-								  PATH="/opt/warehouse/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin" \
-								  bin/static_tests $(T) $(TESTARGS)
+	  PATH="/opt/warehouse/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin" \
+	  bin/static_tests $(T) $(TESTARGS)
 
 static_pipeline: .state/docker-build
 	docker-compose run --rm static env -i ENCODING="C.UTF-8" \
-								  PATH="/opt/warehouse/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin" \
-								  bin/static_pipeline $(T) $(TESTARGS)
+	  PATH="/opt/warehouse/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin" \
+	  bin/static_pipeline $(T) $(TESTARGS)
 
 reformat: .state/docker-build
 	docker-compose run --rm web env -i ENCODING="C.UTF-8" \
-								  PATH="/opt/warehouse/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin" \
-								  bin/reformat
+	  PATH="/opt/warehouse/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin" \
+	  bin/reformat
 
 lint: .state/docker-build
 	docker-compose run --rm web env -i ENCODING="C.UTF-8" \
-								  PATH="/opt/warehouse/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin" \
-								  bin/lint && bin/static_lint
+	  PATH="/opt/warehouse/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin" \
+	  bin/lint && bin/static_lint
 
 docs: .state/docker-build
 	docker-compose run --rm web env -i ENCODING="C.UTF-8" \
-								  PATH="/opt/warehouse/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin" \
-								  bin/docs
+	  PATH="/opt/warehouse/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin" \
+	  bin/docs
 
 licenses:
 	docker-compose run --rm web env -i ENCODING="C.UTF-8" \
@@ -95,13 +76,13 @@ licenses:
 
 deps: .state/docker-build
 	docker-compose run --rm web env -i ENCODING="C.UTF-8" \
-								  PATH="/opt/warehouse/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin" \
-								  bin/deps
+	  PATH="/opt/warehouse/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin" \
+	  bin/deps
 
 requirements/%.txt: requirements/%.in
 	docker-compose run --rm web env -i ENCODING="C.UTF-8" \
-								  PATH="/opt/warehouse/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin" \
-								  bin/pip-compile --allow-unsafe --generate-hashes --output-file=$@ $<
+	  PATH="/opt/warehouse/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin" \
+	  bin/pip-compile --allow-unsafe --generate-hashes --output-file=$@ $<
 
 github-actions-deps:
 ifneq ($(GITHUB_BASE_REF), false)
