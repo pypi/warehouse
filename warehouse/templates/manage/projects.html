@@ -69,26 +69,26 @@
               request.registry.settings["warehouse.two_factor_requirement.enabled"]
               and project.owners_require_2fa
             ) %}
-            <a href="{{ request.route_path('manage.project.settings', project_name=project.normalized_name) }}" class="badge badge--success package-snippet__project-badge" title="{% trans %}This project requires 2FA to be enabled to manage{% endtrans %}">
-              {% trans %}2FA{% endtrans %}
-              <i class="fa fa-check" aria-hidden="true"></i>
+            <a href="{{ request.route_path('manage.project.settings', project_name=project.normalized_name) }}" class="badge badge--neutral package-snippet__project-badge" title="{% trans %}This project requires 2FA to be enabled to manage{% endtrans %}">
+              {% trans %}2FA Required{% endtrans %}
             </a>
             {% elif (
               request.registry.settings["warehouse.two_factor_mandate.enabled"]
               and project.pypi_mandates_2fa
             ) %}
-            <a href="{{ request.route_path('manage.project.settings', project_name=project.normalized_name) }}" class="badge badge--success package-snippet__project-badge" title="{% trans %}PyPI requires 2FA to be enabled to manage this project{% endtrans %}">
-              {% trans %}2FA{% endtrans %}
-              <i class="fa fa-check" aria-hidden="true"></i>
-            </a>
+            <span class="badge badge--neutral package-snippet__project-badge" title="{% trans %}This is a critical project for the Python ecosystem{% endtrans %}">
+              {% trans %}Critical Project{% endtrans %}
+            </span>
+            <span class="badge badge--neutral package-snippet__project-badge" title="{% trans %}PyPI requires 2FA to be enabled to manage this project{% endtrans %}">
+              {% trans %}2FA Mandated{% endtrans %}
+            </span>
             {% elif (
               request.registry.settings["warehouse.two_factor_mandate.available"]
               and project.pypi_mandates_2fa
             ) %}
-            <a href="{{ request.route_path('manage.project.settings', project_name=project.normalized_name) }}" class="badge badge--success package-snippet__project-badge" title="{% trans %}PyPI will require 2FA to be enabled to manage this project{% endtrans %}">
-              {% trans %}2FA{% endtrans %}
-              <i class="fa fa-check" aria-hidden="true"></i>
-            </a>
+            <span class="badge badge--neutral package-snippet__project-badge" title="{% trans %}This is a critical project for the Python ecosystem{% endtrans %}">
+              {% trans %}Critical Project{% endtrans %}
+            </span>
             {% endif %}
             {% if project.name in projects_sole_owned %}
             <a href="{{ request.route_path('manage.project.roles', project_name=project.normalized_name) }}" class="badge badge--warning package-snippet__project-badge">{% trans %}Sole owner{% endtrans %}</a>
