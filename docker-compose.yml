@@ -47,8 +47,7 @@ services:
     image: elasticsearch:7.10.1
     environment:
       - xpack.security.enabled=false
-      - node.name=node-1
-      - cluster.initial_master_nodes=node-1
+      - discovery.type=single-node
     ulimits:
       nofile:
         soft: 65536
@@ -90,7 +89,9 @@ services:
       - simple:/var/opt/warehouse/simple
       - ./bin:/opt/warehouse/src/bin:z
     ports:
-      - "80:8000"
+      - "${WEB_PORT:-80}:8000"
+    depends_on:
+      - db
 
   files:
     build:
