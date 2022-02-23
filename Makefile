@@ -64,7 +64,7 @@ deps: .state/docker-build
 	docker-compose run --rm web bin/deps
 
 translations: .state/docker-build
-	docker-compose run --rm web env -i  bin/translations
+	docker-compose run --rm web bin/translations
 
 requirements/%.txt: requirements/%.in
 	docker-compose run --rm web bin/pip-compile --allow-unsafe --generate-hashes --output-file=$@ $<
