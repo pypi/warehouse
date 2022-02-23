@@ -1,4 +1,3 @@
-GITHUB_BASE_REF := $(shell echo "$${GITHUB_BASE_REF:-false}")
 DB := example
 IPYTHON := no
 
