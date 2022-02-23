@@ -40,49 +40,34 @@ debug: .state/docker-build
 	docker-compose run --rm --service-ports web
 
 tests: .state/docker-build
-	docker-compose run --rm web env -i ENCODING="C.UTF-8" \
-	  PATH="/opt/warehouse/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin" \
-	  bin/tests --postgresql-host db $(T) $(TESTARGS)
+	docker-compose run --rm web bin/tests --postgresql-host db $(T) $(TESTARGS)
 
 static_tests: .state/docker-build
-	docker-compose run --rm static env -i ENCODING="C.UTF-8" \
-	  PATH="/opt/warehouse/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin" \
-	  bin/static_tests $(T) $(TESTARGS)
+	docker-compose run --rm static bin/static_tests $(T) $(TESTARGS)
 
 static_pipeline: .state/docker-build
-	docker-compose run --rm static env -i ENCODING="C.UTF-8" \
-	  PATH="/opt/warehouse/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin" \
-	  bin/static_pipeline $(T) $(TESTARGS)
+	docker-compose run --rm static bin/static_pipeline $(T) $(TESTARGS)
 
 reformat: .state/docker-build
-	docker-compose run --rm web env -i ENCODING="C.UTF-8" \
-	  PATH="/opt/warehouse/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin" \
-	  bin/reformat
+	docker-compose run --rm web bin/reformat
 
 lint: .state/docker-build
-	docker-compose run --rm web env -i ENCODING="C.UTF-8" \
-	  PATH="/opt/warehouse/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin" \
-	  bin/lint && bin/static_lint
+	docker-compose run --rm web bin/lint && bin/static_lint
 
 docs: .state/docker-build
-	docker-compose run --rm web env -i ENCODING="C.UTF-8" \
-	  PATH="/opt/warehouse/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin" \
-	  bin/docs
+	docker-compose run --rm web bin/docs
 
-licenses:
-	docker-compose run --rm web env -i ENCODING="C.UTF-8" \
-	  PATH="/opt/warehouse/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin" \
-	  bin/licenses
+licenses: .state/docker-build
+	docker-compose run --rm web bin/licenses
 
 deps: .state/docker-build
-	docker-compose run --rm web env -i ENCODING="C.UTF-8" \
-	  PATH="/opt/warehouse/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin" \
-	  bin/deps
+	docker-compose run --rm web bin/deps
+
+translations: .state/docker-build
+	docker-compose run --rm web env -i  bin/translations
 
 requirements/%.txt: requirements/%.in
-	docker-compose run --rm web env -i ENCODING="C.UTF-8" \
-	  PATH="/opt/warehouse/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin" \
-	  bin/pip-compile --allow-unsafe --generate-hashes --output-file=$@ $<
+	docker-compose run --rm web bin/pip-compile --allow-unsafe --generate-hashes --output-file=$@ $<
 
 initdb:
 	docker-compose run --rm web psql -h db -d postgres -U postgres -c "SELECT pg_terminate_backend(pid) FROM pg_stat_activity WHERE datname ='warehouse';"
@@ -108,12 +93,5 @@ purge: stop clean
 
 stop:
 	docker-compose down -v
-
-translations: .state/docker-build
-	docker-compose run --rm web env -i ENCODING="C.UTF-8" \
-								  PATH="/opt/warehouse/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin" \
-								  bin/translations
-
-
 
 .PHONY: default build serve initdb shell tests docs deps clean purge debug stop compile-pot
