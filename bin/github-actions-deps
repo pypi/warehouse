@@ -10,7 +10,7 @@ export LANG="${ENCODING:-en_US.UTF-8}"
 # Print all the followng commands
 set -x
 
-if [[ -z "${GITHUB_BASE_REF}" ]]; then
+if [[ ! -z "${GITHUB_BASE_REF}" ]]; then
     git fetch origin ${GITHUB_BASE_REF}:refs/remotes/origin/${GITHUB_BASE_REF}
     # Check that the following diff will exit with 0 or 1
     git diff --name-only FETCH_HEAD || test $? -le 1 || exit 1
