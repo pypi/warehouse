@@ -31,7 +31,7 @@ compile-po:
 
 build-mos: compile-pot
 	cd ../../; \
-	$(eval LOCALES := $(shell python -c "from warehouse.i18n import KNOWN_LOCALES; print(' '.join(set(KNOWN_LOCALES)-{'en'}))"))
+	$(eval LOCALES := $(shell python -c "from warehouse.i18n import KNOWN_LOCALES; print(' '.join(set(KNOWN_LOCALES)-{'en'}))")) ; \
 	for LOCALE in $(LOCALES) ; do \
 		L=$$LOCALE $(MAKE) compile-po ; \
 		done
