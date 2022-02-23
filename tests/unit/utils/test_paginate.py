@@ -79,10 +79,6 @@ class FakeQuery:
         self.range = range
         return self
 
-    @property
-    def results(self):
-        return pretend.stub(hits=pretend.stub(total=len(self.fake)))
-
     def execute(self):
         return FakeResult(self.fake[self.range], len(self.fake))
 
@@ -95,10 +91,6 @@ class FakeQuery6:
     def __getitem__(self, range):
         self.range = range
         return self
-
-    @property
-    def results(self):
-        return pretend.stub(hits=pretend.stub(total=len(self.fake)))
 
     def execute(self):
         return FakeResult6(self.fake[self.range], len(self.fake))
