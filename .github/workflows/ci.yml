@@ -21,19 +21,19 @@ jobs:
             needs-python: ${{ true }}
             needs-node: ${{ false }}
           - name: Documentation
-            command: make docs BINDIR="$(dirname $(which python))"
+            command: bin/docs
             needs-python: ${{ true }}
             needs-node: ${{ false }}
           - name: Dependencies
-            command: make github-actions-deps BINDIR="$(dirname $(which python))"
+            command: bin/github-actions-deps
             needs-python: ${{ true }}
             needs-node: ${{ false }}
           - name: Licenses
-            command: make licenses BINDIR="$(dirname $(which python))"
+            command: bin/licenses
             needs-python: ${{ true }}
             needs-node: ${{ false }}
           - name: Translations
-            command: make translations BINDIR="$(dirname $(which python))"
+            command: bin/translations
             needs-python: ${{ true }}
             needs-node: ${{ false }}
           - name: Static Tests
