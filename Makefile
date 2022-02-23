@@ -84,15 +84,6 @@ requirements/%.txt: requirements/%.in
 	  PATH="/opt/warehouse/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin" \
 	  bin/pip-compile --allow-unsafe --generate-hashes --output-file=$@ $<
 
-github-actions-deps:
-ifneq ($(GITHUB_BASE_REF), false)
-	git fetch origin $(GITHUB_BASE_REF):refs/remotes/origin/$(GITHUB_BASE_REF)
-	# Check that the following diff will exit with 0 or 1
-	git diff --name-only FETCH_HEAD || test $? -le 1 || exit 1
-	# Make the dependencies if any changed files are requirements files, otherwise exit
-	git diff --name-only FETCH_HEAD | grep '^requirements/' || exit 0 && bin/deps
-endif
-
 initdb:
 	docker-compose run --rm web psql -h db -d postgres -U postgres -c "SELECT pg_terminate_backend(pid) FROM pg_stat_activity WHERE datname ='warehouse';"
 	docker-compose run --rm web psql -h db -d postgres -U postgres -c "DROP DATABASE IF EXISTS warehouse"

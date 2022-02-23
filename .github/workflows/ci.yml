@@ -25,7 +25,7 @@ jobs:
             needs-python: ${{ true }}
             needs-node: ${{ false }}
           - name: Dependencies
-            command: bin/deps
+            command: bin/github-actions-deps
             needs-python: ${{ true }}
             needs-node: ${{ false }}
           - name: Licenses
