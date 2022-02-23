@@ -91,6 +91,8 @@ services:
       - ./bin:/opt/warehouse/src/bin:z
     ports:
       - "80:8000"
+    depends_on:
+      - db
 
   files:
     build:
