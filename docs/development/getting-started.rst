@@ -131,6 +131,16 @@ If the port is in use, the command will produce output, and you will need to
 determine what is occupying the port and shut down the corresponding service.
 Otherwise, the port is available for Warehouse to use, and you can continue.
 
+Alternately, you may set the ``WEB_HOST`` environment variable for
+docker-compose to use instead. An example:
+
+.. code-block:: console
+
+    export WEB_HOST=8080
+    make ...
+
+    # or inline:
+    WEB_HOST=8080 make ...
 
 Building the Warehouse Container
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -147,6 +157,11 @@ This will pull down all of the required docker containers, build Warehouse and
 run all of the needed services. The Warehouse repository will be mounted inside
 the Docker container at :file:`/opt/warehouse/src/`. After the initial build,
 you should not have to run this command again.
+
+.. note::
+
+   On some systems ``make build`` may require the prior installation of libpq
+   and its headers so that psycopg2 can be compiled and installed.
 
 
 .. _running-warehouse-containers:
@@ -260,6 +275,8 @@ At this point all the services are up, and web container is listening on port
     `this bug report <https://bugzilla.mozilla.org/show_bug.cgi?id=1262842>`_
     for more info).
 
+If you've set a different port via the ``WEB_HOST`` environment variable,
+use that port instead.
 
 Logging in to Warehouse
 ^^^^^^^^^^^^^^^^^^^^^^^
@@ -327,8 +344,8 @@ Errors when executing ``make build``
 
       snap install docker
 
-* If you receive the error: ``python3.8: command not found``, ensure you have
-  Python 3.8 installed on your system.
+* If you receive the error: ``python3.9: command not found``, ensure you have
+  Python 3.9 installed on your system.
   This is the "base" Python version that Warehouse uses to create the rest of
   the development environment.
 
