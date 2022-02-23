@@ -70,6 +70,7 @@ from warehouse.manage.forms import (
     ProvisionTOTPForm,
     ProvisionWebAuthnForm,
     SaveAccountForm,
+    Toggle2FARequirementForm,
 )
 from warehouse.packaging.models import (
     File,
@@ -975,7 +976,7 @@ def manage_projects(request):
     }
 
 
-@view_config(
+@view_defaults(
     route_name="manage.project.settings",
     context=Project,
     renderer="manage/settings.html",
@@ -983,13 +984,67 @@ def manage_projects(request):
     permission="manage:project",
     has_translations=True,
     require_reauth=True,
+    require_methods=False,
 )
-def manage_project_settings(project, request):
-    return {
-        "project": project,
-        "MAX_FILESIZE": MAX_FILESIZE,
-        "MAX_PROJECT_SIZE": MAX_PROJECT_SIZE,
-    }
+class ManageProjectSettingsViews:
+    def __init__(self, project, request):
+        self.project = project
+        self.request = request
+        self.toggle_2fa_requirement_form_class = Toggle2FARequirementForm
+
+    @view_config(request_method="GET")
+    def manage_project_settings(self):
+        return {
+            "project": self.project,
+            "MAX_FILESIZE": MAX_FILESIZE,
+            "MAX_PROJECT_SIZE": MAX_PROJECT_SIZE,
+            "toggle_2fa_form": self.toggle_2fa_requirement_form_class(),
+        }
+
+    @view_config(
+        request_method="POST",
+        request_param=Toggle2FARequirementForm.__params__,
+        require_reauth=True,
+    )
+    def toggle_2fa_requirement(self):
+        if not self.request.registry.settings[
+            "warehouse.two_factor_requirement.enabled"
+        ]:
+            raise HTTPNotFound
+
+        if self.project.pypi_mandates_2fa:
+            self.request.session.flash(
+                "2FA requirement cannot be disabled for critical projects",
+                queue="error",
+            )
+        elif self.project.owners_require_2fa:
+            self.project.owners_require_2fa = False
+            self.project.record_event(
+                tag="project:owners_require_2fa:disabled",
+                ip_address=self.request.remote_addr,
+                additional={"modified_by": self.request.user.username},
+            )
+            self.request.session.flash(
+                f"2FA requirement disabled for { self.project.name }",
+                queue="success",
+            )
+        else:
+            self.project.owners_require_2fa = True
+            self.project.record_event(
+                tag="project:owners_require_2fa:enabled",
+                ip_address=self.request.remote_addr,
+                additional={"modified_by": self.request.user.username},
+            )
+            self.request.session.flash(
+                f"2FA requirement enabled for { self.project.name }",
+                queue="success",
+            )
+
+        return HTTPSeeOther(
+            self.request.route_path(
+                "manage.project.settings", project_name=self.project.name
+            )
+        )
 
 
 def get_user_role_in_project(project, user, request):
