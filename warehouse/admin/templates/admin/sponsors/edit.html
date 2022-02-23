@@ -136,6 +136,25 @@
             {{ render_field("One Time", form.one_time, "sponsor-one-time") }}
             {{ render_field("Sidebar", form.sidebar, "sponsor-sidebar") }}
 
+            {% if sponsor %}
+            <div class="box-header with-border">
+              <h3 class="box-title">Info from Python.org Logo Placement API</h3>
+              <hr>
+
+              <div class="">
+                <label for="{{ input_id }}" class="col-sm-2 align-right">Origin</label>
+                <p>{{ sponsor.origin }}</p>
+                <label for="{{ input_id }}" class="col-sm-2 align-right">Level Name</label>
+                <p>{{ sponsor.level_name|default("---", true) }}</p>
+                <label for="{{ input_id }}" class="col-sm-2 align-right">Level Order</label>
+                <p>{{ sponsor.level_order|default("---", true) }}</p>
+                <label for="{{ input_id }}" class="col-sm-2 align-right">Slug</label>
+                <p>{{ sponsor.slug|default("---", true) }}</p>
+              </div>
+
+            </div>
+            {% endif %}
+
             <div class="form-group">
               <div class="col-sm-offset-10 col-sm-2">
                 <button type="submit" class="btn btn-danger" title="{{ "Submitting requires superuser privileges" if not request.has_permission('psf_staff') }}" {{ "disabled" if not request.has_permission('psf_staff') }}>Submit</button>
