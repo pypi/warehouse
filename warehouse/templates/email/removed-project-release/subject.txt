@@ -14,4 +14,4 @@
 
 {% extends "email/_base/subject.txt" %}
 
-{% block subject %}The {{ project_name }} release {{ release_version }} has been deleted.{% endblock %}
+{% block subject %}A release for {{ project_name }} has been deleted.{% endblock %}
