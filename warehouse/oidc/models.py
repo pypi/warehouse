@@ -126,11 +126,11 @@ class GitHubProvider(OIDCProvider):
     __verifiable_claims__ = {
         "repository": str.__eq__,
         "job_workflow_ref": str.startswith,
-        "actor": str.__eq__,
         "workflow": str.__eq__,
     }
 
     __unchecked_claims__ = {
+        "actor",
         "jti",
         "sub",
         "ref",
@@ -155,10 +155,6 @@ class GitHubProvider(OIDCProvider):
     @property
     def job_workflow_ref(self):
         return f"{self.repository}/.github/workflows/{self.workflow_name}.yml"
-
-    @property
-    def actor(self):
-        return self.owner
 
     @property
     def workflow(self):
