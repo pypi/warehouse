@@ -1081,7 +1081,10 @@ class ManageOIDCProviderViews:
 
     @view_config(request_method="POST", request_param=GitHubProviderForm.__params__)
     def add_github_oidc_provider(self):
-        form = GitHubProviderForm(self.request.POST)
+        form = GitHubProviderForm(
+            self.request.POST,
+            api_token=self.request.registry.settings.get("github.token"),
+        )
 
         if form.validate():
             # GitHub OIDC providers are unique on the tuple of
@@ -1090,16 +1093,16 @@ class ManageOIDCProviderViews:
             provider = (
                 self.request.db.query(GitHubProvider)
                 .filter(
-                    GitHubProvider.repository_name == form.repository,
-                    GitHubProvider.owner == form.owner,
+                    GitHubProvider.repository_name == form.repository.data,
+                    GitHubProvider.owner == form.normalized_owner,
                     GitHubProvider.workflow_name == form.workflow_name.data,
                 )
                 .one_or_none()
             )
             if provider is None:
                 provider = GitHubProvider(
-                    repository_name=form.repository,
-                    owner=form.owner,
+                    repository_name=form.repository.data,
+                    owner=form.normalized_owner,
                     owner_id=form.owner_id,
                     workflow_name=form.workflow_name.data,
                 )

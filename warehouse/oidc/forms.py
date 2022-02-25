@@ -19,18 +19,26 @@ import wtforms
 from warehouse import forms
 from warehouse.i18n import localize as _
 
-# This roughly matches the "owner/repo" convention used by GitHub.
-_VALID_GITHUB_OWNER_REPO_SLUG = re.compile(
-    r"^[a-zA-Z0-9][a-zA-Z0-9-]*/[a-zA-Z0-9-_.]+$"
-)
+_VALID_GITHUB_REPO = re.compile(r"^[a-zA-Z0-9-_.]+$")
 
 
 class GitHubProviderForm(forms.Form):
-    __params__ = ["repository_slug", "workflow_name"]
+    __params__ = ["owner", "repository", "workflow_name"]
 
-    repository_slug = wtforms.StringField(
+    owner = wtforms.StringField(
+        validators=[
+            wtforms.validators.DataRequired(
+                message=_("Specify GitHub owner (username or organization)")
+            ),
+        ]
+    )
+
+    repository = wtforms.StringField(
         validators=[
             wtforms.validators.DataRequired(message=_("Specify repository slug")),
+            wtforms.validators.Regexp(
+                _VALID_GITHUB_REPO, message=_("Invalid repository name")
+            ),
         ]
     )
 
@@ -47,17 +55,8 @@ class GitHubProviderForm(forms.Form):
             return {}
         return {"Authorization": f"token {self._api_token}"}
 
-    def validate_repository_slug(self, field):
-        repository_slug = field.data
-        if not _VALID_GITHUB_OWNER_REPO_SLUG.fullmatch(repository_slug):
-            raise wtforms.validators.ValidationError(
-                _(
-                    "The specified repository is invalid. Repositories must be "
-                    "specified in owner/repo format."
-                )
-            )
-
-        owner, repository = repository_slug.split("/", 1)
+    def validate_owner(self, field):
+        owner = field.data
 
         # To actually validate the owner, we ask GitHub's API about them.
         # We can't do this for the repository, since it might be private.
@@ -95,9 +94,8 @@ class GitHubProviderForm(forms.Form):
         owner_info = response.json()
 
         # NOTE: Use the normalized owner name as provided by GitHub.
-        self.owner = owner_info["login"]
+        self.normalized_owner = owner_info["login"]
         self.owner_id = owner_info["id"]
-        self.repository = repository
 
     def validate_workflow_name(self, field):
         workflow_name = field.data

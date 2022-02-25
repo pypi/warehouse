@@ -72,15 +72,27 @@
     <form method="POST" action="{{ request.route_path('manage.project.settings.oidc', project_name=project.name) }}">
       <div class="form-group">
         <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
-        <label for="repository" class="form-group__label">
-          {% trans %}Repository{% endtrans %}
-          {% if github_provider_form.repository_slug.flags.required %}
+        <label for="owner" class="form-group__label">
+          {% trans %}Owner{% endtrans %}
+          {% if github_provider_form.owner.flags.required %}
           <span class="form-group__required">{% trans %}(required){% endtrans %}</span>
           {% endif %}
         </label>
-        {{ github_provider_form.repository_slug(placeholder=gettext("owner/repo"), autocomplete="off", autocapitalize="off", spellcheck="false", class_="form-group__field", **{"aria-describedby":"repository-slug-errors"}) }}
+        {{ github_provider_form.owner(placeholder=gettext("owner"), autocomplete="off", autocapitalize="off", spellcheck="false", class_="form-group__field", **{"aria-describedby":"owner-slug-errors"}) }}
+        <div id="owner-slug-errors">
+          {{ field_errors(github_provider_form.owner) }}
+        </div>
+      </div>
+      <div class="form-group">
+        <label for="repository" class="form-group__label">
+          {% trans %}Repository name{% endtrans %}
+          {% if github_provider_form.repository.flags.required %}
+          <span class="form-group__required">{% trans %}(required){% endtrans %}</span>
+          {% endif %}
+        </label>
+        {{ github_provider_form.repository(placeholder=gettext("repository"), autocomplete="off", autocapitalize="off", spellcheck="false", class_="form-group__field", **{"aria-describedby":"repository-slug-errors"}) }}
         <div id="repository-slug-errors">
-          {{ field_errors(github_provider_form.repository_slug) }}
+          {{ field_errors(github_provider_form.repository) }}
         </div>
       </div>
       <div class="form-group">
