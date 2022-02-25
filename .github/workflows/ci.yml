@@ -21,19 +21,19 @@ jobs:
             needs-python: ${{ true }}
             needs-node: ${{ false }}
           - name: Documentation
-            command: make docs BINDIR="$(dirname $(which python))"
+            command: bin/docs
             needs-python: ${{ true }}
             needs-node: ${{ false }}
           - name: Dependencies
-            command: make github-actions-deps BINDIR="$(dirname $(which python))"
+            command: bin/github-actions-deps
             needs-python: ${{ true }}
             needs-node: ${{ false }}
           - name: Licenses
-            command: make licenses BINDIR="$(dirname $(which python))"
+            command: bin/licenses
             needs-python: ${{ true }}
             needs-node: ${{ false }}
           - name: Translations
-            command: make translations BINDIR="$(dirname $(which python))"
+            command: bin/translations
             needs-python: ${{ true }}
             needs-node: ${{ false }}
           - name: Static Tests
@@ -62,10 +62,14 @@ jobs:
         run: |
           sudo apt -y update
           sudo apt -y install libcurl4-openssl-dev libssl-dev pkg-config
+      - name: Read .python-version
+        if: ${{ matrix.needs-python }}
+        run: |
+           echo "WAREHOUSE_PYTHON_VERSION=$(<.python-version)" >> $GITHUB_ENV
       - uses: actions/setup-python@v2
         if: ${{ matrix.needs-python }}
         with:
-          python-version: 3.8.9
+          python-version: ${{ env.WAREHOUSE_PYTHON_VERSION }}
       - name: Cache Python dependencies
         if: ${{ matrix.needs-python }}
         uses: actions/cache@v2

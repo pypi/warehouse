@@ -235,6 +235,10 @@ def configure(settings=None):
     maybe_set_compound(settings, "breached_passwords", "backend", "BREACHED_PASSWORDS")
     maybe_set_compound(settings, "malware_check", "backend", "MALWARE_CHECK_BACKEND")
 
+    # Pythondotorg integration settings
+    maybe_set(settings, "pythondotorg.host", "PYTHONDOTORG_HOST", default="python.org")
+    maybe_set(settings, "pythondotorg.api_token", "PYTHONDOTORG_API_TOKEN")
+
     # Configure our ratelimiters
     maybe_set(
         settings,
@@ -265,6 +269,29 @@ def configure(settings=None):
         "warehouse.account.password_reset_ratelimit_string",
         "PASSWORD_RESET_RATELIMIT_STRING",
         default="5 per day",
+    )
+
+    # 2FA feature flags
+    maybe_set(
+        settings,
+        "warehouse.two_factor_requirement.enabled",
+        "TWOFACTORREQUIREMENT_ENABLED",
+        coercer=distutils.util.strtobool,
+        default=False,
+    )
+    maybe_set(
+        settings,
+        "warehouse.two_factor_mandate.available",
+        "TWOFACTORMANDATE_AVAILABLE",
+        coercer=distutils.util.strtobool,
+        default=False,
+    )
+    maybe_set(
+        settings,
+        "warehouse.two_factor_mandate.enabled",
+        "TWOFACTORMANDATE_ENABLED",
+        coercer=distutils.util.strtobool,
+        default=False,
     )
 
     # Add the settings we use when the environment is set to development.

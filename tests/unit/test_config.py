@@ -233,6 +233,7 @@ def test_configure(monkeypatch, settings, environment, other_settings):
         "site.name": "Warehouse",
         "token.two_factor.max_age": 300,
         "token.default.max_age": 21600,
+        "pythondotorg.host": "python.org",
         "warehouse.xmlrpc.client.ratelimit_string": "3600 per hour",
         "warehouse.xmlrpc.search.enabled": True,
         "github.token_scanning_meta_api.url": (
@@ -243,6 +244,9 @@ def test_configure(monkeypatch, settings, environment, other_settings):
         "warehouse.account.global_login_ratelimit_string": "1000 per 5 minutes",
         "warehouse.account.email_add_ratelimit_string": "2 per day",
         "warehouse.account.password_reset_ratelimit_string": "5 per day",
+        "warehouse.two_factor_requirement.enabled": False,
+        "warehouse.two_factor_mandate.available": False,
+        "warehouse.two_factor_mandate.enabled": False,
     }
     if environment == config.Environment.development:
         expected_settings.update(

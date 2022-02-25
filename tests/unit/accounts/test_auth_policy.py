@@ -161,6 +161,11 @@ class TestTwoFactorAuthorizationPolicy:
         assert result == permits_result
 
     def test_permits_if_context_does_not_require_2fa(self, monkeypatch, db_request):
+        db_request.registry.settings = {
+            "warehouse.two_factor_mandate.enabled": True,
+            "warehouse.two_factor_mandate.available": True,
+            "warehouse.two_factor_requirement.enabled": True,
+        }
         get_current_request = pretend.call_recorder(lambda: db_request)
         monkeypatch.setattr(auth_policy, "get_current_request", get_current_request)
 
@@ -170,23 +175,67 @@ class TestTwoFactorAuthorizationPolicy:
         )
         policy = auth_policy.TwoFactorAuthorizationPolicy(policy=backing_policy)
         context = ProjectFactory.create(
-            owners_require_2fa=False, pypi_mandates_2fa=False
+            owners_require_2fa=False,
+            pypi_mandates_2fa=False,
         )
         result = policy.permits(context, pretend.stub(), pretend.stub())
 
         assert result == permits_result
 
-    @pytest.mark.parametrize(
-        "owners_require_2fa, pypi_mandates_2fa",
-        [
-            (True, False),
-            (False, True),
-            (True, True),
-        ],
-    )
-    def test_permits_if_user_has_2fa(
-        self, monkeypatch, owners_require_2fa, pypi_mandates_2fa, db_request
+    def test_flashes_if_context_requires_2fa_but_not_enabled(
+        self, monkeypatch, db_request
     ):
+        db_request.registry.settings = {
+            "warehouse.two_factor_mandate.enabled": False,
+            "warehouse.two_factor_mandate.available": True,
+            "warehouse.two_factor_requirement.enabled": True,
+        }
+        db_request.session.flash = pretend.call_recorder(lambda m, queue: None)
+        db_request.user = pretend.stub(has_two_factor=False)
+        get_current_request = pretend.call_recorder(lambda: db_request)
+        monkeypatch.setattr(auth_policy, "get_current_request", get_current_request)
+
+        permits_result = Allowed("Because")
+        backing_policy = pretend.stub(
+            permits=pretend.call_recorder(lambda *a, **kw: permits_result)
+        )
+        policy = auth_policy.TwoFactorAuthorizationPolicy(policy=backing_policy)
+        context = ProjectFactory.create(
+            owners_require_2fa=False,
+            pypi_mandates_2fa=True,
+        )
+        result = policy.permits(context, pretend.stub(), pretend.stub())
+
+        assert result == permits_result
+        assert db_request.session.flash.calls == [
+            pretend.call(
+                "This project is included in PyPI's two-factor mandate "
+                "for critical projects. In the future, you will be unable to "
+                "perform this action without enabling 2FA for your account",
+                queue="warning",
+            ),
+        ]
+
+    @pytest.mark.parametrize("owners_require_2fa", [True, False])
+    @pytest.mark.parametrize("pypi_mandates_2fa", [True, False])
+    @pytest.mark.parametrize("two_factor_requirement_enabled", [True, False])
+    @pytest.mark.parametrize("two_factor_mandate_available", [True, False])
+    @pytest.mark.parametrize("two_factor_mandate_enabled", [True, False])
+    def test_permits_if_user_has_2fa(
+        self,
+        monkeypatch,
+        owners_require_2fa,
+        pypi_mandates_2fa,
+        two_factor_requirement_enabled,
+        two_factor_mandate_available,
+        two_factor_mandate_enabled,
+        db_request,
+    ):
+        db_request.registry.settings = {
+            "warehouse.two_factor_requirement.enabled": two_factor_requirement_enabled,
+            "warehouse.two_factor_mandate.available": two_factor_mandate_available,
+            "warehouse.two_factor_mandate.enabled": two_factor_mandate_enabled,
+        }
         user = pretend.stub(has_two_factor=True)
         db_request.user = user
         get_current_request = pretend.call_recorder(lambda: db_request)
@@ -213,8 +262,17 @@ class TestTwoFactorAuthorizationPolicy:
         ],
     )
     def test_denies_if_2fa_is_required_but_user_doesnt_have_2fa(
-        self, monkeypatch, owners_require_2fa, pypi_mandates_2fa, reason, db_request
+        self,
+        monkeypatch,
+        owners_require_2fa,
+        pypi_mandates_2fa,
+        reason,
+        db_request,
     ):
+        db_request.registry.settings = {
+            "warehouse.two_factor_requirement.enabled": owners_require_2fa,
+            "warehouse.two_factor_mandate.enabled": pypi_mandates_2fa,
+        }
         user = pretend.stub(has_two_factor=False)
         db_request.user = user
         get_current_request = pretend.call_recorder(lambda: db_request)

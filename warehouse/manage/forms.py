@@ -297,3 +297,9 @@ class DeleteMacaroonForm(UsernameMixin, PasswordMixin, forms.Form):
         macaroon_id = field.data
         if self.macaroon_service.find_macaroon(macaroon_id) is None:
             raise wtforms.validators.ValidationError("No such macaroon")
+
+
+class Toggle2FARequirementForm(forms.Form):
+    __params__ = ["two_factor_requirement_sentinel"]
+
+    two_factor_requirement_sentinel = wtforms.HiddenField()
