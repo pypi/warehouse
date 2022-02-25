@@ -270,6 +270,12 @@ def configure(settings=None):
         "PASSWORD_RESET_RATELIMIT_STRING",
         default="5 per day",
     )
+    maybe_set(
+        settings,
+        "warehouse.manage.oidc.provider_registration_string",
+        "OIDC_PROVIDER_REGISTRATION_RATELIMIT_STRING",
+        default="10 per day",
+    )
 
     # 2FA feature flags
     maybe_set(
