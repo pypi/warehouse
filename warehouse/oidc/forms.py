@@ -13,6 +13,7 @@
 import re
 
 import requests
+import sentry_sdk
 import wtforms
 
 from warehouse import forms
@@ -73,7 +74,20 @@ class GitHubProviderForm(forms.Form):
             raise wtforms.validators.ValidationError(
                 _("Unknown GitHub user or organization.")
             )
+        if response.status_code == 403:
+            # GitHub's API uses 403 to signal rate limiting, and returns a JSON
+            # blob explaining the reason.
+            sentry_sdk.capture_message(
+                "Exceeded GitHub rate limit for user lookups. "
+                f"Reason: {response.json()}"
+            )
+            raise wtforms.validators.ValidationError(
+                _("GitHub has rate-limited this action. Try again in a few minutes.")
+            )
         elif not response.ok:
+            sentry_sdk.capture_message(
+                f"Unexpected error from GitHub user lookup: {response.content=}"
+            )
             raise wtforms.validators.ValidationError(
                 _("Unexpected error from GitHub. Try again.")
             )
