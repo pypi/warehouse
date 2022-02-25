@@ -10,6 +10,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import os
+
 from unittest import mock
 
 import pretend
@@ -176,8 +178,17 @@ def test_configure(monkeypatch, settings, environment):
     xmlrpc_renderer_cls = pretend.call_recorder(lambda **kw: xmlrpc_renderer_obj)
     monkeypatch.setattr(config, "XMLRPCRenderer", xmlrpc_renderer_cls)
 
-    if environment == config.Environment.development:
-        monkeypatch.setenv("WAREHOUSE_ENV", "development")
+    # Ignore all environment variables in the test environment, except for WAREHOUSE_ENV
+    monkeypatch.setattr(
+        os,
+        "environ",
+        {
+            "WAREHOUSE_ENV": {
+                config.Environment.development: "development",
+                config.Environment.production: "production",
+            }[environment],
+        },
+    )
 
     class FakeRegistry(dict):
         def __init__(self):
