@@ -1070,7 +1070,9 @@ class ManageOIDCProviderViews:
     def default_response(self):
         return {
             "project": self.project,
-            "github_provider_form": GitHubProviderForm(),
+            "github_provider_form": GitHubProviderForm(
+                api_token=self.request.registry.settings.get("github.token")
+            ),
         }
 
     @view_config(request_method="GET")

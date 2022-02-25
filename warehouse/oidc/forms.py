@@ -37,6 +37,15 @@ class GitHubProviderForm(forms.Form):
         validators=[wtforms.validators.DataRequired(message=_("Specify workflow name"))]
     )
 
+    def __init__(self, *args, api_token, **kwargs):
+        super().__init__(*args, **kwargs)
+        self._api_token = api_token
+
+    def _headers_auth(self):
+        if not self._api_token:
+            return {}
+        return {"Authorization": f"token {self._api_token}"}
+
     def validate_repository_slug(self, field):
         repository_slug = field.data
         if not _VALID_GITHUB_OWNER_REPO_SLUG.fullmatch(repository_slug):
@@ -53,7 +62,10 @@ class GitHubProviderForm(forms.Form):
         # We can't do this for the repository, since it might be private.
         response = requests.get(
             f"https://api.github.com/users/{owner}",
-            headers={"Accept": "application/vnd.github.v3+json"},
+            headers={
+                "Accept": "application/vnd.github.v3+json",
+                **self._headers_auth(),
+            },
             allow_redirects=True,
         )
 
