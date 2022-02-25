@@ -1121,8 +1121,7 @@ class ManageOIDCProviderViews:
                 additional={
                     "provider": provider.provider_name,
                     "id": str(provider.id),
-                    "repository": form.repository_slug.data,
-                    "workflow": form.workflow_name.data,
+                    "specifier": str(provider),
                 },
             )
 
@@ -1154,6 +1153,7 @@ class ManageOIDCProviderViews:
                 additional={
                     "provider": provider.provider_name,
                     "id": str(provider.id),
+                    "specifier": str(provider),
                 },
             )
 
