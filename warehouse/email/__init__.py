@@ -212,6 +212,11 @@ def send_token_compromised_email_leak(request, user, *, public_url, origin):
     return {"username": user.username, "public_url": public_url, "origin": origin}
 
 
+@_email("basic-auth-with-2fa", allow_unverified=True)
+def send_basic_auth_with_two_factor_email(request, user):
+    return {}
+
+
 @_email("account-deleted")
 def send_account_deletion_email(request, user):
     return {"username": user.username}

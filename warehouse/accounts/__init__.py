@@ -32,7 +32,10 @@ from warehouse.accounts.services import (
     TokenServiceFactory,
     database_login_factory,
 )
-from warehouse.email import send_password_compromised_email_hibp
+from warehouse.email import (
+    send_basic_auth_with_two_factor_email,
+    send_password_compromised_email_hibp,
+)
 from warehouse.errors import BasicAuthBreachedPassword, BasicAuthFailedPassword
 from warehouse.macaroons.auth_policy import (
     MacaroonAuthenticationPolicy,
@@ -114,11 +117,13 @@ def _basic_auth_check(username, password, request):
                 raise _format_exc_status(
                     BasicAuthBreachedPassword(), breach_service.failure_message_plain
                 )
-            else:
-                login_service.update_user(
-                    user.id, last_login=datetime.datetime.utcnow()
-                )
-                return _authenticate(user.id, request)
+
+            if user.has_two_factor:
+                send_basic_auth_with_two_factor_email(request, user)
+                # Eventually, raise here to disable basic auth with 2FA enabled
+
+            login_service.update_user(user.id, last_login=datetime.datetime.utcnow())
+            return _authenticate(user.id, request)
         else:
             user.record_event(
                 tag="account:login:failure",
