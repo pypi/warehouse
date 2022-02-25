@@ -17,7 +17,7 @@
 {% set active_tab = 'publishing' %}
 
 {% block title %}
-  {% trans %}OIDC provider management{% endtrans %}
+  {% trans %}OpenID Connect publisher management{% endtrans %}
 {% endblock %}
 
 {% block main %}
@@ -48,11 +48,11 @@
 
 <div class="horizontal-section">
   <div class="site-container">
-    <h1 class="page-title">{% trans %}OIDC provider management{% endtrans %}</h1>
+    <h1 class="page-title">{% trans %}OpenID Connect publisher management{% endtrans %}</h1>
 
     <p>
       {% trans trimmed %}
-        OIDC provides a flexible, credential-free mechanism for delegating
+        OpenID Connect provides a flexible, credential-free mechanism for delegating
         publishing authority for a PyPI package to a third party service,
         like GitHub Actions.
       {% endtrans %}
@@ -60,7 +60,7 @@
 
     <p class="no-bottom-padding">
       {% trans trimmed %}
-        PyPI projects can use trusted OIDC providers to automate their release
+        PyPI projects can use trusted OpenID Connect publishers to automate their release
         processes, without having to explicitly provision or manage API tokens.
       {% endtrans %}
     </p>
@@ -104,11 +104,11 @@
     {% if project.oidc_providers %}
     <table class="table">
       <caption class="sr-only">
-        {% trans project_name=project.name %}OIDC providers associated with {{ project_name }}{% endtrans %}
+        {% trans project_name=project.name %}OpenID Connect publishers associated with {{ project_name }}{% endtrans %}
       </caption>
       <thead>
         <tr>
-          <th scope="col">{% trans %}Provider{% endtrans %}</th>
+          <th scope="col">{% trans %}Publisher{% endtrans %}</th>
           <th scope="col">{% trans %}Specification{% endtrans %}</th>
           <th></th>
         </tr>
@@ -120,7 +120,7 @@
       </tbody>
     </table>
     {% else %}
-    <p class="no-bottom-padding">{% trans %}No providers are currently configured.{% endtrans %}</p>
+    <p class="no-bottom-padding">{% trans %}No publishers are currently configured.{% endtrans %}</p>
     {% endif %}
   </div>
 </div>
