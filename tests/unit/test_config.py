@@ -225,7 +225,7 @@ def test_configure(monkeypatch, settings, environment):
     )
     monkeypatch.setattr(config, "transaction", transaction)
 
-    result = config.configure(settings=settings)
+    result = config.configure(settings=settings.copy() if settings else None)
 
     expected_settings = {
         "warehouse.env": environment,
