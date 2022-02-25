@@ -157,17 +157,17 @@ def test_maybe_set_compound(monkeypatch, environ, base, name, envvar, expected):
 
 
 @pytest.mark.parametrize(
-    ("settings", "environment", "other_settings"),
+    ("settings", "environment"),
     [
-        (None, config.Environment.production, {}),
-        ({}, config.Environment.production, {}),
-        ({"my settings": "the settings value"}, config.Environment.production, {}),
-        (None, config.Environment.development, {}),
-        ({}, config.Environment.development, {}),
-        ({"my settings": "the settings value"}, config.Environment.development, {}),
+        (None, config.Environment.production),
+        ({}, config.Environment.production),
+        ({"my settings": "the settings value"}, config.Environment.production),
+        (None, config.Environment.development),
+        ({}, config.Environment.development),
+        ({"my settings": "the settings value"}, config.Environment.development),
     ],
 )
-def test_configure(monkeypatch, settings, environment, other_settings):
+def test_configure(monkeypatch, settings, environment):
     json_renderer_obj = pretend.stub()
     json_renderer_cls = pretend.call_recorder(lambda **kw: json_renderer_obj)
     monkeypatch.setattr(renderers, "JSON", json_renderer_cls)
@@ -190,7 +190,7 @@ def test_configure(monkeypatch, settings, environment, other_settings):
                 "warehouse.xmlrpc.client.ratelimit_string": "3600 per hour",
             }
 
-    configurator_settings = other_settings.copy()
+    configurator_settings = dict()
     configurator_obj = pretend.stub(
         registry=FakeRegistry(),
         set_root_factory=pretend.call_recorder(lambda rf: None),
