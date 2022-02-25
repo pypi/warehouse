@@ -69,6 +69,12 @@
 
     <h3>GitHub</h3>
 
+    <p>
+      {% trans trimmed href="https://docs.github.com/en/actions/deployment/security-hardening-your-deployments/about-security-hardening-with-openid-connect" %}
+      Read more about GitHub's OpenID Connect provider <a href="{{ href }}">here</a>.
+      {% endtrans %}
+    </p>
+
     <form method="POST" action="{{ request.route_path('manage.project.settings.oidc', project_name=project.name) }}">
       <div class="form-group">
         <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
