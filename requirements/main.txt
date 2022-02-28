@@ -1018,9 +1018,9 @@ python-dateutil==2.8.2 \
     #   celery-redbeat
     #   elasticsearch-dsl
     #   google-cloud-bigquery
-python-slugify==6.0.1 \
-    --hash=sha256:89eec682c5180ba64811c9906a28184bbcc0a35792ba1bda3b5c2ab0cb2d0f67 \
-    --hash=sha256:ba72aa9d9f0514c0c3dd4430442f698ccc27a24d19630473663a71e3ec606bc1
+python-slugify==6.1.1 \
+    --hash=sha256:00003397f4e31414e922ce567b3a4da28cf1436a53d332c9aeeb51c7d8c469fd \
+    --hash=sha256:8c0016b2d74503eb64761821612d58fcfc729493634b1eb0575d8f5b4aa1fbcf
     # via -r requirements/main.in
 pytz==2021.3 \
     --hash=sha256:3672058bc3453457b622aab7a1c3bfd5ab0bdae451512f6cf25f64ed37f5b87c \
