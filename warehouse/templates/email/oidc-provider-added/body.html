@@ -16,9 +16,9 @@
 
 {% block content %}
 <p>
-  {% trans username=username, project=project %}
+  {% trans username=username, project_name=project_name %}
   PyPI user <strong>{{ username }}</strong> has added a new OpenID Connect
-  publisher to a project (<strong>{{project}}</strong>) that you manage.
+  publisher to a project (<strong>{{project_name}}</strong>) that you manage.
   OpenID Connect publishers act as trusted users and can create project releases
   automatically.
   {% endtrans %}
@@ -38,3 +38,4 @@
   administrators.
   {% endtrans %}
 </p>
+{% endblock %}

@@ -426,6 +426,12 @@ def send_recovery_code_reminder_email(request, user):
     return {"username": user.username}
 
 
+@_email("oidc-provider-added")
+def send_oidc_provider_added_email(request, user, project_name):
+    # We use the request's user, since they're the one triggering the action.
+    return {"username": request.user.username, "project_name": project_name}
+
+
 def includeme(config):
     email_sending_class = config.maybe_dotted(config.registry.settings["mail.backend"])
     config.register_service_factory(email_sending_class.create_service, IEmailSender)
