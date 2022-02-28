@@ -82,10 +82,12 @@ class OIDCProvider(db.Model):
         # All claims should be accounted for.
         # The presence of an unaccounted claim is not an error, only a warning
         # that the JWT payload has changed.
-        known_claims = self.__verifiable_claims__.keys().union(
-            self.__preverified_claims__, self.__unchecked_claims__
+        known_claims = (
+            self.__verifiable_claims__.keys()
+            | self.__preverified_claims__
+            | self.__unchecked_claims__
         )
-        unaccounted_claims = known_claims.difference(signed_claims.keys())
+        unaccounted_claims = known_claims - signed_claims.keys()
         if unaccounted_claims:
             sentry_sdk.capture_message(
                 f"JWT for {self.__class__.__name__} has unaccounted claims: "
