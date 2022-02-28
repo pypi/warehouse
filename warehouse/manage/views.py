@@ -1078,10 +1078,29 @@ class ManageOIDCProviderViews:
 
     @view_config(request_method="GET")
     def manage_project_oidc_providers(self):
+        if self.request.flags.enabled(AdminFlagValue.DISALLOW_OIDC):
+            self.request.session.flash(
+                (
+                    "OpenID Connect is temporarily disabled. "
+                    "See https://pypi.org/help#admin-intervention for details."
+                ),
+                queue="error",
+            )
+
         return self.default_response
 
     @view_config(request_method="POST", request_param=GitHubProviderForm.__params__)
     def add_github_oidc_provider(self):
+        if self.request.flags.enabled(AdminFlagValue.DISALLOW_OIDC):
+            self.request.session.flash(
+                (
+                    "OpenID Connect is temporarily disabled. "
+                    "See https://pypi.org/help#admin-intervention for details."
+                ),
+                queue="error",
+            )
+            return self.default_response
+
         form = GitHubProviderForm(
             self.request.POST,
             api_token=self.request.registry.settings.get("github.token"),
@@ -1153,6 +1172,16 @@ class ManageOIDCProviderViews:
 
     @view_config(request_method="POST", request_param=DeleteProviderForm.__params__)
     def delete_oidc_provider(self):
+        if self.request.flags.enabled(AdminFlagValue.DISALLOW_OIDC):
+            self.request.session.flash(
+                (
+                    "OpenID Connect is temporarily disabled. "
+                    "See https://pypi.org/help#admin-intervention for details."
+                ),
+                queue="error",
+            )
+            return self.default_response
+
         form = DeleteProviderForm(self.request.POST)
 
         if form.validate():
