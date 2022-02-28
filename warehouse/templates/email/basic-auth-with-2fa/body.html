@@ -19,7 +19,7 @@
   {% trans site=request.registry.settings["site.name"] %}During your recent upload or upload attempt to {{ site }}, we noticed you used basic authentication (username &amp; password). However, your account has two-factor authentication (2FA) enabled.{% endtrans %}
 </p>
 <p>
-  {% trans site=request.registry.settings["site.name"] %}In the near future, {{ site }} will begin prohibiting uploads using basic authentication for accounts with two-factor authentication enabled. Instead, we will require API tokens to be used instead.{% endtrans %}
+  {% trans site=request.registry.settings["site.name"] %}In the near future, {{ site }} will begin prohibiting uploads using basic authentication for accounts with two-factor authentication enabled. Instead, we will require API tokens to be used.{% endtrans %}
 </p>
 
 <h3>{% trans %}What should I do?{% endtrans %}</h3>
