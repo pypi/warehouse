@@ -60,35 +60,46 @@ class GitHubProviderForm(forms.Form):
 
         # To actually validate the owner, we ask GitHub's API about them.
         # We can't do this for the repository, since it might be private.
-        response = requests.get(
-            f"https://api.github.com/users/{owner}",
-            headers={
-                "Accept": "application/vnd.github.v3+json",
-                **self._headers_auth(),
-            },
-            allow_redirects=True,
-        )
-
-        if response.status_code == 404:
-            raise wtforms.validators.ValidationError(
-                _("Unknown GitHub user or organization.")
+        try:
+            response = requests.get(
+                f"https://api.github.com/users/{owner}",
+                headers={
+                    "Accept": "application/vnd.github.v3+json",
+                    **self._headers_auth(),
+                },
+                allow_redirects=True,
             )
-        if response.status_code == 403:
-            # GitHub's API uses 403 to signal rate limiting, and returns a JSON
-            # blob explaining the reason.
+            response.raise_for_status()
+        except requests.HTTPError as exc:
+            if exc.status_code == 404:
+                raise wtforms.validators.ValidationError(
+                    _("Unknown GitHub user or organization.")
+                )
+            if exc.status_code == 403:
+                # GitHub's API uses 403 to signal rate limiting, and returns a JSON
+                # blob explaining the reason.
+                sentry_sdk.capture_message(
+                    "Exceeded GitHub rate limit for user lookups. "
+                    f"Reason: {response.json()}"
+                )
+                raise wtforms.validators.ValidationError(
+                    _(
+                        "GitHub has rate-limited this action. Try again in a few minutes."
+                    )
+                )
+            else:
+                sentry_sdk.capture_message(
+                    f"Unexpected error from GitHub user lookup: {response.content=}"
+                )
+                raise wtforms.validators.ValidationError(
+                    _("Unexpected error from GitHub. Try again.")
+                )
+        except requests.Timeout:
             sentry_sdk.capture_message(
-                "Exceeded GitHub rate limit for user lookups. "
-                f"Reason: {response.json()}"
+                "Timeout from GitHub user lookup API (possibly offline)"
             )
             raise wtforms.validators.ValidationError(
-                _("GitHub has rate-limited this action. Try again in a few minutes.")
-            )
-        elif not response.ok:
-            sentry_sdk.capture_message(
-                f"Unexpected error from GitHub user lookup: {response.content=}"
-            )
-            raise wtforms.validators.ValidationError(
-                _("Unexpected error from GitHub. Try again.")
+                _("Unexpected timeout from GitHub. Try again in a few minutes.")
             )
 
         owner_info = response.json()
