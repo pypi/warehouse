@@ -155,7 +155,6 @@ class TestSendEmailToUser:
                 {
                     "tag": "account:email:sent",
                     "user_id": user.id,
-                    "ip_address": pyramid_request.remote_addr,
                     "additional": {
                         "from_": "noreply@example.com",
                         "to": address.email if address else primary_email,
@@ -246,7 +245,6 @@ class TestSendEmailToUser:
                 {
                     "tag": "account:email:sent",
                     "user_id": user.id,
-                    "ip_address": pyramid_request.remote_addr,
                     "additional": {
                         "from_": "noreply@example.com",
                         "to": address.email if address else primary_email,
@@ -278,12 +276,11 @@ class TestSendEmail:
             def __init__(self):
                 self.events = []
 
-            def record_event(self, user_id, tag, ip_address, additional):
+            def record_event(self, user_id, tag, additional):
                 self.events.append(
                     {
                         "user_id": user_id,
                         "tag": tag,
-                        "ip_address": ip_address,
                         "additional": additional,
                     }
                 )
@@ -315,7 +312,6 @@ class TestSendEmail:
             {
                 "tag": "account:email:sent",
                 "user_id": user_id,
-                "ip_address": "0.0.0.0",
                 "additional": {
                     "from_": "noreply@example.com",
                     "to": "recipient",
@@ -341,7 +337,6 @@ class TestSendEmail:
             {
                 "user_id": user_id,
                 "tag": "account:email:sent",
-                "ip_address": "0.0.0.0",
                 "additional": {
                     "from_": "noreply@example.com",
                     "to": "recipient",
@@ -382,7 +377,6 @@ class TestSendEmail:
                 {
                     "tag": "account:email:sent",
                     "user_id": user_id,
-                    "ip_address": "0.0.0.0",
                     "additional": {
                         "from_": "noreply@example.com",
                         "to": "recipient",
@@ -505,7 +499,6 @@ class TestSendPasswordResetEmail:
                 {
                     "tag": "account:email:sent",
                     "user_id": stub_user.id,
-                    "ip_address": pyramid_request.remote_addr,
                     "additional": {
                         "from_": "noreply@example.com",
                         "to": "other@example.com"
@@ -596,7 +589,6 @@ class TestEmailVerificationEmail:
                 {
                     "tag": "account:email:sent",
                     "user_id": stub_user.id,
-                    "ip_address": pyramid_request.remote_addr,
                     "additional": {
                         "from_": "noreply@example.com",
                         "to": stub_email.email,
@@ -667,7 +659,6 @@ class TestPasswordChangeEmail:
                 {
                     "tag": "account:email:sent",
                     "user_id": stub_user.id,
-                    "ip_address": pyramid_request.remote_addr,
                     "additional": {
                         "from_": "noreply@example.com",
                         "to": stub_user.email,
@@ -785,7 +776,6 @@ class TestPasswordCompromisedHIBPEmail:
                 {
                     "tag": "account:email:sent",
                     "user_id": stub_user.id,
-                    "ip_address": pyramid_request.remote_addr,
                     "additional": {
                         "from_": "noreply@example.com",
                         "to": stub_user.email,
@@ -859,7 +849,6 @@ class TestTokenLeakEmail:
                 {
                     "tag": "account:email:sent",
                     "user_id": 3,
-                    "ip_address": "1.2.3.4",
                     "additional": {
                         "from_": None,
                         "to": "email@example.com",
@@ -930,7 +919,6 @@ class TestPasswordCompromisedEmail:
                 {
                     "tag": "account:email:sent",
                     "user_id": stub_user.id,
-                    "ip_address": pyramid_request.remote_addr,
                     "additional": {
                         "from_": "noreply@example.com",
                         "to": stub_user.email,
@@ -1001,7 +989,6 @@ class TestBasicAuthWith2FAEmail:
                 {
                     "tag": "account:email:sent",
                     "user_id": stub_user.id,
-                    "ip_address": pyramid_request.remote_addr,
                     "additional": {
                         "from_": "noreply@example.com",
                         "to": stub_user.email,
@@ -1073,7 +1060,6 @@ class TestAccountDeletionEmail:
                 {
                     "tag": "account:email:sent",
                     "user_id": stub_user.id,
-                    "ip_address": pyramid_request.remote_addr,
                     "additional": {
                         "from_": "noreply@example.com",
                         "to": stub_user.email,
@@ -1199,7 +1185,6 @@ class TestPrimaryEmailChangeEmail:
                 {
                     "tag": "account:email:sent",
                     "user_id": stub_user.id,
-                    "ip_address": pyramid_request.remote_addr,
                     "additional": {
                         "from_": "noreply@example.com",
                         "to": "old_email@example.com",
@@ -1357,7 +1342,6 @@ class TestCollaboratorAddedEmail:
                 {
                     "tag": "account:email:sent",
                     "user_id": stub_user.id,
-                    "ip_address": pyramid_request.remote_addr,
                     "additional": {
                         "from_": "noreply@example.com",
                         "to": "email@example.com",
@@ -1379,7 +1363,6 @@ class TestCollaboratorAddedEmail:
                 {
                     "tag": "account:email:sent",
                     "user_id": stub_submitter_user.id,
-                    "ip_address": pyramid_request.remote_addr,
                     "additional": {
                         "from_": "noreply@example.com",
                         "to": "submiteremail@example.com",
@@ -1479,7 +1462,6 @@ class TestCollaboratorAddedEmail:
                 {
                     "tag": "account:email:sent",
                     "user_id": stub_submitter_user.id,
-                    "ip_address": pyramid_request.remote_addr,
                     "additional": {
                         "from_": "noreply@example.com",
                         "to": "submiteremail@example.com",
@@ -1562,7 +1544,6 @@ class TestProjectRoleVerificationEmail:
                 {
                     "tag": "account:email:sent",
                     "user_id": stub_user.id,
-                    "ip_address": "0.0.0.0",
                     "additional": {
                         "from_": "noreply@example.com",
                         "to": "email@example.com",
@@ -1654,7 +1635,6 @@ class TestAddedAsCollaboratorEmail:
                 {
                     "tag": "account:email:sent",
                     "user_id": stub_user.id,
-                    "ip_address": pyramid_request.remote_addr,
                     "additional": {
                         "from_": "noreply@example.com",
                         "to": "email@example.com",
@@ -1801,7 +1781,6 @@ class TestCollaboratorRemovedEmail:
                 {
                     "tag": "account:email:sent",
                     "user_id": removed_user.id,
-                    "ip_address": db_request.remote_addr,
                     "additional": {
                         "from_": None,
                         "to": removed_user.primary_email.email,
@@ -1823,7 +1802,6 @@ class TestCollaboratorRemovedEmail:
                 {
                     "tag": "account:email:sent",
                     "user_id": submitter_user.id,
-                    "ip_address": db_request.remote_addr,
                     "additional": {
                         "from_": None,
                         "to": submitter_user.primary_email.email,
@@ -1898,7 +1876,6 @@ class TestRemovedAsCollaboratorEmail:
                 {
                     "tag": "account:email:sent",
                     "user_id": removed_user.id,
-                    "ip_address": db_request.remote_addr,
                     "additional": {
                         "from_": None,
                         "to": removed_user.primary_email.email,
@@ -1982,7 +1959,6 @@ class TestRoleChangedEmail:
                 {
                     "tag": "account:email:sent",
                     "user_id": changed_user.id,
-                    "ip_address": db_request.remote_addr,
                     "additional": {
                         "from_": None,
                         "to": changed_user.primary_email.email,
@@ -2004,7 +1980,6 @@ class TestRoleChangedEmail:
                 {
                     "tag": "account:email:sent",
                     "user_id": submitter_user.id,
-                    "ip_address": db_request.remote_addr,
                     "additional": {
                         "from_": None,
                         "to": submitter_user.primary_email.email,
@@ -2083,7 +2058,6 @@ class TestRoleChangedAsCollaboratorEmail:
                 {
                     "tag": "account:email:sent",
                     "user_id": changed_user.id,
-                    "ip_address": db_request.remote_addr,
                     "additional": {
                         "from_": None,
                         "to": changed_user.primary_email.email,
@@ -2186,7 +2160,6 @@ class TestRemovedProjectEmail:
                 {
                     "tag": "account:email:sent",
                     "user_id": stub_user.id,
-                    "ip_address": pyramid_request.remote_addr,
                     "additional": {
                         "from_": "noreply@example.com",
                         "to": "email@example.com",
@@ -2208,7 +2181,6 @@ class TestRemovedProjectEmail:
                 {
                     "tag": "account:email:sent",
                     "user_id": stub_submitter_user.id,
-                    "ip_address": pyramid_request.remote_addr,
                     "additional": {
                         "from_": "noreply@example.com",
                         "to": "submiteremail@example.com",
@@ -2309,7 +2281,6 @@ class TestRemovedProjectEmail:
                 {
                     "tag": "account:email:sent",
                     "user_id": stub_user.id,
-                    "ip_address": pyramid_request.remote_addr,
                     "additional": {
                         "from_": "noreply@example.com",
                         "to": "email@example.com",
@@ -2331,7 +2302,6 @@ class TestRemovedProjectEmail:
                 {
                     "tag": "account:email:sent",
                     "user_id": stub_submitter_user.id,
-                    "ip_address": pyramid_request.remote_addr,
                     "additional": {
                         "from_": "noreply@example.com",
                         "to": "submiteremail@example.com",
@@ -2448,7 +2418,6 @@ class TestYankedReleaseEmail:
                 {
                     "tag": "account:email:sent",
                     "user_id": stub_user.id,
-                    "ip_address": pyramid_request.remote_addr,
                     "additional": {
                         "from_": "noreply@example.com",
                         "to": "email@example.com",
@@ -2470,7 +2439,6 @@ class TestYankedReleaseEmail:
                 {
                     "tag": "account:email:sent",
                     "user_id": stub_submitter_user.id,
-                    "ip_address": pyramid_request.remote_addr,
                     "additional": {
                         "from_": "noreply@example.com",
                         "to": "submiteremail@example.com",
@@ -2585,7 +2553,6 @@ class TestYankedReleaseEmail:
                 {
                     "tag": "account:email:sent",
                     "user_id": stub_user.id,
-                    "ip_address": pyramid_request.remote_addr,
                     "additional": {
                         "from_": "noreply@example.com",
                         "to": "email@example.com",
@@ -2607,7 +2574,6 @@ class TestYankedReleaseEmail:
                 {
                     "tag": "account:email:sent",
                     "user_id": stub_submitter_user.id,
-                    "ip_address": pyramid_request.remote_addr,
                     "additional": {
                         "from_": "noreply@example.com",
                         "to": "submiteremail@example.com",
@@ -2723,7 +2689,6 @@ class TestUnyankedReleaseEmail:
                 {
                     "tag": "account:email:sent",
                     "user_id": stub_user.id,
-                    "ip_address": pyramid_request.remote_addr,
                     "additional": {
                         "from_": "noreply@example.com",
                         "to": "email@example.com",
@@ -2745,7 +2710,6 @@ class TestUnyankedReleaseEmail:
                 {
                     "tag": "account:email:sent",
                     "user_id": stub_submitter_user.id,
-                    "ip_address": pyramid_request.remote_addr,
                     "additional": {
                         "from_": "noreply@example.com",
                         "to": "submiteremail@example.com",
@@ -2859,7 +2823,6 @@ class TestUnyankedReleaseEmail:
                 {
                     "tag": "account:email:sent",
                     "user_id": stub_user.id,
-                    "ip_address": pyramid_request.remote_addr,
                     "additional": {
                         "from_": "noreply@example.com",
                         "to": "email@example.com",
@@ -2881,7 +2844,6 @@ class TestUnyankedReleaseEmail:
                 {
                     "tag": "account:email:sent",
                     "user_id": stub_submitter_user.id,
-                    "ip_address": pyramid_request.remote_addr,
                     "additional": {
                         "from_": "noreply@example.com",
                         "to": "submiteremail@example.com",
@@ -2997,7 +2959,6 @@ class TestRemovedReleaseEmail:
                 {
                     "tag": "account:email:sent",
                     "user_id": stub_user.id,
-                    "ip_address": pyramid_request.remote_addr,
                     "additional": {
                         "from_": "noreply@example.com",
                         "to": "email@example.com",
@@ -3019,7 +2980,6 @@ class TestRemovedReleaseEmail:
                 {
                     "tag": "account:email:sent",
                     "user_id": stub_submitter_user.id,
-                    "ip_address": pyramid_request.remote_addr,
                     "additional": {
                         "from_": "noreply@example.com",
                         "to": "submiteremail@example.com",
@@ -3133,7 +3093,6 @@ class TestRemovedReleaseEmail:
                 {
                     "tag": "account:email:sent",
                     "user_id": stub_user.id,
-                    "ip_address": pyramid_request.remote_addr,
                     "additional": {
                         "from_": "noreply@example.com",
                         "to": "email@example.com",
@@ -3155,7 +3114,6 @@ class TestRemovedReleaseEmail:
                 {
                     "tag": "account:email:sent",
                     "user_id": stub_submitter_user.id,
-                    "ip_address": pyramid_request.remote_addr,
                     "additional": {
                         "from_": "noreply@example.com",
                         "to": "submiteremail@example.com",
@@ -3272,7 +3230,6 @@ class TestRemovedReleaseFileEmail:
                 {
                     "tag": "account:email:sent",
                     "user_id": stub_user.id,
-                    "ip_address": pyramid_request.remote_addr,
                     "additional": {
                         "from_": "noreply@example.com",
                         "to": "email@example.com",
@@ -3294,7 +3251,6 @@ class TestRemovedReleaseFileEmail:
                 {
                     "tag": "account:email:sent",
                     "user_id": stub_submitter_user.id,
-                    "ip_address": pyramid_request.remote_addr,
                     "additional": {
                         "from_": "noreply@example.com",
                         "to": "submiteremail@example.com",
@@ -3409,7 +3365,6 @@ class TestRemovedReleaseFileEmail:
                 {
                     "tag": "account:email:sent",
                     "user_id": stub_user.id,
-                    "ip_address": pyramid_request.remote_addr,
                     "additional": {
                         "from_": "noreply@example.com",
                         "to": "email@example.com",
@@ -3431,7 +3386,6 @@ class TestRemovedReleaseFileEmail:
                 {
                     "tag": "account:email:sent",
                     "user_id": stub_submitter_user.id,
-                    "ip_address": pyramid_request.remote_addr,
                     "additional": {
                         "from_": "noreply@example.com",
                         "to": "submiteremail@example.com",
@@ -3520,7 +3474,6 @@ class TestTwoFactorEmail:
                 {
                     "tag": "account:email:sent",
                     "user_id": stub_user.id,
-                    "ip_address": pyramid_request.remote_addr,
                     "additional": {
                         "from_": "noreply@example.com",
                         "to": stub_user.email,
@@ -3601,7 +3554,6 @@ class TestRecoveryCodeEmails:
                 {
                     "tag": "account:email:sent",
                     "user_id": stub_user.id,
-                    "ip_address": pyramid_request.remote_addr,
                     "additional": {
                         "from_": "noreply@example.com",
                         "to": stub_user.email,
