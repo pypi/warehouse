@@ -88,7 +88,6 @@ def _send_email_to_user(request, user, msg, *, email=None, allow_unverified=Fals
         {
             "tag": "account:email:sent",
             "user_id": user.id,
-            "ip_address": request.remote_addr,
             "additional": {
                 "from_": request.registry.settings.get("mail.sender"),
                 "to": email.email,
