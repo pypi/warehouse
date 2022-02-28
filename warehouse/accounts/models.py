@@ -37,6 +37,7 @@ from sqlalchemy.orm.exc import NoResultFound
 from warehouse import db
 from warehouse.sitemap.models import SitemapMixin
 from warehouse.utils.attrs import make_repr
+from warehouse.utils.db.types import TZDateTime
 
 
 class UserFactory:
@@ -80,7 +81,7 @@ class User(SitemapMixin, db.Model):
         Boolean, nullable=False, server_default=sql.false()
     )
     date_joined = Column(DateTime, server_default=sql.func.now())
-    last_login = Column(DateTime, nullable=False, server_default=sql.func.now())
+    last_login = Column(TZDateTime, nullable=False, server_default=sql.func.now())
     disabled_for = Column(
         Enum(DisableReason, values_callable=lambda x: [e.value for e in x]),
         nullable=True,
