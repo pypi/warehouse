@@ -1246,7 +1246,7 @@ msgstr ""
 msgid ""
 "During your recent upload or upload attempt to %(site)s, we noticed you "
 "used basic authentication (username &amp; password). However, your "
-"account as two-factor authentication (2FA) enabled."
+"account has two-factor authentication (2FA) enabled."
 msgstr ""
 
 #: warehouse/templates/email/basic-auth-with-2fa/body.html:22
