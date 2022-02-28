@@ -32,7 +32,10 @@ from warehouse.accounts.services import (
     TokenServiceFactory,
     database_login_factory,
 )
-from warehouse.email import send_password_compromised_email_hibp
+from warehouse.email import (
+    send_basic_auth_with_two_factor_email,
+    send_password_compromised_email_hibp,
+)
 from warehouse.errors import BasicAuthBreachedPassword, BasicAuthFailedPassword
 from warehouse.macaroons.auth_policy import (
     MacaroonAuthenticationPolicy,
@@ -51,7 +54,32 @@ def _format_exc_status(exc, message):
     return exc
 
 
-def _basic_auth_login(username, password, request):
+def _authenticate(userid, request):
+    """Apply the necessary principals to the authenticated user"""
+    login_service = request.find_service(IUserService, context=None)
+    user = login_service.get_user(userid)
+
+    if user is None:
+        return
+
+    principals = []
+
+    if user.is_superuser:
+        principals.append("group:admins")
+    if user.is_moderator or user.is_superuser:
+        principals.append("group:moderators")
+    if user.is_psf_staff or user.is_superuser:
+        principals.append("group:psf_staff")
+
+    # user must have base admin access if any admin permission
+    if principals:
+        principals.append("group:with_admin_dashboard_access")
+
+    return principals
+
+
+def _basic_auth_check(username, password, request):
+    # Basic authentication can only be used for uploading
     if request.matched_route.name not in ["forklift.legacy.file_upload"]:
         return
 
@@ -89,11 +117,13 @@ def _basic_auth_login(username, password, request):
                 raise _format_exc_status(
                     BasicAuthBreachedPassword(), breach_service.failure_message_plain
                 )
-            else:
-                login_service.update_user(
-                    user.id, last_login=datetime.datetime.utcnow()
-                )
-                return _authenticate(user.id, request)
+
+            if user.has_two_factor:
+                send_basic_auth_with_two_factor_email(request, user)
+                # Eventually, raise here to disable basic auth with 2FA enabled
+
+            login_service.update_user(user.id, last_login=datetime.datetime.utcnow())
+            return _authenticate(user.id, request)
         else:
             user.record_event(
                 tag="account:login:failure",
@@ -109,33 +139,15 @@ def _basic_auth_login(username, password, request):
             )
 
 
-def _authenticate(userid, request):
-    login_service = request.find_service(IUserService, context=None)
-    user = login_service.get_user(userid)
-
-    if user is None:
-        return
-
-    principals = []
-
-    if user.is_superuser:
-        principals.append("group:admins")
-    if user.is_moderator or user.is_superuser:
-        principals.append("group:moderators")
-    if user.is_psf_staff or user.is_superuser:
-        principals.append("group:psf_staff")
-
-    # user must have base admin access if any admin permission
-    if principals:
-        principals.append("group:with_admin_dashboard_access")
-
-    return principals
-
-
 def _session_authenticate(userid, request):
+    # Session authentication cannot be used for uploading
     if request.matched_route.name in ["forklift.legacy.file_upload"]:
         return
 
+    return _authenticate(userid, request)
+
+
+def _macaroon_authenticate(userid, request):
     return _authenticate(userid, request)
 
 
@@ -179,8 +191,8 @@ def includeme(config):
         MultiAuthenticationPolicy(
             [
                 SessionAuthenticationPolicy(callback=_session_authenticate),
-                BasicAuthAuthenticationPolicy(check=_basic_auth_login),
-                MacaroonAuthenticationPolicy(callback=_authenticate),
+                BasicAuthAuthenticationPolicy(check=_basic_auth_check),
+                MacaroonAuthenticationPolicy(callback=_macaroon_authenticate),
             ]
         )
     )
