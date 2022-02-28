@@ -1254,7 +1254,7 @@ msgstr ""
 msgid ""
 "In the near future, %(site)s will begin prohibiting uploads using basic "
 "authentication for accounts with two-factor authentication enabled. "
-"Instead, we will require API tokens to be used instead."
+"Instead, we will require API tokens to be used."
 msgstr ""
 
 #: warehouse/templates/email/basic-auth-with-2fa/body.html:25
