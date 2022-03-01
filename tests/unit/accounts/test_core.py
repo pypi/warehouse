@@ -17,6 +17,7 @@ import pretend
 import pytest
 
 from warehouse import accounts
+from warehouse.accounts import AuthenticationMethod
 from warehouse.accounts.interfaces import (
     IPasswordBreachedService,
     ITokenService,
@@ -227,6 +228,7 @@ class TestLogin:
         ]
         assert service.update_user.calls == [pretend.call(2, last_login=now)]
         assert authenticate.calls == [pretend.call(2, pyramid_request)]
+        assert pyramid_request.authentication_method == AuthenticationMethod.BASIC_AUTH
 
     def test_via_basic_auth_compromised(
         self, monkeypatch, pyramid_request, pyramid_services
@@ -279,64 +281,6 @@ class TestLogin:
             pretend.call(2, reason=DisableReason.CompromisedPassword)
         ]
         assert send_email.calls == [pretend.call(pyramid_request, user)]
-
-    def test_via_basic_auth_2fa_enabled(
-        self, monkeypatch, pyramid_request, pyramid_services
-    ):
-        principals = pretend.stub()
-        authenticate = pretend.call_recorder(lambda userid, request: principals)
-        monkeypatch.setattr(accounts, "_authenticate", authenticate)
-        send_email = pretend.call_recorder(lambda *a, **kw: None)
-        monkeypatch.setattr(
-            accounts, "send_basic_auth_with_two_factor_email", send_email
-        )
-
-        user = pretend.stub(id=2, has_two_factor=True)
-        service = pretend.stub(
-            get_user=pretend.call_recorder(lambda user_id: user),
-            find_userid=pretend.call_recorder(lambda username: 2),
-            check_password=pretend.call_recorder(
-                lambda userid, password, tags=None: True
-            ),
-            is_disabled=pretend.call_recorder(lambda user_id: (False, None)),
-            disable_password=pretend.call_recorder(lambda user_id, reason=None: None),
-            update_user=pretend.call_recorder(lambda userid, last_login: None),
-        )
-        breach_service = pretend.stub(
-            check_password=pretend.call_recorder(lambda pw, tags=None: False)
-        )
-
-        pyramid_services.register_service(service, IUserService, None)
-        pyramid_services.register_service(
-            breach_service, IPasswordBreachedService, None
-        )
-
-        pyramid_request.matched_route = pretend.stub(name="forklift.legacy.file_upload")
-
-        now = datetime.datetime.utcnow()
-
-        with freezegun.freeze_time(now):
-            assert (
-                accounts._basic_auth_check("myuser", "mypass", pyramid_request)
-                is principals
-            )
-
-        assert service.find_userid.calls == [pretend.call("myuser")]
-        assert service.get_user.calls == [pretend.call(2)]
-        assert service.is_disabled.calls == [pretend.call(2)]
-        assert service.check_password.calls == [
-            pretend.call(
-                2,
-                "mypass",
-                tags=["mechanism:basic_auth", "method:auth", "auth_method:basic"],
-            )
-        ]
-        assert breach_service.check_password.calls == [
-            pretend.call("mypass", tags=["method:auth", "auth_method:basic"])
-        ]
-        assert send_email.calls == [pretend.call(pyramid_request, user)]
-        assert service.update_user.calls == [pretend.call(2, last_login=now)]
-        assert authenticate.calls == [pretend.call(2, pyramid_request)]
 
 
 class TestAuthenticate:
@@ -419,6 +363,7 @@ class TestSessionAuthenticate:
         )
         assert accounts._session_authenticate(1, request) is None
         assert authenticate_obj.calls == []
+        assert request.authentication_method == AuthenticationMethod.SESSION
 
     def test_route_matched_name_ok(self, monkeypatch):
         authenticate_obj = pretend.call_recorder(lambda *a, **kw: True)
@@ -428,6 +373,7 @@ class TestSessionAuthenticate:
         )
         assert accounts._session_authenticate(1, request) is True
         assert authenticate_obj.calls == [pretend.call(1, request)]
+        assert request.authentication_method == AuthenticationMethod.SESSION
 
 
 class TestMacaroonAuthenticate:
@@ -439,6 +385,7 @@ class TestMacaroonAuthenticate:
         )
         assert accounts._macaroon_authenticate(1, request) is True
         assert authenticate_obj.calls == [pretend.call(1, request)]
+        assert request.authentication_method == AuthenticationMethod.MACAROON
 
 
 class TestUser:
