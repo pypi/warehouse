@@ -2299,6 +2299,12 @@ class TestManageProjects:
         project_where_pypi_mandates_2fa = ProjectFactory(
             releases=[], created=datetime.datetime(2022, 1, 2), pypi_mandates_2fa=True
         )
+        another_project_where_owners_require_2fa = ProjectFactory(
+            releases=[], created=datetime.datetime(2022, 3, 1), owners_require_2fa=True
+        )
+        another_project_where_pypi_mandates_2fa = ProjectFactory(
+            releases=[], created=datetime.datetime(2022, 3, 2), pypi_mandates_2fa=True
+        )
         db_request.user = UserFactory()
         RoleFactory.create(
             user=db_request.user,
@@ -2344,9 +2350,21 @@ class TestManageProjects:
             project=project_where_pypi_mandates_2fa,
             role_name="Owner",
         )
+        RoleFactory.create(
+            user=db_request.user,
+            project=another_project_where_owners_require_2fa,
+            role_name="Maintainer",
+        )
+        RoleFactory.create(
+            user=db_request.user,
+            project=another_project_where_pypi_mandates_2fa,
+            role_name="Maintainer",
+        )
 
         assert views.manage_projects(db_request) == {
             "projects": [
+                another_project_where_pypi_mandates_2fa,
+                another_project_where_owners_require_2fa,
                 project_where_pypi_mandates_2fa,
                 project_where_owners_require_2fa,
                 newer_project_with_no_releases,
@@ -2368,6 +2386,8 @@ class TestManageProjects:
             "projects_requiring_2fa": {
                 project_where_owners_require_2fa.name,
                 project_where_pypi_mandates_2fa.name,
+                another_project_where_owners_require_2fa.name,
+                another_project_where_pypi_mandates_2fa.name,
             },
             "project_invites": [],
         }
