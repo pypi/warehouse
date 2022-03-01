@@ -10,6 +10,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import datetime
 import functools
 
 from email.headerregistry import Address
@@ -65,7 +66,15 @@ def send_email(task, request, recipient, msg, success_event):
         task.retry(exc=exc)
 
 
-def _send_email_to_user(request, user, msg, *, email=None, allow_unverified=False):
+def _send_email_to_user(
+    request,
+    user,
+    msg,
+    *,
+    email=None,
+    allow_unverified=False,
+    repeat_window=datetime.timedelta(seconds=0),
+):
     # If we were not given a specific email object, then we'll default to using
     # the User's primary email address.
     if email is None:
@@ -76,6 +85,12 @@ def _send_email_to_user(request, user, msg, *, email=None, allow_unverified=Fals
     # check to see if it is verified, if it is not then we will also skip sending email
     # to them **UNLESS** we've been told to allow unverified emails.
     if email is None or not (email.verified or allow_unverified):
+        return
+
+    # If we've already sent this email within the repeat_window, don't send it.
+    sender = request.find_service(IEmailSender)
+    last_sent = sender.last_sent(to=email.email, subject=msg.subject)
+    if last_sent and (datetime.datetime.now() - last_sent) <= repeat_window:
         return
 
     request.task(send_email).delay(
@@ -98,7 +113,12 @@ def _send_email_to_user(request, user, msg, *, email=None, allow_unverified=Fals
     )
 
 
-def _email(name, *, allow_unverified=False):
+def _email(
+    name,
+    *,
+    allow_unverified=False,
+    repeat_window=datetime.timedelta(seconds=0),
+):
     """
     This decorator is used to turn an e function into an email sending function!
 
@@ -148,7 +168,12 @@ def _email(name, *, allow_unverified=False):
                     user, email = recipient, None
 
                 _send_email_to_user(
-                    request, user, msg, email=email, allow_unverified=allow_unverified
+                    request,
+                    user,
+                    msg,
+                    email=email,
+                    allow_unverified=allow_unverified,
+                    repeat_window=repeat_window,
                 )
 
             return context

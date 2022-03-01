@@ -192,6 +192,30 @@ class TestSendEmailToUser:
         assert request.task.calls == []
         assert task.delay.calls == []
 
+    def test_doesnt_send_within_reset_window(self, pyramid_request, pyramid_services):
+        email_service = pretend.stub(
+            last_sent=pretend.call_recorder(
+                lambda to, subject: datetime.datetime.now()
+                - datetime.timedelta(seconds=69)
+            )
+        )
+        pyramid_services.register_service(email_service, IEmailSender, None, name="")
+
+        task = pretend.stub(delay=pretend.call_recorder(lambda *a, **kw: None))
+        pyramid_request.task = pretend.call_recorder(lambda x: task)
+
+        address = "foo@example.com"
+        user = pretend.stub(primary_email=pretend.stub(email=address, verified=True))
+
+        msg = EmailMessage(subject="My Subject", body_text="My Body")
+
+        email._send_email_to_user(
+            pyramid_request, user, msg, repeat_window=datetime.timedelta(seconds=420)
+        )
+
+        assert pyramid_request.task.calls == []
+        assert task.delay.calls == []
+
     @pytest.mark.parametrize(
         ("username", "primary_email", "address", "expected"),
         [
