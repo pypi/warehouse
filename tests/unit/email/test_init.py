@@ -19,7 +19,7 @@ import pytest
 from sqlalchemy.orm.exc import NoResultFound
 
 from warehouse import email
-from warehouse.accounts.interfaces import ITokenService, IUserService
+from warehouse.accounts.interfaces import IUserService
 from warehouse.email.interfaces import IEmailSender
 from warehouse.email.services import EmailMessage
 
@@ -190,6 +190,30 @@ class TestSendEmailToUser:
         email._send_email_to_user(request, user, msg, email=address)
 
         assert request.task.calls == []
+        assert task.delay.calls == []
+
+    def test_doesnt_send_within_reset_window(self, pyramid_request, pyramid_services):
+        email_service = pretend.stub(
+            last_sent=pretend.call_recorder(
+                lambda to, subject: datetime.datetime.now()
+                - datetime.timedelta(seconds=69)
+            )
+        )
+        pyramid_services.register_service(email_service, IEmailSender, None, name="")
+
+        task = pretend.stub(delay=pretend.call_recorder(lambda *a, **kw: None))
+        pyramid_request.task = pretend.call_recorder(lambda x: task)
+
+        address = "foo@example.com"
+        user = pretend.stub(primary_email=pretend.stub(email=address, verified=True))
+
+        msg = EmailMessage(subject="My Subject", body_text="My Body")
+
+        email._send_email_to_user(
+            pyramid_request, user, msg, repeat_window=datetime.timedelta(seconds=420)
+        )
+
+        assert pyramid_request.task.calls == []
         assert task.delay.calls == []
 
     @pytest.mark.parametrize(
@@ -424,9 +448,6 @@ class TestSendPasswordResetEmail:
             stub_email = pretend.stub(email=email_addr, verified=verified)
         pyramid_request.method = "POST"
         token_service.dumps = pretend.call_recorder(lambda a: "TOKEN")
-        pyramid_request.find_service = pretend.call_recorder(
-            lambda *a, **kw: token_service
-        )
 
         subject_renderer = pyramid_config.testing_add_renderer(
             "email/password-reset/subject.txt"
@@ -479,9 +500,6 @@ class TestSendPasswordResetEmail:
                 }
             )
         ]
-        assert pyramid_request.find_service.calls == [
-            pretend.call(ITokenService, name="password")
-        ]
         assert pyramid_request.task.calls == [pretend.call(send_email)]
         assert send_email.delay.calls == [
             pretend.call(
@@ -523,9 +541,6 @@ class TestEmailVerificationEmail:
         stub_email = pretend.stub(id="id", email="email@example.com", verified=False)
         pyramid_request.method = "POST"
         token_service.dumps = pretend.call_recorder(lambda a: "TOKEN")
-        pyramid_request.find_service = pretend.call_recorder(
-            lambda *a, **kw: token_service
-        )
 
         subject_renderer = pyramid_config.testing_add_renderer(
             "email/verify-email/subject.txt"
@@ -570,9 +585,6 @@ class TestEmailVerificationEmail:
         html_renderer.assert_(token="TOKEN", email_address=stub_email.email)
         assert token_service.dumps.calls == [
             pretend.call({"action": "email-verify", "email.id": str(stub_email.id)})
-        ]
-        assert pyramid_request.find_service.calls == [
-            pretend.call(ITokenService, name="email")
         ]
         assert pyramid_request.task.calls == [pretend.call(send_email)]
         assert send_email.delay.calls == [
