@@ -22,7 +22,7 @@ export default class extends Controller {
   }
 
   checkPasswordsMatch() {
-    if (this.passwordMatchTargets.every(field => field.value === "")) {
+    if (this.passwordMatchTargets.some(field => field.value === "")) {
       this.matchMessageTarget.classList.add("hidden");
       this.submitTarget.setAttribute("disabled", "");
     } else {
