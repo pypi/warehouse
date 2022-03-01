@@ -17,6 +17,7 @@ import pretend
 import pytest
 
 from warehouse import accounts
+from warehouse.accounts import AuthenticationMethod
 from warehouse.accounts.interfaces import (
     IPasswordBreachedService,
     ITokenService,
@@ -227,6 +228,7 @@ class TestLogin:
         ]
         assert service.update_user.calls == [pretend.call(2, last_login=now)]
         assert authenticate.calls == [pretend.call(2, pyramid_request)]
+        assert pyramid_request.authentication_method == AuthenticationMethod.BASIC_AUTH
 
     def test_via_basic_auth_compromised(
         self, monkeypatch, pyramid_request, pyramid_services
@@ -419,6 +421,7 @@ class TestSessionAuthenticate:
         )
         assert accounts._session_authenticate(1, request) is None
         assert authenticate_obj.calls == []
+        assert request.authentication_method == AuthenticationMethod.SESSION
 
     def test_route_matched_name_ok(self, monkeypatch):
         authenticate_obj = pretend.call_recorder(lambda *a, **kw: True)
@@ -428,6 +431,7 @@ class TestSessionAuthenticate:
         )
         assert accounts._session_authenticate(1, request) is True
         assert authenticate_obj.calls == [pretend.call(1, request)]
+        assert request.authentication_method == AuthenticationMethod.SESSION
 
 
 class TestMacaroonAuthenticate:
@@ -439,6 +443,7 @@ class TestMacaroonAuthenticate:
         )
         assert accounts._macaroon_authenticate(1, request) is True
         assert authenticate_obj.calls == [pretend.call(1, request)]
+        assert request.authentication_method == AuthenticationMethod.MACAROON
 
 
 class TestUser:

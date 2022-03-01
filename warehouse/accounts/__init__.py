@@ -11,6 +11,7 @@
 # limitations under the License.
 
 import datetime
+import enum
 
 from pyramid.authorization import ACLAuthorizationPolicy
 from pyramid_multiauth import MultiAuthenticationPolicy
@@ -49,6 +50,12 @@ __all__ = ["NullPasswordBreachedService", "HaveIBeenPwnedPasswordBreachedService
 REDIRECT_FIELD_NAME = "next"
 
 
+class AuthenticationMethod(enum.Enum):
+    BASIC_AUTH = "basic-auth"
+    SESSION = "session"
+    MACAROON = "macaroon"
+
+
 def _format_exc_status(exc, message):
     exc.status = f"{exc.status_code} {message}"
     return exc
@@ -79,6 +86,8 @@ def _authenticate(userid, request):
 
 
 def _basic_auth_check(username, password, request):
+    request.authentication_method = AuthenticationMethod.BASIC_AUTH
+
     # Basic authentication can only be used for uploading
     if request.matched_route.name not in ["forklift.legacy.file_upload"]:
         return
@@ -140,6 +149,8 @@ def _basic_auth_check(username, password, request):
 
 
 def _session_authenticate(userid, request):
+    request.authentication_method = AuthenticationMethod.SESSION
+
     # Session authentication cannot be used for uploading
     if request.matched_route.name in ["forklift.legacy.file_upload"]:
         return
@@ -148,6 +159,7 @@ def _session_authenticate(userid, request):
 
 
 def _macaroon_authenticate(userid, request):
+    request.authentication_method = AuthenticationMethod.MACAROON
     return _authenticate(userid, request)
 
 

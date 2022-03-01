@@ -135,6 +135,7 @@ def pyramid_request(pyramid_services, jinja, remote_addr):
     dummy_request = pyramid.testing.DummyRequest()
     dummy_request.find_service = pyramid_services.find_service
     dummy_request.remote_addr = remote_addr
+    dummy_request.authentication_method = pretend.stub()
 
     dummy_request.registry.registerUtility(jinja, IJinja2Environment, name=".jinja2")
 
