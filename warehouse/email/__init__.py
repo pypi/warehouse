@@ -73,7 +73,7 @@ def _send_email_to_user(
     *,
     email=None,
     allow_unverified=False,
-    repeat_window=datetime.timedelta(seconds=0),
+    repeat_window=None,
 ):
     # If we were not given a specific email object, then we'll default to using
     # the User's primary email address.
@@ -88,10 +88,11 @@ def _send_email_to_user(
         return
 
     # If we've already sent this email within the repeat_window, don't send it.
-    sender = request.find_service(IEmailSender)
-    last_sent = sender.last_sent(to=email.email, subject=msg.subject)
-    if last_sent and (datetime.datetime.now() - last_sent) <= repeat_window:
-        return
+    if repeat_window is not None:
+        sender = request.find_service(IEmailSender)
+        last_sent = sender.last_sent(to=email.email, subject=msg.subject)
+        if last_sent and (datetime.datetime.now() - last_sent) <= repeat_window:
+            return
 
     request.task(send_email).delay(
         _compute_recipient(user, email.email),
@@ -117,7 +118,7 @@ def _email(
     name,
     *,
     allow_unverified=False,
-    repeat_window=datetime.timedelta(seconds=0),
+    repeat_window=None,
 ):
     """
     This decorator is used to turn an e function into an email sending function!
