@@ -22,6 +22,7 @@ import urllib.parse
 import requests
 
 from passlib.context import CryptContext
+from sqlalchemy import sql
 from sqlalchemy.orm import joinedload
 from sqlalchemy.orm.exc import NoResultFound
 from webauthn.helpers import bytes_to_base64url
@@ -51,6 +52,7 @@ from warehouse.utils.crypto import BadData, SignatureExpired, URLSafeTimedSerial
 logger = logging.getLogger(__name__)
 
 PASSWORD_FIELD = "password"
+PASSWORD_DATE_FIELD = "password_date"
 RECOVERY_CODE_COUNT = 8
 
 
@@ -264,6 +266,7 @@ class DatabaseUserService:
         for attr, value in changes.items():
             if attr == PASSWORD_FIELD:
                 value = self.hasher.hash(value)
+                user.password_date = sql.func.now()
             setattr(user, attr, value)
 
         # If we've given the user a new password, then we also want to unset the
