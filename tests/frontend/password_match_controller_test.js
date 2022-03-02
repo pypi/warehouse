@@ -43,14 +43,28 @@ describe("Password match controller", () => {
     });
   });
 
-  describe("incorrect inputs", function() {
+  describe("incomplete inputs", function() {
     describe("adding text on one of the fields", function() {
       it("disables submit", function() {
         const passwordMatch = getByPlaceholderText(document.body, "Your password");
-        fireEvent.input(passwordMatch, { target: { value: "foo" } });
-
+        const confirmPasswordMatch = getByPlaceholderText(document.body, "Confirm password");
+        const message = document.getElementsByTagName("p")[0];
         const submit = document.getElementsByTagName("input")[2];
+
+        fireEvent.input(passwordMatch, { target: { value: "foo" } });
+        expect(message).toHaveClass("hidden");
         expect(submit).toHaveAttribute("disabled", "");
+
+        fireEvent.input(passwordMatch, { target: { value: "" } });
+        fireEvent.input(confirmPasswordMatch, { target: { value: "foo" } });
+        expect(message).toHaveClass("hidden");
+        expect(submit).toHaveAttribute("disabled", "");
+
+        fireEvent.input(passwordMatch, { target: { value: "" } });
+        fireEvent.input(confirmPasswordMatch, { target: { value: "" } });
+        expect(message).toHaveClass("hidden");
+        expect(submit).toHaveAttribute("disabled", "");
+
       });
     });
 
