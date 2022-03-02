@@ -151,7 +151,12 @@ class Session(dict):
         self.changed()
 
     def password_outdated(self, current_password_timestamp):
-        stored_password_timestamp = self.get(self._password_timestamp_key, 0)
+        stored_password_timestamp = self.get(self._password_timestamp_key, None)
+
+        if stored_password_timestamp is None:
+            # This session predates invalidation by password reset... since
+            # we cannot say for sure, let it live its life.
+            return False
 
         return current_password_timestamp != stored_password_timestamp
 

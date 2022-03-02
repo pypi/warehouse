@@ -328,7 +328,12 @@ class TestSession:
 
     @pytest.mark.parametrize(
         ("stored", "current", "expected"),
-        [(1600000000, 0, True), (1600000000, 1600000000, False), (0, 1600000000, True)],
+        [
+            (1600000000, 0, True),
+            (1600000000, 1600000000, False),
+            (0, 1600000000, True),
+            (None, 1600000000, False),
+        ],
     )
     def test_password_outdated(self, stored, current, expected):
         session = Session()
