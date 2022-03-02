@@ -88,6 +88,7 @@ class Session(dict):
     _totp_secret_key = "_totp_secret"
     _webauthn_challenge_key = "_webauthn_challenge"
     _reauth_timestamp_key = "_reauth_timestamp"
+    _password_timestamp_key = "_password_timestamp"
 
     # A number of our methods need to be decorated so that they also call
     # self.changed()
@@ -144,6 +145,15 @@ class Session(dict):
     def record_auth_timestamp(self):
         self[self._reauth_timestamp_key] = datetime.datetime.now().timestamp()
         self.changed()
+
+    def record_password_timestamp(self, timestamp):
+        self[self._password_timestamp_key] = timestamp
+        self.changed()
+
+    def password_outdated(self, current_password_timestamp):
+        stored_password_timestamp = self.get(self._password_timestamp_key, 0)
+
+        return current_password_timestamp != stored_password_timestamp
 
     def needs_reauthentication(self, time_to_reauth):
         reauth_timestamp = self.get(self._reauth_timestamp_key, 0)

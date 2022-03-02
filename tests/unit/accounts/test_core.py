@@ -285,11 +285,19 @@ class TestLogin:
 
 class TestAuthenticate:
     @pytest.mark.parametrize(
-        ("is_superuser", "is_moderator", "is_psf_staff", "expected"),
+        (
+            "is_superuser",
+            "is_moderator",
+            "is_psf_staff",
+            "password_out_of_date",
+            "expected",
+        ),
         [
-            (False, False, False, []),
+            (False, False, False, False, []),
+            (False, False, False, True, None),
             (
                 True,
+                False,
                 False,
                 False,
                 [
@@ -302,6 +310,7 @@ class TestAuthenticate:
             (
                 False,
                 True,
+                False,
                 False,
                 ["group:moderators", "group:with_admin_dashboard_access"],
             ),
@@ -309,6 +318,7 @@ class TestAuthenticate:
                 True,
                 True,
                 False,
+                False,
                 [
                     "group:admins",
                     "group:moderators",
@@ -320,12 +330,14 @@ class TestAuthenticate:
                 False,
                 False,
                 True,
+                False,
                 ["group:psf_staff", "group:with_admin_dashboard_access"],
             ),
             (
                 False,
                 True,
                 True,
+                False,
                 [
                     "group:moderators",
                     "group:psf_staff",
@@ -334,17 +346,38 @@ class TestAuthenticate:
             ),
         ],
     )
-    def test_with_user(self, is_superuser, is_moderator, is_psf_staff, expected):
+    def test_with_user(
+        self, is_superuser, is_moderator, is_psf_staff, password_out_of_date, expected
+    ):
         user = pretend.stub(
             is_superuser=is_superuser,
             is_moderator=is_moderator,
             is_psf_staff=is_psf_staff,
         )
-        service = pretend.stub(get_user=pretend.call_recorder(lambda userid: user))
-        request = pretend.stub(find_service=lambda iface, context: service)
+        service = pretend.stub(
+            get_user=pretend.call_recorder(lambda userid: user),
+            get_password_timestamp=lambda userid: 0,
+        )
+        request = pretend.stub(
+            find_service=lambda iface, context: service,
+            session=pretend.stub(
+                password_outdated=lambda ts: password_out_of_date,
+                invalidate=pretend.call_recorder(lambda: None),
+                flash=pretend.call_recorder(lambda msg, queue=None: None),
+            ),
+        )
 
         assert accounts._authenticate(1, request) == expected
         assert service.get_user.calls == [pretend.call(1)]
+
+        if password_out_of_date:
+            assert request.session.invalidate.calls == [pretend.call()]
+            assert request.session.flash.calls == [
+                pretend.call("Session invalidated by password change", queue="error")
+            ]
+        else:
+            assert request.session.invalidate.calls == []
+            assert request.session.flash.calls == []
 
     def test_without_user(self):
         service = pretend.stub(get_user=pretend.call_recorder(lambda userid: None))

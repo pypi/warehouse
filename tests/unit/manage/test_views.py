@@ -597,6 +597,7 @@ class TestManageAccount:
         user_service = pretend.stub(
             update_user=pretend.call_recorder(lambda *a, **kw: None),
             record_event=pretend.call_recorder(lambda *a, **kw: None),
+            get_password_timestamp=lambda uid: 0,
         )
         request = pretend.stub(
             POST={
@@ -604,7 +605,10 @@ class TestManageAccount:
                 "new_password": new_password,
                 "password_confirm": new_password,
             },
-            session=pretend.stub(flash=pretend.call_recorder(lambda *a, **kw: None)),
+            session=pretend.stub(
+                flash=pretend.call_recorder(lambda *a, **kw: None),
+                record_password_timestamp=lambda ts: None,
+            ),
             find_service=lambda *a, **kw: user_service,
             user=pretend.stub(
                 id=pretend.stub(),
