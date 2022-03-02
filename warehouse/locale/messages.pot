@@ -8,6 +8,10 @@ msgstr ""
 msgid "Locale updated"
 msgstr ""
 
+#: warehouse/accounts/__init__.py:71
+msgid "Session invalidated by password change"
+msgstr ""
+
 #: warehouse/accounts/forms.py:51
 msgid "No user found with that username"
 msgstr ""
