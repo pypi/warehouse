@@ -347,7 +347,14 @@ class TestAuthenticate:
         ],
     )
     def test_with_user(
-        self, pyramid_request, pyramid_services, is_superuser, is_moderator, is_psf_staff, password_out_of_date, expected
+        self,
+        pyramid_request,
+        pyramid_services,
+        is_superuser,
+        is_moderator,
+        is_psf_staff,
+        password_out_of_date,
+        expected,
     ):
         user = pretend.stub(
             is_superuser=is_superuser,
@@ -358,12 +365,12 @@ class TestAuthenticate:
             get_user=pretend.call_recorder(lambda userid: user),
             get_password_timestamp=lambda userid: 0,
         )
-        pyramid_services.register_service(
-            service, IUserService, None
-        )
+        pyramid_services.register_service(service, IUserService, None)
         pyramid_request.session.password_outdated = lambda ts: password_out_of_date
         pyramid_request.session.invalidate = pretend.call_recorder(lambda: None)
-        pyramid_request.session.flash = pretend.call_recorder(lambda msg, queue=None: None)
+        pyramid_request.session.flash = pretend.call_recorder(
+            lambda msg, queue=None: None
+        )
 
         assert accounts._authenticate(1, pyramid_request) == expected
         assert service.get_user.calls == [pretend.call(1)]

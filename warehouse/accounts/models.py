@@ -70,7 +70,7 @@ class User(SitemapMixin, db.Model):
 
     username = Column(CIText, nullable=False, unique=True)
     name = Column(String(length=100), nullable=False)
-    password = Column(String(length=128), nullable=False)
+    _password = Column("password", String(length=128), nullable=False)
     password_date = Column(DateTime, nullable=True, server_default=sql.func.now())
     is_active = Column(Boolean, nullable=False, server_default=sql.false())
     is_superuser = Column(Boolean, nullable=False, server_default=sql.false())
@@ -107,6 +107,15 @@ class User(SitemapMixin, db.Model):
     events = orm.relationship(
         "UserEvent", backref="user", cascade="all, delete-orphan", lazy=True
     )
+
+    @property
+    def password(self):
+        return self._password
+
+    @password.setter
+    def password(self, value):
+        self._password = value
+        self.password_date = sql.func.now()
 
     def record_event(self, *, tag, ip_address, additional):
         session = orm.object_session(self)

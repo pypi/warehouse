@@ -8,7 +8,7 @@ msgstr ""
 msgid "Locale updated"
 msgstr ""
 
-#: warehouse/accounts/__init__.py:71
+#: warehouse/accounts/__init__.py:72
 msgid "Session invalidated by password change"
 msgstr ""
 
