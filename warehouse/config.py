@@ -305,6 +305,13 @@ def configure(settings=None):
         coercer=distutils.util.strtobool,
         default=False,
     )
+    maybe_set(
+        settings,
+        "warehouse.two_factor_mandate.cohort_size",
+        "TWOFACTORMANDATE_COHORTSIZE",
+        coercer=int,
+        default=0,
+    )
 
     # OIDC feature flags
     maybe_set(

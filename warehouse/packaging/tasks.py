@@ -17,9 +17,67 @@ from itertools import product
 from google.cloud.bigquery import LoadJobConfig
 
 from warehouse import tasks
+from warehouse.accounts.models import TitanPromoCode, User
 from warehouse.cache.origin import IOriginCache
+from warehouse.email import send_two_factor_mandate_email
 from warehouse.packaging.models import Description, File, Project, Release
 from warehouse.utils import readme
+
+
+@tasks.task(ignore_result=True, acks_late=True)
+def compute_2fa_mandate(request, project_names=None):
+    if not project_names:
+        bq = request.find_service(name="gcloud.bigquery")
+
+        # Get the top N projects in the last 6 months
+        query = bq.query(
+            """ SELECT
+                  COUNT(*) AS num_downloads,
+                  file.project as project_name
+                FROM
+                  {table}
+                WHERE
+                  DATE(timestamp) BETWEEN DATE_TRUNC(
+                    DATE_SUB(CURRENT_DATE(), INTERVAL 6 MONTH), MONTH
+                  )
+                  AND CURRENT_DATE()
+                GROUP BY
+                  file.project
+                ORDER BY
+                  num_downloads DESC
+                LIMIT
+                  {cohort_size}
+            """.format(
+                table=request.registry.settings["warehouse.downloads_table"],
+                cohort_size=request.registry.settings[
+                    "warehouse.two_facor_mandate.cohort_size"
+                ],
+            )
+        )
+        project_names = [row.get("project_name") for row in query.result()]
+
+    print(project_names)
+
+    # Get the projects that were not previously in the mandate
+    new_projects = request.db.query(Project).filter(
+        Project.name.in_(project_names), Project.pypi_mandates_2fa.is_(False)
+    )
+
+    # Get their maintainers
+    users = request.db.query(User).join(Project.users).join(new_projects).all()
+
+    # Email them
+    for user in users:
+        send_two_factor_mandate_email(request, user)
+
+    # Add them to the mandate
+    new_projects.update({Project.pypi_mandates_2fa: True})
+
+
+@tasks.task(ignore_result=True, acks_late=True)
+def load_promo_codes(request, codes):
+    for code in codes:
+        request.db.add(TitanPromoCode(code=code))
 
 
 @tasks.task(ignore_result=True, acks_late=True)
