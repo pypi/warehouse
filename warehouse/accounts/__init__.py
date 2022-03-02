@@ -11,6 +11,7 @@
 # limitations under the License.
 
 import datetime
+import enum
 
 from pyramid.authorization import ACLAuthorizationPolicy
 from pyramid_multiauth import MultiAuthenticationPolicy
@@ -46,12 +47,45 @@ __all__ = ["NullPasswordBreachedService", "HaveIBeenPwnedPasswordBreachedService
 REDIRECT_FIELD_NAME = "next"
 
 
+class AuthenticationMethod(enum.Enum):
+    BASIC_AUTH = "basic-auth"
+    SESSION = "session"
+    MACAROON = "macaroon"
+
+
 def _format_exc_status(exc, message):
     exc.status = f"{exc.status_code} {message}"
     return exc
 
 
-def _basic_auth_login(username, password, request):
+def _authenticate(userid, request):
+    """Apply the necessary principals to the authenticated user"""
+    login_service = request.find_service(IUserService, context=None)
+    user = login_service.get_user(userid)
+
+    if user is None:
+        return
+
+    principals = []
+
+    if user.is_superuser:
+        principals.append("group:admins")
+    if user.is_moderator or user.is_superuser:
+        principals.append("group:moderators")
+    if user.is_psf_staff or user.is_superuser:
+        principals.append("group:psf_staff")
+
+    # user must have base admin access if any admin permission
+    if principals:
+        principals.append("group:with_admin_dashboard_access")
+
+    return principals
+
+
+def _basic_auth_check(username, password, request):
+    request.authentication_method = AuthenticationMethod.BASIC_AUTH
+
+    # Basic authentication can only be used for uploading
     if request.matched_route.name not in ["forklift.legacy.file_upload"]:
         return
 
@@ -89,11 +123,9 @@ def _basic_auth_login(username, password, request):
                 raise _format_exc_status(
                     BasicAuthBreachedPassword(), breach_service.failure_message_plain
                 )
-            else:
-                login_service.update_user(
-                    user.id, last_login=datetime.datetime.utcnow()
-                )
-                return _authenticate(user.id, request)
+
+            login_service.update_user(user.id, last_login=datetime.datetime.utcnow())
+            return _authenticate(user.id, request)
         else:
             user.record_event(
                 tag="account:login:failure",
@@ -109,33 +141,18 @@ def _basic_auth_login(username, password, request):
             )
 
 
-def _authenticate(userid, request):
-    login_service = request.find_service(IUserService, context=None)
-    user = login_service.get_user(userid)
-
-    if user is None:
-        return
-
-    principals = []
-
-    if user.is_superuser:
-        principals.append("group:admins")
-    if user.is_moderator or user.is_superuser:
-        principals.append("group:moderators")
-    if user.is_psf_staff or user.is_superuser:
-        principals.append("group:psf_staff")
-
-    # user must have base admin access if any admin permission
-    if principals:
-        principals.append("group:with_admin_dashboard_access")
-
-    return principals
-
-
 def _session_authenticate(userid, request):
+    request.authentication_method = AuthenticationMethod.SESSION
+
+    # Session authentication cannot be used for uploading
     if request.matched_route.name in ["forklift.legacy.file_upload"]:
         return
 
+    return _authenticate(userid, request)
+
+
+def _macaroon_authenticate(userid, request):
+    request.authentication_method = AuthenticationMethod.MACAROON
     return _authenticate(userid, request)
 
 
@@ -179,8 +196,8 @@ def includeme(config):
         MultiAuthenticationPolicy(
             [
                 SessionAuthenticationPolicy(callback=_session_authenticate),
-                BasicAuthAuthenticationPolicy(check=_basic_auth_login),
-                MacaroonAuthenticationPolicy(callback=_authenticate),
+                BasicAuthAuthenticationPolicy(check=_basic_auth_check),
+                MacaroonAuthenticationPolicy(callback=_macaroon_authenticate),
             ]
         )
     )

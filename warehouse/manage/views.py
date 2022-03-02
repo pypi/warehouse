@@ -106,6 +106,13 @@ def user_projects(request):
         .subquery()
     )
 
+    projects_collaborator = (
+        request.db.query(Project.id)
+        .join(Role.project)
+        .filter(Role.user == request.user)
+        .subquery()
+    )
+
     with_sole_owner = (
         request.db.query(Role.project_id)
         .join(projects_owned)
@@ -127,7 +134,7 @@ def user_projects(request):
         ),
         "projects_requiring_2fa": (
             request.db.query(Project)
-            .join(projects_owned, Project.id == projects_owned.c.id)
+            .join(projects_collaborator, Project.id == projects_collaborator.c.id)
             .filter(Project.two_factor_required)
             .order_by(Project.name)
             .all()

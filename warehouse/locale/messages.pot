@@ -116,7 +116,7 @@ msgstr ""
 msgid "Successful WebAuthn assertion"
 msgstr ""
 
-#: warehouse/accounts/views.py:439 warehouse/manage/views.py:779
+#: warehouse/accounts/views.py:439 warehouse/manage/views.py:786
 msgid "Recovery code accepted. The supplied code cannot be used again."
 msgstr ""
 
@@ -225,45 +225,45 @@ msgstr ""
 msgid "Banner Preview"
 msgstr ""
 
-#: warehouse/manage/views.py:215
+#: warehouse/manage/views.py:222
 msgid "Email ${email_address} added - check your email for a verification link"
 msgstr ""
 
-#: warehouse/manage/views.py:727
+#: warehouse/manage/views.py:734
 msgid "Recovery codes already generated"
 msgstr ""
 
-#: warehouse/manage/views.py:728
+#: warehouse/manage/views.py:735
 msgid "Generating new recovery codes will invalidate your existing codes."
 msgstr ""
 
-#: warehouse/manage/views.py:1591
+#: warehouse/manage/views.py:1598
 msgid "User '${username}' already has ${role_name} role for project"
 msgstr ""
 
-#: warehouse/manage/views.py:1602
+#: warehouse/manage/views.py:1609
 msgid ""
 "User '${username}' does not have a verified primary email address and "
 "cannot be added as a ${role_name} for project"
 msgstr ""
 
-#: warehouse/manage/views.py:1615
+#: warehouse/manage/views.py:1622
 msgid "User '${username}' already has an active invite. Please try again later."
 msgstr ""
 
-#: warehouse/manage/views.py:1673
+#: warehouse/manage/views.py:1680
 msgid "Invitation sent to '${username}'"
 msgstr ""
 
-#: warehouse/manage/views.py:1720
+#: warehouse/manage/views.py:1727
 msgid "Could not find role invitation."
 msgstr ""
 
-#: warehouse/manage/views.py:1731
+#: warehouse/manage/views.py:1738
 msgid "Invitation already expired."
 msgstr ""
 
-#: warehouse/manage/views.py:1755
+#: warehouse/manage/views.py:1762
 msgid "Invitation revoked from '${username}'."
 msgstr ""
 
@@ -1235,16 +1235,48 @@ msgid ""
 "%(initiator_username)s to a project on %(site)s."
 msgstr ""
 
+#: warehouse/templates/email/basic-auth-with-2fa/body.html:17
+#: warehouse/templates/email/password-compromised-hibp/body.html:18
+#: warehouse/templates/email/password-compromised/body.html:18
+msgid "What?"
+msgstr ""
+
+#: warehouse/templates/email/basic-auth-with-2fa/body.html:19
+#, python-format
+msgid ""
+"During your recent upload or upload attempt to %(site)s, we noticed you "
+"used basic authentication (username &amp; password). However, your "
+"account has two-factor authentication (2FA) enabled."
+msgstr ""
+
+#: warehouse/templates/email/basic-auth-with-2fa/body.html:22
+#, python-format
+msgid ""
+"In the near future, %(site)s will begin prohibiting uploads using basic "
+"authentication for accounts with two-factor authentication enabled. "
+"Instead, we will require API tokens to be used."
+msgstr ""
+
+#: warehouse/templates/email/basic-auth-with-2fa/body.html:25
+#: warehouse/templates/email/password-compromised-hibp/body.html:32
+#: warehouse/templates/email/password-compromised/body.html:31
+msgid "What should I do?"
+msgstr ""
+
+#: warehouse/templates/email/basic-auth-with-2fa/body.html:27
+#, python-format
+msgid ""
+"First, generate an API token for your account or project at "
+"%(new_token_url)s. Then, use this token when publishing instead of your "
+"username and password. See %(token_help_url)s for help using API tokens "
+"to publish."
+msgstr ""
+
 #: warehouse/templates/email/password-change/body.html:18
 #, python-format
 msgid ""
 "Someone, perhaps you, has changed the password for your PyPI account "
 "<strong>%(username)s</strong>."
-msgstr ""
-
-#: warehouse/templates/email/password-compromised-hibp/body.html:18
-#: warehouse/templates/email/password-compromised/body.html:18
-msgid "What?"
 msgstr ""
 
 #: warehouse/templates/email/password-compromised/body.html:20
@@ -1262,11 +1294,6 @@ msgid ""
 "PyPI itself has not suffered a breach. This is a protective measure to "
 "reduce the\n"
 "  risk for PyPI and its users."
-msgstr ""
-
-#: warehouse/templates/email/password-compromised-hibp/body.html:32
-#: warehouse/templates/email/password-compromised/body.html:31
-msgid "What should I do?"
 msgstr ""
 
 #: warehouse/templates/email/password-compromised/body.html:33

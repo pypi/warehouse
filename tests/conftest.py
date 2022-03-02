@@ -30,6 +30,7 @@ from psycopg2.errors import InvalidCatalogName
 from pyramid.i18n import TranslationString
 from pyramid.static import ManifestCacheBuster
 from pyramid_jinja2 import IJinja2Environment
+from pyramid_mailer.mailer import DummyMailer
 from pytest_postgresql.config import get_config
 from pytest_postgresql.janitor import DatabaseJanitor
 from sqlalchemy import event
@@ -38,6 +39,9 @@ import warehouse
 
 from warehouse import admin, config, static
 from warehouse.accounts import services as account_services
+from warehouse.accounts.interfaces import ITokenService
+from warehouse.email import services as email_services
+from warehouse.email.interfaces import IEmailSender
 from warehouse.macaroons import services as macaroon_services
 from warehouse.metrics import IMetricsService
 
@@ -113,11 +117,14 @@ class _Services:
 
 
 @pytest.fixture
-def pyramid_services(metrics):
+def pyramid_services(metrics, email_service, token_service):
     services = _Services()
 
     # Register our global services.
     services.register_service(metrics, IMetricsService, None, name="")
+    services.register_service(email_service, IEmailSender, None, name="")
+    services.register_service(token_service, ITokenService, None, name="password")
+    services.register_service(token_service, ITokenService, None, name="email")
 
     return services
 
@@ -128,6 +135,7 @@ def pyramid_request(pyramid_services, jinja, remote_addr):
     dummy_request = pyramid.testing.DummyRequest()
     dummy_request.find_service = pyramid_services.find_service
     dummy_request.remote_addr = remote_addr
+    dummy_request.authentication_method = pretend.stub()
 
     dummy_request.registry.registerUtility(jinja, IJinja2Environment, name=".jinja2")
 
@@ -279,6 +287,13 @@ def macaroon_service(db_session):
 @pytest.fixture
 def token_service(app_config):
     return account_services.TokenService(secret="secret", salt="salt", max_age=21600)
+
+
+@pytest.fixture
+def email_service():
+    return email_services.SMTPEmailSender(
+        mailer=DummyMailer(), sender="noreply@pypi.dev"
+    )
 
 
 class QueryRecorder:
