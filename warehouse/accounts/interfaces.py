@@ -246,6 +246,12 @@ class IUserService(Interface):
         burned.
         """
 
+    def get_password_timestamp(user_id):
+        """
+        Returns POSIX timestamp corresponding to the datetime that the users password
+        was most recently updated
+        """
+
 
 class ITokenService(Interface):
     def dumps(data):
