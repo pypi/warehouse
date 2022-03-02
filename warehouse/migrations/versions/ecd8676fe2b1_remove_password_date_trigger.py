@@ -19,18 +19,13 @@ Create Date: 2022-03-02 16:17:32.228716
 
 from alembic import op
 
-
-revision = 'ecd8676fe2b1'
-down_revision = '19cf76d2d459'
+revision = "ecd8676fe2b1"
+down_revision = "19cf76d2d459"
 
 
 def upgrade():
-    op.execute(
-        "DROP TRIGGER update_user_password_date ON users"
-    )
-    op.execute(
-        "DROP FUNCTION update_password_date"
-    )
+    op.execute("DROP TRIGGER update_user_password_date ON users")
+    op.execute("DROP FUNCTION update_password_date")
 
 
 def downgrade():
