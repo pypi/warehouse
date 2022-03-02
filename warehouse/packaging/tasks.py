@@ -50,7 +50,7 @@ def compute_2fa_mandate(request, project_names=None):
             """.format(
                 table=request.registry.settings["warehouse.downloads_table"],
                 cohort_size=request.registry.settings[
-                    "warehouse.two_facor_mandate.cohort_size"
+                    "warehouse.two_factor_mandate.cohort_size"
                 ],
             )
         )
