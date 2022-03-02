@@ -90,10 +90,8 @@ class DatabaseUserService:
         # TODO: We need some sort of Anonymous User.
         return self.db.query(User).options(joinedload(User.webauthn)).get(userid)
 
-    def get_user(self, user_id, use_cache=True):
-        if use_cache:
-            return self.cached_get_user(user_id)
-        return self._get_user(user_id)
+    def get_user(self, userid):
+        return self.cached_get_user(userid)
 
     @functools.lru_cache()
     def get_user_by_username(self, username):
@@ -588,7 +586,7 @@ class DatabaseUserService:
         return True
 
     def get_password_timestamp(self, user_id):
-        user = self.get_user(user_id, use_cache=False)
+        user = self.get_user(user_id)
         return user.password_date.timestamp() if user.password_date is not None else 0
 
 
