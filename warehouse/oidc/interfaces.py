@@ -13,6 +13,8 @@
 
 from zope.interface import Interface
 
+from warehouse.rate_limiting.interfaces import RateLimiterException
+
 
 class IOIDCProviderService(Interface):
     def get_key(key_id):
@@ -37,3 +39,7 @@ class IOIDCProviderService(Interface):
         for a particular action; subsequent checks on the decoded token's
         third party claims must be done to ensure that.
         """
+
+
+class TooManyOIDCRegistrations(RateLimiterException):
+    pass

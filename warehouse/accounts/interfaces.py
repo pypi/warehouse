@@ -12,12 +12,7 @@
 
 from zope.interface import Attribute, Interface
 
-
-class RateLimiterException(Exception):
-    def __init__(self, *args, resets_in, **kwargs):
-        self.resets_in = resets_in
-
-        return super().__init__(*args, **kwargs)
+from warehouse.rate_limiting.interfaces import RateLimiterException
 
 
 class TooManyFailedLogins(RateLimiterException):

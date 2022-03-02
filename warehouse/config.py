@@ -272,8 +272,14 @@ def configure(settings=None):
     )
     maybe_set(
         settings,
-        "warehouse.manage.oidc.provider_registration_string",
-        "OIDC_PROVIDER_REGISTRATION_RATELIMIT_STRING",
+        "warehouse.manage.oidc.user_provider_registration_ratelimit_string",
+        "USER_OIDC_PROVIDER_REGISTRATION_RATELIMIT_STRING",
+        default="10 per day",
+    )
+    maybe_set(
+        settings,
+        "warehouse.manage.oidc.ip_provider_registration_ratelimit_string",
+        "IP_OIDC_PROVIDER_REGISTRATION_RATELIMIT_STRING",
         default="10 per day",
     )
 

@@ -16,7 +16,12 @@ import io
 import pyqrcode
 
 from paginate_sqlalchemy import SqlalchemyOrmPage as SQLAlchemyORMPage
-from pyramid.httpexceptions import HTTPBadRequest, HTTPNotFound, HTTPSeeOther
+from pyramid.httpexceptions import (
+    HTTPBadRequest,
+    HTTPNotFound,
+    HTTPSeeOther,
+    HTTPTooManyRequests,
+)
 from pyramid.response import Response
 from pyramid.view import view_config, view_defaults
 from sqlalchemy import func
@@ -74,6 +79,7 @@ from warehouse.manage.forms import (
     Toggle2FARequirementForm,
 )
 from warehouse.oidc.forms import DeleteProviderForm, GitHubProviderForm
+from warehouse.oidc.interfaces import TooManyOIDCRegistrations
 from warehouse.oidc.models import GitHubProvider, OIDCProvider
 from warehouse.packaging.models import (
     File,
@@ -85,6 +91,7 @@ from warehouse.packaging.models import (
     RoleInvitation,
     RoleInvitationStatus,
 )
+from warehouse.rate_limiting import IRateLimiter
 from warehouse.utils.http import is_safe_url
 from warehouse.utils.paginate import paginate_url_factory
 from warehouse.utils.project import confirm_project, destroy_docs, remove_project
@@ -1068,11 +1075,39 @@ class ManageOIDCProviderViews:
         self.project = project
 
     @property
+    def _ratelimiters(self):
+        return {
+            "user.oidc": self.request.find_service(
+                IRateLimiter, name="user_oidc.provider.register"
+            ),
+            "ip.oidc": self.request.find_service(
+                IRateLimiter, name="ip_oidc.provider.register"
+            ),
+        }
+
+    def _hit_ratelimits(self):
+        self._ratelimiters["user.oidc"].hit(self.request.user.id)
+        self._ratelimiters["ip.oidc"].hit(self.request.remote_addr)
+
+    def _check_ratelimits(self):
+        if not self._ratelimiters["user.oidc"].test(self.request.user.id):
+            raise TooManyOIDCRegistrations(
+                resets_in=self._ratelimiters["user.oidc"].resets_in(
+                    self.request.user.id
+                )
+            )
+
+        if not self._ratelimiters["ip.oidc"].test(self.request.remote_addr):
+            raise TooManyOIDCRegistrations(
+                resets_in=self._ratelimiters["ip.oidc"].resets_in(self.remote_addr)
+            )
+
+    @property
     def default_response(self):
         return {
             "project": self.project,
             "github_provider_form": GitHubProviderForm(
-                api_token=self.request.registry.settings.get("github.token")
+                api_token=self.request.registry.settings.get("github.token"),
             ),
         }
 
@@ -1101,12 +1136,24 @@ class ManageOIDCProviderViews:
             )
             return self.default_response
 
+        try:
+            self._check_ratelimits()
+        except TooManyOIDCRegistrations as exc:
+            return HTTPTooManyRequests(
+                self.request._(
+                    "There have been too many attempted OpenID Connect registrations. "
+                    "Try again later."
+                ),
+                retry_after=exc.resets_in.total_seconds(),
+            )
+
         form = GitHubProviderForm(
             self.request.POST,
             api_token=self.request.registry.settings.get("github.token"),
         )
 
         if form.validate():
+            self._hit_ratelimits()
             # GitHub OIDC providers are unique on the tuple of
             # (repository_name, owner, workflow_name), so we check for
             # an already registered one before creating.

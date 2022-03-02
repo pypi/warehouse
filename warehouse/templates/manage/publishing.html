@@ -84,8 +84,8 @@
           <span class="form-group__required">{% trans %}(required){% endtrans %}</span>
           {% endif %}
         </label>
-        {{ github_provider_form.owner(placeholder=gettext("owner"), autocomplete="off", autocapitalize="off", spellcheck="false", class_="form-group__field", **{"aria-describedby":"owner-slug-errors"}) }}
-        <div id="owner-slug-errors">
+        {{ github_provider_form.owner(placeholder=gettext("owner"), autocomplete="off", autocapitalize="off", spellcheck="false", class_="form-group__field", **{"aria-describedby":"owner-errors"}) }}
+        <div id="owner-errors">
           {{ field_errors(github_provider_form.owner) }}
         </div>
       </div>
@@ -96,8 +96,8 @@
           <span class="form-group__required">{% trans %}(required){% endtrans %}</span>
           {% endif %}
         </label>
-        {{ github_provider_form.repository(placeholder=gettext("repository"), autocomplete="off", autocapitalize="off", spellcheck="false", class_="form-group__field", **{"aria-describedby":"repository-slug-errors"}) }}
-        <div id="repository-slug-errors">
+        {{ github_provider_form.repository(placeholder=gettext("repository"), autocomplete="off", autocapitalize="off", spellcheck="false", class_="form-group__field", **{"aria-describedby":"repository-errors"}) }}
+        <div id="repository-errors">
           {{ field_errors(github_provider_form.repository) }}
         </div>
       </div>
@@ -108,8 +108,8 @@
           <span class="form-group__required">{% trans %}(required){% endtrans %}</span>
           {% endif %}
         </label>
-        {{ github_provider_form.workflow_name(placeholder=gettext("workflow.yml"), class_="form-group__field", autocomplete="off", **{"aria-describedby":"workflow-name-errors"}) }}
-        <div id="workflow-name-errors">
+        {{ github_provider_form.workflow_name(placeholder=gettext("workflow.yml"), class_="form-group__field", autocomplete="off", **{"aria-describedby":"workflow_name-errors"}) }}
+        <div id="workflow_name-errors">
           {{ field_errors(github_provider_form.workflow_name) }}
         </div>
       </div>

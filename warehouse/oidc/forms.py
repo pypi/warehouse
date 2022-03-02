@@ -71,16 +71,16 @@ class GitHubProviderForm(forms.Form):
             )
             response.raise_for_status()
         except requests.HTTPError as exc:
-            if exc.status_code == 404:
+            if exc.response.status_code == 404:
                 raise wtforms.validators.ValidationError(
                     _("Unknown GitHub user or organization.")
                 )
-            if exc.status_code == 403:
+            if exc.response.status_code == 403:
                 # GitHub's API uses 403 to signal rate limiting, and returns a JSON
                 # blob explaining the reason.
                 sentry_sdk.capture_message(
                     "Exceeded GitHub rate limit for user lookups. "
-                    f"Reason: {response.json()}"
+                    f"Reason: {exc.response.json()}"
                 )
                 raise wtforms.validators.ValidationError(
                     _(
@@ -89,7 +89,7 @@ class GitHubProviderForm(forms.Form):
                 )
             else:
                 sentry_sdk.capture_message(
-                    f"Unexpected error from GitHub user lookup: {response.content=}"
+                    f"Unexpected error from GitHub user lookup: {exc.response.content=}"
                 )
                 raise wtforms.validators.ValidationError(
                     _("Unexpected error from GitHub. Try again.")
