@@ -120,7 +120,7 @@ msgstr ""
 msgid "Successful WebAuthn assertion"
 msgstr ""
 
-#: warehouse/accounts/views.py:439 warehouse/manage/views.py:790
+#: warehouse/accounts/views.py:439 warehouse/manage/views.py:791
 msgid "Recovery code accepted. The supplied code cannot be used again."
 msgstr ""
 
@@ -233,41 +233,41 @@ msgstr ""
 msgid "Email ${email_address} added - check your email for a verification link"
 msgstr ""
 
-#: warehouse/manage/views.py:738
+#: warehouse/manage/views.py:739
 msgid "Recovery codes already generated"
 msgstr ""
 
-#: warehouse/manage/views.py:739
+#: warehouse/manage/views.py:740
 msgid "Generating new recovery codes will invalidate your existing codes."
 msgstr ""
 
-#: warehouse/manage/views.py:1602
+#: warehouse/manage/views.py:1603
 msgid "User '${username}' already has ${role_name} role for project"
 msgstr ""
 
-#: warehouse/manage/views.py:1613
+#: warehouse/manage/views.py:1614
 msgid ""
 "User '${username}' does not have a verified primary email address and "
 "cannot be added as a ${role_name} for project"
 msgstr ""
 
-#: warehouse/manage/views.py:1626
+#: warehouse/manage/views.py:1627
 msgid "User '${username}' already has an active invite. Please try again later."
 msgstr ""
 
-#: warehouse/manage/views.py:1684
+#: warehouse/manage/views.py:1685
 msgid "Invitation sent to '${username}'"
 msgstr ""
 
-#: warehouse/manage/views.py:1731
+#: warehouse/manage/views.py:1732
 msgid "Could not find role invitation."
 msgstr ""
 
-#: warehouse/manage/views.py:1742
+#: warehouse/manage/views.py:1743
 msgid "Invitation already expired."
 msgstr ""
 
-#: warehouse/manage/views.py:1766
+#: warehouse/manage/views.py:1767
 msgid "Invitation revoked from '${username}'."
 msgstr ""
 

@@ -616,6 +616,10 @@ class TestManageAccount:
                 email=pretend.stub(),
                 name=pretend.stub(),
             ),
+            db=pretend.stub(
+                flush=lambda: None,
+                refresh=lambda obj: None,
+            ),
             remote_addr="0.0.0.0",
         )
         change_pwd_obj = pretend.stub(

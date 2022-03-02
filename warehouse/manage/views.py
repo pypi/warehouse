@@ -361,6 +361,7 @@ class ManageAccountViews:
                 tag="account:password:change",
             )
             send_password_change_email(self.request, self.request.user)
+            self.request.db.flush()  # Ensure changes are persisted to DB
             self.request.db.refresh(self.request.user)  # Pickup new password_date
             self.request.session.record_password_timestamp(
                 self.user_service.get_password_timestamp(self.request.user.id)
