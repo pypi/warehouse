@@ -116,7 +116,7 @@ msgstr ""
 msgid "Successful WebAuthn assertion"
 msgstr ""
 
-#: warehouse/accounts/views.py:439 warehouse/manage/views.py:786
+#: warehouse/accounts/views.py:439 warehouse/manage/views.py:796
 msgid "Recovery code accepted. The supplied code cannot be used again."
 msgstr ""
 
@@ -225,46 +225,96 @@ msgstr ""
 msgid "Banner Preview"
 msgstr ""
 
-#: warehouse/manage/views.py:222
+#: warehouse/manage/views.py:232
 msgid "Email ${email_address} added - check your email for a verification link"
 msgstr ""
 
-#: warehouse/manage/views.py:734
+#: warehouse/manage/views.py:744
 msgid "Recovery codes already generated"
 msgstr ""
 
-#: warehouse/manage/views.py:735
+#: warehouse/manage/views.py:745
 msgid "Generating new recovery codes will invalidate your existing codes."
 msgstr ""
 
-#: warehouse/manage/views.py:1598
+#: warehouse/manage/views.py:1150
+msgid ""
+"There have been too many attempted OpenID Connect registrations. Try "
+"again later."
+msgstr ""
+
+#: warehouse/manage/views.py:1808
 msgid "User '${username}' already has ${role_name} role for project"
 msgstr ""
 
-#: warehouse/manage/views.py:1609
+#: warehouse/manage/views.py:1819
 msgid ""
 "User '${username}' does not have a verified primary email address and "
 "cannot be added as a ${role_name} for project"
 msgstr ""
 
-#: warehouse/manage/views.py:1622
+#: warehouse/manage/views.py:1832
 msgid "User '${username}' already has an active invite. Please try again later."
 msgstr ""
 
-#: warehouse/manage/views.py:1680
+#: warehouse/manage/views.py:1890
 msgid "Invitation sent to '${username}'"
 msgstr ""
 
-#: warehouse/manage/views.py:1727
+#: warehouse/manage/views.py:1937
 msgid "Could not find role invitation."
 msgstr ""
 
-#: warehouse/manage/views.py:1738
+#: warehouse/manage/views.py:1948
 msgid "Invitation already expired."
 msgstr ""
 
-#: warehouse/manage/views.py:1762
+#: warehouse/manage/views.py:1972
 msgid "Invitation revoked from '${username}'."
+msgstr ""
+
+#: warehouse/oidc/forms.py:31
+msgid "Specify GitHub owner (username or organization)"
+msgstr ""
+
+#: warehouse/oidc/forms.py:38
+msgid "Specify repository slug"
+msgstr ""
+
+#: warehouse/oidc/forms.py:40
+msgid "Invalid repository name"
+msgstr ""
+
+#: warehouse/oidc/forms.py:46
+msgid "Specify workflow name"
+msgstr ""
+
+#: warehouse/oidc/forms.py:76
+msgid "Unknown GitHub user or organization."
+msgstr ""
+
+#: warehouse/oidc/forms.py:86
+msgid "GitHub has rate-limited this action. Try again in a few minutes."
+msgstr ""
+
+#: warehouse/oidc/forms.py:95
+msgid "Unexpected error from GitHub. Try again."
+msgstr ""
+
+#: warehouse/oidc/forms.py:102
+msgid "Unexpected timeout from GitHub. Try again in a few minutes."
+msgstr ""
+
+#: warehouse/oidc/forms.py:116
+msgid "Workflow name must end with .yml or .yaml"
+msgstr ""
+
+#: warehouse/oidc/forms.py:121
+msgid "Workflow name must be a basename, without directories"
+msgstr ""
+
+#: warehouse/oidc/forms.py:130
+msgid "Provider must be specified by ID"
 msgstr ""
 
 #: warehouse/templates/403.html:16
@@ -536,7 +586,7 @@ msgstr ""
 #: warehouse/templates/manage/manage_base.html:278
 #: warehouse/templates/manage/manage_base.html:330
 #: warehouse/templates/manage/release.html:163
-#: warehouse/templates/manage/settings.html:119
+#: warehouse/templates/manage/settings.html:134
 msgid "Warning"
 msgstr ""
 
@@ -842,6 +892,9 @@ msgstr ""
 #: warehouse/templates/manage/account/recovery_codes-burn.html:70
 #: warehouse/templates/manage/account/totp-provision.html:69
 #: warehouse/templates/manage/account/webauthn-provision.html:44
+#: warehouse/templates/manage/publishing.html:84
+#: warehouse/templates/manage/publishing.html:96
+#: warehouse/templates/manage/publishing.html:108
 #: warehouse/templates/manage/roles.html:170
 #: warehouse/templates/manage/roles.html:182
 #: warehouse/templates/manage/token.html:136
@@ -1272,6 +1325,41 @@ msgid ""
 "to publish."
 msgstr ""
 
+#: warehouse/templates/email/oidc-provider-added/body.html:19
+#, python-format
+msgid ""
+"\n"
+"  PyPI user <strong>%(username)s</strong> has added a new OpenID Connect\n"
+"  publisher to a project (<strong>%(project_name)s</strong>) that you "
+"manage.\n"
+"  OpenID Connect publishers act as trusted users and can create project "
+"releases\n"
+"  automatically.\n"
+"  "
+msgstr ""
+
+#: warehouse/templates/email/oidc-provider-added/body.html:28
+msgid ""
+"\n"
+"  If you did not make this change and you think it was made maliciously, "
+"you can\n"
+"  remove it from the project via the \"Publishing\" tab on the project's "
+"page.\n"
+"  "
+msgstr ""
+
+#: warehouse/templates/email/oidc-provider-added/body.html:35
+#, python-format
+msgid ""
+"\n"
+"  If you are unable to revert the change and need to do so, you can email"
+"\n"
+"  <a href=\"%(href)s\">%(email_address)s</a> to communicate with the PyPI"
+"\n"
+"  administrators.\n"
+"  "
+msgstr ""
+
 #: warehouse/templates/email/password-change/body.html:18
 #, python-format
 msgid ""
@@ -1534,7 +1622,7 @@ msgstr ""
 #: warehouse/templates/manage/release.html:118
 #: warehouse/templates/manage/releases.html:172
 #: warehouse/templates/manage/roles.html:38
-#: warehouse/templates/manage/settings.html:113
+#: warehouse/templates/manage/settings.html:128
 #: warehouse/templates/search/results.html:199
 msgid "Close"
 msgstr ""
@@ -1703,6 +1791,10 @@ msgid "Documentation"
 msgstr ""
 
 #: warehouse/templates/includes/manage/manage-project-menu.html:51
+msgid "Publishing"
+msgstr ""
+
+#: warehouse/templates/includes/manage/manage-project-menu.html:57
 msgid "Settings"
 msgstr ""
 
@@ -2600,6 +2692,7 @@ msgstr ""
 
 #: warehouse/templates/manage/manage_base.html:64
 #: warehouse/templates/manage/manage_base.html:78
+#: warehouse/templates/manage/publishing.html:44
 msgid "Remove"
 msgstr ""
 
@@ -2854,6 +2947,88 @@ msgid ""
 "rel=\"noopener\">Python Packaging User Guide</a>"
 msgstr ""
 
+#: warehouse/templates/manage/publishing.html:20
+#: warehouse/templates/manage/publishing.html:51
+msgid "OpenID Connect publisher management"
+msgstr ""
+
+#: warehouse/templates/manage/publishing.html:54
+msgid ""
+"OpenID Connect provides a flexible, credential-free mechanism for "
+"delegating publishing authority for a PyPI package to a third party "
+"service, like GitHub Actions."
+msgstr ""
+
+#: warehouse/templates/manage/publishing.html:62
+msgid ""
+"PyPI projects can use trusted OpenID Connect publishers to automate their"
+" release processes, without having to explicitly provision or manage API "
+"tokens."
+msgstr ""
+
+#: warehouse/templates/manage/publishing.html:68
+msgid "Add a new provider"
+msgstr ""
+
+#: warehouse/templates/manage/publishing.html:73
+#, python-format
+msgid ""
+"Read more about GitHub's OpenID Connect provider <a "
+"href=\"%(href)s\">here</a>."
+msgstr ""
+
+#: warehouse/templates/manage/publishing.html:82
+#: warehouse/templates/manage/roles.html:43
+#: warehouse/templates/manage/roles.html:77
+#: warehouse/templates/manage/roles.html:88
+msgid "Owner"
+msgstr ""
+
+#: warehouse/templates/manage/publishing.html:87
+msgid "owner"
+msgstr ""
+
+#: warehouse/templates/manage/publishing.html:94
+msgid "Repository name"
+msgstr ""
+
+#: warehouse/templates/manage/publishing.html:99
+msgid "repository"
+msgstr ""
+
+#: warehouse/templates/manage/publishing.html:106
+msgid "Workflow name"
+msgstr ""
+
+#: warehouse/templates/manage/publishing.html:111
+msgid "workflow.yml"
+msgstr ""
+
+#: warehouse/templates/manage/publishing.html:117
+msgid "Add"
+msgstr ""
+
+#: warehouse/templates/manage/publishing.html:121
+msgid "Manage current providers"
+msgstr ""
+
+#: warehouse/templates/manage/publishing.html:125
+#, python-format
+msgid "OpenID Connect publishers associated with %(project_name)s"
+msgstr ""
+
+#: warehouse/templates/manage/publishing.html:129
+msgid "Publisher"
+msgstr ""
+
+#: warehouse/templates/manage/publishing.html:130
+msgid "Specification"
+msgstr ""
+
+#: warehouse/templates/manage/publishing.html:141
+msgid "No publishers are currently configured."
+msgstr ""
+
 #: warehouse/templates/manage/release.html:18
 #, python-format
 msgid "Manage '%(project_name)s' – release version %(version)s"
@@ -2943,7 +3118,7 @@ msgstr ""
 #: warehouse/templates/manage/release.html:118
 #: warehouse/templates/manage/releases.html:172
 #: warehouse/templates/manage/roles.html:38
-#: warehouse/templates/manage/settings.html:113
+#: warehouse/templates/manage/settings.html:128
 msgid "Dismiss"
 msgstr ""
 
@@ -3234,12 +3409,6 @@ msgid ""
 "delete files, releases, or the project."
 msgstr ""
 
-#: warehouse/templates/manage/roles.html:43
-#: warehouse/templates/manage/roles.html:77
-#: warehouse/templates/manage/roles.html:88
-msgid "Owner"
-msgstr ""
-
 #: warehouse/templates/manage/roles.html:44
 msgid ""
 "Can upload releases. Can invite other collaborators. Can delete files, "
@@ -3373,11 +3542,33 @@ msgstr ""
 msgid "Enable 2FA requirement for %(project_name)s"
 msgstr ""
 
-#: warehouse/templates/manage/settings.html:104
+#: warehouse/templates/manage/settings.html:101
+msgid "OpenID Connect publishers"
+msgstr ""
+
+#: warehouse/templates/manage/settings.html:103
+msgid ""
+"\n"
+"    OpenID Connect publishers provide a credential-free way to "
+"authenticate when uploading packages to PyPI.\n"
+"    "
+msgstr ""
+
+#: warehouse/templates/manage/settings.html:109
+#, python-format
+msgid ""
+"\n"
+"    <a href=\"%(href)s\" class=\"button button--primary\">\n"
+"      Manage OpenID Connect publishers for %(project_name)s\n"
+"    </a>\n"
+"    "
+msgstr ""
+
+#: warehouse/templates/manage/settings.html:119
 msgid "Project description and sidebar"
 msgstr ""
 
-#: warehouse/templates/manage/settings.html:106
+#: warehouse/templates/manage/settings.html:121
 #, python-format
 msgid ""
 "To set the '%(project_name)s' description, author, links, classifiers, "
@@ -3393,16 +3584,16 @@ msgid ""
 "for more help."
 msgstr ""
 
-#: warehouse/templates/manage/settings.html:117
-#: warehouse/templates/manage/settings.html:148
+#: warehouse/templates/manage/settings.html:132
+#: warehouse/templates/manage/settings.html:163
 msgid "Delete project"
 msgstr ""
 
-#: warehouse/templates/manage/settings.html:120
+#: warehouse/templates/manage/settings.html:135
 msgid "Deleting this project will:"
 msgstr ""
 
-#: warehouse/templates/manage/settings.html:125
+#: warehouse/templates/manage/settings.html:140
 #, python-format
 msgid ""
 "Irreversibly delete the project along with <a href=\"%(href)s\">%(count)s"
@@ -3413,15 +3604,15 @@ msgid_plural ""
 msgstr[0] ""
 msgstr[1] ""
 
-#: warehouse/templates/manage/settings.html:131
+#: warehouse/templates/manage/settings.html:146
 msgid "Irreversibly delete the project"
 msgstr ""
 
-#: warehouse/templates/manage/settings.html:135
+#: warehouse/templates/manage/settings.html:150
 msgid "Make the project name available to <strong>any other PyPI</strong> user"
 msgstr ""
 
-#: warehouse/templates/manage/settings.html:137
+#: warehouse/templates/manage/settings.html:152
 msgid ""
 "This user will be able to make new releases under this project name, so "
 "long as the distribution filenames do not match filenames from a "
@@ -3430,7 +3621,7 @@ msgid ""
 "number + distribution type)"
 msgstr ""
 
-#: warehouse/templates/manage/settings.html:148
+#: warehouse/templates/manage/settings.html:163
 msgid "Project Name"
 msgstr ""
 
