@@ -44,27 +44,27 @@ describe("Password match controller", () => {
   });
 
   describe("incomplete inputs", function() {
-    describe("adding text on one of the fields", function() {
+    describe("adding text on only the first field", function() {
       it("disables submit", function() {
         const passwordMatch = getByPlaceholderText(document.body, "Your password");
-        const confirmPasswordMatch = getByPlaceholderText(document.body, "Confirm password");
-        const message = document.getElementsByTagName("p")[0];
-        const submit = document.getElementsByTagName("input")[2];
-
         fireEvent.input(passwordMatch, { target: { value: "foo" } });
-        expect(message).toHaveClass("hidden");
-        expect(submit).toHaveAttribute("disabled", "");
 
-        fireEvent.input(passwordMatch, { target: { value: "" } });
+        const message = document.getElementsByTagName("p")[0];
+        expect(message).toHaveClass("hidden");
+        const submit = document.getElementsByTagName("input")[2];
+        expect(submit).toHaveAttribute("disabled", "");
+      });
+    });
+
+    describe("adding text on only the second field", function() {
+      it("disables submit", function() {
+        const confirmPasswordMatch = getByPlaceholderText(document.body, "Confirm password");
         fireEvent.input(confirmPasswordMatch, { target: { value: "foo" } });
-        expect(message).toHaveClass("hidden");
-        expect(submit).toHaveAttribute("disabled", "");
 
-        fireEvent.input(passwordMatch, { target: { value: "" } });
-        fireEvent.input(confirmPasswordMatch, { target: { value: "" } });
+        const message = document.getElementsByTagName("p")[0];
         expect(message).toHaveClass("hidden");
+        const submit = document.getElementsByTagName("input")[2];
         expect(submit).toHaveAttribute("disabled", "");
-
       });
     });
 
