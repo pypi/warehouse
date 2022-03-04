@@ -407,9 +407,9 @@ google-crc32c==1.3.0 \
     --hash=sha256:fec221a051150eeddfdfcff162e6db92c65ecf46cb0f7bb1bf812a1520ec026b \
     --hash=sha256:ff71073ebf0e42258a42a0b34f2c09ec384977e7f6808999102eedd5b49920e3
     # via google-resumable-media
-google-resumable-media==2.2.1 \
-    --hash=sha256:b1edfb98867c9fa25aa7af12d6468665b83c532b7349effab805a027ea8bbee5 \
-    --hash=sha256:fd616af31b83d48da040c8c09b6994606e1734efb8af9acc97cf5d6070e9ba72
+google-resumable-media==2.3.1 \
+    --hash=sha256:1f4d8b15196766fdf8a860fd2cfaa6184138707ec5f921cd1834067a5dfd2db7 \
+    --hash=sha256:7465f228b1d4b79f6048403b7873e1167d2ee31ae3e552fc0698a9a8789e594c
     # via
     #   google-cloud-bigquery
     #   google-cloud-storage
