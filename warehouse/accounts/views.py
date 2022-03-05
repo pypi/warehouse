@@ -15,6 +15,8 @@ import hashlib
 import json
 import uuid
 
+import pytz
+
 from first import first
 from pyramid.httpexceptions import (
     HTTPMovedPermanently,
@@ -656,8 +658,12 @@ def reset_password(request, _form_class=ResetPasswordForm):
         return _error(request._("Invalid token: user not found"))
 
     # Check whether the user has logged in since the token was created
-    last_login = data.get("user.last_login")
-    if str(user.last_login) > last_login:
+    last_login = datetime.datetime.fromisoformat(data.get("user.last_login"))
+    # Before updating itsdangerous to 2.x the last_login was naive,
+    # now it's localized to UTC
+    if not last_login.tzinfo:
+        last_login = pytz.UTC.localize(last_login)
+    if user.last_login > last_login:
         # TODO: track and audit this, seems alertable
         return _error(
             request._(

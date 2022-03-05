@@ -17,6 +17,7 @@ import uuid
 import freezegun
 import pretend
 import pytest
+import pytz
 
 from pyramid.httpexceptions import HTTPMovedPermanently, HTTPSeeOther
 from sqlalchemy.orm.exc import NoResultFound
@@ -1731,7 +1732,8 @@ class TestRequestPasswordReset:
 
 
 class TestResetPassword:
-    def test_get(self, db_request, user_service, token_service):
+    @pytest.mark.parametrize("last_login_utc", (True, False))
+    def test_get(self, db_request, user_service, token_service, last_login_utc):
         user = UserFactory.create()
         form_inst = pretend.stub()
         form_class = pretend.call_recorder(lambda *args, **kwargs: form_inst)
@@ -1739,11 +1741,14 @@ class TestResetPassword:
         breach_service = pretend.stub(check_password=lambda pw: False)
 
         db_request.GET.update({"token": "RANDOM_KEY"})
+        last_login = str(
+            user.last_login if last_login_utc else user.last_login.replace(tzinfo=None)
+        )
         token_service.loads = pretend.call_recorder(
             lambda token: {
                 "action": "password-reset",
                 "user.id": str(user.id),
-                "user.last_login": str(user.last_login),
+                "user.last_login": last_login,
                 "user.password_date": str(user.password_date),
             }
         )
@@ -1930,7 +1935,7 @@ class TestResetPassword:
         assert user_service.get_user.calls == [pretend.call(uuid.UUID(data["user.id"]))]
 
     def test_reset_password_last_login_changed(self, pyramid_request):
-        now = datetime.datetime.utcnow()
+        now = pytz.UTC.localize(datetime.datetime.utcnow())
         later = now + datetime.timedelta(hours=1)
         data = {
             "action": "password-reset",
@@ -1962,7 +1967,7 @@ class TestResetPassword:
         ]
 
     def test_reset_password_password_date_changed(self, pyramid_request):
-        now = datetime.datetime.utcnow()
+        now = pytz.UTC.localize(datetime.datetime.utcnow())
         later = now + datetime.timedelta(hours=1)
         data = {
             "action": "password-reset",
