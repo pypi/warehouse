@@ -29,7 +29,7 @@ if [ $ATTEMPTS -eq 5 ]; then
   exit 1
 fi
 
-# Print all the followng commands
+# Print all the following commands
 set -x
 
 # Actually run our tests.
