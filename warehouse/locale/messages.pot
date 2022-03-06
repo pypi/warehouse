@@ -1574,7 +1574,7 @@ msgstr ""
 #: warehouse/templates/manage/account/recovery_codes-provision.html:57
 #: warehouse/templates/manage/account/totp-provision.html:57
 #: warehouse/templates/packaging/detail.html:144
-#: warehouse/templates/pages/classifiers.html:37
+#: warehouse/templates/pages/classifiers.html:38
 msgid "Copy to clipboard"
 msgstr ""
 
@@ -1584,7 +1584,7 @@ msgstr ""
 #: warehouse/templates/manage/account.html:207
 #: warehouse/templates/manage/account/recovery_codes-provision.html:58
 #: warehouse/templates/manage/account/totp-provision.html:58
-#: warehouse/templates/pages/classifiers.html:38
+#: warehouse/templates/pages/classifiers.html:39
 msgid "Copy"
 msgstr ""
 
@@ -3917,7 +3917,7 @@ msgstr[1] ""
 
 #: warehouse/templates/pages/classifiers.html:22
 msgid ""
-"Each project's maintainers provide PyPI with a list of \"trove "
+"Each project's maintainers provide PyPI with a list of \"Trove "
 "classifiers\" to categorize each release, describing who it's for, what "
 "systems it can run on, and how mature it is."
 msgstr ""
@@ -3931,7 +3931,7 @@ msgstr ""
 #: warehouse/templates/pages/classifiers.html:25
 #, python-format
 msgid ""
-"Instructions for how to add trove classifiers to a project can be found "
+"Instructions for how to add Trove classifiers to a project can be found "
 "on the <a href=\"%(ppug_href)s\" title=\"%(title)s\" target=\"_blank\" "
 "rel=\"noopener\">Python Packaging User Guide</a>. To read the original "
 "classifier specification, refer to <a href=\"%(pep301_href)s\" "
@@ -3939,7 +3939,14 @@ msgid ""
 "title=\"Python enhancement proposal\">PEP</abbr> 301</a>."
 msgstr ""
 
-#: warehouse/templates/pages/classifiers.html:31
+#: warehouse/templates/pages/classifiers.html:30
+msgid ""
+"To prevent a package from being uploaded to PyPI, use the special "
+"\"Private :: Do Not Upload\" classifier. PyPI will always reject packages"
+" with classifiers beginning with \"Private ::\"."
+msgstr ""
+
+#: warehouse/templates/pages/classifiers.html:32
 msgid "List of classifiers"
 msgstr ""
 
