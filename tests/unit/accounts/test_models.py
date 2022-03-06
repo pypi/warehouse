@@ -14,7 +14,7 @@ import datetime
 
 import pytest
 
-from warehouse.accounts.models import Email, User, UserFactory
+from warehouse.accounts.models import Email, RecoveryCode, User, UserFactory
 
 from ...common.db.accounts import (
     EmailFactory as DBEmailFactory,
@@ -138,3 +138,15 @@ class TestUser:
     def test_combo_still_prohibit_password_reset(self, db_session):
         user = DBUserFactory.create(is_superuser=True, prohibit_password_reset=True)
         assert user.can_reset_password is False
+
+    def test_has_burned_recovery_codes(self, db_session):
+        user = DBUserFactory.create()
+        user.recovery_codes.append(
+            RecoveryCode(user_id=user.id, code="hiya", burned=datetime.datetime.now())
+        )
+        db_session.flush()
+        assert user.has_burned_recovery_codes is True
+
+    def test_has_no_burned_recovery_codes(self, db_session):
+        user = DBUserFactory.create()
+        assert user.has_burned_recovery_codes is False

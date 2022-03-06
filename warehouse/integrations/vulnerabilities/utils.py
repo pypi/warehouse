@@ -10,7 +10,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-
+from pyramid.httpexceptions import HTTPBadRequest
 from sqlalchemy import func, orm
 from sqlalchemy.orm.exc import NoResultFound
 
@@ -63,7 +63,7 @@ def _analyze_vulnerability(request, vulnerability_report, origin, metrics):
         report = vulnerabilities.VulnerabilityReportRequest.from_api_request(
             request=vulnerability_report
         )
-    except vulnerabilities.InvalidVulnerabilityReportRequest as exc:
+    except vulnerabilities.InvalidVulnerabilityReportError as exc:
         metrics.increment(
             f"warehouse.vulnerabilities.error.{exc.reason}", tags=[f"origin:{origin}"]
         )
@@ -89,6 +89,8 @@ def _analyze_vulnerability(request, vulnerability_report, origin, metrics):
             source=origin,
             link=report.advisory_link,
             aliases=report.aliases,
+            details=report.details,
+            fixed_in=report.fixed_in,
         )
         _add_vuln_record(request, vulnerability_record)
 
@@ -101,18 +103,25 @@ def _analyze_vulnerability(request, vulnerability_report, origin, metrics):
         )
         raise
 
+    found_releases = False  # by now, we don't have any release found
+
     for version in report.versions:
         try:
             release = _get_release(request, project, version)
+            found_releases = True  # at least one release found
         except NoResultFound:
             metrics.increment(
                 "warehouse.vulnerabilities.error.release_not_found",
                 tags=[f"origin:{origin}"],
             )
-            raise
+            continue  # skip that release
 
         if release not in vulnerability_record.releases:
             vulnerability_record.releases.append(release)
+
+    if not found_releases:
+        # no releases found, then raise an exception
+        raise HTTPBadRequest("None of the releases were found")
 
     # Unassociate any releases that no longer apply.
     for release in list(vulnerability_record.releases):
@@ -136,7 +145,11 @@ def analyze_vulnerability(request, vulnerability_report, origin, metrics):
         metrics.increment(
             "warehouse.vulnerabilities.processed", tags=[f"origin:{origin}"]
         )
-    except (vulnerabilities.InvalidVulnerabilityReportRequest, NoResultFound):
+    except (
+        vulnerabilities.InvalidVulnerabilityReportError,
+        NoResultFound,
+        HTTPBadRequest,
+    ):
         raise
     except Exception:
         metrics.increment(
@@ -152,7 +165,7 @@ def analyze_vulnerabilities(request, vulnerability_reports, origin, metrics):
         metrics.increment(
             "warehouse.vulnerabilities.error.format", tags=[f"origin:{origin}"]
         )
-        raise vulnerabilities.InvalidVulnerabilityReportRequest(
+        raise vulnerabilities.InvalidVulnerabilityReportError(
             "Invalid format: payload is not a list", "format"
         )
 

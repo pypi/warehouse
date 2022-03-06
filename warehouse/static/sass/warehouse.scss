@@ -43,7 +43,7 @@
 
 // RESETS LAYER: applies CSS resets and sensible defaults
 @import "resets/boxsizing";
-@import "resets/normalize";
+@import "node_modules/normalize.css/normalize";
 @import "resets/reset";
 
 // BASE LAYER: adds styles to anything without a class
@@ -108,6 +108,7 @@
 /*rtl:begin:ignore*/
 @import "blocks/project-description";
 /*rtl:end:ignore*/
+@import "blocks/files";
 @import "blocks/release";
 @import "blocks/release-timeline";
 @import "blocks/search-form";

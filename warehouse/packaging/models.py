@@ -18,7 +18,7 @@ from urllib.parse import urlparse
 import packaging.utils
 
 from citext import CIText
-from pyramid.security import Allow
+from pyramid.authorization import Allow
 from pyramid.threadlocal import get_current_request
 from sqlalchemy import (
     BigInteger,
@@ -105,11 +105,14 @@ class RoleInvitation(db.Model):
     )
     token = Column(Text, nullable=False)
     user_id = Column(
-        ForeignKey("users.id", onupdate="CASCADE", ondelete="CASCADE"), nullable=False
+        ForeignKey("users.id", onupdate="CASCADE", ondelete="CASCADE"),
+        nullable=False,
+        index=True,
     )
     project_id = Column(
         ForeignKey("projects.id", onupdate="CASCADE", ondelete="CASCADE"),
         nullable=False,
+        index=True,
     )
 
     user = orm.relationship(User, lazy=False)
@@ -131,7 +134,18 @@ class ProjectFactory:
             raise KeyError from None
 
 
-class Project(SitemapMixin, db.Model):
+class TwoFactorRequireable:
+    # Project owner requires 2FA for this project
+    owners_require_2fa = Column(Boolean, nullable=False, server_default=sql.false())
+    # PyPI requires 2FA for this project
+    pypi_mandates_2fa = Column(Boolean, nullable=False, server_default=sql.false())
+
+    @hybrid_property
+    def two_factor_required(self):
+        return self.owners_require_2fa | self.pypi_mandates_2fa
+
+
+class Project(SitemapMixin, TwoFactorRequireable, db.Model):
 
     __tablename__ = "projects"
     __table_args__ = (
@@ -279,6 +293,7 @@ class ProjectEvent(db.Model):
             "projects.id", deferrable=True, initially="DEFERRED", ondelete="CASCADE"
         ),
         nullable=False,
+        index=True,
     )
     tag = Column(String, nullable=False)
     time = Column(DateTime, nullable=False, server_default=sql.func.now())
@@ -380,6 +395,7 @@ class Release(db.Model):
     description_id = Column(
         ForeignKey("release_descriptions.id", onupdate="CASCADE", ondelete="CASCADE"),
         nullable=False,
+        index=True,
     )
     description = orm.relationship(
         "Description",

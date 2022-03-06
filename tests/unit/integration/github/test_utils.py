@@ -33,7 +33,7 @@ def test_plain_text_token_leak_matcher_extract():
 
 
 def test_invalid_token_leak_request():
-    exc = utils.InvalidTokenLeakRequest("a", "b")
+    exc = utils.InvalidTokenLeakRequestError("a", "b")
 
     assert str(exc) == "a"
     assert exc.reason == "b"
@@ -62,9 +62,9 @@ def test_token_leak_disclosure_request_from_api_record_error(record, error, reas
         name = "failer"
 
         def extract(self, text):
-            raise utils.ExtractionFailed()
+            raise utils.ExtractionFailedError()
 
-    with pytest.raises(utils.InvalidTokenLeakRequest) as exc:
+    with pytest.raises(utils.InvalidTokenLeakRequestError) as exc:
         utils.TokenLeakDisclosureRequest.from_api_record(
             record, matchers={"failer": MyFailingMatcher(), **utils.TOKEN_LEAK_MATCHERS}
         )
@@ -209,7 +209,7 @@ class TestGitHubTokenScanningPayloadVerifier:
             public_keys_cache=cache,
         )
         github_verifier.retrieve_public_key_payload = pretend.raiser(
-            integrations.InvalidPayloadSignature("Bla", "bla")
+            integrations.InvalidPayloadSignatureError("Bla", "bla")
         )
 
         assert github_verifier.verify(payload={}, key_id="a", signature="a") is False
@@ -302,7 +302,7 @@ class TestGitHubTokenScanningPayloadVerifier:
             public_keys_cache=cache,
         )
 
-        with pytest.raises(integrations.CacheMiss):
+        with pytest.raises(integrations.CacheMissError):
             github_verifier._get_cached_public_keys()
 
     def test_retrieve_public_key_payload_http_error(self):
@@ -455,7 +455,7 @@ class TestGitHubTokenScanningPayloadVerifier:
             public_keys_cache=pretend.stub(),
         )
 
-        with pytest.raises(integrations.InvalidPayloadSignature) as exc:
+        with pytest.raises(integrations.InvalidPayloadSignatureError) as exc:
             github_verifier._check_public_key(public_keys=[], key_id="c")
 
         assert str(exc.value) == "Key c not found in public keys"
@@ -515,7 +515,7 @@ class TestGitHubTokenScanningPayloadVerifier:
             b'f43808034d7f5","url":" https://github.com/github/faketestrepo/blob/'
             b'b0dd59c0b500650cacd4551ca5989a6194001b10/production.env"}]'
         )
-        with pytest.raises(integrations.InvalidPayloadSignature) as exc:
+        with pytest.raises(integrations.InvalidPayloadSignatureError) as exc:
             github_verifier._check_signature(
                 payload=payload, public_key=public_key, signature=signature
             )
@@ -535,7 +535,7 @@ class TestGitHubTokenScanningPayloadVerifier:
 
         payload = "yeah, nope, that won't pass"
 
-        with pytest.raises(integrations.InvalidPayloadSignature) as exc:
+        with pytest.raises(integrations.InvalidPayloadSignatureError) as exc:
             github_verifier._check_signature(
                 payload=payload, public_key=public_key, signature=signature
             )
@@ -559,7 +559,7 @@ def test_analyze_disclosure(monkeypatch):
 
     find = pretend.call_recorder(lambda *a, **kw: database_macaroon)
     delete = pretend.call_recorder(lambda *a, **kw: None)
-    record_event = pretend.call_recorder(lambda *a, **kw: None)
+    record_event = pretend.call_recorder(lambda user_id, *, tag, additional=None: None)
     svc = {
         utils.IMetricsService: pretend.stub(increment=metrics_increment),
         utils.IMacaroonService: pretend.stub(
@@ -596,7 +596,6 @@ def test_analyze_disclosure(monkeypatch):
         pretend.call(
             user_id,
             tag="account:api_token:removed_leak",
-            ip_address="127.0.0.1",
             additional={
                 "macaroon_id": "12",
                 "public_url": "http://example.com",
@@ -639,7 +638,7 @@ def test_analyze_disclosure_invalid_macaroon():
     def metrics_increment(key):
         metrics.update([key])
 
-    find = pretend.raiser(utils.InvalidMacaroon("Bla", "bla"))
+    find = pretend.raiser(utils.InvalidMacaroonError("Bla", "bla"))
     svc = {
         utils.IMetricsService: pretend.stub(increment=metrics_increment),
         utils.IMacaroonService: pretend.stub(find_from_raw=find),
@@ -694,7 +693,7 @@ def test_analyze_disclosures_wrong_type():
 
     metrics_service = pretend.stub(increment=metrics_increment)
 
-    with pytest.raises(utils.InvalidTokenLeakRequest) as exc:
+    with pytest.raises(utils.InvalidTokenLeakRequestError) as exc:
         utils.analyze_disclosures(
             request=pretend.stub(),
             disclosure_records={},

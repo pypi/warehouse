@@ -16,7 +16,7 @@ from email.errors import HeaderParseError
 from email.headerregistry import Address
 
 import disposable_email_domains
-import jinja2
+import markupsafe
 import wtforms
 import wtforms.fields
 import wtforms.fields.html5
@@ -24,9 +24,17 @@ import wtforms.fields.html5
 import warehouse.utils.webauthn as webauthn
 
 from warehouse import forms
-from warehouse.accounts.interfaces import TooManyFailedLogins
+from warehouse.accounts.interfaces import (
+    BurnedRecoveryCode,
+    InvalidRecoveryCode,
+    NoRecoveryCodes,
+    TooManyFailedLogins,
+)
 from warehouse.accounts.models import DisableReason
-from warehouse.email import send_password_compromised_email_hibp
+from warehouse.email import (
+    send_password_compromised_email_hibp,
+    send_recovery_code_used_email,
+)
 from warehouse.i18n import localize as _
 from warehouse.utils.otp import TOTP_LENGTH
 
@@ -109,7 +117,11 @@ class PasswordMixin:
 
     password = wtforms.PasswordField(validators=[wtforms.validators.DataRequired()])
 
-    def __init__(self, *args, check_password_metrics_tags=None, **kwargs):
+    def __init__(
+        self, *args, request, action="login", check_password_metrics_tags=None, **kwargs
+    ):
+        self.request = request
+        self.action = action
         self._check_password_metrics_tags = check_password_metrics_tags
         super().__init__(*args, **kwargs)
 
@@ -118,8 +130,15 @@ class PasswordMixin:
         if userid is not None:
             try:
                 if not self.user_service.check_password(
-                    userid, field.data, tags=self._check_password_metrics_tags
+                    userid,
+                    field.data,
+                    tags=self._check_password_metrics_tags,
                 ):
+                    self.user_service.record_event(
+                        userid,
+                        tag=f"account:{self.action}:failure",
+                        additional={"reason": "invalid_password"},
+                    )
                     raise wtforms.validators.ValidationError(
                         _("The password is invalid. Try again.")
                     )
@@ -168,7 +187,7 @@ class NewPasswordMixin:
             field.data, tags=["method:new_password"]
         ):
             raise wtforms.validators.ValidationError(
-                jinja2.Markup(self._breach_service.failure_message)
+                markupsafe.Markup(self._breach_service.failure_message)
             )
 
 
@@ -252,9 +271,8 @@ class RegistrationForm(
 
 
 class LoginForm(PasswordMixin, UsernameMixin, forms.Form):
-    def __init__(self, *args, request, user_service, breach_service, **kwargs):
+    def __init__(self, *args, user_service, breach_service, **kwargs):
         super().__init__(*args, **kwargs)
-        self.request = request
         self.user_service = user_service
         self.breach_service = breach_service
 
@@ -266,7 +284,7 @@ class LoginForm(PasswordMixin, UsernameMixin, forms.Form):
             is_disabled, disabled_for = self.user_service.is_disabled(userid)
             if is_disabled and disabled_for == DisableReason.CompromisedPassword:
                 raise wtforms.validators.ValidationError(
-                    jinja2.Markup(self.breach_service.failure_message)
+                    markupsafe.Markup(self.breach_service.failure_message)
                 )
 
         # Do our typical validation of the password.
@@ -285,13 +303,14 @@ class LoginForm(PasswordMixin, UsernameMixin, forms.Form):
                     user.id, reason=DisableReason.CompromisedPassword
                 )
                 raise wtforms.validators.ValidationError(
-                    jinja2.Markup(self.breach_service.failure_message)
+                    markupsafe.Markup(self.breach_service.failure_message)
                 )
 
 
 class _TwoFactorAuthenticationForm(forms.Form):
-    def __init__(self, *args, user_id, user_service, **kwargs):
+    def __init__(self, *args, request, user_id, user_service, **kwargs):
         super().__init__(*args, **kwargs)
+        self.request = request
         self.user_id = user_id
         self.user_service = user_service
 
@@ -301,6 +320,11 @@ class TOTPAuthenticationForm(TOTPValueMixin, _TwoFactorAuthenticationForm):
         totp_value = field.data.replace(" ", "").encode("utf8")
 
         if not self.user_service.check_totp_value(self.user_id, totp_value):
+            self.user_service.record_event(
+                self.user_id,
+                tag="account:login:failure",
+                additional={"reason": "invalid_totp"},
+            )
             raise wtforms.validators.ValidationError(_("Invalid TOTP code."))
 
 
@@ -315,7 +339,7 @@ class WebAuthnAuthenticationForm(WebAuthnCredentialMixin, _TwoFactorAuthenticati
 
     def validate_credential(self, field):
         try:
-            assertion_dict = json.loads(field.data.encode("utf8"))
+            json.loads(field.data.encode("utf8"))
         except json.JSONDecodeError:
             raise wtforms.validators.ValidationError(
                 _("Invalid WebAuthn assertion: Bad payload")
@@ -324,13 +348,18 @@ class WebAuthnAuthenticationForm(WebAuthnCredentialMixin, _TwoFactorAuthenticati
         try:
             validated_credential = self.user_service.verify_webauthn_assertion(
                 self.user_id,
-                assertion_dict,
+                field.data.encode("utf8"),
                 challenge=self.challenge,
                 origin=self.origin,
                 rp_id=self.rp_id,
             )
 
-        except webauthn.AuthenticationRejectedException as e:
+        except webauthn.AuthenticationRejectedError as e:
+            self.user_service.record_event(
+                self.user_id,
+                tag="account:login:failure",
+                additional={"reason": "invalid_webauthn"},
+            )
             raise wtforms.validators.ValidationError(str(e))
 
         self.validated_credential = validated_credential
@@ -360,8 +389,27 @@ class RecoveryCodeAuthenticationForm(
     def validate_recovery_code_value(self, field):
         recovery_code_value = field.data.encode("utf-8")
 
-        if not self.user_service.check_recovery_code(self.user_id, recovery_code_value):
+        try:
+            self.user_service.check_recovery_code(self.user_id, recovery_code_value)
+            send_recovery_code_used_email(
+                self.request, self.user_service.get_user(self.user_id)
+            )
+        except (InvalidRecoveryCode, NoRecoveryCodes):
+            self.user_service.record_event(
+                self.user_id,
+                tag="account:login:failure",
+                additional={"reason": "invalid_recovery_code"},
+            )
             raise wtforms.validators.ValidationError(_("Invalid recovery code."))
+        except BurnedRecoveryCode:
+            self.user_service.record_event(
+                self.user_id,
+                tag="account:login:failure",
+                additional={"reason": "burned_recovery_code"},
+            )
+            raise wtforms.validators.ValidationError(
+                _("Recovery code has been previously used.")
+            )
 
 
 class RequestPasswordResetForm(forms.Form):

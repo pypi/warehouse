@@ -17,11 +17,10 @@ from warehouse import db
 from warehouse.accounts.models import Email, User
 from warehouse.cache.origin import key_factory, receive_set
 from warehouse.manage.tasks import update_role_invitation_status
-from warehouse.packaging.interfaces import IDocsStorage, IFileStorage
+from warehouse.packaging.interfaces import IDocsStorage, IFileStorage, ISimpleStorage
 from warehouse.packaging.models import File, Project, Release, Role
-from warehouse.packaging.tasks import (
+from warehouse.packaging.tasks import (  # sync_bigquery_release_files,
     compute_trending,
-    sync_bigquery_release_files,
     update_description_html,
 )
 
@@ -43,6 +42,11 @@ def includeme(config):
     # our package files.
     files_storage_class = config.maybe_dotted(config.registry.settings["files.backend"])
     config.register_service_factory(files_storage_class.create_service, IFileStorage)
+
+    simple_storage_class = config.maybe_dotted(
+        config.registry.settings["simple.backend"]
+    )
+    config.register_service_factory(simple_storage_class.create_service, ISimpleStorage)
 
     docs_storage_class = config.maybe_dotted(config.registry.settings["docs.backend"])
     config.register_service_factory(docs_storage_class.create_service, IDocsStorage)
@@ -102,5 +106,6 @@ def includeme(config):
     if config.get_settings().get("warehouse.trending_table"):
         config.add_periodic_task(crontab(minute=0, hour=3), compute_trending)
 
-    if config.get_settings().get("warehouse.release_files_table"):
-        config.add_periodic_task(crontab(minute=0), sync_bigquery_release_files)
+    # TODO: restore this
+    # if config.get_settings().get("warehouse.release_files_table"):
+    #     config.add_periodic_task(crontab(minute=0), sync_bigquery_release_files)

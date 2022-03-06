@@ -28,6 +28,10 @@ class TooManyEmailsAdded(RateLimiterException):
     pass
 
 
+class TooManyPasswordResetRequests(RateLimiterException):
+    pass
+
+
 class TokenException(Exception):
     pass
 
@@ -41,6 +45,22 @@ class TokenInvalid(TokenException):
 
 
 class TokenMissing(TokenException):
+    pass
+
+
+class RecoveryCodeException(Exception):
+    pass
+
+
+class InvalidRecoveryCode(RecoveryCodeException):
+    pass
+
+
+class BurnedRecoveryCode(RecoveryCodeException):
+    pass
+
+
+class NoRecoveryCodes(RecoveryCodeException):
     pass
 
 
@@ -86,9 +106,7 @@ class IUserService(Interface):
         A UserAlreadyExists Exception is raised if the user already exists.
         """
 
-    def add_email(
-        user_id, email_address, ip_address, primary=False, verified=False, public=False
-    ):
+    def add_email(user_id, email_address, primary=False, verified=False, public=False):
         """
         Adds an email for the provided user_id
         """
@@ -137,6 +155,12 @@ class IUserService(Interface):
         Returns RecoveryCode objects associated with the user.
         """
 
+    def get_recovery_code(user_id, code):
+        """
+        Returns a specific RecoveryCode object associated with the user and the
+        provided code.
+        """
+
     def get_totp_secret(user_id):
         """
         Returns the user's TOTP secret as bytes.
@@ -175,7 +199,7 @@ class IUserService(Interface):
         assertions during authentication.
 
         Returns the validated credential on success, raises
-        webauthn.RegistrationRejectedException on failure.
+        webauthn.RegistrationRejectedError on failure.
         """
 
     def verify_webauthn_assertion(user_id, assertion, *, challenge, origin, rp_id):
@@ -184,7 +208,7 @@ class IUserService(Interface):
         device.
 
         Returns the updated signage count on success, raises
-        webauthn.AuthenticationRejectedException on failure.
+        webauthn.AuthenticationRejectedError on failure.
         """
 
     def get_webauthn_by_label(user_id, label):
@@ -199,7 +223,7 @@ class IUserService(Interface):
         or None of the user doesn't have a credential with this ID.
         """
 
-    def record_event(user_id, *, tag, ip_address, additional=None):
+    def record_event(user_id, *, tag, additional=None):
         """
         Creates a new UserEvent for the given user with the given
         tag, IP address, and additional metadata.
@@ -218,7 +242,14 @@ class IUserService(Interface):
         """
         Checks if supplied code matches a valid hashed recovery code for the given user.
 
-        Returns True if supplied recovery code is valid, and destroys stored code.
+        Returns True if supplied recovery code is valid, and marks the stored code as
+        burned.
+        """
+
+    def get_password_timestamp(user_id):
+        """
+        Returns POSIX timestamp corresponding to the datetime that the users password
+        was most recently updated
         """
 
 

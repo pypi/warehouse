@@ -18,13 +18,13 @@ import shlex
 import transaction
 
 from pyramid import renderers
+from pyramid.authorization import Allow, Authenticated
 from pyramid.config import Configurator as _Configurator
 from pyramid.response import Response
-from pyramid.security import Allow, Authenticated
 from pyramid.tweens import EXCVIEW
 from pyramid_rpc.xmlrpc import XMLRPCRenderer
 
-from warehouse.errors import BasicAuthBreachedPassword
+from warehouse.errors import BasicAuthBreachedPassword, BasicAuthFailedPassword
 from warehouse.utils.static import ManifestCacheBuster
 from warehouse.utils.wsgi import HostRewrite, ProxyFixer, VhmRootRemover
 
@@ -96,11 +96,14 @@ def activate_hook(request):
 def commit_veto(request, response):
     # By default pyramid_tm will veto the commit anytime request.exc_info is not None,
     # we are going to copy that logic with one difference, we are still going to commit
-    # if the exception was for a BreachedPassword.
+    # if the exception was for a BasicAuthFailedPassword or BreachedPassword.
     # TODO: We should probably use a registry or something instead of hardcoded.
-    exc_info = getattr(request, "exc_info", None)
-    if exc_info is not None and not isinstance(exc_info[1], BasicAuthBreachedPassword):
-        return True
+    allowed_types = (BasicAuthBreachedPassword, BasicAuthFailedPassword)
+
+    try:
+        return not isinstance(request.exc_info[1], allowed_types)
+    except (AttributeError, TypeError):
+        return False
 
 
 def template_view(config, name, route, template, route_kw=None, view_kw=None):
@@ -175,11 +178,11 @@ def configure(settings=None):
     maybe_set(settings, "celery.broker_url", "BROKER_URL")
     maybe_set(settings, "celery.result_url", "REDIS_URL")
     maybe_set(settings, "celery.scheduler_url", "REDIS_URL")
+    maybe_set(settings, "oidc.jwk_cache_url", "REDIS_URL")
     maybe_set(settings, "database.url", "DATABASE_URL")
     maybe_set(settings, "elasticsearch.url", "ELASTICSEARCH_URL")
     maybe_set(settings, "elasticsearch.url", "ELASTICSEARCH_SIX_URL")
     maybe_set(settings, "sentry.dsn", "SENTRY_DSN")
-    maybe_set(settings, "sentry.frontend_dsn", "SENTRY_FRONTEND_DSN")
     maybe_set(settings, "sentry.transport", "SENTRY_TRANSPORT")
     maybe_set(settings, "sessions.url", "REDIS_URL")
     maybe_set(settings, "ratelimit.url", "REDIS_URL")
@@ -223,6 +226,7 @@ def configure(settings=None):
         default=21600,  # 6 hours
     )
     maybe_set_compound(settings, "files", "backend", "FILES_BACKEND")
+    maybe_set_compound(settings, "simple", "backend", "SIMPLE_BACKEND")
     maybe_set_compound(settings, "docs", "backend", "DOCS_BACKEND")
     maybe_set_compound(settings, "sponsorlogos", "backend", "SPONSORLOGOS_BACKEND")
     maybe_set_compound(settings, "origin_cache", "backend", "ORIGIN_CACHE")
@@ -230,6 +234,65 @@ def configure(settings=None):
     maybe_set_compound(settings, "metrics", "backend", "METRICS_BACKEND")
     maybe_set_compound(settings, "breached_passwords", "backend", "BREACHED_PASSWORDS")
     maybe_set_compound(settings, "malware_check", "backend", "MALWARE_CHECK_BACKEND")
+
+    # Pythondotorg integration settings
+    maybe_set(settings, "pythondotorg.host", "PYTHONDOTORG_HOST", default="python.org")
+    maybe_set(settings, "pythondotorg.api_token", "PYTHONDOTORG_API_TOKEN")
+
+    # Configure our ratelimiters
+    maybe_set(
+        settings,
+        "warehouse.account.user_login_ratelimit_string",
+        "USER_LOGIN_RATELIMIT_STRING",
+        default="10 per 5 minutes",
+    )
+    maybe_set(
+        settings,
+        "warehouse.account.ip_login_ratelimit_string",
+        "IP_LOGIN_RATELIMIT_STRING",
+        default="10 per 5 minutes",
+    )
+    maybe_set(
+        settings,
+        "warehouse.account.global_login_ratelimit_string",
+        "GLOBAL_LOGIN_RATELIMIT_STRING",
+        default="1000 per 5 minutes",
+    )
+    maybe_set(
+        settings,
+        "warehouse.account.email_add_ratelimit_string",
+        "EMAIL_ADD_RATELIMIT_STRING",
+        default="2 per day",
+    )
+    maybe_set(
+        settings,
+        "warehouse.account.password_reset_ratelimit_string",
+        "PASSWORD_RESET_RATELIMIT_STRING",
+        default="5 per day",
+    )
+
+    # 2FA feature flags
+    maybe_set(
+        settings,
+        "warehouse.two_factor_requirement.enabled",
+        "TWOFACTORREQUIREMENT_ENABLED",
+        coercer=distutils.util.strtobool,
+        default=False,
+    )
+    maybe_set(
+        settings,
+        "warehouse.two_factor_mandate.available",
+        "TWOFACTORMANDATE_AVAILABLE",
+        coercer=distutils.util.strtobool,
+        default=False,
+    )
+    maybe_set(
+        settings,
+        "warehouse.two_factor_mandate.enabled",
+        "TWOFACTORMANDATE_ENABLED",
+        coercer=distutils.util.strtobool,
+        default=False,
+    )
 
     # Add the settings we use when the environment is set to development.
     if settings["warehouse.env"] == Environment.development:
@@ -424,6 +487,9 @@ def configure(settings=None):
     # Register support for Macaroon based authentication
     config.include(".macaroons")
 
+    # Register support for OIDC provider based authentication
+    config.include(".oidc")
+
     # Register support for malware checks
     config.include(".malware")
 
@@ -521,7 +587,11 @@ def configure(settings=None):
 
     # Scan everything for configuration
     config.scan(
-        ignore=["warehouse.migrations.env", "warehouse.celery", "warehouse.wsgi"]
+        categories=(
+            "pyramid",
+            "warehouse",
+        ),
+        ignore=["warehouse.migrations.env", "warehouse.celery", "warehouse.wsgi"],
     )
 
     # Sanity check our request and responses.

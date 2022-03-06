@@ -12,10 +12,11 @@
 
 import collections
 
-import factory.fuzzy
+import faker
 import pretend
 import pytest
 
+from pyramid.httpexceptions import HTTPBadRequest
 from sqlalchemy.orm.exc import NoResultFound
 
 from tests.common.db.packaging import ProjectFactory, ReleaseFactory
@@ -224,7 +225,7 @@ def test_analyze_vulnerability_invalid_request(db_request, metrics):
 
     metrics = pretend.stub(increment=metrics_increment, timed=metrics.timed)
 
-    with pytest.raises(vulnerabilities.InvalidVulnerabilityReportRequest) as exc:
+    with pytest.raises(vulnerabilities.InvalidVulnerabilityReportError) as exc:
         utils.analyze_vulnerability(
             request=db_request,
             vulnerability_report={
@@ -258,7 +259,7 @@ def test_analyze_vulnerability_project_not_found(db_request, metrics):
         utils.analyze_vulnerability(
             request=db_request,
             vulnerability_report={
-                "project": factory.fuzzy.FuzzyText(length=8).fuzz(),
+                "project": faker.Faker().text(max_nb_chars=8),
                 "versions": ["1", "2"],
                 "id": "vuln_id",
                 "link": "vulns.com/vuln_id",
@@ -289,7 +290,7 @@ def test_analyze_vulnerability_release_not_found(db_request, metrics):
 
     metrics = pretend.stub(increment=metrics_increment, timed=metrics.timed)
 
-    with pytest.raises(NoResultFound):
+    with pytest.raises(HTTPBadRequest):
         utils.analyze_vulnerability(
             request=db_request,
             vulnerability_report={
@@ -309,7 +310,7 @@ def test_analyze_vulnerability_release_not_found(db_request, metrics):
         (
             "warehouse.vulnerabilities.error.release_not_found",
             ("origin:test_report_source",),
-        ): 1,
+        ): 2,
     }
 
 

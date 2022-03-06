@@ -140,7 +140,7 @@ class User(SitemapMixin, db.Model):
         return (
             select([Email.email])
             .where((Email.user_id == self.id) & (Email.primary.is_(True)))
-            .as_scalar()
+            .scalar_subquery()
         )
 
     @property
@@ -149,7 +149,11 @@ class User(SitemapMixin, db.Model):
 
     @property
     def has_recovery_codes(self):
-        return len(self.recovery_codes) > 0
+        return any(not code.burned for code in self.recovery_codes)
+
+    @property
+    def has_burned_recovery_codes(self):
+        return any(code.burned for code in self.recovery_codes)
 
     @property
     def has_primary_verified_email(self):
@@ -188,6 +192,7 @@ class WebAuthn(db.Model):
         UUID(as_uuid=True),
         ForeignKey("users.id", deferrable=True, initially="DEFERRED"),
         nullable=False,
+        index=True,
     )
     label = Column(String, nullable=False)
     credential_id = Column(String, unique=True, nullable=False)
@@ -202,9 +207,11 @@ class RecoveryCode(db.Model):
         UUID(as_uuid=True),
         ForeignKey("users.id", deferrable=True, initially="DEFERRED"),
         nullable=False,
+        index=True,
     )
     code = Column(String(length=128), nullable=False)
     generated = Column(DateTime, nullable=False, server_default=sql.func.now())
+    burned = Column(DateTime, nullable=True)
 
 
 class UserEvent(db.Model):
@@ -214,6 +221,7 @@ class UserEvent(db.Model):
         UUID(as_uuid=True),
         ForeignKey("users.id", deferrable=True, initially="DEFERRED"),
         nullable=False,
+        index=True,
     )
     tag = Column(String, nullable=False)
     time = Column(DateTime, nullable=False, server_default=sql.func.now())

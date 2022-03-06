@@ -25,14 +25,23 @@ import pyramid.testing
 import pytest
 import webtest as _webtest
 
+from jinja2 import Environment, FileSystemLoader
+from psycopg2.errors import InvalidCatalogName
 from pyramid.i18n import TranslationString
 from pyramid.static import ManifestCacheBuster
+from pyramid_jinja2 import IJinja2Environment
+from pyramid_mailer.mailer import DummyMailer
 from pytest_postgresql.config import get_config
 from pytest_postgresql.janitor import DatabaseJanitor
 from sqlalchemy import event
 
+import warehouse
+
 from warehouse import admin, config, static
 from warehouse.accounts import services as account_services
+from warehouse.accounts.interfaces import ITokenService
+from warehouse.email import services as email_services
+from warehouse.email.interfaces import IEmailSender
 from warehouse.macaroons import services as macaroon_services
 from warehouse.metrics import IMetricsService
 
@@ -75,6 +84,27 @@ def metrics():
     )
 
 
+@pytest.fixture
+def remote_addr():
+    return "1.2.3.4"
+
+
+@pytest.fixture
+def jinja():
+    dir_name = os.path.join(os.path.dirname(warehouse.__file__))
+
+    env = Environment(
+        loader=FileSystemLoader(dir_name),
+        extensions=[
+            "jinja2.ext.i18n",
+            "warehouse.utils.html.ClientSideIncludeExtension",
+        ],
+        cache_size=0,
+    )
+
+    return env
+
+
 class _Services:
     def __init__(self):
         self._services = defaultdict(lambda: defaultdict(dict))
@@ -87,20 +117,27 @@ class _Services:
 
 
 @pytest.fixture
-def pyramid_services(metrics):
+def pyramid_services(metrics, email_service, token_service):
     services = _Services()
 
     # Register our global services.
     services.register_service(metrics, IMetricsService, None, name="")
+    services.register_service(email_service, IEmailSender, None, name="")
+    services.register_service(token_service, ITokenService, None, name="password")
+    services.register_service(token_service, ITokenService, None, name="email")
 
     return services
 
 
 @pytest.fixture
-def pyramid_request(pyramid_services):
+def pyramid_request(pyramid_services, jinja, remote_addr):
+    pyramid.testing.setUp()
     dummy_request = pyramid.testing.DummyRequest()
     dummy_request.find_service = pyramid_services.find_service
-    dummy_request.remote_addr = "1.2.3.4"
+    dummy_request.remote_addr = remote_addr
+    dummy_request.authentication_method = pretend.stub()
+
+    dummy_request.registry.registerUtility(jinja, IJinja2Environment, name=".jinja2")
 
     def localize(message, **kwargs):
         ts = TranslationString(message, **kwargs)
@@ -108,16 +145,18 @@ def pyramid_request(pyramid_services):
 
     dummy_request._ = localize
 
-    return dummy_request
+    yield dummy_request
+
+    pyramid.testing.tearDown()
 
 
-@pytest.yield_fixture
+@pytest.fixture
 def pyramid_config(pyramid_request):
     with pyramid.testing.testConfig(request=pyramid_request) as config:
         yield config
 
 
-@pytest.yield_fixture
+@pytest.fixture
 def cli():
     runner = click.testing.CliRunner()
     with runner.isolated_filesystem():
@@ -137,7 +176,12 @@ def database(request):
 
     # In case the database already exists, possibly due to an aborted test run,
     # attempt to drop it before creating
-    janitor.drop()
+    try:
+        janitor.drop()
+    except InvalidCatalogName:
+        # We can safely ignore this exception as that means there was
+        # no leftover database
+        pass
 
     # Create our Database.
     janitor.init()
@@ -178,7 +222,8 @@ def app_config(database):
         "ratelimit.url": "memory://",
         "elasticsearch.url": "https://localhost/warehouse",
         "files.backend": "warehouse.packaging.services.LocalFileStorage",
-        "docs.backend": "warehouse.packaging.services.LocalFileStorage",
+        "simple.backend": "warehouse.packaging.services.LocalSimpleStorage",
+        "docs.backend": "warehouse.packaging.services.LocalDocsStorage",
         "sponsorlogos.backend": "warehouse.admin.services.LocalSponsorLogoStorage",
         "mail.backend": "warehouse.email.services.SMTPEmailSender",
         "malware_check.backend": (
@@ -201,7 +246,7 @@ def app_config(database):
     return cfg
 
 
-@pytest.yield_fixture
+@pytest.fixture
 def db_session(app_config):
     engine = app_config.registry["sqlalchemy.engine"]
     conn = engine.connect()
@@ -227,19 +272,28 @@ def db_session(app_config):
         engine.dispose()
 
 
-@pytest.yield_fixture
-def user_service(db_session, metrics):
-    return account_services.DatabaseUserService(db_session, metrics=metrics)
+@pytest.fixture
+def user_service(db_session, metrics, remote_addr):
+    return account_services.DatabaseUserService(
+        db_session, metrics=metrics, remote_addr=remote_addr
+    )
 
 
-@pytest.yield_fixture
+@pytest.fixture
 def macaroon_service(db_session):
     return macaroon_services.DatabaseMacaroonService(db_session)
 
 
-@pytest.yield_fixture
+@pytest.fixture
 def token_service(app_config):
     return account_services.TokenService(secret="secret", salt="salt", max_age=21600)
+
+
+@pytest.fixture
+def email_service():
+    return email_services.SMTPEmailSender(
+        mailer=DummyMailer(), sender="noreply@pypi.dev"
+    )
 
 
 class QueryRecorder:
@@ -267,7 +321,7 @@ class QueryRecorder:
         self.queries = []
 
 
-@pytest.yield_fixture
+@pytest.fixture
 def query_recorder(app_config):
     recorder = QueryRecorder()
 
@@ -294,7 +348,7 @@ class _TestApp(_webtest.TestApp):
         return xmlrpc.client.loads(resp.body)
 
 
-@pytest.yield_fixture
+@pytest.fixture
 def webtest(app_config):
     # TODO: Ensure that we have per test isolation of the database level
     #       changes. This probably involves flushing the database or something

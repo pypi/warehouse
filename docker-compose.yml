@@ -1,6 +1,7 @@
 version: '3'
 
 volumes:
+  simple:
   packages:
   sponsorlogos:
   vault:
@@ -33,19 +34,20 @@ services:
     image: redis:4.0
 
   localstack:
-    image: localstack/localstack:0.8.7
+    image: localstack/localstack:0.12.19.1
     environment:
       SERVICES: "sqs"
       HOSTNAME: "localstack"
       HOSTNAME_EXTERNAL: "localstack"
       DEFAULT_REGION: "us-east-2"
     ports:
-      - "4576:4576"
+      - "4566:4566"
 
   elasticsearch:
-    image: docker.elastic.co/elasticsearch/elasticsearch:6.8.7
+    image: elasticsearch:7.10.1
     environment:
       - xpack.security.enabled=false
+      - discovery.type=single-node
     ulimits:
       nofile:
         soft: 65536
@@ -57,6 +59,7 @@ services:
       - "9000:9000"
     environment:
       CAMO_KEY: "insecurecamokey"
+      PORT: 9000
 
   web:
     build:
@@ -83,9 +86,13 @@ services:
       - .coveragerc:/opt/warehouse/src/.coveragerc:z
       - packages:/var/opt/warehouse/packages
       - sponsorlogos:/var/opt/warehouse/sponsorlogos
+      - simple:/var/opt/warehouse/simple
       - ./bin:/opt/warehouse/src/bin:z
+      - ./requirements:/opt/warehouse/src/requirements:z
     ports:
-      - "80:8000"
+      - "${WEB_PORT:-80}:8000"
+    depends_on:
+      - db
 
   files:
     build:
@@ -95,6 +102,7 @@ services:
     volumes:
       - packages:/var/opt/warehouse/packages
       - sponsorlogos:/var/opt/warehouse/sponsorlogos
+      - simple:/var/opt/warehouse/simple
     ports:
       - "9001:9001"
 
@@ -110,6 +118,7 @@ services:
     environment:
       C_FORCE_ROOT: "1"
       FILES_BACKEND: "warehouse.packaging.services.LocalFileStorage path=/var/opt/warehouse/packages/ url=http://files:9001/packages/{path}"
+      SIMPLE_BACKEND: "warehouse.packaging.services.LocalSimpleStorage path=/var/opt/warehouse/simple/ url=http://files:9001/simple/{path}"
 
   static:
     build:

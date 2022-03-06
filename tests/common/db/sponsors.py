@@ -10,24 +10,24 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from factory import fuzzy
+import factory
 
 from warehouse.sponsors.models import Sponsor
 
-from .base import FuzzyUrl, WarehouseFactory
+from .base import WarehouseFactory
 
 
 class SponsorFactory(WarehouseFactory):
     class Meta:
         model = Sponsor
 
-    name = fuzzy.FuzzyText(length=12)
-    service = fuzzy.FuzzyText(length=12)
-    activity_markdown = fuzzy.FuzzyText(length=12)
+    name = factory.Faker("word")
+    service = factory.Faker("sentence")
+    activity_markdown = factory.Faker("sentence")
 
-    link_url = FuzzyUrl()
-    color_logo_url = FuzzyUrl()
-    white_logo_url = FuzzyUrl()
+    link_url = factory.Faker("uri")
+    color_logo_url = factory.Faker("image_url")
+    white_logo_url = factory.Faker("image_url")
 
     is_active = True
     footer = True
@@ -35,3 +35,8 @@ class SponsorFactory(WarehouseFactory):
     infra_sponsor = False
     one_time = False
     sidebar = True
+
+    origin = "manual"
+    level_name = ""
+    level_order = 0
+    slug = factory.Faker("slug")

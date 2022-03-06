@@ -58,7 +58,6 @@ def test_project_docs(db_session):
     assert list(_project_docs(db_session)) == [
         {
             "_id": p.normalized_name,
-            "_type": "doc",
             "_source": {
                 "created": p.created,
                 "name": p.name,
@@ -98,7 +97,6 @@ def test_single_project_doc(db_session):
     assert list(_project_docs(db_session, project_name=projects[1].name)) == [
         {
             "_id": p.normalized_name,
-            "_type": "doc",
             "_source": {
                 "created": p.created,
                 "name": p.name,
@@ -139,7 +137,6 @@ def test_project_docs_empty(db_session):
     assert list(_project_docs(db_session)) == [
         {
             "_id": p.normalized_name,
-            "_type": "doc",
             "_source": {
                 "created": p.created,
                 "name": p.name,
@@ -246,14 +243,14 @@ class TestReindex:
             lambda *a, **kw: es_client,
         )
 
-        class TestException(Exception):
+        class TestError(Exception):
             pass
 
         def parallel_bulk(client, iterable, index=None):
             assert client is es_client
             assert iterable is docs
             assert index == "warehouse-cbcbcbcbcb"
-            raise TestException
+            raise TestError
 
         monkeypatch.setattr(
             redis.StrictRedis, "from_url", lambda *a, **kw: pretend.stub(lock=NotLock)
@@ -263,7 +260,7 @@ class TestReindex:
 
         monkeypatch.setattr(os, "urandom", lambda n: b"\xcb" * n)
 
-        with pytest.raises(TestException):
+        with pytest.raises(TestError):
             reindex(task, db_request)
 
         assert es_client.indices.delete.calls == [
@@ -502,6 +499,8 @@ class TestPartialReindex:
         docs = pretend.stub()
         task = pretend.stub()
 
+        db_request.registry.settings = {"celery.scheduler_url": "redis://redis:6379/0"}
+
         def project_docs(db, project_name=None):
             return docs
 
@@ -513,20 +512,20 @@ class TestPartialReindex:
             {"elasticsearch.client": es_client, "elasticsearch.index": "warehouse"}
         )
 
-        class TestException(Exception):
+        class TestError(Exception):
             pass
 
         def parallel_bulk(client, iterable, index=None):
             assert client is es_client
             assert iterable is docs
-            raise TestException
+            raise TestError
 
         monkeypatch.setattr(warehouse.search.tasks, "parallel_bulk", parallel_bulk)
         monkeypatch.setattr(
             redis.StrictRedis, "from_url", lambda *a, **kw: pretend.stub(lock=NotLock)
         )
 
-        with pytest.raises(TestException):
+        with pytest.raises(TestError):
             reindex_project(task, db_request, "foo")
 
         assert es_client.indices.put_settings.calls == []
@@ -534,11 +533,13 @@ class TestPartialReindex:
     def test_unindex_fails_when_raising(self, db_request, monkeypatch):
         task = pretend.stub()
 
-        class TestException(Exception):
+        db_request.registry.settings = {"celery.scheduler_url": "redis://redis:6379/0"}
+
+        class TestError(Exception):
             pass
 
         es_client = FakeESClient()
-        es_client.delete = pretend.raiser(TestException)
+        es_client.delete = pretend.raiser(TestError)
         monkeypatch.setattr(
             redis.StrictRedis, "from_url", lambda *a, **kw: pretend.stub(lock=NotLock)
         )
@@ -547,11 +548,13 @@ class TestPartialReindex:
             {"elasticsearch.client": es_client, "elasticsearch.index": "warehouse"}
         )
 
-        with pytest.raises(TestException):
+        with pytest.raises(TestError):
             unindex_project(task, db_request, "foo")
 
     def test_unindex_accepts_defeat(self, db_request, monkeypatch):
         task = pretend.stub()
+
+        db_request.registry.settings = {"celery.scheduler_url": "redis://redis:6379/0"}
 
         es_client = FakeESClient()
         es_client.delete = pretend.call_recorder(
@@ -567,9 +570,7 @@ class TestPartialReindex:
 
         unindex_project(task, db_request, "foo")
 
-        assert es_client.delete.calls == [
-            pretend.call(index="warehouse", doc_type="doc", id="foo")
-        ]
+        assert es_client.delete.calls == [pretend.call(index="warehouse", id="foo")]
 
     def test_unindex_retry_on_lock(self, db_request, monkeypatch):
         task = pretend.stub(
@@ -612,6 +613,8 @@ class TestPartialReindex:
     def test_successfully_indexes(self, db_request, monkeypatch):
         docs = pretend.stub()
         task = pretend.stub()
+
+        db_request.registry.settings = {"celery.scheduler_url": "redis://redis:6379/0"}
 
         def project_docs(db, project_name=None):
             return docs

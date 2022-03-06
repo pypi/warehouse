@@ -14,7 +14,7 @@
 
 {% if request.has_permission("moderator") %}
 <div class="admin-include">
-<h4>Admin tools:</h4>
+<h4>Admin tools</h4>
   <a href="{{ request.route_path('admin.project.detail', project_name=project.name) }}" class="button button--primary package-description__edit-button">View project in admin</a>
 
   <form class="form-inline" method="GET" action="{{ request.route_path('admin.prohibited_project_names.add') }}">

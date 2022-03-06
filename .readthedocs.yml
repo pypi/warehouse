@@ -9,3 +9,9 @@ version: 2
 python:
   install:
     - requirements: requirements/docs.txt
+
+# Use the same version of Python we use here
+build:
+  os: ubuntu-20.04
+  tools:
+    python: "3.8"

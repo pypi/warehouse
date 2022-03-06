@@ -16,7 +16,7 @@ from typing import List
 from warehouse import integrations
 
 
-class InvalidVulnerabilityReportRequest(Exception):
+class InvalidVulnerabilityReportError(Exception):
     def __init__(self, message, reason):
         self.reason = reason
         super().__init__(message)
@@ -30,17 +30,21 @@ class VulnerabilityReportRequest:
         vulnerability_id: str,
         advisory_link: str,
         aliases: List[str],
+        details: str,
+        fixed_in: List[str],
     ):
         self.project = project
         self.versions = versions
         self.vulnerability_id = vulnerability_id
         self.advisory_link = advisory_link
         self.aliases = aliases
+        self.details = details
+        self.fixed_in = fixed_in
 
     @classmethod
     def from_api_request(cls, request):
         if not isinstance(request, dict):
-            raise InvalidVulnerabilityReportRequest(
+            raise InvalidVulnerabilityReportError(
                 f"Record is not a dict but: {str(request)[:100]}", reason="format"
             )
 
@@ -48,7 +52,7 @@ class VulnerabilityReportRequest:
             {"project", "versions", "id", "link", "aliases"} - set(request)
         )
         if missing_keys:
-            raise InvalidVulnerabilityReportRequest(
+            raise InvalidVulnerabilityReportError(
                 f"Record is missing attribute(s): {', '.join(missing_keys)}",
                 reason="format",
             )
@@ -59,6 +63,13 @@ class VulnerabilityReportRequest:
             vulnerability_id=request["id"],
             advisory_link=request["link"],
             aliases=request["aliases"],
+            details=request.get("details"),
+            fixed_in=[
+                version
+                for event in request.get("events", [])
+                for event_type, version in event.items()
+                if event_type == "fixed"
+            ],
         )
 
 

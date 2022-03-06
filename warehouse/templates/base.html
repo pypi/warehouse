@@ -110,18 +110,6 @@
 
     <link rel="search" type="application/opensearchdescription+xml" title="PyPI" href="{{ request.route_path('opensearch.xml') }}">
 
-    {# This needs to be included first (in order to capture errors when
-     # executing other JS scripts. It also can't be async, because then order
-     # of execution is not guaranteed, and it can't be deferred, because most
-     # of our JS would then execute before it, and we might miss exceptions.
-     #}
-    {% if request.registry.settings.get("sentry.frontend_dsn") -%}
-    <script
-      src="https://cdn.ravenjs.com/3.26.2/raven.min.js"
-      integrity="sha384-D6LXy67EIC102DTuqypxwQsTHgiatlbvg7q/1YAWFb6lRyZ1lIZ6bGDsX7jxHNKA"
-      crossorigin="anonymous">
-    </script>
-    {% endif -%}
     {# All of our JavaScript should be loaded using the async attribute so it's
      # fine to have it in the header. This will allow the browser to start
      # downloading it ASAP while still not blocking the parser.
@@ -129,9 +117,6 @@
     <script async
             {% if request.registry.settings.get("ga.tracking_id") -%}
             data-ga-id="{{ request.registry.settings['ga.tracking_id'] }}"
-            {% endif -%}
-            {% if request.registry.settings.get("sentry.frontend_dsn") -%}
-            data-sentry-frontend-dsn="{{ request.registry.settings['sentry.frontend_dsn'] }}"
             {% endif -%}
             src="{{ request.static_path('warehouse:static/dist/js/warehouse.js') }}">
     </script>
@@ -141,6 +126,11 @@
     <script async src="https://www.googletagmanager.com/gtag/js?id={{ request.registry.settings['ga.tracking_id'] }}"></script>
     {% endif -%}
     <script defer src="https://www.fastly-insights.com/insights.js?k=6a52360a-f306-421e-8ed5-7417d0d4a4e9&dnt=true"></script>
+    <script async
+        src="https://media.ethicalads.io/media/client/v1.4.0/ethicalads.min.js"
+        integrity="sha256-U3hKDidudIaxBDEzwGJApJgPEf2mWk6cfMWghrAa6i0= sha384-UcmsCqcNRSLW/dV3Lo1oCi2/VaurXbib6p4HyUEOeIa/4OpsrnucrugAefzVZJfI sha512-q4t1L4xEjGV2R4hzqCa41P8jrgFUS8xTb8rdNv4FGvw7FpydVj/kkxBJHOiaoxHa8olCcx1Slk9K+3sNbsM4ug=="
+        crossorigin="anonymous"
+    ></script>
   </head>
 
   <body data-controller="viewport-toggle">
@@ -219,7 +209,7 @@
 
             <form class="search-form search-form--primary" action="{{ request.route_path('search') }}" role="search">
               <label for="search" class="sr-only">{% trans %}Search PyPI{% endtrans %}</label>
-              <input id="search" class="search-form__search" type="text" name="q" placeholder="{% trans %}Search projects{% endtrans %}" value="{{ term }}" autocomplete="off" autocapitalize="off" spellcheck="false">
+              <input id="search" class="search-form__search" type="text" name="q" placeholder="{% trans %}Search projects{% endtrans %}" value="{{ term }}" autocomplete="off" autocapitalize="off" spellcheck="false" data-controller="search-focus" data-action="keydown@window->search-focus#focusSearchField" data-target="search-focus.searchField">
               {% block search_form_extra_inputs %}{% endblock %}
               <button type="submit" class="search-form__button">
                 <i class="fa fa-search" aria-hidden="true"></i>

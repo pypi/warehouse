@@ -18,11 +18,10 @@ from celery.schedules import crontab
 from warehouse import packaging
 from warehouse.accounts.models import Email, User
 from warehouse.manage.tasks import update_role_invitation_status
-from warehouse.packaging.interfaces import IDocsStorage, IFileStorage
+from warehouse.packaging.interfaces import IDocsStorage, IFileStorage, ISimpleStorage
 from warehouse.packaging.models import File, Project, Release, Role
-from warehouse.packaging.tasks import (
+from warehouse.packaging.tasks import (  # sync_bigquery_release_files,
     compute_trending,
-    sync_bigquery_release_files,
     update_description_html,
 )
 
@@ -52,7 +51,11 @@ def test_includeme(monkeypatch, with_trending, with_bq_sync):
             lambda factory, iface, name=None: None
         ),
         registry=pretend.stub(
-            settings={"files.backend": "foo.bar", "docs.backend": "wu.tang"}
+            settings={
+                "files.backend": "foo.bar",
+                "simple.backend": "bread.butter",
+                "docs.backend": "wu.tang",
+            }
         ),
         register_origin_cache_keys=pretend.call_recorder(lambda c, **kw: None),
         get_settings=lambda: settings,
@@ -63,6 +66,7 @@ def test_includeme(monkeypatch, with_trending, with_bq_sync):
 
     assert config.register_service_factory.calls == [
         pretend.call(storage_class.create_service, IFileStorage),
+        pretend.call(storage_class.create_service, ISimpleStorage),
         pretend.call(storage_class.create_service, IDocsStorage),
     ]
     assert config.register_origin_cache_keys.calls == [
@@ -120,13 +124,13 @@ def test_includeme(monkeypatch, with_trending, with_bq_sync):
             pretend.call(crontab(minute="*/5"), update_description_html),
             pretend.call(crontab(minute="*/5"), update_role_invitation_status),
             pretend.call(crontab(minute=0, hour=3), compute_trending),
-            pretend.call(crontab(minute=0), sync_bigquery_release_files),
+            # pretend.call(crontab(minute=0), sync_bigquery_release_files),
         ]
     elif with_bq_sync:
         assert config.add_periodic_task.calls == [
             pretend.call(crontab(minute="*/5"), update_description_html),
             pretend.call(crontab(minute="*/5"), update_role_invitation_status),
-            pretend.call(crontab(minute=0), sync_bigquery_release_files),
+            # pretend.call(crontab(minute=0), sync_bigquery_release_files),
         ]
     elif with_trending:
         assert config.add_periodic_task.calls == [

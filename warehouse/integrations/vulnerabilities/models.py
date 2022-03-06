@@ -23,6 +23,7 @@ release_vulnerabilities = Table(
         "release_id",
         ForeignKey("releases.id", onupdate="CASCADE", ondelete="CASCADE"),
         nullable=False,
+        index=True,
     ),
     Column(
         "vulnerability_source",
@@ -57,6 +58,12 @@ class VulnerabilityRecord(db.Model):
     # Alternative IDs for this vulnerability
     # e.g. "CVE-2021-12345"
     aliases = Column(ARRAY(String))
+
+    # Details about the vulnerability
+    details = Column(String)
+
+    # Events of introduced/fixed versions
+    fixed_in = Column(ARRAY(String))
 
     releases = orm.relationship(
         "Release",

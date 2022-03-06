@@ -862,7 +862,7 @@ def test_changelog(db_request, with_ids):
     if with_ids is not None:
         extra_args.append(with_ids)
 
-    assert xmlrpc.changelog(db_request, since - 1, *extra_args) == expected
+    assert xmlrpc.changelog(db_request, since, *extra_args) == expected
 
 
 def test_browse(db_request):
@@ -890,43 +890,34 @@ def test_browse(db_request):
     assert set(xmlrpc.browse(db_request, ["Environment :: Other Environment"])) == {
         (r.project.name, r.version) for r in releases
     }
-    assert (
-        set(
-            xmlrpc.browse(
-                db_request,
-                [
-                    "Environment :: Other Environment",
-                    "Development Status :: 5 - Production/Stable",
-                ],
-            )
+    assert set(
+        xmlrpc.browse(
+            db_request,
+            [
+                "Environment :: Other Environment",
+                "Development Status :: 5 - Production/Stable",
+            ],
         )
-        == {(expected_release.project.name, expected_release.version)}
-    )
-    assert (
-        set(
-            xmlrpc.browse(
-                db_request,
-                [
-                    "Environment :: Other Environment",
-                    "Development Status :: 5 - Production/Stable",
-                    "Programming Language :: Python",
-                ],
-            )
+    ) == {(expected_release.project.name, expected_release.version)}
+    assert set(
+        xmlrpc.browse(
+            db_request,
+            [
+                "Environment :: Other Environment",
+                "Development Status :: 5 - Production/Stable",
+                "Programming Language :: Python",
+            ],
         )
-        == {(expected_release.project.name, expected_release.version)}
-    )
-    assert (
-        set(
-            xmlrpc.browse(
-                db_request,
-                [
-                    "Development Status :: 5 - Production/Stable",
-                    "Programming Language :: Python",
-                ],
-            )
+    ) == {(expected_release.project.name, expected_release.version)}
+    assert set(
+        xmlrpc.browse(
+            db_request,
+            [
+                "Development Status :: 5 - Production/Stable",
+                "Programming Language :: Python",
+            ],
         )
-        == {(expected_release.project.name, expected_release.version)}
-    )
+    ) == {(expected_release.project.name, expected_release.version)}
 
 
 def test_multicall(pyramid_request):

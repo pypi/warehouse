@@ -11,51 +11,63 @@
 # limitations under the License.
 
 import base64
-import os
+import json
 
 import webauthn as pywebauthn
 
-from webauthn.webauthn import (
-    AuthenticationRejectedException as _AuthenticationRejectedException,
-    RegistrationRejectedException as _RegistrationRejectedException,
+from webauthn.helpers import base64url_to_bytes, generate_challenge
+from webauthn.helpers.exceptions import (
+    InvalidAuthenticationResponse,
+    InvalidRegistrationResponse,
+)
+from webauthn.helpers.options_to_json import options_to_json
+from webauthn.helpers.structs import (
+    AttestationConveyancePreference,
+    AuthenticationCredential,
+    AuthenticatorSelectionCriteria,
+    AuthenticatorTransport,
+    PublicKeyCredentialDescriptor,
+    RegistrationCredential,
+    UserVerificationRequirement,
 )
 
 
-class AuthenticationRejectedException(Exception):
+class AuthenticationRejectedError(Exception):
     pass
 
 
-class RegistrationRejectedException(Exception):
+class RegistrationRejectedError(Exception):
     pass
 
 
-WebAuthnCredential = pywebauthn.WebAuthnCredential
-
-
-def _get_webauthn_users(user, *, rp_id):
+def _get_webauthn_user_public_key_credential_descriptors(user, *, rp_id):
     """
     Returns a webauthn.WebAuthnUser instance corresponding
     to the given user model, with properties suitable for
     usage within the webauthn API.
     """
     return [
-        pywebauthn.WebAuthnUser(
-            str(user.id),
-            user.username,
-            user.name or user.username,
-            None,
-            credential.credential_id,
-            credential.public_key,
-            credential.sign_count,
-            rp_id,
+        PublicKeyCredentialDescriptor(
+            id=base64url_to_bytes(credential.credential_id),
+            transports=[
+                AuthenticatorTransport.USB,
+                AuthenticatorTransport.NFC,
+                AuthenticatorTransport.BLE,
+                AuthenticatorTransport.INTERNAL,
+            ],
         )
         for credential in user.webauthn
     ]
 
 
-def _webauthn_b64decode(encoded):
-    padding = "=" * (len(encoded) % 4)
-    return base64.urlsafe_b64decode(encoded + padding)
+def _get_webauthn_user_public_keys(user, *, rp_id):
+    return [
+        (
+            base64url_to_bytes(credential.public_key),
+            credential.sign_count,
+        )
+        for credential in user.webauthn
+    ]
 
 
 def _webauthn_b64encode(source):
@@ -69,9 +81,7 @@ def generate_webauthn_challenge():
 
     See: https://w3c.github.io/webauthn/#cryptographic-challenges
     """
-    # NOTE: Webauthn recommends at least 16 bytes of entropy,
-    # we go with 32 because it doesn't cost us anything.
-    return _webauthn_b64encode(os.urandom(32)).decode()
+    return generate_challenge()
 
 
 def get_credential_options(user, *, challenge, rp_name, rp_id):
@@ -79,18 +89,19 @@ def get_credential_options(user, *, challenge, rp_name, rp_id):
     Returns a dictionary of options for credential creation
     on the client side.
     """
-    options = pywebauthn.WebAuthnMakeCredentialOptions(
-        challenge,
-        rp_name,
-        rp_id,
-        str(user.id),
-        user.username,
-        user.name or user.username,
-        None,
-        user_verification="discouraged",
+    _authenticator_selection = AuthenticatorSelectionCriteria()
+    _authenticator_selection.user_verification = UserVerificationRequirement.DISCOURAGED
+    options = pywebauthn.generate_registration_options(
+        rp_id=rp_id,
+        rp_name=rp_name,
+        user_id=str(user.id),
+        user_name=user.username,
+        user_display_name=user.name or user.username,
+        challenge=challenge,
+        attestation=AttestationConveyancePreference.NONE,
+        authenticator_selection=_authenticator_selection,
     )
-
-    return options.registration_dict
+    return json.loads(options_to_json(options))
 
 
 def get_assertion_options(user, *, challenge, rp_id):
@@ -98,11 +109,15 @@ def get_assertion_options(user, *, challenge, rp_id):
     Returns a dictionary of options for assertion retrieval
     on the client side.
     """
-    options = pywebauthn.WebAuthnAssertionOptions(
-        _get_webauthn_users(user, rp_id=rp_id), challenge
+    options = pywebauthn.generate_authentication_options(
+        rp_id=rp_id,
+        challenge=challenge,
+        allow_credentials=_get_webauthn_user_public_key_credential_descriptors(
+            user, rp_id=rp_id
+        ),
+        user_verification=UserVerificationRequirement.DISCOURAGED,
     )
-
-    return options.assertion_dict
+    return json.loads(options_to_json(options))
 
 
 def verify_registration_response(response, challenge, *, rp_id, origin):
@@ -111,20 +126,24 @@ def verify_registration_response(response, challenge, *, rp_id, origin):
     sent from the client during device registration.
 
     Returns a WebAuthnCredential on success.
-    Raises RegistrationRejectedException on failire.
+    Raises RegistrationRejectedError on failire.
     """
     # NOTE: We re-encode the challenge below, because our
     # response's clientData.challenge is encoded twice:
     # first for the entire clientData payload, and then again
     # for the individual challenge.
-    encoded_challenge = _webauthn_b64encode(challenge.encode()).decode()
-    response = pywebauthn.WebAuthnRegistrationResponse(
-        rp_id, origin, response, encoded_challenge, self_attestation_permitted=True
-    )
+    encoded_challenge = _webauthn_b64encode(challenge)
     try:
-        return response.verify()
-    except _RegistrationRejectedException as e:
-        raise RegistrationRejectedException(str(e))
+        _credential = RegistrationCredential.parse_raw(response)
+        return pywebauthn.verify_registration_response(
+            credential=_credential,
+            expected_challenge=encoded_challenge,
+            expected_rp_id=rp_id,
+            expected_origin=origin,
+            require_user_verification=False,
+        )
+    except InvalidRegistrationResponse as e:
+        raise RegistrationRejectedError(str(e))
 
 
 def verify_assertion_response(assertion, *, challenge, user, origin, rp_id):
@@ -133,25 +152,30 @@ def verify_assertion_response(assertion, *, challenge, user, origin, rp_id):
     sent from the client during authentication.
 
     Returns an updated signage count on success.
-    Raises AuthenticationRejectedException on failure.
+    Raises AuthenticationRejectedError on failure.
     """
-    webauthn_users = _get_webauthn_users(user, rp_id=rp_id)
-    cred_ids = [cred.credential_id for cred in webauthn_users]
-    encoded_challenge = _webauthn_b64encode(challenge.encode()).decode()
+    # NOTE: We re-encode the challenge below, because our
+    # response's clientData.challenge is encoded twice:
+    # first for the entire clientData payload, and then again
+    # for the individual challenge.
+    encoded_challenge = _webauthn_b64encode(challenge)
+    webauthn_user_public_keys = _get_webauthn_user_public_keys(user, rp_id=rp_id)
 
-    for webauthn_user in webauthn_users:
-        response = pywebauthn.WebAuthnAssertionResponse(
-            webauthn_user,
-            assertion,
-            encoded_challenge,
-            origin,
-            allow_credentials=cred_ids,
-        )
+    for public_key, current_sign_count in webauthn_user_public_keys:
         try:
-            return (webauthn_user.credential_id, response.verify())
-        except _AuthenticationRejectedException:
+            _credential = AuthenticationCredential.parse_raw(assertion)
+            return pywebauthn.verify_authentication_response(
+                credential=_credential,
+                expected_challenge=encoded_challenge,
+                expected_rp_id=rp_id,
+                expected_origin=origin,
+                credential_public_key=public_key,
+                credential_current_sign_count=current_sign_count,
+                require_user_verification=False,
+            )
+        except InvalidAuthenticationResponse:
             pass
 
     # If we exit the loop, then we've failed to verify the assertion against
     # any of the user's WebAuthn credentials. Fail.
-    raise AuthenticationRejectedException("Invalid WebAuthn credential")
+    raise AuthenticationRejectedError("Invalid WebAuthn credential")
