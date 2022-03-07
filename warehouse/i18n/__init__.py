@@ -170,7 +170,7 @@ def translated_view(view, info):
         return wrapped
 
 
-translated_view.options = {"has_translations"}
+translated_view.options = {"has_translations"}  # type: ignore
 
 
 def includeme(config):
