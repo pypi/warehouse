@@ -13,7 +13,7 @@
 import shlex
 
 import wtforms
-import wtforms.fields.html5
+import wtforms.fields
 import wtforms.validators
 
 from paginate_sqlalchemy import SqlalchemyOrmPage as SQLAlchemyORMPage
@@ -73,9 +73,7 @@ def user_list(request):
 
 class EmailForm(forms.Form):
 
-    email = wtforms.fields.html5.EmailField(
-        validators=[wtforms.validators.DataRequired()]
-    )
+    email = wtforms.fields.EmailField(validators=[wtforms.validators.DataRequired()])
     primary = wtforms.fields.BooleanField()
     verified = wtforms.fields.BooleanField()
     public = wtforms.fields.BooleanField()
