@@ -547,10 +547,10 @@ def changelog_since_serial(request, serial: int):
 
 @xmlrpc_method(method="changelog")
 def changelog(request, since: int, with_ids: bool = False):
-    since = datetime.datetime.utcfromtimestamp(since)
+    since_dt = datetime.datetime.utcfromtimestamp(since)
     entries = (
         request.db.query(JournalEntry)
-        .filter(JournalEntry.submitted_date > since)
+        .filter(JournalEntry.submitted_date > since_dt)
         .order_by(JournalEntry.id)
         .limit(50000)
     )
