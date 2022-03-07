@@ -990,6 +990,9 @@ def _login_user(request, userid, two_factor_method=None, two_factor_label=None):
         },
     )
     request.session.record_auth_timestamp()
+    request.session.record_password_timestamp(
+        user_service.get_password_timestamp(userid)
+    )
     return headers
 
 
@@ -1064,5 +1067,8 @@ def reauthenticate(request, _form_class=ReAuthenticateForm):
 
     if request.method == "POST" and form.validate():
         request.session.record_auth_timestamp()
+        request.session.record_password_timestamp(
+            user_service.get_password_timestamp(request.user.id)
+        )
 
     return resp

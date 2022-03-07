@@ -873,8 +873,8 @@ def file_upload(request):
                     "{value!r} is an invalid value for {field}. ".format(
                         value=(
                             field.data[:30] + "..." + field.data[-30:]
-                            if len(field.data) > 60
-                            else field.data
+                            if field.data and len(field.data) > 60
+                            else field.data or ""
                         ),
                         field=field.description,
                     )

@@ -8,84 +8,88 @@ msgstr ""
 msgid "Locale updated"
 msgstr ""
 
-#: warehouse/accounts/forms.py:51
+#: warehouse/accounts/__init__.py:72
+msgid "Session invalidated by password change"
+msgstr ""
+
+#: warehouse/accounts/forms.py:50
 msgid "No user found with that username"
 msgstr ""
 
-#: warehouse/accounts/forms.py:62
+#: warehouse/accounts/forms.py:61
 msgid "TOTP code must be ${totp_length} digits."
 msgstr ""
 
-#: warehouse/accounts/forms.py:89
+#: warehouse/accounts/forms.py:88
 msgid "Choose a username with 50 characters or less."
 msgstr ""
 
-#: warehouse/accounts/forms.py:95
+#: warehouse/accounts/forms.py:94
 msgid ""
 "The username is invalid. Usernames must be composed of letters, numbers, "
 "dots, hyphens and underscores. And must also start and finish with a "
 "letter or number. Choose a different username."
 msgstr ""
 
-#: warehouse/accounts/forms.py:109
+#: warehouse/accounts/forms.py:108
 msgid ""
 "This username is already being used by another account. Choose a "
 "different username."
 msgstr ""
 
-#: warehouse/accounts/forms.py:143
+#: warehouse/accounts/forms.py:142
 msgid "The password is invalid. Try again."
 msgstr ""
 
-#: warehouse/accounts/forms.py:147 warehouse/accounts/views.py:79
+#: warehouse/accounts/forms.py:146 warehouse/accounts/views.py:79
 msgid "There have been too many unsuccessful login attempts. Try again later."
 msgstr ""
 
-#: warehouse/accounts/forms.py:169
+#: warehouse/accounts/forms.py:168
 msgid "Your passwords don't match. Try again."
 msgstr ""
 
-#: warehouse/accounts/forms.py:200 warehouse/accounts/forms.py:211
+#: warehouse/accounts/forms.py:199 warehouse/accounts/forms.py:210
 msgid "The email address isn't valid. Try again."
 msgstr ""
 
-#: warehouse/accounts/forms.py:219
+#: warehouse/accounts/forms.py:218
 msgid "You can't use an email address from this domain. Use a different email."
 msgstr ""
 
-#: warehouse/accounts/forms.py:230
+#: warehouse/accounts/forms.py:229
 msgid ""
 "This email address is already being used by this account. Use a different"
 " email."
 msgstr ""
 
-#: warehouse/accounts/forms.py:237
+#: warehouse/accounts/forms.py:236
 msgid ""
 "This email address is already being used by another account. Use a "
 "different email."
 msgstr ""
 
-#: warehouse/accounts/forms.py:259 warehouse/manage/forms.py:73
+#: warehouse/accounts/forms.py:258 warehouse/manage/forms.py:73
 msgid "The name is too long. Choose a name with 100 characters or less."
 msgstr ""
 
-#: warehouse/accounts/forms.py:328
+#: warehouse/accounts/forms.py:327
 msgid "Invalid TOTP code."
 msgstr ""
 
-#: warehouse/accounts/forms.py:345
+#: warehouse/accounts/forms.py:344
 msgid "Invalid WebAuthn assertion: Bad payload"
 msgstr ""
 
-#: warehouse/accounts/forms.py:403
+#: warehouse/accounts/forms.py:402
 msgid "Invalid recovery code."
 msgstr ""
 
-#: warehouse/accounts/forms.py:411
+#: warehouse/accounts/forms.py:410
 msgid "Recovery code has been previously used."
 msgstr ""
 
-#: warehouse/accounts/forms.py:430
+#: warehouse/accounts/forms.py:429
 msgid "No user found with that username or email"
 msgstr ""
 
@@ -116,7 +120,7 @@ msgstr ""
 msgid "Successful WebAuthn assertion"
 msgstr ""
 
-#: warehouse/accounts/views.py:439 warehouse/manage/views.py:796
+#: warehouse/accounts/views.py:439 warehouse/manage/views.py:801
 msgid "Recovery code accepted. The supplied code cannot be used again."
 msgstr ""
 
@@ -229,47 +233,47 @@ msgstr ""
 msgid "Email ${email_address} added - check your email for a verification link"
 msgstr ""
 
-#: warehouse/manage/views.py:744
+#: warehouse/manage/views.py:749
 msgid "Recovery codes already generated"
 msgstr ""
 
-#: warehouse/manage/views.py:745
+#: warehouse/manage/views.py:750
 msgid "Generating new recovery codes will invalidate your existing codes."
 msgstr ""
 
-#: warehouse/manage/views.py:1150
+#: warehouse/manage/views.py:1155
 msgid ""
 "There have been too many attempted OpenID Connect registrations. Try "
 "again later."
 msgstr ""
 
-#: warehouse/manage/views.py:1808
+#: warehouse/manage/views.py:1813
 msgid "User '${username}' already has ${role_name} role for project"
 msgstr ""
 
-#: warehouse/manage/views.py:1819
+#: warehouse/manage/views.py:1824
 msgid ""
 "User '${username}' does not have a verified primary email address and "
 "cannot be added as a ${role_name} for project"
 msgstr ""
 
-#: warehouse/manage/views.py:1832
+#: warehouse/manage/views.py:1837
 msgid "User '${username}' already has an active invite. Please try again later."
 msgstr ""
 
-#: warehouse/manage/views.py:1890
+#: warehouse/manage/views.py:1895
 msgid "Invitation sent to '${username}'"
 msgstr ""
 
-#: warehouse/manage/views.py:1937
+#: warehouse/manage/views.py:1942
 msgid "Could not find role invitation."
 msgstr ""
 
-#: warehouse/manage/views.py:1948
+#: warehouse/manage/views.py:1953
 msgid "Invitation already expired."
 msgstr ""
 
-#: warehouse/manage/views.py:1972
+#: warehouse/manage/views.py:1977
 msgid "Invitation revoked from '${username}'."
 msgstr ""
 
@@ -1658,7 +1662,7 @@ msgstr ""
 #: warehouse/templates/manage/account/recovery_codes-provision.html:57
 #: warehouse/templates/manage/account/totp-provision.html:57
 #: warehouse/templates/packaging/detail.html:144
-#: warehouse/templates/pages/classifiers.html:37
+#: warehouse/templates/pages/classifiers.html:38
 msgid "Copy to clipboard"
 msgstr ""
 
@@ -1668,7 +1672,7 @@ msgstr ""
 #: warehouse/templates/manage/account.html:207
 #: warehouse/templates/manage/account/recovery_codes-provision.html:58
 #: warehouse/templates/manage/account/totp-provision.html:58
-#: warehouse/templates/pages/classifiers.html:38
+#: warehouse/templates/pages/classifiers.html:39
 msgid "Copy"
 msgstr ""
 
@@ -4104,7 +4108,7 @@ msgstr[1] ""
 
 #: warehouse/templates/pages/classifiers.html:22
 msgid ""
-"Each project's maintainers provide PyPI with a list of \"trove "
+"Each project's maintainers provide PyPI with a list of \"Trove "
 "classifiers\" to categorize each release, describing who it's for, what "
 "systems it can run on, and how mature it is."
 msgstr ""
@@ -4118,7 +4122,7 @@ msgstr ""
 #: warehouse/templates/pages/classifiers.html:25
 #, python-format
 msgid ""
-"Instructions for how to add trove classifiers to a project can be found "
+"Instructions for how to add Trove classifiers to a project can be found "
 "on the <a href=\"%(ppug_href)s\" title=\"%(title)s\" target=\"_blank\" "
 "rel=\"noopener\">Python Packaging User Guide</a>. To read the original "
 "classifier specification, refer to <a href=\"%(pep301_href)s\" "
@@ -4126,7 +4130,14 @@ msgid ""
 "title=\"Python enhancement proposal\">PEP</abbr> 301</a>."
 msgstr ""
 
-#: warehouse/templates/pages/classifiers.html:31
+#: warehouse/templates/pages/classifiers.html:30
+msgid ""
+"To prevent a package from being uploaded to PyPI, use the special "
+"\"Private :: Do Not Upload\" classifier. PyPI will always reject packages"
+" with classifiers beginning with \"Private ::\"."
+msgstr ""
+
+#: warehouse/templates/pages/classifiers.html:32
 msgid "List of classifiers"
 msgstr ""
 

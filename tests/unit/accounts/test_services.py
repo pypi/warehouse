@@ -893,6 +893,20 @@ class TestDatabaseUserService:
         assert len(new_codes) == 8
         assert [c.id for c in initial_codes] != [c.id for c in new_codes]
 
+    def test_get_password_timestamp(self, user_service):
+        create_time = datetime.datetime.utcnow()
+        with freezegun.freeze_time(create_time):
+            user = UserFactory.create()
+            user.password_date = create_time
+
+        assert user_service.get_password_timestamp(user.id) == create_time.timestamp()
+
+    def test_get_password_timestamp_no_value(self, user_service):
+        user = UserFactory.create()
+        user.password_date = None
+
+        assert user_service.get_password_timestamp(user.id) == 0
+
 
 class TestTokenService:
     def test_verify_service(self):
