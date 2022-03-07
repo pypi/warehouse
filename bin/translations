@@ -7,7 +7,7 @@ set -e
 export LC_ALL="${ENCODING:-en_US.UTF-8}"
 export LANG="${ENCODING:-en_US.UTF-8}"
 
-# Print all the followng commands
+# Print all the following commands
 set -x
 
 make -C warehouse/locale/ translations
