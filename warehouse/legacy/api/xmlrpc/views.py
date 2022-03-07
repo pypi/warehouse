@@ -280,7 +280,7 @@ def search(request, spec: Mapping[str, Union[str, List[str]]], operator: str = "
         for item in value:
             kw = {"query": item}
             if field in SEARCH_BOOSTS:
-                kw["boost"] = SEARCH_BOOSTS[field]
+                kw["boost"] = SEARCH_BOOSTS[field]  # type: ignore
             if q is None:
                 q = Q("match", **{field: kw})
             else:
