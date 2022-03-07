@@ -5,3 +5,15 @@ pep8-naming
 black==22.1.0
 isort>=5
 mypy
+celery-types
+mypy-zope
+types-boto3
+types-certifi
+types-first
+types-html5lib
+types-psycopg2
+types-python-slugify
+types-pytz
+types-redis
+types-requests
+types-setuptools
