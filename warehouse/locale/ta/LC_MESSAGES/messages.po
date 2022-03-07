@@ -31,19 +31,19 @@ msgstr ""
 msgid "Session invalidated by password change"
 msgstr "கடவுச்சொல் மாற்றத்தால் அமர்வு செல்லாது"
 
-#: warehouse/accounts/forms.py:51
+#: warehouse/accounts/forms.py:50
 msgid "No user found with that username"
 msgstr "குறிப்பிட்ட பயனர் பெயரில் எந்தப் பயனருமில்லை"
 
-#: warehouse/accounts/forms.py:62
+#: warehouse/accounts/forms.py:61
 msgid "TOTP code must be ${totp_length} digits."
 msgstr "TOTP குறியீடு ${totp_length} இலக்கங்கள் இருக்க வேண்டும்."
 
-#: warehouse/accounts/forms.py:89
+#: warehouse/accounts/forms.py:88
 msgid "Choose a username with 50 characters or less."
 msgstr "50 வரியுரு அல்லது அதற்குக் குறைவாக உள்ள பயனர் பெயர் தேர்ந்தெடுங்கள்."
 
-#: warehouse/accounts/forms.py:95
+#: warehouse/accounts/forms.py:94
 msgid ""
 "The username is invalid. Usernames must be composed of letters, numbers, "
 "dots, hyphens and underscores. And must also start and finish with a letter "
@@ -53,7 +53,7 @@ msgstr ""
 "அடிக்கோள்களால் ஆனதாக இருக்க வேண்டும். மேலும் ஒரு கடிதம் அல்லது எண்ணுடன் ஆரம்பித்து முடிக்க "
 "வேண்டும். வேறு பயனர்பெயரைத் தேர்வு செய்யவும்."
 
-#: warehouse/accounts/forms.py:109
+#: warehouse/accounts/forms.py:108
 msgid ""
 "This username is already being used by another account. Choose a different "
 "username."
@@ -61,29 +61,29 @@ msgstr ""
 "இந்த பயனர்பெயர் ஏற்கனவே மற்றொரு கணக்கால் பயன்படுத்தப்படுகிறது. வேறு பயனர்பெயரைத் தேர்வு "
 "செய்யவும்."
 
-#: warehouse/accounts/forms.py:143
+#: warehouse/accounts/forms.py:142
 msgid "The password is invalid. Try again."
 msgstr "கடவுச்சொல் தவறானது. மீண்டும் முயற்சி செய்."
 
-#: warehouse/accounts/forms.py:147 warehouse/accounts/views.py:79
+#: warehouse/accounts/forms.py:146 warehouse/accounts/views.py:79
 msgid "There have been too many unsuccessful login attempts. Try again later."
 msgstr "பல தோல்வியுற்ற உள்நுழைவு முயற்சிகள் உள்ளன. பின்னர் மீண்டும் முயற்சிக்கவும்."
 
-#: warehouse/accounts/forms.py:169
+#: warehouse/accounts/forms.py:168
 msgid "Your passwords don't match. Try again."
 msgstr "உங்கள் கடவுச்சொற்கள் பொருந்தவில்லை. மீண்டும் முயற்சி செய்."
 
-#: warehouse/accounts/forms.py:200 warehouse/accounts/forms.py:211
+#: warehouse/accounts/forms.py:199 warehouse/accounts/forms.py:210
 msgid "The email address isn't valid. Try again."
 msgstr "மின்னஞ்சல் முகவரி தவறானது. மீண்டும் முயற்சி செய்."
 
-#: warehouse/accounts/forms.py:219
+#: warehouse/accounts/forms.py:218
 msgid "You can't use an email address from this domain. Use a different email."
 msgstr ""
 "இந்தக் களத்திலிருந்து மின்னஞ்சல் முகவரியை நீங்கள் பயன்படுத்த முடியாது. வேறு மின்னஞ்சலைப் "
 "பயன்படுத்தவும்."
 
-#: warehouse/accounts/forms.py:230
+#: warehouse/accounts/forms.py:229
 msgid ""
 "This email address is already being used by this account. Use a different "
 "email."
@@ -91,7 +91,7 @@ msgstr ""
 "இந்த மின்னஞ்சல் முகவரி ஏற்கனவே இந்தக் கணக்கால் பயன்படுத்தப்படுகிறது. வேறு மின்னஞ்சலைப் "
 "பயன்படுத்தவும்."
 
-#: warehouse/accounts/forms.py:237
+#: warehouse/accounts/forms.py:236
 msgid ""
 "This email address is already being used by another account. Use a different "
 "email."
@@ -99,27 +99,27 @@ msgstr ""
 "இந்த மின்னஞ்சல் முகவரி ஏற்கனவே மற்றொரு கணக்கால் பயன்படுத்தப்படுகிறது. வேறு மின்னஞ்சலைப் "
 "பயன்படுத்தவும்."
 
-#: warehouse/accounts/forms.py:259 warehouse/manage/forms.py:73
+#: warehouse/accounts/forms.py:258 warehouse/manage/forms.py:73
 msgid "The name is too long. Choose a name with 100 characters or less."
 msgstr "பெயர் மிக நீளமானது. 100 எழுத்துக்கள் அல்லது அதற்கும் குறைவான பெயரைத் தேர்வுசெய்க."
 
-#: warehouse/accounts/forms.py:328
+#: warehouse/accounts/forms.py:327
 msgid "Invalid TOTP code."
 msgstr "தவறான TOTP குறியீடு."
 
-#: warehouse/accounts/forms.py:345
+#: warehouse/accounts/forms.py:344
 msgid "Invalid WebAuthn assertion: Bad payload"
 msgstr "தவறான WebAuthn கூற்று: மோசமான பேலோட்"
 
-#: warehouse/accounts/forms.py:403
+#: warehouse/accounts/forms.py:402
 msgid "Invalid recovery code."
 msgstr "மீட்டெடுப்பு குறியீடு தவறானது."
 
-#: warehouse/accounts/forms.py:411
+#: warehouse/accounts/forms.py:410
 msgid "Recovery code has been previously used."
 msgstr "மீட்பு குறியீடு(Recovery code) முன்பு பயன்படுத்தப்பட்டது."
 
-#: warehouse/accounts/forms.py:430
+#: warehouse/accounts/forms.py:429
 msgid "No user found with that username or email"
 msgstr "அந்த பயனர்பெயர் அல்லது மின்னஞ்சலுடன் எந்த பயனரும் காணப்படவில்லை"
 

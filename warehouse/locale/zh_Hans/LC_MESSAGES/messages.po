@@ -65,19 +65,19 @@ msgstr "区域设置已更新"
 msgid "Session invalidated by password change"
 msgstr ""
 
-#: warehouse/accounts/forms.py:51
+#: warehouse/accounts/forms.py:50
 msgid "No user found with that username"
 msgstr "未找到使用该用户名的用户"
 
-#: warehouse/accounts/forms.py:62
+#: warehouse/accounts/forms.py:61
 msgid "TOTP code must be ${totp_length} digits."
 msgstr "TOTP 代码必须为 ${totp_length} 位数字。"
 
-#: warehouse/accounts/forms.py:89
+#: warehouse/accounts/forms.py:88
 msgid "Choose a username with 50 characters or less."
 msgstr "选择一个不超过 50 个字符的用户名。"
 
-#: warehouse/accounts/forms.py:95
+#: warehouse/accounts/forms.py:94
 msgid ""
 "The username is invalid. Usernames must be composed of letters, numbers, "
 "dots, hyphens and underscores. And must also start and finish with a letter "
@@ -86,66 +86,66 @@ msgstr ""
 "该用户名是无效的。用户名必须由字母、数字、圆点、连字符和下划线组成。而且还必"
 "须以字母或数字开头和结尾。选择一个不同的用户名。"
 
-#: warehouse/accounts/forms.py:109
+#: warehouse/accounts/forms.py:108
 msgid ""
 "This username is already being used by another account. Choose a different "
 "username."
 msgstr "此用户名已被其他帐户使用。请重新选择用户名。"
 
-#: warehouse/accounts/forms.py:143
+#: warehouse/accounts/forms.py:142
 msgid "The password is invalid. Try again."
 msgstr "密码无效。请再试一次。"
 
-#: warehouse/accounts/forms.py:147 warehouse/accounts/views.py:79
+#: warehouse/accounts/forms.py:146 warehouse/accounts/views.py:79
 msgid "There have been too many unsuccessful login attempts. Try again later."
 msgstr "尝试登录失败次数过多。请稍后重试。"
 
-#: warehouse/accounts/forms.py:169
+#: warehouse/accounts/forms.py:168
 msgid "Your passwords don't match. Try again."
 msgstr "两次输入的密码不一致。请再试一次。"
 
-#: warehouse/accounts/forms.py:200 warehouse/accounts/forms.py:211
+#: warehouse/accounts/forms.py:199 warehouse/accounts/forms.py:210
 msgid "The email address isn't valid. Try again."
 msgstr "电子邮件地址无效。请再试一次。"
 
-#: warehouse/accounts/forms.py:219
+#: warehouse/accounts/forms.py:218
 msgid "You can't use an email address from this domain. Use a different email."
 msgstr "您不能使用来自该域名的电子邮件地址。请换一个电子邮件。"
 
-#: warehouse/accounts/forms.py:230
+#: warehouse/accounts/forms.py:229
 msgid ""
 "This email address is already being used by this account. Use a different "
 "email."
 msgstr "此帐户已使用此电子邮件地址。请使用一个不同的电子邮件。"
 
-#: warehouse/accounts/forms.py:237
+#: warehouse/accounts/forms.py:236
 msgid ""
 "This email address is already being used by another account. Use a different "
 "email."
 msgstr "此电子邮件地址已被另一个帐户使用。使用一个不同的电子邮件。"
 
-#: warehouse/accounts/forms.py:259 warehouse/manage/forms.py:73
+#: warehouse/accounts/forms.py:258 warehouse/manage/forms.py:73
 msgid "The name is too long. Choose a name with 100 characters or less."
 msgstr "用户名太长。请选择一个不超过100个字符的用户名。"
 
-#: warehouse/accounts/forms.py:328
+#: warehouse/accounts/forms.py:327
 msgid "Invalid TOTP code."
 msgstr "无效的 TOTP 代码。"
 
-#: warehouse/accounts/forms.py:345
+#: warehouse/accounts/forms.py:344
 msgid "Invalid WebAuthn assertion: Bad payload"
 msgstr "无效的 WebAuthn 断言：数据错误"
 
 # | msgid "Invalid TOTP code."
-#: warehouse/accounts/forms.py:403
+#: warehouse/accounts/forms.py:402
 msgid "Invalid recovery code."
 msgstr "无效的 TOTP 代码。"
 
-#: warehouse/accounts/forms.py:411
+#: warehouse/accounts/forms.py:410
 msgid "Recovery code has been previously used."
 msgstr "恢复代码先前已用过。"
 
-#: warehouse/accounts/forms.py:430
+#: warehouse/accounts/forms.py:429
 msgid "No user found with that username or email"
 msgstr "未找到使用该用户名或电子邮件的用户"
 
@@ -4248,7 +4248,8 @@ msgid ""
 "Each project's maintainers provide PyPI with a list of \"Trove classifiers\" "
 "to categorize each release, describing who it's for, what systems it can run "
 "on, and how mature it is."
-msgstr "每个项目的维护人员都向PyPI提供一个“Trove分类器”列表，用于对每个版本进行分类，"
+msgstr ""
+"每个项目的维护人员都向PyPI提供一个“Trove分类器”列表，用于对每个版本进行分类，"
 "描述版本的目的、可以运行的系统以及版本的成熟程度。"
 
 #: warehouse/templates/pages/classifiers.html:23
@@ -4268,10 +4269,10 @@ msgid ""
 "enhancement proposal\">PEP</abbr> 301</a>."
 msgstr ""
 "有关如何将Trove分类器添加到项目的说明，请参见<a href=\"%(ppug_href)s\" title="
-"\"%(title)s\" target=\"_blank\" rel=\"noopener\""
-">Python打包指南</a>。要阅读原始分类器规范，请参阅<a href=\"%(pep301_href)s\" "
-"title=\"%(title)s\" target=\"_blank\" rel=\"noopener\"><abbr title=\"Python "
-"enhancement proposal\">PEP</abbr> 301</a>。"
+"\"%(title)s\" target=\"_blank\" rel=\"noopener\">Python打包指南</a>。要阅读原"
+"始分类器规范，请参阅<a href=\"%(pep301_href)s\" title=\"%(title)s\" target="
+"\"_blank\" rel=\"noopener\"><abbr title=\"Python enhancement proposal\">PEP</"
+"abbr> 301</a>。"
 
 #: warehouse/templates/pages/classifiers.html:30
 msgid ""
