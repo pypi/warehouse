@@ -50,15 +50,11 @@ class V1Caveat(Caveat):
         )
 
     def verify(self, predicate):
-        try:
-            data = json.loads(predicate)
-        except ValueError:
-            raise InvalidMacaroonError("malformatted predicate")
+        # Already checked in TopLevelCaveat, but just in case.
+        if predicate["version"] != 1:
+            raise InvalidMacaroonError("invalid version for this macaroon")
 
-        if data.get("version") != 1:
-            raise InvalidMacaroonError("invalidate version in predicate")
-
-        permissions = data.get("permissions")
+        permissions = predicate.get("permissions")
         if permissions is None:
             raise InvalidMacaroonError("invalid permissions in predicate")
 
@@ -73,6 +69,33 @@ class V1Caveat(Caveat):
         return self.verify_projects(projects)
 
 
+class V2Caveat(Caveat):
+    def verify(self, predicate):
+        # Already checked in TopLevelCaveat, but just in case.
+        if predicate["version"] != 2:
+            raise InvalidMacaroonError("invalid version for this macaroon")
+
+        raise InvalidMacaroonError("not supported yet")
+
+
+class TopLevelCaveat(Caveat):
+    def verify(self, predicate):
+        try:
+            data = json.loads(predicate)
+            version = data["version"]
+        except (ValueError, KeyError, TypeError):
+            raise InvalidMacaroonError("malformed predicate")
+
+        if version == 1:
+            caveat_verifier = V1Caveat(self.verifier)
+        elif version == 2:
+            caveat_verifier = V2Caveat(self.verifier)
+        else:
+            raise InvalidMacaroonError("invalid version: must be 1 or 2")
+
+        return caveat_verifier.verify(data)
+
+
 class Verifier:
     def __init__(self, macaroon, context, principals, permission):
         self.macaroon = macaroon
@@ -82,7 +105,7 @@ class Verifier:
         self.verifier = pymacaroons.Verifier()
 
     def verify(self, key):
-        self.verifier.satisfy_general(V1Caveat(self))
+        self.verifier.satisfy_general(TopLevelCaveat(self))
 
         try:
             return self.verifier.verify(self.macaroon, key)
