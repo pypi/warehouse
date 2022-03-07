@@ -40,19 +40,19 @@ msgstr "अवस्थिति नवीनीकृत हुआ"
 msgid "Session invalidated by password change"
 msgstr ""
 
-#: warehouse/accounts/forms.py:51
+#: warehouse/accounts/forms.py:50
 msgid "No user found with that username"
 msgstr "उस user से संगत कोई username नहीं मिला"
 
-#: warehouse/accounts/forms.py:62
+#: warehouse/accounts/forms.py:61
 msgid "TOTP code must be ${totp_length} digits."
 msgstr "TOTP कोड $ {totp_length} अंकों का होना चाहिए।"
 
-#: warehouse/accounts/forms.py:89
+#: warehouse/accounts/forms.py:88
 msgid "Choose a username with 50 characters or less."
 msgstr "50 या कम अक्षरों का username चुनें।"
 
-#: warehouse/accounts/forms.py:95
+#: warehouse/accounts/forms.py:94
 msgid ""
 "The username is invalid. Usernames must be composed of letters, numbers, "
 "dots, hyphens and underscores. And must also start and finish with a letter "
@@ -62,7 +62,7 @@ msgstr ""
 "बना होना चाहिए। और एक अक्षर या संख्या के साथ शुरू और खत्म भी होना चाहिए। एक अलग "
 "उपयोगकर्ता नाम चुनें।"
 
-#: warehouse/accounts/forms.py:109
+#: warehouse/accounts/forms.py:108
 msgid ""
 "This username is already being used by another account. Choose a different "
 "username."
@@ -70,27 +70,27 @@ msgstr ""
 "यह उपयोगकर्ता नाम पहले से ही किसी अन्य खाते द्वारा उपयोग किया जा रहा है। एक अलग "
 "उपयोगकर्ता नाम चुनें।"
 
-#: warehouse/accounts/forms.py:143
+#: warehouse/accounts/forms.py:142
 msgid "The password is invalid. Try again."
 msgstr "पासवर्ड अमान्य है। पुनः प्रयास करें।"
 
-#: warehouse/accounts/forms.py:147 warehouse/accounts/views.py:79
+#: warehouse/accounts/forms.py:146 warehouse/accounts/views.py:79
 msgid "There have been too many unsuccessful login attempts. Try again later."
 msgstr "बहुत से असफल लॉगिन प्रयास हुए हैं। बाद में पुन: प्रयास करें।"
 
-#: warehouse/accounts/forms.py:169
+#: warehouse/accounts/forms.py:168
 msgid "Your passwords don't match. Try again."
 msgstr "आपके पासवर्ड मेल नहीं खाते हैं। पुनः प्रयास करें।"
 
-#: warehouse/accounts/forms.py:200 warehouse/accounts/forms.py:211
+#: warehouse/accounts/forms.py:199 warehouse/accounts/forms.py:210
 msgid "The email address isn't valid. Try again."
 msgstr "ईमेल पता मान्य नहीं है। पुनः प्रयास करें।"
 
-#: warehouse/accounts/forms.py:219
+#: warehouse/accounts/forms.py:218
 msgid "You can't use an email address from this domain. Use a different email."
 msgstr "आप इस डोमेन के ईमेल पते का उपयोग नहीं कर सकते। एक अलग ईमेल का उपयोग करें।"
 
-#: warehouse/accounts/forms.py:230
+#: warehouse/accounts/forms.py:229
 msgid ""
 "This email address is already being used by this account. Use a different "
 "email."
@@ -98,7 +98,7 @@ msgstr ""
 "इस ईमेल एड्रेस का इस्तेमाल पहले से ही इस अकाउंट द्वारा किया जा रहा है। एक अलग ईमेल का "
 "उपयोग करें।"
 
-#: warehouse/accounts/forms.py:237
+#: warehouse/accounts/forms.py:236
 msgid ""
 "This email address is already being used by another account. Use a different "
 "email."
@@ -106,31 +106,31 @@ msgstr ""
 "इस ईमेल पते का उपयोग पहले से ही किसी अन्य खाते द्वारा किया जा रहा है। एक अलग ईमेल का "
 "उपयोग करें।"
 
-#: warehouse/accounts/forms.py:259 warehouse/manage/forms.py:73
+#: warehouse/accounts/forms.py:258 warehouse/manage/forms.py:73
 msgid "The name is too long. Choose a name with 100 characters or less."
 msgstr "नाम बहुत लंबा है। 100 अक्षरों या उससे कम के साथ एक नाम चुनें।"
 
-#: warehouse/accounts/forms.py:328
+#: warehouse/accounts/forms.py:327
 msgid "Invalid TOTP code."
 msgstr "अमान्य TOTP कोड।"
 
-#: warehouse/accounts/forms.py:345
+#: warehouse/accounts/forms.py:344
 msgid "Invalid WebAuthn assertion: Bad payload"
 msgstr "अमान्य WebAuthn दावा: खराब पेलोड"
 
-#: warehouse/accounts/forms.py:403
+#: warehouse/accounts/forms.py:402
 #, fuzzy
 #| msgid "Invalid Recovery Code."
 msgid "Invalid recovery code."
 msgstr "पुनर्प्राप्ति कुंजी अमान्य।"
 
-#: warehouse/accounts/forms.py:411
+#: warehouse/accounts/forms.py:410
 #, fuzzy
 #| msgid "Recovery codes regenerated"
 msgid "Recovery code has been previously used."
 msgstr "पुनर्प्राप्ति कोड पुन्ह्रोत्पादित"
 
-#: warehouse/accounts/forms.py:430
+#: warehouse/accounts/forms.py:429
 msgid "No user found with that username or email"
 msgstr "उस username या ईमेल से सम्बद्धित कोई user नहीं मिला"
 

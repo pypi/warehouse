@@ -31,19 +31,19 @@ msgstr "Lokaĵaro ĝisdatigita"
 msgid "Session invalidated by password change"
 msgstr ""
 
-#: warehouse/accounts/forms.py:51
+#: warehouse/accounts/forms.py:50
 msgid "No user found with that username"
 msgstr "Neniu uzanto trovita kun tiu salutnomo"
 
-#: warehouse/accounts/forms.py:62
+#: warehouse/accounts/forms.py:61
 msgid "TOTP code must be ${totp_length} digits."
 msgstr "TOTP-kodo devas konsisti el ${totp_length} ciferoj."
 
-#: warehouse/accounts/forms.py:89
+#: warehouse/accounts/forms.py:88
 msgid "Choose a username with 50 characters or less."
 msgstr "Elektu salutnomon de maksimume 200 skribsignoj."
 
-#: warehouse/accounts/forms.py:95
+#: warehouse/accounts/forms.py:94
 msgid ""
 "The username is invalid. Usernames must be composed of letters, numbers, "
 "dots, hyphens and underscores. And must also start and finish with a letter "
@@ -53,35 +53,35 @@ msgstr ""
 "punktoj, streketoj, kaj substrekoj. Ĝi devas komenciĝi kaj finiĝi per litero "
 "aŭ cifero. Elektu alian salutnomon."
 
-#: warehouse/accounts/forms.py:109
+#: warehouse/accounts/forms.py:108
 msgid ""
 "This username is already being used by another account. Choose a different "
 "username."
 msgstr "Tiu salutnomo jam estas uzata de alia konto. Elektu alian salutnomon."
 
-#: warehouse/accounts/forms.py:143
+#: warehouse/accounts/forms.py:142
 msgid "The password is invalid. Try again."
 msgstr "La pasvorto ne estas valida. Bonvolu reprovi."
 
-#: warehouse/accounts/forms.py:147 warehouse/accounts/views.py:79
+#: warehouse/accounts/forms.py:146 warehouse/accounts/views.py:79
 msgid "There have been too many unsuccessful login attempts. Try again later."
 msgstr "Okazis troo da nesukcesaj ensalutaj provoj. Reprovu poste."
 
-#: warehouse/accounts/forms.py:169
+#: warehouse/accounts/forms.py:168
 msgid "Your passwords don't match. Try again."
 msgstr "Viaj pasvortoj ne kongruas. Reprovu."
 
-#: warehouse/accounts/forms.py:200 warehouse/accounts/forms.py:211
+#: warehouse/accounts/forms.py:199 warehouse/accounts/forms.py:210
 msgid "The email address isn't valid. Try again."
 msgstr "La retpoŝta adreso ne estas valida. Reprovu."
 
-#: warehouse/accounts/forms.py:219
+#: warehouse/accounts/forms.py:218
 msgid "You can't use an email address from this domain. Use a different email."
 msgstr ""
 "Vi ne rajtas uzi retpoŝtan adreson ĉe tiu retejo. Uzu alian retpoŝtan "
 "adreson."
 
-#: warehouse/accounts/forms.py:230
+#: warehouse/accounts/forms.py:229
 msgid ""
 "This email address is already being used by this account. Use a different "
 "email."
@@ -89,7 +89,7 @@ msgstr ""
 "Tiu retpoŝta adreso estas jam uzata de ĉi tiu konto. Uzu alian retpoŝtan "
 "adreson."
 
-#: warehouse/accounts/forms.py:237
+#: warehouse/accounts/forms.py:236
 msgid ""
 "This email address is already being used by another account. Use a different "
 "email."
@@ -97,29 +97,29 @@ msgstr ""
 "Tiu retpoŝta adreso estas jam uzata de alia konto. Uzu alian retpoŝtan "
 "adreson."
 
-#: warehouse/accounts/forms.py:259 warehouse/manage/forms.py:73
+#: warehouse/accounts/forms.py:258 warehouse/manage/forms.py:73
 msgid "The name is too long. Choose a name with 100 characters or less."
 msgstr "La nomo estas tro longa. Elektu nomon de maksimume 100 signoj."
 
-#: warehouse/accounts/forms.py:328
+#: warehouse/accounts/forms.py:327
 msgid "Invalid TOTP code."
 msgstr "Ne valida TOTP-kodo."
 
-#: warehouse/accounts/forms.py:345
+#: warehouse/accounts/forms.py:344
 msgid "Invalid WebAuthn assertion: Bad payload"
 msgstr "Ne valida WebAuthn-aserto: Malbona ŝarĝo"
 
-#: warehouse/accounts/forms.py:403
+#: warehouse/accounts/forms.py:402
 msgid "Invalid recovery code."
 msgstr "Ne valida restaŭra kodo."
 
-#: warehouse/accounts/forms.py:411
+#: warehouse/accounts/forms.py:410
 #, fuzzy
 #| msgid "Recovery codes regenerated"
 msgid "Recovery code has been previously used."
 msgstr "Restaŭraj kodoj regeneritaj"
 
-#: warehouse/accounts/forms.py:430
+#: warehouse/accounts/forms.py:429
 msgid "No user found with that username or email"
 msgstr "Neniu uzanto trovita de tiu salutnomo aŭ retpoŝta adreso"
 

@@ -46,19 +46,19 @@ msgstr "Язык обновлён"
 msgid "Session invalidated by password change"
 msgstr ""
 
-#: warehouse/accounts/forms.py:51
+#: warehouse/accounts/forms.py:50
 msgid "No user found with that username"
 msgstr "Пользователь с таким именем не найден"
 
-#: warehouse/accounts/forms.py:62
+#: warehouse/accounts/forms.py:61
 msgid "TOTP code must be ${totp_length} digits."
 msgstr "TOTP-код должен состоять из ${totp_length} цифр."
 
-#: warehouse/accounts/forms.py:89
+#: warehouse/accounts/forms.py:88
 msgid "Choose a username with 50 characters or less."
 msgstr "Выберите имя пользователя, используя не более 50 символов."
 
-#: warehouse/accounts/forms.py:95
+#: warehouse/accounts/forms.py:94
 msgid ""
 "The username is invalid. Usernames must be composed of letters, numbers, "
 "dots, hyphens and underscores. And must also start and finish with a letter "
@@ -68,7 +68,7 @@ msgstr ""
 "цифр, точек, дефисов и подчёркиваний. Также они должны начинаться и "
 "заканчиваться буквой или цифрой. Выберите другое имя пользователя."
 
-#: warehouse/accounts/forms.py:109
+#: warehouse/accounts/forms.py:108
 msgid ""
 "This username is already being used by another account. Choose a different "
 "username."
@@ -76,29 +76,29 @@ msgstr ""
 "Это имя пользователя уже используется другой учётной записью. Выберите "
 "другое имя."
 
-#: warehouse/accounts/forms.py:143
+#: warehouse/accounts/forms.py:142
 msgid "The password is invalid. Try again."
 msgstr "Неверный пароль. Попробуйте ещё раз."
 
-#: warehouse/accounts/forms.py:147 warehouse/accounts/views.py:79
+#: warehouse/accounts/forms.py:146 warehouse/accounts/views.py:79
 msgid "There have been too many unsuccessful login attempts. Try again later."
 msgstr "Вы сделали слишком много неверных попыток входа. Попробуйте позже."
 
-#: warehouse/accounts/forms.py:169
+#: warehouse/accounts/forms.py:168
 msgid "Your passwords don't match. Try again."
 msgstr "Ваши пароли не совпадают. Попробуйте ещё раз."
 
-#: warehouse/accounts/forms.py:200 warehouse/accounts/forms.py:211
+#: warehouse/accounts/forms.py:199 warehouse/accounts/forms.py:210
 msgid "The email address isn't valid. Try again."
 msgstr "Некорректный адрес электронной почты. Попробуйте ещё раз."
 
-#: warehouse/accounts/forms.py:219
+#: warehouse/accounts/forms.py:218
 msgid "You can't use an email address from this domain. Use a different email."
 msgstr ""
 "Вы не можете использовать адрес электронной почты этого домена. Используйте "
 "другой адрес электронной почты."
 
-#: warehouse/accounts/forms.py:230
+#: warehouse/accounts/forms.py:229
 msgid ""
 "This email address is already being used by this account. Use a different "
 "email."
@@ -106,7 +106,7 @@ msgstr ""
 "Этот адрес электронной почты уже используется текущей учётной записью. "
 "Используйте другой адрес электронной почты."
 
-#: warehouse/accounts/forms.py:237
+#: warehouse/accounts/forms.py:236
 msgid ""
 "This email address is already being used by another account. Use a different "
 "email."
@@ -114,29 +114,29 @@ msgstr ""
 "Этот адрес электронной почты уже используется другой учётной записью. "
 "Используйте другой адрес электронной почты."
 
-#: warehouse/accounts/forms.py:259 warehouse/manage/forms.py:73
+#: warehouse/accounts/forms.py:258 warehouse/manage/forms.py:73
 msgid "The name is too long. Choose a name with 100 characters or less."
 msgstr "Слишком длинное имя. Выберите имя, используя не более 100 символов."
 
-#: warehouse/accounts/forms.py:328
+#: warehouse/accounts/forms.py:327
 msgid "Invalid TOTP code."
 msgstr "Неверный TOTP-код."
 
-#: warehouse/accounts/forms.py:345
+#: warehouse/accounts/forms.py:344
 msgid "Invalid WebAuthn assertion: Bad payload"
 msgstr "Недопустимое значение WebAuthn: Плохая полезная нагрузка"
 
-#: warehouse/accounts/forms.py:403
+#: warehouse/accounts/forms.py:402
 msgid "Invalid recovery code."
 msgstr "Неверный код восстановления."
 
-#: warehouse/accounts/forms.py:411
+#: warehouse/accounts/forms.py:410
 #, fuzzy
 #| msgid "Recovery codes regenerated"
 msgid "Recovery code has been previously used."
 msgstr "Коды восстановления сгенерированы повторно"
 
-#: warehouse/accounts/forms.py:430
+#: warehouse/accounts/forms.py:429
 msgid "No user found with that username or email"
 msgstr "Пользователь с таким именем или адресом электронной почты не найден"
 
