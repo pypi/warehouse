@@ -19,7 +19,6 @@ import disposable_email_domains
 import markupsafe
 import wtforms
 import wtforms.fields
-import wtforms.fields.html5
 
 import warehouse.utils.webauthn as webauthn
 
@@ -193,7 +192,7 @@ class NewPasswordMixin:
 
 class NewEmailMixin:
 
-    email = wtforms.fields.html5.EmailField(
+    email = wtforms.fields.EmailField(
         validators=[
             wtforms.validators.DataRequired(),
             wtforms.validators.Regexp(

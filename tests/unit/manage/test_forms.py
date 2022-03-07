@@ -54,8 +54,8 @@ class TestCreateRoleForm:
         ("value", "expected"),
         [
             ("", "Select role"),
-            ("invalid", "Not a valid choice"),
-            (None, "Not a valid choice"),
+            ("invalid", "Not a valid choice."),
+            (None, "Not a valid choice."),
         ],
     )
     def test_validate_role_name_fails(self, value, expected):
