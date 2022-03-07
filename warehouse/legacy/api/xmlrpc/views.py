@@ -195,7 +195,7 @@ class XMLRPCInvalidParamTypes(XmlRpcInvalidMethodParams):
         return f"client error; {self.exc}"
 
 
-class XMLRPCWrappedError(xmlrpc.server.Fault):
+class XMLRPCWrappedError(xmlrpc.client.Fault):
     def __init__(self, exc):
         # NOQA due to N815 'mixedCase variable in class scope',
         # This is the interface for specifying fault code and string for XmlRpcError
