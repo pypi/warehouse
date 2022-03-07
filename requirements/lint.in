@@ -4,3 +4,4 @@ curlylint
 pep8-naming
 black==22.1.0
 isort>=5
+mypy
