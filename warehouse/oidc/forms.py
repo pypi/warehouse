@@ -84,7 +84,8 @@ class GitHubProviderForm(forms.Form):
                 )
                 raise wtforms.validators.ValidationError(
                     _(
-                        "GitHub has rate-limited this action. Try again in a few minutes."
+                        "GitHub has rate-limited this action. "
+                        "Try again in a few minutes."
                     )
                 )
             else:
