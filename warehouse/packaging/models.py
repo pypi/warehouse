@@ -179,7 +179,7 @@ class Project(SitemapMixin, TwoFactorRequireable, db.Model):
         "Release",
         backref="project",
         cascade="all, delete-orphan",
-        order_by=lambda: Release._pypi_ordering.desc(),
+        order_by=lambda: Release._pypi_ordering.desc(),  # type: ignore
         passive_deletes=True,
     )
 
@@ -416,7 +416,7 @@ class Release(db.Model):
     _classifiers = orm.relationship(
         Classifier,
         backref="project_releases",
-        secondary=lambda: release_classifiers,
+        secondary=lambda: release_classifiers,  # type: ignore
         order_by=expression.case(
             {c: i for i, c in enumerate(sorted_classifiers)},
             value=Classifier.classifier,
@@ -430,7 +430,7 @@ class Release(db.Model):
         backref="release",
         cascade="all, delete-orphan",
         lazy="dynamic",
-        order_by=lambda: File.filename,
+        order_by=lambda: File.filename,  # type: ignore
         passive_deletes=True,
     )
 
