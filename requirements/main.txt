@@ -333,9 +333,9 @@ first==2.0.2 \
     --hash=sha256:8d8e46e115ea8ac652c76123c0865e3ff18372aef6f03c22809ceefcea9dec86 \
     --hash=sha256:ff285b08c55f8c97ce4ea7012743af2495c9f1291785f163722bd36f6af6d3bf
     # via -r requirements/main.in
-google-api-core[grpc]==2.2.0 \
-    --hash=sha256:8d20c8919fa32bfc9e2f67f98def477218102aae6b70e4912818aeb53fd4c256 \
-    --hash=sha256:dca67b5e369a5127ec00c8ea02de48517e39c1aad882e2e6d85da8050520cab6
+google-api-core[grpc]==2.6.1 \
+    --hash=sha256:80cf307660624f84c754d68c3c6cd31780368019741d87e0c5df5ed84730ed26 \
+    --hash=sha256:eadba785e358e61be576f2a93f361bb15f144162814c7b3303e78c12288aa33f
     # via
     #   google-cloud-bigquery
     #   google-cloud-core
@@ -351,9 +351,9 @@ google-cloud-bigquery==2.34.1 \
     --hash=sha256:8335ae5a671261eb81705429554370b0b546485dbe87826e94de1b22450159a3 \
     --hash=sha256:d77059b6ce96ae83c2637c4bba47e405a83e8aca4b8ee9ea487fb66ac5e84b03
     # via -r requirements/main.in
-google-cloud-core==2.2.2 \
-    --hash=sha256:7d19bf8868b410d0bdf5a03468a3f3f2db233c0ee86a023f4ecc2b7a4b15f736 \
-    --hash=sha256:d9cffaf86df6a876438d4e8471183bbe404c9a15de9afe60433bc7dce8cb4252
+google-cloud-core==2.2.3 \
+    --hash=sha256:89d2f7189bc6dc74de128d423ea52cc8719f0a5dbccd9ca80433f6504a20255c \
+    --hash=sha256:a423852f4c36622376c8f0be509b67533690e061062368b763b92694c4ee06a7
     # via
     #   google-cloud-bigquery
     #   google-cloud-storage
@@ -1377,7 +1377,6 @@ setuptools==60.9.3 \
     # via
     #   -r requirements/main.in
     #   celery
-    #   google-api-core
     #   limits
     #   pastedeploy
     #   plaster
