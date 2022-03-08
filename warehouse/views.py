@@ -539,10 +539,16 @@ class SecurityKeyGiveaway:
 
     @view_config(request_method="GET")
     def security_key_giveaway(self):
+        if not request.registry.settings("warehouse.two_factor_mandate.available"):
+            raise HTTPNotFound
+
         return self.default_response
 
     @view_config(request_method="POST")
     def security_key_giveaway_submit(self):
+        if not request.registry.settings("warehouse.two_factor_mandate.available"):
+            raise HTTPNotFound
+
         default_response = self.default_response
 
         if not self.form.validate():

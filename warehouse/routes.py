@@ -126,10 +126,9 @@ def includeme(config):
     )
 
     # Security key giveaway
-    if config.registry.settings["warehouse.two_factor_mandate.available"]:
-        config.add_route(
-            "security-key-giveaway", "/security-key-giveaway/", domain=warehouse
-        )
+    config.add_route(
+        "security-key-giveaway", "/security-key-giveaway/", domain=warehouse
+    )
 
     # Accounts
     config.add_redirect("/u/{username}/", "/user/{username}/", domain=warehouse)
