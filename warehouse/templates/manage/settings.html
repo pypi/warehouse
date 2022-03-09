@@ -98,21 +98,6 @@
     </form>
   {% endif %}
 
-  <h3>{% trans %}OpenID Connect publishers{% endtrans %}</h3>
-  <p>
-    {% trans %}
-    OpenID Connect publishers provide a credential-free way to authenticate when uploading packages to PyPI.
-    {% endtrans %}
-  </p>
-  <!-- if OIDC is enabled for project -->
-  <p>
-    {% trans href=request.route_path('manage.project.settings.oidc', project_name=project.name), project_name=project.name %}
-    <a href="{{ href }}" class="button button--primary">
-      Manage OpenID Connect publishers for {{ project_name }}
-    </a>
-    {% endtrans %}
-  </p>
-
   <hr>
 
   <div class="callout-block" data-controller="dismissable" data-dismissable-identifier="settings">
