@@ -31,10 +31,6 @@ class GitHubProviderForm(forms.Form):
             wtforms.validators.DataRequired(
                 message=_("Specify GitHub owner (username or organization)"),
             ),
-            wtforms.validators.Regexp(
-                _VALID_GITHUB_OWNER,
-                message=_("Invalid GitHub user or organization name"),
-            ),
         ]
     )
 
@@ -62,6 +58,13 @@ class GitHubProviderForm(forms.Form):
 
     def validate_owner(self, field):
         owner = field.data
+
+        # We pre-filter owners with a regex, to avoid loading GitHub's API
+        # with usernames/org names that will never be valid.
+        if not _VALID_GITHUB_OWNER.match(owner):
+            raise wtforms.validators.ValidationError(
+                _("Invalid GitHub user or organization name.")
+            )
 
         # To actually validate the owner, we ask GitHub's API about them.
         # We can't do this for the repository, since it might be private.
