@@ -24,7 +24,7 @@ import zope.sqlalchemy
 from sqlalchemy import event, inspect
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.exc import IntegrityError, OperationalError
-from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.ext.declarative import declarative_base  # type: ignore
 from sqlalchemy.orm import sessionmaker
 
 from warehouse.metrics import IMetricsService
@@ -97,7 +97,7 @@ metadata = sqlalchemy.MetaData()
 
 
 # Base class for models using declarative syntax
-ModelBase = declarative_base(cls=ModelBase, metadata=metadata)
+ModelBase = declarative_base(cls=ModelBase, metadata=metadata)  # type: ignore
 
 
 class Model(ModelBase):
