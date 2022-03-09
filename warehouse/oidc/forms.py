@@ -20,6 +20,7 @@ from warehouse import forms
 from warehouse.i18n import localize as _
 
 _VALID_GITHUB_REPO = re.compile(r"^[a-zA-Z0-9-_.]+$")
+_VALID_GITHUB_OWNER = re.compile(r"^[a-zA-Z0-9][a-zA-Z0-9-]*$")
 
 
 class GitHubProviderForm(forms.Form):
@@ -28,7 +29,11 @@ class GitHubProviderForm(forms.Form):
     owner = wtforms.StringField(
         validators=[
             wtforms.validators.DataRequired(
-                message=_("Specify GitHub owner (username or organization)")
+                message=_("Specify GitHub owner (username or organization)"),
+            ),
+            wtforms.validators.Regexp(
+                _VALID_GITHUB_OWNER,
+                message=_("Invalid GitHub user or organization name"),
             ),
         ]
     )

@@ -1115,12 +1115,17 @@ class ManageOIDCProviderViews:
             )
 
     @property
+    def github_provider_form(self):
+        return GitHubProviderForm(
+            self.request.POST,
+            api_token=self.request.registry.settings.get("github.token"),
+        )
+
+    @property
     def default_response(self):
         return {
             "project": self.project,
-            "github_provider_form": GitHubProviderForm(
-                api_token=self.request.registry.settings.get("github.token"),
-            ),
+            "github_provider_form": self.github_provider_form,
         }
 
     @view_config(request_method="GET")
@@ -1159,10 +1164,8 @@ class ManageOIDCProviderViews:
                 retry_after=exc.resets_in.total_seconds(),
             )
 
-        form = GitHubProviderForm(
-            self.request.POST,
-            api_token=self.request.registry.settings.get("github.token"),
-        )
+        response = self.default_response
+        form = response["github_provider_form"]
 
         if form.validate():
             self._hit_ratelimits()
@@ -1195,7 +1198,7 @@ class ManageOIDCProviderViews:
                     f"{provider} is already registered with {self.project.name}",
                     queue="error",
                 )
-                return {**self.default_response, "github_provider_form": form}
+                return response
 
             # We only email project owners, since only owners can manage OIDC providers.
             owner_roles = (
@@ -1227,7 +1230,7 @@ class ManageOIDCProviderViews:
                 queue="success",
             )
 
-        return self.default_response
+        return response
 
     @view_config(request_method="POST", request_param=DeleteProviderForm.__params__)
     def delete_oidc_provider(self):

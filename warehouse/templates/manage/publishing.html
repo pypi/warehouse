@@ -75,9 +75,11 @@
       {% endtrans %}
     </p>
 
+    {{ form_error_anchor(github_provider_form) }}
     <form method="POST" action="{{ request.route_path('manage.project.settings.oidc', project_name=project.name) }}">
+      <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
+      {{ form_errors(github_provider_form) }}
       <div class="form-group">
-        <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
         <label for="owner" class="form-group__label">
           {% trans %}Owner{% endtrans %}
           {% if github_provider_form.owner.flags.required %}
