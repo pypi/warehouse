@@ -47,6 +47,7 @@ from warehouse.email import (
     send_collaborator_role_changed_email,
     send_email_verification_email,
     send_oidc_provider_added_email,
+    send_oidc_provider_removed_email,
     send_password_change_email,
     send_primary_email_change_email,
     send_project_role_verification_email,
@@ -1260,6 +1261,23 @@ class ManageOIDCProviderViews:
                     queue="error",
                 )
                 return self.default_response
+
+            # We only email project owners, since only owners can manage OIDC providers.
+            owner_roles = (
+                self.request.db.query(User.id)
+                .join(Role.user)
+                .filter(Role.role_name == "Owner", Role.project == self.project)
+                .subquery()
+            )
+            owner_users = (
+                self.request.db.query(User)
+                .join(owner_roles, User.id == owner_roles.c.id)
+                .all()
+            )
+            for user in owner_users:
+                send_oidc_provider_removed_email(
+                    self.request, user, project_name=self.project.name
+                )
 
             self.project.oidc_providers.remove(provider)
 
