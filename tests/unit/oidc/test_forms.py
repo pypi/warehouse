@@ -21,12 +21,21 @@ from warehouse.oidc import forms
 
 
 class TestGitHubProviderForm:
-    def test_creation(self):
-        api_token = "fake token"
-        form = forms.GitHubProviderForm(api_token=api_token)
+    @pytest.mark.parametrize(
+        "token, headers",
+        [
+            (
+                None,
+                {},
+            ),
+            ("fake-token", {"Authorization": "token fake-token"}),
+        ],
+    )
+    def test_creation(self, token, headers):
+        form = forms.GitHubProviderForm(api_token=token)
 
-        assert form._api_token == "fake token"
-        assert form._headers_auth() == {"Authorization": "token fake token"}
+        assert form._api_token == token
+        assert form._headers_auth() == headers
 
     def test_lookup_owner_404(self, monkeypatch):
         response = pretend.stub(
@@ -36,11 +45,6 @@ class TestGitHubProviderForm:
             get=pretend.call_recorder(lambda o, **kw: response), HTTPError=HTTPError
         )
         monkeypatch.setattr(forms, "requests", requests)
-
-        # sentry_sdk = pretend.stub(
-        #     capture_message=pretend.call_recorder(lambda s: None)
-        # )
-        # monkeypatch.setattr(forms, "sentry_sdk", sentry_sdk)
 
         form = forms.GitHubProviderForm(api_token="fake-token")
         with pytest.raises(wtforms.validators.ValidationError):
@@ -148,6 +152,34 @@ class TestGitHubProviderForm:
             pretend.call("Timeout from GitHub user lookup API (possibly offline)")
         ]
 
+    def test_lookup_owner_succeeds(self, monkeypatch):
+        fake_owner_info = pretend.stub()
+        response = pretend.stub(
+            status_code=200,
+            raise_for_status=pretend.call_recorder(lambda: None),
+            json=lambda: fake_owner_info,
+        )
+        requests = pretend.stub(
+            get=pretend.call_recorder(lambda o, **kw: response), HTTPError=HTTPError
+        )
+        monkeypatch.setattr(forms, "requests", requests)
+
+        form = forms.GitHubProviderForm(api_token="fake-token")
+        info = form._lookup_owner("some-owner")
+
+        assert requests.get.calls == [
+            pretend.call(
+                "https://api.github.com/users/some-owner",
+                headers={
+                    "Accept": "application/vnd.github.v3+json",
+                    "Authorization": "token fake-token",
+                },
+                allow_redirects=True,
+            )
+        ]
+        assert response.raise_for_status.calls == [pretend.call()]
+        assert info == fake_owner_info
+
     @pytest.mark.parametrize(
         "data",
         [
@@ -177,6 +209,22 @@ class TestGitHubProviderForm:
         monkeypatch.setattr(form, "_lookup_owner", lambda o: owner_info)
 
         assert not form.validate()
+
+    def test_validate(self, monkeypatch):
+        data = MultiDict(
+            {
+                "owner": "some-owner",
+                "repository": "some-repo",
+                "workflow_name": "some-workflow.yml",
+            }
+        )
+        form = forms.GitHubProviderForm(MultiDict(data), api_token=pretend.stub())
+
+        # We're testing only the basic validation here.
+        owner_info = {"login": "fake-username", "id": "1234"}
+        monkeypatch.setattr(form, "_lookup_owner", lambda o: owner_info)
+
+        assert form.validate()
 
     def test_validate_owner(self, monkeypatch):
         form = forms.GitHubProviderForm(api_token=pretend.stub())
