@@ -1202,12 +1202,16 @@ class ManageOIDCProviderViews:
 
             # We only email project owners, since only owners can manage OIDC providers.
             owner_roles = (
-                self.request.db.query(Role)
-                .filter(Role.project == self.project)
-                .filter(Role.role_name == "Owner")
+                request.db.query(User.id)
+                .join(Role.user)
+                .filter(Role.role_name == "Owner", Role.project == self.project)
+                .subquery()
+            )
+            owner_users =  (
+                request.db.query(User)
+                .join(owner_roles, User.id == owner_roles.c.id)
                 .all()
             )
-            owner_users = {owner.user for owner in owner_roles}
             for user in owner_users:
                 send_oidc_provider_added_email(
                     self.request, user, project_name=self.project.name
