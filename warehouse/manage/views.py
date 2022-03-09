@@ -1202,13 +1202,13 @@ class ManageOIDCProviderViews:
 
             # We only email project owners, since only owners can manage OIDC providers.
             owner_roles = (
-                request.db.query(User.id)
+                self.request.db.query(User.id)
                 .join(Role.user)
                 .filter(Role.role_name == "Owner", Role.project == self.project)
                 .subquery()
             )
-            owner_users =  (
-                request.db.query(User)
+            owner_users = (
+                self.request.db.query(User)
                 .join(owner_roles, User.id == owner_roles.c.id)
                 .all()
             )
