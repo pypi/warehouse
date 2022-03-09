@@ -56,16 +56,7 @@ class GitHubProviderForm(forms.Form):
             return {}
         return {"Authorization": f"token {self._api_token}"}
 
-    def validate_owner(self, field):
-        owner = field.data
-
-        # We pre-filter owners with a regex, to avoid loading GitHub's API
-        # with usernames/org names that will never be valid.
-        if not _VALID_GITHUB_OWNER.match(owner):
-            raise wtforms.validators.ValidationError(
-                _("Invalid GitHub user or organization name.")
-            )
-
+    def _lookup_owner(self, owner):
         # To actually validate the owner, we ask GitHub's API about them.
         # We can't do this for the repository, since it might be private.
         try:
@@ -78,17 +69,17 @@ class GitHubProviderForm(forms.Form):
                 allow_redirects=True,
             )
             response.raise_for_status()
-        except requests.HTTPError as exc:
-            if exc.response.status_code == 404:
+        except requests.HTTPError:
+            if response.status_code == 404:
                 raise wtforms.validators.ValidationError(
                     _("Unknown GitHub user or organization.")
                 )
-            if exc.response.status_code == 403:
+            if response.status_code == 403:
                 # GitHub's API uses 403 to signal rate limiting, and returns a JSON
                 # blob explaining the reason.
                 sentry_sdk.capture_message(
                     "Exceeded GitHub rate limit for user lookups. "
-                    f"Reason: {exc.response.json()}"
+                    f"Reason: {response.json()}"
                 )
                 raise wtforms.validators.ValidationError(
                     _(
@@ -98,7 +89,7 @@ class GitHubProviderForm(forms.Form):
                 )
             else:
                 sentry_sdk.capture_message(
-                    f"Unexpected error from GitHub user lookup: {exc.response.content=}"
+                    f"Unexpected error from GitHub user lookup: {response.content=}"
                 )
                 raise wtforms.validators.ValidationError(
                     _("Unexpected error from GitHub. Try again.")
@@ -111,7 +102,19 @@ class GitHubProviderForm(forms.Form):
                 _("Unexpected timeout from GitHub. Try again in a few minutes.")
             )
 
-        owner_info = response.json()
+        return response.json()
+
+    def validate_owner(self, field):
+        owner = field.data
+
+        # We pre-filter owners with a regex, to avoid loading GitHub's API
+        # with usernames/org names that will never be valid.
+        if not _VALID_GITHUB_OWNER.match(owner):
+            raise wtforms.validators.ValidationError(
+                _("Invalid GitHub user or organization name.")
+            )
+
+        owner_info = self._lookup_owner(owner)
 
         # NOTE: Use the normalized owner name as provided by GitHub.
         self.normalized_owner = owner_info["login"]
