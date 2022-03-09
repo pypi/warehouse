@@ -11,6 +11,7 @@ types-boto3
 types-certifi
 types-first
 types-html5lib
+types-itsdangerous
 types-psycopg2
 types-python-slugify
 types-pytz

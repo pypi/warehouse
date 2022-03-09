@@ -185,6 +185,10 @@ types-html5lib==1.1.5 \
     --hash=sha256:15435ea831ee0fef4cca1382998d51c1e81447ccd38664baab4fb50249695372 \
     --hash=sha256:6e190a4e466e3f96f2128fd936a10b1159a57142d01628b0c515f4fc48d2e094
     # via -r requirements/lint.in
+types-itsdangerous==1.1.6 \
+    --hash=sha256:21c6966c10e353a5d35d36c82aaa2c5598d3bc32ddc8e0591276da5ad2e3c638 \
+    --hash=sha256:aef2535c2fa0527dcce244ece0792b20ec02ee46533800735275f82a45a0244d
+    # via -r requirements/lint.in
 types-psycopg2==2.9.7 \
     --hash=sha256:90e9393c04ac29af7f000578629020b488f6435abb283d928c1bd8eabb846e14 \
     --hash=sha256:cc876db5aa77773deb0abe2e5b088842b91163261294b36caaf7e1087e7e8cd2
