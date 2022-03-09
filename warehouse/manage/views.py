@@ -1191,8 +1191,8 @@ class ManageOIDCProviderViews:
 
                 self.request.db.add(provider)
 
-            # Each project has a unique registration of OIDC providers,
-            # even though the relationship is many-many.
+            # Each project has a unique set of OIDC providers; the same
+            # provider can't be registered to the project more than once.
             if provider in self.project.oidc_providers:
                 self.request.session.flash(
                     f"{provider} is already registered with {self.project.name}",
@@ -1248,9 +1248,11 @@ class ManageOIDCProviderViews:
 
         if form.validate():
             provider = self.request.db.query(OIDCProvider).get(form.provider_id.data)
-            if provider not in self.project.oidc_providers:
+
+            # provider will be `None` here if someone manually futzes with the form.
+            if provider is None or provider not in self.project.oidc_providers:
                 self.request.session.flash(
-                    f"{provider} is not registered to {self.project.name}",
+                    f"Unknown publisher: {provider}",
                     queue="error",
                 )
                 return self.default_response
