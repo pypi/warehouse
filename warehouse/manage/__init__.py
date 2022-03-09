@@ -64,20 +64,20 @@ reauth_view.options = {"require_reauth"}  # type: ignore
 def includeme(config):
     config.add_view_deriver(reauth_view, over="rendered_view", under="decorated_view")
 
-    user_oidc_provider_registration_ratelimit_string = config.registry.settings.get(
-        "warehouse.manage.oidc.user_provider_registration_ratelimit_string"
+    user_oidc_registration_ratelimit_string = config.registry.settings.get(
+        "warehouse.manage.oidc.user_registration_ratelimit_string"
     )
     config.register_service_factory(
-        RateLimit(user_oidc_provider_registration_ratelimit_string),
+        RateLimit(user_oidc_registration_ratelimit_string),
         IRateLimiter,
         name="user_oidc.provider.register",
     )
 
-    ip_oidc_provider_registration_ratelimit_string = config.registry.settings.get(
-        "warehouse.manage.oidc.ip_provider_registration_ratelimit_string"
+    ip_oidc_registration_ratelimit_string = config.registry.settings.get(
+        "warehouse.manage.oidc.ip_registration_ratelimit_string"
     )
     config.register_service_factory(
-        RateLimit(ip_oidc_provider_registration_ratelimit_string),
+        RateLimit(ip_oidc_registration_ratelimit_string),
         IRateLimiter,
         name="ip_oidc.provider.register",
     )

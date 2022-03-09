@@ -28,7 +28,7 @@
 {% endif %}
 
 {% macro provider_row(provider) -%}
-<form id="delete-provider-{{ provider.id }}" method="POST" action="{{ request.route_path('manage.project.settings.oidc', project_name=project.name) }}">
+<form id="delete-provider-{{ provider.id }}" method="POST" action="{{ request.route_path('manage.project.settings.publishing', project_name=project.name) }}">
   <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
   <input name="provider_id" type="hidden" value="{{ provider.id }}">
 </form>
@@ -76,7 +76,7 @@
     </p>
 
     {{ form_error_anchor(github_provider_form) }}
-    <form method="POST" action="{{ request.route_path('manage.project.settings.oidc', project_name=project.name) }}">
+    <form method="POST" action="{{ request.route_path('manage.project.settings.publishing', project_name=project.name) }}">
       <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
       {{ form_errors(github_provider_form) }}
       <div class="form-group">

@@ -230,8 +230,8 @@ def includeme(config):
         domain=warehouse,
     )
     config.add_route(
-        "manage.project.settings.oidc",
-        "/manage/project/{project_name}/settings/oidc/",
+        "manage.project.settings.publishing",
+        "/manage/project/{project_name}/settings/publishing/",
         factory="warehouse.packaging.models:ProjectFactory",
         traverse="/{project_name}",
         domain=warehouse,

@@ -14,8 +14,9 @@ import functools
 
 import fakeredis
 import pretend
+import pytest
 
-from jwt import PyJWK
+from jwt import PyJWK, PyJWTError
 from zope.interface.verify import verifyClass
 
 from warehouse.oidc import interfaces, services
@@ -52,14 +53,58 @@ def test_oidc_provider_service_factory():
 
 
 class TestOIDCProviderService:
-    def test_verify(self):
+    def test_verify_signature_only(self, monkeypatch):
         service = services.OIDCProviderService(
             provider=pretend.stub(),
             issuer_url=pretend.stub(),
             cache_url=pretend.stub(),
             metrics=pretend.stub(),
         )
-        assert service.verify(pretend.stub()) == NotImplemented
+
+        token = pretend.stub()
+        decoded = pretend.stub()
+        jwt = pretend.stub(decode=pretend.call_recorder(lambda t, **kwargs: decoded))
+        monkeypatch.setattr(
+            service, "_get_key_for_token", pretend.call_recorder(lambda t: "fake-key")
+        )
+        monkeypatch.setattr(services, "jwt", jwt)
+
+        assert service.verify_signature_only(token) == (True, decoded)
+        assert jwt.decode.calls == [
+            pretend.call(
+                token,
+                key="fake-key",
+                algorithms=["RS256"],
+                verify_signature=True,
+                require=["iss", "iat", "nbf", "exp", "aud"],
+                verify_iss=True,
+                verify_iat=True,
+                verify_nbf=True,
+                verify_exp=True,
+                verify_aud=True,
+                issuer=service.issuer_url,
+                audience="pypi",
+                leeway=30,
+            )
+        ]
+
+    @pytest.mark.parametrize("exc", [PyJWTError, ValueError])
+    def test_verify_signature_only_fails(self, monkeypatch, exc):
+        service = services.OIDCProviderService(
+            provider=pretend.stub(),
+            issuer_url=pretend.stub(),
+            cache_url=pretend.stub(),
+            metrics=pretend.stub(),
+        )
+
+        token = pretend.stub()
+        jwt = pretend.stub(decode=pretend.raiser(exc), PyJWTError=PyJWTError)
+        monkeypatch.setattr(
+            service, "_get_key_for_token", pretend.call_recorder(lambda t: "fake-key")
+        )
+        monkeypatch.setattr(services, "jwt", jwt)
+
+        assert service.verify_signature_only(token) == (False, None)
 
     def test_get_keyset_not_cached(self, monkeypatch):
         service = services.OIDCProviderService(

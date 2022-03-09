@@ -1072,7 +1072,7 @@ class ManageProjectSettingsViews:
 
 @view_defaults(
     context=Project,
-    route_name="manage.project.settings.oidc",
+    route_name="manage.project.settings.publishing",
     renderer="manage/publishing.html",
     uses_session=True,
     require_csrf=True,
