@@ -16,3 +16,4 @@ python -m black --check *.py warehouse/ tests/
 python -m isort --check *.py warehouse/ tests/
 python -m doc8 --allow-long-titles README.rst CONTRIBUTING.rst docs/ --ignore-path docs/_build/
 python -m curlylint ./warehouse/templates
+python -m mypy -p warehouse

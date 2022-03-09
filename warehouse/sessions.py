@@ -361,7 +361,7 @@ def session_view(view, info):
         return wrapped
 
 
-session_view.options = {"uses_session"}
+session_view.options = {"uses_session"}  # type: ignore
 
 
 def includeme(config):
