@@ -1,4 +1,0 @@
-#!/bin/bash
-set -e
-
-python -m mypy -p warehouse
