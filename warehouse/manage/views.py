@@ -1123,7 +1123,9 @@ class ManageOIDCProviderViews:
 
         if not self._ratelimiters["ip.oidc"].test(self.request.remote_addr):
             raise TooManyOIDCRegistrations(
-                resets_in=self._ratelimiters["ip.oidc"].resets_in(self.remote_addr)
+                resets_in=self._ratelimiters["ip.oidc"].resets_in(
+                    self.request.remote_addr
+                )
             )
 
     @property
