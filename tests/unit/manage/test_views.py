@@ -5146,3 +5146,5 @@ class TestManageOIDCProviderViews:
 
         assert view.add_github_oidc_provider() == default_response
         assert github_provider_form_obj.validate.calls == [pretend.call()]
+
+    # TODO: OIDC deletion tests

@@ -461,3 +461,25 @@ class TestOIDCProviderService:
                 tags=["provider:example", "key_id:fake-key-id"],
             )
         ]
+
+    def test_get_key_for_token(self, monkeypatch):
+        token = pretend.stub()
+        key = pretend.stub()
+
+        service = services.OIDCProviderService(
+            provider="example",
+            issuer_url="https://example.com",
+            cache_url="rediss://fake.example.com",
+            metrics=pretend.stub(),
+        )
+        monkeypatch.setattr(service, "get_key", pretend.call_recorder(lambda kid: key))
+
+        monkeypatch.setattr(
+            services.jwt,
+            "get_unverified_header",
+            pretend.call_recorder(lambda token: {"kid": "fake-key-id"}),
+        )
+
+        assert service._get_key_for_token(token) == key
+        assert service.get_key.calls == [pretend.call("fake-key-id")]
+        assert services.jwt.get_unverified_header.calls == [pretend.call(token)]
