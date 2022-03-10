@@ -18,7 +18,12 @@ import pretend
 import pytest
 
 from paginate_sqlalchemy import SqlalchemyOrmPage as SQLAlchemyORMPage
-from pyramid.httpexceptions import HTTPBadRequest, HTTPNotFound, HTTPSeeOther
+from pyramid.httpexceptions import (
+    HTTPBadRequest,
+    HTTPNotFound,
+    HTTPSeeOther,
+    HTTPTooManyRequests,
+)
 from pyramid.response import Response
 from sqlalchemy.orm import joinedload
 from sqlalchemy.orm.exc import NoResultFound
@@ -37,6 +42,7 @@ from warehouse.admin.flags import AdminFlagValue
 from warehouse.forklift.legacy import MAX_FILESIZE, MAX_PROJECT_SIZE
 from warehouse.macaroons.interfaces import IMacaroonService
 from warehouse.manage import views
+from warehouse.oidc.interfaces import TooManyOIDCRegistrations
 from warehouse.packaging.models import (
     File,
     JournalEntry,
@@ -4890,8 +4896,14 @@ class TestManageOIDCProviderViews:
             lambda *a, **kw: github_provider_form_obj
         )
         monkeypatch.setattr(views, "GitHubProviderForm", github_provider_form_cls)
+        fakeowners = [pretend.stub(), pretend.stub(), pretend.stub()]
         monkeypatch.setattr(
-            views, "project_owners", pretend.call_recorder(lambda *a: [])
+            views, "project_owners", pretend.call_recorder(lambda *a: fakeowners)
+        )
+        monkeypatch.setattr(
+            views,
+            "send_oidc_provider_added_email",
+            pretend.call_recorder(lambda *a, **kw: None),
         )
 
         view = views.ManageOIDCProviderViews(project, request)
@@ -4926,6 +4938,124 @@ class TestManageOIDCProviderViews:
         assert request.db.add.calls == [pretend.call(project.oidc_providers[0])]
         assert github_provider_form_obj.validate.calls == [pretend.call()]
         assert views.project_owners.calls == [pretend.call(request, project)]
+        assert views.send_oidc_provider_added_email.calls == [
+            pretend.call(request, fakeowner, project_name="fakeproject")
+            for fakeowner in fakeowners
+        ]
         assert view._hit_ratelimits.calls == [pretend.call()]
         assert view._check_ratelimits.calls == [pretend.call()]
         assert len(project.oidc_providers) == 1
+
+    def test_add_github_oidc_provider_already_registered_with_project(
+        self, monkeypatch
+    ):
+        provider = pretend.stub(
+            id="fakeid",
+            provider_name="GitHub",
+            repository_name="fakerepo",
+            owner="fakeowner",
+            owner_id="1234",
+            workflow_name="fakeworkflow.yml",
+        )
+        # NOTE: Can't set __str__ using pretend.stub()
+        monkeypatch.setattr(provider.__class__, "__str__", lambda s: "fakespecifier")
+
+        project = pretend.stub(
+            name="fakeproject",
+            oidc_providers=[provider],
+            record_event=pretend.call_recorder(lambda *a, **kw: None),
+        )
+
+        request = pretend.stub(
+            flags=pretend.stub(enabled=pretend.call_recorder(lambda f: False)),
+            session=pretend.stub(flash=pretend.call_recorder(lambda *a, **kw: None)),
+            POST=pretend.stub(),
+            db=pretend.stub(
+                query=lambda *a: pretend.stub(
+                    filter=lambda *a: pretend.stub(one_or_none=lambda: provider)
+                ),
+            ),
+            registry=pretend.stub(
+                settings=pretend.stub(
+                    get=pretend.call_recorder(lambda k: "fake-api-token")
+                )
+            ),
+        )
+
+        github_provider_form_obj = pretend.stub(
+            validate=pretend.call_recorder(lambda: True),
+            repository=pretend.stub(data=provider.repository_name),
+            normalized_owner=provider.owner,
+            workflow_name=pretend.stub(data=provider.workflow_name),
+        )
+        github_provider_form_cls = pretend.call_recorder(
+            lambda *a, **kw: github_provider_form_obj
+        )
+        monkeypatch.setattr(views, "GitHubProviderForm", github_provider_form_cls)
+
+        view = views.ManageOIDCProviderViews(project, request)
+        monkeypatch.setattr(
+            view, "_hit_ratelimits", pretend.call_recorder(lambda: None)
+        )
+        monkeypatch.setattr(
+            view, "_check_ratelimits", pretend.call_recorder(lambda: None)
+        )
+
+        assert view.add_github_oidc_provider() == {
+            "project": project,
+            "github_provider_form": github_provider_form_obj,
+        }
+        assert project.record_event.calls == []
+        assert request.session.flash.calls == [
+            pretend.call(
+                "fakespecifier is already registered with fakeproject",
+                queue="error",
+            )
+        ]
+
+    def test_add_github_oidc_provider_ratelimited(self, monkeypatch):
+        project = pretend.stub()
+        request = pretend.stub(
+            flags=pretend.stub(enabled=pretend.call_recorder(lambda f: False)),
+            _=lambda s: s,
+        )
+
+        view = views.ManageOIDCProviderViews(project, request)
+        monkeypatch.setattr(
+            view,
+            "_check_ratelimits",
+            pretend.call_recorder(
+                pretend.raiser(
+                    TooManyOIDCRegistrations(
+                        resets_in=pretend.stub(total_seconds=lambda: 60)
+                    )
+                )
+            ),
+        )
+
+        assert view.add_github_oidc_provider().__class__ == HTTPTooManyRequests
+
+    def test_add_github_oidc_provider_admin_disabled(self, monkeypatch):
+        project = pretend.stub()
+        request = pretend.stub(
+            flags=pretend.stub(enabled=pretend.call_recorder(lambda f: True)),
+            session=pretend.stub(flash=pretend.call_recorder(lambda *a, **kw: None)),
+            _=lambda s: s,
+        )
+
+        view = views.ManageOIDCProviderViews(project, request)
+        default_response = {"_": pretend.stub()}
+        monkeypatch.setattr(
+            views.ManageOIDCProviderViews, "default_response", default_response
+        )
+
+        assert view.add_github_oidc_provider() == default_response
+        assert request.session.flash.calls == [
+            pretend.call(
+                (
+                    "OpenID Connect is temporarily disabled. "
+                    "See https://pypi.org/help#admin-intervention for details."
+                ),
+                queue="error",
+            )
+        ]
