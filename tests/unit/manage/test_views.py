@@ -4682,3 +4682,250 @@ class TestManageProjectJournal:
 
         with pytest.raises(HTTPNotFound):
             assert views.manage_project_journal(project, db_request)
+
+
+class TestManageOIDCProviderViews:
+    def test_initializes(self):
+        project = pretend.stub()
+        request = pretend.stub()
+        view = views.ManageOIDCProviderViews(project, request)
+
+        assert view.project is project
+        assert view.request is request
+
+    def test_manage_project_oidc_providers(self, monkeypatch):
+        project = pretend.stub()
+        request = pretend.stub(
+            flags=pretend.stub(enabled=pretend.call_recorder(lambda f: False)),
+            POST=pretend.stub(),
+            registry=pretend.stub(
+                settings=pretend.stub(
+                    get=pretend.call_recorder(lambda k: "fake-api-token")
+                )
+            ),
+        )
+
+        github_provider_form_obj = pretend.stub()
+        github_provider_form_cls = pretend.call_recorder(
+            lambda *a, **kw: github_provider_form_obj
+        )
+        monkeypatch.setattr(views, "GitHubProviderForm", github_provider_form_cls)
+
+        view = views.ManageOIDCProviderViews(project, request)
+        assert view.manage_project_oidc_providers() == {
+            "project": project,
+            "github_provider_form": github_provider_form_obj,
+        }
+
+        assert request.flags.enabled.calls == [
+            pretend.call(AdminFlagValue.DISALLOW_OIDC)
+        ]
+        assert request.registry.settings.get.calls == [pretend.call("github.token")]
+        assert github_provider_form_cls.calls == [
+            pretend.call(request.POST, api_token="fake-api-token")
+        ]
+
+    def test_manage_project_oidc_providers_admin_disabled(self, monkeypatch):
+        project = pretend.stub()
+        request = pretend.stub(
+            flags=pretend.stub(enabled=pretend.call_recorder(lambda f: True)),
+            session=pretend.stub(flash=pretend.call_recorder(lambda *a, **kw: None)),
+            POST=pretend.stub(),
+            registry=pretend.stub(
+                settings=pretend.stub(
+                    get=pretend.call_recorder(lambda k: "fake-api-token")
+                )
+            ),
+        )
+
+        view = views.ManageOIDCProviderViews(project, request)
+        github_provider_form_obj = pretend.stub()
+        github_provider_form_cls = pretend.call_recorder(
+            lambda *a, **kw: github_provider_form_obj
+        )
+        monkeypatch.setattr(views, "GitHubProviderForm", github_provider_form_cls)
+
+        view = views.ManageOIDCProviderViews(project, request)
+        assert view.manage_project_oidc_providers() == {
+            "project": project,
+            "github_provider_form": github_provider_form_obj,
+        }
+
+        assert request.flags.enabled.calls == [
+            pretend.call(AdminFlagValue.DISALLOW_OIDC)
+        ]
+        assert request.session.flash.calls == [
+            pretend.call(
+                (
+                    "OpenID Connect is temporarily disabled. "
+                    "See https://pypi.org/help#admin-intervention for details."
+                ),
+                queue="error",
+            )
+        ]
+        assert request.registry.settings.get.calls == [pretend.call("github.token")]
+        assert github_provider_form_cls.calls == [
+            pretend.call(request.POST, api_token="fake-api-token")
+        ]
+
+    def test_add_github_oidc_provider_preexisting(self, monkeypatch):
+        provider = pretend.stub(
+            id="fakeid",
+            provider_name="GitHub",
+            repository_name="fakerepo",
+            owner="fakeowner",
+            owner_id="1234",
+            workflow_name="fakeworkflow.yml",
+        )
+        # NOTE: Can't set __str__ using pretend.stub()
+        monkeypatch.setattr(provider.__class__, "__str__", lambda s: "fakespecifier")
+
+        project = pretend.stub(
+            name="fakeproject",
+            oidc_providers=[],
+            record_event=pretend.call_recorder(lambda *a, **kw: None),
+        )
+
+        request = pretend.stub(
+            flags=pretend.stub(enabled=pretend.call_recorder(lambda f: False)),
+            session=pretend.stub(flash=pretend.call_recorder(lambda *a, **kw: None)),
+            POST=pretend.stub(),
+            db=pretend.stub(
+                query=lambda *a: pretend.stub(
+                    filter=lambda *a: pretend.stub(one_or_none=lambda: provider)
+                ),
+                add=pretend.call_recorder(lambda o: None),
+            ),
+            registry=pretend.stub(
+                settings=pretend.stub(
+                    get=pretend.call_recorder(lambda k: "fake-api-token")
+                )
+            ),
+            remote_addr="0.0.0.0",
+        )
+
+        github_provider_form_obj = pretend.stub(
+            validate=pretend.call_recorder(lambda: True),
+            repository=pretend.stub(data=provider.repository_name),
+            normalized_owner=provider.owner,
+            workflow_name=pretend.stub(data=provider.workflow_name),
+        )
+        github_provider_form_cls = pretend.call_recorder(
+            lambda *a, **kw: github_provider_form_obj
+        )
+        monkeypatch.setattr(views, "GitHubProviderForm", github_provider_form_cls)
+        monkeypatch.setattr(
+            views, "project_owners", pretend.call_recorder(lambda *a: [])
+        )
+
+        view = views.ManageOIDCProviderViews(project, request)
+        monkeypatch.setattr(
+            view, "_hit_ratelimits", pretend.call_recorder(lambda: None)
+        )
+        monkeypatch.setattr(
+            view, "_check_ratelimits", pretend.call_recorder(lambda: None)
+        )
+
+        assert view.add_github_oidc_provider() == {
+            "project": project,
+            "github_provider_form": github_provider_form_obj,
+        }
+        assert project.record_event.calls == [
+            pretend.call(
+                tag="project:oidc:provider-added",
+                ip_address=request.remote_addr,
+                additional={
+                    "provider": "GitHub",
+                    "id": "fakeid",
+                    "specifier": "fakespecifier",
+                },
+            )
+        ]
+        assert request.session.flash.calls == [
+            pretend.call(
+                "Added fakespecifier to fakeproject",
+                queue="success",
+            )
+        ]
+        assert request.db.add.calls == []
+        assert github_provider_form_obj.validate.calls == [pretend.call()]
+        assert views.project_owners.calls == [pretend.call(request, project)]
+        assert view._hit_ratelimits.calls == [pretend.call()]
+        assert view._check_ratelimits.calls == [pretend.call()]
+        assert project.oidc_providers == [provider]
+
+    def test_add_github_oidc_provider_created(self, monkeypatch):
+        project = pretend.stub(
+            name="fakeproject",
+            oidc_providers=[],
+            record_event=pretend.call_recorder(lambda *a, **kw: None),
+        )
+
+        request = pretend.stub(
+            flags=pretend.stub(enabled=pretend.call_recorder(lambda f: False)),
+            session=pretend.stub(flash=pretend.call_recorder(lambda *a, **kw: None)),
+            POST=pretend.stub(),
+            db=pretend.stub(
+                query=lambda *a: pretend.stub(
+                    filter=lambda *a: pretend.stub(one_or_none=lambda: None)
+                ),
+                add=pretend.call_recorder(lambda o: setattr(o, "id", "fakeid")),
+            ),
+            registry=pretend.stub(
+                settings=pretend.stub(
+                    get=pretend.call_recorder(lambda k: "fake-api-token")
+                )
+            ),
+            remote_addr="0.0.0.0",
+        )
+
+        github_provider_form_obj = pretend.stub(
+            validate=pretend.call_recorder(lambda: True),
+            repository=pretend.stub(data="fakerepo"),
+            normalized_owner="fakeowner",
+            owner_id="1234",
+            workflow_name=pretend.stub(data="fakeworkflow.yml"),
+        )
+        github_provider_form_cls = pretend.call_recorder(
+            lambda *a, **kw: github_provider_form_obj
+        )
+        monkeypatch.setattr(views, "GitHubProviderForm", github_provider_form_cls)
+        monkeypatch.setattr(
+            views, "project_owners", pretend.call_recorder(lambda *a: [])
+        )
+
+        view = views.ManageOIDCProviderViews(project, request)
+        monkeypatch.setattr(
+            view, "_hit_ratelimits", pretend.call_recorder(lambda: None)
+        )
+        monkeypatch.setattr(
+            view, "_check_ratelimits", pretend.call_recorder(lambda: None)
+        )
+
+        assert view.add_github_oidc_provider() == {
+            "project": project,
+            "github_provider_form": github_provider_form_obj,
+        }
+        assert project.record_event.calls == [
+            pretend.call(
+                tag="project:oidc:provider-added",
+                ip_address=request.remote_addr,
+                additional={
+                    "provider": "GitHub",
+                    "id": "fakeid",
+                    "specifier": "fakeworkflow.yml @ fakeowner/fakerepo",
+                },
+            )
+        ]
+        assert request.session.flash.calls == [
+            pretend.call(
+                "Added fakeworkflow.yml @ fakeowner/fakerepo to fakeproject",
+                queue="success",
+            )
+        ]
+        assert request.db.add.calls == [pretend.call(project.oidc_providers[0])]
+        assert github_provider_form_obj.validate.calls == [pretend.call()]
+        assert views.project_owners.calls == [pretend.call(request, project)]
+        assert view._hit_ratelimits.calls == [pretend.call()]
+        assert view._check_ratelimits.calls == [pretend.call()]
+        assert len(project.oidc_providers) == 1

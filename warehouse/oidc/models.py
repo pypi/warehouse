@@ -156,7 +156,7 @@ class GitHubProvider(OIDCProvider):
 
     @property
     def job_workflow_ref(self):
-        return f"{self.repository}/.github/workflows/{self.workflow_name}.yml"
+        return f"{self.repository}/.github/workflows/{self.workflow_name}@"
 
     @property
     def workflow(self):
@@ -164,3 +164,6 @@ class GitHubProvider(OIDCProvider):
 
     def __str__(self):
         return f"{self.workflow_name} @ {self.repository}"
+
+    def __eq__(self, other):
+        pass

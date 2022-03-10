@@ -143,6 +143,17 @@ def user_projects(request):
     }
 
 
+def project_owners(request, project):
+    """Return all users who are owners of the project."""
+    owner_roles = (
+        request.db.query(User.id)
+        .join(Role.user)
+        .filter(Role.role_name == "Owner", Role.project == project)
+        .subquery()
+    )
+    return request.db.query(User).join(owner_roles, User.id == owner_roles.c.id).all()
+
+
 @view_defaults(
     route_name="manage.account",
     renderer="manage/account.html",
@@ -1202,17 +1213,7 @@ class ManageOIDCProviderViews:
                 return response
 
             # We only email project owners, since only owners can manage OIDC providers.
-            owner_roles = (
-                self.request.db.query(User.id)
-                .join(Role.user)
-                .filter(Role.role_name == "Owner", Role.project == self.project)
-                .subquery()
-            )
-            owner_users = (
-                self.request.db.query(User)
-                .join(owner_roles, User.id == owner_roles.c.id)
-                .all()
-            )
+            owner_users = project_owners(self.request, self.project)
             for user in owner_users:
                 send_oidc_provider_added_email(
                     self.request, user, project_name=self.project.name
@@ -1263,17 +1264,7 @@ class ManageOIDCProviderViews:
                 return self.default_response
 
             # We only email project owners, since only owners can manage OIDC providers.
-            owner_roles = (
-                self.request.db.query(User.id)
-                .join(Role.user)
-                .filter(Role.role_name == "Owner", Role.project == self.project)
-                .subquery()
-            )
-            owner_users = (
-                self.request.db.query(User)
-                .join(owner_roles, User.id == owner_roles.c.id)
-                .all()
-            )
+            owner_users = project_owners(self.request, self.project)
             for user in owner_users:
                 send_oidc_provider_removed_email(
                     self.request, user, project_name=self.project.name
