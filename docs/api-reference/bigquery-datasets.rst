@@ -10,7 +10,7 @@ Download Statistics Table
 
 The download statistics table allows you learn more about downloads patterns of
 packages hosted on PyPI. This table is populated through the `Linehaul
-project <https://github.com/pypa/linehaul>`_ by streaming download logs from PyPI
+project <https://github.com/pypa/linehaul-cloud-function/>`_ by streaming download logs from PyPI
 to BigQuery. For more information on analyzing PyPI package downloads, see the `Python
 Package Guide <https://packaging.python.org/guides/analyzing-pypi-package-downloads/>`_
 
