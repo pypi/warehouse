@@ -893,8 +893,8 @@ pycparser==2.21 \
     --hash=sha256:8ee45429555515e1f6b185e78100aea234072576aa43ab53aefcae078162fca9 \
     --hash=sha256:e644fdec12f7872f86c58ff790da456218b10f863970249516d60a5eaca77206
     # via cffi
-pycurl==7.44.1 \
-    --hash=sha256:5bcef4d988b74b99653602101e17d8401338d596b9234d263c728a0c3df003e8
+pycurl==7.45.0 \
+    --hash=sha256:5036c53c6f4106e9160d053a4baa3433a0215fb3386073e211273c56a3a95f3d
     # via -r requirements/main.in
 pydantic==1.9.0 \
     --hash=sha256:085ca1de245782e9b46cefcf99deecc67d418737a1fd3f6a4f511344b613a5b3 \
