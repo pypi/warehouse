@@ -72,7 +72,7 @@ class User(SitemapMixin, db.Model):
     username = Column(CIText, nullable=False, unique=True)
     name = Column(String(length=100), nullable=False)
     password = Column(String(length=128), nullable=False)
-    password_date = Column(DateTime, nullable=True, server_default=sql.func.now())
+    password_date = Column(TZDateTime, nullable=True, server_default=sql.func.now())
     is_active = Column(Boolean, nullable=False, server_default=sql.false())
     is_superuser = Column(Boolean, nullable=False, server_default=sql.false())
     is_moderator = Column(Boolean, nullable=False, server_default=sql.false())

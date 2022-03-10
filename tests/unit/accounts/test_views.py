@@ -1732,8 +1732,8 @@ class TestRequestPasswordReset:
 
 
 class TestResetPassword:
-    @pytest.mark.parametrize("last_login_utc", (True, False))
-    def test_get(self, db_request, user_service, token_service, last_login_utc):
+    @pytest.mark.parametrize("dates_utc", (True, False))
+    def test_get(self, db_request, user_service, token_service, dates_utc):
         user = UserFactory.create()
         form_inst = pretend.stub()
         form_class = pretend.call_recorder(lambda *args, **kwargs: form_inst)
@@ -1742,14 +1742,17 @@ class TestResetPassword:
 
         db_request.GET.update({"token": "RANDOM_KEY"})
         last_login = str(
-            user.last_login if last_login_utc else user.last_login.replace(tzinfo=None)
+            user.last_login if dates_utc else user.last_login.replace(tzinfo=None)
+        )
+        password_date = str(
+            user.password_date if dates_utc else user.password_date.replace(tzinfo=None)
         )
         token_service.loads = pretend.call_recorder(
             lambda token: {
                 "action": "password-reset",
                 "user.id": str(user.id),
                 "user.last_login": last_login,
-                "user.password_date": str(user.password_date),
+                "user.password_date": password_date,
             }
         )
         db_request.find_service = pretend.call_recorder(
