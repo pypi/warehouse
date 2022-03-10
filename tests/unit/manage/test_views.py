@@ -5118,3 +5118,31 @@ class TestManageOIDCProviderViews:
                 queue="error",
             )
         ]
+
+    def test_add_github_oidc_provider_invalid_form(self, monkeypatch):
+        project = pretend.stub()
+        request = pretend.stub(
+            flags=pretend.stub(enabled=pretend.call_recorder(lambda f: False)),
+            session=pretend.stub(flash=pretend.call_recorder(lambda *a, **kw: None)),
+            _=lambda s: s,
+        )
+
+        github_provider_form_obj = pretend.stub(
+            validate=pretend.call_recorder(lambda: False),
+        )
+        github_provider_form_cls = pretend.call_recorder(
+            lambda *a, **kw: github_provider_form_obj
+        )
+        monkeypatch.setattr(views, "GitHubProviderForm", github_provider_form_cls)
+
+        view = views.ManageOIDCProviderViews(project, request)
+        default_response = {"github_provider_form": github_provider_form_obj}
+        monkeypatch.setattr(
+            views.ManageOIDCProviderViews, "default_response", default_response
+        )
+        monkeypatch.setattr(
+            view, "_check_ratelimits", pretend.call_recorder(lambda: None)
+        )
+
+        assert view.add_github_oidc_provider() == default_response
+        assert github_provider_form_obj.validate.calls == [pretend.call()]
