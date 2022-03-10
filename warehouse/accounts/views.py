@@ -673,7 +673,7 @@ def reset_password(request, _form_class=ResetPasswordForm):
 
     # Check whether the password has been changed since the token was created
     password_date = datetime.datetime.fromisoformat(data.get("user.password_date"))
-    # Before updating itsdangerous to 2.x the last_login was naive,
+    # Before updating itsdangerous to 2.x the password_date was naive,
     # now it's localized to UTC
     if not password_date.tzinfo:
         password_date = pytz.UTC.localize(password_date)
