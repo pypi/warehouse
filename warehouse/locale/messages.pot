@@ -41,7 +41,7 @@ msgstr ""
 msgid "The password is invalid. Try again."
 msgstr ""
 
-#: warehouse/accounts/forms.py:146 warehouse/accounts/views.py:79
+#: warehouse/accounts/forms.py:146 warehouse/accounts/views.py:81
 msgid "There have been too many unsuccessful login attempts. Try again later."
 msgstr ""
 
@@ -93,135 +93,135 @@ msgstr ""
 msgid "No user found with that username or email"
 msgstr ""
 
-#: warehouse/accounts/views.py:96
+#: warehouse/accounts/views.py:98
 msgid ""
 "Too many emails have been added to this account without verifying them. "
 "Check your inbox and follow the verification links. (IP: ${ip})"
 msgstr ""
 
-#: warehouse/accounts/views.py:108
+#: warehouse/accounts/views.py:110
 msgid ""
 "Too many password resets have been requested for this account without "
 "completing them. Check your inbox and follow the verification links. (IP:"
 " ${ip})"
 msgstr ""
 
-#: warehouse/accounts/views.py:248 warehouse/accounts/views.py:312
-#: warehouse/accounts/views.py:314 warehouse/accounts/views.py:341
-#: warehouse/accounts/views.py:343 warehouse/accounts/views.py:409
+#: warehouse/accounts/views.py:250 warehouse/accounts/views.py:314
+#: warehouse/accounts/views.py:316 warehouse/accounts/views.py:343
+#: warehouse/accounts/views.py:345 warehouse/accounts/views.py:411
 msgid "Invalid or expired two factor login."
 msgstr ""
 
-#: warehouse/accounts/views.py:306
+#: warehouse/accounts/views.py:308
 msgid "Already authenticated"
 msgstr ""
 
-#: warehouse/accounts/views.py:385
+#: warehouse/accounts/views.py:387
 msgid "Successful WebAuthn assertion"
 msgstr ""
 
-#: warehouse/accounts/views.py:439 warehouse/manage/views.py:791
+#: warehouse/accounts/views.py:441 warehouse/manage/views.py:791
 msgid "Recovery code accepted. The supplied code cannot be used again."
 msgstr ""
 
-#: warehouse/accounts/views.py:525
+#: warehouse/accounts/views.py:527
 msgid ""
 "New user registration temporarily disabled. See https://pypi.org/help"
 "#admin-intervention for details."
 msgstr ""
 
-#: warehouse/accounts/views.py:643
+#: warehouse/accounts/views.py:645
 msgid "Expired token: request a new password reset link"
 msgstr ""
 
-#: warehouse/accounts/views.py:645
+#: warehouse/accounts/views.py:647
 msgid "Invalid token: request a new password reset link"
 msgstr ""
 
-#: warehouse/accounts/views.py:647 warehouse/accounts/views.py:732
-#: warehouse/accounts/views.py:828
+#: warehouse/accounts/views.py:649 warehouse/accounts/views.py:742
+#: warehouse/accounts/views.py:838
 msgid "Invalid token: no token supplied"
 msgstr ""
 
-#: warehouse/accounts/views.py:651
+#: warehouse/accounts/views.py:653
 msgid "Invalid token: not a password reset token"
 msgstr ""
 
-#: warehouse/accounts/views.py:656
+#: warehouse/accounts/views.py:658
 msgid "Invalid token: user not found"
 msgstr ""
 
-#: warehouse/accounts/views.py:663
+#: warehouse/accounts/views.py:669
 msgid "Invalid token: user has logged in since this token was requested"
 msgstr ""
 
-#: warehouse/accounts/views.py:672
+#: warehouse/accounts/views.py:682
 msgid ""
 "Invalid token: password has already been changed since this token was "
 "requested"
 msgstr ""
 
-#: warehouse/accounts/views.py:701
+#: warehouse/accounts/views.py:711
 msgid "You have reset your password"
 msgstr ""
 
-#: warehouse/accounts/views.py:728
+#: warehouse/accounts/views.py:738
 msgid "Expired token: request a new email verification link"
 msgstr ""
 
-#: warehouse/accounts/views.py:730
+#: warehouse/accounts/views.py:740
 msgid "Invalid token: request a new email verification link"
 msgstr ""
 
-#: warehouse/accounts/views.py:736
+#: warehouse/accounts/views.py:746
 msgid "Invalid token: not an email verification token"
 msgstr ""
 
-#: warehouse/accounts/views.py:745
+#: warehouse/accounts/views.py:755
 msgid "Email not found"
 msgstr ""
 
-#: warehouse/accounts/views.py:748
+#: warehouse/accounts/views.py:758
 msgid "Email already verified"
 msgstr ""
 
-#: warehouse/accounts/views.py:763
+#: warehouse/accounts/views.py:773
 msgid "You can now set this email as your primary address"
 msgstr ""
 
-#: warehouse/accounts/views.py:767
+#: warehouse/accounts/views.py:777
 msgid "This is your primary address"
 msgstr ""
 
-#: warehouse/accounts/views.py:772
+#: warehouse/accounts/views.py:782
 msgid "Email address ${email_address} verified. ${confirm_message}."
 msgstr ""
 
-#: warehouse/accounts/views.py:824
+#: warehouse/accounts/views.py:834
 msgid "Expired token: request a new project role invite"
 msgstr ""
 
-#: warehouse/accounts/views.py:826
+#: warehouse/accounts/views.py:836
 msgid "Invalid token: request a new project role invite"
 msgstr ""
 
-#: warehouse/accounts/views.py:832
+#: warehouse/accounts/views.py:842
 msgid "Invalid token: not a collaboration invitation token"
 msgstr ""
 
-#: warehouse/accounts/views.py:836
+#: warehouse/accounts/views.py:846
 msgid "Role invitation is not valid."
 msgstr ""
 
-#: warehouse/accounts/views.py:851
+#: warehouse/accounts/views.py:861
 msgid "Role invitation no longer exists."
 msgstr ""
 
-#: warehouse/accounts/views.py:863
+#: warehouse/accounts/views.py:873
 msgid "Invitation for '${project_name}' is declined."
 msgstr ""
 
-#: warehouse/accounts/views.py:930
+#: warehouse/accounts/views.py:940
 msgid "You are now ${role} of the '${project_name}' project."
 msgstr ""
 
