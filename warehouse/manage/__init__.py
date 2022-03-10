@@ -57,7 +57,7 @@ def reauth_view(view, info):
     return view
 
 
-reauth_view.options = {"require_reauth"}
+reauth_view.options = {"require_reauth"}  # type: ignore
 
 
 def includeme(config):

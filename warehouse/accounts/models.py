@@ -136,7 +136,7 @@ class User(SitemapMixin, db.Model):
         primary_email = self.primary_email
         return primary_email.email if primary_email else None
 
-    @email.expression
+    @email.expression  # type: ignore
     def email(self):
         return (
             select([Email.email])

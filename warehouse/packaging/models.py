@@ -41,7 +41,7 @@ from sqlalchemy import (
 )
 from sqlalchemy.dialects.postgresql import JSONB, UUID
 from sqlalchemy.ext.associationproxy import association_proxy
-from sqlalchemy.ext.declarative import declared_attr
+from sqlalchemy.ext.declarative import declared_attr  # type: ignore
 from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy.orm import validates
 from sqlalchemy.orm.exc import MultipleResultsFound, NoResultFound
@@ -173,13 +173,13 @@ class Project(SitemapMixin, TwoFactorRequireable, db.Model):
 
     total_size = Column(BigInteger, server_default=sql.text("0"))
 
-    users = orm.relationship(User, secondary=Role.__table__, backref="projects")
+    users = orm.relationship(User, secondary=Role.__table__, backref="projects")  # type: ignore # noqa
 
     releases = orm.relationship(
         "Release",
         backref="project",
         cascade="all, delete-orphan",
-        order_by=lambda: Release._pypi_ordering.desc(),
+        order_by=lambda: Release._pypi_ordering.desc(),  # type: ignore
         passive_deletes=True,
     )
 
@@ -416,7 +416,7 @@ class Release(db.Model):
     _classifiers = orm.relationship(
         Classifier,
         backref="project_releases",
-        secondary=lambda: release_classifiers,
+        secondary=lambda: release_classifiers,  # type: ignore
         order_by=expression.case(
             {c: i for i, c in enumerate(sorted_classifiers)},
             value=Classifier.classifier,
@@ -430,7 +430,7 @@ class Release(db.Model):
         backref="release",
         cascade="all, delete-orphan",
         lazy="dynamic",
-        order_by=lambda: File.filename,
+        order_by=lambda: File.filename,  # type: ignore
         passive_deletes=True,
     )
 
@@ -582,7 +582,7 @@ class File(db.Model):
     def pgp_path(self):
         return self.path + ".asc"
 
-    @pgp_path.expression
+    @pgp_path.expression  # type: ignore
     def pgp_path(self):
         return func.concat(self.path, ".asc")
 
