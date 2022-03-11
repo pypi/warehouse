@@ -10,6 +10,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+
+from typing import Any, Callable, Dict, Set
+
 import sentry_sdk
 
 from sqlalchemy import Column, ForeignKey, String, UniqueConstraint, orm
@@ -39,7 +42,7 @@ class OIDCProvider(db.Model):
     discriminator = Column(String)
     projects = orm.relationship(
         Project,
-        secondary=OIDCProviderProjectAssociation.__table__,
+        secondary=OIDCProviderProjectAssociation.__table__,  # type: ignore
         backref="oidc_providers",
     )
 
@@ -50,7 +53,7 @@ class OIDCProvider(db.Model):
 
     # A map of claim names to "check" functions, each of which
     # has the signature `check(ground-truth, signed-claim) -> bool`.
-    __verifiable_claims__ = dict()
+    __verifiable_claims__: Dict[str, Callable[[Any, Any], bool]] = dict()
 
     # Claims that have already been verified during the JWT signature
     # verification phase.
@@ -65,7 +68,7 @@ class OIDCProvider(db.Model):
     # Individual providers should explicitly override this set,
     # indicating any custom claims that are known to be present but are
     # not checked as part of verifying the JWT.
-    __unchecked_claims__ = set()
+    __unchecked_claims__: Set[str] = set()
 
     @classmethod
     def all_known_claims(cls):
