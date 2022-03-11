@@ -17,6 +17,7 @@ import uuid
 import freezegun
 import pretend
 import pytest
+import pytz
 
 from pyramid.httpexceptions import HTTPMovedPermanently, HTTPSeeOther
 from sqlalchemy.orm.exc import NoResultFound
@@ -37,6 +38,8 @@ from warehouse.accounts.interfaces import (
     TooManyFailedLogins,
     TooManyPasswordResetRequests,
 )
+from warehouse.accounts.models import User
+from warehouse.accounts.views import two_factor_and_totp_validate
 from warehouse.admin.flags import AdminFlag, AdminFlagValue
 from warehouse.packaging.models import Role, RoleInvitation
 from warehouse.rate_limiting.interfaces import IRateLimiter
@@ -413,6 +416,53 @@ class TestTwoFactor:
 
         with pytest.raises(TokenInvalid):
             views._get_two_factor_data(pyramid_request)
+
+    def test_two_factor_and_totp_validate_redirect_to_account_login(
+        self,
+        db_request,
+        token_service,
+        user_service,
+    ):
+        """
+        Checks redirect to the login page if the 2fa login got expired.
+
+        Given there's user in the database and has a token signed before last_login date
+        When the user calls accounts.two-factor view
+        Then the user is redirected to account/login page
+
+        ... warning::
+            This test has to use database and load the user from database
+            to make sure we always compare user.last_login as timezone-aware datetime.
+
+        """
+        user = User(
+            username="jdoe",
+            name="Joe",
+            password="any",
+            is_active=True,
+            last_login=datetime.datetime.utcnow() + datetime.timedelta(days=+1),
+        )
+        db_request.db.add(user)
+        db_request.db.commit()
+        # Make sure object is not in session,
+        # so sqlalchemy loads it fresh from database and type works it's magic
+        db_request.db.expunge(user)
+
+        token_data = {"userid": user.id}
+        token = token_service.dumps(token_data)
+        db_request.query_string = token
+        db_request.find_service = lambda interface, **kwargs: {
+            ITokenService: token_service,
+            IUserService: user_service,
+        }[interface]
+        db_request.route_path = pretend.call_recorder(lambda name: "/account/login/")
+
+        two_factor_and_totp_validate(db_request)
+        # This view is redirected to only during a TokenException recovery
+        # which is called in two instances:
+        # 1. No userid in token
+        # 2. The token has expired
+        assert db_request.route_path.calls == [pretend.call("accounts.login")]
 
     @pytest.mark.parametrize("redirect_url", [None, "/foo/bar/", "/wat/"])
     def test_get_returns_totp_form(self, pyramid_request, redirect_url):
@@ -1682,7 +1732,8 @@ class TestRequestPasswordReset:
 
 
 class TestResetPassword:
-    def test_get(self, db_request, user_service, token_service):
+    @pytest.mark.parametrize("dates_utc", (True, False))
+    def test_get(self, db_request, user_service, token_service, dates_utc):
         user = UserFactory.create()
         form_inst = pretend.stub()
         form_class = pretend.call_recorder(lambda *args, **kwargs: form_inst)
@@ -1690,12 +1741,18 @@ class TestResetPassword:
         breach_service = pretend.stub(check_password=lambda pw: False)
 
         db_request.GET.update({"token": "RANDOM_KEY"})
+        last_login = str(
+            user.last_login if dates_utc else user.last_login.replace(tzinfo=None)
+        )
+        password_date = str(
+            user.password_date if dates_utc else user.password_date.replace(tzinfo=None)
+        )
         token_service.loads = pretend.call_recorder(
             lambda token: {
                 "action": "password-reset",
                 "user.id": str(user.id),
-                "user.last_login": str(user.last_login),
-                "user.password_date": str(user.password_date),
+                "user.last_login": last_login,
+                "user.password_date": password_date,
             }
         )
         db_request.find_service = pretend.call_recorder(
@@ -1881,7 +1938,7 @@ class TestResetPassword:
         assert user_service.get_user.calls == [pretend.call(uuid.UUID(data["user.id"]))]
 
     def test_reset_password_last_login_changed(self, pyramid_request):
-        now = datetime.datetime.utcnow()
+        now = pytz.UTC.localize(datetime.datetime.utcnow())
         later = now + datetime.timedelta(hours=1)
         data = {
             "action": "password-reset",
@@ -1913,7 +1970,7 @@ class TestResetPassword:
         ]
 
     def test_reset_password_password_date_changed(self, pyramid_request):
-        now = datetime.datetime.utcnow()
+        now = pytz.UTC.localize(datetime.datetime.utcnow())
         later = now + datetime.timedelta(hours=1)
         data = {
             "action": "password-reset",

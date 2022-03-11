@@ -17,6 +17,7 @@ import uuid
 import freezegun
 import pretend
 import pytest
+import pytz
 import requests
 
 from webauthn.helpers import bytes_to_base64url
@@ -933,7 +934,7 @@ class TestTokenService:
         assert token_service.loads(token) == {"foo": "bar"}
 
     def test_loads_return_timestamp(self, token_service):
-        sign_time = datetime.datetime.utcnow()
+        sign_time = pytz.UTC.localize(datetime.datetime.utcnow())
         with freezegun.freeze_time(sign_time):
             token = token_service.dumps({"foo": "bar"})
 
