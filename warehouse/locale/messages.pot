@@ -247,33 +247,33 @@ msgid ""
 "again later."
 msgstr ""
 
-#: warehouse/manage/views.py:1833
+#: warehouse/manage/views.py:1835
 msgid "User '${username}' already has ${role_name} role for project"
 msgstr ""
 
-#: warehouse/manage/views.py:1844
+#: warehouse/manage/views.py:1846
 msgid ""
 "User '${username}' does not have a verified primary email address and "
 "cannot be added as a ${role_name} for project"
 msgstr ""
 
-#: warehouse/manage/views.py:1857
+#: warehouse/manage/views.py:1859
 msgid "User '${username}' already has an active invite. Please try again later."
 msgstr ""
 
-#: warehouse/manage/views.py:1915
+#: warehouse/manage/views.py:1917
 msgid "Invitation sent to '${username}'"
 msgstr ""
 
-#: warehouse/manage/views.py:1962
+#: warehouse/manage/views.py:1964
 msgid "Could not find role invitation."
 msgstr ""
 
-#: warehouse/manage/views.py:1973
+#: warehouse/manage/views.py:1975
 msgid "Invitation already expired."
 msgstr ""
 
-#: warehouse/manage/views.py:1997
+#: warehouse/manage/views.py:1999
 msgid "Invitation revoked from '${username}'."
 msgstr ""
 
