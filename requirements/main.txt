@@ -600,9 +600,9 @@ kombu==5.2.4 \
     --hash=sha256:37cee3ee725f94ea8bb173eaab7c1760203ea53bbebae226328600f9d2799610 \
     --hash=sha256:8b213b24293d3417bcf0d2f5537b7f756079e3ea232a8386dcc89a59fd2361a4
     # via celery
-limits==2.3.3 \
-    --hash=sha256:9ead6236a71eb1d9a18d7e3b1faa58d588ea3510e55514fae58babc0a3223986 \
-    --hash=sha256:d4270d29591cc5eceab19be053455a4e619ba395062502bde2b5681af7dc1be8
+limits==2.4.0 \
+    --hash=sha256:21b9d7ddebbe90ad23cce724c9f3e8ad62f132cef6051ec910249421679cb4db \
+    --hash=sha256:8e22b63df26310207a77b75bd474599f0a4613a7d9163650ed3a428e9cc7ae35
     # via -r requirements/main.in
 lxml==4.8.0 \
     --hash=sha256:078306d19a33920004addeb5f4630781aaeabb6a8d01398045fcde085091a169 \
