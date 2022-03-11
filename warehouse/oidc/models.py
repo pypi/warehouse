@@ -67,6 +67,17 @@ class OIDCProvider(db.Model):
     # not checked as part of verifying the JWT.
     __unchecked_claims__ = set()
 
+    @classmethod
+    def all_known_claims(cls):
+        """
+        Returns all claims "known" to this provider.
+        """
+        return (
+            cls.__verifiable_claims__.keys()
+            | cls.__preverified_claims__
+            | cls.__unchecked_claims__
+        )
+
     def verify_claims(self, signed_claims):
         """
         Given a JWT that has been successfully decoded (checked for a valid
@@ -82,12 +93,7 @@ class OIDCProvider(db.Model):
         # All claims should be accounted for.
         # The presence of an unaccounted claim is not an error, only a warning
         # that the JWT payload has changed.
-        known_claims = (
-            self.__verifiable_claims__.keys()
-            | self.__preverified_claims__
-            | self.__unchecked_claims__
-        )
-        unaccounted_claims = known_claims - signed_claims.keys()
+        unaccounted_claims = signed_claims.keys() - self.all_known_claims()
         if unaccounted_claims:
             sentry_sdk.capture_message(
                 f"JWT for {self.__class__.__name__} has unaccounted claims: "
@@ -96,13 +102,23 @@ class OIDCProvider(db.Model):
 
         # Finally, perform the actual claim verification.
         for claim_name, check in self.__verifiable_claims__.items():
-            if not check(self.getattr(claim_name), signed_claims[claim_name]):
+            # All verifiable claims are mandatory. The absence of a missing
+            # claim *is* an error, since it indicates a breaking change in the
+            # JWT's payload.
+            signed_claim = signed_claims.get(claim_name)
+            if signed_claim is None:
+                sentry_sdk.capture_message(
+                    f"JWT for {self.__class__.__name__} is missing claim: {claim_name}"
+                )
+                return False
+
+            if not check(getattr(self, claim_name), signed_claim):
                 return False
 
         return True
 
     @property
-    def provider_name(self):
+    def provider_name(self):  # pragma: no cover
         # Only concrete subclasses of OIDCProvider are constructed.
         return NotImplemented
 
@@ -164,6 +180,3 @@ class GitHubProvider(OIDCProvider):
 
     def __str__(self):
         return f"{self.workflow_name} @ {self.repository}"
-
-    def __eq__(self, other):
-        pass
