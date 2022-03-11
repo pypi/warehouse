@@ -5147,4 +5147,186 @@ class TestManageOIDCProviderViews:
         assert view.add_github_oidc_provider() == default_response
         assert github_provider_form_obj.validate.calls == [pretend.call()]
 
-    # TODO: OIDC deletion tests
+    def test_delete_oidc_provider(self, monkeypatch):
+        provider = pretend.stub(
+            provider_name="fakeprovider",
+            id="fakeid",
+        )
+        # NOTE: Can't set __str__ using pretend.stub()
+        monkeypatch.setattr(provider.__class__, "__str__", lambda s: "fakespecifier")
+
+        project = pretend.stub(
+            oidc_providers=[provider],
+            name="fakeproject",
+            record_event=pretend.call_recorder(lambda *a, **kw: None),
+        )
+        request = pretend.stub(
+            flags=pretend.stub(enabled=pretend.call_recorder(lambda f: False)),
+            session=pretend.stub(flash=pretend.call_recorder(lambda *a, **kw: None)),
+            POST=pretend.stub(),
+            db=pretend.stub(
+                query=lambda *a: pretend.stub(get=lambda id: provider),
+            ),
+            remote_addr="0.0.0.0",
+        )
+
+        delete_provider_form_obj = pretend.stub(
+            validate=pretend.call_recorder(lambda: True),
+            provider_id=pretend.stub(data="fakeid"),
+        )
+        delete_provider_form_cls = pretend.call_recorder(
+            lambda *a, **kw: delete_provider_form_obj
+        )
+        monkeypatch.setattr(views, "DeleteProviderForm", delete_provider_form_cls)
+
+        fakeowners = [pretend.stub(), pretend.stub(), pretend.stub()]
+        monkeypatch.setattr(
+            views, "project_owners", pretend.call_recorder(lambda *a: fakeowners)
+        )
+        monkeypatch.setattr(
+            views,
+            "send_oidc_provider_removed_email",
+            pretend.call_recorder(lambda *a, **kw: None),
+        )
+
+        view = views.ManageOIDCProviderViews(project, request)
+        default_response = {"_": pretend.stub()}
+        monkeypatch.setattr(
+            views.ManageOIDCProviderViews, "default_response", default_response
+        )
+
+        assert view.delete_oidc_provider() == default_response
+        assert provider not in project.oidc_providers
+
+        assert project.record_event.calls == [
+            pretend.call(
+                tag="project:oidc:provider-removed",
+                ip_address=request.remote_addr,
+                additional={
+                    "provider": "fakeprovider",
+                    "id": "fakeid",
+                    "specifier": "fakespecifier",
+                },
+            )
+        ]
+
+        assert request.flags.enabled.calls == [
+            pretend.call(AdminFlagValue.DISALLOW_OIDC)
+        ]
+        assert request.session.flash.calls == [
+            pretend.call("Removed fakespecifier from fakeproject", queue="success")
+        ]
+
+        assert delete_provider_form_cls.calls == [pretend.call(request.POST)]
+        assert delete_provider_form_obj.validate.calls == [pretend.call()]
+
+        assert views.project_owners.calls == [pretend.call(request, project)]
+        assert views.send_oidc_provider_removed_email.calls == [
+            pretend.call(request, fakeowner, project_name="fakeproject")
+            for fakeowner in fakeowners
+        ]
+
+    def test_delete_oidc_provider_invalid_form(self, monkeypatch):
+        provider = pretend.stub()
+        project = pretend.stub(oidc_providers=[provider])
+        request = pretend.stub(
+            flags=pretend.stub(enabled=pretend.call_recorder(lambda f: False)),
+            POST=pretend.stub(),
+        )
+
+        delete_provider_form_obj = pretend.stub(
+            validate=pretend.call_recorder(lambda: False),
+        )
+        delete_provider_form_cls = pretend.call_recorder(
+            lambda *a, **kw: delete_provider_form_obj
+        )
+        monkeypatch.setattr(views, "DeleteProviderForm", delete_provider_form_cls)
+
+        view = views.ManageOIDCProviderViews(project, request)
+        default_response = {"_": pretend.stub()}
+        monkeypatch.setattr(
+            views.ManageOIDCProviderViews, "default_response", default_response
+        )
+
+        assert view.delete_oidc_provider() == default_response
+        assert len(project.oidc_providers) == 1
+
+        assert delete_provider_form_cls.calls == [pretend.call(request.POST)]
+        assert delete_provider_form_obj.validate.calls == [pretend.call()]
+
+    @pytest.mark.parametrize(
+        "other_provider", [None, pretend.stub(id="different-fakeid")]
+    )
+    def test_delete_oidc_provider_not_found(self, monkeypatch, other_provider):
+        provider = pretend.stub(
+            provider_name="fakeprovider",
+            id="fakeid",
+        )
+        # NOTE: Can't set __str__ using pretend.stub()
+        monkeypatch.setattr(provider.__class__, "__str__", lambda s: "fakespecifier")
+
+        project = pretend.stub(
+            oidc_providers=[provider],
+            name="fakeproject",
+            record_event=pretend.call_recorder(lambda *a, **kw: None),
+        )
+        request = pretend.stub(
+            flags=pretend.stub(enabled=pretend.call_recorder(lambda f: False)),
+            session=pretend.stub(flash=pretend.call_recorder(lambda *a, **kw: None)),
+            POST=pretend.stub(),
+            db=pretend.stub(
+                query=lambda *a: pretend.stub(get=lambda id: other_provider),
+            ),
+            remote_addr="0.0.0.0",
+        )
+
+        delete_provider_form_obj = pretend.stub(
+            validate=pretend.call_recorder(lambda: True),
+            provider_id=pretend.stub(data="different-fakeid"),
+        )
+        delete_provider_form_cls = pretend.call_recorder(
+            lambda *a, **kw: delete_provider_form_obj
+        )
+        monkeypatch.setattr(views, "DeleteProviderForm", delete_provider_form_cls)
+
+        view = views.ManageOIDCProviderViews(project, request)
+        default_response = {"_": pretend.stub()}
+        monkeypatch.setattr(
+            views.ManageOIDCProviderViews, "default_response", default_response
+        )
+
+        assert view.delete_oidc_provider() == default_response
+        assert provider in project.oidc_providers  # not deleted
+        assert other_provider not in project.oidc_providers
+
+        assert project.record_event.calls == []
+        assert request.session.flash.calls == [
+            pretend.call("Invalid publisher for project", queue="error")
+        ]
+
+        assert delete_provider_form_cls.calls == [pretend.call(request.POST)]
+        assert delete_provider_form_obj.validate.calls == [pretend.call()]
+
+    def test_delete_oidc_provider_admin_disabled(self, monkeypatch):
+        project = pretend.stub()
+        request = pretend.stub(
+            flags=pretend.stub(enabled=pretend.call_recorder(lambda f: True)),
+            session=pretend.stub(flash=pretend.call_recorder(lambda *a, **kw: None)),
+        )
+
+        view = views.ManageOIDCProviderViews(project, request)
+        default_response = {"_": pretend.stub()}
+        monkeypatch.setattr(
+            views.ManageOIDCProviderViews, "default_response", default_response
+        )
+
+        assert view.delete_oidc_provider() == default_response
+        assert request.session.flash.calls == [
+            pretend.call(
+                (
+                    "OpenID Connect is temporarily disabled. "
+                    "See https://pypi.org/help#admin-intervention for details."
+                ),
+                queue="error",
+            )
+        ]

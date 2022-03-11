@@ -1260,7 +1260,7 @@ class ManageOIDCProviderViews:
             # provider will be `None` here if someone manually futzes with the form.
             if provider is None or provider not in self.project.oidc_providers:
                 self.request.session.flash(
-                    f"Unknown publisher: {provider}",
+                    "Invalid publisher for project",
                     queue="error",
                 )
                 return self.default_response
@@ -1284,7 +1284,9 @@ class ManageOIDCProviderViews:
                 },
             )
 
-            self.request.session.flash(f"Removed {provider} from {self.project.name}")
+            self.request.session.flash(
+                f"Removed {provider} from {self.project.name}", queue="success"
+            )
 
         return self.default_response
 
@@ -2051,13 +2053,7 @@ def change_project_role(project, request, _form_class=ChangeRoleForm):
                     },
                 )
 
-                owner_roles = (
-                    request.db.query(Role)
-                    .filter(Role.project == project)
-                    .filter(Role.role_name == "Owner")
-                    .all()
-                )
-                owner_users = {owner.user for owner in owner_roles}
+                owner_users = set(project_owners(request, project))
                 # Don't send owner notification email to new user
                 # if they are now an owner
                 owner_users.discard(role.user)
@@ -2128,13 +2124,7 @@ def delete_project_role(project, request):
                 },
             )
 
-            owner_roles = (
-                request.db.query(Role)
-                .filter(Role.project == project)
-                .filter(Role.role_name == "Owner")
-                .all()
-            )
-            owner_users = {owner.user for owner in owner_roles}
+            owner_users = set(project_owners(request, project))
             # Don't send owner notification email to new user
             # if they are now an owner
             owner_users.discard(role.user)
