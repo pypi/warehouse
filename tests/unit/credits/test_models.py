@@ -15,5 +15,7 @@ from ...common.db.contributors import ContributorFactory
 
 def test_repr(db_request):
     contributor = ContributorFactory()
-    expected = f"<{contributor.contributor_login}(name='{contributor.contributor_name}', url='{contributor.contributor_url}')>"
+    expected = f"<{contributor.contributor_login}" \
+               f"(name='{contributor.contributor_name}'," \
+               f" url='{contributor.contributor_url}')>"
     assert repr(contributor) == expected
