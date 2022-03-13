@@ -333,6 +333,10 @@ first==2.0.2 \
     --hash=sha256:8d8e46e115ea8ac652c76123c0865e3ff18372aef6f03c22809ceefcea9dec86 \
     --hash=sha256:ff285b08c55f8c97ce4ea7012743af2495c9f1291785f163722bd36f6af6d3bf
     # via -r requirements/main.in
+github3-py==3.2.0 \
+    --hash=sha256:09b72be1497d346b0968cde8360a0d6af79dc206d0149a63cd3ec86c65c377cc \
+    --hash=sha256:a9016e40609c6f5cb9954dd188d08257dafd09c4da8c0e830a033fca00054b0d
+    # via -r requirements/main.in
 google-api-core[grpc]==2.6.1 \
     --hash=sha256:80cf307660624f84c754d68c3c6cd31780368019741d87e0c5df5ed84730ed26 \
     --hash=sha256:eadba785e358e61be576f2a93f361bb15f144162814c7b3303e78c12288aa33f
@@ -940,7 +944,9 @@ pygments==2.11.2 \
 pyjwt[crypto]==2.3.0 \
     --hash=sha256:b888b4d56f06f6dcd777210c334e69c737be74755d3e5e9ee3fe67dc18a0ee41 \
     --hash=sha256:e0c4bb8d9f0af0c7f5b1ec4c5036309617d03d56932877f2f7a0beeb5318322f
-    # via -r requirements/main.in
+    # via
+    #   -r requirements/main.in
+    #   github3-py
 pymacaroons==0.13.0 \
     --hash=sha256:1e6bba42a5f66c245adf38a5a4006a99dcc06a0703786ea636098667d42903b8 \
     --hash=sha256:3e14dff6a262fdbf1a15e769ce635a8aea72e6f8f91e408f9a97166c53b91907
@@ -1016,6 +1022,7 @@ python-dateutil==2.8.2 \
     #   botocore
     #   celery-redbeat
     #   elasticsearch-dsl
+    #   github3-py
     #   google-cloud-bigquery
 python-slugify==6.1.1 \
     --hash=sha256:00003397f4e31414e922ce567b3a4da28cf1436a53d332c9aeeb51c7d8c469fd \
@@ -1047,6 +1054,7 @@ requests==2.27.1 \
     # via
     #   -r requirements/main.in
     #   datadog
+    #   github3-py
     #   google-api-core
     #   google-cloud-bigquery
     #   google-cloud-storage
@@ -1179,6 +1187,10 @@ typing-extensions==4.1.1 \
     --hash=sha256:1a9462dcc3347a79b1f1c0271fbe79e844580bb598bafa1ed208b94da3cdcd42 \
     --hash=sha256:21c85e0fe4b9a155d0799430b0ad741cdce7e359660ccbd8b530613e8df88ce2
     # via pydantic
+uritemplate==4.1.1 \
+    --hash=sha256:4346edfc5c3b79f694bccd6d6099a322bbeb628dbf2cd86eea55a456ce5124f0 \
+    --hash=sha256:830c08b8d99bdd312ea4ead05994a38e8936266f84b9a7878232db50b044e02e
+    # via github3-py
 urllib3==1.26.8 \
     --hash=sha256:000ca7f471a233c2251c6c7023ee85305721bfdf18621ebff4fd17a8653427ed \
     --hash=sha256:0e7c33d9a63e7ddfcb86780aac87befc2fbddf46c58dbb487e0855f7ceec283c

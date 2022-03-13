@@ -302,9 +302,8 @@ msgstr ""
 #: warehouse/templates/base.html:260 warehouse/templates/base.html:270
 #: warehouse/templates/base.html:271 warehouse/templates/base.html:272
 #: warehouse/templates/base.html:283 warehouse/templates/base.html:284
-#: warehouse/templates/base.html:285 warehouse/templates/base.html:294
-#: warehouse/templates/base.html:296 warehouse/templates/base.html:307
-#: warehouse/templates/base.html:316
+#: warehouse/templates/base.html:294 warehouse/templates/base.html:296
+#: warehouse/templates/base.html:307 warehouse/templates/base.html:316
 #: warehouse/templates/includes/accounts/profile-actions.html:21
 #: warehouse/templates/includes/accounts/profile-actions.html:30
 #: warehouse/templates/includes/accounts/profile-callout.html:18
@@ -3948,6 +3947,27 @@ msgstr ""
 
 #: warehouse/templates/pages/classifiers.html:32
 msgid "List of classifiers"
+msgstr ""
+
+#: warehouse/templates/pages/credits.html:15
+#: warehouse/templates/pages/credits.html:23
+msgid "Development Credits"
+msgstr ""
+
+#: warehouse/templates/pages/credits.html:24
+msgid "We'd like to thank the following people who have helped build the"
+msgstr ""
+
+#: warehouse/templates/pages/credits.html:24
+msgid "PyPI Warehouse"
+msgstr ""
+
+#: warehouse/templates/pages/credits.html:24
+msgid " application for the Python community"
+msgstr ""
+
+#: warehouse/templates/pages/credits.html:31
+msgid "Core contributor"
 msgstr ""
 
 #: warehouse/templates/pages/help.html:19

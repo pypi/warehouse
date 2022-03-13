@@ -10,10 +10,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import json
 import logging
 
-import requests
+import github3
 
 from warehouse import tasks
 
@@ -22,79 +21,44 @@ from .contributors import Contributor
 logger = logging.getLogger(__name__)
 
 
-def call_github_api(url, headers):
-    try:
-        r = requests.get(url, headers=headers)
-    except requests.exceptions.RequestException as e:
-        raise Exception(e)
-
-    if r.status_code is 200:
-        return r
-
-
 @tasks.task(ignore_result=True, acks_late=True)
 def get_contributors(request):
 
-    api_url = "https://api.github.com"
+    # Try to reduce verbosity of github3.py output
+    logger.setLevel(logging.ERROR)
+
+    # list of contributor logins that should be ignored
+    ignore_bots = [
+        "dependabot[bot]",
+        "dependabot-preview[bot]",
+        "github-actions[bot]",
+        "pyup-bot",
+        "requires",
+        "weblate",
+    ]
 
     contributors = {}
 
     access_token = request.registry.settings["warehouse.github_access_token"]
 
-    headers = {"Accept": "application/vnd.github+json"}
-    headers["Authorization"] = "token " + access_token
+    if access_token is None:
+        return 1
 
-    initial_url = (
-        api_url + "/repos/pypa/warehouse/contributors" + "?page=1&per_page=100"
-    )
+    github = github3.login(token=access_token)
+    repo = github.repository("pypa", "warehouse")
+    for c in repo.contributors():
+        u = github.user(c)
+        print(f"u: {u}: u.name: {u.name}; u.html_url: {u.html_url}")
+        if u.login in ignore_bots:
+            print(f"ignoring bot user {u.login}")
+            continue
+        if u.name is None or len(u.name) < 2:
+            u.name = u.login
 
-    r = call_github_api(initial_url, headers)
-
-    # This might occur if GitHub API rate limit is reached, for example
-    if r is None:
-        logging.warning(
-            "Error contacting GitHub API, cannot get warehouse contributors list"
-        )
-        return None
-
-    next_request = ""
-
-    # The GitHub API returns paginated results of 100 items maximum per
-    # response. We will loop until the next link header is not returned
-    # in the response header. This is documented here:
-    # https://developer.github.com/v3/#pagination
-    while next_request is not None:
-        if r.status_code is 200:
-            json_data = json.loads(r.text)
-            for item in json_data:
-                users_query = api_url + "/users/" + item["login"]
-                r2 = call_github_api(users_query, headers)
-                if r2.status_code is 200:
-                    json_data2 = json.loads(r2.text)
-                    if json_data2["name"] is None or len(json_data2["name"]) < 2:
-                        json_data2["name"] = item["login"]
-                    contributors[item["login"]] = {
-                        "name": json_data2["name"],
-                        "html_url": item["html_url"],
-                    }
-                else:
-                    print(
-                        "Error in request to /users/ endpoint: "
-                        "Status code: {} Error: ".format(
-                            r2.status_code, r2.raise_for_status()
-                        )
-                    )
-        else:
-            print(
-                "Error in request to /contributors/ endpoint: "
-                "Status code: {} Error: ".format(r.status_code, r.raise_for_status())
-            )
-
-        if r.links.get("next"):
-            next_request = r.links["next"]["url"]
-            r = call_github_api(next_request, headers)
-        else:
-            next_request = None
+        contributors[u.login] = {
+            "name": u.name,
+            "html_url": u.html_url,
+        }
 
     # Get the list of contributors from the db, compare them to the list
     # from GitHub, add new items to the db
@@ -108,6 +72,7 @@ def get_contributors(request):
     new_users = list(set(contributors.keys()).difference([q[1] for q in query]))
 
     for username in new_users:
+        print(f"adding new user to contributors table: {username}")
         request.db.add(
             Contributor(
                 contributor_login=username,
