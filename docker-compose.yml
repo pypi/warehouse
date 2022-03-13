@@ -1,9 +1,29 @@
 version: '3'
 
 volumes:
+  simple:
   packages:
+  sponsorlogos:
+  vault:
 
 services:
+  vault:
+    # NOTE: intentionally an older version, for consistency with cabotage
+    image: vault:1.3.4
+    restart: on-failure
+    entrypoint: /bin/sh
+    command: ["/etc/vault/entry.sh"]
+    environment:
+      VAULT_DEV_LISTEN_ADDRESS: 0.0.0.0:8200
+      VAULT_DEV_ROOT_TOKEN_ID: "an insecure vault access token"
+    ports:
+      - "8200:8200"
+    cap_add:
+      - IPC_LOCK
+    volumes:
+      - vault:/vault/file
+      - ./dev/vault:/etc/vault
+
   db:
     image: postgres:10.1
     ports:
@@ -14,19 +34,20 @@ services:
     image: redis:4.0
 
   localstack:
-    image: localstack/localstack:0.8.7
+    image: localstack/localstack:0.12.19.1
     environment:
       SERVICES: "sqs"
       HOSTNAME: "localstack"
       HOSTNAME_EXTERNAL: "localstack"
       DEFAULT_REGION: "us-east-2"
     ports:
-      - "4576:4576"
+      - "4566:4566"
 
   elasticsearch:
-    image: docker.elastic.co/elasticsearch/elasticsearch:6.8.7
+    image: elasticsearch:7.10.1
     environment:
       - xpack.security.enabled=false
+      - discovery.type=single-node
     ulimits:
       nofile:
         soft: 65536
@@ -38,6 +59,7 @@ services:
       - "9000:9000"
     environment:
       CAMO_KEY: "insecurecamokey"
+      PORT: 9000
 
   web:
     build:
@@ -45,10 +67,6 @@ services:
       args:
         DEVEL: "yes"
         IPYTHON: "no"
-        # Uncomment the line below and add the private repo URL if you're
-        # working on pypi-theme, this is a private repository due to the fact
-        # that other people's IP is contained in it.
-        #THEME_REPO:
     command: gunicorn --reload -b 0.0.0.0:8000 warehouse.wsgi:application
     env_file: dev/environment
     volumes:
@@ -67,14 +85,14 @@ services:
       - ./htmlcov:/opt/warehouse/src/htmlcov:z
       - .coveragerc:/opt/warehouse/src/.coveragerc:z
       - packages:/var/opt/warehouse/packages
+      - sponsorlogos:/var/opt/warehouse/sponsorlogos
+      - simple:/var/opt/warehouse/simple
+      - ./bin:/opt/warehouse/src/bin:z
+      - ./requirements:/opt/warehouse/src/requirements:z
     ports:
-      - "80:8000"
-    links:
+      - "${WEB_PORT:-80}:8000"
+    depends_on:
       - db
-      - redis
-      - localstack
-      - elasticsearch
-      - notdatadog
 
   files:
     build:
@@ -83,6 +101,8 @@ services:
     command: python -m http.server 9001
     volumes:
       - packages:/var/opt/warehouse/packages
+      - sponsorlogos:/var/opt/warehouse/sponsorlogos
+      - simple:/var/opt/warehouse/simple
     ports:
       - "9001:9001"
 
@@ -98,13 +118,7 @@ services:
     environment:
       C_FORCE_ROOT: "1"
       FILES_BACKEND: "warehouse.packaging.services.LocalFileStorage path=/var/opt/warehouse/packages/ url=http://files:9001/packages/{path}"
-    links:
-      - db
-      - redis
-      - localstack
-      - elasticsearch
-      - smtp
-      - notdatadog
+      SIMPLE_BACKEND: "warehouse.packaging.services.LocalSimpleStorage path=/var/opt/warehouse/simple/ url=http://files:9001/simple/{path}"
 
   static:
     build:
@@ -119,14 +133,10 @@ services:
       - ./tests/frontend:/opt/warehouse/src/tests/frontend:z
       - ./bin:/opt/warehouse/src/bin:z
 
-  smtp:
-    build:
-      context: .
-    command: python /opt/warehouse/dev/smtp.py 0.0.0.0:2525
+  maildev:
+    image: maildev/maildev
     ports:
-      - "2525:2525"
-    volumes:
-      - ./dev/smtp.py:/opt/warehouse/dev/smtp.py
+      - "1080:80"
 
   notdatadog:
     build:
@@ -136,3 +146,10 @@ services:
       - "8125:8125/udp"
     volumes:
       - ./dev/notdatadog.py:/opt/warehouse/dev/notdatadog.py
+
+  notgithub:
+    image: ewjoachim/notgithub-token-scanning
+    environment:
+      NOTGITHUB_DEFAULT_URL: "http://web:8000/_/github/disclose-token"
+    ports:
+      - "8964:8000"

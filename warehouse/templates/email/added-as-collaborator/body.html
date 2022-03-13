@@ -16,10 +16,10 @@
 {% set site = request.registry.settings["site.name"] %}
 
 {% block content %}
-<p>{% trans role=role, site=site, project=project, submitter=submitter %}You have been added as <strong>{{ role }}</strong> to the {{ site }} project {{ project }} by {{ submitter }}.{% endtrans %}</p>
+<p>{% trans role=role, site=site, project_name=project_name, initiator_username=initiator_username %}You have been added as <strong>{{ role }}</strong> to the {{ site }} project {{ project_name }} by {{ initiator_username }}.{% endtrans %}</p>
 {% endblock %}
 
 
 {% block reason %}
-{% trans submitter=submitter, site=site %}You are receiving this because you have been added by {{ submitter }} to a project on {{ site }}.{% endtrans %}
+{% trans initiator_username=initiator_username, site=site %}You are receiving this because you have been added by {{ initiator_username }} to a project on {{ site }}.{% endtrans %}
 {% endblock %}

@@ -14,7 +14,7 @@ import datetime
 
 import pytest
 
-from warehouse.accounts.models import Email, User, UserFactory
+from warehouse.accounts.models import Email, RecoveryCode, User, UserFactory
 
 from ...common.db.accounts import (
     EmailFactory as DBEmailFactory,
@@ -114,3 +114,39 @@ class TestUser:
         assert len(user.recent_events) == 1
         assert user.events == [recent_event, stale_event]
         assert user.recent_events == [recent_event]
+
+    def test_regular_user_not_prohibited_password_reset(self, db_session):
+        user = DBUserFactory.create()
+        assert user.can_reset_password is True
+
+    def test_superuser_prohibit_password_reset(self, db_session):
+        user = DBUserFactory.create(is_superuser=True)
+        assert user.can_reset_password is False
+
+    def test_moderator_prohibit_password_reset(self, db_session):
+        user = DBUserFactory.create(is_moderator=True)
+        assert user.can_reset_password is False
+
+    def test_psf_staff_prohibit_password_reset(self, db_session):
+        user = DBUserFactory.create(is_psf_staff=True)
+        assert user.can_reset_password is False
+
+    def test_flag_prohibit_password_reset(self, db_session):
+        user = DBUserFactory.create(prohibit_password_reset=True)
+        assert user.can_reset_password is False
+
+    def test_combo_still_prohibit_password_reset(self, db_session):
+        user = DBUserFactory.create(is_superuser=True, prohibit_password_reset=True)
+        assert user.can_reset_password is False
+
+    def test_has_burned_recovery_codes(self, db_session):
+        user = DBUserFactory.create()
+        user.recovery_codes.append(
+            RecoveryCode(user_id=user.id, code="hiya", burned=datetime.datetime.now())
+        )
+        db_session.flush()
+        assert user.has_burned_recovery_codes is True
+
+    def test_has_no_burned_recovery_codes(self, db_session):
+        user = DBUserFactory.create()
+        assert user.has_burned_recovery_codes is False

@@ -1,4 +1,3 @@
-|travis-badge|_
 
 Warehouse
 =========
@@ -19,12 +18,17 @@ The canonical deployment of Warehouse is in production at `pypi.org`_.
 Discussion
 ----------
 
-If you run into bugs, you can file them in our `issue tracker`_.
 
-You can also join the chat channels ``#pypa`` (general packaging
-discussion and user support) and ``#pypa-dev`` (discussion about
-development of packaging tools) `on Freenode`_, or the `pypa-dev
-mailing list`_, to ask questions or get involved.
+You can find help or get involved on:
+
+- `Github issue tracker`_ for reporting issues
+- IRC: on `Libera`_, channel ``#pypa`` for general packaging discussion
+  and user support, and ``#pypa-dev`` for
+  discussions about development of packaging tools
+- The `PyPA Discord`_ for live discussions
+- The Packaging category on `Discourse`_ for discussing
+  new ideas and community initiatives
+
 
 Testing
 ----------
@@ -41,22 +45,21 @@ Code of Conduct
 ---------------
 
 Everyone interacting in the Warehouse project's codebases, issue trackers, chat
-rooms, and mailing lists is expected to follow the `PyPA Code of Conduct`_.
+rooms, and mailing lists is expected to follow the `PSF Code of Conduct`_.
 
 .. _`PyPI`: https://pypi.org/
 .. _`our development roadmap`: https://warehouse.readthedocs.io/roadmap/
 .. _`architectural overview`: https://warehouse.readthedocs.io/application/
 .. _`documentation`: https://warehouse.readthedocs.io
 .. _`Getting started`: https://warehouse.readthedocs.io/development/getting-started/
-.. _`issue tracker`: https://github.com/pypa/warehouse/issues
+.. _`Github issue tracker`: https://github.com/pypa/warehouse/issues
 .. _`pypi.org`: https://pypi.org/
-.. _`on Freenode`: https://webchat.freenode.net/?channels=%23pypa-dev,pypa
-.. _`pypa-dev mailing list`: https://groups.google.com/forum/#!forum/pypa-dev
 .. _`Running tests and linters section`: https://warehouse.readthedocs.io/development/getting-started/#running-tests-and-linters
 .. _BrowserStack: https://browserstack.com/
 .. _`supported browsers`: https://warehouse.readthedocs.io/development/frontend/#browser-support
 .. |BrowserStackImg| image:: docs/_static/browserstack-logo.png
 .. _BrowserStackImg: https://browserstack.com/
-.. _`PyPA Code of Conduct`: https://www.pypa.io/en/latest/code-of-conduct/
-.. |travis-badge| image:: https://api.travis-ci.org/pypa/warehouse.svg?branch=master
-.. _travis-badge: https://travis-ci.org/pypa/warehouse
+.. _`PSF Code of Conduct`: https://github.com/pypa/.github/blob/main/CODE_OF_CONDUCT.md
+.. _`Libera`: https://web.libera.chat/#pypa,#pypa-dev
+.. _`PyPA Discord`: https://discord.gg/pypa
+.. _`Discourse`: https://discuss.python.org/c/packaging/14

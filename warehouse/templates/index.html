@@ -41,6 +41,8 @@
 
 {% if testPyPI %}
   {% set banner = _("Test Python package publishing with the Test Python Package Index") %}
+{% elif devPyPI %}
+  {% set banner = _("Develop the codebase behind PyPI with the Dev Python Package Index") %}
 {% else %}
   {% set banner = _("Find, install and publish Python packages with the Python Package Index") %}
 {% endif %}
@@ -51,7 +53,10 @@
 
     <form class="search-form search-form--large search-form--fullwidth" action="{{ request.route_path('search') }}" role="search">
       <label for="search" class="sr-only">{% trans %}Search PyPI{% endtrans %}</label>
-      <input id="search" class="search-form__search large-input" type="text" name="q" placeholder="{% trans %}Search projects{% endtrans %}" autocomplete="off" autocapitalize="off" spellcheck="false">
+
+      <!-- The following input is intentionally not autofocused, see https://github.com/pypa/warehouse/issues/6088 for more details -->
+      <input id="search" class="search-form__search large-input" type="text" name="q" placeholder="{% trans %}Search projects{% endtrans %}" autocomplete="off" autocapitalize="off" spellcheck="false" data-controller="search-focus" data-action="keydown@window->search-focus#focusSearchField" data-target="search-focus.searchField">
+
       <button type="submit" class="search-form__button">
         <i class="fa fa-search" aria-hidden="true"></i>
         <span class="sr-only">{% trans %}Search{% endtrans %}</span>
@@ -104,11 +109,11 @@
       <p class="lede-paragraph">{% trans %}The Python Package Index (PyPI) is a repository of software for the Python programming language.{% endtrans %}</p>
       <p>
         {% trans %}PyPI helps you find and install software developed and shared by the Python community.{% endtrans %}
-        <a href="https://packaging.python.org/installing/" title="{% trans %}External link{% endtrans %}" target="_blank" rel="noopener">{% trans %}Learn about installing packages</a>.{% endtrans %}
+        <a href="https://packaging.python.org/installing/" title="{% trans %}External link{% endtrans %}" target="_blank" rel="noopener">{% trans %}Learn about installing packages{% endtrans %}</a>.
       </p>
       <p>
         {% trans %}Package authors use PyPI to distribute their software.{% endtrans %}
-        <a href="https://packaging.python.org/tutorials/packaging-projects/" title="{% trans %}External link{% endtrans %}" target="_blank" rel="noopener">{% trans %}Learn how to package your Python code for PyPI</a>.{% endtrans %}
+        <a href="https://packaging.python.org/tutorials/packaging-projects/" title="{% trans %}External link{% endtrans %}" target="_blank" rel="noopener">{% trans %}Learn how to package your Python code for PyPI{% endtrans %}</a>.
       </p>
     </div>
   </div>

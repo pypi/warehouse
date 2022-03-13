@@ -22,9 +22,8 @@ improve the process:
 
 - For bug reports or general problems, file an issue on `GitHub`_;
 - For real-time chat with other PyPA developers, join ``#pypa-dev`` `on
-  Freenode`_;
-- For longer-form questions or discussion, message the `pypa-dev mailing
-  list`_.
+  Libera`_, or the `PyPA Discord`_;
+- For longer-form questions or discussion, visit `Discourse`_.
 
 .. _dev-env-install:
 
@@ -50,18 +49,18 @@ you stay up-to-date with our repository:
 .. code-block:: console
 
     git remote add upstream https://github.com/pypa/warehouse.git
-    git checkout master
+    git checkout main
     git fetch upstream
-    git merge upstream/master
+    git merge upstream/main
 
 
 Configure the development environment
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. note::
-   In case you are used to using a venv/virtualenv or virtual environment for Python development:
-   don't use one for warehouse development. Our Makefile scripts and Docker container development flow
-   creates and removes virtualenvs as needed while you are building and testing your work locally.
+   In case you are used to using a virtual environment for Python development:
+   it's unnecessary for Warehouse development. Our Makefile scripts execute all
+   developer actions inside Docker containers.
 
 Why Docker?
 ~~~~~~~~~~~
@@ -69,10 +68,10 @@ Why Docker?
 Docker simplifies development environment set up.
 
 Warehouse uses Docker and `Docker Compose <https://docs.docker.com/compose/>`_
-to automate setting up a "batteries included" development environment.
-The Dockerfile and :file:`docker-compose.yml` files include all the required steps
-for installing and configuring all the required external services of the
-development environment.
+to automate setting up a "batteries included" development environment. The
+:file:`Dockerfile` and :file:`docker-compose.yml` files include all the
+required steps for installing and configuring all the required external
+services of the development environment.
 
 
 Installing Docker
@@ -132,6 +131,16 @@ If the port is in use, the command will produce output, and you will need to
 determine what is occupying the port and shut down the corresponding service.
 Otherwise, the port is available for Warehouse to use, and you can continue.
 
+Alternately, you may set the ``WEB_HOST`` environment variable for
+docker-compose to use instead. An example:
+
+.. code-block:: console
+
+    export WEB_HOST=8080
+    make ...
+
+    # or inline:
+    WEB_HOST=8080 make ...
 
 Building the Warehouse Container
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -148,7 +157,6 @@ This will pull down all of the required docker containers, build Warehouse and
 run all of the needed services. The Warehouse repository will be mounted inside
 the Docker container at :file:`/opt/warehouse/src/`. After the initial build,
 you should not have to run this command again.
-
 
 .. _running-warehouse-containers:
 
@@ -216,7 +224,10 @@ or that the ``static`` container has finished compiling the static assets:
     static_1 | [20:28:37] Starting 'watch'...
     static_1 | [20:28:37] Finished 'watch' after 11 ms
 
-After the docker containers are setup in the previous step, run:
+or maybe something else.
+
+After the docker containers are setup in the previous step, in a separate
+terminal session, run:
 
 .. code-block:: console
 
@@ -253,14 +264,13 @@ At this point all the services are up, and web container is listening on port
 
 .. note::
 
-    In development mode, the official logos are replaced with placeholders due to
-    copyright.
-
     On Firefox, the logos might show up as black rectangles due to  the
     *Content Security Policy* used and an implementation bug in Firefox (see
     `this bug report <https://bugzilla.mozilla.org/show_bug.cgi?id=1262842>`_
     for more info).
 
+If you've set a different port via the ``WEB_HOST`` environment variable,
+use that port instead.
 
 Logging in to Warehouse
 ^^^^^^^^^^^^^^^^^^^^^^^
@@ -270,7 +280,7 @@ the string ``password``. You can log in as any account at
 http://localhost:80/account/login/.
 
 To log in as an admin user, log in as ``ewdurbin`` with the password
-``password`` at http://localhost:80/admin/login/.
+``password``.
 
 
 Stopping Warehouse and other services
@@ -322,11 +332,11 @@ Errors when executing ``make build``
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 * If you are using Ubuntu and ``invalid reference format`` error is displayed,
-  you can fix it by installing Docker through `Snap <https://snapcraft.io/docker>`.
+  you can fix it by installing Docker through `Snap <https://snapcraft.io/docker>`_.
 
-.. code-block:: console
+  .. code-block:: console
 
-    snap install docker
+      snap install docker
 
 Errors when executing ``make serve``
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -394,6 +404,9 @@ https://github.com/chadoe/docker-cleanup-volumes)
 This typically occur when Docker is not allocated enough memory to perform the
 migrations. Try modifying your Docker configuration to allow more RAM for each
 container, temporarily stop ``make_serve`` and run ``make initdb`` again.
+
+This may also be due to enabling Compose V2 (see
+https://github.com/pypa/warehouse/issues/10772 for more details).
 
 
 ``make initdb`` complains about PostgreSQL Version
@@ -595,6 +608,28 @@ Building the docs requires Python 3.8. If it is not installed, the
   Makefile:53: recipe for target '.state/env/pyvenv.cfg' failed
   make: *** [.state/env/pyvenv.cfg] Error 127
 
+
+Building translations
+---------------------
+
+Warehouse is translated into a number of different locales, which are stored in
+the :file:`warehouse/locale/` directory.
+
+These translation files contain references to untranslated text in source code
+and HTML templates, as well as the translations which have been submitted by
+our volunteer translators.
+
+When making changes to files with strings marked for translation, it's
+necessary to update these references any time source strings are change, or the
+line numbers of the source strings in the source files.
+
+Use :command:`make` to build the translations. For example:
+
+.. code-block:: console
+
+    make translations
+
+
 What next?
 ----------
 
@@ -606,7 +641,7 @@ Talk with us
 ^^^^^^^^^^^^
 
 You can find us via a `GitHub`_ issue, ``#pypa`` or ``#pypa-dev`` `on
-Freenode`_, or the `pypa-dev mailing list`_, to ask questions or get
+Libera`_, the `PyPA Discord`_ or `Discourse`_, to ask questions or get
 involved. And you can meet us in person at `packaging sprints`_.
 
 Learn about Warehouse and packaging
@@ -629,7 +664,8 @@ Resources to help you learn Warehouse's context:
 .. _`reStructured Text`: http://sphinx-doc.org/rest.html
 .. _`open issues that are labelled "good first issue"`: https://github.com/pypa/warehouse/issues?q=is%3Aissue+is%3Aopen+label%3A%22good+first+issue%22
 .. _`GitHub`: https://github.com/pypa/warehouse
-.. _`on Freenode`: https://webchat.freenode.net/?channels=%23pypa-dev,pypa
-.. _`pypa-dev mailing list`: https://groups.google.com/forum/#!forum/pypa-dev
+.. _`on Libera`: https://web.libera.chat/#pypa,#pypa-dev
+.. _`Discourse` : https://discuss.python.org/c/packaging/14
+.. _`PyPA Discord` : https://discord.gg/pypa
 .. _`Test PyPI`: https://test.pypi.org/
 .. _`packaging sprints`: https://wiki.python.org/psf/PackagingSprints

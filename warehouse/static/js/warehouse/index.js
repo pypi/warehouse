@@ -40,15 +40,6 @@ import BindModalKeys from "warehouse/utils/bind-modal-keys";
 import BindFilterKeys from "warehouse/utils/bind-filter-keys";
 import {GuardWebAuthn, AuthenticateWebAuthn, ProvisionWebAuthn} from "warehouse/utils/webauthn";
 
-// Do this before anything else, to potentially capture errors down the line
-docReady(() => {
-  /* global Raven */
-  let element = document.querySelector("script[data-sentry-frontend-dsn]");
-  if (element && typeof Raven !== "undefined") {
-    Raven.config(element.dataset.sentryFrontendDsn).install();
-  }
-});
-
 // Show unsupported browser warning if necessary
 docReady(() => {
   if (navigator.appVersion.includes("MSIE 10")) {
@@ -89,7 +80,7 @@ docReady(Statuspage);
 //   - the copy hash on release maintainers page
 docReady(() => {
   let setCopiedTooltip = (e) => {
-    e.trigger.setAttribute("data-tooltip-label", "Copied!");
+    e.trigger.setAttribute("data-tooltip-label", "Copied");
     e.trigger.setAttribute("role", "alert");
     e.clearSelection();
   };
@@ -257,6 +248,7 @@ docReady(() => {
 // Bind again when client-side includes have been loaded (for the logged-in
 // user dropdown)
 document.addEventListener("CSILoaded", bindDropdowns);
+document.addEventListener("CSILoaded", PositionWarning);
 
 const application = Application.start();
 const context = require.context("./controllers", true, /\.js$/);

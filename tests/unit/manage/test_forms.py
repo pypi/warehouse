@@ -54,8 +54,8 @@ class TestCreateRoleForm:
         ("value", "expected"),
         [
             ("", "Select role"),
-            ("invalid", "Not a valid choice"),
-            (None, "Not a valid choice"),
+            ("invalid", "Not a valid choice."),
+            (None, "Not a valid choice."),
         ],
     )
     def test_validate_role_name_fails(self, value, expected):
@@ -105,7 +105,7 @@ class TestAddEmailForm:
             "Use a different email."
         )
 
-    def test_blacklisted_email_error(self, pyramid_config):
+    def test_prohibited_email_error(self, pyramid_config):
         form = forms.AddEmailForm(
             data={"email": "foo@bearsarefuzzy.com"},
             user_service=pretend.stub(find_userid_by_email=lambda _: None),
@@ -122,11 +122,12 @@ class TestAddEmailForm:
 
 class TestChangePasswordForm:
     def test_creation(self):
+        request = pretend.stub()
         user_service = pretend.stub()
         breach_service = pretend.stub()
 
         form = forms.ChangePasswordForm(
-            user_service=user_service, breach_service=breach_service
+            request=request, user_service=user_service, breach_service=breach_service
         )
 
         assert form.user_service is user_service
@@ -162,12 +163,14 @@ class TestProvisionTOTPForm:
 
 class TestDeleteTOTPForm:
     def test_creation(self):
+        request = pretend.stub()
         user_service = pretend.stub()
-        form = forms.DeleteTOTPForm(user_service=user_service)
+        form = forms.DeleteTOTPForm(request=request, user_service=user_service)
 
         assert form.user_service is user_service
 
     def test_validate_confirm_password(self):
+        request = pretend.stub(remote_addr="1.2.3.4")
         user_service = pretend.stub(
             find_userid=pretend.call_recorder(lambda userid: 1),
             check_password=pretend.call_recorder(
@@ -175,7 +178,10 @@ class TestDeleteTOTPForm:
             ),
         )
         form = forms.DeleteTOTPForm(
-            username="username", user_service=user_service, password="password"
+            username="username",
+            request=request,
+            user_service=user_service,
+            password="password",
         )
 
         assert form.validate()
@@ -224,7 +230,7 @@ class TestProvisionWebAuthnForm:
     def test_verify_assertion_invalid(self):
         user_service = pretend.stub(
             verify_webauthn_credential=pretend.raiser(
-                webauthn.RegistrationRejectedException("Fake exception")
+                webauthn.RegistrationRejectedError("Fake exception")
             ),
             get_webauthn_by_label=pretend.call_recorder(lambda *a: None),
         )
@@ -446,9 +452,12 @@ class TestCreateMacaroonForm:
 class TestDeleteMacaroonForm:
     def test_creation(self):
         macaroon_service = pretend.stub()
+        request = pretend.stub()
         user_service = pretend.stub()
         form = forms.DeleteMacaroonForm(
-            macaroon_service=macaroon_service, user_service=user_service
+            request=request,
+            macaroon_service=macaroon_service,
+            user_service=user_service,
         )
 
         assert form.macaroon_service is macaroon_service
@@ -461,8 +470,10 @@ class TestDeleteMacaroonForm:
         user_service = pretend.stub(
             find_userid=lambda *a, **kw: 1, check_password=lambda *a, **kw: True
         )
+        request = pretend.stub(remote_addr="1.2.3.4")
         form = forms.DeleteMacaroonForm(
             data={"macaroon_id": pretend.stub(), "password": "password"},
+            request=request,
             macaroon_service=macaroon_service,
             user_service=user_service,
             username="username",
@@ -478,8 +489,10 @@ class TestDeleteMacaroonForm:
         user_service = pretend.stub(
             find_userid=lambda *a, **kw: 1, check_password=lambda *a, **kw: True
         )
+        request = pretend.stub(remote_addr="1.2.3.4")
         form = forms.DeleteMacaroonForm(
             data={"macaroon_id": pretend.stub(), "password": "password"},
+            request=request,
             macaroon_service=macaroon_service,
             username="username",
             user_service=user_service,
@@ -493,7 +506,7 @@ class TestSaveAccountForm:
         email = pretend.stub(verified=True, public=False, email="foo@example.com")
         user = pretend.stub(id=1, username=pretend.stub(), emails=[email])
         form = forms.SaveAccountForm(
-            name=pretend.stub(),
+            name="some name",
             public_email=email.email,
             user_service=pretend.stub(get_user=lambda _: user),
             user_id=user.id,
@@ -504,10 +517,26 @@ class TestSaveAccountForm:
         email = pretend.stub(verified=False, public=False, email=pretend.stub())
         user = pretend.stub(id=1, username=pretend.stub(), emails=[email])
         form = forms.SaveAccountForm(
-            name=pretend.stub(),
+            name="some name",
             public_email=email.email,
             user_service=pretend.stub(get_user=lambda _: user),
             user_id=user.id,
         )
         assert not form.validate()
         assert "is not a verified email for" in form.public_email.errors.pop()
+
+    def test_name_too_long(self, pyramid_config):
+        email = pretend.stub(verified=True, public=False, email="foo@example.com")
+        user = pretend.stub(id=1, username=pretend.stub(), emails=[email])
+        form = forms.SaveAccountForm(
+            name="x" * 101,
+            public_email=email.email,
+            user_service=pretend.stub(get_user=lambda _: user),
+            user_id=user.id,
+        )
+
+        assert not form.validate()
+        assert (
+            str(form.name.errors.pop())
+            == "The name is too long. Choose a name with 100 characters or less."
+        )

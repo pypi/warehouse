@@ -17,9 +17,14 @@ import pytest
 import wtforms
 
 from warehouse.accounts import forms
-from warehouse.accounts.interfaces import TooManyFailedLogins
+from warehouse.accounts.interfaces import (
+    BurnedRecoveryCode,
+    InvalidRecoveryCode,
+    NoRecoveryCodes,
+    TooManyFailedLogins,
+)
 from warehouse.accounts.models import DisableReason
-from warehouse.utils.webauthn import AuthenticationRejectedException
+from warehouse.utils.webauthn import AuthenticationRejectedError
 
 
 class TestLoginForm:
@@ -109,7 +114,7 @@ class TestLoginForm:
         assert user_service.is_disabled.calls == [pretend.call(1)]
 
     def test_validate_password_ok(self):
-        request = pretend.stub()
+        request = pretend.stub(remote_addr="1.2.3.4")
         user_service = pretend.stub(
             find_userid=pretend.call_recorder(lambda userid: 1),
             check_password=pretend.call_recorder(
@@ -144,13 +149,14 @@ class TestLoginForm:
         ]
 
     def test_validate_password_notok(self, db_session):
-        request = pretend.stub()
+        request = pretend.stub(remote_addr="127.0.0.1")
         user_service = pretend.stub(
             find_userid=pretend.call_recorder(lambda userid: 1),
             check_password=pretend.call_recorder(
                 lambda userid, password, tags=None: False
             ),
             is_disabled=pretend.call_recorder(lambda userid: (False, None)),
+            record_event=pretend.call_recorder(lambda *a, **kw: None),
         )
         breach_service = pretend.stub()
         form = forms.LoginForm(
@@ -170,16 +176,21 @@ class TestLoginForm:
         ]
         assert user_service.is_disabled.calls == [pretend.call(1)]
         assert user_service.check_password.calls == [pretend.call(1, "pw", tags=None)]
+        assert user_service.record_event.calls == [
+            pretend.call(
+                1,
+                tag="account:login:failure",
+                additional={"reason": "invalid_password"},
+            )
+        ]
 
     def test_validate_password_too_many_failed(self):
-        @pretend.call_recorder
-        def check_password(userid, password, tags=None):
-            raise TooManyFailedLogins(resets_in=None)
-
-        request = pretend.stub()
+        request = pretend.stub(remote_addr="1.2.3.4")
         user_service = pretend.stub(
             find_userid=pretend.call_recorder(lambda userid: 1),
-            check_password=check_password,
+            check_password=pretend.call_recorder(
+                pretend.raiser(TooManyFailedLogins(resets_in=None))
+            ),
             is_disabled=pretend.call_recorder(lambda userid: (False, None)),
         )
         breach_service = pretend.stub()
@@ -206,7 +217,7 @@ class TestLoginForm:
         monkeypatch.setattr(forms, "send_password_compromised_email_hibp", send_email)
 
         user = pretend.stub(id=1)
-        request = pretend.stub()
+        request = pretend.stub(remote_addr="1.2.3.4")
         user_service = pretend.stub(
             find_userid=lambda _: 1,
             get_user=lambda _: user,
@@ -299,7 +310,7 @@ class TestRegistrationForm:
         assert not form.validate()
         assert form.email.errors.pop() == "This field is required."
 
-    @pytest.mark.parametrize("email", ["bad", "foo]bar@example.com"])
+    @pytest.mark.parametrize("email", ["bad", "foo]bar@example.com", "</body></html>"])
     def test_invalid_email_error(self, pyramid_config, email):
         form = forms.RegistrationForm(
             data={"email": email},
@@ -342,7 +353,7 @@ class TestRegistrationForm:
             "Use a different email."
         )
 
-    def test_blacklisted_email_error(self, pyramid_config):
+    def test_prohibited_email_error(self, pyramid_config):
         form = forms.RegistrationForm(
             data={"email": "foo@bearsarefuzzy.com"},
             user_service=pretend.stub(
@@ -577,18 +588,24 @@ class TestTOTPAuthenticationForm:
     def test_creation(self):
         user_id = pretend.stub()
         user_service = pretend.stub()
-        form = forms.TOTPAuthenticationForm(user_id=user_id, user_service=user_service)
+        form = forms.TOTPAuthenticationForm(
+            request=pretend.stub(), user_id=user_id, user_service=user_service
+        )
 
         assert form.user_service is user_service
 
     def test_totp_secret_exists(self, pyramid_config):
         form = forms.TOTPAuthenticationForm(
-            data={"totp_value": ""}, user_id=pretend.stub(), user_service=pretend.stub()
+            request=pretend.stub(),
+            data={"totp_value": ""},
+            user_id=pretend.stub(),
+            user_service=pretend.stub(),
         )
         assert not form.validate()
         assert form.totp_value.errors.pop() == "This field is required."
 
         form = forms.TOTPAuthenticationForm(
+            request=pretend.stub(remote_addr="1.2.3.4"),
             data={"totp_value": "not_a_real_value"},
             user_id=pretend.stub(),
             user_service=pretend.stub(check_totp_value=lambda *a: True),
@@ -597,6 +614,7 @@ class TestTOTPAuthenticationForm:
         assert str(form.totp_value.errors.pop()) == "TOTP code must be 6 digits."
 
         form = forms.TOTPAuthenticationForm(
+            request=pretend.stub(remote_addr="1.2.3.4"),
             data={"totp_value": "1 2 3 4 5 6 7"},
             user_id=pretend.stub(),
             user_service=pretend.stub(check_totp_value=lambda *a: True),
@@ -604,15 +622,28 @@ class TestTOTPAuthenticationForm:
         assert not form.validate()
         assert str(form.totp_value.errors.pop()) == "TOTP code must be 6 digits."
 
+        user_service = pretend.stub(
+            record_event=pretend.call_recorder(lambda *a, **kw: None),
+            check_totp_value=lambda *a: False,
+        )
         form = forms.TOTPAuthenticationForm(
+            request=pretend.stub(remote_addr="127.0.0.1"),
             data={"totp_value": "123456"},
-            user_id=pretend.stub(),
-            user_service=pretend.stub(check_totp_value=lambda *a: False),
+            user_id=1,
+            user_service=user_service,
         )
         assert not form.validate()
         assert str(form.totp_value.errors.pop()) == "Invalid TOTP code."
+        assert user_service.record_event.calls == [
+            pretend.call(
+                1,
+                tag="account:login:failure",
+                additional={"reason": "invalid_totp"},
+            )
+        ]
 
         form = forms.TOTPAuthenticationForm(
+            request=pretend.stub(remote_addr="1.2.3.4"),
             data={"totp_value": "123456"},
             user_id=pretend.stub(),
             user_service=pretend.stub(check_totp_value=lambda *a: True),
@@ -620,6 +651,7 @@ class TestTOTPAuthenticationForm:
         assert form.validate()
 
         form = forms.TOTPAuthenticationForm(
+            request=pretend.stub(remote_addr="1.2.3.4"),
             data={"totp_value": " 1 2 3 4  5 6 "},
             user_id=pretend.stub(),
             user_service=pretend.stub(check_totp_value=lambda *a: True),
@@ -627,6 +659,7 @@ class TestTOTPAuthenticationForm:
         assert form.validate()
 
         form = forms.TOTPAuthenticationForm(
+            request=pretend.stub(remote_addr="1.2.3.4"),
             data={"totp_value": "123 456"},
             user_id=pretend.stub(),
             user_service=pretend.stub(check_totp_value=lambda *a: True),
@@ -636,6 +669,7 @@ class TestTOTPAuthenticationForm:
 
 class TestWebAuthnAuthenticationForm:
     def test_creation(self):
+        request = pretend.stub()
         user_id = pretend.stub()
         user_service = pretend.stub()
         challenge = pretend.stub()
@@ -643,6 +677,7 @@ class TestWebAuthnAuthenticationForm:
         rp_id = pretend.stub()
 
         form = forms.WebAuthnAuthenticationForm(
+            request=request,
             user_id=user_id,
             user_service=user_service,
             challenge=challenge,
@@ -653,7 +688,9 @@ class TestWebAuthnAuthenticationForm:
         assert form.challenge is challenge
 
     def test_credential_bad_payload(self, pyramid_config):
+        request = pretend.stub()
         form = forms.WebAuthnAuthenticationForm(
+            request=request,
             credential="not valid json",
             user_id=pretend.stub(),
             user_service=pretend.stub(),
@@ -668,23 +705,36 @@ class TestWebAuthnAuthenticationForm:
         )
 
     def test_credential_invalid(self):
-        form = forms.WebAuthnAuthenticationForm(
-            credential=json.dumps({}),
-            user_id=pretend.stub(),
-            user_service=pretend.stub(
-                verify_webauthn_assertion=pretend.raiser(
-                    AuthenticationRejectedException("foo")
-                )
+        request = pretend.stub(remote_addr="127.0.0.1")
+        user_service = pretend.stub(
+            record_event=pretend.call_recorder(lambda *a, **kw: None),
+            verify_webauthn_assertion=pretend.raiser(
+                AuthenticationRejectedError("foo")
             ),
+        )
+        form = forms.WebAuthnAuthenticationForm(
+            request=request,
+            credential=json.dumps({}),
+            user_id=1,
+            user_service=user_service,
             challenge=pretend.stub(),
             origin=pretend.stub(),
             rp_id=pretend.stub(),
         )
         assert not form.validate()
         assert form.credential.errors.pop() == "foo"
+        assert user_service.record_event.calls == [
+            pretend.call(
+                1,
+                tag="account:login:failure",
+                additional={"reason": "invalid_webauthn"},
+            )
+        ]
 
     def test_credential_valid(self):
+        request = pretend.stub()
         form = forms.WebAuthnAuthenticationForm(
+            request=request,
             credential=json.dumps({}),
             user_id=pretend.stub(),
             user_service=pretend.stub(
@@ -700,19 +750,41 @@ class TestWebAuthnAuthenticationForm:
         assert form.validated_credential == ("foo", 123456)
 
 
+class TestReAuthenticateForm:
+    def test_creation(self):
+        user_service = pretend.stub()
+        request = pretend.stub()
+
+        form = forms.ReAuthenticateForm(request=request, user_service=user_service)
+
+        assert form.user_service is user_service
+        assert form.__params__ == [
+            "username",
+            "password",
+            "next_route",
+            "next_route_matchdict",
+        ]
+        assert isinstance(form.username, wtforms.StringField)
+        assert isinstance(form.next_route, wtforms.StringField)
+        assert isinstance(form.next_route_matchdict, wtforms.StringField)
+
+
 class TestRecoveryCodeForm:
     def test_creation(self):
+        request = pretend.stub()
         user_id = pretend.stub()
         user_service = pretend.stub()
         form = forms.RecoveryCodeAuthenticationForm(
-            user_id=user_id, user_service=user_service
+            request=request, user_id=user_id, user_service=user_service
         )
 
         assert form.user_id is user_id
         assert form.user_service is user_service
 
     def test_missing_value(self):
+        request = pretend.stub()
         form = forms.RecoveryCodeAuthenticationForm(
+            request=request,
             data={"recovery_code_value": ""},
             user_id=pretend.stub(),
             user_service=pretend.stub(),
@@ -720,25 +792,61 @@ class TestRecoveryCodeForm:
         assert not form.validate()
         assert form.recovery_code_value.errors.pop() == "This field is required."
 
-    def test_invalid_recovery_code(self, pyramid_config):
-        form = forms.RecoveryCodeAuthenticationForm(
-            data={"recovery_code_value": "invalid"},
-            user_id=pretend.stub(),
-            user_service=pretend.stub(
-                check_recovery_code=pretend.call_recorder(lambda *a, **kw: False)
+    @pytest.mark.parametrize(
+        "exception, expected_reason, expected_error",
+        [
+            (InvalidRecoveryCode, "invalid_recovery_code", "Invalid recovery code."),
+            (NoRecoveryCodes, "invalid_recovery_code", "Invalid recovery code."),
+            (
+                BurnedRecoveryCode,
+                "burned_recovery_code",
+                "Recovery code has been previously used.",
             ),
+        ],
+    )
+    def test_invalid_recovery_code(
+        self, pyramid_config, exception, expected_reason, expected_error
+    ):
+        request = pretend.stub(remote_addr="127.0.0.1")
+        user_service = pretend.stub(
+            check_recovery_code=pretend.raiser(exception),
+            record_event=pretend.call_recorder(lambda *a, **kw: None),
+        )
+        form = forms.RecoveryCodeAuthenticationForm(
+            request=request,
+            data={"recovery_code_value": "invalid"},
+            user_id=1,
+            user_service=user_service,
         )
 
         assert not form.validate()
-        assert str(form.recovery_code_value.errors.pop()) == "Invalid Recovery Code."
+        assert str(form.recovery_code_value.errors.pop()) == expected_error
+        assert user_service.record_event.calls == [
+            pretend.call(
+                1,
+                tag="account:login:failure",
+                additional={"reason": expected_reason},
+            )
+        ]
 
-    def test_valid_recovery_code(self):
+    def test_valid_recovery_code(self, monkeypatch):
+        request = pretend.stub(remote_addr="1.2.3.4")
+        user = pretend.stub(id=pretend.stub(), username="foobar")
         form = forms.RecoveryCodeAuthenticationForm(
+            request=request,
             data={"recovery_code_value": "valid"},
             user_id=pretend.stub(),
             user_service=pretend.stub(
-                check_recovery_code=pretend.call_recorder(lambda *a, **kw: True)
+                check_recovery_code=pretend.call_recorder(lambda *a, **kw: True),
+                get_user=lambda _: user,
             ),
+        )
+        send_recovery_code_used_email = pretend.call_recorder(
+            lambda request, user: None
+        )
+        monkeypatch.setattr(
+            forms, "send_recovery_code_used_email", send_recovery_code_used_email
         )
 
         assert form.validate()
+        assert send_recovery_code_used_email.calls == [pretend.call(request, user)]

@@ -16,9 +16,13 @@ from sqlalchemy.orm.base import NO_VALUE
 from warehouse import db
 from warehouse.accounts.models import Email, User
 from warehouse.cache.origin import key_factory, receive_set
-from warehouse.packaging.interfaces import IDocsStorage, IFileStorage
+from warehouse.manage.tasks import update_role_invitation_status
+from warehouse.packaging.interfaces import IDocsStorage, IFileStorage, ISimpleStorage
 from warehouse.packaging.models import File, Project, Release, Role
-from warehouse.packaging.tasks import compute_trending, update_description_html
+from warehouse.packaging.tasks import (  # sync_bigquery_release_files,
+    compute_trending,
+    update_description_html,
+)
 
 
 @db.listens_for(User.name, "set")
@@ -38,6 +42,11 @@ def includeme(config):
     # our package files.
     files_storage_class = config.maybe_dotted(config.registry.settings["files.backend"])
     config.register_service_factory(files_storage_class.create_service, IFileStorage)
+
+    simple_storage_class = config.maybe_dotted(
+        config.registry.settings["simple.backend"]
+    )
+    config.register_service_factory(simple_storage_class.create_service, ISimpleStorage)
 
     docs_storage_class = config.maybe_dotted(config.registry.settings["docs.backend"])
     config.register_service_factory(docs_storage_class.create_service, IDocsStorage)
@@ -90,8 +99,13 @@ def includeme(config):
     )
 
     config.add_periodic_task(crontab(minute="*/5"), update_description_html)
+    config.add_periodic_task(crontab(minute="*/5"), update_role_invitation_status)
 
     # Add a periodic task to compute trending once a day, assuming we have
     # been configured to be able to access BigQuery.
     if config.get_settings().get("warehouse.trending_table"):
         config.add_periodic_task(crontab(minute=0, hour=3), compute_trending)
+
+    # TODO: restore this
+    # if config.get_settings().get("warehouse.release_files_table"):
+    #     config.add_periodic_task(crontab(minute=0), sync_bigquery_release_files)

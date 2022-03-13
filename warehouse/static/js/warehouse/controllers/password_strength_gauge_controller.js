@@ -28,7 +28,7 @@ export default class extends Controller {
       // following recommendations on the zxcvbn JS docs
       // the zxcvbn function is available by loading `vendor/zxcvbn.js`
       // in the register, account and reset password templates
-      let zxcvbnResult = zxcvbn(password);
+      let zxcvbnResult = zxcvbn(password.substring(0, 100));
       this.strengthGaugeTarget.setAttribute("class", `password-strength__gauge password-strength__gauge--${zxcvbnResult.score}`);
       this.strengthGaugeTarget.setAttribute("data-zxcvbn-score", zxcvbnResult.score);
       this.setScreenReaderMessage(zxcvbnResult.feedback.suggestions.join(" ") || "Password is strong");

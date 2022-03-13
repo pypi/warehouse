@@ -24,6 +24,13 @@
 {% endblock %}
 
 {% block main %}
+  {% if testPyPI %}
+    {% set site = "testpypi" %}
+    {% set upload_url = "https://test.pypi.org/legacy/" %}
+  {% else %}
+    {% set site = "pypi" %}
+    {% set upload_url = "https://upload.pypi.org/legacy/" %}
+  {% endif %}
   <h1 class="page-title">{{ title }}</h1>
 
   {% if serialized_macaroon %}
@@ -79,7 +86,7 @@
       {% endtrans %}
     </p>
     <pre class="code-block">
-[pypi]
+[{{ site }}]
   username = __token__
   password = {{ serialized_macaroon }}</pre>
     {% else %}
@@ -91,15 +98,15 @@
     <pre class="code-block">
 [distutils]
   index-servers =
-    pypi
+    {{ site }}
     PROJECT_NAME
 
-[pypi]
+[{{ site }}]
   username = __token__
   password = # {% trans %}either a user-scoped token or a project-scoped token you want to set as the default{% endtrans %}
 
 [PROJECT_NAME]
-  repository = https://upload.pypi.org/legacy/
+  repository = {{ upload_url }}
   username = __token__
   password = # {% trans %}a project token{% endtrans %} </pre>
     <p>

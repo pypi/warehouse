@@ -206,7 +206,7 @@ class TestRunEvaluation:
             assert backfill_recorder.delay.calls == [pretend.call(check.name, 10000)]
         elif check_type == MalwareCheckType.Scheduled:
             assert db_request.session.flash.calls == [
-                pretend.call("Running %s now!" % check.name, queue="success",)
+                pretend.call("Running %s now!" % check.name, queue="success")
             ]
             assert db_request.task.calls == [pretend.call(run_scheduled_check)]
             assert backfill_recorder.delay.calls == [

@@ -158,6 +158,26 @@ class TestSession:
         session.changed()
         assert session.should_save()
 
+    def test_reauth_record(self, pyramid_request):
+        session = Session()
+        assert not session.should_save()
+        session.record_auth_timestamp()
+        assert session.should_save()
+
+    def test_reauth_unneeded(self):
+        session = Session()
+        session.record_auth_timestamp()
+        assert not session.needs_reauthentication(666)
+
+    def test_reauth_needed(self):
+        session = Session()
+        session[session._reauth_timestamp_key] = 0
+        assert session.needs_reauthentication(666)
+
+    def test_reauth_needed_no_value(self):
+        session = Session()
+        assert session.needs_reauthentication(666)
+
     @pytest.mark.parametrize(
         ("data", "method", "args"),
         [
@@ -297,6 +317,28 @@ class TestSession:
 
         session.clear_webauthn_challenge()
         assert not session[session._webauthn_challenge_key]
+
+    def test_record_password_timestamp(self):
+        session = Session()
+        assert not session.should_save()
+        session.record_password_timestamp(1646230636)
+
+        assert session[session._password_timestamp_key] == 1646230636
+        assert session.should_save()
+
+    @pytest.mark.parametrize(
+        ("stored", "current", "expected"),
+        [
+            (1600000000, 0, True),
+            (1600000000, 1600000000, False),
+            (0, 1600000000, True),
+            (None, 1600000000, False),
+        ],
+    )
+    def test_password_outdated(self, stored, current, expected):
+        session = Session()
+        session.record_password_timestamp(stored)
+        assert session.password_outdated(current) == expected
 
 
 class TestSessionFactory:
@@ -524,7 +566,7 @@ class TestSessionFactory:
         ]
         assert msgpack_packb.calls == [
             pretend.call(
-                pyramid_request.session, default=object_encode, use_bin_type=True,
+                pyramid_request.session, default=object_encode, use_bin_type=True
             )
         ]
         assert session_factory.redis.setex.calls == [

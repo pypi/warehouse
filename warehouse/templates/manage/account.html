@@ -133,30 +133,6 @@
   </tr>
 {%- endmacro %}
 
-{% macro twofa_buttons() %}
-  <div class="wrap-children">
-    {% if not user.totp_secret %}
-    <a href="{{ request.route_path('manage.account.totp-provision') }}" class="button button--primary">{% trans %}Add <abbr title="two factor authentication">2FA</abbr> with authentication application{% endtrans %}</a>
-    {% endif %}
-    <a href="{{ request.route_path('manage.account.webauthn-provision') }}" class="button button--primary" id="webauthn-button" aria-describedby="webauthn-errors">{% trans %}Add <abbr title="two factor authentication">2FA</abbr> with security device (e.g. USB key){% endtrans %}</a>
-    {% if user.has_two_factor and not user.has_recovery_codes %}
-    <a href="{{ request.route_path('manage.account.recovery-codes.generate') }}" class="button button--primary">{% trans %}Generate Recovery Codes{% endtrans %}</a>
-    {% endif %}
-  </div>
-
-  <noscript>
-    <p>{% trans %}Enable JavaScript to set up two factor authentication with a security device (e.g. USB key){% endtrans %}</p>
-  </noscript>
-
-  <ul id="webauthn-errors" class="form-errors form-errors--full-width">
-    <li id="webauthn-browser-support" class="hidden margin-top--large">
-      {% trans trimmed href='https://developer.mozilla.org/en-US/docs/Web/API/PublicKeyCredential#Browser_compatibility', title=gettext('External link') %}
-      <a href="{{ href }}" title="{{ title }}" target="_blank" rel="noopener">Upgrade your browser</a> to set up two factor authentication with a security device (e.g. USB key)
-      {% endtrans %}
-    </li>
-  </ul>
-{% endmacro %}
-
 {% macro api_row(macaroon) -%}
   <tr>
     <th scope="row">
@@ -437,84 +413,13 @@
         </ul>
       </div>
       <div>
-        <input value="Update password" class="button button--primary" type="submit" data-target="password-match.submit">
+        <input value="{% trans %}Update password{% endtrans %}" class="button button--primary" type="submit" data-target="password-match.submit">
       </div>
     </form>
   </section>
 
   <hr>
-  <section id="two-factor">
-    <h2 class="sub-title">{% trans %}Two factor authentication (2FA){% endtrans %}</h2>
-    <p>{% trans href='/help#twofa' %}Two factor authentication adds an additional layer of security to your account. <a href="{{ href }}">Learn more about <abbr title="two factor authentication">2FA</abbr></a>.{% endtrans %}</p>
-
-    {% if user.has_primary_verified_email %}
-      {% if user.totp_secret or user.webauthn %}
-      <table class="table table--2fa">
-        <caption class="sr-only">{% trans %}Two factor authentication methods enabled{% endtrans %}</caption>
-        <thead>
-          <tr>
-            <th scope="col" colspan="2">{% trans %}Two factor method{% endtrans %}</th>
-          </tr>
-        </thead>
-        <tbody>
-          {% if user.totp_secret %}
-          <tr>
-            <th scope="row">{% trans %}Authentication application (<abbr title="time-based one-time password">TOTP</abbr>){% endtrans %}</th>
-            <td class="table__align-right">
-              <a href="#disable-totp" class="button button--primary">{% trans %}Remove{% endtrans %}</a>
-              {% set title=gettext("Remove authentication application") %}
-              {% set confirm_button_label=gettext("Remove application") %}
-              {% set action=request.route_path('manage.account.totp-provision') %}
-              {{ confirm_password_modal(title=title, action=action, slug="disable-totp", warning=False, confirm_button_label=confirm_button_label) }}
-            </td>
-          </tr>
-          {% endif %}
-          {% for credential in user.webauthn %}
-          <tr>
-            <th scope="row">
-              <strong>"{{ credential.label }}"</strong> - {% trans %}Security device (<abbr title="web authentication">WebAuthn</abbr>){% endtrans %}
-            </th>
-            <td class="table__align-right">
-              <a href="#disable-webauthn-{{ credential.id }}" class="button button--primary">{% trans %}Remove{% endtrans %}</a>
-              {% set title=gettext("Remove two factor security device") + " - " + credential.label %}
-              {% set confirm_button_label=gettext("Remove device") %}
-              {% set action=request.route_path('manage.account.webauthn-provision.delete') %}
-              {% set slug="disable-webauthn-" + credential.id | string %}
-              {% set extra_fields %}
-                <input type="hidden" name="label" value="{{ credential.label }}" autocomplete="off">
-              {% endset %}
-              {{ confirm_modal(title=title, label=gettext("Device name"), confirm_name="device_name", confirm_string=credential.label, confirm_button_label=confirm_button_label, slug=slug, extra_fields=extra_fields, action=action, warning=False, confirm_string_in_title=False) }}
-            </td>
-          </tr>
-          {% endfor %}
-          {% if user.has_recovery_codes %}
-          <tr>
-            <th scope="row">
-              {% trans %}Recovery Codes{% endtrans %} - {% trans generated_datetime=humanize(request.user.recovery_codes[0].generated, time="true") %}generated {{ generated_datetime }}{% endtrans %}
-            </th>
-            <td class="table__align-right">
-              <a href="#regenerate-recovery-codes" class="button button--secondary">{% trans %}Regenerate{% endtrans %}</a>
-              {% set title=gettext("Regenerate Recovery Codes") %}
-              {% set confirm_button_label=gettext("Regenerate Recovery Codes") %}
-              {% set action=request.route_path('manage.account.recovery-codes.regenerate') %}
-              {{ confirm_password_modal(title=title, action=action, slug="regenerate-recovery-codes", warning=False, confirm_button_label=confirm_button_label) }}
-            </td>
-          </tr>
-          {% endif %}
-        </tbody>
-      </table>
-      {{ twofa_buttons() }}
-      {% else %}
-      <div class="callout-block">
-        <p>{% trans %}You have not enabled two factor authentication on your account.{% endtrans %}</p>
-        {{ twofa_buttons() }}
-      </div>
-      {% endif %}
-    {% else %}
-      <p><strong>{% trans href='#account-emails' %}<a href="{{ href }}">Verify your primary email address</a> to add two factor authentication to your account.{% endtrans %}</strong></p>
-    {% endif %}
-  </section>
-
+  {{ twofa_section() }}
   <hr>
 
   <section id="api-tokens">
@@ -567,42 +472,87 @@
         {% if event.additional.two_factor_method == None %}
           {% trans %}None{% endtrans %}
         {% elif event.additional.two_factor_method  == "webauthn" %}
-          {% trans %}Security device (<abbr title="web authentication">WebAuthn</abbr>){% endtrans %}
+          {% if event.additional.two_factor_label %}<strong>"{{ event.additional.two_factor_label }}"</strong> - {% endif %}{% trans %}Security device (<abbr title="web authentication">WebAuthn</abbr>){% endtrans %}
         {% elif event.additional.two_factor_method  == "totp" %}
           {% trans %}Authentication application (<abbr title="time-based one-time password">TOTP</abbr>){% endtrans %}
         {% elif event.additional.two_factor_method  == "recovery-code" %}
-          {% trans %}Recovery Code{% endtrans %}
+          {% trans %}Recovery code{% endtrans %}
+        {% endif %}
+      </small>
+
+      {% elif event.tag == "account:login:failure" %}
+      <strong>{% trans %}Login failed{% endtrans %}</strong>
+      {% if event.additional.auth_method %}
+        {% if event.additional.auth_method == "basic" %}
+          {% trans %}- Basic Auth (Upload endpoint){% endtrans %}
+        {% endif %}
+      {% endif %}
+      <br>
+      <small>
+        {% trans %}Reason:{% endtrans %}
+        {% if event.additional.reason == "invalid_password" %}
+          {% trans %}Incorrect Password{% endtrans %}
+        {% elif event.additional.reason == "invalid_totp" %}
+          {% trans %}Invalid two factor (TOTP){% endtrans %}
+        {% elif event.additional.reason == "invalid_webauthn" %}
+          {% trans %}Invalid two factor (WebAuthn){% endtrans %}
+        {% elif event.additional.reason == "invalid_recovery_code" %}
+          {% trans %}Invalid two factor (Recovery code){% endtrans %}
+        {% elif event.additional.reason == "burned_recovery_code" %}
+          {% trans %}Invalid two factor (Recovery code){% endtrans %}
+        {% else %}
+          {{ event.additional.reason }}
+        {% endif %}
+      </small>
+
+      {% elif event.tag == "account:reauthenticate:failure" %}
+      <strong>{% trans %}Session reauthentication failed{% endtrans %}</strong><br>
+      <small>
+        {% trans %}Reason:{% endtrans %}
+        {% if event.additional.reason == "invalid_password" %}
+          {% trans %}Incorrect Password{% endtrans %}
+        {% else %}
+          {{ event.additional.reason }}
         {% endif %}
       </small>
 
       {% elif event.tag  == "account:email:add" %}
       <strong>{% trans %}Email added to account{% endtrans %}</strong><br>
-      <small>{{ event.additional.email }}<small>
+      <small>{{ event.additional.email }}</small>
       {% elif event.tag  == "account:email:remove" %}
       <strong>{% trans %}Email removed from account{% endtrans %}</strong><br>
-      <small>{{ event.additional.email }}<small>
+      <small>{{ event.additional.email }}</small>
       {% elif event.tag  == "account:email:verified" %}
       <strong>{% trans %}Email verified{% endtrans %}</strong><br>
-      <small>{{ event.additional.email }}<small>
+      <small>{{ event.additional.email }}</small>
       {% elif event.tag  == "account:email:reverify" %}
       <strong>{% trans %}Email reverified{% endtrans %}</strong><br>
-      <small>{{ event.additional.email }}<small>
+      <small>{{ event.additional.email }}</small>
       {% elif event.tag  == "account:email:primary:change" %}
         {% if event.additional.old_primary %}
         <strong>{% trans %}Primary email changed{% endtrans %}</strong><br>
         <small>
           {% trans %}Old primary email:{% endtrans %} {{ event.additional.old_primary }}<br>
           {% trans %}New primary email:{% endtrans %} {{ event.additional.new_primary }}
-        <small>
+        </small>
         {% else %}
         <strong>{% trans %}Primary email set{% endtrans %}</strong><br>
         <small>
           {{ event.additional.new_primary }}
         </small>
         {% endif %}
+      {% elif event.tag == "account:email:sent" %}
+      <strong>{% trans %}Email sent{% endtrans %}</strong><br>
+      <small>
+        {% trans %}From:{% endtrans %} <span class="table__monospace">{{ event.additional.from_ }}</span><br>
+        {% trans %}To:{% endtrans %} <span class="table__monospace">{{ event.additional.to }}</span><br>
+        {% trans %}Subject:{% endtrans %} <span class="table__monospace">{{event.additional.subject}}</span>
+      </small>
 
       {% elif event.tag  == "account:password:reset:request" %}
       <strong>{% trans %}Password reset requested{% endtrans %}</strong>
+      {% elif event.tag  == "account:password:reset:attempt" %}
+      <strong>{% trans %}Password reset attempted{% endtrans %}</strong>
       {% elif event.tag  == "account:password:reset" %}
       <strong>{% trans %}Password successfully reset{% endtrans %}</strong>
       {% elif event.tag  == "account:password:change" %}
@@ -630,15 +580,15 @@
       </small>
 
       {% elif event.tag == "account:recovery_codes:generated" %}
-      <strong>{% trans %}Recovery Codes generated{% endtrans %}</strong><br>
+      <strong>{% trans %}Recovery codes generated{% endtrans %}</strong><br>
       <small>
       </small>
       {% elif event.tag == "account:recovery_codes:regenerated" %}
-      <strong>{% trans %}Recovery Codes regenerated{% endtrans %}</strong><br>
+      <strong>{% trans %}Recovery codes regenerated{% endtrans %}</strong><br>
       <small>
       </small>
       {% elif event.tag == "account:recovery_codes:used" %}
-      <strong>{% trans %}Recovery Code used for login{% endtrans %}</strong><br>
+      <strong>{% trans %}Recovery code used for login{% endtrans %}</strong><br>
       <small>
       </small>
 
@@ -657,12 +607,30 @@
       {% elif event.tag  == "account:api_token:removed" %}
       <strong>{% trans %}API token removed{% endtrans %}</strong><br>
       <small>{% trans %}Unique identifier:{% endtrans %} {{ event.additional.macaroon_id }}</small>
+
+      {% elif event.tag  == "account:api_token:removed_leak" %}
+      <strong>{% trans %}API token automatically removed for security reasons{% endtrans %}</strong><br>
+      <small>
+        {% trans %}Token name:{% endtrans %} {{ event.additional.description }}<br>
+        {% trans %}Unique identifier:{% endtrans %} {{ event.additional.macaroon_id }}<br>
+        {% if event.additional.permissions == "user" %}
+        {% trans %}Token scope: entire account{% endtrans %}
+        {% else %}
+        {% trans project_name=event.additional.permissions.projects[0] %}Token scope: Project {{ project_name }}{% endtrans %}
+        {% endif %}<br>
+        {% trans public_url=event.additional.public_url %}Reason: Token found at <a href="{{ public_url }}">public url</a>{% endtrans %}
+      </small>
+
       {% else %}
       <strong>{{ event.tag }}</strong>
       {% endif %}
     {%- endmacro %}
 
-    <p>{% trans %}Events appear here as security-related actions occur on your account.{% endtrans %}</p>
+    <p>
+      {% trans trimmed faq_url=request.help_url(_anchor='suspicious-activity')%}
+      Events appear here as security-related actions occur on your account. If you notice anything suspicious, please <a href="{{ faq_url }}">secure your account</a> as soon as possible.
+      {% endtrans %}
+    </p>
     <table class="table table--security-logs">
       <caption class="sr-only">{% trans %}Recent account activity{% endtrans %}</caption>
       <thead>
@@ -680,7 +648,7 @@
           </td>
           <td>
             <span class="table__mobile-label">{% trans %}IP address{% endtrans %}</span>
-            {{ event.ip_address }}
+            {{ "Redacted" if event.additional.redact_ip else event.ip_address }}
           </td>
         </tr>
         {% endfor %}

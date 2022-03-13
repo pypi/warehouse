@@ -2,7 +2,7 @@
 # our static assets with. It is important that the steps in this remain the
 # same as the steps in Dockerfile.static, EXCEPT this may include additional
 # steps appended onto the end.
-FROM node:10.19.0 as static
+FROM node:14.15.5 as static
 
 WORKDIR /opt/warehouse/src/
 
@@ -23,9 +23,8 @@ COPY package.json package-lock.json .babelrc /opt/warehouse/src/
 # over our static files so that, you guessed it, we don't invalidate the cache
 # of installed dependencies just because files have been modified.
 RUN set -x \
-    && npm install -g npm@latest \
     && npm install -g gulp-cli \
-    && npm ci
+    && export CFLAGS="-DPNG_ARM_NEON_OPT=0" && npm ci
 
 # Actually copy over our static files, we only copy over the static files to
 # save a small amount of space in our image and because we don't need them. We
@@ -45,7 +44,7 @@ RUN gulp dist
 
 # Now we're going to build our actual application, but not the actual production
 # image that it gets deployed into.
-FROM python:3.8.2-slim-buster as build
+FROM python:3.9.10-slim-buster as build
 
 # Define whether we're building a production or a development image. This will
 # generally be used to control whether or not we install our development and
@@ -64,12 +63,6 @@ RUN set -x \
     && apt-get install --no-install-recommends -y \
         build-essential libffi-dev libxml2-dev libxslt-dev libpq-dev libcurl4-openssl-dev libssl-dev \
         $(if [ "$DEVEL" = "yes" ]; then echo 'libjpeg-dev'; fi)
-
-# We need a way for the build system to pass in a repository that will be used
-# to install our theme from. For this we'll add the THEME_REPO build argument
-# which takes a PEP 503 compatible repository URL that must be available to
-# install the requirements/theme.txt requirement file.
-ARG THEME_REPO
 
 # We create an /opt directory with a virtual environment in it to store our
 # application in.
@@ -106,13 +99,11 @@ RUN set -x \
 # that code changes don't require triggering an entire install of all of
 # Warehouse's dependencies.
 RUN set -x \
-    && PIP_EXTRA_INDEX_URL=$THEME_REPO \
-        pip --no-cache-dir --disable-pip-version-check \
-            install --no-binary hiredis \
+    && pip --no-cache-dir --disable-pip-version-check \
+            install --no-deps --no-binary hiredis \
                     -r /tmp/requirements/deploy.txt \
                     -r /tmp/requirements/main.txt \
-                    $(if [ "$DEVEL" = "yes" ]; then echo '-r /tmp/requirements/tests.txt'; fi) \
-                    $(if [ "$THEME_REPO" != "" ]; then echo '-r /tmp/requirements/theme.txt'; fi) \
+                    $(if [ "$DEVEL" = "yes" ]; then echo '-r /tmp/requirements/tests.txt -r /tmp/requirements/lint.txt -r /tmp/requirements/docs.txt'; fi) \
     && find /opt/warehouse -name '*.pyc' -delete
 
 
@@ -121,7 +112,7 @@ RUN set -x \
 
 # Now we're going to build our actual application image, which will eventually
 # pull in the static files that were built above.
-FROM python:3.8.2-slim-buster
+FROM python:3.9.10-slim-buster
 
 # Setup some basic environment variables that are ~never going to change.
 ENV PYTHONUNBUFFERED 1
@@ -147,7 +138,7 @@ RUN set -x \
     && apt-get update \
     && apt-get install --no-install-recommends -y \
         libpq5 libxml2 libxslt1.1 libcurl4  \
-        $(if [ "$DEVEL" = "yes" ]; then echo 'bash libjpeg62 postgresql-client'; fi) \
+        $(if [ "$DEVEL" = "yes" ]; then echo 'bash libjpeg62 postgresql-client build-essential libffi-dev libxml2-dev libxslt-dev libpq-dev libcurl4-openssl-dev libssl-dev'; fi) \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 

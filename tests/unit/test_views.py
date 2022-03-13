@@ -22,10 +22,11 @@ from pyramid.httpexceptions import (
     HTTPSeeOther,
     HTTPServiceUnavailable,
 )
-from trove_classifiers import classifiers
+from trove_classifiers import sorted_classifiers
 from webob.multidict import MultiDict
 
 from warehouse import views
+from warehouse.errors import WarehouseDenied
 from warehouse.views import (
     current_user_indicator,
     flash_messages,
@@ -42,6 +43,7 @@ from warehouse.views import (
     search,
     service_unavailable,
     session_notifications,
+    sidebar_sponsor_logo,
     stats,
 )
 
@@ -126,7 +128,9 @@ class TestForbiddenView:
     def test_logged_in_returns_exception(self, pyramid_config):
         renderer = pyramid_config.testing_add_renderer("403.html")
 
-        exc = pretend.stub(status_code=403, status="403 Forbidden", headers={})
+        exc = pretend.stub(
+            status_code=403, status="403 Forbidden", headers={}, result=pretend.stub()
+        )
         request = pretend.stub(authenticated_userid=1)
         resp = forbidden(exc, request)
         assert resp.status_code == 403
@@ -146,6 +150,53 @@ class TestForbiddenView:
 
         assert resp.status_code == 303
         assert resp.headers["Location"] == "/accounts/login/?next=/foo/bar/%3Fb%3Ds"
+
+    @pytest.mark.parametrize("reason", ("owners_require_2fa", "pypi_mandates_2fa"))
+    def test_two_factor_required(self, reason):
+        result = WarehouseDenied("Some summary", reason=reason)
+        exc = pretend.stub(result=result)
+        request = pretend.stub(
+            authenticated_userid=1,
+            session=pretend.stub(flash=pretend.call_recorder(lambda x, queue: None)),
+            path_qs="/foo/bar/?b=s",
+            route_url=pretend.call_recorder(
+                lambda route, _query: "/the/url/?next=/foo/bar/%3Fb%3Ds"
+            ),
+            _=lambda x: x,
+        )
+
+        resp = forbidden(exc, request)
+
+        assert resp.status_code == 303
+        assert resp.headers["Location"] == "/the/url/?next=/foo/bar/%3Fb%3Ds"
+        assert request.route_url.calls == [
+            pretend.call("manage.account.two-factor", _query={"next": "/foo/bar/?b=s"})
+        ]
+        assert request.session.flash.calls == [
+            pretend.call(
+                "Two-factor authentication must be enabled on your account to "
+                "perform this action.",
+                queue="error",
+            )
+        ]
+
+    def test_generic_warehousedeined(self, pyramid_config):
+        result = WarehouseDenied(
+            "This project requires two factor authentication to be enabled "
+            "for all contributors.",
+            reason="some_other_reason",
+        )
+        exc = pretend.stub(result=result)
+
+        renderer = pyramid_config.testing_add_renderer("403.html")
+
+        exc = pretend.stub(
+            status_code=403, status="403 Forbidden", headers={}, result=result
+        )
+        request = pretend.stub(authenticated_userid=1)
+        resp = forbidden(exc, request)
+        assert resp.status_code == 403
+        renderer.assert_()
 
 
 class TestForbiddenIncludeView:
@@ -247,16 +298,20 @@ class TestLocale:
             assert "Set-Cookie" not in result.headers
 
 
-def test_esi_current_user_indicator():
+def test_csi_current_user_indicator():
     assert current_user_indicator(pretend.stub()) == {}
 
 
-def test_esi_flash_messages():
+def test_csi_flash_messages():
     assert flash_messages(pretend.stub()) == {}
 
 
-def test_esi_session_notifications():
+def test_csi_session_notifications():
     assert session_notifications(pretend.stub()) == {}
+
+
+def test_csi_sidebar_sponsor_logo():
+    assert sidebar_sponsor_logo(pretend.stub()) == {}
 
 
 class TestSearch:
@@ -349,7 +404,7 @@ class TestSearch:
         ]
         assert url_maker_factory.calls == [pretend.call(db_request)]
         assert get_es_query.calls == [
-            pretend.call(db_request.es, params.get("q"), "", params.getall("c"),)
+            pretend.call(db_request.es, params.get("q"), "", params.getall("c"))
         ]
         assert metrics.histogram.calls == [
             pretend.call("warehouse.views.search.results", 1000)
@@ -425,7 +480,7 @@ class TestSearch:
 
 
 def test_classifiers(db_request):
-    assert list_classifiers(db_request) == {"classifiers": sorted(classifiers)}
+    assert list_classifiers(db_request) == {"classifiers": sorted_classifiers}
 
 
 def test_stats(db_request):

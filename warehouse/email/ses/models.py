@@ -177,6 +177,15 @@ class EmailStatus:
         collector=lambda iterable: list(iterable)[-1],
     )
 
+    # This happens sometimes. The email will stay unverfied, but this allows us
+    # to record the event
+    bounced.upon(
+        deliver,
+        enter=delivered,
+        outputs=[_reset_transient_bounce],
+        collector=lambda iterable: list(iterable)[-1],
+    )
+
     # Serialization / Deserialization
 
     @_machine.serializer()
@@ -242,7 +251,7 @@ class EmailMessage(db.Model):
         backref="email",
         cascade="all, delete-orphan",
         lazy=False,
-        order_by=lambda: Event.created,
+        order_by=lambda: Event.created,  # type: ignore
     )
 
 

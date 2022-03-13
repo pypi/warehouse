@@ -72,7 +72,7 @@
   }
 
   &__image {
-    max-height: 45px;
+    max-width: 100px;
     opacity: 0.8;
 
     @media only screen and (max-width: $tablet) {

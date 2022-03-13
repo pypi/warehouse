@@ -15,8 +15,8 @@ from collections import OrderedDict
 import pretend
 import pytest
 
+from pyramid.authorization import Allow
 from pyramid.location import lineage
-from pyramid.security import Allow
 
 from warehouse.packaging.models import Dependency, DependencyKind, File, ProjectFactory
 
@@ -353,8 +353,9 @@ class TestRelease:
 
 class TestFile:
     def test_requires_python(self, db_session):
-        """ Attempt to write a File by setting requires_python directly,
-            which should fail to validate (it should only be set in Release).
+        """
+        Attempt to write a File by setting requires_python directly, which
+        should fail to validate (it should only be set in Release).
         """
         with pytest.raises(RuntimeError):
             project = DBProjectFactory.create()

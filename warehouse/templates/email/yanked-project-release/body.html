@@ -17,8 +17,8 @@
 <p>
   <ul>
     <li>The {{ project }} release {{ release }} released on {{ release_date }} has been yanked.</li>
-    <li><strong>Yanked by:</strong> {{ submitter }} with a role: {{ submitter_role }}.
-    </li>
+    <li><strong>Yanked by:</strong> {{ submitter }} with a role: {{ submitter_role }}.</li>
+    <li><strong>Reason:</strong> {{ yanked_reason if yanked_reason else 'None provided' }}</li>
   </ul>
 </p>
 

@@ -10,10 +10,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import random
-import string
-
-from factory import fuzzy
 from factory.alchemy import SQLAlchemyModelFactory
 
 from . import Session
@@ -35,14 +31,3 @@ class WarehouseFactory(SQLAlchemyModelFactory):
         session.flush()
         session.expire_all()
         return r
-
-
-class FuzzyEmail(fuzzy.BaseFuzzyAttribute):
-    def __init__(self, domain="example.com", *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.domain = domain
-
-    def fuzz(self):
-        chars = string.ascii_letters + string.digits
-        username = "".join(random.choice(chars) for i in range(12))
-        return "@".join([username, self.domain])

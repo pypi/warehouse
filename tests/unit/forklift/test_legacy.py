@@ -33,8 +33,8 @@ from webob.multidict import MultiDict
 from wtforms.form import Form
 from wtforms.validators import ValidationError
 
+from warehouse.accounts import AuthenticationMethod
 from warehouse.admin.flags import AdminFlag, AdminFlagValue
-from warehouse.admin.squats import Squat
 from warehouse.classifiers.models import Classifier
 from warehouse.forklift import legacy
 from warehouse.metrics import IMetricsService
@@ -49,6 +49,7 @@ from warehouse.packaging.models import (
     Release,
     Role,
 )
+from warehouse.packaging.tasks import update_bigquery_release_files
 
 from ...common.db.accounts import EmailFactory, UserFactory
 from ...common.db.classifiers import ClassifierFactory
@@ -82,19 +83,29 @@ _TAR_BZ2_PKG_STORAGE_HASH = hashlib.blake2b(
 ).hexdigest()
 
 
-def test_exc_with_message():
-    exc = legacy._exc_with_message(HTTPBadRequest, "My Test Message.")
-    assert isinstance(exc, HTTPBadRequest)
-    assert exc.status_code == 400
-    assert exc.status == "400 My Test Message."
+class TestExcWithMessage:
+    def test_exc_with_message(self):
+        exc = legacy._exc_with_message(HTTPBadRequest, "My Test Message.")
+        assert isinstance(exc, HTTPBadRequest)
+        assert exc.status_code == 400
+        assert exc.status == "400 My Test Message."
+
+    def test_exc_with_exotic_message(self):
+        exc = legacy._exc_with_message(
+            HTTPBadRequest, "look at these wild chars: аÃ¤â€—"
+        )
+        assert isinstance(exc, HTTPBadRequest)
+        assert exc.status_code == 400
+        assert exc.status == "400 look at these wild chars: ?Ã¤â??"
 
 
 class TestValidation:
-    @pytest.mark.parametrize("version", ["1.0", "30a1", "1!1", "1.0-1"])
+    @pytest.mark.parametrize("version", ["1.0", "30a1", "1!1", "1.0-1", "v1.0"])
     def test_validates_valid_pep440_version(self, version):
         form, field = pretend.stub(), pretend.stub(data=version)
         legacy._validate_pep440_version(form, field)
 
+    @pytest.mark.filterwarnings("ignore:Creating a LegacyVersion.*:DeprecationWarning")
     @pytest.mark.parametrize("version", ["dog", "1.0.dev.a1", "1.0+local"])
     def test_validates_invalid_pep440_version(self, version):
         form, field = pretend.stub(), pretend.stub(data=version)
@@ -788,7 +799,7 @@ class TestFileUpload:
         assert resp.status_code == 403
         assert resp.status == (
             "403 New uploads are temporarily disabled. "
-            "See /the/help/url/ for details"
+            "See /the/help/url/ for more information."
         )
 
     @pytest.mark.parametrize("version", ["2", "3", "-1", "0", "dog", "cat"])
@@ -816,14 +827,16 @@ class TestFileUpload:
                 "'' is an invalid value for Metadata-Version. "
                 "Error: This field is required. "
                 "See "
-                "https://packaging.python.org/specifications/core-metadata",
+                "https://packaging.python.org/specifications/core-metadata"
+                " for more information.",
             ),
             (
                 {"metadata_version": "-1"},
                 "'-1' is an invalid value for Metadata-Version. "
                 "Error: Use a known metadata version. "
                 "See "
-                "https://packaging.python.org/specifications/core-metadata",
+                "https://packaging.python.org/specifications/core-metadata"
+                " for more information.",
             ),
             # name errors.
             (
@@ -831,7 +844,8 @@ class TestFileUpload:
                 "'' is an invalid value for Name. "
                 "Error: This field is required. "
                 "See "
-                "https://packaging.python.org/specifications/core-metadata",
+                "https://packaging.python.org/specifications/core-metadata"
+                " for more information.",
             ),
             (
                 {"metadata_version": "1.2", "name": "foo-"},
@@ -839,7 +853,8 @@ class TestFileUpload:
                 "Error: Start and end with a letter or numeral containing "
                 "only ASCII numeric and '.', '_' and '-'. "
                 "See "
-                "https://packaging.python.org/specifications/core-metadata",
+                "https://packaging.python.org/specifications/core-metadata"
+                " for more information.",
             ),
             # version errors.
             (
@@ -847,7 +862,8 @@ class TestFileUpload:
                 "'' is an invalid value for Version. "
                 "Error: This field is required. "
                 "See "
-                "https://packaging.python.org/specifications/core-metadata",
+                "https://packaging.python.org/specifications/core-metadata"
+                " for more information.",
             ),
             (
                 {"metadata_version": "1.2", "name": "example", "version": "dog"},
@@ -855,7 +871,8 @@ class TestFileUpload:
                 "Error: Start and end with a letter or numeral "
                 "containing only ASCII numeric and '.', '_' and '-'. "
                 "See "
-                "https://packaging.python.org/specifications/core-metadata",
+                "https://packaging.python.org/specifications/core-metadata"
+                " for more information.",
             ),
             # filetype/pyversion errors.
             (
@@ -874,7 +891,7 @@ class TestFileUpload:
                     "version": "1.0",
                     "filetype": "bdist_wat",
                 },
-                "Error: Python version is required for binary distribution " "uploads.",
+                "Error: Python version is required for binary distribution uploads.",
             ),
             (
                 {
@@ -928,10 +945,15 @@ class TestFileUpload:
                     "md5_digest": "a fake md5 digest",
                     "summary": "A" * 513,
                 },
-                "'" + "A" * 513 + "' is an invalid value for Summary. "
+                "'"
+                + "A" * 30
+                + "..."
+                + "A" * 30
+                + "' is an invalid value for Summary. "
                 "Error: Field cannot be longer than 512 characters. "
                 "See "
-                "https://packaging.python.org/specifications/core-metadata",
+                "https://packaging.python.org/specifications/core-metadata"
+                " for more information.",
             ),
             (
                 {
@@ -942,12 +964,11 @@ class TestFileUpload:
                     "md5_digest": "a fake md5 digest",
                     "summary": "A\nB",
                 },
-                (
-                    "{!r} is an invalid value for Summary. ".format("A\nB")
-                    + "Error: Use a single line only. "
-                    "See "
-                    "https://packaging.python.org/specifications/core-metadata"
-                ),
+                "{!r} is an invalid value for Summary. ".format("A\nB")
+                + "Error: Use a single line only. "
+                "See "
+                "https://packaging.python.org/specifications/core-metadata"
+                " for more information.",
             ),
             # classifiers are a FieldStorage
             (
@@ -973,6 +994,7 @@ class TestFileUpload:
             ),
         ],
     )
+    @pytest.mark.filterwarnings("ignore:Creating a LegacyVersion.*:DeprecationWarning")
     def test_fails_invalid_post_data(
         self, pyramid_config, db_request, post_data, message
     ):
@@ -1029,6 +1051,57 @@ class TestFileUpload:
         ).format(name)
 
     @pytest.mark.parametrize(
+        "conflicting_name",
+        [
+            "toast1ng",
+            "toastlng",
+            "t0asting",
+            "toast-ing",
+            "toast.ing",
+            "toast_ing",
+        ],
+    )
+    def test_fails_with_ultranormalized_names(
+        self, pyramid_config, db_request, conflicting_name
+    ):
+        pyramid_config.testing_securitypolicy(userid=1)
+        user = UserFactory.create()
+        EmailFactory.create(user=user)
+        ProjectFactory.create(name="toasting")
+        db_request.user = user
+        db_request.db.flush()
+
+        db_request.POST = MultiDict(
+            {
+                "metadata_version": "1.2",
+                "name": conflicting_name,
+                "version": "1.0",
+                "filetype": "sdist",
+                "md5_digest": "a fake md5 digest",
+                "content": pretend.stub(
+                    filename=f"{conflicting_name}-1.0.tar.gz",
+                    file=io.BytesIO(_TAR_GZ_PKG_TESTDATA),
+                    type="application/tar",
+                ),
+            }
+        )
+
+        db_request.help_url = pretend.call_recorder(lambda **kw: "/the/help/url/")
+
+        with pytest.raises(HTTPBadRequest) as excinfo:
+            legacy.file_upload(db_request)
+
+        resp = excinfo.value
+
+        assert db_request.help_url.calls == [pretend.call(_anchor="project-name")]
+
+        assert resp.status_code == 400
+        assert resp.status == (
+            "400 The name {!r} is too similar to an existing project. "
+            "See /the/help/url/ for more information."
+        ).format(conflicting_name)
+
+    @pytest.mark.parametrize(
         ("description_content_type", "description", "message"),
         [
             (
@@ -1053,7 +1126,6 @@ class TestFileUpload:
         user = UserFactory.create()
         EmailFactory.create(user=user)
         db_request.user = user
-        db_request.remote_addr = "10.10.10.30"
         db_request.user_agent = "warehouse-tests/6.6.6"
 
         db_request.POST = MultiDict(
@@ -1194,7 +1266,7 @@ class TestFileUpload:
             "403 New project registration temporarily "
             "disabled. See "
             "/the/help/url/ for "
-            "details"
+            "more information."
         )
 
     def test_upload_fails_without_file(self, pyramid_config, db_request):
@@ -1303,7 +1375,6 @@ class TestFileUpload:
         filename = "{}-{}.tar.gz".format(project.name, release.version)
 
         db_request.user = user
-        db_request.remote_addr = "10.10.10.40"
         db_request.user_agent = "warehouse-tests/6.6.6"
 
         content = FieldStorage()
@@ -1353,6 +1424,14 @@ class TestFileUpload:
                 IMetricsService: metrics,
             }.get(svc)
         )
+        db_request.registry.settings = {
+            "warehouse.release_files_table": "example.pypi.distributions"
+        }
+
+        update_bigquery = pretend.stub(
+            delay=pretend.call_recorder(lambda *a, **kw: None)
+        )
+        db_request.task = pretend.call_recorder(lambda *a, **kw: update_bigquery)
 
         resp = legacy.file_upload(db_request)
 
@@ -1427,9 +1506,11 @@ class TestFileUpload:
                 release.version,
                 "add source file {}".format(filename),
                 user,
-                "10.10.10.40",
+                db_request.remote_addr,
             )
         ]
+
+        assert db_request.task.calls == [pretend.call(update_bigquery_release_files)]
 
         assert metrics.increment.calls == [
             pretend.call("warehouse.upload.attempt"),
@@ -1553,7 +1634,8 @@ class TestFileUpload:
         assert resp.status_code == 400
         assert resp.status == (
             "400 Invalid file extension: Use .egg, .tar.gz, .whl or .zip "
-            "extension. (https://www.python.org/dev/peps/pep-0527)"
+            "extension. See https://www.python.org/dev/peps/pep-0527 "
+            "for more information."
         )
 
     def test_upload_fails_for_second_sdist(self, pyramid_config, db_request):
@@ -1838,15 +1920,57 @@ class TestFileUpload:
         assert resp.status_code == 400
         assert resp.status == "400 Invalid distribution file."
 
+    def test_upload_fails_end_of_file_error(self, pyramid_config, db_request, metrics):
+        pyramid_config.testing_securitypolicy(userid=1)
+
+        user = UserFactory.create()
+        EmailFactory.create(user=user)
+        project = ProjectFactory.create(name="Package-Name")
+        RoleFactory.create(user=user, project=project)
+
+        # Malformed tar.gz, triggers EOF error
+        file_contents = b"\x8b\x08\x00\x00\x00\x00\x00\x00\xff"
+
+        db_request.user = user
+        db_request.user_agent = "warehouse-tests/6.6.6"
+        db_request.POST = MultiDict(
+            {
+                "metadata_version": "1.1",
+                "name": "malformed",
+                "version": "1.1",
+                "summary": "This is my summary!",
+                "filetype": "sdist",
+                "md5_digest": hashlib.md5(file_contents).hexdigest(),
+                "content": pretend.stub(
+                    filename="malformed-1.1.tar.gz",
+                    file=io.BytesIO(file_contents),
+                    type="application/tar",
+                ),
+            }
+        )
+
+        storage_service = pretend.stub(store=lambda path, filepath, meta: None)
+        db_request.find_service = lambda svc, name=None, context=None: {
+            IFileStorage: storage_service,
+            IMetricsService: metrics,
+        }.get(svc)
+        db_request.user_agent = "warehouse-tests/6.6.6"
+
+        with pytest.raises(HTTPBadRequest) as excinfo:
+            legacy.file_upload(db_request)
+
+        resp = excinfo.value
+
+        assert resp.status_code == 400
+        assert resp.status == "400 Invalid distribution file."
+
     def test_upload_fails_with_too_large_file(self, pyramid_config, db_request):
         pyramid_config.testing_securitypolicy(userid=1)
 
         user = UserFactory.create()
         db_request.user = user
         EmailFactory.create(user=user)
-        project = ProjectFactory.create(
-            name="foobar", upload_limit=(60 * 1024 * 1024)  # 60 MB
-        )
+        project = ProjectFactory.create(name="foobar", upload_limit=(100 * 1024 * 1024))
         release = ReleaseFactory.create(project=project, version="1.0")
         RoleFactory.create(user=user, project=project)
 
@@ -1876,9 +2000,210 @@ class TestFileUpload:
         assert db_request.help_url.calls == [pretend.call(_anchor="file-size-limit")]
         assert resp.status_code == 400
         assert resp.status == (
-            "400 File too large. Limit for project 'foobar' is 60 MB. "
+            "400 File too large. Limit for project 'foobar' is 100 MB. "
+            "See /the/help/url/ for more information."
+        )
+
+    def test_upload_fails_with_too_large_project_size_default_limit(
+        self, pyramid_config, db_request
+    ):
+        pyramid_config.testing_securitypolicy(userid=1)
+
+        user = UserFactory.create()
+        db_request.user = user
+        EmailFactory.create(user=user)
+        project = ProjectFactory.create(
+            name="foobar",
+            upload_limit=legacy.MAX_FILESIZE,
+            total_size=legacy.MAX_PROJECT_SIZE - 1,
+        )
+        release = ReleaseFactory.create(project=project, version="1.0")
+        RoleFactory.create(user=user, project=project)
+
+        filename = "{}-{}.tar.gz".format(project.name, release.version)
+
+        db_request.POST = MultiDict(
+            {
+                "metadata_version": "1.2",
+                "name": project.name,
+                "version": release.version,
+                "filetype": "sdist",
+                "md5_digest": "nope!",
+                "content": pretend.stub(
+                    filename=filename,
+                    file=io.BytesIO(b"a" * 2),
+                    type="application/tar",
+                ),
+            }
+        )
+        db_request.help_url = pretend.call_recorder(lambda **kw: "/the/help/url/")
+
+        with pytest.raises(HTTPBadRequest) as excinfo:
+            legacy.file_upload(db_request)
+
+        resp = excinfo.value
+
+        assert db_request.help_url.calls == [pretend.call(_anchor="project-size-limit")]
+        assert resp.status_code == 400
+        assert resp.status == (
+            "400 Project size too large."
+            + " Limit for project 'foobar' total size is 10 GB. "
             "See /the/help/url/"
         )
+
+    def test_upload_fails_with_too_large_project_size_custom_limit(
+        self, pyramid_config, db_request
+    ):
+        pyramid_config.testing_securitypolicy(userid=1)
+
+        user = UserFactory.create()
+        db_request.user = user
+        EmailFactory.create(user=user)
+        one_megabyte = 1 * 1024 * 1024
+        project = ProjectFactory.create(
+            name="foobar",
+            upload_limit=legacy.MAX_FILESIZE,
+            total_size=legacy.MAX_PROJECT_SIZE,
+            total_size_limit=legacy.MAX_PROJECT_SIZE
+            + one_megabyte,  # Custom Limit for the project
+        )
+        release = ReleaseFactory.create(project=project, version="1.0")
+        RoleFactory.create(user=user, project=project)
+
+        filename = "{}-{}.tar.gz".format(project.name, release.version)
+
+        db_request.POST = MultiDict(
+            {
+                "metadata_version": "1.2",
+                "name": project.name,
+                "version": release.version,
+                "filetype": "sdist",
+                "md5_digest": "nope!",
+                "content": pretend.stub(
+                    filename=filename,
+                    file=io.BytesIO(b"a" * (one_megabyte + 1)),
+                    type="application/tar",
+                ),
+            }
+        )
+        db_request.help_url = pretend.call_recorder(lambda **kw: "/the/help/url/")
+
+        with pytest.raises(HTTPBadRequest) as excinfo:
+            legacy.file_upload(db_request)
+
+        resp = excinfo.value
+
+        assert db_request.help_url.calls == [pretend.call(_anchor="project-size-limit")]
+        assert resp.status_code == 400
+        assert resp.status == (
+            "400 Project size too large."
+            + " Limit for project 'foobar' total size is 10 GB. "
+            "See /the/help/url/"
+        )
+
+    def test_upload_succeeds_custom_project_size_limit(
+        self, pyramid_config, db_request, metrics
+    ):
+        pyramid_config.testing_securitypolicy(userid=1)
+
+        user = UserFactory.create()
+        db_request.user = user
+        EmailFactory.create(user=user)
+        one_megabyte = 1 * 1024 * 1024
+        project = ProjectFactory.create(
+            name="foobar",
+            upload_limit=legacy.MAX_FILESIZE,
+            total_size=legacy.MAX_PROJECT_SIZE,
+            total_size_limit=legacy.MAX_PROJECT_SIZE
+            + (one_megabyte * 60),  # Custom Limit for the project
+        )
+        release = ReleaseFactory.create(project=project, version="1.0")
+        RoleFactory.create(user=user, project=project)
+
+        filename = "{}-{}.tar.gz".format("example", "1.0")
+
+        db_request.POST = MultiDict(
+            {
+                "metadata_version": "1.2",
+                "name": "example",
+                "version": "1.0",
+                "filetype": "sdist",
+                "md5_digest": _TAR_GZ_PKG_MD5,
+                "content": pretend.stub(
+                    filename=filename,
+                    file=io.BytesIO(_TAR_GZ_PKG_TESTDATA),
+                    type="application/tar",
+                ),
+            }
+        )
+
+        storage_service = pretend.stub(store=lambda path, filepath, meta: None)
+        db_request.find_service = lambda svc, name=None, context=None: {
+            IFileStorage: storage_service,
+            IMetricsService: metrics,
+        }.get(svc)
+        db_request.user_agent = "warehouse-tests/6.6.6"
+
+        resp = legacy.file_upload(db_request)
+
+        assert resp.status_code == 200
+
+        # Ensure that a Project object has been created.
+        project = db_request.db.query(Project).filter(Project.name == "example").one()
+
+        # Ensure that a Role with the user as owner has been created.
+        role = (
+            db_request.db.query(Role)
+            .filter((Role.user == user) & (Role.project == project))
+            .one()
+        )
+        assert role.role_name == "Owner"
+
+        # Ensure that a Release object has been created.
+        release = (
+            db_request.db.query(Release)
+            .filter((Release.project == project) & (Release.version == "1.0"))
+            .one()
+        )
+
+        assert release.uploaded_via == "warehouse-tests/6.6.6"
+
+        # Ensure that a File object has been created.
+        db_request.db.query(File).filter(
+            (File.release == release) & (File.filename == filename)
+        ).one()
+
+        # Ensure that a Filename object has been created.
+        db_request.db.query(Filename).filter(Filename.filename == filename).one()
+
+        # Ensure that all of our journal entries have been created
+        journals = (
+            db_request.db.query(JournalEntry)
+            .options(joinedload("submitted_by"))
+            .order_by("submitted_date", "id")
+            .all()
+        )
+        assert [
+            (j.name, j.version, j.action, j.submitted_by, j.submitted_from)
+            for j in journals
+        ] == [
+            ("example", None, "create", user, db_request.remote_addr),
+            (
+                "example",
+                None,
+                "add Owner {}".format(user.username),
+                user,
+                db_request.remote_addr,
+            ),
+            ("example", "1.0", "new release", user, db_request.remote_addr),
+            (
+                "example",
+                "1.0",
+                "add source file example-1.0.tar.gz",
+                user,
+                db_request.remote_addr,
+            ),
+        ]
 
     def test_upload_fails_with_too_large_signature(self, pyramid_config, db_request):
         pyramid_config.testing_securitypolicy(userid=1)
@@ -1960,7 +2285,7 @@ class TestFileUpload:
         assert resp.status == (
             "400 This filename has already been used, use a "
             "different version. "
-            "See /the/help/url/"
+            "See /the/help/url/ for more information."
         )
 
     def test_upload_noop_with_existing_filename_same_content(
@@ -2060,7 +2385,9 @@ class TestFileUpload:
 
         assert db_request.help_url.calls == [pretend.call(_anchor="file-name-reuse")]
         assert resp.status_code == 400
-        assert resp.status == "400 File already exists. See /the/help/url/"
+        assert resp.status == (
+            "400 File already exists. See /the/help/url/ for more information."
+        )
 
     def test_upload_fails_with_diff_filename_same_blake2(
         self, pyramid_config, db_request
@@ -2115,7 +2442,9 @@ class TestFileUpload:
 
         assert db_request.help_url.calls == [pretend.call(_anchor="file-name-reuse")]
         assert resp.status_code == 400
-        assert resp.status == "400 File already exists. See /the/help/url/"
+        assert resp.status == (
+            "400 File already exists. See /the/help/url/ for more information."
+        )
 
     def test_upload_fails_with_wrong_filename(self, pyramid_config, db_request):
         pyramid_config.testing_securitypolicy(userid=1)
@@ -2191,7 +2520,8 @@ class TestFileUpload:
         assert resp.status_code == 400
         assert resp.status == (
             "400 Invalid file extension: Use .egg, .tar.gz, .whl or .zip "
-            "extension. (https://www.python.org/dev/peps/pep-0527)"
+            "extension. See https://www.python.org/dev/peps/pep-0527 "
+            "for more information."
         )
 
     @pytest.mark.parametrize("character", ["/", "\\"])
@@ -2276,6 +2606,48 @@ class TestFileUpload:
             "See /the/help/url/ for more information."
         ).format(user2.username, project.name)
 
+    def test_upload_succeeds_with_2fa_enabled(
+        self, pyramid_config, db_request, metrics, monkeypatch
+    ):
+        pyramid_config.testing_securitypolicy(userid=1)
+
+        user = UserFactory.create(totp_secret=b"secret")
+        EmailFactory.create(user=user)
+        project = ProjectFactory.create()
+        RoleFactory.create(user=user, project=project)
+
+        db_request.user = user
+        db_request.user_agent = "warehouse-tests/6.6.6"
+        db_request.POST = MultiDict(
+            {
+                "metadata_version": "1.2",
+                "name": project.name,
+                "version": "1.0.0",
+                "summary": "This is my summary!",
+                "filetype": "sdist",
+                "md5_digest": _TAR_GZ_PKG_MD5,
+                "content": pretend.stub(
+                    filename="{}-{}.tar.gz".format(project.name, "1.0.0"),
+                    file=io.BytesIO(_TAR_GZ_PKG_TESTDATA),
+                    type="application/tar",
+                ),
+            }
+        )
+        db_request.authentication_method = AuthenticationMethod.BASIC_AUTH
+
+        send_email = pretend.call_recorder(lambda *a, **kw: None)
+        monkeypatch.setattr(legacy, "send_basic_auth_with_two_factor_email", send_email)
+
+        storage_service = pretend.stub(store=lambda path, filepath, meta: None)
+        db_request.find_service = lambda svc, name=None, context=None: {
+            IFileStorage: storage_service,
+            IMetricsService: metrics,
+        }.get(svc)
+
+        legacy.file_upload(db_request)
+
+        assert send_email.calls == [pretend.call(db_request, user)]
+
     @pytest.mark.parametrize(
         "plat",
         [
@@ -2294,8 +2666,19 @@ class TestFileUpload:
             "manylinux2014_ppc64",
             "manylinux2014_ppc64le",
             "manylinux2014_s390x",
+            "manylinux_2_5_i686",
+            "manylinux_2_12_x86_64",
+            "manylinux_2_17_aarch64",
+            "manylinux_2_17_armv7l",
+            "manylinux_2_17_ppc64",
+            "manylinux_2_17_ppc64le",
+            "manylinux_3_0_s390x",
+            "musllinux_1_1_x86_64",
             "macosx_10_6_intel",
             "macosx_10_13_x86_64",
+            "macosx_11_0_x86_64",
+            "macosx_10_15_arm64",
+            "macosx_11_10_universal2",
             # A real tag used by e.g. some numpy wheels
             (
                 "macosx_10_6_intel.macosx_10_9_intel.macosx_10_9_x86_64."
@@ -2319,7 +2702,6 @@ class TestFileUpload:
         filename = "{}-{}-cp34-none-{}.whl".format(project.name, release.version, plat)
 
         db_request.user = user
-        db_request.remote_addr = "10.10.10.30"
         db_request.user_agent = "warehouse-tests/6.6.6"
         db_request.POST = MultiDict(
             {
@@ -2404,7 +2786,7 @@ class TestFileUpload:
                 release.version,
                 "add cp34 file {}".format(filename),
                 user,
-                "10.10.10.30",
+                db_request.remote_addr,
             )
         ]
 
@@ -2434,7 +2816,6 @@ class TestFileUpload:
         filename = "{}-{}-cp34-none-any.whl".format(project.name, release.version)
 
         db_request.user = user
-        db_request.remote_addr = "10.10.10.30"
         db_request.user_agent = "warehouse-tests/6.6.6"
         db_request.POST = MultiDict(
             {
@@ -2518,11 +2899,20 @@ class TestFileUpload:
                 release.version,
                 "add cp34 file {}".format(filename),
                 user,
-                "10.10.10.30",
+                db_request.remote_addr,
             )
         ]
 
-    @pytest.mark.parametrize("plat", ["linux_x86_64", "linux_x86_64.win32"])
+    @pytest.mark.parametrize(
+        "plat",
+        [
+            "linux_x86_64",
+            "linux_x86_64.win32",
+            "macosx_9_2_x86_64",
+            "macosx_13_2_arm64",
+            "macosx_10_15_amd64",
+        ],
+    )
     def test_upload_fails_with_unsupported_wheel_plat(
         self, monkeypatch, pyramid_config, db_request, plat
     ):
@@ -2562,7 +2952,7 @@ class TestFileUpload:
 
         assert resp.status_code == 400
         assert re.match(
-            "400 Binary wheel .* has an unsupported " "platform tag .*", resp.status
+            "400 Binary wheel .* has an unsupported platform tag .*", resp.status
         )
 
     def test_upload_updates_existing_project_name(
@@ -2579,7 +2969,6 @@ class TestFileUpload:
         filename = "{}-{}.tar.gz".format(new_project_name, "1.1")
 
         db_request.user = user
-        db_request.remote_addr = "10.10.10.20"
         db_request.user_agent = "warehouse-tests/6.6.6"
         db_request.POST = MultiDict(
             {
@@ -2602,7 +2991,6 @@ class TestFileUpload:
             IFileStorage: storage_service,
             IMetricsService: metrics,
         }.get(svc)
-        db_request.remote_addr = "10.10.10.10"
         db_request.user_agent = "warehouse-tests/6.6.6"
 
         resp = legacy.file_upload(db_request)
@@ -2623,7 +3011,17 @@ class TestFileUpload:
 
         assert release.uploaded_via == "warehouse-tests/6.6.6"
 
-    def test_upload_succeeds_creates_release(self, pyramid_config, db_request, metrics):
+    # here
+    @pytest.mark.parametrize(
+        "version, expected_version",
+        [
+            ("1.0", "1.0"),
+            ("v1.0", "1.0"),
+        ],
+    )
+    def test_upload_succeeds_creates_release(
+        self, pyramid_config, db_request, metrics, version, expected_version
+    ):
         pyramid_config.testing_securitypolicy(userid=1)
 
         user = UserFactory.create()
@@ -2637,13 +3035,12 @@ class TestFileUpload:
         filename = "{}-{}.tar.gz".format(project.name, "1.0")
 
         db_request.user = user
-        db_request.remote_addr = "10.10.10.20"
         db_request.user_agent = "warehouse-tests/6.6.6"
         db_request.POST = MultiDict(
             {
                 "metadata_version": "1.2",
                 "name": project.name,
-                "version": "1.0",
+                "version": version,
                 "summary": "This is my summary!",
                 "filetype": "sdist",
                 "md5_digest": _TAR_GZ_PKG_MD5,
@@ -2679,7 +3076,9 @@ class TestFileUpload:
         # Ensure that a Release object has been created.
         release = (
             db_request.db.query(Release)
-            .filter((Release.project == project) & (Release.version == "1.0"))
+            .filter(
+                (Release.project == project) & (Release.version == expected_version)
+            )
             .one()
         )
         assert release.summary == "This is my summary!"
@@ -2691,6 +3090,7 @@ class TestFileUpload:
         assert set(release.project_urls) == {"Test, https://example.com/"}
         assert set(release.requires_external) == {"Cheese (>1.0)"}
         assert set(release.provides) == {"testing"}
+        assert release.version == expected_version
         assert release.canonical_version == "1"
         assert release.uploaded_via == "warehouse-tests/6.6.6"
 
@@ -2713,13 +3113,19 @@ class TestFileUpload:
             (j.name, j.version, j.action, j.submitted_by, j.submitted_from)
             for j in journals
         ] == [
-            (release.project.name, release.version, "new release", user, "10.10.10.20"),
+            (
+                release.project.name,
+                release.version,
+                "new release",
+                user,
+                db_request.remote_addr,
+            ),
             (
                 release.project.name,
                 release.version,
                 "add source file {}".format(filename),
                 user,
-                "10.10.10.20",
+                db_request.remote_addr,
             ),
         ]
 
@@ -2740,7 +3146,6 @@ class TestFileUpload:
         filename = "{}-{}.tar.gz".format(project.name, "1.0")
 
         db_request.user = user
-        db_request.remote_addr = "10.10.10.20"
         db_request.user_agent = "warehouse-tests/6.6.6"
         db_request.POST = MultiDict(
             {
@@ -2800,9 +3205,7 @@ class TestFileUpload:
             db_request.db.add(Classifier(classifier=classifier))
         db_request.db.commit()
 
-    @pytest.mark.parametrize(
-        "parent_classifier", ["private", "Private", "PrIvAtE"],
-    )
+    @pytest.mark.parametrize("parent_classifier", ["private", "Private", "PrIvAtE"])
     def test_private_classifiers_cannot_be_created(self, db_request, parent_classifier):
         with pytest.raises(IntegrityError):
             db_request.db.add(Classifier(classifier=f"{parent_classifier} :: Foo"))
@@ -2823,7 +3226,6 @@ class TestFileUpload:
         RoleFactory.create(user=user, project=project)
 
         db_request.user = user
-        db_request.remote_addr = "10.10.10.20"
         db_request.user_agent = "warehouse-tests/6.6.6"
         db_request.POST = MultiDict(
             {
@@ -2872,7 +3274,6 @@ class TestFileUpload:
         RoleFactory.create(user=user, project=project)
 
         db_request.user = user
-        db_request.remote_addr = "10.10.10.20"
         db_request.user_agent = "warehouse-tests/6.6.6"
         db_request.POST = MultiDict(
             {
@@ -2930,7 +3331,6 @@ class TestFileUpload:
             IFileStorage: storage_service,
             IMetricsService: metrics,
         }.get(svc)
-        db_request.remote_addr = "10.10.10.10"
         db_request.user_agent = "warehouse-tests/6.6.6"
 
         resp = legacy.file_upload(db_request)
@@ -2976,70 +3376,23 @@ class TestFileUpload:
             (j.name, j.version, j.action, j.submitted_by, j.submitted_from)
             for j in journals
         ] == [
-            ("example", None, "create", user, "10.10.10.10"),
+            ("example", None, "create", user, db_request.remote_addr),
             (
                 "example",
                 None,
                 "add Owner {}".format(user.username),
                 user,
-                "10.10.10.10",
+                db_request.remote_addr,
             ),
-            ("example", "1.0", "new release", user, "10.10.10.10"),
+            ("example", "1.0", "new release", user, db_request.remote_addr),
             (
                 "example",
                 "1.0",
                 "add source file example-1.0.tar.gz",
                 user,
-                "10.10.10.10",
+                db_request.remote_addr,
             ),
         ]
-
-    def test_upload_succeeds_creates_squats(self, pyramid_config, db_request, metrics):
-        pyramid_config.testing_securitypolicy(userid=1)
-
-        squattee = ProjectFactory(name="example")
-        user = UserFactory.create()
-        EmailFactory.create(user=user)
-
-        filename = "{}-{}.tar.gz".format("exmaple", "1.0")
-
-        db_request.user = user
-        db_request.POST = MultiDict(
-            {
-                "metadata_version": "1.2",
-                "name": "exmaple",
-                "version": "1.0",
-                "filetype": "sdist",
-                "md5_digest": _TAR_GZ_PKG_MD5,
-                "content": pretend.stub(
-                    filename=filename,
-                    file=io.BytesIO(_TAR_GZ_PKG_TESTDATA),
-                    type="application/tar",
-                ),
-            }
-        )
-
-        storage_service = pretend.stub(store=lambda path, filepath, meta: None)
-        db_request.find_service = lambda svc, name=None, context=None: {
-            IFileStorage: storage_service,
-            IMetricsService: metrics,
-        }.get(svc)
-        db_request.remote_addr = "10.10.10.10"
-        db_request.user_agent = "warehouse-tests/6.6.6"
-
-        resp = legacy.file_upload(db_request)
-
-        assert resp.status_code == 200
-
-        # Ensure that a Project object has been created.
-        squatter = db_request.db.query(Project).filter(Project.name == "exmaple").one()
-
-        # Ensure that a Squat object has been created.
-        squat = db_request.db.query(Squat).one()
-
-        assert squat.squattee == squattee
-        assert squat.squatter == squatter
-        assert squat.reviewed is False
 
     @pytest.mark.parametrize(
         ("emails_verified", "expected_success"),
@@ -3085,7 +3438,6 @@ class TestFileUpload:
             IFileStorage: storage_service,
             IMetricsService: metrics,
         }.get(svc)
-        db_request.remote_addr = "10.10.10.10"
         db_request.user_agent = "warehouse-tests/6.6.6"
 
         if expected_success:
@@ -3106,7 +3458,7 @@ class TestFileUpload:
                     "400 User {!r} does not have a verified primary email "
                     "address. Please add a verified primary email before "
                     "attempting to upload to PyPI. See /the/help/url/ for "
-                    "more information.for more information."
+                    "more information."
                 ).format(user.username)
             )
 
@@ -3141,7 +3493,6 @@ class TestFileUpload:
             IFileStorage: storage_service,
             IMetricsService: metrics,
         }.get(svc)
-        db_request.remote_addr = "10.10.10.10"
         db_request.user_agent = "warehouse-tests/6.6.6"
 
         resp = legacy.file_upload(db_request)
@@ -3157,7 +3508,7 @@ class TestFileUpload:
         resp = excinfo.value
 
         assert resp.status_code == 403
-        assert resp.status == ("403 Read-only mode: Uploads are temporarily disabled")
+        assert resp.status == ("403 Read-only mode: Uploads are temporarily disabled.")
 
     def test_fails_without_user(self, pyramid_config, pyramid_request):
         pyramid_request.flags = pretend.stub(enabled=lambda *a: False)
@@ -3172,7 +3523,7 @@ class TestFileUpload:
         assert resp.status_code == 403
         assert resp.status == (
             "403 Invalid or non-existent authentication information. "
-            "See /the/help/url/ for details"
+            "See /the/help/url/ for more information."
         )
 
 
@@ -3207,3 +3558,17 @@ def test_doc_upload(pyramid_request):
         "410 Uploading documentation is no longer supported, we recommend "
         "using https://readthedocs.org/."
     )
+
+
+def test_missing_trailing_slash_redirect(pyramid_request):
+
+    pyramid_request.route_path = pretend.call_recorder(lambda *a, **kw: "/legacy/")
+
+    resp = legacy.missing_trailing_slash_redirect(pyramid_request)
+
+    assert resp.status_code == 308
+    assert resp.status == (
+        "308 An upload was attempted to /legacy but the expected upload URL is "
+        "/legacy/ (with a trailing slash)"
+    )
+    assert resp.headers["Location"] == "/legacy/"

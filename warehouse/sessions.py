@@ -10,6 +10,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import datetime
 import functools
 import time
 
@@ -82,11 +83,12 @@ def _changed_method(method):
 
 @implementer(ISession)
 class Session(dict):
-
     _csrf_token_key = "_csrf_token"
     _flash_key = "_flash_messages"
     _totp_secret_key = "_totp_secret"
     _webauthn_challenge_key = "_webauthn_challenge"
+    _reauth_timestamp_key = "_reauth_timestamp"
+    _password_timestamp_key = "_password_timestamp"
 
     # A number of our methods need to be decorated so that they also call
     # self.changed()
@@ -139,6 +141,30 @@ class Session(dict):
 
     def should_save(self):
         return self._changed
+
+    def record_auth_timestamp(self):
+        self[self._reauth_timestamp_key] = datetime.datetime.now().timestamp()
+        self.changed()
+
+    def record_password_timestamp(self, timestamp):
+        self[self._password_timestamp_key] = timestamp
+        self.changed()
+
+    def password_outdated(self, current_password_timestamp):
+        stored_password_timestamp = self.get(self._password_timestamp_key)
+
+        if stored_password_timestamp is None:
+            # This session predates invalidation by password reset... since
+            # we cannot say for sure, let it live its life.
+            return False
+
+        return current_password_timestamp != stored_password_timestamp
+
+    def needs_reauthentication(self, time_to_reauth):
+        reauth_timestamp = self.get(self._reauth_timestamp_key, 0)
+        current_time = datetime.datetime.now().timestamp()
+
+        return current_time - reauth_timestamp >= time_to_reauth
 
     # Flash Messages Methods
     def _get_flash_queue_key(self, queue):
@@ -276,7 +302,7 @@ class SessionFactory:
                 self._redis_key(request.session.sid),
                 self.max_age,
                 msgpack.packb(
-                    request.session, default=object_encode, use_bin_type=True,
+                    request.session, default=object_encode, use_bin_type=True
                 ),
             )
 
@@ -335,7 +361,7 @@ def session_view(view, info):
         return wrapped
 
 
-session_view.options = {"uses_session"}
+session_view.options = {"uses_session"}  # type: ignore
 
 
 def includeme(config):

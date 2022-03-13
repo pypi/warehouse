@@ -25,7 +25,7 @@
   </div>
 
   Accessibility:
-    - Wrap the error in a div associated with the field via 'aria-describedby' 
+    - Wrap the error in a div associated with the field via 'aria-describedby'
     - Add 'role=alert'to notify screen readers
 
   Modifiers:
@@ -45,6 +45,7 @@
       font-family: "Font Awesome 5 Free";
       font-weight: 900;
       content: "\f06a";
+      /*rtl:ignore*/
       margin-right: 5px;
       color: $danger-color;
     }
@@ -68,6 +69,7 @@
         font-family: "Font Awesome 5 Free";
         font-weight: 900;
         content: "\f00c"; // Check / Tick
+        /*rtl:ignore*/
         margin-right: 5px;
         color: $success-color;
       }

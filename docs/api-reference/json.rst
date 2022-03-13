@@ -11,7 +11,10 @@ Project
     Returns metadata (info) about an individual project at the latest version,
     a list of all releases for that project, and project URLs. Releases include
     the release name, URL, and MD5 and SHA256 hash digests, and are keyed by
-    the release version string.
+    the release version string. Metadata returned comes from the values provided
+    at upload time and does not necessarily match the content of the uploaded
+    files. The first uploaded data for a release is stored, subsequent uploads
+    do not update it.
 
     **Example Request**:
 
@@ -73,7 +76,8 @@ Project
                 "requires_python": null,
                 "summary": "A sample Python project",
                 "version": "1.2.0",
-                "yanked": false
+                "yanked": false,
+                "yanked_reason": null
             },
             "last_serial": 1591652,
             "releases": {
@@ -94,7 +98,8 @@ Project
                         "size": 3795,
                         "upload_time_iso_8601": "2015-06-14T14:38:05.093750Z",
                         "url": "https://files.pythonhosted.org/packages/30/52/547eb3719d0e872bdd6fe3ab60cef92596f95262e925e1943f68f840df88/sampleproject-1.2.0-py2.py3-none-any.whl",
-                        "yanked": false
+                        "yanked": false,
+                        "yanked_reason": null
                     },
                     {
                         "comment_text": "",
@@ -111,7 +116,8 @@ Project
                         "size": 3148,
                         "upload_time_iso_8601": "2015-06-14T14:37:56Z",
                         "url": "https://files.pythonhosted.org/packages/eb/45/79be82bdeafcecb9dca474cad4003e32ef8e4a0dec6abbd4145ccb02abe1/sampleproject-1.2.0.tar.gz",
-                        "yanked": false
+                        "yanked": false,
+                        "yanked_reason": null
                     }
                 ]
             },
@@ -131,7 +137,8 @@ Project
                     "size": 3795,
                     "upload_time_iso_8601": "2015-06-14T14:38:05.234526",
                     "url": "https://files.pythonhosted.org/packages/30/52/547eb3719d0e872bdd6fe3ab60cef92596f95262e925e1943f68f840df88/sampleproject-1.2.0-py2.py3-none-any.whl",
-                    "yanked": false
+                    "yanked": false,
+                    "yanked_reason": null
                 },
                 {
                     "comment_text": "",
@@ -148,12 +155,19 @@ Project
                     "size": 3148,
                     "upload_time_iso_8601": "2015-06-14T14:37:56.000001Z",
                     "url": "https://files.pythonhosted.org/packages/eb/45/79be82bdeafcecb9dca474cad4003e32ef8e4a0dec6abbd4145ccb02abe1/sampleproject-1.2.0.tar.gz",
-                    "yanked": false
+                    "yanked": false,
+                    "yanked_reason": null
                 }
-            ]
+            ],
+            "vulnerabilities": []
         }
 
     :statuscode 200: no error
+
+    On this endpoint, the ``vulnerabilities`` array provides a listing for
+    any known vulnerabilities in the most recent release (none, for the example
+    above). Use the release-specific endpoint documented below for precise
+    control over this field.
 
 Release
 -------
@@ -207,7 +221,8 @@ Release
                 "requires_python": null,
                 "summary": "",
                 "version": "1.0",
-                "yanked": false
+                "yanked": false,
+                "yanked_reason": null
             },
             "last_serial": 1591652,
             "releases": {
@@ -228,7 +243,8 @@ Release
                         "size": 3795,
                         "upload_time_iso_8601": "2015-06-14T14:38:05.869374Z",
                         "url": "https://files.pythonhosted.org/packages/30/52/547eb3719d0e872bdd6fe3ab60cef92596f95262e925e1943f68f840df88/sampleproject-1.2.0-py2.py3-none-any.whl",
-                        "yanked": false
+                        "yanked": false,
+                        "yanked_reason": null
                     },
                     {
                         "comment_text": "",
@@ -245,11 +261,50 @@ Release
                         "size": 3148,
                         "upload_time_iso_8601": "2015-06-14T14:37:56.394783Z",
                         "url": "https://files.pythonhosted.org/packages/eb/45/79be82bdeafcecb9dca474cad4003e32ef8e4a0dec6abbd4145ccb02abe1/sampleproject-1.2.0.tar.gz",
-                        "yanked": false
+                        "yanked": false,
+                        "yanked_reason": null
                     }
                 ]
             },
-            "urls": []
+            "urls": [],
+            "vulnerabilities": []
         }
 
     :statuscode 200: no error
+
+Known vulnerabilities
+~~~~~~~~~~~~~~~~~~~~~
+
+In the example above, the combination of the requested project and version
+had no `known vulnerabilities <https://github.com/pypa/advisory-db>`_.
+An example of a response for a project with known vulnerabilities is
+provided below, with unrelated fields collapsed for readability.
+
+.. code:: http
+
+    GET /pypi/Django/3.0.2/json HTTP/1.1
+    Host: pypi.org
+    Accept: application/json
+
+    {
+        "info": {},
+        "last_serial": 12089094,
+        "releases": {},
+        "urls": [],
+        "vulnerabilities": [
+            {
+                "aliases": [
+                    "CVE-2021-3281"
+                ],
+                "details": "In Django 2.2 before 2.2.18, 3.0 before 3.0.12, and 3.1 before 3.1.6, the django.utils.archive.extract method (used by \"startapp --template\" and \"startproject --template\") allows directory traversal via an archive with absolute paths or relative paths with dot segments.",
+                "fixed_in": [
+                    "2.2.18",
+                    "3.0.12",
+                    "3.1.6"
+                ],
+                "id": "PYSEC-2021-9",
+                "link": "https://osv.dev/vulnerability/PYSEC-2021-9",
+                "source": "osv"
+            },
+        ]
+    }

@@ -24,7 +24,7 @@ import zope.sqlalchemy
 from sqlalchemy import event, inspect
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.exc import IntegrityError, OperationalError
-from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.ext.declarative import declarative_base  # type: ignore
 from sqlalchemy.orm import sessionmaker
 
 from warehouse.metrics import IMetricsService
@@ -62,7 +62,7 @@ pyramid_retry.mark_error_retryable(IntegrityError)
 
 # A generic wrapper exception that we'll raise when the database isn't available, we
 # use this so we can catch it later and turn it into a generic 5xx error.
-class DatabaseNotAvailable(Exception):
+class DatabaseNotAvailableError(Exception):
     ...
 
 
@@ -97,7 +97,7 @@ metadata = sqlalchemy.MetaData()
 
 
 # Base class for models using declarative syntax
-ModelBase = declarative_base(cls=ModelBase, metadata=metadata)
+ModelBase = declarative_base(cls=ModelBase, metadata=metadata)  # type: ignore
 
 
 class Model(ModelBase):
@@ -123,7 +123,7 @@ def listens_for(target, identifier, *args, **kwargs):
             wrapped = functools.partial(wrapped, scanner.config)
             event.listen(target, identifier, wrapped, *args, **kwargs)
 
-        venusian.attach(wrapped, callback)
+        venusian.attach(wrapped, callback, category="warehouse")
 
         return wrapped
 
@@ -173,7 +173,7 @@ def _create_session(request):
         # this is a transient error that will go away.
         logger.warning("Got an error connecting to PostgreSQL", exc_info=True)
         metrics.increment("warehouse.db.session.error", tags=["error_in:connecting"])
-        raise DatabaseNotAvailable()
+        raise DatabaseNotAvailableError()
 
     if (
         connection.connection.get_transaction_status()

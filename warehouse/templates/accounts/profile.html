@@ -41,7 +41,7 @@
             <div class="author-profile__metadiv">
               <i class="fa fa-calendar-alt" aria-hidden="true"></i>
               <span class="sr-only">{% trans %}Date joined{% endtrans %}</span>
-              &nbsp;&nbsp;{% trans start_date=humanize(user.date_joined) %}Joined on {{ start_date }}{% endtrans %}
+              &nbsp;&nbsp;{% trans start_date=humanize(user.date_joined) %}Joined {{ start_date }}{% endtrans %}
             </div>
             {% endif %}
           </div>
@@ -70,7 +70,7 @@
         <a class="package-snippet" href="{{ request.route_path('packaging.project', name=project.normalized_name) }}">
           <h3 class="package-snippet__title">{{ project.name }}</h3>
           <p class="package-snippet__meta">
-            {% trans release_date=humanize(project.releases[0].created) %}Last released on {{ release_date }}{% endtrans %}
+            {% trans release_date=humanize(project.releases[0].created) %}Last released {{ release_date }}{% endtrans %}
           </p>
           <p class="package-snippet__description">{{ project.releases[0].summary }}</p>
         </a>

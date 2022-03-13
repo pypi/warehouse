@@ -28,6 +28,8 @@
 
 .package-snippet {
   @include card;
+  direction: ltr;
+  text-align: left;
   display: block;
   padding: ($spacing-unit / 2) 20px ($spacing-unit / 2) 75px;
   margin: 0 0 20px;
@@ -85,7 +87,7 @@
     color: $text-color;
   }
 
-  &__sole-owner-badge {
+  &__project-badge {
     margin-left: 4px;
     position: relative;
     top: -1px;
@@ -97,9 +99,11 @@
     .button {
       display: inline-block;
       float: left;
+      pointer-events: auto;
     }
 
-    .button--primary {
+    .button--primary,
+    .button--danger {
       margin-right: 5px;
     }
   }

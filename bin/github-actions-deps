@@ -1,0 +1,19 @@
+#!/bin/bash
+set -e
+
+# Click requires us to ensure we have a well configured environment to run
+# our click commands. So we'll set our environment to ensure our locale is
+# correct.
+export LC_ALL="${ENCODING:-en_US.UTF-8}"
+export LANG="${ENCODING:-en_US.UTF-8}"
+
+# Print all the following commands
+set -x
+
+if [[ ! -z "${GITHUB_BASE_REF}" ]]; then
+    git fetch origin ${GITHUB_BASE_REF}:refs/remotes/origin/${GITHUB_BASE_REF}
+    # Check that the following diff will exit with 0 or 1
+    git diff --name-only FETCH_HEAD || test $? -le 1 || exit 1
+    # Make the dependencies if any changed files are requirements files, otherwise exit
+    git diff --name-only FETCH_HEAD | grep '^requirements/' || exit 0 && bin/deps
+fi

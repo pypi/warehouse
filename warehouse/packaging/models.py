@@ -18,7 +18,7 @@ from urllib.parse import urlparse
 import packaging.utils
 
 from citext import CIText
-from pyramid.security import Allow
+from pyramid.authorization import Allow
 from pyramid.threadlocal import get_current_request
 from sqlalchemy import (
     BigInteger,
@@ -41,14 +41,17 @@ from sqlalchemy import (
 )
 from sqlalchemy.dialects.postgresql import JSONB, UUID
 from sqlalchemy.ext.associationproxy import association_proxy
-from sqlalchemy.ext.declarative import declared_attr
+from sqlalchemy.ext.declarative import declared_attr  # type: ignore
 from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy.orm import validates
 from sqlalchemy.orm.exc import MultipleResultsFound, NoResultFound
+from sqlalchemy.sql import expression
+from trove_classifiers import sorted_classifiers
 
 from warehouse import db
 from warehouse.accounts.models import User
 from warehouse.classifiers.models import Classifier
+from warehouse.integrations.vulnerabilities.models import VulnerabilityRecord
 from warehouse.sitemap.models import SitemapMixin
 from warehouse.utils import dotted_navigator
 from warehouse.utils.attrs import make_repr
@@ -59,6 +62,7 @@ class Role(db.Model):
     __tablename__ = "roles"
     __table_args__ = (
         Index("roles_user_id_idx", "user_id"),
+        Index("roles_project_id_idx", "project_id"),
         UniqueConstraint("user_id", "project_id", name="_roles_user_project_uc"),
     )
 
@@ -71,6 +75,44 @@ class Role(db.Model):
     project_id = Column(
         ForeignKey("projects.id", onupdate="CASCADE", ondelete="CASCADE"),
         nullable=False,
+    )
+
+    user = orm.relationship(User, lazy=False)
+    project = orm.relationship("Project", lazy=False)
+
+
+class RoleInvitationStatus(enum.Enum):
+
+    Pending = "pending"
+    Expired = "expired"
+
+
+class RoleInvitation(db.Model):
+
+    __tablename__ = "role_invitations"
+    __table_args__ = (
+        Index("role_invitations_user_id_idx", "user_id"),
+        UniqueConstraint(
+            "user_id", "project_id", name="_role_invitations_user_project_uc"
+        ),
+    )
+
+    __repr__ = make_repr("invite_status", "user", "project")
+
+    invite_status = Column(
+        Enum(RoleInvitationStatus, values_callable=lambda x: [e.value for e in x]),
+        nullable=False,
+    )
+    token = Column(Text, nullable=False)
+    user_id = Column(
+        ForeignKey("users.id", onupdate="CASCADE", ondelete="CASCADE"),
+        nullable=False,
+        index=True,
+    )
+    project_id = Column(
+        ForeignKey("projects.id", onupdate="CASCADE", ondelete="CASCADE"),
+        nullable=False,
+        index=True,
     )
 
     user = orm.relationship(User, lazy=False)
@@ -92,7 +134,18 @@ class ProjectFactory:
             raise KeyError from None
 
 
-class Project(SitemapMixin, db.Model):
+class TwoFactorRequireable:
+    # Project owner requires 2FA for this project
+    owners_require_2fa = Column(Boolean, nullable=False, server_default=sql.false())
+    # PyPI requires 2FA for this project
+    pypi_mandates_2fa = Column(Boolean, nullable=False, server_default=sql.false())
+
+    @hybrid_property
+    def two_factor_required(self):
+        return self.owners_require_2fa | self.pypi_mandates_2fa
+
+
+class Project(SitemapMixin, TwoFactorRequireable, db.Model):
 
     __tablename__ = "projects"
     __table_args__ = (
@@ -114,18 +167,19 @@ class Project(SitemapMixin, db.Model):
     )
     has_docs = Column(Boolean)
     upload_limit = Column(Integer, nullable=True)
+    total_size_limit = Column(BigInteger, nullable=True)
     last_serial = Column(Integer, nullable=False, server_default=sql.text("0"))
     zscore = Column(Float, nullable=True)
 
     total_size = Column(BigInteger, server_default=sql.text("0"))
 
-    users = orm.relationship(User, secondary=Role.__table__, backref="projects")
+    users = orm.relationship(User, secondary=Role.__table__, backref="projects")  # type: ignore # noqa
 
     releases = orm.relationship(
         "Release",
         backref="project",
         cascade="all, delete-orphan",
-        order_by=lambda: Release._pypi_ordering.desc(),
+        order_by=lambda: Release._pypi_ordering.desc(),  # type: ignore
         passive_deletes=True,
     )
 
@@ -235,8 +289,11 @@ class ProjectEvent(db.Model):
 
     project_id = Column(
         UUID(as_uuid=True),
-        ForeignKey("projects.id", deferrable=True, initially="DEFERRED"),
+        ForeignKey(
+            "projects.id", deferrable=True, initially="DEFERRED", ondelete="CASCADE"
+        ),
         nullable=False,
+        index=True,
     )
     tag = Column(String, nullable=False)
     time = Column(DateTime, nullable=False, server_default=sql.func.now())
@@ -338,6 +395,7 @@ class Release(db.Model):
     description_id = Column(
         ForeignKey("release_descriptions.id", onupdate="CASCADE", ondelete="CASCADE"),
         nullable=False,
+        index=True,
     )
     description = orm.relationship(
         "Description",
@@ -353,11 +411,16 @@ class Release(db.Model):
 
     yanked = Column(Boolean, nullable=False, server_default=sql.false())
 
+    yanked_reason = Column(Text, nullable=False, server_default="")
+
     _classifiers = orm.relationship(
         Classifier,
         backref="project_releases",
-        secondary=lambda: release_classifiers,
-        order_by=Classifier.classifier,
+        secondary=lambda: release_classifiers,  # type: ignore
+        order_by=expression.case(
+            {c: i for i, c in enumerate(sorted_classifiers)},
+            value=Classifier.classifier,
+        ),
         passive_deletes=True,
     )
     classifiers = association_proxy("_classifiers", "classifier")
@@ -367,7 +430,7 @@ class Release(db.Model):
         backref="release",
         cascade="all, delete-orphan",
         lazy="dynamic",
-        order_by=lambda: File.filename,
+        order_by=lambda: File.filename,  # type: ignore
         passive_deletes=True,
     )
 
@@ -375,6 +438,13 @@ class Release(db.Model):
         "Dependency",
         backref="release",
         cascade="all, delete-orphan",
+        passive_deletes=True,
+    )
+
+    vulnerabilities = orm.relationship(
+        VulnerabilityRecord,
+        back_populates="releases",
+        secondary="release_vulnerabilities",
         passive_deletes=True,
     )
 
@@ -512,7 +582,7 @@ class File(db.Model):
     def pgp_path(self):
         return self.path + ".asc"
 
-    @pgp_path.expression
+    @pgp_path.expression  # type: ignore
     def pgp_path(self):
         return func.concat(self.path, ".asc")
 
@@ -571,13 +641,13 @@ class JournalEntry(db.ModelBase):
     submitted_from = Column(Text)
 
 
-class BlacklistedProject(db.Model):
+class ProhibitedProjectName(db.Model):
 
-    __tablename__ = "blacklist"
+    __tablename__ = "prohibited_project_names"
     __table_args__ = (
         CheckConstraint(
             "name ~* '^([A-Z0-9]|[A-Z0-9][A-Z0-9._-]*[A-Z0-9])$'::text",
-            name="blacklist_valid_name",
+            name="prohibited_project_valid_name",
         ),
     )
 
@@ -587,8 +657,8 @@ class BlacklistedProject(db.Model):
         DateTime(timezone=False), nullable=False, server_default=sql.func.now()
     )
     name = Column(Text, unique=True, nullable=False)
-    _blacklisted_by = Column(
-        "blacklisted_by", UUID(as_uuid=True), ForeignKey("users.id"), index=True
+    _prohibited_by = Column(
+        "prohibited_by", UUID(as_uuid=True), ForeignKey("users.id"), index=True
     )
-    blacklisted_by = orm.relationship(User)
+    prohibited_by = orm.relationship(User)
     comment = Column(Text, nullable=False, server_default="")

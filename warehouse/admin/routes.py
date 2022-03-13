@@ -19,8 +19,6 @@ def includeme(config):
 
     # General Admin pages
     config.add_route("admin.dashboard", "/admin/", domain=warehouse)
-    config.add_route("admin.login", "/admin/login/", domain=warehouse)
-    config.add_route("admin.logout", "/admin/logout/", domain=warehouse)
 
     # User related Admin pages
     config.add_route("admin.user.list", "/admin/users/", domain=warehouse)
@@ -75,6 +73,13 @@ def includeme(config):
         domain=warehouse,
     )
     config.add_route(
+        "admin.project.set_total_size_limit",
+        "/admin/projects/{project_name}/set_total_size_limit/",
+        factory="warehouse.packaging.models:ProjectFactory",
+        traverse="/{project_name}",
+        domain=warehouse,
+    )
+    config.add_route(
         "admin.project.add_role",
         "/admin/projects/{project_name}/add_role/",
         factory="warehouse.packaging.models:ProjectFactory",
@@ -95,15 +100,42 @@ def includeme(config):
         traverse="/{project_name}",
         domain=warehouse,
     )
+    config.add_route(
+        "admin.project.reindex",
+        "/admin/projects/{project_name}/reindex/",
+        factory="warehouse.packaging.models:ProjectFactory",
+        traverse="/{project_name}",
+        domain=warehouse,
+    )
 
     # Journal related Admin pages
     config.add_route("admin.journals.list", "/admin/journals/", domain=warehouse)
 
-    # Blacklist related Admin pages
-    config.add_route("admin.blacklist.list", "/admin/blacklist/", domain=warehouse)
-    config.add_route("admin.blacklist.add", "/admin/blacklist/add/", domain=warehouse)
+    # Prohibited Project Name related Admin pages
     config.add_route(
-        "admin.blacklist.remove", "/admin/blacklist/remove/", domain=warehouse
+        "admin.prohibited_project_names.list",
+        "/admin/prohibited_project_names/",
+        domain=warehouse,
+    )
+    config.add_route(
+        "admin.prohibited_project_names.add",
+        "/admin/prohibited_project_names/add/",
+        domain=warehouse,
+    )
+    config.add_route(
+        "admin.prohibited_project_names.bulk_add",
+        "/admin/prohibited_project_names/bulk/",
+        domain=warehouse,
+    )
+    config.add_route(
+        "admin.prohibited_project_names.remove",
+        "/admin/prohibited_project_names/remove/",
+        domain=warehouse,
+    )
+    config.add_route(
+        "admin.prohibited_project_names.release",
+        "/admin/prohibited_project_names/release/",
+        domain=warehouse,
     )
 
     # Email related Admin pages
@@ -116,10 +148,6 @@ def includeme(config):
     # Flags
     config.add_route("admin.flags", "/admin/flags/", domain=warehouse)
     config.add_route("admin.flags.edit", "/admin/flags/edit/", domain=warehouse)
-
-    # Squats
-    config.add_route("admin.squats", "/admin/squats/", domain=warehouse)
-    config.add_route("admin.squats.review", "/admin/squats/review/", domain=warehouse)
 
     # Malware checks
     config.add_route("admin.checks.list", "/admin/checks/", domain=warehouse)
@@ -142,4 +170,29 @@ def includeme(config):
     )
     config.add_route(
         "admin.verdicts.review", "/admin/verdicts/{verdict_id}/review", domain=warehouse
+    )
+
+    # Sponsor related Admin pages
+    config.add_route("admin.sponsor.list", "/admin/sponsors/", domain=warehouse)
+    config.add_route(
+        "admin.sponsor.create", "/admin/sponsors/create/", domain=warehouse
+    )
+    config.add_route(
+        "admin.sponsor.delete", "/admin/sponsors/{sponsor_id}/delete/", domain=warehouse
+    )
+    config.add_route(
+        "admin.sponsor.edit", "/admin/sponsors/{sponsor_id}/", domain=warehouse
+    )
+
+    # Banner related Admin pages
+    config.add_route("admin.banner.list", "/admin/banners/", domain=warehouse)
+    config.add_route("admin.banner.create", "/admin/banners/create/", domain=warehouse)
+    config.add_route(
+        "admin.banner.delete", "/admin/banners/{banner_id}/delete/", domain=warehouse
+    )
+    config.add_route(
+        "admin.banner.preview", "/admin/banners/{banner_id}/preview/", domain=warehouse
+    )
+    config.add_route(
+        "admin.banner.edit", "/admin/banners/{banner_id}/", domain=warehouse
     )

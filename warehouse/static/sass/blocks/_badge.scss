@@ -30,6 +30,7 @@
   padding: 0 7px;
   border-radius: 3px;
   font-weight: 600;
+  white-space: nowrap;
   @include link-without-underline;
 
   &:hover {
@@ -74,6 +75,21 @@
     &:focus,
     &:active {
       outline: 1px solid $warning-color;
+    }
+  }
+
+  &--neutral {
+    background-color: $base-grey;
+    border-color: $base-grey;
+    color: darken($base-grey, 50);
+
+    &:hover {
+      color: darken($base-grey, 60);
+    }
+
+    &:focus,
+    &:active {
+      outline: 1px solid darken($base-grey, 50);
     }
   }
 }

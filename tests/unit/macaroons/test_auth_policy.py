@@ -21,7 +21,7 @@ from zope.interface.verify import verifyClass
 
 from warehouse.macaroons import auth_policy
 from warehouse.macaroons.interfaces import IMacaroonService
-from warehouse.macaroons.services import InvalidMacaroon
+from warehouse.macaroons.services import InvalidMacaroonError
 
 
 @pytest.mark.parametrize(
@@ -171,7 +171,8 @@ class TestMacaroonAuthorizationPolicy:
         policy = auth_policy.MacaroonAuthorizationPolicy(policy=backing_policy)
         result = policy.permits(pretend.stub(), pretend.stub(), pretend.stub())
 
-        assert result == Denied("There was no active request.")
+        assert result == Denied("")
+        assert result.s == "There was no active request."
 
     def test_permits_no_macaroon(self, monkeypatch):
         request = pretend.stub()
@@ -193,7 +194,9 @@ class TestMacaroonAuthorizationPolicy:
         assert result == permits
 
     def test_permits_invalid_macaroon(self, monkeypatch):
-        macaroon_service = pretend.stub(verify=pretend.raiser(InvalidMacaroon("foo")))
+        macaroon_service = pretend.stub(
+            verify=pretend.raiser(InvalidMacaroonError("foo"))
+        )
         request = pretend.stub(
             find_service=pretend.call_recorder(lambda interface, **kw: macaroon_service)
         )
@@ -212,7 +215,8 @@ class TestMacaroonAuthorizationPolicy:
         policy = auth_policy.MacaroonAuthorizationPolicy(policy=backing_policy)
         result = policy.permits(pretend.stub(), pretend.stub(), pretend.stub())
 
-        assert result == Denied("The supplied token was invalid: foo")
+        assert result == Denied("")
+        assert result.s == "Invalid API Token: InvalidMacaroonError('foo')"
 
     def test_permits_valid_macaroon(self, monkeypatch):
         macaroon_service = pretend.stub(
@@ -266,7 +270,8 @@ class TestMacaroonAuthorizationPolicy:
         policy = auth_policy.MacaroonAuthorizationPolicy(policy=backing_policy)
         result = policy.permits(pretend.stub(), pretend.stub(), invalid_permission)
 
-        assert result == Denied(
+        assert result == Denied("")
+        assert result.s == (
             f"API tokens are not valid for permission: {invalid_permission}!"
         )
 

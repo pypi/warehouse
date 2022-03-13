@@ -1,0 +1,15 @@
+version: 2
+
+updates:
+- package-ecosystem: pip
+  directory: "/"
+  schedule:
+    interval: daily
+  open-pull-requests-limit: 99
+  allow:
+  - dependency-type: direct
+  - dependency-type: indirect
+  rebase-strategy: "disabled"
+  ignore:
+  # Always ignore elasticsearch, future versions are always incompatible with our provider
+  - dependency-name: "elasticsearch"

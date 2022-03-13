@@ -201,8 +201,9 @@ def test_includeme():
                     "connect-src": [
                         "'self'",
                         "https://api.github.com/repos/",
+                        "fastly-insights.com",
                         "*.fastly-insights.com",
-                        "sentry.io",
+                        "*.ethicalads.io",
                         "https://api.pwnedpasswords.com",
                         "https://2p66nmmycsj3.statuspage.io",
                     ],
@@ -216,15 +217,23 @@ def test_includeme():
                         "camo.url.value",
                         "www.google-analytics.com",
                         "*.fastly-insights.com",
+                        "*.ethicalads.io",
                     ],
                     "script-src": [
                         "'self'",
                         "www.googletagmanager.com",
                         "www.google-analytics.com",
                         "*.fastly-insights.com",
-                        "https://cdn.ravenjs.com",
+                        "*.ethicalads.io",
+                        "'sha256-U3hKDidudIaxBDEzwGJApJgPEf2mWk6cfMWghrAa6i0='",
                     ],
-                    "style-src": ["'self'", "fonts.googleapis.com"],
+                    "style-src": [
+                        "'self'",
+                        "fonts.googleapis.com",
+                        "*.ethicalads.io",
+                        "'sha256-2YHqZokjiizkHi1Zt+6ar0XJ0OeEy/egBnlm+MDMtrM='",
+                        "'sha256-47DEQpj8HBSa+/TImW+5JCeuQeRkm5NMpJWZG3hSuFU='",
+                    ],
                     "worker-src": ["*.fastly-insights.com"],
                 }
             }

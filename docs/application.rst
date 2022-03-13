@@ -57,7 +57,7 @@ Warehouse serves four main classes of users:
    routine administration tasks such as adding new trove classifiers,
    adjusting upload limits for distribution packages, and reviewing
    malware verdicts.
-4. *PyPI application administrators*, e.g., Ernest W. Durbin III,
+4. *PyPI application administrators*, e.g., Ee W. Durbin III,
    Dustin Ingram, and Donald Stufft, who can ban
    spam/malware projects, help users with account recovery, and so
    on. There are under ten such admins.
@@ -84,13 +84,14 @@ The top-level directory of the Warehouse repo contains files including:
 
 Directories within the repository:
 
-- `bin/ <https://github.com/pypa/warehouse/tree/master/bin>`_ - high-level scripts for Docker, Travis, and Makefile commands
+- `bin/ <https://github.com/pypa/warehouse/tree/master/bin>`_ - high-level scripts for Docker, Continuous Integration, and Makefile commands
 - `dev/ <https://github.com/pypa/warehouse/tree/master/dev>`_ - assets for developer environment
 - `tests/ <https://github.com/pypa/warehouse/tree/master/tests>`_ - tests
 - `warehouse/ <https://github.com/pypa/warehouse/tree/master/warehouse>`_ - code in modules
 
   - `accounts/ <https://github.com/pypa/warehouse/tree/master/warehouse/accounts>`_ - user accounts
   - `admin/ <https://github.com/pypa/warehouse/tree/master/warehouse/admin>`_ - application-administrator-specific
+  - `banners/ <https://github.com/pypa/warehouse/tree/master/warehouse/banners>`_ - notification banners
   - `cache/ <https://github.com/pypa/warehouse/tree/master/warehouse/cache>`_ - caching
   - `classifiers/ <https://github.com/pypa/warehouse/tree/master/warehouse/classifiers>`_ - frame trove classifiers
   - `cli/ <https://github.com/pypa/warehouse/tree/master/warehouse/cli>`_ - entry scripts and
@@ -98,8 +99,10 @@ Directories within the repository:
   - `email/ <https://github.com/pypa/warehouse/tree/master/warehouse/email>`_ - services for sending emails
   - `forklift/ <https://github.com/pypa/warehouse/tree/master/warehouse/forklift>`_ - :ref:`upload-api-forklift`
   - `i18n/ <https://github.com/pypa/warehouse/tree/master/warehouse/i18n>`_ - internationalization
+  - `integrations/ <https://github.com/pypa/warehouse/tree/master/warehouse/integrations>`_ - integrations with other services
   - `legacy/ <https://github.com/pypa/warehouse/tree/master/warehouse/legacy>`_ - most of the read-only APIs implemented here
-  - `locales/ <https://github.com/pypa/warehouse/tree/master/warehouse/locales>`_ - internationalization
+  - `locale/ <https://github.com/pypa/warehouse/tree/master/warehouse/locale>`_ - internationalization
+  - `macaroons/ <https://github.com/pypa/warehouse/tree/master/warehouse/macaroons>`_ - API token support
   - `malware/ <https://github.com/pypa/warehouse/tree/master/warehouse/malware>`_ - automated malware checks
   - `manage/ <https://github.com/pypa/warehouse/tree/master/warehouse/manage>`_ - logged-in user functionality (i.e., manage account &
     owned/maintained projects)
@@ -110,6 +113,8 @@ Directories within the repository:
   - `rss/ <https://github.com/pypa/warehouse/tree/master/warehouse/rss>`_ - RSS feeds: :doc:`api-reference/feeds`
   - `search/ <https://github.com/pypa/warehouse/tree/master/warehouse/search>`_ - utilities for building and querying the search index
   - `sitemap/ <https://github.com/pypa/warehouse/tree/master/warehouse/sitemap>`_ - site maps
+  - `sponsors/ <https://github.com/pypa/warehouse/tree/master/warehouse/sponsors>`_ - sponsors management
+  - `static/ <https://github.com/pypa/warehouse/tree/master/warehouse/static>`_ - static site assets
   - `templates/ <https://github.com/pypa/warehouse/tree/master/warehouse/templates>`_ - Jinja templates for web pages, emails, etc.
   - `utils/ <https://github.com/pypa/warehouse/tree/master/warehouse/utils>`_ - various utilities Warehouse uses
 
@@ -134,8 +139,8 @@ may be used to from the legacy site, such as:
 - uploading to pythonhosted.com documentation hosting (`discussion and
   plans <https://github.com/pypa/warehouse/issues/582>`_)
 
-- `download counts visible in the API <https://warehouse.readthedocs.io/api-reference/xml-rpc/#changes-to-legacy-api>`_:
-  instead, use `the Google BigQuery service <https://packaging.python.org/guides/analyzing-pypi-package-downloads/>`_)
+- `download counts visible in the API <https://warehouse.readthedocs.io/api-reference/xml-rpc/#changes-to-legacy-api>`_
+  (instead, use `the Google BigQuery service <https://packaging.python.org/guides/analyzing-pypi-package-downloads/>`_)
 
 - key management: PyPI no longer has a UI for users to manage GPG or
   SSH public keys

@@ -31,6 +31,7 @@ def test_includeme(forklift_domain, monkeypatch):
         add_legacy_action_route=pretend.call_recorder(lambda *a, **k: None),
         add_template_view=pretend.call_recorder(lambda *a, **kw: None),
         add_request_method=pretend.call_recorder(lambda *a, **kw: None),
+        add_route=pretend.call_recorder(lambda *a, **kw: None),
     )
 
     forklift.includeme(config)
@@ -48,6 +49,13 @@ def test_includeme(forklift_domain, monkeypatch):
             "forklift.legacy.doc_upload", "doc_upload", domain=forklift_domain
         ),
     ]
+
+    assert config.add_route.calls == [
+        pretend.call(
+            "forklift.legacy.missing_trailing_slash", "/legacy", domain=forklift_domain
+        ),
+    ]
+
     assert config.add_request_method.calls == [pretend.call(_help_url, name="help_url")]
     if forklift_domain:
         assert config.add_template_view.calls == [

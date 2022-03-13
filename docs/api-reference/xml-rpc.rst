@@ -7,6 +7,9 @@ PyPI's XML-RPC methods
    recommended, and existing consumers of the API should migrate to the RSS
    and/or JSON APIs instead.
 
+   As a result, this API has a very restrictive rate limit and it may be
+   necessary to pause between successive requests.
+
    Users of this API are **strongly** encouraged to subscribe to the
    pypi-announce_ mailing list for notices as we begin the process of removing
    XML-RPC from PyPI.
@@ -15,9 +18,11 @@ Example usage (Python 3)::
 
   >>> import xmlrpc.client
   >>> import pprint
+  >>> import time
   >>> client = xmlrpc.client.ServerProxy('https://pypi.org/pypi')
   >>> client.package_releases('roundup')
   ['1.6.0']
+  >>> time.sleep(1)  # Sleep to avoid rate limit
   >>> pprint.pprint(client.release_urls('roundup', '1.6.0'))
   [{'comment_text': '',
   'digests': {'md5': '54d587da7c3d9c83f13d04674cacdc2a',

@@ -122,6 +122,18 @@ def test_routes(warehouse):
             traverse="/{username}",
             domain=warehouse,
         ),
+        pretend.call(
+            "includes.sidebar-sponsor-logo",
+            "/_includes/sidebar-sponsor-logo/",
+            domain=warehouse,
+        ),
+        pretend.call(
+            "includes.administer-project-include",
+            "/_includes/administer-project-include/{project_name}",
+            factory="warehouse.packaging.models:ProjectFactory",
+            traverse="/{project_name}",
+            domain=warehouse,
+        ),
         pretend.call("classifiers", "/classifiers/", domain=warehouse),
         pretend.call("search", "/search/", domain=warehouse),
         pretend.call("stats", "/stats/", accept="text/html", domain=warehouse),
@@ -148,6 +160,9 @@ def test_routes(warehouse):
             domain=warehouse,
         ),
         pretend.call(
+            "accounts.reauthenticate", "/account/reauthenticate/", domain=warehouse
+        ),
+        pretend.call(
             "accounts.recovery-code", "/account/recovery-code/", domain=warehouse
         ),
         pretend.call("accounts.logout", "/account/logout/", domain=warehouse),
@@ -163,7 +178,17 @@ def test_routes(warehouse):
         pretend.call(
             "accounts.verify-email", "/account/verify-email/", domain=warehouse
         ),
+        pretend.call(
+            "accounts.verify-project-role",
+            "/account/verify-project-role/",
+            domain=warehouse,
+        ),
         pretend.call("manage.account", "/manage/account/", domain=warehouse),
+        pretend.call(
+            "manage.account.two-factor",
+            "/manage/account/two-factor/",
+            domain=warehouse,
+        ),
         pretend.call(
             "manage.account.totp-provision",
             "/manage/account/totp-provision",
@@ -202,6 +227,11 @@ def test_routes(warehouse):
         pretend.call(
             "manage.account.recovery-codes.regenerate",
             "/manage/account/recovery-codes/regenerate",
+            domain=warehouse,
+        ),
+        pretend.call(
+            "manage.account.recovery-codes.burn",
+            "/manage/account/recovery-codes/burn",
             domain=warehouse,
         ),
         pretend.call(
@@ -246,6 +276,13 @@ def test_routes(warehouse):
         pretend.call(
             "manage.project.roles",
             "/manage/project/{project_name}/collaboration/",
+            factory="warehouse.packaging.models:ProjectFactory",
+            traverse="/{project_name}",
+            domain=warehouse,
+        ),
+        pretend.call(
+            "manage.project.revoke_invite",
+            "/manage/project/{project_name}/collaboration/revoke_invite/",
             factory="warehouse.packaging.models:ProjectFactory",
             traverse="/{project_name}",
             domain=warehouse,
@@ -309,6 +346,16 @@ def test_routes(warehouse):
             factory="warehouse.packaging.models:ProjectFactory",
             traverse="/{name}/",
             read_only=True,
+            domain=warehouse,
+        ),
+        pretend.call(
+            "integrations.github.disclose-token",
+            "/_/github/disclose-token",
+            domain=warehouse,
+        ),
+        pretend.call(
+            "integrations.vulnerabilities.osv.report",
+            "/_/vulnerabilities/osv/report",
             domain=warehouse,
         ),
         pretend.call("legacy.api.simple.index", "/simple/", domain=warehouse),
@@ -378,20 +425,16 @@ def test_routes(warehouse):
             view_kw={"has_translations": True},
         ),
         pretend.call(
-            "sponsor",
-            "/sponsor/",
-            "pages/sponsor.html",
-            view_kw={"has_translations": True},
-        ),
-        pretend.call(
             "sponsors",
             "/sponsors/",
-            "warehouse:templates/pages/sponsors.html",
+            "pages/sponsors.html",
             view_kw={"has_translations": True},
         ),
     ]
 
     assert config.add_redirect.calls == [
+        pretend.call("/sponsor/", "/sponsors/", domain=warehouse),
+        pretend.call("/u/{username}/", "/user/{username}/", domain=warehouse),
         pretend.call("/p/{name}/", "/project/{name}/", domain=warehouse),
         pretend.call("/pypi/{name}/", "/project/{name}/", domain=warehouse),
         pretend.call(

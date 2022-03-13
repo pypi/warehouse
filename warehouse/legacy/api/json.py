@@ -65,8 +65,12 @@ def json_project(project, request):
     try:
         release = (
             request.db.query(Release)
-            .filter(Release.project == project, Release.yanked.is_(False))
-            .order_by(Release.is_prerelease.nullslast(), Release._pypi_ordering.desc())
+            .filter(Release.project == project)
+            .order_by(
+                Release.yanked.asc(),
+                Release.is_prerelease.nullslast(),
+                Release._pypi_ordering.desc(),
+            )
             .limit(1)
             .one()
         )
@@ -112,7 +116,11 @@ def json_release(release, request):
     # Get all of the releases and files for this project.
     release_files = (
         request.db.query(Release, File)
-        .options(Load(Release).load_only("version", "requires_python", "yanked"))
+        .options(
+            Load(Release).load_only(
+                "version", "requires_python", "yanked", "yanked_reason"
+            )
+        )
         .outerjoin(File)
         .filter(Release.project == project)
         .order_by(Release._pypi_ordering.desc(), File.filename)
@@ -148,11 +156,25 @@ def json_release(release, request):
                 "url": request.route_url("packaging.file", path=f.path),
                 "requires_python": r.requires_python if r.requires_python else None,
                 "yanked": r.yanked,
+                "yanked_reason": r.yanked_reason or None,
             }
             for f in fs
         ]
         for r, fs in releases.items()
     }
+
+    # Serialize a list of vulnerabilties for this release
+    vulnerabilities = [
+        {
+            "id": vulnerability_record.id,
+            "source": vulnerability_record.source,
+            "link": vulnerability_record.link,
+            "aliases": vulnerability_record.aliases,
+            "details": vulnerability_record.details,
+            "fixed_in": vulnerability_record.fixed_in,
+        }
+        for vulnerability_record in release.vulnerabilities
+    ]
 
     return {
         "info": {
@@ -185,9 +207,11 @@ def json_release(release, request):
             "home_page": release.home_page,
             "download_url": release.download_url,
             "yanked": release.yanked,
+            "yanked_reason": release.yanked_reason or None,
         },
         "urls": releases[release.version],
         "releases": releases,
+        "vulnerabilities": vulnerabilities,
         "last_serial": project.last_serial,
     }
 

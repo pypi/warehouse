@@ -10,6 +10,55 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import functools
+import json
+
+from pyramid.renderers import render_to_response
+
+from warehouse.accounts.forms import ReAuthenticateForm
+from warehouse.accounts.interfaces import IUserService
+
+DEFAULT_TIME_TO_REAUTH = 30 * 60  # 30 minutes
+
+
+def reauth_view(view, info):
+    require_reauth = info.options.get("require_reauth")
+
+    if require_reauth:
+        # If it's True, we use the default, otherwise use the value provided
+        time_to_reauth = (
+            DEFAULT_TIME_TO_REAUTH if require_reauth is True else require_reauth
+        )
+
+        @functools.wraps(view)
+        def wrapped(context, request):
+            if request.session.needs_reauthentication(time_to_reauth):
+                user_service = request.find_service(IUserService, context=None)
+
+                form = ReAuthenticateForm(
+                    request.POST,
+                    request=request,
+                    username=request.user.username,
+                    next_route=request.matched_route.name,
+                    next_route_matchdict=json.dumps(request.matchdict),
+                    user_service=user_service,
+                )
+
+                return render_to_response(
+                    "re-auth.html",
+                    {"form": form, "user": request.user},
+                    request=request,
+                )
+
+            return view(context, request)
+
+        return wrapped
+
+    return view
+
+
+reauth_view.options = {"require_reauth"}  # type: ignore
+
 
 def includeme(config):
-    pass
+    config.add_view_deriver(reauth_view, over="rendered_view", under="decorated_view")

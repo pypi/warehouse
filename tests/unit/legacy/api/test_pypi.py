@@ -14,7 +14,7 @@ import pretend
 import pytest
 
 from pyramid.httpexceptions import HTTPBadRequest, HTTPMovedPermanently, HTTPNotFound
-from trove_classifiers import classifiers
+from trove_classifiers import sorted_classifiers
 
 from warehouse.legacy.api import pypi
 
@@ -50,7 +50,7 @@ def test_forklifted(settings, expected_domain):
 
     assert resp.status_code == 410
     assert resp.status == (
-        "410 This API has moved to https://{}/legacy/. See {} for more " "information."
+        "410 This API has moved to https://{}/legacy/. See {} for more information."
     ).format(expected_domain, information_url)
 
 
@@ -71,7 +71,7 @@ def test_list_classifiers(db_request):
     resp = pypi.list_classifiers(db_request)
 
     assert resp.status_code == 200
-    assert resp.text == "\n".join(sorted(classifiers))
+    assert resp.text == "\n".join(sorted_classifiers)
 
 
 def test_search():

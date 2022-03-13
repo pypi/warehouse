@@ -13,7 +13,8 @@
 import shlex
 
 import wtforms
-import wtforms.fields.html5
+import wtforms.fields
+import wtforms.validators
 
 from paginate_sqlalchemy import SqlalchemyOrmPage as SQLAlchemyORMPage
 from pyramid.httpexceptions import HTTPBadRequest, HTTPNotFound, HTTPSeeOther
@@ -72,9 +73,7 @@ def user_list(request):
 
 class EmailForm(forms.Form):
 
-    email = wtforms.fields.html5.EmailField(
-        validators=[wtforms.validators.DataRequired()]
-    )
+    email = wtforms.fields.EmailField(validators=[wtforms.validators.DataRequired()])
     primary = wtforms.fields.BooleanField()
     verified = wtforms.fields.BooleanField()
     public = wtforms.fields.BooleanField()
@@ -89,8 +88,19 @@ class UserForm(forms.Form):
     is_active = wtforms.fields.BooleanField()
     is_superuser = wtforms.fields.BooleanField()
     is_moderator = wtforms.fields.BooleanField()
+    is_psf_staff = wtforms.fields.BooleanField()
+
+    prohibit_password_reset = wtforms.fields.BooleanField()
 
     emails = wtforms.fields.FieldList(wtforms.fields.FormField(EmailForm))
+
+    def validate_emails(self, field):
+        # If there's no email on the account, it's ok. Otherwise, ensure
+        # we have 1 primary email.
+        if field.data and len([1 for email in field.data if email["primary"]]) != 1:
+            raise wtforms.validators.ValidationError(
+                "There must be exactly one primary email"
+            )
 
 
 @view_config(
@@ -131,6 +141,7 @@ def user_detail(request):
 
     if request.method == "POST" and form.validate():
         form.populate_obj(user)
+        request.session.flash(f"User {user.username!r} updated", queue="success")
         return HTTPSeeOther(location=request.current_route_path())
 
     return {"user": user, "form": form, "roles": roles, "add_email_form": EmailForm()}
@@ -148,6 +159,11 @@ def user_add_email(request):
     form = EmailForm(request.POST)
 
     if form.validate():
+
+        if form.primary.data:
+            for other in user.emails:
+                other.primary = False
+
         email = Email(
             email=form.email.data,
             user=user,

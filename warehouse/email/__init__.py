@@ -10,17 +10,18 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import datetime
 import functools
 
 from email.headerregistry import Address
 
-import attr
-
 from celery.schedules import crontab
 from first import first
+from sqlalchemy.orm.exc import NoResultFound
 
 from warehouse import tasks
-from warehouse.accounts.interfaces import ITokenService
+from warehouse.accounts.interfaces import ITokenService, IUserService
+from warehouse.accounts.models import Email
 from warehouse.email.interfaces import IEmailSender
 from warehouse.email.services import EmailMessage
 from warehouse.email.ses.tasks import cleanup as ses_cleanup
@@ -32,18 +33,48 @@ def _compute_recipient(user, email):
     return str(Address(first([user.name, user.username], default=""), addr_spec=email))
 
 
+def _redact_ip(request, email):
+    # We should only store/display IP address of an 'email sent' event if the user
+    # who triggered the email event is the one who receives the email. Else display
+    # 'Redacted' to prevent user privacy concerns. If we don't know the user who
+    # triggered the action, default to showing the IP of the source.
+
+    try:
+        user_email = request.db.query(Email).filter(Email.email == email).one()
+    except NoResultFound:
+        # The email might have been deleted if this is an account deletion event
+        return False
+
+    if request.unauthenticated_userid:
+        return user_email.user_id != request.unauthenticated_userid
+    if request.user:
+        return user_email.user_id != request.user.id
+    return False
+
+
 @tasks.task(bind=True, ignore_result=True, acks_late=True)
-def send_email(task, request, recipient, msg):
+def send_email(task, request, recipient, msg, success_event):
     msg = EmailMessage(**msg)
     sender = request.find_service(IEmailSender)
 
     try:
         sender.send(recipient, msg)
+
+        user_service = request.find_service(IUserService, context=None)
+        user_service.record_event(**success_event)
     except Exception as exc:
         task.retry(exc=exc)
 
 
-def _send_email_to_user(request, user, msg, *, email=None, allow_unverified=False):
+def _send_email_to_user(
+    request,
+    user,
+    msg,
+    *,
+    email=None,
+    allow_unverified=False,
+    repeat_window=None,
+):
     # If we were not given a specific email object, then we'll default to using
     # the User's primary email address.
     if email is None:
@@ -56,12 +87,39 @@ def _send_email_to_user(request, user, msg, *, email=None, allow_unverified=Fals
     if email is None or not (email.verified or allow_unverified):
         return
 
+    # If we've already sent this email within the repeat_window, don't send it.
+    if repeat_window is not None:
+        sender = request.find_service(IEmailSender)
+        last_sent = sender.last_sent(to=email.email, subject=msg.subject)
+        if last_sent and (datetime.datetime.now() - last_sent) <= repeat_window:
+            return
+
     request.task(send_email).delay(
-        _compute_recipient(user, email.email), attr.asdict(msg)
+        _compute_recipient(user, email.email),
+        {
+            "subject": msg.subject,
+            "body_text": msg.body_text,
+            "body_html": msg.body_html,
+        },
+        {
+            "tag": "account:email:sent",
+            "user_id": user.id,
+            "additional": {
+                "from_": request.registry.settings.get("mail.sender"),
+                "to": email.email,
+                "subject": msg.subject,
+                "redact_ip": _redact_ip(request, email.email),
+            },
+        },
     )
 
 
-def _email(name, *, allow_unverified=False):
+def _email(
+    name,
+    *,
+    allow_unverified=False,
+    repeat_window=None,
+):
     """
     This decorator is used to turn an e function into an email sending function!
 
@@ -111,7 +169,12 @@ def _email(name, *, allow_unverified=False):
                     user, email = recipient, None
 
                 _send_email_to_user(
-                    request, user, msg, email=email, allow_unverified=allow_unverified
+                    request,
+                    user,
+                    msg,
+                    email=email,
+                    allow_unverified=allow_unverified,
+                    repeat_window=repeat_window,
                 )
 
             return context
@@ -169,6 +232,20 @@ def send_password_compromised_email_hibp(request, user):
     return {}
 
 
+@_email("token-compromised-leak", allow_unverified=True)
+def send_token_compromised_email_leak(request, user, *, public_url, origin):
+    return {"username": user.username, "public_url": public_url, "origin": origin}
+
+
+@_email(
+    "basic-auth-with-2fa",
+    allow_unverified=True,
+    repeat_window=datetime.timedelta(days=1),
+)
+def send_basic_auth_with_two_factor_email(request, user):
+    return {}
+
+
 @_email("account-deleted")
 def send_account_deletion_email(request, user):
     return {"username": user.username}
@@ -196,9 +273,75 @@ def send_collaborator_added_email(
     }
 
 
+@_email("verify-project-role", allow_unverified=True)
+def send_project_role_verification_email(
+    request,
+    user,
+    desired_role,
+    initiator_username,
+    project_name,
+    email_token,
+    token_age,
+):
+    return {
+        "desired_role": desired_role,
+        "email_address": user.email,
+        "initiator_username": initiator_username,
+        "n_hours": token_age // 60 // 60,
+        "project_name": project_name,
+        "token": email_token,
+    }
+
+
 @_email("added-as-collaborator")
 def send_added_as_collaborator_email(request, user, *, submitter, project_name, role):
-    return {"project": project_name, "submitter": submitter.username, "role": role}
+    return {
+        "project_name": project_name,
+        "initiator_username": submitter.username,
+        "role": role,
+    }
+
+
+@_email("collaborator-removed")
+def send_collaborator_removed_email(
+    request, email_recipients, *, user, submitter, project_name
+):
+    return {
+        "username": user.username,
+        "project": project_name,
+        "submitter": submitter.username,
+    }
+
+
+@_email("removed-as-collaborator")
+def send_removed_as_collaborator_email(request, user, *, submitter, project_name):
+    return {
+        "project": project_name,
+        "submitter": submitter.username,
+    }
+
+
+@_email("collaborator-role-changed")
+def send_collaborator_role_changed_email(
+    request, recipients, *, user, submitter, project_name, role
+):
+    return {
+        "username": user.username,
+        "project": project_name,
+        "submitter": submitter.username,
+        "role": role,
+    }
+
+
+@_email("role-changed-as-collaborator")
+def send_role_changed_as_collaborator_email(
+    request, user, *, submitter, project_name, role
+):
+    return {
+        "project": project_name,
+        "submitter": submitter.username,
+        "role": role,
+    }
 
 
 @_email("two-factor-added")
@@ -244,6 +387,7 @@ def send_yanked_project_release_email(
         "submitter": submitter_name,
         "submitter_role": submitter_role.lower(),
         "recipient_role_descr": recipient_role_descr,
+        "yanked_reason": release.yanked_reason,
     }
 
 
@@ -299,6 +443,21 @@ def send_removed_project_release_file_email(
         "submitter_role": submitter_role.lower(),
         "recipient_role_descr": recipient_role_descr,
     }
+
+
+@_email("recovery-codes-generated")
+def send_recovery_codes_generated_email(request, user):
+    return {"username": user.username}
+
+
+@_email("recovery-code-used")
+def send_recovery_code_used_email(request, user):
+    return {"username": user.username}
+
+
+@_email("recovery-code-reminder")
+def send_recovery_code_reminder_email(request, user):
+    return {"username": user.username}
 
 
 def includeme(config):

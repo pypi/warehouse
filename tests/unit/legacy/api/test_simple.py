@@ -143,7 +143,6 @@ class TestSimpleDetail:
 
     def test_with_files_with_version_multi_digit(self, db_request):
         project = ProjectFactory.create()
-        releases = [ReleaseFactory.create(project=project) for _ in range(3)]
         release_versions = [
             "0.3.0rc1",
             "0.3.0",
@@ -152,9 +151,10 @@ class TestSimpleDetail:
             "4.2.0",
             "24.2.0",
         ]
-
-        for release, version in zip(releases, release_versions):
-            release.version = version
+        releases = [
+            ReleaseFactory.create(project=project, version=version)
+            for version in release_versions
+        ]
 
         tar_files = [
             FileFactory.create(
