@@ -15,6 +15,8 @@ import functools
 
 from email.headerregistry import Address
 
+import pytz
+
 from celery.schedules import crontab
 from first import first
 from sqlalchemy.orm.exc import NoResultFound
@@ -193,7 +195,11 @@ def send_password_reset_email(request, user_and_email):
             "action": "password-reset",
             "user.id": str(user.id),
             "user.last_login": str(user.last_login),
-            "user.password_date": str(user.password_date),
+            "user.password_date": str(
+                user.password_date
+                if user.password_date is not None
+                else datetime.datetime.min.replace(tzinfo=pytz.UTC)
+            ),
         }
     )
 
