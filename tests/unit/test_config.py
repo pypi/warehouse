@@ -260,6 +260,7 @@ def test_configure(monkeypatch, settings, environment):
         "warehouse.two_factor_requirement.enabled": False,
         "warehouse.two_factor_mandate.available": False,
         "warehouse.two_factor_mandate.enabled": False,
+        "warehouse.oidc.enabled": False,
     }
     if environment == config.Environment.development:
         expected_settings.update(

@@ -66,7 +66,7 @@
     </p>
 
     <h2 class="no-bottom-padding">{% trans %}Add a new provider{% endtrans %}</h2>
-
+    {% if oidc_enabled %}
     <h3>GitHub</h3>
 
     <p>
@@ -141,6 +141,13 @@
     </table>
     {% else %}
     <p class="no-bottom-padding">{% trans %}No publishers are currently configured.{% endtrans %}</p>
+    {% endif %}
+    {% else %}
+    <p>
+      {% trans %}
+      OpenID Connect publishing isn't enabled yet! Come back soon.
+      {% endtrans %}
+    </p>
     {% endif %}
   </div>
 </div>

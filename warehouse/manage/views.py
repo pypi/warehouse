@@ -1097,6 +1097,7 @@ class ManageOIDCProviderViews:
     def __init__(self, project, request):
         self.request = request
         self.project = project
+        self.oidc_enabled = self.request.registry.settings["warehouse.oidc.enabled"]
 
     @property
     def _ratelimiters(self):
@@ -1138,12 +1139,16 @@ class ManageOIDCProviderViews:
     @property
     def default_response(self):
         return {
+            "oidc_enabled": self.oidc_enabled,
             "project": self.project,
             "github_provider_form": self.github_provider_form,
         }
 
     @view_config(request_method="GET")
     def manage_project_oidc_providers(self):
+        # NOTE: We don't need a special "OIDC enabled" check here, since
+        # this view handler has no special logic.
+
         if self.request.flags.enabled(AdminFlagValue.DISALLOW_OIDC):
             self.request.session.flash(
                 (
@@ -1157,6 +1162,9 @@ class ManageOIDCProviderViews:
 
     @view_config(request_method="POST", request_param=GitHubProviderForm.__params__)
     def add_github_oidc_provider(self):
+        if not self.oidc_enabled:
+            return self.default_response
+
         if self.request.flags.enabled(AdminFlagValue.DISALLOW_OIDC):
             self.request.session.flash(
                 (
@@ -1242,6 +1250,9 @@ class ManageOIDCProviderViews:
 
     @view_config(request_method="POST", request_param=DeleteProviderForm.__params__)
     def delete_oidc_provider(self):
+        if not self.oidc_enabled:
+            return self.default_response
+
         if self.request.flags.enabled(AdminFlagValue.DISALLOW_OIDC):
             self.request.session.flash(
                 (

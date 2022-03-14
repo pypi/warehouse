@@ -306,6 +306,15 @@ def configure(settings=None):
         default=False,
     )
 
+    # OIDC feature flags
+    maybe_set(
+        settings,
+        "warehouse.oidc.enabled",
+        "OIDC_ENABLED",
+        coercer=distutils.util.strtobool,
+        default=False,
+    )
+
     # Add the settings we use when the environment is set to development.
     if settings["warehouse.env"] == Environment.development:
         settings.setdefault("enforce_https", False)

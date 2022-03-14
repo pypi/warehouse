@@ -4694,11 +4694,14 @@ class TestManageProjectJournal:
 class TestManageOIDCProviderViews:
     def test_initializes(self):
         project = pretend.stub()
-        request = pretend.stub()
+        request = pretend.stub(
+            registry=pretend.stub(settings={"warehouse.oidc.enabled": True})
+        )
         view = views.ManageOIDCProviderViews(project, request)
 
         assert view.project is project
         assert view.request is request
+        assert view.oidc_enabled
 
     @pytest.mark.parametrize(
         "ip_exceeded, user_exceeded",
@@ -4729,6 +4732,7 @@ class TestManageOIDCProviderViews:
                 return ip_rate_limiter
 
         request = pretend.stub(
+            registry=pretend.stub(settings={"warehouse.oidc.enabled": True}),
             find_service=pretend.call_recorder(find_service),
             user=pretend.stub(id=pretend.stub()),
             remote_addr=pretend.stub(),
@@ -4761,13 +4765,14 @@ class TestManageOIDCProviderViews:
     def test_manage_project_oidc_providers(self, monkeypatch):
         project = pretend.stub()
         request = pretend.stub(
+            registry=pretend.stub(
+                settings={
+                    "warehouse.oidc.enabled": True,
+                    "github.token": "fake-api-token",
+                }
+            ),
             flags=pretend.stub(enabled=pretend.call_recorder(lambda f: False)),
             POST=pretend.stub(),
-            registry=pretend.stub(
-                settings=pretend.stub(
-                    get=pretend.call_recorder(lambda k: "fake-api-token")
-                )
-            ),
         )
 
         github_provider_form_obj = pretend.stub()
@@ -4778,6 +4783,7 @@ class TestManageOIDCProviderViews:
 
         view = views.ManageOIDCProviderViews(project, request)
         assert view.manage_project_oidc_providers() == {
+            "oidc_enabled": True,
             "project": project,
             "github_provider_form": github_provider_form_obj,
         }
@@ -4785,7 +4791,6 @@ class TestManageOIDCProviderViews:
         assert request.flags.enabled.calls == [
             pretend.call(AdminFlagValue.DISALLOW_OIDC)
         ]
-        assert request.registry.settings.get.calls == [pretend.call("github.token")]
         assert github_provider_form_cls.calls == [
             pretend.call(request.POST, api_token="fake-api-token")
         ]
@@ -4793,14 +4798,15 @@ class TestManageOIDCProviderViews:
     def test_manage_project_oidc_providers_admin_disabled(self, monkeypatch):
         project = pretend.stub()
         request = pretend.stub(
+            registry=pretend.stub(
+                settings={
+                    "warehouse.oidc.enabled": True,
+                    "github.token": "fake-api-token",
+                }
+            ),
             flags=pretend.stub(enabled=pretend.call_recorder(lambda f: True)),
             session=pretend.stub(flash=pretend.call_recorder(lambda *a, **kw: None)),
             POST=pretend.stub(),
-            registry=pretend.stub(
-                settings=pretend.stub(
-                    get=pretend.call_recorder(lambda k: "fake-api-token")
-                )
-            ),
         )
 
         view = views.ManageOIDCProviderViews(project, request)
@@ -4812,6 +4818,7 @@ class TestManageOIDCProviderViews:
 
         view = views.ManageOIDCProviderViews(project, request)
         assert view.manage_project_oidc_providers() == {
+            "oidc_enabled": True,
             "project": project,
             "github_provider_form": github_provider_form_obj,
         }
@@ -4828,7 +4835,6 @@ class TestManageOIDCProviderViews:
                 queue="error",
             )
         ]
-        assert request.registry.settings.get.calls == [pretend.call("github.token")]
         assert github_provider_form_cls.calls == [
             pretend.call(request.POST, api_token="fake-api-token")
         ]
@@ -4852,6 +4858,12 @@ class TestManageOIDCProviderViews:
         )
 
         request = pretend.stub(
+            registry=pretend.stub(
+                settings={
+                    "warehouse.oidc.enabled": True,
+                    "github.token": "fake-api-token",
+                }
+            ),
             flags=pretend.stub(enabled=pretend.call_recorder(lambda f: False)),
             session=pretend.stub(flash=pretend.call_recorder(lambda *a, **kw: None)),
             POST=pretend.stub(),
@@ -4860,11 +4872,6 @@ class TestManageOIDCProviderViews:
                     filter=lambda *a: pretend.stub(one_or_none=lambda: provider)
                 ),
                 add=pretend.call_recorder(lambda o: None),
-            ),
-            registry=pretend.stub(
-                settings=pretend.stub(
-                    get=pretend.call_recorder(lambda k: "fake-api-token")
-                )
             ),
             remote_addr="0.0.0.0",
         )
@@ -4892,6 +4899,7 @@ class TestManageOIDCProviderViews:
         )
 
         assert view.add_github_oidc_provider() == {
+            "oidc_enabled": True,
             "project": project,
             "github_provider_form": github_provider_form_obj,
         }
@@ -4927,6 +4935,12 @@ class TestManageOIDCProviderViews:
         )
 
         request = pretend.stub(
+            registry=pretend.stub(
+                settings={
+                    "warehouse.oidc.enabled": True,
+                    "github.token": "fake-api-token",
+                }
+            ),
             flags=pretend.stub(enabled=pretend.call_recorder(lambda f: False)),
             session=pretend.stub(flash=pretend.call_recorder(lambda *a, **kw: None)),
             POST=pretend.stub(),
@@ -4935,11 +4949,6 @@ class TestManageOIDCProviderViews:
                     filter=lambda *a: pretend.stub(one_or_none=lambda: None)
                 ),
                 add=pretend.call_recorder(lambda o: setattr(o, "id", "fakeid")),
-            ),
-            registry=pretend.stub(
-                settings=pretend.stub(
-                    get=pretend.call_recorder(lambda k: "fake-api-token")
-                )
             ),
             remote_addr="0.0.0.0",
         )
@@ -4974,6 +4983,7 @@ class TestManageOIDCProviderViews:
         )
 
         assert view.add_github_oidc_provider() == {
+            "oidc_enabled": True,
             "project": project,
             "github_provider_form": github_provider_form_obj,
         }
@@ -5026,6 +5036,12 @@ class TestManageOIDCProviderViews:
         )
 
         request = pretend.stub(
+            registry=pretend.stub(
+                settings={
+                    "warehouse.oidc.enabled": True,
+                    "github.token": "fake-api-token",
+                }
+            ),
             flags=pretend.stub(enabled=pretend.call_recorder(lambda f: False)),
             session=pretend.stub(flash=pretend.call_recorder(lambda *a, **kw: None)),
             POST=pretend.stub(),
@@ -5033,11 +5049,6 @@ class TestManageOIDCProviderViews:
                 query=lambda *a: pretend.stub(
                     filter=lambda *a: pretend.stub(one_or_none=lambda: provider)
                 ),
-            ),
-            registry=pretend.stub(
-                settings=pretend.stub(
-                    get=pretend.call_recorder(lambda k: "fake-api-token")
-                )
             ),
         )
 
@@ -5061,6 +5072,7 @@ class TestManageOIDCProviderViews:
         )
 
         assert view.add_github_oidc_provider() == {
+            "oidc_enabled": True,
             "project": project,
             "github_provider_form": github_provider_form_obj,
         }
@@ -5075,6 +5087,11 @@ class TestManageOIDCProviderViews:
     def test_add_github_oidc_provider_ratelimited(self, monkeypatch):
         project = pretend.stub()
         request = pretend.stub(
+            registry=pretend.stub(
+                settings={
+                    "warehouse.oidc.enabled": True,
+                }
+            ),
             flags=pretend.stub(enabled=pretend.call_recorder(lambda f: False)),
             _=lambda s: s,
         )
@@ -5094,9 +5111,24 @@ class TestManageOIDCProviderViews:
 
         assert view.add_github_oidc_provider().__class__ == HTTPTooManyRequests
 
+    def test_add_github_oidc_provider_oidc_not_enabled(self, monkeypatch):
+        project = pretend.stub()
+        request = pretend.stub(
+            registry=pretend.stub(settings={"warehouse.oidc.enabled": False}),
+        )
+
+        view = views.ManageOIDCProviderViews(project, request)
+        default_response = {"_": pretend.stub()}
+        monkeypatch.setattr(
+            views.ManageOIDCProviderViews, "default_response", default_response
+        )
+
+        assert view.add_github_oidc_provider() == default_response
+
     def test_add_github_oidc_provider_admin_disabled(self, monkeypatch):
         project = pretend.stub()
         request = pretend.stub(
+            registry=pretend.stub(settings={"warehouse.oidc.enabled": True}),
             flags=pretend.stub(enabled=pretend.call_recorder(lambda f: True)),
             session=pretend.stub(flash=pretend.call_recorder(lambda *a, **kw: None)),
             _=lambda s: s,
@@ -5122,6 +5154,7 @@ class TestManageOIDCProviderViews:
     def test_add_github_oidc_provider_invalid_form(self, monkeypatch):
         project = pretend.stub()
         request = pretend.stub(
+            registry=pretend.stub(settings={"warehouse.oidc.enabled": True}),
             flags=pretend.stub(enabled=pretend.call_recorder(lambda f: False)),
             session=pretend.stub(flash=pretend.call_recorder(lambda *a, **kw: None)),
             _=lambda s: s,
@@ -5161,6 +5194,7 @@ class TestManageOIDCProviderViews:
             record_event=pretend.call_recorder(lambda *a, **kw: None),
         )
         request = pretend.stub(
+            registry=pretend.stub(settings={"warehouse.oidc.enabled": True}),
             flags=pretend.stub(enabled=pretend.call_recorder(lambda f: False)),
             session=pretend.stub(flash=pretend.call_recorder(lambda *a, **kw: None)),
             POST=pretend.stub(),
@@ -5230,6 +5264,7 @@ class TestManageOIDCProviderViews:
         provider = pretend.stub()
         project = pretend.stub(oidc_providers=[provider])
         request = pretend.stub(
+            registry=pretend.stub(settings={"warehouse.oidc.enabled": True}),
             flags=pretend.stub(enabled=pretend.call_recorder(lambda f: False)),
             POST=pretend.stub(),
         )
@@ -5271,6 +5306,7 @@ class TestManageOIDCProviderViews:
             record_event=pretend.call_recorder(lambda *a, **kw: None),
         )
         request = pretend.stub(
+            registry=pretend.stub(settings={"warehouse.oidc.enabled": True}),
             flags=pretend.stub(enabled=pretend.call_recorder(lambda f: False)),
             session=pretend.stub(flash=pretend.call_recorder(lambda *a, **kw: None)),
             POST=pretend.stub(),
@@ -5307,9 +5343,24 @@ class TestManageOIDCProviderViews:
         assert delete_provider_form_cls.calls == [pretend.call(request.POST)]
         assert delete_provider_form_obj.validate.calls == [pretend.call()]
 
+    def test_delete_oidc_provider_oidc_not_enabled(self, monkeypatch):
+        project = pretend.stub()
+        request = pretend.stub(
+            registry=pretend.stub(settings={"warehouse.oidc.enabled": False}),
+        )
+
+        view = views.ManageOIDCProviderViews(project, request)
+        default_response = {"_": pretend.stub()}
+        monkeypatch.setattr(
+            views.ManageOIDCProviderViews, "default_response", default_response
+        )
+
+        assert view.delete_oidc_provider() == default_response
+
     def test_delete_oidc_provider_admin_disabled(self, monkeypatch):
         project = pretend.stub()
         request = pretend.stub(
+            registry=pretend.stub(settings={"warehouse.oidc.enabled": True}),
             flags=pretend.stub(enabled=pretend.call_recorder(lambda f: True)),
             session=pretend.stub(flash=pretend.call_recorder(lambda *a, **kw: None)),
         )
