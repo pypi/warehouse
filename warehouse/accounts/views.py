@@ -677,7 +677,12 @@ def reset_password(request, _form_class=ResetPasswordForm):
     # now it's localized to UTC
     if not password_date.tzinfo:
         password_date = pytz.UTC.localize(password_date)
-    if user.password_date > password_date:
+    current_password_date = (
+        user.password_date
+        if user.password_date is not None
+        else datetime.datetime.min.replace(tzinfo=pytz.UTC)
+    )
+    if current_password_date > password_date:
         return _error(
             request._(
                 "Invalid token: password has already been changed since this "
