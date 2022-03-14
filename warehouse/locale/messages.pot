@@ -241,39 +241,39 @@ msgstr ""
 msgid "Generating new recovery codes will invalidate your existing codes."
 msgstr ""
 
-#: warehouse/manage/views.py:1174
+#: warehouse/manage/views.py:1182
 msgid ""
 "There have been too many attempted OpenID Connect registrations. Try "
 "again later."
 msgstr ""
 
-#: warehouse/manage/views.py:1835
+#: warehouse/manage/views.py:1846
 msgid "User '${username}' already has ${role_name} role for project"
 msgstr ""
 
-#: warehouse/manage/views.py:1846
+#: warehouse/manage/views.py:1857
 msgid ""
 "User '${username}' does not have a verified primary email address and "
 "cannot be added as a ${role_name} for project"
 msgstr ""
 
-#: warehouse/manage/views.py:1859
+#: warehouse/manage/views.py:1870
 msgid "User '${username}' already has an active invite. Please try again later."
 msgstr ""
 
-#: warehouse/manage/views.py:1917
+#: warehouse/manage/views.py:1928
 msgid "Invitation sent to '${username}'"
 msgstr ""
 
-#: warehouse/manage/views.py:1964
+#: warehouse/manage/views.py:1975
 msgid "Could not find role invitation."
 msgstr ""
 
-#: warehouse/manage/views.py:1975
+#: warehouse/manage/views.py:1986
 msgid "Invitation already expired."
 msgstr ""
 
-#: warehouse/manage/views.py:1999
+#: warehouse/manage/views.py:2010
 msgid "Invitation revoked from '${username}'."
 msgstr ""
 
@@ -3055,6 +3055,13 @@ msgstr ""
 
 #: warehouse/templates/manage/publishing.html:143
 msgid "No publishers are currently configured."
+msgstr ""
+
+#: warehouse/templates/manage/publishing.html:147
+msgid ""
+"\n"
+"      OpenID Connect publishing isn't enabled yet! Come back soon.\n"
+"      "
 msgstr ""
 
 #: warehouse/templates/manage/release.html:18
