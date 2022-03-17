@@ -68,9 +68,7 @@ def _authenticate(userid, request):
 
     if request.session.password_outdated(login_service.get_password_timestamp(userid)):
         request.session.invalidate()
-        request.session.flash(
-            request._("Session invalidated by password change"), queue="error"
-        )
+        request.session.flash("Session invalidated by password change", queue="error")
         return
 
     principals = []
