@@ -4839,6 +4839,17 @@ class TestManageOIDCProviderViews:
             pretend.call(request.POST, api_token="fake-api-token")
         ]
 
+    def test_manage_project_oidc_providers_oidc_not_enabled(self):
+        project = pretend.stub()
+        request = pretend.stub(
+            registry=pretend.stub(settings={"warehouse.oidc.enabled": False}),
+        )
+
+        view = views.ManageOIDCProviderViews(project, request)
+
+        with pytest.raises(HTTPNotFound):
+            view.manage_project_oidc_providers()
+
     def test_add_github_oidc_provider_preexisting(self, monkeypatch):
         provider = pretend.stub(
             id="fakeid",
@@ -5111,19 +5122,16 @@ class TestManageOIDCProviderViews:
 
         assert view.add_github_oidc_provider().__class__ == HTTPTooManyRequests
 
-    def test_add_github_oidc_provider_oidc_not_enabled(self, monkeypatch):
+    def test_add_github_oidc_provider_oidc_not_enabled(self):
         project = pretend.stub()
         request = pretend.stub(
             registry=pretend.stub(settings={"warehouse.oidc.enabled": False}),
         )
 
         view = views.ManageOIDCProviderViews(project, request)
-        default_response = {"_": pretend.stub()}
-        monkeypatch.setattr(
-            views.ManageOIDCProviderViews, "default_response", default_response
-        )
 
-        assert view.add_github_oidc_provider() == default_response
+        with pytest.raises(HTTPNotFound):
+            view.add_github_oidc_provider()
 
     def test_add_github_oidc_provider_admin_disabled(self, monkeypatch):
         project = pretend.stub()
@@ -5343,19 +5351,16 @@ class TestManageOIDCProviderViews:
         assert delete_provider_form_cls.calls == [pretend.call(request.POST)]
         assert delete_provider_form_obj.validate.calls == [pretend.call()]
 
-    def test_delete_oidc_provider_oidc_not_enabled(self, monkeypatch):
+    def test_delete_oidc_provider_oidc_not_enabled(self):
         project = pretend.stub()
         request = pretend.stub(
             registry=pretend.stub(settings={"warehouse.oidc.enabled": False}),
         )
 
         view = views.ManageOIDCProviderViews(project, request)
-        default_response = {"_": pretend.stub()}
-        monkeypatch.setattr(
-            views.ManageOIDCProviderViews, "default_response", default_response
-        )
 
-        assert view.delete_oidc_provider() == default_response
+        with pytest.raises(HTTPNotFound):
+            view.delete_oidc_provider()
 
     def test_delete_oidc_provider_admin_disabled(self, monkeypatch):
         project = pretend.stub()
