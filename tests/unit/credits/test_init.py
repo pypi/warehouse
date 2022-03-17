@@ -24,7 +24,7 @@ def test_includeme(with_github_access_token):
 
     config = pretend.stub(
         get_settings=lambda: (
-            {"warehouse.github_access_token": "foobar"}
+            {"github.token": "foobar"}
             if with_github_access_token
             else {}
         ),

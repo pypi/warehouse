@@ -39,7 +39,7 @@ def get_contributors(request):
 
     contributors = {}
 
-    access_token = request.registry.settings["warehouse.github_access_token"]
+    access_token = request.registry.settings.get("github.token")
 
     if access_token is None:
         return 1
