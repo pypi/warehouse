@@ -1167,9 +1167,9 @@ translationstring==1.4 \
     --hash=sha256:5f4dc4d939573db851c8d840551e1a0fb27b946afe3b95aafc22577eed2d6262 \
     --hash=sha256:bf947538d76e69ba12ab17283b10355a9ecfbc078e6123443f43f2107f6376f3
     # via pyramid
-trove-classifiers==2022.3.10 \
-    --hash=sha256:428e5778f35b7061a47b638fca20fc281373d728efa5647a62eb0cc151f2c490 \
-    --hash=sha256:a4d90bb080d17bff50a1db053636073d6ab1376a2cd065d4b8b39e8d13e34946
+trove-classifiers==2022.3.16 \
+    --hash=sha256:2f4512b08ad5fe4e9a0e2cd0da784ab5224dcb4a4cbe0f72575c33a4ec1dc2f8 \
+    --hash=sha256:b6e43941a9528d43df888f64a6c7f219e72d9d93b00f6f2311ba49ceefc0428f
     # via -r requirements/main.in
 typeguard==2.13.3 \
     --hash=sha256:00edaa8da3a133674796cf5ea87d9f4b4c367d77476e185e80251cc13dfbb8c4 \
