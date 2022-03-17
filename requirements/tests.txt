@@ -216,9 +216,9 @@ urllib3==1.26.8 \
     #   requests
     #   responses
     #   selenium
-waitress==2.1.0 \
-    --hash=sha256:58bd2fa1c2c82adf6e322ae7151f4fbd5176d2769602407a61b9c92b1606c2ef \
-    --hash=sha256:ec8a8d9b6b15f3bb2c1a82b8f3929a029c333c35fcafb08c185a9e562d8cc9c2
+waitress==2.1.1 \
+    --hash=sha256:c549f5b2b4afd44d9d97d7cec79f3ef581e25d832827f415dc175327af674aa8 \
+    --hash=sha256:e2e60576cf14a1539da79f7b7ee1e79a71e64f366a0b47db54a15e971f57bb16
     # via webtest
 webob==1.8.7 \
     --hash=sha256:73aae30359291c14fa3b956f8b5ca31960e420c28c1bec002547fb04928cf89b \
