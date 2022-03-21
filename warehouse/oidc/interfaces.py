@@ -31,9 +31,7 @@ class IOIDCProviderService(Interface):
     def verify_signature_only(token):
         """
         Verify the given JWT's signature and basic claims, returning
-        a tuple of (valid, decoded) where `valid` indicates
-        the validity of the JWT and `decoded` is the decoded JWT,
-        or `None` if invalid.
+        the decoded JWT, or `None` if invalid.
 
         This function **does not** verify the token's suitability
         for a particular action; subsequent checks on the decoded token's

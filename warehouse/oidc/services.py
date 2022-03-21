@@ -184,15 +184,15 @@ class OIDCProviderService:
                 audience="pypi",
                 leeway=30,
             )
-            return True, valid_token
+            return valid_token
         except jwt.PyJWTError:
-            return False, None
+            return None
         except Exception as e:
             # We expect pyjwt to only raise subclasses of PyJWTError, but
             # we can't enforce this. Other exceptions indicate an abstraction
             # leak, so we log them for upstream reporting.
             sentry_sdk.capture_message(f"JWT verify raised generic error: {e}")
-            return False, None
+            return None
 
 
 class OIDCProviderServiceFactory:
