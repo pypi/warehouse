@@ -430,6 +430,10 @@ class TestDatabaseUserService:
             user_service.disable_password(user.id, reason=reason)
         assert user_service.is_disabled(user.id) == (disabled, reason)
 
+    def test_is_disabled_user_frozen(self, user_service):
+        user = UserFactory.create(is_frozen=True)
+        assert user_service.is_disabled(user.id) == (True, DisableReason.AccountFrozen)
+
     def test_updating_password_undisables(self, user_service):
         user = UserFactory.create()
         user_service.disable_password(user.id, reason=DisableReason.CompromisedPassword)
