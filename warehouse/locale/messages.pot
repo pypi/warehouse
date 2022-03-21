@@ -3596,7 +3596,7 @@ msgstr ""
 msgid ""
 "\n"
 "      <strong>Forgot to safely store your recovery codes?</strong> You'll"
-" need to generate a them again.\n"
+" need to generate them again.\n"
 "      "
 msgstr ""
 
