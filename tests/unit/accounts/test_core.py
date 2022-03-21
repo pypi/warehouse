@@ -16,6 +16,8 @@ import freezegun
 import pretend
 import pytest
 
+from pyramid.httpexceptions import HTTPUnauthorized
+
 from warehouse import accounts
 from warehouse.accounts import AuthenticationMethod
 from warehouse.accounts.interfaces import (
@@ -121,32 +123,15 @@ class TestLogin:
         pyramid_request.matched_route = pretend.stub(name="forklift.legacy.file_upload")
         pyramid_request.help_url = pretend.call_recorder(lambda **kw: "/the/help/url/")
 
-        with pytest.raises(BasicAuthFailedPassword) as excinfo:
+        with pytest.raises(HTTPUnauthorized) as excinfo:
             assert (
                 accounts._basic_auth_check("myuser", "mypass", pyramid_request) is None
             )
 
-        assert excinfo.value.status == (
-            "403 Invalid or non-existent authentication information. "
-            "See /the/help/url/ for more information."
-        )
+        assert excinfo.value.status == "401 Account is disabled."
         assert service.find_userid.calls == [pretend.call("myuser")]
         assert service.get_user.calls == [pretend.call(1)]
         assert service.is_disabled.calls == [pretend.call(1)]
-        assert service.check_password.calls == [
-            pretend.call(
-                1,
-                "mypass",
-                tags=["mechanism:basic_auth", "method:auth", "auth_method:basic"],
-            )
-        ]
-        assert user.record_event.calls == [
-            pretend.call(
-                tag="account:login:failure",
-                ip_address="1.2.3.4",
-                additional={"reason": "invalid_password", "auth_method": "basic"},
-            )
-        ]
 
     def test_with_disabled_user_compromised_pw(self, pyramid_request, pyramid_services):
         user = pretend.stub(id=1)
@@ -178,6 +163,39 @@ class TestLogin:
         assert service.get_user.calls == [pretend.call(1)]
         assert service.is_disabled.calls == [pretend.call(1)]
         assert service.check_password.calls == []
+
+    def test_with_disabled_user_frozen(self, pyramid_request, pyramid_services):
+        user = pretend.stub(
+            id=1,
+            record_event=pretend.call_recorder(lambda *a, **kw: None),
+            is_frozen=True,
+        )
+        service = pretend.stub(
+            get_user=pretend.call_recorder(lambda user_id: user),
+            find_userid=pretend.call_recorder(lambda username: 1),
+            check_password=pretend.call_recorder(
+                lambda userid, password, tags=None: False
+            ),
+            is_disabled=pretend.call_recorder(
+                lambda user_id: (True, DisableReason.AccountFrozen)
+            ),
+        )
+        pyramid_services.register_service(service, IUserService, None)
+        pyramid_services.register_service(
+            pretend.stub(), IPasswordBreachedService, None
+        )
+        pyramid_request.matched_route = pretend.stub(name="forklift.legacy.file_upload")
+        pyramid_request.help_url = pretend.call_recorder(lambda **kw: "/the/help/url/")
+
+        with pytest.raises(HTTPUnauthorized) as excinfo:
+            assert (
+                accounts._basic_auth_check("myuser", "mypass", pyramid_request) is None
+            )
+
+        assert excinfo.value.status == "401 Account is frozen."
+        assert service.find_userid.calls == [pretend.call("myuser")]
+        assert service.get_user.calls == [pretend.call(1)]
+        assert service.is_disabled.calls == [pretend.call(1)]
 
     def test_with_valid_password(self, monkeypatch, pyramid_request, pyramid_services):
         principals = pretend.stub()

@@ -54,6 +54,7 @@ class UserFactory:
 class DisableReason(enum.Enum):
 
     CompromisedPassword = "password compromised"
+    AccountFrozen = "account frozen"
 
 
 class User(SitemapMixin, db.Model):
@@ -74,6 +75,7 @@ class User(SitemapMixin, db.Model):
     password = Column(String(length=128), nullable=False)
     password_date = Column(TZDateTime, nullable=True, server_default=sql.func.now())
     is_active = Column(Boolean, nullable=False, server_default=sql.false())
+    is_frozen = Column(Boolean, nullable=False, server_default=sql.false())
     is_superuser = Column(Boolean, nullable=False, server_default=sql.false())
     is_moderator = Column(Boolean, nullable=False, server_default=sql.false())
     is_psf_staff = Column(Boolean, nullable=False, server_default=sql.false())
