@@ -9,25 +9,30 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+"""
+Add User.is_frozen
 
-from pyramid.httpexceptions import HTTPForbidden, HTTPUnauthorized
-from pyramid.security import Denied
+Revision ID: fdf9e337538a
+Revises: 19cf76d2d459
+Create Date: 2022-03-21 17:02:22.924858
+"""
+
+import sqlalchemy as sa
+
+from alembic import op
+
+revision = "fdf9e337538a"
+down_revision = "19cf76d2d459"
 
 
-class BasicAuthFailedPassword(HTTPForbidden):
-    pass
+def upgrade():
+    op.add_column(
+        "users",
+        sa.Column(
+            "is_frozen", sa.Boolean(), server_default=sa.text("false"), nullable=False
+        ),
+    )
 
 
-class BasicAuthBreachedPassword(HTTPUnauthorized):
-    pass
-
-
-class BasicAuthAccountFrozen(HTTPUnauthorized):
-    pass
-
-
-class WarehouseDenied(Denied):
-    def __new__(cls, s, *args, reason=None, **kwargs):
-        inner = super().__new__(cls, s, *args, **kwargs)
-        inner.reason = reason
-        return inner
+def downgrade():
+    op.drop_column("users", "is_frozen")

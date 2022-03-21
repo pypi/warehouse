@@ -26,7 +26,7 @@ from pyramid_rpc.xmlrpc import XMLRPCRenderer
 
 from warehouse.errors import BasicAuthBreachedPassword, BasicAuthFailedPassword
 from warehouse.utils.static import ManifestCacheBuster
-from warehouse.utils.wsgi import HostRewrite, ProxyFixer, VhmRootRemover
+from warehouse.utils.wsgi import ProxyFixer, VhmRootRemover
 
 
 class Environment(enum.Enum):
@@ -588,10 +588,6 @@ def configure(settings=None):
 
     # Protect against cache poisoning via the X-Vhm-Root headers.
     config.add_wsgi_middleware(VhmRootRemover)
-
-    # Fix our host header when getting sent upload.pypi.io as a HOST.
-    # TODO: Remove this, this is at the wrong layer.
-    config.add_wsgi_middleware(HostRewrite)
 
     # We want Sentry to be the last things we add here so that it's the outer
     # most WSGI middleware.

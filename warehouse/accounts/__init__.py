@@ -14,6 +14,7 @@ import datetime
 import enum
 
 from pyramid.authorization import ACLAuthorizationPolicy
+from pyramid.httpexceptions import HTTPUnauthorized
 from pyramid_multiauth import MultiAuthenticationPolicy
 
 from warehouse.accounts.auth_policy import (
@@ -34,7 +35,11 @@ from warehouse.accounts.services import (
     database_login_factory,
 )
 from warehouse.email import send_password_compromised_email_hibp
-from warehouse.errors import BasicAuthBreachedPassword, BasicAuthFailedPassword
+from warehouse.errors import (
+    BasicAuthAccountFrozen,
+    BasicAuthBreachedPassword,
+    BasicAuthFailedPassword,
+)
 from warehouse.macaroons.auth_policy import (
     MacaroonAuthenticationPolicy,
     MacaroonAuthorizationPolicy,
@@ -101,7 +106,7 @@ def _basic_auth_check(username, password, request):
     if userid is not None:
         user = login_service.get_user(userid)
         is_disabled, disabled_for = login_service.is_disabled(user.id)
-        if is_disabled and disabled_for == DisableReason.CompromisedPassword:
+        if is_disabled:
             # This technically violates the contract a little bit, this function is
             # meant to return None if the user cannot log in. However we want to present
             # a different error message than is normal when we're denying the log in
@@ -110,9 +115,14 @@ def _basic_auth_check(username, password, request):
             # here because we've already successfully authenticated the credentials, so
             # it won't screw up the fall through to other authentication mechanisms
             # (since we wouldn't have fell through to them anyways).
-            raise _format_exc_status(
-                BasicAuthBreachedPassword(), breach_service.failure_message_plain
-            )
+            if disabled_for == DisableReason.CompromisedPassword:
+                raise _format_exc_status(
+                    BasicAuthBreachedPassword(), breach_service.failure_message_plain
+                )
+            elif disabled_for == DisableReason.AccountFrozen:
+                raise _format_exc_status(BasicAuthAccountFrozen(), "Account is frozen.")
+            else:
+                raise _format_exc_status(HTTPUnauthorized(), "Account is disabled.")
         elif login_service.check_password(
             user.id,
             password,

@@ -81,19 +81,3 @@ class VhmRootRemover:
             del environ["HTTP_X_VHM_ROOT"]
 
         return self.app(environ, start_response)
-
-
-class HostRewrite:
-
-    # TODO: This entire class should not be required.
-
-    def __init__(self, app):
-        self.app = app
-
-    def __call__(self, environ, start_response):
-        # If the host header matches upload.pypi.io, then we want to rewrite it
-        # so that it is instead upload.pypi.org.
-        if environ.get("HTTP_HOST", "").lower() == "upload.pypi.io":
-            environ["HTTP_HOST"] = "upload.pypi.org"
-
-        return self.app(environ, start_response)

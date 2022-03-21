@@ -43,7 +43,7 @@ from warehouse.accounts.interfaces import (
     TooManyEmailsAdded,
     TooManyFailedLogins,
 )
-from warehouse.accounts.models import Email, RecoveryCode, User, WebAuthn
+from warehouse.accounts.models import DisableReason, Email, RecoveryCode, User, WebAuthn
 from warehouse.metrics import IMetricsService
 from warehouse.rate_limiting import DummyRateLimiter, IRateLimiter
 from warehouse.utils.crypto import BadData, SignatureExpired, URLSafeTimedSerializer
@@ -280,12 +280,15 @@ class DatabaseUserService:
     def is_disabled(self, user_id):
         user = self.get_user(user_id)
 
-        # User is not disabled.
-        if self.hasher.is_enabled(user.password):
-            return (False, None)
-        # User is disabled.
-        else:
+        if user.is_frozen:
+            return (True, DisableReason.AccountFrozen)
+
+        # User is disabled due to password being disabled
+        if not self.hasher.is_enabled(user.password):
             return (True, user.disabled_for)
+
+        # User is not disabled.
+        return (False, None)
 
     def has_two_factor(self, user_id):
         """
