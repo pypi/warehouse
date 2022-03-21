@@ -86,7 +86,7 @@
           <span class="form-group__required">{% trans %}(required){% endtrans %}</span>
           {% endif %}
         </label>
-        {{ github_provider_form.owner(placeholder=gettext("owner"), autocomplete="off", autocapitalize="off", spellcheck="false", class_="form-group__field", **{"aria-describedby":"owner-errors"}) }}
+        {{ github_provider_form.owner(placeholder=gettext("owner"), autocomplete="off", autocapitalize="off", spellcheck="false", class_="form-group__field", aria_describedby="owner-errors") }}
         <div id="owner-errors">
           {{ field_errors(github_provider_form.owner) }}
         </div>
