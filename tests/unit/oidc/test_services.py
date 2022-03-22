@@ -69,7 +69,7 @@ class TestOIDCProviderService:
         )
         monkeypatch.setattr(services, "jwt", jwt)
 
-        assert service.verify_signature_only(token) == (True, decoded)
+        assert service.verify_signature_only(token) == decoded
         assert jwt.decode.calls == [
             pretend.call(
                 token,
@@ -104,7 +104,7 @@ class TestOIDCProviderService:
         )
         monkeypatch.setattr(services, "jwt", jwt)
 
-        assert service.verify_signature_only(token) == (False, None)
+        assert service.verify_signature_only(token) is None
 
     def test_get_keyset_not_cached(self, monkeypatch):
         service = services.OIDCProviderService(
