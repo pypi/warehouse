@@ -13,7 +13,7 @@
 Add initial OIDC provider models
 
 Revision ID: f345394c444f
-Revises: 19cf76d2d459
+Revises: fdf9e337538a
 Create Date: 2022-02-15 21:11:41.693791
 """
 
@@ -23,7 +23,7 @@ from alembic import op
 from sqlalchemy.dialects import postgresql
 
 revision = "f345394c444f"
-down_revision = "19cf76d2d459"
+down_revision = "fdf9e337538a"
 
 # Note: It is VERY important to ensure that a migration does not lock for a
 #       long period of time and to ensure that each individual migration does
