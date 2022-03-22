@@ -1186,11 +1186,12 @@ class ManageOIDCProviderViews:
                 retry_after=exc.resets_in.total_seconds(),
             )
 
+        self._hit_ratelimits()
+
         response = self.default_response
         form = response["github_provider_form"]
 
         if form.validate():
-            self._hit_ratelimits()
             # GitHub OIDC providers are unique on the tuple of
             # (repository_name, owner, workflow_name), so we check for
             # an already registered one before creating.

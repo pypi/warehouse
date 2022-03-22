@@ -5184,8 +5184,13 @@ class TestManageOIDCProviderViews:
         monkeypatch.setattr(
             view, "_check_ratelimits", pretend.call_recorder(lambda: None)
         )
+        monkeypatch.setattr(
+            view, "_hit_ratelimits", pretend.call_recorder(lambda: None)
+        )
 
         assert view.add_github_oidc_provider() == default_response
+        assert view._hit_ratelimits.calls == [pretend.call()]
+        assert view._check_ratelimits.calls == [pretend.call()]
         assert github_provider_form_obj.validate.calls == [pretend.call()]
 
     def test_delete_oidc_provider(self, monkeypatch):
