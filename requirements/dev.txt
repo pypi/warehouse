@@ -1,4 +1,4 @@
-hupper>=1.9
+hupper>=1.10.3
 pip-api
 pip-tools>=1.0
 pyramid_debugtoolbar>=2.5

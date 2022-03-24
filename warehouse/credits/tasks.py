@@ -47,7 +47,11 @@ def get_contributors(request):
     github = github3.login(token=access_token)
     repo = github.repository("pypa", "warehouse")
     for c in repo.contributors():
-        u = github.user(c)
+        # github3.Contributor class refreshes to a User according to the
+        # documentation here:
+        # https://github3.readthedocs.io/en/latest/api-reference/users.html#github3.users.Contributor
+        u = c.refresh()
+
         print(f"u: {u}: u.name: {u.name}; u.html_url: {u.html_url}")
         if u.login in ignore_bots:
             print(f"ignoring bot user {u.login}")
@@ -59,7 +63,6 @@ def get_contributors(request):
             "name": u.name,
             "html_url": u.html_url,
         }
-
     # Get the list of contributors from the db, compare them to the list
     # from GitHub, add new items to the db
     query = request.db.query(
