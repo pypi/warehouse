@@ -241,11 +241,6 @@ This command will:
 * load some example data from `Test PyPI`_, and
 * index all the data for the search database.
 
-.. note::
-
-    If you get an error about xz, you may need to install the ``xz`` utility.
-    This is highly likely on macOS and Windows.
-
 Once the ``make initdb`` command has finished, you are ready to continue.
 
 

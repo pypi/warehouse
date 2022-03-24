@@ -86,7 +86,7 @@ initdb: .state/docker-build-web
 	docker-compose run --rm web psql -h db -d postgres -U postgres -c "SELECT pg_terminate_backend(pid) FROM pg_stat_activity WHERE datname ='warehouse';"
 	docker-compose run --rm web psql -h db -d postgres -U postgres -c "DROP DATABASE IF EXISTS warehouse"
 	docker-compose run --rm web psql -h db -d postgres -U postgres -c "CREATE DATABASE warehouse ENCODING 'UTF8'"
-	xz -d -f -k dev/$(DB).sql.xz --stdout | docker-compose run --rm web psql -h db -d warehouse -U postgres -v ON_ERROR_STOP=1 -1 -f -
+	docker-compose run --rm web bash -c "xz -d -f -k dev/$(DB).sql.xz --stdout | psql -h db -d warehouse -U postgres -v ON_ERROR_STOP=1 -1 -f -"
 	docker-compose run --rm web python -m warehouse db upgrade head
 	docker-compose run --rm web python -m warehouse sponsors populate-db
 	$(MAKE) reindex

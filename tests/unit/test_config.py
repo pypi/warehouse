@@ -24,7 +24,7 @@ from pyramid.tweens import EXCVIEW
 
 from warehouse import config
 from warehouse.errors import BasicAuthBreachedPassword, BasicAuthFailedPassword
-from warehouse.utils.wsgi import HostRewrite, ProxyFixer, VhmRootRemover
+from warehouse.utils.wsgi import ProxyFixer, VhmRootRemover
 
 
 class TestRequireHTTPSTween:
@@ -301,7 +301,6 @@ def test_configure(monkeypatch, settings, environment):
     assert configurator_obj.add_wsgi_middleware.calls == [
         pretend.call(ProxyFixer, token="insecure token", num_proxies=1),
         pretend.call(VhmRootRemover),
-        pretend.call(HostRewrite),
     ]
     assert configurator_obj.include.calls == (
         [

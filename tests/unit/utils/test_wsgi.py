@@ -162,29 +162,3 @@ class TestVhmRootRemover:
 
         assert resp is response
         assert app.calls == [pretend.call({"HTTP_X_FOOBAR": "wat"}, start_response)]
-
-
-class TestHostRewrite:
-    def test_rewrites_host(self):
-        response = pretend.stub()
-        app = pretend.call_recorder(lambda e, s: response)
-        environ = {"HTTP_HOST": "upload.pypi.io"}
-        start_response = pretend.stub()
-
-        resp = wsgi.HostRewrite(app)(environ, start_response)
-
-        assert resp is response
-        assert app.calls == [
-            pretend.call({"HTTP_HOST": "upload.pypi.org"}, start_response)
-        ]
-
-    def test_ignores_other_hosts(self):
-        response = pretend.stub()
-        app = pretend.call_recorder(lambda e, s: response)
-        environ = {"HTTP_HOST": "example.com"}
-        start_response = pretend.stub()
-
-        resp = wsgi.HostRewrite(app)(environ, start_response)
-
-        assert resp is response
-        assert app.calls == [pretend.call({"HTTP_HOST": "example.com"}, start_response)]
