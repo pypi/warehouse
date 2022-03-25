@@ -42,8 +42,15 @@ def dev():
 
 @dev.command()
 @click.pass_obj
-@click.option("--name", "name_", help="The name of the TUF role for this keypair")
-@click.option("--path", "path_", help="The basename of the Ed25519 keypair to generate")
+@click.option(
+    "--name", "name_", required=True, help="The name of the TUF role for this keypair"
+)
+@click.option(
+    "--path",
+    "path_",
+    required=True,
+    help="The basename of the Ed25519 keypair to generate",
+)
 def keypair(config, name_, path_):
     """
     Generate a new TUF keypair.
@@ -117,12 +124,12 @@ def add_all_packages(config):
     packages already in existence, so we'll add some additional data to their targets to
     indicate that we're back-signing them.
     """
+
     from warehouse.db import Session
     from warehouse.packaging.models import File
 
     request = config.task(_add_hashed_targets).get_request()
     db = Session(bind=request.registry["sqlalchemy.engine"])
-
     targets = list()
     for file in db.query(File).all():
         hashes = {"blake2b-256": file.blake2_256_digest}
@@ -152,7 +159,7 @@ def add_all_indexes(config):
         try:
             simple_detail = render_simple_detail(project, request, store=True)
         except OSError as err:
-            click.ClickException(str(err))
+            raise click.ClickException(str(err))
 
         if simple_detail.get("content_hash") is None:
             continue
