@@ -22,7 +22,6 @@ from contextlib import contextmanager
 from securesystemslib.exceptions import StorageError
 from securesystemslib.interface import (
     import_ed25519_privatekey_from_file,
-    import_ed25519_publickey_from_file,
 )
 from zope.interface import implementer
 
@@ -45,7 +44,7 @@ class InsecureKeyWarning(UserWarning):
 @implementer(IKeyService)
 class LocalKeyService:
     """
-    A service to read public and private TUF role keys as local files for development.
+    A service to read private TUF role keys as local files for development.
 
     NOTE: Do not use in production!
     """
@@ -64,27 +63,19 @@ class LocalKeyService:
     def create_service(cls, context, request):
         return cls(request.registry.settings["tuf.key.path"], request)
 
-    def get(self, rolename, key_type):
+    def get(self, rolename):
         """
-        Returns Key objects for passed TUF role name from configured TUF key path. Key
-        type is one of 'public' or 'private'.
+        Returns Key objects for passed TUF role name from configured TUF key path.
         """
-        if key_type == "private":
-            privkey_path = os.path.join(self._key_path, f"{rolename}*")
-            role_keys = glob.glob(privkey_path)
-            keys_sslib = [
-                import_ed25519_privatekey_from_file(
-                    key, self._request.registry.settings[f"tuf.{rolename}.secret"]
-                )
-                for key in role_keys
-                if "pub" not in key
-            ]
-        elif key_type == "public":
-            pubkey_path = os.path.join(self._key_path, f"{rolename}*.pub")
-            role_keys = glob.glob(pubkey_path)
-            keys_sslib = [import_ed25519_publickey_from_file(key) for key in role_keys]
-        else:
-            raise ValueError(f"invalid key_type '{key_type}'")
+        privkey_path = os.path.join(self._key_path, f"{rolename}*")
+        role_keys = glob.glob(privkey_path)
+        keys_sslib = [
+            import_ed25519_privatekey_from_file(
+                key, self._request.registry.settings[f"tuf.{rolename}.secret"]
+            )
+            for key in role_keys
+            if "pub" not in key
+        ]
 
         return keys_sslib
 
@@ -173,8 +164,7 @@ class RepositoryService:
     def create_service(cls, context, request):
         """
         Creates a new repository service object configuring services to read and write
-        TUF role metadata (``IStorageService``) and to read public and private keys
-        (``IKeyService``).
+        TUF role metadata (``IStorageService``) and to read private keys (``IKeyService``).
         """
         storage_service = request.find_service(IStorageService)
         key_service = request.find_service(IKeyService)
@@ -247,7 +237,7 @@ class RepositoryService:
             top_roles_payload[role] = RolesPayload(
                 expiration=self._set_expiration_for_role(role),
                 threshold=self._request.registry.settings[f"tuf.{role}.threshold"],
-                keys=self._key_storage_backend.get(role, "private"),
+                keys=self._key_storage_backend.get(role),
             )
 
         metadata_repository.initialize(top_roles_payload, True)
@@ -278,7 +268,7 @@ class RepositoryService:
                 threshold=self._request.registry.settings[
                     f"tuf.{Role.BINS.value}.threshold"
                 ],
-                keys=self._key_storage_backend.get(Role.BINS.value, "private"),
+                keys=self._key_storage_backend.get(Role.BINS.value),
                 delegation_role=Role.BINS.value,
                 paths=["*/*", "*/*/*/*"],
             )
@@ -293,7 +283,7 @@ class RepositoryService:
                     threshold=self._request.registry.settings[
                         f"tuf.{Role.BIN_N.value}.threshold"
                     ],
-                    keys=self._key_storage_backend.get(Role.BIN_N.value, "private"),
+                    keys=self._key_storage_backend.get(Role.BIN_N.value),
                     delegation_role=bin_n_name,
                     path_hash_prefixes=bin_n_hash_prefixes,
                 )

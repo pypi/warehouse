@@ -95,9 +95,8 @@ class MetadataRepository:
                 if isinstance(self.load_role(role), Metadata)
             ):
                 return True
-        except StorageError as err:
-            if "Can't open" in str(err):
-                return False
+        except StorageError:
+            pass
 
         return False
 
@@ -336,7 +335,7 @@ class MetadataRepository:
             key_rolename = rolename
         role_metadata.signed.expires = role_expires
         role_metadata.signed.version += 1
-        key_rolename_keys = self.key_backend.get(key_rolename, "private")
+        key_rolename_keys = self.key_backend.get(key_rolename)
         for key in key_rolename_keys:
             role_metadata.sign(SSlibSigner(key), append=True)
 
@@ -367,7 +366,7 @@ class MetadataRepository:
         timestamp_metadata.signed.version += 1
         timestamp_metadata.signed.expires = timestamp_expires
         timestamp_metadata.signed.snapshot_meta = MetaFile(version=snapshot_version)
-        timestamp_keys = self.key_backend.get(Timestamp.type, "private")
+        timestamp_keys = self.key_backend.get(Timestamp.type)
         for key in timestamp_keys:
             timestamp_metadata.sign(SSlibSigner(key), append=True)
 
@@ -401,7 +400,7 @@ class MetadataRepository:
 
         snapshot_metadata.signed.version += 1
         snapshot_metadata.signed.expires = snapshot_expires
-        snapshot_keys = self.key_backend.get(Snapshot.type, "private")
+        snapshot_keys = self.key_backend.get(Snapshot.type)
         for key in snapshot_keys:
             snapshot_metadata.sign(SSlibSigner(key), append=True)
 
@@ -471,7 +470,7 @@ class MetadataRepository:
                 role_metadata.signed.targets[target.path] = target_file
 
             role_metadata.signed.version += 1
-            role_keys = self.key_backend.get(key_rolename, "private")
+            role_keys = self.key_backend.get(key_rolename)
             for key in role_keys:
                 role_metadata.sign(SSlibSigner(key), append=True)
 
