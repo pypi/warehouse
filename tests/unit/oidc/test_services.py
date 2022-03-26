@@ -33,7 +33,7 @@ def test_oidc_provider_service_factory():
     metrics = pretend.stub()
     request = pretend.stub(
         registry=pretend.stub(
-            settings={"oidc.jwk_cache_url": "https://another.example.com"}
+            settings={"oidc.jwk_cache_url": "rediss://another.example.com"}
         ),
         find_service=lambda *a, **kw: metrics,
     )
@@ -42,7 +42,7 @@ def test_oidc_provider_service_factory():
     assert isinstance(service, factory.service_class)
     assert service.provider == factory.provider
     assert service.issuer_url == factory.issuer_url
-    assert service.cache_url == "https://another.example.com"
+    assert service.cache_url == "rediss://another.example.com"
     assert service.metrics == metrics
 
     assert factory != object()
