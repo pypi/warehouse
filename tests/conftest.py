@@ -12,6 +12,7 @@
 
 import os
 import os.path
+import re
 import xmlrpc.client
 
 from collections import defaultdict
@@ -393,3 +394,71 @@ def monkeypatch_session():
     m = MonkeyPatch()
     yield m
     m.undo()
+
+
+class _MockRedis:
+    """
+    Just enough Redis for our tests.
+    In-memory only, no persistence.
+    Does NOT implement the full Redis API.
+    """
+
+    def __init__(self, cache=None):
+        self.cache = cache
+
+        if not self.cache:
+            self.cache = dict()
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, exc_type, exc_value, traceback):
+        pass
+
+    def delete(self, key):
+        del self.cache[key]
+
+    def execute(self):
+        pass
+
+    def exists(self, key):
+        return key in self.cache
+
+    def expire(self, _key, _seconds):
+        pass
+
+    def from_url(self, _url):
+        return self
+
+    def hget(self, hash_, key):
+        try:
+            return self.cache[hash_][key]
+        except KeyError:
+            return None
+
+    def hset(self, hash_, key, value, *_args, **_kwargs):
+        if hash_ not in self.cache:
+            self.cache[hash_] = dict()
+        self.cache[hash_][key] = value
+
+    def get(self, key):
+        return self.cache.get(key)
+
+    def pipeline(self):
+        return self
+
+    def scan_iter(self, search, count):
+        del count  # unused
+        return [key for key in self.cache.keys() if re.search(search, key)]
+
+    def set(self, key, value):
+        self.cache[key] = value
+
+    def setex(self, key, value, _seconds):
+        self.cache[key] = value
+
+
+@pytest.fixture
+def mockredis():
+    mock_redis = _MockRedis()
+    yield mock_redis
