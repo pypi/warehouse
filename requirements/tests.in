@@ -1,7 +1,6 @@
 bok-choy>=0.6.0
 coverage
 factory_boy
-fakeredis
 freezegun
 pretend
 pytest>=3.0.0
