@@ -985,9 +985,9 @@ pyramid==2.0 \
     #   pyramid-rpc
     #   pyramid-services
     #   pyramid-tm
-pyramid-jinja2==2.9.2 \
-    --hash=sha256:0cb89d02e130e049900e2a1c59ae0e4235cde9666b5b7bc7ddc983ba9d6658d0 \
-    --hash=sha256:cead91a2deedd45d17574ff95e18460cac77bf68a9dc8318d57c2f6e98594751
+pyramid-jinja2==2.10 \
+    --hash=sha256:3d551e8aadde8efb925efd2126d7ecd8764eac6c62766cf8729dec9f6838efca \
+    --hash=sha256:f271069d9e9acbac7adb6912190a848f6338f7e57afbaf3e95237fe83cc8f4d2
     # via -r requirements/main.in
 pyramid-mailer==0.15.1 \
     --hash=sha256:28d4a7829ebc19dd40e712d8cb1998cec03c296ba675b2c112a503539738bdc1 \
