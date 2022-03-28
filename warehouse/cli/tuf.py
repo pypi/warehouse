@@ -159,10 +159,7 @@ def add_all_indexes(config):
         try:
             simple_detail = render_simple_detail(project, request, store=True)
         except OSError as err:
-            raise click.ClickException(str(err))
-
-        if simple_detail.get("content_hash") is None:
-            continue
+            click.ClickException(str(err))
         hashes = {"blake2b-256": simple_detail.get("content_hash")}
         targetinfo = dict()
         targetinfo["hashes"] = hashes

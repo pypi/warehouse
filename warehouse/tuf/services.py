@@ -20,9 +20,7 @@ import warnings
 from contextlib import contextmanager
 
 from securesystemslib.exceptions import StorageError
-from securesystemslib.interface import (
-    import_ed25519_privatekey_from_file,
-)
+from securesystemslib.interface import import_ed25519_privatekey_from_file
 from zope.interface import implementer
 
 from warehouse.config import Environment

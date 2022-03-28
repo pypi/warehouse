@@ -33,7 +33,7 @@ class TestLocalLocalKeyService:
         service = LocalKeyService("/opt/warehouse/src/dev/tufkeys", db_request)
         assert service._key_path == "/opt/warehouse/src/dev/tufkeys"
 
-    def test_get_private_key(self, db_request, monkeypatch):
+    def test_get(self, db_request, monkeypatch):
         service = LocalKeyService("/opt/warehouse/src/dev/tufkeys", db_request)
 
         expected_priv_key_dict = {
@@ -49,6 +49,6 @@ class TestLocalLocalKeyService:
             lambda *a, **kw: expected_priv_key_dict,
         )
 
-        root_keyid = service.get("root", "private")
+        root_keyid = service.get("root")
 
         assert root_keyid == [expected_priv_key_dict]

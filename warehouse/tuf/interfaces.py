@@ -20,7 +20,7 @@ class IKeyService(Interface):
         created.
         """
 
-    def get(rolename, key_type):
+    def get(rolename):
         """Return a key from specific rolename"""
 
 
