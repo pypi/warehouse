@@ -10,9 +10,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import functools
-
-import fakeredis
 import pretend
 
 from jwt import PyJWK
@@ -33,7 +30,7 @@ def test_oidc_provider_service_factory():
     metrics = pretend.stub()
     request = pretend.stub(
         registry=pretend.stub(
-            settings={"oidc.jwk_cache_url": "https://another.example.com"}
+            settings={"oidc.jwk_cache_url": "rediss://another.example.com"}
         ),
         find_service=lambda *a, **kw: metrics,
     )
@@ -42,7 +39,7 @@ def test_oidc_provider_service_factory():
     assert isinstance(service, factory.service_class)
     assert service.provider == factory.provider
     assert service.issuer_url == factory.issuer_url
-    assert service.cache_url == "https://another.example.com"
+    assert service.cache_url == "rediss://another.example.com"
     assert service.metrics == metrics
 
     assert factory != object()
@@ -61,7 +58,7 @@ class TestOIDCProviderService:
         )
         assert service.verify(pretend.stub()) == NotImplemented
 
-    def test_get_keyset_not_cached(self, monkeypatch):
+    def test_get_keyset_not_cached(self, monkeypatch, mockredis):
         service = services.OIDCProviderService(
             provider="example",
             issuer_url=pretend.stub(),
@@ -69,13 +66,14 @@ class TestOIDCProviderService:
             metrics=pretend.stub(),
         )
 
-        monkeypatch.setattr(services.redis, "StrictRedis", fakeredis.FakeStrictRedis)
+        monkeypatch.setattr(services.redis, "StrictRedis", mockredis)
+
         keys, timeout = service._get_keyset()
 
         assert not keys
         assert timeout is False
 
-    def test_get_keyset_cached(self, monkeypatch):
+    def test_get_keyset_cached(self, monkeypatch, mockredis):
         service = services.OIDCProviderService(
             provider="example",
             issuer_url=pretend.stub(),
@@ -83,11 +81,7 @@ class TestOIDCProviderService:
             metrics=pretend.stub(),
         )
 
-        # Create a fake server to provide persistent state through each
-        # StrictRedis.from_url context manager.
-        server = fakeredis.FakeServer()
-        from_url = functools.partial(fakeredis.FakeStrictRedis.from_url, server=server)
-        monkeypatch.setattr(services.redis.StrictRedis, "from_url", from_url)
+        monkeypatch.setattr(services.redis, "StrictRedis", mockredis)
 
         keyset = {"fake-key-id": {"foo": "bar"}}
         service._store_keyset(keyset)
@@ -96,7 +90,7 @@ class TestOIDCProviderService:
         assert keys == keyset
         assert timeout is True
 
-    def test_refresh_keyset_timeout(self, monkeypatch):
+    def test_refresh_keyset_timeout(self, monkeypatch, mockredis):
         metrics = pretend.stub(increment=pretend.call_recorder(lambda *a, **kw: None))
         service = services.OIDCProviderService(
             provider="example",
@@ -105,11 +99,7 @@ class TestOIDCProviderService:
             metrics=metrics,
         )
 
-        # Create a fake server to provide persistent state through each
-        # StrictRedis.from_url context manager.
-        server = fakeredis.FakeServer()
-        from_url = functools.partial(fakeredis.FakeStrictRedis.from_url, server=server)
-        monkeypatch.setattr(services.redis.StrictRedis, "from_url", from_url)
+        monkeypatch.setattr(services.redis, "StrictRedis", mockredis)
 
         keyset = {"fake-key-id": {"foo": "bar"}}
         service._store_keyset(keyset)
@@ -122,7 +112,7 @@ class TestOIDCProviderService:
             )
         ]
 
-    def test_refresh_keyset_oidc_config_fails(self, monkeypatch):
+    def test_refresh_keyset_oidc_config_fails(self, monkeypatch, mockredis):
         metrics = pretend.stub(increment=pretend.call_recorder(lambda *a, **kw: None))
         service = services.OIDCProviderService(
             provider="example",
@@ -131,7 +121,7 @@ class TestOIDCProviderService:
             metrics=metrics,
         )
 
-        monkeypatch.setattr(services.redis, "StrictRedis", fakeredis.FakeStrictRedis)
+        monkeypatch.setattr(services.redis, "StrictRedis", mockredis)
 
         requests = pretend.stub(
             get=pretend.call_recorder(lambda url: pretend.stub(ok=False))
@@ -156,7 +146,7 @@ class TestOIDCProviderService:
             )
         ]
 
-    def test_refresh_keyset_oidc_config_no_jwks_uri(self, monkeypatch):
+    def test_refresh_keyset_oidc_config_no_jwks_uri(self, monkeypatch, mockredis):
         metrics = pretend.stub(increment=pretend.call_recorder(lambda *a, **kw: None))
         service = services.OIDCProviderService(
             provider="example",
@@ -165,7 +155,7 @@ class TestOIDCProviderService:
             metrics=metrics,
         )
 
-        monkeypatch.setattr(services.redis, "StrictRedis", fakeredis.FakeStrictRedis)
+        monkeypatch.setattr(services.redis, "StrictRedis", mockredis)
 
         requests = pretend.stub(
             get=pretend.call_recorder(
@@ -192,7 +182,7 @@ class TestOIDCProviderService:
             )
         ]
 
-    def test_refresh_keyset_oidc_config_no_jwks_json(self, monkeypatch):
+    def test_refresh_keyset_oidc_config_no_jwks_json(self, monkeypatch, mockredis):
         metrics = pretend.stub(increment=pretend.call_recorder(lambda *a, **kw: None))
         service = services.OIDCProviderService(
             provider="example",
@@ -201,7 +191,7 @@ class TestOIDCProviderService:
             metrics=metrics,
         )
 
-        monkeypatch.setattr(services.redis, "StrictRedis", fakeredis.FakeStrictRedis)
+        monkeypatch.setattr(services.redis, "StrictRedis", mockredis)
 
         openid_resp = pretend.stub(
             ok=True,
@@ -239,7 +229,7 @@ class TestOIDCProviderService:
             )
         ]
 
-    def test_refresh_keyset_oidc_config_no_jwks_keys(self, monkeypatch):
+    def test_refresh_keyset_oidc_config_no_jwks_keys(self, monkeypatch, mockredis):
         metrics = pretend.stub(increment=pretend.call_recorder(lambda *a, **kw: None))
         service = services.OIDCProviderService(
             provider="example",
@@ -248,7 +238,7 @@ class TestOIDCProviderService:
             metrics=metrics,
         )
 
-        monkeypatch.setattr(services.redis, "StrictRedis", fakeredis.FakeStrictRedis)
+        monkeypatch.setattr(services.redis, "StrictRedis", mockredis)
 
         openid_resp = pretend.stub(
             ok=True,
@@ -283,7 +273,7 @@ class TestOIDCProviderService:
             pretend.call("OIDC provider example returned JWKS JSON but no keys")
         ]
 
-    def test_refresh_keyset_successful(self, monkeypatch):
+    def test_refresh_keyset_successful(self, monkeypatch, mockredis):
         metrics = pretend.stub(increment=pretend.call_recorder(lambda *a, **kw: None))
         service = services.OIDCProviderService(
             provider="example",
@@ -292,11 +282,7 @@ class TestOIDCProviderService:
             metrics=metrics,
         )
 
-        # Create a fake server to provide persistent state through each
-        # StrictRedis.from_url context manager.
-        server = fakeredis.FakeServer()
-        from_url = functools.partial(fakeredis.FakeStrictRedis.from_url, server=server)
-        monkeypatch.setattr(services.redis.StrictRedis, "from_url", from_url)
+        monkeypatch.setattr(services.redis, "StrictRedis", mockredis)
 
         openid_resp = pretend.stub(
             ok=True,
