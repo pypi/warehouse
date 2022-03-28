@@ -1056,9 +1056,9 @@ requests==2.27.1 \
     #   google-cloud-storage
     #   premailer
     #   requests-aws4auth
-requests-aws4auth==1.1.1 \
-    --hash=sha256:c0883346ce30b5018903a67da88df72f73ff06e1a320845bba9cd85e811ba0ba \
-    --hash=sha256:dfd9f930ffde48a756b72b55698a8522875ea6358dcffbcc44a66700ace31783
+requests-aws4auth==1.1.2 \
+    --hash=sha256:23b7a054326f80f86caf87e3eaf54ea41aa27adbed4297bd3456b1fa38f06a52 \
+    --hash=sha256:ebde0662dccda5023546055ec4cbe4470cae017ecbfce8d368b80b5e4a94d619
     # via -r requirements/main.in
 rfc3986==2.0.0 \
     --hash=sha256:50b1502b60e289cb37883f3dfd34532b8873c7de9f49bb546641ce9cbd256ebd \
