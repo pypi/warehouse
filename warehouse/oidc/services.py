@@ -161,7 +161,6 @@ class OIDCProviderService:
         return self.get_key(unverified_header["kid"])
 
     def verify_signature_only(self, token):
-        self.metrics.increment("warehouse.oidc.verify_signature_only.attempt")
         key = self._get_key_for_token(token)
 
         try:
@@ -185,7 +184,6 @@ class OIDCProviderService:
                 audience="pypi",
                 leeway=30,
             )
-            self.metrics.increment("warehouse.oidc.verify_signature_only.ok")
             return signed_payload
         except jwt.PyJWTError:
             return None
@@ -199,11 +197,15 @@ class OIDCProviderService:
     def verify_for_project(self, token, project):
         signed_payload = self.verify_signature_only(token)
 
-        self.metrics.increment("warehouse.oidc.verify_for_project.attempt")
+        self.metrics.increment(
+            "warehouse.oidc.verify_for_project.attempt",
+            tags=[f"project:{project.name}"],
+        )
 
         if signed_payload is None:
             self.metrics.increment(
-                "warehouse.oidc.verify_for_project.invalid_signature"
+                "warehouse.oidc.verify_for_project.invalid_signature",
+                tags=[f"project:{project.name}"],
             )
             return False
 
@@ -215,9 +217,15 @@ class OIDCProviderService:
             for provider in project.oidc_providers
         )
         if not verified:
-            self.metrics.increment("warehouse.oidc.verify_for_project.invalid_claims")
+            self.metrics.increment(
+                "warehouse.oidc.verify_for_project.invalid_claims",
+                tags=[f"project:{project.name}"],
+            )
         else:
-            self.metrics.increment("warehouse.oidc.verify_for_project.ok")
+            self.metrics.increment(
+                "warehouse.oidc.verify_for_project.ok",
+                tags=[f"project:{project.name}"],
+            )
 
         return verified
 
