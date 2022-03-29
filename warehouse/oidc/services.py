@@ -161,6 +161,7 @@ class OIDCProviderService:
         return self.get_key(unverified_header["kid"])
 
     def verify_signature_only(self, token):
+        self.metrics.increment("warehouse.oidc.verify_signature_only.attempt")
         key = self._get_key_for_token(token)
 
         try:
@@ -184,6 +185,7 @@ class OIDCProviderService:
                 audience="pypi",
                 leeway=30,
             )
+            self.metrics.increment("warehouse.oidc.verify_signature_only.ok")
             return valid_token
         except jwt.PyJWTError:
             return None

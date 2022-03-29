@@ -79,6 +79,7 @@ from warehouse.manage.forms import (
     SaveAccountForm,
     Toggle2FARequirementForm,
 )
+from warehouse.metrics.interfaces import IMetricsService
 from warehouse.oidc.forms import DeleteProviderForm, GitHubProviderForm
 from warehouse.oidc.interfaces import TooManyOIDCRegistrations
 from warehouse.oidc.models import GitHubProvider, OIDCProvider
@@ -1098,6 +1099,7 @@ class ManageOIDCProviderViews:
         self.request = request
         self.project = project
         self.oidc_enabled = self.request.registry.settings["warehouse.oidc.enabled"]
+        self.metrics = self.request.find_service(IMetricsService, context=None)
 
     @property
     def _ratelimiters(self):
@@ -1165,6 +1167,8 @@ class ManageOIDCProviderViews:
         if not self.oidc_enabled:
             raise HTTPNotFound
 
+        self.metrics.increment("warehouse.oidc.add_github_provider.attempt")
+
         if self.request.flags.enabled(AdminFlagValue.DISALLOW_OIDC):
             self.request.session.flash(
                 (
@@ -1178,6 +1182,7 @@ class ManageOIDCProviderViews:
         try:
             self._check_ratelimits()
         except TooManyOIDCRegistrations as exc:
+            self.metrics.increment("warehouse.oidc.add_github_provider.ratelimited")
             return HTTPTooManyRequests(
                 self.request._(
                     "There have been too many attempted OpenID Connect registrations. "
@@ -1247,12 +1252,16 @@ class ManageOIDCProviderViews:
                 queue="success",
             )
 
+            self.metrics.increment("warehouse.oidc.add_github_provider.ok")
+
         return response
 
     @view_config(request_method="POST", request_param=DeleteProviderForm.__params__)
     def delete_oidc_provider(self):
         if not self.oidc_enabled:
             raise HTTPNotFound
+
+        self.metrics.increment("warehouse.oidc.delete_provider.attempt")
 
         if self.request.flags.enabled(AdminFlagValue.DISALLOW_OIDC):
             self.request.session.flash(
@@ -1302,6 +1311,8 @@ class ManageOIDCProviderViews:
             self.request.session.flash(
                 f"Removed {provider} from {self.project.name}", queue="success"
             )
+
+            self.metrics.increment("warehouse.oidc.delete_provider.ok")
 
         return self.default_response
 
