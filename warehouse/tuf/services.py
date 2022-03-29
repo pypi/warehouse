@@ -114,8 +114,6 @@ class LocalStorageService:
                     version = 1
 
             filename = os.path.join(self._repo_path, f"{version}.{role}.json")
-            if not os.path.isfile(filename):
-                filename = os.path.join(self._repo_path, f"{role}.json")
 
         file_object = None
         try:
