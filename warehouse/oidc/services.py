@@ -197,15 +197,16 @@ class OIDCProviderService:
     def verify_for_project(self, token, project):
         signed_payload = self.verify_signature_only(token)
 
+        metrics_tags = [f"project:{project.name}", f"provider:{self.provider}"]
         self.metrics.increment(
             "warehouse.oidc.verify_for_project.attempt",
-            tags=[f"project:{project.name}"],
+            tags=metrics_tags,
         )
 
         if signed_payload is None:
             self.metrics.increment(
                 "warehouse.oidc.verify_for_project.invalid_signature",
-                tags=[f"project:{project.name}"],
+                tags=metrics_tags,
             )
             return False
 
@@ -219,12 +220,12 @@ class OIDCProviderService:
         if not verified:
             self.metrics.increment(
                 "warehouse.oidc.verify_for_project.invalid_claims",
-                tags=[f"project:{project.name}"],
+                tags=metrics_tags,
             )
         else:
             self.metrics.increment(
                 "warehouse.oidc.verify_for_project.ok",
-                tags=[f"project:{project.name}"],
+                tags=metrics_tags,
             )
 
         return verified
