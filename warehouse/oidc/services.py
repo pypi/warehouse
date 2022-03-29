@@ -167,7 +167,7 @@ class OIDCProviderService:
         try:
             # NOTE: Many of the keyword arguments here are defaults, but we
             # set them explicitly to assert the intended verification behavior.
-            valid_token = jwt.decode(
+            signed_payload = jwt.decode(
                 token,
                 key=key,
                 algorithms=["RS256"],
@@ -186,7 +186,7 @@ class OIDCProviderService:
                 leeway=30,
             )
             self.metrics.increment("warehouse.oidc.verify_signature_only.ok")
-            return valid_token
+            return signed_payload
         except jwt.PyJWTError:
             return None
         except Exception as e:
@@ -195,6 +195,31 @@ class OIDCProviderService:
             # leak, so we log them for upstream reporting.
             sentry_sdk.capture_message(f"JWT verify raised generic error: {e}")
             return None
+
+    def verify_for_project(self, token, project):
+        signed_payload = self.verify_signature_only(token)
+
+        self.metrics.increment("warehouse.oidc.verify_for_project.attempt")
+
+        if signed_payload is None:
+            self.metrics.increment(
+                "warehouse.oidc.verify_for_project.invalid_signature"
+            )
+            return False
+
+        # In order for a signed JWT to be valid for a particular PyPI project,
+        # it must match at least one of the OIDC providers registered to
+        # the project.
+        verified = any(
+            provider.verify_claims(signed_payload)
+            for provider in project.oidc_providers
+        )
+        if not verified:
+            self.metrics.increment("warehouse.oidc.verify_for_project.invalid_claims")
+        else:
+            self.metrics.increment("warehouse.oidc.verify_for_project.ok")
+
+        return verified
 
 
 class OIDCProviderServiceFactory:

@@ -38,6 +38,14 @@ class IOIDCProviderService(Interface):
         third party claims must be done to ensure that.
         """
 
+    def verify_for_project(token, project):
+        """
+        Verify the given JWT's signature and basic claims in the same
+        manner as `verify_signature_only`, but *also* verify that the JWT's
+        claims are consistent with at least one of the project's registered
+        OIDC providers.
+        """
+
 
 class TooManyOIDCRegistrations(RateLimiterException):
     pass
