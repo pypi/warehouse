@@ -1167,7 +1167,9 @@ class ManageOIDCProviderViews:
         if not self.oidc_enabled:
             raise HTTPNotFound
 
-        self.metrics.increment("warehouse.oidc.add_github_provider.attempt")
+        self.metrics.increment(
+            "warehouse.oidc.add_provider.attempt", tags=["provider:GitHub"]
+        )
 
         if self.request.flags.enabled(AdminFlagValue.DISALLOW_OIDC):
             self.request.session.flash(
@@ -1182,7 +1184,9 @@ class ManageOIDCProviderViews:
         try:
             self._check_ratelimits()
         except TooManyOIDCRegistrations as exc:
-            self.metrics.increment("warehouse.oidc.add_github_provider.ratelimited")
+            self.metrics.increment(
+                "warehouse.oidc.add_provider.ratelimited", tags=["provider:GitHub"]
+            )
             return HTTPTooManyRequests(
                 self.request._(
                     "There have been too many attempted OpenID Connect registrations. "
@@ -1252,7 +1256,9 @@ class ManageOIDCProviderViews:
                 queue="success",
             )
 
-            self.metrics.increment("warehouse.oidc.add_github_provider.ok")
+            self.metrics.increment(
+                "warehouse.oidc.add_provider.ok", tags=["provider:GitHub"]
+            )
 
         return response
 
@@ -1312,7 +1318,10 @@ class ManageOIDCProviderViews:
                 f"Removed {provider} from {self.project.name}", queue="success"
             )
 
-            self.metrics.increment("warehouse.oidc.delete_provider.ok")
+            self.metrics.increment(
+                "warehouse.oidc.delete_provider.ok",
+                tags=[f"provider:{provider.provider_name}"],
+            )
 
         return self.default_response
 
