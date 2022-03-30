@@ -14,8 +14,6 @@ import glob
 import os
 import shutil
 
-from tracemalloc import Snapshot
-
 import pretend
 import pytest
 
@@ -23,11 +21,11 @@ from securesystemslib.exceptions import StorageError
 from zope.interface.verify import verifyClass
 
 from warehouse.config import Environment
-from warehouse.tuf import hash_bins, includeme, services
+from warehouse.tuf import services
 from warehouse.tuf.constants import BIN_N_COUNT, Role
 from warehouse.tuf.hash_bins import HashBins
 from warehouse.tuf.interfaces import IKeyService, IRepositoryService, IStorageService
-from warehouse.tuf.repository import RolesPayload, TargetsPayload
+from warehouse.tuf.repository import TargetsPayload
 
 
 class TestLocalKeyService:
@@ -131,7 +129,7 @@ class TestLocalStorageService:
         )
 
         with pytest.raises(StorageError) as err:
-            with service.get("root") as r:
+            with service.get("root"):
                 pass
 
         assert "Can't open /opt/warehouse/src/dev/metadata/1.root.json" in str(
@@ -454,7 +452,7 @@ class TestRepositoryService:
         result = service.init_repository()
 
         call_args = fake_metadata_repository.initialize.calls[0].args[0]
-        assert result == None
+        assert result is None
         assert str(call_args["snapshot"].expiration) == "2019-06-17 09:05:01"
         assert str(call_args["timestamp"].expiration) == "2019-06-17 09:05:01"
         assert str(call_args["root"].expiration) == "2020-06-15 09:05:01"
@@ -474,18 +472,18 @@ class TestRepositoryService:
         assert call_args["timestamp"].keys == "fake_key"
         assert call_args["root"].keys == "fake_key"
         assert call_args["targets"].keys == "fake_key"
-        assert call_args["snapshot"].delegation_role == None
-        assert call_args["timestamp"].delegation_role == None
-        assert call_args["root"].delegation_role == None
-        assert call_args["targets"].delegation_role == None
-        assert call_args["snapshot"].paths == None
-        assert call_args["timestamp"].paths == None
-        assert call_args["root"].paths == None
-        assert call_args["targets"].paths == None
-        assert call_args["snapshot"].path_hash_prefixes == None
-        assert call_args["timestamp"].path_hash_prefixes == None
-        assert call_args["root"].path_hash_prefixes == None
-        assert call_args["targets"].path_hash_prefixes == None
+        assert call_args["snapshot"].delegation_role is None
+        assert call_args["timestamp"].delegation_role is None
+        assert call_args["root"].delegation_role is None
+        assert call_args["targets"].delegation_role is None
+        assert call_args["snapshot"].paths is None
+        assert call_args["timestamp"].paths is None
+        assert call_args["root"].paths is None
+        assert call_args["targets"].paths is None
+        assert call_args["snapshot"].path_hash_prefixes is None
+        assert call_args["timestamp"].path_hash_prefixes is None
+        assert call_args["root"].path_hash_prefixes is None
+        assert call_args["targets"].path_hash_prefixes is None
         for test_call in [
             pretend.call(Role.SNAPSHOT.value),
             pretend.call(Role.ROOT.value),
@@ -553,7 +551,7 @@ class TestRepositoryService:
         result = service.init_targets_delegation()
         call_args = fake_metadata_repository.delegate_targets_roles.calls[0].args[0]
 
-        assert result == None
+        assert result is None
         assert sorted(["targets", "bins"]) == sorted(list(call_args.keys()))
         assert len(call_args["targets"]) == 1
         assert call_args["targets"][0].paths == ["*/*", "*/*/*/*"]
@@ -603,7 +601,7 @@ class TestRepositoryService:
         bump_s_calls = fake_metadata_repository.snapshot_bump_version.calls[0].kwargs
         bump_t_calls = fake_metadata_repository.timestamp_bump_version.calls[0].kwargs
 
-        assert result == None
+        assert result is None
         assert fake_metadata_repository.load_role.calls == [pretend.call("snapshot")]
         assert str(bump_s_calls["snapshot_expires"]) == "2019-06-17 09:05:01"
         assert bump_s_calls["snapshot_metadata"].signed.version == 2
@@ -647,7 +645,7 @@ class TestRepositoryService:
         bump_s_calls = fake_metadata_repository.snapshot_bump_version.calls[0].kwargs
         bump_t_calls = fake_metadata_repository.timestamp_bump_version.calls[0].kwargs
 
-        assert result == None
+        assert result is None
         assert str(bump_s_calls["snapshot_expires"]) == "2019-06-17 09:05:01"
         assert bump_s_calls["snapshot_metadata"].signed.version == 2
         assert bump_s_calls["store"] is True
@@ -701,7 +699,7 @@ class TestRepositoryService:
 
         result = service.bump_bin_n_roles()
 
-        assert result == None
+        assert result is None
         # PEP458 https://peps.python.org/pep-0458/#metadata-scalability
         assert len(fake_metadata_repository.bump_role_version.calls) == 16384
         assert len(fake_metadata_repository.snapshot_update_meta.calls) == 16384
@@ -747,7 +745,7 @@ class TestRepositoryService:
             {
                 "info": {
                     "hashes": {"blake2b-256": "dlskjflkdjflsdjfsdfdfsdfsdfs"},
-                    "length": 1024,
+                    "length": 1025,
                     "custom": {"backsigned": True},
                 },
                 "path": "/sd/fa/dlskjflkdjflsdjfsdfdfsdfsdfs.packageyv1.tar.gz",
@@ -755,7 +753,7 @@ class TestRepositoryService:
         ]
         result = service.add_hashed_targets(targets)
 
-        assert result == None
+        assert result is None
         assert fake_metadata_repository.add_targets.calls == [
             pretend.call(
                 {

@@ -160,7 +160,8 @@ class RepositoryService:
     def create_service(cls, context, request):
         """
         Creates a new repository service object configuring services to read and write
-        TUF role metadata (``IStorageService``) and to read private keys (``IKeyService``).
+        TUF role metadata (``IStorageService``) and to read private keys
+        (``IKeyService``).
         """
         storage_service = request.find_service(IStorageService)
         key_service = request.find_service(IKeyService)
