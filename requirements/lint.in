@@ -2,7 +2,7 @@ doc8
 flake8
 curlylint
 pep8-naming
-black==22.1.0
+black==22.3.0
 isort>=5
 mypy
 celery-types
