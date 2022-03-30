@@ -116,7 +116,7 @@ msgstr ""
 msgid "Successful WebAuthn assertion"
 msgstr ""
 
-#: warehouse/accounts/views.py:441 warehouse/manage/views.py:813
+#: warehouse/accounts/views.py:441 warehouse/manage/views.py:814
 msgid "Recovery code accepted. The supplied code cannot be used again."
 msgstr ""
 
@@ -225,51 +225,51 @@ msgstr ""
 msgid "Banner Preview"
 msgstr ""
 
-#: warehouse/manage/views.py:244
+#: warehouse/manage/views.py:245
 msgid "Email ${email_address} added - check your email for a verification link"
 msgstr ""
 
-#: warehouse/manage/views.py:761
+#: warehouse/manage/views.py:762
 msgid "Recovery codes already generated"
 msgstr ""
 
-#: warehouse/manage/views.py:762
+#: warehouse/manage/views.py:763
 msgid "Generating new recovery codes will invalidate your existing codes."
 msgstr ""
 
-#: warehouse/manage/views.py:1182
+#: warehouse/manage/views.py:1191
 msgid ""
 "There have been too many attempted OpenID Connect registrations. Try "
 "again later."
 msgstr ""
 
-#: warehouse/manage/views.py:1850
+#: warehouse/manage/views.py:1870
 msgid "User '${username}' already has ${role_name} role for project"
 msgstr ""
 
-#: warehouse/manage/views.py:1861
+#: warehouse/manage/views.py:1881
 msgid ""
 "User '${username}' does not have a verified primary email address and "
 "cannot be added as a ${role_name} for project"
 msgstr ""
 
-#: warehouse/manage/views.py:1874
+#: warehouse/manage/views.py:1894
 msgid "User '${username}' already has an active invite. Please try again later."
 msgstr ""
 
-#: warehouse/manage/views.py:1932
+#: warehouse/manage/views.py:1952
 msgid "Invitation sent to '${username}'"
 msgstr ""
 
-#: warehouse/manage/views.py:1979
+#: warehouse/manage/views.py:1999
 msgid "Could not find role invitation."
 msgstr ""
 
-#: warehouse/manage/views.py:1990
+#: warehouse/manage/views.py:2010
 msgid "Invitation already expired."
 msgstr ""
 
-#: warehouse/manage/views.py:2014
+#: warehouse/manage/views.py:2034
 msgid "Invitation revoked from '${username}'."
 msgstr ""
 
