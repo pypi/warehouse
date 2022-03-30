@@ -89,11 +89,7 @@ class MetadataRepository:
         Repository state based on metadata availability in storage.
         """
         try:
-            if any(
-                role
-                for role in TOP_LEVEL_ROLE_NAMES
-                if isinstance(self.load_role(role), Metadata)
-            ):
+            if any(role for role in TOP_LEVEL_ROLE_NAMES if self.load_role(role)):
                 return True
         except StorageError:
             pass
@@ -103,14 +99,14 @@ class MetadataRepository:
     def _create_delegated_targets_roles(
         self,
         delegator_metadata: Metadata,
-        snapshot_metadata: Optional[Metadata[Snapshot]],
         delegate_role_parameters: List[RolesPayload],
+        snapshot_metadata: Optional[Metadata[Snapshot]] = None,
     ) -> Metadata[Snapshot]:
         """
         Creates delegated targets roles metadata and updates delegator and snapshot.
         """
-        if not snapshot_metadata:
-            snapshot_metadata = self.load_role(Snapshot.Type)
+        if snapshot_metadata is None:
+            snapshot_metadata = self.load_role(Snapshot.type)
 
         for role_parameter in delegate_role_parameters:
             rolename = role_parameter.delegation_role
@@ -200,7 +196,6 @@ class MetadataRepository:
             Dictionary of role names as keys and metadata objects as values.
             ``Dict[str, Metadata]``
         """
-
         top_level_roles_metadata = dict()
         if self.is_initialized:
             raise FileExistsError("Metadata already exists in the Storage Service")
@@ -292,7 +287,9 @@ class MetadataRepository:
         for delegator, delegate_role_parameters in payload.items():
             delegator_metadata = self.load_role(delegator)
             snapshot_metadata = self._create_delegated_targets_roles(
-                delegator_metadata, snapshot_metadata, delegate_role_parameters
+                delegator_metadata,
+                delegate_role_parameters,
+                snapshot_metadata,
             )
             delegator_metadata = self.bump_role_version(
                 rolename=delegator,

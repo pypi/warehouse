@@ -36,6 +36,7 @@ from pyramid_mailer.mailer import DummyMailer
 from pytest_postgresql.config import get_config
 from pytest_postgresql.janitor import DatabaseJanitor
 from sqlalchemy import event
+from tuf.api.metadata import StorageBackendInterface
 
 import warehouse
 
@@ -51,6 +52,8 @@ from warehouse.organizations import services as organization_services
 from warehouse.organizations.interfaces import IOrganizationService
 from warehouse.subscriptions import services as subscription_services
 from warehouse.subscriptions.interfaces import IBillingService, ISubscriptionService
+from warehouse.tuf.interfaces import IKeyService
+from warehouse.tuf.repository import MetadataRepository
 
 from .common.db import Session
 from .common.db.accounts import EmailFactory, UserFactory
@@ -446,6 +449,18 @@ class _TestApp(_webtest.TestApp):
         body = xmlrpc.client.dumps(args, methodname=method)
         resp = self.post(path, body, headers={"Content-Type": "text/xml"})
         return xmlrpc.client.loads(resp.body)
+
+
+@pytest.fixture
+def tuf_repository():
+    class FakeStorageBackend(StorageBackendInterface):
+        pass
+
+    class FakeKeyBackend(IKeyService):
+        pass
+
+    tuf_repo = MetadataRepository(FakeStorageBackend, FakeKeyBackend)
+    return tuf_repo
 
 
 @pytest.fixture
