@@ -12,8 +12,10 @@
 
 import click
 
-from securesystemslib.exceptions import StorageError
-from securesystemslib.interface import generate_and_write_ed25519_keypair
+from securesystemslib.exceptions import StorageError  # type: ignore
+from securesystemslib.interface import (  # type: ignore
+    generate_and_write_ed25519_keypair,
+)
 
 from warehouse.cli import warehouse
 from warehouse.packaging.utils import render_simple_detail

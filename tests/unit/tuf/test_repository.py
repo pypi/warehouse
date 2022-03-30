@@ -248,9 +248,36 @@ class TestMetadataRepository:
         ]
         assert tuf_repository._store.calls[0].args[0] == "test_bin"
 
-    def test__create_delegated_targets_roles_raise_fileexists(
-        self, tuf_repository, monkeypatch
+    def test__create_delegated_targets_roles_missing_delegated_role(
+        self, tuf_repository
     ):
+        fake_time = datetime.datetime(2019, 6, 16, 9, 5, 1)
+        fake_targets_md = pretend.stub(
+            signed=pretend.stub(
+                delegations=None, add_key=pretend.call_recorder(lambda *a, **kw: None)
+            )
+        )
+        fake_snapshot_md = pretend.stub(signed=pretend.stub(meta={}))
+
+        test_delegate_roles_parameters = [
+            repository.RolesPayload(
+                expiration=fake_time,
+                threshold=1,
+                keys=[{"keyid": "key1"}, {"keyid": "key2"}],
+                paths=["*/*"],
+            )
+        ]
+
+        with pytest.raises(ValueError) as err:
+            tuf_repository._create_delegated_targets_roles(
+                delegator_metadata=fake_targets_md,
+                delegate_role_parameters=test_delegate_roles_parameters,
+                snapshot_metadata=fake_snapshot_md,
+            )
+
+        assert "A delegation role name is required." in str(err.value)
+
+    def test__create_delegated_targets_roles_raise_fileexists(self, tuf_repository):
         fake_time = datetime.datetime(2019, 6, 16, 9, 5, 1)
         fake_targets_md = pretend.stub(
             signed=pretend.stub(

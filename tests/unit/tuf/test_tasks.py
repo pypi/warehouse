@@ -48,6 +48,7 @@ class TestBumpSnapshot:
         tasks.bump_snapshot(task, db_request)
 
         assert db_request.find_service.calls == [pretend.call(IRepositoryService)]
+        assert fake_irepository.bump_snapshot.calls == [pretend.call()]
 
 
 class TestBumpBinNRoles:
@@ -81,6 +82,7 @@ class TestBumpBinNRoles:
         tasks.bump_bin_n_roles(task, db_request)
 
         assert db_request.find_service.calls == [pretend.call(IRepositoryService)]
+        assert fake_irepository.bump_bin_n_roles.calls == [pretend.call()]
 
 
 class TestInitRepository:
@@ -97,6 +99,7 @@ class TestInitRepository:
         task = pretend.stub()
         tasks.init_repository(task, db_request)
 
+        assert fake_irepository.init_repository.calls == [pretend.call()]
         assert db_request.find_service.calls == [pretend.call(IRepositoryService)]
 
 
@@ -130,6 +133,7 @@ class TestInitTargetsDelegation:
         task = pretend.stub()
         tasks.init_targets_delegation(task, db_request)
 
+        assert fake_irepository.init_targets_delegation.calls == [pretend.call()]
         assert db_request.find_service.calls == [pretend.call(IRepositoryService)]
 
 
@@ -167,4 +171,5 @@ class TestAddHashedTargets:
         task = pretend.stub()
         tasks.add_hashed_targets(task, db_request, targets)
 
+        fake_irepository.add_hashed_targets.calls == [pretend.call()]
         assert db_request.find_service.calls == [pretend.call(IRepositoryService)]

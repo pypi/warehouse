@@ -14,8 +14,8 @@ from dataclasses import dataclass
 from datetime import datetime
 from typing import Any, Dict, List, Optional
 
-from securesystemslib.exceptions import StorageError
-from securesystemslib.signer import SSlibSigner
+from securesystemslib.exceptions import StorageError  # type: ignore
+from securesystemslib.signer import SSlibSigner  # type: ignore
 from tuf.api.metadata import (
     SPECIFICATION_VERSION,
     TOP_LEVEL_ROLE_NAMES,
@@ -55,9 +55,9 @@ class RolesPayload:
     expiration: datetime
     threshold: int
     keys: List[Dict[str, Any]]
-    delegation_role: str = None
-    paths: List[str] = None
-    path_hash_prefixes: List[str] = None
+    delegation_role: Optional[str] = None
+    paths: Optional[List[str]] = None
+    path_hash_prefixes: Optional[List[str]] = None
 
 
 @dataclass
@@ -66,7 +66,7 @@ class TargetsPayload:
     Container for target files info, suitable for targets metadata.
     """
 
-    fileinfo: str
+    fileinfo: Dict[str, Any]
     path: str
 
 
@@ -110,6 +110,8 @@ class MetadataRepository:
 
         for role_parameter in delegate_role_parameters:
             rolename = role_parameter.delegation_role
+            if rolename is None:
+                raise ValueError("A delegation role name is required.")
             try:
                 if self.load_role(rolename):
                     raise FileExistsError(f"Role {rolename} already exists.")
@@ -120,7 +122,7 @@ class MetadataRepository:
                 name=rolename,
                 keyids=[key["keyid"] for key in role_parameter.keys],
                 threshold=role_parameter.threshold,
-                terminating=None,
+                terminating=False,
                 paths=role_parameter.paths,
                 path_hash_prefixes=role_parameter.path_hash_prefixes,
             )
@@ -196,7 +198,7 @@ class MetadataRepository:
             Dictionary of role names as keys and metadata objects as values.
             ``Dict[str, Metadata]``
         """
-        top_level_roles_metadata = dict()
+        top_level_roles_metadata: Dict[str, Any] = dict()
         if self.is_initialized:
             raise FileExistsError("Metadata already exists in the Storage Service")
 

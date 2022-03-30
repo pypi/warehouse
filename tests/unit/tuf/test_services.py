@@ -54,6 +54,7 @@ class TestLocalKeyService:
             "keyid_hash_algorithms": ["sha256", "sha512"],
         }
         db_request.registry.settings["tuf.root.secret"] = "tuf.root.secret"
+        monkeypatch.setattr(glob, "glob", lambda privkey_path: ["fake_root.key"])
         monkeypatch.setattr(
             "warehouse.tuf.services.import_ed25519_privatekey_from_file",
             lambda *a, **kw: expected_priv_key_dict,
@@ -84,8 +85,6 @@ class TestLocalStorageService:
         monkeypatch.setattr(glob, "glob", lambda *a, **kw: ["1.root.json"])
 
         fake_file_object = pretend.stub(
-            __enter__=None,
-            __exit__=None,
             close=pretend.call_recorder(lambda: None),
             read=pretend.call_recorder(lambda: b"fake_root_data"),
         )
@@ -96,7 +95,7 @@ class TestLocalStorageService:
         with service.get("root") as r:
             result = r.read()
 
-        assert result == b"fake_root_data"
+        assert result == fake_file_object.read()
         assert fake_file_object.close.calls == [pretend.call()]
 
     def test_get_max_version_raises_valueerror(self, monkeypatch):
@@ -105,8 +104,6 @@ class TestLocalStorageService:
         monkeypatch.setattr(glob, "glob", lambda *a, **kw: [])
 
         fake_file_object = pretend.stub(
-            __enter__=None,
-            __exit__=None,
             close=pretend.call_recorder(lambda: None),
             read=pretend.call_recorder(lambda: b"fake_root_data"),
         )
@@ -117,7 +114,7 @@ class TestLocalStorageService:
         with service.get("root") as r:
             result = r.read()
 
-        assert result == b"fake_root_data"
+        assert result == fake_file_object.read()
         assert fake_file_object.close.calls == [pretend.call()]
 
     def test_get_oserror(self, monkeypatch):
@@ -144,8 +141,6 @@ class TestLocalStorageService:
         )
 
         fake_file_object = pretend.stub(
-            __enter__=None,
-            __exit__=None,
             close=pretend.call_recorder(lambda: None),
             read=pretend.call_recorder(lambda: b"fake_data"),
         )
@@ -156,7 +151,7 @@ class TestLocalStorageService:
         with service.get("root", version=2) as r:
             result = r.read()
 
-        assert result == b"fake_data"
+        assert result == fake_file_object.read()
         assert fake_file_object.close.calls == [pretend.call()]
 
     def test_get_timestamp_specific(self, monkeypatch):
@@ -165,8 +160,6 @@ class TestLocalStorageService:
         monkeypatch.setattr(glob, "glob", lambda *a, **kw: ["timestamp.json"])
 
         fake_file_object = pretend.stub(
-            __enter__=None,
-            __exit__=None,
             close=pretend.call_recorder(lambda: None),
             read=pretend.call_recorder(lambda: b"fake_data"),
         )
@@ -177,7 +170,7 @@ class TestLocalStorageService:
         with service.get("timestamp") as r:
             result = r.read()
 
-        assert result == b"fake_data"
+        assert result == fake_file_object.read()
 
     def test_put(self, monkeypatch):
         service = services.LocalStorageService("/opt/warehouse/src/dev/metadata")
@@ -312,6 +305,10 @@ class TestRepositoryService:
         assert service._storage_backend == fake_service
         assert service._key_storage_backend == fake_service
         assert service._request == request
+        assert request.find_service.calls == [
+            pretend.call(IStorageService),
+            pretend.call(IKeyService),
+        ]
 
     def test_basic_init(self):
         service = services.RepositoryService(
@@ -451,8 +448,15 @@ class TestRepositoryService:
         service = services.RepositoryService(fake_storage, fake_key_storage, db_request)
         result = service.init_repository()
 
-        call_args = fake_metadata_repository.initialize.calls[0].args[0]
         assert result is None
+        # one call for role (4)
+        assert fake_datetime.now.calls == [
+            pretend.call(),
+            pretend.call(),
+            pretend.call(),
+            pretend.call(),
+        ]
+        call_args = fake_metadata_repository.initialize.calls[0].args[0]
         assert str(call_args["snapshot"].expiration) == "2019-06-17 09:05:01"
         assert str(call_args["timestamp"].expiration) == "2019-06-17 09:05:01"
         assert str(call_args["root"].expiration) == "2020-06-15 09:05:01"
@@ -549,9 +553,9 @@ class TestRepositoryService:
         service = services.RepositoryService(fake_storage, fake_key_storage, db_request)
         service.bump_snapshot = pretend.call_recorder(lambda snapshot_metadata: None)
         result = service.init_targets_delegation()
-        call_args = fake_metadata_repository.delegate_targets_roles.calls[0].args[0]
 
         assert result is None
+        call_args = fake_metadata_repository.delegate_targets_roles.calls[0].args[0]
         assert sorted(["targets", "bins"]) == sorted(list(call_args.keys()))
         assert len(call_args["targets"]) == 1
         assert call_args["targets"][0].paths == ["*/*", "*/*/*/*"]
