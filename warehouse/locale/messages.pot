@@ -4842,7 +4842,7 @@ msgstr ""
 msgid ""
 "Your publishing tool may return an error that your new project can't be "
 "created with your desired name, despite no evidence of a project or "
-"release of the same name on PyPI. Currently, there are three primary "
+"release of the same name on PyPI. Currently, there are four primary "
 "reasons this may occur:"
 msgstr ""
 
@@ -4873,6 +4873,11 @@ msgstr ""
 msgid ""
 "The project name has been registered by another user, but no releases "
 "have been created."
+msgstr ""
+
+#: warehouse/templates/pages/help.html:554
+#, python-format
+msgid "See <a href=\"%(href)s\">%(anchor_text)s</a>"
 msgstr ""
 
 #: warehouse/templates/pages/help.html:558
