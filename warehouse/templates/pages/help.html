@@ -546,7 +546,7 @@
         <p>{% trans href='https://pypi.org/project/devpi/' %}PyPI does not support publishing private packages. If you need to publish your private package to a package index, the recommended solution is to run your own deployment of the <a href="{{ href }}">devpi project</a>.{% endtrans %}</p>
 
         <h3 id="project-name">{{ project_name() }}</h3>
-        <p>{% trans %}Your publishing tool may return an error that your new project can't be created with your desired name, despite no evidence of a project or release of the same name on PyPI. Currently, there are three primary reasons this may occur:{% endtrans %}</p>
+        <p>{% trans %}Your publishing tool may return an error that your new project can't be created with your desired name, despite no evidence of a project or release of the same name on PyPI. Currently, there are four primary reasons this may occur:{% endtrans %}</p>
         <ul>
           <li>{% trans href='https://docs.python.org/3/library/index.html', title=gettext('External link') %}The project name conflicts with a <a href="{{ href }}" title="{{ title }}" target="_blank" rel="noopener">Python Standard Library</a> module from any major version from 2.5 to present.{% endtrans %}</li>
           <li>{% trans %}The project name is too similar to an existing project and may be confusable.{% endtrans %}</li>
