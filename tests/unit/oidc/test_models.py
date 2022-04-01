@@ -27,7 +27,6 @@ class TestGitHubProvider:
         assert models.GitHubProvider.all_known_claims() == {
             # verifiable claims
             "repository",
-            "job_workflow_ref",
             "workflow",
             # preverified claims
             "iss",
@@ -48,6 +47,7 @@ class TestGitHubProvider:
             "base_ref",
             "event_name",
             "ref_type",
+            "job_workflow_ref",
         }
 
     def test_github_provider_computed_properties(self):

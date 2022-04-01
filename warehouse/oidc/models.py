@@ -146,7 +146,6 @@ class GitHubProvider(OIDCProvider):
 
     __verifiable_claims__ = {
         "repository": str.__eq__,
-        "job_workflow_ref": str.startswith,
         "workflow": str.__eq__,
     }
 
@@ -163,6 +162,8 @@ class GitHubProvider(OIDCProvider):
         "base_ref",
         "event_name",
         "ref_type",
+        # TODO(#11096): Support reusable workflows.
+        "job_workflow_ref",
     }
 
     @property
@@ -172,10 +173,6 @@ class GitHubProvider(OIDCProvider):
     @property
     def repository(self):
         return f"{self.owner}/{self.repository_name}"
-
-    @property
-    def job_workflow_ref(self):
-        return f"{self.repository}/.github/workflows/{self.workflow_name}@"
 
     @property
     def workflow(self):
