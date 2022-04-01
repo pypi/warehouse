@@ -70,7 +70,9 @@ services:
         DEVEL: "yes"
         IPYTHON: "no"
     command: gunicorn --reload -b 0.0.0.0:8000 warehouse.wsgi:application
-    env_file: dev/environment
+    env_file:
+      - dev/environment
+      - dev/environment.local
     volumes:
       # We specify all of these directories instead of just . because we want to
       # avoid having ./node_modules from the host OS being shared with the docker
@@ -121,7 +123,9 @@ services:
     command: hupper -m celery -A warehouse worker -B -S redbeat.RedBeatScheduler -l info
     volumes:
       - ./warehouse:/opt/warehouse/src/warehouse:z
-    env_file: dev/environment
+    env_file:
+      - dev/environment
+      - dev/environment.local
     environment:
       C_FORCE_ROOT: "1"
       FILES_BACKEND: "warehouse.packaging.services.LocalFileStorage path=/var/opt/warehouse/packages/ url=http://files:9001/packages/{path}"
