@@ -20,12 +20,13 @@ import LocalizedTimeController from "../../warehouse/static/js/warehouse/control
 describe("Localized time controller", () => {
   describe("not relative and not showing time", () => {
     beforeEach(() => {
+      // localized-time controller handles datetime in UTC only
       document.documentElement.lang = "en";
       document.body.innerHTML = `
       <time
         id="element"
         data-controller="localized-time"
-        datetime="2019-09-20T19:06:58+0100"
+        datetime="2019-09-20T19:06:58+0000"
         data-localized-time-relative="false"
         data-localized-time-show-time="false">
       </time>
@@ -42,12 +43,14 @@ describe("Localized time controller", () => {
       const expectedDate = format(date, "YYYY-MM-DD HH:mm:ss (Z)");
       expect(el).toHaveAttribute("title", expectedDate);
       expect(el).toHaveAttribute("aria-label", expectedDate);
-      expect(expectedDate.endsWith("(+01:00)")).toBeTruthy();
+      // Expect +00:00 because static tests run in UTC
+      expect(expectedDate.endsWith("(+00:00)")).toBeTruthy();
     });
   });
 
   describe("relative and showing time", () => {
     beforeEach(() => {
+      // localized-time controller handles datetime in UTC only
       const date = new Date();
       document.body.innerHTML = `
       <time
@@ -74,6 +77,7 @@ describe("Localized time controller", () => {
       const expectedDate = format(date, "YYYY-MM-DD HH:mm:ss (Z)");
       expect(el).toHaveAttribute("title", expectedDate);
       expect(el).toHaveAttribute("aria-label", expectedDate);
+      // Expect +00:00 because static tests run in UTC
       expect(expectedDate.endsWith("(+00:00)")).toBeTruthy();
     });
   });
