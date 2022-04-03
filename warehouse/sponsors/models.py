@@ -10,7 +10,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from sqlalchemy import Boolean, Column, String, Text
+from sqlalchemy import Boolean, Column, Integer, String, Text
 from sqlalchemy_utils.types.url import URLType
 
 from warehouse import db
@@ -37,6 +37,12 @@ class Sponsor(db.Model):
     infra_sponsor = Column(Boolean, default=False, nullable=False)
     one_time = Column(Boolean, default=False, nullable=False)
     sidebar = Column(Boolean, default=False, nullable=False)
+
+    # pythondotorg integration
+    origin = Column(String, default="manual")
+    level_name = Column(String)
+    level_order = Column(Integer, default=0)
+    slug = Column(String)
 
     @property
     def color_logo_img(self):

@@ -1,3 +1,6 @@
+ENCODING=C.UTF-8
+PATH=/opt/warehouse/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+
 WAREHOUSE_ENV=development
 WAREHOUSE_TOKEN=insecuretoken
 
@@ -19,6 +22,7 @@ CAMO_KEY=insecurecamokey
 DOCS_URL="https://pythonhosted.org/{project}/"
 
 FILES_BACKEND=warehouse.packaging.services.LocalFileStorage path=/var/opt/warehouse/packages/ url=http://localhost:9001/packages/{path}
+SIMPLE_BACKEND=warehouse.packaging.services.LocalSimpleStorage path=/var/opt/warehouse/simple/ url=http://localhost:9001/simple/{path}
 DOCS_BACKEND=warehouse.packaging.services.LocalDocsStorage path=/var/opt/warehouse/docs/
 SPONSORLOGOS_BACKEND=warehouse.admin.services.LocalSponsorLogoStorage path=/var/opt/warehouse/sponsorlogos/
 
@@ -42,3 +46,6 @@ VAULT_URL="http://vault:8200"
 VAULT_TOKEN="an insecure vault access token"
 
 GITHUB_TOKEN_SCANNING_META_API_URL="http://notgithub:8000/meta/public_keys/token_scanning"
+TWOFACTORREQUIREMENT_ENABLED=true
+TWOFACTORMANDATE_AVAILABLE=true
+TWOFACTORMANDATE_ENABLED=true

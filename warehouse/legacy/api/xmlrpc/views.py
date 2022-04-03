@@ -195,7 +195,7 @@ class XMLRPCInvalidParamTypes(XmlRpcInvalidMethodParams):
         return f"client error; {self.exc}"
 
 
-class XMLRPCWrappedError(xmlrpc.server.Fault):
+class XMLRPCWrappedError(xmlrpc.client.Fault):
     def __init__(self, exc):
         # NOQA due to N815 'mixedCase variable in class scope',
         # This is the interface for specifying fault code and string for XmlRpcError
@@ -280,7 +280,7 @@ def search(request, spec: Mapping[str, Union[str, List[str]]], operator: str = "
         for item in value:
             kw = {"query": item}
             if field in SEARCH_BOOSTS:
-                kw["boost"] = SEARCH_BOOSTS[field]
+                kw["boost"] = SEARCH_BOOSTS[field]  # type: ignore
             if q is None:
                 q = Q("match", **{field: kw})
             else:
@@ -547,10 +547,10 @@ def changelog_since_serial(request, serial: int):
 
 @xmlrpc_method(method="changelog")
 def changelog(request, since: int, with_ids: bool = False):
-    since = datetime.datetime.utcfromtimestamp(since)
+    since_dt = datetime.datetime.utcfromtimestamp(since)
     entries = (
         request.db.query(JournalEntry)
-        .filter(JournalEntry.submitted_date > since)
+        .filter(JournalEntry.submitted_date > since_dt)
         .order_by(JournalEntry.id)
         .limit(50000)
     )

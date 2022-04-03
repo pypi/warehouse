@@ -10,6 +10,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import os
+
 from unittest import mock
 
 import pretend
@@ -22,7 +24,7 @@ from pyramid.tweens import EXCVIEW
 
 from warehouse import config
 from warehouse.errors import BasicAuthBreachedPassword, BasicAuthFailedPassword
-from warehouse.utils.wsgi import HostRewrite, ProxyFixer, VhmRootRemover
+from warehouse.utils.wsgi import ProxyFixer, VhmRootRemover
 
 
 class TestRequireHTTPSTween:
@@ -157,17 +159,17 @@ def test_maybe_set_compound(monkeypatch, environ, base, name, envvar, expected):
 
 
 @pytest.mark.parametrize(
-    ("settings", "environment", "other_settings"),
+    ("settings", "environment"),
     [
-        (None, config.Environment.production, {}),
-        ({}, config.Environment.production, {}),
-        ({"my settings": "the settings value"}, config.Environment.production, {}),
-        (None, config.Environment.development, {}),
-        ({}, config.Environment.development, {}),
-        ({"my settings": "the settings value"}, config.Environment.development, {}),
+        (None, config.Environment.production),
+        ({}, config.Environment.production),
+        ({"my settings": "the settings value"}, config.Environment.production),
+        (None, config.Environment.development),
+        ({}, config.Environment.development),
+        ({"my settings": "the settings value"}, config.Environment.development),
     ],
 )
-def test_configure(monkeypatch, settings, environment, other_settings):
+def test_configure(monkeypatch, settings, environment):
     json_renderer_obj = pretend.stub()
     json_renderer_cls = pretend.call_recorder(lambda **kw: json_renderer_obj)
     monkeypatch.setattr(renderers, "JSON", json_renderer_cls)
@@ -176,8 +178,17 @@ def test_configure(monkeypatch, settings, environment, other_settings):
     xmlrpc_renderer_cls = pretend.call_recorder(lambda **kw: xmlrpc_renderer_obj)
     monkeypatch.setattr(config, "XMLRPCRenderer", xmlrpc_renderer_cls)
 
-    if environment == config.Environment.development:
-        monkeypatch.setenv("WAREHOUSE_ENV", "development")
+    # Ignore all environment variables in the test environment, except for WAREHOUSE_ENV
+    monkeypatch.setattr(
+        os,
+        "environ",
+        {
+            "WAREHOUSE_ENV": {
+                config.Environment.development: "development",
+                config.Environment.production: "production",
+            }[environment],
+        },
+    )
 
     class FakeRegistry(dict):
         def __init__(self):
@@ -190,7 +201,7 @@ def test_configure(monkeypatch, settings, environment, other_settings):
                 "warehouse.xmlrpc.client.ratelimit_string": "3600 per hour",
             }
 
-    configurator_settings = other_settings.copy()
+    configurator_settings = dict()
     configurator_obj = pretend.stub(
         registry=FakeRegistry(),
         set_root_factory=pretend.call_recorder(lambda rf: None),
@@ -225,7 +236,7 @@ def test_configure(monkeypatch, settings, environment, other_settings):
     )
     monkeypatch.setattr(config, "transaction", transaction)
 
-    result = config.configure(settings=settings)
+    result = config.configure(settings=settings.copy() if settings else None)
 
     expected_settings = {
         "warehouse.env": environment,
@@ -233,6 +244,7 @@ def test_configure(monkeypatch, settings, environment, other_settings):
         "site.name": "Warehouse",
         "token.two_factor.max_age": 300,
         "token.default.max_age": 21600,
+        "pythondotorg.host": "python.org",
         "warehouse.xmlrpc.client.ratelimit_string": "3600 per hour",
         "warehouse.xmlrpc.search.enabled": True,
         "github.token_scanning_meta_api.url": (
@@ -243,6 +255,9 @@ def test_configure(monkeypatch, settings, environment, other_settings):
         "warehouse.account.global_login_ratelimit_string": "1000 per 5 minutes",
         "warehouse.account.email_add_ratelimit_string": "2 per day",
         "warehouse.account.password_reset_ratelimit_string": "5 per day",
+        "warehouse.two_factor_requirement.enabled": False,
+        "warehouse.two_factor_mandate.available": False,
+        "warehouse.two_factor_mandate.enabled": False,
     }
     if environment == config.Environment.development:
         expected_settings.update(
@@ -286,7 +301,6 @@ def test_configure(monkeypatch, settings, environment, other_settings):
     assert configurator_obj.add_wsgi_middleware.calls == [
         pretend.call(ProxyFixer, token="insecure token", num_proxies=1),
         pretend.call(VhmRootRemover),
-        pretend.call(HostRewrite),
     ]
     assert configurator_obj.include.calls == (
         [
@@ -332,6 +346,7 @@ def test_configure(monkeypatch, settings, environment, other_settings):
             pretend.call(".email"),
             pretend.call(".accounts"),
             pretend.call(".macaroons"),
+            pretend.call(".oidc"),
             pretend.call(".malware"),
             pretend.call(".manage"),
             pretend.call(".packaging"),

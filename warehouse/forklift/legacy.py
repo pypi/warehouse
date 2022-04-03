@@ -45,8 +45,10 @@ from sqlalchemy.orm.exc import MultipleResultsFound, NoResultFound
 from trove_classifiers import classifiers, deprecated_classifiers
 
 from warehouse import forms
+from warehouse.accounts import AuthenticationMethod
 from warehouse.admin.flags import AdminFlagValue
 from warehouse.classifiers.models import Classifier
+from warehouse.email import send_basic_auth_with_two_factor_email
 from warehouse.metrics import IMetricsService
 from warehouse.packaging.interfaces import IFileStorage
 from warehouse.packaging.models import (
@@ -871,8 +873,8 @@ def file_upload(request):
                     "{value!r} is an invalid value for {field}. ".format(
                         value=(
                             field.data[:30] + "..." + field.data[-30:]
-                            if len(field.data) > 60
-                            else field.data
+                            if field.data and len(field.data) > 60
+                            else field.data or ""
                         ),
                         field=field.description,
                     )
@@ -1033,6 +1035,14 @@ def file_upload(request):
         )
         raise _exc_with_message(HTTPForbidden, msg)
 
+    # Check if the user has 2FA and used basic auth
+    if (
+        request.authentication_method == AuthenticationMethod.BASIC_AUTH
+        and request.user.has_two_factor
+    ):
+        # Eventually, raise here to disable basic auth with 2FA enabled
+        send_basic_auth_with_two_factor_email(request, request.user)
+
     # Update name if it differs but is still equivalent. We don't need to check if
     # they are equivalent when normalized because that's already been done when we
     # queried for the project.
@@ -1131,6 +1141,9 @@ def file_upload(request):
                     },
                 )
             ),
+            # This has the effect of removing any preceding v character
+            # https://www.python.org/dev/peps/pep-0440/#preceding-v-character
+            version=str(packaging.version.parse(form.version.data)),
             canonical_version=canonical_version,
             description=Description(
                 content_type=form.description_content_type.data,
@@ -1143,7 +1156,6 @@ def file_upload(request):
                 for k in {
                     # This is a list of all the fields in the form that we
                     # should pull off and insert into our new release.
-                    "version",
                     "summary",
                     "license",
                     "author",

@@ -23,6 +23,17 @@
 </div>
 {% endfor %}
 
+{% for message in request.session.pop_flash(queue="warning") %}
+<div class="notification-bar notification-bar--warning notification-bar--dismissable" data-controller="notification" data-target="notification.notification" role="alert">
+  <span class="notification-bar__icon">
+    <i class="fa fa-exclamation" aria-hidden="true"></i>
+    <span class="sr-only">{% trans %}Warning{% endtrans %}</span>
+  </span>
+  <span class="notification-bar__message">{{ message }}</span>
+  <button type="button" title="{% trans %}Dismiss this notification{% endtrans %}" data-target="notification.dismissButton" data-action="click->notification#dismiss" class="notification-bar__dismiss" aria-label="{% trans %}Close{% endtrans %}"><i class="fa fa-times" aria-hidden="true"></i></button>
+</div>
+{% endfor %}
+
 {% for message in request.session.pop_flash() %}
 <div class="notification-bar notification-bar--dismissable" data-controller="notification" data-target="notification.notification">
   <span class="notification-bar__message">{{ message }}</span>

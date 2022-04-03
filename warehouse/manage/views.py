@@ -26,6 +26,7 @@ from webauthn.helpers import bytes_to_base64url
 
 import warehouse.utils.otp as otp
 
+from warehouse.accounts.forms import RecoveryCodeAuthenticationForm
 from warehouse.accounts.interfaces import (
     IPasswordBreachedService,
     ITokenService,
@@ -43,6 +44,7 @@ from warehouse.email import (
     send_password_change_email,
     send_primary_email_change_email,
     send_project_role_verification_email,
+    send_recovery_codes_generated_email,
     send_removed_as_collaborator_email,
     send_removed_project_email,
     send_removed_project_release_email,
@@ -68,6 +70,7 @@ from warehouse.manage.forms import (
     ProvisionTOTPForm,
     ProvisionWebAuthnForm,
     SaveAccountForm,
+    Toggle2FARequirementForm,
 )
 from warehouse.packaging.models import (
     File,
@@ -93,6 +96,13 @@ def user_projects(request):
         .subquery()
     )
 
+    projects_collaborator = (
+        request.db.query(Project.id)
+        .join(Role.project)
+        .filter(Role.user == request.user)
+        .subquery()
+    )
+
     with_sole_owner = (
         request.db.query(Role.project_id)
         .join(projects_owned)
@@ -114,7 +124,7 @@ def user_projects(request):
         ),
         "projects_requiring_2fa": (
             request.db.query(Project)
-            .join(projects_owned, Project.id == projects_owned.c.id)
+            .join(projects_collaborator, Project.id == projects_collaborator.c.id)
             .filter(Project.two_factor_required)
             .order_by(Project.name)
             .all()
@@ -199,13 +209,10 @@ class ManageAccountViews:
         )
 
         if form.validate():
-            email = self.user_service.add_email(
-                self.request.user.id, form.email.data, self.request.remote_addr
-            )
+            email = self.user_service.add_email(self.request.user.id, form.email.data)
             self.user_service.record_event(
                 self.request.user.id,
                 tag="account:email:add",
-                ip_address=self.request.remote_addr,
                 additional={"email": email.email},
             )
 
@@ -249,7 +256,6 @@ class ManageAccountViews:
             self.user_service.record_event(
                 self.request.user.id,
                 tag="account:email:remove",
-                ip_address=self.request.remote_addr,
                 additional={"email": email.email},
             )
             self.request.session.flash(
@@ -284,7 +290,6 @@ class ManageAccountViews:
         self.user_service.record_event(
             self.request.user.id,
             tag="account:email:primary:change",
-            ip_address=self.request.remote_addr,
             additional={
                 "old_primary": previous_primary_email.email
                 if previous_primary_email
@@ -354,9 +359,13 @@ class ManageAccountViews:
             self.user_service.record_event(
                 self.request.user.id,
                 tag="account:password:change",
-                ip_address=self.request.remote_addr,
             )
             send_password_change_email(self.request, self.request.user)
+            self.request.db.flush()  # Ensure changes are persisted to DB
+            self.request.db.refresh(self.request.user)  # Pickup new password_date
+            self.request.session.record_password_timestamp(
+                self.user_service.get_password_timestamp(self.request.user.id)
+            )
             self.request.session.flash("Password updated", queue="success")
 
         return {**self.default_response, "change_password_form": form}
@@ -462,7 +471,7 @@ class ProvisionTOTPViews:
             self.request.session.flash(
                 "Verify your email to modify two factor authentication", queue="error"
             )
-            return Response(status=403)
+            return HTTPSeeOther(self.request.route_path("manage.account"))
 
         totp_secret = self.user_service.get_totp_secret(self.request.user.id)
         if totp_secret:
@@ -476,11 +485,16 @@ class ProvisionTOTPViews:
 
     @view_config(request_method="GET")
     def totp_provision(self):
+        if not self.request.user.has_burned_recovery_codes:
+            return HTTPSeeOther(
+                self.request.route_path("manage.account.recovery-codes.burn")
+            )
+
         if not self.request.user.has_primary_verified_email:
             self.request.session.flash(
                 "Verify your email to modify two factor authentication", queue="error"
             )
-            return Response(status=403)
+            return HTTPSeeOther(self.request.route_path("manage.account"))
 
         totp_secret = self.user_service.get_totp_secret(self.request.user.id)
         if totp_secret:
@@ -499,7 +513,7 @@ class ProvisionTOTPViews:
             self.request.session.flash(
                 "Verify your email to modify two factor authentication", queue="error"
             )
-            return Response(status=403)
+            return HTTPSeeOther(self.request.route_path("manage.account"))
 
         totp_secret = self.user_service.get_totp_secret(self.request.user.id)
         if totp_secret:
@@ -522,7 +536,6 @@ class ProvisionTOTPViews:
             self.user_service.record_event(
                 self.request.user.id,
                 tag="account:two_factor:method_added",
-                ip_address=self.request.remote_addr,
                 additional={"method": "totp"},
             )
             self.request.session.flash(
@@ -540,7 +553,7 @@ class ProvisionTOTPViews:
             self.request.session.flash(
                 "Verify your email to modify two factor authentication", queue="error"
             )
-            return Response(status=403)
+            return HTTPSeeOther(self.request.route_path("manage.account"))
 
         totp_secret = self.user_service.get_totp_secret(self.request.user.id)
         if not totp_secret:
@@ -561,7 +574,6 @@ class ProvisionTOTPViews:
             self.user_service.record_event(
                 self.request.user.id,
                 tag="account:two_factor:method_removed",
-                ip_address=self.request.remote_addr,
                 additional={"method": "totp"},
             )
             self.request.session.flash(
@@ -597,6 +609,10 @@ class ProvisionWebAuthnViews:
         renderer="manage/account/webauthn-provision.html",
     )
     def webauthn_provision(self):
+        if not self.request.user.has_burned_recovery_codes:
+            return HTTPSeeOther(
+                self.request.route_path("manage.account.recovery-codes.burn")
+            )
         return {}
 
     @view_config(
@@ -645,7 +661,6 @@ class ProvisionWebAuthnViews:
             self.user_service.record_event(
                 self.request.user.id,
                 tag="account:two_factor:method_added",
-                ip_address=self.request.remote_addr,
                 additional={"method": "webauthn", "label": form.label.data},
             )
             self.request.session.flash(
@@ -686,7 +701,6 @@ class ProvisionWebAuthnViews:
             self.user_service.record_event(
                 self.request.user.id,
                 tag="account:two_factor:method_removed",
-                ip_address=self.request.remote_addr,
                 additional={"method": "webauthn", "label": form.label.data},
             )
             self.request.session.flash("Security device removed", queue="success")
@@ -716,18 +730,9 @@ class ProvisionRecoveryCodesViews:
         request_method="GET",
         route_name="manage.account.recovery-codes.generate",
         renderer="manage/account/recovery_codes-provision.html",
+        require_reauth=10,  # 10 seconds
     )
     def recovery_codes_generate(self):
-        if not self.user_service.has_two_factor(self.request.user.id):
-            self.request.session.flash(
-                self.request._(
-                    "You must provision a two factor method before recovery "
-                    "codes can be generated"
-                ),
-                queue="error",
-            )
-            return HTTPSeeOther(self.request.route_path("manage.account"))
-
         if self.user_service.has_recovery_codes(self.request.user.id):
             return {
                 "recovery_codes": None,
@@ -737,56 +742,60 @@ class ProvisionRecoveryCodesViews:
                 ),
             }
 
+        recovery_codes = self.user_service.generate_recovery_codes(self.request.user.id)
+        send_recovery_codes_generated_email(self.request, self.request.user)
         self.user_service.record_event(
             self.request.user.id,
             tag="account:recovery_codes:generated",
-            ip_address=self.request.remote_addr,
         )
-        return {
-            "recovery_codes": self.user_service.generate_recovery_codes(
-                self.request.user.id
-            )
-        }
+
+        return {"recovery_codes": recovery_codes}
 
     @view_config(
-        request_method="POST",
+        request_method="GET",
         route_name="manage.account.recovery-codes.regenerate",
         renderer="manage/account/recovery_codes-provision.html",
+        require_reauth=10,  # 10 seconds
     )
     def recovery_codes_regenerate(self):
-        if not self.user_service.has_two_factor(self.request.user.id):
-            self.request.session.flash(
-                self.request._(
-                    "You must provision a two factor method before recovery "
-                    "codes can be generated"
-                ),
-                queue="error",
-            )
-            return HTTPSeeOther(self.request.route_path("manage.account"))
+        recovery_codes = self.user_service.generate_recovery_codes(self.request.user.id)
+        send_recovery_codes_generated_email(self.request, self.request.user)
+        self.user_service.record_event(
+            self.request.user.id,
+            tag="account:recovery_codes:regenerated",
+        )
 
-        form = ConfirmPasswordForm(
+        return {"recovery_codes": recovery_codes}
+
+    @view_config(
+        route_name="manage.account.recovery-codes.burn",
+        renderer="manage/account/recovery_codes-burn.html",
+    )
+    def recovery_codes_burn(self, _form_class=RecoveryCodeAuthenticationForm):
+        user = self.user_service.get_user(self.request.user.id)
+
+        if not user.has_recovery_codes:
+            return HTTPSeeOther(self.request.route_path("manage.account"))
+        if user.has_burned_recovery_codes:
+            return HTTPSeeOther(self.request.route_path("manage.account.two-factor"))
+
+        form = _form_class(
+            self.request.POST,
             request=self.request,
-            password=self.request.POST["confirm_password"],
-            username=self.request.user.username,
+            user_id=user.id,
             user_service=self.user_service,
         )
 
-        if form.validate():
-            self.user_service.record_event(
-                self.request.user.id,
-                tag="account:recovery_codes:regenerated",
-                ip_address=self.request.remote_addr,
+        if self.request.method == "POST" and form.validate():
+            self.request.session.flash(
+                self.request._(
+                    "Recovery code accepted. The supplied code cannot be used again."
+                ),
+                queue="success",
             )
-            return {
-                "recovery_codes": self.user_service.generate_recovery_codes(
-                    self.request.user.id
-                )
-            }
+            return HTTPSeeOther(self.request.route_path("manage.account.two-factor"))
 
-        self.request.session.flash(
-            self.request._("Invalid credentials. Try again"), queue="error"
-        )
-        return HTTPSeeOther(self.request.route_path("manage.account"))
+        return {"form": form}
 
 
 @view_defaults(
@@ -857,7 +866,6 @@ class ProvisionMacaroonViews:
             self.user_service.record_event(
                 self.request.user.id,
                 tag="account:api_token:added",
-                ip_address=self.request.remote_addr,
                 additional={
                     "description": form.description.data,
                     "caveats": macaroon_caveats,
@@ -908,7 +916,6 @@ class ProvisionMacaroonViews:
             self.user_service.record_event(
                 self.request.user.id,
                 tag="account:api_token:removed",
-                ip_address=self.request.remote_addr,
                 additional={"macaroon_id": form.macaroon_id.data},
             )
             if "projects" in macaroon.caveats["permissions"]:
@@ -981,7 +988,7 @@ def manage_projects(request):
     }
 
 
-@view_config(
+@view_defaults(
     route_name="manage.project.settings",
     context=Project,
     renderer="manage/settings.html",
@@ -989,13 +996,67 @@ def manage_projects(request):
     permission="manage:project",
     has_translations=True,
     require_reauth=True,
+    require_methods=False,
 )
-def manage_project_settings(project, request):
-    return {
-        "project": project,
-        "MAX_FILESIZE": MAX_FILESIZE,
-        "MAX_PROJECT_SIZE": MAX_PROJECT_SIZE,
-    }
+class ManageProjectSettingsViews:
+    def __init__(self, project, request):
+        self.project = project
+        self.request = request
+        self.toggle_2fa_requirement_form_class = Toggle2FARequirementForm
+
+    @view_config(request_method="GET")
+    def manage_project_settings(self):
+        return {
+            "project": self.project,
+            "MAX_FILESIZE": MAX_FILESIZE,
+            "MAX_PROJECT_SIZE": MAX_PROJECT_SIZE,
+            "toggle_2fa_form": self.toggle_2fa_requirement_form_class(),
+        }
+
+    @view_config(
+        request_method="POST",
+        request_param=Toggle2FARequirementForm.__params__,
+        require_reauth=True,
+    )
+    def toggle_2fa_requirement(self):
+        if not self.request.registry.settings[
+            "warehouse.two_factor_requirement.enabled"
+        ]:
+            raise HTTPNotFound
+
+        if self.project.pypi_mandates_2fa:
+            self.request.session.flash(
+                "2FA requirement cannot be disabled for critical projects",
+                queue="error",
+            )
+        elif self.project.owners_require_2fa:
+            self.project.owners_require_2fa = False
+            self.project.record_event(
+                tag="project:owners_require_2fa:disabled",
+                ip_address=self.request.remote_addr,
+                additional={"modified_by": self.request.user.username},
+            )
+            self.request.session.flash(
+                f"2FA requirement disabled for { self.project.name }",
+                queue="success",
+            )
+        else:
+            self.project.owners_require_2fa = True
+            self.project.record_event(
+                tag="project:owners_require_2fa:enabled",
+                ip_address=self.request.remote_addr,
+                additional={"modified_by": self.request.user.username},
+            )
+            self.request.session.flash(
+                f"2FA requirement enabled for { self.project.name }",
+                queue="success",
+            )
+
+        return HTTPSeeOther(
+            self.request.route_path(
+                "manage.project.settings", project_name=self.project.name
+            )
+        )
 
 
 def get_user_role_in_project(project, user, request):

@@ -43,10 +43,11 @@ pyramid_rpc>=0.7
 pyramid_services>=2.1
 pyramid_tm>=0.12
 python-slugify
+PyJWT[crypto]>=2.3.0
 readme-renderer[md]>=0.7.0
 requests
 requests-aws4auth
-redis>=2.8.0,<4.0.0  # https://github.com/pypa/warehouse/pull/10369
+redis>=2.8.0,<5.0.0
 rfc3986
 sentry-sdk
 setuptools

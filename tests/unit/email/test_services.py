@@ -137,6 +137,12 @@ class TestSMTPEmailSender:
         assert msg.recipients == ["sombody@example.com"]
         assert msg.sender == "DevPyPI <noreply@example.com>"
 
+    def test_last_sent(self, sender_class):
+        mailer = DummyMailer()
+        service = sender_class(mailer, sender="DevPyPI <noreply@example.com>")
+
+        assert service.last_sent(to=pretend.stub(), subject=pretend.stub) is None
+
 
 class TestConsoleAndSMTPEmailSender:
     def test_send(self, capsys):
@@ -306,3 +312,53 @@ class TestSESEmailSender:
         assert em.from_ == "noreply@example.com"
         assert em.to == "somebody@example.com"
         assert em.subject == "This is a Subject"
+
+    def test_last_sent(self, db_session):
+        to = "me@example.com"
+        subject = "I care about this"
+
+        # Send some random emails
+        aws_client = pretend.stub(
+            send_raw_email=pretend.call_recorder(
+                lambda *a, **kw: {"MessageId": str(uuid.uuid4()) + "-ses"}
+            )
+        )
+        sender = SESEmailSender(
+            aws_client, sender="DevPyPI <noreply@example.com>", db=db_session
+        )
+        for address in [to, "somebody_else@example.com"]:
+            for subject in [subject, "I do not care about this"]:
+                sender.send(
+                    f"Foobar <{ to }>",
+                    EmailMessage(
+                        subject=subject, body_text="This is a plain text body"
+                    ),
+                )
+
+        # Send the last email that we care about
+        resp = {"MessageId": str(uuid.uuid4()) + "-ses"}
+        aws_client = pretend.stub(
+            send_raw_email=pretend.call_recorder(lambda *a, **kw: resp)
+        )
+        sender = SESEmailSender(
+            aws_client, sender="DevPyPI <noreply@example.com>", db=db_session
+        )
+        sender.send(
+            f"Foobar <{ to }>",
+            EmailMessage(subject=subject, body_text="This is a plain text body"),
+        )
+
+        em = (
+            db_session.query(SESEmailMessage)
+            .filter_by(message_id=resp["MessageId"])
+            .one()
+        )
+
+        assert sender.last_sent(to, subject) == em.created
+
+    def test_last_sent_none(self, db_session):
+        to = "me@example.com"
+        subject = "I care about this"
+        sender = SESEmailSender(pretend.stub(), sender=pretend.stub(), db=db_session)
+
+        assert sender.last_sent(to, subject) is None

@@ -12,6 +12,7 @@
 
 import os
 import os.path
+import re
 import xmlrpc.client
 
 from collections import defaultdict
@@ -25,15 +26,23 @@ import pyramid.testing
 import pytest
 import webtest as _webtest
 
+from jinja2 import Environment, FileSystemLoader
 from psycopg2.errors import InvalidCatalogName
 from pyramid.i18n import TranslationString
 from pyramid.static import ManifestCacheBuster
+from pyramid_jinja2 import IJinja2Environment
+from pyramid_mailer.mailer import DummyMailer
 from pytest_postgresql.config import get_config
 from pytest_postgresql.janitor import DatabaseJanitor
 from sqlalchemy import event
 
+import warehouse
+
 from warehouse import admin, config, static
 from warehouse.accounts import services as account_services
+from warehouse.accounts.interfaces import ITokenService
+from warehouse.email import services as email_services
+from warehouse.email.interfaces import IEmailSender
 from warehouse.macaroons import services as macaroon_services
 from warehouse.metrics import IMetricsService
 
@@ -76,6 +85,27 @@ def metrics():
     )
 
 
+@pytest.fixture
+def remote_addr():
+    return "1.2.3.4"
+
+
+@pytest.fixture
+def jinja():
+    dir_name = os.path.join(os.path.dirname(warehouse.__file__))
+
+    env = Environment(
+        loader=FileSystemLoader(dir_name),
+        extensions=[
+            "jinja2.ext.i18n",
+            "warehouse.utils.html.ClientSideIncludeExtension",
+        ],
+        cache_size=0,
+    )
+
+    return env
+
+
 class _Services:
     def __init__(self):
         self._services = defaultdict(lambda: defaultdict(dict))
@@ -88,20 +118,27 @@ class _Services:
 
 
 @pytest.fixture
-def pyramid_services(metrics):
+def pyramid_services(metrics, email_service, token_service):
     services = _Services()
 
     # Register our global services.
     services.register_service(metrics, IMetricsService, None, name="")
+    services.register_service(email_service, IEmailSender, None, name="")
+    services.register_service(token_service, ITokenService, None, name="password")
+    services.register_service(token_service, ITokenService, None, name="email")
 
     return services
 
 
 @pytest.fixture
-def pyramid_request(pyramid_services):
+def pyramid_request(pyramid_services, jinja, remote_addr):
+    pyramid.testing.setUp()
     dummy_request = pyramid.testing.DummyRequest()
     dummy_request.find_service = pyramid_services.find_service
-    dummy_request.remote_addr = "1.2.3.4"
+    dummy_request.remote_addr = remote_addr
+    dummy_request.authentication_method = pretend.stub()
+
+    dummy_request.registry.registerUtility(jinja, IJinja2Environment, name=".jinja2")
 
     def localize(message, **kwargs):
         ts = TranslationString(message, **kwargs)
@@ -109,7 +146,9 @@ def pyramid_request(pyramid_services):
 
     dummy_request._ = localize
 
-    return dummy_request
+    yield dummy_request
+
+    pyramid.testing.tearDown()
 
 
 @pytest.fixture
@@ -184,7 +223,8 @@ def app_config(database):
         "ratelimit.url": "memory://",
         "elasticsearch.url": "https://localhost/warehouse",
         "files.backend": "warehouse.packaging.services.LocalFileStorage",
-        "docs.backend": "warehouse.packaging.services.LocalFileStorage",
+        "simple.backend": "warehouse.packaging.services.LocalSimpleStorage",
+        "docs.backend": "warehouse.packaging.services.LocalDocsStorage",
         "sponsorlogos.backend": "warehouse.admin.services.LocalSponsorLogoStorage",
         "mail.backend": "warehouse.email.services.SMTPEmailSender",
         "malware_check.backend": (
@@ -234,8 +274,10 @@ def db_session(app_config):
 
 
 @pytest.fixture
-def user_service(db_session, metrics):
-    return account_services.DatabaseUserService(db_session, metrics=metrics)
+def user_service(db_session, metrics, remote_addr):
+    return account_services.DatabaseUserService(
+        db_session, metrics=metrics, remote_addr=remote_addr
+    )
 
 
 @pytest.fixture
@@ -246,6 +288,13 @@ def macaroon_service(db_session):
 @pytest.fixture
 def token_service(app_config):
     return account_services.TokenService(secret="secret", salt="salt", max_age=21600)
+
+
+@pytest.fixture
+def email_service():
+    return email_services.SMTPEmailSender(
+        mailer=DummyMailer(), sender="noreply@pypi.dev"
+    )
 
 
 class QueryRecorder:
@@ -345,3 +394,71 @@ def monkeypatch_session():
     m = MonkeyPatch()
     yield m
     m.undo()
+
+
+class _MockRedis:
+    """
+    Just enough Redis for our tests.
+    In-memory only, no persistence.
+    Does NOT implement the full Redis API.
+    """
+
+    def __init__(self, cache=None):
+        self.cache = cache
+
+        if not self.cache:
+            self.cache = dict()
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, exc_type, exc_value, traceback):
+        pass
+
+    def delete(self, key):
+        del self.cache[key]
+
+    def execute(self):
+        pass
+
+    def exists(self, key):
+        return key in self.cache
+
+    def expire(self, _key, _seconds):
+        pass
+
+    def from_url(self, _url):
+        return self
+
+    def hget(self, hash_, key):
+        try:
+            return self.cache[hash_][key]
+        except KeyError:
+            return None
+
+    def hset(self, hash_, key, value, *_args, **_kwargs):
+        if hash_ not in self.cache:
+            self.cache[hash_] = dict()
+        self.cache[hash_][key] = value
+
+    def get(self, key):
+        return self.cache.get(key)
+
+    def pipeline(self):
+        return self
+
+    def scan_iter(self, search, count):
+        del count  # unused
+        return [key for key in self.cache.keys() if re.search(search, key)]
+
+    def set(self, key, value):
+        self.cache[key] = value
+
+    def setex(self, key, value, _seconds):
+        self.cache[key] = value
+
+
+@pytest.fixture
+def mockredis():
+    mock_redis = _MockRedis()
+    yield mock_redis

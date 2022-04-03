@@ -35,3 +35,8 @@ class SponsorFactory(WarehouseFactory):
     infra_sponsor = False
     one_time = False
     sidebar = True
+
+    origin = "manual"
+    level_name = ""
+    level_order = 0
+    slug = factory.Faker("slug")

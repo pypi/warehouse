@@ -54,8 +54,8 @@ class TestCreateRoleForm:
         ("value", "expected"),
         [
             ("", "Select role"),
-            ("invalid", "Not a valid choice"),
-            (None, "Not a valid choice"),
+            ("invalid", "Not a valid choice."),
+            (None, "Not a valid choice."),
         ],
     )
     def test_validate_role_name_fails(self, value, expected):
@@ -174,7 +174,7 @@ class TestDeleteTOTPForm:
         user_service = pretend.stub(
             find_userid=pretend.call_recorder(lambda userid: 1),
             check_password=pretend.call_recorder(
-                lambda userid, password, ip_address, tags=None: True
+                lambda userid, password, tags=None: True
             ),
         )
         form = forms.DeleteTOTPForm(

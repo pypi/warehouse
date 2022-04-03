@@ -65,7 +65,7 @@ def test_confirm_no_input():
 
     with pytest.raises(HTTPSeeOther) as err:
         confirm_project(project, request, fail_route="fail_route")
-        assert err.value == "/the-redirect"
+    assert err.value.location == "/the-redirect"
 
     assert request.route_path.calls == [call("fail_route", project_name="foobar")]
     assert request.session.flash.calls == [call("Confirm the request", queue="error")]
@@ -81,7 +81,7 @@ def test_confirm_incorrect_input():
 
     with pytest.raises(HTTPSeeOther) as err:
         confirm_project(project, request, fail_route="fail_route")
-        assert err.value == "/the-redirect"
+    assert err.value.location == "/the-redirect"
 
     assert request.route_path.calls == [call("fail_route", project_name="foobar")]
     assert request.session.flash.calls == [

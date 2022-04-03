@@ -79,6 +79,10 @@ class SMTPEmailSender:
             )
         )
 
+    def last_sent(self, to, subject):
+        # We don't store previously sent emails, so nothing to comapre against
+        return None
+
 
 @implementer(IEmailSender)
 class SESEmailSender:
@@ -126,6 +130,19 @@ class SESEmailSender:
                 subject=message.subject,
             )
         )
+
+    def last_sent(self, to, subject):
+        last_email = (
+            self._db.query(SESEmailMessage)
+            .filter(
+                SESEmailMessage.to == to,
+                SESEmailMessage.subject == subject,
+            )
+            .order_by(SESEmailMessage.created.desc())
+            .first()
+        )
+        if last_email:
+            return last_email.created
 
 
 class ConsoleAndSMTPEmailSender(SMTPEmailSender):
