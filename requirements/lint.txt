@@ -226,7 +226,6 @@ typing-extensions==4.1.1 \
     # via
     #   black
     #   boto3-stubs
-    #   botocore-stubs
     #   mypy
 zope-event==4.5.0 \
     --hash=sha256:2666401939cdaa5f4e0c08cf7f20c9b21423b95e88f4675b1443973bdb080c42 \
@@ -293,10 +292,9 @@ zope-schema==6.2.0 \
     # via mypy-zope
 
 # The following packages are considered to be unsafe in a requirements file:
-setuptools==61.2.0 \
-    --hash=sha256:8f4813dd6a4d6cc17bde85fb2e635fe19763f96efbb0ddf5575562e5ee0bc47a \
-    --hash=sha256:c3d4e2ab578fbf83775755cd76dae73627915a22832cf4ea5de895978767833b
+setuptools==61.3.1 \
+    --hash=sha256:41aface2e85b517c3a466b4689b8055c02cd2e623461f09af7d93f3da65c4709 \
+    --hash=sha256:88fafba4abc2f047e08a188fd4bbc10b0e464592c37b514c19f8f8f88d94450b
     # via
-    #   zope-event
     #   zope-interface
     #   zope-schema
