@@ -115,9 +115,9 @@ cbor2==5.4.2.post1 \
     --hash=sha256:d140b20b0bcbdfa80a910c6832aaa13f870b7045e39f8d9b5b652ef87ce3eac5 \
     --hash=sha256:e497c91bf107490503c1d834a04ccfc849d8b0b36ff8ee1598f10712864a4c87
     # via webauthn
-celery[sqs]==5.2.2 \
-    --hash=sha256:2844eb040e915398623a43253a8e1016723442ece6b0751a3c416d8a2b34216f \
-    --hash=sha256:5a68a351076cfac4f678fa5ffd898105c28825a2224902da006970005196d061
+celery[sqs]==5.2.5 \
+    --hash=sha256:19247ba189b72f82cf387fe5130f8d972f1c41255f87002f3198452849bf3a97 \
+    --hash=sha256:1f31c196e61dde344e322f9c0d33d1bb88c0dbaccbab5019fbb519a43d44706d
     # via
     #   -r requirements/main.in
     #   celery-redbeat
@@ -1407,7 +1407,6 @@ setuptools==61.2.0 \
     --hash=sha256:c3d4e2ab578fbf83775755cd76dae73627915a22832cf4ea5de895978767833b
     # via
     #   -r requirements/main.in
-    #   celery
     #   limits
     #   pastedeploy
     #   plaster
