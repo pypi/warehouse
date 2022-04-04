@@ -1045,9 +1045,9 @@ readme-renderer[md]==34.0 \
     --hash=sha256:262510fe6aae81ed4e94d8b169077f325614c0b1a45916a80442c6576264a9c2 \
     --hash=sha256:dfb4d17f21706d145f7473e0b61ca245ba58e810cf9b2209a48239677f82e5b0
     # via -r requirements/main.in
-redis==4.2.0 \
-    --hash=sha256:3cbe235cea80b9c9991b397567aa2d65eb4e6fb09787f61d227ae82eb4eb50b4 \
-    --hash=sha256:6758d01dec81af191b98a35cce3402675d115456584c39b500ab485a5e386bbb
+redis==4.2.2 \
+    --hash=sha256:0107dc8e98a4f1d1d4aa00100e044287f77121a1e6d2085545c4b7fa94a7a27f \
+    --hash=sha256:4e95f4ec5f49e636efcf20061a5a9110c20852f607cfca6865c07aaa8a739ee2
     # via
     #   -r requirements/main.in
     #   celery-redbeat
@@ -1192,9 +1192,7 @@ typeguard==2.13.3 \
 typing-extensions==4.1.1 \
     --hash=sha256:1a9462dcc3347a79b1f1c0271fbe79e844580bb598bafa1ed208b94da3cdcd42 \
     --hash=sha256:21c85e0fe4b9a155d0799430b0ad741cdce7e359660ccbd8b530613e8df88ce2
-    # via
-    #   pydantic
-    #   redis
+    # via pydantic
 urllib3==1.26.9 \
     --hash=sha256:44ece4d53fb1706f667c9bd1c648f5469a2ec925fcf3a776667042d645472c14 \
     --hash=sha256:aabaf16477806a5e1dd19aa41f8c2b7950dd3c746362d7e3223dbe6de6ac448e
