@@ -1232,9 +1232,7 @@ class ManageOIDCProviderViews:
                 )
                 return response
 
-            # We only email project owners, since only owners can manage OIDC providers.
-            owner_users = project_owners(self.request, self.project)
-            for user in owner_users:
+            for user in self.project.users:
                 send_oidc_provider_added_email(
                     self.request, user, project_name=self.project.name
                 )
@@ -1292,9 +1290,7 @@ class ManageOIDCProviderViews:
                 )
                 return self.default_response
 
-            # We only email project owners, since only owners can manage OIDC providers.
-            owner_users = project_owners(self.request, self.project)
-            for user in owner_users:
+            for user in self.project.users:
                 send_oidc_provider_removed_email(
                     self.request, user, project_name=self.project.name
                 )

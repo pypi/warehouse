@@ -4882,6 +4882,7 @@ class TestManageOIDCProviderViews:
             name="fakeproject",
             oidc_providers=[],
             record_event=pretend.call_recorder(lambda *a, **kw: None),
+            users=[],
         )
 
         metrics = pretend.stub(increment=pretend.call_recorder(lambda *a, **kw: None))
@@ -4916,9 +4917,6 @@ class TestManageOIDCProviderViews:
             lambda *a, **kw: github_provider_form_obj
         )
         monkeypatch.setattr(views, "GitHubProviderForm", github_provider_form_cls)
-        monkeypatch.setattr(
-            views, "project_owners", pretend.call_recorder(lambda *a: [])
-        )
 
         view = views.ManageOIDCProviderViews(project, request)
         monkeypatch.setattr(
@@ -4958,16 +4956,17 @@ class TestManageOIDCProviderViews:
         ]
         assert request.db.add.calls == []
         assert github_provider_form_obj.validate.calls == [pretend.call()]
-        assert views.project_owners.calls == [pretend.call(request, project)]
         assert view._hit_ratelimits.calls == [pretend.call()]
         assert view._check_ratelimits.calls == [pretend.call()]
         assert project.oidc_providers == [provider]
 
     def test_add_github_oidc_provider_created(self, monkeypatch):
+        fakeusers = [pretend.stub(), pretend.stub(), pretend.stub()]
         project = pretend.stub(
             name="fakeproject",
             oidc_providers=[],
             record_event=pretend.call_recorder(lambda *a, **kw: None),
+            users=fakeusers,
         )
 
         metrics = pretend.stub(increment=pretend.call_recorder(lambda *a, **kw: None))
@@ -5003,10 +5002,6 @@ class TestManageOIDCProviderViews:
             lambda *a, **kw: github_provider_form_obj
         )
         monkeypatch.setattr(views, "GitHubProviderForm", github_provider_form_cls)
-        fakeowners = [pretend.stub(), pretend.stub(), pretend.stub()]
-        monkeypatch.setattr(
-            views, "project_owners", pretend.call_recorder(lambda *a: fakeowners)
-        )
         monkeypatch.setattr(
             views,
             "send_oidc_provider_added_email",
@@ -5051,10 +5046,9 @@ class TestManageOIDCProviderViews:
         ]
         assert request.db.add.calls == [pretend.call(project.oidc_providers[0])]
         assert github_provider_form_obj.validate.calls == [pretend.call()]
-        assert views.project_owners.calls == [pretend.call(request, project)]
         assert views.send_oidc_provider_added_email.calls == [
-            pretend.call(request, fakeowner, project_name="fakeproject")
-            for fakeowner in fakeowners
+            pretend.call(request, fakeuser, project_name="fakeproject")
+            for fakeuser in fakeusers
         ]
         assert view._hit_ratelimits.calls == [pretend.call()]
         assert view._check_ratelimits.calls == [pretend.call()]
@@ -5270,10 +5264,12 @@ class TestManageOIDCProviderViews:
         # NOTE: Can't set __str__ using pretend.stub()
         monkeypatch.setattr(provider.__class__, "__str__", lambda s: "fakespecifier")
 
+        fakeusers = [pretend.stub(), pretend.stub(), pretend.stub()]
         project = pretend.stub(
             oidc_providers=[provider],
             name="fakeproject",
             record_event=pretend.call_recorder(lambda *a, **kw: None),
+            users=fakeusers,
         )
         metrics = pretend.stub(increment=pretend.call_recorder(lambda *a, **kw: None))
         request = pretend.stub(
@@ -5296,11 +5292,6 @@ class TestManageOIDCProviderViews:
             lambda *a, **kw: delete_provider_form_obj
         )
         monkeypatch.setattr(views, "DeleteProviderForm", delete_provider_form_cls)
-
-        fakeowners = [pretend.stub(), pretend.stub(), pretend.stub()]
-        monkeypatch.setattr(
-            views, "project_owners", pretend.call_recorder(lambda *a: fakeowners)
-        )
         monkeypatch.setattr(
             views,
             "send_oidc_provider_removed_email",
@@ -5347,10 +5338,9 @@ class TestManageOIDCProviderViews:
         assert delete_provider_form_cls.calls == [pretend.call(request.POST)]
         assert delete_provider_form_obj.validate.calls == [pretend.call()]
 
-        assert views.project_owners.calls == [pretend.call(request, project)]
         assert views.send_oidc_provider_removed_email.calls == [
-            pretend.call(request, fakeowner, project_name="fakeproject")
-            for fakeowner in fakeowners
+            pretend.call(request, fakeuser, project_name="fakeproject")
+            for fakeuser in fakeusers
         ]
 
     def test_delete_oidc_provider_invalid_form(self, monkeypatch):
