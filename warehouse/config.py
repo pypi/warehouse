@@ -389,6 +389,7 @@ def configure(settings=None):
     filters.setdefault("format_package_type", "warehouse.filters:format_package_type")
     filters.setdefault("parse_version", "warehouse.filters:parse_version")
     filters.setdefault("localize_datetime", "warehouse.filters:localize_datetime")
+    filters.setdefault("is_recent", "warehouse.filters:is_recent")
 
     # We also want to register some global functions for Jinja
     jglobals = config.get_settings().setdefault("jinja2.globals", {})
