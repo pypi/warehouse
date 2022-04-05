@@ -348,13 +348,13 @@ msgstr ""
 #: warehouse/templates/404.html:34 warehouse/templates/500.html:28
 #: warehouse/templates/500.html:29
 #: warehouse/templates/accounts/two-factor.html:55
-#: warehouse/templates/base.html:258 warehouse/templates/base.html:259
-#: warehouse/templates/base.html:260 warehouse/templates/base.html:270
-#: warehouse/templates/base.html:271 warehouse/templates/base.html:272
-#: warehouse/templates/base.html:283 warehouse/templates/base.html:284
-#: warehouse/templates/base.html:285 warehouse/templates/base.html:294
-#: warehouse/templates/base.html:296 warehouse/templates/base.html:307
-#: warehouse/templates/base.html:316
+#: warehouse/templates/base.html:259 warehouse/templates/base.html:260
+#: warehouse/templates/base.html:261 warehouse/templates/base.html:271
+#: warehouse/templates/base.html:272 warehouse/templates/base.html:273
+#: warehouse/templates/base.html:284 warehouse/templates/base.html:285
+#: warehouse/templates/base.html:286 warehouse/templates/base.html:295
+#: warehouse/templates/base.html:297 warehouse/templates/base.html:308
+#: warehouse/templates/base.html:317
 #: warehouse/templates/includes/accounts/profile-actions.html:21
 #: warehouse/templates/includes/accounts/profile-actions.html:30
 #: warehouse/templates/includes/accounts/profile-callout.html:18
@@ -373,7 +373,7 @@ msgstr ""
 #: warehouse/templates/manage/release.html:175
 #: warehouse/templates/manage/releases.html:140
 #: warehouse/templates/manage/releases.html:173
-#: warehouse/templates/packaging/detail.html:344
+#: warehouse/templates/packaging/detail.html:350
 #: warehouse/templates/pages/classifiers.html:25
 #: warehouse/templates/pages/help.html:20
 #: warehouse/templates/pages/help.html:208
@@ -520,7 +520,7 @@ msgid "Main navigation"
 msgstr ""
 
 #: warehouse/templates/base.html:41 warehouse/templates/base.html:55
-#: warehouse/templates/base.html:255
+#: warehouse/templates/base.html:256
 #: warehouse/templates/includes/current-user-indicator.html:55
 #: warehouse/templates/pages/help.html:105
 #: warehouse/templates/pages/sitemap.html:27
@@ -573,16 +573,16 @@ msgstr ""
 msgid "RSS: 40 newest packages"
 msgstr ""
 
-#: warehouse/templates/base.html:140
+#: warehouse/templates/base.html:141
 msgid "Skip to main content"
 msgstr ""
 
-#: warehouse/templates/base.html:143
+#: warehouse/templates/base.html:144
 msgid "Switch to mobile version"
 msgstr ""
 
-#: warehouse/templates/base.html:152 warehouse/templates/base.html:161
-#: warehouse/templates/base.html:171
+#: warehouse/templates/base.html:153 warehouse/templates/base.html:162
+#: warehouse/templates/base.html:172
 #: warehouse/templates/includes/flash-messages.html:30
 #: warehouse/templates/includes/session-notifications.html:20
 #: warehouse/templates/manage/account.html:696
@@ -594,156 +594,156 @@ msgstr ""
 msgid "Warning"
 msgstr ""
 
-#: warehouse/templates/base.html:154
+#: warehouse/templates/base.html:155
 msgid "You are using an unsupported browser, upgrade to a newer version."
 msgstr ""
 
-#: warehouse/templates/base.html:163
+#: warehouse/templates/base.html:164
 msgid ""
 "You are using TestPyPI – a separate instance of the Python Package Index "
 "that allows you to try distribution tools and processes without affecting"
 " the real index."
 msgstr ""
 
-#: warehouse/templates/base.html:173
+#: warehouse/templates/base.html:174
 msgid ""
 "Some features may not work without JavaScript. Please try enabling it if "
 "you encounter problems."
 msgstr ""
 
-#: warehouse/templates/base.html:211 warehouse/templates/base.html:232
+#: warehouse/templates/base.html:212 warehouse/templates/base.html:233
 #: warehouse/templates/error-base-with-search.html:20
 #: warehouse/templates/index.html:55
 msgid "Search PyPI"
 msgstr ""
 
-#: warehouse/templates/base.html:212 warehouse/templates/base.html:233
+#: warehouse/templates/base.html:213 warehouse/templates/base.html:234
 #: warehouse/templates/error-base-with-search.html:21
 #: warehouse/templates/index.html:58
 msgid "Search projects"
 msgstr ""
 
-#: warehouse/templates/base.html:216 warehouse/templates/base.html:237
+#: warehouse/templates/base.html:217 warehouse/templates/base.html:238
 #: warehouse/templates/error-base-with-search.html:24
 #: warehouse/templates/index.html:62
 msgid "Search"
 msgstr ""
 
-#: warehouse/templates/base.html:256
+#: warehouse/templates/base.html:257
 msgid "Help navigation"
 msgstr ""
 
-#: warehouse/templates/base.html:258
+#: warehouse/templates/base.html:259
 msgid "Installing packages"
 msgstr ""
 
-#: warehouse/templates/base.html:259
+#: warehouse/templates/base.html:260
 msgid "Uploading packages"
 msgstr ""
 
-#: warehouse/templates/base.html:260
+#: warehouse/templates/base.html:261
 msgid "User guide"
 msgstr ""
 
-#: warehouse/templates/base.html:261
+#: warehouse/templates/base.html:262
 msgid "FAQs"
 msgstr ""
 
-#: warehouse/templates/base.html:267 warehouse/templates/pages/sitemap.html:37
+#: warehouse/templates/base.html:268 warehouse/templates/pages/sitemap.html:37
 msgid "About PyPI"
 msgstr ""
 
-#: warehouse/templates/base.html:268
+#: warehouse/templates/base.html:269
 msgid "About PyPI navigation"
 msgstr ""
 
-#: warehouse/templates/base.html:270
+#: warehouse/templates/base.html:271
 msgid "PyPI on Twitter"
 msgstr ""
 
-#: warehouse/templates/base.html:271
+#: warehouse/templates/base.html:272
 msgid "Infrastructure dashboard"
 msgstr ""
 
-#: warehouse/templates/base.html:272
+#: warehouse/templates/base.html:273
 msgid "Package index name retention"
 msgstr ""
 
-#: warehouse/templates/base.html:273
+#: warehouse/templates/base.html:274
 msgid "Our sponsors"
 msgstr ""
 
-#: warehouse/templates/base.html:279
+#: warehouse/templates/base.html:280
 msgid "Contributing to PyPI"
 msgstr ""
 
-#: warehouse/templates/base.html:280
+#: warehouse/templates/base.html:281
 msgid "How to contribute navigation"
 msgstr ""
 
-#: warehouse/templates/base.html:282
+#: warehouse/templates/base.html:283
 msgid "Bugs and feedback"
 msgstr ""
 
-#: warehouse/templates/base.html:283
+#: warehouse/templates/base.html:284
 msgid "Contribute on GitHub"
 msgstr ""
 
-#: warehouse/templates/base.html:284
+#: warehouse/templates/base.html:285
 msgid "Translate PyPI"
 msgstr ""
 
-#: warehouse/templates/base.html:285
+#: warehouse/templates/base.html:286
 msgid "Development credits"
 msgstr ""
 
-#: warehouse/templates/base.html:291 warehouse/templates/pages/sitemap.html:23
+#: warehouse/templates/base.html:292 warehouse/templates/pages/sitemap.html:23
 msgid "Using PyPI"
 msgstr ""
 
-#: warehouse/templates/base.html:292
+#: warehouse/templates/base.html:293
 msgid "Using PyPI navigation"
 msgstr ""
 
-#: warehouse/templates/base.html:294
+#: warehouse/templates/base.html:295
 msgid "Code of conduct"
 msgstr ""
 
-#: warehouse/templates/base.html:295
+#: warehouse/templates/base.html:296
 msgid "Report security issue"
 msgstr ""
 
-#: warehouse/templates/base.html:296
+#: warehouse/templates/base.html:297
 msgid "Privacy policy"
 msgstr ""
 
-#: warehouse/templates/base.html:297 warehouse/templates/pages/sitemap.html:43
+#: warehouse/templates/base.html:298 warehouse/templates/pages/sitemap.html:43
 msgid "Terms of use"
 msgstr ""
 
-#: warehouse/templates/base.html:307
+#: warehouse/templates/base.html:308
 msgid "Status: "
 msgstr ""
 
-#: warehouse/templates/base.html:308
+#: warehouse/templates/base.html:309
 msgid "all systems operational"
 msgstr ""
 
-#: warehouse/templates/base.html:312
+#: warehouse/templates/base.html:313
 msgid ""
 "Developed and maintained by the Python community, for the Python "
 "community."
 msgstr ""
 
-#: warehouse/templates/base.html:314
+#: warehouse/templates/base.html:315
 msgid "Donate today!"
 msgstr ""
 
-#: warehouse/templates/base.html:317 warehouse/templates/pages/sitemap.html:16
+#: warehouse/templates/base.html:318 warehouse/templates/pages/sitemap.html:16
 msgid "Site map"
 msgstr ""
 
-#: warehouse/templates/base.html:323
+#: warehouse/templates/base.html:324
 msgid "Switch to desktop version"
 msgstr ""
 
@@ -1696,7 +1696,7 @@ msgstr ""
 #: warehouse/templates/manage/account.html:206
 #: warehouse/templates/manage/account/recovery_codes-provision.html:57
 #: warehouse/templates/manage/account/totp-provision.html:57
-#: warehouse/templates/packaging/detail.html:144
+#: warehouse/templates/packaging/detail.html:150
 #: warehouse/templates/pages/classifiers.html:38
 msgid "Copy to clipboard"
 msgstr ""
@@ -3980,114 +3980,114 @@ msgstr ""
 msgid "RSS: latest releases for %(project_name)s"
 msgstr ""
 
-#: warehouse/templates/packaging/detail.html:146
+#: warehouse/templates/packaging/detail.html:152
 msgid "Copy PIP instructions"
 msgstr ""
 
-#: warehouse/templates/packaging/detail.html:156
+#: warehouse/templates/packaging/detail.html:162
 msgid "This release has been yanked"
 msgstr ""
 
-#: warehouse/templates/packaging/detail.html:162
+#: warehouse/templates/packaging/detail.html:168
 #, python-format
 msgid "Stable version available (%(version)s)"
 msgstr ""
 
-#: warehouse/templates/packaging/detail.html:166
+#: warehouse/templates/packaging/detail.html:172
 #, python-format
 msgid "Newer version available (%(version)s)"
 msgstr ""
 
-#: warehouse/templates/packaging/detail.html:170
+#: warehouse/templates/packaging/detail.html:176
 msgid "Latest version"
 msgstr ""
 
-#: warehouse/templates/packaging/detail.html:175
+#: warehouse/templates/packaging/detail.html:181
 #, python-format
 msgid "Released: %(release_date)s"
 msgstr ""
 
-#: warehouse/templates/packaging/detail.html:187
+#: warehouse/templates/packaging/detail.html:193
 msgid "No project description provided"
 msgstr ""
 
-#: warehouse/templates/packaging/detail.html:200
+#: warehouse/templates/packaging/detail.html:206
 msgid "Navigation"
 msgstr ""
 
-#: warehouse/templates/packaging/detail.html:201
-#: warehouse/templates/packaging/detail.html:232
+#: warehouse/templates/packaging/detail.html:207
+#: warehouse/templates/packaging/detail.html:238
 #, python-format
 msgid "Navigation for %(project)s"
 msgstr ""
 
-#: warehouse/templates/packaging/detail.html:204
-#: warehouse/templates/packaging/detail.html:235
+#: warehouse/templates/packaging/detail.html:210
+#: warehouse/templates/packaging/detail.html:241
 msgid "Project description. Focus will be moved to the description."
 msgstr ""
 
-#: warehouse/templates/packaging/detail.html:206
-#: warehouse/templates/packaging/detail.html:237
-#: warehouse/templates/packaging/detail.html:265
+#: warehouse/templates/packaging/detail.html:212
+#: warehouse/templates/packaging/detail.html:243
+#: warehouse/templates/packaging/detail.html:271
 msgid "Project description"
 msgstr ""
 
-#: warehouse/templates/packaging/detail.html:210
-#: warehouse/templates/packaging/detail.html:247
+#: warehouse/templates/packaging/detail.html:216
+#: warehouse/templates/packaging/detail.html:253
 msgid "Release history. Focus will be moved to the history panel."
 msgstr ""
 
-#: warehouse/templates/packaging/detail.html:212
-#: warehouse/templates/packaging/detail.html:249
-#: warehouse/templates/packaging/detail.html:287
+#: warehouse/templates/packaging/detail.html:218
+#: warehouse/templates/packaging/detail.html:255
+#: warehouse/templates/packaging/detail.html:293
 msgid "Release history"
 msgstr ""
 
-#: warehouse/templates/packaging/detail.html:217
-#: warehouse/templates/packaging/detail.html:254
+#: warehouse/templates/packaging/detail.html:223
+#: warehouse/templates/packaging/detail.html:260
 msgid "Download files. Focus will be moved to the project files."
 msgstr ""
 
-#: warehouse/templates/packaging/detail.html:219
-#: warehouse/templates/packaging/detail.html:256
-#: warehouse/templates/packaging/detail.html:343
+#: warehouse/templates/packaging/detail.html:225
+#: warehouse/templates/packaging/detail.html:262
+#: warehouse/templates/packaging/detail.html:349
 msgid "Download files"
 msgstr ""
 
-#: warehouse/templates/packaging/detail.html:241
+#: warehouse/templates/packaging/detail.html:247
 msgid "Project details. Focus will be moved to the project details."
 msgstr ""
 
-#: warehouse/templates/packaging/detail.html:243
-#: warehouse/templates/packaging/detail.html:279
+#: warehouse/templates/packaging/detail.html:249
+#: warehouse/templates/packaging/detail.html:285
 msgid "Project details"
 msgstr ""
 
-#: warehouse/templates/packaging/detail.html:272
+#: warehouse/templates/packaging/detail.html:278
 msgid "The author of this package has not provided a project description"
 msgstr ""
 
-#: warehouse/templates/packaging/detail.html:289
+#: warehouse/templates/packaging/detail.html:295
 msgid "Release notifications"
 msgstr ""
 
-#: warehouse/templates/packaging/detail.html:290
+#: warehouse/templates/packaging/detail.html:296
 msgid "RSS feed"
 msgstr ""
 
-#: warehouse/templates/packaging/detail.html:302
+#: warehouse/templates/packaging/detail.html:308
 msgid "This version"
 msgstr ""
 
-#: warehouse/templates/packaging/detail.html:322
+#: warehouse/templates/packaging/detail.html:328
 msgid "pre-release"
 msgstr ""
 
-#: warehouse/templates/packaging/detail.html:327
+#: warehouse/templates/packaging/detail.html:333
 msgid "yanked"
 msgstr ""
 
-#: warehouse/templates/packaging/detail.html:344
+#: warehouse/templates/packaging/detail.html:350
 #, python-format
 msgid ""
 "Download the file for your platform. If you're not sure which to choose, "
@@ -4095,7 +4095,7 @@ msgid ""
 "target=\"_blank\" rel=\"noopener\">installing packages</a>."
 msgstr ""
 
-#: warehouse/templates/packaging/detail.html:348
+#: warehouse/templates/packaging/detail.html:354
 msgid ""
 "\n"
 "                Source Distribution\n"
@@ -4107,7 +4107,7 @@ msgid_plural ""
 msgstr[0] ""
 msgstr[1] ""
 
-#: warehouse/templates/packaging/detail.html:360
+#: warehouse/templates/packaging/detail.html:366
 msgid ""
 "\n"
 "                Built Distribution\n"

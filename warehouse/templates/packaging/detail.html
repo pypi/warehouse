@@ -128,6 +128,12 @@
 
 {% block canonical_url %}{{ request.route_url('packaging.project', name=release.project.name) }}{% endblock %}
 
+{% block extra_meta %}
+{% if release.project.created|is_recent %}
+<meta name="googlebot" content="noindex">
+{% endif %}
+{% endblock %}
+
 {% block content %}
 {% csi request.route_path("includes.administer-project-include", project_name=project.normalized_name) %}
 {% endcsi %}
