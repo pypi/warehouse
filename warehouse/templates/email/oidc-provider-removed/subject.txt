@@ -16,6 +16,6 @@
 
 {% block subject %}
 {% trans project_name=project_name %}
-OpenID Connect removed from {{ project_name }}
+OpenID Connect publisher removed from {{ project_name }}
 {% endtrans %}
 {% endblock %}

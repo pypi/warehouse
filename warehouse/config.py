@@ -274,13 +274,13 @@ def configure(settings=None):
         settings,
         "warehouse.manage.oidc.user_registration_ratelimit_string",
         "USER_OIDC_REGISTRATION_RATELIMIT_STRING",
-        default="10 per day",
+        default="20 per day",
     )
     maybe_set(
         settings,
         "warehouse.manage.oidc.ip_registration_ratelimit_string",
         "IP_OIDC_REGISTRATION_RATELIMIT_STRING",
-        default="10 per day",
+        default="20 per day",
     )
 
     # 2FA feature flags

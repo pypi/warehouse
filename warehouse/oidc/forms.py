@@ -29,22 +29,22 @@ class GitHubProviderForm(forms.Form):
     owner = wtforms.StringField(
         validators=[
             wtforms.validators.DataRequired(
-                message=_("Specify GitHub owner (username or organization)"),
+                message=_("Specify GitHub repository owner (username or organization)"),
             ),
         ]
     )
 
     repository = wtforms.StringField(
         validators=[
-            wtforms.validators.DataRequired(message=_("Specify repository slug")),
+            wtforms.validators.DataRequired(message=_("Specify repository name")),
             wtforms.validators.Regexp(
                 _VALID_GITHUB_REPO, message=_("Invalid repository name")
             ),
         ]
     )
 
-    workflow_name = wtforms.StringField(
-        validators=[wtforms.validators.DataRequired(message=_("Specify workflow name"))]
+    workflow_filename = wtforms.StringField(
+        validators=[wtforms.validators.DataRequired(message=_("Specify workflow filename"))]
     )
 
     def __init__(self, *args, api_token, **kwargs):
@@ -130,7 +130,7 @@ class GitHubProviderForm(forms.Form):
 
         if "/" in workflow_name:
             raise wtforms.validators.ValidationError(
-                _("Workflow name must be a basename, without directories")
+                _("Workflow filename must be a filename only, without directories")
             )
 
 
