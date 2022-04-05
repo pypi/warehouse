@@ -184,9 +184,9 @@ types-first==2.0.2 \
     --hash=sha256:129155be97b4a65a86a2b4cbc6f2d1de5b40d2c5d370289779fd6dd0293b69f6 \
     --hash=sha256:444b4eaba3342f3d360f9f49eb4a175538da212e31ed1f26ee9b54c23f5fa0de
     # via -r requirements/lint.in
-types-html5lib==1.1.5 \
-    --hash=sha256:15435ea831ee0fef4cca1382998d51c1e81447ccd38664baab4fb50249695372 \
-    --hash=sha256:6e190a4e466e3f96f2128fd936a10b1159a57142d01628b0c515f4fc48d2e094
+types-html5lib==1.1.6 \
+    --hash=sha256:9fa1b0f03b407394019f96a81fcf27f444751916568e7bc580c39c5210c11003 \
+    --hash=sha256:e16a5a7c2187cd28277f5f152c9101e99d28fc9911de21d082f521ab6525901a
     # via -r requirements/lint.in
 types-itsdangerous==1.1.6 \
     --hash=sha256:21c6966c10e353a5d35d36c82aaa2c5598d3bc32ddc8e0591276da5ad2e3c638 \
@@ -226,7 +226,6 @@ typing-extensions==4.1.1 \
     # via
     #   black
     #   boto3-stubs
-    #   botocore-stubs
     #   mypy
 zope-event==4.5.0 \
     --hash=sha256:2666401939cdaa5f4e0c08cf7f20c9b21423b95e88f4675b1443973bdb080c42 \
@@ -297,6 +296,5 @@ setuptools==61.2.0 \
     --hash=sha256:8f4813dd6a4d6cc17bde85fb2e635fe19763f96efbb0ddf5575562e5ee0bc47a \
     --hash=sha256:c3d4e2ab578fbf83775755cd76dae73627915a22832cf4ea5de895978767833b
     # via
-    #   zope-event
     #   zope-interface
     #   zope-schema
