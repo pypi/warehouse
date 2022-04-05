@@ -1234,7 +1234,10 @@ class ManageOIDCProviderViews:
 
             for user in self.project.users:
                 send_oidc_provider_added_email(
-                    self.request, user, project_name=self.project.name
+                    self.request,
+                    user,
+                    project_name=self.project.name,
+                    provider=provider,
                 )
 
             self.project.oidc_providers.append(provider)
@@ -1292,7 +1295,10 @@ class ManageOIDCProviderViews:
 
             for user in self.project.users:
                 send_oidc_provider_removed_email(
-                    self.request, user, project_name=self.project.name
+                    self.request,
+                    user,
+                    project_name=self.project.name,
+                    provider=provider,
                 )
 
             # NOTE: We remove the provider from the project, but we don't actually

@@ -3625,10 +3625,22 @@ class TestOIDCProviderEmails:
         pyramid_request.registry.settings = {"mail.sender": "noreply@example.com"}
 
         project_name = "test_project"
+        fakeprovider = pretend.stub(provider_name="fakeprovider")
+        # NOTE: Can't set __str__ using pretend.stub()
+        monkeypatch.setattr(
+            fakeprovider.__class__, "__str__", lambda s: "fakespecifier"
+        )
 
-        result = fn(pyramid_request, stub_user, project_name=project_name)
+        result = fn(
+            pyramid_request, stub_user, project_name=project_name, provider=fakeprovider
+        )
 
-        assert result == {"username": stub_user.username, "project_name": project_name}
+        assert result == {
+            "username": stub_user.username,
+            "project_name": project_name,
+            "provider_name": "fakeprovider",
+            "provider_spec": "fakespecifier",
+        }
         subject_renderer.assert_()
         body_renderer.assert_(username=stub_user.username, project_name=project_name)
         html_renderer.assert_(username=stub_user.username, project_name=project_name)

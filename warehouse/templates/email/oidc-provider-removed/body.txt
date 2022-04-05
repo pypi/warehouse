@@ -19,6 +19,11 @@ PyPI user {{ username }} has removed an OpenID Connect publisher from a project
 ({{ project_name }}) that you manage.
 {% endtrans %}
 
+{% trans %}Publisher information{% endtrans %}:
+
+* {% trans %}Publisher name{% endtrans %}: {{ provider_name }}
+* {% trans %}Publisher specification{% endtrans %}: {{ provider_spec }}
+
 {% trans %}
 If you did not make this change and you think it was made maliciously, you can
 check the "Security history" tab on the project's page.

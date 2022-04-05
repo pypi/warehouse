@@ -20,6 +20,11 @@ PyPI user {{ username }} has added a new OpenID Connect publisher to a project
 users and can create project releases automatically.
 {% endtrans %}
 
+{% trans %}Publisher information{% endtrans %}:
+
+* {% trans %}Publisher name{% endtrans %}: {{ provider_name }}
+* {% trans %}Publisher specification{% endtrans %}: {{ provider_spec }}
+
 {% trans %}
 If you did not make this change and you think it was made maliciously, you can
 remove it from the project via the "Publishing" tab on the project's page.

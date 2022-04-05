@@ -5047,7 +5047,12 @@ class TestManageOIDCProviderViews:
         assert request.db.add.calls == [pretend.call(project.oidc_providers[0])]
         assert github_provider_form_obj.validate.calls == [pretend.call()]
         assert views.send_oidc_provider_added_email.calls == [
-            pretend.call(request, fakeuser, project_name="fakeproject")
+            pretend.call(
+                request,
+                fakeuser,
+                project_name="fakeproject",
+                provider=project.oidc_providers[0],
+            )
             for fakeuser in fakeusers
         ]
         assert view._hit_ratelimits.calls == [pretend.call()]
@@ -5339,7 +5344,9 @@ class TestManageOIDCProviderViews:
         assert delete_provider_form_obj.validate.calls == [pretend.call()]
 
         assert views.send_oidc_provider_removed_email.calls == [
-            pretend.call(request, fakeuser, project_name="fakeproject")
+            pretend.call(
+                request, fakeuser, project_name="fakeproject", provider=provider
+            )
             for fakeuser in fakeusers
         ]
 
