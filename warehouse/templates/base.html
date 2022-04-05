@@ -107,6 +107,7 @@
     <meta property="og:image" content="{{ request.static_url('warehouse:static/dist/images/twitter.jpg') }}">
     <meta property="og:title" content="{{ self.title()|default('Python Package Index') }}">
     <meta property="og:description" content="{{ self.description() }}">
+    {% block extra_meta %}{% endblock %}
 
     <link rel="search" type="application/opensearchdescription+xml" title="PyPI" href="{{ request.route_path('opensearch.xml') }}">
 
