@@ -243,81 +243,81 @@ msgid ""
 "again later."
 msgstr ""
 
-#: warehouse/manage/views.py:1870
+#: warehouse/manage/views.py:1872
 msgid "User '${username}' already has ${role_name} role for project"
 msgstr ""
 
-#: warehouse/manage/views.py:1881
+#: warehouse/manage/views.py:1883
 msgid ""
 "User '${username}' does not have a verified primary email address and "
 "cannot be added as a ${role_name} for project"
 msgstr ""
 
-#: warehouse/manage/views.py:1894
+#: warehouse/manage/views.py:1896
 msgid "User '${username}' already has an active invite. Please try again later."
 msgstr ""
 
-#: warehouse/manage/views.py:1952
+#: warehouse/manage/views.py:1954
 msgid "Invitation sent to '${username}'"
 msgstr ""
 
-#: warehouse/manage/views.py:1999
+#: warehouse/manage/views.py:2001
 msgid "Could not find role invitation."
 msgstr ""
 
-#: warehouse/manage/views.py:2010
+#: warehouse/manage/views.py:2012
 msgid "Invitation already expired."
 msgstr ""
 
-#: warehouse/manage/views.py:2034
+#: warehouse/manage/views.py:2036
 msgid "Invitation revoked from '${username}'."
 msgstr ""
 
 #: warehouse/oidc/forms.py:32
-msgid "Specify GitHub owner (username or organization)"
+msgid "Specify GitHub repository owner (username or organization)"
 msgstr ""
 
 #: warehouse/oidc/forms.py:39
-msgid "Specify repository slug"
+msgid "Specify repository name"
 msgstr ""
 
 #: warehouse/oidc/forms.py:41
 msgid "Invalid repository name"
 msgstr ""
 
-#: warehouse/oidc/forms.py:47
-msgid "Specify workflow name"
+#: warehouse/oidc/forms.py:48
+msgid "Specify workflow filename"
 msgstr ""
 
-#: warehouse/oidc/forms.py:75
+#: warehouse/oidc/forms.py:77
 msgid "Unknown GitHub user or organization."
 msgstr ""
 
-#: warehouse/oidc/forms.py:85
+#: warehouse/oidc/forms.py:87
 msgid "GitHub has rate-limited this action. Try again in a few minutes."
 msgstr ""
 
-#: warehouse/oidc/forms.py:95
+#: warehouse/oidc/forms.py:97
 msgid "Unexpected error from GitHub. Try again."
 msgstr ""
 
-#: warehouse/oidc/forms.py:102
+#: warehouse/oidc/forms.py:104
 msgid "Unexpected timeout from GitHub. Try again in a few minutes."
 msgstr ""
 
-#: warehouse/oidc/forms.py:114
+#: warehouse/oidc/forms.py:116
 msgid "Invalid GitHub user or organization name."
 msgstr ""
 
-#: warehouse/oidc/forms.py:128
+#: warehouse/oidc/forms.py:132
 msgid "Workflow name must end with .yml or .yaml"
 msgstr ""
 
-#: warehouse/oidc/forms.py:133
-msgid "Workflow name must be a basename, without directories"
+#: warehouse/oidc/forms.py:137
+msgid "Workflow filename must be a filename only, without directories"
 msgstr ""
 
-#: warehouse/oidc/forms.py:142
+#: warehouse/oidc/forms.py:146
 msgid "Provider must be specified by ID"
 msgstr ""
 
@@ -896,9 +896,9 @@ msgstr ""
 #: warehouse/templates/manage/account/recovery_codes-burn.html:70
 #: warehouse/templates/manage/account/totp-provision.html:69
 #: warehouse/templates/manage/account/webauthn-provision.html:44
-#: warehouse/templates/manage/publishing.html:86
-#: warehouse/templates/manage/publishing.html:98
-#: warehouse/templates/manage/publishing.html:110
+#: warehouse/templates/manage/publishing.html:85
+#: warehouse/templates/manage/publishing.html:97
+#: warehouse/templates/manage/publishing.html:109
 #: warehouse/templates/manage/roles.html:170
 #: warehouse/templates/manage/roles.html:182
 #: warehouse/templates/manage/token.html:136
@@ -1343,6 +1343,21 @@ msgid ""
 msgstr ""
 
 #: warehouse/templates/email/oidc-provider-added/body.html:28
+#: warehouse/templates/email/oidc-provider-removed/body.html:26
+msgid "Publisher information"
+msgstr ""
+
+#: warehouse/templates/email/oidc-provider-added/body.html:30
+#: warehouse/templates/email/oidc-provider-removed/body.html:28
+msgid "Publisher name"
+msgstr ""
+
+#: warehouse/templates/email/oidc-provider-added/body.html:31
+#: warehouse/templates/email/oidc-provider-removed/body.html:29
+msgid "Publisher specification"
+msgstr ""
+
+#: warehouse/templates/email/oidc-provider-added/body.html:36
 msgid ""
 "\n"
 "  If you did not make this change and you think it was made maliciously, "
@@ -1352,8 +1367,8 @@ msgid ""
 "  "
 msgstr ""
 
-#: warehouse/templates/email/oidc-provider-added/body.html:35
-#: warehouse/templates/email/oidc-provider-removed/body.html:33
+#: warehouse/templates/email/oidc-provider-added/body.html:43
+#: warehouse/templates/email/oidc-provider-removed/body.html:41
 #, python-format
 msgid ""
 "\n"
@@ -1375,7 +1390,7 @@ msgid ""
 "  "
 msgstr ""
 
-#: warehouse/templates/email/oidc-provider-removed/body.html:26
+#: warehouse/templates/email/oidc-provider-removed/body.html:34
 msgid ""
 "\n"
 "  If you did not make this change and you think it was made maliciously, "
@@ -2994,70 +3009,63 @@ msgstr ""
 msgid "Add a new provider"
 msgstr ""
 
-#: warehouse/templates/manage/publishing.html:73
+#: warehouse/templates/manage/publishing.html:72
 #, python-format
 msgid ""
 "Read more about GitHub's OpenID Connect provider <a "
 "href=\"%(href)s\">here</a>."
 msgstr ""
 
-#: warehouse/templates/manage/publishing.html:84
+#: warehouse/templates/manage/publishing.html:83
 #: warehouse/templates/manage/roles.html:43
 #: warehouse/templates/manage/roles.html:77
 #: warehouse/templates/manage/roles.html:88
 msgid "Owner"
 msgstr ""
 
-#: warehouse/templates/manage/publishing.html:89
+#: warehouse/templates/manage/publishing.html:88
 msgid "owner"
 msgstr ""
 
-#: warehouse/templates/manage/publishing.html:96
+#: warehouse/templates/manage/publishing.html:95
 msgid "Repository name"
 msgstr ""
 
-#: warehouse/templates/manage/publishing.html:101
+#: warehouse/templates/manage/publishing.html:100
 msgid "repository"
 msgstr ""
 
-#: warehouse/templates/manage/publishing.html:108
+#: warehouse/templates/manage/publishing.html:107
 msgid "Workflow name"
 msgstr ""
 
-#: warehouse/templates/manage/publishing.html:113
+#: warehouse/templates/manage/publishing.html:112
 msgid "workflow.yml"
 msgstr ""
 
-#: warehouse/templates/manage/publishing.html:119
+#: warehouse/templates/manage/publishing.html:118
 msgid "Add"
 msgstr ""
 
-#: warehouse/templates/manage/publishing.html:123
+#: warehouse/templates/manage/publishing.html:122
 msgid "Manage current providers"
 msgstr ""
 
-#: warehouse/templates/manage/publishing.html:127
+#: warehouse/templates/manage/publishing.html:126
 #, python-format
 msgid "OpenID Connect publishers associated with %(project_name)s"
 msgstr ""
 
-#: warehouse/templates/manage/publishing.html:131
+#: warehouse/templates/manage/publishing.html:130
 msgid "Publisher"
 msgstr ""
 
-#: warehouse/templates/manage/publishing.html:132
+#: warehouse/templates/manage/publishing.html:131
 msgid "Specification"
 msgstr ""
 
-#: warehouse/templates/manage/publishing.html:143
+#: warehouse/templates/manage/publishing.html:142
 msgid "No publishers are currently configured."
-msgstr ""
-
-#: warehouse/templates/manage/publishing.html:147
-msgid ""
-"\n"
-"      OpenID Connect publishing isn't enabled yet! Come back soon.\n"
-"      "
 msgstr ""
 
 #: warehouse/templates/manage/release.html:18
