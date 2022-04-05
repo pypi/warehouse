@@ -1,0 +1,39 @@
+{#
+ # Licensed under the Apache License, Version 2.0 (the "License");
+ # you may not use this file except in compliance with the License.
+ # You may obtain a copy of the License at
+ #
+ # http://www.apache.org/licenses/LICENSE-2.0
+ #
+ # Unless required by applicable law or agreed to in writing, software
+ # distributed under the License is distributed on an "AS IS" BASIS,
+ # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ # See the License for the specific language governing permissions and
+ # limitations under the License.
+-#}
+{% extends "email/_base/body.txt" %}
+
+{% block content %}
+{% trans username=username, project_name=project_name %}
+PyPI user {{ username }} has added a new OpenID Connect publisher to a project
+({{ project_name }}) that you manage. OpenID Connect publishers act as trusted
+users and can create project releases automatically.
+{% endtrans %}
+
+{% trans %}Publisher information{% endtrans %}:
+
+* {% trans %}Publisher name{% endtrans %}: {{ provider_name }}
+* {% trans %}Publisher specification{% endtrans %}: {{ provider_spec }}
+
+{% trans %}
+If you did not make this change and you think it was made maliciously, you can
+remove it from the project via the "Publishing" tab on the project's page.
+{% endtrans %}
+
+{% trans email_address='admin@pypi.org' %}
+If you are unable to revert the change and need to do so, you can email
+{{ email_address }} to communicate with the PyPI administrators.
+{% endtrans %}
+
+{% endblock %}
+

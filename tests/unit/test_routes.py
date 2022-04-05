@@ -246,6 +246,13 @@ def test_routes(warehouse):
             domain=warehouse,
         ),
         pretend.call(
+            "manage.project.settings.publishing",
+            "/manage/project/{project_name}/settings/publishing/",
+            factory="warehouse.packaging.models:ProjectFactory",
+            traverse="/{project_name}",
+            domain=warehouse,
+        ),
+        pretend.call(
             "manage.project.delete_project",
             "/manage/project/{project_name}/delete_project/",
             factory="warehouse.packaging.models:ProjectFactory",

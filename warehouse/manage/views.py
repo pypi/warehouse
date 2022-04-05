@@ -16,7 +16,12 @@ import io
 import pyqrcode
 
 from paginate_sqlalchemy import SqlalchemyOrmPage as SQLAlchemyORMPage
-from pyramid.httpexceptions import HTTPBadRequest, HTTPNotFound, HTTPSeeOther
+from pyramid.httpexceptions import (
+    HTTPBadRequest,
+    HTTPNotFound,
+    HTTPSeeOther,
+    HTTPTooManyRequests,
+)
 from pyramid.response import Response
 from pyramid.view import view_config, view_defaults
 from sqlalchemy import func
@@ -41,6 +46,8 @@ from warehouse.email import (
     send_collaborator_removed_email,
     send_collaborator_role_changed_email,
     send_email_verification_email,
+    send_oidc_provider_added_email,
+    send_oidc_provider_removed_email,
     send_password_change_email,
     send_primary_email_change_email,
     send_project_role_verification_email,
@@ -72,6 +79,10 @@ from warehouse.manage.forms import (
     SaveAccountForm,
     Toggle2FARequirementForm,
 )
+from warehouse.metrics.interfaces import IMetricsService
+from warehouse.oidc.forms import DeleteProviderForm, GitHubProviderForm
+from warehouse.oidc.interfaces import TooManyOIDCRegistrations
+from warehouse.oidc.models import GitHubProvider, OIDCProvider
 from warehouse.packaging.models import (
     File,
     JournalEntry,
@@ -82,6 +93,7 @@ from warehouse.packaging.models import (
     RoleInvitation,
     RoleInvitationStatus,
 )
+from warehouse.rate_limiting import IRateLimiter
 from warehouse.utils.http import is_safe_url
 from warehouse.utils.paginate import paginate_url_factory
 from warehouse.utils.project import confirm_project, destroy_docs, remove_project
@@ -130,6 +142,17 @@ def user_projects(request):
             .all()
         ),
     }
+
+
+def project_owners(request, project):
+    """Return all users who are owners of the project."""
+    owner_roles = (
+        request.db.query(User.id)
+        .join(Role.user)
+        .filter(Role.role_name == "Owner", Role.project == project)
+        .subquery()
+    )
+    return request.db.query(User).join(owner_roles, User.id == owner_roles.c.id).all()
 
 
 @view_defaults(
@@ -1059,6 +1082,252 @@ class ManageProjectSettingsViews:
         )
 
 
+@view_defaults(
+    context=Project,
+    route_name="manage.project.settings.publishing",
+    renderer="manage/publishing.html",
+    uses_session=True,
+    require_csrf=True,
+    require_methods=False,
+    permission="manage:project",
+    has_translations=True,
+    require_reauth=True,
+    http_cache=0,
+)
+class ManageOIDCProviderViews:
+    def __init__(self, project, request):
+        self.request = request
+        self.project = project
+        self.oidc_enabled = self.request.registry.settings["warehouse.oidc.enabled"]
+        self.metrics = self.request.find_service(IMetricsService, context=None)
+
+    @property
+    def _ratelimiters(self):
+        return {
+            "user.oidc": self.request.find_service(
+                IRateLimiter, name="user_oidc.provider.register"
+            ),
+            "ip.oidc": self.request.find_service(
+                IRateLimiter, name="ip_oidc.provider.register"
+            ),
+        }
+
+    def _hit_ratelimits(self):
+        self._ratelimiters["user.oidc"].hit(self.request.user.id)
+        self._ratelimiters["ip.oidc"].hit(self.request.remote_addr)
+
+    def _check_ratelimits(self):
+        if not self._ratelimiters["user.oidc"].test(self.request.user.id):
+            raise TooManyOIDCRegistrations(
+                resets_in=self._ratelimiters["user.oidc"].resets_in(
+                    self.request.user.id
+                )
+            )
+
+        if not self._ratelimiters["ip.oidc"].test(self.request.remote_addr):
+            raise TooManyOIDCRegistrations(
+                resets_in=self._ratelimiters["ip.oidc"].resets_in(
+                    self.request.remote_addr
+                )
+            )
+
+    @property
+    def github_provider_form(self):
+        return GitHubProviderForm(
+            self.request.POST,
+            api_token=self.request.registry.settings.get("github.token"),
+        )
+
+    @property
+    def default_response(self):
+        return {
+            "oidc_enabled": self.oidc_enabled,
+            "project": self.project,
+            "github_provider_form": self.github_provider_form,
+        }
+
+    @view_config(request_method="GET")
+    def manage_project_oidc_providers(self):
+        if not self.oidc_enabled:
+            raise HTTPNotFound
+
+        if self.request.flags.enabled(AdminFlagValue.DISALLOW_OIDC):
+            self.request.session.flash(
+                (
+                    "OpenID Connect is temporarily disabled. "
+                    "See https://pypi.org/help#admin-intervention for details."
+                ),
+                queue="error",
+            )
+
+        return self.default_response
+
+    @view_config(request_method="POST", request_param=GitHubProviderForm.__params__)
+    def add_github_oidc_provider(self):
+        if not self.oidc_enabled:
+            raise HTTPNotFound
+
+        self.metrics.increment(
+            "warehouse.oidc.add_provider.attempt", tags=["provider:GitHub"]
+        )
+
+        if self.request.flags.enabled(AdminFlagValue.DISALLOW_OIDC):
+            self.request.session.flash(
+                (
+                    "OpenID Connect is temporarily disabled. "
+                    "See https://pypi.org/help#admin-intervention for details."
+                ),
+                queue="error",
+            )
+            return self.default_response
+
+        try:
+            self._check_ratelimits()
+        except TooManyOIDCRegistrations as exc:
+            self.metrics.increment(
+                "warehouse.oidc.add_provider.ratelimited", tags=["provider:GitHub"]
+            )
+            return HTTPTooManyRequests(
+                self.request._(
+                    "There have been too many attempted OpenID Connect registrations. "
+                    "Try again later."
+                ),
+                retry_after=exc.resets_in.total_seconds(),
+            )
+
+        self._hit_ratelimits()
+
+        response = self.default_response
+        form = response["github_provider_form"]
+
+        if form.validate():
+            # GitHub OIDC providers are unique on the tuple of
+            # (repository_name, owner, workflow_filename), so we check for
+            # an already registered one before creating.
+            provider = (
+                self.request.db.query(GitHubProvider)
+                .filter(
+                    GitHubProvider.repository_name == form.repository.data,
+                    GitHubProvider.owner == form.normalized_owner,
+                    GitHubProvider.workflow_filename == form.workflow_filename.data,
+                )
+                .one_or_none()
+            )
+            if provider is None:
+                provider = GitHubProvider(
+                    repository_name=form.repository.data,
+                    owner=form.normalized_owner,
+                    owner_id=form.owner_id,
+                    workflow_filename=form.workflow_filename.data,
+                )
+
+                self.request.db.add(provider)
+
+            # Each project has a unique set of OIDC providers; the same
+            # provider can't be registered to the project more than once.
+            if provider in self.project.oidc_providers:
+                self.request.session.flash(
+                    f"{provider} is already registered with {self.project.name}",
+                    queue="error",
+                )
+                return response
+
+            for user in self.project.users:
+                send_oidc_provider_added_email(
+                    self.request,
+                    user,
+                    project_name=self.project.name,
+                    provider=provider,
+                )
+
+            self.project.oidc_providers.append(provider)
+
+            self.project.record_event(
+                tag="project:oidc:provider-added",
+                ip_address=self.request.remote_addr,
+                additional={
+                    "provider": provider.provider_name,
+                    "id": str(provider.id),
+                    "specifier": str(provider),
+                },
+            )
+
+            self.request.session.flash(
+                f"Added {provider} to {self.project.name}",
+                queue="success",
+            )
+
+            self.metrics.increment(
+                "warehouse.oidc.add_provider.ok", tags=["provider:GitHub"]
+            )
+
+        return response
+
+    @view_config(request_method="POST", request_param=DeleteProviderForm.__params__)
+    def delete_oidc_provider(self):
+        if not self.oidc_enabled:
+            raise HTTPNotFound
+
+        self.metrics.increment("warehouse.oidc.delete_provider.attempt")
+
+        if self.request.flags.enabled(AdminFlagValue.DISALLOW_OIDC):
+            self.request.session.flash(
+                (
+                    "OpenID Connect is temporarily disabled. "
+                    "See https://pypi.org/help#admin-intervention for details."
+                ),
+                queue="error",
+            )
+            return self.default_response
+
+        form = DeleteProviderForm(self.request.POST)
+
+        if form.validate():
+            provider = self.request.db.query(OIDCProvider).get(form.provider_id.data)
+
+            # provider will be `None` here if someone manually futzes with the form.
+            if provider is None or provider not in self.project.oidc_providers:
+                self.request.session.flash(
+                    "Invalid publisher for project",
+                    queue="error",
+                )
+                return self.default_response
+
+            for user in self.project.users:
+                send_oidc_provider_removed_email(
+                    self.request,
+                    user,
+                    project_name=self.project.name,
+                    provider=provider,
+                )
+
+            # NOTE: We remove the provider from the project, but we don't actually
+            # delete the provider model itself (since it might be associated
+            # with other projects).
+            self.project.oidc_providers.remove(provider)
+
+            self.project.record_event(
+                tag="project:oidc:provider-removed",
+                ip_address=self.request.remote_addr,
+                additional={
+                    "provider": provider.provider_name,
+                    "id": str(provider.id),
+                    "specifier": str(provider),
+                },
+            )
+
+            self.request.session.flash(
+                f"Removed {provider} from {self.project.name}", queue="success"
+            )
+
+            self.metrics.increment(
+                "warehouse.oidc.delete_provider.ok",
+                tags=[f"provider:{provider.provider_name}"],
+            )
+
+        return self.default_response
+
+
 def get_user_role_in_project(project, user, request):
     return (
         request.db.query(Role)
@@ -1821,13 +2090,7 @@ def change_project_role(project, request, _form_class=ChangeRoleForm):
                     },
                 )
 
-                owner_roles = (
-                    request.db.query(Role)
-                    .filter(Role.project == project)
-                    .filter(Role.role_name == "Owner")
-                    .all()
-                )
-                owner_users = {owner.user for owner in owner_roles}
+                owner_users = set(project_owners(request, project))
                 # Don't send owner notification email to new user
                 # if they are now an owner
                 owner_users.discard(role.user)
@@ -1898,13 +2161,7 @@ def delete_project_role(project, request):
                 },
             )
 
-            owner_roles = (
-                request.db.query(Role)
-                .filter(Role.project == project)
-                .filter(Role.role_name == "Owner")
-                .all()
-            )
-            owner_users = {owner.user for owner in owner_roles}
+            owner_users = set(project_owners(request, project))
             # Don't send owner notification email to new user
             # if they are now an owner
             owner_users.discard(role.user)

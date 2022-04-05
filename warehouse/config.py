@@ -270,6 +270,18 @@ def configure(settings=None):
         "PASSWORD_RESET_RATELIMIT_STRING",
         default="5 per day",
     )
+    maybe_set(
+        settings,
+        "warehouse.manage.oidc.user_registration_ratelimit_string",
+        "USER_OIDC_REGISTRATION_RATELIMIT_STRING",
+        default="20 per day",
+    )
+    maybe_set(
+        settings,
+        "warehouse.manage.oidc.ip_registration_ratelimit_string",
+        "IP_OIDC_REGISTRATION_RATELIMIT_STRING",
+        default="20 per day",
+    )
 
     # 2FA feature flags
     maybe_set(
@@ -290,6 +302,15 @@ def configure(settings=None):
         settings,
         "warehouse.two_factor_mandate.enabled",
         "TWOFACTORMANDATE_ENABLED",
+        coercer=distutils.util.strtobool,
+        default=False,
+    )
+
+    # OIDC feature flags
+    maybe_set(
+        settings,
+        "warehouse.oidc.enabled",
+        "OIDC_ENABLED",
         coercer=distutils.util.strtobool,
         default=False,
     )
