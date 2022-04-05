@@ -53,14 +53,17 @@ def upgrade():
         sa.Column("repository_name", sa.String(), nullable=True),
         sa.Column("owner", sa.String(), nullable=True),
         sa.Column("owner_id", sa.String(), nullable=True),
-        sa.Column("workflow_name", sa.String(), nullable=True),
+        sa.Column("workflow_filename", sa.String(), nullable=True),
         sa.ForeignKeyConstraint(
             ["id"],
             ["oidc_providers.id"],
         ),
         sa.PrimaryKeyConstraint("id"),
         sa.UniqueConstraint(
-            "repository_name", "owner", "workflow_name", name="_github_oidc_provider_uc"
+            "repository_name",
+            "owner",
+            "workflow_filename",
+            name="_github_oidc_provider_uc",
         ),
     )
     op.create_table(

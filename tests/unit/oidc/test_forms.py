@@ -183,22 +183,22 @@ class TestGitHubProviderForm:
     @pytest.mark.parametrize(
         "data",
         [
-            {"owner": None, "repository": "some", "workflow_name": "some"},
-            {"owner": "", "repository": "some", "workflow_name": "some"},
+            {"owner": None, "repository": "some", "workflow_filename": "some"},
+            {"owner": "", "repository": "some", "workflow_filename": "some"},
             {
                 "owner": "invalid_characters@",
                 "repository": "some",
-                "workflow_name": "some",
+                "workflow_filename": "some",
             },
-            {"repository": None, "owner": "some", "workflow_name": "some"},
-            {"repository": "", "owner": "some", "workflow_name": "some"},
+            {"repository": None, "owner": "some", "workflow_filename": "some"},
+            {"repository": "", "owner": "some", "workflow_filename": "some"},
             {
                 "repository": "$invalid#characters",
                 "owner": "some",
-                "workflow_name": "some",
+                "workflow_filename": "some",
             },
-            {"repository": "some", "owner": "some", "workflow_name": None},
-            {"repository": "some", "owner": "some", "workflow_name": ""},
+            {"repository": "some", "owner": "some", "workflow_filename": None},
+            {"repository": "some", "owner": "some", "workflow_filename": ""},
         ],
     )
     def test_validate_basic_invalid_fields(self, monkeypatch, data):
@@ -215,7 +215,7 @@ class TestGitHubProviderForm:
             {
                 "owner": "some-owner",
                 "repository": "some-repo",
-                "workflow_name": "some-workflow.yml",
+                "workflow_filename": "some-workflow.yml",
             }
         )
         form = forms.GitHubProviderForm(MultiDict(data), api_token=pretend.stub())
@@ -239,11 +239,11 @@ class TestGitHubProviderForm:
         assert form.owner_id == "1234"
 
     @pytest.mark.parametrize(
-        "workflow_name", ["missing_suffix", "/slash", "/many/slashes", "/slash.yml"]
+        "workflow_filename", ["missing_suffix", "/slash", "/many/slashes", "/slash.yml"]
     )
-    def test_validate_workflow_name(self, workflow_name):
+    def test_validate_workflow_filename(self, workflow_filename):
         form = forms.GitHubProviderForm(api_token=pretend.stub())
-        field = pretend.stub(data=workflow_name)
+        field = pretend.stub(data=workflow_filename)
 
         with pytest.raises(wtforms.validators.ValidationError):
-            form.validate_workflow_name(field)
+            form.validate_workflow_filename(field)

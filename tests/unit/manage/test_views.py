@@ -4873,7 +4873,7 @@ class TestManageOIDCProviderViews:
             repository_name="fakerepo",
             owner="fakeowner",
             owner_id="1234",
-            workflow_name="fakeworkflow.yml",
+            workflow_filename="fakeworkflow.yml",
         )
         # NOTE: Can't set __str__ using pretend.stub()
         monkeypatch.setattr(provider.__class__, "__str__", lambda s: "fakespecifier")
@@ -4910,7 +4910,7 @@ class TestManageOIDCProviderViews:
             validate=pretend.call_recorder(lambda: True),
             repository=pretend.stub(data=provider.repository_name),
             normalized_owner=provider.owner,
-            workflow_name=pretend.stub(data=provider.workflow_name),
+            workflow_filename=pretend.stub(data=provider.workflow_filename),
         )
         github_provider_form_cls = pretend.call_recorder(
             lambda *a, **kw: github_provider_form_obj
@@ -4997,7 +4997,7 @@ class TestManageOIDCProviderViews:
             repository=pretend.stub(data="fakerepo"),
             normalized_owner="fakeowner",
             owner_id="1234",
-            workflow_name=pretend.stub(data="fakeworkflow.yml"),
+            workflow_filename=pretend.stub(data="fakeworkflow.yml"),
         )
         github_provider_form_cls = pretend.call_recorder(
             lambda *a, **kw: github_provider_form_obj
@@ -5069,7 +5069,7 @@ class TestManageOIDCProviderViews:
             repository_name="fakerepo",
             owner="fakeowner",
             owner_id="1234",
-            workflow_name="fakeworkflow.yml",
+            workflow_filename="fakeworkflow.yml",
         )
         # NOTE: Can't set __str__ using pretend.stub()
         monkeypatch.setattr(provider.__class__, "__str__", lambda s: "fakespecifier")
@@ -5104,7 +5104,7 @@ class TestManageOIDCProviderViews:
             validate=pretend.call_recorder(lambda: True),
             repository=pretend.stub(data=provider.repository_name),
             normalized_owner=provider.owner,
-            workflow_name=pretend.stub(data=provider.workflow_name),
+            workflow_filename=pretend.stub(data=provider.workflow_filename),
         )
         github_provider_form_cls = pretend.call_recorder(
             lambda *a, **kw: github_provider_form_obj

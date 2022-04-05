@@ -55,7 +55,7 @@ class TestGitHubProvider:
             repository_name="fakerepo",
             owner="fakeowner",
             owner_id="fakeid",
-            workflow_name="fakeworkflow.yml",
+            workflow_filename="fakeworkflow.yml",
         )
 
         for claim_name in provider.__verifiable_claims__.keys():
@@ -68,7 +68,7 @@ class TestGitHubProvider:
             repository_name="fakerepo",
             owner="fakeowner",
             owner_id="fakeid",
-            workflow_name="fakeworkflow.yml",
+            workflow_filename="fakeworkflow.yml",
         )
 
         sentry_sdk = pretend.stub(capture_message=pretend.call_recorder(lambda s: None))
@@ -92,7 +92,7 @@ class TestGitHubProvider:
             repository_name="fakerepo",
             owner="fakeowner",
             owner_id="fakeid",
-            workflow_name="fakeworkflow.yml",
+            workflow_filename="fakeworkflow.yml",
         )
 
         sentry_sdk = pretend.stub(capture_message=pretend.call_recorder(lambda s: None))
@@ -113,7 +113,7 @@ class TestGitHubProvider:
             repository_name="fakerepo",
             owner="fakeowner",
             owner_id="fakeid",
-            workflow_name="fakeworkflow.yml",
+            workflow_filename="fakeworkflow.yml",
         )
 
         noop_check = pretend.call_recorder(lambda l, r: True)

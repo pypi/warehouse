@@ -24,7 +24,7 @@ _VALID_GITHUB_OWNER = re.compile(r"^[a-zA-Z0-9][a-zA-Z0-9-]*$")
 
 
 class GitHubProviderForm(forms.Form):
-    __params__ = ["owner", "repository", "workflow_name"]
+    __params__ = ["owner", "repository", "workflow_filename"]
 
     owner = wtforms.StringField(
         validators=[
@@ -44,7 +44,9 @@ class GitHubProviderForm(forms.Form):
     )
 
     workflow_filename = wtforms.StringField(
-        validators=[wtforms.validators.DataRequired(message=_("Specify workflow filename"))]
+        validators=[
+            wtforms.validators.DataRequired(message=_("Specify workflow filename"))
+        ]
     )
 
     def __init__(self, *args, api_token, **kwargs):
@@ -120,15 +122,17 @@ class GitHubProviderForm(forms.Form):
         self.normalized_owner = owner_info["login"]
         self.owner_id = owner_info["id"]
 
-    def validate_workflow_name(self, field):
-        workflow_name = field.data
+    def validate_workflow_filename(self, field):
+        workflow_filename = field.data
 
-        if not (workflow_name.endswith(".yml") or workflow_name.endswith(".yaml")):
+        if not (
+            workflow_filename.endswith(".yml") or workflow_filename.endswith(".yaml")
+        ):
             raise wtforms.validators.ValidationError(
                 _("Workflow name must end with .yml or .yaml")
             )
 
-        if "/" in workflow_name:
+        if "/" in workflow_filename:
             raise wtforms.validators.ValidationError(
                 _("Workflow filename must be a filename only, without directories")
             )

@@ -66,7 +66,6 @@
     </p>
 
     <h2 class="no-bottom-padding">{% trans %}Add a new provider{% endtrans %}</h2>
-    {% if oidc_enabled %}
     <h3>GitHub</h3>
 
     <p>
@@ -104,15 +103,15 @@
         </div>
       </div>
       <div class="form-group">
-        <label for="workflow_name" class="form-group__label">
+        <label for="workflow_filename" class="form-group__label">
           {% trans %}Workflow name{% endtrans %}
-          {% if github_provider_form.workflow_name.flags.required %}
+          {% if github_provider_form.workflow_filename.flags.required %}
           <span class="form-group__required">{% trans %}(required){% endtrans %}</span>
           {% endif %}
         </label>
-        {{ github_provider_form.workflow_name(placeholder=gettext("workflow.yml"), class_="form-group__field", autocomplete="off", **{"aria-describedby":"workflow_name-errors"}) }}
-        <div id="workflow_name-errors">
-          {{ field_errors(github_provider_form.workflow_name) }}
+        {{ github_provider_form.workflow_filename(placeholder=gettext("workflow.yml"), class_="form-group__field", autocomplete="off", **{"aria-describedby":"workflow_filename-errors"}) }}
+        <div id="workflow_filename-errors">
+          {{ field_errors(github_provider_form.workflow_filename) }}
         </div>
       </div>
       <div>
@@ -141,13 +140,6 @@
     </table>
     {% else %}
     <p class="no-bottom-padding">{% trans %}No publishers are currently configured.{% endtrans %}</p>
-    {% endif %}
-    {% else %}
-    <p>
-      {% trans %}
-      OpenID Connect publishing isn't enabled yet! Come back soon.
-      {% endtrans %}
-    </p>
     {% endif %}
   </div>
 </div>

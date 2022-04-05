@@ -133,7 +133,7 @@ class GitHubProvider(OIDCProvider):
         UniqueConstraint(
             "repository_name",
             "owner",
-            "workflow_name",
+            "workflow_filename",
             name="_github_oidc_provider_uc",
         ),
     )
@@ -142,7 +142,7 @@ class GitHubProvider(OIDCProvider):
     repository_name = Column(String)
     owner = Column(String)
     owner_id = Column(String)
-    workflow_name = Column(String)
+    workflow_filename = Column(String)
 
     __verifiable_claims__ = {
         "repository": str.__eq__,
@@ -176,7 +176,7 @@ class GitHubProvider(OIDCProvider):
 
     @property
     def workflow(self):
-        return self.workflow_name
+        return self.workflow_filename
 
     def __str__(self):
-        return f"{self.workflow_name} @ {self.repository}"
+        return f"{self.workflow_filename} @ {self.repository}"
