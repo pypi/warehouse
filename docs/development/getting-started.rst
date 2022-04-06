@@ -554,6 +554,7 @@ To run all tests, in the root of the repository:
 .. code-block:: console
 
     make tests
+    make static_tests
 
 This will run the tests with the supported interpreter as well as all of the
 additional testing that we require.

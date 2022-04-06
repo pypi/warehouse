@@ -26,10 +26,9 @@ Tests
 -----
 
 The JavaScript codebase includes tests that can be ran via
-``make static_tests`` which is also ran with the ``make tests`` target.
-Both targets will run the tests in the Docker environment but they
-may also be ran locally using ``npm run test`` once NodeJS and the
-dependencies are installed as described above.
+``make static_tests``. This target will run the static tests in the Docker
+environment but they may also be ran locally using ``npm run test`` once NodeJS
+and the dependencies are installed as described above.
 
 JavaScript tests use the `Jest testing framework <https://jestjs.io/>`_
 along with `jest-dom <https://github.com/testing-library/jest-dom>`_
