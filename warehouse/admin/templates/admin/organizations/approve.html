@@ -13,14 +13,23 @@
 -#}
 {% extends "confirm-action.html" %}
 
-{# This is a placeholder so we can reference `admin.organization.approve`
- # as a route in the admin-new-organization-requested email.
--#}
-
 {% block title %}
     {% trans %}Approve New Organization{% endtrans %}
 {% endblock %}
 
 {% block main %}
-  <!-- TODO -->
+<form method="POST">
+  <div class="form-group">
+    <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
+    <span class="form-group__text">
+      {% trans username=username, user_full_name=user_full_name, user_link=request.route_url('accounts.profile', username=username), user_email=user_email, organization_name=organization_name %}
+      Would you like to approve this request by <a href="{{ user_link }}" title="{{ username }}">{{ user_full_name }}</a> (<a href="mailto:{{ user_email }}">{{ user_email }}</a>) to create a new organization named <strong>{{ organization_name }}</strong>?
+      {% endtrans %}
+    </span>
+  </div>
+  <div>
+    <input name="approve" type="submit" value="{% trans %}Approve{% endtrans %}" class="button button--primary">
+    <input name="decline" type="submit" value="{% trans %}Decline{% endtrans %}" class="button">
+  </div>
+</form>
 {% endblock %}

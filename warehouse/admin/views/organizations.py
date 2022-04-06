@@ -13,8 +13,6 @@
 from pyramid.view import view_config
 
 
-# This is a placeholder so we can reference `admin.organization.approve`
-# as a route in the admin-new-organization-requested email.
 @view_config(
     route_name="admin.organization.approve",
     renderer="admin/organizations/approve.html",
@@ -24,5 +22,9 @@ from pyramid.view import view_config
     has_translations=True,
 )
 def approve(request):
-    # TODO
-    return {}
+    return {
+        "username": "example",
+        "user_full_name": "Example",
+        "user_email": "webmaster@example.com",
+        "organization_name": "example",
+    }

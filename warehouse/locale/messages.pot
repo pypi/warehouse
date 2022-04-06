@@ -225,8 +225,29 @@ msgstr ""
 msgid "Banner Preview"
 msgstr ""
 
-#: warehouse/admin/templates/admin/organizations/approve.html:21
+#: warehouse/admin/templates/admin/organizations/approve.html:17
 msgid "Approve New Organization"
+msgstr ""
+
+#: warehouse/admin/templates/admin/organizations/approve.html:25
+#, python-format
+msgid ""
+"\n"
+"      Would you like to approve this request by <a href=\"%(user_link)s\""
+" title=\"%(username)s\">%(user_full_name)s</a> (<a "
+"href=\"mailto:%(user_email)s\">%(user_email)s</a>) to create a new "
+"organization named <strong>%(organization_name)s</strong>?\n"
+"      "
+msgstr ""
+
+#: warehouse/admin/templates/admin/organizations/approve.html:31
+msgid "Approve"
+msgstr ""
+
+#: warehouse/admin/templates/admin/organizations/approve.html:32
+#: warehouse/templates/accounts/invite-confirmation.html:33
+#: warehouse/templates/manage/projects.html:50
+msgid "Decline"
 msgstr ""
 
 #: warehouse/manage/forms.py:322
@@ -1017,11 +1038,6 @@ msgstr ""
 #: warehouse/templates/accounts/invite-confirmation.html:32
 #: warehouse/templates/manage/projects.html:49
 msgid "Accept"
-msgstr ""
-
-#: warehouse/templates/accounts/invite-confirmation.html:33
-#: warehouse/templates/manage/projects.html:50
-msgid "Decline"
 msgstr ""
 
 #: warehouse/templates/accounts/login.html:30
