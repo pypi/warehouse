@@ -134,9 +134,10 @@ services:
       - ./bin:/opt/warehouse/src/bin:z
 
   maildev:
-    image: maildev/maildev
+    image: maildev/maildev:2.0.2
     ports:
-      - "1080:80"
+      - "1080:1080"
+      - "1025:1025"
 
   notdatadog:
     build:

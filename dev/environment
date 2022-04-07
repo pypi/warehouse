@@ -26,7 +26,7 @@ SIMPLE_BACKEND=warehouse.packaging.services.LocalSimpleStorage path=/var/opt/war
 DOCS_BACKEND=warehouse.packaging.services.LocalDocsStorage path=/var/opt/warehouse/docs/
 SPONSORLOGOS_BACKEND=warehouse.admin.services.LocalSponsorLogoStorage path=/var/opt/warehouse/sponsorlogos/
 
-MAIL_BACKEND=warehouse.email.services.ConsoleAndSMTPEmailSender host=maildev port=25 ssl=false sender=noreply@pypi.org
+MAIL_BACKEND=warehouse.email.services.ConsoleAndSMTPEmailSender host=maildev port=1025 ssl=false sender=noreply@pypi.org
 
 BREACHED_PASSWORDS=warehouse.accounts.NullPasswordBreachedService
 
