@@ -37,9 +37,9 @@ boto3-stubs==1.21.34.post1 \
     --hash=sha256:214219c485b1a1bf0bbe5e1844b1350b64a679116f3184ea871c82021b213667 \
     --hash=sha256:4dc68d80bce370b229fbdc0105e7fe51c1d068595eef0178090108d959551ffc
     # via types-boto3
-botocore-stubs==1.24.34.post1 \
-    --hash=sha256:2b30685bbd6efa8aff55886a1a8b99938b0a1dd58cc1568550115893dfd67d35 \
-    --hash=sha256:5ff4fa24abde15995d3c9dc85a29bf56d46acf96be4433a0fac966e486f68b75
+botocore-stubs==1.24.36 \
+    --hash=sha256:887fbc89047d6922314103814e03454c3d377bc56f70106c8a1f51a70ee4f1d5 \
+    --hash=sha256:eac9f8dae96c5dc92d947a32c38628cc6b50ab9b0ea42565a93865d389dde3d7
     # via boto3-stubs
 celery-types==0.12.0 \
     --hash=sha256:22a0b46d04508bbdb5074d070ebac6179550c2aa8506e1b05b74850d61d4fa82 \
