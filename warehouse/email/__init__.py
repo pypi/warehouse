@@ -210,6 +210,17 @@ def send_admin_new_organization_approved_email(
     }
 
 
+@_email("admin-new-organization-declined")
+def send_admin_new_organization_declined_email(
+    request, user, *, organization_name, initiator_username, message=""
+):
+    return {
+        "initiator_username": initiator_username,
+        "message": message,
+        "organization_name": organization_name,
+    }
+
+
 # Email templates for users.
 
 
