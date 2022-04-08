@@ -970,6 +970,17 @@ class ProvisionMacaroonViews:
 
 
 @view_config(
+    route_name="manage.organizations",
+    renderer="manage/organizations.html",
+    uses_session=True,
+    permission="manage:user",
+    has_translations=True,
+)
+def manage_organizations(request):
+    return {}
+
+
+@view_config(
     route_name="manage.projects",
     renderer="manage/projects.html",
     uses_session=True,
