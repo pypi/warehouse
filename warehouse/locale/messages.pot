@@ -240,11 +240,11 @@ msgid ""
 "      "
 msgstr ""
 
-#: warehouse/admin/templates/admin/organizations/approve.html:31
+#: warehouse/admin/templates/admin/organizations/approve.html:35
 msgid "Approve"
 msgstr ""
 
-#: warehouse/admin/templates/admin/organizations/approve.html:32
+#: warehouse/admin/templates/admin/organizations/approve.html:36
 #: warehouse/templates/accounts/invite-confirmation.html:33
 #: warehouse/templates/manage/projects.html:50
 msgid "Decline"
