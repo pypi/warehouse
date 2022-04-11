@@ -879,9 +879,6 @@ class ProvisionMacaroonViews:
 
         response = {**self.default_response}
         if form.validate():
-            # NOTE: The caveat order here is important: the UI assumes
-            # that the permissions caveat comes first in any recorded
-            # events.
             macaroon_caveats = [{"permissions": form.validated_scope, "version": 1}]
             serialized_macaroon, macaroon = self.macaroon_service.create_macaroon(
                 location=self.request.domain,
