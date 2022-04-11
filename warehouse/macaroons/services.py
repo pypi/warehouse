@@ -139,7 +139,9 @@ class DatabaseMacaroonService:
         # permissions caveat in the DB, so that we can display scope information
         # in the UI.
         permissions = next(c for c in caveats if "permissions" in c)  # pragma: no cover
-        dm = Macaroon(user=user, description=description, permissions=permissions)
+        dm = Macaroon(
+            user=user, description=description, permissions_caveat=permissions
+        )
         self.db.add(dm)
         self.db.flush()
 

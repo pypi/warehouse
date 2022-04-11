@@ -24,8 +24,8 @@ down_revision = "f345394c444f"
 
 
 def upgrade():
-    op.alter_column("macaroons", "caveats", new_column_name="permissions")
+    op.alter_column("macaroons", "caveats", new_column_name="permissions_caveat")
 
 
 def downgrade():
-    op.alter_column("macaroons", "permissions", new_column_name="caveats")
+    op.alter_column("macaroons", "permissions_caveat", new_column_name="caveats")

@@ -141,10 +141,10 @@
     </th>
     <td>
       <span class="table__mobile-label">{% trans %}Scope{% endtrans %}</span>
-      {% if macaroon.permissions.permissions == 'user' %}
+      {% if macaroon.permissions_caveat.permissions == 'user' %}
       {% trans %}All projects{% endtrans %}
       {% else %}
-        {% for project in macaroon.permissions.get("permissions")['projects'] %}
+        {% for project in macaroon.permissions_caveat.get("permissions")['projects'] %}
         <a href="{{ request.route_path('packaging.project', name=project) }}">{{ project }}</a>
         {% endfor %}
       {% endif %}

@@ -54,7 +54,7 @@ class Macaroon(db.Model):
 
     # Human-readable "permissions" for this macaroon, corresponding to the
     # body of the permissions ("V1") caveat.
-    permissions = Column(JSONB, nullable=False, server_default=sql.text("'{}'"))
+    permissions_caveat = Column(JSONB, nullable=False, server_default=sql.text("'{}'"))
 
     # It might be better to move this default into the database, that way we
     # make it less likely that something does it incorrectly (since the

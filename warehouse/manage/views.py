@@ -941,11 +941,12 @@ class ProvisionMacaroonViews:
                 tag="account:api_token:removed",
                 additional={"macaroon_id": form.macaroon_id.data},
             )
-            if "projects" in macaroon.permissions:
+            if "projects" in macaroon.permissions_caveat:
                 projects = [
                     project
                     for project in self.request.user.projects
-                    if project.normalized_name in macaroon.permissions["projects"]
+                    if project.normalized_name
+                    in macaroon.permissions_caveat["projects"]
                 ]
                 for project in projects:
                     project.record_event(
