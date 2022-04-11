@@ -609,9 +609,19 @@
       <strong>{% trans %}API token added{% endtrans %}</strong><br>
       <small>
         {% trans %}Token name:{% endtrans %} {{ event.additional.description }}<br>
-        {% for caveat in event.additional.caveats %}
-          {{ caveat_detail(caveat) }}
-        {% endfor %}
+        {#
+          NOTE: Old events contain a single caveat dictionary, rather than a list of caveats.
+
+          This check can be deleted roughly 90 days after merge, since events older than
+          90 days are not presented to the user.
+        #}
+        {% if event.additional.caveats is mapping %}
+          {{ caveat_detail(event.additional.caveats) }}
+        {% else %}
+          {% for caveat in event.additional.caveats %}
+            {{ caveat_detail(caveat) }}
+          {% endfor %}
+        {% endif %}
       </small>
 
       {% elif event.tag  == "account:api_token:removed" %}
