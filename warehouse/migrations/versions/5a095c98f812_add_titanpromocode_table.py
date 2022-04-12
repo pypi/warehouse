@@ -23,7 +23,7 @@ from alembic import op
 from sqlalchemy.dialects import postgresql
 
 revision = "5a095c98f812"
-down_revision = "19cf76d2d459"
+down_revision = "94c844c2da96"
 
 
 def upgrade():
