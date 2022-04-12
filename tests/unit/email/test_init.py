@@ -1355,6 +1355,84 @@ class TestPrimaryEmailChangeEmail:
         assert send_email.delay.calls == []
 
 
+class TestSendNewOrganizationrequestedEmail:
+    def test_send_new_organization_requested_email(
+        self, pyramid_request, pyramid_config, monkeypatch
+    ):
+        initiator_user = pretend.stub(
+            id="id",
+            username="username",
+            name="",
+            email="email@example.com",
+            primary_email=pretend.stub(email="email@example.com", verified=True),
+        )
+        organization_name = "example"
+
+        subject_renderer = pyramid_config.testing_add_renderer(
+            "email/new-organization-requested/subject.txt"
+        )
+        subject_renderer.string_response = "Email Subject"
+        body_renderer = pyramid_config.testing_add_renderer(
+            "email/new-organization-requested/body.txt"
+        )
+        body_renderer.string_response = "Email Body"
+        html_renderer = pyramid_config.testing_add_renderer(
+            "email/new-organization-requested/body.html"
+        )
+        html_renderer.string_response = "Email HTML Body"
+
+        send_email = pretend.stub(
+            delay=pretend.call_recorder(lambda *args, **kwargs: None)
+        )
+        pyramid_request.task = pretend.call_recorder(lambda *args, **kwargs: send_email)
+        monkeypatch.setattr(email, "send_email", send_email)
+
+        pyramid_request.db = pretend.stub(
+            query=lambda a: pretend.stub(
+                filter=lambda *a: pretend.stub(
+                    one=lambda: pretend.stub(user_id=initiator_user.id)
+                )
+            ),
+        )
+        pyramid_request.user = initiator_user
+        pyramid_request.registry.settings = {"mail.sender": "noreply@example.com"}
+
+        result = email.send_new_organization_requested_email(
+            pyramid_request,
+            initiator_user,
+            organization_name=organization_name,
+        )
+
+        assert result == {"organization_name": organization_name}
+        subject_renderer.assert_()
+        body_renderer.assert_(organization_name=organization_name)
+        html_renderer.assert_(organization_name=organization_name)
+        assert pyramid_request.task.calls == [pretend.call(send_email)]
+        assert send_email.delay.calls == [
+            pretend.call(
+                f"{initiator_user.username} <{initiator_user.email}>",
+                {
+                    "subject": "Email Subject",
+                    "body_text": "Email Body",
+                    "body_html": (
+                        "<html>\n<head></head>\n"
+                        "<body><p>Email HTML Body</p></body>\n</html>\n"
+                    ),
+                },
+                {
+                    "tag": "account:email:sent",
+                    "user_id": initiator_user.id,
+                    "additional": {
+                        "from_": "noreply@example.com",
+                        "to": initiator_user.email,
+                        "subject": "Email Subject",
+                        "redact_ip": False,
+                    },
+                },
+            )
+        ]
+
+
 class TestCollaboratorAddedEmail:
     def test_collaborator_added_email(
         self, pyramid_request, pyramid_config, monkeypatch
