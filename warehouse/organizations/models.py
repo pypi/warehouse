@@ -78,7 +78,7 @@ class OrganizationProject(db.Model):
 
     __repr__ = make_repr("project_id", "organization_id", "is_active")
 
-    is_active = Column(Boolean)
+    is_active = Column(Boolean, nullable=False, default=False)
     organization_id = Column(
         ForeignKey("organizations.id", onupdate="CASCADE", ondelete="CASCADE"),
         nullable=False,
@@ -136,7 +136,7 @@ class Organization(db.Model):
     )
     link_url = Column(URLType, nullable=False)
     description = Column(Text, nullable=False)
-    is_active = Column(Boolean)
+    is_active = Column(Boolean, nullable=False, default=False)
     is_approved = Column(Boolean)
     created = Column(
         DateTime(timezone=False),
