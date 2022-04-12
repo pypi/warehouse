@@ -283,6 +283,11 @@ def send_primary_email_change_email(request, user_and_email):
     }
 
 
+@_email("new-organization-requested")
+def send_new_organization_requested_email(request, user, *, organization_name):
+    return {"organization_name": organization_name}
+
+
 @_email("collaborator-added")
 def send_collaborator_added_email(
     request, email_recipients, *, user, submitter, project_name, role
