@@ -14,8 +14,8 @@
 {% extends "email/_base/body.txt" %}
 
 {% block content %}
-{{ initiator_username }} has requested approval to create a new PyPI organization named "{{ organization_name }}".
+{% trans organization_name=organization_name, initiator_username=initiator_username %}{{ initiator_username }} has requested approval to create a new PyPI organization named "{{ organization_name }}".{% endtrans %}
 
-Please follow this link to approve or decline the request:
+{% trans %}Please follow this link to approve or decline the request:{% endtrans %}
 {{ request.route_url('admin.organization.approve', _query={'organization_name': organization_name}) }}
 {% endblock %}
