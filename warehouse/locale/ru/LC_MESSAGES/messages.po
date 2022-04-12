@@ -683,7 +683,7 @@ msgstr "Переключиться на мобильную версию"
 #: warehouse/templates/base.html:172
 #: warehouse/templates/includes/flash-messages.html:30
 #: warehouse/templates/includes/session-notifications.html:20
-#: warehouse/templates/manage/account.html:696
+#: warehouse/templates/manage/account.html:716
 #: warehouse/templates/manage/documentation.html:27
 #: warehouse/templates/manage/manage_base.html:278
 #: warehouse/templates/manage/manage_base.html:330
@@ -2471,30 +2471,46 @@ msgstr ""
 "Чтобы добавить API-токены в свою учётную запись, <a href=\"%(href)s"
 "\">подтвердите свой основной адрес электронной почты</a>."
 
-#: warehouse/templates/manage/account.html:466
+#: warehouse/templates/manage/account.html:467
+#: warehouse/templates/manage/account.html:637
+msgid "Token scope: entire account"
+msgstr "Область действия токена: вся учётная запись"
+
+#: warehouse/templates/manage/account.html:469
+#: warehouse/templates/manage/account.html:639
+#, python-format
+msgid "Token scope: Project %(project_name)s"
+msgstr "Область действия токена: Проект %(project_name)s"
+
+#: warehouse/templates/manage/account.html:472
+#, python-format
+msgid "Expires: %(exp)s"
+msgstr ""
+
+#: warehouse/templates/manage/account.html:478
 msgid "Account created"
 msgstr "Учётная запись создана"
 
-#: warehouse/templates/manage/account.html:469
+#: warehouse/templates/manage/account.html:481
 msgid "Logged in"
 msgstr "Входили в систему"
 
-#: warehouse/templates/manage/account.html:471
+#: warehouse/templates/manage/account.html:483
 msgid "Two factor method:"
 msgstr "Метод двухфакторной аутентификации:"
 
-#: warehouse/templates/manage/account.html:473
+#: warehouse/templates/manage/account.html:485
 #: warehouse/templates/manage/release.html:58
 msgid "None"
 msgstr "Отсутствует"
 
-#: warehouse/templates/manage/account.html:475
+#: warehouse/templates/manage/account.html:487
 #: warehouse/templates/manage/manage_base.html:75
 msgid "Security device (<abbr title=\"web authentication\">WebAuthn</abbr>)"
 msgstr ""
 "Устройство безопасности (<abbr title=\"веб аутентификация\">WebAuthn</abbr>)"
 
-#: warehouse/templates/manage/account.html:477
+#: warehouse/templates/manage/account.html:489
 #: warehouse/templates/manage/manage_base.html:62
 msgid ""
 "Authentication application (<abbr title=\"time-based one-time password"
@@ -2503,139 +2519,139 @@ msgstr ""
 "Приложение аутентификации (<abbr title=\"time-based one-time password — "
 "одноразовый пароль на основе времени\">TOTP</abbr>)"
 
-#: warehouse/templates/manage/account.html:479
+#: warehouse/templates/manage/account.html:491
 msgid "Recovery code"
 msgstr "Код восстановления"
 
-#: warehouse/templates/manage/account.html:484
+#: warehouse/templates/manage/account.html:496
 msgid "Login failed"
 msgstr ""
 
-#: warehouse/templates/manage/account.html:487
+#: warehouse/templates/manage/account.html:499
 msgid "- Basic Auth (Upload endpoint)"
 msgstr ""
 
-#: warehouse/templates/manage/account.html:492
-#: warehouse/templates/manage/account.html:511
+#: warehouse/templates/manage/account.html:504
+#: warehouse/templates/manage/account.html:523
 #: warehouse/templates/manage/history.html:84
 msgid "Reason:"
 msgstr "Причина:"
 
-#: warehouse/templates/manage/account.html:494
-#: warehouse/templates/manage/account.html:513
+#: warehouse/templates/manage/account.html:506
+#: warehouse/templates/manage/account.html:525
 #, fuzzy
 #| msgid "Your current password"
 msgid "Incorrect Password"
 msgstr "Ваш текущий пароль"
 
-#: warehouse/templates/manage/account.html:496
+#: warehouse/templates/manage/account.html:508
 #, fuzzy
 #| msgid "Invalid or expired two factor login."
 msgid "Invalid two factor (TOTP)"
 msgstr "Недействительный или истёкший двухфакторный логин."
 
-#: warehouse/templates/manage/account.html:498
+#: warehouse/templates/manage/account.html:510
 #, fuzzy
 #| msgid "Invalid or expired two factor login."
 msgid "Invalid two factor (WebAuthn)"
 msgstr "Недействительный или истёкший двухфакторный логин."
 
-#: warehouse/templates/manage/account.html:500
-#: warehouse/templates/manage/account.html:502
+#: warehouse/templates/manage/account.html:512
+#: warehouse/templates/manage/account.html:514
 #, fuzzy
 #| msgid "Invalid recovery code."
 msgid "Invalid two factor (Recovery code)"
 msgstr "Неверный код восстановления."
 
-#: warehouse/templates/manage/account.html:509
+#: warehouse/templates/manage/account.html:521
 #, fuzzy
 #| msgid "Two factor authentication added"
 msgid "Session reauthentication failed"
 msgstr "Добавлена двухфакторная аутентификация"
 
-#: warehouse/templates/manage/account.html:520
+#: warehouse/templates/manage/account.html:532
 msgid "Email added to account"
 msgstr "В учётную запись добавлен адрес электронной почты"
 
-#: warehouse/templates/manage/account.html:523
+#: warehouse/templates/manage/account.html:535
 msgid "Email removed from account"
 msgstr "Адрес электронной почты удалён из учётной записи"
 
-#: warehouse/templates/manage/account.html:526
+#: warehouse/templates/manage/account.html:538
 msgid "Email verified"
 msgstr "Адрес электронной почты подтверждён"
 
-#: warehouse/templates/manage/account.html:529
+#: warehouse/templates/manage/account.html:541
 msgid "Email reverified"
 msgstr "Адрес электронной почты подтверждён повторно"
 
-#: warehouse/templates/manage/account.html:533
+#: warehouse/templates/manage/account.html:545
 msgid "Primary email changed"
 msgstr "Изменён основной адрес электронной почты"
 
-#: warehouse/templates/manage/account.html:535
+#: warehouse/templates/manage/account.html:547
 msgid "Old primary email:"
 msgstr "Старый основной адрес электронной почты:"
 
-#: warehouse/templates/manage/account.html:536
+#: warehouse/templates/manage/account.html:548
 msgid "New primary email:"
 msgstr "Новый основной адрес электронной почты:"
 
-#: warehouse/templates/manage/account.html:539
+#: warehouse/templates/manage/account.html:551
 msgid "Primary email set"
 msgstr "Установлен основной адрес электронной почты"
 
-#: warehouse/templates/manage/account.html:545
+#: warehouse/templates/manage/account.html:557
 msgid "Email sent"
 msgstr "Отправлено электронное письмо"
 
-#: warehouse/templates/manage/account.html:547
+#: warehouse/templates/manage/account.html:559
 msgid "From:"
 msgstr "От:"
 
-#: warehouse/templates/manage/account.html:548
+#: warehouse/templates/manage/account.html:560
 msgid "To:"
 msgstr "Кому:"
 
-#: warehouse/templates/manage/account.html:549
+#: warehouse/templates/manage/account.html:561
 msgid "Subject:"
 msgstr "Тема:"
 
-#: warehouse/templates/manage/account.html:553
+#: warehouse/templates/manage/account.html:565
 msgid "Password reset requested"
 msgstr "Запрошен сброс пароля"
 
-#: warehouse/templates/manage/account.html:555
+#: warehouse/templates/manage/account.html:567
 msgid "Password reset attempted"
 msgstr "Попытка сбросить пароль"
 
-#: warehouse/templates/manage/account.html:557
+#: warehouse/templates/manage/account.html:569
 msgid "Password successfully reset"
 msgstr "Пароль успешно сброшен"
 
-#: warehouse/templates/manage/account.html:559
+#: warehouse/templates/manage/account.html:571
 msgid "Password successfully changed"
 msgstr "Пароль успешно изменён"
 
-#: warehouse/templates/manage/account.html:562
+#: warehouse/templates/manage/account.html:574
 msgid "Two factor authentication added"
 msgstr "Добавлена двухфакторная аутентификация"
 
-#: warehouse/templates/manage/account.html:565
-#: warehouse/templates/manage/account.html:575
+#: warehouse/templates/manage/account.html:577
+#: warehouse/templates/manage/account.html:587
 msgid ""
 "Method: Security device (<abbr title=\"web authentication\">WebAuthn</abbr>)"
 msgstr ""
 "Способ: Устройство безопасности (<abbr title=\"веб аутентификация"
 "\">WebAuthn</abbr>)"
 
-#: warehouse/templates/manage/account.html:566
-#: warehouse/templates/manage/account.html:576
+#: warehouse/templates/manage/account.html:578
+#: warehouse/templates/manage/account.html:588
 msgid "Device name:"
 msgstr "Название устройства:"
 
-#: warehouse/templates/manage/account.html:568
-#: warehouse/templates/manage/account.html:578
+#: warehouse/templates/manage/account.html:580
+#: warehouse/templates/manage/account.html:590
 msgid ""
 "Method: Authentication application (<abbr title=\"time-based one-time "
 "password\">TOTP</abbr>)"
@@ -2643,66 +2659,55 @@ msgstr ""
 "Способ: Приложение аутентификации (<abbr title=\"time-based one-time "
 "password — одноразовый пароль на основе времени\">TOTP</abbr>)"
 
-#: warehouse/templates/manage/account.html:572
+#: warehouse/templates/manage/account.html:584
 msgid "Two factor authentication removed"
 msgstr "Двухфакторная аутентификация удалена"
 
-#: warehouse/templates/manage/account.html:583
+#: warehouse/templates/manage/account.html:595
 msgid "Recovery codes generated"
 msgstr "Сгенерированы коды восстановления"
 
-#: warehouse/templates/manage/account.html:587
+#: warehouse/templates/manage/account.html:599
 msgid "Recovery codes regenerated"
 msgstr "Коды восстановления сгенерированы повторно"
 
-#: warehouse/templates/manage/account.html:591
+#: warehouse/templates/manage/account.html:603
 msgid "Recovery code used for login"
 msgstr "Код восстановления использован для входа"
 
-#: warehouse/templates/manage/account.html:597
+#: warehouse/templates/manage/account.html:609
 #: warehouse/templates/manage/history.html:65
 msgid "API token added"
 msgstr "Добавлен API-токен"
 
-#: warehouse/templates/manage/account.html:599
-#: warehouse/templates/manage/account.html:614
+#: warehouse/templates/manage/account.html:611
+#: warehouse/templates/manage/account.html:634
 #: warehouse/templates/manage/history.html:69
 #: warehouse/templates/manage/history.html:76
 msgid "Token name:"
 msgstr "Название токена:"
 
-#: warehouse/templates/manage/account.html:601
-#: warehouse/templates/manage/account.html:617
-msgid "Token scope: entire account"
-msgstr "Область действия токена: вся учётная запись"
-
-#: warehouse/templates/manage/account.html:603
-#: warehouse/templates/manage/account.html:619
-#, python-format
-msgid "Token scope: Project %(project_name)s"
-msgstr "Область действия токена: Проект %(project_name)s"
-
-#: warehouse/templates/manage/account.html:608
+#: warehouse/templates/manage/account.html:628
 #: warehouse/templates/manage/history.html:72
 msgid "API token removed"
 msgstr "API-токен удалён"
 
-#: warehouse/templates/manage/account.html:609
-#: warehouse/templates/manage/account.html:615
+#: warehouse/templates/manage/account.html:629
+#: warehouse/templates/manage/account.html:635
 msgid "Unique identifier:"
 msgstr "Уникальный идентификатор:"
 
-#: warehouse/templates/manage/account.html:612
+#: warehouse/templates/manage/account.html:632
 msgid "API token automatically removed for security reasons"
 msgstr "API-токен автоматически удалён по соображениям безопасности"
 
-#: warehouse/templates/manage/account.html:621
+#: warehouse/templates/manage/account.html:641
 #, python-format
 msgid "Reason: Token found at <a href=\"%(public_url)s\">public url</a>"
 msgstr ""
 "Причина: токен найден в <a href=\"%(public_url)s\">публичной ссылке</a>"
 
-#: warehouse/templates/manage/account.html:630
+#: warehouse/templates/manage/account.html:650
 #, python-format
 msgid ""
 "Events appear here as security-related actions occur on your account. If you "
@@ -2713,45 +2718,45 @@ msgstr ""
 "учётной записи. Если вы заметили что-то подозрительное, пожалуйста, как "
 "можно скорее <a href=\"%(faq_url)s\">обезопасьте свою учётную запись</a>."
 
-#: warehouse/templates/manage/account.html:635
+#: warehouse/templates/manage/account.html:655
 msgid "Recent account activity"
 msgstr "Недавние действия с учётной записью"
 
-#: warehouse/templates/manage/account.html:637
+#: warehouse/templates/manage/account.html:657
 #: warehouse/templates/manage/history.html:107
 msgid "Event"
 msgstr "Событие"
 
-#: warehouse/templates/manage/account.html:638
-#: warehouse/templates/manage/account.html:646
+#: warehouse/templates/manage/account.html:658
+#: warehouse/templates/manage/account.html:666
 #: warehouse/templates/manage/history.html:108
 #: warehouse/templates/manage/history.html:117
 msgid "Date / time"
 msgstr "Дата / время"
 
-#: warehouse/templates/manage/account.html:639
-#: warehouse/templates/manage/account.html:650
+#: warehouse/templates/manage/account.html:659
+#: warehouse/templates/manage/account.html:670
 #: warehouse/templates/manage/history.html:109
 #: warehouse/templates/manage/history.html:121
 msgid "IP address"
 msgstr "IP-адрес"
 
-#: warehouse/templates/manage/account.html:658
+#: warehouse/templates/manage/account.html:678
 msgid ""
 "Events will appear here as security-related actions occur on your account."
 msgstr ""
 "Здесь будут отображаться события в ответ на действия, затрагивающие "
 "безопасность вашей учётной записи."
 
-#: warehouse/templates/manage/account.html:665
+#: warehouse/templates/manage/account.html:685
 msgid "Delete account"
 msgstr "Удаление учётной записи"
 
-#: warehouse/templates/manage/account.html:668
+#: warehouse/templates/manage/account.html:688
 msgid "Cannot delete account"
 msgstr "Невозможно удалить учётную запись"
 
-#: warehouse/templates/manage/account.html:670
+#: warehouse/templates/manage/account.html:690
 #, python-format
 msgid ""
 "\n"
@@ -2779,7 +2784,7 @@ msgstr[2] ""
 "<strong>единственным владельцем</strong> %(count)s проектов.\n"
 "        "
 
-#: warehouse/templates/manage/account.html:675
+#: warehouse/templates/manage/account.html:695
 msgid ""
 "\n"
 "          You must transfer ownership or delete this project before you can "
@@ -2806,7 +2811,7 @@ msgstr[2] ""
 "прежде чем вы сможете удалить свою учётную запись.\n"
 "        "
 
-#: warehouse/templates/manage/account.html:685
+#: warehouse/templates/manage/account.html:705
 #, python-format
 msgid ""
 "<a href=\"%(transfer_href)s\">transfer ownership</a> or <a href="
@@ -2815,16 +2820,16 @@ msgstr ""
 "<a href=\"%(transfer_href)s\">передать право собственности</a> или <a href="
 "\"%(delete_href)s\">удалить проект</a>"
 
-#: warehouse/templates/manage/account.html:694
+#: warehouse/templates/manage/account.html:714
 #: warehouse/templates/manage/token.html:169
 msgid "Proceed with caution!"
 msgstr "Действуйте осторожно!"
 
-#: warehouse/templates/manage/account.html:697
+#: warehouse/templates/manage/account.html:717
 msgid "You will not be able to recover your account after you delete it"
 msgstr "Вы не сможете восстановить свою учётную запись после её удаления"
 
-#: warehouse/templates/manage/account.html:699
+#: warehouse/templates/manage/account.html:719
 msgid "Delete your PyPI account"
 msgstr "Удалить свою учётную запись PyPI"
 

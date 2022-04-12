@@ -13,7 +13,7 @@ msgstr ""
 "Project-Id-Version: Warehouse VERSION\n"
 "Report-Msgid-Bugs-To: admin@pypi.org\n"
 "POT-Creation-Date: 2020-04-06 17:52-0500\n"
-"PO-Revision-Date: 2022-04-01 22:15+0000\n"
+"PO-Revision-Date: 2022-04-12 13:40+0000\n"
 "Last-Translator: Adolfo Jayme Barrientos <fitojb@ubuntu.com>\n"
 "Language-Team: Spanish <https://hosted.weblate.org/projects/pypa/warehouse/"
 "es/>\n"
@@ -355,17 +355,15 @@ msgstr ""
 
 #: warehouse/oidc/forms.py:39
 msgid "Specify repository name"
-msgstr ""
+msgstr "Especifique el nombre del repositorio"
 
 #: warehouse/oidc/forms.py:41
-#, fuzzy
-#| msgid "Invalid recovery code."
 msgid "Invalid repository name"
-msgstr "El código de recuperación no es válido."
+msgstr "El nombre del repositorio no es válido"
 
 #: warehouse/oidc/forms.py:48
 msgid "Specify workflow filename"
-msgstr ""
+msgstr "Especifique el nombre de archivo del flujo de trabajo"
 
 #: warehouse/oidc/forms.py:77
 msgid "Unknown GitHub user or organization."
@@ -389,7 +387,7 @@ msgstr ""
 
 #: warehouse/oidc/forms.py:132
 msgid "Workflow name must end with .yml or .yaml"
-msgstr ""
+msgstr "El nombre del flujo de trabajo debe terminar en .yml o .yaml"
 
 #: warehouse/oidc/forms.py:137
 msgid "Workflow filename must be a filename only, without directories"
@@ -674,7 +672,7 @@ msgstr "Cambiar a la versión para móviles"
 #: warehouse/templates/base.html:172
 #: warehouse/templates/includes/flash-messages.html:30
 #: warehouse/templates/includes/session-notifications.html:20
-#: warehouse/templates/manage/account.html:696
+#: warehouse/templates/manage/account.html:716
 #: warehouse/templates/manage/documentation.html:27
 #: warehouse/templates/manage/manage_base.html:278
 #: warehouse/templates/manage/manage_base.html:330
@@ -2473,30 +2471,46 @@ msgstr ""
 "<a href=\"%(href)s\">Verifique su dirección de correo principal</a> para "
 "añadir fichas de API a su cuenta."
 
-#: warehouse/templates/manage/account.html:466
+#: warehouse/templates/manage/account.html:467
+#: warehouse/templates/manage/account.html:637
+msgid "Token scope: entire account"
+msgstr "Ámbito de ficha: toda la cuenta"
+
+#: warehouse/templates/manage/account.html:469
+#: warehouse/templates/manage/account.html:639
+#, python-format
+msgid "Token scope: Project %(project_name)s"
+msgstr "Ámbito de ficha: proyecto %(project_name)s"
+
+#: warehouse/templates/manage/account.html:472
+#, python-format
+msgid "Expires: %(exp)s"
+msgstr ""
+
+#: warehouse/templates/manage/account.html:478
 msgid "Account created"
 msgstr "Creación de la cuenta"
 
-#: warehouse/templates/manage/account.html:469
+#: warehouse/templates/manage/account.html:481
 msgid "Logged in"
 msgstr "Acceso"
 
-#: warehouse/templates/manage/account.html:471
+#: warehouse/templates/manage/account.html:483
 msgid "Two factor method:"
 msgstr "Método de dos fases:"
 
-#: warehouse/templates/manage/account.html:473
+#: warehouse/templates/manage/account.html:485
 #: warehouse/templates/manage/release.html:58
 msgid "None"
 msgstr "Ninguno"
 
-#: warehouse/templates/manage/account.html:475
+#: warehouse/templates/manage/account.html:487
 #: warehouse/templates/manage/manage_base.html:75
 msgid "Security device (<abbr title=\"web authentication\">WebAuthn</abbr>)"
 msgstr ""
 "Aparato de seguridad (<abbr title=\"autenticación web\">WebAuthn</abbr>)"
 
-#: warehouse/templates/manage/account.html:477
+#: warehouse/templates/manage/account.html:489
 #: warehouse/templates/manage/manage_base.html:62
 msgid ""
 "Authentication application (<abbr title=\"time-based one-time password"
@@ -2505,129 +2519,129 @@ msgstr ""
 "Aplicación de autenticación (<abbr title=\"contraseña temporal de un solo uso"
 "\">TOTP</abbr>)"
 
-#: warehouse/templates/manage/account.html:479
+#: warehouse/templates/manage/account.html:491
 msgid "Recovery code"
 msgstr "Código de recuperación"
 
-#: warehouse/templates/manage/account.html:484
+#: warehouse/templates/manage/account.html:496
 msgid "Login failed"
 msgstr "Falló el acceso"
 
-#: warehouse/templates/manage/account.html:487
+#: warehouse/templates/manage/account.html:499
 msgid "- Basic Auth (Upload endpoint)"
 msgstr "- Autenticación básica (extremo de carga)"
 
-#: warehouse/templates/manage/account.html:492
-#: warehouse/templates/manage/account.html:511
+#: warehouse/templates/manage/account.html:504
+#: warehouse/templates/manage/account.html:523
 #: warehouse/templates/manage/history.html:84
 msgid "Reason:"
 msgstr "Razón:"
 
-#: warehouse/templates/manage/account.html:494
-#: warehouse/templates/manage/account.html:513
+#: warehouse/templates/manage/account.html:506
+#: warehouse/templates/manage/account.html:525
 msgid "Incorrect Password"
 msgstr "Contraseña incorrecta"
 
-#: warehouse/templates/manage/account.html:496
+#: warehouse/templates/manage/account.html:508
 msgid "Invalid two factor (TOTP)"
 msgstr "Acceso en dos fases no válido (TOTP)."
 
-#: warehouse/templates/manage/account.html:498
+#: warehouse/templates/manage/account.html:510
 msgid "Invalid two factor (WebAuthn)"
 msgstr "Acceso en dos fases no válido (WebAuthn)"
 
-#: warehouse/templates/manage/account.html:500
-#: warehouse/templates/manage/account.html:502
+#: warehouse/templates/manage/account.html:512
+#: warehouse/templates/manage/account.html:514
 msgid "Invalid two factor (Recovery code)"
 msgstr "Acceso en dos fases no válido (código de recuperación)"
 
-#: warehouse/templates/manage/account.html:509
+#: warehouse/templates/manage/account.html:521
 msgid "Session reauthentication failed"
 msgstr "Falló la reautenticación de la sesión"
 
-#: warehouse/templates/manage/account.html:520
+#: warehouse/templates/manage/account.html:532
 msgid "Email added to account"
 msgstr "Adición de correo a la cuenta"
 
-#: warehouse/templates/manage/account.html:523
+#: warehouse/templates/manage/account.html:535
 msgid "Email removed from account"
 msgstr "Retirada de correo de la cuenta"
 
-#: warehouse/templates/manage/account.html:526
+#: warehouse/templates/manage/account.html:538
 msgid "Email verified"
 msgstr "Verificación de correo"
 
-#: warehouse/templates/manage/account.html:529
+#: warehouse/templates/manage/account.html:541
 msgid "Email reverified"
 msgstr "Reverificación de correo"
 
-#: warehouse/templates/manage/account.html:533
+#: warehouse/templates/manage/account.html:545
 msgid "Primary email changed"
 msgstr "Cambio de correo principal"
 
-#: warehouse/templates/manage/account.html:535
+#: warehouse/templates/manage/account.html:547
 msgid "Old primary email:"
 msgstr "Dirección principal anterior:"
 
-#: warehouse/templates/manage/account.html:536
+#: warehouse/templates/manage/account.html:548
 msgid "New primary email:"
 msgstr "Dirección principal nueva:"
 
-#: warehouse/templates/manage/account.html:539
+#: warehouse/templates/manage/account.html:551
 msgid "Primary email set"
 msgstr "Establecimiento de correo principal"
 
-#: warehouse/templates/manage/account.html:545
+#: warehouse/templates/manage/account.html:557
 msgid "Email sent"
 msgstr "Mensaje enviado"
 
-#: warehouse/templates/manage/account.html:547
+#: warehouse/templates/manage/account.html:559
 msgid "From:"
 msgstr "De:"
 
-#: warehouse/templates/manage/account.html:548
+#: warehouse/templates/manage/account.html:560
 msgid "To:"
 msgstr "Para:"
 
-#: warehouse/templates/manage/account.html:549
+#: warehouse/templates/manage/account.html:561
 msgid "Subject:"
 msgstr "Asunto:"
 
-#: warehouse/templates/manage/account.html:553
+#: warehouse/templates/manage/account.html:565
 msgid "Password reset requested"
 msgstr "Solicitud de restablecimiento de contraseña"
 
-#: warehouse/templates/manage/account.html:555
+#: warehouse/templates/manage/account.html:567
 msgid "Password reset attempted"
 msgstr "Se intentó restablecer la contraseña"
 
-#: warehouse/templates/manage/account.html:557
+#: warehouse/templates/manage/account.html:569
 msgid "Password successfully reset"
 msgstr "Restablecimiento correcto de contraseña"
 
-#: warehouse/templates/manage/account.html:559
+#: warehouse/templates/manage/account.html:571
 msgid "Password successfully changed"
 msgstr "Modificación correcta de contraseña"
 
-#: warehouse/templates/manage/account.html:562
+#: warehouse/templates/manage/account.html:574
 msgid "Two factor authentication added"
 msgstr "Adición de autenticación en dos fases"
 
-#: warehouse/templates/manage/account.html:565
-#: warehouse/templates/manage/account.html:575
+#: warehouse/templates/manage/account.html:577
+#: warehouse/templates/manage/account.html:587
 msgid ""
 "Method: Security device (<abbr title=\"web authentication\">WebAuthn</abbr>)"
 msgstr ""
 "Método: aparato de seguridad (<abbr title=\"autenticación web\">WebAuthn</"
 "abbr>)"
 
-#: warehouse/templates/manage/account.html:566
-#: warehouse/templates/manage/account.html:576
+#: warehouse/templates/manage/account.html:578
+#: warehouse/templates/manage/account.html:588
 msgid "Device name:"
 msgstr "Nombre del aparato:"
 
-#: warehouse/templates/manage/account.html:568
-#: warehouse/templates/manage/account.html:578
+#: warehouse/templates/manage/account.html:580
+#: warehouse/templates/manage/account.html:590
 msgid ""
 "Method: Authentication application (<abbr title=\"time-based one-time "
 "password\">TOTP</abbr>)"
@@ -2635,66 +2649,55 @@ msgstr ""
 "Método: aplicación de autenticación (<abbr title=\"contraseña temporal de un "
 "solo uso\">TOTP</abbr>)"
 
-#: warehouse/templates/manage/account.html:572
+#: warehouse/templates/manage/account.html:584
 msgid "Two factor authentication removed"
 msgstr "Retirada de autenticación en dos fases"
 
-#: warehouse/templates/manage/account.html:583
+#: warehouse/templates/manage/account.html:595
 msgid "Recovery codes generated"
 msgstr "Se generaron códigos de recuperación"
 
-#: warehouse/templates/manage/account.html:587
+#: warehouse/templates/manage/account.html:599
 msgid "Recovery codes regenerated"
 msgstr "Se volvieron a generar códigos de recuperación"
 
-#: warehouse/templates/manage/account.html:591
+#: warehouse/templates/manage/account.html:603
 msgid "Recovery code used for login"
 msgstr "Código de recuperación utilizado para acceder"
 
-#: warehouse/templates/manage/account.html:597
+#: warehouse/templates/manage/account.html:609
 #: warehouse/templates/manage/history.html:65
 msgid "API token added"
 msgstr "Adición de ficha de API"
 
-#: warehouse/templates/manage/account.html:599
-#: warehouse/templates/manage/account.html:614
+#: warehouse/templates/manage/account.html:611
+#: warehouse/templates/manage/account.html:634
 #: warehouse/templates/manage/history.html:69
 #: warehouse/templates/manage/history.html:76
 msgid "Token name:"
 msgstr "Nombre de ficha:"
 
-#: warehouse/templates/manage/account.html:601
-#: warehouse/templates/manage/account.html:617
-msgid "Token scope: entire account"
-msgstr "Ámbito de ficha: toda la cuenta"
-
-#: warehouse/templates/manage/account.html:603
-#: warehouse/templates/manage/account.html:619
-#, python-format
-msgid "Token scope: Project %(project_name)s"
-msgstr "Ámbito de ficha: proyecto %(project_name)s"
-
-#: warehouse/templates/manage/account.html:608
+#: warehouse/templates/manage/account.html:628
 #: warehouse/templates/manage/history.html:72
 msgid "API token removed"
 msgstr "Eliminación de ficha de API"
 
-#: warehouse/templates/manage/account.html:609
-#: warehouse/templates/manage/account.html:615
+#: warehouse/templates/manage/account.html:629
+#: warehouse/templates/manage/account.html:635
 msgid "Unique identifier:"
 msgstr "Identificador único:"
 
-#: warehouse/templates/manage/account.html:612
+#: warehouse/templates/manage/account.html:632
 msgid "API token automatically removed for security reasons"
 msgstr "La ficha de la API se eliminó automáticamente por razones de seguridad"
 
-#: warehouse/templates/manage/account.html:621
+#: warehouse/templates/manage/account.html:641
 #, python-format
 msgid "Reason: Token found at <a href=\"%(public_url)s\">public url</a>"
 msgstr ""
 "Razón: se encontró la ficha en un <a href=\"%(public_url)s\">URL público</a>"
 
-#: warehouse/templates/manage/account.html:630
+#: warehouse/templates/manage/account.html:650
 #, python-format
 msgid ""
 "Events appear here as security-related actions occur on your account. If you "
@@ -2706,45 +2709,45 @@ msgstr ""
 "href=\"%(faq_url)s\">emprenda medidas de seguridad para su cuenta</a> cuanto "
 "antes."
 
-#: warehouse/templates/manage/account.html:635
+#: warehouse/templates/manage/account.html:655
 msgid "Recent account activity"
 msgstr "Actividad reciente de la cuenta"
 
-#: warehouse/templates/manage/account.html:637
+#: warehouse/templates/manage/account.html:657
 #: warehouse/templates/manage/history.html:107
 msgid "Event"
 msgstr "Suceso"
 
-#: warehouse/templates/manage/account.html:638
-#: warehouse/templates/manage/account.html:646
+#: warehouse/templates/manage/account.html:658
+#: warehouse/templates/manage/account.html:666
 #: warehouse/templates/manage/history.html:108
 #: warehouse/templates/manage/history.html:117
 msgid "Date / time"
 msgstr "Fecha/hora"
 
-#: warehouse/templates/manage/account.html:639
-#: warehouse/templates/manage/account.html:650
+#: warehouse/templates/manage/account.html:659
+#: warehouse/templates/manage/account.html:670
 #: warehouse/templates/manage/history.html:109
 #: warehouse/templates/manage/history.html:121
 msgid "IP address"
 msgstr "Dirección IP"
 
-#: warehouse/templates/manage/account.html:658
+#: warehouse/templates/manage/account.html:678
 msgid ""
 "Events will appear here as security-related actions occur on your account."
 msgstr ""
 "Aquí figurarán sucesos a medida que se produzcan en su cuenta acciones "
 "relativas a la seguridad."
 
-#: warehouse/templates/manage/account.html:665
+#: warehouse/templates/manage/account.html:685
 msgid "Delete account"
 msgstr "Eliminar cuenta"
 
-#: warehouse/templates/manage/account.html:668
+#: warehouse/templates/manage/account.html:688
 msgid "Cannot delete account"
 msgstr "No se puede eliminar la cuenta"
 
-#: warehouse/templates/manage/account.html:670
+#: warehouse/templates/manage/account.html:690
 #, python-format
 msgid ""
 "\n"
@@ -2767,7 +2770,7 @@ msgstr[1] ""
 "%(count)s proyectos.\n"
 "        "
 
-#: warehouse/templates/manage/account.html:675
+#: warehouse/templates/manage/account.html:695
 msgid ""
 "\n"
 "          You must transfer ownership or delete this project before you can "
@@ -2789,7 +2792,7 @@ msgstr[1] ""
 "quiere eliminar su cuenta.\n"
 "        "
 
-#: warehouse/templates/manage/account.html:685
+#: warehouse/templates/manage/account.html:705
 #, python-format
 msgid ""
 "<a href=\"%(transfer_href)s\">transfer ownership</a> or <a href="
@@ -2798,16 +2801,16 @@ msgstr ""
 "<a href=\"%(transfer_href)s\">transferir titularidad</a> o <a href="
 "\"%(delete_href)s\">eliminar proyecto</a>"
 
-#: warehouse/templates/manage/account.html:694
+#: warehouse/templates/manage/account.html:714
 #: warehouse/templates/manage/token.html:169
 msgid "Proceed with caution!"
 msgstr "¡Prosiga con cautela!"
 
-#: warehouse/templates/manage/account.html:697
+#: warehouse/templates/manage/account.html:717
 msgid "You will not be able to recover your account after you delete it"
 msgstr "No podrá recuperar la cuenta después de que la elimine"
 
-#: warehouse/templates/manage/account.html:699
+#: warehouse/templates/manage/account.html:719
 msgid "Delete your PyPI account"
 msgstr "Eliminar su cuenta de PyPI"
 
@@ -3455,27 +3458,23 @@ msgstr ""
 
 #: warehouse/templates/manage/publishing.html:100
 msgid "repository"
-msgstr ""
+msgstr "repositorio"
 
 #: warehouse/templates/manage/publishing.html:107
-#, fuzzy
-#| msgid "Your name"
 msgid "Workflow name"
-msgstr "Su nombre"
+msgstr "Nombre del flujo de trabajo"
 
 #: warehouse/templates/manage/publishing.html:112
 msgid "workflow.yml"
-msgstr ""
+msgstr "flujodetrabajo.yml"
 
 #: warehouse/templates/manage/publishing.html:118
 msgid "Add"
-msgstr ""
+msgstr "Añadir"
 
 #: warehouse/templates/manage/publishing.html:122
-#, fuzzy
-#| msgid "Manage this project"
 msgid "Manage current providers"
-msgstr "Gestionar este proyecto"
+msgstr "Gestionar proveedores actuales"
 
 #: warehouse/templates/manage/publishing.html:126
 #, python-format
@@ -3487,10 +3486,8 @@ msgid "Publisher"
 msgstr ""
 
 #: warehouse/templates/manage/publishing.html:131
-#, fuzzy
-#| msgid "Verify application"
 msgid "Specification"
-msgstr "Verificar aplicación"
+msgstr "Especificación"
 
 #: warehouse/templates/manage/publishing.html:142
 msgid "No publishers are currently configured."
