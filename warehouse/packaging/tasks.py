@@ -56,8 +56,6 @@ def compute_2fa_mandate(request, project_names=None):
         )
         project_names = [row.get("project_name") for row in query.result()]
 
-    print(project_names)
-
     # Get the projects that were not previously in the mandate
     new_projects = request.db.query(Project).filter(
         Project.name.in_(project_names), Project.pypi_mandates_2fa.is_(False)
