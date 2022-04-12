@@ -1390,6 +1390,19 @@ msgid ""
 "to publish."
 msgstr ""
 
+#: warehouse/templates/email/new-organization-approved/body.html:17
+#, python-format
+msgid ""
+"Your new organization named \"%(organization_name)s\" has been approved "
+"and created."
+msgstr ""
+
+#: warehouse/templates/email/new-organization-approved/body.html:19
+msgid ""
+"You are the owner of the new organization and can log in to manage "
+"organization projects, collaborators, teams, or settings."
+msgstr ""
+
 #: warehouse/templates/email/new-organization-requested/body.html:17
 #, python-format
 msgid ""

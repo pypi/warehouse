@@ -310,6 +310,16 @@ def send_new_organization_requested_email(request, user, *, organization_name):
     return {"organization_name": organization_name}
 
 
+@_email("new-organization-approved")
+def send_new_organization_approved_email(
+    request, user, *, organization_name, message=""
+):
+    return {
+        "message": message,
+        "organization_name": organization_name,
+    }
+
+
 @_email("collaborator-added")
 def send_collaborator_added_email(
     request, email_recipients, *, user, submitter, project_name, role
