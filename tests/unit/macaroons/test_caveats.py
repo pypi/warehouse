@@ -11,13 +11,20 @@
 # limitations under the License.
 
 import json
+import time
 
 import pretend
 import pytest
 
 from pymacaroons.exceptions import MacaroonInvalidSignatureException
 
-from warehouse.macaroons.caveats import Caveat, InvalidMacaroonError, V1Caveat, Verifier
+from warehouse.macaroons.caveats import (
+    Caveat,
+    ExpiryCaveat,
+    InvalidMacaroonError,
+    V1Caveat,
+    Verifier,
+)
 
 from ...common.db.packaging import ProjectFactory
 
@@ -93,6 +100,56 @@ class TestV1Caveat:
 
         predicate = {"version": 1, "permissions": {"projects": ["foobar"]}}
         assert caveat(json.dumps(predicate)) is True
+
+
+class TestExpiryCaveat:
+    @pytest.mark.parametrize(
+        "predicate",
+        [
+            # invalid JSON
+            "invalid json",
+            # missing nbf and exp
+            '{"missing": "values"}',
+            # nbf and exp present, but null
+            '{"nbf": null, "exp": null}',
+            # nbf and exp present, but empty
+            '{"nbf": "", "exp": ""}',
+            # valid JSON, but wrong type
+            "[]",
+        ],
+    )
+    def test_verify_invalid_predicates(self, predicate):
+        verifier = pretend.stub()
+        caveat = ExpiryCaveat(verifier)
+
+        assert not caveat(predicate)
+
+    def test_verify_not_before(self):
+        verifier = pretend.stub()
+        caveat = ExpiryCaveat(verifier)
+
+        not_before = int(time.time()) + 60
+        expiry = not_before + 60
+        predicate = json.dumps({"exp": expiry, "nbf": not_before})
+        assert not caveat(predicate)
+
+    def test_verify_already_expired(self):
+        verifier = pretend.stub()
+        caveat = ExpiryCaveat(verifier)
+
+        not_before = int(time.time()) - 10
+        expiry = not_before - 5
+        predicate = json.dumps({"exp": expiry, "nbf": not_before})
+        assert not caveat(predicate)
+
+    def test_verify_ok(self):
+        verifier = pretend.stub()
+        caveat = ExpiryCaveat(verifier)
+
+        not_before = int(time.time()) - 10
+        expiry = int(time.time()) + 60
+        predicate = json.dumps({"exp": expiry, "nbf": not_before})
+        assert caveat(predicate)
 
 
 class TestVerifier:

@@ -11,6 +11,7 @@
 # limitations under the License.
 
 import json
+import time
 
 import pymacaroons
 
@@ -73,6 +74,25 @@ class V1Caveat(Caveat):
         return self.verify_projects(projects)
 
 
+class ExpiryCaveat(Caveat):
+    def verify(self, predicate):
+        try:
+            data = json.loads(predicate)
+            expiry = data["exp"]
+            not_before = data["nbf"]
+        except (KeyError, ValueError, TypeError):
+            return False
+
+        if not expiry or not not_before:
+            return False
+
+        now = int(time.time())
+        if now < not_before or now >= expiry:
+            return False
+
+        return True
+
+
 class Verifier:
     def __init__(self, macaroon, context, principals, permission):
         self.macaroon = macaroon
@@ -83,6 +103,7 @@ class Verifier:
 
     def verify(self, key):
         self.verifier.satisfy_general(V1Caveat(self))
+        self.verifier.satisfy_general(ExpiryCaveat(self))
 
         try:
             return self.verifier.verify(self.macaroon, key)
