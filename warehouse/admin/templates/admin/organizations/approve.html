@@ -22,18 +22,47 @@
   <div class="form-group">
     <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
     <span class="form-group__text">
-      {% trans username=username, user_full_name=user_full_name, user_link=request.route_url('accounts.profile', username=username), user_email=user_email, organization_name=organization_name %}
-      Would you like to approve this request by <a href="{{ user_link }}" title="{{ username }}">{{ user_full_name }}</a> (<a href="mailto:{{ user_email }}">{{ user_email }}</a>) to create a new organization named <strong>{{ organization_name }}</strong>?
+      {% trans organization_name=organization_name %}
+      The following request has been made to create a new organization named <strong>{{ organization_name }}</strong>.
+      {% endtrans %}
+    </span>
+  </div>
+  <hr>
+  <div class="form-group">
+    <span class="form-group__label">{% trans %}Requesting user{% endtrans %}</span>
+    <p class="form-group__text">
+      <a href="{{ request.route_url('accounts.profile', username=username) }}" title="{{ username }}">{{ user_full_name }}</a>
+      (<a href="mailto:{{ user_email }}">{{ user_email }}</a>)
+    </p>
+    <span class="form-group__label">{% trans %}Organization account name{% endtrans %}</span>
+    <p class="form-group__text">{{ organization_name }}</p>
+    <span class="form-group__label">{% trans %}Organization name{% endtrans %}</span>
+    <p class="form-group__text">{{ organization_display_name }}</p>
+    <span class="form-group__label">{% trans %}Organization URL{% endtrans %}</span>
+    <p class="form-group__text"><a href="{{ organization_link_url }}">{{ organization_link_url }}</a></p>
+    <span class="form-group__label">{% trans %}Organization description{% endtrans %}</span>
+    <p class="form-group__text">{{ organization_description }}</p>
+    <span class="form-group__label">{% trans %}Organization type{% endtrans %}</span>
+    <p class="form-group__text">{{ organization_orgtype }}</p>
+  </div>
+  <hr>
+  <div class="form-group">
+    <span class="form-group__text">
+      {% trans username=username, user_full_name=user_full_name, user_profile=request.route_url('accounts.profile', username=username), organization_name=organization_name %}
+      Would you like to approve or decline <a href="{{ user_profile }}" title="{{ username }}">{{ user_full_name }}</a>'s request to create the <strong>{{ organization_name }}</strong> organization?
       {% endtrans %}
     </span>
   </div>
   <div class="form-group">
-    <label for="message">Message</label>
-    <textarea class="form-control" id="message" name="message" placeholder="Enter an explanatory message…"></textarea>
-  </div>
-  <div>
     <input name="approve" type="submit" value="{% trans %}Approve{% endtrans %}" class="button button--primary">
     <input name="decline" type="submit" value="{% trans %}Decline{% endtrans %}" class="button">
+  </div>
+  <div class="form-group">
+    <label class="form-group__label hidden" for="message">Message</label>
+    <textarea class="form-group__field" id="message" name="message" placeholder="Optional explanatory message"></textarea>
+    <p class="form-group__help-text">
+      {% trans %}This message will be included in the notification email.{% endtrans %}
+    </p>
   </div>
 </form>
 {% endblock %}

@@ -22,4 +22,8 @@ class TestOrganizations:
             "user_full_name": "Example",
             "user_email": "webmaster@example.com",
             "organization_name": "example",
+            "organization_display_name": "Example",
+            "organization_url": "https://www.example.com/",
+            "organization_description": "This company is for use in illustrative examples in documents. You may use this company in literature without prior coordination or asking for permission.",
+            "organization_type": "Company",
         }
