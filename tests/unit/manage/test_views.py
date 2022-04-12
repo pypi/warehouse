@@ -1957,10 +1957,12 @@ class TestProvisionMacaroonViews:
                 location=request.domain,
                 user_id=request.user.id,
                 description=create_macaroon_obj.description.data,
-                caveats={
-                    "permissions": create_macaroon_obj.validated_scope,
-                    "version": 1,
-                },
+                caveats=[
+                    {
+                        "permissions": create_macaroon_obj.validated_scope,
+                        "version": 1,
+                    }
+                ],
             )
         ]
         assert result == {
@@ -1975,10 +1977,12 @@ class TestProvisionMacaroonViews:
                 tag="account:api_token:added",
                 additional={
                     "description": create_macaroon_obj.description.data,
-                    "caveats": {
-                        "permissions": create_macaroon_obj.validated_scope,
-                        "version": 1,
-                    },
+                    "caveats": [
+                        {
+                            "permissions": create_macaroon_obj.validated_scope,
+                            "version": 1,
+                        }
+                    ],
                 },
             )
         ]
@@ -2044,10 +2048,12 @@ class TestProvisionMacaroonViews:
                 location=request.domain,
                 user_id=request.user.id,
                 description=create_macaroon_obj.description.data,
-                caveats={
-                    "permissions": create_macaroon_obj.validated_scope,
-                    "version": 1,
-                },
+                caveats=[
+                    {
+                        "permissions": create_macaroon_obj.validated_scope,
+                        "version": 1,
+                    }
+                ],
             )
         ]
         assert result == {
@@ -2062,10 +2068,12 @@ class TestProvisionMacaroonViews:
                 tag="account:api_token:added",
                 additional={
                     "description": create_macaroon_obj.description.data,
-                    "caveats": {
-                        "permissions": create_macaroon_obj.validated_scope,
-                        "version": 1,
-                    },
+                    "caveats": [
+                        {
+                            "permissions": create_macaroon_obj.validated_scope,
+                            "version": 1,
+                        }
+                    ],
                 },
             )
         ]
@@ -2154,9 +2162,7 @@ class TestProvisionMacaroonViews:
         assert macaroon_service.delete_macaroon.calls == []
 
     def test_delete_macaroon(self, monkeypatch):
-        macaroon = pretend.stub(
-            description="fake macaroon", caveats={"version": 1, "permissions": "user"}
-        )
+        macaroon = pretend.stub(description="fake macaroon", permissions_caveat="user")
         macaroon_service = pretend.stub(
             delete_macaroon=pretend.call_recorder(lambda id: pretend.stub()),
             find_macaroon=pretend.call_recorder(lambda id: macaroon),
@@ -2213,7 +2219,7 @@ class TestProvisionMacaroonViews:
     def test_delete_macaroon_records_events_for_each_project(self, monkeypatch):
         macaroon = pretend.stub(
             description="fake macaroon",
-            caveats={"version": 1, "permissions": {"projects": ["foo", "bar"]}},
+            permissions_caveat={"projects": ["foo", "bar"]},
         )
         macaroon_service = pretend.stub(
             delete_macaroon=pretend.call_recorder(lambda id: pretend.stub()),

@@ -554,7 +554,10 @@ def test_analyze_disclosure(monkeypatch):
     user_id = uuid.UUID(bytes=b"0" * 16)
     user = pretend.stub(id=user_id)
     database_macaroon = pretend.stub(
-        user=user, id=12, caveats={"permissions": "user"}, description="foo"
+        user=user,
+        id=12,
+        permissions_caveat={"permissions": "user", "version": 1},
+        description="foo",
     )
 
     find = pretend.call_recorder(lambda *a, **kw: database_macaroon)

@@ -135,7 +135,13 @@ class DatabaseMacaroonService:
         """
         user = self.db.query(User).filter(User.id == user_id).one()
 
-        dm = Macaroon(user=user, description=description, caveats=caveats)
+        # NOTE: This is a bit of a hack: we keep a separate copy of the
+        # permissions caveat in the DB, so that we can display scope information
+        # in the UI.
+        permissions = next(c for c in caveats if "permissions" in c)  # pragma: no cover
+        dm = Macaroon(
+            user=user, description=description, permissions_caveat=permissions
+        )
         self.db.add(dm)
         self.db.flush()
 
@@ -145,7 +151,8 @@ class DatabaseMacaroonService:
             key=dm.key,
             version=pymacaroons.MACAROON_V2,
         )
-        m.add_first_party_caveat(json.dumps(caveats))
+        for caveat in caveats:
+            m.add_first_party_caveat(json.dumps(caveat))
         serialized_macaroon = f"pypi-{m.serialize()}"
         return serialized_macaroon, dm
 

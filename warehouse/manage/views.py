@@ -879,7 +879,7 @@ class ProvisionMacaroonViews:
 
         response = {**self.default_response}
         if form.validate():
-            macaroon_caveats = {"permissions": form.validated_scope, "version": 1}
+            macaroon_caveats = [{"permissions": form.validated_scope, "version": 1}]
             serialized_macaroon, macaroon = self.macaroon_service.create_macaroon(
                 location=self.request.domain,
                 user_id=self.request.user.id,
@@ -941,12 +941,12 @@ class ProvisionMacaroonViews:
                 tag="account:api_token:removed",
                 additional={"macaroon_id": form.macaroon_id.data},
             )
-            if "projects" in macaroon.caveats["permissions"]:
+            if "projects" in macaroon.permissions_caveat:
                 projects = [
                     project
                     for project in self.request.user.projects
                     if project.normalized_name
-                    in macaroon.caveats["permissions"]["projects"]
+                    in macaroon.permissions_caveat["projects"]
                 ]
                 for project in projects:
                     project.record_event(
