@@ -14,7 +14,7 @@
 {% extends "email/_base/body.txt" %}
 
 {% block content %}
-Your request for a new PyPI organization named "{{ organization_name }}" has been submitted.
+{% trans organization_name=organization_name %}Your request for a new PyPI organization named "{{ organization_name }}" has been submitted.{% endtrans %}
 
-You will receive another email when the PyPI organization has been approved.
+{% trans %}You will receive another email when the PyPI organization has been approved.{% endtrans %}
 {% endblock %}

@@ -14,4 +14,4 @@
 
 {% extends "email/_base/subject.txt" %}
 
-{% block subject %}{% trans %}Your request for a new organization named "{{ organization_name }}" has been submitted{% endtrans %}{% endblock %}
+{% block subject %}{% trans organization_name=organization_name %}Your request for a new organization named "{{ organization_name }}" has been submitted{% endtrans %}{% endblock %}
