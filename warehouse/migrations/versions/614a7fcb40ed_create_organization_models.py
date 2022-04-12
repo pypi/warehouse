@@ -18,6 +18,7 @@ Create Date: 2022-04-13 17:23:17.396325
 """
 
 import sqlalchemy as sa
+import sqlalchemy_utils
 
 from alembic import op
 from sqlalchemy.dialects import postgresql
@@ -47,14 +48,12 @@ def upgrade():
         ),
         sa.Column("name", sa.Text(), nullable=False),
         sa.Column("display_name", sa.Text(), nullable=False),
-        sa.Column(
-            "orgtype",
-            sa.Enum("Community", "Company", name="organizationtype"),
-            nullable=False,
-        ),
+        sa.Column("orgtype", sa.Text(), nullable=False),
         sa.Column("link_url", sqlalchemy_utils.types.url.URLType(), nullable=False),
         sa.Column("description", sa.Text(), nullable=False),
-        sa.Column("is_active", sa.Boolean(), nullable=False),
+        sa.Column(
+            "is_active", sa.Boolean(), nullable=False, server_default=sa.sql.false()
+        ),
         sa.Column("is_approved", sa.Boolean(), nullable=True),
         sa.Column(
             "created", sa.DateTime(), server_default=sa.text("now()"), nullable=False
@@ -77,11 +76,7 @@ def upgrade():
             server_default=sa.text("gen_random_uuid()"),
             nullable=False,
         ),
-        sa.Column(
-            "invite_status",
-            sa.Enum("pending", "expired", name="organizationinvitationstatus"),
-            nullable=False,
-        ),
+        sa.Column("invite_status", sa.Text(), nullable=False),
         sa.Column("token", sa.Text(), nullable=False),
         sa.Column("user_id", postgresql.UUID(as_uuid=True), nullable=False),
         sa.Column("organization_id", postgresql.UUID(as_uuid=True), nullable=False),
@@ -162,7 +157,9 @@ def upgrade():
             server_default=sa.text("gen_random_uuid()"),
             nullable=False,
         ),
-        sa.Column("is_active", sa.Boolean(), nullable=False),
+        sa.Column(
+            "is_active", sa.Boolean(), nullable=False, server_default=sa.sql.false()
+        ),
         sa.Column("organization_id", postgresql.UUID(as_uuid=True), nullable=False),
         sa.Column("project_id", postgresql.UUID(as_uuid=True), nullable=False),
         sa.ForeignKeyConstraint(
