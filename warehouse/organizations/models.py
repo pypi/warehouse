@@ -108,6 +108,12 @@ class OrganizationProject(db.Model):
 #            raise KeyError from None
 
 
+class OrganizationType(enum.Enum):
+
+    Pending = "Community"
+    Expired = "Company"
+
+
 # TODO: Determine if this should also utilize SitemapMixin and TwoFactorRequireable
 # class Project(SitemapMixin, TwoFactorRequireable, db.Model):
 class Organization(db.Model):
@@ -124,15 +130,24 @@ class Organization(db.Model):
     name = Column(Text, nullable=False)
     normalized_name = orm.column_property(func.normalize_pep426_name(name))
     display_name = Column(Text, nullable=False)
-    orgtype = Column(Text, nullable=False)
-    url = Column(URLType, nullable=False)
-    desc = Column(Text, nullable=False)
+    orgtype = Column(
+        Enum(OrganizationType, values_callable=lambda x: [e.value for e in x]),
+        nullable=False,
+    )
+    link_url = Column(URLType, nullable=False)
+    description = Column(Text, nullable=False)
     is_active = Column(Boolean)
+    is_approved = Column(Boolean)
     created = Column(
         DateTime(timezone=False),
         nullable=False,
         server_default=sql.func.now(),
         index=True,
+    )
+    date_approved = Column(
+        DateTime(timezone=False),
+        nullable=True,
+        onupdate=func.now(),
     )
 
     # TODO: Determine if cascade applies to any of these relationships

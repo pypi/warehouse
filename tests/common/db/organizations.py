@@ -38,9 +38,9 @@ class OrganizationFactory(WarehouseFactory):
     name = factory.Faker("name")
     normalized_name = factory.Faker("norm")
     display_name = factory.Faker("display")
-    orgtype = factory.Faker("sometype")
-    url = factory.Faker("uri")
-    desc = factory.Faker("description")
+    orgtype = factory.Faker("Community")
+    link_url = factory.Faker("uri")
+    description = factory.Faker("description")
     is_active = True
     created = factory.Faker(
         "date_time_between_dates",
