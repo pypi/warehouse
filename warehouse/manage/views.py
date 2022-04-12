@@ -70,6 +70,7 @@ from warehouse.manage.forms import (
     ChangeRoleForm,
     ConfirmPasswordForm,
     CreateMacaroonForm,
+    CreateOrganizationForm,
     CreateRoleForm,
     DeleteMacaroonForm,
     DeleteTOTPForm,
@@ -969,15 +970,47 @@ class ProvisionMacaroonViews:
         return HTTPSeeOther(redirect_to)
 
 
-@view_config(
+@view_defaults(
     route_name="manage.organizations",
     renderer="manage/organizations.html",
     uses_session=True,
+    require_csrf=True,
+    require_methods=False,
     permission="manage:user",
     has_translations=True,
 )
-def manage_organizations(request):
-    return {}
+class ManageOrganizationsViews:
+    def __init__(self, request):
+        self.request = request
+        # TODO: self.organization_service = request.find_service(IOrganizationService, context=None)
+
+    @property
+    def default_response(self):
+        return {
+            "create_organization_form": CreateOrganizationForm(
+                # TODO: organization_service=self.organization_service,
+            ),
+        }
+
+    @view_config(request_method="GET")
+    def manage_organizations(self):
+        return self.default_response
+
+    @view_config(request_method="POST", request_param=CreateOrganizationForm.__params__)
+    def create_organization(self):
+        form = CreateOrganizationForm(
+            self.request.POST,
+            # TODO: organization_service=self.organization_service,
+        )
+
+        if form.validate():
+            data = form.data
+            # TODO: self.organization_service.create_organization(**data)
+            self.request.session.flash(
+                "Request for new organization submitted", queue="success"
+            )
+
+        return self.default_response
 
 
 @view_config(

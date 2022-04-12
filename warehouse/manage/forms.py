@@ -27,6 +27,8 @@ from warehouse.accounts.forms import (
 )
 from warehouse.i18n import localize as _
 
+# /manage/account/ forms
+
 
 class RoleNameMixin:
 
@@ -303,3 +305,96 @@ class Toggle2FARequirementForm(forms.Form):
     __params__ = ["two_factor_requirement_sentinel"]
 
     two_factor_requirement_sentinel = wtforms.HiddenField()
+
+
+# /manage/organizations/ forms
+
+
+class NewOrganizationNameMixin:
+
+    name = wtforms.StringField(
+        validators=[
+            wtforms.validators.DataRequired(
+                message="Specify organization account name"
+            ),
+            wtforms.validators.Length(
+                max=50,
+                message=_(
+                    "Choose an organization account name with 50 characters or less."
+                ),
+            ),
+            # the regexp below must match the CheckConstraint
+            # for the name field in organizations.model.Organization
+            wtforms.validators.Regexp(
+                r"^[a-zA-Z0-9][a-zA-Z0-9._-]*[a-zA-Z0-9]$",
+                message=_(
+                    "The organization account name is invalid. "
+                    "Organization account names "
+                    "must be composed of letters, numbers, "
+                    "dots, hyphens and underscores. And must "
+                    "also start and finish with a letter or number. "
+                    "Choose a different organization account name."
+                ),
+            ),
+        ]
+    )
+
+    def validate_name(self, field):
+        if self.organization_service.find_organizationid(field.data) is not None:
+            raise wtforms.validators.ValidationError(
+                _(
+                    "This organization account name is already being "
+                    "used by another account. Choose a different "
+                    "organization account name."
+                )
+            )
+
+
+class CreateOrganizationForm(forms.Form, NewOrganizationNameMixin):
+
+    __params__ = ["name", "display_name", "link_url", "description", "orgtype"]
+
+    display_name = wtforms.StringField(
+        validators=[
+            wtforms.validators.DataRequired(message="Specify your organization name"),
+            wtforms.validators.Length(
+                max=100,
+                message=_(
+                    "The organization name is too long. "
+                    "Choose a organization name with 100 characters or less."
+                ),
+            ),
+        ]
+    )
+    link_url = wtforms.URLField(
+        validators=[
+            wtforms.validators.DataRequired(message="Specify your organization URL"),
+            wtforms.validators.Length(
+                max=400,
+                message=_(
+                    "The organization URL is too long. "
+                    "Choose a organization URL with 400 characters or less."
+                ),
+            ),
+        ]
+    )
+    description = wtforms.TextAreaField(
+        validators=[
+            wtforms.validators.DataRequired(
+                message="Specify your organization description"
+            ),
+            wtforms.validators.Length(
+                max=400,
+                message=_(
+                    "The organization description is too long. "
+                    "Choose a organization description with 400 characters or less."
+                ),
+            ),
+        ]
+    )
+    orgtype = wtforms.SelectField(
+        choices=[("Company", "Company"), ("Community", "Community")],
+        validators=[
+            wtforms.validators.DataRequired(message="Select organization type"),
+        ],
+    )
