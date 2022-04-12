@@ -1292,6 +1292,21 @@ msgid ""
 "%(initiator_username)s to a project on %(site)s."
 msgstr ""
 
+#: warehouse/templates/email/admin-new-organization-requested/body.html:17
+#, python-format
+msgid ""
+"<a href=\"%(initiator_profile)s\">%(initiator_username)s</a> has "
+"requested approval to create a new PyPI organization named "
+"\"%(organization_name)s\"."
+msgstr ""
+
+#: warehouse/templates/email/admin-new-organization-requested/body.html:19
+#, python-format
+msgid ""
+"Please follow <a href=\"%(approve_organization_link)s\">this link</a> to "
+"approve or decline the request."
+msgstr ""
+
 #: warehouse/templates/email/basic-auth-with-2fa/body.html:17
 #: warehouse/templates/email/password-compromised-hibp/body.html:18
 #: warehouse/templates/email/password-compromised/body.html:18
@@ -1327,6 +1342,19 @@ msgid ""
 "%(new_token_url)s. Then, use this token when publishing instead of your "
 "username and password. See %(token_help_url)s for help using API tokens "
 "to publish."
+msgstr ""
+
+#: warehouse/templates/email/new-organization-requested/body.html:17
+#, python-format
+msgid ""
+"Your request for a new PyPI organization named \"%(organization_name)s\" "
+"has been submitted."
+msgstr ""
+
+#: warehouse/templates/email/new-organization-requested/body.html:19
+msgid ""
+"You will receive another email when the PyPI organization has been "
+"approved."
 msgstr ""
 
 #: warehouse/templates/email/oidc-provider-added/body.html:19
