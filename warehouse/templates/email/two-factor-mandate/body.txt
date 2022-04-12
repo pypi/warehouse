@@ -18,7 +18,7 @@ Congratulations! A project you ('{{ username }}') maintain has been designated a
 
 As part of this effort, in the coming months maintainers of projects designated as critical will be required to enable two-factor authentication on their account in order to add new releases or otherwise modify a critical project.
 
-{% if has_to_factor -%}
+{% if has_two_factor -%}
 Since you already have two-factor authentication enabled on your account, there's nothing you need to do at this time.
 {%- else -%}
 You can enable two-factor authenticaion on your account today by visiting {{ request.route_url("accounts.two-factor") }}.
