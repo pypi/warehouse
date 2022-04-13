@@ -33,13 +33,13 @@ black==22.3.0 \
     --hash=sha256:ee8f1f7228cce7dffc2b464f07ce769f478968bfb3dd1254a4c2eeed84928aad \
     --hash=sha256:fd57160949179ec517d32ac2ac898b5f20d68ed1a9c977346efbac9c2f1e779d
     # via -r requirements/lint.in
-boto3-stubs==1.21.34.post1 \
-    --hash=sha256:214219c485b1a1bf0bbe5e1844b1350b64a679116f3184ea871c82021b213667 \
-    --hash=sha256:4dc68d80bce370b229fbdc0105e7fe51c1d068595eef0178090108d959551ffc
+boto3-stubs==1.21.38 \
+    --hash=sha256:07d5a9a44b30dee98710661ce16022999f22f952502862457831fb3c901910d5 \
+    --hash=sha256:17faf27a8648dfbc692a1bed746ae8cd3c47e413f8860286c987727d880697de
     # via types-boto3
-botocore-stubs==1.24.34.post1 \
-    --hash=sha256:2b30685bbd6efa8aff55886a1a8b99938b0a1dd58cc1568550115893dfd67d35 \
-    --hash=sha256:5ff4fa24abde15995d3c9dc85a29bf56d46acf96be4433a0fac966e486f68b75
+botocore-stubs==1.24.38 \
+    --hash=sha256:5a07f6ecdaf166cd969bf97e77561f6ce65c5de96f0532f102f8ba7382499ee2 \
+    --hash=sha256:fd865543222dea2178453e1c9b98bdc5fc768904015b36100352258739c8d35c
     # via boto3-stubs
 celery-types==0.12.0 \
     --hash=sha256:22a0b46d04508bbdb5074d070ebac6179550c2aa8506e1b05b74850d61d4fa82 \
@@ -192,9 +192,9 @@ types-itsdangerous==1.1.6 \
     --hash=sha256:21c6966c10e353a5d35d36c82aaa2c5598d3bc32ddc8e0591276da5ad2e3c638 \
     --hash=sha256:aef2535c2fa0527dcce244ece0792b20ec02ee46533800735275f82a45a0244d
     # via -r requirements/lint.in
-types-psycopg2==2.9.9 \
-    --hash=sha256:4f9d4d52eeb343dc00fd5ed4f1513a8a5c18efba0a072eb82706d15cf4f20a2e \
-    --hash=sha256:cec9291d4318ad70b407310f8304b3d40f6d0358f09870448f7a65e3027c80af
+types-psycopg2==2.9.10 \
+    --hash=sha256:7da700d095528cc4b845429420e593f1b14c92307df47046e9fa8223343464c6 \
+    --hash=sha256:d64887afc41d2b1136cef10aa5cc407fbad314e28b4dbb47d3a8f8e937d1b040
     # via -r requirements/lint.in
 types-python-slugify==5.0.3 \
     --hash=sha256:76169f4a6d40896fea76fb45a25c50ac7ba2ca03eee759ecac322a05fe4dd21c \
@@ -292,9 +292,9 @@ zope-schema==6.2.0 \
     # via mypy-zope
 
 # The following packages are considered to be unsafe in a requirements file:
-setuptools==62.0.0 \
-    --hash=sha256:7999cbd87f1b6e1f33bf47efa368b224bed5e27b5ef2c4d46580186cbcb1a86a \
-    --hash=sha256:a65e3802053e99fc64c6b3b29c11132943d5b8c8facbcc461157511546510967
+setuptools==62.1.0 \
+    --hash=sha256:26ead7d1f93efc0f8c804d9fafafbe4a44b179580a7105754b245155f9af05a8 \
+    --hash=sha256:47c7b0c0f8fc10eec4cf1e71c6fdadf8decaa74ffa087e68cd1c20db7ad6a592
     # via
     #   zope-interface
     #   zope-schema

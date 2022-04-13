@@ -197,6 +197,20 @@ Once ``make build`` has finished,  run the command:
 
 .. code-block:: console
 
+    make initdb
+
+This command will:
+
+* create a new Postgres database,
+* install example data to the Postgres database,
+* run migrations,
+* load some example data from `Test PyPI`_, and
+* index all the data for the search database.
+
+Once the ``make initdb`` command has finished, you are ready to continue:
+
+.. code-block:: console
+
     make serve
 
 This command starts the containers that run Warehouse on your local machine.
@@ -225,23 +239,6 @@ or that the ``static`` container has finished compiling the static assets:
     static_1 | [20:28:37] Finished 'watch' after 11 ms
 
 or maybe something else.
-
-After the docker containers are setup in the previous step, in a separate
-terminal session, run:
-
-.. code-block:: console
-
-    make initdb
-
-This command will:
-
-* create a new Postgres database,
-* install example data to the Postgres database,
-* run migrations,
-* load some example data from `Test PyPI`_, and
-* index all the data for the search database.
-
-Once the ``make initdb`` command has finished, you are ready to continue.
 
 
 Viewing Warehouse in a browser

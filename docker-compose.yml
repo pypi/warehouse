@@ -1,4 +1,4 @@
-version: '3'
+version: '3.9'
 
 volumes:
   simple:
@@ -29,6 +29,8 @@ services:
     ports:
       # 5432 may already in use by another PostgreSQL on host
       - "5433:5432"
+    healthcheck:
+      test: ["CMD", "pg_isready", "-d", "postgres"]
 
   redis:
     image: redis:4.0
@@ -92,7 +94,12 @@ services:
     ports:
       - "${WEB_PORT:-80}:8000"
     depends_on:
-      - db
+      db:
+        condition: service_healthy
+      elasticsearch:
+        condition: service_started
+      redis:
+        condition: service_started
 
   files:
     build:

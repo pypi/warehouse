@@ -681,7 +681,7 @@ msgstr "モバイル版に切替"
 #: warehouse/templates/base.html:172
 #: warehouse/templates/includes/flash-messages.html:30
 #: warehouse/templates/includes/session-notifications.html:20
-#: warehouse/templates/manage/account.html:696
+#: warehouse/templates/manage/account.html:716
 #: warehouse/templates/manage/documentation.html:27
 #: warehouse/templates/manage/manage_base.html:278
 #: warehouse/templates/manage/manage_base.html:330
@@ -2463,29 +2463,45 @@ msgstr ""
 "アカウントに APIトークンを追加するには<a href=\"%(href)s\">主要メールアドレス"
 "を確認してください</a>。"
 
-#: warehouse/templates/manage/account.html:466
+#: warehouse/templates/manage/account.html:467
+#: warehouse/templates/manage/account.html:637
+msgid "Token scope: entire account"
+msgstr "トークンのスコープ: アカウント全体"
+
+#: warehouse/templates/manage/account.html:469
+#: warehouse/templates/manage/account.html:639
+#, python-format
+msgid "Token scope: Project %(project_name)s"
+msgstr "トークンスコープ: プロジェクト %(project_name)s"
+
+#: warehouse/templates/manage/account.html:472
+#, python-format
+msgid "Expires: %(exp)s"
+msgstr ""
+
+#: warehouse/templates/manage/account.html:478
 msgid "Account created"
 msgstr "アカウントを作成"
 
-#: warehouse/templates/manage/account.html:469
+#: warehouse/templates/manage/account.html:481
 msgid "Logged in"
 msgstr "ログイン"
 
-#: warehouse/templates/manage/account.html:471
+#: warehouse/templates/manage/account.html:483
 msgid "Two factor method:"
 msgstr "二要素認証の方法:"
 
-#: warehouse/templates/manage/account.html:473
+#: warehouse/templates/manage/account.html:485
 #: warehouse/templates/manage/release.html:58
 msgid "None"
 msgstr "なし"
 
-#: warehouse/templates/manage/account.html:475
+#: warehouse/templates/manage/account.html:487
 #: warehouse/templates/manage/manage_base.html:75
 msgid "Security device (<abbr title=\"web authentication\">WebAuthn</abbr>)"
 msgstr "セキュリティ端末 (<abbr title=\"web authentication\">WebAuthn</abbr>)"
 
-#: warehouse/templates/manage/account.html:477
+#: warehouse/templates/manage/account.html:489
 #: warehouse/templates/manage/manage_base.html:62
 msgid ""
 "Authentication application (<abbr title=\"time-based one-time password"
@@ -2494,146 +2510,146 @@ msgstr ""
 "認証アプリケーション (<abbr title=\"time-based one-time password\">TOTP</"
 "abbr>)"
 
-#: warehouse/templates/manage/account.html:479
+#: warehouse/templates/manage/account.html:491
 #, fuzzy
 #| msgid "Recovery Codes"
 msgid "Recovery code"
 msgstr "リカバリーコード"
 
-#: warehouse/templates/manage/account.html:484
+#: warehouse/templates/manage/account.html:496
 msgid "Login failed"
 msgstr ""
 
-#: warehouse/templates/manage/account.html:487
+#: warehouse/templates/manage/account.html:499
 msgid "- Basic Auth (Upload endpoint)"
 msgstr ""
 
-#: warehouse/templates/manage/account.html:492
-#: warehouse/templates/manage/account.html:511
+#: warehouse/templates/manage/account.html:504
+#: warehouse/templates/manage/account.html:523
 #: warehouse/templates/manage/history.html:84
 msgid "Reason:"
 msgstr "理由:"
 
-#: warehouse/templates/manage/account.html:494
-#: warehouse/templates/manage/account.html:513
+#: warehouse/templates/manage/account.html:506
+#: warehouse/templates/manage/account.html:525
 #, fuzzy
 #| msgid "Your current password"
 msgid "Incorrect Password"
 msgstr "現在のパスワード"
 
-#: warehouse/templates/manage/account.html:496
+#: warehouse/templates/manage/account.html:508
 #, fuzzy
 #| msgid "Invalid or expired two factor login."
 msgid "Invalid two factor (TOTP)"
 msgstr "不正または期限切れの二要素ログイン。"
 
-#: warehouse/templates/manage/account.html:498
+#: warehouse/templates/manage/account.html:510
 #, fuzzy
 #| msgid "Invalid or expired two factor login."
 msgid "Invalid two factor (WebAuthn)"
 msgstr "不正または期限切れの二要素ログイン。"
 
 # | msgid "Invalid TOTP code."
-#: warehouse/templates/manage/account.html:500
-#: warehouse/templates/manage/account.html:502
+#: warehouse/templates/manage/account.html:512
+#: warehouse/templates/manage/account.html:514
 #, fuzzy
 msgid "Invalid two factor (Recovery code)"
 msgstr "不正なTOTPコード。"
 
-#: warehouse/templates/manage/account.html:509
+#: warehouse/templates/manage/account.html:521
 #, fuzzy
 #| msgid "Two factor authentication added"
 msgid "Session reauthentication failed"
 msgstr "二要素認証が追加されました"
 
-#: warehouse/templates/manage/account.html:520
+#: warehouse/templates/manage/account.html:532
 msgid "Email added to account"
 msgstr "アカウントへメールアドレスが追加されました"
 
-#: warehouse/templates/manage/account.html:523
+#: warehouse/templates/manage/account.html:535
 msgid "Email removed from account"
 msgstr "アカウントからメールアドレスが削除されました"
 
-#: warehouse/templates/manage/account.html:526
+#: warehouse/templates/manage/account.html:538
 msgid "Email verified"
 msgstr "メールアドレスが確認されました"
 
-#: warehouse/templates/manage/account.html:529
+#: warehouse/templates/manage/account.html:541
 msgid "Email reverified"
 msgstr "メールの再確認"
 
-#: warehouse/templates/manage/account.html:533
+#: warehouse/templates/manage/account.html:545
 msgid "Primary email changed"
 msgstr "主要メールアドレスを変更"
 
-#: warehouse/templates/manage/account.html:535
+#: warehouse/templates/manage/account.html:547
 msgid "Old primary email:"
 msgstr "以前の主要メールアドレス:"
 
-#: warehouse/templates/manage/account.html:536
+#: warehouse/templates/manage/account.html:548
 msgid "New primary email:"
 msgstr "新しい主要メールアドレス:"
 
-#: warehouse/templates/manage/account.html:539
+#: warehouse/templates/manage/account.html:551
 msgid "Primary email set"
 msgstr "主要メールアドレスを設定"
 
-#: warehouse/templates/manage/account.html:545
+#: warehouse/templates/manage/account.html:557
 #, fuzzy
 #| msgid "Reset email sent"
 msgid "Email sent"
 msgstr "リセットのメールが送信されました"
 
-#: warehouse/templates/manage/account.html:547
+#: warehouse/templates/manage/account.html:559
 #, fuzzy
 msgid "From:"
 msgstr "From:"
 
-#: warehouse/templates/manage/account.html:548
+#: warehouse/templates/manage/account.html:560
 #, fuzzy
 msgid "To:"
 msgstr "To:"
 
-#: warehouse/templates/manage/account.html:549
+#: warehouse/templates/manage/account.html:561
 msgid "Subject:"
 msgstr "Subject:"
 
-#: warehouse/templates/manage/account.html:553
+#: warehouse/templates/manage/account.html:565
 msgid "Password reset requested"
 msgstr "パスワードリセットが要求されました"
 
-#: warehouse/templates/manage/account.html:555
+#: warehouse/templates/manage/account.html:567
 #, fuzzy
 #| msgid "Password reset requested"
 msgid "Password reset attempted"
 msgstr "パスワードリセットが要求されました"
 
-#: warehouse/templates/manage/account.html:557
+#: warehouse/templates/manage/account.html:569
 msgid "Password successfully reset"
 msgstr "パスワードのリセットが成功しました"
 
-#: warehouse/templates/manage/account.html:559
+#: warehouse/templates/manage/account.html:571
 msgid "Password successfully changed"
 msgstr "パスワードが正常に変更されました"
 
-#: warehouse/templates/manage/account.html:562
+#: warehouse/templates/manage/account.html:574
 msgid "Two factor authentication added"
 msgstr "二要素認証が追加されました"
 
-#: warehouse/templates/manage/account.html:565
-#: warehouse/templates/manage/account.html:575
+#: warehouse/templates/manage/account.html:577
+#: warehouse/templates/manage/account.html:587
 msgid ""
 "Method: Security device (<abbr title=\"web authentication\">WebAuthn</abbr>)"
 msgstr ""
 "方式: セキュリティ端末 (<abbr title=\"web authentication\">WebAuthn</abbr>)"
 
-#: warehouse/templates/manage/account.html:566
-#: warehouse/templates/manage/account.html:576
+#: warehouse/templates/manage/account.html:578
+#: warehouse/templates/manage/account.html:588
 msgid "Device name:"
 msgstr "端末名:"
 
-#: warehouse/templates/manage/account.html:568
-#: warehouse/templates/manage/account.html:578
+#: warehouse/templates/manage/account.html:580
+#: warehouse/templates/manage/account.html:590
 msgid ""
 "Method: Authentication application (<abbr title=\"time-based one-time "
 "password\">TOTP</abbr>)"
@@ -2641,72 +2657,61 @@ msgstr ""
 "方法: 認証アプリケーション（<abbr title=\"time-based one-time password"
 "\">TOTP</abbr>）"
 
-#: warehouse/templates/manage/account.html:572
+#: warehouse/templates/manage/account.html:584
 msgid "Two factor authentication removed"
 msgstr "二要素認証が削除されました"
 
-#: warehouse/templates/manage/account.html:583
+#: warehouse/templates/manage/account.html:595
 #, fuzzy
 #| msgid "Recovery Codes"
 msgid "Recovery codes generated"
 msgstr "リカバリーコード"
 
-#: warehouse/templates/manage/account.html:587
+#: warehouse/templates/manage/account.html:599
 #, fuzzy
 #| msgid "Recovery Codes"
 msgid "Recovery codes regenerated"
 msgstr "リカバリーコード"
 
-#: warehouse/templates/manage/account.html:591
+#: warehouse/templates/manage/account.html:603
 #, fuzzy
 #| msgid "Recovery Codes"
 msgid "Recovery code used for login"
 msgstr "リカバリーコード"
 
-#: warehouse/templates/manage/account.html:597
+#: warehouse/templates/manage/account.html:609
 #: warehouse/templates/manage/history.html:65
 msgid "API token added"
 msgstr "APIトークンが追加されました"
 
-#: warehouse/templates/manage/account.html:599
-#: warehouse/templates/manage/account.html:614
+#: warehouse/templates/manage/account.html:611
+#: warehouse/templates/manage/account.html:634
 #: warehouse/templates/manage/history.html:69
 #: warehouse/templates/manage/history.html:76
 msgid "Token name:"
 msgstr "トークン名:"
 
-#: warehouse/templates/manage/account.html:601
-#: warehouse/templates/manage/account.html:617
-msgid "Token scope: entire account"
-msgstr "トークンのスコープ: アカウント全体"
-
-#: warehouse/templates/manage/account.html:603
-#: warehouse/templates/manage/account.html:619
-#, python-format
-msgid "Token scope: Project %(project_name)s"
-msgstr "トークンスコープ: プロジェクト %(project_name)s"
-
-#: warehouse/templates/manage/account.html:608
+#: warehouse/templates/manage/account.html:628
 #: warehouse/templates/manage/history.html:72
 msgid "API token removed"
 msgstr "APIトークンが削除されました"
 
-#: warehouse/templates/manage/account.html:609
-#: warehouse/templates/manage/account.html:615
+#: warehouse/templates/manage/account.html:629
+#: warehouse/templates/manage/account.html:635
 msgid "Unique identifier:"
 msgstr "一意の識別子:"
 
-#: warehouse/templates/manage/account.html:612
+#: warehouse/templates/manage/account.html:632
 msgid "API token automatically removed for security reasons"
 msgstr "セキュリティ上の理由によりAPIトークンは自動的に削除されました"
 
-#: warehouse/templates/manage/account.html:621
+#: warehouse/templates/manage/account.html:641
 #, fuzzy, python-format
 #| msgid "Displayed on your <a href=\"%(href)s\">public profile</a>"
 msgid "Reason: Token found at <a href=\"%(public_url)s\">public url</a>"
 msgstr "<a href=\"%(href)s\">公開プロフィール</a>に表示されます"
 
-#: warehouse/templates/manage/account.html:630
+#: warehouse/templates/manage/account.html:650
 #, python-format
 msgid ""
 "Events appear here as security-related actions occur on your account. If you "
@@ -2717,45 +2722,45 @@ msgstr ""
 "合、今すぐ<a href=\"%(faq_url)s\">アカウントのセキリュティを強化</a>してくだ"
 "さい。"
 
-#: warehouse/templates/manage/account.html:635
+#: warehouse/templates/manage/account.html:655
 msgid "Recent account activity"
 msgstr "最近のアカウントアクティビティ"
 
-#: warehouse/templates/manage/account.html:637
+#: warehouse/templates/manage/account.html:657
 #: warehouse/templates/manage/history.html:107
 msgid "Event"
 msgstr "イベント"
 
-#: warehouse/templates/manage/account.html:638
-#: warehouse/templates/manage/account.html:646
+#: warehouse/templates/manage/account.html:658
+#: warehouse/templates/manage/account.html:666
 #: warehouse/templates/manage/history.html:108
 #: warehouse/templates/manage/history.html:117
 msgid "Date / time"
 msgstr "日時"
 
-#: warehouse/templates/manage/account.html:639
-#: warehouse/templates/manage/account.html:650
+#: warehouse/templates/manage/account.html:659
+#: warehouse/templates/manage/account.html:670
 #: warehouse/templates/manage/history.html:109
 #: warehouse/templates/manage/history.html:121
 msgid "IP address"
 msgstr "IPアドレス"
 
-#: warehouse/templates/manage/account.html:658
+#: warehouse/templates/manage/account.html:678
 msgid ""
 "Events will appear here as security-related actions occur on your account."
 msgstr ""
 "アカウントでセキュリティ関連のアクションが発生すると、ここにイベントが表示さ"
 "れます。"
 
-#: warehouse/templates/manage/account.html:665
+#: warehouse/templates/manage/account.html:685
 msgid "Delete account"
 msgstr "アカウント削除"
 
-#: warehouse/templates/manage/account.html:668
+#: warehouse/templates/manage/account.html:688
 msgid "Cannot delete account"
 msgstr "アカウントを削除できません"
 
-#: warehouse/templates/manage/account.html:670
+#: warehouse/templates/manage/account.html:690
 #, python-format
 msgid ""
 "\n"
@@ -2773,7 +2778,7 @@ msgstr[0] ""
 "のオーナー</strong>となっています。\n"
 "        "
 
-#: warehouse/templates/manage/account.html:675
+#: warehouse/templates/manage/account.html:695
 msgid ""
 "\n"
 "          You must transfer ownership or delete this project before you can "
@@ -2790,7 +2795,7 @@ msgstr[0] ""
 "これらのプロジェクトを削除しなければなりません。\n"
 "        "
 
-#: warehouse/templates/manage/account.html:685
+#: warehouse/templates/manage/account.html:705
 #, python-format
 msgid ""
 "<a href=\"%(transfer_href)s\">transfer ownership</a> or <a href="
@@ -2799,16 +2804,16 @@ msgstr ""
 "<a href=\"%(transfer_href)s\">所有権の譲渡</a>または<a href=\"%(delete_href)s"
 "\">プロジェクトの削除</a>"
 
-#: warehouse/templates/manage/account.html:694
+#: warehouse/templates/manage/account.html:714
 #: warehouse/templates/manage/token.html:169
 msgid "Proceed with caution!"
 msgstr "慎重に進めてください！"
 
-#: warehouse/templates/manage/account.html:697
+#: warehouse/templates/manage/account.html:717
 msgid "You will not be able to recover your account after you delete it"
 msgstr "アカウント削除後は、アカウントを回復できなくなります"
 
-#: warehouse/templates/manage/account.html:699
+#: warehouse/templates/manage/account.html:719
 msgid "Delete your PyPI account"
 msgstr "PyPIのアカウントを削除"
 
