@@ -14,7 +14,7 @@
 {% extends "email/_base/body.html" %}
 
 {% block content %}
-<p>{% trans organization_name=organization_name, initiator_username=initiator_username, initiator_profile=request.route_url('accounts.profile', username=initiator_username) %}<a href="{{ initiator_profile }}">{{ initiator_username }}</a> has requested approval to create a new PyPI organization named "{{ organization_name }}".{% endtrans %}</p>
+<p><a href="{{ request.route_url('accounts.profile', username=initiator_username) }}">{{ initiator_username }}</a> has requested approval to create a new PyPI organization named "{{ organization_name }}".</p>
 
-<p>{% trans approve_organization_link=request.route_url('admin.organization.approve', _query={'organization_name': organization_name}) %}Please follow <a href="{{ approve_organization_link }}">this link</a> to approve or decline the request.{% endtrans %}</p>
+<p>Please follow <a href="{{ request.route_url('admin.organization.approve', _query={'organization_name': organization_name}) }}">this link</a> to approve or decline the request.</p>
 {% endblock %}
