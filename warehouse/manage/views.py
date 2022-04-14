@@ -43,9 +43,11 @@ from warehouse.accounts.views import logout
 from warehouse.admin.flags import AdminFlagValue
 from warehouse.email import (
     send_account_deletion_email,
+    send_admin_new_organization_requested_email,
     send_collaborator_removed_email,
     send_collaborator_role_changed_email,
     send_email_verification_email,
+    send_new_organization_requested_email,
     send_oidc_provider_added_email,
     send_oidc_provider_removed_email,
     send_password_change_email,
@@ -983,6 +985,7 @@ class ProvisionMacaroonViews:
 class ManageOrganizationsViews:
     def __init__(self, request):
         self.request = request
+        self.user_service = request.find_service(IUserService, context=None)
         self.organization_service = request.find_service(
             IOrganizationService, context=None
         )
@@ -1014,6 +1017,15 @@ class ManageOrganizationsViews:
             )
             self.organization_service.add_organization_role(
                 "Owner", self.request.user.id, organization.id
+            )
+            send_admin_new_organization_requested_email(
+                self.request,
+                self.user_service.get_admins(),
+                organization_name=organization.name,
+                initiator_username=self.request.user.username,
+            )
+            send_new_organization_requested_email(
+                self.request, self.request.user, organization_name=organization.name
             )
             self.request.session.flash(
                 "Request for new organization submitted", queue="success"
