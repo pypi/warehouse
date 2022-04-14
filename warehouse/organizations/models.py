@@ -20,12 +20,14 @@ from sqlalchemy import (
     Enum,
     ForeignKey,
     Index,
+    String,
     Text,
     UniqueConstraint,
     func,
     orm,
     sql,
 )
+from sqlalchemy.dialects.postgresql import JSONB, UUID
 
 # from sqlalchemy.orm.exc import NoResultFound
 from sqlalchemy_utils.types.url import URLType
@@ -92,22 +94,6 @@ class OrganizationProject(db.Model):
     project = orm.relationship("Project", lazy=False)
 
 
-# TODO: Determine if we will need a factory class
-# class OrganizationFactory:
-#    def __init__(self, request):
-#        self.request = request
-#
-#    def __getitem__(self, organization):
-#        try:
-#            return (
-#                self.request.db.query(Organization)
-#                .filter(Organization.name == organization)
-#                .one()
-#            )
-#        except NoResultFound:
-#            raise KeyError from None
-
-
 class OrganizationType(enum.Enum):
 
     Pending = "Community"
@@ -153,16 +139,45 @@ class Organization(db.Model):
     # TODO: Determine if cascade applies to any of these relationships
     users = orm.relationship(
         User, secondary=OrganizationRole.__table__, backref="organizations"  # type: ignore # noqa
-    )  # many-to-many
+    )
     projects = orm.relationship(
         "Project", secondary=OrganizationProject.__table__, backref="organizations"  # type: ignore # noqa
-    )  # many-to-many
+    )
+
+    events = orm.relationship(
+        "OrganizationEvent",
+        backref="organizations",
+        cascade="all, delete-orphan",
+        lazy=True,
+    )
+
+    # TODO:
+    #    def __acl__(self):
+
+    def record_event(self, *, tag, ip_address, additional):
+        session = orm.object_session(self)
+        organization = OrganizationEvent(
+            user=self, tag=tag, ip_address=ip_address, additional=additional
+        )
+        session.add(organization)
+        session.flush()
+
+        return organization
 
 
-# TODO:
-#    def __getitem__(self, name): ???
-#    def __acl__(self):
-# Do we want any properties?
+class OrganizationEvent(db.Model):
+    __tablename__ = "organization_events"
+
+    organization_id = Column(
+        UUID(as_uuid=True),
+        ForeignKey("organizations.id", deferrable=True, initially="DEFERRED"),
+        nullable=False,
+        index=True,
+    )
+    tag = Column(String, nullable=False)
+    time = Column(DateTime, nullable=False, server_default=sql.func.now())
+    ip_address = Column(String, nullable=False)
+    additional = Column(JSONB, nullable=True)
 
 
 class OrganizationNameCatalog(db.Model):

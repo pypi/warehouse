@@ -25,8 +25,9 @@ from warehouse.organizations.models import (
 
 @implementer(IOrganizationService)
 class DatabaseOrganizationService:
-    def __init__(self, db_session):
+    def __init__(self, db_session, remote_addr):
         self.db = db_session
+        self.remote_addr = remote_addr
 
     def get_organization(self, organization_id):
         """
@@ -134,8 +135,11 @@ class DatabaseOrganizationService:
 
         Returns the event.
         """
-        raise NotImplementedError
+        organization = self.get_organization(organization_id)
+        return organization.record_event(
+            tag=tag, ip_address=self.remote_addr, additional=additional
+        )
 
 
 def database_organization_factory(context, request):
-    return DatabaseOrganizationService(request.db)
+    return DatabaseOrganizationService(request.db, remote_addr=request.remote_addr)
