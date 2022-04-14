@@ -1278,6 +1278,18 @@ msgid ""
 "administrators."
 msgstr ""
 
+#: warehouse/templates/email/account-deleted/body.txt:17
+#, python-format
+msgid ""
+"Your PyPI account '%(username)s' has been deleted. If you did not make "
+"this change, you can email %(email_address)s to communicate with the PyPI"
+" administrators."
+msgstr ""
+
+#: warehouse/templates/email/account-deleted/subject.txt:17
+msgid "Account deletion notification"
+msgstr ""
+
 #: warehouse/templates/email/added-as-collaborator/body.html:19
 #, python-format
 msgid ""
@@ -1286,15 +1298,26 @@ msgid ""
 msgstr ""
 
 #: warehouse/templates/email/added-as-collaborator/body.html:24
+#: warehouse/templates/email/added-as-collaborator/body.txt:22
 #, python-format
 msgid ""
 "You are receiving this because you have been added by "
 "%(initiator_username)s to a project on %(site)s."
 msgstr ""
 
+#: warehouse/templates/email/added-as-collaborator/body.txt:19
+#, python-format
+msgid ""
+"You have been added as %(role)s to the %(site)s project %(project_name)s "
+"by %(initiator_username)s."
+msgstr ""
+
 #: warehouse/templates/email/basic-auth-with-2fa/body.html:17
+#: warehouse/templates/email/basic-auth-with-2fa/body.txt:17
 #: warehouse/templates/email/password-compromised-hibp/body.html:18
+#: warehouse/templates/email/password-compromised-hibp/body.txt:18
 #: warehouse/templates/email/password-compromised/body.html:18
+#: warehouse/templates/email/password-compromised/body.txt:18
 msgid "What?"
 msgstr ""
 
@@ -1307,6 +1330,7 @@ msgid ""
 msgstr ""
 
 #: warehouse/templates/email/basic-auth-with-2fa/body.html:22
+#: warehouse/templates/email/basic-auth-with-2fa/body.txt:21
 #, python-format
 msgid ""
 "In the near future, %(site)s will begin prohibiting uploads using basic "
@@ -1315,18 +1339,39 @@ msgid ""
 msgstr ""
 
 #: warehouse/templates/email/basic-auth-with-2fa/body.html:25
+#: warehouse/templates/email/basic-auth-with-2fa/body.txt:23
 #: warehouse/templates/email/password-compromised-hibp/body.html:32
+#: warehouse/templates/email/password-compromised-hibp/body.txt:30
 #: warehouse/templates/email/password-compromised/body.html:31
+#: warehouse/templates/email/password-compromised/body.txt:28
 msgid "What should I do?"
 msgstr ""
 
 #: warehouse/templates/email/basic-auth-with-2fa/body.html:27
+#: warehouse/templates/email/basic-auth-with-2fa/body.txt:25
 #, python-format
 msgid ""
 "First, generate an API token for your account or project at "
 "%(new_token_url)s. Then, use this token when publishing instead of your "
 "username and password. See %(token_help_url)s for help using API tokens "
 "to publish."
+msgstr ""
+
+#: warehouse/templates/email/basic-auth-with-2fa/body.txt:19
+#, python-format
+msgid ""
+"During your recent upload or upload attempt to %(site)s, we noticed you "
+"used basic authentication (username & password). However, your account "
+"has two-factor authentication (2FA) enabled."
+msgstr ""
+
+#: warehouse/templates/email/basic-auth-with-2fa/subject.txt:17
+#, python-format
+msgid "Migrate to API tokens for uploading to %(site)s"
+msgstr ""
+
+#: warehouse/templates/email/collaborator-added/subject.txt:17
+msgid "Collaborator added notification"
 msgstr ""
 
 #: warehouse/templates/email/oidc-provider-added/body.html:19
@@ -1343,17 +1388,23 @@ msgid ""
 msgstr ""
 
 #: warehouse/templates/email/oidc-provider-added/body.html:28
+#: warehouse/templates/email/oidc-provider-added/body.txt:23
 #: warehouse/templates/email/oidc-provider-removed/body.html:26
+#: warehouse/templates/email/oidc-provider-removed/body.txt:22
 msgid "Publisher information"
 msgstr ""
 
 #: warehouse/templates/email/oidc-provider-added/body.html:30
+#: warehouse/templates/email/oidc-provider-added/body.txt:25
 #: warehouse/templates/email/oidc-provider-removed/body.html:28
+#: warehouse/templates/email/oidc-provider-removed/body.txt:24
 msgid "Publisher name"
 msgstr ""
 
 #: warehouse/templates/email/oidc-provider-added/body.html:31
+#: warehouse/templates/email/oidc-provider-added/body.txt:26
 #: warehouse/templates/email/oidc-provider-removed/body.html:29
+#: warehouse/templates/email/oidc-provider-removed/body.txt:25
 msgid "Publisher specification"
 msgstr ""
 
@@ -1380,6 +1431,42 @@ msgid ""
 "  "
 msgstr ""
 
+#: warehouse/templates/email/oidc-provider-added/body.txt:17
+#, python-format
+msgid ""
+"\n"
+"PyPI user %(username)s has added a new OpenID Connect publisher to a "
+"project\n"
+"(%(project_name)s) that you manage. OpenID Connect publishers act as "
+"trusted\n"
+"users and can create project releases automatically.\n"
+msgstr ""
+
+#: warehouse/templates/email/oidc-provider-added/body.txt:28
+msgid ""
+"\n"
+"If you did not make this change and you think it was made maliciously, "
+"you can\n"
+"remove it from the project via the \"Publishing\" tab on the project's "
+"page.\n"
+msgstr ""
+
+#: warehouse/templates/email/oidc-provider-added/body.txt:33
+#: warehouse/templates/email/oidc-provider-removed/body.txt:32
+#, python-format
+msgid ""
+"\n"
+"If you are unable to revert the change and need to do so, you can email\n"
+"%(email_address)s to communicate with the PyPI administrators.\n"
+msgstr ""
+
+#: warehouse/templates/email/oidc-provider-added/subject.txt:18
+#, python-format
+msgid ""
+"\n"
+"OpenID Connect publisher added to %(project_name)s\n"
+msgstr ""
+
 #: warehouse/templates/email/oidc-provider-removed/body.html:19
 #, python-format
 msgid ""
@@ -1399,11 +1486,56 @@ msgid ""
 "  "
 msgstr ""
 
+#: warehouse/templates/email/oidc-provider-removed/body.txt:17
+#, python-format
+msgid ""
+"\n"
+"PyPI user %(username)s has removed an OpenID Connect publisher from a "
+"project\n"
+"(%(project_name)s) that you manage.\n"
+msgstr ""
+
+#: warehouse/templates/email/oidc-provider-removed/body.txt:27
+msgid ""
+"\n"
+"If you did not make this change and you think it was made maliciously, "
+"you can\n"
+"check the \"Security history\" tab on the project's page.\n"
+msgstr ""
+
+#: warehouse/templates/email/oidc-provider-removed/subject.txt:18
+#, python-format
+msgid ""
+"\n"
+"OpenID Connect publisher removed from %(project_name)s\n"
+msgstr ""
+
 #: warehouse/templates/email/password-change/body.html:18
 #, python-format
 msgid ""
 "Someone, perhaps you, has changed the password for your PyPI account "
 "<strong>%(username)s</strong>."
+msgstr ""
+
+#: warehouse/templates/email/password-change/body.txt:17
+#, python-format
+msgid ""
+"Someone, perhaps you, has changed the password for your PyPI account\n"
+"'%(username)s'."
+msgstr ""
+
+#: warehouse/templates/email/password-change/body.txt:20
+#: warehouse/templates/email/primary-email-change/body.txt:29
+#: warehouse/templates/email/two-factor-added/body.txt:20
+#: warehouse/templates/email/two-factor-removed/body.txt:20
+#, python-format
+msgid ""
+"If you did not make this change, you can email %(email_address)s to\n"
+"communicate with the PyPI administrators."
+msgstr ""
+
+#: warehouse/templates/email/password-change/subject.txt:17
+msgid "Password change notification"
 msgstr ""
 
 #: warehouse/templates/email/password-compromised/body.html:20
@@ -1431,6 +1563,7 @@ msgid ""
 msgstr ""
 
 #: warehouse/templates/email/password-compromised/body.html:39
+#: warehouse/templates/email/password-compromised/body.txt:34
 msgid "How can I contact you?"
 msgstr ""
 
@@ -1440,6 +1573,41 @@ msgid ""
 "For more information, you can email %(email_address)s to communicate with"
 "\n"
 "  the PyPI administrators."
+msgstr ""
+
+#: warehouse/templates/email/password-compromised/body.txt:19
+msgid ""
+"PyPI administrators have determined that your password is compromised. To"
+"\n"
+"protect you and other users, we have preemptively reset your password and"
+"\n"
+"you will no longer be able to log in or upload to PyPI with your existing"
+"\n"
+"password."
+msgstr ""
+
+#: warehouse/templates/email/password-compromised/body.txt:24
+msgid ""
+"PyPI itself has not suffered a breach. This is a protective measure to\n"
+"reduce the risk for PyPI and its users."
+msgstr ""
+
+#: warehouse/templates/email/password-compromised/body.txt:30
+#, python-format
+msgid "To regain access to your account, reset your password on PyPI (%(url)s)."
+msgstr ""
+
+#: warehouse/templates/email/password-compromised/body.txt:36
+#, python-format
+msgid ""
+"For more information, you can email %(email_address)s to communicate with"
+" the PyPI administrators."
+msgstr ""
+
+#: warehouse/templates/email/password-compromised-hibp/subject.txt:17
+#: warehouse/templates/email/password-compromised/subject.txt:17
+#, python-format
+msgid "Your %(site)s password has been reset"
 msgstr ""
 
 #: warehouse/templates/email/password-compromised-hibp/body.html:20
@@ -1472,6 +1640,7 @@ msgid ""
 msgstr ""
 
 #: warehouse/templates/email/password-compromised-hibp/body.html:40
+#: warehouse/templates/email/password-compromised-hibp/body.txt:39
 msgid "How do you know this?"
 msgstr ""
 
@@ -1494,6 +1663,54 @@ msgid ""
 "communicate with the PyPI administrators."
 msgstr ""
 
+#: warehouse/templates/email/password-compromised-hibp/body.txt:20
+msgid ""
+"During your recent attempt to log in or upload to PyPI, we noticed your "
+"password appears\n"
+"in public data breaches. To protect you and other users, we have "
+"preemptively reset your\n"
+"password and you will no longer be able to log in or upload to PyPI with "
+"your existing\n"
+"password."
+msgstr ""
+
+#: warehouse/templates/email/password-compromised-hibp/body.txt:25
+#, python-format
+msgid ""
+"PyPI itself has not suffered a breach. This is a protective measure to "
+"reduce the risk\n"
+"of credential stuffing (%(url)s) attacks\n"
+"against PyPI and its users."
+msgstr ""
+
+#: warehouse/templates/email/password-compromised-hibp/body.txt:32
+#, python-format
+msgid ""
+"To regain access to your account, reset your password on PyPI "
+"(%(reset_pw_url)s). We also recommend that you go to HaveIBeenPwned "
+"(%(have_i_been_pwned_url)s) and check your other passwords and get "
+"yourself familiar with good password practices."
+msgstr ""
+
+#: warehouse/templates/email/password-compromised-hibp/body.txt:41
+msgid ""
+"We use a free security service from HaveIBeenPwned. When registering, "
+"authenticating, or\n"
+"updating your password, we generate a SHA1 hash of your password and use "
+"the first 5\n"
+"characters of the hash to decide if the password is compromised. The "
+"plaintext password\n"
+"is never stored by PyPI or sent to HaveIBeenPwned."
+msgstr ""
+
+#: warehouse/templates/email/password-compromised-hibp/body.txt:46
+#, python-format
+msgid ""
+"For more information, see %(help_url)s. For\n"
+"help, you can email %(email_address)s to communicate with the PyPI "
+"administrators."
+msgstr ""
+
 #: warehouse/templates/email/password-reset/body.html:18
 #, python-format
 msgid ""
@@ -1509,7 +1726,9 @@ msgid ""
 msgstr ""
 
 #: warehouse/templates/email/password-reset/body.html:22
+#: warehouse/templates/email/password-reset/body.txt:25
 #: warehouse/templates/email/verify-email/body.html:22
+#: warehouse/templates/email/verify-email/body.txt:26
 #, python-format
 msgid "This link will expire in %(n_hours)s hour."
 msgid_plural "This link will expire in %(n_hours)s hours."
@@ -1517,8 +1736,29 @@ msgstr[0] ""
 msgstr[1] ""
 
 #: warehouse/templates/email/password-reset/body.html:24
+#: warehouse/templates/email/password-reset/body.txt:27
 #: warehouse/templates/email/verify-email/body.html:24
+#: warehouse/templates/email/verify-email/body.txt:28
 msgid "If you did not make this request, you can safely ignore this email."
+msgstr ""
+
+#: warehouse/templates/email/password-reset/body.txt:17
+#, python-format
+msgid ""
+"Someone, perhaps you, has made a password reset request for your PyPI "
+"account\n"
+"'%(username)s'."
+msgstr ""
+
+#: warehouse/templates/email/password-reset/body.txt:20
+msgid ""
+"If you wish to proceed with this request, follow the link below to reset "
+"your\n"
+"password:"
+msgstr ""
+
+#: warehouse/templates/email/password-reset/subject.txt:17
+msgid "Password reset request"
 msgstr ""
 
 #: warehouse/templates/email/primary-email-change/body.html:18
@@ -1527,6 +1767,26 @@ msgid ""
 "The primary email for your PyPI account <strong>%(username)s</strong> has"
 " been changed from <code>%(old_email)s</code> to "
 "<code>%(new_email)s</code>"
+msgstr ""
+
+#: warehouse/templates/email/primary-email-change/body.txt:17
+#, python-format
+msgid ""
+"The primary email for your PyPI account:\n"
+"\n"
+"  '%(username)s'\n"
+"\n"
+"has been changed from this address:\n"
+"\n"
+"  %(old_email)s\n"
+"\n"
+"to this address:\n"
+"\n"
+"  %(new_email)s"
+msgstr ""
+
+#: warehouse/templates/email/primary-email-change/subject.txt:17
+msgid "Primary email change notification"
 msgstr ""
 
 #: warehouse/templates/email/recovery-code-reminder/body.html:19
@@ -1557,6 +1817,30 @@ msgid ""
 "<a href=\"%(href)s\">%(href)s</a>\n"
 msgstr ""
 
+#: warehouse/templates/email/recovery-code-reminder/body.txt:17
+#, python-format
+msgid ""
+"We noticed you recently logged into your PyPI account '%(username)s', "
+"which has two-factor authentication enabled, but haven't generated "
+"recovery codes for this account."
+msgstr ""
+
+#: warehouse/templates/email/recovery-code-reminder/body.txt:19
+msgid ""
+"If you lose your authentication application or security key(s) and do not"
+" have access to these recovery codes, you may permanently lose access to "
+"your PyPI account!"
+msgstr ""
+
+#: warehouse/templates/email/recovery-code-reminder/body.txt:21
+#, python-format
+msgid "You can generate recovery codes for your account here: %(href)s"
+msgstr ""
+
+#: warehouse/templates/email/recovery-code-reminder/subject.txt:17
+msgid "Two-factor recovery codes are available"
+msgstr ""
+
 #: warehouse/templates/email/recovery-code-used/body.html:19
 #, python-format
 msgid ""
@@ -1575,12 +1859,36 @@ msgid ""
 "administrators.\n"
 msgstr ""
 
+#: warehouse/templates/email/recovery-code-used/body.txt:17
+#, python-format
+msgid ""
+"A recovery code for your PyPI account '%(username)s' has been used. If "
+"you did not make this change, you can email %(email_address)s to "
+"communicate with the PyPI administrators."
+msgstr ""
+
+#: warehouse/templates/email/recovery-code-used/subject.txt:17
+msgid "Recovery code use notification"
+msgstr ""
+
 #: warehouse/templates/email/recovery-codes-generated/body.html:19
 #, python-format
 msgid ""
 "\n"
 "New recovery codes for your PyPI account <strong>%(username)s</strong> "
 "have been generated.\n"
+msgstr ""
+
+#: warehouse/templates/email/recovery-codes-generated/body.txt:17
+#, python-format
+msgid ""
+"New recovery codes for your PyPI account '%(username)s' have been "
+"generated. If you did not make this change, you can email "
+"%(email_address)s to communicate with the PyPI administrators."
+msgstr ""
+
+#: warehouse/templates/email/recovery-codes-generated/subject.txt:17
+msgid "Recovery codes generation notification"
 msgstr ""
 
 #: warehouse/templates/email/two-factor-added/body.html:18
@@ -1590,11 +1898,40 @@ msgid ""
 "method to your PyPI account <strong>%(username)s</strong>."
 msgstr ""
 
+#: warehouse/templates/email/two-factor-added/body.txt:17
+#, python-format
+msgid ""
+"Someone, perhaps you, has added a %(method)s two-factor authentication "
+"method to your PyPI account\n"
+"'%(username)s'."
+msgstr ""
+
+#: warehouse/templates/email/two-factor-added/subject.txt:17
+msgid "Two-factor method added"
+msgstr ""
+
 #: warehouse/templates/email/two-factor-removed/body.html:18
 #, python-format
 msgid ""
 "Someone, perhaps you, has removed a %(method)s two-factor authentication "
 "method from your PyPI account <strong>%(username)s</strong>."
+msgstr ""
+
+#: warehouse/templates/email/two-factor-removed/body.txt:17
+#, python-format
+msgid ""
+"Someone, perhaps you, has removed a %(method)s two-factor authentication "
+"method from your PyPI account\n"
+"'%(username)s'."
+msgstr ""
+
+#: warehouse/templates/email/two-factor-removed/subject.txt:17
+msgid "Two-factor method removed"
+msgstr ""
+
+#: warehouse/templates/email/unyanked-project-release/subject.txt:17
+#, python-format
+msgid "The %(project)s release %(release)s has been un-yanked."
 msgstr ""
 
 #: warehouse/templates/email/verify-email/body.html:18
@@ -1609,6 +1946,26 @@ msgstr ""
 msgid ""
 "If you wish to proceed with this request, <a href=\"%(href)s\">click this"
 " link to verify your email address</a>."
+msgstr ""
+
+#: warehouse/templates/email/verify-email/body.txt:17
+msgid "Someone, perhaps you, has added this email address to their PyPI account:"
+msgstr ""
+
+#: warehouse/templates/email/verify-email/body.txt:21
+msgid ""
+"If you wish to proceed with this request, follow the link below to verify"
+" your\n"
+"email address:"
+msgstr ""
+
+#: warehouse/templates/email/verify-email/subject.txt:17
+msgid "Email verification"
+msgstr ""
+
+#: warehouse/templates/email/yanked-project-release/subject.txt:17
+#, python-format
+msgid "A release for %(project)s has been yanked."
 msgstr ""
 
 #: warehouse/templates/includes/current-user-indicator.html:30
