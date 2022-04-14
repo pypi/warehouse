@@ -30,7 +30,7 @@ services:
       # 5432 may already in use by another PostgreSQL on host
       - "5433:5432"
     healthcheck:
-      test: ["CMD", "pg_isready", "-d", "postgres"]
+      test: ["CMD", "pg_isready", "-U", "postgres", "-d", "postgres"]
 
   redis:
     image: redis:4.0
