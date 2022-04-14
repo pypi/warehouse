@@ -97,8 +97,8 @@ class OrganizationProject(db.Model):
 
 class OrganizationType(enum.Enum):
 
-    Pending = "Community"
-    Expired = "Company"
+    Community = "Community"
+    Company = "Company"
 
 
 class OrganizationFactory:
