@@ -1008,7 +1008,13 @@ class ManageOrganizationsViews:
 
         if form.validate():
             data = form.data
-            # TODO: self.organization_service.create_organization(**data)
+            organization = self.organization_service.add_organization(**data)
+            self.organization_service.add_catalog_entry(
+                organization.name, organization.id
+            )
+            self.organization_service.add_organization_role(
+                "Owner", self.request.user.id, organization.id
+            )
             self.request.session.flash(
                 "Request for new organization submitted", queue="success"
             )
