@@ -2306,6 +2306,41 @@ class TestProvisionMacaroonViews:
         ]
 
 
+class TestManageOrganizations:
+    def test_default_response(self, monkeypatch):
+        create_organization_obj = pretend.stub()
+        create_organization_cls = pretend.call_recorder(
+            lambda *a, **kw: create_organization_obj
+        )
+        monkeypatch.setattr(views, "CreateOrganizationForm", create_organization_cls)
+
+        request = pretend.stub(
+            user=pretend.stub(id=pretend.stub(), username=pretend.stub()),
+            find_service=lambda interface, **kw: {
+                IOrganizationService: pretend.stub(),
+                IUserService: pretend.stub(),
+            }[interface],
+        )
+
+        view = views.ManageOrganizationsViews(request)
+
+        assert view.default_response == {
+            "create_organization_form": create_organization_obj,
+        }
+
+    def test_manage_organizations(self, monkeypatch):
+        request = pretend.stub(find_service=lambda *a, **kw: pretend.stub())
+
+        default_response = {"default": "response"}
+        monkeypatch.setattr(
+            views.ManageOrganizationsViews, "default_response", default_response
+        )
+        view = views.ManageOrganizationsViews(request)
+        result = view.manage_organizations()
+
+        assert result == default_response
+
+
 class TestManageProjects:
     def test_manage_projects(self, db_request):
         older_release = ReleaseFactory(created=datetime.datetime(2015, 1, 1))
