@@ -15,12 +15,13 @@ import datetime
 import factory
 import faker
 
-from warehouse.rganizations.models import (
+from warehouse.organizations.models import (
     Organization,
+    OrganizationEvent,
+    OrganizationInvitation,
     OrganizationNameCatalog,
     OrganizationProject,
     OrganizationRole,
-    OrganizationRoleInvitation,
 )
 
 from .accounts import UserFactory
@@ -35,20 +36,28 @@ class OrganizationFactory(WarehouseFactory):
         model = Organization
 
     id = factory.Faker("uuid4", cast_to=None)
-    name = factory.Faker("name")
-    normalized_name = factory.Faker("norm")
-    display_name = factory.Faker("display")
-    orgtype = factory.Faker("Community")
+    name = factory.Faker("word")
+    display_name = factory.Faker("word")
+    orgtype = "Community"
     link_url = factory.Faker("uri")
-    description = factory.Faker("description")
+    description = factory.Faker("sentence")
     is_active = True
+    is_approved = False
     created = factory.Faker(
         "date_time_between_dates",
         datetime_start=datetime.datetime(2020, 1, 1),
         datetime_end=datetime.datetime(2022, 1, 1),
     )
-    user = factory.SubFactory(UserFactory)
-    project = factory.SubFactory(ProjectFactory)
+    date_approved = factory.Faker(
+        "date_time_between_dates", datetime_start=datetime.datetime(2020, 1, 1)
+    )
+
+
+class OrganizationEventFactory(WarehouseFactory):
+    class Meta:
+        model = OrganizationEvent
+
+    organization = factory.SubFactory(OrganizationFactory)
 
 
 class OrganizationNameCatalogFactory(WarehouseFactory):
@@ -68,9 +77,9 @@ class OrganizationRoleFactory(WarehouseFactory):
     organization = factory.SubFactory(OrganizationFactory)
 
 
-class OrganizationRoleInvitationFactory(WarehouseFactory):
+class OrganizationInvitationFactory(WarehouseFactory):
     class Meta:
-        model = OrganizationRoleInvitation
+        model = OrganizationInvitation
 
     invite_status = "pending"
     token = "test_token"

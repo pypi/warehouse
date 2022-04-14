@@ -45,6 +45,7 @@ from warehouse.email import services as email_services
 from warehouse.email.interfaces import IEmailSender
 from warehouse.macaroons import services as macaroon_services
 from warehouse.metrics import IMetricsService
+from warehouse.organizations import services as organization_services
 
 from .common.db import Session
 
@@ -283,6 +284,13 @@ def user_service(db_session, metrics, remote_addr):
 @pytest.fixture
 def macaroon_service(db_session):
     return macaroon_services.DatabaseMacaroonService(db_session)
+
+
+@pytest.fixture
+def organization_service(db_session, remote_addr):
+    return organization_services.DatabaseOrganizationService(
+        db_session, remote_addr=remote_addr
+    )
 
 
 @pytest.fixture
