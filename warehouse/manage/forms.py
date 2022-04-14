@@ -354,6 +354,10 @@ class CreateOrganizationForm(forms.Form, NewOrganizationNameMixin):
 
     __params__ = ["name", "display_name", "link_url", "description", "orgtype"]
 
+    def __init__(self, *args, organization_service, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.organization_service = organization_service
+
     display_name = wtforms.StringField(
         validators=[
             wtforms.validators.DataRequired(message="Specify your organization name"),

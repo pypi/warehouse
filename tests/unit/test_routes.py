@@ -237,7 +237,9 @@ def test_routes(warehouse):
         pretend.call(
             "manage.account.token", "/manage/account/token/", domain=warehouse
         ),
-        pretend.call("manage.organizations", "/manage/organizations/", domain=warehouse),
+        pretend.call(
+            "manage.organizations", "/manage/organizations/", domain=warehouse
+        ),
         pretend.call("manage.projects", "/manage/projects/", domain=warehouse),
         pretend.call(
             "manage.project.settings",

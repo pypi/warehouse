@@ -518,6 +518,9 @@ def configure(settings=None):
     # Register logged-in views
     config.include(".manage")
 
+    # Register our organization support.
+    config.include(".organizations")
+
     # Allow the packaging app to register any services it has.
     config.include(".packaging")
 

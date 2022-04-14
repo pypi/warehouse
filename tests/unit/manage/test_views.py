@@ -44,6 +44,7 @@ from warehouse.macaroons.interfaces import IMacaroonService
 from warehouse.manage import views
 from warehouse.metrics.interfaces import IMetricsService
 from warehouse.oidc.interfaces import TooManyOIDCRegistrations
+from warehouse.organizations.interfaces import IOrganizationService
 from warehouse.packaging.models import (
     File,
     JournalEntry,
@@ -78,12 +79,14 @@ class TestManageAccount:
     def test_default_response(self, monkeypatch, public_email, expected_public_email):
         breach_service = pretend.stub()
         user_service = pretend.stub()
+        organization_service = pretend.stub()
         name = pretend.stub()
         user_id = pretend.stub()
         request = pretend.stub(
             find_service=lambda iface, **kw: {
                 IPasswordBreachedService: breach_service,
                 IUserService: user_service,
+                IOrganizationService: organization_service,
             }[iface],
             user=pretend.stub(name=name, id=user_id, public_email=public_email),
         )

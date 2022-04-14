@@ -16,6 +16,7 @@ from webob.multidict import MultiDict
 
 from warehouse.accounts.interfaces import IPasswordBreachedService, IUserService
 from warehouse.manage import views
+from warehouse.organizations.interfaces import IOrganizationService
 
 from ...common.db.accounts import EmailFactory, UserFactory
 
@@ -23,9 +24,13 @@ from ...common.db.accounts import EmailFactory, UserFactory
 class TestManageAccount:
     def test_save_account(self, pyramid_services, user_service, db_request):
         breach_service = pretend.stub()
+        organization_service = pretend.stub()
         pyramid_services.register_service(user_service, IUserService, None)
         pyramid_services.register_service(
             breach_service, IPasswordBreachedService, None
+        )
+        pyramid_services.register_service(
+            organization_service, IOrganizationService, None
         )
         user = UserFactory.create(name="old name")
         EmailFactory.create(primary=True, verified=True, public=True, user=user)

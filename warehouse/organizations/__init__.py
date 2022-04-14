@@ -10,4 +10,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# TODO: Nothing to see here yet. These aren't the droids you're looking for.
+from warehouse.organizations.interfaces import IOrganizationService
+from warehouse.organizations.services import database_organization_factory
+
+
+def includeme(config):
+    # Register our organization service
+    config.register_service_factory(database_organization_factory, IOrganizationService)

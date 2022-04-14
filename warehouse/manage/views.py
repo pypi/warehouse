@@ -84,6 +84,7 @@ from warehouse.metrics.interfaces import IMetricsService
 from warehouse.oidc.forms import DeleteProviderForm, GitHubProviderForm
 from warehouse.oidc.interfaces import TooManyOIDCRegistrations
 from warehouse.oidc.models import GitHubProvider, OIDCProvider
+from warehouse.organizations.interfaces import IOrganizationService
 from warehouse.packaging.models import (
     File,
     JournalEntry,
@@ -982,13 +983,15 @@ class ProvisionMacaroonViews:
 class ManageOrganizationsViews:
     def __init__(self, request):
         self.request = request
-        # TODO: self.organization_service = request.find_service(IOrganizationService, context=None)
+        self.organization_service = request.find_service(
+            IOrganizationService, context=None
+        )
 
     @property
     def default_response(self):
         return {
             "create_organization_form": CreateOrganizationForm(
-                # TODO: organization_service=self.organization_service,
+                organization_service=self.organization_service,
             ),
         }
 
@@ -1000,7 +1003,7 @@ class ManageOrganizationsViews:
     def create_organization(self):
         form = CreateOrganizationForm(
             self.request.POST,
-            # TODO: organization_service=self.organization_service,
+            organization_service=self.organization_service,
         )
 
         if form.validate():
