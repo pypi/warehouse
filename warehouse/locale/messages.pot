@@ -65,7 +65,7 @@ msgid ""
 "different email."
 msgstr ""
 
-#: warehouse/accounts/forms.py:258 warehouse/manage/forms.py:73
+#: warehouse/accounts/forms.py:258 warehouse/manage/forms.py:75
 msgid "The name is too long. Choose a name with 100 characters or less."
 msgstr ""
 
@@ -116,7 +116,7 @@ msgstr ""
 msgid "Successful WebAuthn assertion"
 msgstr ""
 
-#: warehouse/accounts/views.py:441 warehouse/manage/views.py:814
+#: warehouse/accounts/views.py:441 warehouse/manage/views.py:818
 msgid "Recovery code accepted. The supplied code cannot be used again."
 msgstr ""
 
@@ -225,51 +225,91 @@ msgstr ""
 msgid "Banner Preview"
 msgstr ""
 
-#: warehouse/manage/views.py:245
+#: warehouse/admin/templates/admin/organizations/approve.html:17
+msgid "Approve New Organization"
+msgstr ""
+
+#: warehouse/manage/forms.py:322
+msgid "Choose an organization account name with 50 characters or less."
+msgstr ""
+
+#: warehouse/manage/forms.py:330
+msgid ""
+"The organization account name is invalid. Organization account names must"
+" be composed of letters, numbers, dots, hyphens and underscores. And must"
+" also start and finish with a letter or number. Choose a different "
+"organization account name."
+msgstr ""
+
+#: warehouse/manage/forms.py:345
+msgid ""
+"This organization account name is already being used by another account. "
+"Choose a different organization account name."
+msgstr ""
+
+#: warehouse/manage/forms.py:366
+msgid ""
+"The organization name is too long. Choose a organization name with 100 "
+"characters or less."
+msgstr ""
+
+#: warehouse/manage/forms.py:378
+msgid ""
+"The organization URL is too long. Choose a organization URL with 400 "
+"characters or less."
+msgstr ""
+
+#: warehouse/manage/forms.py:392
+msgid ""
+"The organization description is too long. Choose a organization "
+"description with 400 characters or less."
+msgstr ""
+
+#: warehouse/manage/views.py:249
 msgid "Email ${email_address} added - check your email for a verification link"
 msgstr ""
 
-#: warehouse/manage/views.py:762
+#: warehouse/manage/views.py:766
 msgid "Recovery codes already generated"
 msgstr ""
 
-#: warehouse/manage/views.py:763
+#: warehouse/manage/views.py:767
 msgid "Generating new recovery codes will invalidate your existing codes."
 msgstr ""
 
-#: warehouse/manage/views.py:1191
+#: warehouse/manage/views.py:1256
 msgid ""
 "There have been too many attempted OpenID Connect registrations. Try "
 "again later."
 msgstr ""
 
-#: warehouse/manage/views.py:1872
+#: warehouse/manage/views.py:1937
 msgid "User '${username}' already has ${role_name} role for project"
 msgstr ""
 
-#: warehouse/manage/views.py:1883
+#: warehouse/manage/views.py:1948
 msgid ""
 "User '${username}' does not have a verified primary email address and "
 "cannot be added as a ${role_name} for project"
 msgstr ""
 
-#: warehouse/manage/views.py:1896
+#: warehouse/manage/views.py:1961
 msgid "User '${username}' already has an active invite. Please try again later."
 msgstr ""
 
-#: warehouse/manage/views.py:1954
+#: warehouse/manage/views.py:2019
 msgid "Invitation sent to '${username}'"
 msgstr ""
 
-#: warehouse/manage/views.py:2001
+#: warehouse/manage/views.py:2066
 msgid "Could not find role invitation."
 msgstr ""
 
-#: warehouse/manage/views.py:2012
+#: warehouse/manage/views.py:2077
 msgid "Invitation already expired."
 msgstr ""
 
-#: warehouse/manage/views.py:2036
+#: warehouse/manage/views.py:2101
 msgid "Invitation revoked from '${username}'."
 msgstr ""
 
@@ -896,6 +936,11 @@ msgstr ""
 #: warehouse/templates/manage/account/recovery_codes-burn.html:70
 #: warehouse/templates/manage/account/totp-provision.html:69
 #: warehouse/templates/manage/account/webauthn-provision.html:44
+#: warehouse/templates/manage/organizations.html:34
+#: warehouse/templates/manage/organizations.html:57
+#: warehouse/templates/manage/organizations.html:79
+#: warehouse/templates/manage/organizations.html:97
+#: warehouse/templates/manage/organizations.html:116
 #: warehouse/templates/manage/publishing.html:85
 #: warehouse/templates/manage/publishing.html:97
 #: warehouse/templates/manage/publishing.html:109
@@ -2927,6 +2972,70 @@ msgstr ""
 
 #: warehouse/templates/manage/manage_project_base.html:41
 msgid "Back to projects"
+msgstr ""
+
+#: warehouse/templates/manage/organizations.html:18
+msgid "Your organizations"
+msgstr ""
+
+#: warehouse/templates/manage/organizations.html:25
+msgid "Create new organization"
+msgstr ""
+
+#: warehouse/templates/manage/organizations.html:32
+msgid "Organization account name"
+msgstr ""
+
+#: warehouse/templates/manage/organizations.html:37
+msgid "Select an organization account name"
+msgstr ""
+
+#: warehouse/templates/manage/organizations.html:48
+msgid "This account name will be used in URLs on PyPI."
+msgstr ""
+
+#: warehouse/templates/manage/organizations.html:49
+#: warehouse/templates/manage/organizations.html:71
+#: warehouse/templates/manage/organizations.html:89
+msgid "For example"
+msgstr ""
+
+#: warehouse/templates/manage/organizations.html:55
+msgid "Organization name"
+msgstr ""
+
+#: warehouse/templates/manage/organizations.html:60
+msgid "Name of your business, product, or project"
+msgstr ""
+
+#: warehouse/templates/manage/organizations.html:77
+msgid "️Organization URL"
+msgstr ""
+
+#: warehouse/templates/manage/organizations.html:83
+msgid "URL for your business, product, or project"
+msgstr ""
+
+#: warehouse/templates/manage/organizations.html:95
+msgid "Organization description"
+msgstr ""
+
+#: warehouse/templates/manage/organizations.html:100
+msgid "Description of your business, product, or project"
+msgstr ""
+
+#: warehouse/templates/manage/organizations.html:114
+msgid "️Organization type"
+msgstr ""
+
+#: warehouse/templates/manage/organizations.html:126
+msgid ""
+"Companies can create organization accounts as a paid service while "
+"community projects are granted complimentary access."
+msgstr ""
+
+#: warehouse/templates/manage/organizations.html:132
+msgid "Create"
 msgstr ""
 
 #: warehouse/templates/manage/projects.html:22
