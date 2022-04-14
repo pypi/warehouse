@@ -28,6 +28,7 @@ from sqlalchemy import (
     sql,
 )
 from sqlalchemy.dialects.postgresql import JSONB, UUID
+from sqlalchemy.orm.exc import NoResultFound
 
 # from sqlalchemy.orm.exc import NoResultFound
 from sqlalchemy_utils.types.url import URLType
@@ -98,6 +99,24 @@ class OrganizationType(enum.Enum):
 
     Pending = "Community"
     Expired = "Company"
+
+
+class OrganizationFactory:
+    def __init__(self, request):
+        self.request = request
+
+    def __getitem__(self, organization):
+        try:
+            return (
+                self.request.db.query(Organization)
+                .filter(
+                    Organization.normalized_name
+                    == func.normalize_pep426_name(organization)
+                )
+                .one()
+            )
+        except NoResultFound:
+            raise KeyError from None
 
 
 # TODO: Determine if this should also utilize SitemapMixin and TwoFactorRequireable
