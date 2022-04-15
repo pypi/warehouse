@@ -1,3 +1,10 @@
+<<<<<<< HEAD
+=======
+BINDIR = $(PWD)/.state/env/bin
+COMPOSE_PROJECT_NAME ?= $(notdir $(abspath .))
+GITHUB_ACTIONS := $(shell echo "$${GITHUB_ACTIONS:-false}")
+GITHUB_BASE_REF := $(shell echo "$${GITHUB_BASE_REF:-false}")
+>>>>>>> e1349bda (Calculate compose project name instead of hardcoding it)
 DB := example
 IPYTHON := no
 
@@ -84,7 +91,7 @@ requirements/%.txt: requirements/%.in
 
 resetdb: .state/docker-build-web
 	docker-compose stop db
-	docker volume rm warehouse_pgdata
+	docker volume rm $(COMPOSE_PROJECT_NAME)_pgdata
 	docker-compose up -d --recreate db
 
 migrate: .state/docker-build-web
