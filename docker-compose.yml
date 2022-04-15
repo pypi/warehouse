@@ -3,6 +3,7 @@ version: '3.9'
 volumes:
   simple:
   packages:
+  pgdata:
   sponsorlogos:
   vault:
 
@@ -35,6 +36,7 @@ services:
       POSTGRES_DB: warehouse
       POSTGRES_PASSWORD: password
     volumes:
+      - pgdata:/var/lib/postgresql/data
       - ./dev/example.sql.xz:/docker-entrypoint-initdb.d/example.sql.xz:ro
 
   redis:

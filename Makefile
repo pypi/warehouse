@@ -83,7 +83,9 @@ requirements/%.txt: requirements/%.in
 	docker-compose run --rm web bin/pip-compile --allow-unsafe --generate-hashes --output-file=$@ $<
 
 resetdb: .state/docker-build-web
-	docker-compose up --recreate db
+	docker-compose stop db
+	docker volume rm warehouse_pgdata
+	docker-compose up -d --recreate db
 
 migrate: .state/docker-build-web
 	docker-compose run --rm web python -m warehouse db upgrade head
