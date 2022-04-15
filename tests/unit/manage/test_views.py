@@ -2343,7 +2343,8 @@ class TestManageOrganizations:
     def test_create_organization(self, monkeypatch):
         admins = []
         user_service = pretend.stub(
-            get_admins=pretend.call_recorder(lambda *a, **kw: admins)
+            get_admins=pretend.call_recorder(lambda *a, **kw: admins),
+            record_event=pretend.call_recorder(lambda *a, **kw: None),
         )
 
         organization = pretend.stub(
@@ -2366,6 +2367,7 @@ class TestManageOrganizations:
             add_organization=pretend.call_recorder(lambda *a, **kw: organization),
             add_catalog_entry=pretend.call_recorder(lambda *a, **kw: catalog_entry),
             add_organization_role=pretend.call_recorder(lambda *a, **kw: role),
+            record_event=pretend.call_recorder(lambda *a, **kw: None),
         )
 
         request = pretend.stub(
@@ -2433,6 +2435,47 @@ class TestManageOrganizations:
                 organization.id,
             )
         ]
+        assert organization_service.record_event.calls == [
+            pretend.call(
+                organization.id,
+                tag="organization:create",
+                additional={"created_by": request.user.username},
+            ),
+            pretend.call(
+                organization.id,
+                tag="organization:catalog_entry:add",
+                additional={"submitted_by": request.user.username},
+            ),
+            pretend.call(
+                organization.id,
+                tag="organization:organization_role:invite",
+                additional={
+                    "submitted_by": request.user.username,
+                    "role_name": "Owner",
+                    "target_user": request.user.username,
+                },
+            ),
+            pretend.call(
+                organization.id,
+                tag="organization:organization_role:accepted",
+                additional={
+                    "submitted_by": request.user.username,
+                    "role_name": "Owner",
+                    "target_user": request.user.username,
+                },
+            ),
+        ]
+        assert user_service.record_event.calls == [
+            pretend.call(
+                request.user.id,
+                tag="account:organization_role:accepted",
+                additional={
+                    "submitted_by": request.user.username,
+                    "organization_name": organization.name,
+                    "role_name": "Owner",
+                },
+            ),
+        ]
         assert send_email.calls == [
             pretend.call(
                 request,
@@ -2451,7 +2494,8 @@ class TestManageOrganizations:
     def test_create_organization_validation_fails(self, monkeypatch):
         admins = []
         user_service = pretend.stub(
-            get_admins=pretend.call_recorder(lambda *a, **kw: admins)
+            get_admins=pretend.call_recorder(lambda *a, **kw: admins),
+            record_event=pretend.call_recorder(lambda *a, **kw: None),
         )
 
         organization = pretend.stub()
@@ -2461,6 +2505,7 @@ class TestManageOrganizations:
             add_organization=pretend.call_recorder(lambda *a, **kw: organization),
             add_catalog_entry=pretend.call_recorder(lambda *a, **kw: catalog_entry),
             add_organization_role=pretend.call_recorder(lambda *a, **kw: role),
+            record_event=pretend.call_recorder(lambda *a, **kw: None),
         )
 
         request = pretend.stub(
@@ -2511,6 +2556,7 @@ class TestManageOrganizations:
         assert organization_service.add_organization.calls == []
         assert organization_service.add_catalog_entry.calls == []
         assert organization_service.add_organization_role.calls == []
+        assert organization_service.record_event.calls == []
         assert send_email.calls == []
         assert result == default_response
 
