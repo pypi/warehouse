@@ -165,7 +165,7 @@ class Organization(db.Model):
 
     events = orm.relationship(
         "OrganizationEvent",
-        backref="organizations",
+        backref="organization",
         cascade="all, delete-orphan",
         lazy=True,
     )
@@ -175,13 +175,13 @@ class Organization(db.Model):
 
     def record_event(self, *, tag, ip_address, additional):
         session = orm.object_session(self)
-        organization = OrganizationEvent(
-            user=self, tag=tag, ip_address=ip_address, additional=additional
+        event = OrganizationEvent(
+            organization=self, tag=tag, ip_address=ip_address, additional=additional
         )
-        session.add(organization)
+        session.add(event)
         session.flush()
 
-        return organization
+        return event
 
 
 class OrganizationEvent(db.Model):

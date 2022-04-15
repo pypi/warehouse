@@ -1012,11 +1012,48 @@ class ManageOrganizationsViews:
         if form.validate():
             data = form.data
             organization = self.organization_service.add_organization(**data)
+            self.organization_service.record_event(
+                organization.id,
+                tag="organization:create",
+                additional={"created_by": self.request.user.username},
+            )
             self.organization_service.add_catalog_entry(
                 organization.name, organization.id
             )
+            self.organization_service.record_event(
+                organization.id,
+                tag="organization:catalog_entry:add",
+                additional={"submitted_by": self.request.user.username},
+            )
             self.organization_service.add_organization_role(
                 "Owner", self.request.user.id, organization.id
+            )
+            self.organization_service.record_event(
+                organization.id,
+                tag="organization:organization_role:invite",
+                additional={
+                    "submitted_by": self.request.user.username,
+                    "role_name": "Owner",
+                    "target_user": self.request.user.username,
+                },
+            )
+            self.organization_service.record_event(
+                organization.id,
+                tag="organization:organization_role:accepted",
+                additional={
+                    "submitted_by": self.request.user.username,
+                    "role_name": "Owner",
+                    "target_user": self.request.user.username,
+                },
+            )
+            self.user_service.record_event(
+                self.request.user.id,
+                tag="account:organization_role:accepted",
+                additional={
+                    "submitted_by": self.request.user.username,
+                    "organization_name": organization.name,
+                    "role_name": "Owner",
+                },
             )
             send_admin_new_organization_requested_email(
                 self.request,
