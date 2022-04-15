@@ -225,7 +225,7 @@ msgstr ""
 msgid "Banner Preview"
 msgstr ""
 
-#: warehouse/admin/templates/admin/organizations/approve.html:17
+#: warehouse/admin/templates/admin/organizations/approve.html:21
 msgid "Approve New Organization"
 msgstr ""
 
