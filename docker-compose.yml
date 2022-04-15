@@ -3,6 +3,7 @@ version: '3.9'
 volumes:
   simple:
   packages:
+  pgdata:
   sponsorlogos:
   vault:
 
@@ -25,12 +26,18 @@ services:
       - ./dev/vault:/etc/vault
 
   db:
-    image: postgres:10.1
+    image: postgres:10
     ports:
       # 5432 may already in use by another PostgreSQL on host
       - "5433:5432"
     healthcheck:
-      test: ["CMD", "pg_isready", "-U", "postgres", "-d", "postgres"]
+      test: ["CMD", "pg_isready", "-d", "warehouse"]
+    environment:
+      POSTGRES_DB: warehouse
+      POSTGRES_PASSWORD: password
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      - ./dev/example.sql.xz:/docker-entrypoint-initdb.d/example.sql.xz:ro
 
   redis:
     image: redis:4.0
