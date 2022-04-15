@@ -238,7 +238,27 @@ or that the ``static`` container has finished compiling the static assets:
     static_1 | [20:28:37] Starting 'watch'...
     static_1 | [20:28:37] Finished 'watch' after 11 ms
 
-or maybe something else.
+After the docker containers are setup in the previous step, run:
+
+.. code-block:: console
+
+    make migrate
+
+This command will:
+
+* run migrations on the Postgres database,
+* index all the data for the search database, and
+* load some example data from `Test PyPI`_.
+
+The Postgres database is created automatically when its docker
+container starts for the first time. It also gets populated with
+example data. If you will need to reset the database, use:
+
+.. code-block:: console
+
+    make resetdb
+
+Once the ``make initdb`` command has finished, you are ready to continue.
 
 
 Viewing Warehouse in a browser
