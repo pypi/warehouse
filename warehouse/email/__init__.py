@@ -320,6 +320,16 @@ def send_new_organization_approved_email(
     }
 
 
+@_email("new-organization-declined")
+def send_new_organization_declined_email(
+    request, user, *, organization_name, message=""
+):
+    return {
+        "message": message,
+        "organization_name": organization_name,
+    }
+
+
 @_email("collaborator-added")
 def send_collaborator_added_email(
     request, email_recipients, *, user, submitter, project_name, role

@@ -1403,6 +1403,13 @@ msgid ""
 "organization projects, collaborators, teams, or settings."
 msgstr ""
 
+#: warehouse/templates/email/new-organization-declined/body.html:17
+#, python-format
+msgid ""
+"Your request to create a new organization named \"%(organization_name)s\""
+" was not approved."
+msgstr ""
+
 #: warehouse/templates/email/new-organization-requested/body.html:17
 #, python-format
 msgid ""
