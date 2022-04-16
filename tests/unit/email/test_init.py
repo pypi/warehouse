@@ -413,7 +413,7 @@ class TestSendEmail:
         assert task.retry.calls == [pretend.call(exc=exc)]
 
 
-class TestSendAdminNewOrganizationrequestedEmail:
+class TestSendAdminNewOrganizationRequestedEmail:
     def test_send_admin_new_organization_requested_email(
         self, pyramid_request, pyramid_config, monkeypatch
     ):
@@ -1355,7 +1355,7 @@ class TestPrimaryEmailChangeEmail:
         assert send_email.delay.calls == []
 
 
-class TestSendNewOrganizationrequestedEmail:
+class TestSendNewOrganizationRequestedEmail:
     def test_send_new_organization_requested_email(
         self, pyramid_request, pyramid_config, monkeypatch
     ):
