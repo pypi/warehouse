@@ -10,25 +10,39 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from pyramid.httpexceptions import HTTPNotFound
 from pyramid.view import view_config
+
+from warehouse.organizations.interfaces import IOrganizationService
 
 
 @view_config(
     route_name="admin.organization.detail",
     renderer="admin/organizations/detail.html",
     permission="admin",
-    require_methods=False,
-    uses_session=True,
     has_translations=True,
+    uses_session=True,
+    require_csrf=True,
+    require_methods=False,
+    require_reauth=True,
 )
 def detail(request):
+    organization_service = request.find_service(IOrganizationService, context=None)
+    organization_id = request.matchdict["organization_id"]
+    organization = organization_service.get_organization(organization_id)
+    if organization is None:
+        raise HTTPNotFound
+
+    # TODO: More robust way to get requesting user
+    user = organization.users[0]
+
     return {
-        "username": "example",
-        "user_full_name": "Example",
-        "user_email": "webmaster@example.com",
-        "organization_name": "example",
-        "organization_display_name": "Example",
-        "organization_url": "https://www.example.com/",
-        "organization_description": "This company is for use in illustrative examples in documents. You may use this company in literature without prior coordination or asking for permission.",
-        "organization_type": "Company",
+        "username": user.username,
+        "user_full_name": user.name,
+        "user_email": user.public_email,
+        "organization_name": organization.name,
+        "organization_display_name": organization.display_name,
+        "organization_link_url": organization.link_url,
+        "organization_description": organization.description,
+        "organization_orgtype": organization.orgtype.name,
     }

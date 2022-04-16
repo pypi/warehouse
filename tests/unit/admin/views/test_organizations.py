@@ -11,19 +11,62 @@
 # limitations under the License.
 
 import pretend
+import pytest
+
+from pyramid.httpexceptions import HTTPNotFound
 
 from warehouse.admin.views import organizations as views
 
 
 class TestOrganizations:
     def test_detail(self):
-        assert views.detail(pretend.stub()) == {
-            "username": "example",
-            "user_full_name": "Example",
-            "user_email": "webmaster@example.com",
-            "organization_name": "example",
-            "organization_display_name": "Example",
-            "organization_url": "https://www.example.com/",
-            "organization_description": "This company is for use in illustrative examples in documents. You may use this company in literature without prior coordination or asking for permission.",
-            "organization_type": "Company",
+        user = pretend.stub(
+            username="example",
+            name="Example",
+            public_email="webmaster@example.com",
+        )
+        organization = pretend.stub(
+            id=pretend.stub(),
+            name="example",
+            display_name="Example",
+            orgtype=pretend.stub(name="Company"),
+            link_url="https://www.example.com/",
+            description=(
+                "This company is for use in illustrative examples in documents "
+                "You may use this company in literature without prior "
+                "coordination or asking for permission."
+            ),
+            is_active=False,
+            is_approved=None,
+            users=[user],
+        )
+        organization_service = pretend.stub(
+            get_organization=lambda *a, **kw: organization,
+        )
+        request = pretend.stub(
+            find_service=lambda *a, **kw: organization_service,
+            matchdict={"organization_id": pretend.stub()},
+        )
+
+        assert views.detail(request) == {
+            "username": user.username,
+            "user_full_name": user.name,
+            "user_email": user.public_email,
+            "organization_name": organization.name,
+            "organization_display_name": organization.display_name,
+            "organization_link_url": organization.link_url,
+            "organization_description": organization.description,
+            "organization_orgtype": organization.orgtype.name,
         }
+
+    def test_detail_not_found(self):
+        organization_service = pretend.stub(
+            get_organization=lambda *a, **kw: None,
+        )
+        request = pretend.stub(
+            find_service=lambda *a, **kw: organization_service,
+            matchdict={"organization_id": pretend.stub()},
+        )
+
+        with pytest.raises(HTTPNotFound):
+            views.detail(request)
