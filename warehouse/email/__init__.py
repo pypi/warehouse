@@ -191,10 +191,11 @@ def _email(
 
 @_email("admin-new-organization-requested")
 def send_admin_new_organization_requested_email(
-    request, user, *, organization_name, initiator_username
+    request, user, *, organization_name, initiator_username, organization_id
 ):
     return {
         "initiator_username": initiator_username,
+        "organization_id": organization_id,
         "organization_name": organization_name,
     }
 

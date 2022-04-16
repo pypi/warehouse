@@ -17,5 +17,5 @@
 {{ initiator_username }} has requested approval to create a new PyPI organization named "{{ organization_name }}".
 
 Please follow this link to approve or decline the request:
-{{ request.route_url('admin.organization.approve', _query={'organization_name': organization_name}) }}
+{{ request.route_url('admin.organization.detail', organization_id=organization_id) }}
 {% endblock %}

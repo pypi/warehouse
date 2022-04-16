@@ -431,6 +431,7 @@ class TestSendAdminNewOrganizationRequestedEmail:
             email="email@example.com",
             primary_email=pretend.stub(email="email@example.com", verified=True),
         )
+        organization_id = "id"
         organization_name = "example"
 
         subject_renderer = pyramid_config.testing_add_renderer(
@@ -467,23 +468,28 @@ class TestSendAdminNewOrganizationRequestedEmail:
             admin_user,
             organization_name=organization_name,
             initiator_username=initiator_user.username,
+            organization_id=organization_id,
         )
 
         assert result == {
             "organization_name": organization_name,
             "initiator_username": initiator_user.username,
+            "organization_id": organization_id,
         }
         subject_renderer.assert_(
             organization_name=organization_name,
             initiator_username=initiator_user.username,
+            organization_id=organization_id,
         )
         body_renderer.assert_(
             organization_name=organization_name,
             initiator_username=initiator_user.username,
+            organization_id=organization_id,
         )
         html_renderer.assert_(
             organization_name=organization_name,
             initiator_username=initiator_user.username,
+            organization_id=organization_id,
         )
         assert pyramid_request.task.calls == [pretend.call(send_email)]
         assert send_email.delay.calls == [

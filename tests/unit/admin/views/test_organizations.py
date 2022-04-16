@@ -16,8 +16,8 @@ from warehouse.admin.views import organizations as views
 
 
 class TestOrganizations:
-    def test_approve(self):
-        assert views.approve(pretend.stub()) == {
+    def test_detail(self):
+        assert views.detail(pretend.stub()) == {
             "username": "example",
             "user_full_name": "Example",
             "user_email": "webmaster@example.com",

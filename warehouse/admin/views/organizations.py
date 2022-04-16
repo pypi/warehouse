@@ -14,14 +14,14 @@ from pyramid.view import view_config
 
 
 @view_config(
-    route_name="admin.organization.approve",
-    renderer="admin/organizations/approve.html",
+    route_name="admin.organization.detail",
+    renderer="admin/organizations/detail.html",
     permission="admin",
     require_methods=False,
     uses_session=True,
     has_translations=True,
 )
-def approve(request):
+def detail(request):
     return {
         "username": "example",
         "user_full_name": "Example",

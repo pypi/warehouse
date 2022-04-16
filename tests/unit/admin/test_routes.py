@@ -27,8 +27,8 @@ def test_includeme():
     assert config.add_route.calls == [
         pretend.call("admin.dashboard", "/admin/", domain=warehouse),
         pretend.call(
-            "admin.organization.approve",
-            "/admin/organizations/approve/",
+            "admin.organization.detail",
+            "/admin/organizations/{organization_id}/",
             domain=warehouse,
         ),
         pretend.call("admin.user.list", "/admin/users/", domain=warehouse),

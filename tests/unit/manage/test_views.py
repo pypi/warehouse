@@ -2504,6 +2504,7 @@ class TestManageOrganizations:
                 admins,
                 organization_name=organization.name,
                 initiator_username=request.user.username,
+                organization_id=organization.id,
             ),
             pretend.call(
                 request,
