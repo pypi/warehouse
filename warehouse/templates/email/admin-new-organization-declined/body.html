@@ -14,7 +14,7 @@
 {% extends "email/_base/body.html" %}
 
 {% block content %}
-<p>{% trans organization_name=organization_name, initiator_username=initiator_username, initiator_profile=request.route_url('accounts.profile', username=initiator_username) %}<a href="{{ initiator_profile }}">{{ initiator_username }}</a>'s request to create a new organization named "{{ organization_name }}" was not approved.{% endtrans %}</p>
+<p><a href="{{ request.route_url('accounts.profile', username=initiator_username) }}">{{ initiator_username }}</a>'s request to create a new organization named "{{ organization_name }}" was not approved.</p>
 
 <p>{{ message|default('') }}</p>
 {% endblock %}

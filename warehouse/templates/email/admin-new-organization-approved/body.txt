@@ -14,7 +14,7 @@
 {% extends "email/_base/body.txt" %}
 
 {% block content %}
-{% trans organization_name=organization_name, initiator_username=initiator_username %}{{ initiator_username }}'s new organization named "{{ organization_name }}" has been approved and created.{% endtrans %}
+{{ initiator_username }}'s new organization named "{{ organization_name }}" has been approved and created.
 
 {{ message|default('') }}
 {% endblock %}

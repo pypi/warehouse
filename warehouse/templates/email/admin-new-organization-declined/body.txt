@@ -14,7 +14,7 @@
 {% extends "email/_base/body.txt" %}
 
 {% block content %}
-{% trans organization_name=organization_name, initiator_username=initiator_username %}{{ initiator_username }}'s request to create a new organization named "{{ organization_name }}" was not approved.{% endtrans %}
+{{ initiator_username }}'s request to create a new organization named "{{ organization_name }}" was not approved.
 
 {{ message|default('') }}
 {% endblock %}

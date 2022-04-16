@@ -1337,22 +1337,6 @@ msgid ""
 "%(initiator_username)s to a project on %(site)s."
 msgstr ""
 
-#: warehouse/templates/email/admin-new-organization-approved/body.html:17
-#, python-format
-msgid ""
-"<a href=\"%(initiator_profile)s\">%(initiator_username)s</a>'s new "
-"organization named \"%(organization_name)s\" has been approved and "
-"created."
-msgstr ""
-
-#: warehouse/templates/email/admin-new-organization-declined/body.html:17
-#, python-format
-msgid ""
-"<a href=\"%(initiator_profile)s\">%(initiator_username)s</a>'s request to"
-" create a new organization named \"%(organization_name)s\" was not "
-"approved."
-msgstr ""
-
 #: warehouse/templates/email/basic-auth-with-2fa/body.html:17
 #: warehouse/templates/email/password-compromised-hibp/body.html:18
 #: warehouse/templates/email/password-compromised/body.html:18
