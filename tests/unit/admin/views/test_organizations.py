@@ -49,14 +49,8 @@ class TestOrganizations:
         )
 
         assert views.detail(request) == {
-            "username": user.username,
-            "user_full_name": user.name,
-            "user_email": user.public_email,
-            "organization_name": organization.name,
-            "organization_display_name": organization.display_name,
-            "organization_link_url": organization.link_url,
-            "organization_description": organization.description,
-            "organization_orgtype": organization.orgtype.name,
+            "user": user,
+            "organization": organization,
         }
 
     def test_detail_not_found(self):
@@ -70,3 +64,29 @@ class TestOrganizations:
 
         with pytest.raises(HTTPNotFound):
             views.detail(request)
+
+    def test_approve(self):
+        organization = pretend.stub(id=pretend.stub())
+        organization_detail_location = (f"/admin/organizations/{organization.id}/",)
+        request = pretend.stub(
+            matchdict={"organization_id": organization.id},
+            route_path=lambda *a, **kw: organization_detail_location,
+        )
+
+        result = views.approve(request)
+
+        assert result.status_code == 303
+        assert result.location == organization_detail_location
+
+    def test_decline(self):
+        organization = pretend.stub(id=pretend.stub())
+        organization_detail_location = (f"/admin/organizations/{organization.id}/",)
+        request = pretend.stub(
+            matchdict={"organization_id": organization.id},
+            route_path=lambda *a, **kw: organization_detail_location,
+        )
+
+        result = views.decline(request)
+
+        assert result.status_code == 303
+        assert result.location == organization_detail_location

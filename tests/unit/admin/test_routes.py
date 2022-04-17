@@ -31,6 +31,16 @@ def test_includeme():
             "/admin/organizations/{organization_id}/",
             domain=warehouse,
         ),
+        pretend.call(
+            "admin.organization.approve",
+            "/admin/organizations/{organization_id}/approve/",
+            domain=warehouse,
+        ),
+        pretend.call(
+            "admin.organization.decline",
+            "/admin/organizations/{organization_id}/decline/",
+            domain=warehouse,
+        ),
         pretend.call("admin.user.list", "/admin/users/", domain=warehouse),
         pretend.call("admin.user.detail", "/admin/users/{user_id}/", domain=warehouse),
         pretend.call(

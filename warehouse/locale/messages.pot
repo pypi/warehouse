@@ -225,70 +225,6 @@ msgstr ""
 msgid "Banner Preview"
 msgstr ""
 
-#: warehouse/admin/templates/admin/organizations/detail.html:17
-msgid "Approve New Organization"
-msgstr ""
-
-#: warehouse/admin/templates/admin/organizations/detail.html:25
-#, python-format
-msgid ""
-"\n"
-"      The following request has been made to create a new organization "
-"named <strong>%(organization_name)s</strong>.\n"
-"      "
-msgstr ""
-
-#: warehouse/admin/templates/admin/organizations/detail.html:32
-msgid "Requesting user"
-msgstr ""
-
-#: warehouse/admin/templates/admin/organizations/detail.html:37
-#: warehouse/templates/manage/organizations.html:32
-msgid "Organization account name"
-msgstr ""
-
-#: warehouse/admin/templates/admin/organizations/detail.html:39
-#: warehouse/templates/manage/organizations.html:55
-msgid "Organization name"
-msgstr ""
-
-#: warehouse/admin/templates/admin/organizations/detail.html:41
-msgid "Organization URL"
-msgstr ""
-
-#: warehouse/admin/templates/admin/organizations/detail.html:43
-#: warehouse/templates/manage/organizations.html:95
-msgid "Organization description"
-msgstr ""
-
-#: warehouse/admin/templates/admin/organizations/detail.html:45
-msgid "Organization type"
-msgstr ""
-
-#: warehouse/admin/templates/admin/organizations/detail.html:51
-#, python-format
-msgid ""
-"\n"
-"      Would you like to approve or decline <a href=\"%(user_profile)s\" "
-"title=\"%(username)s\">%(user_full_name)s</a>'s request to create the "
-"<strong>%(organization_name)s</strong> organization?\n"
-"      "
-msgstr ""
-
-#: warehouse/admin/templates/admin/organizations/detail.html:57
-msgid "Approve"
-msgstr ""
-
-#: warehouse/admin/templates/admin/organizations/detail.html:58
-#: warehouse/templates/accounts/invite-confirmation.html:33
-#: warehouse/templates/manage/projects.html:50
-msgid "Decline"
-msgstr ""
-
-#: warehouse/admin/templates/admin/organizations/detail.html:64
-msgid "This message will be included in the notification email."
-msgstr ""
-
 #: warehouse/manage/forms.py:322
 msgid "Choose an organization account name with 50 characters or less."
 msgstr ""
@@ -1077,6 +1013,11 @@ msgstr ""
 #: warehouse/templates/accounts/invite-confirmation.html:32
 #: warehouse/templates/manage/projects.html:49
 msgid "Accept"
+msgstr ""
+
+#: warehouse/templates/accounts/invite-confirmation.html:33
+#: warehouse/templates/manage/projects.html:50
+msgid "Decline"
 msgstr ""
 
 #: warehouse/templates/accounts/login.html:30
@@ -3057,6 +2998,10 @@ msgstr ""
 msgid "Create new organization"
 msgstr ""
 
+#: warehouse/templates/manage/organizations.html:32
+msgid "Organization account name"
+msgstr ""
+
 #: warehouse/templates/manage/organizations.html:37
 msgid "Select an organization account name"
 msgstr ""
@@ -3071,6 +3016,10 @@ msgstr ""
 msgid "For example"
 msgstr ""
 
+#: warehouse/templates/manage/organizations.html:55
+msgid "Organization name"
+msgstr ""
+
 #: warehouse/templates/manage/organizations.html:60
 msgid "Name of your business, product, or project"
 msgstr ""
@@ -3081,6 +3030,10 @@ msgstr ""
 
 #: warehouse/templates/manage/organizations.html:83
 msgid "URL for your business, product, or project"
+msgstr ""
+
+#: warehouse/templates/manage/organizations.html:95
+msgid "Organization description"
 msgstr ""
 
 #: warehouse/templates/manage/organizations.html:100

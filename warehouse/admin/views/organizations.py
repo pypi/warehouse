@@ -10,7 +10,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from pyramid.httpexceptions import HTTPNotFound
+from pyramid.httpexceptions import HTTPNotFound, HTTPSeeOther
 from pyramid.view import view_config
 
 from warehouse.organizations.interfaces import IOrganizationService
@@ -18,12 +18,12 @@ from warehouse.organizations.interfaces import IOrganizationService
 
 @view_config(
     route_name="admin.organization.detail",
+    require_methods=False,
     renderer="admin/organizations/detail.html",
     permission="admin",
     has_translations=True,
     uses_session=True,
     require_csrf=True,
-    require_methods=False,
     require_reauth=True,
 )
 def detail(request):
@@ -37,12 +37,46 @@ def detail(request):
     user = organization.users[0]
 
     return {
-        "username": user.username,
-        "user_full_name": user.name,
-        "user_email": user.public_email,
-        "organization_name": organization.name,
-        "organization_display_name": organization.display_name,
-        "organization_link_url": organization.link_url,
-        "organization_description": organization.description,
-        "organization_orgtype": organization.orgtype.name,
+        "organization": organization,
+        "user": user,
     }
+
+
+@view_config(
+    route_name="admin.organization.approve",
+    require_methods=["POST"],
+    renderer="admin/organizations/approve.html",
+    permission="admin",
+    has_translations=True,
+    uses_session=True,
+    require_csrf=True,
+    require_reauth=True,
+)
+def approve(request):
+    organization_id = request.matchdict["organization_id"]
+
+    # TODO: Call organization service
+
+    return HTTPSeeOther(
+        request.route_path("admin.organization.detail", organization_id=organization_id)
+    )
+
+
+@view_config(
+    route_name="admin.organization.decline",
+    require_methods=["POST"],
+    renderer="admin/organizations/decline.html",
+    permission="admin",
+    has_translations=True,
+    uses_session=True,
+    require_csrf=True,
+    require_reauth=True,
+)
+def decline(request):
+    organization_id = request.matchdict["organization_id"]
+
+    # TODO: Call organization service
+
+    return HTTPSeeOther(
+        request.route_path("admin.organization.detail", organization_id=organization_id)
+    )
