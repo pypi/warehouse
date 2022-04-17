@@ -13,6 +13,13 @@
 from pyramid.httpexceptions import HTTPNotFound, HTTPSeeOther
 from pyramid.view import view_config
 
+from warehouse.accounts.interfaces import IUserService
+from warehouse.email import (
+    send_admin_new_organization_approved_email,
+    send_admin_new_organization_declined_email,
+    send_new_organization_approved_email,
+    send_new_organization_declined_email,
+)
 from warehouse.organizations.interfaces import IOrganizationService
 
 
@@ -53,12 +60,51 @@ def detail(request):
     require_reauth=True,
 )
 def approve(request):
-    organization_id = request.matchdict["organization_id"]
+    organization_service = request.find_service(IOrganizationService, context=None)
+    user_service = request.find_service(IUserService, context=None)
 
-    # TODO: Call organization service
+    organization_id = request.matchdict["organization_id"]
+    organization = organization_service.get_organization(organization_id)
+    if organization is None:
+        raise HTTPNotFound
+    elif organization.name != request.params.get("organization_name"):
+        request.session.flash("Wrong confirmation input", queue="error")
+        return HTTPSeeOther(
+            request.route_path(
+                "admin.organization.detail", organization_id=organization.id
+            )
+        )
+
+    # TODO: More robust way to get requesting user
+    user = organization.users[0]
+
+    message = request.params.get("message", "")
+
+    organization_service.approve_organization(organization.id)
+    organization_service.record_event(
+        organization.id,
+        tag="organization:approve",
+        additional={"approved_by": request.user.username},
+    )
+    send_admin_new_organization_approved_email(
+        request,
+        user_service.get_admins(),
+        organization_name=organization.name,
+        initiator_username=user.username,
+        message=message,
+    )
+    send_new_organization_approved_email(
+        request,
+        user,
+        organization_name=organization.name,
+        message=message,
+    )
+    request.session.flash(
+        f'Request for "{organization.name}" organization approved', queue="success"
+    )
 
     return HTTPSeeOther(
-        request.route_path("admin.organization.detail", organization_id=organization_id)
+        request.route_path("admin.organization.detail", organization_id=organization.id)
     )
 
 
@@ -73,10 +119,49 @@ def approve(request):
     require_reauth=True,
 )
 def decline(request):
-    organization_id = request.matchdict["organization_id"]
+    organization_service = request.find_service(IOrganizationService, context=None)
+    user_service = request.find_service(IUserService, context=None)
 
-    # TODO: Call organization service
+    organization_id = request.matchdict["organization_id"]
+    organization = organization_service.get_organization(organization_id)
+    if organization is None:
+        raise HTTPNotFound
+    elif organization.name != request.params.get("organization_name"):
+        request.session.flash("Wrong confirmation input", queue="error")
+        return HTTPSeeOther(
+            request.route_path(
+                "admin.organization.detail", organization_id=organization.id
+            )
+        )
+
+    # TODO: More robust way to get requesting user
+    user = organization.users[0]
+
+    message = request.params.get("message", "")
+
+    organization_service.decline_organization(organization.id)
+    organization_service.record_event(
+        organization.id,
+        tag="organization:decline",
+        additional={"declined_by": request.user.username},
+    )
+    send_admin_new_organization_declined_email(
+        request,
+        user_service.get_admins(),
+        organization_name=organization.name,
+        initiator_username=user.username,
+        message=message,
+    )
+    send_new_organization_declined_email(
+        request,
+        user,
+        organization_name=organization.name,
+        message=message,
+    )
+    request.session.flash(
+        f'Request for "{organization.name}" organization declined', queue="success"
+    )
 
     return HTTPSeeOther(
-        request.route_path("admin.organization.detail", organization_id=organization_id)
+        request.route_path("admin.organization.detail", organization_id=organization.id)
     )
