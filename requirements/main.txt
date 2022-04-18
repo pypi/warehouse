@@ -8,9 +8,9 @@ alembic==1.7.7 \
     --hash=sha256:29be0856ec7591c39f4e1cb10f198045d890e6e2274cf8da80cb5e721a09642b \
     --hash=sha256:4961248173ead7ce8a21efb3de378f13b8398e6630fab0eb258dc74a8af24c58
     # via -r requirements/main.in
-amqp==5.1.0 \
-    --hash=sha256:446b3e8a8ebc2ceafd424ffcaab1c353830d48161256578ed7a65448e601ebed \
-    --hash=sha256:a575f4fa659a2290dc369b000cff5fea5c6be05fe3f2d5e511bcf56c7881c3ef
+amqp==5.1.1 \
+    --hash=sha256:2c1b13fecc0893e946c65cbd5f36427861cffa4ea2201d8f6fca22e2a373b5e2 \
+    --hash=sha256:6f0956d2c23d8fa6e7691934d8c3930eadb44972cbbd1a7ae3a520f735d43359
     # via kombu
 argon2-cffi==21.3.0 \
     --hash=sha256:8c976986f2c5c0e5000919e6de187906cfd81fb1c72bf9d88c01177e77da7f80 \
