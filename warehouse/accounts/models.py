@@ -159,7 +159,6 @@ class User(SitemapMixin, HasEvents, db.Model):
                 (User.Event.source_id == self.id) & (User.Event.time >= last_ninety)
             )
             .order_by(User.Event.time.desc())
-            .all()
         )
 
     @property

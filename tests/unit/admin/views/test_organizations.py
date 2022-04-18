@@ -23,9 +23,16 @@ from warehouse.organizations.interfaces import IOrganizationService
 class TestOrganizations:
     def test_detail(self):
         user = pretend.stub(
+            id=pretend.stub(),
             username="example",
             name="Example",
             public_email="webmaster@example.com",
+        )
+        user_service = pretend.stub(
+            get_user=lambda *a, **kw: user,
+        )
+        create_event = pretend.stub(
+            additional={"created_by_user_id": str(user.id)},
         )
         organization = pretend.stub(
             id=pretend.stub(),
@@ -40,13 +47,22 @@ class TestOrganizations:
             ),
             is_active=False,
             is_approved=None,
-            users=[user],
+            events=pretend.stub(
+                filter=lambda *a, **kw: pretend.stub(
+                    order_by=lambda *a, **kw: pretend.stub(
+                        first=lambda *a, **kw: create_event,
+                    ),
+                ),
+            ),
         )
         organization_service = pretend.stub(
             get_organization=lambda *a, **kw: organization,
         )
         request = pretend.stub(
-            find_service=lambda *a, **kw: organization_service,
+            find_service=lambda iface, **kw: {
+                IUserService: user_service,
+                IOrganizationService: organization_service,
+            }[iface],
             matchdict={"organization_id": pretend.stub()},
         )
 
@@ -69,17 +85,23 @@ class TestOrganizations:
 
     def test_approve(self, monkeypatch):
         admin = pretend.stub(
+            id=pretend.stub(),
             username="admin",
             name="Admin",
             public_email="admin@pypi.org",
         )
         user = pretend.stub(
+            id=pretend.stub(),
             username="example",
             name="Example",
             public_email="webmaster@example.com",
         )
         user_service = pretend.stub(
             get_admins=lambda *a, **kw: [admin],
+            get_user=lambda *a, **kw: user,
+        )
+        create_event = pretend.stub(
+            additional={"created_by_user_id": str(user.id)},
         )
         organization = pretend.stub(
             id=pretend.stub(),
@@ -94,7 +116,13 @@ class TestOrganizations:
             ),
             is_active=False,
             is_approved=None,
-            users=[user],
+            events=pretend.stub(
+                filter=lambda *a, **kw: pretend.stub(
+                    order_by=lambda *a, **kw: pretend.stub(
+                        first=lambda *a, **kw: create_event,
+                    ),
+                ),
+            ),
         )
         organization_service = pretend.stub(
             get_organization=lambda *a, **kw: organization,
@@ -200,17 +228,23 @@ class TestOrganizations:
 
     def test_decline(self, monkeypatch):
         admin = pretend.stub(
+            id=pretend.stub(),
             username="admin",
             name="Admin",
             public_email="admin@pypi.org",
         )
         user = pretend.stub(
+            id=pretend.stub(),
             username="example",
             name="Example",
             public_email="webmaster@example.com",
         )
         user_service = pretend.stub(
             get_admins=lambda *a, **kw: [admin],
+            get_user=lambda *a, **kw: user,
+        )
+        create_event = pretend.stub(
+            additional={"created_by_user_id": str(user.id)},
         )
         organization = pretend.stub(
             id=pretend.stub(),
@@ -225,7 +259,13 @@ class TestOrganizations:
             ),
             is_active=False,
             is_approved=None,
-            users=[user],
+            events=pretend.stub(
+                filter=lambda *a, **kw: pretend.stub(
+                    order_by=lambda *a, **kw: pretend.stub(
+                        first=lambda *a, **kw: create_event,
+                    ),
+                ),
+            ),
         )
         organization_service = pretend.stub(
             get_organization=lambda *a, **kw: organization,

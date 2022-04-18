@@ -70,7 +70,7 @@ class HasEvents:
 
     @declared_attr
     def events(cls):  # noqa: N805
-        return orm.relationship(cls.Event, cascade="all, delete-orphan", lazy=True)
+        return orm.relationship(cls.Event, cascade="all, delete-orphan", lazy="dynamic")
 
     def record_event(self, *, tag, ip_address, additional=None):
         session = orm.object_session(self)

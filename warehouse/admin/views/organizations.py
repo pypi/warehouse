@@ -21,6 +21,7 @@ from warehouse.email import (
     send_new_organization_declined_email,
 )
 from warehouse.organizations.interfaces import IOrganizationService
+from warehouse.organizations.models import Organization
 
 
 @view_config(
@@ -35,13 +36,19 @@ from warehouse.organizations.interfaces import IOrganizationService
 )
 def detail(request):
     organization_service = request.find_service(IOrganizationService, context=None)
+    user_service = request.find_service(IUserService, context=None)
+
     organization_id = request.matchdict["organization_id"]
     organization = organization_service.get_organization(organization_id)
     if organization is None:
         raise HTTPNotFound
 
-    # TODO: More robust way to get requesting user
-    user = organization.users[0]
+    create_event = (
+        organization.events.filter(Organization.Event.tag == "organization:create")
+        .order_by(Organization.Event.time.desc())
+        .first()
+    )
+    user = user_service.get_user(create_event.additional["created_by_user_id"])
 
     return {
         "organization": organization,
@@ -75,8 +82,12 @@ def approve(request):
             )
         )
 
-    # TODO: More robust way to get requesting user
-    user = organization.users[0]
+    create_event = (
+        organization.events.filter(Organization.Event.tag == "organization:create")
+        .order_by(Organization.Event.time.desc())
+        .first()
+    )
+    user = user_service.get_user(create_event.additional["created_by_user_id"])
 
     message = request.params.get("message", "")
 
@@ -134,8 +145,12 @@ def decline(request):
             )
         )
 
-    # TODO: More robust way to get requesting user
-    user = organization.users[0]
+    create_event = (
+        organization.events.filter(Organization.Event.tag == "organization:create")
+        .order_by(Organization.Event.time.desc())
+        .first()
+    )
+    user = user_service.get_user(create_event.additional["created_by_user_id"])
 
     message = request.params.get("message", "")
 

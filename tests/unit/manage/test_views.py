@@ -2849,7 +2849,7 @@ class TestManageProjectSettings:
         assert result.status_code == 303
         assert result.headers["Location"] == "/foo/bar/"
 
-        events = project.events
+        events = project.events.all()
         assert len(events) == 1
         event = events[0]
         assert event.tag == tag

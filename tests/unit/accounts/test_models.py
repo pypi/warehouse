@@ -110,10 +110,8 @@ class TestUser:
             time=datetime.datetime.now() - datetime.timedelta(days=91),
         )
 
-        assert len(user.events) == 2
-        assert len(user.recent_events) == 1
-        assert user.events == [recent_event, stale_event]
-        assert user.recent_events == [recent_event]
+        assert user.events.all() == [recent_event, stale_event]
+        assert user.recent_events.all() == [recent_event]
 
     def test_regular_user_not_prohibited_password_reset(self, db_session):
         user = DBUserFactory.create()
