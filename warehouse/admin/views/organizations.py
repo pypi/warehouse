@@ -50,7 +50,25 @@ def detail(request):
     )
     user = user_service.get_user(create_event.additional["created_by_user_id"])
 
+    if organization.is_approved is True:
+        approve_event = (
+            organization.events.filter(Organization.Event.tag == "organization:approve")
+            .order_by(Organization.Event.time.desc())
+            .first()
+        )
+        admin_username = approve_event.additional["approved_by"]
+    elif organization.is_approved is False:
+        decline_event = (
+            organization.events.filter(Organization.Event.tag == "organization:decline")
+            .order_by(Organization.Event.time.desc())
+            .first()
+        )
+        admin_username = decline_event.additional["declined_by"]
+    else:
+        admin_username = None
+
     return {
+        "admin_username": admin_username,
         "organization": organization,
         "user": user,
     }

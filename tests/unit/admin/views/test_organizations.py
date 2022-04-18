@@ -67,6 +67,115 @@ class TestOrganizations:
         )
 
         assert views.detail(request) == {
+            "admin_username": None,
+            "user": user,
+            "organization": organization,
+        }
+
+    def test_detail_is_approved_true(self):
+        user = pretend.stub(
+            id=pretend.stub(),
+            username="example",
+            name="Example",
+            public_email="webmaster@example.com",
+        )
+        user_service = pretend.stub(
+            get_user=lambda *a, **kw: user,
+        )
+        create_or_approve_event = pretend.stub(
+            additional={
+                "created_by_user_id": str(user.id),
+                "approved_by": "admin",
+            },
+        )
+        organization = pretend.stub(
+            id=pretend.stub(),
+            name="example",
+            display_name="Example",
+            orgtype=pretend.stub(name="Company"),
+            link_url="https://www.example.com/",
+            description=(
+                "This company is for use in illustrative examples in documents "
+                "You may use this company in literature without prior "
+                "coordination or asking for permission."
+            ),
+            is_active=True,
+            is_approved=True,
+            events=pretend.stub(
+                filter=lambda *a, **kw: pretend.stub(
+                    order_by=lambda *a, **kw: pretend.stub(
+                        first=lambda *a, **kw: create_or_approve_event,
+                    ),
+                ),
+            ),
+        )
+        organization_service = pretend.stub(
+            get_organization=lambda *a, **kw: organization,
+        )
+        request = pretend.stub(
+            find_service=lambda iface, **kw: {
+                IUserService: user_service,
+                IOrganizationService: organization_service,
+            }[iface],
+            matchdict={"organization_id": pretend.stub()},
+        )
+
+        assert views.detail(request) == {
+            "admin_username": "admin",
+            "user": user,
+            "organization": organization,
+        }
+
+    def test_detail_is_approved_false(self):
+        user = pretend.stub(
+            id=pretend.stub(),
+            username="example",
+            name="Example",
+            public_email="webmaster@example.com",
+        )
+        user_service = pretend.stub(
+            get_user=lambda *a, **kw: user,
+        )
+        create_or_decline_event = pretend.stub(
+            additional={
+                "created_by_user_id": str(user.id),
+                "declined_by": "admin",
+            },
+        )
+        organization = pretend.stub(
+            id=pretend.stub(),
+            name="example",
+            display_name="Example",
+            orgtype=pretend.stub(name="Company"),
+            link_url="https://www.example.com/",
+            description=(
+                "This company is for use in illustrative examples in documents "
+                "You may use this company in literature without prior "
+                "coordination or asking for permission."
+            ),
+            is_active=False,
+            is_approved=False,
+            events=pretend.stub(
+                filter=lambda *a, **kw: pretend.stub(
+                    order_by=lambda *a, **kw: pretend.stub(
+                        first=lambda *a, **kw: create_or_decline_event,
+                    ),
+                ),
+            ),
+        )
+        organization_service = pretend.stub(
+            get_organization=lambda *a, **kw: organization,
+        )
+        request = pretend.stub(
+            find_service=lambda iface, **kw: {
+                IUserService: user_service,
+                IOrganizationService: organization_service,
+            }[iface],
+            matchdict={"organization_id": pretend.stub()},
+        )
+
+        assert views.detail(request) == {
+            "admin_username": "admin",
             "user": user,
             "organization": organization,
         }

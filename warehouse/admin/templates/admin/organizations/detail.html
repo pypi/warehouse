@@ -59,10 +59,24 @@
           <p>
             Approve or decline request for organization named <strong>{{ organization.name }}</strong>?
           </p>
-          <div class="btn-group" role="group">
-            <button type="button" class="btn btn-primary btn-block" data-toggle="modal" data-target="#approveModal" {{ "disabled" if not request.has_permission('admin') }}>
+          <div class="form-group">
+            <button type="button" class="btn {{ 'btn-primary' if organization.is_approved != True else '' }} btn-block" data-toggle="modal" data-target="#approveModal" {{ 'disabled' if not request.has_permission('admin') or organization.is_approved == True }} title="{{ 'Admin permission required to approve organization request' if not request.has_permission('admin') else 'Organization request already approved' if organization.is_approved == True else 'Approve organization request' }}">
               <i class="icon fa fa-check"></i> Approve
             </button>
+            <button type="button" class="btn {{ 'btn-danger' if organization.is_approved != False else '' }} btn-block" data-toggle="modal" data-target="#declineModal" {{ 'disabled' if not request.has_permission('admin') or organization.is_approved == False }} title="{{ 'Admin permission required to decline organization request' if not request.has_permission('admin') else 'Organization request already declined' if organization.is_approved == False else 'Decline organization request' }}">
+              <i class="icon fa fa-times"></i> Decline
+            </button>
+            {% if organization.is_approved == True %}
+            <p class="help-block">
+              Request was approved on {{ organization.date_approved|format_date() }}.
+              Click <b>Decline</b> to change the decision.
+            </p>
+            {% elif organization.is_approved == False %}
+            <p class="help-block">
+              Request was declined on {{ organization.date_approved|format_date() }}.
+              Click <b>Approve</b> to change the decision.
+            </p>
+            {% endif %}
             <div class="modal fade" id="approveModal" tabindex="-1" role="dialog">
               <form method="POST" action="{{ request.route_path('admin.organization.approve', organization_id=organization.id) }}">
                 <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
@@ -106,12 +120,9 @@
                       </button>
                     </div>
                   </div>
-                </form>
-              </div>
+                </div>
+              </form>
             </div>
-            <button type="button" class="btn btn-danger btn-block" data-toggle="modal" data-target="#declineModal" {{ "disabled" if not request.has_permission('admin') }}>
-              <i class="icon fa fa-times"></i> Decline
-            </button>
             <div class="modal fade" id="declineModal" tabindex="-1" role="dialog">
               <form method="POST" action="{{ request.route_path('admin.organization.decline', organization_id=organization.id) }}">
                 <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
@@ -155,8 +166,8 @@
                       </button>
                     </div>
                   </div>
-                </form>
-              </div>
+                </div>
+              </form>
             </div>
           </div>
         </div>
@@ -172,11 +183,28 @@
           <div class="form-horizontal">
             <div class="form-group">
               <label class="col-sm-5 control-label">
+                Approval Status
+              </label>
+              <div class="col-sm-7">
+                {% if organization.is_approved == True %}
+                Approved by <a href="{{ request.route_url('accounts.profile', username=admin_username) }}">{{ admin_username }}</a><br>
+                {{ organization.date_approved|format_date() }}
+                {% elif organization.is_approved == False %}
+                Declined by <a href="{{ request.route_url('accounts.profile', username=admin_username) }}">{{ admin_username }}</a><br>
+                {{ organization.date_approved|format_date() }}
+                {% else %}
+                Pending request by <a href="{{ request.route_url('accounts.profile', username=user.username) }}">{{ user.username }}</a><br>
+                {{ organization.created|format_date() }}
+                {% endif %}
+              </div>
+            </div>
+            <div class="form-group">
+              <label class="col-sm-5 control-label">
                 Requesting User
               </label>
               <div class="col-sm-7">
-                <a href="{{ request.route_url('accounts.profile', username=user.username) }}" title="{{ user.username }}">{{ user.name }}</a>
-                (<a href="mailto:{{ user.email }}">{{ user.email }}</a>)
+                <a href="{{ request.route_url('accounts.profile', username=user.username) }}" title="{{ user.username }}">{{ user.name }}</a><br>
+                <a href="mailto:{{ user.email }}">{{ user.email }}</a>
               </div>
             </div>
             <div class="form-group">
