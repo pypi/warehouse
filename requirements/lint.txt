@@ -184,9 +184,9 @@ types-first==2.0.2 \
     --hash=sha256:129155be97b4a65a86a2b4cbc6f2d1de5b40d2c5d370289779fd6dd0293b69f6 \
     --hash=sha256:444b4eaba3342f3d360f9f49eb4a175538da212e31ed1f26ee9b54c23f5fa0de
     # via -r requirements/lint.in
-types-html5lib==1.1.6 \
-    --hash=sha256:9fa1b0f03b407394019f96a81fcf27f444751916568e7bc580c39c5210c11003 \
-    --hash=sha256:e16a5a7c2187cd28277f5f152c9101e99d28fc9911de21d082f521ab6525901a
+types-html5lib==1.1.7 \
+    --hash=sha256:4bc5a1de03b9a697b7cc04b0d03eeed5d36c0073165dd9dc54f2f43d0f23b31f \
+    --hash=sha256:fdb307102ceea52adf52aea0e10255d142ee29d7f169014144a730707a92066a
     # via -r requirements/lint.in
 types-itsdangerous==1.1.6 \
     --hash=sha256:21c6966c10e353a5d35d36c82aaa2c5598d3bc32ddc8e0591276da5ad2e3c638 \
