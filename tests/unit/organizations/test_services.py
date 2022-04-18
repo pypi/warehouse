@@ -16,6 +16,7 @@ from zope.interface.verify import verifyClass
 
 from warehouse.organizations import services
 from warehouse.organizations.interfaces import IOrganizationService
+from warehouse.organizations.models import OrganizationRoleType
 
 from ...common.db.organizations import OrganizationFactory, UserFactory
 
@@ -96,9 +97,9 @@ class TestDatabaseOrganizationService:
         organization = OrganizationFactory.create()
 
         added_role = organization_service.add_organization_role(
-            "some role", user.id, organization.id
+            OrganizationRoleType.Owner.value, user.id, organization.id
         )
-        assert added_role.role_name == "some role"
+        assert added_role.role_name == OrganizationRoleType.Owner.value
         assert added_role.user_id == user.id
         assert added_role.organization_id == organization.id
 

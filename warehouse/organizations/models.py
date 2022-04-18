@@ -37,6 +37,14 @@ from warehouse.accounts.models import User
 from warehouse.utils.attrs import make_repr
 
 
+class OrganizationRoleType(enum.Enum):
+
+    BillingManager = "Billing Manager"
+    Manager = "Manager"
+    Member = "Member"
+    Owner = "Owner"
+
+
 class OrganizationRole(db.Model):
 
     __tablename__ = "organization_roles"
@@ -52,7 +60,10 @@ class OrganizationRole(db.Model):
 
     __repr__ = make_repr("role_name")
 
-    role_name = Column(Text, nullable=False)
+    role_name = Column(
+        Enum(OrganizationRoleType, values_callable=lambda x: [e.value for e in x]),
+        nullable=False,
+    )
     user_id = Column(
         ForeignKey("users.id", onupdate="CASCADE", ondelete="CASCADE"), nullable=False
     )
