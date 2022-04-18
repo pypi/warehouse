@@ -2329,7 +2329,10 @@ class TestManageOrganizations:
         }
 
     def test_manage_organizations(self, monkeypatch):
-        request = pretend.stub(find_service=lambda *a, **kw: pretend.stub())
+        request = pretend.stub(
+            find_service=lambda *a, **kw: pretend.stub(),
+            flags=pretend.stub(enabled=pretend.call_recorder(lambda *a: False)),
+        )
 
         default_response = {"default": "response"}
         monkeypatch.setattr(
@@ -2338,7 +2341,23 @@ class TestManageOrganizations:
         view = views.ManageOrganizationsViews(request)
         result = view.manage_organizations()
 
+        assert request.flags.enabled.calls == [
+            pretend.call(AdminFlagValue.DISABLE_ORGANIZATIONS),
+        ]
         assert result == default_response
+
+    def test_manage_organizations_disallow_organizations(self, monkeypatch):
+        request = pretend.stub(
+            find_service=lambda *a, **kw: pretend.stub(),
+            flags=pretend.stub(enabled=pretend.call_recorder(lambda *a: True)),
+        )
+
+        view = views.ManageOrganizationsViews(request)
+        with pytest.raises(HTTPNotFound):
+            view.manage_organizations()
+        assert request.flags.enabled.calls == [
+            pretend.call(AdminFlagValue.DISABLE_ORGANIZATIONS),
+        ]
 
     def test_create_organization(self, monkeypatch):
         admins = []
@@ -2389,6 +2408,7 @@ class TestManageOrganizations:
                 IUserService: user_service,
                 IOrganizationService: organization_service,
             }[interface],
+            flags=pretend.stub(enabled=pretend.call_recorder(lambda *a: False)),
             remote_addr="0.0.0.0",
         )
 
@@ -2412,6 +2432,9 @@ class TestManageOrganizations:
         view = views.ManageOrganizationsViews(request)
         result = view.create_organization()
 
+        assert request.flags.enabled.calls == [
+            pretend.call(AdminFlagValue.DISABLE_ORGANIZATIONS),
+        ]
         assert user_service.get_admins.calls == [pretend.call()]
         assert organization_service.add_organization.calls == [
             pretend.call(
@@ -2527,6 +2550,7 @@ class TestManageOrganizations:
                 IUserService: user_service,
                 IOrganizationService: organization_service,
             }[interface],
+            flags=pretend.stub(enabled=pretend.call_recorder(lambda *a: False)),
             remote_addr="0.0.0.0",
         )
 
@@ -2552,6 +2576,9 @@ class TestManageOrganizations:
         view = views.ManageOrganizationsViews(request)
         result = view.create_organization()
 
+        assert request.flags.enabled.calls == [
+            pretend.call(AdminFlagValue.DISABLE_ORGANIZATIONS),
+        ]
         assert user_service.get_admins.calls == []
         assert organization_service.add_organization.calls == []
         assert organization_service.add_catalog_entry.calls == []
@@ -2559,6 +2586,19 @@ class TestManageOrganizations:
         assert organization_service.record_event.calls == []
         assert send_email.calls == []
         assert result == default_response
+
+    def test_create_organizations_disallow_organizations(self, monkeypatch):
+        request = pretend.stub(
+            find_service=lambda *a, **kw: pretend.stub(),
+            flags=pretend.stub(enabled=pretend.call_recorder(lambda *a: True)),
+        )
+
+        view = views.ManageOrganizationsViews(request)
+        with pytest.raises(HTTPNotFound):
+            view.create_organization()
+        assert request.flags.enabled.calls == [
+            pretend.call(AdminFlagValue.DISABLE_ORGANIZATIONS),
+        ]
 
 
 class TestManageProjects:

@@ -1000,10 +1000,16 @@ class ManageOrganizationsViews:
 
     @view_config(request_method="GET")
     def manage_organizations(self):
+        if self.request.flags.enabled(AdminFlagValue.DISABLE_ORGANIZATIONS):
+            raise HTTPNotFound
+
         return self.default_response
 
     @view_config(request_method="POST", request_param=CreateOrganizationForm.__params__)
     def create_organization(self):
+        if self.request.flags.enabled(AdminFlagValue.DISABLE_ORGANIZATIONS):
+            raise HTTPNotFound
+
         form = CreateOrganizationForm(
             self.request.POST,
             organization_service=self.organization_service,

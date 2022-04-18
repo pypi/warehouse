@@ -15,6 +15,7 @@ import pretend
 from webob.multidict import MultiDict
 
 from warehouse.accounts.interfaces import IPasswordBreachedService, IUserService
+from warehouse.admin.flags import AdminFlagValue
 from warehouse.manage import views
 from warehouse.organizations.interfaces import IOrganizationService
 from warehouse.organizations.models import OrganizationType
@@ -39,9 +40,10 @@ class TestManageAccount:
         db_request.method = "POST"
         db_request.path = "/manage/accounts/"
         db_request.POST = MultiDict({"name": "new name", "public_email": ""})
-        views.ManageAccountViews(db_request).save_account()
 
+        views.ManageAccountViews(db_request).save_account()
         user = user_service.get_user(user.id)
+
         assert user.name == "new name"
         assert user.public_email is None
 
@@ -77,16 +79,25 @@ class TestManageOrganizations:
                 ),
             }
         )
+        monkeypatch.setattr(
+            db_request,
+            "flags",
+            pretend.stub(enabled=pretend.call_recorder(lambda *a: False)),
+        )
         send_email = pretend.call_recorder(lambda *a, **kw: None)
         monkeypatch.setattr(
             views, "send_admin_new_organization_requested_email", send_email
         )
         monkeypatch.setattr(views, "send_new_organization_requested_email", send_email)
-        views.ManageOrganizationsViews(db_request).create_organization()
 
+        views.ManageOrganizationsViews(db_request).create_organization()
         organization = organization_service.get_organization_by_name(
             db_request.POST["name"]
         )
+
+        assert db_request.flags.enabled.calls == [
+            pretend.call(AdminFlagValue.DISABLE_ORGANIZATIONS),
+        ]
         assert organization.name == db_request.POST["name"]
         assert organization.display_name == db_request.POST["display_name"]
         assert organization.orgtype == OrganizationType[db_request.POST["orgtype"]]
