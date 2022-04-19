@@ -26,7 +26,7 @@ from pyramid_rpc.xmlrpc import XMLRPCRenderer
 
 from warehouse.errors import BasicAuthBreachedPassword, BasicAuthFailedPassword
 from warehouse.utils.static import ManifestCacheBuster
-from warehouse.utils.wsgi import HostRewrite, ProxyFixer, VhmRootRemover
+from warehouse.utils.wsgi import ProxyFixer, VhmRootRemover
 
 
 class Environment(enum.Enum):
@@ -178,11 +178,11 @@ def configure(settings=None):
     maybe_set(settings, "celery.broker_url", "BROKER_URL")
     maybe_set(settings, "celery.result_url", "REDIS_URL")
     maybe_set(settings, "celery.scheduler_url", "REDIS_URL")
+    maybe_set(settings, "oidc.jwk_cache_url", "REDIS_URL")
     maybe_set(settings, "database.url", "DATABASE_URL")
     maybe_set(settings, "elasticsearch.url", "ELASTICSEARCH_URL")
     maybe_set(settings, "elasticsearch.url", "ELASTICSEARCH_SIX_URL")
     maybe_set(settings, "sentry.dsn", "SENTRY_DSN")
-    maybe_set(settings, "sentry.frontend_dsn", "SENTRY_FRONTEND_DSN")
     maybe_set(settings, "sentry.transport", "SENTRY_TRANSPORT")
     maybe_set(settings, "sessions.url", "REDIS_URL")
     maybe_set(settings, "ratelimit.url", "REDIS_URL")
@@ -226,6 +226,7 @@ def configure(settings=None):
         default=21600,  # 6 hours
     )
     maybe_set_compound(settings, "files", "backend", "FILES_BACKEND")
+    maybe_set_compound(settings, "simple", "backend", "SIMPLE_BACKEND")
     maybe_set_compound(settings, "docs", "backend", "DOCS_BACKEND")
     maybe_set_compound(settings, "sponsorlogos", "backend", "SPONSORLOGOS_BACKEND")
     maybe_set_compound(settings, "origin_cache", "backend", "ORIGIN_CACHE")
@@ -233,6 +234,10 @@ def configure(settings=None):
     maybe_set_compound(settings, "metrics", "backend", "METRICS_BACKEND")
     maybe_set_compound(settings, "breached_passwords", "backend", "BREACHED_PASSWORDS")
     maybe_set_compound(settings, "malware_check", "backend", "MALWARE_CHECK_BACKEND")
+
+    # Pythondotorg integration settings
+    maybe_set(settings, "pythondotorg.host", "PYTHONDOTORG_HOST", default="python.org")
+    maybe_set(settings, "pythondotorg.api_token", "PYTHONDOTORG_API_TOKEN")
 
     # Configure our ratelimiters
     maybe_set(
@@ -264,6 +269,50 @@ def configure(settings=None):
         "warehouse.account.password_reset_ratelimit_string",
         "PASSWORD_RESET_RATELIMIT_STRING",
         default="5 per day",
+    )
+    maybe_set(
+        settings,
+        "warehouse.manage.oidc.user_registration_ratelimit_string",
+        "USER_OIDC_REGISTRATION_RATELIMIT_STRING",
+        default="20 per day",
+    )
+    maybe_set(
+        settings,
+        "warehouse.manage.oidc.ip_registration_ratelimit_string",
+        "IP_OIDC_REGISTRATION_RATELIMIT_STRING",
+        default="20 per day",
+    )
+
+    # 2FA feature flags
+    maybe_set(
+        settings,
+        "warehouse.two_factor_requirement.enabled",
+        "TWOFACTORREQUIREMENT_ENABLED",
+        coercer=distutils.util.strtobool,
+        default=False,
+    )
+    maybe_set(
+        settings,
+        "warehouse.two_factor_mandate.available",
+        "TWOFACTORMANDATE_AVAILABLE",
+        coercer=distutils.util.strtobool,
+        default=False,
+    )
+    maybe_set(
+        settings,
+        "warehouse.two_factor_mandate.enabled",
+        "TWOFACTORMANDATE_ENABLED",
+        coercer=distutils.util.strtobool,
+        default=False,
+    )
+
+    # OIDC feature flags
+    maybe_set(
+        settings,
+        "warehouse.oidc.enabled",
+        "OIDC_ENABLED",
+        coercer=distutils.util.strtobool,
+        default=False,
     )
 
     # Add the settings we use when the environment is set to development.
@@ -361,6 +410,7 @@ def configure(settings=None):
     filters.setdefault("format_package_type", "warehouse.filters:format_package_type")
     filters.setdefault("parse_version", "warehouse.filters:parse_version")
     filters.setdefault("localize_datetime", "warehouse.filters:localize_datetime")
+    filters.setdefault("is_recent", "warehouse.filters:is_recent")
 
     # We also want to register some global functions for Jinja
     jglobals = config.get_settings().setdefault("jinja2.globals", {})
@@ -459,6 +509,9 @@ def configure(settings=None):
     # Register support for Macaroon based authentication
     config.include(".macaroons")
 
+    # Register support for OIDC provider based authentication
+    config.include(".oidc")
+
     # Register support for malware checks
     config.include(".malware")
 
@@ -536,10 +589,6 @@ def configure(settings=None):
 
     # Protect against cache poisoning via the X-Vhm-Root headers.
     config.add_wsgi_middleware(VhmRootRemover)
-
-    # Fix our host header when getting sent upload.pypi.io as a HOST.
-    # TODO: Remove this, this is at the wrong layer.
-    config.add_wsgi_middleware(HostRewrite)
 
     # We want Sentry to be the last things we add here so that it's the outer
     # most WSGI middleware.

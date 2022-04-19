@@ -31,7 +31,7 @@ export default class extends Controller {
     const timestamp = this.element.getAttribute("datetime");
     const locale = document.documentElement.lang;
     let localTime = this.getLocalTimeFromTimestamp(timestamp);
-    let isoDate = format(localTime, "YYYY-MM-DD HH:mm:ss");
+    let isoDate = format(localTime, "YYYY-MM-DD HH:mm:ss (Z)");
     let startOfDay = new Date();
     startOfDay.setUTCHours(0, 0, 0, 0);
 

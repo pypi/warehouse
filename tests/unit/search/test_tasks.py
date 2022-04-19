@@ -499,6 +499,8 @@ class TestPartialReindex:
         docs = pretend.stub()
         task = pretend.stub()
 
+        db_request.registry.settings = {"celery.scheduler_url": "redis://redis:6379/0"}
+
         def project_docs(db, project_name=None):
             return docs
 
@@ -531,6 +533,8 @@ class TestPartialReindex:
     def test_unindex_fails_when_raising(self, db_request, monkeypatch):
         task = pretend.stub()
 
+        db_request.registry.settings = {"celery.scheduler_url": "redis://redis:6379/0"}
+
         class TestError(Exception):
             pass
 
@@ -549,6 +553,8 @@ class TestPartialReindex:
 
     def test_unindex_accepts_defeat(self, db_request, monkeypatch):
         task = pretend.stub()
+
+        db_request.registry.settings = {"celery.scheduler_url": "redis://redis:6379/0"}
 
         es_client = FakeESClient()
         es_client.delete = pretend.call_recorder(
@@ -607,6 +613,8 @@ class TestPartialReindex:
     def test_successfully_indexes(self, db_request, monkeypatch):
         docs = pretend.stub()
         task = pretend.stub()
+
+        db_request.registry.settings = {"celery.scheduler_url": "redis://redis:6379/0"}
 
         def project_docs(db, project_name=None):
             return docs

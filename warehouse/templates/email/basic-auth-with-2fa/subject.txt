@@ -11,21 +11,7 @@
  # See the License for the specific language governing permissions and
  # limitations under the License.
 -#}
-{% extends "base.html" %}
 
-{% block title %}Sign out{% endblock %}
+{% extends "email/_base/subject.txt" %}
 
-
-{% block content %}
-<div class="box">
-  <div class="box-body">
-      <form method="POST" action="{{ request.current_route_path() }}">
-        <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
-        {% if redirect.data %}
-        <input name="{{ redirect.field }}" type="hidden" value="{{ redirect.data }}">
-        {% endif %}
-        <input type="submit" class="btn btn-primary" value="Sign out">
-      </form>
-  </div>
-</div>
-{% endblock %}
+{% block subject %}{% trans site=request.registry.settings["site.name"] %}Migrate to API tokens for uploading to {{ site }}{% endtrans %}{% endblock %}

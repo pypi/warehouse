@@ -61,7 +61,7 @@ def _project_docs(db, project_name=None):
         db.query(func.array_agg(r.version))
         .filter(r.project_id == Release.project_id)
         .correlate(Release)
-        .as_scalar()
+        .scalar_subquery()
         .label("all_versions")
     )
 
@@ -71,7 +71,7 @@ def _project_docs(db, project_name=None):
         .join(Classifier, Classifier.id == release_classifiers.c.trove_id)
         .filter(Release.id == release_classifiers.c.release_id)
         .correlate(Release)
-        .as_scalar()
+        .scalar_subquery()
         .label("classifiers")
     )
 
@@ -196,7 +196,7 @@ def reindex(self, request):
                 raise
             finally:
                 request.db.rollback()
-                request.db.close()
+                request.db.close()  # pragma: no cover
 
             # Now that we've finished indexing all of our data we can update the
             # replicas and refresh intervals.

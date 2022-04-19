@@ -42,7 +42,9 @@ class Macaroon(db.Model):
     # All of our Macaroons belong to a specific user, because a caveat-less
     # Macaroon should act the same as their password does, instead of as a
     # global permission to upload files.
-    user_id = Column(UUID(as_uuid=True), ForeignKey("users.id"), nullable=False)
+    user_id = Column(
+        UUID(as_uuid=True), ForeignKey("users.id"), nullable=False, index=True
+    )
 
     # Store some information about the Macaroon to give users some mechanism
     # to differentiate between them.
@@ -50,10 +52,9 @@ class Macaroon(db.Model):
     created = Column(DateTime, nullable=False, server_default=sql.func.now())
     last_used = Column(DateTime, nullable=True)
 
-    # We'll store the caveats that were added to the Macaroon during generation
-    # to allow users to see in their management UI what the total possible
-    # scope of their macaroon is.
-    caveats = Column(JSONB, nullable=False, server_default=sql.text("'{}'"))
+    # Human-readable "permissions" for this macaroon, corresponding to the
+    # body of the permissions ("V1") caveat.
+    permissions_caveat = Column(JSONB, nullable=False, server_default=sql.text("'{}'"))
 
     # It might be better to move this default into the database, that way we
     # make it less likely that something does it incorrectly (since the

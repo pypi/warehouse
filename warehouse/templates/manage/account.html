@@ -69,9 +69,9 @@
 
 {% macro email_row(email) -%}
   <tr>
-    <th class="table__email" scope="row">
+    <td class="table__email" scope="row">
       {{ email.email }}
-    </th>
+    </td>
     <td>
       <span class="table__status-badges">
         {% if email.primary %}
@@ -133,30 +133,6 @@
   </tr>
 {%- endmacro %}
 
-{% macro twofa_buttons() %}
-  <div class="wrap-children">
-    {% if not user.totp_secret %}
-    <a href="{{ request.route_path('manage.account.totp-provision') }}" class="button button--primary">{% trans %}Add <abbr title="two factor authentication">2FA</abbr> with authentication application{% endtrans %}</a>
-    {% endif %}
-    <a href="{{ request.route_path('manage.account.webauthn-provision') }}" class="button button--primary" id="webauthn-button" aria-describedby="webauthn-errors">{% trans %}Add <abbr title="two factor authentication">2FA</abbr> with security device (e.g. USB key){% endtrans %}</a>
-    {% if user.has_two_factor and not user.has_recovery_codes %}
-    <a href="{{ request.route_path('manage.account.recovery-codes.generate') }}" class="button button--primary">{% trans %}Generate recovery codes{% endtrans %}</a>
-    {% endif %}
-  </div>
-
-  <noscript>
-    <p>{% trans %}Enable JavaScript to set up two factor authentication with a security device (e.g. USB key){% endtrans %}</p>
-  </noscript>
-
-  <ul id="webauthn-errors" class="form-errors form-errors--full-width">
-    <li id="webauthn-browser-support" class="hidden margin-top--large">
-      {% trans trimmed href='https://developer.mozilla.org/en-US/docs/Web/API/PublicKeyCredential#Browser_compatibility', title=gettext('External link') %}
-      <a href="{{ href }}" title="{{ title }}" target="_blank" rel="noopener">Upgrade your browser</a> to set up two factor authentication with a security device (e.g. USB key)
-      {% endtrans %}
-    </li>
-  </ul>
-{% endmacro %}
-
 {% macro api_row(macaroon) -%}
   <tr>
     <th scope="row">
@@ -165,10 +141,10 @@
     </th>
     <td>
       <span class="table__mobile-label">{% trans %}Scope{% endtrans %}</span>
-      {% if macaroon.caveats.get("permissions") == 'user' %}
+      {% if macaroon.permissions_caveat.permissions == 'user' %}
       {% trans %}All projects{% endtrans %}
       {% else %}
-        {% for project in macaroon.caveats.get("permissions")['projects'] %}
+        {% for project in macaroon.permissions_caveat.get("permissions")['projects'] %}
         <a href="{{ request.route_path('packaging.project', name=project) }}">{{ project }}</a>
         {% endfor %}
       {% endif %}
@@ -443,78 +419,7 @@
   </section>
 
   <hr>
-  <section id="two-factor">
-    <h2 class="sub-title">{% trans %}Two factor authentication (2FA){% endtrans %}</h2>
-    <p>{% trans href='/help#twofa' %}Two factor authentication adds an additional layer of security to your account. <a href="{{ href }}">Learn more about <abbr title="two factor authentication">2FA</abbr></a>.{% endtrans %}</p>
-
-    {% if user.has_primary_verified_email %}
-      {% if user.totp_secret or user.webauthn %}
-      <table class="table table--2fa">
-        <caption class="sr-only">{% trans %}Two factor authentication methods enabled{% endtrans %}</caption>
-        <thead>
-          <tr>
-            <th scope="col" colspan="2">{% trans %}Two factor method{% endtrans %}</th>
-          </tr>
-        </thead>
-        <tbody>
-          {% if user.totp_secret %}
-          <tr>
-            <th scope="row">{% trans %}Authentication application (<abbr title="time-based one-time password">TOTP</abbr>){% endtrans %}</th>
-            <td class="table__align-right">
-              <a href="#disable-totp" class="button button--primary">{% trans %}Remove{% endtrans %}</a>
-              {% set title=gettext("Remove authentication application") %}
-              {% set confirm_button_label=gettext("Remove application") %}
-              {% set action=request.route_path('manage.account.totp-provision') %}
-              {{ confirm_password_modal(title=title, action=action, slug="disable-totp", warning=False, confirm_button_label=confirm_button_label) }}
-            </td>
-          </tr>
-          {% endif %}
-          {% for credential in user.webauthn %}
-          <tr>
-            <th scope="row">
-              <strong>"{{ credential.label }}"</strong> - {% trans %}Security device (<abbr title="web authentication">WebAuthn</abbr>){% endtrans %}
-            </th>
-            <td class="table__align-right">
-              <a href="#disable-webauthn-{{ credential.id }}" class="button button--primary">{% trans %}Remove{% endtrans %}</a>
-              {% set title=gettext("Remove two factor security device") + " - " + credential.label %}
-              {% set confirm_button_label=gettext("Remove device") %}
-              {% set action=request.route_path('manage.account.webauthn-provision.delete') %}
-              {% set slug="disable-webauthn-" + credential.id | string %}
-              {% set extra_fields %}
-                <input type="hidden" name="label" value="{{ credential.label }}" autocomplete="off">
-              {% endset %}
-              {{ confirm_modal(title=title, label=gettext("Device name"), confirm_name="device_name", confirm_string=credential.label, confirm_button_label=confirm_button_label, slug=slug, extra_fields=extra_fields, action=action, warning=False, confirm_string_in_title=False) }}
-            </td>
-          </tr>
-          {% endfor %}
-          {% if user.has_recovery_codes %}
-          <tr>
-            <th scope="row">
-              {% trans %}Recovery codes{% endtrans %} - {% trans generated_datetime=humanize(request.user.recovery_codes[0].generated, time="true") %}generated {{ generated_datetime }}{% endtrans %}
-            </th>
-            <td class="table__align-right">
-              <a href="#regenerate-recovery-codes" class="button button--secondary">{% trans %}Regenerate{% endtrans %}</a>
-              {% set title=gettext("Regenerate recovery codes") %}
-              {% set confirm_button_label=gettext("Regenerate recovery codes") %}
-              {% set action=request.route_path('manage.account.recovery-codes.regenerate') %}
-              {{ confirm_password_modal(title=title, action=action, slug="regenerate-recovery-codes", warning=False, confirm_button_label=confirm_button_label) }}
-            </td>
-          </tr>
-          {% endif %}
-        </tbody>
-      </table>
-      {{ twofa_buttons() }}
-      {% else %}
-      <div class="callout-block">
-        <p>{% trans %}You have not enabled two factor authentication on your account.{% endtrans %}</p>
-        {{ twofa_buttons() }}
-      </div>
-      {% endif %}
-    {% else %}
-      <p><strong>{% trans href='#account-emails' %}<a href="{{ href }}">Verify your primary email address</a> to add two factor authentication to your account.{% endtrans %}</strong></p>
-    {% endif %}
-  </section>
-
+  {{ twofa_section() }}
   <hr>
 
   <section id="api-tokens">
@@ -556,6 +461,18 @@
     {% set recent_events = user.recent_events %}
     {% if recent_events|length > 0 %}
 
+    {% macro caveat_detail(caveat) -%}
+      {% if "permissions" in caveat %}
+        {% if caveat.permissions == "user" %}
+          {% trans %}Token scope: entire account{% endtrans %}
+        {% else %}
+          {% trans project_name=caveat.permissions.projects[0] %}Token scope: Project {{ project_name }}{% endtrans %}
+        {% endif %}
+      {% elif "exp" in caveat %}
+        {% trans trimmed exp=humanize(caveat.exp) %}Expires: {{ exp }}{% endtrans %}
+      {% endif %}
+    {%- endmacro %}
+
     {% macro event_summary(event) -%}
       {% if event.tag == "account:create" %}
       <strong>{% trans %}Account created{% endtrans %}</strong>
@@ -592,6 +509,8 @@
         {% elif event.additional.reason == "invalid_webauthn" %}
           {% trans %}Invalid two factor (WebAuthn){% endtrans %}
         {% elif event.additional.reason == "invalid_recovery_code" %}
+          {% trans %}Invalid two factor (Recovery code){% endtrans %}
+        {% elif event.additional.reason == "burned_recovery_code" %}
           {% trans %}Invalid two factor (Recovery code){% endtrans %}
         {% else %}
           {{ event.additional.reason }}
@@ -690,10 +609,18 @@
       <strong>{% trans %}API token added{% endtrans %}</strong><br>
       <small>
         {% trans %}Token name:{% endtrans %} {{ event.additional.description }}<br>
-        {% if event.additional.caveats.permissions == "user" %}
-          {% trans %}Token scope: entire account{% endtrans %}
+        {#
+          NOTE: Old events contain a single caveat dictionary, rather than a list of caveats.
+
+          This check can be deleted roughly 90 days after merge, since events older than
+          90 days are not presented to the user.
+        #}
+        {% if event.additional.caveats is mapping %}
+          {{ caveat_detail(event.additional.caveats) }}
         {% else %}
-          {% trans project_name=event.additional.caveats.permissions.projects[0] %}Token scope: Project {{ project_name }}{% endtrans %}
+          {% for caveat in event.additional.caveats %}
+            {{ caveat_detail(caveat) }}
+          {% endfor %}
         {% endif %}
       </small>
 

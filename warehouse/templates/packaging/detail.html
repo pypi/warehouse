@@ -91,6 +91,33 @@
   {%- endif -%}
 {%- endmacro -%}
 
+{%- macro file_table(files) -%}
+  {% for file in files %}
+    <div class="file">
+      <div class="file__graphic">
+        <i class="far fa-file" aria-hidden="true"></i>
+      </div>
+
+      <div class="card file__card">
+        <a href="{{ request.route_url('packaging.file', path=file.path) }}">
+          {{ file.filename }}
+        </a>
+        ({{ file.size|filesizeformat() if file.size else 0|filesizeformat() }}
+        <a href="#copy-hash-modal-{{ file.id }}">{%- trans -%}view hashes{%- endtrans -%}</a>)
+        <p class="file__meta">
+          Uploaded {{ humanize(file.upload_time) }}
+          {% if file.python_version %}
+          {% for tag in file.python_version.split('.') %}
+          <code>{{ tag }}</code>
+          {% endfor %}
+          {% endif %}
+        </p>
+      </div>
+    </div>
+  {% endfor %}
+
+{%- endmacro -%}
+
 {% block title %}{{ release.project.name }}{% endblock %}
 
 {% block description %}{{ release.summary }}{% endblock %}
@@ -100,6 +127,12 @@
 {%- endblock %}
 
 {% block canonical_url %}{{ request.route_url('packaging.project', name=release.project.name) }}{% endblock %}
+
+{% block extra_meta %}
+{% if release.project.created|is_recent %}
+<meta name="googlebot" content="noindex">
+{% endif %}
+{% endblock %}
 
 {% block content %}
 {% csi request.route_path("includes.administer-project-include", project_name=project.normalized_name) %}
@@ -316,53 +349,29 @@
             <h2 class="page-title">{% trans %}Download files{% endtrans %}</h2>
             <p>{% trans href='https://packaging.python.org/installing/', title=gettext('External link') %}Download the file for your platform. If you're not sure which to choose, learn more about <a href="{{ href }}" title="{{ title }}" target="_blank" rel="noopener">installing packages</a>.{% endtrans %}</p>
 
-            <table class="table table--downloads">
-              <caption class="sr-only">{% trans project_name=release.project.name, version=release.version %}Files for {{ project_name }}, version {{ version }}{% endtrans %}</caption>
-              <thead>
-                <tr>
-                  <th scope="col">{% trans %}Filename, size{% endtrans %}</th>
-                  <th scope="col">{% trans %}File type{% endtrans %}</th>
-                  <th scope="col">{% trans %}Python version{% endtrans %}</th>
-                  <th scope="col">{% trans %}Upload date{% endtrans %}</th>
-                  <th scope="col" class="table__align-right">{% trans %}Hashes{% endtrans %}</th>
-                </tr>
-              </thead>
-              <tbody>
-                {% for file in files %}
-                <tr>
-                  <th scope="row">
-                    <span class="table__mobile-label">{% trans %}Filename, size{% endtrans %}</span>
-                    <a href="{{ request.route_url('packaging.file', path=file.path) }}">
-                      {{ file.filename }}
-                    </a>
-                    {% if file.size %} ({{ file.size|filesizeformat() }}){% endif %}
-                  </th>
-                  <td>
-                    <span class="table__mobile-label">{% trans %}File type{% endtrans %}</span>
-                    {{ file.packagetype|format_package_type }}
-                  </td>
-                  <td>
-                    <span class="table__mobile-label">{% trans %}Python version{% endtrans %}</span>
-                    {% if file.python_version != "source" %}
-                      {{ file.python_version }}
-                    {% else %}
-                      {% trans %}None{% endtrans %}
-                    {% endif %}
-                  </td>
-                  <td>
-                    <span class="table__mobile-label">{% trans %}Upload date{% endtrans %}</span>
-                    {{ humanize(file.upload_time) }}
-                  </td>
-                  <td class="table__align-right">
-                    <span class="table__mobile-label table__mobile-label--hashes">{% trans %}Hashes{% endtrans %}</span>
-                    <a href="#copy-hash-modal-{{ file.id }}" class="button button--small button--primary">
-                      {% trans %}View{% endtrans %}
-                    </a>
-                  </td>
-                </tr>
-                {% endfor %}
-              </tbody>
-            </table>
+            {% if sdists %}
+            <h3>
+              {% trans count=sdists|length %}
+                Source Distribution
+              {% pluralize %}
+                Source Distributions
+              {% endtrans %}
+            </h3>
+
+            {{ file_table(sdists) }}
+            {% endif %}
+
+            {% if bdists %}
+            <h3>
+              {% trans count=bdists|length %}
+                Built Distribution
+              {% pluralize %}
+                Built Distributions
+              {% endtrans %}
+            </h3>
+
+            {{ file_table(bdists) }}
+            {% endif %}
           </div>
 
           {% for file in files %}

@@ -33,11 +33,7 @@
       <div class="callout-block callout-block--warning">
         <p><strong>{{ _error }}</strong></p>
         <p>{{ _message }}</p>
-        <a href="#regenerate-recovery-codes" class="button button--secondary">{% trans %}Regenerate recovery codes{% endtrans %}</a>
-        {% set title=gettext("Regenerate recovery codes") %}
-        {% set confirm_button_label=gettext("Regenerate recovery codes") %}
-        {% set action=request.route_path('manage.account.recovery-codes.regenerate') %}
-        {{ confirm_password_modal(title=title, action=action, slug="regenerate-recovery-codes", warning=False, confirm_button_label=confirm_button_label) }}
+        <a href="{{ request.route_path('manage.account.recovery-codes.regenerate') }}" class="button button--secondary">{% trans %}Regenerate recovery codes{% endtrans %}</a>
       </div>
     </div>
     {% else %}
@@ -58,22 +54,15 @@
                 <li><code>{{ recovery_code }}</code></li>
                 {% endfor %}
               </ul>
-              <button type="button" class="button button--small copy-tooltip copy-tooltip-w" data-tooltip-label="{% trans %}Copy to clipboard{% endtrans %}" data-clipboard-text="{{ 'PyPI recovery codes\n' + recovery_codes|join('\n') }}">
+              <button class="button button-secondary copy-tooltip copy-tooltip-w" data-tooltip-label="{% trans %}Copy to clipboard{% endtrans %}" data-clipboard-text="{{ 'PyPI recovery codes\n' + recovery_codes|join('\n') }}">
                 {% trans %}Copy{% endtrans %}
               </button>
-              {% set _recovery_codes_filename = "PyPI-Recovery-Codes.txt" %}
-              {% if testPyPI %}
-                {% set _recovery_codes_filename = "TestPyPI-Recovery-Codes.txt" %}
-              {% endif %}
-              <a href="data:text/plain;,{{ recovery_codes|join('%0A') }}" download="{{ _recovery_codes_filename }}" class="button button--small" data-tooltip-label="{% trans %}Download as file{% endtrans %}">
+              {% set _sitename = "TestPyPI" if testPyPI else "PyPI" %}
+              {% set _recovery_codes_filename = _sitename + "-Recovery-Codes-" + request.user.username + "-" + request.user.recovery_codes[0].generated.isoformat() + ".txt" %}
+              <a href="data:text/plain;,{{ recovery_codes|join('%0A') }}" download="{{ _recovery_codes_filename }}" class="button button-secondary" data-tooltip-label="{% trans %}Download as file{% endtrans %}">
                 {% trans %}Save{% endtrans %}&nbsp;<span class="fa fa-download"></span>
               </a>
-              {% set title = gettext("Continue") %}
-              {% set confirm_name = "username" %}
-              {% set confirm_button_label = gettext("Continue") %}
-              {% set slug = "complete" %}
-              {% set action = request.route_path('manage.account') %}
-              <a href="#complete" class="button button--small button--primary">
+              <a href="{{ request.route_path('manage.account.recovery-codes.burn') }}" class="button  button--primary">
                 {% trans %}Continue{% endtrans %}
               </a>
               {% set custom_warning_text %}
@@ -82,7 +71,6 @@
               {% set extra_description %}
                 <p>{% trans %}Ensure that you have securely stored them before continuing.{% endtrans %}</p>
               {% endset %}
-              {{ confirm_modal(title, gettext("Username"), "username", request.user.username, slug, confirm_button_label=confirm_button_label, extra_description=extra_description, confirm_string_in_title=False, custom_warning_text=custom_warning_text, action=action, method="GET") }}
             </div>
           </div>
         </div>

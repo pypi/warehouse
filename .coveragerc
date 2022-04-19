@@ -1,5 +1,6 @@
 [run]
 branch = True
+dynamic_context = test_function
 
 source =
     warehouse
@@ -24,3 +25,6 @@ omit =
 exclude_lines =
     pragma: no cover
     class \w+\(Interface\):
+
+# Don't show us anything that's already 100% covered.
+skip_covered = True

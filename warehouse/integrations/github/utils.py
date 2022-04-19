@@ -248,11 +248,12 @@ def _analyze_disclosure(request, disclosure_record, origin):
     user_service.record_event(
         database_macaroon.user.id,
         tag="account:api_token:removed_leak",
-        ip_address="127.0.0.1",
         additional={
             "macaroon_id": str(database_macaroon.id),
             "public_url": disclosure.public_url,
-            "permissions": database_macaroon.caveats.get("permissions", "user"),
+            "permissions": database_macaroon.permissions_caveat.get(
+                "permissions", "user"
+            ),
             "description": database_macaroon.description,
         },
     )

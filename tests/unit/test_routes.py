@@ -185,6 +185,11 @@ def test_routes(warehouse):
         ),
         pretend.call("manage.account", "/manage/account/", domain=warehouse),
         pretend.call(
+            "manage.account.two-factor",
+            "/manage/account/two-factor/",
+            domain=warehouse,
+        ),
+        pretend.call(
             "manage.account.totp-provision",
             "/manage/account/totp-provision",
             domain=warehouse,
@@ -225,12 +230,24 @@ def test_routes(warehouse):
             domain=warehouse,
         ),
         pretend.call(
+            "manage.account.recovery-codes.burn",
+            "/manage/account/recovery-codes/burn",
+            domain=warehouse,
+        ),
+        pretend.call(
             "manage.account.token", "/manage/account/token/", domain=warehouse
         ),
         pretend.call("manage.projects", "/manage/projects/", domain=warehouse),
         pretend.call(
             "manage.project.settings",
             "/manage/project/{project_name}/settings/",
+            factory="warehouse.packaging.models:ProjectFactory",
+            traverse="/{project_name}",
+            domain=warehouse,
+        ),
+        pretend.call(
+            "manage.project.settings.publishing",
+            "/manage/project/{project_name}/settings/publishing/",
             factory="warehouse.packaging.models:ProjectFactory",
             traverse="/{project_name}",
             domain=warehouse,
@@ -420,7 +437,6 @@ def test_routes(warehouse):
         pretend.call("/sponsor/", "/sponsors/", domain=warehouse),
         pretend.call("/u/{username}/", "/user/{username}/", domain=warehouse),
         pretend.call("/p/{name}/", "/project/{name}/", domain=warehouse),
-        pretend.call("/s/{name}/", "/simple/{name}/", domain=warehouse),
         pretend.call("/pypi/{name}/", "/project/{name}/", domain=warehouse),
         pretend.call(
             "/pypi/{name}/{version}/", "/project/{name}/{version}/", domain=warehouse

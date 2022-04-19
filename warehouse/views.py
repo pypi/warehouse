@@ -46,6 +46,7 @@ from warehouse.cache.http import add_vary, cache_control
 from warehouse.cache.origin import origin_cache
 from warehouse.classifiers.models import Classifier
 from warehouse.db import DatabaseNotAvailableError
+from warehouse.errors import WarehouseDenied
 from warehouse.forms import SetLocaleForm
 from warehouse.i18n import LOCALE_ATTR
 from warehouse.metrics import IMetricsService
@@ -94,14 +95,32 @@ def httpexception_view(exc, request):
 
 @forbidden_view_config()
 @exception_view_config(PredicateMismatch)
-def forbidden(exc, request, redirect_to="accounts.login"):
+def forbidden(exc, request):
     # If the forbidden error is because the user isn't logged in, then we'll
     # redirect them to the log in page.
     if request.authenticated_userid is None:
         url = request.route_url(
-            redirect_to, _query={REDIRECT_FIELD_NAME: request.path_qs}
+            "accounts.login", _query={REDIRECT_FIELD_NAME: request.path_qs}
         )
         return HTTPSeeOther(url)
+
+    # Check if the error has a "result" attribute and if it is a WarehouseDenied
+    if hasattr(exc, "result") and isinstance(exc.result, WarehouseDenied):
+        # If the forbidden error is because the user doesn't have 2FA enabled, we'll
+        # redirect them to the 2FA page
+        if exc.result.reason in {"owners_require_2fa", "pypi_mandates_2fa"}:
+            request.session.flash(
+                request._(
+                    "Two-factor authentication must be enabled on your account to "
+                    "perform this action."
+                ),
+                queue="error",
+            )
+            url = request.route_url(
+                "manage.account.two-factor",
+                _query={REDIRECT_FIELD_NAME: request.path_qs},
+            )
+            return HTTPSeeOther(url)
 
     # If we've reached here, then the user is logged in and they are genuinely
     # not allowed to access this page.

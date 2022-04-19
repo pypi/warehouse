@@ -15,6 +15,8 @@ import hashlib
 import json
 import uuid
 
+import pytz
+
 from first import first
 from pyramid.httpexceptions import (
     HTTPMovedPermanently,
@@ -24,6 +26,7 @@ from pyramid.httpexceptions import (
 from pyramid.security import forget, remember
 from pyramid.view import view_config
 from sqlalchemy.orm.exc import NoResultFound
+from webauthn.helpers import bytes_to_base64url
 
 from warehouse.accounts import REDIRECT_FIELD_NAME
 from warehouse.accounts.forms import (
@@ -57,6 +60,7 @@ from warehouse.email import (
     send_email_verification_email,
     send_password_change_email,
     send_password_reset_email,
+    send_recovery_code_reminder_email,
 )
 from warehouse.packaging.models import (
     JournalEntry,
@@ -281,6 +285,10 @@ def two_factor_and_totp_validate(request, _form_class=TOTPAuthenticationForm):
                 .hexdigest()
                 .lower(),
             )
+
+            if not two_factor_state.get("has_recovery_codes", False):
+                send_recovery_code_reminder_email(request, request.user)
+
             return resp
         else:
             form.totp_value.data = ""
@@ -353,9 +361,10 @@ def webauthn_authentication_validate(request):
     request.session.clear_webauthn_challenge()
 
     if form.validate():
-        credential_id, sign_count = form.validated_credential
-        webauthn = user_service.get_webauthn_by_credential_id(userid, credential_id)
-        webauthn.sign_count = sign_count
+        webauthn = user_service.get_webauthn_by_credential_id(
+            userid, bytes_to_base64url(form.validated_credential.credential_id)
+        )
+        webauthn.sign_count = form.validated_credential.new_sign_count
 
         _login_user(
             request,
@@ -370,6 +379,10 @@ def webauthn_authentication_validate(request):
             .hexdigest()
             .lower(),
         )
+
+        if not request.user.has_recovery_codes:
+            send_recovery_code_reminder_email(request, request.user)
+
         return {
             "success": request._("Successful WebAuthn assertion"),
             "redirect_to": redirect_to,
@@ -422,7 +435,6 @@ def recovery_code(request, _form_class=RecoveryCodeAuthenticationForm):
             user_service.record_event(
                 userid,
                 tag="account:recovery_codes:used",
-                ip_address=request.remote_addr,
             )
 
             request.session.flash(
@@ -531,13 +543,10 @@ def register(request, _form_class=RegistrationForm):
         user = user_service.create_user(
             form.username.data, form.full_name.data, form.new_password.data
         )
-        email = user_service.add_email(
-            user.id, form.email.data, request.remote_addr, primary=True
-        )
+        email = user_service.add_email(user.id, form.email.data, primary=True)
         user_service.record_event(
             user.id,
             tag="account:create",
-            ip_address=request.remote_addr,
             additional={"email": form.email.data},
         )
 
@@ -584,7 +593,6 @@ def request_password_reset(request, _form_class=RequestPasswordResetForm):
             user_service.record_event(
                 user.id,
                 tag="account:password:reset:request",
-                ip_address=request.remote_addr,
             )
             user_service.ratelimiters["password.reset"].hit(user.id)
 
@@ -595,7 +603,6 @@ def request_password_reset(request, _form_class=RequestPasswordResetForm):
             user_service.record_event(
                 user.id,
                 tag="account:password:reset:attempt",
-                ip_address=request.remote_addr,
             )
             request.session.flash(
                 request._(
@@ -651,8 +658,12 @@ def reset_password(request, _form_class=ResetPasswordForm):
         return _error(request._("Invalid token: user not found"))
 
     # Check whether the user has logged in since the token was created
-    last_login = data.get("user.last_login")
-    if str(user.last_login) > last_login:
+    last_login = datetime.datetime.fromisoformat(data.get("user.last_login"))
+    # Before updating itsdangerous to 2.x the last_login was naive,
+    # now it's localized to UTC
+    if not last_login.tzinfo:
+        last_login = pytz.UTC.localize(last_login)
+    if user.last_login > last_login:
         # TODO: track and audit this, seems alertable
         return _error(
             request._(
@@ -661,8 +672,17 @@ def reset_password(request, _form_class=ResetPasswordForm):
         )
 
     # Check whether the password has been changed since the token was created
-    password_date = data.get("user.password_date")
-    if str(user.password_date) > password_date:
+    password_date = datetime.datetime.fromisoformat(data.get("user.password_date"))
+    # Before updating itsdangerous to 2.x the password_date was naive,
+    # now it's localized to UTC
+    if not password_date.tzinfo:
+        password_date = pytz.UTC.localize(password_date)
+    current_password_date = (
+        user.password_date
+        if user.password_date is not None
+        else datetime.datetime.min.replace(tzinfo=pytz.UTC)
+    )
+    if current_password_date > password_date:
         return _error(
             request._(
                 "Invalid token: password has already been changed since this "
@@ -685,9 +705,7 @@ def reset_password(request, _form_class=ResetPasswordForm):
         )
         # Update password.
         user_service.update_user(user.id, password=form.new_password.data)
-        user_service.record_event(
-            user.id, tag="account:password:reset", ip_address=request.remote_addr
-        )
+        user_service.record_event(user.id, tag="account:password:reset")
         password_reset_limiter.clear(user.id)
 
         # Send password change email
@@ -981,13 +999,15 @@ def _login_user(request, userid, two_factor_method=None, two_factor_label=None):
     user_service.record_event(
         userid,
         tag="account:login:success",
-        ip_address=request.remote_addr,
         additional={
             "two_factor_method": two_factor_method,
             "two_factor_label": two_factor_label,
         },
     )
     request.session.record_auth_timestamp()
+    request.session.record_password_timestamp(
+        user_service.get_password_timestamp(userid)
+    )
     return headers
 
 
@@ -1062,5 +1082,8 @@ def reauthenticate(request, _form_class=ReAuthenticateForm):
 
     if request.method == "POST" and form.validate():
         request.session.record_auth_timestamp()
+        request.session.record_password_timestamp(
+            user_service.get_password_timestamp(request.user.id)
+        )
 
     return resp

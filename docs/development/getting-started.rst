@@ -58,9 +58,9 @@ Configure the development environment
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. note::
-   In case you are used to using a venv/virtualenv or virtual environment for Python development:
-   don't use one for warehouse development. Our Makefile scripts and Docker container development flow
-   creates and removes virtualenvs as needed while you are building and testing your work locally.
+   In case you are used to using a virtual environment for Python development:
+   it's unnecessary for Warehouse development. Our Makefile scripts execute all
+   developer actions inside Docker containers.
 
 Why Docker?
 ~~~~~~~~~~~
@@ -68,10 +68,10 @@ Why Docker?
 Docker simplifies development environment set up.
 
 Warehouse uses Docker and `Docker Compose <https://docs.docker.com/compose/>`_
-to automate setting up a "batteries included" development environment.
-The Dockerfile and :file:`docker-compose.yml` files include all the required steps
-for installing and configuring all the required external services of the
-development environment.
+to automate setting up a "batteries included" development environment. The
+:file:`Dockerfile` and :file:`docker-compose.yml` files include all the
+required steps for installing and configuring all the required external
+services of the development environment.
 
 
 Installing Docker
@@ -131,6 +131,16 @@ If the port is in use, the command will produce output, and you will need to
 determine what is occupying the port and shut down the corresponding service.
 Otherwise, the port is available for Warehouse to use, and you can continue.
 
+Alternately, you may set the ``WEB_HOST`` environment variable for
+docker-compose to use instead. An example:
+
+.. code-block:: console
+
+    export WEB_HOST=8080
+    make ...
+
+    # or inline:
+    WEB_HOST=8080 make ...
 
 Building the Warehouse Container
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -147,7 +157,6 @@ This will pull down all of the required docker containers, build Warehouse and
 run all of the needed services. The Warehouse repository will be mounted inside
 the Docker container at :file:`/opt/warehouse/src/`. After the initial build,
 you should not have to run this command again.
-
 
 .. _running-warehouse-containers:
 
@@ -188,6 +197,20 @@ Once ``make build`` has finished,  run the command:
 
 .. code-block:: console
 
+    make initdb
+
+This command will:
+
+* create a new Postgres database,
+* install example data to the Postgres database,
+* run migrations,
+* load some example data from `Test PyPI`_, and
+* index all the data for the search database.
+
+Once the ``make initdb`` command has finished, you are ready to continue:
+
+.. code-block:: console
+
     make serve
 
 This command starts the containers that run Warehouse on your local machine.
@@ -217,28 +240,6 @@ or that the ``static`` container has finished compiling the static assets:
 
 or maybe something else.
 
-After the docker containers are setup in the previous step, in a separate
-terminal session, run:
-
-.. code-block:: console
-
-    make initdb
-
-This command will:
-
-* create a new Postgres database,
-* install example data to the Postgres database,
-* run migrations,
-* load some example data from `Test PyPI`_, and
-* index all the data for the search database.
-
-.. note::
-
-    If you get an error about xz, you may need to install the ``xz`` utility.
-    This is highly likely on macOS and Windows.
-
-Once the ``make initdb`` command has finished, you are ready to continue.
-
 
 Viewing Warehouse in a browser
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -260,6 +261,8 @@ At this point all the services are up, and web container is listening on port
     `this bug report <https://bugzilla.mozilla.org/show_bug.cgi?id=1262842>`_
     for more info).
 
+If you've set a different port via the ``WEB_HOST`` environment variable,
+use that port instead.
 
 Logging in to Warehouse
 ^^^^^^^^^^^^^^^^^^^^^^^
@@ -269,7 +272,7 @@ the string ``password``. You can log in as any account at
 http://localhost:80/account/login/.
 
 To log in as an admin user, log in as ``ewdurbin`` with the password
-``password`` at http://localhost:80/admin/login/.
+``password``.
 
 
 Stopping Warehouse and other services
@@ -321,16 +324,11 @@ Errors when executing ``make build``
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 * If you are using Ubuntu and ``invalid reference format`` error is displayed,
-  you can fix it by installing Docker through `Snap <https://snapcraft.io/docker>`.
+  you can fix it by installing Docker through `Snap <https://snapcraft.io/docker>`_.
 
-.. code-block:: console
+  .. code-block:: console
 
-    snap install docker
-
-* If you receive the error: ``python3.8: command not found`` , ensure you have
-  Python 3.8 installed on your system.
-  This is the "base" Python version that Warehouse uses to create the rest of
-  the development environment.
+      snap install docker
 
 Errors when executing ``make serve``
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -398,6 +396,9 @@ https://github.com/chadoe/docker-cleanup-volumes)
 This typically occur when Docker is not allocated enough memory to perform the
 migrations. Try modifying your Docker configuration to allow more RAM for each
 container, temporarily stop ``make_serve`` and run ``make initdb`` again.
+
+This may also be due to enabling Compose V2 (see
+https://github.com/pypa/warehouse/issues/10772 for more details).
 
 
 ``make initdb`` complains about PostgreSQL Version
@@ -550,6 +551,7 @@ To run all tests, in the root of the repository:
 .. code-block:: console
 
     make tests
+    make static_tests
 
 This will run the tests with the supported interpreter as well as all of the
 additional testing that we require.

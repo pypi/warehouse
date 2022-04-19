@@ -4,7 +4,7 @@ argon2-cffi
 Babel
 bcrypt
 boto3
-celery>=4,<5
+celery[sqs]>=5.2.2,<6
 celery-redbeat
 certifi
 click
@@ -14,7 +14,7 @@ disposable-email-domains
 elasticsearch>=7.0.0,<7.11.0
 elasticsearch_dsl>=7.0.0,<8.0.0
 first
-google-cloud-bigquery
+google-cloud-bigquery<3.0.0  # https://github.com/googleapis/python-bigquery/issues/1196
 google-cloud-storage
 hiredis
 html5lib
@@ -43,10 +43,11 @@ pyramid_rpc>=0.7
 pyramid_services>=2.1
 pyramid_tm>=0.12
 python-slugify
+PyJWT[crypto]>=2.3.0
 readme-renderer[md]>=0.7.0
 requests
 requests-aws4auth
-redis>=2.8.0,<4.0.0  # https://github.com/pypa/warehouse/pull/10369
+redis>=2.8.0,<5.0.0
 rfc3986
 sentry-sdk
 setuptools
@@ -58,7 +59,7 @@ structlog
 transaction
 trove-classifiers
 typeguard
-webauthn<1.0.0  # https://github.com/pypa/warehouse/pull/10202
+webauthn>=1.0.0,<2.0.0
 whitenoise
 WTForms[email]>=2.0.0
 yara-python

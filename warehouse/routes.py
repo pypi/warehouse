@@ -173,6 +173,9 @@ def includeme(config):
     # Management (views for logged-in users)
     config.add_route("manage.account", "/manage/account/", domain=warehouse)
     config.add_route(
+        "manage.account.two-factor", "/manage/account/two-factor/", domain=warehouse
+    )
+    config.add_route(
         "manage.account.totp-provision",
         "/manage/account/totp-provision",
         domain=warehouse,
@@ -212,11 +215,23 @@ def includeme(config):
         "/manage/account/recovery-codes/regenerate",
         domain=warehouse,
     )
+    config.add_route(
+        "manage.account.recovery-codes.burn",
+        "/manage/account/recovery-codes/burn",
+        domain=warehouse,
+    )
     config.add_route("manage.account.token", "/manage/account/token/", domain=warehouse)
     config.add_route("manage.projects", "/manage/projects/", domain=warehouse)
     config.add_route(
         "manage.project.settings",
         "/manage/project/{project_name}/settings/",
+        factory="warehouse.packaging.models:ProjectFactory",
+        traverse="/{project_name}",
+        domain=warehouse,
+    )
+    config.add_route(
+        "manage.project.settings.publishing",
+        "/manage/project/{project_name}/settings/publishing/",
         factory="warehouse.packaging.models:ProjectFactory",
         traverse="/{project_name}",
         domain=warehouse,
@@ -347,7 +362,6 @@ def includeme(config):
 
     # Legacy URLs
     config.add_route("legacy.api.simple.index", "/simple/", domain=warehouse)
-    config.add_redirect("/s/{name}/", "/simple/{name}/", domain=warehouse)
     config.add_route(
         "legacy.api.simple.detail",
         "/simple/{name}/",

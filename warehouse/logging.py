@@ -66,6 +66,7 @@ def includeme(config):
                     "formatter": "structlog",
                 },
             },
+            "loggers": {"datadog.dogstatsd": {"level": "ERROR"}},
             "root": {
                 "level": config.registry.settings.get("logging.level", "INFO"),
                 "handlers": ["primary"],

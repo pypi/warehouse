@@ -1,0 +1,148 @@
+{#
+ # Licensed under the Apache License, Version 2.0 (the "License");
+ # you may not use this file except in compliance with the License.
+ # You may obtain a copy of the License at
+ #
+ # http://www.apache.org/licenses/LICENSE-2.0
+ #
+ # Unless required by applicable law or agreed to in writing, software
+ # distributed under the License is distributed on an "AS IS" BASIS,
+ # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ # See the License for the specific language governing permissions and
+ # limitations under the License.
+-#}
+
+{% extends "manage_project_base.html" %}
+
+{% set active_tab = 'publishing' %}
+
+{% block title %}
+  {% trans %}OpenID Connect publisher management{% endtrans %}
+{% endblock %}
+
+{% block main %}
+{% if testPyPI %}
+{% set title = "TestPyPI" %}
+{% else %}
+{% set title = "PyPI" %}
+{% endif %}
+
+{% macro provider_row(provider) -%}
+<form id="delete-provider-{{ provider.id }}" method="POST" action="{{ request.route_path('manage.project.settings.publishing', project_name=project.name) }}">
+  <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
+  <input name="provider_id" type="hidden" value="{{ provider.id }}">
+</form>
+
+<tr>
+  <td scope="row">
+    {{ provider.provider_name }}
+  </td>
+  <td scope="row">
+    {{ provider|string }}
+  </td>
+  <td scope="row">
+    <input form="delete-provider-{{ provider.id }}" type="submit" value="{% trans %}Remove{% endtrans %}" class="button button--danger">
+  </td>
+</tr>
+{%- endmacro %}
+
+<div class="horizontal-section">
+  <div class="site-container">
+    <h1 class="page-title">{% trans %}OpenID Connect publisher management{% endtrans %}</h1>
+
+    <p>
+      {% trans trimmed %}
+        OpenID Connect provides a flexible, credential-free mechanism for delegating
+        publishing authority for a PyPI package to a third party service,
+        like GitHub Actions.
+      {% endtrans %}
+    </p>
+
+    <p class="no-bottom-padding">
+      {% trans trimmed %}
+        PyPI projects can use trusted OpenID Connect publishers to automate their release
+        processes, without having to explicitly provision or manage API tokens.
+      {% endtrans %}
+    </p>
+
+    <h2 class="no-bottom-padding">{% trans %}Add a new provider{% endtrans %}</h2>
+    <h3>GitHub</h3>
+
+    <p>
+      {% trans trimmed href="https://docs.github.com/en/actions/deployment/security-hardening-your-deployments/about-security-hardening-with-openid-connect" %}
+      Read more about GitHub's OpenID Connect provider <a href="{{ href }}">here</a>.
+      {% endtrans %}
+    </p>
+
+    {{ form_error_anchor(github_provider_form) }}
+    <form method="POST" action="{{ request.route_path('manage.project.settings.publishing', project_name=project.name) }}">
+      <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
+      {{ form_errors(github_provider_form) }}
+      <div class="form-group">
+        <label for="owner" class="form-group__label">
+          {% trans %}Owner{% endtrans %}
+          {% if github_provider_form.owner.flags.required %}
+          <span class="form-group__required">{% trans %}(required){% endtrans %}</span>
+          {% endif %}
+        </label>
+        {{ github_provider_form.owner(placeholder=gettext("owner"), autocomplete="off", autocapitalize="off", spellcheck="false", class_="form-group__field", aria_describedby="owner-errors") }}
+        <div id="owner-errors">
+          {{ field_errors(github_provider_form.owner) }}
+        </div>
+      </div>
+      <div class="form-group">
+        <label for="repository" class="form-group__label">
+          {% trans %}Repository name{% endtrans %}
+          {% if github_provider_form.repository.flags.required %}
+          <span class="form-group__required">{% trans %}(required){% endtrans %}</span>
+          {% endif %}
+        </label>
+        {{ github_provider_form.repository(placeholder=gettext("repository"), autocomplete="off", autocapitalize="off", spellcheck="false", class_="form-group__field", **{"aria-describedby":"repository-errors"}) }}
+        <div id="repository-errors">
+          {{ field_errors(github_provider_form.repository) }}
+        </div>
+      </div>
+      <div class="form-group">
+        <label for="workflow_filename" class="form-group__label">
+          {% trans %}Workflow name{% endtrans %}
+          {% if github_provider_form.workflow_filename.flags.required %}
+          <span class="form-group__required">{% trans %}(required){% endtrans %}</span>
+          {% endif %}
+        </label>
+        {{ github_provider_form.workflow_filename(placeholder=gettext("workflow.yml"), class_="form-group__field", autocomplete="off", **{"aria-describedby":"workflow_filename-errors"}) }}
+        <div id="workflow_filename-errors">
+          {{ field_errors(github_provider_form.workflow_filename) }}
+        </div>
+      </div>
+      <div>
+        <input type="submit" value="{% trans %}Add{% endtrans %}" class="button button--primary">
+      </div>
+    </form>
+
+    <h2>{% trans %}Manage current providers{% endtrans %}</h2>
+    {% if project.oidc_providers %}
+    <table class="table">
+      <caption class="sr-only">
+        {% trans project_name=project.name %}OpenID Connect publishers associated with {{ project_name }}{% endtrans %}
+      </caption>
+      <thead>
+        <tr>
+          <th scope="col">{% trans %}Publisher{% endtrans %}</th>
+          <th scope="col">{% trans %}Specification{% endtrans %}</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for provider in project.oidc_providers %}
+        {{ provider_row(provider) }}
+        {% endfor %}
+      </tbody>
+    </table>
+    {% else %}
+    <p class="no-bottom-padding">{% trans %}No publishers are currently configured.{% endtrans %}</p>
+    {% endif %}
+  </div>
+</div>
+
+{% endblock %}
+

@@ -22,6 +22,7 @@ class AdminFlagValue(enum.Enum):
     DISALLOW_NEW_PROJECT_REGISTRATION = "disallow-new-project-registration"
     DISALLOW_NEW_UPLOAD = "disallow-new-upload"
     DISALLOW_NEW_USER_REGISTRATION = "disallow-new-user-registration"
+    DISALLOW_OIDC = "disallow-oidc"
     READ_ONLY = "read-only"
 
 

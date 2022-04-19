@@ -10,9 +10,12 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import datetime
 import functools
 
 from email.headerregistry import Address
+
+import pytz
 
 from celery.schedules import crontab
 from first import first
@@ -65,7 +68,15 @@ def send_email(task, request, recipient, msg, success_event):
         task.retry(exc=exc)
 
 
-def _send_email_to_user(request, user, msg, *, email=None, allow_unverified=False):
+def _send_email_to_user(
+    request,
+    user,
+    msg,
+    *,
+    email=None,
+    allow_unverified=False,
+    repeat_window=None,
+):
     # If we were not given a specific email object, then we'll default to using
     # the User's primary email address.
     if email is None:
@@ -78,6 +89,13 @@ def _send_email_to_user(request, user, msg, *, email=None, allow_unverified=Fals
     if email is None or not (email.verified or allow_unverified):
         return
 
+    # If we've already sent this email within the repeat_window, don't send it.
+    if repeat_window is not None:
+        sender = request.find_service(IEmailSender)
+        last_sent = sender.last_sent(to=email.email, subject=msg.subject)
+        if last_sent and (datetime.datetime.now() - last_sent) <= repeat_window:
+            return
+
     request.task(send_email).delay(
         _compute_recipient(user, email.email),
         {
@@ -88,7 +106,6 @@ def _send_email_to_user(request, user, msg, *, email=None, allow_unverified=Fals
         {
             "tag": "account:email:sent",
             "user_id": user.id,
-            "ip_address": request.remote_addr,
             "additional": {
                 "from_": request.registry.settings.get("mail.sender"),
                 "to": email.email,
@@ -99,7 +116,12 @@ def _send_email_to_user(request, user, msg, *, email=None, allow_unverified=Fals
     )
 
 
-def _email(name, *, allow_unverified=False):
+def _email(
+    name,
+    *,
+    allow_unverified=False,
+    repeat_window=None,
+):
     """
     This decorator is used to turn an e function into an email sending function!
 
@@ -149,7 +171,12 @@ def _email(name, *, allow_unverified=False):
                     user, email = recipient, None
 
                 _send_email_to_user(
-                    request, user, msg, email=email, allow_unverified=allow_unverified
+                    request,
+                    user,
+                    msg,
+                    email=email,
+                    allow_unverified=allow_unverified,
+                    repeat_window=repeat_window,
                 )
 
             return context
@@ -168,7 +195,11 @@ def send_password_reset_email(request, user_and_email):
             "action": "password-reset",
             "user.id": str(user.id),
             "user.last_login": str(user.last_login),
-            "user.password_date": str(user.password_date),
+            "user.password_date": str(
+                user.password_date
+                if user.password_date is not None
+                else datetime.datetime.min.replace(tzinfo=pytz.UTC)
+            ),
         }
     )
 
@@ -210,6 +241,15 @@ def send_password_compromised_email_hibp(request, user):
 @_email("token-compromised-leak", allow_unverified=True)
 def send_token_compromised_email_leak(request, user, *, public_url, origin):
     return {"username": user.username, "public_url": public_url, "origin": origin}
+
+
+@_email(
+    "basic-auth-with-2fa",
+    allow_unverified=True,
+    repeat_window=datetime.timedelta(days=1),
+)
+def send_basic_auth_with_two_factor_email(request, user):
+    return {}
 
 
 @_email("account-deleted")
@@ -408,6 +448,43 @@ def send_removed_project_release_file_email(
         "submitter_name": submitter_name,
         "submitter_role": submitter_role.lower(),
         "recipient_role_descr": recipient_role_descr,
+    }
+
+
+@_email("recovery-codes-generated")
+def send_recovery_codes_generated_email(request, user):
+    return {"username": user.username}
+
+
+@_email("recovery-code-used")
+def send_recovery_code_used_email(request, user):
+    return {"username": user.username}
+
+
+@_email("recovery-code-reminder")
+def send_recovery_code_reminder_email(request, user):
+    return {"username": user.username}
+
+
+@_email("oidc-provider-added")
+def send_oidc_provider_added_email(request, user, project_name, provider):
+    # We use the request's user, since they're the one triggering the action.
+    return {
+        "username": request.user.username,
+        "project_name": project_name,
+        "provider_name": provider.provider_name,
+        "provider_spec": str(provider),
+    }
+
+
+@_email("oidc-provider-removed")
+def send_oidc_provider_removed_email(request, user, project_name, provider):
+    # We use the request's user, since they're the one triggering the action.
+    return {
+        "username": request.user.username,
+        "project_name": project_name,
+        "provider_name": provider.provider_name,
+        "provider_spec": str(provider),
     }
 
 
