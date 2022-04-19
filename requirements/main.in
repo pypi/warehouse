@@ -25,7 +25,7 @@ lxml
 mistune
 msgpack
 natsort
-packaging>=15.2
+packaging>=20.9
 paginate>=0.5.2
 paginate_sqlalchemy
 passlib>=1.6.4
