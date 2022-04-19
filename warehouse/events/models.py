@@ -24,11 +24,11 @@ class Event(AbstractConcreteBase):
     additional = Column(JSONB, nullable=True)
 
     @declared_attr
-    def __tablename__(cls):
+    def __tablename__(cls):  # noqa: N805
         return "_".join([cls.__name__.removesuffix("Event").lower(), "events"])
 
     @declared_attr
-    def __mapper_args__(cls):
+    def __mapper_args__(cls):  # noqa: N805
         return (
             {"polymorphic_identity": cls.__name__, "concrete": True}
             if cls.__name__ != "Event"
@@ -36,7 +36,7 @@ class Event(AbstractConcreteBase):
         )
 
     @declared_attr
-    def source_id(cls):
+    def source_id(cls):  # noqa: N805
         return Column(
             UUID(as_uuid=True),
             ForeignKey(
@@ -48,7 +48,7 @@ class Event(AbstractConcreteBase):
         )
 
     @declared_attr
-    def source(cls):
+    def source(cls):  # noqa: N805
         return orm.relationship(cls._parent_class)
 
     def __init_subclass__(cls, /, parent_class, **kwargs):
@@ -65,7 +65,7 @@ class HasEvents:
         return cls
 
     @declared_attr
-    def events(cls):
+    def events(cls):  # noqa: N805
         return orm.relationship(cls.Event, cascade="all, delete-orphan", lazy=True)
 
     def record_event(self, *, tag, ip_address, additional=None):
