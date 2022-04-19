@@ -25,48 +25,51 @@ class InvalidMacaroonError(Exception):
 class Caveat:
     def __init__(self, verifier):
         self.verifier = verifier
-        self.failure_reason = None
-
-    def _fail(self, reason):
         # TODO: Surface this failure reason to the user.
         # See: https://github.com/pypa/warehouse/issues/9018
-        self.failure_reason = reason
-        return False
+        self.failure_reason = None
 
-    def verify(self, predicate):
-        return self._fail("programming error")
+    def verify(self, predicate) -> bool:
+        return False
 
     def __call__(self, predicate):
         return self.verify(predicate)
 
 
 class V1Caveat(Caveat):
-    def verify_projects(self, projects):
+    def verify_projects(self, projects) -> bool:
         # First, ensure that we're actually operating in
         # the context of a package.
         if not isinstance(self.verifier.context, Project):
-            return self._fail("project-scoped token used outside of a project context")
+            self.failure_reason = (
+                "project-scoped token used outside of a project context"
+            )
+            return False
 
         project = self.verifier.context
         if project.normalized_name in projects:
             return True
 
-        return self._fail(
+        self.failure_reason = (
             f"project-scoped token is not valid for project '{project.name}'"
         )
+        return False
 
-    def verify(self, predicate):
+    def verify(self, predicate) -> bool:
         try:
             data = json.loads(predicate)
         except ValueError:
-            return self._fail("malformatted predicate")
+            self.failure_reason = "malformatted predicate"
+            return False
 
         if data.get("version") != 1:
-            return self._fail("invalid version in predicate")
+            self.failure_reason = "invalid version in predicate"
+            return False
 
         permissions = data.get("permissions")
         if permissions is None:
-            return self._fail("invalid permissions in predicate")
+            self.failure_reason = "invalid permissions in predicate"
+            return False
 
         if permissions == "user":
             # User-scoped tokens behave exactly like a user's normal credentials.
@@ -74,7 +77,8 @@ class V1Caveat(Caveat):
 
         projects = permissions.get("projects")
         if projects is None:
-            return self._fail("invalid projects in predicate")
+            self.failure_reason = "invalid projects in predicate"
+            return False
 
         return self.verify_projects(projects)
 
@@ -86,13 +90,16 @@ class ExpiryCaveat(Caveat):
             expiry = data["exp"]
             not_before = data["nbf"]
         except (KeyError, ValueError, TypeError):
+            self.failure_reason = "malformatted predicate"
             return False
 
         if not expiry or not not_before:
+            self.failure_reason = "missing fields"
             return False
 
         now = int(time.time())
         if now < not_before or now >= expiry:
+            self.failure_reason = "token is expired"
             return False
 
         return True
