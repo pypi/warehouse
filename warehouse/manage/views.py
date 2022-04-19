@@ -87,7 +87,6 @@ from warehouse.packaging.models import (
     File,
     JournalEntry,
     Project,
-    ProjectEvent,
     Release,
     Role,
     RoleInvitation,
@@ -2201,10 +2200,10 @@ def manage_project_history(project, request):
         raise HTTPBadRequest("'page' must be an integer.")
 
     events_query = (
-        request.db.query(ProjectEvent)
-        .join(ProjectEvent.project)
-        .filter(ProjectEvent.project_id == project.id)
-        .order_by(ProjectEvent.time.desc())
+        request.db.query(Project.Event)
+        .join(Project.Event.source)
+        .filter(Project.Event.source_id == project.id)
+        .order_by(Project.Event.time.desc())
     )
 
     events = SQLAlchemyORMPage(

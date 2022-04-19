@@ -102,9 +102,9 @@ class TestUser:
 
     def test_recent_events(self, db_session):
         user = DBUserFactory.create()
-        recent_event = DBUserEventFactory(user=user, tag="foo", ip_address="0.0.0.0")
+        recent_event = DBUserEventFactory(source=user, tag="foo", ip_address="0.0.0.0")
         stale_event = DBUserEventFactory(
-            user=user,
+            source=user,
             tag="bar",
             ip_address="0.0.0.0",
             time=datetime.datetime.now() - datetime.timedelta(days=91),
