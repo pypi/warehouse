@@ -52,7 +52,6 @@ class Event(AbstractConcreteBase):
         return orm.relationship(cls._parent_class)
 
     def __init_subclass__(cls, /, parent_class, **kwargs):
-        # super().__init_subclass__(cls, **kwargs)
         cls._parent_class = parent_class
         return cls
 
