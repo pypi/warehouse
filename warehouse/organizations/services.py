@@ -48,12 +48,14 @@ class DatabaseOrganizationService:
 
     def find_organizationid(self, name):
         """
-        Find the unique organization identifier for the given name or None if there
-        is no organization with the given name.
+        Find the unique organization identifier for the given normalized name or None
+        if there is no organization with the given name.
         """
         try:
             organization = (
-                self.db.query(Organization.id).filter(Organization.name == name).one()
+                self.db.query(Organization.id)
+                .filter(Organization.normalized_name == name)
+                .one()
             )
         except NoResultFound:
             return
@@ -83,7 +85,7 @@ class DatabaseOrganizationService:
         """
         organization = self.get_organization(organization_id)
         catalog_entry = OrganizationNameCatalog(
-            name=name, organization_id=organization.id
+            normalized_name=name, organization_id=organization.id
         )
 
         self.db.add(catalog_entry)

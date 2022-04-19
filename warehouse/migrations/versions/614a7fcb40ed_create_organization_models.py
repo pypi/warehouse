@@ -122,7 +122,7 @@ def upgrade():
             server_default=sa.text("gen_random_uuid()"),
             nullable=False,
         ),
-        sa.Column("name", sa.Text(), nullable=False),
+        sa.Column("normalized_name", sa.Text(), nullable=False),
         sa.Column("organization_id", postgresql.UUID(as_uuid=True), nullable=False),
         sa.ForeignKeyConstraint(
             ["organization_id"],
@@ -132,15 +132,15 @@ def upgrade():
         ),
         sa.PrimaryKeyConstraint("id"),
         sa.UniqueConstraint(
-            "name",
+            "normalized_name",
             "organization_id",
-            name="_organization_name_catalog_name_organization_uc",
+            name="_organization_name_catalog_normalized_name_organization_uc",
         ),
     )
     op.create_index(
-        "organization_name_catalog_name_idx",
+        "organization_name_catalog_normalized_name_idx",
         "organization_name_catalog",
-        ["name"],
+        ["normalized_name"],
         unique=False,
     )
     op.create_index(

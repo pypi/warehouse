@@ -214,18 +214,18 @@ class OrganizationNameCatalog(db.Model):
 
     __tablename__ = "organization_name_catalog"
     __table_args__ = (
-        Index("organization_name_catalog_name_idx", "name"),
+        Index("organization_name_catalog_normalized_name_idx", "normalized_name"),
         Index("organization_name_catalog_organization_id_idx", "organization_id"),
         UniqueConstraint(
-            "name",
+            "normalized_name",
             "organization_id",
-            name="_organization_name_catalog_name_organization_uc",
+            name="_organization_name_catalog_normalized_name_organization_uc",
         ),
     )
 
-    __repr__ = make_repr("name", "organization_id")
+    __repr__ = make_repr("normalized_name", "organization_id")
 
-    name = Column(Text, nullable=False)
+    normalized_name = Column(Text, nullable=False)
     organization_id = Column(
         ForeignKey("organizations.id", onupdate="CASCADE", ondelete="CASCADE"),
         nullable=False,

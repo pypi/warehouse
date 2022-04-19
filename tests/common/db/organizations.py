@@ -37,6 +37,7 @@ class OrganizationFactory(WarehouseFactory):
 
     id = factory.Faker("uuid4", cast_to=None)
     name = factory.Faker("word")
+    normalized_name = factory.Faker("word")
     display_name = factory.Faker("word")
     orgtype = "Community"
     link_url = factory.Faker("uri")

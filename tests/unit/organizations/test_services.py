@@ -87,9 +87,9 @@ class TestDatabaseOrganizationService:
         organization = OrganizationFactory.create()
 
         catalog_entry = organization_service.add_catalog_entry(
-            organization.name, organization.id
+            organization.normalized_name, organization.id
         )
-        assert catalog_entry.name == organization.name
+        assert catalog_entry.normalized_name == organization.normalized_name
         assert catalog_entry.organization_id == organization.id
 
     def test_add_organization_role(self, organization_service, user_service):
