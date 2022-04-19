@@ -25,28 +25,20 @@ down_revision = "84262e097c26"
 
 
 def upgrade():
-    op.rename_table("project_events", "projects_events")
-    op.alter_column("projects_events", "project_id", new_column_name="source_id")
-    op.execute("ALTER INDEX project_events_pkey RENAME TO projects_events_pkey")
+    op.alter_column("project_events", "project_id", new_column_name="source_id")
     op.execute(
-        "ALTER INDEX ix_project_events_project_id RENAME TO ix_projects_events_source_id"  # noqa
+        "ALTER INDEX ix_project_events_project_id RENAME TO ix_project_events_source_id"  # noqa
     )
 
-    op.rename_table("user_events", "users_events")
-    op.alter_column("users_events", "user_id", new_column_name="source_id")
-    op.execute("ALTER INDEX user_events_pkey RENAME TO users_events_pkey")
-    op.execute("ALTER INDEX ix_user_events_user_id RENAME TO ix_users_events_source_id")
+    op.alter_column("user_events", "user_id", new_column_name="source_id")
+    op.execute("ALTER INDEX ix_user_events_user_id RENAME TO ix_user_events_source_id")
 
 
 def downgrade():
-    op.rename_table("projects_events", "project_events")
     op.alter_column("project_events", "source_id", new_column_name="project_id")
-    op.execute("ALTER INDEX projects_events_pkey RENAME TO project_events_pkey")
     op.execute(
-        "ALTER INDEX ix_projects_events_source_id RENAME TO ix_project_events_project_id"  # noqa
+        "ALTER INDEX ix_project_events_source_id RENAME TO ix_project_events_project_id"  # noqa
     )
 
-    op.rename_table("users_events", "user_events")
     op.alter_column("user_events", "source_id", new_column_name="user_id")
-    op.execute("ALTER INDEX users_events_pkey RENAME TO user_events_pkey")
-    op.execute("ALTER INDEX ix_users_events_source_id RENAME TO ix_user_events_user_id")
+    op.execute("ALTER INDEX ix_user_events_source_id RENAME TO ix_user_events_user_id")

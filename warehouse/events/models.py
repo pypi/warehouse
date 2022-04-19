@@ -23,31 +23,50 @@ class Event(AbstractConcreteBase):
     ip_address = Column(String, nullable=False)
     additional = Column(JSONB, nullable=True)
 
+    @declared_attr
+    def __tablename__(cls):
+        return "_".join([cls.__name__.removesuffix("Event").lower(), "events"])
+
+    @declared_attr
+    def __mapper_args__(cls):
+        return (
+            {"polymorphic_identity": cls.__name__, "concrete": True}
+            if cls.__name__ != "Event"
+            else {}
+        )
+
+    @declared_attr
+    def source_id(cls):
+        return Column(
+            UUID(as_uuid=True),
+            ForeignKey(
+                "%s.id" % cls._parent_class.__tablename__,
+                deferrable=True,
+                initially="DEFERRED",
+            ),
+            nullable=False,
+        )
+
+    @declared_attr
+    def source(cls):
+        return orm.relationship(cls._parent_class)
+
+    def __init_subclass__(cls, /, parent_class, **kwargs):
+        # super().__init_subclass__(cls, **kwargs)
+        cls._parent_class = parent_class
+        return cls
+
 
 class HasEvents:
-    @declared_attr
-    def events(cls):  # noqa: N805
+    def __init_subclass__(cls, /, **kwargs):
+        super().__init_subclass__(**kwargs)
         cls.Event = type(
-            "%sEvent" % cls.__name__,
-            (Event, db.Model),
-            dict(
-                __tablename__="%s_events" % cls.__tablename__,
-                __mapper_args__={
-                    "polymorphic_identity": cls.__tablename__,
-                    "concrete": True,
-                },
-                source_id=Column(
-                    UUID(as_uuid=True),
-                    ForeignKey(
-                        "%s.id" % cls.__tablename__,
-                        deferrable=True,
-                        initially="DEFERRED",
-                    ),
-                    nullable=False,
-                ),
-                source=orm.relationship(cls),
-            ),
+            f"{cls.__name__}Event", (Event, db.Model), dict(), parent_class=cls
         )
+        return cls
+
+    @declared_attr
+    def events(cls):
         return orm.relationship(cls.Event, cascade="all, delete-orphan", lazy=True)
 
     def record_event(self, *, tag, ip_address, additional=None):
