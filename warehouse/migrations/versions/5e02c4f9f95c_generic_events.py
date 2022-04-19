@@ -17,162 +17,36 @@ Revises: 87509f4ae027
 Create Date: 2020-07-26 06:12:58.519387
 """
 
-import sqlalchemy as sa
 
 from alembic import op
-from sqlalchemy.dialects import postgresql
 
 revision = "5e02c4f9f95c"
 down_revision = "84262e097c26"
 
 
 def upgrade():
-    # Create new tables
-    op.create_table(
-        "projects_events",
-        sa.Column(
-            "id",
-            postgresql.UUID(as_uuid=True),
-            server_default=sa.text("gen_random_uuid()"),
-            nullable=False,
-        ),
-        sa.Column("tag", sa.String(), nullable=False),
-        sa.Column(
-            "time", sa.DateTime(), server_default=sa.text("now()"), nullable=False
-        ),
-        sa.Column("ip_address", sa.String(), nullable=False),
-        sa.Column("additional", postgresql.JSONB(astext_type=sa.Text()), nullable=True),
-        sa.Column("source_id", postgresql.UUID(as_uuid=True), nullable=False),
-        sa.ForeignKeyConstraint(
-            ["source_id"], ["projects.id"], initially="DEFERRED", deferrable=True
-        ),
-        sa.PrimaryKeyConstraint("id"),
-    )
-    op.create_table(
-        "users_events",
-        sa.Column(
-            "id",
-            postgresql.UUID(as_uuid=True),
-            server_default=sa.text("gen_random_uuid()"),
-            nullable=False,
-        ),
-        sa.Column("tag", sa.String(), nullable=False),
-        sa.Column(
-            "time", sa.DateTime(), server_default=sa.text("now()"), nullable=False
-        ),
-        sa.Column("ip_address", sa.String(), nullable=False),
-        sa.Column("additional", postgresql.JSONB(astext_type=sa.Text()), nullable=True),
-        sa.Column("source_id", postgresql.UUID(as_uuid=True), nullable=False),
-        sa.ForeignKeyConstraint(
-            ["source_id"], ["users.id"], initially="DEFERRED", deferrable=True
-        ),
-        sa.PrimaryKeyConstraint("id"),
+    op.rename_table("project_events", "projects_events")
+    op.alter_column("projects_events", "project_id", new_column_name="source_id")
+    op.execute("ALTER INDEX project_events_pkey RENAME TO projects_events_pkey")
+    op.execute(
+        "ALTER INDEX ix_project_events_project_id RENAME TO ix_projects_events_source_id"  # noqa
     )
 
-    # Data migration
-    op.execute(
-        "INSERT INTO projects_events "
-        "(id, source_id, tag, time, ip_address, additional) "
-        "SELECT id, project_id, tag, time, ip_address, additional "
-        "FROM project_events"
-    )
-    op.execute(
-        "INSERT INTO users_events "
-        "(id, source_id, tag, time, ip_address, additional) "
-        "SELECT id, user_id, tag, time, ip_address, additional "
-        "FROM user_events"
-    )
-
-    # Drop old tables
-    op.drop_table("user_events")
-    op.drop_table("project_events")
+    op.rename_table("user_events", "users_events")
+    op.alter_column("users_events", "user_id", new_column_name="source_id")
+    op.execute("ALTER INDEX user_events_pkey RENAME TO users_events_pkey")
+    op.execute("ALTER INDEX ix_user_events_user_id RENAME TO ix_users_events_source_id")
 
 
 def downgrade():
-    # Create new tables
-    op.create_table(
-        "project_events",
-        sa.Column(
-            "id",
-            postgresql.UUID(),
-            server_default=sa.text("gen_random_uuid()"),
-            autoincrement=False,
-            nullable=False,
-        ),
-        sa.Column("project_id", postgresql.UUID(), autoincrement=False, nullable=False),
-        sa.Column("tag", sa.VARCHAR(), autoincrement=False, nullable=False),
-        sa.Column(
-            "time",
-            postgresql.TIMESTAMP(),
-            server_default=sa.text("now()"),
-            autoincrement=False,
-            nullable=False,
-        ),
-        sa.Column("ip_address", sa.VARCHAR(), autoincrement=False, nullable=False),
-        sa.Column(
-            "additional",
-            postgresql.JSONB(astext_type=sa.Text()),
-            autoincrement=False,
-            nullable=True,
-        ),
-        sa.ForeignKeyConstraint(
-            ["project_id"],
-            ["projects.id"],
-            name="project_events_project_id_fkey",
-            initially="DEFERRED",
-            deferrable=True,
-        ),
-        sa.PrimaryKeyConstraint("id", name="project_events_pkey"),
-    )
-    op.create_table(
-        "user_events",
-        sa.Column(
-            "id",
-            postgresql.UUID(),
-            server_default=sa.text("gen_random_uuid()"),
-            autoincrement=False,
-            nullable=False,
-        ),
-        sa.Column("user_id", postgresql.UUID(), autoincrement=False, nullable=False),
-        sa.Column("tag", sa.VARCHAR(), autoincrement=False, nullable=False),
-        sa.Column(
-            "time",
-            postgresql.TIMESTAMP(),
-            server_default=sa.text("now()"),
-            autoincrement=False,
-            nullable=False,
-        ),
-        sa.Column("ip_address", sa.VARCHAR(), autoincrement=False, nullable=False),
-        sa.Column(
-            "additional",
-            postgresql.JSONB(astext_type=sa.Text()),
-            autoincrement=False,
-            nullable=True,
-        ),
-        sa.ForeignKeyConstraint(
-            ["user_id"],
-            ["users.id"],
-            name="user_events_user_id_fkey",
-            initially="DEFERRED",
-            deferrable=True,
-        ),
-        sa.PrimaryKeyConstraint("id", name="user_events_pkey"),
+    op.rename_table("projects_events", "project_events")
+    op.alter_column("project_events", "source_id", new_column_name="project_id")
+    op.execute("ALTER INDEX projects_events_pkey RENAME TO project_events_pkey")
+    op.execute(
+        "ALTER INDEX ix_projects_events_source_id RENAME TO ix_project_events_project_id"  # noqa
     )
 
-    # Data migration
-    op.execute(
-        "INSERT INTO project_events "
-        "(id, project_id, tag, time, ip_address, additional) "
-        "SELECT id, source_id, tag, time, ip_address, additional "
-        "FROM projects_events"
-    )
-    op.execute(
-        "INSERT INTO user_events "
-        "(id, user_id, tag, time, ip_address, additional) "
-        "SELECT id, source_id, tag, time, ip_address, additional "
-        "FROM users_events"
-    )
-
-    # Drop old tables
-    op.drop_table("users_events")
-    op.drop_table("projects_events")
+    op.rename_table("users_events", "user_events")
+    op.alter_column("user_events", "source_id", new_column_name="user_id")
+    op.execute("ALTER INDEX users_events_pkey RENAME TO user_events_pkey")
+    op.execute("ALTER INDEX ix_users_events_source_id RENAME TO ix_user_events_user_id")
