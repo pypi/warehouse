@@ -86,6 +86,7 @@
 {% macro description_render_failure() %}{% trans %}Why am I getting "the description failed to render" error?{% endtrans %}{% endmacro %}
 
 {% macro file_name_reuse() %}{% trans %}Why am I getting a "Filename or contents already exists" or "Filename has been previously used" error?{% endtrans %}{% endmacro %}
+{% macro invalid_file_name() %}{% trans %}Why am I getting an "Invalid filename" error?{% endtrans %}{% endmacro %}
 {% macro project_name() %}{% trans %}Why isn't my desired project name available?{% endtrans %}{% endmacro %}
 {% macro project_name_claim() %}{% trans %}How do I claim an abandoned or previously registered project name?{% endtrans %}{% endmacro %}
 {% macro collaborator_roles() %}{% trans %}What collaborator roles are available for a project on PyPI?{% endtrans %}{% endmacro %}
@@ -174,6 +175,7 @@
           <li><a href="#accessibility">{{ accessibility() }}</a></li>
           <li><a href="#admin-intervention">{{ admin_intervention() }}</a></li>
           <li><a href="#file-name-reuse">{{ file_name_reuse() }}</a></li>
+          <li><a href="#invalid-file-name">{{ invalid_file_name() }}</a></li>
           <li><a href="#new-classifier">{{ new_classifier() }}</a></li>
           <li><a href="#feedback">{{ feedback() }}</a></li>
         </ul>
@@ -747,6 +749,19 @@
           To avoid this situation, <a href="{{ test_pypi_href }}" title="{{ title }}" target="_blank" rel="noopener">use Test PyPI to perform and check your upload first</a>, before uploading to <a href="{{ pypi_href }}">pypi.org</a>.
           {% endtrans %}
         </p>
+
+        <h3 id="invalid-file-name">{{ invalid_file_name() }}</h3>
+        <p>{% trans %}Package files uploaded to PyPI need to have names in a standard format. Your packaging tools should create files with suitable names by default. The filenames consist of a number of parts, separated by hyphens (<code>-</code>):{% endtrans %}</p>
+        <ul>
+          <li>{% trans %}For source distributions: normalized project name and version, e.g. <code>importlib_metadata-4.10.1.tar.gz</code>{% endtrans %}</li>
+          <li>{% trans %}For wheels: normalized project name, version, build tag (optional), Python tag, ABI tag, and platform tag, e.g. <code>importlib_metadata-4.10.1-py3-none-any.whl</code>{% endtrans %}</li>
+        </ul>
+        <p>
+          {% trans trimmed pep440="https://peps.python.org/pep-0440/" %}
+          A normalized project name must be fully lower-cased, with any runs of <code>_-.</code> characters replaced with a single underscore (<code>_</code>). The version number should be normalized as described in <a href="{{ pep440 }}">PEP 440</a>. All parts are expected to consist only of ASCII characters.
+          {% endtrans %}
+        </p>
+        <p>{% trans %}These rules have become stricter over time, so you may see existing packages with names which would no longer be allowed for new uploads.{% endtrans %}</p>
 
         <h3 id="new-classifier">{{ new_classifier() }}</h3>
         <p>

@@ -1256,11 +1256,13 @@ def file_upload(request):
     #
     # [1] https://packaging.python.org/specifications/binary-distribution-format/
     if not parsed_filename_parts[0] == project.normalized_name:
+        escaped_normalized_project_name = project.normalized_name.replace("-", "_")
+        help_url = request.help_url(_anchor="invalid-file-name")
         raise _exc_with_message(
             HTTPBadRequest,
-            "Invalid filename: Start filename for project {!r} with {!r}.".format(
-                project.name, project.normalized_name.replace("-", "_")
-            ),
+            f"Invalid filename: Start filename for project {project.name!r} "
+            f"with {escaped_normalized_project_name!r}. "
+            f"See {help_url} for more information",
         )
 
     # Check the content type of what is being uploaded
