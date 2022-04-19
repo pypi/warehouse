@@ -116,7 +116,7 @@ msgstr ""
 msgid "Successful WebAuthn assertion"
 msgstr ""
 
-#: warehouse/accounts/views.py:441 warehouse/manage/views.py:817
+#: warehouse/accounts/views.py:441 warehouse/manage/views.py:822
 msgid "Recovery code accepted. The supplied code cannot be used again."
 msgstr ""
 
@@ -261,51 +261,51 @@ msgid ""
 "description with 400 characters or less."
 msgstr ""
 
-#: warehouse/manage/views.py:248
+#: warehouse/manage/views.py:253
 msgid "Email ${email_address} added - check your email for a verification link"
 msgstr ""
 
-#: warehouse/manage/views.py:765
+#: warehouse/manage/views.py:770
 msgid "Recovery codes already generated"
 msgstr ""
 
-#: warehouse/manage/views.py:766
+#: warehouse/manage/views.py:771
 msgid "Generating new recovery codes will invalidate your existing codes."
 msgstr ""
 
-#: warehouse/manage/views.py:1299
+#: warehouse/manage/views.py:1334
 msgid ""
 "There have been too many attempted OpenID Connect registrations. Try "
 "again later."
 msgstr ""
 
-#: warehouse/manage/views.py:1980
+#: warehouse/manage/views.py:2015
 msgid "User '${username}' already has ${role_name} role for project"
 msgstr ""
 
-#: warehouse/manage/views.py:1991
+#: warehouse/manage/views.py:2026
 msgid ""
 "User '${username}' does not have a verified primary email address and "
 "cannot be added as a ${role_name} for project"
 msgstr ""
 
-#: warehouse/manage/views.py:2004
+#: warehouse/manage/views.py:2039
 msgid "User '${username}' already has an active invite. Please try again later."
 msgstr ""
 
-#: warehouse/manage/views.py:2062
+#: warehouse/manage/views.py:2097
 msgid "Invitation sent to '${username}'"
 msgstr ""
 
-#: warehouse/manage/views.py:2109
+#: warehouse/manage/views.py:2144
 msgid "Could not find role invitation."
 msgstr ""
 
-#: warehouse/manage/views.py:2120
+#: warehouse/manage/views.py:2155
 msgid "Invitation already expired."
 msgstr ""
 
-#: warehouse/manage/views.py:2144
+#: warehouse/manage/views.py:2179
 msgid "Invitation revoked from '${username}'."
 msgstr ""
 
@@ -932,11 +932,11 @@ msgstr ""
 #: warehouse/templates/manage/account/recovery_codes-burn.html:70
 #: warehouse/templates/manage/account/totp-provision.html:69
 #: warehouse/templates/manage/account/webauthn-provision.html:44
-#: warehouse/templates/manage/organizations.html:34
-#: warehouse/templates/manage/organizations.html:57
-#: warehouse/templates/manage/organizations.html:79
-#: warehouse/templates/manage/organizations.html:97
-#: warehouse/templates/manage/organizations.html:116
+#: warehouse/templates/manage/organizations.html:69
+#: warehouse/templates/manage/organizations.html:92
+#: warehouse/templates/manage/organizations.html:114
+#: warehouse/templates/manage/organizations.html:132
+#: warehouse/templates/manage/organizations.html:151
 #: warehouse/templates/manage/publishing.html:85
 #: warehouse/templates/manage/publishing.html:97
 #: warehouse/templates/manage/publishing.html:109
@@ -2764,6 +2764,8 @@ msgid "from %(ip_address)s"
 msgstr ""
 
 #: warehouse/templates/manage/manage_base.html:16
+#: warehouse/templates/manage/organizations.html:46
+#: warehouse/templates/manage/organizations.html:50
 #: warehouse/templates/manage/projects.html:143
 #: warehouse/templates/manage/projects.html:148
 #: warehouse/templates/manage/releases.html:88
@@ -2994,75 +2996,89 @@ msgstr ""
 msgid "Your organizations"
 msgstr ""
 
-#: warehouse/templates/manage/organizations.html:25
-msgid "Create new organization"
+#: warehouse/templates/manage/organizations.html:21
+#, python-format
+msgid "Your organizations (%(organization_count)s)"
 msgstr ""
 
-#: warehouse/templates/manage/organizations.html:32
-msgid "Organization account name"
+#: warehouse/templates/manage/organizations.html:35
+#: warehouse/templates/manage/projects.html:41
+#: warehouse/templates/manage/projects.html:106
+#, python-format
+msgid "Created %(creation_date)s"
 msgstr ""
 
-#: warehouse/templates/manage/organizations.html:37
-msgid "Select an organization account name"
-msgstr ""
-
-#: warehouse/templates/manage/organizations.html:48
-msgid "This account name will be used in URLs on PyPI."
+#: warehouse/templates/manage/organizations.html:45
+msgid "Manage this organization"
 msgstr ""
 
 #: warehouse/templates/manage/organizations.html:49
-#: warehouse/templates/manage/organizations.html:71
-#: warehouse/templates/manage/organizations.html:89
-msgid "For example"
+msgid "You are not an owner of this organization"
 msgstr ""
 
-#: warehouse/templates/manage/organizations.html:55
-msgid "Organization name"
+#: warehouse/templates/manage/organizations.html:61
+msgid "Create new organization"
 msgstr ""
 
-#: warehouse/templates/manage/organizations.html:60
-msgid "Name of your business, product, or project"
+#: warehouse/templates/manage/organizations.html:67
+msgid "Organization account name"
 msgstr ""
 
-#: warehouse/templates/manage/organizations.html:77
-msgid "️Organization URL"
+#: warehouse/templates/manage/organizations.html:72
+msgid "Select an organization account name"
 msgstr ""
 
 #: warehouse/templates/manage/organizations.html:83
-msgid "URL for your business, product, or project"
+msgid "This account name will be used in URLs on PyPI."
+msgstr ""
+
+#: warehouse/templates/manage/organizations.html:84
+#: warehouse/templates/manage/organizations.html:106
+#: warehouse/templates/manage/organizations.html:124
+msgid "For example"
+msgstr ""
+
+#: warehouse/templates/manage/organizations.html:90
+msgid "Organization name"
 msgstr ""
 
 #: warehouse/templates/manage/organizations.html:95
+msgid "Name of your business, product, or project"
+msgstr ""
+
+#: warehouse/templates/manage/organizations.html:112
+msgid "️Organization URL"
+msgstr ""
+
+#: warehouse/templates/manage/organizations.html:118
+msgid "URL for your business, product, or project"
+msgstr ""
+
+#: warehouse/templates/manage/organizations.html:130
 msgid "Organization description"
 msgstr ""
 
-#: warehouse/templates/manage/organizations.html:100
+#: warehouse/templates/manage/organizations.html:135
 msgid "Description of your business, product, or project"
 msgstr ""
 
-#: warehouse/templates/manage/organizations.html:114
+#: warehouse/templates/manage/organizations.html:149
 msgid "️Organization type"
 msgstr ""
 
-#: warehouse/templates/manage/organizations.html:126
+#: warehouse/templates/manage/organizations.html:161
 msgid ""
 "Companies can create organization accounts as a paid service while "
 "community projects are granted complimentary access."
 msgstr ""
 
-#: warehouse/templates/manage/organizations.html:132
+#: warehouse/templates/manage/organizations.html:167
 msgid "Create"
 msgstr ""
 
 #: warehouse/templates/manage/projects.html:22
 #, python-format
 msgid "Pending invitations (%(project_count)s)"
-msgstr ""
-
-#: warehouse/templates/manage/projects.html:41
-#: warehouse/templates/manage/projects.html:106
-#, python-format
-msgid "Created %(creation_date)s"
 msgstr ""
 
 #: warehouse/templates/manage/projects.html:72

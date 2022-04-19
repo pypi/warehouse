@@ -87,6 +87,11 @@ from warehouse.oidc.forms import DeleteProviderForm, GitHubProviderForm
 from warehouse.oidc.interfaces import TooManyOIDCRegistrations
 from warehouse.oidc.models import GitHubProvider, OIDCProvider
 from warehouse.organizations.interfaces import IOrganizationService
+from warehouse.organizations.models import (
+    Organization,
+    OrganizationRole,
+    OrganizationRoleType,
+)
 from warehouse.packaging.models import (
     File,
     JournalEntry,
@@ -972,6 +977,27 @@ class ProvisionMacaroonViews:
         return HTTPSeeOther(redirect_to)
 
 
+def user_organizations(request):
+    """Return all the organizations for which the user is an owner."""
+    organizations_owned = (
+        request.db.query(Organization.id)
+        .join(OrganizationRole.organization)
+        .filter(
+            OrganizationRole.role_name == OrganizationRoleType.Owner,
+            OrganizationRole.user == request.user,
+        )
+        .subquery()
+    )
+    return {
+        "organizations_owned": (
+            request.db.query(Organization)
+            .join(organizations_owned, Organization.id == organizations_owned.c.id)
+            .order_by(Organization.name)
+            .all()
+        ),
+    }
+
+
 @view_defaults(
     route_name="manage.organizations",
     renderer="manage/organizations.html",
@@ -991,7 +1017,16 @@ class ManageOrganizationsViews:
 
     @property
     def default_response(self):
+        all_user_organizations = user_organizations(self.request)
         return {
+            "organizations": self.organization_service.get_organizations_by_user(
+                self.request.user.id
+            ),
+            **user_organizations(self.request),
+            "organizations_owned": list(
+                organization.name
+                for organization in all_user_organizations["organizations_owned"]
+            ),
             "create_organization_form": CreateOrganizationForm(
                 organization_service=self.organization_service,
             ),

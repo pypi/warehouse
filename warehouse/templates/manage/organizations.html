@@ -18,12 +18,47 @@
 {% block title %}{% trans %}Your organizations{% endtrans %}{% endblock %}
 
 {% block main %}
-  <h1 class="page-title">{{ title }}</h1>
+  <h1 class="page-title">{% trans organization_count=organizations|length %}Your organizations ({{ organization_count }}){% endtrans %}</h1>
+
+  <div class="package-list">
+    {% for organization in organizations %}
+    <div class="package-snippet">
+      <div class="split-layout split-layout--no-wrap split-layout--wrap-on-tablet">
+        <div>
+          <h3 class="package-snippet__title">{{ organization.name }}
+            {% if organization.name in organizations_owned %}
+            {# TODO <a href="{{ request.route_path('manage.organization.roles', organization_name=organization.normalized_name) }}" class="badge badge--warning package-snippet__project-badge">{% trans %}Owner{% endtrans %}</a> #}
+            Owner
+            {% endif %}
+          </h3>
+          <p class="package-snippet__meta">
+            {% trans creation_date=humanize(organization.created) %}Created {{ creation_date }}{% endtrans %}
+          </p>
+        </div>
+        <div class="package-snippet__buttons">
+          {% if organization.name in organizations_owned %}
+          {# Show manage button #}
+          <a
+          {# TODO href="{{ request.route_path('manage.organization.releases', organization_name=organization.normalized_name) }}" #}
+          href="#"
+          class="button button--primary"
+          title="{% trans %}Manage this organization{% endtrans %}"
+          >{% trans %}Manage{% endtrans %}</a>
+          {% else %}
+          {# Show disabled button #}
+          <button class="button button--primary" disabled title="{% trans %}You are not an owner of this organization{% endtrans %}">
+            {% trans %}Manage{% endtrans %}
+          </button>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
 
   {{ form_error_anchor(create_organization_form) }}
   <section id="create-organization">
     <h2 class="sub-title">{% trans %}Create new organization{% endtrans %}</h2>
-
     <form method="POST">
       <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
       {{ form_errors(create_organization_form) }}
