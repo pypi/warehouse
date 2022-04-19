@@ -64,6 +64,36 @@ class DatabaseOrganizationService:
 
         return organization.id
 
+    def get_organizations(self):
+        """
+        Return a list of all organization objects, or None if there are none.
+        """
+        return self.db.query(Organization).order_by(Organization.name).all()
+
+    def get_organizations_needing_approval(self):
+        """
+        Return a list of all organization objects in need of approval or None
+        if there are currently no organization requests.
+        """
+        return (
+            self.db.query(Organization)
+            .filter(Organization.is_approved == None)  # noqa
+            .order_by(Organization.name)
+            .all()
+        )
+
+    def get_organizations_by_user(self, user_id):
+        """
+        Return a list of all organization objects associated with a given user id.
+        """
+        return (
+            self.db.query(Organization)
+            .join(OrganizationRole, OrganizationRole.organization_id == Organization.id)
+            .filter(OrganizationRole.user_id == user_id)
+            .order_by(Organization.name)
+            .all()
+        )
+
     def add_organization(self, name, display_name, orgtype, link_url, description):
         """
         Accepts a organization object, and attempts to create an organization with those

@@ -64,6 +64,54 @@ class TestDatabaseOrganizationService:
     def test_find_organizationid_nonexistent_org(self, organization_service):
         assert organization_service.find_organizationid("a_spoon_in_the_matrix") is None
 
+    def test_get_organizations(self, organization_service):
+        organization = OrganizationFactory.create(name="org")
+        another_organization = OrganizationFactory.create(name="another_org")
+        orgs = organization_service.get_organizations()
+
+        assert organization in orgs
+        assert another_organization in orgs
+
+    def test_get_organizations_needing_approval(self, organization_service):
+        i_need_it = OrganizationFactory.create()
+        assert i_need_it.is_approved is None
+
+        i_has_it = OrganizationFactory.create()
+        organization_service.approve_organization(i_has_it.id)
+        assert i_has_it.is_approved is True
+
+        orgs_needing_approval = (
+            organization_service.get_organizations_needing_approval()
+        )
+
+        assert i_need_it in orgs_needing_approval
+        assert i_has_it not in orgs_needing_approval
+
+    def test_get_organizations_by_user(self, organization_service, user_service):
+        user_organization = OrganizationFactory.create()
+        user = UserFactory.create()
+        organization_service.add_organization_role(
+            OrganizationRoleType.Owner.value, user.id, user_organization.id
+        )
+
+        another_user_organization = OrganizationFactory.create()
+        another_user = UserFactory.create()
+        organization_service.add_organization_role(
+            OrganizationRoleType.Owner.value,
+            another_user.id,
+            another_user_organization.id,
+        )
+
+        user_orgs = organization_service.get_organizations_by_user(user.id)
+        another_user_orgs = organization_service.get_organizations_by_user(
+            another_user.id
+        )
+
+        assert user_organization in user_orgs
+        assert user_organization not in another_user_orgs
+        assert another_user_organization in another_user_orgs
+        assert another_user_organization not in user_orgs
+
     def test_add_organization(self, organization_service):
         organization = OrganizationFactory.create()
         new_org = organization_service.add_organization(
