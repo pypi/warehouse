@@ -39,11 +39,11 @@ class Macaroon(db.Model):
         ),
     )
 
-    # All of our Macaroons belong to a specific user, because a caveat-less
-    # Macaroon should act the same as their password does, instead of as a
-    # global permission to upload files.
+    # User-created macaroons belong to specific users. Macaroons created via
+    # an OIDC flow do **not** belong to any specific user, since they are
+    # associated with projects themselves.
     user_id = Column(
-        UUID(as_uuid=True), ForeignKey("users.id"), nullable=False, index=True
+        UUID(as_uuid=True), ForeignKey("users.id"), nullable=True, index=True
     )
 
     # Store some information about the Macaroon to give users some mechanism

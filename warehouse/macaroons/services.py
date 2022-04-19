@@ -95,6 +95,8 @@ class DatabaseMacaroonService:
         if dm is None:
             return None
 
+        # This can be None if the macaroon has no associated user
+        # (e.g., an OIDC-minted macaroon).
         return dm.user.id
 
     def find_from_raw(self, raw_macaroon):
