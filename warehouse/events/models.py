@@ -12,12 +12,12 @@
 
 from sqlalchemy import Column, DateTime, ForeignKey, String, orm, sql
 from sqlalchemy.dialects.postgresql import JSONB, UUID
-from sqlalchemy.ext.declarative import declared_attr
+from sqlalchemy.ext.declarative import AbstractConcreteBase, declared_attr
 
 from warehouse import db
 
 
-class Event:
+class Event(AbstractConcreteBase):
     tag = Column(String, nullable=False)
     time = Column(DateTime, nullable=False, server_default=sql.func.now())
     ip_address = Column(String, nullable=False)
@@ -32,6 +32,10 @@ class HasEvents:
             (Event, db.Model),
             dict(
                 __tablename__="%s_events" % cls.__tablename__,
+                __mapper_args__={
+                    "polymorphic_identity": cls.__tablename__,
+                    "concrete": True,
+                },
                 source_id=Column(
                     UUID(as_uuid=True),
                     ForeignKey(
