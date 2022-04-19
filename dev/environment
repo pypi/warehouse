@@ -58,9 +58,10 @@ TWOFACTORMANDATE_AVAILABLE=true
 TWOFACTORMANDATE_ENABLED=true
 OIDC_ENABLED=true
 
+TUF_URL="http://{request.domain}:9001/metadata"
 TUF_KEY_BACKEND=warehouse.tuf.services.LocalKeyService key.path=/opt/warehouse/src/dev
 TUF_STORAGE_BACKEND=warehouse.tuf.services.LocalStorageService
-TUF_REPO_BACKEND=warehouse.tuf.services.LocalRepositoryService repo.path=/opt/warehouse/src/warehouse/tuf/dist
+TUF_REPOSITORY_BACKEND=warehouse.tuf.services.RepositoryService repo.path=/var/opt/warehouse/tuf_metadata
 TUF_ROOT_SECRET="an insecure private key password"
 TUF_SNAPSHOT_SECRET="an insecure private key password"
 TUF_TARGETS_SECRET="an insecure private key password"

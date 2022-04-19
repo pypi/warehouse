@@ -67,7 +67,7 @@ class LocalKeyService:
         """
         Returns Key objects for passed TUF role name from configured TUF key path.
         """
-        privkey_path = os.path.join(self._key_path, f"{rolename}*")
+        privkey_path = os.path.join(self._key_path, "tufkeys", f"{rolename}*")
         role_keys = glob.glob(privkey_path)
         keys_sslib = [
             import_ed25519_privatekey_from_file(
