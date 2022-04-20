@@ -17,7 +17,7 @@ from pyramid.authorization import ACLAuthorizationPolicy
 from pyramid.httpexceptions import HTTPUnauthorized
 from pyramid_multiauth import MultiAuthenticationPolicy
 
-from warehouse.accounts.auth_policy import (
+from warehouse.accounts.security_policy import (
     BasicAuthAuthenticationPolicy,
     SessionAuthenticationPolicy,
     TwoFactorAuthorizationPolicy,
@@ -40,7 +40,7 @@ from warehouse.errors import (
     BasicAuthBreachedPassword,
     BasicAuthFailedPassword,
 )
-from warehouse.macaroons.auth_policy import (
+from warehouse.macaroons.security_policy import (
     MacaroonAuthenticationPolicy,
     MacaroonAuthorizationPolicy,
 )
