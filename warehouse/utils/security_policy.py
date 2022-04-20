@@ -90,6 +90,6 @@ class MultiSecurityPolicy:
         principals = [Everyone]
         if identity is not None:
             principals.extend(
-                [Authenticated, str(identity["entity"].id), identity["principals"]]
+                [Authenticated, str(identity["entity"].id), *identity["principals"]]
             )
         return self._authz.permits(context, principals, permission)
