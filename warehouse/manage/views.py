@@ -1020,7 +1020,7 @@ class ManageOrganizationsViews:
             self.organization_service.record_event(
                 organization.id,
                 tag="organization:create",
-                additional={"created_by": self.request.user.username},
+                additional={"created_by_id": str(self.request.user.id)},
             )
             self.organization_service.add_catalog_entry(
                 organization.name, organization.id
@@ -1028,7 +1028,7 @@ class ManageOrganizationsViews:
             self.organization_service.record_event(
                 organization.id,
                 tag="organization:catalog_entry:add",
-                additional={"submitted_by": self.request.user.username},
+                additional={"submitted_by_id": str(self.request.user.id)},
             )
             self.organization_service.add_organization_role(
                 "Owner", self.request.user.id, organization.id
@@ -1037,25 +1037,25 @@ class ManageOrganizationsViews:
                 organization.id,
                 tag="organization:organization_role:invite",
                 additional={
-                    "submitted_by": self.request.user.username,
+                    "submitted_by_id": str(self.request.user.id),
                     "role_name": "Owner",
-                    "target_user": self.request.user.username,
+                    "target_user_id": str(self.request.user.id),
                 },
             )
             self.organization_service.record_event(
                 organization.id,
                 tag="organization:organization_role:accepted",
                 additional={
-                    "submitted_by": self.request.user.username,
+                    "submitted_by_id": str(self.request.user.id),
                     "role_name": "Owner",
-                    "target_user": self.request.user.username,
+                    "target_user_id": str(self.request.user.id),
                 },
             )
             self.user_service.record_event(
                 self.request.user.id,
                 tag="account:organization_role:accepted",
                 additional={
-                    "submitted_by": self.request.user.username,
+                    "submitted_by_id": str(self.request.user.id),
                     "organization_name": organization.name,
                     "role_name": "Owner",
                 },

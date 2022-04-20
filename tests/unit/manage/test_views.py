@@ -2461,29 +2461,29 @@ class TestManageOrganizations:
             pretend.call(
                 organization.id,
                 tag="organization:create",
-                additional={"created_by": request.user.username},
+                additional={"created_by_id": str(request.user.id)},
             ),
             pretend.call(
                 organization.id,
                 tag="organization:catalog_entry:add",
-                additional={"submitted_by": request.user.username},
+                additional={"submitted_by_id": str(request.user.id)},
             ),
             pretend.call(
                 organization.id,
                 tag="organization:organization_role:invite",
                 additional={
-                    "submitted_by": request.user.username,
+                    "submitted_by_id": str(request.user.id),
                     "role_name": "Owner",
-                    "target_user": request.user.username,
+                    "target_user_id": str(request.user.id),
                 },
             ),
             pretend.call(
                 organization.id,
                 tag="organization:organization_role:accepted",
                 additional={
-                    "submitted_by": request.user.username,
+                    "submitted_by_id": str(request.user.id),
                     "role_name": "Owner",
-                    "target_user": request.user.username,
+                    "target_user_id": str(request.user.id),
                 },
             ),
         ]
@@ -2492,7 +2492,7 @@ class TestManageOrganizations:
                 request.user.id,
                 tag="account:organization_role:accepted",
                 additional={
-                    "submitted_by": request.user.username,
+                    "submitted_by_id": str(request.user.id),
                     "organization_name": organization.name,
                     "role_name": "Owner",
                 },
