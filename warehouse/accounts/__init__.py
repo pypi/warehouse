@@ -226,7 +226,7 @@ def includeme(config):
                     MacaroonAuthenticationPolicy(callback=_macaroon_authenticate),
                 ),
             ],
-            authz_policy
+            authz_policy,
         )
     )
 

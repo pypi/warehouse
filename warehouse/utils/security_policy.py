@@ -10,18 +10,36 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from pyramid.authorization import Authenticated, Everyone
 from pyramid.interfaces import ISecurityPolicy
 from zope.interface import implementer
 
-
 from warehouse.accounts.interfaces import IUserService
+
+
+def _groupfinder(user):
+    principals = []
+
+    if user.is_superuser:
+        principals.append("group:admins")
+    if user.is_moderator or user.is_superuser:
+        principals.append("group:moderators")
+    if user.is_psf_staff or user.is_superuser:
+        principals.append("group:psf_staff")
+
+    # user must have base admin access if any admin permission
+    if principals:
+        principals.append("group:with_admin_dashboard_access")
 
 
 @implementer(ISecurityPolicy)
 class ShimSecurityPolicy:
     """
-    Taken directly from the Pyramid changelog:
+    Modified from the Pyramid changelog:
     https://docs.pylonsproject.org/projects/pyramid/en/latest/whatsnew-2.0.html
+
+    Unlike the Pyramid example, this `ShimSecurityPolicy` does not pass through
+    to an underlying AuthZ policy. AuthZ is handled separately.
     """
 
     def __init__(self, authn_policy):
@@ -32,7 +50,10 @@ class ShimSecurityPolicy:
 
     def identity(self, request):
         login_service = request.find_service(IUserService, context=None)
-        return login_service.get_user(self.authenticated_userid(request))
+        user = login_service.get_user(self.authenticated_userid(request))
+        if user is not None:
+            return {"entity": user, "principals": _groupfinder(user)}
+        return None
 
     def permits(self, request, context, permission):
         return NotImplemented
@@ -75,7 +96,7 @@ class MultiSecurityPolicy:
 
     def authenticated_userid(self, request):
         if request.identity:
-            return request.identity.id
+            return request.identity["entity"].id
         return None
 
     def forget(self, request, **kw):
@@ -91,5 +112,10 @@ class MultiSecurityPolicy:
         return headers
 
     def permits(self, request, context, permission):
-        # TODO: definitely wrong.
-        return self._authz.permits(context, [], permission)
+        identity = request.identity
+        principals = [Everyone]
+        if identity is not None:
+            principals.extend(
+                [Authenticated, identity["entity"].id, identity["principals"]]
+            )
+        return self._authz.permits(context, principals, permission)
