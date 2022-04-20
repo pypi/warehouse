@@ -12,9 +12,9 @@
 
 from pyramid.authentication import (
     BasicAuthAuthenticationPolicy as _BasicAuthAuthenticationPolicy,
-    SessionAuthenticationPolicy as _SessionAuthenticationPolicy,
+    SessionAuthenticationHelper,
 )
-from pyramid.interfaces import IAuthorizationPolicy
+from pyramid.interfaces import IAuthorizationPolicy, ISecurityPolicy
 from pyramid.threadlocal import get_current_request
 from zope.interface import implementer
 
@@ -29,8 +29,62 @@ class BasicAuthSecurityPolicy(ShimSecurityPolicy):
     pass
 
 
-class SessionSecurityPolicy(ShimSecurityPolicy):
-    pass
+def _groupfinder(user):
+    principals = []
+
+    if user.is_superuser:
+        principals.append("group:admins")
+    if user.is_moderator or user.is_superuser:
+        principals.append("group:moderators")
+    if user.is_psf_staff or user.is_superuser:
+        principals.append("group:psf_staff")
+
+    # user must have base admin access if any admin permission
+    if principals:
+        principals.append("group:with_admin_dashboard_access")
+
+    return principals
+
+
+@implementer(ISecurityPolicy)
+class SessionSecurityPolicy:
+    def __init__(self, callback=None):
+        self._session_helper = SessionAuthenticationHelper()
+        self._callback = callback
+
+    def unauthenticated_userid(self, request):
+        # If we're calling into this API on a request, then we want to register
+        # a callback which will ensure that the response varies based on the
+        # Cookie header.
+        request.add_response_callback(add_vary_callback("Cookie"))
+
+        return self._session_helper.authenticated_userid(request)
+
+    def identity(self, request):
+        login_service = request.find_service(IUserService, context=None)
+        user = login_service.get_user(self.unauthenticated_userid(request))
+        if user is None:
+            return None
+
+        if self._callback is None:
+            principals = _groupfinder(user)
+        else:
+            principals = self._callback(user.id, request)
+            if principals is None:
+                return None
+
+            principals.extend(_groupfinder(user))
+
+        return {"entity": user, "principals": principals}
+
+    def forget(self, request, **kw):
+        return self._session_helper.forget(request, **kw)
+
+    def remember(self, request, userid, **kw):
+        return self._session_helper.remember(request, userid, **kw)
+
+    def permits(self, request, context, permission):
+        return NotImplemented
 
 
 class BasicAuthAuthenticationPolicy(_BasicAuthAuthenticationPolicy):
@@ -48,17 +102,6 @@ class BasicAuthAuthenticationPolicy(_BasicAuthAuthenticationPolicy):
         if username is not None:
             login_service = request.find_service(IUserService, context=None)
             return str(login_service.find_userid(username))
-
-
-class SessionAuthenticationPolicy(_SessionAuthenticationPolicy):
-    def unauthenticated_userid(self, request):
-        # If we're calling into this API on a request, then we want to register
-        # a callback which will ensure that the response varies based on the
-        # Cookie header.
-        request.add_response_callback(add_vary_callback("Cookie"))
-
-        # Dispatch to the real SessionAuthenticationPolicy
-        return super().unauthenticated_userid(request)
 
 
 @implementer(IAuthorizationPolicy)

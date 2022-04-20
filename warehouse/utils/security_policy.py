@@ -31,6 +31,8 @@ def _groupfinder(user):
     if principals:
         principals.append("group:with_admin_dashboard_access")
 
+    return principals
+
 
 @implementer(ISecurityPolicy)
 class ShimSecurityPolicy:
@@ -96,7 +98,7 @@ class MultiSecurityPolicy:
 
     def authenticated_userid(self, request):
         if request.identity:
-            return request.identity["entity"].id
+            return str(request.identity["entity"].id)
         return None
 
     def forget(self, request, **kw):
@@ -116,6 +118,6 @@ class MultiSecurityPolicy:
         principals = [Everyone]
         if identity is not None:
             principals.extend(
-                [Authenticated, identity["entity"].id, identity["principals"]]
+                [Authenticated, str(identity["entity"].id), identity["principals"]]
             )
         return self._authz.permits(context, principals, permission)
