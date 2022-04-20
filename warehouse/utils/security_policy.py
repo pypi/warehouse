@@ -10,9 +10,38 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from pyramid.interfaces import ISecurityPolicy
 from zope.interface import implementer
 
-from pyramid.interfaces import ISecurityPolicy
+
+from warehouse.accounts.interfaces import IUserService
+
+
+@implementer(ISecurityPolicy)
+class ShimSecurityPolicy:
+    """
+    Taken directly from the Pyramid changelog:
+    https://docs.pylonsproject.org/projects/pyramid/en/latest/whatsnew-2.0.html
+    """
+
+    def __init__(self, authn_policy):
+        self.authn_policy = authn_policy
+
+    def authenticated_userid(self, request):
+        return self.authn_policy.authenticated_userid(request)
+
+    def identity(self, request):
+        login_service = request.find_service(IUserService, context=None)
+        return login_service.get_user(self.authenticated_userid(request))
+
+    def permits(self, request, context, permission):
+        return NotImplemented
+
+    def remember(self, request, userid, **kw):
+        return self.authn_policy.remember(request, userid, **kw)
+
+    def forget(self, request, **kw):
+        return self.authn_policy.forget(request, **kw)
 
 
 @implementer(ISecurityPolicy)
@@ -25,46 +54,42 @@ class MultiSecurityPolicy:
     with the following semantics:
 
     * `identity`: Selected from the first policy to return non-`None`
-    * `authenticated_userid`: Selected from the effective policy
-    * `forget`: Selected from the effective policy
-    * `remember`: Selected from the effective policy
-    * `permits`: Uses the provided `authz` object, which must provide a `permits` API
+    * `authenticated_userid`: Selected from the request identity, if present
+    * `forget`: Combined from all policies
+    * `remember`: Combined from all policies
+    * `permits`: Uses the AuthZ policy passed during initialization
 
-    These semantics are notably different from `pyramid_multiauth`, which
-    combines all headers from all policies to form its wrapped versions of
-    `forget` and `remember`.
-
-    They're also a slight deviation from the expected Pyramid 2.0 policy APIs:
-    instead of taking `permits` from the effective policy, we supply it via
-    the constructor. We do this because Warehouse has multiple authentication
-    mechanisms but only one authorization mechanism, so it doesn't make sense
-    to plumb that mechanism separately though each policy.
+    These semantics mostly mirror those of `pyramid-multiauth`.
     """
+
     def __init__(self, policies, authz):
         self._policies = policies
         self._authz = authz
 
-        # We set this once we know which policy is effective.
-        # NOTE: This could alternatively be something like a "FailSafePolicy",
-        # which returns a bunch of reasonable defaults (deny all, etc).
-        self._effective_policy = None
-
     def identity(self, request):
         for policy in self._policies:
             if ident := policy.identity(request):
-                self._effective_policy = policy
                 return ident
 
         return None
 
     def authenticated_userid(self, request):
-        return self.request.identity.id
+        if request.identity:
+            return request.identity.id
+        return None
 
-    def forget(self, **kw):
-        return self._effective_policy.forget(**kw)
+    def forget(self, request, **kw):
+        headers = []
+        for policy in self._policies:
+            headers.extend(policy.forget(request, **kw))
+        return headers
 
-    def remember(self, **kw):
-        return self._effective_policy.remember(**kw)
+    def remember(self, request, userid, **kw):
+        headers = []
+        for policy in self._policies:
+            headers.extend(policy.remember(request, userid, **kw))
+        return headers
 
-    def permits(self, context, permission):
-        return self._authz.permits(context, permission)
+    def permits(self, request, context, permission):
+        # TODO: definitely wrong.
+        return self._authz.permits(context, [], permission)

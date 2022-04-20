@@ -21,6 +21,7 @@ from warehouse.cache.http import add_vary_callback
 from warehouse.errors import WarehouseDenied
 from warehouse.macaroons.interfaces import IMacaroonService
 from warehouse.macaroons.services import InvalidMacaroonError
+from warehouse.utils.security_policy import ShimSecurityPolicy
 
 
 def _extract_basic_macaroon(auth):
@@ -67,6 +68,10 @@ def _extract_http_macaroon(request):
     return None
 
 
+class MacaroonSecurityPolicy(ShimSecurityPolicy):
+    pass
+
+
 @implementer(IAuthenticationPolicy)
 class MacaroonAuthenticationPolicy(CallbackAuthenticationPolicy):
     def __init__(self, callback=None):
@@ -96,7 +101,7 @@ class MacaroonAuthenticationPolicy(CallbackAuthenticationPolicy):
         # assumes it has been configured in clients somewhere out of band.
         return []
 
-    def forget(self, request):
+    def forget(self, request, **kw):
         # This is a NO-OP because our Macaroon header policy doesn't allow
         # the ability for authentication to "forget" the user id. This
         # assumes it has been configured in clients somewhere out of band.

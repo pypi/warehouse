@@ -22,6 +22,15 @@ from warehouse.accounts.interfaces import IUserService
 from warehouse.cache.http import add_vary_callback
 from warehouse.errors import WarehouseDenied
 from warehouse.packaging.models import TwoFactorRequireable
+from warehouse.utils.security_policy import ShimSecurityPolicy
+
+
+class BasicAuthSecurityPolicy(ShimSecurityPolicy):
+    pass
+
+
+class SessionSecurityPolicy(ShimSecurityPolicy):
+    pass
 
 
 class BasicAuthAuthenticationPolicy(_BasicAuthAuthenticationPolicy):

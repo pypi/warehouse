@@ -15,19 +15,20 @@ import enum
 
 from pyramid.authorization import ACLAuthorizationPolicy
 from pyramid.httpexceptions import HTTPUnauthorized
-from pyramid_multiauth import MultiAuthenticationPolicy
 
-from warehouse.accounts.security_policy import (
-    BasicAuthAuthenticationPolicy,
-    SessionAuthenticationPolicy,
-    TwoFactorAuthorizationPolicy,
-)
 from warehouse.accounts.interfaces import (
     IPasswordBreachedService,
     ITokenService,
     IUserService,
 )
 from warehouse.accounts.models import DisableReason
+from warehouse.accounts.security_policy import (
+    BasicAuthAuthenticationPolicy,
+    BasicAuthSecurityPolicy,
+    SessionAuthenticationPolicy,
+    SessionSecurityPolicy,
+    TwoFactorAuthorizationPolicy,
+)
 from warehouse.accounts.services import (
     HaveIBeenPwnedPasswordBreachedService,
     NullPasswordBreachedService,
@@ -43,8 +44,10 @@ from warehouse.errors import (
 from warehouse.macaroons.security_policy import (
     MacaroonAuthenticationPolicy,
     MacaroonAuthorizationPolicy,
+    MacaroonSecurityPolicy,
 )
 from warehouse.rate_limiting import IRateLimiter, RateLimit
+from warehouse.utils.security_policy import MultiSecurityPolicy
 
 __all__ = ["NullPasswordBreachedService", "HaveIBeenPwnedPasswordBreachedService"]
 
@@ -206,19 +209,24 @@ def includeme(config):
         breached_pw_class.create_service, IPasswordBreachedService
     )
 
-    # Register our authentication and authorization policies
-    config.set_authentication_policy(
-        MultiAuthenticationPolicy(
-            [
-                SessionAuthenticationPolicy(callback=_session_authenticate),
-                BasicAuthAuthenticationPolicy(check=_basic_auth_check),
-                MacaroonAuthenticationPolicy(callback=_macaroon_authenticate),
-            ]
-        )
+    # Register our authentication and authorization policies under combined security policies
+    authz_policy = TwoFactorAuthorizationPolicy(
+        policy=MacaroonAuthorizationPolicy(policy=ACLAuthorizationPolicy())
     )
-    config.set_authorization_policy(
-        TwoFactorAuthorizationPolicy(
-            policy=MacaroonAuthorizationPolicy(policy=ACLAuthorizationPolicy())
+    config.set_security_policy(
+        MultiSecurityPolicy(
+            [
+                SessionSecurityPolicy(
+                    SessionAuthenticationPolicy(callback=_session_authenticate),
+                ),
+                BasicAuthSecurityPolicy(
+                    BasicAuthAuthenticationPolicy(check=_basic_auth_check),
+                ),
+                MacaroonSecurityPolicy(
+                    MacaroonAuthenticationPolicy(callback=_macaroon_authenticate),
+                ),
+            ],
+            authz_policy
         )
     )
 
