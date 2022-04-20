@@ -187,10 +187,10 @@
               </label>
               <div class="col-sm-7">
                 {% if organization.is_approved == True %}
-                Approved by <a href="{{ request.route_url('accounts.profile', username=admin_username) }}">{{ admin_username }}</a><br>
+                Approved by <a href="{{ request.route_url('accounts.profile', username=admin.username) }}">{{ admin.username }}</a><br>
                 {{ organization.date_approved|format_date() }}
                 {% elif organization.is_approved == False %}
-                Declined by <a href="{{ request.route_url('accounts.profile', username=admin_username) }}">{{ admin_username }}</a><br>
+                Declined by <a href="{{ request.route_url('accounts.profile', username=admin.username) }}">{{ admin.username }}</a><br>
                 {{ organization.date_approved|format_date() }}
                 {% else %}
                 Pending request by <a href="{{ request.route_url('accounts.profile', username=user.username) }}">{{ user.username }}</a><br>

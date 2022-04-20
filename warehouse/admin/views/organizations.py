@@ -56,19 +56,19 @@ def detail(request):
             .order_by(Organization.Event.time.desc())
             .first()
         )
-        admin_username = approve_event.additional["approved_by"]
+        admin = user_service.get_user(approve_event.additional["approved_by_user_id"])
     elif organization.is_approved is False:
         decline_event = (
             organization.events.filter(Organization.Event.tag == "organization:decline")
             .order_by(Organization.Event.time.desc())
             .first()
         )
-        admin_username = decline_event.additional["declined_by"]
+        admin = user_service.get_user(decline_event.additional["declined_by_user_id"])
     else:
-        admin_username = None
+        admin = None
 
     return {
-        "admin_username": admin_username,
+        "admin": admin,
         "organization": organization,
         "user": user,
     }
@@ -113,7 +113,7 @@ def approve(request):
     organization_service.record_event(
         organization.id,
         tag="organization:approve",
-        additional={"approved_by": request.user.username},
+        additional={"approved_by_user_id": str(request.user.id)},
     )
     send_admin_new_organization_approved_email(
         request,
@@ -176,7 +176,7 @@ def decline(request):
     organization_service.record_event(
         organization.id,
         tag="organization:decline",
-        additional={"declined_by": request.user.username},
+        additional={"declined_by_user_id": str(request.user.id)},
     )
     send_admin_new_organization_declined_email(
         request,

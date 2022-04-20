@@ -22,14 +22,20 @@ from warehouse.organizations.interfaces import IOrganizationService
 
 class TestOrganizations:
     def test_detail(self):
+        admin = pretend.stub(
+            id="admin-id",
+            username="admin",
+            name="Admin",
+            public_email="admin@pypi.org",
+        )
         user = pretend.stub(
-            id=pretend.stub(),
+            id="user-id",
             username="example",
             name="Example",
             public_email="webmaster@example.com",
         )
         user_service = pretend.stub(
-            get_user=lambda *a, **kw: user,
+            get_user=lambda userid, **kw: {admin.id: admin, user.id: user}[userid],
         )
         create_event = pretend.stub(
             additional={"created_by_user_id": str(user.id)},
@@ -67,25 +73,31 @@ class TestOrganizations:
         )
 
         assert views.detail(request) == {
-            "admin_username": None,
+            "admin": None,
             "user": user,
             "organization": organization,
         }
 
     def test_detail_is_approved_true(self):
+        admin = pretend.stub(
+            id="admin-id",
+            username="admin",
+            name="Admin",
+            public_email="admin@pypi.org",
+        )
         user = pretend.stub(
-            id=pretend.stub(),
+            id="user-id",
             username="example",
             name="Example",
             public_email="webmaster@example.com",
         )
         user_service = pretend.stub(
-            get_user=lambda *a, **kw: user,
+            get_user=lambda userid, **kw: {admin.id: admin, user.id: user}[userid],
         )
         create_or_approve_event = pretend.stub(
             additional={
                 "created_by_user_id": str(user.id),
-                "approved_by": "admin",
+                "approved_by_user_id": str(admin.id),
             },
         )
         organization = pretend.stub(
@@ -121,25 +133,31 @@ class TestOrganizations:
         )
 
         assert views.detail(request) == {
-            "admin_username": "admin",
+            "admin": admin,
             "user": user,
             "organization": organization,
         }
 
     def test_detail_is_approved_false(self):
+        admin = pretend.stub(
+            id="admin-id",
+            username="admin",
+            name="Admin",
+            public_email="admin@pypi.org",
+        )
         user = pretend.stub(
-            id=pretend.stub(),
+            id="user-id",
             username="example",
             name="Example",
             public_email="webmaster@example.com",
         )
         user_service = pretend.stub(
-            get_user=lambda *a, **kw: user,
+            get_user=lambda userid, **kw: {admin.id: admin, user.id: user}[userid],
         )
         create_or_decline_event = pretend.stub(
             additional={
                 "created_by_user_id": str(user.id),
-                "declined_by": "admin",
+                "declined_by_user_id": str(admin.id),
             },
         )
         organization = pretend.stub(
@@ -175,7 +193,7 @@ class TestOrganizations:
         )
 
         assert views.detail(request) == {
-            "admin_username": "admin",
+            "admin": admin,
             "user": user,
             "organization": organization,
         }
@@ -194,20 +212,20 @@ class TestOrganizations:
 
     def test_approve(self, monkeypatch):
         admin = pretend.stub(
-            id=pretend.stub(),
+            id="admin-id",
             username="admin",
             name="Admin",
             public_email="admin@pypi.org",
         )
         user = pretend.stub(
-            id=pretend.stub(),
+            id="user-id",
             username="example",
             name="Example",
             public_email="webmaster@example.com",
         )
         user_service = pretend.stub(
             get_admins=lambda *a, **kw: [admin],
-            get_user=lambda *a, **kw: user,
+            get_user=lambda userid, **kw: {admin.id: admin, user.id: user}[userid],
         )
         create_event = pretend.stub(
             additional={"created_by_user_id": str(user.id)},
@@ -268,7 +286,7 @@ class TestOrganizations:
             pretend.call(
                 organization.id,
                 tag="organization:approve",
-                additional={"approved_by": admin.username},
+                additional={"approved_by_user_id": str(admin.id)},
             ),
         ]
         assert request.session.flash.calls == [
@@ -337,20 +355,20 @@ class TestOrganizations:
 
     def test_decline(self, monkeypatch):
         admin = pretend.stub(
-            id=pretend.stub(),
+            id="admin-id",
             username="admin",
             name="Admin",
             public_email="admin@pypi.org",
         )
         user = pretend.stub(
-            id=pretend.stub(),
+            id="user-id",
             username="example",
             name="Example",
             public_email="webmaster@example.com",
         )
         user_service = pretend.stub(
             get_admins=lambda *a, **kw: [admin],
-            get_user=lambda *a, **kw: user,
+            get_user=lambda userid, **kw: {admin.id: admin, user.id: user}[userid],
         )
         create_event = pretend.stub(
             additional={"created_by_user_id": str(user.id)},
@@ -411,7 +429,7 @@ class TestOrganizations:
             pretend.call(
                 organization.id,
                 tag="organization:decline",
-                additional={"declined_by": admin.username},
+                additional={"declined_by_user_id": str(admin.id)},
             ),
         ]
         assert request.session.flash.calls == [
