@@ -102,6 +102,10 @@ class DatabaseUserService:
         return None if user_id is None else self.get_user(user_id)
 
     @functools.lru_cache()
+    def get_admins(self):
+        return self.db.query(User).filter(User.is_superuser.is_(True)).all()
+
+    @functools.lru_cache()
     def find_userid(self, username):
         try:
             user = self.db.query(User.id).filter(User.username == username).one()
