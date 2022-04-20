@@ -11,8 +11,8 @@
 # limitations under the License.
 
 from pyramid.authentication import (
-    BasicAuthAuthenticationPolicy as _BasicAuthAuthenticationPolicy,
     SessionAuthenticationHelper,
+    extract_http_basic_credentials,
 )
 from pyramid.interfaces import IAuthorizationPolicy, ISecurityPolicy
 from pyramid.threadlocal import get_current_request
@@ -22,35 +22,14 @@ from warehouse.accounts.interfaces import IUserService
 from warehouse.cache.http import add_vary_callback
 from warehouse.errors import WarehouseDenied
 from warehouse.packaging.models import TwoFactorRequireable
-from warehouse.utils.security_policy import ShimSecurityPolicy
-
-
-class BasicAuthSecurityPolicy(ShimSecurityPolicy):
-    pass
-
-
-def _groupfinder(user):
-    principals = []
-
-    if user.is_superuser:
-        principals.append("group:admins")
-    if user.is_moderator or user.is_superuser:
-        principals.append("group:moderators")
-    if user.is_psf_staff or user.is_superuser:
-        principals.append("group:psf_staff")
-
-    # user must have base admin access if any admin permission
-    if principals:
-        principals.append("group:with_admin_dashboard_access")
-
-    return principals
+from warehouse.utils.security_policy import SecurityPolicy
 
 
 @implementer(ISecurityPolicy)
-class SessionSecurityPolicy:
+class SessionSecurityPolicy(SecurityPolicy):
     def __init__(self, callback=None):
+        super().__init__(callback)
         self._session_helper = SessionAuthenticationHelper()
-        self._callback = callback
 
     def unauthenticated_userid(self, request):
         # If we're calling into this API on a request, then we want to register
@@ -60,48 +39,49 @@ class SessionSecurityPolicy:
 
         return self._session_helper.authenticated_userid(request)
 
-    def identity(self, request):
-        login_service = request.find_service(IUserService, context=None)
-        user = login_service.get_user(self.unauthenticated_userid(request))
-        if user is None:
-            return None
-
-        if self._callback is None:
-            principals = _groupfinder(user)
-        else:
-            principals = self._callback(user.id, request)
-            if principals is None:
-                return None
-
-            principals.extend(_groupfinder(user))
-
-        return {"entity": user, "principals": principals}
-
     def forget(self, request, **kw):
         return self._session_helper.forget(request, **kw)
 
     def remember(self, request, userid, **kw):
         return self._session_helper.remember(request, userid, **kw)
 
-    def permits(self, request, context, permission):
-        return NotImplemented
 
+@implementer(ISecurityPolicy)
+class BasicAuthSecurityPolicy(SecurityPolicy):
+    def __init__(self, check):
+        super().__init__(self.callback)
 
-class BasicAuthAuthenticationPolicy(_BasicAuthAuthenticationPolicy):
+        self._check = check
+
+    def callback(self, userid, request):
+        if credentials := extract_http_basic_credentials(request):
+            username, password = credentials
+            return self._check(username, password, request)
+        return None
+
     def unauthenticated_userid(self, request):
         # If we're calling into this API on a request, then we want to register
         # a callback which will ensure that the response varies based on the
         # Authorization header.
         request.add_response_callback(add_vary_callback("Authorization"))
 
-        # Dispatch to the real basic authentication policy
-        username = super().unauthenticated_userid(request)
+        credentials = extract_http_basic_credentials(request)
+        if credentials is None:
+            return None
 
-        # Assuming we got a username from the basic authentication policy, we
-        # want to locate the userid from the IUserService.
-        if username is not None:
-            login_service = request.find_service(IUserService, context=None)
-            return str(login_service.find_userid(username))
+        login_service = request.find_service(IUserService, context=None)
+        if userid := login_service.find_userid(credentials.username):
+            return str(userid)
+
+        return None
+
+    def forget(self, request, **kw):
+        # No-op.
+        return []
+
+    def remember(self, request, userid, **kw):
+        # NOTE: We could make realm configurable here.
+        return [('WWW-Authenticate', 'Basic realm="Realm"')]
 
 
 @implementer(IAuthorizationPolicy)

@@ -23,7 +23,6 @@ from warehouse.accounts.interfaces import (
 )
 from warehouse.accounts.models import DisableReason
 from warehouse.accounts.security_policy import (
-    BasicAuthAuthenticationPolicy,
     BasicAuthSecurityPolicy,
     SessionSecurityPolicy,
     TwoFactorAuthorizationPolicy,
@@ -216,9 +215,7 @@ def includeme(config):
         MultiSecurityPolicy(
             [
                 SessionSecurityPolicy(callback=_session_authenticate),
-                BasicAuthSecurityPolicy(
-                    BasicAuthAuthenticationPolicy(check=_basic_auth_check),
-                ),
+                BasicAuthSecurityPolicy(check=_basic_auth_check),
                 MacaroonSecurityPolicy(
                     MacaroonAuthenticationPolicy(callback=_macaroon_authenticate),
                 ),

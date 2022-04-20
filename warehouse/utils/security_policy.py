@@ -17,23 +17,6 @@ from zope.interface import implementer
 from warehouse.accounts.interfaces import IUserService
 
 
-def _groupfinder(user):
-    principals = []
-
-    if user.is_superuser:
-        principals.append("group:admins")
-    if user.is_moderator or user.is_superuser:
-        principals.append("group:moderators")
-    if user.is_psf_staff or user.is_superuser:
-        principals.append("group:psf_staff")
-
-    # user must have base admin access if any admin permission
-    if principals:
-        principals.append("group:with_admin_dashboard_access")
-
-    return principals
-
-
 @implementer(ISecurityPolicy)
 class ShimSecurityPolicy:
     """
@@ -54,7 +37,8 @@ class ShimSecurityPolicy:
         login_service = request.find_service(IUserService, context=None)
         user = login_service.get_user(self.authenticated_userid(request))
         if user is not None:
-            return {"entity": user, "principals": _groupfinder(user)}
+            # TODO
+            return {"entity": user, "principals": []}
         return None
 
     def permits(self, request, context, permission):
@@ -65,6 +49,28 @@ class ShimSecurityPolicy:
 
     def forget(self, request, **kw):
         return self.authn_policy.forget(request, **kw)
+
+
+class SecurityPolicy:
+    def __init__(self, callback=None):
+        self._callback = callback
+
+    def identity(self, request):
+        login_service = request.find_service(IUserService, context=None)
+        user = login_service.get_user(self.unauthenticated_userid(request))
+        if user is None:
+            return None
+
+        principals = []
+        if self._callback is not None:
+            principals = self._callback(user.id, request)
+            if principals is None:
+                return None
+
+        return {"entity": user, "principals": principals}
+
+    def permits(self, request, context, permission):
+        return NotImplemented
 
 
 @implementer(ISecurityPolicy)
