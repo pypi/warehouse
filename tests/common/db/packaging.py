@@ -25,7 +25,6 @@ from warehouse.packaging.models import (
     JournalEntry,
     ProhibitedProjectName,
     Project,
-    ProjectEvent,
     Release,
     Role,
     RoleInvitation,
@@ -48,9 +47,9 @@ class ProjectFactory(WarehouseFactory):
 
 class ProjectEventFactory(WarehouseFactory):
     class Meta:
-        model = ProjectEvent
+        model = Project.Event
 
-    project = factory.SubFactory(ProjectFactory)
+    source = factory.SubFactory(ProjectFactory)
 
 
 class DescriptionFactory(WarehouseFactory):
