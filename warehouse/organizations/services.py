@@ -132,7 +132,7 @@ class DatabaseOrganizationService:
 
     def record_event(self, organization_id, *, tag, additional=None):
         """
-        Creates a new OrganizationEvent for the given organization with the given
+        Creates a new Organization.Event for the given organization with the given
         tag, IP address, and additional metadata.
 
         Returns the event.

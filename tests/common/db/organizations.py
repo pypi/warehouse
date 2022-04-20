@@ -17,7 +17,6 @@ import faker
 
 from warehouse.organizations.models import (
     Organization,
-    OrganizationEvent,
     OrganizationInvitation,
     OrganizationNameCatalog,
     OrganizationProject,
@@ -56,9 +55,9 @@ class OrganizationFactory(WarehouseFactory):
 
 class OrganizationEventFactory(WarehouseFactory):
     class Meta:
-        model = OrganizationEvent
+        model = Organization.Event
 
-    organization = factory.SubFactory(OrganizationFactory)
+    source = factory.SubFactory(OrganizationFactory)
 
 
 class OrganizationNameCatalogFactory(WarehouseFactory):

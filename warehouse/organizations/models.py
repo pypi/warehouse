@@ -20,20 +20,19 @@ from sqlalchemy import (
     Enum,
     ForeignKey,
     Index,
-    String,
     Text,
     UniqueConstraint,
     func,
     orm,
     sql,
 )
-from sqlalchemy.dialects.postgresql import JSONB, UUID
 
 # from sqlalchemy.orm.exc import NoResultFound
 from sqlalchemy_utils.types.url import URLType
 
 from warehouse import db
 from warehouse.accounts.models import User
+from warehouse.events.models import HasEvents
 from warehouse.utils.attrs import make_repr
 
 
@@ -131,8 +130,8 @@ class OrganizationType(enum.Enum):
 
 
 # TODO: Determine if this should also utilize SitemapMixin and TwoFactorRequireable
-# class Project(SitemapMixin, TwoFactorRequireable, db.Model):
-class Organization(db.Model):
+# class Organization(SitemapMixin, TwoFactorRequireable, HasEvents, db.Model):
+class Organization(HasEvents, db.Model):
     __tablename__ = "organizations"
     __table_args__ = (
         CheckConstraint(
@@ -174,40 +173,8 @@ class Organization(db.Model):
         "Project", secondary=OrganizationProject.__table__, backref="organizations"  # type: ignore # noqa
     )
 
-    events = orm.relationship(
-        "OrganizationEvent",
-        backref="organization",
-        cascade="all, delete-orphan",
-        lazy=True,
-    )
-
     # TODO:
     #    def __acl__(self):
-
-    def record_event(self, *, tag, ip_address, additional):
-        session = orm.object_session(self)
-        event = OrganizationEvent(
-            organization=self, tag=tag, ip_address=ip_address, additional=additional
-        )
-        session.add(event)
-        session.flush()
-
-        return event
-
-
-class OrganizationEvent(db.Model):
-    __tablename__ = "organization_events"
-
-    organization_id = Column(
-        UUID(as_uuid=True),
-        ForeignKey("organizations.id", deferrable=True, initially="DEFERRED"),
-        nullable=False,
-        index=True,
-    )
-    tag = Column(String, nullable=False)
-    time = Column(DateTime, nullable=False, server_default=sql.func.now())
-    ip_address = Column(String, nullable=False)
-    additional = Column(JSONB, nullable=True)
 
 
 class OrganizationNameCatalog(db.Model):
