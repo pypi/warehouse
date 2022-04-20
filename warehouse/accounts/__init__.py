@@ -206,7 +206,7 @@ def includeme(config):
         breached_pw_class.create_service, IPasswordBreachedService
     )
 
-    # Register our authentication and authorization policies under combined security policies
+    # Register our security policies (AuthN + AuthZ)
     authz_policy = TwoFactorAuthorizationPolicy(
         policy=MacaroonAuthorizationPolicy(policy=ACLAuthorizationPolicy())
     )
