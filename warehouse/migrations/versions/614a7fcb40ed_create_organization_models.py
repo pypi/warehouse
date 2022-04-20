@@ -13,7 +13,7 @@
 Create Organization models
 
 Revision ID: 614a7fcb40ed
-Revises: 84262e097c26
+Revises: 5e02c4f9f95c
 Create Date: 2022-04-13 17:23:17.396325
 """
 
@@ -24,7 +24,7 @@ from alembic import op
 from sqlalchemy.dialects import postgresql
 
 revision = "614a7fcb40ed"
-down_revision = "84262e097c26"
+down_revision = "5e02c4f9f95c"
 
 # Note: It is VERY important to ensure that a migration does not lock for a
 #       long period of time and to ensure that each individual migration does

@@ -30,11 +30,12 @@ from sqlalchemy import (
     select,
     sql,
 )
-from sqlalchemy.dialects.postgresql import JSONB, UUID
+from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy.orm.exc import NoResultFound
 
 from warehouse import db
+from warehouse.events.models import HasEvents
 from warehouse.sitemap.models import SitemapMixin
 from warehouse.utils.attrs import make_repr
 from warehouse.utils.db.types import TZDateTime
@@ -57,7 +58,7 @@ class DisableReason(enum.Enum):
     AccountFrozen = "account frozen"
 
 
-class User(SitemapMixin, db.Model):
+class User(SitemapMixin, HasEvents, db.Model):
 
     __tablename__ = "users"
     __table_args__ = (
@@ -107,20 +108,6 @@ class User(SitemapMixin, db.Model):
         "Macaroon", backref="user", cascade="all, delete-orphan", lazy=True
     )
 
-    events = orm.relationship(
-        "UserEvent", backref="user", cascade="all, delete-orphan", lazy=True
-    )
-
-    def record_event(self, *, tag, ip_address, additional):
-        session = orm.object_session(self)
-        event = UserEvent(
-            user=self, tag=tag, ip_address=ip_address, additional=additional
-        )
-        session.add(event)
-        session.flush()
-
-        return event
-
     @property
     def primary_email(self):
         primaries = [x for x in self.emails if x.primary]
@@ -167,9 +154,11 @@ class User(SitemapMixin, db.Model):
         session = orm.object_session(self)
         last_ninety = datetime.datetime.now() - datetime.timedelta(days=90)
         return (
-            session.query(UserEvent)
-            .filter((UserEvent.user_id == self.id) & (UserEvent.time >= last_ninety))
-            .order_by(UserEvent.time.desc())
+            session.query(User.Event)
+            .filter(
+                (User.Event.source_id == self.id) & (User.Event.time >= last_ninety)
+            )
+            .order_by(User.Event.time.desc())
             .all()
         )
 
@@ -215,21 +204,6 @@ class RecoveryCode(db.Model):
     code = Column(String(length=128), nullable=False)
     generated = Column(DateTime, nullable=False, server_default=sql.func.now())
     burned = Column(DateTime, nullable=True)
-
-
-class UserEvent(db.Model):
-    __tablename__ = "user_events"
-
-    user_id = Column(
-        UUID(as_uuid=True),
-        ForeignKey("users.id", deferrable=True, initially="DEFERRED"),
-        nullable=False,
-        index=True,
-    )
-    tag = Column(String, nullable=False)
-    time = Column(DateTime, nullable=False, server_default=sql.func.now())
-    ip_address = Column(String, nullable=False)
-    additional = Column(JSONB, nullable=True)
 
 
 class UnverifyReasons(enum.Enum):

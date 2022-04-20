@@ -11,6 +11,7 @@
 # limitations under the License.
 
 import json
+import time
 
 import pymacaroons
 
@@ -24,43 +25,51 @@ class InvalidMacaroonError(Exception):
 class Caveat:
     def __init__(self, verifier):
         self.verifier = verifier
+        # TODO: Surface this failure reason to the user.
+        # See: https://github.com/pypa/warehouse/issues/9018
+        self.failure_reason = None
 
-    def verify(self, predicate):
-        raise InvalidMacaroonError
+    def verify(self, predicate) -> bool:
+        return False
 
     def __call__(self, predicate):
         return self.verify(predicate)
 
 
 class V1Caveat(Caveat):
-    def verify_projects(self, projects):
+    def verify_projects(self, projects) -> bool:
         # First, ensure that we're actually operating in
         # the context of a package.
         if not isinstance(self.verifier.context, Project):
-            raise InvalidMacaroonError(
+            self.failure_reason = (
                 "project-scoped token used outside of a project context"
             )
+            return False
 
         project = self.verifier.context
         if project.normalized_name in projects:
             return True
 
-        raise InvalidMacaroonError(
+        self.failure_reason = (
             f"project-scoped token is not valid for project '{project.name}'"
         )
+        return False
 
-    def verify(self, predicate):
+    def verify(self, predicate) -> bool:
         try:
             data = json.loads(predicate)
         except ValueError:
-            raise InvalidMacaroonError("malformatted predicate")
+            self.failure_reason = "malformatted predicate"
+            return False
 
         if data.get("version") != 1:
-            raise InvalidMacaroonError("invalidate version in predicate")
+            self.failure_reason = "invalid version in predicate"
+            return False
 
         permissions = data.get("permissions")
         if permissions is None:
-            raise InvalidMacaroonError("invalid permissions in predicate")
+            self.failure_reason = "invalid permissions in predicate"
+            return False
 
         if permissions == "user":
             # User-scoped tokens behave exactly like a user's normal credentials.
@@ -68,9 +77,32 @@ class V1Caveat(Caveat):
 
         projects = permissions.get("projects")
         if projects is None:
-            raise InvalidMacaroonError("invalid projects in predicate")
+            self.failure_reason = "invalid projects in predicate"
+            return False
 
         return self.verify_projects(projects)
+
+
+class ExpiryCaveat(Caveat):
+    def verify(self, predicate):
+        try:
+            data = json.loads(predicate)
+            expiry = data["exp"]
+            not_before = data["nbf"]
+        except (KeyError, ValueError, TypeError):
+            self.failure_reason = "malformatted predicate"
+            return False
+
+        if not expiry or not not_before:
+            self.failure_reason = "missing fields"
+            return False
+
+        now = int(time.time())
+        if now < not_before or now >= expiry:
+            self.failure_reason = "token is expired"
+            return False
+
+        return True
 
 
 class Verifier:
@@ -83,6 +115,7 @@ class Verifier:
 
     def verify(self, key):
         self.verifier.satisfy_general(V1Caveat(self))
+        self.verifier.satisfy_general(ExpiryCaveat(self))
 
         try:
             return self.verifier.verify(self.macaroon, key)
@@ -90,4 +123,4 @@ class Verifier:
             pymacaroons.exceptions.MacaroonInvalidSignatureException,
             Exception,  # https://github.com/ecordell/pymacaroons/issues/50
         ):
-            raise InvalidMacaroonError("invalid macaroon signature")
+            return False

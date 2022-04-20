@@ -49,7 +49,6 @@ from warehouse.packaging.models import (
     File,
     JournalEntry,
     Project,
-    ProjectEvent,
     Role,
     RoleInvitation,
     User,
@@ -2854,12 +2853,9 @@ class TestManageProjectSettings:
         assert result.status_code == 303
         assert result.headers["Location"] == "/foo/bar/"
 
-        event = (
-            db_request.db.query(ProjectEvent)
-            .join(ProjectEvent.project)
-            .filter(ProjectEvent.project_id == project.id)
-            .one()
-        )
+        events = project.events
+        assert len(events) == 1
+        event = events[0]
         assert event.tag == tag
         assert event.additional == {"modified_by": db_request.user.username}
 
@@ -4758,13 +4754,13 @@ class TestManageProjectHistory:
     def test_get(self, db_request):
         project = ProjectFactory.create()
         older_event = ProjectEventFactory.create(
-            project=project,
+            source=project,
             tag="fake:event",
             ip_address="0.0.0.0",
             time=datetime.datetime(2017, 2, 5, 17, 18, 18, 462_634),
         )
         newer_event = ProjectEventFactory.create(
-            project=project,
+            source=project,
             tag="fake:event",
             ip_address="0.0.0.0",
             time=datetime.datetime(2018, 2, 5, 17, 18, 18, 462_634),
@@ -4808,13 +4804,13 @@ class TestManageProjectHistory:
         total_items = items_per_page + 2
         for _ in range(total_items):
             ProjectEventFactory.create(
-                project=project, tag="fake:event", ip_address="0.0.0.0"
+                source=project, tag="fake:event", ip_address="0.0.0.0"
             )
         events_query = (
-            db_request.db.query(ProjectEvent)
-            .join(ProjectEvent.project)
-            .filter(ProjectEvent.project_id == project.id)
-            .order_by(ProjectEvent.time.desc())
+            db_request.db.query(Project.Event)
+            .join(Project.Event.source)
+            .filter(Project.Event.source_id == project.id)
+            .order_by(Project.Event.time.desc())
         )
 
         events_page = SQLAlchemyORMPage(
@@ -4839,13 +4835,13 @@ class TestManageProjectHistory:
         total_items = items_per_page + 2
         for _ in range(total_items):
             ProjectEventFactory.create(
-                project=project, tag="fake:event", ip_address="0.0.0.0"
+                source=project, tag="fake:event", ip_address="0.0.0.0"
             )
         events_query = (
-            db_request.db.query(ProjectEvent)
-            .join(ProjectEvent.project)
-            .filter(ProjectEvent.project_id == project.id)
-            .order_by(ProjectEvent.time.desc())
+            db_request.db.query(Project.Event)
+            .join(Project.Event.source)
+            .filter(Project.Event.source_id == project.id)
+            .order_by(Project.Event.time.desc())
         )
 
         events_page = SQLAlchemyORMPage(
@@ -4870,7 +4866,7 @@ class TestManageProjectHistory:
         total_items = items_per_page + 2
         for _ in range(total_items):
             ProjectEventFactory.create(
-                project=project, tag="fake:event", ip_address="0.0.0.0"
+                source=project, tag="fake:event", ip_address="0.0.0.0"
             )
 
         with pytest.raises(HTTPNotFound):

@@ -31,7 +31,6 @@ from sqlalchemy import (
     ForeignKey,
     Index,
     Integer,
-    String,
     Table,
     Text,
     UniqueConstraint,
@@ -39,7 +38,7 @@ from sqlalchemy import (
     orm,
     sql,
 )
-from sqlalchemy.dialects.postgresql import JSONB, UUID
+from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.ext.associationproxy import association_proxy
 from sqlalchemy.ext.declarative import declared_attr  # type: ignore
 from sqlalchemy.ext.hybrid import hybrid_property
@@ -51,6 +50,7 @@ from trove_classifiers import sorted_classifiers
 from warehouse import db
 from warehouse.accounts.models import User
 from warehouse.classifiers.models import Classifier
+from warehouse.events.models import HasEvents
 from warehouse.integrations.vulnerabilities.models import VulnerabilityRecord
 from warehouse.sitemap.models import SitemapMixin
 from warehouse.utils import dotted_navigator
@@ -145,7 +145,7 @@ class TwoFactorRequireable:
         return self.owners_require_2fa | self.pypi_mandates_2fa
 
 
-class Project(SitemapMixin, TwoFactorRequireable, db.Model):
+class Project(SitemapMixin, TwoFactorRequireable, HasEvents, db.Model):
 
     __tablename__ = "projects"
     __table_args__ = (
@@ -181,10 +181,6 @@ class Project(SitemapMixin, TwoFactorRequireable, db.Model):
         cascade="all, delete-orphan",
         order_by=lambda: Release._pypi_ordering.desc(),  # type: ignore
         passive_deletes=True,
-    )
-
-    events = orm.relationship(
-        "ProjectEvent", backref="project", cascade="all, delete-orphan", lazy=True
     )
 
     def __getitem__(self, version):
@@ -239,16 +235,6 @@ class Project(SitemapMixin, TwoFactorRequireable, db.Model):
                 acls.append((Allow, str(role.user.id), ["upload"]))
         return acls
 
-    def record_event(self, *, tag, ip_address, additional=None):
-        session = orm.object_session(self)
-        event = ProjectEvent(
-            project=self, tag=tag, ip_address=ip_address, additional=additional
-        )
-        session.add(event)
-        session.flush()
-
-        return event
-
     @property
     def documentation_url(self):
         # TODO: Move this into the database and eliminate the use of the
@@ -282,23 +268,6 @@ class Project(SitemapMixin, TwoFactorRequireable, db.Model):
             .order_by(Release.is_prerelease.nullslast(), Release._pypi_ordering.desc())
             .first()
         )
-
-
-class ProjectEvent(db.Model):
-    __tablename__ = "project_events"
-
-    project_id = Column(
-        UUID(as_uuid=True),
-        ForeignKey(
-            "projects.id", deferrable=True, initially="DEFERRED", ondelete="CASCADE"
-        ),
-        nullable=False,
-        index=True,
-    )
-    tag = Column(String, nullable=False)
-    time = Column(DateTime, nullable=False, server_default=sql.func.now())
-    ip_address = Column(String, nullable=False)
-    additional = Column(JSONB, nullable=True)
 
 
 class DependencyKind(enum.IntEnum):
