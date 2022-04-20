@@ -17,40 +17,6 @@ from zope.interface import implementer
 from warehouse.accounts.interfaces import IUserService
 
 
-@implementer(ISecurityPolicy)
-class ShimSecurityPolicy:
-    """
-    Modified from the Pyramid changelog:
-    https://docs.pylonsproject.org/projects/pyramid/en/latest/whatsnew-2.0.html
-
-    Unlike the Pyramid example, this `ShimSecurityPolicy` does not pass through
-    to an underlying AuthZ policy. AuthZ is handled separately.
-    """
-
-    def __init__(self, authn_policy):
-        self.authn_policy = authn_policy
-
-    def authenticated_userid(self, request):
-        return self.authn_policy.authenticated_userid(request)
-
-    def identity(self, request):
-        login_service = request.find_service(IUserService, context=None)
-        user = login_service.get_user(self.authenticated_userid(request))
-        if user is not None:
-            # TODO
-            return {"entity": user, "principals": []}
-        return None
-
-    def permits(self, request, context, permission):
-        return NotImplemented
-
-    def remember(self, request, userid, **kw):
-        return self.authn_policy.remember(request, userid, **kw)
-
-    def forget(self, request, **kw):
-        return self.authn_policy.forget(request, **kw)
-
-
 class SecurityPolicy:
     def __init__(self, callback=None):
         self._callback = callback

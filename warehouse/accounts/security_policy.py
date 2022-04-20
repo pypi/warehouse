@@ -81,7 +81,7 @@ class BasicAuthSecurityPolicy(SecurityPolicy):
 
     def remember(self, request, userid, **kw):
         # NOTE: We could make realm configurable here.
-        return [('WWW-Authenticate', 'Basic realm="Realm"')]
+        return [("WWW-Authenticate", 'Basic realm="Realm"')]
 
 
 @implementer(IAuthorizationPolicy)

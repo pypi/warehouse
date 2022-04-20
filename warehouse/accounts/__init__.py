@@ -40,7 +40,6 @@ from warehouse.errors import (
     BasicAuthFailedPassword,
 )
 from warehouse.macaroons.security_policy import (
-    MacaroonAuthenticationPolicy,
     MacaroonAuthorizationPolicy,
     MacaroonSecurityPolicy,
 )
@@ -216,9 +215,7 @@ def includeme(config):
             [
                 SessionSecurityPolicy(callback=_session_authenticate),
                 BasicAuthSecurityPolicy(check=_basic_auth_check),
-                MacaroonSecurityPolicy(
-                    MacaroonAuthenticationPolicy(callback=_macaroon_authenticate),
-                ),
+                MacaroonSecurityPolicy(callback=_macaroon_authenticate),
             ],
             authz_policy,
         )

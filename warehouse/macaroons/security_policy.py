@@ -12,8 +12,7 @@
 
 import base64
 
-from pyramid.authentication import CallbackAuthenticationPolicy
-from pyramid.interfaces import IAuthenticationPolicy, IAuthorizationPolicy
+from pyramid.interfaces import IAuthorizationPolicy, ISecurityPolicy
 from pyramid.threadlocal import get_current_request
 from zope.interface import implementer
 
@@ -21,7 +20,7 @@ from warehouse.cache.http import add_vary_callback
 from warehouse.errors import WarehouseDenied
 from warehouse.macaroons.interfaces import IMacaroonService
 from warehouse.macaroons.services import InvalidMacaroonError
-from warehouse.utils.security_policy import ShimSecurityPolicy
+from warehouse.utils.security_policy import SecurityPolicy
 
 
 def _extract_basic_macaroon(auth):
@@ -68,15 +67,8 @@ def _extract_http_macaroon(request):
     return None
 
 
-class MacaroonSecurityPolicy(ShimSecurityPolicy):
-    pass
-
-
-@implementer(IAuthenticationPolicy)
-class MacaroonAuthenticationPolicy(CallbackAuthenticationPolicy):
-    def __init__(self, callback=None):
-        self.callback = callback
-
+@implementer(ISecurityPolicy)
+class MacaroonSecurityPolicy(SecurityPolicy):
     def unauthenticated_userid(self, request):
         # If we're calling into this API on a request, then we want to register
         # a callback which will ensure that the response varies based on the
