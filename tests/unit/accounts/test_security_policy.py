@@ -20,7 +20,7 @@ from pyramid.interfaces import IAuthenticationPolicy, IAuthorizationPolicy
 from pyramid.security import Allowed, Denied
 from zope.interface.verify import verifyClass
 
-from warehouse.accounts import auth_policy
+from warehouse.accounts import security_policy
 from warehouse.accounts.interfaces import IUserService
 from warehouse.errors import WarehouseDenied
 
@@ -30,7 +30,7 @@ from ...common.db.packaging import ProjectFactory
 class TestBasicAuthAuthenticationPolicy:
     def test_verify(self):
         assert verifyClass(
-            IAuthenticationPolicy, auth_policy.BasicAuthAuthenticationPolicy
+            IAuthenticationPolicy, security_policy.BasicAuthAuthenticationPolicy
         )
 
     def test_unauthenticated_userid_no_userid(self, monkeypatch):
@@ -41,11 +41,11 @@ class TestBasicAuthAuthenticationPolicy:
             extract_http_basic_credentials,
         )
 
-        policy = auth_policy.BasicAuthAuthenticationPolicy(check=pretend.stub())
+        policy = security_policy.BasicAuthAuthenticationPolicy(check=pretend.stub())
 
         vary_cb = pretend.stub()
         add_vary_cb = pretend.call_recorder(lambda *v: vary_cb)
-        monkeypatch.setattr(auth_policy, "add_vary_callback", add_vary_cb)
+        monkeypatch.setattr(security_policy, "add_vary_callback", add_vary_cb)
 
         request = pretend.stub(
             add_response_callback=pretend.call_recorder(lambda cb: None)
@@ -66,11 +66,11 @@ class TestBasicAuthAuthenticationPolicy:
             extract_http_basic_credentials,
         )
 
-        policy = auth_policy.BasicAuthAuthenticationPolicy(check=pretend.stub())
+        policy = security_policy.BasicAuthAuthenticationPolicy(check=pretend.stub())
 
         vary_cb = pretend.stub()
         add_vary_cb = pretend.call_recorder(lambda *v: vary_cb)
-        monkeypatch.setattr(auth_policy, "add_vary_callback", add_vary_cb)
+        monkeypatch.setattr(security_policy, "add_vary_callback", add_vary_cb)
 
         userid = uuid.uuid4()
         service = pretend.stub(
@@ -92,15 +92,15 @@ class TestBasicAuthAuthenticationPolicy:
 class TestSessionAuthenticationPolicy:
     def test_verify(self):
         assert verifyClass(
-            IAuthenticationPolicy, auth_policy.SessionAuthenticationPolicy
+            IAuthenticationPolicy, security_policy.SessionAuthenticationPolicy
         )
 
     def test_unauthenticated_userid(self, monkeypatch):
-        policy = auth_policy.SessionAuthenticationPolicy()
+        policy = security_policy.SessionAuthenticationPolicy()
 
         vary_cb = pretend.stub()
         add_vary_cb = pretend.call_recorder(lambda *v: vary_cb)
-        monkeypatch.setattr(auth_policy, "add_vary_callback", add_vary_cb)
+        monkeypatch.setattr(security_policy, "add_vary_callback", add_vary_cb)
 
         userid = pretend.stub()
         request = pretend.stub(
@@ -116,17 +116,17 @@ class TestSessionAuthenticationPolicy:
 class TestTwoFactorAuthorizationPolicy:
     def test_verify(self):
         assert verifyClass(
-            IAuthorizationPolicy, auth_policy.TwoFactorAuthorizationPolicy
+            IAuthorizationPolicy, security_policy.TwoFactorAuthorizationPolicy
         )
 
     def test_permits_no_active_request(self, monkeypatch):
         get_current_request = pretend.call_recorder(lambda: None)
-        monkeypatch.setattr(auth_policy, "get_current_request", get_current_request)
+        monkeypatch.setattr(security_policy, "get_current_request", get_current_request)
 
         backing_policy = pretend.stub(
             permits=pretend.call_recorder(lambda *a, **kw: pretend.stub())
         )
-        policy = auth_policy.TwoFactorAuthorizationPolicy(policy=backing_policy)
+        policy = security_policy.TwoFactorAuthorizationPolicy(policy=backing_policy)
         result = policy.permits(pretend.stub(), pretend.stub(), pretend.stub())
 
         assert result == WarehouseDenied("")
@@ -135,13 +135,13 @@ class TestTwoFactorAuthorizationPolicy:
     def test_permits_if_context_is_not_permitted_by_backing_policy(self, monkeypatch):
         request = pretend.stub()
         get_current_request = pretend.call_recorder(lambda: request)
-        monkeypatch.setattr(auth_policy, "get_current_request", get_current_request)
+        monkeypatch.setattr(security_policy, "get_current_request", get_current_request)
 
         permits_result = Denied("Because")
         backing_policy = pretend.stub(
             permits=pretend.call_recorder(lambda *a, **kw: permits_result)
         )
-        policy = auth_policy.TwoFactorAuthorizationPolicy(policy=backing_policy)
+        policy = security_policy.TwoFactorAuthorizationPolicy(policy=backing_policy)
         result = policy.permits(pretend.stub(), pretend.stub(), pretend.stub())
 
         assert result == permits_result
@@ -149,13 +149,13 @@ class TestTwoFactorAuthorizationPolicy:
     def test_permits_if_non_2fa_requireable_context(self, monkeypatch):
         request = pretend.stub()
         get_current_request = pretend.call_recorder(lambda: request)
-        monkeypatch.setattr(auth_policy, "get_current_request", get_current_request)
+        monkeypatch.setattr(security_policy, "get_current_request", get_current_request)
 
         permits_result = Allowed("Because")
         backing_policy = pretend.stub(
             permits=pretend.call_recorder(lambda *a, **kw: permits_result)
         )
-        policy = auth_policy.TwoFactorAuthorizationPolicy(policy=backing_policy)
+        policy = security_policy.TwoFactorAuthorizationPolicy(policy=backing_policy)
         result = policy.permits(pretend.stub(), pretend.stub(), pretend.stub())
 
         assert result == permits_result
@@ -167,13 +167,13 @@ class TestTwoFactorAuthorizationPolicy:
             "warehouse.two_factor_requirement.enabled": True,
         }
         get_current_request = pretend.call_recorder(lambda: db_request)
-        monkeypatch.setattr(auth_policy, "get_current_request", get_current_request)
+        monkeypatch.setattr(security_policy, "get_current_request", get_current_request)
 
         permits_result = Allowed("Because")
         backing_policy = pretend.stub(
             permits=pretend.call_recorder(lambda *a, **kw: permits_result)
         )
-        policy = auth_policy.TwoFactorAuthorizationPolicy(policy=backing_policy)
+        policy = security_policy.TwoFactorAuthorizationPolicy(policy=backing_policy)
         context = ProjectFactory.create(
             owners_require_2fa=False,
             pypi_mandates_2fa=False,
@@ -193,13 +193,13 @@ class TestTwoFactorAuthorizationPolicy:
         db_request.session.flash = pretend.call_recorder(lambda m, queue: None)
         db_request.user = pretend.stub(has_two_factor=False)
         get_current_request = pretend.call_recorder(lambda: db_request)
-        monkeypatch.setattr(auth_policy, "get_current_request", get_current_request)
+        monkeypatch.setattr(security_policy, "get_current_request", get_current_request)
 
         permits_result = Allowed("Because")
         backing_policy = pretend.stub(
             permits=pretend.call_recorder(lambda *a, **kw: permits_result)
         )
-        policy = auth_policy.TwoFactorAuthorizationPolicy(policy=backing_policy)
+        policy = security_policy.TwoFactorAuthorizationPolicy(policy=backing_policy)
         context = ProjectFactory.create(
             owners_require_2fa=False,
             pypi_mandates_2fa=True,
@@ -239,13 +239,13 @@ class TestTwoFactorAuthorizationPolicy:
         user = pretend.stub(has_two_factor=True)
         db_request.user = user
         get_current_request = pretend.call_recorder(lambda: db_request)
-        monkeypatch.setattr(auth_policy, "get_current_request", get_current_request)
+        monkeypatch.setattr(security_policy, "get_current_request", get_current_request)
 
         permits_result = Allowed("Because")
         backing_policy = pretend.stub(
             permits=pretend.call_recorder(lambda *a, **kw: permits_result)
         )
-        policy = auth_policy.TwoFactorAuthorizationPolicy(policy=backing_policy)
+        policy = security_policy.TwoFactorAuthorizationPolicy(policy=backing_policy)
         context = ProjectFactory.create(
             owners_require_2fa=owners_require_2fa, pypi_mandates_2fa=pypi_mandates_2fa
         )
@@ -276,13 +276,13 @@ class TestTwoFactorAuthorizationPolicy:
         user = pretend.stub(has_two_factor=False)
         db_request.user = user
         get_current_request = pretend.call_recorder(lambda: db_request)
-        monkeypatch.setattr(auth_policy, "get_current_request", get_current_request)
+        monkeypatch.setattr(security_policy, "get_current_request", get_current_request)
 
         permits_result = Allowed("Because")
         backing_policy = pretend.stub(
             permits=pretend.call_recorder(lambda *a, **kw: permits_result)
         )
-        policy = auth_policy.TwoFactorAuthorizationPolicy(policy=backing_policy)
+        policy = security_policy.TwoFactorAuthorizationPolicy(policy=backing_policy)
         context = ProjectFactory.create(
             owners_require_2fa=owners_require_2fa, pypi_mandates_2fa=pypi_mandates_2fa
         )
@@ -308,7 +308,7 @@ class TestTwoFactorAuthorizationPolicy:
                 lambda *a: principals
             )
         )
-        policy = auth_policy.TwoFactorAuthorizationPolicy(policy=backing_policy)
+        policy = security_policy.TwoFactorAuthorizationPolicy(policy=backing_policy)
 
         assert (
             policy.principals_allowed_by_permission(pretend.stub(), pretend.stub())
