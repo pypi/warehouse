@@ -2567,11 +2567,6 @@ class TestManageOrganizations:
         )
         monkeypatch.setattr(views, "send_new_organization_requested_email", send_email)
 
-        default_response = {"default": "response"}
-        monkeypatch.setattr(
-            views.ManageOrganizationsViews, "default_response", default_response
-        )
-
         view = views.ManageOrganizationsViews(request)
         result = view.create_organization()
 
@@ -2584,7 +2579,7 @@ class TestManageOrganizations:
         assert organization_service.add_organization_role.calls == []
         assert organization_service.record_event.calls == []
         assert send_email.calls == []
-        assert result == default_response
+        assert result == {"create_organization_form": create_organization_obj}
 
     def test_create_organizations_disallow_organizations(self, monkeypatch):
         request = pretend.stub(

@@ -1072,6 +1072,8 @@ class ManageOrganizationsViews:
             self.request.session.flash(
                 "Request for new organization submitted", queue="success"
             )
+        else:
+            return {"create_organization_form": form}
 
         return self.default_response
 
