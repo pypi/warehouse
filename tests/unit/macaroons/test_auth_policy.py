@@ -49,6 +49,7 @@ def test_extract_http_macaroon(auth, result):
         ("bm90YXJlYWx0b2tlbg==", None),  # "notarealtoken"
         ("QGJhZHVzZXI6Zm9vYmFy", None),  # "@baduser:foobar"
         ("X190b2tlbl9fOmZvb2Jhcg==", "foobar"),  # "__token__:foobar"
+        ("X190b2tlbl9fOiBmb29iYXIgCg==", "foobar"),  # "__token__: foobar "
     ],
 )
 def test_extract_basic_macaroon(auth, result):
