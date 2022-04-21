@@ -77,10 +77,6 @@ class MacaroonSecurityPolicy:
         request.add_response_callback(add_vary_callback("Authorization"))
         request.authentication_method = AuthenticationMethod.MACAROON
 
-        # Macaroon authentication can only be used for uploading
-        if request.matched_route.name not in ["forklift.legacy.file_upload"]:
-            return False
-
         # We need to extract our Macaroon from the request.
         macaroon = _extract_http_macaroon(request)
         if macaroon is None:
