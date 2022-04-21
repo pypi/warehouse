@@ -10,33 +10,51 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from pyramid.authorization import Authenticated, Everyone
+import enum
+
+from pyramid.authorization import Authenticated
 from pyramid.interfaces import ISecurityPolicy
+from pyramid.security import Denied
 from zope.interface import implementer
 
 from warehouse.accounts.interfaces import IUserService
+from warehouse.accounts.models import User
+from warehouse.packaging.models import Project
 
 
-class SecurityPolicy:
-    def __init__(self, callback=None):
-        self._callback = callback
+class AuthenticationMethod(enum.Enum):
+    BASIC_AUTH = "basic-auth"
+    SESSION = "session"
+    MACAROON = "macaroon"
 
-    def identity(self, request):
-        login_service = request.find_service(IUserService, context=None)
-        user = login_service.get_user(self.unauthenticated_userid(request))
-        if user is None:
-            return None
 
-        principals = []
-        if self._callback is not None:
-            principals = self._callback(user.id, request)
-            if principals is None:
-                return None
+def principals_for_authenticated_user(userid, request):
+    """Apply the necessary principals to the authenticated user"""
+    login_service = request.find_service(IUserService, context=None)
+    user = login_service.get_user(userid)
 
-        return {"entity": user, "principals": principals}
+    if user is None:
+        return
 
-    def permits(self, request, context, permission):
-        return NotImplemented
+    if request.session.password_outdated(login_service.get_password_timestamp(userid)):
+        request.session.invalidate()
+        request.session.flash("Session invalidated by password change", queue="error")
+        return
+
+    principals = []
+
+    if user.is_superuser:
+        principals.append("group:admins")
+    if user.is_moderator or user.is_superuser:
+        principals.append("group:moderators")
+    if user.is_psf_staff or user.is_superuser:
+        principals.append("group:psf_staff")
+
+    # user must have base admin access if any admin permission
+    if principals:
+        principals.append("group:with_admin_dashboard_access")
+
+    return principals
 
 
 @implementer(ISecurityPolicy)
@@ -70,7 +88,7 @@ class MultiSecurityPolicy:
 
     def authenticated_userid(self, request):
         if request.identity:
-            return str(request.identity["entity"].id)
+            return str(request.identity.id)
         return None
 
     def forget(self, request, **kw):
@@ -87,9 +105,16 @@ class MultiSecurityPolicy:
 
     def permits(self, request, context, permission):
         identity = request.identity
-        principals = [Everyone]
+        principals = []
         if identity is not None:
-            principals.extend(
-                [Authenticated, str(identity["entity"].id), *identity["principals"]]
-            )
+            # Our identity is always an ORM model, so add some generic principals first.
+            principals.extend([Authenticated, str(identity.id)])
+
+            if isinstance(identity, User):
+                principals.extend(
+                    principals_for_authenticated_user(identity.id, request)
+                )
+            elif isinstance(identity, Project):
+                return Denied("unimplemented")
+
         return self._authz.permits(context, principals, permission)

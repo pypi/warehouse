@@ -16,11 +16,12 @@ from pyramid.interfaces import IAuthorizationPolicy, ISecurityPolicy
 from pyramid.threadlocal import get_current_request
 from zope.interface import implementer
 
+from warehouse.accounts.interfaces import IUserService
 from warehouse.cache.http import add_vary_callback
 from warehouse.errors import WarehouseDenied
 from warehouse.macaroons.interfaces import IMacaroonService
 from warehouse.macaroons.services import InvalidMacaroonError
-from warehouse.utils.security_policy import SecurityPolicy
+from warehouse.utils.security_policy import AuthenticationMethod
 
 
 def _extract_basic_macaroon(auth):
@@ -68,12 +69,17 @@ def _extract_http_macaroon(request):
 
 
 @implementer(ISecurityPolicy)
-class MacaroonSecurityPolicy(SecurityPolicy):
-    def unauthenticated_userid(self, request):
+class MacaroonSecurityPolicy:
+    def identity(self, request):
         # If we're calling into this API on a request, then we want to register
         # a callback which will ensure that the response varies based on the
         # Authorization header.
         request.add_response_callback(add_vary_callback("Authorization"))
+        request.authentication_method = AuthenticationMethod.MACAROON
+
+        # Macaroon authentication can only be used for uploading
+        if request.matched_route.name not in ["forklift.legacy.file_upload"]:
+            return False
 
         # We need to extract our Macaroon from the request.
         macaroon = _extract_http_macaroon(request)
@@ -84,8 +90,10 @@ class MacaroonSecurityPolicy(SecurityPolicy):
         # fetch the user that is associated with it.
         macaroon_service = request.find_service(IMacaroonService, context=None)
         userid = macaroon_service.find_userid(macaroon)
-        if userid is not None:
-            return str(userid)
+
+        # TODO: This will return either a user or a project soon.
+        login_service = request.find_service(IUserService, context=None)
+        return login_service.get_user(userid)
 
     def remember(self, request, userid, **kw):
         # This is a NO-OP because our Macaroon header policy doesn't allow
