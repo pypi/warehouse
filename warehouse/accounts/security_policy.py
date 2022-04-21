@@ -26,27 +26,6 @@ from warehouse.utils.security_policy import SecurityPolicy
 
 
 @implementer(ISecurityPolicy)
-class SessionSecurityPolicy(SecurityPolicy):
-    def __init__(self, callback=None):
-        super().__init__(callback)
-        self._session_helper = SessionAuthenticationHelper()
-
-    def unauthenticated_userid(self, request):
-        # If we're calling into this API on a request, then we want to register
-        # a callback which will ensure that the response varies based on the
-        # Cookie header.
-        request.add_response_callback(add_vary_callback("Cookie"))
-
-        return self._session_helper.authenticated_userid(request)
-
-    def forget(self, request, **kw):
-        return self._session_helper.forget(request, **kw)
-
-    def remember(self, request, userid, **kw):
-        return self._session_helper.remember(request, userid, **kw)
-
-
-@implementer(ISecurityPolicy)
 class BasicAuthSecurityPolicy(SecurityPolicy):
     def __init__(self, check):
         super().__init__(self.callback)
@@ -82,6 +61,27 @@ class BasicAuthSecurityPolicy(SecurityPolicy):
     def remember(self, request, userid, **kw):
         # NOTE: We could make realm configurable here.
         return [("WWW-Authenticate", 'Basic realm="Realm"')]
+
+
+@implementer(ISecurityPolicy)
+class SessionSecurityPolicy(SecurityPolicy):
+    def __init__(self, callback=None):
+        super().__init__(callback)
+        self._session_helper = SessionAuthenticationHelper()
+
+    def unauthenticated_userid(self, request):
+        # If we're calling into this API on a request, then we want to register
+        # a callback which will ensure that the response varies based on the
+        # Cookie header.
+        request.add_response_callback(add_vary_callback("Cookie"))
+
+        return self._session_helper.authenticated_userid(request)
+
+    def forget(self, request, **kw):
+        return self._session_helper.forget(request, **kw)
+
+    def remember(self, request, userid, **kw):
+        return self._session_helper.remember(request, userid, **kw)
 
 
 @implementer(IAuthorizationPolicy)
