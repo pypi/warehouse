@@ -20,6 +20,11 @@ def includeme(config):
     # General Admin pages
     config.add_route("admin.dashboard", "/admin/", domain=warehouse)
 
+    # Organization related Admin pages
+    config.add_route(
+        "admin.organization.approve", "/admin/organizations/approve/", domain=warehouse
+    )
+
     # User related Admin pages
     config.add_route("admin.user.list", "/admin/users/", domain=warehouse)
     config.add_route("admin.user.detail", "/admin/users/{user_id}/", domain=warehouse)

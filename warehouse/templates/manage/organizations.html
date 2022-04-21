@@ -1,0 +1,135 @@
+{#
+ # Licensed under the Apache License, Version 2.0 (the "License");
+ # you may not use this file except in compliance with the License.
+ # You may obtain a copy of the License at
+ #
+ # http://www.apache.org/licenses/LICENSE-2.0
+ #
+ # Unless required by applicable law or agreed to in writing, software
+ # distributed under the License is distributed on an "AS IS" BASIS,
+ # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ # See the License for the specific language governing permissions and
+ # limitations under the License.
+-#}
+{% extends "manage_base.html" %}
+
+{% set active_tab = 'organizations' %}
+
+{% block title %}{% trans %}Your organizations{% endtrans %}{% endblock %}
+
+{% block main %}
+  <h1 class="page-title">{{ title }}</h1>
+
+  {{ form_error_anchor(create_organization_form) }}
+  <section id="create-organization">
+    <h2 class="sub-title">{% trans %}Create new organization{% endtrans %}</h2>
+
+    <form method="POST">
+      <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
+      {{ form_errors(create_organization_form) }}
+      <div class="form-group">
+        <label for="name" class="form-group__label">
+          {% trans %}Organization account name{% endtrans %}
+          {% if create_organization_form.name.flags.required %}
+          <span class="form-group__required">{% trans %}(required){% endtrans %}</span>
+          {% endif %}
+        </label>
+        {{ create_organization_form.name(placeholder=gettext("Select an organization account name"), autocapitalize="off", autocomplete="off", spellcheck="false", required="required", class_="form-group__field", **{"aria-describedby":"name-errors"}) }}
+        <div id="name-errors">
+          {% if create_organization_form.name.errors %}
+          <ul class="form-errors" role="alert">
+            {% for error in create_organization_form.name.errors %}
+            <li>{{ error }}</li>
+            {% endfor %}
+          </ul>
+          {% endif %}
+        </div>
+        <p class="form-group__help-text">
+          {% trans %}This account name will be used in URLs on PyPI.{% endtrans %}<br>
+          {% trans %}For example{% endtrans %}: psf
+        </p>
+      </div>
+
+      <div class="form-group">
+        <label for="display_name" class="form-group__label">
+          {% trans %}Organization name{% endtrans %}
+          {% if create_organization_form.display_name.flags.required %}
+          <span class="form-group__required">{% trans %}(required){% endtrans %}</span>
+          {% endif %}
+        </label>
+        {{ create_organization_form.display_name(placeholder=gettext("Name of your business, product, or project"), autocomplete="organization", autocapitalize="off", spellcheck="false", class_="form-group__field", **{"aria-describedby":"display-name-errors"}) }}
+        <div id="display-name-errors">
+          {% if create_organization_form.display_name.errors %}
+          <ul class="form-errors" role="alert">
+            {% for error in create_organization_form.display_name.errors %}
+            <li>{{ error }}</li>
+            {% endfor %}
+          </ul>
+          {% endif %}
+        </div>
+        <p class="form-group__help-text">
+          {% trans %}For example{% endtrans %}: Python Software Foundation
+        </p>
+      </div>
+
+      <div class="form-group">
+        <label class="form-group__label" for="link_url">
+          {% trans %}️Organization URL{% endtrans %}
+          {% if create_organization_form.link_url.flags.required %}
+          <span class="form-group__required">{% trans %}(required){% endtrans %}</span>
+          {% endif %}
+        </label>
+        <p class="form-group__text">
+          {{ create_organization_form.link_url(placeholder=gettext("URL for your business, product, or project"), autocomplete="url", autocapitalize="off", spellcheck="false", class_="form-group__field", **{"aria-describedby":"link-url-errors"}) }}
+        </p>
+        <div id="link-url-errors">
+          {{ field_errors(create_organization_form.link_url) }}
+        </div>
+        <p class="form-group__help-text">
+          {% trans %}For example{% endtrans %}: https://www.python.org/psf/
+        </p>
+      </div>
+
+      <div class="form-group">
+        <label for="description" class="form-group__label">
+          {% trans %}Organization description{% endtrans %}
+          {% if create_organization_form.description.flags.required %}
+          <span class="form-group__required">{% trans %}(required){% endtrans %}</span>
+          {% endif %}
+        </label>
+        {{ create_organization_form.description(placeholder=gettext("Description of your business, product, or project"), autocomplete="off", autocapitalize="off", spellcheck="true", class_="form-group__field", **{"aria-describedby":"description-errors"}) }}
+        <div id="description-errors">
+          {% if create_organization_form.description.errors %}
+          <ul class="form-errors" role="alert">
+            {% for error in create_organization_form.description.errors %}
+            <li>{{ error }}</li>
+            {% endfor %}
+          </ul>
+          {% endif %}
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-group__label" for="orgtype">
+          {% trans %}️Organization type{% endtrans %}
+          {% if create_organization_form.orgtype.flags.required %}
+          <span class="form-group__required">{% trans %}(required){% endtrans %}</span>
+          {% endif %}
+        </label>
+        <p class="form-group__text">
+          {{ create_organization_form.orgtype(class_="form-group__field", **{"aria-describedby":"orgtype-errors"}) }}
+        </p>
+        <div id="orgtype-errors">
+          {{ field_errors(create_organization_form.orgtype) }}
+        </div>
+        <p class="form-group__help-text">
+          {% trans trimmed %}
+            Companies can create organization accounts as a paid service while community projects are granted complimentary access.
+          {% endtrans %}
+        </p>
+      </div>
+
+      <input value="{% trans %}Create{% endtrans %}" class="button button--primary" type="submit">
+    </form>
+  </section>
+{% endblock %}

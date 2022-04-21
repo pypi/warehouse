@@ -501,6 +501,44 @@ class TestDeleteMacaroonForm:
         assert form.validate()
 
 
+class TestCreateOrganizationForm:
+    def test_creation(self):
+        organization_service = pretend.stub()
+        form = forms.CreateOrganizationForm(
+            organization_service=organization_service,
+        )
+
+        assert form.organization_service is organization_service
+
+    def test_validate_name_with_no_organization(self):
+        organization_service = pretend.stub(
+            find_organizationid=pretend.call_recorder(lambda name: None)
+        )
+        form = forms.CreateOrganizationForm(organization_service=organization_service)
+        field = pretend.stub(data="my_organization_name")
+        forms._ = lambda string: string
+
+        form.validate_name(field)
+
+        assert organization_service.find_organizationid.calls == [
+            pretend.call("my_organization_name")
+        ]
+
+    def test_validate_name_with_organization(self):
+        organization_service = pretend.stub(
+            find_organizationid=pretend.call_recorder(lambda name: 1)
+        )
+        form = forms.CreateOrganizationForm(organization_service=organization_service)
+        field = pretend.stub(data="my_organization_name")
+
+        with pytest.raises(wtforms.validators.ValidationError):
+            form.validate_name(field)
+
+        assert organization_service.find_organizationid.calls == [
+            pretend.call("my_organization_name")
+        ]
+
+
 class TestSaveAccountForm:
     def test_public_email_verified(self):
         email = pretend.stub(verified=True, public=False, email="foo@example.com")

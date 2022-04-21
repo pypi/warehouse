@@ -408,6 +408,14 @@ class TestDatabaseUserService:
 
         assert found_user is None
 
+    def test_get_admins(self, user_service):
+        admin = UserFactory.create(is_superuser=True)
+        user = UserFactory.create(is_superuser=False)
+        admins = user_service.get_admins()
+
+        assert admin in admins
+        assert user not in admins
+
     def test_disable_password(self, user_service):
         user = UserFactory.create()
 

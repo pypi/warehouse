@@ -186,6 +186,22 @@ def _email(
     return inner
 
 
+# Email templates for administrators.
+
+
+@_email("admin-new-organization-requested")
+def send_admin_new_organization_requested_email(
+    request, user, *, organization_name, initiator_username
+):
+    return {
+        "initiator_username": initiator_username,
+        "organization_name": organization_name,
+    }
+
+
+# Email templates for users.
+
+
 @_email("password-reset", allow_unverified=True)
 def send_password_reset_email(request, user_and_email):
     user, _ = user_and_email
@@ -265,6 +281,11 @@ def send_primary_email_change_email(request, user_and_email):
         "old_email": email.email,
         "new_email": user.email,
     }
+
+
+@_email("new-organization-requested")
+def send_new_organization_requested_email(request, user, *, organization_name):
+    return {"organization_name": organization_name}
 
 
 @_email("collaborator-added")
