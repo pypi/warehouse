@@ -153,6 +153,7 @@ class GitHubProvider(OIDCProvider):
 
     __unchecked_claims__ = {
         "actor",
+        "actor_id",
         "jti",
         "sub",
         "ref",
@@ -164,7 +165,6 @@ class GitHubProvider(OIDCProvider):
         "base_ref",
         "event_name",
         "ref_type",
-        "actor_id",
         "repository_id",
         # TODO(#11096): Support reusable workflows.
         "job_workflow_ref",
