@@ -1311,13 +1311,13 @@ class ManageOIDCProviderViews:
 
         if form.validate():
             # GitHub OIDC providers are unique on the tuple of
-            # (repository_name, owner, workflow_filename), so we check for
+            # (repository_name, repository_owner, workflow_filename), so we check for
             # an already registered one before creating.
             provider = (
                 self.request.db.query(GitHubProvider)
                 .filter(
                     GitHubProvider.repository_name == form.repository.data,
-                    GitHubProvider.owner == form.normalized_owner,
+                    GitHubProvider.repository_owner == form.normalized_owner,
                     GitHubProvider.workflow_filename == form.workflow_filename.data,
                 )
                 .one_or_none()
@@ -1325,8 +1325,8 @@ class ManageOIDCProviderViews:
             if provider is None:
                 provider = GitHubProvider(
                     repository_name=form.repository.data,
-                    owner=form.normalized_owner,
-                    owner_id=form.owner_id,
+                    repository_owner=form.normalized_owner,
+                    repository_owner_id=form.owner_id,
                     workflow_filename=form.workflow_filename.data,
                 )
 
