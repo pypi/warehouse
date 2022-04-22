@@ -13,7 +13,7 @@
 rename GitHubProvider fields
 
 Revision ID: bb986a64761a
-Revises: 9f0f99509d92
+Revises: 18158aef6578
 Create Date: 2022-04-22 22:00:53.832695
 """
 
@@ -22,7 +22,7 @@ import sqlalchemy as sa
 from alembic import op
 
 revision = "bb986a64761a"
-down_revision = "9f0f99509d92"
+down_revision = "18158aef6578"
 
 
 def upgrade():
