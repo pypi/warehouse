@@ -106,10 +106,10 @@ class MultiSecurityPolicy:
         identity = request.identity
         principals = []
         if identity is not None:
-            # Our identity is always an ORM model, so add some generic principals first.
-            principals.extend([Authenticated, str(identity.id)])
+            principals.append(Authenticated)
 
             if isinstance(identity, User):
+                principals.append(f"user:{identity.id}")
                 principals.extend(
                     _principals_for_authenticated_user(identity.id, request)
                 )
