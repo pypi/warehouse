@@ -17,8 +17,6 @@ Revises: 9f0f99509d92
 Create Date: 2022-04-22 22:00:53.832695
 """
 
-import sqlalchemy as sa
-
 from alembic import op
 
 revision = "bb986a64761a"
@@ -26,42 +24,34 @@ down_revision = "9f0f99509d92"
 
 
 def upgrade():
-    op.add_column(
-        "github_oidc_providers",
-        sa.Column("repository_owner", sa.String(), nullable=True),
-    )
-    op.add_column(
-        "github_oidc_providers",
-        sa.Column("repository_owner_id", sa.String(), nullable=True),
-    )
     op.drop_constraint(
         "_github_oidc_provider_uc", "github_oidc_providers", type_="unique"
+    )
+    op.alter_column(
+        "github_oidc_providers", "owner_id", new_column_name="repository_owner_id"
+    )
+    op.alter_column(
+        "github_oidc_providers", "owner", new_column_name="repository_owner"
     )
     op.create_unique_constraint(
         "_github_oidc_provider_uc",
         "github_oidc_providers",
         ["repository_name", "repository_owner", "workflow_filename"],
     )
-    op.drop_column("github_oidc_providers", "owner_id")
-    op.drop_column("github_oidc_providers", "owner")
 
 
 def downgrade():
-    op.add_column(
-        "github_oidc_providers",
-        sa.Column("owner", sa.VARCHAR(), autoincrement=False, nullable=True),
-    )
-    op.add_column(
-        "github_oidc_providers",
-        sa.Column("owner_id", sa.VARCHAR(), autoincrement=False, nullable=True),
-    )
     op.drop_constraint(
         "_github_oidc_provider_uc", "github_oidc_providers", type_="unique"
+    )
+    op.alter_column(
+        "github_oidc_providers", "repository_owner_id", new_column_name="owner_id"
+    )
+    op.alter_column(
+        "github_oidc_providers", "repository_owner", new_column_name="owner"
     )
     op.create_unique_constraint(
         "_github_oidc_provider_uc",
         "github_oidc_providers",
         ["repository_name", "owner", "workflow_filename"],
     )
-    op.drop_column("github_oidc_providers", "repository_owner_id")
-    op.drop_column("github_oidc_providers", "repository_owner")
