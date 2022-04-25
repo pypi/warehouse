@@ -27,15 +27,11 @@ class AuthenticationMethod(enum.Enum):
     MACAROON = "macaroon"
 
 
-def _principals_for_authenticated_user(userid, request):
+def _principals_for_authenticated_user(user, request):
     """Apply the necessary principals to the authenticated user"""
     login_service = request.find_service(IUserService, context=None)
-    user = login_service.get_user(userid)
 
-    if user is None:
-        return None
-
-    if request.session.password_outdated(login_service.get_password_timestamp(userid)):
+    if request.session.password_outdated(login_service.get_password_timestamp(user.id)):
         request.session.invalidate()
         request.session.flash("Session invalidated by password change", queue="error")
         return None
@@ -110,9 +106,7 @@ class MultiSecurityPolicy:
 
             if isinstance(identity, User):
                 principals.append(f"user:{identity.id}")
-                principals.extend(
-                    _principals_for_authenticated_user(identity.id, request)
-                )
+                principals.extend(_principals_for_authenticated_user(identity, request))
             else:
                 return Denied("unimplemented")
 

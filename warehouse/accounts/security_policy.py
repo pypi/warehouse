@@ -101,6 +101,9 @@ def _basic_auth_check(username, password, request):
                 ),
             )
 
+    # No user, no authentication.
+    return False
+
 
 @implementer(ISecurityPolicy)
 class SessionSecurityPolicy:
