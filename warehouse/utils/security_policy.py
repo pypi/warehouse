@@ -114,7 +114,7 @@ class MultiSecurityPolicy:
                 principals.extend(
                     principals_for_authenticated_user(identity.id, request)
                 )
-            elif isinstance(identity, Project):
+            else:
                 return Denied("unimplemented")
 
         return self._authz.permits(context, principals, permission)
