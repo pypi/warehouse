@@ -27,7 +27,7 @@
         <div>
           <h3 class="package-snippet__title">{{ organization.name }}
             {% if organization.name in organizations_owned %}
-            {# TODO <a href="{{ request.route_path('manage.organization.roles', organization_name=organization.normalized_name) }}" class="badge badge--warning package-snippet__project-badge">{% trans %}Owner{% endtrans %}</a> #}
+            {# TODO <a href="{{ request.route_path('manage.organization.roles', organization_name=organization.normalized_name) }}" class="badge badge--warning package-snippet__badge">{% trans %}Owner{% endtrans %}</a> #}
             Owner
             {% endif %}
           </h3>

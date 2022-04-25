@@ -70,7 +70,7 @@
     font-weight: $bold-font-weight;
   }
 
-  &__released {
+  &__created {
     font-weight: $base-font-weight;
     float: right;
     color: $text-color;
@@ -87,7 +87,7 @@
     color: $text-color;
   }
 
-  &__project-badge {
+  &__badge {
     margin-left: 4px;
     position: relative;
     top: -1px;
