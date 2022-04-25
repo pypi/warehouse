@@ -471,13 +471,13 @@ msgstr ""
 #: warehouse/templates/pages/help.html:828
 #: warehouse/templates/pages/help.html:836
 #: warehouse/templates/pages/help.html:844
-#: warehouse/templates/pages/help.html:854
-#: warehouse/templates/pages/help.html:869
+#: warehouse/templates/pages/help.html:853
+#: warehouse/templates/pages/help.html:868
+#: warehouse/templates/pages/help.html:883
 #: warehouse/templates/pages/help.html:884
 #: warehouse/templates/pages/help.html:885
 #: warehouse/templates/pages/help.html:886
-#: warehouse/templates/pages/help.html:887
-#: warehouse/templates/pages/help.html:892
+#: warehouse/templates/pages/help.html:891
 #: warehouse/templates/pages/security.html:36
 #: warehouse/templates/pages/sponsors.html:33
 #: warehouse/templates/pages/sponsors.html:37
@@ -5729,13 +5729,11 @@ msgstr ""
 #, python-format
 msgid ""
 "You can also follow the ongoing development of the project on the <a "
-"href=\"%(mailing_list_href)s\" title=\"%(title)s\" target=\"_blank\" "
-"rel=\"noopener\">distutils-sig mailing list</a> and the <a "
 "href=\"%(discourse_forum_href)s\" title=\"%(title)s\" target=\"_blank\" "
 "rel=\"noopener\">Python packaging forum on Discourse</a>."
 msgstr ""
 
-#: warehouse/templates/pages/help.html:854
+#: warehouse/templates/pages/help.html:853
 #, python-format
 msgid ""
 "Changes to PyPI are generally announced on both the <a "
@@ -5749,7 +5747,7 @@ msgid ""
 "the \"pypi\" label."
 msgstr ""
 
-#: warehouse/templates/pages/help.html:864
+#: warehouse/templates/pages/help.html:863
 msgid ""
 "When Warehouse's maintainers are deploying new features, at first we mark"
 " them with a small \"beta feature\" symbol to tell you: this should "
@@ -5757,11 +5755,11 @@ msgid ""
 "functionality."
 msgstr ""
 
-#: warehouse/templates/pages/help.html:865
+#: warehouse/templates/pages/help.html:864
 msgid "Currently, no features are in beta."
 msgstr ""
 
-#: warehouse/templates/pages/help.html:869
+#: warehouse/templates/pages/help.html:868
 #, python-format
 msgid ""
 "\"PyPI\" should be pronounced like \"pie pea eye\", specifically with the"
@@ -5771,39 +5769,39 @@ msgid ""
 "implementation of the Python language."
 msgstr ""
 
-#: warehouse/templates/pages/help.html:881
+#: warehouse/templates/pages/help.html:880
 msgid "Resources"
 msgstr ""
 
-#: warehouse/templates/pages/help.html:882
+#: warehouse/templates/pages/help.html:881
 msgid "Looking for something else? Perhaps these links will help:"
 msgstr ""
 
-#: warehouse/templates/pages/help.html:884
+#: warehouse/templates/pages/help.html:883
 msgid "Python Packaging User Guide"
 msgstr ""
 
-#: warehouse/templates/pages/help.html:885
+#: warehouse/templates/pages/help.html:884
 msgid "Python documentation"
 msgstr ""
 
-#: warehouse/templates/pages/help.html:886
+#: warehouse/templates/pages/help.html:885
 msgid "(main Python website)"
 msgstr ""
 
-#: warehouse/templates/pages/help.html:887
+#: warehouse/templates/pages/help.html:886
 msgid "Python community page"
 msgstr ""
 
-#: warehouse/templates/pages/help.html:887
+#: warehouse/templates/pages/help.html:886
 msgid "(lists IRC channels, mailing lists, etc.)"
 msgstr ""
 
-#: warehouse/templates/pages/help.html:890
+#: warehouse/templates/pages/help.html:889
 msgid "Contact"
 msgstr ""
 
-#: warehouse/templates/pages/help.html:892
+#: warehouse/templates/pages/help.html:891
 #, python-format
 msgid ""
 "The <a href=\"%(pypa_href)s\" title=\"%(title)s\" target=\"_blank\" "
