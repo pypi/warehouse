@@ -20,22 +20,22 @@
 {% block main %}
   <h1 class="page-title">{% trans organization_count=organizations|length %}Your organizations ({{ organization_count }}){% endtrans %}</h1>
 
-  <div class="package-list">
+  <div class="organization-list">
     {% for organization in organizations %}
-    <div class="package-snippet">
+    <div class="organization-snippet">
       <div class="split-layout split-layout--no-wrap split-layout--wrap-on-tablet">
         <div>
-          <h3 class="package-snippet__title">{{ organization.name }}
+          <h3 class="organization-snippet__title">{{ organization.name }}
             {% if organization.name in organizations_owned %}
-            {# TODO <a href="{{ request.route_path('manage.organization.roles', organization_name=organization.normalized_name) }}" class="badge badge--warning package-snippet__badge">{% trans %}Owner{% endtrans %}</a> #}
+            {# TODO <a href="{{ request.route_path('manage.organization.roles', organization_name=organization.normalized_name) }}" class="badge badge--warning organization-snippet__badge">{% trans %}Owner{% endtrans %}</a> #}
             Owner
             {% endif %}
           </h3>
-          <p class="package-snippet__meta">
+          <p class="organization-snippet__meta">
             {% trans creation_date=humanize(organization.created) %}Created {{ creation_date }}{% endtrans %}
           </p>
         </div>
-        <div class="package-snippet__buttons">
+        <div class="organization-snippet__buttons">
           {% if organization.name in organizations_owned %}
           {# Show manage button #}
           <a

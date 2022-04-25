@@ -13,20 +13,12 @@
  */
 
 /*
-  A card that contains information about a package. Often found in package lists.
-  The card can be an "a" or "div" element, but if it contains a link, choosing
-  a top-level "a" element is recommended for accessibility reasons.
-
-  <a class="package-snippet" href="/link/to/target">
-    <h3 class="package-snippet__title">
-      // Package title
-      <span class="package-snippet__version">// Version</span> // Optional!
-    </h3>
-    <p class="package-snippet__description">// Description</p>
-  </a>
+  A card that contains information about a package or an organization.
+  - Extended by .package-snippet and often found in package lists.
+  - Extended by .organization-snippet and often found in package lists.
 */
 
-.package-snippet {
+@mixin snippet($snippet-icon-svg, $snippet-icon-png) {
   @include card;
   direction: ltr;
   text-align: left;
@@ -42,9 +34,9 @@
     &,
     &:hover {
       // Use png fallback
-      background: $white url("../images/white-cube.png") no-repeat 0 50%;
+      background: $white $snippet-icon-png no-repeat 0 50%;
       // Or svg if the browser supports it
-      background-image: url("../images/white-cube.svg"), linear-gradient(transparent, transparent);
+      background-image: $snippet-icon-svg, linear-gradient(transparent, transparent);
       background-position: 20px;
     }
   }

@@ -100,9 +100,10 @@
 @import "blocks/modal";
 @import "blocks/notification-bar";
 /*rtl:begin:ignore*/
+@import "blocks/organization-snippet";
 @import "blocks/package-description";
 @import "blocks/package-header";
-@import "blocks/snippet";
+@import "blocks/package-snippet";
 /*rtl:end:ignore*/
 @import "blocks/password-strength";
 /*rtl:begin:ignore*/
