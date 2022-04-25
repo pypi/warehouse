@@ -18,7 +18,12 @@ from warehouse.organizations import services
 from warehouse.organizations.interfaces import IOrganizationService
 from warehouse.organizations.models import OrganizationRoleType
 
-from ...common.db.organizations import OrganizationFactory, UserFactory
+from ...common.db.organizations import (
+    OrganizationFactory,
+    OrganizationInvitationFactory,
+    OrganizationRoleFactory,
+    UserFactory,
+)
 
 
 def test_database_organizations_factory():
@@ -138,6 +143,54 @@ class TestDatabaseOrganizationService:
         assert catalog_entry.normalized_name == organization.normalized_name
         assert catalog_entry.organization_id == organization.id
 
+    def test_get_organization_role(self, organization_service, user_service):
+        organization_role = OrganizationRoleFactory.create()
+
+        assert (
+            organization_service.get_organization_role(organization_role.id)
+            == organization_role
+        )
+
+    def test_get_organization_role_by_name(self, organization_service, user_service):
+        organization_role = OrganizationRoleFactory.create()
+
+        assert (
+            organization_service.get_organization_role_by_name(
+                organization_role.role_name,
+                organization_role.user_id,
+                organization_role.organization_id,
+            )
+            == organization_role
+        )
+
+    def test_get_organization_role_by_name_nonexistent_role(self, organization_service):
+        user = UserFactory.create()
+        organization = OrganizationFactory.create()
+
+        assert (
+            organization_service.get_organization_role_by_name(
+                "nonexistent_role", user.id, organization.id
+            )
+            is None
+        )
+
+    def test_get_organization_roles(self, organization_service, user_service):
+        organization = OrganizationFactory.create()
+        user = UserFactory.create()
+        another_user = UserFactory.create()
+
+        added_owner = organization_service.add_organization_role(
+            OrganizationRoleType.Owner.value, user.id, organization.id
+        )
+        added_member = organization_service.add_organization_role(
+            OrganizationRoleType.Member.value, another_user.id, organization.id
+        )
+
+        org_roles = organization_service.get_organization_roles(organization.id)
+
+        assert added_owner in org_roles
+        assert added_member in org_roles
+
     def test_add_organization_role(self, organization_service, user_service):
         user = UserFactory.create()
         organization = OrganizationFactory.create()
@@ -148,6 +201,66 @@ class TestDatabaseOrganizationService:
         assert added_role.role_name == OrganizationRoleType.Owner.value
         assert added_role.user_id == user.id
         assert added_role.organization_id == organization.id
+
+    def test_delete_organization_role(self, organization_service, user_service):
+        organization_role = OrganizationRoleFactory.create()
+
+        organization_service.delete_organization_role(organization_role.id)
+
+        assert (
+            organization_service.get_organization_role_by_name(
+                organization_role.role_name,
+                organization_role.user_id,
+                organization_role.organization_id,
+            )
+            is None
+        )
+
+    def test_get_organization_invite(self, organization_service):
+        organization_invite = OrganizationInvitationFactory.create()
+
+        assert (
+            organization_service.get_organization_invite(organization_invite.id)
+            is not None
+        )
+
+    def test_get_organization_invites(self, organization_service, user_service):
+        user = UserFactory.create()
+        organization = OrganizationFactory.create()
+        another_organization = OrganizationFactory.create()
+
+        invite = organization_service.add_organization_invite(
+            user.id, organization.id, "some_token"
+        )
+        another_invite = organization_service.add_organization_invite(
+            user.id, another_organization.id, "some_token"
+        )
+
+        invites = organization_service.get_organization_invites(user.id)
+
+        assert invite in invites
+        assert another_invite in invites
+
+    def test_add_organization_invite(self, organization_service, user_service):
+        user = UserFactory.create()
+        organization = OrganizationFactory.create()
+
+        added_invite = organization_service.add_organization_invite(
+            user.id, organization.id, "some_token"
+        )
+
+        assert added_invite.user_id == user.id
+        assert added_invite.organization_id == organization.id
+        assert added_invite.token == "some_token"
+
+    def test_delete_organization_invite(self, organization_service):
+        organization_invite = OrganizationInvitationFactory.create()
+
+        organization_service.delete_organization_invite(organization_invite.id)
+
+        assert (
+            organization_service.get_organization_invite(organization_invite.id) is None
+        )
 
     def test_approve_organization(self, organization_service):
         organization = OrganizationFactory.create()
@@ -163,6 +276,3 @@ class TestDatabaseOrganizationService:
 
         assert organization.is_approved is False
         assert organization.date_approved is not None
-
-    # def test_record_event(self, organization_id, *, tag, additional=None):
-    #     raise NotImplementedError
