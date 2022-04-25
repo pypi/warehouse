@@ -19,7 +19,6 @@ from zope.interface import implementer
 
 from warehouse.accounts.interfaces import IUserService
 from warehouse.accounts.models import User
-from warehouse.packaging.models import Project
 
 
 class AuthenticationMethod(enum.Enum):
@@ -28,18 +27,18 @@ class AuthenticationMethod(enum.Enum):
     MACAROON = "macaroon"
 
 
-def principals_for_authenticated_user(userid, request):
+def _principals_for_authenticated_user(userid, request):
     """Apply the necessary principals to the authenticated user"""
     login_service = request.find_service(IUserService, context=None)
     user = login_service.get_user(userid)
 
     if user is None:
-        return
+        return None
 
     if request.session.password_outdated(login_service.get_password_timestamp(userid)):
         request.session.invalidate()
         request.session.flash("Session invalidated by password change", queue="error")
-        return
+        return None
 
     principals = []
 
@@ -107,14 +106,18 @@ class MultiSecurityPolicy:
         identity = request.identity
         principals = []
         if identity is not None:
-            # Our identity is always an ORM model, so add some generic principals first.
-            principals.extend([Authenticated, str(identity.id)])
+            principals.append(Authenticated)
 
             if isinstance(identity, User):
                 principals.extend(
-                    principals_for_authenticated_user(identity.id, request)
+                    _principals_for_authenticated_user(identity.id, request)
                 )
             else:
                 return Denied("unimplemented")
 
+        # NOTE: Observe that the parameters passed into the underlying AuthZ
+        # policy here are not the same (or in the same order) as the ones
+        # passed into `permits` above. This is because the underlying AuthZ
+        # policy is a "legacy" Pyramid 1.0 style one that implements the
+        # `IAuthorizationPolicy` interface rather than `ISecurityPolicy`.
         return self._authz.permits(context, principals, permission)
