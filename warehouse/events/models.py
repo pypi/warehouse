@@ -10,7 +10,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from sqlalchemy import Column, DateTime, ForeignKey, String, orm, sql
+from sqlalchemy import Column, DateTime, ForeignKey, Index, String, orm, sql
 from sqlalchemy.dialects.postgresql import JSONB, UUID
 from sqlalchemy.ext.declarative import AbstractConcreteBase, declared_attr
 
@@ -26,6 +26,10 @@ class Event(AbstractConcreteBase):
     @declared_attr
     def __tablename__(cls):  # noqa: N805
         return "_".join([cls.__name__.removesuffix("Event").lower(), "events"])
+
+    @declared_attr
+    def __table_args__(cls):  # noqa: N805
+        return (Index(f"ix_{ cls.__tablename__ }_source_id", "source_id"),)
 
     @declared_attr
     def __mapper_args__(cls):  # noqa: N805
