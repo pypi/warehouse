@@ -1874,6 +1874,18 @@ msgstr ""
 msgid "Email"
 msgstr ""
 
+#: warehouse/templates/includes/manage/manage-organization-menu.html:14
+#, python-format
+msgid "Navigation for managing %(organization)s"
+msgstr ""
+
+#: warehouse/templates/includes/manage/manage-organization-menu.html:19
+#: warehouse/templates/includes/manage/manage-project-menu.html:25
+#: warehouse/templates/manage/organization/roles.html:35
+#: warehouse/templates/manage/roles.html:35
+msgid "Collaborators"
+msgstr ""
+
 #: warehouse/templates/includes/manage/manage-project-menu.html:14
 #, python-format
 msgid "Navigation for managing %(project)s"
@@ -1881,12 +1893,6 @@ msgstr ""
 
 #: warehouse/templates/includes/manage/manage-project-menu.html:19
 msgid "Releases"
-msgstr ""
-
-#: warehouse/templates/includes/manage/manage-project-menu.html:25
-#: warehouse/templates/manage/organization/roles.html:35
-#: warehouse/templates/manage/roles.html:35
-msgid "Collaborators"
 msgstr ""
 
 #: warehouse/templates/includes/manage/manage-project-menu.html:31
@@ -2998,6 +3004,7 @@ msgstr ""
 msgid "Back to projects"
 msgstr ""
 
+#: warehouse/templates/manage/organization/manage_organization_base.html:32
 #: warehouse/templates/manage/organizations.html:21
 #, python-format
 msgid "Your organizations (%(organization_count)s)"
@@ -4143,6 +4150,10 @@ msgstr ""
 #: warehouse/templates/manage/organization/manage_organization_base.html:21
 #, python-format
 msgid "Manage '%(organization_name)s'"
+msgstr ""
+
+#: warehouse/templates/manage/organization/manage_organization_base.html:41
+msgid "Back to organizations"
 msgstr ""
 
 #: warehouse/templates/manage/organization/roles.html:18
