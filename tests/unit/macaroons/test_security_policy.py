@@ -10,12 +10,11 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import uuid
 
 import pretend
 import pytest
 
-from pyramid.interfaces import IAuthenticationPolicy, IAuthorizationPolicy
+from pyramid.interfaces import IAuthorizationPolicy, ISecurityPolicy
 from pyramid.security import Denied
 from zope.interface.verify import verifyClass
 
@@ -56,104 +55,80 @@ def test_extract_basic_macaroon(auth, result):
     assert security_policy._extract_basic_macaroon(auth) == result
 
 
-class TestMacaroonAuthenticationPolicy:
+class TestMacaroonSecurityPolicy:
     def test_verify(self):
         assert verifyClass(
-            IAuthenticationPolicy, security_policy.MacaroonAuthenticationPolicy
+            ISecurityPolicy,
+            security_policy.MacaroonSecurityPolicy,
         )
 
-    def test_unauthenticated_userid_invalid_macaroon(self, monkeypatch):
-        _extract_http_macaroon = pretend.call_recorder(lambda r: None)
-        monkeypatch.setattr(
-            security_policy, "_extract_http_macaroon", _extract_http_macaroon
+    def test_noops(self):
+        policy = security_policy.MacaroonSecurityPolicy()
+        assert policy.authenticated_userid(pretend.stub()) == NotImplemented
+        assert (
+            policy.permits(pretend.stub(), pretend.stub(), pretend.stub())
+            == NotImplemented
         )
 
-        policy = security_policy.MacaroonAuthenticationPolicy()
+    def test_forget_and_remember(self):
+        policy = security_policy.MacaroonSecurityPolicy()
+
+        assert policy.forget(pretend.stub()) == []
+        assert policy.remember(pretend.stub(), pretend.stub()) == []
+
+    def test_identify_no_macaroon(self, monkeypatch):
+        policy = security_policy.MacaroonSecurityPolicy()
 
         vary_cb = pretend.stub()
         add_vary_cb = pretend.call_recorder(lambda *v: vary_cb)
         monkeypatch.setattr(security_policy, "add_vary_callback", add_vary_cb)
+
+        extract_http_macaroon = pretend.call_recorder(lambda r: None)
+        monkeypatch.setattr(
+            security_policy, "_extract_http_macaroon", extract_http_macaroon
+        )
 
         request = pretend.stub(
             add_response_callback=pretend.call_recorder(lambda cb: None)
         )
 
-        assert policy.unauthenticated_userid(request) is None
-        assert _extract_http_macaroon.calls == [pretend.call(request)]
+        assert policy.identity(request) is None
+        assert extract_http_macaroon.calls == [pretend.call(request)]
+
         assert add_vary_cb.calls == [pretend.call("Authorization")]
         assert request.add_response_callback.calls == [pretend.call(vary_cb)]
 
-    def test_unauthenticated_userid_valid_macaroon(self, monkeypatch):
-        _extract_http_macaroon = pretend.call_recorder(lambda r: b"not a real macaroon")
-        monkeypatch.setattr(
-            security_policy, "_extract_http_macaroon", _extract_http_macaroon
-        )
-
-        policy = security_policy.MacaroonAuthenticationPolicy()
+    def test_identify(self, monkeypatch):
+        policy = security_policy.MacaroonSecurityPolicy()
 
         vary_cb = pretend.stub()
         add_vary_cb = pretend.call_recorder(lambda *v: vary_cb)
         monkeypatch.setattr(security_policy, "add_vary_callback", add_vary_cb)
 
-        userid = uuid.uuid4()
-        macaroon_service = pretend.stub(
-            find_userid=pretend.call_recorder(lambda macaroon: userid)
-        )
-        request = pretend.stub(
-            find_service=pretend.call_recorder(
-                lambda interface, **kw: macaroon_service
-            ),
-            add_response_callback=pretend.call_recorder(lambda cb: None),
+        raw_macaroon = pretend.stub()
+        extract_http_macaroon = pretend.call_recorder(lambda r: raw_macaroon)
+        monkeypatch.setattr(
+            security_policy, "_extract_http_macaroon", extract_http_macaroon
         )
 
-        assert policy.unauthenticated_userid(request) == str(userid)
-        assert _extract_http_macaroon.calls == [pretend.call(request)]
+        user = pretend.stub()
+        macaroon_service = pretend.stub(
+            find_from_raw=pretend.call_recorder(lambda m: pretend.stub(user=user))
+        )
+        request = pretend.stub(
+            add_response_callback=pretend.call_recorder(lambda cb: None),
+            find_service=pretend.call_recorder(lambda i, **kw: macaroon_service),
+        )
+
+        assert policy.identity(request) is user
+        assert extract_http_macaroon.calls == [pretend.call(request)]
         assert request.find_service.calls == [
             pretend.call(IMacaroonService, context=None)
         ]
-        assert macaroon_service.find_userid.calls == [
-            pretend.call(b"not a real macaroon")
-        ]
+        assert macaroon_service.find_from_raw.calls == [pretend.call(raw_macaroon)]
+
         assert add_vary_cb.calls == [pretend.call("Authorization")]
         assert request.add_response_callback.calls == [pretend.call(vary_cb)]
-
-    def test_unauthenticated_userid_valid_macaroon_invalid_userid(self, monkeypatch):
-        _extract_http_macaroon = pretend.call_recorder(lambda r: b"not a real macaroon")
-        monkeypatch.setattr(
-            security_policy, "_extract_http_macaroon", _extract_http_macaroon
-        )
-
-        policy = security_policy.MacaroonAuthenticationPolicy()
-
-        vary_cb = pretend.stub()
-        add_vary_cb = pretend.call_recorder(lambda *v: vary_cb)
-        monkeypatch.setattr(security_policy, "add_vary_callback", add_vary_cb)
-
-        macaroon_service = pretend.stub(
-            find_userid=pretend.call_recorder(lambda macaroon: None)
-        )
-        request = pretend.stub(
-            find_service=pretend.call_recorder(
-                lambda interface, **kw: macaroon_service
-            ),
-            add_response_callback=pretend.call_recorder(lambda cb: None),
-        )
-
-        assert policy.unauthenticated_userid(request) is None
-        assert _extract_http_macaroon.calls == [pretend.call(request)]
-        assert add_vary_cb.calls == [pretend.call("Authorization")]
-        assert macaroon_service.find_userid.calls == [
-            pretend.call(b"not a real macaroon")
-        ]
-        assert request.add_response_callback.calls == [pretend.call(vary_cb)]
-
-    def test_remember(self):
-        policy = security_policy.MacaroonAuthenticationPolicy()
-        assert policy.remember(pretend.stub(), pretend.stub()) == []
-
-    def test_forget(self):
-        policy = security_policy.MacaroonAuthenticationPolicy()
-        assert policy.forget(pretend.stub()) == []
 
 
 class TestMacaroonAuthorizationPolicy:
