@@ -1088,7 +1088,7 @@ msgstr ""
 
 #: warehouse/templates/accounts/profile.html:73
 #: warehouse/templates/manage/projects.html:34
-#: warehouse/templates/manage/projects.html:99
+#: warehouse/templates/manage/projects.html:98
 #, python-format
 msgid "Last released %(release_date)s"
 msgstr ""
@@ -2766,8 +2766,8 @@ msgstr ""
 #: warehouse/templates/manage/manage_base.html:16
 #: warehouse/templates/manage/organizations.html:46
 #: warehouse/templates/manage/organizations.html:50
-#: warehouse/templates/manage/projects.html:143
-#: warehouse/templates/manage/projects.html:148
+#: warehouse/templates/manage/projects.html:142
+#: warehouse/templates/manage/projects.html:147
 #: warehouse/templates/manage/releases.html:88
 msgid "Manage"
 msgstr ""
@@ -3004,7 +3004,7 @@ msgstr ""
 
 #: warehouse/templates/manage/organizations.html:35
 #: warehouse/templates/manage/projects.html:41
-#: warehouse/templates/manage/projects.html:106
+#: warehouse/templates/manage/projects.html:105
 #, python-format
 msgid "Created %(creation_date)s"
 msgstr ""
@@ -3086,63 +3086,63 @@ msgstr ""
 msgid "Pending invitations (%(project_count)s)"
 msgstr ""
 
-#: warehouse/templates/manage/projects.html:72
-#: warehouse/templates/manage/projects.html:135
+#: warehouse/templates/manage/projects.html:71
+#: warehouse/templates/manage/projects.html:134
 msgid "This project requires 2FA to be enabled to manage"
 msgstr ""
 
-#: warehouse/templates/manage/projects.html:73
-#: warehouse/templates/manage/projects.html:136
+#: warehouse/templates/manage/projects.html:72
+#: warehouse/templates/manage/projects.html:135
 msgid "2FA Required"
+msgstr ""
+
+#: warehouse/templates/manage/projects.html:78
+#: warehouse/templates/manage/projects.html:88
+msgid "This is a critical project for the Python ecosystem"
 msgstr ""
 
 #: warehouse/templates/manage/projects.html:79
 #: warehouse/templates/manage/projects.html:89
-msgid "This is a critical project for the Python ecosystem"
+msgid "Critical Project"
 msgstr ""
 
-#: warehouse/templates/manage/projects.html:80
-#: warehouse/templates/manage/projects.html:90
-msgid "Critical Project"
+#: warehouse/templates/manage/projects.html:81
+#: warehouse/templates/manage/projects.html:122
+msgid "PyPI requires 2FA to be enabled to manage this project"
 msgstr ""
 
 #: warehouse/templates/manage/projects.html:82
 #: warehouse/templates/manage/projects.html:123
-msgid "PyPI requires 2FA to be enabled to manage this project"
-msgstr ""
-
-#: warehouse/templates/manage/projects.html:83
-#: warehouse/templates/manage/projects.html:124
 msgid "2FA Mandated"
 msgstr ""
 
-#: warehouse/templates/manage/projects.html:94
+#: warehouse/templates/manage/projects.html:93
 msgid "Sole owner"
 msgstr ""
 
-#: warehouse/templates/manage/projects.html:142
+#: warehouse/templates/manage/projects.html:141
 msgid "Manage this project"
 msgstr ""
 
-#: warehouse/templates/manage/projects.html:147
+#: warehouse/templates/manage/projects.html:146
 msgid "You are not an owner of this project"
 msgstr ""
 
-#: warehouse/templates/manage/projects.html:155
+#: warehouse/templates/manage/projects.html:154
 msgid "View this project's public page"
 msgstr ""
 
-#: warehouse/templates/manage/projects.html:156
-#: warehouse/templates/manage/projects.html:159
+#: warehouse/templates/manage/projects.html:155
+#: warehouse/templates/manage/projects.html:158
 #: warehouse/templates/manage/releases.html:94
 msgid "View"
 msgstr ""
 
-#: warehouse/templates/manage/projects.html:158
+#: warehouse/templates/manage/projects.html:157
 msgid "This project has no releases"
 msgstr ""
 
-#: warehouse/templates/manage/projects.html:168
+#: warehouse/templates/manage/projects.html:166
 #, python-format
 msgid ""
 "You have not uploaded any projects to PyPI, yet. To learn how to get "

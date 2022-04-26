@@ -57,7 +57,6 @@
   {% endif %}
   <h1 class="page-title">{% trans project_count=projects|length %}Your projects ({{ project_count }}){% endtrans %}</h1>
   <div class="package-list">
-    {% if projects %}
     {% set user_has_two_factor = request.user.has_two_factor %}
     {% for project in projects %}
     {% set release = project.releases[0] if project.releases else None %}
@@ -162,11 +161,10 @@
         </div>
       </div>
     </div>
-    {% endfor %}
     {% else %}
       <div class="callout-block no-top-margin">
         <p>{% trans href='https://packaging.python.org/' %}You have not uploaded any projects to PyPI, yet. To learn how to get started, visit the <a href="{{ href }}" target="_blank" rel="noopener">Python Packaging User Guide</a>{% endtrans %}</p>
       </div>
-    {% endif %}
+    {% endfor %}
   </div>
 {% endblock %}
