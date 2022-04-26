@@ -18,6 +18,7 @@ from warehouse import db
 
 
 class AdminFlagValue(enum.Enum):
+    DISABLE_ORGANIZATIONS = "disable-organizations"
     DISALLOW_DELETION = "disallow-deletion"
     DISALLOW_NEW_PROJECT_REGISTRATION = "disallow-new-project-registration"
     DISALLOW_NEW_UPLOAD = "disallow-new-upload"

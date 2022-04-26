@@ -65,7 +65,7 @@ msgid ""
 "different email."
 msgstr ""
 
-#: warehouse/accounts/forms.py:258 warehouse/manage/forms.py:73
+#: warehouse/accounts/forms.py:258 warehouse/manage/forms.py:75
 msgid "The name is too long. Choose a name with 100 characters or less."
 msgstr ""
 
@@ -116,7 +116,7 @@ msgstr ""
 msgid "Successful WebAuthn assertion"
 msgstr ""
 
-#: warehouse/accounts/views.py:441 warehouse/manage/views.py:814
+#: warehouse/accounts/views.py:441 warehouse/manage/views.py:817
 msgid "Recovery code accepted. The supplied code cannot be used again."
 msgstr ""
 
@@ -225,51 +225,91 @@ msgstr ""
 msgid "Banner Preview"
 msgstr ""
 
-#: warehouse/manage/views.py:245
+#: warehouse/admin/templates/admin/organizations/approve.html:21
+msgid "Approve New Organization"
+msgstr ""
+
+#: warehouse/manage/forms.py:322
+msgid "Choose an organization account name with 50 characters or less."
+msgstr ""
+
+#: warehouse/manage/forms.py:330
+msgid ""
+"The organization account name is invalid. Organization account names must"
+" be composed of letters, numbers, dots, hyphens and underscores. And must"
+" also start and finish with a letter or number. Choose a different "
+"organization account name."
+msgstr ""
+
+#: warehouse/manage/forms.py:345
+msgid ""
+"This organization account name is already being used by another account. "
+"Choose a different organization account name."
+msgstr ""
+
+#: warehouse/manage/forms.py:366
+msgid ""
+"The organization name is too long. Choose a organization name with 100 "
+"characters or less."
+msgstr ""
+
+#: warehouse/manage/forms.py:378
+msgid ""
+"The organization URL is too long. Choose a organization URL with 400 "
+"characters or less."
+msgstr ""
+
+#: warehouse/manage/forms.py:392
+msgid ""
+"The organization description is too long. Choose a organization "
+"description with 400 characters or less."
+msgstr ""
+
+#: warehouse/manage/views.py:248
 msgid "Email ${email_address} added - check your email for a verification link"
 msgstr ""
 
-#: warehouse/manage/views.py:762
+#: warehouse/manage/views.py:765
 msgid "Recovery codes already generated"
 msgstr ""
 
-#: warehouse/manage/views.py:763
+#: warehouse/manage/views.py:766
 msgid "Generating new recovery codes will invalidate your existing codes."
 msgstr ""
 
-#: warehouse/manage/views.py:1191
+#: warehouse/manage/views.py:1300
 msgid ""
 "There have been too many attempted OpenID Connect registrations. Try "
 "again later."
 msgstr ""
 
-#: warehouse/manage/views.py:1872
+#: warehouse/manage/views.py:1981
 msgid "User '${username}' already has ${role_name} role for project"
 msgstr ""
 
-#: warehouse/manage/views.py:1883
+#: warehouse/manage/views.py:1992
 msgid ""
 "User '${username}' does not have a verified primary email address and "
 "cannot be added as a ${role_name} for project"
 msgstr ""
 
-#: warehouse/manage/views.py:1896
+#: warehouse/manage/views.py:2005
 msgid "User '${username}' already has an active invite. Please try again later."
 msgstr ""
 
-#: warehouse/manage/views.py:1954
+#: warehouse/manage/views.py:2063
 msgid "Invitation sent to '${username}'"
 msgstr ""
 
-#: warehouse/manage/views.py:2001
+#: warehouse/manage/views.py:2110
 msgid "Could not find role invitation."
 msgstr ""
 
-#: warehouse/manage/views.py:2012
+#: warehouse/manage/views.py:2121
 msgid "Invitation already expired."
 msgstr ""
 
-#: warehouse/manage/views.py:2036
+#: warehouse/manage/views.py:2145
 msgid "Invitation revoked from '${username}'."
 msgstr ""
 
@@ -431,13 +471,13 @@ msgstr ""
 #: warehouse/templates/pages/help.html:828
 #: warehouse/templates/pages/help.html:836
 #: warehouse/templates/pages/help.html:844
-#: warehouse/templates/pages/help.html:854
-#: warehouse/templates/pages/help.html:869
+#: warehouse/templates/pages/help.html:853
+#: warehouse/templates/pages/help.html:868
+#: warehouse/templates/pages/help.html:883
 #: warehouse/templates/pages/help.html:884
 #: warehouse/templates/pages/help.html:885
 #: warehouse/templates/pages/help.html:886
-#: warehouse/templates/pages/help.html:887
-#: warehouse/templates/pages/help.html:892
+#: warehouse/templates/pages/help.html:891
 #: warehouse/templates/pages/security.html:36
 #: warehouse/templates/pages/sponsors.html:33
 #: warehouse/templates/pages/sponsors.html:37
@@ -896,13 +936,18 @@ msgstr ""
 #: warehouse/templates/manage/account/recovery_codes-burn.html:70
 #: warehouse/templates/manage/account/totp-provision.html:69
 #: warehouse/templates/manage/account/webauthn-provision.html:44
+#: warehouse/templates/manage/organizations.html:34
+#: warehouse/templates/manage/organizations.html:57
+#: warehouse/templates/manage/organizations.html:79
+#: warehouse/templates/manage/organizations.html:97
+#: warehouse/templates/manage/organizations.html:116
 #: warehouse/templates/manage/publishing.html:85
 #: warehouse/templates/manage/publishing.html:97
 #: warehouse/templates/manage/publishing.html:109
 #: warehouse/templates/manage/roles.html:170
 #: warehouse/templates/manage/roles.html:182
-#: warehouse/templates/manage/token.html:136
-#: warehouse/templates/manage/token.html:153
+#: warehouse/templates/manage/token.html:133
+#: warehouse/templates/manage/token.html:150
 #: warehouse/templates/re-auth.html:51
 msgid "(required)"
 msgstr ""
@@ -1327,6 +1372,19 @@ msgid ""
 "%(new_token_url)s. Then, use this token when publishing instead of your "
 "username and password. See %(token_help_url)s for help using API tokens "
 "to publish."
+msgstr ""
+
+#: warehouse/templates/email/new-organization-requested/body.html:17
+#, python-format
+msgid ""
+"Your request for a new PyPI organization named \"%(organization_name)s\" "
+"has been submitted."
+msgstr ""
+
+#: warehouse/templates/email/new-organization-requested/body.html:19
+msgid ""
+"You will receive another email when the PyPI organization has been "
+"approved."
 msgstr ""
 
 #: warehouse/templates/email/oidc-provider-added/body.html:19
@@ -1985,7 +2043,7 @@ msgstr ""
 
 #: warehouse/templates/manage/account.html:143
 #: warehouse/templates/manage/account.html:435
-#: warehouse/templates/manage/token.html:151
+#: warehouse/templates/manage/token.html:148
 msgid "Scope"
 msgstr ""
 
@@ -2479,7 +2537,7 @@ msgid ""
 msgstr ""
 
 #: warehouse/templates/manage/account.html:714
-#: warehouse/templates/manage/token.html:169
+#: warehouse/templates/manage/token.html:166
 msgid "Proceed with caution!"
 msgstr ""
 
@@ -2914,6 +2972,70 @@ msgstr ""
 
 #: warehouse/templates/manage/manage_project_base.html:41
 msgid "Back to projects"
+msgstr ""
+
+#: warehouse/templates/manage/organizations.html:18
+msgid "Your organizations"
+msgstr ""
+
+#: warehouse/templates/manage/organizations.html:25
+msgid "Create new organization"
+msgstr ""
+
+#: warehouse/templates/manage/organizations.html:32
+msgid "Organization account name"
+msgstr ""
+
+#: warehouse/templates/manage/organizations.html:37
+msgid "Select an organization account name"
+msgstr ""
+
+#: warehouse/templates/manage/organizations.html:48
+msgid "This account name will be used in URLs on PyPI."
+msgstr ""
+
+#: warehouse/templates/manage/organizations.html:49
+#: warehouse/templates/manage/organizations.html:71
+#: warehouse/templates/manage/organizations.html:89
+msgid "For example"
+msgstr ""
+
+#: warehouse/templates/manage/organizations.html:55
+msgid "Organization name"
+msgstr ""
+
+#: warehouse/templates/manage/organizations.html:60
+msgid "Name of your business, product, or project"
+msgstr ""
+
+#: warehouse/templates/manage/organizations.html:77
+msgid "️Organization URL"
+msgstr ""
+
+#: warehouse/templates/manage/organizations.html:83
+msgid "URL for your business, product, or project"
+msgstr ""
+
+#: warehouse/templates/manage/organizations.html:95
+msgid "Organization description"
+msgstr ""
+
+#: warehouse/templates/manage/organizations.html:100
+msgid "Description of your business, product, or project"
+msgstr ""
+
+#: warehouse/templates/manage/organizations.html:114
+msgid "️Organization type"
+msgstr ""
+
+#: warehouse/templates/manage/organizations.html:126
+msgid ""
+"Companies can create organization accounts as a paid service while "
+"community projects are granted complimentary access."
+msgstr ""
+
+#: warehouse/templates/manage/organizations.html:132
+msgid "Create"
 msgstr ""
 
 #: warehouse/templates/manage/projects.html:22
@@ -3657,7 +3779,7 @@ msgid "Permissions:"
 msgstr ""
 
 #: warehouse/templates/manage/token.html:40
-#: warehouse/templates/manage/token.html:147
+#: warehouse/templates/manage/token.html:144
 msgid "Upload packages"
 msgstr ""
 
@@ -3667,7 +3789,7 @@ msgid "Scope:"
 msgstr ""
 
 #: warehouse/templates/manage/token.html:42
-#: warehouse/templates/manage/token.html:158
+#: warehouse/templates/manage/token.html:155
 msgid "Entire account (all projects)"
 msgstr ""
 
@@ -3750,37 +3872,37 @@ msgid ""
 "href=\"%(href)s\">visit the PyPI help page</a>."
 msgstr ""
 
-#: warehouse/templates/manage/token.html:127
+#: warehouse/templates/manage/token.html:122
 msgid "Add another token"
 msgstr ""
 
-#: warehouse/templates/manage/token.html:134
+#: warehouse/templates/manage/token.html:131
 msgid "Token name"
 msgstr ""
 
-#: warehouse/templates/manage/token.html:143
+#: warehouse/templates/manage/token.html:140
 msgid "What is this token for?"
 msgstr ""
 
-#: warehouse/templates/manage/token.html:146
+#: warehouse/templates/manage/token.html:143
 msgid "Permissions"
 msgstr ""
 
-#: warehouse/templates/manage/token.html:157
+#: warehouse/templates/manage/token.html:154
 msgid "Select scope..."
 msgstr ""
 
-#: warehouse/templates/manage/token.html:161
+#: warehouse/templates/manage/token.html:158
 msgid "Project:"
 msgstr ""
 
-#: warehouse/templates/manage/token.html:170
+#: warehouse/templates/manage/token.html:167
 msgid ""
 "An API token scoped to your entire account will have upload permissions "
 "for all of your current and future projects."
 msgstr ""
 
-#: warehouse/templates/manage/token.html:173
+#: warehouse/templates/manage/token.html:170
 msgid "Add token"
 msgstr ""
 
@@ -5607,13 +5729,11 @@ msgstr ""
 #, python-format
 msgid ""
 "You can also follow the ongoing development of the project on the <a "
-"href=\"%(mailing_list_href)s\" title=\"%(title)s\" target=\"_blank\" "
-"rel=\"noopener\">distutils-sig mailing list</a> and the <a "
 "href=\"%(discourse_forum_href)s\" title=\"%(title)s\" target=\"_blank\" "
 "rel=\"noopener\">Python packaging forum on Discourse</a>."
 msgstr ""
 
-#: warehouse/templates/pages/help.html:854
+#: warehouse/templates/pages/help.html:853
 #, python-format
 msgid ""
 "Changes to PyPI are generally announced on both the <a "
@@ -5627,7 +5747,7 @@ msgid ""
 "the \"pypi\" label."
 msgstr ""
 
-#: warehouse/templates/pages/help.html:864
+#: warehouse/templates/pages/help.html:863
 msgid ""
 "When Warehouse's maintainers are deploying new features, at first we mark"
 " them with a small \"beta feature\" symbol to tell you: this should "
@@ -5635,11 +5755,11 @@ msgid ""
 "functionality."
 msgstr ""
 
-#: warehouse/templates/pages/help.html:865
+#: warehouse/templates/pages/help.html:864
 msgid "Currently, no features are in beta."
 msgstr ""
 
-#: warehouse/templates/pages/help.html:869
+#: warehouse/templates/pages/help.html:868
 #, python-format
 msgid ""
 "\"PyPI\" should be pronounced like \"pie pea eye\", specifically with the"
@@ -5649,39 +5769,39 @@ msgid ""
 "implementation of the Python language."
 msgstr ""
 
-#: warehouse/templates/pages/help.html:881
+#: warehouse/templates/pages/help.html:880
 msgid "Resources"
 msgstr ""
 
-#: warehouse/templates/pages/help.html:882
+#: warehouse/templates/pages/help.html:881
 msgid "Looking for something else? Perhaps these links will help:"
 msgstr ""
 
-#: warehouse/templates/pages/help.html:884
+#: warehouse/templates/pages/help.html:883
 msgid "Python Packaging User Guide"
 msgstr ""
 
-#: warehouse/templates/pages/help.html:885
+#: warehouse/templates/pages/help.html:884
 msgid "Python documentation"
 msgstr ""
 
-#: warehouse/templates/pages/help.html:886
+#: warehouse/templates/pages/help.html:885
 msgid "(main Python website)"
 msgstr ""
 
-#: warehouse/templates/pages/help.html:887
+#: warehouse/templates/pages/help.html:886
 msgid "Python community page"
 msgstr ""
 
-#: warehouse/templates/pages/help.html:887
+#: warehouse/templates/pages/help.html:886
 msgid "(lists IRC channels, mailing lists, etc.)"
 msgstr ""
 
-#: warehouse/templates/pages/help.html:890
+#: warehouse/templates/pages/help.html:889
 msgid "Contact"
 msgstr ""
 
-#: warehouse/templates/pages/help.html:892
+#: warehouse/templates/pages/help.html:891
 #, python-format
 msgid ""
 "The <a href=\"%(pypa_href)s\" title=\"%(title)s\" target=\"_blank\" "

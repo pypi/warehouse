@@ -43,9 +43,11 @@ from warehouse.accounts.views import logout
 from warehouse.admin.flags import AdminFlagValue
 from warehouse.email import (
     send_account_deletion_email,
+    send_admin_new_organization_requested_email,
     send_collaborator_removed_email,
     send_collaborator_role_changed_email,
     send_email_verification_email,
+    send_new_organization_requested_email,
     send_oidc_provider_added_email,
     send_oidc_provider_removed_email,
     send_password_change_email,
@@ -70,6 +72,7 @@ from warehouse.manage.forms import (
     ChangeRoleForm,
     ConfirmPasswordForm,
     CreateMacaroonForm,
+    CreateOrganizationForm,
     CreateRoleForm,
     DeleteMacaroonForm,
     DeleteTOTPForm,
@@ -83,11 +86,11 @@ from warehouse.metrics.interfaces import IMetricsService
 from warehouse.oidc.forms import DeleteProviderForm, GitHubProviderForm
 from warehouse.oidc.interfaces import TooManyOIDCRegistrations
 from warehouse.oidc.models import GitHubProvider, OIDCProvider
+from warehouse.organizations.interfaces import IOrganizationService
 from warehouse.packaging.models import (
     File,
     JournalEntry,
     Project,
-    ProjectEvent,
     Release,
     Role,
     RoleInvitation,
@@ -969,6 +972,112 @@ class ProvisionMacaroonViews:
         return HTTPSeeOther(redirect_to)
 
 
+@view_defaults(
+    route_name="manage.organizations",
+    renderer="manage/organizations.html",
+    uses_session=True,
+    require_csrf=True,
+    require_methods=False,
+    permission="manage:user",
+    has_translations=True,
+)
+class ManageOrganizationsViews:
+    def __init__(self, request):
+        self.request = request
+        self.user_service = request.find_service(IUserService, context=None)
+        self.organization_service = request.find_service(
+            IOrganizationService, context=None
+        )
+
+    @property
+    def default_response(self):
+        return {
+            "create_organization_form": CreateOrganizationForm(
+                organization_service=self.organization_service,
+            ),
+        }
+
+    @view_config(request_method="GET")
+    def manage_organizations(self):
+        if self.request.flags.enabled(AdminFlagValue.DISABLE_ORGANIZATIONS):
+            raise HTTPNotFound
+
+        return self.default_response
+
+    @view_config(request_method="POST", request_param=CreateOrganizationForm.__params__)
+    def create_organization(self):
+        if self.request.flags.enabled(AdminFlagValue.DISABLE_ORGANIZATIONS):
+            raise HTTPNotFound
+
+        form = CreateOrganizationForm(
+            self.request.POST,
+            organization_service=self.organization_service,
+        )
+
+        if form.validate():
+            data = form.data
+            organization = self.organization_service.add_organization(**data)
+            self.organization_service.record_event(
+                organization.id,
+                tag="organization:create",
+                additional={"created_by_user_id": str(self.request.user.id)},
+            )
+            self.organization_service.add_catalog_entry(
+                organization.name, organization.id
+            )
+            self.organization_service.record_event(
+                organization.id,
+                tag="organization:catalog_entry:add",
+                additional={"submitted_by_user_id": str(self.request.user.id)},
+            )
+            self.organization_service.add_organization_role(
+                "Owner", self.request.user.id, organization.id
+            )
+            self.organization_service.record_event(
+                organization.id,
+                tag="organization:organization_role:invite",
+                additional={
+                    "submitted_by_user_id": str(self.request.user.id),
+                    "role_name": "Owner",
+                    "target_user_id": str(self.request.user.id),
+                },
+            )
+            self.organization_service.record_event(
+                organization.id,
+                tag="organization:organization_role:accepted",
+                additional={
+                    "submitted_by_user_id": str(self.request.user.id),
+                    "role_name": "Owner",
+                    "target_user_id": str(self.request.user.id),
+                },
+            )
+            self.user_service.record_event(
+                self.request.user.id,
+                tag="account:organization_role:accepted",
+                additional={
+                    "submitted_by_user_id": str(self.request.user.id),
+                    "organization_name": organization.name,
+                    "role_name": "Owner",
+                },
+            )
+            send_admin_new_organization_requested_email(
+                self.request,
+                self.user_service.get_admins(),
+                organization_name=organization.name,
+                initiator_username=self.request.user.username,
+            )
+            send_new_organization_requested_email(
+                self.request, self.request.user, organization_name=organization.name
+            )
+            self.request.session.flash(
+                "Request for new organization submitted", queue="success"
+            )
+        else:
+            return {"create_organization_form": form}
+
+        return self.default_response
+
+
 @view_config(
     route_name="manage.projects",
     renderer="manage/projects.html",
@@ -1202,13 +1311,13 @@ class ManageOIDCProviderViews:
 
         if form.validate():
             # GitHub OIDC providers are unique on the tuple of
-            # (repository_name, owner, workflow_filename), so we check for
+            # (repository_name, repository_owner, workflow_filename), so we check for
             # an already registered one before creating.
             provider = (
                 self.request.db.query(GitHubProvider)
                 .filter(
                     GitHubProvider.repository_name == form.repository.data,
-                    GitHubProvider.owner == form.normalized_owner,
+                    GitHubProvider.repository_owner == form.normalized_owner,
                     GitHubProvider.workflow_filename == form.workflow_filename.data,
                 )
                 .one_or_none()
@@ -1216,8 +1325,8 @@ class ManageOIDCProviderViews:
             if provider is None:
                 provider = GitHubProvider(
                     repository_name=form.repository.data,
-                    owner=form.normalized_owner,
-                    owner_id=form.owner_id,
+                    repository_owner=form.normalized_owner,
+                    repository_owner_id=form.owner_id,
                     workflow_filename=form.workflow_filename.data,
                 )
 
@@ -2201,10 +2310,10 @@ def manage_project_history(project, request):
         raise HTTPBadRequest("'page' must be an integer.")
 
     events_query = (
-        request.db.query(ProjectEvent)
-        .join(ProjectEvent.project)
-        .filter(ProjectEvent.project_id == project.id)
-        .order_by(ProjectEvent.time.desc())
+        request.db.query(Project.Event)
+        .join(Project.Event.source)
+        .filter(Project.Event.source_id == project.id)
+        .order_by(Project.Event.time.desc())
     )
 
     events = SQLAlchemyORMPage(

@@ -41,6 +41,9 @@ def _extract_basic_macaroon(auth):
     if auth_method != "__token__":
         return None
 
+    # Strip leading/trailing whitespace characters from the macaroon
+    auth = auth.strip()
+
     return auth
 
 
