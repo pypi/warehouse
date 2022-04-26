@@ -109,7 +109,6 @@ def _basic_auth_check(username, password, request):
 class SessionSecurityPolicy:
     def __init__(self):
         self._session_helper = SessionAuthenticationHelper()
-        self._principals = []
 
     def identity(self, request):
         # If we're calling into this API on a request, then we want to register
@@ -118,9 +117,9 @@ class SessionSecurityPolicy:
         request.add_response_callback(add_vary_callback("Cookie"))
         request.authentication_method = AuthenticationMethod.SESSION
 
-        # NOTE: Why is this authenticated_userid? I guess it's already
-        # been validated by session validation?
         userid = self._session_helper.authenticated_userid(request)
+        if userid is None:
+            return None
 
         # Session authentication cannot be used for uploading
         if request.matched_route.name in ["forklift.legacy.file_upload"]:
@@ -136,15 +135,17 @@ class SessionSecurityPolicy:
     def remember(self, request, userid, **kw):
         return self._session_helper.remember(request, userid, **kw)
 
+    def authenticated_userid(self, request):
+        # Handled by MultiSecurityPolicy
+        return NotImplemented
+
+    def permits(self, request, context, permission):
+        # Handled by MultiSecurityPolicy
+        return NotImplemented
+
 
 @implementer(ISecurityPolicy)
 class BasicAuthSecurityPolicy:
-    def callback(self, userid, request):
-        if credentials := extract_http_basic_credentials(request):
-            username, password = credentials
-            return self._check(username, password, request)
-        return None
-
     def identity(self, request):
         # If we're calling into this API on a request, then we want to register
         # a callback which will ensure that the response varies based on the
@@ -171,6 +172,14 @@ class BasicAuthSecurityPolicy:
     def remember(self, request, userid, **kw):
         # NOTE: We could make realm configurable here.
         return [("WWW-Authenticate", 'Basic realm="Realm"')]
+
+    def authenticated_userid(self, request):
+        # Handled by MultiSecurityPolicy
+        return NotImplemented
+
+    def permits(self, request, context, permission):
+        # Handled by MultiSecurityPolicy
+        return NotImplemented
 
 
 @implementer(IAuthorizationPolicy)

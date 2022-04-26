@@ -101,6 +101,14 @@ class MacaroonSecurityPolicy:
         # assumes it has been configured in clients somewhere out of band.
         return []
 
+    def authenticated_userid(self, request):
+        # Handled by MultiSecurityPolicy
+        return NotImplemented
+
+    def permits(self, request, context, permission):
+        # Handled by MultiSecurityPolicy
+        return NotImplemented
+
 
 @implementer(IAuthorizationPolicy)
 class MacaroonAuthorizationPolicy:
