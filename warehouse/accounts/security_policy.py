@@ -125,8 +125,19 @@ class SessionSecurityPolicy:
         if request.matched_route.name in ["forklift.legacy.file_upload"]:
             return None
 
-        # Sessions can only authenticate users, not any other type of identity.
         login_service = request.find_service(IUserService, context=None)
+
+        # Our session might be "valid" despite predating a password change.
+        if request.session.password_outdated(
+            login_service.get_password_timestamp(userid)
+        ):
+            request.session.invalidate()
+            request.session.flash(
+                "Session invalidated by password change", queue="error"
+            )
+            return None
+
+        # Sessions can only authenticate users, not any other type of identity.
         return login_service.get_user(userid)
 
     def forget(self, request, **kw):

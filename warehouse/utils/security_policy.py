@@ -17,7 +17,6 @@ from pyramid.interfaces import ISecurityPolicy
 from pyramid.security import Denied
 from zope.interface import implementer
 
-from warehouse.accounts.interfaces import IUserService
 from warehouse.accounts.models import User
 
 
@@ -29,15 +28,7 @@ class AuthenticationMethod(enum.Enum):
 
 def _principals_for_authenticated_user(user, request):
     """Apply the necessary principals to the authenticated user"""
-    login_service = request.find_service(IUserService, context=None)
-
-    if request.session.password_outdated(login_service.get_password_timestamp(user.id)):
-        request.session.invalidate()
-        request.session.flash("Session invalidated by password change", queue="error")
-        return None
-
     principals = []
-
     if user.is_superuser:
         principals.append("group:admins")
     if user.is_moderator or user.is_superuser:
