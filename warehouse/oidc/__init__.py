@@ -22,3 +22,9 @@ def includeme(config):
         IOIDCProviderService,
         name="github",
     )
+
+    # During deployments, we separate auth routes into their own subdomain
+    # to simplify caching exclusion.
+    auth = config.get_settings().get("auth.domain")
+
+    config.add_route("oidc.mint_token", "/api/oidc/mint-token", domain=auth)
