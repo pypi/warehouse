@@ -623,8 +623,8 @@ msgstr ""
 #: warehouse/templates/includes/session-notifications.html:20
 #: warehouse/templates/manage/account.html:716
 #: warehouse/templates/manage/documentation.html:27
-#: warehouse/templates/manage/manage_base.html:278
-#: warehouse/templates/manage/manage_base.html:330
+#: warehouse/templates/manage/manage_base.html:286
+#: warehouse/templates/manage/manage_base.html:338
 #: warehouse/templates/manage/release.html:163
 #: warehouse/templates/manage/settings.html:119
 msgid "Warning"
@@ -906,7 +906,7 @@ msgstr ""
 #: warehouse/templates/accounts/login.html:69
 #: warehouse/templates/accounts/register.html:110
 #: warehouse/templates/accounts/reset-password.html:38
-#: warehouse/templates/manage/manage_base.html:339
+#: warehouse/templates/manage/manage_base.html:347
 #: warehouse/templates/re-auth.html:49
 msgid "Password"
 msgstr ""
@@ -954,7 +954,7 @@ msgid "Your password"
 msgstr ""
 
 #: warehouse/templates/accounts/login.html:92
-#: warehouse/templates/manage/manage_base.html:342
+#: warehouse/templates/manage/manage_base.html:350
 #: warehouse/templates/re-auth.html:72
 msgid "Show password"
 msgstr ""
@@ -1691,7 +1691,7 @@ msgstr ""
 
 #: warehouse/templates/includes/current-user-indicator.html:37
 #: warehouse/templates/manage/manage_base.html:204
-#: warehouse/templates/manage/manage_base.html:224
+#: warehouse/templates/manage/manage_base.html:232
 #: warehouse/templates/manage/projects.html:18
 msgid "Your projects"
 msgstr ""
@@ -1699,8 +1699,8 @@ msgstr ""
 #: warehouse/templates/includes/current-user-indicator.html:43
 #: warehouse/templates/manage/account.html:17
 #: warehouse/templates/manage/account/two-factor.html:17
-#: warehouse/templates/manage/manage_base.html:210
-#: warehouse/templates/manage/manage_base.html:230
+#: warehouse/templates/manage/manage_base.html:218
+#: warehouse/templates/manage/manage_base.html:238
 msgid "Account settings"
 msgstr ""
 
@@ -1730,8 +1730,8 @@ msgstr ""
 #: warehouse/templates/manage/account.html:199
 #: warehouse/templates/manage/account.html:201
 #: warehouse/templates/manage/account.html:211
-#: warehouse/templates/manage/manage_base.html:266
-#: warehouse/templates/manage/manage_base.html:268
+#: warehouse/templates/manage/manage_base.html:274
+#: warehouse/templates/manage/manage_base.html:276
 #: warehouse/templates/manage/release.html:118
 #: warehouse/templates/manage/releases.html:172
 #: warehouse/templates/manage/roles.html:38
@@ -2946,34 +2946,39 @@ msgid "Your account"
 msgstr ""
 
 #: warehouse/templates/manage/manage_base.html:199
-#: warehouse/templates/manage/manage_base.html:219
+#: warehouse/templates/manage/manage_base.html:227
 msgid "Account navigation"
 msgstr ""
 
-#: warehouse/templates/manage/manage_base.html:279
-#: warehouse/templates/manage/manage_base.html:331
-msgid "This action cannot be undone!"
+#: warehouse/templates/manage/manage_base.html:211
+#: warehouse/templates/manage/organizations.html:18
+msgid "Your organizations"
 msgstr ""
 
 #: warehouse/templates/manage/manage_base.html:287
+#: warehouse/templates/manage/manage_base.html:339
+msgid "This action cannot be undone!"
+msgstr ""
+
+#: warehouse/templates/manage/manage_base.html:295
 msgid "Confirm your username to continue."
 msgstr ""
 
-#: warehouse/templates/manage/manage_base.html:289
+#: warehouse/templates/manage/manage_base.html:297
 #, python-format
 msgid "Confirm the %(item)s to continue."
 msgstr ""
 
-#: warehouse/templates/manage/manage_base.html:297
-#: warehouse/templates/manage/manage_base.html:349
+#: warehouse/templates/manage/manage_base.html:305
+#: warehouse/templates/manage/manage_base.html:357
 msgid "Cancel"
 msgstr ""
 
-#: warehouse/templates/manage/manage_base.html:320
+#: warehouse/templates/manage/manage_base.html:328
 msgid "close"
 msgstr ""
 
-#: warehouse/templates/manage/manage_base.html:336
+#: warehouse/templates/manage/manage_base.html:344
 msgid "Enter your password to continue."
 msgstr ""
 
@@ -2990,10 +2995,6 @@ msgstr ""
 
 #: warehouse/templates/manage/manage_project_base.html:41
 msgid "Back to projects"
-msgstr ""
-
-#: warehouse/templates/manage/organizations.html:18
-msgid "Your organizations"
 msgstr ""
 
 #: warehouse/templates/manage/organizations.html:21

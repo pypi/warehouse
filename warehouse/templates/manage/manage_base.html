@@ -204,6 +204,14 @@
                   {% trans %}Your projects{% endtrans %}
                 </a>
               </li>
+              {% if not request.flags.enabled(AdminFlagValue.DISABLE_ORGANIZATIONS) %}
+              <li>
+                <a href="{{ request.route_path('manage.organizations') }}" class="vertical-tabs__tab vertical-tabs__tab--with-icon {% if active_tab == 'organizations' %}vertical-tabs__tab--is-active{% endif %}" {% if active_tab == 'organizations' %}aria-selected="true"{% endif %}>
+                  <i class="fa fa-users" aria-hidden="true"></i>
+                  {% trans %}Your organizations{% endtrans %}
+                </a>
+              </li>
+              {% endif %}
               <li>
                 <a href="{{ request.route_path('manage.account') }}" class="vertical-tabs__tab vertical-tabs__tab--with-icon {% if active_tab == 'account' %}vertical-tabs__tab--is-active{% endif %}" {% if active_tab == 'account' %}aria-selected="true"{% endif %}>
                   <i class="fa fa-cog" aria-hidden="true"></i>
