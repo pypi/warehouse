@@ -26,7 +26,7 @@ class AuthenticationMethod(enum.Enum):
     MACAROON = "macaroon"
 
 
-def _principals_for_authenticated_user(user, request):
+def _principals_for_authenticated_user(user):
     """Apply the necessary principals to the authenticated user"""
     principals = []
     if user.is_superuser:
@@ -97,7 +97,7 @@ class MultiSecurityPolicy:
 
             if isinstance(identity, User):
                 principals.append(f"user:{identity.id}")
-                principals.extend(_principals_for_authenticated_user(identity, request))
+                principals.extend(_principals_for_authenticated_user(identity))
             else:
                 return Denied("unimplemented")
 

@@ -16,7 +16,6 @@ import pytest
 from pyramid.authorization import Authenticated
 from pyramid.security import Denied
 
-from warehouse.accounts.interfaces import IUserService
 from warehouse.utils import security_policy
 
 from ...common.db.accounts import UserFactory
@@ -27,15 +26,12 @@ from ...common.db.accounts import UserFactory
         "is_superuser",
         "is_moderator",
         "is_psf_staff",
-        "password_out_of_date",
         "expected",
     ),
     [
-        (False, False, False, False, []),
-        (False, False, False, True, None),
+        (False, False, False, []),
         (
             True,
-            False,
             False,
             False,
             [
@@ -48,7 +44,6 @@ from ...common.db.accounts import UserFactory
         (
             False,
             True,
-            False,
             False,
             ["group:moderators", "group:with_admin_dashboard_access"],
         ),
@@ -56,7 +51,6 @@ from ...common.db.accounts import UserFactory
             True,
             True,
             False,
-            False,
             [
                 "group:admins",
                 "group:moderators",
@@ -68,14 +62,12 @@ from ...common.db.accounts import UserFactory
             False,
             False,
             True,
-            False,
             ["group:psf_staff", "group:with_admin_dashboard_access"],
         ),
         (
             False,
             True,
             True,
-            False,
             [
                 "group:moderators",
                 "group:psf_staff",
@@ -85,12 +77,9 @@ from ...common.db.accounts import UserFactory
     ],
 )
 def test_principals_for_authenticated_user(
-    pyramid_request,
-    pyramid_services,
     is_superuser,
     is_moderator,
     is_psf_staff,
-    password_out_of_date,
     expected,
 ):
     user = pretend.stub(
@@ -99,28 +88,7 @@ def test_principals_for_authenticated_user(
         is_moderator=is_moderator,
         is_psf_staff=is_psf_staff,
     )
-    service = pretend.stub(
-        get_password_timestamp=pretend.call_recorder(lambda userid: 0),
-    )
-    pyramid_services.register_service(service, IUserService, None)
-    pyramid_request.session.password_outdated = lambda ts: password_out_of_date
-    pyramid_request.session.invalidate = pretend.call_recorder(lambda: None)
-    pyramid_request.session.flash = pretend.call_recorder(lambda msg, queue=None: None)
-
-    assert (
-        security_policy._principals_for_authenticated_user(user, pyramid_request)
-        == expected
-    )
-    assert service.get_password_timestamp.calls == [pretend.call(1)]
-
-    if password_out_of_date:
-        assert pyramid_request.session.invalidate.calls == [pretend.call()]
-        assert pyramid_request.session.flash.calls == [
-            pretend.call("Session invalidated by password change", queue="error")
-        ]
-    else:
-        assert pyramid_request.session.invalidate.calls == []
-        assert pyramid_request.session.flash.calls == []
+    assert security_policy._principals_for_authenticated_user(user) == expected
 
 
 class TestMultiSecurityPolicy:
