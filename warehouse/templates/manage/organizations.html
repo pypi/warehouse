@@ -53,8 +53,14 @@
         </div>
       </div>
     </div>
+    {% else %}
+      <div class="callout-block no-top-margin">
+        <p>{% trans %}You have not joined any organizations on PyPI, yet.{% endtrans %}</p>
+      </div>
     {% endfor %}
   </div>
+
+  <hr>
 
   {{ form_error_anchor(create_organization_form) }}
   <section id="create-organization">

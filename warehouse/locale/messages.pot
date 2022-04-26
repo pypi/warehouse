@@ -932,11 +932,11 @@ msgstr ""
 #: warehouse/templates/manage/account/recovery_codes-burn.html:70
 #: warehouse/templates/manage/account/totp-provision.html:69
 #: warehouse/templates/manage/account/webauthn-provision.html:44
-#: warehouse/templates/manage/organizations.html:69
-#: warehouse/templates/manage/organizations.html:92
-#: warehouse/templates/manage/organizations.html:114
-#: warehouse/templates/manage/organizations.html:132
-#: warehouse/templates/manage/organizations.html:151
+#: warehouse/templates/manage/organizations.html:75
+#: warehouse/templates/manage/organizations.html:98
+#: warehouse/templates/manage/organizations.html:120
+#: warehouse/templates/manage/organizations.html:138
+#: warehouse/templates/manage/organizations.html:157
 #: warehouse/templates/manage/publishing.html:85
 #: warehouse/templates/manage/publishing.html:97
 #: warehouse/templates/manage/publishing.html:109
@@ -3017,63 +3017,67 @@ msgstr ""
 msgid "You are not an owner of this organization"
 msgstr ""
 
-#: warehouse/templates/manage/organizations.html:61
-msgid "Create new organization"
+#: warehouse/templates/manage/organizations.html:58
+msgid "You have not joined any organizations on PyPI, yet."
 msgstr ""
 
 #: warehouse/templates/manage/organizations.html:67
+msgid "Create new organization"
+msgstr ""
+
+#: warehouse/templates/manage/organizations.html:73
 msgid "Organization account name"
 msgstr ""
 
-#: warehouse/templates/manage/organizations.html:72
+#: warehouse/templates/manage/organizations.html:78
 msgid "Select an organization account name"
 msgstr ""
 
-#: warehouse/templates/manage/organizations.html:83
+#: warehouse/templates/manage/organizations.html:89
 msgid "This account name will be used in URLs on PyPI."
 msgstr ""
 
-#: warehouse/templates/manage/organizations.html:84
-#: warehouse/templates/manage/organizations.html:106
-#: warehouse/templates/manage/organizations.html:124
+#: warehouse/templates/manage/organizations.html:90
+#: warehouse/templates/manage/organizations.html:112
+#: warehouse/templates/manage/organizations.html:130
 msgid "For example"
 msgstr ""
 
-#: warehouse/templates/manage/organizations.html:90
+#: warehouse/templates/manage/organizations.html:96
 msgid "Organization name"
 msgstr ""
 
-#: warehouse/templates/manage/organizations.html:95
+#: warehouse/templates/manage/organizations.html:101
 msgid "Name of your business, product, or project"
 msgstr ""
 
-#: warehouse/templates/manage/organizations.html:112
+#: warehouse/templates/manage/organizations.html:118
 msgid "️Organization URL"
 msgstr ""
 
-#: warehouse/templates/manage/organizations.html:118
+#: warehouse/templates/manage/organizations.html:124
 msgid "URL for your business, product, or project"
 msgstr ""
 
-#: warehouse/templates/manage/organizations.html:130
+#: warehouse/templates/manage/organizations.html:136
 msgid "Organization description"
 msgstr ""
 
-#: warehouse/templates/manage/organizations.html:135
+#: warehouse/templates/manage/organizations.html:141
 msgid "Description of your business, product, or project"
 msgstr ""
 
-#: warehouse/templates/manage/organizations.html:149
+#: warehouse/templates/manage/organizations.html:155
 msgid "️Organization type"
 msgstr ""
 
-#: warehouse/templates/manage/organizations.html:161
+#: warehouse/templates/manage/organizations.html:167
 msgid ""
 "Companies can create organization accounts as a paid service while "
 "community projects are granted complimentary access."
 msgstr ""
 
-#: warehouse/templates/manage/organizations.html:167
+#: warehouse/templates/manage/organizations.html:173
 msgid "Create"
 msgstr ""
 
