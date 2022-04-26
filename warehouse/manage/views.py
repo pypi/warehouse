@@ -1113,6 +1113,23 @@ class ManageOrganizationsViews:
 
 
 @view_config(
+    route_name="manage.organization.roles",
+    context=Organization,
+    renderer="manage/organization/roles.html",
+    uses_session=True,
+    require_methods=False,
+    # permission="manage:organization",
+    has_translations=True,
+    require_reauth=True,
+)
+def manage_organization_roles(organization, request):
+    if request.flags.enabled(AdminFlagValue.DISABLE_ORGANIZATIONS):
+        raise HTTPNotFound
+
+    return {"organization": organization}
+
+
+@view_config(
     route_name="manage.projects",
     renderer="manage/projects.html",
     uses_session=True,

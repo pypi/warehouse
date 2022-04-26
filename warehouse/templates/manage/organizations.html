@@ -28,7 +28,6 @@
           <h3 class="organization-snippet__title">{{ organization.name }}
             {% if organization.name in organizations_owned %}
             {# TODO <a href="{{ request.route_path('manage.organization.roles', organization_name=organization.normalized_name) }}" class="badge badge--warning organization-snippet__badge">{% trans %}Owner{% endtrans %}</a> #}
-            Owner
             {% endif %}
           </h3>
           <p class="organization-snippet__meta">
@@ -39,8 +38,7 @@
           {% if organization.name in organizations_owned %}
           {# Show manage button #}
           <a
-          {# TODO href="{{ request.route_path('manage.organization.releases', organization_name=organization.normalized_name) }}" #}
-          href="#"
+          href="{{ request.route_path('manage.organization.roles', organization_name=organization.normalized_name) }}"
           class="button button--primary"
           title="{% trans %}Manage this organization{% endtrans %}"
           >{% trans %}Manage{% endtrans %}</a>
