@@ -50,6 +50,11 @@ def test_oidc_provider_service_factory():
 
 
 class TestOIDCProviderService:
+    def test_verify(self):
+        assert verifyClass(
+            interfaces.IOIDCProviderService, services.OIDCProviderService
+        )
+
     def test_verify_signature_only(self, monkeypatch):
         service = services.OIDCProviderService(
             provider=pretend.stub(),
@@ -66,7 +71,7 @@ class TestOIDCProviderService:
         )
         monkeypatch.setattr(services, "jwt", jwt)
 
-        assert service.verify_signature_only(token) == decoded
+        assert service._verify_signature_only(token) == decoded
         assert jwt.decode.calls == [
             pretend.call(
                 token,
@@ -101,7 +106,7 @@ class TestOIDCProviderService:
         )
         monkeypatch.setattr(services, "jwt", jwt)
 
-        assert service.verify_signature_only(token) is None
+        assert service._verify_signature_only(token) is None
 
     def test_verify_for_project(self, monkeypatch):
         service = services.OIDCProviderService(
@@ -116,7 +121,7 @@ class TestOIDCProviderService:
         token = pretend.stub()
         claims = pretend.stub()
         monkeypatch.setattr(
-            service, "verify_signature_only", pretend.call_recorder(lambda t: claims)
+            service, "_verify_signature_only", pretend.call_recorder(lambda t: claims)
         )
 
         provider = pretend.stub(verify_claims=pretend.call_recorder(lambda c: True))
@@ -133,7 +138,7 @@ class TestOIDCProviderService:
                 tags=["project:fakeproject", "provider:fakeprovider"],
             ),
         ]
-        assert service.verify_signature_only.calls == [pretend.call(token)]
+        assert service._verify_signature_only.calls == [pretend.call(token)]
         assert provider.verify_claims.calls == [pretend.call(claims)]
 
     def test_verify_for_project_invalid_signature(self, monkeypatch):
@@ -147,7 +152,7 @@ class TestOIDCProviderService:
         )
 
         token = pretend.stub()
-        monkeypatch.setattr(service, "verify_signature_only", lambda t: None)
+        monkeypatch.setattr(service, "_verify_signature_only", lambda t: None)
 
         project = pretend.stub(name="fakeproject")
 
@@ -176,7 +181,7 @@ class TestOIDCProviderService:
         token = pretend.stub()
         claims = pretend.stub()
         monkeypatch.setattr(
-            service, "verify_signature_only", pretend.call_recorder(lambda t: claims)
+            service, "_verify_signature_only", pretend.call_recorder(lambda t: claims)
         )
 
         provider = pretend.stub(verify_claims=pretend.call_recorder(lambda c: False))
@@ -193,7 +198,7 @@ class TestOIDCProviderService:
                 tags=["project:fakeproject", "provider:fakeprovider"],
             ),
         ]
-        assert service.verify_signature_only.calls == [pretend.call(token)]
+        assert service._verify_signature_only.calls == [pretend.call(token)]
         assert provider.verify_claims.calls == [pretend.call(claims)]
 
     def test_get_keyset_not_cached(self, monkeypatch, mockredis):
@@ -483,7 +488,7 @@ class TestOIDCProviderService:
         }
         monkeypatch.setattr(service, "_get_keyset", lambda: (keyset, True))
 
-        key = service.get_key("fake-key-id")
+        key = service._get_key("fake-key-id")
         assert isinstance(key, PyJWK)
         assert key.key_id == "fake-key-id"
 
@@ -513,7 +518,7 @@ class TestOIDCProviderService:
         monkeypatch.setattr(service, "_get_keyset", lambda: ({}, False))
         monkeypatch.setattr(service, "_refresh_keyset", lambda: keyset)
 
-        key = service.get_key("fake-key-id")
+        key = service._get_key("fake-key-id")
         assert isinstance(key, PyJWK)
         assert key.key_id == "fake-key-id"
 
@@ -531,7 +536,7 @@ class TestOIDCProviderService:
         monkeypatch.setattr(service, "_get_keyset", lambda: ({}, False))
         monkeypatch.setattr(service, "_refresh_keyset", lambda: {})
 
-        key = service.get_key("fake-key-id")
+        key = service._get_key("fake-key-id")
         assert key is None
 
         assert metrics.increment.calls == [
@@ -551,7 +556,7 @@ class TestOIDCProviderService:
             cache_url="rediss://fake.example.com",
             metrics=pretend.stub(),
         )
-        monkeypatch.setattr(service, "get_key", pretend.call_recorder(lambda kid: key))
+        monkeypatch.setattr(service, "_get_key", pretend.call_recorder(lambda kid: key))
 
         monkeypatch.setattr(
             services.jwt,
@@ -560,5 +565,5 @@ class TestOIDCProviderService:
         )
 
         assert service._get_key_for_token(token) == key
-        assert service.get_key.calls == [pretend.call("fake-key-id")]
+        assert service._get_key.calls == [pretend.call("fake-key-id")]
         assert services.jwt.get_unverified_header.calls == [pretend.call(token)]

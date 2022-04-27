@@ -54,5 +54,4 @@ def mint_token_from_oidc(request):
 
     # At this point, we've verified that the given JWT is valid for the given
     # project. All we need to do is mint a new token.
-
-    return request.json_body
+    return {"ok": "ok"}

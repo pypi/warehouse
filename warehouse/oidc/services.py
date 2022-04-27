@@ -11,6 +11,7 @@
 # limitations under the License.
 
 import json
+import warnings
 
 import jwt
 import redis
@@ -21,6 +22,24 @@ from zope.interface import implementer
 
 from warehouse.metrics.interfaces import IMetricsService
 from warehouse.oidc.interfaces import IOIDCProviderService
+
+
+class InsecureOIDCProviderWarning(UserWarning):
+    pass
+
+
+@implementer(IOIDCProviderService)
+class NullOIDCProviderService:
+    def __init__(self, provider, issuer_url, cache_url, metrics):
+        warnings.warn(
+            "NullOIDCProviderService is intended only for use in development, "
+            "you should not use it in production due to the lack of actual "
+            "JWT verification.",
+            InsecureOIDCProviderWarning,
+        )
+
+    def verify_for_project(self, token, project):
+        return True
 
 
 @implementer(IOIDCProviderService)
@@ -133,7 +152,7 @@ class OIDCProviderService:
 
         return keys
 
-    def get_key(self, key_id):
+    def _get_key(self, key_id):
         """
         Return a JWK for the given key ID, or None if the key can't be found
         in this provider's keyset.
@@ -158,9 +177,9 @@ class OIDCProviderService:
         prior to any verification.
         """
         unverified_header = jwt.get_unverified_header(token)
-        return self.get_key(unverified_header["kid"])
+        return self._get_key(unverified_header["kid"])
 
-    def verify_signature_only(self, token):
+    def _verify_signature_only(self, token):
         key = self._get_key_for_token(token)
 
         try:
@@ -195,7 +214,7 @@ class OIDCProviderService:
             return None
 
     def verify_for_project(self, token, project):
-        signed_payload = self.verify_signature_only(token)
+        signed_payload = self._verify_signature_only(token)
 
         metrics_tags = [f"project:{project.name}", f"provider:{self.provider}"]
         self.metrics.increment(

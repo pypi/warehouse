@@ -32,6 +32,8 @@ BREACHED_PASSWORDS=warehouse.accounts.NullPasswordBreachedService
 
 MALWARE_CHECK_BACKEND=warehouse.malware.services.PrinterMalwareCheckService
 
+OIDC_BACKEND=warehouse.oidc.services.NullOIDCProviderService
+
 METRICS_BACKEND=warehouse.metrics.DataDogMetrics host=notdatadog
 
 STATUSPAGE_URL=https://2p66nmmycsj3.statuspage.io

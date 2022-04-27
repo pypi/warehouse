@@ -15,9 +15,15 @@ from warehouse.oidc.services import OIDCProviderServiceFactory
 
 
 def includeme(config):
+    oidc_provider_service_class = config.maybe_dotted(
+        config.registry.settings["oidc.backend"]
+    )
+
     config.register_service_factory(
         OIDCProviderServiceFactory(
-            provider="github", issuer_url="https://token.actions.githubusercontent.com"
+            provider="github",
+            issuer_url="https://token.actions.githubusercontent.com",
+            service_class=oidc_provider_service_class,
         ),
         IOIDCProviderService,
         name="github",

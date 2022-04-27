@@ -235,6 +235,12 @@ def configure(settings=None):
     maybe_set_compound(settings, "metrics", "backend", "METRICS_BACKEND")
     maybe_set_compound(settings, "breached_passwords", "backend", "BREACHED_PASSWORDS")
     maybe_set_compound(settings, "malware_check", "backend", "MALWARE_CHECK_BACKEND")
+    maybe_set(
+        settings,
+        "oidc.backend",
+        "OIDC_BACKEND",
+        default="warehouse.oidc.services.OIDCProviderService",
+    )
 
     # Pythondotorg integration settings
     maybe_set(settings, "pythondotorg.host", "PYTHONDOTORG_HOST", default="python.org")
