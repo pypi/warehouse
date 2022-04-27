@@ -11,14 +11,48 @@
 # limitations under the License.
 
 from pyramid.view import view_config
+from sqlalchemy import func
+
+from warehouse.oidc.interfaces import IOIDCProviderService
+from warehouse.packaging.models import Project
 
 
 @view_config(
     route_name="oidc.mint_token",
-    request_method="POST",
+    require_methods=["POST"],
     renderer="json",
     require_csrf=False,
     has_translations=False,
 )
 def mint_token_from_oidc(request):
+    def _invalid(msg):
+        request.response.status = 422
+        return {"error": msg}
+
+    unverified_jwt = request.json_body.get("token")
+    if not unverified_jwt:
+        return _invalid("missing token")
+
+    project_name = request.json_body.get("project")
+    if not project_name:
+        return _invalid("missing project")
+
+    project = (
+        request.db.query(Project)
+        .filter(Project.normalized_name == func.normalize_pep426_name(project_name))
+        .one_or_none()
+    )
+    if not project:
+        return _invalid(f"no such project: {project_name}")
+
+    # For the time being, GitHub is our only OIDC provider.
+    # In the future, this should locate the correct service based on an
+    # identifier in the request body.
+    oidc_service = request.find_service(IOIDCProviderService, name="github")
+    if not oidc_service.verify_for_project(unverified_jwt, project):
+        return _invalid(f"invalid token for project: {project_name}")
+
+    # At this point, we've verified that the given JWT is valid for the given
+    # project. All we need to do is mint a new token.
+
     return request.json_body
