@@ -54,7 +54,7 @@ class OIDCProvider(db.Model):
     }
 
     # A map of claim names to "check" functions, each of which
-    # has the signature `check(ground-truth, signed-claim) -> bool-like`.
+    # has the signature `check(ground-truth, signed-claim) -> bool`.
     __verifiable_claims__: Dict[str, Callable[[Any, Any], bool]] = dict()
 
     # Claims that have already been verified during the JWT signature
@@ -150,7 +150,7 @@ class GitHubProvider(OIDCProvider):
         "repository": str.__eq__,
         "repository_owner": str.__eq__,
         "repository_owner_id": str.__eq__,
-        "job_workflow_ref": re.match,
+        "job_workflow_ref": lambda regex, rhs: bool(re.match(regex, rhs)),
     }
 
     __unchecked_claims__ = {
