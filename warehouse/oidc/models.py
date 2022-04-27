@@ -132,7 +132,7 @@ class GitHubProvider(OIDCProvider):
     __table_args__ = (
         UniqueConstraint(
             "repository_name",
-            "owner",
+            "repository_owner",
             "workflow_filename",
             name="_github_oidc_provider_uc",
         ),
@@ -140,17 +140,20 @@ class GitHubProvider(OIDCProvider):
 
     id = Column(UUID(as_uuid=True), ForeignKey(OIDCProvider.id), primary_key=True)
     repository_name = Column(String)
-    owner = Column(String)
-    owner_id = Column(String)
+    repository_owner = Column(String)
+    repository_owner_id = Column(String)
     workflow_filename = Column(String)
 
     __verifiable_claims__ = {
         "repository": str.__eq__,
         "workflow": str.__eq__,
+        "repository_owner": str.__eq__,
+        "repository_owner_id": str.__eq__,
     }
 
     __unchecked_claims__ = {
         "actor",
+        "actor_id",
         "jti",
         "sub",
         "ref",
@@ -162,6 +165,7 @@ class GitHubProvider(OIDCProvider):
         "base_ref",
         "event_name",
         "ref_type",
+        "repository_id",
         # TODO(#11096): Support reusable workflows.
         "job_workflow_ref",
     }
@@ -172,7 +176,7 @@ class GitHubProvider(OIDCProvider):
 
     @property
     def repository(self):
-        return f"{self.owner}/{self.repository_name}"
+        return f"{self.repository_owner}/{self.repository_name}"
 
     @property
     def workflow(self):

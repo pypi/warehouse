@@ -119,13 +119,10 @@
     <p>{% trans href='/help#apitoken' %}For further instructions on how to use this token, <a href="{{ href }}">visit the PyPI help page</a>.{% endtrans %}</p>
   </section>
   <hr>
-  {% endif %}
-
+  <a href="." class="button">{% trans %}Add another token{% endtrans %}</a>
+  {% else %}
   {{ form_error_anchor(create_macaroon_form) }}
   <section id="add-token">
-    {% if serialized_macaroon %}
-    <h2>{% trans %}Add another token{% endtrans %}</h2>
-    {% endif %}
     <form method="POST">
       <input type="hidden" name="csrf_token" value="{{ request.session.get_csrf_token() }}">
       {{ form_errors(create_macaroon_form) }}
@@ -174,4 +171,5 @@
       </div>
     </form>
   </section>
+  {% endif %}
 {% endblock %}

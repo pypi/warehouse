@@ -28,6 +28,8 @@ class TestGitHubProvider:
             # verifiable claims
             "repository",
             "workflow",
+            "repository_owner",
+            "repository_owner_id",
             # preverified claims
             "iss",
             "iat",
@@ -36,6 +38,7 @@ class TestGitHubProvider:
             "aud",
             # unchecked claims
             "actor",
+            "actor_id",
             "jti",
             "sub",
             "ref",
@@ -47,14 +50,15 @@ class TestGitHubProvider:
             "base_ref",
             "event_name",
             "ref_type",
+            "repository_id",
             "job_workflow_ref",
         }
 
     def test_github_provider_computed_properties(self):
         provider = models.GitHubProvider(
             repository_name="fakerepo",
-            owner="fakeowner",
-            owner_id="fakeid",
+            repository_owner="fakeowner",
+            repository_owner_id="fakeid",
             workflow_filename="fakeworkflow.yml",
         )
 
@@ -66,8 +70,8 @@ class TestGitHubProvider:
     def test_github_provider_unaccounted_claims(self, monkeypatch):
         provider = models.GitHubProvider(
             repository_name="fakerepo",
-            owner="fakeowner",
-            owner_id="fakeid",
+            repository_owner="fakeowner",
+            repository_owner_id="fakeid",
             workflow_filename="fakeworkflow.yml",
         )
 
@@ -90,8 +94,8 @@ class TestGitHubProvider:
     def test_github_provider_missing_claims(self, monkeypatch):
         provider = models.GitHubProvider(
             repository_name="fakerepo",
-            owner="fakeowner",
-            owner_id="fakeid",
+            repository_owner="fakeowner",
+            repository_owner_id="fakeid",
             workflow_filename="fakeworkflow.yml",
         )
 
@@ -111,8 +115,8 @@ class TestGitHubProvider:
     def test_github_provider_verifies(self, monkeypatch):
         provider = models.GitHubProvider(
             repository_name="fakerepo",
-            owner="fakeowner",
-            owner_id="fakeid",
+            repository_owner="fakeowner",
+            repository_owner_id="fakeid",
             workflow_filename="fakeworkflow.yml",
         )
 
