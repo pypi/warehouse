@@ -11,6 +11,7 @@
 # limitations under the License.
 
 import pretend
+import pytest
 
 from warehouse.oidc import models
 
@@ -132,3 +133,26 @@ class TestGitHubProvider:
         }
         assert provider.verify_claims(signed_claims=signed_claims)
         assert len(noop_check.calls) == len(verifiable_claims)
+
+    @pytest.mark.parametrize(
+        ("claim", "valid"),
+        [
+            ("foo/bar/.github/workflows/baz.yml@", True),
+            ("foo/bar/.github/workflows/@", False),
+            ("foo/bar/.github/workflows/", False),
+            ("baz.yml", False),
+            ("foo/bar/.github/workflows/baz.yml@malicious.yml@", False),
+            ("foo/bar/.github/workflows/baz.yml@@", False),
+            ("", False),
+        ],
+    )
+    def test_github_provider_job_workflow_ref(self, claim, valid):
+        provider = models.GitHubProvider(
+            repository_name="bar",
+            repository_owner="foo",
+            repository_owner_id=pretend.stub(),
+            workflow_filename="baz.yml",
+        )
+
+        check = models.GitHubProvider.__verifiable_claims__["job_workflow_ref"]
+        assert bool(check(provider.job_workflow_ref, claim)) is valid

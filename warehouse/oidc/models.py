@@ -11,6 +11,8 @@
 # limitations under the License.
 
 
+import re
+
 from typing import Any, Callable, Dict, Set
 
 import sentry_sdk
@@ -52,7 +54,7 @@ class OIDCProvider(db.Model):
     }
 
     # A map of claim names to "check" functions, each of which
-    # has the signature `check(ground-truth, signed-claim) -> bool`.
+    # has the signature `check(ground-truth, signed-claim) -> bool-like`.
     __verifiable_claims__: Dict[str, Callable[[Any, Any], bool]] = dict()
 
     # Claims that have already been verified during the JWT signature
@@ -146,9 +148,9 @@ class GitHubProvider(OIDCProvider):
 
     __verifiable_claims__ = {
         "repository": str.__eq__,
-        "workflow": str.__eq__,
         "repository_owner": str.__eq__,
         "repository_owner_id": str.__eq__,
+        "job_workflow_ref": re.match,
     }
 
     __unchecked_claims__ = {
@@ -166,8 +168,7 @@ class GitHubProvider(OIDCProvider):
         "event_name",
         "ref_type",
         "repository_id",
-        # TODO(#11096): Support reusable workflows.
-        "job_workflow_ref",
+        "workflow",
     }
 
     @property
@@ -179,8 +180,8 @@ class GitHubProvider(OIDCProvider):
         return f"{self.repository_owner}/{self.repository_name}"
 
     @property
-    def workflow(self):
-        return self.workflow_filename
+    def job_workflow_ref(self):
+        return rf"^{self.repository}/\.github/workflows/{self.workflow_filename}@$"
 
     def __str__(self):
         return f"{self.workflow_filename} @ {self.repository}"
