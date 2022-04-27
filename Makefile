@@ -65,7 +65,8 @@ reformat: .state/docker-build-web
 	docker-compose run --rm web bin/reformat
 
 lint: .state/docker-build-web
-	docker-compose run --rm web bin/lint && bin/static_lint
+	docker-compose run --rm web bin/lint
+	docker-compose run --rm static bin/static_lint
 
 docs: .state/docker-build-web
 	docker-compose run --rm web bin/docs
