@@ -181,7 +181,11 @@ class GitHubProvider(OIDCProvider):
 
     @property
     def job_workflow_ref(self):
-        return rf"^{self.repository}/\.github/workflows/{self.workflow_filename}@$"
+        # This is expected to match something like:
+        #   OWNER/REPO/.github/workflows/WORKFLOW.yml@refs/...
+        return (
+            rf"^{self.repository}/\.github/workflows/{self.workflow_filename}@refs/.+$"
+        )
 
     def __str__(self):
         return f"{self.workflow_filename} @ {self.repository}"

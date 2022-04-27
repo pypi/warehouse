@@ -137,7 +137,13 @@ class TestGitHubProvider:
     @pytest.mark.parametrize(
         ("claim", "valid"),
         [
-            ("foo/bar/.github/workflows/baz.yml@", True),
+            ("foo/bar/.github/workflows/baz.yml@refs/tags/v0.0.1", True),
+            ("foo/bar/.github/workflows/baz.yml@refs/pulls/6", True),
+            ("foo/bar/.github/workflows/baz.yml@refs/heads/main", True),
+            ("foo/bar/.github/workflows/baz.yml@fake.yml", False),
+            ("foo/bar/.github/workflows/baz.yml@fake.yml/refs/pulls/6", False),
+            ("foo/bar/.github/workflows/baz.yml@notrailingslash", False),
+            ("foo/bar/.github/workflows/baz.yml@", False),
             ("foo/bar/.github/workflows/@", False),
             ("foo/bar/.github/workflows/", False),
             ("baz.yml", False),
