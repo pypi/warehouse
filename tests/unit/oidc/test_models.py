@@ -137,12 +137,15 @@ class TestGitHubProvider:
     @pytest.mark.parametrize(
         ("claim", "valid"),
         [
+            # okay: workflow name, followed by a nonempty tail
             ("foo/bar/.github/workflows/baz.yml@refs/tags/v0.0.1", True),
             ("foo/bar/.github/workflows/baz.yml@refs/pulls/6", True),
             ("foo/bar/.github/workflows/baz.yml@refs/heads/main", True),
-            ("foo/bar/.github/workflows/baz.yml@fake.yml", False),
-            ("foo/bar/.github/workflows/baz.yml@fake.yml/refs/pulls/6", False),
-            ("foo/bar/.github/workflows/baz.yml@notrailingslash", False),
+            ("foo/bar/.github/workflows/baz.yml@notrailingslash", True),
+            # bad: workflow name, followed by an attempted impersonator
+            ("foo/bar/.github/workflows/baz.yml@fake.yml@notrailingslash", False),
+            ("foo/bar/.github/workflows/baz.yml@fake.yml@refs/pulls/6", False),
+            # bad: missing tail or workflow name or otherwise partial
             ("foo/bar/.github/workflows/baz.yml@", False),
             ("foo/bar/.github/workflows/@", False),
             ("foo/bar/.github/workflows/", False),

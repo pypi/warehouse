@@ -11,8 +11,6 @@
 # limitations under the License.
 
 
-import re
-
 from typing import Any, Callable, Dict, Set
 
 import sentry_sdk
@@ -22,6 +20,22 @@ from sqlalchemy.dialects.postgresql import UUID
 
 from warehouse import db
 from warehouse.packaging.models import Project
+
+
+def _check_job_workflow_ref(ground_truth, signed_claim):
+    # We expect a string formatted as follows:
+    #   OWNER/REPO/.github/workflows/WORKFLOW.yml@TAIL
+    # where TAIL might be a ref (`refs/...`) or a commit hash,
+    # but is always nonempty.
+    try:
+        repo_workflow_path, tail = signed_claim.rsplit("@", 1)
+    except ValueError:
+        return False
+
+    if not tail:
+        return False
+
+    return repo_workflow_path == ground_truth
 
 
 class OIDCProviderProjectAssociation(db.Model):
@@ -150,7 +164,7 @@ class GitHubProvider(OIDCProvider):
         "repository": str.__eq__,
         "repository_owner": str.__eq__,
         "repository_owner_id": str.__eq__,
-        "job_workflow_ref": lambda regex, rhs: bool(re.match(regex, rhs)),
+        "job_workflow_ref": _check_job_workflow_ref,
     }
 
     __unchecked_claims__ = {
@@ -181,11 +195,7 @@ class GitHubProvider(OIDCProvider):
 
     @property
     def job_workflow_ref(self):
-        # This is expected to match something like:
-        #   OWNER/REPO/.github/workflows/WORKFLOW.yml@refs/...
-        return (
-            rf"^{self.repository}/\.github/workflows/{self.workflow_filename}@refs/.+$"
-        )
+        return f"{self.repository}/.github/workflows/{self.workflow_filename}"
 
     def __str__(self):
         return f"{self.workflow_filename} @ {self.repository}"
