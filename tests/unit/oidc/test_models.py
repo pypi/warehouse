@@ -155,4 +155,4 @@ class TestGitHubProvider:
         )
 
         check = models.GitHubProvider.__verifiable_claims__["job_workflow_ref"]
-        assert bool(check(provider.job_workflow_ref, claim)) is valid
+        assert check(provider.job_workflow_ref, claim) is valid
