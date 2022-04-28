@@ -623,8 +623,8 @@ msgstr ""
 #: warehouse/templates/includes/session-notifications.html:20
 #: warehouse/templates/manage/account.html:716
 #: warehouse/templates/manage/documentation.html:27
-#: warehouse/templates/manage/manage_base.html:286
-#: warehouse/templates/manage/manage_base.html:338
+#: warehouse/templates/manage/manage_base.html:294
+#: warehouse/templates/manage/manage_base.html:346
 #: warehouse/templates/manage/release.html:163
 #: warehouse/templates/manage/settings.html:119
 msgid "Warning"
@@ -906,7 +906,7 @@ msgstr ""
 #: warehouse/templates/accounts/login.html:69
 #: warehouse/templates/accounts/register.html:110
 #: warehouse/templates/accounts/reset-password.html:38
-#: warehouse/templates/manage/manage_base.html:347
+#: warehouse/templates/manage/manage_base.html:355
 #: warehouse/templates/re-auth.html:49
 msgid "Password"
 msgstr ""
@@ -954,7 +954,7 @@ msgid "Your password"
 msgstr ""
 
 #: warehouse/templates/accounts/login.html:92
-#: warehouse/templates/manage/manage_base.html:350
+#: warehouse/templates/manage/manage_base.html:358
 #: warehouse/templates/re-auth.html:72
 msgid "Show password"
 msgstr ""
@@ -1700,7 +1700,7 @@ msgstr ""
 #: warehouse/templates/manage/account.html:17
 #: warehouse/templates/manage/account/two-factor.html:17
 #: warehouse/templates/manage/manage_base.html:218
-#: warehouse/templates/manage/manage_base.html:238
+#: warehouse/templates/manage/manage_base.html:246
 msgid "Account settings"
 msgstr ""
 
@@ -1730,8 +1730,8 @@ msgstr ""
 #: warehouse/templates/manage/account.html:199
 #: warehouse/templates/manage/account.html:201
 #: warehouse/templates/manage/account.html:211
-#: warehouse/templates/manage/manage_base.html:274
-#: warehouse/templates/manage/manage_base.html:276
+#: warehouse/templates/manage/manage_base.html:282
+#: warehouse/templates/manage/manage_base.html:284
 #: warehouse/templates/manage/release.html:118
 #: warehouse/templates/manage/releases.html:172
 #: warehouse/templates/manage/roles.html:38
@@ -2961,34 +2961,35 @@ msgid "Account navigation"
 msgstr ""
 
 #: warehouse/templates/manage/manage_base.html:211
+#: warehouse/templates/manage/manage_base.html:239
 #: warehouse/templates/manage/organizations.html:18
 msgid "Your organizations"
 msgstr ""
 
-#: warehouse/templates/manage/manage_base.html:287
-#: warehouse/templates/manage/manage_base.html:339
+#: warehouse/templates/manage/manage_base.html:295
+#: warehouse/templates/manage/manage_base.html:347
 msgid "This action cannot be undone!"
 msgstr ""
 
-#: warehouse/templates/manage/manage_base.html:295
+#: warehouse/templates/manage/manage_base.html:303
 msgid "Confirm your username to continue."
 msgstr ""
 
-#: warehouse/templates/manage/manage_base.html:297
+#: warehouse/templates/manage/manage_base.html:305
 #, python-format
 msgid "Confirm the %(item)s to continue."
 msgstr ""
 
-#: warehouse/templates/manage/manage_base.html:305
-#: warehouse/templates/manage/manage_base.html:357
+#: warehouse/templates/manage/manage_base.html:313
+#: warehouse/templates/manage/manage_base.html:365
 msgid "Cancel"
 msgstr ""
 
-#: warehouse/templates/manage/manage_base.html:328
+#: warehouse/templates/manage/manage_base.html:336
 msgid "close"
 msgstr ""
 
-#: warehouse/templates/manage/manage_base.html:344
+#: warehouse/templates/manage/manage_base.html:352
 msgid "Enter your password to continue."
 msgstr ""
 
