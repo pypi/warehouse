@@ -73,7 +73,7 @@ class MultiSecurityPolicy:
         return None
 
     def authenticated_userid(self, request):
-        if request.identity:
+        if request.identity and isinstance(request.identity, User):
             return str(request.identity.id)
         return None
 
