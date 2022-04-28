@@ -22,6 +22,9 @@ def includeme(config):
 
     # Organization related Admin pages
     config.add_route(
+        "admin.organization.list", "/admin/organizations/", domain=warehouse
+    )
+    config.add_route(
         "admin.organization.detail",
         "/admin/organizations/{organization_id}/",
         domain=warehouse,

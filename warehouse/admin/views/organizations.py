@@ -10,8 +10,12 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from pyramid.httpexceptions import HTTPNotFound, HTTPSeeOther
+import shlex
+
+from paginate_sqlalchemy import SqlalchemyOrmPage as SQLAlchemyORMPage
+from pyramid.httpexceptions import HTTPBadRequest, HTTPNotFound, HTTPSeeOther
 from pyramid.view import view_config
+from sqlalchemy import or_
 
 from warehouse.accounts.interfaces import IUserService
 from warehouse.email import (
@@ -22,6 +26,48 @@ from warehouse.email import (
 )
 from warehouse.organizations.interfaces import IOrganizationService
 from warehouse.organizations.models import Organization
+from warehouse.utils.paginate import paginate_url_factory
+
+
+@view_config(
+    route_name="admin.organization.list",
+    renderer="admin/organizations/list.html",
+    permission="moderator",
+    uses_session=True,
+)
+def organization_list(request):
+    q = request.params.get("q")
+
+    try:
+        page_num = int(request.params.get("page", 1))
+    except ValueError:
+        raise HTTPBadRequest("'page' must be an integer.") from None
+
+    organizations_query = request.db.query(Organization).order_by(
+        Organization.normalized_name
+    )
+
+    if q:
+        terms = shlex.split(q)
+
+        filters = []
+        for term in terms:
+            filters.append(Organization.name.ilike(term))
+            filters.append(Organization.normalized_name.ilike(term))
+            filters.append(Organization.display_name.ilike(term))
+            filters.append(Organization.link_url.ilike(term))
+            filters.append(Organization.description.ilike(term))
+
+        organizations_query = organizations_query.filter(or_(*filters))
+
+    organizations = SQLAlchemyORMPage(
+        organizations_query,
+        page=page_num,
+        items_per_page=25,
+        url_maker=paginate_url_factory(request),
+    )
+
+    return {"organizations": organizations, "query": q}
 
 
 @view_config(
