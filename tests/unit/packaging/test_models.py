@@ -252,6 +252,35 @@ class TestRelease:
                     ]
                 ),
             ),
+            # similar spellings of homepage/download label doesn't duplicate urls
+            (
+                "https://example.com/home/",
+                "https://example.com/download/",
+                [
+                    "homepage, https://example.com/home/",
+                    "download-URL ,https://example.com/download/",
+                ],
+                OrderedDict(
+                    [
+                        ("Homepage", "https://example.com/home/"),
+                        ("Download", "https://example.com/download/"),
+                    ]
+                ),
+            ),
+            # the duplicate removal only happens if the urls are equal too!
+            (
+                "https://example.com/home1/",
+                None,
+                [
+                    "homepage, https://example.com/home2/",
+                ],
+                OrderedDict(
+                    [
+                        ("Homepage", "https://example.com/home1/"),
+                        ("homepage", "https://example.com/home2/"),
+                    ]
+                ),
+            ),
             # ignore invalid links
             (
                 None,
