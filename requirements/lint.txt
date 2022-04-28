@@ -180,9 +180,9 @@ types-certifi==2021.10.8.1 \
     --hash=sha256:2290008f32e6ac7c69e779d04fa1bc4c6bb4c7200aa3b3b072ad5475a8968aa5 \
     --hash=sha256:546cd3ca4466855959fbc8868fd7139a50eb55a2d1fae497e13b60af439597a3
     # via -r requirements/lint.in
-types-first==2.0.2 \
-    --hash=sha256:129155be97b4a65a86a2b4cbc6f2d1de5b40d2c5d370289779fd6dd0293b69f6 \
-    --hash=sha256:444b4eaba3342f3d360f9f49eb4a175538da212e31ed1f26ee9b54c23f5fa0de
+types-first==2.0.3 \
+    --hash=sha256:7d0027ccda6e6c611257235516d08684938ce761649e9faf8e4cf3308bd40dea \
+    --hash=sha256:9249e5c880fb3b0162e4804b4f1d3f984298fa68f31f9aeff7eb4a054d896c21
     # via -r requirements/lint.in
 types-html5lib==1.1.7 \
     --hash=sha256:4bc5a1de03b9a697b7cc04b0d03eeed5d36c0073165dd9dc54f2f43d0f23b31f \
