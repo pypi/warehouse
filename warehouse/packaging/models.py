@@ -462,6 +462,16 @@ class Release(db.Model):
             name, _, url = urlspec.partition(",")
             name = name.strip()
             url = url.strip()
+
+            # avoid duplicating homepage/download links in case the same
+            # url is specified in the pkginfo twice (in the Home-page
+            # or Download-URL field and again in the Project-URL fields)
+            comp_name = name.casefold().replace("-", "").replace("_", "")
+            if comp_name == "homepage" and url == _urls.get("Homepage"):
+                continue
+            if comp_name == "downloadurl" and url == _urls.get("Download"):
+                continue
+
             if name and url:
                 _urls[name] = url
 
