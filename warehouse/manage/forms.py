@@ -26,6 +26,7 @@ from warehouse.accounts.forms import (
     WebAuthnCredentialMixin,
 )
 from warehouse.i18n import localize as _
+from warehouse.organizations.models import OrganizationType
 
 # /manage/account/ forms
 
@@ -366,8 +367,15 @@ class OrganizationNameMixin:
 
 
 class CreateOrganizationRoleForm(OrganizationRoleNameMixin, UsernameMixin, forms.Form):
-    def __init__(self, *args, organization_service, user_service, **kwargs):
+    def __init__(self, *args, orgtype, organization_service, user_service, **kwargs):
         super().__init__(*args, **kwargs)
+        if orgtype != OrganizationType.Company:
+            # Remove "Billing Manager" choice if organization is not a "Company"
+            self.role_name.choices = [
+                choice
+                for choice in self.role_name.choices
+                if "Billing Manager" not in choice
+            ]
         self.organization_service = organization_service
         self.user_service = user_service
 

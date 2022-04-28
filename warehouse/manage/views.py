@@ -1173,6 +1173,7 @@ def manage_organization_roles(
     user_service = request.find_service(IUserService, context=None)
     form = _form_class(
         request.POST,
+        orgtype=organization.orgtype,
         organization_service=organization_service,
         user_service=user_service,
     )
@@ -1281,7 +1282,9 @@ def manage_organization_roles(
             )
 
         form = _form_class(
-            organization_service=organization_service, user_service=user_service
+            orgtype=organization.orgtype,
+            organization_service=organization_service,
+            user_service=user_service,
         )
 
     # TODO: Gather list of roles.
