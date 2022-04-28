@@ -13,11 +13,84 @@
 import pretend
 import pytest
 
-from pyramid.httpexceptions import HTTPNotFound
+from pyramid.httpexceptions import HTTPBadRequest, HTTPNotFound
 
 from warehouse.accounts.interfaces import IUserService
 from warehouse.admin.views import organizations as views
 from warehouse.organizations.interfaces import IOrganizationService
+
+from ....common.db.organizations import OrganizationFactory
+
+
+class TestOrganizationList:
+    def test_no_query(self, db_request):
+        organizations = sorted(
+            [OrganizationFactory.create() for _ in range(30)],
+            key=lambda o: o.normalized_name.lower(),
+        )
+        result = views.organization_list(db_request)
+
+        assert result == {"organizations": organizations[:25], "query": None}
+
+    def test_with_page(self, db_request):
+        organizations = sorted(
+            [OrganizationFactory.create() for _ in range(30)],
+            key=lambda o: o.normalized_name.lower(),
+        )
+        db_request.GET["page"] = "2"
+        result = views.organization_list(db_request)
+
+        assert result == {"organizations": organizations[25:], "query": None}
+
+    def test_with_invalid_page(self):
+        request = pretend.stub(params={"page": "not an integer"})
+
+        with pytest.raises(HTTPBadRequest):
+            views.organization_list(request)
+
+    def test_basic_query(self, db_request):
+        organizations = sorted(
+            [OrganizationFactory.create() for _ in range(5)],
+            key=lambda o: o.normalized_name.lower(),
+        )
+        db_request.GET["q"] = organizations[0].name
+        result = views.organization_list(db_request)
+
+        assert result == {
+            "organizations": [organizations[0]],
+            "query": organizations[0].name,
+        }
+
+    def test_wildcard_query(self, db_request):
+        organizations = sorted(
+            [OrganizationFactory.create() for _ in range(5)],
+            key=lambda o: o.normalized_name.lower(),
+        )
+        db_request.GET["q"] = organizations[0].name[:-1] + "%"
+        result = views.organization_list(db_request)
+
+        assert result == {
+            "organizations": [organizations[0]],
+            "query": organizations[0].name[:-1] + "%",
+        }
+
+    def test_or_query(self, db_request):
+        organizations = sorted(
+            [OrganizationFactory.create() for _ in range(5)],
+            key=lambda o: o.normalized_name.lower(),
+        )
+        db_request.GET["q"] = " ".join(
+            [
+                organizations[0].name,
+                organizations[1].name[:-1] + "%",
+            ]
+        )
+        result = views.organization_list(db_request)
+
+        assert result == {
+            "organizations": organizations[:2],
+            "query": db_request.GET["q"],
+        }
 
 
 class TestOrganizations:
