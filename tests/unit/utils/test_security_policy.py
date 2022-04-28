@@ -135,14 +135,22 @@ class TestMultiSecurityPolicy:
         request = pretend.stub(identity=None)
         assert policy.authenticated_userid(request) is None
 
-    def test_authenticated_userid(self):
+    def test_authenticated_userid_nonuser_identity(self, db_request):
         subpolicies = pretend.stub()
         authz = pretend.stub()
         policy = security_policy.MultiSecurityPolicy(subpolicies, authz)
 
-        userid = 1234
-        request = pretend.stub(identity=pretend.stub(id=userid))
-        assert policy.authenticated_userid(request) == "1234"
+        request = pretend.stub(identity=pretend.stub(id="fakeid"))
+        assert policy.authenticated_userid(request) is None
+
+    def test_authenticated_userid(self, db_request):
+        subpolicies = pretend.stub()
+        authz = pretend.stub()
+        policy = security_policy.MultiSecurityPolicy(subpolicies, authz)
+
+        user = UserFactory.create()
+        request = pretend.stub(identity=user)
+        assert policy.authenticated_userid(request) == str(user.id)
 
     def test_forget(self):
         header = pretend.stub()
