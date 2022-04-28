@@ -23,7 +23,7 @@ from ....common.db.organizations import OrganizationFactory
 
 
 class TestOrganizationList:
-    def test_no_query(self, db_request):
+    def test_no_query(self, enable_organizations, db_request):
         organizations = sorted(
             [OrganizationFactory.create() for _ in range(30)],
             key=lambda o: o.normalized_name.lower(),
@@ -32,7 +32,7 @@ class TestOrganizationList:
 
         assert result == {"organizations": organizations[:25], "query": None}
 
-    def test_with_page(self, db_request):
+    def test_with_page(self, enable_organizations, db_request):
         organizations = sorted(
             [OrganizationFactory.create() for _ in range(30)],
             key=lambda o: o.normalized_name.lower(),
@@ -42,13 +42,16 @@ class TestOrganizationList:
 
         assert result == {"organizations": organizations[25:], "query": None}
 
-    def test_with_invalid_page(self):
-        request = pretend.stub(params={"page": "not an integer"})
+    def test_with_invalid_page(self, enable_organizations):
+        request = pretend.stub(
+            flags=pretend.stub(enabled=lambda *a: False),
+            params={"page": "not an integer"},
+        )
 
         with pytest.raises(HTTPBadRequest):
             views.organization_list(request)
 
-    def test_basic_query(self, db_request):
+    def test_basic_query(self, enable_organizations, db_request):
         organizations = sorted(
             [OrganizationFactory.create() for _ in range(5)],
             key=lambda o: o.normalized_name.lower(),
@@ -61,7 +64,7 @@ class TestOrganizationList:
             "query": organizations[0].name,
         }
 
-    def test_wildcard_query(self, db_request):
+    def test_wildcard_query(self, enable_organizations, db_request):
         organizations = sorted(
             [OrganizationFactory.create() for _ in range(5)],
             key=lambda o: o.normalized_name.lower(),
@@ -74,7 +77,7 @@ class TestOrganizationList:
             "query": organizations[0].name[:-1] + "%",
         }
 
-    def test_or_query(self, db_request):
+    def test_or_query(self, enable_organizations, db_request):
         organizations = sorted(
             [OrganizationFactory.create() for _ in range(5)],
             key=lambda o: o.normalized_name.lower(),
@@ -92,9 +95,13 @@ class TestOrganizationList:
             "query": db_request.GET["q"],
         }
 
+    def test_disable_organizations(self, db_request):
+        with pytest.raises(HTTPNotFound):
+            views.organization_list(db_request)
 
-class TestOrganizations:
-    def test_detail(self):
+
+class TestOrganizationDetail:
+    def test_detail(self, enable_organizations):
         admin = pretend.stub(
             id="admin-id",
             username="admin",
@@ -138,6 +145,7 @@ class TestOrganizations:
             get_organization=lambda *a, **kw: organization,
         )
         request = pretend.stub(
+            flags=pretend.stub(enabled=lambda *a: False),
             find_service=lambda iface, **kw: {
                 IUserService: user_service,
                 IOrganizationService: organization_service,
@@ -151,7 +159,7 @@ class TestOrganizations:
             "organization": organization,
         }
 
-    def test_detail_is_approved_true(self):
+    def test_detail_is_approved_true(self, enable_organizations):
         admin = pretend.stub(
             id="admin-id",
             username="admin",
@@ -198,6 +206,7 @@ class TestOrganizations:
             get_organization=lambda *a, **kw: organization,
         )
         request = pretend.stub(
+            flags=pretend.stub(enabled=lambda *a: False),
             find_service=lambda iface, **kw: {
                 IUserService: user_service,
                 IOrganizationService: organization_service,
@@ -211,7 +220,7 @@ class TestOrganizations:
             "organization": organization,
         }
 
-    def test_detail_is_approved_false(self):
+    def test_detail_is_approved_false(self, enable_organizations):
         admin = pretend.stub(
             id="admin-id",
             username="admin",
@@ -258,6 +267,7 @@ class TestOrganizations:
             get_organization=lambda *a, **kw: organization,
         )
         request = pretend.stub(
+            flags=pretend.stub(enabled=lambda *a: False),
             find_service=lambda iface, **kw: {
                 IUserService: user_service,
                 IOrganizationService: organization_service,
@@ -271,11 +281,12 @@ class TestOrganizations:
             "organization": organization,
         }
 
-    def test_detail_not_found(self):
+    def test_detail_not_found(self, enable_organizations):
         organization_service = pretend.stub(
             get_organization=lambda *a, **kw: None,
         )
         request = pretend.stub(
+            flags=pretend.stub(enabled=lambda *a: False),
             find_service=lambda *a, **kw: organization_service,
             matchdict={"organization_id": pretend.stub()},
         )
@@ -283,7 +294,7 @@ class TestOrganizations:
         with pytest.raises(HTTPNotFound):
             views.detail(request)
 
-    def test_approve(self, monkeypatch):
+    def test_approve(self, enable_organizations, monkeypatch):
         admin = pretend.stub(
             id="admin-id",
             username="admin",
@@ -332,6 +343,7 @@ class TestOrganizations:
         organization_detail_location = (f"/admin/organizations/{organization.id}/",)
         message = pretend.stub()
         request = pretend.stub(
+            flags=pretend.stub(enabled=lambda *a: False),
             find_service=lambda iface, **kw: {
                 IUserService: user_service,
                 IOrganizationService: organization_service,
@@ -386,7 +398,7 @@ class TestOrganizations:
         assert result.status_code == 303
         assert result.location == organization_detail_location
 
-    def test_approve_wrong_confirmation_input(self, monkeypatch):
+    def test_approve_wrong_confirmation_input(self, enable_organizations, monkeypatch):
         user_service = pretend.stub()
         organization = pretend.stub(id=pretend.stub(), name=pretend.stub())
         organization_service = pretend.stub(
@@ -394,6 +406,7 @@ class TestOrganizations:
         )
         organization_detail_location = (f"/admin/organizations/{organization.id}/",)
         request = pretend.stub(
+            flags=pretend.stub(enabled=lambda *a: False),
             find_service=lambda iface, **kw: {
                 IUserService: user_service,
                 IOrganizationService: organization_service,
@@ -414,11 +427,12 @@ class TestOrganizations:
         assert result.status_code == 303
         assert result.location == organization_detail_location
 
-    def test_approve_not_found(self):
+    def test_approve_not_found(self, enable_organizations):
         organization_service = pretend.stub(
             get_organization=lambda *a, **kw: None,
         )
         request = pretend.stub(
+            flags=pretend.stub(enabled=lambda *a: False),
             find_service=lambda *a, **kw: organization_service,
             matchdict={"organization_id": pretend.stub()},
         )
@@ -426,7 +440,7 @@ class TestOrganizations:
         with pytest.raises(HTTPNotFound):
             views.approve(request)
 
-    def test_decline(self, monkeypatch):
+    def test_decline(self, enable_organizations, monkeypatch):
         admin = pretend.stub(
             id="admin-id",
             username="admin",
@@ -475,6 +489,7 @@ class TestOrganizations:
         organization_detail_location = (f"/admin/organizations/{organization.id}/",)
         message = pretend.stub()
         request = pretend.stub(
+            flags=pretend.stub(enabled=lambda *a: False),
             find_service=lambda iface, **kw: {
                 IUserService: user_service,
                 IOrganizationService: organization_service,
@@ -529,7 +544,7 @@ class TestOrganizations:
         assert result.status_code == 303
         assert result.location == organization_detail_location
 
-    def test_decline_wrong_confirmation_input(self, monkeypatch):
+    def test_decline_wrong_confirmation_input(self, enable_organizations, monkeypatch):
         user_service = pretend.stub()
         organization = pretend.stub(id=pretend.stub(), name=pretend.stub())
         organization_service = pretend.stub(
@@ -537,6 +552,7 @@ class TestOrganizations:
         )
         organization_detail_location = (f"/admin/organizations/{organization.id}/",)
         request = pretend.stub(
+            flags=pretend.stub(enabled=lambda *a: False),
             find_service=lambda iface, **kw: {
                 IUserService: user_service,
                 IOrganizationService: organization_service,
@@ -557,14 +573,27 @@ class TestOrganizations:
         assert result.status_code == 303
         assert result.location == organization_detail_location
 
-    def test_decline_not_found(self):
+    def test_decline_not_found(self, enable_organizations):
         organization_service = pretend.stub(
             get_organization=lambda *a, **kw: None,
         )
         request = pretend.stub(
+            flags=pretend.stub(enabled=lambda *a: False),
             find_service=lambda *a, **kw: organization_service,
             matchdict={"organization_id": pretend.stub()},
         )
 
         with pytest.raises(HTTPNotFound):
             views.decline(request)
+
+    def test_detail_disable_organizations(self, db_request):
+        with pytest.raises(HTTPNotFound):
+            views.detail(db_request)
+
+    def test_approve_disable_organizations(self, db_request):
+        with pytest.raises(HTTPNotFound):
+            views.approve(db_request)
+
+    def test_decline_disable_organizations(self, db_request):
+        with pytest.raises(HTTPNotFound):
+            views.decline(db_request)

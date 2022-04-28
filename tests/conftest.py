@@ -41,6 +41,7 @@ import warehouse
 from warehouse import admin, config, static
 from warehouse.accounts import services as account_services
 from warehouse.accounts.interfaces import ITokenService
+from warehouse.admin.flags import AdminFlag, AdminFlagValue
 from warehouse.email import services as email_services
 from warehouse.email.interfaces import IEmailSender
 from warehouse.macaroons import services as macaroon_services
@@ -348,6 +349,16 @@ def db_request(pyramid_request, db_session):
     pyramid_request.db = db_session
     pyramid_request.flags = admin.flags.Flags(pyramid_request)
     return pyramid_request
+
+
+@pytest.fixture()
+def enable_organizations(db_request):
+    flag = db_request.db.query(AdminFlag).get(
+        AdminFlagValue.DISABLE_ORGANIZATIONS.value
+    )
+    flag.enabled = False
+    yield
+    flag.enabled = True
 
 
 class _TestApp(_webtest.TestApp):
