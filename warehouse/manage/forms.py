@@ -310,7 +310,22 @@ class Toggle2FARequirementForm(forms.Form):
 # /manage/organizations/ forms
 
 
-class NewOrganizationNameMixin:
+class OrganizationRoleNameMixin:
+
+    role_name = wtforms.SelectField(
+        "Select role",
+        choices=[
+            ("", "Select role"),
+            ("Member", "Member"),
+            ("Manager", "Manager"),
+            ("Owner", "Owner"),
+            ("Billing Manager", "Billing Manager"),
+        ],
+        validators=[wtforms.validators.DataRequired(message="Select role")],
+    )
+
+
+class OrganizationNameMixin:
 
     name = wtforms.StringField(
         validators=[
@@ -350,7 +365,14 @@ class NewOrganizationNameMixin:
             )
 
 
-class CreateOrganizationForm(forms.Form, NewOrganizationNameMixin):
+class CreateOrganizationRoleForm(OrganizationRoleNameMixin, UsernameMixin, forms.Form):
+    def __init__(self, *args, organization_service, user_service, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.organization_service = organization_service
+        self.user_service = user_service
+
+
+class CreateOrganizationForm(forms.Form, OrganizationNameMixin):
 
     __params__ = ["name", "display_name", "link_url", "description", "orgtype"]
 

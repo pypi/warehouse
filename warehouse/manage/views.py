@@ -73,6 +73,7 @@ from warehouse.manage.forms import (
     ConfirmPasswordForm,
     CreateMacaroonForm,
     CreateOrganizationForm,
+    CreateOrganizationRoleForm,
     CreateRoleForm,
     DeleteMacaroonForm,
     DeleteTOTPForm,
@@ -89,6 +90,8 @@ from warehouse.oidc.models import GitHubProvider, OIDCProvider
 from warehouse.organizations.interfaces import IOrganizationService
 from warehouse.organizations.models import (
     Organization,
+    OrganizationInvitation,
+    OrganizationInvitationStatus,
     OrganizationRole,
     OrganizationRoleType,
 )
@@ -1160,11 +1163,134 @@ class ManageOrganizationsViews:
     has_translations=True,
     require_reauth=True,
 )
-def manage_organization_roles(organization, request):
+def manage_organization_roles(
+    organization, request, _form_class=CreateOrganizationRoleForm
+):
     if request.flags.enabled(AdminFlagValue.DISABLE_ORGANIZATIONS):
         raise HTTPNotFound
 
-    return {"organization": organization}
+    organization_service = request.find_service(IOrganizationService, context=None)
+    user_service = request.find_service(IUserService, context=None)
+    form = _form_class(
+        request.POST,
+        organization_service=organization_service,
+        user_service=user_service,
+    )
+
+    if request.method == "POST" and form.validate():
+        username = form.username.data
+        role_name = form.role_name.data
+        userid = user_service.find_userid(username)
+        user = user_service.get_user(userid)
+        token_service = request.find_service(ITokenService, name="email")
+
+        existing_role = (
+            request.db.query(OrganizationRole)
+            .filter(
+                OrganizationRole.user == user,
+                OrganizationRole.organization == organization,
+            )
+            .first()
+        )
+        user_invite = (
+            request.db.query(OrganizationInvitation)
+            .filter(OrganizationInvitation.user == user)
+            .filter(OrganizationInvitation.organization == organization)
+            .one_or_none()
+        )
+        # Cover edge case where invite is invalid but task
+        # has not updated invite status
+        try:
+            invite_token = token_service.loads(user_invite.token)
+        except (TokenExpired, AttributeError):
+            invite_token = None
+
+        if existing_role:
+            request.session.flash(
+                request._(
+                    "User '${username}' already has ${role_name} role for organization",
+                    mapping={
+                        "username": username,
+                        "role_name": existing_role.role_name.value,
+                    },
+                ),
+                queue="error",
+            )
+        elif user.primary_email is None or not user.primary_email.verified:
+            request.session.flash(
+                request._(
+                    "User '${username}' does not have a verified primary email "
+                    "address and cannot be added as a ${role_name} for organization",
+                    mapping={"username": username, "role_name": role_name},
+                ),
+                queue="error",
+            )
+        elif (
+            user_invite
+            and user_invite.invite_status == OrganizationInvitationStatus.Pending
+            and invite_token
+        ):
+            request.session.flash(
+                request._(
+                    "User '${username}' already has an active invite. "
+                    "Please try again later.",
+                    mapping={"username": username},
+                ),
+                queue="error",
+            )
+        else:
+            invite_token = token_service.dumps(
+                {
+                    "action": "email-organization-role-verify",
+                    "desired_role": role_name,
+                    "user_id": user.id,
+                    "organization_id": organization.id,
+                    "submitter_id": request.user.id,
+                }
+            )
+            if user_invite:
+                user_invite.invite_status = OrganizationInvitationStatus.Pending
+                user_invite.token = invite_token
+            else:
+                request.db.add(
+                    OrganizationInvitation(
+                        user=user,
+                        organization=organization,
+                        invite_status=OrganizationInvitationStatus.Pending,
+                        token=invite_token,
+                    )
+                )
+            # TODO: Send notification email to invite initiator.
+            # TODO: Send notification email to invited user.
+            organization.record_event(
+                tag="organization:role:invite",
+                ip_address=request.remote_addr,
+                additional={
+                    "submitted_by_user_id": str(request.user.id),
+                    "role_name": role_name,
+                    "target_user_id": str(userid),
+                },
+            )
+            request.db.flush()  # in order to get id
+            request.session.flash(
+                request._(
+                    "Invitation sent to '${username}'",
+                    mapping={"username": username},
+                ),
+                queue="success",
+            )
+
+        form = _form_class(
+            organization_service=organization_service, user_service=user_service
+        )
+
+    # TODO: Gather list of roles.
+    # TODO: Gather list of invitations.
+
+    return {
+        "organization": organization,
+        "form": form,
+    }
 
 
 @view_config(

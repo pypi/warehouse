@@ -116,7 +116,7 @@ msgstr ""
 msgid "Successful WebAuthn assertion"
 msgstr ""
 
-#: warehouse/accounts/views.py:441 warehouse/manage/views.py:822
+#: warehouse/accounts/views.py:441 warehouse/manage/views.py:825
 msgid "Recovery code accepted. The supplied code cannot be used again."
 msgstr ""
 
@@ -225,11 +225,11 @@ msgstr ""
 msgid "Banner Preview"
 msgstr ""
 
-#: warehouse/manage/forms.py:322
+#: warehouse/manage/forms.py:337
 msgid "Choose an organization account name with 50 characters or less."
 msgstr ""
 
-#: warehouse/manage/forms.py:330
+#: warehouse/manage/forms.py:345
 msgid ""
 "The organization account name is invalid. Organization account names must"
 " be composed of letters, numbers, dots, hyphens and underscores. And must"
@@ -237,75 +237,85 @@ msgid ""
 "organization account name."
 msgstr ""
 
-#: warehouse/manage/forms.py:345
+#: warehouse/manage/forms.py:360
 msgid ""
 "This organization account name is already being used by another account. "
 "Choose a different organization account name."
 msgstr ""
 
-#: warehouse/manage/forms.py:366
+#: warehouse/manage/forms.py:388
 msgid ""
 "The organization name is too long. Choose a organization name with 100 "
 "characters or less."
 msgstr ""
 
-#: warehouse/manage/forms.py:378
+#: warehouse/manage/forms.py:400
 msgid ""
 "The organization URL is too long. Choose a organization URL with 400 "
 "characters or less."
 msgstr ""
 
-#: warehouse/manage/forms.py:392
+#: warehouse/manage/forms.py:414
 msgid ""
 "The organization description is too long. Choose a organization "
 "description with 400 characters or less."
 msgstr ""
 
-#: warehouse/manage/views.py:253
+#: warehouse/manage/views.py:256
 msgid "Email ${email_address} added - check your email for a verification link"
 msgstr ""
 
-#: warehouse/manage/views.py:770
+#: warehouse/manage/views.py:773
 msgid "Recovery codes already generated"
 msgstr ""
 
-#: warehouse/manage/views.py:771
+#: warehouse/manage/views.py:774
 msgid "Generating new recovery codes will invalidate your existing codes."
 msgstr ""
 
-#: warehouse/manage/views.py:1389
+#: warehouse/manage/views.py:1210
+msgid "User '${username}' already has ${role_name} role for organization"
+msgstr ""
+
+#: warehouse/manage/views.py:1221
+msgid ""
+"User '${username}' does not have a verified primary email address and "
+"cannot be added as a ${role_name} for organization"
+msgstr ""
+
+#: warehouse/manage/views.py:1234 warehouse/manage/views.py:2220
+msgid "User '${username}' already has an active invite. Please try again later."
+msgstr ""
+
+#: warehouse/manage/views.py:1276 warehouse/manage/views.py:2278
+msgid "Invitation sent to '${username}'"
+msgstr ""
+
+#: warehouse/manage/views.py:1515
 msgid ""
 "There have been too many attempted OpenID Connect registrations. Try "
 "again later."
 msgstr ""
 
-#: warehouse/manage/views.py:2070
+#: warehouse/manage/views.py:2196
 msgid "User '${username}' already has ${role_name} role for project"
 msgstr ""
 
-#: warehouse/manage/views.py:2081
+#: warehouse/manage/views.py:2207
 msgid ""
 "User '${username}' does not have a verified primary email address and "
 "cannot be added as a ${role_name} for project"
 msgstr ""
 
-#: warehouse/manage/views.py:2094
-msgid "User '${username}' already has an active invite. Please try again later."
-msgstr ""
-
-#: warehouse/manage/views.py:2152
-msgid "Invitation sent to '${username}'"
-msgstr ""
-
-#: warehouse/manage/views.py:2199
+#: warehouse/manage/views.py:2325
 msgid "Could not find role invitation."
 msgstr ""
 
-#: warehouse/manage/views.py:2210
+#: warehouse/manage/views.py:2336
 msgid "Invitation already expired."
 msgstr ""
 
-#: warehouse/manage/views.py:2234
+#: warehouse/manage/views.py:2360
 msgid "Invitation revoked from '${username}'."
 msgstr ""
 
@@ -932,6 +942,8 @@ msgstr ""
 #: warehouse/templates/manage/account/recovery_codes-burn.html:70
 #: warehouse/templates/manage/account/totp-provision.html:69
 #: warehouse/templates/manage/account/webauthn-provision.html:44
+#: warehouse/templates/manage/organization/roles.html:57
+#: warehouse/templates/manage/organization/roles.html:69
 #: warehouse/templates/manage/organizations.html:89
 #: warehouse/templates/manage/organizations.html:112
 #: warehouse/templates/manage/organizations.html:134
@@ -1029,6 +1041,7 @@ msgstr ""
 #: warehouse/templates/accounts/profile.html:32
 #: warehouse/templates/accounts/register.html:89
 #: warehouse/templates/manage/account.html:248
+#: warehouse/templates/manage/organization/roles.html:60
 #: warehouse/templates/manage/roles.html:173
 msgid "Username"
 msgstr ""
@@ -2758,6 +2771,7 @@ msgstr ""
 
 #: warehouse/templates/manage/journal.html:37
 #: warehouse/templates/manage/journal.html:52
+#: warehouse/templates/manage/organization/roles.html:55
 #: warehouse/templates/manage/roles.html:51
 #: warehouse/templates/manage/roles.html:168
 msgid "User"
@@ -3666,6 +3680,7 @@ msgstr ""
 msgid "Users who can manage %(project_name)s"
 msgstr ""
 
+#: warehouse/templates/manage/organization/roles.html:67
 #: warehouse/templates/manage/roles.html:52
 #: warehouse/templates/manage/roles.html:86
 #: warehouse/templates/manage/roles.html:180
@@ -3711,6 +3726,7 @@ msgstr ""
 msgid "Invite collaborator"
 msgstr ""
 
+#: warehouse/templates/manage/organization/roles.html:78
 #: warehouse/templates/manage/roles.html:191
 msgid "Invite"
 msgstr ""
@@ -4229,6 +4245,10 @@ msgid ""
 "Can be owner or maintainer for specific projects. Can create new "
 "projects. Can create and manage teams. Can invite and manage organization"
 " members. Can delete projects and the organization itself."
+msgstr ""
+
+#: warehouse/templates/manage/organization/roles.html:50
+msgid "Invite member"
 msgstr ""
 
 #: warehouse/templates/packaging/detail.html:106
