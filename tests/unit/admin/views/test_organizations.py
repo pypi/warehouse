@@ -153,7 +153,7 @@ class TestOrganizationDetail:
             matchdict={"organization_id": pretend.stub()},
         )
 
-        assert views.detail(request) == {
+        assert views.organization_detail(request) == {
             "admin": None,
             "user": user,
             "organization": organization,
@@ -214,7 +214,7 @@ class TestOrganizationDetail:
             matchdict={"organization_id": pretend.stub()},
         )
 
-        assert views.detail(request) == {
+        assert views.organization_detail(request) == {
             "admin": admin,
             "user": user,
             "organization": organization,
@@ -275,7 +275,7 @@ class TestOrganizationDetail:
             matchdict={"organization_id": pretend.stub()},
         )
 
-        assert views.detail(request) == {
+        assert views.organization_detail(request) == {
             "admin": admin,
             "user": user,
             "organization": organization,
@@ -292,7 +292,7 @@ class TestOrganizationDetail:
         )
 
         with pytest.raises(HTTPNotFound):
-            views.detail(request)
+            views.organization_detail(request)
 
     def test_approve(self, enable_organizations, monkeypatch):
         admin = pretend.stub(
@@ -362,7 +362,7 @@ class TestOrganizationDetail:
         )
         monkeypatch.setattr(views, "send_new_organization_approved_email", send_email)
 
-        result = views.approve(request)
+        result = views.organization_approve(request)
 
         assert organization_service.approve_organization.calls == [
             pretend.call(organization.id),
@@ -419,7 +419,7 @@ class TestOrganizationDetail:
             ),
         )
 
-        result = views.approve(request)
+        result = views.organization_approve(request)
 
         assert request.session.flash.calls == [
             pretend.call("Wrong confirmation input", queue="error"),
@@ -438,7 +438,7 @@ class TestOrganizationDetail:
         )
 
         with pytest.raises(HTTPNotFound):
-            views.approve(request)
+            views.organization_approve(request)
 
     def test_decline(self, enable_organizations, monkeypatch):
         admin = pretend.stub(
@@ -508,7 +508,7 @@ class TestOrganizationDetail:
         )
         monkeypatch.setattr(views, "send_new_organization_declined_email", send_email)
 
-        result = views.decline(request)
+        result = views.organization_decline(request)
 
         assert organization_service.decline_organization.calls == [
             pretend.call(organization.id),
@@ -565,7 +565,7 @@ class TestOrganizationDetail:
             ),
         )
 
-        result = views.decline(request)
+        result = views.organization_decline(request)
 
         assert request.session.flash.calls == [
             pretend.call("Wrong confirmation input", queue="error"),
@@ -584,16 +584,16 @@ class TestOrganizationDetail:
         )
 
         with pytest.raises(HTTPNotFound):
-            views.decline(request)
+            views.organization_decline(request)
 
     def test_detail_disable_organizations(self, db_request):
         with pytest.raises(HTTPNotFound):
-            views.detail(db_request)
+            views.organization_detail(db_request)
 
     def test_approve_disable_organizations(self, db_request):
         with pytest.raises(HTTPNotFound):
-            views.approve(db_request)
+            views.organization_approve(db_request)
 
     def test_decline_disable_organizations(self, db_request):
         with pytest.raises(HTTPNotFound):
-            views.decline(db_request)
+            views.organization_decline(db_request)

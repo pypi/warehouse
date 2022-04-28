@@ -84,7 +84,7 @@ def organization_list(request):
     require_csrf=True,
     require_reauth=True,
 )
-def detail(request):
+def organization_detail(request):
     if request.flags.enabled(AdminFlagValue.DISABLE_ORGANIZATIONS):
         raise HTTPNotFound
 
@@ -137,7 +137,7 @@ def detail(request):
     require_csrf=True,
     require_reauth=True,
 )
-def approve(request):
+def organization_approve(request):
     if request.flags.enabled(AdminFlagValue.DISABLE_ORGANIZATIONS):
         raise HTTPNotFound
 
@@ -203,7 +203,7 @@ def approve(request):
     require_csrf=True,
     require_reauth=True,
 )
-def decline(request):
+def organization_decline(request):
     if request.flags.enabled(AdminFlagValue.DISABLE_ORGANIZATIONS):
         raise HTTPNotFound
 
