@@ -52,17 +52,74 @@ def organization_list(request):
     )
 
     if q:
-        terms = shlex.split(q)
-
         filters = []
-        for term in terms:
-            filters.append(Organization.name.ilike(term))
-            filters.append(Organization.normalized_name.ilike(term))
-            filters.append(Organization.display_name.ilike(term))
-            filters.append(Organization.link_url.ilike(term))
-            filters.append(Organization.description.ilike(term))
-
-        organizations_query = organizations_query.filter(or_(*filters))
+        for term in shlex.split(q):
+            # Examples:
+            # - search individual words or "whole phrase" in any field
+            # - name:psf
+            # - organization:python
+            # - url:.org
+            # - description:word
+            # - description:"whole phrase"
+            # - is:approved
+            # - is:declined
+            # - is:submitted
+            # - is:active
+            # - is:inactive
+            try:
+                field, value = term.lower().split(":", 1)
+            except ValueError:
+                field, value = "", term
+            if field == "name":
+                # Add filter for `name` or `normalized_name` fields.
+                filters.append(
+                    [
+                        Organization.name.ilike(f"%{value}%"),
+                        Organization.normalized_name.ilike(f"%{value}%"),
+                    ]
+                )
+            elif field == "org" or field == "organization":
+                # Add filter for `display_name` field.
+                filters.append(Organization.display_name.ilike(f"%{value}%"))
+            elif field == "url" or field == "link_url":
+                # Add filter for `link_url` field.
+                filters.append(Organization.link_url.ilike(f"%{value}%"))
+            elif field == "desc" or field == "description":
+                # Add filter for `description` field.
+                filters.append(Organization.description.ilike(f"%{value}%"))
+            elif field == "is":
+                # Add filter for `is_approved` or `is_active` field.
+                if "approved".startswith(value):
+                    filters.append(Organization.is_approved == True)  # noqa: E712
+                elif "declined".startswith(value):
+                    filters.append(Organization.is_approved == False)  # noqa: E712
+                elif "submitted".startswith(value):
+                    filters.append(Organization.is_approved == None)  # noqa: E711
+                elif "active".startswith(value):
+                    filters.append(Organization.is_active == True)  # noqa: E712
+                elif "inactive".startswith(value):
+                    filters.append(Organization.is_active == False)  # noqa: E712
+            else:
+                # Add filter for any field.
+                filters.append(
+                    [
+                        Organization.name.ilike(f"%{term}%"),
+                        Organization.normalized_name.ilike(f"%{term}%"),
+                        Organization.display_name.ilike(f"%{term}%"),
+                        Organization.link_url.ilike(f"%{term}%"),
+                        Organization.description.ilike(f"%{term}%"),
+                    ]
+                )
+        # Use AND to add each filter. Use OR to combine subfilters.
+        for filter_or_subfilters in filters:
+            if isinstance(filter_or_subfilters, list):
+                # Add list of subfilters combined with OR.
+                organizations_query = organizations_query.filter(
+                    or_(*filter_or_subfilters)
+                )
+            else:
+                # Add single filter.
+                organizations_query = organizations_query.filter(filter_or_subfilters)
 
     organizations = SQLAlchemyORMPage(
         organizations_query,

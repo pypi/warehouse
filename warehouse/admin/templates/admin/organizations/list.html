@@ -25,8 +25,18 @@
 <div class="box">
   <div class="box-body">
     <form>
+      <span id="qHelpBlock" class="help-block">
+        <dl class="dl-horizontal">
+          <dt>Search all fields<dt>
+          <dd>individual words or "whole phrase"</dd>
+          <dt>Search specific field</dt>
+          <dd>name:psf, organization:python, url:.org, description:word, description:"whole phrase"</dd>
+          <dt>Search specific state</dt>
+          <dd>is:approved, is:declined, is:submitted, is:active, is:inactive</dd>
+        </dl>
+      </span>
       <div class="input-group input-group-lg">
-        <input name="q" type="text" class="form-control input-lg" placeholder="Search"{% if query %} value="{{ query }}"{% endif %}>
+        <input name="q" type="text" class="form-control input-lg" placeholder="Search"{% if query %} value="{{ query }}"{% endif %} aria-describedby="qHelpBlock">
         <div class="input-group-btn">
           <button type="submit" class="btn btn-default"><i class="fa fa-search"></i></button>
         </div>
@@ -42,8 +52,8 @@
         <th>Account Name</th>
         <th>Organization</th>
         <th>Description</th>
+        <th><i class="fa fa-fw"></i> Approval</th>
         <th><i class="fa fa-fw"></i> Status</th>
-        <th>Active</th>
       </tr>
 
       {% for organization in organizations %}
@@ -62,7 +72,11 @@
         {% else %}
         <td><i class="fa fa-fw"></i> Submitted</td>
         {% endif %}
-        <td>{% if organization.is_active %}<i class="fa fa-check text-green"></i>{% endif %}</td>
+        {% if organization.is_active %}
+        <td><i class="fa fa-fw fa-check text-green"></i> Active</td>
+        {% else %}
+        <td><i class="fa fa-fw fa-times text-red"></i> Inactive</td>
+        {% endif %}
       </tr>
       {% endfor %}
     </table>
