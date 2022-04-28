@@ -14,9 +14,9 @@
 <nav aria-label="{% trans organization=organization.normalized_name %}Navigation for managing {{ organization }}{% endtrans %}">
   <ul class="vertical-tabs__list">
     <li>
-      <a href="{{ request.route_path('manage.organization.roles', organization_name=organization.normalized_name)}}" class="vertical-tabs__tab vertical-tabs__tab--with-icon {% if active_tab == 'collaborators' %}vertical-tabs__tab--is-active{% endif %} {% if mode == 'mobile' %}vertical-tabs__tab--mobile{% endif %}" {% if active_tab == 'collaborators' %}aria-selected="true"{% endif %}>
+      <a href="{{ request.route_path('manage.organization.roles', organization_name=organization.normalized_name)}}" class="vertical-tabs__tab vertical-tabs__tab--with-icon {% if active_tab == 'people' %}vertical-tabs__tab--is-active{% endif %} {% if mode == 'mobile' %}vertical-tabs__tab--mobile{% endif %}" {% if active_tab == 'people' %}aria-selected="true"{% endif %}>
         <i class="fa fa-users" aria-hidden="true"></i>
-        {% trans %}Collaborators{% endtrans %}
+        {% trans %}People{% endtrans %}
       </a>
     </li>
   </ul>

@@ -1880,10 +1880,8 @@ msgid "Navigation for managing %(organization)s"
 msgstr ""
 
 #: warehouse/templates/includes/manage/manage-organization-menu.html:19
-#: warehouse/templates/includes/manage/manage-project-menu.html:25
 #: warehouse/templates/manage/organization/roles.html:35
-#: warehouse/templates/manage/roles.html:35
-msgid "Collaborators"
+msgid "People"
 msgstr ""
 
 #: warehouse/templates/includes/manage/manage-project-menu.html:14
@@ -1893,6 +1891,11 @@ msgstr ""
 
 #: warehouse/templates/includes/manage/manage-project-menu.html:19
 msgid "Releases"
+msgstr ""
+
+#: warehouse/templates/includes/manage/manage-project-menu.html:25
+#: warehouse/templates/manage/roles.html:35
+msgid "Collaborators"
 msgstr ""
 
 #: warehouse/templates/includes/manage/manage-project-menu.html:31
@@ -4158,7 +4161,7 @@ msgstr ""
 
 #: warehouse/templates/manage/organization/roles.html:18
 #, python-format
-msgid "Manage '%(organization_name)s' collaborators"
+msgid "Manage people in '%(organization_name)s'"
 msgstr ""
 
 #: warehouse/templates/manage/organization/roles.html:36
