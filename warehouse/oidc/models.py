@@ -22,20 +22,36 @@ from warehouse import db
 from warehouse.packaging.models import Project
 
 
-def _check_job_workflow_ref(ground_truth, signed_claim):
+def _check_claim_binary(binary_func):
+    """
+    Wraps a binary comparison function so that it takes three arguments instead,
+    ignoring the third.
+
+    This is used solely to make claim verification compatible with "trivial"
+    checks like `str.__eq__`.
+    """
+
+    def wrapper(ground_truth, signed_claim, all_signed_claims):
+        return binary_func(ground_truth, signed_claim)
+
+    return wrapper
+
+
+def _check_job_workflow_ref(ground_truth, signed_claim, all_signed_claims):
     # We expect a string formatted as follows:
-    #   OWNER/REPO/.github/workflows/WORKFLOW.yml@TAIL
-    # where TAIL might be a ref (`refs/...`) or a commit hash,
-    # but is always nonempty.
-    try:
-        repo_workflow_path, tail = signed_claim.rsplit("@", 1)
-    except ValueError:
+    #   OWNER/REPO/.github/workflows/WORKFLOW.yml@REF
+    # where REF is the value of the `ref` claim.
+
+    # Defensive: GitHub should never give us an empty job_workflow_ref,
+    # but we check for one anyways just in case.
+    if not signed_claim:
         return False
 
-    if not tail:
+    ref = all_signed_claims.get("ref")
+    if not ref:
         return False
 
-    return repo_workflow_path == ground_truth
+    return f"{ground_truth}@{ref}" == signed_claim
 
 
 class OIDCProviderProjectAssociation(db.Model):
@@ -68,8 +84,10 @@ class OIDCProvider(db.Model):
     }
 
     # A map of claim names to "check" functions, each of which
-    # has the signature `check(ground-truth, signed-claim) -> bool`.
-    __verifiable_claims__: Dict[str, Callable[[Any, Any], bool]] = dict()
+    # has the signature `check(ground-truth, signed-claim, all-signed-claims) -> bool`.
+    __verifiable_claims__: Dict[
+        str, Callable[[Any, Any, Dict[str, Any]], bool]
+    ] = dict()
 
     # Claims that have already been verified during the JWT signature
     # verification phase.
@@ -131,7 +149,7 @@ class OIDCProvider(db.Model):
                 )
                 return False
 
-            if not check(getattr(self, claim_name), signed_claim):
+            if not check(getattr(self, claim_name), signed_claim, signed_claims):
                 return False
 
         return True
@@ -161,9 +179,9 @@ class GitHubProvider(OIDCProvider):
     workflow_filename = Column(String)
 
     __verifiable_claims__ = {
-        "repository": str.__eq__,
-        "repository_owner": str.__eq__,
-        "repository_owner_id": str.__eq__,
+        "repository": _check_claim_binary(str.__eq__),
+        "repository_owner": _check_claim_binary(str.__eq__),
+        "repository_owner_id": _check_claim_binary(str.__eq__),
         "job_workflow_ref": _check_job_workflow_ref,
     }
 
