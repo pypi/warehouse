@@ -34,8 +34,7 @@
 {% block title %}{{ organization.name }}{% endblock %}
 
 {% block breadcrumb %}
-  {# TODO: <li><a href="{{ request.route_path('admin.organization.list') }}">Organizations</a></li> #}
-  <li>Organizations</li> 
+  <li><a href="{{ request.route_path('admin.organization.list') }}">Organizations</a></li>
   <li class="active">{{ organization.name }}</li>
 {% endblock %}
 
