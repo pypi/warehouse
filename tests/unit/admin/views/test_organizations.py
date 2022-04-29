@@ -26,21 +26,25 @@ class TestOrganizationList:
     def test_no_query(self, enable_organizations, db_request):
         organizations = sorted(
             [OrganizationFactory.create() for _ in range(30)],
-            key=lambda o: o.normalized_name.lower(),
+            key=lambda o: o.normalized_name,
         )
         result = views.organization_list(db_request)
 
-        assert result == {"organizations": organizations[:25], "query": "", "terms": []}
+        assert result["organizations"].items == organizations[:25]
+        assert result["query"] == ""
+        assert result["terms"] == []
 
     def test_with_page(self, enable_organizations, db_request):
         organizations = sorted(
             [OrganizationFactory.create() for _ in range(30)],
-            key=lambda o: o.normalized_name.lower(),
+            key=lambda o: o.normalized_name,
         )
         db_request.GET["page"] = "2"
         result = views.organization_list(db_request)
 
-        assert result == {"organizations": organizations[25:], "query": "", "terms": []}
+        assert result["organizations"].items == organizations[25:50]
+        assert result["query"] == ""
+        assert result["terms"] == []
 
     def test_with_invalid_page(self, enable_organizations):
         request = pretend.stub(
@@ -54,77 +58,67 @@ class TestOrganizationList:
     def test_basic_query(self, enable_organizations, db_request):
         organizations = sorted(
             [OrganizationFactory.create() for _ in range(5)],
-            key=lambda o: o.normalized_name.lower(),
+            key=lambda o: o.normalized_name,
         )
         db_request.GET["q"] = organizations[0].name
         result = views.organization_list(db_request)
 
-        assert result == {
-            "organizations": [organizations[0]],
-            "query": organizations[0].name,
-            "terms": [organizations[0].name],
-        }
+        assert result["organizations"].items == [organizations[0]]
+        assert result["query"] == organizations[0].name
+        assert result["terms"] == [organizations[0].name]
 
     def test_name_query(self, enable_organizations, db_request):
         organizations = sorted(
             [OrganizationFactory.create() for _ in range(5)],
-            key=lambda o: o.normalized_name.lower(),
+            key=lambda o: o.normalized_name,
         )
         db_request.GET["q"] = f"name:{organizations[0].name}"
         result = views.organization_list(db_request)
 
-        assert result == {
-            "organizations": [organizations[0]],
-            "query": f"name:{organizations[0].name}",
-            "terms": [f"name:{organizations[0].name}"],
-        }
+        assert result["organizations"].items == [organizations[0]]
+        assert result["query"] == f"name:{organizations[0].name}"
+        assert result["terms"] == [f"name:{organizations[0].name}"]
 
     def test_organization_query(self, enable_organizations, db_request):
         organizations = sorted(
             [OrganizationFactory.create() for _ in range(5)],
-            key=lambda o: o.normalized_name.lower(),
+            key=lambda o: o.normalized_name,
         )
         db_request.GET["q"] = f"organization:{organizations[0].display_name}"
         result = views.organization_list(db_request)
 
-        assert result == {
-            "organizations": [organizations[0]],
-            "query": f"organization:{organizations[0].display_name}",
-            "terms": [f"organization:{organizations[0].display_name}"],
-        }
+        assert result["organizations"].items == [organizations[0]]
+        assert result["query"] == f"organization:{organizations[0].display_name}"
+        assert result["terms"] == [f"organization:{organizations[0].display_name}"]
 
     def test_url_query(self, enable_organizations, db_request):
         organizations = sorted(
             [OrganizationFactory.create() for _ in range(5)],
-            key=lambda o: o.normalized_name.lower(),
+            key=lambda o: o.normalized_name,
         )
         db_request.GET["q"] = f"url:{organizations[0].link_url}"
         result = views.organization_list(db_request)
 
-        assert result == {
-            "organizations": [organizations[0]],
-            "query": f"url:{organizations[0].link_url}",
-            "terms": [f"url:{organizations[0].link_url}"],
-        }
+        assert result["organizations"].items == [organizations[0]]
+        assert result["query"] == f"url:{organizations[0].link_url}"
+        assert result["terms"] == [f"url:{organizations[0].link_url}"]
 
     def test_description_query(self, enable_organizations, db_request):
         organizations = sorted(
             [OrganizationFactory.create() for _ in range(5)],
-            key=lambda o: o.normalized_name.lower(),
+            key=lambda o: o.normalized_name,
         )
         db_request.GET["q"] = f"description:'{organizations[0].description}'"
         result = views.organization_list(db_request)
 
-        assert result == {
-            "organizations": [organizations[0]],
-            "query": f"description:'{organizations[0].description}'",
-            "terms": [f"description:{organizations[0].description}"],
-        }
+        assert result["organizations"].items == [organizations[0]]
+        assert result["query"] == f"description:'{organizations[0].description}'"
+        assert result["terms"] == [f"description:{organizations[0].description}"]
 
     def test_is_approved_query(self, enable_organizations, db_request):
         organizations = sorted(
             [OrganizationFactory.create() for _ in range(5)],
-            key=lambda o: o.normalized_name.lower(),
+            key=lambda o: o.normalized_name,
         )
         organizations[0].is_approved = True
         organizations[1].is_approved = True
@@ -134,16 +128,14 @@ class TestOrganizationList:
         db_request.GET["q"] = "is:approved"
         result = views.organization_list(db_request)
 
-        assert result == {
-            "organizations": organizations[:2],
-            "query": "is:approved",
-            "terms": ["is:approved"],
-        }
+        assert result["organizations"].items == organizations[:2]
+        assert result["query"] == "is:approved"
+        assert result["terms"] == ["is:approved"]
 
     def test_is_declined_query(self, enable_organizations, db_request):
         organizations = sorted(
             [OrganizationFactory.create() for _ in range(5)],
-            key=lambda o: o.normalized_name.lower(),
+            key=lambda o: o.normalized_name,
         )
         organizations[0].is_approved = True
         organizations[1].is_approved = True
@@ -153,16 +145,14 @@ class TestOrganizationList:
         db_request.GET["q"] = "is:declined"
         result = views.organization_list(db_request)
 
-        assert result == {
-            "organizations": organizations[2:3],
-            "query": "is:declined",
-            "terms": ["is:declined"],
-        }
+        assert result["organizations"].items == organizations[2:3]
+        assert result["query"] == "is:declined"
+        assert result["terms"] == ["is:declined"]
 
     def test_is_submitted_query(self, enable_organizations, db_request):
         organizations = sorted(
             [OrganizationFactory.create() for _ in range(5)],
-            key=lambda o: o.normalized_name.lower(),
+            key=lambda o: o.normalized_name,
         )
         organizations[0].is_approved = True
         organizations[1].is_approved = True
@@ -172,16 +162,14 @@ class TestOrganizationList:
         db_request.GET["q"] = "is:submitted"
         result = views.organization_list(db_request)
 
-        assert result == {
-            "organizations": organizations[3:],
-            "query": "is:submitted",
-            "terms": ["is:submitted"],
-        }
+        assert result["organizations"].items == organizations[3:]
+        assert result["query"] == "is:submitted"
+        assert result["terms"] == ["is:submitted"]
 
     def test_is_active_query(self, enable_organizations, db_request):
         organizations = sorted(
             [OrganizationFactory.create() for _ in range(5)],
-            key=lambda o: o.normalized_name.lower(),
+            key=lambda o: o.normalized_name,
         )
         organizations[0].is_active = True
         organizations[1].is_active = True
@@ -191,16 +179,14 @@ class TestOrganizationList:
         db_request.GET["q"] = "is:active"
         result = views.organization_list(db_request)
 
-        assert result == {
-            "organizations": organizations[:2],
-            "query": "is:active",
-            "terms": ["is:active"],
-        }
+        assert result["organizations"].items == organizations[:2]
+        assert result["query"] == "is:active"
+        assert result["terms"] == ["is:active"]
 
     def test_is_inactive_query(self, enable_organizations, db_request):
         organizations = sorted(
             [OrganizationFactory.create() for _ in range(5)],
-            key=lambda o: o.normalized_name.lower(),
+            key=lambda o: o.normalized_name,
         )
         organizations[0].is_active = True
         organizations[1].is_active = True
@@ -210,25 +196,21 @@ class TestOrganizationList:
         db_request.GET["q"] = "is:inactive"
         result = views.organization_list(db_request)
 
-        assert result == {
-            "organizations": organizations[2:],
-            "query": "is:inactive",
-            "terms": ["is:inactive"],
-        }
+        assert result["organizations"].items == organizations[2:]
+        assert result["query"] == "is:inactive"
+        assert result["terms"] == ["is:inactive"]
 
     def test_is_invalid_query(self, enable_organizations, db_request):
         organizations = sorted(
             [OrganizationFactory.create() for _ in range(5)],
-            key=lambda o: o.normalized_name.lower(),
+            key=lambda o: o.normalized_name,
         )
         db_request.GET["q"] = "is:not-actually-a-valid-query"
         result = views.organization_list(db_request)
 
-        assert result == {
-            "organizations": organizations[:25],
-            "query": "is:not-actually-a-valid-query",
-            "terms": ["is:not-actually-a-valid-query"],
-        }
+        assert result["organizations"].items == organizations[:25]
+        assert result["query"] == "is:not-actually-a-valid-query"
+        assert result["terms"] == ["is:not-actually-a-valid-query"]
 
     def test_disable_organizations(self, db_request):
         with pytest.raises(HTTPNotFound):
