@@ -40,7 +40,8 @@ def organization_list(request):
     if request.flags.enabled(AdminFlagValue.DISABLE_ORGANIZATIONS):
         raise HTTPNotFound
 
-    q = request.params.get("q")
+    q = request.params.get("q", "")
+    terms = shlex.split(q)
 
     try:
         page_num = int(request.params.get("page", 1))
@@ -53,7 +54,7 @@ def organization_list(request):
 
     if q:
         filters = []
-        for term in shlex.split(q):
+        for term in terms:
             # Examples:
             # - search individual words or "whole phrase" in any field
             # - name:psf
@@ -128,7 +129,7 @@ def organization_list(request):
         url_maker=paginate_url_factory(request),
     )
 
-    return {"organizations": organizations, "query": q}
+    return {"organizations": organizations, "query": q, "terms": terms}
 
 
 @view_config(

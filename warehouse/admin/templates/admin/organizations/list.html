@@ -25,22 +25,30 @@
 <div class="box">
   <div class="box-body">
     <form>
-      <span id="qHelpBlock" class="help-block">
-        <dl class="dl-horizontal">
-          <dt>Search all fields<dt>
-          <dd>individual words or "whole phrase"</dd>
-          <dt>Search specific field</dt>
-          <dd>name:psf, organization:python, url:.org, description:word, description:"whole phrase"</dd>
-          <dt>Search specific state</dt>
-          <dd>is:approved, is:declined, is:submitted, is:active, is:inactive</dd>
-        </dl>
-      </span>
       <div class="input-group input-group-lg">
-        <input name="q" type="text" class="form-control input-lg" placeholder="Search"{% if query %} value="{{ query }}"{% endif %} aria-describedby="qHelpBlock">
+        <input id="q" name="q" type="text" class="form-control input-lg" placeholder="Search"{% if query %} value="{{ query }}"{% endif %} aria-describedby="qHelpBlock">
         <div class="input-group-btn">
           <button type="submit" class="btn btn-default"><i class="fa fa-search"></i></button>
         </div>
       </div>
+      <span id="qHelpBlock" class="help-block no-margin">
+        Examples: word "whole phrase"
+        <a href="#" data-input="q" data-append="name:">name:</a>psf
+        <a href="#" data-input="q" data-append="organization:">organization:</a>python
+        <a href="#" data-input="q" data-append="url:">url:</a>.org
+        <a href="#" data-input="q" data-append="description:">description:</a>"open source"
+        <br>
+        Filters:&nbsp;
+        <div class="btn-group btn-group-xs" role="group" data-input="q" data-state="approval" aria-label="Approval">
+          <button type="button" class="btn btn-default {{ 'active' if 'is:submitted' in terms else '' }}" data-approval="is:submitted">Submitted</button>
+          <button type="button" class="btn btn-default {{ 'active' if 'is:approved' in terms else '' }}" data-approval="is:approved">Approved</button>
+          <button type="button" class="btn btn-default {{ 'active' if 'is:declined' in terms else '' }}" data-approval="is:declined">Declined</button>
+        </div>&nbsp;
+        <div class="btn-group btn-group-xs" role="group" data-input="q" data-state="status" aria-label="Status">
+          <button type="button" class="btn btn-default {{ 'active' if 'is:active' in terms else '' }}" data-status="is:active">Active</button>
+          <button type="button" class="btn btn-default {{ 'active' if 'is:inactive' in terms else '' }}" data-status="is:inactive">Inactive</button>
+        </div>
+      </span>
     </form>
   </div>
 </div>
