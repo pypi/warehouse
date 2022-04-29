@@ -11,8 +11,16 @@
 # limitations under the License.
 
 import pretend
+import pytest
 
 from warehouse.oidc import models
+
+
+def test_check_claim_binary():
+    wrapped = models._check_claim_binary(str.__eq__)
+
+    assert wrapped("foo", "bar", pretend.stub()) is False
+    assert wrapped("foo", "foo", pretend.stub()) is True
 
 
 class TestOIDCProvider:
@@ -27,9 +35,9 @@ class TestGitHubProvider:
         assert models.GitHubProvider.all_known_claims() == {
             # verifiable claims
             "repository",
-            "workflow",
             "repository_owner",
             "repository_owner_id",
+            "job_workflow_ref",
             # preverified claims
             "iss",
             "iat",
@@ -51,7 +59,7 @@ class TestGitHubProvider:
             "event_name",
             "ref_type",
             "repository_id",
-            "job_workflow_ref",
+            "workflow",
         }
 
     def test_github_provider_computed_properties(self):
@@ -120,7 +128,7 @@ class TestGitHubProvider:
             workflow_filename="fakeworkflow.yml",
         )
 
-        noop_check = pretend.call_recorder(lambda l, r: True)
+        noop_check = pretend.call_recorder(lambda gt, sc, ac: True)
         verifiable_claims = {
             claim_name: noop_check for claim_name in provider.__verifiable_claims__
         }
@@ -132,3 +140,62 @@ class TestGitHubProvider:
         }
         assert provider.verify_claims(signed_claims=signed_claims)
         assert len(noop_check.calls) == len(verifiable_claims)
+
+    @pytest.mark.parametrize(
+        ("claim", "ref", "valid"),
+        [
+            # okay: workflow name, followed by a nonempty ref
+            (
+                "foo/bar/.github/workflows/baz.yml@refs/tags/v0.0.1",
+                "refs/tags/v0.0.1",
+                True,
+            ),
+            ("foo/bar/.github/workflows/baz.yml@refs/pulls/6", "refs/pulls/6", True),
+            (
+                "foo/bar/.github/workflows/baz.yml@refs/heads/main",
+                "refs/heads/main",
+                True,
+            ),
+            (
+                "foo/bar/.github/workflows/baz.yml@notrailingslash",
+                "notrailingslash",
+                True,
+            ),
+            # bad: workflow name, empty or missing ref
+            ("foo/bar/.github/workflows/baz.yml@emptyref", "", False),
+            ("foo/bar/.github/workflows/baz.yml@missingref", None, False),
+            # bad: workflow name with various attempted impersonations
+            (
+                "foo/bar/.github/workflows/baz.yml@fake.yml@notrailingslash",
+                "notrailingslash",
+                False,
+            ),
+            (
+                "foo/bar/.github/workflows/baz.yml@fake.yml@refs/pulls/6",
+                "refs/pulls/6",
+                False,
+            ),
+            # bad: missing tail or workflow name or otherwise partial
+            ("foo/bar/.github/workflows/baz.yml@", "notrailingslash", False),
+            ("foo/bar/.github/workflows/@", "notrailingslash", False),
+            ("foo/bar/.github/workflows/", "notrailingslash", False),
+            ("baz.yml", "notrailingslash", False),
+            (
+                "foo/bar/.github/workflows/baz.yml@malicious.yml@",
+                "notrailingslash",
+                False,
+            ),
+            ("foo/bar/.github/workflows/baz.yml@@", "notrailingslash", False),
+            ("", "notrailingslash", False),
+        ],
+    )
+    def test_github_provider_job_workflow_ref(self, claim, ref, valid):
+        provider = models.GitHubProvider(
+            repository_name="bar",
+            repository_owner="foo",
+            repository_owner_id=pretend.stub(),
+            workflow_filename="baz.yml",
+        )
+
+        check = models.GitHubProvider.__verifiable_claims__["job_workflow_ref"]
+        assert check(provider.job_workflow_ref, claim, {"ref": ref}) is valid
