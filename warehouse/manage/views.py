@@ -979,6 +979,15 @@ class ProvisionMacaroonViews:
 
 def user_organizations(request):
     """Return all the organizations for which the user is an owner."""
+    organizations_managed = (
+        request.db.query(Organization.id)
+        .join(OrganizationRole.organization)
+        .filter(
+            OrganizationRole.role_name == OrganizationRoleType.Manager,
+            OrganizationRole.user == request.user,
+        )
+        .subquery()
+    )
     organizations_owned = (
         request.db.query(Organization.id)
         .join(OrganizationRole.organization)
@@ -988,10 +997,31 @@ def user_organizations(request):
         )
         .subquery()
     )
+    organizations_billing = (
+        request.db.query(Organization.id)
+        .join(OrganizationRole.organization)
+        .filter(
+            OrganizationRole.role_name == OrganizationRoleType.BillingManager,
+            OrganizationRole.user == request.user,
+        )
+        .subquery()
+    )
     return {
         "organizations_owned": (
             request.db.query(Organization)
             .join(organizations_owned, Organization.id == organizations_owned.c.id)
+            .order_by(Organization.name)
+            .all()
+        ),
+        "organizations_managed": (
+            request.db.query(Organization)
+            .join(organizations_managed, Organization.id == organizations_managed.c.id)
+            .order_by(Organization.name)
+            .all()
+        ),
+        "organizations_billing": (
+            request.db.query(Organization)
+            .join(organizations_billing, Organization.id == organizations_billing.c.id)
             .order_by(Organization.name)
             .all()
         ),
@@ -1023,9 +1053,17 @@ class ManageOrganizationsViews:
                 self.request.user.id
             ),
             **user_organizations(self.request),
+            "organizations_managed": list(
+                organization.name
+                for organization in all_user_organizations["organizations_managed"]
+            ),
             "organizations_owned": list(
                 organization.name
                 for organization in all_user_organizations["organizations_owned"]
+            ),
+            "organizations_billing": list(
+                organization.name
+                for organization in all_user_organizations["organizations_billing"]
             ),
             "create_organization_form": CreateOrganizationForm(
                 organization_service=self.organization_service,

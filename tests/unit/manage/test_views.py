@@ -2317,7 +2317,11 @@ class TestManageOrganizations:
         organization = pretend.stub(name=pretend.stub())
 
         user_organizations = pretend.call_recorder(
-            lambda *a, **kw: {"organizations_owned": [organization]}
+            lambda *a, **kw: {
+                "organizations_managed": [],
+                "organizations_owned": [organization],
+                "organizations_billing": [],
+            }
         )
         monkeypatch.setattr(views, "user_organizations", user_organizations)
 
@@ -2338,7 +2342,9 @@ class TestManageOrganizations:
         assert view.default_response == {
             "create_organization_form": create_organization_obj,
             "organizations": [organization],
+            "organizations_managed": [],
             "organizations_owned": [organization.name],
+            "organizations_billing": [],
         }
 
     def test_manage_organizations(self, monkeypatch):
