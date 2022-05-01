@@ -1309,6 +1309,75 @@ def manage_organization_roles(
 
 
 @view_config(
+    route_name="manage.project.revoke_invite",
+    context=Project,
+    uses_session=True,
+    require_methods=["POST"],
+    permission="manage:project",
+    has_translations=True,
+)
+def revoke_project_role_invitation(project, request, _form_class=ChangeRoleForm):
+    user_service = request.find_service(IUserService, context=None)
+    token_service = request.find_service(ITokenService, name="email")
+    user = user_service.get_user(request.POST["user_id"])
+
+    try:
+        user_invite = (
+            request.db.query(RoleInvitation)
+            .filter(RoleInvitation.project == project)
+            .filter(RoleInvitation.user == user)
+            .one()
+        )
+    except NoResultFound:
+        request.session.flash(
+            request._("Could not find role invitation."), queue="error"
+        )
+        return HTTPSeeOther(
+            request.route_path("manage.project.roles", project_name=project.name)
+        )
+
+    request.db.delete(user_invite)
+
+    try:
+        token_data = token_service.loads(user_invite.token)
+    except TokenExpired:
+        request.session.flash(request._("Invitation already expired."), queue="success")
+        return HTTPSeeOther(
+            request.route_path("manage.project.roles", project_name=project.name)
+        )
+    role_name = token_data.get("desired_role")
+
+    request.db.add(
+        JournalEntry(
+            name=project.name,
+            action=f"revoke_invite {role_name} {user.username}",
+            submitted_by=request.user,
+            submitted_from=request.remote_addr,
+        )
+    )
+    project.record_event(
+        tag="project:role:revoke_invite",
+        ip_address=request.remote_addr,
+        additional={
+            "submitted_by": request.user.username,
+            "role_name": role_name,
+            "target_user": user.username,
+        },
+    )
+    request.session.flash(
+        request._(
+            "Invitation revoked from '${username}'.",
+            mapping={"username": user.username},
+        ),
+        queue="success",
+    )
+
+    return HTTPSeeOther(
+        request.route_path("manage.project.roles", project_name=project.name)
+    )
+
+
+@view_config(
     route_name="manage.projects",
     renderer="manage/projects.html",
     uses_session=True,
