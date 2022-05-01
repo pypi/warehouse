@@ -163,6 +163,7 @@ gulp.task("dist:admin:css", () => {
     "warehouse/admin/static/css/ionicons.min.css",
     "warehouse/admin/static/css/AdminLTE.min.css",
     "warehouse/admin/static/css/skins/skin-purple.min.css",
+    "warehouse/admin/static/css/admin.css",
   ];
   return gulp.src(files)
     .pipe(gulpConcat("all.css"))
