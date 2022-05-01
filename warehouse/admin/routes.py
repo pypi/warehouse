@@ -22,7 +22,22 @@ def includeme(config):
 
     # Organization related Admin pages
     config.add_route(
-        "admin.organization.approve", "/admin/organizations/approve/", domain=warehouse
+        "admin.organization.list", "/admin/organizations/", domain=warehouse
+    )
+    config.add_route(
+        "admin.organization.detail",
+        "/admin/organizations/{organization_id}/",
+        domain=warehouse,
+    )
+    config.add_route(
+        "admin.organization.approve",
+        "/admin/organizations/{organization_id}/approve/",
+        domain=warehouse,
+    )
+    config.add_route(
+        "admin.organization.decline",
+        "/admin/organizations/{organization_id}/decline/",
+        domain=warehouse,
     )
 
     # User related Admin pages

@@ -1,0 +1,106 @@
+{#
+ # Licensed under the Apache License, Version 2.0 (the "License");
+ # you may not use this file except in compliance with the License.
+ # You may obtain a copy of the License at
+ #
+ # http://www.apache.org/licenses/LICENSE-2.0
+ #
+ # Unless required by applicable law or agreed to in writing, software
+ # distributed under the License is distributed on an "AS IS" BASIS,
+ # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ # See the License for the specific language governing permissions and
+ # limitations under the License.
+-#}
+{% extends "admin/base.html" %}
+
+{% import "admin/utils/pagination.html" as pagination %}
+
+{% block title %}Organizations{% endblock %}
+
+{% block breadcrumb %}
+  <li class="active">Organizations</li>
+{% endblock %}
+
+{% block content %}
+<div class="box">
+  <div class="box-body">
+    <form>
+      <div class="input-group input-group-lg">
+        <input id="q" name="q" type="text" class="form-control input-lg" placeholder="Search"{% if query %} value="{{ query }}"{% endif %} aria-describedby="qHelpBlock">
+        <div class="input-group-btn">
+          <button type="submit" class="btn btn-default"><i class="fa fa-search"></i></button>
+        </div>
+      </div>
+      <span id="qHelpBlock" class="help-block no-margin">
+        Examples: word "whole phrase"
+        <a href="#" data-input="q" data-append="name:">name:</a>psf
+        <a href="#" data-input="q" data-append="organization:">organization:</a>python
+        <a href="#" data-input="q" data-append="url:">url:</a>.org
+        <a href="#" data-input="q" data-append="description:">description:</a>"open source"
+        <br>
+        Filters:&nbsp;
+        <div class="btn-group btn-group-xs" role="group" data-input="q" data-state="approval" aria-label="Approval">
+          <button type="button" class="btn btn-default {{ 'active' if 'is:submitted' in terms else '' }}" data-approval="is:submitted">Submitted</button>
+          <button type="button" class="btn btn-default {{ 'active' if 'is:approved' in terms else '' }}" data-approval="is:approved">Approved</button>
+          <button type="button" class="btn btn-default {{ 'active' if 'is:declined' in terms else '' }}" data-approval="is:declined">Declined</button>
+        </div>&nbsp;
+        <div class="btn-group btn-group-xs" role="group" data-input="q" data-state="status" aria-label="Status">
+          <button type="button" class="btn btn-default {{ 'active' if 'is:active' in terms else '' }}" data-status="is:active">Active</button>
+          <button type="button" class="btn btn-default {{ 'active' if 'is:inactive' in terms else '' }}" data-status="is:inactive">Inactive</button>
+        </div>
+      </span>
+    </form>
+  </div>
+</div>
+
+<div class="box">
+  <div class="box-body table-responsive no-padding">
+    <table class="table table-hover">
+      <tr>
+        <th>Account Name</th>
+        <th>Organization</th>
+        <th>Description</th>
+        <th><i class="fa fa-fw"></i> Approval</th>
+        <th><i class="fa fa-fw"></i> Status</th>
+      </tr>
+
+      {% for organization in organizations %}
+      <tr>
+        <td>
+          <a href="{{ request.route_path('admin.organization.detail', organization_id=organization.id) }}">{{ organization.name }}</a>
+        </td>
+        <td>
+          <a href="{{ organization.link_url }}" rel="nofollow noopener noreferrer" target="_blank">{{ organization.display_name }}</a>
+        </td>
+        <td>{{ organization.description }}</td>
+        {% if organization.is_approved == True %}
+        <td><i class="fa fa-fw fa-check text-green"></i> Approved</td>
+        {% elif organization.is_approved == False %}
+        <td><i class="fa fa-fw fa-times text-red"></i> Declined</td>
+        {% else %}
+        <td><i class="fa fa-fw"></i> Submitted</td>
+        {% endif %}
+        {% if organization.is_active %}
+        <td><i class="fa fa-fw fa-check text-green"></i> Active</td>
+        {% else %}
+        <td><i class="fa fa-fw fa-times text-red"></i> Inactive</td>
+        {% endif %}
+      </tr>
+      {% endfor %}
+    </table>
+
+    <div class="box-footer">
+      <div class="col-sm-5">
+          {{ pagination.summary(organizations) }}
+      </div>
+
+      <div class="col-sm-7">
+        <div class="pull-right">
+            {{ pagination.paginate(organizations) }}
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+{% endblock content %}

@@ -2345,7 +2345,7 @@ class TestManageOrganizations:
         ]
         assert result == default_response
 
-    def test_manage_organizations_disallow_organizations(self, monkeypatch):
+    def test_manage_organizations_disable_organizations(self, monkeypatch):
         request = pretend.stub(
             find_service=lambda *a, **kw: pretend.stub(),
             flags=pretend.stub(enabled=pretend.call_recorder(lambda *a: True)),
@@ -2504,6 +2504,7 @@ class TestManageOrganizations:
                 admins,
                 organization_name=organization.name,
                 initiator_username=request.user.username,
+                organization_id=organization.id,
             ),
             pretend.call(
                 request,
@@ -2581,7 +2582,7 @@ class TestManageOrganizations:
         assert send_email.calls == []
         assert result == {"create_organization_form": create_organization_obj}
 
-    def test_create_organizations_disallow_organizations(self, monkeypatch):
+    def test_create_organizations_disable_organizations(self, monkeypatch):
         request = pretend.stub(
             find_service=lambda *a, **kw: pretend.stub(),
             flags=pretend.stub(enabled=pretend.call_recorder(lambda *a: True)),
@@ -2848,7 +2849,7 @@ class TestManageProjectSettings:
         assert result.status_code == 303
         assert result.headers["Location"] == "/foo/bar/"
 
-        events = project.events
+        events = project.events.all()
         assert len(events) == 1
         event = events[0]
         assert event.tag == tag
