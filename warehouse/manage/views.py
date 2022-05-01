@@ -1287,11 +1287,23 @@ def manage_organization_roles(
             user_service=user_service,
         )
 
-    # TODO: Gather list of roles.
-    # TODO: Gather list of invitations.
+    roles = set(
+        request.db.query(OrganizationRole)
+        .join(User)
+        .filter(OrganizationRole.organization == organization)
+        .all()
+    )
+    invitations = set(
+        request.db.query(OrganizationInvitation)
+        .join(User)
+        .filter(OrganizationInvitation.organization == organization)
+        .all()
+    )
 
     return {
         "organization": organization,
+        "roles": roles,
+        "invitations": invitations,
         "form": form,
     }
 

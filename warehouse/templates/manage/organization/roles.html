@@ -51,6 +51,128 @@
     </dl>
   </div>
 
+  <table class="table table--collaborators">
+    <caption class="sr-only">{% trans organization_name=organization.name %}Users who can manage {{ organization_name }}{% endtrans %}</caption>
+    <thead>
+      <tr>
+        <th scope="col">{% trans %}User{% endtrans %}</th>
+        <th scope="col">{% trans %}Role{% endtrans %}</th>
+        <th scope="col">{% trans %}2FA{% endtrans %}</th>
+        <th></th>
+      </tr>
+    </thead>
+    <tbody>
+    {% for role in roles|sort(attribute="user.username") %}
+      <tr>
+        <th scope="row">
+          <a href="{{ request.route_path('accounts.profile', username=role.user.username) }}" class="table__user-details">
+            {% set alt = gettext("Avatar for {user} from gravatar.com").format(user=role.user.name|default(role.user.username, true)) %}
+            <span class="table__user-gravatar">
+              <img src="{{ gravatar(request, role.user.email, size=50) }}" height="50" width="50" alt="{{ alt }}">
+            </span>
+            <span class="table__user-text">
+              <strong>{{ role.user.username }}</strong>
+              {% if role.user.name %}
+                <br><span>{{ role.user.name }}</span>
+              {% endif %}
+            </span>
+          </a>
+        </th>
+        <td>
+        {% if role.user == request.user %}
+          {% if role.role_name == OrganizationRoleType.Member %}
+          {% trans %}Member{% endtrans %}
+          {% elif role.role_name == OrganizationRoleType.Manager %}
+          {% trans %}Manager{% endtrans %}
+          {% elif role.role_name == OrganizationRoleType.Owner %}
+          {% trans %}Owner{% endtrans %}
+          {% elif role.role_name == OrganizationRoleType.BillingManager %}
+          {% trans %}Billing Manager{% endtrans %}
+          {% endif %}
+        {% else %}
+          <form class="table__change-role" method="POST" action="#" {# TODO action="{{ request.route_path('manage.organization.change_role', organization_name=organization.name) }}" #}>
+            <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
+            <input type="hidden" name="role_id" value="{{ role.id }}">
+
+            <label for="role-for-{{ role.id }}" class="sr-only">{% trans %}Role{% endtrans %}</label>
+            <select id="role-for-{{ role.id }}" class="table__change-field" name="role_name" data-original="{{ role.role_name }}" autocomplete="off">
+            {# Reuse `.role_name.choices` from "Invite" form to include/exclude "Billing Manager" appropriately. #}
+            {% for role_name, role_name_label in form.role_name.choices if role_name %}
+            {% set role_name_label = gettext(role_name_label) %}
+            <option value="{{ role_name }}" {{ 'selected' if role_name == role.role_name else '' }}>
+              {{ role_name_label }}
+            </option>
+            {% endfor %}
+            </select>
+            <button type="submit" class="button button--primary table__change-button" title="{% trans %}Save role{% endtrans %}">
+              {% trans %}Save{% endtrans %}
+            </button>
+          </form>
+        {% endif %}
+        </td>
+        <td>{{ two_factor_badge(role.user) }}</td>
+        <td class="table__align-right">
+          <form method="POST" action="#" {# TODO action="{{ request.route_path('manage.organization.delete_role', organization_name=organization.name) }}" #}>
+            <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
+            <input type="hidden" name="role_id" value="{{ role.id }}">
+            <button
+              type="submit"
+              class="button"
+              {% if (role.role_name == OrganizationRoleType.Owner and request.user.username == role.user.username) %}
+                title="{% trans %}Cannot remove yourself as owner{% endtrans %}"
+                disabled
+              {% else %}
+                title="{% trans user=role.user.username %}Remove {{ user }} from this organization{% endtrans %}"
+              {% endif %}
+            >
+            Remove
+            </button>
+          </form>
+        </td>
+      </tr>
+    {% endfor %}
+    {% for invite in invitations|sort(attribute="user.username") %}
+      <tr>
+        <th scope="row">
+          <a href="{{ request.route_path('accounts.profile', username=invite.user.username) }}" class="table__user-details">
+            {% set alt = gettext("Avatar for {user} from gravatar.com").format(user=invite.user.name|default(invite.user.username, true)) %}
+            <span class="table__user-gravatar">
+              <img src="{{ gravatar(request, invite.user.email, size=50) }}" height="50" width="50" alt="{{ alt }}">
+            </span>
+            <span class="table__user-text">
+              <strong>{{ invite.user.username }}</strong>
+              {% if invite.user.name %}
+                <br><span>{{ invite.user.name }}</span>
+              {% endif %}
+            </span>
+          </a>
+        </th>
+        <td>
+          {% if invite.invite_status == OrganizationInvitationStatus.Pending %}
+            {% trans %}Invite pending{% endtrans %}
+          {% elif invite.invite_status == OrganizationInvitationStatus.Expired %}
+            {% trans %}Invite expired{% endtrans %}
+          {% endif %}
+        </td>
+        <td></td>
+        <td class="table__align-right">
+          <form method="POST" action="#" {# TODO action="{{ request.route_path('manage.organization.revoke_invite', organization_name=organization.name) }}" #}>
+            <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
+            <input name="user_id" type="hidden" value="{{ invite.user_id }}">
+            <button
+              type="submit"
+              class="button"
+              title="{% trans user=invite.user.username %}Revoke invitation for {{ user }}{% endtrans %}"
+            >
+            {% trans %}Revoke invite{% endtrans %}
+            </button>
+          </form>
+        </td>
+      </tr>
+    {% endfor %}
+    </tbody>
+  </table>
+
   <h3>{% trans %}Invite member{% endtrans %}</h3>
   <form method="POST">
     <div class="form-group">
