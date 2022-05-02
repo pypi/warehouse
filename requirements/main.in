@@ -35,6 +35,7 @@ pycurl
 pyqrcode
 pyramid>=2.0
 pymacaroons
+pyramid-multiauth
 pyramid_jinja2>=2.5
 pyramid_mailer>=0.14.1
 pyramid_retry>=0.3
