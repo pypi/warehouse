@@ -1,0 +1,38 @@
+repos:
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.2.0
+    hooks:
+      - id: check-executables-have-shebangs
+      - id: check-merge-conflict
+      - id: check-shebang-scripts-are-executable
+      - id: check-toml
+      - id: check-yaml
+      - id: fix-byte-order-marker
+      - id: no-commit-to-branch
+        args: ["-b", "main"]
+  - repo: https://github.com/psf/black
+    rev: 22.3.0
+    hooks:
+      - id: black
+  - repo: https://github.com/pycqa/doc8
+    rev: 0.11.2
+    hooks:
+      - id: doc8
+  - repo: https://github.com/pycqa/flake8
+    rev: 4.0.1
+    hooks:
+      - id: flake8
+        additional_dependencies: [pep8-naming]
+  - repo: https://github.com/pycqa/isort
+    rev: 5.10.1
+    hooks:
+      - id: isort
+  - repo: https://github.com/thibaudcolas/curlylint.git
+    rev: v0.13.1
+    hooks:
+      - id: curlylint
+        files: ^warehouse/templates.*\.(jinja|html)$
+  - repo: https://github.com/rhysd/actionlint
+    rev: v1.6.13
+    hooks:
+      - id: actionlint-docker
