@@ -62,6 +62,12 @@ from warehouse.email import (
     send_password_reset_email,
     send_recovery_code_reminder_email,
 )
+from warehouse.organizations.models import (
+    Organization,
+    OrganizationInvitation,
+    OrganizationRole,
+    OrganizationRoleType,
+)
 from warehouse.packaging.models import (
     JournalEntry,
     Project,
@@ -817,105 +823,101 @@ def _get_two_factor_data(request, _redirect_to="/"):
 
 
 @view_config(
-    route_name="accounts.verify-project-role",
-    renderer="accounts/invite-confirmation.html",
+    route_name="accounts.verify-organization-role",
+    renderer="accounts/organization-invite-confirmation.html",
     require_methods=False,
     uses_session=True,
     permission="manage:user",
     has_translations=True,
 )
-def verify_project_role(request):
+def verify_organization_role(request):
     token_service = request.find_service(ITokenService, name="email")
     user_service = request.find_service(IUserService, context=None)
 
     def _error(message):
         request.session.flash(message, queue="error")
-        return HTTPSeeOther(request.route_path("manage.projects"))
+        return HTTPSeeOther(request.route_path("manage.organizations"))
 
     try:
         token = request.params.get("token")
         data = token_service.loads(token)
     except TokenExpired:
-        return _error(request._("Expired token: request a new project role invite"))
+        return _error(request._("Expired token: request a new organization invite"))
     except TokenInvalid:
-        return _error(request._("Invalid token: request a new project role invite"))
+        return _error(request._("Invalid token: request a new organization invite"))
     except TokenMissing:
         return _error(request._("Invalid token: no token supplied"))
 
     # Check whether this token is being used correctly
-    if data.get("action") != "email-project-role-verify":
+    if data.get("action") != "email-organization-role-verify":
         return _error(request._("Invalid token: not a collaboration invitation token"))
 
     user = user_service.get_user(data.get("user_id"))
     if user != request.user:
-        return _error(request._("Role invitation is not valid."))
+        return _error(request._("Organization invitation is not valid."))
 
-    project = (
-        request.db.query(Project).filter(Project.id == data.get("project_id")).one()
+    organization = (
+        request.db.query(Organization)
+        .filter(Organization.id == data.get("organization_id"))
+        .one()
     )
     desired_role = data.get("desired_role")
 
-    role_invite = (
-        request.db.query(RoleInvitation)
-        .filter(RoleInvitation.project == project)
-        .filter(RoleInvitation.user == user)
+    organization_invite = (
+        request.db.query(OrganizationInvitation)
+        .filter(OrganizationInvitation.organization == organization)
+        .filter(OrganizationInvitation.user == user)
         .one_or_none()
     )
 
-    if not role_invite:
-        return _error(request._("Role invitation no longer exists."))
+    if not organization_invite:
+        return _error(request._("Organization invitation no longer exists."))
 
     # Use the renderer to bring up a confirmation page
     # before adding as contributor
     if request.method == "GET":
         return {
-            "project_name": project.name,
+            "organization_name": organization.name,
             "desired_role": desired_role,
         }
     elif request.method == "POST" and "decline" in request.POST:
-        request.db.delete(role_invite)
+        request.db.delete(organization_invite)
         request.session.flash(
             request._(
-                "Invitation for '${project_name}' is declined.",
-                mapping={"project_name": project.name},
+                "Invitation for '${organization_name}' is declined.",
+                mapping={"organization_name": organization.name},
             ),
             queue="success",
         )
-        return HTTPSeeOther(request.route_path("manage.projects"))
+        return HTTPSeeOther(request.route_path("manage.organizations"))
 
-    request.db.add(Role(user=user, project=project, role_name=desired_role))
-    request.db.delete(role_invite)
     request.db.add(
-        JournalEntry(
-            name=project.name,
-            action=f"accepted {desired_role} {user.username}",
-            submitted_by=request.user,
-            submitted_from=request.remote_addr,
-        )
+        OrganizationRole(user=user, organization=organization, role_name=desired_role)
     )
-    project.record_event(
-        tag="project:role:accepted",
+    request.db.delete(organization_invite)
+    organization.record_event(
+        tag="organization:role:accepted",
         ip_address=request.remote_addr,
         additional={
-            "submitted_by": request.user.username,
+            "submitted_by_user_id": str(request.user.id),
             "role_name": desired_role,
-            "target_user": user.username,
+            "target_user_id": str(user.id),
         },
     )
     user.record_event(
         tag="account:role:accepted",
         ip_address=request.remote_addr,
         additional={
-            "submitted_by": request.user.username,
-            "project_name": project.name,
+            "submitted_by_user_id": str(request.user.id),
+            "organization_name": organization.name,
             "role_name": desired_role,
         },
     )
 
     owner_roles = (
-        request.db.query(Role)
-        .filter(Role.project == project)
-        .filter(Role.role_name == "Owner")
+        request.db.query(OrganizationRole)
+        .filter(OrganizationRole.organization == organization)
+        .filter(OrganizationRole.role_name == OrganizationRoleType.Owner)
         .all()
     )
     owner_users = {owner.user for owner in owner_roles}
@@ -923,38 +925,51 @@ def verify_project_role(request):
     # Don't send email to new user if they are now an owner
     owner_users.discard(user)
 
-    submitter_user = user_service.get_user(data.get("submitter_id"))
-    send_collaborator_added_email(
-        request,
-        owner_users,
-        user=user,
-        submitter=submitter_user,
-        project_name=project.name,
-        role=desired_role,
-    )
-
-    send_added_as_collaborator_email(
-        request,
-        user,
-        submitter=submitter_user,
-        project_name=project.name,
-        role=desired_role,
-    )
+    # TODO: Send notification emails.
+    # submitter_user = user_service.get_user(data.get("submitter_id"))
+    # send_member_added_email(
+    #     request,
+    #     owner_users,
+    #     user=user,
+    #     submitter=submitter_user,
+    #     organization_name=organization.name,
+    #     role=desired_role,
+    # )
+    #
+    # send_added_as_member_email(
+    #     request,
+    #     user,
+    #     submitter=submitter_user,
+    #     organization_name=organization.name,
+    #     role=desired_role,
+    # )
 
     request.session.flash(
         request._(
-            "You are now ${role} of the '${project_name}' project.",
-            mapping={"project_name": project.name, "role": desired_role},
+            "You are now ${role} of the '${organization_name}' organization.",
+            mapping={"organization_name": organization.name, "role": desired_role},
         ),
         queue="success",
     )
 
     if desired_role == "Owner":
         return HTTPSeeOther(
-            request.route_path("manage.project.roles", project_name=project.name)
+            request.route_path(
+                "manage.organization.roles", organization_name=organization.name
+            )
         )
     else:
-        return HTTPSeeOther(request.route_path("packaging.project", name=project.name))
+        # TODO: Redirect to managing organization projects.
+        # return HTTPSeeOther(
+        #     request.route_path(
+        #         "manage.organization.projects", name=organization.name
+        #     )
+        # )
+        return HTTPSeeOther(
+            request.route_path(
+                "manage.organization.roles", organization_name=organization.name
+            )
+        )
 
 
 @view_config(

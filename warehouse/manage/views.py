@@ -1051,7 +1051,23 @@ class ManageOrganizationsViews:
     @property
     def default_response(self):
         all_user_organizations = user_organizations(self.request)
+
+        organization_invites = (
+            self.request.db.query(OrganizationInvitation)
+            .filter(
+                OrganizationInvitation.invite_status
+                == OrganizationInvitationStatus.Pending
+            )
+            .filter(OrganizationInvitation.user == self.request.user)
+            .all()
+        )
+        organization_invites = [
+            (organization_invite.organization, organization_invite.token)
+            for organization_invite in organization_invites
+        ]
+
         return {
+            "organization_invites": organization_invites,
             "organizations": self.organization_service.get_organizations_by_user(
                 self.request.user.id
             ),

@@ -166,6 +166,11 @@ def includeme(config):
         "accounts.verify-email", "/account/verify-email/", domain=warehouse
     )
     config.add_route(
+        "accounts.verify-organization-role",
+        "/account/verify-organization-role/",
+        domain=warehouse,
+    )
+    config.add_route(
         "accounts.verify-project-role",
         "/account/verify-project-role/",
         domain=warehouse,
