@@ -35,6 +35,29 @@
   </div>
 </div>
 
+<h4>Exact match (with normalization)</h4>
+<div class="box">
+  <div class="box-body table-responsive no-padding">
+    {% if exact_match %}
+    <table class="table table-hover">
+      <tr>
+        <th>Project name</th>
+        <th>Normalized name</th>
+      </tr>
+      <tr>
+        <td>
+          <a href="{{ request.route_path('admin.project.detail', project_name=exact_match.normalized_name) }}">{{ exact_match.name }}</a>
+        </td>
+        <td>{{ exact_match.normalized_name}}</td>
+      </tr>
+    </table>
+    {% else %}
+    <i>No exact match</i>
+    {% endif %}
+  </div>
+</div>
+
+<h4>All matches (with ultranormalization)</h4>
 <div class="box">
   <div class="box-body table-responsive no-padding">
     <table class="table table-hover">
