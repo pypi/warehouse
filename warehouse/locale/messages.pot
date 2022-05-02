@@ -225,10 +225,6 @@ msgstr ""
 msgid "Banner Preview"
 msgstr ""
 
-#: warehouse/admin/templates/admin/organizations/approve.html:21
-msgid "Approve New Organization"
-msgstr ""
-
 #: warehouse/manage/forms.py:322
 msgid "Choose an organization account name with 50 characters or less."
 msgstr ""
@@ -277,39 +273,39 @@ msgstr ""
 msgid "Generating new recovery codes will invalidate your existing codes."
 msgstr ""
 
-#: warehouse/manage/views.py:1300
+#: warehouse/manage/views.py:1301
 msgid ""
 "There have been too many attempted OpenID Connect registrations. Try "
 "again later."
 msgstr ""
 
-#: warehouse/manage/views.py:1981
+#: warehouse/manage/views.py:1982
 msgid "User '${username}' already has ${role_name} role for project"
 msgstr ""
 
-#: warehouse/manage/views.py:1992
+#: warehouse/manage/views.py:1993
 msgid ""
 "User '${username}' does not have a verified primary email address and "
 "cannot be added as a ${role_name} for project"
 msgstr ""
 
-#: warehouse/manage/views.py:2005
+#: warehouse/manage/views.py:2006
 msgid "User '${username}' already has an active invite. Please try again later."
 msgstr ""
 
-#: warehouse/manage/views.py:2063
+#: warehouse/manage/views.py:2064
 msgid "Invitation sent to '${username}'"
 msgstr ""
 
-#: warehouse/manage/views.py:2110
+#: warehouse/manage/views.py:2111
 msgid "Could not find role invitation."
 msgstr ""
 
-#: warehouse/manage/views.py:2121
+#: warehouse/manage/views.py:2122
 msgid "Invitation already expired."
 msgstr ""
 
-#: warehouse/manage/views.py:2145
+#: warehouse/manage/views.py:2146
 msgid "Invitation revoked from '${username}'."
 msgstr ""
 
@@ -1372,6 +1368,26 @@ msgid ""
 "%(new_token_url)s. Then, use this token when publishing instead of your "
 "username and password. See %(token_help_url)s for help using API tokens "
 "to publish."
+msgstr ""
+
+#: warehouse/templates/email/new-organization-approved/body.html:17
+#, python-format
+msgid ""
+"Your new organization named \"%(organization_name)s\" has been approved "
+"and created."
+msgstr ""
+
+#: warehouse/templates/email/new-organization-approved/body.html:19
+msgid ""
+"You are the owner of the new organization and can log in to manage "
+"organization projects, collaborators, teams, or settings."
+msgstr ""
+
+#: warehouse/templates/email/new-organization-declined/body.html:17
+#, python-format
+msgid ""
+"Your request to create a new organization named \"%(organization_name)s\""
+" was not approved."
 msgstr ""
 
 #: warehouse/templates/email/new-organization-requested/body.html:17

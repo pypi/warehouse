@@ -191,10 +191,33 @@ def _email(
 
 @_email("admin-new-organization-requested")
 def send_admin_new_organization_requested_email(
-    request, user, *, organization_name, initiator_username
+    request, user, *, organization_name, initiator_username, organization_id
 ):
     return {
         "initiator_username": initiator_username,
+        "organization_id": organization_id,
+        "organization_name": organization_name,
+    }
+
+
+@_email("admin-new-organization-approved")
+def send_admin_new_organization_approved_email(
+    request, user, *, organization_name, initiator_username, message=""
+):
+    return {
+        "initiator_username": initiator_username,
+        "message": message,
+        "organization_name": organization_name,
+    }
+
+
+@_email("admin-new-organization-declined")
+def send_admin_new_organization_declined_email(
+    request, user, *, organization_name, initiator_username, message=""
+):
+    return {
+        "initiator_username": initiator_username,
+        "message": message,
         "organization_name": organization_name,
     }
 
@@ -286,6 +309,26 @@ def send_primary_email_change_email(request, user_and_email):
 @_email("new-organization-requested")
 def send_new_organization_requested_email(request, user, *, organization_name):
     return {"organization_name": organization_name}
+
+
+@_email("new-organization-approved")
+def send_new_organization_approved_email(
+    request, user, *, organization_name, message=""
+):
+    return {
+        "message": message,
+        "organization_name": organization_name,
+    }
+
+
+@_email("new-organization-declined")
+def send_new_organization_declined_email(
+    request, user, *, organization_name, message=""
+):
+    return {
+        "message": message,
+        "organization_name": organization_name,
+    }
 
 
 @_email("collaborator-added")

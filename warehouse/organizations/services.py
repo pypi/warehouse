@@ -124,6 +124,7 @@ class DatabaseOrganizationService:
         Performs operations necessary to reject approval of an Organization
         """
         organization = self.get_organization(organization_id)
+        organization.is_active = False
         organization.is_approved = False
         organization.date_approved = datetime.datetime.now()
         # self.db.flush()

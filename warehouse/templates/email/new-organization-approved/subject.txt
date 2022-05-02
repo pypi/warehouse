@@ -11,16 +11,7 @@
  # See the License for the specific language governing permissions and
  # limitations under the License.
 -#}
-{% extends "confirm-action.html" %}
 
-{# This is a placeholder so we can reference `admin.organization.approve`
- # as a route in the admin-new-organization-requested email.
--#}
+{% extends "email/_base/subject.txt" %}
 
-{% block title %}
-    {% trans %}Approve New Organization{% endtrans %}
-{% endblock %}
-
-{% block main %}
-  <!-- TODO -->
-{% endblock %}
+{% block subject %}{% trans organization_name=organization_name %}Your new organization named "{{ organization_name }}" has been approved and created{% endtrans %}{% endblock %}

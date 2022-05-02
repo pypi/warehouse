@@ -1065,6 +1065,7 @@ class ManageOrganizationsViews:
                 self.user_service.get_admins(),
                 organization_name=organization.name,
                 initiator_username=self.request.user.username,
+                organization_id=organization.id,
             )
             send_new_organization_requested_email(
                 self.request, self.request.user, organization_name=organization.name
