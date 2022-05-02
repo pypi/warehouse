@@ -81,7 +81,7 @@ class DatabaseOrganizationService:
 
         return organization
 
-    def add_catalog_entry(self, name, organization_id):
+    def add_catalog_entry(self, organization_id):
         """
         Adds the organization name to the organization name catalog
         """
