@@ -70,9 +70,7 @@ class DatabaseMacaroonService:
         raw_macaroon = self._extract_raw_macaroon(raw_macaroon)
 
         if raw_macaroon is None:
-            # This happens when a user gives us a completely incorrect
-            # raw macaroon.
-            return None
+            raise InvalidMacaroonError("malformed or nonexistent macaroon")
 
         try:
             return pymacaroons.Macaroon.deserialize(raw_macaroon)
