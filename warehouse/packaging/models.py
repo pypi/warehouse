@@ -230,9 +230,11 @@ class Project(SitemapMixin, TwoFactorRequireable, HasEvents, db.Model):
             query.all(), key=lambda x: ["Owner", "Maintainer"].index(x.role_name)
         ):
             if role.role_name == "Owner":
-                acls.append((Allow, str(role.user.id), ["manage:project", "upload"]))
+                acls.append(
+                    (Allow, f"user:{role.user.id}", ["manage:project", "upload"])
+                )
             else:
-                acls.append((Allow, str(role.user.id), ["upload"]))
+                acls.append((Allow, f"user:{role.user.id}", ["upload"]))
         return acls
 
     @property
