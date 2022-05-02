@@ -1052,14 +1052,7 @@ class TestFileUpload:
 
     @pytest.mark.parametrize(
         "conflicting_name",
-        [
-            "toast1ng",
-            "toastlng",
-            "t0asting",
-            "toast-ing",
-            "toast.ing",
-            "toast_ing",
-        ],
+        ["toast1ng", "toastlng", "t0asting", "toast-ing", "toast.ing", "toast_ing",],
     )
     def test_fails_with_ultranormalized_names(
         self, pyramid_config, db_request, conflicting_name
@@ -3013,11 +3006,7 @@ class TestFileUpload:
 
     # here
     @pytest.mark.parametrize(
-        "version, expected_version",
-        [
-            ("1.0", "1.0"),
-            ("v1.0", "1.0"),
-        ],
+        "version, expected_version", [("1.0", "1.0"), ("v1.0", "1.0"),],
     )
     def test_upload_succeeds_creates_release(
         self, pyramid_config, db_request, metrics, version, expected_version
