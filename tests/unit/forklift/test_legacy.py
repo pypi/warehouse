@@ -3192,7 +3192,10 @@ class TestFileUpload:
             .filter((Release.project == project) & (Release.version == "1.0"))
             .one()
         )
-        assert release.published is None
+        if is_draft:
+            assert release.published is None
+        else:
+            assert release.published is not None
         assert release.is_draft is is_draft
         assert release.version == "1.0"
         assert release.canonical_version == "1"
