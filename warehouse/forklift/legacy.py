@@ -45,7 +45,6 @@ from sqlalchemy.orm.exc import MultipleResultsFound, NoResultFound
 from trove_classifiers import classifiers, deprecated_classifiers
 
 from warehouse import forms
-from warehouse.accounts import AuthenticationMethod
 from warehouse.admin.flags import AdminFlagValue
 from warehouse.classifiers.models import Classifier
 from warehouse.email import send_basic_auth_with_two_factor_email
@@ -65,6 +64,7 @@ from warehouse.packaging.models import (
 )
 from warehouse.packaging.tasks import update_bigquery_release_files
 from warehouse.utils import http, readme
+from warehouse.utils.security_policy import AuthenticationMethod
 
 ONE_MB = 1 * 1024 * 1024
 ONE_GB = 1 * 1024 * 1024 * 1024

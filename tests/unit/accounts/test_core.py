@@ -19,13 +19,14 @@ import pytest
 from pyramid.httpexceptions import HTTPUnauthorized
 
 from warehouse import accounts
-from warehouse.accounts import AuthenticationMethod
+from warehouse.accounts import security_policy
 from warehouse.accounts.interfaces import (
     IPasswordBreachedService,
     ITokenService,
     IUserService,
 )
 from warehouse.accounts.models import DisableReason
+from warehouse.accounts.security_policy import _basic_auth_check
 from warehouse.accounts.services import (
     HaveIBeenPwnedPasswordBreachedService,
     TokenServiceFactory,
@@ -43,7 +44,7 @@ class TestLogin:
             pretend.stub(), IPasswordBreachedService, None
         )
         pyramid_request.matched_route = pretend.stub(name="route_name")
-        assert accounts._basic_auth_check("myuser", "mypass", pyramid_request) is None
+        assert _basic_auth_check("myuser", "mypass", pyramid_request) is False
         assert service.find_userid.calls == []
 
     def test_with_no_user(self, pyramid_request, pyramid_services):
@@ -53,7 +54,7 @@ class TestLogin:
             pretend.stub(), IPasswordBreachedService, None
         )
         pyramid_request.matched_route = pretend.stub(name="forklift.legacy.file_upload")
-        assert accounts._basic_auth_check("myuser", "mypass", pyramid_request) is None
+        assert _basic_auth_check("myuser", "mypass", pyramid_request) is False
         assert service.find_userid.calls == [pretend.call("myuser")]
 
     def test_with_invalid_password(self, pyramid_request, pyramid_services):
@@ -77,9 +78,7 @@ class TestLogin:
         pyramid_request.help_url = pretend.call_recorder(lambda **kw: "/the/help/url/")
 
         with pytest.raises(BasicAuthFailedPassword) as excinfo:
-            assert (
-                accounts._basic_auth_check("myuser", "mypass", pyramid_request) is None
-            )
+            assert _basic_auth_check("myuser", "mypass", pyramid_request) is None
 
         assert excinfo.value.status == (
             "403 Invalid or non-existent authentication information. "
@@ -124,9 +123,7 @@ class TestLogin:
         pyramid_request.help_url = pretend.call_recorder(lambda **kw: "/the/help/url/")
 
         with pytest.raises(HTTPUnauthorized) as excinfo:
-            assert (
-                accounts._basic_auth_check("myuser", "mypass", pyramid_request) is None
-            )
+            assert _basic_auth_check("myuser", "mypass", pyramid_request) is None
 
         assert excinfo.value.status == "401 Account is disabled."
         assert service.find_userid.calls == [pretend.call("myuser")]
@@ -154,9 +151,7 @@ class TestLogin:
         pyramid_request.matched_route = pretend.stub(name="forklift.legacy.file_upload")
 
         with pytest.raises(BasicAuthBreachedPassword) as excinfo:
-            assert (
-                accounts._basic_auth_check("myuser", "mypass", pyramid_request) is None
-            )
+            assert _basic_auth_check("myuser", "mypass", pyramid_request) is None
 
         assert excinfo.value.status == "401 Bad Password!"
         assert service.find_userid.calls == [pretend.call("myuser")]
@@ -188,9 +183,7 @@ class TestLogin:
         pyramid_request.help_url = pretend.call_recorder(lambda **kw: "/the/help/url/")
 
         with pytest.raises(HTTPUnauthorized) as excinfo:
-            assert (
-                accounts._basic_auth_check("myuser", "mypass", pyramid_request) is None
-            )
+            assert _basic_auth_check("myuser", "mypass", pyramid_request) is None
 
         assert excinfo.value.status == "401 Account is frozen."
         assert service.find_userid.calls == [pretend.call("myuser")]
@@ -198,10 +191,6 @@ class TestLogin:
         assert service.is_disabled.calls == [pretend.call(1)]
 
     def test_with_valid_password(self, monkeypatch, pyramid_request, pyramid_services):
-        principals = pretend.stub()
-        authenticate = pretend.call_recorder(lambda userid, request: principals)
-        monkeypatch.setattr(accounts, "_authenticate", authenticate)
-
         user = pretend.stub(id=2, has_two_factor=False)
         service = pretend.stub(
             get_user=pretend.call_recorder(lambda user_id: user),
@@ -226,10 +215,7 @@ class TestLogin:
         now = datetime.datetime.utcnow()
 
         with freezegun.freeze_time(now):
-            assert (
-                accounts._basic_auth_check("myuser", "mypass", pyramid_request)
-                is principals
-            )
+            assert _basic_auth_check("myuser", "mypass", pyramid_request) is True
 
         assert service.find_userid.calls == [pretend.call("myuser")]
         assert service.get_user.calls == [pretend.call(2)]
@@ -245,15 +231,13 @@ class TestLogin:
             pretend.call("mypass", tags=["method:auth", "auth_method:basic"])
         ]
         assert service.update_user.calls == [pretend.call(2, last_login=now)]
-        assert authenticate.calls == [pretend.call(2, pyramid_request)]
-        assert pyramid_request.authentication_method == AuthenticationMethod.BASIC_AUTH
 
     def test_via_basic_auth_compromised(
         self, monkeypatch, pyramid_request, pyramid_services
     ):
         send_email = pretend.call_recorder(lambda *a, **kw: None)
         monkeypatch.setattr(
-            accounts, "send_password_compromised_email_hibp", send_email
+            security_policy, "send_password_compromised_email_hibp", send_email
         )
 
         user = pretend.stub(id=2)
@@ -279,7 +263,7 @@ class TestLogin:
         pyramid_request.matched_route = pretend.stub(name="forklift.legacy.file_upload")
 
         with pytest.raises(BasicAuthBreachedPassword) as excinfo:
-            accounts._basic_auth_check("myuser", "mypass", pyramid_request)
+            _basic_auth_check("myuser", "mypass", pyramid_request)
 
         assert excinfo.value.status == "401 Bad Password!"
         assert service.find_userid.calls == [pretend.call("myuser")]
@@ -299,149 +283,6 @@ class TestLogin:
             pretend.call(2, reason=DisableReason.CompromisedPassword)
         ]
         assert send_email.calls == [pretend.call(pyramid_request, user)]
-
-
-class TestAuthenticate:
-    @pytest.mark.parametrize(
-        (
-            "is_superuser",
-            "is_moderator",
-            "is_psf_staff",
-            "password_out_of_date",
-            "expected",
-        ),
-        [
-            (False, False, False, False, []),
-            (False, False, False, True, None),
-            (
-                True,
-                False,
-                False,
-                False,
-                [
-                    "group:admins",
-                    "group:moderators",
-                    "group:psf_staff",
-                    "group:with_admin_dashboard_access",
-                ],
-            ),
-            (
-                False,
-                True,
-                False,
-                False,
-                ["group:moderators", "group:with_admin_dashboard_access"],
-            ),
-            (
-                True,
-                True,
-                False,
-                False,
-                [
-                    "group:admins",
-                    "group:moderators",
-                    "group:psf_staff",
-                    "group:with_admin_dashboard_access",
-                ],
-            ),
-            (
-                False,
-                False,
-                True,
-                False,
-                ["group:psf_staff", "group:with_admin_dashboard_access"],
-            ),
-            (
-                False,
-                True,
-                True,
-                False,
-                [
-                    "group:moderators",
-                    "group:psf_staff",
-                    "group:with_admin_dashboard_access",
-                ],
-            ),
-        ],
-    )
-    def test_with_user(
-        self,
-        pyramid_request,
-        pyramid_services,
-        is_superuser,
-        is_moderator,
-        is_psf_staff,
-        password_out_of_date,
-        expected,
-    ):
-        user = pretend.stub(
-            is_superuser=is_superuser,
-            is_moderator=is_moderator,
-            is_psf_staff=is_psf_staff,
-        )
-        service = pretend.stub(
-            get_user=pretend.call_recorder(lambda userid: user),
-            get_password_timestamp=lambda userid: 0,
-        )
-        pyramid_services.register_service(service, IUserService, None)
-        pyramid_request.session.password_outdated = lambda ts: password_out_of_date
-        pyramid_request.session.invalidate = pretend.call_recorder(lambda: None)
-        pyramid_request.session.flash = pretend.call_recorder(
-            lambda msg, queue=None: None
-        )
-
-        assert accounts._authenticate(1, pyramid_request) == expected
-        assert service.get_user.calls == [pretend.call(1)]
-
-        if password_out_of_date:
-            assert pyramid_request.session.invalidate.calls == [pretend.call()]
-            assert pyramid_request.session.flash.calls == [
-                pretend.call("Session invalidated by password change", queue="error")
-            ]
-        else:
-            assert pyramid_request.session.invalidate.calls == []
-            assert pyramid_request.session.flash.calls == []
-
-    def test_without_user(self):
-        service = pretend.stub(get_user=pretend.call_recorder(lambda userid: None))
-        request = pretend.stub(find_service=lambda iface, context: service)
-
-        assert accounts._authenticate(1, request) is None
-        assert service.get_user.calls == [pretend.call(1)]
-
-
-class TestSessionAuthenticate:
-    def test_route_matched_name_bad(self, monkeypatch):
-        authenticate_obj = pretend.call_recorder(lambda *a, **kw: True)
-        monkeypatch.setattr(accounts, "_authenticate", authenticate_obj)
-        request = pretend.stub(
-            matched_route=pretend.stub(name="forklift.legacy.file_upload")
-        )
-        assert accounts._session_authenticate(1, request) is None
-        assert authenticate_obj.calls == []
-        assert request.authentication_method == AuthenticationMethod.SESSION
-
-    def test_route_matched_name_ok(self, monkeypatch):
-        authenticate_obj = pretend.call_recorder(lambda *a, **kw: True)
-        monkeypatch.setattr(accounts, "_authenticate", authenticate_obj)
-        request = pretend.stub(
-            matched_route=pretend.stub(name="includes.current-user-indicator")
-        )
-        assert accounts._session_authenticate(1, request) is True
-        assert authenticate_obj.calls == [pretend.call(1, request)]
-        assert request.authentication_method == AuthenticationMethod.SESSION
-
-
-class TestMacaroonAuthenticate:
-    def test_macaroon_authenticate(self, monkeypatch):
-        authenticate_obj = pretend.call_recorder(lambda *a, **kw: True)
-        monkeypatch.setattr(accounts, "_authenticate", authenticate_obj)
-        request = pretend.stub(
-            matched_route=pretend.stub(name="includes.current-user-indicator")
-        )
-        assert accounts._macaroon_authenticate(1, request) is True
-        assert authenticate_obj.calls == [pretend.call(1, request)]
-        assert request.authentication_method == AuthenticationMethod.MACAROON
 
 
 class TestUser:
@@ -472,23 +313,27 @@ class TestUser:
 
 
 def test_includeme(monkeypatch):
-    macaroon_authn_obj = pretend.stub()
-    macaroon_authn_cls = pretend.call_recorder(lambda callback: macaroon_authn_obj)
-    basic_authn_obj = pretend.stub()
-    basic_authn_cls = pretend.call_recorder(lambda check: basic_authn_obj)
-    session_authn_obj = pretend.stub()
-    session_authn_cls = pretend.call_recorder(lambda callback: session_authn_obj)
-    authn_obj = pretend.stub()
-    authn_cls = pretend.call_recorder(lambda *a: authn_obj)
     authz_obj = pretend.stub()
     authz_cls = pretend.call_recorder(lambda *a, **kw: authz_obj)
-    monkeypatch.setattr(accounts, "BasicAuthAuthenticationPolicy", basic_authn_cls)
-    monkeypatch.setattr(accounts, "SessionAuthenticationPolicy", session_authn_cls)
-    monkeypatch.setattr(accounts, "MacaroonAuthenticationPolicy", macaroon_authn_cls)
-    monkeypatch.setattr(accounts, "MultiAuthenticationPolicy", authn_cls)
     monkeypatch.setattr(accounts, "ACLAuthorizationPolicy", authz_cls)
     monkeypatch.setattr(accounts, "MacaroonAuthorizationPolicy", authz_cls)
     monkeypatch.setattr(accounts, "TwoFactorAuthorizationPolicy", authz_cls)
+
+    multi_policy_obj = pretend.stub()
+    multi_policy_cls = pretend.call_recorder(lambda ps, authz: multi_policy_obj)
+    monkeypatch.setattr(accounts, "MultiSecurityPolicy", multi_policy_cls)
+
+    session_policy_obj = pretend.stub()
+    session_policy_cls = pretend.call_recorder(lambda: session_policy_obj)
+    monkeypatch.setattr(accounts, "SessionSecurityPolicy", session_policy_cls)
+
+    basic_policy_obj = pretend.stub()
+    basic_policy_cls = pretend.call_recorder(lambda: basic_policy_obj)
+    monkeypatch.setattr(accounts, "BasicAuthSecurityPolicy", basic_policy_cls)
+
+    macaroon_policy_obj = pretend.stub()
+    macaroon_policy_cls = pretend.call_recorder(lambda: macaroon_policy_obj)
+    monkeypatch.setattr(accounts, "MacaroonSecurityPolicy", macaroon_policy_cls)
 
     config = pretend.stub(
         registry=pretend.stub(
@@ -504,8 +349,7 @@ def test_includeme(monkeypatch):
             lambda factory, iface, name=None: None
         ),
         add_request_method=pretend.call_recorder(lambda f, name, reify: None),
-        set_authentication_policy=pretend.call_recorder(lambda p: None),
-        set_authorization_policy=pretend.call_recorder(lambda p: None),
+        set_security_policy=pretend.call_recorder(lambda p: None),
         maybe_dotted=pretend.call_recorder(lambda path: path),
         add_route_predicate=pretend.call_recorder(lambda name, cls: None),
     )
@@ -536,17 +380,9 @@ def test_includeme(monkeypatch):
     assert config.add_request_method.calls == [
         pretend.call(accounts._user, name="user", reify=True)
     ]
-    assert config.set_authentication_policy.calls == [pretend.call(authn_obj)]
-    assert config.set_authorization_policy.calls == [pretend.call(authz_obj)]
-    assert basic_authn_cls.calls == [pretend.call(check=accounts._basic_auth_check)]
-    assert session_authn_cls.calls == [
-        pretend.call(callback=accounts._session_authenticate)
-    ]
-    assert authn_cls.calls == [
-        pretend.call([session_authn_obj, basic_authn_obj, macaroon_authn_obj])
-    ]
-    assert authz_cls.calls == [
-        pretend.call(),
-        pretend.call(policy=authz_obj),
-        pretend.call(policy=authz_obj),
+    assert config.set_security_policy.calls == [pretend.call(multi_policy_obj)]
+    assert multi_policy_cls.calls == [
+        pretend.call(
+            [session_policy_obj, basic_policy_obj, macaroon_policy_obj], authz_obj
+        )
     ]

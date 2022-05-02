@@ -990,7 +990,6 @@ pyramid==2.0 \
     #   -r requirements/main.in
     #   pyramid-jinja2
     #   pyramid-mailer
-    #   pyramid-multiauth
     #   pyramid-retry
     #   pyramid-rpc
     #   pyramid-services
@@ -1002,10 +1001,6 @@ pyramid-jinja2==2.10 \
 pyramid-mailer==0.15.1 \
     --hash=sha256:28d4a7829ebc19dd40e712d8cb1998cec03c296ba675b2c112a503539738bdc1 \
     --hash=sha256:ec0aff54d9179b2aa2922ff82c2016a4dc8d1da5dc3408d6594f0e2096446f9b
-    # via -r requirements/main.in
-pyramid-multiauth==1.0.1 \
-    --hash=sha256:6d8785558e1d0bbe0d0da43e296efc0fbe0de5071d1f9b1091e891f0e4ec9682 \
-    --hash=sha256:c265258af8021094e5b98602e8bfe094eec1350eebb56473f36cd0e076910822
     # via -r requirements/main.in
 pyramid-retry==2.1.1 \
     --hash=sha256:b5129a60eb9d7409234ea52839006426d2ae887b4a1f0530c75ec336cabf2476 \
