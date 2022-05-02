@@ -1480,6 +1480,72 @@ def change_organization_role(
 
 
 @view_config(
+    route_name="manage.project.delete_role",
+    context=Project,
+    uses_session=True,
+    require_methods=["POST"],
+    permission="manage:project",
+    has_translations=True,
+    require_reauth=True,
+)
+def delete_project_role(project, request):
+    try:
+        role = (
+            request.db.query(Role)
+            .join(User)
+            .filter(Role.project == project)
+            .filter(Role.id == request.POST["role_id"])
+            .one()
+        )
+        removing_self = role.role_name == "Owner" and role.user == request.user
+        if removing_self:
+            request.session.flash("Cannot remove yourself as Owner", queue="error")
+        else:
+            request.db.delete(role)
+            request.db.add(
+                JournalEntry(
+                    name=project.name,
+                    action=f"remove {role.role_name} {role.user.username}",
+                    submitted_by=request.user,
+                    submitted_from=request.remote_addr,
+                )
+            )
+            project.record_event(
+                tag="project:role:delete",
+                ip_address=request.remote_addr,
+                additional={
+                    "submitted_by": request.user.username,
+                    "role_name": role.role_name,
+                    "target_user": role.user.username,
+                },
+            )
+
+            owner_users = set(project_owners(request, project))
+            # Don't send owner notification email to new user
+            # if they are now an owner
+            owner_users.discard(role.user)
+            send_collaborator_removed_email(
+                request,
+                owner_users,
+                user=role.user,
+                submitter=request.user,
+                project_name=project.name,
+            )
+
+            send_removed_as_collaborator_email(
+                request, role.user, submitter=request.user, project_name=project.name
+            )
+
+            request.session.flash("Removed role", queue="success")
+    except NoResultFound:
+        request.session.flash("Could not find role", queue="error")
+
+    return HTTPSeeOther(
+        request.route_path("manage.project.roles", project_name=project.name)
+    )
+
+
+@view_config(
     route_name="manage.projects",
     renderer="manage/projects.html",
     uses_session=True,
