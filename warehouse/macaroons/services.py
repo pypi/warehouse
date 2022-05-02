@@ -97,6 +97,9 @@ class DatabaseMacaroonService:
 
         # This can be None if the macaroon has no associated user
         # (e.g., an OIDC-minted macaroon).
+        if dm.user is None:
+            return None
+
         return dm.user.id
 
     def find_from_raw(self, raw_macaroon):
@@ -134,6 +137,8 @@ class DatabaseMacaroonService:
         Returns a tuple of a new raw (serialized) macaroon and its DB model.
         The description provided is not embedded into the macaroon, only stored
         in the DB model.
+
+        The user ID can be None, if the macaroon is not associated with a user.
         """
         user = self.db.query(User).get(user_id)
 
