@@ -112,7 +112,7 @@
         </td>
         <td>{{ two_factor_badge(role.user) }}</td>
         <td class="table__align-right">
-          <form method="POST" action="#" {# TODO action="{{ request.route_path('manage.organization.delete_role', organization_name=organization.name) }}" #}>
+          <form method="POST" action="{{ request.route_path('manage.organization.delete_role', organization_name=organization.name) }}">
             <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
             <input type="hidden" name="role_id" value="{{ role.id }}">
             <button

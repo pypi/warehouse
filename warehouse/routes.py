@@ -248,6 +248,13 @@ def includeme(config):
         traverse="/{organization_name}",
         domain=warehouse,
     )
+    config.add_route(
+        "manage.organization.delete_role",
+        "/manage/organization/{organization_name}/people/delete/",
+        factory="warehouse.organizations.models:OrganizationFactory",
+        traverse="/{organization_name}",
+        domain=warehouse,
+    )
     config.add_route("manage.projects", "/manage/projects/", domain=warehouse)
     config.add_route(
         "manage.project.settings",

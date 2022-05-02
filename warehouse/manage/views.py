@@ -1480,68 +1480,67 @@ def change_organization_role(
 
 
 @view_config(
-    route_name="manage.project.delete_role",
-    context=Project,
+    route_name="manage.organization.delete_role",
+    context=Organization,
     uses_session=True,
     require_methods=["POST"],
-    permission="manage:project",
+    # permission="manage:organization",
     has_translations=True,
     require_reauth=True,
 )
-def delete_project_role(project, request):
+def delete_organization_role(organization, request):
     try:
         role = (
-            request.db.query(Role)
+            request.db.query(OrganizationRole)
             .join(User)
-            .filter(Role.project == project)
-            .filter(Role.id == request.POST["role_id"])
+            .filter(OrganizationRole.organization == organization)
+            .filter(OrganizationRole.id == request.POST["role_id"])
             .one()
         )
-        removing_self = role.role_name == "Owner" and role.user == request.user
+        removing_self = (
+            role.role_name == OrganizationRoleType.Owner and role.user == request.user
+        )
         if removing_self:
             request.session.flash("Cannot remove yourself as Owner", queue="error")
         else:
             request.db.delete(role)
-            request.db.add(
-                JournalEntry(
-                    name=project.name,
-                    action=f"remove {role.role_name} {role.user.username}",
-                    submitted_by=request.user,
-                    submitted_from=request.remote_addr,
-                )
-            )
-            project.record_event(
-                tag="project:role:delete",
+            organization.record_event(
+                tag="organization:role:delete",
                 ip_address=request.remote_addr,
                 additional={
-                    "submitted_by": request.user.username,
-                    "role_name": role.role_name,
-                    "target_user": role.user.username,
+                    "submitted_by_user_id": str(request.user.id),
+                    "role_name": role.role_name.value,
+                    "target_user_id": str(role.user.id),
                 },
             )
 
-            owner_users = set(project_owners(request, project))
+            owner_users = set(organization_owners(request, organization))
+
             # Don't send owner notification email to new user
             # if they are now an owner
             owner_users.discard(role.user)
-            send_collaborator_removed_email(
-                request,
-                owner_users,
-                user=role.user,
-                submitter=request.user,
-                project_name=project.name,
-            )
 
-            send_removed_as_collaborator_email(
-                request, role.user, submitter=request.user, project_name=project.name
-            )
+            # TODO: Send notification emails.
+            # send_member_removed_email(
+            #     request,
+            #     owner_users,
+            #     user=role.user,
+            #     submitter=request.user,
+            #     organization_name=organization.name,
+            # )
+            #
+            # send_removed_as_member_email(
+            #     request, role.user, submitter=request.user, organization_name=organization.name
+            # )
 
-            request.session.flash("Removed role", queue="success")
+            request.session.flash("Removed member", queue="success")
     except NoResultFound:
-        request.session.flash("Could not find role", queue="error")
+        request.session.flash("Could not find member", queue="error")
 
     return HTTPSeeOther(
-        request.route_path("manage.project.roles", project_name=project.name)
+        request.route_path(
+            "manage.organization.roles", organization_name=organization.name
+        )
     )
 
 
