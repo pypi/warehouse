@@ -229,6 +229,13 @@ def includeme(config):
         traverse="/{organization_name}",
         domain=warehouse,
     )
+    config.add_route(
+        "manage.organization.revoke_invite",
+        "/manage/organization/{organization_name}/people/revoke_invite/",
+        factory="warehouse.organizations.models:OrganizationFactory",
+        traverse="/{organization_name}",
+        domain=warehouse,
+    )
     config.add_route("manage.projects", "/manage/projects/", domain=warehouse)
     config.add_route(
         "manage.project.settings",

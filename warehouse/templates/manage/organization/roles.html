@@ -156,7 +156,7 @@
         </td>
         <td></td>
         <td class="table__align-right">
-          <form method="POST" action="#" {# TODO action="{{ request.route_path('manage.organization.revoke_invite', organization_name=organization.name) }}" #}>
+          <form method="POST" action="{{ request.route_path('manage.organization.revoke_invite', organization_name=organization.name) }}">
             <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
             <input name="user_id" type="hidden" value="{{ invite.user_id }}">
             <button

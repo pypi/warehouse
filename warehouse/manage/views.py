@@ -1309,31 +1309,29 @@ def manage_organization_roles(
 
 
 @view_config(
-    route_name="manage.project.revoke_invite",
-    context=Project,
+    route_name="manage.organization.revoke_invite",
+    context=Organization,
     uses_session=True,
     require_methods=["POST"],
-    permission="manage:project",
+    # permission="manage:organization",
     has_translations=True,
 )
-def revoke_project_role_invitation(project, request, _form_class=ChangeRoleForm):
+def revoke_organization_invitation(organization, request):
     user_service = request.find_service(IUserService, context=None)
     token_service = request.find_service(ITokenService, name="email")
     user = user_service.get_user(request.POST["user_id"])
 
-    try:
-        user_invite = (
-            request.db.query(RoleInvitation)
-            .filter(RoleInvitation.project == project)
-            .filter(RoleInvitation.user == user)
-            .one()
-        )
-    except NoResultFound:
+    organization_invite = organization_service.get_organization_invite_by_user(
+        organization.id, user.id
+    )
+    if organization_invite is None:
         request.session.flash(
-            request._("Could not find role invitation."), queue="error"
+            request._("Could not find organization invitation."), queue="error"
         )
         return HTTPSeeOther(
-            request.route_path("manage.project.roles", project_name=project.name)
+            request.route_path(
+                "manage.organization.roles", organization_name=organization.name
+            )
         )
 
     request.db.delete(user_invite)
@@ -1343,25 +1341,19 @@ def revoke_project_role_invitation(project, request, _form_class=ChangeRoleForm)
     except TokenExpired:
         request.session.flash(request._("Invitation already expired."), queue="success")
         return HTTPSeeOther(
-            request.route_path("manage.project.roles", project_name=project.name)
+            request.route_path(
+                "manage.organization.roles", organization_name=organization.name
+            )
         )
     role_name = token_data.get("desired_role")
 
-    request.db.add(
-        JournalEntry(
-            name=project.name,
-            action=f"revoke_invite {role_name} {user.username}",
-            submitted_by=request.user,
-            submitted_from=request.remote_addr,
-        )
-    )
-    project.record_event(
-        tag="project:role:revoke_invite",
+    organization.record_event(
+        tag="organization:role:revoke_invite",
         ip_address=request.remote_addr,
         additional={
-            "submitted_by": request.user.username,
+            "submitted_by_user_id": str(request.user.id),
             "role_name": role_name,
-            "target_user": user.username,
+            "target_user_id": str(user.id),
         },
     )
     request.session.flash(
@@ -1373,7 +1365,9 @@ def revoke_project_role_invitation(project, request, _form_class=ChangeRoleForm)
     )
 
     return HTTPSeeOther(
-        request.route_path("manage.project.roles", project_name=project.name)
+        request.route_path(
+            "manage.organization.roles", organization_name=organization.name
+        )
     )
 
 
