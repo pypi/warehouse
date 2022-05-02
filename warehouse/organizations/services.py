@@ -12,6 +12,7 @@
 
 import datetime
 
+from sqlalchemy import func
 from sqlalchemy.orm.exc import NoResultFound
 from zope.interface import implementer
 
@@ -51,10 +52,11 @@ class DatabaseOrganizationService:
         Find the unique organization identifier for the given normalized name or None
         if there is no organization with the given name.
         """
+        normalized_name = func.normalize_pep426_name(name)
         try:
             organization = (
                 self.db.query(Organization.id)
-                .filter(Organization.normalized_name == name)
+                .filter(Organization.normalized_name == normalized_name)
                 .one()
             )
         except NoResultFound:
@@ -85,7 +87,8 @@ class DatabaseOrganizationService:
         """
         organization = self.get_organization(organization_id)
         catalog_entry = OrganizationNameCatalog(
-            normalized_name=name, organization_id=organization.id
+            normalized_name=organization.normalized_name,
+            organization_id=organization.id,
         )
 
         self.db.add(catalog_entry)

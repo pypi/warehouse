@@ -26,7 +26,7 @@ class TestOrganizationList:
     def test_no_query(self, enable_organizations, db_request):
         organizations = sorted(
             [OrganizationFactory.create() for _ in range(30)],
-            key=lambda o: o.normalized_name.lower(),
+            key=lambda o: o.normalized_name,
         )
         result = views.organization_list(db_request)
 
@@ -35,7 +35,7 @@ class TestOrganizationList:
     def test_with_page(self, enable_organizations, db_request):
         organizations = sorted(
             [OrganizationFactory.create() for _ in range(30)],
-            key=lambda o: o.normalized_name.lower(),
+            key=lambda o: o.normalized_name,
         )
         db_request.GET["page"] = "2"
         result = views.organization_list(db_request)
@@ -54,7 +54,7 @@ class TestOrganizationList:
     def test_basic_query(self, enable_organizations, db_request):
         organizations = sorted(
             [OrganizationFactory.create() for _ in range(5)],
-            key=lambda o: o.normalized_name.lower(),
+            key=lambda o: o.normalized_name,
         )
         db_request.GET["q"] = organizations[0].name
         result = views.organization_list(db_request)
@@ -68,7 +68,7 @@ class TestOrganizationList:
     def test_name_query(self, enable_organizations, db_request):
         organizations = sorted(
             [OrganizationFactory.create() for _ in range(5)],
-            key=lambda o: o.normalized_name.lower(),
+            key=lambda o: o.normalized_name,
         )
         db_request.GET["q"] = f"name:{organizations[0].name}"
         result = views.organization_list(db_request)
@@ -82,7 +82,7 @@ class TestOrganizationList:
     def test_organization_query(self, enable_organizations, db_request):
         organizations = sorted(
             [OrganizationFactory.create() for _ in range(5)],
-            key=lambda o: o.normalized_name.lower(),
+            key=lambda o: o.normalized_name,
         )
         db_request.GET["q"] = f"organization:{organizations[0].display_name}"
         result = views.organization_list(db_request)
@@ -96,7 +96,7 @@ class TestOrganizationList:
     def test_url_query(self, enable_organizations, db_request):
         organizations = sorted(
             [OrganizationFactory.create() for _ in range(5)],
-            key=lambda o: o.normalized_name.lower(),
+            key=lambda o: o.normalized_name,
         )
         db_request.GET["q"] = f"url:{organizations[0].link_url}"
         result = views.organization_list(db_request)
@@ -110,7 +110,7 @@ class TestOrganizationList:
     def test_description_query(self, enable_organizations, db_request):
         organizations = sorted(
             [OrganizationFactory.create() for _ in range(5)],
-            key=lambda o: o.normalized_name.lower(),
+            key=lambda o: o.normalized_name,
         )
         db_request.GET["q"] = f"description:'{organizations[0].description}'"
         result = views.organization_list(db_request)
@@ -124,7 +124,7 @@ class TestOrganizationList:
     def test_is_approved_query(self, enable_organizations, db_request):
         organizations = sorted(
             [OrganizationFactory.create() for _ in range(5)],
-            key=lambda o: o.normalized_name.lower(),
+            key=lambda o: o.normalized_name,
         )
         organizations[0].is_approved = True
         organizations[1].is_approved = True
@@ -143,7 +143,7 @@ class TestOrganizationList:
     def test_is_declined_query(self, enable_organizations, db_request):
         organizations = sorted(
             [OrganizationFactory.create() for _ in range(5)],
-            key=lambda o: o.normalized_name.lower(),
+            key=lambda o: o.normalized_name,
         )
         organizations[0].is_approved = True
         organizations[1].is_approved = True
@@ -162,7 +162,7 @@ class TestOrganizationList:
     def test_is_submitted_query(self, enable_organizations, db_request):
         organizations = sorted(
             [OrganizationFactory.create() for _ in range(5)],
-            key=lambda o: o.normalized_name.lower(),
+            key=lambda o: o.normalized_name,
         )
         organizations[0].is_approved = True
         organizations[1].is_approved = True
@@ -181,7 +181,7 @@ class TestOrganizationList:
     def test_is_active_query(self, enable_organizations, db_request):
         organizations = sorted(
             [OrganizationFactory.create() for _ in range(5)],
-            key=lambda o: o.normalized_name.lower(),
+            key=lambda o: o.normalized_name,
         )
         organizations[0].is_active = True
         organizations[1].is_active = True
@@ -200,7 +200,7 @@ class TestOrganizationList:
     def test_is_inactive_query(self, enable_organizations, db_request):
         organizations = sorted(
             [OrganizationFactory.create() for _ in range(5)],
-            key=lambda o: o.normalized_name.lower(),
+            key=lambda o: o.normalized_name,
         )
         organizations[0].is_active = True
         organizations[1].is_active = True
@@ -219,7 +219,7 @@ class TestOrganizationList:
     def test_is_invalid_query(self, enable_organizations, db_request):
         organizations = sorted(
             [OrganizationFactory.create() for _ in range(5)],
-            key=lambda o: o.normalized_name.lower(),
+            key=lambda o: o.normalized_name,
         )
         db_request.GET["q"] = "is:not-actually-a-valid-query"
         result = views.organization_list(db_request)
