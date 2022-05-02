@@ -65,7 +65,12 @@
     <strong>{% trans %}API token added{% endtrans %}</strong><br>
     <small>
       {% trans %}Permissions: Can upload to this project{% endtrans %}<br>
+      {% if event.additional.user %}
       {% trans %}Controlled by:{% endtrans %} <a href="{{ request.route_path('accounts.profile', username=event.additional.user) }}">{{ event.additional.user }}</a><br>
+      {% endif %}
+      {% if event.additional.expires %}
+      {% trans %}Expires at:{% endtrans %} {{ event.additional.expires | format_datetime() }}<br>
+      {% endif %}
       {% trans %}Token name:{% endtrans %} {{ event.additional.description }}
     </small>
     {% elif event.tag == "project:api_token:removed" %}

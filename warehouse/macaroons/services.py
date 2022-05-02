@@ -135,7 +135,7 @@ class DatabaseMacaroonService:
         The description provided is not embedded into the macaroon, only stored
         in the DB model.
         """
-        user = self.db.query(User).filter(User.id == user_id).one()
+        user = self.db.query(User).get(user_id)
 
         # NOTE: This is a bit of a hack: we keep a separate copy of the
         # permissions caveat in the DB, so that we can display scope information

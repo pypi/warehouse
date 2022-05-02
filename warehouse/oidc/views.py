@@ -10,9 +10,14 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import time
+
+from datetime import date
+
 from pyramid.view import view_config
 from sqlalchemy import func
 
+from warehouse.macaroons.interfaces import IMacaroonService
 from warehouse.oidc.interfaces import IOIDCProviderService
 from warehouse.packaging.models import Project
 
@@ -29,11 +34,16 @@ def mint_token_from_oidc(request):
         request.response.status = 422
         return {"error": msg}
 
-    unverified_jwt = request.json_body.get("token")
+    try:
+        body = request.json_body
+    except ValueError:
+        return _invalid("missing body")
+
+    unverified_jwt = body.get("token")
     if not unverified_jwt:
         return _invalid("missing token")
 
-    project_name = request.json_body.get("project")
+    project_name = body.get("project")
     if not project_name:
         return _invalid("missing project")
 
@@ -54,4 +64,24 @@ def mint_token_from_oidc(request):
 
     # At this point, we've verified that the given JWT is valid for the given
     # project. All we need to do is mint a new token.
-    return {"ok": "ok"}
+    macaroon_service = request.find_service(IMacaroonService, context=None)
+    expires = int(time.time()) + 900
+    caveats = [
+        {"permissions": {"projects": [project.normalized_name]}, "version": 1},
+        {"nbf": int(time.time()), "exp": expires},
+    ]
+    serialized, dm = macaroon_service.create_macaroon(
+        location=request.domain,
+        user_id=None,
+        description="OpenID created ephemeral token",
+        caveats=caveats,
+    )
+    project.record_event(
+        tag="project:api_token:added",
+        ip_address=request.remote_addr,
+        additional={
+            "description": dm.description,
+            "expires": expires,
+        },
+    )
+    return {"token": serialized}
