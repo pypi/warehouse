@@ -116,7 +116,7 @@ msgstr ""
 msgid "Successful WebAuthn assertion"
 msgstr ""
 
-#: warehouse/accounts/views.py:447 warehouse/manage/views.py:825
+#: warehouse/accounts/views.py:447 warehouse/manage/views.py:826
 msgid "Recovery code accepted. The supplied code cannot be used again."
 msgstr ""
 
@@ -267,83 +267,83 @@ msgid ""
 "Choose a different organization account name."
 msgstr ""
 
-#: warehouse/manage/forms.py:396
+#: warehouse/manage/forms.py:408
 msgid ""
 "The organization name is too long. Choose a organization name with 100 "
 "characters or less."
 msgstr ""
 
-#: warehouse/manage/forms.py:408
+#: warehouse/manage/forms.py:420
 msgid ""
 "The organization URL is too long. Choose a organization URL with 400 "
 "characters or less."
 msgstr ""
 
-#: warehouse/manage/forms.py:422
+#: warehouse/manage/forms.py:434
 msgid ""
 "The organization description is too long. Choose a organization "
 "description with 400 characters or less."
 msgstr ""
 
-#: warehouse/manage/views.py:256
+#: warehouse/manage/views.py:257
 msgid "Email ${email_address} added - check your email for a verification link"
 msgstr ""
 
-#: warehouse/manage/views.py:773
+#: warehouse/manage/views.py:774
 msgid "Recovery codes already generated"
 msgstr ""
 
-#: warehouse/manage/views.py:774
+#: warehouse/manage/views.py:775
 msgid "Generating new recovery codes will invalidate your existing codes."
 msgstr ""
 
-#: warehouse/manage/views.py:1227
+#: warehouse/manage/views.py:1242
 msgid "User '${username}' already has ${role_name} role for organization"
 msgstr ""
 
-#: warehouse/manage/views.py:1238
+#: warehouse/manage/views.py:1253
 msgid ""
 "User '${username}' does not have a verified primary email address and "
 "cannot be added as a ${role_name} for organization"
 msgstr ""
 
-#: warehouse/manage/views.py:1251 warehouse/manage/views.py:2314
+#: warehouse/manage/views.py:1266 warehouse/manage/views.py:2406
 msgid "User '${username}' already has an active invite. Please try again later."
 msgstr ""
 
-#: warehouse/manage/views.py:1293 warehouse/manage/views.py:2372
+#: warehouse/manage/views.py:1308 warehouse/manage/views.py:2464
 msgid "Invitation sent to '${username}'"
 msgstr ""
 
-#: warehouse/manage/views.py:1345
+#: warehouse/manage/views.py:1360
 msgid "Could not find organization invitation."
 msgstr ""
 
-#: warehouse/manage/views.py:1358 warehouse/manage/views.py:2430
+#: warehouse/manage/views.py:1373 warehouse/manage/views.py:2522
 msgid "Invitation already expired."
 msgstr ""
 
-#: warehouse/manage/views.py:1376 warehouse/manage/views.py:2454
+#: warehouse/manage/views.py:1391 warehouse/manage/views.py:2546
 msgid "Invitation revoked from '${username}'."
 msgstr ""
 
-#: warehouse/manage/views.py:1609
+#: warehouse/manage/views.py:1701
 msgid ""
 "There have been too many attempted OpenID Connect registrations. Try "
 "again later."
 msgstr ""
 
-#: warehouse/manage/views.py:2290
+#: warehouse/manage/views.py:2382
 msgid "User '${username}' already has ${role_name} role for project"
 msgstr ""
 
-#: warehouse/manage/views.py:2301
+#: warehouse/manage/views.py:2393
 msgid ""
 "User '${username}' does not have a verified primary email address and "
 "cannot be added as a ${role_name} for project"
 msgstr ""
 
-#: warehouse/manage/views.py:2419
+#: warehouse/manage/views.py:2511
 msgid "Could not find role invitation."
 msgstr ""
 

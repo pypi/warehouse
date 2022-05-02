@@ -68,6 +68,7 @@ from warehouse.forklift.legacy import MAX_FILESIZE, MAX_PROJECT_SIZE
 from warehouse.macaroons.interfaces import IMacaroonService
 from warehouse.manage.forms import (
     AddEmailForm,
+    ChangeOrganizationRoleForm,
     ChangePasswordForm,
     ChangeRoleForm,
     ConfirmPasswordForm,
@@ -1031,6 +1032,20 @@ def user_organizations(request):
     }
 
 
+def organization_owners(request, organization):
+    """Return all users who are owners of the organization."""
+    owner_roles = (
+        request.db.query(User.id)
+        .join(OrganizationRole.user)
+        .filter(
+            OrganizationRole.role_name == OrganizationRoleType.Owner,
+            OrganizationRole.organization == organization,
+        )
+        .subquery()
+    )
+    return request.db.query(User).join(owner_roles, User.id == owner_roles.c.id).all()
+
+
 @view_defaults(
     route_name="manage.organizations",
     renderer="manage/organizations.html",
@@ -1388,77 +1403,79 @@ def revoke_organization_invitation(organization, request):
 
 
 @view_config(
-    route_name="manage.project.change_role",
-    context=Project,
+    route_name="manage.organization.change_role",
+    context=Organization,
     uses_session=True,
     require_methods=["POST"],
-    permission="manage:project",
+    # permission="manage:organization",
     has_translations=True,
     require_reauth=True,
 )
-def change_project_role(project, request, _form_class=ChangeRoleForm):
-    form = _form_class(request.POST)
+def change_organization_role(
+    organization, request, _form_class=ChangeOrganizationRoleForm
+):
+    form = _form_class(request.POST, orgtype=organization.orgtype)
 
     if form.validate():
         role_id = request.POST["role_id"]
         try:
             role = (
-                request.db.query(Role)
+                request.db.query(OrganizationRole)
                 .join(User)
-                .filter(Role.id == role_id, Role.project == project)
+                .filter(
+                    OrganizationRole.id == role_id,
+                    OrganizationRole.organization == organization,
+                )
                 .one()
             )
-            if role.role_name == "Owner" and role.user == request.user:
+            if (
+                role.role_name == OrganizationRoleType.Owner
+                and role.user == request.user
+            ):
                 request.session.flash("Cannot remove yourself as Owner", queue="error")
             else:
-                request.db.add(
-                    JournalEntry(
-                        name=project.name,
-                        action="change {} {} to {}".format(
-                            role.role_name, role.user.username, form.role_name.data
-                        ),
-                        submitted_by=request.user,
-                        submitted_from=request.remote_addr,
-                    )
-                )
                 role.role_name = form.role_name.data
-                project.record_event(
-                    tag="project:role:change",
+                organization.record_event(
+                    tag="organization:role:change",
                     ip_address=request.remote_addr,
                     additional={
-                        "submitted_by": request.user.username,
+                        "submitted_by_user_id": str(request.user.id),
                         "role_name": form.role_name.data,
-                        "target_user": role.user.username,
+                        "target_user_id": str(role.user.id),
                     },
                 )
 
-                owner_users = set(project_owners(request, project))
+                owner_users = set(organization_owners(request, organization))
                 # Don't send owner notification email to new user
                 # if they are now an owner
                 owner_users.discard(role.user)
-                send_collaborator_role_changed_email(
-                    request,
-                    owner_users,
-                    user=role.user,
-                    submitter=request.user,
-                    project_name=project.name,
-                    role=role.role_name,
-                )
 
-                send_role_changed_as_collaborator_email(
-                    request,
-                    role.user,
-                    submitter=request.user,
-                    project_name=project.name,
-                    role=role.role_name,
-                )
+                # TODO: Send notification emails.
+                # send_member_role_changed_email(
+                #     request,
+                #     owner_users,
+                #     user=role.user,
+                #     submitter=request.user,
+                #     organization_name=organization.name,
+                #     role=role.role_name,
+                # )
+                #
+                # send_role_changed_as_member_email(
+                #     request,
+                #     role.user,
+                #     submitter=request.user,
+                #     organization_name=organization.name,
+                #     role=role.role_name,
+                # )
 
                 request.session.flash("Changed role", queue="success")
         except NoResultFound:
             request.session.flash("Could not find role", queue="error")
 
     return HTTPSeeOther(
-        request.route_path("manage.project.roles", project_name=project.name)
+        request.route_path(
+            "manage.organization.roles", organization_name=organization.name
+        )
     )
 
 

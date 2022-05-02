@@ -90,7 +90,7 @@
           {% trans %}Billing Manager{% endtrans %}
           {% endif %}
         {% else %}
-          <form class="table__change-role" method="POST" action="#" {# TODO action="{{ request.route_path('manage.organization.change_role', organization_name=organization.name) }}" #}>
+          <form class="table__change-role" method="POST" action="{{ request.route_path('manage.organization.change_role', organization_name=organization.name) }}">
             <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
             <input type="hidden" name="role_id" value="{{ role.id }}">
 
@@ -99,7 +99,7 @@
             {# Reuse `.role_name.choices` from "Invite" form to include/exclude "Billing Manager" appropriately. #}
             {% for role_name, role_name_label in form.role_name.choices if role_name %}
             {% set role_name_label = gettext(role_name_label) %}
-            <option value="{{ role_name }}" {{ 'selected' if role_name == role.role_name else '' }}>
+            <option value="{{ role_name }}" {{ 'selected' if role_name == role.role_name.value else '' }}>
               {{ role_name_label }}
             </option>
             {% endfor %}

@@ -380,6 +380,18 @@ class CreateOrganizationRoleForm(OrganizationRoleNameMixin, UsernameMixin, forms
         self.user_service = user_service
 
 
+class ChangeOrganizationRoleForm(OrganizationRoleNameMixin, forms.Form):
+    def __init__(self, *args, orgtype, **kwargs):
+        super().__init__(*args, **kwargs)
+        if orgtype != OrganizationType.Company:
+            # Remove "Billing Manager" choice if organization is not a "Company"
+            self.role_name.choices = [
+                choice
+                for choice in self.role_name.choices
+                if "Billing Manager" not in choice
+            ]
+
+
 class CreateOrganizationForm(forms.Form, OrganizationNameMixin):
 
     __params__ = ["name", "display_name", "link_url", "description", "orgtype"]
