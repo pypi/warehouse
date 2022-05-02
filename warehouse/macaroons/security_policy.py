@@ -12,8 +12,7 @@
 
 import base64
 
-from pyramid.authentication import CallbackAuthenticationPolicy
-from pyramid.interfaces import IAuthenticationPolicy, IAuthorizationPolicy
+from pyramid.interfaces import IAuthorizationPolicy, ISecurityPolicy
 from pyramid.threadlocal import get_current_request
 from zope.interface import implementer
 
@@ -21,6 +20,7 @@ from warehouse.cache.http import add_vary_callback
 from warehouse.errors import WarehouseDenied
 from warehouse.macaroons.interfaces import IMacaroonService
 from warehouse.macaroons.services import InvalidMacaroonError
+from warehouse.utils.security_policy import AuthenticationMethod
 
 
 def _extract_basic_macaroon(auth):
@@ -70,16 +70,14 @@ def _extract_http_macaroon(request):
     return None
 
 
-@implementer(IAuthenticationPolicy)
-class MacaroonAuthenticationPolicy(CallbackAuthenticationPolicy):
-    def __init__(self, callback=None):
-        self.callback = callback
-
-    def unauthenticated_userid(self, request):
+@implementer(ISecurityPolicy)
+class MacaroonSecurityPolicy:
+    def identity(self, request):
         # If we're calling into this API on a request, then we want to register
         # a callback which will ensure that the response varies based on the
         # Authorization header.
         request.add_response_callback(add_vary_callback("Authorization"))
+        request.authentication_method = AuthenticationMethod.MACAROON
 
         # We need to extract our Macaroon from the request.
         macaroon = _extract_http_macaroon(request)
@@ -89,9 +87,7 @@ class MacaroonAuthenticationPolicy(CallbackAuthenticationPolicy):
         # Check to see if our Macaroon exists in the database, and if so
         # fetch the user that is associated with it.
         macaroon_service = request.find_service(IMacaroonService, context=None)
-        userid = macaroon_service.find_userid(macaroon)
-        if userid is not None:
-            return str(userid)
+        return macaroon_service.find_from_raw(macaroon).user
 
     def remember(self, request, userid, **kw):
         # This is a NO-OP because our Macaroon header policy doesn't allow
@@ -99,11 +95,19 @@ class MacaroonAuthenticationPolicy(CallbackAuthenticationPolicy):
         # assumes it has been configured in clients somewhere out of band.
         return []
 
-    def forget(self, request):
+    def forget(self, request, **kw):
         # This is a NO-OP because our Macaroon header policy doesn't allow
         # the ability for authentication to "forget" the user id. This
         # assumes it has been configured in clients somewhere out of band.
         return []
+
+    def authenticated_userid(self, request):
+        # Handled by MultiSecurityPolicy
+        return NotImplemented
+
+    def permits(self, request, context, permission):
+        # Handled by MultiSecurityPolicy
+        return NotImplemented
 
 
 @implementer(IAuthorizationPolicy)

@@ -118,14 +118,14 @@ class TestProject:
             (Allow, "group:moderators", "moderator"),
         ] + sorted(
             [
-                (Allow, str(owner1.user.id), ["manage:project", "upload"]),
-                (Allow, str(owner2.user.id), ["manage:project", "upload"]),
+                (Allow, f"user:{owner1.user.id}", ["manage:project", "upload"]),
+                (Allow, f"user:{owner2.user.id}", ["manage:project", "upload"]),
             ],
             key=lambda x: x[1],
         ) + sorted(
             [
-                (Allow, str(maintainer1.user.id), ["upload"]),
-                (Allow, str(maintainer2.user.id), ["upload"]),
+                (Allow, f"user:{maintainer1.user.id}", ["upload"]),
+                (Allow, f"user:{maintainer2.user.id}", ["upload"]),
             ],
             key=lambda x: x[1],
         )
@@ -337,14 +337,14 @@ class TestRelease:
             (Allow, "group:moderators", "moderator"),
         ] + sorted(
             [
-                (Allow, str(owner1.user.id), ["manage:project", "upload"]),
-                (Allow, str(owner2.user.id), ["manage:project", "upload"]),
+                (Allow, f"user:{owner1.user.id}", ["manage:project", "upload"]),
+                (Allow, f"user:{owner2.user.id}", ["manage:project", "upload"]),
             ],
             key=lambda x: x[1],
         ) + sorted(
             [
-                (Allow, str(maintainer1.user.id), ["upload"]),
-                (Allow, str(maintainer2.user.id), ["upload"]),
+                (Allow, f"user:{maintainer1.user.id}", ["upload"]),
+                (Allow, f"user:{maintainer2.user.id}", ["upload"]),
             ],
             key=lambda x: x[1],
         )
