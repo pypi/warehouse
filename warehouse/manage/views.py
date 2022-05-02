@@ -1388,6 +1388,81 @@ def revoke_organization_invitation(organization, request):
 
 
 @view_config(
+    route_name="manage.project.change_role",
+    context=Project,
+    uses_session=True,
+    require_methods=["POST"],
+    permission="manage:project",
+    has_translations=True,
+    require_reauth=True,
+)
+def change_project_role(project, request, _form_class=ChangeRoleForm):
+    form = _form_class(request.POST)
+
+    if form.validate():
+        role_id = request.POST["role_id"]
+        try:
+            role = (
+                request.db.query(Role)
+                .join(User)
+                .filter(Role.id == role_id, Role.project == project)
+                .one()
+            )
+            if role.role_name == "Owner" and role.user == request.user:
+                request.session.flash("Cannot remove yourself as Owner", queue="error")
+            else:
+                request.db.add(
+                    JournalEntry(
+                        name=project.name,
+                        action="change {} {} to {}".format(
+                            role.role_name, role.user.username, form.role_name.data
+                        ),
+                        submitted_by=request.user,
+                        submitted_from=request.remote_addr,
+                    )
+                )
+                role.role_name = form.role_name.data
+                project.record_event(
+                    tag="project:role:change",
+                    ip_address=request.remote_addr,
+                    additional={
+                        "submitted_by": request.user.username,
+                        "role_name": form.role_name.data,
+                        "target_user": role.user.username,
+                    },
+                )
+
+                owner_users = set(project_owners(request, project))
+                # Don't send owner notification email to new user
+                # if they are now an owner
+                owner_users.discard(role.user)
+                send_collaborator_role_changed_email(
+                    request,
+                    owner_users,
+                    user=role.user,
+                    submitter=request.user,
+                    project_name=project.name,
+                    role=role.role_name,
+                )
+
+                send_role_changed_as_collaborator_email(
+                    request,
+                    role.user,
+                    submitter=request.user,
+                    project_name=project.name,
+                    role=role.role_name,
+                )
+
+                request.session.flash("Changed role", queue="success")
+        except NoResultFound:
+            request.session.flash("Could not find role", queue="error")
+
+    return HTTPSeeOther(
+        request.route_path("manage.project.roles", project_name=project.name)
+    )
+
+
+@view_config(
     route_name="manage.projects",
     renderer="manage/projects.html",
     uses_session=True,
