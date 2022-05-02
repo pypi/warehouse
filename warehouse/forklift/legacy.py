@@ -1115,7 +1115,6 @@ def file_upload(request):
     form_metadata_fields = {
         # This is a list of all the fields in the form that we
         # should pull off and insert into our new release.
-        "version",
         "summary",
         "license",
         "author",
