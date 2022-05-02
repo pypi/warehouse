@@ -76,7 +76,9 @@ class ReleaseFactory(WarehouseFactory):
 
     uploader = factory.SubFactory(UserFactory)
     description = factory.SubFactory(DescriptionFactory)
-    published = factory.fuzzy.FuzzyNaiveDateTime(datetime.datetime(2008, 1, 1))
+    published = factory.Faker(
+        "date_time_between_dates", datetime_start=datetime.datetime(2008, 1, 1)
+    )
 
 
 class FileFactory(WarehouseFactory):
