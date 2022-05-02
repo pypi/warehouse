@@ -2327,7 +2327,8 @@ class TestManageOrganizations:
         monkeypatch.setattr(views, "user_organizations", user_organizations)
 
         organization_service = pretend.stub(
-            get_organizations_by_user=lambda *a, **kw: [organization]
+            get_organizations_by_user=lambda *a, **kw: [organization],
+            get_organization_invites_by_user=lambda *a, **kw: [],
         )
         user_service = pretend.stub()
         request = pretend.stub(
@@ -2341,11 +2342,12 @@ class TestManageOrganizations:
         view = views.ManageOrganizationsViews(request)
 
         assert view.default_response == {
-            "create_organization_form": create_organization_obj,
+            "organization_invites": [],
             "organizations": [organization],
             "organizations_managed": [],
             "organizations_owned": [organization.name],
             "organizations_billing": [],
+            "create_organization_form": create_organization_obj,
         }
 
     def test_manage_organizations(self, monkeypatch):
@@ -2615,24 +2617,28 @@ class TestManageOrganizations:
 
 
 class TestManageOrganizationRoles:
-    def test_get_manage_organization_roles(self, db_request):
+    def test_get_manage_organization_roles(self, db_request, enable_organizations):
         organization = OrganizationFactory.create(name="foobar")
-        request = pretend.stub(
-            flags=pretend.stub(enabled=pretend.call_recorder(lambda *a: False)),
+        form_obj = pretend.stub()
+
+        def form_class(*a, **kw):
+            return form_obj
+
+        result = views.manage_organization_roles(
+            organization, db_request, _form_class=form_class
         )
-
-        result = views.manage_organization_roles(organization, request)
-
-        assert result == {"organization": organization}
+        assert result == {
+            "organization": organization,
+            "roles": set(),
+            "invitations": set(),
+            "form": form_obj,
+        }
 
     def test_get_manage_organization_roles_disable_organizations(self, db_request):
         organization = OrganizationFactory.create(name="foobar")
-        request = pretend.stub(
-            flags=pretend.stub(enabled=pretend.call_recorder(lambda *a: True)),
-        )
 
         with pytest.raises(HTTPNotFound):
-            views.manage_organization_roles(organization, request)
+            views.manage_organization_roles(organization, db_request)
 
 
 class TestManageProjects:

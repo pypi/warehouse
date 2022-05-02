@@ -40,13 +40,14 @@ import warehouse
 
 from warehouse import admin, config, static
 from warehouse.accounts import services as account_services
-from warehouse.accounts.interfaces import ITokenService
+from warehouse.accounts.interfaces import ITokenService, IUserService
 from warehouse.admin.flags import AdminFlag, AdminFlagValue
 from warehouse.email import services as email_services
 from warehouse.email.interfaces import IEmailSender
 from warehouse.macaroons import services as macaroon_services
 from warehouse.metrics import IMetricsService
 from warehouse.organizations import services as organization_services
+from warehouse.organizations.interfaces import IOrganizationService
 
 from .common.db import Session
 
@@ -120,14 +121,18 @@ class _Services:
 
 
 @pytest.fixture
-def pyramid_services(metrics, email_service, token_service):
+def pyramid_services(
+    email_service, metrics, organization_service, token_service, user_service
+):
     services = _Services()
 
     # Register our global services.
-    services.register_service(metrics, IMetricsService, None, name="")
     services.register_service(email_service, IEmailSender, None, name="")
+    services.register_service(metrics, IMetricsService, None, name="")
+    services.register_service(organization_service, IOrganizationService, None, name="")
     services.register_service(token_service, ITokenService, None, name="password")
     services.register_service(token_service, ITokenService, None, name="email")
+    services.register_service(user_service, IUserService, None, name="")
 
     return services
 
