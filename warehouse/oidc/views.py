@@ -12,8 +12,6 @@
 
 import time
 
-from datetime import date
-
 from pyramid.view import view_config
 from sqlalchemy import func
 
