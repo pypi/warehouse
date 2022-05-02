@@ -14,8 +14,7 @@
 {% extends "email/_base/body.txt" %}
 
 {% block content %}
-{{ initiator_username }} has requested approval to create a new PyPI organization named "{{ organization_name }}".
+{{ initiator_username }}'s request to create a new organization named "{{ organization_name }}" was not approved.
 
-Please follow this link to approve or decline the request:
-{{ request.route_url('admin.organization.detail', organization_id=organization_id) }}
+{{ message|default('') }}
 {% endblock %}

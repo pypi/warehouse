@@ -118,14 +118,14 @@ class TestProject:
             (Allow, "group:moderators", "moderator"),
         ] + sorted(
             [
-                (Allow, str(owner1.user.id), ["manage:project", "upload"]),
-                (Allow, str(owner2.user.id), ["manage:project", "upload"]),
+                (Allow, f"user:{owner1.user.id}", ["manage:project", "upload"]),
+                (Allow, f"user:{owner2.user.id}", ["manage:project", "upload"]),
             ],
             key=lambda x: x[1],
         ) + sorted(
             [
-                (Allow, str(maintainer1.user.id), ["upload"]),
-                (Allow, str(maintainer2.user.id), ["upload"]),
+                (Allow, f"user:{maintainer1.user.id}", ["upload"]),
+                (Allow, f"user:{maintainer2.user.id}", ["upload"]),
             ],
             key=lambda x: x[1],
         )
@@ -252,6 +252,35 @@ class TestRelease:
                     ]
                 ),
             ),
+            # similar spellings of homepage/download label doesn't duplicate urls
+            (
+                "https://example.com/home/",
+                "https://example.com/download/",
+                [
+                    "homepage, https://example.com/home/",
+                    "download-URL ,https://example.com/download/",
+                ],
+                OrderedDict(
+                    [
+                        ("Homepage", "https://example.com/home/"),
+                        ("Download", "https://example.com/download/"),
+                    ]
+                ),
+            ),
+            # the duplicate removal only happens if the urls are equal too!
+            (
+                "https://example.com/home1/",
+                None,
+                [
+                    "homepage, https://example.com/home2/",
+                ],
+                OrderedDict(
+                    [
+                        ("Homepage", "https://example.com/home1/"),
+                        ("homepage", "https://example.com/home2/"),
+                    ]
+                ),
+            ),
             # ignore invalid links
             (
                 None,
@@ -308,14 +337,14 @@ class TestRelease:
             (Allow, "group:moderators", "moderator"),
         ] + sorted(
             [
-                (Allow, str(owner1.user.id), ["manage:project", "upload"]),
-                (Allow, str(owner2.user.id), ["manage:project", "upload"]),
+                (Allow, f"user:{owner1.user.id}", ["manage:project", "upload"]),
+                (Allow, f"user:{owner2.user.id}", ["manage:project", "upload"]),
             ],
             key=lambda x: x[1],
         ) + sorted(
             [
-                (Allow, str(maintainer1.user.id), ["upload"]),
-                (Allow, str(maintainer2.user.id), ["upload"]),
+                (Allow, f"user:{maintainer1.user.id}", ["upload"]),
+                (Allow, f"user:{maintainer2.user.id}", ["upload"]),
             ],
             key=lambda x: x[1],
         )

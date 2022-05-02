@@ -38,7 +38,6 @@ module = [
     "pyramid.*", # https://github.com/Pylons/pyramid/issues/2638
     "pyramid_jinja2.*",
     "pyramid_mailer.*",
-    "pyramid_multiauth.*",
     "pyramid_retry.*",
     "pyramid_rpc.*",
     "pyqrcode.*",

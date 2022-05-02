@@ -11,11 +11,10 @@
  # See the License for the specific language governing permissions and
  # limitations under the License.
 -#}
-{% extends "email/_base/body.txt" %}
+{% extends "email/_base/body.html" %}
 
 {% block content %}
-{{ initiator_username }} has requested approval to create a new PyPI organization named "{{ organization_name }}".
+<p>{% trans organization_name=organization_name %}Your request to create a new organization named "{{ organization_name }}" was not approved.{% endtrans %}</p>
 
-Please follow this link to approve or decline the request:
-{{ request.route_url('admin.organization.detail', organization_id=organization_id) }}
+<p>{{ message|default('') }}</p>
 {% endblock %}

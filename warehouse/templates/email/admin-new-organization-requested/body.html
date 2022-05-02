@@ -16,5 +16,5 @@
 {% block content %}
 <p><a href="{{ request.route_url('accounts.profile', username=initiator_username) }}">{{ initiator_username }}</a> has requested approval to create a new PyPI organization named "{{ organization_name }}".</p>
 
-<p>Please follow <a href="{{ request.route_url('admin.organization.approve', _query={'organization_name': organization_name}) }}">this link</a> to approve or decline the request.</p>
+<p>Please follow <a href="{{ request.route_url('admin.organization.detail', organization_id=organization_id) }}">this link</a> to approve or decline the request.</p>
 {% endblock %}

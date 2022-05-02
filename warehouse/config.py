@@ -427,6 +427,7 @@ def configure(settings=None):
     jglobals.setdefault("now", "warehouse.utils:now")
 
     # And some enums to reuse in the templates
+    jglobals.setdefault("AdminFlagValue", "warehouse.admin.flags:AdminFlagValue")
     jglobals.setdefault(
         "RoleInvitationStatus", "warehouse.packaging.models:RoleInvitationStatus"
     )
