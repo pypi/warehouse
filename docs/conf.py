@@ -13,6 +13,7 @@
 # limitations under the License.
 
 import os
+
 from datetime import datetime
 
 try:
@@ -66,7 +67,7 @@ else:
     html_theme = "default"
 
 # Output file base name for HTML help builder.
-htmlhelp_basename = 'Warehousedoc'
+htmlhelp_basename = "Warehousedoc"
 
 # Enable display of todos
 todo_include_todos = True
