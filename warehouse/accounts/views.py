@@ -62,12 +62,8 @@ from warehouse.email import (
     send_password_reset_email,
     send_recovery_code_reminder_email,
 )
-from warehouse.organizations.models import (
-    Organization,
-    OrganizationInvitation,
-    OrganizationRole,
-    OrganizationRoleType,
-)
+from warehouse.organizations.interfaces import IOrganizationService
+from warehouse.organizations.models import OrganizationRole, OrganizationRoleType
 from warehouse.packaging.models import (
     JournalEntry,
     Project,
@@ -832,6 +828,7 @@ def _get_two_factor_data(request, _redirect_to="/"):
 )
 def verify_organization_role(request):
     token_service = request.find_service(ITokenService, name="email")
+    organization_service = request.find_service(IOrganizationService, context=None)
     user_service = request.find_service(IUserService, context=None)
 
     def _error(message):
@@ -856,20 +853,12 @@ def verify_organization_role(request):
     if user != request.user:
         return _error(request._("Organization invitation is not valid."))
 
-    organization = (
-        request.db.query(Organization)
-        .filter(Organization.id == data.get("organization_id"))
-        .one()
-    )
+    organization = organization_service.get_organization(data.get("organization_id"))
     desired_role = data.get("desired_role")
 
-    organization_invite = (
-        request.db.query(OrganizationInvitation)
-        .filter(OrganizationInvitation.organization == organization)
-        .filter(OrganizationInvitation.user == user)
-        .one_or_none()
+    organization_invite = organization_service.get_organization_invite_by_user(
+        organization.id, user.id
     )
-
     if not organization_invite:
         return _error(request._("Organization invitation no longer exists."))
 
@@ -881,7 +870,7 @@ def verify_organization_role(request):
             "desired_role": desired_role,
         }
     elif request.method == "POST" and "decline" in request.POST:
-        request.db.delete(organization_invite)
+        organization_service.delete_organization_invite(organization_invite.id)
         request.session.flash(
             request._(
                 "Invitation for '${organization_name}' is declined.",
@@ -891,10 +880,12 @@ def verify_organization_role(request):
         )
         return HTTPSeeOther(request.route_path("manage.organizations"))
 
-    request.db.add(
-        OrganizationRole(user=user, organization=organization, role_name=desired_role)
+    organization_service.add_organization_role(
+        organization_id=organization.id,
+        user_id=user.id,
+        role_name=desired_role,
     )
-    request.db.delete(organization_invite)
+    organization_service.delete_organization_invite(organization_invite.id)
     organization.record_event(
         tag="organization:role:accepted",
         ip_address=request.remote_addr,

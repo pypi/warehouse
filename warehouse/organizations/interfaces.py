@@ -65,9 +65,9 @@ class IOrganizationService(Interface):
         or None if there is no organization role for that ID.
         """
 
-    def get_organization_role_by_name(role_name, user_id, organization_id):
+    def get_organization_role_by_user(organization_id, user_id):
         """
-        Gets an organization role for a specified user, org and role
+        Gets an organization role for a specified org and user
         """
 
     def get_organization_roles(organization_id):
@@ -75,9 +75,9 @@ class IOrganizationService(Interface):
         Gets a list of organization roles for a specified org
         """
 
-    def add_organization_role(role_name, user_id, organization_id):
+    def add_organization_role(organization_id, user_id, role_name):
         """
-        Adds the organization role to the specified user and org
+        Adds an organization role for the specified org and user
         """
 
     def delete_organization_role(organization_role_id):
@@ -91,12 +91,22 @@ class IOrganizationService(Interface):
         or None if there is no organization invite for that ID.
         """
 
-    def get_organization_invites(user_id):
+    def get_organization_invite_by_user(organization_id, user_id):
+        """
+        Gets an organization invite for a specified org and user
+        """
+
+    def get_organization_invites(organization_id):
+        """
+        Gets a list of organization invites for a specified org
+        """
+
+    def get_organization_invites_by_user(user_id):
         """
         Gets a list of organization invites for a specified user
         """
 
-    def add_organization_invite(user_id, organization_id, invite_token):
+    def add_organization_invite(organization_id, user_id, invite_token):
         """
         Adds an organization invitation for the specified user and org
         """

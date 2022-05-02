@@ -45,6 +45,7 @@ from warehouse.manage import views
 from warehouse.metrics.interfaces import IMetricsService
 from warehouse.oidc.interfaces import TooManyOIDCRegistrations
 from warehouse.organizations.interfaces import IOrganizationService
+from warehouse.organizations.models import OrganizationRoleType
 from warehouse.packaging.models import (
     File,
     JournalEntry,
@@ -2469,9 +2470,9 @@ class TestManageOrganizations:
         ]
         assert organization_service.add_organization_role.calls == [
             pretend.call(
-                "Owner",
-                request.user.id,
                 organization.id,
+                request.user.id,
+                OrganizationRoleType.Owner,
             )
         ]
         assert organization_service.record_event.calls == [

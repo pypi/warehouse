@@ -16,6 +16,7 @@ from sqlalchemy import func
 from sqlalchemy.orm.exc import NoResultFound
 from zope.interface import implementer
 
+from warehouse.accounts.models import User
 from warehouse.organizations.interfaces import IOrganizationService
 from warehouse.organizations.models import (
     Organization,
@@ -135,15 +136,14 @@ class DatabaseOrganizationService:
         """
         return self.db.query(OrganizationRole).get(organization_role_id)
 
-    def get_organization_role_by_name(self, role_name, user_id, organization_id):
+    def get_organization_role_by_user(self, organization_id, user_id):
         """
-        Gets an organization role for a specified user, org and role
+        Gets an organization role for a specified org and user
         """
         try:
             organization_role = (
                 self.db.query(OrganizationRole)
                 .filter(
-                    OrganizationRole.role_name == role_name,
                     OrganizationRole.organization_id == organization_id,
                     OrganizationRole.user_id == user_id,
                 )
@@ -160,17 +160,19 @@ class DatabaseOrganizationService:
         """
         return (
             self.db.query(OrganizationRole)
+            .join(User)
             .filter(OrganizationRole.organization_id == organization_id)
             .all()
         )
 
-    def add_organization_role(self, role_name, user_id, organization_id):
+    def add_organization_role(self, organization_id, user_id, role_name):
         """
-        Adds the organization role to the specified user and org
+        Adds an organization role for the specified org and user
         """
-        organization = self.get_organization(organization_id)
         role = OrganizationRole(
-            role_name=role_name, user_id=user_id, organization_id=organization.id
+            organization_id=organization_id,
+            user_id=user_id,
+            role_name=role_name,
         )
 
         self.db.add(role)
@@ -194,30 +196,59 @@ class DatabaseOrganizationService:
         """
         return self.db.query(OrganizationInvitation).get(organization_invite_id)
 
-    def get_organization_invites(self, user_id):
+    def get_organization_invite_by_user(self, organization_id, user_id):
         """
-        Gets a list of organization role invites for a specified user
+        Gets an organization invite for a specified org and user
+        """
+        try:
+            organization_invite = (
+                self.db.query(OrganizationInvitation)
+                .filter(
+                    OrganizationInvitation.organization_id == organization_id,
+                    OrganizationInvitation.user_id == user_id,
+                )
+                .one()
+            )
+        except NoResultFound:
+            return
+
+        return organization_invite
+
+    def get_organization_invites(self, organization_id):
+        """
+        Gets a list of organization invites for a specified org
+        """
+        return (
+            self.db.query(OrganizationInvitation)
+            .join(User)
+            .filter(OrganizationInvitation.organization_id == organization_id)
+            .all()
+        )
+
+    def get_organization_invites_by_user(self, user_id):
+        """
+        Gets a list of organization invites for a specified user
         """
         return (
             self.db.query(OrganizationInvitation)
             .filter(
                 OrganizationInvitation.invite_status
-                == OrganizationInvitationStatus.Pending.value,
+                == OrganizationInvitationStatus.Pending,
                 OrganizationInvitation.user_id == user_id,
             )
             .all()
         )
 
-    def add_organization_invite(self, user_id, organization_id, invite_token):
+    def add_organization_invite(self, organization_id, user_id, invite_token):
         """
         Adds an organization invitation for the specified user and org
         """
         # organization = self.get_organization(organization_id)
         organization_invite = OrganizationInvitation(
-            user_id=user_id,
             organization_id=organization_id,
-            invite_status=OrganizationInvitationStatus.Pending.value,
+            user_id=user_id,
             token=invite_token,
+            invite_status=OrganizationInvitationStatus.Pending,
         )
 
         self.db.add(organization_invite)

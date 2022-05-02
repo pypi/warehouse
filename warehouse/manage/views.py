@@ -91,7 +91,6 @@ from warehouse.oidc.models import GitHubProvider, OIDCProvider
 from warehouse.organizations.interfaces import IOrganizationService
 from warehouse.organizations.models import (
     Organization,
-    OrganizationInvitation,
     OrganizationInvitationStatus,
     OrganizationRole,
     OrganizationRoleType,
@@ -1068,13 +1067,9 @@ class ManageOrganizationsViews:
         all_user_organizations = user_organizations(self.request)
 
         organization_invites = (
-            self.request.db.query(OrganizationInvitation)
-            .filter(
-                OrganizationInvitation.invite_status
-                == OrganizationInvitationStatus.Pending
+            self.organization_service.get_organization_invites_by_user(
+                self.request.user.id
             )
-            .filter(OrganizationInvitation.user == self.request.user)
-            .all()
         )
         organization_invites = [
             (organization_invite.organization, organization_invite.token)
@@ -1086,7 +1081,6 @@ class ManageOrganizationsViews:
             "organizations": self.organization_service.get_organizations_by_user(
                 self.request.user.id
             ),
-            **user_organizations(self.request),
             "organizations_managed": list(
                 organization.name
                 for organization in all_user_organizations["organizations_managed"]
@@ -1136,7 +1130,9 @@ class ManageOrganizationsViews:
                 additional={"submitted_by_user_id": str(self.request.user.id)},
             )
             self.organization_service.add_organization_role(
-                "Owner", self.request.user.id, organization.id
+                organization.id,
+                self.request.user.id,
+                OrganizationRoleType.Owner,
             )
             self.organization_service.record_event(
                 organization.id,
@@ -1216,24 +1212,16 @@ def manage_organization_roles(
         user = user_service.get_user(userid)
         token_service = request.find_service(ITokenService, name="email")
 
-        existing_role = (
-            request.db.query(OrganizationRole)
-            .filter(
-                OrganizationRole.user == user,
-                OrganizationRole.organization == organization,
-            )
-            .first()
+        existing_role = organization_service.get_organization_role_by_user(
+            organization.id, user.id
         )
-        user_invite = (
-            request.db.query(OrganizationInvitation)
-            .filter(OrganizationInvitation.user == user)
-            .filter(OrganizationInvitation.organization == organization)
-            .one_or_none()
+        organization_invite = organization_service.get_organization_invite_by_user(
+            organization.id, user.id
         )
         # Cover edge case where invite is invalid but task
         # has not updated invite status
         try:
-            invite_token = token_service.loads(user_invite.token)
+            invite_token = token_service.loads(organization_invite.token)
         except (TokenExpired, AttributeError):
             invite_token = None
 
@@ -1258,8 +1246,9 @@ def manage_organization_roles(
                 queue="error",
             )
         elif (
-            user_invite
-            and user_invite.invite_status == OrganizationInvitationStatus.Pending
+            organization_invite
+            and organization_invite.invite_status
+            == OrganizationInvitationStatus.Pending
             and invite_token
         ):
             request.session.flash(
@@ -1280,17 +1269,14 @@ def manage_organization_roles(
                     "submitter_id": request.user.id,
                 }
             )
-            if user_invite:
-                user_invite.invite_status = OrganizationInvitationStatus.Pending
-                user_invite.token = invite_token
+            if organization_invite:
+                organization_invite.invite_status = OrganizationInvitationStatus.Pending
+                organization_invite.token = invite_token
             else:
-                request.db.add(
-                    OrganizationInvitation(
-                        user=user,
-                        organization=organization,
-                        invite_status=OrganizationInvitationStatus.Pending,
-                        token=invite_token,
-                    )
+                organization_service.add_organization_invite(
+                    organization_id=organization.id,
+                    user_id=user.id,
+                    invite_token=invite_token,
                 )
             # TODO: Send notification email to invite initiator.
             # TODO: Send notification email to invited user.
@@ -1318,18 +1304,8 @@ def manage_organization_roles(
             user_service=user_service,
         )
 
-    roles = set(
-        request.db.query(OrganizationRole)
-        .join(User)
-        .filter(OrganizationRole.organization == organization)
-        .all()
-    )
-    invitations = set(
-        request.db.query(OrganizationInvitation)
-        .join(User)
-        .filter(OrganizationInvitation.organization == organization)
-        .all()
-    )
+    roles = set(organization_service.get_organization_roles(organization.id))
+    invitations = set(organization_service.get_organization_invites(organization.id))
 
     return {
         "organization": organization,
@@ -1348,6 +1324,7 @@ def manage_organization_roles(
     has_translations=True,
 )
 def revoke_organization_invitation(organization, request):
+    organization_service = request.find_service(IOrganizationService, context=None)
     user_service = request.find_service(IUserService, context=None)
     token_service = request.find_service(ITokenService, name="email")
     user = user_service.get_user(request.POST["user_id"])
@@ -1365,10 +1342,10 @@ def revoke_organization_invitation(organization, request):
             )
         )
 
-    request.db.delete(user_invite)
+    organization_service.delete_organization_invite(organization_invite.id)
 
     try:
-        token_data = token_service.loads(user_invite.token)
+        token_data = token_service.loads(organization_invite.token)
     except TokenExpired:
         request.session.flash(request._("Invitation already expired."), queue="success")
         return HTTPSeeOther(
@@ -1417,60 +1394,49 @@ def change_organization_role(
     form = _form_class(request.POST, orgtype=organization.orgtype)
 
     if form.validate():
+        organization_service = request.find_service(IOrganizationService, context=None)
         role_id = request.POST["role_id"]
-        try:
-            role = (
-                request.db.query(OrganizationRole)
-                .join(User)
-                .filter(
-                    OrganizationRole.id == role_id,
-                    OrganizationRole.organization == organization,
-                )
-                .one()
+        role = organization_service.get_organization_role(role_id)
+        if not role or role.organization_id != organization.id:
+            request.session.flash("Could not find member", queue="error")
+        elif role.role_name == OrganizationRoleType.Owner and role.user == request.user:
+            request.session.flash("Cannot remove yourself as Owner", queue="error")
+        else:
+            role.role_name = form.role_name.data
+            organization.record_event(
+                tag="organization:role:change",
+                ip_address=request.remote_addr,
+                additional={
+                    "submitted_by_user_id": str(request.user.id),
+                    "role_name": form.role_name.data,
+                    "target_user_id": str(role.user.id),
+                },
             )
-            if (
-                role.role_name == OrganizationRoleType.Owner
-                and role.user == request.user
-            ):
-                request.session.flash("Cannot remove yourself as Owner", queue="error")
-            else:
-                role.role_name = form.role_name.data
-                organization.record_event(
-                    tag="organization:role:change",
-                    ip_address=request.remote_addr,
-                    additional={
-                        "submitted_by_user_id": str(request.user.id),
-                        "role_name": form.role_name.data,
-                        "target_user_id": str(role.user.id),
-                    },
-                )
 
-                owner_users = set(organization_owners(request, organization))
-                # Don't send owner notification email to new user
-                # if they are now an owner
-                owner_users.discard(role.user)
+            owner_users = set(organization_owners(request, organization))
+            # Don't send owner notification email to new user
+            # if they are now an owner
+            owner_users.discard(role.user)
 
-                # TODO: Send notification emails.
-                # send_member_role_changed_email(
-                #     request,
-                #     owner_users,
-                #     user=role.user,
-                #     submitter=request.user,
-                #     organization_name=organization.name,
-                #     role=role.role_name,
-                # )
-                #
-                # send_role_changed_as_member_email(
-                #     request,
-                #     role.user,
-                #     submitter=request.user,
-                #     organization_name=organization.name,
-                #     role=role.role_name,
-                # )
+            # TODO: Send notification emails.
+            # send_member_role_changed_email(
+            #     request,
+            #     owner_users,
+            #     user=role.user,
+            #     submitter=request.user,
+            #     organization_name=organization.name,
+            #     role=role.role_name,
+            # )
+            #
+            # send_role_changed_as_member_email(
+            #     request,
+            #     role.user,
+            #     submitter=request.user,
+            #     organization_name=organization.name,
+            #     role=role.role_name,
+            # )
 
-                request.session.flash("Changed role", queue="success")
-        except NoResultFound:
-            request.session.flash("Could not find role", queue="error")
+            request.session.flash("Changed role", queue="success")
 
     return HTTPSeeOther(
         request.route_path(
@@ -1489,53 +1455,48 @@ def change_organization_role(
     require_reauth=True,
 )
 def delete_organization_role(organization, request):
-    try:
-        role = (
-            request.db.query(OrganizationRole)
-            .join(User)
-            .filter(OrganizationRole.organization == organization)
-            .filter(OrganizationRole.id == request.POST["role_id"])
-            .one()
-        )
-        removing_self = (
-            role.role_name == OrganizationRoleType.Owner and role.user == request.user
-        )
-        if removing_self:
-            request.session.flash("Cannot remove yourself as Owner", queue="error")
-        else:
-            request.db.delete(role)
-            organization.record_event(
-                tag="organization:role:delete",
-                ip_address=request.remote_addr,
-                additional={
-                    "submitted_by_user_id": str(request.user.id),
-                    "role_name": role.role_name.value,
-                    "target_user_id": str(role.user.id),
-                },
-            )
-
-            owner_users = set(organization_owners(request, organization))
-
-            # Don't send owner notification email to new user
-            # if they are now an owner
-            owner_users.discard(role.user)
-
-            # TODO: Send notification emails.
-            # send_member_removed_email(
-            #     request,
-            #     owner_users,
-            #     user=role.user,
-            #     submitter=request.user,
-            #     organization_name=organization.name,
-            # )
-            #
-            # send_removed_as_member_email(
-            #     request, role.user, submitter=request.user, organization_name=organization.name
-            # )
-
-            request.session.flash("Removed member", queue="success")
-    except NoResultFound:
+    organization_service = request.find_service(IOrganizationService, context=None)
+    role_id = request.POST["role_id"]
+    role = organization_service.get_organization_role(role_id)
+    if not role or role.organization_id != organization.id:
         request.session.flash("Could not find member", queue="error")
+    elif role.role_name == OrganizationRoleType.Owner and role.user == request.user:
+        request.session.flash("Cannot remove yourself as Owner", queue="error")
+    else:
+        organization_service.delete_organization_role(role.id)
+        organization.record_event(
+            tag="organization:role:delete",
+            ip_address=request.remote_addr,
+            additional={
+                "submitted_by_user_id": str(request.user.id),
+                "role_name": role.role_name.value,
+                "target_user_id": str(role.user.id),
+            },
+        )
+
+        owner_users = set(organization_owners(request, organization))
+
+        # Don't send owner notification email to new user
+        # if they are now an owner
+        owner_users.discard(role.user)
+
+        # TODO: Send notification emails.
+        # send_member_removed_email(
+        #     request,
+        #     owner_users,
+        #     user=role.user,
+        #     submitter=request.user,
+        #     organization_name=organization.name,
+        # )
+        #
+        # send_removed_as_member_email(
+        #     request,
+        #     role.user,
+        #     submitter=request.user,
+        #     organization_name=organization.name,
+        # )
+
+        request.session.flash("Removed member", queue="success")
 
     return HTTPSeeOther(
         request.route_path(
