@@ -12,6 +12,7 @@
 
 import enum
 
+from pyramid.authorization import Allow
 from sqlalchemy import (
     Boolean,
     CheckConstraint,
@@ -163,7 +164,6 @@ class Organization(HasEvents, db.Model):
         onupdate=func.now(),
     )
 
-    # TODO: Determine if cascade applies to any of these relationships
     users = orm.relationship(
         User, secondary=OrganizationRole.__table__, backref="organizations"  # type: ignore # noqa
     )
@@ -171,8 +171,39 @@ class Organization(HasEvents, db.Model):
         "Project", secondary=OrganizationProject.__table__, backref="organizations"  # type: ignore # noqa
     )
 
-    # TODO:
-    #    def __acl__(self):
+    def __acl__(self):
+        session = orm.object_session(self)
+
+        # TODO: The "group:admins" and "group:moderators" principals
+        #           automatically get granted permissions in projects
+        #       Should do something similar in organizations?
+
+        # acls = [
+        #     (Allow, "group:admins", "manage:organization"),
+        #     (Allow, "group:moderators", "manage:team"),
+        # ]
+
+        acls = []
+
+        # Get all of the users for this organization.
+        query = session.query(OrganizationRole).filter(
+            OrganizationRole.organization == self
+        )
+        query = query.options(orm.lazyload("organization"))
+        query = query.join(User).order_by(User.id.asc())
+        for role in sorted(
+            query.all(),
+            key=lambda x: [e.value for e in OrganizationRoleType].index(x.role_name),
+        ):
+            if role.role_name == OrganizationRoleType.Owner:
+                acls.append((Allow, f"user:{role.user.id}", ["manage:organization"]))
+            elif role.role_name == OrganizationRoleType.BillingManager:
+                acls.append((Allow, f"user:{role.user.id}", ["manage:billing"]))
+            elif role.role_name == OrganizationRoleType.Manager:
+                acls.append((Allow, f"user:{role.user.id}", ["manage:team"]))
+            else:  # TODO Member: Do we need this? May be covered by Project acl?
+                acls.append((Allow, f"user:{role.user.id}", ["organization:member"]))
+        return acls
 
 
 class OrganizationNameCatalog(db.Model):
