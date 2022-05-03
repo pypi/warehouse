@@ -3034,6 +3034,129 @@ class TestManageOrganizationRoles:
         # ]
 
 
+class TestRevokeOrganizationInvitation:
+    def test_revoke_invitation(self, db_request, token_service, enable_organizations):
+        organization = OrganizationFactory.create(name="foobar")
+        user = UserFactory.create(username="testuser")
+        OrganizationInvitationFactory.create(
+            organization=organization,
+            user=user,
+        )
+        owner_user = UserFactory.create()
+        OrganizationRoleFactory(
+            user=owner_user,
+            organization=organization,
+            role_name=OrganizationRoleType.Owner,
+        )
+
+        db_request.method = "POST"
+        db_request.POST = MultiDict({"user_id": user.id, "token": "TOKEN"})
+        db_request.remote_addr = "10.10.10.10"
+        db_request.user = owner_user
+        db_request.route_path = pretend.call_recorder(
+            lambda *a, **kw: "/manage/organizations"
+        )
+        db_request.session = pretend.stub(
+            flash=pretend.call_recorder(lambda *a, **kw: None)
+        )
+        token_service.loads = pretend.call_recorder(
+            lambda data: {
+                "action": "email-organization-role-verify",
+                "desired_role": "Manager",
+                "user_id": user.id,
+                "organization_id": organization.id,
+                "submitter_id": owner_user.id,
+            }
+        )
+
+        result = views.revoke_organization_invitation(organization, db_request)
+        db_request.db.flush()
+
+        assert not (
+            db_request.db.query(OrganizationInvitation)
+            .filter(OrganizationInvitation.user == user)
+            .filter(OrganizationInvitation.organization == organization)
+            .one_or_none()
+        )
+        assert db_request.session.flash.calls == [
+            pretend.call(f"Invitation revoked from '{user.username}'.", queue="success")
+        ]
+        assert isinstance(result, HTTPSeeOther)
+        assert result.headers["Location"] == "/manage/organizations"
+
+    def test_invitation_does_not_exist(self, db_request, token_service, enable_organizations):
+        organization = OrganizationFactory.create(name="foobar")
+        user = UserFactory.create(username="testuser")
+        owner_user = UserFactory.create()
+        OrganizationRoleFactory(
+            user=owner_user,
+            organization=organization,
+            role_name=OrganizationRoleType.Owner,
+        )
+
+        db_request.method = "POST"
+        db_request.POST = MultiDict({"user_id": user.id, "token": "TOKEN"})
+        db_request.remote_addr = "10.10.10.10"
+        db_request.user = owner_user
+        db_request.route_path = pretend.call_recorder(
+            lambda *a, **kw: "/manage/organizations"
+        )
+        db_request.session = pretend.stub(
+            flash=pretend.call_recorder(lambda *a, **kw: None)
+        )
+        token_service.loads = pretend.call_recorder(lambda data: None)
+
+        result = views.revoke_organization_invitation(organization, db_request)
+        db_request.db.flush()
+
+        assert db_request.session.flash.calls == [
+            pretend.call("Could not find organization invitation.", queue="error")
+        ]
+        assert isinstance(result, HTTPSeeOther)
+        assert result.headers["Location"] == "/manage/organizations"
+
+    def test_token_expired(self, db_request, token_service, enable_organizations):
+        organization = OrganizationFactory.create(name="foobar")
+        user = UserFactory.create(username="testuser")
+        OrganizationInvitationFactory.create(
+            organization=organization,
+            user=user,
+        )
+        owner_user = UserFactory.create()
+        OrganizationRoleFactory(
+            user=owner_user,
+            organization=organization,
+            role_name=OrganizationRoleType.Owner,
+        )
+
+        db_request.method = "POST"
+        db_request.POST = MultiDict({"user_id": user.id, "token": "TOKEN"})
+        db_request.remote_addr = "10.10.10.10"
+        db_request.user = owner_user
+        db_request.route_path = pretend.call_recorder(
+            lambda *a, **kw: "/manage/organizations/roles"
+        )
+        db_request.session = pretend.stub(
+            flash=pretend.call_recorder(lambda *a, **kw: None)
+        )
+        token_service.loads = pretend.call_recorder(pretend.raiser(TokenExpired))
+
+        result = views.revoke_organization_invitation(organization, db_request)
+        db_request.db.flush()
+
+        assert not (
+            db_request.db.query(OrganizationInvitation)
+            .filter(OrganizationInvitation.user == user)
+            .filter(OrganizationInvitation.organization == organization)
+            .one_or_none()
+        )
+        assert db_request.session.flash.calls == [
+            pretend.call("Invitation already expired.", queue="success")
+        ]
+        assert isinstance(result, HTTPSeeOther)
+        assert result.headers["Location"] == "/manage/organizations/roles"
+
+
 class TestManageProjects:
     def test_manage_projects(self, db_request):
         older_release = ReleaseFactory(created=datetime.datetime(2015, 1, 1))
