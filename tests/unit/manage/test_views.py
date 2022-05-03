@@ -2676,17 +2676,13 @@ class TestManageOrganizationRoles:
         )
 
         db_request.method = "POST"
-        db_request.POST = pretend.stub()
+        db_request.POST = MultiDict(
+            {"username": new_user.username, "role_name": "Owner"}
+        )
         db_request.user = owner_1
         db_request.session = pretend.stub(
             flash=pretend.call_recorder(lambda *a, **kw: None)
         )
-        form_obj = pretend.stub(
-            validate=pretend.call_recorder(lambda: True),
-            username=pretend.stub(data=new_user.username),
-            role_name=pretend.stub(data="Owner"),
-        )
-        form_class = pretend.call_recorder(lambda *a, **kw: form_obj)
 
         # TODO: Test sending of notification emails.
         # send_organization_role_verification_email = pretend.call_recorder(
@@ -2698,24 +2694,9 @@ class TestManageOrganizationRoles:
         #     send_organization_role_verification_email,
         # )
 
-        result = views.manage_organization_roles(
-            organization, db_request, _form_class=form_class
-        )
+        result = views.manage_organization_roles(organization, db_request)
+        form_obj = result["form"]
 
-        assert form_obj.validate.calls == [pretend.call()]
-        assert form_class.calls == [
-            pretend.call(
-                db_request.POST,
-                orgtype=organization.orgtype,
-                organization_service=organization_service,
-                user_service=user_service,
-            ),
-            pretend.call(
-                orgtype=organization.orgtype,
-                organization_service=organization_service,
-                user_service=user_service,
-            ),
-        ]
         assert db_request.session.flash.calls == [
             pretend.call(f"Invitation sent to '{new_user.username}'", queue="success")
         ]
