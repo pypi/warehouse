@@ -62,7 +62,7 @@ class OrganizationNameCatalogFactory(WarehouseFactory):
     class Meta:
         model = OrganizationNameCatalog
 
-    name = factory.Faker("orgname")
+    name = factory.Faker("pystr", max_chars=12)
     organization_id = factory.Faker("uuid4", cast_to=None)
 
 
