@@ -1072,6 +1072,10 @@ msgstr ""
 #: warehouse/templates/accounts/login.html:49
 #: warehouse/templates/accounts/profile.html:32
 #: warehouse/templates/accounts/register.html:89
+#: warehouse/templates/email/organization-member-added/body.html:30
+#: warehouse/templates/email/organization-member-invited/body.html:30
+#: warehouse/templates/email/organization-member-removed/body.html:30
+#: warehouse/templates/email/organization-member-role-changed/body.html:30
 #: warehouse/templates/manage/account.html:248
 #: warehouse/templates/manage/organization/roles.html:186
 #: warehouse/templates/manage/roles.html:173
@@ -1393,6 +1397,19 @@ msgid ""
 "%(initiator_username)s to a project on %(site)s."
 msgstr ""
 
+#: warehouse/templates/email/added-as-organization-member/body.html:20
+#, python-format
+msgid ""
+"You have been added as <strong>%(role)s</strong> of the %(site)s "
+"organization %(organization_name)s by <a "
+"href=\"%(submitter_profile)s\">%(submitter)s</a>."
+msgstr ""
+
+#: warehouse/templates/email/added-as-organization-member/body.html:26
+#: warehouse/templates/email/role-changed-as-organization-member/body.html:26
+msgid "You are receiving this because you are a member of this organization."
+msgstr ""
+
 #: warehouse/templates/email/basic-auth-with-2fa/body.html:17
 #: warehouse/templates/email/password-compromised-hibp/body.html:18
 #: warehouse/templates/email/password-compromised/body.html:18
@@ -1428,6 +1445,26 @@ msgid ""
 "%(new_token_url)s. Then, use this token when publishing instead of your "
 "username and password. See %(token_help_url)s for help using API tokens "
 "to publish."
+msgstr ""
+
+#: warehouse/templates/email/canceled-as-invited-organization-member/body.html:19
+#, python-format
+msgid ""
+"An invitation for you to join the \"%(organization_name)s\" organization "
+"has been canceled"
+msgstr ""
+
+#: warehouse/templates/email/canceled-as-invited-organization-member/body.html:25
+#: warehouse/templates/email/declined-as-invited-organization-member/body.html:24
+#: warehouse/templates/email/verify-organization-role/body.html:35
+msgid "You are receiving this because you were invited to join this organization."
+msgstr ""
+
+#: warehouse/templates/email/declined-as-invited-organization-member/body.html:18
+#, python-format
+msgid ""
+"You have declined an invitation to join the \"%(organization_name)s\" "
+"organization"
 msgstr ""
 
 #: warehouse/templates/email/new-organization-approved/body.html:17
@@ -1530,6 +1567,106 @@ msgid ""
 "you can\n"
 "  check the \"Security history\" tab on the project's page.\n"
 "  "
+msgstr ""
+
+#: warehouse/templates/email/organization-member-added/body.html:27
+#, python-format
+msgid ""
+"<a href=\"%(user_profile)s\">%(username)s</a> has joined the "
+"\"%(organization_name)s\" organization"
+msgstr ""
+
+#: warehouse/templates/email/organization-member-added/body.html:31
+#: warehouse/templates/email/organization-member-invited/body.html:31
+#: warehouse/templates/manage/organization/roles.html:59
+#: warehouse/templates/manage/organization/roles.html:97
+#: warehouse/templates/manage/organization/roles.html:193
+#: warehouse/templates/manage/roles.html:52
+#: warehouse/templates/manage/roles.html:86
+#: warehouse/templates/manage/roles.html:180
+msgid "Role"
+msgstr ""
+
+#: warehouse/templates/email/organization-member-added/body.html:32
+#: warehouse/templates/email/organization-member-invited/body.html:32
+#: warehouse/templates/email/organization-member-removed/body.html:31
+#: warehouse/templates/email/organization-member-role-changed/body.html:32
+msgid "Member of"
+msgstr ""
+
+#: warehouse/templates/email/organization-member-added/body.html:33
+msgid "Added by"
+msgstr ""
+
+#: warehouse/templates/email/organization-member-added/body.html:38
+#: warehouse/templates/email/organization-member-invited/body.html:38
+#: warehouse/templates/email/organization-member-removed/body.html:37
+#: warehouse/templates/email/organization-member-role-changed/body.html:38
+#, python-format
+msgid ""
+"If this was a mistake, you can email <a "
+"href=\"mailto:%(email_address)s\">%(email_address)s</a> to communicate "
+"with the %(site)s administrators."
+msgstr ""
+
+#: warehouse/templates/email/organization-member-added/body.html:44
+#: warehouse/templates/email/organization-member-invite-canceled/body.html:25
+#: warehouse/templates/email/organization-member-invite-declined/body.html:25
+#: warehouse/templates/email/organization-member-invited/body.html:44
+#: warehouse/templates/email/organization-member-removed/body.html:43
+#: warehouse/templates/email/organization-member-role-changed/body.html:44
+msgid "You are receiving this because you are an owner of this organization."
+msgstr ""
+
+#: warehouse/templates/email/organization-member-invite-canceled/body.html:19
+#, python-format
+msgid ""
+"An invitation for <a href=\"%(user_profile)s\">%(username)s</a> to join "
+"the \"%(organization_name)s\" organization has been canceled"
+msgstr ""
+
+#: warehouse/templates/email/organization-member-invite-declined/body.html:19
+#, python-format
+msgid ""
+"<a href=\"%(user_profile)s\">%(username)s</a> has declined an invitation "
+"to join the \"%(organization_name)s\" organization"
+msgstr ""
+
+#: warehouse/templates/email/organization-member-invited/body.html:27
+#, python-format
+msgid ""
+"<a href=\"%(user_profile)s\">%(username)s</a> has been invited to join "
+"the \"%(organization_name)s\" organization"
+msgstr ""
+
+#: warehouse/templates/email/organization-member-invited/body.html:33
+msgid "Invited by"
+msgstr ""
+
+#: warehouse/templates/email/organization-member-removed/body.html:27
+#, python-format
+msgid ""
+"<a href=\"%(user_profile)s\">%(username)s</a> has been removed from the "
+"\"%(organization_nmae)s\" organization"
+msgstr ""
+
+#: warehouse/templates/email/organization-member-removed/body.html:32
+msgid "Removed by"
+msgstr ""
+
+#: warehouse/templates/email/organization-member-role-changed/body.html:27
+#, python-format
+msgid ""
+"<a href=\"%(user_profile)s\">%(username)s</a>'s role in the "
+"\"%(organization_name)s\" organization has been changed to %(role)s"
+msgstr ""
+
+#: warehouse/templates/email/organization-member-role-changed/body.html:31
+msgid "New role"
+msgstr ""
+
+#: warehouse/templates/email/organization-member-role-changed/body.html:33
+msgid "Changed by"
 msgstr ""
 
 #: warehouse/templates/email/password-change/body.html:18
@@ -1716,6 +1853,22 @@ msgid ""
 "have been generated.\n"
 msgstr ""
 
+#: warehouse/templates/email/removed-as-organization-member/body.html:18
+#, python-format
+msgid "You have been removed from the \"%(organization_name)s\" organization"
+msgstr ""
+
+#: warehouse/templates/email/removed-as-organization-member/body.html:23
+msgid "You are receiving this because you were a member of this organization."
+msgstr ""
+
+#: warehouse/templates/email/role-changed-as-organization-member/body.html:20
+#, python-format
+msgid ""
+"Your role in the \"%(organization_name)s\" organization has been changed "
+"to <strong>%(role)s</strong>"
+msgstr ""
+
 #: warehouse/templates/email/two-factor-added/body.html:18
 #, python-format
 msgid ""
@@ -1742,6 +1895,29 @@ msgstr ""
 msgid ""
 "If you wish to proceed with this request, <a href=\"%(href)s\">click this"
 " link to verify your email address</a>."
+msgstr ""
+
+#: warehouse/templates/email/verify-organization-role/body.html:18
+#, python-format
+msgid ""
+"<a href=\"%(initiator_user_profile)s\">%(initiator_username)s</a> has "
+"invited you to join the \"%(organization_name)s\" organization"
+msgstr ""
+
+#: warehouse/templates/email/verify-organization-role/body.html:22
+#, python-format
+msgid ""
+"If you wish to proceed, follow <a href=\"%(href)s\">this link</a> to "
+"accept or decline this invitation."
+msgstr ""
+
+#: warehouse/templates/email/verify-organization-role/body.html:26
+msgid "Otherwise, you can safely ignore this email."
+msgstr ""
+
+#: warehouse/templates/email/verify-organization-role/body.html:30
+#, python-format
+msgid "This link will expire in %(n_hours)s hours."
 msgstr ""
 
 #: warehouse/templates/includes/current-user-indicator.html:30
@@ -3733,15 +3909,6 @@ msgstr ""
 #: warehouse/templates/manage/roles.html:48
 #, python-format
 msgid "Users who can manage %(project_name)s"
-msgstr ""
-
-#: warehouse/templates/manage/organization/roles.html:59
-#: warehouse/templates/manage/organization/roles.html:97
-#: warehouse/templates/manage/organization/roles.html:193
-#: warehouse/templates/manage/roles.html:52
-#: warehouse/templates/manage/roles.html:86
-#: warehouse/templates/manage/roles.html:180
-msgid "Role"
 msgstr ""
 
 #: warehouse/templates/manage/organization/roles.html:107
