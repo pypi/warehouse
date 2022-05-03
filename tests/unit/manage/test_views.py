@@ -3084,7 +3084,9 @@ class TestRevokeOrganizationInvitation:
         assert isinstance(result, HTTPSeeOther)
         assert result.headers["Location"] == "/manage/organizations"
 
-    def test_invitation_does_not_exist(self, db_request, token_service, enable_organizations):
+    def test_invitation_does_not_exist(
+        self, db_request, token_service, enable_organizations
+    ):
         organization = OrganizationFactory.create(name="foobar")
         user = UserFactory.create(username="testuser")
         owner_user = UserFactory.create()
@@ -3155,6 +3157,144 @@ class TestRevokeOrganizationInvitation:
         ]
         assert isinstance(result, HTTPSeeOther)
         assert result.headers["Location"] == "/manage/organizations/roles"
+
+
+class TestChangeOrganizationRole:
+    def test_change_role(self, db_request, enable_organizations, monkeypatch):
+        organization = OrganizationFactory.create(name="foobar")
+        user = UserFactory.create(username="testuser")
+        role = OrganizationRoleFactory.create(
+            organization=organization,
+            user=user,
+            role_name=OrganizationRoleType.Owner,
+        )
+        new_role_name = "Manager"
+
+        user_2 = UserFactory.create()
+
+        db_request.method = "POST"
+        db_request.POST = MultiDict({"role_id": role.id, "role_name": new_role_name})
+        db_request.user = user_2
+        db_request.session = pretend.stub(
+            flash=pretend.call_recorder(lambda *a, **kw: None)
+        )
+        db_request.route_path = pretend.call_recorder(lambda *a, **kw: "/the-redirect")
+
+        # TODO: Test sending of notification emails.
+        # send_collaborator_role_changed_email = pretend.call_recorder(
+        #     lambda *a, **kw: None
+        # )
+        # monkeypatch.setattr(
+        #     views,
+        #     "send_collaborator_role_changed_email",
+        #     send_collaborator_role_changed_email,
+        # )
+        # send_role_changed_as_collaborator_email = pretend.call_recorder(
+        #     lambda *a, **kw: None
+        # )
+        # monkeypatch.setattr(
+        #     views,
+        #     "send_role_changed_as_collaborator_email",
+        #     send_role_changed_as_collaborator_email,
+        # )
+
+        result = views.change_organization_role(organization, db_request)
+
+        assert role.role_name == new_role_name
+        assert db_request.route_path.calls == [
+            pretend.call(
+                "manage.organization.roles", organization_name=organization.name
+            )
+        ]
+        # TODO: Test sending of notification emails.
+        # assert send_collaborator_role_changed_email.calls == [
+        #     pretend.call(
+        #         db_request,
+        #         set(),
+        #         user=user,
+        #         submitter=user_2,
+        #         organization_name="foobar",
+        #         role=new_role_name,
+        #     )
+        # ]
+        # assert send_role_changed_as_collaborator_email.calls == [
+        #     pretend.call(
+        #         db_request,
+        #         user,
+        #         submitter=user_2,
+        #         organization_name="foobar",
+        #         role=new_role_name,
+        #     )
+        # ]
+        assert db_request.session.flash.calls == [
+            pretend.call("Changed role", queue="success")
+        ]
+        assert isinstance(result, HTTPSeeOther)
+        assert result.headers["Location"] == "/the-redirect"
+
+    def test_change_organization_role_invalid_role_name(
+        self, db_request, enable_organizations
+    ):
+        organization = OrganizationFactory.create(name="foobar")
+
+        db_request.method = "POST"
+        db_request.POST = MultiDict(
+            {"role_id": str(uuid.uuid4()), "role_name": "Invalid Role Name"}
+        )
+        db_request.route_path = pretend.call_recorder(lambda *a, **kw: "/the-redirect")
+
+        result = views.change_organization_role(organization, db_request)
+
+        assert db_request.route_path.calls == [
+            pretend.call(
+                "manage.organization.roles", organization_name=organization.name
+            )
+        ]
+        assert isinstance(result, HTTPSeeOther)
+        assert result.headers["Location"] == "/the-redirect"
+
+    def test_change_missing_organization_role(self, db_request, enable_organizations):
+        organization = OrganizationFactory.create(name="foobar")
+        missing_role_id = str(uuid.uuid4())
+
+        db_request.method = "POST"
+        db_request.POST = MultiDict({"role_id": missing_role_id, "role_name": "Owner"})
+        db_request.user = pretend.stub()
+        db_request.session = pretend.stub(
+            flash=pretend.call_recorder(lambda *a, **kw: None)
+        )
+        db_request.route_path = pretend.call_recorder(lambda *a, **kw: "/the-redirect")
+
+        result = views.change_organization_role(organization, db_request)
+
+        assert db_request.session.flash.calls == [
+            pretend.call("Could not find member", queue="error")
+        ]
+        assert isinstance(result, HTTPSeeOther)
+        assert result.headers["Location"] == "/the-redirect"
+
+    def test_change_own_owner_organization_role(self, db_request, enable_organizations):
+        organization = OrganizationFactory.create(name="foobar")
+        user = UserFactory.create(username="testuser")
+        role = OrganizationRoleFactory.create(
+            user=user, organization=organization, role_name="Owner"
+        )
+
+        db_request.method = "POST"
+        db_request.user = user
+        db_request.POST = MultiDict({"role_id": role.id, "role_name": "Manager"})
+        db_request.session = pretend.stub(
+            flash=pretend.call_recorder(lambda *a, **kw: None)
+        )
+        db_request.route_path = pretend.call_recorder(lambda *a, **kw: "/the-redirect")
+
+        result = views.change_organization_role(organization, db_request)
+
+        assert db_request.session.flash.calls == [
+            pretend.call("Cannot remove yourself as Owner", queue="error")
+        ]
+        assert isinstance(result, HTTPSeeOther)
+        assert result.headers["Location"] == "/the-redirect"
 
 
 class TestManageProjects:
@@ -5049,7 +5189,7 @@ class TestRevokeRoleInvitation:
         assert result.headers["Location"] == "/manage/projects/roles"
 
 
-class TestChangeProjectRoles:
+class TestChangeProjectRole:
     def test_change_role(self, db_request, monkeypatch):
         project = ProjectFactory.create(name="foobar")
         user = UserFactory.create(username="testuser")
