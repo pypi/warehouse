@@ -373,6 +373,23 @@ def includeme(config):
     )
 
     config.add_route(
+        "legacy.api.draft.index",
+        "/draft/{hash}/",
+        factory="warehouse.packaging.models:DraftFactory",
+        traverse="/{hash}/",
+        read_only=True,
+        domain=warehouse,
+    )
+    config.add_route(
+        "legacy.api.draft.detail",
+        "/draft/{hash}/{name}/",
+        factory="warehouse.packaging.models:DraftFactory",
+        traverse="/{hash}/{name}/",
+        read_only=True,
+        domain=warehouse,
+    )
+
+    config.add_route(
         "legacy.api.json.project",
         "/pypi/{name}/json",
         factory="warehouse.packaging.models:ProjectFactory",

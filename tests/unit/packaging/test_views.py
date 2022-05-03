@@ -107,6 +107,32 @@ class TestProjectDetail:
         assert resp is response
         assert release_detail.calls == [pretend.call(release, db_request)]
 
+    def test_with_draft_releases(self, monkeypatch, db_request):
+        project = ProjectFactory.create()
+
+        ReleaseFactory.create(project=project, version="1.0")
+        ReleaseFactory.create(project=project, version="2.0")
+        ReleaseFactory.create(project=project, version="4.0", published=None)
+
+        release = ReleaseFactory.create(project=project, version="3.0")
+
+        response = pretend.stub()
+        release_detail = pretend.call_recorder(lambda ctx, request: response)
+        monkeypatch.setattr(views, "release_detail", release_detail)
+
+        resp = views.project_detail(project, db_request)
+
+        assert resp is response
+        assert release_detail.calls == [pretend.call(release, db_request)]
+
+    def test_only_draft_release(self, monkeypatch, db_request):
+        project = ProjectFactory.create()
+
+        ReleaseFactory.create(project=project, version="1.0", published=None)
+
+        with pytest.raises(HTTPNotFound):
+            views.project_detail(project, db_request)
+
     def test_prefers_non_yanked_release(self, monkeypatch, db_request):
         project = ProjectFactory.create()
 

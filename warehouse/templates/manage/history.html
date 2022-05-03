@@ -35,6 +35,11 @@
     <small>
       {% trans %}Added by:{% endtrans %} <a href="{{ request.route_path('accounts.profile', username=event.additional.submitted_by) }}">{{ event.additional.submitted_by }}</a>
     </small>
+    {% elif event.tag == "project:release:publish" %}
+    <strong>{% trans href=request.route_path('manage.project.release', project_name=project.name, version=event.additional.canonical_version), version=event.additional.canonical_version %}<a href="{{ href }}">Release version {{ version }}</a> published{% endtrans %}</strong><br>
+    <small>
+      {% trans %}Published by:{% endtrans %} <a href="{{ request.route_path('accounts.profile', username=event.additional.published_by) }}">{{ event.additional.published_by }}</a>
+    </small>
     {% elif event.tag == "project:release:remove" %}
     <strong>{% trans version=event.additional.canonical_version %}Release version {{ version }} removed{% endtrans %}</strong><br>
     <small>

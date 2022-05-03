@@ -20,6 +20,7 @@ import tempfile
 import zipfile
 
 from cgi import FieldStorage, parse_header
+from datetime import datetime, timezone
 from itertools import chain
 
 import packaging.requirements
@@ -769,6 +770,34 @@ def _is_duplicate_file(db_session, filename, hashes):
     return None
 
 
+def _get_release_classifiers(db_session, classifiers_data):
+    """
+    Go over the classifiers of a release, and add any missing ones
+    to the database.
+    """
+
+    # Look up all of the valid classifiers
+    all_classifiers = db_session.query(Classifier).all()
+
+    # Get all the classifiers for this release
+    release_classifiers = [
+        c for c in all_classifiers if c.classifier in classifiers_data
+    ]
+
+    # Determine if we need to add any new classifiers to the database
+    missing_classifiers = set(classifiers_data or []) - set(
+        c.classifier for c in release_classifiers
+    )
+
+    # Add any new classifiers to the database
+    if missing_classifiers:
+        for missing_classifier_name in missing_classifiers:
+            missing_classifier = Classifier(classifier=missing_classifier_name)
+            db_session.add(missing_classifier)
+            release_classifiers.append(missing_classifier)
+    return release_classifiers
+
+
 @view_config(
     route_name="forklift.legacy.file_upload",
     uses_session=True,
@@ -1081,8 +1110,28 @@ def file_upload(request):
                 ),
             ) from None
 
+    canonical_version = packaging.utils.canonicalize_version(form.version.data)
+
+    form_metadata_fields = {
+        # This is a list of all the fields in the form that we
+        # should pull off and insert into our new release.
+        "summary",
+        "license",
+        "author",
+        "author_email",
+        "maintainer",
+        "maintainer_email",
+        "keywords",
+        "platform",
+        "home_page",
+        "download_url",
+        "requires_python",
+    }
+
+    # Determine if this is a draft release or a published one
+    release_is_draft = bool(request.headers.get("Is-Draft", False))
+
     try:
-        canonical_version = packaging.utils.canonicalize_version(form.version.data)
         release = (
             request.db.query(Release)
             .filter(
@@ -1103,28 +1152,13 @@ def file_upload(request):
             .one()
         )
     except NoResultFound:
-        # Look up all of the valid classifiers
-        all_classifiers = request.db.query(Classifier).all()
-
-        # Get all the classifiers for this release
-        release_classifiers = [
-            c for c in all_classifiers if c.classifier in form.classifiers.data
-        ]
-
-        # Determine if we need to add any new classifiers to the database
-        missing_classifiers = set(form.classifiers.data or []) - set(
-            c.classifier for c in release_classifiers
+        release_classifiers = _get_release_classifiers(
+            request.db, form.classifiers.data
         )
-
-        # Add any new classifiers to the database
-        if missing_classifiers:
-            for missing_classifier_name in missing_classifiers:
-                missing_classifier = Classifier(classifier=missing_classifier_name)
-                request.db.add(missing_classifier)
-                release_classifiers.append(missing_classifier)
 
         release = Release(
             project=project,
+            project_name=project.name,
             _classifiers=release_classifiers,
             dependencies=list(
                 _construct_dependencies(
@@ -1151,26 +1185,10 @@ def file_upload(request):
                 html=rendered or "",
                 rendered_by=readme.renderer_version(),
             ),
-            **{
-                k: getattr(form, k).data
-                for k in {
-                    # This is a list of all the fields in the form that we
-                    # should pull off and insert into our new release.
-                    "summary",
-                    "license",
-                    "author",
-                    "author_email",
-                    "maintainer",
-                    "maintainer_email",
-                    "keywords",
-                    "platform",
-                    "home_page",
-                    "download_url",
-                    "requires_python",
-                }
-            },
+            **{k: getattr(form, k).data for k in form_metadata_fields},
             uploader=request.user,
             uploaded_via=request.user_agent,
+            published=None if release_is_draft else datetime.now(tz=timezone.utc),
         )
         request.db.add(release)
         # TODO: This should be handled by some sort of database trigger or
@@ -1185,7 +1203,6 @@ def file_upload(request):
                 submitted_from=request.remote_addr,
             )
         )
-
         project.record_event(
             tag="project:release:add",
             ip_address=request.remote_addr,
@@ -1194,7 +1211,40 @@ def file_upload(request):
                 "canonical_version": release.canonical_version,
             },
         )
-
+    else:
+        # An existing release was found. Update its metadata if it's a draft.
+        if release.is_draft:
+            release_classifiers = _get_release_classifiers(
+                request.db, form.classifiers.data
+            )
+            for rc in release_classifiers:
+                release._classifiers = release_classifiers
+            new_dependencies = list(
+                _construct_dependencies(
+                    form,
+                    {
+                        "requires": DependencyKind.requires,
+                        "provides": DependencyKind.provides,
+                        "obsoletes": DependencyKind.obsoletes,
+                        "requires_dist": DependencyKind.requires_dist,
+                        "provides_dist": DependencyKind.provides_dist,
+                        "obsoletes_dist": DependencyKind.obsoletes_dist,
+                        "requires_external": DependencyKind.requires_external,
+                        "project_urls": DependencyKind.project_url,
+                    },
+                )
+            )
+            if new_dependencies:
+                release.dependencies = new_dependencies
+            if form.description.data:
+                release.description.content_type = description_content_type
+                release.description.raw = form.description.data or ""
+                release.description.html = rendered or ""
+                release.description.rendered_by = readme.renderer_version()
+            for field in form_metadata_fields:
+                field_value = getattr(form, field).data
+                if field_value:
+                    setattr(release, field, field_value)
     # TODO: We need a better solution to this than to just do it inline inside
     #       this method. Ideally the version field would just be sortable, but
     #       at least this should be some sort of hook or trigger.
@@ -1312,36 +1362,46 @@ def file_upload(request):
                 "The digest supplied does not match a digest calculated "
                 "from the uploaded file.",
             )
-
-        # Check to see if the file that was uploaded exists already or not.
-        is_duplicate = _is_duplicate_file(request.db, filename, file_hashes)
-        if is_duplicate:
-            return Response()
-        elif is_duplicate is not None:
-            raise _exc_with_message(
-                HTTPBadRequest,
-                # Note: Changing this error message to something that doesn't
-                # start with "File already exists" will break the
-                # --skip-existing functionality in twine
-                # ref: https://github.com/pypa/warehouse/issues/3482
-                # ref: https://github.com/pypa/twine/issues/332
-                "File already exists. See "
-                + request.help_url(_anchor="file-name-reuse")
-                + " for more information.",
+        # Skip duplicate check for files when it's a draft release,
+        # and delete existing files instead
+        if release.is_draft:
+            existing_file = (
+                request.db.query(File).filter(File.filename == filename).first()
             )
+            if existing_file is not None:
+                request.db.delete(existing_file)
+        else:
+            # Check to see if the file that was uploaded exists already or not.
+            is_duplicate = _is_duplicate_file(request.db, filename, file_hashes)
+            if is_duplicate:
+                return Response()
+            elif is_duplicate is not None:
+                raise _exc_with_message(
+                    HTTPBadRequest,
+                    # Note: Changing this error message to something that doesn't
+                    # start with "File already exists" will break the
+                    # --skip-existing functionality in twine
+                    # ref: https://github.com/pypa/warehouse/issues/3482
+                    # ref: https://github.com/pypa/twine/issues/332
+                    "File already exists. See "
+                    + request.help_url(_anchor="file-name-reuse")
+                    + " for more information.",
+                )
 
-        # Check to see if the file that was uploaded exists in our filename log
-        if request.db.query(
-            request.db.query(Filename).filter(Filename.filename == filename).exists()
-        ).scalar():
-            raise _exc_with_message(
-                HTTPBadRequest,
-                "This filename has already been used, use a "
-                "different version. "
-                "See "
-                + request.help_url(_anchor="file-name-reuse")
-                + " for more information.",
-            )
+            # Check to see if the file that was uploaded exists in our filename log
+            if request.db.query(
+                request.db.query(Filename)
+                .filter(Filename.filename == filename)
+                .exists()
+            ).scalar():
+                raise _exc_with_message(
+                    HTTPBadRequest,
+                    "This filename has already been used, use a "
+                    "different version. "
+                    "See "
+                    + request.help_url(_anchor="file-name-reuse")
+                    + " for more information.",
+                )
 
         # Check to see if uploading this file would create a duplicate sdist
         # for the current release.
@@ -1398,7 +1458,17 @@ def file_upload(request):
         # TODO: This should be handled by some sort of database trigger or a
         #       SQLAlchemy hook or the like instead of doing it inline in this
         #       view.
-        request.db.add(Filename(filename=filename))
+        #
+        # If this is a draft release and the filename is
+        # already on the registry, do nothing.
+        if release.is_draft:
+            if (
+                request.db.query(Filename).filter(Filename.filename == filename).first()
+                is None
+            ):
+                request.db.add(Filename(filename=filename))
+        else:
+            request.db.add(Filename(filename=filename))
 
         # Store the information about the file in the database.
         file_ = File(
