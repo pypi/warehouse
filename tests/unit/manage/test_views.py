@@ -50,6 +50,7 @@ from warehouse.organizations.models import (
     OrganizationInvitationStatus,
     OrganizationRole,
     OrganizationRoleType,
+    OrganizationType,
 )
 from warehouse.packaging.models import (
     File,
@@ -2649,10 +2650,16 @@ class TestManageOrganizationRoles:
         with pytest.raises(HTTPNotFound):
             views.manage_organization_roles(organization, db_request)
 
+    @pytest.mark.parametrize("orgtype", list(OrganizationType))
     def test_post_new_organization_role(
-        self, db_request, organization_service, user_service, enable_organizations
+        self,
+        db_request,
+        orgtype,
+        organization_service,
+        user_service,
+        enable_organizations,
     ):
-        organization = OrganizationFactory.create(name="foobar")
+        organization = OrganizationFactory.create(name="foobar", orgtype=orgtype)
         new_user = UserFactory.create(username="new_user")
         EmailFactory.create(user=new_user, verified=True, primary=True)
         owner_1 = UserFactory.create(username="owner_1")
@@ -3160,8 +3167,9 @@ class TestRevokeOrganizationInvitation:
 
 
 class TestChangeOrganizationRole:
-    def test_change_role(self, db_request, enable_organizations, monkeypatch):
-        organization = OrganizationFactory.create(name="foobar")
+    @pytest.mark.parametrize("orgtype", list(OrganizationType))
+    def test_change_role(self, db_request, orgtype, enable_organizations, monkeypatch):
+        organization = OrganizationFactory.create(name="foobar", orgtype=orgtype)
         user = UserFactory.create(username="testuser")
         role = OrganizationRoleFactory.create(
             organization=organization,
