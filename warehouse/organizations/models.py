@@ -36,12 +36,12 @@ from warehouse.events.models import HasEvents
 from warehouse.utils.attrs import make_repr
 
 
-class OrganizationRoleType(enum.Enum):
+class OrganizationRoleType(str, enum.Enum):
 
+    Owner = "Owner"
     BillingManager = "Billing Manager"
     Manager = "Manager"
     Member = "Member"
-    Owner = "Owner"
 
 
 class OrganizationRole(db.Model):
