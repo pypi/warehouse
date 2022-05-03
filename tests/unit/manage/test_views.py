@@ -3297,6 +3297,148 @@ class TestChangeOrganizationRole:
         assert result.headers["Location"] == "/the-redirect"
 
 
+class TestDeleteOrganizationRoles:
+    def test_delete_role(self, db_request, enable_organizations, monkeypatch):
+        organization = OrganizationFactory.create(name="foobar")
+        user = UserFactory.create(username="testuser")
+        role = OrganizationRoleFactory.create(
+            organization=organization,
+            user=user,
+            role_name=OrganizationRoleType.Owner,
+        )
+        user_2 = UserFactory.create()
+
+        db_request.method = "POST"
+        db_request.POST = MultiDict({"role_id": role.id})
+        db_request.user = user_2
+        db_request.session = pretend.stub(
+            flash=pretend.call_recorder(lambda *a, **kw: None)
+        )
+        db_request.route_path = pretend.call_recorder(lambda *a, **kw: "/the-redirect")
+
+        # TODO: Test sending of notification emails.
+        # send_collaborator_removed_email = pretend.call_recorder(lambda *a, **kw: None)
+        # monkeypatch.setattr(
+        #     views, "send_collaborator_removed_email", send_collaborator_removed_email
+        # )
+        # send_removed_as_collaborator_email = pretend.call_recorder(
+        #     lambda *a, **kw: None
+        # )
+        # monkeypatch.setattr(
+        #     views,
+        #     "send_removed_as_collaborator_email",
+        #     send_removed_as_collaborator_email,
+        # )
+
+        result = views.delete_organization_role(organization, db_request)
+
+        assert db_request.route_path.calls == [
+            pretend.call(
+                "manage.organization.roles", organization_name=organization.name
+            )
+        ]
+        assert db_request.db.query(OrganizationRole).all() == []
+
+        # TODO: Test sending of notification emails.
+        # assert send_collaborator_removed_email.calls == [
+        #     pretend.call(
+        #         db_request,
+        #         set(),
+        #         user=user,
+        #         submitter=user_2,
+        #         organization_name="foobar",
+        #     )
+        # ]
+        # assert send_removed_as_collaborator_email.calls == [
+        #     pretend.call(
+        #         db_request,
+        #         user,
+        #         submitter=user_2,
+        #         organization_name="foobar",
+        #     )
+        # ]
+        assert db_request.session.flash.calls == [
+            pretend.call("Removed member", queue="success")
+        ]
+        assert isinstance(result, HTTPSeeOther)
+        assert result.headers["Location"] == "/the-redirect"
+
+    def test_delete_missing_role(self, db_request, enable_organizations):
+        organization = OrganizationFactory.create(name="foobar")
+        missing_role_id = str(uuid.uuid4())
+
+        db_request.method = "POST"
+        db_request.user = pretend.stub()
+        db_request.POST = MultiDict({"role_id": missing_role_id})
+        db_request.session = pretend.stub(
+            flash=pretend.call_recorder(lambda *a, **kw: None)
+        )
+        db_request.route_path = pretend.call_recorder(lambda *a, **kw: "/the-redirect")
+
+        result = views.delete_organization_role(organization, db_request)
+
+        assert db_request.session.flash.calls == [
+            pretend.call("Could not find member", queue="error")
+        ]
+        assert isinstance(result, HTTPSeeOther)
+        assert result.headers["Location"] == "/the-redirect"
+
+    def test_delete_own_owner_role(self, db_request, enable_organizations):
+        organization = OrganizationFactory.create(name="foobar")
+        user = UserFactory.create(username="testuser")
+        role = OrganizationRoleFactory.create(
+            organization=organization,
+            user=user,
+            role_name=OrganizationRoleType.Owner,
+        )
+
+        db_request.method = "POST"
+        db_request.user = user
+        db_request.POST = MultiDict({"role_id": role.id})
+        db_request.session = pretend.stub(
+            flash=pretend.call_recorder(lambda *a, **kw: None)
+        )
+        db_request.route_path = pretend.call_recorder(lambda *a, **kw: "/the-redirect")
+
+        result = views.delete_organization_role(organization, db_request)
+
+        assert db_request.session.flash.calls == [
+            pretend.call("Cannot remove yourself as Owner", queue="error")
+        ]
+        assert isinstance(result, HTTPSeeOther)
+        assert result.headers["Location"] == "/the-redirect"
+
+    def test_delete_non_owner_role(self, db_request, enable_organizations):
+        organization = OrganizationFactory.create(name="foobar")
+        user = UserFactory.create(username="testuser")
+        role = OrganizationRoleFactory.create(
+            organization=organization,
+            user=user,
+            role_name=OrganizationRoleType.Owner,
+        )
+
+        some_other_user = UserFactory.create(username="someotheruser")
+        some_other_organization = OrganizationFactory.create(
+            name="someotherorganization"
+        )
+
+        db_request.method = "POST"
+        db_request.user = some_other_user
+        db_request.POST = MultiDict({"role_id": role.id})
+        db_request.session = pretend.stub(
+            flash=pretend.call_recorder(lambda *a, **kw: None)
+        )
+        db_request.route_path = pretend.call_recorder(lambda *a, **kw: "/the-redirect")
+
+        result = views.delete_organization_role(some_other_organization, db_request)
+
+        assert db_request.session.flash.calls == [
+            pretend.call("Could not find member", queue="error")
+        ]
+        assert isinstance(result, HTTPSeeOther)
+        assert result.headers["Location"] == "/the-redirect"
+
+
 class TestManageProjects:
     def test_manage_projects(self, db_request):
         older_release = ReleaseFactory(created=datetime.datetime(2015, 1, 1))
