@@ -12,6 +12,7 @@
 
 from pyramid.authorization import ACLAuthorizationPolicy
 
+from warehouse.accounts.models import User
 from warehouse.accounts.interfaces import (
     IPasswordBreachedService,
     ITokenService,
@@ -42,13 +43,13 @@ REDIRECT_FIELD_NAME = "next"
 
 
 def _user(request):
-    userid = request.authenticated_userid
+    if request.identity is None:
+        return None
 
-    if userid is None:
-        return
+    if not isinstance(request.identity, User):
+        return None
 
-    login_service = request.find_service(IUserService, context=None)
-    return login_service.get_user(userid)
+    return request.identity
 
 
 def includeme(config):
