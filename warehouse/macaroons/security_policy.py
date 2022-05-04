@@ -16,6 +16,7 @@ from pyramid.interfaces import IAuthorizationPolicy, ISecurityPolicy
 from pyramid.threadlocal import get_current_request
 from zope.interface import implementer
 
+from warehouse.accounts.interfaces import IUserService
 from warehouse.cache.http import add_vary_callback
 from warehouse.errors import WarehouseDenied
 from warehouse.macaroons.interfaces import IMacaroonService
@@ -87,7 +88,13 @@ class MacaroonSecurityPolicy:
         # Check to see if our Macaroon exists in the database, and if so
         # fetch the user that is associated with it.
         macaroon_service = request.find_service(IMacaroonService, context=None)
-        return macaroon_service.find_from_raw(macaroon).user
+        userid = macaroon_service.find_userid(macaroon)
+
+        if userid is None:
+            return None
+
+        user_service = request.find_service(IUserService, context=None)
+        return user_service.get_user(userid)
 
     def remember(self, request, userid, **kw):
         # This is a NO-OP because our Macaroon header policy doesn't allow
