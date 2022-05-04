@@ -12,12 +12,12 @@
 
 from pyramid.authorization import ACLAuthorizationPolicy
 
-from warehouse.accounts.models import User
 from warehouse.accounts.interfaces import (
     IPasswordBreachedService,
     ITokenService,
     IUserService,
 )
+from warehouse.accounts.models import User
 from warehouse.accounts.security_policy import (
     BasicAuthSecurityPolicy,
     SessionSecurityPolicy,
