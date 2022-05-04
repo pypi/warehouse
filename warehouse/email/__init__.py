@@ -331,13 +331,199 @@ def send_new_organization_declined_email(
     }
 
 
-@_email("collaborator-added")
-def send_collaborator_added_email(
-    request, email_recipients, *, user, submitter, project_name, role
+@_email("organization-member-invited")
+def send_organization_member_invited_email(
+    request,
+    email_recipients,
+    *,
+    user,
+    desired_role,
+    initiator_username,
+    organization_name,
+    email_token,
+    token_age,
 ):
     return {
         "username": user.username,
-        "project": project_name,
+        "desired_role": desired_role,
+        "initiator_username": initiator_username,
+        "n_hours": token_age // 60 // 60,
+        "organization_name": organization_name,
+        "token": email_token,
+    }
+
+
+@_email("verify-organization-role", allow_unverified=True)
+def send_organization_role_verification_email(
+    request,
+    user,
+    *,
+    desired_role,
+    initiator_username,
+    organization_name,
+    email_token,
+    token_age,
+):
+    return {
+        "username": user.username,
+        "desired_role": desired_role,
+        "initiator_username": initiator_username,
+        "n_hours": token_age // 60 // 60,
+        "organization_name": organization_name,
+        "token": email_token,
+    }
+
+
+@_email("organization-member-invite-canceled")
+def send_organization_member_invite_canceled_email(
+    request,
+    email_recipients,
+    *,
+    user,
+    organization_name,
+):
+    return {
+        "username": user.username,
+        "organization_name": organization_name,
+    }
+
+
+@_email("canceled-as-invited-organization-member")
+def send_canceled_as_invited_organization_member_email(
+    request,
+    user,
+    *,
+    organization_name,
+):
+    return {
+        "username": user.username,
+        "organization_name": organization_name,
+    }
+
+
+@_email("organization-member-invite-declined")
+def send_organization_member_invite_declined_email(
+    request,
+    email_recipients,
+    *,
+    user,
+    organization_name,
+):
+    return {
+        "username": user.username,
+        "organization_name": organization_name,
+    }
+
+
+@_email("declined-as-invited-organization-member")
+def send_declined_as_invited_organization_member_email(
+    request,
+    user,
+    *,
+    organization_name,
+):
+    return {
+        "username": user.username,
+        "organization_name": organization_name,
+    }
+
+
+@_email("organization-member-added")
+def send_organization_member_added_email(
+    request,
+    email_recipients,
+    *,
+    user,
+    submitter,
+    organization_name,
+    role,
+):
+    return {
+        "username": user.username,
+        "submitter": submitter.username,
+        "organization_name": organization_name,
+        "role": role,
+    }
+
+
+@_email("added-as-organization-member")
+def send_added_as_organization_member_email(
+    request,
+    user,
+    *,
+    submitter,
+    organization_name,
+    role,
+):
+    return {
+        "username": user.username,
+        "submitter": submitter.username,
+        "organization_name": organization_name,
+        "role": role,
+    }
+
+
+@_email("organization-member-removed")
+def send_organization_member_removed_email(
+    request,
+    email_recipients,
+    *,
+    user,
+    submitter,
+    organization_name,
+):
+    return {
+        "username": user.username,
+        "submitter": submitter.username,
+        "organization_name": organization_name,
+    }
+
+
+@_email("removed-as-organization-member")
+def send_removed_as_organization_member_email(
+    request,
+    user,
+    *,
+    submitter,
+    organization_name,
+):
+    return {
+        "username": user.username,
+        "submitter": submitter.username,
+        "organization_name": organization_name,
+    }
+
+
+@_email("organization-member-role-changed")
+def send_organization_member_role_changed_email(
+    request,
+    email_recipients,
+    *,
+    user,
+    submitter,
+    organization_name,
+    role,
+):
+    return {
+        "username": user.username,
+        "submitter": submitter.username,
+        "organization_name": organization_name,
+        "role": role,
+    }
+
+
+@_email("role-changed-as-organization-member")
+def send_role_changed_as_organization_member_email(
+    request,
+    user,
+    *,
+    submitter,
+    organization_name,
+    role,
+):
+    return {
+        "username": user.username,
+        "organization_name": organization_name,
         "submitter": submitter.username,
         "role": role,
     }
@@ -360,6 +546,18 @@ def send_project_role_verification_email(
         "n_hours": token_age // 60 // 60,
         "project_name": project_name,
         "token": email_token,
+    }
+
+
+@_email("collaborator-added")
+def send_collaborator_added_email(
+    request, email_recipients, *, user, submitter, project_name, role
+):
+    return {
+        "username": user.username,
+        "project": project_name,
+        "submitter": submitter.username,
+        "role": role,
     }
 
 
