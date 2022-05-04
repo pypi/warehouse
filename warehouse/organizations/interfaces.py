@@ -38,7 +38,7 @@ class IOrganizationService(Interface):
         attributes.
         """
 
-    def add_catalog_entry(name, organization_id):
+    def add_catalog_entry(organization_id):
         """
         Adds the organization name to the organization name catalog
         """

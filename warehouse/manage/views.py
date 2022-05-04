@@ -1022,9 +1022,7 @@ class ManageOrganizationsViews:
                 tag="organization:create",
                 additional={"created_by_user_id": str(self.request.user.id)},
             )
-            self.organization_service.add_catalog_entry(
-                organization.name, organization.id
-            )
+            self.organization_service.add_catalog_entry(organization.id)
             self.organization_service.record_event(
                 organization.id,
                 tag="organization:catalog_entry:add",
