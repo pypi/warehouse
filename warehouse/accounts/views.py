@@ -875,6 +875,25 @@ def verify_organization_role(request):
         }
     elif request.method == "POST" and "decline" in request.POST:
         organization_service.delete_organization_invite(organization_invite.id)
+        submitter_user = user_service.get_user(data.get("submitter_id"))
+        organization.record_event(
+            tag="organization:organization_role:declined",
+            ip_address=request.remote_addr,
+            additional={
+                "submitted_by_user_id": str(submitter_user.id),
+                "role_name": desired_role,
+                "target_user_id": str(user.id),
+            },
+        )
+        user.record_event(
+            tag="account:organization_role:declined",
+            ip_address=request.remote_addr,
+            additional={
+                "submitted_by_user_id": str(submitter_user.id),
+                "organization_name": organization.name,
+                "role_name": desired_role,
+            },
+        )
         owner_roles = (
             request.db.query(OrganizationRole)
             .filter(OrganizationRole.organization == organization)
@@ -908,20 +927,21 @@ def verify_organization_role(request):
         role_name=desired_role,
     )
     organization_service.delete_organization_invite(organization_invite.id)
+    submitter_user = user_service.get_user(data.get("submitter_id"))
     organization.record_event(
-        tag="organization:role:accepted",
+        tag="organization:organization_role:accepted",
         ip_address=request.remote_addr,
         additional={
-            "submitted_by_user_id": str(request.user.id),
+            "submitted_by_user_id": str(submitter_user.id),
             "role_name": desired_role,
             "target_user_id": str(user.id),
         },
     )
     user.record_event(
-        tag="account:role:accepted",
+        tag="account:organization_role:accepted",
         ip_address=request.remote_addr,
         additional={
-            "submitted_by_user_id": str(request.user.id),
+            "submitted_by_user_id": str(submitter_user.id),
             "organization_name": organization.name,
             "role_name": desired_role,
         },
@@ -938,7 +958,6 @@ def verify_organization_role(request):
     # Don't send email to new user if they are now an owner
     owner_users.discard(user)
 
-    submitter_user = user_service.get_user(data.get("submitter_id"))
     send_organization_member_added_email(
         request,
         owner_users,

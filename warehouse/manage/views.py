@@ -1287,7 +1287,7 @@ def manage_organization_roles(
                     invite_token=invite_token,
                 )
             organization.record_event(
-                tag="organization:role:invite",
+                tag="organization:organization_role:invite",
                 ip_address=request.remote_addr,
                 additional={
                     "submitted_by_user_id": str(request.user.id),
@@ -1382,7 +1382,7 @@ def revoke_organization_invitation(organization, request):
     role_name = token_data.get("desired_role")
 
     organization.record_event(
-        tag="organization:role:revoke_invite",
+        tag="organization:organization_role:revoke_invite",
         ip_address=request.remote_addr,
         additional={
             "submitted_by_user_id": str(request.user.id),
@@ -1443,15 +1443,6 @@ def change_organization_role(
             request.session.flash("Cannot remove yourself as Owner", queue="error")
         else:
             role.role_name = form.role_name.data
-            organization.record_event(
-                tag="organization:role:change",
-                ip_address=request.remote_addr,
-                additional={
-                    "submitted_by_user_id": str(request.user.id),
-                    "role_name": form.role_name.data,
-                    "target_user_id": str(role.user.id),
-                },
-            )
 
             owner_users = set(organization_owners(request, organization))
             # Don't send owner notification email to new user
@@ -1473,6 +1464,25 @@ def change_organization_role(
                 submitter=request.user,
                 organization_name=organization.name,
                 role=role.role_name,
+            )
+
+            organization.record_event(
+                tag="organization:organization_role:change",
+                ip_address=request.remote_addr,
+                additional={
+                    "submitted_by_user_id": str(request.user.id),
+                    "role_name": form.role_name.data,
+                    "target_user_id": str(role.user.id),
+                },
+            )
+            role.user.record_event(
+                tag="account:organization_role:change",
+                ip_address=request.remote_addr,
+                additional={
+                    "submitted_by_user_id": str(request.user.id),
+                    "organization_name": organization.name,
+                    "role_name": form.role_name.data,
+                },
             )
 
             request.session.flash("Changed role", queue="success")
@@ -1504,12 +1514,21 @@ def delete_organization_role(organization, request):
     else:
         organization_service.delete_organization_role(role.id)
         organization.record_event(
-            tag="organization:role:delete",
+            tag="organization:organization_role:delete",
             ip_address=request.remote_addr,
             additional={
                 "submitted_by_user_id": str(request.user.id),
                 "role_name": role.role_name.value,
                 "target_user_id": str(role.user.id),
+            },
+        )
+        role.user.record_event(
+            tag="account:organization_role:delete",
+            ip_address=request.remote_addr,
+            additional={
+                "submitted_by_user_id": str(request.user.id),
+                "organization_name": organization.name,
+                "role_name": role.role_name.value,
             },
         )
 

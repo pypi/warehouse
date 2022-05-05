@@ -135,7 +135,7 @@ msgid "Invalid token: request a new password reset link"
 msgstr ""
 
 #: warehouse/accounts/views.py:655 warehouse/accounts/views.py:753
-#: warehouse/accounts/views.py:850 warehouse/accounts/views.py:1011
+#: warehouse/accounts/views.py:850 warehouse/accounts/views.py:1030
 msgid "Invalid token: no token supplied"
 msgstr ""
 
@@ -201,7 +201,7 @@ msgstr ""
 msgid "Invalid token: request a new organization invite"
 msgstr ""
 
-#: warehouse/accounts/views.py:854 warehouse/accounts/views.py:1015
+#: warehouse/accounts/views.py:854 warehouse/accounts/views.py:1034
 msgid "Invalid token: not a collaboration invitation token"
 msgstr ""
 
@@ -213,35 +213,35 @@ msgstr ""
 msgid "Organization invitation no longer exists."
 msgstr ""
 
-#: warehouse/accounts/views.py:897
+#: warehouse/accounts/views.py:916
 msgid "Invitation for '${organization_name}' is declined."
 msgstr ""
 
-#: warehouse/accounts/views.py:960
+#: warehouse/accounts/views.py:979
 msgid "You are now ${role} of the '${organization_name}' organization."
 msgstr ""
 
-#: warehouse/accounts/views.py:1007
+#: warehouse/accounts/views.py:1026
 msgid "Expired token: request a new project role invite"
 msgstr ""
 
-#: warehouse/accounts/views.py:1009
+#: warehouse/accounts/views.py:1028
 msgid "Invalid token: request a new project role invite"
 msgstr ""
 
-#: warehouse/accounts/views.py:1019
+#: warehouse/accounts/views.py:1038
 msgid "Role invitation is not valid."
 msgstr ""
 
-#: warehouse/accounts/views.py:1034
+#: warehouse/accounts/views.py:1053
 msgid "Role invitation no longer exists."
 msgstr ""
 
-#: warehouse/accounts/views.py:1046
+#: warehouse/accounts/views.py:1065
 msgid "Invitation for '${project_name}' is declined."
 msgstr ""
 
-#: warehouse/accounts/views.py:1113
+#: warehouse/accounts/views.py:1132
 msgid "You are now ${role} of the '${project_name}' project."
 msgstr ""
 
@@ -307,11 +307,11 @@ msgid ""
 "cannot be added as a ${role_name} for organization"
 msgstr ""
 
-#: warehouse/manage/views.py:1263 warehouse/manage/views.py:2469
+#: warehouse/manage/views.py:1263 warehouse/manage/views.py:2488
 msgid "User '${username}' already has an active invite. Please try again later."
 msgstr ""
 
-#: warehouse/manage/views.py:1320 warehouse/manage/views.py:2527
+#: warehouse/manage/views.py:1320 warehouse/manage/views.py:2546
 msgid "Invitation sent to '${username}'"
 msgstr ""
 
@@ -319,31 +319,31 @@ msgstr ""
 msgid "Could not find organization invitation."
 msgstr ""
 
-#: warehouse/manage/views.py:1376 warehouse/manage/views.py:2585
+#: warehouse/manage/views.py:1376 warehouse/manage/views.py:2604
 msgid "Invitation already expired."
 msgstr ""
 
-#: warehouse/manage/views.py:1408 warehouse/manage/views.py:2609
+#: warehouse/manage/views.py:1408 warehouse/manage/views.py:2628
 msgid "Invitation revoked from '${username}'."
 msgstr ""
 
-#: warehouse/manage/views.py:1764
+#: warehouse/manage/views.py:1783
 msgid ""
 "There have been too many attempted OpenID Connect registrations. Try "
 "again later."
 msgstr ""
 
-#: warehouse/manage/views.py:2445
+#: warehouse/manage/views.py:2464
 msgid "User '${username}' already has ${role_name} role for project"
 msgstr ""
 
-#: warehouse/manage/views.py:2456
+#: warehouse/manage/views.py:2475
 msgid ""
 "User '${username}' does not have a verified primary email address and "
 "cannot be added as a ${role_name} for project"
 msgstr ""
 
-#: warehouse/manage/views.py:2574
+#: warehouse/manage/views.py:2593
 msgid "Could not find role invitation."
 msgstr ""
 
