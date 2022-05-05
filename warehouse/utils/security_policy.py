@@ -53,7 +53,7 @@ class MultiSecurityPolicy:
     with the following semantics:
 
     * `identity`: Selected from the first policy to return non-`None`
-    * `authenticated_userid`: Selected from the request identity, if present
+    * `authenticated_userid`: Selected from the first policy to return a user
     * `forget`: Combined from all policies
     * `remember`: Combined from all policies
     * `permits`: Uses the AuthZ policy passed during initialization
@@ -73,8 +73,9 @@ class MultiSecurityPolicy:
         return None
 
     def authenticated_userid(self, request):
-        if request.identity and isinstance(request.identity, User):
-            return str(request.identity.id)
+        if ident := self.identity(request):
+            if isinstance(ident, User):
+                return str(ident.id)
         return None
 
     def forget(self, request, **kw):
