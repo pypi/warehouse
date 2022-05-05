@@ -135,7 +135,7 @@ msgid "Invalid token: request a new password reset link"
 msgstr ""
 
 #: warehouse/accounts/views.py:655 warehouse/accounts/views.py:753
-#: warehouse/accounts/views.py:850 warehouse/accounts/views.py:1030
+#: warehouse/accounts/views.py:850 warehouse/accounts/views.py:1026
 msgid "Invalid token: no token supplied"
 msgstr ""
 
@@ -201,7 +201,7 @@ msgstr ""
 msgid "Invalid token: request a new organization invite"
 msgstr ""
 
-#: warehouse/accounts/views.py:854 warehouse/accounts/views.py:1034
+#: warehouse/accounts/views.py:854 warehouse/accounts/views.py:1030
 msgid "Invalid token: not a collaboration invitation token"
 msgstr ""
 
@@ -221,27 +221,27 @@ msgstr ""
 msgid "You are now ${role} of the '${organization_name}' organization."
 msgstr ""
 
-#: warehouse/accounts/views.py:1026
+#: warehouse/accounts/views.py:1022
 msgid "Expired token: request a new project role invite"
 msgstr ""
 
-#: warehouse/accounts/views.py:1028
+#: warehouse/accounts/views.py:1024
 msgid "Invalid token: request a new project role invite"
 msgstr ""
 
-#: warehouse/accounts/views.py:1038
+#: warehouse/accounts/views.py:1034
 msgid "Role invitation is not valid."
 msgstr ""
 
-#: warehouse/accounts/views.py:1053
+#: warehouse/accounts/views.py:1049
 msgid "Role invitation no longer exists."
 msgstr ""
 
-#: warehouse/accounts/views.py:1065
+#: warehouse/accounts/views.py:1061
 msgid "Invitation for '${project_name}' is declined."
 msgstr ""
 
-#: warehouse/accounts/views.py:1132
+#: warehouse/accounts/views.py:1128
 msgid "You are now ${role} of the '${project_name}' project."
 msgstr ""
 

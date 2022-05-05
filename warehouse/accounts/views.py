@@ -996,11 +996,7 @@ def verify_organization_role(request):
         #         "manage.organization.projects", name=organization.name
         #     )
         # )
-        return HTTPSeeOther(
-            request.route_path(
-                "manage.organization.roles", organization_name=organization.name
-            )
-        )
+        return HTTPSeeOther(request.route_path("manage.organizations"))
 
 
 @view_config(

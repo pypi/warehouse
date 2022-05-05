@@ -1194,7 +1194,7 @@ class ManageOrganizationsViews:
     renderer="manage/organization/roles.html",
     uses_session=True,
     require_methods=False,
-    # permission="manage:organization",
+    permission="manage:organization",
     has_translations=True,
     require_reauth=True,
 )
@@ -1346,7 +1346,7 @@ def manage_organization_roles(
     context=Organization,
     uses_session=True,
     require_methods=["POST"],
-    # permission="manage:organization",
+    permission="manage:organization",
     has_translations=True,
 )
 def revoke_organization_invitation(organization, request):
@@ -1424,7 +1424,7 @@ def revoke_organization_invitation(organization, request):
     context=Organization,
     uses_session=True,
     require_methods=["POST"],
-    # permission="manage:organization",
+    permission="manage:organization",
     has_translations=True,
     require_reauth=True,
 )
@@ -1499,7 +1499,7 @@ def change_organization_role(
     context=Organization,
     uses_session=True,
     require_methods=["POST"],
-    # permission="manage:organization",
+    permission="manage:organization",
     has_translations=True,
     require_reauth=True,
 )

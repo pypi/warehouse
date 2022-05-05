@@ -2259,9 +2259,7 @@ class TestVerifyOrganizationRole:
             )
             if desired_role == "Owner"
             # TODO: Test redirecting to managing organization projects.
-            else pretend.call(
-                "manage.organization.roles", organization_name=organization.name
-            )
+            else pretend.call("manage.organizations")
         ]
 
     @pytest.mark.parametrize(
