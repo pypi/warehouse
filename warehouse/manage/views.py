@@ -44,21 +44,29 @@ from warehouse.admin.flags import AdminFlagValue
 from warehouse.email import (
     send_account_deletion_email,
     send_admin_new_organization_requested_email,
+    send_canceled_as_invited_organization_member_email,
     send_collaborator_removed_email,
     send_collaborator_role_changed_email,
     send_email_verification_email,
     send_new_organization_requested_email,
     send_oidc_provider_added_email,
     send_oidc_provider_removed_email,
+    send_organization_member_invite_canceled_email,
+    send_organization_member_invited_email,
+    send_organization_member_removed_email,
+    send_organization_member_role_changed_email,
+    send_organization_role_verification_email,
     send_password_change_email,
     send_primary_email_change_email,
     send_project_role_verification_email,
     send_recovery_codes_generated_email,
     send_removed_as_collaborator_email,
+    send_removed_as_organization_member_email,
     send_removed_project_email,
     send_removed_project_release_email,
     send_removed_project_release_file_email,
     send_role_changed_as_collaborator_email,
+    send_role_changed_as_organization_member_email,
     send_two_factor_added_email,
     send_two_factor_removed_email,
     send_unyanked_project_release_email,
@@ -1278,8 +1286,6 @@ def manage_organization_roles(
                     user_id=user.id,
                     invite_token=invite_token,
                 )
-            # TODO: Send notification email to invite initiator.
-            # TODO: Send notification email to invited user.
             organization.record_event(
                 tag="organization:role:invite",
                 ip_address=request.remote_addr,
@@ -1290,6 +1296,26 @@ def manage_organization_roles(
                 },
             )
             request.db.flush()  # in order to get id
+            owner_users = set(organization_owners(request, organization))
+            send_organization_member_invited_email(
+                request,
+                owner_users,
+                user=user,
+                desired_role=role_name,
+                initiator_username=request.user.username,
+                organization_name=organization.name,
+                email_token=invite_token,
+                token_age=token_service.max_age,
+            )
+            send_organization_role_verification_email(
+                request,
+                user,
+                desired_role=role_name,
+                initiator_username=request.user.username,
+                organization_name=organization.name,
+                email_token=invite_token,
+                token_age=token_service.max_age,
+            )
             request.session.flash(
                 request._(
                     "Invitation sent to '${username}'",
@@ -1364,6 +1390,20 @@ def revoke_organization_invitation(organization, request):
             "target_user_id": str(user.id),
         },
     )
+
+    owner_users = set(organization_owners(request, organization))
+    send_organization_member_invite_canceled_email(
+        request,
+        owner_users,
+        user=user,
+        organization_name=organization.name,
+    )
+    send_canceled_as_invited_organization_member_email(
+        request,
+        user,
+        organization_name=organization.name,
+    )
+
     request.session.flash(
         request._(
             "Invitation revoked from '${username}'.",
@@ -1418,23 +1458,22 @@ def change_organization_role(
             # if they are now an owner
             owner_users.discard(role.user)
 
-            # TODO: Send notification emails.
-            # send_member_role_changed_email(
-            #     request,
-            #     owner_users,
-            #     user=role.user,
-            #     submitter=request.user,
-            #     organization_name=organization.name,
-            #     role=role.role_name,
-            # )
-            #
-            # send_role_changed_as_member_email(
-            #     request,
-            #     role.user,
-            #     submitter=request.user,
-            #     organization_name=organization.name,
-            #     role=role.role_name,
-            # )
+            send_organization_member_role_changed_email(
+                request,
+                owner_users,
+                user=role.user,
+                submitter=request.user,
+                organization_name=organization.name,
+                role=role.role_name,
+            )
+
+            send_role_changed_as_organization_member_email(
+                request,
+                role.user,
+                submitter=request.user,
+                organization_name=organization.name,
+                role=role.role_name,
+            )
 
             request.session.flash("Changed role", queue="success")
 
@@ -1475,26 +1514,24 @@ def delete_organization_role(organization, request):
         )
 
         owner_users = set(organization_owners(request, organization))
-
         # Don't send owner notification email to new user
         # if they are now an owner
         owner_users.discard(role.user)
 
-        # TODO: Send notification emails.
-        # send_member_removed_email(
-        #     request,
-        #     owner_users,
-        #     user=role.user,
-        #     submitter=request.user,
-        #     organization_name=organization.name,
-        # )
-        #
-        # send_removed_as_member_email(
-        #     request,
-        #     role.user,
-        #     submitter=request.user,
-        #     organization_name=organization.name,
-        # )
+        send_organization_member_removed_email(
+            request,
+            owner_users,
+            user=role.user,
+            submitter=request.user,
+            organization_name=organization.name,
+        )
+
+        send_removed_as_organization_member_email(
+            request,
+            role.user,
+            submitter=request.user,
+            organization_name=organization.name,
+        )
 
         request.session.flash("Removed member", queue="success")
 

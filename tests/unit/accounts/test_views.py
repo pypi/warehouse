@@ -2184,21 +2184,26 @@ class TestVerifyOrganizationRole:
                 "desired_role": desired_role,
                 "user_id": user.id,
                 "organization_id": organization.id,
-                "submitter_id": db_request.user.id,
+                "submitter_id": owner_user.id,
             }
         )
 
-        # TODO: Test sending of notification emails.
-        # member_added_email = pretend.call_recorder(lambda *args, **kwargs: None)
-        # monkeypatch.setattr(
-        #     views, "send_member_added_email", member_added_email
-        # )
-        # added_as_member_email = pretend.call_recorder(
-        #     lambda *args, **kwargs: None
-        # )
-        # monkeypatch.setattr(
-        #     views, "send_added_as_member_email", added_as_member_email
-        # )
+        organization_member_added_email = pretend.call_recorder(
+            lambda *args, **kwargs: None
+        )
+        monkeypatch.setattr(
+            views,
+            "send_organization_member_added_email",
+            organization_member_added_email,
+        )
+        added_as_organization_member_email = pretend.call_recorder(
+            lambda *args, **kwargs: None
+        )
+        monkeypatch.setattr(
+            views,
+            "send_added_as_organization_member_email",
+            added_as_organization_member_email,
+        )
 
         result = views.verify_organization_role(db_request)
 
@@ -2218,7 +2223,25 @@ class TestVerifyOrganizationRole:
             )
             .one()
         )
-
+        assert organization_member_added_email.calls == [
+            pretend.call(
+                db_request,
+                {owner_user},
+                user=user,
+                submitter=owner_user,
+                organization_name=organization.name,
+                role=desired_role,
+            )
+        ]
+        assert added_as_organization_member_email.calls == [
+            pretend.call(
+                db_request,
+                user,
+                submitter=owner_user,
+                organization_name=organization.name,
+                role=desired_role,
+            )
+        ]
         assert db_request.session.flash.calls == [
             pretend.call(
                 (
@@ -2228,28 +2251,6 @@ class TestVerifyOrganizationRole:
                 queue="success",
             )
         ]
-
-        # TODO: Test sending of notification emails.
-        # assert member_added_email.calls == [
-        #     pretend.call(
-        #         db_request,
-        #         {owner_user},
-        #         user=user,
-        #         submitter=db_request.user,
-        #         organization_name=organization.name,
-        #         role=desired_role,
-        #     )
-        # ]
-        # assert added_as_member_email.calls == [
-        #     pretend.call(
-        #         db_request,
-        #         user,
-        #         submitter=db_request.user,
-        #         organization_name=organization.name,
-        #         role=desired_role,
-        #     )
-        # ]
-
         assert isinstance(result, HTTPSeeOther)
         assert result.headers["Location"] == "/"
         assert db_request.route_path.calls == [
@@ -2304,8 +2305,15 @@ class TestVerifyOrganizationRole:
         ]
 
     def test_verify_organization_role_revoked(self, db_request, token_service):
+        desired_role = "Manager"
         organization = OrganizationFactory.create()
         user = UserFactory.create()
+        owner_user = UserFactory.create()
+        OrganizationRoleFactory(
+            organization=organization,
+            user=owner_user,
+            role_name=OrganizationRoleType.Owner,
+        )
 
         db_request.user = user
         db_request.method = "POST"
@@ -2316,10 +2324,10 @@ class TestVerifyOrganizationRole:
         token_service.loads = pretend.call_recorder(
             lambda token: {
                 "action": "email-organization-role-verify",
-                "desired_role": "Manager",
+                "desired_role": desired_role,
                 "user_id": user.id,
                 "organization_id": organization.id,
-                "submitter_id": db_request.user.id,
+                "submitter_id": owner_user.id,
             }
         )
 
@@ -2333,12 +2341,21 @@ class TestVerifyOrganizationRole:
         ]
         assert db_request.route_path.calls == [pretend.call("manage.organizations")]
 
-    def test_verify_organization_role_declined(self, db_request, token_service):
+    def test_verify_organization_role_declined(
+        self, db_request, token_service, monkeypatch
+    ):
+        desired_role = "Manager"
         organization = OrganizationFactory.create()
         user = UserFactory.create()
         OrganizationInvitationFactory.create(
             organization=organization,
             user=user,
+        )
+        owner_user = UserFactory.create()
+        OrganizationRoleFactory(
+            organization=organization,
+            user=owner_user,
+            role_name=OrganizationRoleType.Owner,
         )
 
         db_request.user = user
@@ -2350,11 +2367,28 @@ class TestVerifyOrganizationRole:
         token_service.loads = pretend.call_recorder(
             lambda token: {
                 "action": "email-organization-role-verify",
-                "desired_role": "Manager",
+                "desired_role": desired_role,
                 "user_id": user.id,
                 "organization_id": organization.id,
-                "submitter_id": db_request.user.id,
+                "submitter_id": owner_user.id,
             }
+        )
+
+        organization_member_invite_declined_email = pretend.call_recorder(
+            lambda *args, **kwargs: None
+        )
+        monkeypatch.setattr(
+            views,
+            "send_organization_member_invite_declined_email",
+            organization_member_invite_declined_email,
+        )
+        declined_as_invited_organization_member_email = pretend.call_recorder(
+            lambda *args, **kwargs: None
+        )
+        monkeypatch.setattr(
+            views,
+            "send_declined_as_invited_organization_member_email",
+            declined_as_invited_organization_member_email,
         )
 
         result = views.verify_organization_role(db_request)
@@ -2365,13 +2399,35 @@ class TestVerifyOrganizationRole:
             .filter(OrganizationInvitation.organization == organization)
             .one_or_none()
         )
+        assert organization_member_invite_declined_email.calls == [
+            pretend.call(
+                db_request,
+                {owner_user},
+                user=user,
+                organization_name=organization.name,
+            )
+        ]
+        assert declined_as_invited_organization_member_email.calls == [
+            pretend.call(
+                db_request,
+                user,
+                organization_name=organization.name,
+            )
+        ]
         assert isinstance(result, HTTPSeeOther)
         assert db_request.route_path.calls == [pretend.call("manage.organizations")]
 
     def test_verify_fails_with_different_user(self, db_request, token_service):
+        desired_role = "Manager"
         organization = OrganizationFactory.create()
         user = UserFactory.create()
         user_2 = UserFactory.create()
+        owner_user = UserFactory.create()
+        OrganizationRoleFactory(
+            organization=organization,
+            user=owner_user,
+            role_name=OrganizationRoleType.Owner,
+        )
 
         db_request.user = user_2
         db_request.method = "POST"
@@ -2382,10 +2438,10 @@ class TestVerifyOrganizationRole:
         token_service.loads = pretend.call_recorder(
             lambda token: {
                 "action": "email-organization-role-verify",
-                "desired_role": "Maintainer",
+                "desired_role": desired_role,
                 "user_id": user.id,
                 "organization_id": organization.id,
-                "submitter_id": db_request.user.id,
+                "submitter_id": owner_user.id,
             }
         )
 
@@ -2397,11 +2453,18 @@ class TestVerifyOrganizationRole:
         assert db_request.route_path.calls == [pretend.call("manage.organizations")]
 
     def test_verify_role_get_confirmation(self, db_request, token_service):
+        desired_role = "Manager"
         organization = OrganizationFactory.create()
         user = UserFactory.create()
         OrganizationInvitationFactory.create(
             organization=organization,
             user=user,
+        )
+        owner_user = UserFactory.create()
+        OrganizationRoleFactory(
+            organization=organization,
+            user=owner_user,
+            role_name=OrganizationRoleType.Owner,
         )
 
         db_request.user = user
@@ -2413,10 +2476,10 @@ class TestVerifyOrganizationRole:
         token_service.loads = pretend.call_recorder(
             lambda token: {
                 "action": "email-organization-role-verify",
-                "desired_role": "Manager",
+                "desired_role": desired_role,
                 "user_id": user.id,
                 "organization_id": organization.id,
-                "submitter_id": db_request.user.id,
+                "submitter_id": owner_user.id,
             }
         )
 
@@ -2424,7 +2487,7 @@ class TestVerifyOrganizationRole:
 
         assert roles == {
             "organization_name": organization.name,
-            "desired_role": "Manager",
+            "desired_role": desired_role,
         }
 
 

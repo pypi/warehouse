@@ -2657,7 +2657,9 @@ class TestManageOrganizationRoles:
         orgtype,
         organization_service,
         user_service,
+        token_service,
         enable_organizations,
+        monkeypatch,
     ):
         organization = OrganizationFactory.create(name="foobar", orgtype=orgtype)
         new_user = UserFactory.create(username="new_user")
@@ -2684,15 +2686,22 @@ class TestManageOrganizationRoles:
             flash=pretend.call_recorder(lambda *a, **kw: None)
         )
 
-        # TODO: Test sending of notification emails.
-        # send_organization_role_verification_email = pretend.call_recorder(
-        #     lambda r, u, **k: None
-        # )
-        # monkeypatch.setattr(
-        #     views,
-        #     "send_organization_role_verification_email",
-        #     send_organization_role_verification_email,
-        # )
+        send_organization_member_invited_email = pretend.call_recorder(
+            lambda r, u, **k: None
+        )
+        monkeypatch.setattr(
+            views,
+            "send_organization_member_invited_email",
+            send_organization_member_invited_email,
+        )
+        send_organization_role_verification_email = pretend.call_recorder(
+            lambda r, u, **k: None
+        )
+        monkeypatch.setattr(
+            views,
+            "send_organization_role_verification_email",
+            send_organization_role_verification_email,
+        )
 
         result = views.manage_organization_roles(organization, db_request)
         form_obj = result["form"]
@@ -2715,6 +2724,45 @@ class TestManageOrganizationRoles:
             "invitations": {organization_invitation},
             "form": form_obj,
         }
+        assert send_organization_member_invited_email.calls == [
+            pretend.call(
+                db_request,
+                {owner_1, owner_2},
+                user=new_user,
+                desired_role=db_request.POST["role_name"],
+                initiator_username=db_request.user.username,
+                organization_name=organization.name,
+                email_token=token_service.dumps(
+                    {
+                        "action": "email-organization-role-verify",
+                        "desired_role": db_request.POST["role_name"],
+                        "user_id": new_user.id,
+                        "organization_id": organization.id,
+                        "submitter_id": db_request.user.id,
+                    }
+                ),
+                token_age=token_service.max_age,
+            )
+        ]
+        assert send_organization_role_verification_email.calls == [
+            pretend.call(
+                db_request,
+                new_user,
+                desired_role=db_request.POST["role_name"],
+                initiator_username=db_request.user.username,
+                organization_name=organization.name,
+                email_token=token_service.dumps(
+                    {
+                        "action": "email-organization-role-verify",
+                        "desired_role": db_request.POST["role_name"],
+                        "user_id": new_user.id,
+                        "organization_id": organization.id,
+                        "submitter_id": db_request.user.id,
+                    }
+                ),
+                token_age=token_service.max_age,
+            )
+        ]
 
     def test_post_duplicate_organization_role(
         self, db_request, organization_service, user_service, enable_organizations
@@ -2952,15 +3000,22 @@ class TestManageOrganizationRoles:
         )
         form_class = pretend.call_recorder(lambda *a, **kw: form_obj)
 
-        # TODO: Test sending of notification email.
-        # send_organization_role_verification_email = pretend.call_recorder(
-        #     lambda r, u, **k: None
-        # )
-        # monkeypatch.setattr(
-        #     views,
-        #     "send_organization_role_verification_email",
-        #     send_organization_role_verification_email,
-        # )
+        send_organization_member_invited_email = pretend.call_recorder(
+            lambda r, u, **k: None
+        )
+        monkeypatch.setattr(
+            views,
+            "send_organization_member_invited_email",
+            send_organization_member_invited_email,
+        )
+        send_organization_role_verification_email = pretend.call_recorder(
+            lambda r, u, **k: None
+        )
+        monkeypatch.setattr(
+            views,
+            "send_organization_role_verification_email",
+            send_organization_role_verification_email,
+        )
 
         result = views.manage_organization_roles(
             organization, db_request, _form_class=form_class
@@ -2993,37 +3048,57 @@ class TestManageOrganizationRoles:
         )
 
         assert result["invitations"] == {new_organization_invitation}
-
         assert result == {
             "organization": organization,
             "roles": {owner_1_role, owner_2_role},
             "invitations": {organization_invitation},
             "form": form_obj,
         }
-
-        # TODO: Test sending of notification email.
-        # assert send_organization_role_verification_email.calls == [
-        #     pretend.call(
-        #         db_request,
-        #         new_user,
-        #         desired_role=form_obj.role_name.data,
-        #         initiator_username=db_request.user.username,
-        #         organization_name=organization.name,
-        #         email_token=token_service.dumps(
-        #             {
-        #                 "action": "email-organization-role-verify",
-        #                 "desired_role": form_obj.role_name.data,
-        #                 "user_id": new_user.id,
-        #                 "organization_id": organization.id,
-        #             }
-        #         ),
-        #         token_age=token_service.max_age,
-        #     )
-        # ]
+        assert send_organization_member_invited_email.calls == [
+            pretend.call(
+                db_request,
+                {owner_1, owner_2},
+                user=new_user,
+                desired_role=form_obj.role_name.data,
+                initiator_username=db_request.user.username,
+                organization_name=organization.name,
+                email_token=token_service.dumps(
+                    {
+                        "action": "email-organization-role-verify",
+                        "desired_role": form_obj.role_name.data,
+                        "user_id": new_user.id,
+                        "organization_id": organization.id,
+                        "submitter_id": db_request.user.id,
+                    }
+                ),
+                token_age=token_service.max_age,
+            )
+        ]
+        assert send_organization_role_verification_email.calls == [
+            pretend.call(
+                db_request,
+                new_user,
+                desired_role=form_obj.role_name.data,
+                initiator_username=db_request.user.username,
+                organization_name=organization.name,
+                email_token=token_service.dumps(
+                    {
+                        "action": "email-organization-role-verify",
+                        "desired_role": form_obj.role_name.data,
+                        "user_id": new_user.id,
+                        "organization_id": organization.id,
+                        "submitter_id": db_request.user.id,
+                    }
+                ),
+                token_age=token_service.max_age,
+            )
+        ]
 
 
 class TestRevokeOrganizationInvitation:
-    def test_revoke_invitation(self, db_request, token_service, enable_organizations):
+    def test_revoke_invitation(
+        self, db_request, token_service, enable_organizations, monkeypatch
+    ):
         organization = OrganizationFactory.create(name="foobar")
         user = UserFactory.create(username="testuser")
         OrganizationInvitationFactory.create(
@@ -3057,6 +3132,23 @@ class TestRevokeOrganizationInvitation:
             }
         )
 
+        organization_member_invite_canceled_email = pretend.call_recorder(
+            lambda *args, **kwargs: None
+        )
+        monkeypatch.setattr(
+            views,
+            "send_organization_member_invite_canceled_email",
+            organization_member_invite_canceled_email,
+        )
+        canceled_as_invited_organization_member_email = pretend.call_recorder(
+            lambda *args, **kwargs: None
+        )
+        monkeypatch.setattr(
+            views,
+            "send_canceled_as_invited_organization_member_email",
+            canceled_as_invited_organization_member_email,
+        )
+
         result = views.revoke_organization_invitation(organization, db_request)
         db_request.db.flush()
 
@@ -3066,6 +3158,21 @@ class TestRevokeOrganizationInvitation:
             .filter(OrganizationInvitation.organization == organization)
             .one_or_none()
         )
+        assert organization_member_invite_canceled_email.calls == [
+            pretend.call(
+                db_request,
+                {owner_user},
+                user=user,
+                organization_name=organization.name,
+            )
+        ]
+        assert canceled_as_invited_organization_member_email.calls == [
+            pretend.call(
+                db_request,
+                user,
+                organization_name=organization.name,
+            )
+        ]
         assert db_request.session.flash.calls == [
             pretend.call(f"Invitation revoked from '{user.username}'.", queue="success")
         ]
@@ -3169,23 +3276,22 @@ class TestChangeOrganizationRole:
         )
         db_request.route_path = pretend.call_recorder(lambda *a, **kw: "/the-redirect")
 
-        # TODO: Test sending of notification emails.
-        # send_collaborator_role_changed_email = pretend.call_recorder(
-        #     lambda *a, **kw: None
-        # )
-        # monkeypatch.setattr(
-        #     views,
-        #     "send_collaborator_role_changed_email",
-        #     send_collaborator_role_changed_email,
-        # )
-        # send_role_changed_as_collaborator_email = pretend.call_recorder(
-        #     lambda *a, **kw: None
-        # )
-        # monkeypatch.setattr(
-        #     views,
-        #     "send_role_changed_as_collaborator_email",
-        #     send_role_changed_as_collaborator_email,
-        # )
+        send_organization_member_role_changed_email = pretend.call_recorder(
+            lambda *a, **kw: None
+        )
+        monkeypatch.setattr(
+            views,
+            "send_organization_member_role_changed_email",
+            send_organization_member_role_changed_email,
+        )
+        send_role_changed_as_organization_member_email = pretend.call_recorder(
+            lambda *a, **kw: None
+        )
+        monkeypatch.setattr(
+            views,
+            "send_role_changed_as_organization_member_email",
+            send_role_changed_as_organization_member_email,
+        )
 
         result = views.change_organization_role(organization, db_request)
 
@@ -3195,26 +3301,25 @@ class TestChangeOrganizationRole:
                 "manage.organization.roles", organization_name=organization.name
             )
         ]
-        # TODO: Test sending of notification emails.
-        # assert send_collaborator_role_changed_email.calls == [
-        #     pretend.call(
-        #         db_request,
-        #         set(),
-        #         user=user,
-        #         submitter=user_2,
-        #         organization_name="foobar",
-        #         role=new_role_name,
-        #     )
-        # ]
-        # assert send_role_changed_as_collaborator_email.calls == [
-        #     pretend.call(
-        #         db_request,
-        #         user,
-        #         submitter=user_2,
-        #         organization_name="foobar",
-        #         role=new_role_name,
-        #     )
-        # ]
+        assert send_organization_member_role_changed_email.calls == [
+            pretend.call(
+                db_request,
+                set(),
+                user=user,
+                submitter=user_2,
+                organization_name="foobar",
+                role=new_role_name,
+            )
+        ]
+        assert send_role_changed_as_organization_member_email.calls == [
+            pretend.call(
+                db_request,
+                user,
+                submitter=user_2,
+                organization_name="foobar",
+                role=new_role_name,
+            )
+        ]
         assert db_request.session.flash.calls == [
             pretend.call("Changed role", queue="success")
         ]
@@ -3305,19 +3410,22 @@ class TestDeleteOrganizationRoles:
         )
         db_request.route_path = pretend.call_recorder(lambda *a, **kw: "/the-redirect")
 
-        # TODO: Test sending of notification emails.
-        # send_collaborator_removed_email = pretend.call_recorder(lambda *a, **kw: None)
-        # monkeypatch.setattr(
-        #     views, "send_collaborator_removed_email", send_collaborator_removed_email
-        # )
-        # send_removed_as_collaborator_email = pretend.call_recorder(
-        #     lambda *a, **kw: None
-        # )
-        # monkeypatch.setattr(
-        #     views,
-        #     "send_removed_as_collaborator_email",
-        #     send_removed_as_collaborator_email,
-        # )
+        send_organization_member_removed_email = pretend.call_recorder(
+            lambda *a, **kw: None
+        )
+        monkeypatch.setattr(
+            views,
+            "send_organization_member_removed_email",
+            send_organization_member_removed_email,
+        )
+        send_removed_as_organization_member_email = pretend.call_recorder(
+            lambda *a, **kw: None
+        )
+        monkeypatch.setattr(
+            views,
+            "send_removed_as_organization_member_email",
+            send_removed_as_organization_member_email,
+        )
 
         result = views.delete_organization_role(organization, db_request)
 
@@ -3327,25 +3435,23 @@ class TestDeleteOrganizationRoles:
             )
         ]
         assert db_request.db.query(OrganizationRole).all() == []
-
-        # TODO: Test sending of notification emails.
-        # assert send_collaborator_removed_email.calls == [
-        #     pretend.call(
-        #         db_request,
-        #         set(),
-        #         user=user,
-        #         submitter=user_2,
-        #         organization_name="foobar",
-        #     )
-        # ]
-        # assert send_removed_as_collaborator_email.calls == [
-        #     pretend.call(
-        #         db_request,
-        #         user,
-        #         submitter=user_2,
-        #         organization_name="foobar",
-        #     )
-        # ]
+        assert send_organization_member_removed_email.calls == [
+            pretend.call(
+                db_request,
+                set(),
+                user=user,
+                submitter=user_2,
+                organization_name="foobar",
+            )
+        ]
+        assert send_removed_as_organization_member_email.calls == [
+            pretend.call(
+                db_request,
+                user,
+                submitter=user_2,
+                organization_name="foobar",
+            )
+        ]
         assert db_request.session.flash.calls == [
             pretend.call("Removed member", queue="success")
         ]

@@ -56,8 +56,12 @@ from warehouse.admin.flags import AdminFlagValue
 from warehouse.cache.origin import origin_cache
 from warehouse.email import (
     send_added_as_collaborator_email,
+    send_added_as_organization_member_email,
     send_collaborator_added_email,
+    send_declined_as_invited_organization_member_email,
     send_email_verification_email,
+    send_organization_member_added_email,
+    send_organization_member_invite_declined_email,
     send_password_change_email,
     send_password_reset_email,
     send_recovery_code_reminder_email,
@@ -871,6 +875,24 @@ def verify_organization_role(request):
         }
     elif request.method == "POST" and "decline" in request.POST:
         organization_service.delete_organization_invite(organization_invite.id)
+        owner_roles = (
+            request.db.query(OrganizationRole)
+            .filter(OrganizationRole.organization == organization)
+            .filter(OrganizationRole.role_name == OrganizationRoleType.Owner)
+            .all()
+        )
+        owner_users = {owner.user for owner in owner_roles}
+        send_organization_member_invite_declined_email(
+            request,
+            owner_users,
+            user=user,
+            organization_name=organization.name,
+        )
+        send_declined_as_invited_organization_member_email(
+            request,
+            user,
+            organization_name=organization.name,
+        )
         request.session.flash(
             request._(
                 "Invitation for '${organization_name}' is declined.",
@@ -916,24 +938,23 @@ def verify_organization_role(request):
     # Don't send email to new user if they are now an owner
     owner_users.discard(user)
 
-    # TODO: Send notification emails.
-    # submitter_user = user_service.get_user(data.get("submitter_id"))
-    # send_member_added_email(
-    #     request,
-    #     owner_users,
-    #     user=user,
-    #     submitter=submitter_user,
-    #     organization_name=organization.name,
-    #     role=desired_role,
-    # )
-    #
-    # send_added_as_member_email(
-    #     request,
-    #     user,
-    #     submitter=submitter_user,
-    #     organization_name=organization.name,
-    #     role=desired_role,
-    # )
+    submitter_user = user_service.get_user(data.get("submitter_id"))
+    send_organization_member_added_email(
+        request,
+        owner_users,
+        user=user,
+        submitter=submitter_user,
+        organization_name=organization.name,
+        role=desired_role,
+    )
+
+    send_added_as_organization_member_email(
+        request,
+        user,
+        submitter=submitter_user,
+        organization_name=organization.name,
+        role=desired_role,
+    )
 
     request.session.flash(
         request._(
