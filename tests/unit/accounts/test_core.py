@@ -35,6 +35,8 @@ from warehouse.accounts.services import (
 from warehouse.errors import BasicAuthBreachedPassword, BasicAuthFailedPassword
 from warehouse.rate_limiting import IRateLimiter, RateLimit
 
+from ...common.db.accounts import UserFactory
+
 
 class TestLogin:
     def test_invalid_route(self, pyramid_request, pyramid_services):
@@ -286,29 +288,20 @@ class TestLogin:
 
 
 class TestUser:
-    def test_with_user(self):
-        user = pretend.stub()
-        service = pretend.stub(get_user=pretend.call_recorder(lambda userid: user))
-
-        request = pretend.stub(
-            find_service=lambda iface, context: service, authenticated_userid=100
-        )
+    def test_with_user(self, db_request):
+        user = UserFactory.create()
+        request = pretend.stub(identity=user)
 
         assert accounts._user(request) is user
-        assert service.get_user.calls == [pretend.call(100)]
 
-    def test_without_users(self):
-        service = pretend.stub(get_user=pretend.call_recorder(lambda userid: None))
-
-        request = pretend.stub(
-            find_service=lambda iface, context: service, authenticated_userid=100
-        )
+    def test_without_user_identity(self):
+        nonuser = pretend.stub()
+        request = pretend.stub(identity=nonuser)
 
         assert accounts._user(request) is None
-        assert service.get_user.calls == [pretend.call(100)]
 
-    def test_without_userid(self):
-        request = pretend.stub(authenticated_userid=None)
+    def test_without_identity(self):
+        request = pretend.stub(identity=None)
         assert accounts._user(request) is None
 
 
