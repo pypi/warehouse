@@ -1808,7 +1808,6 @@ class TestSendNewOrganizationDeclinedEmail:
             organization_name=organization_name,
             message=message,
         )
-        assert pyramid_request.task.calls == [pretend.call(send_email)]
         assert send_email.delay.calls == [
             pretend.call(
                 f"{initiator_user.username} <{initiator_user.email}>",
@@ -1828,6 +1827,672 @@ class TestSendNewOrganizationDeclinedEmail:
                         "to": initiator_user.email,
                         "subject": "Email Subject",
                         "redact_ip": False,
+                    },
+                },
+            )
+        ]
+
+
+class TestOrganizationMemberEmails:
+    @pytest.fixture
+    def organization_invite(self, pyramid_user):
+        self.initiator_user = pyramid_user
+        self.user = UserFactory.create()
+        EmailFactory.create(user=self.user, verified=True)
+        self.desired_role = "Manager"
+        self.organization_name = "example"
+        self.email_token = "token"
+        self.token_age = 72 * 60 * 60
+
+    def test_send_organization_member_invited_email(
+        self,
+        db_request,
+        organization_invite,
+        make_email_renderers,
+        send_email,
+    ):
+        subject_renderer, body_renderer, html_renderer = make_email_renderers(
+            "organization-member-invited"
+        )
+
+        result = email.send_organization_member_invited_email(
+            db_request,
+            self.initiator_user,
+            user=self.user,
+            desired_role=self.desired_role,
+            initiator_username=self.initiator_user.username,
+            organization_name=self.organization_name,
+            email_token=self.email_token,
+            token_age=self.token_age,
+        )
+
+        assert result == {
+            "username": self.user.username,
+            "desired_role": self.desired_role,
+            "initiator_username": self.initiator_user.username,
+            "n_hours": self.token_age // 60 // 60,
+            "organization_name": self.organization_name,
+            "token": self.email_token,
+        }
+        subject_renderer.assert_(**result)
+        body_renderer.assert_(**result)
+        html_renderer.assert_(**result)
+        assert db_request.task.calls == [pretend.call(send_email)]
+        assert send_email.delay.calls == [
+            pretend.call(
+                f"{self.initiator_user.name} <{self.initiator_user.email}>",
+                {
+                    "subject": subject_renderer.string_response,
+                    "body_text": body_renderer.string_response,
+                    "body_html": (
+                        f"<html>\n"
+                        f"<head></head>\n"
+                        f"<body><p>{html_renderer.string_response}</p></body>\n"
+                        f"</html>\n"
+                    ),
+                },
+                {
+                    "tag": "account:email:sent",
+                    "user_id": self.initiator_user.id,
+                    "additional": {
+                        "from_": db_request.registry.settings["mail.sender"],
+                        "to": self.initiator_user.email,
+                        "subject": subject_renderer.string_response,
+                        "redact_ip": False,
+                    },
+                },
+            )
+        ]
+
+    def test_send_organization_role_verification_email(
+        self,
+        db_request,
+        organization_invite,
+        make_email_renderers,
+        send_email,
+    ):
+        subject_renderer, body_renderer, html_renderer = make_email_renderers(
+            "verify-organization-role"
+        )
+
+        result = email.send_organization_role_verification_email(
+            db_request,
+            self.user,
+            desired_role=self.desired_role,
+            initiator_username=self.initiator_user.username,
+            organization_name=self.organization_name,
+            email_token=self.email_token,
+            token_age=self.token_age,
+        )
+
+        assert result == {
+            "username": self.user.username,
+            "desired_role": self.desired_role,
+            "initiator_username": self.initiator_user.username,
+            "n_hours": self.token_age // 60 // 60,
+            "organization_name": self.organization_name,
+            "token": self.email_token,
+        }
+        subject_renderer.assert_(**result)
+        body_renderer.assert_(**result)
+        html_renderer.assert_(**result)
+        assert db_request.task.calls == [pretend.call(send_email)]
+        assert send_email.delay.calls == [
+            pretend.call(
+                f"{self.user.name} <{self.user.email}>",
+                {
+                    "subject": subject_renderer.string_response,
+                    "body_text": body_renderer.string_response,
+                    "body_html": (
+                        f"<html>\n"
+                        f"<head></head>\n"
+                        f"<body><p>{html_renderer.string_response}</p></body>\n"
+                        f"</html>\n"
+                    ),
+                },
+                {
+                    "tag": "account:email:sent",
+                    "user_id": self.user.id,
+                    "additional": {
+                        "from_": db_request.registry.settings["mail.sender"],
+                        "to": self.user.email,
+                        "subject": subject_renderer.string_response,
+                        "redact_ip": True,
+                    },
+                },
+            )
+        ]
+
+    def test_send_organization_member_invite_canceled_email(
+        self,
+        db_request,
+        organization_invite,
+        make_email_renderers,
+        send_email,
+    ):
+        subject_renderer, body_renderer, html_renderer = make_email_renderers(
+            "organization-member-invite-canceled"
+        )
+
+        result = email.send_organization_member_invite_canceled_email(
+            db_request,
+            self.initiator_user,
+            user=self.user,
+            organization_name=self.organization_name,
+        )
+
+        assert result == {
+            "username": self.user.username,
+            "organization_name": self.organization_name,
+        }
+        subject_renderer.assert_(**result)
+        body_renderer.assert_(**result)
+        html_renderer.assert_(**result)
+        assert db_request.task.calls == [pretend.call(send_email)]
+        assert send_email.delay.calls == [
+            pretend.call(
+                f"{self.initiator_user.name} <{self.initiator_user.email}>",
+                {
+                    "subject": subject_renderer.string_response,
+                    "body_text": body_renderer.string_response,
+                    "body_html": (
+                        f"<html>\n"
+                        f"<head></head>\n"
+                        f"<body><p>{html_renderer.string_response}</p></body>\n"
+                        f"</html>\n"
+                    ),
+                },
+                {
+                    "tag": "account:email:sent",
+                    "user_id": self.initiator_user.id,
+                    "additional": {
+                        "from_": db_request.registry.settings["mail.sender"],
+                        "to": self.initiator_user.email,
+                        "subject": subject_renderer.string_response,
+                        "redact_ip": False,
+                    },
+                },
+            )
+        ]
+
+    def test_send_canceled_as_invited_organization_member_email(
+        self,
+        db_request,
+        organization_invite,
+        make_email_renderers,
+        send_email,
+    ):
+        subject_renderer, body_renderer, html_renderer = make_email_renderers(
+            "canceled-as-invited-organization-member"
+        )
+
+        result = email.send_canceled_as_invited_organization_member_email(
+            db_request,
+            self.user,
+            organization_name=self.organization_name,
+        )
+
+        assert result == {
+            "username": self.user.username,
+            "organization_name": self.organization_name,
+        }
+        subject_renderer.assert_(**result)
+        body_renderer.assert_(**result)
+        html_renderer.assert_(**result)
+        assert db_request.task.calls == [pretend.call(send_email)]
+        assert send_email.delay.calls == [
+            pretend.call(
+                f"{self.user.name} <{self.user.email}>",
+                {
+                    "subject": subject_renderer.string_response,
+                    "body_text": body_renderer.string_response,
+                    "body_html": (
+                        f"<html>\n"
+                        f"<head></head>\n"
+                        f"<body><p>{html_renderer.string_response}</p></body>\n"
+                        f"</html>\n"
+                    ),
+                },
+                {
+                    "tag": "account:email:sent",
+                    "user_id": self.user.id,
+                    "additional": {
+                        "from_": db_request.registry.settings["mail.sender"],
+                        "to": self.user.email,
+                        "subject": subject_renderer.string_response,
+                        "redact_ip": True,
+                    },
+                },
+            )
+        ]
+
+    def test_send_organization_member_invite_declined_email(
+        self,
+        db_request,
+        organization_invite,
+        make_email_renderers,
+        send_email,
+    ):
+        subject_renderer, body_renderer, html_renderer = make_email_renderers(
+            "organization-member-invite-declined"
+        )
+
+        result = email.send_organization_member_invite_declined_email(
+            db_request,
+            self.initiator_user,
+            user=self.user,
+            organization_name=self.organization_name,
+        )
+
+        assert result == {
+            "username": self.user.username,
+            "organization_name": self.organization_name,
+        }
+        subject_renderer.assert_(**result)
+        body_renderer.assert_(**result)
+        html_renderer.assert_(**result)
+        assert db_request.task.calls == [pretend.call(send_email)]
+        assert send_email.delay.calls == [
+            pretend.call(
+                f"{self.initiator_user.name} <{self.initiator_user.email}>",
+                {
+                    "subject": subject_renderer.string_response,
+                    "body_text": body_renderer.string_response,
+                    "body_html": (
+                        f"<html>\n"
+                        f"<head></head>\n"
+                        f"<body><p>{html_renderer.string_response}</p></body>\n"
+                        f"</html>\n"
+                    ),
+                },
+                {
+                    "tag": "account:email:sent",
+                    "user_id": self.initiator_user.id,
+                    "additional": {
+                        "from_": db_request.registry.settings["mail.sender"],
+                        "to": self.initiator_user.email,
+                        "subject": subject_renderer.string_response,
+                        "redact_ip": False,
+                    },
+                },
+            )
+        ]
+
+    def test_send_declined_as_invited_organization_member_email(
+        self,
+        db_request,
+        organization_invite,
+        make_email_renderers,
+        send_email,
+    ):
+        subject_renderer, body_renderer, html_renderer = make_email_renderers(
+            "declined-as-invited-organization-member"
+        )
+
+        result = email.send_declined_as_invited_organization_member_email(
+            db_request,
+            self.user,
+            organization_name=self.organization_name,
+        )
+
+        assert result == {
+            "username": self.user.username,
+            "organization_name": self.organization_name,
+        }
+        subject_renderer.assert_(**result)
+        body_renderer.assert_(**result)
+        html_renderer.assert_(**result)
+        assert db_request.task.calls == [pretend.call(send_email)]
+        assert send_email.delay.calls == [
+            pretend.call(
+                f"{self.user.name} <{self.user.email}>",
+                {
+                    "subject": subject_renderer.string_response,
+                    "body_text": body_renderer.string_response,
+                    "body_html": (
+                        f"<html>\n"
+                        f"<head></head>\n"
+                        f"<body><p>{html_renderer.string_response}</p></body>\n"
+                        f"</html>\n"
+                    ),
+                },
+                {
+                    "tag": "account:email:sent",
+                    "user_id": self.user.id,
+                    "additional": {
+                        "from_": db_request.registry.settings["mail.sender"],
+                        "to": self.user.email,
+                        "subject": subject_renderer.string_response,
+                        "redact_ip": True,
+                    },
+                },
+            )
+        ]
+
+    def test_send_organization_member_added_email(
+        self,
+        db_request,
+        organization_invite,
+        make_email_renderers,
+        send_email,
+    ):
+        subject_renderer, body_renderer, html_renderer = make_email_renderers(
+            "organization-member-added"
+        )
+
+        result = email.send_organization_member_added_email(
+            db_request,
+            self.initiator_user,
+            user=self.user,
+            submitter=self.initiator_user,
+            organization_name=self.organization_name,
+            role=self.desired_role,
+        )
+
+        assert result == {
+            "username": self.user.username,
+            "submitter": self.initiator_user.username,
+            "organization_name": self.organization_name,
+            "role": self.desired_role,
+        }
+        subject_renderer.assert_(**result)
+        body_renderer.assert_(**result)
+        html_renderer.assert_(**result)
+        assert db_request.task.calls == [pretend.call(send_email)]
+        assert send_email.delay.calls == [
+            pretend.call(
+                f"{self.initiator_user.name} <{self.initiator_user.email}>",
+                {
+                    "subject": subject_renderer.string_response,
+                    "body_text": body_renderer.string_response,
+                    "body_html": (
+                        f"<html>\n"
+                        f"<head></head>\n"
+                        f"<body><p>{html_renderer.string_response}</p></body>\n"
+                        f"</html>\n"
+                    ),
+                },
+                {
+                    "tag": "account:email:sent",
+                    "user_id": self.initiator_user.id,
+                    "additional": {
+                        "from_": db_request.registry.settings["mail.sender"],
+                        "to": self.initiator_user.email,
+                        "subject": subject_renderer.string_response,
+                        "redact_ip": False,
+                    },
+                },
+            )
+        ]
+
+    def test_send_added_as_organization_email(
+        self,
+        db_request,
+        organization_invite,
+        make_email_renderers,
+        send_email,
+    ):
+        subject_renderer, body_renderer, html_renderer = make_email_renderers(
+            "added-as-organization-member"
+        )
+
+        result = email.send_added_as_organization_member_email(
+            db_request,
+            self.user,
+            submitter=self.initiator_user,
+            organization_name=self.organization_name,
+            role=self.desired_role,
+        )
+
+        assert result == {
+            "username": self.user.username,
+            "submitter": self.initiator_user.username,
+            "organization_name": self.organization_name,
+            "role": self.desired_role,
+        }
+        subject_renderer.assert_(**result)
+        body_renderer.assert_(**result)
+        html_renderer.assert_(**result)
+        assert db_request.task.calls == [pretend.call(send_email)]
+        assert send_email.delay.calls == [
+            pretend.call(
+                f"{self.user.name} <{self.user.email}>",
+                {
+                    "subject": subject_renderer.string_response,
+                    "body_text": body_renderer.string_response,
+                    "body_html": (
+                        f"<html>\n"
+                        f"<head></head>\n"
+                        f"<body><p>{html_renderer.string_response}</p></body>\n"
+                        f"</html>\n"
+                    ),
+                },
+                {
+                    "tag": "account:email:sent",
+                    "user_id": self.user.id,
+                    "additional": {
+                        "from_": db_request.registry.settings["mail.sender"],
+                        "to": self.user.email,
+                        "subject": subject_renderer.string_response,
+                        "redact_ip": True,
+                    },
+                },
+            )
+        ]
+
+    def test_send_organization_member_removed_email(
+        self,
+        db_request,
+        organization_invite,
+        make_email_renderers,
+        send_email,
+    ):
+        subject_renderer, body_renderer, html_renderer = make_email_renderers(
+            "organization-member-removed"
+        )
+
+        result = email.send_organization_member_removed_email(
+            db_request,
+            self.initiator_user,
+            user=self.user,
+            submitter=self.initiator_user,
+            organization_name=self.organization_name,
+        )
+
+        assert result == {
+            "username": self.user.username,
+            "submitter": self.initiator_user.username,
+            "organization_name": self.organization_name,
+        }
+        subject_renderer.assert_(**result)
+        body_renderer.assert_(**result)
+        html_renderer.assert_(**result)
+        assert db_request.task.calls == [pretend.call(send_email)]
+        assert send_email.delay.calls == [
+            pretend.call(
+                f"{self.initiator_user.name} <{self.initiator_user.email}>",
+                {
+                    "subject": subject_renderer.string_response,
+                    "body_text": body_renderer.string_response,
+                    "body_html": (
+                        f"<html>\n"
+                        f"<head></head>\n"
+                        f"<body><p>{html_renderer.string_response}</p></body>\n"
+                        f"</html>\n"
+                    ),
+                },
+                {
+                    "tag": "account:email:sent",
+                    "user_id": self.initiator_user.id,
+                    "additional": {
+                        "from_": db_request.registry.settings["mail.sender"],
+                        "to": self.initiator_user.email,
+                        "subject": subject_renderer.string_response,
+                        "redact_ip": False,
+                    },
+                },
+            )
+        ]
+
+    def test_send_removed_as_organization_email(
+        self,
+        db_request,
+        organization_invite,
+        make_email_renderers,
+        send_email,
+    ):
+        subject_renderer, body_renderer, html_renderer = make_email_renderers(
+            "removed-as-organization-member"
+        )
+
+        result = email.send_removed_as_organization_member_email(
+            db_request,
+            self.user,
+            submitter=self.initiator_user,
+            organization_name=self.organization_name,
+        )
+
+        assert result == {
+            "username": self.user.username,
+            "submitter": self.initiator_user.username,
+            "organization_name": self.organization_name,
+        }
+        subject_renderer.assert_(**result)
+        body_renderer.assert_(**result)
+        html_renderer.assert_(**result)
+        assert db_request.task.calls == [pretend.call(send_email)]
+        assert send_email.delay.calls == [
+            pretend.call(
+                f"{self.user.name} <{self.user.email}>",
+                {
+                    "subject": subject_renderer.string_response,
+                    "body_text": body_renderer.string_response,
+                    "body_html": (
+                        f"<html>\n"
+                        f"<head></head>\n"
+                        f"<body><p>{html_renderer.string_response}</p></body>\n"
+                        f"</html>\n"
+                    ),
+                },
+                {
+                    "tag": "account:email:sent",
+                    "user_id": self.user.id,
+                    "additional": {
+                        "from_": db_request.registry.settings["mail.sender"],
+                        "to": self.user.email,
+                        "subject": subject_renderer.string_response,
+                        "redact_ip": True,
+                    },
+                },
+            )
+        ]
+
+    def test_send_organization_member_role_changed_email(
+        self,
+        db_request,
+        organization_invite,
+        make_email_renderers,
+        send_email,
+    ):
+        subject_renderer, body_renderer, html_renderer = make_email_renderers(
+            "organization-member-role-changed"
+        )
+
+        result = email.send_organization_member_role_changed_email(
+            db_request,
+            self.initiator_user,
+            user=self.user,
+            submitter=self.initiator_user,
+            organization_name=self.organization_name,
+            role=self.desired_role,
+        )
+
+        assert result == {
+            "username": self.user.username,
+            "submitter": self.initiator_user.username,
+            "organization_name": self.organization_name,
+            "role": self.desired_role,
+        }
+        subject_renderer.assert_(**result)
+        body_renderer.assert_(**result)
+        html_renderer.assert_(**result)
+        assert db_request.task.calls == [pretend.call(send_email)]
+        assert send_email.delay.calls == [
+            pretend.call(
+                f"{self.initiator_user.name} <{self.initiator_user.email}>",
+                {
+                    "subject": subject_renderer.string_response,
+                    "body_text": body_renderer.string_response,
+                    "body_html": (
+                        f"<html>\n"
+                        f"<head></head>\n"
+                        f"<body><p>{html_renderer.string_response}</p></body>\n"
+                        f"</html>\n"
+                    ),
+                },
+                {
+                    "tag": "account:email:sent",
+                    "user_id": self.initiator_user.id,
+                    "additional": {
+                        "from_": db_request.registry.settings["mail.sender"],
+                        "to": self.initiator_user.email,
+                        "subject": subject_renderer.string_response,
+                        "redact_ip": False,
+                    },
+                },
+            )
+        ]
+
+    def test_send_role_changed_as_organization_email(
+        self,
+        db_request,
+        organization_invite,
+        make_email_renderers,
+        send_email,
+    ):
+        subject_renderer, body_renderer, html_renderer = make_email_renderers(
+            "role-changed-as-organization-member"
+        )
+
+        result = email.send_role_changed_as_organization_member_email(
+            db_request,
+            self.user,
+            submitter=self.initiator_user,
+            organization_name=self.organization_name,
+            role=self.desired_role,
+        )
+
+        assert result == {
+            "username": self.user.username,
+            "submitter": self.initiator_user.username,
+            "organization_name": self.organization_name,
+            "role": self.desired_role,
+        }
+        subject_renderer.assert_(**result)
+        body_renderer.assert_(**result)
+        html_renderer.assert_(**result)
+        assert db_request.task.calls == [pretend.call(send_email)]
+        assert send_email.delay.calls == [
+            pretend.call(
+                f"{self.user.name} <{self.user.email}>",
+                {
+                    "subject": subject_renderer.string_response,
+                    "body_text": body_renderer.string_response,
+                    "body_html": (
+                        f"<html>\n"
+                        f"<head></head>\n"
+                        f"<body><p>{html_renderer.string_response}</p></body>\n"
+                        f"</html>\n"
+                    ),
+                },
+                {
+                    "tag": "account:email:sent",
+                    "user_id": self.user.id,
+                    "additional": {
+                        "from_": db_request.registry.settings["mail.sender"],
+                        "to": self.user.email,
+                        "subject": subject_renderer.string_response,
+                        "redact_ip": True,
                     },
                 },
             )
