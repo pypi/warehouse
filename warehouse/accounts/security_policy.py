@@ -126,7 +126,7 @@ class SessionSecurityPolicy:
             return None
 
         # Session authentication cannot be used for uploading
-        if request.matched_route.name in ["forklift.legacy.file_upload"]:
+        if request.matched_route.name == "forklift.legacy.file_upload":
             return None
 
         userid = self._session_helper.authenticated_userid(request)
