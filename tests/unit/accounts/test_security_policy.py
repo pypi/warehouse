@@ -100,6 +100,26 @@ class TestBasicAuthSecurityPolicy:
         assert add_vary_cb.calls == [pretend.call("Authorization")]
         assert request.add_response_callback.calls == [pretend.call(vary_cb)]
 
+    @pytest.mark.parametrize(
+        "fake_request",
+        [
+            pretend.stub(matched_route=None),
+            pretend.stub(matched_route=pretend.stub(name="an.invalid.route")),
+        ],
+    )
+    def test_invalid_request_fail(self, monkeypatch, fake_request):
+        creds = (pretend.stub(), pretend.stub())
+        extract_http_basic_credentials = pretend.call_recorder(lambda request: creds)
+        monkeypatch.setattr(
+            security_policy,
+            "extract_http_basic_credentials",
+            extract_http_basic_credentials,
+        )
+        policy = security_policy.BasicAuthSecurityPolicy()
+        fake_request.add_response_callback = pretend.call_recorder(lambda cb: None)
+
+        assert policy.identity(fake_request) is None
+
     def test_identity(self, monkeypatch):
         creds = (pretend.stub(), pretend.stub())
         extract_http_basic_credentials = pretend.call_recorder(lambda request: creds)

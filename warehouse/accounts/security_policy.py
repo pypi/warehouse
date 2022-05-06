@@ -41,8 +41,12 @@ def _format_exc_status(exc, message):
 
 
 def _basic_auth_check(username, password, request):
+    # A route must be matched
+    if not request.matched_route:
+        return False
+
     # Basic authentication can only be used for uploading
-    if request.matched_route.name not in ["forklift.legacy.file_upload"]:
+    if request.matched_route.name != "forklift.legacy.file_upload":
         return False
 
     login_service = request.find_service(IUserService, context=None)
