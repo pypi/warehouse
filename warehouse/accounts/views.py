@@ -983,20 +983,11 @@ def verify_organization_role(request):
         queue="success",
     )
 
-    if desired_role == "Owner":
-        return HTTPSeeOther(
-            request.route_path(
-                "manage.organization.roles", organization_name=organization.name
-            )
+    return HTTPSeeOther(
+        request.route_path(
+            "manage.organization.roles", organization_name=organization.name
         )
-    else:
-        # TODO: Redirect to managing organization projects.
-        # return HTTPSeeOther(
-        #     request.route_path(
-        #         "manage.organization.projects", name=organization.name
-        #     )
-        # )
-        return HTTPSeeOther(request.route_path("manage.organizations"))
+    )
 
 
 @view_config(

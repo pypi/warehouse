@@ -32,6 +32,8 @@
 {% endmacro %}
 
 {% block main %}
+{% set request_user_role = roles|selectattr("user", "equalto", request.user)|first %}
+
   <h2>{% trans %}People{% endtrans %}</h2>
   <p>{% trans organization_name=organization.name %}Use this page to control which PyPI users can help you to manage {{ organization_name }}.{% endtrans %}</p>
   <div class="callout-block" data-controller="dismissable" data-dismissable-identifier="roles">
@@ -53,6 +55,7 @@
 
   <table class="table table--collaborators">
     <caption class="sr-only">{% trans organization_name=organization.name %}Users who can manage {{ organization_name }}{% endtrans %}</caption>
+
     <thead>
       <tr>
         <th scope="col">{% trans %}User{% endtrans %}</th>
@@ -62,6 +65,7 @@
       </tr>
     </thead>
     <tbody>
+
     {% for role in roles|sort(attribute="user.username") %}
       <tr>
         <th scope="row">
@@ -79,7 +83,7 @@
           </a>
         </th>
         <td>
-        {% if role.user == request.user %}
+        {% if request_user_role.role_name != OrganizationRoleType.Owner or request.user == role.user %}
           {% if role.role_name == OrganizationRoleType.Member %}
           {% trans %}Member{% endtrans %}
           {% elif role.role_name == OrganizationRoleType.Manager %}
@@ -118,11 +122,14 @@
             <button
               type="submit"
               class="button"
-              {% if (role.role_name == OrganizationRoleType.Owner and request.user.username == role.user.username) %}
+              {% if request_user_role.role_name != OrganizationRoleType.Owner and request.user.username != role.user.username %}
+                title="{% trans %}Cannot remove other people from the organization{% endtrans %}"
+                disabled
+              {% elif role.role_name == OrganizationRoleType.Owner and request.user.username == role.user.username %}
                 title="{% trans %}Cannot remove yourself as owner{% endtrans %}"
                 disabled
               {% else %}
-                title="{% trans user=role.user.username %}Remove {{ user }} from this organization{% endtrans %}"
+                title="{% trans user=('yourself' if request.user.username == role.user.username else role.user.username) %}Remove {{ user }} from this organization{% endtrans %}"
               {% endif %}
             >
             Remove
@@ -131,6 +138,8 @@
         </td>
       </tr>
     {% endfor %}
+
+    {% if request_user_role.role_name == OrganizationRoleType.Owner %}
     {% for invite in invitations|sort(attribute="user.username") %}
       <tr>
         <th scope="row">
@@ -170,9 +179,11 @@
         </td>
       </tr>
     {% endfor %}
+    {% endif %}
     </tbody>
   </table>
 
+  {% if request_user_role.role_name == OrganizationRoleType.Owner %}
   <h3>{% trans %}Invite member{% endtrans %}</h3>
   <form method="POST">
     <div class="form-group">
@@ -204,5 +215,6 @@
       <input type="submit" value="{% trans %}Invite{% endtrans %}" class="button button--primary">
     </div>
   </form>
+  {% endif %}
   <br>
 {% endblock %}

@@ -71,10 +71,10 @@
         </div>
         <div class="organization-snippet__buttons">
           {% if organization.name not in (organizations_managed + organizations_owned + organizations_billing) %}
-          {# Show disabled "Manage" button for non-manager and non-owner #}
-          <button class="button button--primary" disabled title="{% trans %}You are not a manager or an owner of this organization{% endtrans %}">
-            {% trans %}Manage{% endtrans %}
-          </button>
+          {# Show "View" button for non-manager and non-owner #}
+          <a class="button" href="{{ request.route_path('manage.organization.roles', organization_name=organization.normalized_name) }}" title="{% trans %}View this organization{% endtrans %}">
+            {% trans %}View{% endtrans %}
+          </a>
           {% elif not organization.is_active %}
           {# Show disabled "Manage" button for inactive organization #}
           <button class="button button--primary" disabled title="{% trans %}This organization is not active{% endtrans %}">

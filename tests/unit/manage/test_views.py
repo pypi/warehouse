@@ -3453,7 +3453,7 @@ class TestDeleteOrganizationRoles:
             )
         ]
         assert db_request.session.flash.calls == [
-            pretend.call("Removed member", queue="success")
+            pretend.call("Removed from organization", queue="success")
         ]
         assert isinstance(result, HTTPSeeOther)
         assert result.headers["Location"] == "/the-redirect"
@@ -3474,6 +3474,36 @@ class TestDeleteOrganizationRoles:
 
         assert db_request.session.flash.calls == [
             pretend.call("Could not find member", queue="error")
+        ]
+        assert isinstance(result, HTTPSeeOther)
+        assert result.headers["Location"] == "/the-redirect"
+
+    def test_delete_other_role_as_nonowner(self, db_request, enable_organizations):
+        organization = OrganizationFactory.create(name="foobar")
+        user = UserFactory.create(username="testuser")
+        role = OrganizationRoleFactory.create(
+            organization=organization,
+            user=user,
+            role_name=OrganizationRoleType.Owner,
+        )
+        user_2 = UserFactory.create()
+
+        db_request.method = "POST"
+        db_request.user = user_2
+        db_request.POST = MultiDict({"role_id": role.id})
+        db_request.has_permission = pretend.call_recorder(lambda *a, **kw: False)
+        db_request.session = pretend.stub(
+            flash=pretend.call_recorder(lambda *a, **kw: None)
+        )
+        db_request.route_path = pretend.call_recorder(lambda *a, **kw: "/the-redirect")
+
+        result = views.delete_organization_role(organization, db_request)
+
+        assert db_request.has_permission.calls == [pretend.call("manage:organization")]
+        assert db_request.session.flash.calls == [
+            pretend.call(
+                "Cannot remove other people from the organization", queue="error"
+            )
         ]
         assert isinstance(result, HTTPSeeOther)
         assert result.headers["Location"] == "/the-redirect"

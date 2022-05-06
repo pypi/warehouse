@@ -1194,7 +1194,7 @@ class ManageOrganizationsViews:
     renderer="manage/organization/roles.html",
     uses_session=True,
     require_methods=False,
-    permission="manage:organization",
+    permission="view:organization",
     has_translations=True,
     require_reauth=True,
 )
@@ -1499,7 +1499,7 @@ def change_organization_role(
     context=Organization,
     uses_session=True,
     require_methods=["POST"],
-    permission="manage:organization",
+    permission="view:organization",
     has_translations=True,
     require_reauth=True,
 )
@@ -1509,6 +1509,12 @@ def delete_organization_role(organization, request):
     role = organization_service.get_organization_role(role_id)
     if not role or role.organization_id != organization.id:
         request.session.flash("Could not find member", queue="error")
+    elif (
+        not request.has_permission("manage:organization") and role.user != request.user
+    ):
+        request.session.flash(
+            "Cannot remove other people from the organization", queue="error"
+        )
     elif role.role_name == OrganizationRoleType.Owner and role.user == request.user:
         request.session.flash("Cannot remove yourself as Owner", queue="error")
     else:
@@ -1552,13 +1558,17 @@ def delete_organization_role(organization, request):
             organization_name=organization.name,
         )
 
-        request.session.flash("Removed member", queue="success")
+        request.session.flash("Removed from organization", queue="success")
 
-    return HTTPSeeOther(
-        request.route_path(
-            "manage.organization.roles", organization_name=organization.name
+    if role and role.user == request.user:
+        # User removed self from organization.
+        return HTTPSeeOther(request.route_path("manage.organizations"))
+    else:
+        return HTTPSeeOther(
+            request.route_path(
+                "manage.organization.roles", organization_name=organization.name
+            )
         )
-    )
 
 
 @view_config(

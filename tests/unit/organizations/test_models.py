@@ -81,26 +81,50 @@ class TestOrganization:
         # ] +
         assert acls == sorted(
             [
-                (Allow, f"user:{owner1.user.id}", ["manage:organization"]),
-                (Allow, f"user:{owner2.user.id}", ["manage:organization"]),
+                (
+                    Allow,
+                    f"user:{owner1.user.id}",
+                    ["view:organization", "manage:organization"],
+                ),
+                (
+                    Allow,
+                    f"user:{owner2.user.id}",
+                    ["view:organization", "manage:organization"],
+                ),
             ],
             key=lambda x: x[1],
         ) + sorted(
             [
-                (Allow, f"user:{billing_mgr1.user.id}", ["manage:billing"]),
-                (Allow, f"user:{billing_mgr2.user.id}", ["manage:billing"]),
+                (
+                    Allow,
+                    f"user:{billing_mgr1.user.id}",
+                    ["view:organization", "manage:billing"],
+                ),
+                (
+                    Allow,
+                    f"user:{billing_mgr2.user.id}",
+                    ["view:organization", "manage:billing"],
+                ),
             ],
             key=lambda x: x[1],
         ) + sorted(
             [
-                (Allow, f"user:{account_mgr1.user.id}", ["manage:team"]),
-                (Allow, f"user:{account_mgr2.user.id}", ["manage:team"]),
+                (
+                    Allow,
+                    f"user:{account_mgr1.user.id}",
+                    ["view:organization", "manage:team"],
+                ),
+                (
+                    Allow,
+                    f"user:{account_mgr2.user.id}",
+                    ["view:organization", "manage:team"],
+                ),
             ],
             key=lambda x: x[1],
         ) + sorted(
             [
-                (Allow, f"user:{member1.user.id}", ["organization:member"]),
-                (Allow, f"user:{member2.user.id}", ["organization:member"]),
+                (Allow, f"user:{member1.user.id}", ["view:organization"]),
+                (Allow, f"user:{member2.user.id}", ["view:organization"]),
             ],
             key=lambda x: x[1],
         )
