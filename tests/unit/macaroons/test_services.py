@@ -68,6 +68,7 @@ class TestDatabaseMacaroonService:
 
         assert isinstance(dm, Macaroon)
         assert macaroon.id == dm.id
+        assert macaroon.user == user
 
     def test_find_from_raw(self, user_service, macaroon_service):
         user = UserFactory.create()
@@ -79,6 +80,7 @@ class TestDatabaseMacaroonService:
 
         assert isinstance(dm, Macaroon)
         assert macaroon.id == dm.id
+        assert macaroon.user == user
 
     @pytest.mark.parametrize(
         "raw_macaroon",

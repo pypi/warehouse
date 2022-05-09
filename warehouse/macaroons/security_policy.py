@@ -94,12 +94,11 @@ class MacaroonSecurityPolicy:
         except InvalidMacaroonError:
             return None
 
-        # If this macaroon has an associated user, then the user is
-        # the identity. Otherwise, the identity is the macaroon's project.
+        # Every Macaroon has either a user or a project.
         if dm.user is not None:
             return dm.user
         else:
-            return None
+            return dm.project
 
     def remember(self, request, userid, **kw):
         # This is a NO-OP because our Macaroon header policy doesn't allow
