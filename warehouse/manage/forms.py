@@ -444,3 +444,39 @@ class CreateOrganizationForm(forms.Form, OrganizationNameMixin):
             wtforms.validators.DataRequired(message="Select organization type"),
         ],
     )
+
+
+class SaveAccountForm(forms.Form):
+
+    __params__ = ["name", "public_email"]
+
+    name = wtforms.StringField(
+        validators=[
+            wtforms.validators.Length(
+                max=100,
+                message=_(
+                    "The name is too long. "
+                    "Choose a name with 100 characters or less."
+                ),
+            )
+        ]
+    )
+    public_email = wtforms.SelectField(choices=[("", "Not displayed")])
+
+    def __init__(self, *args, user_service, user_id, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.user_service = user_service
+        self.user_id = user_id
+        user = user_service.get_user(user_id)
+        self.public_email.choices.extend(
+            [(e.email, e.email) for e in user.emails if e.verified]
+        )
+
+    def validate_public_email(self, field):
+        if field.data:
+            user = self.user_service.get_user(self.user_id)
+            verified_emails = [e.email for e in user.emails if e.verified]
+            if field.data not in verified_emails:
+                raise wtforms.validators.ValidationError(
+                    "%s is not a verified email for %s" % (field.data, user.username)
+                )
