@@ -88,13 +88,18 @@ class MacaroonSecurityPolicy:
         # Check to see if our Macaroon exists in the database, and if so
         # fetch the user that is associated with it.
         macaroon_service = request.find_service(IMacaroonService, context=None)
-        userid = macaroon_service.find_userid(macaroon)
 
-        if userid is None:
+        try:
+            dm = macaroon_service.find_from_raw(macaroon)
+        except InvalidMacaroonError:
             return None
 
-        user_service = request.find_service(IUserService, context=None)
-        return user_service.get_user(userid)
+        # If this macaroon has an associated user, then the user is
+        # the identity. Otherwise, the identity is the macaroon's project.
+        if dm.user is not None:
+            return dm.user
+        else:
+            return None
 
     def remember(self, request, userid, **kw):
         # This is a NO-OP because our Macaroon header policy doesn't allow

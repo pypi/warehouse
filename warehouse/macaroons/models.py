@@ -13,6 +13,7 @@
 import os
 
 from sqlalchemy import (
+    CheckConstraint,
     Column,
     DateTime,
     ForeignKey,
@@ -37,13 +38,27 @@ class Macaroon(db.Model):
         UniqueConstraint(
             "description", "user_id", name="_user_macaroons_description_uc"
         ),
+        UniqueConstraint(
+            "description", "project_id", name="_project_macaroons_description_uc"
+        ),
+        CheckConstraint(
+            "(user_id::text IS NULL) <> (project_id::text IS NULL)",
+            name="_user_xor_project_macaroon",
+        ),
     )
 
-    # User-created macaroons belong to specific users. Macaroons created via
-    # an OIDC flow do **not** belong to any specific user, since they are
-    # associated with projects themselves.
+    # Macaroons come in two forms: they either belong to a user, or they
+    # belong to a project.
+    # * In the user case, a Macaroon has an associated user, and *might* have
+    #   additional project scope restrictions as part of its caveats.
+    # * In the project case, a Macaroon has an associated project, and
+    #   is scoped to just that project.
     user_id = Column(
         UUID(as_uuid=True), ForeignKey("users.id"), nullable=True, index=True
+    )
+
+    project_id = Column(
+        UUID(as_uuid=True), ForeignKey("projects.id"), nullable=True, index=True
     )
 
     # Store some information about the Macaroon to give users some mechanism
