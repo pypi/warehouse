@@ -12,7 +12,6 @@
 
 import datetime
 import json
-import uuid
 
 import pymacaroons
 
