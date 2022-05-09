@@ -61,7 +61,10 @@ class TestDatabaseMacaroonService:
     def test_find_macaroon(self, user_service, macaroon_service):
         user = UserFactory.create()
         _, macaroon = macaroon_service.create_macaroon(
-            "fake location", user.id, "fake description", [{"permissions": "user"}]
+            location="fake location",
+            description="fake description",
+            caveats=[{"permissions": "user"}],
+            user_id=user.id,
         )
 
         dm = macaroon_service.find_macaroon(str(macaroon.id))
@@ -73,7 +76,10 @@ class TestDatabaseMacaroonService:
     def test_find_from_raw(self, user_service, macaroon_service):
         user = UserFactory.create()
         serialized, macaroon = macaroon_service.create_macaroon(
-            "fake location", user.id, "fake description", [{"permissions": "user"}]
+            location="fake location",
+            description="fake description",
+            caveats=[{"permissions": "user"}],
+            user_id=user.id,
         )
 
         dm = macaroon_service.find_from_raw(serialized)
@@ -118,14 +124,20 @@ class TestDatabaseMacaroonService:
     def test_find_userid_valid_macaroon_trailinglinebreak(self, macaroon_service):
         user = UserFactory.create()
         raw_macaroon, _ = macaroon_service.create_macaroon(
-            "fake location", user.id, "fake description", [{"permissions": "user"}]
+            location="fake location",
+            description="fake description",
+            caveats=[{"permissions": "user"}],
+            user_id=user.id,
         )
         assert macaroon_service.find_userid(f"{raw_macaroon}\n") is None
 
     def test_find_userid(self, macaroon_service):
         user = UserFactory.create()
         raw_macaroon, _ = macaroon_service.create_macaroon(
-            "fake location", user.id, "fake description", [{"permissions": "user"}]
+            location="fake location",
+            description="fake description",
+            caveats=[{"permissions": "user"}],
+            user_id=user.id,
         )
         user_id = macaroon_service.find_userid(raw_macaroon)
 
@@ -161,7 +173,10 @@ class TestDatabaseMacaroonService:
     def test_verify_invalid_macaroon(self, monkeypatch, user_service, macaroon_service):
         user = UserFactory.create()
         raw_macaroon, _ = macaroon_service.create_macaroon(
-            "fake location", user.id, "fake description", [{"permissions": "user"}]
+            location="fake location",
+            description="fake description",
+            caveats=[{"permissions": "user"}],
+            user_id=user.id,
         )
 
         verifier_obj = pretend.stub(verify=pretend.call_recorder(lambda k: False))
@@ -221,7 +236,10 @@ class TestDatabaseMacaroonService:
     def test_verify_valid_macaroon(self, monkeypatch, macaroon_service):
         user = UserFactory.create()
         raw_macaroon, _ = macaroon_service.create_macaroon(
-            "fake location", user.id, "fake description", [{"permissions": "user"}]
+            location="fake location",
+            description="fake description",
+            caveats=[{"permissions": "user"}],
+            user_id=user.id,
         )
 
         verifier_obj = pretend.stub(verify=pretend.call_recorder(lambda k: True))
@@ -240,7 +258,10 @@ class TestDatabaseMacaroonService:
     def test_delete_macaroon(self, user_service, macaroon_service):
         user = UserFactory.create()
         _, macaroon = macaroon_service.create_macaroon(
-            "fake location", user.id, "fake description", [{"permissions": "user"}]
+            location="fake location",
+            description="fake description",
+            caveats=[{"permissions": "user"}],
+            user_id=user.id,
         )
         macaroon_id = str(macaroon.id)
 
@@ -258,7 +279,10 @@ class TestDatabaseMacaroonService:
     def test_get_macaroon_by_description(self, macaroon_service):
         user = UserFactory.create()
         _, macaroon = macaroon_service.create_macaroon(
-            "fake location", user.id, "fake description", [{"permissions": "user"}]
+            location="fake location",
+            description="fake description",
+            caveats=[{"permissions": "user"}],
+            user_id=user.id,
         )
 
         dm = macaroon_service.find_macaroon(str(macaroon.id))

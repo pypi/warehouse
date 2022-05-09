@@ -63,15 +63,16 @@ def mint_token_from_oidc(request):
     # At this point, we've verified that the given JWT is valid for the given
     # project. All we need to do is mint a new token.
     macaroon_service = request.find_service(IMacaroonService, context=None)
-    expires = int(time.time()) + 900
+    now = time.time()
+    expires = int(now) + 900
     caveats = [
         {"permissions": {"projects": [project.normalized_name]}, "version": 1},
-        {"nbf": int(time.time()), "exp": expires},
+        {"nbf": int(now), "exp": expires},
     ]
     serialized, dm = macaroon_service.create_macaroon(
         location=request.domain,
-        user_id=None,
-        description="OpenID created ephemeral token",
+        project_id=project.id,
+        description=f"OpenID created ephemeral token ({now})",
         caveats=caveats,
     )
     project.record_event(
