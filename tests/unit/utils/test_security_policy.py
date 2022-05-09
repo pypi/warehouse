@@ -128,29 +128,33 @@ class TestMultiSecurityPolicy:
         assert subpolicies[2].identity.calls == []
 
     def test_authenticated_userid_no_identity(self):
-        subpolicies = pretend.stub()
+        request = pretend.stub()
+        subpolicies = [pretend.stub(identity=pretend.call_recorder(lambda r: None))]
         authz = pretend.stub()
         policy = security_policy.MultiSecurityPolicy(subpolicies, authz)
 
-        request = pretend.stub(identity=None)
         assert policy.authenticated_userid(request) is None
+        assert subpolicies[0].identity.calls == [pretend.call(request)]
 
     def test_authenticated_userid_nonuser_identity(self, db_request):
-        subpolicies = pretend.stub()
+        request = pretend.stub()
+        nonuser = pretend.stub(id="not-a-user-instance")
+        subpolicies = [pretend.stub(identity=pretend.call_recorder(lambda r: nonuser))]
         authz = pretend.stub()
         policy = security_policy.MultiSecurityPolicy(subpolicies, authz)
 
-        request = pretend.stub(identity=pretend.stub(id="fakeid"))
         assert policy.authenticated_userid(request) is None
+        assert subpolicies[0].identity.calls == [pretend.call(request)]
 
     def test_authenticated_userid(self, db_request):
-        subpolicies = pretend.stub()
+        request = pretend.stub()
+        user = UserFactory.create()
+        subpolicies = [pretend.stub(identity=pretend.call_recorder(lambda r: user))]
         authz = pretend.stub()
         policy = security_policy.MultiSecurityPolicy(subpolicies, authz)
 
-        user = UserFactory.create()
-        request = pretend.stub(identity=user)
         assert policy.authenticated_userid(request) == str(user.id)
+        assert subpolicies[0].identity.calls == [pretend.call(request)]
 
     def test_forget(self):
         header = pretend.stub()

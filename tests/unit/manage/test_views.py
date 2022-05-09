@@ -2445,10 +2445,7 @@ class TestManageOrganizations:
             )
         ]
         assert organization_service.add_catalog_entry.calls == [
-            pretend.call(
-                organization.name,
-                organization.id,
-            )
+            pretend.call(organization.id)
         ]
         assert organization_service.add_organization_role.calls == [
             pretend.call(

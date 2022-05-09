@@ -41,8 +41,12 @@ def _format_exc_status(exc, message):
 
 
 def _basic_auth_check(username, password, request):
+    # A route must be matched
+    if not request.matched_route:
+        return False
+
     # Basic authentication can only be used for uploading
-    if request.matched_route.name not in ["forklift.legacy.file_upload"]:
+    if request.matched_route.name != "forklift.legacy.file_upload":
         return False
 
     login_service = request.find_service(IUserService, context=None)
@@ -117,15 +121,24 @@ class SessionSecurityPolicy:
         request.add_response_callback(add_vary_callback("Cookie"))
         request.authentication_method = AuthenticationMethod.SESSION
 
-        userid = self._session_helper.authenticated_userid(request)
-        if userid is None:
-            return None
-
         # Session authentication cannot be used for uploading
         if request.matched_route.name in ["forklift.legacy.file_upload"]:
             return None
 
+        userid = self._session_helper.authenticated_userid(request)
+        if userid is None:
+            return None
+
         login_service = request.find_service(IUserService, context=None)
+
+        # A user might delete their account and immediately issue a request
+        # while the deletion is processing, causing the session check
+        # (via authenticated_userid above) to pass despite the user no longer
+        # existing. We catch that here to avoid raising during the password
+        # staleness check immediately below.
+        user = login_service.get_user(userid)
+        if user is None:
+            return None
 
         # Our session might be "valid" despite predating a password change.
         if request.session.password_outdated(
@@ -138,7 +151,7 @@ class SessionSecurityPolicy:
             return None
 
         # Sessions can only authenticate users, not any other type of identity.
-        return login_service.get_user(userid)
+        return user
 
     def forget(self, request, **kw):
         return self._session_helper.forget(request, **kw)

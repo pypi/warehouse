@@ -40,7 +40,7 @@ class TestProjectList:
         )
         result = views.project_list(db_request)
 
-        assert result == {"projects": projects[:25], "query": None}
+        assert result == {"projects": projects[:25], "query": None, "exact_match": None}
 
     def test_with_page(self, db_request):
         projects = sorted(
@@ -50,7 +50,7 @@ class TestProjectList:
         db_request.GET["page"] = "2"
         result = views.project_list(db_request)
 
-        assert result == {"projects": projects[25:], "query": None}
+        assert result == {"projects": projects[25:], "query": None, "exact_match": None}
 
     def test_with_invalid_page(self):
         request = pretend.stub(params={"page": "not an integer"})
@@ -65,18 +65,10 @@ class TestProjectList:
         db_request.GET["q"] = projects[0].name
         result = views.project_list(db_request)
 
-        assert result == {"projects": [projects[0]], "query": projects[0].name}
-
-    def test_wildcard_query(self, db_request):
-        projects = sorted(
-            [ProjectFactory.create() for _ in range(5)], key=lambda p: p.normalized_name
-        )
-        db_request.GET["q"] = projects[0].name[:-1] + "%"
-        result = views.project_list(db_request)
-
         assert result == {
             "projects": [projects[0]],
-            "query": projects[0].name[:-1] + "%",
+            "query": projects[0].name,
+            "exact_match": None,
         }
 
 

@@ -100,6 +100,26 @@ class TestBasicAuthSecurityPolicy:
         assert add_vary_cb.calls == [pretend.call("Authorization")]
         assert request.add_response_callback.calls == [pretend.call(vary_cb)]
 
+    @pytest.mark.parametrize(
+        "fake_request",
+        [
+            pretend.stub(matched_route=None),
+            pretend.stub(matched_route=pretend.stub(name="an.invalid.route")),
+        ],
+    )
+    def test_invalid_request_fail(self, monkeypatch, fake_request):
+        creds = (pretend.stub(), pretend.stub())
+        extract_http_basic_credentials = pretend.call_recorder(lambda request: creds)
+        monkeypatch.setattr(
+            security_policy,
+            "extract_http_basic_credentials",
+            extract_http_basic_credentials,
+        )
+        policy = security_policy.BasicAuthSecurityPolicy()
+        fake_request.add_response_callback = pretend.call_recorder(lambda cb: None)
+
+        assert policy.identity(fake_request) is None
+
     def test_identity(self, monkeypatch):
         creds = (pretend.stub(), pretend.stub())
         extract_http_basic_credentials = pretend.call_recorder(lambda request: creds)
@@ -178,37 +198,8 @@ class TestSessionSecurityPolicy:
             pretend.call(request, userid, foo=None)
         ]
 
-    def test_identity_no_session(self, monkeypatch):
-        session_helper_obj = pretend.stub(
-            authenticated_userid=pretend.call_recorder(lambda r: None)
-        )
-        session_helper_cls = pretend.call_recorder(lambda: session_helper_obj)
-        monkeypatch.setattr(
-            security_policy, "SessionAuthenticationHelper", session_helper_cls
-        )
-
-        policy = security_policy.SessionSecurityPolicy()
-
-        vary_cb = pretend.stub()
-        add_vary_cb = pretend.call_recorder(lambda *v: vary_cb)
-        monkeypatch.setattr(security_policy, "add_vary_callback", add_vary_cb)
-
-        request = pretend.stub(
-            add_response_callback=pretend.call_recorder(lambda cb: None)
-        )
-
-        assert policy.identity(request) is None
-        assert request.authentication_method == AuthenticationMethod.SESSION
-        assert session_helper_obj.authenticated_userid.calls == [pretend.call(request)]
-        assert session_helper_cls.calls == [pretend.call()]
-
-        assert add_vary_cb.calls == [pretend.call("Cookie")]
-        assert request.add_response_callback.calls == [pretend.call(vary_cb)]
-
     def test_identity_invalid_route(self, monkeypatch):
-        session_helper_obj = pretend.stub(
-            authenticated_userid=pretend.call_recorder(lambda r: pretend.stub())
-        )
+        session_helper_obj = pretend.stub()
         session_helper_cls = pretend.call_recorder(lambda: session_helper_obj)
         monkeypatch.setattr(
             security_policy, "SessionAuthenticationHelper", session_helper_cls
@@ -227,8 +218,68 @@ class TestSessionSecurityPolicy:
 
         assert policy.identity(request) is None
         assert request.authentication_method == AuthenticationMethod.SESSION
+        assert session_helper_cls.calls == [pretend.call()]
+
+        assert add_vary_cb.calls == [pretend.call("Cookie")]
+        assert request.add_response_callback.calls == [pretend.call(vary_cb)]
+
+    def test_identity_no_userid(self, monkeypatch):
+        session_helper_obj = pretend.stub(
+            authenticated_userid=pretend.call_recorder(lambda r: None)
+        )
+        session_helper_cls = pretend.call_recorder(lambda: session_helper_obj)
+        monkeypatch.setattr(
+            security_policy, "SessionAuthenticationHelper", session_helper_cls
+        )
+
+        policy = security_policy.SessionSecurityPolicy()
+
+        vary_cb = pretend.stub()
+        add_vary_cb = pretend.call_recorder(lambda *v: vary_cb)
+        monkeypatch.setattr(security_policy, "add_vary_callback", add_vary_cb)
+
+        request = pretend.stub(
+            add_response_callback=pretend.call_recorder(lambda cb: None),
+            matched_route=pretend.stub(name="a.permitted.route"),
+        )
+
+        assert policy.identity(request) is None
+        assert request.authentication_method == AuthenticationMethod.SESSION
         assert session_helper_obj.authenticated_userid.calls == [pretend.call(request)]
         assert session_helper_cls.calls == [pretend.call()]
+
+        assert add_vary_cb.calls == [pretend.call("Cookie")]
+        assert request.add_response_callback.calls == [pretend.call(vary_cb)]
+
+    def test_identity_no_user(self, monkeypatch):
+        userid = pretend.stub()
+        session_helper_obj = pretend.stub(
+            authenticated_userid=pretend.call_recorder(lambda r: userid)
+        )
+        session_helper_cls = pretend.call_recorder(lambda: session_helper_obj)
+        monkeypatch.setattr(
+            security_policy, "SessionAuthenticationHelper", session_helper_cls
+        )
+
+        policy = security_policy.SessionSecurityPolicy()
+
+        vary_cb = pretend.stub()
+        add_vary_cb = pretend.call_recorder(lambda *v: vary_cb)
+        monkeypatch.setattr(security_policy, "add_vary_callback", add_vary_cb)
+
+        user_service = pretend.stub(get_user=pretend.call_recorder(lambda uid: None))
+        request = pretend.stub(
+            add_response_callback=pretend.call_recorder(lambda cb: None),
+            matched_route=pretend.stub(name="a.permitted.route"),
+            find_service=pretend.call_recorder(lambda i, **kw: user_service),
+        )
+
+        assert policy.identity(request) is None
+        assert request.authentication_method == AuthenticationMethod.SESSION
+        assert session_helper_obj.authenticated_userid.calls == [pretend.call(request)]
+        assert session_helper_cls.calls == [pretend.call()]
+        assert request.find_service.calls == [pretend.call(IUserService, context=None)]
+        assert user_service.get_user.calls == [pretend.call(userid)]
 
         assert add_vary_cb.calls == [pretend.call("Cookie")]
         assert request.add_response_callback.calls == [pretend.call(vary_cb)]
@@ -249,8 +300,10 @@ class TestSessionSecurityPolicy:
         add_vary_cb = pretend.call_recorder(lambda *v: vary_cb)
         monkeypatch.setattr(security_policy, "add_vary_callback", add_vary_cb)
 
+        user = pretend.stub()
         timestamp = pretend.stub()
         user_service = pretend.stub(
+            get_user=pretend.call_recorder(lambda uid: user),
             get_password_timestamp=pretend.call_recorder(lambda uid: timestamp),
         )
         request = pretend.stub(
@@ -269,6 +322,7 @@ class TestSessionSecurityPolicy:
         assert session_helper_obj.authenticated_userid.calls == [pretend.call(request)]
         assert session_helper_cls.calls == [pretend.call()]
         assert request.find_service.calls == [pretend.call(IUserService, context=None)]
+        assert user_service.get_user.calls == [pretend.call(userid)]
         assert request.session.password_outdated.calls == [pretend.call(timestamp)]
         assert user_service.get_password_timestamp.calls == [pretend.call(userid)]
         assert request.session.invalidate.calls == [pretend.call()]

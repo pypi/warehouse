@@ -18,6 +18,7 @@ from pyramid.interfaces import IAuthorizationPolicy, ISecurityPolicy
 from pyramid.security import Denied
 from zope.interface.verify import verifyClass
 
+from warehouse.accounts.interfaces import IUserService
 from warehouse.macaroons import security_policy
 from warehouse.macaroons.interfaces import IMacaroonService
 from warehouse.macaroons.services import InvalidMacaroonError
@@ -98,6 +99,37 @@ class TestMacaroonSecurityPolicy:
         assert add_vary_cb.calls == [pretend.call("Authorization")]
         assert request.add_response_callback.calls == [pretend.call(vary_cb)]
 
+    def test_identify_no_userid(self, monkeypatch):
+        policy = security_policy.MacaroonSecurityPolicy()
+
+        vary_cb = pretend.stub()
+        add_vary_cb = pretend.call_recorder(lambda *v: vary_cb)
+        monkeypatch.setattr(security_policy, "add_vary_callback", add_vary_cb)
+
+        raw_macaroon = pretend.stub()
+        extract_http_macaroon = pretend.call_recorder(lambda r: raw_macaroon)
+        monkeypatch.setattr(
+            security_policy, "_extract_http_macaroon", extract_http_macaroon
+        )
+
+        macaroon_service = pretend.stub(
+            find_userid=pretend.call_recorder(lambda m: None)
+        )
+        request = pretend.stub(
+            add_response_callback=pretend.call_recorder(lambda cb: None),
+            find_service=pretend.call_recorder(lambda i, **kw: macaroon_service),
+        )
+
+        assert policy.identity(request) is None
+        assert extract_http_macaroon.calls == [pretend.call(request)]
+        assert request.find_service.calls == [
+            pretend.call(IMacaroonService, context=None),
+        ]
+        assert macaroon_service.find_userid.calls == [pretend.call(raw_macaroon)]
+
+        assert add_vary_cb.calls == [pretend.call("Authorization")]
+        assert request.add_response_callback.calls == [pretend.call(vary_cb)]
+
     def test_identify(self, monkeypatch):
         policy = security_policy.MacaroonSecurityPolicy()
 
@@ -111,21 +143,32 @@ class TestMacaroonSecurityPolicy:
             security_policy, "_extract_http_macaroon", extract_http_macaroon
         )
 
+        userid = pretend.stub()
         user = pretend.stub()
         macaroon_service = pretend.stub(
-            find_from_raw=pretend.call_recorder(lambda m: pretend.stub(user=user))
+            find_userid=pretend.call_recorder(lambda m: userid)
         )
+        user_service = pretend.stub(get_user=pretend.call_recorder(lambda uid: user))
+
+        def find_service(interface, **kw):
+            if interface == IMacaroonService:
+                return macaroon_service
+            else:
+                return user_service
+
         request = pretend.stub(
             add_response_callback=pretend.call_recorder(lambda cb: None),
-            find_service=pretend.call_recorder(lambda i, **kw: macaroon_service),
+            find_service=pretend.call_recorder(find_service),
         )
 
         assert policy.identity(request) is user
         assert extract_http_macaroon.calls == [pretend.call(request)]
         assert request.find_service.calls == [
-            pretend.call(IMacaroonService, context=None)
+            pretend.call(IMacaroonService, context=None),
+            pretend.call(IUserService, context=None),
         ]
-        assert macaroon_service.find_from_raw.calls == [pretend.call(raw_macaroon)]
+        assert macaroon_service.find_userid.calls == [pretend.call(raw_macaroon)]
+        assert user_service.get_user.calls == [pretend.call(userid)]
 
         assert add_vary_cb.calls == [pretend.call("Authorization")]
         assert request.add_response_callback.calls == [pretend.call(vary_cb)]
