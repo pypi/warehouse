@@ -87,6 +87,11 @@ from warehouse.oidc.forms import DeleteProviderForm, GitHubProviderForm
 from warehouse.oidc.interfaces import TooManyOIDCRegistrations
 from warehouse.oidc.models import GitHubProvider, OIDCProvider
 from warehouse.organizations.interfaces import IOrganizationService
+from warehouse.organizations.models import (
+    Organization,
+    OrganizationRole,
+    OrganizationRoleType,
+)
 from warehouse.packaging.models import (
     File,
     JournalEntry,
@@ -972,6 +977,57 @@ class ProvisionMacaroonViews:
         return HTTPSeeOther(redirect_to)
 
 
+def user_organizations(request):
+    """Return all the organizations for which the user has a privileged role."""
+    organizations_managed = (
+        request.db.query(Organization.id)
+        .join(OrganizationRole.organization)
+        .filter(
+            OrganizationRole.role_name == OrganizationRoleType.Manager,
+            OrganizationRole.user == request.user,
+        )
+        .subquery()
+    )
+    organizations_owned = (
+        request.db.query(Organization.id)
+        .join(OrganizationRole.organization)
+        .filter(
+            OrganizationRole.role_name == OrganizationRoleType.Owner,
+            OrganizationRole.user == request.user,
+        )
+        .subquery()
+    )
+    organizations_billing = (
+        request.db.query(Organization.id)
+        .join(OrganizationRole.organization)
+        .filter(
+            OrganizationRole.role_name == OrganizationRoleType.BillingManager,
+            OrganizationRole.user == request.user,
+        )
+        .subquery()
+    )
+    return {
+        "organizations_owned": (
+            request.db.query(Organization)
+            .join(organizations_owned, Organization.id == organizations_owned.c.id)
+            .order_by(Organization.name)
+            .all()
+        ),
+        "organizations_managed": (
+            request.db.query(Organization)
+            .join(organizations_managed, Organization.id == organizations_managed.c.id)
+            .order_by(Organization.name)
+            .all()
+        ),
+        "organizations_billing": (
+            request.db.query(Organization)
+            .join(organizations_billing, Organization.id == organizations_billing.c.id)
+            .order_by(Organization.name)
+            .all()
+        ),
+    }
+
+
 @view_defaults(
     route_name="manage.organizations",
     renderer="manage/organizations.html",
@@ -991,7 +1047,24 @@ class ManageOrganizationsViews:
 
     @property
     def default_response(self):
+        all_user_organizations = user_organizations(self.request)
         return {
+            "organizations": self.organization_service.get_organizations_by_user(
+                self.request.user.id
+            ),
+            **all_user_organizations,
+            "organizations_managed": list(
+                organization.name
+                for organization in all_user_organizations["organizations_managed"]
+            ),
+            "organizations_owned": list(
+                organization.name
+                for organization in all_user_organizations["organizations_owned"]
+            ),
+            "organizations_billing": list(
+                organization.name
+                for organization in all_user_organizations["organizations_billing"]
+            ),
             "create_organization_form": CreateOrganizationForm(
                 organization_service=self.organization_service,
             ),
@@ -1075,6 +1148,23 @@ class ManageOrganizationsViews:
             return {"create_organization_form": form}
 
         return self.default_response
+
+
+@view_config(
+    route_name="manage.organization.roles",
+    context=Organization,
+    renderer="manage/organization/roles.html",
+    uses_session=True,
+    require_methods=False,
+    # permission="manage:organization",
+    has_translations=True,
+    require_reauth=True,
+)
+def manage_organization_roles(organization, request):
+    if request.flags.enabled(AdminFlagValue.DISABLE_ORGANIZATIONS):
+        raise HTTPNotFound
+
+    return {"organization": organization}
 
 
 @view_config(

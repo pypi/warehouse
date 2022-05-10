@@ -57,7 +57,6 @@
   {% endif %}
   <h1 class="page-title">{% trans project_count=projects|length %}Your projects ({{ project_count }}){% endtrans %}</h1>
   <div class="package-list">
-    {% if projects %}
     {% set user_has_two_factor = request.user.has_two_factor %}
     {% for project in projects %}
     {% set release = project.releases[0] if project.releases else None %}
@@ -69,29 +68,29 @@
               request.registry.settings["warehouse.two_factor_requirement.enabled"]
               and project.owners_require_2fa
             ) %}
-            <a href="{{ request.route_path('manage.project.settings', project_name=project.normalized_name) }}" class="badge badge--neutral package-snippet__project-badge" title="{% trans %}This project requires 2FA to be enabled to manage{% endtrans %}">
+            <a href="{{ request.route_path('manage.project.settings', project_name=project.normalized_name) }}" class="badge badge--neutral package-snippet__badge" title="{% trans %}This project requires 2FA to be enabled to manage{% endtrans %}">
               {% trans %}2FA Required{% endtrans %}
             </a>
             {% elif (
               request.registry.settings["warehouse.two_factor_mandate.enabled"]
               and project.pypi_mandates_2fa
             ) %}
-            <span class="badge badge--neutral package-snippet__project-badge" title="{% trans %}This is a critical project for the Python ecosystem{% endtrans %}">
+            <span class="badge badge--neutral package-snippet__badge" title="{% trans %}This is a critical project for the Python ecosystem{% endtrans %}">
               {% trans %}Critical Project{% endtrans %}
             </span>
-            <span class="badge badge--neutral package-snippet__project-badge" title="{% trans %}PyPI requires 2FA to be enabled to manage this project{% endtrans %}">
+            <span class="badge badge--neutral package-snippet__badge" title="{% trans %}PyPI requires 2FA to be enabled to manage this project{% endtrans %}">
               {% trans %}2FA Mandated{% endtrans %}
             </span>
             {% elif (
               request.registry.settings["warehouse.two_factor_mandate.available"]
               and project.pypi_mandates_2fa
             ) %}
-            <span class="badge badge--neutral package-snippet__project-badge" title="{% trans %}This is a critical project for the Python ecosystem{% endtrans %}">
+            <span class="badge badge--neutral package-snippet__badge" title="{% trans %}This is a critical project for the Python ecosystem{% endtrans %}">
               {% trans %}Critical Project{% endtrans %}
             </span>
             {% endif %}
             {% if project.name in projects_sole_owned %}
-            <a href="{{ request.route_path('manage.project.roles', project_name=project.normalized_name) }}" class="badge badge--warning package-snippet__project-badge">{% trans %}Sole owner{% endtrans %}</a>
+            <a href="{{ request.route_path('manage.project.roles', project_name=project.normalized_name) }}" class="badge badge--warning package-snippet__badge">{% trans %}Sole owner{% endtrans %}</a>
             {% endif %}
           </h3>
           {% if release %}
@@ -162,11 +161,10 @@
         </div>
       </div>
     </div>
-    {% endfor %}
     {% else %}
       <div class="callout-block no-top-margin">
         <p>{% trans href='https://packaging.python.org/' %}You have not uploaded any projects to PyPI, yet. To learn how to get started, visit the <a href="{{ href }}" target="_blank" rel="noopener">Python Packaging User Guide</a>{% endtrans %}</p>
       </div>
-    {% endif %}
+    {% endfor %}
   </div>
 {% endblock %}

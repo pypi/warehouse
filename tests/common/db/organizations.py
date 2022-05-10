@@ -41,15 +41,13 @@ class OrganizationFactory(WarehouseFactory):
     link_url = factory.Faker("uri")
     description = factory.Faker("sentence")
     is_active = True
-    is_approved = False
+    is_approved = None
     created = factory.Faker(
         "date_time_between_dates",
         datetime_start=datetime.datetime(2020, 1, 1),
         datetime_end=datetime.datetime(2022, 1, 1),
     )
-    date_approved = factory.Faker(
-        "date_time_between_dates", datetime_start=datetime.datetime(2020, 1, 1)
-    )
+    date_approved = None
 
 
 class OrganizationEventFactory(WarehouseFactory):

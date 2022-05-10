@@ -58,6 +58,7 @@ from warehouse.utils.paginate import paginate_url_factory
 from warehouse.utils.project import remove_documentation
 
 from ...common.db.accounts import EmailFactory
+from ...common.db.organizations import OrganizationFactory
 from ...common.db.packaging import (
     FileFactory,
     JournalEntryFactory,
@@ -2313,11 +2314,26 @@ class TestManageOrganizations:
         )
         monkeypatch.setattr(views, "CreateOrganizationForm", create_organization_cls)
 
+        organization = pretend.stub(name=pretend.stub())
+
+        user_organizations = pretend.call_recorder(
+            lambda *a, **kw: {
+                "organizations_managed": [],
+                "organizations_owned": [organization],
+                "organizations_billing": [],
+            }
+        )
+        monkeypatch.setattr(views, "user_organizations", user_organizations)
+
+        organization_service = pretend.stub(
+            get_organizations_by_user=lambda *a, **kw: [organization]
+        )
+        user_service = pretend.stub()
         request = pretend.stub(
             user=pretend.stub(id=pretend.stub(), username=pretend.stub()),
             find_service=lambda interface, **kw: {
-                IOrganizationService: pretend.stub(),
-                IUserService: pretend.stub(),
+                IOrganizationService: organization_service,
+                IUserService: user_service,
             }[interface],
         )
 
@@ -2325,6 +2341,10 @@ class TestManageOrganizations:
 
         assert view.default_response == {
             "create_organization_form": create_organization_obj,
+            "organizations": [organization],
+            "organizations_managed": [],
+            "organizations_owned": [organization.name],
+            "organizations_billing": [],
         }
 
     def test_manage_organizations(self, monkeypatch):
@@ -2591,6 +2611,27 @@ class TestManageOrganizations:
         assert request.flags.enabled.calls == [
             pretend.call(AdminFlagValue.DISABLE_ORGANIZATIONS),
         ]
+
+
+class TestManageOrganizationRoles:
+    def test_get_manage_organization_roles(self, db_request):
+        organization = OrganizationFactory.create(name="foobar")
+        request = pretend.stub(
+            flags=pretend.stub(enabled=pretend.call_recorder(lambda *a: False)),
+        )
+
+        result = views.manage_organization_roles(organization, request)
+
+        assert result == {"organization": organization}
+
+    def test_get_manage_organization_roles_disable_organizations(self, db_request):
+        organization = OrganizationFactory.create(name="foobar")
+        request = pretend.stub(
+            flags=pretend.stub(enabled=pretend.call_recorder(lambda *a: True)),
+        )
+
+        with pytest.raises(HTTPNotFound):
+            views.manage_organization_roles(organization, request)
 
 
 class TestManageProjects:
