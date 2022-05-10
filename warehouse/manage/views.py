@@ -978,7 +978,7 @@ class ProvisionMacaroonViews:
 
 
 def user_organizations(request):
-    """Return all the organizations for which the user is an owner."""
+    """Return all the organizations for which the user has a privileged role."""
     organizations_managed = (
         request.db.query(Organization.id)
         .join(OrganizationRole.organization)
@@ -1052,7 +1052,7 @@ class ManageOrganizationsViews:
             "organizations": self.organization_service.get_organizations_by_user(
                 self.request.user.id
             ),
-            **user_organizations(self.request),
+            **all_user_organizations,
             "organizations_managed": list(
                 organization.name
                 for organization in all_user_organizations["organizations_managed"]
