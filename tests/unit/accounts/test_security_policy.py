@@ -100,6 +100,26 @@ class TestBasicAuthSecurityPolicy:
         assert add_vary_cb.calls == [pretend.call("Authorization")]
         assert request.add_response_callback.calls == [pretend.call(vary_cb)]
 
+    @pytest.mark.parametrize(
+        "fake_request",
+        [
+            pretend.stub(matched_route=None),
+            pretend.stub(matched_route=pretend.stub(name="an.invalid.route")),
+        ],
+    )
+    def test_invalid_request_fail(self, monkeypatch, fake_request):
+        creds = (pretend.stub(), pretend.stub())
+        extract_http_basic_credentials = pretend.call_recorder(lambda request: creds)
+        monkeypatch.setattr(
+            security_policy,
+            "extract_http_basic_credentials",
+            extract_http_basic_credentials,
+        )
+        policy = security_policy.BasicAuthSecurityPolicy()
+        fake_request.add_response_callback = pretend.call_recorder(lambda cb: None)
+
+        assert policy.identity(fake_request) is None
+
     def test_identity(self, monkeypatch):
         creds = (pretend.stub(), pretend.stub())
         extract_http_basic_credentials = pretend.call_recorder(lambda request: creds)
@@ -177,6 +197,31 @@ class TestSessionSecurityPolicy:
         assert session_helper_obj.remember.calls == [
             pretend.call(request, userid, foo=None)
         ]
+
+    def test_identity_missing_route(self, monkeypatch):
+        session_helper_obj = pretend.stub()
+        session_helper_cls = pretend.call_recorder(lambda: session_helper_obj)
+        monkeypatch.setattr(
+            security_policy, "SessionAuthenticationHelper", session_helper_cls
+        )
+
+        policy = security_policy.SessionSecurityPolicy()
+
+        vary_cb = pretend.stub()
+        add_vary_cb = pretend.call_recorder(lambda *v: vary_cb)
+        monkeypatch.setattr(security_policy, "add_vary_callback", add_vary_cb)
+
+        request = pretend.stub(
+            add_response_callback=pretend.call_recorder(lambda cb: None),
+            matched_route=None,
+        )
+
+        assert policy.identity(request) is None
+        assert request.authentication_method == AuthenticationMethod.SESSION
+        assert session_helper_cls.calls == [pretend.call()]
+
+        assert add_vary_cb.calls == [pretend.call("Cookie")]
+        assert request.add_response_callback.calls == [pretend.call(vary_cb)]
 
     def test_identity_invalid_route(self, monkeypatch):
         session_helper_obj = pretend.stub()
