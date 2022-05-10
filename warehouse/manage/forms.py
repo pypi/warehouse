@@ -392,13 +392,9 @@ class ChangeOrganizationRoleForm(OrganizationRoleNameMixin, forms.Form):
             ]
 
 
-class CreateOrganizationForm(forms.Form, OrganizationNameMixin):
+class SaveOrganizationForm(forms.Form):
 
-    __params__ = ["name", "display_name", "link_url", "description", "orgtype"]
-
-    def __init__(self, *args, organization_service, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.organization_service = organization_service
+    __params__ = ["display_name", "link_url", "description", "orgtype"]
 
     display_name = wtforms.StringField(
         validators=[
@@ -439,6 +435,7 @@ class CreateOrganizationForm(forms.Form, OrganizationNameMixin):
         ]
     )
     orgtype = wtforms.SelectField(
+        # TODO: Map additional choices to "Company" and "Community".
         choices=[("Company", "Company"), ("Community", "Community")],
         validators=[
             wtforms.validators.DataRequired(message="Select organization type"),
@@ -446,37 +443,10 @@ class CreateOrganizationForm(forms.Form, OrganizationNameMixin):
     )
 
 
-class SaveAccountForm(forms.Form):
+class CreateOrganizationForm(OrganizationNameMixin, SaveOrganizationForm):
 
-    __params__ = ["name", "public_email"]
+    __params__ = ["name"] + SaveOrganizationForm.__params__
 
-    name = wtforms.StringField(
-        validators=[
-            wtforms.validators.Length(
-                max=100,
-                message=_(
-                    "The name is too long. "
-                    "Choose a name with 100 characters or less."
-                ),
-            )
-        ]
-    )
-    public_email = wtforms.SelectField(choices=[("", "Not displayed")])
-
-    def __init__(self, *args, user_service, user_id, **kwargs):
+    def __init__(self, *args, organization_service, **kwargs):
         super().__init__(*args, **kwargs)
-        self.user_service = user_service
-        self.user_id = user_id
-        user = user_service.get_user(user_id)
-        self.public_email.choices.extend(
-            [(e.email, e.email) for e in user.emails if e.verified]
-        )
-
-    def validate_public_email(self, field):
-        if field.data:
-            user = self.user_service.get_user(self.user_id)
-            verified_emails = [e.email for e in user.emails if e.verified]
-            if field.data not in verified_emails:
-                raise wtforms.validators.ValidationError(
-                    "%s is not a verified email for %s" % (field.data, user.username)
-                )
+        self.organization_service = organization_service

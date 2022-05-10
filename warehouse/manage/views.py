@@ -90,6 +90,7 @@ from warehouse.manage.forms import (
     ProvisionTOTPForm,
     ProvisionWebAuthnForm,
     SaveAccountForm,
+    SaveOrganizationForm,
     Toggle2FARequirementForm,
 )
 from warehouse.metrics.interfaces import IMetricsService
@@ -114,6 +115,7 @@ from warehouse.packaging.models import (
 )
 from warehouse.rate_limiting import IRateLimiter
 from warehouse.utils.http import is_safe_url
+from warehouse.utils.organization import confirm_organization
 from warehouse.utils.paginate import paginate_url_factory
 from warehouse.utils.project import confirm_project, destroy_docs, remove_project
 
@@ -1189,294 +1191,92 @@ class ManageOrganizationsViews:
 
 
 @view_defaults(
-    route_name="manage.account",
-    renderer="manage/account.html",
+    route_name="manage.organization.settings",
+    context=Organization,
+    renderer="manage/organization/settings.html",
     uses_session=True,
     require_csrf=True,
     require_methods=False,
-    permission="manage:user",
+    permission="view:organization",
     has_translations=True,
     require_reauth=True,
 )
-class ManageAccountViews:
-    def __init__(self, request):
+class ManageOrganizationSettingsViews:
+    def __init__(self, organization, request):
+        self.organization = organization
         self.request = request
         self.user_service = request.find_service(IUserService, context=None)
-        self.breach_service = request.find_service(
-            IPasswordBreachedService, context=None
+        self.organization_service = request.find_service(
+            IOrganizationService, context=None
         )
 
     @property
     def active_projects(self):
-        return user_projects(request=self.request)["projects_sole_owned"]
+        return self.organization.projects
 
     @property
     def default_response(self):
         return {
-            "save_account_form": SaveAccountForm(
-                name=self.request.user.name,
-                public_email=getattr(self.request.user.public_email, "email", ""),
-                user_service=self.user_service,
-                user_id=self.request.user.id,
-            ),
-            "add_email_form": AddEmailForm(
-                user_service=self.user_service, user_id=self.request.user.id
-            ),
-            "change_password_form": ChangePasswordForm(
-                request=self.request,
-                user_service=self.user_service,
-                breach_service=self.breach_service,
+            "organization": self.organization,
+            "save_organization_form": SaveOrganizationForm(
+                name=self.organization.name,
+                display_name=self.organization.display_name,
+                link_url=self.organization.link_url,
+                description=self.organization.description,
+                orgtype=self.organization.orgtype,
+                organization_service=self.organization_service,
             ),
             "active_projects": self.active_projects,
         }
 
     @view_config(request_method="GET")
-    def manage_account(self):
+    def manage_organization(self):
         return self.default_response
 
-    @view_config(request_method="POST", request_param=["name"])
-    def save_account(self):
-        form = SaveAccountForm(
+    @view_config(request_method="POST", request_param=SaveOrganizationForm.__params__)
+    def save_organization(self):
+        form = SaveOrganizationForm(
             self.request.POST,
-            user_service=self.user_service,
-            user_id=self.request.user.id,
+            organization_service=self.organization_service,
         )
 
         if form.validate():
-            data = form.data
-            public_email = data.pop("public_email", "")
-            self.user_service.update_user(self.request.user.id, **data)
-            for email in self.request.user.emails:
-                email.public = email.email == public_email
-            self.request.session.flash("Account details updated", queue="success")
+            # TODO: Update organization in database.
+            # data = form.data
+            # self.organization_service.update_organization(data)
+            self.request.session.flash("Organization details updated", queue="success")
 
-        return {**self.default_response, "save_account_form": form}
+        return {**self.default_response, "save_organization_form": form}
 
-    @view_config(
-        request_method="POST",
-        request_param=AddEmailForm.__params__,
-        require_reauth=True,
-    )
-    def add_email(self):
-        form = AddEmailForm(
-            self.request.POST,
-            user_service=self.user_service,
-            user_id=self.request.user.id,
+    @view_config(request_method="POST", request_param=["confirm_organization_name"])
+    def delete_organization(self):
+        confirm_organization(
+            self.organization,
+            self.request,
+            fail_route="manage.organization.settings"
         )
 
-        if form.validate():
-            email = self.user_service.add_email(self.request.user.id, form.email.data)
-            self.user_service.record_event(
-                self.request.user.id,
-                tag="account:email:add",
-                additional={"email": email.email},
-            )
-
-            send_email_verification_email(self.request, (self.request.user, email))
-
+        if self.active_projects:
             self.request.session.flash(
-                self.request._(
-                    "Email ${email_address} added - check your email for "
-                    "a verification link",
-                    mapping={"email_address": email.email},
-                ),
-                queue="success",
-            )
-            return self.default_response
-
-        return {**self.default_response, "add_email_form": form}
-
-    @view_config(
-        request_method="POST", request_param=["delete_email_id"], require_reauth=True
-    )
-    def delete_email(self):
-        try:
-            email = (
-                self.request.db.query(Email)
-                .filter(
-                    Email.id == self.request.POST["delete_email_id"],
-                    Email.user_id == self.request.user.id,
-                )
-                .one()
-            )
-        except NoResultFound:
-            self.request.session.flash("Email address not found", queue="error")
-            return self.default_response
-
-        if email.primary:
-            self.request.session.flash(
-                "Cannot remove primary email address", queue="error"
-            )
-        else:
-            self.request.user.emails.remove(email)
-            self.user_service.record_event(
-                self.request.user.id,
-                tag="account:email:remove",
-                additional={"email": email.email},
-            )
-            self.request.session.flash(
-                f"Email address {email.email} removed", queue="success"
-            )
-        return self.default_response
-
-    @view_config(
-        request_method="POST", request_param=["primary_email_id"], require_reauth=True
-    )
-    def change_primary_email(self):
-        previous_primary_email = self.request.user.primary_email
-        try:
-            new_primary_email = (
-                self.request.db.query(Email)
-                .filter(
-                    Email.user_id == self.request.user.id,
-                    Email.id == self.request.POST["primary_email_id"],
-                    Email.verified.is_(True),
-                )
-                .one()
-            )
-        except NoResultFound:
-            self.request.session.flash("Email address not found", queue="error")
-            return self.default_response
-
-        self.request.db.query(Email).filter(
-            Email.user_id == self.request.user.id, Email.primary.is_(True)
-        ).update(values={"primary": False})
-
-        new_primary_email.primary = True
-        self.user_service.record_event(
-            self.request.user.id,
-            tag="account:email:primary:change",
-            additional={
-                "old_primary": previous_primary_email.email
-                if previous_primary_email
-                else None,
-                "new_primary": new_primary_email.email,
-            },
-        )
-
-        self.request.session.flash(
-            f"Email address {new_primary_email.email} set as primary", queue="success"
-        )
-
-        if previous_primary_email is not None:
-            send_primary_email_change_email(
-                self.request, (self.request.user, previous_primary_email)
-            )
-        return self.default_response
-
-    @view_config(request_method="POST", request_param=["reverify_email_id"])
-    def reverify_email(self):
-        try:
-            email = (
-                self.request.db.query(Email)
-                .filter(
-                    Email.id == self.request.POST["reverify_email_id"],
-                    Email.user_id == self.request.user.id,
-                )
-                .one()
-            )
-        except NoResultFound:
-            self.request.session.flash("Email address not found", queue="error")
-            return self.default_response
-
-        if email.verified:
-            self.request.session.flash("Email is already verified", queue="error")
-        else:
-            send_email_verification_email(self.request, (self.request.user, email))
-            email.user.record_event(
-                tag="account:email:reverify",
-                ip_address=self.request.remote_addr,
-                additional={"email": email.email},
-            )
-
-            self.request.session.flash(
-                f"Verification email for {email.email} resent", queue="success"
-            )
-
-        return self.default_response
-
-    @view_config(request_method="POST", request_param=ChangePasswordForm.__params__)
-    def change_password(self):
-        form = ChangePasswordForm(
-            **self.request.POST,
-            request=self.request,
-            username=self.request.user.username,
-            full_name=self.request.user.name,
-            email=self.request.user.email,
-            user_service=self.user_service,
-            breach_service=self.breach_service,
-            check_password_metrics_tags=["method:new_password"],
-        )
-
-        if form.validate():
-            self.user_service.update_user(
-                self.request.user.id, password=form.new_password.data
-            )
-            self.user_service.record_event(
-                self.request.user.id,
-                tag="account:password:change",
-            )
-            send_password_change_email(self.request, self.request.user)
-            self.request.db.flush()  # Ensure changes are persisted to DB
-            self.request.db.refresh(self.request.user)  # Pickup new password_date
-            self.request.session.record_password_timestamp(
-                self.user_service.get_password_timestamp(self.request.user.id)
-            )
-            self.request.session.flash("Password updated", queue="success")
-
-        return {**self.default_response, "change_password_form": form}
-
-    @view_config(
-        request_method="POST", request_param=DeleteTOTPForm.__params__
-    )  # TODO: gate_action instead of confirm pass form
-    def delete_account(self):
-        confirm_password = self.request.params.get("confirm_password")
-        if not confirm_password:
-            self.request.session.flash("Confirm the request", queue="error")
-            return self.default_response
-
-        form = ConfirmPasswordForm(
-            request=self.request,
-            password=confirm_password,
-            username=self.request.user.username,
-            user_service=self.user_service,
-        )
-
-        if not form.validate():
-            self.request.session.flash(
-                "Could not delete account - Invalid credentials. Please try again.",
+                "Cannot delete organization with active project ownerships",
                 queue="error",
             )
             return self.default_response
 
-        if self.active_projects:
-            self.request.session.flash(
-                "Cannot delete account with active project ownerships", queue="error"
-            )
-            return self.default_response
-
-        # Update all journals to point to `deleted-user` instead
-        deleted_user = (
-            self.request.db.query(User).filter(User.username == "deleted-user").one()
+        # TODO: Will organization.id remain in OrganizationNameCatalog after deletion?
+        self.organization.record_event(
+            tag="organization:delete",
+            ip_address=self.request.remote_addr,
+            additional={
+                "deleted_by_user_id": str(self.request.user.id),
+            },
         )
 
-        journals = (
-            self.request.db.query(JournalEntry)
-            .options(joinedload("submitted_by"))
-            .filter(JournalEntry.submitted_by == self.request.user)
-            .all()
-        )
+        # TODO: Delete organization in database.
 
-        for journal in journals:
-            journal.submitted_by = deleted_user
+        # TODO: Send notification emails to owners and PyPI admins.
 
-        # Send a notification email
-        send_account_deletion_email(self.request, self.request.user)
-
-        # Actually delete the user
-        self.request.db.delete(self.request.user)
-
-        return logout(self.request)
+        return HTTPSeeOther(self.request.route_path("manage.organizations"))
 
 
 @view_config(
