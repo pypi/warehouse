@@ -27,6 +27,8 @@ from warehouse.organizations.models import (
     OrganizationRole,
 )
 
+NAME_FIELD = "name"
+
 
 @implementer(IOrganizationService)
 class DatabaseOrganizationService:
@@ -323,6 +325,20 @@ class DatabaseOrganizationService:
         self.db.flush()
 
         self.add_catalog_entry(organization_id)
+
+        return organization
+
+    def update_organization(self, organization_id, **changes):
+        """
+        Accepts a organization object and attempts to update an organization with those
+        attributes
+        """
+        organization = self.get_organization(organization_id)
+        for attr, value in changes.items():
+            if attr == NAME_FIELD:
+                # Call rename function to ensure name catalag entry is added
+                self.rename_organization(organization_id, value)
+            setattr(organization, attr, value)
 
         return organization
 

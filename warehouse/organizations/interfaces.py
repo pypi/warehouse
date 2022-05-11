@@ -136,6 +136,12 @@ class IOrganizationService(Interface):
         Performs operations necessary to rename an Organization
         """
 
+    def update_organization(organization_id, **changes):
+        """
+        Accepts a organization object and attempts to update an organization with those
+        attributes
+        """
+
     def record_event(organization_id, *, tag, additional=None):
         """
         Creates a new Organization.Event for the given organization with the given
