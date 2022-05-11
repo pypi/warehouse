@@ -309,8 +309,6 @@ class DatabaseOrganizationService:
         # Delete roles
         self.db.query(OrganizationRole).filter_by(organization=organization).delete()
         # TODO: Delete any stored card data from payment processor
-        # Delete events?
-
         # Delete organization
         self.db.delete(organization)
         self.db.flush()
