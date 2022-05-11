@@ -59,11 +59,9 @@ class TestOrganizationList:
         db_request.GET["q"] = organizations[0].name
         result = views.organization_list(db_request)
 
-        assert result == {
-            "organizations": [organizations[0]],
-            "query": organizations[0].name,
-            "terms": [organizations[0].name],
-        }
+        assert organizations[0] in result["organizations"]
+        assert result["query"] == organizations[0].name
+        assert result["terms"] == [organizations[0].name]
 
     def test_name_query(self, enable_organizations, db_request):
         organizations = sorted(
@@ -73,11 +71,9 @@ class TestOrganizationList:
         db_request.GET["q"] = f"name:{organizations[0].name}"
         result = views.organization_list(db_request)
 
-        assert result == {
-            "organizations": [organizations[0]],
-            "query": f"name:{organizations[0].name}",
-            "terms": [f"name:{organizations[0].name}"],
-        }
+        assert organizations[0] in result["organizations"]
+        assert result["query"] == f"name:{organizations[0].name}"
+        assert result["terms"] == [f"name:{organizations[0].name}"]
 
     def test_organization_query(self, enable_organizations, db_request):
         organizations = sorted(
@@ -87,11 +83,9 @@ class TestOrganizationList:
         db_request.GET["q"] = f"organization:{organizations[0].display_name}"
         result = views.organization_list(db_request)
 
-        assert result == {
-            "organizations": [organizations[0]],
-            "query": f"organization:{organizations[0].display_name}",
-            "terms": [f"organization:{organizations[0].display_name}"],
-        }
+        assert organizations[0] in result["organizations"]
+        assert result["query"] == f"organization:{organizations[0].display_name}"
+        assert result["terms"] == [f"organization:{organizations[0].display_name}"]
 
     def test_url_query(self, enable_organizations, db_request):
         organizations = sorted(
@@ -101,11 +95,9 @@ class TestOrganizationList:
         db_request.GET["q"] = f"url:{organizations[0].link_url}"
         result = views.organization_list(db_request)
 
-        assert result == {
-            "organizations": [organizations[0]],
-            "query": f"url:{organizations[0].link_url}",
-            "terms": [f"url:{organizations[0].link_url}"],
-        }
+        assert organizations[0] in result["organizations"]
+        assert result["query"] == f"url:{organizations[0].link_url}"
+        assert result["terms"] == [f"url:{organizations[0].link_url}"]
 
     def test_description_query(self, enable_organizations, db_request):
         organizations = sorted(
@@ -115,11 +107,9 @@ class TestOrganizationList:
         db_request.GET["q"] = f"description:'{organizations[0].description}'"
         result = views.organization_list(db_request)
 
-        assert result == {
-            "organizations": [organizations[0]],
-            "query": f"description:'{organizations[0].description}'",
-            "terms": [f"description:{organizations[0].description}"],
-        }
+        assert organizations[0] in result["organizations"]
+        assert result["query"] == f"description:'{organizations[0].description}'"
+        assert result["terms"] == [f"description:{organizations[0].description}"]
 
     def test_is_approved_query(self, enable_organizations, db_request):
         organizations = sorted(

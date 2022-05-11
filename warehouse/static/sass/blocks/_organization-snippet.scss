@@ -15,19 +15,19 @@
 @import "snippet";
 
 /*
-  A card that contains information about a package. Often found in package lists.
+  A card that contains information about a organization. Often found in organization lists.
   The card can be an "a" or "div" element, but if it contains a link, choosing
   a top-level "a" element is recommended for accessibility reasons.
 
-  <a class="package-snippet" href="/link/to/target">
-    <h3 class="package-snippet__title">
+  <a class="organization-snippet" href="/link/to/target">
+    <h3 class="organization-snippet__title">
       // Package title
-      <span class="package-snippet__version">// Version</span> // Optional!
+      <span class="organization-snippet__version">// Version</span> // Optional!
     </h3>
-    <p class="package-snippet__description">// Description</p>
+    <p class="organization-snippet__description">// Description</p>
   </a>
 */
 
-.package-snippet {
-  @include snippet(url("../images/white-cube.png"), url("../images/white-cube.svg"));
+.organization-snippet {
+  @include snippet(url("../images/users.png"), url("../images/users.svg"));
 }
