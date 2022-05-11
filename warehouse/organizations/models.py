@@ -27,6 +27,7 @@ from sqlalchemy import (
     orm,
     sql,
 )
+from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm.exc import NoResultFound
 from sqlalchemy_utils.types.url import URLType
 
@@ -236,11 +237,8 @@ class OrganizationNameCatalog(db.Model):
 
     __repr__ = make_repr("normalized_name", "organization_id")
 
-    normalized_name = Column(Text, nullable=False)
-    organization_id = Column(
-        ForeignKey("organizations.id", onupdate="CASCADE", ondelete="CASCADE"),
-        nullable=False,
-    )
+    normalized_name = Column(Text, nullable=False, index=True)
+    organization_id = Column(UUID(as_uuid=True), nullable=True, index=True)
 
 
 class OrganizationInvitationStatus(enum.Enum):
