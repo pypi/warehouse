@@ -77,13 +77,15 @@ class TestOIDCProviderService:
                 token,
                 key="fake-key",
                 algorithms=["RS256"],
-                verify_signature=True,
-                require=["iss", "iat", "nbf", "exp", "aud"],
-                verify_iss=True,
-                verify_iat=True,
-                verify_nbf=True,
-                verify_exp=True,
-                verify_aud=True,
+                options=dict(
+                    verify_signature=True,
+                    require=["iss", "iat", "nbf", "exp", "aud"],
+                    verify_iss=True,
+                    verify_iat=True,
+                    verify_nbf=True,
+                    verify_exp=True,
+                    verify_aud=True,
+                ),
                 issuer=service.issuer_url,
                 audience="pypi",
                 leeway=30,
@@ -567,3 +569,122 @@ class TestOIDCProviderService:
         assert service._get_key_for_token(token) == key
         assert service._get_key.calls == [pretend.call("fake-key-id")]
         assert services.jwt.get_unverified_header.calls == [pretend.call(token)]
+
+
+class TestNullOIDCProviderService:
+    def test_warns_on_init(self, monkeypatch):
+        warnings = pretend.stub(warn=pretend.call_recorder(lambda m, c: None))
+        monkeypatch.setattr(services, "warnings", warnings)
+
+        service = services.NullOIDCProviderService(
+            provider="example",
+            issuer_url="https://example.com",
+            cache_url="rediss://fake.example.com",
+            metrics=pretend.stub(),
+        )
+
+        assert service is not None
+        assert warnings.warn.calls == [
+            pretend.call(
+                "NullOIDCProviderService is intended only for use in development, "
+                "you should not use it in production due to the lack of actual "
+                "JWT verification.",
+                services.InsecureOIDCProviderWarning,
+            )
+        ]
+
+    def test_verify_for_project_malformed_jwt(self):
+        service = services.NullOIDCProviderService(
+            provider="example",
+            issuer_url="https://example.com",
+            cache_url="rediss://fake.example.com",
+            metrics=pretend.stub(),
+        )
+
+        assert not service.verify_for_project("malformed-jwt", pretend.stub())
+
+    def test_verify_for_project_missing_aud(self):
+        # {
+        #   "iss": "foo",
+        #   "iat": 1516239022,
+        #   "nbf": 1516239022,
+        #   "exp": 9999999999
+        #  }
+        jwt = (
+            "eyJhbGciOiJSUzI1NiJ9.eyJpc3MiOiJmb28iLCJpYXQiOjE1MTYyMzkwMjIsIm5iZ"
+            "iI6MTUxNjIzOTAyMiwiZXhwIjo5OTk5OTk5OTk5fQ.CAR9tx9_A6kxIDYWzXotuLfQ"
+            "0wmvHDDO98rLO4F46y7QDWOalIok9yX3OzkWz-30TIBl1dleGVYbtZQzFNEJY13OLB"
+            "gzFvxEpsAWvKJGyOLz-YDeGd2ApEZaggLvJiPZCngxFTH5fAyEcUUxQs5sCO9lGbkc"
+            "E6lg_Di3VQhPohSuj_V7-DkcXefL3lV7m_JNOBoDWx_nDOFx4w2f8Z2NmswMrsu1vU"
+            "NUZH7POiQBeyEsbY1at3u6gGerjyeYl8SIbeeRUWL0rtWxTgktoiKKgyPI-8F8Fpug"
+            "jwtKZU_WFhIF4nA0les81hxnm8HFnoun2kx5cSF4Db3N8h6m8wRTUw"
+        )
+
+        service = services.NullOIDCProviderService(
+            provider="example",
+            issuer_url="https://example.com",
+            cache_url="rediss://fake.example.com",
+            metrics=pretend.stub(),
+        )
+
+        assert not service.verify_for_project(jwt, pretend.stub())
+
+    def test_verify_for_project_wrong_aud(self):
+        # {
+        #   "iss": "foo",
+        #   "iat": 1516239022,
+        #   "nbf": 1516239022,
+        #   "exp": 9999999999,
+        #   "aud": "notpypi"
+        # }
+        jwt = (
+            "eyJhbGciOiJSUzI1NiJ9.eyJpc3MiOiJmb28iLCJpYXQiOjE1MTYyMzkwMjIsIm5iZ"
+            "iI6MTUxNjIzOTAyMiwiZXhwIjo5OTk5OTk5OTk5LCJhdWQiOiJub3RweXBpIn0.rFf"
+            "rBXfGyRjU-tIo9dpJRkbnB2BLKK6uwjrE6g4pqwN-5BDn_UNR1Cw4t6Pw8kYOCRmVD"
+            "aacu01L-GwHaXJmXyKsqIGie-bcp40zn1FX7dP000PQkAdhuQ-lILGhzscWNJK0J_g"
+            "IewoFV9jNUVHJmK9UXx0hHl4eaH_3Ob22kzzIqNKuao2625qfLAdNfV44efArEubXT"
+            "vBR-Y8HFzj7-7Zz7rHApImFYmC4E1aMDn_XEYJsXaJcwhhXJx8WB8SAhD7JZ-zotrd"
+            "hlqkRMD9rXpv4DAMU15SEnw19tztVRf9OA4PO5Hd4uTKxPA1euBJgXa2g9QgIc1aFA"
+            "FYKICTVgQ"
+        )
+
+        service = services.NullOIDCProviderService(
+            provider="example",
+            issuer_url="https://example.com",
+            cache_url="rediss://fake.example.com",
+            metrics=pretend.stub(),
+        )
+
+        assert not service.verify_for_project(jwt, pretend.stub())
+
+    def test_verify_for_project(self):
+        # {
+        #  "iss": "foo",
+        #  "iat": 1516239022,
+        #  "nbf": 1516239022,
+        #  "exp": 9999999999,
+        #  "aud": "pypi"
+        # }
+        jwt = (
+            "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJmb28iLCJpYXQiOj"
+            "E1MTYyMzkwMjIsIm5iZiI6MTUxNjIzOTAyMiwiZXhwIjo5OTk5OTk5OTk5LCJhd"
+            "WQiOiJweXBpIn0.JQF7ozT5RgI3g1b75DACO3rSxD7ZRYzC0yqBpvvUrGoOUQQZ"
+            "SfFRc7w9loudk04am2KlLIGjfPum5IITHuiK41XkSFHoTT0fo1aJegHk5_qrk1a"
+            "jXlfNa8otN2woORZdGqUUgF01bDB-1uwfcus5cjBNXYiNzIFO3VeRlBTLNIhUNH"
+            "5I3KKb5T1tFad46E5H7HyzOG4EVwTPHK1-6a5WB3DmC-ExJW831zPda2VKXaFrl"
+            "v3pUZalLOIVulmuvMkw89FrCsm6V5LF5BxbsWn1G5lJAO6XNqPC--xdN3OsloZI"
+            "FVi4A1Y23Ni2LwertdzGumDKrQeEUCarOzkQIjckAg"
+        )
+
+        service = services.NullOIDCProviderService(
+            provider="example",
+            issuer_url="https://example.com",
+            cache_url="rediss://fake.example.com",
+            metrics=pretend.stub(),
+        )
+
+        project = pretend.stub(
+            oidc_providers=[pretend.stub(verify_claims=lambda c: True)]
+        )
+
+        assert service.verify_for_project(jwt, project)

@@ -39,7 +39,24 @@ class NullOIDCProviderService:
         )
 
     def verify_for_project(self, token, project):
-        unverified_payload = jwt.decode(token, verify_signature=False)
+        try:
+            unverified_payload = jwt.decode(
+                token,
+                options=dict(
+                    verify_signature=False,
+                    # We require all of these to be present, but for the
+                    # null provider we only actually verify the audience.
+                    require=["iss", "iat", "nbf", "exp", "aud"],
+                    verify_iss=False,
+                    verify_iat=False,
+                    verify_nbf=False,
+                    verify_exp=False,
+                    verify_aud=True,
+                ),
+                audience="pypi",
+            )
+        except jwt.PyJWTError:
+            return False
 
         return any(
             provider.verify_claims(unverified_payload)
@@ -194,16 +211,18 @@ class OIDCProviderService:
                 token,
                 key=key,
                 algorithms=["RS256"],
-                verify_signature=True,
-                # "require" only checks for the presence of these claims, not
-                # their validity. Each has a corresponding "verify_" kwarg
-                # that enforces their actual validity.
-                require=["iss", "iat", "nbf", "exp", "aud"],
-                verify_iss=True,
-                verify_iat=True,
-                verify_nbf=True,
-                verify_exp=True,
-                verify_aud=True,
+                options=dict(
+                    verify_signature=True,
+                    # "require" only checks for the presence of these claims, not
+                    # their validity. Each has a corresponding "verify_" kwarg
+                    # that enforces their actual validity.
+                    require=["iss", "iat", "nbf", "exp", "aud"],
+                    verify_iss=True,
+                    verify_iat=True,
+                    verify_nbf=True,
+                    verify_exp=True,
+                    verify_aud=True,
+                ),
                 issuer=self.issuer_url,
                 audience="pypi",
                 leeway=30,
