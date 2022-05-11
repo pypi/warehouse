@@ -16,7 +16,13 @@ from zope.interface.verify import verifyClass
 
 from warehouse.organizations import services
 from warehouse.organizations.interfaces import IOrganizationService
-from warehouse.organizations.models import OrganizationRoleType
+from warehouse.organizations.models import (
+    OrganizationInvitation,
+    OrganizationNameCatalog,
+    OrganizationProject,
+    OrganizationRole,
+    OrganizationRoleType,
+)
 
 from ...common.db.organizations import (
     OrganizationFactory,
@@ -309,3 +315,38 @@ class TestDatabaseOrganizationService:
 
         assert organization.is_approved is False
         assert organization.date_approved is not None
+
+    def test_delete_organization(self, organization_service, db_request):
+        organization = OrganizationFactory.create()
+
+        organization_service.delete_organization(organization.id)
+
+        assert not (
+            (
+                db_request.db.query(OrganizationInvitation)
+                .filter_by(organization=organization)
+                .count()
+            )
+        )
+        assert not (
+            (
+                db_request.db.query(OrganizationNameCatalog)
+                .filter(OrganizationNameCatalog.organization_id == organization.id)
+                .count()
+            )
+        )
+        assert not (
+            (
+                db_request.db.query(OrganizationProject)
+                .filter_by(organization=organization)
+                .count()
+            )
+        )
+        assert not (
+            (
+                db_request.db.query(OrganizationRole)
+                .filter_by(organization=organization)
+                .count()
+            )
+        )
+        assert organization_service.get_organization(organization.id) is None
