@@ -1242,9 +1242,8 @@ class ManageOrganizationSettingsViews:
         )
 
         if form.validate():
-            # TODO: Update organization in database.
-            # data = form.data
-            # self.organization_service.update_organization(data)
+            data = form.data
+            self.organization_service.update_organization(self.organization.id, **data)
             self.request.session.flash("Organization details updated", queue="success")
 
         return {**self.default_response, "save_organization_form": form}
@@ -1269,9 +1268,10 @@ class ManageOrganizationSettingsViews:
         )
 
         if form.validate():
-            # TODO: Update organization name in database.
-            # data = form.data
-            # self.organization_service.update_organization(data)
+            self.organization_service.rename_organization(
+                self.organization.id,
+                form.name.data,
+            )
             self.request.session.flash(
                 "Organization account name updated", queue="success"
             )
@@ -1304,7 +1304,7 @@ class ManageOrganizationSettingsViews:
             },
         )
 
-        # TODO: Delete organization in database.
+        self.organization_service.delete_organization(self.organization.id)
 
         # TODO: Send notification emails to owners and PyPI admins.
 
