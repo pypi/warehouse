@@ -105,7 +105,7 @@ class OrganizationProject(db.Model):
     project = orm.relationship("Project", lazy=False)
 
 
-class OrganizationType(enum.Enum):
+class OrganizationType(str, enum.Enum):
 
     Community = "Community"
     Company = "Company"

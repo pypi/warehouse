@@ -22,6 +22,7 @@ from warehouse.organizations.models import (
     OrganizationProject,
     OrganizationRole,
     OrganizationRoleType,
+    OrganizationType,
 )
 
 from ...common.db.organizations import (
@@ -364,6 +365,33 @@ class TestDatabaseOrganizationService:
             db_request.db.query(OrganizationNameCatalog)
             .filter(
                 OrganizationNameCatalog.normalized_name == organization.normalized_name
+            )
+            .count()
+        )
+
+    def test_update_organization(self, organization_service, db_request):
+        organization = OrganizationFactory.create()
+
+        organization_service.update_organization(
+            organization.id,
+            name="some_new_name",
+            display_name="Some New Name",
+            orgtype=OrganizationType.Company.value,
+        )
+        assert organization.name == "some_new_name"
+        assert organization.display_name == "Some New Name"
+        assert organization.orgtype == OrganizationType.Company
+
+        db_organization = organization_service.get_organization(organization.id)
+        assert db_organization.name == "some_new_name"
+        assert db_organization.display_name == "Some New Name"
+        assert db_organization.orgtype == OrganizationType.Company
+
+        assert (
+            db_request.db.query(OrganizationNameCatalog)
+            .filter(
+                OrganizationNameCatalog.normalized_name
+                == db_organization.normalized_name
             )
             .count()
         )
