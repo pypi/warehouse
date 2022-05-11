@@ -126,6 +126,11 @@ class IOrganizationService(Interface):
         Performs operations necessary to reject approval of an organization
         """
 
+    def delete_organization(organization_id):
+        """
+        Delete an organization for the specified organization id
+        """
+
     def record_event(organization_id, *, tag, additional=None):
         """
         Creates a new Organization.Event for the given organization with the given

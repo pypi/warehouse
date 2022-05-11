@@ -23,6 +23,7 @@ from warehouse.organizations.models import (
     OrganizationInvitation,
     OrganizationInvitationStatus,
     OrganizationNameCatalog,
+    OrganizationProject,
     OrganizationRole,
 )
 
@@ -80,7 +81,7 @@ class DatabaseOrganizationService:
         """
         return (
             self.db.query(Organization)
-            .filter(Organization.is_approved == None)  # noqa
+            .filter(Organization.is_approved == None)  # noqa: E711
             .order_by(Organization.name)
             .all()
         )
@@ -288,6 +289,31 @@ class DatabaseOrganizationService:
         # self.db.flush()
 
         return organization
+
+    def delete_organization(self, organization_id):
+        """
+        Delete an organization for the specified organization id
+        """
+        organization = self.get_organization(organization_id)
+
+        # Delete invitations
+        self.db.query(OrganizationInvitation).filter_by(
+            organization=organization
+        ).delete()
+        # Null out organization id for all name catalog entries
+        self.db.query(OrganizationNameCatalog).filter(
+            OrganizationNameCatalog.organization_id == organization_id
+        ).update({OrganizationNameCatalog.organization_id: None})
+        # Delete projects
+        self.db.query(OrganizationProject).filter_by(organization=organization).delete()
+        # Delete roles
+        self.db.query(OrganizationRole).filter_by(organization=organization).delete()
+        # TODO: Delete any stored card data from payment processor
+        # Delete events?
+
+        # Delete organization
+        self.db.delete(organization)
+        self.db.flush()
 
     def record_event(self, organization_id, *, tag, additional=None):
         """
