@@ -14,10 +14,10 @@ import enum
 
 from pyramid.authorization import Authenticated
 from pyramid.interfaces import ISecurityPolicy
-from pyramid.security import Denied
 from zope.interface import implementer
 
 from warehouse.accounts.models import User
+from warehouse.packaging.models import Project
 
 
 class AuthenticationMethod(enum.Enum):
@@ -99,8 +99,8 @@ class MultiSecurityPolicy:
             if isinstance(identity, User):
                 principals.append(f"user:{identity.id}")
                 principals.extend(_principals_for_authenticated_user(identity))
-            else:
-                return Denied("unimplemented")
+            elif isinstance(identity, Project):
+                principals.append(f"project:{identity.id}")
 
         # NOTE: Observe that the parameters passed into the underlying AuthZ
         # policy here are not the same (or in the same order) as the ones

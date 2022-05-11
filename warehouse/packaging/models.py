@@ -225,6 +225,10 @@ class Project(SitemapMixin, TwoFactorRequireable, HasEvents, db.Model):
             (Allow, "group:moderators", "moderator"),
         ]
 
+        # The project itself has an identity (for OIDC-minted tokens),
+        # and that identity has the ability to upload releases.
+        acls.append((Allow, f"project:{self.id}", ["upload"]))
+
         # Get all of the users for this project.
         query = session.query(Role).filter(Role.project == self)
         query = query.options(orm.lazyload("project"))
