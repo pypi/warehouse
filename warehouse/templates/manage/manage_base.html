@@ -268,13 +268,13 @@
   slug,
   context,
   confirm_button_label=None,
-  extra_fields=None,
   extra_description=None,
+  extra_fields=None,
   action=None,
   method="POST",
   warning=True,
   custom_warning_text="",
-  confirm_string_in_title="True",
+  confirm_string_in_title=True,
   modifier="--danger")
 %}
   <div id="{{ slug }}" class="modal" data-controller="confirm modal-close">
@@ -285,7 +285,6 @@
       </a>
       <form method="{{ method }}" class="modal__form" action="{{ action or request.current_route_path() }}">
         <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
-        {{ extra_fields if extra_fields else '' }}
         <div class="modal__body">
           <h3 class="modal__title">{{ title }}{% if confirm_string_in_title %} {{ confirm_string }}{% endif %}?</h3>
           {% if warning %}
@@ -298,6 +297,7 @@
           </div>
           {% endif %}
           {{ extra_description if extra_description else '' }}
+          {{ extra_fields if extra_fields else '' }}
           <p>
             {% if confirm_name == 'username' %}
             {% trans %}Confirm your username to continue.{% endtrans %}
@@ -379,13 +379,14 @@
   extra_description=None,
   action=None,
   warning=True,
+  confirm_string_in_title=True,
   modifier="--danger")
 %}
   {% set slug = confirm_name.lower().replace(' ', '-') + '-modal' %}
   <a href="#{{ slug }}" class="button button{{ modifier }}">
     {{ title }}
   </a>
-  {{ confirm_modal(title, label, confirm_name, confirm_string, slug, extra_fields=extra_fields, extra_description=extra_description, action=action, warning=warning, modifier=modifier) }}
+  {{ confirm_modal(title, label, confirm_name, confirm_string, slug, extra_fields=extra_fields, extra_description=extra_description, action=action, warning=warning, confirm_string_in_title=confirm_string_in_title, modifier=modifier) }}
 {% endmacro %}
 
 {% macro confirm_password_button(

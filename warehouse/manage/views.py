@@ -91,6 +91,7 @@ from warehouse.manage.forms import (
     ProvisionWebAuthnForm,
     SaveAccountForm,
     SaveOrganizationForm,
+    SaveOrganizationNameForm,
     Toggle2FARequirementForm,
 )
 from warehouse.metrics.interfaces import IMetricsService
@@ -1248,12 +1249,43 @@ class ManageOrganizationSettingsViews:
 
         return {**self.default_response, "save_organization_form": form}
 
-    @view_config(request_method="POST", request_param=["confirm_organization_name"])
-    def delete_organization(self):
+    @view_config(
+        request_method="POST",
+        request_param=["confirm_current_organization_name"]
+        + SaveOrganizationNameForm.__params__,
+    )
+    def save_organization_name(self):
         confirm_organization(
             self.organization,
             self.request,
-            fail_route="manage.organization.settings"
+            fail_route="manage.organization.settings",
+            field_name="confirm_current_organization_name",
+            error_message="Could not rename organization",
+        )
+
+        form = SaveOrganizationNameForm(
+            self.request.POST,
+            organization_service=self.organization_service,
+        )
+
+        if form.validate():
+            # TODO: Update organization name in database.
+            # data = form.data
+            # self.organization_service.update_organization(data)
+            self.request.session.flash(
+                "Organization account name updated", queue="success"
+            )
+        else:
+            for error_list in form.errors.values():
+                for error in error_list:
+                    self.request.session.flash(error, queue="error")
+
+        return self.default_response
+
+    @view_config(request_method="POST", request_param=["confirm_organization_name"])
+    def delete_organization(self):
+        confirm_organization(
+            self.organization, self.request, fail_route="manage.organization.settings"
         )
 
         if self.active_projects:

@@ -14,8 +14,14 @@ from packaging.utils import canonicalize_name
 from pyramid.httpexceptions import HTTPSeeOther
 
 
-def confirm_organization(organization, request, fail_route):
-    confirm = request.POST.get("confirm_organization_name")
+def confirm_organization(
+    organization,
+    request,
+    fail_route,
+    field_name="confirm_organization_name",
+    error_message="Could not delete organization",
+):
+    confirm = request.POST.get(field_name)
     organization_name = organization.normalized_name
     if not confirm:
         request.session.flash("Confirm the request", queue="error")
@@ -24,8 +30,10 @@ def confirm_organization(organization, request, fail_route):
         )
     if canonicalize_name(confirm) != organization.normalized_name:
         request.session.flash(
-            "Could not delete organization - "
-            + f"{confirm!r} is not the same as {organization.normalized_name!r}",
+            (
+                f"{error_message} - "
+                f"{confirm!r} is not the same as {organization.normalized_name!r}"
+            ),
             queue="error",
         )
         raise HTTPSeeOther(

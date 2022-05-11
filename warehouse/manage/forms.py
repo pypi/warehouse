@@ -359,9 +359,8 @@ class OrganizationNameMixin:
         if self.organization_service.find_organizationid(field.data) is not None:
             raise wtforms.validators.ValidationError(
                 _(
-                    "This organization account name is already being "
-                    "used by another account. Choose a different "
-                    "organization account name."
+                    "This organization account name has already been used. "
+                    "Choose a different organization account name."
                 )
             )
 
@@ -390,6 +389,15 @@ class ChangeOrganizationRoleForm(OrganizationRoleNameMixin, forms.Form):
                 for choice in self.role_name.choices
                 if "Billing Manager" not in choice
             ]
+
+
+class SaveOrganizationNameForm(OrganizationNameMixin, forms.Form):
+
+    __params__ = ["name"]
+
+    def __init__(self, *args, organization_service, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.organization_service = organization_service
 
 
 class SaveOrganizationForm(forms.Form):
@@ -443,10 +451,6 @@ class SaveOrganizationForm(forms.Form):
     )
 
 
-class CreateOrganizationForm(OrganizationNameMixin, SaveOrganizationForm):
+class CreateOrganizationForm(SaveOrganizationNameForm, SaveOrganizationForm):
 
-    __params__ = ["name"] + SaveOrganizationForm.__params__
-
-    def __init__(self, *args, organization_service, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.organization_service = organization_service
+    __params__ = SaveOrganizationNameForm.__params__ + SaveOrganizationForm.__params__
