@@ -2255,7 +2255,8 @@ class TestVerifyOrganizationRole:
         assert result.headers["Location"] == "/"
         assert db_request.route_path.calls == [
             pretend.call(
-                "manage.organization.roles", organization_name=organization.name
+                "manage.organization.roles",
+                organization_name=organization.normalized_name,
             )
         ]
 

@@ -1487,7 +1487,8 @@ def revoke_organization_invitation(organization, request):
         )
         return HTTPSeeOther(
             request.route_path(
-                "manage.organization.roles", organization_name=organization.name
+                "manage.organization.roles",
+                organization_name=organization.normalized_name,
             )
         )
 
@@ -1499,7 +1500,8 @@ def revoke_organization_invitation(organization, request):
         request.session.flash(request._("Invitation already expired."), queue="success")
         return HTTPSeeOther(
             request.route_path(
-                "manage.organization.roles", organization_name=organization.name
+                "manage.organization.roles",
+                organization_name=organization.normalized_name,
             )
         )
     role_name = token_data.get("desired_role")
@@ -1537,7 +1539,7 @@ def revoke_organization_invitation(organization, request):
 
     return HTTPSeeOther(
         request.route_path(
-            "manage.organization.roles", organization_name=organization.name
+            "manage.organization.roles", organization_name=organization.normalized_name
         )
     )
 
@@ -1612,7 +1614,7 @@ def change_organization_role(
 
     return HTTPSeeOther(
         request.route_path(
-            "manage.organization.roles", organization_name=organization.name
+            "manage.organization.roles", organization_name=organization.normalized_name
         )
     )
 
@@ -1689,7 +1691,8 @@ def delete_organization_role(organization, request):
     else:
         return HTTPSeeOther(
             request.route_path(
-                "manage.organization.roles", organization_name=organization.name
+                "manage.organization.roles",
+                organization_name=organization.normalized_name,
             )
         )
 
