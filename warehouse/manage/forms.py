@@ -26,7 +26,7 @@ from warehouse.accounts.forms import (
     WebAuthnCredentialMixin,
 )
 from warehouse.i18n import localize as _
-from warehouse.organizations.models import OrganizationType
+from warehouse.organizations.models import OrganizationRoleType, OrganizationType
 
 # /manage/account/ forms
 
@@ -322,6 +322,7 @@ class OrganizationRoleNameMixin:
             ("Owner", "Owner"),
             ("Billing Manager", "Billing Manager"),
         ],
+        coerce=lambda string: OrganizationRoleType(string) if string else None,
         validators=[wtforms.validators.DataRequired(message="Select role")],
     )
 
@@ -445,6 +446,7 @@ class SaveOrganizationForm(forms.Form):
     orgtype = wtforms.SelectField(
         # TODO: Map additional choices to "Company" and "Community".
         choices=[("Company", "Company"), ("Community", "Community")],
+        coerce=OrganizationType,
         validators=[
             wtforms.validators.DataRequired(message="Select organization type"),
         ],

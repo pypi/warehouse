@@ -253,11 +253,11 @@ msgstr ""
 msgid "Banner Preview"
 msgstr ""
 
-#: warehouse/manage/forms.py:338
+#: warehouse/manage/forms.py:339
 msgid "Choose an organization account name with 50 characters or less."
 msgstr ""
 
-#: warehouse/manage/forms.py:346
+#: warehouse/manage/forms.py:347
 msgid ""
 "The organization account name is invalid. Organization account names must"
 " be composed of letters, numbers, dots, hyphens and underscores. And must"
@@ -265,25 +265,25 @@ msgid ""
 "organization account name."
 msgstr ""
 
-#: warehouse/manage/forms.py:361
+#: warehouse/manage/forms.py:362
 msgid ""
 "This organization account name has already been used. Choose a different "
 "organization account name."
 msgstr ""
 
-#: warehouse/manage/forms.py:412
+#: warehouse/manage/forms.py:413
 msgid ""
 "The organization name is too long. Choose a organization name with 100 "
 "characters or less."
 msgstr ""
 
-#: warehouse/manage/forms.py:424
+#: warehouse/manage/forms.py:425
 msgid ""
 "The organization URL is too long. Choose a organization URL with 400 "
 "characters or less."
 msgstr ""
 
-#: warehouse/manage/forms.py:438
+#: warehouse/manage/forms.py:439
 msgid ""
 "The organization description is too long. Choose a organization "
 "description with 400 characters or less."

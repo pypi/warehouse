@@ -2843,7 +2843,7 @@ class TestManageOrganizationRoles:
         form_obj = pretend.stub(
             validate=pretend.call_recorder(lambda: True),
             username=pretend.stub(data=user.username),
-            role_name=pretend.stub(data="Owner"),
+            role_name=pretend.stub(data=OrganizationRoleType.Owner),
         )
         form_class = pretend.call_recorder(lambda *a, **kw: form_obj)
 
@@ -2919,7 +2919,7 @@ class TestManageOrganizationRoles:
         form_obj = pretend.stub(
             validate=pretend.call_recorder(lambda: True),
             username=pretend.stub(data=new_user.username),
-            role_name=pretend.stub(data="Owner"),
+            role_name=pretend.stub(data=OrganizationRoleType.Owner),
         )
         form_class = pretend.call_recorder(lambda *a, **kw: form_obj)
 
@@ -2996,7 +2996,7 @@ class TestManageOrganizationRoles:
         form_obj = pretend.stub(
             validate=pretend.call_recorder(lambda: True),
             username=pretend.stub(data=new_user.username),
-            role_name=pretend.stub(data="Owner"),
+            role_name=pretend.stub(data=OrganizationRoleType.Owner),
         )
         form_class = pretend.call_recorder(lambda *a, **kw: form_obj)
 
@@ -3059,13 +3059,13 @@ class TestManageOrganizationRoles:
                 db_request,
                 {owner_1, owner_2},
                 user=new_user,
-                desired_role=form_obj.role_name.data,
+                desired_role=form_obj.role_name.data.value,
                 initiator_username=db_request.user.username,
                 organization_name=organization.name,
                 email_token=token_service.dumps(
                     {
                         "action": "email-organization-role-verify",
-                        "desired_role": form_obj.role_name.data,
+                        "desired_role": form_obj.role_name.data.value,
                         "user_id": new_user.id,
                         "organization_id": organization.id,
                         "submitter_id": db_request.user.id,
@@ -3078,13 +3078,13 @@ class TestManageOrganizationRoles:
             pretend.call(
                 db_request,
                 new_user,
-                desired_role=form_obj.role_name.data,
+                desired_role=form_obj.role_name.data.value,
                 initiator_username=db_request.user.username,
                 organization_name=organization.name,
                 email_token=token_service.dumps(
                     {
                         "action": "email-organization-role-verify",
-                        "desired_role": form_obj.role_name.data,
+                        "desired_role": form_obj.role_name.data.value,
                         "user_id": new_user.id,
                         "organization_id": organization.id,
                         "submitter_id": db_request.user.id,

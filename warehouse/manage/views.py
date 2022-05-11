@@ -1372,7 +1372,7 @@ def manage_organization_roles(
                 request._(
                     "User '${username}' does not have a verified primary email "
                     "address and cannot be added as a ${role_name} for organization",
-                    mapping={"username": username, "role_name": role_name},
+                    mapping={"username": username, "role_name": role_name.value},
                 ),
                 queue="error",
             )
@@ -1394,7 +1394,7 @@ def manage_organization_roles(
             invite_token = token_service.dumps(
                 {
                     "action": "email-organization-role-verify",
-                    "desired_role": role_name,
+                    "desired_role": role_name.value,
                     "user_id": user.id,
                     "organization_id": organization.id,
                     "submitter_id": request.user.id,
@@ -1414,7 +1414,7 @@ def manage_organization_roles(
                 ip_address=request.remote_addr,
                 additional={
                     "submitted_by_user_id": str(request.user.id),
-                    "role_name": role_name,
+                    "role_name": role_name.value,
                     "target_user_id": str(userid),
                 },
             )
@@ -1424,7 +1424,7 @@ def manage_organization_roles(
                 request,
                 owner_users,
                 user=user,
-                desired_role=role_name,
+                desired_role=role_name.value,
                 initiator_username=request.user.username,
                 organization_name=organization.name,
                 email_token=invite_token,
@@ -1433,7 +1433,7 @@ def manage_organization_roles(
             send_organization_role_verification_email(
                 request,
                 user,
-                desired_role=role_name,
+                desired_role=role_name.value,
                 initiator_username=request.user.username,
                 organization_name=organization.name,
                 email_token=invite_token,
