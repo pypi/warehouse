@@ -14,7 +14,7 @@ import pretend
 
 from warehouse.tuf import tasks
 from warehouse.tuf.interfaces import IRepositoryService
-from warehouse.tuf.repository import TargetsPayload
+from warehouse.tuf.repository import TargetFile
 
 
 class TestBumpSnapshot:
@@ -166,7 +166,13 @@ class TestAddHashedTargets:
             lambda *a, **kw: mocked_redis,
         )
 
-        targets = TargetsPayload("fileinfo", "file/path")
+        fake_fileinfo = {
+            "hashes": {"blake2b-256": "dlskjflkdjflsdjfsdfdfsdfsdfs"},
+            "length": 1025,
+            "custom": {"backsigned": True},
+        }
+
+        targets = TargetFile.from_dict(fake_fileinfo, "file/path")
 
         task = pretend.stub()
         tasks.add_hashed_targets(task, db_request, targets)

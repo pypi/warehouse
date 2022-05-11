@@ -33,7 +33,7 @@ from warehouse.tuf.repository import (
     TOP_LEVEL_ROLE_NAMES,
     MetadataRepository,
     RolesPayload,
-    TargetsPayload,
+    TargetFile,
 )
 
 
@@ -376,7 +376,7 @@ class RepositoryService:
             fileinfo = target.get("info")
             filepath = target.get("path")
             delegated_role_bin_name = hash_bins.get_delegate(filepath)
-            target_file = TargetsPayload(fileinfo, filepath)
+            target_file = TargetFile.from_dict(fileinfo, filepath)
             if targets_payload.get(delegated_role_bin_name) is None:
                 targets_payload[delegated_role_bin_name] = list()
 

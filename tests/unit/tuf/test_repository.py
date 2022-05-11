@@ -819,21 +819,21 @@ class TestMetadataRepository:
 
         payload = {
             "a0-07": [
-                repository.TargetsPayload(
-                    fileinfo={
+                repository.TargetFile.from_dict(
+                    {
                         "hashes": {"blake2b-256": "sdfaslkajsdfkjhadsljkhfsdjkh"},
                         "length": 1024,
                         "custom": {"backsigned": True},
                     },
-                    path="/sd/fa/lkajsdfkjhadsljkhfsdjkh.packagexv1.tar.gz",
+                    "/sd/fa/lkajsdfkjhadsljkhfsdjkh.packagexv1.tar.gz",
                 ),
-                repository.TargetsPayload(
-                    fileinfo={
+                repository.TargetFile.from_dict(
+                    {
                         "hashes": {"blake2b-256": "dlskjflkdjflsdjfsdfdfsdfsdfs"},
                         "length": 1025,
                         "custom": {"backsigned": True},
                     },
-                    path="/sd/fa/dlskjflkdjflsdjfsdfdfsdfsdfs.packageyv1.tar.gz",
+                    "/sd/fa/dlskjflkdjflsdjfsdfdfsdfsdfs.packageyv1.tar.gz",
                 ),
             ]
         }

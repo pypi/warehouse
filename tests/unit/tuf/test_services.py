@@ -25,7 +25,7 @@ from warehouse.tuf import services
 from warehouse.tuf.constants import BIN_N_COUNT, Role
 from warehouse.tuf.hash_bins import HashBins
 from warehouse.tuf.interfaces import IKeyService, IRepositoryService, IStorageService
-from warehouse.tuf.repository import TargetsPayload
+from warehouse.tuf.repository import TargetFile
 
 
 class TestLocalKeyService:
@@ -730,6 +730,11 @@ class TestRepositoryService:
             lambda *a, **kw: fake_metadata_repository,
         )
 
+        monkeypatch.setattr(
+            "warehouse.tuf.services.TargetFile.from_dict",
+            lambda *a, **kw: "target_dict",
+        )
+
         fake_hash_bins = pretend.stub(
             get_delegate=pretend.call_recorder(lambda filepath: "xxxx-yyyy")
         )
@@ -760,19 +765,10 @@ class TestRepositoryService:
         assert result is None
         assert fake_metadata_repository.add_targets.calls == [
             pretend.call(
-                {
-                    "xxxx-yyyy": [
-                        TargetsPayload(
-                            fileinfo=targets[0].get("info"), path=targets[0].get("path")
-                        ),
-                        TargetsPayload(
-                            fileinfo=targets[1].get("info"), path=targets[1].get("path")
-                        ),
-                    ]
-                },
+                {"xxxx-yyyy": ["target_dict", "target_dict"]},
                 "bin-n",
             )
-        ]
+        ], fake_metadata_repository.add_targets.calls
         assert service.bump_snapshot.calls == [pretend.call("snapshot_metadata")]
         assert service._get_hash_bins.calls == [pretend.call()]
         assert fake_hash_bins.get_delegate.calls == [

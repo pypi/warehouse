@@ -60,16 +60,6 @@ class RolesPayload:
     path_hash_prefixes: Optional[List[str]] = None
 
 
-@dataclass
-class TargetsPayload:
-    """
-    Container for target files info, suitable for targets metadata.
-    """
-
-    fileinfo: Dict[str, Any]
-    path: str
-
-
 class MetadataRepository:
     """
     TUF metadata repository abstraction to create and maintain role metadata.
@@ -438,7 +428,7 @@ class MetadataRepository:
 
     def add_targets(
         self,
-        payload: Dict[str, List[TargetsPayload]],
+        payload: Dict[str, List[TargetFile]],
         key_rolename: str,
     ) -> Metadata[Snapshot]:
         """
@@ -465,8 +455,7 @@ class MetadataRepository:
         for rolename, targets in payload.items():
             role_metadata = self.load_role(rolename)
             for target in targets:
-                target_file = TargetFile.from_dict(target.fileinfo, target.path)
-                role_metadata.signed.targets[target.path] = target_file
+                role_metadata.signed.targets[target.path] = target
 
             role_metadata.signed.version += 1
             role_keys = self.key_backend.get(key_rolename)
