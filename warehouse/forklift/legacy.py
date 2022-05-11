@@ -1223,6 +1223,7 @@ def file_upload(request):
             tag="project:release:add",
             ip_address=request.remote_addr,
             additional={
+                "ephemeral": request.user is None,
                 "submitted_by": request.user.username
                 if request.user
                 else "OpenID created ephemeral token",
