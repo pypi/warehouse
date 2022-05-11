@@ -2322,7 +2322,7 @@ msgstr ""
 
 #: warehouse/templates/manage/account.html:504
 #: warehouse/templates/manage/account.html:523
-#: warehouse/templates/manage/history.html:89
+#: warehouse/templates/manage/history.html:94
 msgid "Reason:"
 msgstr ""
 
@@ -2452,19 +2452,19 @@ msgid "Recovery code used for login"
 msgstr ""
 
 #: warehouse/templates/manage/account.html:609
-#: warehouse/templates/manage/history.html:65
+#: warehouse/templates/manage/history.html:70
 msgid "API token added"
 msgstr ""
 
 #: warehouse/templates/manage/account.html:611
 #: warehouse/templates/manage/account.html:634
-#: warehouse/templates/manage/history.html:74
-#: warehouse/templates/manage/history.html:81
+#: warehouse/templates/manage/history.html:79
+#: warehouse/templates/manage/history.html:86
 msgid "Token name:"
 msgstr ""
 
 #: warehouse/templates/manage/account.html:628
-#: warehouse/templates/manage/history.html:77
+#: warehouse/templates/manage/history.html:82
 msgid "API token removed"
 msgstr ""
 
@@ -2495,21 +2495,21 @@ msgid "Recent account activity"
 msgstr ""
 
 #: warehouse/templates/manage/account.html:657
-#: warehouse/templates/manage/history.html:112
+#: warehouse/templates/manage/history.html:117
 msgid "Event"
 msgstr ""
 
 #: warehouse/templates/manage/account.html:658
 #: warehouse/templates/manage/account.html:666
-#: warehouse/templates/manage/history.html:113
-#: warehouse/templates/manage/history.html:122
+#: warehouse/templates/manage/history.html:118
+#: warehouse/templates/manage/history.html:127
 msgid "Date / time"
 msgstr ""
 
 #: warehouse/templates/manage/account.html:659
 #: warehouse/templates/manage/account.html:670
-#: warehouse/templates/manage/history.html:114
-#: warehouse/templates/manage/history.html:126
+#: warehouse/templates/manage/history.html:119
+#: warehouse/templates/manage/history.html:131
 msgid "IP address"
 msgstr ""
 
@@ -2634,90 +2634,90 @@ msgid "<a href=\"%(href)s\">Release version %(version)s</a> created"
 msgstr ""
 
 #: warehouse/templates/manage/history.html:36
-#: warehouse/templates/manage/history.html:52
-msgid "Added by:"
-msgstr ""
-
-#: warehouse/templates/manage/history.html:39
-#, python-format
-msgid "Release version %(version)s removed"
-msgstr ""
-
-#: warehouse/templates/manage/history.html:41
-#: warehouse/templates/manage/history.html:47
 #: warehouse/templates/manage/history.html:57
-msgid "Removed by:"
+msgid "Added by:"
 msgstr ""
 
 #: warehouse/templates/manage/history.html:44
 #, python-format
+msgid "Release version %(version)s removed"
+msgstr ""
+
+#: warehouse/templates/manage/history.html:46
+#: warehouse/templates/manage/history.html:52
+#: warehouse/templates/manage/history.html:62
+msgid "Removed by:"
+msgstr ""
+
+#: warehouse/templates/manage/history.html:49
+#, python-format
 msgid "File removed from release version %(version)s"
 msgstr ""
 
-#: warehouse/templates/manage/history.html:45
+#: warehouse/templates/manage/history.html:50
 #: warehouse/templates/manage/release.html:99
 msgid "Filename:"
 msgstr ""
 
-#: warehouse/templates/manage/history.html:50
+#: warehouse/templates/manage/history.html:55
 #, python-format
 msgid "<a href=\"%(href)s\">%(username)s</a> added as project %(role_name)s"
 msgstr ""
 
-#: warehouse/templates/manage/history.html:55
+#: warehouse/templates/manage/history.html:60
 #, python-format
 msgid "<a href=\"%(href)s\">%(username)s</a> removed as project %(role_name)s"
 msgstr ""
 
-#: warehouse/templates/manage/history.html:60
+#: warehouse/templates/manage/history.html:65
 #, python-format
 msgid "<a href=\"%(href)s\">%(username)s</a> changed to project %(role_name)s"
 msgstr ""
 
-#: warehouse/templates/manage/history.html:62
+#: warehouse/templates/manage/history.html:67
 msgid "Changed by:"
 msgstr ""
 
-#: warehouse/templates/manage/history.html:67
-#: warehouse/templates/manage/history.html:79
+#: warehouse/templates/manage/history.html:72
+#: warehouse/templates/manage/history.html:84
 msgid "Permissions: Can upload to this project"
 msgstr ""
 
-#: warehouse/templates/manage/history.html:69
-#: warehouse/templates/manage/history.html:80
+#: warehouse/templates/manage/history.html:74
+#: warehouse/templates/manage/history.html:85
 msgid "Controlled by:"
 msgstr ""
 
-#: warehouse/templates/manage/history.html:72
+#: warehouse/templates/manage/history.html:77
 msgid "Expires at:"
 msgstr ""
 
-#: warehouse/templates/manage/history.html:84
+#: warehouse/templates/manage/history.html:89
 #, python-format
 msgid "Release version %(version)s yanked"
 msgstr ""
 
-#: warehouse/templates/manage/history.html:86
+#: warehouse/templates/manage/history.html:91
 msgid "Yanked by:"
 msgstr ""
 
-#: warehouse/templates/manage/history.html:93
+#: warehouse/templates/manage/history.html:98
 msgid "2FA requirement enabled"
 msgstr ""
 
-#: warehouse/templates/manage/history.html:95
+#: warehouse/templates/manage/history.html:100
 msgid "Enabled by:"
 msgstr ""
 
-#: warehouse/templates/manage/history.html:98
+#: warehouse/templates/manage/history.html:103
 msgid "2FA requirement disabled"
 msgstr ""
 
-#: warehouse/templates/manage/history.html:100
+#: warehouse/templates/manage/history.html:105
 msgid "Disabled by:"
 msgstr ""
 
-#: warehouse/templates/manage/history.html:109
+#: warehouse/templates/manage/history.html:114
 #, python-format
 msgid "Security history for %(project_name)s"
 msgstr ""
