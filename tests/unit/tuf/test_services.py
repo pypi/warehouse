@@ -342,45 +342,6 @@ class TestRepositoryService:
         assert result.number_of_prefixes == 65536
         assert result.bin_size == 4
 
-    def test__make_fileinfo(self):
-        fake_request = pretend.stub()
-        fake_storage = pretend.stub()
-        fake_key_storage = pretend.stub()
-        service = services.RepositoryService(
-            fake_storage, fake_key_storage, fake_request
-        )
-
-        fake_file = pretend.stub()
-        fake_file.blake2_256_digest = "sdfaslkajsdfkjhadsljkhfsdjkh"
-        fake_file.size = 1024
-
-        result = service._make_fileinfo(fake_file)
-
-        assert result == {
-            "hashes": {"blake2b-256": "sdfaslkajsdfkjhadsljkhfsdjkh"},
-            "length": 1024,
-        }
-
-    def test__make_fileinfo_with_custom(self):
-        fake_request = pretend.stub()
-        fake_storage = pretend.stub()
-        fake_key_storage = pretend.stub()
-        service = services.RepositoryService(
-            fake_storage, fake_key_storage, fake_request
-        )
-
-        fake_file = pretend.stub()
-        fake_file.blake2_256_digest = "sdfaslkajsdfkjhadsljkhfsdjkh"
-        fake_file.size = 1024
-
-        result = service._make_fileinfo(fake_file, custom={"backsigned": True})
-
-        assert result == {
-            "hashes": {"blake2b-256": "sdfaslkajsdfkjhadsljkhfsdjkh"},
-            "length": 1024,
-            "custom": {"backsigned": True},
-        }
-
     def test__set_expiration_for_role_development(self, db_request, monkeypatch):
         fake_storage = pretend.stub()
         fake_key_storage = pretend.stub()

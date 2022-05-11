@@ -180,22 +180,6 @@ class RepositoryService:
 
         return HashBins(number_of_bins)
 
-    def _make_fileinfo(self, file, custom=None):
-        """
-        Returns a TUF-compliant 'fileinfo' dictionary suitable for targets metadata.
-
-        The optional 'custom' kwarg can be used for additional metadata about target
-        files (e.g., to indicate backsigning).
-        """
-        hashes = {"blake2b-256": file.blake2_256_digest}
-        fileinfo = dict()
-        fileinfo["length"] = file.size
-        fileinfo["hashes"] = hashes
-        if custom:
-            fileinfo["custom"] = custom
-
-        return fileinfo
-
     def _set_expiration_for_role(self, role_name):
         """
         Returns a metadata expiration date (now + role-specific interval).
