@@ -131,6 +131,11 @@ class IOrganizationService(Interface):
         Delete an organization for the specified organization id
         """
 
+    def rename_organization(organization_id, name):
+        """
+        Performs operations necessary to rename an Organization
+        """
+
     def record_event(organization_id, *, tag, additional=None):
         """
         Creates a new Organization.Event for the given organization with the given

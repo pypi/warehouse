@@ -315,6 +315,19 @@ class DatabaseOrganizationService:
         self.db.delete(organization)
         self.db.flush()
 
+    def rename_organization(self, organization_id, name):
+        """
+        Performs operations necessary to rename an Organization
+        """
+        organization = self.get_organization(organization_id)
+
+        organization.name = name
+        self.db.flush()
+
+        self.add_catalog_entry(organization_id)
+
+        return organization
+
     def record_event(self, organization_id, *, tag, additional=None):
         """
         Creates a new Organization.Event for the given organization with the given
