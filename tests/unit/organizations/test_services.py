@@ -350,3 +350,20 @@ class TestDatabaseOrganizationService:
             )
         )
         assert organization_service.get_organization(organization.id) is None
+
+    def test_rename_organization(self, organization_service, db_request):
+        organization = OrganizationFactory.create()
+
+        organization_service.rename_organization(organization.id, "some_new_name")
+        assert organization.name == "some_new_name"
+
+        db_organization = organization_service.get_organization(organization.id)
+        assert db_organization.name == "some_new_name"
+
+        assert (
+            db_request.db.query(OrganizationNameCatalog)
+            .filter(
+                OrganizationNameCatalog.normalized_name == organization.normalized_name
+            )
+            .count()
+        )
