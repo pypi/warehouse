@@ -14,6 +14,7 @@ import enum
 
 from pyramid.authorization import Authenticated
 from pyramid.interfaces import ISecurityPolicy
+from pyramid.security import Denied
 from zope.interface import implementer
 
 from warehouse.accounts.models import User
@@ -101,6 +102,8 @@ class MultiSecurityPolicy:
                 principals.extend(_principals_for_authenticated_user(identity))
             elif isinstance(identity, Project):
                 principals.append(f"project:{identity.id}")
+            else:
+                return Denied("unknown identity")
 
         # NOTE: Observe that the parameters passed into the underlying AuthZ
         # policy here are not the same (or in the same order) as the ones
