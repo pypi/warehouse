@@ -39,7 +39,12 @@ class NullOIDCProviderService:
         )
 
     def verify_for_project(self, token, project):
-        return True
+        unverified_payload = jwt.decode(token, verify_signature=False)
+
+        return any(
+            provider.verify_claims(unverified_payload)
+            for provider in project.oidc_providers
+        )
 
 
 @implementer(IOIDCProviderService)
