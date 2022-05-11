@@ -3246,18 +3246,18 @@ msgstr ""
 msgid "Enter your password to continue."
 msgstr ""
 
-#: warehouse/templates/manage/manage_project_base.html:21
+#: warehouse/templates/manage/manage_project_base.html:20
 #, python-format
 msgid "Manage '%(project_name)s'"
 msgstr ""
 
-#: warehouse/templates/manage/manage_project_base.html:32
+#: warehouse/templates/manage/manage_project_base.html:31
 #: warehouse/templates/manage/projects.html:58
 #, python-format
 msgid "Your projects (%(project_count)s)"
 msgstr ""
 
-#: warehouse/templates/manage/manage_project_base.html:41
+#: warehouse/templates/manage/manage_project_base.html:40
 msgid "Back to projects"
 msgstr ""
 
@@ -3275,7 +3275,7 @@ msgstr ""
 msgid "Created %(creation_date)s"
 msgstr ""
 
-#: warehouse/templates/manage/organization/manage_organization_base.html:32
+#: warehouse/templates/manage/organization/manage_organization_base.html:31
 #: warehouse/templates/manage/organizations.html:49
 #, python-format
 msgid "Your organizations (%(organization_count)s)"
@@ -4450,12 +4450,12 @@ msgid ""
 " not work with PyPI."
 msgstr ""
 
-#: warehouse/templates/manage/organization/manage_organization_base.html:21
+#: warehouse/templates/manage/organization/manage_organization_base.html:20
 #, python-format
 msgid "Manage '%(organization_name)s'"
 msgstr ""
 
-#: warehouse/templates/manage/organization/manage_organization_base.html:41
+#: warehouse/templates/manage/organization/manage_organization_base.html:40
 msgid "Back to organizations"
 msgstr ""
 

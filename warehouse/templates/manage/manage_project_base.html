@@ -15,7 +15,6 @@
 
 {% set user = request.user %}
 {% set projects = user.projects %}
-{% set current_project = project %}
 {% set active_tab = active_tab|default('releases') %}
 
 {% block title %}{% trans project_name=project.name %}Manage '{{ project_name }}'{% endtrans %}{% endblock %}
