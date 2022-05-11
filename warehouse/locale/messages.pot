@@ -2221,6 +2221,10 @@ msgid "People"
 msgstr ""
 
 #: warehouse/templates/includes/manage/manage-organization-menu.html:31
+msgid "Teams"
+msgstr ""
+
+#: warehouse/templates/includes/manage/manage-organization-menu.html:37
 #: warehouse/templates/includes/manage/manage-project-menu.html:59
 msgid "Settings"
 msgstr ""
