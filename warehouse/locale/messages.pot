@@ -2137,6 +2137,11 @@ msgstr ""
 msgid "People"
 msgstr ""
 
+#: warehouse/templates/includes/manage/manage-organization-menu.html:25
+#: warehouse/templates/includes/manage/manage-project-menu.html:59
+msgid "Settings"
+msgstr ""
+
 #: warehouse/templates/includes/manage/manage-project-menu.html:14
 #, python-format
 msgid "Navigation for managing %(project)s"
@@ -2168,10 +2173,6 @@ msgstr ""
 
 #: warehouse/templates/includes/manage/manage-project-menu.html:52
 msgid "Publishing"
-msgstr ""
-
-#: warehouse/templates/includes/manage/manage-project-menu.html:59
-msgid "Settings"
 msgstr ""
 
 #: warehouse/templates/includes/packaging/project-data.html:17
