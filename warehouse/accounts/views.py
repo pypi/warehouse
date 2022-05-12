@@ -843,9 +843,9 @@ def verify_organization_role(request):
         token = request.params.get("token")
         data = token_service.loads(token)
     except TokenExpired:
-        return _error(request._("Expired token: request a new organization invite"))
+        return _error(request._("Expired token: request a new organization invitation"))
     except TokenInvalid:
-        return _error(request._("Invalid token: request a new organization invite"))
+        return _error(request._("Invalid token: request a new organization invitation"))
     except TokenMissing:
         return _error(request._("Invalid token: no token supplied"))
 
@@ -1010,9 +1010,9 @@ def verify_project_role(request):
         token = request.params.get("token")
         data = token_service.loads(token)
     except TokenExpired:
-        return _error(request._("Expired token: request a new project role invite"))
+        return _error(request._("Expired token: request a new project role invitation"))
     except TokenInvalid:
-        return _error(request._("Invalid token: request a new project role invite"))
+        return _error(request._("Invalid token: request a new project role invitation"))
     except TokenMissing:
         return _error(request._("Invalid token: no token supplied"))
 

@@ -194,11 +194,11 @@ msgid "Email address ${email_address} verified. ${confirm_message}."
 msgstr ""
 
 #: warehouse/accounts/views.py:846
-msgid "Expired token: request a new organization invite"
+msgid "Expired token: request a new organization invitation"
 msgstr ""
 
 #: warehouse/accounts/views.py:848
-msgid "Invalid token: request a new organization invite"
+msgid "Invalid token: request a new organization invitation"
 msgstr ""
 
 #: warehouse/accounts/views.py:854
@@ -222,11 +222,11 @@ msgid "You are now ${role} of the '${organization_name}' organization."
 msgstr ""
 
 #: warehouse/accounts/views.py:1013
-msgid "Expired token: request a new project role invite"
+msgid "Expired token: request a new project role invitation"
 msgstr ""
 
 #: warehouse/accounts/views.py:1015
-msgid "Invalid token: request a new project role invite"
+msgid "Invalid token: request a new project role invitation"
 msgstr ""
 
 #: warehouse/accounts/views.py:1021

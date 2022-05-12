@@ -2262,8 +2262,8 @@ class TestVerifyOrganizationRole:
     @pytest.mark.parametrize(
         ("exception", "message"),
         [
-            (TokenInvalid, "Invalid token: request a new organization invite"),
-            (TokenExpired, "Expired token: request a new organization invite"),
+            (TokenInvalid, "Invalid token: request a new organization invitation"),
+            (TokenExpired, "Expired token: request a new organization invitation"),
             (TokenMissing, "Invalid token: no token supplied"),
         ],
     )
@@ -2596,8 +2596,8 @@ class TestVerifyProjectRole:
     @pytest.mark.parametrize(
         ("exception", "message"),
         [
-            (TokenInvalid, "Invalid token: request a new project role invite"),
-            (TokenExpired, "Expired token: request a new project role invite"),
+            (TokenInvalid, "Invalid token: request a new project role invitation"),
+            (TokenExpired, "Expired token: request a new project role invitation"),
             (TokenMissing, "Invalid token: no token supplied"),
         ],
     )
