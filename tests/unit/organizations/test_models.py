@@ -75,11 +75,10 @@ class TestOrganization:
 
             acls.extend(acl)
 
-        # assert acls == [
-        #     (Allow, "group:admins", "manage:organization"),
-        #     (Allow, "group:moderators", "manage:team"),
-        # ] +
-        assert acls == sorted(
+        assert acls == [
+            (Allow, "group:admins", "admin"),
+            (Allow, "group:moderators", "moderator"),
+        ] + sorted(
             [
                 (
                     Allow,

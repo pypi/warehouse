@@ -174,16 +174,10 @@ class Organization(HasEvents, db.Model):
     def __acl__(self):
         session = orm.object_session(self)
 
-        # TODO: The "group:admins" and "group:moderators" principals
-        #           automatically get granted permissions in projects
-        #       Should do something similar in organizations?
-
-        # acls = [
-        #     (Allow, "group:admins", "manage:organization"),
-        #     (Allow, "group:moderators", "manage:team"),
-        # ]
-
-        acls = []
+        acls = [
+            (Allow, "group:admins", "admin"),
+            (Allow, "group:moderators", "moderator"),
+        ]
 
         # Get all of the users for this organization.
         query = session.query(OrganizationRole).filter(
