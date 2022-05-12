@@ -851,7 +851,7 @@ def verify_organization_role(request):
 
     # Check whether this token is being used correctly
     if data.get("action") != "email-organization-role-verify":
-        return _error(request._("Invalid token: not a collaboration invitation token"))
+        return _error(request._("Invalid token: not an organization invitation token"))
 
     user = user_service.get_user(data.get("user_id"))
     if user != request.user:

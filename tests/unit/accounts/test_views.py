@@ -2295,7 +2295,7 @@ class TestVerifyOrganizationRole:
         assert db_request.route_path.calls == [pretend.call("manage.organizations")]
         assert db_request.session.flash.calls == [
             pretend.call(
-                "Invalid token: not a collaboration invitation token", queue="error"
+                "Invalid token: not an organization invitation token", queue="error"
             )
         ]
 

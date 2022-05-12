@@ -201,8 +201,8 @@ msgstr ""
 msgid "Invalid token: request a new organization invite"
 msgstr ""
 
-#: warehouse/accounts/views.py:854 warehouse/accounts/views.py:1021
-msgid "Invalid token: not a collaboration invitation token"
+#: warehouse/accounts/views.py:854
+msgid "Invalid token: not an organization invitation token"
 msgstr ""
 
 #: warehouse/accounts/views.py:858
@@ -227,6 +227,10 @@ msgstr ""
 
 #: warehouse/accounts/views.py:1015
 msgid "Invalid token: request a new project role invite"
+msgstr ""
+
+#: warehouse/accounts/views.py:1021
+msgid "Invalid token: not a collaboration invitation token"
 msgstr ""
 
 #: warehouse/accounts/views.py:1025
