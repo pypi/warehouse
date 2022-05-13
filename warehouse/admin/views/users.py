@@ -59,7 +59,8 @@ def user_list(request):
             else:
                 filters.append(User.username.ilike(term))
 
-        users_query = users_query.filter(or_(*filters))
+        filters = filters or [True]
+        users_query = users_query.filter(or_(False, *filters))
 
     users = SQLAlchemyORMPage(
         users_query,
