@@ -2727,18 +2727,28 @@ class TestManageOrganizationSettings:
         assert organization_service.update_organization.calls == []
 
     def test_save_organization_name(
-        self, db_request, organization_service, monkeypatch
+        self, db_request, pyramid_user, organization_service, user_service, monkeypatch
     ):
-        organization = OrganizationFactory.create()
+        organization = OrganizationFactory.create(name="old-name")
         db_request.POST = {
             "confirm_current_organization_name": organization.name,
             "name": "new-name",
         }
 
+        def rename_organization(organization_id, organization_name):
+            organization.name = organization_name
+
         monkeypatch.setattr(
             organization_service,
             "rename_organization",
-            pretend.call_recorder(lambda *a, **kw: None),
+            pretend.call_recorder(rename_organization),
+        )
+
+        admins = []
+        monkeypatch.setattr(
+            user_service,
+            "get_admins",
+            pretend.call_recorder(lambda *a, **kw: admins),
         )
 
         save_organization_obj = pretend.stub()
@@ -2757,6 +2767,13 @@ class TestManageOrganizationSettings:
             views, "SaveOrganizationNameForm", save_organization_name_cls
         )
 
+        send_email = pretend.call_recorder(lambda *a, **kw: None)
+        monkeypatch.setattr(views, "send_admin_organization_renamed_email", send_email)
+        monkeypatch.setattr(views, "send_organization_renamed_email", send_email)
+        monkeypatch.setattr(
+            views, "organization_owners", lambda *a, **kw: [pyramid_user]
+        )
+
         view = views.ManageOrganizationSettingsViews(organization, db_request)
         result = view.save_organization_name()
 
@@ -2764,20 +2781,37 @@ class TestManageOrganizationSettings:
         assert organization_service.rename_organization.calls == [
             pretend.call(organization.id, "new-name")
         ]
+        assert send_email.calls == [
+            pretend.call(
+                db_request,
+                admins,
+                organization_name="new-name",
+                previous_organization_name="old-name",
+            ),
+            pretend.call(
+                db_request,
+                {pyramid_user},
+                organization_name="new-name",
+                previous_organization_name="old-name",
+            ),
+        ]
 
     def test_save_organization_name_validation_fails(
         self, db_request, organization_service, monkeypatch
     ):
-        organization = OrganizationFactory.create()
+        organization = OrganizationFactory.create(name="old-name")
         db_request.POST = {
             "confirm_current_organization_name": organization.name,
             "name": "new-name",
         }
 
+        def rename_organization(organization_id, organization_name):
+            organization.name = organization_name
+
         monkeypatch.setattr(
             organization_service,
             "rename_organization",
-            pretend.call_recorder(lambda *a, **kw: None),
+            pretend.call_recorder(rename_organization),
         )
 
         save_organization_obj = pretend.stub()
@@ -2803,7 +2837,7 @@ class TestManageOrganizationSettings:
         assert organization_service.rename_organization.calls == []
 
     def test_delete_organization(
-        self, db_request, pyramid_user, organization_service, monkeypatch
+        self, db_request, pyramid_user, organization_service, user_service, monkeypatch
     ):
         organization = OrganizationFactory.create()
         db_request.POST = {"confirm_organization_name": organization.name}
@@ -2817,6 +2851,20 @@ class TestManageOrganizationSettings:
             pretend.call_recorder(lambda *a, **kw: None),
         )
 
+        admins = []
+        monkeypatch.setattr(
+            user_service,
+            "get_admins",
+            pretend.call_recorder(lambda *a, **kw: admins),
+        )
+
+        send_email = pretend.call_recorder(lambda *a, **kw: None)
+        monkeypatch.setattr(views, "send_admin_organization_deleted_email", send_email)
+        monkeypatch.setattr(views, "send_organization_deleted_email", send_email)
+        monkeypatch.setattr(
+            views, "organization_owners", lambda *a, **kw: [pyramid_user]
+        )
+
         view = views.ManageOrganizationSettingsViews(organization, db_request)
         result = view.delete_organization()
 
@@ -2824,6 +2872,18 @@ class TestManageOrganizationSettings:
         assert result.headers["Location"] == "/manage/organizations/"
         assert organization_service.delete_organization.calls == [
             pretend.call(organization.id)
+        ]
+        assert send_email.calls == [
+            pretend.call(
+                db_request,
+                admins,
+                organization_name=organization.name,
+            ),
+            pretend.call(
+                db_request,
+                {pyramid_user},
+                organization_name=organization.name,
+            ),
         ]
         assert db_request.route_path.calls == [pretend.call("manage.organizations")]
 

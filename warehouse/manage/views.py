@@ -44,6 +44,8 @@ from warehouse.admin.flags import AdminFlagValue
 from warehouse.email import (
     send_account_deletion_email,
     send_admin_new_organization_requested_email,
+    send_admin_organization_deleted_email,
+    send_admin_organization_renamed_email,
     send_canceled_as_invited_organization_member_email,
     send_collaborator_removed_email,
     send_collaborator_role_changed_email,
@@ -51,10 +53,12 @@ from warehouse.email import (
     send_new_organization_requested_email,
     send_oidc_provider_added_email,
     send_oidc_provider_removed_email,
+    send_organization_deleted_email,
     send_organization_member_invite_canceled_email,
     send_organization_member_invited_email,
     send_organization_member_removed_email,
     send_organization_member_role_changed_email,
+    send_organization_renamed_email,
     send_organization_role_verification_email,
     send_password_change_email,
     send_primary_email_change_email,
@@ -1268,9 +1272,23 @@ class ManageOrganizationSettingsViews:
         )
 
         if form.validate():
+            previous_organization_name = self.organization.name
             self.organization_service.rename_organization(
                 self.organization.id,
                 form.name.data,
+            )
+            owner_users = set(organization_owners(self.request, self.organization))
+            send_admin_organization_renamed_email(
+                self.request,
+                self.user_service.get_admins(),
+                organization_name=self.organization.name,
+                previous_organization_name=previous_organization_name,
+            )
+            send_organization_renamed_email(
+                self.request,
+                owner_users,
+                organization_name=self.organization.name,
+                previous_organization_name=previous_organization_name,
             )
             self.request.session.flash(
                 "Organization account name updated", queue="success"
@@ -1306,7 +1324,17 @@ class ManageOrganizationSettingsViews:
 
         self.organization_service.delete_organization(self.organization.id)
 
-        # TODO: Send notification emails to owners and PyPI admins.
+        owner_users = set(organization_owners(self.request, self.organization))
+        send_admin_organization_deleted_email(
+            self.request,
+            self.user_service.get_admins(),
+            organization_name=self.organization.name,
+        )
+        send_organization_deleted_email(
+            self.request,
+            owner_users,
+            organization_name=self.organization.name,
+        )
 
         return HTTPSeeOther(self.request.route_path("manage.organizations"))
 
