@@ -2499,6 +2499,227 @@ class TestOrganizationMemberEmails:
         ]
 
 
+class TestOrganizationRenameEmails:
+    @pytest.fixture
+    def organization_rename(self, pyramid_user):
+        self.user = UserFactory.create()
+        EmailFactory.create(user=self.user, verified=True)
+        self.organization_name = "example"
+        self.previous_organization_name = "examplegroup"
+
+    def test_send_admin_organization_renamed_email(
+        self,
+        db_request,
+        organization_rename,
+        make_email_renderers,
+        send_email,
+    ):
+        subject_renderer, body_renderer, html_renderer = make_email_renderers(
+            "admin-organization-renamed"
+        )
+
+        result = email.send_admin_organization_renamed_email(
+            db_request,
+            self.user,
+            organization_name=self.organization_name,
+            previous_organization_name=self.previous_organization_name,
+        )
+
+        assert result == {
+            "organization_name": self.organization_name,
+            "previous_organization_name": self.previous_organization_name,
+        }
+        subject_renderer.assert_(**result)
+        body_renderer.assert_(**result)
+        html_renderer.assert_(**result)
+        assert db_request.task.calls == [pretend.call(send_email)]
+        assert send_email.delay.calls == [
+            pretend.call(
+                f"{self.user.name} <{self.user.email}>",
+                {
+                    "subject": subject_renderer.string_response,
+                    "body_text": body_renderer.string_response,
+                    "body_html": (
+                        f"<html>\n"
+                        f"<head></head>\n"
+                        f"<body><p>{html_renderer.string_response}</p></body>\n"
+                        f"</html>\n"
+                    ),
+                },
+                {
+                    "tag": "account:email:sent",
+                    "user_id": self.user.id,
+                    "additional": {
+                        "from_": db_request.registry.settings["mail.sender"],
+                        "to": self.user.email,
+                        "subject": subject_renderer.string_response,
+                        "redact_ip": True,
+                    },
+                },
+            )
+        ]
+
+    def test_send_organization_renamed_email(
+        self,
+        db_request,
+        organization_rename,
+        make_email_renderers,
+        send_email,
+    ):
+        subject_renderer, body_renderer, html_renderer = make_email_renderers(
+            "organization-renamed"
+        )
+
+        result = email.send_organization_renamed_email(
+            db_request,
+            self.user,
+            organization_name=self.organization_name,
+            previous_organization_name=self.previous_organization_name,
+        )
+
+        assert result == {
+            "organization_name": self.organization_name,
+            "previous_organization_name": self.previous_organization_name,
+        }
+        subject_renderer.assert_(**result)
+        body_renderer.assert_(**result)
+        html_renderer.assert_(**result)
+        assert db_request.task.calls == [pretend.call(send_email)]
+        assert send_email.delay.calls == [
+            pretend.call(
+                f"{self.user.name} <{self.user.email}>",
+                {
+                    "subject": subject_renderer.string_response,
+                    "body_text": body_renderer.string_response,
+                    "body_html": (
+                        f"<html>\n"
+                        f"<head></head>\n"
+                        f"<body><p>{html_renderer.string_response}</p></body>\n"
+                        f"</html>\n"
+                    ),
+                },
+                {
+                    "tag": "account:email:sent",
+                    "user_id": self.user.id,
+                    "additional": {
+                        "from_": db_request.registry.settings["mail.sender"],
+                        "to": self.user.email,
+                        "subject": subject_renderer.string_response,
+                        "redact_ip": True,
+                    },
+                },
+            )
+        ]
+
+
+class TestOrganizationDeleteEmails:
+    @pytest.fixture
+    def organization_delete(self, pyramid_user):
+        self.user = UserFactory.create()
+        EmailFactory.create(user=self.user, verified=True)
+        self.organization_name = "example"
+
+    def test_send_admin_organization_deleted_email(
+        self,
+        db_request,
+        organization_delete,
+        make_email_renderers,
+        send_email,
+    ):
+        subject_renderer, body_renderer, html_renderer = make_email_renderers(
+            "admin-organization-deleted"
+        )
+
+        result = email.send_admin_organization_deleted_email(
+            db_request,
+            self.user,
+            organization_name=self.organization_name,
+        )
+
+        assert result == {
+            "organization_name": self.organization_name,
+        }
+        subject_renderer.assert_(**result)
+        body_renderer.assert_(**result)
+        html_renderer.assert_(**result)
+        assert db_request.task.calls == [pretend.call(send_email)]
+        assert send_email.delay.calls == [
+            pretend.call(
+                f"{self.user.name} <{self.user.email}>",
+                {
+                    "subject": subject_renderer.string_response,
+                    "body_text": body_renderer.string_response,
+                    "body_html": (
+                        f"<html>\n"
+                        f"<head></head>\n"
+                        f"<body><p>{html_renderer.string_response}</p></body>\n"
+                        f"</html>\n"
+                    ),
+                },
+                {
+                    "tag": "account:email:sent",
+                    "user_id": self.user.id,
+                    "additional": {
+                        "from_": db_request.registry.settings["mail.sender"],
+                        "to": self.user.email,
+                        "subject": subject_renderer.string_response,
+                        "redact_ip": True,
+                    },
+                },
+            )
+        ]
+
+    def test_send_organization_deleted_email(
+        self,
+        db_request,
+        organization_delete,
+        make_email_renderers,
+        send_email,
+    ):
+        subject_renderer, body_renderer, html_renderer = make_email_renderers(
+            "organization-deleted"
+        )
+
+        result = email.send_organization_deleted_email(
+            db_request,
+            self.user,
+            organization_name=self.organization_name,
+        )
+
+        assert result == {
+            "organization_name": self.organization_name,
+        }
+        subject_renderer.assert_(**result)
+        body_renderer.assert_(**result)
+        html_renderer.assert_(**result)
+        assert db_request.task.calls == [pretend.call(send_email)]
+        assert send_email.delay.calls == [
+            pretend.call(
+                f"{self.user.name} <{self.user.email}>",
+                {
+                    "subject": subject_renderer.string_response,
+                    "body_text": body_renderer.string_response,
+                    "body_html": (
+                        f"<html>\n"
+                        f"<head></head>\n"
+                        f"<body><p>{html_renderer.string_response}</p></body>\n"
+                        f"</html>\n"
+                    ),
+                },
+                {
+                    "tag": "account:email:sent",
+                    "user_id": self.user.id,
+                    "additional": {
+                        "from_": db_request.registry.settings["mail.sender"],
+                        "to": self.user.email,
+                        "subject": subject_renderer.string_response,
+                        "redact_ip": True,
+                    },
+                },
+            )
+        ]
+
+
 class TestCollaboratorAddedEmail:
     def test_collaborator_added_email(
         self, pyramid_request, pyramid_config, monkeypatch
