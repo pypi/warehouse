@@ -173,7 +173,7 @@ class Project(SitemapMixin, TwoFactorRequireable, HasEvents, db.Model):
 
     total_size = Column(BigInteger, server_default=sql.text("0"))
 
-    users = orm.relationship(User, secondary=Role.__table__, backref="projects")  # type: ignore # noqa
+    users = orm.relationship(User, secondary=Role.__table__, backref="projects", viewonly=True)  # type: ignore # noqa
 
     releases = orm.relationship(
         "Release",

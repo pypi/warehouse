@@ -165,10 +165,10 @@ class Organization(HasEvents, db.Model):
     )
 
     users = orm.relationship(
-        User, secondary=OrganizationRole.__table__, backref="organizations"  # type: ignore # noqa
+        User, secondary=OrganizationRole.__table__, backref="organizations", viewonly=True  # type: ignore # noqa
     )
     projects = orm.relationship(
-        "Project", secondary=OrganizationProject.__table__, backref="organizations"  # type: ignore # noqa
+        "Project", secondary=OrganizationProject.__table__, backref="organizations", viewonly=True  # type: ignore # noqa
     )
 
     def __acl__(self):
