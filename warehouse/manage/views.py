@@ -1290,9 +1290,8 @@ class ManageOrganizationSettingsViews:
                 tag="organization:rename",
                 ip_address=self.request.remote_addr,
                 additional={
-                    "renamed_by_user_id": str(self.request.user.id),
-                    "organization_name": self.organization.name,
                     "previous_organization_name": previous_organization_name,
+                    "renamed_by_user_id": str(self.request.user.id),
                 },
             )
             owner_users = set(organization_owners(self.request, self.organization))
@@ -1334,7 +1333,6 @@ class ManageOrganizationSettingsViews:
             )
             return self.default_response
 
-        # TODO: Will organization.id remain in OrganizationNameCatalog after deletion?
         self.organization.record_event(
             tag="organization:delete",
             ip_address=self.request.remote_addr,

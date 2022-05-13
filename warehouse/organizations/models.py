@@ -172,6 +172,14 @@ class Organization(HasEvents, db.Model):
         "Project", secondary=OrganizationProject.__table__, backref="organizations"  # type: ignore # noqa
     )
 
+    def record_event(self, *, tag, ip_address, additional={}):
+        """Record organization name in events in case organization is ever deleted."""
+        super().record_event(
+            tag=tag,
+            ip_address=ip_address,
+            additional={"organization_name": self.name, **additional},
+        )
+
     def __acl__(self):
         session = orm.object_session(self)
 
