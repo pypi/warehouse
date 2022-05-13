@@ -21,6 +21,7 @@ from warehouse.organizations.models import (
     OrganizationNameCatalog,
     OrganizationProject,
     OrganizationRole,
+    OrganizationRoleType,
 )
 
 from .accounts import UserFactory
@@ -61,7 +62,7 @@ class OrganizationNameCatalogFactory(WarehouseFactory):
     class Meta:
         model = OrganizationNameCatalog
 
-    name = factory.Faker("orgname")
+    name = factory.Faker("pystr", max_chars=12)
     organization_id = factory.Faker("uuid4", cast_to=None)
 
 
@@ -69,7 +70,7 @@ class OrganizationRoleFactory(WarehouseFactory):
     class Meta:
         model = OrganizationRole
 
-    role_name = "Owner"
+    role_name = OrganizationRoleType.Owner
     user = factory.SubFactory(UserFactory)
     organization = factory.SubFactory(OrganizationFactory)
 

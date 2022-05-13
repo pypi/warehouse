@@ -179,6 +179,11 @@ def test_routes(warehouse):
             "accounts.verify-email", "/account/verify-email/", domain=warehouse
         ),
         pretend.call(
+            "accounts.verify-organization-role",
+            "/account/verify-organization-role/",
+            domain=warehouse,
+        ),
+        pretend.call(
             "accounts.verify-project-role",
             "/account/verify-project-role/",
             domain=warehouse,
@@ -243,6 +248,27 @@ def test_routes(warehouse):
         pretend.call(
             "manage.organization.roles",
             "/manage/organization/{organization_name}/people/",
+            factory="warehouse.organizations.models:OrganizationFactory",
+            traverse="/{organization_name}",
+            domain=warehouse,
+        ),
+        pretend.call(
+            "manage.organization.revoke_invite",
+            "/manage/organization/{organization_name}/people/revoke_invite/",
+            factory="warehouse.organizations.models:OrganizationFactory",
+            traverse="/{organization_name}",
+            domain=warehouse,
+        ),
+        pretend.call(
+            "manage.organization.change_role",
+            "/manage/organization/{organization_name}/people/change/",
+            factory="warehouse.organizations.models:OrganizationFactory",
+            traverse="/{organization_name}",
+            domain=warehouse,
+        ),
+        pretend.call(
+            "manage.organization.delete_role",
+            "/manage/organization/{organization_name}/people/delete/",
             factory="warehouse.organizations.models:OrganizationFactory",
             traverse="/{organization_name}",
             domain=warehouse,

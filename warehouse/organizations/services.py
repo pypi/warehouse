@@ -16,9 +16,12 @@ from sqlalchemy import func
 from sqlalchemy.orm.exc import NoResultFound
 from zope.interface import implementer
 
+from warehouse.accounts.models import User
 from warehouse.organizations.interfaces import IOrganizationService
 from warehouse.organizations.models import (
     Organization,
+    OrganizationInvitation,
+    OrganizationInvitationStatus,
     OrganizationNameCatalog,
     OrganizationRole,
 )
@@ -126,19 +129,141 @@ class DatabaseOrganizationService:
 
         return catalog_entry
 
-    def add_organization_role(self, role_name, user_id, organization_id):
+    def get_organization_role(self, organization_role_id):
         """
-        Adds the organization role to the specified user and org
+        Return the org role object that represents the given org role id,
+        or None if there is no organization role for that ID.
         """
-        organization = self.get_organization(organization_id)
+        return self.db.query(OrganizationRole).get(organization_role_id)
+
+    def get_organization_role_by_user(self, organization_id, user_id):
+        """
+        Gets an organization role for a specified org and user
+        """
+        try:
+            organization_role = (
+                self.db.query(OrganizationRole)
+                .filter(
+                    OrganizationRole.organization_id == organization_id,
+                    OrganizationRole.user_id == user_id,
+                )
+                .one()
+            )
+        except NoResultFound:
+            return
+
+        return organization_role
+
+    def get_organization_roles(self, organization_id):
+        """
+        Gets a list of organization roles for a specified org
+        """
+        return (
+            self.db.query(OrganizationRole)
+            .join(User)
+            .filter(OrganizationRole.organization_id == organization_id)
+            .all()
+        )
+
+    def add_organization_role(self, organization_id, user_id, role_name):
+        """
+        Adds an organization role for the specified org and user
+        """
         role = OrganizationRole(
-            role_name=role_name, user_id=user_id, organization_id=organization.id
+            organization_id=organization_id,
+            user_id=user_id,
+            role_name=role_name,
         )
 
         self.db.add(role)
         self.db.flush()
 
         return role
+
+    def delete_organization_role(self, organization_role_id):
+        """
+        Delete an organization role for a specified organization role id
+        """
+        role = self.get_organization_role(organization_role_id)
+
+        self.db.delete(role)
+        self.db.flush()
+
+    def get_organization_invite(self, organization_invite_id):
+        """
+        Return the org invite object that represents the given org invite id,
+        or None if there is no organization invite for that ID.
+        """
+        return self.db.query(OrganizationInvitation).get(organization_invite_id)
+
+    def get_organization_invite_by_user(self, organization_id, user_id):
+        """
+        Gets an organization invite for a specified org and user
+        """
+        try:
+            organization_invite = (
+                self.db.query(OrganizationInvitation)
+                .filter(
+                    OrganizationInvitation.organization_id == organization_id,
+                    OrganizationInvitation.user_id == user_id,
+                )
+                .one()
+            )
+        except NoResultFound:
+            return
+
+        return organization_invite
+
+    def get_organization_invites(self, organization_id):
+        """
+        Gets a list of organization invites for a specified org
+        """
+        return (
+            self.db.query(OrganizationInvitation)
+            .join(User)
+            .filter(OrganizationInvitation.organization_id == organization_id)
+            .all()
+        )
+
+    def get_organization_invites_by_user(self, user_id):
+        """
+        Gets a list of organization invites for a specified user
+        """
+        return (
+            self.db.query(OrganizationInvitation)
+            .filter(
+                OrganizationInvitation.invite_status
+                == OrganizationInvitationStatus.Pending,
+                OrganizationInvitation.user_id == user_id,
+            )
+            .all()
+        )
+
+    def add_organization_invite(self, organization_id, user_id, invite_token):
+        """
+        Adds an organization invitation for the specified user and org
+        """
+        # organization = self.get_organization(organization_id)
+        organization_invite = OrganizationInvitation(
+            organization_id=organization_id,
+            user_id=user_id,
+            token=invite_token,
+            invite_status=OrganizationInvitationStatus.Pending,
+        )
+
+        self.db.add(organization_invite)
+        self.db.flush()
+
+        return organization_invite
+
+    def delete_organization_invite(self, organization_invite_id):
+        """
+        Delete an organization invite for the specified org invite id
+        """
+        organization_invite = self.get_organization_invite(organization_invite_id)
+
+        self.db.delete(organization_invite)
+        self.db.flush()
 
     def approve_organization(self, organization_id):
         """

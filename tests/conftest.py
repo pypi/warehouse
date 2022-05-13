@@ -38,17 +38,19 @@ from sqlalchemy import event
 
 import warehouse
 
-from warehouse import admin, config, static
+from warehouse import admin, config, email, static
 from warehouse.accounts import services as account_services
-from warehouse.accounts.interfaces import ITokenService
+from warehouse.accounts.interfaces import ITokenService, IUserService
 from warehouse.admin.flags import AdminFlag, AdminFlagValue
 from warehouse.email import services as email_services
 from warehouse.email.interfaces import IEmailSender
 from warehouse.macaroons import services as macaroon_services
 from warehouse.metrics import IMetricsService
 from warehouse.organizations import services as organization_services
+from warehouse.organizations.interfaces import IOrganizationService
 
 from .common.db import Session
+from .common.db.accounts import EmailFactory, UserFactory
 
 
 def pytest_collection_modifyitems(items):
@@ -120,14 +122,18 @@ class _Services:
 
 
 @pytest.fixture
-def pyramid_services(metrics, email_service, token_service):
+def pyramid_services(
+    email_service, metrics, organization_service, token_service, user_service
+):
     services = _Services()
 
     # Register our global services.
-    services.register_service(metrics, IMetricsService, None, name="")
     services.register_service(email_service, IEmailSender, None, name="")
+    services.register_service(metrics, IMetricsService, None, name="")
+    services.register_service(organization_service, IOrganizationService, None, name="")
     services.register_service(token_service, ITokenService, None, name="password")
     services.register_service(token_service, ITokenService, None, name="email")
+    services.register_service(user_service, IUserService, None, name="")
 
     return services
 
@@ -157,6 +163,14 @@ def pyramid_request(pyramid_services, jinja, remote_addr):
 def pyramid_config(pyramid_request):
     with pyramid.testing.testConfig(request=pyramid_request) as config:
         yield config
+
+
+@pytest.fixture
+def pyramid_user(pyramid_request):
+    user = UserFactory.create()
+    EmailFactory.create(user=user, verified=True)
+    pyramid_request.user = user
+    return user
 
 
 @pytest.fixture
@@ -351,7 +365,7 @@ def db_request(pyramid_request, db_session):
     return pyramid_request
 
 
-@pytest.fixture()
+@pytest.fixture
 def enable_organizations(db_request):
     flag = db_request.db.query(AdminFlag).get(
         AdminFlagValue.DISABLE_ORGANIZATIONS.value
@@ -359,6 +373,40 @@ def enable_organizations(db_request):
     flag.enabled = False
     yield
     flag.enabled = True
+
+
+@pytest.fixture
+def send_email(pyramid_request, monkeypatch):
+    send_email_stub = pretend.stub(
+        delay=pretend.call_recorder(lambda *args, **kwargs: None)
+    )
+    pyramid_request.task = pretend.call_recorder(
+        lambda *args, **kwargs: send_email_stub
+    )
+    pyramid_request.registry.settings = {"mail.sender": "noreply@example.com"}
+    monkeypatch.setattr(email, "send_email", send_email_stub)
+    return send_email_stub
+
+
+@pytest.fixture
+def make_email_renderers(pyramid_config):
+    def _make_email_renderers(
+        name,
+        subject="Email Subject",
+        body="Email Body",
+        html="Email HTML Body",
+    ):
+        subject_renderer = pyramid_config.testing_add_renderer(
+            f"email/{name}/subject.txt"
+        )
+        subject_renderer.string_response = subject
+        body_renderer = pyramid_config.testing_add_renderer(f"email/{name}/body.txt")
+        body_renderer.string_response = body
+        html_renderer = pyramid_config.testing_add_renderer(f"email/{name}/body.html")
+        html_renderer.string_response = html
+        return subject_renderer, body_renderer, html_renderer
+
+    return _make_email_renderers
 
 
 class _TestApp(_webtest.TestApp):

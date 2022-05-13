@@ -56,12 +56,18 @@ from warehouse.admin.flags import AdminFlagValue
 from warehouse.cache.origin import origin_cache
 from warehouse.email import (
     send_added_as_collaborator_email,
+    send_added_as_organization_member_email,
     send_collaborator_added_email,
+    send_declined_as_invited_organization_member_email,
     send_email_verification_email,
+    send_organization_member_added_email,
+    send_organization_member_invite_declined_email,
     send_password_change_email,
     send_password_reset_email,
     send_recovery_code_reminder_email,
 )
+from warehouse.organizations.interfaces import IOrganizationService
+from warehouse.organizations.models import OrganizationRole, OrganizationRoleType
 from warehouse.packaging.models import (
     JournalEntry,
     Project,
@@ -817,6 +823,174 @@ def _get_two_factor_data(request, _redirect_to="/"):
 
 
 @view_config(
+    route_name="accounts.verify-organization-role",
+    renderer="accounts/organization-invite-confirmation.html",
+    require_methods=False,
+    uses_session=True,
+    permission="manage:user",
+    has_translations=True,
+)
+def verify_organization_role(request):
+    token_service = request.find_service(ITokenService, name="email")
+    organization_service = request.find_service(IOrganizationService, context=None)
+    user_service = request.find_service(IUserService, context=None)
+
+    def _error(message):
+        request.session.flash(message, queue="error")
+        return HTTPSeeOther(request.route_path("manage.organizations"))
+
+    try:
+        token = request.params.get("token")
+        data = token_service.loads(token)
+    except TokenExpired:
+        return _error(request._("Expired token: request a new organization invitation"))
+    except TokenInvalid:
+        return _error(request._("Invalid token: request a new organization invitation"))
+    except TokenMissing:
+        return _error(request._("Invalid token: no token supplied"))
+
+    # Check whether this token is being used correctly
+    if data.get("action") != "email-organization-role-verify":
+        return _error(request._("Invalid token: not an organization invitation token"))
+
+    user = user_service.get_user(data.get("user_id"))
+    if user != request.user:
+        return _error(request._("Organization invitation is not valid."))
+
+    organization = organization_service.get_organization(data.get("organization_id"))
+    desired_role = data.get("desired_role")
+
+    organization_invite = organization_service.get_organization_invite_by_user(
+        organization.id, user.id
+    )
+    if not organization_invite:
+        return _error(request._("Organization invitation no longer exists."))
+
+    # Use the renderer to bring up a confirmation page
+    # before adding as contributor
+    if request.method == "GET":
+        return {
+            "organization_name": organization.name,
+            "desired_role": desired_role,
+        }
+    elif request.method == "POST" and "decline" in request.POST:
+        organization_service.delete_organization_invite(organization_invite.id)
+        submitter_user = user_service.get_user(data.get("submitter_id"))
+        organization.record_event(
+            tag="organization:organization_role:declined",
+            ip_address=request.remote_addr,
+            additional={
+                "submitted_by_user_id": str(submitter_user.id),
+                "role_name": desired_role,
+                "target_user_id": str(user.id),
+            },
+        )
+        user.record_event(
+            tag="account:organization_role:declined",
+            ip_address=request.remote_addr,
+            additional={
+                "submitted_by_user_id": str(submitter_user.id),
+                "organization_name": organization.name,
+                "role_name": desired_role,
+            },
+        )
+        owner_roles = (
+            request.db.query(OrganizationRole)
+            .filter(OrganizationRole.organization == organization)
+            .filter(OrganizationRole.role_name == OrganizationRoleType.Owner)
+            .all()
+        )
+        owner_users = {owner.user for owner in owner_roles}
+        send_organization_member_invite_declined_email(
+            request,
+            owner_users,
+            user=user,
+            organization_name=organization.name,
+        )
+        send_declined_as_invited_organization_member_email(
+            request,
+            user,
+            organization_name=organization.name,
+        )
+        request.session.flash(
+            request._(
+                "Invitation for '${organization_name}' is declined.",
+                mapping={"organization_name": organization.name},
+            ),
+            queue="success",
+        )
+        return HTTPSeeOther(request.route_path("manage.organizations"))
+
+    organization_service.add_organization_role(
+        organization_id=organization.id,
+        user_id=user.id,
+        role_name=desired_role,
+    )
+    organization_service.delete_organization_invite(organization_invite.id)
+    submitter_user = user_service.get_user(data.get("submitter_id"))
+    organization.record_event(
+        tag="organization:organization_role:accepted",
+        ip_address=request.remote_addr,
+        additional={
+            "submitted_by_user_id": str(submitter_user.id),
+            "role_name": desired_role,
+            "target_user_id": str(user.id),
+        },
+    )
+    user.record_event(
+        tag="account:organization_role:accepted",
+        ip_address=request.remote_addr,
+        additional={
+            "submitted_by_user_id": str(submitter_user.id),
+            "organization_name": organization.name,
+            "role_name": desired_role,
+        },
+    )
+
+    owner_roles = (
+        request.db.query(OrganizationRole)
+        .filter(OrganizationRole.organization == organization)
+        .filter(OrganizationRole.role_name == OrganizationRoleType.Owner)
+        .all()
+    )
+    owner_users = {owner.user for owner in owner_roles}
+
+    # Don't send email to new user if they are now an owner
+    owner_users.discard(user)
+
+    send_organization_member_added_email(
+        request,
+        owner_users,
+        user=user,
+        submitter=submitter_user,
+        organization_name=organization.name,
+        role=desired_role,
+    )
+
+    send_added_as_organization_member_email(
+        request,
+        user,
+        submitter=submitter_user,
+        organization_name=organization.name,
+        role=desired_role,
+    )
+
+    request.session.flash(
+        request._(
+            "You are now ${role} of the '${organization_name}' organization.",
+            mapping={"organization_name": organization.name, "role": desired_role},
+        ),
+        queue="success",
+    )
+
+    return HTTPSeeOther(
+        request.route_path(
+            "manage.organization.roles", organization_name=organization.name
+        )
+    )
+
+
+@view_config(
     route_name="accounts.verify-project-role",
     renderer="accounts/invite-confirmation.html",
     require_methods=False,
@@ -836,9 +1010,9 @@ def verify_project_role(request):
         token = request.params.get("token")
         data = token_service.loads(token)
     except TokenExpired:
-        return _error(request._("Expired token: request a new project role invite"))
+        return _error(request._("Expired token: request a new project role invitation"))
     except TokenInvalid:
-        return _error(request._("Invalid token: request a new project role invite"))
+        return _error(request._("Invalid token: request a new project role invitation"))
     except TokenMissing:
         return _error(request._("Invalid token: no token supplied"))
 

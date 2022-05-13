@@ -166,6 +166,11 @@ def includeme(config):
         "accounts.verify-email", "/account/verify-email/", domain=warehouse
     )
     config.add_route(
+        "accounts.verify-organization-role",
+        "/account/verify-organization-role/",
+        domain=warehouse,
+    )
+    config.add_route(
         "accounts.verify-project-role",
         "/account/verify-project-role/",
         domain=warehouse,
@@ -225,6 +230,27 @@ def includeme(config):
     config.add_route(
         "manage.organization.roles",
         "/manage/organization/{organization_name}/people/",
+        factory="warehouse.organizations.models:OrganizationFactory",
+        traverse="/{organization_name}",
+        domain=warehouse,
+    )
+    config.add_route(
+        "manage.organization.revoke_invite",
+        "/manage/organization/{organization_name}/people/revoke_invite/",
+        factory="warehouse.organizations.models:OrganizationFactory",
+        traverse="/{organization_name}",
+        domain=warehouse,
+    )
+    config.add_route(
+        "manage.organization.change_role",
+        "/manage/organization/{organization_name}/people/change/",
+        factory="warehouse.organizations.models:OrganizationFactory",
+        traverse="/{organization_name}",
+        domain=warehouse,
+    )
+    config.add_route(
+        "manage.organization.delete_role",
+        "/manage/organization/{organization_name}/people/delete/",
         factory="warehouse.organizations.models:OrganizationFactory",
         traverse="/{organization_name}",
         domain=warehouse,

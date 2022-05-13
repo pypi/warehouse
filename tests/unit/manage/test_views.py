@@ -45,6 +45,13 @@ from warehouse.manage import views
 from warehouse.metrics.interfaces import IMetricsService
 from warehouse.oidc.interfaces import TooManyOIDCRegistrations
 from warehouse.organizations.interfaces import IOrganizationService
+from warehouse.organizations.models import (
+    OrganizationInvitation,
+    OrganizationInvitationStatus,
+    OrganizationRole,
+    OrganizationRoleType,
+    OrganizationType,
+)
 from warehouse.packaging.models import (
     File,
     JournalEntry,
@@ -58,7 +65,11 @@ from warehouse.utils.paginate import paginate_url_factory
 from warehouse.utils.project import remove_documentation
 
 from ...common.db.accounts import EmailFactory
-from ...common.db.organizations import OrganizationFactory
+from ...common.db.organizations import (
+    OrganizationFactory,
+    OrganizationInvitationFactory,
+    OrganizationRoleFactory,
+)
 from ...common.db.packaging import (
     FileFactory,
     JournalEntryFactory,
@@ -2326,7 +2337,8 @@ class TestManageOrganizations:
         monkeypatch.setattr(views, "user_organizations", user_organizations)
 
         organization_service = pretend.stub(
-            get_organizations_by_user=lambda *a, **kw: [organization]
+            get_organizations_by_user=lambda *a, **kw: [organization],
+            get_organization_invites_by_user=lambda *a, **kw: [],
         )
         user_service = pretend.stub()
         request = pretend.stub(
@@ -2340,11 +2352,12 @@ class TestManageOrganizations:
         view = views.ManageOrganizationsViews(request)
 
         assert view.default_response == {
-            "create_organization_form": create_organization_obj,
+            "organization_invites": [],
             "organizations": [organization],
             "organizations_managed": [],
             "organizations_owned": [organization.name],
             "organizations_billing": [],
+            "create_organization_form": create_organization_obj,
         }
 
     def test_manage_organizations(self, monkeypatch):
@@ -2469,9 +2482,9 @@ class TestManageOrganizations:
         ]
         assert organization_service.add_organization_role.calls == [
             pretend.call(
-                "Owner",
-                request.user.id,
                 organization.id,
+                request.user.id,
+                OrganizationRoleType.Owner,
             )
         ]
         assert organization_service.record_event.calls == [
@@ -2614,24 +2627,941 @@ class TestManageOrganizations:
 
 
 class TestManageOrganizationRoles:
-    def test_get_manage_organization_roles(self, db_request):
+    def test_get_manage_organization_roles(self, db_request, enable_organizations):
         organization = OrganizationFactory.create(name="foobar")
-        request = pretend.stub(
-            flags=pretend.stub(enabled=pretend.call_recorder(lambda *a: False)),
+        form_obj = pretend.stub()
+
+        def form_class(*a, **kw):
+            return form_obj
+
+        result = views.manage_organization_roles(
+            organization, db_request, _form_class=form_class
         )
-
-        result = views.manage_organization_roles(organization, request)
-
-        assert result == {"organization": organization}
+        assert result == {
+            "organization": organization,
+            "roles": set(),
+            "invitations": set(),
+            "form": form_obj,
+        }
 
     def test_get_manage_organization_roles_disable_organizations(self, db_request):
         organization = OrganizationFactory.create(name="foobar")
-        request = pretend.stub(
-            flags=pretend.stub(enabled=pretend.call_recorder(lambda *a: True)),
-        )
 
         with pytest.raises(HTTPNotFound):
-            views.manage_organization_roles(organization, request)
+            views.manage_organization_roles(organization, db_request)
+
+    @pytest.mark.parametrize("orgtype", list(OrganizationType))
+    def test_post_new_organization_role(
+        self,
+        db_request,
+        orgtype,
+        organization_service,
+        user_service,
+        token_service,
+        enable_organizations,
+        monkeypatch,
+    ):
+        organization = OrganizationFactory.create(name="foobar", orgtype=orgtype)
+        new_user = UserFactory.create(username="new_user")
+        EmailFactory.create(user=new_user, verified=True, primary=True)
+        owner_1 = UserFactory.create(username="owner_1")
+        owner_2 = UserFactory.create(username="owner_2")
+        owner_1_role = OrganizationRoleFactory.create(
+            organization=organization,
+            user=owner_1,
+            role_name=OrganizationRoleType.Owner,
+        )
+        owner_2_role = OrganizationRoleFactory.create(
+            organization=organization,
+            user=owner_2,
+            role_name=OrganizationRoleType.Owner,
+        )
+
+        db_request.method = "POST"
+        db_request.POST = MultiDict(
+            {"username": new_user.username, "role_name": "Owner"}
+        )
+        db_request.user = owner_1
+        db_request.session = pretend.stub(
+            flash=pretend.call_recorder(lambda *a, **kw: None)
+        )
+
+        send_organization_member_invited_email = pretend.call_recorder(
+            lambda r, u, **k: None
+        )
+        monkeypatch.setattr(
+            views,
+            "send_organization_member_invited_email",
+            send_organization_member_invited_email,
+        )
+        send_organization_role_verification_email = pretend.call_recorder(
+            lambda r, u, **k: None
+        )
+        monkeypatch.setattr(
+            views,
+            "send_organization_role_verification_email",
+            send_organization_role_verification_email,
+        )
+
+        result = views.manage_organization_roles(organization, db_request)
+        form_obj = result["form"]
+
+        assert db_request.session.flash.calls == [
+            pretend.call(f"Invitation sent to '{new_user.username}'", queue="success")
+        ]
+
+        # Only one role invitation is created
+        organization_invitation = (
+            db_request.db.query(OrganizationInvitation)
+            .filter(OrganizationInvitation.user == new_user)
+            .filter(OrganizationInvitation.organization == organization)
+            .one()
+        )
+
+        assert result == {
+            "organization": organization,
+            "roles": {owner_1_role, owner_2_role},
+            "invitations": {organization_invitation},
+            "form": form_obj,
+        }
+        assert send_organization_member_invited_email.calls == [
+            pretend.call(
+                db_request,
+                {owner_1, owner_2},
+                user=new_user,
+                desired_role=db_request.POST["role_name"],
+                initiator_username=db_request.user.username,
+                organization_name=organization.name,
+                email_token=token_service.dumps(
+                    {
+                        "action": "email-organization-role-verify",
+                        "desired_role": db_request.POST["role_name"],
+                        "user_id": new_user.id,
+                        "organization_id": organization.id,
+                        "submitter_id": db_request.user.id,
+                    }
+                ),
+                token_age=token_service.max_age,
+            )
+        ]
+        assert send_organization_role_verification_email.calls == [
+            pretend.call(
+                db_request,
+                new_user,
+                desired_role=db_request.POST["role_name"],
+                initiator_username=db_request.user.username,
+                organization_name=organization.name,
+                email_token=token_service.dumps(
+                    {
+                        "action": "email-organization-role-verify",
+                        "desired_role": db_request.POST["role_name"],
+                        "user_id": new_user.id,
+                        "organization_id": organization.id,
+                        "submitter_id": db_request.user.id,
+                    }
+                ),
+                token_age=token_service.max_age,
+            )
+        ]
+
+    def test_post_duplicate_organization_role(
+        self, db_request, organization_service, user_service, enable_organizations
+    ):
+        organization = OrganizationFactory.create(name="foobar")
+        user = UserFactory.create(username="testuser")
+        role = OrganizationRoleFactory.create(
+            organization=organization,
+            user=user,
+            role_name=OrganizationRoleType.Owner,
+        )
+
+        db_request.method = "POST"
+        db_request.POST = pretend.stub()
+        db_request.session = pretend.stub(
+            flash=pretend.call_recorder(lambda *a, **kw: None)
+        )
+        form_obj = pretend.stub(
+            validate=pretend.call_recorder(lambda: True),
+            username=pretend.stub(data=user.username),
+            role_name=pretend.stub(data=role.role_name),
+        )
+        form_class = pretend.call_recorder(lambda *a, **kw: form_obj)
+
+        result = views.manage_organization_roles(
+            organization, db_request, _form_class=form_class
+        )
+
+        assert form_obj.validate.calls == [pretend.call()]
+        assert form_class.calls == [
+            pretend.call(
+                db_request.POST,
+                orgtype=organization.orgtype,
+                organization_service=organization_service,
+                user_service=user_service,
+            ),
+            pretend.call(
+                orgtype=organization.orgtype,
+                organization_service=organization_service,
+                user_service=user_service,
+            ),
+        ]
+        assert db_request.session.flash.calls == [
+            pretend.call(
+                "User 'testuser' already has Owner role for organization", queue="error"
+            )
+        ]
+
+        # No additional roles are created
+        assert role == db_request.db.query(OrganizationRole).one()
+
+        assert result == {
+            "organization": organization,
+            "roles": {role},
+            "invitations": set(),
+            "form": form_obj,
+        }
+
+    @pytest.mark.parametrize("with_email", [True, False])
+    def test_post_unverified_email(
+        self,
+        db_request,
+        organization_service,
+        user_service,
+        enable_organizations,
+        with_email,
+    ):
+        organization = OrganizationFactory.create(name="foobar")
+        user = UserFactory.create(username="testuser")
+        if with_email:
+            EmailFactory.create(user=user, verified=False, primary=True)
+
+        db_request.method = "POST"
+        db_request.POST = pretend.stub()
+        db_request.session = pretend.stub(
+            flash=pretend.call_recorder(lambda *a, **kw: None)
+        )
+        form_obj = pretend.stub(
+            validate=pretend.call_recorder(lambda: True),
+            username=pretend.stub(data=user.username),
+            role_name=pretend.stub(data="Owner"),
+        )
+        form_class = pretend.call_recorder(lambda *a, **kw: form_obj)
+
+        result = views.manage_organization_roles(
+            organization, db_request, _form_class=form_class
+        )
+
+        assert form_obj.validate.calls == [pretend.call()]
+        assert form_class.calls == [
+            pretend.call(
+                db_request.POST,
+                orgtype=organization.orgtype,
+                organization_service=organization_service,
+                user_service=user_service,
+            ),
+            pretend.call(
+                orgtype=organization.orgtype,
+                organization_service=organization_service,
+                user_service=user_service,
+            ),
+        ]
+        assert db_request.session.flash.calls == [
+            pretend.call(
+                "User 'testuser' does not have a verified primary email address "
+                "and cannot be added as a Owner for organization",
+                queue="error",
+            )
+        ]
+
+        # No additional roles are created
+        assert db_request.db.query(OrganizationRole).all() == []
+
+        assert result == {
+            "organization": organization,
+            "roles": set(),
+            "invitations": set(),
+            "form": form_obj,
+        }
+
+    def test_cannot_reinvite_organization_role(
+        self, db_request, organization_service, user_service, enable_organizations
+    ):
+        organization = OrganizationFactory.create(name="foobar")
+        new_user = UserFactory.create(username="new_user")
+        EmailFactory.create(user=new_user, verified=True, primary=True)
+        owner_1 = UserFactory.create(username="owner_1")
+        owner_2 = UserFactory.create(username="owner_2")
+        owner_1_role = OrganizationRoleFactory.create(
+            organization=organization,
+            user=owner_1,
+            role_name=OrganizationRoleType.Owner,
+        )
+        owner_2_role = OrganizationRoleFactory.create(
+            organization=organization,
+            user=owner_2,
+            role_name=OrganizationRoleType.Owner,
+        )
+        token_service = db_request.find_service(ITokenService, name="email")
+        new_organization_invitation = OrganizationInvitationFactory.create(
+            organization=organization,
+            user=new_user,
+            invite_status=OrganizationInvitationStatus.Pending,
+            token=token_service.dumps({"action": "email-organization-role-verify"}),
+        )
+
+        db_request.method = "POST"
+        db_request.POST = pretend.stub()
+        db_request.remote_addr = "10.10.10.10"
+        db_request.user = owner_1
+        db_request.session = pretend.stub(
+            flash=pretend.call_recorder(lambda *a, **kw: None)
+        )
+        form_obj = pretend.stub(
+            validate=pretend.call_recorder(lambda: True),
+            username=pretend.stub(data=new_user.username),
+            role_name=pretend.stub(data="Owner"),
+        )
+        form_class = pretend.call_recorder(lambda *a, **kw: form_obj)
+
+        result = views.manage_organization_roles(
+            organization, db_request, _form_class=form_class
+        )
+
+        assert form_obj.validate.calls == [pretend.call()]
+        assert form_class.calls == [
+            pretend.call(
+                db_request.POST,
+                orgtype=organization.orgtype,
+                organization_service=organization_service,
+                user_service=user_service,
+            ),
+            pretend.call(
+                orgtype=organization.orgtype,
+                organization_service=organization_service,
+                user_service=user_service,
+            ),
+        ]
+        assert db_request.session.flash.calls == [
+            pretend.call(
+                "User 'new_user' already has an active invite. Please try again later.",
+                queue="error",
+            )
+        ]
+
+        assert result == {
+            "organization": organization,
+            "roles": {owner_1_role, owner_2_role},
+            "invitations": {new_organization_invitation},
+            "form": form_obj,
+        }
+
+    def test_reinvite_organization_role_after_expiration(
+        self,
+        db_request,
+        organization_service,
+        user_service,
+        enable_organizations,
+        monkeypatch,
+    ):
+        organization = OrganizationFactory.create(name="foobar")
+        new_user = UserFactory.create(username="new_user")
+        EmailFactory.create(user=new_user, verified=True, primary=True)
+        owner_1 = UserFactory.create(username="owner_1")
+        owner_2 = UserFactory.create(username="owner_2")
+        owner_1_role = OrganizationRoleFactory.create(
+            organization=organization,
+            user=owner_1,
+            role_name=OrganizationRoleType.Owner,
+        )
+        owner_2_role = OrganizationRoleFactory.create(
+            user=owner_2,
+            organization=organization,
+            role_name=OrganizationRoleType.Owner,
+        )
+        token_service = db_request.find_service(ITokenService, name="email")
+        new_organization_invitation = OrganizationInvitationFactory.create(
+            user=new_user,
+            organization=organization,
+            invite_status=OrganizationInvitationStatus.Expired,
+            token=token_service.dumps({}),
+        )
+
+        db_request.method = "POST"
+        db_request.POST = pretend.stub()
+        db_request.remote_addr = "10.10.10.10"
+        db_request.user = owner_1
+        db_request.session = pretend.stub(
+            flash=pretend.call_recorder(lambda *a, **kw: None)
+        )
+        form_obj = pretend.stub(
+            validate=pretend.call_recorder(lambda: True),
+            username=pretend.stub(data=new_user.username),
+            role_name=pretend.stub(data="Owner"),
+        )
+        form_class = pretend.call_recorder(lambda *a, **kw: form_obj)
+
+        send_organization_member_invited_email = pretend.call_recorder(
+            lambda r, u, **k: None
+        )
+        monkeypatch.setattr(
+            views,
+            "send_organization_member_invited_email",
+            send_organization_member_invited_email,
+        )
+        send_organization_role_verification_email = pretend.call_recorder(
+            lambda r, u, **k: None
+        )
+        monkeypatch.setattr(
+            views,
+            "send_organization_role_verification_email",
+            send_organization_role_verification_email,
+        )
+
+        result = views.manage_organization_roles(
+            organization, db_request, _form_class=form_class
+        )
+
+        assert form_obj.validate.calls == [pretend.call()]
+        assert form_class.calls == [
+            pretend.call(
+                db_request.POST,
+                orgtype=organization.orgtype,
+                organization_service=organization_service,
+                user_service=user_service,
+            ),
+            pretend.call(
+                orgtype=organization.orgtype,
+                organization_service=organization_service,
+                user_service=user_service,
+            ),
+        ]
+        assert db_request.session.flash.calls == [
+            pretend.call(f"Invitation sent to '{new_user.username}'", queue="success")
+        ]
+
+        # Only one role invitation is created
+        organization_invitation = (
+            db_request.db.query(OrganizationInvitation)
+            .filter(OrganizationInvitation.user == new_user)
+            .filter(OrganizationInvitation.organization == organization)
+            .one()
+        )
+
+        assert result["invitations"] == {new_organization_invitation}
+        assert result == {
+            "organization": organization,
+            "roles": {owner_1_role, owner_2_role},
+            "invitations": {organization_invitation},
+            "form": form_obj,
+        }
+        assert send_organization_member_invited_email.calls == [
+            pretend.call(
+                db_request,
+                {owner_1, owner_2},
+                user=new_user,
+                desired_role=form_obj.role_name.data,
+                initiator_username=db_request.user.username,
+                organization_name=organization.name,
+                email_token=token_service.dumps(
+                    {
+                        "action": "email-organization-role-verify",
+                        "desired_role": form_obj.role_name.data,
+                        "user_id": new_user.id,
+                        "organization_id": organization.id,
+                        "submitter_id": db_request.user.id,
+                    }
+                ),
+                token_age=token_service.max_age,
+            )
+        ]
+        assert send_organization_role_verification_email.calls == [
+            pretend.call(
+                db_request,
+                new_user,
+                desired_role=form_obj.role_name.data,
+                initiator_username=db_request.user.username,
+                organization_name=organization.name,
+                email_token=token_service.dumps(
+                    {
+                        "action": "email-organization-role-verify",
+                        "desired_role": form_obj.role_name.data,
+                        "user_id": new_user.id,
+                        "organization_id": organization.id,
+                        "submitter_id": db_request.user.id,
+                    }
+                ),
+                token_age=token_service.max_age,
+            )
+        ]
+
+
+class TestRevokeOrganizationInvitation:
+    def test_revoke_invitation(
+        self, db_request, token_service, enable_organizations, monkeypatch
+    ):
+        organization = OrganizationFactory.create(name="foobar")
+        user = UserFactory.create(username="testuser")
+        OrganizationInvitationFactory.create(
+            organization=organization,
+            user=user,
+        )
+        owner_user = UserFactory.create()
+        OrganizationRoleFactory(
+            user=owner_user,
+            organization=organization,
+            role_name=OrganizationRoleType.Owner,
+        )
+
+        db_request.method = "POST"
+        db_request.POST = MultiDict({"user_id": user.id, "token": "TOKEN"})
+        db_request.remote_addr = "10.10.10.10"
+        db_request.user = owner_user
+        db_request.route_path = pretend.call_recorder(
+            lambda *a, **kw: "/manage/organizations"
+        )
+        db_request.session = pretend.stub(
+            flash=pretend.call_recorder(lambda *a, **kw: None)
+        )
+        token_service.loads = pretend.call_recorder(
+            lambda data: {
+                "action": "email-organization-role-verify",
+                "desired_role": "Manager",
+                "user_id": user.id,
+                "organization_id": organization.id,
+                "submitter_id": owner_user.id,
+            }
+        )
+
+        organization_member_invite_canceled_email = pretend.call_recorder(
+            lambda *args, **kwargs: None
+        )
+        monkeypatch.setattr(
+            views,
+            "send_organization_member_invite_canceled_email",
+            organization_member_invite_canceled_email,
+        )
+        canceled_as_invited_organization_member_email = pretend.call_recorder(
+            lambda *args, **kwargs: None
+        )
+        monkeypatch.setattr(
+            views,
+            "send_canceled_as_invited_organization_member_email",
+            canceled_as_invited_organization_member_email,
+        )
+
+        result = views.revoke_organization_invitation(organization, db_request)
+        db_request.db.flush()
+
+        assert not (
+            db_request.db.query(OrganizationInvitation)
+            .filter(OrganizationInvitation.user == user)
+            .filter(OrganizationInvitation.organization == organization)
+            .one_or_none()
+        )
+        assert organization_member_invite_canceled_email.calls == [
+            pretend.call(
+                db_request,
+                {owner_user},
+                user=user,
+                organization_name=organization.name,
+            )
+        ]
+        assert canceled_as_invited_organization_member_email.calls == [
+            pretend.call(
+                db_request,
+                user,
+                organization_name=organization.name,
+            )
+        ]
+        assert db_request.session.flash.calls == [
+            pretend.call(f"Invitation revoked from '{user.username}'.", queue="success")
+        ]
+        assert isinstance(result, HTTPSeeOther)
+        assert result.headers["Location"] == "/manage/organizations"
+
+    def test_invitation_does_not_exist(
+        self, db_request, token_service, enable_organizations
+    ):
+        organization = OrganizationFactory.create(name="foobar")
+        user = UserFactory.create(username="testuser")
+        owner_user = UserFactory.create()
+        OrganizationRoleFactory(
+            user=owner_user,
+            organization=organization,
+            role_name=OrganizationRoleType.Owner,
+        )
+
+        db_request.method = "POST"
+        db_request.POST = MultiDict({"user_id": user.id, "token": "TOKEN"})
+        db_request.remote_addr = "10.10.10.10"
+        db_request.user = owner_user
+        db_request.route_path = pretend.call_recorder(
+            lambda *a, **kw: "/manage/organizations"
+        )
+        db_request.session = pretend.stub(
+            flash=pretend.call_recorder(lambda *a, **kw: None)
+        )
+        token_service.loads = pretend.call_recorder(lambda data: None)
+
+        result = views.revoke_organization_invitation(organization, db_request)
+        db_request.db.flush()
+
+        assert db_request.session.flash.calls == [
+            pretend.call("Could not find organization invitation.", queue="error")
+        ]
+        assert isinstance(result, HTTPSeeOther)
+        assert result.headers["Location"] == "/manage/organizations"
+
+    def test_token_expired(self, db_request, token_service, enable_organizations):
+        organization = OrganizationFactory.create(name="foobar")
+        user = UserFactory.create(username="testuser")
+        OrganizationInvitationFactory.create(
+            organization=organization,
+            user=user,
+        )
+        owner_user = UserFactory.create()
+        OrganizationRoleFactory(
+            user=owner_user,
+            organization=organization,
+            role_name=OrganizationRoleType.Owner,
+        )
+
+        db_request.method = "POST"
+        db_request.POST = MultiDict({"user_id": user.id, "token": "TOKEN"})
+        db_request.remote_addr = "10.10.10.10"
+        db_request.user = owner_user
+        db_request.route_path = pretend.call_recorder(
+            lambda *a, **kw: "/manage/organizations/roles"
+        )
+        db_request.session = pretend.stub(
+            flash=pretend.call_recorder(lambda *a, **kw: None)
+        )
+        token_service.loads = pretend.call_recorder(pretend.raiser(TokenExpired))
+
+        result = views.revoke_organization_invitation(organization, db_request)
+        db_request.db.flush()
+
+        assert not (
+            db_request.db.query(OrganizationInvitation)
+            .filter(OrganizationInvitation.user == user)
+            .filter(OrganizationInvitation.organization == organization)
+            .one_or_none()
+        )
+        assert db_request.session.flash.calls == [
+            pretend.call("Invitation already expired.", queue="success")
+        ]
+        assert isinstance(result, HTTPSeeOther)
+        assert result.headers["Location"] == "/manage/organizations/roles"
+
+
+class TestChangeOrganizationRole:
+    @pytest.mark.parametrize("orgtype", list(OrganizationType))
+    def test_change_role(self, db_request, orgtype, enable_organizations, monkeypatch):
+        organization = OrganizationFactory.create(name="foobar", orgtype=orgtype)
+        user = UserFactory.create(username="testuser")
+        role = OrganizationRoleFactory.create(
+            organization=organization,
+            user=user,
+            role_name=OrganizationRoleType.Owner,
+        )
+        new_role_name = "Manager"
+
+        user_2 = UserFactory.create()
+
+        db_request.method = "POST"
+        db_request.POST = MultiDict({"role_id": role.id, "role_name": new_role_name})
+        db_request.user = user_2
+        db_request.session = pretend.stub(
+            flash=pretend.call_recorder(lambda *a, **kw: None)
+        )
+        db_request.route_path = pretend.call_recorder(lambda *a, **kw: "/the-redirect")
+
+        send_organization_member_role_changed_email = pretend.call_recorder(
+            lambda *a, **kw: None
+        )
+        monkeypatch.setattr(
+            views,
+            "send_organization_member_role_changed_email",
+            send_organization_member_role_changed_email,
+        )
+        send_role_changed_as_organization_member_email = pretend.call_recorder(
+            lambda *a, **kw: None
+        )
+        monkeypatch.setattr(
+            views,
+            "send_role_changed_as_organization_member_email",
+            send_role_changed_as_organization_member_email,
+        )
+
+        result = views.change_organization_role(organization, db_request)
+
+        assert role.role_name == new_role_name
+        assert db_request.route_path.calls == [
+            pretend.call(
+                "manage.organization.roles", organization_name=organization.name
+            )
+        ]
+        assert send_organization_member_role_changed_email.calls == [
+            pretend.call(
+                db_request,
+                set(),
+                user=user,
+                submitter=user_2,
+                organization_name="foobar",
+                role=new_role_name,
+            )
+        ]
+        assert send_role_changed_as_organization_member_email.calls == [
+            pretend.call(
+                db_request,
+                user,
+                submitter=user_2,
+                organization_name="foobar",
+                role=new_role_name,
+            )
+        ]
+        assert db_request.session.flash.calls == [
+            pretend.call("Changed role", queue="success")
+        ]
+        assert isinstance(result, HTTPSeeOther)
+        assert result.headers["Location"] == "/the-redirect"
+
+    def test_change_organization_role_invalid_role_name(
+        self, db_request, enable_organizations
+    ):
+        organization = OrganizationFactory.create(name="foobar")
+
+        db_request.method = "POST"
+        db_request.POST = MultiDict(
+            {"role_id": str(uuid.uuid4()), "role_name": "Invalid Role Name"}
+        )
+        db_request.route_path = pretend.call_recorder(lambda *a, **kw: "/the-redirect")
+
+        result = views.change_organization_role(organization, db_request)
+
+        assert db_request.route_path.calls == [
+            pretend.call(
+                "manage.organization.roles", organization_name=organization.name
+            )
+        ]
+        assert isinstance(result, HTTPSeeOther)
+        assert result.headers["Location"] == "/the-redirect"
+
+    def test_change_missing_organization_role(self, db_request, enable_organizations):
+        organization = OrganizationFactory.create(name="foobar")
+        missing_role_id = str(uuid.uuid4())
+
+        db_request.method = "POST"
+        db_request.POST = MultiDict({"role_id": missing_role_id, "role_name": "Owner"})
+        db_request.user = pretend.stub()
+        db_request.session = pretend.stub(
+            flash=pretend.call_recorder(lambda *a, **kw: None)
+        )
+        db_request.route_path = pretend.call_recorder(lambda *a, **kw: "/the-redirect")
+
+        result = views.change_organization_role(organization, db_request)
+
+        assert db_request.session.flash.calls == [
+            pretend.call("Could not find member", queue="error")
+        ]
+        assert isinstance(result, HTTPSeeOther)
+        assert result.headers["Location"] == "/the-redirect"
+
+    def test_change_own_owner_organization_role(self, db_request, enable_organizations):
+        organization = OrganizationFactory.create(name="foobar")
+        user = UserFactory.create(username="testuser")
+        role = OrganizationRoleFactory.create(
+            user=user, organization=organization, role_name="Owner"
+        )
+
+        db_request.method = "POST"
+        db_request.user = user
+        db_request.POST = MultiDict({"role_id": role.id, "role_name": "Manager"})
+        db_request.session = pretend.stub(
+            flash=pretend.call_recorder(lambda *a, **kw: None)
+        )
+        db_request.route_path = pretend.call_recorder(lambda *a, **kw: "/the-redirect")
+
+        result = views.change_organization_role(organization, db_request)
+
+        assert db_request.session.flash.calls == [
+            pretend.call("Cannot remove yourself as Owner", queue="error")
+        ]
+        assert isinstance(result, HTTPSeeOther)
+        assert result.headers["Location"] == "/the-redirect"
+
+
+class TestDeleteOrganizationRoles:
+    def test_delete_role(self, db_request, enable_organizations, monkeypatch):
+        organization = OrganizationFactory.create(name="foobar")
+        user = UserFactory.create(username="testuser")
+        role = OrganizationRoleFactory.create(
+            organization=organization,
+            user=user,
+            role_name=OrganizationRoleType.Owner,
+        )
+        user_2 = UserFactory.create()
+
+        db_request.method = "POST"
+        db_request.POST = MultiDict({"role_id": role.id})
+        db_request.user = user_2
+        db_request.session = pretend.stub(
+            flash=pretend.call_recorder(lambda *a, **kw: None)
+        )
+        db_request.route_path = pretend.call_recorder(lambda *a, **kw: "/the-redirect")
+
+        send_organization_member_removed_email = pretend.call_recorder(
+            lambda *a, **kw: None
+        )
+        monkeypatch.setattr(
+            views,
+            "send_organization_member_removed_email",
+            send_organization_member_removed_email,
+        )
+        send_removed_as_organization_member_email = pretend.call_recorder(
+            lambda *a, **kw: None
+        )
+        monkeypatch.setattr(
+            views,
+            "send_removed_as_organization_member_email",
+            send_removed_as_organization_member_email,
+        )
+
+        result = views.delete_organization_role(organization, db_request)
+
+        assert db_request.route_path.calls == [
+            pretend.call(
+                "manage.organization.roles", organization_name=organization.name
+            )
+        ]
+        assert db_request.db.query(OrganizationRole).all() == []
+        assert send_organization_member_removed_email.calls == [
+            pretend.call(
+                db_request,
+                set(),
+                user=user,
+                submitter=user_2,
+                organization_name="foobar",
+            )
+        ]
+        assert send_removed_as_organization_member_email.calls == [
+            pretend.call(
+                db_request,
+                user,
+                submitter=user_2,
+                organization_name="foobar",
+            )
+        ]
+        assert db_request.session.flash.calls == [
+            pretend.call("Removed from organization", queue="success")
+        ]
+        assert isinstance(result, HTTPSeeOther)
+        assert result.headers["Location"] == "/the-redirect"
+
+    def test_delete_missing_role(self, db_request, enable_organizations):
+        organization = OrganizationFactory.create(name="foobar")
+        missing_role_id = str(uuid.uuid4())
+
+        db_request.method = "POST"
+        db_request.user = pretend.stub()
+        db_request.POST = MultiDict({"role_id": missing_role_id})
+        db_request.session = pretend.stub(
+            flash=pretend.call_recorder(lambda *a, **kw: None)
+        )
+        db_request.route_path = pretend.call_recorder(lambda *a, **kw: "/the-redirect")
+
+        result = views.delete_organization_role(organization, db_request)
+
+        assert db_request.session.flash.calls == [
+            pretend.call("Could not find member", queue="error")
+        ]
+        assert isinstance(result, HTTPSeeOther)
+        assert result.headers["Location"] == "/the-redirect"
+
+    def test_delete_other_role_as_nonowner(self, db_request, enable_organizations):
+        organization = OrganizationFactory.create(name="foobar")
+        user = UserFactory.create(username="testuser")
+        role = OrganizationRoleFactory.create(
+            organization=organization,
+            user=user,
+            role_name=OrganizationRoleType.Owner,
+        )
+        user_2 = UserFactory.create()
+
+        db_request.method = "POST"
+        db_request.user = user_2
+        db_request.POST = MultiDict({"role_id": role.id})
+        db_request.has_permission = pretend.call_recorder(lambda *a, **kw: False)
+        db_request.session = pretend.stub(
+            flash=pretend.call_recorder(lambda *a, **kw: None)
+        )
+        db_request.route_path = pretend.call_recorder(lambda *a, **kw: "/the-redirect")
+
+        result = views.delete_organization_role(organization, db_request)
+
+        assert db_request.has_permission.calls == [pretend.call("manage:organization")]
+        assert db_request.session.flash.calls == [
+            pretend.call(
+                "Cannot remove other people from the organization", queue="error"
+            )
+        ]
+        assert isinstance(result, HTTPSeeOther)
+        assert result.headers["Location"] == "/the-redirect"
+
+    def test_delete_own_owner_role(self, db_request, enable_organizations):
+        organization = OrganizationFactory.create(name="foobar")
+        user = UserFactory.create(username="testuser")
+        role = OrganizationRoleFactory.create(
+            organization=organization,
+            user=user,
+            role_name=OrganizationRoleType.Owner,
+        )
+
+        db_request.method = "POST"
+        db_request.user = user
+        db_request.POST = MultiDict({"role_id": role.id})
+        db_request.session = pretend.stub(
+            flash=pretend.call_recorder(lambda *a, **kw: None)
+        )
+        db_request.route_path = pretend.call_recorder(lambda *a, **kw: "/the-redirect")
+
+        result = views.delete_organization_role(organization, db_request)
+
+        assert db_request.session.flash.calls == [
+            pretend.call("Cannot remove yourself as Owner", queue="error")
+        ]
+        assert isinstance(result, HTTPSeeOther)
+        assert result.headers["Location"] == "/the-redirect"
+
+    def test_delete_non_owner_role(self, db_request, enable_organizations):
+        organization = OrganizationFactory.create(name="foobar")
+        user = UserFactory.create(username="testuser")
+        role = OrganizationRoleFactory.create(
+            organization=organization,
+            user=user,
+            role_name=OrganizationRoleType.Owner,
+        )
+
+        some_other_user = UserFactory.create(username="someotheruser")
+        some_other_organization = OrganizationFactory.create(
+            name="someotherorganization"
+        )
+
+        db_request.method = "POST"
+        db_request.user = some_other_user
+        db_request.POST = MultiDict({"role_id": role.id})
+        db_request.session = pretend.stub(
+            flash=pretend.call_recorder(lambda *a, **kw: None)
+        )
+        db_request.route_path = pretend.call_recorder(lambda *a, **kw: "/the-redirect")
+
+        result = views.delete_organization_role(some_other_organization, db_request)
+
+        assert db_request.session.flash.calls == [
+            pretend.call("Could not find member", queue="error")
+        ]
+        assert isinstance(result, HTTPSeeOther)
+        assert result.headers["Location"] == "/the-redirect"
 
 
 class TestManageProjects:
@@ -4526,7 +5456,7 @@ class TestRevokeRoleInvitation:
         assert result.headers["Location"] == "/manage/projects/roles"
 
 
-class TestChangeProjectRoles:
+class TestChangeProjectRole:
     def test_change_role(self, db_request, monkeypatch):
         project = ProjectFactory.create(name="foobar")
         user = UserFactory.create(username="testuser")

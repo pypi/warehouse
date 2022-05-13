@@ -44,21 +44,29 @@ from warehouse.admin.flags import AdminFlagValue
 from warehouse.email import (
     send_account_deletion_email,
     send_admin_new_organization_requested_email,
+    send_canceled_as_invited_organization_member_email,
     send_collaborator_removed_email,
     send_collaborator_role_changed_email,
     send_email_verification_email,
     send_new_organization_requested_email,
     send_oidc_provider_added_email,
     send_oidc_provider_removed_email,
+    send_organization_member_invite_canceled_email,
+    send_organization_member_invited_email,
+    send_organization_member_removed_email,
+    send_organization_member_role_changed_email,
+    send_organization_role_verification_email,
     send_password_change_email,
     send_primary_email_change_email,
     send_project_role_verification_email,
     send_recovery_codes_generated_email,
     send_removed_as_collaborator_email,
+    send_removed_as_organization_member_email,
     send_removed_project_email,
     send_removed_project_release_email,
     send_removed_project_release_file_email,
     send_role_changed_as_collaborator_email,
+    send_role_changed_as_organization_member_email,
     send_two_factor_added_email,
     send_two_factor_removed_email,
     send_unyanked_project_release_email,
@@ -68,11 +76,13 @@ from warehouse.forklift.legacy import MAX_FILESIZE, MAX_PROJECT_SIZE
 from warehouse.macaroons.interfaces import IMacaroonService
 from warehouse.manage.forms import (
     AddEmailForm,
+    ChangeOrganizationRoleForm,
     ChangePasswordForm,
     ChangeRoleForm,
     ConfirmPasswordForm,
     CreateMacaroonForm,
     CreateOrganizationForm,
+    CreateOrganizationRoleForm,
     CreateRoleForm,
     DeleteMacaroonForm,
     DeleteTOTPForm,
@@ -89,6 +99,7 @@ from warehouse.oidc.models import GitHubProvider, OIDCProvider
 from warehouse.organizations.interfaces import IOrganizationService
 from warehouse.organizations.models import (
     Organization,
+    OrganizationInvitationStatus,
     OrganizationRole,
     OrganizationRoleType,
 )
@@ -1028,6 +1039,20 @@ def user_organizations(request):
     }
 
 
+def organization_owners(request, organization):
+    """Return all users who are owners of the organization."""
+    owner_roles = (
+        request.db.query(User.id)
+        .join(OrganizationRole.user)
+        .filter(
+            OrganizationRole.role_name == OrganizationRoleType.Owner,
+            OrganizationRole.organization == organization,
+        )
+        .subquery()
+    )
+    return request.db.query(User).join(owner_roles, User.id == owner_roles.c.id).all()
+
+
 @view_defaults(
     route_name="manage.organizations",
     renderer="manage/organizations.html",
@@ -1048,11 +1073,22 @@ class ManageOrganizationsViews:
     @property
     def default_response(self):
         all_user_organizations = user_organizations(self.request)
+
+        organization_invites = (
+            self.organization_service.get_organization_invites_by_user(
+                self.request.user.id
+            )
+        )
+        organization_invites = [
+            (organization_invite.organization, organization_invite.token)
+            for organization_invite in organization_invites
+        ]
+
         return {
+            "organization_invites": organization_invites,
             "organizations": self.organization_service.get_organizations_by_user(
                 self.request.user.id
             ),
-            **all_user_organizations,
             "organizations_managed": list(
                 organization.name
                 for organization in all_user_organizations["organizations_managed"]
@@ -1102,7 +1138,9 @@ class ManageOrganizationsViews:
                 additional={"submitted_by_user_id": str(self.request.user.id)},
             )
             self.organization_service.add_organization_role(
-                "Owner", self.request.user.id, organization.id
+                organization.id,
+                self.request.user.id,
+                OrganizationRoleType.Owner,
             )
             self.organization_service.record_event(
                 organization.id,
@@ -1156,15 +1194,381 @@ class ManageOrganizationsViews:
     renderer="manage/organization/roles.html",
     uses_session=True,
     require_methods=False,
-    # permission="manage:organization",
+    permission="view:organization",
     has_translations=True,
     require_reauth=True,
 )
-def manage_organization_roles(organization, request):
+def manage_organization_roles(
+    organization, request, _form_class=CreateOrganizationRoleForm
+):
     if request.flags.enabled(AdminFlagValue.DISABLE_ORGANIZATIONS):
         raise HTTPNotFound
 
-    return {"organization": organization}
+    organization_service = request.find_service(IOrganizationService, context=None)
+    user_service = request.find_service(IUserService, context=None)
+    form = _form_class(
+        request.POST,
+        orgtype=organization.orgtype,
+        organization_service=organization_service,
+        user_service=user_service,
+    )
+
+    if request.method == "POST" and form.validate():
+        username = form.username.data
+        role_name = form.role_name.data
+        userid = user_service.find_userid(username)
+        user = user_service.get_user(userid)
+        token_service = request.find_service(ITokenService, name="email")
+
+        existing_role = organization_service.get_organization_role_by_user(
+            organization.id, user.id
+        )
+        organization_invite = organization_service.get_organization_invite_by_user(
+            organization.id, user.id
+        )
+        # Cover edge case where invite is invalid but task
+        # has not updated invite status
+        try:
+            invite_token = token_service.loads(organization_invite.token)
+        except (TokenExpired, AttributeError):
+            invite_token = None
+
+        if existing_role:
+            request.session.flash(
+                request._(
+                    "User '${username}' already has ${role_name} role for organization",
+                    mapping={
+                        "username": username,
+                        "role_name": existing_role.role_name.value,
+                    },
+                ),
+                queue="error",
+            )
+        elif user.primary_email is None or not user.primary_email.verified:
+            request.session.flash(
+                request._(
+                    "User '${username}' does not have a verified primary email "
+                    "address and cannot be added as a ${role_name} for organization",
+                    mapping={"username": username, "role_name": role_name},
+                ),
+                queue="error",
+            )
+        elif (
+            organization_invite
+            and organization_invite.invite_status
+            == OrganizationInvitationStatus.Pending
+            and invite_token
+        ):
+            request.session.flash(
+                request._(
+                    "User '${username}' already has an active invite. "
+                    "Please try again later.",
+                    mapping={"username": username},
+                ),
+                queue="error",
+            )
+        else:
+            invite_token = token_service.dumps(
+                {
+                    "action": "email-organization-role-verify",
+                    "desired_role": role_name,
+                    "user_id": user.id,
+                    "organization_id": organization.id,
+                    "submitter_id": request.user.id,
+                }
+            )
+            if organization_invite:
+                organization_invite.invite_status = OrganizationInvitationStatus.Pending
+                organization_invite.token = invite_token
+            else:
+                organization_service.add_organization_invite(
+                    organization_id=organization.id,
+                    user_id=user.id,
+                    invite_token=invite_token,
+                )
+            organization.record_event(
+                tag="organization:organization_role:invite",
+                ip_address=request.remote_addr,
+                additional={
+                    "submitted_by_user_id": str(request.user.id),
+                    "role_name": role_name,
+                    "target_user_id": str(userid),
+                },
+            )
+            request.db.flush()  # in order to get id
+            owner_users = set(organization_owners(request, organization))
+            send_organization_member_invited_email(
+                request,
+                owner_users,
+                user=user,
+                desired_role=role_name,
+                initiator_username=request.user.username,
+                organization_name=organization.name,
+                email_token=invite_token,
+                token_age=token_service.max_age,
+            )
+            send_organization_role_verification_email(
+                request,
+                user,
+                desired_role=role_name,
+                initiator_username=request.user.username,
+                organization_name=organization.name,
+                email_token=invite_token,
+                token_age=token_service.max_age,
+            )
+            request.session.flash(
+                request._(
+                    "Invitation sent to '${username}'",
+                    mapping={"username": username},
+                ),
+                queue="success",
+            )
+
+        form = _form_class(
+            orgtype=organization.orgtype,
+            organization_service=organization_service,
+            user_service=user_service,
+        )
+
+    roles = set(organization_service.get_organization_roles(organization.id))
+    invitations = set(organization_service.get_organization_invites(organization.id))
+
+    return {
+        "organization": organization,
+        "roles": roles,
+        "invitations": invitations,
+        "form": form,
+    }
+
+
+@view_config(
+    route_name="manage.organization.revoke_invite",
+    context=Organization,
+    uses_session=True,
+    require_methods=["POST"],
+    permission="manage:organization",
+    has_translations=True,
+)
+def revoke_organization_invitation(organization, request):
+    organization_service = request.find_service(IOrganizationService, context=None)
+    user_service = request.find_service(IUserService, context=None)
+    token_service = request.find_service(ITokenService, name="email")
+    user = user_service.get_user(request.POST["user_id"])
+
+    organization_invite = organization_service.get_organization_invite_by_user(
+        organization.id, user.id
+    )
+    if organization_invite is None:
+        request.session.flash(
+            request._("Could not find organization invitation."), queue="error"
+        )
+        return HTTPSeeOther(
+            request.route_path(
+                "manage.organization.roles", organization_name=organization.name
+            )
+        )
+
+    organization_service.delete_organization_invite(organization_invite.id)
+
+    try:
+        token_data = token_service.loads(organization_invite.token)
+    except TokenExpired:
+        request.session.flash(request._("Invitation already expired."), queue="success")
+        return HTTPSeeOther(
+            request.route_path(
+                "manage.organization.roles", organization_name=organization.name
+            )
+        )
+    role_name = token_data.get("desired_role")
+
+    organization.record_event(
+        tag="organization:organization_role:revoke_invite",
+        ip_address=request.remote_addr,
+        additional={
+            "submitted_by_user_id": str(request.user.id),
+            "role_name": role_name,
+            "target_user_id": str(user.id),
+        },
+    )
+
+    owner_users = set(organization_owners(request, organization))
+    send_organization_member_invite_canceled_email(
+        request,
+        owner_users,
+        user=user,
+        organization_name=organization.name,
+    )
+    send_canceled_as_invited_organization_member_email(
+        request,
+        user,
+        organization_name=organization.name,
+    )
+
+    request.session.flash(
+        request._(
+            "Invitation revoked from '${username}'.",
+            mapping={"username": user.username},
+        ),
+        queue="success",
+    )
+
+    return HTTPSeeOther(
+        request.route_path(
+            "manage.organization.roles", organization_name=organization.name
+        )
+    )
+
+
+@view_config(
+    route_name="manage.organization.change_role",
+    context=Organization,
+    uses_session=True,
+    require_methods=["POST"],
+    permission="manage:organization",
+    has_translations=True,
+    require_reauth=True,
+)
+def change_organization_role(
+    organization, request, _form_class=ChangeOrganizationRoleForm
+):
+    form = _form_class(request.POST, orgtype=organization.orgtype)
+
+    if form.validate():
+        organization_service = request.find_service(IOrganizationService, context=None)
+        role_id = request.POST["role_id"]
+        role = organization_service.get_organization_role(role_id)
+        if not role or role.organization_id != organization.id:
+            request.session.flash("Could not find member", queue="error")
+        elif role.role_name == OrganizationRoleType.Owner and role.user == request.user:
+            request.session.flash("Cannot remove yourself as Owner", queue="error")
+        else:
+            role.role_name = form.role_name.data
+
+            owner_users = set(organization_owners(request, organization))
+            # Don't send owner notification email to new user
+            # if they are now an owner
+            owner_users.discard(role.user)
+
+            send_organization_member_role_changed_email(
+                request,
+                owner_users,
+                user=role.user,
+                submitter=request.user,
+                organization_name=organization.name,
+                role=role.role_name,
+            )
+
+            send_role_changed_as_organization_member_email(
+                request,
+                role.user,
+                submitter=request.user,
+                organization_name=organization.name,
+                role=role.role_name,
+            )
+
+            organization.record_event(
+                tag="organization:organization_role:change",
+                ip_address=request.remote_addr,
+                additional={
+                    "submitted_by_user_id": str(request.user.id),
+                    "role_name": form.role_name.data,
+                    "target_user_id": str(role.user.id),
+                },
+            )
+            role.user.record_event(
+                tag="account:organization_role:change",
+                ip_address=request.remote_addr,
+                additional={
+                    "submitted_by_user_id": str(request.user.id),
+                    "organization_name": organization.name,
+                    "role_name": form.role_name.data,
+                },
+            )
+
+            request.session.flash("Changed role", queue="success")
+
+    return HTTPSeeOther(
+        request.route_path(
+            "manage.organization.roles", organization_name=organization.name
+        )
+    )
+
+
+@view_config(
+    route_name="manage.organization.delete_role",
+    context=Organization,
+    uses_session=True,
+    require_methods=["POST"],
+    permission="view:organization",
+    has_translations=True,
+    require_reauth=True,
+)
+def delete_organization_role(organization, request):
+    organization_service = request.find_service(IOrganizationService, context=None)
+    role_id = request.POST["role_id"]
+    role = organization_service.get_organization_role(role_id)
+    if not role or role.organization_id != organization.id:
+        request.session.flash("Could not find member", queue="error")
+    elif (
+        not request.has_permission("manage:organization") and role.user != request.user
+    ):
+        request.session.flash(
+            "Cannot remove other people from the organization", queue="error"
+        )
+    elif role.role_name == OrganizationRoleType.Owner and role.user == request.user:
+        request.session.flash("Cannot remove yourself as Owner", queue="error")
+    else:
+        organization_service.delete_organization_role(role.id)
+        organization.record_event(
+            tag="organization:organization_role:delete",
+            ip_address=request.remote_addr,
+            additional={
+                "submitted_by_user_id": str(request.user.id),
+                "role_name": role.role_name.value,
+                "target_user_id": str(role.user.id),
+            },
+        )
+        role.user.record_event(
+            tag="account:organization_role:delete",
+            ip_address=request.remote_addr,
+            additional={
+                "submitted_by_user_id": str(request.user.id),
+                "organization_name": organization.name,
+                "role_name": role.role_name.value,
+            },
+        )
+
+        owner_users = set(organization_owners(request, organization))
+        # Don't send owner notification email to new user
+        # if they are now an owner
+        owner_users.discard(role.user)
+
+        send_organization_member_removed_email(
+            request,
+            owner_users,
+            user=role.user,
+            submitter=request.user,
+            organization_name=organization.name,
+        )
+
+        send_removed_as_organization_member_email(
+            request,
+            role.user,
+            submitter=request.user,
+            organization_name=organization.name,
+        )
+
+        request.session.flash("Removed from organization", queue="success")
+
+    if role and role.user == request.user:
+        # User removed self from organization.
+        return HTTPSeeOther(request.route_path("manage.organizations"))
+    else:
+        return HTTPSeeOther(
+            request.route_path(
+                "manage.organization.roles", organization_name=organization.name
+            )
+        )
 
 
 @view_config(
