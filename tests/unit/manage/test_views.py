@@ -2627,7 +2627,9 @@ class TestManageOrganizations:
 
 
 class TestManageOrganizationSettings:
-    def test_manage_organization(self, db_request, organization_service, monkeypatch):
+    def test_manage_organization(
+        self, db_request, organization_service, enable_organizations, monkeypatch
+    ):
         organization = OrganizationFactory.create()
         organization.projects = [ProjectFactory.create()]
 
@@ -2658,7 +2660,16 @@ class TestManageOrganizationSettings:
             ),
         ]
 
-    def test_save_organization(self, db_request, organization_service, monkeypatch):
+    def test_manage_organization_disable_organizations(self, db_request):
+        organization = OrganizationFactory.create()
+
+        view = views.ManageOrganizationSettingsViews(organization, db_request)
+        with pytest.raises(HTTPNotFound):
+            view.manage_organization()
+
+    def test_save_organization(
+        self, db_request, organization_service, enable_organizations, monkeypatch
+    ):
         organization = OrganizationFactory.create()
         db_request.POST = {
             "display_name": organization.display_name,
@@ -2693,7 +2704,7 @@ class TestManageOrganizationSettings:
         ]
 
     def test_save_organization_validation_fails(
-        self, db_request, organization_service, monkeypatch
+        self, db_request, organization_service, enable_organizations, monkeypatch
     ):
         organization = OrganizationFactory.create()
         db_request.POST = {
@@ -2726,8 +2737,21 @@ class TestManageOrganizationSettings:
         }
         assert organization_service.update_organization.calls == []
 
+    def test_save_organization_disable_organizations(self, db_request):
+        organization = OrganizationFactory.create()
+
+        view = views.ManageOrganizationSettingsViews(organization, db_request)
+        with pytest.raises(HTTPNotFound):
+            view.save_organization()
+
     def test_save_organization_name(
-        self, db_request, pyramid_user, organization_service, user_service, monkeypatch
+        self,
+        db_request,
+        pyramid_user,
+        organization_service,
+        user_service,
+        enable_organizations,
+        monkeypatch,
     ):
         organization = OrganizationFactory.create(name="old-name")
         db_request.POST = {
@@ -2797,7 +2821,7 @@ class TestManageOrganizationSettings:
         ]
 
     def test_save_organization_name_validation_fails(
-        self, db_request, organization_service, monkeypatch
+        self, db_request, organization_service, enable_organizations, monkeypatch
     ):
         organization = OrganizationFactory.create(name="old-name")
         db_request.POST = {
@@ -2836,8 +2860,21 @@ class TestManageOrganizationSettings:
         assert result == view.default_response
         assert organization_service.rename_organization.calls == []
 
+    def test_save_organization_name_disable_organizations(self, db_request):
+        organization = OrganizationFactory.create(name="old-name")
+
+        view = views.ManageOrganizationSettingsViews(organization, db_request)
+        with pytest.raises(HTTPNotFound):
+            view.save_organization_name()
+
     def test_delete_organization(
-        self, db_request, pyramid_user, organization_service, user_service, monkeypatch
+        self,
+        db_request,
+        pyramid_user,
+        organization_service,
+        user_service,
+        enable_organizations,
+        monkeypatch,
     ):
         organization = OrganizationFactory.create()
         db_request.POST = {"confirm_organization_name": organization.name}
@@ -2888,7 +2925,12 @@ class TestManageOrganizationSettings:
         assert db_request.route_path.calls == [pretend.call("manage.organizations")]
 
     def test_delete_organization_with_active_projects(
-        self, db_request, pyramid_user, organization_service, monkeypatch
+        self,
+        db_request,
+        pyramid_user,
+        organization_service,
+        enable_organizations,
+        monkeypatch,
     ):
         organization = OrganizationFactory.create()
         organization.projects = [ProjectFactory.create()]
@@ -2915,6 +2957,13 @@ class TestManageOrganizationSettings:
         assert result == view.default_response
         assert organization_service.delete_organization.calls == []
         assert db_request.route_path.calls == []
+
+    def test_delete_organization_disable_organizations(self, db_request):
+        organization = OrganizationFactory.create()
+
+        view = views.ManageOrganizationSettingsViews(organization, db_request)
+        with pytest.raises(HTTPNotFound):
+            view.delete_organization()
 
 
 class TestManageOrganizationRoles:

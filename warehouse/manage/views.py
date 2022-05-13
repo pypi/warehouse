@@ -1236,10 +1236,16 @@ class ManageOrganizationSettingsViews:
 
     @view_config(request_method="GET")
     def manage_organization(self):
+        if self.request.flags.enabled(AdminFlagValue.DISABLE_ORGANIZATIONS):
+            raise HTTPNotFound
+
         return self.default_response
 
     @view_config(request_method="POST", request_param=SaveOrganizationForm.__params__)
     def save_organization(self):
+        if self.request.flags.enabled(AdminFlagValue.DISABLE_ORGANIZATIONS):
+            raise HTTPNotFound
+
         form = SaveOrganizationForm(
             self.request.POST,
             organization_service=self.organization_service,
@@ -1258,6 +1264,9 @@ class ManageOrganizationSettingsViews:
         + SaveOrganizationNameForm.__params__,
     )
     def save_organization_name(self):
+        if self.request.flags.enabled(AdminFlagValue.DISABLE_ORGANIZATIONS):
+            raise HTTPNotFound
+
         confirm_organization(
             self.organization,
             self.request,
@@ -1311,6 +1320,9 @@ class ManageOrganizationSettingsViews:
 
     @view_config(request_method="POST", request_param=["confirm_organization_name"])
     def delete_organization(self):
+        if self.request.flags.enabled(AdminFlagValue.DISABLE_ORGANIZATIONS):
+            raise HTTPNotFound
+
         confirm_organization(
             self.organization, self.request, fail_route="manage.organization.settings"
         )
