@@ -1420,6 +1420,26 @@ msgstr ""
 msgid "You are receiving this because you are a member of this organization."
 msgstr ""
 
+#: warehouse/templates/email/admin-organization-deleted/body.html:27
+#: warehouse/templates/email/organization-deleted/body.html:27
+#, python-format
+msgid "The %(site)s organization \"%(organization_name)s\" has been deleted."
+msgstr ""
+
+#: warehouse/templates/email/admin-organization-deleted/body.html:33
+#: warehouse/templates/email/admin-organization-renamed/body.html:33
+#, python-format
+msgid "You are receiving this because you are a %(site)s administrator."
+msgstr ""
+
+#: warehouse/templates/email/admin-organization-renamed/body.html:27
+#: warehouse/templates/email/organization-renamed/body.html:27
+#, python-format
+msgid ""
+"The %(site)s organization has been renamed from "
+"\"%(previous_organization_name)s\" to \"%(organization_name)s\"."
+msgstr ""
+
 #: warehouse/templates/email/basic-auth-with-2fa/body.html:17
 #: warehouse/templates/email/password-compromised-hibp/body.html:18
 #: warehouse/templates/email/password-compromised/body.html:18
@@ -1579,6 +1599,30 @@ msgid ""
 "  "
 msgstr ""
 
+#: warehouse/templates/email/organization-deleted/body.html:31
+#: warehouse/templates/email/organization-member-added/body.html:38
+#: warehouse/templates/email/organization-member-invited/body.html:38
+#: warehouse/templates/email/organization-member-removed/body.html:37
+#: warehouse/templates/email/organization-member-role-changed/body.html:38
+#: warehouse/templates/email/organization-renamed/body.html:31
+#, python-format
+msgid ""
+"If this was a mistake, you can email <a "
+"href=\"mailto:%(email_address)s\">%(email_address)s</a> to communicate "
+"with the %(site)s administrators."
+msgstr ""
+
+#: warehouse/templates/email/organization-deleted/body.html:37
+#: warehouse/templates/email/organization-member-added/body.html:44
+#: warehouse/templates/email/organization-member-invite-canceled/body.html:25
+#: warehouse/templates/email/organization-member-invite-declined/body.html:25
+#: warehouse/templates/email/organization-member-invited/body.html:44
+#: warehouse/templates/email/organization-member-removed/body.html:43
+#: warehouse/templates/email/organization-member-role-changed/body.html:44
+#: warehouse/templates/email/organization-renamed/body.html:37
+msgid "You are receiving this because you are an owner of this organization."
+msgstr ""
+
 #: warehouse/templates/email/organization-member-added/body.html:27
 #, python-format
 msgid ""
@@ -1606,26 +1650,6 @@ msgstr ""
 
 #: warehouse/templates/email/organization-member-added/body.html:33
 msgid "Added by"
-msgstr ""
-
-#: warehouse/templates/email/organization-member-added/body.html:38
-#: warehouse/templates/email/organization-member-invited/body.html:38
-#: warehouse/templates/email/organization-member-removed/body.html:37
-#: warehouse/templates/email/organization-member-role-changed/body.html:38
-#, python-format
-msgid ""
-"If this was a mistake, you can email <a "
-"href=\"mailto:%(email_address)s\">%(email_address)s</a> to communicate "
-"with the %(site)s administrators."
-msgstr ""
-
-#: warehouse/templates/email/organization-member-added/body.html:44
-#: warehouse/templates/email/organization-member-invite-canceled/body.html:25
-#: warehouse/templates/email/organization-member-invite-declined/body.html:25
-#: warehouse/templates/email/organization-member-invited/body.html:44
-#: warehouse/templates/email/organization-member-removed/body.html:43
-#: warehouse/templates/email/organization-member-role-changed/body.html:44
-msgid "You are receiving this because you are an owner of this organization."
 msgstr ""
 
 #: warehouse/templates/email/organization-member-invite-canceled/body.html:19
