@@ -1277,6 +1277,15 @@ class ManageOrganizationSettingsViews:
                 self.organization.id,
                 form.name.data,
             )
+            self.organization.record_event(
+                tag="organization:rename",
+                ip_address=self.request.remote_addr,
+                additional={
+                    "renamed_by_user_id": str(self.request.user.id),
+                    "organization_name": self.organization.name,
+                    "previous_organization_name": previous_organization_name,
+                },
+            )
             owner_users = set(organization_owners(self.request, self.organization))
             send_admin_organization_renamed_email(
                 self.request,
