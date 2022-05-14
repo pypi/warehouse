@@ -400,6 +400,26 @@ def _validate_classifiers(form, field):
             )
 
 
+def _validate_dynamic(form, field):
+    dynamic_fields = set(map(str.lower, field.data or []))
+
+    disallowed_dynamic_fields = []
+
+    for field_name in ("Name", "Version", "Metadata-Version"):
+        if field_name.lower() in dynamic_fields:
+            disallowed_dynamic_fields.append(field_name)
+
+    if disallowed_dynamic_fields:
+        if len(disallowed_dynamic_fields) == 1:
+            values = f"field {disallowed_dynamic_fields[0]!r}"
+        else:
+            values = f"fields {disallowed_dynamic_fields!r}"
+
+        raise wtforms.validators.ValidationError(
+            f"The {values} cannot be marked as dynamic.",
+        )
+
+
 def _construct_dependencies(form, types):
     for name, kind in types.items():
         for item in getattr(form, name).data:
@@ -425,7 +445,7 @@ class MetadataForm(forms.Form):
                 # Note: This isn't really Metadata 2.0, however bdist_wheel
                 #       claims it is producing a Metadata 2.0 metadata when in
                 #       reality it's more like 1.2 with some extensions.
-                ["1.0", "1.1", "1.2", "2.0", "2.1"],
+                ["1.0", "1.1", "1.2", "2.0", "2.1", "2.2"],
                 message="Use a known metadata version.",
             ),
         ],
@@ -500,6 +520,10 @@ class MetadataForm(forms.Form):
     classifiers = ListField(
         description="Classifier",
         validators=[_validate_no_deprecated_classifiers, _validate_classifiers],
+    )
+    dynamic = ListField(
+        description="Dynamic",
+        validators=[_validate_dynamic],
     )
     platform = wtforms.StringField(
         description="Platform", validators=[wtforms.validators.Optional()]
