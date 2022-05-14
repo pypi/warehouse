@@ -59,6 +59,7 @@ from warehouse.packaging.models import (
     Dependency,
     DependencyKind,
     Description,
+    DynamicFieldsEnum,
     File,
     Filename,
     JournalEntry,
@@ -395,6 +396,40 @@ def _validate_classifiers(form, field):
             )
 
 
+def _validate_dynamic(_form, field):
+    declared_dynamic_fields = set(map(str.title, field.data or []))
+    disallowed_dynamic_fields = {"Name", "Version", "Metadata-Version"}
+    if invalid := (declared_dynamic_fields & disallowed_dynamic_fields):
+        raise wtforms.validators.ValidationError(
+            f"The following metadata field(s) cannot be marked as dynamic: {invalid!r}",
+        )
+    allowed_dynamic_field = set(DynamicFieldsEnum.enums)
+    if invalid := (declared_dynamic_fields - allowed_dynamic_field):
+        raise wtforms.validators.ValidationError(
+            f"The following values are not valid for Dynamic: {invalid!r}"
+        )
+
+
+_extra_name_re = re.compile("^([a-z0-9]|[a-z0-9]([a-z0-9-](?!--))*[a-z0-9])$")
+
+
+def _validate_extras(form, field):
+    try:
+        metadata_version = packaging.version.Version(form.metadata_version.data)
+    except packaging.version.InvalidVersion as e:
+        raise wtforms.validators.ValidationError(
+            f"The Metadata-Version is invalid: {e}"
+        )
+
+    if metadata_version >= packaging.version.Version("2.3"):
+        if invalid := [
+            name for name in field.data or [] if not _extra_name_re.match(name)
+        ]:
+            raise wtforms.validators.ValidationError(
+                f"The following Provides-Extra value(s) are invalid: {invalid!r}"
+            )
+
+
 def _construct_dependencies(form, types):
     for name, kind in types.items():
         for item in getattr(form, name).data:
@@ -419,7 +454,7 @@ class MetadataForm(forms.Form):
                 # Note: This isn't really Metadata 2.0, however bdist_wheel
                 #       claims it is producing a Metadata 2.0 metadata when in
                 #       reality it's more like 1.2 with some extensions.
-                ["1.0", "1.1", "1.2", "2.0", "2.1"],
+                ["1.0", "1.1", "1.2", "2.0", "2.1", "2.2", "2.3"],
                 message="Use a known metadata version.",
             ),
         ],
@@ -495,6 +530,10 @@ class MetadataForm(forms.Form):
         description="Classifier",
         validators=[_validate_no_deprecated_classifiers, _validate_classifiers],
     )
+    dynamic = ListField(
+        description="Dynamic",
+        validators=[_validate_dynamic],
+    )
     platform = wtforms.StringField(
         description="Platform", validators=[wtforms.validators.Optional()]
     )
@@ -564,6 +603,10 @@ class MetadataForm(forms.Form):
         description="Requires-Dist",
         validators=[wtforms.validators.Optional(), _validate_legacy_dist_req_list],
     )
+    provides_extra = ListField(
+        description="Provides-Extra",
+        validators=[wtforms.validators.Optional(), _validate_extras],
+    )
     provides_dist = ListField(
         description="Provides-Dist",
         validators=[wtforms.validators.Optional(), _validate_legacy_dist_req_list],
@@ -611,6 +654,13 @@ class MetadataForm(forms.Form):
         ):
             raise wtforms.validators.ValidationError(
                 "Include at least one message digest."
+            )
+
+        # Dynamic is only allowed with metadata version 2.2+
+        if self.dynamic.data and self.metadata_version.data not in ["2.2", "2.3"]:
+            raise wtforms.validators.ValidationError(
+                "'Dynamic' is only allowed in metadata version 2.2 and higher, "
+                f"but you declared {self.metadata_version.data}"
             )
 
 
@@ -1107,6 +1157,8 @@ def file_upload(request):
                     "home_page",
                     "download_url",
                     "requires_python",
+                    "dynamic",
+                    "provides_extra",
                 }
             },
             uploader=request.user if request.user else None,

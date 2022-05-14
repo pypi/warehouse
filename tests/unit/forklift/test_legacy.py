@@ -388,6 +388,81 @@ class TestValidation:
         with pytest.raises(ValidationError):
             legacy._validate_classifiers(form, field)
 
+    @pytest.mark.parametrize(
+        "data", [["Requires-Dist"], ["Requires-Dist", "Requires-Python"]]
+    )
+    def test_validate_dynamic_valid(self, db_request, data):
+        form = pretend.stub()
+        field = pretend.stub(data=data)
+
+        legacy._validate_dynamic(form, field)
+
+    @pytest.mark.parametrize(
+        "data",
+        [
+            ["Version"],
+            ["Name"],
+            ["Version", "Name"],
+            ["Provides-Extra", "I-Am-Not-Metadata"],
+        ],
+    )
+    def test_validate_dynamic_invalid(self, db_request, data):
+        form = pretend.stub()
+        field = pretend.stub(data=data)
+
+        with pytest.raises(ValidationError):
+            legacy._validate_dynamic(form, field)
+
+    @pytest.mark.parametrize("data", [["dev"], ["dev-test"]])
+    def test_validate_extras_valid(self, db_request, data):
+        form = pretend.stub(
+            provides_extra=pretend.stub(data=data),
+            metadata_version=pretend.stub(data="2.3"),
+        )
+        field = pretend.stub(data=data)
+
+        legacy._validate_extras(form, field)
+
+    @pytest.mark.parametrize("data", [["dev_test"], ["dev.lint", "dev--test"]])
+    def test_validate_extras_invalid(self, db_request, data):
+        form = pretend.stub(
+            provides_extra=pretend.stub(data=data),
+            metadata_version=pretend.stub(data="2.3"),
+        )
+        field = pretend.stub(data=data)
+
+        with pytest.raises(ValidationError):
+            legacy._validate_extras(form, field)
+
+    @pytest.mark.parametrize("data", [["dev"], ["dev-test"]])
+    def test_validate_extras_valid_2_2(self, db_request, data):
+        form = pretend.stub(
+            provides_extra=pretend.stub(data=data),
+            metadata_version=pretend.stub(data="2.2"),
+        )
+        field = pretend.stub(data=data)
+
+        legacy._validate_extras(form, field)
+
+    def test_validate_extras_invalid_metadata_version(self, db_request):
+        form = pretend.stub(
+            metadata_version=pretend.stub(data="~invalid~"),
+        )
+        field = pretend.stub(data=[])
+
+        with pytest.raises(ValidationError):
+            legacy._validate_extras(form, field)
+
+    @pytest.mark.parametrize("data", [["dev_test"], ["dev.lint", "dev--test"]])
+    def test_validate_extras_invalid_2_2(self, db_request, data):
+        form = pretend.stub(
+            provides_extra=pretend.stub(data=data),
+            metadata_version=pretend.stub(data="2.2"),
+        )
+        field = pretend.stub(data=data)
+
+        legacy._validate_extras(form, field)
+
 
 def test_construct_dependencies():
     types = {"requires": DependencyKind.requires, "provides": DependencyKind.provides}
@@ -477,6 +552,26 @@ class TestMetadataForm:
     def test_requires_python(self):
         form = legacy.MetadataForm(MultiDict({"requires_python": ">= 3.5"}))
         form.requires_python.validate(form)
+
+    @pytest.mark.parametrize(
+        "data",
+        [
+            {
+                "filetype": "bdist_wheel",
+                "metadata_version": "2.1",
+                "dynamic": "requires",
+            },
+            {
+                "metadata_version": "3.0",
+                "sha256_digest": "dummy",
+                "dynamic": "requires",
+            },
+        ],
+    )
+    def test_dynamic_wrong_metadata_version(self, data):
+        form = legacy.MetadataForm(MultiDict(data))
+        with pytest.raises(ValidationError):
+            form.full_validate()
 
 
 class TestFileValidation:
@@ -3414,6 +3509,121 @@ class TestFileUpload:
                 tag=EventTag.File.FileAdd,
                 request=db_request,
                 additional=fileadd_event,
+            ),
+        ]
+
+    @pytest.mark.parametrize(
+        "version, expected_version",
+        [
+            ("1.0", "1.0"),
+            ("v1.0", "1.0"),
+        ],
+    )
+    def test_upload_succeeds_creates_release_metadata_2_3(
+        self, pyramid_config, db_request, metrics, version, expected_version
+    ):
+        user = UserFactory.create()
+        EmailFactory.create(user=user)
+        project = ProjectFactory.create()
+        RoleFactory.create(user=user, project=project)
+
+        db_request.db.add(Classifier(classifier="Environment :: Other Environment"))
+        db_request.db.add(Classifier(classifier="Programming Language :: Python"))
+
+        filename = "{}-{}.tar.gz".format(project.name, "1.0")
+
+        pyramid_config.testing_securitypolicy(identity=user)
+        db_request.user = user
+        db_request.user_agent = "warehouse-tests/6.6.6"
+        db_request.POST = MultiDict(
+            {
+                "metadata_version": "2.3",
+                "name": project.name,
+                "version": version,
+                "summary": "This is my summary!",
+                "filetype": "sdist",
+                "md5_digest": _TAR_GZ_PKG_MD5,
+                "content": pretend.stub(
+                    filename=filename,
+                    file=io.BytesIO(_TAR_GZ_PKG_TESTDATA),
+                    type="application/tar",
+                ),
+                "supported_platform": "i386-win32-2791",
+            }
+        )
+        db_request.POST.extend(
+            [
+                ("classifiers", "Environment :: Other Environment"),
+                ("classifiers", "Programming Language :: Python"),
+                ("requires_dist", "foo"),
+                ("requires_dist", "bar (>1.0)"),
+                ("project_urls", "Test, https://example.com/"),
+                ("requires_external", "Cheese (>1.0)"),
+                ("provides_extra", "testing"),
+                ("provides_extra", "plugin"),
+                ("dynamic", "Supported-Platform"),
+            ]
+        )
+
+        storage_service = pretend.stub(store=lambda path, filepath, meta: None)
+        db_request.find_service = lambda svc, name=None, context=None: {
+            IFileStorage: storage_service,
+            IMetricsService: metrics,
+        }.get(svc)
+
+        resp = legacy.file_upload(db_request)
+
+        assert resp.status_code == 200
+
+        # Ensure that a Release object has been created.
+        release = (
+            db_request.db.query(Release)
+            .filter(
+                (Release.project == project) & (Release.version == expected_version)
+            )
+            .one()
+        )
+        assert release.summary == "This is my summary!"
+        assert release.classifiers == [
+            "Environment :: Other Environment",
+            "Programming Language :: Python",
+        ]
+        assert set(release.requires_dist) == {"foo", "bar (>1.0)"}
+        assert release.project_urls == {"Test": "https://example.com/"}
+        assert set(release.requires_external) == {"Cheese (>1.0)"}
+        assert release.version == expected_version
+        assert release.canonical_version == "1"
+        assert release.uploaded_via == "warehouse-tests/6.6.6"
+        assert set(release.provides_extra) == {"testing", "plugin"}
+        assert set(release.dynamic) == {"Supported-Platform"}
+
+        # Ensure that a File object has been created.
+        db_request.db.query(File).filter(
+            (File.release == release) & (File.filename == filename)
+        ).one()
+
+        # Ensure that a Filename object has been created.
+        db_request.db.query(Filename).filter(Filename.filename == filename).one()
+
+        # Ensure that all of our journal entries have been created
+        journals = (
+            db_request.db.query(JournalEntry)
+            .options(joinedload(JournalEntry.submitted_by))
+            .order_by("submitted_date", "id")
+            .all()
+        )
+        assert [(j.name, j.version, j.action, j.submitted_by) for j in journals] == [
+            (
+                release.project.name,
+                release.version,
+                "new release",
+                user,
+            ),
+            (
+                release.project.name,
+                release.version,
+                f"add source file {filename}",
+                user,
             ),
         ]
 

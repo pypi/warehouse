@@ -155,12 +155,16 @@ def _json_data(request, project, release, *, all_releases):
             "requires_dist": (
                 list(release.requires_dist) if release.requires_dist else None
             ),
+            "provides_extra": (
+                list(release.provides_extra) if release.provides_extra else None
+            ),
             "docs_url": project.documentation_url,
             "bugtrack_url": None,
             "home_page": release.home_page,
             "download_url": release.download_url,
             "yanked": release.yanked,
             "yanked_reason": release.yanked_reason or None,
+            "dynamic": list(release.dynamic) if release.dynamic else None,
         },
         "urls": releases[release.version],
         "vulnerabilities": vulnerabilities,
