@@ -70,9 +70,10 @@ class InvalidTokenLeakRequestError(Exception):
 
 
 class TokenLeakDisclosureRequest:
-    def __init__(self, token: str, public_url: str):
+    def __init__(self, token: str, public_url: str, source: Optional[str] = None):
         self.token = token
         self.public_url = public_url
+        self.source = source
 
     @classmethod
     def from_api_record(cls, record, *, matchers=TOKEN_LEAK_MATCHERS):
@@ -106,7 +107,9 @@ class TokenLeakDisclosureRequest:
                 "Cannot extract token from recieved match", reason="extraction"
             )
 
-        return cls(token=extracted_token, public_url=record["url"])
+        return cls(
+            token=extracted_token, public_url=record["url"], source=record.get("source")
+        )
 
 
 class GitHubPublicKeyMetaAPIError(InvalidTokenLeakRequestError):
