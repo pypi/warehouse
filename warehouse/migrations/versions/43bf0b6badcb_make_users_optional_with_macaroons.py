@@ -20,6 +20,7 @@ Create Date: 2022-04-19 14:57:54.765006
 import sqlalchemy as sa
 
 from alembic import op
+from citext import CIText
 from sqlalchemy.dialects import postgresql
 
 revision = "43bf0b6badcb"
@@ -31,6 +32,9 @@ def upgrade():
     op.alter_column(
         "macaroons", "user_id", existing_type=postgresql.UUID(), nullable=True
     )
+
+    # JournalEvent users are now optional.
+    op.alter_column("journals", "submitted_by", existing_type=CIText(), nullable=True)
 
     # Macaroons might have an associated project (if not user-associated).
     op.add_column(
@@ -57,6 +61,8 @@ def downgrade():
     op.alter_column(
         "macaroons", "user_id", existing_type=postgresql.UUID(), nullable=False
     )
+
+    op.alter_column("journals", "submitted_by", existing_type=CIText(), nullable=False)
 
     op.drop_constraint(None, "macaroons", type_="foreignkey")
     op.drop_index(op.f("ix_macaroons_project_id"), table_name="macaroons")

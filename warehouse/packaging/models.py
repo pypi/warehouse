@@ -624,7 +624,10 @@ class JournalEntry(db.ModelBase):
         DateTime(timezone=False), nullable=False, server_default=sql.func.now()
     )
     _submitted_by = Column(
-        "submitted_by", CIText, ForeignKey("users.username", onupdate="CASCADE")
+        "submitted_by",
+        CIText,
+        ForeignKey("users.username", onupdate="CASCADE"),
+        nullable=True,
     )
     submitted_by = orm.relationship(User, lazy="raise_on_sql")
     submitted_from = Column(Text)
