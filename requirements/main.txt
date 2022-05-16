@@ -90,9 +90,9 @@ botocore==1.25.1 \
     # via
     #   boto3
     #   s3transfer
-cachetools==5.0.0 \
-    --hash=sha256:486471dfa8799eb7ec503a8059e263db000cdda20075ce5e48903087f79d5fd6 \
-    --hash=sha256:8fecd4203a38af17928be7b90689d8083603073622229ca7077b72d8e5a976e4
+cachetools==5.1.0 \
+    --hash=sha256:4ebbd38701cdfd3603d1f751d851ed248ab4570929f2d8a7ce69e30c420b141c \
+    --hash=sha256:8b3b8fa53f564762e5b221e9896798951e7f915513abf2ba072ce0f07f3f5a98
     # via
     #   google-auth
     #   premailer
