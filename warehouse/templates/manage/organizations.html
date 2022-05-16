@@ -18,8 +18,35 @@
 {% block title %}{% trans %}Your organizations{% endtrans %}{% endblock %}
 
 {% block main %}
-  <h1 class="page-title">{% trans organization_count=organizations|length %}Your organizations ({{ organization_count }}){% endtrans %}</h1>
+  {% if organization_invites %}
+  <h1 class="page-title">{% trans invitation_count=organization_invites|length %}Pending invitations ({{ invitation_count }}){% endtrans %}</h1>
+  <div class="organization-list">
+    {% for organization, token in organization_invites %}
+    <div class="organization-snippet">
+      <div class="split-layout split-layout--no-wrap split-layout--wrap-on-tablet">
+        <div>
+          <h3 class="organization-snippet__title">
+            {{ organization.name }}
+          </h3>
+          <p class="organization-snippet__meta">
+            {% trans creation_date=humanize(organization.created) %}Created {{ creation_date }}{% endtrans %}
+          </p>
+        </div>
+        <div class="organization-snippet__buttons">
+          <form method="POST" action="{{ request.route_path('accounts.verify-organization-role') }}">
+            <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
+            <input name="token" type="hidden" value="{{ token }}">
+            <input name="accept" type="submit" value="{% trans %}Accept{% endtrans %}" class="button button--primary">
+            <input name="decline" type="submit" value="{% trans %}Decline{% endtrans %}" class="button">
+          </form>
+        </div>
+      </div>
+    </div>
+    {% endfor%}
+  </div>
+  {% endif %}
 
+  <h1 class="page-title">{% trans organization_count=organizations|length %}Your organizations ({{ organization_count }}){% endtrans %}</h1>
   <div class="organization-list">
     {% for organization in organizations %}
     <div class="organization-snippet">
@@ -44,10 +71,10 @@
         </div>
         <div class="organization-snippet__buttons">
           {% if organization.name not in (organizations_managed + organizations_owned + organizations_billing) %}
-          {# Show disabled "Manage" button for non-manager and non-owner #}
-          <button class="button button--primary" disabled title="{% trans %}You are not a manager or an owner of this organization{% endtrans %}">
-            {% trans %}Manage{% endtrans %}
-          </button>
+          {# Show "View" button for non-manager and non-owner #}
+          <a class="button" href="{{ request.route_path('manage.organization.roles', organization_name=organization.normalized_name) }}" title="{% trans %}View this organization{% endtrans %}">
+            {% trans %}View{% endtrans %}
+          </a>
           {% elif not organization.is_active %}
           {# Show disabled "Manage" button for inactive organization #}
           <button class="button button--primary" disabled title="{% trans %}This organization is not active{% endtrans %}">

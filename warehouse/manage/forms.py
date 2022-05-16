@@ -26,6 +26,7 @@ from warehouse.accounts.forms import (
     WebAuthnCredentialMixin,
 )
 from warehouse.i18n import localize as _
+from warehouse.organizations.models import OrganizationType
 
 # /manage/account/ forms
 
@@ -310,7 +311,22 @@ class Toggle2FARequirementForm(forms.Form):
 # /manage/organizations/ forms
 
 
-class NewOrganizationNameMixin:
+class OrganizationRoleNameMixin:
+
+    role_name = wtforms.SelectField(
+        "Select role",
+        choices=[
+            ("", "Select role"),
+            ("Member", "Member"),
+            ("Manager", "Manager"),
+            ("Owner", "Owner"),
+            ("Billing Manager", "Billing Manager"),
+        ],
+        validators=[wtforms.validators.DataRequired(message="Select role")],
+    )
+
+
+class OrganizationNameMixin:
 
     name = wtforms.StringField(
         validators=[
@@ -350,7 +366,33 @@ class NewOrganizationNameMixin:
             )
 
 
-class CreateOrganizationForm(forms.Form, NewOrganizationNameMixin):
+class CreateOrganizationRoleForm(OrganizationRoleNameMixin, UsernameMixin, forms.Form):
+    def __init__(self, *args, orgtype, organization_service, user_service, **kwargs):
+        super().__init__(*args, **kwargs)
+        if orgtype != OrganizationType.Company:
+            # Remove "Billing Manager" choice if organization is not a "Company"
+            self.role_name.choices = [
+                choice
+                for choice in self.role_name.choices
+                if "Billing Manager" not in choice
+            ]
+        self.organization_service = organization_service
+        self.user_service = user_service
+
+
+class ChangeOrganizationRoleForm(OrganizationRoleNameMixin, forms.Form):
+    def __init__(self, *args, orgtype, **kwargs):
+        super().__init__(*args, **kwargs)
+        if orgtype != OrganizationType.Company:
+            # Remove "Billing Manager" choice if organization is not a "Company"
+            self.role_name.choices = [
+                choice
+                for choice in self.role_name.choices
+                if "Billing Manager" not in choice
+            ]
+
+
+class CreateOrganizationForm(forms.Form, OrganizationNameMixin):
 
     __params__ = ["name", "display_name", "link_url", "description", "orgtype"]
 

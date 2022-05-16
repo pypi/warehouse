@@ -429,6 +429,16 @@ def configure(settings=None):
     # And some enums to reuse in the templates
     jglobals.setdefault("AdminFlagValue", "warehouse.admin.flags:AdminFlagValue")
     jglobals.setdefault(
+        "OrganizationInvitationStatus",
+        "warehouse.organizations.models:OrganizationInvitationStatus",
+    )
+    jglobals.setdefault(
+        "OrganizationRoleType", "warehouse.organizations.models:OrganizationRoleType"
+    )
+    jglobals.setdefault(
+        "OrganizationType", "warehouse.organizations.models:OrganizationType"
+    )
+    jglobals.setdefault(
         "RoleInvitationStatus", "warehouse.packaging.models:RoleInvitationStatus"
     )
 
