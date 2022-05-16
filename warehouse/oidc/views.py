@@ -58,7 +58,7 @@ def mint_token_from_oidc(request):
     # identifier in the request body.
     oidc_service = request.find_service(IOIDCProviderService, name="github")
     if not oidc_service.verify_for_project(unverified_jwt, project):
-        return _invalid(f"invalid token for project: {project_name}")
+        return _invalid(f"invalid OpenID Connect token for project: {project_name}")
 
     # At this point, we've verified that the given JWT is valid for the given
     # project. All we need to do is mint a new token.
