@@ -1205,19 +1205,18 @@ def file_upload(request):
         )
         request.db.add(release)
 
-        if request.user:
-            # TODO: This should be handled by some sort of database trigger or
-            #       a SQLAlchemy hook or the like instead of doing it inline in
-            #       this view.
-            request.db.add(
-                JournalEntry(
-                    name=release.project.name,
-                    version=release.version,
-                    action="new release",
-                    submitted_by=request.user,
-                    submitted_from=request.remote_addr,
-                )
+        # TODO: This should be handled by some sort of database trigger or
+        #       a SQLAlchemy hook or the like instead of doing it inline in
+        #       this view.
+        request.db.add(
+            JournalEntry(
+                name=release.project.name,
+                version=release.version,
+                action="new release",
+                submitted_by=request.user if request.user else None,
+                submitted_from=request.remote_addr,
             )
+        )
 
         project.record_event(
             tag="project:release:add",
@@ -1465,21 +1464,20 @@ def file_upload(request):
         file_data = file_
         request.db.add(file_)
 
-        if request.user:
-            # TODO: This should be handled by some sort of database trigger or a
-            #       SQLAlchemy hook or the like instead of doing it inline in this
-            #       view.
-            request.db.add(
-                JournalEntry(
-                    name=release.project.name,
-                    version=release.version,
-                    action="add {python_version} file {filename}".format(
-                        python_version=file_.python_version, filename=file_.filename
-                    ),
-                    submitted_by=request.user,
-                    submitted_from=request.remote_addr,
-                )
+        # TODO: This should be handled by some sort of database trigger or a
+        #       SQLAlchemy hook or the like instead of doing it inline in this
+        #       view.
+        request.db.add(
+            JournalEntry(
+                name=release.project.name,
+                version=release.version,
+                action="add {python_version} file {filename}".format(
+                    python_version=file_.python_version, filename=file_.filename
+                ),
+                submitted_by=request.user if request.user else None,
+                submitted_from=request.remote_addr,
             )
+        )
 
         # TODO: We need a better answer about how to make this transactional so
         #       this won't take affect until after a commit has happened, for

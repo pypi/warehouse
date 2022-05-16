@@ -24,6 +24,8 @@
 
   <p>{% trans %}Each time you or your collaborators update this project, the action is recorded and displayed here.{% endtrans %}</p>
 
+  <p>{% trans %}Actions done directly by the project itself (like OpenID Connect releases) will also appear here.{% endtrans %}</p>
+
   <div class="callout-block callout-block--warning no-top-margin">
     <p>{% trans href=request.route_path('manage.project.history', project_name=project.normalized_name) %}This feature will be deprecated in the future, replaced by the <a href="{{ href }}">security history page</a>.{% endtrans %}</p>
   </div>
@@ -50,7 +52,11 @@
         </td>
         <td>
           <span class="table__mobile-label">{% trans %}User{% endtrans %}</span>
+          {% if journal.submitted_by %}
           {{ journal.submitted_by.username }}
+          {% else %}
+          {% trans %}No user (project-scoped API token or other automatic event){% endtrans %}
+          {% endif %}
           <span class="table__ip">{% trans ip_address=journal.submitted_from %}from {{ ip_address }}{% endtrans %}</span>
         </td>
       </tr>
