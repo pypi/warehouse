@@ -83,6 +83,7 @@ def json_project(project, request):
 @view_config(
     route_name="legacy.api.json.project_slash",
     context=Project,
+    renderer="json",
     decorator=_CACHE_DECORATOR,
 )
 def json_project_slash(project, request):
@@ -215,6 +216,7 @@ def json_release(release, request):
 @view_config(
     route_name="legacy.api.json.release_slash",
     context=Release,
+    renderer="json",
     decorator=_CACHE_DECORATOR,
 )
 def json_release_slash(release, request):
