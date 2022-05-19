@@ -86,11 +86,7 @@ def json_project(project, request):
     decorator=_CACHE_DECORATOR,
 )
 def json_project_slash(project, request):
-    return HTTPMovedPermanently(
-        # Respond with redirect to url without trailing slash
-        request.route_path("legacy.api.json.project", name=project.name),
-        headers=_CORS_HEADERS,
-    )
+    return json_project(project, request)
 
 
 @view_config(
@@ -222,12 +218,4 @@ def json_release(release, request):
     decorator=_CACHE_DECORATOR,
 )
 def json_release_slash(release, request):
-    return HTTPMovedPermanently(
-        # Respond with redirect to url without trailing slash
-        request.route_path(
-            "legacy.api.json.release",
-            name=release.project.name,
-            version=release.version,
-        ),
-        headers=_CORS_HEADERS,
-    )
+    return json_release(release, request)
