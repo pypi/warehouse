@@ -1,0 +1,137 @@
+{#
+ # Licensed under the Apache License, Version 2.0 (the "License");
+ # you may not use this file except in compliance with the License.
+ # You may obtain a copy of the License at
+ #
+ # http://www.apache.org/licenses/LICENSE-2.0
+ #
+ # Unless required by applicable law or agreed to in writing, software
+ # distributed under the License is distributed on an "AS IS" BASIS,
+ # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ # See the License for the specific language governing permissions and
+ # limitations under the License.
+-#}
+{% extends "manage_organization_base.html" %}
+
+{% set user = request.user %}
+{% set title = gettext("Organization projects") %}
+
+{% set active_tab = 'projects' %}
+
+{% block title %}{% trans organization_name=organization.name %}Manage '{{ organization_name }}' projects{% endtrans %}{% endblock %}
+
+{% block main %}
+  <h2>{% trans project_count=active_projects|length %}Projects ({{ project_count }}){% endtrans %}</h2>
+
+  <div class="package-list">
+    {% set user_has_two_factor = request.user.has_two_factor %}
+    {% for project in active_projects %}
+    {% set release = project.releases[0] if project.releases else None %}
+    <div class="package-snippet">
+      <div class="split-layout split-layout--no-wrap split-layout--wrap-on-tablet">
+        <div>
+          <h3 class="package-snippet__title">{{ project.name }}
+            {% if (
+              request.registry.settings["warehouse.two_factor_requirement.enabled"]
+              and project.owners_require_2fa
+            ) %}
+            <a href="{{ request.route_path('manage.project.settings', project_name=project.normalized_name) }}" class="badge badge--neutral package-snippet__badge" title="{% trans %}This project requires 2FA to be enabled to manage{% endtrans %}">
+              {% trans %}2FA Required{% endtrans %}
+            </a>
+            {% elif (
+              request.registry.settings["warehouse.two_factor_mandate.enabled"]
+              and project.pypi_mandates_2fa
+            ) %}
+            <span class="badge badge--neutral package-snippet__badge" title="{% trans %}This is a critical project for the Python ecosystem{% endtrans %}">
+              {% trans %}Critical Project{% endtrans %}
+            </span>
+            <span class="badge badge--neutral package-snippet__badge" title="{% trans %}PyPI requires 2FA to be enabled to manage this project{% endtrans %}">
+              {% trans %}2FA Mandated{% endtrans %}
+            </span>
+            {% elif (
+              request.registry.settings["warehouse.two_factor_mandate.available"]
+              and project.pypi_mandates_2fa
+            ) %}
+            <span class="badge badge--neutral package-snippet__badge" title="{% trans %}This is a critical project for the Python ecosystem{% endtrans %}">
+              {% trans %}Critical Project{% endtrans %}
+            </span>
+            {% endif %}
+            {% if project.name in projects_sole_owned %}
+            <a href="{{ request.route_path('manage.project.roles', project_name=project.normalized_name) }}" class="badge badge--warning package-snippet__badge">{% trans %}Sole owner{% endtrans %}</a>
+            {% endif %}
+          </h3>
+          {% if release %}
+          <p class="package-snippet__meta">
+            {% trans release_date=humanize(release.created) %}Last released {{ release_date }}{% endtrans %}
+          </p>
+          <p class="package-snippet__description">
+            {{ release.summary }}
+          </p>
+          {% else %}
+          <p class="package-snippet__meta">
+            {% trans creation_date=humanize(project.created) %}Created {{ creation_date }}{% endtrans %}
+          </p>
+          {% endif %}
+        </div>
+        <div class="package-snippet__buttons">
+
+          {% if project.name in projects_owned %}
+            {% if (
+              not user_has_two_factor
+              and project.name in projects_requiring_2fa
+              and project.pypi_mandates_2fa
+              and request.registry.settings["warehouse.two_factor_mandate.enabled"]
+            ) %}
+            {# Show 2FA mandated button #}
+            <a
+              href="{{ request.route_path('manage.account.two-factor') }}"
+              class="button button--danger"
+              title="{% trans %}PyPI requires 2FA to be enabled to manage this project{% endtrans %}"
+            >{% trans %}2FA Mandated{% endtrans %}</a>
+            {% elif (
+              not user_has_two_factor
+              and project.name in projects_requiring_2fa
+              and project.owners_require_2fa
+              and request.registry.settings["warehouse.two_factor_requirement.enabled"]
+            ) %}
+            {# Show 2FA required button #}
+            <a
+              href="{{ request.route_path('manage.account.two-factor') }}"
+              class="button button--danger"
+              title="{% trans %}This project requires 2FA to be enabled to manage{% endtrans %}"
+            >{% trans %}2FA Required{% endtrans %}</a>
+            {% else %}
+            {# Show manage button #}
+            <a
+            href="{{ request.route_path('manage.project.releases', project_name=project.normalized_name) }}"
+            class="button button--primary"
+            title="{% trans %}Manage this project{% endtrans %}"
+            >{% trans %}Manage{% endtrans %}</a>
+            {% endif %}
+          {% else %}
+          {# Show disabled button #}
+          <button class="button button--primary" disabled title="{% trans %}You are not an owner of this project{% endtrans %}">
+            {% trans %}Manage{% endtrans %}
+          </button>
+          {% endif %}
+          {% if project.releases %}
+          <a
+            href="{{ request.route_path('packaging.project', name=project.normalized_name) }}"
+            class="button"
+            title="{% trans %}View this project's public page{% endtrans %}"
+            >{% trans %}View{% endtrans %}</a>
+          {% else %}
+          <button class="button" disabled title="{% trans %}This project has no releases{% endtrans %}" >
+            {% trans %}View{% endtrans %}
+          </button>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+    {% else %}
+      <div class="callout-block no-top-margin">
+        <p>{% trans href='https://packaging.python.org/' %}You have not added any projects to your organization, yet. Get started by adding a project that you own using the form below. To learn how to create a new project, visit the <a href="{{ href }}" target="_blank" rel="noopener">Python Packaging User Guide</a>{% endtrans %}</p>
+      </div>
+    {% endfor %}
+  </div>
+{% endblock %}

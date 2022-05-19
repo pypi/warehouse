@@ -301,53 +301,53 @@ msgstr ""
 msgid "Generating new recovery codes will invalidate your existing codes."
 msgstr ""
 
-#: warehouse/manage/views.py:1417
+#: warehouse/manage/views.py:1470
 msgid "User '${username}' already has ${role_name} role for organization"
 msgstr ""
 
-#: warehouse/manage/views.py:1428
+#: warehouse/manage/views.py:1481
 msgid ""
 "User '${username}' does not have a verified primary email address and "
 "cannot be added as a ${role_name} for organization"
 msgstr ""
 
-#: warehouse/manage/views.py:1442 warehouse/manage/views.py:2680
+#: warehouse/manage/views.py:1495 warehouse/manage/views.py:2733
 msgid "User '${username}' already has an active invite. Please try again later."
 msgstr ""
 
-#: warehouse/manage/views.py:1499 warehouse/manage/views.py:2738
+#: warehouse/manage/views.py:1552 warehouse/manage/views.py:2791
 msgid "Invitation sent to '${username}'"
 msgstr ""
 
-#: warehouse/manage/views.py:1542
+#: warehouse/manage/views.py:1595
 msgid "Could not find organization invitation."
 msgstr ""
 
-#: warehouse/manage/views.py:1556 warehouse/manage/views.py:2796
+#: warehouse/manage/views.py:1609 warehouse/manage/views.py:2849
 msgid "Invitation already expired."
 msgstr ""
 
-#: warehouse/manage/views.py:1589 warehouse/manage/views.py:2820
+#: warehouse/manage/views.py:1642 warehouse/manage/views.py:2873
 msgid "Invitation revoked from '${username}'."
 msgstr ""
 
-#: warehouse/manage/views.py:1975
+#: warehouse/manage/views.py:2028
 msgid ""
 "There have been too many attempted OpenID Connect registrations. Try "
 "again later."
 msgstr ""
 
-#: warehouse/manage/views.py:2656
+#: warehouse/manage/views.py:2709
 msgid "User '${username}' already has ${role_name} role for project"
 msgstr ""
 
-#: warehouse/manage/views.py:2667
+#: warehouse/manage/views.py:2720
 msgid ""
 "User '${username}' does not have a verified primary email address and "
 "cannot be added as a ${role_name} for project"
 msgstr ""
 
-#: warehouse/manage/views.py:2785
+#: warehouse/manage/views.py:2838
 msgid "Could not find role invitation."
 msgstr ""
 
@@ -1161,6 +1161,7 @@ msgid "No projects"
 msgstr ""
 
 #: warehouse/templates/accounts/profile.html:79
+#: warehouse/templates/manage/organization/projects.html:65
 #: warehouse/templates/manage/projects.html:34
 #: warehouse/templates/manage/projects.html:98
 #, python-format
@@ -2160,11 +2161,15 @@ msgid "Navigation for managing %(organization)s"
 msgstr ""
 
 #: warehouse/templates/includes/manage/manage-organization-menu.html:19
+msgid "Projects"
+msgstr ""
+
+#: warehouse/templates/includes/manage/manage-organization-menu.html:25
 #: warehouse/templates/manage/organization/roles.html:37
 msgid "People"
 msgstr ""
 
-#: warehouse/templates/includes/manage/manage-organization-menu.html:25
+#: warehouse/templates/includes/manage/manage-organization-menu.html:31
 #: warehouse/templates/includes/manage/manage-project-menu.html:59
 msgid "Settings"
 msgstr ""
@@ -3060,6 +3065,8 @@ msgid "from %(ip_address)s"
 msgstr ""
 
 #: warehouse/templates/manage/manage_base.html:16
+#: warehouse/templates/manage/organization/projects.html:109
+#: warehouse/templates/manage/organization/projects.html:114
 #: warehouse/templates/manage/organizations.html:81
 #: warehouse/templates/manage/organizations.html:86
 #: warehouse/templates/manage/organizations.html:91
@@ -3295,6 +3302,7 @@ msgstr ""
 msgid "Pending invitations (%(invitation_count)s)"
 msgstr ""
 
+#: warehouse/templates/manage/organization/projects.html:72
 #: warehouse/templates/manage/organizations.html:32
 #: warehouse/templates/manage/organizations.html:69
 #: warehouse/templates/manage/projects.html:41
@@ -3348,6 +3356,8 @@ msgstr ""
 msgid "View this organization"
 msgstr ""
 
+#: warehouse/templates/manage/organization/projects.html:122
+#: warehouse/templates/manage/organization/projects.html:125
 #: warehouse/templates/manage/organizations.html:76
 #: warehouse/templates/manage/projects.html:155
 #: warehouse/templates/manage/projects.html:158
@@ -3434,52 +3444,69 @@ msgstr ""
 msgid "Create"
 msgstr ""
 
+#: warehouse/templates/manage/organization/projects.html:38
+#: warehouse/templates/manage/organization/projects.html:101
 #: warehouse/templates/manage/projects.html:71
 #: warehouse/templates/manage/projects.html:134
 msgid "This project requires 2FA to be enabled to manage"
 msgstr ""
 
+#: warehouse/templates/manage/organization/projects.html:39
+#: warehouse/templates/manage/organization/projects.html:102
 #: warehouse/templates/manage/projects.html:72
 #: warehouse/templates/manage/projects.html:135
 msgid "2FA Required"
 msgstr ""
 
+#: warehouse/templates/manage/organization/projects.html:45
+#: warehouse/templates/manage/organization/projects.html:55
 #: warehouse/templates/manage/projects.html:78
 #: warehouse/templates/manage/projects.html:88
 msgid "This is a critical project for the Python ecosystem"
 msgstr ""
 
+#: warehouse/templates/manage/organization/projects.html:46
+#: warehouse/templates/manage/organization/projects.html:56
 #: warehouse/templates/manage/projects.html:79
 #: warehouse/templates/manage/projects.html:89
 msgid "Critical Project"
 msgstr ""
 
+#: warehouse/templates/manage/organization/projects.html:48
+#: warehouse/templates/manage/organization/projects.html:89
 #: warehouse/templates/manage/projects.html:81
 #: warehouse/templates/manage/projects.html:122
 msgid "PyPI requires 2FA to be enabled to manage this project"
 msgstr ""
 
+#: warehouse/templates/manage/organization/projects.html:49
+#: warehouse/templates/manage/organization/projects.html:90
 #: warehouse/templates/manage/projects.html:82
 #: warehouse/templates/manage/projects.html:123
 msgid "2FA Mandated"
 msgstr ""
 
+#: warehouse/templates/manage/organization/projects.html:60
 #: warehouse/templates/manage/projects.html:93
 msgid "Sole owner"
 msgstr ""
 
+#: warehouse/templates/manage/organization/projects.html:108
 #: warehouse/templates/manage/projects.html:141
 msgid "Manage this project"
 msgstr ""
 
+#: warehouse/templates/manage/organization/projects.html:113
 #: warehouse/templates/manage/projects.html:146
 msgid "You are not an owner of this project"
 msgstr ""
 
+#: warehouse/templates/manage/organization/projects.html:121
 #: warehouse/templates/manage/projects.html:154
 msgid "View this project's public page"
 msgstr ""
 
+#: warehouse/templates/manage/organization/projects.html:124
 #: warehouse/templates/manage/projects.html:157
 msgid "This project has no releases"
 msgstr ""
@@ -4485,6 +4512,29 @@ msgstr ""
 
 #: warehouse/templates/manage/organization/manage_organization_base.html:40
 msgid "Back to organizations"
+msgstr ""
+
+#: warehouse/templates/manage/organization/projects.html:17
+msgid "Organization projects"
+msgstr ""
+
+#: warehouse/templates/manage/organization/projects.html:21
+#, python-format
+msgid "Manage '%(organization_name)s' projects"
+msgstr ""
+
+#: warehouse/templates/manage/organization/projects.html:24
+#, python-format
+msgid "Projects (%(project_count)s)"
+msgstr ""
+
+#: warehouse/templates/manage/organization/projects.html:133
+#, python-format
+msgid ""
+"You have not added any projects to your organization, yet. Get started by"
+" adding a project that you own using the form below. To learn how to "
+"create a new project, visit the <a href=\"%(href)s\" target=\"_blank\" "
+"rel=\"noopener\">Python Packaging User Guide</a>"
 msgstr ""
 
 #: warehouse/templates/manage/organization/roles.html:18

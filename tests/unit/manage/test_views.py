@@ -2975,6 +2975,39 @@ class TestManageOrganizationSettings:
             view.delete_organization()
 
 
+class TestManageOrganizationProjects:
+    def test_manage_organization_projects(
+        self,
+        db_request,
+        pyramid_user,
+        organization_service,
+        enable_organizations,
+        monkeypatch,
+    ):
+        organization = OrganizationFactory.create()
+        organization.projects = [ProjectFactory.create()]
+
+        view = views.ManageOrganizationProjectsViews(organization, db_request)
+        result = view.manage_organization_projects()
+
+        assert view.request == db_request
+        assert view.organization_service == organization_service
+        assert result == {
+            "organization": organization,
+            "active_projects": view.active_projects,
+            "projects_owned": set(),
+            "projects_sole_owned": set(),
+            "projects_requiring_2fa": set(),
+        }
+
+    def test_manage_organization_projects_disable_organizations(self, db_request):
+        organization = OrganizationFactory.create()
+
+        view = views.ManageOrganizationProjectsViews(organization, db_request)
+        with pytest.raises(HTTPNotFound):
+            view.manage_organization_projects()
+
+
 class TestManageOrganizationRoles:
     def test_get_manage_organization_roles(self, db_request, enable_organizations):
         organization = OrganizationFactory.create(name="foobar")

@@ -1367,6 +1367,59 @@ class ManageOrganizationSettingsViews:
         return HTTPSeeOther(self.request.route_path("manage.organizations"))
 
 
+@view_defaults(
+    route_name="manage.organization.projects",
+    context=Organization,
+    renderer="manage/organization/projects.html",
+    uses_session=True,
+    require_csrf=True,
+    require_methods=False,
+    permission="view:organization",
+    has_translations=True,
+    require_reauth=True,
+)
+class ManageOrganizationProjectsViews:
+    def __init__(self, organization, request):
+        self.organization = organization
+        self.request = request
+        self.user_service = request.find_service(IUserService, context=None)
+        self.organization_service = request.find_service(
+            IOrganizationService, context=None
+        )
+
+    @property
+    def active_projects(self):
+        return self.organization.projects
+
+    @property
+    def default_response(self):
+        all_user_projects = user_projects(self.request)
+        projects_owned = set(
+            project.name for project in all_user_projects["projects_owned"]
+        )
+        projects_sole_owned = set(
+            project.name for project in all_user_projects["projects_sole_owned"]
+        )
+        projects_requiring_2fa = set(
+            project.name for project in all_user_projects["projects_requiring_2fa"]
+        )
+
+        return {
+            "organization": self.organization,
+            "active_projects": self.active_projects,
+            "projects_owned": projects_owned,
+            "projects_sole_owned": projects_sole_owned,
+            "projects_requiring_2fa": projects_requiring_2fa,
+        }
+
+    @view_config(request_method="GET")
+    def manage_organization_projects(self):
+        if self.request.flags.enabled(AdminFlagValue.DISABLE_ORGANIZATIONS):
+            raise HTTPNotFound
+
+        return self.default_response
+
+
 @view_config(
     route_name="manage.organization.roles",
     context=Organization,
