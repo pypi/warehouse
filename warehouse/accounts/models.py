@@ -25,6 +25,7 @@ from sqlalchemy import (
     Integer,
     LargeBinary,
     String,
+    Text,
     UniqueConstraint,
     orm,
     select,
@@ -237,3 +238,29 @@ class Email(db.ModelBase):
         nullable=True,
     )
     transient_bounces = Column(Integer, nullable=False, server_default=sql.text("0"))
+
+
+class ProhibitedUserName(db.Model):
+
+    __tablename__ = "prohibited_user_names"
+    __table_args__ = (
+        CheckConstraint(
+            "length(name) <= 50", name="prohibited_users_valid_username_length"
+        ),
+        CheckConstraint(
+            "name ~* '^([A-Z0-9]|[A-Z0-9][A-Z0-9._-]*[A-Z0-9])$'",
+            name="prohibited_users_valid_username",
+        ),
+    )
+
+    __repr__ = make_repr("name")
+
+    created = Column(
+        DateTime(timezone=False), nullable=False, server_default=sql.func.now()
+    )
+    name = Column(Text, unique=True, nullable=False)
+    _prohibited_by = Column(
+        "prohibited_by", UUID(as_uuid=True), ForeignKey("users.id"), index=True
+    )
+    prohibited_by = orm.relationship(User)
+    comment = Column(Text, nullable=False, server_default="")

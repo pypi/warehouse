@@ -1342,6 +1342,7 @@ class TestRegister:
                 merge=lambda _: {},
                 enabled=False,
                 verify_response=pretend.call_recorder(lambda _: None),
+                username_is_prohibited=lambda a: False,
                 find_userid=pretend.call_recorder(lambda _: None),
                 find_userid_by_email=pretend.call_recorder(lambda _: None),
                 update_user=lambda *args, **kwargs: None,

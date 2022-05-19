@@ -24,6 +24,7 @@ import requests
 from passlib.context import CryptContext
 from sqlalchemy.orm import joinedload
 from sqlalchemy.orm.exc import NoResultFound
+from sqlalchemy.sql import exists
 from webauthn.helpers import bytes_to_base64url
 from zope.interface import implementer
 
@@ -43,7 +44,14 @@ from warehouse.accounts.interfaces import (
     TooManyEmailsAdded,
     TooManyFailedLogins,
 )
-from warehouse.accounts.models import DisableReason, Email, RecoveryCode, User, WebAuthn
+from warehouse.accounts.models import (
+    DisableReason,
+    Email,
+    ProhibitedUserName,
+    RecoveryCode,
+    User,
+    WebAuthn,
+)
 from warehouse.metrics import IMetricsService
 from warehouse.rate_limiting import DummyRateLimiter, IRateLimiter
 from warehouse.utils.crypto import BadData, SignatureExpired, URLSafeTimedSerializer
@@ -104,6 +112,11 @@ class DatabaseUserService:
     @functools.lru_cache()
     def get_admins(self):
         return self.db.query(User).filter(User.is_superuser.is_(True)).all()
+
+    def username_is_prohibited(self, username):
+        return self.db.query(
+            exists().where(ProhibitedUserName.name == username.lower())
+        ).scalar()
 
     @functools.lru_cache()
     def find_userid(self, username):
