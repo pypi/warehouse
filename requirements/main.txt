@@ -1180,9 +1180,9 @@ translationstring==1.4 \
     --hash=sha256:5f4dc4d939573db851c8d840551e1a0fb27b946afe3b95aafc22577eed2d6262 \
     --hash=sha256:bf947538d76e69ba12ab17283b10355a9ecfbc078e6123443f43f2107f6376f3
     # via pyramid
-trove-classifiers==2022.4.11 \
-    --hash=sha256:6dfa96a559248e90dd5b0d56e9d114711b75a3159980061865d4b0960888e3e4 \
-    --hash=sha256:c0e3f0ab337b0538656e91e65c0cf1864c785999fa62111f1289c26723d22463
+trove-classifiers==2022.5.19 \
+    --hash=sha256:83e281589b70e7ee23da9af84fbe3bf819341206d7115beee5c8e61efe6223f5 \
+    --hash=sha256:93a2f00ace24485ca7999b8ca0bb8080bbb62f2649c99fbb4addb0217fd94843
     # via -r requirements/main.in
 typeguard==2.13.3 \
     --hash=sha256:00edaa8da3a133674796cf5ea87d9f4b4c367d77476e185e80251cc13dfbb8c4 \
