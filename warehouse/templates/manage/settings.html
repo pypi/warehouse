@@ -136,6 +136,28 @@
   </div>
 
   <div class="callout-block callout-block--danger">
+    <h3>{% trans %}Remove project from organization{% endtrans %}</h3>
+    <p>
+      <i class="fa fa-exclamation-triangle" aria-hidden="true"><span class="sr-only">{% trans %}Warning{% endtrans %}</span></i>
+      {% trans %}Removing this project from the organization will:{% endtrans %}
+    </p>
+    <ul>
+      <li>
+        {% trans %}Remove ownership of this project from the "psf" organization.{% endtrans %}
+      </li>
+      <li>
+        {% trans %}Grant ownership of the project to the other organization.{% endtrans %}
+      </li>
+    </ul>
+    <p>
+      {% trans %}Individual owners and maintainers of the project will retain their permissions for the project.{% endtrans %}
+    </p>
+    {# set action = request.route_path('manage.project.remove_project_from_organization', project_name=project.normalized_name) #}
+    {% set action = "#" %}
+    {{ confirm_button(gettext("Remove project"), gettext("Project Name"), "project_name", project.name, action=action) }}
+  </div>
+
+  <div class="callout-block callout-block--danger">
     <h3>{% trans %}Delete project{% endtrans %}</h3>
     <p>
       <i class="fa fa-exclamation-triangle" aria-hidden="true"><span class="sr-only">{% trans %}Warning{% endtrans %}</span></i>

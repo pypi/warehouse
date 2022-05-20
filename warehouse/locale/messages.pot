@@ -672,6 +672,7 @@ msgstr ""
 #: warehouse/templates/manage/release.html:163
 #: warehouse/templates/manage/settings.html:119
 #: warehouse/templates/manage/settings.html:141
+#: warehouse/templates/manage/settings.html:163
 msgid "Warning"
 msgstr ""
 
@@ -4146,14 +4147,17 @@ msgid "Transferring this project will:"
 msgstr ""
 
 #: warehouse/templates/manage/settings.html:124
+#: warehouse/templates/manage/settings.html:146
 msgid "Remove ownership of this project from the \"psf\" organization."
 msgstr ""
 
 #: warehouse/templates/manage/settings.html:127
+#: warehouse/templates/manage/settings.html:149
 msgid "Grant ownership of the project to the other organization."
 msgstr ""
 
 #: warehouse/templates/manage/settings.html:131
+#: warehouse/templates/manage/settings.html:153
 msgid ""
 "Individual owners and maintainers of the project will retain their "
 "permissions for the project."
@@ -4164,20 +4168,33 @@ msgid "Transfer project"
 msgstr ""
 
 #: warehouse/templates/manage/settings.html:135
-#: warehouse/templates/manage/settings.html:170
+#: warehouse/templates/manage/settings.html:157
+#: warehouse/templates/manage/settings.html:192
 msgid "Project Name"
 msgstr ""
 
 #: warehouse/templates/manage/settings.html:139
-#: warehouse/templates/manage/settings.html:170
-msgid "Delete project"
+msgid "Remove project from organization"
 msgstr ""
 
 #: warehouse/templates/manage/settings.html:142
+msgid "Removing this project from the organization will:"
+msgstr ""
+
+#: warehouse/templates/manage/settings.html:157
+msgid "Remove project"
+msgstr ""
+
+#: warehouse/templates/manage/settings.html:161
+#: warehouse/templates/manage/settings.html:192
+msgid "Delete project"
+msgstr ""
+
+#: warehouse/templates/manage/settings.html:164
 msgid "Deleting this project will:"
 msgstr ""
 
-#: warehouse/templates/manage/settings.html:147
+#: warehouse/templates/manage/settings.html:169
 #, python-format
 msgid ""
 "Irreversibly delete the project along with <a href=\"%(href)s\">%(count)s"
@@ -4188,15 +4205,15 @@ msgid_plural ""
 msgstr[0] ""
 msgstr[1] ""
 
-#: warehouse/templates/manage/settings.html:153
+#: warehouse/templates/manage/settings.html:175
 msgid "Irreversibly delete the project"
 msgstr ""
 
-#: warehouse/templates/manage/settings.html:157
+#: warehouse/templates/manage/settings.html:179
 msgid "Make the project name available to <strong>any other PyPI</strong> user"
 msgstr ""
 
-#: warehouse/templates/manage/settings.html:159
+#: warehouse/templates/manage/settings.html:181
 msgid ""
 "This user will be able to make new releases under this project name, so "
 "long as the distribution filenames do not match filenames from a "
