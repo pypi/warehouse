@@ -86,6 +86,7 @@ from warehouse.manage.forms import (
     ConfirmPasswordForm,
     CreateMacaroonForm,
     CreateOrganizationForm,
+    CreateOrganizationProjectForm,
     CreateOrganizationRoleForm,
     CreateRoleForm,
     DeleteMacaroonForm,
@@ -113,6 +114,7 @@ from warehouse.packaging.models import (
     File,
     JournalEntry,
     Project,
+    ProjectFactory,
     Release,
     Role,
     RoleInvitation,
@@ -1403,6 +1405,7 @@ class ManageOrganizationProjectsViews:
         projects_requiring_2fa = set(
             project.name for project in all_user_projects["projects_requiring_2fa"]
         )
+        project_factory = ProjectFactory(self.request)
 
         return {
             "organization": self.organization,
@@ -1410,6 +1413,10 @@ class ManageOrganizationProjectsViews:
             "projects_owned": projects_owned,
             "projects_sole_owned": projects_sole_owned,
             "projects_requiring_2fa": projects_requiring_2fa,
+            "create_organization_project_form": CreateOrganizationProjectForm(
+                projects_owned=projects_owned,
+                project_factory=project_factory,
+            ),
         }
 
     @view_config(request_method="GET")

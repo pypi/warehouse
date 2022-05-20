@@ -2987,6 +2987,14 @@ class TestManageOrganizationProjects:
         organization = OrganizationFactory.create()
         organization.projects = [ProjectFactory.create()]
 
+        create_organization_project_obj = pretend.stub()
+        create_organization_project_cls = pretend.call_recorder(
+            lambda *a, **kw: create_organization_project_obj
+        )
+        monkeypatch.setattr(
+            views, "CreateOrganizationProjectForm", create_organization_project_cls
+        )
+
         view = views.ManageOrganizationProjectsViews(organization, db_request)
         result = view.manage_organization_projects()
 
@@ -2994,11 +3002,18 @@ class TestManageOrganizationProjects:
         assert view.organization_service == organization_service
         assert result == {
             "organization": organization,
+            "create_organization_project_form": create_organization_project_obj,
             "active_projects": view.active_projects,
             "projects_owned": set(),
             "projects_sole_owned": set(),
             "projects_requiring_2fa": set(),
         }
+        assert create_organization_project_cls.calls == [
+            pretend.call(
+                projects_owned=set(),
+                project_factory=views.ProjectFactory(db_request),
+            ),
+        ]
 
     def test_manage_organization_projects_disable_organizations(self, db_request):
         organization = OrganizationFactory.create()

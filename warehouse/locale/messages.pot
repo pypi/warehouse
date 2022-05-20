@@ -116,7 +116,7 @@ msgstr ""
 msgid "Successful WebAuthn assertion"
 msgstr ""
 
-#: warehouse/accounts/views.py:447 warehouse/manage/views.py:840
+#: warehouse/accounts/views.py:447 warehouse/manage/views.py:842
 msgid "Recovery code accepted. The supplied code cannot be used again."
 msgstr ""
 
@@ -271,83 +271,83 @@ msgid ""
 "organization account name."
 msgstr ""
 
-#: warehouse/manage/forms.py:413
+#: warehouse/manage/forms.py:432
 msgid ""
 "The organization name is too long. Choose a organization name with 100 "
 "characters or less."
 msgstr ""
 
-#: warehouse/manage/forms.py:425
+#: warehouse/manage/forms.py:444
 msgid ""
 "The organization URL is too long. Choose a organization URL with 400 "
 "characters or less."
 msgstr ""
 
-#: warehouse/manage/forms.py:439
+#: warehouse/manage/forms.py:458
 msgid ""
 "The organization description is too long. Choose a organization "
 "description with 400 characters or less."
 msgstr ""
 
-#: warehouse/manage/views.py:271
+#: warehouse/manage/views.py:273
 msgid "Email ${email_address} added - check your email for a verification link"
 msgstr ""
 
-#: warehouse/manage/views.py:788
+#: warehouse/manage/views.py:790
 msgid "Recovery codes already generated"
 msgstr ""
 
-#: warehouse/manage/views.py:789
+#: warehouse/manage/views.py:791
 msgid "Generating new recovery codes will invalidate your existing codes."
 msgstr ""
 
-#: warehouse/manage/views.py:1470
+#: warehouse/manage/views.py:1477
 msgid "User '${username}' already has ${role_name} role for organization"
 msgstr ""
 
-#: warehouse/manage/views.py:1481
+#: warehouse/manage/views.py:1488
 msgid ""
 "User '${username}' does not have a verified primary email address and "
 "cannot be added as a ${role_name} for organization"
 msgstr ""
 
-#: warehouse/manage/views.py:1495 warehouse/manage/views.py:2733
+#: warehouse/manage/views.py:1502 warehouse/manage/views.py:2740
 msgid "User '${username}' already has an active invite. Please try again later."
 msgstr ""
 
-#: warehouse/manage/views.py:1552 warehouse/manage/views.py:2791
+#: warehouse/manage/views.py:1559 warehouse/manage/views.py:2798
 msgid "Invitation sent to '${username}'"
 msgstr ""
 
-#: warehouse/manage/views.py:1595
+#: warehouse/manage/views.py:1602
 msgid "Could not find organization invitation."
 msgstr ""
 
-#: warehouse/manage/views.py:1609 warehouse/manage/views.py:2849
+#: warehouse/manage/views.py:1616 warehouse/manage/views.py:2856
 msgid "Invitation already expired."
 msgstr ""
 
-#: warehouse/manage/views.py:1642 warehouse/manage/views.py:2873
+#: warehouse/manage/views.py:1649 warehouse/manage/views.py:2880
 msgid "Invitation revoked from '${username}'."
 msgstr ""
 
-#: warehouse/manage/views.py:2028
+#: warehouse/manage/views.py:2035
 msgid ""
 "There have been too many attempted OpenID Connect registrations. Try "
 "again later."
 msgstr ""
 
-#: warehouse/manage/views.py:2709
+#: warehouse/manage/views.py:2716
 msgid "User '${username}' already has ${role_name} role for project"
 msgstr ""
 
-#: warehouse/manage/views.py:2720
+#: warehouse/manage/views.py:2727
 msgid ""
 "User '${username}' does not have a verified primary email address and "
 "cannot be added as a ${role_name} for project"
 msgstr ""
 
-#: warehouse/manage/views.py:2838
+#: warehouse/manage/views.py:2845
 msgid "Could not find role invitation."
 msgstr ""
 
@@ -976,6 +976,7 @@ msgstr ""
 #: warehouse/templates/manage/account/recovery_codes-burn.html:70
 #: warehouse/templates/manage/account/totp-provision.html:69
 #: warehouse/templates/manage/account/webauthn-provision.html:44
+#: warehouse/templates/manage/organization/projects.html:150
 #: warehouse/templates/manage/organization/roles.html:194
 #: warehouse/templates/manage/organization/roles.html:206
 #: warehouse/templates/manage/organization/settings.html:44
@@ -4535,6 +4536,24 @@ msgid ""
 " adding a project that you own using the form below. To learn how to "
 "create a new project, visit the <a href=\"%(href)s\" target=\"_blank\" "
 "rel=\"noopener\">Python Packaging User Guide</a>"
+msgstr ""
+
+#: warehouse/templates/manage/organization/projects.html:142
+msgid "Add project to organization"
+msgstr ""
+
+#: warehouse/templates/manage/organization/projects.html:148
+msgid "️Project name"
+msgstr ""
+
+#: warehouse/templates/manage/organization/projects.html:160
+msgid ""
+"Owners of this organization can add projects that they own to the "
+"organization."
+msgstr ""
+
+#: warehouse/templates/manage/organization/projects.html:166
+msgid "Add project"
 msgstr ""
 
 #: warehouse/templates/manage/organization/roles.html:18
