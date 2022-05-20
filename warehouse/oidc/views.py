@@ -30,16 +30,16 @@ from warehouse.packaging.models import Project
 def mint_token_from_oidc(request):
     def _invalid(msg):
         request.response.status = 422
-        return {"error": msg}
+        return {"success": False, "description": msg}
 
     try:
         body = request.json_body
     except ValueError:
-        return _invalid("missing body")
+        return _invalid("missing JSON body")
 
     unverified_jwt = body.get("token")
     if not unverified_jwt:
-        return _invalid("missing token")
+        return _invalid("missing or empty token")
 
     project_name = body.get("project")
     if not project_name:
@@ -72,7 +72,7 @@ def mint_token_from_oidc(request):
     serialized, dm = macaroon_service.create_macaroon(
         location=request.domain,
         project_id=project.id,
-        description=f"OpenID created ephemeral token ({now})",
+        description=f"OpenID created token ({now})",
         caveats=caveats,
     )
     project.record_event(
@@ -83,4 +83,4 @@ def mint_token_from_oidc(request):
             "expires": expires,
         },
     )
-    return {"token": serialized}
+    return {"success": True, "token": serialized}

@@ -1137,7 +1137,7 @@ def file_upload(request):
                 "ephemeral": request.user is None,
                 "submitted_by": request.user.username
                 if request.user
-                else "OpenID created ephemeral token",
+                else "OpenID created token",
                 "canonical_version": release.canonical_version,
             },
         )
