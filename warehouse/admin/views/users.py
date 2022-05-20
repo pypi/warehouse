@@ -25,7 +25,7 @@ from sqlalchemy.orm.exc import NoResultFound
 
 from warehouse import forms
 from warehouse.accounts.interfaces import IUserService
-from warehouse.accounts.models import DisableReason, Email, User
+from warehouse.accounts.models import DisableReason, Email, ProhibitedUserName, User
 from warehouse.email import send_password_compromised_email
 from warehouse.packaging.models import JournalEntry, Project, Role
 from warehouse.utils.paginate import paginate_url_factory
@@ -226,6 +226,13 @@ def user_delete(request):
 
     for journal in journals:
         journal.submitted_by = deleted_user
+
+    # Prohibit the username
+    request.db.add(
+        ProhibitedUserName(
+            name=user.username.lower(), comment="nuked", prohibited_by=request.user
+        )
+    )
 
     # Delete the user
     request.db.delete(user)
