@@ -828,9 +828,9 @@ prompt-toolkit==3.0.29 \
     --hash=sha256:62291dad495e665fca0bda814e342c69952086afb0f4094d0893d357e5c78752 \
     --hash=sha256:bd640f60e8cecd74f0dc249713d433ace2ddc62b65ee07f96d358e0b152b6ea7
     # via click-repl
-proto-plus==1.20.3 \
-    --hash=sha256:b06be21c3848fbc20387d1d6891a9b97dfa1cdd0f10d3d42ef70b5700ec0f423 \
-    --hash=sha256:f28b225bc9e6c14e206fb7f8e996a46fb2ccd902648e512d496abb6a716a4ae5
+proto-plus==1.20.4 \
+    --hash=sha256:3cfaac30676793d5ee764a0982bc30481beb5059f315e2a2422d7c73ded5b601 \
+    --hash=sha256:6653541c2f1209e4d5268d3e6302791f72a95cc5f8bdcf3e60d943edc657e70a
     # via google-cloud-bigquery
 protobuf==3.20.1 \
     --hash=sha256:06059eb6953ff01e56a25cd02cca1a9649a75a7e65397b5b9b4e929ed71d10cf \
