@@ -1074,7 +1074,7 @@ msgid "Log in to %(title)s"
 msgstr ""
 
 #: warehouse/templates/accounts/login.html:49
-#: warehouse/templates/accounts/profile.html:32
+#: warehouse/templates/accounts/profile.html:38
 #: warehouse/templates/accounts/register.html:89
 #: warehouse/templates/email/organization-member-added/body.html:30
 #: warehouse/templates/email/organization-member-invited/body.html:30
@@ -1119,7 +1119,7 @@ msgstr ""
 msgid "Profile of %(username)s"
 msgstr ""
 
-#: warehouse/templates/accounts/profile.html:23
+#: warehouse/templates/accounts/profile.html:29
 #: warehouse/templates/manage/account.html:223
 #: warehouse/templates/manage/organization/roles.html:73
 #: warehouse/templates/manage/organization/roles.html:147
@@ -1128,16 +1128,16 @@ msgstr ""
 msgid "Avatar for {user} from gravatar.com"
 msgstr ""
 
-#: warehouse/templates/accounts/profile.html:43
+#: warehouse/templates/accounts/profile.html:49
 msgid "Date joined"
 msgstr ""
 
-#: warehouse/templates/accounts/profile.html:44
+#: warehouse/templates/accounts/profile.html:50
 #, python-format
 msgid "Joined %(start_date)s"
 msgstr ""
 
-#: warehouse/templates/accounts/profile.html:58
+#: warehouse/templates/accounts/profile.html:64
 #, python-format
 msgid ""
 "\n"
@@ -1150,18 +1150,18 @@ msgid_plural ""
 msgstr[0] ""
 msgstr[1] ""
 
-#: warehouse/templates/accounts/profile.html:64
+#: warehouse/templates/accounts/profile.html:70
 msgid "No projects"
 msgstr ""
 
-#: warehouse/templates/accounts/profile.html:73
+#: warehouse/templates/accounts/profile.html:79
 #: warehouse/templates/manage/projects.html:34
 #: warehouse/templates/manage/projects.html:98
 #, python-format
 msgid "Last released %(release_date)s"
 msgstr ""
 
-#: warehouse/templates/accounts/profile.html:81
+#: warehouse/templates/accounts/profile.html:87
 #, python-format
 msgid "%(user)s has not uploaded any projects to PyPI, yet"
 msgstr ""
