@@ -2703,6 +2703,8 @@ class TestManageOrganizationRoles:
             send_organization_role_verification_email,
         )
 
+        token_service.dumps = str
+
         result = views.manage_organization_roles(organization, db_request)
         form_obj = result["form"]
 
@@ -3016,6 +3018,8 @@ class TestManageOrganizationRoles:
             "send_organization_role_verification_email",
             send_organization_role_verification_email,
         )
+
+        token_service.dumps = str
 
         result = views.manage_organization_roles(
             organization, db_request, _form_class=form_class
