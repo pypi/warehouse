@@ -52,11 +52,11 @@
     "zopflipng-bin": "5.0.0"
   },
   "devDependencies": {
+    "@babel/eslint-parser": "7.17.0",
     "@testing-library/dom": "6.2.0",
     "@testing-library/jest-dom": "4.1.0",
-    "babel-eslint": "8.2.2",
     "babel-jest": "28.1.0",
-    "eslint": "4.18.2",
+    "eslint": "8.16.0",
     "jest": "28.1.0",
     "jest-environment-jsdom": "^28.1.0",
     "jest-fetch-mock": "2.1.2",
@@ -71,7 +71,7 @@
       "amd": true
     },
     "extends": "eslint:recommended",
-    "parser": "babel-eslint",
+    "parser": "@babel/eslint-parser",
     "parserOptions": {
       "sourceType": "module"
     },
