@@ -1,3 +1,7 @@
+[tool.black]
+line-length = 88
+target-version = ['py39']
+
 [tool.curlylint]
 # For jinja's i18n extension:
 template_tags = [['trans', 'pluralize', 'endtrans']]
