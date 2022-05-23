@@ -1310,6 +1310,12 @@ class ManageOrganizationSettingsViews:
             self.request.session.flash(
                 "Organization account name updated", queue="success"
             )
+            return HTTPSeeOther(
+                self.request.route_path(
+                    "manage.organization.settings",
+                    organization_name=self.organization.normalized_name,
+                )
+            )
         else:
             for error_list in form.errors.values():
                 for error in error_list:

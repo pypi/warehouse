@@ -2758,6 +2758,11 @@ class TestManageOrganizationSettings:
             "confirm_current_organization_name": organization.name,
             "name": "new-name",
         }
+        db_request.route_path = pretend.call_recorder(
+            lambda *a, organization_name, **kw: (
+                f"/manage/organization/{organization_name}/settings/"
+            )
+        )
 
         def rename_organization(organization_id, organization_name):
             organization.name = organization_name
@@ -2801,7 +2806,11 @@ class TestManageOrganizationSettings:
         view = views.ManageOrganizationSettingsViews(organization, db_request)
         result = view.save_organization_name()
 
-        assert result == view.default_response
+        assert isinstance(result, HTTPSeeOther)
+        assert (
+            result.headers["Location"]
+            == f"/manage/organization/{organization.normalized_name}/settings/"
+        )
         assert organization_service.rename_organization.calls == [
             pretend.call(organization.id, "new-name")
         ]
