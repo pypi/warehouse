@@ -13,6 +13,7 @@
 import enum
 
 from pyramid.authorization import Allow
+from pyramid.httpexceptions import HTTPPermanentRedirect
 from sqlalchemy import (
     Boolean,
     CheckConstraint,
@@ -116,6 +117,7 @@ class OrganizationFactory:
         self.request = request
 
     def __getitem__(self, organization):
+        # Try returning organization with matching name.
         try:
             return (
                 self.request.db.query(Organization)
@@ -124,6 +126,27 @@ class OrganizationFactory:
                     == func.normalize_pep426_name(organization)
                 )
                 .one()
+            )
+        except NoResultFound:
+            pass
+        # Try redirecting to a renamed organization.
+        try:
+            organization = (
+                self.request.db.query(Organization)
+                .join(
+                    OrganizationNameCatalog,
+                    OrganizationNameCatalog.organization_id == Organization.id,
+                )
+                .filter(
+                    OrganizationNameCatalog.normalized_name
+                    == func.normalize_pep426_name(organization)
+                )
+                .one()
+            )
+            raise HTTPPermanentRedirect(
+                self.request.matched_route.generate(
+                    {"organization_name": organization.normalized_name}
+                )
             )
         except NoResultFound:
             raise KeyError from None

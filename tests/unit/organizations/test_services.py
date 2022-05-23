@@ -145,13 +145,6 @@ class TestDatabaseOrganizationService:
         assert org_from_db.description == organization.description
         assert not org_from_db.is_active
 
-    def test_add_catalog_entry(self, organization_service):
-        organization = OrganizationFactory.create()
-
-        catalog_entry = organization_service.add_catalog_entry(organization.id)
-        assert catalog_entry.normalized_name == organization.normalized_name
-        assert catalog_entry.organization_id == organization.id
-
     def test_get_organization_role(self, organization_service, user_service):
         organization_role = OrganizationRoleFactory.create()
 

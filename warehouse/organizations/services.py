@@ -60,15 +60,15 @@ class DatabaseOrganizationService:
         """
         normalized_name = func.normalize_pep426_name(name)
         try:
-            organization = (
-                self.db.query(Organization.id)
-                .filter(Organization.normalized_name == normalized_name)
+            (organization_id,) = (
+                self.db.query(OrganizationNameCatalog.organization_id)
+                .filter(OrganizationNameCatalog.normalized_name == normalized_name)
                 .one()
             )
         except NoResultFound:
             return
 
-        return organization.id
+        return organization_id
 
     def get_organizations(self):
         """
