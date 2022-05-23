@@ -14,4 +14,4 @@
 
 {% extends "email/_base/subject.txt" %}
 
-{% block subject %}{% trans organization_name=organization_name previous_organization_name=previous_organization_name %}Organization renamed from "{{ previous_organization_name }}" to "{{ organization_name }}"{% endtrans %}{% endblock %}
+{% block subject %}{% trans organization_name=organization_name, previous_organization_name=previous_organization_name %}Organization renamed from "{{ previous_organization_name }}" to "{{ organization_name }}"{% endtrans %}{% endblock %}
