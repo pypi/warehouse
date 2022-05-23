@@ -194,17 +194,21 @@ class TestJSONProjectSlash:
     def test_normalizing_redirects(self, db_request):
         project = ProjectFactory.create()
 
-        db_request.route_path = pretend.call_recorder(
-            lambda *a, **kw: "/project/the-redirect"
+        name = project.name.lower()
+        if name == project.name:
+            name = project.name.upper()
+
+        db_request.matchdict = {"name": name}
+        db_request.current_route_path = pretend.call_recorder(
+            lambda name: "/project/the-redirect/"
         )
 
         resp = json.json_project_slash(project, db_request)
 
         assert isinstance(resp, HTTPMovedPermanently)
-        assert db_request.route_path.calls == [
-            pretend.call("legacy.api.json.project", name=project.name)
-        ]
-        assert resp.headers["Location"] == "/project/the-redirect"
+        assert resp.headers["Location"] == "/project/the-redirect/"
+        _assert_has_cors_headers(resp.headers)
+        assert db_request.current_route_path.calls == [pretend.call(name=project.name)]
 
 
 class TestJSONRelease:
@@ -575,20 +579,23 @@ class TestJSONRelease:
 
 class TestJSONReleaseSlash:
     def test_normalizing_redirects(self, db_request):
-        release = ReleaseFactory.create()
+        project = ProjectFactory.create()
+        release = ReleaseFactory.create(project=project, version="3.0")
 
-        db_request.route_path = pretend.call_recorder(
-            lambda *a, **kw: "/project/the-redirect"
+        name = release.project.name.lower()
+        if name == release.project.name:
+            name = release.project.name.upper()
+
+        db_request.matchdict = {"name": name}
+        db_request.current_route_path = pretend.call_recorder(
+            lambda name: "/project/the-redirect/3.0/"
         )
 
         resp = json.json_release_slash(release, db_request)
 
         assert isinstance(resp, HTTPMovedPermanently)
-        assert db_request.route_path.calls == [
-            pretend.call(
-                "legacy.api.json.release",
-                name=release.project.name,
-                version=release.version,
-            )
+        assert resp.headers["Location"] == "/project/the-redirect/3.0/"
+        _assert_has_cors_headers(resp.headers)
+        assert db_request.current_route_path.calls == [
+            pretend.call(name=release.project.name)
         ]
-        assert resp.headers["Location"] == "/project/the-redirect"

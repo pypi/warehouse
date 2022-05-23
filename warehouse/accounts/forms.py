@@ -103,7 +103,10 @@ class NewUsernameMixin:
     )
 
     def validate_username(self, field):
-        if self.user_service.find_userid(field.data) is not None:
+        if (
+            self.user_service.username_is_prohibited(field.data)
+            or self.user_service.find_userid(field.data) is not None
+        ):
             raise wtforms.validators.ValidationError(
                 _(
                     "This username is already being used by another "

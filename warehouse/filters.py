@@ -158,7 +158,9 @@ def localize_datetime(timestamp):
 
 
 def is_recent(timestamp):
-    return timestamp + datetime.timedelta(days=30) > datetime.datetime.now()
+    if timestamp:
+        return timestamp + datetime.timedelta(days=30) > datetime.datetime.now()
+    return False
 
 
 def includeme(config):

@@ -373,7 +373,23 @@ class TestRegistrationForm:
         form = forms.RegistrationForm(
             data={"username": "foo"},
             user_service=pretend.stub(
-                find_userid=pretend.call_recorder(lambda name: 1)
+                find_userid=pretend.call_recorder(lambda name: 1),
+                username_is_prohibited=lambda a: False,
+            ),
+            breach_service=pretend.stub(check_password=lambda pw, tags=None: False),
+        )
+        assert not form.validate()
+        assert (
+            str(form.username.errors.pop())
+            == "This username is already being used by another account. "
+            "Choose a different username."
+        )
+
+    def test_username_prohibted(self, pyramid_config):
+        form = forms.RegistrationForm(
+            data={"username": "foo"},
+            user_service=pretend.stub(
+                username_is_prohibited=lambda a: True,
             ),
             breach_service=pretend.stub(check_password=lambda pw, tags=None: False),
         )
@@ -389,7 +405,8 @@ class TestRegistrationForm:
         form = forms.RegistrationForm(
             data={"username": username},
             user_service=pretend.stub(
-                find_userid=pretend.call_recorder(lambda _: None)
+                find_userid=pretend.call_recorder(lambda _: None),
+                username_is_prohibited=lambda a: False,
             ),
             breach_service=pretend.stub(check_password=lambda pw, tags=None: False),
         )

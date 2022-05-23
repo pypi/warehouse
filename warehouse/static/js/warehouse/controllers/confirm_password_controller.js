@@ -16,7 +16,7 @@
 import { Controller } from "stimulus";
 
 export default class extends Controller {
-  static targets = [ "button", "password", "showPassword" ]
+  static targets = [ "button", "password", "showPassword" ];
 
   connect() {
     this.buttonTarget.disabled = true;

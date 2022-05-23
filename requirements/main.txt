@@ -128,9 +128,9 @@ celery[sqs]==5.2.6 \
 celery-redbeat==2.0.0 \
     --hash=sha256:cb8d6941be5df2666dd3188c3029c74e0fa33d50de6eaf7da88e0a5b591a190c
     # via -r requirements/main.in
-certifi==2021.10.8 \
-    --hash=sha256:78884e7c1d4b00ce3cea67b44566851c4343c120abd683433ce934a68ea58872 \
-    --hash=sha256:d62a0163eb4c2344ac042ab2bdf75399a71a2d8c7d47eac2e2ee91b9d6339569
+certifi==2022.5.18.1 \
+    --hash=sha256:9c5705e395cd70084351dd8ad5c41e65655e08ce46f2ec9cf6c2c08390f71eb7 \
+    --hash=sha256:f1d53542ee8cbedbe2118b5686372fb33c297fcd6379b050cca0ef13a597382a
     # via
     #   -r requirements/main.in
     #   elasticsearch
@@ -1180,9 +1180,9 @@ translationstring==1.4 \
     --hash=sha256:5f4dc4d939573db851c8d840551e1a0fb27b946afe3b95aafc22577eed2d6262 \
     --hash=sha256:bf947538d76e69ba12ab17283b10355a9ecfbc078e6123443f43f2107f6376f3
     # via pyramid
-trove-classifiers==2022.4.11 \
-    --hash=sha256:6dfa96a559248e90dd5b0d56e9d114711b75a3159980061865d4b0960888e3e4 \
-    --hash=sha256:c0e3f0ab337b0538656e91e65c0cf1864c785999fa62111f1289c26723d22463
+trove-classifiers==2022.5.19 \
+    --hash=sha256:83e281589b70e7ee23da9af84fbe3bf819341206d7115beee5c8e61efe6223f5 \
+    --hash=sha256:93a2f00ace24485ca7999b8ca0bb8080bbb62f2649c99fbb4addb0217fd94843
     # via -r requirements/main.in
 typeguard==2.13.3 \
     --hash=sha256:00edaa8da3a133674796cf5ea87d9f4b4c367d77476e185e80251cc13dfbb8c4 \

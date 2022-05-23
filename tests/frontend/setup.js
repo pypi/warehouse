@@ -11,8 +11,6 @@
  * limitations under the License.
  */
 
-/* global fetch */
-
 // Setup MutationObserver shim since jsdom doesn't
 // support it out of the box.
 
