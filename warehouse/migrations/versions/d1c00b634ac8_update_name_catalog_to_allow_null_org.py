@@ -13,7 +13,7 @@
 update_name_catalog_to_allow_null_org
 
 Revision ID: d1c00b634ac8
-Revises: 6e003184453d
+Revises: ad71523546f9
 Create Date: 2022-05-11 17:20:56.596019
 """
 
@@ -21,7 +21,7 @@ from alembic import op
 from sqlalchemy.dialects import postgresql
 
 revision = "d1c00b634ac8"
-down_revision = "6e003184453d"
+down_revision = "ad71523546f9"
 
 # Note: It is VERY important to ensure that a migration does not lock for a
 #       long period of time and to ensure that each individual migration does
