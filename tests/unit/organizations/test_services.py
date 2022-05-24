@@ -28,9 +28,11 @@ from warehouse.organizations.models import (
 from ...common.db.organizations import (
     OrganizationFactory,
     OrganizationInvitationFactory,
+    OrganizationProjectFactory,
     OrganizationRoleFactory,
     UserFactory,
 )
+from ...common.db.packaging import ProjectFactory
 
 
 def test_database_organizations_factory():
@@ -385,6 +387,49 @@ class TestDatabaseOrganizationService:
             .filter(
                 OrganizationNameCatalog.normalized_name
                 == db_organization.normalized_name
+            )
+            .count()
+        )
+
+    def test_get_organization_project(self, organization_service):
+        organization = OrganizationFactory.create()
+        project = ProjectFactory.create()
+        organization_project = OrganizationProjectFactory.create(
+            organization=organization, project=project
+        )
+
+        assert (
+            organization_service.get_organization_project(organization_project.id)
+            == organization_project
+        )
+
+    def test_add_organization_project(self, organization_service, db_request):
+        organization = OrganizationFactory.create()
+        project = ProjectFactory.create()
+
+        organization_service.add_organization_project(organization.id, project.id)
+        assert (
+            db_request.db.query(OrganizationProject)
+            .filter(
+                OrganizationProject.organization_id == organization.id,
+                OrganizationProject.project_id == project.id,
+            )
+            .count()
+        )
+
+    def test_delete_organization_project(self, organization_service, db_request):
+        organization = OrganizationFactory.create()
+        project = ProjectFactory.create()
+        organization_project = OrganizationProjectFactory.create(
+            organization=organization, project=project
+        )
+
+        organization_service.delete_organization_project(organization_project.id)
+        assert not (
+            db_request.db.query(OrganizationProject)
+            .filter(
+                OrganizationProject.organization_id == organization.id,
+                OrganizationProject.project_id == project.id,
             )
             .count()
         )
