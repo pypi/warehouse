@@ -342,6 +342,36 @@ class DatabaseOrganizationService:
 
         return organization
 
+    def get_organization_project(self, organization_project_id):
+        """
+        Return the organization project object that represents the given
+        organization project id or None
+        """
+        return self.db.query(OrganizationProject).get(organization_project_id)
+
+    def add_organization_project(self, organization_id, project_id):
+        """
+        Adds an association between the specified organization and project
+        """
+        organization_project = OrganizationProject(
+            organization_id=organization_id,
+            project_id=project_id,
+        )
+
+        self.db.add(organization_project)
+        self.db.flush()
+
+        return organization_project
+
+    def delete_organization_project(self, organization_project_id):
+        """
+        Performs soft delete of association between specified organization and project
+        """
+        organization_project = self.get_organization_project(organization_project_id)
+
+        self.db.delete(organization_project)
+        self.db.flush()
+
     def record_event(self, organization_id, *, tag, additional=None):
         """
         Creates a new Organization.Event for the given organization with the given

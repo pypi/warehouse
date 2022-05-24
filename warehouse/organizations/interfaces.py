@@ -142,6 +142,22 @@ class IOrganizationService(Interface):
         attributes
         """
 
+    def get_organization_project(organization_project_id):
+        """
+        Return the organization project object that represents the given
+        organization project id or None
+        """
+
+    def add_organization_project(organization_id, project_id):
+        """
+        Adds an association between the specified organization and project
+        """
+
+    def delete_organization_project(organization_project_id):
+        """
+        Removes an association between the specified organization and project
+        """
+
     def record_event(organization_id, *, tag, additional=None):
         """
         Creates a new Organization.Event for the given organization with the given
