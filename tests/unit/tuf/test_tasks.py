@@ -89,7 +89,7 @@ class TestInitRepository:
     def test_success(self, db_request):
 
         fake_irepository = pretend.stub()
-        fake_irepository.init_repository = pretend.call_recorder(lambda: None)
+        fake_irepository.init_dev_repository = pretend.call_recorder(lambda: None)
 
         db_request.registry.settings["celery.scheduler_url"] = "fake_schedule"
         db_request.find_service = pretend.call_recorder(
@@ -97,9 +97,9 @@ class TestInitRepository:
         )
 
         task = pretend.stub()
-        tasks.init_repository(task, db_request)
+        tasks.init_dev_repository(task, db_request)
 
-        assert fake_irepository.init_repository.calls == [pretend.call()]
+        assert fake_irepository.init_dev_repository.calls == [pretend.call()]
         assert db_request.find_service.calls == [pretend.call(IRepositoryService)]
 
 

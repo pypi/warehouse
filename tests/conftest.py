@@ -452,14 +452,32 @@ class _TestApp(_webtest.TestApp):
 
 
 @pytest.fixture
-def tuf_repository():
+def tuf_repository(db_request):
     class FakeStorageBackend(StorageBackendInterface):
         pass
 
     class FakeKeyBackend(IKeyService):
         pass
 
-    tuf_repo = MetadataRepository(FakeStorageBackend, FakeKeyBackend)
+    db_request.registry.settings = {
+        "tuf.keytype": "ed25519",
+        "tuf.root.threshold": 1,
+        "tuf.root.expiry": 31536000,
+        "tuf.snapshot.threshold": 1,
+        "tuf.snapshot.expiry": 86400,
+        "tuf.targets.threshold": 2,
+        "tuf.targets.expiry": 31536000,
+        "tuf.timestamp.threshold": 1,
+        "tuf.timestamp.expiry": 86400,
+        "tuf.bins.threshold": 1,
+        "tuf.bins.expiry": 31536000,
+        "tuf.bin-n.threshold": 1,
+        "tuf.bin-n.expiry": 604800,
+    }
+
+    tuf_repo = MetadataRepository(
+        FakeStorageBackend, FakeKeyBackend, db_request.registry.settings
+    )
     return tuf_repo
 
 

@@ -11,7 +11,6 @@
 # limitations under the License.
 
 
-import datetime
 import glob
 import os.path
 import shutil
@@ -31,8 +30,8 @@ from warehouse.tuf.hash_bins import HashBins
 from warehouse.tuf.interfaces import IKeyService, IRepositoryService, IStorageService
 from warehouse.tuf.repository import (
     TOP_LEVEL_ROLE_NAMES,
+    DelegatedRole,
     MetadataRepository,
-    RolesPayload,
     TargetFile,
 )
 
@@ -180,50 +179,28 @@ class RepositoryService:
 
         return HashBins(number_of_bins)
 
-    def _set_expiration_for_role(self, role_name):
+    def init_dev_repository(self):
         """
-        Returns a metadata expiration date (now + role-specific interval).
-        """
-        # In a development environment metadata expires less frequently  so that
-        # developers don't have to continually re-initialize it.
-        if self._request.registry.settings["warehouse.env"] == Environment.development:
-            return datetime.datetime.now().replace(microsecond=0) + datetime.timedelta(
-                seconds=self._request.registry.settings[
-                    "tuf.development_metadata_expiry"
-                ]
-            )
-        else:
-            return datetime.datetime.now().replace(microsecond=0) + datetime.timedelta(
-                seconds=self._request.registry.settings[f"tuf.{role_name}.expiry"]
-            )
-
-    def init_repository(self):
-        """
-        Creates TUF top-level role metadata (root, targets, snapshot, timestamp).
-
-        The metadata is populated with configured expiration times, signature thresholds
-        and verification keys, and signed and persisted using the configured key and
-        storage services.
+        Creates development TUF top-level role metadata (root, targets, snapshot,
+        timestamp).
 
         FIXME: In production 'root' and 'targets' roles require offline singing keys,
         which may not be available at the time of initializing this metadata.
         """
         metadata_repository = MetadataRepository(
-            self._storage_backend, self._key_storage_backend
+            self._storage_backend,
+            self._key_storage_backend,
+            self._request.registry.settings,
         )
 
         if metadata_repository.is_initialized:
             raise FileExistsError("TUF Metadata Repository files already exists.")
 
-        top_roles_payload = dict()
+        keys = dict()
         for role in TOP_LEVEL_ROLE_NAMES:
-            top_roles_payload[role] = RolesPayload(
-                expiration=self._set_expiration_for_role(role),
-                threshold=self._request.registry.settings[f"tuf.{role}.threshold"],
-                keys=self._key_storage_backend.get(role),
-            )
+            keys[role] = self._key_storage_backend.get(role)
 
-        metadata_repository.initialize(top_roles_payload, True)
+        metadata_repository.initialize(keys, store=True)
 
     def init_targets_delegation(self):
         """
@@ -239,39 +216,50 @@ class RepositoryService:
         """
         hash_bins = self._get_hash_bins()
         metadata_repository = MetadataRepository(
-            self._storage_backend, self._key_storage_backend
+            self._storage_backend,
+            self._key_storage_backend,
+            self._request.registry.settings,
         )
 
         # Top-level 'targets' role delegates trust for all target files to 'bins' role.
+        keys = self._key_storage_backend.get(Role.BINS.value)
         delegate_roles_payload = dict()
         delegate_roles_payload["targets"] = list()
         delegate_roles_payload["targets"].append(
-            RolesPayload(
-                expiration=self._set_expiration_for_role(Role.BINS.value),
-                threshold=self._request.registry.settings[
-                    f"tuf.{Role.BINS.value}.threshold"
-                ],
-                keys=self._key_storage_backend.get(Role.BINS.value),
-                delegation_role=Role.BINS.value,
-                paths=["*/*", "*/*/*/*"],
+            (
+                DelegatedRole(
+                    Role.BINS.value,
+                    [key["keyid"] for key in keys],
+                    self._request.registry.settings[f"tuf.{Role.BINS.value}.threshold"],
+                    False,
+                    paths=["*/*", "*/*/*/*"],
+                ),
+                keys,
+                metadata_repository._set_expiration_for_role(Role.BIN_N.value),
             )
         )
+
         # The 'bins' role delegates trust for target files to 'bin-n' roles based on
         # target file path hash prefixes.
         delegate_roles_payload[Role.BINS.value] = list()
+        keys = self._key_storage_backend.get(Role.BIN_N.value)
+        key_ids = [key["keyid"] for key in keys]
         for bin_n_name, bin_n_hash_prefixes in hash_bins.generate():
             delegate_roles_payload[Role.BINS.value].append(
-                RolesPayload(
-                    expiration=self._set_expiration_for_role(Role.BIN_N.value),
-                    threshold=self._request.registry.settings[
-                        f"tuf.{Role.BIN_N.value}.threshold"
-                    ],
-                    keys=self._key_storage_backend.get(Role.BIN_N.value),
-                    delegation_role=bin_n_name,
-                    path_hash_prefixes=bin_n_hash_prefixes,
+                (
+                    DelegatedRole(
+                        bin_n_name,
+                        key_ids,
+                        self._request.registry.settings[
+                            f"tuf.{Role.BIN_N.value}.threshold"
+                        ],
+                        False,
+                        path_hash_prefixes=bin_n_hash_prefixes,
+                    ),
+                    keys,
+                    metadata_repository._set_expiration_for_role(Role.BIN_N.value),
                 )
             )
-
         snapshot_metadata = metadata_repository.delegate_targets_roles(
             delegate_roles_payload,
         )
@@ -288,21 +276,21 @@ class RepositoryService:
         Bumping 'snapshot' transitively bumps the 'timestamp' role.
         """
         metadata_repository = MetadataRepository(
-            self._storage_backend, self._key_storage_backend
+            self._storage_backend,
+            self._key_storage_backend,
+            self._request.registry.settings,
         )
 
         if snapshot_metadata is None:
             snapshot_metadata = metadata_repository.load_role(Role.SNAPSHOT.value)
 
         snapshot_metadata = metadata_repository.snapshot_bump_version(
-            snapshot_expires=self._set_expiration_for_role(Role.SNAPSHOT.value),
             snapshot_metadata=snapshot_metadata,
             store=True,
         )
 
         metadata_repository.timestamp_bump_version(
             snapshot_version=snapshot_metadata.signed.version,
-            timestamp_expires=self._set_expiration_for_role(Role.TIMESTAMP.value),
             store=True,
         )
 
@@ -319,7 +307,9 @@ class RepositoryService:
 
         # 1. Grab metadata Repository
         metadata_repository = MetadataRepository(
-            self._storage_backend, self._key_storage_backend
+            self._storage_backend,
+            self._key_storage_backend,
+            self._request.registry.settings,
         )
 
         # 2. Load Snapshot role.
@@ -332,7 +322,9 @@ class RepositoryService:
             metadata_repository.bump_role_version(
                 rolename=bin_n_name,
                 role_metadata=role_metadata,
-                role_expires=self._set_expiration_for_role(Role.BINS.value),
+                role_expires=metadata_repository._set_expiration_for_role(
+                    Role.BINS.value
+                ),
                 key_rolename=Role.BIN_N.value,
                 store=True,
             )
@@ -367,7 +359,9 @@ class RepositoryService:
             targets_payload[delegated_role_bin_name].append(target_file)
 
         metadata_repository = MetadataRepository(
-            self._storage_backend, self._key_storage_backend
+            self._storage_backend,
+            self._key_storage_backend,
+            self._request.registry.settings,
         )
 
         snapshot_metadata = metadata_repository.add_targets(

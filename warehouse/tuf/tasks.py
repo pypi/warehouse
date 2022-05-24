@@ -35,9 +35,9 @@ def bump_bin_n_roles(task, request):
 
 
 @task(bind=True, ignore_result=True, acks_late=True)
-def init_repository(task, request):
+def init_dev_repository(task, request):
     repository_service = request.find_service(IRepositoryService)
-    repository_service.init_repository()
+    repository_service.init_dev_repository()
 
 
 @task(bind=True, ignore_result=True, acks_late=True)

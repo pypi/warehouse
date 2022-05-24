@@ -17,8 +17,6 @@ import pytest
 from securesystemslib.exceptions import StorageError
 from tuf.api.metadata import (
     TOP_LEVEL_ROLE_NAMES,
-    DelegatedRole,
-    Delegations,
     MetaFile,
     Snapshot,
     StorageBackendInterface,
@@ -29,7 +27,7 @@ from warehouse.tuf.interfaces import IKeyService
 
 
 class TestMetadataRepository:
-    def test_basic_init(self, tuf_repository):
+    def test_basic_init(self, db_request):
         class FakeStorageBackend(StorageBackendInterface):
             pass
 
@@ -37,7 +35,7 @@ class TestMetadataRepository:
             pass
 
         tuf_repository = repository.MetadataRepository(
-            FakeStorageBackend, FakeKeyBackend
+            FakeStorageBackend, FakeKeyBackend, db_request.registry.settings
         )
         assert tuf_repository.storage_backend == FakeStorageBackend
         assert tuf_repository.key_backend == FakeKeyBackend
@@ -81,6 +79,15 @@ class TestMetadataRepository:
             pretend.call("timestamp"),
         ]
 
+    def test__set_expiration_for_role(self, tuf_repository, monkeypatch):
+        fake_time = datetime.datetime(2019, 6, 16, 9, 5, 1)
+        fake_datetime = pretend.stub(now=pretend.call_recorder(lambda: fake_time))
+        monkeypatch.setattr("warehouse.tuf.repository.datetime", fake_datetime)
+
+        result = tuf_repository._set_expiration_for_role(Snapshot.type)
+        assert str(result) == "2019-06-17 09:05:01"
+        assert fake_datetime.now.calls == [pretend.call()]
+
     def test__create_delegated_targets_roles(self, tuf_repository, monkeypatch):
         fake_time = datetime.datetime(2019, 6, 16, 9, 5, 1)
         fake_targets_md = pretend.stub(
@@ -93,18 +100,20 @@ class TestMetadataRepository:
         tuf_repository.load_role = pretend.call_recorder(
             lambda role: fake_snapshot_md if role == Snapshot.type else None
         )
-        tuf_repository._build_delegations = pretend.call_recorder(
-            lambda *a, **kw: "delegation"
-        )
+
         tuf_repository._store = pretend.call_recorder(lambda *a, **kw: None)
 
         test_delegate_roles_parameters = [
-            repository.RolesPayload(
-                fake_time,
-                1,
+            (
+                repository.DelegatedRole(
+                    "test_bin",
+                    ["key1", "key2"],
+                    1,
+                    False,
+                    paths=["*/*"],
+                ),
                 [{"keyid": "key1"}, {"keyid": "key2"}],
-                "test_bin",
-                paths=["*/*"],
+                fake_time,
             )
         ]
 
@@ -117,23 +126,16 @@ class TestMetadataRepository:
         )
         monkeypatch.setattr(
             "warehouse.tuf.repository.Key.from_securesystemslib_key",
-            lambda *a, **kw: None,
+            lambda *a, **kw: "fake_Key",
         )
         result = tuf_repository._create_delegated_targets_roles(
             delegator_metadata=fake_targets_md,
-            delegate_role_parameters=test_delegate_roles_parameters,
+            delegatees=test_delegate_roles_parameters,
         )
 
         assert "test_bin.json" in result.signed.meta
         assert tuf_repository.load_role.calls == [
             pretend.call(Snapshot.type),
-            pretend.call("test_bin"),
-        ]
-        assert tuf_repository._build_delegations.calls[0].args[0] == "test_bin"
-        assert type(tuf_repository._build_delegations.calls[0].args[1]) == DelegatedRole
-        assert tuf_repository._build_delegations.calls[0].args[2] == [
-            {"keyid": "key1"},
-            {"keyid": "key2"},
         ]
         assert tuf_repository._store.calls[0].args[0] == "test_bin"
 
@@ -151,18 +153,19 @@ class TestMetadataRepository:
         tuf_repository.load_role = pretend.call_recorder(
             lambda role: fake_snapshot_md if role == Snapshot.type else None
         )
-        tuf_repository._build_delegations = pretend.call_recorder(
-            lambda *a, **kw: "delegation"
-        )
         tuf_repository._store = pretend.call_recorder(lambda *a, **kw: None)
 
         test_delegate_roles_parameters = [
-            repository.RolesPayload(
-                fake_time,
-                1,
+            (
+                repository.DelegatedRole(
+                    "test_bin",
+                    ["key1", "key2"],
+                    1,
+                    False,
+                    paths=["*/*"],
+                ),
                 [{"keyid": "key1"}, {"keyid": "key2"}],
-                "test_bin",
-                paths=["*/*"],
+                fake_time,
             )
         ]
 
@@ -179,135 +182,13 @@ class TestMetadataRepository:
         )
         result = tuf_repository._create_delegated_targets_roles(
             delegator_metadata=fake_targets_md,
-            delegate_role_parameters=test_delegate_roles_parameters,
+            delegatees=test_delegate_roles_parameters,
             snapshot_metadata=fake_snapshot_md,
         )
 
         assert "test_bin.json" in result.signed.meta
-        assert tuf_repository.load_role.calls == [
-            pretend.call("test_bin"),
-        ]
-        assert tuf_repository._build_delegations.calls[0].args[0] == "test_bin"
-        assert type(tuf_repository._build_delegations.calls[0].args[1]) == DelegatedRole
-        assert tuf_repository._build_delegations.calls[0].args[2] == [
-            {"keyid": "key1"},
-            {"keyid": "key2"},
-        ]
+        assert tuf_repository.load_role.calls == []
         assert tuf_repository._store.calls[0].args[0] == "test_bin"
-
-    def test__create_delegated_targets_roles_raises_storageerror(
-        self, tuf_repository, monkeypatch
-    ):
-        fake_time = datetime.datetime(2019, 6, 16, 9, 5, 1)
-        fake_targets_md = pretend.stub(
-            signed=pretend.stub(
-                delegations=None, add_key=pretend.call_recorder(lambda *a, **kw: None)
-            )
-        )
-        fake_snapshot_md = pretend.stub(signed=pretend.stub(meta={}))
-
-        tuf_repository.load_role = pretend.raiser(StorageError())
-        tuf_repository._build_delegations = pretend.call_recorder(
-            lambda *a, **kw: "delegation"
-        )
-        tuf_repository._store = pretend.call_recorder(lambda *a, **kw: None)
-
-        test_delegate_roles_parameters = [
-            repository.RolesPayload(
-                fake_time,
-                1,
-                [{"keyid": "key1"}, {"keyid": "key2"}],
-                "test_bin",
-                paths=["*/*"],
-            )
-        ]
-
-        fake_metadata = pretend.stub(
-            sign=pretend.call_recorder(lambda *a, **kw: None),
-            signed=pretend.stub(version=3),
-        )
-        monkeypatch.setattr(
-            "warehouse.tuf.repository.Metadata", lambda *a, **kw: fake_metadata
-        )
-        monkeypatch.setattr(
-            "warehouse.tuf.repository.Key.from_securesystemslib_key",
-            lambda *a, **kw: None,
-        )
-        result = tuf_repository._create_delegated_targets_roles(
-            delegator_metadata=fake_targets_md,
-            delegate_role_parameters=test_delegate_roles_parameters,
-            snapshot_metadata=fake_snapshot_md,
-        )
-
-        assert "test_bin.json" in result.signed.meta
-        assert tuf_repository._build_delegations.calls[0].args[0] == "test_bin"
-        assert type(tuf_repository._build_delegations.calls[0].args[1]) == DelegatedRole
-        assert tuf_repository._build_delegations.calls[0].args[2] == [
-            {"keyid": "key1"},
-            {"keyid": "key2"},
-        ]
-        assert tuf_repository._store.calls[0].args[0] == "test_bin"
-
-    def test__create_delegated_targets_roles_missing_delegated_role(
-        self, tuf_repository
-    ):
-        fake_time = datetime.datetime(2019, 6, 16, 9, 5, 1)
-        fake_targets_md = pretend.stub(
-            signed=pretend.stub(
-                delegations=None, add_key=pretend.call_recorder(lambda *a, **kw: None)
-            )
-        )
-        fake_snapshot_md = pretend.stub(signed=pretend.stub(meta={}))
-
-        test_delegate_roles_parameters = [
-            repository.RolesPayload(
-                expiration=fake_time,
-                threshold=1,
-                keys=[{"keyid": "key1"}, {"keyid": "key2"}],
-                paths=["*/*"],
-            )
-        ]
-
-        with pytest.raises(ValueError) as err:
-            tuf_repository._create_delegated_targets_roles(
-                delegator_metadata=fake_targets_md,
-                delegate_role_parameters=test_delegate_roles_parameters,
-                snapshot_metadata=fake_snapshot_md,
-            )
-
-        assert "A delegation role name is required." in str(err.value)
-
-    def test__create_delegated_targets_roles_raise_fileexists(self, tuf_repository):
-        fake_time = datetime.datetime(2019, 6, 16, 9, 5, 1)
-        fake_targets_md = pretend.stub(
-            signed=pretend.stub(
-                delegations=None, add_key=pretend.call_recorder(lambda *a, **kw: None)
-            )
-        )
-        fake_snapshot_md = pretend.stub(signed=pretend.stub(meta={}))
-
-        tuf_repository.load_role = pretend.call_recorder(
-            lambda role: fake_snapshot_md if role == Snapshot.type else True
-        )
-        test_delegate_roles_parameters = [
-            repository.RolesPayload(
-                fake_time,
-                1,
-                [{"keyid": "key1"}, {"keyid": "key2"}],
-                "test_bin",
-                paths=["*/*"],
-            )
-        ]
-
-        with pytest.raises(FileExistsError) as err:
-            tuf_repository._create_delegated_targets_roles(
-                delegator_metadata=fake_targets_md,
-                delegate_role_parameters=test_delegate_roles_parameters,
-                snapshot_metadata=fake_snapshot_md,
-            )
-
-        assert "Role test_bin already exists." in str(err.value)
-        assert tuf_repository.load_role.calls == [pretend.call("test_bin")]
 
     def test__create_delegated_targets_roles_has_delegations(
         self, tuf_repository, monkeypatch
@@ -327,12 +208,16 @@ class TestMetadataRepository:
         tuf_repository._store = pretend.call_recorder(lambda *a, **kw: None)
 
         test_delegate_roles_parameters = [
-            repository.RolesPayload(
-                fake_time,
-                1,
+            (
+                repository.DelegatedRole(
+                    "test_bin",
+                    ["key1", "key2"],
+                    1,
+                    False,
+                    paths=["*/*"],
+                ),
                 [{"keyid": "key1"}, {"keyid": "key2"}],
-                "test_bin",
-                paths=["*/*"],
+                fake_time,
             )
         ]
 
@@ -349,13 +234,12 @@ class TestMetadataRepository:
         )
         result = tuf_repository._create_delegated_targets_roles(
             delegator_metadata=fake_targets_md,
-            delegate_role_parameters=test_delegate_roles_parameters,
+            delegatees=test_delegate_roles_parameters,
         )
 
         assert "test_bin.json" in result.signed.meta
         assert tuf_repository.load_role.calls == [
             pretend.call(Snapshot.type),
-            pretend.call("test_bin"),
         ]
         assert "role1" in fake_targets_md.signed.delegations.roles.keys()
         assert "test_bin" in fake_targets_md.signed.delegations.roles.keys()
@@ -380,29 +264,6 @@ class TestMetadataRepository:
         assert result is None
         assert fake_metadata.to_file.calls[0].args[0] == "1.root.json"
 
-    def test__build_delegations(self, tuf_repository, monkeypatch):
-
-        fake_delegated_role = DelegatedRole(
-            name="xxxx-yyyy",
-            keyids=["fake_key1", "fake_key2"],
-            threshold=1,
-            terminating=None,
-            paths=None,
-            path_hash_prefixes=["00-07"],
-        )
-
-        monkeypatch.setattr(
-            "warehouse.tuf.repository.Key.from_securesystemslib_key",
-            lambda *a, **kw: {"key": "data"},
-        )
-        result = tuf_repository._build_delegations(
-            "00-07", fake_delegated_role, [{"keyid": "key1"}, {"keyid": "key2"}]
-        )
-
-        assert type(result) == Delegations
-        assert "00-07" in result.roles.keys()
-        assert result.keys == {"key1": {"key": "data"}, "key2": {"key": "data"}}
-
     def test_initialization(self, tuf_repository):
         fake_key = {
             "keytype": "ed25519",
@@ -420,13 +281,10 @@ class TestMetadataRepository:
                 ),
             },
         }
+
         top_roles_payload = dict()
         for role in TOP_LEVEL_ROLE_NAMES:
-            top_roles_payload[role] = repository.RolesPayload(
-                expiration=datetime.datetime(2019, 6, 16, 9, 5, 1),
-                threshold=1,
-                keys=[fake_key],
-            )
+            top_roles_payload[role] = [fake_key, fake_key]
 
         tuf_repository.load_role = pretend.call_recorder(lambda *a, **kw: None)
         tuf_repository._store = pretend.call_recorder(lambda *a, **kw: None)
@@ -459,11 +317,7 @@ class TestMetadataRepository:
         }
         top_roles_payload = dict()
         for role in TOP_LEVEL_ROLE_NAMES:
-            top_roles_payload[role] = repository.RolesPayload(
-                expiration=datetime.datetime(2019, 6, 16, 9, 5, 1),
-                threshold=1,
-                keys=[fake_key],
-            )
+            top_roles_payload[role] = [fake_key, fake_key]
 
         tuf_repository.load_role = pretend.call_recorder(lambda *a, **kw: None)
         tuf_repository._store = pretend.call_recorder(lambda *a, **kw: None)
@@ -480,11 +334,8 @@ class TestMetadataRepository:
     def test_initialization_already_initialized(self, tuf_repository):
         top_roles_payload = dict()
         for role in TOP_LEVEL_ROLE_NAMES:
-            top_roles_payload[role] = repository.RolesPayload(
-                expiration=datetime.datetime(2019, 6, 16, 9, 5, 1),
-                threshold=1,
-                keys=[{"key1": "key1_data"}],
-            )
+            top_roles_payload[role] = [{"key1": "key1_data"}]
+
         tuf_repository.load_role = pretend.call_recorder(lambda *a, **kw: True)
         with pytest.raises(FileExistsError) as err:
             tuf_repository.initialize(top_roles_payload, store=False)
@@ -516,11 +367,7 @@ class TestMetadataRepository:
         }
         top_roles_payload = dict()
         for role in TOP_LEVEL_ROLE_NAMES:
-            top_roles_payload[role] = repository.RolesPayload(
-                expiration=datetime.datetime(2019, 6, 16, 9, 5, 1),
-                threshold=2,
-                keys=[fake_key],
-            )
+            top_roles_payload[role] = [fake_key]
 
         tuf_repository.load_role = pretend.call_recorder(lambda *a, **kw: None)
         tuf_repository._store = pretend.call_recorder(lambda *a, **kw: None)
@@ -562,17 +409,7 @@ class TestMetadataRepository:
                 ),
             },
         }
-        payload = {
-            "xxxx-yyyy": [
-                repository.RolesPayload(
-                    expiration=fake_time,
-                    threshold=1,
-                    keys=[fake_key],
-                    delegation_role="targets",
-                    paths=["*/*"],
-                )
-            ]
-        }
+        payload = {"xxxx-yyyy": [fake_key]}
         fake_targets_md = pretend.stub(
             signed=pretend.stub(
                 delegations=None,
@@ -595,6 +432,9 @@ class TestMetadataRepository:
         tuf_repository.snapshot_update_meta = pretend.call_recorder(
             lambda *a, **kw: fake_snapshot_md
         )
+        tuf_repository._set_expiration_for_role = pretend.call_recorder(
+            lambda *a: fake_time
+        )
         result = tuf_repository.delegate_targets_roles(payload)
         assert result == fake_snapshot_md
         assert tuf_repository.load_role.calls == [
@@ -615,6 +455,9 @@ class TestMetadataRepository:
         ]
         assert tuf_repository.snapshot_update_meta.calls == [
             pretend.call("xxxx-yyyy", 2, fake_snapshot_md)
+        ]
+        assert tuf_repository._set_expiration_for_role.calls == [
+            pretend.call("xxxx-yyyy")
         ]
 
     def test_bump_role_version(self, tuf_repository):
@@ -690,19 +533,22 @@ class TestMetadataRepository:
             ),
             sign=lambda *a, **kw: None,
         )
-
+        tuf_repository._set_expiration_for_role = pretend.call_recorder(
+            lambda role: fake_new_time
+        )
         tuf_repository.load_role = pretend.call_recorder(lambda role: fake_timestamp_md)
         tuf_repository.key_backend = pretend.stub(
             get=pretend.call_recorder(lambda role: [{"key": "key_data"}])
         )
 
-        result = tuf_repository.timestamp_bump_version(
-            snapshot_version=20, timestamp_expires=fake_new_time
-        )
+        result = tuf_repository.timestamp_bump_version(snapshot_version=20)
         assert result.signed.version == initial_version + 1
         assert result.signed.expires == fake_new_time
         assert tuf_repository.load_role.calls == [pretend.call("timestamp")]
         assert tuf_repository.key_backend.get.calls == [pretend.call("timestamp")]
+        assert tuf_repository._set_expiration_for_role.calls == [
+            pretend.call("timestamp")
+        ]
 
     def test_bump_timestamp_version_store_true(self, tuf_repository):
         fake_time = datetime.datetime(2019, 6, 16, 9, 5, 1)
@@ -719,16 +565,20 @@ class TestMetadataRepository:
         tuf_repository.key_backend = pretend.stub(
             get=pretend.call_recorder(lambda role: [{"key": "key_data"}])
         )
+        tuf_repository._set_expiration_for_role = pretend.call_recorder(
+            lambda role: fake_new_time
+        )
         tuf_repository._store = pretend.call_recorder(lambda role, role_md: None)
 
-        result = tuf_repository.timestamp_bump_version(
-            snapshot_version=20, timestamp_expires=fake_new_time, store=True
-        )
+        result = tuf_repository.timestamp_bump_version(snapshot_version=20, store=True)
         assert result.signed.version == initial_version + 1
         assert result.signed.expires == fake_new_time
         assert result.signed.snapshot_meta.version == 20
         assert tuf_repository.load_role.calls == [pretend.call("timestamp")]
         assert tuf_repository.key_backend.get.calls == [pretend.call("timestamp")]
+        assert tuf_repository._set_expiration_for_role.calls == [
+            pretend.call("timestamp")
+        ]
         assert tuf_repository._store.calls == [
             pretend.call("timestamp", fake_timestamp_md)
         ]
@@ -745,15 +595,21 @@ class TestMetadataRepository:
         )
 
         tuf_repository.load_role = pretend.call_recorder(lambda role: fake_snapshot_md)
+        tuf_repository._set_expiration_for_role = pretend.call_recorder(
+            lambda role: fake_new_time
+        )
         tuf_repository.key_backend = pretend.stub(
             get=pretend.call_recorder(lambda role: [{"key": "key_data"}])
         )
 
-        result = tuf_repository.snapshot_bump_version(fake_new_time)
+        result = tuf_repository.snapshot_bump_version()
         assert result.signed.version == initial_version + 1
         assert result.signed.expires == fake_new_time
         assert tuf_repository.load_role.calls == [pretend.call("snapshot")]
         assert tuf_repository.key_backend.get.calls == [pretend.call("snapshot")]
+        assert tuf_repository._set_expiration_for_role.calls == [
+            pretend.call("snapshot")
+        ]
 
     def test_bump_snapshot_version_store_true(self, tuf_repository):
         fake_time = datetime.datetime(2019, 6, 16, 9, 5, 1)
@@ -770,13 +626,19 @@ class TestMetadataRepository:
         tuf_repository.key_backend = pretend.stub(
             get=pretend.call_recorder(lambda role: [{"key": "key_data"}])
         )
+        tuf_repository._set_expiration_for_role = pretend.call_recorder(
+            lambda role: fake_new_time
+        )
         tuf_repository._store = pretend.call_recorder(lambda role, role_md: None)
 
-        result = tuf_repository.snapshot_bump_version(fake_new_time, store=True)
+        result = tuf_repository.snapshot_bump_version(store=True)
         assert result.signed.version == initial_version + 1
         assert result.signed.expires == fake_new_time
         assert tuf_repository.load_role.calls == [pretend.call("snapshot")]
         assert tuf_repository.key_backend.get.calls == [pretend.call("snapshot")]
+        assert tuf_repository._set_expiration_for_role.calls == [
+            pretend.call("snapshot")
+        ]
         assert tuf_repository._store.calls == [
             pretend.call("snapshot", fake_snapshot_md)
         ]
@@ -795,11 +657,17 @@ class TestMetadataRepository:
         tuf_repository.key_backend = pretend.stub(
             get=pretend.call_recorder(lambda role: [{"key": "key_data"}])
         )
+        tuf_repository._set_expiration_for_role = pretend.call_recorder(
+            lambda role: fake_new_time
+        )
 
-        result = tuf_repository.snapshot_bump_version(fake_new_time, fake_snapshot_md)
+        result = tuf_repository.snapshot_bump_version(fake_snapshot_md)
         assert result.signed.version == initial_version + 1
         assert result.signed.expires == fake_new_time
         assert tuf_repository.key_backend.get.calls == [pretend.call("snapshot")]
+        assert tuf_repository._set_expiration_for_role.calls == [
+            pretend.call("snapshot")
+        ]
 
     def test_snapshot_update_meta(self, tuf_repository):
 

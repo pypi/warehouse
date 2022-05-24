@@ -10,9 +10,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from dataclasses import dataclass
-from datetime import datetime
-from typing import Any, Dict, List, Optional
+from datetime import datetime, timedelta
+from typing import Any, Dict, List, Optional, Tuple
 
 from securesystemslib.exceptions import StorageError  # type: ignore
 from securesystemslib.signer import SSlibSigner  # type: ignore
@@ -39,27 +38,6 @@ from warehouse.tuf.interfaces import IKeyService
 SPEC_VERSION = ".".join(SPECIFICATION_VERSION)
 
 
-@dataclass
-class RolesPayload:
-    """
-    Container for various role data.
-
-    This includes data that can be assigned to any role (``expiration`` and
-    ``threshold``), data that can only be assigned to delegating roles
-    (``delegation_role``, ``paths``, ``path_hash_prefixes`` and the keyids or public
-    portions of ``keys``), and data that is used to sign any roles (private portion of
-    ``keys``).
-
-    """
-
-    expiration: datetime
-    threshold: int
-    keys: List[Dict[str, Any]]
-    delegation_role: Optional[str] = None
-    paths: Optional[List[str]] = None
-    path_hash_prefixes: Optional[List[str]] = None
-
-
 class MetadataRepository:
     """
     TUF metadata repository abstraction to create and maintain role metadata.
@@ -69,9 +47,11 @@ class MetadataRepository:
         self,
         storage_backend: StorageBackendInterface,
         key_backend: IKeyService,
+        settings: Dict,
     ):
         self.storage_backend: StorageBackendInterface = storage_backend
         self.key_backend: IKeyService = key_backend
+        self.settings: Dict = settings
 
     @property
     def is_initialized(self) -> bool:
@@ -86,10 +66,18 @@ class MetadataRepository:
 
         return False
 
+    def _set_expiration_for_role(self, role_name):
+        """
+        Returns a metadata expiration date (now + role-specific interval).
+        """
+        return datetime.now().replace(microsecond=0) + timedelta(
+            seconds=self.settings[f"tuf.{role_name}.expiry"]
+        )
+
     def _create_delegated_targets_roles(
         self,
         delegator_metadata: Metadata,
-        delegate_role_parameters: List[RolesPayload],
+        delegatees: List[Tuple[DelegatedRole, List[Dict[str, Any]], datetime]],
         snapshot_metadata: Optional[Metadata[Snapshot]] = None,
     ) -> Metadata[Snapshot]:
         """
@@ -98,45 +86,29 @@ class MetadataRepository:
         if snapshot_metadata is None:
             snapshot_metadata = self.load_role(Snapshot.type)
 
-        for role_parameter in delegate_role_parameters:
-            rolename = role_parameter.delegation_role
-            if rolename is None:
-                raise ValueError("A delegation role name is required.")
-            try:
-                if self.load_role(rolename):
-                    raise FileExistsError(f"Role {rolename} already exists.")
-            except StorageError:
-                pass
-
-            delegated_role = DelegatedRole(
-                name=rolename,
-                keyids=[key["keyid"] for key in role_parameter.keys],
-                threshold=role_parameter.threshold,
-                terminating=False,
-                paths=role_parameter.paths,
-                path_hash_prefixes=role_parameter.path_hash_prefixes,
-            )
+        for delegatee, keys, expiration in delegatees:
 
             if delegator_metadata.signed.delegations is None:
-                delegation = self._build_delegations(
-                    rolename, delegated_role, role_parameter.keys
+                delegator_metadata.signed.delegations = Delegations(
+                    {key["keyid"]: Key.from_securesystemslib_key(key) for key in keys},
+                    {delegatee.name: delegatee},
                 )
-                delegator_metadata.signed.delegations = delegation
             else:
-                delegator_metadata.signed.delegations.roles[rolename] = delegated_role
+                delegator_metadata.signed.delegations.roles[delegatee.name] = delegatee
 
-            targets = Targets(1, SPEC_VERSION, role_parameter.expiration, {}, None)
+            targets = Targets(1, SPEC_VERSION, expiration, {}, None)
             role_metadata = Metadata(targets, {})
 
-            for key in role_parameter.keys:
+            for key in keys:
                 delegator_metadata.signed.add_key(
-                    rolename, Key.from_securesystemslib_key(key)
+                    delegatee.name, Key.from_securesystemslib_key(key)
                 )
                 role_metadata.sign(SSlibSigner(key), append=True)
 
-            self._store(rolename, role_metadata)
+            self._store(delegatee.name, role_metadata)
+
             snapshot_metadata = self.snapshot_update_meta(
-                rolename, role_metadata.signed.version, snapshot_metadata
+                delegatee.name, role_metadata.signed.version, snapshot_metadata
             )
 
         return snapshot_metadata
@@ -159,25 +131,14 @@ class MetadataRepository:
         filename = self._filename(rolename, metadata.signed.version)
         metadata.to_file(filename, JSONSerializer(), self.storage_backend)
 
-    def _build_delegations(
-        self, rolename: str, delegated_role: DelegatedRole, keys: List[Dict[str, Any]]
-    ) -> Delegations:
-        """
-        Returns ``Delegations`` object assigning passed keys and roles information.
-        """
-        return Delegations(
-            keys={key["keyid"]: Key.from_securesystemslib_key(key) for key in keys},
-            roles={rolename: delegated_role},
-        )
-
     def initialize(
-        self, payload: Dict[str, RolesPayload], store: Optional[bool]
+        self, keys: Dict[str, List[Dict[str, Any]]], store: Optional[bool]
     ) -> Dict[str, Metadata]:
         """
         Initializes metadata repository with basic top-level role metadata.
 
         Args:
-            payload: Initial per-role infos to populate metadata.
+            keys: per-role keys for signing.
             store: Indicates whether metadata should be written to storage.
 
         Raises:
@@ -192,43 +153,52 @@ class MetadataRepository:
         if self.is_initialized:
             raise FileExistsError("Metadata already exists in the Storage Service")
 
-        targets = Targets(1, SPEC_VERSION, payload[Targets.type].expiration, {}, None)
+        targets = Targets(
+            1, SPEC_VERSION, self._set_expiration_for_role(Targets.type), {}, None
+        )
         targets_metadata = Metadata(targets, {})
         top_level_roles_metadata[Targets.type] = targets_metadata
 
         meta = {"targets.json": MetaFile(targets.version)}
-        snapshot = Snapshot(1, SPEC_VERSION, payload[Snapshot.type].expiration, meta)
+        snapshot = Snapshot(
+            1, SPEC_VERSION, self._set_expiration_for_role(Snapshot.type), meta
+        )
         snapshot_metadata = Metadata(snapshot, {})
         top_level_roles_metadata[Snapshot.type] = snapshot_metadata
 
         snapshot_meta = MetaFile(snapshot.version)
         timestamp = Timestamp(
-            1, SPEC_VERSION, payload[Timestamp.type].expiration, snapshot_meta
+            1,
+            SPEC_VERSION,
+            self._set_expiration_for_role(Timestamp.type),
+            snapshot_meta,
         )
         timestamp_metadata = Metadata(timestamp, {})
         top_level_roles_metadata[Timestamp.type] = timestamp_metadata
 
         roles = {
-            role_name: Role([], payload[role_name].threshold)
+            role_name: Role([], self.settings[f"tuf.{role_name}.threshold"])
             for role_name in TOP_LEVEL_ROLE_NAMES
         }
-        root = Root(1, SPEC_VERSION, payload[Root.type].expiration, {}, roles, True)
+        root = Root(
+            1, SPEC_VERSION, self._set_expiration_for_role(Root.type), {}, roles, True
+        )
 
         # Sign all top level roles metadata
         signers = dict()
         for role in TOP_LEVEL_ROLE_NAMES:
-            if payload[role].threshold > len(payload[role].keys):
+            role_keys = keys[role]
+            if self.settings[f"tuf.{role}.threshold"] > len(role_keys):
                 raise ValueError(
                     f"Role {role} has missing Key(s) "
-                    f"to match to defined threshold {payload[role].threshold}."
+                    f"to match to defined threshold "
+                    f"{self.settings[f'tuf.{role}.threshold']}."
                 )
 
-            for key in payload[role].keys:
+            for key in role_keys:
                 root.add_key(role, Key.from_securesystemslib_key(key))
 
-            signers[role] = {
-                key["keyid"]: SSlibSigner(key) for key in payload[role].keys
-            }
+            signers[role] = {key["keyid"]: SSlibSigner(key) for key in role_keys}
 
         root_metadata = Metadata(root, {})
         top_level_roles_metadata[Root.type] = root_metadata
@@ -255,7 +225,7 @@ class MetadataRepository:
 
     def delegate_targets_roles(
         self,
-        payload: Dict[str, List[RolesPayload]],
+        payload: Dict[str, List[Tuple[DelegatedRole, List[Dict[str, Any]], datetime]]],
     ) -> Metadata[Snapshot]:
         """
         Performs targets delegation for delegator-to-delegates items in passed payload.
@@ -274,19 +244,18 @@ class MetadataRepository:
             Updated snapshot metadata
             ``tuf.api.metadata.Metadata[Snapshot]``
         """
-
         snapshot_metadata = self.load_role(Snapshot.type)
-        for delegator, delegate_role_parameters in payload.items():
+        for delegator, delegatee in payload.items():
             delegator_metadata = self.load_role(delegator)
             snapshot_metadata = self._create_delegated_targets_roles(
                 delegator_metadata,
-                delegate_role_parameters,
+                delegatee,
                 snapshot_metadata,
             )
             delegator_metadata = self.bump_role_version(
                 rolename=delegator,
                 role_metadata=delegator_metadata,
-                role_expires=delegator_metadata.signed.expires,
+                role_expires=self._set_expiration_for_role(delegator),
                 key_rolename=None,
                 store=True,
             )
@@ -336,7 +305,6 @@ class MetadataRepository:
     def timestamp_bump_version(
         self,
         snapshot_version: int,
-        timestamp_expires: datetime,
         store: bool = False,
     ) -> Metadata[Timestamp]:
         """
@@ -353,7 +321,9 @@ class MetadataRepository:
         """
         timestamp_metadata = self.load_role(Timestamp.type)
         timestamp_metadata.signed.version += 1
-        timestamp_metadata.signed.expires = timestamp_expires
+        timestamp_metadata.signed.expires = self._set_expiration_for_role(
+            Timestamp.type
+        )
         timestamp_metadata.signed.snapshot_meta = MetaFile(version=snapshot_version)
         timestamp_keys = self.key_backend.get(Timestamp.type)
         for key in timestamp_keys:
@@ -366,7 +336,6 @@ class MetadataRepository:
 
     def snapshot_bump_version(
         self,
-        snapshot_expires: datetime,
         snapshot_metadata: Optional[Metadata[Snapshot]] = None,
         store: Optional[bool] = False,
     ) -> Metadata[Snapshot]:
@@ -388,7 +357,7 @@ class MetadataRepository:
             snapshot_metadata = self.load_role(Snapshot.type)
 
         snapshot_metadata.signed.version += 1
-        snapshot_metadata.signed.expires = snapshot_expires
+        snapshot_metadata.signed.expires = self._set_expiration_for_role(Snapshot.type)
         snapshot_keys = self.key_backend.get(Snapshot.type)
         for key in snapshot_keys:
             snapshot_metadata.sign(SSlibSigner(key), append=True)

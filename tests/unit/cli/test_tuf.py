@@ -27,7 +27,7 @@ from warehouse.tuf.tasks import (
     add_hashed_targets as _add_hashed_targets,
     bump_bin_n_roles as _bump_bin_n_roles,
     bump_snapshot as _bump_snapshot,
-    init_repository as _init_repository,
+    init_dev_repository as _init_dev_repository,
     init_targets_delegation as _init_targets_delegation,
 )
 
@@ -76,8 +76,8 @@ class TestCLITUF:
         assert result.exit_code == 0
         assert "Repository Initialization finished." in result.output
         assert config.task.calls == [
-            pretend.call(_init_repository),
-            pretend.call(_init_repository),
+            pretend.call(_init_dev_repository),
+            pretend.call(_init_dev_repository),
         ]
         assert task.get_request.calls == [pretend.call()]
         assert task.run.calls == [pretend.call(request)]
@@ -96,8 +96,8 @@ class TestCLITUF:
         assert result.exit_code == 1
         assert "Error: TUF Error detail\n" == result.output
         assert config.task.calls == [
-            pretend.call(_init_repository),
-            pretend.call(_init_repository),
+            pretend.call(_init_dev_repository),
+            pretend.call(_init_dev_repository),
         ]
         assert task.get_request.calls == [pretend.call()]
 

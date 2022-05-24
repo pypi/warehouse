@@ -23,7 +23,7 @@ from warehouse.tuf.tasks import (
     add_hashed_targets as _add_hashed_targets,
     bump_bin_n_roles as _bump_bin_n_roles,
     bump_snapshot as _bump_snapshot,
-    init_repository as _init_repository,
+    init_dev_repository as _init_dev_repository,
     init_targets_delegation as _init_targets_delegation,
 )
 
@@ -68,8 +68,8 @@ def init_repo(config):
     Initialize a new TUF repository if it does not exist.
     """
     try:
-        request = config.task(_init_repository).get_request()
-        config.task(_init_repository).run(request)
+        request = config.task(_init_dev_repository).get_request()
+        config.task(_init_dev_repository).run(request)
     except FileExistsError as err:
         raise click.ClickException(str(err))
 

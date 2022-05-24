@@ -57,7 +57,7 @@ class IRepositoryService(Interface):
         created.
         """
 
-    def init_repository():
+    def init_dev_repository():
         """
         Initializes a Metadata Repository from scratch, including a new root.
         """
