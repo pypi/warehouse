@@ -90,7 +90,7 @@ class OrganizationProject(db.Model):
         ),
     )
 
-    __repr__ = make_repr("project_id", "organization_id", "is_active")
+    __repr__ = make_repr("project_id", "organization_id")
 
     organization_id = Column(
         ForeignKey("organizations.id", onupdate="CASCADE", ondelete="CASCADE"),
