@@ -100,8 +100,13 @@ class TestMetadataRepository:
         tuf_repository.load_role = pretend.call_recorder(
             lambda role: fake_snapshot_md if role == Snapshot.type else None
         )
-
         tuf_repository._store = pretend.call_recorder(lambda *a, **kw: None)
+        fake_signers = [
+            pretend.stub(
+                key_dict={"keyid": "key1"},
+                sign=pretend.call_recorder(lambda *a: "key1"),
+            )
+        ]
 
         test_delegate_roles_parameters = [
             (
@@ -112,7 +117,7 @@ class TestMetadataRepository:
                     False,
                     paths=["*/*"],
                 ),
-                [{"keyid": "key1"}, {"keyid": "key2"}],
+                fake_signers,
                 fake_time,
             )
         ]
@@ -149,6 +154,12 @@ class TestMetadataRepository:
             )
         )
         fake_snapshot_md = pretend.stub(signed=pretend.stub(meta={}))
+        fake_signers = [
+            pretend.stub(
+                key_dict={"keyid": "key1"},
+                sign=pretend.call_recorder(lambda *a: "key1"),
+            )
+        ]
 
         tuf_repository.load_role = pretend.call_recorder(
             lambda role: fake_snapshot_md if role == Snapshot.type else None
@@ -164,7 +175,7 @@ class TestMetadataRepository:
                     False,
                     paths=["*/*"],
                 ),
-                [{"keyid": "key1"}, {"keyid": "key2"}],
+                fake_signers,
                 fake_time,
             )
         ]
@@ -201,6 +212,12 @@ class TestMetadataRepository:
             )
         )
         fake_snapshot_md = pretend.stub(signed=pretend.stub(meta={}))
+        fake_signers = [
+            pretend.stub(
+                key_dict={"keyid": "key1"},
+                sign=pretend.call_recorder(lambda *a: "key1"),
+            )
+        ]
 
         tuf_repository.load_role = pretend.call_recorder(
             lambda role: fake_snapshot_md if role == Snapshot.type else None
@@ -216,7 +233,7 @@ class TestMetadataRepository:
                     False,
                     paths=["*/*"],
                 ),
-                [{"keyid": "key1"}, {"keyid": "key2"}],
+                fake_signers,
                 fake_time,
             )
         ]
@@ -281,10 +298,20 @@ class TestMetadataRepository:
                 ),
             },
         }
+        fake_signers = [
+            pretend.stub(
+                key_dict=fake_key,
+                sign=pretend.call_recorder(lambda *a: pretend.stub(keyid="key1")),
+            ),
+            pretend.stub(
+                key_dict=fake_key,
+                sign=pretend.call_recorder(lambda *a: pretend.stub(keyid="key2")),
+            ),
+        ]
 
         top_roles_payload = dict()
         for role in TOP_LEVEL_ROLE_NAMES:
-            top_roles_payload[role] = [fake_key, fake_key]
+            top_roles_payload[role] = fake_signers
 
         tuf_repository.load_role = pretend.call_recorder(lambda *a, **kw: None)
         tuf_repository._store = pretend.call_recorder(lambda *a, **kw: None)
@@ -315,9 +342,20 @@ class TestMetadataRepository:
                 ),
             },
         }
+        fake_signers = [
+            pretend.stub(
+                key_dict=fake_key,
+                sign=pretend.call_recorder(lambda *a: pretend.stub(keyid="key1")),
+            ),
+            pretend.stub(
+                key_dict=fake_key,
+                sign=pretend.call_recorder(lambda *a: pretend.stub(keyid="key2")),
+            ),
+        ]
+
         top_roles_payload = dict()
         for role in TOP_LEVEL_ROLE_NAMES:
-            top_roles_payload[role] = [fake_key, fake_key]
+            top_roles_payload[role] = fake_signers
 
         tuf_repository.load_role = pretend.call_recorder(lambda *a, **kw: None)
         tuf_repository._store = pretend.call_recorder(lambda *a, **kw: None)
@@ -365,9 +403,15 @@ class TestMetadataRepository:
                 ),
             },
         }
+        fake_signers = [
+            pretend.stub(
+                key_dict=fake_key,
+                sign=pretend.call_recorder(lambda *a: pretend.stub(keyid="key1")),
+            )
+        ]
         top_roles_payload = dict()
         for role in TOP_LEVEL_ROLE_NAMES:
-            top_roles_payload[role] = [fake_key]
+            top_roles_payload[role] = fake_signers
 
         tuf_repository.load_role = pretend.call_recorder(lambda *a, **kw: None)
         tuf_repository._store = pretend.call_recorder(lambda *a, **kw: None)
@@ -409,7 +453,12 @@ class TestMetadataRepository:
                 ),
             },
         }
-        payload = {"xxxx-yyyy": [fake_key]}
+        fake_signers = [
+            pretend.stub(
+                key_dict=fake_key, sign=pretend.call_recorder(lambda *a: "key1")
+            )
+        ]
+        payload = {"xxxx-yyyy": fake_signers}
         fake_targets_md = pretend.stub(
             signed=pretend.stub(
                 delegations=None,
@@ -449,7 +498,7 @@ class TestMetadataRepository:
                 rolename="xxxx-yyyy",
                 role_metadata=fake_targets_md,
                 role_expires=fake_time,
-                key_rolename=None,
+                signers=None,
                 store=True,
             )
         ]
@@ -463,6 +512,12 @@ class TestMetadataRepository:
     def test_bump_role_version(self, tuf_repository):
         fake_time = datetime.datetime(2019, 6, 16, 9, 5, 1)
         fake_new_time = datetime.datetime(2022, 6, 16, 9, 5, 1)
+        fake_signers = [
+            pretend.stub(
+                key_dict={"keyid": "fake_id"},
+                sign=pretend.call_recorder(lambda *a: "key1"),
+            )
+        ]
         initial_version = 1983
         fake_role_metadata = pretend.stub(
             signed=pretend.stub(expires=fake_time, version=initial_version),
@@ -470,15 +525,14 @@ class TestMetadataRepository:
         )
 
         tuf_repository.key_backend = pretend.stub(
-            get=pretend.call_recorder(lambda role: [{"key": "key_data"}])
+            get=pretend.call_recorder(lambda role: fake_signers)
         )
 
         result = tuf_repository.bump_role_version(
-            "fake_role", fake_role_metadata, fake_new_time
+            "fake_role", fake_role_metadata, fake_new_time, fake_signers
         )
         assert result.signed.version == initial_version + 1
         assert result.signed.expires == fake_new_time
-        assert tuf_repository.key_backend.get.calls == [pretend.call("fake_role")]
 
     def test_bump_role_version_store_true(self, tuf_repository):
         fake_time = datetime.datetime(2019, 6, 16, 9, 5, 1)
@@ -488,17 +542,19 @@ class TestMetadataRepository:
             signed=pretend.stub(expires=fake_time, version=initial_version),
             sign=lambda *a, **kw: None,
         )
+        fake_signers = [
+            pretend.stub(
+                key_dict={"keyid": "fake_id"},
+                sign=pretend.call_recorder(lambda *a: "key1"),
+            )
+        ]
 
-        tuf_repository.key_backend = pretend.stub(
-            get=pretend.call_recorder(lambda role: [{"key": "key_data"}])
-        )
         tuf_repository._store = pretend.call_recorder(lambda rolename, role_md: None)
         result = tuf_repository.bump_role_version(
-            "fake_role", fake_role_metadata, fake_new_time, store=True
+            "fake_role", fake_role_metadata, fake_new_time, fake_signers, store=True
         )
         assert result.signed.version == initial_version + 1
         assert result.signed.expires == fake_new_time
-        assert tuf_repository.key_backend.get.calls == [pretend.call("fake_role")]
         assert tuf_repository._store.calls == [
             pretend.call("fake_role", fake_role_metadata)
         ]
@@ -511,17 +567,18 @@ class TestMetadataRepository:
             signed=pretend.stub(expires=fake_time, version=initial_version),
             sign=lambda *a, **kw: None,
         )
-
-        tuf_repository.key_backend = pretend.stub(
-            get=pretend.call_recorder(lambda role: [{"key": "key_data"}])
-        )
+        fake_signers = [
+            pretend.stub(
+                key_dict={"keyid": "fake_id"},
+                sign=pretend.call_recorder(lambda *a: "key1"),
+            )
+        ]
 
         result = tuf_repository.bump_role_version(
-            "fake_role", fake_role_metadata, fake_new_time, "key_role_name"
+            "fake_role", fake_role_metadata, fake_new_time, fake_signers
         )
         assert result.signed.version == initial_version + 1
         assert result.signed.expires == fake_new_time
-        assert tuf_repository.key_backend.get.calls == [pretend.call("key_role_name")]
 
     def test_bump_timestamp_version(self, tuf_repository):
         fake_time = datetime.datetime(2019, 6, 16, 9, 5, 1)

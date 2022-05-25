@@ -61,7 +61,7 @@ class TestLocalKeyService:
 
         root_keyid = service.get("root")
 
-        assert root_keyid == [expected_priv_key_dict]
+        assert root_keyid[0].key_dict == expected_priv_key_dict
 
 
 class TestLocalStorageService:
@@ -420,10 +420,14 @@ class TestRepositoryService:
 
     def test_init_targets_delegation(self, db_request, monkeypatch):
         fake_storage = pretend.stub()
-        fake_key_storage = pretend.stub(
-            get=pretend.call_recorder(
-                lambda role: [{"keyid": "key1"}, {"keyid": "key2"}]
+        fake_signers = [
+            pretend.stub(
+                key_dict={"keyid": "fake_id"},
+                sign=pretend.call_recorder(lambda *a: "key1"),
             )
+        ]
+        fake_key_storage = pretend.stub(
+            get=pretend.call_recorder(lambda role: fake_signers)
         )
 
         fake_time = datetime.datetime(2019, 6, 16, 9, 5, 1)
@@ -463,12 +467,12 @@ class TestRepositoryService:
         assert sorted(["targets", "bins"]) == sorted(list(call_args.keys()))
         assert len(call_args["targets"]) == 1
         assert type(call_args["targets"][0][0]) == services.DelegatedRole
-        assert call_args["targets"][0][1] == [{"keyid": "key1"}, {"keyid": "key2"}]
+        assert call_args["targets"][0][1][0].key_dict == {"keyid": "fake_id"}
         assert (
             len(call_args["bins"]) == 16384
         )  # PEP458 https://peps.python.org/pep-0458/#metadata-scalability
         assert type(call_args["bins"][0][0]) == services.DelegatedRole
-        assert call_args["bins"][0][1] == [{"keyid": "key1"}, {"keyid": "key2"}]
+        assert call_args["bins"][0][1][0].key_dict == {"keyid": "fake_id"}
         # 1 target + # PEP458 https://peps.python.org/pep-0458/#metadata-scalability
         assert len(fake_metadata_repository._set_expiration_for_role.calls) == 16385
 
@@ -558,8 +562,14 @@ class TestRepositoryService:
 
     def test_bump_bin_n_roles(self, db_request, monkeypatch):
         fake_storage = pretend.stub()
+        fake_signers = [
+            pretend.stub(
+                key_dict={"keyid": "fake_id"},
+                sign=pretend.call_recorder(lambda *a: "key1"),
+            )
+        ]
         fake_key_storage = pretend.stub(
-            get=pretend.call_recorder(lambda role: "fake_key")
+            get=pretend.call_recorder(lambda role: fake_signers)
         )
 
         fake_time = datetime.datetime(2019, 6, 16, 9, 5, 1)
@@ -592,6 +602,7 @@ class TestRepositoryService:
             ),
             timestamp_bump_version=pretend.call_recorder(lambda *a, **kw: None),
             _set_expiration_for_role=pretend.call_recorder(lambda *a: fake_datetime),
+            _key_storage_backend=pretend.call_recorder(lambda *a: fake_signers),
         )
         monkeypatch.setattr(
             "warehouse.tuf.services.MetadataRepository",

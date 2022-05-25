@@ -22,6 +22,7 @@ from securesystemslib.exceptions import StorageError  # type: ignore
 from securesystemslib.interface import (  # type: ignore
     import_ed25519_privatekey_from_file,
 )
+from securesystemslib.signer import SSlibSigner  # type: ignore
 from zope.interface import implementer
 
 from warehouse.config import Environment
@@ -64,13 +65,16 @@ class LocalKeyService:
 
     def get(self, rolename):
         """
-        Returns Key objects for passed TUF role name from configured TUF key path.
+        Returns a list of ``securesystemslib.signer.Signer`` objects for passed
+        TUF role name from configured TUF key path.
         """
         privkey_path = os.path.join(self._key_path, "tufkeys", f"{rolename}*")
         role_keys = glob.glob(privkey_path)
         keys_sslib = [
-            import_ed25519_privatekey_from_file(
-                key, self._request.registry.settings[f"tuf.{rolename}.secret"]
+            SSlibSigner(
+                import_ed25519_privatekey_from_file(
+                    key, self._request.registry.settings[f"tuf.{rolename}.secret"]
+                )
             )
             for key in role_keys
             if "pub" not in key
@@ -196,11 +200,11 @@ class RepositoryService:
         if metadata_repository.is_initialized:
             raise FileExistsError("TUF Metadata Repository files already exists.")
 
-        keys = dict()
+        role_signers = dict()
         for role in TOP_LEVEL_ROLE_NAMES:
-            keys[role] = self._key_storage_backend.get(role)
+            role_signers[role] = self._key_storage_backend.get(role)
 
-        metadata_repository.initialize(keys, store=True)
+        metadata_repository.initialize(role_signers, store=True)
 
     def init_targets_delegation(self):
         """
@@ -222,19 +226,19 @@ class RepositoryService:
         )
 
         # Top-level 'targets' role delegates trust for all target files to 'bins' role.
-        keys = self._key_storage_backend.get(Role.BINS.value)
+        signers = self._key_storage_backend.get(Role.BINS.value)
         delegate_roles_payload = dict()
         delegate_roles_payload["targets"] = list()
         delegate_roles_payload["targets"].append(
             (
                 DelegatedRole(
                     Role.BINS.value,
-                    [key["keyid"] for key in keys],
+                    [signer.key_dict["keyid"] for signer in signers],
                     self._request.registry.settings[f"tuf.{Role.BINS.value}.threshold"],
                     False,
                     paths=["*/*", "*/*/*/*"],
                 ),
-                keys,
+                signers,
                 metadata_repository._set_expiration_for_role(Role.BIN_N.value),
             )
         )
@@ -242,8 +246,8 @@ class RepositoryService:
         # The 'bins' role delegates trust for target files to 'bin-n' roles based on
         # target file path hash prefixes.
         delegate_roles_payload[Role.BINS.value] = list()
-        keys = self._key_storage_backend.get(Role.BIN_N.value)
-        key_ids = [key["keyid"] for key in keys]
+        signers = self._key_storage_backend.get(Role.BIN_N.value)
+        key_ids = [signer.key_dict["keyid"] for signer in signers]
         for bin_n_name, bin_n_hash_prefixes in hash_bins.generate():
             delegate_roles_payload[Role.BINS.value].append(
                 (
@@ -256,7 +260,7 @@ class RepositoryService:
                         False,
                         path_hash_prefixes=bin_n_hash_prefixes,
                     ),
-                    keys,
+                    signers,
                     metadata_repository._set_expiration_for_role(Role.BIN_N.value),
                 )
             )
@@ -325,7 +329,7 @@ class RepositoryService:
                 role_expires=metadata_repository._set_expiration_for_role(
                     Role.BINS.value
                 ),
-                key_rolename=Role.BIN_N.value,
+                signers=self._key_storage_backend.get(Role.BIN_N.value),
                 store=True,
             )
 
