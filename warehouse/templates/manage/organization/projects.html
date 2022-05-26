@@ -146,19 +146,19 @@
       <div class="form-group">
         <label class="form-group__label" for="project">
           {% trans %}️Project name{% endtrans %}
-          {% if create_organization_project_form.project.flags.required %}
+          {% if create_organization_project_form.existing_project.flags.required %}
           <span class="form-group__required">{% trans %}(required){% endtrans %}</span>
           {% endif %}
         </label>
         <p class="form-group__text">
-          {{ create_organization_project_form.project(class_="form-group__field", **{"aria-describedby":"project-errors"}) }}
+          {{ create_organization_project_form.existing_project(class_="form-group__field", **{"aria-describedby":"project-errors"}) }}
         </p>
         <div id="project-errors">
-          {{ field_errors(create_organization_project_form.project) }}
+          {{ field_errors(create_organization_project_form.existing_project) }}
         </div>
         <p class="form-group__help-text">
           {% trans trimmed %}
-            Owners of this organization can add projects that they own to the organization.
+          Owners of this organization can add a project they own if the project has not been added to another organization. A project that has been added to another organization can be transferred from the project settings page.
           {% endtrans %}
         </p>
       </div>

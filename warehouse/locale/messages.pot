@@ -301,53 +301,53 @@ msgstr ""
 msgid "Generating new recovery codes will invalidate your existing codes."
 msgstr ""
 
-#: warehouse/manage/views.py:1477
+#: warehouse/manage/views.py:1530
 msgid "User '${username}' already has ${role_name} role for organization"
 msgstr ""
 
-#: warehouse/manage/views.py:1488
+#: warehouse/manage/views.py:1541
 msgid ""
 "User '${username}' does not have a verified primary email address and "
 "cannot be added as a ${role_name} for organization"
 msgstr ""
 
-#: warehouse/manage/views.py:1502 warehouse/manage/views.py:2740
+#: warehouse/manage/views.py:1555 warehouse/manage/views.py:2793
 msgid "User '${username}' already has an active invite. Please try again later."
 msgstr ""
 
-#: warehouse/manage/views.py:1559 warehouse/manage/views.py:2798
+#: warehouse/manage/views.py:1612 warehouse/manage/views.py:2851
 msgid "Invitation sent to '${username}'"
 msgstr ""
 
-#: warehouse/manage/views.py:1602
+#: warehouse/manage/views.py:1655
 msgid "Could not find organization invitation."
 msgstr ""
 
-#: warehouse/manage/views.py:1616 warehouse/manage/views.py:2856
+#: warehouse/manage/views.py:1669 warehouse/manage/views.py:2909
 msgid "Invitation already expired."
 msgstr ""
 
-#: warehouse/manage/views.py:1649 warehouse/manage/views.py:2880
+#: warehouse/manage/views.py:1702 warehouse/manage/views.py:2933
 msgid "Invitation revoked from '${username}'."
 msgstr ""
 
-#: warehouse/manage/views.py:2035
+#: warehouse/manage/views.py:2088
 msgid ""
 "There have been too many attempted OpenID Connect registrations. Try "
 "again later."
 msgstr ""
 
-#: warehouse/manage/views.py:2716
+#: warehouse/manage/views.py:2769
 msgid "User '${username}' already has ${role_name} role for project"
 msgstr ""
 
-#: warehouse/manage/views.py:2727
+#: warehouse/manage/views.py:2780
 msgid ""
 "User '${username}' does not have a verified primary email address and "
 "cannot be added as a ${role_name} for project"
 msgstr ""
 
-#: warehouse/manage/views.py:2845
+#: warehouse/manage/views.py:2898
 msgid "Could not find role invitation."
 msgstr ""
 
@@ -4593,8 +4593,9 @@ msgstr ""
 
 #: warehouse/templates/manage/organization/projects.html:160
 msgid ""
-"Owners of this organization can add projects that they own to the "
-"organization."
+"Owners of this organization can add a project they own if the project has"
+" not been added to another organization. A project that has been added to"
+" another organization can be transferred from the project settings page."
 msgstr ""
 
 #: warehouse/templates/manage/organization/projects.html:166

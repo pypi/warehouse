@@ -3002,17 +3002,14 @@ class TestManageOrganizationProjects:
         assert view.organization_service == organization_service
         assert result == {
             "organization": organization,
-            "create_organization_project_form": create_organization_project_obj,
             "active_projects": view.active_projects,
             "projects_owned": set(),
             "projects_sole_owned": set(),
             "projects_requiring_2fa": set(),
+            "create_organization_project_form": create_organization_project_obj,
         }
         assert create_organization_project_cls.calls == [
-            pretend.call(
-                projects_owned=set(),
-                project_factory=views.ProjectFactory(db_request),
-            ),
+            pretend.call({}, project_choices=set()),
         ]
 
     def test_manage_organization_projects_disable_organizations(self, db_request):
@@ -3021,6 +3018,99 @@ class TestManageOrganizationProjects:
         view = views.ManageOrganizationProjectsViews(organization, db_request)
         with pytest.raises(HTTPNotFound):
             view.manage_organization_projects()
+
+    def test_create_organization_project(
+        self,
+        db_request,
+        pyramid_user,
+        organization_service,
+        enable_organizations,
+        monkeypatch,
+    ):
+        organization = OrganizationFactory.create()
+        organization.projects = [ProjectFactory.create()]
+
+        project = ProjectFactory.create()
+
+        create_organization_project_obj = pretend.stub(
+            existing_project=pretend.stub(data=project.name),
+            validate=lambda *a, **kw: True,
+        )
+        create_organization_project_cls = pretend.call_recorder(
+            lambda *a, **kw: create_organization_project_obj
+        )
+        monkeypatch.setattr(
+            views, "CreateOrganizationProjectForm", create_organization_project_cls
+        )
+
+        def add_organization_project(*args, **kwargs):
+            organization.projects.append(project)
+
+        monkeypatch.setattr(
+            organization_service, "add_organization_project", add_organization_project
+        )
+
+        view = views.ManageOrganizationProjectsViews(organization, db_request)
+        result = view.create_organization_project()
+
+        assert isinstance(result, HTTPSeeOther)
+        assert result.headers["Location"] == db_request.path
+        assert create_organization_project_cls.calls == [
+            pretend.call({}, project_choices=set()),
+        ]
+
+    def test_create_organization_project_invalid(
+        self,
+        db_request,
+        pyramid_user,
+        organization_service,
+        enable_organizations,
+        monkeypatch,
+    ):
+        organization = OrganizationFactory.create()
+        organization.projects = [ProjectFactory.create()]
+
+        project = ProjectFactory.create()
+
+        create_organization_project_obj = pretend.stub(
+            existing_project=pretend.stub(data=project.name),
+            validate=lambda *a, **kw: False,
+        )
+        create_organization_project_cls = pretend.call_recorder(
+            lambda *a, **kw: create_organization_project_obj
+        )
+        monkeypatch.setattr(
+            views, "CreateOrganizationProjectForm", create_organization_project_cls
+        )
+
+        def add_organization_project(*args, **kwargs):
+            organization.projects.append(project)
+
+        monkeypatch.setattr(
+            organization_service, "add_organization_project", add_organization_project
+        )
+
+        view = views.ManageOrganizationProjectsViews(organization, db_request)
+        result = view.create_organization_project()
+
+        assert result == {
+            "organization": organization,
+            "active_projects": view.active_projects,
+            "projects_owned": set(),
+            "projects_sole_owned": set(),
+            "projects_requiring_2fa": set(),
+            "create_organization_project_form": create_organization_project_obj,
+        }
+        assert create_organization_project_cls.calls == [
+            pretend.call({}, project_choices=set()),
+        ]
+
+    def test_create_organization_project_disable_organizations(self, db_request):
+        organization = OrganizationFactory.create()
+
+        view = views.ManageOrganizationProjectsViews(organization, db_request)
+        with pytest.raises(HTTPNotFound):
+            view.create_organization_project()
 
 
 class TestManageOrganizationRoles:

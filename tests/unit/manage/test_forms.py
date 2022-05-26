@@ -539,6 +539,19 @@ class TestCreateOrganizationForm:
         ]
 
 
+class TestCreateOrganizationProjectForm:
+    def test_creation(self):
+        project_choices = {"foo"}
+        form = forms.CreateOrganizationProjectForm(
+            project_choices=project_choices,
+        )
+
+        assert form.existing_project.choices == [
+            ("", "Select project"),
+            ("foo", "foo"),
+        ]
+
+
 class TestSaveAccountForm:
     def test_public_email_verified(self):
         email = pretend.stub(verified=True, public=False, email="foo@example.com")

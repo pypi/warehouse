@@ -1395,6 +1395,7 @@ class ManageOrganizationProjectsViews:
 
     @property
     def default_response(self):
+        active_projects = self.active_projects
         all_user_projects = user_projects(self.request)
         projects_owned = set(
             project.name for project in all_user_projects["projects_owned"]
@@ -1405,17 +1406,21 @@ class ManageOrganizationProjectsViews:
         projects_requiring_2fa = set(
             project.name for project in all_user_projects["projects_requiring_2fa"]
         )
-        project_factory = ProjectFactory(self.request)
+        project_choices = set(
+            project.name
+            for project in all_user_projects["projects_owned"]
+            if not project.organizations
+        )
 
         return {
             "organization": self.organization,
-            "active_projects": self.active_projects,
+            "active_projects": active_projects,
             "projects_owned": projects_owned,
             "projects_sole_owned": projects_sole_owned,
             "projects_requiring_2fa": projects_requiring_2fa,
             "create_organization_project_form": CreateOrganizationProjectForm(
-                projects_owned=projects_owned,
-                project_factory=project_factory,
+                self.request.POST,
+                project_choices=project_choices,
             ),
         }
 
@@ -1425,6 +1430,54 @@ class ManageOrganizationProjectsViews:
             raise HTTPNotFound
 
         return self.default_response
+
+    @view_config(request_method="POST")
+    def create_organization_project(self):
+        if self.request.flags.enabled(AdminFlagValue.DISABLE_ORGANIZATIONS):
+            raise HTTPNotFound
+
+        default_response = self.default_response
+        form = default_response["create_organization_project_form"]
+        if not form.validate():
+            return default_response
+
+        project = ProjectFactory(self.request)[form.existing_project.data]
+        self.organization_service.add_organization_project(
+            organization_id=self.organization.id,
+            project_id=project.id,
+        )
+
+        self.organization.record_event(
+            tag="organization:organization_project:add",
+            ip_address=self.request.remote_addr,
+            additional={
+                "submitted_by_user_id": str(self.request.user.id),
+                "project_name": project.name,
+            },
+        )
+        project.record_event(
+            tag="project:organization_project:add",
+            ip_address=self.request.remote_addr,
+            additional={
+                "submitted_by_user_id": str(self.request.user.id),
+                "organization_name": self.organization.name,
+            },
+        )
+
+        # TODO: Send notification emails.
+        # owner_users = set(
+        #     organization_owners(self.request, self.organization) +
+        #     project_owners(self.request, project)
+        # )
+        # send_organization_project_added_email(
+        #     self.request,
+        #     owner_users,
+        #     organization_name=organization.name,
+        #     project_name=project.name,
+        # )
+
+        # Refresh projects list.
+        return HTTPSeeOther(self.request.path)
 
 
 @view_config(

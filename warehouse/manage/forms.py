@@ -368,21 +368,21 @@ class OrganizationNameMixin:
 
 class CreateOrganizationProjectForm(forms.Form):
 
-    __params__ = ["project"]
+    __params__ = ["existing_project"]
 
-    project = wtforms.SelectField(
+    existing_project = wtforms.SelectField(
         "Select project",
         choices=[("", "Select project")],
-        coerce=lambda x: x,
         validators=[
             wtforms.validators.DataRequired(message="Select project"),
         ],
     )
 
-    def __init__(self, *args, projects_owned, project_factory, **kwargs):
+    def __init__(self, *args, project_choices, **kwargs):
         super().__init__(*args, **kwargs)
-        self.project.choices += [(name, name) for name in sorted(projects_owned)]
-        self.project.coerce = lambda name: project_factory[name] if name else None
+        self.existing_project.choices += [
+            (name, name) for name in sorted(project_choices)
+        ]
 
 
 class CreateOrganizationRoleForm(OrganizationRoleNameMixin, UsernameMixin, forms.Form):
