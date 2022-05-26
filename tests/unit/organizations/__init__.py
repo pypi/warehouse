@@ -9,10 +9,3 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-
-from warehouse.organizations.interfaces import IOrganizationService
-from warehouse.organizations.services import database_organization_factory
-
-
-def includeme(config):
-    config.register_service_factory(database_organization_factory, IOrganizationService)

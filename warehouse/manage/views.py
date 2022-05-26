@@ -44,6 +44,8 @@ from warehouse.admin.flags import AdminFlagValue
 from warehouse.email import (
     send_account_deletion_email,
     send_admin_new_organization_requested_email,
+    send_admin_organization_deleted_email,
+    send_admin_organization_renamed_email,
     send_canceled_as_invited_organization_member_email,
     send_collaborator_removed_email,
     send_collaborator_role_changed_email,
@@ -51,10 +53,12 @@ from warehouse.email import (
     send_new_organization_requested_email,
     send_oidc_provider_added_email,
     send_oidc_provider_removed_email,
+    send_organization_deleted_email,
     send_organization_member_invite_canceled_email,
     send_organization_member_invited_email,
     send_organization_member_removed_email,
     send_organization_member_role_changed_email,
+    send_organization_renamed_email,
     send_organization_role_verification_email,
     send_password_change_email,
     send_primary_email_change_email,
@@ -90,6 +94,8 @@ from warehouse.manage.forms import (
     ProvisionTOTPForm,
     ProvisionWebAuthnForm,
     SaveAccountForm,
+    SaveOrganizationForm,
+    SaveOrganizationNameForm,
     Toggle2FARequirementForm,
 )
 from warehouse.metrics.interfaces import IMetricsService
@@ -114,6 +120,7 @@ from warehouse.packaging.models import (
 )
 from warehouse.rate_limiting import IRateLimiter
 from warehouse.utils.http import is_safe_url
+from warehouse.utils.organization import confirm_organization
 from warehouse.utils.paginate import paginate_url_factory
 from warehouse.utils.project import confirm_project, destroy_docs, remove_project
 
@@ -1188,6 +1195,178 @@ class ManageOrganizationsViews:
         return self.default_response
 
 
+@view_defaults(
+    route_name="manage.organization.settings",
+    context=Organization,
+    renderer="manage/organization/settings.html",
+    uses_session=True,
+    require_csrf=True,
+    require_methods=False,
+    permission="view:organization",
+    has_translations=True,
+    require_reauth=True,
+)
+class ManageOrganizationSettingsViews:
+    def __init__(self, organization, request):
+        self.organization = organization
+        self.request = request
+        self.user_service = request.find_service(IUserService, context=None)
+        self.organization_service = request.find_service(
+            IOrganizationService, context=None
+        )
+
+    @property
+    def active_projects(self):
+        return self.organization.projects
+
+    @property
+    def default_response(self):
+        return {
+            "organization": self.organization,
+            "save_organization_form": SaveOrganizationForm(
+                name=self.organization.name,
+                display_name=self.organization.display_name,
+                link_url=self.organization.link_url,
+                description=self.organization.description,
+                orgtype=self.organization.orgtype,
+                organization_service=self.organization_service,
+            ),
+            "active_projects": self.active_projects,
+        }
+
+    @view_config(request_method="GET")
+    def manage_organization(self):
+        if self.request.flags.enabled(AdminFlagValue.DISABLE_ORGANIZATIONS):
+            raise HTTPNotFound
+
+        return self.default_response
+
+    @view_config(request_method="POST", request_param=SaveOrganizationForm.__params__)
+    def save_organization(self):
+        if self.request.flags.enabled(AdminFlagValue.DISABLE_ORGANIZATIONS):
+            raise HTTPNotFound
+
+        form = SaveOrganizationForm(
+            self.request.POST,
+            organization_service=self.organization_service,
+        )
+
+        if form.validate():
+            data = form.data
+            self.organization_service.update_organization(self.organization.id, **data)
+            self.request.session.flash("Organization details updated", queue="success")
+
+        return {**self.default_response, "save_organization_form": form}
+
+    @view_config(
+        request_method="POST",
+        request_param=["confirm_current_organization_name"]
+        + SaveOrganizationNameForm.__params__,
+    )
+    def save_organization_name(self):
+        if self.request.flags.enabled(AdminFlagValue.DISABLE_ORGANIZATIONS):
+            raise HTTPNotFound
+
+        confirm_organization(
+            self.organization,
+            self.request,
+            fail_route="manage.organization.settings",
+            field_name="confirm_current_organization_name",
+            error_message="Could not rename organization",
+        )
+
+        form = SaveOrganizationNameForm(
+            self.request.POST,
+            organization_service=self.organization_service,
+        )
+
+        if form.validate():
+            previous_organization_name = self.organization.name
+            self.organization_service.rename_organization(
+                self.organization.id,
+                form.name.data,
+            )
+            self.organization.record_event(
+                tag="organization:rename",
+                ip_address=self.request.remote_addr,
+                additional={
+                    "previous_organization_name": previous_organization_name,
+                    "renamed_by_user_id": str(self.request.user.id),
+                },
+            )
+            owner_users = set(organization_owners(self.request, self.organization))
+            send_admin_organization_renamed_email(
+                self.request,
+                self.user_service.get_admins(),
+                organization_name=self.organization.name,
+                previous_organization_name=previous_organization_name,
+            )
+            send_organization_renamed_email(
+                self.request,
+                owner_users,
+                organization_name=self.organization.name,
+                previous_organization_name=previous_organization_name,
+            )
+            self.request.session.flash(
+                "Organization account name updated", queue="success"
+            )
+            return HTTPSeeOther(
+                self.request.route_path(
+                    "manage.organization.settings",
+                    organization_name=self.organization.normalized_name,
+                )
+            )
+        else:
+            for error_list in form.errors.values():
+                for error in error_list:
+                    self.request.session.flash(error, queue="error")
+
+        return self.default_response
+
+    @view_config(request_method="POST", request_param=["confirm_organization_name"])
+    def delete_organization(self):
+        if self.request.flags.enabled(AdminFlagValue.DISABLE_ORGANIZATIONS):
+            raise HTTPNotFound
+
+        confirm_organization(
+            self.organization, self.request, fail_route="manage.organization.settings"
+        )
+
+        if self.active_projects:
+            self.request.session.flash(
+                "Cannot delete organization with active project ownerships",
+                queue="error",
+            )
+            return self.default_response
+
+        # Record event before deleting organization.
+        self.organization.record_event(
+            tag="organization:delete",
+            ip_address=self.request.remote_addr,
+            additional={
+                "deleted_by_user_id": str(self.request.user.id),
+            },
+        )
+
+        # Get owners before deleting organization.
+        owner_users = set(organization_owners(self.request, self.organization))
+
+        self.organization_service.delete_organization(self.organization.id)
+
+        send_admin_organization_deleted_email(
+            self.request,
+            self.user_service.get_admins(),
+            organization_name=self.organization.name,
+        )
+        send_organization_deleted_email(
+            self.request,
+            owner_users,
+            organization_name=self.organization.name,
+        )
+
+        return HTTPSeeOther(self.request.route_path("manage.organizations"))
+
+
 @view_config(
     route_name="manage.organization.roles",
     context=Organization,
@@ -1249,7 +1428,7 @@ def manage_organization_roles(
                 request._(
                     "User '${username}' does not have a verified primary email "
                     "address and cannot be added as a ${role_name} for organization",
-                    mapping={"username": username, "role_name": role_name},
+                    mapping={"username": username, "role_name": role_name.value},
                 ),
                 queue="error",
             )
@@ -1271,7 +1450,7 @@ def manage_organization_roles(
             invite_token = token_service.dumps(
                 {
                     "action": "email-organization-role-verify",
-                    "desired_role": role_name,
+                    "desired_role": role_name.value,
                     "user_id": user.id,
                     "organization_id": organization.id,
                     "submitter_id": request.user.id,
@@ -1291,7 +1470,7 @@ def manage_organization_roles(
                 ip_address=request.remote_addr,
                 additional={
                     "submitted_by_user_id": str(request.user.id),
-                    "role_name": role_name,
+                    "role_name": role_name.value,
                     "target_user_id": str(userid),
                 },
             )
@@ -1301,7 +1480,7 @@ def manage_organization_roles(
                 request,
                 owner_users,
                 user=user,
-                desired_role=role_name,
+                desired_role=role_name.value,
                 initiator_username=request.user.username,
                 organization_name=organization.name,
                 email_token=invite_token,
@@ -1310,7 +1489,7 @@ def manage_organization_roles(
             send_organization_role_verification_email(
                 request,
                 user,
-                desired_role=role_name,
+                desired_role=role_name.value,
                 initiator_username=request.user.username,
                 organization_name=organization.name,
                 email_token=invite_token,
@@ -1364,7 +1543,8 @@ def revoke_organization_invitation(organization, request):
         )
         return HTTPSeeOther(
             request.route_path(
-                "manage.organization.roles", organization_name=organization.name
+                "manage.organization.roles",
+                organization_name=organization.normalized_name,
             )
         )
 
@@ -1376,7 +1556,8 @@ def revoke_organization_invitation(organization, request):
         request.session.flash(request._("Invitation already expired."), queue="success")
         return HTTPSeeOther(
             request.route_path(
-                "manage.organization.roles", organization_name=organization.name
+                "manage.organization.roles",
+                organization_name=organization.normalized_name,
             )
         )
     role_name = token_data.get("desired_role")
@@ -1414,7 +1595,7 @@ def revoke_organization_invitation(organization, request):
 
     return HTTPSeeOther(
         request.route_path(
-            "manage.organization.roles", organization_name=organization.name
+            "manage.organization.roles", organization_name=organization.normalized_name
         )
     )
 
@@ -1489,7 +1670,7 @@ def change_organization_role(
 
     return HTTPSeeOther(
         request.route_path(
-            "manage.organization.roles", organization_name=organization.name
+            "manage.organization.roles", organization_name=organization.normalized_name
         )
     )
 
@@ -1566,7 +1747,8 @@ def delete_organization_role(organization, request):
     else:
         return HTTPSeeOther(
             request.route_path(
-                "manage.organization.roles", organization_name=organization.name
+                "manage.organization.roles",
+                organization_name=organization.normalized_name,
             )
         )
 

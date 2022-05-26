@@ -26,7 +26,7 @@ from warehouse.accounts.forms import (
     WebAuthnCredentialMixin,
 )
 from warehouse.i18n import localize as _
-from warehouse.organizations.models import OrganizationType
+from warehouse.organizations.models import OrganizationRoleType, OrganizationType
 
 # /manage/account/ forms
 
@@ -322,6 +322,7 @@ class OrganizationRoleNameMixin:
             ("Owner", "Owner"),
             ("Billing Manager", "Billing Manager"),
         ],
+        coerce=lambda string: OrganizationRoleType(string) if string else None,
         validators=[wtforms.validators.DataRequired(message="Select role")],
     )
 
@@ -359,9 +360,8 @@ class OrganizationNameMixin:
         if self.organization_service.find_organizationid(field.data) is not None:
             raise wtforms.validators.ValidationError(
                 _(
-                    "This organization account name is already being "
-                    "used by another account. Choose a different "
-                    "organization account name."
+                    "This organization account name has already been used. "
+                    "Choose a different organization account name."
                 )
             )
 
@@ -392,13 +392,18 @@ class ChangeOrganizationRoleForm(OrganizationRoleNameMixin, forms.Form):
             ]
 
 
-class CreateOrganizationForm(forms.Form, OrganizationNameMixin):
+class SaveOrganizationNameForm(OrganizationNameMixin, forms.Form):
 
-    __params__ = ["name", "display_name", "link_url", "description", "orgtype"]
+    __params__ = ["name"]
 
     def __init__(self, *args, organization_service, **kwargs):
         super().__init__(*args, **kwargs)
         self.organization_service = organization_service
+
+
+class SaveOrganizationForm(forms.Form):
+
+    __params__ = ["display_name", "link_url", "description", "orgtype"]
 
     display_name = wtforms.StringField(
         validators=[
@@ -439,8 +444,15 @@ class CreateOrganizationForm(forms.Form, OrganizationNameMixin):
         ]
     )
     orgtype = wtforms.SelectField(
+        # TODO: Map additional choices to "Company" and "Community".
         choices=[("Company", "Company"), ("Community", "Community")],
+        coerce=OrganizationType,
         validators=[
             wtforms.validators.DataRequired(message="Select organization type"),
         ],
     )
+
+
+class CreateOrganizationForm(SaveOrganizationNameForm, SaveOrganizationForm):
+
+    __params__ = SaveOrganizationNameForm.__params__ + SaveOrganizationForm.__params__

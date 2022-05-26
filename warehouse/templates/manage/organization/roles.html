@@ -94,7 +94,7 @@
           {% trans %}Billing Manager{% endtrans %}
           {% endif %}
         {% else %}
-          <form class="table__change-role" method="POST" action="{{ request.route_path('manage.organization.change_role', organization_name=organization.name) }}">
+          <form class="table__change-role" method="POST" action="{{ request.route_path('manage.organization.change_role', organization_name=organization.normalized_name) }}">
             <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
             <input type="hidden" name="role_id" value="{{ role.id }}">
 
@@ -116,7 +116,7 @@
         </td>
         <td>{{ two_factor_badge(role.user) }}</td>
         <td class="table__align-right">
-          <form method="POST" action="{{ request.route_path('manage.organization.delete_role', organization_name=organization.name) }}">
+          <form method="POST" action="{{ request.route_path('manage.organization.delete_role', organization_name=organization.normalized_name) }}">
             <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
             <input type="hidden" name="role_id" value="{{ role.id }}">
             <button
@@ -165,7 +165,7 @@
         </td>
         <td></td>
         <td class="table__align-right">
-          <form method="POST" action="{{ request.route_path('manage.organization.revoke_invite', organization_name=organization.name) }}">
+          <form method="POST" action="{{ request.route_path('manage.organization.revoke_invite', organization_name=organization.normalized_name) }}">
             <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
             <input name="user_id" type="hidden" value="{{ invite.user_id }}">
             <button

@@ -1,0 +1,183 @@
+{#
+ # Licensed under the Apache License, Version 2.0 (the "License");
+ # you may not use this file except in compliance with the License.
+ # You may obtain a copy of the License at
+ #
+ # http://www.apache.org/licenses/LICENSE-2.0
+ #
+ # Unless required by applicable law or agreed to in writing, software
+ # distributed under the License is distributed on an "AS IS" BASIS,
+ # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ # See the License for the specific language governing permissions and
+ # limitations under the License.
+-#}
+{% extends "manage_organization_base.html" %}
+
+{% set user = request.user %}
+{% set title = gettext("Organization settings") %}
+
+{% set active_tab = 'settings' %}
+
+{% block title %}{% trans organization_name=organization.name %}Manage '{{ organization_name }}' settings{% endtrans %}{% endblock %}
+
+{% block main %}
+  <h2>{% trans %}Organization settings{% endtrans %}</h2>
+
+  {{ form_error_anchor(save_organization_form) }}
+  <section id="organization-details">
+    <div class="form-group">
+      <span class="form-group__label">{% trans %}Organization account name{% endtrans %}</span>
+      <p class="form-group__text">{{ organization.name }}</p>
+      <span class="form-group__label">{% trans %}Date created{% endtrans %}</span>
+      <p class="form-group__text">
+        {{ humanize(organization.created) }}
+      </p>
+    </div>
+
+    <form method="POST">
+      <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
+      {{ form_errors(save_organization_form) }}
+      <div class="form-group">
+        <label for="display_name" class="form-group__label">
+          {% trans %}Organization name{% endtrans %}
+          {% if save_organization_form.display_name.flags.required %}
+          <span class="form-group__required">{% trans %}(required){% endtrans %}</span>
+          {% endif %}
+        </label>
+        {{ save_organization_form.display_name(placeholder=gettext("Name of your business, product, or project"), autocomplete="organization", autocapitalize="off", spellcheck="false", class_="form-group__field", **{"aria-describedby":"display-name-errors"}) }}
+        <div id="display-name-errors">
+          {% if save_organization_form.display_name.errors %}
+          <ul class="form-errors" role="alert">
+            {% for error in save_organization_form.display_name.errors %}
+            <li>{{ error }}</li>
+            {% endfor %}
+          </ul>
+          {% endif %}
+        </div>
+        <p class="form-group__help-text">
+          {% trans %}For example{% endtrans %}: Python Software Foundation
+        </p>
+      </div>
+
+      <div class="form-group">
+        <label class="form-group__label" for="link_url">
+          {% trans %}️Organization URL{% endtrans %}
+          {% if save_organization_form.link_url.flags.required %}
+          <span class="form-group__required">{% trans %}(required){% endtrans %}</span>
+          {% endif %}
+        </label>
+        <p class="form-group__text">
+          {{ save_organization_form.link_url(placeholder=gettext("URL for your business, product, or project"), autocomplete="url", autocapitalize="off", spellcheck="false", class_="form-group__field", **{"aria-describedby":"link-url-errors"}) }}
+        </p>
+        <div id="link-url-errors">
+          {{ field_errors(save_organization_form.link_url) }}
+        </div>
+        <p class="form-group__help-text">
+          {% trans %}For example{% endtrans %}: https://www.python.org/psf/
+        </p>
+      </div>
+
+      <div class="form-group">
+        <label for="description" class="form-group__label">
+          {% trans %}Organization description{% endtrans %}
+          {% if save_organization_form.description.flags.required %}
+          <span class="form-group__required">{% trans %}(required){% endtrans %}</span>
+          {% endif %}
+        </label>
+        {{ save_organization_form.description(placeholder=gettext("Description of your business, product, or project"), autocomplete="off", autocapitalize="off", spellcheck="true", class_="form-group__field", **{"aria-describedby":"description-errors"}) }}
+        <div id="description-errors">
+          {% if save_organization_form.description.errors %}
+          <ul class="form-errors" role="alert">
+            {% for error in save_organization_form.description.errors %}
+            <li>{{ error }}</li>
+            {% endfor %}
+          </ul>
+          {% endif %}
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-group__label" for="orgtype">
+          {% trans %}️Organization type{% endtrans %}
+          {% if save_organization_form.orgtype.flags.required %}
+          <span class="form-group__required">{% trans %}(required){% endtrans %}</span>
+          {% endif %}
+        </label>
+        <p class="form-group__text">
+          {{ save_organization_form.orgtype(class_="form-group__field", **{"aria-describedby":"orgtype-errors"}) }}
+        </p>
+        <div id="orgtype-errors">
+          {{ field_errors(save_organization_form.orgtype) }}
+        </div>
+        <p class="form-group__help-text">
+          {% trans trimmed %}
+            Companies can create organization accounts as a paid service while community projects are granted complimentary access.
+          {% endtrans %}
+        </p>
+      </div>
+
+      <input value="{% trans %}Update organization{% endtrans %}" class="button button--primary" type="submit">
+    </form>
+  </section>
+
+  <hr>
+
+  <section id="change-organization-account-name">
+    <h2>{% trans %}Change organization account name{% endtrans %}</h2>
+    <div class="callout-block callout-block--danger">
+      <h3>{% trans %}Proceed with caution!{% endtrans %}</h3>
+      <p>
+        <i class="fa fa-exclamation-triangle" aria-hidden="true"><span class="sr-only">{% trans %}Warning{% endtrans %}</span></i>
+        {% trans %}You will not be able to revert to your current account name after you rename your organization.{% endtrans %}
+      </p>
+      {% set action="#" %}
+      {% set extra_fields %}
+        <label for="organization_name-modal-name">New organization account name</label>
+        <input id="organization_name-modal-name" name="name" type="text" autocomplete="off" autocapitalize="off" spellcheck="false" required>
+      {% endset %}
+      {{ confirm_button(gettext("Change organization account name"), gettext("Current organization account name"), "current_organization_name", organization.name, action=action, extra_fields=extra_fields, confirm_string_in_title=False) }}
+    </div>
+  </section>
+
+  <hr>
+
+  <section id="delete-organization">
+    <h2>{% trans %}Delete organization{% endtrans %}</h2>
+    <div class="callout-block{% if not active_projects %} callout-block--danger{% endif %}">
+      {% if active_projects %}
+      <h3>{% trans %}Cannot delete organization{% endtrans %}</h3>
+      <p>
+        {% trans count=active_projects|length %}
+          Your organization currently owns {{ count }} project.
+        {% pluralize %}
+          Your organization currently owns {{ count }} projects.
+        {% endtrans %}
+        {% trans count=active_projects|length %}
+          You must transfer ownership or delete this project before you can delete your organization.
+        {% pluralize %}
+          You must transfer ownership or delete these projects before you can delete your organization.
+        {% endtrans %}
+      </p>
+      <ul class="no-bottom-margin">
+        {% for project in active_projects %}
+        <li>
+          <strong>{{ project.name }}</strong> -
+          {% trans trimmed transfer_href=request.route_path('manage.project.roles', project_name=project.name), delete_href=request.route_path('manage.project.settings', project_name=project.name) %}
+            <a href="{{ transfer_href }}">transfer ownership</a>
+            or
+            <a href="{{ delete_href }}">delete project</a>
+          {% endtrans %}
+        </li>
+        {% endfor %}
+      </ul>
+      {% else %}
+      <h3>{% trans %}Proceed with caution!{% endtrans %}</h3>
+      <p>
+        <i class="fa fa-exclamation-triangle" aria-hidden="true"><span class="sr-only">{% trans %}Warning{% endtrans %}</span></i>
+        {% trans %}You will not be able to recover your organization after you delete it.{% endtrans %}
+      </p>
+      {{ confirm_button(gettext("Delete organization"), gettext("Organization Name"), "organization_name", organization.name) }}
+      {% endif %}
+    </div>
+  </section>
+{% endblock %}

@@ -222,6 +222,23 @@ def send_admin_new_organization_declined_email(
     }
 
 
+@_email("admin-organization-renamed")
+def send_admin_organization_renamed_email(
+    request, user, *, organization_name, previous_organization_name
+):
+    return {
+        "organization_name": organization_name,
+        "previous_organization_name": previous_organization_name,
+    }
+
+
+@_email("admin-organization-deleted")
+def send_admin_organization_deleted_email(request, user, *, organization_name):
+    return {
+        "organization_name": organization_name,
+    }
+
+
 # Email templates for users.
 
 
@@ -526,6 +543,23 @@ def send_role_changed_as_organization_member_email(
         "organization_name": organization_name,
         "submitter": submitter.username,
         "role": role,
+    }
+
+
+@_email("organization-renamed")
+def send_organization_renamed_email(
+    request, user, *, organization_name, previous_organization_name
+):
+    return {
+        "organization_name": organization_name,
+        "previous_organization_name": previous_organization_name,
+    }
+
+
+@_email("organization-deleted")
+def send_organization_deleted_email(request, user, *, organization_name):
+    return {
+        "organization_name": organization_name,
     }
 
 

@@ -2626,6 +2626,355 @@ class TestManageOrganizations:
         ]
 
 
+class TestManageOrganizationSettings:
+    def test_manage_organization(
+        self, db_request, organization_service, enable_organizations, monkeypatch
+    ):
+        organization = OrganizationFactory.create()
+        organization.projects = [ProjectFactory.create()]
+
+        save_organization_obj = pretend.stub()
+        save_organization_cls = pretend.call_recorder(
+            lambda *a, **kw: save_organization_obj
+        )
+        monkeypatch.setattr(views, "SaveOrganizationForm", save_organization_cls)
+
+        view = views.ManageOrganizationSettingsViews(organization, db_request)
+        result = view.manage_organization()
+
+        assert view.request == db_request
+        assert view.organization_service == organization_service
+        assert result == {
+            "organization": organization,
+            "save_organization_form": save_organization_obj,
+            "active_projects": view.active_projects,
+        }
+        assert save_organization_cls.calls == [
+            pretend.call(
+                name=organization.name,
+                display_name=organization.display_name,
+                link_url=organization.link_url,
+                description=organization.description,
+                orgtype=organization.orgtype,
+                organization_service=organization_service,
+            ),
+        ]
+
+    def test_manage_organization_disable_organizations(self, db_request):
+        organization = OrganizationFactory.create()
+
+        view = views.ManageOrganizationSettingsViews(organization, db_request)
+        with pytest.raises(HTTPNotFound):
+            view.manage_organization()
+
+    def test_save_organization(
+        self, db_request, organization_service, enable_organizations, monkeypatch
+    ):
+        organization = OrganizationFactory.create()
+        db_request.POST = {
+            "display_name": organization.display_name,
+            "link_url": organization.link_url,
+            "description": organization.description,
+            "orgtype": organization.orgtype,
+        }
+
+        monkeypatch.setattr(
+            organization_service,
+            "update_organization",
+            pretend.call_recorder(lambda *a, **kw: None),
+        )
+
+        save_organization_obj = pretend.stub(
+            validate=lambda: True, data=db_request.POST
+        )
+        save_organization_cls = pretend.call_recorder(
+            lambda *a, **kw: save_organization_obj
+        )
+        monkeypatch.setattr(views, "SaveOrganizationForm", save_organization_cls)
+
+        view = views.ManageOrganizationSettingsViews(organization, db_request)
+        result = view.save_organization()
+
+        assert result == {
+            **view.default_response,
+            "save_organization_form": save_organization_obj,
+        }
+        assert organization_service.update_organization.calls == [
+            pretend.call(organization.id, **db_request.POST)
+        ]
+
+    def test_save_organization_validation_fails(
+        self, db_request, organization_service, enable_organizations, monkeypatch
+    ):
+        organization = OrganizationFactory.create()
+        db_request.POST = {
+            "display_name": organization.display_name,
+            "link_url": organization.link_url,
+            "description": organization.description,
+            "orgtype": organization.orgtype,
+        }
+
+        monkeypatch.setattr(
+            organization_service,
+            "update_organization",
+            pretend.call_recorder(lambda *a, **kw: None),
+        )
+
+        save_organization_obj = pretend.stub(
+            validate=lambda: False, data=db_request.POST
+        )
+        save_organization_cls = pretend.call_recorder(
+            lambda *a, **kw: save_organization_obj
+        )
+        monkeypatch.setattr(views, "SaveOrganizationForm", save_organization_cls)
+
+        view = views.ManageOrganizationSettingsViews(organization, db_request)
+        result = view.save_organization()
+
+        assert result == {
+            **view.default_response,
+            "save_organization_form": save_organization_obj,
+        }
+        assert organization_service.update_organization.calls == []
+
+    def test_save_organization_disable_organizations(self, db_request):
+        organization = OrganizationFactory.create()
+
+        view = views.ManageOrganizationSettingsViews(organization, db_request)
+        with pytest.raises(HTTPNotFound):
+            view.save_organization()
+
+    def test_save_organization_name(
+        self,
+        db_request,
+        pyramid_user,
+        organization_service,
+        user_service,
+        enable_organizations,
+        monkeypatch,
+    ):
+        organization = OrganizationFactory.create(name="old-name")
+        db_request.POST = {
+            "confirm_current_organization_name": organization.name,
+            "name": "new-name",
+        }
+        db_request.route_path = pretend.call_recorder(
+            lambda *a, organization_name, **kw: (
+                f"/manage/organization/{organization_name}/settings/"
+            )
+        )
+
+        def rename_organization(organization_id, organization_name):
+            organization.name = organization_name
+
+        monkeypatch.setattr(
+            organization_service,
+            "rename_organization",
+            pretend.call_recorder(rename_organization),
+        )
+
+        admins = []
+        monkeypatch.setattr(
+            user_service,
+            "get_admins",
+            pretend.call_recorder(lambda *a, **kw: admins),
+        )
+
+        save_organization_obj = pretend.stub()
+        save_organization_cls = pretend.call_recorder(
+            lambda *a, **kw: save_organization_obj
+        )
+        monkeypatch.setattr(views, "SaveOrganizationForm", save_organization_cls)
+
+        save_organization_name_obj = pretend.stub(
+            validate=lambda: True, name=pretend.stub(data=db_request.POST["name"])
+        )
+        save_organization_name_cls = pretend.call_recorder(
+            lambda *a, **kw: save_organization_name_obj
+        )
+        monkeypatch.setattr(
+            views, "SaveOrganizationNameForm", save_organization_name_cls
+        )
+
+        send_email = pretend.call_recorder(lambda *a, **kw: None)
+        monkeypatch.setattr(views, "send_admin_organization_renamed_email", send_email)
+        monkeypatch.setattr(views, "send_organization_renamed_email", send_email)
+        monkeypatch.setattr(
+            views, "organization_owners", lambda *a, **kw: [pyramid_user]
+        )
+
+        view = views.ManageOrganizationSettingsViews(organization, db_request)
+        result = view.save_organization_name()
+
+        assert isinstance(result, HTTPSeeOther)
+        assert (
+            result.headers["Location"]
+            == f"/manage/organization/{organization.normalized_name}/settings/"
+        )
+        assert organization_service.rename_organization.calls == [
+            pretend.call(organization.id, "new-name")
+        ]
+        assert send_email.calls == [
+            pretend.call(
+                db_request,
+                admins,
+                organization_name="new-name",
+                previous_organization_name="old-name",
+            ),
+            pretend.call(
+                db_request,
+                {pyramid_user},
+                organization_name="new-name",
+                previous_organization_name="old-name",
+            ),
+        ]
+
+    def test_save_organization_name_validation_fails(
+        self, db_request, organization_service, enable_organizations, monkeypatch
+    ):
+        organization = OrganizationFactory.create(name="old-name")
+        db_request.POST = {
+            "confirm_current_organization_name": organization.name,
+            "name": "new-name",
+        }
+
+        def rename_organization(organization_id, organization_name):
+            organization.name = organization_name
+
+        monkeypatch.setattr(
+            organization_service,
+            "rename_organization",
+            pretend.call_recorder(rename_organization),
+        )
+
+        save_organization_obj = pretend.stub()
+        save_organization_cls = pretend.call_recorder(
+            lambda *a, **kw: save_organization_obj
+        )
+        monkeypatch.setattr(views, "SaveOrganizationForm", save_organization_cls)
+
+        save_organization_name_obj = pretend.stub(
+            validate=lambda: False, errors=pretend.stub(values=lambda: ["Invalid"])
+        )
+        save_organization_name_cls = pretend.call_recorder(
+            lambda *a, **kw: save_organization_name_obj
+        )
+        monkeypatch.setattr(
+            views, "SaveOrganizationNameForm", save_organization_name_cls
+        )
+
+        view = views.ManageOrganizationSettingsViews(organization, db_request)
+        result = view.save_organization_name()
+
+        assert result == view.default_response
+        assert organization_service.rename_organization.calls == []
+
+    def test_save_organization_name_disable_organizations(self, db_request):
+        organization = OrganizationFactory.create(name="old-name")
+
+        view = views.ManageOrganizationSettingsViews(organization, db_request)
+        with pytest.raises(HTTPNotFound):
+            view.save_organization_name()
+
+    def test_delete_organization(
+        self,
+        db_request,
+        pyramid_user,
+        organization_service,
+        user_service,
+        enable_organizations,
+        monkeypatch,
+    ):
+        organization = OrganizationFactory.create()
+        db_request.POST = {"confirm_organization_name": organization.name}
+        db_request.route_path = pretend.call_recorder(
+            lambda *a, **kw: "/manage/organizations/"
+        )
+
+        monkeypatch.setattr(
+            organization_service,
+            "delete_organization",
+            pretend.call_recorder(lambda *a, **kw: None),
+        )
+
+        admins = []
+        monkeypatch.setattr(
+            user_service,
+            "get_admins",
+            pretend.call_recorder(lambda *a, **kw: admins),
+        )
+
+        send_email = pretend.call_recorder(lambda *a, **kw: None)
+        monkeypatch.setattr(views, "send_admin_organization_deleted_email", send_email)
+        monkeypatch.setattr(views, "send_organization_deleted_email", send_email)
+        monkeypatch.setattr(
+            views, "organization_owners", lambda *a, **kw: [pyramid_user]
+        )
+
+        view = views.ManageOrganizationSettingsViews(organization, db_request)
+        result = view.delete_organization()
+
+        assert isinstance(result, HTTPSeeOther)
+        assert result.headers["Location"] == "/manage/organizations/"
+        assert organization_service.delete_organization.calls == [
+            pretend.call(organization.id)
+        ]
+        assert send_email.calls == [
+            pretend.call(
+                db_request,
+                admins,
+                organization_name=organization.name,
+            ),
+            pretend.call(
+                db_request,
+                {pyramid_user},
+                organization_name=organization.name,
+            ),
+        ]
+        assert db_request.route_path.calls == [pretend.call("manage.organizations")]
+
+    def test_delete_organization_with_active_projects(
+        self,
+        db_request,
+        pyramid_user,
+        organization_service,
+        enable_organizations,
+        monkeypatch,
+    ):
+        organization = OrganizationFactory.create()
+        organization.projects = [ProjectFactory.create()]
+        db_request.POST = {"confirm_organization_name": organization.name}
+        db_request.route_path = pretend.call_recorder(
+            lambda *a, **kw: "/manage/organizations/"
+        )
+
+        save_organization_obj = pretend.stub()
+        save_organization_cls = pretend.call_recorder(
+            lambda *a, **kw: save_organization_obj
+        )
+        monkeypatch.setattr(views, "SaveOrganizationForm", save_organization_cls)
+
+        monkeypatch.setattr(
+            organization_service,
+            "delete_organization",
+            pretend.call_recorder(lambda *a, **kw: None),
+        )
+
+        view = views.ManageOrganizationSettingsViews(organization, db_request)
+        result = view.delete_organization()
+
+        assert result == view.default_response
+        assert organization_service.delete_organization.calls == []
+        assert db_request.route_path.calls == []
+
+    def test_delete_organization_disable_organizations(self, db_request):
+        organization = OrganizationFactory.create()
+
+        view = views.ManageOrganizationSettingsViews(organization, db_request)
+        with pytest.raises(HTTPNotFound):
+            view.delete_organization()
+
+
 class TestManageOrganizationRoles:
     def test_get_manage_organization_roles(self, db_request, enable_organizations):
         organization = OrganizationFactory.create(name="foobar")
@@ -2843,7 +3192,7 @@ class TestManageOrganizationRoles:
         form_obj = pretend.stub(
             validate=pretend.call_recorder(lambda: True),
             username=pretend.stub(data=user.username),
-            role_name=pretend.stub(data="Owner"),
+            role_name=pretend.stub(data=OrganizationRoleType.Owner),
         )
         form_class = pretend.call_recorder(lambda *a, **kw: form_obj)
 
@@ -2919,7 +3268,7 @@ class TestManageOrganizationRoles:
         form_obj = pretend.stub(
             validate=pretend.call_recorder(lambda: True),
             username=pretend.stub(data=new_user.username),
-            role_name=pretend.stub(data="Owner"),
+            role_name=pretend.stub(data=OrganizationRoleType.Owner),
         )
         form_class = pretend.call_recorder(lambda *a, **kw: form_obj)
 
@@ -2996,7 +3345,7 @@ class TestManageOrganizationRoles:
         form_obj = pretend.stub(
             validate=pretend.call_recorder(lambda: True),
             username=pretend.stub(data=new_user.username),
-            role_name=pretend.stub(data="Owner"),
+            role_name=pretend.stub(data=OrganizationRoleType.Owner),
         )
         form_class = pretend.call_recorder(lambda *a, **kw: form_obj)
 
@@ -3059,13 +3408,13 @@ class TestManageOrganizationRoles:
                 db_request,
                 {owner_1, owner_2},
                 user=new_user,
-                desired_role=form_obj.role_name.data,
+                desired_role=form_obj.role_name.data.value,
                 initiator_username=db_request.user.username,
                 organization_name=organization.name,
                 email_token=token_service.dumps(
                     {
                         "action": "email-organization-role-verify",
-                        "desired_role": form_obj.role_name.data,
+                        "desired_role": form_obj.role_name.data.value,
                         "user_id": new_user.id,
                         "organization_id": organization.id,
                         "submitter_id": db_request.user.id,
@@ -3078,13 +3427,13 @@ class TestManageOrganizationRoles:
             pretend.call(
                 db_request,
                 new_user,
-                desired_role=form_obj.role_name.data,
+                desired_role=form_obj.role_name.data.value,
                 initiator_username=db_request.user.username,
                 organization_name=organization.name,
                 email_token=token_service.dumps(
                     {
                         "action": "email-organization-role-verify",
-                        "desired_role": form_obj.role_name.data,
+                        "desired_role": form_obj.role_name.data.value,
                         "user_id": new_user.id,
                         "organization_id": organization.id,
                         "submitter_id": db_request.user.id,

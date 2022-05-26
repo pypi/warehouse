@@ -13,6 +13,7 @@
 import enum
 
 from pyramid.authorization import Allow
+from pyramid.httpexceptions import HTTPPermanentRedirect
 from sqlalchemy import (
     Boolean,
     CheckConstraint,
@@ -27,6 +28,7 @@ from sqlalchemy import (
     orm,
     sql,
 )
+from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm.exc import NoResultFound
 from sqlalchemy_utils.types.url import URLType
 
@@ -104,7 +106,7 @@ class OrganizationProject(db.Model):
     project = orm.relationship("Project", lazy=False)
 
 
-class OrganizationType(enum.Enum):
+class OrganizationType(str, enum.Enum):
 
     Community = "Community"
     Company = "Company"
@@ -115,6 +117,7 @@ class OrganizationFactory:
         self.request = request
 
     def __getitem__(self, organization):
+        # Try returning organization with matching name.
         try:
             return (
                 self.request.db.query(Organization)
@@ -123,6 +126,27 @@ class OrganizationFactory:
                     == func.normalize_pep426_name(organization)
                 )
                 .one()
+            )
+        except NoResultFound:
+            pass
+        # Try redirecting to a renamed organization.
+        try:
+            organization = (
+                self.request.db.query(Organization)
+                .join(
+                    OrganizationNameCatalog,
+                    OrganizationNameCatalog.organization_id == Organization.id,
+                )
+                .filter(
+                    OrganizationNameCatalog.normalized_name
+                    == func.normalize_pep426_name(organization)
+                )
+                .one()
+            )
+            raise HTTPPermanentRedirect(
+                self.request.matched_route.generate(
+                    {"organization_name": organization.normalized_name}
+                )
             )
         except NoResultFound:
             raise KeyError from None
@@ -170,6 +194,14 @@ class Organization(HasEvents, db.Model):
     projects = orm.relationship(
         "Project", secondary=OrganizationProject.__table__, backref="organizations"  # type: ignore # noqa
     )
+
+    def record_event(self, *, tag, ip_address, additional={}):
+        """Record organization name in events in case organization is ever deleted."""
+        super().record_event(
+            tag=tag,
+            ip_address=ip_address,
+            additional={"organization_name": self.name, **additional},
+        )
 
     def __acl__(self):
         session = orm.object_session(self)
@@ -236,11 +268,8 @@ class OrganizationNameCatalog(db.Model):
 
     __repr__ = make_repr("normalized_name", "organization_id")
 
-    normalized_name = Column(Text, nullable=False)
-    organization_id = Column(
-        ForeignKey("organizations.id", onupdate="CASCADE", ondelete="CASCADE"),
-        nullable=False,
-    )
+    normalized_name = Column(Text, nullable=False, index=True)
+    organization_id = Column(UUID(as_uuid=True), nullable=True, index=True)
 
 
 class OrganizationInvitationStatus(enum.Enum):

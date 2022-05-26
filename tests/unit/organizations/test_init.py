@@ -10,8 +10,11 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import pretend
+
 from celery.schedules import crontab
 
+from warehouse import organizations
 from warehouse.organizations.interfaces import IOrganizationService
 from warehouse.organizations.services import database_organization_factory
 from warehouse.organizations.tasks import (
@@ -20,12 +23,21 @@ from warehouse.organizations.tasks import (
 )
 
 
-def includeme(config):
-    # Register our organization service
-    config.register_service_factory(database_organization_factory, IOrganizationService)
-
-    config.add_periodic_task(
-        crontab(minute="*/5"), update_organization_invitation_status
+def test_includeme():
+    config = pretend.stub(
+        register_service_factory=pretend.call_recorder(
+            lambda factory, iface, name=None: None
+        ),
+        add_periodic_task=pretend.call_recorder(lambda *a, **kw: None),
     )
 
-    config.add_periodic_task(crontab(minute=0, hour=0), delete_declined_organizations)
+    organizations.includeme(config)
+
+    assert config.register_service_factory.calls == [
+        pretend.call(database_organization_factory, IOrganizationService),
+    ]
+
+    assert config.add_periodic_task.calls == [
+        pretend.call(crontab(minute="*/5"), update_organization_invitation_status),
+        pretend.call(crontab(minute=0, hour=0), delete_declined_organizations),
+    ]
