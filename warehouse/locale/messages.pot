@@ -301,53 +301,53 @@ msgstr ""
 msgid "Generating new recovery codes will invalidate your existing codes."
 msgstr ""
 
-#: warehouse/manage/views.py:1414
+#: warehouse/manage/views.py:1417
 msgid "User '${username}' already has ${role_name} role for organization"
 msgstr ""
 
-#: warehouse/manage/views.py:1425
+#: warehouse/manage/views.py:1428
 msgid ""
 "User '${username}' does not have a verified primary email address and "
 "cannot be added as a ${role_name} for organization"
 msgstr ""
 
-#: warehouse/manage/views.py:1439 warehouse/manage/views.py:2677
+#: warehouse/manage/views.py:1442 warehouse/manage/views.py:2680
 msgid "User '${username}' already has an active invite. Please try again later."
 msgstr ""
 
-#: warehouse/manage/views.py:1496 warehouse/manage/views.py:2735
+#: warehouse/manage/views.py:1499 warehouse/manage/views.py:2738
 msgid "Invitation sent to '${username}'"
 msgstr ""
 
-#: warehouse/manage/views.py:1539
+#: warehouse/manage/views.py:1542
 msgid "Could not find organization invitation."
 msgstr ""
 
-#: warehouse/manage/views.py:1553 warehouse/manage/views.py:2793
+#: warehouse/manage/views.py:1556 warehouse/manage/views.py:2796
 msgid "Invitation already expired."
 msgstr ""
 
-#: warehouse/manage/views.py:1586 warehouse/manage/views.py:2817
+#: warehouse/manage/views.py:1589 warehouse/manage/views.py:2820
 msgid "Invitation revoked from '${username}'."
 msgstr ""
 
-#: warehouse/manage/views.py:1972
+#: warehouse/manage/views.py:1975
 msgid ""
 "There have been too many attempted OpenID Connect registrations. Try "
 "again later."
 msgstr ""
 
-#: warehouse/manage/views.py:2653
+#: warehouse/manage/views.py:2656
 msgid "User '${username}' already has ${role_name} role for project"
 msgstr ""
 
-#: warehouse/manage/views.py:2664
+#: warehouse/manage/views.py:2667
 msgid ""
 "User '${username}' does not have a verified primary email address and "
 "cannot be added as a ${role_name} for project"
 msgstr ""
 
-#: warehouse/manage/views.py:2782
+#: warehouse/manage/views.py:2785
 msgid "Could not find role invitation."
 msgstr ""
 
@@ -1613,14 +1613,7 @@ msgid ""
 msgstr ""
 
 #: warehouse/templates/email/organization-deleted/body.html:37
-#: warehouse/templates/email/organization-member-added/body.html:44
-#: warehouse/templates/email/organization-member-invite-canceled/body.html:25
-#: warehouse/templates/email/organization-member-invite-declined/body.html:25
-#: warehouse/templates/email/organization-member-invited/body.html:44
-#: warehouse/templates/email/organization-member-removed/body.html:43
-#: warehouse/templates/email/organization-member-role-changed/body.html:44
-#: warehouse/templates/email/organization-renamed/body.html:37
-msgid "You are receiving this because you are an owner of this organization."
+msgid "You are receiving this because you were an owner of this organization."
 msgstr ""
 
 #: warehouse/templates/email/organization-member-added/body.html:27
@@ -1650,6 +1643,16 @@ msgstr ""
 
 #: warehouse/templates/email/organization-member-added/body.html:33
 msgid "Added by"
+msgstr ""
+
+#: warehouse/templates/email/organization-member-added/body.html:44
+#: warehouse/templates/email/organization-member-invite-canceled/body.html:25
+#: warehouse/templates/email/organization-member-invite-declined/body.html:25
+#: warehouse/templates/email/organization-member-invited/body.html:44
+#: warehouse/templates/email/organization-member-removed/body.html:43
+#: warehouse/templates/email/organization-member-role-changed/body.html:44
+#: warehouse/templates/email/organization-renamed/body.html:37
+msgid "You are receiving this because you are an owner of this organization."
 msgstr ""
 
 #: warehouse/templates/email/organization-member-invite-canceled/body.html:19

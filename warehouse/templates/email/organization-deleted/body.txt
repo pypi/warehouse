@@ -22,5 +22,5 @@
 {% endblock %}
 
 {% block reason %}
-{% trans %}You are receiving this because you are an owner of this organization.{% endtrans %}
+{% trans %}You are receiving this because you were an owner of this organization.{% endtrans %}
 {% endblock %}

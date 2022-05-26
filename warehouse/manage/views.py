@@ -1339,6 +1339,7 @@ class ManageOrganizationSettingsViews:
             )
             return self.default_response
 
+        # Record event before deleting organization.
         self.organization.record_event(
             tag="organization:delete",
             ip_address=self.request.remote_addr,
@@ -1347,9 +1348,11 @@ class ManageOrganizationSettingsViews:
             },
         )
 
+        # Get owners before deleting organization.
+        owner_users = set(organization_owners(self.request, self.organization))
+
         self.organization_service.delete_organization(self.organization.id)
 
-        owner_users = set(organization_owners(self.request, self.organization))
         send_admin_organization_deleted_email(
             self.request,
             self.user_service.get_admins(),
