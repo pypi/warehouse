@@ -399,7 +399,7 @@ class TestDatabaseOrganizationService:
         )
 
         assert (
-            organization_service.get_organization_project(organization_project.id)
+            organization_service.get_organization_project(organization.id, project.id)
             == organization_project
         )
 
@@ -420,11 +420,9 @@ class TestDatabaseOrganizationService:
     def test_delete_organization_project(self, organization_service, db_request):
         organization = OrganizationFactory.create()
         project = ProjectFactory.create()
-        organization_project = OrganizationProjectFactory.create(
-            organization=organization, project=project
-        )
+        OrganizationProjectFactory.create(organization=organization, project=project)
 
-        organization_service.delete_organization_project(organization_project.id)
+        organization_service.delete_organization_project(organization.id, project.id)
         assert not (
             db_request.db.query(OrganizationProject)
             .filter(

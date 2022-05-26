@@ -98,8 +98,6 @@
     </form>
   {% endif %}
 
-  <hr>
-
   <div class="callout-block" data-controller="dismissable" data-dismissable-identifier="settings">
     <h3>{% trans %}Project description and sidebar{% endtrans %}</h3>
     <p>
@@ -113,28 +111,11 @@
     <button type="button" title="{% trans %}Dismiss{% endtrans %}" data-action="click->dismissable#dismiss" class="callout-block__dismiss" aria-label="{% trans %}Close{% endtrans %}"><i class="fa fa-times" aria-hidden="true"></i></button>
   </div>
 
-  <div class="callout-block callout-block--danger">
-    <h3>{% trans %}Transfer project to another organization{% endtrans %}</h3>
-    <p>
-      <i class="fa fa-exclamation-triangle" aria-hidden="true"><span class="sr-only">{% trans %}Warning{% endtrans %}</span></i>
-      {% trans %}Transferring this project will:{% endtrans %}
-    </p>
-    <ul>
-      <li>
-        {% trans %}Remove ownership of this project from the "psf" organization.{% endtrans %}
-      </li>
-      <li>
-        {% trans %}Grant ownership of the project to the other organization.{% endtrans %}
-      </li>
-    </ul>
-    <p>
-      {% trans %}Individual owners and maintainers of the project will retain their permissions for the project.{% endtrans %}
-    </p>
-    {# set action = request.route_path('manage.project.transfer_project_to_organization', project_name=project.normalized_name, organization_name=organization_name) #}
-    {% set action = "#" %}
-    {{ confirm_button(gettext("Transfer project"), gettext("Project Name"), "project_name", project.name, action=action) }}
-  </div>
+  {% set current_organization = project.organizations|first %}
 
+  <hr>
+
+  {% if current_organization %}
   <div class="callout-block callout-block--danger">
     <h3>{% trans %}Remove project from organization{% endtrans %}</h3>
     <p>
@@ -143,19 +124,70 @@
     </p>
     <ul>
       <li>
-        {% trans %}Remove ownership of this project from the "psf" organization.{% endtrans %}
+        {% trans organization_name=current_organization.name %}Remove this project from the '{{ organization_name }}' organization.{% endtrans %}
       </li>
       <li>
-        {% trans %}Grant ownership of the project to the other organization.{% endtrans %}
+        {% trans organization_name=current_organization.name %}Revoke project permissions for teams in the '{{ organization_name }}' organization.{% endtrans %}
       </li>
     </ul>
     <p>
-      {% trans %}Individual owners and maintainers of the project will retain their permissions for the project.{% endtrans %}
+      {% trans %}Individual owners and maintainers of the project will retain their project permissions.{% endtrans %}
     </p>
-    {# set action = request.route_path('manage.project.remove_project_from_organization', project_name=project.normalized_name) #}
+    {# set action = request.route_path('manage.project.remove_organization_project_from_organization', project_name=project.normalized_name) #}
     {% set action = "#" %}
-    {{ confirm_button(gettext("Remove project"), gettext("Project Name"), "project_name", project.name, action=action) }}
+    {{ confirm_button(gettext("Remove project"), gettext("Project Name"), "remove_organization_project_name", project.name, action=action) }}
   </div>
+  {% endif %}
+
+  <div class="callout-block callout-block--danger">
+    <h3>
+      {% if current_organization %}
+      {% trans %}Transfer project to another organization{% endtrans %}
+      {% else %}
+      {% trans %}Transfer project to an organization{% endtrans %}
+      {% endif %}
+    </h3>
+    <p>
+      <i class="fa fa-exclamation-triangle" aria-hidden="true"><span class="sr-only">{% trans %}Warning{% endtrans %}</span></i>
+      {% trans %}Transferring this project will:{% endtrans %}
+    </p>
+    <ul>
+      {% if current_organization %}
+      <li>
+        {% trans organization_name=current_organization.name %}Remove this project from the '{{ organization_name }}' organization.{% endtrans %}
+      </li>
+      <li>
+        {% trans organization_name=current_organization.name %}Revoke project permissions for teams in the '{{ organization_name }}' organization.{% endtrans %}
+      </li>
+      {% endif %}
+      <li>
+        {% if current_organization %}
+        {% trans %}Add the project to another organization that you own.{% endtrans %}
+        {% else %}
+        {% trans %}Add the project to an organization that you own.{% endtrans %}
+        {% endif %}
+      </li>
+      <li>
+        {% trans %}Grant full project permissions to owners of the organization.{% endtrans %}
+      </li>
+    </ul>
+    <p>
+      {% trans %}Individual owners and maintainers of the project will retain their project permissions.{% endtrans %}
+    </p>
+    {% set action = request.route_path('manage.project.transfer_organization_project', project_name=project.normalized_name) %}
+    {% set extra_fields %}
+      <label for="transfer-project-modal-organization">Organization account name</label>
+      {{ transfer_organization_project_form.organization(id="transfer-project-modal-organization", class_="form-group__field") }}
+    {% endset %}
+    {% set extra_description %}
+    <p>
+      You can transfer the project to an organization that you own. Please select the organization below.
+    </p>
+    {% endset %}
+    {{ confirm_button(gettext("Transfer project"), gettext("Project Name"), "transfer_organization_project_name", project.name, action=action, extra_fields=extra_fields, extra_description=extra_description) }}
+  </div>
+
+  <hr>
 
   <div class="callout-block callout-block--danger">
     <h3>{% trans %}Delete project{% endtrans %}</h3>

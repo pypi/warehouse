@@ -268,8 +268,8 @@
   slug,
   context,
   confirm_button_label=None,
-  extra_description=None,
   extra_fields=None,
+  extra_description=None,
   action=None,
   method="POST",
   warning=True,
@@ -286,7 +286,7 @@
       <form method="{{ method }}" class="modal__form" action="{{ action or request.current_route_path() }}">
         <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
         <div class="modal__body">
-          <h3 class="modal__title">{{ title }}{% if confirm_string_in_title %} {{ confirm_string }}{% endif %}?</h3>
+          <h3 class="modal__title">{{ title }}{% if confirm_string_in_title %} '{{ confirm_string }}'{% endif %}?</h3>
           {% if warning %}
           <div class="callout-block callout-block--danger callout-block--bottom-margin no-top-margin">
             <p>
@@ -297,7 +297,9 @@
           </div>
           {% endif %}
           {{ extra_description if extra_description else '' }}
-          {{ extra_fields if extra_fields else '' }}
+          <div class="form-group">
+            {{ extra_fields if extra_fields else '' }}
+          </div>
           <p>
             {% if confirm_name == 'username' %}
             {% trans %}Confirm your username to continue.{% endtrans %}
@@ -306,8 +308,10 @@
             {% endif %}
           </p>
           {% set name = "confirm_" + confirm_name.lower().replace(' ', '_') %}
-          <label for="{{ slug }}-{{ name }}">{{ label }}</label>
-          <input id="{{ slug }}-{{ name }}" name="{{ name }}" data-action="input->confirm#check" data-target="confirm.input modal-close.input" type="text" autocomplete="off" autocapitalize="off" spellcheck="false">
+          <div class="form-group">
+            <label for="{{ slug }}-{{ name }}">{{ label }}</label>
+            <input id="{{ slug }}-{{ name }}" name="{{ name }}" data-action="input->confirm#check" data-target="confirm.input modal-close.input" type="text" autocomplete="off" autocapitalize="off" spellcheck="false">
+          </div>
         </div>
         <div class="modal__footer">
           <button type="reset" class="button modal__action js-cancel" data-action="click->modal-close#cancel">{% trans %}Cancel{% endtrans %}</button>

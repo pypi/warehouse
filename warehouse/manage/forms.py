@@ -385,6 +385,25 @@ class CreateOrganizationProjectForm(forms.Form):
         ]
 
 
+class TransferOrganizationProjectForm(forms.Form):
+
+    __params__ = ["organization"]
+
+    organization = wtforms.SelectField(
+        "Select organization",
+        choices=[("", "Select organization")],
+        validators=[
+            wtforms.validators.DataRequired(message="Select organization"),
+        ],
+    )
+
+    def __init__(self, *args, organization_choices, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.organization.choices += [
+            (name, name) for name in sorted(organization_choices)
+        ]
+
+
 class CreateOrganizationRoleForm(OrganizationRoleNameMixin, UsernameMixin, forms.Form):
     def __init__(self, *args, orgtype, organization_service, user_service, **kwargs):
         super().__init__(*args, **kwargs)

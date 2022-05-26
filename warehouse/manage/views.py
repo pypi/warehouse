@@ -98,6 +98,7 @@ from warehouse.manage.forms import (
     SaveOrganizationForm,
     SaveOrganizationNameForm,
     Toggle2FARequirementForm,
+    TransferOrganizationProjectForm,
 )
 from warehouse.metrics.interfaces import IMetricsService
 from warehouse.oidc.forms import DeleteProviderForm, GitHubProviderForm
@@ -1923,14 +1924,32 @@ class ManageProjectSettingsViews:
         self.project = project
         self.request = request
         self.toggle_2fa_requirement_form_class = Toggle2FARequirementForm
+        self.transfer_organization_project_form_class = TransferOrganizationProjectForm
 
     @view_config(request_method="GET")
     def manage_project_settings(self):
+        if self.request.flags.enabled(AdminFlagValue.DISABLE_ORGANIZATIONS):
+            organization_choices = set()
+        else:
+            all_user_organizations = user_organizations(self.request)
+            organizations_owned = set(
+                organization.name
+                for organization in all_user_organizations["organizations_owned"]
+            )
+            organization_choices = organizations_owned - set(
+                organization.name for organization in self.project.organizations
+            )
+
         return {
             "project": self.project,
             "MAX_FILESIZE": MAX_FILESIZE,
             "MAX_PROJECT_SIZE": MAX_PROJECT_SIZE,
             "toggle_2fa_form": self.toggle_2fa_requirement_form_class(),
+            "transfer_organization_project_form": (
+                self.transfer_organization_project_form_class(
+                    organization_choices=organization_choices,
+                )
+            ),
         }
 
     @view_config(
@@ -2223,6 +2242,125 @@ class ManageOIDCProviderViews:
             )
 
         return self.default_response
+
+
+@view_config(
+    route_name="manage.project.transfer_organization_project",
+    context=Project,
+    uses_session=True,
+    require_methods=["POST"],
+    permission="manage:project",
+    has_translations=True,
+    require_reauth=True,
+)
+def transfer_organization_project(project, request):
+    if request.flags.enabled(AdminFlagValue.DISABLE_ORGANIZATIONS):
+        request.session.flash("Organizations are disabled", queue="error")
+        return HTTPSeeOther(
+            request.route_path("manage.project.settings", project_name=project.name)
+        )
+
+    confirm_project(
+        project,
+        request,
+        fail_route="manage.project.settings",
+        field_name="confirm_transfer_organization_project_name",
+        error_message="Could not transfer project",
+    )
+
+    all_user_organizations = user_organizations(request)
+    organizations_owned = set(
+        organization.name
+        for organization in all_user_organizations["organizations_owned"]
+    )
+    organization_choices = organizations_owned - set(
+        organization.name for organization in project.organizations
+    )
+
+    form = TransferOrganizationProjectForm(
+        request.POST,
+        organization_choices=organization_choices,
+    )
+
+    if not form.validate():
+        for error_list in form.errors.values():
+            for error in error_list:
+                request.session.flash(error, queue="error")
+        return HTTPSeeOther(
+            request.route_path("manage.project.settings", project_name=project.name)
+        )
+
+    # Remove project from current organization.
+    organization_service = request.find_service(IOrganizationService, context=None)
+    for organization in project.organizations:
+        organization_service.delete_organization_project(organization.id, project.id)
+        organization.record_event(
+            tag="organization:organization_project:remove",
+            ip_address=request.remote_addr,
+            additional={
+                "submitted_by_user_id": str(request.user.id),
+                "project_name": project.name,
+            },
+        )
+        project.record_event(
+            tag="project:organization_project:remove",
+            ip_address=request.remote_addr,
+            additional={
+                "submitted_by_user_id": str(request.user.id),
+                "organization_name": organization.name,
+            },
+        )
+        # TODO: Send notification emails.
+        # owner_users = set(
+        #     organization_owners(request, organization) +
+        #     project_owners(request, project)
+        # )
+        # send_organization_project_removed_email(
+        #     request,
+        #     owner_users,
+        #     organization_name=organization.name,
+        #     project_name=project.name,
+        # )
+
+    # Add project to selected organization.
+    organization = organization_service.get_organization_by_name(form.organization.data)
+    organization_service.add_organization_project(organization.id, project.id)
+    organization.record_event(
+        tag="organization:organization_project:add",
+        ip_address=request.remote_addr,
+        additional={
+            "submitted_by_user_id": str(request.user.id),
+            "project_name": project.name,
+        },
+    )
+    project.record_event(
+        tag="project:organization_project:add",
+        ip_address=request.remote_addr,
+        additional={
+            "submitted_by_user_id": str(request.user.id),
+            "organization_name": organization.name,
+        },
+    )
+    # TODO: Send notification emails.
+    # owner_users = set(
+    #     organization_owners(request, organization) +
+    #     project_owners(request, project)
+    # )
+    # send_organization_project_added_email(
+    #     request,
+    #     owner_users,
+    #     organization_name=organization.name,
+    #     project_name=project.name,
+    # )
+
+    request.session.flash(
+        f"Transferred the project {project.name!r} to {organization.name!r}",
+        queue="success",
+    )
+
+    return HTTPSeeOther(
+        request.route_path("manage.project.settings", project_name=project.name)
+    )
 
 
 def get_user_role_in_project(project, user, request):

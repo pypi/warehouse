@@ -135,7 +135,7 @@
         <label for="organization_name-modal-name">New organization account name</label>
         <input id="organization_name-modal-name" name="name" type="text" autocomplete="off" autocapitalize="off" spellcheck="false" required>
       {% endset %}
-      {{ confirm_button(gettext("Change organization account name"), gettext("Current organization account name"), "current_organization_name", organization.name, action=action, extra_fields=extra_fields, confirm_string_in_title=False) }}
+      {{ confirm_button(gettext("Change organization account name"), gettext("Current organization account name"), "current_organization_name", organization.name, extra_fields=extra_fields, action=action, confirm_string_in_title=False) }}
     </div>
   </section>
 

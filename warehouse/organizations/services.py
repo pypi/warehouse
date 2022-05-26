@@ -342,12 +342,19 @@ class DatabaseOrganizationService:
 
         return organization
 
-    def get_organization_project(self, organization_project_id):
+    def get_organization_project(self, organization_id, project_id):
         """
         Return the organization project object that represents the given
         organization project id or None
         """
-        return self.db.query(OrganizationProject).get(organization_project_id)
+        return (
+            self.db.query(OrganizationProject)
+            .filter(
+                OrganizationProject.organization_id == organization_id,
+                OrganizationProject.project_id == project_id,
+            )
+            .first()
+        )
 
     def add_organization_project(self, organization_id, project_id):
         """
@@ -363,11 +370,13 @@ class DatabaseOrganizationService:
 
         return organization_project
 
-    def delete_organization_project(self, organization_project_id):
+    def delete_organization_project(self, organization_id, project_id):
         """
         Performs soft delete of association between specified organization and project
         """
-        organization_project = self.get_organization_project(organization_project_id)
+        organization_project = self.get_organization_project(
+            organization_id, project_id
+        )
 
         self.db.delete(organization_project)
         self.db.flush()

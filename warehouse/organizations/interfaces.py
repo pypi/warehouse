@@ -142,10 +142,10 @@ class IOrganizationService(Interface):
         attributes
         """
 
-    def get_organization_project(organization_project_id):
+    def get_organization_project(organization_id, project_id):
         """
         Return the organization project object that represents the given
-        organization project id or None
+        organization and project or None
         """
 
     def add_organization_project(organization_id, project_id):
@@ -153,7 +153,7 @@ class IOrganizationService(Interface):
         Adds an association between the specified organization and project
         """
 
-    def delete_organization_project(organization_project_id):
+    def delete_organization_project(organization_id, project_id):
         """
         Removes an association between the specified organization and project
         """

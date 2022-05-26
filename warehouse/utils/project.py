@@ -28,15 +28,21 @@ def remove_documentation(task, request, project_name):
         task.retry(exc=exc)
 
 
-def confirm_project(project, request, fail_route):
-    confirm = request.POST.get("confirm_project_name")
+def confirm_project(
+    project,
+    request,
+    fail_route,
+    field_name="confirm_project_name",
+    error_message="Could not delete project",
+):
+    confirm = request.POST.get(field_name)
     project_name = project.normalized_name
     if not confirm:
         request.session.flash("Confirm the request", queue="error")
         raise HTTPSeeOther(request.route_path(fail_route, project_name=project_name))
     if canonicalize_name(confirm) != project.normalized_name:
         request.session.flash(
-            "Could not delete project - "
+            f"{error_message} - "
             + f"{confirm!r} is not the same as {project.normalized_name!r}",
             queue="error",
         )
