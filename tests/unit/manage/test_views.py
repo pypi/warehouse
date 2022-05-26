@@ -4324,6 +4324,120 @@ class TestManageProjectSettings:
         assert event.tag == tag
         assert event.additional == {"modified_by": db_request.user.username}
 
+    def test_remove_organization_project_no_confirm(self):
+        project = pretend.stub(normalized_name="foo")
+        request = pretend.stub(
+            POST={},
+            flags=pretend.stub(enabled=pretend.call_recorder(lambda *a: False)),
+            session=pretend.stub(flash=pretend.call_recorder(lambda *a, **kw: None)),
+            route_path=lambda *a, **kw: "/foo/bar/",
+        )
+
+        with pytest.raises(HTTPSeeOther) as exc:
+            views.remove_organization_project(project, request)
+            assert exc.value.status_code == 303
+            assert exc.value.headers["Location"] == "/foo/bar/"
+
+        assert request.flags.enabled.calls == [
+            pretend.call(AdminFlagValue.DISABLE_ORGANIZATIONS)
+        ]
+        assert request.session.flash.calls == [
+            pretend.call("Confirm the request", queue="error")
+        ]
+
+    def test_remove_organization_project_wrong_confirm(self):
+        project = pretend.stub(normalized_name="foo")
+        request = pretend.stub(
+            POST={"confirm_remove_organization_project_name": "bar"},
+            flags=pretend.stub(enabled=pretend.call_recorder(lambda *a: False)),
+            session=pretend.stub(flash=pretend.call_recorder(lambda *a, **kw: None)),
+            route_path=lambda *a, **kw: "/foo/bar/",
+        )
+
+        with pytest.raises(HTTPSeeOther) as exc:
+            views.remove_organization_project(project, request)
+            assert exc.value.status_code == 303
+            assert exc.value.headers["Location"] == "/foo/bar/"
+
+        assert request.flags.enabled.calls == [
+            pretend.call(AdminFlagValue.DISABLE_ORGANIZATIONS)
+        ]
+        assert request.session.flash.calls == [
+            pretend.call(
+                (
+                    "Could not remove project from organization - "
+                    "'bar' is not the same as 'foo'"
+                ),
+                queue="error",
+            )
+        ]
+
+    def test_remove_organization_project_disable_organizations(self):
+        project = pretend.stub(name="foo", normalized_name="foo")
+        request = pretend.stub(
+            flags=pretend.stub(enabled=pretend.call_recorder(lambda *a: True)),
+            route_path=pretend.call_recorder(lambda *a, **kw: "/the-redirect"),
+            session=pretend.stub(flash=pretend.call_recorder(lambda *a, **kw: None)),
+        )
+
+        result = views.remove_organization_project(project, request)
+        assert isinstance(result, HTTPSeeOther)
+        assert result.headers["Location"] == "/the-redirect"
+
+        assert request.flags.enabled.calls == [
+            pretend.call(AdminFlagValue.DISABLE_ORGANIZATIONS)
+        ]
+
+        assert request.session.flash.calls == [
+            pretend.call("Organizations are disabled", queue="error")
+        ]
+
+        assert request.route_path.calls == [
+            pretend.call("manage.project.settings", project_name="foo")
+        ]
+
+    def test_remove_organization_project(self, monkeypatch, db_request):
+        current_organization = OrganizationFactory.create(name="bar")
+        project = ProjectFactory.create(name="foo")
+        project.organizations = [current_organization]
+
+        db_request.POST = MultiDict(
+            {
+                "confirm_remove_organization_project_name": project.normalized_name,
+            }
+        )
+        db_request.flags = pretend.stub(enabled=pretend.call_recorder(lambda *a: False))
+        db_request.route_path = pretend.call_recorder(lambda *a, **kw: "/the-redirect")
+        db_request.session = pretend.stub(
+            flash=pretend.call_recorder(lambda *a, **kw: None)
+        )
+        db_request.user = UserFactory.create()
+
+        OrganizationRoleFactory.create(
+            organization=current_organization, user=db_request.user, role_name="Owner"
+        )
+        RoleFactory.create(project=project, user=db_request.user, role_name="Owner")
+
+        # send_organization_project_removed_email = pretend.call_recorder(
+        #     lambda req, user, **k: None
+        # )
+        # monkeypatch.setattr(
+        #     views,
+        #     "send_organization_project_removed_email",
+        #     send_organization_project_removed_email
+        # )
+
+        result = views.remove_organization_project(project, db_request)
+
+        assert db_request.session.flash.calls == [
+            pretend.call("Removed the project 'foo' from 'bar'", queue="success")
+        ]
+        assert db_request.route_path.calls == [
+            pretend.call("manage.project.settings", project_name="foo")
+        ]
+        assert isinstance(result, HTTPSeeOther)
+        assert result.headers["Location"] == "/the-redirect"
+
     def test_transfer_organization_project_no_confirm(self):
         project = pretend.stub(normalized_name="foo")
         request = pretend.stub(

@@ -2245,6 +2245,72 @@ class ManageOIDCProviderViews:
 
 
 @view_config(
+    route_name="manage.project.remove_organization_project",
+    context=Project,
+    uses_session=True,
+    require_methods=["POST"],
+    permission="manage:project",
+    has_translations=True,
+    require_reauth=True,
+)
+def remove_organization_project(project, request):
+    if request.flags.enabled(AdminFlagValue.DISABLE_ORGANIZATIONS):
+        request.session.flash("Organizations are disabled", queue="error")
+        return HTTPSeeOther(
+            request.route_path("manage.project.settings", project_name=project.name)
+        )
+
+    confirm_project(
+        project,
+        request,
+        fail_route="manage.project.settings",
+        field_name="confirm_remove_organization_project_name",
+        error_message="Could not remove project from organization",
+    )
+
+    # Remove project from current organization.
+    organization_service = request.find_service(IOrganizationService, context=None)
+    for organization in project.organizations:
+        organization_service.delete_organization_project(organization.id, project.id)
+        organization.record_event(
+            tag="organization:organization_project:remove",
+            ip_address=request.remote_addr,
+            additional={
+                "submitted_by_user_id": str(request.user.id),
+                "project_name": project.name,
+            },
+        )
+        project.record_event(
+            tag="project:organization_project:remove",
+            ip_address=request.remote_addr,
+            additional={
+                "submitted_by_user_id": str(request.user.id),
+                "organization_name": organization.name,
+            },
+        )
+        # TODO: Send notification emails.
+        # owner_users = set(
+        #     organization_owners(request, organization) +
+        #     project_owners(request, project)
+        # )
+        # send_organization_project_removed_email(
+        #     request,
+        #     owner_users,
+        #     organization_name=organization.name,
+        #     project_name=project.name,
+        # )
+
+    request.session.flash(
+        f"Removed the project {project.name!r} from {organization.name!r}",
+        queue="success",
+    )
+
+    return HTTPSeeOther(
+        request.route_path("manage.project.settings", project_name=project.name)
+    )
+
+
+@view_config(
     route_name="manage.project.transfer_organization_project",
     context=Project,
     uses_session=True,

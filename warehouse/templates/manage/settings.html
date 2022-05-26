@@ -133,9 +133,13 @@
     <p>
       {% trans %}Individual owners and maintainers of the project will retain their project permissions.{% endtrans %}
     </p>
-    {# set action = request.route_path('manage.project.remove_organization_project_from_organization', project_name=project.normalized_name) #}
-    {% set action = "#" %}
-    {{ confirm_button(gettext("Remove project"), gettext("Project Name"), "remove_organization_project_name", project.name, action=action) }}
+    {% set action = request.route_path('manage.project.remove_organization_project', project_name=project.normalized_name) %}
+    {% set extra_description %}
+    <p>
+      {% trans organization_name=current_organization.name %}This will remove the project from the '{{ organization_name }}' organization.{% endtrans %}
+    </p>
+    {% endset %}
+    {{ confirm_button(gettext("Remove project"), gettext("Project Name"), "remove_organization_project_name", project.name, extra_description=extra_description, action=action) }}
   </div>
   {% endif %}
 
@@ -181,7 +185,7 @@
     {% endset %}
     {% set extra_description %}
     <p>
-      You can transfer the project to an organization that you own. Please select the organization below.
+      This will transfer the project to the organization that you select below. You can transfer the project to organizations that you own.
     </p>
     {% endset %}
     {{ confirm_button(gettext("Transfer project"), gettext("Project Name"), "transfer_organization_project_name", project.name, action=action, extra_fields=extra_fields, extra_description=extra_description) }}

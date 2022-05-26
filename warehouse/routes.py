@@ -285,6 +285,13 @@ def includeme(config):
         domain=warehouse,
     )
     config.add_route(
+        "manage.project.remove_organization_project",
+        "/manage/project/{project_name}/remove_organization_project/",
+        factory="warehouse.packaging.models:ProjectFactory",
+        traverse="/{project_name}",
+        domain=warehouse,
+    )
+    config.add_route(
         "manage.project.transfer_organization_project",
         "/manage/project/{project_name}/transfer_organization_project/",
         factory="warehouse.packaging.models:ProjectFactory",
