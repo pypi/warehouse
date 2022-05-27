@@ -43,6 +43,13 @@ class TestProjectFactory:
         with pytest.raises(KeyError):
             root[project.name + "invalid"]
 
+    def test_contains(self, db_request):
+        DBProjectFactory.create(name="foo")
+        root = ProjectFactory(db_request)
+
+        assert "foo" in root
+        assert "bar" not in root
+
 
 class TestProject:
     def test_traversal_finds(self, db_request):

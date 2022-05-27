@@ -133,6 +133,14 @@ class ProjectFactory:
         except NoResultFound:
             raise KeyError from None
 
+    def __contains__(self, project):
+        try:
+            self[project]
+        except KeyError:
+            return False
+        else:
+            return True
+
 
 class TwoFactorRequireable:
     # Project owner requires 2FA for this project

@@ -65,7 +65,7 @@ msgid ""
 "different email."
 msgstr ""
 
-#: warehouse/accounts/forms.py:261 warehouse/manage/forms.py:76
+#: warehouse/accounts/forms.py:261 warehouse/manage/forms.py:77
 msgid "The name is too long. Choose a name with 100 characters or less."
 msgstr ""
 
@@ -116,7 +116,7 @@ msgstr ""
 msgid "Successful WebAuthn assertion"
 msgstr ""
 
-#: warehouse/accounts/views.py:447 warehouse/manage/views.py:843
+#: warehouse/accounts/views.py:447 warehouse/manage/views.py:849
 msgid "Recovery code accepted. The supplied code cannot be used again."
 msgstr ""
 
@@ -253,11 +253,11 @@ msgstr ""
 msgid "Banner Preview"
 msgstr ""
 
-#: warehouse/manage/forms.py:339
+#: warehouse/manage/forms.py:340
 msgid "Choose an organization account name with 50 characters or less."
 msgstr ""
 
-#: warehouse/manage/forms.py:347
+#: warehouse/manage/forms.py:348
 msgid ""
 "The organization account name is invalid. Organization account names must"
 " be composed of letters, numbers, dots, hyphens and underscores. And must"
@@ -265,89 +265,107 @@ msgid ""
 "organization account name."
 msgstr ""
 
-#: warehouse/manage/forms.py:362
+#: warehouse/manage/forms.py:363
 msgid ""
 "This organization account name has already been used. Choose a different "
 "organization account name."
 msgstr ""
 
-#: warehouse/manage/forms.py:451
+#: warehouse/manage/forms.py:403
+msgid "Select project"
+msgstr ""
+
+#: warehouse/manage/forms.py:408
+msgid "Specify project name"
+msgstr ""
+
+#: warehouse/manage/forms.py:411
+msgid ""
+"Start and end with a letter or numeral containing only ASCII numeric and "
+"'.', '_' and '-'."
+msgstr ""
+
+#: warehouse/manage/forms.py:418
+msgid "This project name has already been used. Choose a different project name."
+msgstr ""
+
+#: warehouse/manage/forms.py:488
 msgid ""
 "The organization name is too long. Choose a organization name with 100 "
 "characters or less."
 msgstr ""
 
-#: warehouse/manage/forms.py:463
+#: warehouse/manage/forms.py:500
 msgid ""
 "The organization URL is too long. Choose a organization URL with 400 "
 "characters or less."
 msgstr ""
 
-#: warehouse/manage/forms.py:477
+#: warehouse/manage/forms.py:514
 msgid ""
 "The organization description is too long. Choose a organization "
 "description with 400 characters or less."
 msgstr ""
 
-#: warehouse/manage/views.py:274
+#: warehouse/manage/views.py:280
 msgid "Email ${email_address} added - check your email for a verification link"
 msgstr ""
 
-#: warehouse/manage/views.py:791
+#: warehouse/manage/views.py:797
 msgid "Recovery codes already generated"
 msgstr ""
 
-#: warehouse/manage/views.py:792
+#: warehouse/manage/views.py:798
 msgid "Generating new recovery codes will invalidate your existing codes."
 msgstr ""
 
-#: warehouse/manage/views.py:1531
+#: warehouse/manage/views.py:1552
 msgid "User '${username}' already has ${role_name} role for organization"
 msgstr ""
 
-#: warehouse/manage/views.py:1542
+#: warehouse/manage/views.py:1563
 msgid ""
 "User '${username}' does not have a verified primary email address and "
 "cannot be added as a ${role_name} for organization"
 msgstr ""
 
-#: warehouse/manage/views.py:1556 warehouse/manage/views.py:2997
+#: warehouse/manage/views.py:1577 warehouse/manage/views.py:3018
 msgid "User '${username}' already has an active invite. Please try again later."
 msgstr ""
 
-#: warehouse/manage/views.py:1613 warehouse/manage/views.py:3055
+#: warehouse/manage/views.py:1634 warehouse/manage/views.py:3076
 msgid "Invitation sent to '${username}'"
 msgstr ""
 
-#: warehouse/manage/views.py:1656
+#: warehouse/manage/views.py:1677
 msgid "Could not find organization invitation."
 msgstr ""
 
-#: warehouse/manage/views.py:1670 warehouse/manage/views.py:3113
+#: warehouse/manage/views.py:1691 warehouse/manage/views.py:3134
 msgid "Invitation already expired."
 msgstr ""
 
-#: warehouse/manage/views.py:1703 warehouse/manage/views.py:3137
+#: warehouse/manage/views.py:1724 warehouse/manage/views.py:3158
 msgid "Invitation revoked from '${username}'."
 msgstr ""
 
-#: warehouse/manage/views.py:2107
+#: warehouse/manage/views.py:2128
 msgid ""
 "There have been too many attempted OpenID Connect registrations. Try "
 "again later."
 msgstr ""
 
-#: warehouse/manage/views.py:2973
+#: warehouse/manage/views.py:2994
 msgid "User '${username}' already has ${role_name} role for project"
 msgstr ""
 
-#: warehouse/manage/views.py:2984
+#: warehouse/manage/views.py:3005
 msgid ""
 "User '${username}' does not have a verified primary email address and "
 "cannot be added as a ${role_name} for project"
 msgstr ""
 
-#: warehouse/manage/views.py:3102
+#: warehouse/manage/views.py:3123
 msgid "Could not find role invitation."
 msgstr ""
 
@@ -978,7 +996,8 @@ msgstr ""
 #: warehouse/templates/manage/account/recovery_codes-burn.html:70
 #: warehouse/templates/manage/account/totp-provision.html:69
 #: warehouse/templates/manage/account/webauthn-provision.html:44
-#: warehouse/templates/manage/organization/projects.html:150
+#: warehouse/templates/manage/organization/projects.html:162
+#: warehouse/templates/manage/organization/projects.html:177
 #: warehouse/templates/manage/organization/roles.html:194
 #: warehouse/templates/manage/organization/roles.html:206
 #: warehouse/templates/manage/organization/settings.html:44
@@ -4615,17 +4634,28 @@ msgid "Add project to organization"
 msgstr ""
 
 #: warehouse/templates/manage/organization/projects.html:148
+msgid "️New or existing project?"
+msgstr ""
+
+#: warehouse/templates/manage/organization/projects.html:161
+#: warehouse/templates/manage/organization/projects.html:176
 msgid "️Project name"
 msgstr ""
 
-#: warehouse/templates/manage/organization/projects.html:160
+#: warehouse/templates/manage/organization/projects.html:169
 msgid ""
 "Owners of this organization can add a project they own if the project has"
 " not been added to another organization. A project that has been added to"
 " another organization can be transferred from the project settings page."
 msgstr ""
 
-#: warehouse/templates/manage/organization/projects.html:166
+#: warehouse/templates/manage/organization/projects.html:184
+msgid ""
+"Owners of this organization can create an empty project and add it to the"
+" organization."
+msgstr ""
+
+#: warehouse/templates/manage/organization/projects.html:190
 msgid "Add project"
 msgstr ""
 

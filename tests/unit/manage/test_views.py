@@ -3008,9 +3008,7 @@ class TestManageOrganizationProjects:
             "projects_requiring_2fa": set(),
             "add_organization_project_form": add_organization_project_obj,
         }
-        assert add_organization_project_cls.calls == [
-            pretend.call({}, project_choices=set()),
-        ]
+        assert len(add_organization_project_cls.calls) == 1
 
     def test_manage_organization_projects_disable_organizations(self, db_request):
         organization = OrganizationFactory.create()
@@ -3019,7 +3017,7 @@ class TestManageOrganizationProjects:
         with pytest.raises(HTTPNotFound):
             view.manage_organization_projects()
 
-    def test_add_organization_project(
+    def test_add_organization_project_existing_project(
         self,
         db_request,
         pyramid_user,
@@ -3033,7 +3031,8 @@ class TestManageOrganizationProjects:
         project = ProjectFactory.create()
 
         add_organization_project_obj = pretend.stub(
-            existing_project=pretend.stub(data=project.name),
+            add_existing_project=pretend.stub(data=True),
+            existing_project_name=pretend.stub(data=project.name),
             validate=lambda *a, **kw: True,
         )
         add_organization_project_cls = pretend.call_recorder(
@@ -3055,11 +3054,10 @@ class TestManageOrganizationProjects:
 
         assert isinstance(result, HTTPSeeOther)
         assert result.headers["Location"] == db_request.path
-        assert add_organization_project_cls.calls == [
-            pretend.call({}, project_choices=set()),
-        ]
+        assert len(add_organization_project_cls.calls) == 1
+        assert len(organization.projects) == 2
 
-    def test_add_organization_project_invalid(
+    def test_add_organization_project_existing_project_invalid(
         self,
         db_request,
         pyramid_user,
@@ -3073,7 +3071,8 @@ class TestManageOrganizationProjects:
         project = ProjectFactory.create()
 
         add_organization_project_obj = pretend.stub(
-            existing_project=pretend.stub(data=project.name),
+            add_existing_project=pretend.stub(data=True),
+            existing_project_name=pretend.stub(data=project.name),
             validate=lambda *a, **kw: False,
         )
         add_organization_project_cls = pretend.call_recorder(
@@ -3101,9 +3100,96 @@ class TestManageOrganizationProjects:
             "projects_requiring_2fa": set(),
             "add_organization_project_form": add_organization_project_obj,
         }
-        assert add_organization_project_cls.calls == [
-            pretend.call({}, project_choices=set()),
-        ]
+        assert len(add_organization_project_cls.calls) == 1
+        assert len(organization.projects) == 1
+
+    def test_add_organization_project_new_project(
+        self,
+        db_request,
+        pyramid_user,
+        organization_service,
+        enable_organizations,
+        monkeypatch,
+    ):
+        organization = OrganizationFactory.create()
+        organization.projects = [ProjectFactory.create()]
+
+        project = ProjectFactory.create()
+
+        add_organization_project_obj = pretend.stub(
+            add_existing_project=pretend.stub(data=False),
+            new_project_name=pretend.stub(data=project.name),
+            validate=lambda *a, **kw: True,
+        )
+        add_organization_project_cls = pretend.call_recorder(
+            lambda *a, **kw: add_organization_project_obj
+        )
+        monkeypatch.setattr(
+            views, "AddOrganizationProjectForm", add_organization_project_cls
+        )
+
+        add_project = pretend.call_recorder(lambda *a, **kw: project)
+        monkeypatch.setattr(views, "add_project", add_project)
+
+        def add_organization_project(*args, **kwargs):
+            organization.projects.append(project)
+
+        monkeypatch.setattr(
+            organization_service, "add_organization_project", add_organization_project
+        )
+
+        view = views.ManageOrganizationProjectsViews(organization, db_request)
+        result = view.add_organization_project()
+
+        assert isinstance(result, HTTPSeeOther)
+        assert result.headers["Location"] == db_request.path
+        assert add_project.calls == [pretend.call(project.name, db_request)]
+        assert len(add_organization_project_cls.calls) == 1
+        assert len(organization.projects) == 2
+
+    def test_add_organization_project_new_project_exception(
+        self,
+        db_request,
+        pyramid_user,
+        organization_service,
+        enable_organizations,
+        monkeypatch,
+    ):
+        organization = OrganizationFactory.create()
+        organization.projects = [ProjectFactory.create()]
+
+        project = ProjectFactory.create()
+
+        add_organization_project_obj = pretend.stub(
+            add_existing_project=pretend.stub(data=False),
+            new_project_name=pretend.stub(data=project.name, errors=[]),
+            validate=lambda *a, **kw: True,
+        )
+        add_organization_project_cls = pretend.call_recorder(
+            lambda *a, **kw: add_organization_project_obj
+        )
+        monkeypatch.setattr(
+            views, "AddOrganizationProjectForm", add_organization_project_cls
+        )
+
+        def add_project(*a, **kw):
+            raise HTTPBadRequest("error-message")
+
+        monkeypatch.setattr(views, "add_project", add_project)
+
+        view = views.ManageOrganizationProjectsViews(organization, db_request)
+        result = view.add_organization_project()
+
+        assert result == {
+            "organization": organization,
+            "active_projects": view.active_projects,
+            "projects_owned": set(),
+            "projects_sole_owned": set(),
+            "projects_requiring_2fa": set(),
+            "add_organization_project_form": add_organization_project_obj,
+        }
+        assert add_organization_project_obj.new_project_name.errors == ["error-message"]
+        assert len(organization.projects) == 1
 
     def test_add_organization_project_disable_organizations(self, db_request):
         organization = OrganizationFactory.create()

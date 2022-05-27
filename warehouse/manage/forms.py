@@ -11,6 +11,7 @@
 # limitations under the License.
 
 import json
+import re
 
 import wtforms
 
@@ -341,7 +342,7 @@ class OrganizationNameMixin:
                 ),
             ),
             # the regexp below must match the CheckConstraint
-            # for the name field in organizations.model.Organization
+            # for the name field in organizations.models.Organization
             wtforms.validators.Regexp(
                 r"^[a-zA-Z0-9][a-zA-Z0-9._-]*[a-zA-Z0-9]$",
                 message=_(
@@ -368,21 +369,57 @@ class OrganizationNameMixin:
 
 class AddOrganizationProjectForm(forms.Form):
 
-    __params__ = ["existing_project"]
+    __params__ = ["add_existing_project", "existing_project_name", "new_project_name"]
 
-    existing_project = wtforms.SelectField(
-        "Select project",
-        choices=[("", "Select project")],
-        validators=[
-            wtforms.validators.DataRequired(message="Select project"),
-        ],
+    add_existing_project = wtforms.RadioField(
+        "Add existing or new project?",
+        choices=[("true", "Existing project"), ("false", "New project")],
+        coerce=lambda string: True if string == "true" else False,
+        default="true",
+        validators=[wtforms.validators.InputRequired()],
     )
 
-    def __init__(self, *args, project_choices, **kwargs):
+    existing_project_name = wtforms.SelectField(
+        "Select project",
+        choices=[("", "Select project")],
+    )
+
+    new_project_name = wtforms.StringField()
+
+    _project_name_re = re.compile(
+        r"^([A-Z0-9]|[A-Z0-9][A-Z0-9._-]*[A-Z0-9])$", re.IGNORECASE
+    )
+
+    def __init__(self, *args, project_choices, project_factory, **kwargs):
         super().__init__(*args, **kwargs)
-        self.existing_project.choices += [
+        self.existing_project_name.choices += [
             (name, name) for name in sorted(project_choices)
         ]
+        self.project_factory = project_factory
+
+    def validate_existing_project_name(self, field):
+        if self.add_existing_project.data:
+            if not field.data:
+                raise wtforms.validators.StopValidation(_("Select project"))
+
+    def validate_new_project_name(self, field):
+        if not self.add_existing_project.data:
+            if not field.data:
+                raise wtforms.validators.StopValidation(_("Specify project name"))
+            if not self._project_name_re.match(field.data):
+                raise wtforms.validators.ValidationError(
+                    _(
+                        "Start and end with a letter or numeral containing "
+                        "only ASCII numeric and '.', '_' and '-'."
+                    )
+                )
+            if field.data in self.project_factory:
+                raise wtforms.validators.ValidationError(
+                    _(
+                        "This project name has already been used. "
+                        "Choose a different project name."
+                    )
+                )
 
 
 class TransferOrganizationProjectForm(forms.Form):

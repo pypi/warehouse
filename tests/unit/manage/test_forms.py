@@ -21,6 +21,8 @@ import warehouse.utils.webauthn as webauthn
 
 from warehouse.manage import forms
 
+from ...common.db.packaging import ProjectFactory
+
 
 class TestCreateRoleForm:
     def test_creation(self):
@@ -540,15 +542,148 @@ class TestCreateOrganizationForm:
 
 
 class TestAddOrganizationProjectForm:
-    def test_creation(self):
+    def test_creation(self, pyramid_request):
+        pyramid_request.POST = MultiDict()
         project_choices = {"foo"}
+        project_factory = pretend.stub()
+
         form = forms.AddOrganizationProjectForm(
+            pyramid_request.POST,
             project_choices=project_choices,
+            project_factory=project_factory,
         )
 
-        assert form.existing_project.choices == [
+        assert form.existing_project_name.choices == [
             ("", "Select project"),
             ("foo", "foo"),
+        ]
+
+    def test_validate_existing_project_name(self, pyramid_request):
+        pyramid_request.POST = MultiDict(
+            {
+                "add_existing_project": "true",
+                "existing_project_name": "foo",
+                "new_project_name": "",
+            }
+        )
+        project_choices = {"foo"}
+        project_factory = {"foo": ProjectFactory.create(name="foo")}
+
+        form = forms.AddOrganizationProjectForm(
+            pyramid_request.POST,
+            project_choices=project_choices,
+            project_factory=project_factory,
+        )
+
+        assert form.validate()
+
+    def test_validate_existing_project_name_missing(self, pyramid_request):
+        pyramid_request.POST = MultiDict(
+            {
+                "add_existing_project": "true",
+                "existing_project_name": "",
+                "new_project_name": "",
+            }
+        )
+        project_choices = {"foo"}
+        project_factory = {"foo": ProjectFactory.create(name="foo")}
+
+        form = forms.AddOrganizationProjectForm(
+            pyramid_request.POST,
+            project_choices=project_choices,
+            project_factory=project_factory,
+        )
+
+        assert not form.validate()
+        assert form.existing_project_name.errors == ["Select project"]
+
+    def test_validate_new_project_name(self, pyramid_request):
+        pyramid_request.POST = MultiDict(
+            {
+                "add_existing_project": "false",
+                "existing_project_name": "",
+                "new_project_name": "bar",
+            }
+        )
+        project_choices = {"foo"}
+        project_factory = {"foo": ProjectFactory.create(name="foo")}
+
+        form = forms.AddOrganizationProjectForm(
+            pyramid_request.POST,
+            project_choices=project_choices,
+            project_factory=project_factory,
+        )
+
+        assert form.validate()
+
+    def test_validate_new_project_name_missing(self, pyramid_request):
+        pyramid_request.POST = MultiDict(
+            {
+                "add_existing_project": "false",
+                "existing_project_name": "",
+                "new_project_name": "",
+            }
+        )
+        project_choices = {"foo"}
+        project_factory = {"foo": ProjectFactory.create(name="foo")}
+
+        form = forms.AddOrganizationProjectForm(
+            pyramid_request.POST,
+            project_choices=project_choices,
+            project_factory=project_factory,
+        )
+
+        assert not form.validate()
+        assert form.new_project_name.errors == ["Specify project name"]
+
+    def test_validate_new_project_name_invalid_character(self, pyramid_request):
+        pyramid_request.POST = MultiDict(
+            {
+                "add_existing_project": "false",
+                "existing_project_name": "",
+                "new_project_name": "@",
+            }
+        )
+        project_choices = {"foo"}
+        project_factory = {"foo": ProjectFactory.create(name="foo")}
+
+        form = forms.AddOrganizationProjectForm(
+            pyramid_request.POST,
+            project_choices=project_choices,
+            project_factory=project_factory,
+        )
+
+        assert not form.validate()
+        assert form.new_project_name.errors == [
+            (
+                "Start and end with a letter or numeral containing "
+                "only ASCII numeric and '.', '_' and '-'."
+            )
+        ]
+
+    def test_validate_new_project_name_already_used(self, pyramid_request):
+        pyramid_request.POST = MultiDict(
+            {
+                "add_existing_project": "false",
+                "existing_project_name": "",
+                "new_project_name": "foo",
+            }
+        )
+        project_choices = {"foo"}
+        project_factory = {"foo": ProjectFactory.create(name="foo")}
+
+        form = forms.AddOrganizationProjectForm(
+            pyramid_request.POST,
+            project_choices=project_choices,
+            project_factory=project_factory,
+        )
+
+        assert not form.validate()
+        assert form.new_project_name.errors == [
+            (
+                "This project name has already been used. "
+                "Choose a different project name."
+            )
         ]
 
 

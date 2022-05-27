@@ -138,27 +138,51 @@
   <hr>
 
   {{ form_error_anchor(add_organization_project_form) }}
-  <section id="create-organization-project">
+  <section id="add-organization-project">
     <h2 class="sub-title">{% trans %}Add project to organization{% endtrans %}</h2>
-    <form method="POST">
+    <form class="radio-toggle-form" method="POST">
       <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
       {{ form_errors(add_organization_project_form) }}
-      <div class="form-group">
+      {# New or existing? radio buttons should be siblings of div.form-group below. #}
+        <label class="form-group__label" for="add_existing_project">
+          {% trans %}️New or existing project?{% endtrans %}
+        </label>
+        {% for subfield in add_organization_project_form.add_existing_project %}
+        {{ subfield(**{"data-target": ".radio-toggle-" + loop.index|string}) }}
+        {{ subfield.label }}
+        {% endfor %}
+        <div id="add-existing-project-errors">
+          {{ field_errors(add_organization_project_form.add_existing_project) }}
+        </div>
+        <p class="form-group__text"></p>
+      {# end radio buttons #}
+      <div class="form-group radio-toggle radio-toggle-1">
         <label class="form-group__label" for="project">
           {% trans %}️Project name{% endtrans %}
-          {% if add_organization_project_form.existing_project.flags.required %}
           <span class="form-group__required">{% trans %}(required){% endtrans %}</span>
-          {% endif %}
         </label>
-        <p class="form-group__text">
-          {{ add_organization_project_form.existing_project(class_="form-group__field", **{"aria-describedby":"project-errors"}) }}
-        </p>
-        <div id="project-errors">
-          {{ field_errors(add_organization_project_form.existing_project) }}
+        {{ add_organization_project_form.existing_project_name(class_="form-group__field", **{"aria-describedby":"existing-project-name-errors"}) }}
+        <div id="existing-project-name-errors">
+          {{ field_errors(add_organization_project_form.existing_project_name) }}
         </div>
         <p class="form-group__help-text">
           {% trans trimmed %}
           Owners of this organization can add a project they own if the project has not been added to another organization. A project that has been added to another organization can be transferred from the project settings page.
+          {% endtrans %}
+        </p>
+      </div>
+      <div class="form-group radio-toggle radio-toggle-2">
+        <label class="form-group__label" for="project">
+          {% trans %}️Project name{% endtrans %}
+          <span class="form-group__required">{% trans %}(required){% endtrans %}</span>
+        </label>
+        {{ add_organization_project_form.new_project_name(class_="form-group__field", **{"aria-describedby":"new-project-name-errors"}) }}
+        <div id="new-project-name-errors">
+          {{ field_errors(add_organization_project_form.new_project_name) }}
+        </div>
+        <p class="form-group__help-text">
+          {% trans trimmed %}
+          Owners of this organization can create an empty project and add it to the organization.
           {% endtrans %}
         </p>
       </div>

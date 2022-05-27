@@ -18,6 +18,7 @@ import pyqrcode
 from paginate_sqlalchemy import SqlalchemyOrmPage as SQLAlchemyORMPage
 from pyramid.httpexceptions import (
     HTTPBadRequest,
+    HTTPException,
     HTTPNotFound,
     HTTPSeeOther,
     HTTPTooManyRequests,
@@ -125,7 +126,12 @@ from warehouse.rate_limiting import IRateLimiter
 from warehouse.utils.http import is_safe_url
 from warehouse.utils.organization import confirm_organization
 from warehouse.utils.paginate import paginate_url_factory
-from warehouse.utils.project import confirm_project, destroy_docs, remove_project
+from warehouse.utils.project import (
+    add_project,
+    confirm_project,
+    destroy_docs,
+    remove_project,
+)
 
 
 def user_projects(request):
@@ -1389,6 +1395,7 @@ class ManageOrganizationProjectsViews:
         self.organization_service = request.find_service(
             IOrganizationService, context=None
         )
+        self.project_factory = ProjectFactory(request)
 
     @property
     def active_projects(self):
@@ -1412,6 +1419,7 @@ class ManageOrganizationProjectsViews:
             for project in all_user_projects["projects_owned"]
             if not project.organizations
         )
+        project_factory = self.project_factory
 
         return {
             "organization": self.organization,
@@ -1422,6 +1430,7 @@ class ManageOrganizationProjectsViews:
             "add_organization_project_form": AddOrganizationProjectForm(
                 self.request.POST,
                 project_choices=project_choices,
+                project_factory=project_factory,
             ),
         }
 
@@ -1437,17 +1446,29 @@ class ManageOrganizationProjectsViews:
         if self.request.flags.enabled(AdminFlagValue.DISABLE_ORGANIZATIONS):
             raise HTTPNotFound
 
+        # Get and validate form from default response.
         default_response = self.default_response
         form = default_response["add_organization_project_form"]
         if not form.validate():
             return default_response
 
-        project = ProjectFactory(self.request)[form.existing_project.data]
+        # Get existing project or add new project.
+        if form.add_existing_project.data:
+            project = self.project_factory[form.existing_project_name.data]
+        else:
+            try:
+                project = add_project(form.new_project_name.data, self.request)
+            except HTTPException as exc:
+                form.new_project_name.errors.append(exc.detail)
+                return default_response
+
+        # Add project to organization.
         self.organization_service.add_organization_project(
             organization_id=self.organization.id,
             project_id=project.id,
         )
 
+        # Record events.
         self.organization.record_event(
             tag="organization:organization_project:add",
             ip_address=self.request.remote_addr,
