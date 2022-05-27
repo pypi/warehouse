@@ -539,10 +539,10 @@ class TestCreateOrganizationForm:
         ]
 
 
-class TestCreateOrganizationProjectForm:
+class TestAddOrganizationProjectForm:
     def test_creation(self):
         project_choices = {"foo"}
-        form = forms.CreateOrganizationProjectForm(
+        form = forms.AddOrganizationProjectForm(
             project_choices=project_choices,
         )
 

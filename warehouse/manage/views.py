@@ -80,13 +80,13 @@ from warehouse.forklift.legacy import MAX_FILESIZE, MAX_PROJECT_SIZE
 from warehouse.macaroons.interfaces import IMacaroonService
 from warehouse.manage.forms import (
     AddEmailForm,
+    AddOrganizationProjectForm,
     ChangeOrganizationRoleForm,
     ChangePasswordForm,
     ChangeRoleForm,
     ConfirmPasswordForm,
     CreateMacaroonForm,
     CreateOrganizationForm,
-    CreateOrganizationProjectForm,
     CreateOrganizationRoleForm,
     CreateRoleForm,
     DeleteMacaroonForm,
@@ -1419,7 +1419,7 @@ class ManageOrganizationProjectsViews:
             "projects_owned": projects_owned,
             "projects_sole_owned": projects_sole_owned,
             "projects_requiring_2fa": projects_requiring_2fa,
-            "create_organization_project_form": CreateOrganizationProjectForm(
+            "add_organization_project_form": AddOrganizationProjectForm(
                 self.request.POST,
                 project_choices=project_choices,
             ),
@@ -1433,12 +1433,12 @@ class ManageOrganizationProjectsViews:
         return self.default_response
 
     @view_config(request_method="POST")
-    def create_organization_project(self):
+    def add_organization_project(self):
         if self.request.flags.enabled(AdminFlagValue.DISABLE_ORGANIZATIONS):
             raise HTTPNotFound
 
         default_response = self.default_response
-        form = default_response["create_organization_project_form"]
+        form = default_response["add_organization_project_form"]
         if not form.validate():
             return default_response
 

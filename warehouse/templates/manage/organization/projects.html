@@ -137,24 +137,24 @@
 
   <hr>
 
-  {{ form_error_anchor(create_organization_project_form) }}
+  {{ form_error_anchor(add_organization_project_form) }}
   <section id="create-organization-project">
     <h2 class="sub-title">{% trans %}Add project to organization{% endtrans %}</h2>
     <form method="POST">
       <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
-      {{ form_errors(create_organization_project_form) }}
+      {{ form_errors(add_organization_project_form) }}
       <div class="form-group">
         <label class="form-group__label" for="project">
           {% trans %}️Project name{% endtrans %}
-          {% if create_organization_project_form.existing_project.flags.required %}
+          {% if add_organization_project_form.existing_project.flags.required %}
           <span class="form-group__required">{% trans %}(required){% endtrans %}</span>
           {% endif %}
         </label>
         <p class="form-group__text">
-          {{ create_organization_project_form.existing_project(class_="form-group__field", **{"aria-describedby":"project-errors"}) }}
+          {{ add_organization_project_form.existing_project(class_="form-group__field", **{"aria-describedby":"project-errors"}) }}
         </p>
         <div id="project-errors">
-          {{ field_errors(create_organization_project_form.existing_project) }}
+          {{ field_errors(add_organization_project_form.existing_project) }}
         </div>
         <p class="form-group__help-text">
           {% trans trimmed %}

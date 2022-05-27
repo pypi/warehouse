@@ -366,7 +366,7 @@ class OrganizationNameMixin:
             )
 
 
-class CreateOrganizationProjectForm(forms.Form):
+class AddOrganizationProjectForm(forms.Form):
 
     __params__ = ["existing_project"]
 
