@@ -161,7 +161,8 @@
           {% trans %}️Project name{% endtrans %}
           <span class="form-group__required">{% trans %}(required){% endtrans %}</span>
         </label>
-        {{ add_organization_project_form.existing_project_name(class_="form-group__field", **{"aria-describedby":"existing-project-name-errors"}) }}
+        {% set no_existing_projects = add_organization_project_form.existing_project_name.choices|length <= 1 %}
+        {{ add_organization_project_form.existing_project_name(class_="form-group__field", disabled=no_existing_projects, title=gettext("You do not own any projects that you can add to this organization.") if no_existing_projects else "", **{"aria-describedby":"existing-project-name-errors"}) }}
         <div id="existing-project-name-errors">
           {{ field_errors(add_organization_project_form.existing_project_name) }}
         </div>
