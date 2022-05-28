@@ -558,115 +558,56 @@ class TestAddOrganizationProjectForm:
             ("foo", "foo"),
         ]
 
-    def test_validate_existing_project_name(self, pyramid_request):
-        pyramid_request.POST = MultiDict(
-            {
-                "add_existing_project": "true",
-                "existing_project_name": "foo",
-                "new_project_name": "",
-            }
-        )
-        project_choices = {"foo"}
-        project_factory = {"foo": ProjectFactory.create(name="foo")}
-
-        form = forms.AddOrganizationProjectForm(
-            pyramid_request.POST,
-            project_choices=project_choices,
-            project_factory=project_factory,
-        )
-
-        assert form.validate()
-
-    def test_validate_existing_project_name_missing(self, pyramid_request):
-        pyramid_request.POST = MultiDict(
-            {
-                "add_existing_project": "true",
-                "existing_project_name": "",
-                "new_project_name": "",
-            }
-        )
-        project_choices = {"foo"}
-        project_factory = {"foo": ProjectFactory.create(name="foo")}
-
-        form = forms.AddOrganizationProjectForm(
-            pyramid_request.POST,
-            project_choices=project_choices,
-            project_factory=project_factory,
-        )
-
-        assert not form.validate()
-        assert form.existing_project_name.errors == ["Select project"]
-
-    def test_validate_new_project_name(self, pyramid_request):
-        pyramid_request.POST = MultiDict(
-            {
-                "add_existing_project": "false",
-                "existing_project_name": "",
-                "new_project_name": "bar",
-            }
-        )
-        project_choices = {"foo"}
-        project_factory = {"foo": ProjectFactory.create(name="foo")}
-
-        form = forms.AddOrganizationProjectForm(
-            pyramid_request.POST,
-            project_choices=project_choices,
-            project_factory=project_factory,
-        )
-
-        assert form.validate()
-
-    def test_validate_new_project_name_missing(self, pyramid_request):
-        pyramid_request.POST = MultiDict(
-            {
-                "add_existing_project": "false",
-                "existing_project_name": "",
-                "new_project_name": "",
-            }
-        )
-        project_choices = {"foo"}
-        project_factory = {"foo": ProjectFactory.create(name="foo")}
-
-        form = forms.AddOrganizationProjectForm(
-            pyramid_request.POST,
-            project_choices=project_choices,
-            project_factory=project_factory,
-        )
-
-        assert not form.validate()
-        assert form.new_project_name.errors == ["Specify project name"]
-
-    def test_validate_new_project_name_invalid_character(self, pyramid_request):
-        pyramid_request.POST = MultiDict(
-            {
-                "add_existing_project": "false",
-                "existing_project_name": "",
-                "new_project_name": "@",
-            }
-        )
-        project_choices = {"foo"}
-        project_factory = {"foo": ProjectFactory.create(name="foo")}
-
-        form = forms.AddOrganizationProjectForm(
-            pyramid_request.POST,
-            project_choices=project_choices,
-            project_factory=project_factory,
-        )
-
-        assert not form.validate()
-        assert form.new_project_name.errors == [
+    @pytest.mark.parametrize(
+        ("add_existing_project", "existing_project_name", "new_project_name", "errors"),
+        [
+            # Validate existing project name.
+            ("true", "foo", "", {}),
+            # Validate existing project name missing.
+            ("true", "", "", {"existing_project_name": ["Select project"]}),
+            # Validate new project name.
+            ("false", "", "bar", {}),
+            # Validate new project name missing.
+            ("false", "", "", {"new_project_name": ["Specify project name"]}),
+            # Validate new project name invalid character.
             (
-                "Start and end with a letter or numeral containing "
-                "only ASCII numeric and '.', '_' and '-'."
-            )
-        ]
-
-    def test_validate_new_project_name_already_used(self, pyramid_request):
+                "false",
+                "",
+                "@",
+                {
+                    "new_project_name": [
+                        "Start and end with a letter or numeral containing "
+                        "only ASCII numeric and '.', '_' and '-'."
+                    ]
+                },
+            ),
+            # Validate new project name already used.
+            (
+                "false",
+                "",
+                "foo",
+                {
+                    "new_project_name": [
+                        "This project name has already been used. "
+                        "Choose a different project name."
+                    ]
+                },
+            ),
+        ],
+    )
+    def test_validate(
+        self,
+        pyramid_request,
+        add_existing_project,
+        existing_project_name,
+        new_project_name,
+        errors,
+    ):
         pyramid_request.POST = MultiDict(
             {
-                "add_existing_project": "false",
-                "existing_project_name": "",
-                "new_project_name": "foo",
+                "add_existing_project": add_existing_project,
+                "existing_project_name": existing_project_name,
+                "new_project_name": new_project_name,
             }
         )
         project_choices = {"foo"}
@@ -678,13 +619,8 @@ class TestAddOrganizationProjectForm:
             project_factory=project_factory,
         )
 
-        assert not form.validate()
-        assert form.new_project_name.errors == [
-            (
-                "This project name has already been used. "
-                "Choose a different project name."
-            )
-        ]
+        assert not form.validate() if errors else form.validate()
+        assert form.errors == errors
 
 
 class TestSaveAccountForm:
