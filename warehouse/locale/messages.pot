@@ -116,7 +116,7 @@ msgstr ""
 msgid "Successful WebAuthn assertion"
 msgstr ""
 
-#: warehouse/accounts/views.py:447 warehouse/manage/views.py:849
+#: warehouse/accounts/views.py:447 warehouse/manage/views.py:851
 msgid "Recovery code accepted. The supplied code cannot be used again."
 msgstr ""
 
@@ -307,65 +307,65 @@ msgid ""
 "description with 400 characters or less."
 msgstr ""
 
-#: warehouse/manage/views.py:280
+#: warehouse/manage/views.py:282
 msgid "Email ${email_address} added - check your email for a verification link"
 msgstr ""
 
-#: warehouse/manage/views.py:797
+#: warehouse/manage/views.py:799
 msgid "Recovery codes already generated"
 msgstr ""
 
-#: warehouse/manage/views.py:798
+#: warehouse/manage/views.py:800
 msgid "Generating new recovery codes will invalidate your existing codes."
 msgstr ""
 
-#: warehouse/manage/views.py:1552
+#: warehouse/manage/views.py:1554
 msgid "User '${username}' already has ${role_name} role for organization"
 msgstr ""
 
-#: warehouse/manage/views.py:1563
+#: warehouse/manage/views.py:1565
 msgid ""
 "User '${username}' does not have a verified primary email address and "
 "cannot be added as a ${role_name} for organization"
 msgstr ""
 
-#: warehouse/manage/views.py:1577 warehouse/manage/views.py:3018
+#: warehouse/manage/views.py:1579 warehouse/manage/views.py:3020
 msgid "User '${username}' already has an active invite. Please try again later."
 msgstr ""
 
-#: warehouse/manage/views.py:1634 warehouse/manage/views.py:3076
+#: warehouse/manage/views.py:1636 warehouse/manage/views.py:3078
 msgid "Invitation sent to '${username}'"
 msgstr ""
 
-#: warehouse/manage/views.py:1677
+#: warehouse/manage/views.py:1679
 msgid "Could not find organization invitation."
 msgstr ""
 
-#: warehouse/manage/views.py:1691 warehouse/manage/views.py:3134
+#: warehouse/manage/views.py:1693 warehouse/manage/views.py:3136
 msgid "Invitation already expired."
 msgstr ""
 
-#: warehouse/manage/views.py:1724 warehouse/manage/views.py:3158
+#: warehouse/manage/views.py:1726 warehouse/manage/views.py:3160
 msgid "Invitation revoked from '${username}'."
 msgstr ""
 
-#: warehouse/manage/views.py:2128
+#: warehouse/manage/views.py:2130
 msgid ""
 "There have been too many attempted OpenID Connect registrations. Try "
 "again later."
 msgstr ""
 
-#: warehouse/manage/views.py:2994
+#: warehouse/manage/views.py:2996
 msgid "User '${username}' already has ${role_name} role for project"
 msgstr ""
 
-#: warehouse/manage/views.py:3005
+#: warehouse/manage/views.py:3007
 msgid ""
 "User '${username}' does not have a verified primary email address and "
 "cannot be added as a ${role_name} for project"
 msgstr ""
 
-#: warehouse/manage/views.py:3123
+#: warehouse/manage/views.py:3125
 msgid "Could not find role invitation."
 msgstr ""
 
@@ -1627,6 +1627,8 @@ msgstr ""
 #: warehouse/templates/email/organization-member-invited/body.html:38
 #: warehouse/templates/email/organization-member-removed/body.html:37
 #: warehouse/templates/email/organization-member-role-changed/body.html:38
+#: warehouse/templates/email/organization-project-added/body.html:24
+#: warehouse/templates/email/organization-project-removed/body.html:24
 #: warehouse/templates/email/organization-renamed/body.html:31
 #, python-format
 msgid ""
@@ -1727,6 +1729,27 @@ msgstr ""
 
 #: warehouse/templates/email/organization-member-role-changed/body.html:33
 msgid "Changed by"
+msgstr ""
+
+#: warehouse/templates/email/organization-project-added/body.html:20
+#, python-format
+msgid ""
+"The %(site)s project \"%(project_name)s\" has been added to the "
+"\"%(organization_name)s\" organization."
+msgstr ""
+
+#: warehouse/templates/email/organization-project-added/body.html:30
+#: warehouse/templates/email/organization-project-removed/body.html:30
+msgid ""
+"You are receiving this because you are an owner of the project or the "
+"organization."
+msgstr ""
+
+#: warehouse/templates/email/organization-project-removed/body.html:20
+#, python-format
+msgid ""
+"The %(site)s project \"%(project_name)s\" has been removed from the "
+"\"%(organization_name)s\" organization."
 msgstr ""
 
 #: warehouse/templates/email/password-change/body.html:18

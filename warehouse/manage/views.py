@@ -59,6 +59,8 @@ from warehouse.email import (
     send_organization_member_invited_email,
     send_organization_member_removed_email,
     send_organization_member_role_changed_email,
+    send_organization_project_added_email,
+    send_organization_project_removed_email,
     send_organization_renamed_email,
     send_organization_role_verification_email,
     send_password_change_email,
@@ -1486,17 +1488,17 @@ class ManageOrganizationProjectsViews:
             },
         )
 
-        # TODO: Send notification emails.
-        # owner_users = set(
-        #     organization_owners(self.request, self.organization) +
-        #     project_owners(self.request, project)
-        # )
-        # send_organization_project_added_email(
-        #     self.request,
-        #     owner_users,
-        #     organization_name=organization.name,
-        #     project_name=project.name,
-        # )
+        # Send notification emails.
+        owner_users = set(
+            organization_owners(self.request, self.organization)
+            + project_owners(self.request, project)
+        )
+        send_organization_project_added_email(
+            self.request,
+            owner_users,
+            organization_name=self.organization.name,
+            project_name=project.name,
+        )
 
         # Refresh projects list.
         return HTTPSeeOther(self.request.path)
@@ -2309,17 +2311,17 @@ def remove_organization_project(project, request):
                 "organization_name": organization.name,
             },
         )
-        # TODO: Send notification emails.
-        # owner_users = set(
-        #     organization_owners(request, organization) +
-        #     project_owners(request, project)
-        # )
-        # send_organization_project_removed_email(
-        #     request,
-        #     owner_users,
-        #     organization_name=organization.name,
-        #     project_name=project.name,
-        # )
+        # Send notification emails.
+        owner_users = set(
+            organization_owners(request, organization)
+            + project_owners(request, project)
+        )
+        send_organization_project_removed_email(
+            request,
+            owner_users,
+            organization_name=organization.name,
+            project_name=project.name,
+        )
 
     request.session.flash(
         f"Removed the project {project.name!r} from {organization.name!r}",
@@ -2397,17 +2399,17 @@ def transfer_organization_project(project, request):
                 "organization_name": organization.name,
             },
         )
-        # TODO: Send notification emails.
-        # owner_users = set(
-        #     organization_owners(request, organization) +
-        #     project_owners(request, project)
-        # )
-        # send_organization_project_removed_email(
-        #     request,
-        #     owner_users,
-        #     organization_name=organization.name,
-        #     project_name=project.name,
-        # )
+        # Send notification emails.
+        owner_users = set(
+            organization_owners(request, organization)
+            + project_owners(request, project)
+        )
+        send_organization_project_removed_email(
+            request,
+            owner_users,
+            organization_name=organization.name,
+            project_name=project.name,
+        )
 
     # Add project to selected organization.
     organization = organization_service.get_organization_by_name(form.organization.data)
@@ -2428,17 +2430,17 @@ def transfer_organization_project(project, request):
             "organization_name": organization.name,
         },
     )
-    # TODO: Send notification emails.
-    # owner_users = set(
-    #     organization_owners(request, organization) +
-    #     project_owners(request, project)
-    # )
-    # send_organization_project_added_email(
-    #     request,
-    #     owner_users,
-    #     organization_name=organization.name,
-    #     project_name=project.name,
-    # )
+
+    # Send notification emails.
+    owner_users = set(
+        organization_owners(request, organization) + project_owners(request, project)
+    )
+    send_organization_project_added_email(
+        request,
+        owner_users,
+        organization_name=organization.name,
+        project_name=project.name,
+    )
 
     request.session.flash(
         f"Transferred the project {project.name!r} to {organization.name!r}",
