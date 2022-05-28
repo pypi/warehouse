@@ -9,7 +9,7 @@ combine_as_imports = true
 known_first_party = ['warehouse', 'tests']
 
 [tool.mypy]
-python_version = "3.9"
+python_version = "3.10"
 namespace_packages = true
 warn_unused_configs = true
 plugins = ["mypy_zope:plugin"]
