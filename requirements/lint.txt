@@ -192,9 +192,9 @@ types-itsdangerous==1.1.6 \
     --hash=sha256:21c6966c10e353a5d35d36c82aaa2c5598d3bc32ddc8e0591276da5ad2e3c638 \
     --hash=sha256:aef2535c2fa0527dcce244ece0792b20ec02ee46533800735275f82a45a0244d
     # via -r requirements/lint.in
-types-psycopg2==2.9.13 \
-    --hash=sha256:0f92bd778bf9c5abe96b5947b449fa468a53d798a5155cd0c442be248f2f8818 \
-    --hash=sha256:2015365ffcf0494fb6613c2ffe0144ebadb2068b340df89578c4a2581135210b
+types-psycopg2==2.9.15 \
+    --hash=sha256:54d00920f0a69761b2deb32a409ae97be58c762af0f5b09a21e976335cce7e41 \
+    --hash=sha256:e6224d0c17b5492395d1a58ef0e03f5cce00f698119ec762fb9dc29d47ad3dd3
     # via -r requirements/lint.in
 types-python-slugify==5.0.4 \
     --hash=sha256:a9d44edf034d5ceab8442ce602f976b7880ee935baeff7443964aed93f7e21d4 \
@@ -224,7 +224,6 @@ typing-extensions==4.1.1 \
     --hash=sha256:1a9462dcc3347a79b1f1c0271fbe79e844580bb598bafa1ed208b94da3cdcd42 \
     --hash=sha256:21c85e0fe4b9a155d0799430b0ad741cdce7e359660ccbd8b530613e8df88ce2
     # via
-    #   black
     #   boto3-stubs
     #   mypy
 zope-event==4.5.0 \
