@@ -119,9 +119,9 @@ cbor2==5.4.2.post1 \
     --hash=sha256:d140b20b0bcbdfa80a910c6832aaa13f870b7045e39f8d9b5b652ef87ce3eac5 \
     --hash=sha256:e497c91bf107490503c1d834a04ccfc849d8b0b36ff8ee1598f10712864a4c87
     # via webauthn
-celery[sqs]==5.2.6 \
-    --hash=sha256:d1398cadf30f576266b34370e28e880306ec55f7a4b6307549b0ae9c15663481 \
-    --hash=sha256:da31f8eae7607b1582e5ee2d3f2d6f58450585afd23379491e3d9229d08102d0
+celery[sqs]==5.2.7 \
+    --hash=sha256:138420c020cd58d6707e6257b6beda91fd39af7afde5d36c6334d175302c0e14 \
+    --hash=sha256:fafbd82934d30f8a004f81e8f7a062e31413a23d444be8ee3326553915958c6d
     # via
     #   -r requirements/main.in
     #   celery-redbeat
