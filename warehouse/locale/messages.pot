@@ -997,7 +997,7 @@ msgstr ""
 #: warehouse/templates/manage/account/totp-provision.html:69
 #: warehouse/templates/manage/account/webauthn-provision.html:44
 #: warehouse/templates/manage/organization/projects.html:162
-#: warehouse/templates/manage/organization/projects.html:178
+#: warehouse/templates/manage/organization/projects.html:180
 #: warehouse/templates/manage/organization/roles.html:194
 #: warehouse/templates/manage/organization/roles.html:206
 #: warehouse/templates/manage/organization/settings.html:44
@@ -4661,8 +4661,7 @@ msgid "️New or existing project?"
 msgstr ""
 
 #: warehouse/templates/manage/organization/projects.html:161
-#: warehouse/templates/manage/organization/projects.html:177
-msgid "️Project name"
+msgid "️Name of existing project"
 msgstr ""
 
 #: warehouse/templates/manage/organization/projects.html:165
@@ -4676,14 +4675,22 @@ msgid ""
 " another organization can be transferred from the project settings page."
 msgstr ""
 
-#: warehouse/templates/manage/organization/projects.html:185
+#: warehouse/templates/manage/organization/projects.html:175
+msgid "Add existing project"
+msgstr ""
+
+#: warehouse/templates/manage/organization/projects.html:179
+msgid "️Name of new project"
+msgstr ""
+
+#: warehouse/templates/manage/organization/projects.html:187
 msgid ""
 "Owners of this organization can create an empty project and add it to the"
 " organization."
 msgstr ""
 
-#: warehouse/templates/manage/organization/projects.html:191
-msgid "Add project"
+#: warehouse/templates/manage/organization/projects.html:192
+msgid "Create and add new project"
 msgstr ""
 
 #: warehouse/templates/manage/organization/roles.html:18

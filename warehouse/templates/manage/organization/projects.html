@@ -158,7 +158,7 @@
       {# end radio buttons #}
       <div class="form-group radio-toggle radio-toggle-1">
         <label class="form-group__label" for="project">
-          {% trans %}️Project name{% endtrans %}
+          {% trans %}️Name of existing project{% endtrans %}
           <span class="form-group__required">{% trans %}(required){% endtrans %}</span>
         </label>
         {% set no_existing_projects = add_organization_project_form.existing_project_name.choices|length <= 1 %}
@@ -172,9 +172,11 @@
           {% endtrans %}
         </p>
       </div>
+      <input value="{% trans %}Add existing project{% endtrans %}" class="button button--primary radio-toggle radio-toggle-1" type="submit">
+
       <div class="form-group radio-toggle radio-toggle-2">
         <label class="form-group__label" for="project">
-          {% trans %}️Project name{% endtrans %}
+          {% trans %}️Name of new project{% endtrans %}
           <span class="form-group__required">{% trans %}(required){% endtrans %}</span>
         </label>
         {{ add_organization_project_form.new_project_name(class_="form-group__field", **{"aria-describedby":"new-project-name-errors"}) }}
@@ -187,8 +189,7 @@
           {% endtrans %}
         </p>
       </div>
-
-      <input value="{% trans %}Add project{% endtrans %}" class="button button--primary" type="submit">
+      <input value="{% trans %}Create and add new project{% endtrans %}" class="button button--primary radio-toggle radio-toggle-2" type="submit">
     </form>
   </section>
 {% endblock %}
