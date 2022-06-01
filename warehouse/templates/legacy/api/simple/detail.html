@@ -20,8 +20,8 @@
   <body>
     <h1>Links for {{ name }}</h1>
     {% for file in files -%}
-    <a href="{{ file.url }}#sha256={{ file.hashes.sha256 }}" {% if file.requires-python %}data-requires-python="{{ file['requires-python'] }}" {% endif %}{% if file.yanked %}data-yanked="{% if file.yanked is string %}{{ file.yanked }}{% endif %}" {% endif %}>{{ file.filename }}</a><br />
+    <a href="{{ file.url }}#sha256={{ file.hashes.sha256 }}" {% if file.get('requires-python') %}data-requires-python="{{ file['requires-python'] }}" {% endif %}{% if file.yanked %}data-yanked="{% if file.yanked is string %}{{ file.yanked }}{% endif %}" {% endif %}>{{ file.filename }}</a><br />
     {% endfor -%}
   </body>
 </html>
-<!--SERIAL {{ project.meta._last-serial }}-->
+<!--SERIAL {{ meta['_last-serial'] }}-->
