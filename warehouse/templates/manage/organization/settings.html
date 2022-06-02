@@ -40,11 +40,17 @@
       <div class="form-group">
         <label for="display_name" class="form-group__label">
           {% trans %}Organization name{% endtrans %}
-          {% if save_organization_form.display_name.flags.required %}
+          {% if request.has_permission("manage:organization") and save_organization_form.display_name.flags.required %}
           <span class="form-group__required">{% trans %}(required){% endtrans %}</span>
           {% endif %}
         </label>
+        {% if request.has_permission("manage:organization") %}
         {{ save_organization_form.display_name(placeholder=gettext("Name of your business, product, or project"), autocomplete="organization", autocapitalize="off", spellcheck="false", class_="form-group__field", **{"aria-describedby":"display-name-errors"}) }}
+        {% else %}
+        <p class="form-group__text">
+          {{ save_organization_form.display_name.data }}
+        </p>
+        {% endif %}
         <div id="display-name-errors">
           {% if save_organization_form.display_name.errors %}
           <ul class="form-errors" role="alert">
@@ -54,37 +60,51 @@
           </ul>
           {% endif %}
         </div>
+        {% if request.has_permission("manage:organization") %}
         <p class="form-group__help-text">
           {% trans %}For example{% endtrans %}: Python Software Foundation
         </p>
+        {% endif %}
       </div>
 
       <div class="form-group">
         <label class="form-group__label" for="link_url">
           {% trans %}️Organization URL{% endtrans %}
-          {% if save_organization_form.link_url.flags.required %}
+          {% if request.has_permission("manage:organization") and save_organization_form.link_url.flags.required %}
           <span class="form-group__required">{% trans %}(required){% endtrans %}</span>
           {% endif %}
         </label>
+        {% if request.has_permission("manage:organization") %}
+        {{ save_organization_form.link_url(placeholder=gettext("URL for your business, product, or project"), autocomplete="url", autocapitalize="off", spellcheck="false", class_="form-group__field", **{"aria-describedby":"link-url-errors"}) }}
+        {% else %}
         <p class="form-group__text">
-          {{ save_organization_form.link_url(placeholder=gettext("URL for your business, product, or project"), autocomplete="url", autocapitalize="off", spellcheck="false", class_="form-group__field", **{"aria-describedby":"link-url-errors"}) }}
+          {{ save_organization_form.link_url.data }}
         </p>
+        {% endif %}
         <div id="link-url-errors">
           {{ field_errors(save_organization_form.link_url) }}
         </div>
+        {% if request.has_permission("manage:organization") %}
         <p class="form-group__help-text">
           {% trans %}For example{% endtrans %}: https://www.python.org/psf/
         </p>
+        {% endif %}
       </div>
 
       <div class="form-group">
         <label for="description" class="form-group__label">
           {% trans %}Organization description{% endtrans %}
-          {% if save_organization_form.description.flags.required %}
+          {% if request.has_permission("manage:organization") and save_organization_form.description.flags.required %}
           <span class="form-group__required">{% trans %}(required){% endtrans %}</span>
           {% endif %}
         </label>
+        {% if request.has_permission("manage:organization") %}
         {{ save_organization_form.description(placeholder=gettext("Description of your business, product, or project"), autocomplete="off", autocapitalize="off", spellcheck="true", class_="form-group__field", **{"aria-describedby":"description-errors"}) }}
+        {% else %}
+        <p class="form-group__text">
+          {{ save_organization_form.description.data }}
+        </p>
+        {% endif %}
         <div id="description-errors">
           {% if save_organization_form.description.errors %}
           <ul class="form-errors" role="alert">
@@ -99,27 +119,36 @@
       <div class="form-group">
         <label class="form-group__label" for="orgtype">
           {% trans %}️Organization type{% endtrans %}
-          {% if save_organization_form.orgtype.flags.required %}
+          {% if request.has_permission("manage:organization") and save_organization_form.orgtype.flags.required %}
           <span class="form-group__required">{% trans %}(required){% endtrans %}</span>
           {% endif %}
         </label>
+        {% if request.has_permission("manage:organization") %}
+        {{ save_organization_form.orgtype(class_="form-group__field", **{"aria-describedby":"orgtype-errors"}) }}
+        {% else %}
         <p class="form-group__text">
-          {{ save_organization_form.orgtype(class_="form-group__field", **{"aria-describedby":"orgtype-errors"}) }}
+          {{ save_organization_form.orgtype.data.value }}
         </p>
+        {% endif %}
         <div id="orgtype-errors">
           {{ field_errors(save_organization_form.orgtype) }}
         </div>
+        {% if request.has_permission("manage:organization") %}
         <p class="form-group__help-text">
           {% trans trimmed %}
             Companies can create organization accounts as a paid service while community projects are granted complimentary access.
           {% endtrans %}
         </p>
+        {% endif %}
       </div>
 
+      {% if request.has_permission("manage:organization") %}
       <input value="{% trans %}Update organization{% endtrans %}" class="button button--primary" type="submit">
+      {% endif %}
     </form>
   </section>
 
+  {% if request.has_permission("manage:organization") %}
   <hr>
 
   <section id="change-organization-account-name">
@@ -180,4 +209,5 @@
       {% endif %}
     </div>
   </section>
+  {% endif %}
 {% endblock %}

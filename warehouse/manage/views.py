@@ -1213,7 +1213,7 @@ class ManageOrganizationsViews:
     uses_session=True,
     require_csrf=True,
     require_methods=False,
-    permission="view:organization",
+    permission="manage:organization",
     has_translations=True,
     require_reauth=True,
 )
@@ -1245,7 +1245,7 @@ class ManageOrganizationSettingsViews:
             "active_projects": self.active_projects,
         }
 
-    @view_config(request_method="GET")
+    @view_config(request_method="GET", permission="view:organization")
     def manage_organization(self):
         if self.request.flags.enabled(AdminFlagValue.DISABLE_ORGANIZATIONS):
             raise HTTPNotFound
@@ -1385,7 +1385,7 @@ class ManageOrganizationSettingsViews:
     uses_session=True,
     require_csrf=True,
     require_methods=False,
-    permission="view:organization",
+    permission="manage:organization",
     has_translations=True,
     require_reauth=True,
 )
@@ -1436,7 +1436,7 @@ class ManageOrganizationProjectsViews:
             ),
         }
 
-    @view_config(request_method="GET")
+    @view_config(request_method="GET", permission="view:organization")
     def manage_organization_projects(self):
         if self.request.flags.enabled(AdminFlagValue.DISABLE_ORGANIZATIONS):
             raise HTTPNotFound

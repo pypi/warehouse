@@ -135,6 +135,7 @@
     {% endfor %}
   </div>
 
+  {% if request.has_permission("manage:organization") %}
   <hr>
 
   {{ form_error_anchor(add_organization_project_form) }}
@@ -192,4 +193,5 @@
       <input value="{% trans %}Create and add new project{% endtrans %}" class="button button--primary radio-toggle radio-toggle-2" type="submit">
     </form>
   </section>
+  {% endif %}
 {% endblock %}
