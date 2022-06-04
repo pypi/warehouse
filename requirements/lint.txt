@@ -70,12 +70,7 @@ flake8==4.0.1 \
     --hash=sha256:806e034dda44114815e23c16ef92f95c91e4c71100ff52813adf7132a6ad870d
     # via
     #   -r requirements/lint.in
-    #   flake8-polyfill
     #   pep8-naming
-flake8-polyfill==1.0.2 \
-    --hash=sha256:12be6a34ee3ab795b19ca73505e7b55826d5f6ad7230d31b18e106400169b9e9 \
-    --hash=sha256:e44b087597f6da52ec6393a709e7108b2905317d0c0b744cdca6208e670d8eda
-    # via pep8-naming
 isort==5.10.1 \
     --hash=sha256:6f62d78e2f89b4500b080fe3a81690850cd254227f27f75c3a0c491a1f351ba7 \
     --hash=sha256:e8443a5e7a020e9d7f97f1d7d9cd17c88bcb3bc7e218bf9cf5095fe550be2951
@@ -135,9 +130,9 @@ pbr==5.8.1 \
     --hash=sha256:27108648368782d07bbf1cb468ad2e2eeef29086affd14087a6d04b7de8af4ec \
     --hash=sha256:66bc5a34912f408bb3925bf21231cb6f59206267b7f63f3503ef865c1a292e25
     # via stevedore
-pep8-naming==0.12.1 \
-    --hash=sha256:4a8daeaeb33cfcde779309fc0c9c0a68a3bbe2ad8a8308b763c5068f86eb9f37 \
-    --hash=sha256:bb2455947757d162aa4cad55dba4ce029005cd1692f2899a21d51d8630ca7841
+pep8-naming==0.13.0 \
+    --hash=sha256:069ea20e97f073b3e6d4f789af2a57816f281ca64b86210c7d471117a4b6bfd0 \
+    --hash=sha256:9f38e6dcf867a1fb7ad47f5ff72c0ddae544a6cf64eb9f7600b7b3c0bb5980b5
     # via -r requirements/lint.in
 platformdirs==2.5.2 \
     --hash=sha256:027d8e83a2d7de06bbac4e5ef7e023c02b863d7ea5d079477e722bb41ab25788 \
@@ -224,7 +219,6 @@ typing-extensions==4.1.1 \
     --hash=sha256:1a9462dcc3347a79b1f1c0271fbe79e844580bb598bafa1ed208b94da3cdcd42 \
     --hash=sha256:21c85e0fe4b9a155d0799430b0ad741cdce7e359660ccbd8b530613e8df88ce2
     # via
-    #   black
     #   boto3-stubs
     #   mypy
 zope-event==4.5.0 \
