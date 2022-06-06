@@ -52,6 +52,7 @@ from warehouse.accounts.models import User
 from warehouse.classifiers.models import Classifier
 from warehouse.events.models import HasEvents
 from warehouse.integrations.vulnerabilities.models import VulnerabilityRecord
+from warehouse.organizations.models import OrganizationRole, OrganizationRoleType
 from warehouse.sitemap.models import SitemapMixin
 from warehouse.utils import dotted_navigator
 from warehouse.utils.attrs import make_repr
@@ -232,17 +233,26 @@ class Project(SitemapMixin, TwoFactorRequireable, HasEvents, db.Model):
         # Get all of the users for this project.
         query = session.query(Role).filter(Role.project == self)
         query = query.options(orm.lazyload("project"))
-        query = query.options(orm.joinedload("user").lazyload("emails"))
-        query = query.join(User).order_by(User.id.asc())
-        for role in sorted(
-            query.all(), key=lambda x: ["Owner", "Maintainer"].index(x.role_name)
+        query = query.options(orm.lazyload("user"))
+        roles = {(role.user_id, role.role_name) for role in query.all()}
+
+        # Add all organization owners for this project.
+        if self.organizations:
+            query = session.query(OrganizationRole).filter(
+                OrganizationRole.organization == self.organizations[0],
+                OrganizationRole.role_name == OrganizationRoleType.Owner,
+            )
+            query = query.options(orm.lazyload("organization"))
+            query = query.options(orm.lazyload("user"))
+            roles |= {(role.user_id, "Owner") for role in query.all()}
+
+        for user_id, role_name in sorted(
+            roles, key=lambda x: (["Owner", "Maintainer"].index(x[1]), x[0])
         ):
-            if role.role_name == "Owner":
-                acls.append(
-                    (Allow, f"user:{role.user.id}", ["manage:project", "upload"])
-                )
+            if role_name == "Owner":
+                acls.append((Allow, f"user:{user_id}", ["manage:project", "upload"]))
             else:
-                acls.append((Allow, f"user:{role.user.id}", ["upload"]))
+                acls.append((Allow, f"user:{user_id}", ["upload"]))
         return acls
 
     @property

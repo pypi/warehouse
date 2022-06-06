@@ -690,7 +690,7 @@ msgstr ""
 #: warehouse/templates/manage/release.html:163
 #: warehouse/templates/manage/settings.html:123
 #: warehouse/templates/manage/settings.html:166
-#: warehouse/templates/manage/settings.html:230
+#: warehouse/templates/manage/settings.html:229
 msgid "Warning"
 msgstr ""
 
@@ -4223,7 +4223,7 @@ msgstr ""
 
 #: warehouse/templates/manage/settings.html:144
 #: warehouse/templates/manage/settings.html:202
-#: warehouse/templates/manage/settings.html:259
+#: warehouse/templates/manage/settings.html:258
 msgid "Project Name"
 msgstr ""
 
@@ -4286,16 +4286,16 @@ msgstr ""
 msgid "You are not an owner of any organizations."
 msgstr ""
 
-#: warehouse/templates/manage/settings.html:228
-#: warehouse/templates/manage/settings.html:259
+#: warehouse/templates/manage/settings.html:227
+#: warehouse/templates/manage/settings.html:258
 msgid "Delete project"
 msgstr ""
 
-#: warehouse/templates/manage/settings.html:231
+#: warehouse/templates/manage/settings.html:230
 msgid "Deleting this project will:"
 msgstr ""
 
-#: warehouse/templates/manage/settings.html:236
+#: warehouse/templates/manage/settings.html:235
 #, python-format
 msgid ""
 "Irreversibly delete the project along with <a href=\"%(href)s\">%(count)s"
@@ -4306,15 +4306,15 @@ msgid_plural ""
 msgstr[0] ""
 msgstr[1] ""
 
-#: warehouse/templates/manage/settings.html:242
+#: warehouse/templates/manage/settings.html:241
 msgid "Irreversibly delete the project"
 msgstr ""
 
-#: warehouse/templates/manage/settings.html:246
+#: warehouse/templates/manage/settings.html:245
 msgid "Make the project name available to <strong>any other PyPI</strong> user"
 msgstr ""
 
-#: warehouse/templates/manage/settings.html:248
+#: warehouse/templates/manage/settings.html:247
 msgid ""
 "This user will be able to make new releases under this project name, so "
 "long as the distribution filenames do not match filenames from a "

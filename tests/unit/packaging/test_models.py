@@ -20,6 +20,11 @@ from pyramid.location import lineage
 
 from warehouse.packaging.models import Dependency, DependencyKind, File, ProjectFactory
 
+from ...common.db.organizations import (
+    OrganizationFactory as DBOrganizationFactory,
+    OrganizationProjectFactory as DBOrganizationProjectFactory,
+    OrganizationRoleFactory as DBOrganizationRoleFactory,
+)
 from ...common.db.packaging import (
     FileFactory as DBFileFactory,
     ProjectFactory as DBProjectFactory,
@@ -108,6 +113,10 @@ class TestProject:
         maintainer1 = DBRoleFactory.create(project=project, role_name="Maintainer")
         maintainer2 = DBRoleFactory.create(project=project, role_name="Maintainer")
 
+        organization = DBOrganizationFactory.create()
+        owner3 = DBOrganizationRoleFactory.create(organization=organization)
+        DBOrganizationProjectFactory.create(organization=organization, project=project)
+
         acls = []
         for location in lineage(project):
             try:
@@ -127,6 +136,7 @@ class TestProject:
             [
                 (Allow, f"user:{owner1.user.id}", ["manage:project", "upload"]),
                 (Allow, f"user:{owner2.user.id}", ["manage:project", "upload"]),
+                (Allow, f"user:{owner3.user.id}", ["manage:project", "upload"]),
             ],
             key=lambda x: x[1],
         ) + sorted(
