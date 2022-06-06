@@ -153,6 +153,7 @@
   {% endif %}
   {% endif %}
 
+  {% if transfer_organization_project_form.organization.choices|length > 1 %}
   <div class="callout-block callout-block--danger">
     <h3>
       {% if current_organization %}
@@ -200,6 +201,25 @@
     {% endset %}
     {{ confirm_button(gettext("Transfer project"), gettext("Project Name"), "transfer_organization_project_name", project.name, action=action, extra_fields=extra_fields, extra_description=extra_description) }}
   </div>
+  {% else %}
+  <div class="callout-block">
+    <h3>
+      {% if current_organization %}
+      {% trans %}Cannot transfer project to another organization{% endtrans %}
+      {% else %}
+      {% trans %}Cannot transfer project to an organization{% endtrans %}
+      {% endif %}
+    </h3>
+    <p>
+      {% trans %}Project owners can transfer the project to organizations that they own.{% endtrans %}
+      {% if current_organization %}
+      {% trans %}You are not an owner of any other organizations.{% endtrans %}
+      {% else %}
+      {% trans %}You are not an owner of any organizations.{% endtrans %}
+      {% endif %}
+    </p>
+  </div>
+  {% endif %}
 
   <hr>
 
