@@ -256,7 +256,10 @@ def index(request):
     uses_session=True,
 )
 def locale(request):
-    form = SetLocaleForm(**request.GET)
+    try:
+        form = SetLocaleForm(locale_id=request.GET.getone("locale_id"))
+    except KeyError:
+        raise HTTPBadRequest("Invalid amount of locale_id parameters provided")
 
     redirect_to = request.referer
     if not is_safe_url(redirect_to, host=request.host):

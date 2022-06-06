@@ -323,7 +323,7 @@ def _validate_requires_external_list(form, field):
 
 def _validate_project_url(value):
     try:
-        label, url = value.split(", ", 1)
+        label, url = (x.strip() for x in value.split(",", maxsplit=1))
     except ValueError:
         raise wtforms.validators.ValidationError(
             "Use both a label and an URL."
