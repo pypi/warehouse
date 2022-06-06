@@ -57,7 +57,7 @@ msgid ""
 msgstr "必须在你的帐户上启用双因素身份验证才能执行此操作。"
 
 # | msgid "Stay updated:"
-#: warehouse/views.py:273
+#: warehouse/views.py:276
 msgid "Locale updated"
 msgstr "区域设置已更新（Locale updated）"
 
@@ -325,7 +325,8 @@ msgid ""
 "composed of letters, numbers, dots, hyphens and underscores. And must also "
 "start and finish with a letter or number. Choose a different organization "
 "account name."
-msgstr "该组织账户名无效。组织账户名必须由字母、数字、圆点、连字符和下划线组成。而且"
+msgstr ""
+"该组织账户名无效。组织账户名必须由字母、数字、圆点、连字符和下划线组成。而且"
 "还必须以字母或数字开头和结尾。选择一个不同的组织账户名。"
 
 #: warehouse/manage/forms.py:362
@@ -1523,8 +1524,8 @@ msgid ""
 "%(submitter)s</a>."
 msgstr ""
 "你已被加为 <strong>%(role)s</strong> ，所在组织为 %(site)s organization "
-"%(organization_name)s，添加人 <a href=\"%(submitter_profile)s\""
-">%(submitter)s</a>。"
+"%(organization_name)s，添加人 <a href=\"%(submitter_profile)s\">"
+"%(submitter)s</a>。"
 
 #: warehouse/templates/email/added-as-organization-member/body.html:26
 #: warehouse/templates/email/role-changed-as-organization-member/body.html:26
@@ -1550,8 +1551,8 @@ msgid ""
 "The %(site)s organization has been renamed from "
 "\"%(previous_organization_name)s\" to \"%(organization_name)s\"."
 msgstr ""
-"%(site)s组织名称已从“%(previous_organization_name)s”被重命名为“%(organization"
-"_name)s”。"
+"%(site)s组织名称已从“%(previous_organization_name)s”被重命名"
+"为“%(organization_name)s”。"
 
 #: warehouse/templates/email/basic-auth-with-2fa/body.html:17
 #: warehouse/templates/email/password-compromised-hibp/body.html:18

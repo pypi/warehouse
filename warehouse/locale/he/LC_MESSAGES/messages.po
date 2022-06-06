@@ -36,7 +36,7 @@ msgid ""
 "action."
 msgstr "נדרש אימות כפול בחשבונך על מנת לבצע פעולה זו."
 
-#: warehouse/views.py:273
+#: warehouse/views.py:276
 msgid "Locale updated"
 msgstr "אזור מעודכן"
 

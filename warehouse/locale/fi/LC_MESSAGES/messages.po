@@ -22,7 +22,7 @@ msgid ""
 "action."
 msgstr ""
 
-#: warehouse/views.py:273
+#: warehouse/views.py:276
 msgid "Locale updated"
 msgstr "Kieliasetus päivitetty"
 
