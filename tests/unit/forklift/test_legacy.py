@@ -226,7 +226,11 @@ class TestValidation:
 
     @pytest.mark.parametrize(
         "project_url",
-        ["Home, https://pypi.python.org/", ("A" * 32) + ", https://example.com/"],
+        [
+            "Home, https://pypi.python.org/",
+            "Home,https://pypi.python.org/",
+            ("A" * 32) + ", https://example.com/",
+        ],
     )
     def test_validate_project_url_valid(self, project_url):
         legacy._validate_project_url(project_url)
@@ -234,7 +238,6 @@ class TestValidation:
     @pytest.mark.parametrize(
         "project_url",
         [
-            "Home,https://pypi.python.org/",
             "https://pypi.python.org/",
             ", https://pypi.python.org/",
             "Home, ",
