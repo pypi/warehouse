@@ -22,5 +22,6 @@
     <input name="comment" type="hidden" value="malware" id="prohibitedComment">
     <button type="submit" class="button button--danger" title="{{ "Submitting requires superuser privileges" if not request.has_permission('admin') }}"  {{ "disabled" if not request.has_permission('admin') }}>Remove project as malware</button>
   </form>
+  <a href="https://inspector.pypi.io/project/{{ project.name }}/" class="button button--secondary package-description__edit-button">🕵️ Inspect</a>
 </div>
 {% endif %}
