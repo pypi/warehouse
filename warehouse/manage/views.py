@@ -183,13 +183,7 @@ def user_projects(request):
 
 def project_owners(request, project):
     """Return all users who are owners of the project."""
-    owner_roles = (
-        request.db.query(User.id)
-        .join(Role.user)
-        .filter(Role.role_name == "Owner", Role.project == project)
-        .subquery()
-    )
-    return request.db.query(User).join(owner_roles, User.id == owner_roles.c.id).all()
+    return project.owners
 
 
 @view_defaults(
@@ -2290,6 +2284,14 @@ def remove_organization_project(project, request):
         field_name="confirm_remove_organization_project_name",
         error_message="Could not remove project from organization",
     )
+
+    if not project_owners(request, project):
+        request.session.flash(
+            "Could not remove project from organization", queue="error"
+        )
+        return HTTPSeeOther(
+            request.route_path("manage.project.settings", project_name=project.name)
+        )
 
     # Remove project from current organization.
     organization_service = request.find_service(IOrganizationService, context=None)

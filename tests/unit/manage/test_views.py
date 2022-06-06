@@ -4521,18 +4521,53 @@ class TestManageProjectSettings:
         )
 
         result = views.remove_organization_project(project, request)
+
         assert isinstance(result, HTTPSeeOther)
         assert result.headers["Location"] == "/the-redirect"
-
         assert request.flags.enabled.calls == [
             pretend.call(AdminFlagValue.DISABLE_ORGANIZATIONS)
         ]
-
         assert request.session.flash.calls == [
             pretend.call("Organizations are disabled", queue="error")
         ]
-
         assert request.route_path.calls == [
+            pretend.call("manage.project.settings", project_name="foo")
+        ]
+
+    def test_remove_organization_project_no_individual_owner(
+        self, monkeypatch, db_request
+    ):
+        current_organization = OrganizationFactory.create(name="bar")
+        project = ProjectFactory.create(name="foo")
+        project.organizations = [current_organization]
+
+        db_request.POST = MultiDict(
+            {
+                "confirm_remove_organization_project_name": project.normalized_name,
+            }
+        )
+        db_request.flags = pretend.stub(enabled=pretend.call_recorder(lambda *a: False))
+        db_request.route_path = pretend.call_recorder(lambda *a, **kw: "/the-redirect")
+        db_request.session = pretend.stub(
+            flash=pretend.call_recorder(lambda *a, **kw: None)
+        )
+        db_request.user = UserFactory.create()
+
+        OrganizationRoleFactory.create(
+            organization=current_organization, user=db_request.user, role_name="Owner"
+        )
+
+        result = views.remove_organization_project(project, db_request)
+
+        assert isinstance(result, HTTPSeeOther)
+        assert result.headers["Location"] == "/the-redirect"
+        assert db_request.flags.enabled.calls == [
+            pretend.call(AdminFlagValue.DISABLE_ORGANIZATIONS)
+        ]
+        assert db_request.session.flash.calls == [
+            pretend.call("Could not remove project from organization", queue="error")
+        ]
+        assert db_request.route_path.calls == [
             pretend.call("manage.project.settings", project_name="foo")
         ]
 

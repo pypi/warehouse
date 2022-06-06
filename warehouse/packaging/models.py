@@ -258,6 +258,23 @@ class Project(SitemapMixin, TwoFactorRequireable, HasEvents, db.Model):
         return request.route_url("legacy.docs", project=self.name)
 
     @property
+    def owners(self):
+        """Return all owners who are owners of the project."""
+        owner_roles = (
+            orm.object_session(self)
+            .query(User.id)
+            .join(Role.user)
+            .filter(Role.role_name == "Owner", Role.project == self)
+            .subquery()
+        )
+        return (
+            orm.object_session(self)
+            .query(User)
+            .join(owner_roles, User.id == owner_roles.c.id)
+            .all()
+        )
+
+    @property
     def all_versions(self):
         return (
             orm.object_session(self)

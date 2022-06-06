@@ -116,6 +116,7 @@
   <hr>
 
   {% if current_organization %}
+  {% if project.owners|length %}
   <div class="callout-block callout-block--danger">
     <h3>{% trans %}Remove project from organization{% endtrans %}</h3>
     <p>
@@ -137,10 +138,19 @@
     {% set extra_description %}
     <p>
       {% trans organization_name=current_organization.name %}This will remove the project from the '{{ organization_name }}' organization.{% endtrans %}
+      {% trans %}Individual owners and maintainers of the project will retain their project permissions.{% endtrans %}
     </p>
     {% endset %}
     {{ confirm_button(gettext("Remove project"), gettext("Project Name"), "remove_organization_project_name", project.name, extra_description=extra_description, action=action) }}
   </div>
+  {% else %}
+  <div class="callout-block">
+    <h3>{% trans %}Cannot remove project from organization{% endtrans %}</h3>
+    <p>
+      {% trans %}Your organization is currently the <strong>sole owner</strong> of the project. You must add an individual owner to the project before you can remove the project from your organization.{% endtrans %}
+    </p>
+  </div>
+  {% endif %}
   {% endif %}
 
   <div class="callout-block callout-block--danger">
