@@ -263,9 +263,13 @@ class TestLocale:
     @pytest.mark.parametrize(
         ("referer", "redirect", "get", "valid"),
         [
-            (None, "/fake-route", {"locale_id": "en"}, True),
-            ("http://example.com", "/fake-route", {"nonsense": "arguments"}, False),
-            ("/robots.txt", "/robots.txt", {"locale_id": "non-existent-locale"}, False),
+            (None, "/fake-route", MultiDict({"locale_id": "en"}), True),
+            (
+                "/robots.txt",
+                "/robots.txt",
+                MultiDict({"locale_id": "non-existent-locale"}),
+                False,
+            ),
         ],
     )
     def test_locale(self, referer, redirect, get, valid, monkeypatch):
@@ -296,6 +300,24 @@ class TestLocale:
             ]
         else:
             assert "Set-Cookie" not in result.headers
+
+    @pytest.mark.parametrize(
+        "get",
+        [
+            MultiDict({"nonsense": "arguments"}),
+            MultiDict([("locale_id", "one"), ("locale_id", "two")]),
+        ],
+    )
+    def test_locale_bad_request(self, get, monkeypatch):
+        request = pretend.stub(
+            GET=get,
+            route_path=pretend.call_recorder(lambda r: "/fake-route"),
+            session=pretend.stub(flash=pretend.call_recorder(lambda *a, **kw: None)),
+            host=None,
+        )
+
+        with pytest.raises(HTTPBadRequest):
+            locale(request)
 
 
 def test_csi_current_user_indicator():

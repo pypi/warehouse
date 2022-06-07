@@ -17,6 +17,7 @@ import uuid
 import pretend
 import pytest
 
+from freezegun import freeze_time
 from paginate_sqlalchemy import SqlalchemyOrmPage as SQLAlchemyORMPage
 from pyramid.httpexceptions import (
     HTTPBadRequest,
@@ -3337,6 +3338,7 @@ class TestManageOrganizationRoles:
         with pytest.raises(HTTPNotFound):
             views.manage_organization_roles(organization, db_request)
 
+    @freeze_time(datetime.datetime.utcnow())
     @pytest.mark.parametrize("orgtype", list(OrganizationType))
     def test_post_new_organization_role(
         self,
@@ -3642,6 +3644,7 @@ class TestManageOrganizationRoles:
             "form": form_obj,
         }
 
+    @freeze_time(datetime.datetime.utcnow())
     def test_reinvite_organization_role_after_expiration(
         self,
         db_request,
