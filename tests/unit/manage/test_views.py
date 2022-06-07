@@ -3138,6 +3138,8 @@ class TestManageOrganizationProjects:
         enable_organizations,
         monkeypatch,
     ):
+        db_request.help_url = lambda *a, **kw: ""
+
         organization = OrganizationFactory.create()
         organization.projects = [ProjectFactory.create()]
 
@@ -3159,6 +3161,9 @@ class TestManageOrganizationProjects:
         monkeypatch.setattr(
             views, "AddOrganizationProjectForm", add_organization_project_cls
         )
+
+        validate_project_name = pretend.call_recorder(lambda *a, **kw: True)
+        monkeypatch.setattr(views, "validate_project_name", validate_project_name)
 
         add_project = pretend.call_recorder(lambda *a, **kw: project)
         monkeypatch.setattr(views, "add_project", add_project)
@@ -3184,6 +3189,7 @@ class TestManageOrganizationProjects:
 
         assert isinstance(result, HTTPSeeOther)
         assert result.headers["Location"] == db_request.path
+        assert validate_project_name.calls == [pretend.call(project.name, db_request)]
         assert add_project.calls == [pretend.call(project.name, db_request)]
         assert len(add_organization_project_cls.calls) == 1
         assert len(organization.projects) == 2
@@ -3226,10 +3232,10 @@ class TestManageOrganizationProjects:
             views, "AddOrganizationProjectForm", add_organization_project_cls
         )
 
-        def add_project(*a, **kw):
+        def validate_project_name(*a, **kw):
             raise HTTPBadRequest("error-message")
 
-        monkeypatch.setattr(views, "add_project", add_project)
+        monkeypatch.setattr(views, "validate_project_name", validate_project_name)
 
         view = views.ManageOrganizationProjectsViews(organization, db_request)
         result = view.add_organization_project()
@@ -3243,6 +3249,60 @@ class TestManageOrganizationProjects:
             "add_organization_project_form": add_organization_project_obj,
         }
         assert add_organization_project_obj.new_project_name.errors == ["error-message"]
+        assert len(organization.projects) == 1
+
+    def test_add_organization_project_new_project_name_conflict(
+        self,
+        db_request,
+        pyramid_user,
+        organization_service,
+        enable_organizations,
+        monkeypatch,
+    ):
+        db_request.help_url = lambda *a, **kw: "help-url"
+
+        organization = OrganizationFactory.create()
+        organization.projects = [ProjectFactory.create()]
+
+        project = ProjectFactory.create()
+
+        OrganizationRoleFactory.create(
+            organization=organization, user=db_request.user, role_name="Owner"
+        )
+        RoleFactory.create(project=project, user=db_request.user, role_name="Owner")
+
+        add_organization_project_obj = pretend.stub(
+            add_existing_project=pretend.stub(data=False),
+            new_project_name=pretend.stub(data=project.name, errors=[]),
+            validate=lambda *a, **kw: True,
+        )
+        add_organization_project_cls = pretend.call_recorder(
+            lambda *a, **kw: add_organization_project_obj
+        )
+        monkeypatch.setattr(
+            views, "AddOrganizationProjectForm", add_organization_project_cls
+        )
+
+        view = views.ManageOrganizationProjectsViews(organization, db_request)
+        result = view.add_organization_project()
+
+        assert result == {
+            "organization": organization,
+            "active_projects": view.active_projects,
+            "projects_owned": {project.name},
+            "projects_sole_owned": {project.name},
+            "projects_requiring_2fa": set(),
+            "add_organization_project_form": add_organization_project_obj,
+        }
+        assert add_organization_project_obj.new_project_name.errors == [
+            (
+                "The name {name!r} conflicts with an existing project. "
+                "See {projecthelp} for more information."
+            ).format(
+                name=project.name,
+                projecthelp="help-url",
+            )
+        ]
         assert len(organization.projects) == 1
 
     def test_add_organization_project_disable_organizations(self, db_request):

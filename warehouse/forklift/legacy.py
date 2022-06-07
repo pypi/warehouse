@@ -39,7 +39,7 @@ from pyramid.httpexceptions import (
 )
 from pyramid.response import Response
 from pyramid.view import view_config
-from sqlalchemy import orm
+from sqlalchemy import func, orm
 from sqlalchemy.orm.exc import MultipleResultsFound, NoResultFound
 from trove_classifiers import classifiers, deprecated_classifiers
 
@@ -56,11 +56,13 @@ from warehouse.packaging.models import (
     File,
     Filename,
     JournalEntry,
+    Project,
     Release,
+    Role,
 )
 from warehouse.packaging.tasks import update_bigquery_release_files
 from warehouse.utils import http, readme
-from warehouse.utils.project import add_project
+from warehouse.utils.project import add_project, validate_project_name
 from warehouse.utils.security_policy import AuthenticationMethod
 
 ONE_MB = 1 * 1024 * 1024
@@ -878,11 +880,46 @@ def file_upload(request):
     if "content" not in request.POST:
         raise _exc_with_message(HTTPBadRequest, "Upload payload does not have a file.")
 
-    # Create the project.
-    try:
+    # Look up the project first before doing anything else, this is so we can
+    # automatically register it if we need to and can check permissions before
+    # going any further.
+    project = (
+        request.db.query(Project)
+        .filter(Project.normalized_name == func.normalize_pep426_name(form.name.data))
+        .first()
+    )
+
+    if project is None:
+        # We attempt to create the project.
+        try:
+            validate_project_name(form.name.data, request)
+        except HTTPException as exc:
+            raise _exc_with_message(exc.__class__, exc.detail) from None
         project = add_project(form.name.data, request)
-    except HTTPException as exc:
-        raise _exc_with_message(exc.__class__, exc.detail) from None
+
+        # Then we'll add a role setting the current user as the "Owner" of the
+        # project.
+        request.db.add(Role(user=request.user, project=project, role_name="Owner"))
+        # TODO: This should be handled by some sort of database trigger or a
+        #       SQLAlchemy hook or the like instead of doing it inline in this
+        #       view.
+        request.db.add(
+            JournalEntry(
+                name=project.name,
+                action="add Owner {}".format(request.user.username),
+                submitted_by=request.user,
+                submitted_from=request.remote_addr,
+            )
+        )
+        project.record_event(
+            tag="project:role:add",
+            ip_address=request.remote_addr,
+            additional={
+                "submitted_by": request.user.username,
+                "role_name": "Owner",
+                "target_user": request.user.username,
+            },
+        )
 
     # Check that the user has permission to do things to this project, if this
     # is a new project this will act as a sanity check for the role we just

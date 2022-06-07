@@ -133,6 +133,7 @@ from warehouse.utils.project import (
     confirm_project,
     destroy_docs,
     remove_project,
+    validate_project_name,
 )
 
 
@@ -1453,10 +1454,11 @@ class ManageOrganizationProjectsViews:
             project = self.project_factory[form.existing_project_name.data]
         else:
             try:
-                project = add_project(form.new_project_name.data, self.request)
+                validate_project_name(form.new_project_name.data, self.request)
             except HTTPException as exc:
                 form.new_project_name.errors.append(exc.detail)
                 return default_response
+            project = add_project(form.new_project_name.data, self.request)
 
         # Add project to organization.
         self.organization_service.add_organization_project(

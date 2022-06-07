@@ -15,18 +15,18 @@ from itertools import chain
 import stdlib_list
 
 from packaging.utils import canonicalize_name
-from pyramid.httpexceptions import HTTPBadRequest, HTTPForbidden, HTTPSeeOther
+from pyramid.httpexceptions import (
+    HTTPBadRequest,
+    HTTPConflict,
+    HTTPForbidden,
+    HTTPSeeOther,
+)
 from sqlalchemy import exists, func
 from sqlalchemy.orm.exc import NoResultFound
 
 from warehouse.admin.flags import AdminFlagValue
 from warehouse.packaging.interfaces import IDocsStorage
-from warehouse.packaging.models import (
-    JournalEntry,
-    ProhibitedProjectName,
-    Project,
-    Role,
-)
+from warehouse.packaging.models import JournalEntry, ProhibitedProjectName, Project
 from warehouse.tasks import task
 
 
@@ -56,19 +56,31 @@ STDLIB_PROHIBITED = {
 }
 
 
-def add_project(name, request):
+def validate_project_name(name, request):
     """
-    Attempts to create a project with the given name.
+    Validate that a new project can be created with the given name.
     """
     # Look up the project first before doing anything else, this is so we can
     # automatically register it if we need to and can check permissions before
     # going any further.
     try:
-        project = (
-            request.db.query(Project)
+        # Find existing project or raise NoResultFound.
+        (
+            request.db.query(Project.id)
             .filter(Project.normalized_name == func.normalize_pep426_name(name))
             .one()
         )
+
+        # Found existing project with conflicting name.
+        raise HTTPConflict(
+            (
+                "The name {name!r} conflicts with an existing project. "
+                "See {projecthelp} for more information."
+            ).format(
+                name=name,
+                projecthelp=request.help_url(_anchor="project-name"),
+            ),
+        ) from None
     except NoResultFound:
         # Check for AdminFlag set by a PyPI Administrator disabling new project
         # registration, reasons for this include Spammers, security
@@ -130,47 +142,33 @@ def add_project(name, request):
                 ),
             ) from None
 
-        # Next we'll create the project
-        project = Project(name=name)
-        request.db.add(project)
+        # Project name is valid.
+        return True
 
-        # Then we'll add a role setting the current user as the "Owner" of the
-        # project.
-        request.db.add(Role(user=request.user, project=project, role_name="Owner"))
-        # TODO: This should be handled by some sort of database trigger or a
-        #       SQLAlchemy hook or the like instead of doing it inline in this
-        #       view.
-        request.db.add(
-            JournalEntry(
-                name=project.name,
-                action="create",
-                submitted_by=request.user,
-                submitted_from=request.remote_addr,
-            )
-        )
-        request.db.add(
-            JournalEntry(
-                name=project.name,
-                action="add Owner {}".format(request.user.username),
-                submitted_by=request.user,
-                submitted_from=request.remote_addr,
-            )
-        )
 
-        project.record_event(
-            tag="project:create",
-            ip_address=request.remote_addr,
-            additional={"created_by": request.user.username},
+def add_project(name, request):
+    """
+    Attempts to create a project with the given name.
+    """
+    project = Project(name=name)
+    request.db.add(project)
+
+    # TODO: This should be handled by some sort of database trigger or a
+    #       SQLAlchemy hook or the like instead of doing it inline in this
+    #       view.
+    request.db.add(
+        JournalEntry(
+            name=project.name,
+            action="create",
+            submitted_by=request.user,
+            submitted_from=request.remote_addr,
         )
-        project.record_event(
-            tag="project:role:add",
-            ip_address=request.remote_addr,
-            additional={
-                "submitted_by": request.user.username,
-                "role_name": "Owner",
-                "target_user": request.user.username,
-            },
-        )
+    )
+    project.record_event(
+        tag="project:create",
+        ip_address=request.remote_addr,
+        additional={"created_by": request.user.username},
+    )
 
     return project
 
