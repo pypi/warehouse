@@ -420,6 +420,34 @@ def _validate_dynamic(form, field):
         )
 
 
+_extra_name_re = re.compile("^([a-z0-9]|[a-z0-9]([a-z0-9-](?!--))*[a-z0-9])$")
+
+
+def _validate_extras(form, field):
+
+    # TODO: is metadata_version guaranteed to be valid by this point?
+    metadata_version = float(form.metadata_version.data)
+
+    if metadata_version >= 2.3:
+        extra_names = field.data or []
+
+        invalid = []
+
+        for name in extra_names:
+            if not _extra_name_re.match(name):
+                invalid.append(name)
+
+        if invalid:
+            if len(invalid) == 1:
+                raise wtforms.validators.ValidationError(
+                    f"Provides-Extra value {invalid[0]!r} is invalid."
+                )
+            else:
+                raise wtforms.validators.ValidationError(
+                    f"Provides-Extra values {invalid!r} are invalid."
+                )
+
+
 def _construct_dependencies(form, types):
     for name, kind in types.items():
         for item in getattr(form, name).data:
@@ -445,7 +473,7 @@ class MetadataForm(forms.Form):
                 # Note: This isn't really Metadata 2.0, however bdist_wheel
                 #       claims it is producing a Metadata 2.0 metadata when in
                 #       reality it's more like 1.2 with some extensions.
-                ["1.0", "1.1", "1.2", "2.0", "2.1", "2.2"],
+                ["1.0", "1.1", "1.2", "2.0", "2.1", "2.2", "2.3"],
                 message="Use a known metadata version.",
             ),
         ],
@@ -593,6 +621,12 @@ class MetadataForm(forms.Form):
     requires_dist = ListField(
         description="Requires-Dist",
         validators=[wtforms.validators.Optional(), _validate_legacy_dist_req_list],
+    )
+    provides_extra = (
+        ListField(
+            description="Provides-Extra",
+            validators=[wtforms.validators.Optional(), _validate_extras],
+        ),
     )
     provides_dist = ListField(
         description="Provides-Dist",

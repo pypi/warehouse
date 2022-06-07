@@ -399,6 +399,52 @@ class TestValidation:
         with pytest.raises(ValidationError):
             legacy._validate_dynamic(form, field)
 
+    @pytest.mark.parametrize(
+        "data", [(["dev"]), (["dev-test"])]
+    )
+    def test_validate_extras_valid(self, db_request, data):
+        form = pretend.stub(
+            provides_extra=pretend.stub(data=data),
+            metadata_version=pretend.stub(data="2.3"),
+        )
+        field = pretend.stub(data=data)
+
+        legacy._validate_extras(form, field)
+
+    @pytest.mark.parametrize("data", [(["dev_test"]), (["dev.lint", "dev--test"])])
+    def test_validate_extras_invalid(self, db_request, data):
+        form = pretend.stub(
+            provides_extra=pretend.stub(data=data),
+            metadata_version=pretend.stub(data="2.3"),
+        )
+        field = pretend.stub(data=data)
+
+        with pytest.raises(ValidationError):
+            legacy._validate_extras(form, field)
+
+    @pytest.mark.parametrize(
+        "data", [(["dev"]), (["dev-test"])]
+    )
+    def test_validate_extras_valid_2_2(self, db_request, data):
+        form = pretend.stub(
+            provides_extra=pretend.stub(data=data),
+            metadata_version=pretend.stub(data="2.2"),
+        )
+        field = pretend.stub(data=data)
+
+        legacy._validate_extras(form, field)
+
+    @pytest.mark.parametrize("data", [(["dev_test"]), (["dev.lint", "dev--test"])])
+    def test_validate_extras_invalid_2_2(self, db_request, data):
+
+        form = pretend.stub(
+            provides_extra=pretend.stub(data=data),
+            metadata_version=pretend.stub(data="2.2"),
+        )
+        field = pretend.stub(data=data)
+
+        legacy._validate_extras(form, field)
+
 
 def test_construct_dependencies():
     types = {"requires": DependencyKind.requires, "provides": DependencyKind.provides}
