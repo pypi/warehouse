@@ -36,7 +36,7 @@ msgstr ""
 "Aby wykonać tę czynność, na Twoim koncie musi być włączone uwierzytelnianie "
 "dwuskładnikowe."
 
-#: warehouse/views.py:273
+#: warehouse/views.py:276
 msgid "Locale updated"
 msgstr "Ustawienia regionalne zaktualizowane"
 

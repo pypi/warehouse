@@ -37,7 +37,7 @@ msgid ""
 "action."
 msgstr "يجب تمكين المصادقة الثنائية على حسابك لتنفيذ هذا الإجراء."
 
-#: warehouse/views.py:273
+#: warehouse/views.py:276
 msgid "Locale updated"
 msgstr "تحديث محلي"
 
