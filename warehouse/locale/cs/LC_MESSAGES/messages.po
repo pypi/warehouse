@@ -32,7 +32,7 @@ msgid ""
 "action."
 msgstr "Musíte mít povolené dvoufázové ověřování pro provedení této akce."
 
-#: warehouse/views.py:273
+#: warehouse/views.py:276
 msgid "Locale updated"
 msgstr "Jazyk aktualizován"
 

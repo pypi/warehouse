@@ -30,7 +30,7 @@ msgstr ""
 "Twee-factor-authenticatie moet op uw account zijn ingeschakeld om deze actie "
 "uit te voeren."
 
-#: warehouse/views.py:273
+#: warehouse/views.py:276
 msgid "Locale updated"
 msgstr "Taal aangepast"
 

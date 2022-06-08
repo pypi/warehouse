@@ -43,7 +43,7 @@ msgstr ""
 "Для выполнения этого действия в настройках учетной записи должна быть "
 "включена двухфакторная авторизация."
 
-#: warehouse/views.py:273
+#: warehouse/views.py:276
 msgid "Locale updated"
 msgstr "Язык обновлён"
 
@@ -1644,8 +1644,8 @@ msgid ""
 "organization %(organization_name)s by <a href=\"%(submitter_profile)s\">"
 "%(submitter)s</a>."
 msgstr ""
-"<a href=\"%(submitter_profile)s\">%(submitter)s</a> добавил вас как "
-"<strong>%(role)s</strong> в %(site)s организации %(organization_name)s."
+"<a href=\"%(submitter_profile)s\">%(submitter)s</a> добавил вас как <strong>"
+"%(role)s</strong> в %(site)s организации %(organization_name)s."
 
 #: warehouse/templates/email/added-as-organization-member/body.html:26
 #: warehouse/templates/email/role-changed-as-organization-member/body.html:26
@@ -1860,8 +1860,8 @@ msgid ""
 "If this was a mistake, you can email <a href=\"mailto:%(email_address)s\">"
 "%(email_address)s</a> to communicate with the %(site)s administrators."
 msgstr ""
-"Если это было ошибкой, вы можете отправить письмо на <a href=\"mailto"
-":%(email_address)s\">%(email_address)s</a> , чтобы связаться с "
+"Если это было ошибкой, вы можете отправить письмо на <a href=\"mailto:"
+"%(email_address)s\">%(email_address)s</a> , чтобы связаться с "
 "администраторами %(site)s."
 
 #: warehouse/templates/email/organization-deleted/body.html:37
@@ -1876,8 +1876,8 @@ msgid ""
 "<a href=\"%(user_profile)s\">%(username)s</a> has joined the "
 "\"%(organization_name)s\" organization"
 msgstr ""
-"<a href=\"%(user_profile)s\">%(username)s</a> присоединился к организации \""
-"%(organization_name)s\""
+"<a href=\"%(user_profile)s\">%(username)s</a> присоединился к организации "
+"\"%(organization_name)s\""
 
 #: warehouse/templates/email/organization-member-added/body.html:31
 #: warehouse/templates/email/organization-member-invited/body.html:31
@@ -2212,8 +2212,9 @@ msgid ""
 "%(email_address)s</a> to communicate with the PyPI administrators.\n"
 msgstr ""
 "\n"
-"Если вы не делали этого изменения, вы можете написать письмо на <a href=\""
-"%(href)s\">%(email_address)s</a>, чтобы связаться с администраторами PyPI.\n"
+"Если вы не делали этого изменения, вы можете написать письмо на <a href="
+"\"%(href)s\">%(email_address)s</a>, чтобы связаться с администраторами "
+"PyPI.\n"
 
 #: warehouse/templates/email/recovery-codes-generated/body.html:19
 #, python-format

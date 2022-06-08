@@ -40,7 +40,7 @@ msgstr ""
 "Autentikasi dua faktor harus diaktifkan pada akun anda untuk melakukan "
 "tindakan ini."
 
-#: warehouse/views.py:273
+#: warehouse/views.py:276
 msgid "Locale updated"
 msgstr "Lokal diperbarui"
 
