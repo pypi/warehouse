@@ -56,9 +56,9 @@ from warehouse.utils.http import is_safe_url
 from warehouse.utils.paginate import ElasticsearchPage, paginate_url_factory
 from warehouse.utils.row_counter import RowCount
 
-
 @view_config(context=HTTPException)
 @notfound_view_config(append_slash=HTTPMovedPermanently)
+@notfound_view_config(path_info='^/pypi/([^\/]+)\/?([^\/]+)?/json\/?$', append_slash=False)
 def httpexception_view(exc, request):
     # This special case exists for the easter egg that appears on the 404
     # response page. We don't generally allow youtube embeds, but we make an
