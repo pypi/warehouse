@@ -68,7 +68,7 @@ jobs:
         if: ${{ matrix.needs-python }}
         run: |
            echo "WAREHOUSE_PYTHON_VERSION=$(<.python-version)" >> $GITHUB_ENV
-      - uses: actions/setup-python@v3
+      - uses: actions/setup-python@v4
         if: ${{ matrix.needs-python }}
         with:
           python-version: ${{ env.WAREHOUSE_PYTHON_VERSION }}
