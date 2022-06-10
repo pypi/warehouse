@@ -1123,6 +1123,12 @@ def file_upload(request):
                 request.db.add(missing_classifier)
                 release_classifiers.append(missing_classifier)
 
+        # Parse the Project URLs structure into a key/value dict
+        project_urls = {
+            name.strip(): url.strip()
+            for name, url in (us.split(",", 1) for us in form.project_urls.data)
+        }
+
         release = Release(
             project=project,
             _classifiers=release_classifiers,
@@ -1151,6 +1157,7 @@ def file_upload(request):
                 html=rendered or "",
                 rendered_by=readme.renderer_version(),
             ),
+            project_urls_new=project_urls,
             **{
                 k: getattr(form, k).data
                 for k in {

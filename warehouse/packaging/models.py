@@ -31,6 +31,7 @@ from sqlalchemy import (
     ForeignKey,
     Index,
     Integer,
+    String,
     Table,
     Text,
     UniqueConstraint,
@@ -43,6 +44,7 @@ from sqlalchemy.ext.associationproxy import association_proxy
 from sqlalchemy.ext.declarative import declared_attr  # type: ignore
 from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy.orm import validates
+from sqlalchemy.orm.collections import attribute_mapped_collection
 from sqlalchemy.orm.exc import MultipleResultsFound, NoResultFound
 from sqlalchemy.sql import expression
 from trove_classifiers import sorted_classifiers
@@ -323,6 +325,22 @@ class Description(db.Model):
     rendered_by = Column(Text, nullable=False)
 
 
+class ReleaseURL(db.Model):
+
+    __tablename__ = "release_urls"
+    __table_args__ = (UniqueConstraint("release_id", "name", name="uix_1"),)
+    __repr__ = make_repr("name", "url")
+
+    release_id = Column(
+        ForeignKey("releases.id", onupdate="CASCADE", ondelete="CASCADE"),
+        nullable=False,
+        index=True,
+    )
+
+    name = Column(String(32), nullable=False)
+    url = Column(Text, nullable=False)
+
+
 class Release(db.Model):
 
     __tablename__ = "releases"
@@ -395,6 +413,20 @@ class Release(db.Model):
         passive_deletes=True,
     )
     classifiers = association_proxy("_classifiers", "classifier")
+
+    _project_urls_new = orm.relationship(
+        ReleaseURL,
+        backref="release",
+        collection_class=attribute_mapped_collection("name"),
+        cascade="all, delete-orphan",
+        order_by=lambda: ReleaseURL.name.asc(),
+        passive_deletes=True,
+    )
+    project_urls_new = association_proxy(
+        "_project_urls_new",
+        "url",
+        creator=lambda k, v: ReleaseURL(name=k, url=v),  # type: ignore
+    )
 
     files = orm.relationship(
         "File",
