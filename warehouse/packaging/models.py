@@ -328,7 +328,7 @@ class Description(db.Model):
 class ReleaseURL(db.Model):
 
     __tablename__ = "release_urls"
-    __table_args__ = (UniqueConstraint("release_id", "name", name="uix_1"),)
+    __table_args__ = (UniqueConstraint("release_id", "name"),)
     __repr__ = make_repr("name", "url")
 
     release_id = Column(
