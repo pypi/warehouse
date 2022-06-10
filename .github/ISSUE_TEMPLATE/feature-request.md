@@ -1,7 +1,7 @@
 ---
 name: Feature request
 about: Suggest a new feature for PyPI
-labels: "feature request"
+labels: ["feature request", "requires triaging"]
 ---
 
 **What's the problem this feature will solve?**

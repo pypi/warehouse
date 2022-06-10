@@ -57,9 +57,12 @@ _CACHE_DECORATOR = [
     decorator=_CACHE_DECORATOR,
 )
 def json_project(project, request):
-    if project.name != request.matchdict.get("name", project.name):
+    if project.normalized_name != request.matchdict.get(
+        "name", project.normalized_name
+    ):
         return HTTPMovedPermanently(
-            request.current_route_path(name=project.name), headers=_CORS_HEADERS
+            request.current_route_path(name=project.normalized_name),
+            headers=_CORS_HEADERS,
         )
 
     try:
@@ -99,9 +102,12 @@ def json_project_slash(project, request):
 def json_release(release, request):
     project = release.project
 
-    if project.name != request.matchdict.get("name", project.name):
+    if project.normalized_name != request.matchdict.get(
+        "name", project.normalized_name
+    ):
         return HTTPMovedPermanently(
-            request.current_route_path(name=project.name), headers=_CORS_HEADERS
+            request.current_route_path(name=project.normalized_name),
+            headers=_CORS_HEADERS,
         )
 
     # Apply CORS headers.
