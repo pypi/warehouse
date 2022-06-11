@@ -1126,7 +1126,7 @@ def file_upload(request):
         # Parse the Project URLs structure into a key/value dict
         project_urls = {
             name.strip(): url.strip()
-            for name, url in (us.split(",", 1) for us in form.project_urls.data)
+            for name, _, url in (us.partition(",") for us in form.project_urls.data)
         }
 
         release = Release(
@@ -1143,7 +1143,6 @@ def file_upload(request):
                         "provides_dist": DependencyKind.provides_dist,
                         "obsoletes_dist": DependencyKind.obsoletes_dist,
                         "requires_external": DependencyKind.requires_external,
-                        "project_urls": DependencyKind.project_url,
                     },
                 )
             ),
@@ -1157,7 +1156,7 @@ def file_upload(request):
                 html=rendered or "",
                 rendered_by=readme.renderer_version(),
             ),
-            project_urls_new=project_urls,
+            project_urls=project_urls,
             **{
                 k: getattr(form, k).data
                 for k in {
