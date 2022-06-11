@@ -429,7 +429,10 @@ def release_data(request, package_name: str, version: str):
         "docs_url": _clean_for_xml(release.project.documentation_url),
         "home_page": _clean_for_xml(release.home_page),
         "download_url": _clean_for_xml(release.download_url),
-        "project_url": [_clean_for_xml(url) for url in release.project_urls],
+        "project_url": [
+            _clean_for_xml(f"{label}, {url}")
+            for label, url in release.project_urls.items()
+        ],
         "author": _clean_for_xml(release.author),
         "author_email": _clean_for_xml(release.author_email),
         "maintainer": _clean_for_xml(release.maintainer),

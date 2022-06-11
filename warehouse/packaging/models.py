@@ -284,10 +284,6 @@ class DependencyKind(enum.IntEnum):
     obsoletes_dist = 6
     requires_external = 7
 
-    # TODO: Move project URLs into their own table, since they are not actually
-    #       a "dependency".
-    project_url = 8
-
 
 class Dependency(db.Model):
 
@@ -328,7 +324,13 @@ class Description(db.Model):
 class ReleaseURL(db.Model):
 
     __tablename__ = "release_urls"
-    __table_args__ = (UniqueConstraint("release_id", "name", name="uix_1"),)
+    __table_args__ = (
+        UniqueConstraint("release_id", "name"),
+        CheckConstraint(
+            "char_length(name) BETWEEN 1 AND 32",
+            name="release_urls_valid_name",
+        ),
+    )
     __repr__ = make_repr("name", "url")
 
     release_id = Column(
@@ -414,7 +416,7 @@ class Release(db.Model):
     )
     classifiers = association_proxy("_classifiers", "classifier")
 
-    _project_urls_new = orm.relationship(
+    _project_urls = orm.relationship(
         ReleaseURL,
         backref="release",
         collection_class=attribute_mapped_collection("name"),
@@ -422,8 +424,8 @@ class Release(db.Model):
         order_by=lambda: ReleaseURL.name.asc(),
         passive_deletes=True,
     )
-    project_urls_new = association_proxy(
-        "_project_urls_new",
+    project_urls = association_proxy(
+        "_project_urls",
         "url",
         creator=lambda k, v: ReleaseURL(name=k, url=v),  # type: ignore
     )
@@ -472,9 +474,6 @@ class Release(db.Model):
     _requires_external = _dependency_relation(DependencyKind.requires_external)
     requires_external = association_proxy("_requires_external", "specifier")
 
-    _project_urls = _dependency_relation(DependencyKind.project_url)
-    project_urls = association_proxy("_project_urls", "specifier")
-
     uploader_id = Column(
         ForeignKey("users.id", onupdate="CASCADE", ondelete="SET NULL"),
         nullable=True,
@@ -492,11 +491,7 @@ class Release(db.Model):
         if self.download_url:
             _urls["Download"] = self.download_url
 
-        for urlspec in self.project_urls:
-            name, _, url = urlspec.partition(",")
-            name = name.strip()
-            url = url.strip()
-
+        for name, url in self.project_urls.items():
             # avoid duplicating homepage/download links in case the same
             # url is specified in the pkginfo twice (in the Home-page
             # or Download-URL field and again in the Project-URL fields)
@@ -506,8 +501,7 @@ class Release(db.Model):
             if comp_name == "downloadurl" and url == _urls.get("Download"):
                 continue
 
-            if name and url:
-                _urls[name] = url
+            _urls[name] = url
 
         return _urls
 
