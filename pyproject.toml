@@ -19,7 +19,7 @@ exclude = ["warehouse/locale/.*", "warehouse/migrations/versions.*"]
 # These modules do not yet have types available.
 module = [
     "automat.*",
-    "bpython.*",
+    "bpython.*",  # https://github.com/bpython/bpython/issues/892
     "celery.app.backends.*",
     "celery.backends.redis.*",
     "citext.*",
@@ -38,7 +38,7 @@ module = [
     "pyramid_retry.*",
     "pyramid_rpc.*",
     "pyqrcode.*",
-    "requests_aws4auth.*",
+    "requests_aws4auth.*",  # https://github.com/tedder/requests-aws4auth/issues/53
     "rfc3986.*",
     "sqlalchemy.*", # https://docs.sqlalchemy.org/en/14/orm/extensions/mypy.html
     "transaction.*",
