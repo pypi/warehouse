@@ -82,19 +82,7 @@ jobs:
         if: ${{ matrix.needs-node }}
         with:
           node-version: 14.15.5
-      - name: Cache Node dependencies
-        if: ${{ matrix.needs-node }}
-        uses: actions/cache@v2
-        env:
-          cache-name: warehouse-cache-npm
-        with:
-          path: ~/.npm
-          key: ${{ runner.os }}-build-${{ github.job }}-${{ env.cache-name }}-${{ hashFiles('**/package-lock.json') }}
-          restore-keys: |
-            ${{ runner.os }}-build-${{ github.job }}-${{ env.cache-name }}-
-            ${{ runner.os }}-build-${{ github.job }}-
-            ${{ runner.os }}-build-
-            ${{ runner.os }}-
+          cache: 'npm'
       - name: Install Node dependencies
         if: ${{ matrix.needs-node }}
         run: npm ci
