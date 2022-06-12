@@ -53,9 +53,13 @@ jobs:
     runs-on: ubuntu-latest
     services:
       postgres:
-        image: postgres:10.1
+        image: postgres:12.8
         ports:
           - 5432:5432
+        env:
+          POSTGRES_HOST_AUTH_METHOD: trust  # never do this in production!
+        # Set health checks to wait until postgres has started
+        options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
     name: ${{ matrix.name }}
     steps:
       - name: Check out repository
