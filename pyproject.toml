@@ -43,7 +43,6 @@ module = [
     "sqlalchemy.*", # https://docs.sqlalchemy.org/en/14/orm/extensions/mypy.html
     "sqlalchemy_utils.*",
     "transaction.*",
-    "trove_classifiers.*",
     "venusian.*",
     "whitenoise.*",
     "wtforms.*", # https://github.com/wtforms/wtforms/issues/618
