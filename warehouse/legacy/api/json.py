@@ -10,8 +10,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from collections import OrderedDict
-
 from pyramid.httpexceptions import HTTPMovedPermanently, HTTPNotFound
 from pyramid.view import view_config
 from sqlalchemy.orm import Load
@@ -198,7 +196,7 @@ def json_release(release, request):
             "downloads": {"last_day": -1, "last_week": -1, "last_month": -1},
             "package_url": request.route_url("packaging.project", name=project.name),
             "project_url": request.route_url("packaging.project", name=project.name),
-            "project_urls": OrderedDict(release.urls) if release.urls else None,
+            "project_urls": release.urls if release.urls else None,
             "release_url": request.route_url(
                 "packaging.release", name=project.name, version=release.version
             ),

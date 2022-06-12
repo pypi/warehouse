@@ -10,14 +10,12 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from collections import OrderedDict
-
 import pretend
 
 from pyramid.httpexceptions import HTTPMovedPermanently, HTTPNotFound
 
 from warehouse.legacy.api import json
-from warehouse.packaging.models import Dependency, DependencyKind
+from warehouse.packaging.models import ReleaseURL
 
 from ....common.db.accounts import UserFactory
 from ....common.db.integrations import VulnerabilityRecordFactory
@@ -255,9 +253,11 @@ class TestJSONRelease:
             r"unsafechars,http://example.com <>[]{}|\^%",
         ]
         expected_urls = []
-        for project_url in reversed(project_urls):
-            expected_urls.append(tuple(project_url.split(",")))
-        expected_urls = OrderedDict(tuple(expected_urls))
+        for project_url in sorted(
+            project_urls, key=lambda u: u.split(",", 1)[0].strip().lower()
+        ):
+            expected_urls.append(tuple(project_url.split(",", 1)))
+        expected_urls = dict(tuple(expected_urls))
 
         releases = [
             ReleaseFactory.create(project=project, version=v)
@@ -274,11 +274,12 @@ class TestJSONRelease:
         ]
 
         for urlspec in project_urls:
+            label, _, purl = urlspec.partition(",")
             db_session.add(
-                Dependency(
+                ReleaseURL(
                     release=releases[3],
-                    kind=DependencyKind.project_url.value,
-                    specifier=urlspec,
+                    name=label.strip(),
+                    url=purl.strip(),
                 )
             )
 
