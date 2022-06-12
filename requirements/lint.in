@@ -7,6 +7,7 @@ isort>=5
 mypy
 celery-types
 mypy-zope
+types-babel
 types-boto3
 types-certifi
 types-first

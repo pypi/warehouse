@@ -19,7 +19,6 @@ exclude = ["warehouse/locale/.*", "warehouse/migrations/versions.*"]
 # These modules do not yet have types available.
 module = [
     "automat.*",
-    "babel.*",
     "bpython.*",
     "celery.app.backends.*",
     "celery.backends.redis.*",
