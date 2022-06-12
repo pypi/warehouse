@@ -68,18 +68,10 @@ jobs:
         if: ${{ matrix.needs-python }}
         with:
           python-version-file: '.python-version'
-      - name: Cache Python dependencies
-        if: ${{ matrix.needs-python }}
-        uses: actions/cache@v3
-        env:
-          cache-name: warehouse-cache-pip
-        with:
-          path: ~/.cache/pip
-          key: ${{ runner.os }}-${{ github.job }}-${{ env.cache-name }}-${{ hashFiles('requirements.txt', 'requirements/*.txt') }}
-          restore-keys: |
-            ${{ runner.os }}-${{ github.job }}-${{ env.cache-name }}-
-            ${{ runner.os }}-${{ github.job }}-
-            ${{ runner.os }}-
+          cache: 'pip'
+          cache-dependency-path: |
+            requirements.txt
+            requirements/*.txt
       - name: Install Python dependencies
         if: ${{ matrix.needs-python }}
         run: |
