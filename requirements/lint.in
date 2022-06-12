@@ -21,3 +21,4 @@ types-pytz
 types-redis
 types-requests
 types-setuptools
+types-stdlib-list

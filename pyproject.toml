@@ -40,7 +40,6 @@ module = [
     "pyqrcode.*",
     "requests_aws4auth.*",
     "rfc3986.*",
-    "stdlib_list.*",
     "sqlalchemy.*", # https://docs.sqlalchemy.org/en/14/orm/extensions/mypy.html
     "sqlalchemy_utils.*",
     "transaction.*",
