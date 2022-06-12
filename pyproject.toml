@@ -28,7 +28,6 @@ module = [
     "google.cloud.*",
     "IPython.*",
     "mistune.*",
-    "msgpack.*",
     "paginate.*",
     "paginate_sqlalchemy.*",
     "passlib.*",
