@@ -30,7 +30,6 @@ module = [
     "mistune.*",
     "paginate.*",
     "paginate_sqlalchemy.*",
-    "passlib.*",
     "premailer.*",
     "pymacaroons.*", # https://github.com/ecordell/pymacaroons/issues/41
     "pyramid.*", # https://github.com/Pylons/pyramid/issues/2638
