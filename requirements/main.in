@@ -22,6 +22,7 @@ itsdangerous
 Jinja2>=2.8
 limits
 lxml
+kombu[sqs]~=5.2.4  # https://github.com/celery/celery/issues/7070
 mistune
 msgpack
 natsort
