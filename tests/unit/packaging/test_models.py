@@ -18,7 +18,7 @@ import pytest
 from pyramid.authorization import Allow
 from pyramid.location import lineage
 
-from warehouse.packaging.models import Dependency, DependencyKind, File, ProjectFactory
+from warehouse.packaging.models import File, ProjectFactory, ReleaseURL
 
 from ...common.db.packaging import (
     FileFactory as DBFileFactory,
@@ -281,18 +281,6 @@ class TestRelease:
                     ]
                 ),
             ),
-            # ignore invalid links
-            (
-                None,
-                None,
-                [
-                    " ,https://example.com/home/",
-                    ",https://example.com/home/",
-                    "https://example.com/home/",
-                    "Download,https://example.com/download/",
-                ],
-                OrderedDict([("Download", "https://example.com/download/")]),
-            ),
         ],
     )
     def test_urls(self, db_session, home_page, download_url, project_urls, expected):
@@ -301,11 +289,12 @@ class TestRelease:
         )
 
         for urlspec in project_urls:
+            label, _, url = urlspec.partition(",")
             db_session.add(
-                Dependency(
+                ReleaseURL(
                     release=release,
-                    kind=DependencyKind.project_url.value,
-                    specifier=urlspec,
+                    name=label.strip(),
+                    url=url.strip(),
                 )
             )
 

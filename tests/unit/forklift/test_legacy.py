@@ -3090,7 +3090,7 @@ class TestFileUpload:
             "Programming Language :: Python",
         ]
         assert set(release.requires_dist) == {"foo", "bar (>1.0)"}
-        assert set(release.project_urls) == {"Test, https://example.com/"}
+        assert release.project_urls == {"Test": "https://example.com/"}
         assert set(release.requires_external) == {"Cheese (>1.0)"}
         assert set(release.provides) == {"testing"}
         assert release.version == expected_version
