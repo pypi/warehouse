@@ -41,7 +41,6 @@ module = [
     "requests_aws4auth.*",
     "rfc3986.*",
     "sqlalchemy.*", # https://docs.sqlalchemy.org/en/14/orm/extensions/mypy.html
-    "sqlalchemy_utils.*",
     "transaction.*",
     "venusian.*",
     "whitenoise.*",
