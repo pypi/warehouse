@@ -1936,6 +1936,7 @@ def manage_projects(request):
         return project.created
 
     all_user_projects = user_projects(request)
+    projects = set(request.user.projects) | set(all_user_projects["projects_owned"])
     projects_owned = set(
         project.name for project in all_user_projects["projects_owned"]
     )
@@ -1956,7 +1957,7 @@ def manage_projects(request):
         (role_invite.project, role_invite.token) for role_invite in project_invites
     ]
     return {
-        "projects": sorted(request.user.projects, key=_key, reverse=True),
+        "projects": sorted(projects, key=_key, reverse=True),
         "projects_owned": projects_owned,
         "projects_sole_owned": projects_sole_owned,
         "projects_requiring_2fa": projects_requiring_2fa,
