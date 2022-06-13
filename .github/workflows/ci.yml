@@ -64,14 +64,10 @@ jobs:
         run: |
           sudo apt -y update
           sudo apt -y install libcurl4-openssl-dev libssl-dev pkg-config
-      - name: Read .python-version
-        if: ${{ matrix.needs-python }}
-        run: |
-           echo "WAREHOUSE_PYTHON_VERSION=$(<.python-version)" >> $GITHUB_ENV
-      - uses: actions/setup-python@v3
+      - uses: actions/setup-python@v4
         if: ${{ matrix.needs-python }}
         with:
-          python-version: ${{ env.WAREHOUSE_PYTHON_VERSION }}
+          python-version-file: '.python-version'
       - name: Cache Python dependencies
         if: ${{ matrix.needs-python }}
         uses: actions/cache@v3

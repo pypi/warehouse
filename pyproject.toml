@@ -41,7 +41,6 @@ module = [
     "pyramid_retry.*",
     "pyramid_rpc.*",
     "pyqrcode.*",
-    "readme_renderer.*", # https://github.com/pypa/readme_renderer/issues/166
     "requests_aws4auth.*",
     "rfc3986.*",
     "stdlib_list.*",

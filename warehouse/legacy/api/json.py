@@ -10,8 +10,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from collections import OrderedDict
-
 from pyramid.httpexceptions import HTTPMovedPermanently, HTTPNotFound
 from pyramid.view import view_config
 from sqlalchemy.orm import Load
@@ -57,9 +55,12 @@ _CACHE_DECORATOR = [
     decorator=_CACHE_DECORATOR,
 )
 def json_project(project, request):
-    if project.name != request.matchdict.get("name", project.name):
+    if project.normalized_name != request.matchdict.get(
+        "name", project.normalized_name
+    ):
         return HTTPMovedPermanently(
-            request.current_route_path(name=project.name), headers=_CORS_HEADERS
+            request.current_route_path(name=project.normalized_name),
+            headers=_CORS_HEADERS,
         )
 
     try:
@@ -99,9 +100,12 @@ def json_project_slash(project, request):
 def json_release(release, request):
     project = release.project
 
-    if project.name != request.matchdict.get("name", project.name):
+    if project.normalized_name != request.matchdict.get(
+        "name", project.normalized_name
+    ):
         return HTTPMovedPermanently(
-            request.current_route_path(name=project.name), headers=_CORS_HEADERS
+            request.current_route_path(name=project.normalized_name),
+            headers=_CORS_HEADERS,
         )
 
     # Apply CORS headers.
@@ -192,7 +196,7 @@ def json_release(release, request):
             "downloads": {"last_day": -1, "last_week": -1, "last_month": -1},
             "package_url": request.route_url("packaging.project", name=project.name),
             "project_url": request.route_url("packaging.project", name=project.name),
-            "project_urls": OrderedDict(release.urls) if release.urls else None,
+            "project_urls": release.urls if release.urls else None,
             "release_url": request.route_url(
                 "packaging.release", name=project.name, version=release.version
             ),

@@ -10,14 +10,12 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from collections import OrderedDict
-
 import pretend
 
 from pyramid.httpexceptions import HTTPMovedPermanently, HTTPNotFound
 
 from warehouse.legacy.api import json
-from warehouse.packaging.models import Dependency, DependencyKind
+from warehouse.packaging.models import ReleaseURL
 
 from ....common.db.accounts import UserFactory
 from ....common.db.integrations import VulnerabilityRecordFactory
@@ -46,7 +44,7 @@ class TestJSONProject:
         project = ProjectFactory.create()
 
         name = project.name.lower()
-        if name == project.name:
+        if name == project.normalized_name:
             name = project.name.upper()
 
         db_request.matchdict = {"name": name}
@@ -59,7 +57,9 @@ class TestJSONProject:
         assert isinstance(resp, HTTPMovedPermanently)
         assert resp.headers["Location"] == "/project/the-redirect/"
         _assert_has_cors_headers(resp.headers)
-        assert db_request.current_route_path.calls == [pretend.call(name=project.name)]
+        assert db_request.current_route_path.calls == [
+            pretend.call(name=project.normalized_name)
+        ]
 
     def test_missing_release(self, db_request):
         project = ProjectFactory.create()
@@ -195,7 +195,7 @@ class TestJSONProjectSlash:
         project = ProjectFactory.create()
 
         name = project.name.lower()
-        if name == project.name:
+        if name == project.normalized_name:
             name = project.name.upper()
 
         db_request.matchdict = {"name": name}
@@ -208,7 +208,9 @@ class TestJSONProjectSlash:
         assert isinstance(resp, HTTPMovedPermanently)
         assert resp.headers["Location"] == "/project/the-redirect/"
         _assert_has_cors_headers(resp.headers)
-        assert db_request.current_route_path.calls == [pretend.call(name=project.name)]
+        assert db_request.current_route_path.calls == [
+            pretend.call(name=project.normalized_name)
+        ]
 
 
 class TestJSONRelease:
@@ -217,7 +219,7 @@ class TestJSONRelease:
         release = ReleaseFactory.create(project=project, version="3.0")
 
         name = release.project.name.lower()
-        if name == release.project.name:
+        if name == release.project.normalized_name:
             name = release.project.name.upper()
 
         db_request.matchdict = {"name": name}
@@ -231,7 +233,7 @@ class TestJSONRelease:
         assert resp.headers["Location"] == "/project/the-redirect/3.0/"
         _assert_has_cors_headers(resp.headers)
         assert db_request.current_route_path.calls == [
-            pretend.call(name=release.project.name)
+            pretend.call(name=release.project.normalized_name)
         ]
 
     def test_detail_renders(self, pyramid_config, db_request, db_session):
@@ -251,9 +253,11 @@ class TestJSONRelease:
             r"unsafechars,http://example.com <>[]{}|\^%",
         ]
         expected_urls = []
-        for project_url in reversed(project_urls):
-            expected_urls.append(tuple(project_url.split(",")))
-        expected_urls = OrderedDict(tuple(expected_urls))
+        for project_url in sorted(
+            project_urls, key=lambda u: u.split(",", 1)[0].strip().lower()
+        ):
+            expected_urls.append(tuple(project_url.split(",", 1)))
+        expected_urls = dict(tuple(expected_urls))
 
         releases = [
             ReleaseFactory.create(project=project, version=v)
@@ -270,11 +274,12 @@ class TestJSONRelease:
         ]
 
         for urlspec in project_urls:
+            label, _, purl = urlspec.partition(",")
             db_session.add(
-                Dependency(
+                ReleaseURL(
                     release=releases[3],
-                    kind=DependencyKind.project_url.value,
-                    specifier=urlspec,
+                    name=label.strip(),
+                    url=purl.strip(),
                 )
             )
 
@@ -583,7 +588,7 @@ class TestJSONReleaseSlash:
         release = ReleaseFactory.create(project=project, version="3.0")
 
         name = release.project.name.lower()
-        if name == release.project.name:
+        if name == release.project.normalized_name:
             name = release.project.name.upper()
 
         db_request.matchdict = {"name": name}
@@ -597,5 +602,5 @@ class TestJSONReleaseSlash:
         assert resp.headers["Location"] == "/project/the-redirect/3.0/"
         _assert_has_cors_headers(resp.headers)
         assert db_request.current_route_path.calls == [
-            pretend.call(name=release.project.name)
+            pretend.call(name=release.project.normalized_name)
         ]

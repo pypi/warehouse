@@ -123,6 +123,21 @@ class TestHTTPExceptionView:
             assert response.content_type == "text/plain"
             assert response.text == "404 Not Found"
 
+    def test_json_404(self):
+        csp = {}
+        services = {"csp": pretend.stub(merge=csp.update)}
+        context = HTTPNotFound()
+        for path in (
+            "/pypi/not_found_package/json",
+            "/pypi/not_found_package/1.0.0/json",
+        ):
+            request = pretend.stub(find_service=lambda name: services[name], path=path)
+            response = httpexception_view(context, request)
+            assert response.status_code == 404
+            assert response.status == "404 Not Found"
+            assert response.content_type == "application/json"
+            assert response.text == '{"message": "Not Found"}'
+
 
 class TestForbiddenView:
     def test_logged_in_returns_exception(self, pyramid_config):

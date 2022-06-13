@@ -1029,6 +1029,12 @@ def file_upload(request):
                 request.db.add(missing_classifier)
                 release_classifiers.append(missing_classifier)
 
+        # Parse the Project URLs structure into a key/value dict
+        project_urls = {
+            name.strip(): url.strip()
+            for name, _, url in (us.partition(",") for us in form.project_urls.data)
+        }
+
         release = Release(
             project=project,
             _classifiers=release_classifiers,
@@ -1043,7 +1049,6 @@ def file_upload(request):
                         "provides_dist": DependencyKind.provides_dist,
                         "obsoletes_dist": DependencyKind.obsoletes_dist,
                         "requires_external": DependencyKind.requires_external,
-                        "project_urls": DependencyKind.project_url,
                     },
                 )
             ),
@@ -1057,6 +1062,7 @@ def file_upload(request):
                 html=rendered or "",
                 rendered_by=readme.renderer_version(),
             ),
+            project_urls=project_urls,
             **{
                 k: getattr(form, k).data
                 for k in {
