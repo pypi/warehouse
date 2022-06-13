@@ -158,6 +158,72 @@ class IOrganizationService(Interface):
         Removes an association between the specified organization and project
         """
 
+    def get_teams_by_organization(organization_id):
+        """
+        Return a list of all team objects for the specified organization,
+        or None if there are none.
+        """
+
+    def get_team(team_id):
+        """
+        Return a team object for the specified identifier,
+        """
+
+    def get_teams_by_user(user_id):
+        """
+        Return a list of all team objects associated with a given user id.
+        """
+
+    def add_team(organization_id, name):
+        """
+        Attempts to create a team with the specified name in an organization
+        """
+
+    def rename_team(team_id, name):
+        """
+        Performs operations necessary to rename a Team
+        """
+
+    def delete_team(team_id):
+        """
+        Delete team for the specified team id and all associated objects
+        """
+
+    def delete_teams_by_organization(organization_id):
+        """
+        Delete all teams for the specified organization id
+        """
+
+    def get_team_role(team_role_id):
+        """
+        Return the team role object that represents the given team role id,
+        """
+
+    def add_team_role(team_id, user_id, role_name):
+        """
+        Add the team role object to a team for a specified team id and user id
+        """
+
+    def delete_team_role(team_role_id):
+        """
+        Remove the team role for a specified team id and user id
+        """
+
+    def get_team_project_role(team_project_role_id):
+        """
+        Return the team project role object that represents the given team project role id,
+        """
+
+    def add_team_project_role(team_id, project_id, role_name):
+        """
+        Adds a team project role for the specified team and project
+        """
+
+    def delete_team_project_role(team_project_role_id):
+        """
+        Delete an team project role for a specified team project role id
+        """
+
     def record_event(organization_id, *, tag, additional=None):
         """
         Creates a new Organization.Event for the given organization with the given

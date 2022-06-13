@@ -25,6 +25,9 @@ from warehouse.organizations.models import (
     OrganizationNameCatalog,
     OrganizationProject,
     OrganizationRole,
+    Team,
+    TeamProjectRole,
+    TeamRole,
 )
 
 NAME_FIELD = "name"
@@ -310,6 +313,8 @@ class DatabaseOrganizationService:
         self.db.query(OrganizationProject).filter_by(organization=organization).delete()
         # Delete roles
         self.db.query(OrganizationRole).filter_by(organization=organization).delete()
+        # Delete teams (and related data)
+        self.delete_teams_by_organization(organization_id)
         # TODO: Delete any stored card data from payment processor
         # Delete organization
         self.db.delete(organization)
@@ -379,6 +384,137 @@ class DatabaseOrganizationService:
         )
 
         self.db.delete(organization_project)
+        self.db.flush()
+
+    def get_teams_by_organization(self, organization_id):
+        """
+        Return a list of all team objects for the specified organization,
+        or None if there are none.
+        """
+        return self.db.query(Team).filter(Team.organization_id == organization_id).all()
+
+    def get_team(self, team_id):
+        """
+        Return a team object for the specified identifier,
+        """
+        return self.db.query(Team).get(team_id)
+
+    def get_teams_by_user(self, user_id):
+        """
+        Return a list of all team objects associated with a given user id.
+        """
+        return (
+            self.db.query(Team)
+            .join(TeamRole, TeamRole.team_id == Team.id)
+            .filter(TeamRole.user_id == user_id)
+            .order_by(Team.name)
+            .all()
+        )
+
+    def add_team(self, organization_id, name):
+        """
+        Attempts to create a team with the specified name in an organization
+        """
+        team = Team(
+            name=name,
+            organization_id=organization_id,
+        )
+        self.db.add(team)
+        self.db.flush()
+
+        return team
+
+    def rename_team(self, team_id, name):
+        """
+        Performs operations necessary to rename a Team
+        """
+        team = self.get_team(team_id)
+
+        team.name = name
+        self.db.flush()
+
+        return team
+
+    def delete_team(self, team_id):
+        """
+        Delete team for the specified team id and all associated objects
+        """
+        team = self.get_team(team_id)
+        # Delete team members
+        self.db.query(TeamRole).filter_by(team=team).delete()
+        # Delete projects
+        self.db.query(TeamProjectRole).filter_by(team=team).delete()
+        # Delete team
+        self.db.delete(team)
+        self.db.flush()
+
+    def delete_teams_by_organization(self, organization_id):
+        """
+        Delete all teams for the specified organization id
+        """
+        teams = self.get_teams_by_organization(organization_id)
+        for team in teams:
+            self.delete_team(team.id)
+
+    def get_team_role(self, team_role_id):
+        """
+        Return the team role object that represents the given team role id,
+        """
+        return self.db.query(TeamRole).get(team_role_id)
+
+    def add_team_role(self, team_id, user_id, role_name):
+        """
+        Add the team role object to a team for a specified team id and user id
+        """
+        member = TeamRole(
+            team_id=team_id,
+            user_id=user_id,
+            role_name=role_name,
+        )
+
+        self.db.add(member)
+        self.db.flush()
+
+        return member
+
+    def delete_team_role(self, team_role_id):
+        """
+        Remove the team role for a specified team id and user id
+        """
+        member = self.get_team_role(team_role_id)
+
+        self.db.delete(member)
+        self.db.flush()
+
+    def get_team_project_role(self, team_project_role_id):
+        """
+        Return the team project role object that
+        represents the given team project role id,
+        """
+        return self.db.query(TeamProjectRole).get(team_project_role_id)
+
+    def add_team_project_role(self, team_id, project_id, role_name):
+        """
+        Adds a team project role for the specified team and project
+        """
+        team_project_role = TeamProjectRole(
+            team_id=team_id,
+            project_id=project_id,
+            role_name=role_name,
+        )
+
+        self.db.add(team_project_role)
+        self.db.flush()
+
+        return team_project_role
+
+    def delete_team_project_role(self, team_project_role_id):
+        """
+        Remove a team project role for a specified team project role id
+        """
+        team_project_role = self.get_team_project_role(team_project_role_id)
+
+        self.db.delete(team_project_role)
         self.db.flush()
 
     def record_event(self, organization_id, *, tag, additional=None):
