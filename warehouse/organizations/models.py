@@ -311,3 +311,106 @@ class OrganizationInvitation(db.Model):
 
     user = orm.relationship(User, lazy=False)
     organization = orm.relationship("Organization", lazy=False)
+
+
+class TeamRole(db.Model):
+
+    __tablename__ = "team_roles"
+    __table_args__ = (
+        Index("team_roles_user_id_idx", "user_id"),
+        Index("team_roles_team_id_idx", "team_id"),
+        UniqueConstraint(
+            "user_id",
+            "team_id",
+            name="_team_roles_user_team_uc",
+        ),
+    )
+
+    __repr__ = make_repr("role_name", "team", "user")
+
+    # TODO: Do we utilize an Enum with one role (i.e. Member) ?
+    #       Do we utilize text for now?
+    #       OR do we just delete this column? :)
+    role_name = Column(Text, nullable=False)
+    user_id = Column(
+        ForeignKey("users.id", onupdate="CASCADE", ondelete="CASCADE"), nullable=False
+    )
+    team_id = Column(
+        ForeignKey("teams.id", onupdate="CASCADE", ondelete="CASCADE"),
+        nullable=False,
+    )
+
+    user = orm.relationship(User, lazy=False)
+    team = orm.relationship("Team", lazy=False)
+
+
+class TeamProjectRole(db.Model):
+
+    __tablename__ = "team_project_roles"
+    __table_args__ = (
+        Index("team_project_roles_project_id_idx", "project_id"),
+        Index("team_project_roles_team_id_idx", "team_id"),
+        UniqueConstraint(
+            "project_id",
+            "team_id",
+            name="_team_project_roles_project_team_uc",
+        ),
+    )
+
+    __repr__ = make_repr("role_name", "team", "project")
+
+    # TODO: Do we utilize an Enum for (Owner | Maintainer)?
+    #       Or just use text like Project roles?
+    role_name = Column(Text, nullable=False)
+    project_id = Column(
+        ForeignKey("projects.id", onupdate="CASCADE", ondelete="CASCADE"),
+        nullable=False,
+    )
+    team_id = Column(
+        ForeignKey("teams.id", onupdate="CASCADE", ondelete="CASCADE"),
+        nullable=False,
+    )
+
+    project = orm.relationship("Project", lazy=False)
+    team = orm.relationship("Team", lazy=False)
+
+
+# TODO: Do we enable HasEvents functionality? Or are these just Org Events?
+# class Team(HasEvents, db.Model):
+class Team(db.Model):
+
+    __tablename__ = "teams"
+    __table_args__ = (
+        Index("teams_organization_id_idx", "organization_id"),
+        CheckConstraint(
+            "name ~* '^([A-Z0-9]|[A-Z0-9][A-Z0-9._-]*[A-Z0-9])$'::text",
+            name="teams_valid_name",
+        ),
+    )
+
+    __repr__ = make_repr("name", "organization")
+
+    name = Column(Text, nullable=False)
+    organization_id = Column(
+        ForeignKey("organizations.id", onupdate="CASCADE", ondelete="CASCADE"),
+        nullable=False,
+    )
+    created = Column(
+        DateTime(timezone=False),
+        nullable=False,
+        server_default=sql.func.now(),
+        index=True,
+    )
+
+    organization = orm.relationship("Organization", lazy=False)
+    # TODO: Or do we call this "members" instead?
+    users = orm.relationship(
+        User, secondary=TeamRole.__table__, backref="teams"  # type: ignore # noqa
+    )
+    projects = orm.relationship(
+        "Project", secondary=TeamProjectRole.__table__, backref="teams"  # type: ignore # noqa
+    )
+
+    # TODO: Do Teams need their own ACL for view?
+    #       Do we add logic to the ACL in packaging for projects?
+    # def __acl__(self):
