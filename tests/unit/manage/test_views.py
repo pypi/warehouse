@@ -3123,8 +3123,8 @@ class TestManageOrganizationProjects:
         assert result == {
             "organization": organization,
             "active_projects": view.active_projects,
-            "projects_owned": {project.name},
-            "projects_sole_owned": {project.name},
+            "projects_owned": {project.name, organization.projects[0].name},
+            "projects_sole_owned": {project.name, organization.projects[0].name},
             "projects_requiring_2fa": set(),
             "add_organization_project_form": add_organization_project_obj,
         }
@@ -3244,8 +3244,8 @@ class TestManageOrganizationProjects:
         assert result == {
             "organization": organization,
             "active_projects": view.active_projects,
-            "projects_owned": {project.name},
-            "projects_sole_owned": {project.name},
+            "projects_owned": {project.name, organization.projects[0].name},
+            "projects_sole_owned": {project.name, organization.projects[0].name},
             "projects_requiring_2fa": set(),
             "add_organization_project_form": add_organization_project_obj,
         }
@@ -3290,8 +3290,8 @@ class TestManageOrganizationProjects:
         assert result == {
             "organization": organization,
             "active_projects": view.active_projects,
-            "projects_owned": {project.name},
-            "projects_sole_owned": {project.name},
+            "projects_owned": {project.name, organization.projects[0].name},
+            "projects_sole_owned": {project.name, organization.projects[0].name},
             "projects_requiring_2fa": set(),
             "add_organization_project_form": add_organization_project_obj,
         }

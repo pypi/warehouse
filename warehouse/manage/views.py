@@ -140,17 +140,15 @@ from warehouse.utils.project import (
 def user_projects(request):
     """Return all the projects for which the user is a sole owner"""
     projects_owned = (
-        request.db.query(Project.id)
+        request.db.query(Project.id.label("id"))
         .join(Role.project)
         .filter(Role.role_name == "Owner", Role.user == request.user)
-        .subquery()
     )
 
     projects_collaborator = (
         request.db.query(Project.id)
         .join(Role.project)
         .filter(Role.user == request.user)
-        .subquery()
     )
 
     with_sole_owner = (
@@ -159,8 +157,46 @@ def user_projects(request):
         .filter(Role.role_name == "Owner")
         .group_by(Role.project_id)
         .having(func.count(Role.project_id) == 1)
-        .subquery()
     )
+
+    if not request.flags.enabled(AdminFlagValue.DISABLE_ORGANIZATIONS):
+        organizations_owned = (
+            request.db.query(Organization.id)
+            .join(OrganizationRole.organization)
+            .filter(
+                OrganizationRole.role_name == OrganizationRoleType.Owner,
+                OrganizationRole.user == request.user,
+            )
+            .subquery()
+        )
+
+        organizations_with_sole_owner = (
+            request.db.query(OrganizationRole.organization_id)
+            .join(organizations_owned)
+            .filter(OrganizationRole.role_name == "Owner")
+            .group_by(OrganizationRole.organization_id)
+            .having(func.count(OrganizationRole.organization_id) == 1)
+            .subquery()
+        )
+
+        projects_owned = projects_owned.union(
+            request.db.query(Project.id.label("id"))
+            .join(Organization.projects)
+            .join(organizations_owned, Organization.id == organizations_owned.c.id)
+        )
+
+        with_sole_owner = with_sole_owner.union(
+            request.db.query(Project.id)
+            .join(Organization.projects)
+            .join(
+                organizations_with_sole_owner,
+                Organization.id == organizations_with_sole_owner.c.organization_id,
+            )
+        )
+
+    projects_owned = projects_owned.subquery()
+    projects_collaborator = projects_collaborator.subquery()
+    with_sole_owner = with_sole_owner.subquery()
 
     return {
         "projects_owned": (
