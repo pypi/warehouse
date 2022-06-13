@@ -23,6 +23,9 @@ from warehouse.organizations.models import (
     OrganizationRole,
     OrganizationRoleType,
     OrganizationType,
+    Team,
+    TeamProjectRole,
+    TeamRole,
 )
 
 from ...common.db.organizations import (
@@ -30,6 +33,9 @@ from ...common.db.organizations import (
     OrganizationInvitationFactory,
     OrganizationProjectFactory,
     OrganizationRoleFactory,
+    TeamFactory,
+    TeamProjectRoleFactory,
+    TeamRoleFactory,
     UserFactory,
 )
 from ...common.db.packaging import ProjectFactory
@@ -314,6 +320,8 @@ class TestDatabaseOrganizationService:
 
     def test_delete_organization(self, organization_service, db_request):
         organization = OrganizationFactory.create()
+        TeamFactory.create(organization=organization)
+        TeamFactory.create(organization=organization)
 
         organization_service.delete_organization(organization.id)
 
@@ -344,6 +352,9 @@ class TestDatabaseOrganizationService:
                 .filter_by(organization=organization)
                 .count()
             )
+        )
+        assert not (
+            (db_request.db.query(Team).filter_by(organization=organization).count())
         )
         assert organization_service.get_organization(organization.id) is None
 
@@ -431,3 +442,162 @@ class TestDatabaseOrganizationService:
             )
             .count()
         )
+
+    def test_get_teams_by_organization(self, organization_service):
+        organization = OrganizationFactory.create()
+
+        team = TeamFactory.create(organization=organization)
+        teams = organization_service.get_teams_by_organization(organization.id)
+        assert len(teams) == 1
+        assert team in teams
+
+        team2 = TeamFactory.create(organization=organization)
+        teams = organization_service.get_teams_by_organization(organization.id)
+
+        assert len(teams) == 2
+        assert team in teams
+        assert team2 in teams
+
+    def test_get_team(self, organization_service):
+        team = TeamFactory.create()
+        assert organization_service.get_team(team.id) == team
+
+    def test_get_teams_by_user(self, organization_service):
+        team = TeamFactory.create()
+        user = UserFactory.create()
+        TeamRoleFactory.create(team=team, user=user)
+
+        teams = organization_service.get_teams_by_user(user.id)
+        assert team in teams
+
+        team2 = TeamFactory.create()
+        TeamRoleFactory.create(team=team2, user=user)
+
+        teams = organization_service.get_teams_by_user(user.id)
+        assert team in teams
+        assert team2 in teams
+
+    def test_test_add_team(self, organization_service):
+        team = TeamFactory.create()
+        new_team = organization_service.add_team(
+            name=team.name,
+            organization_id=team.organization.id,
+        )
+        organization_service.db.flush()
+        team_from_db = organization_service.get_team(new_team.id)
+
+        assert team_from_db.name == team.name
+        assert team_from_db.organization_id == team.organization_id
+
+    def test_rename_team(self, organization_service):
+        team = TeamFactory.create()
+
+        organization_service.rename_team(team.id, "some_new_name")
+        assert team.name == "some_new_name"
+
+        db_team = organization_service.get_team(team.id)
+        assert db_team.name == "some_new_name"
+
+    def test_delete_team(self, organization_service):
+        team = TeamFactory.create()
+        user = UserFactory.create()
+        project = ProjectFactory.create()
+        team_role = TeamRoleFactory.create(team=team, user=user)
+        team_project_role = TeamProjectRoleFactory.create(team=team, project=project)
+
+        assert organization_service.get_team_role(team_role.id) is not None
+        assert (
+            organization_service.get_team_project_role(team_project_role.id) is not None
+        )
+
+        team_role_id = team_role.id
+        team_project_role_id = team_project_role.id
+
+        organization_service.delete_team(team.id)
+
+        assert organization_service.get_team_role(team_role_id) is None
+        assert organization_service.get_team_project_role(team_project_role_id) is None
+        assert organization_service.get_team(team.id) is None
+
+    def test_delete_teams_by_organization(self, organization_service):
+        organization = OrganizationFactory.create()
+
+        team = TeamFactory.create(organization=organization)
+        team2 = TeamFactory.create(organization=organization)
+
+        teams = organization_service.get_teams_by_organization(organization.id)
+        assert len(teams) == 2
+        assert team in teams
+        assert team2 in teams
+
+        organization_service.delete_teams_by_organization(organization.id)
+
+        teams = organization_service.get_teams_by_organization(organization.id)
+        assert len(teams) == 0
+        assert team not in teams
+        assert team2 not in teams
+
+    def test_get_team_role(self, organization_service):
+        team = TeamFactory.create()
+        user = UserFactory.create()
+        team_role = TeamRoleFactory.create(team=team, user=user)
+
+        assert organization_service.get_team_role(team_role.id) == team_role
+
+    def test_add_team_role(self, organization_service, db_request):
+        team = TeamFactory.create()
+        user = UserFactory.create()
+
+        organization_service.add_team_role(team.id, user.id, "Member")
+        assert (
+            db_request.db.query(TeamRole)
+            .filter(
+                TeamRole.team_id == team.id,
+                TeamRole.user_id == user.id,
+                TeamRole.role_name == "Member",
+            )
+            .count()
+        )
+
+    def test_delete_team_role(self, organization_service):
+        team = TeamFactory.create()
+        user = UserFactory.create()
+        team_role = TeamRoleFactory.create(team=team, user=user)
+        team_role_id = team_role.id
+
+        organization_service.delete_team_role(team_role.id)
+        assert organization_service.get_team_role(team_role_id) is None
+
+    def test_get_team_project_role(self, organization_service):
+        team = TeamFactory.create()
+        project = ProjectFactory.create()
+        team_project_role = TeamProjectRoleFactory.create(team=team, project=project)
+
+        assert (
+            organization_service.get_team_project_role(team_project_role.id)
+            == team_project_role
+        )
+
+    def test_add_team_project_role(self, organization_service, db_request):
+        team = TeamFactory.create()
+        project = ProjectFactory.create()
+
+        organization_service.add_team_project_role(team.id, project.id, "Owner")
+        assert (
+            db_request.db.query(TeamProjectRole)
+            .filter(
+                TeamProjectRole.team_id == team.id,
+                TeamProjectRole.project_id == project.id,
+                TeamProjectRole.role_name == "Owner",
+            )
+            .count()
+        )
+
+    def test_delete_team_project_role(self, organization_service):
+        team = TeamFactory.create()
+        project = ProjectFactory.create()
+        team_project_role = TeamProjectRoleFactory.create(team=team, project=project)
+        team_project_role_id = team_project_role.id
+
+        organization_service.delete_team_project_role(team_project_role.id)
+        assert organization_service.get_team_role(team_project_role_id) is None

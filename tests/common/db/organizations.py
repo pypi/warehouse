@@ -22,6 +22,9 @@ from warehouse.organizations.models import (
     OrganizationProject,
     OrganizationRole,
     OrganizationRoleType,
+    Team,
+    TeamProjectRole,
+    TeamRole,
 )
 
 from .accounts import UserFactory
@@ -101,3 +104,35 @@ class OrganizationProjectFactory(WarehouseFactory):
     id = factory.Faker("uuid4", cast_to=None)
     organization = factory.SubFactory(OrganizationFactory)
     project = factory.SubFactory(ProjectFactory)
+
+
+class TeamFactory(WarehouseFactory):
+    class Meta:
+        model = Team
+
+    id = factory.Faker("uuid4", cast_to=None)
+    name = factory.Faker("pystr", max_chars=12)
+    created = factory.Faker(
+        "date_time_between_dates",
+        datetime_start=datetime.datetime(2020, 1, 1),
+        datetime_end=datetime.datetime(2022, 1, 1),
+    )
+    organization = factory.SubFactory(OrganizationFactory)
+
+
+class TeamRoleFactory(WarehouseFactory):
+    class Meta:
+        model = TeamRole
+
+    role_name = "Member"
+    user = factory.SubFactory(UserFactory)
+    team = factory.SubFactory(TeamFactory)
+
+
+class TeamProjectRoleFactory(WarehouseFactory):
+    class Meta:
+        model = TeamProjectRole
+
+    role_name = "Owner"
+    project = factory.SubFactory(ProjectFactory)
+    team = factory.SubFactory(TeamFactory)
