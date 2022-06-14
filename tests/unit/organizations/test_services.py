@@ -462,6 +462,18 @@ class TestDatabaseOrganizationService:
         team = TeamFactory.create()
         assert organization_service.get_team(team.id) == team
 
+    def test_find_teamid(self, organization_service):
+        organization = OrganizationFactory.create()
+        team = TeamFactory.create(organization=organization)
+        assert organization_service.find_teamid(organization.id, team.name) == team.id
+
+    def test_find_teamid_nonexistent_org(self, organization_service):
+        organization = OrganizationFactory.create()
+        assert (
+            organization_service.find_teamid(organization.id, "a_spoon_in_the_matrix")
+            is None
+        )
+
     def test_get_teams_by_user(self, organization_service):
         team = TeamFactory.create()
         user = UserFactory.create()

@@ -169,6 +169,12 @@ class IOrganizationService(Interface):
         Return a team object for the specified identifier,
         """
 
+    def find_teamid(organization_id, team_name):
+        """
+        Find the unique team identifier for the given organization and
+        team name or None if there is no such team.
+        """
+
     def get_teams_by_user(user_id):
         """
         Return a list of all team objects associated with a given user id.

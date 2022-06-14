@@ -399,6 +399,26 @@ class DatabaseOrganizationService:
         """
         return self.db.query(Team).get(team_id)
 
+    def find_teamid(self, organization_id, team_name):
+        """
+        Find the unique team identifier for the given organization and
+        team name or None if there is no such team.
+        """
+        normalized_name = func.normalize_team_name(team_name)
+        try:
+            (team_id,) = (
+                self.db.query(Team.id)
+                .filter(
+                    Team.organization_id == organization_id,
+                    Team.normalized_name == normalized_name,
+                )
+                .one()
+            )
+        except NoResultFound:
+            return
+
+        return team_id
+
     def get_teams_by_user(self, user_id):
         """
         Return a list of all team objects associated with a given user id.
