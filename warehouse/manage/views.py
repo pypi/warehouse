@@ -92,6 +92,7 @@ from warehouse.manage.forms import (
     CreateOrganizationForm,
     CreateOrganizationRoleForm,
     CreateRoleForm,
+    CreateTeamForm,
     DeleteMacaroonForm,
     DeleteTOTPForm,
     DeleteWebAuthnForm,
@@ -1125,6 +1126,22 @@ def organization_owners(request, organization):
     return request.db.query(User).join(owner_roles, User.id == owner_roles.c.id).all()
 
 
+def organization_managers(request, organization):
+    """Return all users who are managers of the organization."""
+    manager_roles = (
+        request.db.query(User.id)
+        .join(OrganizationRole.user)
+        .filter(
+            OrganizationRole.role_name == OrganizationRoleType.Manager,
+            OrganizationRole.organization == organization,
+        )
+        .subquery()
+    )
+    return (
+        request.db.query(User).join(manager_roles, User.id == manager_roles.c.id).all()
+    )
+
+
 @view_defaults(
     route_name="manage.organizations",
     renderer="manage/organizations.html",
@@ -1430,6 +1447,86 @@ class ManageOrganizationSettingsViews:
         )
 
         return HTTPSeeOther(self.request.route_path("manage.organizations"))
+
+
+@view_defaults(
+    route_name="manage.organization.teams",
+    context=Organization,
+    renderer="manage/organization/teams.html",
+    uses_session=True,
+    require_csrf=True,
+    require_methods=False,
+    permission="manage:organization",
+    has_translations=True,
+    require_reauth=True,
+)
+class ManageOrganizationTeamsViews:
+    def __init__(self, organization, request):
+        self.organization = organization
+        self.request = request
+        self.organization_service = request.find_service(
+            IOrganizationService, context=None
+        )
+
+    @property
+    def default_response(self):
+        return {
+            "organization": self.organization,
+            "create_team_form": CreateTeamForm(
+                self.request.POST,
+                organization_id=self.organization.id,
+                organization_service=self.organization_service,
+            ),
+        }
+
+    @view_config(request_method="GET", permission="view:organization")
+    def manage_teams(self):
+        if self.request.flags.enabled(AdminFlagValue.DISABLE_ORGANIZATIONS):
+            raise HTTPNotFound
+
+        return self.default_response
+
+    @view_config(request_method="POST")
+    def create_team(self):
+        if self.request.flags.enabled(AdminFlagValue.DISABLE_ORGANIZATIONS):
+            raise HTTPNotFound
+
+        # Get and validate form from default response.
+        default_response = self.default_response
+        form = default_response["create_team_form"]
+        if not form.validate():
+            return default_response
+
+        # Add team to organization.
+        team = self.organization_service.add_team(
+            organization_id=self.organization.id,
+            name=form.name.data,
+        )
+
+        # Record events.
+        self.organization.record_event(
+            tag="organization:team:create",
+            ip_address=self.request.remote_addr,
+            additional={
+                "submitted_by_user_id": str(self.request.user.id),
+                "team_name": team.name,
+            },
+        )
+
+        # TODO Send notification emails.
+        # owner_and_manager_users = set(
+        #     organization_owners(self.request, self.organization)
+        #     + organization_managers(self.request, self.organization)
+        # )
+        # send_team_created_email(
+        #     self.request,
+        #     owner_and_manager_users,
+        #     organization_name=self.organization.name,
+        #     team_name=team.name,
+        # )
+
+        # Refresh teams list.
+        return HTTPSeeOther(self.request.path)
 
 
 @view_defaults(

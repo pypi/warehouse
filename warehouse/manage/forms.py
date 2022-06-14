@@ -531,3 +531,42 @@ class SaveOrganizationForm(forms.Form):
 class CreateOrganizationForm(SaveOrganizationNameForm, SaveOrganizationForm):
 
     __params__ = SaveOrganizationNameForm.__params__ + SaveOrganizationForm.__params__
+
+
+class CreateTeamForm(forms.Form):
+
+    __params__ = ["name"]
+
+    name = wtforms.StringField(
+        validators=[
+            wtforms.validators.DataRequired(message="Specify team name"),
+            wtforms.validators.Length(
+                max=50,
+                message=_("Choose a team name with 50 characters or less."),
+            ),
+            # the regexp below must match the CheckConstraint
+            # for the name field in organizations.models.Team
+            wtforms.validators.Regexp(
+                r"^([^\s/._-]|[^\s/._-].*[^\s/._-])$",
+                message=_(
+                    "The team name is invalid. Team names cannot start "
+                    "or end with a space, period, underscore, hyphen, "
+                    "or slash. Choose a different team name."
+                ),
+            ),
+        ]
+    )
+
+    def __init__(self, *args, organization_id, organization_service, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.organization_id = organization_id
+        self.organization_service = organization_service
+
+    def validate_name(self, field):
+        if self.organization_service.find_teamid(self.organization_id, field.data):
+            raise wtforms.validators.ValidationError(
+                _(
+                    "This team name has already been used. "
+                    "Choose a different team name."
+                )
+            )
