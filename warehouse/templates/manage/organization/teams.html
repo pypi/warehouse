@@ -1,0 +1,103 @@
+{#
+ # Licensed under the Apache License, Version 2.0 (the "License");
+ # you may not use this file except in compliance with the License.
+ # You may obtain a copy of the License at
+ #
+ # http://www.apache.org/licenses/LICENSE-2.0
+ #
+ # Unless required by applicable law or agreed to in writing, software
+ # distributed under the License is distributed on an "AS IS" BASIS,
+ # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ # See the License for the specific language governing permissions and
+ # limitations under the License.
+-#}
+{% extends "manage_organization_base.html" %}
+
+{% set user = request.user %}
+{% set title = gettext("Organization teams") %}
+
+{% set active_tab = 'teams' %}
+
+{% block title %}{% trans organization_name=organization.name %}Manage '{{ organization_name }}' teams{% endtrans %}{% endblock %}
+
+{% block main %}
+  <h2>{% trans team_count=organization.teams|length %}Teams ({{ team_count }}){% endtrans %}</h2>
+
+  <div class="team-list">
+    {% for team in organization.teams %}
+    <div class="team-snippet">
+      <div class="split-layout split-layout--no-wrap split-layout--wrap-on-tablet">
+        <div>
+          <h3 class="team-snippet__title">{{ team.name }}
+            {% if request.user in team.users %}
+            {# TODO <a href="{{ request.route_path('manage.team.roles', organization_name=organization.normalized_name, team_name=team.normalized_name) }}" class="badge package-snippet__badge"> #}
+            <a href="#" class="badge badge--warning package-snippet__badge">
+              Member
+            </a>
+            {% endif %}
+          </h3>
+          <p class="package-snippet__meta">
+            {% trans member_count=team.members|length %}
+            {{ member_count }} member
+            {% pluralize %}
+            {{ member_count }} members
+            {% endtrans %}
+          </p>
+        </div>
+        <div class="package-snippet__buttons">
+          {% if request.has_permission("manage:team") %}
+          {# Show manage button #}
+          <a
+            {# TODO href="{{ request.route_path('manage.team.roles', organization_name=organization.normalized_name, team_name=team.normalized_name) }}" #}
+            href="#"
+            class="button button--primary"
+            title="{% trans %}Manage this team{% endtrans %}"
+          >{% trans %}Manage{% endtrans %}</a>
+          {% else %}
+          {# Show view button #}
+          <a
+            {# TODO href="{{ request.route_path('manage.team.roles', organization_name=organization.normalized_name, team_name=team.normalized_name) }}" #}
+            href="#"
+            class="button"
+            title="{% trans %}View this team{% endtrans %}"
+          >{% trans %}View{% endtrans %}</a>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+    {% else %}
+      <div class="callout-block no-top-margin">
+        <p>{% trans %}There are no teams in your organization, yet. Organization owners and managers can create new teams for the organization.{% endtrans %}</p>
+      </div>
+    {% endfor %}
+  </div>
+
+  {% if request.has_permission("manage:team") %}
+  <hr>
+
+  {{ form_error_anchor(create_team_form) }}
+  <section id="add-organization-team">
+    <h2 class="sub-title">{% trans %}Create new team{% endtrans %}</h2>
+    <form method="POST">
+      <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
+      {{ form_errors(create_team_form) }}
+      <div class="form-group">
+        <label class="form-group__label" for="project">
+          {% trans %}️Team name{% endtrans %}
+          <span class="form-group__required">{% trans %}(required){% endtrans %}</span>
+        </label>
+        {{ create_team_form.name(class_="form-group__field", **{"aria-describedby": "name-errors"}) }}
+        <div id="existing-team-name-errors">
+          {{ field_errors(create_team_form.name) }}
+        </div>
+        <p class="form-group__help-text">
+          {% trans trimmed %}
+          Owners and managers of this organization can create a team for the organization and manage team members, team projects, and team settings.
+          {% endtrans %}
+        </p>
+      </div>
+      <input value="{% trans %}Create{% endtrans %}" class="button button--primary" type="submit">
+    </form>
+  </section>
+  {% endif %}
+{% endblock %}

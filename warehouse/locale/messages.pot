@@ -1011,6 +1011,7 @@ msgstr ""
 #: warehouse/templates/manage/organization/settings.html:74
 #: warehouse/templates/manage/organization/settings.html:98
 #: warehouse/templates/manage/organization/settings.html:123
+#: warehouse/templates/manage/organization/teams.html:87
 #: warehouse/templates/manage/organizations.html:116
 #: warehouse/templates/manage/organizations.html:139
 #: warehouse/templates/manage/organizations.html:161
@@ -2922,6 +2923,7 @@ msgstr ""
 #: warehouse/templates/manage/manage_base.html:16
 #: warehouse/templates/manage/organization/projects.html:115
 #: warehouse/templates/manage/organization/projects.html:120
+#: warehouse/templates/manage/organization/teams.html:55
 #: warehouse/templates/manage/organizations.html:81
 #: warehouse/templates/manage/organizations.html:86
 #: warehouse/templates/manage/organizations.html:91
@@ -3198,6 +3200,7 @@ msgstr ""
 
 #: warehouse/templates/manage/organization/projects.html:128
 #: warehouse/templates/manage/organization/projects.html:131
+#: warehouse/templates/manage/organization/teams.html:63
 #: warehouse/templates/manage/organizations.html:76
 #: warehouse/templates/manage/project/releases.html:94
 #: warehouse/templates/manage/projects.html:161
@@ -3280,6 +3283,7 @@ msgid ""
 "community projects are granted complimentary access."
 msgstr ""
 
+#: warehouse/templates/manage/organization/teams.html:99
 #: warehouse/templates/manage/organizations.html:214
 msgid "Create"
 msgstr ""
@@ -3994,6 +3998,61 @@ msgstr ""
 
 #: warehouse/templates/manage/organization/settings.html:208
 msgid "Organization Name"
+msgstr ""
+
+#: warehouse/templates/manage/organization/teams.html:17
+msgid "Organization teams"
+msgstr ""
+
+#: warehouse/templates/manage/organization/teams.html:21
+#, python-format
+msgid "Manage '%(organization_name)s' teams"
+msgstr ""
+
+#: warehouse/templates/manage/organization/teams.html:24
+#, python-format
+msgid "Teams (%(team_count)s)"
+msgstr ""
+
+#: warehouse/templates/manage/organization/teams.html:40
+#, python-format
+msgid ""
+"\n"
+"            %(member_count)s member\n"
+"            "
+msgid_plural ""
+"\n"
+"            %(member_count)s members\n"
+"            "
+msgstr[0] ""
+msgstr[1] ""
+
+#: warehouse/templates/manage/organization/teams.html:54
+msgid "Manage this team"
+msgstr ""
+
+#: warehouse/templates/manage/organization/teams.html:62
+msgid "View this team"
+msgstr ""
+
+#: warehouse/templates/manage/organization/teams.html:70
+msgid ""
+"There are no teams in your organization, yet. Organization owners and "
+"managers can create new teams for the organization."
+msgstr ""
+
+#: warehouse/templates/manage/organization/teams.html:80
+msgid "Create new team"
+msgstr ""
+
+#: warehouse/templates/manage/organization/teams.html:86
+msgid "️Team name"
+msgstr ""
+
+#: warehouse/templates/manage/organization/teams.html:94
+msgid ""
+"Owners and managers of this organization can create a team for the "
+"organization and manage team members, team projects, and team settings."
 msgstr ""
 
 #: warehouse/templates/manage/project/documentation.html:18

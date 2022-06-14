@@ -402,7 +402,7 @@ class Team(db.Model):
         index=True,
     )
 
-    organization = orm.relationship("Organization", lazy=False)
+    organization = orm.relationship("Organization", lazy=False, backref="teams")
     # TODO: Or do we call this "members" instead?
     users = orm.relationship(
         User, secondary=TeamRole.__table__, backref="teams"  # type: ignore # noqa
