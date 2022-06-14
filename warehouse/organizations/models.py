@@ -383,7 +383,7 @@ class Team(db.Model):
     __table_args__ = (
         Index("teams_organization_id_idx", "organization_id"),
         CheckConstraint(
-            "name ~* '^([A-Z0-9]|[A-Z0-9][A-Z0-9._-]*[A-Z0-9])$'::text",
+            r"name ~* '^([^\s/._-]|[^\s/._-].*[^\s/._-])$'::text",
             name="teams_valid_name",
         ),
     )
@@ -391,6 +391,7 @@ class Team(db.Model):
     __repr__ = make_repr("name", "organization")
 
     name = Column(Text, nullable=False)
+    normalized_name = orm.column_property(func.normalize_team_name(name))
     organization_id = Column(
         ForeignKey("organizations.id", onupdate="CASCADE", ondelete="CASCADE"),
         nullable=False,
