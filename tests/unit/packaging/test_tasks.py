@@ -18,9 +18,12 @@ import pytest
 from google.cloud.bigquery import Row, SchemaField
 from wtforms import Field, Form, StringField
 
+import warehouse.packaging.tasks
+
 from warehouse.cache.origin import IOriginCache
 from warehouse.packaging.models import Description, Project
 from warehouse.packaging.tasks import (
+    compute_2fa_mandate,
     compute_trending,
     sync_bigquery_release_files,
     update_bigquery_release_files,
@@ -35,6 +38,8 @@ from ...common.db.packaging import (
     FileFactory,
     ProjectFactory,
     ReleaseFactory,
+    RoleFactory,
+    UserFactory,
 )
 
 
@@ -584,3 +589,83 @@ class TestSyncBigQueryMetadata:
             )
             for first, second in product("fedcba9876543210", repeat=2)
         ]
+
+
+def test_compute_2fa_mandate(db_request, monkeypatch):
+    # A dependency in our requirements/main.txt
+    main_dependency = ProjectFactory.create(name="pyramid", pypi_mandates_2fa=False)
+    main_dependency_maintainer = UserFactory.create()
+    RoleFactory.create(user=main_dependency_maintainer, project=main_dependency)
+
+    # A dependency in our requirements/deploy.txt
+    deploy_dependency = ProjectFactory.create(name="gunicorn", pypi_mandates_2fa=False)
+    deploy_dependency_maintainer = UserFactory.create()
+    RoleFactory.create(user=deploy_dependency_maintainer, project=deploy_dependency)
+
+    # A project previously declared to be critical
+    previous_critical_project = ProjectFactory.create(
+        name="previous_critical_project", pypi_mandates_2fa=True
+    )
+    previous_critical_project_maintainer = UserFactory.create()
+    RoleFactory.create(
+        user=previous_critical_project_maintainer, project=previous_critical_project
+    )
+
+    # A project that will be newly declared to be critical
+    new_critical_project = ProjectFactory.create(
+        name="new_critical_project", pypi_mandates_2fa=False
+    )
+    new_critical_project_maintainer = UserFactory.create()
+    RoleFactory.create(
+        user=new_critical_project_maintainer, project=new_critical_project
+    )
+
+    # A regular non-critical project
+    non_critical_project = ProjectFactory.create(
+        name="non_critical_project", pypi_mandates_2fa=False
+    )
+    non_critical_project_maintainer = UserFactory.create()
+    RoleFactory.create(
+        user=non_critical_project_maintainer, project=non_critical_project
+    )
+
+    send_two_factor_mandate_email = pretend.call_recorder(lambda request, user: None)
+
+    monkeypatch.setattr(
+        warehouse.packaging.tasks,
+        "send_two_factor_mandate_email",
+        send_two_factor_mandate_email,
+    )
+
+    results = [
+        {"project_name": "new_critical_project"},
+        {"project_name": "previous_critical_project"},
+    ]
+    query = pretend.stub(result=pretend.call_recorder(lambda *a, **kw: results))
+    bigquery = pretend.stub(query=pretend.call_recorder(lambda q: query))
+
+    def find_service(iface=None, name=None):
+        if iface is None and name == "gcloud.bigquery":
+            return bigquery
+
+        raise LookupError
+
+    db_request.find_service = find_service
+    db_request.registry.settings = {
+        "warehouse.downloads_table": "downloads_table",
+        "warehouse.two_factor_mandate.cohort_size": 666,
+    }
+
+    compute_2fa_mandate(db_request)
+
+    assert main_dependency.pypi_mandates_2fa
+    assert deploy_dependency.pypi_mandates_2fa
+    assert previous_critical_project.pypi_mandates_2fa
+    assert new_critical_project.pypi_mandates_2fa
+    assert not non_critical_project.pypi_mandates_2fa
+
+    assert set(send_two_factor_mandate_email.calls) == {
+        pretend.call(db_request, main_dependency_maintainer),
+        pretend.call(db_request, deploy_dependency_maintainer),
+        pretend.call(db_request, new_critical_project_maintainer),
+    }

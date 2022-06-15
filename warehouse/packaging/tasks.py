@@ -14,8 +14,9 @@ import datetime
 
 from itertools import product
 
-from google.cloud.bigquery import LoadJobConfig
 import pip_api
+
+from google.cloud.bigquery import LoadJobConfig
 
 from warehouse import tasks
 from warehouse.accounts.models import TitanPromoCode, User
