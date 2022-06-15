@@ -1576,6 +1576,12 @@ class ManageOrganizationProjectsViews:
             project_name=project.name,
         )
 
+        # Display notification message.
+        self.request.session.flash(
+            f"Added the project {project.name!r} to {self.organization.name!r}",
+            queue="success",
+        )
+
         # Refresh projects list.
         return HTTPSeeOther(self.request.path)
 
