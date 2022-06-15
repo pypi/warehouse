@@ -111,11 +111,9 @@
     <button type="button" title="{% trans %}Dismiss{% endtrans %}" data-action="click->dismissable#dismiss" class="callout-block__dismiss" aria-label="{% trans %}Close{% endtrans %}"><i class="fa fa-times" aria-hidden="true"></i></button>
   </div>
 
-  {% set current_organization = project.organizations|first %}
-
   <hr>
 
-  {% if current_organization %}
+  {% if project.organization %}
   {% if project.owners|length %}
   <div class="callout-block callout-block--danger">
     <h3>{% trans %}Remove project from organization{% endtrans %}</h3>
@@ -125,10 +123,10 @@
     </p>
     <ul>
       <li>
-        {% trans organization_name=current_organization.name %}Remove this project from the '{{ organization_name }}' organization.{% endtrans %}
+        {% trans organization_name=project.organization.name %}Remove this project from the '{{ organization_name }}' organization.{% endtrans %}
       </li>
       <li>
-        {% trans organization_name=current_organization.name %}Revoke project permissions for teams in the '{{ organization_name }}' organization.{% endtrans %}
+        {% trans organization_name=project.organization.name %}Revoke project permissions for teams in the '{{ organization_name }}' organization.{% endtrans %}
       </li>
     </ul>
     <p>
@@ -137,7 +135,7 @@
     {% set action = request.route_path('manage.project.remove_organization_project', project_name=project.normalized_name) %}
     {% set extra_description %}
     <p>
-      {% trans organization_name=current_organization.name %}This will remove the project from the '{{ organization_name }}' organization.{% endtrans %}
+      {% trans organization_name=project.organization.name %}This will remove the project from the '{{ organization_name }}' organization.{% endtrans %}
       {% trans %}Individual owners and maintainers of the project will retain their project permissions.{% endtrans %}
     </p>
     {% endset %}
@@ -156,7 +154,7 @@
   {% if transfer_organization_project_form.organization.choices|length > 1 %}
   <div class="callout-block callout-block--danger">
     <h3>
-      {% if current_organization %}
+      {% if project.organization %}
       {% trans %}Transfer project to another organization{% endtrans %}
       {% else %}
       {% trans %}Transfer project to an organization{% endtrans %}
@@ -167,16 +165,16 @@
       {% trans %}Transferring this project will:{% endtrans %}
     </p>
     <ul>
-      {% if current_organization %}
+      {% if project.organization %}
       <li>
-        {% trans organization_name=current_organization.name %}Remove this project from the '{{ organization_name }}' organization.{% endtrans %}
+        {% trans organization_name=project.organization.name %}Remove this project from the '{{ organization_name }}' organization.{% endtrans %}
       </li>
       <li>
-        {% trans organization_name=current_organization.name %}Revoke project permissions for teams in the '{{ organization_name }}' organization.{% endtrans %}
+        {% trans organization_name=project.organization.name %}Revoke project permissions for teams in the '{{ organization_name }}' organization.{% endtrans %}
       </li>
       {% endif %}
       <li>
-        {% if current_organization %}
+        {% if project.organization %}
         {% trans %}Add the project to another organization that you own.{% endtrans %}
         {% else %}
         {% trans %}Add the project to an organization that you own.{% endtrans %}
@@ -204,7 +202,7 @@
   {% else %}
   <div class="callout-block">
     <h3>
-      {% if current_organization %}
+      {% if project.organization %}
       {% trans %}Cannot transfer project to another organization{% endtrans %}
       {% else %}
       {% trans %}Cannot transfer project to an organization{% endtrans %}
@@ -212,7 +210,7 @@
     </h3>
     <p>
       {% trans %}Project owners can transfer the project to organizations that they own.{% endtrans %}
-      {% if current_organization %}
+      {% if project.organization %}
       {% trans %}You are not an owner of any other organizations.{% endtrans %}
       {% else %}
       {% trans %}You are not an owner of any organizations.{% endtrans %}

@@ -688,9 +688,9 @@ msgstr ""
 #: warehouse/templates/manage/organization/settings.html:159
 #: warehouse/templates/manage/organization/settings.html:205
 #: warehouse/templates/manage/release.html:163
-#: warehouse/templates/manage/settings.html:123
-#: warehouse/templates/manage/settings.html:166
-#: warehouse/templates/manage/settings.html:229
+#: warehouse/templates/manage/settings.html:121
+#: warehouse/templates/manage/settings.html:164
+#: warehouse/templates/manage/settings.html:227
 msgid "Warning"
 msgstr ""
 
@@ -4180,122 +4180,122 @@ msgid ""
 "for more help."
 msgstr ""
 
-#: warehouse/templates/manage/settings.html:121
+#: warehouse/templates/manage/settings.html:119
 msgid "Remove project from organization"
 msgstr ""
 
-#: warehouse/templates/manage/settings.html:124
+#: warehouse/templates/manage/settings.html:122
 msgid "Removing this project from the organization will:"
 msgstr ""
 
-#: warehouse/templates/manage/settings.html:128
-#: warehouse/templates/manage/settings.html:172
+#: warehouse/templates/manage/settings.html:126
+#: warehouse/templates/manage/settings.html:170
 #, python-format
 msgid "Remove this project from the '%(organization_name)s' organization."
 msgstr ""
 
-#: warehouse/templates/manage/settings.html:131
-#: warehouse/templates/manage/settings.html:175
+#: warehouse/templates/manage/settings.html:129
+#: warehouse/templates/manage/settings.html:173
 #, python-format
 msgid ""
 "Revoke project permissions for teams in the '%(organization_name)s' "
 "organization."
 msgstr ""
 
-#: warehouse/templates/manage/settings.html:135
-#: warehouse/templates/manage/settings.html:141
-#: warehouse/templates/manage/settings.html:190
+#: warehouse/templates/manage/settings.html:133
+#: warehouse/templates/manage/settings.html:139
+#: warehouse/templates/manage/settings.html:188
 msgid ""
 "Individual owners and maintainers of the project will retain their "
 "project permissions."
 msgstr ""
 
-#: warehouse/templates/manage/settings.html:140
+#: warehouse/templates/manage/settings.html:138
 #, python-format
 msgid ""
 "This will remove the project from the '%(organization_name)s' "
 "organization."
 msgstr ""
 
-#: warehouse/templates/manage/settings.html:144
+#: warehouse/templates/manage/settings.html:142
 msgid "Remove project"
 msgstr ""
 
-#: warehouse/templates/manage/settings.html:144
-#: warehouse/templates/manage/settings.html:202
-#: warehouse/templates/manage/settings.html:258
+#: warehouse/templates/manage/settings.html:142
+#: warehouse/templates/manage/settings.html:200
+#: warehouse/templates/manage/settings.html:256
 msgid "Project Name"
 msgstr ""
 
-#: warehouse/templates/manage/settings.html:148
+#: warehouse/templates/manage/settings.html:146
 msgid "Cannot remove project from organization"
 msgstr ""
 
-#: warehouse/templates/manage/settings.html:150
+#: warehouse/templates/manage/settings.html:148
 msgid ""
 "Your organization is currently the <strong>sole owner</strong> of the "
 "project. You must add an individual owner to the project before you can "
 "remove the project from your organization."
 msgstr ""
 
-#: warehouse/templates/manage/settings.html:160
+#: warehouse/templates/manage/settings.html:158
 msgid "Transfer project to another organization"
 msgstr ""
 
-#: warehouse/templates/manage/settings.html:162
+#: warehouse/templates/manage/settings.html:160
 msgid "Transfer project to an organization"
 msgstr ""
 
-#: warehouse/templates/manage/settings.html:167
+#: warehouse/templates/manage/settings.html:165
 msgid "Transferring this project will:"
 msgstr ""
 
-#: warehouse/templates/manage/settings.html:180
+#: warehouse/templates/manage/settings.html:178
 msgid "Add the project to another organization that you own."
 msgstr ""
 
-#: warehouse/templates/manage/settings.html:182
+#: warehouse/templates/manage/settings.html:180
 msgid "Add the project to an organization that you own."
 msgstr ""
 
-#: warehouse/templates/manage/settings.html:186
+#: warehouse/templates/manage/settings.html:184
 msgid "Grant full project permissions to owners of the organization."
 msgstr ""
 
-#: warehouse/templates/manage/settings.html:202
+#: warehouse/templates/manage/settings.html:200
 msgid "Transfer project"
 msgstr ""
 
-#: warehouse/templates/manage/settings.html:208
+#: warehouse/templates/manage/settings.html:206
 msgid "Cannot transfer project to another organization"
 msgstr ""
 
-#: warehouse/templates/manage/settings.html:210
+#: warehouse/templates/manage/settings.html:208
 msgid "Cannot transfer project to an organization"
 msgstr ""
 
-#: warehouse/templates/manage/settings.html:214
+#: warehouse/templates/manage/settings.html:212
 msgid "Project owners can transfer the project to organizations that they own."
 msgstr ""
 
-#: warehouse/templates/manage/settings.html:216
+#: warehouse/templates/manage/settings.html:214
 msgid "You are not an owner of any other organizations."
 msgstr ""
 
-#: warehouse/templates/manage/settings.html:218
+#: warehouse/templates/manage/settings.html:216
 msgid "You are not an owner of any organizations."
 msgstr ""
 
-#: warehouse/templates/manage/settings.html:227
-#: warehouse/templates/manage/settings.html:258
+#: warehouse/templates/manage/settings.html:225
+#: warehouse/templates/manage/settings.html:256
 msgid "Delete project"
 msgstr ""
 
-#: warehouse/templates/manage/settings.html:230
+#: warehouse/templates/manage/settings.html:228
 msgid "Deleting this project will:"
 msgstr ""
 
-#: warehouse/templates/manage/settings.html:235
+#: warehouse/templates/manage/settings.html:233
 #, python-format
 msgid ""
 "Irreversibly delete the project along with <a href=\"%(href)s\">%(count)s"
@@ -4306,15 +4306,15 @@ msgid_plural ""
 msgstr[0] ""
 msgstr[1] ""
 
-#: warehouse/templates/manage/settings.html:241
+#: warehouse/templates/manage/settings.html:239
 msgid "Irreversibly delete the project"
 msgstr ""
 
-#: warehouse/templates/manage/settings.html:245
+#: warehouse/templates/manage/settings.html:243
 msgid "Make the project name available to <strong>any other PyPI</strong> user"
 msgstr ""
 
-#: warehouse/templates/manage/settings.html:247
+#: warehouse/templates/manage/settings.html:245
 msgid ""
 "This user will be able to make new releases under this project name, so "
 "long as the distribution filenames do not match filenames from a "

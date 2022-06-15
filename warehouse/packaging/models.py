@@ -54,7 +54,12 @@ from warehouse.accounts.models import User
 from warehouse.classifiers.models import Classifier
 from warehouse.events.models import HasEvents
 from warehouse.integrations.vulnerabilities.models import VulnerabilityRecord
-from warehouse.organizations.models import OrganizationRole, OrganizationRoleType
+from warehouse.organizations.models import (
+    Organization,
+    OrganizationProject,
+    OrganizationRole,
+    OrganizationRoleType,
+)
 from warehouse.sitemap.models import SitemapMixin
 from warehouse.utils import dotted_navigator
 from warehouse.utils.attrs import make_repr
@@ -183,6 +188,12 @@ class Project(SitemapMixin, TwoFactorRequireable, HasEvents, db.Model):
     zscore = Column(Float, nullable=True)
     total_size = Column(BigInteger, server_default=sql.text("0"))
 
+    organization = orm.relationship(
+        Organization,
+        secondary=OrganizationProject.__table__,  # type: ignore
+        back_populates="projects",
+        uselist=False,
+    )
     roles = orm.relationship(Role, back_populates="project", passive_deletes=True)
     users = orm.relationship(User, secondary=Role.__table__, backref="projects")  # type: ignore # noqa
     releases = orm.relationship(
@@ -238,9 +249,9 @@ class Project(SitemapMixin, TwoFactorRequireable, HasEvents, db.Model):
         roles = {(role.user_id, role.role_name) for role in query.all()}
 
         # Add all organization owners for this project.
-        if self.organizations:
+        if self.organization:
             query = session.query(OrganizationRole).filter(
-                OrganizationRole.organization == self.organizations[0],
+                OrganizationRole.organization == self.organization,
                 OrganizationRole.role_name == OrganizationRoleType.Owner,
             )
             query = query.options(orm.lazyload("organization"))

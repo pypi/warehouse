@@ -4600,9 +4600,8 @@ class TestManageProjectSettings:
     def test_remove_organization_project_no_individual_owner(
         self, monkeypatch, db_request
     ):
-        current_organization = OrganizationFactory.create(name="bar")
         project = ProjectFactory.create(name="foo")
-        project.organizations = [current_organization]
+        project.organization = OrganizationFactory.create(name="bar")
 
         db_request.POST = MultiDict(
             {
@@ -4617,7 +4616,7 @@ class TestManageProjectSettings:
         db_request.user = UserFactory.create()
 
         OrganizationRoleFactory.create(
-            organization=current_organization, user=db_request.user, role_name="Owner"
+            organization=project.organization, user=db_request.user, role_name="Owner"
         )
 
         result = views.remove_organization_project(project, db_request)
@@ -4635,9 +4634,8 @@ class TestManageProjectSettings:
         ]
 
     def test_remove_organization_project(self, monkeypatch, db_request):
-        current_organization = OrganizationFactory.create(name="bar")
         project = ProjectFactory.create(name="foo")
-        project.organizations = [current_organization]
+        project.organization = OrganizationFactory.create(name="bar")
 
         db_request.POST = MultiDict(
             {
@@ -4652,7 +4650,7 @@ class TestManageProjectSettings:
         db_request.user = UserFactory.create()
 
         OrganizationRoleFactory.create(
-            organization=current_organization, user=db_request.user, role_name="Owner"
+            organization=project.organization, user=db_request.user, role_name="Owner"
         )
         RoleFactory.create(project=project, user=db_request.user, role_name="Owner")
 
@@ -4679,7 +4677,7 @@ class TestManageProjectSettings:
             pretend.call(
                 db_request,
                 {db_request.user},
-                organization_name=current_organization.name,
+                organization_name=project.organization.name,
                 project_name=project.name,
             ),
         ]
@@ -4756,10 +4754,9 @@ class TestManageProjectSettings:
     def test_transfer_organization_project_no_organization(
         self, monkeypatch, db_request
     ):
-        current_organization = OrganizationFactory.create(name="bar")
         organization = OrganizationFactory.create(name="baz")
         project = ProjectFactory.create(name="foo")
-        project.organizations = [current_organization]
+        project.organization = OrganizationFactory.create(name="bar")
 
         db_request.POST = MultiDict(
             {
@@ -4778,7 +4775,7 @@ class TestManageProjectSettings:
             organization=organization, user=db_request.user, role_name="Owner"
         )
         OrganizationRoleFactory.create(
-            organization=current_organization, user=db_request.user, role_name="Owner"
+            organization=project.organization, user=db_request.user, role_name="Owner"
         )
         RoleFactory.create(project=project, user=db_request.user, role_name="Owner")
 
@@ -4794,10 +4791,9 @@ class TestManageProjectSettings:
         assert result.headers["Location"] == "/the-redirect"
 
     def test_transfer_organization_project(self, monkeypatch, db_request):
-        current_organization = OrganizationFactory.create(name="bar")
         organization = OrganizationFactory.create(name="baz")
         project = ProjectFactory.create(name="foo")
-        project.organizations = [current_organization]
+        project.organization = OrganizationFactory.create(name="bar")
 
         db_request.POST = MultiDict(
             {
@@ -4816,7 +4812,7 @@ class TestManageProjectSettings:
             organization=organization, user=db_request.user, role_name="Owner"
         )
         OrganizationRoleFactory.create(
-            organization=current_organization, user=db_request.user, role_name="Owner"
+            organization=project.organization, user=db_request.user, role_name="Owner"
         )
         RoleFactory.create(project=project, user=db_request.user, role_name="Owner")
 
@@ -4852,7 +4848,7 @@ class TestManageProjectSettings:
             pretend.call(
                 db_request,
                 {db_request.user},
-                organization_name=current_organization.name,
+                organization_name=project.organization.name,
                 project_name=project.name,
             )
         ]

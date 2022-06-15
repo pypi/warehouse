@@ -31,10 +31,10 @@
       <div class="split-layout split-layout--no-wrap split-layout--wrap-on-tablet">
         <div>
           <h3 class="package-snippet__title">{{ project.name }}
-            {% if project.organizations %}
-            <a href="{{ request.route_path('manage.organization.projects', organization_name=project.organizations[0].normalized_name) }}" class="badge package-snippet__badge">
+            {% if project.organization %}
+            <a href="{{ request.route_path('manage.organization.projects', organization_name=project.organization.normalized_name) }}" class="badge package-snippet__badge">
               <i class="fa fa-users" aria-hidden="true"></i>
-              {{ project.organizations[0].name }}
+              {{ project.organization.name }}
             </a>
             {% endif %}
             {% if (

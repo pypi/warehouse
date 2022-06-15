@@ -160,7 +160,7 @@ def user_projects(request):
         .having(func.count(Role.project_id) == 1)
         # Except projects owned by an organization.
         .join(Role.project)
-        .filter(~Project.organizations.any())
+        .filter(~Project.organization.has())
     )
 
     if not request.flags.enabled(AdminFlagValue.DISABLE_ORGANIZATIONS):
@@ -1461,7 +1461,7 @@ class ManageOrganizationProjectsViews:
         project_choices = set(
             project.name
             for project in all_user_projects["projects_owned"]
-            if not project.organizations
+            if not project.organization
         )
         project_factory = self.project_factory
 
@@ -2003,8 +2003,8 @@ class ManageProjectSettingsViews:
                 organization.name
                 for organization in all_user_organizations["organizations_owned"]
             )
-            organization_choices = organizations_owned - set(
-                organization.name for organization in self.project.organizations
+            organization_choices = organizations_owned - (
+                {self.project.organization.name} if self.project.organization else set()
             )
 
         return {
@@ -2345,7 +2345,7 @@ def remove_organization_project(project, request):
 
     # Remove project from current organization.
     organization_service = request.find_service(IOrganizationService, context=None)
-    for organization in project.organizations:
+    if organization := project.organization:
         organization_service.delete_organization_project(organization.id, project.id)
         organization.record_event(
             tag="organization:organization_project:remove",
@@ -2374,11 +2374,11 @@ def remove_organization_project(project, request):
             organization_name=organization.name,
             project_name=project.name,
         )
-
-    request.session.flash(
-        f"Removed the project {project.name!r} from {organization.name!r}",
-        queue="success",
-    )
+        # Display notification message.
+        request.session.flash(
+            f"Removed the project {project.name!r} from {organization.name!r}",
+            queue="success",
+        )
 
     return HTTPSeeOther(
         request.route_path("manage.project.settings", project_name=project.name)
@@ -2414,8 +2414,8 @@ def transfer_organization_project(project, request):
         organization.name
         for organization in all_user_organizations["organizations_owned"]
     )
-    organization_choices = organizations_owned - set(
-        organization.name for organization in project.organizations
+    organization_choices = organizations_owned - (
+        {project.organization.name} if project.organization else set()
     )
 
     form = TransferOrganizationProjectForm(
@@ -2433,7 +2433,7 @@ def transfer_organization_project(project, request):
 
     # Remove project from current organization.
     organization_service = request.find_service(IOrganizationService, context=None)
-    for organization in project.organizations:
+    if organization := project.organization:
         organization_service.delete_organization_project(organization.id, project.id)
         organization.record_event(
             tag="organization:organization_project:remove",
