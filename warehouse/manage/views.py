@@ -1498,13 +1498,46 @@ class ManageOrganizationProjectsViews:
 
         # Get existing project or add new project.
         if form.add_existing_project.data:
+            # Get existing project.
             project = self.project_factory[form.existing_project_name.data]
+            # Remove request user as individual project owner.
+            role = (
+                self.request.db.query(Role)
+                .join(User)
+                .filter(
+                    Role.role_name == "Owner",
+                    Role.project == project,
+                    Role.user == self.request.user,
+                )
+                .first()
+            )
+            if role:
+                self.request.db.delete(role)
+                self.request.db.add(
+                    JournalEntry(
+                        name=project.name,
+                        action=f"remove {role.role_name} {role.user.username}",
+                        submitted_by=self.request.user,
+                        submitted_from=self.request.remote_addr,
+                    )
+                )
+                project.record_event(
+                    tag="project:role:delete",
+                    ip_address=self.request.remote_addr,
+                    additional={
+                        "submitted_by": self.request.user.username,
+                        "role_name": role.role_name,
+                        "target_user": role.user.username,
+                    },
+                )
         else:
+            # Validate new project name.
             try:
                 validate_project_name(form.new_project_name.data, self.request)
             except HTTPException as exc:
                 form.new_project_name.errors.append(exc.detail)
                 return default_response
+            # Add new project.
             project = add_project(form.new_project_name.data, self.request)
 
         # Add project to organization.
@@ -2429,6 +2462,37 @@ def transfer_organization_project(project, request):
                 request.session.flash(error, queue="error")
         return HTTPSeeOther(
             request.route_path("manage.project.settings", project_name=project.name)
+        )
+
+    # Remove request user as individual project owner.
+    role = (
+        request.db.query(Role)
+        .join(User)
+        .filter(
+            Role.role_name == "Owner",
+            Role.project == project,
+            Role.user == request.user,
+        )
+        .first()
+    )
+    if role:
+        request.db.delete(role)
+        request.db.add(
+            JournalEntry(
+                name=project.name,
+                action=f"remove {role.role_name} {role.user.username}",
+                submitted_by=request.user,
+                submitted_from=request.remote_addr,
+            )
+        )
+        project.record_event(
+            tag="project:role:delete",
+            ip_address=request.remote_addr,
+            additional={
+                "submitted_by": request.user.username,
+                "role_name": role.role_name,
+                "target_user": role.user.username,
+            },
         )
 
     # Remove project from current organization.

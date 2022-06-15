@@ -161,6 +161,9 @@
         <div id="add-existing-project-errors">
           {{ field_errors(add_organization_project_form.add_existing_project) }}
         </div>
+        <p class="form-group__help-text">
+          {% trans %}Transfer an existing project that you own, or create and add a new project to the organization.{% endtrans %}
+        </p>
         <p class="form-group__text"></p>
       {# end radio buttons #}
       <div class="form-group radio-toggle radio-toggle-1">
@@ -175,11 +178,11 @@
         </div>
         <p class="form-group__help-text">
           {% trans trimmed %}
-          Owners of this organization can add a project they own if the project has not been added to another organization. A project that has been added to another organization can be transferred from the project settings page.
+          Owners of this organization can transfer a project that they own to this organization if the project has not been added to another organization. A project that has been added to another organization can be transferred from the project settings page.
           {% endtrans %}
         </p>
       </div>
-      <input value="{% trans %}Add existing project{% endtrans %}" class="button button--primary radio-toggle radio-toggle-1" type="submit">
+      <input value="{% trans %}Transfer existing project{% endtrans %}" class="button button--primary radio-toggle radio-toggle-1" type="submit">
 
       <div class="form-group radio-toggle radio-toggle-2">
         <label class="form-group__label" for="project">

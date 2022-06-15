@@ -319,53 +319,53 @@ msgstr ""
 msgid "Generating new recovery codes will invalidate your existing codes."
 msgstr ""
 
-#: warehouse/manage/views.py:1597
+#: warehouse/manage/views.py:1630
 msgid "User '${username}' already has ${role_name} role for organization"
 msgstr ""
 
-#: warehouse/manage/views.py:1608
+#: warehouse/manage/views.py:1641
 msgid ""
 "User '${username}' does not have a verified primary email address and "
 "cannot be added as a ${role_name} for organization"
 msgstr ""
 
-#: warehouse/manage/views.py:1622 warehouse/manage/views.py:3072
+#: warehouse/manage/views.py:1655 warehouse/manage/views.py:3136
 msgid "User '${username}' already has an active invite. Please try again later."
 msgstr ""
 
-#: warehouse/manage/views.py:1679 warehouse/manage/views.py:3130
+#: warehouse/manage/views.py:1712 warehouse/manage/views.py:3194
 msgid "Invitation sent to '${username}'"
 msgstr ""
 
-#: warehouse/manage/views.py:1722
+#: warehouse/manage/views.py:1755
 msgid "Could not find organization invitation."
 msgstr ""
 
-#: warehouse/manage/views.py:1736 warehouse/manage/views.py:3188
+#: warehouse/manage/views.py:1769 warehouse/manage/views.py:3252
 msgid "Invitation already expired."
 msgstr ""
 
-#: warehouse/manage/views.py:1769 warehouse/manage/views.py:3212
+#: warehouse/manage/views.py:1802 warehouse/manage/views.py:3276
 msgid "Invitation revoked from '${username}'."
 msgstr ""
 
-#: warehouse/manage/views.py:2174
+#: warehouse/manage/views.py:2207
 msgid ""
 "There have been too many attempted OpenID Connect registrations. Try "
 "again later."
 msgstr ""
 
-#: warehouse/manage/views.py:3048
+#: warehouse/manage/views.py:3112
 msgid "User '${username}' already has ${role_name} role for project"
 msgstr ""
 
-#: warehouse/manage/views.py:3059
+#: warehouse/manage/views.py:3123
 msgid ""
 "User '${username}' does not have a verified primary email address and "
 "cannot be added as a ${role_name} for project"
 msgstr ""
 
-#: warehouse/manage/views.py:3177
+#: warehouse/manage/views.py:3241
 msgid "Could not find role invitation."
 msgstr ""
 
@@ -996,8 +996,8 @@ msgstr ""
 #: warehouse/templates/manage/account/recovery_codes-burn.html:70
 #: warehouse/templates/manage/account/totp-provision.html:69
 #: warehouse/templates/manage/account/webauthn-provision.html:44
-#: warehouse/templates/manage/organization/projects.html:169
-#: warehouse/templates/manage/organization/projects.html:187
+#: warehouse/templates/manage/organization/projects.html:172
+#: warehouse/templates/manage/organization/projects.html:190
 #: warehouse/templates/manage/organization/roles.html:192
 #: warehouse/templates/manage/organization/roles.html:204
 #: warehouse/templates/manage/organization/settings.html:44
@@ -4692,36 +4692,43 @@ msgstr ""
 msgid "️New or existing project?"
 msgstr ""
 
-#: warehouse/templates/manage/organization/projects.html:168
+#: warehouse/templates/manage/organization/projects.html:165
+msgid ""
+"Transfer an existing project that you own, or create and add a new "
+"project to the organization."
+msgstr ""
+
+#: warehouse/templates/manage/organization/projects.html:171
 msgid "️Name of existing project"
 msgstr ""
 
-#: warehouse/templates/manage/organization/projects.html:172
+#: warehouse/templates/manage/organization/projects.html:175
 msgid "You do not own any projects that you can add to this organization."
 msgstr ""
 
-#: warehouse/templates/manage/organization/projects.html:177
+#: warehouse/templates/manage/organization/projects.html:180
 msgid ""
-"Owners of this organization can add a project they own if the project has"
-" not been added to another organization. A project that has been added to"
-" another organization can be transferred from the project settings page."
+"Owners of this organization can transfer a project that they own to this "
+"organization if the project has not been added to another organization. A"
+" project that has been added to another organization can be transferred "
+"from the project settings page."
 msgstr ""
 
-#: warehouse/templates/manage/organization/projects.html:182
-msgid "Add existing project"
+#: warehouse/templates/manage/organization/projects.html:185
+msgid "Transfer existing project"
 msgstr ""
 
-#: warehouse/templates/manage/organization/projects.html:186
+#: warehouse/templates/manage/organization/projects.html:189
 msgid "️Name of new project"
 msgstr ""
 
-#: warehouse/templates/manage/organization/projects.html:194
+#: warehouse/templates/manage/organization/projects.html:197
 msgid ""
 "Owners of this organization can create an empty project and add it to the"
 " organization."
 msgstr ""
 
-#: warehouse/templates/manage/organization/projects.html:199
+#: warehouse/templates/manage/organization/projects.html:202
 msgid "Create and add new project"
 msgstr ""
 
