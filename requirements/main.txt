@@ -80,9 +80,9 @@ bleach==5.0.0 \
     --hash=sha256:08a1fe86d253b5c88c92cc3d810fd8048a16d15762e1e5b74d502256e5926aa1 \
     --hash=sha256:c6d6cc054bdc9c83b48b8083e236e5f00f238428666d2ce2e083eaa5fd568565
     # via readme-renderer
-boto3==1.24.6 \
-    --hash=sha256:1c13d555172cf88eb645af2429e4a7f42be85e365d6ffc110c952a556d3f8808 \
-    --hash=sha256:4af6a8bc5110b5f9d2fbd00a3c110e4c4cc36fae78d05afa354831f5789e363b
+boto3==1.24.9 \
+    --hash=sha256:0821212ff521cb934801b1f655cef3c0e976775324b1018f1751700d0f42dbb4 \
+    --hash=sha256:87d34861727699c795bf8d65703f2435e75f12879bdd483e08b35b7c5510e8c8
     # via
     #   -r requirements/main.in
     #   kombu
