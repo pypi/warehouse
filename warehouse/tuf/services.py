@@ -17,24 +17,34 @@ import shutil
 import warnings
 
 from contextlib import contextmanager
+from datetime import datetime, timedelta
+from typing import List, Optional, Tuple
 
 from securesystemslib.exceptions import StorageError  # type: ignore
 from securesystemslib.interface import (  # type: ignore
     import_ed25519_privatekey_from_file,
 )
 from securesystemslib.signer import SSlibSigner  # type: ignore
+from tuf.api.metadata import (
+    TOP_LEVEL_ROLE_NAMES,
+    DelegatedRole,
+    Delegations,
+    Key,
+    Metadata,
+    MetaFile,
+    Role,
+    Root,
+    Snapshot,
+    TargetFile,
+    Targets,
+    Timestamp,
+)
 from zope.interface import implementer
 
 from warehouse.config import Environment
-from warehouse.tuf.constants import BIN_N_COUNT, Role
+from warehouse.tuf.constants import BIN_N_COUNT, Role as RoleType
 from warehouse.tuf.hash_bins import HashBins
 from warehouse.tuf.interfaces import IKeyService, IRepositoryService, IStorageService
-from warehouse.tuf.repository import (
-    TOP_LEVEL_ROLE_NAMES,
-    DelegatedRole,
-    MetadataRepository,
-    TargetFile,
-)
 
 
 class InsecureKeyWarning(UserWarning):
@@ -105,7 +115,7 @@ class LocalStorageService:
         configured TUF repo path, optionally at the passed version (latest if None).
         """
 
-        if role == Role.TIMESTAMP.value:
+        if role == RoleType.TIMESTAMP.value:
             filename = os.path.join(self._repo_path, f"{role}.json")
         else:
             if version is None:
@@ -183,6 +193,98 @@ class RepositoryService:
 
         return HashBins(number_of_bins)
 
+    def _is_initialized(self) -> bool:
+        """Returns True if any top-level role metadata exists, False otherwise."""
+        try:
+            if any(role for role in TOP_LEVEL_ROLE_NAMES if self._load(role)):
+                return True
+        except StorageError:
+            pass
+
+        return False
+
+    def _load(self, role_name: str) -> Metadata:
+        """
+        Loads latest version of metadata for rolename using configured storage backend.
+
+        NOTE: The storage backend is expected to translate rolenames to filenames and
+        figure out the latest version.
+        """
+        return Metadata.from_file(role_name, None, self._storage_backend)
+
+    def _sign(self, role: Metadata, key_id: Optional[str] = None) -> None:
+        """Re-signs metadata with role-specific key from global key store.
+
+        The metadata role type is used as default key id. This is only allowed for
+        top-level roles.
+        """
+        role.signatures.clear()
+        for signer in self._key_storage_backend.get(key_id or role.type):
+            role.sign(signer, append=True)
+
+    def _persist(self, role: Metadata, role_name: Optional[str] = None) -> None:
+        """Persists metadata using the configured storage backend.
+
+        The metadata role type is used as default role name. This is only allowed for
+        top-level roles. All names but 'timestamp' are prefixed with a version number.
+        """
+        filename = f"{role_name or role.type}.json"
+
+        if not isinstance(role, Timestamp):
+            filename = f"{role.signed.version}.{filename}"
+
+        Metadata.to_file(filename, None, self._storage_backend)
+
+    def _bump_expiry(self, role: Metadata, expiry_id: Optional[str] = None) -> None:
+        """Bumps metadata expiration date by role-specific interval.
+
+        The metadata role type is used as default expiry id. This is only allowed for
+        top-level roles.
+        """
+        # FIXME: Review calls to _bump_expiry. Currently, it is called in every
+        # update-sign-persist cycle.
+        # PEP 458 is unspecific about when to bump expiration, e.g. in the course of a
+        # consistent snapshot only 'timestamp' is bumped:
+        # https://www.python.org/dev/peps/pep-0458/#producing-consistent-snapshots
+        role.signed.expires = datetime.now().replace(microsecond=0) + timedelta(
+            seconds=self._request.registry.settings[
+                f"tuf.{expiry_id or role.type}.expiry"
+            ]
+        )
+
+    def _bump_version(self, role: Metadata) -> None:
+        """Bumps metadata version by 1."""
+        role.signed.version += 1
+
+    def _update_timestamp(self, snapshot_version: int) -> Metadata[Timestamp]:
+        """Loads 'timestamp', updates meta info about passed 'snapshot' metadata,
+        bumps version and expiration, signs and persists."""
+        timestamp = self._load(Timestamp.type)
+        timestamp.signed.snapshot_meta = MetaFile(version=snapshot_version)
+
+        self._bump_version(timestamp)
+        self._bump_expiry(timestamp)
+        self._sign(timestamp)
+        self._persist(timestamp)
+
+    def _update_snapshot(
+        self, targets_meta: List[Tuple[str, int]]
+    ) -> Metadata[Snapshot]:
+        """Loads 'snapshot', updates meta info about passed 'targets' metadata, bumps
+        version and expiration, signs and persists. Returns new snapshot version, e.g.
+        to update 'timestamp'."""
+        snapshot = self._load(Snapshot.type)
+
+        for name, version in targets_meta:
+            snapshot.signed.meta[f"{name}.json"] = MetaFile(version=version)
+
+        self._bump_expiry(snapshot)
+        self._bump_version(snapshot)
+        self._sign(snapshot)
+        self._persist(snapshot)
+
+        return snapshot.signed.version
+
     def init_dev_repository(self):
         """
         Creates development TUF top-level role metadata (root, targets, snapshot,
@@ -191,20 +293,41 @@ class RepositoryService:
         FIXME: In production 'root' and 'targets' roles require offline singing keys,
         which may not be available at the time of initializing this metadata.
         """
-        metadata_repository = MetadataRepository(
-            self._storage_backend,
-            self._key_storage_backend,
-            self._request.registry.settings,
-        )
-
-        if metadata_repository.is_initialized:
+        # FIXME: Is this a meaningful check? It is rather superficial.
+        if self._is_initialized():
             raise FileExistsError("TUF Metadata Repository files already exists.")
 
-        role_signers = dict()
-        for role in TOP_LEVEL_ROLE_NAMES:
-            role_signers[role] = self._key_storage_backend.get(role)
+        # Bootstrap default top-level metadata to be updated below if necessary
+        targets = Targets()
+        snapshot = Snapshot()
+        timestamp = Timestamp()
+        root = Root()
 
-        metadata_repository.initialize(role_signers, store=True)
+        # Populate public key store, and define trusted signing keys and required
+        # signature thresholds for each top-level role in 'root'.
+        for role_name in TOP_LEVEL_ROLE_NAMES:
+            threshold = self._request.registry.settings[f"tuf.{role_name}.threshold"]
+            signers = self._key_storage_backend.get(role_name)
+
+            # FIXME: Is this a meaningful check? Should we check more than just the
+            # threshold? And maybe in a different place, e.g. independently of
+            # bootstrapping the metadata, because in production we do not have access to
+            # all top-level role signing keys at the time of bootstrapping the metadata.
+            assert len(signers) >= threshold, (
+                f"not enough keys ({len(signers)}) for "
+                f"signing threshold '{threshold}'"
+            )
+
+            root.roles[role_name] = Role([], threshold)
+            for signer in signers:
+                root.add_key(role_name, Key.from_securesystemslib_key(signer.key_dict))
+
+        # Add signature wrapper, bump expiration, and sign and persist
+        for role in [targets, snapshot, timestamp, root]:
+            metadata = Metadata(role)
+            self._bump_expiry(metadata)
+            self._sign(metadata)
+            self._persist(metadata)
 
     def init_targets_delegation(self):
         """
@@ -217,86 +340,120 @@ class RepositoryService:
 
         FIXME: In production the 'bins' role requires an offline singing key, which may
         not be available at the time of initializing this metadata.
+
+        FIXME: Consider combining 'init_dev_repository' and 'init_targets_delegation'
+        to create and persist all initial metadata at once, at version 1.
+
         """
+        # Track names and versions of new and updated targets for 'snapshot' update
+        targets_meta = []
+
+        # Update top-level 'targets' role, to delegate trust for all target files to
+        # 'bins' role, defining target path patterns, trusted signing keys and required
+        # signature thresholds.
+        targets = self._load(Targets.type)
+        targets.signed.delegations = Delegations(keys={}, roles={})
+        targets.signed.delegations.roles[RoleType.BINS.value] = DelegatedRole(
+            name=RoleType.BINS.value,
+            keyids=[],
+            threshold=self._request.registry.settings[
+                f"tuf.{RoleType.BINS.value}.threshold"
+            ],
+            terminating=False,
+            paths=["*/*", "*/*/*/*"],
+        )
+
+        for signer in self._key_storage_backend.get(RoleType.BINS.value):
+            targets.signed.add_key(
+                RoleType.BINS.value, Key.from_securesystemslib_key(signer.key_dict)
+            )
+
+        # Bump version and expiration, and sign and persist updated 'targets'.
+        self._bump_version(targets)
+        self._bump_expiry(targets)
+        self._sign(targets)
+        self._persist(targets)
+
+        targets_meta.append((Targets.type, targets.signed.version))
+
+        # Create new 'bins' role and delegate trust from 'bins' for all target files to
+        # 'bin-n' roles based on file path hash prefixes, a.k.a hash bin delegation.
+        bins = Metadata(Targets())
+        bins.signed.delegations = Delegations(keys={}, roles={})
         hash_bins = self._get_hash_bins()
-        metadata_repository = MetadataRepository(
-            self._storage_backend,
-            self._key_storage_backend,
-            self._request.registry.settings,
-        )
-
-        # Top-level 'targets' role delegates trust for all target files to 'bins' role.
-        signers = self._key_storage_backend.get(Role.BINS.value)
-        delegate_roles_payload = dict()
-        delegate_roles_payload["targets"] = list()
-        delegate_roles_payload["targets"].append(
-            (
-                DelegatedRole(
-                    Role.BINS.value,
-                    [signer.key_dict["keyid"] for signer in signers],
-                    self._request.registry.settings[f"tuf.{Role.BINS.value}.threshold"],
-                    False,
-                    paths=["*/*", "*/*/*/*"],
-                ),
-                signers,
-                metadata_repository._set_expiration_for_role(Role.BIN_N.value),
-            )
-        )
-
-        # The 'bins' role delegates trust for target files to 'bin-n' roles based on
-        # target file path hash prefixes.
-        delegate_roles_payload[Role.BINS.value] = list()
-        signers = self._key_storage_backend.get(Role.BIN_N.value)
-        key_ids = [signer.key_dict["keyid"] for signer in signers]
         for bin_n_name, bin_n_hash_prefixes in hash_bins.generate():
-            delegate_roles_payload[Role.BINS.value].append(
-                (
-                    DelegatedRole(
-                        bin_n_name,
-                        key_ids,
-                        self._request.registry.settings[
-                            f"tuf.{Role.BIN_N.value}.threshold"
-                        ],
-                        False,
-                        path_hash_prefixes=bin_n_hash_prefixes,
-                    ),
-                    signers,
-                    metadata_repository._set_expiration_for_role(Role.BIN_N.value),
-                )
+            bins.signed.delegations.roles[bin_n_name] = DelegatedRole(
+                name=bin_n_name,
+                keyids=[],
+                threshold=self._request.registry.settings[
+                    f"tuf.{RoleType.BIN_N.value}.threshold"
+                ],
+                terminating=False,
+                path_hash_prefixes=bin_n_hash_prefixes,
             )
-        snapshot_metadata = metadata_repository.delegate_targets_roles(
-            delegate_roles_payload,
-        )
-        self.bump_snapshot(snapshot_metadata)
 
-    def bump_snapshot(self, snapshot_metadata=None):
+            for signer in self._key_storage_backend.get(RoleType.BIN_N.value):
+                bins.signed.add_key(
+                    bin_n_name, Key.from_securesystemslib_key(signer.key_dict)
+                )
+
+            # Create new empty 'bin-n' roles, bump expiration, and sign and persist
+            bin_n = Metadata(Targets())
+            self._bump_expiry(bin_n)
+            self._sign(bin_n)
+            self._persist(bin_n)
+
+            # FIXME: Possible performance gain by updating 'snapshot' right here, to
+            # omit creation of massive list and iterating over all 'bin-n' roles twice.
+            targets_meta.append((bin_n_name, bin_n.signed.version))
+
+        # Bump expiration, and sign and persist new 'bins' role.
+        self._bump_expiry(bins, RoleType.BINS.value)
+        self._sign(bins, RoleType.BINS.value)
+        self._persist(bins, RoleType.BINS.value)
+
+        targets_meta.append((RoleType.BINS.value, bins.signed.version))
+
+        self._update_timestamp(self._update_snapshot(targets_meta))
+
+    def add_hashed_targets(self, targets):
         """
-        Bumps version and expiration date of TUF 'snapshot' role metadata.
+        Updates 'bin-n' roles metadata, assigning each passed target to the correct bin.
 
-        The version number is incremented by one, the expiration date renewed using a
-        configured expiration interval, and the metadata is signed and persisted using
-        the configured key and storage services.
+        Assignment is based on the hash prefix of the target file path. All metadata is
+        signed and persisted using the configured key and storage services.
 
-        Bumping 'snapshot' transitively bumps the 'timestamp' role.
+        Updating 'bin-n' also updates 'snapshot' and 'timestamp'.
         """
-        metadata_repository = MetadataRepository(
-            self._storage_backend,
-            self._key_storage_backend,
-            self._request.registry.settings,
-        )
+        # Group target files by responsible 'bin-n' roles
+        bin_n_target_groups = {}
+        hash_bins = self._get_hash_bins()
+        for target in targets:
+            bin_n_name = hash_bins.get_delegate(target["path"])
 
-        if snapshot_metadata is None:
-            snapshot_metadata = metadata_repository.load_role(Role.SNAPSHOT.value)
+            if bin_n_name not in bin_n_target_groups:
+                bin_n_target_groups[bin_n_name] = []
 
-        snapshot_metadata = metadata_repository.snapshot_bump_version(
-            snapshot_metadata=snapshot_metadata,
-            store=True,
-        )
+            target_file = TargetFile.from_dict(target["info"], target["path"])
+            bin_n_target_groups[bin_n_name].append(target_file)
 
-        metadata_repository.timestamp_bump_version(
-            snapshot_version=snapshot_metadata.signed.version,
-            store=True,
-        )
+        # Update target file info in responsible 'bin-n' roles, bump version and expiry
+        # and sign and persist
+        targets_meta = []
+        for bin_n_name, target_files in bin_n_target_groups:
+            bin_n = self._load(bin_n_name)
+
+            for target_file in target_files:
+                bin_n.signed.targets[target_file.path] = target_file
+
+            self._bump_expiry(bin_n, RoleType.BIN_N.value)
+            self._bump_version(bin_n)
+            self._sign(bin_n, RoleType.BIN_N.value)
+            self._persist(bin_n, bin_n_name)
+
+            targets_meta.append((bin_n_name, bin_n.signed.version))
+
+        self._update_timestamp(self._update_snapshot(targets_meta))
 
     def bump_bin_n_roles(self):
         """
@@ -306,73 +463,30 @@ class RepositoryService:
         using a configured expiration interval, and the metadata is signed and persisted
         using the configured key and storage services.
 
-        Bumping 'bin-n' transitively bumps 'snapshot' and 'timestamp' roles.
+        Updating 'bin-n' also updates 'snapshot' and 'timestamp'.
         """
-
-        # 1. Grab metadata Repository
-        metadata_repository = MetadataRepository(
-            self._storage_backend,
-            self._key_storage_backend,
-            self._request.registry.settings,
-        )
-
-        # 2. Load Snapshot role.
-        snapshot_metadata = metadata_repository.load_role(Role.SNAPSHOT.value)
-
-        # 3. Fore each delegated hashed bin target role, bump and update Snapshot
         hash_bins = self._get_hash_bins()
+        targets_meta = []
         for bin_n_name, _ in hash_bins.generate():
-            role_metadata = metadata_repository.load_role(bin_n_name)
-            metadata_repository.bump_role_version(
-                rolename=bin_n_name,
-                role_metadata=role_metadata,
-                role_expires=metadata_repository._set_expiration_for_role(
-                    Role.BINS.value
-                ),
-                signers=self._key_storage_backend.get(Role.BIN_N.value),
-                store=True,
-            )
+            bin_n = self._load(bin_n_name)
 
-            snapshot_metadata = metadata_repository.snapshot_update_meta(
-                bin_n_name, role_metadata.signed.version, snapshot_metadata
-            )
+            self._bump_expiry(bin_n, RoleType.BIN_N.value)
+            self._bump_version(bin_n)
+            self._sign(bin_n, RoleType.BIN_N.value)
+            self._persist(bin_n, bin_n_name)
 
-        # 4. Bump Snapshot with updated targets (bin-n) metadata
-        self.bump_snapshot(snapshot_metadata)
+            targets_meta.append((bin_n_name, bin_n.signed.version))
 
-    def add_hashed_targets(self, targets):
+        self._update_timestamp(self._update_snapshot(targets_meta))
+
+    def bump_snapshot(self):
         """
-        Update 'bin-n' roles metadata, assigning each passed target to the correct bin.
+        Bumps version and expiration date of TUF 'snapshot' role metadata.
 
-        Assignment is based on the hash prefix of the target file path. All metadata is
-        signed and persisted using the configured key and storage services.
+        The version number is incremented by one, the expiration date renewed using a
+        configured expiration interval, and the metadata is signed and persisted using
+        the configured key and storage services.
 
-        Updating 'bin-n' transitively bumps 'snapshot' and 'timestamp'.
+        Updating 'snapshot' also updates 'timestamp'.
         """
-        hash_bins = self._get_hash_bins()
-
-        targets_payload = dict()
-        for target in targets:
-            fileinfo = target.get("info")
-            filepath = target.get("path")
-            delegated_role_bin_name = hash_bins.get_delegate(filepath)
-            target_file = TargetFile.from_dict(fileinfo, filepath)
-            if targets_payload.get(delegated_role_bin_name) is None:
-                targets_payload[delegated_role_bin_name] = list()
-
-            targets_payload[delegated_role_bin_name].append(target_file)
-
-        metadata_repository = MetadataRepository(
-            self._storage_backend,
-            self._key_storage_backend,
-            self._request.registry.settings,
-        )
-
-        snapshot_metadata = metadata_repository.add_targets(
-            targets_payload,
-            Role.BIN_N.value,
-        )
-        # TODO: Should we renew expiration date of 'timestamp' *and* 'snapshot' here?
-        # PEP 458 'Producing Consistent Snapshots' only mentions 'timestamp'.
-        # https://www.python.org/dev/peps/pep-0458/#producing-consistent-snapshots
-        self.bump_snapshot(snapshot_metadata)
+        self._update_timestamp(self._update_snapshot([]))
