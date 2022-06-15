@@ -81,7 +81,7 @@ class Role(db.Model):
     )
 
     user = orm.relationship(User, lazy=False)
-    project = orm.relationship("Project", lazy=False)
+    project = orm.relationship("Project", lazy=False, back_populates="roles")
 
 
 class RoleInvitationStatus(enum.Enum):
@@ -181,11 +181,10 @@ class Project(SitemapMixin, TwoFactorRequireable, HasEvents, db.Model):
     total_size_limit = Column(BigInteger, nullable=True)
     last_serial = Column(Integer, nullable=False, server_default=sql.text("0"))
     zscore = Column(Float, nullable=True)
-
     total_size = Column(BigInteger, server_default=sql.text("0"))
 
+    roles = orm.relationship(Role, back_populates="project", passive_deletes=True)
     users = orm.relationship(User, secondary=Role.__table__, backref="projects")  # type: ignore # noqa
-
     releases = orm.relationship(
         "Release",
         backref="project",

@@ -152,11 +152,15 @@ def user_projects(request):
     )
 
     with_sole_owner = (
+        # Select projects having just one owner.
         request.db.query(Role.project_id)
         .join(projects_owned)
         .filter(Role.role_name == "Owner")
         .group_by(Role.project_id)
         .having(func.count(Role.project_id) == 1)
+        # Except projects owned by an organization.
+        .join(Role.project)
+        .filter(~Project.organizations.any())
     )
 
     if not request.flags.enabled(AdminFlagValue.DISABLE_ORGANIZATIONS):
@@ -186,11 +190,18 @@ def user_projects(request):
         )
 
         with_sole_owner = with_sole_owner.union(
+            # Select projects where organization has only one owner.
             request.db.query(Project.id)
             .join(Organization.projects)
             .join(
                 organizations_with_sole_owner,
                 Organization.id == organizations_with_sole_owner.c.organization_id,
+            )
+            # Except projects with any other individual owners.
+            .filter(
+                ~Project.roles.any(
+                    (Role.role_name == "Owner") & (Role.user_id != request.user.id)
+                )
             )
         )
 
