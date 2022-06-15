@@ -25,36 +25,35 @@ from warehouse.utils import readme
 
 
 @tasks.task(ignore_result=True, acks_late=True)
-def compute_2fa_mandate(request, project_names=None):
-    if not project_names:
-        bq = request.find_service(name="gcloud.bigquery")
+def compute_2fa_mandate(request):
+    bq = request.find_service(name="gcloud.bigquery")
 
-        # Get the top N projects in the last 6 months
-        query = bq.query(
-            """ SELECT
-                  COUNT(*) AS num_downloads,
-                  file.project as project_name
-                FROM
-                  {table}
-                WHERE
-                  DATE(timestamp) BETWEEN DATE_TRUNC(
-                    DATE_SUB(CURRENT_DATE(), INTERVAL 6 MONTH), MONTH
-                  )
-                  AND CURRENT_DATE()
-                GROUP BY
-                  file.project
-                ORDER BY
-                  num_downloads DESC
-                LIMIT
-                  {cohort_size}
-            """.format(
-                table=request.registry.settings["warehouse.downloads_table"],
-                cohort_size=request.registry.settings[
-                    "warehouse.two_factor_mandate.cohort_size"
-                ],
-            )
+    # Get the top N projects in the last 6 months
+    query = bq.query(
+        """ SELECT
+              COUNT(*) AS num_downloads,
+              file.project as project_name
+            FROM
+              {table}
+            WHERE
+              DATE(timestamp) BETWEEN DATE_TRUNC(
+                DATE_SUB(CURRENT_DATE(), INTERVAL 6 MONTH), MONTH
+              )
+              AND CURRENT_DATE()
+            GROUP BY
+              file.project
+            ORDER BY
+              num_downloads DESC
+            LIMIT
+              {cohort_size}
+        """.format(
+            table=request.registry.settings["warehouse.downloads_table"],
+            cohort_size=request.registry.settings[
+                "warehouse.two_factor_mandate.cohort_size"
+            ],
         )
-        project_names = [row.get("project_name") for row in query.result()]
+    )
+    project_names = [row.get("project_name") for row in query.result()]
 
     # Get the projects that were not previously in the mandate
     new_projects = request.db.query(Project).filter(

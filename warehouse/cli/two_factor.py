@@ -20,15 +20,14 @@ from warehouse.packaging.tasks import (
 
 
 @warehouse.command()
-@click.argument("project_names", nargs=-1)
 @click.pass_obj
-def compute_2fa_mandate(config, project_names):
+def compute_2fa_mandate(config):
     """
     Run a one-off computation of the 2FA-mandated projects
     """
 
     request = config.task(_compute_2fa_mandate).get_request()
-    config.task(_compute_2fa_mandate).run(request, project_names)
+    config.task(_compute_2fa_mandate).run(request)
 
 
 @warehouse.command()
