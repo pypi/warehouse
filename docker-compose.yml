@@ -25,10 +25,12 @@ services:
       - ./dev/vault:/etc/vault
 
   db:
-    image: postgres:10.1
+    image: postgres:12.8
     ports:
       # 5432 may already in use by another PostgreSQL on host
       - "5433:5432"
+    environment:
+      POSTGRES_HOST_AUTH_METHOD: trust  # never do this in production!
     healthcheck:
       test: ["CMD", "pg_isready", "-U", "postgres", "-d", "postgres"]
 
