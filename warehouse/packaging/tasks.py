@@ -82,12 +82,6 @@ def compute_2fa_mandate(request):
 
 
 @tasks.task(ignore_result=True, acks_late=True)
-def load_promo_codes(request, codes):
-    for code in codes:
-        request.db.add(TitanPromoCode(code=code))
-
-
-@tasks.task(ignore_result=True, acks_late=True)
 def compute_trending(request):
     bq = request.find_service(name="gcloud.bigquery")
     query = bq.query(

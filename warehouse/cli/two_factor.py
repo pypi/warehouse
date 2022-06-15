@@ -13,10 +13,7 @@
 import click
 
 from warehouse.cli import warehouse
-from warehouse.packaging.tasks import (
-    compute_2fa_mandate as _compute_2fa_mandate,
-    load_promo_codes as _load_promo_codes,
-)
+from warehouse.packaging.tasks import compute_2fa_mandate as _compute_2fa_mandate
 
 
 @warehouse.command()
@@ -28,15 +25,3 @@ def compute_2fa_mandate(config):
 
     request = config.task(_compute_2fa_mandate).get_request()
     config.task(_compute_2fa_mandate).run(request)
-
-
-@warehouse.command()
-@click.argument("promofile", type=click.File("r"))
-@click.pass_obj
-def load_promo_codes(config, promofile):
-    """
-    Load promo codes into the database
-    """
-    codes = promofile.read().splitlines()
-    request = config.task(_load_promo_codes).get_request()
-    config.task(_load_promo_codes).run(request, codes)
