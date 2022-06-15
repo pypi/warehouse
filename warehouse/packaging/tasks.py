@@ -15,6 +15,7 @@ import datetime
 from itertools import product
 
 from google.cloud.bigquery import LoadJobConfig
+import pip_api
 
 from warehouse import tasks
 from warehouse.accounts.models import TitanPromoCode, User
@@ -26,6 +27,12 @@ from warehouse.utils import readme
 
 @tasks.task(ignore_result=True, acks_late=True)
 def compute_2fa_mandate(request):
+    # Get our own production dependencies
+    our_dependencies = set(
+        pip_api.parse_requirements("./requirements/main.txt")
+        | pip_api.parse_requirements("./requirements/deploy.txt")
+    )
+
     bq = request.find_service(name="gcloud.bigquery")
 
     # Get the top N projects in the last 6 months
@@ -53,7 +60,9 @@ def compute_2fa_mandate(request):
             ],
         )
     )
-    project_names = [row.get("project_name") for row in query.result()]
+    top_projects = set(row.get("project_name") for row in query.result())
+
+    project_names = our_dependencies | top_projects
 
     # Get the projects that were not previously in the mandate
     new_projects = request.db.query(Project).filter(
