@@ -561,19 +561,16 @@ class SecurityKeyGiveaway:
             self.request.session.flash(default_response["reason_ineligible"])
         else:
             # The form is valid, assign a promo code to the user
-            try:
-                promo_code = (
-                    self.request.db.query(TitanPromoCode).filter(
-                        TitanPromoCode.user_id.is_(None)
-                    )
-                ).first()
-                promo_code.user_id = self.request.user.id
-                promo_code.distributed = datetime.datetime.now()
-                # Flush so the promo code is available for the response
-                self.request.db.flush()
-                default_response["promo_code"] = promo_code
-            except NoResultFound:
-                pass
+            promo_code = (
+                self.request.db.query(TitanPromoCode).filter(
+                    TitanPromoCode.user_id.is_(None)
+                )
+            ).first()
+            promo_code.user_id = self.request.user.id
+            promo_code.distributed = datetime.datetime.now()
+            # Flush so the promo code is available for the response
+            self.request.db.flush()
+            default_response["promo_code"] = promo_code
         return default_response
 
 
