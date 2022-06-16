@@ -511,7 +511,7 @@ class SecurityKeyGiveaway:
 
         eligible = (
             codes_available
-            and eligible_projects
+            and bool(eligible_projects)
             and not has_two_factor
             and not promo_code
         )
