@@ -71,6 +71,7 @@ from ...common.db.organizations import (
     OrganizationInvitationFactory,
     OrganizationProjectFactory,
     OrganizationRoleFactory,
+    TeamFactory,
 )
 from ...common.db.packaging import (
     FileFactory,
@@ -2986,6 +2987,127 @@ class TestManageOrganizationSettings:
         view = views.ManageOrganizationSettingsViews(organization, db_request)
         with pytest.raises(HTTPNotFound):
             view.delete_organization()
+
+
+class TestManageOrganizationTeams:
+    def test_manage_teams(
+        self,
+        db_request,
+        pyramid_user,
+        organization_service,
+        enable_organizations,
+        monkeypatch,
+    ):
+        organization = OrganizationFactory.create()
+        organization.teams = [TeamFactory.create()]
+
+        db_request.POST = MultiDict()
+
+        view = views.ManageOrganizationTeamsViews(organization, db_request)
+        result = view.manage_teams()
+        form = result["create_team_form"]
+
+        assert view.request == db_request
+        assert view.organization_service == organization_service
+        assert result == {
+            "organization": organization,
+            "create_team_form": form,
+        }
+
+    def test_manage_teams_disable_organizations(self, db_request):
+        organization = OrganizationFactory.create()
+
+        view = views.ManageOrganizationTeamsViews(organization, db_request)
+        with pytest.raises(HTTPNotFound):
+            view.manage_teams()
+
+    def test_create_team(
+        self,
+        db_request,
+        pyramid_user,
+        organization_service,
+        enable_organizations,
+        monkeypatch,
+    ):
+        organization = OrganizationFactory.create()
+        organization.teams = [TeamFactory.create()]
+
+        db_request.POST = MultiDict({"name": "Team Name"})
+
+        OrganizationRoleFactory.create(
+            organization=organization, user=db_request.user, role_name="Owner"
+        )
+
+        def add_team(name, *args, **kwargs):
+            team = TeamFactory.create(name=name)
+            organization.teams.append(team)
+            return team
+
+        monkeypatch.setattr(organization_service, "add_team", add_team)
+
+        # send_team_created_email = pretend.call_recorder(
+        #     lambda req, user, **k: None
+        # )
+        # monkeypatch.setattr(
+        #     views,
+        #     "send_team_created_email",
+        #     send_team_created_email,
+        # )
+
+        view = views.ManageOrganizationTeamsViews(organization, db_request)
+        result = view.create_team()
+
+        assert isinstance(result, HTTPSeeOther)
+        assert result.headers["Location"] == db_request.path
+        assert len(organization.teams) == 2
+        assert organization.teams[-1].name == "Team Name"
+        # assert send_team_created_email.calls == [
+        #     pretend.call(
+        #         db_request,
+        #         {db_request.user},
+        #         organization_name=organization.name,
+        #         team_name=team.name,
+        #     )
+        # ]
+
+    def test_create_team_invalid(
+        self,
+        db_request,
+        pyramid_user,
+        organization_service,
+        enable_organizations,
+        monkeypatch,
+    ):
+        organization = OrganizationFactory.create()
+        organization.teams = [TeamFactory.create(name="Used Name")]
+
+        OrganizationRoleFactory.create(
+            organization=organization, user=db_request.user, role_name="Owner"
+        )
+
+        db_request.POST = MultiDict({"name": "Used Name"})
+
+        view = views.ManageOrganizationTeamsViews(organization, db_request)
+        result = view.create_team()
+        form = result["create_team_form"]
+
+        assert view.request == db_request
+        assert view.organization_service == organization_service
+        assert result == {
+            "organization": organization,
+            "create_team_form": form,
+        }
+        assert form.name.errors == [
+            "This team name has already been used. Choose a different team name."
+        ]
+        assert len(organization.teams) == 1
+
+    def test_create_team_disable_organizations(self, db_request):
+        organization = OrganizationFactory.create()
+
+        view = views.ManageOrganizationTeamsViews(organization, db_request)
+        with pytest.raises(HTTPNotFound):
+            view.create_team()
 
 
 class TestManageOrganizationProjects:
