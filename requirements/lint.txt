@@ -33,17 +33,17 @@ black==22.3.0 \
     --hash=sha256:ee8f1f7228cce7dffc2b464f07ce769f478968bfb3dd1254a4c2eeed84928aad \
     --hash=sha256:fd57160949179ec517d32ac2ac898b5f20d68ed1a9c977346efbac9c2f1e779d
     # via -r requirements/lint.in
-boto3-stubs==1.24.6 \
-    --hash=sha256:56bd748c040690646f04af4ce3533ff15d90a7be2fb6fac1ea1831b9e0cc143c \
-    --hash=sha256:8b472a6f843ece2beb34653ef8d5ef0a88dcf42cd216d0090dd2edfb32a095dc
+boto3-stubs==1.24.9 \
+    --hash=sha256:139861de497a888e637c211740d9d80a377e0459aaa9e09bf773008e16ab63ce \
+    --hash=sha256:7d7740298e1db7a8105e61f6b9713bc10aecf6539b7122db5a5fd11723c0b31e
     # via types-boto3
-botocore-stubs==1.27.6 \
-    --hash=sha256:3ab60681e62d5c1f2f065b44014796eb391ce5fcac4dd22477064c5b0b0980e9 \
-    --hash=sha256:3d2b6b2998361a619e589c3219fc971ac2e9be1c791f656ce439dd7e2269ca4b
+botocore-stubs==1.27.9 \
+    --hash=sha256:6992cfbda5b0f85de7372c860770f7dede4fa2084972459787e3d92228f17d2e \
+    --hash=sha256:6a7f004b2fb539fd4062c874d817d41f49386cae6f082194a168ac479ba48be6
     # via boto3-stubs
-celery-types==0.13.0 \
-    --hash=sha256:28c7a5e024d541aaf501a2d2fc3b671c193b1993d0be0cc257188bdcadc5557a \
-    --hash=sha256:29beddabfc04878baae06bf1779d94e89d52b613b2baeae6ebb58cfd86e1c8f1
+celery-types==0.13.1 \
+    --hash=sha256:0a92d8eded085d055595b04290dd8e5fcd84f4412a00a25f2122d4e6c58a1f56 \
+    --hash=sha256:de575cdd5b938552002705c9edadc18fca336c7e83c581b60b3919f2bcfdfa1a
     # via -r requirements/lint.in
 click==8.1.3 \
     --hash=sha256:7682dc8afb30297001674575ea00d1814d808d6a36af415a82bd481d37ba7b8e \
@@ -309,9 +309,9 @@ zope-schema==6.2.0 \
     # via mypy-zope
 
 # The following packages are considered to be unsafe in a requirements file:
-setuptools==62.3.3 \
-    --hash=sha256:d1746e7fd520e83bbe210d02fff1aa1a425ad671c7a9da7d246ec2401a087198 \
-    --hash=sha256:e7d11f3db616cda0751372244c2ba798e8e56a28e096ec4529010b803485f3fe
+setuptools==62.4.0 \
+    --hash=sha256:5a844ad6e190dccc67d6d7411d119c5152ce01f7c76be4d8a1eaa314501bba77 \
+    --hash=sha256:bf8a748ac98b09d32c9a64a995a6b25921c96cc5743c1efa82763ba80ff54e91
     # via
     #   zope-interface
     #   zope-schema
