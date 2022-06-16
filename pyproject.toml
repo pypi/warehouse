@@ -19,8 +19,7 @@ exclude = ["warehouse/locale/.*", "warehouse/migrations/versions.*"]
 # These modules do not yet have types available.
 module = [
     "automat.*",
-    "babel.*",
-    "bpython.*",
+    "bpython.*",  # https://github.com/bpython/bpython/issues/892
     "celery.app.backends.*",
     "celery.backends.redis.*",
     "citext.*",
@@ -29,10 +28,8 @@ module = [
     "google.cloud.*",
     "IPython.*",
     "mistune.*",
-    "msgpack.*",
     "paginate.*",
     "paginate_sqlalchemy.*",
-    "passlib.*",
     "premailer.*",
     "pymacaroons.*", # https://github.com/ecordell/pymacaroons/issues/41
     "pyramid.*", # https://github.com/Pylons/pyramid/issues/2638
@@ -41,13 +38,10 @@ module = [
     "pyramid_retry.*",
     "pyramid_rpc.*",
     "pyqrcode.*",
-    "requests_aws4auth.*",
+    "requests_aws4auth.*",  # https://github.com/tedder/requests-aws4auth/issues/53
     "rfc3986.*",
-    "stdlib_list.*",
     "sqlalchemy.*", # https://docs.sqlalchemy.org/en/14/orm/extensions/mypy.html
-    "sqlalchemy_utils.*",
     "transaction.*",
-    "trove_classifiers.*",
     "venusian.*",
     "whitenoise.*",
     "wtforms.*", # https://github.com/wtforms/wtforms/issues/618
