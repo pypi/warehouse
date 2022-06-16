@@ -19,7 +19,7 @@ import pip_api
 from google.cloud.bigquery import LoadJobConfig
 
 from warehouse import tasks
-from warehouse.accounts.models import TitanPromoCode, User
+from warehouse.accounts.models import User
 from warehouse.cache.origin import IOriginCache
 from warehouse.email import send_two_factor_mandate_email
 from warehouse.packaging.models import Description, File, Project, Release
