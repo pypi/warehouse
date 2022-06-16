@@ -583,6 +583,14 @@ def send_organization_deleted_email(request, user, *, organization_name):
     }
 
 
+@_email("team-created")
+def send_team_created_email(request, user, *, organization_name, team_name):
+    return {
+        "organization_name": organization_name,
+        "team_name": team_name,
+    }
+
+
 @_email("verify-project-role", allow_unverified=True)
 def send_project_role_verification_email(
     request,

@@ -3045,14 +3045,12 @@ class TestManageOrganizationTeams:
 
         monkeypatch.setattr(organization_service, "add_team", add_team)
 
-        # send_team_created_email = pretend.call_recorder(
-        #     lambda req, user, **k: None
-        # )
-        # monkeypatch.setattr(
-        #     views,
-        #     "send_team_created_email",
-        #     send_team_created_email,
-        # )
+        send_team_created_email = pretend.call_recorder(lambda *a, **kw: None)
+        monkeypatch.setattr(
+            views,
+            "send_team_created_email",
+            send_team_created_email,
+        )
 
         view = views.ManageOrganizationTeamsViews(organization, db_request)
         result = view.create_team()
@@ -3061,14 +3059,14 @@ class TestManageOrganizationTeams:
         assert result.headers["Location"] == db_request.path
         assert len(organization.teams) == 2
         assert organization.teams[-1].name == "Team Name"
-        # assert send_team_created_email.calls == [
-        #     pretend.call(
-        #         db_request,
-        #         {db_request.user},
-        #         organization_name=organization.name,
-        #         team_name=team.name,
-        #     )
-        # ]
+        assert send_team_created_email.calls == [
+            pretend.call(
+                db_request,
+                {db_request.user},
+                organization_name=organization.name,
+                team_name="Team Name",
+            )
+        ]
 
     def test_create_team_invalid(
         self,

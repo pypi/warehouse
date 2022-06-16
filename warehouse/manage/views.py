@@ -74,6 +74,7 @@ from warehouse.email import (
     send_removed_project_release_file_email,
     send_role_changed_as_collaborator_email,
     send_role_changed_as_organization_member_email,
+    send_team_created_email,
     send_two_factor_added_email,
     send_two_factor_removed_email,
     send_unyanked_project_release_email,
@@ -1513,17 +1514,23 @@ class ManageOrganizationTeamsViews:
             },
         )
 
-        # TODO Send notification emails.
-        # owner_and_manager_users = set(
-        #     organization_owners(self.request, self.organization)
-        #     + organization_managers(self.request, self.organization)
-        # )
-        # send_team_created_email(
-        #     self.request,
-        #     owner_and_manager_users,
-        #     organization_name=self.organization.name,
-        #     team_name=team.name,
-        # )
+        # Send notification emails.
+        owner_and_manager_users = set(
+            organization_owners(self.request, self.organization)
+            + organization_managers(self.request, self.organization)
+        )
+        send_team_created_email(
+            self.request,
+            owner_and_manager_users,
+            organization_name=self.organization.name,
+            team_name=team.name,
+        )
+
+        # Display notification message.
+        self.request.session.flash(
+            f"Created team {team.name!r} in {self.organization.name!r}",
+            queue="success",
+        )
 
         # Refresh teams list.
         return HTTPSeeOther(self.request.path)
