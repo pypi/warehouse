@@ -14,13 +14,19 @@
 <nav aria-label="{% trans organization=organization.normalized_name %}Navigation for managing {{ organization }}{% endtrans %}">
   <ul class="vertical-tabs__list">
     <li>
-      <a href="{{ request.route_path('manage.organization.roles', organization_name=organization.normalized_name)}}" class="vertical-tabs__tab vertical-tabs__tab--with-icon {% if active_tab == 'people' %}vertical-tabs__tab--is-active{% endif %} {% if mode == 'mobile' %}vertical-tabs__tab--mobile{% endif %}" {% if active_tab == 'people' %}aria-selected="true"{% endif %}>
+      <a href="{{ request.route_path('manage.organization.projects', organization_name=organization.normalized_name) }}" class="vertical-tabs__tab vertical-tabs__tab--with-icon {% if active_tab == 'projects' %}vertical-tabs__tab--is-active{% endif %} {% if mode == 'mobile' %}vertical-tabs__tab--mobile{% endif %}" {% if active_tab == 'projects' %}aria-selected="true"{% endif %}>
+        <i class="fa fa-cube" aria-hidden="true"></i>
+        {% trans %}Projects{% endtrans %}
+      </a>
+    </li>
+    <li>
+      <a href="{{ request.route_path('manage.organization.roles', organization_name=organization.normalized_name) }}" class="vertical-tabs__tab vertical-tabs__tab--with-icon {% if active_tab == 'people' %}vertical-tabs__tab--is-active{% endif %} {% if mode == 'mobile' %}vertical-tabs__tab--mobile{% endif %}" {% if active_tab == 'people' %}aria-selected="true"{% endif %}>
         <i class="fa fa-users" aria-hidden="true"></i>
         {% trans %}People{% endtrans %}
       </a>
     </li>
     <li>
-      <a href="{{ request.route_path('manage.organization.settings', organization_name=organization.normalized_name)}}" class="vertical-tabs__tab vertical-tabs__tab--with-icon {% if active_tab == 'settings' %}vertical-tabs__tab--is-active{% endif %} {% if mode == 'mobile' %}vertical-tabs__tab--mobile{% endif %}" {% if active_tab == 'settings' %}aria-selected="true"{% endif %}>
+      <a href="{{ request.route_path('manage.organization.settings', organization_name=organization.normalized_name) }}" class="vertical-tabs__tab vertical-tabs__tab--with-icon {% if active_tab == 'settings' %}vertical-tabs__tab--is-active{% endif %} {% if mode == 'mobile' %}vertical-tabs__tab--mobile{% endif %}" {% if active_tab == 'settings' %}aria-selected="true"{% endif %}>
         <i class="fa fa-wrench" aria-hidden="true"></i>
         {% trans %}Settings{% endtrans %}
       </a>

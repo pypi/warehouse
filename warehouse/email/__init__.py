@@ -348,6 +348,26 @@ def send_new_organization_declined_email(
     }
 
 
+@_email("organization-project-added")
+def send_organization_project_added_email(
+    request, user, *, organization_name, project_name
+):
+    return {
+        "organization_name": organization_name,
+        "project_name": project_name,
+    }
+
+
+@_email("organization-project-removed")
+def send_organization_project_removed_email(
+    request, user, *, organization_name, project_name
+):
+    return {
+        "organization_name": organization_name,
+        "project_name": project_name,
+    }
+
+
 @_email("organization-member-invited")
 def send_organization_member_invited_email(
     request,

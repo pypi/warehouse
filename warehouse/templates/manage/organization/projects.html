@@ -11,54 +11,21 @@
  # See the License for the specific language governing permissions and
  # limitations under the License.
 -#}
-{% extends "manage_base.html" %}
+{% extends "manage_organization_base.html" %}
+
+{% set user = request.user %}
+{% set title = gettext("Organization projects") %}
 
 {% set active_tab = 'projects' %}
 
-{% block title %}{% trans %}Your projects{% endtrans %}{% endblock %}
+{% block title %}{% trans organization_name=organization.name %}Manage '{{ organization_name }}' projects{% endtrans %}{% endblock %}
 
 {% block main %}
-  {% if project_invites %}
-  <h1 class="page-title">{% trans invitation_count=project_invites|length %}Pending invitations ({{ invitation_count }}){% endtrans %}</h1>
-  <div class="package-list">
-    {% for project, token in project_invites %}
-    {% set release = project.releases[0] if project.releases else None %}
-    <div class="package-snippet">
-      <div class="split-layout split-layout--no-wrap split-layout--wrap-on-tablet">
-        <div>
-          <h3 class="package-snippet__title">
-            <a href="{{ request.route_path('packaging.project', name=project.name) }}">{{ project.name }}</a>
-          </h3>
-          {% if release %}
-          <p class="package-snippet__meta">
-            {% trans release_date=humanize(release.created) %}Last released {{ release_date }}{% endtrans %}
-          </p>
-          <p class="package-snippet__description">
-            {{ release.summary }}
-          </p>
-          {% else %}
-          <p class="package-snippet__meta">
-            {% trans creation_date=humanize(project.created) %}Created {{ creation_date }}{% endtrans %}
-          </p>
-          {% endif %}
-        </div>
-        <div class="package-snippet__buttons">
-          <form method="POST" action="{{ request.route_path('accounts.verify-project-role') }}">
-            <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
-            <input name="token" type="hidden" value="{{ token }}">
-            <input name="accept" type="submit" value="{% trans %}Accept{% endtrans %}" class="button button--primary">
-            <input name="decline" type="submit" value="{% trans %}Decline{% endtrans %}" class="button">
-          </form>
-        </div>
-      </div>
-    </div>
-    {% endfor%}
-  </div>
-  {% endif %}
-  <h1 class="page-title">{% trans project_count=projects|length %}Your projects ({{ project_count }}){% endtrans %}</h1>
+  <h2>{% trans project_count=active_projects|length %}Projects ({{ project_count }}){% endtrans %}</h2>
+
   <div class="package-list">
     {% set user_has_two_factor = request.user.has_two_factor %}
-    {% for project in projects %}
+    {% for project in active_projects %}
     {% set release = project.releases[0] if project.releases else None %}
     <div class="package-snippet">
       <div class="split-layout split-layout--no-wrap split-layout--wrap-on-tablet">
@@ -169,8 +136,71 @@
     </div>
     {% else %}
       <div class="callout-block no-top-margin">
-        <p>{% trans href='https://packaging.python.org/' %}You have not uploaded any projects to PyPI, yet. To learn how to get started, visit the <a href="{{ href }}" target="_blank" rel="noopener">Python Packaging User Guide</a>{% endtrans %}</p>
+        <p>{% trans href='https://packaging.python.org/' %}You have not added any projects to your organization, yet. Get started by adding a project that you own using the form below. To learn how to create a new project, visit the <a href="{{ href }}" target="_blank" rel="noopener">Python Packaging User Guide</a>{% endtrans %}</p>
       </div>
     {% endfor %}
   </div>
+
+  {% if request.has_permission("manage:organization") %}
+  <hr>
+
+  {{ form_error_anchor(add_organization_project_form) }}
+  <section id="add-organization-project">
+    <h2 class="sub-title">{% trans %}Add project to organization{% endtrans %}</h2>
+    <form class="radio-toggle-form" method="POST">
+      <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
+      {{ form_errors(add_organization_project_form) }}
+      {# New or existing? radio buttons should be siblings of div.form-group below. #}
+        <label class="form-group__label" for="add_existing_project">
+          {% trans %}️New or existing project?{% endtrans %}
+        </label>
+        {% for subfield in add_organization_project_form.add_existing_project %}
+        {{ subfield(**{"data-target": ".radio-toggle-" + loop.index|string}) }}
+        {{ subfield.label }}
+        {% endfor %}
+        <div id="add-existing-project-errors">
+          {{ field_errors(add_organization_project_form.add_existing_project) }}
+        </div>
+        <p class="form-group__help-text">
+          {% trans %}Transfer an existing project that you own, or create and add a new project to the organization.{% endtrans %}
+        </p>
+        <p class="form-group__text"></p>
+      {# end radio buttons #}
+      <div class="form-group radio-toggle radio-toggle-1">
+        <label class="form-group__label" for="project">
+          {% trans %}️Name of existing project{% endtrans %}
+          <span class="form-group__required">{% trans %}(required){% endtrans %}</span>
+        </label>
+        {% set no_existing_projects = add_organization_project_form.existing_project_name.choices|length <= 1 %}
+        {{ add_organization_project_form.existing_project_name(class_="form-group__field", disabled=no_existing_projects, title=gettext("You do not own any projects that you can add to this organization.") if no_existing_projects else "", **{"aria-describedby":"existing-project-name-errors"}) }}
+        <div id="existing-project-name-errors">
+          {{ field_errors(add_organization_project_form.existing_project_name) }}
+        </div>
+        <p class="form-group__help-text">
+          {% trans trimmed %}
+          Owners of this organization can transfer a project that they own to this organization if the project has not been added to another organization. A project that has been added to another organization can be transferred from the project settings page.
+          {% endtrans %}
+        </p>
+      </div>
+      <input value="{% trans %}Transfer existing project{% endtrans %}" class="button button--primary radio-toggle radio-toggle-1" type="submit">
+
+      <div class="form-group radio-toggle radio-toggle-2">
+        <label class="form-group__label" for="project">
+          {% trans %}️Name of new project{% endtrans %}
+          <span class="form-group__required">{% trans %}(required){% endtrans %}</span>
+        </label>
+        {{ add_organization_project_form.new_project_name(class_="form-group__field", **{"aria-describedby":"new-project-name-errors"}) }}
+        <div id="new-project-name-errors">
+          {{ field_errors(add_organization_project_form.new_project_name) }}
+        </div>
+        <p class="form-group__help-text">
+          {% trans trimmed %}
+          Owners of this organization can create an empty project and add it to the organization.
+          {% endtrans %}
+        </p>
+      </div>
+      <input value="{% trans %}Create and add new project{% endtrans %}" class="button button--primary radio-toggle radio-toggle-2" type="submit">
+    </form>
+  </section>
+  {% endif %}
 {% endblock %}

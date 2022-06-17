@@ -2976,6 +2976,405 @@ class TestManageOrganizationSettings:
             view.delete_organization()
 
 
+class TestManageOrganizationProjects:
+    def test_manage_organization_projects(
+        self,
+        db_request,
+        pyramid_user,
+        organization_service,
+        enable_organizations,
+        monkeypatch,
+    ):
+        organization = OrganizationFactory.create()
+        organization.projects = [ProjectFactory.create()]
+
+        add_organization_project_obj = pretend.stub()
+        add_organization_project_cls = pretend.call_recorder(
+            lambda *a, **kw: add_organization_project_obj
+        )
+        monkeypatch.setattr(
+            views, "AddOrganizationProjectForm", add_organization_project_cls
+        )
+
+        view = views.ManageOrganizationProjectsViews(organization, db_request)
+        result = view.manage_organization_projects()
+
+        assert view.request == db_request
+        assert view.organization_service == organization_service
+        assert result == {
+            "organization": organization,
+            "active_projects": view.active_projects,
+            "projects_owned": set(),
+            "projects_sole_owned": set(),
+            "projects_requiring_2fa": set(),
+            "add_organization_project_form": add_organization_project_obj,
+        }
+        assert len(add_organization_project_cls.calls) == 1
+
+    def test_manage_organization_projects_disable_organizations(self, db_request):
+        organization = OrganizationFactory.create()
+
+        view = views.ManageOrganizationProjectsViews(organization, db_request)
+        with pytest.raises(HTTPNotFound):
+            view.manage_organization_projects()
+
+    def test_add_organization_project_existing_project(
+        self,
+        db_request,
+        pyramid_user,
+        organization_service,
+        enable_organizations,
+        monkeypatch,
+    ):
+        organization = OrganizationFactory.create()
+        organization.projects = [ProjectFactory.create()]
+
+        project = ProjectFactory.create()
+
+        OrganizationRoleFactory.create(
+            organization=organization, user=db_request.user, role_name="Owner"
+        )
+        RoleFactory.create(project=project, user=db_request.user, role_name="Owner")
+
+        add_organization_project_obj = pretend.stub(
+            add_existing_project=pretend.stub(data=True),
+            existing_project_name=pretend.stub(data=project.name),
+            validate=lambda *a, **kw: True,
+        )
+        add_organization_project_cls = pretend.call_recorder(
+            lambda *a, **kw: add_organization_project_obj
+        )
+        monkeypatch.setattr(
+            views, "AddOrganizationProjectForm", add_organization_project_cls
+        )
+
+        def add_organization_project(*args, **kwargs):
+            organization.projects.append(project)
+
+        monkeypatch.setattr(
+            organization_service, "add_organization_project", add_organization_project
+        )
+
+        send_organization_project_added_email = pretend.call_recorder(
+            lambda req, user, **k: None
+        )
+        monkeypatch.setattr(
+            views,
+            "send_organization_project_added_email",
+            send_organization_project_added_email,
+        )
+
+        view = views.ManageOrganizationProjectsViews(organization, db_request)
+        result = view.add_organization_project()
+
+        assert isinstance(result, HTTPSeeOther)
+        assert result.headers["Location"] == db_request.path
+        assert len(add_organization_project_cls.calls) == 1
+        assert len(organization.projects) == 2
+        assert send_organization_project_added_email.calls == [
+            pretend.call(
+                db_request,
+                {db_request.user},
+                organization_name=organization.name,
+                project_name=project.name,
+            )
+        ]
+
+    def test_add_organization_project_existing_project_no_individual_owner(
+        self,
+        db_request,
+        pyramid_user,
+        organization_service,
+        enable_organizations,
+        monkeypatch,
+    ):
+        organization = OrganizationFactory.create()
+        organization.projects = [ProjectFactory.create()]
+
+        project = ProjectFactory.create()
+
+        OrganizationRoleFactory.create(
+            organization=organization, user=db_request.user, role_name="Owner"
+        )
+
+        add_organization_project_obj = pretend.stub(
+            add_existing_project=pretend.stub(data=True),
+            existing_project_name=pretend.stub(data=project.name),
+            validate=lambda *a, **kw: True,
+        )
+        add_organization_project_cls = pretend.call_recorder(
+            lambda *a, **kw: add_organization_project_obj
+        )
+        monkeypatch.setattr(
+            views, "AddOrganizationProjectForm", add_organization_project_cls
+        )
+
+        def add_organization_project(*args, **kwargs):
+            organization.projects.append(project)
+
+        monkeypatch.setattr(
+            organization_service, "add_organization_project", add_organization_project
+        )
+
+        send_organization_project_added_email = pretend.call_recorder(
+            lambda req, user, **k: None
+        )
+        monkeypatch.setattr(
+            views,
+            "send_organization_project_added_email",
+            send_organization_project_added_email,
+        )
+
+        view = views.ManageOrganizationProjectsViews(organization, db_request)
+        result = view.add_organization_project()
+
+        assert isinstance(result, HTTPSeeOther)
+        assert result.headers["Location"] == db_request.path
+        assert len(add_organization_project_cls.calls) == 1
+        assert len(organization.projects) == 2
+        assert send_organization_project_added_email.calls == [
+            pretend.call(
+                db_request,
+                {db_request.user},
+                organization_name=organization.name,
+                project_name=project.name,
+            )
+        ]
+
+    def test_add_organization_project_existing_project_invalid(
+        self,
+        db_request,
+        pyramid_user,
+        organization_service,
+        enable_organizations,
+        monkeypatch,
+    ):
+        organization = OrganizationFactory.create()
+        organization.projects = [ProjectFactory.create()]
+
+        project = ProjectFactory.create()
+
+        OrganizationRoleFactory.create(
+            organization=organization, user=db_request.user, role_name="Owner"
+        )
+        RoleFactory.create(project=project, user=db_request.user, role_name="Owner")
+
+        add_organization_project_obj = pretend.stub(
+            add_existing_project=pretend.stub(data=True),
+            existing_project_name=pretend.stub(data=project.name),
+            validate=lambda *a, **kw: False,
+        )
+        add_organization_project_cls = pretend.call_recorder(
+            lambda *a, **kw: add_organization_project_obj
+        )
+        monkeypatch.setattr(
+            views, "AddOrganizationProjectForm", add_organization_project_cls
+        )
+
+        def add_organization_project(*args, **kwargs):
+            organization.projects.append(project)
+
+        monkeypatch.setattr(
+            organization_service, "add_organization_project", add_organization_project
+        )
+
+        view = views.ManageOrganizationProjectsViews(organization, db_request)
+        result = view.add_organization_project()
+
+        assert result == {
+            "organization": organization,
+            "active_projects": view.active_projects,
+            "projects_owned": {project.name, organization.projects[0].name},
+            "projects_sole_owned": {project.name, organization.projects[0].name},
+            "projects_requiring_2fa": set(),
+            "add_organization_project_form": add_organization_project_obj,
+        }
+        assert len(add_organization_project_cls.calls) == 1
+        assert len(organization.projects) == 1
+
+    def test_add_organization_project_new_project(
+        self,
+        db_request,
+        pyramid_user,
+        organization_service,
+        enable_organizations,
+        monkeypatch,
+    ):
+        db_request.help_url = lambda *a, **kw: ""
+
+        organization = OrganizationFactory.create()
+        organization.projects = [ProjectFactory.create()]
+
+        project = ProjectFactory.create()
+
+        OrganizationRoleFactory.create(
+            organization=organization, user=db_request.user, role_name="Owner"
+        )
+        RoleFactory.create(project=project, user=db_request.user, role_name="Owner")
+
+        add_organization_project_obj = pretend.stub(
+            add_existing_project=pretend.stub(data=False),
+            new_project_name=pretend.stub(data=project.name),
+            validate=lambda *a, **kw: True,
+        )
+        add_organization_project_cls = pretend.call_recorder(
+            lambda *a, **kw: add_organization_project_obj
+        )
+        monkeypatch.setattr(
+            views, "AddOrganizationProjectForm", add_organization_project_cls
+        )
+
+        validate_project_name = pretend.call_recorder(lambda *a, **kw: True)
+        monkeypatch.setattr(views, "validate_project_name", validate_project_name)
+
+        add_project = pretend.call_recorder(lambda *a, **kw: project)
+        monkeypatch.setattr(views, "add_project", add_project)
+
+        def add_organization_project(*args, **kwargs):
+            organization.projects.append(project)
+
+        monkeypatch.setattr(
+            organization_service, "add_organization_project", add_organization_project
+        )
+
+        send_organization_project_added_email = pretend.call_recorder(
+            lambda req, user, **k: None
+        )
+        monkeypatch.setattr(
+            views,
+            "send_organization_project_added_email",
+            send_organization_project_added_email,
+        )
+
+        view = views.ManageOrganizationProjectsViews(organization, db_request)
+        result = view.add_organization_project()
+
+        assert isinstance(result, HTTPSeeOther)
+        assert result.headers["Location"] == db_request.path
+        assert validate_project_name.calls == [pretend.call(project.name, db_request)]
+        assert add_project.calls == [pretend.call(project.name, db_request)]
+        assert len(add_organization_project_cls.calls) == 1
+        assert len(organization.projects) == 2
+        assert send_organization_project_added_email.calls == [
+            pretend.call(
+                db_request,
+                {db_request.user},
+                organization_name=organization.name,
+                project_name=project.name,
+            )
+        ]
+
+    def test_add_organization_project_new_project_exception(
+        self,
+        db_request,
+        pyramid_user,
+        organization_service,
+        enable_organizations,
+        monkeypatch,
+    ):
+        organization = OrganizationFactory.create()
+        organization.projects = [ProjectFactory.create()]
+
+        project = ProjectFactory.create()
+
+        OrganizationRoleFactory.create(
+            organization=organization, user=db_request.user, role_name="Owner"
+        )
+        RoleFactory.create(project=project, user=db_request.user, role_name="Owner")
+
+        add_organization_project_obj = pretend.stub(
+            add_existing_project=pretend.stub(data=False),
+            new_project_name=pretend.stub(data=project.name, errors=[]),
+            validate=lambda *a, **kw: True,
+        )
+        add_organization_project_cls = pretend.call_recorder(
+            lambda *a, **kw: add_organization_project_obj
+        )
+        monkeypatch.setattr(
+            views, "AddOrganizationProjectForm", add_organization_project_cls
+        )
+
+        def validate_project_name(*a, **kw):
+            raise HTTPBadRequest("error-message")
+
+        monkeypatch.setattr(views, "validate_project_name", validate_project_name)
+
+        view = views.ManageOrganizationProjectsViews(organization, db_request)
+        result = view.add_organization_project()
+
+        assert result == {
+            "organization": organization,
+            "active_projects": view.active_projects,
+            "projects_owned": {project.name, organization.projects[0].name},
+            "projects_sole_owned": {project.name, organization.projects[0].name},
+            "projects_requiring_2fa": set(),
+            "add_organization_project_form": add_organization_project_obj,
+        }
+        assert add_organization_project_obj.new_project_name.errors == ["error-message"]
+        assert len(organization.projects) == 1
+
+    def test_add_organization_project_new_project_name_conflict(
+        self,
+        db_request,
+        pyramid_user,
+        organization_service,
+        enable_organizations,
+        monkeypatch,
+    ):
+        db_request.help_url = lambda *a, **kw: "help-url"
+
+        organization = OrganizationFactory.create()
+        organization.projects = [ProjectFactory.create()]
+
+        project = ProjectFactory.create()
+
+        OrganizationRoleFactory.create(
+            organization=organization, user=db_request.user, role_name="Owner"
+        )
+        RoleFactory.create(project=project, user=db_request.user, role_name="Owner")
+
+        add_organization_project_obj = pretend.stub(
+            add_existing_project=pretend.stub(data=False),
+            new_project_name=pretend.stub(data=project.name, errors=[]),
+            validate=lambda *a, **kw: True,
+        )
+        add_organization_project_cls = pretend.call_recorder(
+            lambda *a, **kw: add_organization_project_obj
+        )
+        monkeypatch.setattr(
+            views, "AddOrganizationProjectForm", add_organization_project_cls
+        )
+
+        view = views.ManageOrganizationProjectsViews(organization, db_request)
+        result = view.add_organization_project()
+
+        assert result == {
+            "organization": organization,
+            "active_projects": view.active_projects,
+            "projects_owned": {project.name, organization.projects[0].name},
+            "projects_sole_owned": {project.name, organization.projects[0].name},
+            "projects_requiring_2fa": set(),
+            "add_organization_project_form": add_organization_project_obj,
+        }
+        assert add_organization_project_obj.new_project_name.errors == [
+            (
+                "The name {name!r} conflicts with an existing project. "
+                "See {projecthelp} for more information."
+            ).format(
+                name=project.name,
+                projecthelp="help-url",
+            )
+        ]
+        assert len(organization.projects) == 1
+
+    def test_add_organization_project_disable_organizations(self, db_request):
+        organization = OrganizationFactory.create()
+
+        view = views.ManageOrganizationProjectsViews(organization, db_request)
+        with pytest.raises(HTTPNotFound):
+            view.add_organization_project()
+
+
 class TestManageOrganizationRoles:
     def test_get_manage_organization_roles(self, db_request, enable_organizations):
         organization = OrganizationFactory.create(name="foobar")
@@ -4029,18 +4428,32 @@ class TestManageProjects:
 
 
 class TestManageProjectSettings:
-    def test_manage_project_settings(self):
-        request = pretend.stub()
-        project = pretend.stub()
+    @pytest.mark.parametrize("enabled", [False, True])
+    def test_manage_project_settings(self, enabled, monkeypatch):
+        request = pretend.stub(
+            flags=pretend.stub(enabled=pretend.call_recorder(lambda *a: enabled))
+        )
+        project = pretend.stub(organization=None)
         view = views.ManageProjectSettingsViews(project, request)
-        form = pretend.stub
-        view.toggle_2fa_requirement_form_class = lambda: form
+        form = pretend.stub()
+        view.toggle_2fa_requirement_form_class = lambda *a, **kw: form
+        view.transfer_organization_project_form_class = lambda *a, **kw: form
+
+        user_organizations = pretend.call_recorder(
+            lambda *a, **kw: {
+                "organizations_managed": [],
+                "organizations_owned": [],
+                "organizations_billing": [],
+            }
+        )
+        monkeypatch.setattr(views, "user_organizations", user_organizations)
 
         assert view.manage_project_settings() == {
             "project": project,
             "MAX_FILESIZE": MAX_FILESIZE,
             "MAX_PROJECT_SIZE": MAX_PROJECT_SIZE,
             "toggle_2fa_form": form,
+            "transfer_organization_project_form": form,
         }
 
     @pytest.mark.parametrize("enabled", [False, None])
@@ -4174,6 +4587,506 @@ class TestManageProjectSettings:
         event = events[0]
         assert event.tag == tag
         assert event.additional == {"modified_by": db_request.user.username}
+
+    def test_remove_organization_project_no_confirm(self):
+        project = pretend.stub(normalized_name="foo")
+        request = pretend.stub(
+            POST={},
+            flags=pretend.stub(enabled=pretend.call_recorder(lambda *a: False)),
+            session=pretend.stub(flash=pretend.call_recorder(lambda *a, **kw: None)),
+            route_path=lambda *a, **kw: "/foo/bar/",
+        )
+
+        with pytest.raises(HTTPSeeOther) as exc:
+            views.remove_organization_project(project, request)
+            assert exc.value.status_code == 303
+            assert exc.value.headers["Location"] == "/foo/bar/"
+
+        assert request.flags.enabled.calls == [
+            pretend.call(AdminFlagValue.DISABLE_ORGANIZATIONS)
+        ]
+        assert request.session.flash.calls == [
+            pretend.call("Confirm the request", queue="error")
+        ]
+
+    def test_remove_organization_project_wrong_confirm(self):
+        project = pretend.stub(normalized_name="foo")
+        request = pretend.stub(
+            POST={"confirm_remove_organization_project_name": "bar"},
+            flags=pretend.stub(enabled=pretend.call_recorder(lambda *a: False)),
+            session=pretend.stub(flash=pretend.call_recorder(lambda *a, **kw: None)),
+            route_path=lambda *a, **kw: "/foo/bar/",
+        )
+
+        with pytest.raises(HTTPSeeOther) as exc:
+            views.remove_organization_project(project, request)
+            assert exc.value.status_code == 303
+            assert exc.value.headers["Location"] == "/foo/bar/"
+
+        assert request.flags.enabled.calls == [
+            pretend.call(AdminFlagValue.DISABLE_ORGANIZATIONS)
+        ]
+        assert request.session.flash.calls == [
+            pretend.call(
+                (
+                    "Could not remove project from organization - "
+                    "'bar' is not the same as 'foo'"
+                ),
+                queue="error",
+            )
+        ]
+
+    def test_remove_organization_project_disable_organizations(self):
+        project = pretend.stub(name="foo", normalized_name="foo")
+        request = pretend.stub(
+            flags=pretend.stub(enabled=pretend.call_recorder(lambda *a: True)),
+            route_path=pretend.call_recorder(lambda *a, **kw: "/the-redirect"),
+            session=pretend.stub(flash=pretend.call_recorder(lambda *a, **kw: None)),
+        )
+
+        result = views.remove_organization_project(project, request)
+
+        assert isinstance(result, HTTPSeeOther)
+        assert result.headers["Location"] == "/the-redirect"
+        assert request.flags.enabled.calls == [
+            pretend.call(AdminFlagValue.DISABLE_ORGANIZATIONS)
+        ]
+        assert request.session.flash.calls == [
+            pretend.call("Organizations are disabled", queue="error")
+        ]
+        assert request.route_path.calls == [
+            pretend.call("manage.project.settings", project_name="foo")
+        ]
+
+    def test_remove_organization_project_no_current_organization(
+        self, monkeypatch, db_request
+    ):
+        project = ProjectFactory.create(name="foo")
+
+        db_request.POST = MultiDict(
+            {
+                "confirm_remove_organization_project_name": project.normalized_name,
+            }
+        )
+        db_request.flags = pretend.stub(enabled=pretend.call_recorder(lambda *a: False))
+        db_request.route_path = pretend.call_recorder(lambda *a, **kw: "/the-redirect")
+        db_request.session = pretend.stub(
+            flash=pretend.call_recorder(lambda *a, **kw: None)
+        )
+        db_request.user = UserFactory.create()
+
+        RoleFactory.create(project=project, user=db_request.user, role_name="Owner")
+
+        send_organization_project_removed_email = pretend.call_recorder(
+            lambda req, user, **k: None
+        )
+        monkeypatch.setattr(
+            views,
+            "send_organization_project_removed_email",
+            send_organization_project_removed_email,
+        )
+
+        result = views.remove_organization_project(project, db_request)
+
+        assert db_request.session.flash.calls == []
+        assert db_request.route_path.calls == [
+            pretend.call("manage.project.settings", project_name="foo")
+        ]
+        assert isinstance(result, HTTPSeeOther)
+        assert result.headers["Location"] == "/the-redirect"
+        assert send_organization_project_removed_email.calls == []
+
+    def test_remove_organization_project_no_individual_owner(
+        self, monkeypatch, db_request
+    ):
+        project = ProjectFactory.create(name="foo")
+        project.organization = OrganizationFactory.create(name="bar")
+
+        db_request.POST = MultiDict(
+            {
+                "confirm_remove_organization_project_name": project.normalized_name,
+            }
+        )
+        db_request.flags = pretend.stub(enabled=pretend.call_recorder(lambda *a: False))
+        db_request.route_path = pretend.call_recorder(lambda *a, **kw: "/the-redirect")
+        db_request.session = pretend.stub(
+            flash=pretend.call_recorder(lambda *a, **kw: None)
+        )
+        db_request.user = UserFactory.create()
+
+        OrganizationRoleFactory.create(
+            organization=project.organization, user=db_request.user, role_name="Owner"
+        )
+
+        result = views.remove_organization_project(project, db_request)
+
+        assert isinstance(result, HTTPSeeOther)
+        assert result.headers["Location"] == "/the-redirect"
+        assert db_request.flags.enabled.calls == [
+            pretend.call(AdminFlagValue.DISABLE_ORGANIZATIONS)
+        ]
+        assert db_request.session.flash.calls == [
+            pretend.call("Could not remove project from organization", queue="error")
+        ]
+        assert db_request.route_path.calls == [
+            pretend.call("manage.project.settings", project_name="foo")
+        ]
+
+    def test_remove_organization_project(self, monkeypatch, db_request):
+        project = ProjectFactory.create(name="foo")
+        project.organization = OrganizationFactory.create(name="bar")
+
+        db_request.POST = MultiDict(
+            {
+                "confirm_remove_organization_project_name": project.normalized_name,
+            }
+        )
+        db_request.flags = pretend.stub(enabled=pretend.call_recorder(lambda *a: False))
+        db_request.route_path = pretend.call_recorder(lambda *a, **kw: "/the-redirect")
+        db_request.session = pretend.stub(
+            flash=pretend.call_recorder(lambda *a, **kw: None)
+        )
+        db_request.user = UserFactory.create()
+
+        OrganizationRoleFactory.create(
+            organization=project.organization, user=db_request.user, role_name="Owner"
+        )
+        RoleFactory.create(project=project, user=db_request.user, role_name="Owner")
+
+        send_organization_project_removed_email = pretend.call_recorder(
+            lambda req, user, **k: None
+        )
+        monkeypatch.setattr(
+            views,
+            "send_organization_project_removed_email",
+            send_organization_project_removed_email,
+        )
+
+        result = views.remove_organization_project(project, db_request)
+
+        assert db_request.session.flash.calls == [
+            pretend.call("Removed the project 'foo' from 'bar'", queue="success")
+        ]
+        assert db_request.route_path.calls == [
+            pretend.call("manage.project.settings", project_name="foo")
+        ]
+        assert isinstance(result, HTTPSeeOther)
+        assert result.headers["Location"] == "/the-redirect"
+        assert send_organization_project_removed_email.calls == [
+            pretend.call(
+                db_request,
+                {db_request.user},
+                organization_name=project.organization.name,
+                project_name=project.name,
+            ),
+        ]
+
+    def test_transfer_organization_project_no_confirm(self):
+        project = pretend.stub(normalized_name="foo")
+        request = pretend.stub(
+            POST={},
+            flags=pretend.stub(enabled=pretend.call_recorder(lambda *a: False)),
+            session=pretend.stub(flash=pretend.call_recorder(lambda *a, **kw: None)),
+            route_path=lambda *a, **kw: "/foo/bar/",
+        )
+
+        with pytest.raises(HTTPSeeOther) as exc:
+            views.transfer_organization_project(project, request)
+            assert exc.value.status_code == 303
+            assert exc.value.headers["Location"] == "/foo/bar/"
+
+        assert request.flags.enabled.calls == [
+            pretend.call(AdminFlagValue.DISABLE_ORGANIZATIONS)
+        ]
+        assert request.session.flash.calls == [
+            pretend.call("Confirm the request", queue="error")
+        ]
+
+    def test_transfer_organization_project_wrong_confirm(self):
+        project = pretend.stub(normalized_name="foo")
+        request = pretend.stub(
+            POST={"confirm_transfer_organization_project_name": "bar"},
+            flags=pretend.stub(enabled=pretend.call_recorder(lambda *a: False)),
+            session=pretend.stub(flash=pretend.call_recorder(lambda *a, **kw: None)),
+            route_path=lambda *a, **kw: "/foo/bar/",
+        )
+
+        with pytest.raises(HTTPSeeOther) as exc:
+            views.transfer_organization_project(project, request)
+            assert exc.value.status_code == 303
+            assert exc.value.headers["Location"] == "/foo/bar/"
+
+        assert request.flags.enabled.calls == [
+            pretend.call(AdminFlagValue.DISABLE_ORGANIZATIONS)
+        ]
+        assert request.session.flash.calls == [
+            pretend.call(
+                "Could not transfer project - 'bar' is not the same as 'foo'",
+                queue="error",
+            )
+        ]
+
+    def test_transfer_organization_project_disable_organizations(self):
+        project = pretend.stub(name="foo", normalized_name="foo")
+        request = pretend.stub(
+            flags=pretend.stub(enabled=pretend.call_recorder(lambda *a: True)),
+            route_path=pretend.call_recorder(lambda *a, **kw: "/the-redirect"),
+            session=pretend.stub(flash=pretend.call_recorder(lambda *a, **kw: None)),
+        )
+
+        result = views.transfer_organization_project(project, request)
+        assert isinstance(result, HTTPSeeOther)
+        assert result.headers["Location"] == "/the-redirect"
+
+        assert request.flags.enabled.calls == [
+            pretend.call(AdminFlagValue.DISABLE_ORGANIZATIONS)
+        ]
+
+        assert request.session.flash.calls == [
+            pretend.call("Organizations are disabled", queue="error")
+        ]
+
+        assert request.route_path.calls == [
+            pretend.call("manage.project.settings", project_name="foo")
+        ]
+
+    def test_transfer_organization_project_no_current_organization(
+        self, monkeypatch, db_request
+    ):
+        organization = OrganizationFactory.create(name="baz")
+        project = ProjectFactory.create(name="foo")
+
+        db_request.POST = MultiDict(
+            {
+                "organization": organization.normalized_name,
+                "confirm_transfer_organization_project_name": project.normalized_name,
+            }
+        )
+        db_request.flags = pretend.stub(enabled=pretend.call_recorder(lambda *a: False))
+        db_request.route_path = pretend.call_recorder(lambda *a, **kw: "/the-redirect")
+        db_request.session = pretend.stub(
+            flash=pretend.call_recorder(lambda *a, **kw: None)
+        )
+        db_request.user = UserFactory.create()
+
+        OrganizationRoleFactory.create(
+            organization=organization, user=db_request.user, role_name="Owner"
+        )
+        RoleFactory.create(project=project, user=db_request.user, role_name="Owner")
+
+        send_organization_project_removed_email = pretend.call_recorder(
+            lambda req, user, **k: None
+        )
+        monkeypatch.setattr(
+            views,
+            "send_organization_project_removed_email",
+            send_organization_project_removed_email,
+        )
+
+        send_organization_project_added_email = pretend.call_recorder(
+            lambda req, user, **k: None
+        )
+        monkeypatch.setattr(
+            views,
+            "send_organization_project_added_email",
+            send_organization_project_added_email,
+        )
+
+        result = views.transfer_organization_project(project, db_request)
+
+        assert db_request.session.flash.calls == [
+            pretend.call("Transferred the project 'foo' to 'baz'", queue="success")
+        ]
+        assert db_request.route_path.calls == [
+            pretend.call("manage.project.settings", project_name="foo")
+        ]
+        assert isinstance(result, HTTPSeeOther)
+        assert result.headers["Location"] == "/the-redirect"
+        assert send_organization_project_removed_email.calls == []
+        assert send_organization_project_added_email.calls == [
+            pretend.call(
+                db_request,
+                {db_request.user},
+                organization_name=organization.name,
+                project_name=project.name,
+            )
+        ]
+
+    def test_transfer_organization_project_no_individual_owner(
+        self, monkeypatch, db_request
+    ):
+        organization = OrganizationFactory.create(name="baz")
+        project = ProjectFactory.create(name="foo")
+        project.organization = OrganizationFactory.create(name="bar")
+
+        db_request.POST = MultiDict(
+            {
+                "organization": organization.normalized_name,
+                "confirm_transfer_organization_project_name": project.normalized_name,
+            }
+        )
+        db_request.flags = pretend.stub(enabled=pretend.call_recorder(lambda *a: False))
+        db_request.route_path = pretend.call_recorder(lambda *a, **kw: "/the-redirect")
+        db_request.session = pretend.stub(
+            flash=pretend.call_recorder(lambda *a, **kw: None)
+        )
+        db_request.user = UserFactory.create()
+
+        OrganizationRoleFactory.create(
+            organization=organization, user=db_request.user, role_name="Owner"
+        )
+        OrganizationRoleFactory.create(
+            organization=project.organization, user=db_request.user, role_name="Owner"
+        )
+
+        send_organization_project_removed_email = pretend.call_recorder(
+            lambda req, user, **k: None
+        )
+        monkeypatch.setattr(
+            views,
+            "send_organization_project_removed_email",
+            send_organization_project_removed_email,
+        )
+
+        send_organization_project_added_email = pretend.call_recorder(
+            lambda req, user, **k: None
+        )
+        monkeypatch.setattr(
+            views,
+            "send_organization_project_added_email",
+            send_organization_project_added_email,
+        )
+
+        result = views.transfer_organization_project(project, db_request)
+
+        assert db_request.session.flash.calls == [
+            pretend.call("Transferred the project 'foo' to 'baz'", queue="success")
+        ]
+        assert db_request.route_path.calls == [
+            pretend.call("manage.project.settings", project_name="foo")
+        ]
+        assert isinstance(result, HTTPSeeOther)
+        assert result.headers["Location"] == "/the-redirect"
+        assert send_organization_project_removed_email.calls == [
+            pretend.call(
+                db_request,
+                {db_request.user},
+                organization_name=project.organization.name,
+                project_name=project.name,
+            )
+        ]
+        assert send_organization_project_added_email.calls == [
+            pretend.call(
+                db_request,
+                {db_request.user},
+                organization_name=organization.name,
+                project_name=project.name,
+            )
+        ]
+
+    def test_transfer_organization_project_invalid(self, monkeypatch, db_request):
+        project = ProjectFactory.create(name="foo")
+        project.organization = OrganizationFactory.create(name="bar")
+
+        db_request.POST = MultiDict(
+            {
+                "organization": "",
+                "confirm_transfer_organization_project_name": project.normalized_name,
+            }
+        )
+        db_request.flags = pretend.stub(enabled=pretend.call_recorder(lambda *a: False))
+        db_request.route_path = pretend.call_recorder(lambda *a, **kw: "/the-redirect")
+        db_request.session = pretend.stub(
+            flash=pretend.call_recorder(lambda *a, **kw: None)
+        )
+        db_request.user = UserFactory.create()
+
+        OrganizationRoleFactory.create(
+            organization=project.organization, user=db_request.user, role_name="Owner"
+        )
+        RoleFactory.create(project=project, user=db_request.user, role_name="Owner")
+
+        result = views.transfer_organization_project(project, db_request)
+
+        assert db_request.session.flash.calls == [
+            pretend.call("Select organization", queue="error")
+        ]
+        assert db_request.route_path.calls == [
+            pretend.call("manage.project.settings", project_name="foo")
+        ]
+        assert isinstance(result, HTTPSeeOther)
+        assert result.headers["Location"] == "/the-redirect"
+
+    def test_transfer_organization_project(self, monkeypatch, db_request):
+        organization = OrganizationFactory.create(name="baz")
+        project = ProjectFactory.create(name="foo")
+        project.organization = OrganizationFactory.create(name="bar")
+
+        db_request.POST = MultiDict(
+            {
+                "organization": organization.normalized_name,
+                "confirm_transfer_organization_project_name": project.normalized_name,
+            }
+        )
+        db_request.flags = pretend.stub(enabled=pretend.call_recorder(lambda *a: False))
+        db_request.route_path = pretend.call_recorder(lambda *a, **kw: "/the-redirect")
+        db_request.session = pretend.stub(
+            flash=pretend.call_recorder(lambda *a, **kw: None)
+        )
+        db_request.user = UserFactory.create()
+
+        OrganizationRoleFactory.create(
+            organization=organization, user=db_request.user, role_name="Owner"
+        )
+        OrganizationRoleFactory.create(
+            organization=project.organization, user=db_request.user, role_name="Owner"
+        )
+        RoleFactory.create(project=project, user=db_request.user, role_name="Owner")
+
+        send_organization_project_removed_email = pretend.call_recorder(
+            lambda req, user, **k: None
+        )
+        monkeypatch.setattr(
+            views,
+            "send_organization_project_removed_email",
+            send_organization_project_removed_email,
+        )
+
+        send_organization_project_added_email = pretend.call_recorder(
+            lambda req, user, **k: None
+        )
+        monkeypatch.setattr(
+            views,
+            "send_organization_project_added_email",
+            send_organization_project_added_email,
+        )
+
+        result = views.transfer_organization_project(project, db_request)
+
+        assert db_request.session.flash.calls == [
+            pretend.call("Transferred the project 'foo' to 'baz'", queue="success")
+        ]
+        assert db_request.route_path.calls == [
+            pretend.call("manage.project.settings", project_name="foo")
+        ]
+        assert isinstance(result, HTTPSeeOther)
+        assert result.headers["Location"] == "/the-redirect"
+        assert send_organization_project_removed_email.calls == [
+            pretend.call(
+                db_request,
+                {db_request.user},
+                organization_name=project.organization.name,
+                project_name=project.name,
+            )
+        ]
+        assert send_organization_project_added_email.calls == [
+            pretend.call(
+                db_request,
+                {db_request.user},
+                organization_name=organization.name,
+                project_name=project.name,
+            )
+        ]
 
     def test_delete_project_no_confirm(self):
         project = pretend.stub(normalized_name="foo")

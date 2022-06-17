@@ -99,6 +99,5 @@ class OrganizationProjectFactory(WarehouseFactory):
         model = OrganizationProject
 
     id = factory.Faker("uuid4", cast_to=None)
-    is_active = True
     organization = factory.SubFactory(OrganizationFactory)
     project = factory.SubFactory(ProjectFactory)

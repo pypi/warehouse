@@ -235,6 +235,13 @@ def includeme(config):
         domain=warehouse,
     )
     config.add_route(
+        "manage.organization.projects",
+        "/manage/organization/{organization_name}/projects/",
+        factory="warehouse.organizations.models:OrganizationFactory",
+        traverse="/{organization_name}",
+        domain=warehouse,
+    )
+    config.add_route(
         "manage.organization.roles",
         "/manage/organization/{organization_name}/people/",
         factory="warehouse.organizations.models:OrganizationFactory",
@@ -273,6 +280,20 @@ def includeme(config):
     config.add_route(
         "manage.project.settings.publishing",
         "/manage/project/{project_name}/settings/publishing/",
+        factory="warehouse.packaging.models:ProjectFactory",
+        traverse="/{project_name}",
+        domain=warehouse,
+    )
+    config.add_route(
+        "manage.project.remove_organization_project",
+        "/manage/project/{project_name}/remove_organization_project/",
+        factory="warehouse.packaging.models:ProjectFactory",
+        traverse="/{project_name}",
+        domain=warehouse,
+    )
+    config.add_route(
+        "manage.project.transfer_organization_project",
+        "/manage/project/{project_name}/transfer_organization_project/",
         factory="warehouse.packaging.models:ProjectFactory",
         traverse="/{project_name}",
         domain=warehouse,

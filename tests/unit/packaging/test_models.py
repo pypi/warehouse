@@ -20,6 +20,11 @@ from pyramid.location import lineage
 
 from warehouse.packaging.models import File, ProjectFactory, ReleaseURL
 
+from ...common.db.organizations import (
+    OrganizationFactory as DBOrganizationFactory,
+    OrganizationProjectFactory as DBOrganizationProjectFactory,
+    OrganizationRoleFactory as DBOrganizationRoleFactory,
+)
 from ...common.db.packaging import (
     FileFactory as DBFileFactory,
     ProjectFactory as DBProjectFactory,
@@ -42,6 +47,13 @@ class TestProjectFactory:
 
         with pytest.raises(KeyError):
             root[project.name + "invalid"]
+
+    def test_contains(self, db_request):
+        DBProjectFactory.create(name="foo")
+        root = ProjectFactory(db_request)
+
+        assert "foo" in root
+        assert "bar" not in root
 
 
 class TestProject:
@@ -101,6 +113,10 @@ class TestProject:
         maintainer1 = DBRoleFactory.create(project=project, role_name="Maintainer")
         maintainer2 = DBRoleFactory.create(project=project, role_name="Maintainer")
 
+        organization = DBOrganizationFactory.create()
+        owner3 = DBOrganizationRoleFactory.create(organization=organization)
+        DBOrganizationProjectFactory.create(organization=organization, project=project)
+
         acls = []
         for location in lineage(project):
             try:
@@ -120,6 +136,7 @@ class TestProject:
             [
                 (Allow, f"user:{owner1.user.id}", ["manage:project", "upload"]),
                 (Allow, f"user:{owner2.user.id}", ["manage:project", "upload"]),
+                (Allow, f"user:{owner3.user.id}", ["manage:project", "upload"]),
             ],
             key=lambda x: x[1],
         ) + sorted(

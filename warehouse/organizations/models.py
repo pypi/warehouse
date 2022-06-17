@@ -90,9 +90,8 @@ class OrganizationProject(db.Model):
         ),
     )
 
-    __repr__ = make_repr("project_id", "organization_id", "is_active")
+    __repr__ = make_repr("project_id", "organization_id")
 
-    is_active = Column(Boolean, nullable=False, server_default=sql.false())
     organization_id = Column(
         ForeignKey("organizations.id", onupdate="CASCADE", ondelete="CASCADE"),
         nullable=False,
@@ -192,7 +191,7 @@ class Organization(HasEvents, db.Model):
         User, secondary=OrganizationRole.__table__, backref="organizations"  # type: ignore # noqa
     )
     projects = orm.relationship(
-        "Project", secondary=OrganizationProject.__table__, backref="organizations"  # type: ignore # noqa
+        "Project", secondary=OrganizationProject.__table__, back_populates="organization"  # type: ignore # noqa
     )
 
     def record_event(self, *, tag, ip_address, additional={}):
