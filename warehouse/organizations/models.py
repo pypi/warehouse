@@ -144,7 +144,10 @@ class OrganizationFactory:
             )
             raise HTTPPermanentRedirect(
                 self.request.matched_route.generate(
-                    {"organization_name": organization.normalized_name}
+                    {
+                        **self.request.matchdict,
+                        "organization_name": organization.normalized_name,
+                    }
                 )
             )
         except NoResultFound:
@@ -227,7 +230,12 @@ class Organization(HasEvents, db.Model):
                     (
                         Allow,
                         f"user:{role.user.id}",
-                        ["view:organization", "manage:organization", "manage:team"],
+                        [
+                            "view:organization",
+                            "view:team",
+                            "manage:organization",
+                            "manage:team",
+                        ],
                     )
                 )
             elif role.role_name == OrganizationRoleType.BillingManager:
@@ -235,7 +243,7 @@ class Organization(HasEvents, db.Model):
                     (
                         Allow,
                         f"user:{role.user.id}",
-                        ["view:organization", "manage:billing"],
+                        ["view:organization", "view:team", "manage:billing"],
                     )
                 )
             elif role.role_name == OrganizationRoleType.Manager:
@@ -243,12 +251,14 @@ class Organization(HasEvents, db.Model):
                     (
                         Allow,
                         f"user:{role.user.id}",
-                        ["view:organization", "manage:team"],
+                        ["view:organization", "view:team", "manage:team"],
                     )
                 )
             else:
                 # No member-specific write access needed for now.
-                acls.append((Allow, f"user:{role.user.id}", ["view:organization"]))
+                acls.append(
+                    (Allow, f"user:{role.user.id}", ["view:organization", "view:team"])
+                )
         return acls
 
 
@@ -375,6 +385,28 @@ class TeamProjectRole(db.Model):
     team = orm.relationship("Team", lazy=False)
 
 
+class TeamFactory:
+    def __init__(self, request, organization=None):
+        self.request = request
+        self.organization = organization
+
+    def __getitem__(self, name):
+        if self.organization is None:
+            organization = OrganizationFactory(self.request)[name]
+            return TeamFactory(self.request, organization)
+        try:
+            return (
+                self.request.db.query(Team)
+                .filter(
+                    Team.organization == self.organization,
+                    Team.normalized_name == func.normalize_pep426_name(name),
+                )
+                .one()
+            )
+        except NoResultFound:
+            raise KeyError from None
+
+
 # TODO: Do we enable HasEvents functionality? Or are these just Org Events?
 # class Team(HasEvents, db.Model):
 class Team(db.Model):
@@ -412,6 +444,5 @@ class Team(db.Model):
         "Project", secondary=TeamProjectRole.__table__, backref="teams"  # type: ignore # noqa
     )
 
-    # TODO: Do Teams need their own ACL for view?
-    #       Do we add logic to the ACL in packaging for projects?
-    # def __acl__(self):
+    def __acl__(self):
+        return self.organization.__acl__()

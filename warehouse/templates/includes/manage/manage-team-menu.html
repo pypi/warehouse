@@ -14,7 +14,7 @@
 <nav aria-label="{% trans team=team.normalized_name %}Navigation for managing {{ team }}{% endtrans %}">
   <ul class="vertical-tabs__list">
     <li>
-      <a {# href="{{ request.route_path('manage.team.projects', organization_name=team.organization.normalized_name, team_name=team.normalized_name) }}" #} class="vertical-tabs__tab vertical-tabs__tab--with-icon {% if active_tab == 'projects' %}vertical-tabs__tab--is-active{% endif %} {% if mode == 'mobile' %}vertical-tabs__tab--mobile{% endif %}" {% if active_tab == 'projects' %}aria-selected="true"{% endif %}>
+      <a href="{{ request.route_path('manage.team.projects', organization_name=team.organization.normalized_name, team_name=team.normalized_name) }}" class="vertical-tabs__tab vertical-tabs__tab--with-icon {% if active_tab == 'projects' %}vertical-tabs__tab--is-active{% endif %} {% if mode == 'mobile' %}vertical-tabs__tab--mobile{% endif %}" {% if active_tab == 'projects' %}aria-selected="true"{% endif %}>
         <i class="fa fa-cube" aria-hidden="true"></i>
         {% trans %}Projects{% endtrans %}
       </a>

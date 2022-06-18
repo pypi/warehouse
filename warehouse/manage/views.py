@@ -115,6 +115,7 @@ from warehouse.organizations.models import (
     OrganizationInvitationStatus,
     OrganizationRole,
     OrganizationRoleType,
+    Team,
 )
 from warehouse.packaging.models import (
     File,
@@ -2086,6 +2087,56 @@ def delete_organization_role(organization, request):
                 organization_name=organization.normalized_name,
             )
         )
+
+
+@view_defaults(
+    route_name="manage.team.projects",
+    context=Team,
+    renderer="manage/team/projects.html",
+    uses_session=True,
+    require_csrf=True,
+    require_methods=False,
+    permission="manage:team",
+    has_translations=True,
+    require_reauth=True,
+)
+class ManageTeamProjectsViews:
+    def __init__(self, team, request):
+        self.team = team
+        self.request = request
+
+    @property
+    def active_projects(self):
+        return self.team.projects
+
+    @property
+    def default_response(self):
+        active_projects = self.active_projects
+        all_user_projects = user_projects(self.request)
+        projects_owned = set(
+            project.name for project in all_user_projects["projects_owned"]
+        )
+        projects_sole_owned = set(
+            project.name for project in all_user_projects["projects_sole_owned"]
+        )
+        projects_requiring_2fa = set(
+            project.name for project in all_user_projects["projects_requiring_2fa"]
+        )
+
+        return {
+            "team": self.team,
+            "active_projects": active_projects,
+            "projects_owned": projects_owned,
+            "projects_sole_owned": projects_sole_owned,
+            "projects_requiring_2fa": projects_requiring_2fa,
+        }
+
+    @view_config(request_method="GET", permission="view:team")
+    def manage_team_projects(self):
+        if self.request.flags.enabled(AdminFlagValue.DISABLE_ORGANIZATIONS):
+            raise HTTPNotFound
+
+        return self.default_response
 
 
 @view_config(
