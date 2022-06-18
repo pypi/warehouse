@@ -1206,6 +1206,7 @@ msgstr ""
 #: warehouse/templates/manage/organization/projects.html:71
 #: warehouse/templates/manage/projects.html:34
 #: warehouse/templates/manage/projects.html:104
+#: warehouse/templates/manage/team/projects.html:71
 #, python-format
 msgid "Last released %(release_date)s"
 msgstr ""
@@ -2968,6 +2969,8 @@ msgstr ""
 #: warehouse/templates/manage/project/releases.html:88
 #: warehouse/templates/manage/projects.html:148
 #: warehouse/templates/manage/projects.html:153
+#: warehouse/templates/manage/team/projects.html:115
+#: warehouse/templates/manage/team/projects.html:120
 msgid "Manage"
 msgstr ""
 
@@ -3187,6 +3190,7 @@ msgstr ""
 #: warehouse/templates/manage/organizations.html:69
 #: warehouse/templates/manage/projects.html:41
 #: warehouse/templates/manage/projects.html:111
+#: warehouse/templates/manage/team/projects.html:78
 #, python-format
 msgid "Created %(creation_date)s"
 msgstr ""
@@ -3244,6 +3248,8 @@ msgstr ""
 #: warehouse/templates/manage/project/releases.html:94
 #: warehouse/templates/manage/projects.html:161
 #: warehouse/templates/manage/projects.html:164
+#: warehouse/templates/manage/team/projects.html:128
+#: warehouse/templates/manage/team/projects.html:131
 msgid "View"
 msgstr ""
 
@@ -3337,6 +3343,8 @@ msgstr ""
 #: warehouse/templates/manage/organization/projects.html:107
 #: warehouse/templates/manage/projects.html:77
 #: warehouse/templates/manage/projects.html:140
+#: warehouse/templates/manage/team/projects.html:44
+#: warehouse/templates/manage/team/projects.html:107
 msgid "This project requires 2FA to be enabled to manage"
 msgstr ""
 
@@ -3344,6 +3352,8 @@ msgstr ""
 #: warehouse/templates/manage/organization/projects.html:108
 #: warehouse/templates/manage/projects.html:78
 #: warehouse/templates/manage/projects.html:141
+#: warehouse/templates/manage/team/projects.html:45
+#: warehouse/templates/manage/team/projects.html:108
 msgid "2FA Required"
 msgstr ""
 
@@ -3351,6 +3361,8 @@ msgstr ""
 #: warehouse/templates/manage/organization/projects.html:61
 #: warehouse/templates/manage/projects.html:84
 #: warehouse/templates/manage/projects.html:94
+#: warehouse/templates/manage/team/projects.html:51
+#: warehouse/templates/manage/team/projects.html:61
 msgid "This is a critical project for the Python ecosystem"
 msgstr ""
 
@@ -3358,6 +3370,8 @@ msgstr ""
 #: warehouse/templates/manage/organization/projects.html:62
 #: warehouse/templates/manage/projects.html:85
 #: warehouse/templates/manage/projects.html:95
+#: warehouse/templates/manage/team/projects.html:52
+#: warehouse/templates/manage/team/projects.html:62
 msgid "Critical Project"
 msgstr ""
 
@@ -3365,6 +3379,8 @@ msgstr ""
 #: warehouse/templates/manage/organization/projects.html:95
 #: warehouse/templates/manage/projects.html:87
 #: warehouse/templates/manage/projects.html:128
+#: warehouse/templates/manage/team/projects.html:54
+#: warehouse/templates/manage/team/projects.html:95
 msgid "PyPI requires 2FA to be enabled to manage this project"
 msgstr ""
 
@@ -3372,31 +3388,38 @@ msgstr ""
 #: warehouse/templates/manage/organization/projects.html:96
 #: warehouse/templates/manage/projects.html:88
 #: warehouse/templates/manage/projects.html:129
+#: warehouse/templates/manage/team/projects.html:55
+#: warehouse/templates/manage/team/projects.html:96
 msgid "2FA Mandated"
 msgstr ""
 
 #: warehouse/templates/manage/organization/projects.html:66
 #: warehouse/templates/manage/projects.html:99
+#: warehouse/templates/manage/team/projects.html:66
 msgid "Sole owner"
 msgstr ""
 
 #: warehouse/templates/manage/organization/projects.html:114
 #: warehouse/templates/manage/projects.html:147
+#: warehouse/templates/manage/team/projects.html:114
 msgid "Manage this project"
 msgstr ""
 
 #: warehouse/templates/manage/organization/projects.html:119
 #: warehouse/templates/manage/projects.html:152
+#: warehouse/templates/manage/team/projects.html:119
 msgid "You are not an owner of this project"
 msgstr ""
 
 #: warehouse/templates/manage/organization/projects.html:127
 #: warehouse/templates/manage/projects.html:160
+#: warehouse/templates/manage/team/projects.html:127
 msgid "View this project's public page"
 msgstr ""
 
 #: warehouse/templates/manage/organization/projects.html:130
 #: warehouse/templates/manage/projects.html:163
+#: warehouse/templates/manage/team/projects.html:130
 msgid "This project has no releases"
 msgstr ""
 
@@ -3763,6 +3786,7 @@ msgid "Manage '%(organization_name)s' projects"
 msgstr ""
 
 #: warehouse/templates/manage/organization/projects.html:24
+#: warehouse/templates/manage/team/projects.html:24
 #, python-format
 msgid "Projects (%(project_count)s)"
 msgstr ""
@@ -4997,6 +5021,22 @@ msgstr ""
 
 #: warehouse/templates/manage/team/manage_team_base.html:47
 msgid "Back to teams"
+msgstr ""
+
+#: warehouse/templates/manage/team/projects.html:17
+msgid "Team projects"
+msgstr ""
+
+#: warehouse/templates/manage/team/projects.html:21
+#, python-format
+msgid "Manage '%(team_name)s' projects"
+msgstr ""
+
+#: warehouse/templates/manage/team/projects.html:139
+msgid ""
+"Your team does not have admin or upload permissions for any projects, "
+"yet. Get started by configuring collaborators for a project in your "
+"organization."
 msgstr ""
 
 #: warehouse/templates/packaging/detail.html:106
