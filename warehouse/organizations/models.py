@@ -323,6 +323,11 @@ class OrganizationInvitation(db.Model):
     organization = orm.relationship("Organization", lazy=False)
 
 
+class TeamRoleType(str, enum.Enum):
+
+    Member = "Member"
+
+
 class TeamRole(db.Model):
 
     __tablename__ = "team_roles"
@@ -338,10 +343,10 @@ class TeamRole(db.Model):
 
     __repr__ = make_repr("role_name", "team", "user")
 
-    # TODO: Do we utilize an Enum with one role (i.e. Member) ?
-    #       Do we utilize text for now?
-    #       OR do we just delete this column? :)
-    role_name = Column(Text, nullable=False)
+    role_name = Column(
+        Enum(TeamRoleType, values_callable=lambda x: [e.value for e in x]),
+        nullable=False,
+    )
     user_id = Column(
         ForeignKey("users.id", onupdate="CASCADE", ondelete="CASCADE"), nullable=False
     )
@@ -352,6 +357,12 @@ class TeamRole(db.Model):
 
     user = orm.relationship(User, lazy=False)
     team = orm.relationship("Team", lazy=False)
+
+
+class TeamProjectRoleType(str, enum.Enum):
+
+    Admin = "Admin"
+    Upload = "Upload"
 
 
 class TeamProjectRole(db.Model):
@@ -369,9 +380,10 @@ class TeamProjectRole(db.Model):
 
     __repr__ = make_repr("role_name", "team", "project")
 
-    # TODO: Do we utilize an Enum for (Owner | Maintainer)?
-    #       Or just use text like Project roles?
-    role_name = Column(Text, nullable=False)
+    role_name = Column(
+        Enum(TeamProjectRoleType, values_callable=lambda x: [e.value for e in x]),
+        nullable=False,
+    )
     project_id = Column(
         ForeignKey("projects.id", onupdate="CASCADE", ondelete="CASCADE"),
         nullable=False,

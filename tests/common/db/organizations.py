@@ -24,7 +24,9 @@ from warehouse.organizations.models import (
     OrganizationRoleType,
     Team,
     TeamProjectRole,
+    TeamProjectRoleType,
     TeamRole,
+    TeamRoleType,
 )
 
 from .accounts import UserFactory
@@ -124,7 +126,7 @@ class TeamRoleFactory(WarehouseFactory):
     class Meta:
         model = TeamRole
 
-    role_name = "Member"
+    role_name = TeamRoleType.Member
     user = factory.SubFactory(UserFactory)
     team = factory.SubFactory(TeamFactory)
 
@@ -133,6 +135,6 @@ class TeamProjectRoleFactory(WarehouseFactory):
     class Meta:
         model = TeamProjectRole
 
-    role_name = "Owner"
+    role_name = TeamProjectRoleType.Admin
     project = factory.SubFactory(ProjectFactory)
     team = factory.SubFactory(TeamFactory)

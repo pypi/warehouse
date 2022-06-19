@@ -52,6 +52,7 @@ from warehouse.organizations.models import (
     OrganizationRole,
     OrganizationRoleType,
     OrganizationType,
+    TeamProjectRoleType,
 )
 from warehouse.packaging.models import (
     File,
@@ -4481,7 +4482,9 @@ class TestManageTeamProjects:
         team = TeamFactory.create()
         project = ProjectFactory.create()
 
-        TeamProjectRoleFactory.create(project=project, team=team, role_name="Owner")
+        TeamProjectRoleFactory.create(
+            project=project, team=team, role_name=TeamProjectRoleType.Admin
+        )
 
         view = views.ManageTeamProjectsViews(team, db_request)
         result = view.manage_team_projects()
