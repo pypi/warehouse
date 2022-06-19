@@ -72,6 +72,7 @@ from ...common.db.organizations import (
     OrganizationProjectFactory,
     OrganizationRoleFactory,
     TeamFactory,
+    TeamProjectRoleFactory,
 )
 from ...common.db.packaging import (
     FileFactory,
@@ -4466,6 +4467,41 @@ class TestDeleteOrganizationRoles:
         ]
         assert isinstance(result, HTTPSeeOther)
         assert result.headers["Location"] == "/the-redirect"
+
+
+class TestManageTeamProjects:
+    def test_manage_team_projects(
+        self,
+        db_request,
+        pyramid_user,
+        organization_service,
+        enable_organizations,
+        monkeypatch,
+    ):
+        team = TeamFactory.create()
+        project = ProjectFactory.create()
+
+        TeamProjectRoleFactory.create(project=project, team=team, role_name="Owner")
+
+        view = views.ManageTeamProjectsViews(team, db_request)
+        result = view.manage_team_projects()
+
+        assert view.team == team
+        assert view.request == db_request
+        assert result == {
+            "team": team,
+            "active_projects": view.active_projects,
+            "projects_owned": set(),
+            "projects_sole_owned": set(),
+            "projects_requiring_2fa": set(),
+        }
+
+    def test_manage_team_projects_disable_teams(self, db_request):
+        team = TeamFactory.create()
+
+        view = views.ManageTeamProjectsViews(team, db_request)
+        with pytest.raises(HTTPNotFound):
+            view.manage_team_projects()
 
 
 class TestManageProjects:
