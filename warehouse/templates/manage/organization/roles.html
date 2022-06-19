@@ -33,7 +33,7 @@
 
 {% block main %}
   <h2>{% trans %}People{% endtrans %}</h2>
-  <p>{% trans organization_name=organization.name %}Use this page to control which PyPI users can help you to manage {{ organization_name }}.{% endtrans %}</p>
+  <p>{% trans organization_name=organization.name %}Use this page to control which PyPI users can help you to manage '{{ organization_name }}'.{% endtrans %}</p>
   <div class="callout-block" data-controller="dismissable" data-dismissable-identifier="roles">
     <button type="button" title="{% trans %}Dismiss{% endtrans %}" data-action="click->dismissable#dismiss" class="callout-block__dismiss" aria-label="{% trans %}Close{% endtrans %}"><i class="fa fa-times" aria-hidden="true"></i></button>
     <p>{% trans number_of_roles=(form.role_name.choices|length - 1) %}There are {{ number_of_roles }} possible roles for people in this organization:{% endtrans %}</p>

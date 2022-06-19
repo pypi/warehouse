@@ -1,0 +1,109 @@
+{#
+ # Licensed under the Apache License, Version 2.0 (the "License");
+ # you may not use this file except in compliance with the License.
+ # You may obtain a copy of the License at
+ #
+ # http://www.apache.org/licenses/LICENSE-2.0
+ #
+ # Unless required by applicable law or agreed to in writing, software
+ # distributed under the License is distributed on an "AS IS" BASIS,
+ # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ # See the License for the specific language governing permissions and
+ # limitations under the License.
+-#}
+{% extends "manage_team_base.html" %}
+
+{% set active_tab = 'members' %}
+
+{% block title %}{% trans team_name=team.name %}Manage members of '{{ team_name }}'{% endtrans %}{% endblock %}
+
+{% macro two_factor_badge(user) -%}
+  {% if user.has_two_factor %}
+  <span class="badge badge--success" title="{% trans %}2FA enabled{% endtrans %}">
+    {% trans %}2FA{% endtrans %}
+    <i class="fa fa-check" aria-hidden="true"></i>
+  </span>
+  {% else %}
+  <span class="badge badge--danger" title="{% trans %}2FA disabled{% endtrans %}">
+    {% trans %}2FA{% endtrans %}
+    <i class="fa fa-times" aria-hidden="true"></i>
+  </span>
+  {% endif %}
+{% endmacro %}
+
+{% block main %}
+  <h2>{% trans %}Members{% endtrans %}</h2>
+  <p>{% trans %}Use this page to manage which organization users are members of this team.{% endtrans %}</p>
+
+  <table class="table table--collaborators">
+    <caption class="sr-only">{% trans organization_name=team.organization.name %}Users who can manage {{ organization_name }}{% endtrans %}</caption>
+
+    <thead>
+      <tr>
+        <th scope="col">{% trans %}User{% endtrans %}</th>
+        <th></th>
+      </tr>
+    </thead>
+
+    <tbody>
+    {% for role in roles|sort(attribute="user.username") %}
+      <tr>
+        <th scope="row">
+          <a href="{{ request.route_path('accounts.profile', username=role.user.username) }}" class="table__user-details">
+            {% set alt = gettext("Avatar for {user} from gravatar.com").format(user=role.user.name|default(role.user.username, true)) %}
+            <span class="table__user-gravatar">
+              <img src="{{ gravatar(request, role.user.email, size=50) }}" height="50" width="50" alt="{{ alt }}">
+            </span>
+            <span class="table__user-text">
+              <strong>{{ role.user.username }}</strong>
+              {% if role.user.name %}
+                <br><span>{{ role.user.name }}</span>
+              {% endif %}
+            </span>
+          </a>
+        </th>
+        <td class="table__align-right">
+          <form method="POST" action="{{ request.route_path('manage.team.delete_role', organization_name=team.organization.normalized_name, team_name=team.normalized_name) }}">
+            <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
+            <input type="hidden" name="role_id" value="{{ role.id }}">
+            <button
+              type="submit"
+              class="button"
+              {% if not request.has_permission("manage:team") and request.user.username != role.user.username %}
+                title="{% trans %}Cannot remove other people from the team{% endtrans %}"
+                disabled
+              {% else %}
+                title="{% trans user=('yourself' if request.user.username == role.user.username else role.user.username) %}Remove {{ user }} from this team{% endtrans %}"
+              {% endif %}
+            >
+            Remove
+            </button>
+          </form>
+        </td>
+      </tr>
+    {% endfor %}
+    </tbody>
+  </table>
+
+  {% if request.has_permission("manage:team") %}
+  <h3>{% trans %}Add member{% endtrans %}</h3>
+  <form method="POST">
+    <div class="form-group">
+      <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
+      <label for="username" class="form-group__label">
+        {% trans %}User{% endtrans %}
+        {% if form.username.flags.required %}
+        <span class="form-group__required">{% trans %}(required){% endtrans %}</span>
+        {% endif %}
+      </label>
+      {{ form.username(placeholder=gettext("Username"), autocomplete="off", autocapitalize="off", spellcheck="false", class_="form-group__field", **{"aria-describedby":"user-errors"}) }}
+      <div id="user-errors">
+        {{ field_errors(form.username) }}
+      </div>
+    </div>
+    <div>
+      <input type="submit" value="{% trans %}Add{% endtrans %}" class="button button--primary">
+  </form>
+  {% endif %}
+  <br>
+{% endblock %}
