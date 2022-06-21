@@ -125,6 +125,11 @@ def includeme(config):
         "stats.json", "/stats/", accept="application/json", domain=warehouse
     )
 
+    # Security key giveaway
+    config.add_route(
+        "security-key-giveaway", "/security-key-giveaway/", domain=warehouse
+    )
+
     # Accounts
     config.add_redirect("/u/{username}/", "/user/{username}/", domain=warehouse)
     config.add_route(

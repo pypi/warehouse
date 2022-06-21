@@ -436,3 +436,26 @@ class RequestPasswordResetForm(forms.Form):
 class ResetPasswordForm(NewPasswordMixin, forms.Form):
 
     pass
+
+
+class TitanPromoCodeForm(forms.Form):
+    country = wtforms.SelectField(
+        "Select destination country",
+        choices=[
+            ("", "Select destination country"),
+            ("Austria", "Austria"),
+            ("Belgium", "Belgium"),
+            ("Canada", "Canada"),
+            ("France", "France"),
+            ("Germany", "Germany"),
+            ("Italy", "Italy"),
+            ("Japan", "Japan"),
+            ("Spain", "Spain"),
+            ("Switzerland", "Switzerland"),
+            ("United Kingdom", "United Kingdom"),
+            ("United States", "United States"),
+        ],
+        validators=[
+            wtforms.validators.DataRequired(message="Select destination country")
+        ],
+    )

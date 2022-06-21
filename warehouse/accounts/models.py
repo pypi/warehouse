@@ -264,3 +264,18 @@ class ProhibitedUserName(db.Model):
     )
     prohibited_by = orm.relationship(User)
     comment = Column(Text, nullable=False, server_default="")
+
+
+class TitanPromoCode(db.Model):
+    __tablename__ = "user_titan_codes"
+
+    user_id = Column(
+        UUID(as_uuid=True),
+        ForeignKey("users.id", deferrable=True, initially="DEFERRED"),
+        nullable=True,
+        index=True,
+        unique=True,
+    )
+    code = Column(String, nullable=False, unique=True)
+    created = Column(DateTime, nullable=False, server_default=sql.func.now())
+    distributed = Column(DateTime, nullable=True)

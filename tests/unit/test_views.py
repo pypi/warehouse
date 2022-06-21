@@ -11,6 +11,7 @@
 # limitations under the License.
 
 import datetime
+import uuid
 
 import elasticsearch
 import pretend
@@ -26,8 +27,12 @@ from trove_classifiers import sorted_classifiers
 from webob.multidict import MultiDict
 
 from warehouse import views
+from warehouse.accounts.forms import TitanPromoCodeForm
+from warehouse.accounts.models import TitanPromoCode
 from warehouse.errors import WarehouseDenied
 from warehouse.views import (
+    REDIRECT_FIELD_NAME,
+    SecurityKeyGiveaway,
     current_user_indicator,
     flash_messages,
     forbidden,
@@ -49,7 +54,12 @@ from warehouse.views import (
 
 from ..common.db.accounts import UserFactory
 from ..common.db.classifiers import ClassifierFactory
-from ..common.db.packaging import FileFactory, ProjectFactory, ReleaseFactory
+from ..common.db.packaging import (
+    FileFactory,
+    ProjectFactory,
+    ReleaseFactory,
+    RoleFactory,
+)
 
 
 class TestHTTPExceptionView:
@@ -553,3 +563,206 @@ class TestForceStatus:
     def test_invalid(self):
         with pytest.raises(HTTPNotFound):
             force_status(pretend.stub(matchdict={"status": "599"}))
+
+
+class TestSecurityKeyGiveaway:
+    def test_form(self):
+        country = "United States"
+        request = pretend.stub(POST={"country": country})
+        form = SecurityKeyGiveaway(request).form
+
+        assert isinstance(form, TitanPromoCodeForm)
+        assert form.country.data == country
+
+    def test_codes_available_no_codes(self, db_request):
+        assert SecurityKeyGiveaway(db_request).codes_available is False
+
+    def test_codes_available_no_unused_codes(self, db_request):
+        db_request.db.add(TitanPromoCode(code="foo", user_id=str(uuid.uuid4())))
+
+        assert SecurityKeyGiveaway(db_request).codes_available is False
+
+    def test_codes_available(self, db_request):
+        db_request.db.add(TitanPromoCode(code="foo"))
+
+        assert SecurityKeyGiveaway(db_request).codes_available is True
+
+    def test_eligible_projects_no_user(self, db_request):
+        db_request.user = None
+
+        assert SecurityKeyGiveaway(db_request).eligible_projects == set()
+
+    def test_eligible_projects_owners_require_2fa(self, db_request):
+        db_request.user = UserFactory.create()
+        ProjectFactory.create()
+        project = ProjectFactory.create(owners_require_2fa=True)
+        RoleFactory.create(user=db_request.user, project=project)
+
+        assert SecurityKeyGiveaway(db_request).eligible_projects == {project.name}
+
+    def test_eligible_projects_pypi_mandates_2fa(self, db_request):
+        db_request.user = UserFactory.create()
+        ProjectFactory.create()
+        project = ProjectFactory.create(pypi_mandates_2fa=True)
+        RoleFactory.create(user=db_request.user, project=project)
+
+        assert SecurityKeyGiveaway(db_request).eligible_projects == {project.name}
+
+    def test_promo_code_no_user(self, db_request):
+        db_request.user = None
+        assert SecurityKeyGiveaway(db_request).promo_code is None
+
+    def test_promo_code_no_codes(self, db_request):
+        db_request.user = UserFactory.create()
+        assert SecurityKeyGiveaway(db_request).promo_code is None
+
+    def test_promo_code(self, db_request):
+        db_request.user = UserFactory.create()
+        code = TitanPromoCode(code="foo", user_id=db_request.user.id)
+        db_request.db.add(code)
+        assert SecurityKeyGiveaway(db_request).promo_code == code
+
+    @pytest.mark.parametrize(
+        "codes_available, eligible_projects, promo_code, has_two_factor, eligible, reason_ineligible",  # noqa
+        [
+            (True, {"foo"}, None, False, True, None),
+            (
+                False,
+                {"foo"},
+                None,
+                False,
+                False,
+                "At this time there are no keys available",
+            ),
+            (
+                True,
+                set(),
+                None,
+                False,
+                False,
+                "You are not a collaborator on any critical projects",
+            ),
+            (
+                True,
+                {"foo"},
+                None,
+                True,
+                False,
+                "You already have two-factor authentication enabled",
+            ),
+            (
+                True,
+                {"foo"},
+                pretend.stub(),
+                False,
+                False,
+                "Promo code has already been generated",
+            ),
+        ],
+    )
+    def test_default_response(
+        self,
+        codes_available,
+        eligible_projects,
+        promo_code,
+        has_two_factor,
+        eligible,
+        reason_ineligible,
+        monkeypatch,
+    ):
+        request = pretend.stub(user=pretend.stub(has_two_factor=has_two_factor))
+        SecurityKeyGiveaway.codes_available = property(lambda a: codes_available)
+        SecurityKeyGiveaway.eligible_projects = property(lambda a: eligible_projects)
+        SecurityKeyGiveaway.promo_code = property(lambda a: promo_code)
+        form = pretend.stub()
+        SecurityKeyGiveaway.form = property(lambda a: form)
+        ins = SecurityKeyGiveaway(request)
+
+        assert ins.default_response == {
+            "eligible": eligible,
+            "reason_ineligible": reason_ineligible,
+            "form": ins.form,
+            "codes_available": codes_available,
+            "eligible_projects": eligible_projects,
+            "promo_code": promo_code,
+            "REDIRECT_FIELD_NAME": REDIRECT_FIELD_NAME,
+        }
+
+    def test_security_key_giveaway_not_found(self):
+        request = pretend.stub(registry=pretend.stub(settings={}))
+
+        with pytest.raises(HTTPNotFound):
+            SecurityKeyGiveaway(request).security_key_giveaway()
+
+    def test_security_key_giveaway(self):
+        request = pretend.stub(
+            registry=pretend.stub(
+                settings={"warehouse.two_factor_mandate.available": True}
+            )
+        )
+        default_response = pretend.stub()
+        SecurityKeyGiveaway.default_response = default_response
+
+        assert SecurityKeyGiveaway(request).security_key_giveaway() == default_response
+
+    def test_security_key_giveaway_submit_not_found(self):
+        request = pretend.stub(registry=pretend.stub(settings={}))
+
+        with pytest.raises(HTTPNotFound):
+            SecurityKeyGiveaway(request).security_key_giveaway_submit()
+
+    def test_security_key_giveaway_submit_invalid_form(self):
+        request = pretend.stub(
+            registry=pretend.stub(
+                settings={"warehouse.two_factor_mandate.available": True}
+            ),
+            session=pretend.stub(flash=pretend.call_recorder(lambda a: None)),
+        )
+        default_response = pretend.stub()
+        SecurityKeyGiveaway.default_response = default_response
+        form = pretend.stub(validate=lambda: False)
+        SecurityKeyGiveaway.form = property(lambda a: form)
+
+        assert (
+            SecurityKeyGiveaway(request).security_key_giveaway_submit()
+            == default_response
+        )
+        assert request.session.flash.calls == [pretend.call("Form is not valid")]
+
+    def test_security_key_giveaway_submit_ineligible(self):
+        request = pretend.stub(
+            registry=pretend.stub(
+                settings={"warehouse.two_factor_mandate.available": True}
+            ),
+            session=pretend.stub(flash=pretend.call_recorder(lambda a: None)),
+        )
+        reason_ineligible = pretend.stub()
+        default_response = {"eligible": False, "reason_ineligible": reason_ineligible}
+        SecurityKeyGiveaway.default_response = default_response
+        form = pretend.stub(validate=lambda: True)
+        SecurityKeyGiveaway.form = property(lambda a: form)
+
+        assert (
+            SecurityKeyGiveaway(request).security_key_giveaway_submit()
+            == default_response
+        )
+        assert request.session.flash.calls == [pretend.call(reason_ineligible)]
+
+    def test_security_key_giveaway_submit(self, db_request):
+        db_request.registry = pretend.stub(
+            settings={"warehouse.two_factor_mandate.available": True}
+        )
+        db_request.session = pretend.stub(flash=pretend.call_recorder(lambda a: None))
+        db_request.user = UserFactory.create()
+        promo_code = TitanPromoCode(code="foo")
+        db_request.db.add(promo_code)
+
+        default_response = {"eligible": True}
+        SecurityKeyGiveaway.default_response = default_response
+        form = pretend.stub(validate=lambda: True)
+        SecurityKeyGiveaway.form = property(lambda a: form)
+
+        assert (
+            SecurityKeyGiveaway(db_request).security_key_giveaway_submit()
+            == default_response
+        )

@@ -141,6 +141,9 @@ def test_routes(warehouse):
             "stats.json", "/stats/", accept="application/json", domain=warehouse
         ),
         pretend.call(
+            "security-key-giveaway", "/security-key-giveaway/", domain=warehouse
+        ),
+        pretend.call(
             "accounts.profile",
             "/user/{username}/",
             factory="warehouse.accounts.models:UserFactory",
