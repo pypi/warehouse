@@ -103,7 +103,7 @@ def includeme(config):
     config.add_periodic_task(crontab(minute="*/5"), update_role_invitation_status)
 
     # Add a periodic task to recompute the critical projects list once a day
-    if config.get_settings().get("warehouse.two_factor_mandate.available"):
+    if config.get_settings().get("warehouse.two_factor_mandate.available", False):
         config.add_periodic_task(crontab(minute=0, hour=3), compute_2fa_mandate)
 
     # Add a periodic task to compute trending once a day, assuming we have
