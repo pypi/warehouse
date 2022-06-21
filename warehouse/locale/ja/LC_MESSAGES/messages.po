@@ -31,7 +31,7 @@ msgstr ""
 "X-Generator: Weblate 4.13-dev\n"
 "Generated-By: Babel 2.8.0\n"
 
-#: warehouse/views.py:113
+#: warehouse/views.py:129
 msgid ""
 "Two-factor authentication must be enabled on your account to perform this "
 "action."
@@ -39,7 +39,7 @@ msgstr ""
 "この操作を実行するには、アカウントで 2 要素認証を有効にする必要があります。"
 
 # | msgid "Stay updated:"
-#: warehouse/views.py:276
+#: warehouse/views.py:292
 msgid "Locale updated"
 msgstr "ロケールが更新されました (Locale updated)"
 
@@ -111,7 +111,7 @@ msgstr ""
 "このメールアドレスはすでに別のアカウントで使用されています。別のメールアドレ"
 "スを使用してください。"
 
-#: warehouse/accounts/forms.py:261 warehouse/manage/forms.py:76
+#: warehouse/accounts/forms.py:261 warehouse/manage/forms.py:77
 msgid "The name is too long. Choose a name with 100 characters or less."
 msgstr "名前が長過ぎます。100字以下の名前を選択してください。"
 
@@ -167,7 +167,7 @@ msgstr "既に認証済みです"
 msgid "Successful WebAuthn assertion"
 msgstr "WebAuthnアサーションに成功しました"
 
-#: warehouse/accounts/views.py:447 warehouse/manage/views.py:840
+#: warehouse/accounts/views.py:447 warehouse/manage/views.py:893
 msgid "Recovery code accepted. The supplied code cannot be used again."
 msgstr ""
 "リカバリーコードを受け付けました。今回入力されたコードを再度使用することはで"
@@ -329,11 +329,11 @@ msgstr "プロジェクト '${project_name}' の ${role} になりました。"
 msgid "Banner Preview"
 msgstr "バナーのプレビュー"
 
-#: warehouse/manage/forms.py:339
+#: warehouse/manage/forms.py:340
 msgid "Choose an organization account name with 50 characters or less."
 msgstr "50 文字以下の組織アカウント名を選択します。"
 
-#: warehouse/manage/forms.py:347
+#: warehouse/manage/forms.py:348
 msgid ""
 "The organization account name is invalid. Organization account names must be "
 "composed of letters, numbers, dots, hyphens and underscores. And must also "
@@ -344,7 +344,7 @@ msgstr ""
 "フン、アンダースコアで構成する必要があります。また、文字または数字で開始およ"
 "び終了する必要があります。別の組織のアカウント名を選択します。"
 
-#: warehouse/manage/forms.py:362
+#: warehouse/manage/forms.py:363
 #, fuzzy
 #| msgid ""
 #| "This organization account name is already being used by another account. "
@@ -356,39 +356,68 @@ msgstr ""
 "この組織のアカウント名は、すでに別のアカウントで使用されています。別の組織ア"
 "カウント名を選択してください。"
 
-#: warehouse/manage/forms.py:413
+#: warehouse/manage/forms.py:403
+#, fuzzy
+#| msgid "Delete project"
+msgid "Select project"
+msgstr "プロジェクトの削除"
+
+#: warehouse/manage/forms.py:408
+#, fuzzy
+#| msgid "Specify repository name"
+msgid "Specify project name"
+msgstr "リポジトリ名を指定する"
+
+#: warehouse/manage/forms.py:411
+msgid ""
+"Start and end with a letter or numeral containing only ASCII numeric and "
+"'.', '_' and '-'."
+msgstr ""
+
+#: warehouse/manage/forms.py:418
+#, fuzzy
+#| msgid ""
+#| "This organization account name is already being used by another account. "
+#| "Choose a different organization account name."
+msgid ""
+"This project name has already been used. Choose a different project name."
+msgstr ""
+"この組織のアカウント名は、すでに別のアカウントで使用されています。別の組織ア"
+"カウント名を選択してください。"
+
+#: warehouse/manage/forms.py:488
 msgid ""
 "The organization name is too long. Choose a organization name with 100 "
 "characters or less."
 msgstr "組織名が長すぎます。100 文字以下の組織名を選択します。"
 
-#: warehouse/manage/forms.py:425
+#: warehouse/manage/forms.py:500
 msgid ""
 "The organization URL is too long. Choose a organization URL with 400 "
 "characters or less."
 msgstr "組織の URL が長すぎます。400 文字以下の組織の URL を選択します。"
 
-#: warehouse/manage/forms.py:439
+#: warehouse/manage/forms.py:514
 msgid ""
 "The organization description is too long. Choose a organization description "
 "with 400 characters or less."
 msgstr "組織の説明が長すぎます。400 文字以下の組織の説明を選択します。"
 
-#: warehouse/manage/views.py:271
+#: warehouse/manage/views.py:324
 msgid "Email ${email_address} added - check your email for a verification link"
 msgstr ""
 "メールアドレス ${email_address} が追加されました - メールにある確認用のリンク"
 "をチェックしてください"
 
-#: warehouse/manage/views.py:788
+#: warehouse/manage/views.py:841
 msgid "Recovery codes already generated"
 msgstr "リカバリーコードが既に存在します。"
 
-#: warehouse/manage/views.py:789
+#: warehouse/manage/views.py:842
 msgid "Generating new recovery codes will invalidate your existing codes."
 msgstr "新しいリカバリーコードを生成すると、既存のコードが無効となります。"
 
-#: warehouse/manage/views.py:1417
+#: warehouse/manage/views.py:1636
 #, fuzzy
 #| msgid "User '${username}' already has ${role_name} role for project"
 msgid "User '${username}' already has ${role_name} role for organization"
@@ -396,7 +425,7 @@ msgstr ""
 "ユーザ '${username}' には、既にプロジェクトの ${role_name} の役割が与えられて"
 "います"
 
-#: warehouse/manage/views.py:1428
+#: warehouse/manage/views.py:1647
 #, fuzzy
 #| msgid ""
 #| "User '${username}' does not have a verified primary email address and "
@@ -408,32 +437,32 @@ msgstr ""
 "ユーザ '${username}' には確認済みの主要メールアドレスが登録されていないため、"
 "プロジェクトの ${role_name} に追加することはできません"
 
-#: warehouse/manage/views.py:1442 warehouse/manage/views.py:2680
+#: warehouse/manage/views.py:1661 warehouse/manage/views.py:3142
 msgid ""
 "User '${username}' already has an active invite. Please try again later."
 msgstr ""
 "ユーザ '${username}' には既にアクティブな招待があります。後でもう一度お試しく"
 "ださい。"
 
-#: warehouse/manage/views.py:1499 warehouse/manage/views.py:2738
+#: warehouse/manage/views.py:1718 warehouse/manage/views.py:3200
 msgid "Invitation sent to '${username}'"
 msgstr "'${username}' に招待を送信しました"
 
-#: warehouse/manage/views.py:1542
+#: warehouse/manage/views.py:1761
 #, fuzzy
 #| msgid "Could not find role invitation."
 msgid "Could not find organization invitation."
 msgstr "役割への招待が見つかりません。"
 
-#: warehouse/manage/views.py:1556 warehouse/manage/views.py:2796
+#: warehouse/manage/views.py:1775 warehouse/manage/views.py:3258
 msgid "Invitation already expired."
 msgstr "招待の期限が切れています。"
 
-#: warehouse/manage/views.py:1589 warehouse/manage/views.py:2820
+#: warehouse/manage/views.py:1808 warehouse/manage/views.py:3282
 msgid "Invitation revoked from '${username}'."
 msgstr "'${username}' の招待を無効化しました。"
 
-#: warehouse/manage/views.py:1975
+#: warehouse/manage/views.py:2213
 msgid ""
 "There have been too many attempted OpenID Connect registrations. Try again "
 "later."
@@ -441,13 +470,13 @@ msgstr ""
 "OpenID Connect の登録が試行された回数が多すぎます。後でもう一度やり直してくだ"
 "さい。"
 
-#: warehouse/manage/views.py:2656
+#: warehouse/manage/views.py:3118
 msgid "User '${username}' already has ${role_name} role for project"
 msgstr ""
 "ユーザ '${username}' には、既にプロジェクトの ${role_name} の役割が与えられて"
 "います"
 
-#: warehouse/manage/views.py:2667
+#: warehouse/manage/views.py:3129
 msgid ""
 "User '${username}' does not have a verified primary email address and cannot "
 "be added as a ${role_name} for project"
@@ -455,7 +484,7 @@ msgstr ""
 "ユーザ '${username}' には確認済みの主要メールアドレスが登録されていないため、"
 "プロジェクトの ${role_name} に追加することはできません"
 
-#: warehouse/manage/views.py:2785
+#: warehouse/manage/views.py:3247
 msgid "Could not find role invitation."
 msgstr "役割への招待が見つかりません。"
 
@@ -567,68 +596,68 @@ msgstr "モンティ・パイソン — チーズ・ショップ"
 #: warehouse/templates/packaging/detail.html:350
 #: warehouse/templates/pages/classifiers.html:25
 #: warehouse/templates/pages/help.html:20
-#: warehouse/templates/pages/help.html:208
-#: warehouse/templates/pages/help.html:215
-#: warehouse/templates/pages/help.html:229
-#: warehouse/templates/pages/help.html:245
-#: warehouse/templates/pages/help.html:249
-#: warehouse/templates/pages/help.html:306
-#: warehouse/templates/pages/help.html:333
-#: warehouse/templates/pages/help.html:338
-#: warehouse/templates/pages/help.html:343
+#: warehouse/templates/pages/help.html:210
+#: warehouse/templates/pages/help.html:217
+#: warehouse/templates/pages/help.html:231
+#: warehouse/templates/pages/help.html:247
+#: warehouse/templates/pages/help.html:251
+#: warehouse/templates/pages/help.html:308
+#: warehouse/templates/pages/help.html:335
+#: warehouse/templates/pages/help.html:340
 #: warehouse/templates/pages/help.html:345
-#: warehouse/templates/pages/help.html:350
-#: warehouse/templates/pages/help.html:351
+#: warehouse/templates/pages/help.html:347
 #: warehouse/templates/pages/help.html:352
-#: warehouse/templates/pages/help.html:356
-#: warehouse/templates/pages/help.html:389
+#: warehouse/templates/pages/help.html:353
+#: warehouse/templates/pages/help.html:354
+#: warehouse/templates/pages/help.html:358
 #: warehouse/templates/pages/help.html:391
-#: warehouse/templates/pages/help.html:394
-#: warehouse/templates/pages/help.html:430
-#: warehouse/templates/pages/help.html:435
-#: warehouse/templates/pages/help.html:441
-#: warehouse/templates/pages/help.html:499
-#: warehouse/templates/pages/help.html:519
-#: warehouse/templates/pages/help.html:525
-#: warehouse/templates/pages/help.html:528
+#: warehouse/templates/pages/help.html:393
+#: warehouse/templates/pages/help.html:396
+#: warehouse/templates/pages/help.html:432
+#: warehouse/templates/pages/help.html:437
+#: warehouse/templates/pages/help.html:443
+#: warehouse/templates/pages/help.html:501
+#: warehouse/templates/pages/help.html:521
+#: warehouse/templates/pages/help.html:527
 #: warehouse/templates/pages/help.html:530
-#: warehouse/templates/pages/help.html:539
-#: warehouse/templates/pages/help.html:551
-#: warehouse/templates/pages/help.html:558
-#: warehouse/templates/pages/help.html:570
-#: warehouse/templates/pages/help.html:571
-#: warehouse/templates/pages/help.html:576
-#: warehouse/templates/pages/help.html:601
-#: warehouse/templates/pages/help.html:614
-#: warehouse/templates/pages/help.html:619
-#: warehouse/templates/pages/help.html:631
-#: warehouse/templates/pages/help.html:652
-#: warehouse/templates/pages/help.html:675
-#: warehouse/templates/pages/help.html:682
-#: warehouse/templates/pages/help.html:694
-#: warehouse/templates/pages/help.html:705
-#: warehouse/templates/pages/help.html:710
-#: warehouse/templates/pages/help.html:718
-#: warehouse/templates/pages/help.html:729
-#: warehouse/templates/pages/help.html:746
-#: warehouse/templates/pages/help.html:753
-#: warehouse/templates/pages/help.html:761
-#: warehouse/templates/pages/help.html:777
-#: warehouse/templates/pages/help.html:782
-#: warehouse/templates/pages/help.html:787
-#: warehouse/templates/pages/help.html:797
-#: warehouse/templates/pages/help.html:806
-#: warehouse/templates/pages/help.html:820
-#: warehouse/templates/pages/help.html:828
-#: warehouse/templates/pages/help.html:836
-#: warehouse/templates/pages/help.html:844
-#: warehouse/templates/pages/help.html:853
-#: warehouse/templates/pages/help.html:868
-#: warehouse/templates/pages/help.html:883
-#: warehouse/templates/pages/help.html:884
-#: warehouse/templates/pages/help.html:885
-#: warehouse/templates/pages/help.html:886
+#: warehouse/templates/pages/help.html:532
+#: warehouse/templates/pages/help.html:541
+#: warehouse/templates/pages/help.html:553
+#: warehouse/templates/pages/help.html:560
+#: warehouse/templates/pages/help.html:572
+#: warehouse/templates/pages/help.html:573
+#: warehouse/templates/pages/help.html:578
+#: warehouse/templates/pages/help.html:603
+#: warehouse/templates/pages/help.html:616
+#: warehouse/templates/pages/help.html:621
+#: warehouse/templates/pages/help.html:633
+#: warehouse/templates/pages/help.html:654
+#: warehouse/templates/pages/help.html:677
+#: warehouse/templates/pages/help.html:684
+#: warehouse/templates/pages/help.html:696
+#: warehouse/templates/pages/help.html:707
+#: warehouse/templates/pages/help.html:712
+#: warehouse/templates/pages/help.html:720
+#: warehouse/templates/pages/help.html:731
+#: warehouse/templates/pages/help.html:748
+#: warehouse/templates/pages/help.html:755
+#: warehouse/templates/pages/help.html:763
+#: warehouse/templates/pages/help.html:779
+#: warehouse/templates/pages/help.html:784
+#: warehouse/templates/pages/help.html:789
+#: warehouse/templates/pages/help.html:799
+#: warehouse/templates/pages/help.html:808
+#: warehouse/templates/pages/help.html:822
+#: warehouse/templates/pages/help.html:830
+#: warehouse/templates/pages/help.html:838
+#: warehouse/templates/pages/help.html:846
+#: warehouse/templates/pages/help.html:855
+#: warehouse/templates/pages/help.html:875
+#: warehouse/templates/pages/help.html:890
 #: warehouse/templates/pages/help.html:891
+#: warehouse/templates/pages/help.html:892
+#: warehouse/templates/pages/help.html:893
+#: warehouse/templates/pages/help.html:898
 #: warehouse/templates/pages/security.html:36
 #: warehouse/templates/pages/sponsors.html:33
 #: warehouse/templates/pages/sponsors.html:37
@@ -720,7 +749,7 @@ msgstr "メインナビゲーション"
 #: warehouse/templates/base.html:41 warehouse/templates/base.html:55
 #: warehouse/templates/base.html:256
 #: warehouse/templates/includes/current-user-indicator.html:63
-#: warehouse/templates/pages/help.html:105
+#: warehouse/templates/pages/help.html:106
 #: warehouse/templates/pages/sitemap.html:27
 msgid "Help"
 msgstr "ヘルプ"
@@ -788,11 +817,13 @@ msgstr "モバイル版に切替"
 #: warehouse/templates/manage/account.html:716
 #: warehouse/templates/manage/documentation.html:27
 #: warehouse/templates/manage/manage_base.html:293
-#: warehouse/templates/manage/manage_base.html:346
-#: warehouse/templates/manage/organization/settings.html:130
-#: warehouse/templates/manage/organization/settings.html:176
+#: warehouse/templates/manage/manage_base.html:350
+#: warehouse/templates/manage/organization/settings.html:159
+#: warehouse/templates/manage/organization/settings.html:205
 #: warehouse/templates/manage/release.html:163
-#: warehouse/templates/manage/settings.html:119
+#: warehouse/templates/manage/settings.html:121
+#: warehouse/templates/manage/settings.html:164
+#: warehouse/templates/manage/settings.html:227
 msgid "Warning"
 msgstr "警告"
 
@@ -1078,7 +1109,7 @@ msgstr "続行するにはパスワードを入力してください"
 #: warehouse/templates/accounts/login.html:69
 #: warehouse/templates/accounts/register.html:110
 #: warehouse/templates/accounts/reset-password.html:38
-#: warehouse/templates/manage/manage_base.html:355
+#: warehouse/templates/manage/manage_base.html:359
 #: warehouse/templates/re-auth.html:49
 msgid "Password"
 msgstr "パスワード"
@@ -1104,12 +1135,14 @@ msgstr "パスワード"
 #: warehouse/templates/manage/account/recovery_codes-burn.html:70
 #: warehouse/templates/manage/account/totp-provision.html:69
 #: warehouse/templates/manage/account/webauthn-provision.html:44
-#: warehouse/templates/manage/organization/roles.html:194
-#: warehouse/templates/manage/organization/roles.html:206
+#: warehouse/templates/manage/organization/projects.html:172
+#: warehouse/templates/manage/organization/projects.html:190
+#: warehouse/templates/manage/organization/roles.html:192
+#: warehouse/templates/manage/organization/roles.html:204
 #: warehouse/templates/manage/organization/settings.html:44
-#: warehouse/templates/manage/organization/settings.html:66
-#: warehouse/templates/manage/organization/settings.html:84
-#: warehouse/templates/manage/organization/settings.html:103
+#: warehouse/templates/manage/organization/settings.html:74
+#: warehouse/templates/manage/organization/settings.html:98
+#: warehouse/templates/manage/organization/settings.html:123
 #: warehouse/templates/manage/organizations.html:116
 #: warehouse/templates/manage/organizations.html:139
 #: warehouse/templates/manage/organizations.html:161
@@ -1132,7 +1165,7 @@ msgid "Your password"
 msgstr "あなたのパスワード"
 
 #: warehouse/templates/accounts/login.html:92
-#: warehouse/templates/manage/manage_base.html:358
+#: warehouse/templates/manage/manage_base.html:362
 #: warehouse/templates/re-auth.html:72
 msgid "Show password"
 msgstr "パスワードを表示"
@@ -1230,7 +1263,7 @@ msgstr "%(title)s にログインする"
 #: warehouse/templates/email/organization-member-removed/body.html:30
 #: warehouse/templates/email/organization-member-role-changed/body.html:30
 #: warehouse/templates/manage/account.html:248
-#: warehouse/templates/manage/organization/roles.html:197
+#: warehouse/templates/manage/organization/roles.html:195
 #: warehouse/templates/manage/roles.html:173
 msgid "Username"
 msgstr "ユーザ名"
@@ -1281,8 +1314,8 @@ msgstr "%(username)s のプロフィール"
 
 #: warehouse/templates/accounts/profile.html:29
 #: warehouse/templates/manage/account.html:223
-#: warehouse/templates/manage/organization/roles.html:73
-#: warehouse/templates/manage/organization/roles.html:147
+#: warehouse/templates/manage/organization/roles.html:71
+#: warehouse/templates/manage/organization/roles.html:145
 #: warehouse/templates/manage/roles.html:62
 #: warehouse/templates/manage/roles.html:125
 msgid "Avatar for {user} from gravatar.com"
@@ -1317,8 +1350,9 @@ msgid "No projects"
 msgstr "プロジェクト無し"
 
 #: warehouse/templates/accounts/profile.html:79
+#: warehouse/templates/manage/organization/projects.html:71
 #: warehouse/templates/manage/projects.html:34
-#: warehouse/templates/manage/projects.html:98
+#: warehouse/templates/manage/projects.html:104
 #, python-format
 msgid "Last released %(release_date)s"
 msgstr "最終リリース %(release_date)s"
@@ -1873,6 +1907,8 @@ msgstr ""
 #: warehouse/templates/email/organization-member-invited/body.html:38
 #: warehouse/templates/email/organization-member-removed/body.html:37
 #: warehouse/templates/email/organization-member-role-changed/body.html:38
+#: warehouse/templates/email/organization-project-added/body.html:24
+#: warehouse/templates/email/organization-project-removed/body.html:24
 #: warehouse/templates/email/organization-renamed/body.html:31
 #, fuzzy, python-format
 #| msgid ""
@@ -1904,9 +1940,9 @@ msgstr "<a href=\"%(href)s\">%(username)s</a> を %(role_name)s として変更"
 
 #: warehouse/templates/email/organization-member-added/body.html:31
 #: warehouse/templates/email/organization-member-invited/body.html:31
-#: warehouse/templates/manage/organization/roles.html:62
-#: warehouse/templates/manage/organization/roles.html:101
-#: warehouse/templates/manage/organization/roles.html:204
+#: warehouse/templates/manage/organization/roles.html:60
+#: warehouse/templates/manage/organization/roles.html:99
+#: warehouse/templates/manage/organization/roles.html:202
 #: warehouse/templates/manage/roles.html:52
 #: warehouse/templates/manage/roles.html:86
 #: warehouse/templates/manage/roles.html:180
@@ -2004,6 +2040,35 @@ msgstr "役割を保存"
 #| msgid "Changed by:"
 msgid "Changed by"
 msgstr "変更者:"
+
+#: warehouse/templates/email/organization-project-added/body.html:20
+#, fuzzy, python-format
+#| msgid ""
+#| "<a href=\"%(href)s\">%(username)s</a> changed to project %(role_name)s"
+msgid ""
+"The %(site)s project \"%(project_name)s\" has been added to the "
+"\"%(organization_name)s\" organization."
+msgstr "<a href=\"%(href)s\">%(username)s</a> を %(role_name)s として変更"
+
+#: warehouse/templates/email/organization-project-added/body.html:30
+#: warehouse/templates/email/organization-project-removed/body.html:30
+#, fuzzy
+#| msgid "You are receiving this because you are an owner of this project."
+msgid ""
+"You are receiving this because you are an owner of the project or the "
+"organization."
+msgstr ""
+"あなたがこのメールを受け取ったのは、あなたがこのプロジェクトのオーナーだから"
+"です。"
+
+#: warehouse/templates/email/organization-project-removed/body.html:20
+#, fuzzy, python-format
+#| msgid ""
+#| "<a href=\"%(href)s\">%(username)s</a> removed as project %(role_name)s"
+msgid ""
+"The %(site)s project \"%(project_name)s\" has been removed from the "
+"\"%(organization_name)s\" organization."
+msgstr "<a href=\"%(href)s\">%(username)s</a> を %(role_name)s として削除"
 
 #: warehouse/templates/email/password-change/body.html:18
 #, python-format
@@ -2408,11 +2473,11 @@ msgstr "通知を無視"
 #: warehouse/templates/manage/account.html:211
 #: warehouse/templates/manage/manage_base.html:282
 #: warehouse/templates/manage/manage_base.html:284
-#: warehouse/templates/manage/organization/roles.html:40
+#: warehouse/templates/manage/organization/roles.html:38
 #: warehouse/templates/manage/release.html:118
 #: warehouse/templates/manage/releases.html:172
 #: warehouse/templates/manage/roles.html:38
-#: warehouse/templates/manage/settings.html:113
+#: warehouse/templates/manage/settings.html:111
 #: warehouse/templates/search/results.html:199
 msgid "Close"
 msgstr "閉じる"
@@ -2577,11 +2642,17 @@ msgid "Navigation for managing %(organization)s"
 msgstr "%(project)s を管理するための情報"
 
 #: warehouse/templates/includes/manage/manage-organization-menu.html:19
-#: warehouse/templates/manage/organization/roles.html:37
+#, fuzzy
+#| msgid "Project:"
+msgid "Projects"
+msgstr "プロジェクト:"
+
+#: warehouse/templates/includes/manage/manage-organization-menu.html:25
+#: warehouse/templates/manage/organization/roles.html:35
 msgid "People"
 msgstr ""
 
-#: warehouse/templates/includes/manage/manage-organization-menu.html:25
+#: warehouse/templates/includes/manage/manage-organization-menu.html:31
 #: warehouse/templates/includes/manage/manage-project-menu.html:59
 msgid "Settings"
 msgstr "設定"
@@ -2667,7 +2738,7 @@ msgstr "作者:"
 
 #: warehouse/templates/includes/packaging/project-data.html:84
 #: warehouse/templates/includes/packaging/project-data.html:86
-#: warehouse/templates/pages/help.html:562
+#: warehouse/templates/pages/help.html:564
 msgid "Maintainer:"
 msgstr "メンテナ:"
 
@@ -3318,7 +3389,7 @@ msgstr[0] ""
 "        "
 
 #: warehouse/templates/manage/account.html:705
-#: warehouse/templates/manage/organization/settings.html:165
+#: warehouse/templates/manage/organization/settings.html:194
 #, python-format
 msgid ""
 "<a href=\"%(transfer_href)s\">transfer ownership</a> or <a href="
@@ -3328,8 +3399,8 @@ msgstr ""
 "\">プロジェクトの削除</a>"
 
 #: warehouse/templates/manage/account.html:714
-#: warehouse/templates/manage/organization/settings.html:128
-#: warehouse/templates/manage/organization/settings.html:174
+#: warehouse/templates/manage/organization/settings.html:157
+#: warehouse/templates/manage/organization/settings.html:203
 #: warehouse/templates/manage/token.html:166
 msgid "Proceed with caution!"
 msgstr "慎重に進めてください！"
@@ -3545,8 +3616,8 @@ msgstr "日付"
 
 #: warehouse/templates/manage/journal.html:37
 #: warehouse/templates/manage/journal.html:52
-#: warehouse/templates/manage/organization/roles.html:61
-#: warehouse/templates/manage/organization/roles.html:192
+#: warehouse/templates/manage/organization/roles.html:59
+#: warehouse/templates/manage/organization/roles.html:190
 #: warehouse/templates/manage/roles.html:51
 #: warehouse/templates/manage/roles.html:168
 msgid "User"
@@ -3563,11 +3634,13 @@ msgid "from %(ip_address)s"
 msgstr "from %(ip_address)s"
 
 #: warehouse/templates/manage/manage_base.html:16
+#: warehouse/templates/manage/organization/projects.html:115
+#: warehouse/templates/manage/organization/projects.html:120
 #: warehouse/templates/manage/organizations.html:81
 #: warehouse/templates/manage/organizations.html:86
 #: warehouse/templates/manage/organizations.html:91
-#: warehouse/templates/manage/projects.html:142
-#: warehouse/templates/manage/projects.html:147
+#: warehouse/templates/manage/projects.html:148
+#: warehouse/templates/manage/projects.html:153
 #: warehouse/templates/manage/releases.html:88
 msgid "Manage"
 msgstr "管理"
@@ -3819,29 +3892,29 @@ msgid "Account navigation"
 msgstr "アカウントナビゲーション"
 
 #: warehouse/templates/manage/manage_base.html:294
-#: warehouse/templates/manage/manage_base.html:347
+#: warehouse/templates/manage/manage_base.html:351
 msgid "This action cannot be undone!"
 msgstr "この操作は取り消せません！"
 
-#: warehouse/templates/manage/manage_base.html:303
+#: warehouse/templates/manage/manage_base.html:305
 msgid "Confirm your username to continue."
 msgstr "続行するにはユーザ名を確認してください。"
 
-#: warehouse/templates/manage/manage_base.html:305
+#: warehouse/templates/manage/manage_base.html:307
 #, python-format
 msgid "Confirm the %(item)s to continue."
 msgstr "%(item)s を確認して続行します。"
 
-#: warehouse/templates/manage/manage_base.html:313
-#: warehouse/templates/manage/manage_base.html:365
+#: warehouse/templates/manage/manage_base.html:317
+#: warehouse/templates/manage/manage_base.html:369
 msgid "Cancel"
 msgstr "キャンセル"
 
-#: warehouse/templates/manage/manage_base.html:336
+#: warehouse/templates/manage/manage_base.html:340
 msgid "close"
 msgstr "閉じる"
 
-#: warehouse/templates/manage/manage_base.html:352
+#: warehouse/templates/manage/manage_base.html:356
 msgid "Enter your password to continue."
 msgstr "続行するにはパスワードを入力してください。"
 
@@ -3867,10 +3940,11 @@ msgstr "プロジェクトに戻る"
 msgid "Pending invitations (%(invitation_count)s)"
 msgstr "あなたのプロジェクト %(project_count)s"
 
+#: warehouse/templates/manage/organization/projects.html:78
 #: warehouse/templates/manage/organizations.html:32
 #: warehouse/templates/manage/organizations.html:69
 #: warehouse/templates/manage/projects.html:41
-#: warehouse/templates/manage/projects.html:105
+#: warehouse/templates/manage/projects.html:111
 #, fuzzy, python-format
 #| msgid "Created on %(creation_date)s"
 msgid "Created %(creation_date)s"
@@ -3898,16 +3972,16 @@ msgstr "ロールへの招待が無効です。"
 msgid "Inactive"
 msgstr ""
 
-#: warehouse/templates/manage/organization/roles.html:45
-#: warehouse/templates/manage/organization/roles.html:90
+#: warehouse/templates/manage/organization/roles.html:43
+#: warehouse/templates/manage/organization/roles.html:88
 #: warehouse/templates/manage/organizations.html:61
 #, fuzzy
 #| msgid "Manage"
 msgid "Manager"
 msgstr "管理"
 
-#: warehouse/templates/manage/organization/roles.html:47
-#: warehouse/templates/manage/organization/roles.html:92
+#: warehouse/templates/manage/organization/roles.html:45
+#: warehouse/templates/manage/organization/roles.html:90
 #: warehouse/templates/manage/organizations.html:63
 #: warehouse/templates/manage/publishing.html:83
 #: warehouse/templates/manage/roles.html:43
@@ -3916,8 +3990,8 @@ msgstr "管理"
 msgid "Owner"
 msgstr "オーナー"
 
-#: warehouse/templates/manage/organization/roles.html:50
-#: warehouse/templates/manage/organization/roles.html:94
+#: warehouse/templates/manage/organization/roles.html:48
+#: warehouse/templates/manage/organization/roles.html:92
 #: warehouse/templates/manage/organizations.html:65
 msgid "Billing Manager"
 msgstr ""
@@ -3928,9 +4002,11 @@ msgstr ""
 msgid "View this organization"
 msgstr "アカウントを作成する"
 
+#: warehouse/templates/manage/organization/projects.html:128
+#: warehouse/templates/manage/organization/projects.html:131
 #: warehouse/templates/manage/organizations.html:76
-#: warehouse/templates/manage/projects.html:155
-#: warehouse/templates/manage/projects.html:158
+#: warehouse/templates/manage/projects.html:161
+#: warehouse/templates/manage/projects.html:164
 #: warehouse/templates/manage/releases.html:94
 msgid "View"
 msgstr "表示"
@@ -3966,8 +4042,8 @@ msgstr ""
 msgid "This account name will be used in URLs on PyPI."
 msgstr ""
 
-#: warehouse/templates/manage/organization/settings.html:58
-#: warehouse/templates/manage/organization/settings.html:76
+#: warehouse/templates/manage/organization/settings.html:65
+#: warehouse/templates/manage/organization/settings.html:89
 #: warehouse/templates/manage/organizations.html:131
 #: warehouse/templates/manage/organizations.html:153
 #: warehouse/templates/manage/organizations.html:171
@@ -3979,39 +4055,39 @@ msgstr ""
 msgid "Organization name"
 msgstr ""
 
-#: warehouse/templates/manage/organization/settings.html:47
+#: warehouse/templates/manage/organization/settings.html:48
 #: warehouse/templates/manage/organizations.html:142
 msgid "Name of your business, product, or project"
 msgstr ""
 
-#: warehouse/templates/manage/organization/settings.html:64
+#: warehouse/templates/manage/organization/settings.html:72
 #: warehouse/templates/manage/organizations.html:159
 msgid "️Organization URL"
 msgstr ""
 
-#: warehouse/templates/manage/organization/settings.html:70
+#: warehouse/templates/manage/organization/settings.html:78
 #: warehouse/templates/manage/organizations.html:165
 msgid "URL for your business, product, or project"
 msgstr ""
 
-#: warehouse/templates/manage/organization/settings.html:82
+#: warehouse/templates/manage/organization/settings.html:96
 #: warehouse/templates/manage/organizations.html:177
 #, fuzzy
 #| msgid "Project description"
 msgid "Organization description"
 msgstr "プロジェクトの説明"
 
-#: warehouse/templates/manage/organization/settings.html:87
+#: warehouse/templates/manage/organization/settings.html:102
 #: warehouse/templates/manage/organizations.html:182
 msgid "Description of your business, product, or project"
 msgstr ""
 
-#: warehouse/templates/manage/organization/settings.html:101
+#: warehouse/templates/manage/organization/settings.html:121
 #: warehouse/templates/manage/organizations.html:196
 msgid "️Organization type"
 msgstr ""
 
-#: warehouse/templates/manage/organization/settings.html:113
+#: warehouse/templates/manage/organization/settings.html:138
 #: warehouse/templates/manage/organizations.html:208
 msgid ""
 "Companies can create organization accounts as a paid service while community "
@@ -4024,59 +4100,76 @@ msgstr ""
 msgid "Create"
 msgstr "作成日時"
 
-#: warehouse/templates/manage/projects.html:71
-#: warehouse/templates/manage/projects.html:134
+#: warehouse/templates/manage/organization/projects.html:44
+#: warehouse/templates/manage/organization/projects.html:107
+#: warehouse/templates/manage/projects.html:77
+#: warehouse/templates/manage/projects.html:140
 msgid "This project requires 2FA to be enabled to manage"
 msgstr ""
 
-#: warehouse/templates/manage/projects.html:72
-#: warehouse/templates/manage/projects.html:135
+#: warehouse/templates/manage/organization/projects.html:45
+#: warehouse/templates/manage/organization/projects.html:108
+#: warehouse/templates/manage/projects.html:78
+#: warehouse/templates/manage/projects.html:141
 #, fuzzy
 #| msgid "Requires:"
 msgid "2FA Required"
 msgstr "必須:"
 
-#: warehouse/templates/manage/projects.html:78
-#: warehouse/templates/manage/projects.html:88
+#: warehouse/templates/manage/organization/projects.html:51
+#: warehouse/templates/manage/organization/projects.html:61
+#: warehouse/templates/manage/projects.html:84
+#: warehouse/templates/manage/projects.html:94
 msgid "This is a critical project for the Python ecosystem"
 msgstr ""
 
-#: warehouse/templates/manage/projects.html:79
-#: warehouse/templates/manage/projects.html:89
+#: warehouse/templates/manage/organization/projects.html:52
+#: warehouse/templates/manage/organization/projects.html:62
+#: warehouse/templates/manage/projects.html:85
+#: warehouse/templates/manage/projects.html:95
 msgid "Critical Project"
 msgstr ""
 
-#: warehouse/templates/manage/projects.html:81
-#: warehouse/templates/manage/projects.html:122
+#: warehouse/templates/manage/organization/projects.html:54
+#: warehouse/templates/manage/organization/projects.html:95
+#: warehouse/templates/manage/projects.html:87
+#: warehouse/templates/manage/projects.html:128
 msgid "PyPI requires 2FA to be enabled to manage this project"
 msgstr ""
 
-#: warehouse/templates/manage/projects.html:82
-#: warehouse/templates/manage/projects.html:123
+#: warehouse/templates/manage/organization/projects.html:55
+#: warehouse/templates/manage/organization/projects.html:96
+#: warehouse/templates/manage/projects.html:88
+#: warehouse/templates/manage/projects.html:129
 msgid "2FA Mandated"
 msgstr ""
 
-#: warehouse/templates/manage/projects.html:93
+#: warehouse/templates/manage/organization/projects.html:66
+#: warehouse/templates/manage/projects.html:99
 msgid "Sole owner"
 msgstr "唯一のオーナー"
 
-#: warehouse/templates/manage/projects.html:141
+#: warehouse/templates/manage/organization/projects.html:114
+#: warehouse/templates/manage/projects.html:147
 msgid "Manage this project"
 msgstr "このプロジェクトを管理する"
 
-#: warehouse/templates/manage/projects.html:146
+#: warehouse/templates/manage/organization/projects.html:119
+#: warehouse/templates/manage/projects.html:152
 msgid "You are not an owner of this project"
 msgstr "あなたはこのプロジェクトの所有者ではありません"
 
-#: warehouse/templates/manage/projects.html:154
+#: warehouse/templates/manage/organization/projects.html:127
+#: warehouse/templates/manage/projects.html:160
 msgid "View this project's public page"
 msgstr "このプロジェクトの公開ページを見る"
 
-#: warehouse/templates/manage/projects.html:157
+#: warehouse/templates/manage/organization/projects.html:130
+#: warehouse/templates/manage/projects.html:163
 msgid "This project has no releases"
 msgstr "このプロジェクトにはリリースがありません"
 
-#: warehouse/templates/manage/projects.html:166
+#: warehouse/templates/manage/projects.html:172
 #, python-format
 msgid ""
 "You have not uploaded any projects to PyPI, yet. To learn how to get "
@@ -4254,11 +4347,11 @@ msgstr "新しいファイルをアップロード"
 msgid "No files found"
 msgstr "ファイルが見つかりません"
 
-#: warehouse/templates/manage/organization/roles.html:40
+#: warehouse/templates/manage/organization/roles.html:38
 #: warehouse/templates/manage/release.html:118
 #: warehouse/templates/manage/releases.html:172
 #: warehouse/templates/manage/roles.html:38
-#: warehouse/templates/manage/settings.html:113
+#: warehouse/templates/manage/settings.html:111
 msgid "Dismiss"
 msgstr "無視"
 
@@ -4552,7 +4645,7 @@ msgstr ""
 
 #: warehouse/templates/manage/organization/roles.html:23
 #: warehouse/templates/manage/organization/roles.html:28
-#: warehouse/templates/manage/organization/roles.html:63
+#: warehouse/templates/manage/organization/roles.html:61
 #: warehouse/templates/manage/roles.html:23
 #: warehouse/templates/manage/roles.html:28
 #: warehouse/templates/manage/roles.html:53
@@ -4577,7 +4670,7 @@ msgstr ""
 "うかを制御できます"
 
 #: warehouse/templates/manage/roles.html:39
-#: warehouse/templates/pages/help.html:561
+#: warehouse/templates/pages/help.html:563
 msgid "There are two possible roles for collaborators:"
 msgstr "共同編集者（collaborators）には、以下の2つの役割があります。"
 
@@ -4616,18 +4709,18 @@ msgstr ""
 msgid "Users who can manage %(project_name)s"
 msgstr "%(project_name)s を管理できるユーザ"
 
-#: warehouse/templates/manage/organization/roles.html:111
+#: warehouse/templates/manage/organization/roles.html:109
 #: warehouse/templates/manage/roles.html:94
 msgid "Save role"
 msgstr "役割を保存"
 
 #: warehouse/templates/manage/account/recovery_codes-provision.html:63
-#: warehouse/templates/manage/organization/roles.html:112
+#: warehouse/templates/manage/organization/roles.html:110
 #: warehouse/templates/manage/roles.html:95
 msgid "Save"
 msgstr "保存"
 
-#: warehouse/templates/manage/organization/roles.html:129
+#: warehouse/templates/manage/organization/roles.html:127
 #: warehouse/templates/manage/roles.html:109
 msgid "Cannot remove yourself as owner"
 msgstr "オーナーである自分自身を削除できません"
@@ -4637,24 +4730,24 @@ msgstr "オーナーである自分自身を削除できません"
 msgid "Remove %(user)s from this project"
 msgstr "このプロジェクトから %(user)s を削除する"
 
-#: warehouse/templates/manage/organization/roles.html:161
+#: warehouse/templates/manage/organization/roles.html:159
 #: warehouse/templates/manage/roles.html:139
 msgid "Invite pending"
 msgstr ""
 
-#: warehouse/templates/manage/organization/roles.html:163
+#: warehouse/templates/manage/organization/roles.html:161
 #: warehouse/templates/manage/roles.html:141
 msgid "Invite expired"
 msgstr ""
 
-#: warehouse/templates/manage/organization/roles.html:174
+#: warehouse/templates/manage/organization/roles.html:172
 #: warehouse/templates/manage/roles.html:152
 #, fuzzy, python-format
 #| msgid "Navigation for %(project)s"
 msgid "Revoke invitation for %(user)s"
 msgstr "%(project)s のナビゲーション"
 
-#: warehouse/templates/manage/organization/roles.html:176
+#: warehouse/templates/manage/organization/roles.html:174
 #: warehouse/templates/manage/roles.html:154
 msgid "Revoke invite"
 msgstr ""
@@ -4665,7 +4758,7 @@ msgstr ""
 msgid "Invite collaborator"
 msgstr "共同編集者を追加"
 
-#: warehouse/templates/manage/organization/roles.html:215
+#: warehouse/templates/manage/organization/roles.html:213
 #: warehouse/templates/manage/roles.html:191
 msgid "Invite"
 msgstr ""
@@ -4756,11 +4849,11 @@ msgstr "%(project_name)s のトークンを作成する"
 msgid "Enable 2FA requirement for %(project_name)s"
 msgstr "%(project_name)s のトークンを作成する"
 
-#: warehouse/templates/manage/settings.html:104
+#: warehouse/templates/manage/settings.html:102
 msgid "Project description and sidebar"
 msgstr "プロジェクトの説明とサイドバー"
 
-#: warehouse/templates/manage/settings.html:106
+#: warehouse/templates/manage/settings.html:104
 #, python-format
 msgid ""
 "To set the '%(project_name)s' description, author, links, classifiers, and "
@@ -4783,16 +4876,154 @@ msgstr ""
 "は、<a href=\"%(distribution_href)s\" rel=\"noopener\" target=\"_blank"
 "\">Pythonパッケージユーザーガイド</a>を参照してください。"
 
-#: warehouse/templates/manage/settings.html:117
+#: warehouse/templates/manage/settings.html:119
+#, fuzzy
+#| msgid "Remove %(user)s from this project"
+msgid "Remove project from organization"
+msgstr "このプロジェクトから %(user)s を削除する"
+
+#: warehouse/templates/manage/settings.html:122
+#, fuzzy
+#| msgid "You are not an owner of this project"
+msgid "Removing this project from the organization will:"
+msgstr "あなたはこのプロジェクトの所有者ではありません"
+
+#: warehouse/templates/manage/settings.html:126
+#: warehouse/templates/manage/settings.html:170
+#, fuzzy, python-format
+#| msgid "You are now ${role} of the '${project_name}' project."
+msgid "Remove this project from the '%(organization_name)s' organization."
+msgstr "プロジェクト '${project_name}' の ${role} になりました。"
+
+#: warehouse/templates/manage/settings.html:129
+#: warehouse/templates/manage/settings.html:173
+#, fuzzy, python-format
+#| msgid ""
+#| "Your request to create a new organization named \"%(organization_name)s\" "
+#| "was not approved."
+msgid ""
+"Revoke project permissions for teams in the '%(organization_name)s' "
+"organization."
+msgstr ""
+"\"%(organization_name)s\" という名前の新しい組織を作成する要求が承認されませ"
+"んでした。"
+
+#: warehouse/templates/manage/settings.html:133
+#: warehouse/templates/manage/settings.html:139
+#: warehouse/templates/manage/settings.html:188
+msgid ""
+"Individual owners and maintainers of the project will retain their project "
+"permissions."
+msgstr ""
+
+#: warehouse/templates/manage/settings.html:138
+#, fuzzy, python-format
+#| msgid "You are now ${role} of the '${project_name}' project."
+msgid ""
+"This will remove the project from the '%(organization_name)s' organization."
+msgstr "プロジェクト '${project_name}' の ${role} になりました。"
+
+#: warehouse/templates/manage/settings.html:142
+#, fuzzy
+#| msgid "No projects"
+msgid "Remove project"
+msgstr "プロジェクト無し"
+
+#: warehouse/templates/manage/settings.html:142
+#: warehouse/templates/manage/settings.html:200
+#: warehouse/templates/manage/settings.html:256
+msgid "Project Name"
+msgstr "プロジェクト名"
+
+#: warehouse/templates/manage/settings.html:146
+#, fuzzy
+#| msgid "You are not an owner of this project"
+msgid "Cannot remove project from organization"
+msgstr "あなたはこのプロジェクトの所有者ではありません"
+
 #: warehouse/templates/manage/settings.html:148
+msgid ""
+"Your organization is currently the <strong>sole owner</strong> of the "
+"project. You must add an individual owner to the project before you can "
+"remove the project from your organization."
+msgstr ""
+
+#: warehouse/templates/manage/settings.html:158
+#, fuzzy
+#| msgid "You are not an owner of this project"
+msgid "Transfer project to another organization"
+msgstr "あなたはこのプロジェクトの所有者ではありません"
+
+#: warehouse/templates/manage/settings.html:160
+#, fuzzy
+#| msgid "Create an account"
+msgid "Transfer project to an organization"
+msgstr "アカウントを作成する"
+
+#: warehouse/templates/manage/settings.html:165
+#, fuzzy
+#| msgid "Deleting this project will:"
+msgid "Transferring this project will:"
+msgstr "このプロジェクトを削除することによって:"
+
+#: warehouse/templates/manage/settings.html:178
+msgid "Add the project to another organization that you own."
+msgstr ""
+
+#: warehouse/templates/manage/settings.html:180
+#, fuzzy
+#| msgid "Invalid token: not a collaboration invitation token"
+msgid "Add the project to an organization that you own."
+msgstr "無効なトークン: コラボレーション招待トークンではありません"
+
+#: warehouse/templates/manage/settings.html:184
+msgid "Grant full project permissions to owners of the organization."
+msgstr ""
+
+#: warehouse/templates/manage/settings.html:200
+#, fuzzy
+#| msgid "Manage project"
+msgid "Transfer project"
+msgstr "プロジェクトの管理"
+
+#: warehouse/templates/manage/settings.html:206
+#, fuzzy
+#| msgid "You are not an owner of this project"
+msgid "Cannot transfer project to another organization"
+msgstr "あなたはこのプロジェクトの所有者ではありません"
+
+#: warehouse/templates/manage/settings.html:208
+#, fuzzy
+#| msgid "Create an account"
+msgid "Cannot transfer project to an organization"
+msgstr "アカウントを作成する"
+
+#: warehouse/templates/manage/settings.html:212
+msgid "Project owners can transfer the project to organizations that they own."
+msgstr ""
+
+#: warehouse/templates/manage/settings.html:214
+#, fuzzy
+#| msgid "You are not an owner of this project"
+msgid "You are not an owner of any other organizations."
+msgstr "あなたはこのプロジェクトの所有者ではありません"
+
+#: warehouse/templates/manage/settings.html:216
+#, fuzzy
+#| msgid "%(user)s has not uploaded any projects to PyPI, yet"
+msgid "You are not an owner of any organizations."
+msgstr "%(user)s はまだPyPIにプロジェクトをアップロードしていません"
+
+#: warehouse/templates/manage/settings.html:225
+#: warehouse/templates/manage/settings.html:256
 msgid "Delete project"
 msgstr "プロジェクトの削除"
 
-#: warehouse/templates/manage/settings.html:120
+#: warehouse/templates/manage/settings.html:228
 msgid "Deleting this project will:"
 msgstr "このプロジェクトを削除することによって:"
 
-#: warehouse/templates/manage/settings.html:125
+#: warehouse/templates/manage/settings.html:233
 #, python-format
 msgid ""
 "Irreversibly delete the project along with <a href=\"%(href)s\">%(count)s "
@@ -4804,16 +5035,16 @@ msgstr[0] ""
 "このプロジェクトと<a href=\"%(href)s\">%(count)s 個のリリース</a>を完全に削除"
 "します"
 
-#: warehouse/templates/manage/settings.html:131
+#: warehouse/templates/manage/settings.html:239
 msgid "Irreversibly delete the project"
 msgstr "プロジェクトを完全に削除する"
 
-#: warehouse/templates/manage/settings.html:135
+#: warehouse/templates/manage/settings.html:243
 msgid "Make the project name available to <strong>any other PyPI</strong> user"
 msgstr ""
 "<strong>他の PyPI </strong>ユーザーがプロジェクト名を利用できるようになります"
 
-#: warehouse/templates/manage/settings.html:137
+#: warehouse/templates/manage/settings.html:245
 msgid ""
 "This user will be able to make new releases under this project name, so long "
 "as the distribution filenames do not match filenames from a previously "
@@ -4825,10 +5056,6 @@ msgstr ""
 "ファイル名と一致しない限り、このプロジェクト名で新しいリリースを行うことがで"
 "きます(プロジェクト名+バージョン番号+配布タイプを組み合わせて生成されるため、"
 "すべてのPyPI配布ファイル名は一意です)"
-
-#: warehouse/templates/manage/settings.html:148
-msgid "Project Name"
-msgstr "プロジェクト名"
 
 #: warehouse/templates/manage/token.html:38
 #, python-format
@@ -5221,13 +5448,107 @@ msgstr "「 %(project_name)s 」を管理する"
 msgid "Back to organizations"
 msgstr "アカウントを作成する"
 
+#: warehouse/templates/manage/organization/projects.html:17
+#, fuzzy
+#| msgid "Project description"
+msgid "Organization projects"
+msgstr "プロジェクトの説明"
+
+#: warehouse/templates/manage/organization/projects.html:21
+#, fuzzy, python-format
+#| msgid "Manage '%(project_name)s'"
+msgid "Manage '%(organization_name)s' projects"
+msgstr "「 %(project_name)s 」を管理する"
+
+#: warehouse/templates/manage/organization/projects.html:24
+#, fuzzy, python-format
+#| msgid "Your projects (%(project_count)s)"
+msgid "Projects (%(project_count)s)"
+msgstr "あなたのプロジェクト %(project_count)s"
+
+#: warehouse/templates/manage/organization/projects.html:139
+#, fuzzy, python-format
+#| msgid ""
+#| "You have not uploaded any projects to PyPI, yet. To learn how to get "
+#| "started, visit the <a href=\"%(href)s\" target=\"_blank\" rel=\"noopener"
+#| "\">Python Packaging User Guide</a>"
+msgid ""
+"You have not added any projects to your organization, yet. Get started by "
+"adding a project that you own using the form below. To learn how to create a "
+"new project, visit the <a href=\"%(href)s\" target=\"_blank\" rel=\"noopener"
+"\">Python Packaging User Guide</a>"
+msgstr ""
+"あなたはまだPyPIにプロジェクトをアップロードしていません。はじめ方について学"
+"ぶには、<a href=\"%(href)s\" target=\"_blank\" rel=\"noopener\">Python "
+"Packaging User Guide</a>を参照してください"
+
+#: warehouse/templates/manage/organization/projects.html:149
+#, fuzzy
+#| msgid "Create an account"
+msgid "Add project to organization"
+msgstr "アカウントを作成する"
+
+#: warehouse/templates/manage/organization/projects.html:155
+msgid "️New or existing project?"
+msgstr ""
+
+#: warehouse/templates/manage/organization/projects.html:165
+msgid ""
+"Transfer an existing project that you own, or create and add a new project "
+"to the organization."
+msgstr ""
+
+#: warehouse/templates/manage/organization/projects.html:171
+msgid "️Name of existing project"
+msgstr ""
+
+#: warehouse/templates/manage/organization/projects.html:175
+#, fuzzy
+#| msgid "You are receiving this because you are an owner of this project."
+msgid "You do not own any projects that you can add to this organization."
+msgstr ""
+"あなたがこのメールを受け取ったのは、あなたがこのプロジェクトのオーナーだから"
+"です。"
+
+#: warehouse/templates/manage/organization/projects.html:180
+msgid ""
+"Owners of this organization can transfer a project that they own to this "
+"organization if the project has not been added to another organization. A "
+"project that has been added to another organization can be transferred from "
+"the project settings page."
+msgstr ""
+
+#: warehouse/templates/manage/organization/projects.html:185
+#, fuzzy
+#| msgid "Trending projects"
+msgid "Transfer existing project"
+msgstr "トレンドのプロジェクト"
+
+#: warehouse/templates/manage/organization/projects.html:189
+#, fuzzy
+#| msgid "Register a new project."
+msgid "️Name of new project"
+msgstr "新しいプロジェクトを登録する。"
+
+#: warehouse/templates/manage/organization/projects.html:197
+msgid ""
+"Owners of this organization can create an empty project and add it to the "
+"organization."
+msgstr ""
+
+#: warehouse/templates/manage/organization/projects.html:202
+#, fuzzy
+#| msgid "Register a new project."
+msgid "Create and add new project"
+msgstr "新しいプロジェクトを登録する。"
+
 #: warehouse/templates/manage/organization/roles.html:18
 #, fuzzy, python-format
 #| msgid "Manage '%(project_name)s'"
 msgid "Manage people in '%(organization_name)s'"
 msgstr "「 %(project_name)s 」を管理する"
 
-#: warehouse/templates/manage/organization/roles.html:38
+#: warehouse/templates/manage/organization/roles.html:36
 #, fuzzy, python-format
 #| msgid ""
 #| "Use this page to control which PyPI users can help you to manage "
@@ -5239,64 +5560,64 @@ msgstr ""
 "このページでは、%(project_name)s を管理する上でPyPIユーザがあなたを手伝えるど"
 "うかを制御できます"
 
-#: warehouse/templates/manage/organization/roles.html:41
+#: warehouse/templates/manage/organization/roles.html:39
 #, fuzzy, python-format
 #| msgid "There are two possible roles for collaborators:"
 msgid ""
 "There are %(number_of_roles)s possible roles for people in this organization:"
 msgstr "共同編集者（collaborators）には、以下の2つの役割があります。"
 
-#: warehouse/templates/manage/organization/roles.html:43
-#: warehouse/templates/manage/organization/roles.html:88
+#: warehouse/templates/manage/organization/roles.html:41
+#: warehouse/templates/manage/organization/roles.html:86
 msgid "Member"
 msgstr ""
 
-#: warehouse/templates/manage/organization/roles.html:44
+#: warehouse/templates/manage/organization/roles.html:42
 msgid ""
 "Can be owner or maintainer for specific projects. Cannot create new "
 "projects. Cannot create or manage teams. Cannot invite or manage "
 "organization members. Cannot delete projects or the organization itself."
 msgstr ""
 
-#: warehouse/templates/manage/organization/roles.html:46
+#: warehouse/templates/manage/organization/roles.html:44
 msgid ""
 "Can be owner or maintainer for specific projects. Can create new projects. "
 "Can create and manage teams. Cannot invite or manage organization members. "
 "Cannot delete projects or the organization itself."
 msgstr ""
 
-#: warehouse/templates/manage/organization/roles.html:48
+#: warehouse/templates/manage/organization/roles.html:46
 msgid ""
 "Can be owner or maintainer for specific projects. Can create new projects. "
 "Can create and manage teams. Can invite and manage organization members. Can "
 "delete projects and the organization itself."
 msgstr ""
 
-#: warehouse/templates/manage/organization/roles.html:51
+#: warehouse/templates/manage/organization/roles.html:49
 #, fuzzy
 #| msgid "Create an account"
 msgid "Can manage billing for the organization."
 msgstr "アカウントを作成する"
 
-#: warehouse/templates/manage/organization/roles.html:57
+#: warehouse/templates/manage/organization/roles.html:55
 #, fuzzy, python-format
 #| msgid "Users who can manage %(project_name)s"
 msgid "Users who can manage %(organization_name)s"
 msgstr "%(project_name)s を管理できるユーザ"
 
-#: warehouse/templates/manage/organization/roles.html:126
+#: warehouse/templates/manage/organization/roles.html:124
 #, fuzzy
 #| msgid "You are not an owner of this project"
 msgid "Cannot remove other people from the organization"
 msgstr "あなたはこのプロジェクトの所有者ではありません"
 
-#: warehouse/templates/manage/organization/roles.html:132
+#: warehouse/templates/manage/organization/roles.html:130
 #, fuzzy, python-format
 #| msgid "Remove %(user)s from this project"
 msgid "Remove %(user)s from this organization"
 msgstr "このプロジェクトから %(user)s を削除する"
 
-#: warehouse/templates/manage/organization/roles.html:187
+#: warehouse/templates/manage/organization/roles.html:185
 msgid "Invite member"
 msgstr ""
 
@@ -5319,20 +5640,20 @@ msgstr "「 %(project_name)s 」を管理する"
 msgid "Date created"
 msgstr "アカウントを作成"
 
-#: warehouse/templates/manage/organization/settings.html:119
+#: warehouse/templates/manage/organization/settings.html:146
 #, fuzzy
 #| msgid "Create an account"
 msgid "Update organization"
 msgstr "アカウントを作成する"
 
-#: warehouse/templates/manage/organization/settings.html:126
-#: warehouse/templates/manage/organization/settings.html:138
+#: warehouse/templates/manage/organization/settings.html:155
+#: warehouse/templates/manage/organization/settings.html:167
 #, fuzzy
 #| msgid "Manage '%(project_name)s'"
 msgid "Change organization account name"
 msgstr "「 %(project_name)s 」を管理する"
 
-#: warehouse/templates/manage/organization/settings.html:131
+#: warehouse/templates/manage/organization/settings.html:160
 #, fuzzy
 #| msgid "You will not be able to recover your account after you delete it"
 msgid ""
@@ -5340,26 +5661,26 @@ msgid ""
 "your organization."
 msgstr "アカウント削除後は、アカウントを回復できなくなります"
 
-#: warehouse/templates/manage/organization/settings.html:138
+#: warehouse/templates/manage/organization/settings.html:167
 #, fuzzy
 #| msgid "Create an account"
 msgid "Current organization account name"
 msgstr "アカウントを作成する"
 
-#: warehouse/templates/manage/organization/settings.html:145
-#: warehouse/templates/manage/organization/settings.html:179
+#: warehouse/templates/manage/organization/settings.html:174
+#: warehouse/templates/manage/organization/settings.html:208
 #, fuzzy
 #| msgid "Create an account"
 msgid "Delete organization"
 msgstr "アカウントを作成する"
 
-#: warehouse/templates/manage/organization/settings.html:148
+#: warehouse/templates/manage/organization/settings.html:177
 #, fuzzy
 #| msgid "Create an account"
 msgid "Cannot delete organization"
 msgstr "アカウントを作成する"
 
-#: warehouse/templates/manage/organization/settings.html:150
+#: warehouse/templates/manage/organization/settings.html:179
 #, fuzzy, python-format
 #| msgid ""
 #| "\n"
@@ -5385,7 +5706,7 @@ msgstr[0] ""
 "のオーナー</strong>となっています。\n"
 "        "
 
-#: warehouse/templates/manage/organization/settings.html:155
+#: warehouse/templates/manage/organization/settings.html:184
 #, fuzzy
 #| msgid ""
 #| "\n"
@@ -5413,13 +5734,13 @@ msgstr[0] ""
 "これらのプロジェクトを削除しなければなりません。\n"
 "        "
 
-#: warehouse/templates/manage/organization/settings.html:177
+#: warehouse/templates/manage/organization/settings.html:206
 #, fuzzy
 #| msgid "You will not be able to recover your account after you delete it"
 msgid "You will not be able to recover your organization after you delete it."
 msgstr "アカウント削除後は、アカウントを回復できなくなります"
 
-#: warehouse/templates/manage/organization/settings.html:179
+#: warehouse/templates/manage/organization/settings.html:208
 #, fuzzy
 #| msgid "Project description"
 msgid "Organization Name"
@@ -5925,6 +6246,12 @@ msgid "How do I keep up with upcoming changes to PyPI?"
 msgstr "PyPIの今後の変更に対応するには、どうすればよいですか？"
 
 #: warehouse/templates/pages/help.html:102
+#, fuzzy
+#| msgid "How can I run a mirror of PyPI?"
+msgid "How can I get a list of PyPI's IP addresses?"
+msgstr "PyPIのミラーはどうやって動かせますか？"
+
+#: warehouse/templates/pages/help.html:103
 msgid ""
 "What does the \"beta feature\" badge mean? What are Warehouse's current beta "
 "features?"
@@ -5932,44 +6259,44 @@ msgstr ""
 "「ベータ機能（beta feature）」のバッジは何を意味しますか？ Warehouseの現在の"
 "ベータ機能には何がありますか？"
 
-#: warehouse/templates/pages/help.html:103
+#: warehouse/templates/pages/help.html:104
 msgid "How do I pronounce \"PyPI\"?"
 msgstr "「PyPI」はどのように発音しますか？"
 
-#: warehouse/templates/pages/help.html:110
+#: warehouse/templates/pages/help.html:111
 msgid "Common questions"
 msgstr "よくある質問"
 
-#: warehouse/templates/pages/help.html:113
-#: warehouse/templates/pages/help.html:196
+#: warehouse/templates/pages/help.html:114
+#: warehouse/templates/pages/help.html:198
 msgid "Basics"
 msgstr "基本"
 
-#: warehouse/templates/pages/help.html:124
+#: warehouse/templates/pages/help.html:125
 msgid "My Account"
 msgstr "アカウントについて"
 
-#: warehouse/templates/pages/help.html:141
-#: warehouse/templates/pages/help.html:516
+#: warehouse/templates/pages/help.html:142
+#: warehouse/templates/pages/help.html:518
 msgid "Integrating"
 msgstr "統合"
 
-#: warehouse/templates/pages/help.html:151
-#: warehouse/templates/pages/help.html:543
+#: warehouse/templates/pages/help.html:152
+#: warehouse/templates/pages/help.html:545
 msgid "Administration of projects on PyPI"
 msgstr "PyPI上でのプロジェクト管理"
 
-#: warehouse/templates/pages/help.html:166
-#: warehouse/templates/pages/help.html:627
+#: warehouse/templates/pages/help.html:167
+#: warehouse/templates/pages/help.html:629
 msgid "Troubleshooting"
 msgstr "トラブルシューティング"
 
-#: warehouse/templates/pages/help.html:183
-#: warehouse/templates/pages/help.html:773
+#: warehouse/templates/pages/help.html:184
+#: warehouse/templates/pages/help.html:775
 msgid "About"
 msgstr "PyPIについて"
 
-#: warehouse/templates/pages/help.html:199
+#: warehouse/templates/pages/help.html:201
 #, python-format
 msgid ""
 "\n"
@@ -6012,7 +6339,7 @@ msgstr ""
 "ファイル（パッケージ）がある場合があります。</p>\n"
 "        "
 
-#: warehouse/templates/pages/help.html:208
+#: warehouse/templates/pages/help.html:210
 #, python-format
 msgid ""
 "To learn how to install a file from PyPI, visit the <a href="
@@ -6027,7 +6354,7 @@ msgstr ""
 "title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">インストールチュートリ"
 "アル</a>を参照してください。"
 
-#: warehouse/templates/pages/help.html:215
+#: warehouse/templates/pages/help.html:217
 #, python-format
 msgid ""
 "For full instructions on configuring, packaging and distributing your Python "
@@ -6042,7 +6369,7 @@ msgstr ""
 "\"%(packaging_tutorial_href)s\" title=\"%(title)s\" target=\"_blank\" rel="
 "\"noopener\">パッケージングのチュートリアル</a>を参照してください。"
 
-#: warehouse/templates/pages/help.html:222
+#: warehouse/templates/pages/help.html:224
 #, python-format
 msgid ""
 "Classifiers are used to categorize projects on PyPI. See <a href=\"%(href)s"
@@ -6053,7 +6380,7 @@ msgstr ""
 "類のリストの他、より多くの情報については、<a href=\"%(href)s\">分類ページ</a>"
 "を参照してください。"
 
-#: warehouse/templates/pages/help.html:229
+#: warehouse/templates/pages/help.html:231
 #, fuzzy, python-format
 #| msgid ""
 #| "There is currently no established process for performing this "
@@ -6073,26 +6400,26 @@ msgstr ""
 "target=\"_blank\" rel=\"noopener\"><abbr title=\"Python enhancement proposal"
 "\">PEP</abbr> 541</a>によって現在作成中のものがあります。"
 
-#: warehouse/templates/pages/help.html:236
+#: warehouse/templates/pages/help.html:238
 msgid "My account"
 msgstr "アカウント"
 
-#: warehouse/templates/pages/help.html:239
+#: warehouse/templates/pages/help.html:241
 msgid ""
 "Currently, PyPI requires a verified email address to perform the following "
 "operations:"
 msgstr ""
 "現在、PyPIは次の操作を実行するために確認済みのメールアドレスを必要とします。"
 
-#: warehouse/templates/pages/help.html:241
+#: warehouse/templates/pages/help.html:243
 msgid "Register a new project."
 msgstr "新しいプロジェクトを登録する。"
 
-#: warehouse/templates/pages/help.html:242
+#: warehouse/templates/pages/help.html:244
 msgid "Upload a new version or file."
 msgstr "新しいバージョンやファイルをアップロードする。"
 
-#: warehouse/templates/pages/help.html:244
+#: warehouse/templates/pages/help.html:246
 msgid ""
 "The list of activities that require a verified email address is likely to "
 "grow over time."
@@ -6100,7 +6427,7 @@ msgstr ""
 "確認済みのメールアドレスを必要とするアクティビティのリストは、時間の経過とと"
 "もに増える可能性があります。"
 
-#: warehouse/templates/pages/help.html:245
+#: warehouse/templates/pages/help.html:247
 #, python-format
 msgid ""
 "This policy will allow us to enforce a key policy of <a href=\"%(href)s\" "
@@ -6115,7 +6442,7 @@ msgstr ""
 "シーを実現可能にします。また、大量のアカウントを自動生成するようなスパム攻撃"
 "が行われる可能性を減らします。"
 
-#: warehouse/templates/pages/help.html:246
+#: warehouse/templates/pages/help.html:248
 #, python-format
 msgid ""
 "You can manage your account's email addresses in your <a href=\"%(href)s"
@@ -6127,7 +6454,7 @@ msgstr ""
 "きます。また、このポリシーを適用する前に、以前サインアップしたユーザに対して"
 "新しい確認メールを送信することもできます。"
 
-#: warehouse/templates/pages/help.html:249
+#: warehouse/templates/pages/help.html:251
 #, python-format
 msgid ""
 "<p> PyPI itself has not suffered a breach. This is a protective measure to "
@@ -6172,7 +6499,7 @@ msgstr ""
 "たが <a href=\"%(reset_pwd_href)s\">パスワードのリセット</a>を行うまでログイ"
 "ンできません。</p>"
 
-#: warehouse/templates/pages/help.html:284
+#: warehouse/templates/pages/help.html:286
 #, python-format
 msgid ""
 "<p> All PyPI user events are stored under security history in account "
@@ -6182,7 +6509,7 @@ msgid ""
 "%(admin_email)s\">%(admin_email)s</a></li> </ul> </p>"
 msgstr ""
 
-#: warehouse/templates/pages/help.html:296
+#: warehouse/templates/pages/help.html:298
 msgid ""
 "<p> A PyPI API token linked to your account was posted on a public website. "
 "It was automatically revoked, but before regenerating a new one, please "
@@ -6190,7 +6517,7 @@ msgid ""
 "\"#suspicious-activity\">suspicious activity</a> section applies too. </p>"
 msgstr ""
 
-#: warehouse/templates/pages/help.html:306
+#: warehouse/templates/pages/help.html:308
 #, python-format
 msgid ""
 "<p> Two factor authentication (2FA) makes your account more secure by "
@@ -6222,7 +6549,7 @@ msgstr ""
 "\"%(title)s\" target=\"_blank\" rel=\"noopener\">discuss.python.org</a>で把握"
 "することができます。</p>"
 
-#: warehouse/templates/pages/help.html:333
+#: warehouse/templates/pages/help.html:335
 #, python-format
 msgid ""
 "PyPI users can set up two-factor authentication using any authentication "
@@ -6234,7 +6561,7 @@ msgstr ""
 "\"noopener\"><abbr title=\"time-based one-time password\">TOTP</abbr>標準</a>"
 "をサポートする任意の認証アプリケーションを使って、二要素認証を設定できます。"
 
-#: warehouse/templates/pages/help.html:334
+#: warehouse/templates/pages/help.html:336
 msgid ""
 "<abbr title=\"time-based one-time password\">TOTP</abbr> authentication "
 "applications generate a regularly changing authentication code to use when "
@@ -6244,7 +6571,7 @@ msgstr ""
 "は、アカウントへのログイン時に使うための、定期的に変更される認証コードを生成"
 "します。"
 
-#: warehouse/templates/pages/help.html:335
+#: warehouse/templates/pages/help.html:337
 msgid ""
 "Because <abbr title=\"time-based one-time password\">TOTP</abbr> is an open "
 "standard, there are many applications that are compatible with your PyPI "
@@ -6254,7 +6581,7 @@ msgstr ""
 "ダードであるため、PyPIのアカウントと互換性があるアプリケーションはたくさんあ"
 "ります。以下は、人気のあるアプリケーションです。"
 
-#: warehouse/templates/pages/help.html:338
+#: warehouse/templates/pages/help.html:340
 #, python-format
 msgid ""
 "Google Authenticator for <a href=\"%(android_href)s\" title=\"%(title)s\" "
@@ -6265,14 +6592,14 @@ msgstr ""
 "\"noopener\">Android</a> または <a href=\"%(ios_href)s\" title=\"%(title)s\" "
 "target=\"_blank\" rel=\"noopener\">iOS</a> 対応の Google Authenticator"
 
-#: warehouse/templates/pages/help.html:341
 #: warehouse/templates/pages/help.html:343
-#: warehouse/templates/pages/help.html:348
+#: warehouse/templates/pages/help.html:345
 #: warehouse/templates/pages/help.html:350
+#: warehouse/templates/pages/help.html:352
 msgid "(proprietary)"
 msgstr "（プロプライエタリ）"
 
-#: warehouse/templates/pages/help.html:345
+#: warehouse/templates/pages/help.html:347
 #, python-format
 msgid ""
 "Duo Mobile for <a href=\"%(android_href)s\" title=\"%(title)s\" target="
@@ -6283,12 +6610,12 @@ msgstr ""
 "\"noopener\">Android</a> または <a href=\"%(ios_href)s\" title=\"%(title)s\" "
 "target=\"_blank\" rel=\"noopener\">iOS</a> 対応の Duo Mobile"
 
-#: warehouse/templates/pages/help.html:351
-#: warehouse/templates/pages/help.html:352
+#: warehouse/templates/pages/help.html:353
+#: warehouse/templates/pages/help.html:354
 msgid "(open source)"
 msgstr "（オープンソース）"
 
-#: warehouse/templates/pages/help.html:356
+#: warehouse/templates/pages/help.html:358
 #, python-format
 msgid ""
 "Some password managers (e.g. <a href=\"%(href)s\" title=\"%(title)s\" target="
@@ -6301,7 +6628,7 @@ msgstr ""
 "ことがあります。セキュリティ上の理由から、PyPIは、アカウントごとに1つのアプリ"
 "ケーションしか設定できません。"
 
-#: warehouse/templates/pages/help.html:364
+#: warehouse/templates/pages/help.html:366
 msgid ""
 "To set up <abbr title=\"two factor authentication\">2FA</abbr> with an "
 "authentication application:"
@@ -6309,7 +6636,7 @@ msgstr ""
 "認証アプリケーションを使って<abbr title=\"two factor authentication\">2FA</"
 "abbr>を設定するには:"
 
-#: warehouse/templates/pages/help.html:366
+#: warehouse/templates/pages/help.html:368
 msgid ""
 "Open an authentication (<abbr title=\"time-based one-time password\">TOTP</"
 "abbr>) application"
@@ -6317,7 +6644,7 @@ msgstr ""
 "認証（<abbr title=\"time-based one-time password\">TOTP</abbr>）アプリケー"
 "ションを開く"
 
-#: warehouse/templates/pages/help.html:367
+#: warehouse/templates/pages/help.html:369
 msgid ""
 "Log in to your PyPI account, go to your account settings, and choose \"Add "
 "<abbr title=\"two factor authentication\">2FA</abbr> with authentication "
@@ -6326,7 +6653,7 @@ msgstr ""
 "PyPIのアカウントにログインし、アカウント設定に進み、「認証アプリケーションに"
 "よる<abbr title=\"two factor authentication\">2FA</abbr>の追加」を選択する"
 
-#: warehouse/templates/pages/help.html:368
+#: warehouse/templates/pages/help.html:370
 msgid ""
 "PyPI will generate a secret key, specific to your account. This is displayed "
 "as a QR code, and as a text code."
@@ -6334,7 +6661,7 @@ msgstr ""
 "PyPIはアカウント固有の秘密鍵を生成する。これはQRコードまたはテキストコードで"
 "表示される。"
 
-#: warehouse/templates/pages/help.html:369
+#: warehouse/templates/pages/help.html:371
 msgid ""
 "Scan the QR code with your authentication application, or type it in "
 "manually. The method of input will depend on the application you have chosen."
@@ -6342,7 +6669,7 @@ msgstr ""
 "認証アプリケーションでQRコードをスキャンするか、手動で入力する。入力方法は、"
 "選択したアプリケーションによって異なる。"
 
-#: warehouse/templates/pages/help.html:370
+#: warehouse/templates/pages/help.html:372
 msgid ""
 "Your application will generate an authentication code - use this to verify "
 "your set up on PyPI"
@@ -6350,7 +6677,7 @@ msgstr ""
 "アプリケーションによって認証コードが生成されるーーこれを使って、PyPI上での設"
 "定を検証する"
 
-#: warehouse/templates/pages/help.html:373
+#: warehouse/templates/pages/help.html:375
 msgid ""
 "The PyPI server and your application now share your PyPI secret key, "
 "allowing your application to generate valid authentication codes for your "
@@ -6359,25 +6686,25 @@ msgstr ""
 "これで、PyPIサーバとあなたのアプリケーションはPyPIの秘密鍵を共有し、アプリ"
 "ケーションがPyPIアカウントの有効な認証コードを生成できるようになります。"
 
-#: warehouse/templates/pages/help.html:375
-#: warehouse/templates/pages/help.html:417
+#: warehouse/templates/pages/help.html:377
+#: warehouse/templates/pages/help.html:419
 msgid "Next time you log in to PyPI you'll need to:"
 msgstr "次回、PyPIにログインする時には:"
 
-#: warehouse/templates/pages/help.html:377
-#: warehouse/templates/pages/help.html:469
+#: warehouse/templates/pages/help.html:379
+#: warehouse/templates/pages/help.html:471
 msgid "Provide your username and password, as normal"
 msgstr "通常どおり、ユーザ名とパスワードを入力する"
 
-#: warehouse/templates/pages/help.html:378
+#: warehouse/templates/pages/help.html:380
 msgid "Open your authentication application to generate an authentication code"
 msgstr "認証アプリケーションを開いて認証コードを生成する"
 
-#: warehouse/templates/pages/help.html:379
+#: warehouse/templates/pages/help.html:381
 msgid "Use this code to finish logging into PyPI"
 msgstr "このコードを使ってPyPIへのログインを完了する"
 
-#: warehouse/templates/pages/help.html:385
+#: warehouse/templates/pages/help.html:387
 msgid ""
 "A security device is a USB key or <a href=\"#utfdevices\">other device</a> "
 "that generates a one-time password and sends that password to the browser. "
@@ -6387,12 +6714,12 @@ msgstr ""
 "する<a href=\"#utfdevices\">その他の端末</a>などのことです。このパスワード"
 "は、あなたをユーザとして認証するためにPyPIで使われます。"
 
-#: warehouse/templates/pages/help.html:387
+#: warehouse/templates/pages/help.html:389
 msgid ""
 "To set up two factor authentication with a <em>USB key</em>, you'll need:"
 msgstr "<em>USBキー</em>を使った二要素認証を設定するには、以下が必要です:"
 
-#: warehouse/templates/pages/help.html:389
+#: warehouse/templates/pages/help.html:391
 #, python-format
 msgid ""
 "To use a <a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel="
@@ -6404,11 +6731,11 @@ msgstr ""
 "\"><abbr title=\"web authentication\">WebAuthn</abbr>とPublicKeyCredentialを"
 "サポートするブラウザ</a>を使うこと。これはPyPIで実施されている標準である。"
 
-#: warehouse/templates/pages/help.html:390
+#: warehouse/templates/pages/help.html:392
 msgid "To be running JavaScript on your browser"
 msgstr "ブラウザ上でJavaScriptを実行できること"
 
-#: warehouse/templates/pages/help.html:391
+#: warehouse/templates/pages/help.html:393
 #, python-format
 msgid ""
 "To use a USB key that adheres to the <a href=\"%(href)s\" title=\"%(title)s"
@@ -6417,7 +6744,7 @@ msgstr ""
 "<a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener"
 "\">FIDO U2F仕様</a>に準拠したUSBキーを使用すること:"
 
-#: warehouse/templates/pages/help.html:394
+#: warehouse/templates/pages/help.html:396
 #, python-format
 msgid ""
 "Popular keys include <a href=\"%(yubikey_href)s\" title=\"%(title)s\" target="
@@ -6432,7 +6759,7 @@ msgstr ""
 "href=\"%(thetis_href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener"
 "\">Thetis</a>がある。"
 
-#: warehouse/templates/pages/help.html:401
+#: warehouse/templates/pages/help.html:403
 msgid ""
 "Note that some older Yubico USB keys <strong>do not follow the FIDO "
 "specification</strong>, and will therefore not work with PyPI"
@@ -6440,11 +6767,11 @@ msgstr ""
 "一部の古いYubicoのUSBキーは<strong>FIDO仕様に対応しておらず</strong>、PyPI上"
 "では動作しないことに注意してください"
 
-#: warehouse/templates/pages/help.html:406
+#: warehouse/templates/pages/help.html:408
 msgid "Follow these steps:"
 msgstr "以下の手順を実施します:"
 
-#: warehouse/templates/pages/help.html:408
+#: warehouse/templates/pages/help.html:410
 msgid ""
 "\n"
 "          <li>Log in to your PyPI account, go to your account settings, and "
@@ -6468,7 +6795,7 @@ msgstr ""
 "          <li>ブラウザの指示に従って、USBキーを挿入しタッチする</li>\n"
 "          "
 
-#: warehouse/templates/pages/help.html:415
+#: warehouse/templates/pages/help.html:417
 msgid ""
 "Once complete, your USB key will be registered to your PyPI account and can "
 "be used during the log in process."
@@ -6476,7 +6803,7 @@ msgstr ""
 "完了するとUSBキーがPyPIアカウントに登録され、ログイン処理中に使えるようになり"
 "ます。"
 
-#: warehouse/templates/pages/help.html:419
+#: warehouse/templates/pages/help.html:421
 msgid ""
 "\n"
 "          <li>Provide your username and password, as normal</li>\n"
@@ -6489,7 +6816,7 @@ msgstr ""
 "          <li>USBキーを挿入してタッチし、PyPIへのログインを完了する</li>\n"
 "          "
 
-#: warehouse/templates/pages/help.html:430
+#: warehouse/templates/pages/help.html:432
 #, python-format
 msgid ""
 "There is a growing ecosystem of <a href=\"%(href)s\" title=\"%(title)s\" "
@@ -6499,7 +6826,7 @@ msgstr ""
 "<a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener"
 "\">FIDO準拠の端末</a>のエコシステムが成長しており、PyPIで使用できます。"
 
-#: warehouse/templates/pages/help.html:435
+#: warehouse/templates/pages/help.html:437
 #, python-format
 msgid ""
 "Emerging solutions include biometric (facial and fingerprint) scanners and "
@@ -6512,7 +6839,7 @@ msgstr ""
 "target=\"_blank\" rel=\"noopener\">セキュリティ端末として機能する携帯電話</a>"
 "もますますサポートされてきています。"
 
-#: warehouse/templates/pages/help.html:441
+#: warehouse/templates/pages/help.html:443
 #, python-format
 msgid ""
 "As PyPI's two factor implementation follows the <a href=\"%(href)s\" title="
@@ -6527,14 +6854,14 @@ msgstr ""
 "a>に準拠しているため、PyPIユーザはこの分野における将来的な開発の恩恵を受ける"
 "ことができます。"
 
-#: warehouse/templates/pages/help.html:450
+#: warehouse/templates/pages/help.html:452
 msgid ""
 "If you lose access to your <a href=\"#totp\">authentication application</a> "
 "or <a href=\"#utfkey\">security device</a>, you can use these codes to sign "
 "into PyPI."
 msgstr ""
 
-#: warehouse/templates/pages/help.html:453
+#: warehouse/templates/pages/help.html:455
 msgid ""
 "Recovery codes are <strong>one time use</strong>. They are not a substitute "
 "for a <a href=\"#totp\">authentication application</a> or <a href=\"#utfkey"
@@ -6542,7 +6869,7 @@ msgid ""
 "recovery code to sign in, it becomes inactive."
 msgstr ""
 
-#: warehouse/templates/pages/help.html:459
+#: warehouse/templates/pages/help.html:461
 msgid "To provision recovery codes:"
 msgstr ""
 
@@ -6551,7 +6878,7 @@ msgstr ""
 # choose "
 # | "\"Add <abbr title=\"two factor authentication\">2FA</abbr> with "
 # | "authentication application\""
-#: warehouse/templates/pages/help.html:461
+#: warehouse/templates/pages/help.html:463
 #, fuzzy
 msgid ""
 "Log in to your PyPI account, go to your account settings, and choose "
@@ -6560,35 +6887,35 @@ msgstr ""
 "PyPIのアカウントにログインし、アカウント設定に進み、「認証アプリケーションに"
 "よる<abbr title=\"two factor authentication\">2FA</abbr>の追加」を選択する"
 
-#: warehouse/templates/pages/help.html:462
+#: warehouse/templates/pages/help.html:464
 msgid ""
 "Securely store the displayed recovery codes! Consider printing them out and "
 "storing them in a safe location or saving them in a password manager."
 msgstr ""
 
-#: warehouse/templates/pages/help.html:465
+#: warehouse/templates/pages/help.html:467
 msgid ""
 "If you lose access to your stored recovery codes or use all of them, you can "
 "get new ones by selecting \"Regenerate recovery codes\" in your account "
 "settings."
 msgstr ""
 
-#: warehouse/templates/pages/help.html:467
+#: warehouse/templates/pages/help.html:469
 msgid "To sign in with a recovery code:"
 msgstr ""
 
-#: warehouse/templates/pages/help.html:470
+#: warehouse/templates/pages/help.html:472
 msgid ""
 "When prompted for two factor authentication, select \"Login using recovery "
 "codes\""
 msgstr ""
 
-#: warehouse/templates/pages/help.html:471
+#: warehouse/templates/pages/help.html:473
 msgid ""
 "As each code can be used only once, you might want to mark the code as used"
 msgstr ""
 
-#: warehouse/templates/pages/help.html:472
+#: warehouse/templates/pages/help.html:474
 msgid ""
 "If you have few recovery codes remaining, you may also want to generate a "
 "new set using the \"Regenerate recovery codes\" button in your account "
@@ -6613,7 +6940,7 @@ msgstr ""
 # API "
 # | "token where possible.</strong></p>\n"
 # | "        "
-#: warehouse/templates/pages/help.html:477
+#: warehouse/templates/pages/help.html:479
 #, fuzzy
 msgid ""
 "\n"
@@ -6640,20 +6967,20 @@ msgstr ""
 "めします。</strong></p>\n"
 "        "
 
-#: warehouse/templates/pages/help.html:484
+#: warehouse/templates/pages/help.html:486
 msgid "To make an API token:"
 msgstr "APIトークンを作成するには:"
 
-#: warehouse/templates/pages/help.html:487
+#: warehouse/templates/pages/help.html:489
 msgid "Verify your email address"
 msgstr "メールアドレスを確認する"
 
-#: warehouse/templates/pages/help.html:487
+#: warehouse/templates/pages/help.html:489
 #, python-format
 msgid "(check your <a href=\"%(href)s\">account settings</a>)"
 msgstr "（ <a href=\"%(href)s\">アカウント設定</a>を確認してください）"
 
-#: warehouse/templates/pages/help.html:488
+#: warehouse/templates/pages/help.html:490
 #, python-format
 msgid ""
 "In your <a href=\"%(href)s\">account settings</a>, go to the API tokens "
@@ -6662,20 +6989,20 @@ msgstr ""
 "<a href=\"%(href)s\">アカウント設定</a>でAPIトークンの選択に進み「APIトークン"
 "の追加（Add API token）」を選択する"
 
-#: warehouse/templates/pages/help.html:491
+#: warehouse/templates/pages/help.html:493
 msgid "To use an API token:"
 msgstr "APIトークンを使うには:"
 
-#: warehouse/templates/pages/help.html:494
+#: warehouse/templates/pages/help.html:496
 msgid "Set your username to <code>__token__</code>"
 msgstr "ユーザ名に、<code>__token__</code>を設定する"
 
-#: warehouse/templates/pages/help.html:495
+#: warehouse/templates/pages/help.html:497
 msgid ""
 "Set your password to the token value, including the <code>pypi-</code> prefix"
 msgstr "パスワードに、<code>pypi-</code>接頭辞を含むトークン値を設定する"
 
-#: warehouse/templates/pages/help.html:499
+#: warehouse/templates/pages/help.html:501
 #, python-format
 msgid ""
 "Where you edit or add these values will depend on your individual use case. "
@@ -6693,7 +7020,7 @@ msgstr ""
 "\">Travisを使っている場合は<code>.travis.yml</code></a>）を更新する必要がある"
 "かもしれません。"
 
-#: warehouse/templates/pages/help.html:503
+#: warehouse/templates/pages/help.html:505
 msgid ""
 "Advanced users may wish to inspect their token by decoding it with base64, "
 "and checking the output against the unique identifier displayed on PyPI."
@@ -6701,7 +7028,7 @@ msgstr ""
 "上級ユーザは、base64でデコードし、その出力とPyPIに表示される一意の識別子を照"
 "合することでトークンを検査できます。"
 
-#: warehouse/templates/pages/help.html:507
+#: warehouse/templates/pages/help.html:509
 msgid ""
 "\n"
 "          <p>PyPI asks you to confirm your password before you want to "
@@ -6725,15 +7052,15 @@ msgstr ""
 "ピューターでのみ実行することを強くお勧めします。</strong></p>\n"
 "        "
 
-#: warehouse/templates/pages/help.html:519
+#: warehouse/templates/pages/help.html:521
 msgid "Yes, including RSS feeds of new packages and new releases."
 msgstr "はい。新しいパッケージと新しいリリースに関するRSSフィードを含みます。"
 
-#: warehouse/templates/pages/help.html:519
+#: warehouse/templates/pages/help.html:521
 msgid "See the API reference."
 msgstr "APIリファレンスを参照してください。"
 
-#: warehouse/templates/pages/help.html:522
+#: warehouse/templates/pages/help.html:524
 #, python-format
 msgid ""
 "If you need to run your own mirror of PyPI, the <a href=\"%(href)s"
@@ -6744,7 +7071,7 @@ msgstr ""
 "\"%(href)s\">bandersnatchプロジェクト</a>です。PyPIのミラーに必要なストレージ"
 "要件は1テラバイトを超え、さらに増大することに注意してください！"
 
-#: warehouse/templates/pages/help.html:525
+#: warehouse/templates/pages/help.html:527
 #, fuzzy, python-format
 #| msgid ""
 #| "PyPI itself does not offer a way to get notified when a project uploads "
@@ -6766,7 +7093,7 @@ msgstr ""
 "リースや脆弱性を包括的に監視・通知するサードパーティのサービスがいくつかあり"
 "ます。"
 
-#: warehouse/templates/pages/help.html:528
+#: warehouse/templates/pages/help.html:530
 #, fuzzy, python-format
 #| msgid ""
 #| "You can <a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel="
@@ -6781,7 +7108,7 @@ msgstr ""
 "\">PyPIのダウンロード利用の統計は、Google BigQuery上の公開データセットを使っ"
 "て分析することができます</a>。"
 
-#: warehouse/templates/pages/help.html:530
+#: warehouse/templates/pages/help.html:532
 #, python-format
 msgid ""
 "<a href=\"%(libs_io_href)s\" title=\"%(title)s\" target=\"_blank\" rel="
@@ -6804,7 +7131,7 @@ msgstr ""
 "title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">その他の関連要因</a>な"
 "どが含まれます。"
 
-#: warehouse/templates/pages/help.html:539
+#: warehouse/templates/pages/help.html:541
 #, python-format
 msgid ""
 "For recent statistics on uptime and performance, see <a href=\"%(href)s\" "
@@ -6814,7 +7141,7 @@ msgstr ""
 "\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">ステータ"
 "スページ</a>を参照してください。"
 
-#: warehouse/templates/pages/help.html:546
+#: warehouse/templates/pages/help.html:548
 #, python-format
 msgid ""
 "PyPI does not support publishing private packages. If you need to publish "
@@ -6825,7 +7152,7 @@ msgstr ""
 "パッケージをパッケージインデックスで公開する必要がある場合は、<a href="
 "\"%(href)s\">devpiプロジェクト</a>を独自にデプロイすることをお勧めします。"
 
-#: warehouse/templates/pages/help.html:549
+#: warehouse/templates/pages/help.html:551
 #, fuzzy
 #| msgid ""
 #| "Your publishing tool may return an error that your new project can't be "
@@ -6842,7 +7169,7 @@ msgstr ""
 "で新しいプロジェクトを作成できないエラーを公開ツールが返すかもしれません。現"
 "在、これが発生する主な原因は以下の3つです。"
 
-#: warehouse/templates/pages/help.html:551
+#: warehouse/templates/pages/help.html:553
 #, python-format
 msgid ""
 "The project name conflicts with a <a href=\"%(href)s\" title=\"%(title)s\" "
@@ -6853,12 +7180,12 @@ msgstr ""
 "\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">Python標"
 "準ライブラリ</a>モジュールと競合している。"
 
-#: warehouse/templates/pages/help.html:552
+#: warehouse/templates/pages/help.html:554
 msgid ""
 "The project name is too similar to an existing project and may be confusable."
 msgstr ""
 
-#: warehouse/templates/pages/help.html:553
+#: warehouse/templates/pages/help.html:555
 #, python-format
 msgid ""
 "The project name has been explicitly prohibited by the PyPI administrators. "
@@ -6870,14 +7197,14 @@ msgstr ""
 "%(incorrect_code)s</code>は<code>%(correct_code)s</code>のよくあるタイポであ"
 "り、悪意のあるパッケージによってユーザを驚かせてはいけない。"
 
-#: warehouse/templates/pages/help.html:554
+#: warehouse/templates/pages/help.html:556
 msgid ""
 "The project name has been registered by another user, but no releases have "
 "been created."
 msgstr ""
 "別のユーザによってプロジェクト名が登録済みだが、リリースが作成されていない。"
 
-#: warehouse/templates/pages/help.html:554
+#: warehouse/templates/pages/help.html:556
 #, fuzzy, python-format
 #| msgid ""
 #| "If the owner is unresponsive, see <a href=\"%(href)s\">%(anchor_text)s</a>"
@@ -6886,7 +7213,7 @@ msgstr ""
 "オーナーから応答がない場合は、こちらを参照してください。<a href=\"%(href)s\">"
 "%(anchor_text)s</a>"
 
-#: warehouse/templates/pages/help.html:558
+#: warehouse/templates/pages/help.html:560
 #, python-format
 msgid ""
 "Follow the <a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel="
@@ -6898,7 +7225,7 @@ msgstr ""
 "request a name transfer（名前の移行をリクエストする方法）」</a> の項に従って"
 "ください。"
 
-#: warehouse/templates/pages/help.html:562
+#: warehouse/templates/pages/help.html:564
 msgid ""
 "Can upload releases for a package. Cannot add collaborators. Cannot delete "
 "files, releases, or the project."
@@ -6906,11 +7233,11 @@ msgstr ""
 "パッケージのリリースのアップロードができる。共同編集者の追加、ファイル・リ"
 "リース・プロジェクトの削除はできない。"
 
-#: warehouse/templates/pages/help.html:563
+#: warehouse/templates/pages/help.html:565
 msgid "Owner:"
 msgstr "オーナー（Owner）:"
 
-#: warehouse/templates/pages/help.html:563
+#: warehouse/templates/pages/help.html:565
 msgid ""
 "Can upload releases. Can add other collaborators. Can delete files, "
 "releases, or the entire project."
@@ -6918,7 +7245,7 @@ msgstr ""
 "リリースのアップロード、他の共同編集者の追加、ファイル・リリース・プロジェク"
 "ト全体の削除ができる。"
 
-#: warehouse/templates/pages/help.html:566
+#: warehouse/templates/pages/help.html:568
 msgid ""
 "Only the current owners of a project have the ability to add new owners or "
 "maintainers. If you need to request ownership, you should contact the "
@@ -6931,7 +7258,7 @@ msgstr ""
 "連絡してください。多くのプロジェクトのオーナーは、プロジェクトページの「メタ"
 "データ」詳細にある「作者」欄に問い合わせ先を記載しています。"
 
-#: warehouse/templates/pages/help.html:567
+#: warehouse/templates/pages/help.html:569
 #, python-format
 msgid ""
 "If the owner is unresponsive, see <a href=\"%(href)s\">%(anchor_text)s</a>"
@@ -6939,7 +7266,7 @@ msgstr ""
 "オーナーから応答がない場合は、こちらを参照してください。<a href=\"%(href)s\">"
 "%(anchor_text)s</a>"
 
-#: warehouse/templates/pages/help.html:570
+#: warehouse/templates/pages/help.html:572
 #, python-format
 msgid ""
 "By default, an upload's description will render with <a href=\"%(href)s\" "
@@ -6954,7 +7281,7 @@ msgstr ""
 "<code>setup.py</code>内の<code>long_description_content_type</code>を使って代"
 "替フォーマットを設定できます。"
 
-#: warehouse/templates/pages/help.html:571
+#: warehouse/templates/pages/help.html:573
 #, python-format
 msgid ""
 "Refer to the <a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel="
@@ -6965,7 +7292,7 @@ msgstr ""
 "\"%(title)s\" target=\"_blank\" rel=\"noopener\">Python Packaging User "
 "Guide</a>を参照してください。"
 
-#: warehouse/templates/pages/help.html:576
+#: warehouse/templates/pages/help.html:578
 #, python-format
 msgid ""
 "If you can't upload your project's release to PyPI because you're hitting "
@@ -6985,36 +7312,36 @@ msgstr ""
 "伝えて <a href=\"%(file_issue_href)s\" title=\"%(title)s\" target=\"_blank\" "
 "rel=\"noopener\">問題を報告してください</a>。"
 
-#: warehouse/templates/pages/help.html:585
-#: warehouse/templates/pages/help.html:606
+#: warehouse/templates/pages/help.html:587
+#: warehouse/templates/pages/help.html:608
 msgid "A link to your project on PyPI (or Test PyPI)"
 msgstr "PyPI（またはTestPyPI）上のプロジェクトへのリンク"
 
-#: warehouse/templates/pages/help.html:586
+#: warehouse/templates/pages/help.html:588
 msgid "The size of your release, in megabytes"
 msgstr "リリースのサイズ （MB単位）"
 
-#: warehouse/templates/pages/help.html:587
+#: warehouse/templates/pages/help.html:589
 msgid ""
 "Which index/indexes you need the increase for (PyPI, Test PyPI, or both)"
 msgstr ""
 "どのインデックスを増やす必要があるのか（PyPI, Test PyPI, あるいはその両方）"
 
-#: warehouse/templates/pages/help.html:588
-#: warehouse/templates/pages/help.html:608
+#: warehouse/templates/pages/help.html:590
+#: warehouse/templates/pages/help.html:610
 msgid ""
 "A brief description of your project, including the reason for the additional "
 "size."
 msgstr "プロジェクトの短い説明（追加サイズを必要とする理由を含む）。"
 
-#: warehouse/templates/pages/help.html:594
+#: warehouse/templates/pages/help.html:596
 msgid ""
 "If you can't upload your project's release to PyPI because you're hitting "
 "the project size limit, first remove any unnecessary releases or individual "
 "files to lower your overall project size."
 msgstr ""
 
-#: warehouse/templates/pages/help.html:601
+#: warehouse/templates/pages/help.html:603
 #, fuzzy, python-format
 #| msgid ""
 #| "Learn how to create a new release on the <a href=\"%(href)s\" title="
@@ -7029,13 +7356,13 @@ msgstr ""
 "\" target=\"_blank\" rel=\"noopener\">Python Packaging User Guide</a>を参照し"
 "てください"
 
-#: warehouse/templates/pages/help.html:607
+#: warehouse/templates/pages/help.html:609
 #, fuzzy
 #| msgid "The size of your release, in megabytes"
 msgid "The total size of your project, in gigabytes"
 msgstr "リリースのサイズ （MB単位）"
 
-#: warehouse/templates/pages/help.html:614
+#: warehouse/templates/pages/help.html:616
 #, fuzzy, python-format
 #| msgid ""
 #| "To learn how to install a file from PyPI, visit the <a href="
@@ -7056,7 +7383,7 @@ msgstr ""
 "title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">インストールチュートリ"
 "アル</a>を参照してください。"
 
-#: warehouse/templates/pages/help.html:619
+#: warehouse/templates/pages/help.html:621
 #, fuzzy, python-format
 #| msgid ""
 #| "Learn how to create a new release on the <a href=\"%(href)s\" title="
@@ -7071,7 +7398,7 @@ msgstr ""
 "\" target=\"_blank\" rel=\"noopener\">Python Packaging User Guide</a>を参照し"
 "てください"
 
-#: warehouse/templates/pages/help.html:631
+#: warehouse/templates/pages/help.html:633
 #, fuzzy, python-format
 #| msgid ""
 #| "PyPI will reject uploads if the description fails to render. To check a "
@@ -7088,7 +7415,7 @@ msgstr ""
 "\">readme_renderer</a>を使用できます。これは、PyPIで使われている説明文のレン"
 "ダラと同じものです。"
 
-#: warehouse/templates/pages/help.html:637
+#: warehouse/templates/pages/help.html:639
 msgid ""
 "If you've forgotten your PyPI password but you remember your email address "
 "or username, follow these steps to reset your password:"
@@ -7096,31 +7423,31 @@ msgstr ""
 "PyPIのパスワードを忘れたけれどメールアドレスまたはユーザ名を覚えている場合"
 "は、以下のステップを踏んでパスワードをリセットしてください。"
 
-#: warehouse/templates/pages/help.html:639
+#: warehouse/templates/pages/help.html:641
 #, python-format
 msgid "Go to <a href=\"%(href)s\">reset your password</a>."
 msgstr "<a href=\"%(href)s\">パスワードのリセット</a>に進む。"
 
-#: warehouse/templates/pages/help.html:640
+#: warehouse/templates/pages/help.html:642
 msgid ""
 "Enter the email address or username you used for PyPI and submit the form."
 msgstr "PyPIで使っているメールアドレスまたはユーザ名を入力して送信する。"
 
-#: warehouse/templates/pages/help.html:641
+#: warehouse/templates/pages/help.html:643
 msgid "You'll receive an email with a password reset link."
 msgstr "パスワード リセット リンクが載ったメールを受け取る。"
 
-#: warehouse/templates/pages/help.html:646
+#: warehouse/templates/pages/help.html:648
 msgid "If you've lost access to your PyPI account due to:"
 msgstr ""
 
 # | msgid "Emails associated with your account"
-#: warehouse/templates/pages/help.html:648
+#: warehouse/templates/pages/help.html:650
 #, fuzzy
 msgid "Lost access to the email address associated with your account"
 msgstr "アカウントに関連づけられたメールアドレス"
 
-#: warehouse/templates/pages/help.html:649
+#: warehouse/templates/pages/help.html:651
 msgid ""
 "Lost two factor authentication <a href=\"#totp\">application</a>, <a href="
 "\"#utfkey\">device</a>, and <a href=\"#recoverycodes\">recovery codes</a>"
@@ -7132,7 +7459,7 @@ msgstr ""
 # | "account, <a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\"
 # rel="
 # | "\"noopener\">file an issue on our tracker</a>."
-#: warehouse/templates/pages/help.html:652
+#: warehouse/templates/pages/help.html:654
 #, fuzzy, python-format
 msgid ""
 "You can proceed to <a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank"
@@ -7144,44 +7471,44 @@ msgstr ""
 "トラッカーに問題を報告してください</a>。"
 
 # | msgid "Provide your username and password, as normal"
-#: warehouse/templates/pages/help.html:659
+#: warehouse/templates/pages/help.html:661
 #, fuzzy
 msgid "If you are using a username and password for uploads:"
 msgstr "通常どおり、ユーザ名とパスワードを入力する"
 
 # | msgid "Provide your username and password, as normal"
-#: warehouse/templates/pages/help.html:661
+#: warehouse/templates/pages/help.html:663
 #, fuzzy
 msgid "Ensure that your username and password are correct."
 msgstr "通常どおり、ユーザ名とパスワードを入力する"
 
-#: warehouse/templates/pages/help.html:662
+#: warehouse/templates/pages/help.html:664
 msgid ""
 "Ensure that your username and password do not contain any trailing "
 "characters such as newlines."
 msgstr ""
 
-#: warehouse/templates/pages/help.html:664
+#: warehouse/templates/pages/help.html:666
 msgid "If you are using an <a href=\"#apitoken\">API Token</a> for uploads:"
 msgstr ""
 
-#: warehouse/templates/pages/help.html:666
+#: warehouse/templates/pages/help.html:668
 msgid "Ensure that your API Token is valid and has not been revoked."
 msgstr ""
 
-#: warehouse/templates/pages/help.html:667
+#: warehouse/templates/pages/help.html:669
 msgid ""
 "Ensure that your API Token is <a href=\"#apitoken\">properly formatted</a> "
 "and does not contain any trailing characters such as newlines."
 msgstr ""
 
-#: warehouse/templates/pages/help.html:669
+#: warehouse/templates/pages/help.html:671
 msgid ""
 "In both cases, remember that PyPI and TestPyPI each require you to create an "
 "account, so your credentials may be different."
 msgstr ""
 
-#: warehouse/templates/pages/help.html:671
+#: warehouse/templates/pages/help.html:673
 msgid ""
 "\n"
 "            If you're using Windows and trying to paste your password or "
@@ -7192,7 +7519,7 @@ msgid ""
 "          "
 msgstr ""
 
-#: warehouse/templates/pages/help.html:675
+#: warehouse/templates/pages/help.html:677
 #, fuzzy, python-format
 #| msgid ""
 #| "<a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener"
@@ -7204,7 +7531,7 @@ msgstr ""
 "%(filename)sの<a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel="
 "\"noopener\">ハッシュ</a>"
 
-#: warehouse/templates/pages/help.html:682
+#: warehouse/templates/pages/help.html:684
 #, python-format
 msgid ""
 "Transport Layer Security, or TLS, is part of how we make sure connections "
@@ -7223,7 +7550,7 @@ msgstr ""
 "\"%(title)s\" target=\"_blank\" rel=\"noopener\">理由については、PSF blogを参"
 "照してください</a>。"
 
-#: warehouse/templates/pages/help.html:689
+#: warehouse/templates/pages/help.html:691
 #, python-format
 msgid ""
 "If you are having trouble with <code>%(command)s</code> and get a <code>No "
@@ -7235,7 +7562,7 @@ msgstr ""
 "うエラーが発生した場合は、コマンドに <code>-v</code> を追加して詳細情報を取得"
 "してみてください。"
 
-#: warehouse/templates/pages/help.html:691
+#: warehouse/templates/pages/help.html:693
 msgid ""
 "If you see an error like <code>There was a problem confirming the ssl "
 "certificate</code> or <code>tlsv1 alert protocol version</code> or "
@@ -7247,7 +7574,7 @@ msgstr ""
 "code>、<code>TLSV1_ALERT_PROTOCOL_VERSION</code>などのエラーが表示された場合"
 "は、新しいTLSをサポートするライブラリを使ってPyPIに接続する必要があります。"
 
-#: warehouse/templates/pages/help.html:692
+#: warehouse/templates/pages/help.html:694
 msgid ""
 "The specific steps you need to take will depend on your operating system "
 "version, where your installation of Python originated (python.org, your OS "
@@ -7259,7 +7586,7 @@ msgstr ""
 "タ）、そしてPython、<code>setuptools</code>、および<code>pip</code>のバージョ"
 "ンによって異なります。"
 
-#: warehouse/templates/pages/help.html:694
+#: warehouse/templates/pages/help.html:696
 #, fuzzy, python-format
 #| msgid ""
 #| "For help, go to <a href=\"%(irc_href)s\" title=\"%(title)s\" target="
@@ -7288,7 +7615,7 @@ msgstr ""
 "い。その際には、あなたのOSとインストールの詳細と<code>%(command)s</code>の出"
 "力結果を含めてください。"
 
-#: warehouse/templates/pages/help.html:705
+#: warehouse/templates/pages/help.html:707
 #, python-format
 msgid ""
 "We take <a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel="
@@ -7299,7 +7626,7 @@ msgstr ""
 "\"noopener\">アクセサビリティ</a>を非常に重視しており、誰もが使いやすいWebサ"
 "イトを作りたいと思っています。"
 
-#: warehouse/templates/pages/help.html:710
+#: warehouse/templates/pages/help.html:712
 #, python-format
 msgid ""
 "If you are experiencing an accessibility problem, <a href=\"%(href)s\" title="
@@ -7311,7 +7638,7 @@ msgstr ""
 "</a> そうすれば私たちは、あなたや他の人たちのために問題の解決を試みることがで"
 "きます。"
 
-#: warehouse/templates/pages/help.html:718
+#: warehouse/templates/pages/help.html:720
 #, python-format
 msgid ""
 "In a previous version of PyPI, it used to be possible for maintainers to "
@@ -7325,7 +7652,7 @@ msgstr ""
 "\">twineを使ってPyPIへプロジェクトをアップロードする</a>ことを推奨していま"
 "す。"
 
-#: warehouse/templates/pages/help.html:727
+#: warehouse/templates/pages/help.html:729
 msgid ""
 "Spammers return to PyPI with some regularity hoping to place their Search "
 "Engine Optimized phishing, scam, and click-farming content on the site. "
@@ -7338,7 +7665,7 @@ msgstr ""
 "びその他のデータのインデックスを作成でき、検索に対する評判もおおむね堅実なの"
 "で、格好の的です。"
 
-#: warehouse/templates/pages/help.html:729
+#: warehouse/templates/pages/help.html:731
 #, python-format
 msgid ""
 "When the PyPI administrators are overwhelmed by spam <strong>or</strong> "
@@ -7354,23 +7681,23 @@ msgstr ""
 "title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">ステータスページ</a>を"
 "チェックしてください。介入した理由で更新されていることがあります。"
 
-#: warehouse/templates/pages/help.html:738
+#: warehouse/templates/pages/help.html:740
 msgid "PyPI will return these errors for one of these reasons:"
 msgstr "PyPIは、以下のいずれかの理由によりこれらのエラーを返します。"
 
-#: warehouse/templates/pages/help.html:740
+#: warehouse/templates/pages/help.html:742
 msgid "Filename has been used and file exists"
 msgstr "ファイル名が既に使用されており、ファイルが存在する"
 
-#: warehouse/templates/pages/help.html:741
+#: warehouse/templates/pages/help.html:743
 msgid "Filename has been used but file no longer exists"
 msgstr "ファイル名が既に使用されているが、ファイルが存在しない"
 
-#: warehouse/templates/pages/help.html:742
+#: warehouse/templates/pages/help.html:744
 msgid "A file with the exact same content exists"
 msgstr "まったく同じ内容のファイルが存在する"
 
-#: warehouse/templates/pages/help.html:744
+#: warehouse/templates/pages/help.html:746
 msgid ""
 "PyPI does not allow for a filename to be reused, even once a project has "
 "been deleted and recreated."
@@ -7378,7 +7705,7 @@ msgstr ""
 "PyPIでは、プロジェクトを一度削除して再作成した場合でも、ファイル名を再利用で"
 "きません。"
 
-#: warehouse/templates/pages/help.html:746
+#: warehouse/templates/pages/help.html:748
 #, python-format
 msgid ""
 "To avoid this situation, <a href=\"%(test_pypi_href)s\" title=\"%(title)s\" "
@@ -7399,7 +7726,7 @@ msgstr ""
 # | "\">issue tracker</a>. Include the name of the requested classifier
 # and a
 # | "brief justification of why it is important."
-#: warehouse/templates/pages/help.html:753
+#: warehouse/templates/pages/help.html:755
 #, fuzzy, python-format
 msgid ""
 "If you would like to request a new trove classifier file a pull request on "
@@ -7412,7 +7739,7 @@ msgstr ""
 "てください。要求する分類の名前と、それがなぜ重要なのか正当性を簡潔に含めてく"
 "ださい。"
 
-#: warehouse/templates/pages/help.html:761
+#: warehouse/templates/pages/help.html:763
 #, python-format
 msgid ""
 "If you're experiencing an issue with PyPI itself, we welcome "
@@ -7429,7 +7756,7 @@ msgstr ""
 "シューだけであることに注意してください。新しいイシューを書くときは、まず既に"
 "似たようなイシューがないことを確認してください。"
 
-#: warehouse/templates/pages/help.html:768
+#: warehouse/templates/pages/help.html:770
 msgid ""
 "If you are having an issue is with a specific package installed from PyPI, "
 "you should reach out to the maintainers of that project directly instead."
@@ -7437,7 +7764,7 @@ msgstr ""
 "もしPyPIからインストールした特定のパッケージで問題がある場合は、あなたはプロ"
 "ジェクトのメンテナに連絡するべきです。"
 
-#: warehouse/templates/pages/help.html:777
+#: warehouse/templates/pages/help.html:779
 #, python-format
 msgid ""
 "PyPI is powered by the Warehouse project; <a href=\"%(href)s\" title="
@@ -7452,7 +7779,7 @@ msgstr ""
 "ジェクトであり、Packaging Working Group（PackagingWG）によってサポートされて"
 "います。"
 
-#: warehouse/templates/pages/help.html:782
+#: warehouse/templates/pages/help.html:784
 #, python-format
 msgid ""
 "The <a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener"
@@ -7463,7 +7790,7 @@ msgstr ""
 "\">PyPA</a>とは、Pythonのパッケージングに関連する多くのコアプロジェクトの改"
 "善・保守を目的とした、開発者たちの独立したグループです。"
 
-#: warehouse/templates/pages/help.html:787
+#: warehouse/templates/pages/help.html:789
 #, python-format
 msgid ""
 "The <a href=\"%(packaging_wg_href)s\" title=\"%(title)s\" target=\"_blank\" "
@@ -7482,7 +7809,7 @@ msgstr ""
 "\"%(title)s\" target=\"_blank\" rel=\"noopener\">資金をOpen Technology Fundか"
 "ら獲得</a>しました。"
 
-#: warehouse/templates/pages/help.html:797
+#: warehouse/templates/pages/help.html:799
 #, python-format
 msgid ""
 "PyPI is powered by <a href=\"%(warehouse_href)s\" title=\"%(title)s\" target="
@@ -7493,7 +7820,7 @@ msgstr ""
 "rel=\"noopener\">Warehouse</a>と、<a href=\"%(sponsors_href)s\">寛大なスポン"
 "サーたち</a>が提供する様々なツールとサービスによって支えられています。"
 
-#: warehouse/templates/pages/help.html:804
+#: warehouse/templates/pages/help.html:806
 msgid ""
 "As of April 16, 2018, PyPI.org is at \"production\" status, meaning that it "
 "has moved out of beta and replaced the old site (pypi.python.org). It is now "
@@ -7503,7 +7830,7 @@ msgstr ""
 "を脱して旧サイト（pypi.python.org)）から置き換わったことを意味します。今は堅"
 "牢で、テストされており、ブラウザやAPIのトラフィックに対応しています。"
 
-#: warehouse/templates/pages/help.html:806
+#: warehouse/templates/pages/help.html:808
 #, python-format
 msgid ""
 "PyPI is heavily cached and distributed via <abbr title=\"content delivery "
@@ -7531,7 +7858,7 @@ msgstr ""
 "href=\"%(mirror_href)s\">ミラー</a>や<a href=\"%(private_index_href)s\">プラ"
 "イベートのインデックス</a>を使うことを検討してください。"
 
-#: warehouse/templates/pages/help.html:820
+#: warehouse/templates/pages/help.html:822
 #, python-format
 msgid ""
 "We have a huge amount of work to do to continue to maintain and improve PyPI "
@@ -7542,11 +7869,11 @@ msgstr ""
 "\"noopener\">Warehouseプロジェクト</a>としても知られるように）PyPIの維持・改"
 "善を続けるために必要な仕事を、大量に抱えています。"
 
-#: warehouse/templates/pages/help.html:825
+#: warehouse/templates/pages/help.html:827
 msgid "Financial:"
 msgstr "資金:"
 
-#: warehouse/templates/pages/help.html:825
+#: warehouse/templates/pages/help.html:827
 #, python-format
 msgid ""
 "We would deeply appreciate <a href=\"%(href)s\">your donations to fund "
@@ -7555,11 +7882,11 @@ msgstr ""
 "<a href=\"%(href)s\">開発とメンテナンスに必要な資金を寄付</a>していただける"
 "と、大変ありがたいです。"
 
-#: warehouse/templates/pages/help.html:826
+#: warehouse/templates/pages/help.html:828
 msgid "Development:"
 msgstr "開発:"
 
-#: warehouse/templates/pages/help.html:826
+#: warehouse/templates/pages/help.html:828
 msgid ""
 "Warehouse is open source, and we would love to see some new faces working on "
 "the project. You <strong>do not</strong> need to be an experienced open-"
@@ -7570,7 +7897,7 @@ msgstr ""
 "<strong>ありません</strong>。実際私たちは、あなたがオープンソースに初めて"
 "pull requestを送ることに手を貸したいと思っています！"
 
-#: warehouse/templates/pages/help.html:828
+#: warehouse/templates/pages/help.html:830
 #, python-format
 msgid ""
 "If you have skills in Python, ElasticSearch, HTML, SCSS, JavaScript, or "
@@ -7591,7 +7918,7 @@ msgstr ""
 "\"noopener\">'Good first issue'</a>ラベルを作っており、ここから始めることを推"
 "奨しています。"
 
-#: warehouse/templates/pages/help.html:836
+#: warehouse/templates/pages/help.html:838
 #, python-format
 msgid ""
 "Issues are grouped into <a href=\"%(href)s\" title=\"%(title)s\" target="
@@ -7606,11 +7933,11 @@ msgstr ""
 "もしあなたが特定のイシューに取り組むことに関心がある場合、コメントを残してい"
 "ただけると、私たちは貢献のプロセスを案内できます。"
 
-#: warehouse/templates/pages/help.html:843
+#: warehouse/templates/pages/help.html:845
 msgid "Stay updated:"
 msgstr "最新情報:"
 
-#: warehouse/templates/pages/help.html:844
+#: warehouse/templates/pages/help.html:846
 #, fuzzy, python-format
 #| msgid ""
 #| "You can also follow the ongoing development of the project on the <a href="
@@ -7629,7 +7956,7 @@ msgstr ""
 "\"noopener\">PyPA Devメッセージグループ</a>上で、プロジェクトの進行中の開発を"
 "フォローすることもできます。"
 
-#: warehouse/templates/pages/help.html:853
+#: warehouse/templates/pages/help.html:855
 #, python-format
 msgid ""
 "Changes to PyPI are generally announced on both the <a href="
@@ -7650,7 +7977,32 @@ msgstr ""
 "\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">RSS</a>フィードの両"
 "方があります。"
 
-#: warehouse/templates/pages/help.html:863
+#: warehouse/templates/pages/help.html:865
+#, python-format
+msgid ""
+"All traffic is routed through our global CDN, which lists their public IP "
+"addresses here: <a href=\"%(href)s\">%(href)s</a>."
+msgstr ""
+
+#: warehouse/templates/pages/help.html:866
+#, fuzzy, python-format
+#| msgid ""
+#| "To regain access to your account, <a href=\"%(href)s\">reset your "
+#| "password</a> on PyPI."
+msgid ""
+"More information about this list can be found here: <a href=\"%(href)s\">"
+"%(href)s</a>."
+msgstr ""
+"あなたのアカウントへのアクセスを回復するには、 PyPI で<a href=\"%(href)s\">パ"
+"スワードをリセット</a>して下さい。"
+
+# | msgid "Currently, the following features are in beta:"
+#: warehouse/templates/pages/help.html:867
+#: warehouse/templates/pages/help.html:871
+msgid "Currently, no features are in beta."
+msgstr "現在、ベータ版の機能はありません。"
+
+#: warehouse/templates/pages/help.html:870
 msgid ""
 "When Warehouse's maintainers are deploying new features, at first we mark "
 "them with a small \"beta feature\" symbol to tell you: this should probably "
@@ -7660,12 +8012,7 @@ msgstr ""
 "（beta feature）\"記号をつけて、次のことを伝えます: これは正常に動作するはず"
 "ですが、新しい機能であり、他のサイトの機能よりもテストが不十分です。"
 
-# | msgid "Currently, the following features are in beta:"
-#: warehouse/templates/pages/help.html:864
-msgid "Currently, no features are in beta."
-msgstr "現在、ベータ版の機能はありません。"
-
-#: warehouse/templates/pages/help.html:868
+#: warehouse/templates/pages/help.html:875
 #, python-format
 msgid ""
 "\"PyPI\" should be pronounced like \"pie pea eye\", specifically with the "
@@ -7679,39 +8026,39 @@ msgstr ""
 "な代替実装である<a href=\"%(href)s\" title=\"%(title)s\">PyPy</a>プロジェクト"
 "との混乱を最小限にします。"
 
-#: warehouse/templates/pages/help.html:880
+#: warehouse/templates/pages/help.html:887
 msgid "Resources"
 msgstr "リソース"
 
-#: warehouse/templates/pages/help.html:881
+#: warehouse/templates/pages/help.html:888
 msgid "Looking for something else? Perhaps these links will help:"
 msgstr "他に何かお探しですか？ おそらく、以下のリンクがお役に立つでしょう。"
 
-#: warehouse/templates/pages/help.html:883
+#: warehouse/templates/pages/help.html:890
 msgid "Python Packaging User Guide"
 msgstr "Python パッケージングユーザガイド"
 
-#: warehouse/templates/pages/help.html:884
+#: warehouse/templates/pages/help.html:891
 msgid "Python documentation"
 msgstr "Pythonドキュメント"
 
-#: warehouse/templates/pages/help.html:885
+#: warehouse/templates/pages/help.html:892
 msgid "(main Python website)"
 msgstr "（メインのPythonのWebサイト）"
 
-#: warehouse/templates/pages/help.html:886
+#: warehouse/templates/pages/help.html:893
 msgid "Python community page"
 msgstr "Pythonコミュニティページ"
 
-#: warehouse/templates/pages/help.html:886
+#: warehouse/templates/pages/help.html:893
 msgid "(lists IRC channels, mailing lists, etc.)"
 msgstr "（IRCチャンネルのリスト、メーリングリストなど）"
 
-#: warehouse/templates/pages/help.html:889
+#: warehouse/templates/pages/help.html:896
 msgid "Contact"
 msgstr "問い合わせ先"
 
-#: warehouse/templates/pages/help.html:891
+#: warehouse/templates/pages/help.html:898
 #, fuzzy, python-format
 #| msgid ""
 #| "The <a href=\"%(pypa_href)s\" title=\"%(title)s\" target=\"_blank\" rel="
