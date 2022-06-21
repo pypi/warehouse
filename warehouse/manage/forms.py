@@ -533,6 +533,21 @@ class CreateOrganizationForm(SaveOrganizationNameForm, SaveOrganizationForm):
     __params__ = SaveOrganizationNameForm.__params__ + SaveOrganizationForm.__params__
 
 
+class CreateTeamRoleForm(UsernameMixin, forms.Form):
+    def __init__(self, *args, user_choices, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.user_choices = user_choices
+
+    def validate_username(self, field):
+        if field.data not in self.user_choices:
+            raise wtforms.validators.ValidationError(
+                _(
+                    "No organization owner, manager, or member found "
+                    "with that username. Please try again."
+                )
+            )
+
+
 class CreateTeamForm(forms.Form):
 
     __params__ = ["name"]

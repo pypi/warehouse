@@ -482,6 +482,32 @@ class DatabaseOrganizationService:
         """
         return self.db.query(TeamRole).get(team_role_id)
 
+    def get_team_role_by_user(self, team_id, user_id):
+        """
+        Gets a team role for a specified team and user
+        """
+        try:
+            team_role = (
+                self.db.query(TeamRole)
+                .filter(
+                    TeamRole.team_id == team_id,
+                    TeamRole.user_id == user_id,
+                )
+                .one()
+            )
+        except NoResultFound:
+            return
+
+        return team_role
+
+    def get_team_roles(self, team_id):
+        """
+        Gets a list of organization roles for a specified org
+        """
+        return (
+            self.db.query(TeamRole).join(User).filter(TeamRole.team_id == team_id).all()
+        )
+
     def add_team_role(self, team_id, user_id, role_name):
         """
         Add the team role object to a team for a specified team id and user id

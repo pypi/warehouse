@@ -30,8 +30,7 @@
         <div>
           <h3 class="team-snippet__title">{{ team.name }}
             {% if request.user in team.users %}
-            {# TODO <a href="{{ request.route_path('manage.team.roles', organization_name=organization.normalized_name, team_name=team.normalized_name) }}" class="badge package-snippet__badge"> #}
-            <a href="#" class="badge badge--warning package-snippet__badge">
+            <a href="{{ request.route_path('manage.team.roles', organization_name=organization.normalized_name, team_name=team.normalized_name) }}" class="badge package-snippet__badge">
               Member
             </a>
             {% endif %}
@@ -48,16 +47,14 @@
           {% if request.has_permission("manage:team") %}
           {# Show manage button #}
           <a
-            {# TODO href="{{ request.route_path('manage.team.roles', organization_name=organization.normalized_name, team_name=team.normalized_name) }}" #}
-            href="#"
+            href="{{ request.route_path('manage.team.roles', organization_name=organization.normalized_name, team_name=team.normalized_name) }}"
             class="button button--primary"
             title="{% trans %}Manage this team{% endtrans %}"
           >{% trans %}Manage{% endtrans %}</a>
           {% else %}
           {# Show view button #}
           <a
-            {# TODO href="{{ request.route_path('manage.team.roles', organization_name=organization.normalized_name, team_name=team.normalized_name) }}" #}
-            href="#"
+            href="{{ request.route_path('manage.team.roles', organization_name=organization.normalized_name, team_name=team.normalized_name) }}"
             class="button"
             title="{% trans %}View this team{% endtrans %}"
           >{% trans %}View{% endtrans %}</a>

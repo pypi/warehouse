@@ -20,7 +20,7 @@
       </a>
     </li>
     <li>
-      <a {# href="{{ request.route_path('manage.team.roles', organization_name=team.organization.normalized_name, team_name=team.normalized_name) }}" #} class="vertical-tabs__tab vertical-tabs__tab--with-icon {% if active_tab == 'members' %}vertical-tabs__tab--is-active{% endif %} {% if mode == 'mobile' %}vertical-tabs__tab--mobile{% endif %}" {% if active_tab == 'members' %}aria-selected="true"{% endif %}>
+      <a href="{{ request.route_path('manage.team.roles', organization_name=team.organization.normalized_name, team_name=team.normalized_name) }}" class="vertical-tabs__tab vertical-tabs__tab--with-icon {% if active_tab == 'members' %}vertical-tabs__tab--is-active{% endif %} {% if mode == 'mobile' %}vertical-tabs__tab--mobile{% endif %}" {% if active_tab == 'members' %}aria-selected="true"{% endif %}>
         <i class="fa fa-user" aria-hidden="true"></i>
         {% trans %}Members{% endtrans %}
       </a>

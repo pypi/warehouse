@@ -94,6 +94,7 @@ from warehouse.manage.forms import (
     CreateOrganizationRoleForm,
     CreateRoleForm,
     CreateTeamForm,
+    CreateTeamRoleForm,
     DeleteMacaroonForm,
     DeleteTOTPForm,
     DeleteWebAuthnForm,
@@ -116,6 +117,7 @@ from warehouse.organizations.models import (
     OrganizationRole,
     OrganizationRoleType,
     Team,
+    TeamRoleType,
 )
 from warehouse.packaging.models import (
     File,
@@ -1144,6 +1146,20 @@ def organization_managers(request, organization):
     )
 
 
+def organization_members(request, organization):
+    """Return all users who are members of the organization."""
+    member_roles = (
+        request.db.query(User.id)
+        .join(OrganizationRole.user)
+        .filter(
+            OrganizationRole.role_name == OrganizationRoleType.Member,
+            OrganizationRole.organization == organization,
+        )
+        .subquery()
+    )
+    return request.db.query(User).join(member_roles, User.id == member_roles.c.id).all()
+
+
 @view_defaults(
     route_name="manage.organizations",
     renderer="manage/organizations.html",
@@ -2137,6 +2153,215 @@ class ManageTeamProjectsViews:
             raise HTTPNotFound
 
         return self.default_response
+
+
+@view_defaults(
+    route_name="manage.team.roles",
+    context=Team,
+    renderer="manage/team/roles.html",
+    uses_session=True,
+    require_csrf=True,
+    require_methods=False,
+    permission="manage:team",
+    has_translations=True,
+    require_reauth=True,
+)
+class ManageTeamRolesViews:
+    def __init__(self, team, request):
+        self.team = team
+        self.request = request
+        self.organization_service = request.find_service(
+            IOrganizationService, context=None
+        )
+        self.user_service = request.find_service(IUserService, context=None)
+        self.user_choices = sorted(
+            user.username
+            for user in set(
+                organization_owners(self.request, self.team.organization)
+                + organization_managers(self.request, self.team.organization)
+                + organization_members(self.request, self.team.organization)
+            )
+        )
+
+    @property
+    def default_response(self):
+        return {
+            "team": self.team,
+            "roles": self.organization_service.get_team_roles(self.team.id),
+            "form": CreateTeamRoleForm(
+                self.request.POST,
+                user_choices=self.user_choices,
+            ),
+        }
+
+    @view_config(request_method="GET", permission="view:team")
+    def manage_team_roles(self):
+        if self.request.flags.enabled(AdminFlagValue.DISABLE_ORGANIZATIONS):
+            raise HTTPNotFound
+
+        return self.default_response
+
+    @view_config(request_method="POST")
+    def create_team_role(self):
+        if self.request.flags.enabled(AdminFlagValue.DISABLE_ORGANIZATIONS):
+            raise HTTPNotFound
+
+        # Get and validate form from default response.
+        default_response = self.default_response
+        form = default_response["form"]
+        if not form.validate():
+            return default_response
+
+        # Check for existing role.
+        username = form.username.data
+        role_name = TeamRoleType.Member
+        user_id = self.user_service.find_userid(username)
+        existing_role = self.organization_service.get_team_role_by_user(
+            self.team.id, user_id
+        )
+        if existing_role:
+            self.request.session.flash(
+                self.request._(
+                    "User '${username}' is already a team member",
+                    mapping={"username": username},
+                ),
+                queue="error",
+            )
+            return default_response
+
+        # Add user to team.
+        role = self.organization_service.add_team_role(
+            team_id=self.team.id,
+            user_id=user_id,
+            role_name=role_name,
+        )
+
+        # Record events.
+        self.team.organization.record_event(
+            tag="organization:team_role:add",
+            ip_address=self.request.remote_addr,
+            additional={
+                "submitted_by_user_id": str(self.request.user.id),
+                "team_name": self.team.name,
+                "role_name": role_name.value,
+                "target_user_id": str(user_id),
+            },
+        )
+        role.user.record_event(
+            tag="account:team_role:add",
+            ip_address=self.request.remote_addr,
+            additional={
+                "submitted_by_user_id": str(self.request.user.id),
+                "organization_name": self.team.organization.name,
+                "team_name": self.team.name,
+                "role_name": role_name.value,
+            },
+        )
+
+        # TODO Send notification emails.
+        # owner_and_manager_users = set(
+        #     organization_owners(self.request, self.team.organization)
+        #     + organization_managers(self.request, self.team.organization)
+        # )
+        # owner_and_manager_users.discard(role.user)
+        # send_team_member_added_email(
+        #     self.request,
+        #     owner_and_manager_users,
+        #     user=role.user,
+        #     submitter=self.request.user,
+        #     organization_name=self.team.organization.name,
+        #     team_name=self.team.name,
+        # )
+        # send_added_as_team_member_email(
+        #     self.request,
+        #     role.user,
+        #     submitter=self.request.user,
+        #     organization_name=self.team.organization.name,
+        #     team_name=self.team.name,
+        # )
+
+        # Display notification message.
+        self.request.session.flash(
+            f"Added the team {self.team.name!r} to {self.team.organization.name!r}",
+            queue="success",
+        )
+
+        # Refresh teams list.
+        return HTTPSeeOther(self.request.path)
+
+    @view_config(
+        request_method="POST",
+        route_name="manage.team.delete_role",
+        permission="view:team",
+    )
+    def delete_team_role(self):
+        if self.request.flags.enabled(AdminFlagValue.DISABLE_ORGANIZATIONS):
+            raise HTTPNotFound
+
+        # Get team role.
+        role_id = self.request.POST["role_id"]
+        role = self.organization_service.get_team_role(role_id)
+
+        if not role or role.team_id != self.team.id:
+            self.request.session.flash("Could not find member", queue="error")
+        elif (
+            not self.request.has_permission("manage:team")
+            and role.user != self.request.user
+        ):
+            self.request.session.flash(
+                "Cannot remove other people from the team", queue="error"
+            )
+        else:
+            # Delete team role.
+            self.organization_service.delete_team_role(role.id)
+
+            # Record events.
+            self.team.organization.record_event(
+                tag="organization:team_role:delete",
+                ip_address=self.request.remote_addr,
+                additional={
+                    "submitted_by_user_id": str(self.request.user.id),
+                    "role_name": role.role_name.value,
+                    "target_user_id": str(role.user.id),
+                },
+            )
+            role.user.record_event(
+                tag="account:team_role:delete",
+                ip_address=self.request.remote_addr,
+                additional={
+                    "submitted_by_user_id": str(self.request.user.id),
+                    "organization_name": self.team.organization.name,
+                    "role_name": role.role_name.value,
+                },
+            )
+
+            # TODO Send notification emails.
+            # owner_and_manager_users = set(
+            #     organization_owners(self.request, self.team.organization)
+            #     + organization_managers(self.request, self.team.organization)
+            # )
+            # owner_and_manager_users.discard(role.user)
+            # send_team_member_removed_email(
+            #     self.request,
+            #     owner_and_manager_users,
+            #     user=role.user,
+            #     submitter=self.request.user,
+            #     organization_name=self.team.organization.name,
+            #     team_name=self.team.name,
+            # )
+            # send_removed_as_team_member_email(
+            #     self.request,
+            #     role.user,
+            #     submitter=self.request.user,
+            #     organization_name=self.team.organization.name,
+            #     team_name=self.team.name,
+            # )
+
+            # Display notification message.
+            self.request.session.flash("Removed from team", queue="success")
+
+        # Refresh teams list.
+        return HTTPSeeOther(self.request.path)
 
 
 @view_config(

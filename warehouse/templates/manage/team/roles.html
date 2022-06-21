@@ -96,13 +96,19 @@
         <span class="form-group__required">{% trans %}(required){% endtrans %}</span>
         {% endif %}
       </label>
-      {{ form.username(placeholder=gettext("Username"), autocomplete="off", autocapitalize="off", spellcheck="false", class_="form-group__field", **{"aria-describedby":"user-errors"}) }}
+      {{ form.username(placeholder=gettext("Username"), list="organization-users", autocomplete="off", autocapitalize="off", spellcheck="false", class_="form-group__field", **{"aria-describedby":"user-errors"}) }}
+      <datalist id="organization-users">
+        {% for username in form.user_choices %}
+        <option value="{{ username }}">{{ username }}</option>
+        {% endfor %}
+      </datalist>
       <div id="user-errors">
         {{ field_errors(form.username) }}
       </div>
     </div>
-    <div>
+    <div class="form-group">
       <input type="submit" value="{% trans %}Add{% endtrans %}" class="button button--primary">
+    </div>
   </form>
   {% endif %}
   <br>

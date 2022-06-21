@@ -205,6 +205,11 @@ class IOrganizationService(Interface):
         Return the team role object that represents the given team role id,
         """
 
+    def get_team_role_by_user(team_id, user_id):
+        """
+        Gets an team role for a specified team and user
+        """
+
     def add_team_role(team_id, user_id, role_name):
         """
         Add the team role object to a team for a specified team id and user id

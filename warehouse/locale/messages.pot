@@ -121,7 +121,7 @@ msgstr ""
 msgid "Successful WebAuthn assertion"
 msgstr ""
 
-#: warehouse/accounts/views.py:447 warehouse/manage/views.py:896
+#: warehouse/accounts/views.py:447 warehouse/manage/views.py:898
 msgid "Recovery code accepted. The supplied code cannot be used again."
 msgstr ""
 
@@ -312,79 +312,89 @@ msgid ""
 "description with 400 characters or less."
 msgstr ""
 
-#: warehouse/manage/forms.py:545
+#: warehouse/manage/forms.py:544
+msgid ""
+"No organization owner, manager, or member found with that username. "
+"Please try again."
+msgstr ""
+
+#: warehouse/manage/forms.py:560
 msgid "Choose a team name with 50 characters or less."
 msgstr ""
 
-#: warehouse/manage/forms.py:551
+#: warehouse/manage/forms.py:566
 msgid ""
 "The team name is invalid. Team names cannot start or end with a space, "
 "period, underscore, hyphen, or slash. Choose a different team name."
 msgstr ""
 
-#: warehouse/manage/forms.py:568
+#: warehouse/manage/forms.py:583
 msgid "This team name has already been used. Choose a different team name."
 msgstr ""
 
-#: warehouse/manage/views.py:327
+#: warehouse/manage/views.py:329
 msgid "Email ${email_address} added - check your email for a verification link"
 msgstr ""
 
-#: warehouse/manage/views.py:844
+#: warehouse/manage/views.py:846
 msgid "Recovery codes already generated"
 msgstr ""
 
-#: warehouse/manage/views.py:845
+#: warehouse/manage/views.py:847
 msgid "Generating new recovery codes will invalidate your existing codes."
 msgstr ""
 
-#: warehouse/manage/views.py:1753
+#: warehouse/manage/views.py:1769
 msgid "User '${username}' already has ${role_name} role for organization"
 msgstr ""
 
-#: warehouse/manage/views.py:1764
+#: warehouse/manage/views.py:1780
 msgid ""
 "User '${username}' does not have a verified primary email address and "
 "cannot be added as a ${role_name} for organization"
 msgstr ""
 
-#: warehouse/manage/views.py:1778 warehouse/manage/views.py:3309
+#: warehouse/manage/views.py:1794 warehouse/manage/views.py:3534
 msgid "User '${username}' already has an active invite. Please try again later."
 msgstr ""
 
-#: warehouse/manage/views.py:1835 warehouse/manage/views.py:3367
+#: warehouse/manage/views.py:1851 warehouse/manage/views.py:3592
 msgid "Invitation sent to '${username}'"
 msgstr ""
 
-#: warehouse/manage/views.py:1878
+#: warehouse/manage/views.py:1894
 msgid "Could not find organization invitation."
 msgstr ""
 
-#: warehouse/manage/views.py:1892 warehouse/manage/views.py:3425
+#: warehouse/manage/views.py:1908 warehouse/manage/views.py:3650
 msgid "Invitation already expired."
 msgstr ""
 
-#: warehouse/manage/views.py:1925 warehouse/manage/views.py:3449
+#: warehouse/manage/views.py:1941 warehouse/manage/views.py:3674
 msgid "Invitation revoked from '${username}'."
 msgstr ""
 
-#: warehouse/manage/views.py:2380
+#: warehouse/manage/views.py:2224
+msgid "User '${username}' is already a team member"
+msgstr ""
+
+#: warehouse/manage/views.py:2605
 msgid ""
 "There have been too many attempted OpenID Connect registrations. Try "
 "again later."
 msgstr ""
 
-#: warehouse/manage/views.py:3285
+#: warehouse/manage/views.py:3510
 msgid "User '${username}' already has ${role_name} role for project"
 msgstr ""
 
-#: warehouse/manage/views.py:3296
+#: warehouse/manage/views.py:3521
 msgid ""
 "User '${username}' does not have a verified primary email address and "
 "cannot be added as a ${role_name} for project"
 msgstr ""
 
-#: warehouse/manage/views.py:3414
+#: warehouse/manage/views.py:3639
 msgid "Could not find role invitation."
 msgstr ""
 
@@ -1025,7 +1035,7 @@ msgstr ""
 #: warehouse/templates/manage/organization/settings.html:74
 #: warehouse/templates/manage/organization/settings.html:98
 #: warehouse/templates/manage/organization/settings.html:123
-#: warehouse/templates/manage/organization/teams.html:87
+#: warehouse/templates/manage/organization/teams.html:84
 #: warehouse/templates/manage/organizations.html:116
 #: warehouse/templates/manage/organizations.html:139
 #: warehouse/templates/manage/organizations.html:161
@@ -2966,7 +2976,7 @@ msgstr ""
 #: warehouse/templates/manage/manage_base.html:16
 #: warehouse/templates/manage/organization/projects.html:115
 #: warehouse/templates/manage/organization/projects.html:120
-#: warehouse/templates/manage/organization/teams.html:55
+#: warehouse/templates/manage/organization/teams.html:53
 #: warehouse/templates/manage/organizations.html:81
 #: warehouse/templates/manage/organizations.html:86
 #: warehouse/templates/manage/organizations.html:91
@@ -3247,7 +3257,7 @@ msgstr ""
 
 #: warehouse/templates/manage/organization/projects.html:128
 #: warehouse/templates/manage/organization/projects.html:131
-#: warehouse/templates/manage/organization/teams.html:63
+#: warehouse/templates/manage/organization/teams.html:60
 #: warehouse/templates/manage/organizations.html:76
 #: warehouse/templates/manage/project/releases.html:94
 #: warehouse/templates/manage/projects.html:161
@@ -3332,7 +3342,7 @@ msgid ""
 "community projects are granted complimentary access."
 msgstr ""
 
-#: warehouse/templates/manage/organization/teams.html:99
+#: warehouse/templates/manage/organization/teams.html:96
 #: warehouse/templates/manage/organizations.html:214
 msgid "Create"
 msgstr ""
@@ -4089,7 +4099,7 @@ msgstr ""
 msgid "Teams (%(team_count)s)"
 msgstr ""
 
-#: warehouse/templates/manage/organization/teams.html:40
+#: warehouse/templates/manage/organization/teams.html:39
 #, python-format
 msgid ""
 "\n"
@@ -4102,29 +4112,29 @@ msgid_plural ""
 msgstr[0] ""
 msgstr[1] ""
 
-#: warehouse/templates/manage/organization/teams.html:54
+#: warehouse/templates/manage/organization/teams.html:52
 msgid "Manage this team"
 msgstr ""
 
-#: warehouse/templates/manage/organization/teams.html:62
+#: warehouse/templates/manage/organization/teams.html:59
 msgid "View this team"
 msgstr ""
 
-#: warehouse/templates/manage/organization/teams.html:70
+#: warehouse/templates/manage/organization/teams.html:67
 msgid ""
 "There are no teams in your organization, yet. Organization owners and "
 "managers can create new teams for the organization."
 msgstr ""
 
-#: warehouse/templates/manage/organization/teams.html:80
+#: warehouse/templates/manage/organization/teams.html:77
 msgid "Create new team"
 msgstr ""
 
-#: warehouse/templates/manage/organization/teams.html:86
+#: warehouse/templates/manage/organization/teams.html:83
 msgid "️Team name"
 msgstr ""
 
-#: warehouse/templates/manage/organization/teams.html:94
+#: warehouse/templates/manage/organization/teams.html:91
 msgid ""
 "Owners and managers of this organization can create a team for the "
 "organization and manage team members, team projects, and team settings."
@@ -4381,7 +4391,7 @@ msgid "workflow.yml"
 msgstr ""
 
 #: warehouse/templates/manage/project/publishing.html:118
-#: warehouse/templates/manage/team/roles.html:105
+#: warehouse/templates/manage/team/roles.html:110
 msgid "Add"
 msgstr ""
 
