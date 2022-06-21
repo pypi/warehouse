@@ -32,8 +32,6 @@
 {% endmacro %}
 
 {% block main %}
-{% set request_user_role = roles|selectattr("user", "equalto", request.user)|first %}
-
   <h2>{% trans %}People{% endtrans %}</h2>
   <p>{% trans organization_name=organization.name %}Use this page to control which PyPI users can help you to manage {{ organization_name }}.{% endtrans %}</p>
   <div class="callout-block" data-controller="dismissable" data-dismissable-identifier="roles">
@@ -83,7 +81,7 @@
           </a>
         </th>
         <td>
-        {% if request_user_role.role_name != OrganizationRoleType.Owner or request.user == role.user %}
+        {% if not request.has_permission("manage:organization") or request.user == role.user %}
           {% if role.role_name == OrganizationRoleType.Member %}
           {% trans %}Member{% endtrans %}
           {% elif role.role_name == OrganizationRoleType.Manager %}
@@ -122,10 +120,10 @@
             <button
               type="submit"
               class="button"
-              {% if request_user_role.role_name != OrganizationRoleType.Owner and request.user.username != role.user.username %}
+              {% if not request.has_permission("manage:organization") and request.user.username != role.user.username %}
                 title="{% trans %}Cannot remove other people from the organization{% endtrans %}"
                 disabled
-              {% elif role.role_name == OrganizationRoleType.Owner and request.user.username == role.user.username %}
+              {% elif request.has_permission("manage:organization") and request.user.username == role.user.username %}
                 title="{% trans %}Cannot remove yourself as owner{% endtrans %}"
                 disabled
               {% else %}
@@ -139,7 +137,7 @@
       </tr>
     {% endfor %}
 
-    {% if request_user_role.role_name == OrganizationRoleType.Owner %}
+    {% if request.has_permission("manage:organization") %}
     {% for invite in invitations|sort(attribute="user.username") %}
       <tr>
         <th scope="row">
@@ -183,7 +181,7 @@
     </tbody>
   </table>
 
-  {% if request_user_role.role_name == OrganizationRoleType.Owner %}
+  {% if request.has_permission("manage:organization") %}
   <h3>{% trans %}Invite member{% endtrans %}</h3>
   <form method="POST">
     <div class="form-group">

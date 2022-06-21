@@ -1833,6 +1833,78 @@ class TestSendNewOrganizationDeclinedEmail:
         ]
 
 
+class TestOrganizationProjectEmails:
+    @pytest.fixture
+    def organization_project(self, pyramid_user):
+        self.user = pyramid_user
+        self.organization_name = "exampleorganization"
+        self.project_name = "exampleproject"
+
+    @pytest.mark.parametrize(
+        ("email_template_name", "send_organization_project_email"),
+        [
+            ("organization-project-added", email.send_organization_project_added_email),
+            (
+                "organization-project-removed",
+                email.send_organization_project_removed_email,
+            ),
+        ],
+    )
+    def test_send_organization_project_email(
+        self,
+        db_request,
+        organization_project,
+        make_email_renderers,
+        send_email,
+        email_template_name,
+        send_organization_project_email,
+    ):
+        subject_renderer, body_renderer, html_renderer = make_email_renderers(
+            email_template_name
+        )
+
+        result = send_organization_project_email(
+            db_request,
+            self.user,
+            organization_name=self.organization_name,
+            project_name=self.project_name,
+        )
+
+        assert result == {
+            "organization_name": self.organization_name,
+            "project_name": self.project_name,
+        }
+        subject_renderer.assert_(**result)
+        body_renderer.assert_(**result)
+        html_renderer.assert_(**result)
+        assert db_request.task.calls == [pretend.call(send_email)]
+        assert send_email.delay.calls == [
+            pretend.call(
+                f"{self.user.name} <{self.user.email}>",
+                {
+                    "subject": subject_renderer.string_response,
+                    "body_text": body_renderer.string_response,
+                    "body_html": (
+                        f"<html>\n"
+                        f"<head></head>\n"
+                        f"<body><p>{html_renderer.string_response}</p></body>\n"
+                        f"</html>\n"
+                    ),
+                },
+                {
+                    "tag": "account:email:sent",
+                    "user_id": self.user.id,
+                    "additional": {
+                        "from_": db_request.registry.settings["mail.sender"],
+                        "to": self.user.email,
+                        "subject": subject_renderer.string_response,
+                        "redact_ip": False,
+                    },
+                },
+            )
+        ]
+
+
 class TestOrganizationMemberEmails:
     @pytest.fixture
     def organization_invite(self, pyramid_user):
