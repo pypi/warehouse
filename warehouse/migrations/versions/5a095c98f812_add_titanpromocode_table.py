@@ -13,7 +13,7 @@
 Add TitanPromoCode table
 
 Revision ID: 5a095c98f812
-Revises: 19cf76d2d459
+Revises: b08bcde4183c
 Create Date: 2022-03-02 02:56:08.154324
 """
 
@@ -23,7 +23,7 @@ from alembic import op
 from sqlalchemy.dialects import postgresql
 
 revision = "5a095c98f812"
-down_revision = "94c844c2da96"
+down_revision = "b08bcde4183c"
 
 
 def upgrade():
