@@ -53,6 +53,7 @@ from warehouse.organizations.models import (
     OrganizationRoleType,
     OrganizationType,
     TeamProjectRoleType,
+    TeamRoleType,
 )
 from warehouse.packaging.models import (
     File,
@@ -74,6 +75,7 @@ from ...common.db.organizations import (
     OrganizationRoleFactory,
     TeamFactory,
     TeamProjectRoleFactory,
+    TeamRoleFactory,
 )
 from ...common.db.packaging import (
     FileFactory,
@@ -4505,6 +4507,384 @@ class TestManageTeamProjects:
         view = views.ManageTeamProjectsViews(team, db_request)
         with pytest.raises(HTTPNotFound):
             view.manage_team_projects()
+
+
+class TestManageTeamRoles:
+    def test_manage_team_roles(
+        self,
+        db_request,
+        organization_service,
+        user_service,
+        enable_organizations,
+    ):
+        team = TeamFactory.create()
+
+        db_request.POST = MultiDict()
+
+        view = views.ManageTeamRolesViews(team, db_request)
+        result = view.manage_team_roles()
+        form = result["form"]
+
+        assert result == {
+            "team": team,
+            "roles": [],
+            "form": form,
+        }
+
+    def test_manage_team_roles_disable_organizations(self, db_request):
+        team = TeamFactory.create()
+
+        view = views.ManageTeamRolesViews(team, db_request)
+        with pytest.raises(HTTPNotFound):
+            view.manage_team_roles()
+
+    def test_create_team_role(
+        self,
+        db_request,
+        organization_service,
+        user_service,
+        enable_organizations,
+        monkeypatch,
+    ):
+        organization = OrganizationFactory.create()
+        team = TeamFactory(organization=organization)
+        owner = UserFactory.create(username="owner")
+        manager = UserFactory.create(username="manager")
+        member = UserFactory.create(username="user")
+        OrganizationRoleFactory.create(
+            organization=organization,
+            user=owner,
+            role_name=OrganizationRoleType.Owner,
+        )
+        OrganizationRoleFactory.create(
+            organization=organization,
+            user=manager,
+            role_name=OrganizationRoleType.Manager,
+        )
+        OrganizationRoleFactory.create(
+            organization=organization,
+            user=member,
+            role_name=OrganizationRoleType.Member,
+        )
+
+        db_request.method = "POST"
+        db_request.POST = MultiDict({"username": member.username})
+        db_request.user = owner
+        db_request.session = pretend.stub(
+            flash=pretend.call_recorder(lambda *a, **kw: None)
+        )
+
+        # send_team_member_added_email = pretend.call_recorder(lambda *a, **kw: None)
+        # monkeypatch.setattr(
+        #     views,
+        #     "send_team_member_added_email",
+        #     send_team_member_added_email,
+        # )
+        # send_added_as_team_member_email = pretend.call_recorder(lambda *a, **kw: None)
+        # monkeypatch.setattr(
+        #     views,
+        #     "send_added_as_team_member_email",
+        #     send_added_as_team_member_email,
+        # )
+
+        view = views.ManageTeamRolesViews(team, db_request)
+        result = view.create_team_role()
+        roles = organization_service.get_team_roles(team.id)
+
+        assert len(roles) == 1
+        assert roles[0].team_id == team.id
+        assert roles[0].user_id == member.id
+        # assert send_team_member_added_email.calls == [
+        #     pretend.call(
+        #         db_request,
+        #         {owner, manager},
+        #         user=member,
+        #         submitter=db_request.user,
+        #         organization_name=team.organization.name,
+        #         team_name=team.name,
+        #     )
+        # ]
+        # assert send_added_as_team_member_email.calls == [
+        #     pretend.call(
+        #         db_request,
+        #         member,
+        #         submitter=db_request.user,
+        #         organization_name=team.organization.name,
+        #         team_name=team.name,
+        #     )
+        # ]
+        assert db_request.session.flash.calls == [
+            pretend.call(
+                f"Added the team {team.name!r} to {team.organization.name!r}",
+                queue="success",
+            )
+        ]
+        assert isinstance(result, HTTPSeeOther)
+
+    def test_create_team_role_duplicate_member(
+        self,
+        db_request,
+        organization_service,
+        user_service,
+        enable_organizations,
+    ):
+        organization = OrganizationFactory.create()
+        team = TeamFactory(organization=organization)
+        owner = UserFactory.create(username="owner")
+        manager = UserFactory.create(username="manager")
+        member = UserFactory.create(username="user")
+        OrganizationRoleFactory.create(
+            organization=organization,
+            user=owner,
+            role_name=OrganizationRoleType.Owner,
+        )
+        OrganizationRoleFactory.create(
+            organization=organization,
+            user=manager,
+            role_name=OrganizationRoleType.Manager,
+        )
+        OrganizationRoleFactory.create(
+            organization=organization,
+            user=member,
+            role_name=OrganizationRoleType.Member,
+        )
+        role = TeamRoleFactory.create(
+            team=team,
+            user=member,
+            role_name=TeamRoleType.Member,
+        )
+
+        db_request.method = "POST"
+        db_request.POST = MultiDict({"username": member.username})
+        db_request.user = owner
+        db_request.session = pretend.stub(
+            flash=pretend.call_recorder(lambda *a, **kw: None)
+        )
+
+        view = views.ManageTeamRolesViews(team, db_request)
+        result = view.create_team_role()
+        form = result["form"]
+
+        assert organization_service.get_team_roles(team.id) == [role]
+        assert db_request.session.flash.calls == [
+            pretend.call(
+                f"User '{member.username}' is already a team member", queue="error"
+            )
+        ]
+        assert result == {
+            "team": team,
+            "roles": [role],
+            "form": form,
+        }
+
+    def test_create_team_role_not_a_member(
+        self,
+        db_request,
+        organization_service,
+        user_service,
+        enable_organizations,
+    ):
+        organization = OrganizationFactory.create()
+        team = TeamFactory(organization=organization)
+        owner = UserFactory.create(username="owner")
+        manager = UserFactory.create(username="manager")
+        not_a_member = UserFactory.create(username="user")
+        OrganizationRoleFactory.create(
+            organization=organization,
+            user=owner,
+            role_name=OrganizationRoleType.Owner,
+        )
+        OrganizationRoleFactory.create(
+            organization=organization,
+            user=manager,
+            role_name=OrganizationRoleType.Manager,
+        )
+
+        db_request.method = "POST"
+        db_request.POST = MultiDict({"username": not_a_member.username})
+        db_request.user = owner
+        db_request.session = pretend.stub(
+            flash=pretend.call_recorder(lambda *a, **kw: None)
+        )
+
+        view = views.ManageTeamRolesViews(team, db_request)
+        result = view.create_team_role()
+        form = result["form"]
+
+        assert result == {
+            "team": team,
+            "roles": [],
+            "form": form,
+        }
+        assert form.username.errors == [
+            (
+                "No organization owner, manager, or member found "
+                "with that username. Please try again."
+            )
+        ]
+
+    def test_create_team_role_disable_organizations(self, db_request):
+        team = TeamFactory.create()
+
+        view = views.ManageTeamRolesViews(team, db_request)
+        with pytest.raises(HTTPNotFound):
+            view.create_team_role()
+
+    def test_delete_team_role(
+        self,
+        db_request,
+        organization_service,
+        user_service,
+        enable_organizations,
+    ):
+        organization = OrganizationFactory.create()
+        team = TeamFactory(organization=organization)
+        owner = UserFactory.create(username="owner")
+        manager = UserFactory.create(username="manager")
+        member = UserFactory.create(username="user")
+        OrganizationRoleFactory.create(
+            organization=organization,
+            user=owner,
+            role_name=OrganizationRoleType.Owner,
+        )
+        OrganizationRoleFactory.create(
+            organization=organization,
+            user=manager,
+            role_name=OrganizationRoleType.Manager,
+        )
+        OrganizationRoleFactory.create(
+            organization=organization,
+            user=member,
+            role_name=OrganizationRoleType.Member,
+        )
+        role = TeamRoleFactory.create(
+            team=team,
+            user=member,
+            role_name=TeamRoleType.Member,
+        )
+
+        db_request.method = "POST"
+        db_request.POST = MultiDict({"role_id": role.id})
+        db_request.user = owner
+        db_request.session = pretend.stub(
+            flash=pretend.call_recorder(lambda *a, **kw: None)
+        )
+
+        view = views.ManageTeamRolesViews(team, db_request)
+        result = view.delete_team_role()
+
+        assert organization_service.get_team_roles(team.id) == []
+        assert db_request.session.flash.calls == [
+            pretend.call("Removed from team", queue="success")
+        ]
+        assert isinstance(result, HTTPSeeOther)
+
+    def test_delete_team_role_not_a_member(
+        self,
+        db_request,
+        organization_service,
+        user_service,
+        enable_organizations,
+    ):
+        organization = OrganizationFactory.create()
+        team = TeamFactory(organization=organization)
+        other_team = TeamFactory(organization=organization)
+        owner = UserFactory.create(username="owner")
+        manager = UserFactory.create(username="manager")
+        not_a_member = UserFactory.create(username="user")
+        OrganizationRoleFactory.create(
+            organization=organization,
+            user=owner,
+            role_name=OrganizationRoleType.Owner,
+        )
+        OrganizationRoleFactory.create(
+            organization=organization,
+            user=manager,
+            role_name=OrganizationRoleType.Manager,
+        )
+        OrganizationRoleFactory.create(
+            organization=organization,
+            user=not_a_member,
+            role_name=OrganizationRoleType.Member,
+        )
+        other_team_role = TeamRoleFactory.create(
+            team=other_team,
+            user=not_a_member,
+            role_name=TeamRoleType.Member,
+        )
+
+        db_request.method = "POST"
+        db_request.POST = MultiDict({"role_id": other_team_role.id})
+        db_request.user = owner
+        db_request.session = pretend.stub(
+            flash=pretend.call_recorder(lambda *a, **kw: None)
+        )
+
+        view = views.ManageTeamRolesViews(team, db_request)
+        result = view.delete_team_role()
+
+        assert organization_service.get_team_roles(team.id) == []
+        assert db_request.session.flash.calls == [
+            pretend.call("Could not find member", queue="error")
+        ]
+        assert isinstance(result, HTTPSeeOther)
+
+    def test_delete_team_role_not_a_manager(
+        self,
+        db_request,
+        organization_service,
+        user_service,
+        enable_organizations,
+    ):
+        organization = OrganizationFactory.create()
+        team = TeamFactory(organization=organization)
+        owner = UserFactory.create(username="owner")
+        not_a_manager = UserFactory.create(username="manager")
+        member = UserFactory.create(username="user")
+        OrganizationRoleFactory.create(
+            organization=organization,
+            user=owner,
+            role_name=OrganizationRoleType.Owner,
+        )
+        OrganizationRoleFactory.create(
+            organization=organization,
+            user=not_a_manager,
+            role_name=OrganizationRoleType.Member,
+        )
+        OrganizationRoleFactory.create(
+            organization=organization,
+            user=member,
+            role_name=OrganizationRoleType.Member,
+        )
+        role = TeamRoleFactory.create(
+            team=team,
+            user=member,
+            role_name=TeamRoleType.Member,
+        )
+
+        db_request.method = "POST"
+        db_request.POST = MultiDict({"role_id": role.id})
+        db_request.user = not_a_manager
+        db_request.has_permission = lambda *a, **kw: False
+        db_request.session = pretend.stub(
+            flash=pretend.call_recorder(lambda *a, **kw: None)
+        )
+
+        view = views.ManageTeamRolesViews(team, db_request)
+        result = view.delete_team_role()
+
+        assert organization_service.get_team_roles(team.id) == [role]
+        assert db_request.session.flash.calls == [
+            pretend.call("Cannot remove other people from the team", queue="error")
+        ]
+        assert isinstance(result, HTTPSeeOther)
+
+    def test_delete_team_role_disable_organizations(self, db_request):
+        team = TeamFactory.create()
+
+        view = views.ManageTeamRolesViews(team, db_request)
+        with pytest.raises(HTTPNotFound):
+            view.delete_team_role()
 
 
 class TestManageProjects:
