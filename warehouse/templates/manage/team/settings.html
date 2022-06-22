@@ -23,17 +23,8 @@
 {% block main %}
   <h2>{% trans %}Team settings{% endtrans %}</h2>
 
-  {{ form_error_anchor(save_organization_form) }}
+  {{ form_error_anchor(save_team_form) }}
   <section id="team-details">
-    <div class="form-group">
-      <span class="form-group__label">{% trans %}Team account name{% endtrans %}</span>
-      <p class="form-group__text">{{ organization.name }}</p>
-      <span class="form-group__label">{% trans %}Date created{% endtrans %}</span>
-      <p class="form-group__text">
-        {{ humanize(organization.created) }}
-      </p>
-    </div>
-
     <form method="POST">
       <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
       {{ form_errors(save_team_form) }}

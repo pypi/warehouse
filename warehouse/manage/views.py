@@ -103,6 +103,7 @@ from warehouse.manage.forms import (
     SaveAccountForm,
     SaveOrganizationForm,
     SaveOrganizationNameForm,
+    SaveTeamForm,
     Toggle2FARequirementForm,
     TransferOrganizationProjectForm,
 )
@@ -131,7 +132,7 @@ from warehouse.packaging.models import (
 )
 from warehouse.rate_limiting import IRateLimiter
 from warehouse.utils.http import is_safe_url
-from warehouse.utils.organization import confirm_organization
+from warehouse.utils.organization import confirm_organization, confirm_team
 from warehouse.utils.paginate import paginate_url_factory
 from warehouse.utils.project import (
     add_project,
@@ -2100,6 +2101,110 @@ def delete_organization_role(organization, request):
         return HTTPSeeOther(
             request.route_path(
                 "manage.organization.roles",
+                organization_name=organization.normalized_name,
+            )
+        )
+
+
+@view_defaults(
+    route_name="manage.team.settings",
+    context=Team,
+    renderer="manage/team/settings.html",
+    uses_session=True,
+    require_csrf=True,
+    require_methods=False,
+    permission="manage:team",
+    has_translations=True,
+    require_reauth=True,
+)
+class ManageTeamSettingsViews:
+    def __init__(self, team, request):
+        self.team = team
+        self.request = request
+        self.user_service = request.find_service(IUserService, context=None)
+        self.organization_service = request.find_service(
+            IOrganizationService, context=None
+        )
+
+    @property
+    def default_response(self):
+        return {
+            "team": self.team,
+            "save_team_form": SaveTeamForm(
+                name=self.team.name,
+                organization_id=self.team.organization_id,
+                organization_service=self.organization_service,
+            ),
+        }
+
+    @view_config(request_method="GET", permission="view:team")
+    def manage_team(self):
+        if self.request.flags.enabled(AdminFlagValue.DISABLE_ORGANIZATIONS):
+            raise HTTPNotFound
+
+        return self.default_response
+
+    @view_config(request_method="POST", request_param=SaveTeamForm.__params__)
+    def save_team(self):
+        if self.request.flags.enabled(AdminFlagValue.DISABLE_ORGANIZATIONS):
+            raise HTTPNotFound
+
+        form = SaveTeamForm(
+            self.request.POST,
+            organization_id=self.team.organization_id,
+            organization_service=self.organization_service,
+        )
+
+        if form.validate():
+            name = form.name.data
+            self.organization_service.rename_team(self.team.id, name)
+            self.request.session.flash("Team name updated", queue="success")
+
+        return {**self.default_response, "save_team_form": form}
+
+    @view_config(request_method="POST", request_param=["confirm_team_name"])
+    def delete_team(self):
+        if self.request.flags.enabled(AdminFlagValue.DISABLE_ORGANIZATIONS):
+            raise HTTPNotFound
+
+        # Confirm team name.
+        confirm_team(self.team, self.request, fail_route="manage.team.settings")
+
+        # Get organization and team name before deleting team.
+        organization = self.team.organization
+        team_name = self.team.name
+
+        # Delete team.
+        self.organization_service.delete_team(self.team.id)
+
+        # Record events.
+        organization.record_event(
+            tag="organization:team:delete",
+            ip_address=self.request.remote_addr,
+            additional={
+                "deleted_by_user_id": str(self.request.user.id),
+                "team_name": team_name,
+            },
+        )
+
+        # TODO Send notification emails.
+        # owner_and_manager_users = set(
+        #     organization_owners(self.request, organization)
+        #     + organization_managers(self.request, organization)
+        # )
+        # send_team_deleted_email(
+        #     self.request,
+        #     owner_and_manager_users,
+        #     organization_name=organization.name,
+        #     team_name=team_name,
+        # )
+
+        # Display notification message.
+        self.request.session.flash("Team deleted", queue="success")
+
+        return HTTPSeeOther(
+            self.request.route_path(
+                "manage.organization.teams",
                 organization_name=organization.normalized_name,
             )
         )

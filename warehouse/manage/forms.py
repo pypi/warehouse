@@ -548,7 +548,7 @@ class CreateTeamRoleForm(UsernameMixin, forms.Form):
             )
 
 
-class CreateTeamForm(forms.Form):
+class SaveTeamForm(forms.Form):
 
     __params__ = ["name"]
 
@@ -585,3 +585,8 @@ class CreateTeamForm(forms.Form):
                     "Choose a different team name."
                 )
             )
+
+
+class CreateTeamForm(SaveTeamForm):
+
+    __params__ = SaveTeamForm.__params__
