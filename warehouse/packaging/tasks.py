@@ -19,9 +19,10 @@ import pip_api
 from google.cloud.bigquery import LoadJobConfig
 
 from warehouse import tasks
-from warehouse.accounts.models import User
+from warehouse.accounts.models import User, WebAuthn
 from warehouse.cache.origin import IOriginCache
 from warehouse.email import send_two_factor_mandate_email
+from warehouse.metrics import IMetricsService
 from warehouse.packaging.models import Description, File, Project, Release
 from warehouse.utils import readme
 
@@ -79,6 +80,66 @@ def compute_2fa_mandate(request):
 
     # Add them to the mandate
     new_projects.update({Project.pypi_mandates_2fa: True})
+
+
+@tasks.task(ignore_result=True, acks_late=True)
+def compute_2fa_metrics(request):
+    metrics = request.find_service(IMetricsService, context=None)
+
+    critical_projects = request.db.query(Project).where(
+        Project.pypi_mandates_2fa.is_(True)
+    )
+    critical_maintainers = (
+        request.db.query(User).join(Project.users).join(critical_projects)
+    )
+
+    # Number of projects marked critical
+    metrics.gauge(
+        "warehouse.2fa.total_critical_projects",
+        critical_projects.count(),
+    )
+
+    # Number of critical project maintainers
+    metrics.gauge(
+        "warehouse.2fa.total_critical_maintainers",
+        critical_maintainers.count(),
+    )
+
+    # Number of critical project maintainers with 2FA enabled
+    metrics.gauge(
+        "warehouse.2fa.total_critical_maintainers_with_2fa_enabled",
+        critical_maintainers.where(User.has_two_factor).count(),
+    )
+
+    # Number of projects manually requiring 2FA
+    metrics.gauge(
+        "warehouse.2fa.total_projects_with_2fa_opt_in",
+        request.db.query(Project).where(Project.owners_require_2fa).count(),
+    )
+
+    # Total number of projects requiring 2FA
+    metrics.gauge(
+        "warehouse.2fa.total_projects_with_two_factor_required",
+        request.db.query(Project).where(Project.two_factor_required).count(),
+    )
+
+    # Total number of users with TOTP enabled
+    metrics.gauge(
+        "warehouse.2fa.total_users_with_totp_enabled",
+        request.db.query(User).where(User.totp_secret.is_not(None)).count(),
+    )
+
+    # Total number of users with WebAuthn enabled
+    metrics.gauge(
+        "warehouse.2fa.total_users_with_webauthn_enabled",
+        request.db.query(WebAuthn.user_id).group_by(WebAuthn.user_id).count(),
+    )
+
+    # Total number of users with 2FA enabled
+    metrics.gauge(
+        "warehouse.2fa.total_users_with_two_factor_enabled",
+        request.db.query(User).where(User.has_two_factor).count(),
+    )
 
 
 @tasks.task(ignore_result=True, acks_late=True)

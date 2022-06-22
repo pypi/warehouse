@@ -20,10 +20,12 @@ from wtforms import Field, Form, StringField
 
 import warehouse.packaging.tasks
 
+from warehouse.accounts.models import WebAuthn
 from warehouse.cache.origin import IOriginCache
 from warehouse.packaging.models import Description, Project
 from warehouse.packaging.tasks import (
     compute_2fa_mandate,
+    compute_2fa_metrics,
     compute_trending,
     sync_bigquery_release_files,
     update_bigquery_release_files,
@@ -669,3 +671,59 @@ def test_compute_2fa_mandate(db_request, monkeypatch):
         pretend.call(db_request, deploy_dependency_maintainer),
         pretend.call(db_request, new_critical_project_maintainer),
     }
+
+
+def test_compute_2fa_metrics(db_request, monkeypatch):
+    # A project declared to be critical
+    critical_project = ProjectFactory.create(
+        name="critical_project", pypi_mandates_2fa=True
+    )
+
+    # A critical maintainer without 2FA enabled
+    critical_project_maintainer = UserFactory.create(totp_secret=None, webauthn=[])
+    RoleFactory.create(user=critical_project_maintainer, project=critical_project)
+
+    # A critical maintainer with TOTP enabled
+    second_critical_project_maintainer = UserFactory.create(
+        totp_secret=b"foo", webauthn=[]
+    )
+    RoleFactory.create(
+        user=second_critical_project_maintainer, project=critical_project
+    )
+
+    # A critical maintainer with WebAuthn enabled
+    third_critical_project_maintainer = UserFactory.create()
+    RoleFactory.create(user=third_critical_project_maintainer, project=critical_project)
+    webauthn = WebAuthn(
+        user_id=third_critical_project_maintainer.id,
+        label="foo",
+        credential_id="foo",
+        public_key="foo",
+    )
+    db_request.db.add(webauthn)
+    third_critical_project_maintainer.webauthn = [webauthn]
+
+    # A regular project opted in to 2FA
+    non_critical_project = ProjectFactory.create(
+        name="non_critical_project", owners_require_2fa=True
+    )
+    non_critical_project_maintainer = UserFactory.create(totp_secret=b"foo")
+    RoleFactory.create(
+        user=non_critical_project_maintainer, project=non_critical_project
+    )
+
+    gauge = pretend.call_recorder(lambda metric, value: None)
+    db_request.find_service = lambda *a, **kw: pretend.stub(gauge=gauge)
+
+    compute_2fa_metrics(db_request)
+
+    assert gauge.calls == [
+        pretend.call("warehouse.2fa.total_critical_projects", 1),
+        pretend.call("warehouse.2fa.total_critical_maintainers", 3),
+        pretend.call("warehouse.2fa.total_critical_maintainers_with_2fa_enabled", 2),
+        pretend.call("warehouse.2fa.total_projects_with_2fa_opt_in", 1),
+        pretend.call("warehouse.2fa.total_projects_with_two_factor_required", 2),
+        pretend.call("warehouse.2fa.total_users_with_totp_enabled", 2),
+        pretend.call("warehouse.2fa.total_users_with_webauthn_enabled", 1),
+        pretend.call("warehouse.2fa.total_users_with_two_factor_enabled", 3),
+    ]
