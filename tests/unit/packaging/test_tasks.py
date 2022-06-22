@@ -723,5 +723,7 @@ def test_compute_2fa_metrics(db_request, monkeypatch):
         pretend.call("warehouse.2fa.total_critical_maintainers_with_2fa_enabled", 2),
         pretend.call("warehouse.2fa.total_projects_with_2fa_opt_in", 1),
         pretend.call("warehouse.2fa.total_projects_with_two_factor_required", 2),
+        pretend.call("warehouse.2fa.total_users_with_totp_enabled", 2),
+        pretend.call("warehouse.2fa.total_users_with_webauthn_enabled", 1),
         pretend.call("warehouse.2fa.total_users_with_two_factor_enabled", 3),
     ]

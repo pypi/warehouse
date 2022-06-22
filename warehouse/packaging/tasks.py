@@ -19,7 +19,7 @@ import pip_api
 from google.cloud.bigquery import LoadJobConfig
 
 from warehouse import tasks
-from warehouse.accounts.models import User
+from warehouse.accounts.models import User, WebAuthn
 from warehouse.cache.origin import IOriginCache
 from warehouse.email import send_two_factor_mandate_email
 from warehouse.metrics import IMetricsService
@@ -123,7 +123,19 @@ def compute_2fa_metrics(request):
         request.db.query(Project).where(Project.two_factor_required).count(),
     )
 
-    # Number of users with 2FA enabled
+    # Total number of users with TOTP enabled
+    metrics.gauge(
+        "warehouse.2fa.total_users_with_totp_enabled",
+        request.db.query(User).where(User.totp_secret.is_not(None)).count(),
+    )
+
+    # Total number of users with WebAuthn enabled
+    metrics.gauge(
+        "warehouse.2fa.total_users_with_webauthn_enabled",
+        request.db.query(WebAuthn.user_id).group_by(WebAuthn.user_id).count(),
+    )
+
+    # Total number of users with 2FA enabled
     metrics.gauge(
         "warehouse.2fa.total_users_with_two_factor_enabled",
         request.db.query(User).where(User.has_two_factor).count(),
