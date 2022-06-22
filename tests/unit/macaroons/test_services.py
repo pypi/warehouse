@@ -84,7 +84,7 @@ class TestDatabaseMacaroonService:
         "raw_macaroon",
         [
             "pypi-aaaa",  # Invalid macaroon
-            # Macaroon properly formatted but not found. The string is purposedly cut to
+            # Macaroon properly formatted but not found. The string is purposely cut to
             # avoid triggering the github token disclosure feature that this very
             # function implements.
             "py"

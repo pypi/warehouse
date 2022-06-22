@@ -40,7 +40,7 @@ import "@babel/polyfill";
 // Monkeypatch the global fetch API
 fetch = require("jest-fetch-mock");  // eslint-disable-line no-global-assign
 
-// Make TextEncoder and cryto available in the global scope
+// Make TextEncoder and crypto available in the global scope
 // in the same way as in a browser environment
 window.TextEncoder = require("util").TextEncoder;
 const WebCrypto = require("node-webcrypto-ossl");

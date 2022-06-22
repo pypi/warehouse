@@ -38,9 +38,7 @@ class DomainPredicate:
 class HeadersPredicate:
     def __init__(self, val: List[str], config):
         if not val:
-            raise ConfigurationError(
-                "Excpected at least one value in headers predicate"
-            )
+            raise ConfigurationError("Expected at least one value in headers predicate")
 
         self.sub_predicates = [
             predicates.HeaderPredicate(subval, config) for subval in val

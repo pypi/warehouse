@@ -52,7 +52,7 @@ def test_invalid_token_leak_request():
         ),
         (
             {"type": "failer", "token": "a", "url": "b"},
-            "Cannot extract token from recieved match",
+            "Cannot extract token from received match",
             "extraction",
         ),
     ],
@@ -594,7 +594,7 @@ def test_analyze_disclosure(monkeypatch):
         origin="github",
     )
     assert metrics == {
-        "warehouse.token_leak.github.recieved": 1,
+        "warehouse.token_leak.github.received": 1,
         "warehouse.token_leak.github.processed": 1,
         "warehouse.token_leak.github.valid": 1,
     }
@@ -637,7 +637,7 @@ def test_analyze_disclosure_wrong_record():
         origin="github",
     )
     assert metrics == {
-        "warehouse.token_leak.github.recieved": 1,
+        "warehouse.token_leak.github.received": 1,
         "warehouse.token_leak.github.error.format": 1,
     }
 
@@ -667,7 +667,7 @@ def test_analyze_disclosure_invalid_macaroon():
         origin="github",
     )
     assert metrics == {
-        "warehouse.token_leak.github.recieved": 1,
+        "warehouse.token_leak.github.received": 1,
         "warehouse.token_leak.github.error.invalid": 1,
     }
 

@@ -164,7 +164,7 @@ def json_release(release, request):
         for r, fs in releases.items()
     }
 
-    # Serialize a list of vulnerabilties for this release
+    # Serialize a list of vulnerabilities for this release
     vulnerabilities = [
         {
             "id": vulnerability_record.id,

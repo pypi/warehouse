@@ -51,6 +51,10 @@ click==8.1.3 \
     # via
     #   black
     #   curlylint
+codespell==2.1.0 \
+    --hash=sha256:19d3fe5644fef3425777e66f225a8c82d39059dcfe9edb3349a8a2cf48383ee5 \
+    --hash=sha256:b864c7d917316316ac24272ee992d7937c3519be4569209c5b60035ac5d569b5
+    # via -r requirements/lint.in
 curlylint==0.13.1 \
     --hash=sha256:008b9d160f3920404ac12efb05c0a39e209cb972f9aafd956b79c5f4e2162752 \
     --hash=sha256:9546ea82cdfc9292fd6fe49dca28587164bd315782a209c0a46e013d7f38d2fa

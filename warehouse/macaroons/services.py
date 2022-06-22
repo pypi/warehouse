@@ -99,7 +99,7 @@ class DatabaseMacaroonService:
 
     def find_from_raw(self, raw_macaroon):
         """
-        Returns a DB macaroon matching the imput, or raises InvalidMacaroonError
+        Returns a DB macaroon matching the input, or raises InvalidMacaroonError
         """
         m = self._deserialize_raw_macaroon(raw_macaroon)
         dm = self.find_macaroon(m.identifier.decode())
