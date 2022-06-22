@@ -4472,6 +4472,164 @@ class TestDeleteOrganizationRoles:
         assert result.headers["Location"] == "/the-redirect"
 
 
+class TestManageTeamSettings:
+    def test_manage_team(
+        self, db_request, organization_service, user_service, enable_organizations
+    ):
+        team = TeamFactory.create()
+
+        view = views.ManageTeamSettingsViews(team, db_request)
+        result = view.manage_team()
+        form = result["save_team_form"]
+
+        assert view.request == db_request
+        assert view.organization_service == organization_service
+        assert view.user_service == user_service
+        assert result == {
+            "team": team,
+            "save_team_form": form,
+        }
+
+    def test_manage_team_disable_organizations(self, db_request):
+        team = TeamFactory.create()
+
+        view = views.ManageTeamSettingsViews(team, db_request)
+        with pytest.raises(HTTPNotFound):
+            view.manage_team()
+
+    def test_save_team(self, db_request, organization_service, enable_organizations):
+        team = TeamFactory.create(name="Team Name")
+        db_request.POST = MultiDict({"name": "New Team Name"})
+
+        view = views.ManageTeamSettingsViews(team, db_request)
+        result = view.save_team()
+        form = result["save_team_form"]
+
+        assert result == {
+            "team": team,
+            "save_team_form": form,
+        }
+        assert team.name == "New Team Name"
+        assert form.name.errors == []
+
+    def test_save_team_validation_fails(
+        self, db_request, organization_service, enable_organizations
+    ):
+        team = TeamFactory.create(name="Team Name")
+        db_request.POST = MultiDict({"name": "Team Name"})
+
+        view = views.ManageTeamSettingsViews(team, db_request)
+        result = view.save_team()
+        form = result["save_team_form"]
+
+        assert result == {
+            "team": team,
+            "save_team_form": form,
+        }
+        assert team.name == "Team Name"
+        assert form.name.errors == [
+            ("This team name has already been used. " "Choose a different team name.")
+        ]
+
+    def test_save_team_disable_organizations(self, db_request):
+        team = TeamFactory.create()
+
+        view = views.ManageTeamSettingsViews(team, db_request)
+        with pytest.raises(HTTPNotFound):
+            view.save_team()
+
+    def test_delete_team(
+        self,
+        db_request,
+        pyramid_user,
+        organization_service,
+        user_service,
+        enable_organizations,
+        monkeypatch,
+    ):
+        team = TeamFactory.create()
+        db_request.POST = MultiDict({"confirm_team_name": team.name})
+        db_request.route_path = pretend.call_recorder(lambda *a, **kw: "/foo/bar/")
+
+        # send_email = pretend.call_recorder(lambda *a, **kw: None)
+        # monkeypatch.setattr(views, "send_team_deleted_email", send_email)
+
+        view = views.ManageTeamSettingsViews(team, db_request)
+        result = view.delete_team()
+
+        assert isinstance(result, HTTPSeeOther)
+        assert result.headers["Location"] == "/foo/bar/"
+        # assert send_email.calls == [
+        #     pretend.call(
+        #         db_request,
+        #         {},
+        #         organization_name=team.organization.name,
+        #         team_name=team.name,
+        #     ),
+        # ]
+
+    def test_delete_team_no_confirm(
+        self,
+        db_request,
+        pyramid_user,
+        organization_service,
+        user_service,
+        enable_organizations,
+        monkeypatch,
+    ):
+        team = TeamFactory.create()
+        db_request.POST = MultiDict()
+        db_request.session = pretend.stub(
+            flash=pretend.call_recorder(lambda *a, **kw: None)
+        )
+        db_request.route_path = pretend.call_recorder(lambda *a, **kw: "/foo/bar/")
+
+        view = views.ManageTeamSettingsViews(team, db_request)
+        with pytest.raises(HTTPSeeOther):
+            view.delete_team()
+
+        assert db_request.session.flash.calls == [
+            pretend.call("Confirm the request", queue="error")
+        ]
+
+    def test_delete_team_wrong_confirm(
+        self,
+        db_request,
+        pyramid_user,
+        organization_service,
+        user_service,
+        enable_organizations,
+        monkeypatch,
+    ):
+        team = TeamFactory.create(name="Team Name")
+        db_request.POST = MultiDict({"confirm_team_name": "Wrong Team Name"})
+        db_request.session = pretend.stub(
+            flash=pretend.call_recorder(lambda *a, **kw: None)
+        )
+        db_request.route_path = pretend.call_recorder(lambda *a, **kw: "/foo/bar/")
+
+        view = views.ManageTeamSettingsViews(team, db_request)
+        with pytest.raises(HTTPSeeOther):
+            view.delete_team()
+
+        assert db_request.session.flash.calls == [
+            pretend.call(
+                (
+                    "Could not delete team - "
+                    "'Wrong Team Name' is not the same as 'Team Name'"
+                ),
+                queue="error",
+            )
+        ]
+
+    def test_delete_organization_disable_organizations(self, db_request):
+        team = TeamFactory.create()
+
+        view = views.ManageTeamSettingsViews(team, db_request)
+        with pytest.raises(HTTPNotFound):
+            view.delete_team()
+
+
 class TestManageTeamProjects:
     def test_manage_team_projects(
         self,
