@@ -140,7 +140,7 @@ class User(SitemapMixin, HasEvents, db.Model):
     def has_two_factor(self):
         return self.totp_secret is not None or len(self.webauthn) > 0
 
-    @has_two_factor.expression
+    @has_two_factor.expression  # type: ignore
     def has_two_factor(self):
         return select([True]).where(
             or_(
