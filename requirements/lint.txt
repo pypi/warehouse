@@ -33,9 +33,9 @@ black==22.3.0 \
     --hash=sha256:ee8f1f7228cce7dffc2b464f07ce769f478968bfb3dd1254a4c2eeed84928aad \
     --hash=sha256:fd57160949179ec517d32ac2ac898b5f20d68ed1a9c977346efbac9c2f1e779d
     # via -r requirements/lint.in
-boto3-stubs==1.24.9 \
-    --hash=sha256:139861de497a888e637c211740d9d80a377e0459aaa9e09bf773008e16ab63ce \
-    --hash=sha256:7d7740298e1db7a8105e61f6b9713bc10aecf6539b7122db5a5fd11723c0b31e
+boto3-stubs==1.24.14 \
+    --hash=sha256:36123d7287c5ae95b74b37ec60cfda5652c0976c0106b76da7d6837f76ca5b56 \
+    --hash=sha256:e4d75b25c0e8c4af2c4b60755f890c2d5b948cdee7fc8d22e4935aa4a5c5ec5f
     # via types-boto3
 botocore-stubs==1.27.9 \
     --hash=sha256:6992cfbda5b0f85de7372c860770f7dede4fa2084972459787e3d92228f17d2e \
