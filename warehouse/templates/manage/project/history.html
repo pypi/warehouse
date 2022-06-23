@@ -46,7 +46,7 @@
     <small>
       {% trans %}Removed by:{% endtrans %} <a href="{{ request.route_path('accounts.profile', username=event.additional.submitted_by) }}">{{ event.additional.submitted_by }}</a>
     </small>
-    {% elif event.tag == "project:role:add" %}
+    {% elif event.tag in ["project:role:accepted", "project:role:add", "project:role:create"] %}
     <strong>{% trans href=request.route_path('accounts.profile', username=event.additional.target_user), username=event.additional.target_user, role_name=event.additional.role_name|lower %}<a href="{{ href }}">{{ username }}</a> added as project {{ role_name }}{% endtrans %}</strong><br>
     <small>
       {% trans %}Added by:{% endtrans %} <a href="{{ request.route_path('accounts.profile', username=event.additional.submitted_by) }}">{{ event.additional.submitted_by }}</a>

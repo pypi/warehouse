@@ -912,7 +912,7 @@ def file_upload(request):
             )
         )
         project.record_event(
-            tag="project:role:add",
+            tag="project:role:create",
             ip_address=request.remote_addr,
             additional={
                 "submitted_by": request.user.username,
