@@ -121,7 +121,7 @@ msgstr ""
 msgid "Successful WebAuthn assertion"
 msgstr ""
 
-#: warehouse/accounts/views.py:447 warehouse/manage/views.py:903
+#: warehouse/accounts/views.py:447 warehouse/manage/views.py:904
 msgid "Recovery code accepted. The supplied code cannot be used again."
 msgstr ""
 
@@ -332,69 +332,69 @@ msgstr ""
 msgid "This team name has already been used. Choose a different team name."
 msgstr ""
 
-#: warehouse/manage/views.py:334
+#: warehouse/manage/views.py:335
 msgid "Email ${email_address} added - check your email for a verification link"
 msgstr ""
 
-#: warehouse/manage/views.py:851
+#: warehouse/manage/views.py:852
 msgid "Recovery codes already generated"
 msgstr ""
 
-#: warehouse/manage/views.py:852
+#: warehouse/manage/views.py:853
 msgid "Generating new recovery codes will invalidate your existing codes."
 msgstr ""
 
-#: warehouse/manage/views.py:1774
+#: warehouse/manage/views.py:1775
 msgid "User '${username}' already has ${role_name} role for organization"
 msgstr ""
 
-#: warehouse/manage/views.py:1785
+#: warehouse/manage/views.py:1786
 msgid ""
 "User '${username}' does not have a verified primary email address and "
 "cannot be added as a ${role_name} for organization"
 msgstr ""
 
-#: warehouse/manage/views.py:1799 warehouse/manage/views.py:3643
+#: warehouse/manage/views.py:1800 warehouse/manage/views.py:3644
 msgid "User '${username}' already has an active invite. Please try again later."
 msgstr ""
 
-#: warehouse/manage/views.py:1856 warehouse/manage/views.py:3701
+#: warehouse/manage/views.py:1857 warehouse/manage/views.py:3702
 msgid "Invitation sent to '${username}'"
 msgstr ""
 
-#: warehouse/manage/views.py:1899
+#: warehouse/manage/views.py:1900
 msgid "Could not find organization invitation."
 msgstr ""
 
-#: warehouse/manage/views.py:1913 warehouse/manage/views.py:3759
+#: warehouse/manage/views.py:1914 warehouse/manage/views.py:3760
 msgid "Invitation already expired."
 msgstr ""
 
-#: warehouse/manage/views.py:1946 warehouse/manage/views.py:3783
+#: warehouse/manage/views.py:1947 warehouse/manage/views.py:3784
 msgid "Invitation revoked from '${username}'."
 msgstr ""
 
-#: warehouse/manage/views.py:2333
+#: warehouse/manage/views.py:2334
 msgid "User '${username}' is already a team member"
 msgstr ""
 
-#: warehouse/manage/views.py:2714
+#: warehouse/manage/views.py:2715
 msgid ""
 "There have been too many attempted OpenID Connect registrations. Try "
 "again later."
 msgstr ""
 
-#: warehouse/manage/views.py:3619
+#: warehouse/manage/views.py:3620
 msgid "User '${username}' already has ${role_name} role for project"
 msgstr ""
 
-#: warehouse/manage/views.py:3630
+#: warehouse/manage/views.py:3631
 msgid ""
 "User '${username}' does not have a verified primary email address and "
 "cannot be added as a ${role_name} for project"
 msgstr ""
 
-#: warehouse/manage/views.py:3748
+#: warehouse/manage/views.py:3749
 msgid "Could not find role invitation."
 msgstr ""
 
@@ -2020,11 +2020,19 @@ msgid ""
 msgstr ""
 
 #: warehouse/templates/email/team-created/body.html:24
+#: warehouse/templates/email/team-deleted/body.html:24
 #: warehouse/templates/email/team-member-added/body.html:24
 #: warehouse/templates/email/team-member-removed/body.html:24
 msgid ""
 "You are receiving this because you are an owner or a manager of the "
 "organization."
+msgstr ""
+
+#: warehouse/templates/email/team-deleted/body.html:18
+#, python-format
+msgid ""
+"A team named \"%(team_name)s\" has been deleted in the "
+"\"%(organization_name)s\" organization."
 msgstr ""
 
 #: warehouse/templates/email/team-member-added/body.html:18

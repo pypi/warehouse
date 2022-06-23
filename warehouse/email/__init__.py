@@ -591,6 +591,14 @@ def send_team_created_email(request, user, *, organization_name, team_name):
     }
 
 
+@_email("team-deleted")
+def send_team_deleted_email(request, user, *, organization_name, team_name):
+    return {
+        "organization_name": organization_name,
+        "team_name": team_name,
+    }
+
+
 @_email("team-member-added")
 def send_team_member_added_email(
     request,

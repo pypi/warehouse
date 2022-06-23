@@ -4551,22 +4551,22 @@ class TestManageTeamSettings:
         db_request.POST = MultiDict({"confirm_team_name": team.name})
         db_request.route_path = pretend.call_recorder(lambda *a, **kw: "/foo/bar/")
 
-        # send_email = pretend.call_recorder(lambda *a, **kw: None)
-        # monkeypatch.setattr(views, "send_team_deleted_email", send_email)
+        send_email = pretend.call_recorder(lambda *a, **kw: None)
+        monkeypatch.setattr(views, "send_team_deleted_email", send_email)
 
         view = views.ManageTeamSettingsViews(team, db_request)
         result = view.delete_team()
 
         assert isinstance(result, HTTPSeeOther)
         assert result.headers["Location"] == "/foo/bar/"
-        # assert send_email.calls == [
-        #     pretend.call(
-        #         db_request,
-        #         {},
-        #         organization_name=team.organization.name,
-        #         team_name=team.name,
-        #     ),
-        # ]
+        assert send_email.calls == [
+            pretend.call(
+                db_request,
+                set(),
+                organization_name=team.organization.name,
+                team_name=team.name,
+            ),
+        ]
 
     def test_delete_team_no_confirm(
         self,

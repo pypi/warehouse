@@ -77,6 +77,7 @@ from warehouse.email import (
     send_role_changed_as_collaborator_email,
     send_role_changed_as_organization_member_email,
     send_team_created_email,
+    send_team_deleted_email,
     send_team_member_added_email,
     send_team_member_removed_email,
     send_two_factor_added_email,
@@ -2191,17 +2192,17 @@ class ManageTeamSettingsViews:
             },
         )
 
-        # TODO Send notification emails.
-        # owner_and_manager_users = set(
-        #     organization_owners(self.request, organization)
-        #     + organization_managers(self.request, organization)
-        # )
-        # send_team_deleted_email(
-        #     self.request,
-        #     owner_and_manager_users,
-        #     organization_name=organization.name,
-        #     team_name=team_name,
-        # )
+        # Send notification emails.
+        owner_and_manager_users = set(
+            organization_owners(self.request, organization)
+            + organization_managers(self.request, organization)
+        )
+        send_team_deleted_email(
+            self.request,
+            owner_and_manager_users,
+            organization_name=organization.name,
+            team_name=team_name,
+        )
 
         # Display notification message.
         self.request.session.flash("Team deleted", queue="success")

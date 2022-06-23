@@ -2893,6 +2893,7 @@ class TestTeamEmails:
         ("email_template_name", "send_team_email"),
         [
             ("team-created", email.send_team_created_email),
+            ("team-deleted", email.send_team_deleted_email),
         ],
     )
     def test_send_team_email(
