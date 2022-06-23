@@ -197,6 +197,26 @@ class Organization(HasEvents, db.Model):
         "Project", secondary=OrganizationProject.__table__, back_populates="organization", viewonly=True  # type: ignore # noqa
     )
 
+    @property
+    def owners(self):
+        """Return all users who are owners of the organization."""
+        owner_roles = (
+            orm.object_session(self)
+            .query(User.id)
+            .join(OrganizationRole.user)
+            .filter(
+                OrganizationRole.role_name == OrganizationRoleType.Owner,
+                OrganizationRole.organization == self,
+            )
+            .subquery()
+        )
+        return (
+            orm.object_session(self)
+            .query(User)
+            .join(owner_roles, User.id == owner_roles.c.id)
+            .all()
+        )
+
     def record_event(self, *, tag, ip_address, additional={}):
         """Record organization name in events in case organization is ever deleted."""
         super().record_event(

@@ -444,6 +444,9 @@ def configure(settings=None):
     jglobals.setdefault(
         "RoleInvitationStatus", "warehouse.packaging.models:RoleInvitationStatus"
     )
+    jglobals.setdefault(
+        "TeamProjectRoleType", "warehouse.organizations.models:TeamProjectRoleType"
+    )
 
     # We'll store all of our templates in one location, warehouse/templates
     # so we'll go ahead and add that to the Jinja2 search path.

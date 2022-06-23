@@ -38,23 +38,91 @@
     <button type="button" title="{% trans %}Dismiss{% endtrans %}" data-action="click->dismissable#dismiss" class="callout-block__dismiss" aria-label="{% trans %}Close{% endtrans %}"><i class="fa fa-times" aria-hidden="true"></i></button>
     <p>{% trans %}There are two possible roles for collaborators:{% endtrans %}</p>
     <dl>
-      <dt>{% trans %}Maintainer{% endtrans %}</dt>
+      <dt>{% trans %}Upload{% endtrans %}</dt>
       <dd>{% trans %}Can upload releases for a package. Cannot invite collaborators. Cannot delete files, releases, or the project.{% endtrans %}</dd>
-      <dt>{% trans %}Owner{% endtrans %}</dt>
+      <dt>{% trans %}Admin{% endtrans %}</dt>
       <dd>{% trans %}Can upload releases. Can invite other collaborators. Can delete files, releases, or the entire project.{% endtrans %}</dd>
     </dl>
   </div>
   <table class="table table--collaborators">
-    <caption class="sr-only">{% trans project_name=project.name %}Users who can manage {{ project_name }}{% endtrans %}</caption>
+    <caption class="sr-only">{% trans project_name=project.name %}Collaborators who can manage {{ project_name }}{% endtrans %}</caption>
     <thead>
       <tr>
-        <th scope="col">{% trans %}User{% endtrans %}</th>
+        <th scope="col">{% trans %}Collaborator{% endtrans %}</th>
         <th scope="col">{% trans %}Role{% endtrans %}</th>
-        <th scope="col">{% trans %}2FA{% endtrans %}</th>
+        <th></th>
         <th></th>
       </tr>
     </thead>
     <tbody>
+    {% for role in team_project_roles|sort(attribute="team.name") %}
+      <tr>
+        <th scope="row">
+          <a href="{{ request.route_path('manage.team.roles', organization_name=role.team.organization.normalized_name, team_name=role.team.normalized_name) }}" class="table__user-details">
+            <span class="table__user-gravatar">
+              <i class="fa fa-2x fa-users" aria-hidden="true"></i>
+            </span>
+            <span class="table__user-text">
+              <strong>{{ role.team.organization.display_name }}</strong>
+              <br><span>{{ role.team.name }}</span>
+            </span>
+          </a>
+        </th>
+        <td>
+        {% if request.user in role.team.users and request.user not in project.organization.owners %}
+          {% if role.role_name == TeamProjectRoleType.Admin %}
+              {% trans %}Admin{% endtrans %}
+          {% elif role.role_name == TeamProjectRoleType.Upload %}
+              {% trans %}Upload{% endtrans %}
+          {% endif %}
+        {% else %}
+          <form class="table__change-role" method="POST" action="{{ request.route_path('manage.project.change_team_project_role', project_name=project.name) }}">
+            <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
+            <input type="hidden" name="role_id" value="{{ role.id }}">
+
+            <label for="role-for-{{ role.id }}" class="sr-only">{% trans %}Role{% endtrans %}</label>
+            <select id="role-for-{{ role.id }}" class="table__change-field" name="team_project_role_name" data-original="{{ role.role_name.value }}" autocomplete="off">
+            {% for role_name, role_name_label in [('Admin', gettext('Admin')), ('Upload', gettext('Upload'))] %}
+            <option value="{{ role_name }}" {{ 'selected' if role_name == role.role_name.value else '' }}>
+              {{ role_name_label }}
+            </option>
+            {% endfor %}
+            </select>
+            <button type="submit" class="button button--primary table__change-button" title="{% trans %}Save role{% endtrans %}">
+              {% trans %}Save{% endtrans %}
+            </button>
+          </form>
+        {% endif %}
+        </td>
+        <td>
+          <a href="{{ request.route_path('manage.team.roles', organization_name=role.team.organization.normalized_name, team_name=role.team.normalized_name) }}" class="table__user-details">
+            {% trans count=role.team.users|length %}
+            {{ count }} member
+            {% pluralize %}
+            {{ count }} members
+            {% endtrans %}
+          </a>
+        </td>
+        <td class="table__align-right">
+          <form method="POST" action="{{ request.route_path('manage.project.delete_team_project_role', project_name=project.name) }}">
+            <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
+            <input type="hidden" name="role_id" value="{{ role.id }}">
+            <button
+              type="submit"
+              class="button"
+              {% if role.role_name == TeamProjectRoleType.Admin and request.user in role.team.users and request.user not in project.organization.owners %}
+                title="{% trans %}Cannot remove yourself as Admin{% endtrans %}"
+                disabled
+              {% else %}
+                title="{% trans collaborator=role.team.name %}Remove {{ collaborator }} from this project{% endtrans %}"
+              {% endif %}
+            >
+            Remove
+            </button>
+          </form>
+        </td>
+      </tr>
+    {% endfor %}
     {% for role in roles|sort(attribute="user.username") %}
       <tr>
         <th scope="row">
@@ -74,9 +142,9 @@
         <td>
         {% if role.user == request.user %}
           {% if role.role_name == "Owner" %}
-              {% trans %}Owner{% endtrans %}
+              {% trans %}Admin{% endtrans %}
           {% elif role.role_name == "Maintainer" %}
-              {% trans %}Maintainer{% endtrans %}
+              {% trans %}Upload{% endtrans %}
           {% endif %}
         {% else %}
           <form class="table__change-role" method="POST" action="{{ request.route_path('manage.project.change_role', project_name=project.name) }}">
@@ -85,7 +153,7 @@
 
             <label for="role-for-{{ role.id }}" class="sr-only">{% trans %}Role{% endtrans %}</label>
             <select id="role-for-{{ role.id }}" class="table__change-field" name="role_name" data-original="{{ role.role_name }}" autocomplete="off">
-            {% for role_name, role_name_label in [('Owner', gettext('Owner')), ('Maintainer', gettext('Maintainer'))] %}
+            {% for role_name, role_name_label in [('Owner', gettext('Admin')), ('Maintainer', gettext('Upload'))] %}
             <option value="{{ role_name }}" {{ 'selected' if role_name == role.role_name else '' }}>
               {{ role_name_label }}
             </option>
@@ -106,10 +174,10 @@
               type="submit"
               class="button"
               {% if (role.role_name == "Owner" and request.user.username == role.user.username) %}
-                title="{% trans %}Cannot remove yourself as owner{% endtrans %}"
+                title="{% trans %}Cannot remove yourself as Admin{% endtrans %}"
                 disabled
               {% else %}
-                title="{% trans user=role.user.username %}Remove {{ user }} from this project{% endtrans %}"
+                title="{% trans collaborator=role.user.username %}Remove {{ collaborator }} from this project{% endtrans %}"
               {% endif %}
             >
             Remove
@@ -160,7 +228,93 @@
     </tbody>
   </table>
 
-  <h3>{% trans %}Invite collaborator{% endtrans %}</h3>
+  {% if enable_internal_collaborator %}
+  <h3>
+    {% trans %}Add internal collaborator{% endtrans %}
+  </h3>
+  <form class="radio-toggle-form" method="POST">
+    <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
+
+    {# Team or member? radio buttons should be siblings of div.form-group below. #}
+      <label class="form-group__label" for="is_team">
+        {% trans %}️Team or member?{% endtrans %}
+      </label>
+      {% for subfield in internal_role_form.is_team %}
+      {{ subfield(**{"data-target": ".radio-toggle-" + loop.index|string}) }}
+      {{ subfield.label }}
+      {% endfor %}
+      <div id="is-team-errors">
+        {{ field_errors(internal_role_form.is_team) }}
+      </div>
+      <p class="form-group__help-text">
+        {% trans %}Add a team or an individual member as a collaborator.{% endtrans %}
+      </p>
+      <p class="form-group__text"></p>
+    {# end radio buttons #}
+
+    {# Form fields for adding team as internal collaborator. #}
+    <div class="form-group radio-toggle radio-toggle-1">
+      <label class="form-group__label" for="team_name">
+        {% trans %}️Name of team{% endtrans %}
+        <span class="form-group__required">{% trans %}(required){% endtrans %}</span>
+      </label>
+      {% set no_teams = internal_role_form.team_name.choices|length <= 1 %}
+      {{ internal_role_form.team_name(class_="form-group__field", disabled=no_teams, title=gettext("There are no teams in the organization.") if no_teams else "", **{"aria-describedby":"team-errors"}) }}
+      <div id="team-errors">
+        {{ field_errors(internal_role_form.team_name) }}
+      </div>
+    </div>
+    <div class="form-group radio-toggle radio-toggle-1">
+      <label for="team_project_role_name" class="form-group__label">
+        {% trans %}Role{% endtrans %}
+        <span class="form-group__required">{% trans %}(required){% endtrans %}</span>
+      </label>
+      {{ internal_role_form.team_project_role_name(class_="form-group__field", autocomplete="off", **{"aria-describedby":"team-project-role-errors"}) }}
+      <div id="team-project-role-errors">
+        {{ field_errors(internal_role_form.team_project_role_name) }}
+      </div>
+    </div>
+
+    {# Form fields for adding member as internal collaborator. #}
+    <div class="form-group radio-toggle radio-toggle-2">
+      <label for="username" class="form-group__label">
+        {% trans %}Member{% endtrans %}
+        <span class="form-group__required">{% trans %}(required){% endtrans %}</span>
+      </label>
+      {{ internal_role_form.username(placeholder=gettext("Username"), list="organization-users", autocomplete="off", autocapitalize="off", spellcheck="false", class_="form-group__field", **{"aria-describedby":"user-errors"}) }}
+      <datalist id="organization-users">
+        {% for username in internal_role_form.user_choices %}
+        <option value="{{ username }}">{{ username }}</option>
+        {% endfor %}
+      </datalist>
+      <div id="user-errors">
+        {{ field_errors(internal_role_form.username) }}
+      </div>
+    </div>
+    <div class="form-group radio-toggle radio-toggle-2">
+      <label for="role_name" class="form-group__label">
+        {% trans %}Role{% endtrans %}
+        <span class="form-group__required">{% trans %}(required){% endtrans %}</span>
+      </label>
+      {{ internal_role_form.role_name(class_="form-group__field", autocomplete="off", **{"aria-describedby":"role-errors"}) }}
+      <div id="role-errors">
+        {{ field_errors(internal_role_form.role_name) }}
+      </div>
+    </div>
+
+    <div>
+      <input type="submit" value="{% trans %}Add{% endtrans %}" class="button button--primary">
+    </div>
+  </form>
+  {% endif %}
+
+  <h3>
+    {% if enable_internal_collaborator %}
+    {% trans %}Invite external collaborator{% endtrans %}
+    {% else %}
+    {% trans %}Invite collaborator{% endtrans %}
+    {% endif %}
+  </h3>
   <form method="POST">
     <div class="form-group">
       <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">

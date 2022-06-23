@@ -289,7 +289,7 @@ class Project(SitemapMixin, TwoFactorRequireable, HasEvents, db.Model):
 
     @property
     def owners(self):
-        """Return all owners who are owners of the project."""
+        """Return all users who are owners of the project."""
         owner_roles = (
             orm.object_session(self)
             .query(User.id)
