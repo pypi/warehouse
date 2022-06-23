@@ -121,7 +121,7 @@ msgstr ""
 msgid "Successful WebAuthn assertion"
 msgstr ""
 
-#: warehouse/accounts/views.py:447 warehouse/manage/views.py:899
+#: warehouse/accounts/views.py:447 warehouse/manage/views.py:903
 msgid "Recovery code accepted. The supplied code cannot be used again."
 msgstr ""
 
@@ -332,69 +332,69 @@ msgstr ""
 msgid "This team name has already been used. Choose a different team name."
 msgstr ""
 
-#: warehouse/manage/views.py:330
+#: warehouse/manage/views.py:334
 msgid "Email ${email_address} added - check your email for a verification link"
 msgstr ""
 
-#: warehouse/manage/views.py:847
+#: warehouse/manage/views.py:851
 msgid "Recovery codes already generated"
 msgstr ""
 
-#: warehouse/manage/views.py:848
+#: warehouse/manage/views.py:852
 msgid "Generating new recovery codes will invalidate your existing codes."
 msgstr ""
 
-#: warehouse/manage/views.py:1770
+#: warehouse/manage/views.py:1774
 msgid "User '${username}' already has ${role_name} role for organization"
 msgstr ""
 
-#: warehouse/manage/views.py:1781
+#: warehouse/manage/views.py:1785
 msgid ""
 "User '${username}' does not have a verified primary email address and "
 "cannot be added as a ${role_name} for organization"
 msgstr ""
 
-#: warehouse/manage/views.py:1795 warehouse/manage/views.py:3639
+#: warehouse/manage/views.py:1799 warehouse/manage/views.py:3643
 msgid "User '${username}' already has an active invite. Please try again later."
 msgstr ""
 
-#: warehouse/manage/views.py:1852 warehouse/manage/views.py:3697
+#: warehouse/manage/views.py:1856 warehouse/manage/views.py:3701
 msgid "Invitation sent to '${username}'"
 msgstr ""
 
-#: warehouse/manage/views.py:1895
+#: warehouse/manage/views.py:1899
 msgid "Could not find organization invitation."
 msgstr ""
 
-#: warehouse/manage/views.py:1909 warehouse/manage/views.py:3755
+#: warehouse/manage/views.py:1913 warehouse/manage/views.py:3759
 msgid "Invitation already expired."
 msgstr ""
 
-#: warehouse/manage/views.py:1942 warehouse/manage/views.py:3779
+#: warehouse/manage/views.py:1946 warehouse/manage/views.py:3783
 msgid "Invitation revoked from '${username}'."
 msgstr ""
 
-#: warehouse/manage/views.py:2329
+#: warehouse/manage/views.py:2333
 msgid "User '${username}' is already a team member"
 msgstr ""
 
-#: warehouse/manage/views.py:2710
+#: warehouse/manage/views.py:2714
 msgid ""
 "There have been too many attempted OpenID Connect registrations. Try "
 "again later."
 msgstr ""
 
-#: warehouse/manage/views.py:3615
+#: warehouse/manage/views.py:3619
 msgid "User '${username}' already has ${role_name} role for project"
 msgstr ""
 
-#: warehouse/manage/views.py:3626
+#: warehouse/manage/views.py:3630
 msgid ""
 "User '${username}' does not have a verified primary email address and "
 "cannot be added as a ${role_name} for project"
 msgstr ""
 
-#: warehouse/manage/views.py:3744
+#: warehouse/manage/views.py:3748
 msgid "Could not find role invitation."
 msgstr ""
 
@@ -1479,6 +1479,18 @@ msgstr ""
 msgid "You are receiving this because you are a member of this organization."
 msgstr ""
 
+#: warehouse/templates/email/added-as-team-member/body.html:18
+#, python-format
+msgid ""
+"You have been added as a member of the \"%(team_name)s\" team in the "
+"\"%(organization_name)s\" organization by <a "
+"href=\"%(submitter_profile)s\">%(submitter)s</a>."
+msgstr ""
+
+#: warehouse/templates/email/added-as-team-member/body.html:24
+msgid "You are receiving this because you are a member of this team."
+msgstr ""
+
 #: warehouse/templates/email/admin-organization-deleted/body.html:27
 #: warehouse/templates/email/organization-deleted/body.html:27
 #, python-format
@@ -1982,6 +1994,17 @@ msgstr ""
 msgid "You are receiving this because you were a member of this organization."
 msgstr ""
 
+#: warehouse/templates/email/removed-as-team-member/body.html:18
+#, python-format
+msgid ""
+"You have been removed from the \"%(team_name)s\" team in the "
+"\"%(organization_name)s\" organization"
+msgstr ""
+
+#: warehouse/templates/email/removed-as-team-member/body.html:23
+msgid "You are receiving this because you were a member of this team."
+msgstr ""
+
 #: warehouse/templates/email/role-changed-as-organization-member/body.html:20
 #, python-format
 msgid ""
@@ -1997,9 +2020,27 @@ msgid ""
 msgstr ""
 
 #: warehouse/templates/email/team-created/body.html:24
+#: warehouse/templates/email/team-member-added/body.html:24
+#: warehouse/templates/email/team-member-removed/body.html:24
 msgid ""
 "You are receiving this because you are an owner or a manager of the "
 "organization."
+msgstr ""
+
+#: warehouse/templates/email/team-member-added/body.html:18
+#, python-format
+msgid ""
+"<a href=\"%(user_profile)s\">%(username)s</a> has been added as a member "
+"of the \"%(team_name)s\" team in the \"%(organization_name)s\" "
+"organization by <a href=\"%(submitter_profile)s\">%(submitter)s</a>."
+msgstr ""
+
+#: warehouse/templates/email/team-member-removed/body.html:18
+#, python-format
+msgid ""
+"<a href=\"%(user_profile)s\">%(username)s</a> has been removed as a "
+"member of the \"%(team_name)s\" team in the \"%(organization_name)s\" "
+"organization by <a href=\"%(submitter_profile)s\">%(submitter)s</a>."
 msgstr ""
 
 #: warehouse/templates/email/two-factor-added/body.html:18

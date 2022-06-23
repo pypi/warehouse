@@ -44,6 +44,7 @@ from warehouse.accounts.views import logout
 from warehouse.admin.flags import AdminFlagValue
 from warehouse.email import (
     send_account_deletion_email,
+    send_added_as_team_member_email,
     send_admin_new_organization_requested_email,
     send_admin_organization_deleted_email,
     send_admin_organization_renamed_email,
@@ -69,12 +70,15 @@ from warehouse.email import (
     send_recovery_codes_generated_email,
     send_removed_as_collaborator_email,
     send_removed_as_organization_member_email,
+    send_removed_as_team_member_email,
     send_removed_project_email,
     send_removed_project_release_email,
     send_removed_project_release_file_email,
     send_role_changed_as_collaborator_email,
     send_role_changed_as_organization_member_email,
     send_team_created_email,
+    send_team_member_added_email,
+    send_team_member_removed_email,
     send_two_factor_added_email,
     send_two_factor_removed_email,
     send_unyanked_project_release_email,
@@ -2363,27 +2367,27 @@ class ManageTeamRolesViews:
             },
         )
 
-        # TODO Send notification emails.
-        # owner_and_manager_users = set(
-        #     organization_owners(self.request, self.team.organization)
-        #     + organization_managers(self.request, self.team.organization)
-        # )
-        # owner_and_manager_users.discard(role.user)
-        # send_team_member_added_email(
-        #     self.request,
-        #     owner_and_manager_users,
-        #     user=role.user,
-        #     submitter=self.request.user,
-        #     organization_name=self.team.organization.name,
-        #     team_name=self.team.name,
-        # )
-        # send_added_as_team_member_email(
-        #     self.request,
-        #     role.user,
-        #     submitter=self.request.user,
-        #     organization_name=self.team.organization.name,
-        #     team_name=self.team.name,
-        # )
+        # Send notification emails.
+        owner_and_manager_users = set(
+            organization_owners(self.request, self.team.organization)
+            + organization_managers(self.request, self.team.organization)
+        )
+        owner_and_manager_users.discard(role.user)
+        send_team_member_added_email(
+            self.request,
+            owner_and_manager_users,
+            user=role.user,
+            submitter=self.request.user,
+            organization_name=self.team.organization.name,
+            team_name=self.team.name,
+        )
+        send_added_as_team_member_email(
+            self.request,
+            role.user,
+            submitter=self.request.user,
+            organization_name=self.team.organization.name,
+            team_name=self.team.name,
+        )
 
         # Display notification message.
         self.request.session.flash(
@@ -2440,27 +2444,27 @@ class ManageTeamRolesViews:
                 },
             )
 
-            # TODO Send notification emails.
-            # owner_and_manager_users = set(
-            #     organization_owners(self.request, self.team.organization)
-            #     + organization_managers(self.request, self.team.organization)
-            # )
-            # owner_and_manager_users.discard(role.user)
-            # send_team_member_removed_email(
-            #     self.request,
-            #     owner_and_manager_users,
-            #     user=role.user,
-            #     submitter=self.request.user,
-            #     organization_name=self.team.organization.name,
-            #     team_name=self.team.name,
-            # )
-            # send_removed_as_team_member_email(
-            #     self.request,
-            #     role.user,
-            #     submitter=self.request.user,
-            #     organization_name=self.team.organization.name,
-            #     team_name=self.team.name,
-            # )
+            # Send notification emails.
+            owner_and_manager_users = set(
+                organization_owners(self.request, self.team.organization)
+                + organization_managers(self.request, self.team.organization)
+            )
+            owner_and_manager_users.discard(role.user)
+            send_team_member_removed_email(
+                self.request,
+                owner_and_manager_users,
+                user=role.user,
+                submitter=self.request.user,
+                organization_name=self.team.organization.name,
+                team_name=self.team.name,
+            )
+            send_removed_as_team_member_email(
+                self.request,
+                role.user,
+                submitter=self.request.user,
+                organization_name=self.team.organization.name,
+                team_name=self.team.name,
+            )
 
             # Display notification message.
             self.request.session.flash("Removed from team", queue="success")

@@ -2794,6 +2794,94 @@ class TestOrganizationDeleteEmails:
         ]
 
 
+class TestTeamMemberEmails:
+    @pytest.fixture
+    def team(self, pyramid_user):
+        self.user = UserFactory.create()
+        EmailFactory.create(user=self.user, verified=True)
+        self.submitter = pyramid_user
+        self.organization_name = "exampleorganization"
+        self.team_name = "Example Team"
+
+    @pytest.mark.parametrize(
+        ("email_template_name", "send_team_member_email"),
+        [
+            ("added-as-team-member", email.send_added_as_team_member_email),
+            ("removed-as-team-member", email.send_removed_as_team_member_email),
+            ("team-member-added", email.send_team_member_added_email),
+            ("team-member-removed", email.send_team_member_removed_email),
+        ],
+    )
+    def test_send_team_email(
+        self,
+        db_request,
+        team,
+        make_email_renderers,
+        send_email,
+        email_template_name,
+        send_team_member_email,
+    ):
+        subject_renderer, body_renderer, html_renderer = make_email_renderers(
+            email_template_name
+        )
+
+        if email_template_name.endswith("-as-team-member"):
+            recipient = self.user
+            result = send_team_member_email(
+                db_request,
+                self.user,
+                submitter=self.submitter,
+                organization_name=self.organization_name,
+                team_name=self.team_name,
+            )
+        else:
+            recipient = self.submitter
+            result = send_team_member_email(
+                db_request,
+                self.submitter,
+                user=self.user,
+                submitter=self.submitter,
+                organization_name=self.organization_name,
+                team_name=self.team_name,
+            )
+
+        assert result == {
+            "username": self.user.username,
+            "submitter": self.submitter.username,
+            "organization_name": self.organization_name,
+            "team_name": self.team_name,
+        }
+        subject_renderer.assert_(**result)
+        body_renderer.assert_(**result)
+        html_renderer.assert_(**result)
+        assert db_request.task.calls == [pretend.call(send_email)]
+        assert send_email.delay.calls == [
+            pretend.call(
+                f"{recipient.name} <{recipient.email}>",
+                {
+                    "subject": subject_renderer.string_response,
+                    "body_text": body_renderer.string_response,
+                    "body_html": (
+                        f"<html>\n"
+                        f"<head></head>\n"
+                        f"<body><p>{html_renderer.string_response}</p></body>\n"
+                        f"</html>\n"
+                    ),
+                },
+                {
+                    "tag": "account:email:sent",
+                    "user_id": recipient.id,
+                    "additional": {
+                        "from_": db_request.registry.settings["mail.sender"],
+                        "to": recipient.email,
+                        "subject": subject_renderer.string_response,
+                        "redact_ip": recipient != self.submitter,
+                    },
+                },
+            )
+        ]
+
+
 class TestTeamEmails:
     @pytest.fixture
     def team(self, pyramid_user):

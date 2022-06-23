@@ -4732,18 +4732,18 @@ class TestManageTeamRoles:
             flash=pretend.call_recorder(lambda *a, **kw: None)
         )
 
-        # send_team_member_added_email = pretend.call_recorder(lambda *a, **kw: None)
-        # monkeypatch.setattr(
-        #     views,
-        #     "send_team_member_added_email",
-        #     send_team_member_added_email,
-        # )
-        # send_added_as_team_member_email = pretend.call_recorder(lambda *a, **kw: None)
-        # monkeypatch.setattr(
-        #     views,
-        #     "send_added_as_team_member_email",
-        #     send_added_as_team_member_email,
-        # )
+        send_team_member_added_email = pretend.call_recorder(lambda *a, **kw: None)
+        monkeypatch.setattr(
+            views,
+            "send_team_member_added_email",
+            send_team_member_added_email,
+        )
+        send_added_as_team_member_email = pretend.call_recorder(lambda *a, **kw: None)
+        monkeypatch.setattr(
+            views,
+            "send_added_as_team_member_email",
+            send_added_as_team_member_email,
+        )
 
         view = views.ManageTeamRolesViews(team, db_request)
         result = view.create_team_role()
@@ -4752,25 +4752,25 @@ class TestManageTeamRoles:
         assert len(roles) == 1
         assert roles[0].team_id == team.id
         assert roles[0].user_id == member.id
-        # assert send_team_member_added_email.calls == [
-        #     pretend.call(
-        #         db_request,
-        #         {owner, manager},
-        #         user=member,
-        #         submitter=db_request.user,
-        #         organization_name=team.organization.name,
-        #         team_name=team.name,
-        #     )
-        # ]
-        # assert send_added_as_team_member_email.calls == [
-        #     pretend.call(
-        #         db_request,
-        #         member,
-        #         submitter=db_request.user,
-        #         organization_name=team.organization.name,
-        #         team_name=team.name,
-        #     )
-        # ]
+        assert send_team_member_added_email.calls == [
+            pretend.call(
+                db_request,
+                {owner, manager},
+                user=member,
+                submitter=db_request.user,
+                organization_name=team.organization.name,
+                team_name=team.name,
+            )
+        ]
+        assert send_added_as_team_member_email.calls == [
+            pretend.call(
+                db_request,
+                member,
+                submitter=db_request.user,
+                organization_name=team.organization.name,
+                team_name=team.name,
+            )
+        ]
         assert db_request.session.flash.calls == [
             pretend.call(
                 f"Added the team {team.name!r} to {team.organization.name!r}",
@@ -4894,6 +4894,7 @@ class TestManageTeamRoles:
         organization_service,
         user_service,
         enable_organizations,
+        monkeypatch,
     ):
         organization = OrganizationFactory.create()
         team = TeamFactory(organization=organization)
@@ -4928,10 +4929,42 @@ class TestManageTeamRoles:
             flash=pretend.call_recorder(lambda *a, **kw: None)
         )
 
+        send_team_member_removed_email = pretend.call_recorder(lambda *a, **kw: None)
+        monkeypatch.setattr(
+            views,
+            "send_team_member_removed_email",
+            send_team_member_removed_email,
+        )
+        send_removed_as_team_member_email = pretend.call_recorder(lambda *a, **kw: None)
+        monkeypatch.setattr(
+            views,
+            "send_removed_as_team_member_email",
+            send_removed_as_team_member_email,
+        )
+
         view = views.ManageTeamRolesViews(team, db_request)
         result = view.delete_team_role()
 
         assert organization_service.get_team_roles(team.id) == []
+        assert send_team_member_removed_email.calls == [
+            pretend.call(
+                db_request,
+                {owner, manager},
+                user=member,
+                submitter=db_request.user,
+                organization_name=team.organization.name,
+                team_name=team.name,
+            )
+        ]
+        assert send_removed_as_team_member_email.calls == [
+            pretend.call(
+                db_request,
+                member,
+                submitter=db_request.user,
+                organization_name=team.organization.name,
+                team_name=team.name,
+            )
+        ]
         assert db_request.session.flash.calls == [
             pretend.call("Removed from team", queue="success")
         ]

@@ -591,6 +591,76 @@ def send_team_created_email(request, user, *, organization_name, team_name):
     }
 
 
+@_email("team-member-added")
+def send_team_member_added_email(
+    request,
+    email_recipients,
+    *,
+    user,
+    submitter,
+    organization_name,
+    team_name,
+):
+    return {
+        "username": user.username,
+        "submitter": submitter.username,
+        "organization_name": organization_name,
+        "team_name": team_name,
+    }
+
+
+@_email("added-as-team-member")
+def send_added_as_team_member_email(
+    request,
+    user,
+    *,
+    submitter,
+    organization_name,
+    team_name,
+):
+    return {
+        "username": user.username,
+        "submitter": submitter.username,
+        "organization_name": organization_name,
+        "team_name": team_name,
+    }
+
+
+@_email("team-member-removed")
+def send_team_member_removed_email(
+    request,
+    email_recipients,
+    *,
+    user,
+    submitter,
+    organization_name,
+    team_name,
+):
+    return {
+        "username": user.username,
+        "submitter": submitter.username,
+        "organization_name": organization_name,
+        "team_name": team_name,
+    }
+
+
+@_email("removed-as-team-member")
+def send_removed_as_team_member_email(
+    request,
+    user,
+    *,
+    submitter,
+    organization_name,
+    team_name,
+):
+    return {
+        "username": user.username,
+        "submitter": submitter.username,
+        "organization_name": organization_name,
+        "team_name": team_name,
+    }
+
+
 @_email("verify-project-role", allow_unverified=True)
 def send_project_role_verification_email(
     request,
