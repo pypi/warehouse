@@ -1746,7 +1746,7 @@ msgstr ""
 #, python-format
 msgid ""
 "<a href=\"%(user_profile)s\">%(username)s</a> has been removed from the "
-"\"%(organization_nmae)s\" organization"
+"\"%(organization_name)s\" organization"
 msgstr ""
 
 #: warehouse/templates/email/organization-member-removed/body.html:32
