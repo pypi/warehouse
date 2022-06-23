@@ -21,7 +21,7 @@
 
       <p>{% trans %}We take security very seriously and ask that you follow our security policy carefully.{% endtrans %}</p>
       <div class="callout-block callout-block--danger">
-        <p><strong>{% trans %}Important!{% endtrans %}</strong> {% trans %}If you believe you've identified a security issue with Warehouse, <strong>DO NOT</strong> report the issue in any public forum, including (but not limited to):{% endtrans %}</p>
+        <p><strong>{% trans %}Important!{% endtrans %}</strong> {% trans %}If you believe you've identified a security issue with PyPI, <strong>DO NOT</strong> report the issue in any public forum, including (but not limited to):{% endtrans %}</p>
 
         <ul class="unstyled">
           <li><i class="fa fa-times danger" aria-hidden="true"></i> {% trans %}Our GitHub issue tracker{% endtrans %}</li>
@@ -32,16 +32,24 @@
 
       <br>
 
-      <p>{% trans href='mailto:security@python.org' %}Instead, email <a href="{{ href }}">security at python dot org</a> directly, providing as much relevant information as possible.{% endtrans %}</p>
-      <p>{% trans href='https://www.python.org/dev/security/', title=gettext('External link') %}Messages may be optionally encrypted with GPG using key fingerprints available <a href="{{ href }}" title="{{ title }}" target="_blank" rel="noopener">at the Python Security page</a>.{% endtrans %}</p>
+      <h2>{% trans %}If you've identified a security issue with a project hosted on PyPI{% endtrans %}</h2>
+      <p>{% trans href='mailto:security@pypi.org' %}Email <a href="{{ href }}">security@pypi.org</a>, providing the following details:{% endtrans %}</p>
+      <ul>
+          <li>{% trans %}A URL to the project in question{% endtrans %}</li>
+          <li>{% trans %}An explanation of what makes the project a security issue{% endtrans %}</li>
+          <li>{% trans href='https://inspector.pypi.io/' %}If applicable: a link to the problematic lines in the project's distributions via <a href="{{ href }}">inspector.pypi.io</a>{% endtrans %}</li>
+      </ul>
+      <p>{% trans %}Valid malware reports may include examples of typo-squatting, dependency confusion, data exfiltration, obfustication, command/control, etc.{% endtrans %}</p>
+
+      <h2>{% trans %}If you've identified a security issue with PyPI itself (not a project hosted on PyPI){% endtrans %}</h2>
+      <p>{% trans href='mailto:security@pypi.org' %}Email <a href="{{ href }}">security@pypi.org</a>, providing as much relevant information as possible, including reproducing steps.{% endtrans %}</p>
 
       <h2>{% trans %}What happens next?{% endtrans %}</h2>
-
       <p>{% trans %}Once you've submitted an issue via email, you should receive an acknowledgment within 48 hours.{% endtrans %}</p>
       <p>{% trans %}Depending on the action to be taken, you may receive further follow-up emails.{% endtrans %}</p>
 
       <br>
-      <p><strong>{% trans %}This security policy was last updated on March 14, 2018.{% endtrans %}</strong></p>
+      <p><i>{% trans %}This security policy was last updated on June 2022.{% endtrans %}</i></p>
     </div>
   </div>
 {% endblock %}
