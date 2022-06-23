@@ -395,6 +395,20 @@ def includeme(config):
         domain=warehouse,
     )
     config.add_route(
+        "manage.project.change_team_project_role",
+        "/manage/project/{project_name}/collaboration/change_team/",
+        factory="warehouse.packaging.models:ProjectFactory",
+        traverse="/{project_name}",
+        domain=warehouse,
+    )
+    config.add_route(
+        "manage.project.delete_team_project_role",
+        "/manage/project/{project_name}/collaboration/delete_team/",
+        factory="warehouse.packaging.models:ProjectFactory",
+        traverse="/{project_name}",
+        domain=warehouse,
+    )
+    config.add_route(
         "manage.project.documentation",
         "/manage/project/{project_name}/documentation/",
         factory="warehouse.packaging.models:ProjectFactory",

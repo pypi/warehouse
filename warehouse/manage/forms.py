@@ -27,7 +27,11 @@ from warehouse.accounts.forms import (
     WebAuthnCredentialMixin,
 )
 from warehouse.i18n import localize as _
-from warehouse.organizations.models import OrganizationRoleType, OrganizationType
+from warehouse.organizations.models import (
+    OrganizationRoleType,
+    OrganizationType,
+    TeamProjectRoleType,
+)
 
 # /manage/account/ forms
 
@@ -36,7 +40,17 @@ class RoleNameMixin:
 
     role_name = wtforms.SelectField(
         "Select role",
-        choices=[("", "Select role"), ("Maintainer", "Maintainer"), ("Owner", "Owner")],
+        choices=[("", "Select role"), ("Maintainer", "Upload"), ("Owner", "Admin")],
+        validators=[wtforms.validators.DataRequired(message="Select role")],
+    )
+
+
+class TeamProjectRoleNameMixin:
+
+    team_project_role_name = wtforms.SelectField(
+        "Select role",
+        choices=[("", "Select role"), ("Upload", "Upload"), ("Admin", "Admin")],
+        coerce=lambda string: TeamProjectRoleType(string) if string else None,
         validators=[wtforms.validators.DataRequired(message="Select role")],
     )
 
@@ -62,7 +76,55 @@ class CreateRoleForm(RoleNameMixin, UsernameMixin, forms.Form):
         self.user_service = user_service
 
 
+class CreateInternalRoleForm(
+    RoleNameMixin,
+    TeamProjectRoleNameMixin,
+    UsernameMixin,
+    forms.Form,
+):
+    is_team = wtforms.RadioField(
+        "Team or member?",
+        choices=[("true", "Team"), ("false", "Member")],
+        coerce=lambda string: True if string == "true" else False,
+        default="true",
+        validators=[wtforms.validators.InputRequired()],
+    )
+
+    team_name = wtforms.SelectField(
+        "Select team",
+        choices=[("", "Select team")],
+        validators=[wtforms.validators.InputRequired()],
+    )
+
+    def __init__(self, *args, team_choices, user_service, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.team_name.choices += [(name, name) for name in sorted(team_choices)]
+        self.user_service = user_service
+
+        # Do not check for required fields in browser.
+        self.team_name.flags.required = False
+        self.team_project_role_name.flags.required = False
+        self.username.flags.required = False
+        self.role_name.flags.required = False
+
+        # Conditionally check for required fields on server.
+        if self.is_team.data:
+            self.username.validators = []
+            self.role_name.validators = []
+        else:
+            self.team_name.validators = []
+            self.team_project_role_name.validators = []
+
+    def validate_username(self, field):
+        if not self.is_team.data:
+            super().validate_username(field)
+
+
 class ChangeRoleForm(RoleNameMixin, forms.Form):
+    pass
+
+
+class ChangeTeamProjectRoleForm(TeamProjectRoleNameMixin, forms.Form):
     pass
 
 

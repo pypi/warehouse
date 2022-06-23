@@ -44,11 +44,13 @@ from warehouse.accounts.views import logout
 from warehouse.admin.flags import AdminFlagValue
 from warehouse.email import (
     send_account_deletion_email,
+    send_added_as_collaborator_email,
     send_added_as_team_member_email,
     send_admin_new_organization_requested_email,
     send_admin_organization_deleted_email,
     send_admin_organization_renamed_email,
     send_canceled_as_invited_organization_member_email,
+    send_collaborator_added_email,
     send_collaborator_removed_email,
     send_collaborator_role_changed_email,
     send_email_verification_email,
@@ -93,7 +95,9 @@ from warehouse.manage.forms import (
     ChangeOrganizationRoleForm,
     ChangePasswordForm,
     ChangeRoleForm,
+    ChangeTeamProjectRoleForm,
     ConfirmPasswordForm,
+    CreateInternalRoleForm,
     CreateMacaroonForm,
     CreateOrganizationForm,
     CreateOrganizationRoleForm,
@@ -123,6 +127,8 @@ from warehouse.organizations.models import (
     OrganizationRole,
     OrganizationRoleType,
     Team,
+    TeamProjectRole,
+    TeamProjectRoleType,
     TeamRoleType,
 )
 from warehouse.packaging.models import (
@@ -3587,21 +3593,264 @@ class ManageProjectRelease:
     require_reauth=True,
 )
 def manage_project_roles(project, request, _form_class=CreateRoleForm):
+    organization_service = request.find_service(IOrganizationService, context=None)
     user_service = request.find_service(IUserService, context=None)
+
+    # Roles, invitations, and invite collaborator form for all projects.
+    roles = set(request.db.query(Role).join(User).filter(Role.project == project).all())
+    invitations = set(
+        request.db.query(RoleInvitation)
+        .join(User)
+        .filter(RoleInvitation.project == project)
+        .all()
+    )
     form = _form_class(request.POST, user_service=user_service)
 
-    if request.method == "POST" and form.validate():
-        username = form.username.data
-        role_name = form.role_name.data
-        userid = user_service.find_userid(username)
-        user = user_service.get_user(userid)
-        token_service = request.find_service(ITokenService, name="email")
+    # Team project roles and add internal collaborator form for organization projects.
+    enable_internal_collaborator = bool(
+        not request.flags.enabled(AdminFlagValue.DISABLE_ORGANIZATIONS)
+        and project.organization
+    )
+    if enable_internal_collaborator:
+        team_project_roles = set(
+            request.db.query(TeamProjectRole)
+            .join(Team)
+            .filter(TeamProjectRole.project == project)
+            .all()
+        )
+        internal_role_form = CreateInternalRoleForm(
+            request.POST,
+            team_choices=sorted(team.name for team in project.organization.teams),
+            user_service=user_service,
+        )
+        internal_users = set(
+            organization_owners(request, project.organization)
+            + organization_managers(request, project.organization)
+            + organization_members(request, project.organization)
+        )
+    else:
+        team_project_roles = set()
+        internal_role_form = None
+        internal_users = set()
 
+    default_response = {
+        "project": project,
+        "roles": roles,
+        "invitations": invitations,
+        "form": form,
+        "enable_internal_collaborator": enable_internal_collaborator,
+        "team_project_roles": team_project_roles,
+        "internal_role_form": internal_role_form,
+    }
+
+    # Handle GET.
+    if request.method != "POST":
+        return default_response
+
+    # Determine which form was submitted with POST.
+    if enable_internal_collaborator and "is_team" in request.POST:
+        form = internal_role_form
+
+    # Validate form.
+    if not form.validate():
+        return default_response
+
+    # Try adding team as collaborator.
+    if enable_internal_collaborator and "is_team" in request.POST and form.is_team.data:
+        team_name = form.team_name.data
+        role_name = form.team_project_role_name.data
+        team_id = organization_service.find_teamid(project.organization.id, team_name)
+        team = organization_service.get_team(team_id)
+
+        # Do nothing if role already exists.
         existing_role = (
-            request.db.query(Role)
-            .filter(Role.user == user, Role.project == project)
+            request.db.query(TeamProjectRole)
+            .filter(TeamProjectRole.team == team, TeamProjectRole.project == project)
             .first()
         )
+        if existing_role:
+            request.session.flash(
+                request._(
+                    "Team '${team_name}' already has ${role_name} role for project",
+                    mapping={
+                        "team_name": team_name,
+                        "role_name": existing_role.role_name.value,
+                    },
+                ),
+                queue="error",
+            )
+            return default_response
+
+        # Add internal team.
+        organization_service.add_team_project_role(team.id, project.id, role_name)
+
+        # Add journal entry.
+        request.db.add(
+            JournalEntry(
+                name=project.name,
+                action=f"add {role_name.value} {team_name}",
+                submitted_by=request.user,
+                submitted_from=request.remote_addr,
+            )
+        )
+
+        # Record events.
+        project.record_event(
+            tag="project:team_project_role:create",
+            ip_address=request.remote_addr,
+            additional={
+                "submitted_by_user_id": str(request.user.id),
+                "role_name": role_name.value,
+                "target_team": team.name,
+            },
+        )
+        team.organization.record_event(
+            tag="organization:team_project_role:create",
+            ip_address=request.remote_addr,
+            additional={
+                "submitted_by_user_id": str(request.user.id),
+                "project_name": project.name,
+                "role_name": role_name.value,
+                "target_team": team.name,
+            },
+        )
+
+        # TODO Send notification emails.
+        # member_users = set(team.users)
+        # owner_users = set(project.owners + project.organization.owners)
+        # owner_users -= member_users
+        # send_team_collaborator_added_email(
+        #     request,
+        #     owner_users,
+        #     team=team,
+        #     submitter=request.user,
+        #     project_name=project.name,
+        #     role=role_name.value,
+        # )
+        # send_added_as_team_collaborator_email(
+        #     request,
+        #     member_users,
+        #     team=team,
+        #     submitter=request.user,
+        #     project_name=project.name,
+        #     role=role_name.value,
+        # )
+
+        # Display notification message.
+        request.session.flash(
+            request._(
+                "${team_name} is now ${role} of the '${project_name}' project.",
+                mapping={
+                    "team_name": team.name,
+                    "project_name": project.name,
+                    "role": role_name.value,
+                },
+            ),
+            queue="success",
+        )
+
+        # Refresh project collaborators.
+        return HTTPSeeOther(request.path)
+
+    # Try adding user as collaborator.
+    username = form.username.data
+    role_name = form.role_name.data
+    userid = user_service.find_userid(username)
+    user = user_service.get_user(userid)
+
+    # Do nothing if role already exists.
+    existing_role = (
+        request.db.query(Role)
+        .filter(Role.user == user, Role.project == project)
+        .first()
+    )
+    if existing_role:
+        request.session.flash(
+            request._(
+                "User '${username}' already has ${role_name} role for project",
+                mapping={
+                    "username": username,
+                    "role_name": existing_role.role_name,
+                },
+            ),
+            queue="error",
+        )
+        return default_response
+
+    if enable_internal_collaborator and user in internal_users:
+
+        # Add internal member.
+        request.db.add(Role(user=user, project=project, role_name=role_name))
+
+        # Add journal entry.
+        request.db.add(
+            JournalEntry(
+                name=project.name,
+                action=f"add {role_name} {user.username}",
+                submitted_by=request.user,
+                submitted_from=request.remote_addr,
+            )
+        )
+
+        # Record events.
+        project.record_event(
+            tag="project:role:create",
+            ip_address=request.remote_addr,
+            additional={
+                "submitted_by": request.user.username,
+                "role_name": role_name,
+                "target_user": user.username,
+            },
+        )
+        user.record_event(
+            tag="account:role:create",
+            ip_address=request.remote_addr,
+            additional={
+                "submitted_by": request.user.username,
+                "project_name": project.name,
+                "role_name": role_name,
+            },
+        )
+
+        # Send notification emails.
+        owner_users = set(project.owners + project.organization.owners)
+        owner_users.discard(user)
+        send_collaborator_added_email(
+            request,
+            owner_users,
+            user=user,
+            submitter=request.user,
+            project_name=project.name,
+            role=role_name,
+        )
+        send_added_as_collaborator_email(
+            request,
+            user,
+            submitter=request.user,
+            project_name=project.name,
+            role=role_name,
+        )
+
+        # Display notification message.
+        request.session.flash(
+            request._(
+                "${username} is now ${role} of the '${project_name}' project.",
+                mapping={
+                    "username": username,
+                    "project_name": project.name,
+                    "role": role_name,
+                },
+            ),
+            queue="success",
+        )
+
+        # Refresh project collaborators.
+        return HTTPSeeOther(request.path)
+    else:
+
+        # Invite external user.
+        token_service = request.find_service(ITokenService, name="email")
+
         user_invite = (
             request.db.query(RoleInvitation)
             .filter(RoleInvitation.user == user)
@@ -3615,18 +3864,7 @@ def manage_project_roles(project, request, _form_class=CreateRoleForm):
         except (TokenExpired, AttributeError):
             invite_token = None
 
-        if existing_role:
-            request.session.flash(
-                request._(
-                    "User '${username}' already has ${role_name} role for project",
-                    mapping={
-                        "username": username,
-                        "role_name": existing_role.role_name,
-                    },
-                ),
-                queue="error",
-            )
-        elif user.primary_email is None or not user.primary_email.verified:
+        if user.primary_email is None or not user.primary_email.verified:
             request.session.flash(
                 request._(
                     "User '${username}' does not have a verified primary email "
@@ -3635,6 +3873,7 @@ def manage_project_roles(project, request, _form_class=CreateRoleForm):
                 ),
                 queue="error",
             )
+            return default_response
         elif (
             user_invite
             and user_invite.invite_status == RoleInvitationStatus.Pending
@@ -3648,6 +3887,7 @@ def manage_project_roles(project, request, _form_class=CreateRoleForm):
                 ),
                 queue="error",
             )
+            return default_response
         else:
             invite_token = token_service.dumps(
                 {
@@ -3697,6 +3937,15 @@ def manage_project_roles(project, request, _form_class=CreateRoleForm):
                     "target_user": username,
                 },
             )
+            user.record_event(
+                tag="account:role:invite",
+                ip_address=request.remote_addr,
+                additional={
+                    "submitted_by": request.user.username,
+                    "role_name": role_name,
+                    "target_user": username,
+                },
+            )
             request.db.flush()  # in order to get id
             request.session.flash(
                 request._(
@@ -3706,22 +3955,8 @@ def manage_project_roles(project, request, _form_class=CreateRoleForm):
                 queue="success",
             )
 
-        form = _form_class(user_service=user_service)
-
-    roles = set(request.db.query(Role).join(User).filter(Role.project == project).all())
-    invitations = set(
-        request.db.query(RoleInvitation)
-        .join(User)
-        .filter(RoleInvitation.project == project)
-        .all()
-    )
-
-    return {
-        "project": project,
-        "roles": roles,
-        "invitations": invitations,
-        "form": form,
-    }
+            # Refresh project collaborators.
+            return HTTPSeeOther(request.path)
 
 
 @view_config(
@@ -3815,7 +4050,7 @@ def change_project_role(project, request, _form_class=ChangeRoleForm):
                 .one()
             )
             if role.role_name == "Owner" and role.user == request.user:
-                request.session.flash("Cannot remove yourself as Owner", queue="error")
+                request.session.flash("Cannot remove yourself as Admin", queue="error")
             else:
                 request.db.add(
                     JournalEntry(
@@ -3888,7 +4123,7 @@ def delete_project_role(project, request):
         )
         removing_self = role.role_name == "Owner" and role.user == request.user
         if removing_self:
-            request.session.flash("Cannot remove yourself as Owner", queue="error")
+            request.session.flash("Cannot remove yourself as Admin", queue="error")
         else:
             request.db.delete(role)
             request.db.add(
@@ -3925,6 +4160,197 @@ def delete_project_role(project, request):
                 request, role.user, submitter=request.user, project_name=project.name
             )
 
+            request.session.flash("Removed role", queue="success")
+    except NoResultFound:
+        request.session.flash("Could not find role", queue="error")
+
+    return HTTPSeeOther(
+        request.route_path("manage.project.roles", project_name=project.name)
+    )
+
+
+@view_config(
+    route_name="manage.project.change_team_project_role",
+    context=Project,
+    uses_session=True,
+    require_methods=["POST"],
+    permission="manage:project",
+    has_translations=True,
+    require_reauth=True,
+)
+def change_team_project_role(project, request, _form_class=ChangeTeamProjectRoleForm):
+    form = _form_class(request.POST)
+
+    if form.validate():
+        role_id = request.POST["role_id"]
+        try:
+            role = (
+                request.db.query(TeamProjectRole)
+                .join(Team)
+                .filter(
+                    TeamProjectRole.id == role_id, TeamProjectRole.project == project
+                )
+                .one()
+            )
+            if (
+                role.role_name == TeamProjectRoleType.Admin
+                and request.user in role.team.users
+                and request.user not in project.organization.owners
+            ):
+                request.session.flash("Cannot remove yourself as Admin", queue="error")
+            else:
+                # Add journal entry.
+                request.db.add(
+                    JournalEntry(
+                        name=project.name,
+                        action="change {} {} to {}".format(
+                            role.role_name.value,
+                            role.team.name,
+                            form.team_project_role_name.data.value,
+                        ),
+                        submitted_by=request.user,
+                        submitted_from=request.remote_addr,
+                    )
+                )
+
+                # Change team project role.
+                role.role_name = form.team_project_role_name.data
+
+                # Record events.
+                project.record_event(
+                    tag="project:team_project_role:change",
+                    ip_address=request.remote_addr,
+                    additional={
+                        "submitted_by_user_id": str(request.user.id),
+                        "role_name": role.role_name.value,
+                        "target_team": role.team.name,
+                    },
+                )
+                project.organization.record_event(
+                    tag="organization:team_project_role:change",
+                    ip_address=request.remote_addr,
+                    additional={
+                        "submitted_by_user_id": str(request.user.id),
+                        "project_name": role.project.name,
+                        "role_name": role.role_name.value,
+                        "target_team": role.team.name,
+                    },
+                )
+
+                # TODO Send notification emails.
+                # member_users = set(role.team.users)
+                # owner_users = set(project.owners + project.organization.owners)
+                # owner_users -= member_users
+                # send_team_collaborator_role_changed_email(
+                #     request,
+                #     owner_users,
+                #     team=role.team,
+                #     submitter=request.user,
+                #     project_name=project.name,
+                #     role=role.role_name,
+                # )
+                # send_role_changed_as_team_collaborator_email(
+                #     request,
+                #     member_users,
+                #     team=role.team,
+                #     submitter=request.user,
+                #     project_name=project.name,
+                #     role=role.role_name.value,
+                # )
+
+                # Display notification message.
+                request.session.flash("Changed role", queue="success")
+        except NoResultFound:
+            request.session.flash("Could not find role", queue="error")
+
+    return HTTPSeeOther(
+        request.route_path("manage.project.roles", project_name=project.name)
+    )
+
+
+@view_config(
+    route_name="manage.project.delete_team_project_role",
+    context=Project,
+    uses_session=True,
+    require_methods=["POST"],
+    permission="manage:project",
+    has_translations=True,
+    require_reauth=True,
+)
+def delete_team_project_role(project, request):
+    try:
+        role = (
+            request.db.query(TeamProjectRole)
+            .join(Team)
+            .filter(TeamProjectRole.project == project)
+            .filter(TeamProjectRole.id == request.POST["role_id"])
+            .one()
+        )
+        removing_self = (
+            role.role_name == TeamProjectRoleType.Admin
+            and request.user in role.team.users
+            and request.user not in project.organization.owners
+        )
+        if removing_self:
+            request.session.flash("Cannot remove yourself as Admin", queue="error")
+        else:
+            role_name = role.role_name
+            team = role.team
+
+            # Delete role.
+            request.db.delete(role)
+
+            # Add journal entry.
+            request.db.add(
+                JournalEntry(
+                    name=project.name,
+                    action=f"remove {role_name.value} {team.name}",
+                    submitted_by=request.user,
+                    submitted_from=request.remote_addr,
+                )
+            )
+
+            # Record event.
+            project.record_event(
+                tag="project:team_project_role:delete",
+                ip_address=request.remote_addr,
+                additional={
+                    "submitted_by_user_id": str(request.user.id),
+                    "role_name": role_name.value,
+                    "target_team": team.name,
+                },
+            )
+            project.organization.record_event(
+                tag="organization:team_project_role:delete",
+                ip_address=request.remote_addr,
+                additional={
+                    "submitted_by_user_id": str(request.user.id),
+                    "project_name": project.name,
+                    "role_name": role_name.value,
+                    "target_team": team.name,
+                },
+            )
+
+            # TODO Send notification emails.
+            # member_users = set(team.users)
+            # owner_users = set(project.owners + project.organization.owners)
+            # owner_users -= member_users
+            # send_team_collaborator_removed_email(
+            #     request,
+            #     owner_users,
+            #     team=role.team,
+            #     submitter=request.user,
+            #     project_name=project.name,
+            # )
+            # send_removed_as_team_collaborator_email(
+            #     request,
+            #     member_users,
+            #     team=role.team,
+            #     submitter=request.user,
+            #     project_name=project.name,
+            # )
+
+            # Display notification message.
             request.session.flash("Removed role", queue="success")
     except NoResultFound:
         request.session.flash("Could not find role", queue="error")

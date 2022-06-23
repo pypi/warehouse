@@ -70,7 +70,7 @@ msgid ""
 "different email."
 msgstr ""
 
-#: warehouse/accounts/forms.py:280 warehouse/manage/forms.py:77
+#: warehouse/accounts/forms.py:280 warehouse/manage/forms.py:139
 msgid "The name is too long. Choose a name with 100 characters or less."
 msgstr ""
 
@@ -121,7 +121,7 @@ msgstr ""
 msgid "Successful WebAuthn assertion"
 msgstr ""
 
-#: warehouse/accounts/views.py:447 warehouse/manage/views.py:904
+#: warehouse/accounts/views.py:447 warehouse/manage/views.py:910
 msgid "Recovery code accepted. The supplied code cannot be used again."
 msgstr ""
 
@@ -258,11 +258,11 @@ msgstr ""
 msgid "Banner Preview"
 msgstr ""
 
-#: warehouse/manage/forms.py:340
+#: warehouse/manage/forms.py:402
 msgid "Choose an organization account name with 50 characters or less."
 msgstr ""
 
-#: warehouse/manage/forms.py:348
+#: warehouse/manage/forms.py:410
 msgid ""
 "The organization account name is invalid. Organization account names must"
 " be composed of letters, numbers, dots, hyphens and underscores. And must"
@@ -270,131 +270,143 @@ msgid ""
 "organization account name."
 msgstr ""
 
-#: warehouse/manage/forms.py:363
+#: warehouse/manage/forms.py:425
 msgid ""
 "This organization account name has already been used. Choose a different "
 "organization account name."
 msgstr ""
 
-#: warehouse/manage/forms.py:403
+#: warehouse/manage/forms.py:465
 msgid "Select project"
 msgstr ""
 
-#: warehouse/manage/forms.py:408
+#: warehouse/manage/forms.py:470
 msgid "Specify project name"
 msgstr ""
 
-#: warehouse/manage/forms.py:411
+#: warehouse/manage/forms.py:473
 msgid ""
 "Start and end with a letter or numeral containing only ASCII numeric and "
 "'.', '_' and '-'."
 msgstr ""
 
-#: warehouse/manage/forms.py:418
+#: warehouse/manage/forms.py:480
 msgid "This project name has already been used. Choose a different project name."
 msgstr ""
 
-#: warehouse/manage/forms.py:488
+#: warehouse/manage/forms.py:550
 msgid ""
 "The organization name is too long. Choose a organization name with 100 "
 "characters or less."
 msgstr ""
 
-#: warehouse/manage/forms.py:500
+#: warehouse/manage/forms.py:562
 msgid ""
 "The organization URL is too long. Choose a organization URL with 400 "
 "characters or less."
 msgstr ""
 
-#: warehouse/manage/forms.py:514
+#: warehouse/manage/forms.py:576
 msgid ""
 "The organization description is too long. Choose a organization "
 "description with 400 characters or less."
 msgstr ""
 
-#: warehouse/manage/forms.py:544
+#: warehouse/manage/forms.py:606
 msgid ""
 "No organization owner, manager, or member found with that username. "
 "Please try again."
 msgstr ""
 
-#: warehouse/manage/forms.py:560
+#: warehouse/manage/forms.py:622
 msgid "Choose a team name with 50 characters or less."
 msgstr ""
 
-#: warehouse/manage/forms.py:566
+#: warehouse/manage/forms.py:628
 msgid ""
 "The team name is invalid. Team names cannot start or end with a space, "
 "period, underscore, hyphen, or slash. Choose a different team name."
 msgstr ""
 
-#: warehouse/manage/forms.py:583
+#: warehouse/manage/forms.py:645
 msgid "This team name has already been used. Choose a different team name."
 msgstr ""
 
-#: warehouse/manage/views.py:335
+#: warehouse/manage/views.py:341
 msgid "Email ${email_address} added - check your email for a verification link"
 msgstr ""
 
-#: warehouse/manage/views.py:852
+#: warehouse/manage/views.py:858
 msgid "Recovery codes already generated"
 msgstr ""
 
-#: warehouse/manage/views.py:853
+#: warehouse/manage/views.py:859
 msgid "Generating new recovery codes will invalidate your existing codes."
 msgstr ""
 
-#: warehouse/manage/views.py:1775
+#: warehouse/manage/views.py:1781
 msgid "User '${username}' already has ${role_name} role for organization"
 msgstr ""
 
-#: warehouse/manage/views.py:1786
+#: warehouse/manage/views.py:1792
 msgid ""
 "User '${username}' does not have a verified primary email address and "
 "cannot be added as a ${role_name} for organization"
 msgstr ""
 
-#: warehouse/manage/views.py:1800 warehouse/manage/views.py:3644
+#: warehouse/manage/views.py:1806 warehouse/manage/views.py:3883
 msgid "User '${username}' already has an active invite. Please try again later."
 msgstr ""
 
-#: warehouse/manage/views.py:1857 warehouse/manage/views.py:3702
+#: warehouse/manage/views.py:1863 warehouse/manage/views.py:3951
 msgid "Invitation sent to '${username}'"
 msgstr ""
 
-#: warehouse/manage/views.py:1900
+#: warehouse/manage/views.py:1906
 msgid "Could not find organization invitation."
 msgstr ""
 
-#: warehouse/manage/views.py:1914 warehouse/manage/views.py:3760
+#: warehouse/manage/views.py:1920 warehouse/manage/views.py:3995
 msgid "Invitation already expired."
 msgstr ""
 
-#: warehouse/manage/views.py:1947 warehouse/manage/views.py:3784
+#: warehouse/manage/views.py:1953 warehouse/manage/views.py:4019
 msgid "Invitation revoked from '${username}'."
 msgstr ""
 
-#: warehouse/manage/views.py:2334
+#: warehouse/manage/views.py:2340
 msgid "User '${username}' is already a team member"
 msgstr ""
 
-#: warehouse/manage/views.py:2715
+#: warehouse/manage/views.py:2721
 msgid ""
 "There have been too many attempted OpenID Connect registrations. Try "
 "again later."
 msgstr ""
 
-#: warehouse/manage/views.py:3620
+#: warehouse/manage/views.py:3673
+msgid "Team '${team_name}' already has ${role_name} role for project"
+msgstr ""
+
+#: warehouse/manage/views.py:3741
+msgid "${team_name} is now ${role} of the '${project_name}' project."
+msgstr ""
+
+#: warehouse/manage/views.py:3769
 msgid "User '${username}' already has ${role_name} role for project"
 msgstr ""
 
-#: warehouse/manage/views.py:3631
+#: warehouse/manage/views.py:3836
+msgid "${username} is now ${role} of the '${project_name}' project."
+msgstr ""
+
+#: warehouse/manage/views.py:3869
 msgid ""
 "User '${username}' does not have a verified primary email address and "
 "cannot be added as a ${role_name} for project"
 msgstr ""
 
-#: warehouse/manage/views.py:3749
+#: warehouse/manage/views.py:3984
 msgid "Could not find role invitation."
 msgstr ""
 
