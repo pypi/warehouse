@@ -691,36 +691,24 @@ def test_compute_2fa_metrics(db_request, monkeypatch):
         user=second_critical_project_maintainer, project=critical_project
     )
 
-    # A critical maintainer with WebAuthn enabled
+    # A critical maintainer with two WebAuthn methods enabled
     third_critical_project_maintainer = UserFactory.create()
     RoleFactory.create(user=third_critical_project_maintainer, project=critical_project)
     webauthn = WebAuthn(
         user_id=third_critical_project_maintainer.id,
-        label="foo",
-        credential_id="foo",
-        public_key="foo",
-    )
-    db_request.db.add(webauthn)
-    third_critical_project_maintainer.webauthn = [webauthn]
-
-    # A critical maintainer with two WebAuthn methods enabled
-    fourth_critical_project_maintainer = UserFactory.create()
-    RoleFactory.create(user=fourth_critical_project_maintainer, project=critical_project)
-    webauthn = WebAuthn(
-        user_id=fourth_critical_project_maintainer.id,
         label="wu",
         credential_id="wu",
         public_key="wu",
     )
     webauthn2 = WebAuthn(
-        user_id=fourth_critical_project_maintainer.id,
+        user_id=third_critical_project_maintainer.id,
         label="tang",
         credential_id="tang",
         public_key="tang",
     )
     db_request.db.add(webauthn)
     db_request.db.add(webauthn2)
-    fourth_critical_project_maintainer.webauthn = [webauthn, webauthn2]
+    third_critical_project_maintainer.webauthn = [webauthn, webauthn2]
 
     # A regular project opted in to 2FA
     non_critical_project = ProjectFactory.create(
