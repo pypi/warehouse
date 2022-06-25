@@ -61,7 +61,7 @@ def _simple_detail(project, request):
                 },
                 "requires-python": file.release.requires_python,
                 "yanked": file.release.yanked_reason
-                if file.release.yanked and file.release.yanked.reason
+                if file.release.yanked and file.release.yanked_reason
                 else file.release.yanked,
             }
             for file in files
