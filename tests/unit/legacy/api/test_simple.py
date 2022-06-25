@@ -11,8 +11,10 @@
 # limitations under the License.
 
 import pretend
+import pytest
 
 from pyramid.httpexceptions import HTTPMovedPermanently
+from pyramid.testing import DummyRequest
 
 from warehouse.legacy.api import simple
 
@@ -25,28 +27,115 @@ from ....common.db.packaging import (
 )
 
 
+class TestContentNegotiation:
+    @pytest.mark.parametrize("header", [None, "text/plain"])
+    def test_defaults_text_html(self, header):
+        """
+        Ensures that, at least until we want to change the default, that we
+        default to text/html.
+        """
+        request = DummyRequest(accept=header)
+        assert simple._select_content_type(request) == "text/html"
+
+    @pytest.mark.parametrize(
+        "header, expected",
+        [
+            ("text/html", "text/html"),
+            (
+                "application/vnd.pypi.simple.v1+html",
+                "application/vnd.pypi.simple.v1+html",
+            ),
+            (
+                "application/vnd.pypi.simple.v1+json",
+                "application/vnd.pypi.simple.v1+json",
+            ),
+            (
+                "text/html, application/vnd.pypi.simple.v1+html, "
+                "application/vnd.pypi.simple.v1+json",
+                "text/html",
+            ),
+            (
+                "text/html;q=0.01, application/vnd.pypi.simple.v1+html;q=0.2, "
+                "application/vnd.pypi.simple.v1+json",
+                "application/vnd.pypi.simple.v1+json",
+            ),
+        ],
+    )
+    def test_selects(self, header, expected):
+        request = DummyRequest(accept=header)
+        assert simple._select_content_type(request) == expected
+
+
+CONTENT_TYPE_PARAMS = [
+    ("text/html", None),
+    ("application/vnd.pypi.simple.v1+html", None),
+    ("application/vnd.pypi.simple.v1+json", "json"),
+]
+
+
 class TestSimpleIndex:
-    def test_no_results_no_serial(self, db_request):
-        assert simple.simple_index(db_request) == {"projects": []}
+    @pytest.mark.parametrize(
+        "content_type,renderer_override",
+        CONTENT_TYPE_PARAMS,
+    )
+    def test_no_results_no_serial(self, db_request, content_type, renderer_override):
+        db_request.accept = content_type
+        assert simple.simple_index(db_request) == {
+            "meta": {"_last-serial": 0, "api-version": "1.0"},
+            "projects": [],
+        }
         assert db_request.response.headers["X-PyPI-Last-Serial"] == "0"
+        assert db_request.response.content_type == content_type
 
-    def test_no_results_with_serial(self, db_request):
+        if renderer_override is not None:
+            db_request.override_renderer == renderer_override
+
+    @pytest.mark.parametrize(
+        "content_type,renderer_override",
+        CONTENT_TYPE_PARAMS,
+    )
+    def test_no_results_with_serial(self, db_request, content_type, renderer_override):
+        db_request.accept = content_type
         user = UserFactory.create()
         je = JournalEntryFactory.create(submitted_by=user)
-        assert simple.simple_index(db_request) == {"projects": []}
+        assert simple.simple_index(db_request) == {
+            "meta": {"_last-serial": je.id, "api-version": "1.0"},
+            "projects": [],
+        }
         assert db_request.response.headers["X-PyPI-Last-Serial"] == str(je.id)
+        assert db_request.response.content_type == content_type
 
-    def test_with_results_no_serial(self, db_request):
+        if renderer_override is not None:
+            db_request.override_renderer == renderer_override
+
+    @pytest.mark.parametrize(
+        "content_type,renderer_override",
+        CONTENT_TYPE_PARAMS,
+    )
+    def test_with_results_no_serial(self, db_request, content_type, renderer_override):
+        db_request.accept = content_type
         projects = [
             (x.name, x.normalized_name)
             for x in [ProjectFactory.create() for _ in range(3)]
         ]
         assert simple.simple_index(db_request) == {
-            "projects": sorted(projects, key=lambda x: x[1])
+            "meta": {"_last-serial": 0, "api-version": "1.0"},
+            "projects": [{"name": x[0]} for x in sorted(projects, key=lambda x: x[1])],
         }
         assert db_request.response.headers["X-PyPI-Last-Serial"] == "0"
+        assert db_request.response.content_type == content_type
 
-    def test_with_results_with_serial(self, db_request):
+        if renderer_override is not None:
+            db_request.override_renderer == renderer_override
+
+    @pytest.mark.parametrize(
+        "content_type,renderer_override",
+        CONTENT_TYPE_PARAMS,
+    )
+    def test_with_results_with_serial(
+        self, db_request, content_type, renderer_override
+    ):
+        db_request.accept = content_type
         projects = [
             (x.name, x.normalized_name)
             for x in [ProjectFactory.create() for _ in range(3)]
@@ -55,9 +144,14 @@ class TestSimpleIndex:
         je = JournalEntryFactory.create(submitted_by=user)
 
         assert simple.simple_index(db_request) == {
-            "projects": sorted(projects, key=lambda x: x[1])
+            "meta": {"_last-serial": je.id, "api-version": "1.0"},
+            "projects": [{"name": x[0]} for x in sorted(projects, key=lambda x: x[1])],
         }
         assert db_request.response.headers["X-PyPI-Last-Serial"] == str(je.id)
+        assert db_request.response.content_type == content_type
+
+        if renderer_override is not None:
+            db_request.override_renderer == renderer_override
 
 
 class TestSimpleDetail:
@@ -75,31 +169,56 @@ class TestSimpleDetail:
         assert resp.headers["Location"] == "/foobar/"
         assert pyramid_request.current_route_path.calls == [pretend.call(name="foo")]
 
-    def test_no_files_no_serial(self, db_request):
+    @pytest.mark.parametrize(
+        "content_type,renderer_override",
+        CONTENT_TYPE_PARAMS,
+    )
+    def test_no_files_no_serial(self, db_request, content_type, renderer_override):
+        db_request.accept = content_type
         project = ProjectFactory.create()
         db_request.matchdict["name"] = project.normalized_name
         user = UserFactory.create()
         JournalEntryFactory.create(submitted_by=user)
 
         assert simple.simple_detail(project, db_request) == {
-            "project": project,
+            "meta": {"_last-serial": 0, "api-version": "1.0"},
+            "name": project.normalized_name,
             "files": [],
         }
         assert db_request.response.headers["X-PyPI-Last-Serial"] == "0"
+        assert db_request.response.content_type == content_type
 
-    def test_no_files_with_serial(self, db_request):
+        if renderer_override is not None:
+            db_request.override_renderer == renderer_override
+
+    @pytest.mark.parametrize(
+        "content_type,renderer_override",
+        CONTENT_TYPE_PARAMS,
+    )
+    def test_no_files_with_serial(self, db_request, content_type, renderer_override):
+        db_request.accept = content_type
         project = ProjectFactory.create()
         db_request.matchdict["name"] = project.normalized_name
         user = UserFactory.create()
         je = JournalEntryFactory.create(name=project.name, submitted_by=user)
 
         assert simple.simple_detail(project, db_request) == {
-            "project": project,
+            "meta": {"_last-serial": je.id, "api-version": "1.0"},
+            "name": project.normalized_name,
             "files": [],
         }
         assert db_request.response.headers["X-PyPI-Last-Serial"] == str(je.id)
+        assert db_request.response.content_type == content_type
 
-    def test_with_files_no_serial(self, db_request):
+        if renderer_override is not None:
+            db_request.override_renderer == renderer_override
+
+    @pytest.mark.parametrize(
+        "content_type,renderer_override",
+        CONTENT_TYPE_PARAMS,
+    )
+    def test_with_files_no_serial(self, db_request, content_type, renderer_override):
+        db_request.accept = content_type
         project = ProjectFactory.create()
         releases = [ReleaseFactory.create(project=project) for _ in range(3)]
         files = [
@@ -110,17 +229,38 @@ class TestSimpleDetail:
         ]
         # let's assert the result is ordered by string comparison of filename
         files = sorted(files, key=lambda key: key.filename)
+        urls_iter = (f"/file/{f.filename}" for f in files)
         db_request.matchdict["name"] = project.normalized_name
+        db_request.route_url = lambda *a, **kw: next(urls_iter)
         user = UserFactory.create()
         JournalEntryFactory.create(submitted_by=user)
 
         assert simple.simple_detail(project, db_request) == {
-            "project": project,
-            "files": files,
+            "meta": {"_last-serial": 0, "api-version": "1.0"},
+            "name": project.normalized_name,
+            "files": [
+                {
+                    "filename": f.filename,
+                    "url": f"/file/{f.filename}",
+                    "hashes": {"sha256": f.sha256_digest},
+                    "requires-python": f.requires_python,
+                    "yanked": False,
+                }
+                for f in files
+            ],
         }
         assert db_request.response.headers["X-PyPI-Last-Serial"] == "0"
+        assert db_request.response.content_type == content_type
 
-    def test_with_files_with_serial(self, db_request):
+        if renderer_override is not None:
+            db_request.override_renderer == renderer_override
+
+    @pytest.mark.parametrize(
+        "content_type,renderer_override",
+        CONTENT_TYPE_PARAMS,
+    )
+    def test_with_files_with_serial(self, db_request, content_type, renderer_override):
+        db_request.accept = content_type
         project = ProjectFactory.create()
         releases = [ReleaseFactory.create(project=project) for _ in range(3)]
         files = [
@@ -131,17 +271,40 @@ class TestSimpleDetail:
         ]
         # let's assert the result is ordered by string comparison of filename
         files = sorted(files, key=lambda key: key.filename)
+        urls_iter = (f"/file/{f.filename}" for f in files)
         db_request.matchdict["name"] = project.normalized_name
+        db_request.route_url = lambda *a, **kw: next(urls_iter)
         user = UserFactory.create()
         je = JournalEntryFactory.create(name=project.name, submitted_by=user)
 
         assert simple.simple_detail(project, db_request) == {
-            "project": project,
-            "files": files,
+            "meta": {"_last-serial": je.id, "api-version": "1.0"},
+            "name": project.normalized_name,
+            "files": [
+                {
+                    "filename": f.filename,
+                    "url": f"/file/{f.filename}",
+                    "hashes": {"sha256": f.sha256_digest},
+                    "requires-python": f.requires_python,
+                    "yanked": False,
+                }
+                for f in files
+            ],
         }
         assert db_request.response.headers["X-PyPI-Last-Serial"] == str(je.id)
+        assert db_request.response.content_type == content_type
 
-    def test_with_files_with_version_multi_digit(self, db_request):
+        if renderer_override is not None:
+            db_request.override_renderer == renderer_override
+
+    @pytest.mark.parametrize(
+        "content_type,renderer_override",
+        CONTENT_TYPE_PARAMS,
+    )
+    def test_with_files_with_version_multi_digit(
+        self, db_request, content_type, renderer_override
+    ):
+        db_request.accept = content_type
         project = ProjectFactory.create()
         release_versions = [
             "0.3.0rc1",
@@ -185,13 +348,29 @@ class TestSimpleDetail:
         for files_release in zip(egg_files, tar_files, wheel_files):
             files += files_release
 
+        urls_iter = (f"/file/{f.filename}" for f in files)
         db_request.matchdict["name"] = project.normalized_name
+        db_request.route_url = lambda *a, **kw: next(urls_iter)
         user = UserFactory.create()
         je = JournalEntryFactory.create(name=project.name, submitted_by=user)
 
         assert simple.simple_detail(project, db_request) == {
-            "project": project,
-            "files": files,
+            "meta": {"_last-serial": je.id, "api-version": "1.0"},
+            "name": project.normalized_name,
+            "files": [
+                {
+                    "filename": f.filename,
+                    "url": f"/file/{f.filename}",
+                    "hashes": {"sha256": f.sha256_digest},
+                    "requires-python": f.requires_python,
+                    "yanked": False,
+                }
+                for f in files
+            ],
         }
 
         assert db_request.response.headers["X-PyPI-Last-Serial"] == str(je.id)
+        assert db_request.response.content_type == content_type
+
+        if renderer_override is not None:
+            db_request.override_renderer == renderer_override

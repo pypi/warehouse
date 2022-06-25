@@ -32,6 +32,7 @@ FILTERS = {
     "format_package_type": "warehouse.filters:format_package_type",
     "parse_version": "warehouse.filters:parse_version",
     "localize_datetime": "warehouse.filters:localize_datetime",
+    "canonicalize_name": "packaging.utils:canonicalize_name",
 }
 
 
