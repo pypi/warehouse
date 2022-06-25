@@ -50,11 +50,13 @@ class TestContentNegotiation:
                 "application/vnd.pypi.simple.v1+json",
             ),
             (
-                "text/html, application/vnd.pypi.simple.v1+html, application/vnd.pypi.simple.v1+json",
+                "text/html, application/vnd.pypi.simple.v1+html, "
+                "application/vnd.pypi.simple.v1+json",
                 "text/html",
             ),
             (
-                "text/html;q=0.01, application/vnd.pypi.simple.v1+html;q=0.2, application/vnd.pypi.simple.v1+json",
+                "text/html;q=0.01, application/vnd.pypi.simple.v1+html;q=0.2, "
+                "application/vnd.pypi.simple.v1+json",
                 "application/vnd.pypi.simple.v1+json",
             ),
         ],

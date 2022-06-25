@@ -18,8 +18,8 @@
     <title>Simple index</title>
   </head>
   <body>
-    {% for project, data in projects.items() -%}
-    <a href="{{ data.url }}">{{ project }}</a>
+    {% for project in projects -%}
+    <a href="{{ request.route_path('legacy.api.simple.detail', name=project.name|canonicalize_name) }}">{{ project.name }}</a>
     {% endfor -%}
   </body>
 </html>
