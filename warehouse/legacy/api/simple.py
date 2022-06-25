@@ -19,10 +19,7 @@ from sqlalchemy import func
 from warehouse.cache.http import add_vary, cache_control
 from warehouse.cache.origin import origin_cache
 from warehouse.packaging.models import JournalEntry, Project
-from warehouse.packaging.utils import _simple_detail
-
-
-API_VERSION = "1.0"
+from warehouse.packaging.utils import _simple_detail, _simple_index, API_VERSION
 
 
 def _select_content_type(request: Request) -> str:
@@ -78,17 +75,7 @@ def simple_index(request):
     serial = request.db.query(func.max(JournalEntry.id)).scalar() or 0
     request.response.headers["X-PyPI-Last-Serial"] = str(serial)
 
-    # Fetch the name and normalized name for all of our projects
-    projects = (
-        request.db.query(Project.name, Project.normalized_name)
-        .order_by(Project.normalized_name)
-        .all()
-    )
-
-    return {
-        "meta": {"api-version": API_VERSION, "_last-serial": serial},
-        "projects": [{"name": p.name} for p in projects],
-    }
+    return _simple_index(request, serial)
 
 
 @view_config(
@@ -123,24 +110,4 @@ def simple_detail(project, request):
     # Get the latest serial number for this project.
     request.response.headers["X-PyPI-Last-Serial"] = str(project.last_serial)
 
-    # Get our simple data
-    detail = _simple_detail(project, request)
-
-    return {
-        "meta": {"api-version": API_VERSION, "_last-serial": project.last_serial},
-        "name": detail["project"].normalized_name,
-        "files": [
-            {
-                "filename": file.filename,
-                "url": request.route_url("packaging.file", path=file.path),
-                "hashes": {
-                    "sha256": file.sha256_digest,
-                },
-                "requires-python": file.release.requires_python,
-                "yanked": file.release.yanked_reason
-                if file.release.yanked and file.release.yanked.reason
-                else file.release.yanked,
-            }
-            for file in detail["files"]
-        ],
-    }
+    return _simple_detail(project, request)
