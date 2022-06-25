@@ -86,15 +86,8 @@ def simple_index(request):
     )
 
     return {
-        "meta": {"api-version": API_VERSION},
-        "projects": {
-            p.name: {
-                "url": request.route_path(
-                    "legacy.api.simple.detail", name=p.normalized_name
-                )
-            }
-            for p in projects
-        },
+        "meta": {"api-version": API_VERSION, "_last-serial": serial},
+        "projects": [{"name": p.name} for p in projects],
     }
 
 
@@ -135,7 +128,7 @@ def simple_detail(project, request):
 
     return {
         "meta": {"api-version": API_VERSION, "_last-serial": project.last_serial},
-        "name": detail["project"].name,
+        "name": detail["project"].normalized_name,
         "files": [
             {
                 "filename": file.filename,
