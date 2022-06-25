@@ -11,15 +11,15 @@
 # limitations under the License.
 
 
-from pyramid.request import Request
 from pyramid.httpexceptions import HTTPMovedPermanently
+from pyramid.request import Request
 from pyramid.view import view_config
 from sqlalchemy import func
 
 from warehouse.cache.http import add_vary, cache_control
 from warehouse.cache.origin import origin_cache
 from warehouse.packaging.models import JournalEntry, Project
-from warehouse.packaging.utils import _simple_detail, _simple_index, API_VERSION
+from warehouse.packaging.utils import API_VERSION, _simple_detail, _simple_index
 
 
 def _select_content_type(request: Request) -> str:

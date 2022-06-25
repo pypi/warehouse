@@ -19,8 +19,7 @@ from pyramid_jinja2 import IJinja2Environment
 from sqlalchemy.orm import joinedload
 
 from warehouse.packaging.interfaces import ISimpleStorage
-from warehouse.packaging.models import File, Release, Project
-
+from warehouse.packaging.models import File, Project, Release
 
 API_VERSION = "1.0"
 
