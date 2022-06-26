@@ -52,8 +52,8 @@ def _select_content_type(request: Request) -> str:
 
 
 @view_config(
-    route_name="legacy.api.simple.index",
-    renderer="legacy/api/simple/index.html",
+    route_name="api.simple.index",
+    renderer="api/simple/index.html",
     decorator=[
         add_vary("Accept"),
         cache_control(10 * 60),  # 10 minutes
@@ -79,9 +79,9 @@ def simple_index(request):
 
 
 @view_config(
-    route_name="legacy.api.simple.detail",
+    route_name="api.simple.detail",
     context=Project,
-    renderer="legacy/api/simple/detail.html",
+    renderer="api/simple/detail.html",
     decorator=[
         add_vary("Accept"),
         cache_control(10 * 60),  # 10 minutes

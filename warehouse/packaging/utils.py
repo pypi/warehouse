@@ -73,7 +73,7 @@ def render_simple_detail(project, request, store=False):
     context = _simple_detail(project, request)
 
     env = request.registry.queryUtility(IJinja2Environment, name=".jinja2")
-    template = env.get_template("templates/legacy/api/simple/detail.html")
+    template = env.get_template("templates/api/simple/detail.html")
     content = template.render(**context, request=request)
 
     content_hasher = hashlib.blake2b(digest_size=256 // 8)

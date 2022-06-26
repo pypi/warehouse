@@ -31,7 +31,7 @@ def test_render_simple_detail(db_request, monkeypatch, jinja):
     fakeblake2b = pretend.call_recorder(lambda *a, **kw: fake_hasher)
     monkeypatch.setattr(hashlib, "blake2b", fakeblake2b)
 
-    template = jinja.get_template("templates/legacy/api/simple/detail.html")
+    template = jinja.get_template("templates/api/simple/detail.html")
     expected_content = template.render(
         **_simple_detail(project, db_request), request=db_request
     ).encode("utf-8")
@@ -88,7 +88,7 @@ def test_render_simple_detail_with_store(db_request, monkeypatch, jinja):
 
     monkeypatch.setattr(tempfile, "NamedTemporaryFile", FakeNamedTemporaryFile)
 
-    template = jinja.get_template("templates/legacy/api/simple/detail.html")
+    template = jinja.get_template("templates/api/simple/detail.html")
     expected_content = template.render(
         **_simple_detail(project, db_request), request=db_request
     ).encode("utf-8")
