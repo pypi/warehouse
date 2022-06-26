@@ -16,10 +16,10 @@ import pytest
 from pyramid.httpexceptions import HTTPMovedPermanently
 from pyramid.testing import DummyRequest
 
-from warehouse.legacy.api import simple
+from warehouse.api import simple
 
-from ....common.db.accounts import UserFactory
-from ....common.db.packaging import (
+from ...common.db.accounts import UserFactory
+from ...common.db.packaging import (
     FileFactory,
     JournalEntryFactory,
     ProjectFactory,
