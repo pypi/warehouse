@@ -418,7 +418,7 @@ class Release(db.Model):
     )
     version = Column(Text, nullable=False)
     canonical_version = Column(Text, nullable=False)
-    is_prerelease = orm.column_property(func.pep440_is_prerelease(version))
+    is_prerelease = Column(Boolean, nullable=False, server_default=sql.false())
     author = Column(Text)
     author_email = Column(Text)
     maintainer = Column(Text)
