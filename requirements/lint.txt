@@ -229,9 +229,9 @@ types-sqlalchemy-utils==1.0.0 \
     --hash=sha256:64403b5260fffcb0ee04fd37167f5c1d1cc68d103f82ef2d5d868e7ac281d5e5 \
     --hash=sha256:a7dd1b85afeb914a47c8d1244d5614128559c58a1f057284071da2e2257d2424
     # via -r requirements/lint.in
-types-stdlib-list==0.8.0 \
-    --hash=sha256:ab12db739d59548c47f9d1acd0ee515ae66ac29d17e097481795eed3b9fa1462 \
-    --hash=sha256:bbe5f34503d8b7f6ec11d75ff0ee01ef1d719c81215fa43b334557a879270fdb
+types-stdlib-list==0.8.1 \
+    --hash=sha256:1ba8c5ac639715bc3670da07e1679acbedc6834dd6caba5e6c7fb14aa468d5ed \
+    --hash=sha256:f7fb88d8c602911256918ba8985ac9d9176ff4ca31d6138fedea1a5992b69645
     # via -r requirements/lint.in
 types-urllib3==1.26.15 \
     --hash=sha256:6011befa13f901fc934f59bb1fd6973be6f3acf4ebfce427593a27e7f492918f \
