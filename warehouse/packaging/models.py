@@ -27,6 +27,7 @@ from sqlalchemy import (
     Column,
     DateTime,
     Enum,
+    FetchedValue,
     Float,
     ForeignKey,
     Index,
@@ -174,7 +175,13 @@ class Project(SitemapMixin, TwoFactorRequireable, HasEvents, db.Model):
     __repr__ = make_repr("name")
 
     name = Column(Text, nullable=False)
-    normalized_name = orm.column_property(func.normalize_pep426_name(name))
+    normalized_name = Column(
+        Text,
+        nullable=False,
+        unique=True,
+        server_default=FetchedValue(),
+        server_onupdate=FetchedValue(),
+    )
     created = Column(
         DateTime(timezone=False),
         nullable=False,
