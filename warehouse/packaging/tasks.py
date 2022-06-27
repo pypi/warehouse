@@ -86,11 +86,11 @@ def compute_2fa_mandate(request):
 def compute_2fa_metrics(request):
     metrics = request.find_service(IMetricsService, context=None)
 
-    critical_projects = request.db.query(Project).where(
+    critical_projects = request.db.query(Project.id).where(
         Project.pypi_mandates_2fa.is_(True)
     )
     critical_maintainers = (
-        request.db.query(User).join(Project.users).join(critical_projects)
+        request.db.query(User.id).join(Project.users).join(critical_projects)
     )
 
     # Number of projects marked critical
@@ -114,19 +114,19 @@ def compute_2fa_metrics(request):
     # Number of projects manually requiring 2FA
     metrics.gauge(
         "warehouse.2fa.total_projects_with_2fa_opt_in",
-        request.db.query(Project).where(Project.owners_require_2fa).count(),
+        request.db.query(Project.id).where(Project.owners_require_2fa).count(),
     )
 
     # Total number of projects requiring 2FA
     metrics.gauge(
         "warehouse.2fa.total_projects_with_two_factor_required",
-        request.db.query(Project).where(Project.two_factor_required).count(),
+        request.db.query(Project.id).where(Project.two_factor_required).count(),
     )
 
     # Total number of users with TOTP enabled
     metrics.gauge(
         "warehouse.2fa.total_users_with_totp_enabled",
-        request.db.query(User).where(User.totp_secret.is_not(None)).count(),
+        request.db.query(User.id).where(User.totp_secret.is_not(None)).count(),
     )
 
     # Total number of users with WebAuthn enabled
@@ -138,7 +138,7 @@ def compute_2fa_metrics(request):
     # Total number of users with 2FA enabled
     metrics.gauge(
         "warehouse.2fa.total_users_with_two_factor_enabled",
-        request.db.query(User).where(User.has_two_factor).count(),
+        request.db.query(User.id).where(User.has_two_factor).count(),
     )
 
 
