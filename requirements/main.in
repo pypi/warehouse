@@ -26,7 +26,6 @@ kombu[sqs]~=5.2.4  # https://github.com/celery/celery/issues/7070
 mistune
 msgpack
 natsort
-orjson
 packaging>=15.2
 paginate>=0.5.2
 paginate_sqlalchemy

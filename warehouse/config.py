@@ -15,7 +15,6 @@ import enum
 import os
 import shlex
 
-import orjson
 import transaction
 
 from pyramid import renderers
@@ -452,13 +451,7 @@ def configure(settings=None):
 
     # We want to configure our JSON renderer to sort the keys, and also to use
     # an ultra compact serialization format.
-    config.add_renderer(
-        "json",
-        renderers.JSON(
-            serializer=orjson.dumps,
-            option=orjson.OPT_SORT_KEYS | orjson.OPT_APPEND_NEWLINE,
-        ),
-    )
+    config.add_renderer("json", renderers.JSON(sort_keys=True, separators=(",", ":")))
 
     # Configure retry support.
     config.add_settings({"retry.attempts": 3})
