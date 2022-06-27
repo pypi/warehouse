@@ -6974,6 +6974,7 @@ class TestManageProjectRoles:
         db_request,
         organization_project,
         organization_team,
+        organization_member,
         monkeypatch,
     ):
         db_request.method = "POST"
@@ -6987,43 +6988,45 @@ class TestManageProjectRoles:
             }
         )
 
-        # send_team_collaborator_added_email = pretend.call_recorder(lambda *a, **kw: None)
-        # monkeypatch.setattr(
-        #     views,
-        #     "send_team_collaborator_added_email",
-        #     send_team_collaborator_added_email,
-        # )
-        # send_added_as_team_collaborator_email = pretend.call_recorder(
-        #     lambda *a, **kw: None
-        # )
-        # monkeypatch.setattr(
-        #     views,
-        #     "send_added_as_team_collaborator_email",
-        #     send_added_as_team_collaborator_email,
-        # )
+        send_team_collaborator_added_email = pretend.call_recorder(
+            lambda *a, **kw: None
+        )
+        monkeypatch.setattr(
+            views,
+            "send_team_collaborator_added_email",
+            send_team_collaborator_added_email,
+        )
+        send_added_as_team_collaborator_email = pretend.call_recorder(
+            lambda *a, **kw: None
+        )
+        monkeypatch.setattr(
+            views,
+            "send_added_as_team_collaborator_email",
+            send_added_as_team_collaborator_email,
+        )
 
         result = views.manage_project_roles(organization_project, db_request)
 
-        # assert send_team_collaborator_added_email.calls == [
-        #     pretend.call(
-        #         db_request,
-        #         {db_request.user},
-        #         team=organization_team,
-        #         submitter=db_request.user,
-        #         project_name=organization_project.name,
-        #         role="Admin",
-        #     )
-        # ]
-        # assert send_added_as_team_collaborator_email.calls == [
-        #     pretend.call(
-        #         db_request,
-        #         {organization_member},
-        #         team=organization_team,
-        #         submitter=db_request.user,
-        #         project_name=organization_project.name,
-        #         role="Admin",
-        #     )
-        # ]
+        assert send_team_collaborator_added_email.calls == [
+            pretend.call(
+                db_request,
+                {db_request.user},
+                team=organization_team,
+                submitter=db_request.user,
+                project_name=organization_project.name,
+                role="Admin",
+            )
+        ]
+        assert send_added_as_team_collaborator_email.calls == [
+            pretend.call(
+                db_request,
+                {organization_member},
+                team=organization_team,
+                submitter=db_request.user,
+                project_name=organization_project.name,
+                role="Admin",
+            )
+        ]
         assert isinstance(result, HTTPSeeOther)
 
     def test_post_duplicate_internal_team_role(
@@ -8005,22 +8008,22 @@ class TestChangeTeamProjectRole:
         )
         db_request.route_path = pretend.call_recorder(lambda *a, **kw: "/the-redirect")
 
-        # send_team_collaborator_role_changed_email = pretend.call_recorder(
-        #     lambda *a, **kw: None
-        # )
-        # monkeypatch.setattr(
-        #     views,
-        #     "send_team_collaborator_role_changed_email",
-        #     send_team_collaborator_role_changed_email,
-        # )
-        # send_role_changed_as_team_collaborator_email = pretend.call_recorder(
-        #     lambda *a, **kw: None
-        # )
-        # monkeypatch.setattr(
-        #     views,
-        #     "send_role_changed_as_team_collaborator_email",
-        #     send_role_changed_as_team_collaborator_email,
-        # )
+        send_team_collaborator_role_changed_email = pretend.call_recorder(
+            lambda *a, **kw: None
+        )
+        monkeypatch.setattr(
+            views,
+            "send_team_collaborator_role_changed_email",
+            send_team_collaborator_role_changed_email,
+        )
+        send_role_changed_as_team_collaborator_email = pretend.call_recorder(
+            lambda *a, **kw: None
+        )
+        monkeypatch.setattr(
+            views,
+            "send_role_changed_as_team_collaborator_email",
+            send_role_changed_as_team_collaborator_email,
+        )
 
         result = views.change_team_project_role(organization_project, db_request)
 
@@ -8028,26 +8031,26 @@ class TestChangeTeamProjectRole:
         assert db_request.route_path.calls == [
             pretend.call("manage.project.roles", project_name=organization_project.name)
         ]
-        # assert send_team_collaborator_role_changed_email.calls == [
-        #     pretend.call(
-        #         db_request,
-        #         {pyramid_user},
-        #         team=organization_team,
-        #         submitter=pyramid_user,
-        #         project_name=organization_project.name,
-        #         role=new_role_name.value,
-        #     )
-        # ]
-        # assert send_role_changed_as_collaborator_email.calls == [
-        #     pretend.call(
-        #         db_request,
-        #         {organization_member},
-        #         team=organization_team,
-        #         submitter=pyramid_user,
-        #         project_name=organization_project.name,
-        #         role=new_role_name.value,
-        #     )
-        # ]
+        assert send_team_collaborator_role_changed_email.calls == [
+            pretend.call(
+                db_request,
+                {pyramid_user},
+                team=organization_team,
+                submitter=pyramid_user,
+                project_name=organization_project.name,
+                role=new_role_name.value,
+            )
+        ]
+        assert send_role_changed_as_team_collaborator_email.calls == [
+            pretend.call(
+                db_request,
+                {organization_member},
+                team=organization_team,
+                submitter=pyramid_user,
+                project_name=organization_project.name,
+                role=new_role_name.value,
+            )
+        ]
         assert db_request.session.flash.calls == [
             pretend.call("Changed role", queue="success")
         ]
@@ -8169,6 +8172,7 @@ class TestDeleteTeamProjectRole:
     def test_delete_role(
         self,
         db_request,
+        organization_member,
         organization_team,
         organization_project,
         pyramid_user,
@@ -8187,22 +8191,22 @@ class TestDeleteTeamProjectRole:
         )
         db_request.route_path = pretend.call_recorder(lambda *a, **kw: "/the-redirect")
 
-        # send_team_collaborator_removed_email = pretend.call_recorder(
-        #     lambda *a, **kw: None
-        # )
-        # monkeypatch.setattr(
-        #     views,
-        #     "send_team_collaborator_removed_email",
-        #     send_team_collaborator_removed_email,
-        # )
-        # send_removed_as_team_collaborator_email = pretend.call_recorder(
-        #     lambda *a, **kw: None
-        # )
-        # monkeypatch.setattr(
-        #     views,
-        #     "send_removed_as_team_collaborator_email",
-        #     send_removed_as_team_collaborator_email,
-        # )
+        send_team_collaborator_removed_email = pretend.call_recorder(
+            lambda *a, **kw: None
+        )
+        monkeypatch.setattr(
+            views,
+            "send_team_collaborator_removed_email",
+            send_team_collaborator_removed_email,
+        )
+        send_removed_as_team_collaborator_email = pretend.call_recorder(
+            lambda *a, **kw: None
+        )
+        monkeypatch.setattr(
+            views,
+            "send_removed_as_team_collaborator_email",
+            send_removed_as_team_collaborator_email,
+        )
 
         result = views.delete_team_project_role(organization_project, db_request)
 
@@ -8210,24 +8214,24 @@ class TestDeleteTeamProjectRole:
             pretend.call("manage.project.roles", project_name=organization_project.name)
         ]
         assert db_request.db.query(TeamProjectRole).all() == []
-        # assert send_team_collaborator_removed_email.calls == [
-        #     pretend.call(
-        #         db_request,
-        #         {pyramid_user},
-        #         team=organization_team,
-        #         submitter=pyramid_user,
-        #         project_name=organization_project.name,
-        #     )
-        # ]
-        # assert send_team_collaborator_removed_email.calls == [
-        #     pretend.call(
-        #         db_request,
-        #         {organization_member},
-        #         team=organization_team,
-        #         submitter=pyramid_user,
-        #         project_name=organization_project.name,
-        #     )
-        # ]
+        assert send_team_collaborator_removed_email.calls == [
+            pretend.call(
+                db_request,
+                {pyramid_user},
+                team=organization_team,
+                submitter=pyramid_user,
+                project_name=organization_project.name,
+            )
+        ]
+        assert send_removed_as_team_collaborator_email.calls == [
+            pretend.call(
+                db_request,
+                {organization_member},
+                team=organization_team,
+                submitter=pyramid_user,
+                project_name=organization_project.name,
+            )
+        ]
         assert db_request.session.flash.calls == [
             pretend.call("Removed role", queue="success")
         ]

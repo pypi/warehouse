@@ -121,7 +121,7 @@ msgstr ""
 msgid "Successful WebAuthn assertion"
 msgstr ""
 
-#: warehouse/accounts/views.py:447 warehouse/manage/views.py:910
+#: warehouse/accounts/views.py:447 warehouse/manage/views.py:916
 msgid "Recovery code accepted. The supplied code cannot be used again."
 msgstr ""
 
@@ -332,81 +332,81 @@ msgstr ""
 msgid "This team name has already been used. Choose a different team name."
 msgstr ""
 
-#: warehouse/manage/views.py:341
+#: warehouse/manage/views.py:347
 msgid "Email ${email_address} added - check your email for a verification link"
 msgstr ""
 
-#: warehouse/manage/views.py:858
+#: warehouse/manage/views.py:864
 msgid "Recovery codes already generated"
 msgstr ""
 
-#: warehouse/manage/views.py:859
+#: warehouse/manage/views.py:865
 msgid "Generating new recovery codes will invalidate your existing codes."
 msgstr ""
 
-#: warehouse/manage/views.py:1781
+#: warehouse/manage/views.py:1787
 msgid "User '${username}' already has ${role_name} role for organization"
 msgstr ""
 
-#: warehouse/manage/views.py:1792
+#: warehouse/manage/views.py:1798
 msgid ""
 "User '${username}' does not have a verified primary email address and "
 "cannot be added as a ${role_name} for organization"
 msgstr ""
 
-#: warehouse/manage/views.py:1806 warehouse/manage/views.py:3883
+#: warehouse/manage/views.py:1812 warehouse/manage/views.py:3889
 msgid "User '${username}' already has an active invite. Please try again later."
 msgstr ""
 
-#: warehouse/manage/views.py:1863 warehouse/manage/views.py:3951
+#: warehouse/manage/views.py:1869 warehouse/manage/views.py:3957
 msgid "Invitation sent to '${username}'"
 msgstr ""
 
-#: warehouse/manage/views.py:1906
+#: warehouse/manage/views.py:1912
 msgid "Could not find organization invitation."
 msgstr ""
 
-#: warehouse/manage/views.py:1920 warehouse/manage/views.py:3995
+#: warehouse/manage/views.py:1926 warehouse/manage/views.py:4001
 msgid "Invitation already expired."
 msgstr ""
 
-#: warehouse/manage/views.py:1953 warehouse/manage/views.py:4019
+#: warehouse/manage/views.py:1959 warehouse/manage/views.py:4025
 msgid "Invitation revoked from '${username}'."
 msgstr ""
 
-#: warehouse/manage/views.py:2340
+#: warehouse/manage/views.py:2346
 msgid "User '${username}' is already a team member"
 msgstr ""
 
-#: warehouse/manage/views.py:2721
+#: warehouse/manage/views.py:2727
 msgid ""
 "There have been too many attempted OpenID Connect registrations. Try "
 "again later."
 msgstr ""
 
-#: warehouse/manage/views.py:3673
+#: warehouse/manage/views.py:3679
 msgid "Team '${team_name}' already has ${role_name} role for project"
 msgstr ""
 
-#: warehouse/manage/views.py:3741
+#: warehouse/manage/views.py:3747
 msgid "${team_name} is now ${role} of the '${project_name}' project."
 msgstr ""
 
-#: warehouse/manage/views.py:3769
+#: warehouse/manage/views.py:3775
 msgid "User '${username}' already has ${role_name} role for project"
 msgstr ""
 
-#: warehouse/manage/views.py:3836
+#: warehouse/manage/views.py:3842
 msgid "${username} is now ${role} of the '${project_name}' project."
 msgstr ""
 
-#: warehouse/manage/views.py:3869
+#: warehouse/manage/views.py:3875
 msgid ""
 "User '${username}' does not have a verified primary email address and "
 "cannot be added as a ${role_name} for project"
 msgstr ""
 
-#: warehouse/manage/views.py:3984
+#: warehouse/manage/views.py:3990
 msgid "Could not find role invitation."
 msgstr ""
 
@@ -1496,6 +1496,20 @@ msgstr ""
 msgid "You are receiving this because you are a member of this organization."
 msgstr ""
 
+#: warehouse/templates/email/added-as-team-collaborator/body.html:20
+#, python-format
+msgid ""
+"Your team has been added as <strong>%(role)s</strong> to the %(site)s "
+"project %(project)s by %(submitter)s."
+msgstr ""
+
+#: warehouse/templates/email/added-as-team-collaborator/body.html:26
+#, python-format
+msgid ""
+"You are receiving this because your team has been added by %(submitter)s "
+"to a project on %(site)s."
+msgstr ""
+
 #: warehouse/templates/email/added-as-team-member/body.html:18
 #, python-format
 msgid ""
@@ -1716,6 +1730,8 @@ msgstr ""
 
 #: warehouse/templates/email/organization-member-added/body.html:31
 #: warehouse/templates/email/organization-member-invited/body.html:31
+#: warehouse/templates/email/team-collaborator-added/body.html:30
+#: warehouse/templates/email/team-collaborator-role-changed/body.html:30
 #: warehouse/templates/manage/organization/roles.html:60
 #: warehouse/templates/manage/organization/roles.html:99
 #: warehouse/templates/manage/organization/roles.html:202
@@ -1736,6 +1752,8 @@ msgid "Member of"
 msgstr ""
 
 #: warehouse/templates/email/organization-member-added/body.html:33
+#: warehouse/templates/email/team-collaborator-added/body.html:32
+#: warehouse/templates/email/team-collaborator-role-changed/body.html:32
 msgid "Added by"
 msgstr ""
 
@@ -1782,6 +1800,7 @@ msgid ""
 msgstr ""
 
 #: warehouse/templates/email/organization-member-removed/body.html:32
+#: warehouse/templates/email/team-collaborator-removed/body.html:31
 msgid "Removed by"
 msgstr ""
 
@@ -2014,6 +2033,20 @@ msgstr ""
 msgid "You are receiving this because you were a member of this organization."
 msgstr ""
 
+#: warehouse/templates/email/removed-as-team-collaborator/body.html:19
+#, python-format
+msgid ""
+"Your team was removed as <strong>%(role)s</strong> from the %(site)s "
+"project %(project)s by %(submitter)s."
+msgstr ""
+
+#: warehouse/templates/email/removed-as-team-collaborator/body.html:23
+#, python-format
+msgid ""
+"You are receiving this because your team was removed by %(submitter)s "
+"from a project on %(site)s."
+msgstr ""
+
 #: warehouse/templates/email/removed-as-team-member/body.html:18
 #, python-format
 msgid ""
@@ -2030,6 +2063,67 @@ msgstr ""
 msgid ""
 "Your role in the \"%(organization_name)s\" organization has been changed "
 "to <strong>%(role)s</strong>"
+msgstr ""
+
+#: warehouse/templates/email/role-changed-as-team-collaborator/body.html:20
+#, python-format
+msgid ""
+"Your team's role in the %(project)s project has been changed by "
+"%(submitter)s."
+msgstr ""
+
+#: warehouse/templates/email/role-changed-as-team-collaborator/body.html:25
+msgid ""
+"Your team now has Admin permissions for the project. You can add other "
+"collaborators, upload releases and delete files, releases or the entire "
+"project."
+msgstr ""
+
+#: warehouse/templates/email/role-changed-as-team-collaborator/body.html:27
+msgid ""
+"Your team now has Upload permissions for the project. You can upload "
+"releases but cannot add collaborators, delete files, releases or the "
+"project."
+msgstr ""
+
+#: warehouse/templates/email/role-changed-as-team-collaborator/body.html:33
+#, python-format
+msgid ""
+"You are receiving this because your team's role was changed by "
+"%(submitter)s on the %(project)s project."
+msgstr ""
+
+#: warehouse/templates/email/team-collaborator-added/body.html:26
+#, python-format
+msgid "A new collaborator has been added to a project you own on %(site)s"
+msgstr ""
+
+#: warehouse/templates/email/team-collaborator-added/body.html:29
+#: warehouse/templates/email/team-collaborator-removed/body.html:29
+#: warehouse/templates/email/team-collaborator-role-changed/body.html:29
+msgid "Team"
+msgstr ""
+
+#: warehouse/templates/email/team-collaborator-added/body.html:31
+#: warehouse/templates/email/team-collaborator-removed/body.html:30
+#: warehouse/templates/email/team-collaborator-role-changed/body.html:31
+msgid "Collaborator for"
+msgstr ""
+
+#: warehouse/templates/email/team-collaborator-added/body.html:42
+#: warehouse/templates/email/team-collaborator-removed/body.html:41
+#: warehouse/templates/email/team-collaborator-role-changed/body.html:42
+msgid "You are receiving this because you are an owner of this project."
+msgstr ""
+
+#: warehouse/templates/email/team-collaborator-removed/body.html:26
+#, python-format
+msgid "A collaborator was removed from a project you own on %(site)s"
+msgstr ""
+
+#: warehouse/templates/email/team-collaborator-role-changed/body.html:26
+#, python-format
+msgid "A collaborator's role was changed on a project you own on %(site)s"
 msgstr ""
 
 #: warehouse/templates/email/team-created/body.html:18

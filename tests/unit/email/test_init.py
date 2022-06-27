@@ -24,6 +24,7 @@ from warehouse.email.interfaces import IEmailSender
 from warehouse.email.services import EmailMessage
 
 from ...common.db.accounts import EmailFactory, UserFactory
+from ...common.db.organizations import TeamFactory
 
 
 @pytest.mark.parametrize(
@@ -2812,7 +2813,7 @@ class TestTeamMemberEmails:
             ("team-member-removed", email.send_team_member_removed_email),
         ],
     )
-    def test_send_team_email(
+    def test_send_team_member_email(
         self,
         db_request,
         team,
@@ -3769,6 +3770,111 @@ class TestRoleChangedAsCollaboratorEmail:
                     },
                 },
             ),
+        ]
+
+
+class TestTeamCollaboratorEmails:
+    @pytest.fixture
+    def team(self, pyramid_user):
+        self.user = UserFactory.create()
+        EmailFactory.create(user=self.user, verified=True)
+        self.submitter = pyramid_user
+        self.team = TeamFactory.create(name="Example Team")
+        self.project_name = "exampleproject"
+        self.role = "Admin"
+
+    @pytest.mark.parametrize(
+        ("email_template_name", "send_team_collaborator_email"),
+        [
+            ("added-as-team-collaborator", email.send_added_as_team_collaborator_email),
+            (
+                "removed-as-team-collaborator",
+                email.send_removed_as_team_collaborator_email,
+            ),
+            (
+                "role-changed-as-team-collaborator",
+                email.send_role_changed_as_team_collaborator_email,
+            ),
+            ("team-collaborator-added", email.send_team_collaborator_added_email),
+            ("team-collaborator-removed", email.send_team_collaborator_removed_email),
+            (
+                "team-collaborator-role-changed",
+                email.send_team_collaborator_role_changed_email,
+            ),
+        ],
+    )
+    def test_send_team_collaborator_email(
+        self,
+        db_request,
+        team,
+        make_email_renderers,
+        send_email,
+        email_template_name,
+        send_team_collaborator_email,
+    ):
+        subject_renderer, body_renderer, html_renderer = make_email_renderers(
+            email_template_name
+        )
+
+        if "removed" in email_template_name:
+            result = send_team_collaborator_email(
+                db_request,
+                self.user,
+                team=self.team,
+                submitter=self.submitter,
+                project_name=self.project_name,
+            )
+        else:
+            result = send_team_collaborator_email(
+                db_request,
+                self.user,
+                team=self.team,
+                submitter=self.submitter,
+                project_name=self.project_name,
+                role=self.role,
+            )
+
+        if "removed" in email_template_name:
+            assert result == {
+                "team_name": self.team.name,
+                "project": self.project_name,
+                "submitter": self.submitter.username,
+            }
+        else:
+            assert result == {
+                "team_name": self.team.name,
+                "project": self.project_name,
+                "submitter": self.submitter.username,
+                "role": self.role,
+            }
+        subject_renderer.assert_(**result)
+        body_renderer.assert_(**result)
+        html_renderer.assert_(**result)
+        assert db_request.task.calls == [pretend.call(send_email)]
+        assert send_email.delay.calls == [
+            pretend.call(
+                f"{self.user.name} <{self.user.email}>",
+                {
+                    "subject": subject_renderer.string_response,
+                    "body_text": body_renderer.string_response,
+                    "body_html": (
+                        f"<html>\n"
+                        f"<head></head>\n"
+                        f"<body><p>{html_renderer.string_response}</p></body>\n"
+                        f"</html>\n"
+                    ),
+                },
+                {
+                    "tag": "account:email:sent",
+                    "user_id": self.user.id,
+                    "additional": {
+                        "from_": db_request.registry.settings["mail.sender"],
+                        "to": self.user.email,
+                        "subject": subject_renderer.string_response,
+                        "redact_ip": True,
+                    },
+                },
+            )
         ]
 
 

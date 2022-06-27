@@ -752,6 +752,76 @@ def send_role_changed_as_collaborator_email(
     }
 
 
+@_email("team-collaborator-added")
+def send_team_collaborator_added_email(
+    request, email_recipients, *, team, submitter, project_name, role
+):
+    return {
+        "team_name": team.name,
+        "project": project_name,
+        "submitter": submitter.username,
+        "role": role,
+    }
+
+
+@_email("added-as-team-collaborator")
+def send_added_as_team_collaborator_email(
+    request, email_recipients, *, team, submitter, project_name, role
+):
+    return {
+        "team_name": team.name,
+        "project": project_name,
+        "submitter": submitter.username,
+        "role": role,
+    }
+
+
+@_email("team-collaborator-removed")
+def send_team_collaborator_removed_email(
+    request, email_recipients, *, team, submitter, project_name
+):
+    return {
+        "team_name": team.name,
+        "project": project_name,
+        "submitter": submitter.username,
+    }
+
+
+@_email("removed-as-team-collaborator")
+def send_removed_as_team_collaborator_email(
+    request, email_recipients, *, team, submitter, project_name
+):
+    return {
+        "team_name": team.name,
+        "project": project_name,
+        "submitter": submitter.username,
+    }
+
+
+@_email("team-collaborator-role-changed")
+def send_team_collaborator_role_changed_email(
+    request, email_recipients, *, team, submitter, project_name, role
+):
+    return {
+        "team_name": team.name,
+        "project": project_name,
+        "submitter": submitter.username,
+        "role": role,
+    }
+
+
+@_email("role-changed-as-team-collaborator")
+def send_role_changed_as_team_collaborator_email(
+    request, email_recipients, *, team, submitter, project_name, role
+):
+    return {
+        "team_name": team.name,
+        "project": project_name,
+        "submitter": submitter.username,
+        "role": role,
+    }
+
+
 @_email("two-factor-added")
 def send_two_factor_added_email(request, user, method):
     pretty_methods = {"totp": "TOTP", "webauthn": "WebAuthn"}

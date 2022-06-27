@@ -1,0 +1,42 @@
+{#
+ # Licensed under the Apache License, Version 2.0 (the "License");
+ # you may not use this file except in compliance with the License.
+ # You may obtain a copy of the License at
+ #
+ # http://www.apache.org/licenses/LICENSE-2.0
+ #
+ # Unless required by applicable law or agreed to in writing, software
+ # distributed under the License is distributed on an "AS IS" BASIS,
+ # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ # See the License for the specific language governing permissions and
+ # limitations under the License.
+-#}
+{% extends "email/_base/body.html" %}
+
+{% set site = request.registry.settings["site.name"] %}
+
+{% block extra_style %}
+ul.collaborator-details {
+    list-style-type: none;
+}
+{% endblock %}
+
+{% block content %}
+<p>
+  {% trans site=site %}A collaborator was removed from a project you own on {{ site }}{% endtrans %}:
+
+  <ul class="collaborator-details">
+    <li><strong>{% trans %}Team{% endtrans %}</strong>: {{ team_name }}</li>
+    <li><strong>{% trans %}Collaborator for{% endtrans %}</strong>: {{ project }}</li>
+    <li><strong>{% trans %}Removed by{% endtrans %}</strong>: {{ submitter }}</li>
+  </ul>
+</p>
+
+<p>
+  If this was a mistake, you can email <a href="mailto:admin@pypi.org">admin@pypi.org</a> to communicate with the PyPI administrators.
+</p>
+{% endblock %}
+
+{% block reason %}
+{% trans %}You are receiving this because you are an owner of this project.{% endtrans %}
+{% endblock %}

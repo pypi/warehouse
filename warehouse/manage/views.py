@@ -45,6 +45,7 @@ from warehouse.admin.flags import AdminFlagValue
 from warehouse.email import (
     send_account_deletion_email,
     send_added_as_collaborator_email,
+    send_added_as_team_collaborator_email,
     send_added_as_team_member_email,
     send_admin_new_organization_requested_email,
     send_admin_organization_deleted_email,
@@ -72,12 +73,17 @@ from warehouse.email import (
     send_recovery_codes_generated_email,
     send_removed_as_collaborator_email,
     send_removed_as_organization_member_email,
+    send_removed_as_team_collaborator_email,
     send_removed_as_team_member_email,
     send_removed_project_email,
     send_removed_project_release_email,
     send_removed_project_release_file_email,
     send_role_changed_as_collaborator_email,
     send_role_changed_as_organization_member_email,
+    send_role_changed_as_team_collaborator_email,
+    send_team_collaborator_added_email,
+    send_team_collaborator_removed_email,
+    send_team_collaborator_role_changed_email,
     send_team_created_email,
     send_team_deleted_email,
     send_team_member_added_email,
@@ -3715,26 +3721,26 @@ def manage_project_roles(project, request, _form_class=CreateRoleForm):
             },
         )
 
-        # TODO Send notification emails.
-        # member_users = set(team.users)
-        # owner_users = set(project.owners + project.organization.owners)
-        # owner_users -= member_users
-        # send_team_collaborator_added_email(
-        #     request,
-        #     owner_users,
-        #     team=team,
-        #     submitter=request.user,
-        #     project_name=project.name,
-        #     role=role_name.value,
-        # )
-        # send_added_as_team_collaborator_email(
-        #     request,
-        #     member_users,
-        #     team=team,
-        #     submitter=request.user,
-        #     project_name=project.name,
-        #     role=role_name.value,
-        # )
+        # Send notification emails.
+        member_users = set(team.users)
+        owner_users = set(project.owners + project.organization.owners)
+        owner_users -= member_users
+        send_team_collaborator_added_email(
+            request,
+            owner_users,
+            team=team,
+            submitter=request.user,
+            project_name=project.name,
+            role=role_name.value,
+        )
+        send_added_as_team_collaborator_email(
+            request,
+            member_users,
+            team=team,
+            submitter=request.user,
+            project_name=project.name,
+            role=role_name.value,
+        )
 
         # Display notification message.
         request.session.flash(
@@ -4237,26 +4243,26 @@ def change_team_project_role(project, request, _form_class=ChangeTeamProjectRole
                     },
                 )
 
-                # TODO Send notification emails.
-                # member_users = set(role.team.users)
-                # owner_users = set(project.owners + project.organization.owners)
-                # owner_users -= member_users
-                # send_team_collaborator_role_changed_email(
-                #     request,
-                #     owner_users,
-                #     team=role.team,
-                #     submitter=request.user,
-                #     project_name=project.name,
-                #     role=role.role_name,
-                # )
-                # send_role_changed_as_team_collaborator_email(
-                #     request,
-                #     member_users,
-                #     team=role.team,
-                #     submitter=request.user,
-                #     project_name=project.name,
-                #     role=role.role_name.value,
-                # )
+                # Send notification emails.
+                member_users = set(role.team.users)
+                owner_users = set(project.owners + project.organization.owners)
+                owner_users -= member_users
+                send_team_collaborator_role_changed_email(
+                    request,
+                    owner_users,
+                    team=role.team,
+                    submitter=request.user,
+                    project_name=project.name,
+                    role=role.role_name,
+                )
+                send_role_changed_as_team_collaborator_email(
+                    request,
+                    member_users,
+                    team=role.team,
+                    submitter=request.user,
+                    project_name=project.name,
+                    role=role.role_name.value,
+                )
 
                 # Display notification message.
                 request.session.flash("Changed role", queue="success")
@@ -4331,24 +4337,24 @@ def delete_team_project_role(project, request):
                 },
             )
 
-            # TODO Send notification emails.
-            # member_users = set(team.users)
-            # owner_users = set(project.owners + project.organization.owners)
-            # owner_users -= member_users
-            # send_team_collaborator_removed_email(
-            #     request,
-            #     owner_users,
-            #     team=role.team,
-            #     submitter=request.user,
-            #     project_name=project.name,
-            # )
-            # send_removed_as_team_collaborator_email(
-            #     request,
-            #     member_users,
-            #     team=role.team,
-            #     submitter=request.user,
-            #     project_name=project.name,
-            # )
+            # Send notification emails.
+            member_users = set(team.users)
+            owner_users = set(project.owners + project.organization.owners)
+            owner_users -= member_users
+            send_team_collaborator_removed_email(
+                request,
+                owner_users,
+                team=role.team,
+                submitter=request.user,
+                project_name=project.name,
+            )
+            send_removed_as_team_collaborator_email(
+                request,
+                member_users,
+                team=role.team,
+                submitter=request.user,
+                project_name=project.name,
+            )
 
             # Display notification message.
             request.session.flash("Removed role", queue="success")
