@@ -76,9 +76,9 @@ billiard==3.6.4.0 \
     --hash=sha256:299de5a8da28a783d51b197d496bef4f1595dd023a93a4f59dde1886ae905547 \
     --hash=sha256:87103ea78fa6ab4d5c751c4909bcff74617d985de7fa8b672cf8618afd5a875b
     # via celery
-bleach==5.0.0 \
-    --hash=sha256:08a1fe86d253b5c88c92cc3d810fd8048a16d15762e1e5b74d502256e5926aa1 \
-    --hash=sha256:c6d6cc054bdc9c83b48b8083e236e5f00f238428666d2ce2e083eaa5fd568565
+bleach==5.0.1 \
+    --hash=sha256:085f7f33c15bd408dd9b17a4ad77c577db66d76203e5984b1bd59baeee948b2a \
+    --hash=sha256:0d03255c47eb9bd2f26aa9bb7f2107732e7e8fe195ca2f64709fcf3b0a4a085c
     # via readme-renderer
 boto3==1.24.15 \
     --hash=sha256:42485c7c53eda9e49106d49a6bc222062428969dd27164fe346b1433d6de74ee \
