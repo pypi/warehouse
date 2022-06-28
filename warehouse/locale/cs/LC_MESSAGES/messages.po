@@ -1,30 +1,30 @@
 # Matěj Volf <mat.volfik@gmail.com>, 2020.
 # anonymous <noreply@weblate.org>, 2020.
-# Jan Vondra <jan.dubla.vondra@gmail.com>, 2020.
-# Josef Kolář <thejoeejoee@gmail.com>, 2020.
-# Jiří Chadima <chadima.jiri@gmail.com>, 2020.
-# Dalibor Straka <public11@panelnet.cz>, 2020.
+# Jan Vondra <jan.dubla.vondra@gmail.com>, 2020, 2022.
+# Josef Kolář <thejoeejoee@gmail.com>, 2020, 2022.
+# Jiří Chadima <chadima.jiri@gmail.com>, 2020, 2022.
+# Dalibor Straka <public11@panelnet.cz>, 2020, 2022.
 # Šílenej Ajťák <silenej.ajtak@gmail.com>, 2020.
-# Sviatoslav Sydorenko <wk+weblate.org@sydorenko.org.ua>, 2020.
+# Sviatoslav Sydorenko <wk+weblate.org@sydorenko.org.ua>, 2020, 2022.
 # simberaj <simbera.jan@gmail.com>, 2020, 2022.
-# Marek Schwarz <massa.kassa.sc3na@gmail.com>, 2020.
-# Vojtěch Šamla <auzkok@seznam.cz>, 2020, 2021.
+# Marek Schwarz <massa.kassa.sc3na@gmail.com>, 2020, 2022.
+# Vojtěch Šamla <auzkok@seznam.cz>, 2020, 2021, 2022.
 # Jonáš Hanulík <jonashanulik@gmail.com>, 2022.
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: admin@pypi.org\n"
 "POT-Creation-Date: 2020-04-10 13:52+0200\n"
-"PO-Revision-Date: 2022-03-20 15:25+0000\n"
-"Last-Translator: simberaj <simbera.jan@gmail.com>\n"
-"Language-Team: Czech <https://hosted.weblate.org/projects/pypa/warehouse/cs/"
-">\n"
+"PO-Revision-Date: 2022-06-28 19:50+0000\n"
+"Last-Translator: Jan Vondra <jan.dubla.vondra@gmail.com>\n"
+"Language-Team: Czech <https://hosted.weblate.org/projects/pypa/warehouse/cs/>"
+"\n"
 "Language: cs\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=(n==1) ? 0 : (n>=2 && n<=4) ? 1 : 2;\n"
-"X-Generator: Weblate 4.12-dev\n"
+"X-Generator: Weblate 4.13.1-dev\n"
 
 #: warehouse/views.py:129
 msgid ""
@@ -72,8 +72,7 @@ msgstr "Toto heslo je neplatné. Zkuste to prosím znovu."
 
 #: warehouse/accounts/forms.py:149 warehouse/accounts/views.py:87
 msgid "There have been too many unsuccessful login attempts. Try again later."
-msgstr ""
-"Přiliš mnoho neúspěšných pokusů o přihlášení. Zkuste to prosím později."
+msgstr "Přiliš mnoho neúspěšných pokusů o přihlášení. Zkuste to prosím později."
 
 #: warehouse/accounts/forms.py:171
 msgid "Your passwords don't match. Try again."
@@ -467,8 +466,7 @@ msgstr "Uživatel '${username}' odmítl pozvánku."
 msgid ""
 "There have been too many attempted OpenID Connect registrations. Try again "
 "later."
-msgstr ""
-"Přiliš mnoho neúspěšných pokusů o přihlášení. Zkuste to prosím později."
+msgstr "Přiliš mnoho neúspěšných pokusů o přihlášení. Zkuste to prosím později."
 
 #: warehouse/manage/views.py:3118
 msgid "User '${username}' already has ${role_name} role for project"
@@ -653,7 +651,6 @@ msgstr "Monty Python - Skeč s obchodem se sýrem"
 #: warehouse/templates/pages/help.html:892
 #: warehouse/templates/pages/help.html:893
 #: warehouse/templates/pages/help.html:898
-#: warehouse/templates/pages/security.html:36
 #: warehouse/templates/pages/sponsors.html:33
 #: warehouse/templates/pages/sponsors.html:37
 #: warehouse/templates/pages/sponsors.html:41
@@ -1206,8 +1203,8 @@ msgid ""
 "\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">Python "
 "Packaging User Guide</a>."
 msgstr ""
-"Pro více informací k nahrávání souborů do PyPI, navštivte <a href=\"%(href)s"
-"\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">Uživatelskou "
+"Pro více informací k nahrávání souborů do PyPI, navštivte <a href=\"%(href)"
+"s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">Uživatelskou "
 "příručku Python Packaging</a>."
 
 #: warehouse/templates/upload.html:28
@@ -1215,8 +1212,8 @@ msgstr ""
 msgid ""
 "Otherwise, we suggest you <a href=\"%(href)s\">go to the PyPI homepage</a>."
 msgstr ""
-"Jinak doporučujeme zavítat na <a href=\"%(href)s\">domovskou stránku PyPI</"
-"a>."
+"Jinak doporučujeme zavítat na <a href=\"%(href)s\">domovskou stránku "
+"PyPI</a>."
 
 #: warehouse/templates/accounts/invite-confirmation.html:17
 msgid "Confirm Invite"
@@ -1536,9 +1533,9 @@ msgid ""
 "<a href=\"%(href)s\" title=\"%(title)s\" target=\"%(target)s\" rel=\"%(rel)s"
 "\">Upgrade your browser</a> to log in with a security device (e.g. USB key)"
 msgstr ""
-"Pro přihlášení pomocí bezpečnostního prvku (např. USB klíčenky), <a href="
-"\"%(href)s\" title=\"%(title)s\" target=\"%(target)s\" rel=\"%(rel)s"
-"\">aktualizujte prohlížeč</a>"
+"Pro přihlášení pomocí bezpečnostního prvku (např. USB klíčenky), <a href=\""
+"%(href)s\" title=\"%(title)s\" target=\"%(target)s\" rel=\"%(rel)s\""
+">aktualizujte prohlížeč</a>"
 
 #: warehouse/templates/accounts/two-factor.html:60
 #, python-format
@@ -1564,8 +1561,8 @@ msgid ""
 msgstr ""
 "<p>Vygenerujte kód použitím autentizační aplikace připojení k vašemu PyPI "
 "účtu. Tento kód vložte do formuláře pro ověření vaší identity.</p> "
-"<p>Ztratili jste aplikaci? Něco nefunguje? <a href=\"%(href)s\">Pomoc zde</"
-"a>.</p>"
+"<p>Ztratili jste aplikaci? Něco nefunguje? <a href=\"%(href)s\">Pomoc "
+"zde</a>.</p>"
 
 #: warehouse/templates/accounts/two-factor.html:127
 msgid "Lost your security key or application?"
@@ -2014,8 +2011,8 @@ msgid ""
 "Someone, perhaps you, has changed the password for your PyPI account <strong>"
 "%(username)s</strong>."
 msgstr ""
-"Někdo, pravděpodobně vy, změnil heslo k vašemu PyPI účtu <strong>"
-"%(username)s</strong>."
+"Někdo, pravděpodobně vy, změnil heslo k vašemu PyPI účtu "
+"<strong>%(username)s</strong>."
 
 #: warehouse/templates/email/password-compromised/body.html:20
 msgid ""
@@ -2100,8 +2097,8 @@ msgid ""
 "passwords and get yourself familiar with good password practices."
 msgstr ""
 "K získání přístupu k vašemu účtu si <a href=\"%(reset_pw_url)s\">zresetujte "
-"vaše heslo</a> na PyPI. Také dopočujeme návstěvu služby <a href="
-"\"%(have_i_been_pwned_url)s\">HaveIBeenPwned</a> a zkontrolování vašich "
+"vaše heslo</a> na PyPI. Také dopočujeme návstěvu služby <a href=\""
+"%(have_i_been_pwned_url)s\">HaveIBeenPwned</a> a zkontrolování vašich "
 "dalších hesel vůči praktikám pro tvorbu bezpečného hesla."
 
 #: warehouse/templates/email/password-compromised-hibp/body.html:40
@@ -2117,8 +2114,8 @@ msgid ""
 "characters of the hash to decide if the password is compromised. The "
 "plaintext password is never stored by PyPI or sent to HaveIBeenPwned."
 msgstr ""
-"Využíváme bezplatnou bezpečnostní službu <a href=\"%(have_i_been_pwned_url)s"
-"\">HaveIBeenPwned</a>. Když se registrujete, ověřujete, nebo aktualizujete "
+"Využíváme bezplatnou bezpečnostní službu <a href=\"%(have_i_been_pwned_url)"
+"s\">HaveIBeenPwned</a>. Když se registrujete, ověřujete, nebo aktualizujete "
 "své heslo, generujeme SHA1 hash Vašeho hesla a použijeme prvních 5 znaků z "
 "hash k rozhodnutí, zda je heslo kompromitováno. PyPI nikdy neukládá hesla v "
 "čitelné formě ani je neodesílá službě HaveIBeenPwned."
@@ -2130,9 +2127,9 @@ msgid ""
 "can email <a href=\"%(email_href)s\">%(email_address)s</a> to communicate "
 "with the PyPI administrators."
 msgstr ""
-"Další informace naleznete v našich nejčastějších dotazech na <a href="
-"\"%(faq_url)s\"> FAQ</a>. Dotazy můžete odeslat e-mailem <a href="
-"\"%(email_href)s\">%(email_address)s</a> a zeptat se přímo správců PyPI."
+"Další informace naleznete v našich nejčastějších dotazech na <a href=\""
+"%(faq_url)s\"> FAQ</a>. Dotazy můžete odeslat e-mailem <a href=\""
+"%(email_href)s\">%(email_address)s</a> a zeptat se přímo správců PyPI."
 
 #: warehouse/templates/email/password-reset/body.html:18
 #, python-format
@@ -2272,8 +2269,8 @@ msgid ""
 "Someone, perhaps you, has removed a %(method)s two-factor authentication "
 "method from your PyPI account <strong>%(username)s</strong>."
 msgstr ""
-"Někdo, pravděpodobně vy, odebral dvoufaktorovou metodu autentizace "
-"%(method)s k vašemu PyPI účtu <strong>%(username)s</strong>."
+"Někdo, pravděpodobně vy, odebral dvoufaktorovou metodu autentizace %(method)"
+"s k vašemu PyPI účtu <strong>%(username)s</strong>."
 
 #: warehouse/templates/email/verify-email/body.html:18
 #, python-format
@@ -2398,8 +2395,8 @@ msgid ""
 "<a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener"
 "\">Hashes</a> for %(filename)s"
 msgstr ""
-"<a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener"
-"\">Haše</a> pro %(filename)s"
+"<a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener\""
+">Haše</a> pro %(filename)s"
 
 #: warehouse/templates/includes/hash-modal.html:28
 #, python-format
@@ -2529,8 +2526,8 @@ msgid ""
 "\" rel=\"noopener\">Python Packaging User Guide</a>"
 msgstr ""
 "Zatím jste nenahrál žádné projekty na PyPI. Jak začít nalezneš na stránce <a "
-"href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener"
-"\">uživatelské příručky pro PyPI</a>"
+"href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener\""
+">uživatelské příručky pro PyPI</a>"
 
 #: warehouse/templates/includes/accounts/profile-callout.html:23
 #, python-format
@@ -2859,8 +2856,8 @@ msgid ""
 "One of your verified emails can be displayed on your <a href=\"%(href)s"
 "\">public profile</a> to logged-in users."
 msgstr ""
-"Jeden z vašich ověřených e-mailů lze zobrazit na <a href=\"%(href)s"
-"\">veřejném profilu</a> přihlášeným uživatelům."
+"Jeden z vašich ověřených e-mailů lze zobrazit na <a href=\"%(href)s\""
+">veřejném profilu</a> přihlášeným uživatelům."
 
 #: warehouse/templates/manage/account.html:302
 msgid "Update account"
@@ -2880,8 +2877,8 @@ msgstr ""
 "K účtu si můžete přiřadit více e-mailových adres. Pro obnovení přístupu k "
 "účtu je možno použít kterýkoliv <span class=\"badge badge--success\"><i "
 "class=\"fa fa-check\" aria-hidden=\"true\"></i>ověřený</span> e-mail, ale "
-"notifikace budete dostávat pouze na <span class=\"badge\">primární</span> e-"
-"mail."
+"notifikace budete dostávat pouze na <span class=\"badge\">primární</span> "
+"e-mail."
 
 #: warehouse/templates/manage/account.html:323
 msgid "Emails associated with your account"
@@ -3245,18 +3242,18 @@ msgid_plural ""
 "        "
 msgstr[0] ""
 "\n"
-"          Váš účet je <strong>jediným vlastníkem</strong> %(count)s "
-"projektu.\n"
+"          Váš účet je <strong>jediným vlastníkem</strong> %(count)s projektu."
+"\n"
 "        "
 msgstr[1] ""
 "\n"
-"          Váš účet je <strong>jediným vlastníkem</strong> %(count)s "
-"projektů.\n"
+"          Váš účet je <strong>jediným vlastníkem</strong> %(count)s projektů."
+"\n"
 "        "
 msgstr[2] ""
 "\n"
-"          Váš účet je <strong>jediným vlastníkem</strong> %(count)s "
-"projektů.\n"
+"          Váš účet je <strong>jediným vlastníkem</strong> %(count)s projektů."
+"\n"
 "        "
 
 #: warehouse/templates/manage/account.html:695
@@ -3293,8 +3290,8 @@ msgid ""
 "<a href=\"%(transfer_href)s\">transfer ownership</a> or <a href="
 "\"%(delete_href)s\">delete project</a>"
 msgstr ""
-"<a href=\"%(transfer_href)s\">převést vlastnictví</a> nebo <a href="
-"\"%(delete_href)s\">smazat projekt</a>"
+"<a href=\"%(transfer_href)s\">převést vlastnictví</a> nebo <a href=\""
+"%(delete_href)s\">smazat projekt</a>"
 
 #: warehouse/templates/manage/account.html:714
 #: warehouse/templates/manage/organization/settings.html:157
@@ -3550,8 +3547,8 @@ msgid ""
 "authentication\">2FA</abbr></a>."
 msgstr ""
 "Dvoufaktorová autentizace přidává vašemu účtu další úroveň zabezpečení. <a "
-"href=\"%(href)s\">Více o <abbr title=\"dvoufaktorová autentizace\">2FA</"
-"abbr></a>."
+"href=\"%(href)s\">Více o <abbr title=\"dvoufaktorová autentizace\""
+">2FA</abbr></a>."
 
 #: warehouse/templates/manage/manage_base.html:30
 #, fuzzy
@@ -3771,8 +3768,8 @@ msgid ""
 "\">Upgrade your browser</a> to set up two factor authentication with a "
 "security device (e.g. USB key)"
 msgstr ""
-"<a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener"
-"\">Aktualizujte svůj prohlížeč</a> pro nastavení dvoufaktorové autentizace "
+"<a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener\""
+">Aktualizujte svůj prohlížeč</a> pro nastavení dvoufaktorové autentizace "
 "pomocí bezpečnostního prvku (např. USB klíč)"
 
 #: warehouse/templates/manage/manage_base.html:198
@@ -4997,8 +4994,8 @@ msgid ""
 "Set your password to the token value, including the <code>%(prefix)s</code> "
 "prefix"
 msgstr ""
-"Nastavte si heslo pro hodnotu tokenu, zahrnující prefix <code>%(prefix)s</"
-"code>"
+"Nastavte si heslo pro hodnotu tokenu, zahrnující prefix "
+"<code>%(prefix)s</code>"
 
 #: warehouse/templates/manage/token.html:84
 #, python-format
@@ -5313,8 +5310,8 @@ msgid ""
 "\">Python Packaging User Guide</a>"
 msgstr ""
 "Zatím jste nenahrál žádné projekty na PyPI. Jak začít nalezneš na stránce <a "
-"href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener"
-"\">uživatelské příručky pro PyPI</a>"
+"href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener\""
+">uživatelské příručky pro PyPI</a>"
 
 #: warehouse/templates/manage/organization/projects.html:149
 #, fuzzy
@@ -5534,18 +5531,18 @@ msgid_plural ""
 "        "
 msgstr[0] ""
 "\n"
-"          Váš účet je <strong>jediným vlastníkem</strong> %(count)s "
-"projektu.\n"
+"          Váš účet je <strong>jediným vlastníkem</strong> %(count)s projektu."
+"\n"
 "        "
 msgstr[1] ""
 "\n"
-"          Váš účet je <strong>jediným vlastníkem</strong> %(count)s "
-"projektů.\n"
+"          Váš účet je <strong>jediným vlastníkem</strong> %(count)s projektů."
+"\n"
 "        "
 msgstr[2] ""
 "\n"
-"          Váš účet je <strong>jediným vlastníkem</strong> %(count)s "
-"projektů.\n"
+"          Váš účet je <strong>jediným vlastníkem</strong> %(count)s projektů."
+"\n"
 "        "
 
 #: warehouse/templates/manage/organization/settings.html:184
@@ -5724,8 +5721,8 @@ msgid ""
 "rel=\"noopener\">installing packages</a>."
 msgstr ""
 "Stáhněte si soubor pro vaši platformu. Pokud si nejste jisti který zvolit, "
-"<a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener"
-"\">zjistěte více o instalaci balíčků</a>."
+"<a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener\""
+">zjistěte více o instalaci balíčků</a>."
 
 #: warehouse/templates/packaging/detail.html:354
 #, fuzzy
@@ -5849,8 +5846,8 @@ msgid ""
 "are expected to follow the <a href=\"%(href)s\" title=\"%(title)s\" target="
 "\"_blank\" rel=\"noopener\">PSF Code of Conduct</a>."
 msgstr ""
-"Pro více informací k nahrávání souborů do PyPI, navštivte <a href=\"%(href)s"
-"\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">Uživatelskou "
+"Pro více informací k nahrávání souborů do PyPI, navštivte <a href=\"%(href)"
+"s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">Uživatelskou "
 "příručku Python Packaging</a>."
 
 #: warehouse/templates/pages/help.html:31
@@ -7025,8 +7022,8 @@ msgid ""
 "This is a <a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel="
 "\"noopener\">known issue</a> with Python's <code>getpass</code> module."
 msgstr ""
-"<a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener"
-"\">Haše</a> pro %(filename)s"
+"<a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener\""
+">Haše</a> pro %(filename)s"
 
 #: warehouse/templates/pages/help.html:684
 #, python-format
@@ -7432,9 +7429,8 @@ msgstr "Důležité!"
 
 #: warehouse/templates/pages/security.html:24
 msgid ""
-"If you believe you've identified a security issue with Warehouse, <strong>DO "
-"NOT</strong> report the issue in any public forum, including (but not "
-"limited to):"
+"If you believe you've identified a security issue with PyPI, <strong>DO NOT</"
+"strong> report the issue in any public forum, including (but not limited to):"
 msgstr ""
 
 #: warehouse/templates/pages/security.html:27
@@ -7450,38 +7446,68 @@ msgid "Official or unofficial mailing lists"
 msgstr ""
 
 #: warehouse/templates/pages/security.html:35
-#, python-format
-msgid ""
-"Instead, email <a href=\"%(href)s\">security at python dot org</a> directly, "
-"providing as much relevant information as possible."
+msgid "If you've identified a security issue with a project hosted on PyPI"
 msgstr ""
 
 #: warehouse/templates/pages/security.html:36
 #, python-format
 msgid ""
-"Messages may be optionally encrypted with GPG using key fingerprints "
-"available <a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel="
-"\"noopener\">at the Python Security page</a>."
+"Email <a href=\"%(href)s\">security@pypi.org</a>, providing the following "
+"details:"
 msgstr ""
 
 #: warehouse/templates/pages/security.html:38
-msgid "What happens next?"
+msgid "A URL to the project in question"
+msgstr ""
+
+#: warehouse/templates/pages/security.html:39
+msgid "An explanation of what makes the project a security issue"
 msgstr ""
 
 #: warehouse/templates/pages/security.html:40
+#, python-format
+msgid ""
+"If applicable: a link to the problematic lines in the project's "
+"distributions via <a href=\"%(href)s\">inspector.pypi.io</a>"
+msgstr ""
+
+#: warehouse/templates/pages/security.html:42
+msgid ""
+"Valid malware reports may include examples of typo-squatting, dependency "
+"confusion, data exfiltration, obfustication, command/control, etc."
+msgstr ""
+
+#: warehouse/templates/pages/security.html:44
+msgid ""
+"If you've identified a security issue with PyPI itself (not a project hosted "
+"on PyPI)"
+msgstr ""
+
+#: warehouse/templates/pages/security.html:45
+#, python-format
+msgid ""
+"Email <a href=\"%(href)s\">security@pypi.org</a>, providing as much relevant "
+"information as possible, including reproducing steps."
+msgstr ""
+
+#: warehouse/templates/pages/security.html:47
+msgid "What happens next?"
+msgstr ""
+
+#: warehouse/templates/pages/security.html:48
 msgid ""
 "Once you've submitted an issue via email, you should receive an "
 "acknowledgment within 48 hours."
 msgstr ""
 
-#: warehouse/templates/pages/security.html:41
+#: warehouse/templates/pages/security.html:49
 msgid ""
 "Depending on the action to be taken, you may receive further follow-up "
 "emails."
 msgstr ""
 
-#: warehouse/templates/pages/security.html:44
-msgid "This security policy was last updated on March 14, 2018."
+#: warehouse/templates/pages/security.html:52
+msgid "This security policy was last updated on June 2022."
 msgstr ""
 
 #: warehouse/templates/pages/sitemap.html:21

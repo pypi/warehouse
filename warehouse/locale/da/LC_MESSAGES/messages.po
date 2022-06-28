@@ -1,11 +1,11 @@
-# Nicklas Tegner <nicklasmchd@live.dk>, 2020.
+# Nicklas Tegner <nicklasmchd@live.dk>, 2020, 2022.
 # J DUZ <bigumz1234567@gmail.com>, 2022.
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: admin@pypi.org\n"
 "POT-Creation-Date: 2020-11-18 22:49+0200\n"
-"PO-Revision-Date: 2022-05-04 01:41+0000\n"
+"PO-Revision-Date: 2022-06-28 19:52+0000\n"
 "Last-Translator: J DUZ <bigumz1234567@gmail.com>\n"
 "Language-Team: Danish <https://hosted.weblate.org/projects/pypa/warehouse/da/"
 ">\n"
@@ -14,7 +14,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Generator: Weblate 4.12.1\n"
+"X-Generator: Weblate 4.13.1-dev\n"
 
 #: warehouse/views.py:129
 msgid ""
@@ -642,7 +642,6 @@ msgstr "Monty Python - The Cheese Shop Sketch"
 #: warehouse/templates/pages/help.html:892
 #: warehouse/templates/pages/help.html:893
 #: warehouse/templates/pages/help.html:898
-#: warehouse/templates/pages/security.html:36
 #: warehouse/templates/pages/sponsors.html:33
 #: warehouse/templates/pages/sponsors.html:37
 #: warehouse/templates/pages/sponsors.html:41
@@ -714,8 +713,8 @@ msgid ""
 "Choose a strong password that contains letters (uppercase and lowercase), "
 "numbers and special characters. Avoid common words or repetition."
 msgstr ""
-"Vælg en stærk adgangskode, der indeholder bogstaver (store og små "
-"bogstaver), tal og specialtegn. Undgå almindelige ord eller gentagelser."
+"Vælg en stærk adgangskode, der indeholder bogstaver (store og små bogstaver)"
+", tal og specialtegn. Undgå almindelige ord eller gentagelser."
 
 #: warehouse/templates/base.html:27
 msgid "Password strength:"
@@ -1176,11 +1175,11 @@ msgid ""
 msgstr ""
 "\n"
 "              · · · · · · · · · · · · · · · · · · · · · · · · · · · <b> Tip: "
-"</b> du er ved at udføre en <a href = \"% ( href) s \"> følsom handling </"
-"a> .↵\n"
+"</b> du er ved at udføre en <a href = \"% ( href) s \"> følsom handling </a> "
+".↵\n"
 "·· ·· ·· ·· ·· ·· ·· ·· ·· ·· ·· ·· ·· ·· · Hvis du ikke er på en personlig "
-"computer, skal du sørge for at logge af, når du er færdig med din session ."
-"↵\n"
+"computer, skal du sørge for at logge af, når du er færdig med din session .↵"
+"\n"
 "·· ·· ·· ·· ·· ·· ·· ·· ·· ·· ·· ·· ·· ·· Vi beder dig ikke om at bekræfte "
 "dit kodeord igen i den næste time.↵\n"
 "· · · · · · · · · · · · · · · · · · · · · · · · · · · · ·\n"
@@ -1197,8 +1196,8 @@ msgid ""
 "\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">Python "
 "Packaging User Guide</a>."
 msgstr ""
-"For mere information om upload af projekter til PyPI, besøg <a href="
-"\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">Pythons "
+"For mere information om upload af projekter til PyPI, besøg <a href=\"%(href)"
+"s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">Pythons "
 "pakningsbrugervejledning</a>."
 
 #: warehouse/templates/upload.html:28
@@ -4861,8 +4860,8 @@ msgid ""
 "new project, visit the <a href=\"%(href)s\" target=\"_blank\" rel=\"noopener"
 "\">Python Packaging User Guide</a>"
 msgstr ""
-"For mere information om upload af projekter til PyPI, besøg <a href="
-"\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">Pythons "
+"For mere information om upload af projekter til PyPI, besøg <a href=\"%(href)"
+"s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">Pythons "
 "pakningsbrugervejledning</a>."
 
 #: warehouse/templates/manage/organization/projects.html:149
@@ -6310,8 +6309,8 @@ msgid ""
 "<a href=\"%(file_issue_href)s\" title=\"%(title)s\" target=\"_blank\" rel="
 "\"noopener\">file an issue</a> with details."
 msgstr ""
-"For mere information om upload af projekter til PyPI, besøg <a href="
-"\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">Pythons "
+"For mere information om upload af projekter til PyPI, besøg <a href=\"%(href)"
+"s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">Pythons "
 "pakningsbrugervejledning</a>."
 
 #: warehouse/templates/pages/help.html:633
@@ -6696,8 +6695,8 @@ msgid ""
 "\"%(discourse_forum_href)s\" title=\"%(title)s\" target=\"_blank\" rel="
 "\"noopener\">Python packaging forum on Discourse</a>."
 msgstr ""
-"For mere information om upload af projekter til PyPI, besøg <a href="
-"\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">Pythons "
+"For mere information om upload af projekter til PyPI, besøg <a href=\"%(href)"
+"s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">Pythons "
 "pakningsbrugervejledning</a>."
 
 #: warehouse/templates/pages/help.html:855
@@ -6813,9 +6812,8 @@ msgstr ""
 
 #: warehouse/templates/pages/security.html:24
 msgid ""
-"If you believe you've identified a security issue with Warehouse, <strong>DO "
-"NOT</strong> report the issue in any public forum, including (but not "
-"limited to):"
+"If you believe you've identified a security issue with PyPI, <strong>DO NOT</"
+"strong> report the issue in any public forum, including (but not limited to):"
 msgstr ""
 
 #: warehouse/templates/pages/security.html:27
@@ -6831,38 +6829,68 @@ msgid "Official or unofficial mailing lists"
 msgstr ""
 
 #: warehouse/templates/pages/security.html:35
-#, python-format
-msgid ""
-"Instead, email <a href=\"%(href)s\">security at python dot org</a> directly, "
-"providing as much relevant information as possible."
+msgid "If you've identified a security issue with a project hosted on PyPI"
 msgstr ""
 
 #: warehouse/templates/pages/security.html:36
 #, python-format
 msgid ""
-"Messages may be optionally encrypted with GPG using key fingerprints "
-"available <a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel="
-"\"noopener\">at the Python Security page</a>."
+"Email <a href=\"%(href)s\">security@pypi.org</a>, providing the following "
+"details:"
 msgstr ""
 
 #: warehouse/templates/pages/security.html:38
-msgid "What happens next?"
+msgid "A URL to the project in question"
+msgstr ""
+
+#: warehouse/templates/pages/security.html:39
+msgid "An explanation of what makes the project a security issue"
 msgstr ""
 
 #: warehouse/templates/pages/security.html:40
+#, python-format
+msgid ""
+"If applicable: a link to the problematic lines in the project's "
+"distributions via <a href=\"%(href)s\">inspector.pypi.io</a>"
+msgstr ""
+
+#: warehouse/templates/pages/security.html:42
+msgid ""
+"Valid malware reports may include examples of typo-squatting, dependency "
+"confusion, data exfiltration, obfustication, command/control, etc."
+msgstr ""
+
+#: warehouse/templates/pages/security.html:44
+msgid ""
+"If you've identified a security issue with PyPI itself (not a project hosted "
+"on PyPI)"
+msgstr ""
+
+#: warehouse/templates/pages/security.html:45
+#, python-format
+msgid ""
+"Email <a href=\"%(href)s\">security@pypi.org</a>, providing as much relevant "
+"information as possible, including reproducing steps."
+msgstr ""
+
+#: warehouse/templates/pages/security.html:47
+msgid "What happens next?"
+msgstr ""
+
+#: warehouse/templates/pages/security.html:48
 msgid ""
 "Once you've submitted an issue via email, you should receive an "
 "acknowledgment within 48 hours."
 msgstr ""
 
-#: warehouse/templates/pages/security.html:41
+#: warehouse/templates/pages/security.html:49
 msgid ""
 "Depending on the action to be taken, you may receive further follow-up "
 "emails."
 msgstr ""
 
-#: warehouse/templates/pages/security.html:44
-msgid "This security policy was last updated on March 14, 2018."
+#: warehouse/templates/pages/security.html:52
+msgid "This security policy was last updated on June 2022."
 msgstr ""
 
 #: warehouse/templates/pages/sitemap.html:21

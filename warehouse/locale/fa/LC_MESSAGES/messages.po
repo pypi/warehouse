@@ -2,25 +2,26 @@
 # Copyright (C) 2019 PyPA
 # This file is distributed under the same license as the Warehouse project.
 # FIRST AUTHOR <EMAIL@ADDRESS>, 2019.
-# Aurora Lanes <auroralanes@protonmail.ch>, 2019.
+# Aurora Lanes <auroralanes@protonmail.ch>, 2019, 2022.
 # سهیل خانعلی‌پور <soheil@disroot.org>, 2021.
-# Sebghatullah Yusuf <sebghatyusuf@gmail.com>, 2021.
-# reza gh <iranianboy200017@gmail.com>, 2021.
-# javad noori <cpuintelamd@yahoo.com>, 2021.
-# Reza Maanijou <reza.maanijou@gmail.com>, 2021.
-# arshia farshad <nooneisme02@gmail.com>, 2021.
-# Arsalan Dehghani <arsalan.dehghani@gmail.com>, 2021.
+# Sebghatullah Yusuf <sebghatyusuf@gmail.com>, 2021, 2022.
+# reza gh <iranianboy200017@gmail.com>, 2021, 2022.
+# javad noori <cpuintelamd@yahoo.com>, 2021, 2022.
+# Reza Maanijou <reza.maanijou@gmail.com>, 2021, 2022.
+# arshia farshad <nooneisme02@gmail.com>, 2021, 2022.
+# Arsalan Dehghani <arsalan.dehghani@gmail.com>, 2021, 2022.
 # Matin <MatiinBaloochestani@gmail.com>, 2022.
 # Amirreza Ahmadi <288c19df1f@catdogmail.live>, 2022.
 # Farivar Tabatabaei <farivar.tabatabaei80@gmail.com>, 2022.
 # xashayar kml <kml.khashayar@gmail.com>, 2022.
+# Soheil Khanalipur <soheil@disroot.org>, 2022.
 msgid ""
 msgstr ""
 "Project-Id-Version: Warehouse VERSION\n"
 "Report-Msgid-Bugs-To: admin@pypi.org\n"
 "POT-Creation-Date: 2020-01-15 20:11+0200\n"
-"PO-Revision-Date: 2022-06-19 16:54+0000\n"
-"Last-Translator: xashayar kml <kml.khashayar@gmail.com>\n"
+"PO-Revision-Date: 2022-06-28 19:49+0000\n"
+"Last-Translator: Farivar Tabatabaei <farivar.tabatabaei80@gmail.com>\n"
 "Language-Team: Persian <https://hosted.weblate.org/projects/pypa/warehouse/"
 "fa/>\n"
 "Language: fa\n"
@@ -101,8 +102,7 @@ msgstr ""
 msgid ""
 "This email address is already being used by this account. Use a different "
 "email."
-msgstr ""
-"این ایمیل توسط اکانت دیگری استفاده میشود . از ایمیل دیگری استفاده کنید."
+msgstr "این ایمیل توسط اکانت دیگری استفاده میشود . از ایمیل دیگری استفاده کنید."
 
 #: warehouse/accounts/forms.py:239
 msgid ""
@@ -448,8 +448,8 @@ msgstr ""
 msgid ""
 "User '${username}' already has an active invite. Please try again later."
 msgstr ""
-"کاربر \"$ {username}\" قبلاً یک دعوت فعال داشته است. لطفاً بعداً دوباره امتحان "
-"کنید."
+"کاربر \"$ {username}\" قبلاً یک دعوت فعال داشته است. لطفاً بعداً دوباره "
+"امتحان کنید."
 
 #: warehouse/manage/views.py:1718 warehouse/manage/views.py:3200
 msgid "Invitation sent to '${username}'"
@@ -663,7 +663,6 @@ msgstr "Monty Python - طرح فروشگاه پنیر"
 #: warehouse/templates/pages/help.html:892
 #: warehouse/templates/pages/help.html:893
 #: warehouse/templates/pages/help.html:898
-#: warehouse/templates/pages/security.html:36
 #: warehouse/templates/pages/sponsors.html:33
 #: warehouse/templates/pages/sponsors.html:37
 #: warehouse/templates/pages/sponsors.html:41
@@ -1200,8 +1199,8 @@ msgstr ""
 "\n"
 "              <b> نکته: </b> شما در شرف انجام <a href=\"%(href)s\"> اقدام "
 "حساس </a> هستید.\n"
-"              اگر در رایانه شخصی نیستید ، پس از اتمام جلسه خود حتماً از سیستم "
-"خارج شوید.\n"
+"              اگر در رایانه شخصی نیستید ، پس از اتمام جلسه خود حتماً از "
+"سیستم خارج شوید.\n"
 "              تا یک ساعت دیگر از شما نمی خواهیم رمز ورود خود را تأیید کنید.\n"
 "              "
 
@@ -1216,10 +1215,10 @@ msgid ""
 "\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">Python "
 "Packaging User Guide</a>."
 msgstr ""
-"برای کسب اطلاعات بیشتر در مورد بارگذاری پروژه ها در PyPI ، از <a href="
-"\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener\"> "
-"%(title)s \"target =\" _ blank \"rel =\" noopener \"> راهنمای کاربر بسته "
-"بندی پایتون </a> بازدید کنید."
+"برای کسب اطلاعات بیشتر در مورد بارگذاری پروژه ها در PyPI ، از <a href=\""
+"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener\"> %(title)s "
+"\"target =\" _ blank \"rel =\" noopener \"> راهنمای کاربر بسته بندی پایتون </"
+"a> بازدید کنید."
 
 #: warehouse/templates/upload.html:28
 #, python-format
@@ -1242,8 +1241,8 @@ msgid ""
 "      "
 msgstr ""
 "\n"
-"      آیا می خواهید این دعوت را برای پیوستن به \"<a href=\"%(project_link)s"
-"\"> %(project_name)s </a>\" به عنوان یک پروژه %(role_name)s بپذیرید؟\n"
+"      آیا می خواهید این دعوت را برای پیوستن به \"<a href=\"%(project_link)s\""
+"> %(project_name)s </a>\" به عنوان یک پروژه %(role_name)s بپذیرید؟\n"
 "      "
 
 #: warehouse/templates/accounts/invite-confirmation.html:32
@@ -1313,8 +1312,8 @@ msgid ""
 "      "
 msgstr ""
 "\n"
-"      آیا می خواهید این دعوت را برای پیوستن به \"<a href=\"%(project_link)s"
-"\"> %(project_name)s </a>\" به عنوان یک پروژه %(role_name)s بپذیرید؟\n"
+"      آیا می خواهید این دعوت را برای پیوستن به \"<a href=\"%(project_link)s\""
+"> %(project_name)s </a>\" به عنوان یک پروژه %(role_name)s بپذیرید؟\n"
 "      "
 
 #: warehouse/templates/accounts/profile.html:16
@@ -1468,8 +1467,8 @@ msgid ""
 "\">FAQ</a> for more information."
 msgstr ""
 "این گذرواژه در نقض امنیت ظاهر شده یا به خطر افتاده است و قابل استفاده نیست. "
-"لطفاً برای اطلاعات بیشتر به <a href=\"/help/#compromised-password\"> FAQ </a> "
-"مراجعه کنید."
+"لطفاً برای اطلاعات بیشتر به <a href=\"/help/#compromised-password\"> FAQ </"
+"a> مراجعه کنید."
 
 #: warehouse/templates/accounts/register.html:162
 msgid "Create account"
@@ -1506,8 +1505,8 @@ msgid ""
 "The email contains a link to reset your password. This link will expire in "
 "%(n_hours)s hours."
 msgstr ""
-"این ایمیل حاوی پیوندی برای بازنشانی گذرواژه شما است. این پیوند در "
-"%(n_hours)s ساعت دیگر منقضی می شود."
+"این ایمیل حاوی پیوندی برای بازنشانی گذرواژه شما است. این پیوند در %(n_hours)"
+"s ساعت دیگر منقضی می شود."
 
 #: warehouse/templates/accounts/reset-password.html:18
 #: warehouse/templates/accounts/reset-password.html:24
@@ -1537,8 +1536,7 @@ msgstr "تصدیق هویت با یک دستگاه امنیتی (مانند کل
 msgid ""
 "Connect your security device and click the \"Authenticate with device\" "
 "button."
-msgstr ""
-"دستگاه امنیتی خود را وصل کنید و روی دکمه \"تصدیق با دستگاه\" کلیک کنید."
+msgstr "دستگاه امنیتی خود را وصل کنید و روی دکمه \"تصدیق با دستگاه\" کلیک کنید."
 
 #: warehouse/templates/accounts/two-factor.html:42
 msgid "Enable JavaScript to log in with a security device (e.g. USB key)"
@@ -1554,8 +1552,8 @@ msgid ""
 "<a href=\"%(href)s\" title=\"%(title)s\" target=\"%(target)s\" rel=\"%(rel)s"
 "\">Upgrade your browser</a> to log in with a security device (e.g. USB key)"
 msgstr ""
-"<a href=\"%(href)s\" title=\"%(title)s\" target=\"%(target)s\" rel=\"%(rel)s"
-"\"> %(title)s \"target =\"٪ (target) s \"rel =\" %(rel)s \"> مرورگر خود را "
+"<a href=\"%(href)s\" title=\"%(title)s\" target=\"%(target)s\" rel=\"%(rel)"
+"s\"> %(title)s \"target =\"٪ (target) s \"rel =\" %(rel)s \"> مرورگر خود را "
 "ارتقا دهید </a> تا با یک دستگاه امنیتی وارد سیستم شوید (به عنوان مثال کلید "
 "USB)"
 
@@ -2017,8 +2015,8 @@ msgid ""
 "Someone, perhaps you, has changed the password for your PyPI account <strong>"
 "%(username)s</strong>."
 msgstr ""
-"کسی، شاید شما، رمز عبور حساب PyPI خود را تغییر داده است <strong>"
-"%(username)s</strong>."
+"کسی، شاید شما، رمز عبور حساب PyPI خود را تغییر داده است "
+"<strong>%(username)s</strong>."
 
 #: warehouse/templates/email/password-compromised/body.html:20
 msgid ""
@@ -2105,8 +2103,8 @@ msgid ""
 "passwords and get yourself familiar with good password practices."
 msgstr ""
 "برای دسترسی مجدد به حساب خود ، <a href=\"%(reset_pw_url)s\"> گذرواژه خود را "
-"</a> در PyPI تنظیم کنید. ما همچنین توصیه می کنیم که به <a href="
-"\"%(have_i_been_pwned_url)s\"> HaveIBeenPwned </a> بروید و سایر گذرواژه های "
+"</a> در PyPI تنظیم کنید. ما همچنین توصیه می کنیم که به <a href=\""
+"%(have_i_been_pwned_url)s\"> HaveIBeenPwned </a> بروید و سایر گذرواژه های "
 "خود را بررسی کنید و خود را با شیوه های رمز عبور خوب آشنا کنید."
 
 #: warehouse/templates/email/password-compromised-hibp/body.html:40
@@ -2145,8 +2143,8 @@ msgid ""
 "Someone, perhaps you, has made a password reset request for your PyPI "
 "account '%(username)s'."
 msgstr ""
-"شخصی ، شاید شما ، یک درخواست بازنشانی رمز عبور برای حساب PyPI شما "
-"\"%(username)s\" ایجاد کرده است."
+"شخصی ، شاید شما ، یک درخواست بازنشانی رمز عبور برای حساب PyPI شما \""
+"%(username)s\" ایجاد کرده است."
 
 #: warehouse/templates/email/password-reset/body.html:20
 #, python-format
@@ -2516,10 +2514,10 @@ msgid ""
 "using <a href=\"%(gbq_href)s\" target=\"_blank\" rel=\"noopener\">our public "
 "dataset on Google BigQuery</a>"
 msgstr ""
-"مشاهده آمار پروژه های خود از طریق <a href=\"%(libs_io_href)s\" title="
-"\"%(title)s\" target=\"_blank\" rel=\"noopener\"> %(title)s \"target =\" _ "
-"blank \"rel =\" noopener \"> Libraries.io </a> یا با استفاده از <a href="
-"\"%(gbq_href)s\" target=\"_blank\" rel=\"noopener\"> مجموعه داده عمومی ما در "
+"مشاهده آمار پروژه های خود از طریق <a href=\"%(libs_io_href)s\" title=\""
+"%(title)s\" target=\"_blank\" rel=\"noopener\"> %(title)s \"target =\" _ "
+"blank \"rel =\" noopener \"> Libraries.io </a> یا با استفاده از <a href=\""
+"%(gbq_href)s\" target=\"_blank\" rel=\"noopener\"> مجموعه داده عمومی ما در "
 "Google BigQuery </a>"
 
 #: warehouse/templates/includes/accounts/profile-actions.html:30
@@ -2640,9 +2638,9 @@ msgid ""
 "using <a href=\"%(gbq_href)s\" target=\"_blank\" rel=\"noopener\">our public "
 "dataset on Google BigQuery</a>"
 msgstr ""
-"مشاهده آمار این پروژه از طریق <a href=\"%(libs_io_href)s\" title=\"%(title)s"
-"\" target=\"_blank\" rel=\"noopener\"> %(title)s \"target =\" _ blank \"rel ="
-"\" noopener \"> Libraries.io </a> یا با استفاده از <a href=\"%(gbq_href)s\" "
+"مشاهده آمار این پروژه از طریق <a href=\"%(libs_io_href)s\" title=\"%(title)"
+"s\" target=\"_blank\" rel=\"noopener\"> %(title)s \"target =\" _ blank \"rel "
+"=\" noopener \"> Libraries.io </a> یا با استفاده از <a href=\"%(gbq_href)s\" "
 "target=\"_blank\" rel=\"noopener\"> مجموعه داده عمومی ما در Google BigQuery "
 "</a>"
 
@@ -2878,8 +2876,8 @@ msgid ""
 "One of your verified emails can be displayed on your <a href=\"%(href)s"
 "\">public profile</a> to logged-in users."
 msgstr ""
-"یکی از ایمیل های تأیید شده شما می تواند نمایش داده شود در <a href=\"%(href)s"
-"\">حساب کاربری عمومی</a> کاربران وارده شده."
+"یکی از ایمیل های تأیید شده شما می تواند نمایش داده شود در <a href=\"%(href)"
+"s\">حساب کاربری عمومی</a> کاربران وارده شده."
 
 #: warehouse/templates/manage/account.html:302
 msgid "Update account"
@@ -2897,8 +2895,8 @@ msgid ""
 "class=\"badge\">Primary</span> email will receive notifications."
 msgstr ""
 "می توانید چندین ایمیل را با حساب خود مرتبط کنید. شما می توانید از هر <span "
-"class=\"badge badge--success\"><i class=\"fa fa-check\" aria-hidden=\"true"
-"\"></i> ایمیل تایید شده</span> برای بازیابی حساب خود استفاده کنید ، اما فقط "
+"class=\"badge badge--success\"><i class=\"fa fa-check\" aria-hidden=\"true\""
+"></i> ایمیل تایید شده</span> برای بازیابی حساب خود استفاده کنید ، اما فقط "
 "<span class=\"badge\">ایمیل اصلی</span> شما اعلان دریافت می کند."
 
 #: warehouse/templates/manage/account.html:323
@@ -3010,8 +3008,7 @@ msgstr "هیچ"
 #: warehouse/templates/manage/account.html:487
 #: warehouse/templates/manage/manage_base.html:75
 msgid "Security device (<abbr title=\"web authentication\">WebAuthn</abbr>)"
-msgstr ""
-"دستگاه امنیتی (<abbr title=\"web authentication\">احراز هویت وب</abbr>)"
+msgstr "دستگاه امنیتی (<abbr title=\"web authentication\">احراز هویت وب</abbr>)"
 
 #: warehouse/templates/manage/account.html:489
 #: warehouse/templates/manage/manage_base.html:62
@@ -3142,8 +3139,7 @@ msgstr "تأیید دو عاملی اضافه شد"
 #: warehouse/templates/manage/account.html:587
 msgid ""
 "Method: Security device (<abbr title=\"web authentication\">WebAuthn</abbr>)"
-msgstr ""
-"(</abbr>WebAuthn<abbr title=\"web authentication\">) روش: دستگاه امنیتی"
+msgstr "(</abbr>WebAuthn<abbr title=\"web authentication\">) روش: دستگاه امنیتی"
 
 #: warehouse/templates/manage/account.html:578
 #: warehouse/templates/manage/account.html:588
@@ -4344,10 +4340,10 @@ msgid ""
 "\"%(post_href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener"
 "\">post release</a> instead."
 msgstr ""
-"در نظر بگیرید <a href=\"%(yank_href)s\" title=\"%(title)s\" target=\"_blank"
-"\" rel=\"noopener\">یانک</a> این نسخه ، ایجاد یک نسخه جدید یا یک <a href="
-"\"%(post_href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener\"> "
-"نسخه منتشر شده </a> به جای آن."
+"در نظر بگیرید <a href=\"%(yank_href)s\" title=\"%(title)s\" target=\"_blank\""
+" rel=\"noopener\">یانک</a> این نسخه ، ایجاد یک نسخه جدید یا یک <a href=\""
+"%(post_href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener\"> نسخه "
+"منتشر شده </a> به جای آن."
 
 #: warehouse/templates/manage/releases.html:20
 #, python-format
@@ -5664,10 +5660,10 @@ msgid ""
 "\"%(title)s\" target=\"_blank\" rel=\"noopener\"><abbr title=\"Python "
 "enhancement proposal\">PEP</abbr> 301</a>."
 msgstr ""
-"در نظر بگیرید <a href=\"%(yank_href)s\" title=\"%(title)s\" target=\"_blank"
-"\" rel=\"noopener\">یانک</a> این نسخه ، ایجاد یک نسخه جدید یا یک <a href="
-"\"%(post_href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener\"> "
-"نسخه منتشر شده </a> به جای آن."
+"در نظر بگیرید <a href=\"%(yank_href)s\" title=\"%(title)s\" target=\"_blank\""
+" rel=\"noopener\">یانک</a> این نسخه ، ایجاد یک نسخه جدید یا یک <a href=\""
+"%(post_href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener\"> نسخه "
+"منتشر شده </a> به جای آن."
 
 #: warehouse/templates/pages/classifiers.html:30
 msgid ""
@@ -6723,10 +6719,10 @@ msgid ""
 "vulnerabilities from the <a href=\"%(vulns_href)s\" title=\"%(title)s\" "
 "target=\"_blank\" rel=\"noopener\">Python Packaging Advisory Database</a>."
 msgstr ""
-"در نظر بگیرید <a href=\"%(yank_href)s\" title=\"%(title)s\" target=\"_blank"
-"\" rel=\"noopener\">یانک</a> این نسخه ، ایجاد یک نسخه جدید یا یک <a href="
-"\"%(post_href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener\"> "
-"نسخه منتشر شده </a> به جای آن."
+"در نظر بگیرید <a href=\"%(yank_href)s\" title=\"%(title)s\" target=\"_blank\""
+" rel=\"noopener\">یانک</a> این نسخه ، ایجاد یک نسخه جدید یا یک <a href=\""
+"%(post_href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener\"> نسخه "
+"منتشر شده </a> به جای آن."
 
 #: warehouse/templates/pages/help.html:621
 #, fuzzy, python-format
@@ -6739,10 +6735,10 @@ msgid ""
 "<a href=\"%(file_issue_href)s\" title=\"%(title)s\" target=\"_blank\" rel="
 "\"noopener\">file an issue</a> with details."
 msgstr ""
-"برای کسب اطلاعات بیشتر در مورد بارگذاری پروژه ها در PyPI ، از <a href="
-"\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener\"> "
-"%(title)s \"target =\" _ blank \"rel =\" noopener \"> راهنمای کاربر بسته "
-"بندی پایتون </a> بازدید کنید."
+"برای کسب اطلاعات بیشتر در مورد بارگذاری پروژه ها در PyPI ، از <a href=\""
+"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener\"> %(title)s "
+"\"target =\" _ blank \"rel =\" noopener \"> راهنمای کاربر بسته بندی پایتون </"
+"a> بازدید کنید."
 
 #: warehouse/templates/pages/help.html:633
 #, python-format
@@ -7126,10 +7122,10 @@ msgid ""
 "\"%(discourse_forum_href)s\" title=\"%(title)s\" target=\"_blank\" rel="
 "\"noopener\">Python packaging forum on Discourse</a>."
 msgstr ""
-"برای کسب اطلاعات بیشتر در مورد بارگذاری پروژه ها در PyPI ، از <a href="
-"\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener\"> "
-"%(title)s \"target =\" _ blank \"rel =\" noopener \"> راهنمای کاربر بسته "
-"بندی پایتون </a> بازدید کنید."
+"برای کسب اطلاعات بیشتر در مورد بارگذاری پروژه ها در PyPI ، از <a href=\""
+"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener\"> %(title)s "
+"\"target =\" _ blank \"rel =\" noopener \"> راهنمای کاربر بسته بندی پایتون </"
+"a> بازدید کنید."
 
 #: warehouse/templates/pages/help.html:855
 #, python-format
@@ -7249,9 +7245,8 @@ msgstr ""
 
 #: warehouse/templates/pages/security.html:24
 msgid ""
-"If you believe you've identified a security issue with Warehouse, <strong>DO "
-"NOT</strong> report the issue in any public forum, including (but not "
-"limited to):"
+"If you believe you've identified a security issue with PyPI, <strong>DO NOT</"
+"strong> report the issue in any public forum, including (but not limited to):"
 msgstr ""
 
 #: warehouse/templates/pages/security.html:27
@@ -7267,38 +7262,68 @@ msgid "Official or unofficial mailing lists"
 msgstr ""
 
 #: warehouse/templates/pages/security.html:35
-#, python-format
-msgid ""
-"Instead, email <a href=\"%(href)s\">security at python dot org</a> directly, "
-"providing as much relevant information as possible."
+msgid "If you've identified a security issue with a project hosted on PyPI"
 msgstr ""
 
 #: warehouse/templates/pages/security.html:36
 #, python-format
 msgid ""
-"Messages may be optionally encrypted with GPG using key fingerprints "
-"available <a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel="
-"\"noopener\">at the Python Security page</a>."
+"Email <a href=\"%(href)s\">security@pypi.org</a>, providing the following "
+"details:"
 msgstr ""
 
 #: warehouse/templates/pages/security.html:38
-msgid "What happens next?"
+msgid "A URL to the project in question"
+msgstr ""
+
+#: warehouse/templates/pages/security.html:39
+msgid "An explanation of what makes the project a security issue"
 msgstr ""
 
 #: warehouse/templates/pages/security.html:40
+#, python-format
+msgid ""
+"If applicable: a link to the problematic lines in the project's "
+"distributions via <a href=\"%(href)s\">inspector.pypi.io</a>"
+msgstr ""
+
+#: warehouse/templates/pages/security.html:42
+msgid ""
+"Valid malware reports may include examples of typo-squatting, dependency "
+"confusion, data exfiltration, obfustication, command/control, etc."
+msgstr ""
+
+#: warehouse/templates/pages/security.html:44
+msgid ""
+"If you've identified a security issue with PyPI itself (not a project hosted "
+"on PyPI)"
+msgstr ""
+
+#: warehouse/templates/pages/security.html:45
+#, python-format
+msgid ""
+"Email <a href=\"%(href)s\">security@pypi.org</a>, providing as much relevant "
+"information as possible, including reproducing steps."
+msgstr ""
+
+#: warehouse/templates/pages/security.html:47
+msgid "What happens next?"
+msgstr ""
+
+#: warehouse/templates/pages/security.html:48
 msgid ""
 "Once you've submitted an issue via email, you should receive an "
 "acknowledgment within 48 hours."
 msgstr ""
 
-#: warehouse/templates/pages/security.html:41
+#: warehouse/templates/pages/security.html:49
 msgid ""
 "Depending on the action to be taken, you may receive further follow-up "
 "emails."
 msgstr ""
 
-#: warehouse/templates/pages/security.html:44
-msgid "This security policy was last updated on March 14, 2018."
+#: warehouse/templates/pages/security.html:52
+msgid "This security policy was last updated on June 2022."
 msgstr ""
 
 #: warehouse/templates/pages/sitemap.html:21
