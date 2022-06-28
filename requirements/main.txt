@@ -851,9 +851,9 @@ premailer==3.10.0 \
     --hash=sha256:021b8196364d7df96d04f9ade51b794d0b77bcc19e998321c515633a2273be1a \
     --hash=sha256:d1875a8411f5dc92b53ef9f193db6c0f879dc378d618e0ad292723e388bfe4c2
     # via -r requirements/main.in
-prompt-toolkit==3.0.29 \
-    --hash=sha256:62291dad495e665fca0bda814e342c69952086afb0f4094d0893d357e5c78752 \
-    --hash=sha256:bd640f60e8cecd74f0dc249713d433ace2ddc62b65ee07f96d358e0b152b6ea7
+prompt-toolkit==3.0.30 \
+    --hash=sha256:859b283c50bde45f5f97829f77a4674d1c1fcd88539364f1b28a37805cfd89c0 \
+    --hash=sha256:d8916d3f62a7b67ab353a952ce4ced6a1d2587dfe9ef8ebc30dd7c386751f289
     # via click-repl
 proto-plus==1.20.6 \
     --hash=sha256:449b4537e83f4776bd69051c4d776db8ffe3f9d0641f1e87b06c116eb94c90e9 \
