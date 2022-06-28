@@ -54,4 +54,4 @@ environment like PyPI, there is related reading available at:
 
 - `PostgreSQL at Scale: Database Schema Changes Without Downtime <https://medium.com/paypal-tech/postgresql-at-scale-database-schema-changes-without-downtime-20d3749ed680>`_
 - `Move fast and migrate things: how we automated migrations in Postgres <https://benchling.engineering/move-fast-and-migrate-things-how-we-automated-migrations-in-postgres-d60aba0fc3d4>`_
-- `PgHaMigrations <https://github.com/braintree/pg_ha_migrations>_`
+- `PgHaMigrations <https://github.com/braintree/pg_ha_migrations>`_
