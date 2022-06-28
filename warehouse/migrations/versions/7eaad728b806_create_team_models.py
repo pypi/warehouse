@@ -13,7 +13,7 @@
 create_team_models
 
 Revision ID: 7eaad728b806
-Revises: 5a095c98f812
+Revises: 8bee9c119e41
 Create Date: 2022-06-13 13:23:42.629088
 """
 
@@ -23,7 +23,7 @@ from alembic import op
 from sqlalchemy.dialects import postgresql
 
 revision = "7eaad728b806"
-down_revision = "5a095c98f812"
+down_revision = "8bee9c119e41"
 
 # Note: It is VERY important to ensure that a migration does not lock for a
 #       long period of time and to ensure that each individual migration does
