@@ -2483,7 +2483,13 @@ class ManageTeamRolesViews:
             self.request.session.flash("Removed from team", queue="success")
 
         # Refresh teams list.
-        return HTTPSeeOther(self.request.path)
+        return HTTPSeeOther(
+            self.request.route_path(
+                "manage.team.roles",
+                organization_name=self.team.organization.normalized_name,
+                team_name=self.team.normalized_name,
+            )
+        )
 
 
 @view_config(

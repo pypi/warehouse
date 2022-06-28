@@ -4929,6 +4929,7 @@ class TestManageTeamRoles:
         db_request.session = pretend.stub(
             flash=pretend.call_recorder(lambda *a, **kw: None)
         )
+        db_request.route_path = pretend.call_recorder(lambda *a, **kw: "/foo/bar/")
 
         send_team_member_removed_email = pretend.call_recorder(lambda *a, **kw: None)
         monkeypatch.setattr(
@@ -5011,6 +5012,7 @@ class TestManageTeamRoles:
         db_request.session = pretend.stub(
             flash=pretend.call_recorder(lambda *a, **kw: None)
         )
+        db_request.route_path = pretend.call_recorder(lambda *a, **kw: "/foo/bar/")
 
         view = views.ManageTeamRolesViews(team, db_request)
         result = view.delete_team_role()
@@ -5061,6 +5063,7 @@ class TestManageTeamRoles:
         db_request.session = pretend.stub(
             flash=pretend.call_recorder(lambda *a, **kw: None)
         )
+        db_request.route_path = pretend.call_recorder(lambda *a, **kw: "/foo/bar/")
 
         view = views.ManageTeamRolesViews(team, db_request)
         result = view.delete_team_role()
