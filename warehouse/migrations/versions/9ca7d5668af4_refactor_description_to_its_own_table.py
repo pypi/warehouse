@@ -27,6 +27,7 @@ down_revision = "42f0409bb702"
 
 
 def upgrade():
+    op.execute("SET statement_timeout = 0")
     op.create_table(
         "release_descriptions",
         sa.Column(
