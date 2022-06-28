@@ -55,6 +55,46 @@
       </tr>
     </thead>
     <tbody>
+    {% if enable_internal_collaborator %}
+      <tr>
+        <th scope="row">
+          <a href="{{ request.route_path('manage.organization.roles', organization_name=project.organization.normalized_name) }}" class="table__user-details">
+            <span class="table__user-gravatar">
+              <i class="fa fa-2x fa-sitemap" aria-hidden="true"></i>
+            </span>
+            <span class="table__user-text">
+              <strong>{{ project.organization.display_name }}</strong>
+            </span>
+          </a>
+        </th>
+        <td>
+          {% trans %}Admin{% endtrans %}
+        </td>
+        <td>
+          <a href="{{ request.route_path('manage.organization.roles', organization_name=project.organization.normalized_name) }}" class="table__user-details">
+            {% trans count=project.organization.owners|length %}
+            {{ count }} owner
+            {% pluralize %}
+            {{ count }} owners
+            {% endtrans %}
+          </a>
+        </td>
+        <td class="table__align-right">
+          <form method="POST" action="{{ request.route_path('manage.project.delete_team_project_role', project_name=project.name) }}">
+            <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
+            <input type="hidden" name="role_id" value="">
+            <button
+              type="submit"
+              class="button"
+              title="{% trans %}Cannot remove organization owners as Admin{% endtrans %}"
+              disabled
+            >
+            Remove
+            </button>
+          </form>
+        </td>
+      </tr>
+    {% endif %}
     {% for role in team_project_roles|sort(attribute="team.name") %}
       <tr>
         <th scope="row">
