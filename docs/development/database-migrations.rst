@@ -25,3 +25,33 @@ them in over time (for example, to rename a column you must add the column in
 one migration + start writing to that column/reading from both, then you must
 make a migration that backfills all of the data, then switch the code to stop
 using the old column all together, then finally you can remove the old column).
+
+To help protect against an accidentally long running migration from taking down
+PyPI, by default a migration will timeout if it is waiting more than 4s to
+acquire a lock, or if any individual statement takes more than 5s.
+
+The lock timeout helps to protect against the case where a long running app
+query is blocking the migration, and then the migration itself ends up
+blocking short running app queries that would otherwise have been able to
+run concurrently with the long running app query.
+
+The statement timeout helps to protect against locking the database for an
+extended period of time (often for data migrations).
+
+It is possible to override these values inside of a migration, to do so you can
+add:
+
+.. code-block:: python
+
+    op.execute("SET statement_timeout = 5000")
+    op.execute("SET lock_timeout = 4000")
+
+To your migration.
+
+
+For more information on what kind of operations are safe in a high availability
+environment like PyPI, there is related reading available at:
+
+- `PostgreSQL at Scale: Database Schema Changes Without Downtime <https://medium.com/paypal-tech/postgresql-at-scale-database-schema-changes-without-downtime-20d3749ed680>`_
+- `Move fast and migrate things: how we automated migrations in Postgres <https://benchling.engineering/move-fast-and-migrate-things-how-we-automated-migrations-in-postgres-d60aba0fc3d4>`_
+- `PgHaMigrations <https://github.com/braintree/pg_ha_migrations>`_
