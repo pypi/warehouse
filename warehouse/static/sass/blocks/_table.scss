@@ -153,6 +153,10 @@
     border-bottom: 0;
   }
 
+  &__align-center {
+    text-align: center;
+  }
+
   &__align-right {
     text-align: right;
   }
@@ -232,6 +236,10 @@
   }
 
   &--collaborators {
+    td:empty:after {
+      content: "—";
+    }
+
     .table__user-details {
       display: flex;
       align-items: center;

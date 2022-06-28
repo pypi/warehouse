@@ -50,8 +50,8 @@
       <tr>
         <th scope="col">{% trans %}Collaborator{% endtrans %}</th>
         <th scope="col">{% trans %}Role{% endtrans %}</th>
-        <th></th>
-        <th></th>
+        <th scope="col" class="table__align-center">{% trans %}2FA{% endtrans %}</th>
+        <th scope="col" class="table__align-right"></th>
       </tr>
     </thead>
     <tbody>
@@ -63,22 +63,21 @@
               <i class="fa fa-2x fa-sitemap" aria-hidden="true"></i>
             </span>
             <span class="table__user-text">
-              <strong>{{ project.organization.display_name }}</strong>
+              <strong>{{ project.organization.display_name }}</strong><br>
+              <span>
+                {% trans trimmed count=project.organization.owners|length %}
+                {{ count }} organization owner
+                {% pluralize %}
+                {{ count }} organization owners
+                {% endtrans %}
+              </span>
             </span>
           </a>
         </th>
         <td>
           {% trans %}Admin{% endtrans %}
         </td>
-        <td>
-          <a href="{{ request.route_path('manage.organization.roles', organization_name=project.organization.normalized_name) }}" class="table__user-details">
-            {% trans count=project.organization.owners|length %}
-            {{ count }} owner
-            {% pluralize %}
-            {{ count }} owners
-            {% endtrans %}
-          </a>
-        </td>
+        <td class="table__align-center"></td>
         <td class="table__align-right">
           <form method="POST" action="{{ request.route_path('manage.project.delete_team_project_role', project_name=project.name) }}">
             <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
@@ -103,8 +102,14 @@
               <i class="fa fa-2x fa-users" aria-hidden="true"></i>
             </span>
             <span class="table__user-text">
-              <strong>{{ role.team.organization.display_name }}</strong>
-              <br><span>{{ role.team.name }}</span>
+              <strong>{{ role.team.name }}</strong><br>
+              <span>
+                {% trans trimmed count=role.team.users|length %}
+                {{ count }} team member
+                {% pluralize %}
+                {{ count }} team members
+                {% endtrans %}
+              </span>
             </span>
           </a>
         </th>
@@ -134,15 +139,7 @@
           </form>
         {% endif %}
         </td>
-        <td>
-          <a href="{{ request.route_path('manage.team.roles', organization_name=role.team.organization.normalized_name, team_name=role.team.normalized_name) }}" class="table__user-details">
-            {% trans count=role.team.users|length %}
-            {{ count }} member
-            {% pluralize %}
-            {{ count }} members
-            {% endtrans %}
-          </a>
-        </td>
+        <td class="table__align-center"></td>
         <td class="table__align-right">
           <form method="POST" action="{{ request.route_path('manage.project.delete_team_project_role', project_name=project.name) }}">
             <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
@@ -205,7 +202,7 @@
           </form>
         {% endif %}
         </td>
-        <td>{{ two_factor_badge(role.user) }}</td>
+        <td class="table__align-center">{{ two_factor_badge(role.user) }}</td>
         <td class="table__align-right">
           <form method="POST" action="{{ request.route_path('manage.project.delete_role', project_name=project.name) }}">
             <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">

@@ -58,8 +58,8 @@
       <tr>
         <th scope="col">{% trans %}User{% endtrans %}</th>
         <th scope="col">{% trans %}Role{% endtrans %}</th>
-        <th scope="col">{% trans %}2FA{% endtrans %}</th>
-        <th></th>
+        <th scope="col" class="table__align-center">{% trans %}2FA{% endtrans %}</th>
+        <th scope="col" class="table__align-right"></th>
       </tr>
     </thead>
     <tbody>
@@ -112,7 +112,7 @@
           </form>
         {% endif %}
         </td>
-        <td>{{ two_factor_badge(role.user) }}</td>
+        <td class="table__align-center">{{ two_factor_badge(role.user) }}</td>
         <td class="table__align-right">
           <form method="POST" action="{{ request.route_path('manage.organization.delete_role', organization_name=organization.normalized_name) }}">
             <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
@@ -161,7 +161,7 @@
             {% trans %}Invite expired{% endtrans %}
           {% endif %}
         </td>
-        <td></td>
+        <td class="table__align-center"></td>
         <td class="table__align-right">
           <form method="POST" action="{{ request.route_path('manage.organization.revoke_invite', organization_name=organization.normalized_name) }}">
             <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
