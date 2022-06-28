@@ -2,27 +2,27 @@
 # Copyright (C) 2019 PyPA
 # This file is distributed under the same license as the Warehouse project.
 # FIRST AUTHOR <EMAIL@ADDRESS>, 2019.
-# Nick Mavrakis <mavrakis.n@gmail.com>, 2019.
-# Giorgos K. <kavalieratos.giwrgos@gmail.com>, 2020.
-# Dustin Ingram <dustin.ingram@gmail.com>, 2020.
-# Christos Ploutarchou <cploutarchou@gmail.com>, 2020.
-# Michalis <michalisntovas@yahoo.gr>, 2021.
-# Eugenia Russell <eugenia.russell2019@gmail.com>, 2021.
+# Nick Mavrakis <mavrakis.n@gmail.com>, 2019, 2022.
+# Giorgos K. <kavalieratos.giwrgos@gmail.com>, 2020, 2022.
+# Dustin Ingram <dustin.ingram@gmail.com>, 2020, 2022.
+# Christos Ploutarchou <cploutarchou@gmail.com>, 2020, 2022.
+# Michalis <michalisntovas@yahoo.gr>, 2021, 2022.
+# Eugenia Russell <eugenia.russell2019@gmail.com>, 2021, 2022.
 msgid ""
 msgstr ""
 "Project-Id-Version: Warehouse VERSION\n"
 "Report-Msgid-Bugs-To: admin@pypi.org\n"
 "POT-Creation-Date: 2020-04-06 17:52-0500\n"
-"PO-Revision-Date: 2021-05-12 23:32+0000\n"
-"Last-Translator: Eugenia Russell <eugenia.russell2019@gmail.com>\n"
-"Language-Team: Greek <https://hosted.weblate.org/projects/pypa/warehouse/el/"
-">\n"
+"PO-Revision-Date: 2022-06-28 19:47+0000\n"
+"Last-Translator: Giorgos K. <kavalieratos.giwrgos@gmail.com>\n"
+"Language-Team: Greek <https://hosted.weblate.org/projects/pypa/warehouse/el/>"
+"\n"
 "Language: el\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Generator: Weblate 4.7-dev\n"
+"X-Generator: Weblate 4.13.1-dev\n"
 "Generated-By: Babel 2.8.0\n"
 
 #: warehouse/views.py:129
@@ -667,7 +667,6 @@ msgstr "Monty Python - The Cheese Shop Sketch"
 #: warehouse/templates/pages/help.html:892
 #: warehouse/templates/pages/help.html:893
 #: warehouse/templates/pages/help.html:898
-#: warehouse/templates/pages/security.html:36
 #: warehouse/templates/pages/sponsors.html:33
 #: warehouse/templates/pages/sponsors.html:37
 #: warehouse/templates/pages/sponsors.html:41
@@ -1565,8 +1564,8 @@ msgid ""
 "<a href=\"%(href)s\" title=\"%(title)s\" target=\"%(target)s\" rel=\"%(rel)s"
 "\">Upgrade your browser</a> to log in with a security device (e.g. USB key)"
 msgstr ""
-"<a href=\"%(href)s\" title=\"%(title)s\" target=\"%(target)s\" rel=\"%(rel)s"
-"\">Αναβαθμίστε τον περιηγητή σας</a> για να συνδεθείτε με μια συσκευή "
+"<a href=\"%(href)s\" title=\"%(title)s\" target=\"%(target)s\" rel=\"%(rel)"
+"s\">Αναβαθμίστε τον περιηγητή σας</a> για να συνδεθείτε με μια συσκευή "
 "ασφαλείας (πχ USB key)"
 
 #: warehouse/templates/accounts/two-factor.html:60
@@ -1592,8 +1591,8 @@ msgid ""
 msgstr ""
 "<p>Δημιουργία ενός κωδικού χρησιμοποιώντας την εφαρμογή πιστοποίησης που "
 "είναι συνδεδεμένη με τον λογαριασμό σας στο PyPI. Εισάγετε αυτόν τον κωδικό "
-"στη φόρμα για να επιβεβαιώσετε την ταυτότητα σας.</p> <p>Χάσατε την "
-"εφαρμογή; Δεν δουλεύει; <a href=\"%(href)s\">Πάρτε βοήθεια</a>.</p>"
+"στη φόρμα για να επιβεβαιώσετε την ταυτότητα σας.</p> <p>Χάσατε την εφαρμογή;"
+" Δεν δουλεύει; <a href=\"%(href)s\">Πάρτε βοήθεια</a>.</p>"
 
 # | msgid "Set up your application"
 #: warehouse/templates/accounts/two-factor.html:127
@@ -1625,8 +1624,8 @@ msgid ""
 "If you did not make this change, you can email <a href=\"%(href)s\">"
 "%(email_address)s</a> to communicate with the PyPI administrators."
 msgstr ""
-"Αν δεν κάνατε αυτή την αλλαγή, μπορείτε να στείλετε email στο <a href="
-"\"%(href)s\">%(email_address)s</a> προκειμένου να επικοινωνήσετε με τους "
+"Αν δεν κάνατε αυτή την αλλαγή, μπορείτε να στείλετε email στο <a href=\""
+"%(href)s\">%(email_address)s</a> προκειμένου να επικοινωνήσετε με τους "
 "διαχειριστές του PyPI."
 
 #: warehouse/templates/email/added-as-collaborator/body.html:19
@@ -1638,8 +1637,8 @@ msgid ""
 "You have been added as <strong>%(role)s</strong> to the %(site)s project "
 "%(project_name)s by %(initiator_username)s."
 msgstr ""
-"Έχετε προστεθεί ως <strong>%(role)s</strong> στο %(site)s project "
-"%(project)s από %(submitter)s."
+"Έχετε προστεθεί ως <strong>%(role)s</strong> στο %(site)s project %(project)"
+"s από %(submitter)s."
 
 #: warehouse/templates/email/added-as-collaborator/body.html:24
 #, fuzzy, python-format
@@ -1663,8 +1662,8 @@ msgid ""
 "organization %(organization_name)s by <a href=\"%(submitter_profile)s\">"
 "%(submitter)s</a>."
 msgstr ""
-"Έχετε προστεθεί ως <strong>%(role)s</strong> στο %(site)s project "
-"%(project)s από %(submitter)s."
+"Έχετε προστεθεί ως <strong>%(role)s</strong> στο %(site)s project %(project)"
+"s από %(submitter)s."
 
 #: warehouse/templates/email/added-as-organization-member/body.html:26
 #: warehouse/templates/email/role-changed-as-organization-member/body.html:26
@@ -1846,8 +1845,8 @@ msgid ""
 "  administrators.\n"
 "  "
 msgstr ""
-"Αν δεν κάνατε αυτή την αλλαγή, μπορείτε να στείλετε email στο <a href="
-"\"%(href)s\">%(email_address)s</a> προκειμένου να επικοινωνήσετε με τους "
+"Αν δεν κάνατε αυτή την αλλαγή, μπορείτε να στείλετε email στο <a href=\""
+"%(href)s\">%(email_address)s</a> προκειμένου να επικοινωνήσετε με τους "
 "διαχειριστές του PyPI."
 
 #: warehouse/templates/email/oidc-provider-removed/body.html:19
@@ -1885,8 +1884,8 @@ msgid ""
 "If this was a mistake, you can email <a href=\"mailto:%(email_address)s\">"
 "%(email_address)s</a> to communicate with the %(site)s administrators."
 msgstr ""
-"Αν αυτό ήταν λάθος, μπορείτε να στείλετε ένα email στο <a href=\"%(href)s\">"
-"%(email_address)s</a> για να επικοινωνήσετε με τους διαχειριστές του PyPI."
+"Αν αυτό ήταν λάθος, μπορείτε να στείλετε ένα email στο <a href=\"%(href)s\""
+">%(email_address)s</a> για να επικοινωνήσετε με τους διαχειριστές του PyPI."
 
 #: warehouse/templates/email/organization-deleted/body.html:37
 #, fuzzy
@@ -2079,8 +2078,8 @@ msgid ""
 "To regain access to your account, <a href=\"%(href)s\">reset your password</"
 "a> on PyPI."
 msgstr ""
-"Για να μπορείτε να ανακτήσετε την πρόσβαση στο λογαριασμό σας, <a href="
-"\"%(href)s\">μηδενίστε τον κωδικό σας</a> στο PyPI."
+"Για να μπορείτε να ανακτήσετε την πρόσβαση στο λογαριασμό σας, <a href=\""
+"%(href)s\">μηδενίστε τον κωδικό σας</a> στο PyPI."
 
 #: warehouse/templates/email/password-compromised/body.html:39
 msgid "How can I contact you?"
@@ -2092,8 +2091,8 @@ msgid ""
 "For more information, you can email %(email_address)s to communicate with\n"
 "  the PyPI administrators."
 msgstr ""
-"Για περισσότερες πληροφορίες, μπορείτε να στείλετε email στο "
-"%(email_address)s για να επικοινωνήσετε με\n"
+"Για περισσότερες πληροφορίες, μπορείτε να στείλετε email στο %(email_address)"
+"s για να επικοινωνήσετε με\n"
 "  τους διαχειριστές του PyPI."
 
 #: warehouse/templates/email/password-compromised-hibp/body.html:20
@@ -2135,11 +2134,11 @@ msgid ""
 "\"%(have_i_been_pwned_url)s\">HaveIBeenPwned</a> and check your other "
 "passwords and get yourself familiar with good password practices."
 msgstr ""
-"Για να μπορείτε να ανακτήσετε την πρόσβαση στο λογαριασμό σας, <a href="
-"\"%(reset_pw_url)s\">μηδενίστε τον κωδικό σας</a> στο PyPI. Επίσης, "
-"συνιστούμε να επισκεφτείτε τη διεύθυνση <a href=\"%(have_i_been_pwned_url)s"
-"\">HaveIBeenPwned</a>, να δείτε άλλους κωδικούς και να εξοικειωθείτε με "
-"καλές πρακτικές επιλογής δυνατών κωδικών."
+"Για να μπορείτε να ανακτήσετε την πρόσβαση στο λογαριασμό σας, <a href=\""
+"%(reset_pw_url)s\">μηδενίστε τον κωδικό σας</a> στο PyPI. Επίσης, συνιστούμε "
+"να επισκεφτείτε τη διεύθυνση <a href=\"%(have_i_been_pwned_url)s\""
+">HaveIBeenPwned</a>, να δείτε άλλους κωδικούς και να εξοικειωθείτε με καλές "
+"πρακτικές επιλογής δυνατών κωδικών."
 
 #: warehouse/templates/email/password-compromised-hibp/body.html:40
 msgid "How do you know this?"
@@ -2154,8 +2153,8 @@ msgid ""
 "characters of the hash to decide if the password is compromised. The "
 "plaintext password is never stored by PyPI or sent to HaveIBeenPwned."
 msgstr ""
-"Χρησιμοποιούμε μια δωρεάν υπηρεσία ασφάλειας <a href="
-"\"%(have_i_been_pwned_url)s\">HaveIBeenPwned</a>. Όταν δημιουργείτε "
+"Χρησιμοποιούμε μια δωρεάν υπηρεσία ασφάλειας <a href=\""
+"%(have_i_been_pwned_url)s\">HaveIBeenPwned</a>. Όταν δημιουργείτε "
 "λογαριασμό, πιστοποιήστε ή αλλάζετε τον κωδικό χρήστη σας, δημιουργούμε ένα "
 "SHA1 hash του κωδικού σας και χρησιμοποιούμε τους πρώτους 5 χαρακτήρες του "
 "hash για να αποφανθούμε αν ο κωδικός αυτός έχει υποκλαπεί. Ο κωδικός αυτός "
@@ -2169,8 +2168,8 @@ msgid ""
 "with the PyPI administrators."
 msgstr ""
 "Για περισσότερες πληροφορίες δείτε στο <a href=\"%(faq_url)s\">FAQ</a>. Για "
-"βοήθεια, μπορείτε να στείλετε email στο <a href=\"%(email_href)s\">"
-"%(email_address)s</a> για να επικοινωνήσετε με τους διαχειριστές του PyPI."
+"βοήθεια, μπορείτε να στείλετε email στο <a href=\"%(email_href)s\""
+">%(email_address)s</a> για να επικοινωνήσετε με τους διαχειριστές του PyPI."
 
 #: warehouse/templates/email/password-reset/body.html:18
 #, python-format
@@ -2187,8 +2186,8 @@ msgid ""
 "If you wish to proceed with this request, <a href=\"%(href)s\">click to "
 "reset your password</a>."
 msgstr ""
-"Αν επιθυμείτε να προχωρήσετε με αυτή την αίτηση, <a href=\"%(href)s"
-"\">κλικάρετε εδώ για να μηδενίσετε τον κωδικό σας</a>."
+"Αν επιθυμείτε να προχωρήσετε με αυτή την αίτηση, <a href=\"%(href)s\""
+">κλικάρετε εδώ για να μηδενίσετε τον κωδικό σας</a>."
 
 #: warehouse/templates/email/password-reset/body.html:22
 #: warehouse/templates/email/verify-email/body.html:22
@@ -2241,8 +2240,8 @@ msgid ""
 "You can generate recovery codes for your account here:\n"
 "<a href=\"%(href)s\">%(href)s</a>\n"
 msgstr ""
-"Για να μπορείτε να ανακτήσετε την πρόσβαση στο λογαριασμό σας, <a href="
-"\"%(href)s\">μηδενίστε τον κωδικό σας</a> στο PyPI."
+"Για να μπορείτε να ανακτήσετε την πρόσβαση στο λογαριασμό σας, <a href=\""
+"%(href)s\">μηδενίστε τον κωδικό σας</a> στο PyPI."
 
 #: warehouse/templates/email/recovery-code-used/body.html:19
 #, fuzzy, python-format
@@ -2265,8 +2264,8 @@ msgid ""
 "If you did not make this change, you can email <a href=\"%(href)s\">"
 "%(email_address)s</a> to communicate with the PyPI administrators.\n"
 msgstr ""
-"Αν δεν κάνατε αυτή την αλλαγή, μπορείτε να στείλετε email στο <a href="
-"\"%(href)s\">%(email_address)s</a> προκειμένου να επικοινωνήσετε με τους "
+"Αν δεν κάνατε αυτή την αλλαγή, μπορείτε να στείλετε email στο <a href=\""
+"%(href)s\">%(email_address)s</a> προκειμένου να επικοινωνήσετε με τους "
 "διαχειριστές του PyPI."
 
 #: warehouse/templates/email/recovery-codes-generated/body.html:19
@@ -2453,8 +2452,8 @@ msgid ""
 "<a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener"
 "\">Hashes</a> for %(filename)s"
 msgstr ""
-"<a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener"
-"\">Hashes</a> για %(filename)s"
+"<a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener\""
+">Hashes</a> για %(filename)s"
 
 #: warehouse/templates/includes/hash-modal.html:28
 #, python-format
@@ -2523,8 +2522,8 @@ msgid ""
 "Two factor authentication is available, <a href=\"%(href)s\">enable it now "
 "for your account.</a>"
 msgstr ""
-"Η πιστοποίηση δύο-παραγόντων είναι διαθέσιμη, <a href=\"%(href)s"
-"\">ενεργοποιήστε τη τώρα για το λογαριασμό σας.</a>"
+"Η πιστοποίηση δύο-παραγόντων είναι διαθέσιμη, <a href=\"%(href)s\""
+">ενεργοποιήστε τη τώρα για το λογαριασμό σας.</a>"
 
 #: warehouse/templates/includes/session-notifications.html:45
 #, fuzzy, python-format
@@ -2535,8 +2534,8 @@ msgid ""
 "Two-factor recovery codes are available, <a href=\"%(href)s\">generate them "
 "now for your account.</a>"
 msgstr ""
-"Η πιστοποίηση δύο-παραγόντων είναι διαθέσιμη, <a href=\"%(href)s"
-"\">ενεργοποιήστε τη τώρα για το λογαριασμό σας.</a>"
+"Η πιστοποίηση δύο-παραγόντων είναι διαθέσιμη, <a href=\"%(href)s\""
+">ενεργοποιήστε τη τώρα για το λογαριασμό σας.</a>"
 
 #: warehouse/templates/includes/accounts/profile-actions.html:16
 msgid "Edit profile"
@@ -2558,8 +2557,8 @@ msgid ""
 "using <a href=\"%(gbq_href)s\" target=\"_blank\" rel=\"noopener\">our public "
 "dataset on Google BigQuery</a>"
 msgstr ""
-"Δείτε τα στατιστικά για τα projects σας μέσω του <a href=\"%(libs_io_href)s"
-"\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">Libraries.io</a> ή "
+"Δείτε τα στατιστικά για τα projects σας μέσω του <a href=\"%(libs_io_href)s\""
+" title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">Libraries.io</a> ή "
 "χρησιμοποιώντας το <a href=\"%(gbq_href)s\" target=\"_blank\" rel=\"noopener"
 "\">δημόσιο σύνολο δεδομένων μας στο Google BigQuery</a>"
 
@@ -3080,8 +3079,8 @@ msgid ""
 "Authentication application (<abbr title=\"time-based one-time password"
 "\">TOTP</abbr>)"
 msgstr ""
-"Εφαρμογή πιστοποίησης (<abbr title=\"time-based one-time password\">TOTP</"
-"abbr>)"
+"Εφαρμογή πιστοποίησης (<abbr title=\"time-based one-time password\""
+">TOTP</abbr>)"
 
 # | msgid "Error code"
 #: warehouse/templates/manage/account.html:491
@@ -3215,8 +3214,8 @@ msgstr "Προστέθηκε η πιστοποίηση δύο-παραγόντω
 msgid ""
 "Method: Security device (<abbr title=\"web authentication\">WebAuthn</abbr>)"
 msgstr ""
-"Μέθοδος: Συσκευή ασφάλειας (<abbr title=\"web authentication\">WebAuthn</"
-"abbr>)"
+"Μέθοδος: Συσκευή ασφάλειας (<abbr title=\"web authentication\""
+">WebAuthn</abbr>)"
 
 #: warehouse/templates/manage/account.html:578
 #: warehouse/templates/manage/account.html:588
@@ -3229,8 +3228,8 @@ msgid ""
 "Method: Authentication application (<abbr title=\"time-based one-time "
 "password\">TOTP</abbr>)"
 msgstr ""
-"Μέθοδος: Εφαρμογή πιστοποίησης (<abbr title=\"time-based one-time password"
-"\">TOTP</abbr>)"
+"Μέθοδος: Εφαρμογή πιστοποίησης (<abbr title=\"time-based one-time password\""
+">TOTP</abbr>)"
 
 #: warehouse/templates/manage/account.html:584
 msgid "Two factor authentication removed"
@@ -3384,8 +3383,8 @@ msgid ""
 "<a href=\"%(transfer_href)s\">transfer ownership</a> or <a href="
 "\"%(delete_href)s\">delete project</a>"
 msgstr ""
-"<a href=\"%(transfer_href)s\">μεταφορά κυριότητας</a> ή <a href="
-"\"%(delete_href)s\">διαγραφή project</a>"
+"<a href=\"%(transfer_href)s\">μεταφορά κυριότητας</a> ή <a href=\""
+"%(delete_href)s\">διαγραφή project</a>"
 
 #: warehouse/templates/manage/account.html:714
 #: warehouse/templates/manage/organization/settings.html:157
@@ -3466,8 +3465,7 @@ msgstr "Δημιουργία από:"
 #: warehouse/templates/manage/history.html:34
 #, python-format
 msgid "<a href=\"%(href)s\">Release version %(version)s</a> created"
-msgstr ""
-"<a href=\"%(href)s\">Η εκδοση κυκλοφορίας %(version)s</a> δημιουργήθηκε"
+msgstr "<a href=\"%(href)s\">Η εκδοση κυκλοφορίας %(version)s</a> δημιουργήθηκε"
 
 #: warehouse/templates/manage/history.html:36
 #: warehouse/templates/manage/history.html:52
@@ -3879,8 +3877,8 @@ msgid ""
 "\">Upgrade your browser</a> to set up two factor authentication with a "
 "security device (e.g. USB key)"
 msgstr ""
-"<a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener"
-"\">Αναβαθμίστε τον περιηγητή σας</a> για να ρυθμίσετε την πιστοποίηση δύο-"
+"<a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener\""
+">Αναβαθμίστε τον περιηγητή σας</a> για να ρυθμίσετε την πιστοποίηση δύο-"
 "παραγόντων με μια συσκευή ασφαλείας (πχ USB key)"
 
 #: warehouse/templates/manage/manage_base.html:198
@@ -4502,8 +4500,8 @@ msgid ""
 "\">post release</a> instead."
 msgstr ""
 "Η εφαρμογή Duo Mobile για <a href=\"%(android_href)s\" title=\"%(title)s\" "
-"target=\"_blank\" rel=\"noopener\">Android</a> ή για <a href=\"%(ios_href)s"
-"\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">iOS</a>"
+"target=\"_blank\" rel=\"noopener\">Android</a> ή για <a href=\"%(ios_href)s\""
+" title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">iOS</a>"
 
 #: warehouse/templates/manage/releases.html:20
 #, python-format
@@ -4611,8 +4609,8 @@ msgid ""
 "release</a> instead."
 msgstr ""
 "Η εφαρμογή Duo Mobile για <a href=\"%(android_href)s\" title=\"%(title)s\" "
-"target=\"_blank\" rel=\"noopener\">Android</a> ή για <a href=\"%(ios_href)s"
-"\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">iOS</a>"
+"target=\"_blank\" rel=\"noopener\">Android</a> ή για <a href=\"%(ios_href)s\""
+" title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">iOS</a>"
 
 #: warehouse/templates/manage/releases.html:151
 #, python-format
@@ -4645,8 +4643,8 @@ msgid ""
 "\"%(title)s\" target=\"_blank\" rel=\"noopener\">Python Packaging User "
 "Guide</a>"
 msgstr ""
-"Μάθετε πως να δημιουργήσετε μια νέα έκδοση στο <a href=\"%(href)s\" title="
-"\"%(title)s\" target=\"_blank\" rel=\"noopener\">Python Packaging User "
+"Μάθετε πως να δημιουργήσετε μια νέα έκδοση στο <a href=\"%(href)s\" title=\""
+"%(title)s\" target=\"_blank\" rel=\"noopener\">Python Packaging User "
 "Guide</a>"
 
 #: warehouse/templates/manage/roles.html:18
@@ -4802,8 +4800,8 @@ msgid ""
 "\n"
 "    <a href=\"%(help_url)s\"> (request an increase) </a>"
 msgstr ""
-"Μεταβείτε στο σύνδεσμο <a href=\"%(href)s\">για μηδενισμό του κωδικού σας</"
-"a>."
+"Μεταβείτε στο σύνδεσμο <a href=\"%(href)s\">για μηδενισμό του κωδικού "
+"σας</a>."
 
 #: warehouse/templates/manage/settings.html:48
 #, python-format
@@ -4886,14 +4884,14 @@ msgid ""
 msgstr ""
 "Για να ορίσετε περιγραφή, κάτοχο, συνδέσμους, ταξινομητές (classifiers) και "
 "άλλες λεπτομέρειες για την επόμενη έκδοση του '%(project_name)s', "
-"χρησιμοποιήστε τις παραμέτρους της συνάρτησης <a href=\"%(setup_args_href)s"
-"\" rel=\"noopener\" target=\"_blank\"><code>setup()</code> μέσα στο αρχείο "
+"χρησιμοποιήστε τις παραμέτρους της συνάρτησης <a href=\"%(setup_args_href)s\""
+" rel=\"noopener\" target=\"_blank\"><code>setup()</code> μέσα στο αρχείο "
 "<code>setup.py</code> file</a>. Ενημερώνοντας αυτά τα πεδία, τα metadata των "
 "παλαιότερων εκδόσεων δεν θα αλλάξουν. Επίσης, θα <strong>πρέπει</strong> να "
 "χρησιμοποιήσετε το πακέτο <a href=\"%(twine_docs_href)s\" rel=\"noopener\" "
 "target=\"_blank\">Twine</a> για να ανεβάσετε τα αρχεία σας προκειμένου να "
-"έχετε υποστήριξη για αυτά τα πεδία. Δείτε στο <a href=\"%(distribution_href)s"
-"\" rel=\"noopener\" target=\"_blank\">the Python Packaging User Guide</a> "
+"έχετε υποστήριξη για αυτά τα πεδία. Δείτε στο <a href=\"%(distribution_href)"
+"s\" rel=\"noopener\" target=\"_blank\">the Python Packaging User Guide</a> "
 "για περισσότερες πληροφορίες."
 
 #: warehouse/templates/manage/settings.html:119
@@ -5155,8 +5153,8 @@ msgid ""
 "projects to PyPI, set up your <code>%(filename)s</code> file like this:"
 msgstr ""
 "Για παράδειγμα, αν χρησιμοποιείτε το πακέτο <a href=\"%(href)s\">Twine</a> "
-"για να ανεβάσετε τα projects σας στο PyPI, δημιουργήστε ένα αρχείο <code>"
-"%(filename)s</code> με τα εξής περιεχόμενα:"
+"για να ανεβάσετε τα projects σας στο PyPI, δημιουργήστε ένα αρχείο "
+"<code>%(filename)s</code> με τα εξής περιεχόμενα:"
 
 #: warehouse/templates/manage/token.html:94
 #, python-format
@@ -5166,8 +5164,8 @@ msgid ""
 "file like this:"
 msgstr ""
 "Για παράδειγμα, αν χρησιμοποιείτε το πακέτο <a href=\"%(href)s\">Twine</a> "
-"για να ανεβάσετε πολλά projects στο PyPI, δημιουργήστε ένα αρχείο <code>"
-"%(filename)s</code> με τα εξής περιεχόμενα:"
+"για να ανεβάσετε πολλά projects στο PyPI, δημιουργήστε ένα αρχείο "
+"<code>%(filename)s</code> με τα εξής περιεχόμενα:"
 
 #: warehouse/templates/manage/token.html:106
 msgid ""
@@ -5350,8 +5348,7 @@ msgstr "Ρύθμιση της εφαρμογής σας"
 
 #: warehouse/templates/manage/account/totp-provision.html:45
 msgid "Scan the QR code with the authentication application of your choice."
-msgstr ""
-"Σκανάρετε τον κώδικα QR με την εφαρμογή πιστοποίησης της αρέσκείας σας."
+msgstr "Σκανάρετε τον κώδικα QR με την εφαρμογή πιστοποίησης της αρέσκείας σας."
 
 #: warehouse/templates/manage/account/totp-provision.html:46
 msgid ""
@@ -5414,10 +5411,10 @@ msgid ""
 "target=\"_blank\" rel=\"noopener\">Thetis</a>."
 msgstr ""
 "Γνωστά <em>USB keys</em> περιλαμβάνουν τα <a href=\"%(yubico_href)s\" title="
-"\"%(title)s\" target=\"_blank\" rel=\"noopener\">Yubikey</a>, <a href="
-"\"%(titan_href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener"
-"\">Google Titan</a> και <a href=\"%(thetis_href)s\" title=\"%(title)s\" "
-"target=\"_blank\" rel=\"noopener\">Thetis</a>."
+"\"%(title)s\" target=\"_blank\" rel=\"noopener\">Yubikey</a>, <a href=\""
+"%(titan_href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener\""
+">Google Titan</a> και <a href=\"%(thetis_href)s\" title=\"%(title)s\" target="
+"\"_blank\" rel=\"noopener\">Thetis</a>."
 
 #: warehouse/templates/manage/account/webauthn-provision.html:43
 msgid "Name your device to begin"
@@ -5448,10 +5445,10 @@ msgid ""
 "\"%(title)s\" target=\"_blank\" rel=\"noopener\">compatible browser</a>."
 msgstr ""
 "<strong>Δεν δουλεύει;</strong> Ελέγξτε ότι χρησιμοποιείτε μια συσκευή που "
-"ακολουθεί τις <a href=\"%(fido_href)s\" title=\"%(title)s\" target=\"_blank"
-"\" rel=\"noopener\">FIDO προδιαγραφές</a> καθώς και έναν <a href="
-"\"%(mozilla_href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener"
-"\">συμβατό περιηγητή</a>."
+"ακολουθεί τις <a href=\"%(fido_href)s\" title=\"%(title)s\" target=\"_blank\""
+" rel=\"noopener\">FIDO προδιαγραφές</a> καθώς και έναν <a href=\""
+"%(mozilla_href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener\""
+">συμβατό περιηγητή</a>."
 
 #: warehouse/templates/manage/account/webauthn-provision.html:78
 msgid ""
@@ -6044,8 +6041,8 @@ msgid ""
 "\"_blank\" rel=\"noopener\">PSF Code of Conduct</a>."
 msgstr ""
 "Όλοι οι χρήστες που στέλνουν feedback, αναφέρουν θέματα ή συνεισφέρουν στο "
-"Warehouse θα πρέπει να ακολουθούν τον <a href=\"%(href)s\" title=\"%(title)s"
-"\" target=\"_blank\" rel=\"noopener\">κώδικα δεοντολογίας του PyPA</a>."
+"Warehouse θα πρέπει να ακολουθούν τον <a href=\"%(href)s\" title=\"%(title)"
+"s\" target=\"_blank\" rel=\"noopener\">κώδικα δεοντολογίας του PyPA</a>."
 
 #: warehouse/templates/pages/help.html:31
 #, python-format
@@ -6415,9 +6412,9 @@ msgid ""
 msgstr ""
 "Για να μέθετε πων να εγκταστείσετε ένα αρχείο από το PyPI, επισκεφτείτε τον "
 "<a href=\"%(installation_href)s\" title=\"%(title)s\" target=\"_blank\" rel="
-"\"noopener\">οδηγό εγκατάστασης</a> στη σελίδα του <a href="
-"\"%(user_guide_href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener"
-"\">Python Packaging User Guide</a>."
+"\"noopener\">οδηγό εγκατάστασης</a> στη σελίδα του <a href=\""
+"%(user_guide_href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener\""
+">Python Packaging User Guide</a>."
 
 #: warehouse/templates/pages/help.html:217
 #, python-format
@@ -6429,11 +6426,11 @@ msgid ""
 "rel=\"noopener\">Python Packaging User Guide</a>."
 msgstr ""
 "Για πλήρεις οδηγίες σχετικά με την ρύθμιση, το πακετάρισμα και τη διανομή "
-"του Python project σας, αναφερθείτε στον <a href="
-"\"%(packaging_tutorial_href)s\" title=\"%(title)s\" target=\"_blank\" rel="
-"\"noopener\">οδηγό εγκατάστασης</a> στη σελίδα του <a href="
-"\"%(user_guide_href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener"
-"\">Python Packaging User Guide</a>."
+"του Python project σας, αναφερθείτε στον <a href=\"%(packaging_tutorial_href)"
+"s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">οδηγό "
+"εγκατάστασης</a> στη σελίδα του <a href=\"%(user_guide_href)s\" title=\""
+"%(title)s\" target=\"_blank\" rel=\"noopener\">Python Packaging User "
+"Guide</a>."
 
 #: warehouse/templates/pages/help.html:224
 #, python-format
@@ -6465,8 +6462,8 @@ msgstr ""
 "Προς το παρόν, δεν υπάρχει κάποια καθιερωμένη διαδικασία για την εκτέλεση "
 "αυτής της διαχειριστικής εργασίας, η οποία να είναι σαφής και δίκαιη για όλα "
 "τα μέρη. Ωστόσο, το ένα είναι προς το παρόν σε ανάπτυξη σύμφωνα με το <a "
-"href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener"
-"\"><abbr title=\"Python enhancement proposal\">PEP</abbr> 541</a>."
+"href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener\""
+"><abbr title=\"Python enhancement proposal\">PEP</abbr> 541</a>."
 
 #: warehouse/templates/pages/help.html:238
 msgid "My account"
@@ -6506,8 +6503,8 @@ msgid ""
 "automated fashion."
 msgstr ""
 "Αυτή η πολιτική θα μας επιτρέψει να επιβάλουμε την πολιτική κλειδιού του <a "
-"href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener"
-"\"><abbr title=\"Python enhancement proposal\">PEP</abbr> 541</a> όσον αφορά "
+"href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener\""
+"><abbr title=\"Python enhancement proposal\">PEP</abbr> 541</a> όσον αφορά "
 "την προσβασιμότητα του διατηρητή. Επίσης, ελαττώνει τις επιθέσεις spam "
 "αυτόματης δημιουργίας πολλαπλών λογαριασμών."
 
@@ -6549,8 +6546,8 @@ msgid ""
 "</p>"
 msgstr ""
 "<p> Το ίδιο το PyPI δεν υπέστη παραβίαση. Αυτό αποτελεί ένα μέτρο ασφάλειας "
-"για την ελάττωση του ρίσκου επιθέσεων <a href=\"%(credential_stuffing_href)s"
-"\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">credential "
+"για την ελάττωση του ρίσκου επιθέσεων <a href=\"%(credential_stuffing_href)"
+"s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">credential "
 "stuffing</a> ενάντια στο PyPI και τους χρήστες του. </p> <p> Κάθε φορά που "
 "ένας χρήστης παρέχει έναν κωδικό — κατά τη διάρκεια εγγραφής, πιστοποίησης ή "
 "αλλαγής κωδικού — το PyPI ελέγχει με ασφάλεια αν ο κωδικός αυτός έχει "
@@ -6620,8 +6617,8 @@ msgstr ""
 "παρέχουν την δεύτερη μέθοδο εξακρίβωσης κατά τη διάρκεια της σύνδεσης. Αυτό "
 "αφορά μόνο τη σύνδεση μέσω ενός web browser και όχι (ακόμα) το ανέβασμα "
 "πακέτου. </p> <p>Μπορείτε να ακολουθήσετε καλές πρακτικές για το <abbr title="
-"\"two factor authentication\">2FA</abbr> στο <a href=\"%(href)s\" title="
-"\"%(title)s\" target=\"_blank\" rel=\"noopener\">discuss.python.org</a>.</p>"
+"\"two factor authentication\">2FA</abbr> στο <a href=\"%(href)s\" title=\""
+"%(title)s\" target=\"_blank\" rel=\"noopener\">discuss.python.org</a>.</p>"
 
 #: warehouse/templates/pages/help.html:335
 #, python-format
@@ -6633,8 +6630,8 @@ msgid ""
 msgstr ""
 "Οι χρήστες του PyPI μπορούν ρυθμίσουν την πιστοποίηση δυο-παραγόντων "
 "χρησιμοποιώντας οποιαδήποτε εφαρμογή πιστοποίησης η οποία υποστηρίζει το <a "
-"href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener"
-"\"><abbr title=\"time-based one-time password\">TOTP</abbr> στάνταρ</a>."
+"href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener\""
+"><abbr title=\"time-based one-time password\">TOTP</abbr> στάνταρ</a>."
 
 #: warehouse/templates/pages/help.html:336
 msgid ""
@@ -6644,8 +6641,8 @@ msgid ""
 msgstr ""
 "Οι εφαρμογές πιστοποίησης <abbr title=\"time-based one-time password\">TOTP</"
 "abbr> παράγουν έναν κωδικό πιστοποίησης ο οποίος αλλάζει τακτικά και μπορεί "
-"ο χρήστης να τον χρησιμοποιήσει για να συνδεθεί στον λογαριασμό του "
-"(προσοχή, σε καμία περίπτωση δεν αποτελεί τον κωδικό χρήστη)."
+"ο χρήστης να τον χρησιμοποιήσει για να συνδεθεί στον λογαριασμό του ("
+"προσοχή, σε καμία περίπτωση δεν αποτελεί τον κωδικό χρήστη)."
 
 #: warehouse/templates/pages/help.html:337
 msgid ""
@@ -6664,10 +6661,9 @@ msgid ""
 "target=\"_blank\" rel=\"noopener\">Android</a> or <a href=\"%(ios_href)s\" "
 "title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">iOS</a>"
 msgstr ""
-"Η εφαρμογή Google Authenticator για <a href=\"%(android_href)s\" title="
-"\"%(title)s\" target=\"_blank\" rel=\"noopener\">Android</a> ή για <a href="
-"\"%(ios_href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">iOS</"
-"a>"
+"Η εφαρμογή Google Authenticator για <a href=\"%(android_href)s\" title=\""
+"%(title)s\" target=\"_blank\" rel=\"noopener\">Android</a> ή για <a href=\""
+"%(ios_href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">iOS</a>"
 
 #: warehouse/templates/pages/help.html:343
 #: warehouse/templates/pages/help.html:345
@@ -6684,8 +6680,8 @@ msgid ""
 "\"%(title)s\" target=\"_blank\" rel=\"noopener\">iOS</a>"
 msgstr ""
 "Η εφαρμογή Duo Mobile για <a href=\"%(android_href)s\" title=\"%(title)s\" "
-"target=\"_blank\" rel=\"noopener\">Android</a> ή για <a href=\"%(ios_href)s"
-"\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">iOS</a>"
+"target=\"_blank\" rel=\"noopener\">Android</a> ή για <a href=\"%(ios_href)s\""
+" title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">iOS</a>"
 
 #: warehouse/templates/pages/help.html:353
 #: warehouse/templates/pages/help.html:354
@@ -6700,8 +6696,8 @@ msgid ""
 "codes. For security reasons, PyPI only allows you to set up one application "
 "per account."
 msgstr ""
-"Κάποιοι διαχειριστές κωδικών (password managers) όπως ο πχ <a href=\"%(href)s"
-"\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">1Password</"
+"Κάποιοι διαχειριστές κωδικών (password managers) όπως ο πχ <a href=\"%(href)"
+"s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">1Password</"
 "a>μπορεί επίσης να παράξει κωδικούς πιστοποίησης. Για λόγους ασφαλείας, το "
 "PyPI σας επιτρέπει να ορίσετε μόνο μια εφαρμογή ανά λογαριασμό."
 
@@ -6718,8 +6714,8 @@ msgid ""
 "Open an authentication (<abbr title=\"time-based one-time password\">TOTP</"
 "abbr>) application"
 msgstr ""
-"Ανοίξτε μια εφαρμογή (<abbr title=\"time-based one-time password\">TOTP</"
-"abbr>) πιστοποίησης"
+"Ανοίξτε μια εφαρμογή (<abbr title=\"time-based one-time password\""
+">TOTP</abbr>) πιστοποίησης"
 
 #: warehouse/templates/pages/help.html:369
 msgid ""
@@ -6728,8 +6724,8 @@ msgid ""
 "application\""
 msgstr ""
 "Συνδεθείτε στον λογαριασμό σας στο PyPI, πηγαίνετε στις ρυθμίσεις "
-"λογαριασμού και διαλέξτε \"Προσθήκη <abbr title=\"πιστοποίηση δυο-παραγόντων"
-"\">2FA</abbr> με εφαρμογή πιστοποίησης\""
+"λογαριασμού και διαλέξτε \"Προσθήκη <abbr title=\"πιστοποίηση δυο-"
+"παραγόντων\">2FA</abbr> με εφαρμογή πιστοποίησης\""
 
 #: warehouse/templates/pages/help.html:370
 msgid ""
@@ -6828,8 +6824,8 @@ msgid ""
 "To use a USB key that adheres to the <a href=\"%(href)s\" title=\"%(title)s"
 "\" target=\"_blank\" rel=\"noopener\">FIDO U2F specification</a>:"
 msgstr ""
-"Να χρησιμοποιείτε ένα USB key το οποίο να εμμένει στην προδιαγραφή <a href="
-"\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">FIDO "
+"Να χρησιμοποιείτε ένα USB key το οποίο να εμμένει στην προδιαγραφή <a href=\""
+"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">FIDO "
 "U2F</a>:"
 
 #: warehouse/templates/pages/help.html:396
@@ -6841,9 +6837,9 @@ msgid ""
 "href=\"%(thetis_href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener"
 "\">Thetis</a>."
 msgstr ""
-"Δημοφιλή κλειδιά αποτελούν τα <a href=\"%(yubikey_href)s\" title=\"%(title)s"
-"\" target=\"_blank\" rel=\"noopener\">Yubikey</a>, <a href=\"%(titan_href)s"
-"\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">Google Titan</a> "
+"Δημοφιλή κλειδιά αποτελούν τα <a href=\"%(yubikey_href)s\" title=\"%(title)"
+"s\" target=\"_blank\" rel=\"noopener\">Yubikey</a>, <a href=\"%(titan_href)"
+"s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">Google Titan</a> "
 "και <a href=\"%(thetis_href)s\" title=\"%(title)s\" target=\"_blank\" rel="
 "\"noopener\">Thetis</a>."
 
@@ -6976,8 +6972,8 @@ msgid ""
 "\"Generate recovery codes\""
 msgstr ""
 "Συνδεθείτε στον λογαριασμό σας στο PyPI, πηγαίνετε στις ρυθμίσεις "
-"λογαριασμού και διαλέξτε \"Προσθήκη <abbr title=\"πιστοποίηση δυο-παραγόντων"
-"\">2FA</abbr> με εφαρμογή πιστοποίησης\""
+"λογαριασμού και διαλέξτε \"Προσθήκη <abbr title=\"πιστοποίηση δυο-"
+"παραγόντων\">2FA</abbr> με εφαρμογή πιστοποίησης\""
 
 #: warehouse/templates/pages/help.html:464
 msgid ""
@@ -7111,8 +7107,8 @@ msgstr ""
 "επεξεργαστούν το <a href=\"%(pypirc_href)s\" title=\"%(title)s\" target="
 "\"_blank\" rel=\"noopener\">δικό τους αρχείο <code>.pypirc</code> file</a>, "
 "ενώ άλλοι θα χρειαστεί να αλλάξουν το αρχείο ρύθμισης του CI (πχ το <a href="
-"\"%(travis_href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener"
-"\"><code>.travis.yml</code> αν χρησιμοποιείτε την υπηρεσία Travis</a>)."
+"\"%(travis_href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener\""
+"><code>.travis.yml</code> αν χρησιμοποιείτε την υπηρεσία Travis</a>)."
 
 #: warehouse/templates/pages/help.html:505
 msgid ""
@@ -7152,9 +7148,9 @@ msgid ""
 "\">bandersnatch project</a> is the recommended solution. Note that the "
 "storage requirements for a PyPI mirror would exceed 1 terabyte—and growing!"
 msgstr ""
-"Αν θέλετε να τρέξετε τον δικό σας καθρέπτη του PyPI, τότε το <a href="
-"\"%(href)s\">bandersnatch project</a> είναι η προτεινόμενη λύση. Σημειώστε "
-"ότι οι απαιτήσεις αποθηκευτικού χώρου για ένα καθρέπτη PyPI θα υπερβούν το 1 "
+"Αν θέλετε να τρέξετε τον δικό σας καθρέπτη του PyPI, τότε το <a href=\""
+"%(href)s\">bandersnatch project</a> είναι η προτεινόμενη λύση. Σημειώστε ότι "
+"οι απαιτήσεις αποθηκευτικού χώρου για ένα καθρέπτη PyPI θα υπερβούν το 1 "
 "terabyte—και θα συνεχίσουν να ανεβαίνουν!"
 
 #: warehouse/templates/pages/help.html:527
@@ -7176,8 +7172,8 @@ msgstr ""
 "Το ίδιο το PyPI δεν παρέχει κάποιον τρόπο να ειδοποιήστε όταν ένα project "
 "ανεβάζει νέες εκδόσεις. Ωστόσο, υπάρχουν πολλές υπηρεσίες τρίτων που "
 "παρέχουν πλήρεις παρακολουθήσεις και ειδοποιήσεις για εκδόσεις project και "
-"αδυναμίες κάτω από μια λίστα με το όνομα <a href=\"%(href)s\" title="
-"\"%(title)s\" target=\"_blank\" rel=\"noopener\">GitHub apps</a>."
+"αδυναμίες κάτω από μια λίστα με το όνομα <a href=\"%(href)s\" title=\""
+"%(title)s\" target=\"_blank\" rel=\"noopener\">GitHub apps</a>."
 
 # | msgid ""
 # | "You can <a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\"
@@ -7212,12 +7208,12 @@ msgstr ""
 "<a href=\"%(libs_io_href)s\" title=\"%(title)s\" target=\"_blank\" rel="
 "\"noopener\">Η ιστοσελίδα Libraries.io παρέχει στατιστικά για τα PyPI "
 "projects</a> (<a href=\"%(libs_io_example_href)s\" title=\"%(title)s\" "
-"target=\"_blank\" rel=\"noopener\">παράδειγμα</a>, <a href="
-"\"%(libs_io_api_href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener"
-"\">API</a>) περιλαμβάνοντας τα GitHub stars και forks, dependency tracking "
-"(<a href=\"%(in_progress_href)s\" title=\"%(title)s\" target=\"_blank\" rel="
-"\"noopener\">σε εξέλιξη</a>) και <a href=\"%(other_factors_href)s\" title="
-"\"%(title)s\" target=\"_blank\" rel=\"noopener\">άλλους σχετικούς "
+"target=\"_blank\" rel=\"noopener\">παράδειγμα</a>, <a href=\""
+"%(libs_io_api_href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener\""
+">API</a>) περιλαμβάνοντας τα GitHub stars και forks, dependency tracking (<a "
+"href=\"%(in_progress_href)s\" title=\"%(title)s\" target=\"_blank\" rel="
+"\"noopener\">σε εξέλιξη</a>) και <a href=\"%(other_factors_href)s\" title=\""
+"%(title)s\" target=\"_blank\" rel=\"noopener\">άλλους σχετικούς "
 "παράγοντες</a>."
 
 #: warehouse/templates/pages/help.html:541
@@ -7227,8 +7223,8 @@ msgid ""
 "title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">our status page</a>."
 msgstr ""
 "Για πρόσφατα στατιστικά σχετικά με το uptime και την απόδοση δείτε στη <a "
-"href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener"
-"\">σελίδα κατάστασης μας</a>."
+"href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener\""
+">σελίδα κατάστασης μας</a>."
 
 #: warehouse/templates/pages/help.html:548
 #, python-format
@@ -7239,8 +7235,8 @@ msgid ""
 msgstr ""
 "Το PyPI δεν υποστηρίζει την έκδοση ιδιωτικών πακέτων. Αν θέλετε να εκδώσετε "
 "το ιδιωτικό πακέτο σας σε κάποιο αποθετήριο πακέτων η προτεινόμενη λύση "
-"είναι τρέξετε το δικό σας deployment του <a href=\"%(href)s\">devpi project</"
-"a>."
+"είναι τρέξετε το δικό σας deployment του <a href=\"%(href)s\">devpi "
+"project</a>."
 
 #: warehouse/templates/pages/help.html:551
 #, fuzzy
@@ -7303,8 +7299,8 @@ msgstr ""
 #| "If the owner is unresponsive, see <a href=\"%(href)s\">%(anchor_text)s</a>"
 msgid "See <a href=\"%(href)s\">%(anchor_text)s</a>"
 msgstr ""
-"Αν ο κάτοχος δεν επικοινωνήσει μαζί σας ανατρέξτε στο <a href=\"%(href)s\">"
-"%(anchor_text)s</a>"
+"Αν ο κάτοχος δεν επικοινωνήσει μαζί σας ανατρέξτε στο <a href=\"%(href)s\""
+">%(anchor_text)s</a>"
 
 # | msgid ""
 # | "Refer to the <a href=\"%(href)s\" title=\"%(title)s\"
@@ -7362,8 +7358,8 @@ msgstr ""
 msgid ""
 "If the owner is unresponsive, see <a href=\"%(href)s\">%(anchor_text)s</a>"
 msgstr ""
-"Αν ο κάτοχος δεν επικοινωνήσει μαζί σας ανατρέξτε στο <a href=\"%(href)s\">"
-"%(anchor_text)s</a>"
+"Αν ο κάτοχος δεν επικοινωνήσει μαζί σας ανατρέξτε στο <a href=\"%(href)s\""
+">%(anchor_text)s</a>"
 
 #: warehouse/templates/pages/help.html:572
 #, python-format
@@ -7374,9 +7370,9 @@ msgid ""
 "set the <code>long_description_content_type</code> in <code>setup.py</code> "
 "to the alternate format."
 msgstr ""
-"Από προεπιλογή, η περιγραφή ενός ανεβάσματος θα έχει τη μορφή <a href="
-"\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener"
-"\">reStructuredText</a>. Αν η περιγραφή είναι σε εναλλακτική μορφή (πχ "
+"Από προεπιλογή, η περιγραφή ενός ανεβάσματος θα έχει τη μορφή <a href=\""
+"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener\""
+">reStructuredText</a>. Αν η περιγραφή είναι σε εναλλακτική μορφή (πχ "
 "Markdown), τότε το πακέτο θα πρέπει να θέσει την τιμή του "
 "<code>long_description_content_type</code> μέσα στο αρχείο <code>setup.py</"
 "code> σε μια διαφορετική μορφή."
@@ -7463,8 +7459,8 @@ msgid ""
 "\"%(file_issue_href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener"
 "\">File an issue</a> and tell us:"
 msgstr ""
-"Μάθετε πως να δημιουργήσετε μια νέα έκδοση στο <a href=\"%(href)s\" title="
-"\"%(title)s\" target=\"_blank\" rel=\"noopener\">Python Packaging User "
+"Μάθετε πως να δημιουργήσετε μια νέα έκδοση στο <a href=\"%(href)s\" title=\""
+"%(title)s\" target=\"_blank\" rel=\"noopener\">Python Packaging User "
 "Guide</a>"
 
 #: warehouse/templates/pages/help.html:609
@@ -7490,9 +7486,9 @@ msgid ""
 msgstr ""
 "Για να μέθετε πων να εγκταστείσετε ένα αρχείο από το PyPI, επισκεφτείτε τον "
 "<a href=\"%(installation_href)s\" title=\"%(title)s\" target=\"_blank\" rel="
-"\"noopener\">οδηγό εγκατάστασης</a> στη σελίδα του <a href="
-"\"%(user_guide_href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener"
-"\">Python Packaging User Guide</a>."
+"\"noopener\">οδηγό εγκατάστασης</a> στη σελίδα του <a href=\""
+"%(user_guide_href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener\""
+">Python Packaging User Guide</a>."
 
 #: warehouse/templates/pages/help.html:621
 #, fuzzy, python-format
@@ -7505,8 +7501,8 @@ msgid ""
 "<a href=\"%(file_issue_href)s\" title=\"%(title)s\" target=\"_blank\" rel="
 "\"noopener\">file an issue</a> with details."
 msgstr ""
-"Μάθετε πως να δημιουργήσετε μια νέα έκδοση στο <a href=\"%(href)s\" title="
-"\"%(title)s\" target=\"_blank\" rel=\"noopener\">Python Packaging User "
+"Μάθετε πως να δημιουργήσετε μια νέα έκδοση στο <a href=\"%(href)s\" title=\""
+"%(title)s\" target=\"_blank\" rel=\"noopener\">Python Packaging User "
 "Guide</a>"
 
 #: warehouse/templates/pages/help.html:633
@@ -7539,8 +7535,8 @@ msgstr ""
 #, python-format
 msgid "Go to <a href=\"%(href)s\">reset your password</a>."
 msgstr ""
-"Μεταβείτε στο σύνδεσμο <a href=\"%(href)s\">για μηδενισμό του κωδικού σας</"
-"a>."
+"Μεταβείτε στο σύνδεσμο <a href=\"%(href)s\">για μηδενισμό του κωδικού "
+"σας</a>."
 
 #: warehouse/templates/pages/help.html:642
 msgid ""
@@ -7645,8 +7641,8 @@ msgid ""
 "This is a <a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel="
 "\"noopener\">known issue</a> with Python's <code>getpass</code> module."
 msgstr ""
-"<a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener"
-"\">Hashes</a> για %(filename)s"
+"<a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener\""
+">Hashes</a> για %(filename)s"
 
 #: warehouse/templates/pages/help.html:684
 #, python-format
@@ -7662,11 +7658,11 @@ msgstr ""
 "Το Transport Layer Security, ή TLS, το χρησιμοποιούμε για να σιγουρευτούμε "
 "ότι οι συνδέσεις μεταξύ του υπολογιστή σας και του PyPI παραμένουν ιδιωτικές "
 "και ασφαλείς. Είναι ένα κρυπτογραφικό πρωτόκολλο με διαφορετικές εκδόσεις με "
-"το πέρασμα του χρόνου. Το PyPI <a href=\"%(announcement_href)s\" title="
-"\"%(title)s\" target=\"_blank\" rel=\"noopener\">δεν υποστηρίζει τις "
-"εκδόσεις TLS 1.0 και 1.1</a> από τον Απρίλιο του 2018. <a href="
-"\"%(reason_href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener"
-"\">Μάθετε γιατί στο PSF blog</a>."
+"το πέρασμα του χρόνου. Το PyPI <a href=\"%(announcement_href)s\" title=\""
+"%(title)s\" target=\"_blank\" rel=\"noopener\">δεν υποστηρίζει τις εκδόσεις "
+"TLS 1.0 και 1.1</a> από τον Απρίλιο του 2018. <a href=\"%(reason_href)s\" "
+"title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">Μάθετε γιατί στο PSF "
+"blog</a>."
 
 #: warehouse/templates/pages/help.html:691
 #, python-format
@@ -7700,8 +7696,8 @@ msgid ""
 "Python, <code>setuptools</code>, and <code>pip</code>."
 msgstr ""
 "Τα συγκεκριμένα βήματα που θα πρέπει να ακολουθήσετε εξαρτώνται από την "
-"έκδοση του λειτουργικού σας συστήματος, από που εγκαταστήσατε την Python "
-"(από το python.org, μέσα από το λειτουργικό σας σύστημα ή από κάποιον "
+"έκδοση του λειτουργικού σας συστήματος, από που εγκαταστήσατε την Python ("
+"από το python.org, μέσα από το λειτουργικό σας σύστημα ή από κάποιον "
 "μεσολαβητή) και από την έκδοση της εγκατεστημένης Python, του πακέτου "
 "<code>setuptools</code> και του πακέτου <code>pip</code>."
 
@@ -7727,8 +7723,8 @@ msgid ""
 msgstr ""
 "Για βοήθεια μεταβείτε <a href=\"%(irc_href)s\" title=\"%(title)s\" target="
 "\"_blank\" rel=\"noopener\">στο κανάλι IRC <code>#pypa</code> στο Freenode</"
-"a>, ανοίξτε ένα θέμα στο <a href=\"%(issue_tracker_href)s\" title=\"%(title)s"
-"\" target=\"_blank\" rel=\"noopener\">pypa/packaging-problems/issues</a> ή "
+"a>, ανοίξτε ένα θέμα στο <a href=\"%(issue_tracker_href)s\" title=\"%(title)"
+"s\" target=\"_blank\" rel=\"noopener\">pypa/packaging-problems/issues</a> ή "
 "<a href=\"%(mailing_list_href)s\" title=\"%(title)s\" target=\"_blank\" rel="
 "\"noopener\">γράψτε στη python-help mailing list</a>, συμπεριλαμβάνοντας το "
 "λειτουργικό σας σύστημα και οδηγίες εγκατάστασης του καθώς και την έξοδο από "
@@ -7752,10 +7748,10 @@ msgid ""
 "\"%(title)s\" target=\"_blank\" rel=\"noopener\">report it to us on GitHub</"
 "a>, so we can try to fix the problem, for you and others."
 msgstr ""
-"Αν αντιμετωπίζετε προβλήματα προσβασιμότητας <a href=\"%(href)s\" title="
-"\"%(title)s\" target=\"_blank\" rel=\"noopener\">αναφέρετε το μας στο "
-"GitHub</a>, ούτως ώστε να προσπαθήσουμε να διορθώσουμε το πρόβλημα τόσο για "
-"εσάς όσο και για τους άλλους."
+"Αν αντιμετωπίζετε προβλήματα προσβασιμότητας <a href=\"%(href)s\" title=\""
+"%(title)s\" target=\"_blank\" rel=\"noopener\">αναφέρετε το μας στο GitHub</"
+"a>, ούτως ώστε να προσπαθήσουμε να διορθώσουμε το πρόβλημα τόσο για εσάς όσο "
+"και για τους άλλους."
 
 #: warehouse/templates/pages/help.html:720
 #, python-format
@@ -7769,9 +7765,9 @@ msgstr ""
 "Σε παλαιότερες εκδόσεις του PyPI, οι συντηρητές μπορούσαν να ανεβάσουν "
 "εκδόσεις στο PyPI χρησιμοποιώντας μια φόρμα μέσα από τον web browser. Αυτή η "
 "δυνατότητα δεν υπάρχει πλέον στην νέα έκδοση του PyPI – αντί αυτού "
-"προτείνουμε να χρησιμοποιείτε το πακέτο <a href=\"%(href)s\" title="
-"\"%(title)s\" target=\"_blank\" rel=\"noopener\">twine για το ανέβασμα του "
-"project σας στο PyPI</a>."
+"προτείνουμε να χρησιμοποιείτε το πακέτο <a href=\"%(href)s\" title=\"%(title)"
+"s\" target=\"_blank\" rel=\"noopener\">twine για το ανέβασμα του project σας "
+"στο PyPI</a>."
 
 #: warehouse/templates/pages/help.html:729
 msgid ""
@@ -7799,8 +7795,8 @@ msgid ""
 msgstr ""
 "Όταν οι διαχειριστές του PyPI βομβαρδιστούν με spam <strong>ή</strong> "
 "διαπιστώσουν ότι υπάρχει κάποια άλλη απειλή για το PyPI, οι εγγραφές νέων "
-"χρηστών και/ή νέων project μπορεί να απενεργοποιηθούν. Δείτε στη <a href="
-"\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">σελίδα "
+"χρηστών και/ή νέων project μπορεί να απενεργοποιηθούν. Δείτε στη <a href=\""
+"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">σελίδα "
 "κατάστασης μας</a> για περισσότερες πληροφορίες, καθώς θα έχουμε σχετική "
 "ανακοίνωση εκεί για το λόγο της διακοπής αυτών των υπηρεσιών."
 
@@ -7836,8 +7832,8 @@ msgid ""
 "target=\"_blank\" rel=\"noopener\">use Test PyPI to perform and check your "
 "upload first</a>, before uploading to <a href=\"%(pypi_href)s\">pypi.org</a>."
 msgstr ""
-"Για την αποφυγή αυτής της κατάστασης, <a href=\"%(test_pypi_href)s\" title="
-"\"%(title)s\" target=\"_blank\" rel=\"noopener\">χρησιμοποιήστε το Test PyPI "
+"Για την αποφυγή αυτής της κατάστασης, <a href=\"%(test_pypi_href)s\" title=\""
+"%(title)s\" target=\"_blank\" rel=\"noopener\">χρησιμοποιήστε το Test PyPI "
 "για να ελέγξετε το ανέβασμα του πακέτου σας</a>, προτού το ανεβάσετε στο <a "
 "href=\"%(pypi_href)s\">pypi.org</a>."
 
@@ -7859,9 +7855,9 @@ msgid ""
 "brief justification of why it is important."
 msgstr ""
 "Αν θέλετε να αιτηθείτε ένα νέο trove classifier δημιουργήστε ένα bug στον <a "
-"href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener"
-"\">issue tracker μας</a>. Συμπεριλάβετε το όνομα του επιθυμητού classifier "
-"και μια μικρή αιτιολόγηση γιατί αυτό είναι σημαντικό."
+"href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener\""
+">issue tracker μας</a>. Συμπεριλάβετε το όνομα του επιθυμητού classifier και "
+"μια μικρή αιτιολόγηση γιατί αυτό είναι σημαντικό."
 
 #: warehouse/templates/pages/help.html:763
 #, python-format
@@ -7875,8 +7871,8 @@ msgid ""
 msgstr ""
 "Αν αντιμετωπίζετε προβλήματα με το ίδιο το PyPI, είμαστε ανοιχτοί σε "
 "<strong>εποικοδομητικά</strong> feedbacks και and bug reports μέσω του <a "
-"href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener"
-"\">issue tracker μας</a>. Παρακαλούμε, σημειώστε, ότι αυτός ο tracker είναι "
+"href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener\""
+">issue tracker μας</a>. Παρακαλούμε, σημειώστε, ότι αυτός ο tracker είναι "
 "μόνο για θέματα λογισμικού που τρέχουν στο PyPI. Προτού γράψετε ένα νέο "
 "θέμα, ελέγξτε πρώτα αν κάποιο παρόμοιο υπάρχει ήδη."
 
@@ -7930,10 +7926,10 @@ msgstr ""
 "rel=\"noopener\">PackagingWG</a> είναι μια ομάδα εργασίας του Python "
 "Software Foundation (PSF) της οποίας ο στόχος είναι να συγκεντρωθούν και να "
 "εκταμιευθούν κεφάλαια για την υποστήριξη της βελτίωσης του Python packaging. "
-"Πρόσφατα <a href=\"%(otf_award_href)s\" title=\"%(title)s\" target=\"_blank"
-"\" rel=\"noopener\">εξασφάλισε ένα βραβείο από το Open Technology Fund</a> "
-"του οποίου η χρηματοδότηση επιτρέπει στους developers να βελτιώσουν την "
-"ασφάλεια και την προσβασιμότητα του Warehouse."
+"Πρόσφατα <a href=\"%(otf_award_href)s\" title=\"%(title)s\" target=\"_blank\""
+" rel=\"noopener\">εξασφάλισε ένα βραβείο από το Open Technology Fund</a> του "
+"οποίου η χρηματοδότηση επιτρέπει στους developers να βελτιώσουν την ασφάλεια "
+"και την προσβασιμότητα του Warehouse."
 
 #: warehouse/templates/pages/help.html:799
 #, python-format
@@ -7942,10 +7938,10 @@ msgid ""
 "\"_blank\" rel=\"noopener\">Warehouse</a> and by a variety of tools and "
 "services provided by our <a href=\"%(sponsors_href)s\">generous sponsors</a>."
 msgstr ""
-"Το PyPI τροφοδοτείται από το <a href=\"%(warehouse_href)s\" title=\"%(title)s"
-"\" target=\"_blank\" rel=\"noopener\">Warehouse</a> και από μια ποικιλία από "
-"εργαλεία και υπηρεσίες που παρέχονται από τους <a href=\"%(sponsors_href)s"
-"\">γενναιόδωρους χορηγούς μας</a>."
+"Το PyPI τροφοδοτείται από το <a href=\"%(warehouse_href)s\" title=\"%(title)"
+"s\" target=\"_blank\" rel=\"noopener\">Warehouse</a> και από μια ποικιλία "
+"από εργαλεία και υπηρεσίες που παρέχονται από τους <a href=\"%(sponsors_href)"
+"s\">γενναιόδωρους χορηγούς μας</a>."
 
 #: warehouse/templates/pages/help.html:806
 msgid ""
@@ -7974,9 +7970,9 @@ msgid ""
 "\"%(private_index_href)s\">private index</a>."
 msgstr ""
 "Το PyPI χρησιμοποιεί έντονα την cache και διανέμεται μέσω των <abbr title="
-"\"content delivery network\">CDN</abbr> χάρη στον χορηγό μας <a href="
-"\"%(fastly_href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener"
-"\">Fastly</a> κάνοντας το διαθέσιμο σε όλο τον κόσμο. Ωστόσο, επειδή η "
+"\"content delivery network\">CDN</abbr> χάρη στον χορηγό μας <a href=\""
+"%(fastly_href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener\""
+">Fastly</a> κάνοντας το διαθέσιμο σε όλο τον κόσμο. Ωστόσο, επειδή η "
 "ιστοσελίδα συντηρείται κυρίως από εθελοντές και δεν παρέχουμε κάποιο "
 "συγκεκριμένο Σύμφωνο Επιπέδου Υπηρεσιών όπως θα ήταν αναμενόμενο για ένα "
 "γιγάντια διανεμόμενο σύστημα, τα πράγματα, μπορεί, μερικές φορές, να πάνε "
@@ -7996,8 +7992,8 @@ msgid ""
 msgstr ""
 "Έχουμε να κάνουμε ένα τεράστιο φόρτο εργασιών προκειμένου να συνεχίσουμε να "
 "διατηρούμε και να βελτιώνουμε το PyPI (γνωστό και ως <a href=\"%(href)s\" "
-"title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">το Warehouse project</"
-"a>)."
+"title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">το Warehouse "
+"project</a>)."
 
 #: warehouse/templates/pages/help.html:827
 msgid "Financial:"
@@ -8059,8 +8055,8 @@ msgid ""
 "interested in working on a particular issue, leave a comment and we can "
 "guide you through the contribution process."
 msgstr ""
-"Τα θέματα (issues) είναι κατηγοριοποιημένα σε <a href=\"%(href)s\" title="
-"\"%(title)s\" target=\"_blank\" rel=\"noopener\">milestones</a>. Δουλεύοντας "
+"Τα θέματα (issues) είναι κατηγοριοποιημένα σε <a href=\"%(href)s\" title=\""
+"%(title)s\" target=\"_blank\" rel=\"noopener\">milestones</a>. Δουλεύοντας "
 "πάνω σε issues στο τρέχον milestone θα βοηθήσετε να πάει το project μπροστά. "
 "Αν ενδιαφέρεστε να δουλέψετε πάνω σε ένα συγκεκριμένο issue, αφήστε ένα "
 "σχόλιο και θα σας καθοδηγήσουμε στη διαδικασία συνεισφοράς."
@@ -8084,9 +8080,9 @@ msgid ""
 msgstr ""
 "Μπορείτε, επίσης, να παρακολουθείτε την εξέλιξη της ανάπτυξης του project "
 "στη <a href=\"%(mailing_list_href)s\" title=\"%(title)s\" target=\"_blank\" "
-"rel=\"noopener\">distutils-sig mailing list</a> και στο <a href="
-"\"%(message_group_href)s\" title=\"%(title)s\" target=\"_blank\" rel="
-"\"noopener\">PyPA Dev message group</a>."
+"rel=\"noopener\">distutils-sig mailing list</a> και στο <a href=\""
+"%(message_group_href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener"
+"\">PyPA Dev message group</a>."
 
 #: warehouse/templates/pages/help.html:855
 #, python-format
@@ -8125,8 +8121,8 @@ msgid ""
 "More information about this list can be found here: <a href=\"%(href)s\">"
 "%(href)s</a>."
 msgstr ""
-"Για να μπορείτε να ανακτήσετε την πρόσβαση στο λογαριασμό σας, <a href="
-"\"%(href)s\">μηδενίστε τον κωδικό σας</a> στο PyPI."
+"Για να μπορείτε να ανακτήσετε την πρόσβαση στο λογαριασμό σας, <a href=\""
+"%(href)s\">μηδενίστε τον κωδικό σας</a> στο PyPI."
 
 # | msgid "Currently, the following features are in beta:"
 #: warehouse/templates/pages/help.html:867
@@ -8216,9 +8212,9 @@ msgstr ""
 "\"noopener\">Python Packaging Authority (PyPA)</a> είναι μια ομάδα εργασίας, "
 "στόχος της οποίας είναι η βελτίωση του Python packaging. Αν θέλετε να έρθετε "
 "σε επαφή με κάποιον προγραμματιστή ειδικό στα πακέτα, χρησιμοποιήστε το <a "
-"href=\"%(irc_href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener"
-"\">#pypa στο IRC (freenode)</a> ή <a href=\"%(mailing_list_href)s\" title="
-"\"%(title)s\" target=\"_blank\" rel=\"noopener\">μπείτε στο distutils-sig "
+"href=\"%(irc_href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener\""
+">#pypa στο IRC (freenode)</a> ή <a href=\"%(mailing_list_href)s\" title=\""
+"%(title)s\" target=\"_blank\" rel=\"noopener\">μπείτε στο distutils-sig "
 "mailing list</a>."
 
 #: warehouse/templates/pages/security.html:15
@@ -8242,10 +8238,14 @@ msgid "Important!"
 msgstr "Σημαντικό!"
 
 #: warehouse/templates/pages/security.html:24
+#, fuzzy
+#| msgid ""
+#| "If you believe you've identified a security issue with Warehouse, "
+#| "<strong>DO NOT</strong> report the issue in any public forum, including "
+#| "(but not limited to):"
 msgid ""
-"If you believe you've identified a security issue with Warehouse, <strong>DO "
-"NOT</strong> report the issue in any public forum, including (but not "
-"limited to):"
+"If you believe you've identified a security issue with PyPI, <strong>DO NOT</"
+"strong> report the issue in any public forum, including (but not limited to):"
 msgstr ""
 "Αν πιστεύετε ότι αναγνωρίσατε κάποιο θέμα ασφάλειας με το Warehouse, "
 "<strong>ΜΗΝ ΤΟ</strong> αναφέρετε σε κάποιο δημόσιο forum, "
@@ -8264,46 +8264,84 @@ msgid "Official or unofficial mailing lists"
 msgstr "Επίσημα ή ανεπίσημα mailing lists"
 
 #: warehouse/templates/pages/security.html:35
-#, python-format
+msgid "If you've identified a security issue with a project hosted on PyPI"
+msgstr ""
+
+#: warehouse/templates/pages/security.html:36
+#, fuzzy, python-format
+#| msgid ""
+#| "Instead, email <a href=\"%(href)s\">security at python dot org</a> "
+#| "directly, providing as much relevant information as possible."
 msgid ""
-"Instead, email <a href=\"%(href)s\">security at python dot org</a> directly, "
-"providing as much relevant information as possible."
+"Email <a href=\"%(href)s\">security@pypi.org</a>, providing the following "
+"details:"
 msgstr ""
 "Αντ' αυτού, στείλτε ένα email απ' ευθείας στο <a href=\"%(href)s\">security "
 "at python dot org</a>, παρέχοντας μας όσες περισσότερες πληροφορίες μπορείτε "
 "σχετικά με το θέμα."
 
-#: warehouse/templates/pages/security.html:36
+#: warehouse/templates/pages/security.html:38
+msgid "A URL to the project in question"
+msgstr ""
+
+#: warehouse/templates/pages/security.html:39
+msgid "An explanation of what makes the project a security issue"
+msgstr ""
+
+#: warehouse/templates/pages/security.html:40
 #, python-format
 msgid ""
-"Messages may be optionally encrypted with GPG using key fingerprints "
-"available <a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel="
-"\"noopener\">at the Python Security page</a>."
+"If applicable: a link to the problematic lines in the project's "
+"distributions via <a href=\"%(href)s\">inspector.pypi.io</a>"
 msgstr ""
-"Τα μηνύματα μπορούν, προαιρετικά, να κρυπτογραφηθούν με GPG χρησιμοποιώντας "
-"τα key fingerprints που είναι διαθέσιμα στη σελίδα <a href=\"%(href)s\" "
-"title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">Python Security</a>."
 
-#: warehouse/templates/pages/security.html:38
+#: warehouse/templates/pages/security.html:42
+msgid ""
+"Valid malware reports may include examples of typo-squatting, dependency "
+"confusion, data exfiltration, obfustication, command/control, etc."
+msgstr ""
+
+#: warehouse/templates/pages/security.html:44
+msgid ""
+"If you've identified a security issue with PyPI itself (not a project hosted "
+"on PyPI)"
+msgstr ""
+
+#: warehouse/templates/pages/security.html:45
+#, fuzzy, python-format
+#| msgid ""
+#| "Instead, email <a href=\"%(href)s\">security at python dot org</a> "
+#| "directly, providing as much relevant information as possible."
+msgid ""
+"Email <a href=\"%(href)s\">security@pypi.org</a>, providing as much relevant "
+"information as possible, including reproducing steps."
+msgstr ""
+"Αντ' αυτού, στείλτε ένα email απ' ευθείας στο <a href=\"%(href)s\">security "
+"at python dot org</a>, παρέχοντας μας όσες περισσότερες πληροφορίες μπορείτε "
+"σχετικά με το θέμα."
+
+#: warehouse/templates/pages/security.html:47
 msgid "What happens next?"
 msgstr "Τι γίνεται μετά;"
 
-#: warehouse/templates/pages/security.html:40
+#: warehouse/templates/pages/security.html:48
 msgid ""
 "Once you've submitted an issue via email, you should receive an "
 "acknowledgment within 48 hours."
 msgstr ""
 "Όταν καταθέσετε ένα θέμα μέσω email, θα λάβετε αναγνώριση μέσα σε 48 ώρες."
 
-#: warehouse/templates/pages/security.html:41
+#: warehouse/templates/pages/security.html:49
 msgid ""
 "Depending on the action to be taken, you may receive further follow-up "
 "emails."
 msgstr ""
 "Ανάλογα με την ενέργεια που πρέπει να παρθεί, ίσως λάβετε και άλλα emails."
 
-#: warehouse/templates/pages/security.html:44
-msgid "This security policy was last updated on March 14, 2018."
+#: warehouse/templates/pages/security.html:52
+#, fuzzy
+#| msgid "This security policy was last updated on March 14, 2018."
+msgid "This security policy was last updated on June 2022."
 msgstr "Η τρέχουσα πολιτική ασφάλειας ανανεώθηκε στις 14 Μαρτίου 2018."
 
 #: warehouse/templates/pages/sitemap.html:21
@@ -8384,8 +8422,8 @@ msgid ""
 "Support Program</a> in 2018"
 msgstr ""
 "Η εφαρμογή Duo Mobile για <a href=\"%(android_href)s\" title=\"%(title)s\" "
-"target=\"_blank\" rel=\"noopener\">Android</a> ή για <a href=\"%(ios_href)s"
-"\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">iOS</a>"
+"target=\"_blank\" rel=\"noopener\">Android</a> ή για <a href=\"%(ios_href)s\""
+" title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">iOS</a>"
 
 #: warehouse/templates/pages/sponsors.html:36
 msgid ""
@@ -8427,8 +8465,8 @@ msgid ""
 "2019 and 2020"
 msgstr ""
 "Η εφαρμογή Duo Mobile για <a href=\"%(android_href)s\" title=\"%(title)s\" "
-"target=\"_blank\" rel=\"noopener\">Android</a> ή για <a href=\"%(ios_href)s"
-"\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">iOS</a>"
+"target=\"_blank\" rel=\"noopener\">Android</a> ή για <a href=\"%(ios_href)s\""
+" title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">iOS</a>"
 
 #: warehouse/templates/pages/sponsors.html:44
 msgid "Overhauling pip's user experience and dependency resolver"
@@ -8455,9 +8493,9 @@ msgid ""
 "target=\"_blank\" rel=\"noopener\">Mozilla Open Source Support Program</a> "
 "in 2020"
 msgstr ""
-"Δημοφιλή κλειδιά αποτελούν τα <a href=\"%(yubikey_href)s\" title=\"%(title)s"
-"\" target=\"_blank\" rel=\"noopener\">Yubikey</a>, <a href=\"%(titan_href)s"
-"\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">Google Titan</a> "
+"Δημοφιλή κλειδιά αποτελούν τα <a href=\"%(yubikey_href)s\" title=\"%(title)"
+"s\" target=\"_blank\" rel=\"noopener\">Yubikey</a>, <a href=\"%(titan_href)"
+"s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">Google Titan</a> "
 "και <a href=\"%(thetis_href)s\" title=\"%(title)s\" target=\"_blank\" rel="
 "\"noopener\">Thetis</a>."
 
@@ -8708,6 +8746,17 @@ msgstr[1] ""
 "\n"
 "                  Δεν βρέθηκαν αποτελέσματα για τα φίλτρα '%(filters)s'\n"
 "                "
+
+#, python-format
+#~ msgid ""
+#~ "Messages may be optionally encrypted with GPG using key fingerprints "
+#~ "available <a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel="
+#~ "\"noopener\">at the Python Security page</a>."
+#~ msgstr ""
+#~ "Τα μηνύματα μπορούν, προαιρετικά, να κρυπτογραφηθούν με GPG "
+#~ "χρησιμοποιώντας τα key fingerprints που είναι διαθέσιμα στη σελίδα <a "
+#~ "href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener"
+#~ "\">Python Security</a>."
 
 #~ msgid "Invalid credentials. Try again"
 #~ msgstr "Λάθος διαπιστευτήρια. Προσπάθησε ξανά"

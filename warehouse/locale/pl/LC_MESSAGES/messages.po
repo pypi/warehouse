@@ -3,20 +3,22 @@
 # This file is distributed under the same license as the Warehouse project.
 # FIRST AUTHOR <EMAIL@ADDRESS>, 2019.
 # Dustin Ingram <dustin.ingram@gmail.com>, 2019.
-# Sebastian Witowski <sebawitowski@yahoo.com>, 2019.
+# Sebastian Witowski <sebawitowski@yahoo.com>, 2019, 2022.
 # m-aciek <maciej.olko@gmail.com>, 2020, 2021, 2022.
-# vXtreniusX <michal2008vxv@gmail.com>, 2020.
+# vXtreniusX <michal2008vxv@gmail.com>, 2020, 2022.
 # Michal Biesiada <blade-14@o2.pl>, 2020.
-# Lukasz <lukabombala@gmail.com>, 2020.
-# Michal Juszczyk <michaljuszczyk2+pypi@gmail.com>, 2021.
-# Sviatoslav Sydorenko <wk+weblate.org@sydorenko.org.ua>, 2021.
+# Lukasz <lukabombala@gmail.com>, 2020, 2022.
+# Michal Juszczyk <michaljuszczyk2+pypi@gmail.com>, 2021, 2022.
+# Sviatoslav Sydorenko <wk+weblate.org@sydorenko.org.ua>, 2021, 2022.
+# Marek Fic <marekfic1982@gmail.com>, 2022.
+# Jakub Fabijan <animatorzPolski@gmail.com>, 2022.
 msgid ""
 msgstr ""
 "Project-Id-Version: Warehouse VERSION\n"
 "Report-Msgid-Bugs-To: admin@pypi.org\n"
 "POT-Creation-Date: 2020-01-15 20:11+0200\n"
-"PO-Revision-Date: 2022-02-04 23:32+0000\n"
-"Last-Translator: m-aciek <maciej.olko@gmail.com>\n"
+"PO-Revision-Date: 2022-06-28 19:47+0000\n"
+"Last-Translator: Sviatoslav Sydorenko <wk+weblate.org@sydorenko.org.ua>\n"
 "Language-Team: Polish <https://hosted.weblate.org/projects/pypa/warehouse/pl/"
 ">\n"
 "Language: pl\n"
@@ -25,7 +27,7 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=n==1 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 "
 "|| n%100>=20) ? 1 : 2;\n"
-"X-Generator: Weblate 4.11-dev\n"
+"X-Generator: Weblate 4.13.1-dev\n"
 "Generated-By: Babel 2.7.0\n"
 
 #: warehouse/views.py:129
@@ -76,8 +78,7 @@ msgstr "Hasło jest nieprawidłowe Spróbuj ponownie."
 
 #: warehouse/accounts/forms.py:149 warehouse/accounts/views.py:87
 msgid "There have been too many unsuccessful login attempts. Try again later."
-msgstr ""
-"Podjęto zbyt wiele nieudanych prób logowania. Spróbuj ponownie później."
+msgstr "Podjęto zbyt wiele nieudanych prób logowania. Spróbuj ponownie później."
 
 #: warehouse/accounts/forms.py:171
 msgid "Your passwords don't match. Try again."
@@ -103,8 +104,8 @@ msgid ""
 "This email address is already being used by another account. Use a different "
 "email."
 msgstr ""
-"Ten adres e-mail jest już używany przez inne konto. Użyj innego adresu e-"
-"mail."
+"Ten adres e-mail jest już używany przez inne konto. Użyj innego adresu "
+"e-mail."
 
 #: warehouse/accounts/forms.py:261 warehouse/manage/forms.py:77
 msgid "The name is too long. Choose a name with 100 characters or less."
@@ -476,8 +477,7 @@ msgstr "Odrzucono zaproszenie od ”${username}”."
 msgid ""
 "There have been too many attempted OpenID Connect registrations. Try again "
 "later."
-msgstr ""
-"Podjęto zbyt wiele nieudanych prób logowania. Spróbuj ponownie później."
+msgstr "Podjęto zbyt wiele nieudanych prób logowania. Spróbuj ponownie później."
 
 #: warehouse/manage/views.py:3118
 msgid "User '${username}' already has ${role_name} role for project"
@@ -663,7 +663,6 @@ msgstr "Monty Python - Szkic sklepu z serami"
 #: warehouse/templates/pages/help.html:892
 #: warehouse/templates/pages/help.html:893
 #: warehouse/templates/pages/help.html:898
-#: warehouse/templates/pages/security.html:36
 #: warehouse/templates/pages/sponsors.html:33
 #: warehouse/templates/pages/sponsors.html:37
 #: warehouse/templates/pages/sponsors.html:41
@@ -1203,8 +1202,8 @@ msgid ""
 "              "
 msgstr ""
 "\n"
-"              <b>Wskazówka:</b> zamierasz wykonać <a href=\"%(href)s"
-"\">wrażliwe działanie</a>.\n"
+"              <b>Wskazówka:</b> zamierasz wykonać <a href=\"%(href)s\""
+">wrażliwe działanie</a>.\n"
 "              Jeśli nie używasz osobistego komputera, pamiętaj aby wylogować "
 "się po zakończeniu sesji.\n"
 "              Nie poprosimy cię o potwierdzenie swojego hasła przez następną "
@@ -1249,8 +1248,8 @@ msgid ""
 "      "
 msgstr ""
 "\n"
-"      Czy chciałbyś zaakceptować zaproszenie do dołączenia do „<a href="
-"\"%(project_link)s\">%(project_name)s</a>” jako %(role_name)s?\n"
+"      Czy chciałbyś zaakceptować zaproszenie do dołączenia do „<a href=\""
+"%(project_link)s\">%(project_name)s</a>” jako %(role_name)s?\n"
 "      "
 
 #: warehouse/templates/accounts/invite-confirmation.html:32
@@ -1320,8 +1319,8 @@ msgid ""
 "      "
 msgstr ""
 "\n"
-"      Czy chciałbyś zaakceptować zaproszenie do dołączenia do „<a href="
-"\"%(project_link)s\">%(project_name)s</a>” jako %(role_name)s?\n"
+"      Czy chciałbyś zaakceptować zaproszenie do dołączenia do „<a href=\""
+"%(project_link)s\">%(project_name)s</a>” jako %(role_name)s?\n"
 "      "
 
 #: warehouse/templates/accounts/profile.html:16
@@ -1572,9 +1571,9 @@ msgid ""
 "<a href=\"%(href)s\" title=\"%(title)s\" target=\"%(target)s\" rel=\"%(rel)s"
 "\">Upgrade your browser</a> to log in with a security device (e.g. USB key)"
 msgstr ""
-"<a href=\"%(href)s\" title=\"%(title)s\" target=\"%(target)s\" rel=\"%(rel)s"
-"\">Aktualizuj swoją przeglądarkę</a>aby zalogować się za pomocą urządzenia "
-"(np. klucza USB)"
+"<a href=\"%(href)s\" title=\"%(title)s\" target=\"%(target)s\" rel=\"%(rel)"
+"s\">Aktualizuj swoją przeglądarkę</a>aby zalogować się za pomocą urządzenia ("
+"np. klucza USB)"
 
 #: warehouse/templates/accounts/two-factor.html:60
 #, python-format
@@ -1599,8 +1598,8 @@ msgid ""
 msgstr ""
 "<p>Wygeneruj kod korzystając z aplikacji uwierzytelniającej podłączonej do "
 "Twojego konta PyPI. Wprowadź kod w formularzu aby zweryfikować Twoją "
-"tożsamość.</p><p>Zgubiłeś swoją aplikację? Nie działa?<a href=\"%(href)s"
-"\">Znajdź pomoc</a></p>"
+"tożsamość.</p><p>Zgubiłeś swoją aplikację? Nie działa?<a href=\"%(href)s\""
+">Znajdź pomoc</a></p>"
 
 #: warehouse/templates/accounts/two-factor.html:127
 msgid "Lost your security key or application?"
@@ -1641,8 +1640,8 @@ msgid ""
 "You have been added as <strong>%(role)s</strong> to the %(site)s project "
 "%(project_name)s by %(initiator_username)s."
 msgstr ""
-"Zostałeś dodany do projektu %(site)s %(project_name)s w roli <strong>"
-"%(role)s</strong> przez %(initiator_username)s."
+"Zostałeś dodany do projektu %(site)s %(project_name)s w roli "
+"<strong>%(role)s</strong> przez %(initiator_username)s."
 
 #: warehouse/templates/email/added-as-collaborator/body.html:24
 #, python-format
@@ -1663,8 +1662,8 @@ msgid ""
 "organization %(organization_name)s by <a href=\"%(submitter_profile)s\">"
 "%(submitter)s</a>."
 msgstr ""
-"Zostałeś dodany do projektu %(site)s %(project_name)s w roli <strong>"
-"%(role)s</strong> przez %(initiator_username)s."
+"Zostałeś dodany do projektu %(site)s %(project_name)s w roli "
+"<strong>%(role)s</strong> przez %(initiator_username)s."
 
 #: warehouse/templates/email/added-as-organization-member/body.html:26
 #: warehouse/templates/email/role-changed-as-organization-member/body.html:26
@@ -2039,8 +2038,8 @@ msgid ""
 "Someone, perhaps you, has changed the password for your PyPI account <strong>"
 "%(username)s</strong>."
 msgstr ""
-"Ktoś, być może ty, zmienił hasło do Twojego konta PyPI <strong>%(username)s</"
-"strong>."
+"Ktoś, być może ty, zmienił hasło do Twojego konta PyPI "
+"<strong>%(username)s</strong>."
 
 #: warehouse/templates/email/password-compromised/body.html:20
 msgid ""
@@ -2064,8 +2063,8 @@ msgid ""
 "reduce the\n"
 "  risk for PyPI and its users."
 msgstr ""
-"PyPI nie doświadczyło naruszenia bezpieczeństwa. To jest prewencyjny "
-"zabieg \n"
+"PyPI nie doświadczyło naruszenia bezpieczeństwa. To jest prewencyjny zabieg "
+"\n"
 "mający na celu ograniczenie ryzyka dla PyPI i użytkowników."
 
 #: warehouse/templates/email/password-compromised/body.html:33
@@ -2125,8 +2124,8 @@ msgid ""
 "passwords and get yourself familiar with good password practices."
 msgstr ""
 "Aby odzyskać dostęp do Twojego konta, <a href=\"%(reset_pw_url)s\">zresetuj "
-"swoje hasło</a> na PyPI. Ponadto zalecamy odwiedzenie strony <a href="
-"\"%(have_i_been_pwned_url)s\">HaveIBeenPwned</a> i sprawdzenie reszty Twoich "
+"swoje hasło</a> na PyPI. Ponadto zalecamy odwiedzenie strony <a href=\""
+"%(have_i_been_pwned_url)s\">HaveIBeenPwned</a> i sprawdzenie reszty Twoich "
 "haseł oraz zaznajomienie się z dobrymi praktykami ustalania haseł dostępu."
 
 #: warehouse/templates/email/password-compromised-hibp/body.html:40
@@ -2142,8 +2141,8 @@ msgid ""
 "characters of the hash to decide if the password is compromised. The "
 "plaintext password is never stored by PyPI or sent to HaveIBeenPwned."
 msgstr ""
-"Używamy darmowej usługi bezpieczeństwa <a href=\"%(have_i_been_pwned_url)s"
-"\">HaveIBeenPwned</a> Gdy rejestrujemy, uwierzytelniamy lub aktualizujemy "
+"Używamy darmowej usługi bezpieczeństwa <a href=\"%(have_i_been_pwned_url)s\""
+">HaveIBeenPwned</a> Gdy rejestrujemy, uwierzytelniamy lub aktualizujemy "
 "Twoje hasło generujemy jego hash metodą SHA1 i używamy pierwszych 5 znaków "
 "do zbadania czy hasło zostało ujawnione. Hasło w formie odkrytego tekstu "
 "nigdy nie jest przechowywane przez PyPI ani przesyłane do HaveIBeenPwned."
@@ -2479,8 +2478,7 @@ msgstr "Następny"
 #: warehouse/templates/includes/session-notifications.html:24
 #, python-format
 msgid "Your primary email address (%(email_address)s) is unverified."
-msgstr ""
-"Twój podstawowy adres email (%(email_address)s) nie jest zweryfikowany."
+msgstr "Twój podstawowy adres email (%(email_address)s) nie jest zweryfikowany."
 
 #: warehouse/templates/includes/session-notifications.html:26
 msgid "You do not have a primary email address."
@@ -2533,8 +2531,8 @@ msgid ""
 msgstr ""
 "Zobacz statystyki Twojego projektu poprzez <a href=\"%(libs_io_href)s\" "
 "title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">Libraries.io</a>, "
-"albo używając <a href=\"%(gbq_href)s\" target=\"_blank\" rel=\"noopener"
-"\">naszego publicznego zbioru danych na Google BigQuery</a>"
+"albo używając <a href=\"%(gbq_href)s\" target=\"_blank\" rel=\"noopener\""
+">naszego publicznego zbioru danych na Google BigQuery</a>"
 
 #: warehouse/templates/includes/accounts/profile-actions.html:30
 #, python-format
@@ -2544,10 +2542,10 @@ msgid ""
 "by using <a href=\"%(gbq_href)s\" target=\"_blank\" rel=\"noopener\">our "
 "public dataset on Google BigQuery</a>"
 msgstr ""
-"Zobacz statystyki projektu użytkownika %(username)s poprzez <a href="
-"\"%(libs_io_href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener"
-"\">Libraries.io</a>, albo używając <a href=\"%(gbq_href)s\" target=\"_blank"
-"\" rel=\"noopener\">naszego publicznego zbioru danych na Google BigQuery</a>"
+"Zobacz statystyki projektu użytkownika %(username)s poprzez <a href=\""
+"%(libs_io_href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener\""
+">Libraries.io</a>, albo używając <a href=\"%(gbq_href)s\" target=\"_blank\" "
+"rel=\"noopener\">naszego publicznego zbioru danych na Google BigQuery</a>"
 
 #: warehouse/templates/includes/accounts/profile-callout.html:18
 #, python-format
@@ -3018,8 +3016,8 @@ msgid ""
 "Authentication application (<abbr title=\"time-based one-time password"
 "\">TOTP</abbr>)"
 msgstr ""
-"Aplikacja uwierzytelniająca (<abbr title=\"time-based one-time password"
-"\">TOTP</abbr>)"
+"Aplikacja uwierzytelniająca (<abbr title=\"time-based one-time password\""
+">TOTP</abbr>)"
 
 #: warehouse/templates/manage/account.html:491
 #, fuzzy
@@ -4380,8 +4378,8 @@ msgid ""
 msgstr ""
 "Zobacz statystyki Twojego projektu poprzez <a href=\"%(libs_io_href)s\" "
 "title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">Libraries.io</a>, "
-"albo używając <a href=\"%(gbq_href)s\" target=\"_blank\" rel=\"noopener"
-"\">naszego publicznego zbioru danych na Google BigQuery</a>"
+"albo używając <a href=\"%(gbq_href)s\" target=\"_blank\" rel=\"noopener\""
+">naszego publicznego zbioru danych na Google BigQuery</a>"
 
 #: warehouse/templates/manage/releases.html:20
 #, python-format
@@ -4474,8 +4472,8 @@ msgid ""
 msgstr ""
 "Zobacz statystyki Twojego projektu poprzez <a href=\"%(libs_io_href)s\" "
 "title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">Libraries.io</a>, "
-"albo używając <a href=\"%(gbq_href)s\" target=\"_blank\" rel=\"noopener"
-"\">naszego publicznego zbioru danych na Google BigQuery</a>"
+"albo używając <a href=\"%(gbq_href)s\" target=\"_blank\" rel=\"noopener\""
+">naszego publicznego zbioru danych na Google BigQuery</a>"
 
 #: warehouse/templates/manage/releases.html:151
 #, python-format
@@ -5731,8 +5729,8 @@ msgid ""
 msgstr ""
 "Zobacz statystyki Twojego projektu poprzez <a href=\"%(libs_io_href)s\" "
 "title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">Libraries.io</a>, "
-"albo używając <a href=\"%(gbq_href)s\" target=\"_blank\" rel=\"noopener"
-"\">naszego publicznego zbioru danych na Google BigQuery</a>"
+"albo używając <a href=\"%(gbq_href)s\" target=\"_blank\" rel=\"noopener\""
+">naszego publicznego zbioru danych na Google BigQuery</a>"
 
 #: warehouse/templates/pages/classifiers.html:30
 msgid ""
@@ -6799,8 +6797,8 @@ msgid ""
 msgstr ""
 "Zobacz statystyki Twojego projektu poprzez <a href=\"%(libs_io_href)s\" "
 "title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">Libraries.io</a>, "
-"albo używając <a href=\"%(gbq_href)s\" target=\"_blank\" rel=\"noopener"
-"\">naszego publicznego zbioru danych na Google BigQuery</a>"
+"albo używając <a href=\"%(gbq_href)s\" target=\"_blank\" rel=\"noopener\""
+">naszego publicznego zbioru danych na Google BigQuery</a>"
 
 #: warehouse/templates/pages/help.html:621
 #, fuzzy, python-format
@@ -7204,8 +7202,8 @@ msgid ""
 msgstr ""
 "Zobacz statystyki Twojego projektu poprzez <a href=\"%(libs_io_href)s\" "
 "title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">Libraries.io</a>, "
-"albo używając <a href=\"%(gbq_href)s\" target=\"_blank\" rel=\"noopener"
-"\">naszego publicznego zbioru danych na Google BigQuery</a>"
+"albo używając <a href=\"%(gbq_href)s\" target=\"_blank\" rel=\"noopener\""
+">naszego publicznego zbioru danych na Google BigQuery</a>"
 
 #: warehouse/templates/pages/help.html:855
 #, python-format
@@ -7325,9 +7323,8 @@ msgstr ""
 
 #: warehouse/templates/pages/security.html:24
 msgid ""
-"If you believe you've identified a security issue with Warehouse, <strong>DO "
-"NOT</strong> report the issue in any public forum, including (but not "
-"limited to):"
+"If you believe you've identified a security issue with PyPI, <strong>DO NOT</"
+"strong> report the issue in any public forum, including (but not limited to):"
 msgstr ""
 
 #: warehouse/templates/pages/security.html:27
@@ -7343,38 +7340,68 @@ msgid "Official or unofficial mailing lists"
 msgstr ""
 
 #: warehouse/templates/pages/security.html:35
-#, python-format
-msgid ""
-"Instead, email <a href=\"%(href)s\">security at python dot org</a> directly, "
-"providing as much relevant information as possible."
+msgid "If you've identified a security issue with a project hosted on PyPI"
 msgstr ""
 
 #: warehouse/templates/pages/security.html:36
 #, python-format
 msgid ""
-"Messages may be optionally encrypted with GPG using key fingerprints "
-"available <a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel="
-"\"noopener\">at the Python Security page</a>."
+"Email <a href=\"%(href)s\">security@pypi.org</a>, providing the following "
+"details:"
 msgstr ""
 
 #: warehouse/templates/pages/security.html:38
-msgid "What happens next?"
+msgid "A URL to the project in question"
+msgstr ""
+
+#: warehouse/templates/pages/security.html:39
+msgid "An explanation of what makes the project a security issue"
 msgstr ""
 
 #: warehouse/templates/pages/security.html:40
+#, python-format
+msgid ""
+"If applicable: a link to the problematic lines in the project's "
+"distributions via <a href=\"%(href)s\">inspector.pypi.io</a>"
+msgstr ""
+
+#: warehouse/templates/pages/security.html:42
+msgid ""
+"Valid malware reports may include examples of typo-squatting, dependency "
+"confusion, data exfiltration, obfustication, command/control, etc."
+msgstr ""
+
+#: warehouse/templates/pages/security.html:44
+msgid ""
+"If you've identified a security issue with PyPI itself (not a project hosted "
+"on PyPI)"
+msgstr ""
+
+#: warehouse/templates/pages/security.html:45
+#, python-format
+msgid ""
+"Email <a href=\"%(href)s\">security@pypi.org</a>, providing as much relevant "
+"information as possible, including reproducing steps."
+msgstr ""
+
+#: warehouse/templates/pages/security.html:47
+msgid "What happens next?"
+msgstr ""
+
+#: warehouse/templates/pages/security.html:48
 msgid ""
 "Once you've submitted an issue via email, you should receive an "
 "acknowledgment within 48 hours."
 msgstr ""
 
-#: warehouse/templates/pages/security.html:41
+#: warehouse/templates/pages/security.html:49
 msgid ""
 "Depending on the action to be taken, you may receive further follow-up "
 "emails."
 msgstr ""
 
-#: warehouse/templates/pages/security.html:44
-msgid "This security policy was last updated on March 14, 2018."
+#: warehouse/templates/pages/security.html:52
+msgid "This security policy was last updated on June 2022."
 msgstr ""
 
 #: warehouse/templates/pages/sitemap.html:21

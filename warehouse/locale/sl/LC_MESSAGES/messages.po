@@ -2,16 +2,19 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
-"Report-Msgid-Bugs-To: \n"
+"Report-Msgid-Bugs-To: admin@pypi.org\n"
 "POT-Creation-Date: 2020-04-11 20:46+0200\n"
-"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: Automatically generated\n"
-"Language-Team: none\n"
+"PO-Revision-Date: 2022-06-28 19:50+0000\n"
+"Last-Translator: Anonymous <noreply@weblate.org>\n"
+"Language-Team: Slovenian <https://hosted.weblate.org/projects/pypa/warehouse/"
+"sl/>\n"
 "Language: sl\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Generator: Translate Toolkit 2.5.0\n"
+"Plural-Forms: nplurals=4; plural=n%100==1 ? 0 : n%100==2 ? 1 : n%100==3 || n"
+"%100==4 ? 2 : 3;\n"
+"X-Generator: Weblate 4.13.1-dev\n"
 
 #: warehouse/views.py:129
 msgid ""
@@ -551,7 +554,6 @@ msgstr ""
 #: warehouse/templates/pages/help.html:892
 #: warehouse/templates/pages/help.html:893
 #: warehouse/templates/pages/help.html:898
-#: warehouse/templates/pages/security.html:36
 #: warehouse/templates/pages/sponsors.html:33
 #: warehouse/templates/pages/sponsors.html:37
 #: warehouse/templates/pages/sponsors.html:41
@@ -3778,6 +3780,8 @@ msgid_plural ""
 "        "
 msgstr[0] ""
 msgstr[1] ""
+msgstr[2] ""
+msgstr[3] ""
 
 #: warehouse/templates/manage/release.html:135
 msgid ""
@@ -3912,6 +3916,8 @@ msgid_plural ""
 "        "
 msgstr[0] ""
 msgstr[1] ""
+msgstr[2] ""
+msgstr[3] ""
 
 #: warehouse/templates/manage/releases.html:57
 msgid "No files"
@@ -4863,6 +4869,8 @@ msgid_plural ""
 "        "
 msgstr[0] ""
 msgstr[1] ""
+msgstr[2] ""
+msgstr[3] ""
 
 #: warehouse/templates/manage/organization/settings.html:184
 msgid ""
@@ -4877,6 +4885,8 @@ msgid_plural ""
 "        "
 msgstr[0] ""
 msgstr[1] ""
+msgstr[2] ""
+msgstr[3] ""
 
 #: warehouse/templates/manage/organization/settings.html:206
 msgid "You will not be able to recover your organization after you delete it."
@@ -5021,6 +5031,8 @@ msgid_plural ""
 "              "
 msgstr[0] ""
 msgstr[1] ""
+msgstr[2] ""
+msgstr[3] ""
 
 #: warehouse/templates/packaging/detail.html:366
 msgid ""
@@ -5033,6 +5045,8 @@ msgid_plural ""
 "              "
 msgstr[0] ""
 msgstr[1] ""
+msgstr[2] ""
+msgstr[3] ""
 
 #: warehouse/templates/pages/classifiers.html:22
 msgid ""
@@ -6607,9 +6621,8 @@ msgstr ""
 
 #: warehouse/templates/pages/security.html:24
 msgid ""
-"If you believe you've identified a security issue with Warehouse, <strong>DO "
-"NOT</strong> report the issue in any public forum, including (but not "
-"limited to):"
+"If you believe you've identified a security issue with PyPI, <strong>DO NOT</"
+"strong> report the issue in any public forum, including (but not limited to):"
 msgstr ""
 
 #: warehouse/templates/pages/security.html:27
@@ -6625,38 +6638,68 @@ msgid "Official or unofficial mailing lists"
 msgstr ""
 
 #: warehouse/templates/pages/security.html:35
-#, python-format
-msgid ""
-"Instead, email <a href=\"%(href)s\">security at python dot org</a> directly, "
-"providing as much relevant information as possible."
+msgid "If you've identified a security issue with a project hosted on PyPI"
 msgstr ""
 
 #: warehouse/templates/pages/security.html:36
 #, python-format
 msgid ""
-"Messages may be optionally encrypted with GPG using key fingerprints "
-"available <a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel="
-"\"noopener\">at the Python Security page</a>."
+"Email <a href=\"%(href)s\">security@pypi.org</a>, providing the following "
+"details:"
 msgstr ""
 
 #: warehouse/templates/pages/security.html:38
-msgid "What happens next?"
+msgid "A URL to the project in question"
+msgstr ""
+
+#: warehouse/templates/pages/security.html:39
+msgid "An explanation of what makes the project a security issue"
 msgstr ""
 
 #: warehouse/templates/pages/security.html:40
+#, python-format
+msgid ""
+"If applicable: a link to the problematic lines in the project's "
+"distributions via <a href=\"%(href)s\">inspector.pypi.io</a>"
+msgstr ""
+
+#: warehouse/templates/pages/security.html:42
+msgid ""
+"Valid malware reports may include examples of typo-squatting, dependency "
+"confusion, data exfiltration, obfustication, command/control, etc."
+msgstr ""
+
+#: warehouse/templates/pages/security.html:44
+msgid ""
+"If you've identified a security issue with PyPI itself (not a project hosted "
+"on PyPI)"
+msgstr ""
+
+#: warehouse/templates/pages/security.html:45
+#, python-format
+msgid ""
+"Email <a href=\"%(href)s\">security@pypi.org</a>, providing as much relevant "
+"information as possible, including reproducing steps."
+msgstr ""
+
+#: warehouse/templates/pages/security.html:47
+msgid "What happens next?"
+msgstr ""
+
+#: warehouse/templates/pages/security.html:48
 msgid ""
 "Once you've submitted an issue via email, you should receive an "
 "acknowledgment within 48 hours."
 msgstr ""
 
-#: warehouse/templates/pages/security.html:41
+#: warehouse/templates/pages/security.html:49
 msgid ""
 "Depending on the action to be taken, you may receive further follow-up "
 "emails."
 msgstr ""
 
-#: warehouse/templates/pages/security.html:44
-msgid "This security policy was last updated on March 14, 2018."
+#: warehouse/templates/pages/security.html:52
+msgid "This security policy was last updated on June 2022."
 msgstr ""
 
 #: warehouse/templates/pages/sitemap.html:21

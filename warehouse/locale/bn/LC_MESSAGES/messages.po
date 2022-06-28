@@ -2,17 +2,17 @@
 # Copyright (C) 2019 PyPA
 # This file is distributed under the same license as the Warehouse project.
 # FIRST AUTHOR <EMAIL@ADDRESS>, 2019.
-# Ayan Banerjee <ayanbanerjee7777@gmail.com>, 2019.
-# রিং <toshazed@gmail.com>, 2020.
+# Ayan Banerjee <ayanbanerjee7777@gmail.com>, 2019, 2022.
+# রিং <toshazed@gmail.com>, 2020, 2022.
 # Anonymous <noreply@weblate.org>, 2020.
-# DANIEL ROZARIO <daniel.rozario.2005@gmail.com>, 2020.
+# DANIEL ROZARIO <daniel.rozario.2005@gmail.com>, 2020, 2022.
 msgid ""
 msgstr ""
 "Project-Id-Version: Warehouse VERSION\n"
 "Report-Msgid-Bugs-To: admin@pypi.org\n"
 "POT-Creation-Date: 2020-01-15 20:11+0200\n"
-"PO-Revision-Date: 2020-05-08 12:07+0000\n"
-"Last-Translator: DANIEL ROZARIO <daniel.rozario.2005@gmail.com>\n"
+"PO-Revision-Date: 2022-06-28 19:48+0000\n"
+"Last-Translator: রিং <toshazed@gmail.com>\n"
 "Language-Team: Bengali <https://hosted.weblate.org/projects/pypa/warehouse/"
 "bn/>\n"
 "Language: bn\n"
@@ -20,7 +20,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n > 1;\n"
-"X-Generator: Weblate 4.1-dev\n"
+"X-Generator: Weblate 4.13.1-dev\n"
 "Generated-By: Babel 2.7.0\n"
 
 #: warehouse/views.py:129
@@ -51,17 +51,17 @@ msgid ""
 "dots, hyphens and underscores. And must also start and finish with a letter "
 "or number. Choose a different username."
 msgstr ""
-"ব্যবহারকারীর নামটি অবৈধ। ব্যবহারকারীর নাম অবশ্যই অক্ষর, সংখ্যা, বিন্দু, হাইফেন এবং "
-"আন্ডারস্কোর সমন্বয়ে গঠিত হতে হবে । এবং অবশ্যই একটি অক্ষর বা নম্বর দিয়ে শুরু এবং শেষ "
-"করতে হবে। একটি পৃথক ব্যবহারকারীর নাম বাছুন।"
+"ব্যবহারকারীর নামটি অবৈধ। ব্যবহারকারীর নাম অবশ্যই অক্ষর, সংখ্যা, বিন্দু, হাইফে"
+"ন এবং আন্ডারস্কোর সমন্বয়ে গঠিত হতে হবে । এবং অবশ্যই একটি অক্ষর বা নম্বর "
+"দিয়ে শুরু এবং শেষ করতে হবে। একটি পৃথক ব্যবহারকারীর নাম বাছুন।"
 
 #: warehouse/accounts/forms.py:111
 msgid ""
 "This username is already being used by another account. Choose a different "
 "username."
 msgstr ""
-"এই ব্যবহারকারীর নামটি ইতিমধ্যে অন্য অ্যাকাউন্ট দ্বারা ব্যবহৃত হচ্ছে। একটি পৃথক নাম "
-"বাছুন।"
+"এই ব্যবহারকারীর নামটি ইতিমধ্যে অন্য অ্যাকাউন্ট দ্বারা ব্যবহৃত হচ্ছে। একটি পৃ"
+"থক নাম বাছুন।"
 
 #: warehouse/accounts/forms.py:145
 msgid "The password is invalid. Try again."
@@ -82,21 +82,23 @@ msgstr "ইমেলটি বৈধ নয়। আবার চেষ্ট�
 #: warehouse/accounts/forms.py:221
 msgid "You can't use an email address from this domain. Use a different email."
 msgstr ""
-"আপনি এই ডোমেইন হতে কোনো ইমেইল ব্যবহার করতে পারবেন না। ভিন্ন ইমেইল ব্যবহার করুন।"
+"আপনি এই ডোমেইন হতে কোনো ইমেইল ব্যবহার করতে পারবেন না। ভিন্ন ইমেইল ব্যবহার "
+"করুন।"
 
 #: warehouse/accounts/forms.py:232
 msgid ""
 "This email address is already being used by this account. Use a different "
 "email."
 msgstr ""
-"এই ইমেল ঠিকানাটি ইতিমধ্যে এই অ্যাকাউন্টটি দ্বারা ব্যবহৃত হচ্ছে। একটি ভিন্ন ইমেল "
-"ব্যবহার করুন।"
+"এই ইমেল ঠিকানাটি ইতিমধ্যে এই অ্যাকাউন্টটি দ্বারা ব্যবহৃত হচ্ছে। একটি ভিন্ন "
+"ইমেল ব্যবহার করুন।"
 
 #: warehouse/accounts/forms.py:239
 msgid ""
 "This email address is already being used by another account. Use a different "
 "email."
-msgstr "এই ইমেইলটি ইতোমধ্যে অন্য একটি একাউন্টে ব্যবহৃত। ভিন্ন ইমেইল ব্যবহার করুন"
+msgstr ""
+"এই ইমেইলটি ইতোমধ্যে অন্য একটি একাউন্টে ব্যবহৃত। ভিন্ন ইমেইল ব্যবহার করুন"
 
 #: warehouse/accounts/forms.py:261 warehouse/manage/forms.py:77
 msgid "The name is too long. Choose a name with 100 characters or less."
@@ -133,8 +135,8 @@ msgid ""
 "Too many emails have been added to this account without verifying them. "
 "Check your inbox and follow the verification links. (IP: ${ip})"
 msgstr ""
-"এই অ্যাকাউন্টে অনেকগুলি ইমেলগুলি যাচাই না করে যুক্ত করা হয়েছে। আপনার ইনবক্সটি "
-"পরীক্ষা করুন এবং যাচাইকরণ লিঙ্কগুলি অনুসরণ করুন।"
+"এই অ্যাকাউন্টে অনেকগুলি ইমেলগুলি যাচাই না করে যুক্ত করা হয়েছে। আপনার "
+"ইনবক্সটি পরীক্ষা করুন এবং যাচাইকরণ লিঙ্কগুলি অনুসরণ করুন।"
 
 #: warehouse/accounts/views.py:116
 #, fuzzy
@@ -146,8 +148,8 @@ msgid ""
 "completing them. Check your inbox and follow the verification links. (IP: "
 "${ip})"
 msgstr ""
-"এই অ্যাকাউন্টে অনেকগুলি ইমেলগুলি যাচাই না করে যুক্ত করা হয়েছে। আপনার ইনবক্সটি "
-"পরীক্ষা করুন এবং যাচাইকরণ লিঙ্কগুলি অনুসরণ করুন।"
+"এই অ্যাকাউন্টে অনেকগুলি ইমেলগুলি যাচাই না করে যুক্ত করা হয়েছে। আপনার "
+"ইনবক্সটি পরীক্ষা করুন এবং যাচাইকরণ লিঙ্কগুলি অনুসরণ করুন।"
 
 #: warehouse/accounts/views.py:256 warehouse/accounts/views.py:320
 #: warehouse/accounts/views.py:322 warehouse/accounts/views.py:349
@@ -178,8 +180,8 @@ msgstr ""
 #: warehouse/accounts/views.py:651
 msgid "Expired token: request a new password reset link"
 msgstr ""
-"মেয়াদ উত্তীর্ণ টোকেন: একটি নতুন পাসওয়ার্ড পুনরায় সেট করার জন্য রিসেট লিঙ্কের অনুরোধ "
-"করুন"
+"মেয়াদ উত্তীর্ণ টোকেন: একটি নতুন পাসওয়ার্ড পুনরায় সেট করার জন্য রিসেট "
+"লিঙ্কের অনুরোধ করুন"
 
 #: warehouse/accounts/views.py:653
 msgid "Invalid token: request a new password reset link"
@@ -249,24 +251,24 @@ msgstr ""
 #| msgid "Expired token: request a new password reset link"
 msgid "Expired token: request a new organization invitation"
 msgstr ""
-"মেয়াদ উত্তীর্ণ টোকেন: একটি নতুন পাসওয়ার্ড পুনরায় সেট করার জন্য রিসেট লিঙ্কের অনুরোধ "
-"করুন"
+"মেয়াদ উত্তীর্ণ টোকেন: একটি নতুন পাসওয়ার্ড পুনরায় সেট করার জন্য রিসেট "
+"লিঙ্কের অনুরোধ করুন"
 
 #: warehouse/accounts/views.py:848
 #, fuzzy
 #| msgid "Expired token: request a new password reset link"
 msgid "Invalid token: request a new organization invitation"
 msgstr ""
-"মেয়াদ উত্তীর্ণ টোকেন: একটি নতুন পাসওয়ার্ড পুনরায় সেট করার জন্য রিসেট লিঙ্কের অনুরোধ "
-"করুন"
+"মেয়াদ উত্তীর্ণ টোকেন: একটি নতুন পাসওয়ার্ড পুনরায় সেট করার জন্য রিসেট "
+"লিঙ্কের অনুরোধ করুন"
 
 #: warehouse/accounts/views.py:854
 #, fuzzy
 #| msgid "Expired token: request a new password reset link"
 msgid "Invalid token: not an organization invitation token"
 msgstr ""
-"মেয়াদ উত্তীর্ণ টোকেন: একটি নতুন পাসওয়ার্ড পুনরায় সেট করার জন্য রিসেট লিঙ্কের অনুরোধ "
-"করুন"
+"মেয়াদ উত্তীর্ণ টোকেন: একটি নতুন পাসওয়ার্ড পুনরায় সেট করার জন্য রিসেট "
+"লিঙ্কের অনুরোধ করুন"
 
 #: warehouse/accounts/views.py:858
 msgid "Organization invitation is not valid."
@@ -289,16 +291,16 @@ msgstr ""
 #| msgid "Expired token: request a new password reset link"
 msgid "Expired token: request a new project role invitation"
 msgstr ""
-"মেয়াদ উত্তীর্ণ টোকেন: একটি নতুন পাসওয়ার্ড পুনরায় সেট করার জন্য রিসেট লিঙ্কের অনুরোধ "
-"করুন"
+"মেয়াদ উত্তীর্ণ টোকেন: একটি নতুন পাসওয়ার্ড পুনরায় সেট করার জন্য রিসেট "
+"লিঙ্কের অনুরোধ করুন"
 
 #: warehouse/accounts/views.py:1015
 #, fuzzy
 #| msgid "Expired token: request a new password reset link"
 msgid "Invalid token: request a new project role invitation"
 msgstr ""
-"মেয়াদ উত্তীর্ণ টোকেন: একটি নতুন পাসওয়ার্ড পুনরায় সেট করার জন্য রিসেট লিঙ্কের অনুরোধ "
-"করুন"
+"মেয়াদ উত্তীর্ণ টোকেন: একটি নতুন পাসওয়ার্ড পুনরায় সেট করার জন্য রিসেট "
+"লিঙ্কের অনুরোধ করুন"
 
 #: warehouse/accounts/views.py:1021
 msgid "Invalid token: not a collaboration invitation token"
@@ -342,9 +344,9 @@ msgid ""
 "start and finish with a letter or number. Choose a different organization "
 "account name."
 msgstr ""
-"ব্যবহারকারীর নামটি অবৈধ। ব্যবহারকারীর নাম অবশ্যই অক্ষর, সংখ্যা, বিন্দু, হাইফেন এবং "
-"আন্ডারস্কোর সমন্বয়ে গঠিত হতে হবে । এবং অবশ্যই একটি অক্ষর বা নম্বর দিয়ে শুরু এবং শেষ "
-"করতে হবে। একটি পৃথক ব্যবহারকারীর নাম বাছুন।"
+"ব্যবহারকারীর নামটি অবৈধ। ব্যবহারকারীর নাম অবশ্যই অক্ষর, সংখ্যা, বিন্দু, হাইফে"
+"ন এবং আন্ডারস্কোর সমন্বয়ে গঠিত হতে হবে । এবং অবশ্যই একটি অক্ষর বা নম্বর "
+"দিয়ে শুরু এবং শেষ করতে হবে। একটি পৃথক ব্যবহারকারীর নাম বাছুন।"
 
 #: warehouse/manage/forms.py:363
 #, fuzzy
@@ -355,8 +357,8 @@ msgid ""
 "This organization account name has already been used. Choose a different "
 "organization account name."
 msgstr ""
-"এই ব্যবহারকারীর নামটি ইতিমধ্যে অন্য অ্যাকাউন্ট দ্বারা ব্যবহৃত হচ্ছে। একটি পৃথক নাম "
-"বাছুন।"
+"এই ব্যবহারকারীর নামটি ইতিমধ্যে অন্য অ্যাকাউন্ট দ্বারা ব্যবহৃত হচ্ছে। একটি পৃ"
+"থক নাম বাছুন।"
 
 #: warehouse/manage/forms.py:403
 msgid "Select project"
@@ -380,8 +382,8 @@ msgstr ""
 msgid ""
 "This project name has already been used. Choose a different project name."
 msgstr ""
-"এই ব্যবহারকারীর নামটি ইতিমধ্যে অন্য অ্যাকাউন্ট দ্বারা ব্যবহৃত হচ্ছে। একটি পৃথক নাম "
-"বাছুন।"
+"এই ব্যবহারকারীর নামটি ইতিমধ্যে অন্য অ্যাকাউন্ট দ্বারা ব্যবহৃত হচ্ছে। একটি পৃ"
+"থক নাম বাছুন।"
 
 #: warehouse/manage/forms.py:488
 #, fuzzy
@@ -640,7 +642,6 @@ msgstr ""
 #: warehouse/templates/pages/help.html:892
 #: warehouse/templates/pages/help.html:893
 #: warehouse/templates/pages/help.html:898
-#: warehouse/templates/pages/security.html:36
 #: warehouse/templates/pages/sponsors.html:33
 #: warehouse/templates/pages/sponsors.html:37
 #: warehouse/templates/pages/sponsors.html:41
@@ -4360,8 +4361,8 @@ msgstr ""
 #| msgid "Expired token: request a new password reset link"
 msgid "Add the project to an organization that you own."
 msgstr ""
-"মেয়াদ উত্তীর্ণ টোকেন: একটি নতুন পাসওয়ার্ড পুনরায় সেট করার জন্য রিসেট লিঙ্কের অনুরোধ "
-"করুন"
+"মেয়াদ উত্তীর্ণ টোকেন: একটি নতুন পাসওয়ার্ড পুনরায় সেট করার জন্য রিসেট "
+"লিঙ্কের অনুরোধ করুন"
 
 #: warehouse/templates/manage/settings.html:184
 msgid "Grant full project permissions to owners of the organization."
@@ -6704,9 +6705,8 @@ msgstr ""
 
 #: warehouse/templates/pages/security.html:24
 msgid ""
-"If you believe you've identified a security issue with Warehouse, <strong>DO "
-"NOT</strong> report the issue in any public forum, including (but not "
-"limited to):"
+"If you believe you've identified a security issue with PyPI, <strong>DO NOT</"
+"strong> report the issue in any public forum, including (but not limited to):"
 msgstr ""
 
 #: warehouse/templates/pages/security.html:27
@@ -6722,38 +6722,68 @@ msgid "Official or unofficial mailing lists"
 msgstr ""
 
 #: warehouse/templates/pages/security.html:35
-#, python-format
-msgid ""
-"Instead, email <a href=\"%(href)s\">security at python dot org</a> directly, "
-"providing as much relevant information as possible."
+msgid "If you've identified a security issue with a project hosted on PyPI"
 msgstr ""
 
 #: warehouse/templates/pages/security.html:36
 #, python-format
 msgid ""
-"Messages may be optionally encrypted with GPG using key fingerprints "
-"available <a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel="
-"\"noopener\">at the Python Security page</a>."
+"Email <a href=\"%(href)s\">security@pypi.org</a>, providing the following "
+"details:"
 msgstr ""
 
 #: warehouse/templates/pages/security.html:38
-msgid "What happens next?"
+msgid "A URL to the project in question"
+msgstr ""
+
+#: warehouse/templates/pages/security.html:39
+msgid "An explanation of what makes the project a security issue"
 msgstr ""
 
 #: warehouse/templates/pages/security.html:40
+#, python-format
+msgid ""
+"If applicable: a link to the problematic lines in the project's "
+"distributions via <a href=\"%(href)s\">inspector.pypi.io</a>"
+msgstr ""
+
+#: warehouse/templates/pages/security.html:42
+msgid ""
+"Valid malware reports may include examples of typo-squatting, dependency "
+"confusion, data exfiltration, obfustication, command/control, etc."
+msgstr ""
+
+#: warehouse/templates/pages/security.html:44
+msgid ""
+"If you've identified a security issue with PyPI itself (not a project hosted "
+"on PyPI)"
+msgstr ""
+
+#: warehouse/templates/pages/security.html:45
+#, python-format
+msgid ""
+"Email <a href=\"%(href)s\">security@pypi.org</a>, providing as much relevant "
+"information as possible, including reproducing steps."
+msgstr ""
+
+#: warehouse/templates/pages/security.html:47
+msgid "What happens next?"
+msgstr ""
+
+#: warehouse/templates/pages/security.html:48
 msgid ""
 "Once you've submitted an issue via email, you should receive an "
 "acknowledgment within 48 hours."
 msgstr ""
 
-#: warehouse/templates/pages/security.html:41
+#: warehouse/templates/pages/security.html:49
 msgid ""
 "Depending on the action to be taken, you may receive further follow-up "
 "emails."
 msgstr ""
 
-#: warehouse/templates/pages/security.html:44
-msgid "This security policy was last updated on March 14, 2018."
+#: warehouse/templates/pages/security.html:52
+msgid "This security policy was last updated on June 2022."
 msgstr ""
 
 #: warehouse/templates/pages/sitemap.html:21

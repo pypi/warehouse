@@ -2,32 +2,32 @@
 # Copyright (C) 2019 PyPA
 # This file is distributed under the same license as the Warehouse project.
 # FIRST AUTHOR <EMAIL@ADDRESS>, 2019.
-# Younggun Kim <iam@younggun.kim>, 2019.
-# Hyung Jin Kim <hyungjin8943@gmail.com>, 2019.
-# Hyeongdo Lee <mylovercorea@gmail.com>, 2019.
-# Kim Namjun <bunseokbot@gmail.com>, 2019.
-# Hyunwoo Park <ez.amiryo@gmail.com>, 2019, 2020.
+# Younggun Kim <iam@younggun.kim>, 2019, 2022.
+# Hyung Jin Kim <hyungjin8943@gmail.com>, 2019, 2022.
+# Hyeongdo Lee <mylovercorea@gmail.com>, 2019, 2022.
+# Kim Namjun <bunseokbot@gmail.com>, 2019, 2022.
+# Hyunwoo Park <ez.amiryo@gmail.com>, 2019, 2020, 2022.
 # Woo-Cheol Kim <wckim213@gmail.com>, 2019.
-# HyeonhoKim <jwalag87@gmail.com>, 2019.
+# HyeonhoKim <jwalag87@gmail.com>, 2019, 2022.
 # Seba Kim <sebatyler@gmail.com>, 2019.
 # MinGyo Jung <jmg7173@gmail.com>, 2019.
-# Bae KwonHan <darjeeling@gmail.com>, 2019.
-# Hwan Kim <ihwan01@gmail.com>, 2019.
-# Min ho Kim <minho42@gmail.com>, 2019.
-# Seokhwan Moon <miral09@msn.com>, 2020.
+# Bae KwonHan <darjeeling@gmail.com>, 2019, 2022.
+# Hwan Kim <ihwan01@gmail.com>, 2019, 2022.
+# Min ho Kim <minho42@gmail.com>, 2019, 2022.
+# Seokhwan Moon <miral09@msn.com>, 2020, 2022.
 # anonymous <noreply@weblate.org>, 2020.
 # Allan Nordhøy <epost@anotheragency.no>, 2020.
-# 매리 <mareowst@gmail.com>, 2020.
-# Jun-Seong Lee <leejs209209@gmail.com>, 2020.
-# 애브리띵 <every@afmail.kro.kr>, 2020.
+# 매리 <mareowst@gmail.com>, 2020, 2022.
+# Jun-Seong Lee <leejs209209@gmail.com>, 2020, 2022.
+# 애브리띵 <every@afmail.kro.kr>, 2020, 2022.
 # YangYulin <yylteam@icloud.com>, 2022.
 msgid ""
 msgstr ""
 "Project-Id-Version: Warehouse VERSION\n"
 "Report-Msgid-Bugs-To: admin@pypi.org\n"
 "POT-Creation-Date: 2020-01-15 20:11+0200\n"
-"PO-Revision-Date: 2022-05-02 16:49+0000\n"
-"Last-Translator: YangYulin <yylteam@icloud.com>\n"
+"PO-Revision-Date: 2022-06-28 19:43+0000\n"
+"Last-Translator: Hyeongdo Lee <mylovercorea@gmail.com>\n"
 "Language-Team: Korean <https://hosted.weblate.org/projects/pypa/warehouse/ko/"
 ">\n"
 "Language: ko\n"
@@ -35,7 +35,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Generator: Weblate 4.12.1\n"
+"X-Generator: Weblate 4.13.1-dev\n"
 "Generated-By: Babel 2.7.0\n"
 
 #: warehouse/views.py:129
@@ -74,8 +74,7 @@ msgstr ""
 msgid ""
 "This username is already being used by another account. Choose a different "
 "username."
-msgstr ""
-"다른 계정에서 이미 사용중인 사용자 이름입니다. 다른 사용자 이름을 선택하세요."
+msgstr "다른 계정에서 이미 사용중인 사용자 이름입니다. 다른 사용자 이름을 선택하세요."
 
 #: warehouse/accounts/forms.py:145
 msgid "The password is invalid. Try again."
@@ -95,23 +94,20 @@ msgstr "유효하지 않은 이메일입니다. 다시 시도해 주세요."
 
 #: warehouse/accounts/forms.py:221
 msgid "You can't use an email address from this domain. Use a different email."
-msgstr ""
-"이 도메인의 이메일 주소는 사용할 수 없습니다. 다른 이메일을 사용하세요."
+msgstr "이 도메인의 이메일 주소는 사용할 수 없습니다. 다른 이메일을 사용하세요."
 
 #: warehouse/accounts/forms.py:232
 msgid ""
 "This email address is already being used by this account. Use a different "
 "email."
-msgstr ""
-"이 계정에서 이미 사용중인 이메일 주소 입니다. 다른 이메일을 사용하세요."
+msgstr "이 계정에서 이미 사용중인 이메일 주소 입니다. 다른 이메일을 사용하세요."
 
 #: warehouse/accounts/forms.py:239
 msgid ""
 "This email address is already being used by another account. Use a different "
 "email."
-msgstr ""
-"해당 이메일은 다른 계정에서 이미 사용되고 있습니다. 다른 이메일을 사용해 주세"
-"요."
+msgstr "해당 이메일은 다른 계정에서 이미 사용되고 있습니다. 다른 이메일을 사용해 "
+"주세요."
 
 #: warehouse/accounts/forms.py:261 warehouse/manage/forms.py:77
 msgid "The name is too long. Choose a name with 100 characters or less."
@@ -142,8 +138,8 @@ msgid ""
 "Too many emails have been added to this account without verifying them. "
 "Check your inbox and follow the verification links. (IP: ${ip})"
 msgstr ""
-"이 계정에 인증되지 않은 이메일이 너무 많이 추가되었습니다. 당신의 수신함을 확"
-"인하고 인증 주소를 따르세요. (IP: ${ip})"
+"이 계정에 인증되지 않은 이메일이 너무 많이 추가되었습니다. 당신의 수신함을 "
+"확인하고 인증 주소를 따르세요. (IP: ${ip})"
 
 #: warehouse/accounts/views.py:116
 msgid ""
@@ -151,8 +147,8 @@ msgid ""
 "completing them. Check your inbox and follow the verification links. (IP: "
 "${ip})"
 msgstr ""
-"이 계정에 대해 너무 많은 암호 재설정이 완료되지 않고 요청되었습니다. 받은 편"
-"지함을 확인하고 확인 링크를 따릅니다. (IP: ${ip})"
+"이 계정에 대해 너무 많은 암호 재설정이 완료되지 않고 요청되었습니다. 받은 "
+"편지함을 확인하고 확인 링크를 따릅니다. (IP: ${ip})"
 
 #: warehouse/accounts/views.py:256 warehouse/accounts/views.py:320
 #: warehouse/accounts/views.py:322 warehouse/accounts/views.py:349
@@ -337,8 +333,8 @@ msgid ""
 "account name."
 msgstr ""
 "조직 계정 이름이 잘못되었습니다. 조직 계정 이름은 문자, 숫자, 점, 하이픈 및 "
-"밑줄로 구성되어야 합니다. 또한 문자나 숫자로 시작하고 끝나야 합니다. 다른 조"
-"직 계정 이름을 선택하세요."
+"밑줄로 구성되어야 합니다. 또한 문자나 숫자로 시작하고 끝나야 합니다. 다른 "
+"조직 계정 이름을 선택하세요."
 
 #: warehouse/manage/forms.py:363
 #, fuzzy
@@ -348,8 +344,7 @@ msgstr ""
 msgid ""
 "This organization account name has already been used. Choose a different "
 "organization account name."
-msgstr ""
-"이 조직 계정 이름은 이미 다른 계정에서 사용 중입니다. 다른 조직 계정 이름을 "
+msgstr "이 조직 계정 이름은 이미 다른 계정에서 사용 중입니다. 다른 조직 계정 이름을 "
 "선택합니다."
 
 #: warehouse/manage/forms.py:403
@@ -377,8 +372,7 @@ msgstr ""
 #| "Choose a different organization account name."
 msgid ""
 "This project name has already been used. Choose a different project name."
-msgstr ""
-"이 조직 계정 이름은 이미 다른 계정에서 사용 중입니다. 다른 조직 계정 이름을 "
+msgstr "이 조직 계정 이름은 이미 다른 계정에서 사용 중입니다. 다른 조직 계정 이름을 "
 "선택합니다."
 
 #: warehouse/manage/forms.py:488
@@ -403,9 +397,8 @@ msgstr "너무 긴 이름입니다. 100글자 이하의 이름을 입력해주�
 
 #: warehouse/manage/views.py:324
 msgid "Email ${email_address} added - check your email for a verification link"
-msgstr ""
-"이메일 주소 ${email_address}가 추가되었습니다 - 이메일에서 확인 링크를 살펴보"
-"세요"
+msgstr "이메일 주소 ${email_address}가 추가되었습니다 - 이메일에서 확인 링크를 "
+"살펴보세요"
 
 #: warehouse/manage/views.py:841
 msgid "Recovery codes already generated"
@@ -419,9 +412,8 @@ msgstr "복구 코드를 새로 생성하면 기존 코드가 무효화됩니다
 #, fuzzy
 #| msgid "User '${username}' already has ${role_name} role for project"
 msgid "User '${username}' already has ${role_name} role for organization"
-msgstr ""
-"사용자 '${username}'는 이미 ${role_name}이라는 이 프로젝트의 역할을 가지고 있"
-"습니다"
+msgstr "사용자 '${username}'는 이미 ${role_name}이라는 이 프로젝트의 역할을 가지고 "
+"있습니다"
 
 #: warehouse/manage/views.py:1647
 #, fuzzy
@@ -438,9 +430,8 @@ msgstr ""
 #: warehouse/manage/views.py:1661 warehouse/manage/views.py:3142
 msgid ""
 "User '${username}' already has an active invite. Please try again later."
-msgstr ""
-"사용자 '${username}'는 이미 활성화되어 있는 초대를 가지고 있습니다. 나중에 다"
-"시 시도해보세요."
+msgstr "사용자 '${username}'는 이미 활성화되어 있는 초대를 가지고 있습니다. 나중에 "
+"다시 시도해보세요."
 
 #: warehouse/manage/views.py:1718 warehouse/manage/views.py:3200
 msgid "Invitation sent to '${username}'"
@@ -471,9 +462,8 @@ msgstr "너무 많은 잘못된 로그인 시도가 있었습니다. 나중에 �
 
 #: warehouse/manage/views.py:3118
 msgid "User '${username}' already has ${role_name} role for project"
-msgstr ""
-"사용자 '${username}'는 이미 ${role_name}이라는 이 프로젝트의 역할을 가지고 있"
-"습니다"
+msgstr "사용자 '${username}'는 이미 ${role_name}이라는 이 프로젝트의 역할을 가지고 "
+"있습니다"
 
 #: warehouse/manage/views.py:3129
 msgid ""
@@ -654,7 +644,6 @@ msgstr "몬티 파이썬 - 치즈 샵 스케치"
 #: warehouse/templates/pages/help.html:892
 #: warehouse/templates/pages/help.html:893
 #: warehouse/templates/pages/help.html:898
-#: warehouse/templates/pages/security.html:36
 #: warehouse/templates/pages/sponsors.html:33
 #: warehouse/templates/pages/sponsors.html:37
 #: warehouse/templates/pages/sponsors.html:41
@@ -690,8 +679,8 @@ msgid ""
 "serve you this site.</p> <p>We are aware of the problem and are working to "
 "resolve it as soon as possible.</p>"
 msgstr ""
-"<p>사이트를 제공하는데 영향을 끼치는 기술적인 문제가 발생했습니다.</p> <p>문"
-"제를 인지했으며 가능한 빨리 해결하도록 하겠습니다.</p>"
+"<p>사이트를 제공하는데 영향을 끼치는 기술적인 문제가 발생했습니다.</p> "
+"<p>문제를 인지했으며 가능한 빨리 해결하도록 하겠습니다.</p>"
 
 #: warehouse/templates/500.html:28
 msgid "Check our status page"
@@ -725,8 +714,7 @@ msgstr ""
 msgid ""
 "Choose a strong password that contains letters (uppercase and lowercase), "
 "numbers and special characters. Avoid common words or repetition."
-msgstr ""
-"대소문자, 숫자와 특수문자를 포함한 더 강력한 비밀번호를 선택하세요. 일반적인 "
+msgstr "대소문자, 숫자와 특수문자를 포함한 더 강력한 비밀번호를 선택하세요. 일반적인 "
 "단어나 반복 문구는 피하세요."
 
 #: warehouse/templates/base.html:27
@@ -786,9 +774,8 @@ msgstr "메인 메뉴"
 msgid ""
 "The Python Package Index (PyPI) is a repository of software for the Python "
 "programming language."
-msgstr ""
-"파이썬 패키지 인덱스(PyPI)는 파이썬 프로그래밍 언어를 위한 소프트웨어 리포지"
-"터리입니다."
+msgstr "파이썬 패키지 인덱스(PyPI)는 파이썬 프로그래밍 언어를 위한 소프트웨어 "
+"리포지터리입니다."
 
 #: warehouse/templates/base.html:97
 msgid "RSS: 40 latest updates"
@@ -825,8 +812,7 @@ msgstr "경고"
 
 #: warehouse/templates/base.html:155
 msgid "You are using an unsupported browser, upgrade to a newer version."
-msgstr ""
-"현재 지원되지 않는 브라우저를 사용하고 계십니다. 새로운 버전으로 업그레이드 "
+msgstr "현재 지원되지 않는 브라우저를 사용하고 계십니다. 새로운 버전으로 업그레이드 "
 "하세요."
 
 #: warehouse/templates/base.html:164
@@ -835,16 +821,15 @@ msgid ""
 "that allows you to try distribution tools and processes without affecting "
 "the real index."
 msgstr ""
-"TestPyPI를 사용중입니다 – 분리된 파이썬 패키지 인덱스 인스턴스를 통해 실제 인"
-"덱스에 영향을 미치지 않고 배포 도구와 프로세스를 사용해볼 수 있습니다."
+"TestPyPI를 사용중입니다 – 분리된 파이썬 패키지 인덱스 인스턴스를 통해 실제 "
+"인덱스에 영향을 미치지 않고 배포 도구와 프로세스를 사용해볼 수 있습니다."
 
 #: warehouse/templates/base.html:174
 msgid ""
 "Some features may not work without JavaScript. Please try enabling it if you "
 "encounter problems."
-msgstr ""
-"일부 기능은 자바스크립트 없이는 작동하지 않을 수 있습니다. 문제가 발생할 경"
-"우 활성화하세요."
+msgstr "일부 기능은 자바스크립트 없이는 작동하지 않을 수 있습니다. 문제가 발생할 "
+"경우 활성화하세요."
 
 #: warehouse/templates/base.html:212 warehouse/templates/base.html:233
 #: warehouse/templates/error-base-with-search.html:20
@@ -967,8 +952,7 @@ msgstr "모든 시스템 이상 없음"
 #: warehouse/templates/base.html:313
 msgid ""
 "Developed and maintained by the Python community, for the Python community."
-msgstr ""
-"파이썬 커뮤니티를 위해, 파이썬 커뮤니티에 의해 개발되어 관리되고 있습니다."
+msgstr "파이썬 커뮤니티를 위해, 파이썬 커뮤니티에 의해 개발되어 관리되고 있습니다."
 
 #: warehouse/templates/base.html:315
 msgid "Donate today!"
@@ -1045,8 +1029,7 @@ msgstr[0] "%(num_users_formatted)s 사용자"
 msgid ""
 "PyPI helps you find and install software developed and shared by the Python "
 "community."
-msgstr ""
-"PyPI를 통해 파이썬 커뮤니티가 개발하고 공유하는 소프트웨어를 찾고 설치할 수 "
+msgstr "PyPI를 통해 파이썬 커뮤니티가 개발하고 공유하는 소프트웨어를 찾고 설치할 수 "
 "있습니다."
 
 #: warehouse/templates/index.html:112
@@ -1186,8 +1169,8 @@ msgstr ""
 "\n"
 "              <b>팁:</b> 당신은 <a href=\"%(href)s\">민감한 행동</a>을 하려 "
 "하고 있습니다.\n"
-"              만약 이 기기가 당신의 기기가 아니라면 사용 후 꼭 로그아웃하시"
-"기 바랍니다.\n"
+"              만약 이 기기가 당신의 기기가 아니라면 사용 후 꼭 "
+"로그아웃하시기 바랍니다.\n"
 "              저희는 1시간동안 비밀번호를 확인하지 않을 것입니다.\n"
 "              "
 
@@ -1202,9 +1185,9 @@ msgid ""
 "\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">Python "
 "Packaging User Guide</a>."
 msgstr ""
-"PyPI에 프로젝트를 업로드 하기 위해 필요한 더 많은 정보는, <a href=\"%(href)s"
-"\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">파이썬 패키지 사용"
-"자 가이드</a>에서 확인하실 수 있습니다."
+"PyPI에 프로젝트를 업로드 하기 위해 필요한 더 많은 정보는, <a href=\"%(href)"
+"s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">파이썬 패키지 "
+"사용자 가이드</a>에서 확인하실 수 있습니다."
 
 #: warehouse/templates/upload.html:28
 #, python-format
@@ -1385,15 +1368,14 @@ msgid ""
 "in the form to verify your identity. Once used, the recovery code will no "
 "longer be valid."
 msgstr ""
-"장치 또는 응용 프로그램이 손실 된 경우를 대비해 PyPI는 오프라인에 안전하게 보"
-"관할 수 있는 복구 코드를 생성할 수 있습니다. 이 코드 중 하나를 양식에 입력해"
-"서 본인을 인증하세요. 사용 된 복구 코드는 더 이상 유효하지 않습니다."
+"장치 또는 응용 프로그램이 손실 된 경우를 대비해 PyPI는 오프라인에 안전하게 "
+"보관할 수 있는 복구 코드를 생성할 수 있습니다. 이 코드 중 하나를 양식에 "
+"입력해서 본인을 인증하세요. 사용 된 복구 코드는 더 이상 유효하지 않습니다."
 
 #: warehouse/templates/accounts/recovery-code.html:59
 #, python-format
 msgid "<p>Not working? <a href=\"%(href)s\">Get help</a>.</p>"
-msgstr ""
-"<p>작동하지 않고있나요? <a href=\"%(href)s\">도움을 받아보세요</a>.</p>"
+msgstr "<p>작동하지 않고있나요? <a href=\"%(href)s\">도움을 받아보세요</a>.</p>"
 
 #: warehouse/templates/accounts/register.html:18
 msgid "Create an account"
@@ -1485,9 +1467,8 @@ msgstr "등록된 주소로 이메일이 전송되었습니다."
 msgid ""
 "The email contains a link to reset your password. This link will expire in "
 "%(n_hours)s hours."
-msgstr ""
-"이메일에는 패스워드를 재설정하기 위한 링크가 있습니다. 링크는 %(n_hours)s 시"
-"간 후에 만료됩니다."
+msgstr "이메일에는 패스워드를 재설정하기 위한 링크가 있습니다. 링크는 %(n_hours)s "
+"시간 후에 만료됩니다."
 
 #: warehouse/templates/accounts/reset-password.html:18
 #: warehouse/templates/accounts/reset-password.html:24
@@ -1521,8 +1502,7 @@ msgstr "보안 장치를 연결하고 \"장치로 인증하기\" 버튼을 클�
 
 #: warehouse/templates/accounts/two-factor.html:42
 msgid "Enable JavaScript to log in with a security device (e.g. USB key)"
-msgstr ""
-"보안 장치로 로그인하기 위해서는 자바스크립트를 활성화하세요 (예: USB 키)"
+msgstr "보안 장치로 로그인하기 위해서는 자바스크립트를 활성화하세요 (예: USB 키)"
 
 #: warehouse/templates/accounts/two-factor.html:51
 msgid "Authenticate with device"
@@ -1534,16 +1514,15 @@ msgid ""
 "<a href=\"%(href)s\" title=\"%(title)s\" target=\"%(target)s\" rel=\"%(rel)s"
 "\">Upgrade your browser</a> to log in with a security device (e.g. USB key)"
 msgstr ""
-"보안 장치(예: USB 키)로 로그인 하기 위해서는 <a href=\"%(href)s\" title="
-"\"%(title)s\" target=\"%(target)s\" rel=\"%(rel)s\">브라우저를 업그레이드</a>"
-"하세요"
+"보안 장치(예: USB 키)로 로그인 하기 위해서는 <a href=\"%(href)s\" title=\""
+"%(title)s\" target=\"%(target)s\" rel=\"%(rel)s\">브라우저를 "
+"업그레이드</a>하세요"
 
 #: warehouse/templates/accounts/two-factor.html:60
 #, python-format
 msgid "Lost your device? Not working? <a href=\"%(href)s\">Get help</a>."
-msgstr ""
-"장치를 잃어버렸거나 작동하지 않나요? <a href=\"%(href)s\">도움을 요청하세요</"
-"a>."
+msgstr "장치를 잃어버렸거나 작동하지 않나요? <a href=\"%(href)s\">도움을 "
+"요청하세요</a>."
 
 #: warehouse/templates/accounts/two-factor.html:72
 msgid "Authenticate with an app"
@@ -1560,9 +1539,9 @@ msgid ""
 "PyPI account. Enter this code in the form to verify your identity.</p> "
 "<p>Lost your application? Not working? <a href=\"%(href)s\">Get help</a>.</p>"
 msgstr ""
-"<p>PyPI 계정에 연결된 인증 앱에서 코드를 생성하세요. 코드를 폼에 입력해서 신"
-"원을 확인하세요.</p> <p>앱을 잃어버렸거나, 작동하지 않나요? <a href="
-"\"%(href)s\">도움을 요청하세요</a>.</p>"
+"<p>PyPI 계정에 연결된 인증 앱에서 코드를 생성하세요. 코드를 폼에 입력해서 "
+"신원을 확인하세요.</p> <p>앱을 잃어버렸거나, 작동하지 않나요? <a href=\""
+"%(href)s\">도움을 요청하세요</a>.</p>"
 
 #: warehouse/templates/accounts/two-factor.html:127
 msgid "Lost your security key or application?"
@@ -1575,9 +1554,9 @@ msgid ""
 "you lose access to your two factor methods, you may lose access to your "
 "account. <a href=\"%(href)s\">Get help with recovery codes.</a></p>"
 msgstr ""
-"<p><strong>당신은 계정 복구 코드를 생성한 적이 없습니다.</strong></p> <p>만"
-"약 이중 인증(2FA)을 할 수 없게 된다면 당신의 계정에 접근하지 못할 수도 있습니"
-"다. <a href=\"%(href)s\">복구 코드 도움말</a></p>"
+"<p><strong>당신은 계정 복구 코드를 생성한 적이 없습니다.</strong></p> "
+"<p>만약 이중 인증(2FA)을 할 수 없게 된다면 당신의 계정에 접근하지 못할 수도 "
+"있습니다. <a href=\"%(href)s\">복구 코드 도움말</a></p>"
 
 #: warehouse/templates/email/account-deleted/body.html:18
 #, python-format
@@ -1594,8 +1573,8 @@ msgid ""
 "If you did not make this change, you can email <a href=\"%(href)s\">"
 "%(email_address)s</a> to communicate with the PyPI administrators."
 msgstr ""
-"이 변경사항을 직접 요청한 것이 아니라면, <a href=\"%(href)s\">"
-"%(email_address)s</a> 에 이메일을 보내 PyPI 관리자에게 연락하세요."
+"이 변경사항을 직접 요청한 것이 아니라면, <a href=\"%(href)s\""
+">%(email_address)s</a> 에 이메일을 보내 PyPI 관리자에게 연락하세요."
 
 #: warehouse/templates/email/added-as-collaborator/body.html:19
 #, python-format
@@ -1611,9 +1590,8 @@ msgstr ""
 msgid ""
 "You are receiving this because you have been added by %(initiator_username)s "
 "to a project on %(site)s."
-msgstr ""
-"%(site)s의 %(initiator_username)s님께서 당신을 프로젝트로 추가하셨고 그것때문"
-"에 이 메일을 받으셨습니다."
+msgstr "%(site)s의 %(initiator_username)s님께서 당신을 프로젝트로 추가하셨고 "
+"그것때문에 이 메일을 받으셨습니다."
 
 #: warehouse/templates/email/added-as-organization-member/body.html:20
 #, fuzzy, python-format
@@ -1656,9 +1634,8 @@ msgstr "이 프로젝트의 소유자이기 때문에 이 메일을 수신하였
 msgid ""
 "The %(site)s organization has been renamed from "
 "\"%(previous_organization_name)s\" to \"%(organization_name)s\"."
-msgstr ""
-"<a href=\"%(href)s\">%(username)s</a> 사용자가 프로젝트의 %(role_name)s 역할"
-"에서 제거됨"
+msgstr "<a href=\"%(href)s\">%(username)s</a> 사용자가 프로젝트의 %(role_name)s "
+"역할에서 제거됨"
 
 #: warehouse/templates/email/basic-auth-with-2fa/body.html:17
 #: warehouse/templates/email/password-compromised-hibp/body.html:18
@@ -1805,8 +1782,8 @@ msgid ""
 "  administrators.\n"
 "  "
 msgstr ""
-"이 변경사항을 직접 요청한 것이 아니라면, <a href=\"%(href)s\">"
-"%(email_address)s</a> 에 이메일을 보내 PyPI 관리자에게 연락하세요."
+"이 변경사항을 직접 요청한 것이 아니라면, <a href=\"%(href)s\""
+">%(email_address)s</a> 에 이메일을 보내 PyPI 관리자에게 연락하세요."
 
 #: warehouse/templates/email/oidc-provider-removed/body.html:19
 #, python-format
@@ -1843,8 +1820,8 @@ msgid ""
 "If this was a mistake, you can email <a href=\"mailto:%(email_address)s\">"
 "%(email_address)s</a> to communicate with the %(site)s administrators."
 msgstr ""
-"의도하지 않은 상황인 경우, <a href=\"%(href)s\">%(email_address)s</a> 에 이메"
-"일을 보내 PyPI 관리자에게 연락하세요."
+"의도하지 않은 상황인 경우, <a href=\"%(href)s\">%(email_address)s</a> 에 "
+"이메일을 보내 PyPI 관리자에게 연락하세요."
 
 #: warehouse/templates/email/organization-deleted/body.html:37
 #, fuzzy
@@ -1859,9 +1836,8 @@ msgstr "이 프로젝트의 소유자이기 때문에 이 메일을 수신하였
 msgid ""
 "<a href=\"%(user_profile)s\">%(username)s</a> has joined the "
 "\"%(organization_name)s\" organization"
-msgstr ""
-"<a href=\"%(href)s\">%(username)s</a> 사용자의 역할이 프로젝트 %(role_name)s"
-"로 변경됨"
+msgstr "<a href=\"%(href)s\">%(username)s</a> 사용자의 역할이 프로젝트 %(role_name)"
+"s로 변경됨"
 
 #: warehouse/templates/email/organization-member-added/body.html:31
 #: warehouse/templates/email/organization-member-invited/body.html:31
@@ -1913,9 +1889,8 @@ msgstr ""
 msgid ""
 "<a href=\"%(user_profile)s\">%(username)s</a> has declined an invitation to "
 "join the \"%(organization_name)s\" organization"
-msgstr ""
-"<a href=\"%(href)s\">%(username)s</a> 사용자의 역할이 프로젝트 %(role_name)s"
-"로 변경됨"
+msgstr "<a href=\"%(href)s\">%(username)s</a> 사용자의 역할이 프로젝트 %(role_name)"
+"s로 변경됨"
 
 #: warehouse/templates/email/organization-member-invited/body.html:27
 #, fuzzy, python-format
@@ -1924,9 +1899,8 @@ msgstr ""
 msgid ""
 "<a href=\"%(user_profile)s\">%(username)s</a> has been invited to join the "
 "\"%(organization_name)s\" organization"
-msgstr ""
-"<a href=\"%(href)s\">%(username)s</a> 사용자의 역할이 프로젝트 %(role_name)s"
-"로 변경됨"
+msgstr "<a href=\"%(href)s\">%(username)s</a> 사용자의 역할이 프로젝트 %(role_name)"
+"s로 변경됨"
 
 #: warehouse/templates/email/organization-member-invited/body.html:33
 #, fuzzy
@@ -1941,9 +1915,8 @@ msgstr "변경한 사용자:"
 msgid ""
 "<a href=\"%(user_profile)s\">%(username)s</a> has been removed from the "
 "\"%(organization_nmae)s\" organization"
-msgstr ""
-"<a href=\"%(href)s\">%(username)s</a> 사용자가 프로젝트의 %(role_name)s 역할"
-"에서 제거됨"
+msgstr "<a href=\"%(href)s\">%(username)s</a> 사용자가 프로젝트의 %(role_name)s "
+"역할에서 제거됨"
 
 #: warehouse/templates/email/organization-member-removed/body.html:32
 #, fuzzy
@@ -1977,9 +1950,8 @@ msgstr "변경한 사용자:"
 msgid ""
 "The %(site)s project \"%(project_name)s\" has been added to the "
 "\"%(organization_name)s\" organization."
-msgstr ""
-"<a href=\"%(href)s\">%(username)s</a> 사용자의 역할이 프로젝트 %(role_name)s"
-"로 변경됨"
+msgstr "<a href=\"%(href)s\">%(username)s</a> 사용자의 역할이 프로젝트 %(role_name)"
+"s로 변경됨"
 
 #: warehouse/templates/email/organization-project-added/body.html:30
 #: warehouse/templates/email/organization-project-removed/body.html:30
@@ -1997,17 +1969,15 @@ msgstr "이 프로젝트의 소유자이기 때문에 이 메일을 수신하였
 msgid ""
 "The %(site)s project \"%(project_name)s\" has been removed from the "
 "\"%(organization_name)s\" organization."
-msgstr ""
-"<a href=\"%(href)s\">%(username)s</a> 사용자가 프로젝트의 %(role_name)s 역할"
-"에서 제거됨"
+msgstr "<a href=\"%(href)s\">%(username)s</a> 사용자가 프로젝트의 %(role_name)s "
+"역할에서 제거됨"
 
 #: warehouse/templates/email/password-change/body.html:18
 #, python-format
 msgid ""
 "Someone, perhaps you, has changed the password for your PyPI account <strong>"
 "%(username)s</strong>."
-msgstr ""
-"누군가 (아마도 당신이) <strong>%(username)s</strong> PyPI 계정의 패스워드를 "
+msgstr "누군가 (아마도 당신이) <strong>%(username)s</strong> PyPI 계정의 패스워드를 "
 "변경했습니다."
 
 #: warehouse/templates/email/password-compromised/body.html:20
@@ -2019,8 +1989,8 @@ msgid ""
 "  password."
 msgstr ""
 "PyPI 관리자는 귀하의 비밀번호가 유출되었다고 판단했습니다. 에\n"
-"   귀하와 다른 사용자를 보호하기 위해 사전에 귀하의 비밀번호를 재설정했습니"
-"다.\n"
+"   귀하와 다른 사용자를 보호하기 위해 사전에 귀하의 비밀번호를 "
+"재설정했습니다.\n"
 "   더 이상 기존 계정으로 로그인하거나 PyPI에 업로드 할 수 없습니다."
 
 #: warehouse/templates/email/password-compromised/body.html:26
@@ -2037,9 +2007,8 @@ msgstr ""
 msgid ""
 "To regain access to your account, <a href=\"%(href)s\">reset your password</"
 "a> on PyPI."
-msgstr ""
-"계정에 다시 접근 권한을 얻기 위해서는, PyPI에서 <a href=\"%(href)s\">패스워드"
-"를 재설정</a>하세요."
+msgstr "계정에 다시 접근 권한을 얻기 위해서는, PyPI에서 <a href=\"%(href)s\""
+">패스워드를 재설정</a>하세요."
 
 #: warehouse/templates/email/password-compromised/body.html:39
 msgid "How can I contact you?"
@@ -2064,10 +2033,10 @@ msgid ""
 "your existing\n"
 "  password."
 msgstr ""
-"최근 PyPI에 로그인하거나 업로드를 시도하는 동안, 공개된 정보 유출 자료에 귀하"
-"의 비밀번호가 포함된 걸 발견했습니다.\n"
-"귀하와 다른 사용자를 보호하기 위해, 당사는 귀하의 비밀번호를 우선적으로 초기"
-"화하였고\n"
+"최근 PyPI에 로그인하거나 업로드를 시도하는 동안, 공개된 정보 유출 자료에 "
+"귀하의 비밀번호가 포함된 걸 발견했습니다.\n"
+"귀하와 다른 사용자를 보호하기 위해, 당사는 귀하의 비밀번호를 우선적으로 "
+"초기화하였고\n"
 "기존의 비밀번호로는 더 이상 PyPI에 로그인하거나 업로드를 할 수 없습니다."
 
 #: warehouse/templates/email/password-compromised-hibp/body.html:26
@@ -2090,9 +2059,9 @@ msgid ""
 "\"%(have_i_been_pwned_url)s\">HaveIBeenPwned</a> and check your other "
 "passwords and get yourself familiar with good password practices."
 msgstr ""
-"계정에 다시 접근하기 위해서는 <a href=\"%(reset_pw_url)s\">패스워드를 재설정"
-"</a>하세요. 저희는 또 <a href=\"%(have_i_been_pwned_url)s\">HaveIBeenPwned</"
-"a>에서 당신의 유츌 여부를 검사해 보는것을 추천드립니다."
+"계정에 다시 접근하기 위해서는 <a href=\"%(reset_pw_url)s\">패스워드를 "
+"재설정</a>하세요. 저희는 또 <a href=\"%(have_i_been_pwned_url)s\""
+">HaveIBeenPwned</a>에서 당신의 유츌 여부를 검사해 보는것을 추천드립니다."
 
 #: warehouse/templates/email/password-compromised-hibp/body.html:40
 msgid "How do you know this?"
@@ -2107,11 +2076,11 @@ msgid ""
 "characters of the hash to decide if the password is compromised. The "
 "plaintext password is never stored by PyPI or sent to HaveIBeenPwned."
 msgstr ""
-"우리는 <a href=\"%(have_i_been_pwned_url)s\">HaveIBeenPwned</a>라는 무료 보"
-"안 서비스를 사용합니다. 당신의 비밀번호를 등록하고나 확인하거나 바꿀 때, 저희"
-"는 당신의 비밀번호의 SHA1 해쉬를 생성한 후 첫 5자리를 이용해 비밀번호가 유출"
-"되었는지 확인합니다. 평문의 비밀번호는 PyPI에 의해 저장되거나 HaveIBeenPwned"
-"로 전송되지 않습니다."
+"우리는 <a href=\"%(have_i_been_pwned_url)s\">HaveIBeenPwned</a>라는 무료 "
+"보안 서비스를 사용합니다. 당신의 비밀번호를 등록하고나 확인하거나 바꿀 때, "
+"저희는 당신의 비밀번호의 SHA1 해쉬를 생성한 후 첫 5자리를 이용해 비밀번호가 "
+"유출되었는지 확인합니다. 평문의 비밀번호는 PyPI에 의해 저장되거나 "
+"HaveIBeenPwned로 전송되지 않습니다."
 
 #: warehouse/templates/email/password-compromised-hibp/body.html:47
 #, python-format
@@ -2121,25 +2090,23 @@ msgid ""
 "with the PyPI administrators."
 msgstr ""
 "더 많은 정보를 알고 싶을 경우, <a href=\"%(faq_url)s\">FAQ</a>를 확인하세요. "
-"도움이 필요할 경우, <a href=\"%(email_href)s\">%(email_address)s</a>로 이메일"
-"을 보내주시면, PyPI 관리자에게 문의하실 수 있습니다."
+"도움이 필요할 경우, <a href=\"%(email_href)s\">%(email_address)s</a>로 "
+"이메일을 보내주시면, PyPI 관리자에게 문의하실 수 있습니다."
 
 #: warehouse/templates/email/password-reset/body.html:18
 #, python-format
 msgid ""
 "Someone, perhaps you, has made a password reset request for your PyPI "
 "account '%(username)s'."
-msgstr ""
-"누군가 (아마도 당신이) <strong>%(username)s</strong> PyPI 계정의 패스워드 재"
-"설정을 요청했습니다."
+msgstr "누군가 (아마도 당신이) <strong>%(username)s</strong> PyPI 계정의 패스워드 "
+"재설정을 요청했습니다."
 
 #: warehouse/templates/email/password-reset/body.html:20
 #, python-format
 msgid ""
 "If you wish to proceed with this request, <a href=\"%(href)s\">click to "
 "reset your password</a>."
-msgstr ""
-"이 요청을 계속해서 수행하길 원하면, <a href=\"%(href)s\">클릭해서 패스워드를 "
+msgstr "이 요청을 계속해서 수행하길 원하면, <a href=\"%(href)s\">클릭해서 패스워드를 "
 "재설정하세요</a>."
 
 #: warehouse/templates/email/password-reset/body.html:22
@@ -2152,8 +2119,7 @@ msgstr[0] "이 링크는 %(n_hours)s 시간 뒤에 만료됩니다."
 #: warehouse/templates/email/password-reset/body.html:24
 #: warehouse/templates/email/verify-email/body.html:24
 msgid "If you did not make this request, you can safely ignore this email."
-msgstr ""
-"이 변경사항을 직접 요청한 것이 아니라면, 이 이메일은 무시해도 괜찮습니다."
+msgstr "이 변경사항을 직접 요청한 것이 아니라면, 이 이메일은 무시해도 괜찮습니다."
 
 #: warehouse/templates/email/primary-email-change/body.html:18
 #, python-format
@@ -2161,8 +2127,8 @@ msgid ""
 "The primary email for your PyPI account <strong>%(username)s</strong> has "
 "been changed from <code>%(old_email)s</code> to <code>%(new_email)s</code>"
 msgstr ""
-"<strong>%(username)s</strong> PyPI 계정의 주 이메일 주소가 <code>"
-"%(old_email)s</code> 에서 <code>%(new_email)s</code> 로 변경되었습니다"
+"<strong>%(username)s</strong> PyPI 계정의 주 이메일 주소가 "
+"<code>%(old_email)s</code> 에서 <code>%(new_email)s</code> 로 변경되었습니다"
 
 #: warehouse/templates/email/recovery-code-reminder/body.html:19
 #, python-format
@@ -2192,9 +2158,8 @@ msgid ""
 "\n"
 "You can generate recovery codes for your account here:\n"
 "<a href=\"%(href)s\">%(href)s</a>\n"
-msgstr ""
-"계정에 다시 접근 권한을 얻기 위해서는, PyPI에서 <a href=\"%(href)s\">패스워드"
-"를 재설정</a>하세요."
+msgstr "계정에 다시 접근 권한을 얻기 위해서는, PyPI에서 <a href=\"%(href)s\""
+">패스워드를 재설정</a>하세요."
 
 #: warehouse/templates/email/recovery-code-used/body.html:19
 #, fuzzy, python-format
@@ -2216,8 +2181,8 @@ msgid ""
 "If you did not make this change, you can email <a href=\"%(href)s\">"
 "%(email_address)s</a> to communicate with the PyPI administrators.\n"
 msgstr ""
-"이 변경사항을 직접 요청한 것이 아니라면, <a href=\"%(href)s\">"
-"%(email_address)s</a> 에 이메일을 보내 PyPI 관리자에게 연락하세요."
+"이 변경사항을 직접 요청한 것이 아니라면, <a href=\"%(href)s\""
+">%(email_address)s</a> 에 이메일을 보내 PyPI 관리자에게 연락하세요."
 
 #: warehouse/templates/email/recovery-codes-generated/body.html:19
 #, fuzzy, python-format
@@ -2252,8 +2217,8 @@ msgid ""
 "Someone, perhaps you, has added a %(method)s two-factor authentication "
 "method to your PyPI account <strong>%(username)s</strong>."
 msgstr ""
-"누군가(또는 당신)가 당신의 계정 <strong>%(username)s</strong>에 %(method)s 2"
-"단계 인증을 추가하였습니다."
+"누군가(또는 당신)가 당신의 계정 <strong>%(username)s</strong>에 %(method)s "
+"2단계 인증을 추가하였습니다."
 
 #: warehouse/templates/email/two-factor-removed/body.html:18
 #, python-format
@@ -2278,9 +2243,8 @@ msgstr ""
 msgid ""
 "If you wish to proceed with this request, <a href=\"%(href)s\">click this "
 "link to verify your email address</a>."
-msgstr ""
-"이 요청을 계속해서 수행하길 원하면, <a href=\"%(href)s\">링크를 클릭해서 이메"
-"일 주소를 확인하세요</a>."
+msgstr "이 요청을 계속해서 수행하길 원하면, <a href=\"%(href)s\">링크를 클릭해서 "
+"이메일 주소를 확인하세요</a>."
 
 #: warehouse/templates/email/verify-organization-role/body.html:18
 #, python-format
@@ -2297,16 +2261,14 @@ msgstr ""
 msgid ""
 "If you wish to proceed, follow <a href=\"%(href)s\">this link</a> to accept "
 "or decline this invitation."
-msgstr ""
-"이 요청을 계속해서 수행하길 원하면, <a href=\"%(href)s\">링크를 클릭해서 이메"
-"일 주소를 확인하세요</a>."
+msgstr "이 요청을 계속해서 수행하길 원하면, <a href=\"%(href)s\">링크를 클릭해서 "
+"이메일 주소를 확인하세요</a>."
 
 #: warehouse/templates/email/verify-organization-role/body.html:26
 #, fuzzy
 #| msgid "If you did not make this request, you can safely ignore this email."
 msgid "Otherwise, you can safely ignore this email."
-msgstr ""
-"이 변경사항을 직접 요청한 것이 아니라면, 이 이메일은 무시해도 괜찮습니다."
+msgstr "이 변경사항을 직접 요청한 것이 아니라면, 이 이메일은 무시해도 괜찮습니다."
 
 #: warehouse/templates/email/verify-organization-role/body.html:30
 #, fuzzy, python-format
@@ -2490,8 +2452,8 @@ msgid ""
 "dataset on Google BigQuery</a>"
 msgstr ""
 "당신의 프로젝트 통계를 <a href=\"%(libs_io_href)s\" title=\"%(title)s\" "
-"target=\"_blank\" rel=\"noopener\">Libraries.io</a> 또는 <a href="
-"\"%(gbq_href)s\" target=\"_blank\" rel=\"noopener\">Google BigQuery의 퍼블릭 "
+"target=\"_blank\" rel=\"noopener\">Libraries.io</a> 또는 <a href=\""
+"%(gbq_href)s\" target=\"_blank\" rel=\"noopener\">Google BigQuery의 퍼블릭 "
 "데이터셋</a>에서 보세요"
 
 #: warehouse/templates/includes/accounts/profile-actions.html:30
@@ -2502,9 +2464,9 @@ msgid ""
 "by using <a href=\"%(gbq_href)s\" target=\"_blank\" rel=\"noopener\">our "
 "public dataset on Google BigQuery</a>"
 msgstr ""
-"%(username)s의 프로젝트 통계를 <a href=\"%(libs_io_href)s\" title=\"%(title)s"
-"\" target=\"_blank\" rel=\"noopener\">Libraries.io</a> 또는 <a href="
-"\"%(gbq_href)s\" target=\"_blank\" rel=\"noopener\">Google BigQuery의 퍼블릭 "
+"%(username)s의 프로젝트 통계를 <a href=\"%(libs_io_href)s\" title=\"%(title)"
+"s\" target=\"_blank\" rel=\"noopener\">Libraries.io</a> 또는 <a href=\""
+"%(gbq_href)s\" target=\"_blank\" rel=\"noopener\">Google BigQuery의 퍼블릭 "
 "데이터셋</a>에서 보세요"
 
 #: warehouse/templates/includes/accounts/profile-callout.html:18
@@ -2514,9 +2476,9 @@ msgid ""
 "started, visit the <a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank"
 "\" rel=\"noopener\">Python Packaging User Guide</a>"
 msgstr ""
-"당신은 어떤 프로젝트도 PyPI에 업로드해본 적이 없습니다. 어떻게 시작해야하는"
-"지 배우고싶다면, <a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" "
-"rel=\"noopener\">Pythoh Packaging User Guide</a>를 확인해주세요"
+"당신은 어떤 프로젝트도 PyPI에 업로드해본 적이 없습니다. 어떻게 "
+"시작해야하는지 배우고싶다면, <a href=\"%(href)s\" title=\"%(title)s\" target="
+"\"_blank\" rel=\"noopener\">Pythoh Packaging User Guide</a>를 확인해주세요"
 
 #: warehouse/templates/includes/accounts/profile-callout.html:23
 #, python-format
@@ -2612,8 +2574,8 @@ msgid ""
 msgstr ""
 "이 프로젝트의 통계를 <a href=\"%(libs_io_href)s\" title=\"%(title)s\" target="
 "\"_blank\" rel=\"noopener\">Libraries.io</a> 또는 <a href=\"%(gbq_href)s\" "
-"target=\"_blank\" rel=\"noopener\">Google BigQuery의 퍼블릭 데이터셋</a>을 이"
-"용해 보세요"
+"target=\"_blank\" rel=\"noopener\">Google BigQuery의 퍼블릭 데이터셋</a>을 "
+"이용해 보세요"
 
 #: warehouse/templates/includes/packaging/project-data.html:74
 msgid "Meta"
@@ -2780,9 +2742,8 @@ msgstr "API 토큰 제거"
 #: warehouse/templates/manage/token.html:66
 msgid ""
 "Applications or scripts using this token will no longer have access to PyPI."
-msgstr ""
-"이 토큰을 사용하는 애플리케이션이나 스크립트는 더 이상 PyPI에 접근할 수 없습"
-"니다."
+msgstr "이 토큰을 사용하는 애플리케이션이나 스크립트는 더 이상 PyPI에 접근할 수 "
+"없습니다."
 
 #: warehouse/templates/manage/account.html:204
 #, python-format
@@ -2843,9 +2804,8 @@ msgstr "공개 이메일"
 msgid ""
 "One of your verified emails can be displayed on your <a href=\"%(href)s"
 "\">public profile</a> to logged-in users."
-msgstr ""
-"인증된 이메일중 하나는 당신의 <a href=\"%(href)s\">공개 프로필</a>에 로그인"
-"된 유저에게 보여질수 있습니다."
+msgstr "인증된 이메일중 하나는 당신의 <a href=\"%(href)s\">공개 프로필</a>에 "
+"로그인된 유저에게 보여질수 있습니다."
 
 #: warehouse/templates/manage/account.html:302
 msgid "Update account"
@@ -2863,8 +2823,8 @@ msgid ""
 "class=\"badge\">Primary</span> email will receive notifications."
 msgstr ""
 "여러 이메일 주소를 계정에 연결시킬 수 있습니다. <span class=\"badge badge--"
-"success\"><i class=\"fa fa-check\" aria-hidden=\"true\"></i> 인증</span>된 이"
-"메일 주소 중 어떤 것으로도 계정을 복구하는데 사용할 수 있지만, <span class="
+"success\"><i class=\"fa fa-check\" aria-hidden=\"true\"></i> 인증</span>된 "
+"이메일 주소 중 어떤 것으로도 계정을 복구하는데 사용할 수 있지만, <span class="
 "\"badge\">기본</span> 이메일로만 알림이 가능합니다."
 
 #: warehouse/templates/manage/account.html:323
@@ -2934,8 +2894,7 @@ msgstr "API 토큰 추가하기"
 msgid ""
 "<a href=\"%(href)s\">Verify your primary email address</a> to add API tokens "
 "to your account."
-msgstr ""
-"API 토큰을 추가하기 위해 먼저 <a href=\"%(href)s\">기본 이메일 주소를 인증</"
+msgstr "API 토큰을 추가하기 위해 먼저 <a href=\"%(href)s\">기본 이메일 주소를 인증</"
 "a>해야 합니다."
 
 #: warehouse/templates/manage/account.html:467
@@ -3119,8 +3078,7 @@ msgstr "장치 이름:"
 msgid ""
 "Method: Authentication application (<abbr title=\"time-based one-time "
 "password\">TOTP</abbr>)"
-msgstr ""
-"방법: 인증 앱 (<abbr title=\"time-based one-time password\">TOTP</abbr>)"
+msgstr "방법: 인증 앱 (<abbr title=\"time-based one-time password\">TOTP</abbr>)"
 
 #: warehouse/templates/manage/account.html:584
 msgid "Two factor authentication removed"
@@ -3230,8 +3188,8 @@ msgid_plural ""
 "        "
 msgstr[0] ""
 "\n"
-"          이 계정은 현재 %(count)s 개 프로젝트의 <strong>독점 소유자</strong>"
-"입니다.\n"
+"          이 계정은 현재 %(count)s 개 프로젝트의 <strong>독점 "
+"소유자</strong>입니다.\n"
 "        "
 
 #: warehouse/templates/manage/account.html:695
@@ -3247,8 +3205,8 @@ msgid_plural ""
 "        "
 msgstr[0] ""
 "\n"
-"          계정을 삭제하기 전에 소유권을 이전하거나 프로젝트를 삭제해야 합니"
-"다.\n"
+"          계정을 삭제하기 전에 소유권을 이전하거나 프로젝트를 삭제해야 "
+"합니다.\n"
 "        "
 
 #: warehouse/templates/manage/account.html:705
@@ -3258,8 +3216,8 @@ msgid ""
 "<a href=\"%(transfer_href)s\">transfer ownership</a> or <a href="
 "\"%(delete_href)s\">delete project</a>"
 msgstr ""
-"<a href=\"%(transfer_href)s\">소유권 이전</a> 또는 <a href=\"%(delete_href)s"
-"\">프로젝트 삭제</a>"
+"<a href=\"%(transfer_href)s\">소유권 이전</a> 또는 <a href=\"%(delete_href)"
+"s\">프로젝트 삭제</a>"
 
 #: warehouse/templates/manage/account.html:714
 #: warehouse/templates/manage/organization/settings.html:157
@@ -3293,8 +3251,8 @@ msgid ""
 "documentation is no longer supported."
 msgstr ""
 "<a href=\"%(url)s\">%(url)s</a>에서 제공되고 있는 문서를 삭제하게 되면 "
-"<strong>절대로</strong> 되돌릴 수 없으며, 새 문서를 업로드하는 것도 불가능해"
-"집니다."
+"<strong>절대로</strong> 되돌릴 수 없으며, 새 문서를 업로드하는 것도 "
+"불가능해집니다."
 
 #: warehouse/templates/manage/documentation.html:35
 msgid "Destroy Documentation for project"
@@ -3323,8 +3281,7 @@ msgstr "'%(project_name)s' 프로젝트 이력"
 msgid ""
 "Each time you (or your collaborators) perform a security action related to "
 "this project, the action is recorded and displayed here."
-msgstr ""
-"귀하 (또는 공동 작업자)가 이 프로젝트에서 보안 관련 작업을 수행할 때마다, 그 "
+msgstr "귀하 (또는 공동 작업자)가 이 프로젝트에서 보안 관련 작업을 수행할 때마다, 그 "
 "작업이 기록되고 여기에 표시됩니다."
 
 #: warehouse/templates/manage/history.html:29
@@ -3369,23 +3326,20 @@ msgstr "파일명:"
 #: warehouse/templates/manage/history.html:50
 #, python-format
 msgid "<a href=\"%(href)s\">%(username)s</a> added as project %(role_name)s"
-msgstr ""
-"<a href=\"%(href)s\">%(username)s</a> 사용자가 %(role_name)s 역할로 프로젝트"
-"에 추가됨"
+msgstr "<a href=\"%(href)s\">%(username)s</a> 사용자가 %(role_name)s 역할로 "
+"프로젝트에 추가됨"
 
 #: warehouse/templates/manage/history.html:55
 #, python-format
 msgid "<a href=\"%(href)s\">%(username)s</a> removed as project %(role_name)s"
-msgstr ""
-"<a href=\"%(href)s\">%(username)s</a> 사용자가 프로젝트의 %(role_name)s 역할"
-"에서 제거됨"
+msgstr "<a href=\"%(href)s\">%(username)s</a> 사용자가 프로젝트의 %(role_name)s "
+"역할에서 제거됨"
 
 #: warehouse/templates/manage/history.html:60
 #, python-format
 msgid "<a href=\"%(href)s\">%(username)s</a> changed to project %(role_name)s"
-msgstr ""
-"<a href=\"%(href)s\">%(username)s</a> 사용자의 역할이 프로젝트 %(role_name)s"
-"로 변경됨"
+msgstr "<a href=\"%(href)s\">%(username)s</a> 사용자의 역할이 프로젝트 %(role_name)"
+"s로 변경됨"
 
 #: warehouse/templates/manage/history.html:62
 msgid "Changed by:"
@@ -3455,18 +3409,16 @@ msgstr "프로젝트 저널"
 msgid ""
 "Each time you or your collaborators update this project, the action is "
 "recorded and displayed here."
-msgstr ""
-"귀하 (또는 공동 작업자)가 이 프로젝트 갱신할 때마다, 그 작업이 기록되고 여기"
-"에 표시됩니다."
+msgstr "귀하 (또는 공동 작업자)가 이 프로젝트 갱신할 때마다, 그 작업이 기록되고 "
+"여기에 표시됩니다."
 
 #: warehouse/templates/manage/journal.html:28
 #, python-format
 msgid ""
 "This feature will be deprecated in the future, replaced by the <a href="
 "\"%(href)s\">security history page</a>."
-msgstr ""
-"이 기능은 향후 사용되지 않을 것이며 <a href=\"%(href)s\">보안 기록 페이지</a>"
-"로 대체될 것입니다."
+msgstr "이 기능은 향후 사용되지 않을 것이며 <a href=\"%(href)s\">보안 기록 페이지</"
+"a>로 대체될 것입니다."
 
 #: warehouse/templates/manage/journal.html:32
 #, python-format
@@ -3525,9 +3477,9 @@ msgid ""
 "account. <a href=\"%(href)s\">Learn more about <abbr title=\"two factor "
 "authentication\">2FA</abbr></a>."
 msgstr ""
-"2단계 인증을 추가해서 계정의 보안 수준을 높여보세요. <a href=\"%(href)s"
-"\"><abbr title=\"two factor authentication\">2FA</abbr>에 대해 더 알아보세요"
-"</a>."
+"2단계 인증을 추가해서 계정의 보안 수준을 높여보세요. <a href=\"%(href)s\""
+"><abbr title=\"two factor authentication\">2FA</abbr>에 대해 더 "
+"알아보세요</a>."
 
 #: warehouse/templates/manage/manage_base.html:30
 #, fuzzy
@@ -3596,8 +3548,7 @@ msgid ""
 "        before adding additional two factor authentication methods to your "
 "account.\n"
 "        "
-msgstr ""
-"2단계 인증을 추가하기 위해서는 먼저 <a href=\"%(href)s\">기본 이메일 주소를 "
+msgstr "2단계 인증을 추가하기 위해서는 먼저 <a href=\"%(href)s\">기본 이메일 주소를 "
 "인증</a>해야 합니다."
 
 #: warehouse/templates/manage/manage_base.html:104
@@ -3610,8 +3561,7 @@ msgid ""
 "        <a href=\"%(href)s\">Verify your primary email address</a>\n"
 "        before enabling two factor authentication on your account.\n"
 "        "
-msgstr ""
-"2단계 인증을 추가하기 위해서는 먼저 <a href=\"%(href)s\">기본 이메일 주소를 "
+msgstr "2단계 인증을 추가하기 위해서는 먼저 <a href=\"%(href)s\">기본 이메일 주소를 "
 "인증</a>해야 합니다."
 
 #: warehouse/templates/manage/manage_base.html:115
@@ -3712,8 +3662,7 @@ msgid ""
 "        Add <abbr title=\"two factor authentication\">2FA</abbr> with "
 "authentication application\n"
 "        "
-msgstr ""
-"인증 앱으로 <abbr title=\"two factor authentication\">2FA</abbr> 추가하기"
+msgstr "인증 앱으로 <abbr title=\"two factor authentication\">2FA</abbr> 추가하기"
 
 #: warehouse/templates/manage/manage_base.html:173
 #, fuzzy
@@ -3734,8 +3683,7 @@ msgstr ""
 msgid ""
 "Enable JavaScript to set up two factor authentication with a security device "
 "(e.g. USB key)"
-msgstr ""
-"인증 장치(예: USB 키)로 2단계 인증을 설정하려면 자바스크립트를 활성화하세요"
+msgstr "인증 장치(예: USB 키)로 2단계 인증을 설정하려면 자바스크립트를 활성화하세요"
 
 #: warehouse/templates/manage/account/webauthn-provision.html:53
 #: warehouse/templates/manage/manage_base.html:185
@@ -3745,9 +3693,9 @@ msgid ""
 "\">Upgrade your browser</a> to set up two factor authentication with a "
 "security device (e.g. USB key)"
 msgstr ""
-"인증 장치(예: USB키)로 2단계 인증을 설정하려면 <a href=\"%(href)s\" title="
-"\"%(title)s\" target=\"_blank\" rel=\"noopener\">브라우저를 업그레이드</a>하"
-"세요"
+"인증 장치(예: USB키)로 2단계 인증을 설정하려면 <a href=\"%(href)s\" title=\""
+"%(title)s\" target=\"_blank\" rel=\"noopener\">브라우저를 "
+"업그레이드</a>하세요"
 
 #: warehouse/templates/manage/manage_base.html:198
 msgid "Your account"
@@ -4043,9 +3991,9 @@ msgid ""
 "started, visit the <a href=\"%(href)s\" target=\"_blank\" rel=\"noopener"
 "\">Python Packaging User Guide</a>"
 msgstr ""
-"아직 PyPI에 어떤 프로젝트도 업로드 하지 않았습니다. 시작하는 방법을 알아보려"
-"면 <a href=\"%(href)s\" target=\"_blank\" rel=\"noopener\">파이썬 패키징 사용"
-"자 가이드</a>를 방문하십시오"
+"아직 PyPI에 어떤 프로젝트도 업로드 하지 않았습니다. 시작하는 방법을 "
+"알아보려면 <a href=\"%(href)s\" target=\"_blank\" rel=\"noopener\">파이썬 "
+"패키징 사용자 가이드</a>를 방문하십시오"
 
 #: warehouse/templates/manage/publishing.html:20
 #: warehouse/templates/manage/publishing.html:51
@@ -4230,8 +4178,8 @@ msgid ""
 "Learn how to upload files on the <a href=\"%(href)s\" title=\"%(title)s\" "
 "target=\"_blank\" rel=\"noopener\">Python Packaging User Guide</a>"
 msgstr ""
-"<a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">"
-"파이썬 패키징 사용자 가이드</a>에서 파일을 어떻게 업로드하는지 배우기"
+"<a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener\""
+">파이썬 패키징 사용자 가이드</a>에서 파일을 어떻게 업로드하는지 배우기"
 
 #: warehouse/templates/manage/release.html:122
 msgid "Release settings"
@@ -4328,8 +4276,8 @@ msgid_plural ""
 "      "
 msgstr[0] ""
 "\n"
-"        삭제 시 %(count)s 개의 파일들과 함께 이 릴리스는 복구할 수없이 삭제됩"
-"니다.\n"
+"        삭제 시 %(count)s 개의 파일들과 함께 이 릴리스는 복구할 수없이 "
+"삭제됩니다.\n"
 "      "
 
 #: warehouse/templates/manage/release.html:171
@@ -4365,9 +4313,9 @@ msgid ""
 "\">post release</a> instead."
 msgstr ""
 "<a href=\"%(libs_io_href)s\" title=\"%(title)s\" target=\"_blank\" rel="
-"\"noopener\">Libraries.io</a> 또는 <a href=\"%(gbq_href)s\" target=\"_blank"
-"\" rel=\"noopener\">Google BigQuery</a>를 통해 당신 프로젝트의 통계 수치를 확"
-"인하세요"
+"\"noopener\">Libraries.io</a> 또는 <a href=\"%(gbq_href)s\" target=\"_blank\""
+" rel=\"noopener\">Google BigQuery</a>를 통해 당신 프로젝트의 통계 수치를 "
+"확인하세요"
 
 #: warehouse/templates/manage/releases.html:20
 #, python-format
@@ -4472,9 +4420,9 @@ msgid ""
 "release</a> instead."
 msgstr ""
 "<a href=\"%(libs_io_href)s\" title=\"%(title)s\" target=\"_blank\" rel="
-"\"noopener\">Libraries.io</a> 또는 <a href=\"%(gbq_href)s\" target=\"_blank"
-"\" rel=\"noopener\">Google BigQuery</a>를 통해 당신 프로젝트의 통계 수치를 확"
-"인하세요"
+"\"noopener\">Libraries.io</a> 또는 <a href=\"%(gbq_href)s\" target=\"_blank\""
+" rel=\"noopener\">Google BigQuery</a>를 통해 당신 프로젝트의 통계 수치를 "
+"확인하세요"
 
 #: warehouse/templates/manage/releases.html:151
 #, python-format
@@ -4662,8 +4610,7 @@ msgstr ""
 #| "Add <abbr title=\"two factor authentication\">2FA</abbr> with "
 #| "authentication application"
 msgid "<abbr title=\"two factor authentication\">2FA</abbr> requirement"
-msgstr ""
-"인증 앱으로 <abbr title=\"two factor authentication\">2FA</abbr> 추가하기"
+msgstr "인증 앱으로 <abbr title=\"two factor authentication\">2FA</abbr> 추가하기"
 
 #: warehouse/templates/manage/settings.html:61
 msgid ""
@@ -5276,9 +5223,9 @@ msgid ""
 "new project, visit the <a href=\"%(href)s\" target=\"_blank\" rel=\"noopener"
 "\">Python Packaging User Guide</a>"
 msgstr ""
-"아직 PyPI에 어떤 프로젝트도 업로드 하지 않았습니다. 시작하는 방법을 알아보려"
-"면 <a href=\"%(href)s\" target=\"_blank\" rel=\"noopener\">파이썬 패키징 사용"
-"자 가이드</a>를 방문하십시오"
+"아직 PyPI에 어떤 프로젝트도 업로드 하지 않았습니다. 시작하는 방법을 "
+"알아보려면 <a href=\"%(href)s\" target=\"_blank\" rel=\"noopener\">파이썬 "
+"패키징 사용자 가이드</a>를 방문하십시오"
 
 #: warehouse/templates/manage/organization/projects.html:149
 #, fuzzy
@@ -5492,8 +5439,8 @@ msgid_plural ""
 "        "
 msgstr[0] ""
 "\n"
-"          이 계정은 현재 %(count)s 개 프로젝트의 <strong>독점 소유자</strong>"
-"입니다.\n"
+"          이 계정은 현재 %(count)s 개 프로젝트의 <strong>독점 "
+"소유자</strong>입니다.\n"
 "        "
 
 #: warehouse/templates/manage/organization/settings.html:184
@@ -5520,8 +5467,8 @@ msgid_plural ""
 "        "
 msgstr[0] ""
 "\n"
-"          계정을 삭제하기 전에 소유권을 이전하거나 프로젝트를 삭제해야 합니"
-"다.\n"
+"          계정을 삭제하기 전에 소유권을 이전하거나 프로젝트를 삭제해야 "
+"합니다.\n"
 "        "
 
 #: warehouse/templates/manage/organization/settings.html:206
@@ -5687,9 +5634,9 @@ msgid ""
 "learn more about <a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" "
 "rel=\"noopener\">installing packages</a>."
 msgstr ""
-"당신은 어떤 프로젝트도 PyPI에 업로드해본 적이 없습니다. 어떻게 시작해야하는"
-"지 배우고싶다면, <a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" "
-"rel=\"noopener\">Pythoh Packaging User Guide</a>를 확인해주세요"
+"당신은 어떤 프로젝트도 PyPI에 업로드해본 적이 없습니다. 어떻게 "
+"시작해야하는지 배우고싶다면, <a href=\"%(href)s\" title=\"%(title)s\" target="
+"\"_blank\" rel=\"noopener\">Pythoh Packaging User Guide</a>를 확인해주세요"
 
 #: warehouse/templates/packaging/detail.html:354
 #, fuzzy
@@ -5766,9 +5713,9 @@ msgid ""
 "enhancement proposal\">PEP</abbr> 301</a>."
 msgstr ""
 "<a href=\"%(libs_io_href)s\" title=\"%(title)s\" target=\"_blank\" rel="
-"\"noopener\">Libraries.io</a> 또는 <a href=\"%(gbq_href)s\" target=\"_blank"
-"\" rel=\"noopener\">Google BigQuery</a>를 통해 당신 프로젝트의 통계 수치를 확"
-"인하세요"
+"\"noopener\">Libraries.io</a> 또는 <a href=\"%(gbq_href)s\" target=\"_blank\""
+" rel=\"noopener\">Google BigQuery</a>를 통해 당신 프로젝트의 통계 수치를 "
+"확인하세요"
 
 #: warehouse/templates/pages/classifiers.html:30
 msgid ""
@@ -5796,8 +5743,8 @@ msgid ""
 "are expected to follow the <a href=\"%(href)s\" title=\"%(title)s\" target="
 "\"_blank\" rel=\"noopener\">PSF Code of Conduct</a>."
 msgstr ""
-"<a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">"
-"파이썬 패키징 사용자 가이드</a>에서 파일을 어떻게 업로드하는지 배우기"
+"<a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener\""
+">파이썬 패키징 사용자 가이드</a>에서 파일을 어떻게 업로드하는지 배우기"
 
 #: warehouse/templates/pages/help.html:31
 #, python-format
@@ -6824,8 +6771,8 @@ msgid ""
 "\"%(file_issue_href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener"
 "\">File an issue</a> and tell us:"
 msgstr ""
-"<a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">"
-"파이썬 패키징 사용자 가이드</a>에서 파일을 어떻게 업로드하는지 배우기"
+"<a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener\""
+">파이썬 패키징 사용자 가이드</a>에서 파일을 어떻게 업로드하는지 배우기"
 
 #: warehouse/templates/pages/help.html:609
 msgid "The total size of your project, in gigabytes"
@@ -6846,9 +6793,9 @@ msgid ""
 "target=\"_blank\" rel=\"noopener\">Python Packaging Advisory Database</a>."
 msgstr ""
 "<a href=\"%(libs_io_href)s\" title=\"%(title)s\" target=\"_blank\" rel="
-"\"noopener\">Libraries.io</a> 또는 <a href=\"%(gbq_href)s\" target=\"_blank"
-"\" rel=\"noopener\">Google BigQuery</a>를 통해 당신 프로젝트의 통계 수치를 확"
-"인하세요"
+"\"noopener\">Libraries.io</a> 또는 <a href=\"%(gbq_href)s\" target=\"_blank\""
+" rel=\"noopener\">Google BigQuery</a>를 통해 당신 프로젝트의 통계 수치를 "
+"확인하세요"
 
 #: warehouse/templates/pages/help.html:621
 #, fuzzy, python-format
@@ -6860,8 +6807,8 @@ msgid ""
 "<a href=\"%(file_issue_href)s\" title=\"%(title)s\" target=\"_blank\" rel="
 "\"noopener\">file an issue</a> with details."
 msgstr ""
-"<a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">"
-"파이썬 패키징 사용자 가이드</a>에서 파일을 어떻게 업로드하는지 배우기"
+"<a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener\""
+">파이썬 패키징 사용자 가이드</a>에서 파일을 어떻게 업로드하는지 배우기"
 
 #: warehouse/templates/pages/help.html:633
 #, python-format
@@ -6918,9 +6865,9 @@ msgid ""
 "\" rel=\"noopener\">file an issue on our tracker</a> to request assistance "
 "with account recovery."
 msgstr ""
-"인증 장치(예: USB키)로 2단계 인증을 설정하려면 <a href=\"%(href)s\" title="
-"\"%(title)s\" target=\"_blank\" rel=\"noopener\">브라우저를 업그레이드</a>하"
-"세요"
+"인증 장치(예: USB키)로 2단계 인증을 설정하려면 <a href=\"%(href)s\" title=\""
+"%(title)s\" target=\"_blank\" rel=\"noopener\">브라우저를 "
+"업그레이드</a>하세요"
 
 #: warehouse/templates/pages/help.html:661
 msgid "If you are using a username and password for uploads:"
@@ -7261,9 +7208,9 @@ msgid ""
 "\"noopener\">Python packaging forum on Discourse</a>."
 msgstr ""
 "<a href=\"%(libs_io_href)s\" title=\"%(title)s\" target=\"_blank\" rel="
-"\"noopener\">Libraries.io</a> 또는 <a href=\"%(gbq_href)s\" target=\"_blank"
-"\" rel=\"noopener\">Google BigQuery</a>를 통해 당신 프로젝트의 통계 수치를 확"
-"인하세요"
+"\"noopener\">Libraries.io</a> 또는 <a href=\"%(gbq_href)s\" target=\"_blank\""
+" rel=\"noopener\">Google BigQuery</a>를 통해 당신 프로젝트의 통계 수치를 "
+"확인하세요"
 
 #: warehouse/templates/pages/help.html:855
 #, python-format
@@ -7293,9 +7240,8 @@ msgstr ""
 msgid ""
 "More information about this list can be found here: <a href=\"%(href)s\">"
 "%(href)s</a>."
-msgstr ""
-"계정에 다시 접근 권한을 얻기 위해서는, PyPI에서 <a href=\"%(href)s\">패스워드"
-"를 재설정</a>하세요."
+msgstr "계정에 다시 접근 권한을 얻기 위해서는, PyPI에서 <a href=\"%(href)s\""
+">패스워드를 재설정</a>하세요."
 
 #: warehouse/templates/pages/help.html:867
 #: warehouse/templates/pages/help.html:871
@@ -7375,8 +7321,7 @@ msgstr "보안 문제 보고"
 msgid ""
 "We take security very seriously and ask that you follow our security policy "
 "carefully."
-msgstr ""
-"보안을 매우 중요하게 생각하며 보안 정책을 신중하게 준수할 것을 요청합니다."
+msgstr "보안을 매우 중요하게 생각하며 보안 정책을 신중하게 준수할 것을 요청합니다."
 
 #: warehouse/templates/pages/security.html:24
 msgid "Important!"
@@ -7385,12 +7330,11 @@ msgstr "중요!"
 #: warehouse/templates/pages/security.html:24
 #, fuzzy
 msgid ""
-"If you believe you've identified a security issue with Warehouse, <strong>DO "
-"NOT</strong> report the issue in any public forum, including (but not "
-"limited to):"
+"If you believe you've identified a security issue with PyPI, <strong>DO NOT</"
+"strong> report the issue in any public forum, including (but not limited to):"
 msgstr ""
-"Warehouse 에 관한 보안 이슈를 발견했을 경우, <strong>절대</strong> 관련 이슈"
-"를 다음과 같은 공개된 포럼에 발표하지 않아야 합니다."
+"Warehouse 에 관한 보안 이슈를 발견했을 경우, <strong>절대</strong> 관련 "
+"이슈를 다음과 같은 공개된 포럼에 발표하지 않아야 합니다."
 
 #: warehouse/templates/pages/security.html:27
 msgid "Our GitHub issue tracker"
@@ -7405,38 +7349,68 @@ msgid "Official or unofficial mailing lists"
 msgstr "공식 또는 비공식 메일링 리스트"
 
 #: warehouse/templates/pages/security.html:35
-#, python-format
-msgid ""
-"Instead, email <a href=\"%(href)s\">security at python dot org</a> directly, "
-"providing as much relevant information as possible."
+msgid "If you've identified a security issue with a project hosted on PyPI"
 msgstr ""
 
 #: warehouse/templates/pages/security.html:36
 #, python-format
 msgid ""
-"Messages may be optionally encrypted with GPG using key fingerprints "
-"available <a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel="
-"\"noopener\">at the Python Security page</a>."
+"Email <a href=\"%(href)s\">security@pypi.org</a>, providing the following "
+"details:"
 msgstr ""
 
 #: warehouse/templates/pages/security.html:38
-msgid "What happens next?"
+msgid "A URL to the project in question"
+msgstr ""
+
+#: warehouse/templates/pages/security.html:39
+msgid "An explanation of what makes the project a security issue"
 msgstr ""
 
 #: warehouse/templates/pages/security.html:40
+#, python-format
+msgid ""
+"If applicable: a link to the problematic lines in the project's "
+"distributions via <a href=\"%(href)s\">inspector.pypi.io</a>"
+msgstr ""
+
+#: warehouse/templates/pages/security.html:42
+msgid ""
+"Valid malware reports may include examples of typo-squatting, dependency "
+"confusion, data exfiltration, obfustication, command/control, etc."
+msgstr ""
+
+#: warehouse/templates/pages/security.html:44
+msgid ""
+"If you've identified a security issue with PyPI itself (not a project hosted "
+"on PyPI)"
+msgstr ""
+
+#: warehouse/templates/pages/security.html:45
+#, python-format
+msgid ""
+"Email <a href=\"%(href)s\">security@pypi.org</a>, providing as much relevant "
+"information as possible, including reproducing steps."
+msgstr ""
+
+#: warehouse/templates/pages/security.html:47
+msgid "What happens next?"
+msgstr ""
+
+#: warehouse/templates/pages/security.html:48
 msgid ""
 "Once you've submitted an issue via email, you should receive an "
 "acknowledgment within 48 hours."
 msgstr ""
 
-#: warehouse/templates/pages/security.html:41
+#: warehouse/templates/pages/security.html:49
 msgid ""
 "Depending on the action to be taken, you may receive further follow-up "
 "emails."
 msgstr ""
 
-#: warehouse/templates/pages/security.html:44
-msgid "This security policy was last updated on March 14, 2018."
+#: warehouse/templates/pages/security.html:52
+msgid "This security policy was last updated on June 2022."
 msgstr ""
 
 #: warehouse/templates/pages/sitemap.html:21
@@ -7481,9 +7455,9 @@ msgid ""
 "The Python Software Foundation raises and distributes funds to improve "
 "Python's packaging ecosystem."
 msgstr ""
-"인증 장치(예: USB키)로 2단계 인증을 설정하려면 <a href=\"%(href)s\" title="
-"\"%(title)s\" target=\"_blank\" rel=\"noopener\">브라우저를 업그레이드</a>하"
-"세요"
+"인증 장치(예: USB키)로 2단계 인증을 설정하려면 <a href=\"%(href)s\" title=\""
+"%(title)s\" target=\"_blank\" rel=\"noopener\">브라우저를 "
+"업그레이드</a>하세요"
 
 #: warehouse/templates/pages/sponsors.html:29
 msgid "Recent projects funded include:"
@@ -7509,9 +7483,9 @@ msgid ""
 "Support Program</a> in 2018"
 msgstr ""
 "<a href=\"%(libs_io_href)s\" title=\"%(title)s\" target=\"_blank\" rel="
-"\"noopener\">Libraries.io</a> 또는 <a href=\"%(gbq_href)s\" target=\"_blank"
-"\" rel=\"noopener\">Google BigQuery</a>를 통해 당신 프로젝트의 통계 수치를 확"
-"인하세요"
+"\"noopener\">Libraries.io</a> 또는 <a href=\"%(gbq_href)s\" target=\"_blank\""
+" rel=\"noopener\">Google BigQuery</a>를 통해 당신 프로젝트의 통계 수치를 "
+"확인하세요"
 
 #: warehouse/templates/pages/sponsors.html:36
 msgid ""
@@ -7529,8 +7503,8 @@ msgid ""
 "\"%(title)s\" target=\"_blank\" rel=\"noopener\">Open Technology Fund</a> in "
 "2019"
 msgstr ""
-"<a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">"
-"파이썬 패키징 사용자 가이드</a>에서 파일을 어떻게 업로드하는지 배우기"
+"<a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener\""
+">파이썬 패키징 사용자 가이드</a>에서 파일을 어떻게 업로드하는지 배우기"
 
 #: warehouse/templates/pages/sponsors.html:40
 msgid "Additional security-focused features for PyPI"
@@ -7550,9 +7524,9 @@ msgid ""
 "2019 and 2020"
 msgstr ""
 "<a href=\"%(libs_io_href)s\" title=\"%(title)s\" target=\"_blank\" rel="
-"\"noopener\">Libraries.io</a> 또는 <a href=\"%(gbq_href)s\" target=\"_blank"
-"\" rel=\"noopener\">Google BigQuery</a>를 통해 당신 프로젝트의 통계 수치를 확"
-"인하세요"
+"\"noopener\">Libraries.io</a> 또는 <a href=\"%(gbq_href)s\" target=\"_blank\""
+" rel=\"noopener\">Google BigQuery</a>를 통해 당신 프로젝트의 통계 수치를 "
+"확인하세요"
 
 #: warehouse/templates/pages/sponsors.html:44
 msgid "Overhauling pip's user experience and dependency resolver"
@@ -7647,9 +7621,8 @@ msgid ""
 "We all love stats, so here are some useful statistics about PyPI. The "
 "statistics page is cached for 24 hours, so don't expect the numbers to be "
 "realtime."
-msgstr ""
-"PyPI에 관한 유용한 통계자료 . 통계 페이지는 24시간 동안 캐시가되어 실시간 정"
-"보가 아닐수 있습니다."
+msgstr "PyPI에 관한 유용한 통계자료 . 통계 페이지는 24시간 동안 캐시가되어 실시간 "
+"정보가 아닐수 있습니다."
 
 #: warehouse/templates/pages/stats.html:30
 msgid "Top projects by total package size"
