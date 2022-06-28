@@ -4501,17 +4501,14 @@ class TestManageTeamSettings:
     def test_save_team(self, db_request, organization_service, enable_organizations):
         team = TeamFactory.create(name="Team Name")
         db_request.POST = MultiDict({"name": "New Team Name"})
+        db_request.route_path = pretend.call_recorder(lambda *a, **kw: "/foo/bar/")
 
         view = views.ManageTeamSettingsViews(team, db_request)
         result = view.save_team()
-        form = result["save_team_form"]
 
-        assert result == {
-            "team": team,
-            "save_team_form": form,
-        }
+        assert isinstance(result, HTTPSeeOther)
+        assert result.headers["Location"] == "/foo/bar/"
         assert team.name == "New Team Name"
-        assert form.name.errors == []
 
     def test_save_team_validation_fails(
         self, db_request, organization_service, enable_organizations

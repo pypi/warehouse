@@ -2176,6 +2176,13 @@ class ManageTeamSettingsViews:
             name = form.name.data
             self.organization_service.rename_team(self.team.id, name)
             self.request.session.flash("Team name updated", queue="success")
+            return HTTPSeeOther(
+                self.request.route_path(
+                    "manage.team.settings",
+                    organization_name=self.team.organization.normalized_name,
+                    team_name=self.team.normalized_name,
+                )
+            )
 
         return {**self.default_response, "save_team_form": form}
 
