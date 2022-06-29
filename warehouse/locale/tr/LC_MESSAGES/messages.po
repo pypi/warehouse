@@ -2,23 +2,24 @@
 # Copyright (C) 2019 PyPA
 # This file is distributed under the same license as the Warehouse project.
 # FIRST AUTHOR <EMAIL@ADDRESS>, 2019.
-# BTaskaya <btaskaya33@gmail.com>, 2019.
-# Eray Erdin <eraygezer.94@gmail.com>, 2019.
-# Behcet <behcet.senturk@protonmail.com>, 2019, 2020.
+# BTaskaya <btaskaya33@gmail.com>, 2019, 2022.
+# Eray Erdin <eraygezer.94@gmail.com>, 2019, 2022.
+# Behcet <behcet.senturk@protonmail.com>, 2019, 2020, 2022.
 # Allan Nordhøy <epost@anotheragency.no>, 2019.
-# Çağıl <cagilulusahin@gmail.com>, 2019.
-# Çağatay Onur Şengör <cagataysengor@gmail.com>, 2020.
+# Çağıl <cagilulusahin@gmail.com>, 2019, 2022.
+# Çağatay Onur Şengör <cagataysengor@gmail.com>, 2020, 2022.
 # Oğuz Ersen <oguzersen@protonmail.com>, 2020.
-# birhat s <birhat@gmail.com>, 2021.
-# turkdevops <turkdevops@gmail.com>, 2021.
+# birhat s <birhat@gmail.com>, 2021, 2022.
+# turkdevops <turkdevops@gmail.com>, 2021, 2022.
 # Tahsin Altay <altay.tahsin@gmail.com>, 2022.
+# Oğuz Ersen <oguz@ersen.moe>, 2022.
 msgid ""
 msgstr ""
 "Project-Id-Version: Warehouse VERSION\n"
 "Report-Msgid-Bugs-To: admin@pypi.org\n"
 "POT-Creation-Date: 2020-01-15 20:11+0200\n"
-"PO-Revision-Date: 2022-05-16 21:14+0000\n"
-"Last-Translator: Tahsin Altay <altay.tahsin@gmail.com>\n"
+"PO-Revision-Date: 2022-06-28 19:42+0000\n"
+"Last-Translator: turkdevops <turkdevops@gmail.com>\n"
 "Language-Team: Turkish <https://hosted.weblate.org/projects/pypa/warehouse/"
 "tr/>\n"
 "Language: tr\n"
@@ -26,7 +27,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Generator: Weblate 4.13-dev\n"
+"X-Generator: Weblate 4.13.1-dev\n"
 "Generated-By: Babel 2.7.0\n"
 
 #: warehouse/views.py:129
@@ -634,7 +635,6 @@ msgstr "Monty Python - The Cheese Shop skeci"
 #: warehouse/templates/pages/help.html:892
 #: warehouse/templates/pages/help.html:893
 #: warehouse/templates/pages/help.html:898
-#: warehouse/templates/pages/security.html:36
 #: warehouse/templates/pages/sponsors.html:33
 #: warehouse/templates/pages/sponsors.html:37
 #: warehouse/templates/pages/sponsors.html:41
@@ -697,11 +697,12 @@ msgid ""
 "contribute/transact?reset=1&id=13\" target=\"_blank\" rel=\"noopener\"> "
 "donating </a> to help us build a more stable and secure platform."
 msgstr ""
-"Bize daha stabil ve güvenli bir platform kurmamız için <a href=\"https://"
-"github.com/pypa/warehouse\" target=\"_blank\" rel=\"noopener\"> katkıda "
+"Bize daha stabil ve güvenli bir platform kurmamız için <a href=\"https"
+"://github.com/pypa/warehouse\" target=\"_blank\" rel=\"noopener\"> katkıda "
 "bulunmayı \n"
-" </a> veya <a href=\"https://psfmember.org/civicrm/contribute/transact?"
-"reset=1&id=13\" target=\"_blank\" rel=\"noopener\"> bağış yapmayı </a> düşün."
+" </a> veya <a href=\"https://psfmember.org/civicrm/contribute/"
+"transact?reset=1&id=13\" target=\"_blank\" rel=\"noopener\"> bağış yapmayı </"
+"a> düşün."
 
 #: warehouse/templates/base.html:24
 msgid ""
@@ -989,8 +990,7 @@ msgstr "Python paket yayımlanmasını Test Python Paket Diziniyle test edin"
 
 #: warehouse/templates/index.html:47
 msgid "Find, install and publish Python packages with the Python Package Index"
-msgstr ""
-"Python Paket Diziniyle Python paketlerini bulun, yükleyin ve yayımlayın"
+msgstr "Python Paket Diziniyle Python paketlerini bulun, yükleyin ve yayımlayın"
 
 #: warehouse/templates/index.html:66
 #, python-format
@@ -1173,8 +1173,8 @@ msgstr ""
 "değişiklik</a> yapmak üzeresiniz.\n"
 "              Eğer kişisel bilgisayarınızda değilseniz, oturumunuz "
 "bittiğinde çıkış yaptığınızdan emin olunuz.\n"
-"              Önümüzdeki saat için sizden doğrulama için şifre "
-"istemeyeceğiz.\n"
+"              Önümüzdeki saat için sizden doğrulama için şifre istemeyeceğiz."
+"\n"
 "              "
 
 #: warehouse/templates/upload.html:25
@@ -1188,8 +1188,8 @@ msgid ""
 "\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">Python "
 "Packaging User Guide</a>."
 msgstr ""
-"PyPI'ye projeleri yüklemek konusunda daha fazla bilgi için <a href=\"%(href)s"
-"\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">Python Paketleme "
+"PyPI'ye projeleri yüklemek konusunda daha fazla bilgi için <a href=\"%(href)"
+"s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">Python Paketleme "
 "Kullanıcı Rehberi</a>'ni ziyaret edin."
 
 #: warehouse/templates/upload.html:28
@@ -1530,9 +1530,9 @@ msgid ""
 "<a href=\"%(href)s\" title=\"%(title)s\" target=\"%(target)s\" rel=\"%(rel)s"
 "\">Upgrade your browser</a> to log in with a security device (e.g. USB key)"
 msgstr ""
-"Bir güvenlik cihazı (örneğin USB anahtarı) ile giriş yapmak için <a href="
-"\"%(href)s\" title=\"%(title)s\" target=\"%(target)s\" rel=\"%(rel)s"
-"\">tarayıcınızı güncelleyin</a>"
+"Bir güvenlik cihazı (örneğin USB anahtarı) ile giriş yapmak için <a href=\""
+"%(href)s\" title=\"%(title)s\" target=\"%(target)s\" rel=\"%(rel)s\""
+">tarayıcınızı güncelleyin</a>"
 
 #: warehouse/templates/accounts/two-factor.html:60
 #, python-format
@@ -1571,8 +1571,8 @@ msgid ""
 msgstr ""
 "<p><strong>Hesabınız için kurtarma kodları oluşturmadınız.</strong></p> "
 "<p>İki faktörlü kimlik doğrulama methodlarına erişiminizi kaybederseniz PyPI "
-"hesabınıza olan erişiminizi tamamen kaybedebilirsiniz. <a href=\"%(href)s"
-"\">Kurtarma kodları ile ilgili yardım alın.</a></p>"
+"hesabınıza olan erişiminizi tamamen kaybedebilirsiniz. <a href=\"%(href)s\""
+">Kurtarma kodları ile ilgili yardım alın.</a></p>"
 
 #: warehouse/templates/email/account-deleted/body.html:18
 #, python-format
@@ -1840,8 +1840,8 @@ msgid ""
 "If this was a mistake, you can email <a href=\"mailto:%(email_address)s\">"
 "%(email_address)s</a> to communicate with the %(site)s administrators."
 msgstr ""
-"Eğer bu bir hataysa, PyPI yöneticileri ile iletişime geçmek için <a href="
-"\"%(href)s\">%(email_address)s</a> e-posta gönderebilirsiniz."
+"Eğer bu bir hataysa, PyPI yöneticileri ile iletişime geçmek için <a href=\""
+"%(href)s\">%(email_address)s</a> e-posta gönderebilirsiniz."
 
 #: warehouse/templates/email/organization-deleted/body.html:37
 #, fuzzy
@@ -2036,8 +2036,8 @@ msgid ""
 "To regain access to your account, <a href=\"%(href)s\">reset your password</"
 "a> on PyPI."
 msgstr ""
-"Hesabınıza tekrar erişim sağlayabilmeniz için lütfen PyPI'da <a href="
-"\"%(href)s\">şifrenizi sıfırlayın</a>."
+"Hesabınıza tekrar erişim sağlayabilmeniz için lütfen PyPI'da <a href=\""
+"%(href)s\">şifrenizi sıfırlayın</a>."
 
 #: warehouse/templates/email/password-compromised/body.html:39
 msgid "How can I contact you?"
@@ -2091,9 +2091,9 @@ msgid ""
 "\"%(have_i_been_pwned_url)s\">HaveIBeenPwned</a> and check your other "
 "passwords and get yourself familiar with good password practices."
 msgstr ""
-"Hesabınıza yeniden erişim sağlamak için PyPI'da <a href=\"%(reset_pw_url)s"
-"\">parolanızı sıfırlayın</a>. Ayrıca <a href=\"%(have_i_been_pwned_url)s"
-"\">HaveIBeenPwned</a> adresini ziyaret edip diğer parolalarınızı da kontrol "
+"Hesabınıza yeniden erişim sağlamak için PyPI'da <a href=\"%(reset_pw_url)s\""
+">parolanızı sıfırlayın</a>. Ayrıca <a href=\"%(have_i_been_pwned_url)s\""
+">HaveIBeenPwned</a> adresini ziyaret edip diğer parolalarınızı da kontrol "
 "etmenizi ve güçlü bir parola oluşturmayla ilgili bilgi almanızı öneriyoruz."
 
 #: warehouse/templates/email/password-compromised-hibp/body.html:40
@@ -2164,8 +2164,8 @@ msgid ""
 "The primary email for your PyPI account <strong>%(username)s</strong> has "
 "been changed from <code>%(old_email)s</code> to <code>%(new_email)s</code>"
 msgstr ""
-"PyPI hesabınız <strong>%(username)s</strong> için birincil e-posta <code>"
-"%(old_email)s</code>'dan <code>%(new_email)s</code> olarak değişti"
+"PyPI hesabınız <strong>%(username)s</strong> için birincil e-posta "
+"<code>%(old_email)s</code>'dan <code>%(new_email)s</code> olarak değişti"
 
 #: warehouse/templates/email/recovery-code-reminder/body.html:19
 #, python-format
@@ -2206,8 +2206,8 @@ msgid ""
 "You can generate recovery codes for your account here:\n"
 "<a href=\"%(href)s\">%(href)s</a>\n"
 msgstr ""
-"Hesabınıza tekrar erişim sağlayabilmeniz için lütfen PyPI'da <a href="
-"\"%(href)s\">şifrenizi sıfırlayın</a>."
+"Hesabınıza tekrar erişim sağlayabilmeniz için lütfen PyPI'da <a href=\""
+"%(href)s\">şifrenizi sıfırlayın</a>."
 
 #: warehouse/templates/email/recovery-code-used/body.html:19
 #, fuzzy, python-format
@@ -2507,10 +2507,10 @@ msgid ""
 "using <a href=\"%(gbq_href)s\" target=\"_blank\" rel=\"noopener\">our public "
 "dataset on Google BigQuery</a>"
 msgstr ""
-"Projelerinizle ilgili istatistikleri <a href=\"%(libs_io_href)s\" title="
-"\"%(title)s\" target=\"_blank\" rel=\"noopener\">Libraries.io</a> veya <a "
-"href=\"%(gbq_href)s\" target=\"_blank\" rel=\"noopener\">Google "
-"BigQuery'deki halka açık veri setimizi</a> kullanarak inceleyin"
+"Projelerinizle ilgili istatistikleri <a href=\"%(libs_io_href)s\" title=\""
+"%(title)s\" target=\"_blank\" rel=\"noopener\">Libraries.io</a> veya <a href="
+"\"%(gbq_href)s\" target=\"_blank\" rel=\"noopener\">Google BigQuery'deki "
+"halka açık veri setimizi</a> kullanarak inceleyin"
 
 #: warehouse/templates/includes/accounts/profile-actions.html:30
 #, python-format
@@ -2520,9 +2520,9 @@ msgid ""
 "by using <a href=\"%(gbq_href)s\" target=\"_blank\" rel=\"noopener\">our "
 "public dataset on Google BigQuery</a>"
 msgstr ""
-"%(username)s kullanıcısının projelerine ait istatistikleri <a href="
-"\"%(libs_io_href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener"
-"\">Libraries.io</a> veya <a href=\"%(gbq_href)s\" target=\"_blank\" rel="
+"%(username)s kullanıcısının projelerine ait istatistikleri <a href=\""
+"%(libs_io_href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener\""
+">Libraries.io</a> veya <a href=\"%(gbq_href)s\" target=\"_blank\" rel="
 "\"noopener\">Google BigQuery'deki halka açık veri setimizi</a> kullanarak "
 "inceleyin"
 
@@ -2534,8 +2534,8 @@ msgid ""
 "\" rel=\"noopener\">Python Packaging User Guide</a>"
 msgstr ""
 "PyPI'a henüz bir proje yüklemediniz. Nasıl başlayacağınızı öğrenmek için <a "
-"href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener"
-"\">Python Paketleme Kullanıcı Rehberi</a>'ni ziyaret edin"
+"href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener\""
+">Python Paketleme Kullanıcı Rehberi</a>'ni ziyaret edin"
 
 #: warehouse/templates/includes/accounts/profile-callout.html:23
 #, python-format
@@ -2630,8 +2630,8 @@ msgid ""
 "dataset on Google BigQuery</a>"
 msgstr ""
 "Bu proje istatistiklerini <a href=\"%(libs_io_href)s\" title=\"%(title)s\" "
-"target=\"_blank\" rel=\"noopener\">Libraries.io</a>, yahut <a href="
-"\"%(gbq_href)s\" target=\"_blank\" rel=\"noopener\">Google BigQuery üzerinde "
+"target=\"_blank\" rel=\"noopener\">Libraries.io</a>, yahut <a href=\""
+"%(gbq_href)s\" target=\"_blank\" rel=\"noopener\">Google BigQuery üzerinde "
 "ki açık verisetimiz</a> ile görüntüleyin"
 
 #: warehouse/templates/includes/packaging/project-data.html:74
@@ -3005,8 +3005,8 @@ msgid ""
 "Authentication application (<abbr title=\"time-based one-time password"
 "\">TOTP</abbr>)"
 msgstr ""
-"Kimlik doğrulama uygulaması (<abbr title=\"time-based one-time password"
-"\">TOTP</abbr>)"
+"Kimlik doğrulama uygulaması (<abbr title=\"time-based one-time password\""
+">TOTP</abbr>)"
 
 #: warehouse/templates/manage/account.html:491
 msgid "Recovery code"
@@ -3294,8 +3294,8 @@ msgid ""
 "<a href=\"%(transfer_href)s\">transfer ownership</a> or <a href="
 "\"%(delete_href)s\">delete project</a>"
 msgstr ""
-"<a href=\"%(transfer_href)s\">devret</a> veya <a href=\"%(delete_href)s"
-"\">kaldır</a>"
+"<a href=\"%(transfer_href)s\">devret</a> veya <a href=\"%(delete_href)s\""
+">kaldır</a>"
 
 #: warehouse/templates/manage/account.html:714
 #: warehouse/templates/manage/organization/settings.html:157
@@ -3562,8 +3562,8 @@ msgid ""
 "authentication\">2FA</abbr></a>."
 msgstr ""
 "Çift faktörlü kimlik doğrulama hesabınıza ilave bir güvenlik duvarı "
-"eklemektedir. <a href=\"%(href)s\"><abbr title=\"two factor authentication"
-"\">2FA</abbr> ile ilgili daha fazla bilgi edinin</a>."
+"eklemektedir. <a href=\"%(href)s\"><abbr title=\"two factor authentication\""
+">2FA</abbr> ile ilgili daha fazla bilgi edinin</a>."
 
 #: warehouse/templates/manage/manage_base.html:30
 #, fuzzy
@@ -4553,8 +4553,8 @@ msgid ""
 "\"%(title)s\" target=\"_blank\" rel=\"noopener\">Python Packaging User "
 "Guide</a>"
 msgstr ""
-"Nasıl yeni bir sürüm oluşturacağınızı <a href=\"%(href)s\" title=\"%(title)s"
-"\" target=\"_blank\" rel=\"noopener\">Python Paketleme Kullanıcı Kılavuzu</"
+"Nasıl yeni bir sürüm oluşturacağınızı <a href=\"%(href)s\" title=\"%(title)"
+"s\" target=\"_blank\" rel=\"noopener\">Python Paketleme Kullanıcı Kılavuzu</"
 "a> üzerinde öğrenin"
 
 #: warehouse/templates/manage/roles.html:18
@@ -4725,8 +4725,8 @@ msgstr ""
 #| "authentication application:"
 msgid "<abbr title=\"two factor authentication\">2FA</abbr> requirement"
 msgstr ""
-"Kimlik doğrulama uygulaması ile <abbr title=\"2-aşamalı kimlik doğrulama"
-"\">2FA</abbr>' yı ayarlamak için:"
+"Kimlik doğrulama uygulaması ile <abbr title=\"2-aşamalı kimlik doğrulama\""
+">2FA</abbr>' yı ayarlamak için:"
 
 #: warehouse/templates/manage/settings.html:61
 msgid ""
@@ -4788,8 +4788,8 @@ msgstr ""
 "href=\"%(setup_args_href)s\" rel=\"noopener\" target=\"_blank\"><code>setup."
 "py</code> dosyasındaki <code>setup()</code> fonksiyonun argümanlarını</a> "
 "kullanın. Bu alanları güncellemek eski sürümlere ait üst-bilgiyi "
-"değiştirmeyecektir. Ayrıca bu alanlarda tam destek istiyorsanız <a href="
-"\"%(twine_docs_href)s\" rel=\"noopener\" target=\"_blank\">Twine</a> ile "
+"değiştirmeyecektir. Ayrıca bu alanlarda tam destek istiyorsanız <a href=\""
+"%(twine_docs_href)s\" rel=\"noopener\" target=\"_blank\">Twine</a> ile "
 "yükleme yapmak <strong>zorundasınız</strong>. Daha fazla yardım için <a href="
 "\"%(distribution_href)s\" rel=\"noopener\" target=\"_blank\">Python "
 "Paketleme Kullanıcı Kılavuzunu</a> inceleyin."
@@ -5056,8 +5056,8 @@ msgid ""
 "multiple projects to PyPI, you can set up your <code>%(filename)s</code> "
 "file like this:"
 msgstr ""
-"Örneğin, PyPI' a birden fazla proje yüklemek için <a href=\"%(href)s"
-"\">Twine</a> kullanıyorsanız, <code>%(filename)s</code> dosyanızı şu şekilde "
+"Örneğin, PyPI' a birden fazla proje yüklemek için <a href=\"%(href)s\""
+">Twine</a> kullanıyorsanız, <code>%(filename)s</code> dosyanızı şu şekilde "
 "ayarlayabilirsiniz:"
 
 #: warehouse/templates/manage/token.html:106
@@ -5307,8 +5307,8 @@ msgid ""
 "\">Google Titan</a> and <a href=\"%(thetis_href)s\" title=\"%(title)s\" "
 "target=\"_blank\" rel=\"noopener\">Thetis</a>."
 msgstr ""
-"En popüler <em>USB anahtarları</em> şunları içerir: <a href=\"%(yubico_href)s"
-"\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">Yubikey</a>, <a "
+"En popüler <em>USB anahtarları</em> şunları içerir: <a href=\"%(yubico_href)"
+"s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">Yubikey</a>, <a "
 "href=\"%(titan_href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener"
 "\">Google Titan</a> ve <a href=\"%(thetis_href)s\" title=\"%(title)s\" "
 "target=\"_blank\" rel=\"noopener\">Thetis</a>."
@@ -5341,8 +5341,8 @@ msgid ""
 "\"noopener\">FIDO specification</a> and a <a href=\"%(mozilla_href)s\" title="
 "\"%(title)s\" target=\"_blank\" rel=\"noopener\">compatible browser</a>."
 msgstr ""
-"<strong>Sorun mu var?</strong> Aygıtınızın <a href=\"%(fido_href)s\" title="
-"\"%(title)s\" target=\"_blank\" rel=\"noopener\">FIDO gereksinimlerini</a> "
+"<strong>Sorun mu var?</strong> Aygıtınızın <a href=\"%(fido_href)s\" title=\""
+"%(title)s\" target=\"_blank\" rel=\"noopener\">FIDO gereksinimlerini</a> "
 "uyguladığından ve <a href=\"%(mozilla_href)s\" title=\"%(title)s\" target="
 "\"_blank\" rel=\"noopener\">uygun bir tarayıcı</a> kullandığınızdan emin "
 "olun."
@@ -5799,8 +5799,8 @@ msgid ""
 "rel=\"noopener\">installing packages</a>."
 msgstr ""
 "Platformunuz için dosyayı indirin. Hangisini seçeceğinizi bilmiyorsanız, <a "
-"href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener"
-"\">paket yüklemeleri</a> hakkında daha fazla bilgi edinin."
+"href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener\""
+">paket yüklemeleri</a> hakkında daha fazla bilgi edinin."
 
 #: warehouse/templates/packaging/detail.html:354
 #, fuzzy
@@ -5900,8 +5900,8 @@ msgstr ""
 "title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">Python Paketleme "
 "Kullanıcı Rehberi</a> adresinden öğrenebilirsiniz. Özgün sınıflandırma "
 "uzlaşımını okumak için <a href=\"%(pep301_href)s\" title=\"%(title)s\" "
-"target=\"_blank\" rel=\"noopener\"><abbr title=\"Python Geliştirme Önerisi"
-"\">PEP</abbr> 301</a>'e başvurun."
+"target=\"_blank\" rel=\"noopener\"><abbr title=\"Python Geliştirme Önerisi\""
+">PEP</abbr> 301</a>'e başvurun."
 
 #: warehouse/templates/pages/classifiers.html:30
 msgid ""
@@ -5927,8 +5927,8 @@ msgid ""
 "\"_blank\" rel=\"noopener\">PSF Code of Conduct</a>."
 msgstr ""
 "Geri bildirim gönderen, sorunları bildiren veya Warehouse'a katkıda bulunan "
-"tüm kullanıcıların <a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank"
-"\" rel=\"noopener\">PSF Davranış Kurallarını</a> izlemesi beklenmektedir."
+"tüm kullanıcıların <a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\""
+" rel=\"noopener\">PSF Davranış Kurallarını</a> izlemesi beklenmektedir."
 
 #: warehouse/templates/pages/help.html:31
 #, python-format
@@ -5939,9 +5939,9 @@ msgid ""
 "regain access in that event.."
 msgstr ""
 "Eğer %(method)s kaybettiyseniz ve artık oturum açamıyorsanız, "
-"<strong>hesabınıza olan erişiminizi kalıcı olarak kaybedebilirsiniz</strong>."
-"Bu yüzden <a href=\"#recoverycodes\">kurtarma kodlar</a> oluşturmalı ve "
-"saklamalısınız, böylece bahsi geçen durumlarda erişiminizi tekrar "
+"<strong>hesabınıza olan erişiminizi kalıcı olarak kaybedebilirsiniz</"
+"strong>.Bu yüzden <a href=\"#recoverycodes\">kurtarma kodlar</a> oluşturmalı "
+"ve saklamalısınız, böylece bahsi geçen durumlarda erişiminizi tekrar "
 "kazanabilirsiniz.."
 
 #: warehouse/templates/pages/help.html:37
@@ -5961,8 +5961,8 @@ msgid ""
 "href=\"#account-recovery\">with account recovery</a>."
 msgstr ""
 "Hesabınızda tanımlı iki faktörlü doğrulama metodlarının erişimini ve <a href="
-"\"#recoverycodes\">kurtarma kodlarınızı</a> kaybettiyseniz, <a href="
-"\"#account-recovery\">hesap kurtarma</a> için yardım talep edebilirsiniz."
+"\"#recoverycodes\">kurtarma kodlarınızı</a> kaybettiyseniz, <a href"
+"=\"#account-recovery\">hesap kurtarma</a> için yardım talep edebilirsiniz."
 
 #: warehouse/templates/pages/help.html:52
 msgid "What's a package, project, or release?"
@@ -6074,8 +6074,7 @@ msgstr "PyPI parolamı unuttum. Bana yardım edebilir misiniz?"
 
 #: warehouse/templates/pages/help.html:76
 msgid "I've lost access to my PyPI account. Can you help me?"
-msgstr ""
-"PyPI hesabıma olan erişimimi kaybettim. Bana yardımcı olabilir misiniz?"
+msgstr "PyPI hesabıma olan erişimimi kaybettim. Bana yardımcı olabilir misiniz?"
 
 #: warehouse/templates/pages/help.html:77
 msgid ""
@@ -6272,11 +6271,11 @@ msgid ""
 "        "
 msgstr ""
 "\n"
-"          <p>PyPI'de bulunan yazılımları tanımlamak için \"project"
-"\" (proje), \"release\" (sürüm), \"file\" (dosya) ve \"package\" (paket) "
-"gibi bir dizi terim kullanıyoruz. Bazen bu terimler kafa karıştırıcı "
-"olabilir, çünkü başka içeriklerde farklı şeyleri tanımlamak için "
-"kullanılabilirler. PyPI'da bunları şu şekilde kullanıyoruz:</p>\n"
+"          <p>PyPI'de bulunan yazılımları tanımlamak için \"project\" (proje)"
+", \"release\" (sürüm), \"file\" (dosya) ve \"package\" (paket) gibi bir dizi "
+"terim kullanıyoruz. Bazen bu terimler kafa karıştırıcı olabilir, çünkü başka "
+"içeriklerde farklı şeyleri tanımlamak için kullanılabilirler. PyPI'da "
+"bunları şu şekilde kullanıyoruz:</p>\n"
 "          <p>PY'daki bir \"proje\", sürümler ve dosyalar ve bunlar hakkında "
 "bilgiler koleksiyonuna verilen isimdir. PyPI'daki projeler Python "
 "topluluğunun diğer üyeleri tarafından  hazırlanır ve paylaşılır; böylece "
@@ -6288,8 +6287,8 @@ msgstr ""
 "           <p> PyPI'de \"paket\" olarak da bilinen bir \"dosya\", indirip "
 "yükleyebileceğiniz bir şeydir. Farklı donanım, işletim sistemleri ve dosya "
 "biçimleri nedeniyle, bir sürümün içinde kaynak kodu veya binary bir <a href="
-"\"%(wheel_href)s\">wheel</a> gibi arşivler içeren çeşitli dosyalar "
-"(paketler)  bulunabilir. </p>\n"
+"\"%(wheel_href)s\">wheel</a> gibi arşivler içeren çeşitli dosyalar (paketler)"
+"  bulunabilir. </p>\n"
 "        "
 
 #: warehouse/templates/pages/help.html:210
@@ -6301,11 +6300,11 @@ msgid ""
 "\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">Python Packaging "
 "User Guide</a>."
 msgstr ""
-"PyPI' dan bir dosyanın nasıl yükleneceğini öğrenmek için lütfen <a href="
-"\"%(user_guide_href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener"
-"\">Python Packaging User Guide</a> üzerinde ki <a href="
-"\"%(installation_href)s\" title=\"%(title)s\" target=\"_blank\" rel="
-"\"noopener\">kurulum rehberine</a> göz atın."
+"PyPI' dan bir dosyanın nasıl yükleneceğini öğrenmek için lütfen <a href=\""
+"%(user_guide_href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener\""
+">Python Packaging User Guide</a> üzerinde ki <a href=\"%(installation_href)"
+"s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">kurulum "
+"rehberine</a> göz atın."
 
 #: warehouse/templates/pages/help.html:217
 #, python-format
@@ -6330,8 +6329,8 @@ msgid ""
 "classifiers."
 msgstr ""
 "Sınıflandırıcılar PyPI üzerinde ki projeleri kategorize etmek amacıyla "
-"kullanılıyorlar. Daha fazla bilgi için lütfen <a href=\"%(href)s"
-"\">sınıflandırıcılar</a> sayfasına bakın."
+"kullanılıyorlar. Daha fazla bilgi için lütfen <a href=\"%(href)s\""
+">sınıflandırıcılar</a> sayfasına bakın."
 
 #: warehouse/templates/pages/help.html:231
 #, fuzzy, python-format
@@ -6350,8 +6349,8 @@ msgid ""
 msgstr ""
 "An itibari ile tüm taraflar için açık ve adil olan bu idari görevi "
 "gerçekleştirebilen herhangi bir süreç bulunmamaktadır. Lakin bir tanesi <a "
-"href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener"
-"\"><abbr title=\"Python enhancement proposal\">PEP</abbr> 541</a> uyarınca "
+"href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener\""
+"><abbr title=\"Python enhancement proposal\">PEP</abbr> 541</a> uyarınca "
 "geliştirilmektedir."
 
 #: warehouse/templates/pages/help.html:238
@@ -6391,8 +6390,8 @@ msgid ""
 "It also reduces the viability of spam attacks to create many accounts in an "
 "automated fashion."
 msgstr ""
-"Bu politika, geliştirici erişilebilirliği ile ilgili olan <a href=\"%(href)s"
-"\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener\"> <abbr title="
+"Bu politika, geliştirici erişilebilirliği ile ilgili olan <a href=\"%(href)"
+"s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener\"> <abbr title="
 "\"Python güçlendirme teklifi\">PEP</abbr> 541</a> 'nin temel politikasını "
 "uygulamamızı sağlayacak. Ayrıca, otomatik olarak bir çok hesap oluşturmaya "
 "yönelik spam saldırılarının uygulanabilirliğini de azaltacak."
@@ -6493,8 +6492,8 @@ msgstr ""
 "<p> 2 faktörlü kimlik doğrulama (2FA), hesabınızda oturum açarken, fazladan "
 "iki şey isteyerek hesabınızı daha güvenli hale getirir: <em>bildiğiniz bir "
 "şey</em> ve <em>size ait olan bir şey</em>. </p> <p> \"Bildiğiniz bir şey\" "
-"kavramı PyPI için kullanıcı adınız ve parolanız iken, \"size ait olan bir şey"
-"\" kavramı <a href=\"#totp\">geçici kod üreten bir kimlik doğrulama "
+"kavramı PyPI için kullanıcı adınız ve parolanız iken, \"size ait olan bir "
+"şey\" kavramı <a href=\"#totp\">geçici kod üreten bir kimlik doğrulama "
 "uygulaması</a>, yahut <a href=\"#utfkey\">güvenlik cihazı</a> (genelde USB "
 "anahtar) olabilir. </p> <p> PyPI hesabınızda 2-aşamalı kimlik doğrulama "
 "sistemi kullanmanızı önemle tavsiye ediyoruz. </p> <p> Tarayıcı üzerinden "
@@ -6514,8 +6513,8 @@ msgid ""
 "target=\"_blank\" rel=\"noopener\"><abbr title=\"time-based one-time password"
 "\">TOTP</abbr> standard</a>."
 msgstr ""
-"PyPI kullanıcıları <a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank"
-"\" rel=\"noopener\"><abbr title=\"zaman bazlı tek seferlik parola\">TOTP</"
+"PyPI kullanıcıları <a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\""
+" rel=\"noopener\"><abbr title=\"zaman bazlı tek seferlik parola\">TOTP</"
 "abbr> standardı</a>' nı destekleyen herhangi bir kimlik doğrulama uygulaması "
 "ile 2-aşamalı kimlik doğrulama sistemini kurabilirler ."
 
@@ -6591,16 +6590,16 @@ msgid ""
 "To set up <abbr title=\"two factor authentication\">2FA</abbr> with an "
 "authentication application:"
 msgstr ""
-"Kimlik doğrulama uygulaması ile <abbr title=\"2-aşamalı kimlik doğrulama"
-"\">2FA</abbr>' yı ayarlamak için:"
+"Kimlik doğrulama uygulaması ile <abbr title=\"2-aşamalı kimlik doğrulama\""
+">2FA</abbr>' yı ayarlamak için:"
 
 #: warehouse/templates/pages/help.html:368
 msgid ""
 "Open an authentication (<abbr title=\"time-based one-time password\">TOTP</"
 "abbr>) application"
 msgstr ""
-"Bir kimlik doğrulama (<abbr title=\"time-based one-time password\">TOTP</"
-"abbr>) uygulaması açın"
+"Bir kimlik doğrulama (<abbr title=\"time-based one-time password\""
+">TOTP</abbr>) uygulaması açın"
 
 #: warehouse/templates/pages/help.html:369
 msgid ""
@@ -6609,8 +6608,8 @@ msgid ""
 "application\""
 msgstr ""
 "PyPI hesabınıza giriş yapın, hesap ayarlarına gidin ve \"Bir kimlik "
-"doğrulama uygulaması ile <abbr title=\"2-aşamalı doğrulama\">2FA</abbr> ekle"
-"\" seçeneğini seçin"
+"doğrulama uygulaması ile <abbr title=\"2-aşamalı doğrulama\">2FA</abbr> "
+"ekle\" seçeneğini seçin"
 
 #: warehouse/templates/pages/help.html:370
 msgid ""
@@ -6701,8 +6700,8 @@ msgid ""
 "To use a USB key that adheres to the <a href=\"%(href)s\" title=\"%(title)s"
 "\" target=\"_blank\" rel=\"noopener\">FIDO U2F specification</a>:"
 msgstr ""
-"<a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener"
-"\">FIDO U2F özelliği</a>' ne uygun bir USB anahtar kullanmak için:"
+"<a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener\""
+">FIDO U2F özelliği</a>' ne uygun bir USB anahtar kullanmak için:"
 
 #: warehouse/templates/pages/help.html:396
 #, python-format
@@ -6714,10 +6713,10 @@ msgid ""
 "\">Thetis</a>."
 msgstr ""
 "Popüler anahtarlar: <a href=\"%(yubikey_href)s\" title=\"%(title)s\" target="
-"\"_blank\" rel=\"noopener\">Yubikey</a>, <a href=\"%(titan_href)s\" title="
-"\"%(title)s\" target=\"_blank\" rel=\"noopener\">Google Titan</a> and <a "
-"href=\"%(thetis_href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener"
-"\">Thetis</a>."
+"\"_blank\" rel=\"noopener\">Yubikey</a>, <a href=\"%(titan_href)s\" title=\""
+"%(title)s\" target=\"_blank\" rel=\"noopener\">Google Titan</a> and <a href="
+"\"%(thetis_href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener\""
+">Thetis</a>."
 
 #: warehouse/templates/pages/help.html:403
 msgid ""
@@ -6746,13 +6745,13 @@ msgid ""
 msgstr ""
 "\n"
 "          <li>PyPI hesabınıza girin, hesap ayarlarına gidin, ve \"Güvenlik "
-"cihazı (örneğin USB anahtarı) ile <abbr title=\"two factor authentication"
-"\">2FA</abbr> ekleyin\" seçeneğini seçin</li>\n"
+"cihazı (örneğin USB anahtarı) ile <abbr title=\"two factor authentication\""
+">2FA</abbr> ekleyin\" seçeneğini seçin</li>\n"
 "          <li>Sonra anahtara bir isim verin.Bu gerekli çünkü hesabınıza "
 "birden fazla güvenlik cihazı ekleyebilirsiniz.</li>\n"
 "          <li>\"Güvenlik cihazını ayarla\" butonuna tıklayın</li>\n"
-"          <li>Tarayıcınızda gösterildiği şekilde USB anahtarı yerleştirin</"
-"li>\n"
+"          <li>Tarayıcınızda gösterildiği şekilde USB anahtarı "
+"yerleştirin</li>\n"
 "          "
 
 #: warehouse/templates/pages/help.html:417
@@ -6784,8 +6783,8 @@ msgid ""
 "target=\"_blank\" rel=\"noopener\">devices that are FIDO compliant</a>, and "
 "can therefore be used with PyPI."
 msgstr ""
-"<a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener"
-"\">FIDO uyumlu cihazların</a> kullanımı ve desteği git gide büyümektedir, ve "
+"<a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener\""
+">FIDO uyumlu cihazların</a> kullanımı ve desteği git gide büyümektedir, ve "
 "bu cihazlar PyPI ile kullanılabilir."
 
 #: warehouse/templates/pages/help.html:437
@@ -6821,9 +6820,9 @@ msgid ""
 "or <a href=\"#utfkey\">security device</a>, you can use these codes to sign "
 "into PyPI."
 msgstr ""
-"Eğer <a href=\"#totp\">kimlik doğrulama cihazınıza</a> yahut <a href="
-"\"#utfkey\">güvenlik cihazınıza</a> erişiminizi kaybederseniz, PyPI'da "
-"oturum açmak için bu kodları kullanabilirsiniz."
+"Eğer <a href=\"#totp\">kimlik doğrulama cihazınıza</a> yahut <a href=\"#"
+"utfkey\">güvenlik cihazınıza</a> erişiminizi kaybederseniz, PyPI'da oturum "
+"açmak için bu kodları kullanabilirsiniz."
 
 #: warehouse/templates/pages/help.html:455
 msgid ""
@@ -6832,11 +6831,11 @@ msgid ""
 "\">security device</a> and should only be used for recovery. After using a "
 "recovery code to sign in, it becomes inactive."
 msgstr ""
-"Kurtarma kodları <strong>tek seferliktir</strong>. Yapı olarak <a href="
-"\"#totp\">kimlik doğrulama uygulamaları</a> yahut <a href=\"#utfkey"
-"\">güvenlik cihazlarının</a> yerine geçmezler ve sadece hesap kurtarma "
-"işlemi için kullanılmalıdırlar. Bir kurtarma kodu kullanıldıktan sonra "
-"inaktif hale gelir ve tekrar kullanılamaz."
+"Kurtarma kodları <strong>tek seferliktir</strong>. Yapı olarak <a href=\"#"
+"totp\">kimlik doğrulama uygulamaları</a> yahut <a href=\"#utfkey\">güvenlik "
+"cihazlarının</a> yerine geçmezler ve sadece hesap kurtarma işlemi için "
+"kullanılmalıdırlar. Bir kurtarma kodu kullanıldıktan sonra inaktif hale "
+"gelir ve tekrar kullanılamaz."
 
 #: warehouse/templates/pages/help.html:461
 msgid "To provision recovery codes:"
@@ -6913,8 +6912,8 @@ msgid ""
 "        "
 msgstr ""
 "\n"
-"          <p>PyPI' a <strong>paket yüklerken</strong> normal yöntemler ile "
-"(kullanıcı adı ve parola) kimlik doğrulamaya alternatif olarak API "
+"          <p>PyPI' a <strong>paket yüklerken</strong> normal yöntemler ile ("
+"kullanıcı adı ve parola) kimlik doğrulamaya alternatif olarak API "
 "belirteçleri kullanabilirsiniz.</p>\n"
 "          <p>PyPI hesabınızın tamamını kapsayıcı bir belirteç "
 "oluşturabilirsiniz, bu durumda belirteç hesabınızla ilişkili tüm projeler "
@@ -6972,12 +6971,12 @@ msgid ""
 "\"noopener\"><code>.travis.yml</code> if you are using Travis</a>)."
 msgstr ""
 "Bu değerleri düzenlediğiniz yer, kullanım alışkanlığınıza göre değişiklik "
-"gösterebilir. Örneğin, bazı kullanıcılar <a href=\"%(pypirc_href)s\" title="
-"\"%(title)s\" target=\"_blank\" rel=\"noopener\"><code>.pypirc</code> "
+"gösterebilir. Örneğin, bazı kullanıcılar <a href=\"%(pypirc_href)s\" title=\""
+"%(title)s\" target=\"_blank\" rel=\"noopener\"><code>.pypirc</code> "
 "dosyalarını </a> düzenlemeleri gerekirken, öbür kullanıcıların CI "
-"konfigürasyon dosyalarını güncellemeleri gerekebilir (mesela <a href="
-"\"%(travis_href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener"
-"\"><code>travis.yml</code> Travis kullanan kullanıcılar </a>)."
+"konfigürasyon dosyalarını güncellemeleri gerekebilir (mesela <a href=\""
+"%(travis_href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener\""
+"><code>travis.yml</code> Travis kullanan kullanıcılar </a>)."
 
 #: warehouse/templates/pages/help.html:505
 msgid ""
@@ -7017,10 +7016,10 @@ msgid ""
 "\">bandersnatch project</a> is the recommended solution. Note that the "
 "storage requirements for a PyPI mirror would exceed 1 terabyte—and growing!"
 msgstr ""
-"PyPI' ın kendinize ait bir kopyası ile çalışmak istiyorsanız, <a href="
-"\"%(href)s\">bandersnatch projesi</a> iyi bir çözüm olabilir. Yalnız "
-"unutmayın ki PyPI'ın bir kopyasının ihtiyacı olan depolama gereksinimi 1 "
-"terabyte'dan daha fazladır ve anlık olarak artmaya devam etmektedir!"
+"PyPI' ın kendinize ait bir kopyası ile çalışmak istiyorsanız, <a href=\""
+"%(href)s\">bandersnatch projesi</a> iyi bir çözüm olabilir. Yalnız unutmayın "
+"ki PyPI'ın bir kopyasının ihtiyacı olan depolama gereksinimi 1 terabyte'dan "
+"daha fazladır ve anlık olarak artmaya devam etmektedir!"
 
 #: warehouse/templates/pages/help.html:527
 #, fuzzy, python-format
@@ -7056,8 +7055,8 @@ msgid ""
 "\"%(title)s\" target=\"_blank\" rel=\"noopener\">download usage statistics</"
 "a> via our public dataset on Google BigQuery."
 msgstr ""
-"PyPI veri indirme, kullanım istatistiklerinizi <a href=\"%(href)s\" title="
-"\"%(title)s\" target=\"_blank\" rel=\"noopener\">Google BigQuery üzerinde "
+"PyPI veri indirme, kullanım istatistiklerinizi <a href=\"%(href)s\" title=\""
+"%(title)s\" target=\"_blank\" rel=\"noopener\">Google BigQuery üzerinde "
 "bulunan açık verisetimizi kullanarak analiz edebilirsiniz</a>."
 
 #: warehouse/templates/pages/help.html:532
@@ -7076,11 +7075,11 @@ msgstr ""
 "<a href=\"%(libs_io_href)s\" title=\"%(title)s\" target=\"_blank\" rel="
 "\"noopener\">Libraries.io PyPI projeleri için istatistikler sağlamaktadır</"
 "a> (<a href=\"%(libs_io_example_href)s\" title=\"%(title)s\" target=\"_blank"
-"\" rel=\"noopener\">example</a>, <a href=\"%(libs_io_api_href)s\" title="
-"\"%(title)s\" target=\"_blank\" rel=\"noopener\">API</a>) bu istatistiklere "
-"GitHub stars and forks sayıları ve, bağımlılık takibi (<a href="
-"\"%(in_progress_href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener"
-"\">şuan geliştirme aşamasında</a>), ve <a href=\"%(other_factors_href)s\" "
+"\" rel=\"noopener\">example</a>, <a href=\"%(libs_io_api_href)s\" title=\""
+"%(title)s\" target=\"_blank\" rel=\"noopener\">API</a>) bu istatistiklere "
+"GitHub stars and forks sayıları ve, bağımlılık takibi (<a href=\""
+"%(in_progress_href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener\""
+">şuan geliştirme aşamasında</a>), ve <a href=\"%(other_factors_href)s\" "
 "title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">diğer ilgili "
 "faktörler</a> dahildir."
 
@@ -7132,8 +7131,8 @@ msgid ""
 "any major version from 2.5 to present."
 msgstr ""
 "Projenin adı 2.5'ten bugüne yayınlanmış ana sürümlerden birinde yer alan bir "
-"<a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener"
-"\">Python Standart Kütüphanesi</a> modülü ile çakışıyor."
+"<a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener\""
+">Python Standart Kütüphanesi</a> modülü ile çakışıyor."
 
 #: warehouse/templates/pages/help.html:554
 msgid ""
@@ -7148,9 +7147,9 @@ msgid ""
 "%(correct_code)s</code>, and should not surprise the user with a malicious "
 "package."
 msgstr ""
-"Proje ismi PyPI yöneticileri tarafından yasaklanmıştır. Örnek olarak, <code>"
-"%(incorrect_code)s</code> <code>%(correct_code)s</code> için genel bir yazım "
-"hatasıdır, ve kötü amaçlı bir paket kullanıcıyı şaşırtmamalıdır."
+"Proje ismi PyPI yöneticileri tarafından yasaklanmıştır. Örnek olarak, "
+"<code>%(incorrect_code)s</code> <code>%(correct_code)s</code> için genel bir "
+"yazım hatasıdır, ve kötü amaçlı bir paket kullanıcıyı şaşırtmamalıdır."
 
 #: warehouse/templates/pages/help.html:556
 msgid ""
@@ -7231,8 +7230,8 @@ msgid ""
 "set the <code>long_description_content_type</code> in <code>setup.py</code> "
 "to the alternate format."
 msgstr ""
-"Varsayılan olarak yükleme işleminin açıklaması <a href=\"%(href)s\" title="
-"\"%(title)s\" target=\"_blank\" rel=\"noopener\">reStructuredText</a> ile "
+"Varsayılan olarak yükleme işleminin açıklaması <a href=\"%(href)s\" title=\""
+"%(title)s\" target=\"_blank\" rel=\"noopener\">reStructuredText</a> ile "
 "işlenir. Şayet açıklama Markdown gibi farklı bir formatta ise, bir paket "
 "<code>setup.py</code> içerisinde ki <code>long_description_content_type</"
 "code> 'u ilgili alternatif formata ayarlayabilir."
@@ -7262,8 +7261,8 @@ msgstr ""
 "Dosya boyutu sınırını aştığı için projenizin yeni sürümünü PyPI' a "
 "yükleyemiyorsanız, bazen sizin için bu sınırı arttırabiliriz. Önce "
 "projenizin en azından bir sürümünün dosya boyutu limitinin <em>altında</em> "
-"kaldığına emin olun (bir <a href=\"%(dev_release_href)s\" title=\"%(title)s"
-"\" target=\"_blank\" rel=\"noopener\">gelişimsel sürüm versiyon numarası</a> "
+"kaldığına emin olun (bir <a href=\"%(dev_release_href)s\" title=\"%(title)s\""
+" target=\"_blank\" rel=\"noopener\">gelişimsel sürüm versiyon numarası</a> "
 "yeterli). Sonra, <a href=\"%(file_issue_href)s\" title=\"%(title)s\" target="
 "\"_blank\" rel=\"noopener\">sorun bildir</a> ile bize şunları bildirin:"
 
@@ -7306,9 +7305,9 @@ msgid ""
 "\"%(file_issue_href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener"
 "\">File an issue</a> and tell us:"
 msgstr ""
-"Bu mümkün değilse, bazen sınırınızı artırabiliriz. <a href="
-"\"%(file_issue_href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener"
-"\">Sorun bildir</a> ile bize şunları bildirin:"
+"Bu mümkün değilse, bazen sınırınızı artırabiliriz. <a href=\""
+"%(file_issue_href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener\""
+">Sorun bildir</a> ile bize şunları bildirin:"
 
 #: warehouse/templates/pages/help.html:609
 msgid "The total size of your project, in gigabytes"
@@ -7329,11 +7328,11 @@ msgid ""
 "vulnerabilities from the <a href=\"%(vulns_href)s\" title=\"%(title)s\" "
 "target=\"_blank\" rel=\"noopener\">Python Packaging Advisory Database</a>."
 msgstr ""
-"PyPI' dan bir dosyanın nasıl yükleneceğini öğrenmek için lütfen <a href="
-"\"%(user_guide_href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener"
-"\">Python Packaging User Guide</a> üzerinde ki <a href="
-"\"%(installation_href)s\" title=\"%(title)s\" target=\"_blank\" rel="
-"\"noopener\">kurulum rehberine</a> göz atın."
+"PyPI' dan bir dosyanın nasıl yükleneceğini öğrenmek için lütfen <a href=\""
+"%(user_guide_href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener\""
+">Python Packaging User Guide</a> üzerinde ki <a href=\"%(installation_href)"
+"s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">kurulum "
+"rehberine</a> göz atın."
 
 #: warehouse/templates/pages/help.html:621
 #, fuzzy, python-format
@@ -7346,9 +7345,9 @@ msgid ""
 "<a href=\"%(file_issue_href)s\" title=\"%(title)s\" target=\"_blank\" rel="
 "\"noopener\">file an issue</a> with details."
 msgstr ""
-"Bu mümkün değilse, bazen sınırınızı artırabiliriz. <a href="
-"\"%(file_issue_href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener"
-"\">Sorun bildir</a> ile bize şunları bildirin:"
+"Bu mümkün değilse, bazen sınırınızı artırabiliriz. <a href=\""
+"%(file_issue_href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener\""
+">Sorun bildir</a> ile bize şunları bildirin:"
 
 #: warehouse/templates/pages/help.html:633
 #, fuzzy, python-format
@@ -7404,9 +7403,9 @@ msgid ""
 "Lost two factor authentication <a href=\"#totp\">application</a>, <a href="
 "\"#utfkey\">device</a>, and <a href=\"#recoverycodes\">recovery codes</a>"
 msgstr ""
-"İki faktörlü kimlik doğrulama <a href=\"#totp\">uygulaması</a>, <a href="
-"\"#utfkey\">cihazı</a>, ve <a href=\"#recoverycodes\">kurtarma kodları</"
-"a>'na olan erişimin kaybedilmesi"
+"İki faktörlü kimlik doğrulama <a href=\"#totp\">uygulaması</a>, <a href=\"#"
+"utfkey\">cihazı</a>, ve <a href=\"#recoverycodes\">kurtarma kodları</a>'na "
+"olan erişimin kaybedilmesi"
 
 #: warehouse/templates/pages/help.html:654
 #, python-format
@@ -7415,9 +7414,9 @@ msgid ""
 "\" rel=\"noopener\">file an issue on our tracker</a> to request assistance "
 "with account recovery."
 msgstr ""
-"Hesabınızla ilgili destek almak için <a href=\"%(href)s\" title=\"%(title)s"
-"\" target=\"_blank\" rel=\"noopener\">izleyicimiz üzerinden sorun bildirir</"
-"a> hesap kurtarma ile ilgili yardım alabilirsiniz."
+"Hesabınızla ilgili destek almak için <a href=\"%(href)s\" title=\"%(title)s\""
+" target=\"_blank\" rel=\"noopener\">izleyicimiz üzerinden sorun bildirir</a> "
+"hesap kurtarma ile ilgili yardım alabilirsiniz."
 
 #: warehouse/templates/pages/help.html:661
 msgid "If you are using a username and password for uploads:"
@@ -7425,8 +7424,7 @@ msgstr "Yüklemeler için bir kullanıcı adı ve parola kullanıyorsanız:"
 
 #: warehouse/templates/pages/help.html:663
 msgid "Ensure that your username and password are correct."
-msgstr ""
-"Kullanıcı adınızın veya parolanızın yanlış olup olmadığından emin olun."
+msgstr "Kullanıcı adınızın veya parolanızın yanlış olup olmadığından emin olun."
 
 #: warehouse/templates/pages/help.html:664
 msgid ""
@@ -7495,11 +7493,11 @@ msgstr ""
 "Transport Layer Security, yahut kısa ismi ile TLS, PyPI ile bilgisayarınız "
 "arasında ki bağlantının güvenli olduğundan emin olmamız için gereken "
 "şeylerden biridir. Bir tür şifreleme protokolü olan TLS' in zaman içinde bir "
-"kaç sürümü yayınlanmıştır. PyPI <a href=\"%(announcement_href)s\" title="
-"\"%(title)s\" target=\"_blank\" rel=\"noopener\">TLS' in 1.0 ve 1.1 "
-"sürümleri için olan desteğini</a> in April 2018 itibari ile kesmiştir. <a "
-"href=\"%(reason_href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener"
-"\">Konu hakkında detaylı bilgiler öğrenmek için PSF bloğuna göz "
+"kaç sürümü yayınlanmıştır. PyPI <a href=\"%(announcement_href)s\" title=\""
+"%(title)s\" target=\"_blank\" rel=\"noopener\">TLS' in 1.0 ve 1.1 sürümleri "
+"için olan desteğini</a> in April 2018 itibari ile kesmiştir. <a href=\""
+"%(reason_href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener\""
+">Konu hakkında detaylı bilgiler öğrenmek için PSF bloğuna göz "
 "atabilirsiniz</a>."
 
 #: warehouse/templates/pages/help.html:691
@@ -7574,8 +7572,8 @@ msgid ""
 "\"noopener\">accessibility</a> very seriously and want to make the website "
 "easy to use for everyone."
 msgstr ""
-"<a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener"
-"\">Erişebilirliğe</a> çok büyük bir önem veriyoruz ve internet sitemizi her "
+"<a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener\""
+">Erişebilirliğe</a> çok büyük bir önem veriyoruz ve internet sitemizi her "
 "kullanıcının kullanabileceği düzeyde, basit hale getirmeye uğraşıyoruz."
 
 #: warehouse/templates/pages/help.html:712
@@ -7669,9 +7667,9 @@ msgid ""
 "upload first</a>, before uploading to <a href=\"%(pypi_href)s\">pypi.org</a>."
 msgstr ""
 "Bu gibi durumlardan kaçınmak için, <a href=\"%(pypi_href)s\">pypi.org</a>' a "
-"direkt yükleme yapmadan önce, <a href=\"%(test_pypi_href)s\" title="
-"\"%(title)s\" target=\"_blank\" rel=\"noopener\">Test PyPI' ı kullanarak "
-"yükleme yapın ve yüklemenizi kontrol edin</a>."
+"direkt yükleme yapmadan önce, <a href=\"%(test_pypi_href)s\" title=\"%(title)"
+"s\" target=\"_blank\" rel=\"noopener\">Test PyPI' ı kullanarak yükleme yapın "
+"ve yüklemenizi kontrol edin</a>."
 
 #: warehouse/templates/pages/help.html:755
 #, python-format
@@ -7681,8 +7679,8 @@ msgid ""
 "\"><code>pypa/trove-classifiers</code> project</a>. Be sure to include a "
 "brief justification of why it is important."
 msgstr ""
-"Eğer yeni bir trove sınıflandırıcı dosyası istiyorsanız, <a href=\"%(href)s"
-"\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener\"><code>pypa/trove-"
+"Eğer yeni bir trove sınıflandırıcı dosyası istiyorsanız, <a href=\"%(href)s\""
+" title=\"%(title)s\" target=\"_blank\" rel=\"noopener\"><code>pypa/trove-"
 "classifiers</code> projesine</a> bir pull request atın. Neden önemli "
 "olduğuna dair kısa bir gerekçe eklediğinizden emin olun."
 
@@ -7697,8 +7695,8 @@ msgid ""
 "similar issue does not already exist."
 msgstr ""
 "PyPI'ın kendisi ile ilgili bir sorun yaşıyorsanız, <strong>yapıcı</strong> "
-"geri bildirimlerinizi ve hata raporlarınızı <a href=\"%(href)s\" title="
-"\"%(title)s\" target=\"_blank\" rel=\"noopener\">sorun izleyicimiz</a> "
+"geri bildirimlerinizi ve hata raporlarınızı <a href=\"%(href)s\" title=\""
+"%(title)s\" target=\"_blank\" rel=\"noopener\">sorun izleyicimiz</a> "
 "üzerinden bildirebilirsiniz. Bu izleyicinin yalnızca PyPI'ı çalıştıran "
 "yazılımla ilgili sorunlar için olduğunu lütfen unutmayın. Yeni bir sorun "
 "yazmadan önce, benzer bir sorunun zaten var olup olmadığına göz atın."
@@ -7733,8 +7731,8 @@ msgid ""
 "\">PyPA</a> is an independent group of developers whose goal is to improve "
 "and maintain many of the core projects related to Python packaging."
 msgstr ""
-"<a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener"
-"\">PyPA</a> Python paketleri ile ilgili olan bir çok çekirdek projeyi "
+"<a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener\""
+">PyPA</a> Python paketleri ile ilgili olan bir çok çekirdek projeyi "
 "geliştirmek ve sürdürmek amacıyla kurulan bağımsız bir geliştiriciler "
 "grubudur."
 
@@ -7868,11 +7866,11 @@ msgid ""
 "\"%(discourse_forum_href)s\" title=\"%(title)s\" target=\"_blank\" rel="
 "\"noopener\">Python packaging forum on Discourse</a>."
 msgstr ""
-"PyPI' dan bir dosyanın nasıl yükleneceğini öğrenmek için lütfen <a href="
-"\"%(user_guide_href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener"
-"\">Python Packaging User Guide</a> üzerinde ki <a href="
-"\"%(installation_href)s\" title=\"%(title)s\" target=\"_blank\" rel="
-"\"noopener\">kurulum rehberine</a> göz atın."
+"PyPI' dan bir dosyanın nasıl yükleneceğini öğrenmek için lütfen <a href=\""
+"%(user_guide_href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener\""
+">Python Packaging User Guide</a> üzerinde ki <a href=\"%(installation_href)"
+"s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">kurulum "
+"rehberine</a> göz atın."
 
 #: warehouse/templates/pages/help.html:855
 #, python-format
@@ -7903,8 +7901,8 @@ msgid ""
 "More information about this list can be found here: <a href=\"%(href)s\">"
 "%(href)s</a>."
 msgstr ""
-"Hesabınıza tekrar erişim sağlayabilmeniz için lütfen PyPI'da <a href="
-"\"%(href)s\">şifrenizi sıfırlayın</a>."
+"Hesabınıza tekrar erişim sağlayabilmeniz için lütfen PyPI'da <a href=\""
+"%(href)s\">şifrenizi sıfırlayın</a>."
 
 #: warehouse/templates/pages/help.html:867
 #: warehouse/templates/pages/help.html:871
@@ -7918,9 +7916,9 @@ msgid ""
 "work fine, but it's new and less tested than other site functionality."
 msgstr ""
 "Warehouse' un geliştiricileri yeni özellikleri kullanıma açtıklarında bu "
-"yeni özellikleri bir süre küçük \"beta feature\" sembolü ile işaretliyoruz."
-"Bu şu anlama geliyor: bu özellik muhtemelen düzgün çalışacak, yinede daha "
-"yeni bir özellik ve diğer özelliklere göre daha az test edildi."
+"yeni özellikleri bir süre küçük \"beta feature\" sembolü ile "
+"işaretliyoruz.Bu şu anlama geliyor: bu özellik muhtemelen düzgün çalışacak, "
+"yinede daha yeni bir özellik ve diğer özelliklere göre daha az test edildi."
 
 #: warehouse/templates/pages/help.html:875
 #, python-format
@@ -7983,10 +7981,10 @@ msgid ""
 "\"noopener\">browse the online board</a>."
 msgstr ""
 "Popüler anahtarlar: <a href=\"%(yubikey_href)s\" title=\"%(title)s\" target="
-"\"_blank\" rel=\"noopener\">Yubikey</a>, <a href=\"%(titan_href)s\" title="
-"\"%(title)s\" target=\"_blank\" rel=\"noopener\">Google Titan</a> and <a "
-"href=\"%(thetis_href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener"
-"\">Thetis</a>."
+"\"_blank\" rel=\"noopener\">Yubikey</a>, <a href=\"%(titan_href)s\" title=\""
+"%(title)s\" target=\"_blank\" rel=\"noopener\">Google Titan</a> and <a href="
+"\"%(thetis_href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener\""
+">Thetis</a>."
 
 #: warehouse/templates/pages/security.html:15
 msgid "Security"
@@ -8010,9 +8008,8 @@ msgstr "Önemli!"
 
 #: warehouse/templates/pages/security.html:24
 msgid ""
-"If you believe you've identified a security issue with Warehouse, <strong>DO "
-"NOT</strong> report the issue in any public forum, including (but not "
-"limited to):"
+"If you believe you've identified a security issue with PyPI, <strong>DO NOT</"
+"strong> report the issue in any public forum, including (but not limited to):"
 msgstr ""
 
 #: warehouse/templates/pages/security.html:27
@@ -8028,25 +8025,55 @@ msgid "Official or unofficial mailing lists"
 msgstr "Resmi yahut gayri resmi e-posta listeleri"
 
 #: warehouse/templates/pages/security.html:35
-#, python-format
-msgid ""
-"Instead, email <a href=\"%(href)s\">security at python dot org</a> directly, "
-"providing as much relevant information as possible."
+msgid "If you've identified a security issue with a project hosted on PyPI"
 msgstr ""
 
 #: warehouse/templates/pages/security.html:36
 #, python-format
 msgid ""
-"Messages may be optionally encrypted with GPG using key fingerprints "
-"available <a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel="
-"\"noopener\">at the Python Security page</a>."
+"Email <a href=\"%(href)s\">security@pypi.org</a>, providing the following "
+"details:"
 msgstr ""
 
 #: warehouse/templates/pages/security.html:38
+msgid "A URL to the project in question"
+msgstr ""
+
+#: warehouse/templates/pages/security.html:39
+msgid "An explanation of what makes the project a security issue"
+msgstr ""
+
+#: warehouse/templates/pages/security.html:40
+#, python-format
+msgid ""
+"If applicable: a link to the problematic lines in the project's "
+"distributions via <a href=\"%(href)s\">inspector.pypi.io</a>"
+msgstr ""
+
+#: warehouse/templates/pages/security.html:42
+msgid ""
+"Valid malware reports may include examples of typo-squatting, dependency "
+"confusion, data exfiltration, obfustication, command/control, etc."
+msgstr ""
+
+#: warehouse/templates/pages/security.html:44
+msgid ""
+"If you've identified a security issue with PyPI itself (not a project hosted "
+"on PyPI)"
+msgstr ""
+
+#: warehouse/templates/pages/security.html:45
+#, python-format
+msgid ""
+"Email <a href=\"%(href)s\">security@pypi.org</a>, providing as much relevant "
+"information as possible, including reproducing steps."
+msgstr ""
+
+#: warehouse/templates/pages/security.html:47
 msgid "What happens next?"
 msgstr "Sonra ne var?"
 
-#: warehouse/templates/pages/security.html:40
+#: warehouse/templates/pages/security.html:48
 msgid ""
 "Once you've submitted an issue via email, you should receive an "
 "acknowledgment within 48 hours."
@@ -8054,7 +8081,7 @@ msgstr ""
 "Bir sorunu e-posta ile bildirdikten sonra, 48 saat içerisinde geri bildirim "
 "alırsınız."
 
-#: warehouse/templates/pages/security.html:41
+#: warehouse/templates/pages/security.html:49
 msgid ""
 "Depending on the action to be taken, you may receive further follow-up "
 "emails."
@@ -8062,8 +8089,10 @@ msgstr ""
 "Alınan aksiyona bağlı olarak size gönderilen ilk e-postadan sonra onu takip "
 "eden başka e-postalar alabilirsiniz."
 
-#: warehouse/templates/pages/security.html:44
-msgid "This security policy was last updated on March 14, 2018."
+#: warehouse/templates/pages/security.html:52
+#, fuzzy
+#| msgid "This security policy was last updated on March 14, 2018."
+msgid "This security policy was last updated on June 2022."
 msgstr "Bu güvenlik politikası en son 14 Mart 2018 tarihinde güncellenmiştir."
 
 #: warehouse/templates/pages/sitemap.html:21
@@ -8201,10 +8230,10 @@ msgid ""
 "in 2020"
 msgstr ""
 "Popüler anahtarlar: <a href=\"%(yubikey_href)s\" title=\"%(title)s\" target="
-"\"_blank\" rel=\"noopener\">Yubikey</a>, <a href=\"%(titan_href)s\" title="
-"\"%(title)s\" target=\"_blank\" rel=\"noopener\">Google Titan</a> and <a "
-"href=\"%(thetis_href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener"
-"\">Thetis</a>."
+"\"_blank\" rel=\"noopener\">Yubikey</a>, <a href=\"%(titan_href)s\" title=\""
+"%(title)s\" target=\"_blank\" rel=\"noopener\">Google Titan</a> and <a href="
+"\"%(thetis_href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener\""
+">Thetis</a>."
 
 #: warehouse/templates/pages/sponsors.html:49
 msgid ""
@@ -8348,8 +8377,7 @@ msgstr "Bir arama sorgusu girin yahut düğmeye tıklayarak bir filtre ekleyin."
 
 #: warehouse/templates/search/results.html:119
 msgid "You can combine searches and classifier filters. Examples:"
-msgstr ""
-"Aramaları ve sınıflandırıcı filtrelerini birleştirebilirsiniz. Örneğin:"
+msgstr "Aramaları ve sınıflandırıcı filtrelerini birleştirebilirsiniz. Örneğin:"
 
 #: warehouse/templates/search/results.html:123
 msgid "Python 3 compatible projects"
