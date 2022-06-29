@@ -19,7 +19,7 @@ from warehouse.cache.origin import key_factory, receive_set
 from warehouse.manage.tasks import update_role_invitation_status
 from warehouse.packaging.interfaces import IDocsStorage, IFileStorage, ISimpleStorage
 from warehouse.packaging.models import File, Project, Release, Role
-from warehouse.packaging.tasks import (  # sync_bigquery_release_files,
+from warehouse.packaging.tasks import (
     compute_2fa_mandate,
     compute_2fa_metrics,
     compute_trending,
