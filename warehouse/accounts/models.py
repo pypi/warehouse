@@ -27,8 +27,6 @@ from sqlalchemy import (
     String,
     Text,
     UniqueConstraint,
-    and_,
-    or_,
     orm,
     select,
     sql,
@@ -136,22 +134,9 @@ class User(SitemapMixin, HasEvents, db.Model):
             .scalar_subquery()
         )
 
-    @hybrid_property
+    @property
     def has_two_factor(self):
         return self.totp_secret is not None or len(self.webauthn) > 0
-
-    @has_two_factor.expression  # type: ignore
-    def has_two_factor(self):
-        return (
-            select([True])
-            .where(
-                or_(
-                    WebAuthn.user_id == self.id,
-                    and_(User.id == self.id, User.totp_secret.is_not(None)),
-                )
-            )
-            .limit(1)
-        )
 
     @property
     def has_recovery_codes(self):
