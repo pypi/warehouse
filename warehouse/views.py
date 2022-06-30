@@ -507,7 +507,7 @@ class SecurityKeyGiveaway:
         codes_available = self.codes_available
         eligible_projects = self.eligible_projects
         promo_code = self.promo_code
-        has_two_factor = self.request.user.has_two_factor
+        has_two_factor = self.request.user and self.request.user.has_two_factor
 
         eligible = (
             codes_available
