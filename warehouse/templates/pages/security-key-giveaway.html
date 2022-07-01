@@ -142,6 +142,27 @@
         do not store it or associate it with your PyPI account.
       </p>
 
+      <h3 id="non-eligible-regions">What should maintainers in non-eligible regions do?</h3>
+      <p>
+        Unfortunately we are only able to distribute security keys to maintainers in
+        eligible regions. If you are a maintainer of a critical project, and
+        need to enable 2FA, but not in an eligible region, there are two options:
+      </p>
+      <p>
+        Independently purchase a FIDO U2F security key from a security key
+        vendor that is available in your region, such as
+        <a href="https://www.yubico.com/" title="External link" target="_blank" rel="noopener">Yubikey</a> or
+        <a href="https://thetis.io/" title="External link" target="_blank" rel="noopener">Thetis</a>.
+        See <a href="{{ request.help_url(_anchor='utfkey') }}">How does two factor authentication
+        with a security device (e.g. USB key) work? How do I set it up on PyPI?</a>
+      </p>
+      <p>
+        Alternatively, you should enable 2FA via a TOTP application instead. See <a
+        href="{{ request.help_url(_anchor='totp') }}">How does two factor
+        authentication with an authentication application (TOTP) work? How do I
+        set it up on PyPI?</a>
+      </p>
+
       <h3 id="key-quantity">How many keys are available?</h3>
       <p>A total of 4,000 keys are available to maintainers.</p>
 
@@ -176,15 +197,6 @@
         If no keys are in stock in your region, you might consider waiting to
         redeem your promo code until stock has been replenished (note that
         codes expire on August 1, 2022).
-      </p>
-
-      <h3 id="non-eligible-regions">What should maintainers in non-eligible regions do?</h3>
-      <p>
-        If you are an maintainer of a critical project, but not in an eligible
-        region, you should enable 2FA via a TOTP application instead. See <a
-        href="{{ request.help_url(_anchor='totp') }}">How does two factor
-        authentication with an authentication application (TOTP) work? How do I
-        set it up on PyPI?</a>
       </p>
 
       <h3 id="key-setup">I've got security keys already, what should I do?</h3>
