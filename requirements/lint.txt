@@ -171,9 +171,9 @@ tomli==2.0.1 \
     # via
     #   black
     #   mypy
-types-babel==2.9.12 \
-    --hash=sha256:0dc19c3d4a6546f1ff409db561edebba97e4a4ea6f95793895fa1ad89f34469b \
-    --hash=sha256:d43896f8bcbb3f026c4e2da891a817bcbf4a316f7bc1e86698c594a65917d928
+types-babel==2.10.0 \
+    --hash=sha256:9b9396c79839f294aa341d74e97fb309f9e3a3700f521c345487d49fb1c49116 \
+    --hash=sha256:c1e329fa1fb4b24faae333d30e38227e92a8e0477fc179100c001acba1d858c6
     # via -r requirements/lint.in
 types-boto3==1.0.2 \
     --hash=sha256:15f3ffad0314e40a0708fec25f94891414f93260202422bf8b19b6913853c983 \
