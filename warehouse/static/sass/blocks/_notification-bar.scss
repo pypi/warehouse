@@ -60,18 +60,18 @@
 
     - .notification-bar--dismissable to its classes
     - data-controller="notification" as an attribute
-    - data-target="notification.notification" as an attribute
+    - data-notification-target="notification" as an attribute
     - a dismiss button (see html example below)
 
-  The data-controller and data-target are used for handling visibility,
+  The data-controller and data-notification-target are used for handling visibility,
   including adding .notification-bar--visible to notification-bar div if it has
   not been dismissed (and persisted) yet.
 
   <div class="notification-bar notification-bar--dismissable"
-    data-controller="notification" data-target="notification.notification">
+    data-controller="notification" data-notification-target="notification">
       <button
        title="Dismiss this notification"
-       data-target="notification.dismissButton"
+       data-notification-target="dismissButton"
        data-action="click->notification#dismiss"
        class="notification-bar__dismiss"
        aria-label="close">
