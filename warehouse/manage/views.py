@@ -42,6 +42,7 @@ from warehouse.accounts.interfaces import (
 from warehouse.accounts.models import Email, User
 from warehouse.accounts.views import logout
 from warehouse.admin.flags import AdminFlagValue
+from warehouse.billing.interfaces import IBillingService
 from warehouse.email import (
     send_account_deletion_email,
     send_admin_new_organization_requested_email,
@@ -113,6 +114,7 @@ from warehouse.organizations.models import (
     OrganizationInvitationStatus,
     OrganizationRole,
     OrganizationRoleType,
+    OrganizationType,
 )
 from warehouse.packaging.models import (
     File,
@@ -1257,6 +1259,14 @@ class ManageOrganizationsViews:
         else:
             return {"create_organization_form": form}
 
+        if form.orgtype.data == OrganizationType.Company:
+            return HTTPSeeOther(
+                self.request.route_path(
+                    "manage.organization.create_subscription",
+                    organization_name=organization.normalized_name,
+                )
+            )
+
         return self.default_response
 
 
@@ -1430,6 +1440,51 @@ class ManageOrganizationSettingsViews:
         )
 
         return HTTPSeeOther(self.request.route_path("manage.organizations"))
+
+
+@view_defaults(
+    context=Organization,
+    uses_session=True,
+    require_csrf=True,
+    require_methods=False,
+    permission="manage:billing",
+    has_translations=True,
+    require_reauth=True,
+)
+class ManageOrganizationBillingViews:
+    def __init__(self, organization, request):
+        self.organization = organization
+        self.request = request
+        self.billing_service = request.find_service(IBillingService, context=None)
+
+    @property
+    def product_id(self):
+        # TODO: Get product from database, or use `None` for default product?
+        return None
+
+    @property
+    def return_url(self):
+        return self.request.GET.get(
+            "next", self.request.route_path("manage.organizations")
+        )
+
+    @view_config(route_name="manage.organization.create_subscription")
+    def create_subscription(self):
+        create_subscription_url = self.billing_service.create_checkout_session(
+            organization_id=self.organization.id,
+            product_id=self.product_id,
+            success_url=self.return_url,
+            cancel_url=self.return_url,
+        )
+        return HTTPSeeOther(create_subscription_url)
+
+    @view_config(route_name="manage.organization.manage_subscription")
+    def manage_subscription(self):
+        manage_subscription_url = self.billing_service.create_portal_session(
+            organization_id=self.organization.id,
+            return_url=self.return_url,
+        )
+        return HTTPSeeOther(manage_subscription_url)
 
 
 @view_defaults(

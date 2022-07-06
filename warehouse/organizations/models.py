@@ -258,7 +258,7 @@ class Organization(HasEvents, db.Model):
                     (
                         Allow,
                         f"user:{role.user.id}",
-                        ["view:organization", "manage:organization"],
+                        ["view:organization", "manage:organization", "manage:billing"],
                     )
                 )
             elif role.role_name == OrganizationRoleType.BillingManager:
