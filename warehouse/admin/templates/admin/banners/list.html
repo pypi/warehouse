@@ -45,7 +45,7 @@
         <td><i class="fa {% if banner.active %}fa-check text-green{% else %}fa-times{% endif %}"></i></td>
         <td>Until {{ banner.end }}</td>
         <td><i class="fa {% if banner.is_live %}fa-check text-green{% else %}fa-times{% endif %}"></i></td>
-        <td><a target="_blank" href="{{ request.route_path('admin.banner.preview', banner_id=banner.id) }}">Click to preview</a></td>
+        <td><a target="_blank" rel="nofollow noopener noreferrer" href="{{ request.route_path('admin.banner.preview', banner_id=banner.id) }}">Click to preview</a></td>
       </tr>
       {% endfor %}
     </table>
