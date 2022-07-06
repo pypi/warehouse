@@ -72,7 +72,9 @@ def compute_2fa_mandate(request):
     )
 
     # Get their maintainers
-    users = request.db.query(User).join(Project.users).join(new_projects).all()
+    users = (
+        request.db.query(User).join(Project.users).join(new_projects.subquery()).all()
+    )
 
     # Email them
     for user in users:
@@ -90,7 +92,7 @@ def compute_2fa_metrics(request):
         Project.pypi_mandates_2fa.is_(True)
     )
     critical_maintainers = (
-        request.db.query(User).join(Project.users).join(critical_projects)
+        request.db.query(User).join(Project.users).join(critical_projects.subquery())
     )
 
     # Number of projects marked critical
