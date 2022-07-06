@@ -68,8 +68,9 @@ const fieldRequiredValidator = (value) => {
 };
 
 const showFormError = (field, message) => {
-  let error = "<ul id='"+ field.name +"-error' class='form-errors field-errors' role='alert'><li>" + message + "</li></ul>";
-  field.insertAdjacentHTML("afterend", error);
+  let errorItem = document.createElement("li").textContent(message);
+  let errorList = document.createElement("ul").setAttribute("id", field.name + "-error").setAttribute("class", "form-errors field-errors").setAttribute("role", "alert").appendChild(errorItem);
+  field.insertAjacentElement("afterend", errorList);
   field.setAttribute("aria-describedby", field.name + "-error");
   document.title = "Error processing form – " + document.title;
 };
