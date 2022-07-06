@@ -19,10 +19,11 @@ import pip_api
 from google.cloud.bigquery import LoadJobConfig
 
 from warehouse import tasks
-from warehouse.accounts.models import User
+from warehouse.accounts.models import User, WebAuthn
 from warehouse.cache.origin import IOriginCache
 from warehouse.email import send_two_factor_mandate_email
-from warehouse.packaging.models import Description, File, Project, Release
+from warehouse.metrics import IMetricsService
+from warehouse.packaging.models import Description, File, Project, Release, Role
 from warehouse.utils import readme
 
 
@@ -79,6 +80,112 @@ def compute_2fa_mandate(request):
 
     # Add them to the mandate
     new_projects.update({Project.pypi_mandates_2fa: True})
+
+
+@tasks.task(ignore_result=True, acks_late=True)
+def compute_2fa_metrics(request):
+    metrics = request.find_service(IMetricsService, context=None)
+
+    critical_projects = request.db.query(Project).where(
+        Project.pypi_mandates_2fa.is_(True)
+    )
+    critical_maintainers = (
+        request.db.query(User).join(Project.users).join(critical_projects)
+    )
+
+    # Number of projects marked critical
+    metrics.gauge(
+        "warehouse.2fa.total_critical_projects",
+        critical_projects.count(),
+    )
+
+    # Number of critical project maintainers
+    metrics.gauge(
+        "warehouse.2fa.total_critical_maintainers",
+        critical_maintainers.count(),
+    )
+
+    # Number of critical project maintainers with TOTP enabled
+    total_critical_project_maintainers_with_totp_enabled = (
+        request.db.query(User.id)
+        .distinct()
+        .join(Role, Role.user_id == User.id)
+        .join(Project, Project.id == Role.project_id)
+        .where(Project.pypi_mandates_2fa)
+        .where(User.totp_secret.is_not(None))
+        .count()
+    )
+    metrics.gauge(
+        "warehouse.2fa.total_critical_maintainers_with_totp_enabled",
+        total_critical_project_maintainers_with_totp_enabled,
+    )
+
+    # Number of critical project maintainers with WebAuthn enabled
+    metrics.gauge(
+        "warehouse.2fa.total_critical_maintainers_with_webauthn_enabled",
+        request.db.query(User.id)
+        .distinct()
+        .join(Role.user)
+        .join(Role.project)
+        .join(WebAuthn, WebAuthn.user_id == User.id)
+        .where(Project.pypi_mandates_2fa)
+        .count(),
+    )
+
+    # Number of critical project maintainers with 2FA enabled
+    metrics.gauge(
+        "warehouse.2fa.total_critical_maintainers_with_2fa_enabled",
+        total_critical_project_maintainers_with_totp_enabled
+        + request.db.query(User.id)
+        .distinct()
+        .join(Role.user)
+        .join(Role.project)
+        .join(WebAuthn, WebAuthn.user_id == User.id)
+        .where(Project.pypi_mandates_2fa)
+        .where(User.totp_secret.is_(None))
+        .count(),
+    )
+
+    # Number of projects manually requiring 2FA
+    metrics.gauge(
+        "warehouse.2fa.total_projects_with_2fa_opt_in",
+        request.db.query(Project).where(Project.owners_require_2fa).count(),
+    )
+
+    # Total number of projects requiring 2FA
+    metrics.gauge(
+        "warehouse.2fa.total_projects_with_two_factor_required",
+        request.db.query(Project).where(Project.two_factor_required).count(),
+    )
+
+    # Total number of users with TOTP enabled
+    total_users_with_totp_enabled = (
+        request.db.query(User).where(User.totp_secret.is_not(None)).count()
+    )
+    metrics.gauge(
+        "warehouse.2fa.total_users_with_totp_enabled",
+        total_users_with_totp_enabled,
+    )
+
+    # Total number of users with WebAuthn enabled
+    metrics.gauge(
+        "warehouse.2fa.total_users_with_webauthn_enabled",
+        request.db.query(User.id)
+        .distinct()
+        .join(WebAuthn, WebAuthn.user_id == User.id)
+        .count(),
+    )
+
+    # Total number of users with 2FA enabled
+    metrics.gauge(
+        "warehouse.2fa.total_users_with_two_factor_enabled",
+        total_users_with_totp_enabled
+        + request.db.query(User.id)
+        .distinct()
+        .join(WebAuthn, WebAuthn.user_id == User.id)
+        .where(User.totp_secret.is_(None))
+        .count(),
+    )
 
 
 @tasks.task(ignore_result=True, acks_late=True)

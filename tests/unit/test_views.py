@@ -623,14 +623,14 @@ class TestSecurityKeyGiveaway:
         assert SecurityKeyGiveaway(db_request).promo_code == code
 
     @pytest.mark.parametrize(
-        "codes_available, eligible_projects, promo_code, has_two_factor, eligible, reason_ineligible",  # noqa
+        "codes_available, eligible_projects, promo_code, user, eligible, reason_ineligible",  # noqa
         [
             (True, {"foo"}, None, False, True, None),
             (
                 False,
                 {"foo"},
                 None,
-                False,
+                pretend.stub(has_two_factor=False),
                 False,
                 "At this time there are no keys available",
             ),
@@ -638,7 +638,7 @@ class TestSecurityKeyGiveaway:
                 True,
                 set(),
                 None,
-                False,
+                pretend.stub(has_two_factor=False),
                 False,
                 "You are not a collaborator on any critical projects",
             ),
@@ -646,7 +646,7 @@ class TestSecurityKeyGiveaway:
                 True,
                 {"foo"},
                 None,
-                True,
+                pretend.stub(has_two_factor=True),
                 False,
                 "You already have two-factor authentication enabled",
             ),
@@ -654,9 +654,17 @@ class TestSecurityKeyGiveaway:
                 True,
                 {"foo"},
                 pretend.stub(),
-                False,
+                pretend.stub(has_two_factor=False),
                 False,
                 "Promo code has already been generated",
+            ),
+            (
+                True,
+                set(),
+                None,
+                None,
+                False,
+                "You are not a collaborator on any critical projects",
             ),
         ],
     )
@@ -665,12 +673,12 @@ class TestSecurityKeyGiveaway:
         codes_available,
         eligible_projects,
         promo_code,
-        has_two_factor,
+        user,
         eligible,
         reason_ineligible,
         monkeypatch,
     ):
-        request = pretend.stub(user=pretend.stub(has_two_factor=has_two_factor))
+        request = pretend.stub(user=user)
         SecurityKeyGiveaway.codes_available = property(lambda a: codes_available)
         SecurityKeyGiveaway.eligible_projects = property(lambda a: eligible_projects)
         SecurityKeyGiveaway.promo_code = property(lambda a: promo_code)

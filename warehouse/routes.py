@@ -427,10 +427,10 @@ def includeme(config):
         domain=warehouse,
     )
 
-    # Legacy URLs
-    config.add_route("legacy.api.simple.index", "/simple/", domain=warehouse)
+    # API URLs
+    config.add_route("api.simple.index", "/simple/", domain=warehouse)
     config.add_route(
-        "legacy.api.simple.detail",
+        "api.simple.detail",
         "/simple/{name}/",
         factory="warehouse.packaging.models:ProjectFactory",
         traverse="/{name}/",
@@ -438,6 +438,7 @@ def includeme(config):
         domain=warehouse,
     )
 
+    # Legacy URLs
     config.add_route(
         "legacy.api.json.project",
         "/pypi/{name}/json",

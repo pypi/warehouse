@@ -1,10 +1,10 @@
-# Muneeb Khurram <muneebkhurram9@gmail.com>, 2020.
+# Muneeb Khurram <muneebkhurram9@gmail.com>, 2020, 2022.
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: admin@pypi.org\n"
 "POT-Creation-Date: 2020-06-07 14:16+0200\n"
-"PO-Revision-Date: 2020-06-08 14:37+0000\n"
+"PO-Revision-Date: 2022-06-28 19:51+0000\n"
 "Last-Translator: Muneeb Khurram <muneebkhurram9@gmail.com>\n"
 "Language-Team: Urdu (Pakistan) <https://hosted.weblate.org/projects/pypa/"
 "warehouse/ur_PK/>\n"
@@ -13,7 +13,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Generator: Weblate 4.1-dev\n"
+"X-Generator: Weblate 4.13.1-dev\n"
 
 #: warehouse/views.py:129
 msgid ""
@@ -52,8 +52,8 @@ msgid ""
 "This username is already being used by another account. Choose a different "
 "username."
 msgstr ""
-"یہ نام کسی دوسرے اکاؤنٹ کے ذیرِ استعمال ہے۔ براہِ مہربانی ایک نیا نام استعمال "
-"کریں۔"
+"یہ نام کسی دوسرے اکاؤنٹ کے ذیرِ استعمال ہے۔ براہِ مہربانی ایک نیا نام "
+"استعمال کریں۔"
 
 #: warehouse/accounts/forms.py:145
 msgid "The password is invalid. Try again."
@@ -170,8 +170,9 @@ msgid ""
 "New user registration temporarily disabled. See https://pypi.org/help#admin-"
 "intervention for details."
 msgstr ""
-"نئے یوزروں کی رجسٹریشن عارضی طور پر بند کئی گئی ہے۔ براہِ مہربانی https://"
-"pypi.org/help#admin-intervention پر جا کر اس کے متعلق معلومات حاصل کریں۔"
+"نئے یوزروں کی رجسٹریشن عارضی طور پر بند کئی گئی ہے۔ براہِ مہربانی "
+"https://pypi.org/help#admin-intervention پر جا کر اس کے متعلق معلومات حاصل "
+"کریں۔"
 
 #: warehouse/accounts/views.py:651
 msgid "Expired token: request a new password reset link"
@@ -179,8 +180,7 @@ msgstr "ٹوکن کا وقت ختم ہوگیا ہے: براہ مہربانی ن�
 
 #: warehouse/accounts/views.py:653
 msgid "Invalid token: request a new password reset link"
-msgstr ""
-"غلط ٹوکن: پاس ورڈ کو دوبارہ ترتیب دینے والے ایک نئے لنک کی درخواست کریں"
+msgstr "غلط ٹوکن: پاس ورڈ کو دوبارہ ترتیب دینے والے ایک نئے لنک کی درخواست کریں"
 
 #: warehouse/accounts/views.py:655 warehouse/accounts/views.py:753
 #: warehouse/accounts/views.py:850 warehouse/accounts/views.py:1017
@@ -251,8 +251,7 @@ msgstr "ٹوکن کا وقت ختم ہوگیا ہے: براہ مہربانی ن�
 #, fuzzy
 #| msgid "Invalid token: request a new password reset link"
 msgid "Invalid token: request a new organization invitation"
-msgstr ""
-"غلط ٹوکن: پاس ورڈ کو دوبارہ ترتیب دینے والے ایک نئے لنک کی درخواست کریں"
+msgstr "غلط ٹوکن: پاس ورڈ کو دوبارہ ترتیب دینے والے ایک نئے لنک کی درخواست کریں"
 
 #: warehouse/accounts/views.py:854
 #, fuzzy
@@ -286,8 +285,7 @@ msgstr "ٹوکن کا وقت ختم ہوگیا ہے: براہ مہربانی ن�
 #, fuzzy
 #| msgid "Invalid token: request a new password reset link"
 msgid "Invalid token: request a new project role invitation"
-msgstr ""
-"غلط ٹوکن: پاس ورڈ کو دوبارہ ترتیب دینے والے ایک نئے لنک کی درخواست کریں"
+msgstr "غلط ٹوکن: پاس ورڈ کو دوبارہ ترتیب دینے والے ایک نئے لنک کی درخواست کریں"
 
 #: warehouse/accounts/views.py:1021
 #, fuzzy
@@ -346,8 +344,8 @@ msgid ""
 "This organization account name has already been used. Choose a different "
 "organization account name."
 msgstr ""
-"یہ نام کسی دوسرے اکاؤنٹ کے ذیرِ استعمال ہے۔ براہِ مہربانی ایک نیا نام استعمال "
-"کریں۔"
+"یہ نام کسی دوسرے اکاؤنٹ کے ذیرِ استعمال ہے۔ براہِ مہربانی ایک نیا نام "
+"استعمال کریں۔"
 
 #: warehouse/manage/forms.py:403
 msgid "Select project"
@@ -371,8 +369,8 @@ msgstr ""
 msgid ""
 "This project name has already been used. Choose a different project name."
 msgstr ""
-"یہ نام کسی دوسرے اکاؤنٹ کے ذیرِ استعمال ہے۔ براہِ مہربانی ایک نیا نام استعمال "
-"کریں۔"
+"یہ نام کسی دوسرے اکاؤنٹ کے ذیرِ استعمال ہے۔ براہِ مہربانی ایک نیا نام "
+"استعمال کریں۔"
 
 #: warehouse/manage/forms.py:488
 #, fuzzy
@@ -632,7 +630,6 @@ msgstr ""
 #: warehouse/templates/pages/help.html:892
 #: warehouse/templates/pages/help.html:893
 #: warehouse/templates/pages/help.html:898
-#: warehouse/templates/pages/security.html:36
 #: warehouse/templates/pages/sponsors.html:33
 #: warehouse/templates/pages/sponsors.html:37
 #: warehouse/templates/pages/sponsors.html:41
@@ -6686,9 +6683,8 @@ msgstr ""
 
 #: warehouse/templates/pages/security.html:24
 msgid ""
-"If you believe you've identified a security issue with Warehouse, <strong>DO "
-"NOT</strong> report the issue in any public forum, including (but not "
-"limited to):"
+"If you believe you've identified a security issue with PyPI, <strong>DO NOT</"
+"strong> report the issue in any public forum, including (but not limited to):"
 msgstr ""
 
 #: warehouse/templates/pages/security.html:27
@@ -6704,38 +6700,68 @@ msgid "Official or unofficial mailing lists"
 msgstr ""
 
 #: warehouse/templates/pages/security.html:35
-#, python-format
-msgid ""
-"Instead, email <a href=\"%(href)s\">security at python dot org</a> directly, "
-"providing as much relevant information as possible."
+msgid "If you've identified a security issue with a project hosted on PyPI"
 msgstr ""
 
 #: warehouse/templates/pages/security.html:36
 #, python-format
 msgid ""
-"Messages may be optionally encrypted with GPG using key fingerprints "
-"available <a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel="
-"\"noopener\">at the Python Security page</a>."
+"Email <a href=\"%(href)s\">security@pypi.org</a>, providing the following "
+"details:"
 msgstr ""
 
 #: warehouse/templates/pages/security.html:38
-msgid "What happens next?"
+msgid "A URL to the project in question"
+msgstr ""
+
+#: warehouse/templates/pages/security.html:39
+msgid "An explanation of what makes the project a security issue"
 msgstr ""
 
 #: warehouse/templates/pages/security.html:40
+#, python-format
+msgid ""
+"If applicable: a link to the problematic lines in the project's "
+"distributions via <a href=\"%(href)s\">inspector.pypi.io</a>"
+msgstr ""
+
+#: warehouse/templates/pages/security.html:42
+msgid ""
+"Valid malware reports may include examples of typo-squatting, dependency "
+"confusion, data exfiltration, obfustication, command/control, etc."
+msgstr ""
+
+#: warehouse/templates/pages/security.html:44
+msgid ""
+"If you've identified a security issue with PyPI itself (not a project hosted "
+"on PyPI)"
+msgstr ""
+
+#: warehouse/templates/pages/security.html:45
+#, python-format
+msgid ""
+"Email <a href=\"%(href)s\">security@pypi.org</a>, providing as much relevant "
+"information as possible, including reproducing steps."
+msgstr ""
+
+#: warehouse/templates/pages/security.html:47
+msgid "What happens next?"
+msgstr ""
+
+#: warehouse/templates/pages/security.html:48
 msgid ""
 "Once you've submitted an issue via email, you should receive an "
 "acknowledgment within 48 hours."
 msgstr ""
 
-#: warehouse/templates/pages/security.html:41
+#: warehouse/templates/pages/security.html:49
 msgid ""
 "Depending on the action to be taken, you may receive further follow-up "
 "emails."
 msgstr ""
 
-#: warehouse/templates/pages/security.html:44
-msgid "This security policy was last updated on March 14, 2018."
+#: warehouse/templates/pages/security.html:52
+msgid "This security policy was last updated on June 2022."
 msgstr ""
 
 #: warehouse/templates/pages/sitemap.html:21

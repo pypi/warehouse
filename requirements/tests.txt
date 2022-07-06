@@ -71,9 +71,9 @@ factory-boy==3.2.1 \
     --hash=sha256:a98d277b0c047c75eb6e4ab8508a7f81fb03d2cb21986f627913546ef7a2a55e \
     --hash=sha256:eb02a7dd1b577ef606b75a253b9818e6f9eaf996d94449c9d5ebb124f90dc795
     # via -r requirements/tests.in
-faker==13.13.0 \
-    --hash=sha256:638b9c362e77bcd8212f0d1434c1940f1e8d6c336fe949add563ba0a154b6310 \
-    --hash=sha256:f192d238b3b6acb98ee85bd596258a15a171385613b30a7849e5845f8980d722
+faker==13.14.0 \
+    --hash=sha256:0297b7fc0f2458dfff8d5a92335c62fa25fb059f8cbaf7db580a0dd7177aff2e \
+    --hash=sha256:b9f93ec97a70da79d43f497aa7b2b7d2bcd5d0c6d3ab7c102dde4193d0a38351
     # via factory-boy
 freezegun==1.2.1 \
     --hash=sha256:15103a67dfa868ad809a8f508146e396be2995172d25f927e48ce51c0bf5cb09 \
@@ -168,9 +168,9 @@ python-dateutil==2.8.2 \
     # via
     #   faker
     #   freezegun
-requests==2.28.0 \
-    --hash=sha256:bc7861137fbce630f17b03d3ad02ad0bf978c844f3536d0edda6499dafce2b6f \
-    --hash=sha256:d568723a7ebd25875d8d1eaf5dfa068cd2fc8194b2e483d7b1f7c81918dbec6b
+requests==2.28.1 \
+    --hash=sha256:7c5599b102feddaa661c826c56ab4fee28bfd17f5abca1ebbe3e7f19d7c97983 \
+    --hash=sha256:8fefa2a1a1365bf5520aac41836fbee479da67864514bdb821f31ce07ce65349
     # via responses
 responses==0.21.0 \
     --hash=sha256:2dcc863ba63963c0c3d9ee3fa9507cbe36b7d7b0fccb4f0bdfd9e96c539b1487 \

@@ -14,12 +14,12 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <meta name="pypi:repository-version" content="1.0">
+    <meta name="pypi:repository-version" content="{{meta['api-version'] }}">
     <title>Simple index</title>
   </head>
   <body>
     {% for project in projects -%}
-    <a href="{{ request.route_path('legacy.api.simple.detail', name=project.normalized_name) }}">{{ project.name }}</a>
+    <a href="{{ request.route_path('api.simple.detail', name=project.name|canonicalize_name) }}">{{ project.name }}</a>
     {% endfor -%}
   </body>
 </html>

@@ -19,7 +19,23 @@ from pyramid_jinja2 import IJinja2Environment
 from sqlalchemy.orm import joinedload
 
 from warehouse.packaging.interfaces import ISimpleStorage
-from warehouse.packaging.models import File, Release
+from warehouse.packaging.models import File, Project, Release
+
+API_VERSION = "1.0"
+
+
+def _simple_index(request, serial):
+    # Fetch the name and normalized name for all of our projects
+    projects = (
+        request.db.query(Project.name, Project.normalized_name)
+        .order_by(Project.normalized_name)
+        .all()
+    )
+
+    return {
+        "meta": {"api-version": API_VERSION, "_last-serial": serial},
+        "projects": [{"name": p.name} for p in projects],
+    }
 
 
 def _simple_detail(project, request):
@@ -33,14 +49,31 @@ def _simple_detail(project, request):
         key=lambda f: (parse(f.release.version), f.filename),
     )
 
-    return {"project": project, "files": files}
+    return {
+        "meta": {"api-version": API_VERSION, "_last-serial": project.last_serial},
+        "name": project.normalized_name,
+        "files": [
+            {
+                "filename": file.filename,
+                "url": request.route_url("packaging.file", path=file.path),
+                "hashes": {
+                    "sha256": file.sha256_digest,
+                },
+                "requires-python": file.release.requires_python,
+                "yanked": file.release.yanked_reason
+                if file.release.yanked and file.release.yanked_reason
+                else file.release.yanked,
+            }
+            for file in files
+        ],
+    }
 
 
 def render_simple_detail(project, request, store=False):
     context = _simple_detail(project, request)
 
     env = request.registry.queryUtility(IJinja2Environment, name=".jinja2")
-    template = env.get_template("templates/legacy/api/simple/detail.html")
+    template = env.get_template("templates/api/simple/detail.html")
     content = template.render(**context, request=request)
 
     content_hasher = hashlib.blake2b(digest_size=256 // 8)

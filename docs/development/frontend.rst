@@ -77,7 +77,7 @@ of some pages, but the "new" version of others.
 Browser Support
 ---------------
 
-We aim to support all major browsers, including IE11. We also support one-back,
+We aim to support all major browsers. We also support one-back,
 and follow the ``defaults`` recommendation from ``browserslist``.
 
 You can see the full list of supported browsers by running ``npx browserslist``
