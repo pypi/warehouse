@@ -10,7 +10,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from collections import OrderedDict
+import json
 
 from pyramid.httpexceptions import HTTPMovedPermanently, HTTPNotFound
 from pyramid.view import view_config
@@ -57,9 +57,12 @@ _CACHE_DECORATOR = [
     decorator=_CACHE_DECORATOR,
 )
 def json_project(project, request):
-    if project.name != request.matchdict.get("name", project.name):
+    if project.normalized_name != request.matchdict.get(
+        "name", project.normalized_name
+    ):
         return HTTPMovedPermanently(
-            request.current_route_path(name=project.name), headers=_CORS_HEADERS
+            request.current_route_path(name=project.normalized_name),
+            headers=_CORS_HEADERS,
         )
 
     try:
@@ -86,25 +89,23 @@ def json_project(project, request):
     decorator=_CACHE_DECORATOR,
 )
 def json_project_slash(project, request):
-    return HTTPMovedPermanently(
-        # Respond with redirect to url without trailing slash
-        request.route_path("legacy.api.json.project", name=project.name),
-        headers=_CORS_HEADERS,
-    )
+    return json_project(project, request)
 
 
 @view_config(
     route_name="legacy.api.json.release",
     context=Release,
-    renderer="json",
     decorator=_CACHE_DECORATOR,
 )
 def json_release(release, request):
     project = release.project
 
-    if project.name != request.matchdict.get("name", project.name):
+    if project.normalized_name != request.matchdict.get(
+        "name", project.normalized_name
+    ):
         return HTTPMovedPermanently(
-            request.current_route_path(name=project.name), headers=_CORS_HEADERS
+            request.current_route_path(name=project.normalized_name),
+            headers=_CORS_HEADERS,
         )
 
     # Apply CORS headers.
@@ -176,7 +177,7 @@ def json_release(release, request):
         for vulnerability_record in release.vulnerabilities
     ]
 
-    return {
+    data = {
         "info": {
             "name": project.name,
             "version": release.version,
@@ -195,7 +196,7 @@ def json_release(release, request):
             "downloads": {"last_day": -1, "last_week": -1, "last_month": -1},
             "package_url": request.route_url("packaging.project", name=project.name),
             "project_url": request.route_url("packaging.project", name=project.name),
-            "project_urls": OrderedDict(release.urls) if release.urls else None,
+            "project_urls": release.urls if release.urls else None,
             "release_url": request.route_url(
                 "packaging.release", name=project.name, version=release.version
             ),
@@ -215,19 +216,24 @@ def json_release(release, request):
         "last_serial": project.last_serial,
     }
 
+    # Stream the results to the client instead of building them up, this will
+    # make it so that the JSON encoder uses less memory overall.
+    resp = request.response
+    resp.content_type = "application/json"
+    resp.app_iter = (
+        c.encode("utf8")
+        for c in json.JSONEncoder(sort_keys=True, separators=(", ", ": ")).iterencode(
+            data
+        )
+    )
+    return resp
+
 
 @view_config(
     route_name="legacy.api.json.release_slash",
     context=Release,
+    renderer="json",
     decorator=_CACHE_DECORATOR,
 )
 def json_release_slash(release, request):
-    return HTTPMovedPermanently(
-        # Respond with redirect to url without trailing slash
-        request.route_path(
-            "legacy.api.json.release",
-            name=release.project.name,
-            version=release.version,
-        ),
-        headers=_CORS_HEADERS,
-    )
+    return json_release(release, request)

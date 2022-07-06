@@ -126,6 +126,38 @@ class IOrganizationService(Interface):
         Performs operations necessary to reject approval of an organization
         """
 
+    def delete_organization(organization_id):
+        """
+        Delete an organization for the specified organization id
+        """
+
+    def rename_organization(organization_id, name):
+        """
+        Performs operations necessary to rename an Organization
+        """
+
+    def update_organization(organization_id, **changes):
+        """
+        Accepts a organization object and attempts to update an organization with those
+        attributes
+        """
+
+    def get_organization_project(organization_id, project_id):
+        """
+        Return the organization project object that represents the given
+        organization and project or None
+        """
+
+    def add_organization_project(organization_id, project_id):
+        """
+        Adds an association between the specified organization and project
+        """
+
+    def delete_organization_project(organization_id, project_id):
+        """
+        Removes an association between the specified organization and project
+        """
+
     def record_event(organization_id, *, tag, additional=None):
         """
         Creates a new Organization.Event for the given organization with the given

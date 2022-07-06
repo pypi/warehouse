@@ -11,15 +11,7 @@
  # See the License for the specific language governing permissions and
  # limitations under the License.
 -#}
-<!DOCTYPE html>
-<html>
-  <head>
-    <meta name="pypi:repository-version" content="1.0">
-    <title>Simple index</title>
-  </head>
-  <body>
-    {% for project in projects -%}
-    <a href="{{ request.route_path('legacy.api.simple.detail', name=project.normalized_name) }}">{{ project.name }}</a>
-    {% endfor -%}
-  </body>
-</html>
+
+{% extends "email/_base/subject.txt" %}
+
+{% block subject %}{% trans %}A project you maintain has been designated as critical{% endtrans %}{% endblock %}

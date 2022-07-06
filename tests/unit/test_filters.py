@@ -223,3 +223,7 @@ def test_localize_datetime(inp, expected):
 def test_is_recent(delta, expected):
     timestamp = datetime.datetime.now() - delta
     assert filters.is_recent(timestamp) == expected
+
+
+def test_is_recent_none():
+    assert filters.is_recent(None) is False

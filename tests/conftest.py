@@ -187,7 +187,7 @@ def database(request):
     pg_port = config.get("port") or os.environ.get("PGPORT", 5432)
     pg_user = config.get("user")
     pg_db = config.get("db", "tests")
-    pg_version = config.get("version", 10.1)
+    pg_version = config.get("version", 12.8)
 
     janitor = DatabaseJanitor(pg_user, pg_host, pg_port, pg_db, pg_version)
 

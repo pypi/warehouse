@@ -8,17 +8,18 @@
     "setupFilesAfterEnv": [
       "./tests/frontend/setup.js"
     ],
+    "testEnvironment": "jsdom",
     "testRegex": ".*_test.js"
   },
   "dependencies": {
-    "@babel/core": "7.6.0",
-    "@babel/plugin-proposal-class-properties": "7.5.5",
-    "@babel/polyfill": "7.6.0",
-    "@babel/preset-env": "7.6.0",
-    "@babel/register": "7.6.0",
+    "@babel/core": "7.18.0",
+    "@babel/plugin-proposal-class-properties": "7.17.12",
+    "@babel/polyfill": "7.12.1",
+    "@babel/preset-env": "7.18.0",
+    "@babel/register": "7.17.7",
     "@fortawesome/fontawesome-free": "5.13.0",
     "@stimulus/polyfills": "1.1.1",
-    "babel-loader": "8.0.6",
+    "babel-loader": "8.2.5",
     "clipboard": "1.7.1",
     "cookie": "0.4.0",
     "cssnano": "4.1.10",
@@ -51,12 +52,13 @@
     "zopflipng-bin": "5.0.0"
   },
   "devDependencies": {
+    "@babel/eslint-parser": "7.17.0",
     "@testing-library/dom": "6.2.0",
     "@testing-library/jest-dom": "4.1.0",
-    "babel-eslint": "8.2.2",
-    "babel-jest": "24.9.0",
-    "eslint": "4.18.2",
-    "jest": "24.9.0",
+    "babel-jest": "28.1.0",
+    "eslint": "8.16.0",
+    "jest": "28.1.0",
+    "jest-environment-jsdom": "^28.1.0",
     "jest-fetch-mock": "2.1.2",
     "mutationobserver-shim": "0.3.3",
     "node-webcrypto-ossl": "1.0.48",
@@ -69,7 +71,7 @@
       "amd": true
     },
     "extends": "eslint:recommended",
-    "parser": "babel-eslint",
+    "parser": "@babel/eslint-parser",
     "parserOptions": {
       "sourceType": "module"
     },

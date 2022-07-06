@@ -73,13 +73,21 @@ def test_token_leak_disclosure_request_from_api_record_error(record, error, reas
     assert exc.value.reason == reason
 
 
-def test_token_leak_disclosure_request_from_api_record():
-    request = utils.TokenLeakDisclosureRequest.from_api_record(
-        {"type": "pypi_api_token", "token": "pypi-1234", "url": "http://example.com"}
-    )
+@pytest.mark.parametrize("source", [None, "content"])
+def test_token_leak_disclosure_request_from_api_record(source):
+    api_record = {
+        "type": "pypi_api_token",
+        "token": "pypi-1234",
+        "url": "http://example.com",
+    }
+    if source:
+        api_record["source"] = source
+
+    request = utils.TokenLeakDisclosureRequest.from_api_record(api_record)
 
     assert request.token == "pypi-1234"
     assert request.public_url == "http://example.com"
+    assert request.source == source
 
 
 class TestGitHubTokenScanningPayloadVerifier:

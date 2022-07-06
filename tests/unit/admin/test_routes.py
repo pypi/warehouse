@@ -59,6 +59,11 @@ def test_includeme():
             "/admin/users/{user_id}/reset_password/",
             domain=warehouse,
         ),
+        pretend.call(
+            "admin.prohibited_user_names.bulk_add",
+            "/admin/prohibited_user_names/bulk/",
+            domain=warehouse,
+        ),
         pretend.call("admin.project.list", "/admin/projects/", domain=warehouse),
         pretend.call(
             "admin.project.detail",

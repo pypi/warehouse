@@ -54,6 +54,11 @@ def includeme(config):
         "/admin/users/{user_id}/reset_password/",
         domain=warehouse,
     )
+    config.add_route(
+        "admin.prohibited_user_names.bulk_add",
+        "/admin/prohibited_user_names/bulk/",
+        domain=warehouse,
+    )
 
     # Project related Admin pages
     config.add_route("admin.project.list", "/admin/projects/", domain=warehouse)

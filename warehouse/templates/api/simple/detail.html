@@ -14,14 +14,14 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <meta name="pypi:repository-version" content="1.0">
-    <title>Links for {{ project.name }}</title>
+    <meta name="pypi:repository-version" content="{{ meta['api-version'] }}">
+    <title>Links for {{ name }}</title>
   </head>
   <body>
-    <h1>Links for {{ project.name }}</h1>
+    <h1>Links for {{ name }}</h1>
     {% for file in files -%}
-    <a href="{{ request.route_url('packaging.file', path=file.path) }}#sha256={{ file.sha256_digest }}"{% if file.release.requires_python %} data-requires-python="{{ file.release.requires_python }}"{% endif %}{% if file.release.yanked %} data-yanked="{{ file.release.yanked_reason }}"{% endif %}>{{ file.filename }}</a><br/>
+    <a href="{{ file.url }}#sha256={{ file.hashes.sha256 }}" {% if file.get('requires-python') %}data-requires-python="{{ file['requires-python'] }}" {% endif %}{% if file.yanked %}data-yanked="{% if file.yanked is string %}{{ file.yanked }}{% endif %}" {% endif %}>{{ file.filename }}</a><br />
     {% endfor -%}
   </body>
 </html>
-<!--SERIAL {{ project.last_serial }}-->
+<!--SERIAL {{ meta['_last-serial'] }}-->

@@ -6,7 +6,7 @@ import urllib.parse
 
 
 source_map_filename = glob.glob("warehouse/static/dist/js/warehouse.js.*.map")[0]
-with open(source_map_filename) as f:
+with open(source_map_filename, encoding="utf-8") as f:
     source_map = json.loads(f.read())
 
 source_map_paths = {

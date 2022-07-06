@@ -305,6 +305,13 @@ def configure(settings=None):
         coercer=distutils.util.strtobool,
         default=False,
     )
+    maybe_set(
+        settings,
+        "warehouse.two_factor_mandate.cohort_size",
+        "TWOFACTORMANDATE_COHORTSIZE",
+        coercer=int,
+        default=0,
+    )
 
     # OIDC feature flags
     maybe_set(
@@ -411,6 +418,7 @@ def configure(settings=None):
     filters.setdefault("parse_version", "warehouse.filters:parse_version")
     filters.setdefault("localize_datetime", "warehouse.filters:localize_datetime")
     filters.setdefault("is_recent", "warehouse.filters:is_recent")
+    filters.setdefault("canonicalize_name", "packaging.utils:canonicalize_name")
 
     # We also want to register some global functions for Jinja
     jglobals = config.get_settings().setdefault("jinja2.globals", {})

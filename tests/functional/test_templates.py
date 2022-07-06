@@ -32,6 +32,7 @@ FILTERS = {
     "format_package_type": "warehouse.filters:format_package_type",
     "parse_version": "warehouse.filters:parse_version",
     "localize_datetime": "warehouse.filters:localize_datetime",
+    "canonicalize_name": "packaging.utils:canonicalize_name",
 }
 
 
@@ -56,6 +57,7 @@ def test_templates_for_empty_titles():
     for dir_, _, files in os.walk(dir_name):
         if (
             dir_.find("/includes") > -1
+            or dir_.find("/api") > -1
             or dir_.find("/legacy") > -1
             or dir_.find("/email/") > -1
         ):

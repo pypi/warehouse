@@ -199,8 +199,8 @@
         <tr>
           <td>Project-URL</td>
           <td>
-            {% for url in release.project_urls %}
-            <code>{{ url }}</code><br>
+            {% for label, url in release.project_urls.items() %}
+            <code>{{ label }}, {{ url }}</code><br>
             {% endfor %}
           </td>
         </tr>

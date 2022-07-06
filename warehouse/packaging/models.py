@@ -27,10 +27,12 @@ from sqlalchemy import (
     Column,
     DateTime,
     Enum,
+    FetchedValue,
     Float,
     ForeignKey,
     Index,
     Integer,
+    String,
     Table,
     Text,
     UniqueConstraint,
@@ -43,6 +45,7 @@ from sqlalchemy.ext.associationproxy import association_proxy
 from sqlalchemy.ext.declarative import declared_attr  # type: ignore
 from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy.orm import validates
+from sqlalchemy.orm.collections import attribute_mapped_collection
 from sqlalchemy.orm.exc import MultipleResultsFound, NoResultFound
 from sqlalchemy.sql import expression
 from trove_classifiers import sorted_classifiers
@@ -52,6 +55,12 @@ from warehouse.accounts.models import User
 from warehouse.classifiers.models import Classifier
 from warehouse.events.models import HasEvents
 from warehouse.integrations.vulnerabilities.models import VulnerabilityRecord
+from warehouse.organizations.models import (
+    Organization,
+    OrganizationProject,
+    OrganizationRole,
+    OrganizationRoleType,
+)
 from warehouse.sitemap.models import SitemapMixin
 from warehouse.utils import dotted_navigator
 from warehouse.utils.attrs import make_repr
@@ -78,7 +87,7 @@ class Role(db.Model):
     )
 
     user = orm.relationship(User, lazy=False)
-    project = orm.relationship("Project", lazy=False)
+    project = orm.relationship("Project", lazy=False, back_populates="roles")
 
 
 class RoleInvitationStatus(enum.Enum):
@@ -133,6 +142,14 @@ class ProjectFactory:
         except NoResultFound:
             raise KeyError from None
 
+    def __contains__(self, project):
+        try:
+            self[project]
+        except KeyError:
+            return False
+        else:
+            return True
+
 
 class TwoFactorRequireable:
     # Project owner requires 2FA for this project
@@ -158,7 +175,13 @@ class Project(SitemapMixin, TwoFactorRequireable, HasEvents, db.Model):
     __repr__ = make_repr("name")
 
     name = Column(Text, nullable=False)
-    normalized_name = orm.column_property(func.normalize_pep426_name(name))
+    normalized_name = Column(
+        Text,
+        nullable=False,
+        unique=True,
+        server_default=FetchedValue(),
+        server_onupdate=FetchedValue(),
+    )
     created = Column(
         DateTime(timezone=False),
         nullable=False,
@@ -170,11 +193,16 @@ class Project(SitemapMixin, TwoFactorRequireable, HasEvents, db.Model):
     total_size_limit = Column(BigInteger, nullable=True)
     last_serial = Column(Integer, nullable=False, server_default=sql.text("0"))
     zscore = Column(Float, nullable=True)
-
     total_size = Column(BigInteger, server_default=sql.text("0"))
 
+    organization = orm.relationship(
+        Organization,
+        secondary=OrganizationProject.__table__,  # type: ignore
+        back_populates="projects",
+        uselist=False,
+    )
+    roles = orm.relationship(Role, back_populates="project", passive_deletes=True)
     users = orm.relationship(User, secondary=Role.__table__, backref="projects", viewonly=True)  # type: ignore # noqa
-
     releases = orm.relationship(
         "Release",
         backref="project",
@@ -224,17 +252,26 @@ class Project(SitemapMixin, TwoFactorRequireable, HasEvents, db.Model):
         # Get all of the users for this project.
         query = session.query(Role).filter(Role.project == self)
         query = query.options(orm.lazyload("project"))
-        query = query.options(orm.joinedload("user").lazyload("emails"))
-        query = query.join(User).order_by(User.id.asc())
-        for role in sorted(
-            query.all(), key=lambda x: ["Owner", "Maintainer"].index(x.role_name)
+        query = query.options(orm.lazyload("user"))
+        roles = {(role.user_id, role.role_name) for role in query.all()}
+
+        # Add all organization owners for this project.
+        if self.organization:
+            query = session.query(OrganizationRole).filter(
+                OrganizationRole.organization == self.organization,
+                OrganizationRole.role_name == OrganizationRoleType.Owner,
+            )
+            query = query.options(orm.lazyload("organization"))
+            query = query.options(orm.lazyload("user"))
+            roles |= {(role.user_id, "Owner") for role in query.all()}
+
+        for user_id, role_name in sorted(
+            roles, key=lambda x: (["Owner", "Maintainer"].index(x[1]), x[0])
         ):
-            if role.role_name == "Owner":
-                acls.append(
-                    (Allow, f"user:{role.user.id}", ["manage:project", "upload"])
-                )
+            if role_name == "Owner":
+                acls.append((Allow, f"user:{user_id}", ["manage:project", "upload"]))
             else:
-                acls.append((Allow, f"user:{role.user.id}", ["upload"]))
+                acls.append((Allow, f"user:{user_id}", ["upload"]))
         return acls
 
     @property
@@ -248,6 +285,23 @@ class Project(SitemapMixin, TwoFactorRequireable, HasEvents, db.Model):
             return
 
         return request.route_url("legacy.docs", project=self.name)
+
+    @property
+    def owners(self):
+        """Return all owners who are owners of the project."""
+        owner_roles = (
+            orm.object_session(self)
+            .query(User.id)
+            .join(Role.user)
+            .filter(Role.role_name == "Owner", Role.project == self)
+            .subquery()
+        )
+        return (
+            orm.object_session(self)
+            .query(User)
+            .join(owner_roles, User.id == owner_roles.c.id)
+            .all()
+        )
 
     @property
     def all_versions(self):
@@ -281,10 +335,6 @@ class DependencyKind(enum.IntEnum):
     provides_dist = 5
     obsoletes_dist = 6
     requires_external = 7
-
-    # TODO: Move project URLs into their own table, since they are not actually
-    #       a "dependency".
-    project_url = 8
 
 
 class Dependency(db.Model):
@@ -321,6 +371,28 @@ class Description(db.Model):
     raw = Column(Text, nullable=False)
     html = Column(Text, nullable=False)
     rendered_by = Column(Text, nullable=False)
+
+
+class ReleaseURL(db.Model):
+
+    __tablename__ = "release_urls"
+    __table_args__ = (
+        UniqueConstraint("release_id", "name"),
+        CheckConstraint(
+            "char_length(name) BETWEEN 1 AND 32",
+            name="release_urls_valid_name",
+        ),
+    )
+    __repr__ = make_repr("name", "url")
+
+    release_id = Column(
+        ForeignKey("releases.id", onupdate="CASCADE", ondelete="CASCADE"),
+        nullable=False,
+        index=True,
+    )
+
+    name = Column(String(32), nullable=False)
+    url = Column(Text, nullable=False)
 
 
 class Release(db.Model):
@@ -396,6 +468,20 @@ class Release(db.Model):
     )
     classifiers = association_proxy("_classifiers", "classifier")
 
+    _project_urls = orm.relationship(
+        ReleaseURL,
+        backref="release",
+        collection_class=attribute_mapped_collection("name"),
+        cascade="all, delete-orphan",
+        order_by=lambda: ReleaseURL.name.asc(),
+        passive_deletes=True,
+    )
+    project_urls = association_proxy(
+        "_project_urls",
+        "url",
+        creator=lambda k, v: ReleaseURL(name=k, url=v),  # type: ignore
+    )
+
     files = orm.relationship(
         "File",
         backref="release",
@@ -440,9 +526,6 @@ class Release(db.Model):
     _requires_external = _dependency_relation(DependencyKind.requires_external)
     requires_external = association_proxy("_requires_external", "specifier")
 
-    _project_urls = _dependency_relation(DependencyKind.project_url)
-    project_urls = association_proxy("_project_urls", "specifier")
-
     uploader_id = Column(
         ForeignKey("users.id", onupdate="CASCADE", ondelete="SET NULL"),
         nullable=True,
@@ -460,11 +543,7 @@ class Release(db.Model):
         if self.download_url:
             _urls["Download"] = self.download_url
 
-        for urlspec in self.project_urls:
-            name, _, url = urlspec.partition(",")
-            name = name.strip()
-            url = url.strip()
-
+        for name, url in self.project_urls.items():
             # avoid duplicating homepage/download links in case the same
             # url is specified in the pkginfo twice (in the Home-page
             # or Download-URL field and again in the Project-URL fields)
@@ -474,8 +553,7 @@ class Release(db.Model):
             if comp_name == "downloadurl" and url == _urls.get("Download"):
                 continue
 
-            if name and url:
-                _urls[name] = url
+            _urls[name] = url
 
         return _urls
 

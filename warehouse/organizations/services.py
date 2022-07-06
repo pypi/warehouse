@@ -23,8 +23,11 @@ from warehouse.organizations.models import (
     OrganizationInvitation,
     OrganizationInvitationStatus,
     OrganizationNameCatalog,
+    OrganizationProject,
     OrganizationRole,
 )
+
+NAME_FIELD = "name"
 
 
 @implementer(IOrganizationService)
@@ -57,15 +60,15 @@ class DatabaseOrganizationService:
         """
         normalized_name = func.normalize_pep426_name(name)
         try:
-            organization = (
-                self.db.query(Organization.id)
-                .filter(Organization.normalized_name == normalized_name)
+            (organization_id,) = (
+                self.db.query(OrganizationNameCatalog.organization_id)
+                .filter(OrganizationNameCatalog.normalized_name == normalized_name)
                 .one()
             )
         except NoResultFound:
             return
 
-        return organization.id
+        return organization_id
 
     def get_organizations(self):
         """
@@ -80,7 +83,7 @@ class DatabaseOrganizationService:
         """
         return (
             self.db.query(Organization)
-            .filter(Organization.is_approved == None)  # noqa
+            .filter(Organization.is_approved == None)  # noqa: E711
             .order_by(Organization.name)
             .all()
         )
@@ -288,6 +291,95 @@ class DatabaseOrganizationService:
         # self.db.flush()
 
         return organization
+
+    def delete_organization(self, organization_id):
+        """
+        Delete an organization for the specified organization id
+        """
+        organization = self.get_organization(organization_id)
+
+        # Delete invitations
+        self.db.query(OrganizationInvitation).filter_by(
+            organization=organization
+        ).delete()
+        # Null out organization id for all name catalog entries
+        self.db.query(OrganizationNameCatalog).filter(
+            OrganizationNameCatalog.organization_id == organization_id
+        ).update({OrganizationNameCatalog.organization_id: None})
+        # Delete projects
+        self.db.query(OrganizationProject).filter_by(organization=organization).delete()
+        # Delete roles
+        self.db.query(OrganizationRole).filter_by(organization=organization).delete()
+        # TODO: Delete any stored card data from payment processor
+        # Delete organization
+        self.db.delete(organization)
+        self.db.flush()
+
+    def rename_organization(self, organization_id, name):
+        """
+        Performs operations necessary to rename an Organization
+        """
+        organization = self.get_organization(organization_id)
+
+        organization.name = name
+        self.db.flush()
+
+        self.add_catalog_entry(organization_id)
+
+        return organization
+
+    def update_organization(self, organization_id, **changes):
+        """
+        Accepts a organization object and attempts to update an organization with those
+        attributes
+        """
+        organization = self.get_organization(organization_id)
+        for attr, value in changes.items():
+            if attr == NAME_FIELD:
+                # Call rename function to ensure name catalag entry is added
+                self.rename_organization(organization_id, value)
+            setattr(organization, attr, value)
+
+        return organization
+
+    def get_organization_project(self, organization_id, project_id):
+        """
+        Return the organization project object that represents the given
+        organization project id or None
+        """
+        return (
+            self.db.query(OrganizationProject)
+            .filter(
+                OrganizationProject.organization_id == organization_id,
+                OrganizationProject.project_id == project_id,
+            )
+            .first()
+        )
+
+    def add_organization_project(self, organization_id, project_id):
+        """
+        Adds an association between the specified organization and project
+        """
+        organization_project = OrganizationProject(
+            organization_id=organization_id,
+            project_id=project_id,
+        )
+
+        self.db.add(organization_project)
+        self.db.flush()
+
+        return organization_project
+
+    def delete_organization_project(self, organization_id, project_id):
+        """
+        Performs soft delete of association between specified organization and project
+        """
+        organization_project = self.get_organization_project(
+            organization_id, project_id
+        )
+
+        self.db.delete(organization_project)
+        self.db.flush()
 
     def record_event(self, organization_id, *, tag, additional=None):
         """
