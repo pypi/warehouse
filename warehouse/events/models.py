@@ -53,7 +53,7 @@ class Event(AbstractConcreteBase):
 
     @declared_attr
     def source(cls):  # noqa: N805
-        return orm.relationship(cls._parent_class)
+        return orm.relationship(cls._parent_class, back_populates="events")
 
     def __init_subclass__(cls, /, parent_class, **kwargs):
         cls._parent_class = parent_class
@@ -70,7 +70,12 @@ class HasEvents:
 
     @declared_attr
     def events(cls):  # noqa: N805
-        return orm.relationship(cls.Event, cascade="all, delete-orphan", lazy="dynamic")
+        return orm.relationship(
+            cls.Event,
+            cascade="all, delete-orphan",
+            lazy="dynamic",
+            back_populates="source",
+        )
 
     def record_event(self, *, tag, ip_address, additional=None):
         session = orm.object_session(self)
