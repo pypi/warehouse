@@ -10,6 +10,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import json
+
 from pyramid.httpexceptions import HTTPMovedPermanently, HTTPNotFound
 from pyramid.view import view_config
 from sqlalchemy.orm import Load
@@ -84,7 +86,6 @@ def json_project(project, request):
 @view_config(
     route_name="legacy.api.json.project_slash",
     context=Project,
-    renderer="json",
     decorator=_CACHE_DECORATOR,
 )
 def json_project_slash(project, request):
@@ -94,7 +95,6 @@ def json_project_slash(project, request):
 @view_config(
     route_name="legacy.api.json.release",
     context=Release,
-    renderer="json",
     decorator=_CACHE_DECORATOR,
 )
 def json_release(release, request):
@@ -177,7 +177,7 @@ def json_release(release, request):
         for vulnerability_record in release.vulnerabilities
     ]
 
-    return {
+    data = {
         "info": {
             "name": project.name,
             "version": release.version,
@@ -215,6 +215,18 @@ def json_release(release, request):
         "vulnerabilities": vulnerabilities,
         "last_serial": project.last_serial,
     }
+
+    # Stream the results to the client instead of building them up, this will
+    # make it so that the JSON encoder uses less memory overall.
+    resp = request.response
+    resp.content_type = "application/json"
+    resp.app_iter = (
+        c.encode("utf8")
+        for c in json.JSONEncoder(sort_keys=True, separators=(", ", ": ")).iterencode(
+            data
+        )
+    )
+    return resp
 
 
 @view_config(

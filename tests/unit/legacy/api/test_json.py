@@ -10,6 +10,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import json as _json
+
 import pretend
 
 from pyramid.httpexceptions import HTTPMovedPermanently, HTTPNotFound
@@ -299,7 +301,7 @@ class TestJSONRelease:
 
         db_request.route_url = pretend.call_recorder(lambda *args, **kw: url)
 
-        result = json.json_release(releases[3], db_request)
+        json.json_release(releases[3], db_request)
 
         assert set(db_request.route_url.calls) == {
             pretend.call("packaging.file", path=files[0].path),
@@ -315,86 +317,115 @@ class TestJSONRelease:
         _assert_has_cors_headers(db_request.response.headers)
         assert db_request.response.headers["X-PyPI-Last-Serial"] == str(je.id)
 
-        assert result == {
-            "info": {
-                "author": None,
-                "author_email": None,
-                "bugtrack_url": None,
-                "classifiers": [],
-                "description_content_type": description_content_type,
-                "description": releases[-1].description.raw,
-                "docs_url": "/the/fake/url/",
-                "download_url": None,
-                "downloads": {"last_day": -1, "last_week": -1, "last_month": -1},
-                "home_page": None,
-                "keywords": None,
-                "license": None,
-                "maintainer": None,
-                "maintainer_email": None,
-                "name": project.name,
-                "package_url": "/the/fake/url/",
-                "platform": None,
-                "project_url": "/the/fake/url/",
-                "project_urls": expected_urls,
-                "release_url": "/the/fake/url/",
-                "requires_dist": None,
-                "requires_python": None,
-                "summary": None,
-                "yanked": False,
-                "yanked_reason": None,
-                "version": "3.0",
-            },
-            "releases": {
-                "0.1": [],
-                "1.0": [
-                    {
-                        "comment_text": None,
-                        "downloads": -1,
-                        "filename": files[0].filename,
-                        "has_sig": True,
-                        "md5_digest": files[0].md5_digest,
-                        "digests": {
-                            "md5": files[0].md5_digest,
-                            "sha256": files[0].sha256_digest,
-                        },
-                        "packagetype": None,
-                        "python_version": "source",
-                        "size": 200,
-                        "upload_time": files[0].upload_time.strftime(
-                            "%Y-%m-%dT%H:%M:%S"
-                        ),
-                        "upload_time_iso_8601": files[0].upload_time.isoformat() + "Z",
-                        "url": "/the/fake/url/",
-                        "requires_python": None,
-                        "yanked": False,
-                        "yanked_reason": None,
-                    }
-                ],
-                "2.0": [
-                    {
-                        "comment_text": None,
-                        "downloads": -1,
-                        "filename": files[1].filename,
-                        "has_sig": True,
-                        "md5_digest": files[1].md5_digest,
-                        "digests": {
-                            "md5": files[1].md5_digest,
-                            "sha256": files[1].sha256_digest,
-                        },
-                        "packagetype": None,
-                        "python_version": "source",
-                        "size": 200,
-                        "upload_time": files[1].upload_time.strftime(
-                            "%Y-%m-%dT%H:%M:%S"
-                        ),
-                        "upload_time_iso_8601": files[1].upload_time.isoformat() + "Z",
-                        "url": "/the/fake/url/",
-                        "requires_python": None,
-                        "yanked": False,
-                        "yanked_reason": None,
-                    }
-                ],
-                "3.0": [
+        assert db_request.response.body == _json.dumps(
+            {
+                "info": {
+                    "author": None,
+                    "author_email": None,
+                    "bugtrack_url": None,
+                    "classifiers": [],
+                    "description_content_type": description_content_type,
+                    "description": releases[-1].description.raw,
+                    "docs_url": "/the/fake/url/",
+                    "download_url": None,
+                    "downloads": {"last_day": -1, "last_week": -1, "last_month": -1},
+                    "home_page": None,
+                    "keywords": None,
+                    "license": None,
+                    "maintainer": None,
+                    "maintainer_email": None,
+                    "name": project.name,
+                    "package_url": "/the/fake/url/",
+                    "platform": None,
+                    "project_url": "/the/fake/url/",
+                    "project_urls": expected_urls,
+                    "release_url": "/the/fake/url/",
+                    "requires_dist": None,
+                    "requires_python": None,
+                    "summary": None,
+                    "yanked": False,
+                    "yanked_reason": None,
+                    "version": "3.0",
+                },
+                "releases": {
+                    "0.1": [],
+                    "1.0": [
+                        {
+                            "comment_text": None,
+                            "downloads": -1,
+                            "filename": files[0].filename,
+                            "has_sig": True,
+                            "md5_digest": files[0].md5_digest,
+                            "digests": {
+                                "md5": files[0].md5_digest,
+                                "sha256": files[0].sha256_digest,
+                            },
+                            "packagetype": None,
+                            "python_version": "source",
+                            "size": 200,
+                            "upload_time": files[0].upload_time.strftime(
+                                "%Y-%m-%dT%H:%M:%S"
+                            ),
+                            "upload_time_iso_8601": files[0].upload_time.isoformat()
+                            + "Z",
+                            "url": "/the/fake/url/",
+                            "requires_python": None,
+                            "yanked": False,
+                            "yanked_reason": None,
+                        }
+                    ],
+                    "2.0": [
+                        {
+                            "comment_text": None,
+                            "downloads": -1,
+                            "filename": files[1].filename,
+                            "has_sig": True,
+                            "md5_digest": files[1].md5_digest,
+                            "digests": {
+                                "md5": files[1].md5_digest,
+                                "sha256": files[1].sha256_digest,
+                            },
+                            "packagetype": None,
+                            "python_version": "source",
+                            "size": 200,
+                            "upload_time": files[1].upload_time.strftime(
+                                "%Y-%m-%dT%H:%M:%S"
+                            ),
+                            "upload_time_iso_8601": files[1].upload_time.isoformat()
+                            + "Z",
+                            "url": "/the/fake/url/",
+                            "requires_python": None,
+                            "yanked": False,
+                            "yanked_reason": None,
+                        }
+                    ],
+                    "3.0": [
+                        {
+                            "comment_text": None,
+                            "downloads": -1,
+                            "filename": files[2].filename,
+                            "has_sig": True,
+                            "md5_digest": files[2].md5_digest,
+                            "digests": {
+                                "md5": files[2].md5_digest,
+                                "sha256": files[2].sha256_digest,
+                            },
+                            "packagetype": None,
+                            "python_version": "source",
+                            "size": 200,
+                            "upload_time": files[2].upload_time.strftime(
+                                "%Y-%m-%dT%H:%M:%S"
+                            ),
+                            "upload_time_iso_8601": files[2].upload_time.isoformat()
+                            + "Z",
+                            "url": "/the/fake/url/",
+                            "requires_python": None,
+                            "yanked": False,
+                            "yanked_reason": None,
+                        }
+                    ],
+                },
+                "urls": [
                     {
                         "comment_text": None,
                         "downloads": -1,
@@ -418,32 +449,11 @@ class TestJSONRelease:
                         "yanked_reason": None,
                     }
                 ],
+                "last_serial": je.id,
+                "vulnerabilities": [],
             },
-            "urls": [
-                {
-                    "comment_text": None,
-                    "downloads": -1,
-                    "filename": files[2].filename,
-                    "has_sig": True,
-                    "md5_digest": files[2].md5_digest,
-                    "digests": {
-                        "md5": files[2].md5_digest,
-                        "sha256": files[2].sha256_digest,
-                    },
-                    "packagetype": None,
-                    "python_version": "source",
-                    "size": 200,
-                    "upload_time": files[2].upload_time.strftime("%Y-%m-%dT%H:%M:%S"),
-                    "upload_time_iso_8601": files[2].upload_time.isoformat() + "Z",
-                    "url": "/the/fake/url/",
-                    "requires_python": None,
-                    "yanked": False,
-                    "yanked_reason": None,
-                }
-            ],
-            "last_serial": je.id,
-            "vulnerabilities": [],
-        }
+            sort_keys=True,
+        ).encode("utf8")
 
     def test_minimal_renders(self, pyramid_config, db_request):
         project = ProjectFactory.create(has_docs=False)
@@ -463,7 +473,7 @@ class TestJSONRelease:
         url = "/the/fake/url/"
         db_request.route_url = pretend.call_recorder(lambda *args, **kw: url)
 
-        result = json.json_release(release, db_request)
+        json.json_release(release, db_request)
 
         assert set(db_request.route_url.calls) == {
             pretend.call("packaging.file", path=file.path),
@@ -476,37 +486,63 @@ class TestJSONRelease:
         _assert_has_cors_headers(db_request.response.headers)
         assert db_request.response.headers["X-PyPI-Last-Serial"] == str(je.id)
 
-        assert result == {
-            "info": {
-                "author": None,
-                "author_email": None,
-                "bugtrack_url": None,
-                "classifiers": [],
-                "description_content_type": release.description.content_type,
-                "description": release.description.raw,
-                "docs_url": None,
-                "download_url": None,
-                "downloads": {"last_day": -1, "last_week": -1, "last_month": -1},
-                "home_page": None,
-                "keywords": None,
-                "license": None,
-                "maintainer": None,
-                "maintainer_email": None,
-                "name": project.name,
-                "package_url": "/the/fake/url/",
-                "platform": None,
-                "project_url": "/the/fake/url/",
-                "project_urls": None,
-                "release_url": "/the/fake/url/",
-                "requires_dist": None,
-                "requires_python": None,
-                "summary": None,
-                "yanked": False,
-                "yanked_reason": None,
-                "version": "0.1",
-            },
-            "releases": {
-                "0.1": [
+        assert db_request.response.body == _json.dumps(
+            {
+                "info": {
+                    "author": None,
+                    "author_email": None,
+                    "bugtrack_url": None,
+                    "classifiers": [],
+                    "description_content_type": release.description.content_type,
+                    "description": release.description.raw,
+                    "docs_url": None,
+                    "download_url": None,
+                    "downloads": {"last_day": -1, "last_week": -1, "last_month": -1},
+                    "home_page": None,
+                    "keywords": None,
+                    "license": None,
+                    "maintainer": None,
+                    "maintainer_email": None,
+                    "name": project.name,
+                    "package_url": "/the/fake/url/",
+                    "platform": None,
+                    "project_url": "/the/fake/url/",
+                    "project_urls": None,
+                    "release_url": "/the/fake/url/",
+                    "requires_dist": None,
+                    "requires_python": None,
+                    "summary": None,
+                    "yanked": False,
+                    "yanked_reason": None,
+                    "version": "0.1",
+                },
+                "releases": {
+                    "0.1": [
+                        {
+                            "comment_text": None,
+                            "downloads": -1,
+                            "filename": file.filename,
+                            "has_sig": True,
+                            "md5_digest": file.md5_digest,
+                            "digests": {
+                                "md5": file.md5_digest,
+                                "sha256": file.sha256_digest,
+                            },
+                            "packagetype": None,
+                            "python_version": "source",
+                            "size": 200,
+                            "upload_time": file.upload_time.strftime(
+                                "%Y-%m-%dT%H:%M:%S"
+                            ),
+                            "upload_time_iso_8601": file.upload_time.isoformat() + "Z",
+                            "url": "/the/fake/url/",
+                            "requires_python": None,
+                            "yanked": False,
+                            "yanked_reason": None,
+                        }
+                    ]
+                },
+                "urls": [
                     {
                         "comment_text": None,
                         "downloads": -1,
@@ -527,30 +563,12 @@ class TestJSONRelease:
                         "yanked": False,
                         "yanked_reason": None,
                     }
-                ]
+                ],
+                "last_serial": je.id,
+                "vulnerabilities": [],
             },
-            "urls": [
-                {
-                    "comment_text": None,
-                    "downloads": -1,
-                    "filename": file.filename,
-                    "has_sig": True,
-                    "md5_digest": file.md5_digest,
-                    "digests": {"md5": file.md5_digest, "sha256": file.sha256_digest},
-                    "packagetype": None,
-                    "python_version": "source",
-                    "size": 200,
-                    "upload_time": file.upload_time.strftime("%Y-%m-%dT%H:%M:%S"),
-                    "upload_time_iso_8601": file.upload_time.isoformat() + "Z",
-                    "url": "/the/fake/url/",
-                    "requires_python": None,
-                    "yanked": False,
-                    "yanked_reason": None,
-                }
-            ],
-            "last_serial": je.id,
-            "vulnerabilities": [],
-        }
+            sort_keys=True,
+        ).encode("utf8")
 
     def test_vulnerabilities_renders(self, pyramid_config, db_request):
         project = ProjectFactory.create(has_docs=False)
@@ -570,7 +588,7 @@ class TestJSONRelease:
 
         result = json.json_release(release, db_request)
 
-        assert result["vulnerabilities"] == [
+        assert _json.loads(result.body)["vulnerabilities"] == [
             {
                 "id": "PYSEC-001",
                 "source": "the source",
