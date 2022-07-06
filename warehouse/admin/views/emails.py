@@ -63,7 +63,8 @@ def email_list(request):
             else:
                 filters.append(EmailMessage.to.ilike(term))
 
-        email_query = email_query.filter(or_(*filters))
+        filters = filters or [True]
+        email_query = email_query.filter(or_(False, *filters))
 
     emails = SQLAlchemyORMPage(
         email_query,

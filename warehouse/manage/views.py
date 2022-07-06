@@ -154,7 +154,7 @@ def user_projects(request):
     with_sole_owner = (
         # Select projects having just one owner.
         request.db.query(Role.project_id)
-        .join(projects_owned)
+        .join(projects_owned.subquery())
         .filter(Role.role_name == "Owner")
         .group_by(Role.project_id)
         .having(func.count(Role.project_id) == 1)

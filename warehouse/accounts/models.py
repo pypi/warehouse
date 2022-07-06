@@ -97,6 +97,7 @@ class User(SitemapMixin, HasEvents, db.Model):
     webauthn = orm.relationship(
         "WebAuthn", backref="user", cascade="all, delete-orphan", lazy=True
     )
+
     recovery_codes = orm.relationship(
         "RecoveryCode", backref="user", cascade="all, delete-orphan", lazy=True
     )

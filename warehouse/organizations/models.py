@@ -188,10 +188,10 @@ class Organization(HasEvents, db.Model):
     )
 
     users = orm.relationship(
-        User, secondary=OrganizationRole.__table__, backref="organizations"  # type: ignore # noqa
+        User, secondary=OrganizationRole.__table__, backref="organizations", viewonly=True  # type: ignore # noqa
     )
     projects = orm.relationship(
-        "Project", secondary=OrganizationProject.__table__, back_populates="organization"  # type: ignore # noqa
+        "Project", secondary=OrganizationProject.__table__, back_populates="organization", viewonly=True  # type: ignore # noqa
     )
 
     def record_event(self, *, tag, ip_address, additional={}):

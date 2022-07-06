@@ -115,8 +115,9 @@ def organization_list(request):
         for filter_or_subfilters in filters:
             if isinstance(filter_or_subfilters, list):
                 # Add list of subfilters combined with OR.
+                filter_or_subfilters = filter_or_subfilters or [True]
                 organizations_query = organizations_query.filter(
-                    or_(*filter_or_subfilters)
+                    or_(False, *filter_or_subfilters)
                 )
             else:
                 # Add single filter.

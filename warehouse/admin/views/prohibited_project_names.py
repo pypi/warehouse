@@ -60,8 +60,9 @@ def prohibited_project_names(request):
                 ProhibitedProjectName.name.ilike(func.normalize_pep426_name(term))
             )
 
+        filters = filters or [True]
         prohibited_project_names_query = prohibited_project_names_query.filter(
-            or_(*filters)
+            or_(False, *filters)
         )
 
     prohibited_project_names = SQLAlchemyORMPage(
