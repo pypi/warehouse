@@ -4727,7 +4727,9 @@ class TestManageProjectSettings:
         self, monkeypatch, db_request
     ):
         project = ProjectFactory.create(name="foo")
-        project.organization = OrganizationFactory.create(name="bar")
+        OrganizationProjectFactory.create(
+            organization=OrganizationFactory.create(name="bar"), project=project
+        )
 
         db_request.POST = MultiDict(
             {
@@ -4761,7 +4763,9 @@ class TestManageProjectSettings:
 
     def test_remove_organization_project(self, monkeypatch, db_request):
         project = ProjectFactory.create(name="foo")
-        project.organization = OrganizationFactory.create(name="bar")
+        OrganizationProjectFactory.create(
+            organization=OrganizationFactory.create(name="bar"), project=project
+        )
 
         db_request.POST = MultiDict(
             {
@@ -4944,7 +4948,9 @@ class TestManageProjectSettings:
     ):
         organization = OrganizationFactory.create(name="baz")
         project = ProjectFactory.create(name="foo")
-        project.organization = OrganizationFactory.create(name="bar")
+        OrganizationProjectFactory.create(
+            organization=OrganizationFactory.create(name="bar"), project=project
+        )
 
         db_request.POST = MultiDict(
             {
@@ -5013,7 +5019,9 @@ class TestManageProjectSettings:
 
     def test_transfer_organization_project_invalid(self, monkeypatch, db_request):
         project = ProjectFactory.create(name="foo")
-        project.organization = OrganizationFactory.create(name="bar")
+        OrganizationProjectFactory.create(
+            organization=OrganizationFactory.create(name="bar"), project=project
+        )
 
         db_request.POST = MultiDict(
             {
@@ -5047,7 +5055,9 @@ class TestManageProjectSettings:
     def test_transfer_organization_project(self, monkeypatch, db_request):
         organization = OrganizationFactory.create(name="baz")
         project = ProjectFactory.create(name="foo")
-        project.organization = OrganizationFactory.create(name="bar")
+        OrganizationProjectFactory.create(
+            organization=OrganizationFactory.create(name="bar"), project=project
+        )
 
         db_request.POST = MultiDict(
             {

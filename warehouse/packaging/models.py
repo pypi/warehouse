@@ -200,6 +200,7 @@ class Project(SitemapMixin, TwoFactorRequireable, HasEvents, db.Model):
         secondary=OrganizationProject.__table__,  # type: ignore
         back_populates="projects",
         uselist=False,
+        viewonly=True,
     )
     roles = orm.relationship(Role, back_populates="project", passive_deletes=True)
     users = orm.relationship(User, secondary=Role.__table__, backref="projects", viewonly=True)  # type: ignore # noqa
