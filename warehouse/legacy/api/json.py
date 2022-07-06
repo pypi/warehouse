@@ -86,7 +86,6 @@ def json_project(project, request):
 @view_config(
     route_name="legacy.api.json.project_slash",
     context=Project,
-    renderer="json",
     decorator=_CACHE_DECORATOR,
 )
 def json_project_slash(project, request):
@@ -96,7 +95,6 @@ def json_project_slash(project, request):
 @view_config(
     route_name="legacy.api.json.release",
     context=Release,
-    renderer="json",
     decorator=_CACHE_DECORATOR,
 )
 def json_release(release, request):
@@ -224,7 +222,7 @@ def json_release(release, request):
     resp.content_type = "application/json"
     resp.app_iter = (
         c.encode("utf8")
-        for c in json.JSONEncoder(sort_keys=True, separators=(",", ":")).iterencode(
+        for c in json.JSONEncoder(sort_keys=True, separators=(", ", ": ")).iterencode(
             data
         )
     )

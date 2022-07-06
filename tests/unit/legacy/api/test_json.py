@@ -10,6 +10,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import json as _json
+
 import pretend
 
 from pyramid.httpexceptions import HTTPMovedPermanently, HTTPNotFound
@@ -315,7 +317,7 @@ class TestJSONRelease:
         _assert_has_cors_headers(db_request.response.headers)
         assert db_request.response.headers["X-PyPI-Last-Serial"] == str(je.id)
 
-        assert result == {
+        assert db_request.response.body == _json.dumps({
             "info": {
                 "author": None,
                 "author_email": None,
@@ -443,7 +445,7 @@ class TestJSONRelease:
             ],
             "last_serial": je.id,
             "vulnerabilities": [],
-        }
+        }, sort_keys=True).encode('utf8')
 
     def test_minimal_renders(self, pyramid_config, db_request):
         project = ProjectFactory.create(has_docs=False)
@@ -476,7 +478,7 @@ class TestJSONRelease:
         _assert_has_cors_headers(db_request.response.headers)
         assert db_request.response.headers["X-PyPI-Last-Serial"] == str(je.id)
 
-        assert result == {
+        assert db_request.response.body == _json.dumps({
             "info": {
                 "author": None,
                 "author_email": None,
@@ -550,7 +552,7 @@ class TestJSONRelease:
             ],
             "last_serial": je.id,
             "vulnerabilities": [],
-        }
+        }, sort_keys=True).encode('utf8')
 
     def test_vulnerabilities_renders(self, pyramid_config, db_request):
         project = ProjectFactory.create(has_docs=False)
@@ -570,7 +572,7 @@ class TestJSONRelease:
 
         result = json.json_release(release, db_request)
 
-        assert result["vulnerabilities"] == [
+        assert _json.loads(result.body)["vulnerabilities"] == [
             {
                 "id": "PYSEC-001",
                 "source": "the source",
