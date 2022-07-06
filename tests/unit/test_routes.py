@@ -540,16 +540,22 @@ def test_routes(warehouse):
 
     assert config.add_xmlrpc_endpoint.calls == [
         pretend.call(
-            "pypi", pattern="/pypi", header="Content-Type:text/xml", domain=warehouse
+            "xmlrpc.pypi",
+            pattern="/pypi",
+            header="Content-Type:text/xml",
+            domain=warehouse,
         ),
         pretend.call(
-            "pypi_slash",
+            "xmlrpc.pypi_slash",
             pattern="/pypi/",
             header="Content-Type:text/xml",
             domain=warehouse,
         ),
         pretend.call(
-            "RPC2", pattern="/RPC2", header="Content-Type:text/xml", domain=warehouse
+            "xmlrpc.RPC2",
+            pattern="/RPC2",
+            header="Content-Type:text/xml",
+            domain=warehouse,
         ),
     ]
 

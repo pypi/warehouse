@@ -497,13 +497,16 @@ def includeme(config):
 
     # Legacy XMLRPC
     config.add_xmlrpc_endpoint(
-        "pypi", pattern="/pypi", header="Content-Type:text/xml", domain=warehouse
+        "xmlrpc.pypi", pattern="/pypi", header="Content-Type:text/xml", domain=warehouse
     )
     config.add_xmlrpc_endpoint(
-        "pypi_slash", pattern="/pypi/", header="Content-Type:text/xml", domain=warehouse
+        "xmlrpc.pypi_slash",
+        pattern="/pypi/",
+        header="Content-Type:text/xml",
+        domain=warehouse,
     )
     config.add_xmlrpc_endpoint(
-        "RPC2", pattern="/RPC2", header="Content-Type:text/xml", domain=warehouse
+        "xmlrpc.RPC2", pattern="/RPC2", header="Content-Type:text/xml", domain=warehouse
     )
 
     # Legacy Documentation
