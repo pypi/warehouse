@@ -20,6 +20,8 @@ import markupsafe
 import wtforms
 import wtforms.fields
 
+from passlib.utils import MAX_PASSWORD_SIZE
+
 import warehouse.utils.webauthn as webauthn
 
 from warehouse import forms
@@ -117,7 +119,9 @@ class NewUsernameMixin:
 
 class PasswordMixin:
 
-    password = wtforms.PasswordField(validators=[wtforms.validators.DataRequired()])
+    password = wtforms.PasswordField(
+        validators=[wtforms.validators.DataRequired()], maxlength=MAX_PASSWORD_SIZE
+    )
 
     def __init__(
         self, *args, request, action="login", check_password_metrics_tags=None, **kwargs
@@ -161,7 +165,8 @@ class NewPasswordMixin:
             forms.PasswordStrengthValidator(
                 user_input_fields=["full_name", "username", "email"]
             ),
-        ]
+        ],
+        maxlength=MAX_PASSWORD_SIZE,
     )
 
     password_confirm = wtforms.PasswordField(
@@ -170,7 +175,8 @@ class NewPasswordMixin:
             wtforms.validators.EqualTo(
                 "new_password", message=_("Your passwords don't match. Try again.")
             ),
-        ]
+        ],
+        maxlength=MAX_PASSWORD_SIZE,
     )
 
     # These fields are here to provide the various user-defined fields to the
