@@ -4257,7 +4257,7 @@ def change_team_project_role(project, request, _form_class=ChangeTeamProjectRole
             if (
                 role.role_name == TeamProjectRoleType.Admin
                 and request.user in role.team.members
-                and request.user not in project.organization.owners
+                and request.user not in role.team.organization.owners
             ):
                 request.session.flash("Cannot remove yourself as Admin", queue="error")
             else:
@@ -4310,7 +4310,7 @@ def change_team_project_role(project, request, _form_class=ChangeTeamProjectRole
 
                 # Send notification emails.
                 member_users = set(role.team.members)
-                owner_users = set(project.owners + project.organization.owners)
+                owner_users = set(project.owners + role.team.organization.owners)
                 owner_users -= member_users
                 send_team_collaborator_role_changed_email(
                     request,
@@ -4360,7 +4360,7 @@ def delete_team_project_role(project, request):
         removing_self = (
             role.role_name == TeamProjectRoleType.Admin
             and request.user in role.team.members
-            and request.user not in project.organization.owners
+            and request.user not in role.team.organization.owners
         )
         if removing_self:
             request.session.flash("Cannot remove yourself as Admin", queue="error")
@@ -4413,7 +4413,7 @@ def delete_team_project_role(project, request):
 
             # Send notification emails.
             member_users = set(team.members)
-            owner_users = set(project.owners + project.organization.owners)
+            owner_users = set(project.owners + team.organization.owners)
             owner_users -= member_users
             send_team_collaborator_removed_email(
                 request,
