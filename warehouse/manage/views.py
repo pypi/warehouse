@@ -1548,6 +1548,13 @@ class ManageOrganizationTeamsViews:
                 "team_name": team.name,
             },
         )
+        team.record_event(
+            tag="team:create",
+            ip_address=self.request.remote_addr,
+            additional={
+                "submitted_by_user_id": str(self.request.user.id),
+            },
+        )
 
         # Send notification emails.
         owner_and_manager_users = set(
@@ -2198,9 +2205,6 @@ class ManageTeamSettingsViews:
         organization = self.team.organization
         team_name = self.team.name
 
-        # Delete team.
-        self.organization_service.delete_team(self.team.id)
-
         # Record events.
         organization.record_event(
             tag="organization:team:delete",
@@ -2210,6 +2214,16 @@ class ManageTeamSettingsViews:
                 "team_name": team_name,
             },
         )
+        self.team.record_event(
+            tag="team:delete",
+            ip_address=self.request.remote_addr,
+            additional={
+                "deleted_by_user_id": str(self.request.user.id),
+            },
+        )
+
+        # Delete team.
+        self.organization_service.delete_team(self.team.id)
 
         # Send notification emails.
         owner_and_manager_users = set(
@@ -2376,6 +2390,15 @@ class ManageTeamRolesViews:
                 "target_user_id": str(user_id),
             },
         )
+        self.team.record_event(
+            tag="team:team_role:add",
+            ip_address=self.request.remote_addr,
+            additional={
+                "submitted_by_user_id": str(self.request.user.id),
+                "role_name": role_name.value,
+                "target_user_id": str(user_id),
+            },
+        )
         role.user.record_event(
             tag="account:team_role:add",
             ip_address=self.request.remote_addr,
@@ -2450,6 +2473,16 @@ class ManageTeamRolesViews:
                 ip_address=self.request.remote_addr,
                 additional={
                     "submitted_by_user_id": str(self.request.user.id),
+                    "team_name": self.team.name,
+                    "role_name": role.role_name.value,
+                    "target_user_id": str(role.user.id),
+                },
+            )
+            self.team.record_event(
+                tag="team:team_role:delete",
+                ip_address=self.request.remote_addr,
+                additional={
+                    "submitted_by_user_id": str(self.request.user.id),
                     "role_name": role.role_name.value,
                     "target_user_id": str(role.user.id),
                 },
@@ -2460,6 +2493,7 @@ class ManageTeamRolesViews:
                 additional={
                     "submitted_by_user_id": str(self.request.user.id),
                     "organization_name": self.team.organization.name,
+                    "team_name": self.team.name,
                     "role_name": role.role_name.value,
                 },
             )
@@ -3733,6 +3767,15 @@ def manage_project_roles(project, request, _form_class=CreateRoleForm):
                 "target_team": team.name,
             },
         )
+        team.record_event(
+            tag="team:team_project_role:create",
+            ip_address=request.remote_addr,
+            additional={
+                "submitted_by_user_id": str(request.user.id),
+                "project_name": project.name,
+                "role_name": role_name.value,
+            },
+        )
 
         # Send notification emails.
         member_users = set(team.users)
@@ -4245,7 +4288,7 @@ def change_team_project_role(project, request, _form_class=ChangeTeamProjectRole
                         "target_team": role.team.name,
                     },
                 )
-                project.organization.record_event(
+                role.team.organization.record_event(
                     tag="organization:team_project_role:change",
                     ip_address=request.remote_addr,
                     additional={
@@ -4253,6 +4296,15 @@ def change_team_project_role(project, request, _form_class=ChangeTeamProjectRole
                         "project_name": role.project.name,
                         "role_name": role.role_name.value,
                         "target_team": role.team.name,
+                    },
+                )
+                role.team.record_event(
+                    tag="team:team_project_role:change",
+                    ip_address=request.remote_addr,
+                    additional={
+                        "submitted_by_user_id": str(request.user.id),
+                        "project_name": role.project.name,
+                        "role_name": role.role_name.value,
                     },
                 )
 
@@ -4339,7 +4391,7 @@ def delete_team_project_role(project, request):
                     "target_team": team.name,
                 },
             )
-            project.organization.record_event(
+            team.organization.record_event(
                 tag="organization:team_project_role:delete",
                 ip_address=request.remote_addr,
                 additional={
@@ -4347,6 +4399,15 @@ def delete_team_project_role(project, request):
                     "project_name": project.name,
                     "role_name": role_name.value,
                     "target_team": team.name,
+                },
+            )
+            team.record_event(
+                tag="team:team_project_role:delete",
+                ip_address=request.remote_addr,
+                additional={
+                    "submitted_by_user_id": str(request.user.id),
+                    "project_name": project.name,
+                    "role_name": role_name.value,
                 },
             )
 
