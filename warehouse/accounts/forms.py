@@ -20,8 +20,6 @@ import markupsafe
 import wtforms
 import wtforms.fields
 
-from passlib.utils import MAX_PASSWORD_SIZE
-
 import warehouse.utils.webauthn as webauthn
 
 from warehouse import forms
@@ -38,6 +36,10 @@ from warehouse.email import (
 )
 from warehouse.i18n import localize as _
 from warehouse.utils.otp import TOTP_LENGTH
+
+
+# Taken from passlib
+MAX_PASSWORD_SIZE = 4096
 
 
 class UsernameMixin:
