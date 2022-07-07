@@ -121,7 +121,13 @@ class NewUsernameMixin:
 class PasswordMixin:
 
     password = wtforms.PasswordField(
-        validators=[wtforms.validators.DataRequired()], maxlength=MAX_PASSWORD_SIZE
+        validators=[
+            wtforms.validators.DataRequired(),
+            wtforms.validators.Length(
+                max=MAX_PASSWORD_SIZE,
+                message=_("Password too long."),
+            ),
+        ]
     )
 
     def __init__(
@@ -163,21 +169,27 @@ class NewPasswordMixin:
     new_password = wtforms.PasswordField(
         validators=[
             wtforms.validators.DataRequired(),
+            wtforms.validators.Length(
+                max=MAX_PASSWORD_SIZE,
+                message=_("Password too long."),
+            ),
             forms.PasswordStrengthValidator(
                 user_input_fields=["full_name", "username", "email"]
             ),
         ],
-        maxlength=MAX_PASSWORD_SIZE,
     )
 
     password_confirm = wtforms.PasswordField(
         validators=[
             wtforms.validators.DataRequired(),
+            wtforms.validators.Length(
+                max=MAX_PASSWORD_SIZE,
+                message=_("Password too long."),
+            ),
             wtforms.validators.EqualTo(
                 "new_password", message=_("Your passwords don't match. Try again.")
             ),
         ],
-        maxlength=MAX_PASSWORD_SIZE,
     )
 
     # These fields are here to provide the various user-defined fields to the

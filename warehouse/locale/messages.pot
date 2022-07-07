@@ -33,59 +33,64 @@ msgid ""
 "different username."
 msgstr ""
 
-#: warehouse/accounts/forms.py:150
+#: warehouse/accounts/forms.py:128 warehouse/accounts/forms.py:174
+#: warehouse/accounts/forms.py:187
+msgid "Password too long."
+msgstr ""
+
+#: warehouse/accounts/forms.py:156
 msgid "The password is invalid. Try again."
 msgstr ""
 
-#: warehouse/accounts/forms.py:154 warehouse/accounts/views.py:87
+#: warehouse/accounts/forms.py:160 warehouse/accounts/views.py:87
 msgid "There have been too many unsuccessful login attempts. Try again later."
 msgstr ""
 
-#: warehouse/accounts/forms.py:177
+#: warehouse/accounts/forms.py:190
 msgid "Your passwords don't match. Try again."
 msgstr ""
 
-#: warehouse/accounts/forms.py:209 warehouse/accounts/forms.py:220
+#: warehouse/accounts/forms.py:221 warehouse/accounts/forms.py:232
 msgid "The email address isn't valid. Try again."
 msgstr ""
 
-#: warehouse/accounts/forms.py:228
+#: warehouse/accounts/forms.py:240
 msgid "You can't use an email address from this domain. Use a different email."
 msgstr ""
 
-#: warehouse/accounts/forms.py:239
+#: warehouse/accounts/forms.py:251
 msgid ""
 "This email address is already being used by this account. Use a different"
 " email."
 msgstr ""
 
-#: warehouse/accounts/forms.py:246
+#: warehouse/accounts/forms.py:258
 msgid ""
 "This email address is already being used by another account. Use a "
 "different email."
 msgstr ""
 
-#: warehouse/accounts/forms.py:268 warehouse/manage/forms.py:77
+#: warehouse/accounts/forms.py:280 warehouse/manage/forms.py:77
 msgid "The name is too long. Choose a name with 100 characters or less."
 msgstr ""
 
-#: warehouse/accounts/forms.py:337
+#: warehouse/accounts/forms.py:349
 msgid "Invalid TOTP code."
 msgstr ""
 
-#: warehouse/accounts/forms.py:354
+#: warehouse/accounts/forms.py:366
 msgid "Invalid WebAuthn assertion: Bad payload"
 msgstr ""
 
-#: warehouse/accounts/forms.py:412
+#: warehouse/accounts/forms.py:424
 msgid "Invalid recovery code."
 msgstr ""
 
-#: warehouse/accounts/forms.py:420
+#: warehouse/accounts/forms.py:432
 msgid "Recovery code has been previously used."
 msgstr ""
 
-#: warehouse/accounts/forms.py:439
+#: warehouse/accounts/forms.py:451
 msgid "No user found with that username or email"
 msgstr ""
 
