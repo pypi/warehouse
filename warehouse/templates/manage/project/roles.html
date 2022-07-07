@@ -104,7 +104,7 @@
             <span class="table__user-text">
               <strong>{{ role.team.name }}</strong><br>
               <span>
-                {% trans trimmed count=role.team.users|length %}
+                {% trans trimmed count=role.team.members|length %}
                 {{ count }} team member
                 {% pluralize %}
                 {{ count }} team members
@@ -114,7 +114,7 @@
           </a>
         </th>
         <td>
-        {% if request.user in role.team.users and request.user not in project.organization.owners %}
+        {% if request.user in role.team.members and request.user not in project.organization.owners %}
           {% if role.role_name == TeamProjectRoleType.Admin %}
               {% trans %}Admin{% endtrans %}
           {% elif role.role_name == TeamProjectRoleType.Upload %}
@@ -147,7 +147,7 @@
             <button
               type="submit"
               class="button"
-              {% if role.role_name == TeamProjectRoleType.Admin and request.user in role.team.users and request.user not in project.organization.owners %}
+              {% if role.role_name == TeamProjectRoleType.Admin and request.user in role.team.members and request.user not in project.organization.owners %}
                 title="{% trans %}Cannot remove yourself as Admin{% endtrans %}"
                 disabled
               {% else %}

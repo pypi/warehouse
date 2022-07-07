@@ -3778,7 +3778,7 @@ def manage_project_roles(project, request, _form_class=CreateRoleForm):
         )
 
         # Send notification emails.
-        member_users = set(team.users)
+        member_users = set(team.members)
         owner_users = set(project.owners + project.organization.owners)
         owner_users -= member_users
         send_team_collaborator_added_email(
@@ -4256,7 +4256,7 @@ def change_team_project_role(project, request, _form_class=ChangeTeamProjectRole
             )
             if (
                 role.role_name == TeamProjectRoleType.Admin
-                and request.user in role.team.users
+                and request.user in role.team.members
                 and request.user not in project.organization.owners
             ):
                 request.session.flash("Cannot remove yourself as Admin", queue="error")
@@ -4309,7 +4309,7 @@ def change_team_project_role(project, request, _form_class=ChangeTeamProjectRole
                 )
 
                 # Send notification emails.
-                member_users = set(role.team.users)
+                member_users = set(role.team.members)
                 owner_users = set(project.owners + project.organization.owners)
                 owner_users -= member_users
                 send_team_collaborator_role_changed_email(
@@ -4359,7 +4359,7 @@ def delete_team_project_role(project, request):
         )
         removing_self = (
             role.role_name == TeamProjectRoleType.Admin
-            and request.user in role.team.users
+            and request.user in role.team.members
             and request.user not in project.organization.owners
         )
         if removing_self:
@@ -4412,7 +4412,7 @@ def delete_team_project_role(project, request):
             )
 
             # Send notification emails.
-            member_users = set(team.users)
+            member_users = set(team.members)
             owner_users = set(project.owners + project.organization.owners)
             owner_users -= member_users
             send_team_collaborator_removed_email(

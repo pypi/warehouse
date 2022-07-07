@@ -29,7 +29,7 @@
       <div class="split-layout split-layout--no-wrap split-layout--wrap-on-tablet">
         <div>
           <h3 class="team-snippet__title">{{ team.name }}
-            {% if request.user in team.users %}
+            {% if request.user in team.members %}
             <a href="{{ request.route_path('manage.team.roles', organization_name=organization.normalized_name, team_name=team.normalized_name) }}" class="badge package-snippet__badge">
               Member
             </a>

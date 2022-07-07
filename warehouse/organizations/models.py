@@ -466,8 +466,7 @@ class Team(HasEvents, db.Model):
     )
 
     organization = orm.relationship("Organization", lazy=False, backref="teams")
-    # TODO: Or do we call this "members" instead?
-    users = orm.relationship(
+    members = orm.relationship(
         User, secondary=TeamRole.__table__, backref="teams"  # type: ignore # noqa
     )
     projects = orm.relationship(
