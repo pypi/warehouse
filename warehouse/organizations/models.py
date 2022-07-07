@@ -467,10 +467,10 @@ class Team(HasEvents, db.Model):
 
     organization = orm.relationship("Organization", lazy=False, backref="teams")
     members = orm.relationship(
-        User, secondary=TeamRole.__table__, backref="teams"  # type: ignore # noqa
+        User, secondary=TeamRole.__table__, backref="teams", viewonly=True  # type: ignore # noqa
     )
     projects = orm.relationship(
-        "Project", secondary=TeamProjectRole.__table__, backref="teams"  # type: ignore # noqa
+        "Project", secondary=TeamProjectRole.__table__, backref="teams", viewonly=True  # type: ignore # noqa
     )
 
     def record_event(self, *, tag, ip_address, additional={}):
