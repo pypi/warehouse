@@ -439,9 +439,7 @@ class TeamFactory:
             raise KeyError from None
 
 
-# TODO: Do we enable HasEvents functionality? Or are these just Org Events?
-# class Team(HasEvents, db.Model):
-class Team(db.Model):
+class Team(HasEvents, db.Model):
 
     __tablename__ = "teams"
     __table_args__ = (
@@ -475,6 +473,14 @@ class Team(db.Model):
     projects = orm.relationship(
         "Project", secondary=TeamProjectRole.__table__, backref="teams"  # type: ignore # noqa
     )
+
+    def record_event(self, *, tag, ip_address, additional={}):
+        """Record team name in events in case team is ever deleted."""
+        super().record_event(
+            tag=tag,
+            ip_address=ip_address,
+            additional={"team_name": self.name, **additional},
+        )
 
     def __acl__(self):
         return self.organization.__acl__()
