@@ -554,32 +554,6 @@ class TestJSONRelease:
                 "yanked_reason": None,
                 "version": "3.0",
             },
-            "releases": {
-                "3.0": [
-                    {
-                        "comment_text": None,
-                        "downloads": -1,
-                        "filename": files[2].filename,
-                        "has_sig": True,
-                        "md5_digest": files[2].md5_digest,
-                        "digests": {
-                            "md5": files[2].md5_digest,
-                            "sha256": files[2].sha256_digest,
-                        },
-                        "packagetype": None,
-                        "python_version": "source",
-                        "size": 200,
-                        "upload_time": files[2].upload_time.strftime(
-                            "%Y-%m-%dT%H:%M:%S"
-                        ),
-                        "upload_time_iso_8601": files[2].upload_time.isoformat() + "Z",
-                        "url": "/the/fake/url/",
-                        "requires_python": None,
-                        "yanked": False,
-                        "yanked_reason": None,
-                    }
-                ],
-            },
             "urls": [
                 {
                     "comment_text": None,
@@ -665,30 +639,6 @@ class TestJSONRelease:
                 "yanked": False,
                 "yanked_reason": None,
                 "version": "0.1",
-            },
-            "releases": {
-                "0.1": [
-                    {
-                        "comment_text": None,
-                        "downloads": -1,
-                        "filename": file.filename,
-                        "has_sig": True,
-                        "md5_digest": file.md5_digest,
-                        "digests": {
-                            "md5": file.md5_digest,
-                            "sha256": file.sha256_digest,
-                        },
-                        "packagetype": None,
-                        "python_version": "source",
-                        "size": 200,
-                        "upload_time": file.upload_time.strftime("%Y-%m-%dT%H:%M:%S"),
-                        "upload_time_iso_8601": file.upload_time.isoformat() + "Z",
-                        "url": "/the/fake/url/",
-                        "requires_python": None,
-                        "yanked": False,
-                        "yanked_reason": None,
-                    }
-                ]
             },
             "urls": [
                 {

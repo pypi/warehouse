@@ -120,7 +120,7 @@ def _json_data(request, project, release, *, all_releases):
         for vulnerability_record in release.vulnerabilities
     ]
 
-    return {
+    data = {
         "info": {
             "name": project.name,
             "version": release.version,
@@ -154,10 +154,14 @@ def _json_data(request, project, release, *, all_releases):
             "yanked_reason": release.yanked_reason or None,
         },
         "urls": releases[release.version],
-        "releases": releases,
         "vulnerabilities": vulnerabilities,
         "last_serial": project.last_serial,
     }
+
+    if all_releases:
+        data["releases"] = releases
+
+    return data
 
 
 @view_config(
