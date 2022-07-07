@@ -6,6 +6,14 @@ PyPI offers two JSON endpoints.
 Project
 -------
 
+.. attention::
+    The ``releases`` key on this response should be considered deprecated,
+    and projects should shift to using the simple API (which can be accessed
+    as JSON via PEP 691) to get this information where possible.
+
+    In the future, the ``releases`` key may be removed from this response.
+
+
 .. http:get:: /pypi/<project_name>/json
 
     Returns metadata (info) about an individual project at the latest version,
