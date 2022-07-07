@@ -42,7 +42,6 @@ from warehouse.accounts.interfaces import (
 from warehouse.accounts.models import Email, User
 from warehouse.accounts.views import logout
 from warehouse.admin.flags import AdminFlagValue
-from warehouse.billing.interfaces import IBillingService
 from warehouse.email import (
     send_account_deletion_email,
     send_admin_new_organization_requested_email,
@@ -127,6 +126,7 @@ from warehouse.packaging.models import (
     RoleInvitationStatus,
 )
 from warehouse.rate_limiting import IRateLimiter
+from warehouse.subscriptions.interfaces import ISubscriptionService
 from warehouse.utils.http import is_safe_url
 from warehouse.utils.organization import confirm_organization
 from warehouse.utils.paginate import paginate_url_factory
@@ -1455,7 +1455,9 @@ class ManageOrganizationBillingViews:
     def __init__(self, organization, request):
         self.organization = organization
         self.request = request
-        self.billing_service = request.find_service(IBillingService, context=None)
+        self.subscription_service = request.find_service(
+            ISubscriptionService, context=None
+        )
 
     @property
     def product_id(self):
@@ -1470,7 +1472,7 @@ class ManageOrganizationBillingViews:
 
     @view_config(route_name="manage.organization.create_subscription")
     def create_subscription(self):
-        create_subscription_url = self.billing_service.create_checkout_session(
+        create_subscription_url = self.subscription_service.create_checkout_session(
             organization_id=self.organization.id,
             product_id=self.product_id,
             success_url=self.return_url,
@@ -1480,7 +1482,7 @@ class ManageOrganizationBillingViews:
 
     @view_config(route_name="manage.organization.manage_subscription")
     def manage_subscription(self):
-        manage_subscription_url = self.billing_service.create_portal_session(
+        manage_subscription_url = self.subscription_service.create_portal_session(
             organization_id=self.organization.id,
             return_url=self.return_url,
         )
