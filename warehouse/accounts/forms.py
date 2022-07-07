@@ -37,7 +37,6 @@ from warehouse.email import (
 from warehouse.i18n import localize as _
 from warehouse.utils.otp import TOTP_LENGTH
 
-
 # Taken from passlib
 MAX_PASSWORD_SIZE = 4096
 
