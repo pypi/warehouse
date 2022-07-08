@@ -12,7 +12,10 @@
  # limitations under the License.
 -#}
 {% extends "base.html" %}
+
 {% block title %}PyPI 2FA Security Key Giveaway{% endblock %}
+{% block description %}PyPI is implementing a 2FA requirement for critical projects, and distributing security keys to critical maintainers.{% endblock %}
+{% block image %}{{ request.static_url('warehouse:static/dist/images/titan.png') }}{% endblock %}
 
 {% block content %}
   <div class="horizontal-section">
