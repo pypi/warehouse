@@ -14,16 +14,16 @@
 {% extends "email/_base/body.txt" %}
 
 {% block content %}
-Congratulations! A project you ('{{ username }}') maintain has been designated as a critical project on PyPI. You can see which project(s) has been designated at {{ request.route_url("manage.projects") }}.
+Congratulations! A project you ('{{ username }}') maintain has been designated as a critical project on PyPI. You can see which project(s) has been designated at {{ request.route_url("manage.projects", _host="pypi.org") }}.
 
 As part of this effort, in the coming months maintainers of projects designated as critical, like yourself, will be required to enable two-factor authentication on their account in order to add new releases or otherwise modify a critical project.
 
 {% if has_two_factor -%}
 Since you already have two-factor authentication enabled on your account, there's nothing you need to do at this time.
 {%- else -%}
-You can enable two-factor authenticaion on your account today by visiting {{ request.route_url("accounts.two-factor") }}.
+You can enable two-factor authenticaion on your account today by visiting {{ request.route_url("accounts.two-factor", _host="pypi.org") }}.
 {%- endif %}
 
-PS: To make it easier for maintainers like you to enable two-factor authentication, we're also distributing security keys to eligible maintainers. See {{ request.route_url("security-key-giveaway") }} for more details.
+PS: To make it easier for maintainers like you to enable two-factor authentication, we're also distributing security keys to eligible maintainers. See {{ request.route_url("security-key-giveaway", _host="pypi.org") }} for more details.
 
 {% endblock %}

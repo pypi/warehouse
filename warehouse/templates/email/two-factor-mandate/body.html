@@ -16,7 +16,8 @@
 
 {% block content %}
 <p>
-Congratulations! A project you ('{{ username }}') maintain has been designated as a critical project on PyPI. You can see which project(s) has been designated at {{ request.route_url("manage.projects") }}.
+Congratulations! A project you ('{{ username }}') maintain has been designated as a critical project on PyPI. You can see which project(s) has been designated at <a href="{{ request.route_url("manage.projects", _host="pypi.org") }}">{{ request.route_url("manage.projects", _host="pypi.org") }}</a>.
+.
 </p>
 
 <p>
@@ -27,11 +28,11 @@ As part of this effort, in the coming months maintainers of projects designated 
 {% if has_two_factor %}
 Since you already have two-factor authentication enabled on your account, there's nothing you need to do at this time.
 {% else %}
-You can enable two-factor authenticaion on your account today by visiting <a href="{{ request.route_url("accounts.two-factor") }}">{{ request.route_url("accounts.two-factor") }}</a>.
+You can enable two-factor authenticaion on your account today by visiting <a href="{{ request.route_url("accounts.two-factor", _host="pypi.org") }}">{{ request.route_url("accounts.two-factor", _host="pypi.org") }}</a>.
 {% endif %}
 </p>
 
 <p>
-PS: To make it easier for maintainers like you to enable two-factor authentication, we're also distributing security keys to eligible maintainers. See <a href="{{ request.route_url("security-key-giveaway") }}">{{ request.route_url("security-key-giveaway") }}</a> for more details.
+PS: To make it easier for maintainers like you to enable two-factor authentication, we're also distributing security keys to eligible maintainers. See <a href="{{ request.route_url("security-key-giveaway", _host="pypi.org") }}">{{ request.route_url("security-key-giveaway", _host="pypi.org") }}</a> for more details.
 </p>
 {% endblock %}
