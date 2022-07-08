@@ -168,8 +168,7 @@ Project
                 }
             ],
             "vulnerabilities": [],
-            "critical_project": False,
-            "requires_2fa": False
+            "critical_project": False
         }
 
     :statuscode 200: no error
@@ -285,8 +284,7 @@ Release
                 }
             ],
             "vulnerabilities": [],
-            "critical_project": False,
-            "requires_2fa": False
+            "critical_project": False
         }
 
     :statuscode 200: no error
