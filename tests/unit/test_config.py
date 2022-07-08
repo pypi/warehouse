@@ -14,6 +14,7 @@ import os
 
 from unittest import mock
 
+import orjson
 import pretend
 import pytest
 
@@ -443,7 +444,10 @@ def test_configure(monkeypatch, settings, environment):
     ]
 
     assert json_renderer_cls.calls == [
-        pretend.call(sort_keys=True, separators=(",", ":"))
+        pretend.call(
+            serializer=orjson.dumps,
+            option=orjson.OPT_SORT_KEYS | orjson.OPT_APPEND_NEWLINE,
+        )
     ]
 
     assert xmlrpc_renderer_cls.calls == [pretend.call(allow_none=True)]
