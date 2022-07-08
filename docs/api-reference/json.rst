@@ -167,7 +167,9 @@ Project
                     "yanked_reason": null
                 }
             ],
-            "vulnerabilities": []
+            "vulnerabilities": [],
+            "critical_project": False,
+            "mandates_2fa": False
         }
 
     :statuscode 200: no error
@@ -282,7 +284,9 @@ Release
                     "yanked_reason": null
                 }
             ],
-            "vulnerabilities": []
+            "vulnerabilities": [],
+            "critical_project": False,
+            "mandates_2fa": False
         }
 
     :statuscode 200: no error
