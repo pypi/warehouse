@@ -1062,13 +1062,13 @@ def verify_project_role(request):
     request.db.add(
         JournalEntry(
             name=project.name,
-            action=f"add {desired_role} {user.username}",
+            action=f"accepted {desired_role} {user.username}",
             submitted_by=request.user,
             submitted_from=request.remote_addr,
         )
     )
     project.record_event(
-        tag="project:role:create",
+        tag="project:role:accepted",
         ip_address=request.remote_addr,
         additional={
             "submitted_by": request.user.username,
@@ -1077,7 +1077,7 @@ def verify_project_role(request):
         },
     )
     user.record_event(
-        tag="account:role:create",
+        tag="account:role:accepted",
         ip_address=request.remote_addr,
         additional={
             "submitted_by": request.user.username,
