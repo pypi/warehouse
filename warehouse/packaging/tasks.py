@@ -17,6 +17,7 @@ from itertools import product
 import pip_api
 
 from google.cloud.bigquery import LoadJobConfig
+from packaging.utils import canonicalize_name
 
 from warehouse import tasks
 from warehouse.accounts.models import User, WebAuthn
@@ -64,11 +65,11 @@ def compute_2fa_mandate(request):
     )
     top_projects = set(row.get("project_name") for row in query.result())
 
-    project_names = our_dependencies | top_projects
+    project_names = {canonicalize_name(n) for n in our_dependencies | top_projects}
 
     # Get the projects that were not previously in the mandate
     new_projects = request.db.query(Project).filter(
-        Project.name.in_(project_names), Project.pypi_mandates_2fa.is_(False)
+        Project.normalized_name.in_(project_names), Project.pypi_mandates_2fa.is_(False)
     )
 
     # Get their maintainers
