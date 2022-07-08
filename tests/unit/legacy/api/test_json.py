@@ -399,6 +399,8 @@ class TestJSONProject:
             ],
             "last_serial": je.id,
             "vulnerabilities": [],
+            "critical_project": False,
+            "mandates_2fa": False,
         }
 
 
@@ -578,6 +580,8 @@ class TestJSONRelease:
             ],
             "last_serial": je.id,
             "vulnerabilities": [],
+            "critical_project": False,
+            "mandates_2fa": False,
         }
 
     def test_minimal_renders(self, pyramid_config, db_request):
@@ -661,6 +665,8 @@ class TestJSONRelease:
             ],
             "last_serial": je.id,
             "vulnerabilities": [],
+            "critical_project": False,
+            "mandates_2fa": False,
         }
 
     def test_vulnerabilities_renders(self, pyramid_config, db_request):
@@ -691,6 +697,32 @@ class TestJSONRelease:
                 "fixed_in": ["3.3.2"],
             },
         ]
+
+    def test_critical_projects_renders(self, pyramid_config, db_request):
+        project = ProjectFactory.create(has_docs=False, pypi_mandates_2fa=True)
+        release = ReleaseFactory.create(project=project, version="0.1")
+
+        url = "/the/fake/url/"
+        db_request.route_url = pretend.call_recorder(lambda *args, **kw: url)
+
+        result = json.json_release(release, db_request)
+
+        assert result["critical_project"]
+        assert result["mandates_2fa"]
+
+    def test_critical_projects_renders(self, pyramid_config, db_request):
+        project = ProjectFactory.create(
+            has_docs=False, pypi_mandates_2fa=False, owners_require_2fa=True
+        )
+        release = ReleaseFactory.create(project=project, version="0.1")
+
+        url = "/the/fake/url/"
+        db_request.route_url = pretend.call_recorder(lambda *args, **kw: url)
+
+        result = json.json_release(release, db_request)
+
+        assert not result["critical_project"]
+        assert result["mandates_2fa"]
 
 
 class TestJSONReleaseSlash:
