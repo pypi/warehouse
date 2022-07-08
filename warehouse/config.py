@@ -302,6 +302,13 @@ def configure(settings=None):
     )
     maybe_set(
         settings,
+        "warehouse.two_factor_mandate.cron",
+        "TWOFACTORMANDATE_CRON",
+        coercer=distutils.util.strtobool,
+        default=False,
+    )
+    maybe_set(
+        settings,
         "warehouse.two_factor_mandate.enabled",
         "TWOFACTORMANDATE_ENABLED",
         coercer=distutils.util.strtobool,

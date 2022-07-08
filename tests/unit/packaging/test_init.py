@@ -30,7 +30,10 @@ from warehouse.packaging.tasks import (  # sync_bigquery_release_files,
 @pytest.mark.parametrize("with_trending", [True, False])
 @pytest.mark.parametrize("with_bq_sync", [True, False])
 @pytest.mark.parametrize("with_2fa_mandate", [True, False])
-def test_includeme(monkeypatch, with_trending, with_bq_sync, with_2fa_mandate):
+@pytest.mark.parametrize("with_2fa_cron", [True, False])
+def test_includeme(
+    monkeypatch, with_trending, with_bq_sync, with_2fa_mandate, with_2fa_cron
+):
     storage_class = pretend.stub(
         create_service=pretend.call_recorder(lambda *a, **kw: pretend.stub())
     )
@@ -46,6 +49,8 @@ def test_includeme(monkeypatch, with_trending, with_bq_sync, with_2fa_mandate):
         settings["warehouse.release_files_table"] = "fizzbuzz"
     if with_2fa_mandate:
         settings["warehouse.two_factor_mandate.available"] = True
+    if with_2fa_cron:
+        settings["warehouse.two_factor_mandate.cron"] = True
 
     config = pretend.stub(
         maybe_dotted=lambda dotted: storage_class,
@@ -134,7 +139,7 @@ def test_includeme(monkeypatch, with_trending, with_bq_sync, with_2fa_mandate):
             in config.add_periodic_task.calls
         )
 
-    if with_2fa_mandate:
+    if with_2fa_mandate and with_2fa_cron:
         assert (
             pretend.call(crontab(minute=0, hour=3), compute_2fa_mandate)
             in config.add_periodic_task.calls
