@@ -710,7 +710,7 @@ class TestJSONRelease:
         assert result["critical_project"]
         assert result["requires_2fa"]
 
-    def test_critical_projects_renders(self, pyramid_config, db_request):
+    def test_critical_projects_renders_only_owner(self, pyramid_config, db_request):
         project = ProjectFactory.create(
             has_docs=False, pypi_mandates_2fa=False, owners_require_2fa=True
         )
