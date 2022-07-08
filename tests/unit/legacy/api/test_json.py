@@ -400,7 +400,7 @@ class TestJSONProject:
             "last_serial": je.id,
             "vulnerabilities": [],
             "critical_project": False,
-            "mandates_2fa": False,
+            "requires_2fa": False,
         }
 
 
@@ -581,7 +581,7 @@ class TestJSONRelease:
             "last_serial": je.id,
             "vulnerabilities": [],
             "critical_project": False,
-            "mandates_2fa": False,
+            "requires_2fa": False,
         }
 
     def test_minimal_renders(self, pyramid_config, db_request):
@@ -666,7 +666,7 @@ class TestJSONRelease:
             "last_serial": je.id,
             "vulnerabilities": [],
             "critical_project": False,
-            "mandates_2fa": False,
+            "requires_2fa": False,
         }
 
     def test_vulnerabilities_renders(self, pyramid_config, db_request):
@@ -708,7 +708,7 @@ class TestJSONRelease:
         result = json.json_release(release, db_request)
 
         assert result["critical_project"]
-        assert result["mandates_2fa"]
+        assert result["requires_2fa"]
 
     def test_critical_projects_renders(self, pyramid_config, db_request):
         project = ProjectFactory.create(
@@ -722,7 +722,7 @@ class TestJSONRelease:
         result = json.json_release(release, db_request)
 
         assert not result["critical_project"]
-        assert result["mandates_2fa"]
+        assert result["requires_2fa"]
 
 
 class TestJSONReleaseSlash:

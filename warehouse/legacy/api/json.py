@@ -157,7 +157,7 @@ def _json_data(request, project, release, *, all_releases):
         "vulnerabilities": vulnerabilities,
         "last_serial": project.last_serial,
         "critical_project": project.pypi_mandates_2fa,
-        "mandates_2fa": project.two_factor_required,
+        "requires_2fa": project.two_factor_required,
     }
 
     if all_releases:
