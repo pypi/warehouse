@@ -16,7 +16,7 @@
 
 {% block content %}
 <p>
-A project you ('{{ username }}') maintain has been designated as a critical project on PyPI. You can see which project(s) has been designated at <a href="{{ request.route_url("manage.projects", _host="pypi.org") }}">{{ request.route_url("manage.projects", _host="pypi.org") }}</a>.
+A project you ('{{ username }}') maintain has been designated as a critical project on PyPI. You can see which project(s) has been designated at <a href="{{ request.route_url("manage.projects", _host=request.registry.settings.get('warehouse.domain')) }}">{{ request.route_url("manage.projects", _host=request.registry.settings.get('warehouse.domain')) }}</a>.
 </p>
 
 <p>
@@ -27,7 +27,7 @@ As part of this effort, in the coming months maintainers of projects designated 
 {% if has_two_factor %}
 Since you already have two-factor authentication enabled on your account, there's nothing you need to do at this time.
 {% else %}
-You can enable two-factor authentication on your account today by visiting <a href="{{ request.route_url("manage.account.two-factor", _host="pypi.org") }}">{{ request.route_url("manage.account.two-factor", _host="pypi.org") }}</a>.
+You can enable two-factor authentication on your account today by visiting <a href="{{ request.route_url("manage.account.two-factor", _host=request.registry.settings.get('warehouse.domain')) }}">{{ request.route_url("manage.account.two-factor", _host=request.registry.settings.get('warehouse.domain')) }}</a>.
 {% endif %}
 </p>
 {% endblock %}
