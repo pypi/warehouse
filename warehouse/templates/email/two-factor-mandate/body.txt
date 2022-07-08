@@ -14,7 +14,7 @@
 {% extends "email/_base/body.txt" %}
 
 {% block content %}
-Congratulations! A project you ('{{ username }}') maintain has been designated as a critical project on PyPI. You can see which project(s) has been designated at {{ request.route_url("manage.projects", _host="pypi.org") }}.
+A project you ('{{ username }}') maintain has been designated as a critical project on PyPI. You can see which project(s) has been designated at {{ request.route_url("manage.projects", _host="pypi.org") }}.
 
 As part of this effort, in the coming months maintainers of projects designated as critical, like yourself, will be required to enable two-factor authentication on their account in order to add new releases or otherwise modify a critical project.
 
