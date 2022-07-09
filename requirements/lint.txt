@@ -33,13 +33,13 @@ black==22.6.0 \
     --hash=sha256:f586c26118bc6e714ec58c09df0157fe2d9ee195c764f630eb0d8e7ccce72e69 \
     --hash=sha256:f6fe02afde060bbeef044af7996f335fbe90b039ccf3f5eb8f16df8b20f77666
     # via -r requirements/lint.in
-boto3-stubs==1.24.22 \
-    --hash=sha256:0602494ca5ae96fd6a275f1fb47c79b565bd1b7d6bcb3427db9db10b5a05dea4 \
-    --hash=sha256:f6166156e6e6b03f27056efcab1c38fbf98d886743470ce1b900c4d56977817f
+boto3-stubs==1.24.25 \
+    --hash=sha256:89406d1952f352119213c75100a98e9a10bafff0a3c893619442d1048ea8ad29 \
+    --hash=sha256:ddd5821abbcd1742a28a9f2aa4ef79e13e0de6fab87799fe79f9630114467b07
     # via types-boto3
-botocore-stubs==1.27.22 \
-    --hash=sha256:56c687edac63deb757623c152265aa37e8e79492f482bc334f5ce084b70c80b7 \
-    --hash=sha256:ec94790abb50ae7da42f1650f09a35a86ef257c50f03b0a618ede1ed807b5609
+botocore-stubs==1.27.25 \
+    --hash=sha256:72779b2fc5b062e5bef86079fa6c7314375f74bf9b95f03fe888b7604c8c9452 \
+    --hash=sha256:f0cd462c2b991c19478135259857628c706a4fd83043c266f94b2cb7a1d29a16
     # via boto3-stubs
 celery-types==0.13.1 \
     --hash=sha256:0a92d8eded085d055595b04290dd8e5fcd84f4412a00a25f2122d4e6c58a1f56 \
@@ -195,9 +195,9 @@ types-itsdangerous==1.1.6 \
     --hash=sha256:21c6966c10e353a5d35d36c82aaa2c5598d3bc32ddc8e0591276da5ad2e3c638 \
     --hash=sha256:aef2535c2fa0527dcce244ece0792b20ec02ee46533800735275f82a45a0244d
     # via -r requirements/lint.in
-types-passlib==1.7.5 \
-    --hash=sha256:810ce820882a900429b2cbe6554851182370337c7246b0e0728ff4145db0edcf \
-    --hash=sha256:8366c5e31bbff65c0a6d1a0f10e84fba567797680c643b485b072691bc0908db
+types-passlib==1.7.6 \
+    --hash=sha256:5d84edb4398590030e3218b8918395fe4010cb6d7550a6ee94511470938f3e34 \
+    --hash=sha256:8056111211c917c83050a0e1a692f699896c2078d79fce9969c7373018a2183c
     # via -r requirements/lint.in
 types-psycopg2==2.9.16 \
     --hash=sha256:adf3be817cb82e17e6d36c4112718dbda38f98db291d736f022a1d89b53c832c \
@@ -233,9 +233,9 @@ types-stdlib-list==0.8.1 \
     --hash=sha256:1ba8c5ac639715bc3670da07e1679acbedc6834dd6caba5e6c7fb14aa468d5ed \
     --hash=sha256:f7fb88d8c602911256918ba8985ac9d9176ff4ca31d6138fedea1a5992b69645
     # via -r requirements/lint.in
-types-urllib3==1.26.15 \
-    --hash=sha256:6011befa13f901fc934f59bb1fd6973be6f3acf4ebfce427593a27e7f492918f \
-    --hash=sha256:c89283541ef92e344b7f59f83ea9b5a295b16366ceee3f25ecfc5593c79f794e
+types-urllib3==1.26.16 \
+    --hash=sha256:20588c285e5ca336d908d2705994830a83cfb6bda40fc356bbafaf430a262013 \
+    --hash=sha256:8bb3832c684c30cbed40b96e28bc04703becb2b97d82ac65ba4b968783453b0e
     # via types-requests
 typing-extensions==4.3.0 \
     --hash=sha256:25642c956049920a5aa49edcdd6ab1e06d7e5d467fc00e0506c44ac86fbfca02 \
