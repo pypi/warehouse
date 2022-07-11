@@ -1181,7 +1181,6 @@ six==1.16.0 \
     #   pymacaroons
     #   python-dateutil
     #   requests-aws4auth
-    #   sqlalchemy-utils
 sqlalchemy[asyncio]==1.4.39 \
     --hash=sha256:047ef5ccd8860f6147b8ac6c45a4bc573d4e030267b45d9a1c47b55962ff0e6f \
     --hash=sha256:05a05771617bfa723ba4cef58d5b25ac028b0d68f28f403edebed5b8243b3a87 \
@@ -1229,9 +1228,8 @@ sqlalchemy[asyncio]==1.4.39 \
 sqlalchemy-citext==1.8.0 \
     --hash=sha256:a1740e693a9a334e7c8f60ae731083fe75ce6c1605bb9ca6644a6f1f63b15b77
     # via -r requirements/main.in
-sqlalchemy-utils==0.38.2 \
-    --hash=sha256:622235b1598f97300e4d08820ab024f5219c9a6309937a8b908093f487b4ba54 \
-    --hash=sha256:9e01d6d3fb52d3926fcd4ea4a13f3540701b751aced0316bff78264402c2ceb4
+sqlalchemy-utils==0.38.3 \
+    --hash=sha256:9f9afba607a40455cf703adfa9846584bf26168a0c5a60a70063b70d65051f4d
     # via -r requirements/main.in
 stdlib-list==0.8.0 \
     --hash=sha256:2ae0712a55b68f3fbbc9e58d6fa1b646a062188f49745b495f94d3310a9fdd3e \
