@@ -25,16 +25,18 @@ from sqlalchemy import (
     Integer,
     LargeBinary,
     String,
+    Text,
     UniqueConstraint,
     orm,
     select,
     sql,
 )
-from sqlalchemy.dialects.postgresql import JSONB, UUID
+from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy.orm.exc import NoResultFound
 
 from warehouse import db
+from warehouse.events.models import HasEvents
 from warehouse.sitemap.models import SitemapMixin
 from warehouse.utils.attrs import make_repr
 from warehouse.utils.db.types import TZDateTime
@@ -54,9 +56,10 @@ class UserFactory:
 class DisableReason(enum.Enum):
 
     CompromisedPassword = "password compromised"
+    AccountFrozen = "account frozen"
 
 
-class User(SitemapMixin, db.Model):
+class User(SitemapMixin, HasEvents, db.Model):
 
     __tablename__ = "users"
     __table_args__ = (
@@ -74,6 +77,7 @@ class User(SitemapMixin, db.Model):
     password = Column(String(length=128), nullable=False)
     password_date = Column(TZDateTime, nullable=True, server_default=sql.func.now())
     is_active = Column(Boolean, nullable=False, server_default=sql.false())
+    is_frozen = Column(Boolean, nullable=False, server_default=sql.false())
     is_superuser = Column(Boolean, nullable=False, server_default=sql.false())
     is_moderator = Column(Boolean, nullable=False, server_default=sql.false())
     is_psf_staff = Column(Boolean, nullable=False, server_default=sql.false())
@@ -93,6 +97,7 @@ class User(SitemapMixin, db.Model):
     webauthn = orm.relationship(
         "WebAuthn", backref="user", cascade="all, delete-orphan", lazy=True
     )
+
     recovery_codes = orm.relationship(
         "RecoveryCode", backref="user", cascade="all, delete-orphan", lazy=True
     )
@@ -104,20 +109,6 @@ class User(SitemapMixin, db.Model):
     macaroons = orm.relationship(
         "Macaroon", backref="user", cascade="all, delete-orphan", lazy=True
     )
-
-    events = orm.relationship(
-        "UserEvent", backref="user", cascade="all, delete-orphan", lazy=True
-    )
-
-    def record_event(self, *, tag, ip_address, additional):
-        session = orm.object_session(self)
-        event = UserEvent(
-            user=self, tag=tag, ip_address=ip_address, additional=additional
-        )
-        session.add(event)
-        session.flush()
-
-        return event
 
     @property
     def primary_email(self):
@@ -165,10 +156,11 @@ class User(SitemapMixin, db.Model):
         session = orm.object_session(self)
         last_ninety = datetime.datetime.now() - datetime.timedelta(days=90)
         return (
-            session.query(UserEvent)
-            .filter((UserEvent.user_id == self.id) & (UserEvent.time >= last_ninety))
-            .order_by(UserEvent.time.desc())
-            .all()
+            session.query(User.Event)
+            .filter(
+                (User.Event.source_id == self.id) & (User.Event.time >= last_ninety)
+            )
+            .order_by(User.Event.time.desc())
         )
 
     @property
@@ -215,21 +207,6 @@ class RecoveryCode(db.Model):
     burned = Column(DateTime, nullable=True)
 
 
-class UserEvent(db.Model):
-    __tablename__ = "user_events"
-
-    user_id = Column(
-        UUID(as_uuid=True),
-        ForeignKey("users.id", deferrable=True, initially="DEFERRED"),
-        nullable=False,
-        index=True,
-    )
-    tag = Column(String, nullable=False)
-    time = Column(DateTime, nullable=False, server_default=sql.func.now())
-    ip_address = Column(String, nullable=False)
-    additional = Column(JSONB, nullable=True)
-
-
 class UnverifyReasons(enum.Enum):
 
     SpamComplaint = "spam complaint"
@@ -262,3 +239,44 @@ class Email(db.ModelBase):
         nullable=True,
     )
     transient_bounces = Column(Integer, nullable=False, server_default=sql.text("0"))
+
+
+class ProhibitedUserName(db.Model):
+
+    __tablename__ = "prohibited_user_names"
+    __table_args__ = (
+        CheckConstraint(
+            "length(name) <= 50", name="prohibited_users_valid_username_length"
+        ),
+        CheckConstraint(
+            "name ~* '^([A-Z0-9]|[A-Z0-9][A-Z0-9._-]*[A-Z0-9])$'",
+            name="prohibited_users_valid_username",
+        ),
+    )
+
+    __repr__ = make_repr("name")
+
+    created = Column(
+        DateTime(timezone=False), nullable=False, server_default=sql.func.now()
+    )
+    name = Column(Text, unique=True, nullable=False)
+    _prohibited_by = Column(
+        "prohibited_by", UUID(as_uuid=True), ForeignKey("users.id"), index=True
+    )
+    prohibited_by = orm.relationship(User)
+    comment = Column(Text, nullable=False, server_default="")
+
+
+class TitanPromoCode(db.Model):
+    __tablename__ = "user_titan_codes"
+
+    user_id = Column(
+        UUID(as_uuid=True),
+        ForeignKey("users.id", deferrable=True, initially="DEFERRED"),
+        nullable=True,
+        index=True,
+        unique=True,
+    )
+    code = Column(String, nullable=False, unique=True)
+    created = Column(DateTime, nullable=False, server_default=sql.func.now())
+    distributed = Column(DateTime, nullable=True)

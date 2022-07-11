@@ -6,12 +6,17 @@ on:
     inputs:
       mustBeGreen:
         description: 'Only combine PRs that are green (status is success)'
+        type: boolean
         required: true
         default: true
       combineBranchName:
         description: 'Name of the branch to combine PRs into'
+        type: string
         required: true
         default: 'combine-prs-branch'
+
+permissions:
+  pull-requests: write
 
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
@@ -22,7 +27,7 @@ jobs:
 
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
-      - uses: actions/github-script@v3
+      - uses: actions/github-script@v6
         id: fetch-branch-names
         name: Fetch branch names
         with:
@@ -81,7 +86,7 @@ jobs:
             console.log('Combined: ' + combined);
             return combined
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
-      - uses: actions/checkout@v2.3.3
+      - uses: actions/checkout@v3
         with:
           fetch-depth: 0
       # Creates a branch with other PR branches merged together
@@ -106,7 +111,7 @@ jobs:
           git pull origin $sourcebranches --no-edit
           git push origin $COMBINE_BRANCH_NAME
       # Creates a PR with the new combined branch
-      - uses: actions/github-script@v3
+      - uses: actions/github-script@v6
         name: Create Combined Pull Request
         with:
           github-token: ${{secrets.GITHUB_TOKEN}}

@@ -33,7 +33,6 @@ from webob.multidict import MultiDict
 from wtforms.form import Form
 from wtforms.validators import ValidationError
 
-from warehouse.accounts import AuthenticationMethod
 from warehouse.admin.flags import AdminFlag, AdminFlagValue
 from warehouse.classifiers.models import Classifier
 from warehouse.forklift import legacy
@@ -50,6 +49,7 @@ from warehouse.packaging.models import (
     Role,
 )
 from warehouse.packaging.tasks import update_bigquery_release_files
+from warehouse.utils.security_policy import AuthenticationMethod
 
 from ...common.db.accounts import EmailFactory, UserFactory
 from ...common.db.classifiers import ClassifierFactory
@@ -226,7 +226,11 @@ class TestValidation:
 
     @pytest.mark.parametrize(
         "project_url",
-        ["Home, https://pypi.python.org/", ("A" * 32) + ", https://example.com/"],
+        [
+            "Home, https://pypi.python.org/",
+            "Home,https://pypi.python.org/",
+            ("A" * 32) + ", https://example.com/",
+        ],
     )
     def test_validate_project_url_valid(self, project_url):
         legacy._validate_project_url(project_url)
@@ -234,7 +238,6 @@ class TestValidation:
     @pytest.mark.parametrize(
         "project_url",
         [
-            "Home,https://pypi.python.org/",
             "https://pypi.python.org/",
             ", https://pypi.python.org/",
             "Home, ",
@@ -3087,7 +3090,7 @@ class TestFileUpload:
             "Programming Language :: Python",
         ]
         assert set(release.requires_dist) == {"foo", "bar (>1.0)"}
-        assert set(release.project_urls) == {"Test, https://example.com/"}
+        assert release.project_urls == {"Test": "https://example.com/"}
         assert set(release.requires_external) == {"Cheese (>1.0)"}
         assert set(release.provides) == {"testing"}
         assert release.version == expected_version

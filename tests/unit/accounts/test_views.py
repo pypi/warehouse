@@ -41,10 +41,20 @@ from warehouse.accounts.interfaces import (
 from warehouse.accounts.models import User
 from warehouse.accounts.views import two_factor_and_totp_validate
 from warehouse.admin.flags import AdminFlag, AdminFlagValue
+from warehouse.organizations.models import (
+    OrganizationInvitation,
+    OrganizationRole,
+    OrganizationRoleType,
+)
 from warehouse.packaging.models import Role, RoleInvitation
 from warehouse.rate_limiting.interfaces import IRateLimiter
 
 from ...common.db.accounts import EmailFactory, UserFactory
+from ...common.db.organizations import (
+    OrganizationFactory,
+    OrganizationInvitationFactory,
+    OrganizationRoleFactory,
+)
 from ...common.db.packaging import ProjectFactory, RoleFactory, RoleInvitationFactory
 
 
@@ -1332,6 +1342,7 @@ class TestRegister:
                 merge=lambda _: {},
                 enabled=False,
                 verify_response=pretend.call_recorder(lambda _: None),
+                username_is_prohibited=lambda a: False,
                 find_userid=pretend.call_recorder(lambda _: None),
                 find_userid_by_email=pretend.call_recorder(lambda _: None),
                 update_user=lambda *args, **kwargs: None,
@@ -2142,6 +2153,341 @@ class TestVerifyEmail:
         ]
 
 
+class TestVerifyOrganizationRole:
+    @pytest.mark.parametrize(
+        "desired_role", ["Member", "Manager", "Owner", "Billing Manager"]
+    )
+    def test_verify_organization_role(
+        self, db_request, token_service, monkeypatch, desired_role
+    ):
+        organization = OrganizationFactory.create()
+        user = UserFactory.create()
+        OrganizationInvitationFactory.create(
+            organization=organization,
+            user=user,
+        )
+        owner_user = UserFactory.create()
+        OrganizationRoleFactory(
+            organization=organization,
+            user=owner_user,
+            role_name=OrganizationRoleType.Owner,
+        )
+
+        db_request.user = user
+        db_request.method = "POST"
+        db_request.GET.update({"token": "RANDOM_KEY"})
+        db_request.route_path = pretend.call_recorder(lambda *a, **kw: "/")
+        db_request.remote_addr = "192.168.1.1"
+        db_request.session.flash = pretend.call_recorder(lambda *a, **kw: None)
+        token_service.loads = pretend.call_recorder(
+            lambda token: {
+                "action": "email-organization-role-verify",
+                "desired_role": desired_role,
+                "user_id": user.id,
+                "organization_id": organization.id,
+                "submitter_id": owner_user.id,
+            }
+        )
+
+        organization_member_added_email = pretend.call_recorder(
+            lambda *args, **kwargs: None
+        )
+        monkeypatch.setattr(
+            views,
+            "send_organization_member_added_email",
+            organization_member_added_email,
+        )
+        added_as_organization_member_email = pretend.call_recorder(
+            lambda *args, **kwargs: None
+        )
+        monkeypatch.setattr(
+            views,
+            "send_added_as_organization_member_email",
+            added_as_organization_member_email,
+        )
+
+        result = views.verify_organization_role(db_request)
+
+        db_request.db.flush()
+
+        assert not (
+            db_request.db.query(OrganizationInvitation)
+            .filter(OrganizationInvitation.user == user)
+            .filter(OrganizationInvitation.organization == organization)
+            .one_or_none()
+        )
+        assert (
+            db_request.db.query(OrganizationRole)
+            .filter(
+                OrganizationRole.organization == organization,
+                OrganizationRole.user == user,
+            )
+            .one()
+        )
+        assert organization_member_added_email.calls == [
+            pretend.call(
+                db_request,
+                {owner_user},
+                user=user,
+                submitter=owner_user,
+                organization_name=organization.name,
+                role=desired_role,
+            )
+        ]
+        assert added_as_organization_member_email.calls == [
+            pretend.call(
+                db_request,
+                user,
+                submitter=owner_user,
+                organization_name=organization.name,
+                role=desired_role,
+            )
+        ]
+        assert db_request.session.flash.calls == [
+            pretend.call(
+                (
+                    f"You are now {desired_role} of the "
+                    f"'{organization.name}' organization."
+                ),
+                queue="success",
+            )
+        ]
+        assert isinstance(result, HTTPSeeOther)
+        assert result.headers["Location"] == "/"
+        assert db_request.route_path.calls == [
+            pretend.call(
+                "manage.organization.roles",
+                organization_name=organization.normalized_name,
+            )
+        ]
+
+    @pytest.mark.parametrize(
+        ("exception", "message"),
+        [
+            (TokenInvalid, "Invalid token: request a new organization invitation"),
+            (TokenExpired, "Expired token: request a new organization invitation"),
+            (TokenMissing, "Invalid token: no token supplied"),
+        ],
+    )
+    def test_verify_organization_role_loads_failure(
+        self, db_request, token_service, exception, message
+    ):
+        def loads(token):
+            raise exception
+
+        db_request.params = {"token": "RANDOM_KEY"}
+        db_request.route_path = pretend.call_recorder(lambda name: "/")
+        db_request.session.flash = pretend.call_recorder(lambda *a, **kw: None)
+        token_service.loads = loads
+
+        views.verify_organization_role(db_request)
+
+        assert db_request.route_path.calls == [pretend.call("manage.organizations")]
+        assert db_request.session.flash.calls == [pretend.call(message, queue="error")]
+
+    def test_verify_email_invalid_action(self, db_request, token_service):
+        data = {"action": "invalid-action"}
+        db_request.params = {"token": "RANDOM_KEY"}
+        db_request.route_path = pretend.call_recorder(lambda name: "/")
+        db_request.session.flash = pretend.call_recorder(lambda *a, **kw: None)
+        token_service.loads = lambda a: data
+
+        views.verify_organization_role(db_request)
+
+        assert db_request.route_path.calls == [pretend.call("manage.organizations")]
+        assert db_request.session.flash.calls == [
+            pretend.call(
+                "Invalid token: not an organization invitation token", queue="error"
+            )
+        ]
+
+    def test_verify_organization_role_revoked(self, db_request, token_service):
+        desired_role = "Manager"
+        organization = OrganizationFactory.create()
+        user = UserFactory.create()
+        owner_user = UserFactory.create()
+        OrganizationRoleFactory(
+            organization=organization,
+            user=owner_user,
+            role_name=OrganizationRoleType.Owner,
+        )
+
+        db_request.user = user
+        db_request.method = "POST"
+        db_request.GET.update({"token": "RANDOM_KEY"})
+        db_request.route_path = pretend.call_recorder(lambda name: "/")
+        db_request.remote_addr = "192.168.1.1"
+        db_request.session.flash = pretend.call_recorder(lambda *a, **kw: None)
+        token_service.loads = pretend.call_recorder(
+            lambda token: {
+                "action": "email-organization-role-verify",
+                "desired_role": desired_role,
+                "user_id": user.id,
+                "organization_id": organization.id,
+                "submitter_id": owner_user.id,
+            }
+        )
+
+        views.verify_organization_role(db_request)
+
+        assert db_request.session.flash.calls == [
+            pretend.call(
+                "Organization invitation no longer exists.",
+                queue="error",
+            )
+        ]
+        assert db_request.route_path.calls == [pretend.call("manage.organizations")]
+
+    def test_verify_organization_role_declined(
+        self, db_request, token_service, monkeypatch
+    ):
+        desired_role = "Manager"
+        organization = OrganizationFactory.create()
+        user = UserFactory.create()
+        OrganizationInvitationFactory.create(
+            organization=organization,
+            user=user,
+        )
+        owner_user = UserFactory.create()
+        OrganizationRoleFactory(
+            organization=organization,
+            user=owner_user,
+            role_name=OrganizationRoleType.Owner,
+        )
+
+        db_request.user = user
+        db_request.method = "POST"
+        db_request.POST.update({"token": "RANDOM_KEY", "decline": "Decline"})
+        db_request.route_path = pretend.call_recorder(lambda name: "/")
+        db_request.remote_addr = "192.168.1.1"
+        db_request.session.flash = pretend.call_recorder(lambda *a, **kw: None)
+        token_service.loads = pretend.call_recorder(
+            lambda token: {
+                "action": "email-organization-role-verify",
+                "desired_role": desired_role,
+                "user_id": user.id,
+                "organization_id": organization.id,
+                "submitter_id": owner_user.id,
+            }
+        )
+
+        organization_member_invite_declined_email = pretend.call_recorder(
+            lambda *args, **kwargs: None
+        )
+        monkeypatch.setattr(
+            views,
+            "send_organization_member_invite_declined_email",
+            organization_member_invite_declined_email,
+        )
+        declined_as_invited_organization_member_email = pretend.call_recorder(
+            lambda *args, **kwargs: None
+        )
+        monkeypatch.setattr(
+            views,
+            "send_declined_as_invited_organization_member_email",
+            declined_as_invited_organization_member_email,
+        )
+
+        result = views.verify_organization_role(db_request)
+
+        assert not (
+            db_request.db.query(OrganizationInvitation)
+            .filter(OrganizationInvitation.user == user)
+            .filter(OrganizationInvitation.organization == organization)
+            .one_or_none()
+        )
+        assert organization_member_invite_declined_email.calls == [
+            pretend.call(
+                db_request,
+                {owner_user},
+                user=user,
+                organization_name=organization.name,
+            )
+        ]
+        assert declined_as_invited_organization_member_email.calls == [
+            pretend.call(
+                db_request,
+                user,
+                organization_name=organization.name,
+            )
+        ]
+        assert isinstance(result, HTTPSeeOther)
+        assert db_request.route_path.calls == [pretend.call("manage.organizations")]
+
+    def test_verify_fails_with_different_user(self, db_request, token_service):
+        desired_role = "Manager"
+        organization = OrganizationFactory.create()
+        user = UserFactory.create()
+        user_2 = UserFactory.create()
+        owner_user = UserFactory.create()
+        OrganizationRoleFactory(
+            organization=organization,
+            user=owner_user,
+            role_name=OrganizationRoleType.Owner,
+        )
+
+        db_request.user = user_2
+        db_request.method = "POST"
+        db_request.GET.update({"token": "RANDOM_KEY"})
+        db_request.route_path = pretend.call_recorder(lambda name: "/")
+        db_request.remote_addr = "192.168.1.1"
+        db_request.session.flash = pretend.call_recorder(lambda *a, **kw: None)
+        token_service.loads = pretend.call_recorder(
+            lambda token: {
+                "action": "email-organization-role-verify",
+                "desired_role": desired_role,
+                "user_id": user.id,
+                "organization_id": organization.id,
+                "submitter_id": owner_user.id,
+            }
+        )
+
+        views.verify_organization_role(db_request)
+
+        assert db_request.session.flash.calls == [
+            pretend.call("Organization invitation is not valid.", queue="error")
+        ]
+        assert db_request.route_path.calls == [pretend.call("manage.organizations")]
+
+    def test_verify_role_get_confirmation(self, db_request, token_service):
+        desired_role = "Manager"
+        organization = OrganizationFactory.create()
+        user = UserFactory.create()
+        OrganizationInvitationFactory.create(
+            organization=organization,
+            user=user,
+        )
+        owner_user = UserFactory.create()
+        OrganizationRoleFactory(
+            organization=organization,
+            user=owner_user,
+            role_name=OrganizationRoleType.Owner,
+        )
+
+        db_request.user = user
+        db_request.method = "GET"
+        db_request.GET.update({"token": "RANDOM_KEY"})
+        db_request.route_path = pretend.call_recorder(lambda name: "/")
+        db_request.remote_addr = "192.168.1.1"
+        db_request.session.flash = pretend.call_recorder(lambda *a, **kw: None)
+        token_service.loads = pretend.call_recorder(
+            lambda token: {
+                "action": "email-organization-role-verify",
+                "desired_role": desired_role,
+                "user_id": user.id,
+                "organization_id": organization.id,
+                "submitter_id": owner_user.id,
+            }
+        )
+
+        roles = views.verify_organization_role(db_request)
+
+        assert roles == {
+            "organization_name": organization.name,
+            "desired_role": desired_role,
+        }
+
+
 class TestVerifyProjectRole:
     @pytest.mark.parametrize("desired_role", ["Maintainer", "Owner"])
     def test_verify_project_role(
@@ -2252,8 +2598,8 @@ class TestVerifyProjectRole:
     @pytest.mark.parametrize(
         ("exception", "message"),
         [
-            (TokenInvalid, "Invalid token: request a new project role invite"),
-            (TokenExpired, "Expired token: request a new project role invite"),
+            (TokenInvalid, "Invalid token: request a new project role invitation"),
+            (TokenExpired, "Expired token: request a new project role invitation"),
             (TokenMissing, "Invalid token: no token supplied"),
         ],
     )

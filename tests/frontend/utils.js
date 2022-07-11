@@ -11,17 +11,6 @@
  * limitations under the License.
  */
 
-
-export function domReady() {
-  return new Promise(resolve => {
-    if (document.readyState == "loading") {
-      document.addEventListener("DOMContentLoaded", resolve);
-    } else {
-      resolve();
-    }
-  });
-}
-
 export function delay(ms) {
   return new Promise(resolve => setTimeout(resolve, ms || 0));
 }

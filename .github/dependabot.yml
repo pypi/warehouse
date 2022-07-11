@@ -13,3 +13,7 @@ updates:
   ignore:
   # Always ignore elasticsearch, future versions are always incompatible with our provider
   - dependency-name: "elasticsearch"
+- package-ecosystem: github-actions
+  directory: "/"
+  schedule:
+    interval: "daily"

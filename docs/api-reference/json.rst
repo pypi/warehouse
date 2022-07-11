@@ -6,6 +6,14 @@ PyPI offers two JSON endpoints.
 Project
 -------
 
+.. attention::
+    The ``releases`` key on this response should be considered deprecated,
+    and projects should shift to using the simple API (which can be accessed
+    as JSON via PEP 691) to get this information where possible.
+
+    In the future, the ``releases`` key may be removed from this response.
+
+
 .. http:get:: /pypi/<project_name>/json
 
     Returns metadata (info) about an individual project at the latest version,
@@ -172,16 +180,27 @@ Project
 Release
 -------
 
+.. attention::
+    Previously this response included the ``releases`` key, which had the URLs
+    for *all* files for every release of this project on PyPI. Due to stability
+    concerns, this had to be removed from the release specific page, which now
+    **ONLY** serves data specific to that release.
+
+    To access all files, you should preferrably use the simple API, or otherwise
+    use the non versioned json api at ``/pypi/<project_name>/json``.
+
+
 .. http:get:: /pypi/<project_name>/<version>/json
 
     Returns metadata about an individual release at a specific version,
-    otherwise identical to ``/pypi/<project_name>/json``.
+    otherwise identical to ``/pypi/<project_name>/json`` minus the
+    ``releases`` key.
 
     **Example Request**:
 
     .. code:: http
 
-        GET /pypi/sampleproject/1.0/json HTTP/1.1
+        GET /pypi/sampleproject/1.2.0/json HTTP/1.1
         Host: pypi.org
         Accept: application/json
 
@@ -220,53 +239,49 @@ Release
                 "requires_dist": null,
                 "requires_python": null,
                 "summary": "",
-                "version": "1.0",
+                "version": "1.2.0",
                 "yanked": false,
                 "yanked_reason": null
             },
             "last_serial": 1591652,
-            "releases": {
-                "1.0": [],
-                "1.2.0": [
-                    {
-                        "comment_text": "",
-                        "digests": {
-                            "md5": "bab8eb22e6710eddae3c6c7ac3453bd9",
-                            "sha256": "7a7a8b91086deccc54cac8d631e33f6a0e232ce5775c6be3dc44f86c2154019d"
-                        },
-                        "downloads": -1,
-                        "filename": "sampleproject-1.2.0-py2.py3-none-any.whl",
-                        "has_sig": false,
-                        "md5_digest": "bab8eb22e6710eddae3c6c7ac3453bd9",
-                        "packagetype": "bdist_wheel",
-                        "python_version": "2.7",
-                        "size": 3795,
-                        "upload_time_iso_8601": "2015-06-14T14:38:05.869374Z",
-                        "url": "https://files.pythonhosted.org/packages/30/52/547eb3719d0e872bdd6fe3ab60cef92596f95262e925e1943f68f840df88/sampleproject-1.2.0-py2.py3-none-any.whl",
-                        "yanked": false,
-                        "yanked_reason": null
+            "urls": [
+                {
+                    "comment_text": "",
+                    "digests": {
+                        "md5": "bab8eb22e6710eddae3c6c7ac3453bd9",
+                        "sha256": "7a7a8b91086deccc54cac8d631e33f6a0e232ce5775c6be3dc44f86c2154019d"
                     },
-                    {
-                        "comment_text": "",
-                        "digests": {
-                            "md5": "d3bd605f932b3fb6e91f49be2d6f9479",
-                            "sha256": "3427a8a5dd0c1e176da48a44efb410875b3973bd9843403a0997e4187c408dc1"
-                        },
-                        "downloads": -1,
-                        "filename": "sampleproject-1.2.0.tar.gz",
-                        "has_sig": false,
-                        "md5_digest": "d3bd605f932b3fb6e91f49be2d6f9479",
-                        "packagetype": "sdist",
-                        "python_version": "source",
-                        "size": 3148,
-                        "upload_time_iso_8601": "2015-06-14T14:37:56.394783Z",
-                        "url": "https://files.pythonhosted.org/packages/eb/45/79be82bdeafcecb9dca474cad4003e32ef8e4a0dec6abbd4145ccb02abe1/sampleproject-1.2.0.tar.gz",
-                        "yanked": false,
-                        "yanked_reason": null
-                    }
-                ]
-            },
-            "urls": [],
+                    "downloads": -1,
+                    "filename": "sampleproject-1.2.0-py2.py3-none-any.whl",
+                    "has_sig": false,
+                    "md5_digest": "bab8eb22e6710eddae3c6c7ac3453bd9",
+                    "packagetype": "bdist_wheel",
+                    "python_version": "2.7",
+                    "size": 3795,
+                    "upload_time_iso_8601": "2015-06-14T14:38:05.869374Z",
+                    "url": "https://files.pythonhosted.org/packages/30/52/547eb3719d0e872bdd6fe3ab60cef92596f95262e925e1943f68f840df88/sampleproject-1.2.0-py2.py3-none-any.whl",
+                    "yanked": false,
+                    "yanked_reason": null
+                },
+                {
+                    "comment_text": "",
+                    "digests": {
+                        "md5": "d3bd605f932b3fb6e91f49be2d6f9479",
+                        "sha256": "3427a8a5dd0c1e176da48a44efb410875b3973bd9843403a0997e4187c408dc1"
+                    },
+                    "downloads": -1,
+                    "filename": "sampleproject-1.2.0.tar.gz",
+                    "has_sig": false,
+                    "md5_digest": "d3bd605f932b3fb6e91f49be2d6f9479",
+                    "packagetype": "sdist",
+                    "python_version": "source",
+                    "size": 3148,
+                    "upload_time_iso_8601": "2015-06-14T14:37:56.394783Z",
+                    "url": "https://files.pythonhosted.org/packages/eb/45/79be82bdeafcecb9dca474cad4003e32ef8e4a0dec6abbd4145ccb02abe1/sampleproject-1.2.0.tar.gz",
+                    "yanked": false,
+                    "yanked_reason": null
+                }
+            ],
             "vulnerabilities": []
         }
 

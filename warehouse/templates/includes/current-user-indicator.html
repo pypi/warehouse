@@ -37,6 +37,14 @@
             {% trans %}Your projects{% endtrans %}
           </a>
         </li>
+        {% if not request.flags.enabled(AdminFlagValue.DISABLE_ORGANIZATIONS) %}
+        <li>
+          <a href="{{ request.route_path('manage.organizations') }}" class="dropdown__link">
+            <i class="fa fa-users" aria-hidden="true"></i>
+            {% trans %}Your organizations{% endtrans %}
+          </a>
+        </li>
+        {% endif %}
         <li>
           <a href="{{ request.route_path('manage.account') }}" class="dropdown__link">
             <i class="fa fa-cog" aria-hidden="true"></i>

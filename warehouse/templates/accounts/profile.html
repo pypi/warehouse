@@ -15,6 +15,12 @@
 
 {% block title %}{% trans username=user.username %}Profile of {{ username }}{% endtrans %}{% endblock %}
 
+{% block extra_meta %}
+{% if user.date_joined|is_recent %}
+<meta name="googlebot" content="noindex">
+{% endif %}
+{% endblock %}
+
 {% block content %}
 <div class="horizontal-section horizontal-section--medium">
   <div class="left-layout">

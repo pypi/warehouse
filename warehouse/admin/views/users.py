@@ -19,13 +19,13 @@ import wtforms.validators
 from paginate_sqlalchemy import SqlalchemyOrmPage as SQLAlchemyORMPage
 from pyramid.httpexceptions import HTTPBadRequest, HTTPNotFound, HTTPSeeOther
 from pyramid.view import view_config
-from sqlalchemy import or_
+from sqlalchemy import literal, or_, select
 from sqlalchemy.orm import joinedload
 from sqlalchemy.orm.exc import NoResultFound
 
 from warehouse import forms
 from warehouse.accounts.interfaces import IUserService
-from warehouse.accounts.models import DisableReason, Email, User
+from warehouse.accounts.models import DisableReason, Email, ProhibitedUserName, User
 from warehouse.email import send_password_compromised_email
 from warehouse.packaging.models import JournalEntry, Project, Role
 from warehouse.utils.paginate import paginate_url_factory
@@ -59,7 +59,8 @@ def user_list(request):
             else:
                 filters.append(User.username.ilike(term))
 
-        users_query = users_query.filter(or_(*filters))
+        filters = filters or [True]
+        users_query = users_query.filter(or_(False, *filters))
 
     users = SQLAlchemyORMPage(
         users_query,
@@ -86,6 +87,7 @@ class UserForm(forms.Form):
     )
 
     is_active = wtforms.fields.BooleanField()
+    is_frozen = wtforms.fields.BooleanField()
     is_superuser = wtforms.fields.BooleanField()
     is_moderator = wtforms.fields.BooleanField()
     is_psf_staff = wtforms.fields.BooleanField()
@@ -179,27 +181,11 @@ def user_add_email(request):
     return HTTPSeeOther(request.route_path("admin.user.detail", user_id=user.id))
 
 
-@view_config(
-    route_name="admin.user.delete",
-    require_methods=["POST"],
-    permission="admin",
-    uses_session=True,
-    require_csrf=True,
-)
-def user_delete(request):
-    user = request.db.query(User).get(request.matchdict["user_id"])
-
-    if user.username != request.params.get("username"):
-        request.session.flash("Wrong confirmation input", queue="error")
-        return HTTPSeeOther(request.route_path("admin.user.detail", user_id=user.id))
-
+def _nuke_user(user, request):
     # Delete all the user's projects
     projects = request.db.query(Project).filter(
         Project.name.in_(
-            request.db.query(Project.name)
-            .join(Role.project)
-            .filter(Role.user == user)
-            .subquery()
+            select(Project.name).join(Role.project).where(Role.user == user)
         )
     )
     for project in projects:
@@ -226,6 +212,13 @@ def user_delete(request):
     for journal in journals:
         journal.submitted_by = deleted_user
 
+    # Prohibit the username
+    request.db.add(
+        ProhibitedUserName(
+            name=user.username.lower(), comment="nuked", prohibited_by=request.user
+        )
+    )
+
     # Delete the user
     request.db.delete(user)
     request.db.add(
@@ -236,6 +229,24 @@ def user_delete(request):
             submitted_from=request.remote_addr,
         )
     )
+
+
+@view_config(
+    route_name="admin.user.delete",
+    require_methods=["POST"],
+    permission="admin",
+    uses_session=True,
+    require_csrf=True,
+)
+def user_delete(request):
+    user = request.db.query(User).get(request.matchdict["user_id"])
+
+    if user.username != request.params.get("username"):
+        request.session.flash("Wrong confirmation input", queue="error")
+        return HTTPSeeOther(request.route_path("admin.user.detail", user_id=user.id))
+
+    _nuke_user(user, request)
+
     request.session.flash(f"Nuked user {user.username!r}", queue="success")
     return HTTPSeeOther(request.route_path("admin.user.list"))
 
@@ -261,3 +272,48 @@ def user_reset_password(request):
 
     request.session.flash(f"Reset password for {user.username!r}", queue="success")
     return HTTPSeeOther(request.route_path("admin.user.detail", user_id=user.id))
+
+
+@view_config(
+    route_name="admin.prohibited_user_names.bulk_add",
+    renderer="admin/prohibited_user_names/bulk.html",
+    permission="admin",
+    uses_session=True,
+    require_methods=False,
+)
+def bulk_add_prohibited_user_names(request):
+    if request.method == "POST":
+        user_names = request.POST.get("users", "").split()
+
+        for user_name in user_names:
+
+            # Check to make sure the prohibition doesn't already exist.
+            if (
+                request.db.query(literal(True))
+                .filter(
+                    request.db.query(ProhibitedUserName)
+                    .filter(ProhibitedUserName.name == user_name.lower())
+                    .exists()
+                )
+                .scalar()
+            ):
+                continue
+
+            # Go through and delete the usernames
+
+            user = request.db.query(User).filter(User.username == user_name).first()
+            if user is not None:
+                _nuke_user(user, request)
+            else:
+                request.db.add(
+                    ProhibitedUserName(
+                        name=user_name.lower(),
+                        comment="nuked",
+                        prohibited_by=request.user,
+                    )
+                )
+
+        request.session.flash(f"Prohibited {len(user_names)!r} users", queue="success")
+
+        return HTTPSeeOther(request.route_path("admin.prohibited_user_names.bulk_add"))
+    return {}

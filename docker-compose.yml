@@ -1,4 +1,4 @@
-version: '3'
+version: '3.9'
 
 volumes:
   simple:
@@ -25,10 +25,14 @@ services:
       - ./dev/vault:/etc/vault
 
   db:
-    image: postgres:10.1
+    image: postgres:12.8
     ports:
       # 5432 may already in use by another PostgreSQL on host
       - "5433:5432"
+    environment:
+      POSTGRES_HOST_AUTH_METHOD: trust  # never do this in production!
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "postgres", "-d", "postgres"]
 
   redis:
     image: redis:4.0
@@ -92,7 +96,12 @@ services:
     ports:
       - "${WEB_PORT:-80}:8000"
     depends_on:
-      - db
+      db:
+        condition: service_healthy
+      elasticsearch:
+        condition: service_started
+      redis:
+        condition: service_started
 
   files:
     build:
@@ -134,9 +143,10 @@ services:
       - ./bin:/opt/warehouse/src/bin:z
 
   maildev:
-    image: maildev/maildev
+    image: maildev/maildev:2.0.2
     ports:
-      - "1080:80"
+      - "1080:1080"
+      - "1025:1025"
 
   notdatadog:
     build:

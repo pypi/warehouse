@@ -15,6 +15,8 @@ import functools
 
 from email.headerregistry import Address
 
+import pytz
+
 from celery.schedules import crontab
 from first import first
 from sqlalchemy.orm.exc import NoResultFound
@@ -184,6 +186,62 @@ def _email(
     return inner
 
 
+# Email templates for administrators.
+
+
+@_email("admin-new-organization-requested")
+def send_admin_new_organization_requested_email(
+    request, user, *, organization_name, initiator_username, organization_id
+):
+    return {
+        "initiator_username": initiator_username,
+        "organization_id": organization_id,
+        "organization_name": organization_name,
+    }
+
+
+@_email("admin-new-organization-approved")
+def send_admin_new_organization_approved_email(
+    request, user, *, organization_name, initiator_username, message=""
+):
+    return {
+        "initiator_username": initiator_username,
+        "message": message,
+        "organization_name": organization_name,
+    }
+
+
+@_email("admin-new-organization-declined")
+def send_admin_new_organization_declined_email(
+    request, user, *, organization_name, initiator_username, message=""
+):
+    return {
+        "initiator_username": initiator_username,
+        "message": message,
+        "organization_name": organization_name,
+    }
+
+
+@_email("admin-organization-renamed")
+def send_admin_organization_renamed_email(
+    request, user, *, organization_name, previous_organization_name
+):
+    return {
+        "organization_name": organization_name,
+        "previous_organization_name": previous_organization_name,
+    }
+
+
+@_email("admin-organization-deleted")
+def send_admin_organization_deleted_email(request, user, *, organization_name):
+    return {
+        "organization_name": organization_name,
+    }
+
+
+# Email templates for users.
+
+
 @_email("password-reset", allow_unverified=True)
 def send_password_reset_email(request, user_and_email):
     user, _ = user_and_email
@@ -193,7 +251,11 @@ def send_password_reset_email(request, user_and_email):
             "action": "password-reset",
             "user.id": str(user.id),
             "user.last_login": str(user.last_login),
-            "user.password_date": str(user.password_date),
+            "user.password_date": str(
+                user.password_date
+                if user.password_date is not None
+                else datetime.datetime.min.replace(tzinfo=pytz.UTC)
+            ),
         }
     )
 
@@ -261,15 +323,263 @@ def send_primary_email_change_email(request, user_and_email):
     }
 
 
-@_email("collaborator-added")
-def send_collaborator_added_email(
-    request, email_recipients, *, user, submitter, project_name, role
+@_email("new-organization-requested")
+def send_new_organization_requested_email(request, user, *, organization_name):
+    return {"organization_name": organization_name}
+
+
+@_email("new-organization-approved")
+def send_new_organization_approved_email(
+    request, user, *, organization_name, message=""
+):
+    return {
+        "message": message,
+        "organization_name": organization_name,
+    }
+
+
+@_email("new-organization-declined")
+def send_new_organization_declined_email(
+    request, user, *, organization_name, message=""
+):
+    return {
+        "message": message,
+        "organization_name": organization_name,
+    }
+
+
+@_email("organization-project-added")
+def send_organization_project_added_email(
+    request, user, *, organization_name, project_name
+):
+    return {
+        "organization_name": organization_name,
+        "project_name": project_name,
+    }
+
+
+@_email("organization-project-removed")
+def send_organization_project_removed_email(
+    request, user, *, organization_name, project_name
+):
+    return {
+        "organization_name": organization_name,
+        "project_name": project_name,
+    }
+
+
+@_email("organization-member-invited")
+def send_organization_member_invited_email(
+    request,
+    email_recipients,
+    *,
+    user,
+    desired_role,
+    initiator_username,
+    organization_name,
+    email_token,
+    token_age,
 ):
     return {
         "username": user.username,
-        "project": project_name,
+        "desired_role": desired_role,
+        "initiator_username": initiator_username,
+        "n_hours": token_age // 60 // 60,
+        "organization_name": organization_name,
+        "token": email_token,
+    }
+
+
+@_email("verify-organization-role", allow_unverified=True)
+def send_organization_role_verification_email(
+    request,
+    user,
+    *,
+    desired_role,
+    initiator_username,
+    organization_name,
+    email_token,
+    token_age,
+):
+    return {
+        "username": user.username,
+        "desired_role": desired_role,
+        "initiator_username": initiator_username,
+        "n_hours": token_age // 60 // 60,
+        "organization_name": organization_name,
+        "token": email_token,
+    }
+
+
+@_email("organization-member-invite-canceled")
+def send_organization_member_invite_canceled_email(
+    request,
+    email_recipients,
+    *,
+    user,
+    organization_name,
+):
+    return {
+        "username": user.username,
+        "organization_name": organization_name,
+    }
+
+
+@_email("canceled-as-invited-organization-member")
+def send_canceled_as_invited_organization_member_email(
+    request,
+    user,
+    *,
+    organization_name,
+):
+    return {
+        "username": user.username,
+        "organization_name": organization_name,
+    }
+
+
+@_email("organization-member-invite-declined")
+def send_organization_member_invite_declined_email(
+    request,
+    email_recipients,
+    *,
+    user,
+    organization_name,
+):
+    return {
+        "username": user.username,
+        "organization_name": organization_name,
+    }
+
+
+@_email("declined-as-invited-organization-member")
+def send_declined_as_invited_organization_member_email(
+    request,
+    user,
+    *,
+    organization_name,
+):
+    return {
+        "username": user.username,
+        "organization_name": organization_name,
+    }
+
+
+@_email("organization-member-added")
+def send_organization_member_added_email(
+    request,
+    email_recipients,
+    *,
+    user,
+    submitter,
+    organization_name,
+    role,
+):
+    return {
+        "username": user.username,
+        "submitter": submitter.username,
+        "organization_name": organization_name,
+        "role": role,
+    }
+
+
+@_email("added-as-organization-member")
+def send_added_as_organization_member_email(
+    request,
+    user,
+    *,
+    submitter,
+    organization_name,
+    role,
+):
+    return {
+        "username": user.username,
+        "submitter": submitter.username,
+        "organization_name": organization_name,
+        "role": role,
+    }
+
+
+@_email("organization-member-removed")
+def send_organization_member_removed_email(
+    request,
+    email_recipients,
+    *,
+    user,
+    submitter,
+    organization_name,
+):
+    return {
+        "username": user.username,
+        "submitter": submitter.username,
+        "organization_name": organization_name,
+    }
+
+
+@_email("removed-as-organization-member")
+def send_removed_as_organization_member_email(
+    request,
+    user,
+    *,
+    submitter,
+    organization_name,
+):
+    return {
+        "username": user.username,
+        "submitter": submitter.username,
+        "organization_name": organization_name,
+    }
+
+
+@_email("organization-member-role-changed")
+def send_organization_member_role_changed_email(
+    request,
+    email_recipients,
+    *,
+    user,
+    submitter,
+    organization_name,
+    role,
+):
+    return {
+        "username": user.username,
+        "submitter": submitter.username,
+        "organization_name": organization_name,
+        "role": role,
+    }
+
+
+@_email("role-changed-as-organization-member")
+def send_role_changed_as_organization_member_email(
+    request,
+    user,
+    *,
+    submitter,
+    organization_name,
+    role,
+):
+    return {
+        "username": user.username,
+        "organization_name": organization_name,
         "submitter": submitter.username,
         "role": role,
+    }
+
+
+@_email("organization-renamed")
+def send_organization_renamed_email(
+    request, user, *, organization_name, previous_organization_name
+):
+    return {
+        "organization_name": organization_name,
+        "previous_organization_name": previous_organization_name,
+    }
+
+
+@_email("organization-deleted")
+def send_organization_deleted_email(request, user, *, organization_name):
+    return {
+        "organization_name": organization_name,
     }
 
 
@@ -290,6 +600,18 @@ def send_project_role_verification_email(
         "n_hours": token_age // 60 // 60,
         "project_name": project_name,
         "token": email_token,
+    }
+
+
+@_email("collaborator-added")
+def send_collaborator_added_email(
+    request, email_recipients, *, user, submitter, project_name, role
+):
+    return {
+        "username": user.username,
+        "project": project_name,
+        "submitter": submitter.username,
+        "role": role,
     }
 
 
@@ -458,6 +780,33 @@ def send_recovery_code_used_email(request, user):
 @_email("recovery-code-reminder")
 def send_recovery_code_reminder_email(request, user):
     return {"username": user.username}
+
+
+@_email("oidc-provider-added")
+def send_oidc_provider_added_email(request, user, project_name, provider):
+    # We use the request's user, since they're the one triggering the action.
+    return {
+        "username": request.user.username,
+        "project_name": project_name,
+        "provider_name": provider.provider_name,
+        "provider_spec": str(provider),
+    }
+
+
+@_email("oidc-provider-removed")
+def send_oidc_provider_removed_email(request, user, project_name, provider):
+    # We use the request's user, since they're the one triggering the action.
+    return {
+        "username": request.user.username,
+        "project_name": project_name,
+        "provider_name": provider.provider_name,
+        "provider_spec": str(provider),
+    }
+
+
+@_email("two-factor-mandate")
+def send_two_factor_mandate_email(request, user):
+    return {"username": user.username, "has_two_factor": user.has_two_factor}
 
 
 def includeme(config):

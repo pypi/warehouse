@@ -19,7 +19,7 @@
 
 {% block main %}
   {% if project_invites %}
-  <h1 class="page-title">{% trans project_count=project_invites|length %}Pending invitations ({{ project_count }}){% endtrans %}</h1>
+  <h1 class="page-title">{% trans invitation_count=project_invites|length %}Pending invitations ({{ invitation_count }}){% endtrans %}</h1>
   <div class="package-list">
     {% for project, token in project_invites %}
     {% set release = project.releases[0] if project.releases else None %}
@@ -57,7 +57,6 @@
   {% endif %}
   <h1 class="page-title">{% trans project_count=projects|length %}Your projects ({{ project_count }}){% endtrans %}</h1>
   <div class="package-list">
-    {% if projects %}
     {% set user_has_two_factor = request.user.has_two_factor %}
     {% for project in projects %}
     {% set release = project.releases[0] if project.releases else None %}
@@ -65,33 +64,39 @@
       <div class="split-layout split-layout--no-wrap split-layout--wrap-on-tablet">
         <div>
           <h3 class="package-snippet__title">{{ project.name }}
+            {% if project.organization %}
+            <a href="{{ request.route_path('manage.organization.projects', organization_name=project.organization.normalized_name) }}" class="badge package-snippet__badge">
+              <i class="fa fa-users" aria-hidden="true"></i>
+              {{ project.organization.name }}
+            </a>
+            {% endif %}
             {% if (
               request.registry.settings["warehouse.two_factor_requirement.enabled"]
               and project.owners_require_2fa
             ) %}
-            <a href="{{ request.route_path('manage.project.settings', project_name=project.normalized_name) }}" class="badge badge--neutral package-snippet__project-badge" title="{% trans %}This project requires 2FA to be enabled to manage{% endtrans %}">
+            <a href="{{ request.route_path('manage.project.settings', project_name=project.normalized_name) }}" class="badge badge--neutral package-snippet__badge" title="{% trans %}This project requires 2FA to be enabled to manage{% endtrans %}">
               {% trans %}2FA Required{% endtrans %}
             </a>
             {% elif (
               request.registry.settings["warehouse.two_factor_mandate.enabled"]
               and project.pypi_mandates_2fa
             ) %}
-            <span class="badge badge--neutral package-snippet__project-badge" title="{% trans %}This is a critical project for the Python ecosystem{% endtrans %}">
+            <span class="badge badge--neutral package-snippet__badge" title="{% trans %}This is a critical project for the Python ecosystem{% endtrans %}">
               {% trans %}Critical Project{% endtrans %}
             </span>
-            <span class="badge badge--neutral package-snippet__project-badge" title="{% trans %}PyPI requires 2FA to be enabled to manage this project{% endtrans %}">
+            <span class="badge badge--neutral package-snippet__badge" title="{% trans %}PyPI requires 2FA to be enabled to manage this project{% endtrans %}">
               {% trans %}2FA Mandated{% endtrans %}
             </span>
             {% elif (
               request.registry.settings["warehouse.two_factor_mandate.available"]
               and project.pypi_mandates_2fa
             ) %}
-            <span class="badge badge--neutral package-snippet__project-badge" title="{% trans %}This is a critical project for the Python ecosystem{% endtrans %}">
+            <span class="badge badge--neutral package-snippet__badge" title="{% trans %}This is a critical project for the Python ecosystem{% endtrans %}">
               {% trans %}Critical Project{% endtrans %}
             </span>
             {% endif %}
             {% if project.name in projects_sole_owned %}
-            <a href="{{ request.route_path('manage.project.roles', project_name=project.normalized_name) }}" class="badge badge--warning package-snippet__project-badge">{% trans %}Sole owner{% endtrans %}</a>
+            <a href="{{ request.route_path('manage.project.roles', project_name=project.normalized_name) }}" class="badge badge--warning package-snippet__badge">{% trans %}Sole owner{% endtrans %}</a>
             {% endif %}
           </h3>
           {% if release %}
@@ -162,11 +167,10 @@
         </div>
       </div>
     </div>
-    {% endfor %}
     {% else %}
       <div class="callout-block no-top-margin">
         <p>{% trans href='https://packaging.python.org/' %}You have not uploaded any projects to PyPI, yet. To learn how to get started, visit the <a href="{{ href }}" target="_blank" rel="noopener">Python Packaging User Guide</a>{% endtrans %}</p>
       </div>
-    {% endif %}
+    {% endfor %}
   </div>
 {% endblock %}

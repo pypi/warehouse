@@ -2,21 +2,26 @@
 # Copyright (C) 2019 PyPA
 # This file is distributed under the same license as the Warehouse project.
 # FIRST AUTHOR <EMAIL@ADDRESS>, 2019.
-# Aurora Lanes <auroralanes@protonmail.ch>, 2019.
+# Aurora Lanes <auroralanes@protonmail.ch>, 2019, 2022.
 # سهیل خانعلی‌پور <soheil@disroot.org>, 2021.
-# Sebghatullah Yusuf <sebghatyusuf@gmail.com>, 2021.
-# reza gh <iranianboy200017@gmail.com>, 2021.
-# javad noori <cpuintelamd@yahoo.com>, 2021.
-# Reza Maanijou <reza.maanijou@gmail.com>, 2021.
-# arshia farshad <nooneisme02@gmail.com>, 2021.
-# Arsalan Dehghani <arsalan.dehghani@gmail.com>, 2021.
+# Sebghatullah Yusuf <sebghatyusuf@gmail.com>, 2021, 2022.
+# reza gh <iranianboy200017@gmail.com>, 2021, 2022.
+# javad noori <cpuintelamd@yahoo.com>, 2021, 2022.
+# Reza Maanijou <reza.maanijou@gmail.com>, 2021, 2022.
+# arshia farshad <nooneisme02@gmail.com>, 2021, 2022.
+# Arsalan Dehghani <arsalan.dehghani@gmail.com>, 2021, 2022.
+# Matin <MatiinBaloochestani@gmail.com>, 2022.
+# Amirreza Ahmadi <288c19df1f@catdogmail.live>, 2022.
+# Farivar Tabatabaei <farivar.tabatabaei80@gmail.com>, 2022.
+# xashayar kml <kml.khashayar@gmail.com>, 2022.
+# Soheil Khanalipur <soheil@disroot.org>, 2022.
 msgid ""
 msgstr ""
 "Project-Id-Version: Warehouse VERSION\n"
 "Report-Msgid-Bugs-To: admin@pypi.org\n"
 "POT-Creation-Date: 2020-01-15 20:11+0200\n"
-"PO-Revision-Date: 2021-12-31 19:52+0000\n"
-"Last-Translator: Arsalan Dehghani <arsalan.dehghani@gmail.com>\n"
+"PO-Revision-Date: 2022-06-28 19:49+0000\n"
+"Last-Translator: Farivar Tabatabaei <farivar.tabatabaei80@gmail.com>\n"
 "Language-Team: Persian <https://hosted.weblate.org/projects/pypa/warehouse/"
 "fa/>\n"
 "Language: fa\n"
@@ -24,22 +29,19 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n > 1;\n"
-"X-Generator: Weblate 4.10.1\n"
+"X-Generator: Weblate 4.13.1-dev\n"
 "Generated-By: Babel 2.7.0\n"
 
-#: warehouse/views.py:113
+#: warehouse/views.py:129
 msgid ""
 "Two-factor authentication must be enabled on your account to perform this "
 "action."
 msgstr ""
+"برای انجام این عملیات احراز هویت دو مرحله ای باید در حساب شما فعال باشد."
 
-#: warehouse/views.py:273
+#: warehouse/views.py:292
 msgid "Locale updated"
-msgstr "محلی به روز شد"
-
-#: warehouse/accounts/__init__.py:72
-msgid "Session invalidated by password change"
-msgstr ""
+msgstr "به‌روز رسانی محلی"
 
 #: warehouse/accounts/forms.py:50
 msgid "No user found with that username"
@@ -54,16 +56,17 @@ msgid "Choose a username with 50 characters or less."
 msgstr "یک نام کاربری با طول ۵۰ کاراکتر یا کمتر انتخاب کنید."
 
 #: warehouse/accounts/forms.py:94
+#, fuzzy
 msgid ""
 "The username is invalid. Usernames must be composed of letters, numbers, "
 "dots, hyphens and underscores. And must also start and finish with a letter "
 "or number. Choose a different username."
 msgstr ""
-"این نام کاربری نامعتبر است.نام کاربری باید متشکل از حروف ، ارغام ، نقاط ، خط "
-"و زیر خط باشد. و همچنین باید با حرف یا عدد شروع و پایان یابد.نام کاربری "
-"دیگری انتخاب کنید."
+"نام کاربری نامعتبر است.نام کاربری باید متشکل از حروف ، عدد ، نقطه ، خط و زیر "
+"خط باشد. و همچنین باید با حرف یا عدد شروع و پایان یابد. نام کاربری دیگری "
+"انتخاب کنید."
 
-#: warehouse/accounts/forms.py:108
+#: warehouse/accounts/forms.py:111
 msgid ""
 "This username is already being used by another account. Choose a different "
 "username."
@@ -71,38 +74,37 @@ msgstr ""
 "این نام کاربری در حال حاضر توسط حساب کاربری دیگری استفاده می شود. نام کاربری "
 "دیگری انتخاب کنید."
 
-#: warehouse/accounts/forms.py:142
+#: warehouse/accounts/forms.py:145
 msgid "The password is invalid. Try again."
 msgstr "رمز عبور معتبر نیست. دوباره تلاش کنید."
 
-#: warehouse/accounts/forms.py:146 warehouse/accounts/views.py:79
+#: warehouse/accounts/forms.py:149 warehouse/accounts/views.py:87
 msgid "There have been too many unsuccessful login attempts. Try again later."
 msgstr ""
 "تعداد زیادی تلاش ناموفق برای ورود به سیستم انجام شده است. لطفا بعدا تلاش "
 "کنید."
 
-#: warehouse/accounts/forms.py:168
+#: warehouse/accounts/forms.py:171
 msgid "Your passwords don't match. Try again."
 msgstr "رمز های عبور شما هم خوانی ندارند. دوباره امتحان کنید."
 
-#: warehouse/accounts/forms.py:199 warehouse/accounts/forms.py:210
+#: warehouse/accounts/forms.py:202 warehouse/accounts/forms.py:213
 msgid "The email address isn't valid. Try again."
 msgstr "آدرس پست الکترونیک شما معتبر نیست. دوباره امتحان کنید."
 
-#: warehouse/accounts/forms.py:218
+#: warehouse/accounts/forms.py:221
 msgid "You can't use an email address from this domain. Use a different email."
 msgstr ""
 "شما نمی توانید از یک آدرس ایمیل از این دامنه استفاده کنید. از یک ایمیل دیگر "
 "استفاده کنید."
 
-#: warehouse/accounts/forms.py:229
+#: warehouse/accounts/forms.py:232
 msgid ""
 "This email address is already being used by this account. Use a different "
 "email."
-msgstr ""
-"این ایمیل توسط اکانت دیگری استفاده میشود . از ایمیل دیگری استفاده کنید."
+msgstr "این ایمیل توسط اکانت دیگری استفاده میشود . از ایمیل دیگری استفاده کنید."
 
-#: warehouse/accounts/forms.py:236
+#: warehouse/accounts/forms.py:239
 msgid ""
 "This email address is already being used by another account. Use a different "
 "email."
@@ -110,33 +112,31 @@ msgstr ""
 "این آدرس ایمیل در حال حاضر توسط حساب دیگری استفاده می شود. از یک ایمیل دیگر "
 "استفاده کنید."
 
-#: warehouse/accounts/forms.py:258 warehouse/manage/forms.py:73
+#: warehouse/accounts/forms.py:261 warehouse/manage/forms.py:77
 msgid "The name is too long. Choose a name with 100 characters or less."
 msgstr "نام خیلی طولانی است یک نام با 100 کاراکتر یا کمتر انتخاب کنید."
 
-#: warehouse/accounts/forms.py:327
+#: warehouse/accounts/forms.py:330
 msgid "Invalid TOTP code."
 msgstr "رمز یکبار مصرف اشتباه است."
 
-#: warehouse/accounts/forms.py:344
+#: warehouse/accounts/forms.py:347
 msgid "Invalid WebAuthn assertion: Bad payload"
 msgstr "خطای WebAuthn: بارگیری با مشکل مواجه شد"
 
-#: warehouse/accounts/forms.py:402
+#: warehouse/accounts/forms.py:405
 msgid "Invalid recovery code."
 msgstr "کد بازیابی نامعتبر."
 
-#: warehouse/accounts/forms.py:410
-#, fuzzy
-#| msgid "Recovery codes regenerated"
+#: warehouse/accounts/forms.py:413
 msgid "Recovery code has been previously used."
-msgstr "کد های بازیابی دوباره ایجاد شدند"
+msgstr "کد بازیابی قبلا استفاده شده است."
 
-#: warehouse/accounts/forms.py:429
+#: warehouse/accounts/forms.py:432
 msgid "No user found with that username or email"
 msgstr "هیچ کاربری با این نام کاربری یا ایمیل یافت نشد"
 
-#: warehouse/accounts/views.py:96
+#: warehouse/accounts/views.py:104
 msgid ""
 "Too many emails have been added to this account without verifying them. "
 "Check your inbox and follow the verification links. (IP: ${ip})"
@@ -144,38 +144,35 @@ msgstr ""
 "تعداد ایمیل های زیادی به این حساب اضافه شده است بدون اینکه تائید شده باشند. "
 "ایمیل تان را بررسی نموده و لینک های تائیدی را تعقیب کنید. (IP:${ip})"
 
-#: warehouse/accounts/views.py:108
-#, fuzzy
-#| msgid ""
-#| "Too many emails have been added to this account without verifying them. "
-#| "Check your inbox and follow the verification links. (IP: ${ip})"
+#: warehouse/accounts/views.py:116
 msgid ""
 "Too many password resets have been requested for this account without "
 "completing them. Check your inbox and follow the verification links. (IP: "
 "${ip})"
 msgstr ""
-"تعداد ایمیل های زیادی به این حساب اضافه شده است بدون اینکه تائید شده باشند. "
-"ایمیل تان را بررسی نموده و لینک های تائیدی را تعقیب کنید. (IP:${ip})"
+"تعداد زیادی درخواست بازنشانی رمز عبور برای این اکانت بدون کامل کردن آنها "
+"درخواست شده است. صندوق ورودی خود را بررسی کرده و لینک های تایید را دنبال "
+"کنید. (IP: ${ip})"
 
-#: warehouse/accounts/views.py:248 warehouse/accounts/views.py:312
-#: warehouse/accounts/views.py:314 warehouse/accounts/views.py:341
-#: warehouse/accounts/views.py:343 warehouse/accounts/views.py:409
+#: warehouse/accounts/views.py:256 warehouse/accounts/views.py:320
+#: warehouse/accounts/views.py:322 warehouse/accounts/views.py:349
+#: warehouse/accounts/views.py:351 warehouse/accounts/views.py:417
 msgid "Invalid or expired two factor login."
 msgstr "ورود دو مرحله ای منقضی شده یا نامعتبر."
 
-#: warehouse/accounts/views.py:306
+#: warehouse/accounts/views.py:314
 msgid "Already authenticated"
 msgstr "قبلا تایید شده است"
 
-#: warehouse/accounts/views.py:385
+#: warehouse/accounts/views.py:393
 msgid "Successful WebAuthn assertion"
 msgstr "ادعای موفق WebAuthn"
 
-#: warehouse/accounts/views.py:439 warehouse/manage/views.py:791
+#: warehouse/accounts/views.py:447 warehouse/manage/views.py:893
 msgid "Recovery code accepted. The supplied code cannot be used again."
 msgstr "کد بازیابی قبول شد. از کد استفاده شده دوباره نمیتوان استفاده کرد."
 
-#: warehouse/accounts/views.py:525
+#: warehouse/accounts/views.py:533
 msgid ""
 "New user registration temporarily disabled. See https://pypi.org/help#admin-"
 "intervention for details."
@@ -183,99 +180,145 @@ msgstr ""
 "ثبت نام کاربر جدید موقتا غیر فعال گردید. برای توضیحات لینک https://pypi.org/"
 "help#admin-intervention را ببینید."
 
-#: warehouse/accounts/views.py:643
+#: warehouse/accounts/views.py:651
 msgid "Expired token: request a new password reset link"
 msgstr "نشانه منقضی شده: لینک بازیابی رمز عبور جدید درخواست کنید"
 
-#: warehouse/accounts/views.py:645
+#: warehouse/accounts/views.py:653
 msgid "Invalid token: request a new password reset link"
 msgstr "نشانه نامعتبر: لینک بازیابی رمز عبور جدید درخواست کنید"
 
-#: warehouse/accounts/views.py:647 warehouse/accounts/views.py:732
-#: warehouse/accounts/views.py:828
+#: warehouse/accounts/views.py:655 warehouse/accounts/views.py:753
+#: warehouse/accounts/views.py:850 warehouse/accounts/views.py:1017
 msgid "Invalid token: no token supplied"
 msgstr "نشانه نامعتبر: هیچ نشانه ای استفاده نشد"
 
-#: warehouse/accounts/views.py:651
+#: warehouse/accounts/views.py:659
 msgid "Invalid token: not a password reset token"
 msgstr "نشانه نامعتبر: نشانه بازیابی پسورد نمی باشد"
 
-#: warehouse/accounts/views.py:656
+#: warehouse/accounts/views.py:664
 msgid "Invalid token: user not found"
 msgstr "نشانه نامعتبر: کاربر یافت نشد"
 
-#: warehouse/accounts/views.py:663
+#: warehouse/accounts/views.py:675
 msgid "Invalid token: user has logged in since this token was requested"
 msgstr "نشانه نامعتبر: کاربر از زمان درخواست این نشانه وارد سیستم شده است"
 
-#: warehouse/accounts/views.py:672
+#: warehouse/accounts/views.py:693
 msgid ""
 "Invalid token: password has already been changed since this token was "
 "requested"
 msgstr ""
 "توکن نامعتبر: رمز عبور از زمان درخواست این توکن در حال حاضر تغییر کرده است"
 
-#: warehouse/accounts/views.py:701
+#: warehouse/accounts/views.py:722
 msgid "You have reset your password"
 msgstr "گذرواژه خود را بازنشانی کردید"
 
-#: warehouse/accounts/views.py:728
+#: warehouse/accounts/views.py:749
 msgid "Expired token: request a new email verification link"
 msgstr "نشانه منقضی شده: یک لینک تأیید ایمیل جدید درخواست کنید"
 
-#: warehouse/accounts/views.py:730
+#: warehouse/accounts/views.py:751
 msgid "Invalid token: request a new email verification link"
 msgstr "نشانه منقضی شده: یک لینک تأیید ایمیل جدید درخواست کنید"
 
-#: warehouse/accounts/views.py:736
+#: warehouse/accounts/views.py:757
 msgid "Invalid token: not an email verification token"
 msgstr "رمز نامعتبر: رمز تأیید ایمیل نیست"
 
-#: warehouse/accounts/views.py:745
+#: warehouse/accounts/views.py:766
 msgid "Email not found"
 msgstr "ایمیل یافت نشد"
 
-#: warehouse/accounts/views.py:748
+#: warehouse/accounts/views.py:769
 msgid "Email already verified"
 msgstr "ایمیل از قبل تأیید شده است"
 
-#: warehouse/accounts/views.py:763
+#: warehouse/accounts/views.py:784
 msgid "You can now set this email as your primary address"
 msgstr "اکنون می توانید این ایمیل را به عنوان آدرس اصلی خود تنظیم کنید"
 
-#: warehouse/accounts/views.py:767
+#: warehouse/accounts/views.py:788
 msgid "This is your primary address"
 msgstr "این آدرس اصلی شماست"
 
-#: warehouse/accounts/views.py:772
+#: warehouse/accounts/views.py:793
 msgid "Email address ${email_address} verified. ${confirm_message}."
 msgstr "آدرس ایمیل ${email_address} تایید شده است. ${confirm_message}."
 
-#: warehouse/accounts/views.py:824
-msgid "Expired token: request a new project role invite"
+#: warehouse/accounts/views.py:846
+#, fuzzy
+#| msgid "Expired token: request a new project role invite"
+msgid "Expired token: request a new organization invitation"
 msgstr "نشانه منقضی شده : نقش دعوت یک پروژه جدید را درخواست کنید"
 
-#: warehouse/accounts/views.py:826
-msgid "Invalid token: request a new project role invite"
+#: warehouse/accounts/views.py:848
+#, fuzzy
+#| msgid "Invalid token: request a new project role invite"
+msgid "Invalid token: request a new organization invitation"
 msgstr "نشانه منقضی شده : نقش دعوت یک پروژه جدید را درخواست کنید"
 
-#: warehouse/accounts/views.py:832
+#: warehouse/accounts/views.py:854
+#, fuzzy
+#| msgid "Invalid token: not a collaboration invitation token"
+msgid "Invalid token: not an organization invitation token"
+msgstr "توکن نامعتبر: رمز دعوت نامه همکاری نیست"
+
+#: warehouse/accounts/views.py:858
+#, fuzzy
+#| msgid "Role invitation is not valid."
+msgid "Organization invitation is not valid."
+msgstr "دعوت نامه معتبر نیست."
+
+#: warehouse/accounts/views.py:867
+#, fuzzy
+#| msgid "Role invitation no longer exists."
+msgid "Organization invitation no longer exists."
+msgstr "دعوت نامه دیگر وجود ندارد."
+
+#: warehouse/accounts/views.py:916
+#, fuzzy
+#| msgid "Invitation for '${project_name}' is declined."
+msgid "Invitation for '${organization_name}' is declined."
+msgstr "دعوت برای \"$ {project_name}\" رد شد."
+
+#: warehouse/accounts/views.py:979
+#, fuzzy
+#| msgid "You are now ${role} of the '${project_name}' project."
+msgid "You are now ${role} of the '${organization_name}' organization."
+msgstr "شما اکنون $ {role} از پروژه '$ {project_name}' هستید."
+
+#: warehouse/accounts/views.py:1013
+#, fuzzy
+#| msgid "Expired token: request a new project role invite"
+msgid "Expired token: request a new project role invitation"
+msgstr "نشانه منقضی شده : نقش دعوت یک پروژه جدید را درخواست کنید"
+
+#: warehouse/accounts/views.py:1015
+#, fuzzy
+#| msgid "Invalid token: request a new project role invite"
+msgid "Invalid token: request a new project role invitation"
+msgstr "نشانه منقضی شده : نقش دعوت یک پروژه جدید را درخواست کنید"
+
+#: warehouse/accounts/views.py:1021
 msgid "Invalid token: not a collaboration invitation token"
 msgstr "توکن نامعتبر: رمز دعوت نامه همکاری نیست"
 
-#: warehouse/accounts/views.py:836
+#: warehouse/accounts/views.py:1025
 msgid "Role invitation is not valid."
 msgstr "دعوت نامه معتبر نیست."
 
-#: warehouse/accounts/views.py:851
+#: warehouse/accounts/views.py:1040
 msgid "Role invitation no longer exists."
 msgstr "دعوت نامه دیگر وجود ندارد."
 
-#: warehouse/accounts/views.py:863
+#: warehouse/accounts/views.py:1052
 msgid "Invitation for '${project_name}' is declined."
 msgstr "دعوت برای \"$ {project_name}\" رد شد."
 
-#: warehouse/accounts/views.py:930
+#: warehouse/accounts/views.py:1119
 msgid "You are now ${role} of the '${project_name}' project."
 msgstr "شما اکنون $ {role} از پروژه '$ {project_name}' هستید."
 
@@ -283,24 +326,165 @@ msgstr "شما اکنون $ {role} از پروژه '$ {project_name}' هستید
 msgid "Banner Preview"
 msgstr "پیش نمایش بنر"
 
-#: warehouse/manage/views.py:222
+#: warehouse/manage/forms.py:340
+#, fuzzy
+#| msgid "Choose a username with 50 characters or less."
+msgid "Choose an organization account name with 50 characters or less."
+msgstr "یک نام کاربری با طول ۵۰ کاراکتر یا کمتر انتخاب کنید."
+
+#: warehouse/manage/forms.py:348
+#, fuzzy
+#| msgid ""
+#| "The username is invalid. Usernames must be composed of letters, numbers, "
+#| "dots, hyphens and underscores. And must also start and finish with a "
+#| "letter or number. Choose a different username."
+msgid ""
+"The organization account name is invalid. Organization account names must be "
+"composed of letters, numbers, dots, hyphens and underscores. And must also "
+"start and finish with a letter or number. Choose a different organization "
+"account name."
+msgstr ""
+"این نام کاربری نامعتبر است.نام کاربری باید متشکل از حروف ، ارغام ، نقاط ، خط "
+"و زیر خط باشد. و همچنین باید با حرف یا عدد شروع و پایان یابد.نام کاربری "
+"دیگری انتخاب کنید."
+
+#: warehouse/manage/forms.py:363
+#, fuzzy
+#| msgid ""
+#| "This username is already being used by another account. Choose a "
+#| "different username."
+msgid ""
+"This organization account name has already been used. Choose a different "
+"organization account name."
+msgstr ""
+"این نام کاربری در حال حاضر توسط حساب کاربری دیگری استفاده می شود. نام کاربری "
+"دیگری انتخاب کنید."
+
+#: warehouse/manage/forms.py:403
+#, fuzzy
+#| msgid "Delete project"
+msgid "Select project"
+msgstr "هذف برنامه"
+
+#: warehouse/manage/forms.py:408
+#, fuzzy
+#| msgid "Search projects"
+msgid "Specify project name"
+msgstr "جستجوی پروژه ها"
+
+#: warehouse/manage/forms.py:411
+msgid ""
+"Start and end with a letter or numeral containing only ASCII numeric and "
+"'.', '_' and '-'."
+msgstr ""
+
+#: warehouse/manage/forms.py:418
+#, fuzzy
+#| msgid ""
+#| "This username is already being used by another account. Choose a "
+#| "different username."
+msgid ""
+"This project name has already been used. Choose a different project name."
+msgstr ""
+"این نام کاربری در حال حاضر توسط حساب کاربری دیگری استفاده می شود. نام کاربری "
+"دیگری انتخاب کنید."
+
+#: warehouse/manage/forms.py:488
+#, fuzzy
+#| msgid "The name is too long. Choose a name with 100 characters or less."
+msgid ""
+"The organization name is too long. Choose a organization name with 100 "
+"characters or less."
+msgstr "نام خیلی طولانی است یک نام با 100 کاراکتر یا کمتر انتخاب کنید."
+
+#: warehouse/manage/forms.py:500
+#, fuzzy
+#| msgid "The name is too long. Choose a name with 100 characters or less."
+msgid ""
+"The organization URL is too long. Choose a organization URL with 400 "
+"characters or less."
+msgstr "نام خیلی طولانی است یک نام با 100 کاراکتر یا کمتر انتخاب کنید."
+
+#: warehouse/manage/forms.py:514
+#, fuzzy
+#| msgid "The name is too long. Choose a name with 100 characters or less."
+msgid ""
+"The organization description is too long. Choose a organization description "
+"with 400 characters or less."
+msgstr "نام خیلی طولانی است یک نام با 100 کاراکتر یا کمتر انتخاب کنید."
+
+#: warehouse/manage/views.py:324
 msgid "Email ${email_address} added - check your email for a verification link"
 msgstr ""
 "ایمیل ${email_address} اضافه شده - ایمیل خود را برای یک لینک تایید بررسی کنید"
 
-#: warehouse/manage/views.py:739
+#: warehouse/manage/views.py:841
 msgid "Recovery codes already generated"
 msgstr "کدهای بازیابی قبلاً تولید شده اند"
 
-#: warehouse/manage/views.py:740
+#: warehouse/manage/views.py:842
 msgid "Generating new recovery codes will invalidate your existing codes."
 msgstr "تولید کدهای بازیابی جدید ، کدهای موجود شما را بی اعتبار می کند."
 
-#: warehouse/manage/views.py:1603
+#: warehouse/manage/views.py:1636
+#, fuzzy
+#| msgid "User '${username}' already has ${role_name} role for project"
+msgid "User '${username}' already has ${role_name} role for organization"
+msgstr "کاربر \"$ {username}\" از قبل نقش {role_name} پروژه را دارد"
+
+#: warehouse/manage/views.py:1647
+#, fuzzy
+#| msgid ""
+#| "User '${username}' does not have a verified primary email address and "
+#| "cannot be added as a ${role_name} for project"
+msgid ""
+"User '${username}' does not have a verified primary email address and cannot "
+"be added as a ${role_name} for organization"
+msgstr ""
+"کاربر \"$ {username}\" آدرس ایمیل تأیید شده اولیه ندارد و نمی تواند به عنوان "
+"$ {role_name} برای پروژه اضافه شود"
+
+#: warehouse/manage/views.py:1661 warehouse/manage/views.py:3142
+msgid ""
+"User '${username}' already has an active invite. Please try again later."
+msgstr ""
+"کاربر \"$ {username}\" قبلاً یک دعوت فعال داشته است. لطفاً بعداً دوباره "
+"امتحان کنید."
+
+#: warehouse/manage/views.py:1718 warehouse/manage/views.py:3200
+msgid "Invitation sent to '${username}'"
+msgstr "دعوت نامه به \"$ {username}\" ارسال شد"
+
+#: warehouse/manage/views.py:1761
+#, fuzzy
+#| msgid "Could not find role invitation."
+msgid "Could not find organization invitation."
+msgstr "دعوتنامه نقش پیدا نشد."
+
+#: warehouse/manage/views.py:1775 warehouse/manage/views.py:3258
+msgid "Invitation already expired."
+msgstr "دعوتنامه قبلاً منقضی شده است."
+
+#: warehouse/manage/views.py:1808 warehouse/manage/views.py:3282
+msgid "Invitation revoked from '${username}'."
+msgstr "دعوت از \"$ {username}\" لغو شد."
+
+#: warehouse/manage/views.py:2213
+#, fuzzy
+#| msgid ""
+#| "There have been too many unsuccessful login attempts. Try again later."
+msgid ""
+"There have been too many attempted OpenID Connect registrations. Try again "
+"later."
+msgstr ""
+"تعداد زیادی تلاش ناموفق برای ورود به سیستم انجام شده است. لطفا بعدا تلاش "
+"کنید."
+
+#: warehouse/manage/views.py:3118
 msgid "User '${username}' already has ${role_name} role for project"
 msgstr "کاربر \"$ {username}\" از قبل نقش {role_name} پروژه را دارد"
 
-#: warehouse/manage/views.py:1614
+#: warehouse/manage/views.py:3129
 msgid ""
 "User '${username}' does not have a verified primary email address and cannot "
 "be added as a ${role_name} for project"
@@ -308,28 +492,59 @@ msgstr ""
 "کاربر \"$ {username}\" آدرس ایمیل تأیید شده اولیه ندارد و نمی تواند به عنوان "
 "$ {role_name} برای پروژه اضافه شود"
 
-#: warehouse/manage/views.py:1627
-msgid ""
-"User '${username}' already has an active invite. Please try again later."
-msgstr ""
-"کاربر \"$ {username}\" قبلاً یک دعوت فعال داشته است. لطفاً بعداً دوباره امتحان "
-"کنید."
-
-#: warehouse/manage/views.py:1685
-msgid "Invitation sent to '${username}'"
-msgstr "دعوت نامه به \"$ {username}\" ارسال شد"
-
-#: warehouse/manage/views.py:1732
+#: warehouse/manage/views.py:3247
 msgid "Could not find role invitation."
 msgstr "دعوتنامه نقش پیدا نشد."
 
-#: warehouse/manage/views.py:1743
-msgid "Invitation already expired."
-msgstr "دعوتنامه قبلاً منقضی شده است."
+#: warehouse/oidc/forms.py:32
+msgid "Specify GitHub repository owner (username or organization)"
+msgstr ""
 
-#: warehouse/manage/views.py:1767
-msgid "Invitation revoked from '${username}'."
-msgstr "دعوت از \"$ {username}\" لغو شد."
+#: warehouse/oidc/forms.py:39
+msgid "Specify repository name"
+msgstr ""
+
+#: warehouse/oidc/forms.py:41
+#, fuzzy
+#| msgid "Invalid recovery code."
+msgid "Invalid repository name"
+msgstr "کد بازیابی نامعتبر."
+
+#: warehouse/oidc/forms.py:48
+msgid "Specify workflow filename"
+msgstr ""
+
+#: warehouse/oidc/forms.py:77
+msgid "Unknown GitHub user or organization."
+msgstr ""
+
+#: warehouse/oidc/forms.py:87
+msgid "GitHub has rate-limited this action. Try again in a few minutes."
+msgstr ""
+
+#: warehouse/oidc/forms.py:97
+msgid "Unexpected error from GitHub. Try again."
+msgstr ""
+
+#: warehouse/oidc/forms.py:104
+msgid "Unexpected timeout from GitHub. Try again in a few minutes."
+msgstr ""
+
+#: warehouse/oidc/forms.py:116
+msgid "Invalid GitHub user or organization name."
+msgstr ""
+
+#: warehouse/oidc/forms.py:132
+msgid "Workflow name must end with .yml or .yaml"
+msgstr ""
+
+#: warehouse/oidc/forms.py:137
+msgid "Workflow filename must be a filename only, without directories"
+msgstr ""
+
+#: warehouse/oidc/forms.py:146
+msgid "Provider must be specified by ID"
+msgstr ""
 
 #: warehouse/templates/403.html:16
 msgid "Access Denied / Forbidden (403)"
@@ -358,13 +573,13 @@ msgstr "Monty Python - طرح فروشگاه پنیر"
 #: warehouse/templates/404.html:34 warehouse/templates/500.html:28
 #: warehouse/templates/500.html:29
 #: warehouse/templates/accounts/two-factor.html:55
-#: warehouse/templates/base.html:258 warehouse/templates/base.html:259
-#: warehouse/templates/base.html:260 warehouse/templates/base.html:270
-#: warehouse/templates/base.html:271 warehouse/templates/base.html:272
-#: warehouse/templates/base.html:283 warehouse/templates/base.html:284
-#: warehouse/templates/base.html:285 warehouse/templates/base.html:294
-#: warehouse/templates/base.html:296 warehouse/templates/base.html:307
-#: warehouse/templates/base.html:316
+#: warehouse/templates/base.html:259 warehouse/templates/base.html:260
+#: warehouse/templates/base.html:261 warehouse/templates/base.html:271
+#: warehouse/templates/base.html:272 warehouse/templates/base.html:273
+#: warehouse/templates/base.html:284 warehouse/templates/base.html:285
+#: warehouse/templates/base.html:286 warehouse/templates/base.html:295
+#: warehouse/templates/base.html:297 warehouse/templates/base.html:308
+#: warehouse/templates/base.html:317
 #: warehouse/templates/includes/accounts/profile-actions.html:21
 #: warehouse/templates/includes/accounts/profile-actions.html:30
 #: warehouse/templates/includes/accounts/profile-callout.html:18
@@ -383,72 +598,71 @@ msgstr "Monty Python - طرح فروشگاه پنیر"
 #: warehouse/templates/manage/release.html:175
 #: warehouse/templates/manage/releases.html:140
 #: warehouse/templates/manage/releases.html:173
-#: warehouse/templates/packaging/detail.html:344
+#: warehouse/templates/packaging/detail.html:350
 #: warehouse/templates/pages/classifiers.html:25
 #: warehouse/templates/pages/help.html:20
-#: warehouse/templates/pages/help.html:208
-#: warehouse/templates/pages/help.html:215
-#: warehouse/templates/pages/help.html:229
-#: warehouse/templates/pages/help.html:245
-#: warehouse/templates/pages/help.html:249
-#: warehouse/templates/pages/help.html:306
-#: warehouse/templates/pages/help.html:333
-#: warehouse/templates/pages/help.html:338
-#: warehouse/templates/pages/help.html:343
+#: warehouse/templates/pages/help.html:210
+#: warehouse/templates/pages/help.html:217
+#: warehouse/templates/pages/help.html:231
+#: warehouse/templates/pages/help.html:247
+#: warehouse/templates/pages/help.html:251
+#: warehouse/templates/pages/help.html:308
+#: warehouse/templates/pages/help.html:335
+#: warehouse/templates/pages/help.html:340
 #: warehouse/templates/pages/help.html:345
-#: warehouse/templates/pages/help.html:350
-#: warehouse/templates/pages/help.html:351
+#: warehouse/templates/pages/help.html:347
 #: warehouse/templates/pages/help.html:352
-#: warehouse/templates/pages/help.html:356
-#: warehouse/templates/pages/help.html:389
+#: warehouse/templates/pages/help.html:353
+#: warehouse/templates/pages/help.html:354
+#: warehouse/templates/pages/help.html:358
 #: warehouse/templates/pages/help.html:391
-#: warehouse/templates/pages/help.html:394
-#: warehouse/templates/pages/help.html:430
-#: warehouse/templates/pages/help.html:435
-#: warehouse/templates/pages/help.html:441
-#: warehouse/templates/pages/help.html:499
-#: warehouse/templates/pages/help.html:519
-#: warehouse/templates/pages/help.html:525
-#: warehouse/templates/pages/help.html:528
+#: warehouse/templates/pages/help.html:393
+#: warehouse/templates/pages/help.html:396
+#: warehouse/templates/pages/help.html:432
+#: warehouse/templates/pages/help.html:437
+#: warehouse/templates/pages/help.html:443
+#: warehouse/templates/pages/help.html:501
+#: warehouse/templates/pages/help.html:521
+#: warehouse/templates/pages/help.html:527
 #: warehouse/templates/pages/help.html:530
-#: warehouse/templates/pages/help.html:539
-#: warehouse/templates/pages/help.html:551
-#: warehouse/templates/pages/help.html:558
-#: warehouse/templates/pages/help.html:570
-#: warehouse/templates/pages/help.html:571
-#: warehouse/templates/pages/help.html:576
-#: warehouse/templates/pages/help.html:601
-#: warehouse/templates/pages/help.html:614
-#: warehouse/templates/pages/help.html:619
-#: warehouse/templates/pages/help.html:631
-#: warehouse/templates/pages/help.html:652
-#: warehouse/templates/pages/help.html:675
-#: warehouse/templates/pages/help.html:682
-#: warehouse/templates/pages/help.html:694
-#: warehouse/templates/pages/help.html:705
-#: warehouse/templates/pages/help.html:710
-#: warehouse/templates/pages/help.html:718
-#: warehouse/templates/pages/help.html:729
-#: warehouse/templates/pages/help.html:746
-#: warehouse/templates/pages/help.html:753
-#: warehouse/templates/pages/help.html:761
-#: warehouse/templates/pages/help.html:777
-#: warehouse/templates/pages/help.html:782
-#: warehouse/templates/pages/help.html:787
-#: warehouse/templates/pages/help.html:797
-#: warehouse/templates/pages/help.html:806
-#: warehouse/templates/pages/help.html:820
-#: warehouse/templates/pages/help.html:828
-#: warehouse/templates/pages/help.html:836
-#: warehouse/templates/pages/help.html:844
-#: warehouse/templates/pages/help.html:854
-#: warehouse/templates/pages/help.html:869
-#: warehouse/templates/pages/help.html:884
-#: warehouse/templates/pages/help.html:885
-#: warehouse/templates/pages/help.html:886
-#: warehouse/templates/pages/help.html:887
+#: warehouse/templates/pages/help.html:532
+#: warehouse/templates/pages/help.html:541
+#: warehouse/templates/pages/help.html:553
+#: warehouse/templates/pages/help.html:560
+#: warehouse/templates/pages/help.html:572
+#: warehouse/templates/pages/help.html:573
+#: warehouse/templates/pages/help.html:578
+#: warehouse/templates/pages/help.html:603
+#: warehouse/templates/pages/help.html:616
+#: warehouse/templates/pages/help.html:621
+#: warehouse/templates/pages/help.html:633
+#: warehouse/templates/pages/help.html:654
+#: warehouse/templates/pages/help.html:677
+#: warehouse/templates/pages/help.html:684
+#: warehouse/templates/pages/help.html:696
+#: warehouse/templates/pages/help.html:707
+#: warehouse/templates/pages/help.html:712
+#: warehouse/templates/pages/help.html:720
+#: warehouse/templates/pages/help.html:731
+#: warehouse/templates/pages/help.html:748
+#: warehouse/templates/pages/help.html:755
+#: warehouse/templates/pages/help.html:763
+#: warehouse/templates/pages/help.html:779
+#: warehouse/templates/pages/help.html:784
+#: warehouse/templates/pages/help.html:789
+#: warehouse/templates/pages/help.html:799
+#: warehouse/templates/pages/help.html:808
+#: warehouse/templates/pages/help.html:822
+#: warehouse/templates/pages/help.html:830
+#: warehouse/templates/pages/help.html:838
+#: warehouse/templates/pages/help.html:846
+#: warehouse/templates/pages/help.html:855
+#: warehouse/templates/pages/help.html:875
+#: warehouse/templates/pages/help.html:890
+#: warehouse/templates/pages/help.html:891
 #: warehouse/templates/pages/help.html:892
-#: warehouse/templates/pages/security.html:36
+#: warehouse/templates/pages/help.html:893
+#: warehouse/templates/pages/help.html:898
 #: warehouse/templates/pages/sponsors.html:33
 #: warehouse/templates/pages/sponsors.html:37
 #: warehouse/templates/pages/sponsors.html:41
@@ -539,15 +753,15 @@ msgid "Main navigation"
 msgstr "ناوبری اصلی"
 
 #: warehouse/templates/base.html:41 warehouse/templates/base.html:55
-#: warehouse/templates/base.html:255
-#: warehouse/templates/includes/current-user-indicator.html:55
-#: warehouse/templates/pages/help.html:105
+#: warehouse/templates/base.html:256
+#: warehouse/templates/includes/current-user-indicator.html:63
+#: warehouse/templates/pages/help.html:106
 #: warehouse/templates/pages/sitemap.html:27
 msgid "Help"
 msgstr "راهنمایی"
 
 #: warehouse/templates/base.html:42 warehouse/templates/base.html:56
-#: warehouse/templates/includes/current-user-indicator.html:61
+#: warehouse/templates/includes/current-user-indicator.html:69
 #: warehouse/templates/pages/sitemap.html:41
 #: warehouse/templates/pages/sponsors.html:15
 msgid "Sponsors"
@@ -594,33 +808,37 @@ msgstr "RSS: 40 آخرین به روزرسانی"
 msgid "RSS: 40 newest packages"
 msgstr "RSS: 40 جدیدترین بسته"
 
-#: warehouse/templates/base.html:140
+#: warehouse/templates/base.html:141
 msgid "Skip to main content"
 msgstr "رفتن به محتوای اصلی"
 
-#: warehouse/templates/base.html:143
+#: warehouse/templates/base.html:144
 msgid "Switch to mobile version"
 msgstr "تغییر به نسخه تلفن همراه"
 
-#: warehouse/templates/base.html:152 warehouse/templates/base.html:161
-#: warehouse/templates/base.html:171
+#: warehouse/templates/base.html:153 warehouse/templates/base.html:162
+#: warehouse/templates/base.html:172
 #: warehouse/templates/includes/flash-messages.html:30
 #: warehouse/templates/includes/session-notifications.html:20
-#: warehouse/templates/manage/account.html:696
+#: warehouse/templates/manage/account.html:716
 #: warehouse/templates/manage/documentation.html:27
-#: warehouse/templates/manage/manage_base.html:278
-#: warehouse/templates/manage/manage_base.html:330
+#: warehouse/templates/manage/manage_base.html:293
+#: warehouse/templates/manage/manage_base.html:350
+#: warehouse/templates/manage/organization/settings.html:159
+#: warehouse/templates/manage/organization/settings.html:205
 #: warehouse/templates/manage/release.html:163
-#: warehouse/templates/manage/settings.html:119
+#: warehouse/templates/manage/settings.html:121
+#: warehouse/templates/manage/settings.html:164
+#: warehouse/templates/manage/settings.html:227
 msgid "Warning"
 msgstr "هشدار"
 
-#: warehouse/templates/base.html:154
+#: warehouse/templates/base.html:155
 msgid "You are using an unsupported browser, upgrade to a newer version."
 msgstr ""
 "شما از یک مرورگر پشتیبانی نشده استفاده می کنید ، به نسخه جدیدتری ارتقا دهید."
 
-#: warehouse/templates/base.html:163
+#: warehouse/templates/base.html:164
 msgid ""
 "You are using TestPyPI – a separate instance of the Python Package Index "
 "that allows you to try distribution tools and processes without affecting "
@@ -630,7 +848,7 @@ msgstr ""
 "شما امکان می دهد ابزارها و فرآیندهای توزیع را بدون تأثیر بر شاخص واقعی "
 "امتحان کنید."
 
-#: warehouse/templates/base.html:173
+#: warehouse/templates/base.html:174
 msgid ""
 "Some features may not work without JavaScript. Please try enabling it if you "
 "encounter problems."
@@ -638,138 +856,138 @@ msgstr ""
 "برخی از ویژگی ها ممکن است بدون JavaScript کار نکنند. اگر مشکلی دارید لطفا آن "
 "را فعال کنید."
 
-#: warehouse/templates/base.html:211 warehouse/templates/base.html:232
+#: warehouse/templates/base.html:212 warehouse/templates/base.html:233
 #: warehouse/templates/error-base-with-search.html:20
 #: warehouse/templates/index.html:55
 msgid "Search PyPI"
 msgstr "جستجوی PyPI"
 
-#: warehouse/templates/base.html:212 warehouse/templates/base.html:233
+#: warehouse/templates/base.html:213 warehouse/templates/base.html:234
 #: warehouse/templates/error-base-with-search.html:21
 #: warehouse/templates/index.html:58
 msgid "Search projects"
 msgstr "جستجوی پروژه ها"
 
-#: warehouse/templates/base.html:216 warehouse/templates/base.html:237
+#: warehouse/templates/base.html:217 warehouse/templates/base.html:238
 #: warehouse/templates/error-base-with-search.html:24
 #: warehouse/templates/index.html:62
 msgid "Search"
 msgstr "جستجو"
 
-#: warehouse/templates/base.html:256
+#: warehouse/templates/base.html:257
 msgid "Help navigation"
 msgstr "به ناوبری کمک کنید"
 
-#: warehouse/templates/base.html:258
+#: warehouse/templates/base.html:259
 msgid "Installing packages"
 msgstr "نصب بسته ها"
 
-#: warehouse/templates/base.html:259
+#: warehouse/templates/base.html:260
 msgid "Uploading packages"
 msgstr "در حال بارگذاری بسته ها"
 
-#: warehouse/templates/base.html:260
+#: warehouse/templates/base.html:261
 msgid "User guide"
 msgstr "راهنمای کاربر"
 
-#: warehouse/templates/base.html:261
+#: warehouse/templates/base.html:262
 msgid "FAQs"
 msgstr "سؤالات متداول"
 
-#: warehouse/templates/base.html:267 warehouse/templates/pages/sitemap.html:37
+#: warehouse/templates/base.html:268 warehouse/templates/pages/sitemap.html:37
 msgid "About PyPI"
 msgstr "درباره PyPI"
 
-#: warehouse/templates/base.html:268
+#: warehouse/templates/base.html:269
 msgid "About PyPI navigation"
 msgstr "درباره پیمایش PyPI"
 
-#: warehouse/templates/base.html:270
+#: warehouse/templates/base.html:271
 msgid "PyPI on Twitter"
 msgstr "PyPI در توییتر"
 
-#: warehouse/templates/base.html:271
+#: warehouse/templates/base.html:272
 msgid "Infrastructure dashboard"
 msgstr "داشبورد زیرساخت"
 
-#: warehouse/templates/base.html:272
+#: warehouse/templates/base.html:273
 msgid "Package index name retention"
 msgstr "حفظ نام فهرست بسته بندی"
 
-#: warehouse/templates/base.html:273
+#: warehouse/templates/base.html:274
 msgid "Our sponsors"
 msgstr "حامیان مالی ما"
 
-#: warehouse/templates/base.html:279
+#: warehouse/templates/base.html:280
 msgid "Contributing to PyPI"
 msgstr "کمک به PyPI"
 
-#: warehouse/templates/base.html:280
+#: warehouse/templates/base.html:281
 msgid "How to contribute navigation"
 msgstr "نحوه کمک به ناوبری"
 
-#: warehouse/templates/base.html:282
+#: warehouse/templates/base.html:283
 msgid "Bugs and feedback"
 msgstr "اشکالات(باگ ها) و بازخورد"
 
-#: warehouse/templates/base.html:283
+#: warehouse/templates/base.html:284
 msgid "Contribute on GitHub"
 msgstr "مشارکت در GitHub"
 
-#: warehouse/templates/base.html:284
+#: warehouse/templates/base.html:285
 msgid "Translate PyPI"
 msgstr "ترجمه PyPI"
 
-#: warehouse/templates/base.html:285
+#: warehouse/templates/base.html:286
 msgid "Development credits"
 msgstr "اعتبارات توسعه"
 
-#: warehouse/templates/base.html:291 warehouse/templates/pages/sitemap.html:23
+#: warehouse/templates/base.html:292 warehouse/templates/pages/sitemap.html:23
 msgid "Using PyPI"
 msgstr "با استفاده از PyPI"
 
-#: warehouse/templates/base.html:292
+#: warehouse/templates/base.html:293
 msgid "Using PyPI navigation"
 msgstr "با استفاده از ناوبری PyPI"
 
-#: warehouse/templates/base.html:294
+#: warehouse/templates/base.html:295
 msgid "Code of conduct"
 msgstr "آیین نامه"
 
-#: warehouse/templates/base.html:295
+#: warehouse/templates/base.html:296
 msgid "Report security issue"
 msgstr "گزارش مسئله امنیتی"
 
-#: warehouse/templates/base.html:296
+#: warehouse/templates/base.html:297
 msgid "Privacy policy"
 msgstr "سیاست حفظ حریم خصوصی"
 
-#: warehouse/templates/base.html:297 warehouse/templates/pages/sitemap.html:43
+#: warehouse/templates/base.html:298 warehouse/templates/pages/sitemap.html:43
 msgid "Terms of use"
 msgstr "شرایط استفاده"
 
-#: warehouse/templates/base.html:307
+#: warehouse/templates/base.html:308
 msgid "Status: "
 msgstr "وضعیت: "
 
-#: warehouse/templates/base.html:308
+#: warehouse/templates/base.html:309
 msgid "all systems operational"
 msgstr "همه سیستم ها عملیاتی هستند"
 
-#: warehouse/templates/base.html:312
+#: warehouse/templates/base.html:313
 msgid ""
 "Developed and maintained by the Python community, for the Python community."
 msgstr "توسعه یافته و حفظ شده توسط جامعه پایتون، برای جامعه پایتون."
 
-#: warehouse/templates/base.html:314
+#: warehouse/templates/base.html:315
 msgid "Donate today!"
 msgstr "امروز اهدا کنید!"
 
-#: warehouse/templates/base.html:317 warehouse/templates/pages/sitemap.html:16
+#: warehouse/templates/base.html:318 warehouse/templates/pages/sitemap.html:16
 msgid "Site map"
 msgstr "نقشه سایت"
 
-#: warehouse/templates/base.html:323
+#: warehouse/templates/base.html:324
 msgid "Switch to desktop version"
 msgstr "تغییر به نسخه دسک تاپ"
 
@@ -900,7 +1118,7 @@ msgstr "برای ادامه رمز عبور را تأیید کنید"
 #: warehouse/templates/accounts/login.html:69
 #: warehouse/templates/accounts/register.html:110
 #: warehouse/templates/accounts/reset-password.html:38
-#: warehouse/templates/manage/manage_base.html:339
+#: warehouse/templates/manage/manage_base.html:359
 #: warehouse/templates/re-auth.html:49
 msgid "Password"
 msgstr "رمز عبور"
@@ -926,10 +1144,26 @@ msgstr "رمز عبور"
 #: warehouse/templates/manage/account/recovery_codes-burn.html:70
 #: warehouse/templates/manage/account/totp-provision.html:69
 #: warehouse/templates/manage/account/webauthn-provision.html:44
+#: warehouse/templates/manage/organization/projects.html:172
+#: warehouse/templates/manage/organization/projects.html:190
+#: warehouse/templates/manage/organization/roles.html:192
+#: warehouse/templates/manage/organization/roles.html:204
+#: warehouse/templates/manage/organization/settings.html:44
+#: warehouse/templates/manage/organization/settings.html:74
+#: warehouse/templates/manage/organization/settings.html:98
+#: warehouse/templates/manage/organization/settings.html:123
+#: warehouse/templates/manage/organizations.html:116
+#: warehouse/templates/manage/organizations.html:139
+#: warehouse/templates/manage/organizations.html:161
+#: warehouse/templates/manage/organizations.html:179
+#: warehouse/templates/manage/organizations.html:198
+#: warehouse/templates/manage/publishing.html:85
+#: warehouse/templates/manage/publishing.html:97
+#: warehouse/templates/manage/publishing.html:109
 #: warehouse/templates/manage/roles.html:170
 #: warehouse/templates/manage/roles.html:182
-#: warehouse/templates/manage/token.html:136
-#: warehouse/templates/manage/token.html:153
+#: warehouse/templates/manage/token.html:133
+#: warehouse/templates/manage/token.html:150
 #: warehouse/templates/re-auth.html:51
 msgid "(required)"
 msgstr "(ضروری)"
@@ -940,7 +1174,7 @@ msgid "Your password"
 msgstr "رمز عبور شما"
 
 #: warehouse/templates/accounts/login.html:92
-#: warehouse/templates/manage/manage_base.html:342
+#: warehouse/templates/manage/manage_base.html:362
 #: warehouse/templates/re-auth.html:72
 msgid "Show password"
 msgstr "نمایش رمز عبور"
@@ -965,8 +1199,8 @@ msgstr ""
 "\n"
 "              <b> نکته: </b> شما در شرف انجام <a href=\"%(href)s\"> اقدام "
 "حساس </a> هستید.\n"
-"              اگر در رایانه شخصی نیستید ، پس از اتمام جلسه خود حتماً از سیستم "
-"خارج شوید.\n"
+"              اگر در رایانه شخصی نیستید ، پس از اتمام جلسه خود حتماً از "
+"سیستم خارج شوید.\n"
 "              تا یک ساعت دیگر از شما نمی خواهیم رمز ورود خود را تأیید کنید.\n"
 "              "
 
@@ -981,10 +1215,10 @@ msgid ""
 "\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">Python "
 "Packaging User Guide</a>."
 msgstr ""
-"برای کسب اطلاعات بیشتر در مورد بارگذاری پروژه ها در PyPI ، از <a href="
-"\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener\"> "
-"%(title)s \"target =\" _ blank \"rel =\" noopener \"> راهنمای کاربر بسته "
-"بندی پایتون </a> بازدید کنید."
+"برای کسب اطلاعات بیشتر در مورد بارگذاری پروژه ها در PyPI ، از <a href=\""
+"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener\"> %(title)s "
+"\"target =\" _ blank \"rel =\" noopener \"> راهنمای کاربر بسته بندی پایتون </"
+"a> بازدید کنید."
 
 #: warehouse/templates/upload.html:28
 #, python-format
@@ -1007,16 +1241,20 @@ msgid ""
 "      "
 msgstr ""
 "\n"
-"      آیا می خواهید این دعوت را برای پیوستن به \"<a href=\"%(project_link)s"
-"\"> %(project_name)s </a>\" به عنوان یک پروژه %(role_name)s بپذیرید؟\n"
+"      آیا می خواهید این دعوت را برای پیوستن به \"<a href=\"%(project_link)s\""
+"> %(project_name)s </a>\" به عنوان یک پروژه %(role_name)s بپذیرید؟\n"
 "      "
 
 #: warehouse/templates/accounts/invite-confirmation.html:32
+#: warehouse/templates/accounts/organization-invite-confirmation.html:32
+#: warehouse/templates/manage/organizations.html:39
 #: warehouse/templates/manage/projects.html:49
 msgid "Accept"
 msgstr "قبول"
 
 #: warehouse/templates/accounts/invite-confirmation.html:33
+#: warehouse/templates/accounts/organization-invite-confirmation.html:33
+#: warehouse/templates/manage/organizations.html:40
 #: warehouse/templates/manage/projects.html:50
 msgid "Decline"
 msgstr "رد"
@@ -1027,9 +1265,14 @@ msgid "Log in to %(title)s"
 msgstr "وارد %(title)s شوید"
 
 #: warehouse/templates/accounts/login.html:49
-#: warehouse/templates/accounts/profile.html:32
+#: warehouse/templates/accounts/profile.html:38
 #: warehouse/templates/accounts/register.html:89
+#: warehouse/templates/email/organization-member-added/body.html:30
+#: warehouse/templates/email/organization-member-invited/body.html:30
+#: warehouse/templates/email/organization-member-removed/body.html:30
+#: warehouse/templates/email/organization-member-role-changed/body.html:30
 #: warehouse/templates/manage/account.html:248
+#: warehouse/templates/manage/organization/roles.html:195
 #: warehouse/templates/manage/roles.html:173
 msgid "Username"
 msgstr "نام کاربری"
@@ -1040,7 +1283,7 @@ msgstr "نام کاربری شما"
 
 #: warehouse/templates/accounts/logout.html:16
 #: warehouse/templates/accounts/logout.html:25
-#: warehouse/templates/includes/current-user-indicator.html:69
+#: warehouse/templates/includes/current-user-indicator.html:77
 msgid "Log out"
 msgstr "خروج"
 
@@ -1049,28 +1292,54 @@ msgstr "خروج"
 msgid "Log out of %(account_name)s"
 msgstr "از %(account_name)s خارج شوید"
 
+#: warehouse/templates/accounts/organization-invite-confirmation.html:17
+#, fuzzy
+#| msgid "Confirm Invite"
+msgid "Confirm Organization Invite"
+msgstr "دعوت را تأیید کنید"
+
+#: warehouse/templates/accounts/organization-invite-confirmation.html:26
+#, fuzzy, python-format
+#| msgid ""
+#| "\n"
+#| "      Would you like to accept this invitation to join '<a href="
+#| "\"%(project_link)s\">%(project_name)s</a>' as a project %(role_name)s?\n"
+#| "      "
+msgid ""
+"\n"
+"      Would you like to accept this invitation to join "
+"'%(organization_name)s' as an organization %(role_name)s?\n"
+"      "
+msgstr ""
+"\n"
+"      آیا می خواهید این دعوت را برای پیوستن به \"<a href=\"%(project_link)s\""
+"> %(project_name)s </a>\" به عنوان یک پروژه %(role_name)s بپذیرید؟\n"
+"      "
+
 #: warehouse/templates/accounts/profile.html:16
 #, python-format
 msgid "Profile of %(username)s"
 msgstr "پروفایل %(username)s"
 
-#: warehouse/templates/accounts/profile.html:23
+#: warehouse/templates/accounts/profile.html:29
 #: warehouse/templates/manage/account.html:223
+#: warehouse/templates/manage/organization/roles.html:71
+#: warehouse/templates/manage/organization/roles.html:145
 #: warehouse/templates/manage/roles.html:62
 #: warehouse/templates/manage/roles.html:125
 msgid "Avatar for {user} from gravatar.com"
 msgstr "آواتار برای {user} از gravatar.com"
 
-#: warehouse/templates/accounts/profile.html:43
+#: warehouse/templates/accounts/profile.html:49
 msgid "Date joined"
 msgstr "تاریخ پیوستن"
 
-#: warehouse/templates/accounts/profile.html:44
+#: warehouse/templates/accounts/profile.html:50
 #, python-format
 msgid "Joined %(start_date)s"
 msgstr "ملحق شد %(start_date)s"
 
-#: warehouse/templates/accounts/profile.html:58
+#: warehouse/templates/accounts/profile.html:64
 #, python-format
 msgid ""
 "\n"
@@ -1089,18 +1358,19 @@ msgstr[1] ""
 "            %(count)s پروژه ها\n"
 "          "
 
-#: warehouse/templates/accounts/profile.html:64
+#: warehouse/templates/accounts/profile.html:70
 msgid "No projects"
 msgstr "هیچ پروژه ای نیست"
 
-#: warehouse/templates/accounts/profile.html:73
+#: warehouse/templates/accounts/profile.html:79
+#: warehouse/templates/manage/organization/projects.html:71
 #: warehouse/templates/manage/projects.html:34
-#: warehouse/templates/manage/projects.html:99
+#: warehouse/templates/manage/projects.html:104
 #, python-format
 msgid "Last released %(release_date)s"
 msgstr "آخرین بار %(release_date)s منتشر شده"
 
-#: warehouse/templates/accounts/profile.html:81
+#: warehouse/templates/accounts/profile.html:87
 #, python-format
 msgid "%(user)s has not uploaded any projects to PyPI, yet"
 msgstr "%(user)s هنوز هیچ پروژه ای را در PyPI بارگذاری نکرده است"
@@ -1111,7 +1381,7 @@ msgid "Recovery codes"
 msgstr "کدهای بازیابی"
 
 #: warehouse/templates/accounts/recovery-code.html:24
-#: warehouse/templates/accounts/two-factor.html:119
+#: warehouse/templates/accounts/two-factor.html:129
 msgid "Login using recovery codes"
 msgstr "ورود به سیستم با استفاده از کدهای بازیابی"
 
@@ -1121,7 +1391,7 @@ msgid "Enter recovery code"
 msgstr "کد بازیابی را وارد کنید"
 
 #: warehouse/templates/accounts/recovery-code.html:55
-#: warehouse/templates/accounts/two-factor.html:102
+#: warehouse/templates/accounts/two-factor.html:112
 #: warehouse/templates/manage/account/recovery_codes-burn.html:83
 msgid "Verify"
 msgstr "تأیید کنید"
@@ -1197,8 +1467,8 @@ msgid ""
 "\">FAQ</a> for more information."
 msgstr ""
 "این گذرواژه در نقض امنیت ظاهر شده یا به خطر افتاده است و قابل استفاده نیست. "
-"لطفاً برای اطلاعات بیشتر به <a href=\"/help/#compromised-password\"> FAQ </a> "
-"مراجعه کنید."
+"لطفاً برای اطلاعات بیشتر به <a href=\"/help/#compromised-password\"> FAQ </"
+"a> مراجعه کنید."
 
 #: warehouse/templates/accounts/register.html:162
 msgid "Create account"
@@ -1235,8 +1505,8 @@ msgid ""
 "The email contains a link to reset your password. This link will expire in "
 "%(n_hours)s hours."
 msgstr ""
-"این ایمیل حاوی پیوندی برای بازنشانی گذرواژه شما است. این پیوند در "
-"%(n_hours)s ساعت دیگر منقضی می شود."
+"این ایمیل حاوی پیوندی برای بازنشانی گذرواژه شما است. این پیوند در %(n_hours)"
+"s ساعت دیگر منقضی می شود."
 
 #: warehouse/templates/accounts/reset-password.html:18
 #: warehouse/templates/accounts/reset-password.html:24
@@ -1266,8 +1536,7 @@ msgstr "تصدیق هویت با یک دستگاه امنیتی (مانند کل
 msgid ""
 "Connect your security device and click the \"Authenticate with device\" "
 "button."
-msgstr ""
-"دستگاه امنیتی خود را وصل کنید و روی دکمه \"تصدیق با دستگاه\" کلیک کنید."
+msgstr "دستگاه امنیتی خود را وصل کنید و روی دکمه \"تصدیق با دستگاه\" کلیک کنید."
 
 #: warehouse/templates/accounts/two-factor.html:42
 msgid "Enable JavaScript to log in with a security device (e.g. USB key)"
@@ -1283,8 +1552,8 @@ msgid ""
 "<a href=\"%(href)s\" title=\"%(title)s\" target=\"%(target)s\" rel=\"%(rel)s"
 "\">Upgrade your browser</a> to log in with a security device (e.g. USB key)"
 msgstr ""
-"<a href=\"%(href)s\" title=\"%(title)s\" target=\"%(target)s\" rel=\"%(rel)s"
-"\"> %(title)s \"target =\"٪ (target) s \"rel =\" %(rel)s \"> مرورگر خود را "
+"<a href=\"%(href)s\" title=\"%(title)s\" target=\"%(target)s\" rel=\"%(rel)"
+"s\"> %(title)s \"target =\"٪ (target) s \"rel =\" %(rel)s \"> مرورگر خود را "
 "ارتقا دهید </a> تا با یک دستگاه امنیتی وارد سیستم شوید (به عنوان مثال کلید "
 "USB)"
 
@@ -1302,7 +1571,7 @@ msgstr "با یک برنامه احراز هویت شوید"
 msgid "Enter authentication code"
 msgstr "کد احراز هویت را وارد کنید"
 
-#: warehouse/templates/accounts/two-factor.html:105
+#: warehouse/templates/accounts/two-factor.html:115
 #, python-format
 msgid ""
 "<p>Generate a code using the authentication application connected to your "
@@ -1313,11 +1582,11 @@ msgstr ""
 "برای تأیید هویت خود ، این کد را در فرم وارد کنید. </p> <p> برنامه خود را گم "
 "کرده اید؟ کار نمیکند؟ <a href=\"%(href)s\"> کمک بگیرید </a>. </p>"
 
-#: warehouse/templates/accounts/two-factor.html:117
+#: warehouse/templates/accounts/two-factor.html:127
 msgid "Lost your security key or application?"
 msgstr "کلید امنیتی یا برنامه خود را گم کرده اید؟"
 
-#: warehouse/templates/accounts/two-factor.html:122
+#: warehouse/templates/accounts/two-factor.html:132
 #, python-format
 msgid ""
 "<p><strong>You have not generated account recovery codes.</strong></p> <p>If "
@@ -1364,6 +1633,55 @@ msgstr ""
 "شما این را دریافت می کنید زیرا توسط %(initiator_username)s به یک پروژه در "
 "%(site)s اضافه شده اید."
 
+#: warehouse/templates/email/added-as-organization-member/body.html:20
+#, fuzzy, python-format
+#| msgid ""
+#| "You have been added as <strong>%(role)s</strong> to the %(site)s project "
+#| "%(project_name)s by %(initiator_username)s."
+msgid ""
+"You have been added as <strong>%(role)s</strong> of the %(site)s "
+"organization %(organization_name)s by <a href=\"%(submitter_profile)s\">"
+"%(submitter)s</a>."
+msgstr ""
+"شما توسط %(initiator_username)s به عنوان <strong> %(role)s </strong> به "
+"%(site)s پروژه %(project_name)s اضافه شده اید."
+
+#: warehouse/templates/email/added-as-organization-member/body.html:26
+#: warehouse/templates/email/role-changed-as-organization-member/body.html:26
+#, fuzzy
+#| msgid ""
+#| "You are receiving this because you have been added by "
+#| "%(initiator_username)s to a project on %(site)s."
+msgid "You are receiving this because you are a member of this organization."
+msgstr ""
+"شما این را دریافت می کنید زیرا توسط %(initiator_username)s به یک پروژه در "
+"%(site)s اضافه شده اید."
+
+#: warehouse/templates/email/admin-organization-deleted/body.html:27
+#: warehouse/templates/email/organization-deleted/body.html:27
+#, python-format
+msgid "The %(site)s organization \"%(organization_name)s\" has been deleted."
+msgstr ""
+
+#: warehouse/templates/email/admin-organization-deleted/body.html:33
+#: warehouse/templates/email/admin-organization-renamed/body.html:33
+#, fuzzy, python-format
+#| msgid ""
+#| "You are receiving this because you have been added by "
+#| "%(initiator_username)s to a project on %(site)s."
+msgid "You are receiving this because you are a %(site)s administrator."
+msgstr ""
+"شما این را دریافت می کنید زیرا توسط %(initiator_username)s به یک پروژه در "
+"%(site)s اضافه شده اید."
+
+#: warehouse/templates/email/admin-organization-renamed/body.html:27
+#: warehouse/templates/email/organization-renamed/body.html:27
+#, python-format
+msgid ""
+"The %(site)s organization has been renamed from "
+"\"%(previous_organization_name)s\" to \"%(organization_name)s\"."
+msgstr ""
+
 #: warehouse/templates/email/basic-auth-with-2fa/body.html:17
 #: warehouse/templates/email/password-compromised-hibp/body.html:18
 #: warehouse/templates/email/password-compromised/body.html:18
@@ -1401,14 +1719,304 @@ msgid ""
 "publish."
 msgstr ""
 
+#: warehouse/templates/email/canceled-as-invited-organization-member/body.html:19
+#, python-format
+msgid ""
+"An invitation for you to join the \"%(organization_name)s\" organization has "
+"been canceled"
+msgstr ""
+
+#: warehouse/templates/email/canceled-as-invited-organization-member/body.html:25
+#: warehouse/templates/email/declined-as-invited-organization-member/body.html:24
+#: warehouse/templates/email/verify-organization-role/body.html:35
+#, fuzzy
+#| msgid ""
+#| "You are receiving this because you have been added by "
+#| "%(initiator_username)s to a project on %(site)s."
+msgid ""
+"You are receiving this because you were invited to join this organization."
+msgstr ""
+"شما این را دریافت می کنید زیرا توسط %(initiator_username)s به یک پروژه در "
+"%(site)s اضافه شده اید."
+
+#: warehouse/templates/email/declined-as-invited-organization-member/body.html:18
+#, python-format
+msgid ""
+"You have declined an invitation to join the \"%(organization_name)s\" "
+"organization"
+msgstr ""
+
+#: warehouse/templates/email/new-organization-approved/body.html:17
+#, python-format
+msgid ""
+"Your new organization named \"%(organization_name)s\" has been approved and "
+"created."
+msgstr ""
+
+#: warehouse/templates/email/new-organization-approved/body.html:19
+msgid ""
+"You are the owner of the new organization and can log in to manage "
+"organization projects, collaborators, teams, or settings."
+msgstr ""
+
+#: warehouse/templates/email/new-organization-declined/body.html:17
+#, python-format
+msgid ""
+"Your request to create a new organization named \"%(organization_name)s\" "
+"was not approved."
+msgstr ""
+
+#: warehouse/templates/email/new-organization-requested/body.html:17
+#, python-format
+msgid ""
+"Your request for a new PyPI organization named \"%(organization_name)s\" has "
+"been submitted."
+msgstr ""
+
+#: warehouse/templates/email/new-organization-requested/body.html:19
+#: warehouse/templates/manage/organizations.html:57
+msgid "You will receive an email when the organization has been approved"
+msgstr ""
+
+#: warehouse/templates/email/oidc-provider-added/body.html:19
+#, python-format
+msgid ""
+"\n"
+"  PyPI user <strong>%(username)s</strong> has added a new OpenID Connect\n"
+"  publisher to a project (<strong>%(project_name)s</strong>) that you "
+"manage.\n"
+"  OpenID Connect publishers act as trusted users and can create project "
+"releases\n"
+"  automatically.\n"
+"  "
+msgstr ""
+
+#: warehouse/templates/email/oidc-provider-added/body.html:28
+#: warehouse/templates/email/oidc-provider-removed/body.html:26
+msgid "Publisher information"
+msgstr ""
+
+#: warehouse/templates/email/oidc-provider-added/body.html:30
+#: warehouse/templates/email/oidc-provider-removed/body.html:28
+#, fuzzy
+#| msgid "Username"
+msgid "Publisher name"
+msgstr "نام کاربری"
+
+#: warehouse/templates/email/oidc-provider-added/body.html:31
+#: warehouse/templates/email/oidc-provider-removed/body.html:29
+msgid "Publisher specification"
+msgstr ""
+
+#: warehouse/templates/email/oidc-provider-added/body.html:36
+msgid ""
+"\n"
+"  If you did not make this change and you think it was made maliciously, you "
+"can\n"
+"  remove it from the project via the \"Publishing\" tab on the project's "
+"page.\n"
+"  "
+msgstr ""
+
+#: warehouse/templates/email/oidc-provider-added/body.html:43
+#: warehouse/templates/email/oidc-provider-removed/body.html:41
+#, fuzzy, python-format
+#| msgid ""
+#| "If you did not make this change, you can email <a href=\"%(href)s\">"
+#| "%(email_address)s</a> to communicate with the PyPI administrators."
+msgid ""
+"\n"
+"  If you are unable to revert the change and need to do so, you can email\n"
+"  <a href=\"%(href)s\">%(email_address)s</a> to communicate with the PyPI\n"
+"  administrators.\n"
+"  "
+msgstr ""
+"اگر این تغییر را انجام نداده اید ، می توانید برای برقراری ارتباط با مدیران "
+"PyPI <a href=\"%(href)s\"> %(email_address)s </a> را ایمیل کنید."
+
+#: warehouse/templates/email/oidc-provider-removed/body.html:19
+#, python-format
+msgid ""
+"\n"
+"  PyPI user <strong>%(username)s</strong> has removed an OpenID Connect\n"
+"  publisher from a project (<strong>%(project_name)s</strong>) that you "
+"manage.\n"
+"  "
+msgstr ""
+
+#: warehouse/templates/email/oidc-provider-removed/body.html:34
+msgid ""
+"\n"
+"  If you did not make this change and you think it was made maliciously, you "
+"can\n"
+"  check the \"Security history\" tab on the project's page.\n"
+"  "
+msgstr ""
+
+#: warehouse/templates/email/organization-deleted/body.html:31
+#: warehouse/templates/email/organization-member-added/body.html:38
+#: warehouse/templates/email/organization-member-invited/body.html:38
+#: warehouse/templates/email/organization-member-removed/body.html:37
+#: warehouse/templates/email/organization-member-role-changed/body.html:38
+#: warehouse/templates/email/organization-project-added/body.html:24
+#: warehouse/templates/email/organization-project-removed/body.html:24
+#: warehouse/templates/email/organization-renamed/body.html:31
+#, fuzzy, python-format
+#| msgid ""
+#| "If you did not make this change, you can email <a href=\"%(href)s\">"
+#| "%(email_address)s</a> to communicate with the PyPI administrators."
+msgid ""
+"If this was a mistake, you can email <a href=\"mailto:%(email_address)s\">"
+"%(email_address)s</a> to communicate with the %(site)s administrators."
+msgstr ""
+"اگر این تغییر را انجام نداده اید ، می توانید برای برقراری ارتباط با مدیران "
+"PyPI <a href=\"%(href)s\"> %(email_address)s </a> را ایمیل کنید."
+
+#: warehouse/templates/email/organization-deleted/body.html:37
+#, fuzzy
+#| msgid ""
+#| "You are receiving this because you have been added by "
+#| "%(initiator_username)s to a project on %(site)s."
+msgid "You are receiving this because you were an owner of this organization."
+msgstr ""
+"شما این را دریافت می کنید زیرا توسط %(initiator_username)s به یک پروژه در "
+"%(site)s اضافه شده اید."
+
+#: warehouse/templates/email/organization-member-added/body.html:27
+#, python-format
+msgid ""
+"<a href=\"%(user_profile)s\">%(username)s</a> has joined the "
+"\"%(organization_name)s\" organization"
+msgstr ""
+
+#: warehouse/templates/email/organization-member-added/body.html:31
+#: warehouse/templates/email/organization-member-invited/body.html:31
+#: warehouse/templates/manage/organization/roles.html:60
+#: warehouse/templates/manage/organization/roles.html:99
+#: warehouse/templates/manage/organization/roles.html:202
+#: warehouse/templates/manage/roles.html:52
+#: warehouse/templates/manage/roles.html:86
+#: warehouse/templates/manage/roles.html:180
+msgid "Role"
+msgstr ""
+
+#: warehouse/templates/email/organization-member-added/body.html:32
+#: warehouse/templates/email/organization-member-invited/body.html:32
+#: warehouse/templates/email/organization-member-removed/body.html:31
+#: warehouse/templates/email/organization-member-role-changed/body.html:32
+msgid "Member of"
+msgstr ""
+
+#: warehouse/templates/email/organization-member-added/body.html:33
+msgid "Added by"
+msgstr ""
+
+#: warehouse/templates/email/organization-member-added/body.html:44
+#: warehouse/templates/email/organization-member-invite-canceled/body.html:25
+#: warehouse/templates/email/organization-member-invite-declined/body.html:25
+#: warehouse/templates/email/organization-member-invited/body.html:44
+#: warehouse/templates/email/organization-member-removed/body.html:43
+#: warehouse/templates/email/organization-member-role-changed/body.html:44
+#: warehouse/templates/email/organization-renamed/body.html:37
+#, fuzzy
+#| msgid ""
+#| "You are receiving this because you have been added by "
+#| "%(initiator_username)s to a project on %(site)s."
+msgid "You are receiving this because you are an owner of this organization."
+msgstr ""
+"شما این را دریافت می کنید زیرا توسط %(initiator_username)s به یک پروژه در "
+"%(site)s اضافه شده اید."
+
+#: warehouse/templates/email/organization-member-invite-canceled/body.html:19
+#, python-format
+msgid ""
+"An invitation for <a href=\"%(user_profile)s\">%(username)s</a> to join the "
+"\"%(organization_name)s\" organization has been canceled"
+msgstr ""
+
+#: warehouse/templates/email/organization-member-invite-declined/body.html:19
+#, python-format
+msgid ""
+"<a href=\"%(user_profile)s\">%(username)s</a> has declined an invitation to "
+"join the \"%(organization_name)s\" organization"
+msgstr ""
+
+#: warehouse/templates/email/organization-member-invited/body.html:27
+#, python-format
+msgid ""
+"<a href=\"%(user_profile)s\">%(username)s</a> has been invited to join the "
+"\"%(organization_name)s\" organization"
+msgstr ""
+
+#: warehouse/templates/email/organization-member-invited/body.html:33
+msgid "Invited by"
+msgstr ""
+
+#: warehouse/templates/email/organization-member-removed/body.html:27
+#, python-format
+msgid ""
+"<a href=\"%(user_profile)s\">%(username)s</a> has been removed from the "
+"\"%(organization_nmae)s\" organization"
+msgstr ""
+
+#: warehouse/templates/email/organization-member-removed/body.html:32
+#, fuzzy
+#| msgid "Remove"
+msgid "Removed by"
+msgstr "حذف"
+
+#: warehouse/templates/email/organization-member-role-changed/body.html:27
+#, python-format
+msgid ""
+"<a href=\"%(user_profile)s\">%(username)s</a>'s role in the "
+"\"%(organization_name)s\" organization has been changed to %(role)s"
+msgstr ""
+
+#: warehouse/templates/email/organization-member-role-changed/body.html:31
+#, fuzzy
+#| msgid "New releases"
+msgid "New role"
+msgstr "انتشار های جدید"
+
+#: warehouse/templates/email/organization-member-role-changed/body.html:33
+msgid "Changed by"
+msgstr ""
+
+#: warehouse/templates/email/organization-project-added/body.html:20
+#, python-format
+msgid ""
+"The %(site)s project \"%(project_name)s\" has been added to the "
+"\"%(organization_name)s\" organization."
+msgstr ""
+
+#: warehouse/templates/email/organization-project-added/body.html:30
+#: warehouse/templates/email/organization-project-removed/body.html:30
+#, fuzzy
+#| msgid ""
+#| "You are receiving this because you have been added by "
+#| "%(initiator_username)s to a project on %(site)s."
+msgid ""
+"You are receiving this because you are an owner of the project or the "
+"organization."
+msgstr ""
+"شما این را دریافت می کنید زیرا توسط %(initiator_username)s به یک پروژه در "
+"%(site)s اضافه شده اید."
+
+#: warehouse/templates/email/organization-project-removed/body.html:20
+#, python-format
+msgid ""
+"The %(site)s project \"%(project_name)s\" has been removed from the "
+"\"%(organization_name)s\" organization."
+msgstr ""
+
 #: warehouse/templates/email/password-change/body.html:18
 #, python-format
 msgid ""
 "Someone, perhaps you, has changed the password for your PyPI account <strong>"
 "%(username)s</strong>."
 msgstr ""
-"کسی، شاید شما، رمز عبور حساب PyPI خود را تغییر داده است <strong>"
-"%(username)s</strong>."
+"کسی، شاید شما، رمز عبور حساب PyPI خود را تغییر داده است "
+"<strong>%(username)s</strong>."
 
 #: warehouse/templates/email/password-compromised/body.html:20
 msgid ""
@@ -1495,8 +2103,8 @@ msgid ""
 "passwords and get yourself familiar with good password practices."
 msgstr ""
 "برای دسترسی مجدد به حساب خود ، <a href=\"%(reset_pw_url)s\"> گذرواژه خود را "
-"</a> در PyPI تنظیم کنید. ما همچنین توصیه می کنیم که به <a href="
-"\"%(have_i_been_pwned_url)s\"> HaveIBeenPwned </a> بروید و سایر گذرواژه های "
+"</a> در PyPI تنظیم کنید. ما همچنین توصیه می کنیم که به <a href=\""
+"%(have_i_been_pwned_url)s\"> HaveIBeenPwned </a> بروید و سایر گذرواژه های "
 "خود را بررسی کنید و خود را با شیوه های رمز عبور خوب آشنا کنید."
 
 #: warehouse/templates/email/password-compromised-hibp/body.html:40
@@ -1535,8 +2143,8 @@ msgid ""
 "Someone, perhaps you, has made a password reset request for your PyPI "
 "account '%(username)s'."
 msgstr ""
-"شخصی ، شاید شما ، یک درخواست بازنشانی رمز عبور برای حساب PyPI شما "
-"\"%(username)s\" ایجاد کرده است."
+"شخصی ، شاید شما ، یک درخواست بازنشانی رمز عبور برای حساب PyPI شما \""
+"%(username)s\" ایجاد کرده است."
 
 #: warehouse/templates/email/password-reset/body.html:20
 #, python-format
@@ -1635,6 +2243,28 @@ msgid ""
 "been generated.\n"
 msgstr "حساب PyPI <strong> %(username)s </strong> شما حذف شده است."
 
+#: warehouse/templates/email/removed-as-organization-member/body.html:18
+#, python-format
+msgid "You have been removed from the \"%(organization_name)s\" organization"
+msgstr ""
+
+#: warehouse/templates/email/removed-as-organization-member/body.html:23
+#, fuzzy
+#| msgid ""
+#| "You are receiving this because you have been added by "
+#| "%(initiator_username)s to a project on %(site)s."
+msgid "You are receiving this because you were a member of this organization."
+msgstr ""
+"شما این را دریافت می کنید زیرا توسط %(initiator_username)s به یک پروژه در "
+"%(site)s اضافه شده اید."
+
+#: warehouse/templates/email/role-changed-as-organization-member/body.html:20
+#, python-format
+msgid ""
+"Your role in the \"%(organization_name)s\" organization has been changed to "
+"<strong>%(role)s</strong>"
+msgstr ""
+
 #: warehouse/templates/email/two-factor-added/body.html:18
 #, python-format
 msgid ""
@@ -1671,26 +2301,67 @@ msgstr ""
 "اگر می خواهید این درخواست را ادامه دهید ، <a href=\"%(href)s\"> برای تأیید "
 "آدرس ایمیل خود روی این پیوند کلیک کنید </a>."
 
+#: warehouse/templates/email/verify-organization-role/body.html:18
+#, python-format
+msgid ""
+"<a href=\"%(initiator_user_profile)s\">%(initiator_username)s</a> has "
+"invited you to join the \"%(organization_name)s\" organization"
+msgstr ""
+
+#: warehouse/templates/email/verify-organization-role/body.html:22
+#, fuzzy, python-format
+#| msgid ""
+#| "If you wish to proceed with this request, <a href=\"%(href)s\">click this "
+#| "link to verify your email address</a>."
+msgid ""
+"If you wish to proceed, follow <a href=\"%(href)s\">this link</a> to accept "
+"or decline this invitation."
+msgstr ""
+"اگر می خواهید این درخواست را ادامه دهید ، <a href=\"%(href)s\"> برای تأیید "
+"آدرس ایمیل خود روی این پیوند کلیک کنید </a>."
+
+#: warehouse/templates/email/verify-organization-role/body.html:26
+#, fuzzy
+#| msgid "If you did not make this request, you can safely ignore this email."
+msgid "Otherwise, you can safely ignore this email."
+msgstr ""
+"اگر این درخواست را نکردید ، می توانید با خیال راحت این ایمیل را نادیده "
+"بگیرید."
+
+#: warehouse/templates/email/verify-organization-role/body.html:30
+#, fuzzy, python-format
+#| msgid "This link will expire in %(n_hours)s hour."
+#| msgid_plural "This link will expire in %(n_hours)s hours."
+msgid "This link will expire in %(n_hours)s hours."
+msgstr "این پیوند در %(n_hours)s ساعت دیگر منقضی می شود."
+
 #: warehouse/templates/includes/current-user-indicator.html:30
 msgid "Admin"
 msgstr "ادمین"
 
 #: warehouse/templates/includes/current-user-indicator.html:37
 #: warehouse/templates/manage/manage_base.html:204
-#: warehouse/templates/manage/manage_base.html:224
+#: warehouse/templates/manage/manage_base.html:232
 #: warehouse/templates/manage/projects.html:18
 msgid "Your projects"
 msgstr "پروژه های شما"
 
-#: warehouse/templates/includes/current-user-indicator.html:43
+#: warehouse/templates/includes/current-user-indicator.html:44
+#: warehouse/templates/manage/manage_base.html:211
+#: warehouse/templates/manage/manage_base.html:239
+#: warehouse/templates/manage/organizations.html:18
+msgid "Your organizations"
+msgstr ""
+
+#: warehouse/templates/includes/current-user-indicator.html:51
 #: warehouse/templates/manage/account.html:17
 #: warehouse/templates/manage/account/two-factor.html:17
-#: warehouse/templates/manage/manage_base.html:210
-#: warehouse/templates/manage/manage_base.html:230
+#: warehouse/templates/manage/manage_base.html:218
+#: warehouse/templates/manage/manage_base.html:246
 msgid "Account settings"
 msgstr "تنظیمات حساب"
 
-#: warehouse/templates/includes/current-user-indicator.html:49
+#: warehouse/templates/includes/current-user-indicator.html:57
 msgid "Public profile"
 msgstr "پروفایل عمومی"
 
@@ -1716,12 +2387,13 @@ msgstr "رد کردن این اعلان"
 #: warehouse/templates/manage/account.html:199
 #: warehouse/templates/manage/account.html:201
 #: warehouse/templates/manage/account.html:211
-#: warehouse/templates/manage/manage_base.html:266
-#: warehouse/templates/manage/manage_base.html:268
+#: warehouse/templates/manage/manage_base.html:282
+#: warehouse/templates/manage/manage_base.html:284
+#: warehouse/templates/manage/organization/roles.html:38
 #: warehouse/templates/manage/release.html:118
 #: warehouse/templates/manage/releases.html:172
 #: warehouse/templates/manage/roles.html:38
-#: warehouse/templates/manage/settings.html:113
+#: warehouse/templates/manage/settings.html:111
 #: warehouse/templates/search/results.html:199
 msgid "Close"
 msgstr "بستن"
@@ -1759,7 +2431,7 @@ msgstr "تابع هش کننده"
 #: warehouse/templates/manage/account.html:206
 #: warehouse/templates/manage/account/recovery_codes-provision.html:57
 #: warehouse/templates/manage/account/totp-provision.html:57
-#: warehouse/templates/packaging/detail.html:144
+#: warehouse/templates/packaging/detail.html:150
 #: warehouse/templates/pages/classifiers.html:38
 msgid "Copy to clipboard"
 msgstr "کپی به کلیپ بورد"
@@ -1842,10 +2514,10 @@ msgid ""
 "using <a href=\"%(gbq_href)s\" target=\"_blank\" rel=\"noopener\">our public "
 "dataset on Google BigQuery</a>"
 msgstr ""
-"مشاهده آمار پروژه های خود از طریق <a href=\"%(libs_io_href)s\" title="
-"\"%(title)s\" target=\"_blank\" rel=\"noopener\"> %(title)s \"target =\" _ "
-"blank \"rel =\" noopener \"> Libraries.io </a> یا با استفاده از <a href="
-"\"%(gbq_href)s\" target=\"_blank\" rel=\"noopener\"> مجموعه داده عمومی ما در "
+"مشاهده آمار پروژه های خود از طریق <a href=\"%(libs_io_href)s\" title=\""
+"%(title)s\" target=\"_blank\" rel=\"noopener\"> %(title)s \"target =\" _ "
+"blank \"rel =\" noopener \"> Libraries.io </a> یا با استفاده از <a href=\""
+"%(gbq_href)s\" target=\"_blank\" rel=\"noopener\"> مجموعه داده عمومی ما در "
 "Google BigQuery </a>"
 
 #: warehouse/templates/includes/accounts/profile-actions.html:30
@@ -1883,6 +2555,28 @@ msgstr "%(username)s هنوز هیچ پروژه ای را در PyPI بارگذا
 msgid "Email"
 msgstr "ایمیل"
 
+#: warehouse/templates/includes/manage/manage-organization-menu.html:14
+#, fuzzy, python-format
+#| msgid "Navigation for managing %(project)s"
+msgid "Navigation for managing %(organization)s"
+msgstr "پیمایش برای مدیریت %(project)s"
+
+#: warehouse/templates/includes/manage/manage-organization-menu.html:19
+#, fuzzy
+#| msgid "Project:"
+msgid "Projects"
+msgstr "برنامه:"
+
+#: warehouse/templates/includes/manage/manage-organization-menu.html:25
+#: warehouse/templates/manage/organization/roles.html:35
+msgid "People"
+msgstr ""
+
+#: warehouse/templates/includes/manage/manage-organization-menu.html:31
+#: warehouse/templates/includes/manage/manage-project-menu.html:59
+msgid "Settings"
+msgstr "تنظیمات"
+
 #: warehouse/templates/includes/manage/manage-project-menu.html:14
 #, python-format
 msgid "Navigation for managing %(project)s"
@@ -1912,9 +2606,9 @@ msgstr "مجله"
 msgid "Documentation"
 msgstr "مستندات"
 
-#: warehouse/templates/includes/manage/manage-project-menu.html:51
-msgid "Settings"
-msgstr "تنظیمات"
+#: warehouse/templates/includes/manage/manage-project-menu.html:52
+msgid "Publishing"
+msgstr ""
 
 #: warehouse/templates/includes/packaging/project-data.html:17
 msgid "Project links"
@@ -1944,9 +2638,9 @@ msgid ""
 "using <a href=\"%(gbq_href)s\" target=\"_blank\" rel=\"noopener\">our public "
 "dataset on Google BigQuery</a>"
 msgstr ""
-"مشاهده آمار این پروژه از طریق <a href=\"%(libs_io_href)s\" title=\"%(title)s"
-"\" target=\"_blank\" rel=\"noopener\"> %(title)s \"target =\" _ blank \"rel ="
-"\" noopener \"> Libraries.io </a> یا با استفاده از <a href=\"%(gbq_href)s\" "
+"مشاهده آمار این پروژه از طریق <a href=\"%(libs_io_href)s\" title=\"%(title)"
+"s\" target=\"_blank\" rel=\"noopener\"> %(title)s \"target =\" _ blank \"rel "
+"=\" noopener \"> Libraries.io </a> یا با استفاده از <a href=\"%(gbq_href)s\" "
 "target=\"_blank\" rel=\"noopener\"> مجموعه داده عمومی ما در Google BigQuery "
 "</a>"
 
@@ -1965,7 +2659,7 @@ msgstr "نویسنده:"
 
 #: warehouse/templates/includes/packaging/project-data.html:84
 #: warehouse/templates/includes/packaging/project-data.html:86
-#: warehouse/templates/pages/help.html:562
+#: warehouse/templates/pages/help.html:564
 msgid "Maintainer:"
 msgstr "نگهدارنده:"
 
@@ -2069,7 +2763,7 @@ msgstr "حذف ایمیل"
 
 #: warehouse/templates/manage/account.html:143
 #: warehouse/templates/manage/account.html:435
-#: warehouse/templates/manage/token.html:151
+#: warehouse/templates/manage/token.html:148
 msgid "Scope"
 msgstr "محدوده"
 
@@ -2182,8 +2876,8 @@ msgid ""
 "One of your verified emails can be displayed on your <a href=\"%(href)s"
 "\">public profile</a> to logged-in users."
 msgstr ""
-"یکی از ایمیل های تأیید شده شما می تواند نمایش داده شود در <a href=\"%(href)s"
-"\">حساب کاربری عمومی</a> کاربران وارده شده."
+"یکی از ایمیل های تأیید شده شما می تواند نمایش داده شود در <a href=\"%(href)"
+"s\">حساب کاربری عمومی</a> کاربران وارده شده."
 
 #: warehouse/templates/manage/account.html:302
 msgid "Update account"
@@ -2201,8 +2895,8 @@ msgid ""
 "class=\"badge\">Primary</span> email will receive notifications."
 msgstr ""
 "می توانید چندین ایمیل را با حساب خود مرتبط کنید. شما می توانید از هر <span "
-"class=\"badge badge--success\"><i class=\"fa fa-check\" aria-hidden=\"true"
-"\"></i> ایمیل تایید شده</span> برای بازیابی حساب خود استفاده کنید ، اما فقط "
+"class=\"badge badge--success\"><i class=\"fa fa-check\" aria-hidden=\"true\""
+"></i> ایمیل تایید شده</span> برای بازیابی حساب خود استفاده کنید ، اما فقط "
 "<span class=\"badge\">ایمیل اصلی</span> شما اعلان دریافت می کند."
 
 #: warehouse/templates/manage/account.html:323
@@ -2278,30 +2972,45 @@ msgstr ""
 "<a href=\"%(href)s\">آدرس ایمیل اصلی خود را تأیید کنید</a> برای افزودن "
 "رمزهای API به حساب خود."
 
-#: warehouse/templates/manage/account.html:466
+#: warehouse/templates/manage/account.html:467
+#: warehouse/templates/manage/account.html:637
+msgid "Token scope: entire account"
+msgstr ""
+
+#: warehouse/templates/manage/account.html:469
+#: warehouse/templates/manage/account.html:639
+#, python-format
+msgid "Token scope: Project %(project_name)s"
+msgstr ""
+
+#: warehouse/templates/manage/account.html:472
+#, python-format
+msgid "Expires: %(exp)s"
+msgstr ""
+
+#: warehouse/templates/manage/account.html:478
 msgid "Account created"
 msgstr "حساب کاربری ایجاد شد"
 
-#: warehouse/templates/manage/account.html:469
+#: warehouse/templates/manage/account.html:481
 msgid "Logged in"
 msgstr "وارد شده در"
 
-#: warehouse/templates/manage/account.html:471
+#: warehouse/templates/manage/account.html:483
 msgid "Two factor method:"
 msgstr "روش دو عاملی:"
 
-#: warehouse/templates/manage/account.html:473
+#: warehouse/templates/manage/account.html:485
 #: warehouse/templates/manage/release.html:58
 msgid "None"
 msgstr "هیچ"
 
-#: warehouse/templates/manage/account.html:475
+#: warehouse/templates/manage/account.html:487
 #: warehouse/templates/manage/manage_base.html:75
 msgid "Security device (<abbr title=\"web authentication\">WebAuthn</abbr>)"
-msgstr ""
-"دستگاه امنیتی (<abbr title=\"web authentication\">احراز هویت وب</abbr>)"
+msgstr "دستگاه امنیتی (<abbr title=\"web authentication\">احراز هویت وب</abbr>)"
 
-#: warehouse/templates/manage/account.html:477
+#: warehouse/templates/manage/account.html:489
 #: warehouse/templates/manage/manage_base.html:62
 msgid ""
 "Authentication application (<abbr title=\"time-based one-time password"
@@ -2310,200 +3019,188 @@ msgstr ""
 "برنامه احراز هویت (<abbr title=\"time-based one-time password\">رمز یکبار "
 "مصرف</abbr>)"
 
-#: warehouse/templates/manage/account.html:479
+#: warehouse/templates/manage/account.html:491
 msgid "Recovery code"
 msgstr "کد بازیابی"
 
-#: warehouse/templates/manage/account.html:484
+#: warehouse/templates/manage/account.html:496
 msgid "Login failed"
 msgstr "ورود ناموفق"
 
-#: warehouse/templates/manage/account.html:487
+#: warehouse/templates/manage/account.html:499
 msgid "- Basic Auth (Upload endpoint)"
 msgstr ""
 
-#: warehouse/templates/manage/account.html:492
-#: warehouse/templates/manage/account.html:511
+#: warehouse/templates/manage/account.html:504
+#: warehouse/templates/manage/account.html:523
 #: warehouse/templates/manage/history.html:84
 msgid "Reason:"
 msgstr "دلیل:"
 
-#: warehouse/templates/manage/account.html:494
-#: warehouse/templates/manage/account.html:513
+#: warehouse/templates/manage/account.html:506
+#: warehouse/templates/manage/account.html:525
 msgid "Incorrect Password"
 msgstr "رمز عبور اشتباه"
 
-#: warehouse/templates/manage/account.html:496
+#: warehouse/templates/manage/account.html:508
 #, fuzzy
 #| msgid "Invalid or expired two factor login."
 msgid "Invalid two factor (TOTP)"
 msgstr "ورود دو مرحله ای منقضی شده یا نامعتبر."
 
-#: warehouse/templates/manage/account.html:498
+#: warehouse/templates/manage/account.html:510
 #, fuzzy
 #| msgid "Invalid or expired two factor login."
 msgid "Invalid two factor (WebAuthn)"
 msgstr "ورود دو مرحله ای منقضی شده یا نامعتبر."
 
-#: warehouse/templates/manage/account.html:500
-#: warehouse/templates/manage/account.html:502
+#: warehouse/templates/manage/account.html:512
+#: warehouse/templates/manage/account.html:514
 #, fuzzy
 #| msgid "Invalid recovery code."
 msgid "Invalid two factor (Recovery code)"
 msgstr "کد بازیابی نامعتبر."
 
-#: warehouse/templates/manage/account.html:509
+#: warehouse/templates/manage/account.html:521
 #, fuzzy
 #| msgid "Two factor authentication added"
 msgid "Session reauthentication failed"
 msgstr "تأیید دو عاملی اضافه شد"
 
-#: warehouse/templates/manage/account.html:520
+#: warehouse/templates/manage/account.html:532
 msgid "Email added to account"
 msgstr "ایمیل به اکانت اضافه شد"
 
-#: warehouse/templates/manage/account.html:523
+#: warehouse/templates/manage/account.html:535
 msgid "Email removed from account"
 msgstr "ایمیل از اکانت حذف شد"
 
-#: warehouse/templates/manage/account.html:526
+#: warehouse/templates/manage/account.html:538
 msgid "Email verified"
 msgstr "ایمیل تایید شد"
 
-#: warehouse/templates/manage/account.html:529
+#: warehouse/templates/manage/account.html:541
 msgid "Email reverified"
 msgstr "ایمیل دوباره تأیید شد"
 
-#: warehouse/templates/manage/account.html:533
+#: warehouse/templates/manage/account.html:545
 msgid "Primary email changed"
 msgstr "ایمیل اصلی تغییر کرد"
 
-#: warehouse/templates/manage/account.html:535
+#: warehouse/templates/manage/account.html:547
 msgid "Old primary email:"
 msgstr "ایمیل اصلی قبلی:"
 
-#: warehouse/templates/manage/account.html:536
+#: warehouse/templates/manage/account.html:548
 msgid "New primary email:"
 msgstr "ایمیل اصلی جدید:"
 
-#: warehouse/templates/manage/account.html:539
+#: warehouse/templates/manage/account.html:551
 msgid "Primary email set"
 msgstr "ایمیل اصلی تنظیم شد"
 
-#: warehouse/templates/manage/account.html:545
+#: warehouse/templates/manage/account.html:557
 msgid "Email sent"
 msgstr "ایمیل ارسال شد"
 
-#: warehouse/templates/manage/account.html:547
+#: warehouse/templates/manage/account.html:559
 msgid "From:"
 msgstr "از:"
 
-#: warehouse/templates/manage/account.html:548
+#: warehouse/templates/manage/account.html:560
 msgid "To:"
 msgstr "به:"
 
-#: warehouse/templates/manage/account.html:549
+#: warehouse/templates/manage/account.html:561
 msgid "Subject:"
 msgstr "موضوع:"
 
-#: warehouse/templates/manage/account.html:553
+#: warehouse/templates/manage/account.html:565
 msgid "Password reset requested"
 msgstr "تنظیم مجدد رمز عبور درخواست شد"
 
-#: warehouse/templates/manage/account.html:555
+#: warehouse/templates/manage/account.html:567
 msgid "Password reset attempted"
 msgstr "تلاش برای تنظیم مجدد رمز عبور"
 
-#: warehouse/templates/manage/account.html:557
+#: warehouse/templates/manage/account.html:569
 msgid "Password successfully reset"
 msgstr "رمز عبور با موفقیت مجددا تنظیم شد"
 
-#: warehouse/templates/manage/account.html:559
+#: warehouse/templates/manage/account.html:571
 msgid "Password successfully changed"
 msgstr "رمز عبور با موفقیت تغییر کرد"
 
-#: warehouse/templates/manage/account.html:562
+#: warehouse/templates/manage/account.html:574
 msgid "Two factor authentication added"
 msgstr "تأیید دو عاملی اضافه شد"
 
-#: warehouse/templates/manage/account.html:565
-#: warehouse/templates/manage/account.html:575
+#: warehouse/templates/manage/account.html:577
+#: warehouse/templates/manage/account.html:587
 msgid ""
 "Method: Security device (<abbr title=\"web authentication\">WebAuthn</abbr>)"
-msgstr ""
-"(</abbr>WebAuthn<abbr title=\"web authentication\">) روش: دستگاه امنیتی"
+msgstr "(</abbr>WebAuthn<abbr title=\"web authentication\">) روش: دستگاه امنیتی"
 
-#: warehouse/templates/manage/account.html:566
-#: warehouse/templates/manage/account.html:576
+#: warehouse/templates/manage/account.html:578
+#: warehouse/templates/manage/account.html:588
 msgid "Device name:"
 msgstr "نام دستگاه:"
 
-#: warehouse/templates/manage/account.html:568
-#: warehouse/templates/manage/account.html:578
+#: warehouse/templates/manage/account.html:580
+#: warehouse/templates/manage/account.html:590
 msgid ""
 "Method: Authentication application (<abbr title=\"time-based one-time "
 "password\">TOTP</abbr>)"
 msgstr ""
 
-#: warehouse/templates/manage/account.html:572
+#: warehouse/templates/manage/account.html:584
 msgid "Two factor authentication removed"
 msgstr "تأیید دو عاملی حذف شد"
 
-#: warehouse/templates/manage/account.html:583
+#: warehouse/templates/manage/account.html:595
 msgid "Recovery codes generated"
 msgstr "کد های بازیابی ایجاد شدند"
 
-#: warehouse/templates/manage/account.html:587
+#: warehouse/templates/manage/account.html:599
 msgid "Recovery codes regenerated"
 msgstr "کد های بازیابی دوباره ایجاد شدند"
 
-#: warehouse/templates/manage/account.html:591
+#: warehouse/templates/manage/account.html:603
 msgid "Recovery code used for login"
 msgstr "کد بازیابی استفاده شده برای ورود"
 
-#: warehouse/templates/manage/account.html:597
+#: warehouse/templates/manage/account.html:609
 #: warehouse/templates/manage/history.html:65
 msgid "API token added"
 msgstr ""
 
-#: warehouse/templates/manage/account.html:599
-#: warehouse/templates/manage/account.html:614
+#: warehouse/templates/manage/account.html:611
+#: warehouse/templates/manage/account.html:634
 #: warehouse/templates/manage/history.html:69
 #: warehouse/templates/manage/history.html:76
 msgid "Token name:"
 msgstr ""
 
-#: warehouse/templates/manage/account.html:601
-#: warehouse/templates/manage/account.html:617
-msgid "Token scope: entire account"
-msgstr ""
-
-#: warehouse/templates/manage/account.html:603
-#: warehouse/templates/manage/account.html:619
-#, python-format
-msgid "Token scope: Project %(project_name)s"
-msgstr ""
-
-#: warehouse/templates/manage/account.html:608
+#: warehouse/templates/manage/account.html:628
 #: warehouse/templates/manage/history.html:72
 msgid "API token removed"
 msgstr ""
 
-#: warehouse/templates/manage/account.html:609
-#: warehouse/templates/manage/account.html:615
+#: warehouse/templates/manage/account.html:629
+#: warehouse/templates/manage/account.html:635
 msgid "Unique identifier:"
 msgstr ""
 
-#: warehouse/templates/manage/account.html:612
+#: warehouse/templates/manage/account.html:632
 msgid "API token automatically removed for security reasons"
 msgstr ""
 
-#: warehouse/templates/manage/account.html:621
+#: warehouse/templates/manage/account.html:641
 #, python-format
 msgid "Reason: Token found at <a href=\"%(public_url)s\">public url</a>"
 msgstr ""
 
-#: warehouse/templates/manage/account.html:630
+#: warehouse/templates/manage/account.html:650
 #, python-format
 msgid ""
 "Events appear here as security-related actions occur on your account. If you "
@@ -2511,43 +3208,43 @@ msgid ""
 "account</a> as soon as possible."
 msgstr ""
 
-#: warehouse/templates/manage/account.html:635
+#: warehouse/templates/manage/account.html:655
 msgid "Recent account activity"
 msgstr ""
 
-#: warehouse/templates/manage/account.html:637
+#: warehouse/templates/manage/account.html:657
 #: warehouse/templates/manage/history.html:107
 msgid "Event"
 msgstr ""
 
-#: warehouse/templates/manage/account.html:638
-#: warehouse/templates/manage/account.html:646
+#: warehouse/templates/manage/account.html:658
+#: warehouse/templates/manage/account.html:666
 #: warehouse/templates/manage/history.html:108
 #: warehouse/templates/manage/history.html:117
 msgid "Date / time"
 msgstr ""
 
-#: warehouse/templates/manage/account.html:639
-#: warehouse/templates/manage/account.html:650
+#: warehouse/templates/manage/account.html:659
+#: warehouse/templates/manage/account.html:670
 #: warehouse/templates/manage/history.html:109
 #: warehouse/templates/manage/history.html:121
 msgid "IP address"
 msgstr ""
 
-#: warehouse/templates/manage/account.html:658
+#: warehouse/templates/manage/account.html:678
 msgid ""
 "Events will appear here as security-related actions occur on your account."
 msgstr ""
 
-#: warehouse/templates/manage/account.html:665
+#: warehouse/templates/manage/account.html:685
 msgid "Delete account"
 msgstr ""
 
-#: warehouse/templates/manage/account.html:668
+#: warehouse/templates/manage/account.html:688
 msgid "Cannot delete account"
 msgstr ""
 
-#: warehouse/templates/manage/account.html:670
+#: warehouse/templates/manage/account.html:690
 #, python-format
 msgid ""
 "\n"
@@ -2562,7 +3259,7 @@ msgid_plural ""
 msgstr[0] ""
 msgstr[1] ""
 
-#: warehouse/templates/manage/account.html:675
+#: warehouse/templates/manage/account.html:695
 msgid ""
 "\n"
 "          You must transfer ownership or delete this project before you can "
@@ -2576,23 +3273,26 @@ msgid_plural ""
 msgstr[0] ""
 msgstr[1] ""
 
-#: warehouse/templates/manage/account.html:685
+#: warehouse/templates/manage/account.html:705
+#: warehouse/templates/manage/organization/settings.html:194
 #, python-format
 msgid ""
 "<a href=\"%(transfer_href)s\">transfer ownership</a> or <a href="
 "\"%(delete_href)s\">delete project</a>"
 msgstr ""
 
-#: warehouse/templates/manage/account.html:694
-#: warehouse/templates/manage/token.html:169
+#: warehouse/templates/manage/account.html:714
+#: warehouse/templates/manage/organization/settings.html:157
+#: warehouse/templates/manage/organization/settings.html:203
+#: warehouse/templates/manage/token.html:166
 msgid "Proceed with caution!"
 msgstr ""
 
-#: warehouse/templates/manage/account.html:697
+#: warehouse/templates/manage/account.html:717
 msgid "You will not be able to recover your account after you delete it"
 msgstr ""
 
-#: warehouse/templates/manage/account.html:699
+#: warehouse/templates/manage/account.html:719
 msgid "Delete your PyPI account"
 msgstr ""
 
@@ -2783,6 +3483,8 @@ msgstr ""
 
 #: warehouse/templates/manage/journal.html:37
 #: warehouse/templates/manage/journal.html:52
+#: warehouse/templates/manage/organization/roles.html:59
+#: warehouse/templates/manage/organization/roles.html:190
 #: warehouse/templates/manage/roles.html:51
 #: warehouse/templates/manage/roles.html:168
 msgid "User"
@@ -2799,8 +3501,13 @@ msgid "from %(ip_address)s"
 msgstr ""
 
 #: warehouse/templates/manage/manage_base.html:16
-#: warehouse/templates/manage/projects.html:143
+#: warehouse/templates/manage/organization/projects.html:115
+#: warehouse/templates/manage/organization/projects.html:120
+#: warehouse/templates/manage/organizations.html:81
+#: warehouse/templates/manage/organizations.html:86
+#: warehouse/templates/manage/organizations.html:91
 #: warehouse/templates/manage/projects.html:148
+#: warehouse/templates/manage/projects.html:153
 #: warehouse/templates/manage/releases.html:88
 msgid "Manage"
 msgstr ""
@@ -2852,6 +3559,7 @@ msgstr "روش دو عاملی"
 
 #: warehouse/templates/manage/manage_base.html:64
 #: warehouse/templates/manage/manage_base.html:78
+#: warehouse/templates/manage/publishing.html:44
 msgid "Remove"
 msgstr "حذف"
 
@@ -3047,127 +3755,366 @@ msgid "Your account"
 msgstr ""
 
 #: warehouse/templates/manage/manage_base.html:199
-#: warehouse/templates/manage/manage_base.html:219
+#: warehouse/templates/manage/manage_base.html:227
 msgid "Account navigation"
 msgstr ""
 
-#: warehouse/templates/manage/manage_base.html:279
-#: warehouse/templates/manage/manage_base.html:331
+#: warehouse/templates/manage/manage_base.html:294
+#: warehouse/templates/manage/manage_base.html:351
 msgid "This action cannot be undone!"
 msgstr ""
 
-#: warehouse/templates/manage/manage_base.html:287
+#: warehouse/templates/manage/manage_base.html:305
 msgid "Confirm your username to continue."
 msgstr ""
 
-#: warehouse/templates/manage/manage_base.html:289
+#: warehouse/templates/manage/manage_base.html:307
 #, python-format
 msgid "Confirm the %(item)s to continue."
 msgstr ""
 
-#: warehouse/templates/manage/manage_base.html:297
-#: warehouse/templates/manage/manage_base.html:349
+#: warehouse/templates/manage/manage_base.html:317
+#: warehouse/templates/manage/manage_base.html:369
 msgid "Cancel"
 msgstr ""
 
-#: warehouse/templates/manage/manage_base.html:320
+#: warehouse/templates/manage/manage_base.html:340
 msgid "close"
 msgstr ""
 
-#: warehouse/templates/manage/manage_base.html:336
+#: warehouse/templates/manage/manage_base.html:356
 msgid "Enter your password to continue."
 msgstr ""
 
-#: warehouse/templates/manage/manage_project_base.html:21
+#: warehouse/templates/manage/manage_project_base.html:20
 #, python-format
 msgid "Manage '%(project_name)s'"
 msgstr ""
 
-#: warehouse/templates/manage/manage_project_base.html:32
+#: warehouse/templates/manage/manage_project_base.html:31
 #: warehouse/templates/manage/projects.html:58
 #, python-format
 msgid "Your projects (%(project_count)s)"
 msgstr ""
 
-#: warehouse/templates/manage/manage_project_base.html:41
+#: warehouse/templates/manage/manage_project_base.html:40
 msgid "Back to projects"
 msgstr ""
 
+#: warehouse/templates/manage/organizations.html:22
 #: warehouse/templates/manage/projects.html:22
 #, python-format
-msgid "Pending invitations (%(project_count)s)"
+msgid "Pending invitations (%(invitation_count)s)"
 msgstr ""
 
+#: warehouse/templates/manage/organization/projects.html:78
+#: warehouse/templates/manage/organizations.html:32
+#: warehouse/templates/manage/organizations.html:69
 #: warehouse/templates/manage/projects.html:41
-#: warehouse/templates/manage/projects.html:106
+#: warehouse/templates/manage/projects.html:111
 #, python-format
 msgid "Created %(creation_date)s"
 msgstr "ایجاد شده %(creation_date)s"
 
-#: warehouse/templates/manage/projects.html:72
-#: warehouse/templates/manage/projects.html:135
+#: warehouse/templates/manage/organization/manage_organization_base.html:31
+#: warehouse/templates/manage/organizations.html:49
+#, python-format
+msgid "Your organizations (%(organization_count)s)"
+msgstr ""
+
+#: warehouse/templates/manage/organizations.html:57
+msgid "Request Submitted"
+msgstr ""
+
+#: warehouse/templates/manage/organizations.html:59
+#: warehouse/templates/manage/organizations.html:80
+#, fuzzy
+#| msgid "Role invitation is not valid."
+msgid "This organization is not active"
+msgstr "دعوت نامه معتبر نیست."
+
+#: warehouse/templates/manage/organizations.html:59
+msgid "Inactive"
+msgstr ""
+
+#: warehouse/templates/manage/organization/roles.html:43
+#: warehouse/templates/manage/organization/roles.html:88
+#: warehouse/templates/manage/organizations.html:61
+#, fuzzy
+#| msgid "Manage project"
+msgid "Manager"
+msgstr "پروژه را مدیریت کنید"
+
+#: warehouse/templates/manage/organization/roles.html:45
+#: warehouse/templates/manage/organization/roles.html:90
+#: warehouse/templates/manage/organizations.html:63
+#: warehouse/templates/manage/publishing.html:83
+#: warehouse/templates/manage/roles.html:43
+#: warehouse/templates/manage/roles.html:77
+#: warehouse/templates/manage/roles.html:88
+msgid "Owner"
+msgstr ""
+
+#: warehouse/templates/manage/organization/roles.html:48
+#: warehouse/templates/manage/organization/roles.html:92
+#: warehouse/templates/manage/organizations.html:65
+msgid "Billing Manager"
+msgstr ""
+
+#: warehouse/templates/manage/organizations.html:75
+#, fuzzy
+#| msgid "Create an account"
+msgid "View this organization"
+msgstr "ایجاد یک حساب کاربری"
+
+#: warehouse/templates/manage/organization/projects.html:128
+#: warehouse/templates/manage/organization/projects.html:131
+#: warehouse/templates/manage/organizations.html:76
+#: warehouse/templates/manage/projects.html:161
+#: warehouse/templates/manage/projects.html:164
+#: warehouse/templates/manage/releases.html:94
+msgid "View"
+msgstr ""
+
+#: warehouse/templates/manage/organizations.html:90
+#, fuzzy
+#| msgid "Create an account"
+msgid "Manage this organization"
+msgstr "ایجاد یک حساب کاربری"
+
+#: warehouse/templates/manage/organizations.html:99
+#, fuzzy
+#| msgid "%(user)s has not uploaded any projects to PyPI, yet"
+msgid "You have not joined any organizations on PyPI, yet."
+msgstr "%(user)s هنوز هیچ پروژه ای را در PyPI بارگذاری نکرده است"
+
+#: warehouse/templates/manage/organizations.html:108
+#, fuzzy
+#| msgid "Create an account"
+msgid "Create new organization"
+msgstr "ایجاد یک حساب کاربری"
+
+#: warehouse/templates/manage/organization/settings.html:29
+#: warehouse/templates/manage/organizations.html:114
+msgid "Organization account name"
+msgstr ""
+
+#: warehouse/templates/manage/organizations.html:119
+msgid "Select an organization account name"
+msgstr ""
+
+#: warehouse/templates/manage/organizations.html:130
+msgid "This account name will be used in URLs on PyPI."
+msgstr ""
+
+#: warehouse/templates/manage/organization/settings.html:65
+#: warehouse/templates/manage/organization/settings.html:89
+#: warehouse/templates/manage/organizations.html:131
+#: warehouse/templates/manage/organizations.html:153
+#: warehouse/templates/manage/organizations.html:171
+msgid "For example"
+msgstr ""
+
+#: warehouse/templates/manage/organization/settings.html:42
+#: warehouse/templates/manage/organizations.html:137
+msgid "Organization name"
+msgstr ""
+
+#: warehouse/templates/manage/organization/settings.html:48
+#: warehouse/templates/manage/organizations.html:142
+msgid "Name of your business, product, or project"
+msgstr ""
+
+#: warehouse/templates/manage/organization/settings.html:72
+#: warehouse/templates/manage/organizations.html:159
+msgid "️Organization URL"
+msgstr ""
+
+#: warehouse/templates/manage/organization/settings.html:78
+#: warehouse/templates/manage/organizations.html:165
+msgid "URL for your business, product, or project"
+msgstr ""
+
+#: warehouse/templates/manage/organization/settings.html:96
+#: warehouse/templates/manage/organizations.html:177
+msgid "Organization description"
+msgstr ""
+
+#: warehouse/templates/manage/organization/settings.html:102
+#: warehouse/templates/manage/organizations.html:182
+msgid "Description of your business, product, or project"
+msgstr ""
+
+#: warehouse/templates/manage/organization/settings.html:121
+#: warehouse/templates/manage/organizations.html:196
+msgid "️Organization type"
+msgstr ""
+
+#: warehouse/templates/manage/organization/settings.html:138
+#: warehouse/templates/manage/organizations.html:208
+msgid ""
+"Companies can create organization accounts as a paid service while community "
+"projects are granted complimentary access."
+msgstr ""
+
+#: warehouse/templates/manage/organizations.html:214
+#, fuzzy
+#| msgid "Created"
+msgid "Create"
+msgstr "ایجاد شده"
+
+#: warehouse/templates/manage/organization/projects.html:44
+#: warehouse/templates/manage/organization/projects.html:107
+#: warehouse/templates/manage/projects.html:77
+#: warehouse/templates/manage/projects.html:140
 msgid "This project requires 2FA to be enabled to manage"
 msgstr ""
 
-#: warehouse/templates/manage/projects.html:73
-#: warehouse/templates/manage/projects.html:136
+#: warehouse/templates/manage/organization/projects.html:45
+#: warehouse/templates/manage/organization/projects.html:108
+#: warehouse/templates/manage/projects.html:78
+#: warehouse/templates/manage/projects.html:141
 #, fuzzy
 #| msgid "Requires:"
 msgid "2FA Required"
 msgstr "نیاز:"
 
-#: warehouse/templates/manage/projects.html:79
-#: warehouse/templates/manage/projects.html:89
+#: warehouse/templates/manage/organization/projects.html:51
+#: warehouse/templates/manage/organization/projects.html:61
+#: warehouse/templates/manage/projects.html:84
+#: warehouse/templates/manage/projects.html:94
 msgid "This is a critical project for the Python ecosystem"
 msgstr ""
 
-#: warehouse/templates/manage/projects.html:80
-#: warehouse/templates/manage/projects.html:90
+#: warehouse/templates/manage/organization/projects.html:52
+#: warehouse/templates/manage/organization/projects.html:62
+#: warehouse/templates/manage/projects.html:85
+#: warehouse/templates/manage/projects.html:95
 msgid "Critical Project"
 msgstr ""
 
-#: warehouse/templates/manage/projects.html:82
-#: warehouse/templates/manage/projects.html:123
+#: warehouse/templates/manage/organization/projects.html:54
+#: warehouse/templates/manage/organization/projects.html:95
+#: warehouse/templates/manage/projects.html:87
+#: warehouse/templates/manage/projects.html:128
 msgid "PyPI requires 2FA to be enabled to manage this project"
 msgstr ""
 
-#: warehouse/templates/manage/projects.html:83
-#: warehouse/templates/manage/projects.html:124
+#: warehouse/templates/manage/organization/projects.html:55
+#: warehouse/templates/manage/organization/projects.html:96
+#: warehouse/templates/manage/projects.html:88
+#: warehouse/templates/manage/projects.html:129
 msgid "2FA Mandated"
 msgstr ""
 
-#: warehouse/templates/manage/projects.html:94
+#: warehouse/templates/manage/organization/projects.html:66
+#: warehouse/templates/manage/projects.html:99
 msgid "Sole owner"
 msgstr ""
 
-#: warehouse/templates/manage/projects.html:142
+#: warehouse/templates/manage/organization/projects.html:114
+#: warehouse/templates/manage/projects.html:147
 msgid "Manage this project"
 msgstr ""
 
-#: warehouse/templates/manage/projects.html:147
+#: warehouse/templates/manage/organization/projects.html:119
+#: warehouse/templates/manage/projects.html:152
 msgid "You are not an owner of this project"
 msgstr ""
 
-#: warehouse/templates/manage/projects.html:155
+#: warehouse/templates/manage/organization/projects.html:127
+#: warehouse/templates/manage/projects.html:160
 msgid "View this project's public page"
 msgstr ""
 
-#: warehouse/templates/manage/projects.html:156
-#: warehouse/templates/manage/projects.html:159
-#: warehouse/templates/manage/releases.html:94
-msgid "View"
-msgstr ""
-
-#: warehouse/templates/manage/projects.html:158
+#: warehouse/templates/manage/organization/projects.html:130
+#: warehouse/templates/manage/projects.html:163
 msgid "This project has no releases"
 msgstr ""
 
-#: warehouse/templates/manage/projects.html:168
+#: warehouse/templates/manage/projects.html:172
 #, python-format
 msgid ""
 "You have not uploaded any projects to PyPI, yet. To learn how to get "
 "started, visit the <a href=\"%(href)s\" target=\"_blank\" rel=\"noopener"
 "\">Python Packaging User Guide</a>"
+msgstr ""
+
+#: warehouse/templates/manage/publishing.html:20
+#: warehouse/templates/manage/publishing.html:51
+msgid "OpenID Connect publisher management"
+msgstr ""
+
+#: warehouse/templates/manage/publishing.html:54
+msgid ""
+"OpenID Connect provides a flexible, credential-free mechanism for delegating "
+"publishing authority for a PyPI package to a third party service, like "
+"GitHub Actions."
+msgstr ""
+
+#: warehouse/templates/manage/publishing.html:62
+msgid ""
+"PyPI projects can use trusted OpenID Connect publishers to automate their "
+"release processes, without having to explicitly provision or manage API "
+"tokens."
+msgstr ""
+
+#: warehouse/templates/manage/publishing.html:68
+msgid "Add a new provider"
+msgstr ""
+
+#: warehouse/templates/manage/publishing.html:72
+#, python-format
+msgid ""
+"Read more about GitHub's OpenID Connect provider <a href=\"%(href)s\">here</"
+"a>."
+msgstr ""
+
+#: warehouse/templates/manage/publishing.html:88
+msgid "owner"
+msgstr ""
+
+#: warehouse/templates/manage/publishing.html:95
+msgid "Repository name"
+msgstr ""
+
+#: warehouse/templates/manage/publishing.html:100
+msgid "repository"
+msgstr ""
+
+#: warehouse/templates/manage/publishing.html:107
+#, fuzzy
+#| msgid "Your name"
+msgid "Workflow name"
+msgstr "نام شما"
+
+#: warehouse/templates/manage/publishing.html:112
+msgid "workflow.yml"
+msgstr ""
+
+#: warehouse/templates/manage/publishing.html:118
+msgid "Add"
+msgstr ""
+
+#: warehouse/templates/manage/publishing.html:122
+msgid "Manage current providers"
+msgstr ""
+
+#: warehouse/templates/manage/publishing.html:126
+#, python-format
+msgid "OpenID Connect publishers associated with %(project_name)s"
+msgstr ""
+
+#: warehouse/templates/manage/publishing.html:130
+msgid "Publisher"
+msgstr ""
+
+#: warehouse/templates/manage/publishing.html:131
+msgid "Specification"
+msgstr ""
+
+#: warehouse/templates/manage/publishing.html:142
+msgid "No publishers are currently configured."
 msgstr ""
 
 #: warehouse/templates/manage/release.html:18
@@ -3256,10 +4203,11 @@ msgstr ""
 msgid "No files found"
 msgstr ""
 
+#: warehouse/templates/manage/organization/roles.html:38
 #: warehouse/templates/manage/release.html:118
 #: warehouse/templates/manage/releases.html:172
 #: warehouse/templates/manage/roles.html:38
-#: warehouse/templates/manage/settings.html:113
+#: warehouse/templates/manage/settings.html:111
 msgid "Dismiss"
 msgstr ""
 
@@ -3392,10 +4340,10 @@ msgid ""
 "\"%(post_href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener"
 "\">post release</a> instead."
 msgstr ""
-"در نظر بگیرید <a href=\"%(yank_href)s\" title=\"%(title)s\" target=\"_blank"
-"\" rel=\"noopener\">یانک</a> این نسخه ، ایجاد یک نسخه جدید یا یک <a href="
-"\"%(post_href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener\"> "
-"نسخه منتشر شده </a> به جای آن."
+"در نظر بگیرید <a href=\"%(yank_href)s\" title=\"%(title)s\" target=\"_blank\""
+" rel=\"noopener\">یانک</a> این نسخه ، ایجاد یک نسخه جدید یا یک <a href=\""
+"%(post_href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener\"> نسخه "
+"منتشر شده </a> به جای آن."
 
 #: warehouse/templates/manage/releases.html:20
 #, python-format
@@ -3515,16 +4463,21 @@ msgstr ""
 msgid "Manage '%(project_name)s' collaborators"
 msgstr ""
 
+#: warehouse/templates/manage/organization/roles.html:22
 #: warehouse/templates/manage/roles.html:22
 msgid "2FA enabled"
 msgstr ""
 
+#: warehouse/templates/manage/organization/roles.html:23
+#: warehouse/templates/manage/organization/roles.html:28
+#: warehouse/templates/manage/organization/roles.html:61
 #: warehouse/templates/manage/roles.html:23
 #: warehouse/templates/manage/roles.html:28
 #: warehouse/templates/manage/roles.html:53
 msgid "2FA"
-msgstr ""
+msgstr "احراز هویت دو مرحله‌ای"
 
+#: warehouse/templates/manage/organization/roles.html:27
 #: warehouse/templates/manage/roles.html:27
 msgid "2FA disabled"
 msgstr ""
@@ -3533,11 +4486,11 @@ msgstr ""
 #, python-format
 msgid ""
 "Use this page to control which PyPI users can help you to manage "
-"%(project_name)s"
+"%(project_name)s."
 msgstr ""
 
 #: warehouse/templates/manage/roles.html:39
-#: warehouse/templates/pages/help.html:561
+#: warehouse/templates/pages/help.html:563
 msgid "There are two possible roles for collaborators:"
 msgstr ""
 
@@ -3553,12 +4506,6 @@ msgid ""
 "delete files, releases, or the project."
 msgstr ""
 
-#: warehouse/templates/manage/roles.html:43
-#: warehouse/templates/manage/roles.html:77
-#: warehouse/templates/manage/roles.html:88
-msgid "Owner"
-msgstr ""
-
 #: warehouse/templates/manage/roles.html:44
 msgid ""
 "Can upload releases. Can invite other collaborators. Can delete files, "
@@ -3570,21 +4517,18 @@ msgstr ""
 msgid "Users who can manage %(project_name)s"
 msgstr ""
 
-#: warehouse/templates/manage/roles.html:52
-#: warehouse/templates/manage/roles.html:86
-#: warehouse/templates/manage/roles.html:180
-msgid "Role"
-msgstr ""
-
+#: warehouse/templates/manage/organization/roles.html:109
 #: warehouse/templates/manage/roles.html:94
 msgid "Save role"
 msgstr ""
 
 #: warehouse/templates/manage/account/recovery_codes-provision.html:63
+#: warehouse/templates/manage/organization/roles.html:110
 #: warehouse/templates/manage/roles.html:95
 msgid "Save"
 msgstr ""
 
+#: warehouse/templates/manage/organization/roles.html:127
 #: warehouse/templates/manage/roles.html:109
 msgid "Cannot remove yourself as owner"
 msgstr ""
@@ -3594,19 +4538,23 @@ msgstr ""
 msgid "Remove %(user)s from this project"
 msgstr ""
 
+#: warehouse/templates/manage/organization/roles.html:159
 #: warehouse/templates/manage/roles.html:139
 msgid "Invite pending"
 msgstr ""
 
+#: warehouse/templates/manage/organization/roles.html:161
 #: warehouse/templates/manage/roles.html:141
 msgid "Invite expired"
 msgstr ""
 
+#: warehouse/templates/manage/organization/roles.html:172
 #: warehouse/templates/manage/roles.html:152
 #, python-format
 msgid "Revoke invitation for %(user)s"
 msgstr ""
 
+#: warehouse/templates/manage/organization/roles.html:174
 #: warehouse/templates/manage/roles.html:154
 msgid "Revoke invite"
 msgstr ""
@@ -3615,6 +4563,7 @@ msgstr ""
 msgid "Invite collaborator"
 msgstr ""
 
+#: warehouse/templates/manage/organization/roles.html:213
 #: warehouse/templates/manage/roles.html:191
 msgid "Invite"
 msgstr ""
@@ -3700,11 +4649,11 @@ msgstr ""
 msgid "Enable 2FA requirement for %(project_name)s"
 msgstr ""
 
-#: warehouse/templates/manage/settings.html:104
+#: warehouse/templates/manage/settings.html:102
 msgid "Project description and sidebar"
 msgstr ""
 
-#: warehouse/templates/manage/settings.html:106
+#: warehouse/templates/manage/settings.html:104
 #, python-format
 msgid ""
 "To set the '%(project_name)s' description, author, links, classifiers, and "
@@ -3718,16 +4667,152 @@ msgid ""
 "Packaging User Guide</a> for more help."
 msgstr ""
 
-#: warehouse/templates/manage/settings.html:117
+#: warehouse/templates/manage/settings.html:119
+#, fuzzy
+#| msgid "Create an account"
+msgid "Remove project from organization"
+msgstr "ایجاد یک حساب کاربری"
+
+#: warehouse/templates/manage/settings.html:122
+#, fuzzy
+#| msgid "Create an account"
+msgid "Removing this project from the organization will:"
+msgstr "ایجاد یک حساب کاربری"
+
+#: warehouse/templates/manage/settings.html:126
+#: warehouse/templates/manage/settings.html:170
+#, fuzzy, python-format
+#| msgid "You are now ${role} of the '${project_name}' project."
+msgid "Remove this project from the '%(organization_name)s' organization."
+msgstr "شما اکنون $ {role} از پروژه '$ {project_name}' هستید."
+
+#: warehouse/templates/manage/settings.html:129
+#: warehouse/templates/manage/settings.html:173
+#, fuzzy, python-format
+#| msgid "You are now ${role} of the '${project_name}' project."
+msgid ""
+"Revoke project permissions for teams in the '%(organization_name)s' "
+"organization."
+msgstr "شما اکنون $ {role} از پروژه '$ {project_name}' هستید."
+
+#: warehouse/templates/manage/settings.html:133
+#: warehouse/templates/manage/settings.html:139
+#: warehouse/templates/manage/settings.html:188
+msgid ""
+"Individual owners and maintainers of the project will retain their project "
+"permissions."
+msgstr ""
+
+#: warehouse/templates/manage/settings.html:138
+#, fuzzy, python-format
+#| msgid "You are now ${role} of the '${project_name}' project."
+msgid ""
+"This will remove the project from the '%(organization_name)s' organization."
+msgstr "شما اکنون $ {role} از پروژه '$ {project_name}' هستید."
+
+#: warehouse/templates/manage/settings.html:142
+#, fuzzy
+#| msgid "No projects"
+msgid "Remove project"
+msgstr "هیچ پروژه ای نیست"
+
+#: warehouse/templates/manage/settings.html:142
+#: warehouse/templates/manage/settings.html:200
+#: warehouse/templates/manage/settings.html:256
+msgid "Project Name"
+msgstr "نام برنامه"
+
+#: warehouse/templates/manage/settings.html:146
+#, fuzzy
+#| msgid "Create an account"
+msgid "Cannot remove project from organization"
+msgstr "ایجاد یک حساب کاربری"
+
 #: warehouse/templates/manage/settings.html:148
+msgid ""
+"Your organization is currently the <strong>sole owner</strong> of the "
+"project. You must add an individual owner to the project before you can "
+"remove the project from your organization."
+msgstr ""
+
+#: warehouse/templates/manage/settings.html:158
+#, fuzzy
+#| msgid "Create an account"
+msgid "Transfer project to another organization"
+msgstr "ایجاد یک حساب کاربری"
+
+#: warehouse/templates/manage/settings.html:160
+#, fuzzy
+#| msgid "Create an account"
+msgid "Transfer project to an organization"
+msgstr "ایجاد یک حساب کاربری"
+
+#: warehouse/templates/manage/settings.html:165
+msgid "Transferring this project will:"
+msgstr ""
+
+#: warehouse/templates/manage/settings.html:178
+msgid "Add the project to another organization that you own."
+msgstr ""
+
+#: warehouse/templates/manage/settings.html:180
+#, fuzzy
+#| msgid "Invalid token: not a collaboration invitation token"
+msgid "Add the project to an organization that you own."
+msgstr "توکن نامعتبر: رمز دعوت نامه همکاری نیست"
+
+#: warehouse/templates/manage/settings.html:184
+msgid "Grant full project permissions to owners of the organization."
+msgstr ""
+
+#: warehouse/templates/manage/settings.html:200
+#, fuzzy
+#| msgid "Manage project"
+msgid "Transfer project"
+msgstr "پروژه را مدیریت کنید"
+
+#: warehouse/templates/manage/settings.html:206
+#, fuzzy
+#| msgid "Create an account"
+msgid "Cannot transfer project to another organization"
+msgstr "ایجاد یک حساب کاربری"
+
+#: warehouse/templates/manage/settings.html:208
+#, fuzzy
+#| msgid "Create an account"
+msgid "Cannot transfer project to an organization"
+msgstr "ایجاد یک حساب کاربری"
+
+#: warehouse/templates/manage/settings.html:212
+msgid "Project owners can transfer the project to organizations that they own."
+msgstr ""
+
+#: warehouse/templates/manage/settings.html:214
+#, fuzzy
+#| msgid ""
+#| "You are receiving this because you have been added by "
+#| "%(initiator_username)s to a project on %(site)s."
+msgid "You are not an owner of any other organizations."
+msgstr ""
+"شما این را دریافت می کنید زیرا توسط %(initiator_username)s به یک پروژه در "
+"%(site)s اضافه شده اید."
+
+#: warehouse/templates/manage/settings.html:216
+#, fuzzy
+#| msgid "%(user)s has not uploaded any projects to PyPI, yet"
+msgid "You are not an owner of any organizations."
+msgstr "%(user)s هنوز هیچ پروژه ای را در PyPI بارگذاری نکرده است"
+
+#: warehouse/templates/manage/settings.html:225
+#: warehouse/templates/manage/settings.html:256
 msgid "Delete project"
 msgstr "هذف برنامه"
 
-#: warehouse/templates/manage/settings.html:120
+#: warehouse/templates/manage/settings.html:228
 msgid "Deleting this project will:"
 msgstr ""
 
-#: warehouse/templates/manage/settings.html:125
+#: warehouse/templates/manage/settings.html:233
 #, python-format
 msgid ""
 "Irreversibly delete the project along with <a href=\"%(href)s\">%(count)s "
@@ -3738,15 +4823,15 @@ msgid_plural ""
 msgstr[0] ""
 msgstr[1] ""
 
-#: warehouse/templates/manage/settings.html:131
+#: warehouse/templates/manage/settings.html:239
 msgid "Irreversibly delete the project"
 msgstr ""
 
-#: warehouse/templates/manage/settings.html:135
+#: warehouse/templates/manage/settings.html:243
 msgid "Make the project name available to <strong>any other PyPI</strong> user"
 msgstr ""
 
-#: warehouse/templates/manage/settings.html:137
+#: warehouse/templates/manage/settings.html:245
 msgid ""
 "This user will be able to make new releases under this project name, so long "
 "as the distribution filenames do not match filenames from a previously "
@@ -3754,10 +4839,6 @@ msgid ""
 "are generated by combining the project name + version number + distribution "
 "type)"
 msgstr ""
-
-#: warehouse/templates/manage/settings.html:148
-msgid "Project Name"
-msgstr "نام برنامه"
 
 #: warehouse/templates/manage/token.html:38
 #, python-format
@@ -3769,7 +4850,7 @@ msgid "Permissions:"
 msgstr ""
 
 #: warehouse/templates/manage/token.html:40
-#: warehouse/templates/manage/token.html:147
+#: warehouse/templates/manage/token.html:144
 msgid "Upload packages"
 msgstr ""
 
@@ -3779,7 +4860,7 @@ msgid "Scope:"
 msgstr ""
 
 #: warehouse/templates/manage/token.html:42
-#: warehouse/templates/manage/token.html:158
+#: warehouse/templates/manage/token.html:155
 msgid "Entire account (all projects)"
 msgstr ""
 
@@ -3861,37 +4942,37 @@ msgid ""
 "\">visit the PyPI help page</a>."
 msgstr ""
 
-#: warehouse/templates/manage/token.html:127
+#: warehouse/templates/manage/token.html:122
 msgid "Add another token"
 msgstr ""
 
-#: warehouse/templates/manage/token.html:134
+#: warehouse/templates/manage/token.html:131
 msgid "Token name"
 msgstr ""
 
-#: warehouse/templates/manage/token.html:143
+#: warehouse/templates/manage/token.html:140
 msgid "What is this token for?"
 msgstr ""
 
-#: warehouse/templates/manage/token.html:146
+#: warehouse/templates/manage/token.html:143
 msgid "Permissions"
 msgstr ""
 
-#: warehouse/templates/manage/token.html:157
+#: warehouse/templates/manage/token.html:154
 msgid "Select scope..."
 msgstr ""
 
-#: warehouse/templates/manage/token.html:161
+#: warehouse/templates/manage/token.html:158
 msgid "Project:"
 msgstr "برنامه:"
 
-#: warehouse/templates/manage/token.html:170
+#: warehouse/templates/manage/token.html:167
 msgid ""
 "An API token scoped to your entire account will have upload permissions for "
 "all of your current and future projects."
 msgstr ""
 
-#: warehouse/templates/manage/token.html:173
+#: warehouse/templates/manage/token.html:170
 msgid "Add token"
 msgstr ""
 
@@ -3922,7 +5003,7 @@ msgstr ""
 msgid ""
 "\n"
 "      <strong>Forgot to safely store your recovery codes?</strong> You'll "
-"need to generate a them again.\n"
+"need to generate them again.\n"
 "      "
 msgstr ""
 
@@ -4087,6 +5168,292 @@ msgid ""
 "not work with PyPI."
 msgstr ""
 
+#: warehouse/templates/manage/organization/manage_organization_base.html:20
+#, fuzzy, python-format
+#| msgid "Create an account"
+msgid "Manage '%(organization_name)s'"
+msgstr "ایجاد یک حساب کاربری"
+
+#: warehouse/templates/manage/organization/manage_organization_base.html:40
+#, fuzzy
+#| msgid "Create an account"
+msgid "Back to organizations"
+msgstr "ایجاد یک حساب کاربری"
+
+#: warehouse/templates/manage/organization/projects.html:17
+#, fuzzy
+#| msgid "Role invitation is not valid."
+msgid "Organization projects"
+msgstr "دعوت نامه معتبر نیست."
+
+#: warehouse/templates/manage/organization/projects.html:21
+#, fuzzy, python-format
+#| msgid "Create an account"
+msgid "Manage '%(organization_name)s' projects"
+msgstr "ایجاد یک حساب کاربری"
+
+#: warehouse/templates/manage/organization/projects.html:24
+#, python-format
+msgid "Projects (%(project_count)s)"
+msgstr ""
+
+#: warehouse/templates/manage/organization/projects.html:139
+#, fuzzy, python-format
+#| msgid ""
+#| "You have not uploaded any projects to PyPI, yet. To learn how to get "
+#| "started, visit the <a href=\"%(href)s\" title=\"%(title)s\" target="
+#| "\"_blank\" rel=\"noopener\">Python Packaging User Guide</a>"
+msgid ""
+"You have not added any projects to your organization, yet. Get started by "
+"adding a project that you own using the form below. To learn how to create a "
+"new project, visit the <a href=\"%(href)s\" target=\"_blank\" rel=\"noopener"
+"\">Python Packaging User Guide</a>"
+msgstr ""
+"هنوز هیچ پروژه ای را در PyPI بارگذاری نکرده اید. برای یادگیری نحوه شروع ، به "
+"<a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener\"> "
+"%(title)s \"target =\" _ blank \"rel =\" noopener \"> راهنمای کاربر بسته "
+"بندی پایتون مراجعه کنید </a>"
+
+#: warehouse/templates/manage/organization/projects.html:149
+#, fuzzy
+#| msgid "Create an account"
+msgid "Add project to organization"
+msgstr "ایجاد یک حساب کاربری"
+
+#: warehouse/templates/manage/organization/projects.html:155
+msgid "️New or existing project?"
+msgstr ""
+
+#: warehouse/templates/manage/organization/projects.html:165
+msgid ""
+"Transfer an existing project that you own, or create and add a new project "
+"to the organization."
+msgstr ""
+
+#: warehouse/templates/manage/organization/projects.html:171
+msgid "️Name of existing project"
+msgstr ""
+
+#: warehouse/templates/manage/organization/projects.html:175
+#, fuzzy
+#| msgid ""
+#| "You are receiving this because you have been added by "
+#| "%(initiator_username)s to a project on %(site)s."
+msgid "You do not own any projects that you can add to this organization."
+msgstr ""
+"شما این را دریافت می کنید زیرا توسط %(initiator_username)s به یک پروژه در "
+"%(site)s اضافه شده اید."
+
+#: warehouse/templates/manage/organization/projects.html:180
+msgid ""
+"Owners of this organization can transfer a project that they own to this "
+"organization if the project has not been added to another organization. A "
+"project that has been added to another organization can be transferred from "
+"the project settings page."
+msgstr ""
+
+#: warehouse/templates/manage/organization/projects.html:185
+#, fuzzy
+#| msgid "Trending projects"
+msgid "Transfer existing project"
+msgstr "پروژه های پرطرفدار"
+
+#: warehouse/templates/manage/organization/projects.html:189
+#, fuzzy
+#| msgid "Manage project"
+msgid "️Name of new project"
+msgstr "پروژه را مدیریت کنید"
+
+#: warehouse/templates/manage/organization/projects.html:197
+msgid ""
+"Owners of this organization can create an empty project and add it to the "
+"organization."
+msgstr ""
+
+#: warehouse/templates/manage/organization/projects.html:202
+#, fuzzy
+#| msgid "Search and filter projects"
+msgid "Create and add new project"
+msgstr "جستجو و پالایش برنامه‌ها"
+
+#: warehouse/templates/manage/organization/roles.html:18
+#, python-format
+msgid "Manage people in '%(organization_name)s'"
+msgstr ""
+
+#: warehouse/templates/manage/organization/roles.html:36
+#, python-format
+msgid ""
+"Use this page to control which PyPI users can help you to manage "
+"%(organization_name)s."
+msgstr ""
+
+#: warehouse/templates/manage/organization/roles.html:39
+#, python-format
+msgid ""
+"There are %(number_of_roles)s possible roles for people in this organization:"
+msgstr ""
+
+#: warehouse/templates/manage/organization/roles.html:41
+#: warehouse/templates/manage/organization/roles.html:86
+msgid "Member"
+msgstr ""
+
+#: warehouse/templates/manage/organization/roles.html:42
+msgid ""
+"Can be owner or maintainer for specific projects. Cannot create new "
+"projects. Cannot create or manage teams. Cannot invite or manage "
+"organization members. Cannot delete projects or the organization itself."
+msgstr ""
+
+#: warehouse/templates/manage/organization/roles.html:44
+msgid ""
+"Can be owner or maintainer for specific projects. Can create new projects. "
+"Can create and manage teams. Cannot invite or manage organization members. "
+"Cannot delete projects or the organization itself."
+msgstr ""
+
+#: warehouse/templates/manage/organization/roles.html:46
+msgid ""
+"Can be owner or maintainer for specific projects. Can create new projects. "
+"Can create and manage teams. Can invite and manage organization members. Can "
+"delete projects and the organization itself."
+msgstr ""
+
+#: warehouse/templates/manage/organization/roles.html:49
+#, fuzzy
+#| msgid "Create an account"
+msgid "Can manage billing for the organization."
+msgstr "ایجاد یک حساب کاربری"
+
+#: warehouse/templates/manage/organization/roles.html:55
+#, fuzzy, python-format
+#| msgid "Create an account"
+msgid "Users who can manage %(organization_name)s"
+msgstr "ایجاد یک حساب کاربری"
+
+#: warehouse/templates/manage/organization/roles.html:124
+msgid "Cannot remove other people from the organization"
+msgstr ""
+
+#: warehouse/templates/manage/organization/roles.html:130
+#, fuzzy, python-format
+#| msgid "Create an account"
+msgid "Remove %(user)s from this organization"
+msgstr "ایجاد یک حساب کاربری"
+
+#: warehouse/templates/manage/organization/roles.html:185
+msgid "Invite member"
+msgstr ""
+
+#: warehouse/templates/manage/organization/settings.html:17
+#: warehouse/templates/manage/organization/settings.html:24
+#, fuzzy
+#| msgid "Role invitation is not valid."
+msgid "Organization settings"
+msgstr "دعوت نامه معتبر نیست."
+
+#: warehouse/templates/manage/organization/settings.html:21
+#, fuzzy, python-format
+#| msgid "Create an account"
+msgid "Manage '%(organization_name)s' settings"
+msgstr "ایجاد یک حساب کاربری"
+
+#: warehouse/templates/manage/organization/settings.html:31
+#, fuzzy
+#| msgid "Account created"
+msgid "Date created"
+msgstr "حساب کاربری ایجاد شد"
+
+#: warehouse/templates/manage/organization/settings.html:146
+#, fuzzy
+#| msgid "Create an account"
+msgid "Update organization"
+msgstr "ایجاد یک حساب کاربری"
+
+#: warehouse/templates/manage/organization/settings.html:155
+#: warehouse/templates/manage/organization/settings.html:167
+#, fuzzy
+#| msgid "Create an account"
+msgid "Change organization account name"
+msgstr "ایجاد یک حساب کاربری"
+
+#: warehouse/templates/manage/organization/settings.html:160
+msgid ""
+"You will not be able to revert to your current account name after you rename "
+"your organization."
+msgstr ""
+
+#: warehouse/templates/manage/organization/settings.html:167
+#, fuzzy
+#| msgid "Create an account"
+msgid "Current organization account name"
+msgstr "ایجاد یک حساب کاربری"
+
+#: warehouse/templates/manage/organization/settings.html:174
+#: warehouse/templates/manage/organization/settings.html:208
+#, fuzzy
+#| msgid "Create an account"
+msgid "Delete organization"
+msgstr "ایجاد یک حساب کاربری"
+
+#: warehouse/templates/manage/organization/settings.html:177
+#, fuzzy
+#| msgid "Create an account"
+msgid "Cannot delete organization"
+msgstr "ایجاد یک حساب کاربری"
+
+#: warehouse/templates/manage/organization/settings.html:179
+#, fuzzy, python-format
+#| msgid ""
+#| "\n"
+#| "            %(count)s project\n"
+#| "          "
+#| msgid_plural ""
+#| "\n"
+#| "            %(count)s projects\n"
+#| "          "
+msgid ""
+"\n"
+"          Your organization currently owns %(count)s project.\n"
+"        "
+msgid_plural ""
+"\n"
+"          Your organization currently owns %(count)s projects.\n"
+"        "
+msgstr[0] ""
+"\n"
+"            %(count)s پروژه\n"
+"          "
+msgstr[1] ""
+"\n"
+"            %(count)s پروژه ها\n"
+"          "
+
+#: warehouse/templates/manage/organization/settings.html:184
+msgid ""
+"\n"
+"          You must transfer ownership or delete this project before you can "
+"delete your organization.\n"
+"        "
+msgid_plural ""
+"\n"
+"          You must transfer ownership or delete these projects before you "
+"can delete your organization.\n"
+"        "
+msgstr[0] ""
+msgstr[1] ""
+
+#: warehouse/templates/manage/organization/settings.html:206
+msgid "You will not be able to recover your organization after you delete it."
+msgstr ""
+
+#: warehouse/templates/manage/organization/settings.html:208
+#, fuzzy
+#| msgid "Confirm Invite"
+msgid "Organization Name"
+msgstr "دعوت را تأیید کنید"
+
 #: warehouse/templates/packaging/detail.html:106
 msgid "view hashes"
 msgstr ""
@@ -4096,114 +5463,114 @@ msgstr ""
 msgid "RSS: latest releases for %(project_name)s"
 msgstr ""
 
-#: warehouse/templates/packaging/detail.html:146
+#: warehouse/templates/packaging/detail.html:152
 msgid "Copy PIP instructions"
 msgstr ""
 
-#: warehouse/templates/packaging/detail.html:156
+#: warehouse/templates/packaging/detail.html:162
 msgid "This release has been yanked"
 msgstr ""
 
-#: warehouse/templates/packaging/detail.html:162
+#: warehouse/templates/packaging/detail.html:168
 #, python-format
 msgid "Stable version available (%(version)s)"
 msgstr ""
 
-#: warehouse/templates/packaging/detail.html:166
+#: warehouse/templates/packaging/detail.html:172
 #, python-format
 msgid "Newer version available (%(version)s)"
 msgstr ""
 
-#: warehouse/templates/packaging/detail.html:170
+#: warehouse/templates/packaging/detail.html:176
 msgid "Latest version"
 msgstr "واپسین نگارش"
 
-#: warehouse/templates/packaging/detail.html:175
+#: warehouse/templates/packaging/detail.html:181
 #, python-format
 msgid "Released: %(release_date)s"
 msgstr ""
 
-#: warehouse/templates/packaging/detail.html:187
+#: warehouse/templates/packaging/detail.html:193
 msgid "No project description provided"
 msgstr ""
 
-#: warehouse/templates/packaging/detail.html:200
+#: warehouse/templates/packaging/detail.html:206
 msgid "Navigation"
 msgstr ""
 
-#: warehouse/templates/packaging/detail.html:201
-#: warehouse/templates/packaging/detail.html:232
+#: warehouse/templates/packaging/detail.html:207
+#: warehouse/templates/packaging/detail.html:238
 #, python-format
 msgid "Navigation for %(project)s"
 msgstr ""
 
-#: warehouse/templates/packaging/detail.html:204
-#: warehouse/templates/packaging/detail.html:235
+#: warehouse/templates/packaging/detail.html:210
+#: warehouse/templates/packaging/detail.html:241
 msgid "Project description. Focus will be moved to the description."
 msgstr ""
 
-#: warehouse/templates/packaging/detail.html:206
-#: warehouse/templates/packaging/detail.html:237
-#: warehouse/templates/packaging/detail.html:265
+#: warehouse/templates/packaging/detail.html:212
+#: warehouse/templates/packaging/detail.html:243
+#: warehouse/templates/packaging/detail.html:271
 msgid "Project description"
 msgstr ""
 
-#: warehouse/templates/packaging/detail.html:210
-#: warehouse/templates/packaging/detail.html:247
+#: warehouse/templates/packaging/detail.html:216
+#: warehouse/templates/packaging/detail.html:253
 msgid "Release history. Focus will be moved to the history panel."
 msgstr ""
 
-#: warehouse/templates/packaging/detail.html:212
-#: warehouse/templates/packaging/detail.html:249
-#: warehouse/templates/packaging/detail.html:287
+#: warehouse/templates/packaging/detail.html:218
+#: warehouse/templates/packaging/detail.html:255
+#: warehouse/templates/packaging/detail.html:293
 msgid "Release history"
 msgstr ""
 
-#: warehouse/templates/packaging/detail.html:217
-#: warehouse/templates/packaging/detail.html:254
+#: warehouse/templates/packaging/detail.html:223
+#: warehouse/templates/packaging/detail.html:260
 msgid "Download files. Focus will be moved to the project files."
 msgstr ""
 
-#: warehouse/templates/packaging/detail.html:219
-#: warehouse/templates/packaging/detail.html:256
-#: warehouse/templates/packaging/detail.html:343
+#: warehouse/templates/packaging/detail.html:225
+#: warehouse/templates/packaging/detail.html:262
+#: warehouse/templates/packaging/detail.html:349
 msgid "Download files"
 msgstr ""
 
-#: warehouse/templates/packaging/detail.html:241
+#: warehouse/templates/packaging/detail.html:247
 msgid "Project details. Focus will be moved to the project details."
 msgstr ""
 
-#: warehouse/templates/packaging/detail.html:243
-#: warehouse/templates/packaging/detail.html:279
+#: warehouse/templates/packaging/detail.html:249
+#: warehouse/templates/packaging/detail.html:285
 msgid "Project details"
 msgstr ""
 
-#: warehouse/templates/packaging/detail.html:272
+#: warehouse/templates/packaging/detail.html:278
 msgid "The author of this package has not provided a project description"
 msgstr ""
 
-#: warehouse/templates/packaging/detail.html:289
+#: warehouse/templates/packaging/detail.html:295
 msgid "Release notifications"
 msgstr ""
 
-#: warehouse/templates/packaging/detail.html:290
+#: warehouse/templates/packaging/detail.html:296
 msgid "RSS feed"
 msgstr ""
 
-#: warehouse/templates/packaging/detail.html:302
+#: warehouse/templates/packaging/detail.html:308
 msgid "This version"
 msgstr ""
 
-#: warehouse/templates/packaging/detail.html:322
+#: warehouse/templates/packaging/detail.html:328
 msgid "pre-release"
 msgstr ""
 
-#: warehouse/templates/packaging/detail.html:327
+#: warehouse/templates/packaging/detail.html:333
 msgid "yanked"
 msgstr ""
 
-#: warehouse/templates/packaging/detail.html:344
+#: warehouse/templates/packaging/detail.html:350
 #, python-format
 msgid ""
 "Download the file for your platform. If you're not sure which to choose, "
@@ -4211,7 +5578,7 @@ msgid ""
 "rel=\"noopener\">installing packages</a>."
 msgstr ""
 
-#: warehouse/templates/packaging/detail.html:348
+#: warehouse/templates/packaging/detail.html:354
 #, fuzzy
 #| msgid ""
 #| "\n"
@@ -4238,7 +5605,7 @@ msgstr[1] ""
 "            %(count)s پروژه ها\n"
 "          "
 
-#: warehouse/templates/packaging/detail.html:360
+#: warehouse/templates/packaging/detail.html:366
 #, fuzzy
 #| msgid ""
 #| "\n"
@@ -4293,10 +5660,10 @@ msgid ""
 "\"%(title)s\" target=\"_blank\" rel=\"noopener\"><abbr title=\"Python "
 "enhancement proposal\">PEP</abbr> 301</a>."
 msgstr ""
-"در نظر بگیرید <a href=\"%(yank_href)s\" title=\"%(title)s\" target=\"_blank"
-"\" rel=\"noopener\">یانک</a> این نسخه ، ایجاد یک نسخه جدید یا یک <a href="
-"\"%(post_href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener\"> "
-"نسخه منتشر شده </a> به جای آن."
+"در نظر بگیرید <a href=\"%(yank_href)s\" title=\"%(title)s\" target=\"_blank\""
+" rel=\"noopener\">یانک</a> این نسخه ، ایجاد یک نسخه جدید یا یک <a href=\""
+"%(post_href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener\"> نسخه "
+"منتشر شده </a> به جای آن."
 
 #: warehouse/templates/pages/classifiers.html:30
 msgid ""
@@ -4544,49 +5911,53 @@ msgid "How do I keep up with upcoming changes to PyPI?"
 msgstr ""
 
 #: warehouse/templates/pages/help.html:102
+msgid "How can I get a list of PyPI's IP addresses?"
+msgstr ""
+
+#: warehouse/templates/pages/help.html:103
 msgid ""
 "What does the \"beta feature\" badge mean? What are Warehouse's current beta "
 "features?"
 msgstr ""
 
-#: warehouse/templates/pages/help.html:103
+#: warehouse/templates/pages/help.html:104
 msgid "How do I pronounce \"PyPI\"?"
 msgstr ""
 
-#: warehouse/templates/pages/help.html:110
+#: warehouse/templates/pages/help.html:111
 msgid "Common questions"
 msgstr ""
 
-#: warehouse/templates/pages/help.html:113
-#: warehouse/templates/pages/help.html:196
+#: warehouse/templates/pages/help.html:114
+#: warehouse/templates/pages/help.html:198
 msgid "Basics"
 msgstr ""
 
-#: warehouse/templates/pages/help.html:124
+#: warehouse/templates/pages/help.html:125
 msgid "My Account"
 msgstr ""
 
-#: warehouse/templates/pages/help.html:141
-#: warehouse/templates/pages/help.html:516
+#: warehouse/templates/pages/help.html:142
+#: warehouse/templates/pages/help.html:518
 msgid "Integrating"
 msgstr ""
 
-#: warehouse/templates/pages/help.html:151
-#: warehouse/templates/pages/help.html:543
+#: warehouse/templates/pages/help.html:152
+#: warehouse/templates/pages/help.html:545
 msgid "Administration of projects on PyPI"
 msgstr ""
 
-#: warehouse/templates/pages/help.html:166
-#: warehouse/templates/pages/help.html:627
+#: warehouse/templates/pages/help.html:167
+#: warehouse/templates/pages/help.html:629
 msgid "Troubleshooting"
 msgstr ""
 
-#: warehouse/templates/pages/help.html:183
-#: warehouse/templates/pages/help.html:773
+#: warehouse/templates/pages/help.html:184
+#: warehouse/templates/pages/help.html:775
 msgid "About"
 msgstr "درباره"
 
-#: warehouse/templates/pages/help.html:199
+#: warehouse/templates/pages/help.html:201
 #, python-format
 msgid ""
 "\n"
@@ -4609,7 +5980,7 @@ msgid ""
 "        "
 msgstr ""
 
-#: warehouse/templates/pages/help.html:208
+#: warehouse/templates/pages/help.html:210
 #, python-format
 msgid ""
 "To learn how to install a file from PyPI, visit the <a href="
@@ -4619,7 +5990,7 @@ msgid ""
 "User Guide</a>."
 msgstr ""
 
-#: warehouse/templates/pages/help.html:215
+#: warehouse/templates/pages/help.html:217
 #, python-format
 msgid ""
 "For full instructions on configuring, packaging and distributing your Python "
@@ -4629,7 +6000,7 @@ msgid ""
 "rel=\"noopener\">Python Packaging User Guide</a>."
 msgstr ""
 
-#: warehouse/templates/pages/help.html:222
+#: warehouse/templates/pages/help.html:224
 #, python-format
 msgid ""
 "Classifiers are used to categorize projects on PyPI. See <a href=\"%(href)s"
@@ -4637,7 +6008,7 @@ msgid ""
 "classifiers."
 msgstr ""
 
-#: warehouse/templates/pages/help.html:229
+#: warehouse/templates/pages/help.html:231
 #, python-format
 msgid ""
 "A yanked release is a release that is always ignored by an installer, unless "
@@ -4647,31 +6018,31 @@ msgid ""
 "enhancement proposal\">PEP</abbr> 592</a> for more information."
 msgstr ""
 
-#: warehouse/templates/pages/help.html:236
+#: warehouse/templates/pages/help.html:238
 msgid "My account"
 msgstr ""
 
-#: warehouse/templates/pages/help.html:239
+#: warehouse/templates/pages/help.html:241
 msgid ""
 "Currently, PyPI requires a verified email address to perform the following "
 "operations:"
 msgstr ""
 
-#: warehouse/templates/pages/help.html:241
+#: warehouse/templates/pages/help.html:243
 msgid "Register a new project."
 msgstr ""
 
-#: warehouse/templates/pages/help.html:242
+#: warehouse/templates/pages/help.html:244
 msgid "Upload a new version or file."
 msgstr ""
 
-#: warehouse/templates/pages/help.html:244
+#: warehouse/templates/pages/help.html:246
 msgid ""
 "The list of activities that require a verified email address is likely to "
 "grow over time."
 msgstr ""
 
-#: warehouse/templates/pages/help.html:245
+#: warehouse/templates/pages/help.html:247
 #, python-format
 msgid ""
 "This policy will allow us to enforce a key policy of <a href=\"%(href)s\" "
@@ -4681,7 +6052,7 @@ msgid ""
 "automated fashion."
 msgstr ""
 
-#: warehouse/templates/pages/help.html:246
+#: warehouse/templates/pages/help.html:248
 #, python-format
 msgid ""
 "You can manage your account's email addresses in your <a href=\"%(href)s"
@@ -4690,7 +6061,7 @@ msgid ""
 "policy."
 msgstr ""
 
-#: warehouse/templates/pages/help.html:249
+#: warehouse/templates/pages/help.html:251
 #, python-format
 msgid ""
 "<p> PyPI itself has not suffered a breach. This is a protective measure to "
@@ -4715,7 +6086,7 @@ msgid ""
 "</p>"
 msgstr ""
 
-#: warehouse/templates/pages/help.html:284
+#: warehouse/templates/pages/help.html:286
 #, python-format
 msgid ""
 "<p> All PyPI user events are stored under security history in account "
@@ -4725,7 +6096,7 @@ msgid ""
 "%(admin_email)s\">%(admin_email)s</a></li> </ul> </p>"
 msgstr ""
 
-#: warehouse/templates/pages/help.html:296
+#: warehouse/templates/pages/help.html:298
 msgid ""
 "<p> A PyPI API token linked to your account was posted on a public website. "
 "It was automatically revoked, but before regenerating a new one, please "
@@ -4733,7 +6104,7 @@ msgid ""
 "\"#suspicious-activity\">suspicious activity</a> section applies too. </p>"
 msgstr ""
 
-#: warehouse/templates/pages/help.html:306
+#: warehouse/templates/pages/help.html:308
 #, python-format
 msgid ""
 "<p> Two factor authentication (2FA) makes your account more secure by "
@@ -4751,7 +6122,7 @@ msgid ""
 "\"%(title)s\" target=\"_blank\" rel=\"noopener\">discuss.python.org</a>.</p>"
 msgstr ""
 
-#: warehouse/templates/pages/help.html:333
+#: warehouse/templates/pages/help.html:335
 #, python-format
 msgid ""
 "PyPI users can set up two-factor authentication using any authentication "
@@ -4760,21 +6131,21 @@ msgid ""
 "\">TOTP</abbr> standard</a>."
 msgstr ""
 
-#: warehouse/templates/pages/help.html:334
+#: warehouse/templates/pages/help.html:336
 msgid ""
 "<abbr title=\"time-based one-time password\">TOTP</abbr> authentication "
 "applications generate a regularly changing authentication code to use when "
 "logging into your account."
 msgstr ""
 
-#: warehouse/templates/pages/help.html:335
+#: warehouse/templates/pages/help.html:337
 msgid ""
 "Because <abbr title=\"time-based one-time password\">TOTP</abbr> is an open "
 "standard, there are many applications that are compatible with your PyPI "
 "account. Popular applications include:"
 msgstr ""
 
-#: warehouse/templates/pages/help.html:338
+#: warehouse/templates/pages/help.html:340
 #, python-format
 msgid ""
 "Google Authenticator for <a href=\"%(android_href)s\" title=\"%(title)s\" "
@@ -4782,14 +6153,14 @@ msgid ""
 "title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">iOS</a>"
 msgstr ""
 
-#: warehouse/templates/pages/help.html:341
 #: warehouse/templates/pages/help.html:343
-#: warehouse/templates/pages/help.html:348
+#: warehouse/templates/pages/help.html:345
 #: warehouse/templates/pages/help.html:350
+#: warehouse/templates/pages/help.html:352
 msgid "(proprietary)"
 msgstr ""
 
-#: warehouse/templates/pages/help.html:345
+#: warehouse/templates/pages/help.html:347
 #, python-format
 msgid ""
 "Duo Mobile for <a href=\"%(android_href)s\" title=\"%(title)s\" target="
@@ -4797,12 +6168,12 @@ msgid ""
 "\"%(title)s\" target=\"_blank\" rel=\"noopener\">iOS</a>"
 msgstr ""
 
-#: warehouse/templates/pages/help.html:351
-#: warehouse/templates/pages/help.html:352
+#: warehouse/templates/pages/help.html:353
+#: warehouse/templates/pages/help.html:354
 msgid "(open source)"
 msgstr ""
 
-#: warehouse/templates/pages/help.html:356
+#: warehouse/templates/pages/help.html:358
 #, python-format
 msgid ""
 "Some password managers (e.g. <a href=\"%(href)s\" title=\"%(title)s\" target="
@@ -4811,81 +6182,81 @@ msgid ""
 "per account."
 msgstr ""
 
-#: warehouse/templates/pages/help.html:364
+#: warehouse/templates/pages/help.html:366
 msgid ""
 "To set up <abbr title=\"two factor authentication\">2FA</abbr> with an "
 "authentication application:"
 msgstr ""
 
-#: warehouse/templates/pages/help.html:366
+#: warehouse/templates/pages/help.html:368
 msgid ""
 "Open an authentication (<abbr title=\"time-based one-time password\">TOTP</"
 "abbr>) application"
 msgstr ""
 
-#: warehouse/templates/pages/help.html:367
+#: warehouse/templates/pages/help.html:369
 msgid ""
 "Log in to your PyPI account, go to your account settings, and choose \"Add "
 "<abbr title=\"two factor authentication\">2FA</abbr> with authentication "
 "application\""
 msgstr ""
 
-#: warehouse/templates/pages/help.html:368
+#: warehouse/templates/pages/help.html:370
 msgid ""
 "PyPI will generate a secret key, specific to your account. This is displayed "
 "as a QR code, and as a text code."
 msgstr ""
 
-#: warehouse/templates/pages/help.html:369
+#: warehouse/templates/pages/help.html:371
 msgid ""
 "Scan the QR code with your authentication application, or type it in "
 "manually. The method of input will depend on the application you have chosen."
 msgstr ""
 
-#: warehouse/templates/pages/help.html:370
+#: warehouse/templates/pages/help.html:372
 msgid ""
 "Your application will generate an authentication code - use this to verify "
 "your set up on PyPI"
 msgstr ""
 
-#: warehouse/templates/pages/help.html:373
+#: warehouse/templates/pages/help.html:375
 msgid ""
 "The PyPI server and your application now share your PyPI secret key, "
 "allowing your application to generate valid authentication codes for your "
 "PyPI account."
 msgstr ""
 
-#: warehouse/templates/pages/help.html:375
-#: warehouse/templates/pages/help.html:417
+#: warehouse/templates/pages/help.html:377
+#: warehouse/templates/pages/help.html:419
 msgid "Next time you log in to PyPI you'll need to:"
 msgstr ""
 
-#: warehouse/templates/pages/help.html:377
-#: warehouse/templates/pages/help.html:469
+#: warehouse/templates/pages/help.html:379
+#: warehouse/templates/pages/help.html:471
 msgid "Provide your username and password, as normal"
 msgstr ""
 
-#: warehouse/templates/pages/help.html:378
+#: warehouse/templates/pages/help.html:380
 msgid "Open your authentication application to generate an authentication code"
 msgstr ""
 
-#: warehouse/templates/pages/help.html:379
+#: warehouse/templates/pages/help.html:381
 msgid "Use this code to finish logging into PyPI"
 msgstr ""
 
-#: warehouse/templates/pages/help.html:385
+#: warehouse/templates/pages/help.html:387
 msgid ""
 "A security device is a USB key or <a href=\"#utfdevices\">other device</a> "
 "that generates a one-time password and sends that password to the browser. "
 "This password is then used by PyPI to authenticate you as a user."
 msgstr ""
 
-#: warehouse/templates/pages/help.html:387
+#: warehouse/templates/pages/help.html:389
 msgid ""
 "To set up two factor authentication with a <em>USB key</em>, you'll need:"
 msgstr ""
 
-#: warehouse/templates/pages/help.html:389
+#: warehouse/templates/pages/help.html:391
 #, python-format
 msgid ""
 "To use a <a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel="
@@ -4894,18 +6265,18 @@ msgid ""
 "implemented by PyPI."
 msgstr ""
 
-#: warehouse/templates/pages/help.html:390
+#: warehouse/templates/pages/help.html:392
 msgid "To be running JavaScript on your browser"
 msgstr ""
 
-#: warehouse/templates/pages/help.html:391
+#: warehouse/templates/pages/help.html:393
 #, python-format
 msgid ""
 "To use a USB key that adheres to the <a href=\"%(href)s\" title=\"%(title)s"
 "\" target=\"_blank\" rel=\"noopener\">FIDO U2F specification</a>:"
 msgstr ""
 
-#: warehouse/templates/pages/help.html:394
+#: warehouse/templates/pages/help.html:396
 #, python-format
 msgid ""
 "Popular keys include <a href=\"%(yubikey_href)s\" title=\"%(title)s\" target="
@@ -4915,17 +6286,17 @@ msgid ""
 "\">Thetis</a>."
 msgstr ""
 
-#: warehouse/templates/pages/help.html:401
+#: warehouse/templates/pages/help.html:403
 msgid ""
 "Note that some older Yubico USB keys <strong>do not follow the FIDO "
 "specification</strong>, and will therefore not work with PyPI"
 msgstr ""
 
-#: warehouse/templates/pages/help.html:406
+#: warehouse/templates/pages/help.html:408
 msgid "Follow these steps:"
 msgstr ""
 
-#: warehouse/templates/pages/help.html:408
+#: warehouse/templates/pages/help.html:410
 msgid ""
 "\n"
 "          <li>Log in to your PyPI account, go to your account settings, and "
@@ -4939,13 +6310,13 @@ msgid ""
 "          "
 msgstr ""
 
-#: warehouse/templates/pages/help.html:415
+#: warehouse/templates/pages/help.html:417
 msgid ""
 "Once complete, your USB key will be registered to your PyPI account and can "
 "be used during the log in process."
 msgstr ""
 
-#: warehouse/templates/pages/help.html:419
+#: warehouse/templates/pages/help.html:421
 msgid ""
 "\n"
 "          <li>Provide your username and password, as normal</li>\n"
@@ -4954,7 +6325,7 @@ msgid ""
 "          "
 msgstr ""
 
-#: warehouse/templates/pages/help.html:430
+#: warehouse/templates/pages/help.html:432
 #, python-format
 msgid ""
 "There is a growing ecosystem of <a href=\"%(href)s\" title=\"%(title)s\" "
@@ -4962,7 +6333,7 @@ msgid ""
 "can therefore be used with PyPI."
 msgstr ""
 
-#: warehouse/templates/pages/help.html:435
+#: warehouse/templates/pages/help.html:437
 #, python-format
 msgid ""
 "Emerging solutions include biometric (facial and fingerprint) scanners and "
@@ -4971,7 +6342,7 @@ msgid ""
 "phones to act as security devices</a>."
 msgstr ""
 
-#: warehouse/templates/pages/help.html:441
+#: warehouse/templates/pages/help.html:443
 #, python-format
 msgid ""
 "As PyPI's two factor implementation follows the <a href=\"%(href)s\" title="
@@ -4980,14 +6351,14 @@ msgid ""
 "take advantage of any future developments in this field."
 msgstr ""
 
-#: warehouse/templates/pages/help.html:450
+#: warehouse/templates/pages/help.html:452
 msgid ""
 "If you lose access to your <a href=\"#totp\">authentication application</a> "
 "or <a href=\"#utfkey\">security device</a>, you can use these codes to sign "
 "into PyPI."
 msgstr ""
 
-#: warehouse/templates/pages/help.html:453
+#: warehouse/templates/pages/help.html:455
 msgid ""
 "Recovery codes are <strong>one time use</strong>. They are not a substitute "
 "for a <a href=\"#totp\">authentication application</a> or <a href=\"#utfkey"
@@ -4995,52 +6366,52 @@ msgid ""
 "recovery code to sign in, it becomes inactive."
 msgstr ""
 
-#: warehouse/templates/pages/help.html:459
+#: warehouse/templates/pages/help.html:461
 msgid "To provision recovery codes:"
 msgstr ""
 
-#: warehouse/templates/pages/help.html:461
+#: warehouse/templates/pages/help.html:463
 msgid ""
 "Log in to your PyPI account, go to your account settings, and choose "
 "\"Generate recovery codes\""
 msgstr ""
 
-#: warehouse/templates/pages/help.html:462
+#: warehouse/templates/pages/help.html:464
 msgid ""
 "Securely store the displayed recovery codes! Consider printing them out and "
 "storing them in a safe location or saving them in a password manager."
 msgstr ""
 
-#: warehouse/templates/pages/help.html:465
+#: warehouse/templates/pages/help.html:467
 msgid ""
 "If you lose access to your stored recovery codes or use all of them, you can "
 "get new ones by selecting \"Regenerate recovery codes\" in your account "
 "settings."
 msgstr ""
 
-#: warehouse/templates/pages/help.html:467
+#: warehouse/templates/pages/help.html:469
 msgid "To sign in with a recovery code:"
 msgstr ""
 
-#: warehouse/templates/pages/help.html:470
+#: warehouse/templates/pages/help.html:472
 msgid ""
 "When prompted for two factor authentication, select \"Login using recovery "
 "codes\""
 msgstr ""
 
-#: warehouse/templates/pages/help.html:471
+#: warehouse/templates/pages/help.html:473
 msgid ""
 "As each code can be used only once, you might want to mark the code as used"
 msgstr ""
 
-#: warehouse/templates/pages/help.html:472
+#: warehouse/templates/pages/help.html:474
 msgid ""
 "If you have few recovery codes remaining, you may also want to generate a "
 "new set using the \"Regenerate recovery codes\" button in your account "
 "settings."
 msgstr ""
 
-#: warehouse/templates/pages/help.html:477
+#: warehouse/templates/pages/help.html:479
 msgid ""
 "\n"
 "          <p>API tokens provide an alternative way (instead of username and "
@@ -5055,40 +6426,40 @@ msgid ""
 "        "
 msgstr ""
 
-#: warehouse/templates/pages/help.html:484
+#: warehouse/templates/pages/help.html:486
 msgid "To make an API token:"
 msgstr ""
 
-#: warehouse/templates/pages/help.html:487
+#: warehouse/templates/pages/help.html:489
 msgid "Verify your email address"
 msgstr ""
 
-#: warehouse/templates/pages/help.html:487
+#: warehouse/templates/pages/help.html:489
 #, python-format
 msgid "(check your <a href=\"%(href)s\">account settings</a>)"
 msgstr ""
 
-#: warehouse/templates/pages/help.html:488
+#: warehouse/templates/pages/help.html:490
 #, python-format
 msgid ""
 "In your <a href=\"%(href)s\">account settings</a>, go to the API tokens "
 "section and select \"Add API token\""
 msgstr ""
 
-#: warehouse/templates/pages/help.html:491
+#: warehouse/templates/pages/help.html:493
 msgid "To use an API token:"
 msgstr ""
 
-#: warehouse/templates/pages/help.html:494
+#: warehouse/templates/pages/help.html:496
 msgid "Set your username to <code>__token__</code>"
 msgstr ""
 
-#: warehouse/templates/pages/help.html:495
+#: warehouse/templates/pages/help.html:497
 msgid ""
 "Set your password to the token value, including the <code>pypi-</code> prefix"
 msgstr ""
 
-#: warehouse/templates/pages/help.html:499
+#: warehouse/templates/pages/help.html:501
 #, python-format
 msgid ""
 "Where you edit or add these values will depend on your individual use case. "
@@ -5099,13 +6470,13 @@ msgid ""
 "\"noopener\"><code>.travis.yml</code> if you are using Travis</a>)."
 msgstr ""
 
-#: warehouse/templates/pages/help.html:503
+#: warehouse/templates/pages/help.html:505
 msgid ""
 "Advanced users may wish to inspect their token by decoding it with base64, "
 "and checking the output against the unique identifier displayed on PyPI."
 msgstr ""
 
-#: warehouse/templates/pages/help.html:507
+#: warehouse/templates/pages/help.html:509
 msgid ""
 "\n"
 "          <p>PyPI asks you to confirm your password before you want to "
@@ -5119,15 +6490,15 @@ msgid ""
 "        "
 msgstr ""
 
-#: warehouse/templates/pages/help.html:519
+#: warehouse/templates/pages/help.html:521
 msgid "Yes, including RSS feeds of new packages and new releases."
 msgstr ""
 
-#: warehouse/templates/pages/help.html:519
+#: warehouse/templates/pages/help.html:521
 msgid "See the API reference."
 msgstr ""
 
-#: warehouse/templates/pages/help.html:522
+#: warehouse/templates/pages/help.html:524
 #, python-format
 msgid ""
 "If you need to run your own mirror of PyPI, the <a href=\"%(href)s"
@@ -5135,7 +6506,7 @@ msgid ""
 "storage requirements for a PyPI mirror would exceed 1 terabyte—and growing!"
 msgstr ""
 
-#: warehouse/templates/pages/help.html:525
+#: warehouse/templates/pages/help.html:527
 #, python-format
 msgid ""
 "You can subscribe to the <a href=\"%(rss_href)s\" title=\"%(title)s\" target="
@@ -5146,7 +6517,7 @@ msgid ""
 "apps</a>."
 msgstr ""
 
-#: warehouse/templates/pages/help.html:528
+#: warehouse/templates/pages/help.html:530
 #, python-format
 msgid ""
 "You can analyze PyPI project/package metadata and <a href=\"%(href)s\" title="
@@ -5154,7 +6525,7 @@ msgid ""
 "a> via our public dataset on Google BigQuery."
 msgstr ""
 
-#: warehouse/templates/pages/help.html:530
+#: warehouse/templates/pages/help.html:532
 #, python-format
 msgid ""
 "<a href=\"%(libs_io_href)s\" title=\"%(title)s\" target=\"_blank\" rel="
@@ -5168,14 +6539,14 @@ msgid ""
 "\"noopener\">other relevant factors</a>."
 msgstr ""
 
-#: warehouse/templates/pages/help.html:539
+#: warehouse/templates/pages/help.html:541
 #, python-format
 msgid ""
 "For recent statistics on uptime and performance, see <a href=\"%(href)s\" "
 "title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">our status page</a>."
 msgstr ""
 
-#: warehouse/templates/pages/help.html:546
+#: warehouse/templates/pages/help.html:548
 #, python-format
 msgid ""
 "PyPI does not support publishing private packages. If you need to publish "
@@ -5183,15 +6554,15 @@ msgid ""
 "your own deployment of the <a href=\"%(href)s\">devpi project</a>."
 msgstr ""
 
-#: warehouse/templates/pages/help.html:549
+#: warehouse/templates/pages/help.html:551
 msgid ""
 "Your publishing tool may return an error that your new project can't be "
 "created with your desired name, despite no evidence of a project or release "
-"of the same name on PyPI. Currently, there are three primary reasons this "
-"may occur:"
+"of the same name on PyPI. Currently, there are four primary reasons this may "
+"occur:"
 msgstr ""
 
-#: warehouse/templates/pages/help.html:551
+#: warehouse/templates/pages/help.html:553
 #, python-format
 msgid ""
 "The project name conflicts with a <a href=\"%(href)s\" title=\"%(title)s\" "
@@ -5199,12 +6570,12 @@ msgid ""
 "any major version from 2.5 to present."
 msgstr ""
 
-#: warehouse/templates/pages/help.html:552
+#: warehouse/templates/pages/help.html:554
 msgid ""
 "The project name is too similar to an existing project and may be confusable."
 msgstr ""
 
-#: warehouse/templates/pages/help.html:553
+#: warehouse/templates/pages/help.html:555
 #, python-format
 msgid ""
 "The project name has been explicitly prohibited by the PyPI administrators. "
@@ -5213,13 +6584,19 @@ msgid ""
 "package."
 msgstr ""
 
-#: warehouse/templates/pages/help.html:554
+#: warehouse/templates/pages/help.html:556
 msgid ""
 "The project name has been registered by another user, but no releases have "
 "been created."
 msgstr ""
 
-#: warehouse/templates/pages/help.html:558
+#: warehouse/templates/pages/help.html:556
+#, fuzzy, python-format
+#| msgid "Or <a href=\"%(href)s\">browse projects</a>"
+msgid "See <a href=\"%(href)s\">%(anchor_text)s</a>"
+msgstr "یا <a href=\"%(href)s\"> مرور پروژه ها </a>"
+
+#: warehouse/templates/pages/help.html:560
 #, python-format
 msgid ""
 "Follow the <a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel="
@@ -5227,23 +6604,23 @@ msgid ""
 "\"Python enhancement proposal\">PEP</abbr> 541."
 msgstr ""
 
-#: warehouse/templates/pages/help.html:562
+#: warehouse/templates/pages/help.html:564
 msgid ""
 "Can upload releases for a package. Cannot add collaborators. Cannot delete "
 "files, releases, or the project."
 msgstr ""
 
-#: warehouse/templates/pages/help.html:563
+#: warehouse/templates/pages/help.html:565
 msgid "Owner:"
 msgstr ""
 
-#: warehouse/templates/pages/help.html:563
+#: warehouse/templates/pages/help.html:565
 msgid ""
 "Can upload releases. Can add other collaborators. Can delete files, "
 "releases, or the entire project."
 msgstr ""
 
-#: warehouse/templates/pages/help.html:566
+#: warehouse/templates/pages/help.html:568
 msgid ""
 "Only the current owners of a project have the ability to add new owners or "
 "maintainers. If you need to request ownership, you should contact the "
@@ -5252,13 +6629,13 @@ msgid ""
 "page."
 msgstr ""
 
-#: warehouse/templates/pages/help.html:567
+#: warehouse/templates/pages/help.html:569
 #, python-format
 msgid ""
 "If the owner is unresponsive, see <a href=\"%(href)s\">%(anchor_text)s</a>"
 msgstr ""
 
-#: warehouse/templates/pages/help.html:570
+#: warehouse/templates/pages/help.html:572
 #, python-format
 msgid ""
 "By default, an upload's description will render with <a href=\"%(href)s\" "
@@ -5268,7 +6645,7 @@ msgid ""
 "to the alternate format."
 msgstr ""
 
-#: warehouse/templates/pages/help.html:571
+#: warehouse/templates/pages/help.html:573
 #, python-format
 msgid ""
 "Refer to the <a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel="
@@ -5276,7 +6653,7 @@ msgid ""
 "formats."
 msgstr ""
 
-#: warehouse/templates/pages/help.html:576
+#: warehouse/templates/pages/help.html:578
 #, python-format
 msgid ""
 "If you can't upload your project's release to PyPI because you're hitting "
@@ -5288,35 +6665,35 @@ msgid ""
 "\"_blank\" rel=\"noopener\">file an issue</a> and tell us:"
 msgstr ""
 
-#: warehouse/templates/pages/help.html:585
-#: warehouse/templates/pages/help.html:606
+#: warehouse/templates/pages/help.html:587
+#: warehouse/templates/pages/help.html:608
 msgid "A link to your project on PyPI (or Test PyPI)"
 msgstr ""
 
-#: warehouse/templates/pages/help.html:586
+#: warehouse/templates/pages/help.html:588
 msgid "The size of your release, in megabytes"
 msgstr ""
 
-#: warehouse/templates/pages/help.html:587
+#: warehouse/templates/pages/help.html:589
 msgid ""
 "Which index/indexes you need the increase for (PyPI, Test PyPI, or both)"
 msgstr ""
 
-#: warehouse/templates/pages/help.html:588
-#: warehouse/templates/pages/help.html:608
+#: warehouse/templates/pages/help.html:590
+#: warehouse/templates/pages/help.html:610
 msgid ""
 "A brief description of your project, including the reason for the additional "
 "size."
 msgstr ""
 
-#: warehouse/templates/pages/help.html:594
+#: warehouse/templates/pages/help.html:596
 msgid ""
 "If you can't upload your project's release to PyPI because you're hitting "
 "the project size limit, first remove any unnecessary releases or individual "
 "files to lower your overall project size."
 msgstr ""
 
-#: warehouse/templates/pages/help.html:601
+#: warehouse/templates/pages/help.html:603
 #, python-format
 msgid ""
 "If that is not possible, we can sometimes increase your limit. <a href="
@@ -5324,11 +6701,11 @@ msgid ""
 "\">File an issue</a> and tell us:"
 msgstr ""
 
-#: warehouse/templates/pages/help.html:607
+#: warehouse/templates/pages/help.html:609
 msgid "The total size of your project, in gigabytes"
 msgstr ""
 
-#: warehouse/templates/pages/help.html:614
+#: warehouse/templates/pages/help.html:616
 #, fuzzy, python-format
 #| msgid ""
 #| "Consider <a href=\"%(yank_href)s\" title=\"%(title)s\" target=\"_blank\" "
@@ -5342,12 +6719,12 @@ msgid ""
 "vulnerabilities from the <a href=\"%(vulns_href)s\" title=\"%(title)s\" "
 "target=\"_blank\" rel=\"noopener\">Python Packaging Advisory Database</a>."
 msgstr ""
-"در نظر بگیرید <a href=\"%(yank_href)s\" title=\"%(title)s\" target=\"_blank"
-"\" rel=\"noopener\">یانک</a> این نسخه ، ایجاد یک نسخه جدید یا یک <a href="
-"\"%(post_href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener\"> "
-"نسخه منتشر شده </a> به جای آن."
+"در نظر بگیرید <a href=\"%(yank_href)s\" title=\"%(title)s\" target=\"_blank\""
+" rel=\"noopener\">یانک</a> این نسخه ، ایجاد یک نسخه جدید یا یک <a href=\""
+"%(post_href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener\"> نسخه "
+"منتشر شده </a> به جای آن."
 
-#: warehouse/templates/pages/help.html:619
+#: warehouse/templates/pages/help.html:621
 #, fuzzy, python-format
 #| msgid ""
 #| "For more information on uploading projects to PyPI, visit the <a href="
@@ -5358,12 +6735,12 @@ msgid ""
 "<a href=\"%(file_issue_href)s\" title=\"%(title)s\" target=\"_blank\" rel="
 "\"noopener\">file an issue</a> with details."
 msgstr ""
-"برای کسب اطلاعات بیشتر در مورد بارگذاری پروژه ها در PyPI ، از <a href="
-"\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener\"> "
-"%(title)s \"target =\" _ blank \"rel =\" noopener \"> راهنمای کاربر بسته "
-"بندی پایتون </a> بازدید کنید."
+"برای کسب اطلاعات بیشتر در مورد بارگذاری پروژه ها در PyPI ، از <a href=\""
+"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener\"> %(title)s "
+"\"target =\" _ blank \"rel =\" noopener \"> راهنمای کاربر بسته بندی پایتون </"
+"a> بازدید کنید."
 
-#: warehouse/templates/pages/help.html:631
+#: warehouse/templates/pages/help.html:633
 #, python-format
 msgid ""
 "PyPI will reject uploads if the package description fails to render. You may "
@@ -5371,41 +6748,41 @@ msgid ""
 "locally check a description for validity."
 msgstr ""
 
-#: warehouse/templates/pages/help.html:637
+#: warehouse/templates/pages/help.html:639
 msgid ""
 "If you've forgotten your PyPI password but you remember your email address "
 "or username, follow these steps to reset your password:"
 msgstr ""
 
-#: warehouse/templates/pages/help.html:639
+#: warehouse/templates/pages/help.html:641
 #, python-format
 msgid "Go to <a href=\"%(href)s\">reset your password</a>."
 msgstr ""
 
-#: warehouse/templates/pages/help.html:640
+#: warehouse/templates/pages/help.html:642
 msgid ""
 "Enter the email address or username you used for PyPI and submit the form."
 msgstr ""
 
-#: warehouse/templates/pages/help.html:641
+#: warehouse/templates/pages/help.html:643
 msgid "You'll receive an email with a password reset link."
 msgstr ""
 
-#: warehouse/templates/pages/help.html:646
+#: warehouse/templates/pages/help.html:648
 msgid "If you've lost access to your PyPI account due to:"
 msgstr ""
 
-#: warehouse/templates/pages/help.html:648
+#: warehouse/templates/pages/help.html:650
 msgid "Lost access to the email address associated with your account"
 msgstr ""
 
-#: warehouse/templates/pages/help.html:649
+#: warehouse/templates/pages/help.html:651
 msgid ""
 "Lost two factor authentication <a href=\"#totp\">application</a>, <a href="
 "\"#utfkey\">device</a>, and <a href=\"#recoverycodes\">recovery codes</a>"
 msgstr ""
 
-#: warehouse/templates/pages/help.html:652
+#: warehouse/templates/pages/help.html:654
 #, python-format
 msgid ""
 "You can proceed to <a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank"
@@ -5413,41 +6790,41 @@ msgid ""
 "with account recovery."
 msgstr ""
 
-#: warehouse/templates/pages/help.html:659
+#: warehouse/templates/pages/help.html:661
 msgid "If you are using a username and password for uploads:"
 msgstr ""
 
-#: warehouse/templates/pages/help.html:661
+#: warehouse/templates/pages/help.html:663
 msgid "Ensure that your username and password are correct."
 msgstr ""
 
-#: warehouse/templates/pages/help.html:662
+#: warehouse/templates/pages/help.html:664
 msgid ""
 "Ensure that your username and password do not contain any trailing "
 "characters such as newlines."
 msgstr ""
 
-#: warehouse/templates/pages/help.html:664
+#: warehouse/templates/pages/help.html:666
 msgid "If you are using an <a href=\"#apitoken\">API Token</a> for uploads:"
 msgstr ""
 
-#: warehouse/templates/pages/help.html:666
+#: warehouse/templates/pages/help.html:668
 msgid "Ensure that your API Token is valid and has not been revoked."
 msgstr ""
 
-#: warehouse/templates/pages/help.html:667
+#: warehouse/templates/pages/help.html:669
 msgid ""
 "Ensure that your API Token is <a href=\"#apitoken\">properly formatted</a> "
 "and does not contain any trailing characters such as newlines."
 msgstr ""
 
-#: warehouse/templates/pages/help.html:669
+#: warehouse/templates/pages/help.html:671
 msgid ""
 "In both cases, remember that PyPI and TestPyPI each require you to create an "
 "account, so your credentials may be different."
 msgstr ""
 
-#: warehouse/templates/pages/help.html:671
+#: warehouse/templates/pages/help.html:673
 msgid ""
 "\n"
 "            If you're using Windows and trying to paste your password or "
@@ -5458,14 +6835,14 @@ msgid ""
 "          "
 msgstr ""
 
-#: warehouse/templates/pages/help.html:675
+#: warehouse/templates/pages/help.html:677
 #, python-format
 msgid ""
 "This is a <a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel="
 "\"noopener\">known issue</a> with Python's <code>getpass</code> module."
 msgstr ""
 
-#: warehouse/templates/pages/help.html:682
+#: warehouse/templates/pages/help.html:684
 #, python-format
 msgid ""
 "Transport Layer Security, or TLS, is part of how we make sure connections "
@@ -5477,7 +6854,7 @@ msgid ""
 "\"noopener\">Learn why on the PSF blog</a>."
 msgstr ""
 
-#: warehouse/templates/pages/help.html:689
+#: warehouse/templates/pages/help.html:691
 #, python-format
 msgid ""
 "If you are having trouble with <code>%(command)s</code> and get a <code>No "
@@ -5485,7 +6862,7 @@ msgid ""
 "error, try adding <code>-v</code> to the command to get more information:"
 msgstr ""
 
-#: warehouse/templates/pages/help.html:691
+#: warehouse/templates/pages/help.html:693
 msgid ""
 "If you see an error like <code>There was a problem confirming the ssl "
 "certificate</code> or <code>tlsv1 alert protocol version</code> or "
@@ -5493,7 +6870,7 @@ msgid ""
 "with a newer TLS support library."
 msgstr ""
 
-#: warehouse/templates/pages/help.html:692
+#: warehouse/templates/pages/help.html:694
 msgid ""
 "The specific steps you need to take will depend on your operating system "
 "version, where your installation of Python originated (python.org, your OS "
@@ -5501,7 +6878,7 @@ msgid ""
 "Python, <code>setuptools</code>, and <code>pip</code>."
 msgstr ""
 
-#: warehouse/templates/pages/help.html:694
+#: warehouse/templates/pages/help.html:696
 #, python-format
 msgid ""
 "For help, go to <a href=\"%(irc_href)s\" title=\"%(title)s\" target=\"_blank"
@@ -5513,7 +6890,7 @@ msgid ""
 "and the output of <code>%(command)s</code>."
 msgstr ""
 
-#: warehouse/templates/pages/help.html:705
+#: warehouse/templates/pages/help.html:707
 #, python-format
 msgid ""
 "We take <a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel="
@@ -5521,7 +6898,7 @@ msgid ""
 "easy to use for everyone."
 msgstr ""
 
-#: warehouse/templates/pages/help.html:710
+#: warehouse/templates/pages/help.html:712
 #, python-format
 msgid ""
 "If you are experiencing an accessibility problem, <a href=\"%(href)s\" title="
@@ -5529,7 +6906,7 @@ msgid ""
 "a>, so we can try to fix the problem, for you and others."
 msgstr ""
 
-#: warehouse/templates/pages/help.html:718
+#: warehouse/templates/pages/help.html:720
 #, python-format
 msgid ""
 "In a previous version of PyPI, it used to be possible for maintainers to "
@@ -5539,7 +6916,7 @@ msgid ""
 "twine to upload your project to PyPI</a>."
 msgstr ""
 
-#: warehouse/templates/pages/help.html:727
+#: warehouse/templates/pages/help.html:729
 msgid ""
 "Spammers return to PyPI with some regularity hoping to place their Search "
 "Engine Optimized phishing, scam, and click-farming content on the site. "
@@ -5548,7 +6925,7 @@ msgid ""
 "prime target."
 msgstr ""
 
-#: warehouse/templates/pages/help.html:729
+#: warehouse/templates/pages/help.html:731
 #, python-format
 msgid ""
 "When the PyPI administrators are overwhelmed by spam <strong>or</strong> "
@@ -5559,29 +6936,29 @@ msgid ""
 "intervention."
 msgstr ""
 
-#: warehouse/templates/pages/help.html:738
+#: warehouse/templates/pages/help.html:740
 msgid "PyPI will return these errors for one of these reasons:"
 msgstr ""
 
-#: warehouse/templates/pages/help.html:740
+#: warehouse/templates/pages/help.html:742
 msgid "Filename has been used and file exists"
 msgstr ""
 
-#: warehouse/templates/pages/help.html:741
+#: warehouse/templates/pages/help.html:743
 msgid "Filename has been used but file no longer exists"
 msgstr ""
 
-#: warehouse/templates/pages/help.html:742
+#: warehouse/templates/pages/help.html:744
 msgid "A file with the exact same content exists"
 msgstr ""
 
-#: warehouse/templates/pages/help.html:744
+#: warehouse/templates/pages/help.html:746
 msgid ""
 "PyPI does not allow for a filename to be reused, even once a project has "
 "been deleted and recreated."
 msgstr ""
 
-#: warehouse/templates/pages/help.html:746
+#: warehouse/templates/pages/help.html:748
 #, python-format
 msgid ""
 "To avoid this situation, <a href=\"%(test_pypi_href)s\" title=\"%(title)s\" "
@@ -5589,7 +6966,7 @@ msgid ""
 "upload first</a>, before uploading to <a href=\"%(pypi_href)s\">pypi.org</a>."
 msgstr ""
 
-#: warehouse/templates/pages/help.html:753
+#: warehouse/templates/pages/help.html:755
 #, python-format
 msgid ""
 "If you would like to request a new trove classifier file a pull request on "
@@ -5598,7 +6975,7 @@ msgid ""
 "brief justification of why it is important."
 msgstr ""
 
-#: warehouse/templates/pages/help.html:761
+#: warehouse/templates/pages/help.html:763
 #, python-format
 msgid ""
 "If you're experiencing an issue with PyPI itself, we welcome "
@@ -5609,13 +6986,13 @@ msgid ""
 "similar issue does not already exist."
 msgstr ""
 
-#: warehouse/templates/pages/help.html:768
+#: warehouse/templates/pages/help.html:770
 msgid ""
 "If you are having an issue is with a specific package installed from PyPI, "
 "you should reach out to the maintainers of that project directly instead."
 msgstr ""
 
-#: warehouse/templates/pages/help.html:777
+#: warehouse/templates/pages/help.html:779
 #, python-format
 msgid ""
 "PyPI is powered by the Warehouse project; <a href=\"%(href)s\" title="
@@ -5625,7 +7002,7 @@ msgid ""
 "(PackagingWG)."
 msgstr ""
 
-#: warehouse/templates/pages/help.html:782
+#: warehouse/templates/pages/help.html:784
 #, python-format
 msgid ""
 "The <a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener"
@@ -5633,7 +7010,7 @@ msgid ""
 "and maintain many of the core projects related to Python packaging."
 msgstr ""
 
-#: warehouse/templates/pages/help.html:787
+#: warehouse/templates/pages/help.html:789
 #, python-format
 msgid ""
 "The <a href=\"%(packaging_wg_href)s\" title=\"%(title)s\" target=\"_blank\" "
@@ -5645,7 +7022,7 @@ msgid ""
 "enabling developers to improve Warehouse's security and accessibility."
 msgstr ""
 
-#: warehouse/templates/pages/help.html:797
+#: warehouse/templates/pages/help.html:799
 #, python-format
 msgid ""
 "PyPI is powered by <a href=\"%(warehouse_href)s\" title=\"%(title)s\" target="
@@ -5653,14 +7030,14 @@ msgid ""
 "services provided by our <a href=\"%(sponsors_href)s\">generous sponsors</a>."
 msgstr ""
 
-#: warehouse/templates/pages/help.html:804
+#: warehouse/templates/pages/help.html:806
 msgid ""
 "As of April 16, 2018, PyPI.org is at \"production\" status, meaning that it "
 "has moved out of beta and replaced the old site (pypi.python.org). It is now "
 "robust, tested, and ready for expected browser and API traffic."
 msgstr ""
 
-#: warehouse/templates/pages/help.html:806
+#: warehouse/templates/pages/help.html:808
 #, python-format
 msgid ""
 "PyPI is heavily cached and distributed via <abbr title=\"content delivery "
@@ -5676,7 +7053,7 @@ msgid ""
 "\"%(private_index_href)s\">private index</a>."
 msgstr ""
 
-#: warehouse/templates/pages/help.html:820
+#: warehouse/templates/pages/help.html:822
 #, python-format
 msgid ""
 "We have a huge amount of work to do to continue to maintain and improve PyPI "
@@ -5684,22 +7061,22 @@ msgid ""
 "rel=\"noopener\">the Warehouse project</a>)."
 msgstr ""
 
-#: warehouse/templates/pages/help.html:825
+#: warehouse/templates/pages/help.html:827
 msgid "Financial:"
 msgstr ""
 
-#: warehouse/templates/pages/help.html:825
+#: warehouse/templates/pages/help.html:827
 #, python-format
 msgid ""
 "We would deeply appreciate <a href=\"%(href)s\">your donations to fund "
 "development and maintenance</a>."
 msgstr ""
 
-#: warehouse/templates/pages/help.html:826
+#: warehouse/templates/pages/help.html:828
 msgid "Development:"
 msgstr ""
 
-#: warehouse/templates/pages/help.html:826
+#: warehouse/templates/pages/help.html:828
 msgid ""
 "Warehouse is open source, and we would love to see some new faces working on "
 "the project. You <strong>do not</strong> need to be an experienced open-"
@@ -5707,7 +7084,7 @@ msgid ""
 "make your first open source pull request!"
 msgstr ""
 
-#: warehouse/templates/pages/help.html:828
+#: warehouse/templates/pages/help.html:830
 #, python-format
 msgid ""
 "If you have skills in Python, ElasticSearch, HTML, SCSS, JavaScript, or "
@@ -5720,7 +7097,7 @@ msgid ""
 "start here."
 msgstr ""
 
-#: warehouse/templates/pages/help.html:836
+#: warehouse/templates/pages/help.html:838
 #, python-format
 msgid ""
 "Issues are grouped into <a href=\"%(href)s\" title=\"%(title)s\" target="
@@ -5730,21 +7107,27 @@ msgid ""
 "guide you through the contribution process."
 msgstr ""
 
-#: warehouse/templates/pages/help.html:843
+#: warehouse/templates/pages/help.html:845
 msgid "Stay updated:"
 msgstr ""
 
-#: warehouse/templates/pages/help.html:844
-#, python-format
+#: warehouse/templates/pages/help.html:846
+#, fuzzy, python-format
+#| msgid ""
+#| "For more information on uploading projects to PyPI, visit the <a href="
+#| "\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener"
+#| "\">Python Packaging User Guide</a>."
 msgid ""
 "You can also follow the ongoing development of the project on the <a href="
-"\"%(mailing_list_href)s\" title=\"%(title)s\" target=\"_blank\" rel="
-"\"noopener\">distutils-sig mailing list</a> and the <a href="
 "\"%(discourse_forum_href)s\" title=\"%(title)s\" target=\"_blank\" rel="
 "\"noopener\">Python packaging forum on Discourse</a>."
 msgstr ""
+"برای کسب اطلاعات بیشتر در مورد بارگذاری پروژه ها در PyPI ، از <a href=\""
+"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener\"> %(title)s "
+"\"target =\" _ blank \"rel =\" noopener \"> راهنمای کاربر بسته بندی پایتون </"
+"a> بازدید کنید."
 
-#: warehouse/templates/pages/help.html:854
+#: warehouse/templates/pages/help.html:855
 #, python-format
 msgid ""
 "Changes to PyPI are generally announced on both the <a href="
@@ -5757,18 +7140,38 @@ msgid ""
 "a> feeds for the \"pypi\" label."
 msgstr ""
 
-#: warehouse/templates/pages/help.html:864
+#: warehouse/templates/pages/help.html:865
+#, python-format
+msgid ""
+"All traffic is routed through our global CDN, which lists their public IP "
+"addresses here: <a href=\"%(href)s\">%(href)s</a>."
+msgstr ""
+
+#: warehouse/templates/pages/help.html:866
+#, fuzzy, python-format
+#| msgid ""
+#| "To regain access to your account, <a href=\"%(href)s\">reset your "
+#| "password</a> on PyPI."
+msgid ""
+"More information about this list can be found here: <a href=\"%(href)s\">"
+"%(href)s</a>."
+msgstr ""
+"برای دسترسی مجدد به حساب خود ، <a href=\"%(href)s\"> گذرواژه خود را </a> در "
+"PyPI تنظیم کنید."
+
+#: warehouse/templates/pages/help.html:867
+#: warehouse/templates/pages/help.html:871
+msgid "Currently, no features are in beta."
+msgstr ""
+
+#: warehouse/templates/pages/help.html:870
 msgid ""
 "When Warehouse's maintainers are deploying new features, at first we mark "
 "them with a small \"beta feature\" symbol to tell you: this should probably "
 "work fine, but it's new and less tested than other site functionality."
 msgstr ""
 
-#: warehouse/templates/pages/help.html:865
-msgid "Currently, no features are in beta."
-msgstr ""
-
-#: warehouse/templates/pages/help.html:869
+#: warehouse/templates/pages/help.html:875
 #, python-format
 msgid ""
 "\"PyPI\" should be pronounced like \"pie pea eye\", specifically with the "
@@ -5778,39 +7181,39 @@ msgid ""
 "language."
 msgstr ""
 
-#: warehouse/templates/pages/help.html:881
+#: warehouse/templates/pages/help.html:887
 msgid "Resources"
 msgstr ""
 
-#: warehouse/templates/pages/help.html:882
+#: warehouse/templates/pages/help.html:888
 msgid "Looking for something else? Perhaps these links will help:"
 msgstr ""
 
-#: warehouse/templates/pages/help.html:884
+#: warehouse/templates/pages/help.html:890
 msgid "Python Packaging User Guide"
 msgstr ""
 
-#: warehouse/templates/pages/help.html:885
+#: warehouse/templates/pages/help.html:891
 msgid "Python documentation"
 msgstr ""
 
-#: warehouse/templates/pages/help.html:886
+#: warehouse/templates/pages/help.html:892
 msgid "(main Python website)"
 msgstr ""
 
-#: warehouse/templates/pages/help.html:887
+#: warehouse/templates/pages/help.html:893
 msgid "Python community page"
 msgstr ""
 
-#: warehouse/templates/pages/help.html:887
+#: warehouse/templates/pages/help.html:893
 msgid "(lists IRC channels, mailing lists, etc.)"
 msgstr ""
 
-#: warehouse/templates/pages/help.html:890
+#: warehouse/templates/pages/help.html:896
 msgid "Contact"
 msgstr ""
 
-#: warehouse/templates/pages/help.html:892
+#: warehouse/templates/pages/help.html:898
 #, python-format
 msgid ""
 "The <a href=\"%(pypa_href)s\" title=\"%(title)s\" target=\"_blank\" rel="
@@ -5842,9 +7245,8 @@ msgstr ""
 
 #: warehouse/templates/pages/security.html:24
 msgid ""
-"If you believe you've identified a security issue with Warehouse, <strong>DO "
-"NOT</strong> report the issue in any public forum, including (but not "
-"limited to):"
+"If you believe you've identified a security issue with PyPI, <strong>DO NOT</"
+"strong> report the issue in any public forum, including (but not limited to):"
 msgstr ""
 
 #: warehouse/templates/pages/security.html:27
@@ -5860,38 +7262,68 @@ msgid "Official or unofficial mailing lists"
 msgstr ""
 
 #: warehouse/templates/pages/security.html:35
-#, python-format
-msgid ""
-"Instead, email <a href=\"%(href)s\">security at python dot org</a> directly, "
-"providing as much relevant information as possible."
+msgid "If you've identified a security issue with a project hosted on PyPI"
 msgstr ""
 
 #: warehouse/templates/pages/security.html:36
 #, python-format
 msgid ""
-"Messages may be optionally encrypted with GPG using key fingerprints "
-"available <a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel="
-"\"noopener\">at the Python Security page</a>."
+"Email <a href=\"%(href)s\">security@pypi.org</a>, providing the following "
+"details:"
 msgstr ""
 
 #: warehouse/templates/pages/security.html:38
-msgid "What happens next?"
+msgid "A URL to the project in question"
+msgstr ""
+
+#: warehouse/templates/pages/security.html:39
+msgid "An explanation of what makes the project a security issue"
 msgstr ""
 
 #: warehouse/templates/pages/security.html:40
+#, python-format
+msgid ""
+"If applicable: a link to the problematic lines in the project's "
+"distributions via <a href=\"%(href)s\">inspector.pypi.io</a>"
+msgstr ""
+
+#: warehouse/templates/pages/security.html:42
+msgid ""
+"Valid malware reports may include examples of typo-squatting, dependency "
+"confusion, data exfiltration, obfustication, command/control, etc."
+msgstr ""
+
+#: warehouse/templates/pages/security.html:44
+msgid ""
+"If you've identified a security issue with PyPI itself (not a project hosted "
+"on PyPI)"
+msgstr ""
+
+#: warehouse/templates/pages/security.html:45
+#, python-format
+msgid ""
+"Email <a href=\"%(href)s\">security@pypi.org</a>, providing as much relevant "
+"information as possible, including reproducing steps."
+msgstr ""
+
+#: warehouse/templates/pages/security.html:47
+msgid "What happens next?"
+msgstr ""
+
+#: warehouse/templates/pages/security.html:48
 msgid ""
 "Once you've submitted an issue via email, you should receive an "
 "acknowledgment within 48 hours."
 msgstr ""
 
-#: warehouse/templates/pages/security.html:41
+#: warehouse/templates/pages/security.html:49
 msgid ""
 "Depending on the action to be taken, you may receive further follow-up "
 "emails."
 msgstr ""
 
-#: warehouse/templates/pages/security.html:44
-msgid "This security policy was last updated on March 14, 2018."
+#: warehouse/templates/pages/security.html:52
+msgid "This security policy was last updated on June 2022."
 msgstr ""
 
 #: warehouse/templates/pages/sitemap.html:21

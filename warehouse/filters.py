@@ -12,6 +12,7 @@
 
 import binascii
 import collections
+import datetime
 import enum
 import hmac
 import json
@@ -154,6 +155,12 @@ def parse_version(version_str):
 
 def localize_datetime(timestamp):
     return pytz.utc.localize(timestamp)
+
+
+def is_recent(timestamp):
+    if timestamp:
+        return timestamp + datetime.timedelta(days=30) > datetime.datetime.now()
+    return False
 
 
 def includeme(config):

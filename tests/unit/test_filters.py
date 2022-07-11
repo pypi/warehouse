@@ -208,3 +208,22 @@ def test_parse_version(inp, expected):
 def test_localize_datetime(inp, expected):
     datetime_format = "%Y-%m-%d %H:%M:%S.%f %Z"
     assert filters.localize_datetime(inp).strftime(datetime_format) == expected
+
+
+@pytest.mark.parametrize(
+    "delta, expected",
+    [
+        (datetime.timedelta(days=31), False),
+        (datetime.timedelta(days=30), False),
+        (datetime.timedelta(days=29), True),
+        (datetime.timedelta(), True),
+        (datetime.timedelta(days=-1), True),
+    ],
+)
+def test_is_recent(delta, expected):
+    timestamp = datetime.datetime.now() - delta
+    assert filters.is_recent(timestamp) == expected
+
+
+def test_is_recent_none():
+    assert filters.is_recent(None) is False

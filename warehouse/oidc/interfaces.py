@@ -13,6 +13,8 @@
 
 from zope.interface import Interface
 
+from warehouse.rate_limiting.interfaces import RateLimiterException
+
 
 class IOIDCProviderService(Interface):
     def get_key(key_id):
@@ -26,7 +28,24 @@ class IOIDCProviderService(Interface):
         """
         pass
 
-    def verify(token):
+    def verify_signature_only(token):
         """
-        Verify the given JWT.
+        Verify the given JWT's signature and basic claims, returning
+        the decoded JWT, or `None` if invalid.
+
+        This function **does not** verify the token's suitability
+        for a particular action; subsequent checks on the decoded token's
+        third party claims must be done to ensure that.
         """
+
+    def verify_for_project(token, project):
+        """
+        Verify the given JWT's signature and basic claims in the same
+        manner as `verify_signature_only`, but *also* verify that the JWT's
+        claims are consistent with at least one of the project's registered
+        OIDC providers.
+        """
+
+
+class TooManyOIDCRegistrations(RateLimiterException):
+    pass

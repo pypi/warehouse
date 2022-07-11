@@ -20,6 +20,26 @@ def includeme(config):
     # General Admin pages
     config.add_route("admin.dashboard", "/admin/", domain=warehouse)
 
+    # Organization related Admin pages
+    config.add_route(
+        "admin.organization.list", "/admin/organizations/", domain=warehouse
+    )
+    config.add_route(
+        "admin.organization.detail",
+        "/admin/organizations/{organization_id}/",
+        domain=warehouse,
+    )
+    config.add_route(
+        "admin.organization.approve",
+        "/admin/organizations/{organization_id}/approve/",
+        domain=warehouse,
+    )
+    config.add_route(
+        "admin.organization.decline",
+        "/admin/organizations/{organization_id}/decline/",
+        domain=warehouse,
+    )
+
     # User related Admin pages
     config.add_route("admin.user.list", "/admin/users/", domain=warehouse)
     config.add_route("admin.user.detail", "/admin/users/{user_id}/", domain=warehouse)
@@ -32,6 +52,11 @@ def includeme(config):
     config.add_route(
         "admin.user.reset_password",
         "/admin/users/{user_id}/reset_password/",
+        domain=warehouse,
+    )
+    config.add_route(
+        "admin.prohibited_user_names.bulk_add",
+        "/admin/prohibited_user_names/bulk/",
         domain=warehouse,
     )
 

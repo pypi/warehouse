@@ -102,18 +102,16 @@ class TestUser:
 
     def test_recent_events(self, db_session):
         user = DBUserFactory.create()
-        recent_event = DBUserEventFactory(user=user, tag="foo", ip_address="0.0.0.0")
+        recent_event = DBUserEventFactory(source=user, tag="foo", ip_address="0.0.0.0")
         stale_event = DBUserEventFactory(
-            user=user,
+            source=user,
             tag="bar",
             ip_address="0.0.0.0",
             time=datetime.datetime.now() - datetime.timedelta(days=91),
         )
 
-        assert len(user.events) == 2
-        assert len(user.recent_events) == 1
-        assert user.events == [recent_event, stale_event]
-        assert user.recent_events == [recent_event]
+        assert user.events.all() == [recent_event, stale_event]
+        assert user.recent_events.all() == [recent_event]
 
     def test_regular_user_not_prohibited_password_reset(self, db_session):
         user = DBUserFactory.create()

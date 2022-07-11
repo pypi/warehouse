@@ -10,8 +10,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from collections import OrderedDict
-
 from pyramid.httpexceptions import HTTPMovedPermanently, HTTPNotFound
 from pyramid.view import view_config
 from sqlalchemy.orm import Load
@@ -50,69 +48,7 @@ _CACHE_DECORATOR = [
 ]
 
 
-@view_config(
-    route_name="legacy.api.json.project",
-    context=Project,
-    renderer="json",
-    decorator=_CACHE_DECORATOR,
-)
-def json_project(project, request):
-    if project.name != request.matchdict.get("name", project.name):
-        return HTTPMovedPermanently(
-            request.current_route_path(name=project.name), headers=_CORS_HEADERS
-        )
-
-    try:
-        release = (
-            request.db.query(Release)
-            .filter(Release.project == project)
-            .order_by(
-                Release.yanked.asc(),
-                Release.is_prerelease.nullslast(),
-                Release._pypi_ordering.desc(),
-            )
-            .limit(1)
-            .one()
-        )
-    except NoResultFound:
-        return HTTPNotFound(headers=_CORS_HEADERS)
-
-    return json_release(release, request)
-
-
-@view_config(
-    route_name="legacy.api.json.project_slash",
-    context=Project,
-    decorator=_CACHE_DECORATOR,
-)
-def json_project_slash(project, request):
-    return HTTPMovedPermanently(
-        # Respond with redirect to url without trailing slash
-        request.route_path("legacy.api.json.project", name=project.name),
-        headers=_CORS_HEADERS,
-    )
-
-
-@view_config(
-    route_name="legacy.api.json.release",
-    context=Release,
-    renderer="json",
-    decorator=_CACHE_DECORATOR,
-)
-def json_release(release, request):
-    project = release.project
-
-    if project.name != request.matchdict.get("name", project.name):
-        return HTTPMovedPermanently(
-            request.current_route_path(name=project.name), headers=_CORS_HEADERS
-        )
-
-    # Apply CORS headers.
-    request.response.headers.update(_CORS_HEADERS)
-
-    # Get the latest serial number for this project.
-    request.response.headers["X-PyPI-Last-Serial"] = str(project.last_serial)
-
+def _json_data(request, project, release, *, all_releases):
     # Get all of the releases and files for this project.
     release_files = (
         request.db.query(Release, File)
@@ -123,9 +59,17 @@ def json_release(release, request):
         )
         .outerjoin(File)
         .filter(Release.project == project)
-        .order_by(Release._pypi_ordering.desc(), File.filename)
-        .all()
     )
+
+    # If we're not looking for all_releases, then we'll filter this further
+    # to just this release.
+    if not all_releases:
+        release_files = release_files.filter(Release.id == release.id)
+
+    # Finally set an ordering, and execute the query.
+    release_files = release_files.order_by(
+        Release._pypi_ordering.desc(), File.filename
+    ).all()
 
     # Map our releases + files into a dictionary that maps each release to a
     # list of all its files.
@@ -176,7 +120,7 @@ def json_release(release, request):
         for vulnerability_record in release.vulnerabilities
     ]
 
-    return {
+    data = {
         "info": {
             "name": project.name,
             "version": release.version,
@@ -195,7 +139,7 @@ def json_release(release, request):
             "downloads": {"last_day": -1, "last_week": -1, "last_month": -1},
             "package_url": request.route_url("packaging.project", name=project.name),
             "project_url": request.route_url("packaging.project", name=project.name),
-            "project_urls": OrderedDict(release.urls) if release.urls else None,
+            "project_urls": release.urls if release.urls else None,
             "release_url": request.route_url(
                 "packaging.release", name=project.name, version=release.version
             ),
@@ -210,24 +154,100 @@ def json_release(release, request):
             "yanked_reason": release.yanked_reason or None,
         },
         "urls": releases[release.version],
-        "releases": releases,
         "vulnerabilities": vulnerabilities,
         "last_serial": project.last_serial,
     }
+
+    if all_releases:
+        data["releases"] = releases
+
+    return data
+
+
+@view_config(
+    route_name="legacy.api.json.project",
+    context=Project,
+    renderer="json",
+    decorator=_CACHE_DECORATOR,
+)
+def json_project(project, request):
+    if project.normalized_name != request.matchdict.get(
+        "name", project.normalized_name
+    ):
+        return HTTPMovedPermanently(
+            request.current_route_path(name=project.normalized_name),
+            headers=_CORS_HEADERS,
+        )
+
+    try:
+        release = (
+            request.db.query(Release)
+            .filter(Release.project == project)
+            .order_by(
+                Release.yanked.asc(),
+                Release.is_prerelease.nullslast(),
+                Release._pypi_ordering.desc(),
+            )
+            .limit(1)
+            .one()
+        )
+    except NoResultFound:
+        return HTTPNotFound(headers=_CORS_HEADERS)
+
+    # Apply CORS headers.
+    request.response.headers.update(_CORS_HEADERS)
+
+    # Get the latest serial number for this project.
+    request.response.headers["X-PyPI-Last-Serial"] = str(project.last_serial)
+
+    # Build our json data, including all releases because this is the root url
+    # and changing this breaks bandersnatch
+    # TODO: Eventually it would be nice to drop all_releases.
+    return _json_data(request, project, release, all_releases=True)
+
+
+@view_config(
+    route_name="legacy.api.json.project_slash",
+    context=Project,
+    renderer="json",
+    decorator=_CACHE_DECORATOR,
+)
+def json_project_slash(project, request):
+    return json_project(project, request)
+
+
+@view_config(
+    route_name="legacy.api.json.release",
+    context=Release,
+    renderer="json",
+    decorator=_CACHE_DECORATOR,
+)
+def json_release(release, request):
+    project = release.project
+
+    if project.normalized_name != request.matchdict.get(
+        "name", project.normalized_name
+    ):
+        return HTTPMovedPermanently(
+            request.current_route_path(name=project.normalized_name),
+            headers=_CORS_HEADERS,
+        )
+
+    # Apply CORS headers.
+    request.response.headers.update(_CORS_HEADERS)
+
+    # Get the latest serial number for this project.
+    request.response.headers["X-PyPI-Last-Serial"] = str(project.last_serial)
+
+    # Build our json data, with only this releases because this is a versioned url
+    return _json_data(request, project, release, all_releases=False)
 
 
 @view_config(
     route_name="legacy.api.json.release_slash",
     context=Release,
+    renderer="json",
     decorator=_CACHE_DECORATOR,
 )
 def json_release_slash(release, request):
-    return HTTPMovedPermanently(
-        # Respond with redirect to url without trailing slash
-        request.route_path(
-            "legacy.api.json.release",
-            name=release.project.name,
-            version=release.version,
-        ),
-        headers=_CORS_HEADERS,
-    )
+    return json_release(release, request)

@@ -10,12 +10,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import functools
-
-import fakeredis
 import pretend
+import pytest
 
-from jwt import PyJWK
+from jwt import PyJWK, PyJWTError
 from zope.interface.verify import verifyClass
 
 from warehouse.oidc import interfaces, services
@@ -33,7 +31,7 @@ def test_oidc_provider_service_factory():
     metrics = pretend.stub()
     request = pretend.stub(
         registry=pretend.stub(
-            settings={"oidc.jwk_cache_url": "https://another.example.com"}
+            settings={"oidc.jwk_cache_url": "rediss://another.example.com"}
         ),
         find_service=lambda *a, **kw: metrics,
     )
@@ -42,7 +40,7 @@ def test_oidc_provider_service_factory():
     assert isinstance(service, factory.service_class)
     assert service.provider == factory.provider
     assert service.issuer_url == factory.issuer_url
-    assert service.cache_url == "https://another.example.com"
+    assert service.cache_url == "rediss://another.example.com"
     assert service.metrics == metrics
 
     assert factory != object()
@@ -52,16 +50,153 @@ def test_oidc_provider_service_factory():
 
 
 class TestOIDCProviderService:
-    def test_verify(self):
+    def test_verify_signature_only(self, monkeypatch):
         service = services.OIDCProviderService(
             provider=pretend.stub(),
             issuer_url=pretend.stub(),
             cache_url=pretend.stub(),
             metrics=pretend.stub(),
         )
-        assert service.verify(pretend.stub()) == NotImplemented
 
-    def test_get_keyset_not_cached(self, monkeypatch):
+        token = pretend.stub()
+        decoded = pretend.stub()
+        jwt = pretend.stub(decode=pretend.call_recorder(lambda t, **kwargs: decoded))
+        monkeypatch.setattr(
+            service, "_get_key_for_token", pretend.call_recorder(lambda t: "fake-key")
+        )
+        monkeypatch.setattr(services, "jwt", jwt)
+
+        assert service.verify_signature_only(token) == decoded
+        assert jwt.decode.calls == [
+            pretend.call(
+                token,
+                key="fake-key",
+                algorithms=["RS256"],
+                verify_signature=True,
+                require=["iss", "iat", "nbf", "exp", "aud"],
+                verify_iss=True,
+                verify_iat=True,
+                verify_nbf=True,
+                verify_exp=True,
+                verify_aud=True,
+                issuer=service.issuer_url,
+                audience="pypi",
+                leeway=30,
+            )
+        ]
+
+    @pytest.mark.parametrize("exc", [PyJWTError, ValueError])
+    def test_verify_signature_only_fails(self, monkeypatch, exc):
+        service = services.OIDCProviderService(
+            provider=pretend.stub(),
+            issuer_url=pretend.stub(),
+            cache_url=pretend.stub(),
+            metrics=pretend.stub(),
+        )
+
+        token = pretend.stub()
+        jwt = pretend.stub(decode=pretend.raiser(exc), PyJWTError=PyJWTError)
+        monkeypatch.setattr(
+            service, "_get_key_for_token", pretend.call_recorder(lambda t: "fake-key")
+        )
+        monkeypatch.setattr(services, "jwt", jwt)
+
+        assert service.verify_signature_only(token) is None
+
+    def test_verify_for_project(self, monkeypatch):
+        service = services.OIDCProviderService(
+            provider="fakeprovider",
+            issuer_url=pretend.stub(),
+            cache_url=pretend.stub(),
+            metrics=pretend.stub(
+                increment=pretend.call_recorder(lambda *a, **kw: None)
+            ),
+        )
+
+        token = pretend.stub()
+        claims = pretend.stub()
+        monkeypatch.setattr(
+            service, "verify_signature_only", pretend.call_recorder(lambda t: claims)
+        )
+
+        provider = pretend.stub(verify_claims=pretend.call_recorder(lambda c: True))
+        project = pretend.stub(name="fakeproject", oidc_providers=[provider])
+
+        assert service.verify_for_project(token, project)
+        assert service.metrics.increment.calls == [
+            pretend.call(
+                "warehouse.oidc.verify_for_project.attempt",
+                tags=["project:fakeproject", "provider:fakeprovider"],
+            ),
+            pretend.call(
+                "warehouse.oidc.verify_for_project.ok",
+                tags=["project:fakeproject", "provider:fakeprovider"],
+            ),
+        ]
+        assert service.verify_signature_only.calls == [pretend.call(token)]
+        assert provider.verify_claims.calls == [pretend.call(claims)]
+
+    def test_verify_for_project_invalid_signature(self, monkeypatch):
+        service = services.OIDCProviderService(
+            provider="fakeprovider",
+            issuer_url=pretend.stub(),
+            cache_url=pretend.stub(),
+            metrics=pretend.stub(
+                increment=pretend.call_recorder(lambda *a, **kw: None)
+            ),
+        )
+
+        token = pretend.stub()
+        monkeypatch.setattr(service, "verify_signature_only", lambda t: None)
+
+        project = pretend.stub(name="fakeproject")
+
+        assert not service.verify_for_project(token, project)
+        assert service.metrics.increment.calls == [
+            pretend.call(
+                "warehouse.oidc.verify_for_project.attempt",
+                tags=["project:fakeproject", "provider:fakeprovider"],
+            ),
+            pretend.call(
+                "warehouse.oidc.verify_for_project.invalid_signature",
+                tags=["project:fakeproject", "provider:fakeprovider"],
+            ),
+        ]
+
+    def test_verify_for_project_invalid_claims(self, monkeypatch):
+        service = services.OIDCProviderService(
+            provider="fakeprovider",
+            issuer_url=pretend.stub(),
+            cache_url=pretend.stub(),
+            metrics=pretend.stub(
+                increment=pretend.call_recorder(lambda *a, **kw: None)
+            ),
+        )
+
+        token = pretend.stub()
+        claims = pretend.stub()
+        monkeypatch.setattr(
+            service, "verify_signature_only", pretend.call_recorder(lambda t: claims)
+        )
+
+        provider = pretend.stub(verify_claims=pretend.call_recorder(lambda c: False))
+        project = pretend.stub(name="fakeproject", oidc_providers=[provider])
+
+        assert not service.verify_for_project(token, project)
+        assert service.metrics.increment.calls == [
+            pretend.call(
+                "warehouse.oidc.verify_for_project.attempt",
+                tags=["project:fakeproject", "provider:fakeprovider"],
+            ),
+            pretend.call(
+                "warehouse.oidc.verify_for_project.invalid_claims",
+                tags=["project:fakeproject", "provider:fakeprovider"],
+            ),
+        ]
+        assert service.verify_signature_only.calls == [pretend.call(token)]
+        assert provider.verify_claims.calls == [pretend.call(claims)]
+
+    def test_get_keyset_not_cached(self, monkeypatch, mockredis):
         service = services.OIDCProviderService(
             provider="example",
             issuer_url=pretend.stub(),
@@ -69,13 +204,14 @@ class TestOIDCProviderService:
             metrics=pretend.stub(),
         )
 
-        monkeypatch.setattr(services.redis, "StrictRedis", fakeredis.FakeStrictRedis)
+        monkeypatch.setattr(services.redis, "StrictRedis", mockredis)
+
         keys, timeout = service._get_keyset()
 
         assert not keys
         assert timeout is False
 
-    def test_get_keyset_cached(self, monkeypatch):
+    def test_get_keyset_cached(self, monkeypatch, mockredis):
         service = services.OIDCProviderService(
             provider="example",
             issuer_url=pretend.stub(),
@@ -83,11 +219,7 @@ class TestOIDCProviderService:
             metrics=pretend.stub(),
         )
 
-        # Create a fake server to provide persistent state through each
-        # StrictRedis.from_url context manager.
-        server = fakeredis.FakeServer()
-        from_url = functools.partial(fakeredis.FakeStrictRedis.from_url, server=server)
-        monkeypatch.setattr(services.redis.StrictRedis, "from_url", from_url)
+        monkeypatch.setattr(services.redis, "StrictRedis", mockredis)
 
         keyset = {"fake-key-id": {"foo": "bar"}}
         service._store_keyset(keyset)
@@ -96,7 +228,7 @@ class TestOIDCProviderService:
         assert keys == keyset
         assert timeout is True
 
-    def test_refresh_keyset_timeout(self, monkeypatch):
+    def test_refresh_keyset_timeout(self, monkeypatch, mockredis):
         metrics = pretend.stub(increment=pretend.call_recorder(lambda *a, **kw: None))
         service = services.OIDCProviderService(
             provider="example",
@@ -105,11 +237,7 @@ class TestOIDCProviderService:
             metrics=metrics,
         )
 
-        # Create a fake server to provide persistent state through each
-        # StrictRedis.from_url context manager.
-        server = fakeredis.FakeServer()
-        from_url = functools.partial(fakeredis.FakeStrictRedis.from_url, server=server)
-        monkeypatch.setattr(services.redis.StrictRedis, "from_url", from_url)
+        monkeypatch.setattr(services.redis, "StrictRedis", mockredis)
 
         keyset = {"fake-key-id": {"foo": "bar"}}
         service._store_keyset(keyset)
@@ -122,7 +250,7 @@ class TestOIDCProviderService:
             )
         ]
 
-    def test_refresh_keyset_oidc_config_fails(self, monkeypatch):
+    def test_refresh_keyset_oidc_config_fails(self, monkeypatch, mockredis):
         metrics = pretend.stub(increment=pretend.call_recorder(lambda *a, **kw: None))
         service = services.OIDCProviderService(
             provider="example",
@@ -131,7 +259,7 @@ class TestOIDCProviderService:
             metrics=metrics,
         )
 
-        monkeypatch.setattr(services.redis, "StrictRedis", fakeredis.FakeStrictRedis)
+        monkeypatch.setattr(services.redis, "StrictRedis", mockredis)
 
         requests = pretend.stub(
             get=pretend.call_recorder(lambda url: pretend.stub(ok=False))
@@ -156,7 +284,7 @@ class TestOIDCProviderService:
             )
         ]
 
-    def test_refresh_keyset_oidc_config_no_jwks_uri(self, monkeypatch):
+    def test_refresh_keyset_oidc_config_no_jwks_uri(self, monkeypatch, mockredis):
         metrics = pretend.stub(increment=pretend.call_recorder(lambda *a, **kw: None))
         service = services.OIDCProviderService(
             provider="example",
@@ -165,7 +293,7 @@ class TestOIDCProviderService:
             metrics=metrics,
         )
 
-        monkeypatch.setattr(services.redis, "StrictRedis", fakeredis.FakeStrictRedis)
+        monkeypatch.setattr(services.redis, "StrictRedis", mockredis)
 
         requests = pretend.stub(
             get=pretend.call_recorder(
@@ -192,7 +320,7 @@ class TestOIDCProviderService:
             )
         ]
 
-    def test_refresh_keyset_oidc_config_no_jwks_json(self, monkeypatch):
+    def test_refresh_keyset_oidc_config_no_jwks_json(self, monkeypatch, mockredis):
         metrics = pretend.stub(increment=pretend.call_recorder(lambda *a, **kw: None))
         service = services.OIDCProviderService(
             provider="example",
@@ -201,7 +329,7 @@ class TestOIDCProviderService:
             metrics=metrics,
         )
 
-        monkeypatch.setattr(services.redis, "StrictRedis", fakeredis.FakeStrictRedis)
+        monkeypatch.setattr(services.redis, "StrictRedis", mockredis)
 
         openid_resp = pretend.stub(
             ok=True,
@@ -239,7 +367,7 @@ class TestOIDCProviderService:
             )
         ]
 
-    def test_refresh_keyset_oidc_config_no_jwks_keys(self, monkeypatch):
+    def test_refresh_keyset_oidc_config_no_jwks_keys(self, monkeypatch, mockredis):
         metrics = pretend.stub(increment=pretend.call_recorder(lambda *a, **kw: None))
         service = services.OIDCProviderService(
             provider="example",
@@ -248,7 +376,7 @@ class TestOIDCProviderService:
             metrics=metrics,
         )
 
-        monkeypatch.setattr(services.redis, "StrictRedis", fakeredis.FakeStrictRedis)
+        monkeypatch.setattr(services.redis, "StrictRedis", mockredis)
 
         openid_resp = pretend.stub(
             ok=True,
@@ -283,7 +411,7 @@ class TestOIDCProviderService:
             pretend.call("OIDC provider example returned JWKS JSON but no keys")
         ]
 
-    def test_refresh_keyset_successful(self, monkeypatch):
+    def test_refresh_keyset_successful(self, monkeypatch, mockredis):
         metrics = pretend.stub(increment=pretend.call_recorder(lambda *a, **kw: None))
         service = services.OIDCProviderService(
             provider="example",
@@ -292,11 +420,7 @@ class TestOIDCProviderService:
             metrics=metrics,
         )
 
-        # Create a fake server to provide persistent state through each
-        # StrictRedis.from_url context manager.
-        server = fakeredis.FakeServer()
-        from_url = functools.partial(fakeredis.FakeStrictRedis.from_url, server=server)
-        monkeypatch.setattr(services.redis.StrictRedis, "from_url", from_url)
+        monkeypatch.setattr(services.redis, "StrictRedis", mockredis)
 
         openid_resp = pretend.stub(
             ok=True,
@@ -416,3 +540,25 @@ class TestOIDCProviderService:
                 tags=["provider:example", "key_id:fake-key-id"],
             )
         ]
+
+    def test_get_key_for_token(self, monkeypatch):
+        token = pretend.stub()
+        key = pretend.stub()
+
+        service = services.OIDCProviderService(
+            provider="example",
+            issuer_url="https://example.com",
+            cache_url="rediss://fake.example.com",
+            metrics=pretend.stub(),
+        )
+        monkeypatch.setattr(service, "get_key", pretend.call_recorder(lambda kid: key))
+
+        monkeypatch.setattr(
+            services.jwt,
+            "get_unverified_header",
+            pretend.call_recorder(lambda token: {"kid": "fake-key-id"}),
+        )
+
+        assert service._get_key_for_token(token) == key
+        assert service.get_key.calls == [pretend.call("fake-key-id")]
+        assert services.jwt.get_unverified_header.calls == [pretend.call(token)]

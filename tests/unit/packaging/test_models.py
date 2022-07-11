@@ -18,8 +18,13 @@ import pytest
 from pyramid.authorization import Allow
 from pyramid.location import lineage
 
-from warehouse.packaging.models import Dependency, DependencyKind, File, ProjectFactory
+from warehouse.packaging.models import File, ProjectFactory, ReleaseURL
 
+from ...common.db.organizations import (
+    OrganizationFactory as DBOrganizationFactory,
+    OrganizationProjectFactory as DBOrganizationProjectFactory,
+    OrganizationRoleFactory as DBOrganizationRoleFactory,
+)
 from ...common.db.packaging import (
     FileFactory as DBFileFactory,
     ProjectFactory as DBProjectFactory,
@@ -42,6 +47,13 @@ class TestProjectFactory:
 
         with pytest.raises(KeyError):
             root[project.name + "invalid"]
+
+    def test_contains(self, db_request):
+        DBProjectFactory.create(name="foo")
+        root = ProjectFactory(db_request)
+
+        assert "foo" in root
+        assert "bar" not in root
 
 
 class TestProject:
@@ -101,6 +113,10 @@ class TestProject:
         maintainer1 = DBRoleFactory.create(project=project, role_name="Maintainer")
         maintainer2 = DBRoleFactory.create(project=project, role_name="Maintainer")
 
+        organization = DBOrganizationFactory.create()
+        owner3 = DBOrganizationRoleFactory.create(organization=organization)
+        DBOrganizationProjectFactory.create(organization=organization, project=project)
+
         acls = []
         for location in lineage(project):
             try:
@@ -118,14 +134,15 @@ class TestProject:
             (Allow, "group:moderators", "moderator"),
         ] + sorted(
             [
-                (Allow, str(owner1.user.id), ["manage:project", "upload"]),
-                (Allow, str(owner2.user.id), ["manage:project", "upload"]),
+                (Allow, f"user:{owner1.user.id}", ["manage:project", "upload"]),
+                (Allow, f"user:{owner2.user.id}", ["manage:project", "upload"]),
+                (Allow, f"user:{owner3.user.id}", ["manage:project", "upload"]),
             ],
             key=lambda x: x[1],
         ) + sorted(
             [
-                (Allow, str(maintainer1.user.id), ["upload"]),
-                (Allow, str(maintainer2.user.id), ["upload"]),
+                (Allow, f"user:{maintainer1.user.id}", ["upload"]),
+                (Allow, f"user:{maintainer2.user.id}", ["upload"]),
             ],
             key=lambda x: x[1],
         )
@@ -252,17 +269,34 @@ class TestRelease:
                     ]
                 ),
             ),
-            # ignore invalid links
+            # similar spellings of homepage/download label doesn't duplicate urls
             (
-                None,
+                "https://example.com/home/",
+                "https://example.com/download/",
+                [
+                    "homepage, https://example.com/home/",
+                    "download-URL ,https://example.com/download/",
+                ],
+                OrderedDict(
+                    [
+                        ("Homepage", "https://example.com/home/"),
+                        ("Download", "https://example.com/download/"),
+                    ]
+                ),
+            ),
+            # the duplicate removal only happens if the urls are equal too!
+            (
+                "https://example.com/home1/",
                 None,
                 [
-                    " ,https://example.com/home/",
-                    ",https://example.com/home/",
-                    "https://example.com/home/",
-                    "Download,https://example.com/download/",
+                    "homepage, https://example.com/home2/",
                 ],
-                OrderedDict([("Download", "https://example.com/download/")]),
+                OrderedDict(
+                    [
+                        ("Homepage", "https://example.com/home1/"),
+                        ("homepage", "https://example.com/home2/"),
+                    ]
+                ),
             ),
         ],
     )
@@ -272,11 +306,12 @@ class TestRelease:
         )
 
         for urlspec in project_urls:
+            label, _, url = urlspec.partition(",")
             db_session.add(
-                Dependency(
+                ReleaseURL(
                     release=release,
-                    kind=DependencyKind.project_url.value,
-                    specifier=urlspec,
+                    name=label.strip(),
+                    url=url.strip(),
                 )
             )
 
@@ -308,14 +343,14 @@ class TestRelease:
             (Allow, "group:moderators", "moderator"),
         ] + sorted(
             [
-                (Allow, str(owner1.user.id), ["manage:project", "upload"]),
-                (Allow, str(owner2.user.id), ["manage:project", "upload"]),
+                (Allow, f"user:{owner1.user.id}", ["manage:project", "upload"]),
+                (Allow, f"user:{owner2.user.id}", ["manage:project", "upload"]),
             ],
             key=lambda x: x[1],
         ) + sorted(
             [
-                (Allow, str(maintainer1.user.id), ["upload"]),
-                (Allow, str(maintainer2.user.id), ["upload"]),
+                (Allow, f"user:{maintainer1.user.id}", ["upload"]),
+                (Allow, f"user:{maintainer2.user.id}", ["upload"]),
             ],
             key=lambda x: x[1],
         )

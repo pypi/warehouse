@@ -42,7 +42,7 @@ from warehouse.accounts.interfaces import (
     TooManyEmailsAdded,
     TooManyFailedLogins,
 )
-from warehouse.accounts.models import DisableReason
+from warehouse.accounts.models import DisableReason, ProhibitedUserName
 from warehouse.metrics import IMetricsService, NullMetrics
 from warehouse.rate_limiting.interfaces import IRateLimiter
 
@@ -132,6 +132,20 @@ class TestDatabaseUserService:
 
         assert limiter.test.calls == []
         assert limiter.resets_in.calls == []
+
+    def test_username_is_not_prohibited(self, user_service):
+        assert user_service.username_is_prohibited("my_username") is False
+
+    def test_username_is_prohibited(self, user_service):
+        user = UserFactory.create()
+        user_service.db.add(
+            ProhibitedUserName(
+                name="my_username",
+                comment="blah",
+                prohibited_by=user,
+            )
+        )
+        assert user_service.username_is_prohibited("my_username") is True
 
     def test_find_userid_nonexistent_user(self, user_service):
         assert user_service.find_userid("my_username") is None
@@ -408,6 +422,14 @@ class TestDatabaseUserService:
 
         assert found_user is None
 
+    def test_get_admins(self, user_service):
+        admin = UserFactory.create(is_superuser=True)
+        user = UserFactory.create(is_superuser=False)
+        admins = user_service.get_admins()
+
+        assert admin in admins
+        assert user not in admins
+
     def test_disable_password(self, user_service):
         user = UserFactory.create()
 
@@ -429,6 +451,10 @@ class TestDatabaseUserService:
         if disabled:
             user_service.disable_password(user.id, reason=reason)
         assert user_service.is_disabled(user.id) == (disabled, reason)
+
+    def test_is_disabled_user_frozen(self, user_service):
+        user = UserFactory.create(is_frozen=True)
+        assert user_service.is_disabled(user.id) == (True, DisableReason.AccountFrozen)
 
     def test_updating_password_undisables(self, user_service):
         user = UserFactory.create()

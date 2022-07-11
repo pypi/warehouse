@@ -20,7 +20,6 @@ import tempfile
 import zipfile
 
 from cgi import FieldStorage, parse_header
-from itertools import chain
 
 import packaging.requirements
 import packaging.specifiers
@@ -28,24 +27,23 @@ import packaging.utils
 import packaging.version
 import pkg_resources
 import requests
-import stdlib_list
 import wtforms
 import wtforms.validators
 
 from pyramid.httpexceptions import (
     HTTPBadRequest,
+    HTTPException,
     HTTPForbidden,
     HTTPGone,
     HTTPPermanentRedirect,
 )
 from pyramid.response import Response
 from pyramid.view import view_config
-from sqlalchemy import exists, func, orm
+from sqlalchemy import func, orm
 from sqlalchemy.orm.exc import MultipleResultsFound, NoResultFound
 from trove_classifiers import classifiers, deprecated_classifiers
 
 from warehouse import forms
-from warehouse.accounts import AuthenticationMethod
 from warehouse.admin.flags import AdminFlagValue
 from warehouse.classifiers.models import Classifier
 from warehouse.email import send_basic_auth_with_two_factor_email
@@ -58,13 +56,14 @@ from warehouse.packaging.models import (
     File,
     Filename,
     JournalEntry,
-    ProhibitedProjectName,
     Project,
     Release,
     Role,
 )
 from warehouse.packaging.tasks import update_bigquery_release_files
 from warehouse.utils import http, readme
+from warehouse.utils.project import add_project, validate_project_name
+from warehouse.utils.security_policy import AuthenticationMethod
 
 ONE_MB = 1 * 1024 * 1024
 ONE_GB = 1 * 1024 * 1024 * 1024
@@ -75,21 +74,6 @@ MAX_PROJECT_SIZE = 10 * ONE_GB
 
 PATH_HASHER = "blake2_256"
 
-
-def namespace_stdlib_list(module_list):
-    for module_name in module_list:
-        parts = module_name.split(".")
-        for i, part in enumerate(parts):
-            yield ".".join(parts[: i + 1])
-
-
-STDLIB_PROHIBITED = {
-    packaging.utils.canonicalize_name(s.rstrip("-_.").lstrip("-_."))
-    for s in chain.from_iterable(
-        namespace_stdlib_list(stdlib_list.stdlib_list(version))
-        for version in stdlib_list.short_versions
-    )
-}
 
 # Wheel platform checking
 
@@ -323,7 +307,7 @@ def _validate_requires_external_list(form, field):
 
 def _validate_project_url(value):
     try:
-        label, url = value.split(", ", 1)
+        label, url = (x.strip() for x in value.split(",", maxsplit=1))
     except ValueError:
         raise wtforms.validators.ValidationError(
             "Use both a label and an URL."
@@ -899,83 +883,19 @@ def file_upload(request):
     # Look up the project first before doing anything else, this is so we can
     # automatically register it if we need to and can check permissions before
     # going any further.
-    try:
-        project = (
-            request.db.query(Project)
-            .filter(
-                Project.normalized_name == func.normalize_pep426_name(form.name.data)
-            )
-            .one()
-        )
-    except NoResultFound:
-        # Check for AdminFlag set by a PyPI Administrator disabling new project
-        # registration, reasons for this include Spammers, security
-        # vulnerabilities, or just wanting to be lazy and not worry ;)
-        if request.flags.enabled(AdminFlagValue.DISALLOW_NEW_PROJECT_REGISTRATION):
-            raise _exc_with_message(
-                HTTPForbidden,
-                (
-                    "New project registration temporarily disabled. "
-                    "See {projecthelp} for more information."
-                ).format(projecthelp=request.help_url(_anchor="admin-intervention")),
-            ) from None
+    project = (
+        request.db.query(Project)
+        .filter(Project.normalized_name == func.normalize_pep426_name(form.name.data))
+        .first()
+    )
 
-        # Before we create the project, we're going to check our prohibited
-        # names to see if this project name prohibited, or if the project name
-        # is a close approximation of an existing project name. If it is,
-        # then we're going to deny the request to create this project.
-        _prohibited_name = request.db.query(
-            exists().where(
-                ProhibitedProjectName.name == func.normalize_pep426_name(form.name.data)
-            )
-        ).scalar()
-        if _prohibited_name:
-            raise _exc_with_message(
-                HTTPBadRequest,
-                (
-                    "The name {name!r} isn't allowed. "
-                    "See {projecthelp} for more information."
-                ).format(
-                    name=form.name.data,
-                    projecthelp=request.help_url(_anchor="project-name"),
-                ),
-            ) from None
-
-        _ultranormalize_collision = request.db.query(
-            exists().where(
-                func.ultranormalize_name(Project.name)
-                == func.ultranormalize_name(form.name.data)
-            )
-        ).scalar()
-        if _ultranormalize_collision:
-            raise _exc_with_message(
-                HTTPBadRequest,
-                (
-                    "The name {name!r} is too similar to an existing project. "
-                    "See {projecthelp} for more information."
-                ).format(
-                    name=form.name.data,
-                    projecthelp=request.help_url(_anchor="project-name"),
-                ),
-            ) from None
-
-        # Also check for collisions with Python Standard Library modules.
-        if packaging.utils.canonicalize_name(form.name.data) in STDLIB_PROHIBITED:
-            raise _exc_with_message(
-                HTTPBadRequest,
-                (
-                    "The name {name!r} isn't allowed (conflict with Python "
-                    "Standard Library module name). See "
-                    "{projecthelp} for more information."
-                ).format(
-                    name=form.name.data,
-                    projecthelp=request.help_url(_anchor="project-name"),
-                ),
-            ) from None
-
-        # Next we'll create the project
-        project = Project(name=form.name.data)
-        request.db.add(project)
+    if project is None:
+        # We attempt to create the project.
+        try:
+            validate_project_name(form.name.data, request)
+        except HTTPException as exc:
+            raise _exc_with_message(exc.__class__, exc.detail) from None
+        project = add_project(form.name.data, request)
 
         # Then we'll add a role setting the current user as the "Owner" of the
         # project.
@@ -986,24 +906,10 @@ def file_upload(request):
         request.db.add(
             JournalEntry(
                 name=project.name,
-                action="create",
-                submitted_by=request.user,
-                submitted_from=request.remote_addr,
-            )
-        )
-        request.db.add(
-            JournalEntry(
-                name=project.name,
                 action="add Owner {}".format(request.user.username),
                 submitted_by=request.user,
                 submitted_from=request.remote_addr,
             )
-        )
-
-        project.record_event(
-            tag="project:create",
-            ip_address=request.remote_addr,
-            additional={"created_by": request.user.username},
         )
         project.record_event(
             tag="project:role:add",
@@ -1123,6 +1029,12 @@ def file_upload(request):
                 request.db.add(missing_classifier)
                 release_classifiers.append(missing_classifier)
 
+        # Parse the Project URLs structure into a key/value dict
+        project_urls = {
+            name.strip(): url.strip()
+            for name, _, url in (us.partition(",") for us in form.project_urls.data)
+        }
+
         release = Release(
             project=project,
             _classifiers=release_classifiers,
@@ -1137,7 +1049,6 @@ def file_upload(request):
                         "provides_dist": DependencyKind.provides_dist,
                         "obsoletes_dist": DependencyKind.obsoletes_dist,
                         "requires_external": DependencyKind.requires_external,
-                        "project_urls": DependencyKind.project_url,
                     },
                 )
             ),
@@ -1151,6 +1062,7 @@ def file_upload(request):
                 html=rendered or "",
                 rendered_by=readme.renderer_version(),
             ),
+            project_urls=project_urls,
             **{
                 k: getattr(form, k).data
                 for k in {

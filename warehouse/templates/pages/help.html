@@ -99,6 +99,7 @@
 {% macro availability() %}{% trans %}Can I depend on PyPI being available?{% endtrans %}{% endmacro %}
 {% macro contributing() %}{% trans %}How can I contribute to PyPI?{% endtrans %}{% endmacro %}
 {% macro upcoming_changes() %}{% trans %}How do I keep up with upcoming changes to PyPI?{% endtrans %}{% endmacro %}
+{% macro ips() %}{% trans %}How can I get a list of PyPI's IP addresses?{% endtrans %}{% endmacro %}
 {% macro beta_badge() %}{% trans %}What does the "beta feature" badge mean? What are Warehouse's current beta features?{% endtrans %}{% endmacro %}
 {% macro pronunciation() %}{% trans %}How do I pronounce "PyPI"?{% endtrans %}{% endmacro %}
 
@@ -187,6 +188,7 @@
           <li><a href="#availability">{{ availability() }}</a></li>
           <li><a href="#contributing">{{ contributing() }}</a></li>
           <li><a href="#upcoming-changes">{{ upcoming_changes() }}</a></li>
+          <li><a href="#ips">{{ ips() }}</a></li>
           <li><a href="#beta-badge">{{ beta_badge() }}</a></li>
           <li><a href="#pronunciation">{{ pronunciation() }}</a></li>
         </ul>
@@ -546,12 +548,12 @@
         <p>{% trans href='https://pypi.org/project/devpi/' %}PyPI does not support publishing private packages. If you need to publish your private package to a package index, the recommended solution is to run your own deployment of the <a href="{{ href }}">devpi project</a>.{% endtrans %}</p>
 
         <h3 id="project-name">{{ project_name() }}</h3>
-        <p>{% trans %}Your publishing tool may return an error that your new project can't be created with your desired name, despite no evidence of a project or release of the same name on PyPI. Currently, there are three primary reasons this may occur:{% endtrans %}</p>
+        <p>{% trans %}Your publishing tool may return an error that your new project can't be created with your desired name, despite no evidence of a project or release of the same name on PyPI. Currently, there are four primary reasons this may occur:{% endtrans %}</p>
         <ul>
           <li>{% trans href='https://docs.python.org/3/library/index.html', title=gettext('External link') %}The project name conflicts with a <a href="{{ href }}" title="{{ title }}" target="_blank" rel="noopener">Python Standard Library</a> module from any major version from 2.5 to present.{% endtrans %}</li>
           <li>{% trans %}The project name is too similar to an existing project and may be confusable.{% endtrans %}</li>
           <li>{% trans incorrect_code='pip install requirements.txt', correct_code='pip install -r requirements.txt' %}The project name has been explicitly prohibited by the PyPI administrators. For example, <code>{{ incorrect_code }}</code> is a common typo for <code>{{ correct_code }}</code>, and should not surprise the user with a malicious package.{% endtrans %}</li>
-          <li>{% trans %}The project name has been registered by another user, but no releases have been created.{% endtrans %}</li>
+          <li>{% trans %}The project name has been registered by another user, but no releases have been created.{% endtrans %}{% trans href='#project-name-claim', anchor_text=project_name_claim() %}See <a href="{{ href }}">{{ anchor_text }}</a>{% endtrans %}</li>
         </ul>
 
         <h3 id="project-name-claim">{{ project_name_claim() }}</h3>
@@ -841,10 +843,9 @@
         </p>
         <p>
           <strong>{% trans %}Stay updated:{% endtrans %}</strong>
-          {% trans trimmed mailing_list_href='https://mail.python.org/mailman/listinfo/distutils-sig', discourse_forum_href='https://discuss.python.org/c/packaging', title=gettext('External link') %}
+          {% trans trimmed discourse_forum_href='https://discuss.python.org/c/packaging', title=gettext('External link') %}
             You can also follow the ongoing development of the project on the
-            <a href="{{ mailing_list_href }}" title="{{ title }}" target="_blank" rel="noopener">distutils-sig mailing list</a>
-            and the <a href="{{ discourse_forum_href }}" title="{{ title }}" target="_blank" rel="noopener">Python packaging forum on Discourse</a>.
+            <a href="{{ discourse_forum_href }}" title="{{ title }}" target="_blank" rel="noopener">Python packaging forum on Discourse</a>.
           {% endtrans %}
         </p>
         {{ code_of_conduct() }}
@@ -859,6 +860,11 @@
           and <a href="{{ rss_href }}" title="{{ title }}" target="_blank" rel="noopener">RSS</a> feeds for the "pypi" label.
           {% endtrans %}
         </p>
+
+        <h3 id="ips">{{ ips() }}</h3>
+        <p>{% trans href="https://api.fastly.com/public-ip-list" %}All traffic is routed through our global CDN, which lists their public IP addresses here: <a href="{{ href }}">{{ href }}</a>.{% endtrans %}</p>
+        <p>{% trans href="https://docs.fastly.com/en/guides/accessing-fastlys-ip-ranges" %}More information about this list can be found here: <a href="{{ href }}">{{ href }}</a>.{% endtrans %}</p>
+        <p>{% trans %}Currently, no features are in beta.{% endtrans %}</p>
 
         <h3 id="beta-badge">{{ beta_badge() }}</h3>
         <p>{% trans %}When Warehouse's maintainers are deploying new features, at first we mark them with a small "beta feature" symbol to tell you: this should probably work fine, but it's new and less tested than other site functionality.{% endtrans %}</p>

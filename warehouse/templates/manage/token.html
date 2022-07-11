@@ -38,10 +38,10 @@
     <h2>{% trans macaroon_description=macaroon.description %}Token for "{{ macaroon_description }}"{% endtrans %}</h2>
     <p>
       <strong>{% trans %}Permissions:{% endtrans %}</strong> {% trans %}Upload packages{% endtrans %}<br>
-      {% if macaroon.caveats.permissions == "user" %}
+      {% if macaroon.permissions_caveat.permissions == "user" %}
       <strong>{% trans %}Scope:{% endtrans %}</strong> {% trans %}Entire account (all projects){% endtrans %}
       {% else %}
-      <strong>{% trans %}Scope:{% endtrans %}</strong> {% trans project=macaroon.caveats.permissions.projects[0] %}Project "{{ project }}"{% endtrans %}
+      <strong>{% trans %}Scope:{% endtrans %}</strong> {% trans project=macaroon.permissions_caveat.permissions.projects[0] %}Project "{{ project }}"{% endtrans %}
       {% endif %}
     </p>
 
@@ -78,7 +78,7 @@
       <li>{% trans prefix='pypi-' %}Set your password to the token value, including the <code>{{ prefix }}</code> prefix{% endtrans %}</li>
     </ul>
 
-    {% if macaroon.caveats.permissions == "user" %}
+    {% if macaroon.permissions_caveat.permissions == "user" %}
 
     <p>
       {% trans trimmed href='https://pypi.org/project/twine/', filename='$HOME/.pypirc' %}
@@ -119,13 +119,10 @@
     <p>{% trans href='/help#apitoken' %}For further instructions on how to use this token, <a href="{{ href }}">visit the PyPI help page</a>.{% endtrans %}</p>
   </section>
   <hr>
-  {% endif %}
-
+  <a href="." class="button">{% trans %}Add another token{% endtrans %}</a>
+  {% else %}
   {{ form_error_anchor(create_macaroon_form) }}
   <section id="add-token">
-    {% if serialized_macaroon %}
-    <h2>{% trans %}Add another token{% endtrans %}</h2>
-    {% endif %}
     <form method="POST">
       <input type="hidden" name="csrf_token" value="{{ request.session.get_csrf_token() }}">
       {{ form_errors(create_macaroon_form) }}
@@ -174,4 +171,5 @@
       </div>
     </form>
   </section>
+  {% endif %}
 {% endblock %}

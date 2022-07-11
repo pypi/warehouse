@@ -26,6 +26,24 @@ def test_includeme():
 
     assert config.add_route.calls == [
         pretend.call("admin.dashboard", "/admin/", domain=warehouse),
+        pretend.call(
+            "admin.organization.list", "/admin/organizations/", domain=warehouse
+        ),
+        pretend.call(
+            "admin.organization.detail",
+            "/admin/organizations/{organization_id}/",
+            domain=warehouse,
+        ),
+        pretend.call(
+            "admin.organization.approve",
+            "/admin/organizations/{organization_id}/approve/",
+            domain=warehouse,
+        ),
+        pretend.call(
+            "admin.organization.decline",
+            "/admin/organizations/{organization_id}/decline/",
+            domain=warehouse,
+        ),
         pretend.call("admin.user.list", "/admin/users/", domain=warehouse),
         pretend.call("admin.user.detail", "/admin/users/{user_id}/", domain=warehouse),
         pretend.call(
@@ -39,6 +57,11 @@ def test_includeme():
         pretend.call(
             "admin.user.reset_password",
             "/admin/users/{user_id}/reset_password/",
+            domain=warehouse,
+        ),
+        pretend.call(
+            "admin.prohibited_user_names.bulk_add",
+            "/admin/prohibited_user_names/bulk/",
             domain=warehouse,
         ),
         pretend.call("admin.project.list", "/admin/projects/", domain=warehouse),

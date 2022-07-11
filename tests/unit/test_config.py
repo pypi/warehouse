@@ -14,6 +14,7 @@ import os
 
 from unittest import mock
 
+import orjson
 import pretend
 import pytest
 
@@ -24,7 +25,7 @@ from pyramid.tweens import EXCVIEW
 
 from warehouse import config
 from warehouse.errors import BasicAuthBreachedPassword, BasicAuthFailedPassword
-from warehouse.utils.wsgi import HostRewrite, ProxyFixer, VhmRootRemover
+from warehouse.utils.wsgi import ProxyFixer, VhmRootRemover
 
 
 class TestRequireHTTPSTween:
@@ -255,9 +256,13 @@ def test_configure(monkeypatch, settings, environment):
         "warehouse.account.global_login_ratelimit_string": "1000 per 5 minutes",
         "warehouse.account.email_add_ratelimit_string": "2 per day",
         "warehouse.account.password_reset_ratelimit_string": "5 per day",
+        "warehouse.manage.oidc.user_registration_ratelimit_string": "20 per day",
+        "warehouse.manage.oidc.ip_registration_ratelimit_string": "20 per day",
         "warehouse.two_factor_requirement.enabled": False,
         "warehouse.two_factor_mandate.available": False,
         "warehouse.two_factor_mandate.enabled": False,
+        "warehouse.oidc.enabled": False,
+        "warehouse.two_factor_mandate.cohort_size": 0,
     }
     if environment == config.Environment.development:
         expected_settings.update(
@@ -301,7 +306,6 @@ def test_configure(monkeypatch, settings, environment):
     assert configurator_obj.add_wsgi_middleware.calls == [
         pretend.call(ProxyFixer, token="insecure token", num_proxies=1),
         pretend.call(VhmRootRemover),
-        pretend.call(HostRewrite),
     ]
     assert configurator_obj.include.calls == (
         [
@@ -350,6 +354,7 @@ def test_configure(monkeypatch, settings, environment):
             pretend.call(".oidc"),
             pretend.call(".malware"),
             pretend.call(".manage"),
+            pretend.call(".organizations"),
             pretend.call(".packaging"),
             pretend.call(".redirects"),
             pretend.call(".routes"),
@@ -439,7 +444,10 @@ def test_configure(monkeypatch, settings, environment):
     ]
 
     assert json_renderer_cls.calls == [
-        pretend.call(sort_keys=True, separators=(",", ":"))
+        pretend.call(
+            serializer=orjson.dumps,
+            option=orjson.OPT_SORT_KEYS | orjson.OPT_APPEND_NEWLINE,
+        )
     ]
 
     assert xmlrpc_renderer_cls.calls == [pretend.call(allow_none=True)]

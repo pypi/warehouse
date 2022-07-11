@@ -15,6 +15,7 @@ import enum
 import os
 import shlex
 
+import orjson
 import transaction
 
 from pyramid import renderers
@@ -26,7 +27,7 @@ from pyramid_rpc.xmlrpc import XMLRPCRenderer
 
 from warehouse.errors import BasicAuthBreachedPassword, BasicAuthFailedPassword
 from warehouse.utils.static import ManifestCacheBuster
-from warehouse.utils.wsgi import HostRewrite, ProxyFixer, VhmRootRemover
+from warehouse.utils.wsgi import ProxyFixer, VhmRootRemover
 
 
 class Environment(enum.Enum):
@@ -175,6 +176,7 @@ def configure(settings=None):
         default="https://api.github.com/meta/public_keys/token_scanning",
     )
     maybe_set(settings, "warehouse.trending_table", "WAREHOUSE_TRENDING_TABLE")
+    maybe_set(settings, "warehouse.downloads_table", "WAREHOUSE_DOWNLOADS_TABLE")
     maybe_set(settings, "celery.broker_url", "BROKER_URL")
     maybe_set(settings, "celery.result_url", "REDIS_URL")
     maybe_set(settings, "celery.scheduler_url", "REDIS_URL")
@@ -270,6 +272,18 @@ def configure(settings=None):
         "PASSWORD_RESET_RATELIMIT_STRING",
         default="5 per day",
     )
+    maybe_set(
+        settings,
+        "warehouse.manage.oidc.user_registration_ratelimit_string",
+        "USER_OIDC_REGISTRATION_RATELIMIT_STRING",
+        default="20 per day",
+    )
+    maybe_set(
+        settings,
+        "warehouse.manage.oidc.ip_registration_ratelimit_string",
+        "IP_OIDC_REGISTRATION_RATELIMIT_STRING",
+        default="20 per day",
+    )
 
     # 2FA feature flags
     maybe_set(
@@ -290,6 +304,22 @@ def configure(settings=None):
         settings,
         "warehouse.two_factor_mandate.enabled",
         "TWOFACTORMANDATE_ENABLED",
+        coercer=distutils.util.strtobool,
+        default=False,
+    )
+    maybe_set(
+        settings,
+        "warehouse.two_factor_mandate.cohort_size",
+        "TWOFACTORMANDATE_COHORTSIZE",
+        coercer=int,
+        default=0,
+    )
+
+    # OIDC feature flags
+    maybe_set(
+        settings,
+        "warehouse.oidc.enabled",
+        "OIDC_ENABLED",
         coercer=distutils.util.strtobool,
         default=False,
     )
@@ -389,6 +419,8 @@ def configure(settings=None):
     filters.setdefault("format_package_type", "warehouse.filters:format_package_type")
     filters.setdefault("parse_version", "warehouse.filters:parse_version")
     filters.setdefault("localize_datetime", "warehouse.filters:localize_datetime")
+    filters.setdefault("is_recent", "warehouse.filters:is_recent")
+    filters.setdefault("canonicalize_name", "packaging.utils:canonicalize_name")
 
     # We also want to register some global functions for Jinja
     jglobals = config.get_settings().setdefault("jinja2.globals", {})
@@ -398,6 +430,17 @@ def configure(settings=None):
     jglobals.setdefault("now", "warehouse.utils:now")
 
     # And some enums to reuse in the templates
+    jglobals.setdefault("AdminFlagValue", "warehouse.admin.flags:AdminFlagValue")
+    jglobals.setdefault(
+        "OrganizationInvitationStatus",
+        "warehouse.organizations.models:OrganizationInvitationStatus",
+    )
+    jglobals.setdefault(
+        "OrganizationRoleType", "warehouse.organizations.models:OrganizationRoleType"
+    )
+    jglobals.setdefault(
+        "OrganizationType", "warehouse.organizations.models:OrganizationType"
+    )
     jglobals.setdefault(
         "RoleInvitationStatus", "warehouse.packaging.models:RoleInvitationStatus"
     )
@@ -410,7 +453,13 @@ def configure(settings=None):
 
     # We want to configure our JSON renderer to sort the keys, and also to use
     # an ultra compact serialization format.
-    config.add_renderer("json", renderers.JSON(sort_keys=True, separators=(",", ":")))
+    config.add_renderer(
+        "json",
+        renderers.JSON(
+            serializer=orjson.dumps,
+            option=orjson.OPT_SORT_KEYS | orjson.OPT_APPEND_NEWLINE,
+        ),
+    )
 
     # Configure retry support.
     config.add_settings({"retry.attempts": 3})
@@ -496,6 +545,9 @@ def configure(settings=None):
     # Register logged-in views
     config.include(".manage")
 
+    # Register our organization support.
+    config.include(".organizations")
+
     # Allow the packaging app to register any services it has.
     config.include(".packaging")
 
@@ -567,10 +619,6 @@ def configure(settings=None):
 
     # Protect against cache poisoning via the X-Vhm-Root headers.
     config.add_wsgi_middleware(VhmRootRemover)
-
-    # Fix our host header when getting sent upload.pypi.io as a HOST.
-    # TODO: Remove this, this is at the wrong layer.
-    config.add_wsgi_middleware(HostRewrite)
 
     # We want Sentry to be the last things we add here so that it's the outer
     # most WSGI middleware.

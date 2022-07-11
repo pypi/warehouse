@@ -12,11 +12,11 @@
 
 import json
 
+import jwt
 import redis
 import requests
 import sentry_sdk
 
-from jwt import PyJWK
 from zope.interface import implementer
 
 from warehouse.metrics.interfaces import IMetricsService
@@ -148,10 +148,87 @@ class OIDCProviderService:
                 tags=[f"provider:{self.provider}", f"key_id:{key_id}"],
             )
             return None
-        return PyJWK(keyset[key_id])
+        return jwt.PyJWK(keyset[key_id])
 
-    def verify(self, token):
-        return NotImplemented
+    def _get_key_for_token(self, token):
+        """
+        Return a JWK suitable for verifying the given JWT.
+
+        The JWT is not verified at this point, and this step happens
+        prior to any verification.
+        """
+        unverified_header = jwt.get_unverified_header(token)
+        return self.get_key(unverified_header["kid"])
+
+    def verify_signature_only(self, token):
+        key = self._get_key_for_token(token)
+
+        try:
+            # NOTE: Many of the keyword arguments here are defaults, but we
+            # set them explicitly to assert the intended verification behavior.
+            signed_payload = jwt.decode(
+                token,
+                key=key,
+                algorithms=["RS256"],
+                verify_signature=True,
+                # "require" only checks for the presence of these claims, not
+                # their validity. Each has a corresponding "verify_" kwarg
+                # that enforces their actual validity.
+                require=["iss", "iat", "nbf", "exp", "aud"],
+                verify_iss=True,
+                verify_iat=True,
+                verify_nbf=True,
+                verify_exp=True,
+                verify_aud=True,
+                issuer=self.issuer_url,
+                audience="pypi",
+                leeway=30,
+            )
+            return signed_payload
+        except jwt.PyJWTError:
+            return None
+        except Exception as e:
+            # We expect pyjwt to only raise subclasses of PyJWTError, but
+            # we can't enforce this. Other exceptions indicate an abstraction
+            # leak, so we log them for upstream reporting.
+            sentry_sdk.capture_message(f"JWT verify raised generic error: {e}")
+            return None
+
+    def verify_for_project(self, token, project):
+        signed_payload = self.verify_signature_only(token)
+
+        metrics_tags = [f"project:{project.name}", f"provider:{self.provider}"]
+        self.metrics.increment(
+            "warehouse.oidc.verify_for_project.attempt",
+            tags=metrics_tags,
+        )
+
+        if signed_payload is None:
+            self.metrics.increment(
+                "warehouse.oidc.verify_for_project.invalid_signature",
+                tags=metrics_tags,
+            )
+            return False
+
+        # In order for a signed JWT to be valid for a particular PyPI project,
+        # it must match at least one of the OIDC providers registered to
+        # the project.
+        verified = any(
+            provider.verify_claims(signed_payload)
+            for provider in project.oidc_providers
+        )
+        if not verified:
+            self.metrics.increment(
+                "warehouse.oidc.verify_for_project.invalid_claims",
+                tags=metrics_tags,
+            )
+        else:
+            self.metrics.increment(
+                "warehouse.oidc.verify_for_project.ok",
+                tags=metrics_tags,
+            )
+
+        return verified
 
 
 class OIDCProviderServiceFactory:

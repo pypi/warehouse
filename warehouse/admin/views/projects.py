@@ -15,7 +15,7 @@ import shlex
 from paginate_sqlalchemy import SqlalchemyOrmPage as SQLAlchemyORMPage
 from pyramid.httpexceptions import HTTPBadRequest, HTTPMovedPermanently, HTTPSeeOther
 from pyramid.view import view_config
-from sqlalchemy import or_
+from sqlalchemy import func, or_
 from sqlalchemy.orm import joinedload
 from sqlalchemy.orm.exc import NoResultFound
 
@@ -46,15 +46,16 @@ def project_list(request):
         raise HTTPBadRequest("'page' must be an integer.") from None
 
     projects_query = request.db.query(Project).order_by(Project.normalized_name)
+    exact_match = None
 
     if q:
-        terms = shlex.split(q)
+        projects_query = projects_query.filter(
+            func.ultranormalize_name(Project.name) == func.ultranormalize_name(q)
+        )
 
-        filters = []
-        for term in terms:
-            filters.append(Project.name.ilike(term))
-
-        projects_query = projects_query.filter(or_(*filters))
+        exact_match = (
+            request.db.query(Project).filter(Project.normalized_name == q).one_or_none()
+        )
 
     projects = SQLAlchemyORMPage(
         projects_query,
@@ -63,7 +64,7 @@ def project_list(request):
         url_maker=paginate_url_factory(request),
     )
 
-    return {"projects": projects, "query": q}
+    return {"projects": projects, "query": q, "exact_match": exact_match}
 
 
 @view_config(
@@ -171,7 +172,8 @@ def releases_list(project, request):
                 if field.lower() == "version":
                     filters.append(Release.version.ilike(value))
 
-        releases_query = releases_query.filter(or_(*filters))
+        filters = filters or [True]
+        releases_query = releases_query.filter(or_(False, *filters))
 
     releases = SQLAlchemyORMPage(
         releases_query,
@@ -240,7 +242,8 @@ def journals_list(project, request):
                 if field.lower() == "version":
                     filters.append(JournalEntry.version.ilike(value))
 
-        journals_query = journals_query.filter(or_(*filters))
+        filters = filters or [True]
+        journals_query = journals_query.filter(or_(False, *filters))
 
     journals = SQLAlchemyORMPage(
         journals_query,

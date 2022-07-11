@@ -69,9 +69,9 @@
 
 {% macro email_row(email) -%}
   <tr>
-    <th class="table__email" scope="row">
+    <td class="table__email" scope="row">
       {{ email.email }}
-    </th>
+    </td>
     <td>
       <span class="table__status-badges">
         {% if email.primary %}
@@ -141,10 +141,10 @@
     </th>
     <td>
       <span class="table__mobile-label">{% trans %}Scope{% endtrans %}</span>
-      {% if macaroon.caveats.get("permissions") == 'user' %}
+      {% if macaroon.permissions_caveat.permissions == 'user' %}
       {% trans %}All projects{% endtrans %}
       {% else %}
-        {% for project in macaroon.caveats.get("permissions")['projects'] %}
+        {% for project in macaroon.permissions_caveat.get("permissions")['projects'] %}
         <a href="{{ request.route_path('packaging.project', name=project) }}">{{ project }}</a>
         {% endfor %}
       {% endif %}
@@ -458,8 +458,20 @@
   <section id="account-events">
     <h2>{% trans %}Security history{% endtrans %}</h2>
 
-    {% set recent_events = user.recent_events %}
+    {% set recent_events = user.recent_events.all() %}
     {% if recent_events|length > 0 %}
+
+    {% macro caveat_detail(caveat) -%}
+      {% if "permissions" in caveat %}
+        {% if caveat.permissions == "user" %}
+          {% trans %}Token scope: entire account{% endtrans %}
+        {% else %}
+          {% trans project_name=caveat.permissions.projects[0] %}Token scope: Project {{ project_name }}{% endtrans %}
+        {% endif %}
+      {% elif "exp" in caveat %}
+        {% trans trimmed exp=humanize(caveat.exp) %}Expires: {{ exp }}{% endtrans %}
+      {% endif %}
+    {%- endmacro %}
 
     {% macro event_summary(event) -%}
       {% if event.tag == "account:create" %}
@@ -597,10 +609,18 @@
       <strong>{% trans %}API token added{% endtrans %}</strong><br>
       <small>
         {% trans %}Token name:{% endtrans %} {{ event.additional.description }}<br>
-        {% if event.additional.caveats.permissions == "user" %}
-          {% trans %}Token scope: entire account{% endtrans %}
+        {#
+          NOTE: Old events contain a single caveat dictionary, rather than a list of caveats.
+
+          This check can be deleted roughly 90 days after merge, since events older than
+          90 days are not presented to the user.
+        #}
+        {% if event.additional.caveats is mapping %}
+          {{ caveat_detail(event.additional.caveats) }}
         {% else %}
-          {% trans project_name=event.additional.caveats.permissions.projects[0] %}Token scope: Project {{ project_name }}{% endtrans %}
+          {% for caveat in event.additional.caveats %}
+            {{ caveat_detail(caveat) }}
+          {% endfor %}
         {% endif %}
       </small>
 

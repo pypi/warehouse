@@ -30,15 +30,6 @@ from warehouse.legacy.api.xmlrpc.cache import (
 from warehouse.legacy.api.xmlrpc.cache.interfaces import CacheError, IXMLRPCCache
 
 
-@pytest.fixture
-def fakeredis():
-    import fakeredis
-
-    _fakeredis = fakeredis.FakeStrictRedis()
-    yield _fakeredis
-    _fakeredis.flushall()
-
-
 def func_test(arg0, arg1, kwarg0=0, kwarg1=1):
     return [[arg0, arg1], {"kwarg0": kwarg0, "kwarg1": kwarg1}]
 
@@ -217,8 +208,8 @@ class TestIncludeMe:
 
 
 class TestRedisLru:
-    def test_redis_lru(self, fakeredis):
-        redis_lru = RedisLru(fakeredis)
+    def test_redis_lru(self, mockredis):
+        redis_lru = RedisLru(mockredis)
 
         expected = func_test(0, 1, kwarg0=2, kwarg1=3)
 
@@ -229,11 +220,11 @@ class TestRedisLru:
             func_test, [0, 1], {"kwarg0": 2, "kwarg1": 3}, None, None, None
         )
 
-    def test_redis_custom_metrics(self, fakeredis):
+    def test_redis_custom_metrics(self, mockredis):
         metric_reporter = pretend.stub(
             increment=pretend.call_recorder(lambda *args: None)
         )
-        redis_lru = RedisLru(fakeredis, metric_reporter=metric_reporter)
+        redis_lru = RedisLru(mockredis, metric_reporter=metric_reporter)
 
         expected = func_test(0, 1, kwarg0=2, kwarg1=3)
 
@@ -248,11 +239,11 @@ class TestRedisLru:
             pretend.call("lru.cache.hit"),
         ]
 
-    def test_redis_purge(self, fakeredis):
+    def test_redis_purge(self, mockredis):
         metric_reporter = pretend.stub(
             increment=pretend.call_recorder(lambda *args: None)
         )
-        redis_lru = RedisLru(fakeredis, metric_reporter=metric_reporter)
+        redis_lru = RedisLru(mockredis, metric_reporter=metric_reporter)
 
         expected = func_test(0, 1, kwarg0=2, kwarg1=3)
 
@@ -315,12 +306,12 @@ class TestDeriver:
         ("service_available", "xmlrpc_cache"),
         [(True, True), (True, False), (False, True), (False, False)],
     )
-    def test_deriver(self, service_available, xmlrpc_cache, fakeredis):
+    def test_deriver(self, service_available, xmlrpc_cache, mockredis):
         context = pretend.stub()
         purger = pretend.call_recorder(lambda tags: None)
         service = RedisXMLRPCCache("redis://127.0.0.2:6379/0", purger)
-        service.redis_conn = fakeredis
-        service.redis_lru.conn = fakeredis
+        service.redis_conn = mockredis
+        service.redis_lru.conn = mockredis
         if service_available:
             _find_service = pretend.call_recorder(lambda *args, **kwargs: service)
         else:

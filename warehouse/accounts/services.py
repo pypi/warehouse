@@ -24,6 +24,7 @@ import requests
 from passlib.context import CryptContext
 from sqlalchemy.orm import joinedload
 from sqlalchemy.orm.exc import NoResultFound
+from sqlalchemy.sql import exists
 from webauthn.helpers import bytes_to_base64url
 from zope.interface import implementer
 
@@ -43,7 +44,14 @@ from warehouse.accounts.interfaces import (
     TooManyEmailsAdded,
     TooManyFailedLogins,
 )
-from warehouse.accounts.models import Email, RecoveryCode, User, WebAuthn
+from warehouse.accounts.models import (
+    DisableReason,
+    Email,
+    ProhibitedUserName,
+    RecoveryCode,
+    User,
+    WebAuthn,
+)
 from warehouse.metrics import IMetricsService
 from warehouse.rate_limiting import DummyRateLimiter, IRateLimiter
 from warehouse.utils.crypto import BadData, SignatureExpired, URLSafeTimedSerializer
@@ -100,6 +108,15 @@ class DatabaseUserService:
     def get_user_by_email(self, email):
         user_id = self.find_userid_by_email(email)
         return None if user_id is None else self.get_user(user_id)
+
+    @functools.lru_cache()
+    def get_admins(self):
+        return self.db.query(User).filter(User.is_superuser.is_(True)).all()
+
+    def username_is_prohibited(self, username):
+        return self.db.query(
+            exists().where(ProhibitedUserName.name == username.lower())
+        ).scalar()
 
     @functools.lru_cache()
     def find_userid(self, username):
@@ -280,12 +297,15 @@ class DatabaseUserService:
     def is_disabled(self, user_id):
         user = self.get_user(user_id)
 
-        # User is not disabled.
-        if self.hasher.is_enabled(user.password):
-            return (False, None)
-        # User is disabled.
-        else:
+        if user.is_frozen:
+            return (True, DisableReason.AccountFrozen)
+
+        # User is disabled due to password being disabled
+        if not self.hasher.is_enabled(user.password):
             return (True, user.disabled_for)
+
+        # User is not disabled.
+        return (False, None)
 
     def has_two_factor(self, user_id):
         """
