@@ -53,7 +53,15 @@
       <div class="split-layout split-layout--no-wrap split-layout--wrap-on-tablet">
         <div>
           <h3 class="organization-snippet__title">{{ organization.name }}
-            {% if organization.is_approved == None %}
+            {% if organization.orgtype == OrganizationType.Company and not organization.subscription %}
+            <a class="badge badge--danger organization-snippet__badge" href="{{ request.route_path('manage.organization.create_subscription', organization_name=organization.normalized_name) }}">{% trans %}Billing Inactive{% endtrans %}</a>
+            {% elif organization.orgtype == OrganizationType.Company and not organization.subscription.is_active %}
+              {% if organization.name in (organizations_owned + organizations_billing) %}
+              <a class="badge badge--danger organization-snippet__badge" href="{{ request.route_path('manage.organization.manage_subscription', organization_name=organization.normalized_name) }}">{% trans %}Billing Inactive{% endtrans %}</a>
+              {% else %}
+              <span class="badge badge--danger organization-snippet__badge" title="{% trans %}This organization's billing can be activated by an organization owner or billing manager{% endtrans %}">{% trans %}Billing Inactive{% endtrans %}</a>
+              {% endif %}
+            {% elif organization.is_approved == None %}
             <span class="badge badge--neutral organization-snippet__badge" title="{% trans %}You will receive an email when the organization has been approved{% endtrans %}">{% trans %}Request Submitted{% endtrans %}</span>
             {% elif organization.is_active == False %}
             <span class="badge badge--danger organization-snippet__badge" title="{% trans %}This organization is not active{% endtrans %}">{% trans %}Inactive{% endtrans %}</span>
@@ -62,7 +70,7 @@
             {% elif organization.name in organizations_owned %}
             <a class="badge badge--warning organization-snippet__badge" href="{{ request.route_path('manage.organization.roles', organization_name=organization.normalized_name) }}">{% trans %}Owner{% endtrans %}</a>
             {% elif organization.name in organizations_billing %}
-            <a class="badge badge--success organization-snippet__badge" {# TODO href="{{ request.route_path('manage.organization.settings', organization_name=organization.normalized_name) }}" #}>{% trans %}Billing Manager{% endtrans %}</a>
+            <a class="badge badge--success organization-snippet__badge" href="{{ request.route_path('manage.organization.settings', organization_name=organization.normalized_name) }}">{% trans %}Billing Manager{% endtrans %}</a>
             {% endif %}
           </h3>
           <p class="organization-snippet__meta">
@@ -75,6 +83,23 @@
           <a class="button" href="{{ request.route_path('manage.organization.roles', organization_name=organization.normalized_name) }}" title="{% trans %}View this organization{% endtrans %}">
             {% trans %}View{% endtrans %}
           </a>
+          {% elif organization.orgtype == OrganizationType.Company and not organization.subscription %}
+          {# Show "Activate Billing" button for the owner who is creating the organization #}
+          <a class="button button--primary" href="{{ request.route_path('manage.organization.create_subscription', organization_name=organization.normalized_name) }}" title="{% trans %}Activate billing for this organization{% endtrans %}">
+            {% trans %}Activate Billing{% endtrans %}
+          </a>
+          {% elif organization.orgtype == OrganizationType.Company and not organization.subscriptionsubscription.is_active %}
+            {% if organization.name in (organizations_owned + organizations_billing) %}
+            {# Show "Activate Billing" button for owners and billing managers #}
+            <a class="button button--primary" href="{{ request.route_path('manage.organization.manage_subscription', organization_name=organization.normalized_name) }}" title="{% trans %}Activate billing for this organization{% endtrans %}">
+              {% trans %}Activate Billing{% endtrans %}
+            </a>
+            {% else %}
+            {# Show disabled "Manage" button for managers #}
+            <button class="button button--primary" disabled title="{% trans %}This organization is not active{% endtrans %}">
+              {% trans %}Manage{% endtrans %}
+            </button>
+            {% endif %}
           {% elif not organization.is_active %}
           {# Show disabled "Manage" button for inactive organization #}
           <button class="button button--primary" disabled title="{% trans %}This organization is not active{% endtrans %}">
@@ -82,7 +107,7 @@
           </button>
           {% elif organization.name in organizations_billing %}
           {# Show "Manage" button for billing managers #}
-          <a class="button button--primary" {# TODO href="{{ request.route_path('manage.organization.settings', organization_name=organization.normalized_name) }}" title="{% trans %}Manage this organization{% endtrans %}" #}>
+          <a class="button button--primary" href="{{ request.route_path('manage.organization.settings', organization_name=organization.normalized_name) }}" title="{% trans %}Manage this organization{% endtrans %}">
             {% trans %}Manage{% endtrans %}
           </a>
           {% else %}

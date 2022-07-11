@@ -148,6 +148,35 @@
     </form>
   </section>
 
+  {% if request.has_permission("manage:billing") and organization.orgtype == OrganizationType.Company %}
+  <hr>
+
+  <section id="billing-details">
+    <h2>{% trans %}Billing details{% endtrans %}</h2>
+    {% if organization.subscription %}
+    <div class="form-group">
+      <span class="form-group__label">{% trans %}Billing status{% endtrans %}</span>
+      <p class="form-group__text">{{ gettext(organization.subscription.status.label) }}</p>
+      <span class="form-group__label">{% trans %}Last updated{% endtrans %}</span>
+      <p class="form-group__text"> {{ humanize(organization.subscription.last_updated) }} </p>
+    </div>
+    <a href="{{ request.route_path('manage.organization.manage_subscription', organization_name=organization.normalized_name) }}" class="button button--primary" type="submit">
+      {% trans %}Manage billing{% endtrans %}
+    </a>
+    {% else %}
+    <div class="form-group">
+      <span class="form-group__label">{% trans %}Billing status{% endtrans %}</span>
+      <p class="form-group__text">{% trans %}Incomplete{% endtrans %}</p>
+      <span class="form-group__label">{% trans %}Last updated{% endtrans %}</span>
+      <p class="form-group__text">—</p>
+    </div>
+    <a href="{{ request.route_path('manage.organization.create_subscription', organization_name=organization.normalized_name) }}" class="button button--primary" type="submit">
+      {% trans %}Manage billing{% endtrans %}
+    </a>
+    {% endif %}
+  </section>
+  {% endif %}
+
   {% if request.has_permission("manage:organization") %}
   <hr>
 
