@@ -221,9 +221,9 @@ types-requests==2.28.0 \
     --hash=sha256:85383b4ef0535f639c3f06c5bbb6494bbf59570c4cd88bbcf540f0b2ac1b49ab \
     --hash=sha256:9863d16dfbb3fa55dcda64fa3b989e76e8859033b26c1e1623e30465cfe294d3
     # via -r requirements/lint.in
-types-setuptools==57.4.18 \
-    --hash=sha256:8ee03d823fe7fda0bd35faeae33d35cb5c25b497263e6a58b34c4cfd05f40bcf \
-    --hash=sha256:9660b8774b12cd61b448e2fd87a667c02e7ec13ce9f15171f1d49a4654c4df6a
+types-setuptools==62.6.1 \
+    --hash=sha256:affd968a3a7218e1c96f1806eb457f4027eac803b3caaddccf98a4e5776b1724 \
+    --hash=sha256:b0341c29c7f44f7625204532b8829bd92ebb5fd48aa9f3e2052177e743e990b1
     # via -r requirements/lint.in
 types-sqlalchemy-utils==1.0.0 \
     --hash=sha256:64403b5260fffcb0ee04fd37167f5c1d1cc68d103f82ef2d5d868e7ac281d5e5 \
