@@ -25,7 +25,9 @@ from warehouse.organizations.models import (
     OrganizationNameCatalog,
     OrganizationProject,
     OrganizationRole,
+    OrganizationSubscription,
 )
+from warehouse.subscriptions.models import Subscription
 
 NAME_FIELD = "name"
 
@@ -310,7 +312,17 @@ class DatabaseOrganizationService:
         self.db.query(OrganizationProject).filter_by(organization=organization).delete()
         # Delete roles
         self.db.query(OrganizationRole).filter_by(organization=organization).delete()
-        # TODO: Delete any stored card data from payment processor
+        # TODO: Delete any billing data if it exists
+        #       Cancel their Subscription for them?
+        #       Make them cancel via portal before allowing deletion?
+        if organization.subscriptions:
+            for subscription in organization.subscriptions:
+                self.db.query(OrganizationSubscription).filter(
+                    subscription_id=subscription.id
+                ).delete()
+                self.db.query(Subscription).filter_by(
+                    subscription=subscription
+                ).delete()
         # Delete organization
         self.db.delete(organization)
         self.db.flush()
@@ -380,6 +392,20 @@ class DatabaseOrganizationService:
 
         self.db.delete(organization_project)
         self.db.flush()
+
+    def add_organization_subscription(self, organization_id, subscription_id):
+        """
+        Adds an association between the specified organization and subscription
+        """
+        organization_subscription = OrganizationSubscription(
+            organization_id=organization_id,
+            subscription_id=subscription_id,
+        )
+
+        self.db.add(organization_subscription)
+        self.db.flush()
+
+        return organization_subscription
 
     def record_event(self, organization_id, *, tag, additional=None):
         """

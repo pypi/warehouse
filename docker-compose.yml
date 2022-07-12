@@ -43,6 +43,7 @@ services:
       STRIPE_PUBLISHABLE_KEY: "pk_test_123"
       STRIPE_SECRET_KEY: "sk_test_123"
       STRIPE_WEBHOOK_SECRET: "whsec_123"
+      BILLING_BACKEND: "warehouse.subscriptions.services.LocalBillingService"
 
   redis:
     image: redis:4.0

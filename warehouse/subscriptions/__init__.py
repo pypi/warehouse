@@ -9,3 +9,20 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+
+# from celery.schedules import crontab
+
+from warehouse.subscriptions.interfaces import IBillingService, ISubscriptionService
+from warehouse.subscriptions.services import subscription_factory
+
+# from warehouse.subscriptions.tasks import check_customer_payment_status
+
+
+def includeme(config):
+    # Register our subscription service
+    config.register_service_factory(subscription_factory, ISubscriptionService)
+    # Register whatever payment service provider has been configured
+    billing_class = config.maybe_dotted(config.registry.settings["billing.backend"])
+    config.register_service_factory(billing_class.create_service, IBillingService)
+
+    # config.add_periodic_task(crontab(minute=0, hour=0), check_customer_payment_status)

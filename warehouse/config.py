@@ -163,6 +163,7 @@ def configure(settings=None):
     maybe_set(settings, "aws.key_id", "AWS_ACCESS_KEY_ID")
     maybe_set(settings, "aws.secret_key", "AWS_SECRET_ACCESS_KEY")
     maybe_set(settings, "aws.region", "AWS_REGION")
+    maybe_set(settings, "billing.backend", "BILLING_BACKEND")
     maybe_set(settings, "subscription.api_base", "STRIPE_API_BASE")
     maybe_set(settings, "subscription.publishable_key", "STRIPE_PUBLISHABLE_KEY")
     maybe_set(settings, "subscription.secret_key", "STRIPE_SECRET_KEY")
@@ -551,6 +552,9 @@ def configure(settings=None):
 
     # Register our organization support.
     config.include(".organizations")
+
+    # Register our subscription support.
+    config.include(".subscriptions")
 
     # Allow the packaging app to register any services it has.
     config.include(".packaging")
