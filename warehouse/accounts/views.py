@@ -985,7 +985,7 @@ def verify_organization_role(request):
 
     return HTTPSeeOther(
         request.route_path(
-            "manage.organization.roles", organization_name=organization.name
+            "manage.organization.roles", organization_name=organization.normalized_name
         )
     )
 

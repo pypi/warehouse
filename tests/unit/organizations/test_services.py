@@ -16,14 +16,23 @@ from zope.interface.verify import verifyClass
 
 from warehouse.organizations import services
 from warehouse.organizations.interfaces import IOrganizationService
-from warehouse.organizations.models import OrganizationRoleType
+from warehouse.organizations.models import (
+    OrganizationInvitation,
+    OrganizationNameCatalog,
+    OrganizationProject,
+    OrganizationRole,
+    OrganizationRoleType,
+    OrganizationType,
+)
 
 from ...common.db.organizations import (
     OrganizationFactory,
     OrganizationInvitationFactory,
+    OrganizationProjectFactory,
     OrganizationRoleFactory,
     UserFactory,
 )
+from ...common.db.packaging import ProjectFactory
 
 
 def test_database_organizations_factory():
@@ -137,13 +146,6 @@ class TestDatabaseOrganizationService:
         assert org_from_db.link_url == organization.link_url
         assert org_from_db.description == organization.description
         assert not org_from_db.is_active
-
-    def test_add_catalog_entry(self, organization_service):
-        organization = OrganizationFactory.create()
-
-        catalog_entry = organization_service.add_catalog_entry(organization.id)
-        assert catalog_entry.normalized_name == organization.normalized_name
-        assert catalog_entry.organization_id == organization.id
 
     def test_get_organization_role(self, organization_service, user_service):
         organization_role = OrganizationRoleFactory.create()
@@ -309,3 +311,123 @@ class TestDatabaseOrganizationService:
 
         assert organization.is_approved is False
         assert organization.date_approved is not None
+
+    def test_delete_organization(self, organization_service, db_request):
+        organization = OrganizationFactory.create()
+
+        organization_service.delete_organization(organization.id)
+
+        assert not (
+            (
+                db_request.db.query(OrganizationInvitation)
+                .filter_by(organization=organization)
+                .count()
+            )
+        )
+        assert not (
+            (
+                db_request.db.query(OrganizationNameCatalog)
+                .filter(OrganizationNameCatalog.organization_id == organization.id)
+                .count()
+            )
+        )
+        assert not (
+            (
+                db_request.db.query(OrganizationProject)
+                .filter_by(organization=organization)
+                .count()
+            )
+        )
+        assert not (
+            (
+                db_request.db.query(OrganizationRole)
+                .filter_by(organization=organization)
+                .count()
+            )
+        )
+        assert organization_service.get_organization(organization.id) is None
+
+    def test_rename_organization(self, organization_service, db_request):
+        organization = OrganizationFactory.create()
+
+        organization_service.rename_organization(organization.id, "some_new_name")
+        assert organization.name == "some_new_name"
+
+        db_organization = organization_service.get_organization(organization.id)
+        assert db_organization.name == "some_new_name"
+
+        assert (
+            db_request.db.query(OrganizationNameCatalog)
+            .filter(
+                OrganizationNameCatalog.normalized_name == organization.normalized_name
+            )
+            .count()
+        )
+
+    def test_update_organization(self, organization_service, db_request):
+        organization = OrganizationFactory.create()
+
+        organization_service.update_organization(
+            organization.id,
+            name="some_new_name",
+            display_name="Some New Name",
+            orgtype=OrganizationType.Company.value,
+        )
+        assert organization.name == "some_new_name"
+        assert organization.display_name == "Some New Name"
+        assert organization.orgtype == OrganizationType.Company
+
+        db_organization = organization_service.get_organization(organization.id)
+        assert db_organization.name == "some_new_name"
+        assert db_organization.display_name == "Some New Name"
+        assert db_organization.orgtype == OrganizationType.Company
+
+        assert (
+            db_request.db.query(OrganizationNameCatalog)
+            .filter(
+                OrganizationNameCatalog.normalized_name
+                == db_organization.normalized_name
+            )
+            .count()
+        )
+
+    def test_get_organization_project(self, organization_service):
+        organization = OrganizationFactory.create()
+        project = ProjectFactory.create()
+        organization_project = OrganizationProjectFactory.create(
+            organization=organization, project=project
+        )
+
+        assert (
+            organization_service.get_organization_project(organization.id, project.id)
+            == organization_project
+        )
+
+    def test_add_organization_project(self, organization_service, db_request):
+        organization = OrganizationFactory.create()
+        project = ProjectFactory.create()
+
+        organization_service.add_organization_project(organization.id, project.id)
+        assert (
+            db_request.db.query(OrganizationProject)
+            .filter(
+                OrganizationProject.organization_id == organization.id,
+                OrganizationProject.project_id == project.id,
+            )
+            .count()
+        )
+
+    def test_delete_organization_project(self, organization_service, db_request):
+        organization = OrganizationFactory.create()
+        project = ProjectFactory.create()
+        OrganizationProjectFactory.create(organization=organization, project=project)
+
+        organization_service.delete_organization_project(organization.id, project.id)
+        assert not (
+            db_request.db.query(OrganizationProject)
+            .filter(
+                OrganizationProject.organization_id == organization.id,
+                OrganizationProject.project_id == project.id,
+            )
+            .count()
+        )

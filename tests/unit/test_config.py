@@ -14,6 +14,7 @@ import os
 
 from unittest import mock
 
+import orjson
 import pretend
 import pytest
 
@@ -262,6 +263,7 @@ def test_configure(monkeypatch, settings, environment):
         "warehouse.two_factor_mandate.enabled": False,
         "warehouse.oidc.enabled": False,
         "oidc.backend": "warehouse.oidc.services.OIDCProviderService",
+        "warehouse.two_factor_mandate.cohort_size": 0,
     }
     if environment == config.Environment.development:
         expected_settings.update(
@@ -443,7 +445,10 @@ def test_configure(monkeypatch, settings, environment):
     ]
 
     assert json_renderer_cls.calls == [
-        pretend.call(sort_keys=True, separators=(",", ":"))
+        pretend.call(
+            serializer=orjson.dumps,
+            option=orjson.OPT_SORT_KEYS | orjson.OPT_APPEND_NEWLINE,
+        )
     ]
 
     assert xmlrpc_renderer_cls.calls == [pretend.call(allow_none=True)]

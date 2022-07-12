@@ -17,32 +17,41 @@ import { Application } from "stimulus";
 import ViewportToggleController from "../../warehouse/static/js/warehouse/controllers/viewport_toggle_controller";
 
 
-describe("Viewport toggle controller", () => {
-  beforeEach(() => {
-    document.body.innerHTML = `
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <div data-controller="viewport-toggle">
-        <button id="switch-to-mobile" class="button button--primary button--switch-to-mobile hidden" data-target="viewport-toggle.switchToMobile" data-action="viewport-toggle#switchToMobile">
-          Switch to mobile version
-        </button>
-        <div class="centered hide-on-desktop">
-            <button id="switch-to-desktop" class="button button--switch-to-desktop hidden" data-target="viewport-toggle.switchToDesktop" data-action="viewport-toggle#switchToDesktop">
-                Desktop version
-            </button>
-        </div>
-    </div>
-    `;
-  });
+const viewportContent = `
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <div data-controller="viewport-toggle">
+      <button id="switch-to-mobile" class="button button--primary button--switch-to-mobile hidden" data-target="viewport-toggle.switchToMobile" data-action="viewport-toggle#switchToMobile">
+        Switch to mobile version
+      </button>
+      <div class="centered hide-on-desktop">
+          <button id="switch-to-desktop" class="button button--switch-to-desktop hidden" data-target="viewport-toggle.switchToDesktop" data-action="viewport-toggle#switchToDesktop">
+              Desktop version
+          </button>
+      </div>
+  </div>
+`;
 
+
+function startStimulus() {
+  // set the HTML before satarting the application, as the controller uses the
+  // `connect()` function.
+  document.body.innerHTML = viewportContent;
+  const application = Application.start();
+  application.register("viewport-toggle", ViewportToggleController);
+}
+
+
+describe("Viewport toggle controller", () => {
 
   describe("initial state", function() {
     describe("with no `showDesktop` localStorage value", function() {
       beforeEach(() => {
-        const application = Application.start();
-        application.register("viewport-toggle", ViewportToggleController);
-        // localStorage is empty
+        localStorage.clear(); // localStorage is empty
+        startStimulus();
       });
       it("shows the switch to desktop and hides switch to mobile", function() {
+        expect(localStorage.getItem("showDesktop")).toBeNull;
+
         expect(document.getElementById("switch-to-desktop")).not.toHaveClass("hidden");
         expect(document.getElementById("switch-to-mobile")).toHaveClass("hidden");
       });
@@ -50,13 +59,14 @@ describe("Viewport toggle controller", () => {
 
     describe("with `showDesktop` localStorage value", function() {
       beforeEach(() => {
-        const application = Application.start();
-        application.register("viewport-toggle", ViewportToggleController);
         localStorage.setItem("showDesktop", 1);
         window.scrollTo = jest.fn();
+        startStimulus();
       });
 
-      it("shows the switch to desktop and hides switch to mobile", function() {
+      it("shows the switch to mobile and hides switch to desktop", function() {
+        expect(localStorage.getItem("showDesktop")).toEqual("1");
+
         expect(document.getElementById("switch-to-desktop")).toHaveClass("hidden");
         expect(document.getElementById("switch-to-mobile")).not.toHaveClass("hidden");
         expect(document.getElementsByTagName("meta")["viewport"].content).toEqual("width=1280");
@@ -66,13 +76,14 @@ describe("Viewport toggle controller", () => {
 
   describe("clicking switch to desktop", function() {
     beforeEach(() => {
-      const application = Application.start();
-      application.register("viewport-toggle", ViewportToggleController);
+      localStorage.clear(); // localStorage is empty
       window.scrollTo = jest.fn();
-      // localStorage is empty
+      startStimulus();
     });
 
     it("shows the switch to mobile button and sets localStorage", function() {
+      expect(localStorage.getItem("showDesktop")).toBeNull;
+
       const switchToDesktop = document.getElementById("switch-to-desktop");
       const switchToMobile = document.getElementById("switch-to-mobile");
 
@@ -87,12 +98,13 @@ describe("Viewport toggle controller", () => {
 
   describe("clicking switch to mobile", function() {
     beforeEach(() => {
-      const application = Application.start();
-      application.register("viewport-toggle", ViewportToggleController);
+      localStorage.clear(); // localStorage is empty
       window.scrollTo = jest.fn();
-      // localStorage is empty
+      startStimulus();
     });
     it("shows the switch to desktop button and removes localStorage", function() {
+      expect(localStorage.getItem("showDesktop")).toBeNull;
+
       const switchToDesktop = document.getElementById("switch-to-desktop");
       const switchToMobile = document.getElementById("switch-to-mobile");
 

@@ -10,15 +10,18 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import pretend
 import pytest
 
 from pyramid.authorization import Allow
+from pyramid.httpexceptions import HTTPPermanentRedirect
 from pyramid.location import lineage
 
 from warehouse.organizations.models import OrganizationFactory, OrganizationRoleType
 
 from ...common.db.organizations import (
     OrganizationFactory as DBOrganizationFactory,
+    OrganizationNameCatalogFactory as DBOrganizationNameCatalogFactory,
     OrganizationRoleFactory as DBOrganizationRoleFactory,
 )
 
@@ -30,6 +33,18 @@ class TestOrganizationFactory:
         root = OrganizationFactory(db_request)
 
         assert root[normalized] == organization
+
+    def test_traversal_redirects(self, db_request):
+        db_request.matched_route = pretend.stub(generate=lambda *a, **kw: "route-path")
+        organization = DBOrganizationFactory.create()
+        DBOrganizationNameCatalogFactory.create(
+            normalized_name="oldname",
+            organization_id=organization.id,
+        )
+        root = OrganizationFactory(db_request)
+
+        with pytest.raises(HTTPPermanentRedirect):
+            root["oldname"]
 
     def test_traversal_cant_find(self, db_request):
         organization = DBOrganizationFactory.create()

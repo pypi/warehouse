@@ -35,6 +35,15 @@ class OrganizationFactory(WarehouseFactory):
     class Meta:
         model = Organization
 
+    @classmethod
+    def _create(cls, model_class, *args, **kwargs):
+        organization = super()._create(model_class, *args, **kwargs)
+        OrganizationNameCatalogFactory.create(
+            normalized_name=organization.normalized_name,
+            organization_id=organization.id,
+        )
+        return organization
+
     id = factory.Faker("uuid4", cast_to=None)
     name = factory.Faker("pystr", max_chars=12)
     display_name = factory.Faker("word")
@@ -62,7 +71,7 @@ class OrganizationNameCatalogFactory(WarehouseFactory):
     class Meta:
         model = OrganizationNameCatalog
 
-    name = factory.Faker("pystr", max_chars=12)
+    normalized_name = factory.Faker("pystr", max_chars=12)
     organization_id = factory.Faker("uuid4", cast_to=None)
 
 
@@ -90,6 +99,5 @@ class OrganizationProjectFactory(WarehouseFactory):
         model = OrganizationProject
 
     id = factory.Faker("uuid4", cast_to=None)
-    is_active = True
     organization = factory.SubFactory(OrganizationFactory)
     project = factory.SubFactory(ProjectFactory)

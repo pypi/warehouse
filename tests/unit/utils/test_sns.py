@@ -41,7 +41,7 @@ VALID_SIGNATURE = object()
 def sns_privatekey():
     key = rsa.generate_private_key(
         public_exponent=65537,
-        key_size=1024,  # 1024 shouldn't be used, but for tests it's fine.
+        key_size=2048,
         backend=default_backend(),
     )
     return key.private_bytes(Encoding.PEM, PrivateFormat.PKCS8, NoEncryption())

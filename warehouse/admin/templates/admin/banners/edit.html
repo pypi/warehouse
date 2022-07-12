@@ -57,7 +57,7 @@
           <h3 class="box-title">Edit Banner</h3>
 
           <div class="navbar-right">
-            <a class="btn btn-primary" href="{{ request.route_path('admin.banner.preview', banner_id=banner.id) }}" target="_blank"><i class="icon fa fa-eye"></i> Preview</a>
+            <a class="btn btn-primary" href="{{ request.route_path('admin.banner.preview', banner_id=banner.id) }}" rel="nofollow noopener noreferrer" target="_blank"><i class="icon fa fa-eye"></i> Preview</a>
             <button type="button" class="btn btn-danger" data-toggle="modal" data-target="#deleteBanner" {{ "disabled" if not request.has_permission('psf_staff') }} value=>
               <i class="icon fa fa-trash"></i> Delete banner
             </button>

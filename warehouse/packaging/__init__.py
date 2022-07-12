@@ -19,7 +19,9 @@ from warehouse.cache.origin import key_factory, receive_set
 from warehouse.manage.tasks import update_role_invitation_status
 from warehouse.packaging.interfaces import IDocsStorage, IFileStorage, ISimpleStorage
 from warehouse.packaging.models import File, Project, Release, Role
-from warehouse.packaging.tasks import (  # sync_bigquery_release_files,
+from warehouse.packaging.tasks import (
+    compute_2fa_mandate,
+    compute_2fa_metrics,
     compute_trending,
     update_description_html,
 )
@@ -100,6 +102,13 @@ def includeme(config):
 
     config.add_periodic_task(crontab(minute="*/5"), update_description_html)
     config.add_periodic_task(crontab(minute="*/5"), update_role_invitation_status)
+
+    # Add a periodic task to recompute the critical projects list once a day
+    if config.get_settings().get("warehouse.two_factor_mandate.available", False):
+        config.add_periodic_task(crontab(minute=0, hour=3), compute_2fa_mandate)
+
+    # Add a periodic task to generate 2FA metrics
+    config.add_periodic_task(crontab(minute="*/5"), compute_2fa_metrics)
 
     # Add a periodic task to compute trending once a day, assuming we have
     # been configured to be able to access BigQuery.

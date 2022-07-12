@@ -25,6 +25,7 @@ from sqlalchemy import (
     Integer,
     LargeBinary,
     String,
+    Text,
     UniqueConstraint,
     orm,
     select,
@@ -96,6 +97,7 @@ class User(SitemapMixin, HasEvents, db.Model):
     webauthn = orm.relationship(
         "WebAuthn", backref="user", cascade="all, delete-orphan", lazy=True
     )
+
     recovery_codes = orm.relationship(
         "RecoveryCode", backref="user", cascade="all, delete-orphan", lazy=True
     )
@@ -237,3 +239,44 @@ class Email(db.ModelBase):
         nullable=True,
     )
     transient_bounces = Column(Integer, nullable=False, server_default=sql.text("0"))
+
+
+class ProhibitedUserName(db.Model):
+
+    __tablename__ = "prohibited_user_names"
+    __table_args__ = (
+        CheckConstraint(
+            "length(name) <= 50", name="prohibited_users_valid_username_length"
+        ),
+        CheckConstraint(
+            "name ~* '^([A-Z0-9]|[A-Z0-9][A-Z0-9._-]*[A-Z0-9])$'",
+            name="prohibited_users_valid_username",
+        ),
+    )
+
+    __repr__ = make_repr("name")
+
+    created = Column(
+        DateTime(timezone=False), nullable=False, server_default=sql.func.now()
+    )
+    name = Column(Text, unique=True, nullable=False)
+    _prohibited_by = Column(
+        "prohibited_by", UUID(as_uuid=True), ForeignKey("users.id"), index=True
+    )
+    prohibited_by = orm.relationship(User)
+    comment = Column(Text, nullable=False, server_default="")
+
+
+class TitanPromoCode(db.Model):
+    __tablename__ = "user_titan_codes"
+
+    user_id = Column(
+        UUID(as_uuid=True),
+        ForeignKey("users.id", deferrable=True, initially="DEFERRED"),
+        nullable=True,
+        index=True,
+        unique=True,
+    )
+    code = Column(String, nullable=False, unique=True)
+    created = Column(DateTime, nullable=False, server_default=sql.func.now())
+    distributed = Column(DateTime, nullable=True)

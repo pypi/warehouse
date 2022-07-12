@@ -4,6 +4,8 @@ on:
     branches:
       - main
   pull_request:
+permissions:
+  contents: read
 concurrency:
   group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.sha }}
   cancel-in-progress: true
@@ -51,9 +53,13 @@ jobs:
     runs-on: ubuntu-latest
     services:
       postgres:
-        image: postgres:10.1
+        image: postgres:12.8
         ports:
           - 5432:5432
+        env:
+          POSTGRES_HOST_AUTH_METHOD: trust  # never do this in production!
+        # Set health checks to wait until postgres has started
+        options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
     name: ${{ matrix.name }}
     steps:
       - name: Check out repository
@@ -62,26 +68,14 @@ jobs:
         run: |
           sudo apt -y update
           sudo apt -y install libcurl4-openssl-dev libssl-dev pkg-config
-      - name: Read .python-version
-        if: ${{ matrix.needs-python }}
-        run: |
-           echo "WAREHOUSE_PYTHON_VERSION=$(<.python-version)" >> $GITHUB_ENV
-      - uses: actions/setup-python@v3
+      - uses: actions/setup-python@v4
         if: ${{ matrix.needs-python }}
         with:
-          python-version: ${{ env.WAREHOUSE_PYTHON_VERSION }}
-      - name: Cache Python dependencies
-        if: ${{ matrix.needs-python }}
-        uses: actions/cache@v3
-        env:
-          cache-name: warehouse-cache-pip
-        with:
-          path: ~/.cache/pip
-          key: ${{ runner.os }}-${{ github.job }}-${{ env.cache-name }}-${{ hashFiles('requirements.txt', 'requirements/*.txt') }}
-          restore-keys: |
-            ${{ runner.os }}-${{ github.job }}-${{ env.cache-name }}-
-            ${{ runner.os }}-${{ github.job }}-
-            ${{ runner.os }}-
+          python-version-file: '.python-version'
+          cache: 'pip'
+          cache-dependency-path: |
+            requirements.txt
+            requirements/*.txt
       - name: Install Python dependencies
         if: ${{ matrix.needs-python }}
         run: |
@@ -92,19 +86,7 @@ jobs:
         if: ${{ matrix.needs-node }}
         with:
           node-version: 14.15.5
-      - name: Cache Node dependencies
-        if: ${{ matrix.needs-node }}
-        uses: actions/cache@v2
-        env:
-          cache-name: warehouse-cache-npm
-        with:
-          path: ~/.npm
-          key: ${{ runner.os }}-build-${{ github.job }}-${{ env.cache-name }}-${{ hashFiles('**/package-lock.json') }}
-          restore-keys: |
-            ${{ runner.os }}-build-${{ github.job }}-${{ env.cache-name }}-
-            ${{ runner.os }}-build-${{ github.job }}-
-            ${{ runner.os }}-build-
-            ${{ runner.os }}-
+          cache: 'npm'
       - name: Install Node dependencies
         if: ${{ matrix.needs-node }}
         run: npm ci

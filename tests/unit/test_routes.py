@@ -141,6 +141,9 @@ def test_routes(warehouse):
             "stats.json", "/stats/", accept="application/json", domain=warehouse
         ),
         pretend.call(
+            "security-key-giveaway", "/security-key-giveaway/", domain=warehouse
+        ),
+        pretend.call(
             "accounts.profile",
             "/user/{username}/",
             factory="warehouse.accounts.models:UserFactory",
@@ -246,6 +249,20 @@ def test_routes(warehouse):
             "manage.organizations", "/manage/organizations/", domain=warehouse
         ),
         pretend.call(
+            "manage.organization.settings",
+            "/manage/organization/{organization_name}/settings/",
+            factory="warehouse.organizations.models:OrganizationFactory",
+            traverse="/{organization_name}",
+            domain=warehouse,
+        ),
+        pretend.call(
+            "manage.organization.projects",
+            "/manage/organization/{organization_name}/projects/",
+            factory="warehouse.organizations.models:OrganizationFactory",
+            traverse="/{organization_name}",
+            domain=warehouse,
+        ),
+        pretend.call(
             "manage.organization.roles",
             "/manage/organization/{organization_name}/people/",
             factory="warehouse.organizations.models:OrganizationFactory",
@@ -284,6 +301,20 @@ def test_routes(warehouse):
         pretend.call(
             "manage.project.settings.publishing",
             "/manage/project/{project_name}/settings/publishing/",
+            factory="warehouse.packaging.models:ProjectFactory",
+            traverse="/{project_name}",
+            domain=warehouse,
+        ),
+        pretend.call(
+            "manage.project.remove_organization_project",
+            "/manage/project/{project_name}/remove_organization_project/",
+            factory="warehouse.packaging.models:ProjectFactory",
+            traverse="/{project_name}",
+            domain=warehouse,
+        ),
+        pretend.call(
+            "manage.project.transfer_organization_project",
+            "/manage/project/{project_name}/transfer_organization_project/",
             factory="warehouse.packaging.models:ProjectFactory",
             traverse="/{project_name}",
             domain=warehouse,
@@ -401,9 +432,9 @@ def test_routes(warehouse):
             "/_/vulnerabilities/osv/report",
             domain=warehouse,
         ),
-        pretend.call("legacy.api.simple.index", "/simple/", domain=warehouse),
+        pretend.call("api.simple.index", "/simple/", domain=warehouse),
         pretend.call(
-            "legacy.api.simple.detail",
+            "api.simple.detail",
             "/simple/{name}/",
             factory="warehouse.packaging.models:ProjectFactory",
             traverse="/{name}/",

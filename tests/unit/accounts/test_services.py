@@ -42,7 +42,7 @@ from warehouse.accounts.interfaces import (
     TooManyEmailsAdded,
     TooManyFailedLogins,
 )
-from warehouse.accounts.models import DisableReason
+from warehouse.accounts.models import DisableReason, ProhibitedUserName
 from warehouse.metrics import IMetricsService, NullMetrics
 from warehouse.rate_limiting.interfaces import IRateLimiter
 
@@ -132,6 +132,20 @@ class TestDatabaseUserService:
 
         assert limiter.test.calls == []
         assert limiter.resets_in.calls == []
+
+    def test_username_is_not_prohibited(self, user_service):
+        assert user_service.username_is_prohibited("my_username") is False
+
+    def test_username_is_prohibited(self, user_service):
+        user = UserFactory.create()
+        user_service.db.add(
+            ProhibitedUserName(
+                name="my_username",
+                comment="blah",
+                prohibited_by=user,
+            )
+        )
+        assert user_service.username_is_prohibited("my_username") is True
 
     def test_find_userid_nonexistent_user(self, user_service):
         assert user_service.find_userid("my_username") is None
