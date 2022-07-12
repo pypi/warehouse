@@ -240,15 +240,8 @@ def includeme(config):
         domain=warehouse,
     )
     config.add_route(
-        "manage.organization.create_subscription",
-        "/manage/organization/{organization_name}/subscription/create/",
-        factory="warehouse.organizations.models:OrganizationFactory",
-        traverse="/{organization_name}",
-        domain=warehouse,
-    )
-    config.add_route(
-        "manage.organization.manage_subscription",
-        "/manage/organization/{organization_name}/subscription/manage/",
+        "manage.organization.subscription",
+        "/manage/organization/{organization_name}/subscription/",
         factory="warehouse.organizations.models:OrganizationFactory",
         traverse="/{organization_name}",
         domain=warehouse,

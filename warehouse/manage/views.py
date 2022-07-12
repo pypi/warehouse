@@ -1262,7 +1262,7 @@ class ManageOrganizationsViews:
         if form.orgtype.data == OrganizationType.Company:
             return HTTPSeeOther(
                 self.request.route_path(
-                    "manage.organization.create_subscription",
+                    "manage.organization.subscription",
                     organization_name=organization.normalized_name,
                 )
             )
@@ -1470,7 +1470,6 @@ class ManageOrganizationBillingViews:
             "next", self.request.route_path("manage.organizations")
         )
 
-    @view_config(route_name="manage.organization.create_subscription")
     def create_subscription(self):
         create_subscription_url = self.subscription_service.create_checkout_session(
             organization_id=self.organization.id,
@@ -1480,13 +1479,19 @@ class ManageOrganizationBillingViews:
         )
         return HTTPSeeOther(create_subscription_url)
 
-    @view_config(route_name="manage.organization.manage_subscription")
     def manage_subscription(self):
         manage_subscription_url = self.subscription_service.create_portal_session(
             organization_id=self.organization.id,
             return_url=self.return_url,
         )
         return HTTPSeeOther(manage_subscription_url)
+
+    @view_config(route_name="manage.organization.subscription")
+    def create_or_manage_subscription(self):
+        if not self.organization.subscription:
+            return self.create_subscription()
+        else:
+            return self.manage_subscription()
 
 
 @view_defaults(
