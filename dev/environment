@@ -16,6 +16,11 @@ REDIS_URL=redis://redis:6379/0
 
 SESSION_SECRET="an insecure development secret"
 
+STRIPE_API_BASE="localhost:12111"
+STRIPE_PUBLISHABLE_KEY="pk_test_123"
+STRIPE_SECRET_KEY="sk_test_123"
+STRIPE_WEBHOOK_SECRET="whsec_123"
+
 CAMO_URL={request.scheme}://{request.domain}:9000/
 CAMO_KEY=insecurecamokey
 

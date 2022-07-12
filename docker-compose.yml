@@ -33,6 +33,16 @@ services:
       POSTGRES_HOST_AUTH_METHOD: trust  # never do this in production!
     healthcheck:
       test: ["CMD", "pg_isready", "-U", "postgres", "-d", "postgres"]
+  
+  stripe:
+    image: stripe/stripe-mock:latest
+    ports:
+      - "12111-12112:12111-12112"
+    environment:
+      STRIPE_API_BASE: "localhost:12111"
+      STRIPE_PUBLISHABLE_KEY: "pk_test_123"
+      STRIPE_SECRET_KEY: "sk_test_123"
+      STRIPE_WEBHOOK_SECRET: "whsec_123"
 
   redis:
     image: redis:4.0
