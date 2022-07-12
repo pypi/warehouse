@@ -105,6 +105,34 @@ class OrganizationProject(db.Model):
     project = orm.relationship("Project", lazy=False)
 
 
+class OrganizationSubscription(db.Model):
+
+    __tablename__ = "organization_subscription"
+    __table_args__ = (
+        Index("organization_subscription_organization_id_idx", "organization_id"),
+        Index("organization_subscription_subscription_id_idx", "subscription_id"),
+        UniqueConstraint(
+            "organization_id",
+            "subscription_id",
+            name="_organization_subscription_organization_subscription_uc",
+        ),
+    )
+
+    __repr__ = make_repr("organization_id", "subscription_id")
+
+    organization_id = Column(
+        ForeignKey("organizations.id", onupdate="CASCADE", ondelete="CASCADE"),
+        nullable=False,
+    )
+    subscription_id = Column(
+        ForeignKey("subscriptions.id", onupdate="CASCADE", ondelete="CASCADE"),
+        nullable=False,
+    )
+
+    organization = orm.relationship("Organization", lazy=False)
+    subscription = orm.relationship("Subscription", lazy=False)
+
+
 class OrganizationType(str, enum.Enum):
 
     Community = "Community"
@@ -192,6 +220,9 @@ class Organization(HasEvents, db.Model):
     )
     projects = orm.relationship(
         "Project", secondary=OrganizationProject.__table__, back_populates="organization", viewonly=True  # type: ignore # noqa
+    )
+    subscriptions = orm.relationship(
+        "Subscription", secondary=OrganizationSubscription.__table__, back_populates="organization", viewonly=True  # type: ignore # noqa
     )
 
     def record_event(self, *, tag, ip_address, additional={}):
