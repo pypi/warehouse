@@ -1147,6 +1147,7 @@ requests==2.28.1 \
     #   google-cloud-storage
     #   premailer
     #   requests-aws4auth
+    #   stripe
 requests-aws4auth==1.1.2 \
     --hash=sha256:23b7a054326f80f86caf87e3eaf54ea41aa27adbed4297bd3456b1fa38f06a52 \
     --hash=sha256:ebde0662dccda5023546055ec4cbe4470cae017ecbfce8d368b80b5e4a94d619
@@ -1236,6 +1237,10 @@ sqlalchemy-utils==0.38.2 \
 stdlib-list==0.8.0 \
     --hash=sha256:2ae0712a55b68f3fbbc9e58d6fa1b646a062188f49745b495f94d3310a9fdd3e \
     --hash=sha256:a1e503719720d71e2ed70ed809b385c60cd3fb555ba7ec046b96360d30b16d9f
+    # via -r requirements/main.in
+stripe==3.5.0 \
+    --hash=sha256:08f74cae6619d4a7d78f8162ff72bc3e9c913f53ec96ecd5ddc7d823c2e79ddd \
+    --hash=sha256:69d5bf4611624a503bcec84a61b1f2a2b874bfc828432e4fd75cd120bcc3efef
     # via -r requirements/main.in
 structlog==21.5.0 \
     --hash=sha256:68c4c29c003714fe86834f347cb107452847ba52414390a7ee583472bde00fc9 \

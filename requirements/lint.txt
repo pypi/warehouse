@@ -233,6 +233,10 @@ types-stdlib-list==0.8.1 \
     --hash=sha256:1ba8c5ac639715bc3670da07e1679acbedc6834dd6caba5e6c7fb14aa468d5ed \
     --hash=sha256:f7fb88d8c602911256918ba8985ac9d9176ff4ca31d6138fedea1a5992b69645
     # via -r requirements/lint.in
+types-stripe==3.5.0 \
+    --hash=sha256:1eaf4d147f5d572158cc01217490dd2d13607c5bbb028cc34498ee0952c1604b \
+    --hash=sha256:2220b675422daf1fc49a2be1ca634dbe74803c23067f968043c2f90697da3566
+    # via -r requirements/lint.in
 types-urllib3==1.26.16 \
     --hash=sha256:20588c285e5ca336d908d2705994830a83cfb6bda40fc356bbafaf430a262013 \
     --hash=sha256:8bb3832c684c30cbed40b96e28bc04703becb2b97d82ac65ba4b968783453b0e
