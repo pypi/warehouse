@@ -2452,7 +2452,11 @@ class TestManageOrganizations:
             remote_addr="0.0.0.0",
         )
 
-        create_organization_obj = pretend.stub(validate=lambda: True, data=request.POST)
+        create_organization_obj = pretend.stub(
+            data=request.POST,
+            orgtype=pretend.stub(data=request.POST["orgtype"]),
+            validate=lambda: True,
+        )
         create_organization_cls = pretend.call_recorder(
             lambda *a, **kw: create_organization_obj
         )
@@ -2986,6 +2990,58 @@ class TestManageOrganizationSettings:
         view = views.ManageOrganizationSettingsViews(organization, db_request)
         with pytest.raises(HTTPNotFound):
             view.delete_organization()
+
+
+class TestManageOrganizationBillingViews:
+    def test_create_subscription(self, db_request, subscription_service, monkeypatch):
+        organization = OrganizationFactory.create()
+
+        db_request.route_path = pretend.call_recorder(
+            lambda *a, **kw: "/manage/organizations/"
+        )
+
+        create_checkout_session = pretend.call_recorder(lambda *a, **kw: "session-url")
+        monkeypatch.setattr(
+            subscription_service, "create_checkout_session", create_checkout_session
+        )
+
+        view = views.ManageOrganizationBillingViews(organization, db_request)
+        result = view.create_subscription()
+
+        assert create_checkout_session.calls == [
+            pretend.call(
+                organization_id=organization.id,
+                product_id=None,
+                success_url=view.return_url,
+                cancel_url=view.return_url,
+            ),
+        ]
+        assert isinstance(result, HTTPSeeOther)
+        assert result.headers["Location"] == "session-url"
+
+    def test_manage_subscription(self, db_request, subscription_service, monkeypatch):
+        organization = OrganizationFactory.create()
+
+        db_request.route_path = pretend.call_recorder(
+            lambda *a, **kw: "/manage/organizations/"
+        )
+
+        create_portal_session = pretend.call_recorder(lambda *a, **kw: "session-url")
+        monkeypatch.setattr(
+            subscription_service, "create_portal_session", create_portal_session
+        )
+
+        view = views.ManageOrganizationBillingViews(organization, db_request)
+        result = view.manage_subscription()
+
+        assert create_portal_session.calls == [
+            pretend.call(
+                organization_id=organization.id,
+                return_url=view.return_url,
+            ),
+        ]
+        assert isinstance(result, HTTPSeeOther)
+        assert result.headers["Location"] == "session-url"
 
 
 class TestManageOrganizationProjects:

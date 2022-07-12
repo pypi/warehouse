@@ -98,12 +98,12 @@ class TestOrganization:
                 (
                     Allow,
                     f"user:{owner1.user.id}",
-                    ["view:organization", "manage:organization"],
+                    ["view:organization", "manage:organization", "manage:billing"],
                 ),
                 (
                     Allow,
                     f"user:{owner2.user.id}",
-                    ["view:organization", "manage:organization"],
+                    ["view:organization", "manage:organization", "manage:billing"],
                 ),
             ],
             key=lambda x: x[1],
