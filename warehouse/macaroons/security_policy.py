@@ -20,6 +20,7 @@ from warehouse.cache.http import add_vary_callback
 from warehouse.errors import WarehouseDenied
 from warehouse.macaroons.interfaces import IMacaroonService
 from warehouse.macaroons.services import InvalidMacaroonError
+from warehouse.packaging.models import Project
 from warehouse.utils.security_policy import AuthenticationMethod
 
 
@@ -93,11 +94,15 @@ class MacaroonSecurityPolicy:
         except InvalidMacaroonError:
             return None
 
-        # Every Macaroon has either a user or a project.
+        # Every Macaroon has either a user, or it's being used in the
+        # context of a project. For the latter, our authorization policy
+        # has already checked whether the project is valid for the macaroon.
         if dm.user is not None:
             return dm.user
         else:
-            return dm.project
+            if not isinstance(request.context, Project):
+                return None
+            return request.context
 
     def remember(self, request, userid, **kw):
         # This is a NO-OP because our Macaroon header policy doesn't allow
