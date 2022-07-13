@@ -12,6 +12,7 @@
 
 from warehouse.oidc.interfaces import IOIDCProviderService
 from warehouse.oidc.services import OIDCProviderServiceFactory
+from warehouse.oidc.utils import GITHUB_OIDC_ISSUER_URL
 
 
 def includeme(config):
@@ -22,7 +23,7 @@ def includeme(config):
     config.register_service_factory(
         OIDCProviderServiceFactory(
             provider="github",
-            issuer_url="https://token.actions.githubusercontent.com",
+            issuer_url=GITHUB_OIDC_ISSUER_URL,
             service_class=oidc_provider_service_class,
         ),
         IOIDCProviderService,

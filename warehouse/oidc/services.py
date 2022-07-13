@@ -22,6 +22,7 @@ from zope.interface import implementer
 
 from warehouse.metrics.interfaces import IMetricsService
 from warehouse.oidc.interfaces import IOIDCProviderService
+from warehouse.oidc.utils import find_provider_by_issuer
 
 
 class InsecureOIDCProviderWarning(UserWarning):
@@ -30,7 +31,7 @@ class InsecureOIDCProviderWarning(UserWarning):
 
 @implementer(IOIDCProviderService)
 class NullOIDCProviderService:
-    def __init__(self, provider, issuer_url, cache_url, metrics):
+    def __init__(self, session, provider, issuer_url, cache_url, metrics):
         warnings.warn(
             "NullOIDCProviderService is intended only for use in development, "
             "you should not use it in production due to the lack of actual "
@@ -66,7 +67,8 @@ class NullOIDCProviderService:
 
 @implementer(IOIDCProviderService)
 class OIDCProviderService:
-    def __init__(self, provider, issuer_url, cache_url, metrics):
+    def __init__(self, session, provider, issuer_url, cache_url, metrics):
+        self.db = session
         self.provider = provider
         self.issuer_url = issuer_url
         self.cache_url = cache_url
@@ -237,41 +239,43 @@ class OIDCProviderService:
             sentry_sdk.capture_message(f"JWT verify raised generic error: {e}")
             return None
 
-    def verify_for_project(self, token, project):
-        signed_payload = self._verify_signature_only(token)
+    def find_provider(self, unverified_token):
+        signed_payload = self._verify_signature_only(unverified_token)
 
-        metrics_tags = [f"project:{project.name}", f"provider:{self.provider}"]
+        metrics_tags = [f"provider:{self.provider}"]
         self.metrics.increment(
-            "warehouse.oidc.verify_for_project.attempt",
+            "warehouse.oidc.find_provider.attempt",
             tags=metrics_tags,
         )
 
         if signed_payload is None:
             self.metrics.increment(
-                "warehouse.oidc.verify_for_project.invalid_signature",
+                "warehouse.oidc.find_provider.invalid_signature",
                 tags=metrics_tags,
             )
-            return False
+            return None
 
-        # In order for a signed JWT to be valid for a particular PyPI project,
-        # it must match at least one of the OIDC providers registered to
-        # the project.
-        verified = any(
-            provider.verify_claims(signed_payload)
-            for provider in project.oidc_providers
-        )
-        if not verified:
+        provider = find_provider_by_issuer(self.issuer_url, signed_payload)
+        if provider is None:
             self.metrics.increment(
-                "warehouse.oidc.verify_for_project.invalid_claims",
+                "warehouse.oidc.find_provider.provider_not_found",
                 tags=metrics_tags,
             )
+            return None
+
+        if not provider.verify_claims(signed_payload):
+            self.metrics.increment(
+                "warehouse.oidc.find_provider.invalid_claims",
+                tags=metrics_tags,
+            )
+            return None
         else:
             self.metrics.increment(
                 "warehouse.oidc.verify_for_project.ok",
                 tags=metrics_tags,
             )
 
-        return verified
+        return provider
 
 
 class OIDCProviderServiceFactory:
@@ -284,7 +288,9 @@ class OIDCProviderServiceFactory:
         cache_url = request.registry.settings["oidc.jwk_cache_url"]
         metrics = request.find_service(IMetricsService, context=None)
 
-        return self.service_class(self.provider, self.issuer_url, cache_url, metrics)
+        return self.service_class(
+            request.db, self.provider, self.issuer_url, cache_url, metrics
+        )
 
     def __eq__(self, other):
         if not isinstance(other, OIDCProviderServiceFactory):

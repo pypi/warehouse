@@ -17,12 +17,13 @@ from warehouse.rate_limiting.interfaces import RateLimiterException
 
 
 class IOIDCProviderService(Interface):
-    def verify_for_project(token, project):
+    def find_provider(unverified_token):
         """
-        Verify the given JWT's signature and basic claims in the same
-        manner as `verify_signature_only`, but *also* verify that the JWT's
-        claims are consistent with at least one of the project's registered
-        OIDC providers.
+        Verify the given JWT's signature and retrieve the OIDCProvider
+        corresponding to its claims, verifying the claim set along the way.
+
+        Returns None if the JWT's signature is invalid, if no corresponding
+        OIDCProvider exists, or if the claims do not verify.
         """
 
 

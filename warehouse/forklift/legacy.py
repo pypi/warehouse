@@ -905,7 +905,7 @@ def file_upload(request):
                     "configure the project to use OpenID Connect."
                 ),
             )
-    
+
         # We attempt to create the project.
         try:
             validate_project_name(form.name.data, request)
