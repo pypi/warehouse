@@ -199,9 +199,9 @@ types-passlib==1.7.6 \
     --hash=sha256:5d84edb4398590030e3218b8918395fe4010cb6d7550a6ee94511470938f3e34 \
     --hash=sha256:8056111211c917c83050a0e1a692f699896c2078d79fce9969c7373018a2183c
     # via -r requirements/lint.in
-types-psycopg2==2.9.16 \
-    --hash=sha256:adf3be817cb82e17e6d36c4112718dbda38f98db291d736f022a1d89b53c832c \
-    --hash=sha256:b350d7cf7aaa24c42854f6656fb70547799271eccb738fc5e244840b798bb373
+types-psycopg2==2.9.17 \
+    --hash=sha256:35090ea646e5b7af5312e8281a23989b298cf1dfaa2bbaba7ffa792e395b0443 \
+    --hash=sha256:c9232a17a84c17c66cd6a9fbf685f6294758f7bfa7b653af4e67485b6abff48c
     # via -r requirements/lint.in
 types-python-slugify==6.1.0 \
     --hash=sha256:556d9b387ef632e588445b9e0edbb0e57e939ab387e53a05ad9c5a6d1321b2a3 \
