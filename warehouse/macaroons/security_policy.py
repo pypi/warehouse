@@ -96,7 +96,8 @@ class MacaroonSecurityPolicy:
 
         # Every Macaroon has either a user, or it's being used in the
         # context of a project. For the latter, our authorization policy
-        # has already checked whether the project is valid for the macaroon.
+        # has already checked whether the project is valid for the Macaroon
+        # by checking the Macaroon's caveats.
         if dm.user is not None:
             return dm.user
         else:

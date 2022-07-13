@@ -24,7 +24,6 @@ from warehouse.accounts.models import User
 from warehouse.macaroons.caveats import InvalidMacaroonError, Verifier
 from warehouse.macaroons.interfaces import IMacaroonService
 from warehouse.macaroons.models import Macaroon
-from warehouse.packaging.models import Project
 
 
 @implementer(IMacaroonService)
@@ -127,23 +126,17 @@ class DatabaseMacaroonService:
 
         raise InvalidMacaroonError("invalid macaroon")
 
-    def create_macaroon(
-        self, *, location, description, caveats, user_id=None, project_id=None
-    ):
+    def create_macaroon(self, *, location, description, caveats, user_id=None):
         """
         Returns a tuple of a new raw (serialized) macaroon and its DB model.
         The description provided is not embedded into the macaroon, only stored
         in the DB model.
 
-        Either a user ID or a project ID (but not both) is required.
+        A user may be associated with the created macaroon, by ID.
         """
         user = None
         if user_id is not None:
             user = self.db.query(User).get(user_id)
-
-        project = None
-        if project_id is not None:
-            project = self.db.query(Project).get(project_id)
 
         # NOTE: This is a bit of a hack: we keep a separate copy of the
         # permissions caveat in the DB, so that we can display scope information
@@ -151,7 +144,6 @@ class DatabaseMacaroonService:
         permissions = next(c for c in caveats if "permissions" in c)  # pragma: no cover
         dm = Macaroon(
             user=user,
-            project=project,
             description=description,
             permissions_caveat=permissions,
         )

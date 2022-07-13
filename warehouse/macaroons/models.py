@@ -13,7 +13,6 @@
 import os
 
 from sqlalchemy import (
-    CheckConstraint,
     Column,
     DateTime,
     ForeignKey,
@@ -37,9 +36,6 @@ class Macaroon(db.Model):
     __table_args__ = (
         UniqueConstraint(
             "description", "user_id", name="_user_macaroons_description_uc"
-        ),
-        UniqueConstraint(
-            "description", "project_id", name="_project_macaroons_description_uc"
         ),
     )
 

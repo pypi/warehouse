@@ -67,8 +67,6 @@ def mint_token_from_oidc(request):
     ]
     serialized, dm = macaroon_service.create_macaroon(
         location=request.domain,
-        # TODO
-        project_id=None,
         description=f"OpenID token: {provider} ({now})",
         caveats=caveats,
     )

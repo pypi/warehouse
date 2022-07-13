@@ -212,10 +212,6 @@ class Project(SitemapMixin, TwoFactorRequireable, HasEvents, db.Model):
         passive_deletes=True,
     )
 
-    macaroons = orm.relationship(
-        "Macaroon", backref="project", cascade="all, delete-orphan", lazy=True
-    )
-
     def __getitem__(self, version):
         session = orm.object_session(self)
         canonical_version = packaging.utils.canonicalize_version(version)
