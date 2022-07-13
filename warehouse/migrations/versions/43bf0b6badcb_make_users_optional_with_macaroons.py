@@ -17,7 +17,6 @@ Revises: 8bee9c119e41
 Create Date: 2022-04-19 14:57:54.765006
 """
 
-import sqlalchemy as sa
 
 from alembic import op
 from citext import CIText
@@ -36,26 +35,6 @@ def upgrade():
     # JournalEvent users are now optional.
     op.alter_column("journals", "submitted_by", existing_type=CIText(), nullable=True)
 
-    # Macaroons might have an associated project (if not user-associated).
-    op.add_column(
-        "macaroons",
-        sa.Column("project_id", postgresql.UUID(as_uuid=True), nullable=True),
-    )
-    op.create_unique_constraint(
-        "_project_macaroons_description_uc", "macaroons", ["description", "project_id"]
-    )
-    op.create_index(
-        op.f("ix_macaroons_project_id"), "macaroons", ["project_id"], unique=False
-    )
-    op.create_foreign_key(None, "macaroons", "projects", ["project_id"], ["id"])
-
-    # Macaroon -> (User XOR Project)
-    op.create_check_constraint(
-        "_user_xor_project_macaroon",
-        table_name="macaroons",
-        condition="(user_id::text IS NULL) <> (project_id::text IS NULL)",
-    )
-
 
 def downgrade():
     op.alter_column(
@@ -63,10 +42,3 @@ def downgrade():
     )
 
     op.alter_column("journals", "submitted_by", existing_type=CIText(), nullable=False)
-
-    op.drop_constraint(None, "macaroons", type_="foreignkey")
-    op.drop_index(op.f("ix_macaroons_project_id"), table_name="macaroons")
-    op.drop_constraint("_project_macaroons_description_uc", "macaroons", type_="unique")
-    op.drop_column("macaroons", "project_id")
-
-    op.drop_constraint("_user_xor_project_macaroon")
