@@ -131,7 +131,7 @@ class TestLocalBillingService:
     #             }
     #         )
     #     )
-    #     billing_service = StripeBillingService.create_service(None, request)
+    #     billing_service = LocalBillingService.create_service(None, request)
 
     #     assert billing_service.api.api_key == "sk_test_123"
 
