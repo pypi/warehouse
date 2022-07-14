@@ -17,7 +17,7 @@ REDIS_URL=redis://redis:6379/0
 SESSION_SECRET="an insecure development secret"
 
 BILLING_BACKEND=warehouse.subscriptions.services.LocalBillingService
-STRIPE_API_BASE="localhost:12111"
+STRIPE_API_BASE="http://localhost:12111"
 STRIPE_PUBLISHABLE_KEY="pk_test_123"
 STRIPE_SECRET_KEY="sk_test_123"
 STRIPE_WEBHOOK_SECRET="whsec_123"
