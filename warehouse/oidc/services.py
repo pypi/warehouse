@@ -39,10 +39,13 @@ class NullOIDCProviderService:
             InsecureOIDCProviderWarning,
         )
 
-    def verify_for_project(self, token, project):
+        self.db = session
+        self.issuer_url = issuer_url
+
+    def find_provider(self, unverified_token):
         try:
             unverified_payload = jwt.decode(
-                token,
+                unverified_token,
                 options=dict(
                     verify_signature=False,
                     # We require all of these to be present, but for the
@@ -59,10 +62,9 @@ class NullOIDCProviderService:
         except jwt.PyJWTError:
             return False
 
-        return any(
-            provider.verify_claims(unverified_payload)
-            for provider in project.oidc_providers
-        )
+        # NOTE: We do NOT verify the claims against the provider, since this
+        # service is for development purposes only.
+        return find_provider_by_issuer(self.db, self.issuer_url, unverified_payload)
 
 
 @implementer(IOIDCProviderService)
@@ -255,7 +257,7 @@ class OIDCProviderService:
             )
             return None
 
-        provider = find_provider_by_issuer(self.issuer_url, signed_payload)
+        provider = find_provider_by_issuer(self.db, self.issuer_url, signed_payload)
         if provider is None:
             self.metrics.increment(
                 "warehouse.oidc.find_provider.provider_not_found",
