@@ -317,11 +317,11 @@ class DatabaseOrganizationService:
         #       Make them cancel via portal before allowing deletion?
         if organization.subscriptions:
             for subscription in organization.subscriptions:
-                self.db.query(OrganizationSubscription).filter(
-                    subscription_id=subscription.id
-                ).delete()
-                self.db.query(Subscription).filter_by(
+                self.db.query(OrganizationSubscription).filter_by(
                     subscription=subscription
+                ).delete()
+                self.db.query(Subscription).filter(
+                    Subscription.id == subscription.id
                 ).delete()
         # Delete organization
         self.db.delete(organization)
@@ -384,7 +384,7 @@ class DatabaseOrganizationService:
 
     def delete_organization_project(self, organization_id, project_id):
         """
-        Performs soft delete of association between specified organization and project
+        Delete association between specified organization and project
         """
         organization_project = self.get_organization_project(
             organization_id, project_id
@@ -392,6 +392,20 @@ class DatabaseOrganizationService:
 
         self.db.delete(organization_project)
         self.db.flush()
+
+    def get_organization_subscription(self, organization_id, subscription_id):
+        """
+        Return the organization subscription object that represents the given
+        organization subscription id or None
+        """
+        return (
+            self.db.query(OrganizationSubscription)
+            .filter(
+                OrganizationSubscription.organization_id == organization_id,
+                OrganizationSubscription.subscription_id == subscription_id,
+            )
+            .first()
+        )
 
     def add_organization_subscription(self, organization_id, subscription_id):
         """
@@ -406,6 +420,17 @@ class DatabaseOrganizationService:
         self.db.flush()
 
         return organization_subscription
+
+    def delete_organization_subscription(self, organization_id, subscription_id):
+        """
+        Delete association between specified organization and subscription
+        """
+        organization_subscription = self.get_organization_subscription(
+            organization_id, subscription_id
+        )
+
+        self.db.delete(organization_subscription)
+        self.db.flush()
 
     def record_event(self, organization_id, *, tag, additional=None):
         """

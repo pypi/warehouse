@@ -158,9 +158,20 @@ class IOrganizationService(Interface):
         Removes an association between the specified organization and project
         """
 
+    def get_organization_subscription(organization_id, subscription_id):
+        """
+        Return the organization subscription object that represents the given
+        organization subscription id or None
+        """
+
     def add_organization_subscription(organization_id, subscription_id):
         """
         Adds an association between the specified organization and subscription
+        """
+
+    def delete_organization_subscription(organization_id, subscription_id):
+        """
+        Delete association between specified organization and subscription
         """
 
     def record_event(organization_id, *, tag, additional=None):
