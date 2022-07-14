@@ -22,11 +22,13 @@ from warehouse.organizations.models import (
     OrganizationProject,
     OrganizationRole,
     OrganizationRoleType,
+    OrganizationSubscription,
 )
 
 from .accounts import UserFactory
 from .base import WarehouseFactory
 from .packaging import ProjectFactory
+from .subscriptions import SubscriptionFactory
 
 fake = faker.Faker()
 
@@ -101,3 +103,12 @@ class OrganizationProjectFactory(WarehouseFactory):
     id = factory.Faker("uuid4", cast_to=None)
     organization = factory.SubFactory(OrganizationFactory)
     project = factory.SubFactory(ProjectFactory)
+
+
+class OrganizationSubscriptionFactory(WarehouseFactory):
+    class Meta:
+        model = OrganizationSubscription
+
+    id = factory.Faker("uuid4", cast_to=None)
+    organization = factory.SubFactory(OrganizationFactory)
+    subscription = factory.SubFactory(SubscriptionFactory)
