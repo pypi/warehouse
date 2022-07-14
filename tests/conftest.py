@@ -24,6 +24,7 @@ import click.testing
 import pretend
 import pyramid.testing
 import pytest
+import stripe
 import webtest as _webtest
 
 from jinja2 import Environment, FileSystemLoader
@@ -49,7 +50,10 @@ from warehouse.metrics import IMetricsService
 from warehouse.organizations import services as organization_services
 from warehouse.organizations.interfaces import IOrganizationService
 from warehouse.subscriptions import services as subscription_services
-from warehouse.subscriptions.interfaces import ISubscriptionService
+from warehouse.subscriptions.interfaces import (
+    IGenericBillingService,
+    ISubscriptionService,
+)
 
 from .common.db import Session
 from .common.db.accounts import EmailFactory, UserFactory
@@ -125,6 +129,7 @@ class _Services:
 
 @pytest.fixture
 def pyramid_services(
+    billing_service,
     email_service,
     metrics,
     organization_service,
@@ -135,6 +140,7 @@ def pyramid_services(
     services = _Services()
 
     # Register our global services.
+    services.register_service(billing_service, IGenericBillingService, None, name="")
     services.register_service(email_service, IEmailSender, None, name="")
     services.register_service(metrics, IMetricsService, None, name="")
     services.register_service(organization_service, IOrganizationService, None, name="")
@@ -314,6 +320,13 @@ def macaroon_service(db_session):
 def organization_service(db_session, remote_addr):
     return organization_services.DatabaseOrganizationService(
         db_session, remote_addr=remote_addr
+    )
+
+
+@pytest.fixture
+def billing_service():
+    return subscription_services.GenericBillingService(
+        api=stripe, publishable_key="publishable-key", webhook_secret="webhook-secret"
     )
 
 

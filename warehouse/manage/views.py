@@ -126,7 +126,10 @@ from warehouse.packaging.models import (
     RoleInvitationStatus,
 )
 from warehouse.rate_limiting import IRateLimiter
-from warehouse.subscriptions.interfaces import ISubscriptionService
+from warehouse.subscriptions.interfaces import (
+    IGenericBillingService,
+    ISubscriptionService,
+)
 from warehouse.utils.http import is_safe_url
 from warehouse.utils.organization import confirm_organization
 from warehouse.utils.paginate import paginate_url_factory
@@ -1455,14 +1458,26 @@ class ManageOrganizationBillingViews:
     def __init__(self, organization, request):
         self.organization = organization
         self.request = request
+        self.billing_service = request.find_service(
+            IGenericBillingService, context=None
+        )
         self.subscription_service = request.find_service(
             ISubscriptionService, context=None
         )
 
     @property
-    def product_id(self):
-        # TODO: Get product from database, or use `None` for default product?
-        return None
+    def active_subscription(self):
+        try:
+            return self.organization.subscriptions[0]
+        except IndexError:
+            return None
+
+    @property
+    def price_id(self):
+        default_subscription_price = (
+            self.subscription_service.get_default_subscription_price()
+        )
+        return default_subscription_price.price_id
 
     @property
     def return_url(self):
@@ -1471,16 +1486,16 @@ class ManageOrganizationBillingViews:
         )
 
     def create_subscription(self):
-        create_subscription_url = self.subscription_service.create_checkout_session(
+        create_subscription_url = self.billing_service.create_checkout_session(
             organization_id=self.organization.id,
-            product_id=self.product_id,
+            price_id=self.price_id,
             success_url=self.return_url,
             cancel_url=self.return_url,
         )
         return HTTPSeeOther(create_subscription_url)
 
     def manage_subscription(self):
-        manage_subscription_url = self.subscription_service.create_portal_session(
+        manage_subscription_url = self.billing_service.create_portal_session(
             organization_id=self.organization.id,
             return_url=self.return_url,
         )
@@ -1488,7 +1503,7 @@ class ManageOrganizationBillingViews:
 
     @view_config(route_name="manage.organization.subscription")
     def create_or_manage_subscription(self):
-        if not self.organization.subscription:
+        if not self.active_subscription:
             return self.create_subscription()
         else:
             return self.manage_subscription()

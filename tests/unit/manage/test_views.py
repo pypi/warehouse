@@ -71,6 +71,7 @@ from ...common.db.organizations import (
     OrganizationInvitationFactory,
     OrganizationProjectFactory,
     OrganizationRoleFactory,
+    OrganizationSubscriptionFactory,
 )
 from ...common.db.packaging import (
     FileFactory,
@@ -82,6 +83,7 @@ from ...common.db.packaging import (
     RoleInvitationFactory,
     UserFactory,
 )
+from ...common.db.subscriptions import SubscriptionPriceFactory
 
 
 class TestManageAccount:
@@ -2993,25 +2995,43 @@ class TestManageOrganizationSettings:
 
 
 class TestManageOrganizationBillingViews:
-    def test_create_subscription(self, db_request, subscription_service, monkeypatch):
-        organization = OrganizationFactory.create()
+    @pytest.fixture
+    def organization(self):
+        return OrganizationFactory.create()
 
+    @pytest.fixture
+    def organization_subscription(self, organization):
+        return OrganizationSubscriptionFactory.create(organization=organization)
+
+    @pytest.fixture
+    def subscription_price(self):
+        return SubscriptionPriceFactory.create()
+
+    def test_create_subscription(
+        self,
+        db_request,
+        billing_service,
+        subscription_service,
+        organization,
+        subscription_price,
+        monkeypatch,
+    ):
         db_request.route_path = pretend.call_recorder(
             lambda *a, **kw: "/manage/organizations/"
         )
 
         create_checkout_session = pretend.call_recorder(lambda *a, **kw: "session-url")
         monkeypatch.setattr(
-            subscription_service, "create_checkout_session", create_checkout_session
+            billing_service, "create_checkout_session", create_checkout_session
         )
 
         view = views.ManageOrganizationBillingViews(organization, db_request)
-        result = view.create_subscription()
+        result = view.create_or_manage_subscription()
 
         assert create_checkout_session.calls == [
             pretend.call(
                 organization_id=organization.id,
-                product_id=None,
+                price_id=subscription_price.price_id,
                 success_url=view.return_url,
                 cancel_url=view.return_url,
             ),
@@ -3019,20 +3039,26 @@ class TestManageOrganizationBillingViews:
         assert isinstance(result, HTTPSeeOther)
         assert result.headers["Location"] == "session-url"
 
-    def test_manage_subscription(self, db_request, subscription_service, monkeypatch):
-        organization = OrganizationFactory.create()
-
+    def test_manage_subscription(
+        self,
+        db_request,
+        billing_service,
+        subscription_service,
+        organization,
+        organization_subscription,
+        monkeypatch,
+    ):
         db_request.route_path = pretend.call_recorder(
             lambda *a, **kw: "/manage/organizations/"
         )
 
         create_portal_session = pretend.call_recorder(lambda *a, **kw: "session-url")
         monkeypatch.setattr(
-            subscription_service, "create_portal_session", create_portal_session
+            billing_service, "create_portal_session", create_portal_session
         )
 
         view = views.ManageOrganizationBillingViews(organization, db_request)
-        result = view.manage_subscription()
+        result = view.create_or_manage_subscription()
 
         assert create_portal_session.calls == [
             pretend.call(

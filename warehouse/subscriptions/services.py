@@ -354,6 +354,14 @@ class SubscriptionService:
         self.db.delete(subscription_product)
         self.db.flush()
 
+    def get_default_subscription_price(self):
+        """
+        Get the default subscription price
+        """
+        return (
+            self.db.query(SubscriptionPrice).filter(SubscriptionPrice.is_active).one()
+        )
+
     def get_subscription_price(self, subscription_price_id):
         """
         Get a subscription price by id
