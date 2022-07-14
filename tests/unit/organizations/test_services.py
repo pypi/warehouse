@@ -22,17 +22,21 @@ from warehouse.organizations.models import (
     OrganizationProject,
     OrganizationRole,
     OrganizationRoleType,
+    OrganizationSubscription,
     OrganizationType,
 )
+from warehouse.subscriptions.models import Subscription
 
 from ...common.db.organizations import (
     OrganizationFactory,
     OrganizationInvitationFactory,
     OrganizationProjectFactory,
     OrganizationRoleFactory,
+    OrganizationSubscriptionFactory,
     UserFactory,
 )
 from ...common.db.packaging import ProjectFactory
+from ...common.db.subscriptions import SubscriptionFactory
 
 
 def test_database_organizations_factory():
@@ -314,6 +318,10 @@ class TestDatabaseOrganizationService:
 
     def test_delete_organization(self, organization_service, db_request):
         organization = OrganizationFactory.create()
+        subscription = SubscriptionFactory.create()
+        OrganizationSubscriptionFactory.create(
+            organization=organization, subscription=subscription
+        )
 
         organization_service.delete_organization(organization.id)
 
@@ -342,6 +350,20 @@ class TestDatabaseOrganizationService:
             (
                 db_request.db.query(OrganizationRole)
                 .filter_by(organization=organization)
+                .count()
+            )
+        )
+        assert not (
+            (
+                db_request.db.query(OrganizationSubscription)
+                .filter_by(organization=organization, subscription=subscription)
+                .count()
+            )
+        )
+        assert not (
+            (
+                db_request.db.query(Subscription)
+                .filter(Subscription.id == subscription.id)
                 .count()
             )
         )
@@ -428,6 +450,41 @@ class TestDatabaseOrganizationService:
             .filter(
                 OrganizationProject.organization_id == organization.id,
                 OrganizationProject.project_id == project.id,
+            )
+            .count()
+        )
+
+    def test_add_organization_subscription(self, organization_service, db_request):
+        organization = OrganizationFactory.create()
+        subscription = SubscriptionFactory.create()
+
+        organization_service.add_organization_subscription(
+            organization.id, subscription.id
+        )
+        assert (
+            db_request.db.query(OrganizationSubscription)
+            .filter(
+                OrganizationSubscription.organization_id == organization.id,
+                OrganizationSubscription.subscription_id == subscription.id,
+            )
+            .count()
+        )
+
+    def test_delete_organization_subscription(self, organization_service, db_request):
+        organization = OrganizationFactory.create()
+        subscription = SubscriptionFactory.create()
+        OrganizationSubscriptionFactory.create(
+            organization=organization, subscription=subscription
+        )
+
+        organization_service.delete_organization_subscription(
+            organization.id, subscription.id
+        )
+        assert not (
+            db_request.db.query(OrganizationSubscription)
+            .filter(
+                OrganizationSubscription.organization_id == organization.id,
+                OrganizationSubscription.subscription_id == subscription.id,
             )
             .count()
         )
