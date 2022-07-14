@@ -70,7 +70,7 @@ def mint_token_from_oidc(request):
         description=f"OpenID token: {provider} ({now})",
         caveats=caveats,
     )
-    for project in projects:
+    for project in provider.projects:
         project.record_event(
             tag="project:api_token:added",
             ip_address=request.remote_addr,

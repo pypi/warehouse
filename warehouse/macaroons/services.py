@@ -53,12 +53,7 @@ class DatabaseMacaroonService:
         Returns a macaroon model from the DB by its identifier.
         Returns None if no macaroon has the given ID.
         """
-        return (
-            self.db.query(Macaroon)
-            .options(joinedload("user"))
-            .options(joinedload("project"))
-            .get(macaroon_id)
-        )
+        return self.db.query(Macaroon).options(joinedload("user")).get(macaroon_id)
 
     def _deserialize_raw_macaroon(self, raw_macaroon):
         raw_macaroon = self._extract_raw_macaroon(raw_macaroon)

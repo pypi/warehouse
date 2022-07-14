@@ -10,6 +10,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from sqlalchemy.sql.expression import func, literal
+
 from warehouse.oidc.models import GitHubProvider
 
 GITHUB_OIDC_ISSUER_URL = "https://token.actions.githubusercontent.com"
@@ -45,8 +47,12 @@ def find_provider_by_issuer(session, issuer_url, signed_claims):
                 repository_owner=repository_owner,
                 repository_owner_id=signed_claims["repository_owner_id"],
             )
-            .filter(GitHubProvider.workflow_filename.like(f"{workflow_ref}%"))
-            .one_or_none()
+            .filter(
+                literal(workflow_ref).like(
+                    func.concat(GitHubProvider.workflow_filename, "%")
+                )
+            )
+            .one()
         )
     else:
         # Unreachable; same logic error as above.
