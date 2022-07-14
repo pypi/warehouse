@@ -4,9 +4,9 @@
 #
 #    pip-compile --allow-unsafe --generate-hashes --output-file=requirements/main.txt requirements/main.in
 #
-alembic==1.8.0 \
-    --hash=sha256:a2d4d90da70b30e70352cd9455e35873a255a31402a438fe24815758d7a0e5e1 \
-    --hash=sha256:b5ae4bbfc7d1302ed413989d39474d102e7cfa158f6d5969d2497955ffe85a30
+alembic==1.8.1 \
+    --hash=sha256:0a024d7f2de88d738d7395ff866997314c837be6104e90c5724350313dee4da4 \
+    --hash=sha256:cd0b5e45b14b706426b833f06369b9a6d5ee03f826ec3238723ce8caaf6e5ffa
     # via -r requirements/main.in
 amqp==5.1.1 \
     --hash=sha256:2c1b13fecc0893e946c65cbd5f36427861cffa4ea2201d8f6fca22e2a373b5e2 \
