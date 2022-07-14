@@ -40,14 +40,13 @@ class IMacaroonService(Interface):
         Raises InvalidMacaroon if the macaroon is not valid.
         """
 
-    def create_macaroon(
-        *, location, description, caveats, user_id=None, project_id=None
-    ):
+    def create_macaroon(*, location, description, caveats, user_id=None):
         """
-        Returns a new raw (serialized) macaroon. The description provided
-        is not embedded into the macaroon, only stored in the DB model.
+        Returns a tuple of a new raw (serialized) macaroon and its DB model.
+        The description provided is not embedded into the macaroon, only stored
+        in the DB model.
 
-        Either a user ID or a project ID (but not both) is required.
+        A user may be associated with the created macaroon, by ID.
         """
 
     def delete_macaroon(macaroon_id):
