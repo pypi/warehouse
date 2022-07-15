@@ -2558,6 +2558,165 @@ class TestManageOrganizations:
         ]
         assert result == default_response
 
+    def test_create_organization_with_subscription(self, monkeypatch):
+        admins = []
+        user_service = pretend.stub(
+            get_admins=pretend.call_recorder(lambda *a, **kw: admins),
+            record_event=pretend.call_recorder(lambda *a, **kw: None),
+        )
+
+        organization = pretend.stub(
+            id=pretend.stub(),
+            name="psf",
+            display_name="Python Software Foundation",
+            orgtype="Company",
+            link_url="https://www.python.org/psf/",
+            description=(
+                "To promote, protect, and advance the Python programming "
+                "language, and to support and facilitate the growth of a "
+                "diverse and international community of Python programmers"
+            ),
+            is_active=False,
+            is_approved=None,
+        )
+        catalog_entry = pretend.stub()
+        role = pretend.stub()
+        organization_service = pretend.stub(
+            add_organization=pretend.call_recorder(lambda *a, **kw: organization),
+            add_catalog_entry=pretend.call_recorder(lambda *a, **kw: catalog_entry),
+            add_organization_role=pretend.call_recorder(lambda *a, **kw: role),
+            record_event=pretend.call_recorder(lambda *a, **kw: None),
+        )
+
+        request = pretend.stub(
+            POST={
+                "name": organization.name,
+                "display_name": organization.display_name,
+                "orgtype": organization.orgtype,
+                "link_url": organization.link_url,
+                "description": organization.description,
+            },
+            domain=pretend.stub(),
+            user=pretend.stub(
+                id=pretend.stub(),
+                username=pretend.stub(),
+                has_primary_verified_email=True,
+            ),
+            session=pretend.stub(flash=pretend.call_recorder(lambda *a, **kw: None)),
+            find_service=lambda interface, **kw: {
+                IUserService: user_service,
+                IOrganizationService: organization_service,
+            }[interface],
+            flags=pretend.stub(enabled=pretend.call_recorder(lambda *a: False)),
+            remote_addr="0.0.0.0",
+            route_path=lambda *a, **kw: "manage-subscription-url",
+        )
+
+        create_organization_obj = pretend.stub(
+            data=request.POST,
+            orgtype=pretend.stub(data=request.POST["orgtype"]),
+            validate=lambda: True,
+        )
+        create_organization_cls = pretend.call_recorder(
+            lambda *a, **kw: create_organization_obj
+        )
+        monkeypatch.setattr(views, "CreateOrganizationForm", create_organization_cls)
+
+        send_email = pretend.call_recorder(lambda *a, **kw: None)
+        monkeypatch.setattr(
+            views, "send_admin_new_organization_requested_email", send_email
+        )
+        monkeypatch.setattr(views, "send_new_organization_requested_email", send_email)
+
+        default_response = {"default": "response"}
+        monkeypatch.setattr(
+            views.ManageOrganizationsViews, "default_response", default_response
+        )
+
+        view = views.ManageOrganizationsViews(request)
+        result = view.create_organization()
+
+        assert request.flags.enabled.calls == [
+            pretend.call(AdminFlagValue.DISABLE_ORGANIZATIONS),
+        ]
+        assert user_service.get_admins.calls == [pretend.call()]
+        assert organization_service.add_organization.calls == [
+            pretend.call(
+                name=organization.name,
+                display_name=organization.display_name,
+                orgtype=organization.orgtype,
+                link_url=organization.link_url,
+                description=organization.description,
+            )
+        ]
+        assert organization_service.add_catalog_entry.calls == [
+            pretend.call(organization.id)
+        ]
+        assert organization_service.add_organization_role.calls == [
+            pretend.call(
+                organization.id,
+                request.user.id,
+                OrganizationRoleType.Owner,
+            )
+        ]
+        assert organization_service.record_event.calls == [
+            pretend.call(
+                organization.id,
+                tag="organization:create",
+                additional={"created_by_user_id": str(request.user.id)},
+            ),
+            pretend.call(
+                organization.id,
+                tag="organization:catalog_entry:add",
+                additional={"submitted_by_user_id": str(request.user.id)},
+            ),
+            pretend.call(
+                organization.id,
+                tag="organization:organization_role:invite",
+                additional={
+                    "submitted_by_user_id": str(request.user.id),
+                    "role_name": "Owner",
+                    "target_user_id": str(request.user.id),
+                },
+            ),
+            pretend.call(
+                organization.id,
+                tag="organization:organization_role:accepted",
+                additional={
+                    "submitted_by_user_id": str(request.user.id),
+                    "role_name": "Owner",
+                    "target_user_id": str(request.user.id),
+                },
+            ),
+        ]
+        assert user_service.record_event.calls == [
+            pretend.call(
+                request.user.id,
+                tag="account:organization_role:accepted",
+                additional={
+                    "submitted_by_user_id": str(request.user.id),
+                    "organization_name": organization.name,
+                    "role_name": "Owner",
+                },
+            ),
+        ]
+        assert send_email.calls == [
+            pretend.call(
+                request,
+                admins,
+                organization_name=organization.name,
+                initiator_username=request.user.username,
+                organization_id=organization.id,
+            ),
+            pretend.call(
+                request,
+                request.user,
+                organization_name=organization.name,
+            ),
+        ]
+        assert isinstance(result, HTTPSeeOther)
+        assert result.headers["Location"] == "manage-subscription-url"
+
     def test_create_organization_validation_fails(self, monkeypatch):
         admins = []
         user_service = pretend.stub(
