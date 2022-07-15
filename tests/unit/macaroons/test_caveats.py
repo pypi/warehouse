@@ -20,7 +20,7 @@ import pytest
 
 from pymacaroons.exceptions import MacaroonInvalidSignatureException
 
-from warehouse.macaroons.caveats import Caveat, ExpiryCaveat, V1Caveat, Verifier
+from warehouse.macaroons.caveats import Caveat, ExpiryCaveat, V1Caveat, Verifier, ProjectIDsCaveat
 
 from ...common.db.packaging import ProjectFactory
 
@@ -143,6 +143,57 @@ class TestExpiryCaveat:
         expiry = int(time.time()) + 60
         predicate = json.dumps({"exp": expiry, "nbf": not_before})
         assert caveat(predicate)
+
+
+class TestProjectIDsCaveat:
+    @pytest.mark.parametrize(
+        "predicate",
+        [
+            # invalid JSON
+            "invalid json",
+            # missing project_ids
+            '{"missing": "values"}',
+            # project_ids present, but null
+            '{"project_ids": null}',
+            # nbf and exp present, but empty
+            '{"project_ids": ""}',
+            '{"project_ids": []}',
+            # valid JSON, but wrong type
+            "[]",
+            '""',
+        ],
+    )
+    def test_verify_invalid_predicates(self, predicate):
+        verifier = pretend.stub()
+        caveat = ProjectIDsCaveat(verifier)
+
+        assert caveat(predicate) is False
+
+    def test_verify_invalid_context(self):
+        verifier = pretend.stub(context=pretend.stub())
+        caveat = ProjectIDsCaveat(verifier)
+
+        predicate = {"project_ids": ["foo"]}
+
+        assert caveat(json.dumps(predicate)) is False
+
+    def test_verify_invalid_project_id(self, db_request):
+        project = ProjectFactory.create(name="foobar")
+        verifier = pretend.stub(context=project)
+        caveat = ProjectIDsCaveat(verifier)
+
+        predicate = {"project_ids": ["not-foobars-uuid"]}
+
+        assert caveat(json.dumps(predicate)) is False
+
+    def test_verify_ok(self, db_request):
+        project = ProjectFactory.create(name="foobar")
+        verifier = pretend.stub(context=project)
+        caveat = ProjectIDsCaveat(verifier)
+
+        predicate = {"project_ids": [str(project.id)]}
+
+        assert caveat(json.dumps(predicate)) is True
 
 
 class TestVerifier:
