@@ -113,6 +113,8 @@ services:
         condition: service_started
       redis:
         condition: service_started
+      stripe:
+        condition: service_started
 
   files:
     build:
