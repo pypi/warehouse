@@ -20,7 +20,13 @@ import pytest
 
 from pymacaroons.exceptions import MacaroonInvalidSignatureException
 
-from warehouse.macaroons.caveats import Caveat, ExpiryCaveat, V1Caveat, Verifier, ProjectIDsCaveat
+from warehouse.macaroons.caveats import (
+    Caveat,
+    ExpiryCaveat,
+    ProjectIDsCaveat,
+    V1Caveat,
+    Verifier,
+)
 
 from ...common.db.packaging import ProjectFactory
 
