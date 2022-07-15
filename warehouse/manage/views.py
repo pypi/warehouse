@@ -958,7 +958,19 @@ class ProvisionMacaroonViews:
 
         response = {**self.default_response}
         if form.validate():
-            macaroon_caveats = [{"permissions": form.validated_scope, "version": 1}]
+            if form.validated_scope == "user":
+                macaroon_caveats = [{"permissions": form.validated_scope, "version": 1}]
+            else:
+                project_ids = [
+                    str(project.id)
+                    for project in self.request.user.projects
+                    if project.normalized_name in form.validated_scope["projects"]
+                ]
+                macaroon_caveats = [
+                    {"permissions": form.validated_scope, "version": 1},
+                    {"project_ids": project_ids},
+                ]
+
             serialized_macaroon, macaroon = self.macaroon_service.create_macaroon(
                 location=self.request.domain,
                 user_id=self.request.user.id,
