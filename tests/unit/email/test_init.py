@@ -1295,7 +1295,9 @@ class TestBasicAuthWith2FAEmail:
         pyramid_request.user = stub_user
         pyramid_request.registry.settings = {"mail.sender": "noreply@example.com"}
         project_name = "exampleproject"
-        result = email.send_basic_auth_with_two_factor_email(pyramid_request, stub_user, project_name=project_name)
+        result = email.send_basic_auth_with_two_factor_email(
+            pyramid_request, stub_user, project_name=project_name
+        )
 
         assert result == {}
         assert pyramid_request.task.calls == [pretend.call(send_email)]
