@@ -947,7 +947,7 @@ def file_upload(request):
         and request.user.has_two_factor
     ):
         # Eventually, raise here to disable basic auth with 2FA enabled
-        send_basic_auth_with_two_factor_email(request, request.user)
+        send_basic_auth_with_two_factor_email(request, request.user, project_name=project.name)
 
     # Update name if it differs but is still equivalent. We don't need to check if
     # they are equivalent when normalized because that's already been done when we

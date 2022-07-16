@@ -2649,7 +2649,7 @@ class TestFileUpload:
 
         legacy.file_upload(db_request)
 
-        assert send_email.calls == [pretend.call(db_request, user)]
+        assert send_email.calls == [pretend.call(db_request, user, project_name=project.name)]
 
     @pytest.mark.parametrize(
         "plat",
