@@ -1476,9 +1476,10 @@ msgstr ""
 #: warehouse/templates/email/basic-auth-with-2fa/body.html:19
 #, python-format
 msgid ""
-"During your recent upload or upload attempt to %(site)s, we noticed you "
-"used basic authentication (username &amp; password). However, your "
-"account has two-factor authentication (2FA) enabled."
+"During your recent upload or upload attempt of %(project_name)s to "
+"%(site)s, we noticed you used basic authentication (username &amp; "
+"password). However, your account has two-factor authentication (2FA) "
+"enabled."
 msgstr ""
 
 #: warehouse/templates/email/basic-auth-with-2fa/body.html:22
