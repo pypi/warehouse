@@ -104,6 +104,16 @@
     <small>
       {% trans %}Disabled by:{% endtrans %} <a href="{{ request.route_path('accounts.profile', username=event.additional.modified_by) }}">{{ event.additional.modified_by }}</a>
     </small>
+    {% elif event.tag == "project:oidc:provider-added" %}
+    <strong>{{ event.additional.provider }} {% trans %}OpenID Connect provider added{% endtrans %}</strong><br>
+    <small>
+      {% trans %}Specifier:{% endtrans %} {{ event.additional.specifier }}
+    </small>
+    {% elif event.tag == "project:oidc:provider-removed" %}
+    <strong>{{ event.additional.provider }} {% trans %}OpenID Connect provider removed{% endtrans %}</strong><br>
+    <small>
+      {% trans %}Specifier:{% endtrans %} {{ event.additional.specifier }}
+    </small>
     {% else %}
     <strong>{{ event.tag }}</strong>
     {% endif %}
