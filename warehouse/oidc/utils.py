@@ -52,7 +52,7 @@ def find_provider_by_issuer(session, issuer_url, signed_claims):
                     func.concat(GitHubProvider.workflow_filename, "%")
                 )
             )
-            .one()
+            .one_or_none()
         )
     else:
         # Unreachable; same logic error as above.

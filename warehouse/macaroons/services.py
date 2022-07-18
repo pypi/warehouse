@@ -137,23 +137,13 @@ class DatabaseMacaroonService:
 
         An associated identity (either a user or macaroon, by ID) must be specified.
         """
-        user = None
-        if user_id is not None:
-            user = self.db.query(User).get(user_id)
-
-        oidc_provider = None
-        if oidc_provider_id is not None:
-            oidc_provider = self.db.query(oidc_models.OIDCProvider).get(
-                oidc_provider_id
-            )
-
         # NOTE: This is a bit of a hack: we keep a separate copy of the
         # permissions caveat in the DB, so that we can display scope information
         # in the UI.
         permissions = next(c for c in caveats if "permissions" in c)  # pragma: no cover
         dm = Macaroon(
-            user=user,
-            oidc_provider=oidc_provider,
+            user_id=user_id,
+            oidc_provider_id=oidc_provider_id,
             description=description,
             permissions_caveat=permissions,
         )
