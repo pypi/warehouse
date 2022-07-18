@@ -2335,10 +2335,12 @@ class ManageOIDCProviderViews:
                     provider=provider,
                 )
 
-            # NOTE: We remove the provider from the project, but we don't actually
-            # delete the provider model itself (since it might be associated
-            # with other projects).
+            # We remove this provider from the project's list of providers
+            # and, if there are no projects left associated with the provider,
+            # we delete it entirely.
             self.project.oidc_providers.remove(provider)
+            if len(provider.projects) == 0:
+                self.request.db.delete(provider)
 
             self.project.record_event(
                 tag="project:oidc:provider-removed",
