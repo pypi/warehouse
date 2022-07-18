@@ -24,6 +24,7 @@ from warehouse.accounts.models import User
 from warehouse.macaroons.caveats import InvalidMacaroonError, Verifier
 from warehouse.macaroons.interfaces import IMacaroonService
 from warehouse.macaroons.models import Macaroon
+from warehouse.oidc import models as oidc_models
 
 
 @implementer(IMacaroonService)
@@ -53,7 +54,12 @@ class DatabaseMacaroonService:
         Returns a macaroon model from the DB by its identifier.
         Returns None if no macaroon has the given ID.
         """
-        return self.db.query(Macaroon).options(joinedload("user")).get(macaroon_id)
+        return (
+            self.db.query(Macaroon)
+            .options(joinedload("user"))
+            .options(joinedload("oidc_provider"))
+            .get(macaroon_id)
+        )
 
     def _deserialize_raw_macaroon(self, raw_macaroon):
         raw_macaroon = self._extract_raw_macaroon(raw_macaroon)
@@ -101,10 +107,10 @@ class DatabaseMacaroonService:
             raise InvalidMacaroonError("Macaroon not found")
         return dm
 
-    def verify(self, raw_macaroon, context, principals, permission):
+    def verify(self, raw_macaroon, context, principals, permission, identity):
         """
         Returns True if the given raw (serialized) macaroon is
-        valid for the context, principals, and requested permission.
+        valid for the context, principals, requested permission, and identity.
 
         Raises InvalidMacaroonError if the macaroon is not valid.
         """
@@ -114,24 +120,32 @@ class DatabaseMacaroonService:
         if dm is None:
             raise InvalidMacaroonError("deleted or nonexistent macaroon")
 
-        verifier = Verifier(m, context, principals, permission)
+        verifier = Verifier(m, context, principals, permission, identity)
         if verifier.verify(dm.key):
             dm.last_used = datetime.datetime.now()
             return True
 
         raise InvalidMacaroonError("invalid macaroon")
 
-    def create_macaroon(self, *, location, description, caveats, user_id=None):
+    def create_macaroon(
+        self, *, location, description, caveats, user_id=None, oidc_provider_id=None
+    ):
         """
         Returns a tuple of a new raw (serialized) macaroon and its DB model.
         The description provided is not embedded into the macaroon, only stored
         in the DB model.
 
-        A user may be associated with the created macaroon, by ID.
+        An associated identity (either a user or macaroon, by ID) must be specified.
         """
         user = None
         if user_id is not None:
             user = self.db.query(User).get(user_id)
+
+        oidc_provider = None
+        if oidc_provider_id is not None:
+            oidc_provider = self.db.query(oidc_models.OIDCProvider).get(
+                oidc_provider_id
+            )
 
         # NOTE: This is a bit of a hack: we keep a separate copy of the
         # permissions caveat in the DB, so that we can display scope information
@@ -139,6 +153,7 @@ class DatabaseMacaroonService:
         permissions = next(c for c in caveats if "permissions" in c)  # pragma: no cover
         dm = Macaroon(
             user=user,
+            oidc_provider=oidc_provider,
             description=description,
             permissions_caveat=permissions,
         )

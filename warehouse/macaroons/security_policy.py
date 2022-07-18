@@ -20,7 +20,6 @@ from warehouse.cache.http import add_vary_callback
 from warehouse.errors import WarehouseDenied
 from warehouse.macaroons.interfaces import IMacaroonService
 from warehouse.macaroons.services import InvalidMacaroonError
-from warehouse.packaging.models import Project
 from warehouse.utils.security_policy import AuthenticationMethod
 
 
@@ -94,16 +93,13 @@ class MacaroonSecurityPolicy:
         except InvalidMacaroonError:
             return None
 
-        # Every Macaroon has either a user, or it's being used in the
-        # context of a project. For the latter, our authorization policy
-        # has already checked whether the project is valid for the Macaroon
-        # by checking the Macaroon's caveats.
+        # Every Macaroon is either associated with a user or an OIDC provider.
         if dm.user is not None:
             return dm.user
+        elif dm.oidc_provider is not None:
+            return dm.oidc_provider
         else:
-            if not isinstance(request.context, Project):
-                return None
-            return request.context
+            return None
 
     def remember(self, request, userid, **kw):
         # This is a NO-OP because our Macaroon header policy doesn't allow
@@ -159,7 +155,9 @@ class MacaroonAuthorizationPolicy:
             macaroon_service = request.find_service(IMacaroonService, context=None)
 
             try:
-                macaroon_service.verify(macaroon, context, principals, permission)
+                macaroon_service.verify(
+                    macaroon, context, principals, permission, request.identity
+                )
             except InvalidMacaroonError as exc:
                 return WarehouseDenied(
                     f"Invalid API Token: {exc!r}", reason="invalid_api_token"

@@ -32,21 +32,23 @@ class IMacaroonService(Interface):
         macaroon.
         """
 
-    def verify(raw_macaroon, context, principals, permission):
+    def verify(raw_macaroon, context, principals, permission, identity):
         """
         Returns True if the given raw (serialized) macaroon is
-        valid for the context, principals, and requested permission.
+        valid for the context, principals, requested permission, and identity.
 
-        Raises InvalidMacaroon if the macaroon is not valid.
+        Raises InvalidMacaroonError if the macaroon is not valid.
         """
 
-    def create_macaroon(*, location, description, caveats, user_id=None):
+    def create_macaroon(
+        *, location, description, caveats, user_id=None, oidc_provider_id=None
+    ):
         """
         Returns a tuple of a new raw (serialized) macaroon and its DB model.
         The description provided is not embedded into the macaroon, only stored
         in the DB model.
 
-        A user may be associated with the created macaroon, by ID.
+        An associated identity (either a user or macaroon, by ID) must be specified.
         """
 
     def delete_macaroon(macaroon_id):

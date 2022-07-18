@@ -19,6 +19,7 @@ from sqlalchemy import Column, ForeignKey, String, UniqueConstraint, orm
 from sqlalchemy.dialects.postgresql import UUID
 
 from warehouse import db
+from warehouse.macaroons.models import Macaroon
 from warehouse.packaging.models import Project
 
 
@@ -76,6 +77,9 @@ class OIDCProvider(db.Model):
         Project,
         secondary=OIDCProviderProjectAssociation.__table__,  # type: ignore
         backref="oidc_providers",
+    )
+    macaroons = orm.relationship(
+        Macaroon, backref="oidc_provider", cascade="all, delete-orphan", lazy=True
     )
 
     __mapper_args__ = {

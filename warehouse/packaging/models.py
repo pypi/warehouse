@@ -250,9 +250,10 @@ class Project(SitemapMixin, TwoFactorRequireable, HasEvents, db.Model):
             (Allow, "group:moderators", "moderator"),
         ]
 
-        # The project itself has an identity (for OIDC-minted tokens),
-        # and that identity has the ability to upload releases.
-        acls.append((Allow, f"project:{self.id}", ["upload"]))
+        # The project has zero or more OIDC "providers" registered to it,
+        # each of which serves as an identity with the ability to upload releases.
+        for provider in self.oidc_providers:
+            acls.append((Allow, f"oidc:{provider.id}", ["upload"]))
 
         # Get all of the users for this project.
         query = session.query(Role).filter(Role.project == self)

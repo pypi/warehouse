@@ -13,6 +13,7 @@
 import os
 
 from sqlalchemy import (
+    CheckConstraint,
     Column,
     DateTime,
     ForeignKey,
@@ -37,6 +38,10 @@ class Macaroon(db.Model):
         UniqueConstraint(
             "description", "user_id", name="_user_macaroons_description_uc"
         ),
+        CheckConstraint(
+            "(user_id::text IS NULL) <> (oidc_provider_id::text IS NULL)",
+            name="_user_xor_project_macaroon",
+        ),
     )
 
     # Macaroons come in two forms: they either belong to a user, or they
@@ -48,6 +53,10 @@ class Macaroon(db.Model):
     #   it identifies one of the projects scoped in its caveats.
     user_id = Column(
         UUID(as_uuid=True), ForeignKey("users.id"), nullable=True, index=True
+    )
+
+    oidc_provider_id = Column(
+        UUID(as_uuid=True), ForeignKey("oidc_providers.id"), nullable=True, index=True
     )
 
     # Store some information about the Macaroon to give users some mechanism

@@ -15,6 +15,7 @@ import time
 
 import pymacaroons
 
+from warehouse.oidc import models as oidc_models
 from warehouse.packaging.models import Project
 
 
@@ -75,6 +76,18 @@ class V1Caveat(Caveat):
             # User-scoped tokens behave exactly like a user's normal credentials.
             return True
 
+        if permissions == "oidc":
+            # OIDC-scoped tokens behave as if they're scoped for every project
+            # that the corresponding OIDC provider is registered against.
+            if not isinstance(self.verifier.identity, oidc_models.OIDCProvider):
+                self.failure_reason = (
+                    "OIDC-scoped token used outside of an OIDC identity context"
+                )
+                return False
+
+            projects = [p.normalized_name for p in self.verifier.identity.projects]
+            return self.verify_projects(projects)
+
         projects = permissions.get("projects")
         if projects is None:
             self.failure_reason = "invalid projects in predicate"
@@ -132,11 +145,12 @@ class ProjectIDsCaveat(Caveat):
 
 
 class Verifier:
-    def __init__(self, macaroon, context, principals, permission):
+    def __init__(self, macaroon, context, principals, permission, identity):
         self.macaroon = macaroon
         self.context = context
         self.principals = principals
         self.permission = permission
+        self.identity = identity
         self.verifier = pymacaroons.Verifier()
 
     def verify(self, key):

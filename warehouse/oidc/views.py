@@ -60,15 +60,21 @@ def mint_token_from_oidc(request):
     macaroon_service = request.find_service(IMacaroonService, context=None)
     now = time.time()
     expires = int(now) + 900
-    projects = [p.normalized_name for p in provider.projects]
     caveats = [
-        {"permissions": {"projects": projects}, "version": 1},
+        {"permissions": "oidc", "version": 1},
+        # TODO: Does this caveat make sense anymore?
+        # Conceptually, an OIDC provider authorizes either for every project registered
+        # against it at the time of token creation, *or* for every project that happens
+        # to be registered against it at the time of use. This caveat constrains the
+        # token to the former, but maybe the latter is fine/expected?
+        {"project_ids": [str(p.id) for p in provider.projects]},
         {"nbf": int(now), "exp": expires},
     ]
     serialized, dm = macaroon_service.create_macaroon(
         location=request.domain,
         description=f"OpenID token: {provider} ({now})",
         caveats=caveats,
+        oidc_provider_id=provider.id,
     )
     for project in provider.projects:
         project.record_event(
