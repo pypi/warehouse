@@ -40,7 +40,7 @@ class Macaroon(db.Model):
         ),
         CheckConstraint(
             "(user_id::text IS NULL) <> (oidc_provider_id::text IS NULL)",
-            name="_user_xor_project_macaroon",
+            name="_user_xor_oidc_provider_macaroon",
         ),
     )
 
