@@ -13,27 +13,8 @@
 import json
 import time
 
-import pymacaroons
-
+from warehouse.macaroons.caveats.base import Caveat
 from warehouse.packaging.models import Project
-
-
-class InvalidMacaroonError(Exception):
-    ...
-
-
-class Caveat:
-    def __init__(self, verifier):
-        self.verifier = verifier
-        # TODO: Surface this failure reason to the user.
-        # See: https://github.com/pypa/warehouse/issues/9018
-        self.failure_reason = None
-
-    def verify(self, predicate) -> bool:
-        return False
-
-    def __call__(self, predicate):
-        return self.verify(predicate)
 
 
 class V1Caveat(Caveat):
@@ -129,25 +110,3 @@ class ProjectIDsCaveat(Caveat):
             return False
 
         return True
-
-
-class Verifier:
-    def __init__(self, macaroon, context, principals, permission):
-        self.macaroon = macaroon
-        self.context = context
-        self.principals = principals
-        self.permission = permission
-        self.verifier = pymacaroons.Verifier()
-
-    def verify(self, key):
-        self.verifier.satisfy_general(V1Caveat(self))
-        self.verifier.satisfy_general(ExpiryCaveat(self))
-        self.verifier.satisfy_general(ProjectIDsCaveat(self))
-
-        try:
-            return self.verifier.verify(self.macaroon, key)
-        except (
-            pymacaroons.exceptions.MacaroonInvalidSignatureException,
-            Exception,  # https://github.com/ecordell/pymacaroons/issues/50
-        ):
-            return False
