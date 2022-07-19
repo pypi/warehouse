@@ -672,6 +672,7 @@ class TestJSONRelease:
             link="the link",
             aliases=["alias1", "alias2"],
             details="some details",
+            summary="some summary",
             fixed_in=["3.3.2"],
             releases=[release],
         )
@@ -688,6 +689,7 @@ class TestJSONRelease:
                 "link": "the link",
                 "aliases": ["alias1", "alias2"],
                 "details": "some details",
+                "summary": "some summary",
                 "fixed_in": ["3.3.2"],
             },
         ]

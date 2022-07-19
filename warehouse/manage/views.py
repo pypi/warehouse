@@ -905,7 +905,7 @@ class ProvisionRecoveryCodesViews:
     require_csrf=True,
     require_methods=False,
     permission="manage:user",
-    renderer="manage/token.html",
+    renderer="manage/account/token.html",
     route_name="manage.account.token",
     has_translations=True,
     require_reauth=True,
@@ -2030,7 +2030,7 @@ def manage_projects(request):
 @view_defaults(
     route_name="manage.project.settings",
     context=Project,
-    renderer="manage/settings.html",
+    renderer="manage/project/settings.html",
     uses_session=True,
     permission="manage:project",
     has_translations=True,
@@ -2119,7 +2119,7 @@ class ManageProjectSettingsViews:
 @view_defaults(
     context=Project,
     route_name="manage.project.settings.publishing",
-    renderer="manage/publishing.html",
+    renderer="manage/project/publishing.html",
     uses_session=True,
     require_csrf=True,
     require_methods=False,
@@ -2661,7 +2661,7 @@ def destroy_project_docs(project, request):
 @view_config(
     route_name="manage.project.releases",
     context=Project,
-    renderer="manage/releases.html",
+    renderer="manage/project/releases.html",
     uses_session=True,
     permission="manage:project",
     has_translations=True,
@@ -2704,7 +2704,7 @@ def manage_project_releases(project, request):
 @view_defaults(
     route_name="manage.project.release",
     context=Release,
-    renderer="manage/release.html",
+    renderer="manage/project/release.html",
     uses_session=True,
     require_csrf=True,
     require_methods=False,
@@ -3089,7 +3089,7 @@ class ManageProjectRelease:
 @view_config(
     route_name="manage.project.roles",
     context=Project,
-    renderer="manage/roles.html",
+    renderer="manage/project/roles.html",
     uses_session=True,
     require_methods=False,
     permission="manage:project",
@@ -3447,7 +3447,7 @@ def delete_project_role(project, request):
 @view_config(
     route_name="manage.project.history",
     context=Project,
-    renderer="manage/history.html",
+    renderer="manage/project/history.html",
     uses_session=True,
     permission="manage:project",
     has_translations=True,
@@ -3481,7 +3481,7 @@ def manage_project_history(project, request):
 @view_config(
     route_name="manage.project.journal",
     context=Project,
-    renderer="manage/journal.html",
+    renderer="manage/project/journal.html",
     uses_session=True,
     permission="manage:project",
     has_translations=True,
@@ -3515,7 +3515,7 @@ def manage_project_journal(project, request):
 @view_config(
     route_name="manage.project.documentation",
     context=Project,
-    renderer="manage/documentation.html",
+    renderer="manage/project/documentation.html",
     uses_session=True,
     permission="manage:project",
     has_translations=True,
