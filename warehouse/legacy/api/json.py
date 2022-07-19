@@ -115,6 +115,7 @@ def _json_data(request, project, release, *, all_releases):
             "link": vulnerability_record.link,
             "aliases": vulnerability_record.aliases,
             "details": vulnerability_record.details,
+            "summary": vulnerability_record.summary,
             "fixed_in": vulnerability_record.fixed_in,
         }
         for vulnerability_record in release.vulnerabilities

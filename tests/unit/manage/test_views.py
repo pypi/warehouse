@@ -1948,7 +1948,7 @@ class TestProvisionMacaroonViews:
         create_macaroon_obj = pretend.stub(
             validate=lambda: True,
             description=pretend.stub(data=pretend.stub()),
-            validated_scope="foobar",
+            validated_scope="user",
         )
         create_macaroon_cls = pretend.call_recorder(
             lambda *a, **kw: create_macaroon_obj
@@ -2022,10 +2022,14 @@ class TestProvisionMacaroonViews:
                 username=pretend.stub(),
                 projects=[
                     pretend.stub(
-                        normalized_name="foo", record_event=record_project_event
+                        id=uuid.uuid4(),
+                        normalized_name="foo",
+                        record_event=record_project_event,
                     ),
                     pretend.stub(
-                        normalized_name="bar", record_event=record_project_event
+                        id=uuid.uuid4(),
+                        normalized_name="bar",
+                        record_event=record_project_event,
                     ),
                 ],
             ),
@@ -2068,7 +2072,8 @@ class TestProvisionMacaroonViews:
                     {
                         "permissions": create_macaroon_obj.validated_scope,
                         "version": 1,
-                    }
+                    },
+                    {"project_ids": [str(p.id) for p in request.user.projects]},
                 ],
             )
         ]
@@ -2088,7 +2093,8 @@ class TestProvisionMacaroonViews:
                         {
                             "permissions": create_macaroon_obj.validated_scope,
                             "version": 1,
-                        }
+                        },
+                        {"project_ids": [str(p.id) for p in request.user.projects]},
                     ],
                 },
             )
