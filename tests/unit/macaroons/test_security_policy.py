@@ -235,7 +235,7 @@ class TestMacaroonAuthorizationPolicy:
         result = policy.permits(pretend.stub(), pretend.stub(), pretend.stub())
 
         assert result == Denied("")
-        assert result.s == "Invalid API Token: InvalidMacaroonError('foo')"
+        assert result.s == "Invalid API Token: foo"
 
     def test_permits_valid_macaroon(self, monkeypatch):
         macaroon_service = pretend.stub(
