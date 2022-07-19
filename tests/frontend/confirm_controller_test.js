@@ -26,10 +26,10 @@ describe("Confirm controller", () => {
         <h3 class="modal__title">Delete package?</h3>
         <p>Confirm to continue.</p>
         <label for="package">Delete</label>
-        <input id="input-target" name="package" data-action="input->confirm#check" data-target="confirm.input" type="text" autocomplete="off" autocorrect="off" autocapitalize="off">
+        <input id="input-target" name="package" data-action="input->confirm#check" data-confirm-target="input" type="text" autocomplete="off" autocorrect="off" autocapitalize="off">
         </div>
         <div class="modal__footer">
-          <button id="button-target" data-target="confirm.button" data-expected="package" type="submit">
+          <button id="button-target" data-confirm-target="button" data-expected="package" type="submit">
               Confirm
           </button>
       </div>
