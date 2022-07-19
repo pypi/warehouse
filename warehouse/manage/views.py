@@ -130,6 +130,7 @@ from warehouse.subscriptions.interfaces import (
     IGenericBillingService,
     ISubscriptionService,
 )
+from warehouse.subscriptions.models import SubscriptionPriceInterval
 from warehouse.utils.http import is_safe_url
 from warehouse.utils.organization import confirm_organization
 from warehouse.utils.paginate import paginate_url_factory
@@ -1476,6 +1477,7 @@ class ManageOrganizationBillingViews:
     def price_id(self):
         default_subscription_price = (
             self.subscription_service.get_default_subscription_price()
+            or self.initialize_subscription_price()
         )
         return default_subscription_price.price_id
 
@@ -1484,6 +1486,29 @@ class ManageOrganizationBillingViews:
         return self.request.GET.get(
             "next", self.request.route_path("manage.organizations")
         )
+
+    def initialize_subscription_price(self):
+        # Get or create product and price in database.
+        subscription_product = self.subscription_service.add_subscription_product(
+            name="PyPI",
+            description="Organization account for companies",
+            product_id=None,
+            tax_code="txcd_10103001"  # "Software as a service (SaaS) - business use"
+            # See Stripe docs for tax codes. https://stripe.com/docs/tax/tax-categories
+        )
+        subscription_price = self.subscription_service.add_subscription_price(
+            price_id=None,
+            currency="usd",
+            subscription_product_id=subscription_product.id,
+            unit_amount=5000,
+            recurring=SubscriptionPriceInterval.Month,
+            tax_behavior="inclusive",
+        )
+        # Synchronize product and price with billing service.
+        self.billing_service.sync_product(subscription_product)
+        self.billing_service.sync_price(subscription_price)
+        # Return initialized subscription price.
+        return subscription_price
 
     def create_subscription(self):
         create_subscription_url = self.billing_service.create_checkout_session(

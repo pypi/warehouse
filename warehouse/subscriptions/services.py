@@ -101,6 +101,18 @@ class GenericBillingService:
         """
         raise NotImplementedError
 
+    def create_or_update_product(self, name, description, tax_code):
+        """
+        Create product resource via Billing API, or update an active
+        product resource with the same name
+        """
+        products = self.search_products(f'active:"true" name:"{name}"')
+        if products:
+            product = max(products, key=lambda p: p["created"])
+            return self.update_product(product["id"], name, description, tax_code)
+        else:
+            return self.create_product(name, description, tax_code)
+
     def create_product(self, name, description, tax_code):
         """
         Create and return a product resource via Billing API
@@ -148,6 +160,48 @@ class GenericBillingService:
         """
         return self.api.Product.search(query=query, limit=limit)
 
+    def sync_product(self, subscription_product):
+        """
+        Synchronize a product resource via Billing API with a
+        subscription product from the database.
+        """
+        product = self.create_or_update_product(
+            name=subscription_product.product_name,
+            description=subscription_product.description,
+            tax_code=subscription_product.tax_code,
+            # See Stripe docs for tax codes. https://stripe.com/docs/tax/tax-categories
+        )
+        subscription_product.product_id = product["id"]
+
+    def create_or_update_price(
+        self, unit_amount, currency, recurring, product_id, tax_behavior
+    ):
+        """
+        Create price resource via Billing API, or update an active price
+        resource with the same product and currency
+        """
+        prices = self.search_prices(
+            f'active:"true" product:"{product_id}" currency:"{currency}"'
+        )
+        if prices:
+            price = max(prices, key=lambda p: p["created"])
+            return self.update_price(
+                price["id"],
+                unit_amount,
+                currency,
+                recurring,
+                product_id,
+                tax_behavior,
+            )
+        else:
+            return self.create_price(
+                unit_amount,
+                currency,
+                recurring,
+                product_id,
+                tax_behavior,
+            )
+
     def create_price(self, unit_amount, currency, recurring, product_id, tax_behavior):
         """
         Create and return a price resource via Billing API
@@ -193,6 +247,20 @@ class GenericBillingService:
         example: query="active:'true'"
         """
         return self.api.Price.search(query=query, limit=limit)
+
+    def sync_price(self, subscription_price):
+        """
+        Synchronize a price resource via Billing API with a
+        subscription price from the database.
+        """
+        price = self.create_or_update_price(
+            unit_amount=subscription_price.unit_amount,
+            currency=subscription_price.currency,
+            recurring=subscription_price.recurring.value,
+            product_id=subscription_price.subscription_product.product_id,
+            tax_behavior=subscription_price.tax_behavior,
+        )
+        subscription_price.price_id = price["id"]
 
 
 @implementer(IBillingService)
@@ -356,11 +424,18 @@ class SubscriptionService:
 
     def get_default_subscription_price(self):
         """
-        Get the default subscription price
+        Get the default subscription price or None if nothing is found
         """
-        return (
-            self.db.query(SubscriptionPrice).filter(SubscriptionPrice.is_active).one()
-        )
+        try:
+            subscription_price = (
+                self.db.query(SubscriptionPrice)
+                .filter(SubscriptionPrice.is_active)
+                .one()
+            )
+        except NoResultFound:
+            return
+
+        return subscription_price
 
     def get_subscription_price(self, subscription_price_id):
         """

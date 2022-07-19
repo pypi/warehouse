@@ -45,6 +45,12 @@ class IGenericBillingService(Interface):
         Webhooks to handle stripe events
         """
 
+    def create_or_update_product(name, description, tax_code):
+        """
+        Create product resource via Billing API, or update an active
+        product resource with the same name
+        """
+
     def create_product(name, description, tax_code):
         """
         Create and return a product resource via Billing API
