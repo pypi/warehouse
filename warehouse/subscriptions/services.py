@@ -180,27 +180,20 @@ class GenericBillingService:
         Create price resource via Billing API, or update an active price
         resource with the same product and currency
         """
+        # Deactivate existing prices.
         prices = self.search_prices(
             f'active:"true" product:"{product_id}" currency:"{currency}"'
         )
-        if prices:
-            price = max(prices, key=lambda p: p["created"])
-            return self.update_price(
-                price["id"],
-                unit_amount,
-                currency,
-                recurring,
-                product_id,
-                tax_behavior,
-            )
-        else:
-            return self.create_price(
-                unit_amount,
-                currency,
-                recurring,
-                product_id,
-                tax_behavior,
-            )
+        for price in prices:
+            self.update_price(price["id"], active=False)
+        # Create new price.
+        return self.create_price(
+            unit_amount,
+            currency,
+            recurring,
+            product_id,
+            tax_behavior,
+        )
 
     def create_price(self, unit_amount, currency, recurring, product_id, tax_behavior):
         """
@@ -222,7 +215,7 @@ class GenericBillingService:
         """
         return self.api.Price.retrieve(price_id)
 
-    def update_price(self, price_id, active, tax_behavior):
+    def update_price(self, price_id, active):
         """
         Update a price resource by id via Billing API
         only allowing update of those attributes we use
@@ -231,7 +224,6 @@ class GenericBillingService:
         return self.api.Price.modify(
             price_id,
             active=active,
-            tax_behavior=tax_behavior,
         )
 
     def list_all_prices(self, limit=10):

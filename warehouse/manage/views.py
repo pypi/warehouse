@@ -1490,7 +1490,7 @@ class ManageOrganizationBillingViews:
     def initialize_subscription_price(self):
         # Get or create product and price in database.
         subscription_product = self.subscription_service.add_subscription_product(
-            name="PyPI",
+            product_name="PyPI",
             description="Organization account for companies",
             product_id=None,
             tax_code="txcd_10103001"  # "Software as a service (SaaS) - business use"
@@ -1511,19 +1511,20 @@ class ManageOrganizationBillingViews:
         return subscription_price
 
     def create_subscription(self):
-        create_subscription_url = self.billing_service.create_checkout_session(
-            organization_id=self.organization.id,
+        checkout_session = self.billing_service.create_checkout_session(
             price_id=self.price_id,
             success_url=self.return_url,
             cancel_url=self.return_url,
         )
+        create_subscription_url = checkout_session["url"]
         return HTTPSeeOther(create_subscription_url)
 
     def manage_subscription(self):
-        manage_subscription_url = self.billing_service.create_portal_session(
+        portal_session = self.billing_service.create_portal_session(
             organization_id=self.organization.id,
             return_url=self.return_url,
         )
+        manage_subscription_url = portal_session.url
         return HTTPSeeOther(manage_subscription_url)
 
     @view_config(route_name="manage.organization.subscription")
