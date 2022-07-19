@@ -207,20 +207,20 @@
           <nav aria-label="{% trans project=release.project.name %}Navigation for {{ project }}{% endtrans %}">
             <ul class="vertical-tabs__list" role="tablist">
               <li role="tab">
-                <a id="description-tab" href="#description" data-target="project-tabs.tab" data-action="project-tabs#onTabClick" class="vertical-tabs__tab vertical-tabs__tab--with-icon vertical-tabs__tab--is-active" aria-selected="true" aria-label="{% trans %}Project description. Focus will be moved to the description.{% endtrans %}">
+                <a id="description-tab" href="#description" data-project-tabs-target="tab" data-action="project-tabs#onTabClick" class="vertical-tabs__tab vertical-tabs__tab--with-icon vertical-tabs__tab--is-active" aria-selected="true" aria-label="{% trans %}Project description. Focus will be moved to the description.{% endtrans %}">
                   <i class="fa fa-align-left" aria-hidden="true"></i>
                   {% trans %}Project description{% endtrans %}
                 </a>
               </li>
               <li role="tab">
-                <a id="history-tab" href="#history" data-target="project-tabs.tab" data-action="project-tabs#onTabClick" class="vertical-tabs__tab vertical-tabs__tab--with-icon" aria-label="{% trans %}Release history. Focus will be moved to the history panel.{% endtrans %}">
+                <a id="history-tab" href="#history" data-project-tabs-target="tab" data-action="project-tabs#onTabClick" class="vertical-tabs__tab vertical-tabs__tab--with-icon" aria-label="{% trans %}Release history. Focus will be moved to the history panel.{% endtrans %}">
                   <i class="fa fa-history" aria-hidden="true"></i>
                   {% trans %}Release history{% endtrans %}
                 </a>
               </li>
               {% if files %}
               <li role="tab">
-                <a id="files-tab" href="#files" data-target="project-tabs.tab" data-action="project-tabs#onTabClick" class="vertical-tabs__tab vertical-tabs__tab--with-icon" aria-label="{% trans %}Download files. Focus will be moved to the project files.{% endtrans %}">
+                <a id="files-tab" href="#files" data-project-tabs-target="tab" data-action="project-tabs#onTabClick" class="vertical-tabs__tab vertical-tabs__tab--with-icon" aria-label="{% trans %}Download files. Focus will be moved to the project files.{% endtrans %}">
                   <i class="fa fa-download" aria-hidden="true"></i>
                   {% trans %}Download files{% endtrans %}
                 </a>
@@ -238,26 +238,26 @@
         <nav aria-label="{% trans project=release.project.name %}Navigation for {{ project }}{% endtrans %}">
           <ul class="vertical-tabs__list" role="tablist">
             <li role="tab">
-              <a id="mobile-description-tab" href="#description" data-target="project-tabs.mobileTab" data-action="project-tabs#onTabClick" class="vertical-tabs__tab vertical-tabs__tab--with-icon vertical-tabs__tab--mobile vertical-tabs__tab--no-top-border vertical-tabs__tab--is-active" aria-selected="true" aria-label="{% trans %}Project description. Focus will be moved to the description.{% endtrans %}">
+              <a id="mobile-description-tab" href="#description" data-project-tabs-target="mobileTab" data-action="project-tabs#onTabClick" class="vertical-tabs__tab vertical-tabs__tab--with-icon vertical-tabs__tab--mobile vertical-tabs__tab--no-top-border vertical-tabs__tab--is-active" aria-selected="true" aria-label="{% trans %}Project description. Focus will be moved to the description.{% endtrans %}">
                 <i class="fa fa-align-left" aria-hidden="true"></i>
                 {% trans %}Project description{% endtrans %}
               </a>
             </li>
             <li role="tab">
-              <a id="mobile-data-tab" href="#data" data-target="project-tabs.mobileTab" data-action="project-tabs#onTabClick" class="vertical-tabs__tab vertical-tabs__tab--with-icon vertical-tabs__tab--mobile" aria-label="{% trans %}Project details. Focus will be moved to the project details.{% endtrans %}">
+              <a id="mobile-data-tab" href="#data" data-project-tabs-target="mobileTab" data-action="project-tabs#onTabClick" class="vertical-tabs__tab vertical-tabs__tab--with-icon vertical-tabs__tab--mobile" aria-label="{% trans %}Project details. Focus will be moved to the project details.{% endtrans %}">
                 <i class="fa fa-info-circle" aria-hidden="true"></i>
                 {% trans %}Project details{% endtrans %}
               </a>
             </li>
             <li role="tab">
-              <a id="mobile-history-tab" href="#history" data-target="project-tabs.mobileTab" data-action="project-tabs#onTabClick" class="vertical-tabs__tab vertical-tabs__tab--with-icon vertical-tabs__tab--mobile" aria-label="{% trans %}Release history. Focus will be moved to the history panel.{% endtrans %}">
+              <a id="mobile-history-tab" href="#history" data-project-tabs-target="mobileTab" data-action="project-tabs#onTabClick" class="vertical-tabs__tab vertical-tabs__tab--with-icon vertical-tabs__tab--mobile" aria-label="{% trans %}Release history. Focus will be moved to the history panel.{% endtrans %}">
               <i class="fa fa-history" aria-hidden="true"></i>
               {% trans %}Release history{% endtrans %}
             </a>
             </li>
             {% if files %}
             <li role="tab">
-              <a id="mobile-files-tab" href="#files" data-target="project-tabs.mobileTab" data-action="project-tabs#onTabClick" class="vertical-tabs__tab vertical-tabs__tab--with-icon vertical-tabs__tab--mobile" aria-label="{% trans %}Download files. Focus will be moved to the project files.{% endtrans %}">
+              <a id="mobile-files-tab" href="#files" data-project-tabs-target="mobileTab" data-action="project-tabs#onTabClick" class="vertical-tabs__tab vertical-tabs__tab--with-icon vertical-tabs__tab--mobile" aria-label="{% trans %}Download files. Focus will be moved to the project files.{% endtrans %}">
                 <i class="fa fa-download" aria-hidden="true"></i>
                 {% trans %}Download files{% endtrans %}
               </a>
@@ -267,7 +267,7 @@
         </nav>
 
         {# Tab: Project description #}
-        <div id="description" data-target="project-tabs.content" class="vertical-tabs__content" role="tabpanel" aria-labelledby="description-tab mobile-description-tab" tabindex="-1">
+        <div id="description" data-project-tabs-target="content" class="vertical-tabs__content" role="tabpanel" aria-labelledby="description-tab mobile-description-tab" tabindex="-1">
           <h2 class="page-title">{% trans %}Project description{% endtrans %}</h2>
           {% if description %}
           <div class="project-description">
@@ -281,14 +281,14 @@
         </div>
 
         {# Tab: project details #}
-        <div id="data" data-target="project-tabs.content" class="vertical-tabs__content" role="tabpanel" aria-labelledby="mobile-data-tab" tabindex="-1">
+        <div id="data" data-project-tabs-target="content" class="vertical-tabs__content" role="tabpanel" aria-labelledby="mobile-data-tab" tabindex="-1">
           <h2 class="page-title">{% trans %}Project details{% endtrans %}</h2>
           {% include "warehouse:templates/includes/packaging/project-data.html" %}
           <br>
         </div>
 
         {# Tab: Release history #}
-        <div id="history" data-target="project-tabs.content" class="vertical-tabs__content" role="tabpanel" aria-labelledby="history-tab mobile-history-tab" tabindex="-1">
+        <div id="history" data-project-tabs-target="content" class="vertical-tabs__content" role="tabpanel" aria-labelledby="history-tab mobile-history-tab" tabindex="-1">
           <h2 class="page-title split-layout">
             <span>{% trans %}Release history{% endtrans %}</span>
             <span class="reset-text margin-top">
@@ -345,7 +345,7 @@
 
         {% if files %}
           {# Tab: Downloads #}
-          <div id="files" data-target="project-tabs.content" class="vertical-tabs__content" role="tabpanel" aria-labelledby="files-tab mobile-files-tab" tabindex="-1">
+          <div id="files" data-project-tabs-target="content" class="vertical-tabs__content" role="tabpanel" aria-labelledby="files-tab mobile-files-tab" tabindex="-1">
             <h2 class="page-title">{% trans %}Download files{% endtrans %}</h2>
             <p>{% trans href='https://packaging.python.org/installing/', title=gettext('External link') %}Download the file for your platform. If you're not sure which to choose, learn more about <a href="{{ href }}" title="{{ title }}" target="_blank" rel="noopener">installing packages</a>.{% endtrans %}</p>
 

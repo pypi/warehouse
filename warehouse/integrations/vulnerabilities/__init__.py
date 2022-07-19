@@ -31,6 +31,7 @@ class VulnerabilityReportRequest:
         advisory_link: str,
         aliases: List[str],
         details: str,
+        summary: str,
         fixed_in: List[str],
     ):
         self.project = project
@@ -39,6 +40,7 @@ class VulnerabilityReportRequest:
         self.advisory_link = advisory_link
         self.aliases = aliases
         self.details = details
+        self.summary = summary
         self.fixed_in = fixed_in
 
     @classmethod
@@ -64,6 +66,7 @@ class VulnerabilityReportRequest:
             advisory_link=request["link"],
             aliases=request["aliases"],
             details=request.get("details"),
+            summary=request.get("summary"),
             fixed_in=[
                 version
                 for event in request.get("events", [])
