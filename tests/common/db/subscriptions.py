@@ -39,7 +39,7 @@ class SubscriptionPriceFactory(WarehouseFactory):
     price_id = "price_123"
     currency = "usd"
     unit_amount = 2500
-    recurring = recurring = "month"
+    recurring = "month"
 
     subscription_product = factory.SubFactory(SubscriptionProductFactory)
 
@@ -49,7 +49,7 @@ class SubscriptionFactory(WarehouseFactory):
         model = Subscription
 
     id = factory.Faker("uuid4", cast_to=None)
-    customer_id = "cus_123"
-    subscription_id = "sub_123"
+    customer_id = factory.Faker("uuid4")
+    subscription_id = factory.Faker("uuid4")
     subscription_price = factory.SubFactory(SubscriptionPriceFactory)
     status = "active"

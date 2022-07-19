@@ -79,7 +79,7 @@ class IGenericBillingService(Interface):
         example: query="active:'true'"
         """
 
-    def create_price(unit_amount, currency, recurring, product, tax_behavior):
+    def create_price(unit_amount, currency, recurring, product_id, tax_behavior):
         """
         Create and return a price resource via Billing API
         """
@@ -89,9 +89,7 @@ class IGenericBillingService(Interface):
         Get a price resource via Billing API
         """
 
-    def update_price(
-        price_id, unit_amount, currency, recurring, product_id, tax_behavior
-    ):
+    def update_price(price_id, active, tax_behavior):
         """
         Update a price resource by id via Billing API
         only allowing update of those attributes we use
@@ -132,10 +130,10 @@ class ISubscriptionService(Interface):
         by the payment service provider subscription id or None
         """
 
-    def add_subscription(organization_id, customer_id, subscription_id, price_id):
+    def add_subscription(customer_id, subscription_id, price_id):
         """
-        Attempts to create a subscription object for the organization
-        with the specified customer id, subscription id and price id
+        Attempts to create a subscription object with the specified
+        customer id, subscription id and price id
         """
 
     def update_subscription_status(id, status):
@@ -159,7 +157,7 @@ class ISubscriptionService(Interface):
         product id or None if nothing is found
         """
 
-    def add_subscription_product(name, description, product_id, tax_code):
+    def add_subscription_product(product_name, description, product_id, tax_code):
         """
         Add a subscription product
         """

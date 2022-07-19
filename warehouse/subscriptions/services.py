@@ -68,22 +68,19 @@ class GenericBillingService:
         # Create new Checkout Session for the order
         # For full details see https://stripe.com/docs/api/checkout/sessions/create
         """
-        try:
-            checkout_session = self.api.checkout.Session.create(
-                # TODO: What payment methods will we accept?
-                # payment_method_types=['card'],
-                success_url=success_url + "?session_id={CHECKOUT_SESSION_ID}",
-                cancel_url=cancel_url,
-                mode="subscription",
-                # automatic_tax={'enabled': True},
-                line_items=[{"price": price_id, "quantity": 1}],
-                # # TODO: Will these work with stripe checkout?
-                # billing_cycle_anchor=first_day_next_month,
-                # proration_behavior="none",
-            )
-            return checkout_session.url
-        except Exception as e:
-            return e
+        checkout_session = self.api.checkout.Session.create(
+            # TODO: What payment methods will we accept?
+            # payment_method_types=['card'],
+            success_url=success_url + "?session_id={CHECKOUT_SESSION_ID}",
+            cancel_url=cancel_url,
+            mode="subscription",
+            # automatic_tax={'enabled': True},
+            line_items=[{"price": price_id, "quantity": 1}],
+            # # TODO: Will these work with stripe checkout?
+            # billing_cycle_anchor=first_day_next_month,
+            # proration_behavior="none",
+        )
+        return checkout_session
 
     def create_portal_session(self, customer_id, return_url):
         """
@@ -149,17 +146,19 @@ class GenericBillingService:
         Search for product resources via Billing API
         example: query="active:'true'"
         """
-        return self.api.Product.search(self, query=query, limit=limit)
+        return self.api.Product.search(query=query, limit=limit)
 
-    def create_price(self, unit_amount, currency, recurring, product, tax_behavior):
+    def create_price(self, unit_amount, currency, recurring, product_id, tax_behavior):
         """
         Create and return a price resource via Billing API
         """
+        # TODO: Hard-coding to a month for recurring interval
+        #       as that is the requirement at this time
         return self.api.Price.create(
             unit_amount=unit_amount,
             currency=currency,
-            recurring={"interval": recurring},
-            product=product,
+            recurring={"interval": "month"},  # {"interval": recurring},
+            product=product_id,
             tax_behavior=tax_behavior,
         )
 
@@ -169,9 +168,7 @@ class GenericBillingService:
         """
         return self.api.Price.retrieve(price_id)
 
-    def update_price(
-        self, price_id, unit_amount, currency, recurring, product_id, tax_behavior
-    ):
+    def update_price(self, price_id, active, tax_behavior):
         """
         Update a price resource by id via Billing API
         only allowing update of those attributes we use
@@ -179,10 +176,7 @@ class GenericBillingService:
         """
         return self.api.Price.modify(
             price_id,
-            unit_amount=unit_amount,
-            currency=currency,
-            recurring={"interval": recurring},
-            product=product_id,
+            active=active,
             tax_behavior=tax_behavior,
         )
 
@@ -235,6 +229,7 @@ class SubscriptionService:
         Fetch the publishable key from the billing api
         """
         billing_service = request.find_service(IBillingService, context=None)
+
         return billing_service.publishable_key
 
     def get_subscription(self, id):
@@ -261,9 +256,7 @@ class SubscriptionService:
 
         return id
 
-    def add_subscription(
-        self, organization_id, customer_id, subscription_id, subscription_price_id
-    ):
+    def add_subscription(self, customer_id, subscription_id, subscription_price_id):
         """
         Attempts to create a subscription object for the organization
         with the specified customer_id, subscription id, customer id and price id
@@ -278,11 +271,7 @@ class SubscriptionService:
         self.db.add(subscription)
         self.db.flush()  # get back the subscription id
 
-        # # TODO: Do we want to do this here or just call the Org Service to Update
-        # # Update organization object with the subscription id
-        # self.db.query(Organization).filter(
-        #     Organization.organization_id == organization_id
-        # ).update({Organization.subscription_id: subscription.subscription_id})
+        return subscription
 
     def update_subscription_status(self, id, status):
         """
@@ -329,12 +318,12 @@ class SubscriptionService:
 
         return subscription_product_id
 
-    def add_subscription_product(self, name, description, product_id, tax_code):
+    def add_subscription_product(self, product_name, description, product_id, tax_code):
         """
         Add a subscription product
         """
         subscription_product = SubscriptionProduct(
-            product_name=name,
+            product_name=product_name,
             description=description,
             product_id=product_id,
             tax_code=tax_code,
@@ -386,10 +375,7 @@ class SubscriptionService:
             (subscription_price_id,) = (
                 self.db.query(SubscriptionPrice.id)
                 .filter(
-                    or_(
-                        SubscriptionPrice.price_id == search_term,
-                        SubscriptionPrice.subscription_product_id == search_term,
-                    )
+                    SubscriptionPrice.price_id == search_term,
                 )
                 .one()
             )
