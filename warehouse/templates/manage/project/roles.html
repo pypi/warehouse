@@ -38,9 +38,9 @@
     <button type="button" title="{% trans %}Dismiss{% endtrans %}" data-action="click->dismissable#dismiss" class="callout-block__dismiss" aria-label="{% trans %}Close{% endtrans %}"><i class="fa fa-times" aria-hidden="true"></i></button>
     <p>{% trans %}There are two possible roles for collaborators:{% endtrans %}</p>
     <dl>
-      <dt>{% trans %}Upload{% endtrans %}</dt>
+      <dt>{% trans %}Maintainer{% endtrans %}</dt>
       <dd>{% trans %}Can upload releases for a package. Cannot invite collaborators. Cannot delete files, releases, or the project.{% endtrans %}</dd>
-      <dt>{% trans %}Admin{% endtrans %}</dt>
+      <dt>{% trans %}Owner{% endtrans %}</dt>
       <dd>{% trans %}Can upload releases. Can invite other collaborators. Can delete files, releases, or the entire project.{% endtrans %}</dd>
     </dl>
   </div>
@@ -75,7 +75,7 @@
           </a>
         </th>
         <td>
-          {% trans %}Admin{% endtrans %}
+          {% trans %}Owner{% endtrans %}
         </td>
         <td class="table__align-center"></td>
         <td class="table__align-right">
@@ -85,7 +85,7 @@
             <button
               type="submit"
               class="button"
-              title="{% trans %}Cannot remove organization owners as Admin{% endtrans %}"
+              title="{% trans %}Cannot remove organization owners as Owner{% endtrans %}"
               disabled
             >
             Remove
@@ -179,9 +179,9 @@
         <td>
         {% if role.user == request.user %}
           {% if role.role_name == "Owner" %}
-              {% trans %}Admin{% endtrans %}
+              {% trans %}Owner{% endtrans %}
           {% elif role.role_name == "Maintainer" %}
-              {% trans %}Upload{% endtrans %}
+              {% trans %}Maintainer{% endtrans %}
           {% endif %}
         {% else %}
           <form class="table__change-role" method="POST" action="{{ request.route_path('manage.project.change_role', project_name=project.name) }}">
@@ -190,7 +190,7 @@
 
             <label for="role-for-{{ role.id }}" class="sr-only">{% trans %}Role{% endtrans %}</label>
             <select id="role-for-{{ role.id }}" class="table__change-field" name="role_name" data-original="{{ role.role_name }}" autocomplete="off">
-            {% for role_name, role_name_label in [('Owner', gettext('Admin')), ('Maintainer', gettext('Upload'))] %}
+            {% for role_name, role_name_label in [('Owner', gettext('Owner')), ('Maintainer', gettext('Maintainer'))] %}
             <option value="{{ role_name }}" {{ 'selected' if role_name == role.role_name else '' }}>
               {{ role_name_label }}
             </option>

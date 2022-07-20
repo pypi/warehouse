@@ -7825,7 +7825,7 @@ class TestChangeProjectRole:
         result = views.change_project_role(project, db_request)
 
         assert db_request.session.flash.calls == [
-            pretend.call("Cannot remove yourself as Admin", queue="error")
+            pretend.call("Cannot remove yourself as Owner", queue="error")
         ]
         assert isinstance(result, HTTPSeeOther)
         assert result.headers["Location"] == "/the-redirect"
@@ -7924,7 +7924,7 @@ class TestDeleteProjectRole:
         result = views.delete_project_role(project, db_request)
 
         assert db_request.session.flash.calls == [
-            pretend.call("Cannot remove yourself as Admin", queue="error")
+            pretend.call("Cannot remove yourself as Owner", queue="error")
         ]
         assert isinstance(result, HTTPSeeOther)
         assert result.headers["Location"] == "/the-redirect"

@@ -40,7 +40,7 @@ class RoleNameMixin:
 
     role_name = wtforms.SelectField(
         "Select role",
-        choices=[("", "Select role"), ("Maintainer", "Upload"), ("Owner", "Admin")],
+        choices=[("", "Select role"), ("Maintainer", "Maintainer"), ("Owner", "Owner")],
         validators=[wtforms.validators.DataRequired(message="Select role")],
     )
 

@@ -4112,7 +4112,7 @@ def change_project_role(project, request, _form_class=ChangeRoleForm):
                 .one()
             )
             if role.role_name == "Owner" and role.user == request.user:
-                request.session.flash("Cannot remove yourself as Admin", queue="error")
+                request.session.flash("Cannot remove yourself as Owner", queue="error")
             else:
                 request.db.add(
                     JournalEntry(
@@ -4185,7 +4185,7 @@ def delete_project_role(project, request):
         )
         removing_self = role.role_name == "Owner" and role.user == request.user
         if removing_self:
-            request.session.flash("Cannot remove yourself as Admin", queue="error")
+            request.session.flash("Cannot remove yourself as Owner", queue="error")
         else:
             request.db.delete(role)
             request.db.add(

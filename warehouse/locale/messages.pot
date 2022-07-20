@@ -2217,12 +2217,8 @@ msgid "This link will expire in %(n_hours)s hours."
 msgstr ""
 
 #: warehouse/templates/includes/current-user-indicator.html:30
-#: warehouse/templates/manage/project/roles.html:43
-#: warehouse/templates/manage/project/roles.html:78
 #: warehouse/templates/manage/project/roles.html:119
 #: warehouse/templates/manage/project/roles.html:130
-#: warehouse/templates/manage/project/roles.html:182
-#: warehouse/templates/manage/project/roles.html:193
 msgid "Admin"
 msgstr ""
 
@@ -3411,6 +3407,10 @@ msgstr ""
 #: warehouse/templates/manage/organization/roles.html:90
 #: warehouse/templates/manage/organizations.html:63
 #: warehouse/templates/manage/project/publishing.html:83
+#: warehouse/templates/manage/project/roles.html:43
+#: warehouse/templates/manage/project/roles.html:78
+#: warehouse/templates/manage/project/roles.html:182
+#: warehouse/templates/manage/project/roles.html:193
 msgid "Owner"
 msgstr ""
 
@@ -4936,11 +4936,9 @@ msgid "There are two possible roles for collaborators:"
 msgstr ""
 
 #: warehouse/templates/manage/project/roles.html:41
-#: warehouse/templates/manage/project/roles.html:121
-#: warehouse/templates/manage/project/roles.html:130
 #: warehouse/templates/manage/project/roles.html:184
 #: warehouse/templates/manage/project/roles.html:193
-msgid "Upload"
+msgid "Maintainer"
 msgstr ""
 
 #: warehouse/templates/manage/project/roles.html:42
@@ -4972,7 +4970,7 @@ msgstr[0] ""
 msgstr[1] ""
 
 #: warehouse/templates/manage/project/roles.html:88
-msgid "Cannot remove organization owners as Admin"
+msgid "Cannot remove organization owners as Owner"
 msgstr ""
 
 #: warehouse/templates/manage/project/roles.html:107
@@ -4981,6 +4979,11 @@ msgid "%(count)s team member"
 msgid_plural "%(count)s team members"
 msgstr[0] ""
 msgstr[1] ""
+
+#: warehouse/templates/manage/project/roles.html:121
+#: warehouse/templates/manage/project/roles.html:130
+msgid "Upload"
+msgstr ""
 
 #: warehouse/templates/manage/project/roles.html:151
 #: warehouse/templates/manage/project/roles.html:214
