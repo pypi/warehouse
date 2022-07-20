@@ -7066,7 +7066,10 @@ class TestManageProjectRoles:
         assert team_project_role == db_request.db.query(TeamProjectRole).one()
         assert db_request.session.flash.calls == [
             pretend.call(
-                f"Team '{organization_team.name}' already has Admin role for project",
+                (
+                    f"Team '{organization_team.name}' already has "
+                    "Administer permissions for project"
+                ),
                 queue="error",
             )
         ]
@@ -8056,7 +8059,7 @@ class TestChangeTeamProjectRole:
             )
         ]
         assert db_request.session.flash.calls == [
-            pretend.call("Changed role", queue="success")
+            pretend.call("Changed permissions", queue="success")
         ]
         assert isinstance(result, HTTPSeeOther)
         assert result.headers["Location"] == "/the-redirect"
@@ -8105,7 +8108,7 @@ class TestChangeTeamProjectRole:
         result = views.change_team_project_role(organization_project, db_request)
 
         assert db_request.session.flash.calls == [
-            pretend.call("Could not find role", queue="error")
+            pretend.call("Could not find permissions", queue="error")
         ]
         assert isinstance(result, HTTPSeeOther)
         assert result.headers["Location"] == "/the-redirect"
@@ -8241,7 +8244,7 @@ class TestDeleteTeamProjectRole:
             )
         ]
         assert db_request.session.flash.calls == [
-            pretend.call("Removed role", queue="success")
+            pretend.call("Removed permissions", queue="success")
         ]
         assert isinstance(result, HTTPSeeOther)
         assert result.headers["Location"] == "/the-redirect"
@@ -8268,7 +8271,7 @@ class TestDeleteTeamProjectRole:
         result = views.delete_team_project_role(organization_project, db_request)
 
         assert db_request.session.flash.calls == [
-            pretend.call("Could not find role", queue="error")
+            pretend.call("Could not find permissions", queue="error")
         ]
         assert isinstance(result, HTTPSeeOther)
         assert result.headers["Location"] == "/the-redirect"

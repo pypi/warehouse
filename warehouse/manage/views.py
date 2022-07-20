@@ -3724,7 +3724,10 @@ def manage_project_roles(project, request, _form_class=CreateRoleForm):
         if existing_role:
             request.session.flash(
                 request._(
-                    "Team '${team_name}' already has ${role_name} role for project",
+                    (
+                        "Team '${team_name}' already has "
+                        "${role_name} permissions for project"
+                    ),
                     mapping={
                         "team_name": team_name,
                         "role_name": existing_role.role_name.value,
@@ -3801,7 +3804,10 @@ def manage_project_roles(project, request, _form_class=CreateRoleForm):
         # Display notification message.
         request.session.flash(
             request._(
-                "${team_name} is now ${role} of the '${project_name}' project.",
+                (
+                    "${team_name} now has ${role} permissions "
+                    "for the '${project_name}' project."
+                ),
                 mapping={
                     "team_name": team.name,
                     "project_name": project.name,
@@ -4333,9 +4339,9 @@ def change_team_project_role(project, request, _form_class=ChangeTeamProjectRole
                 )
 
                 # Display notification message.
-                request.session.flash("Changed role", queue="success")
+                request.session.flash("Changed permissions", queue="success")
         except NoResultFound:
-            request.session.flash("Could not find role", queue="error")
+            request.session.flash("Could not find permissions", queue="error")
 
     return HTTPSeeOther(
         request.route_path("manage.project.roles", project_name=project.name)
@@ -4436,9 +4442,9 @@ def delete_team_project_role(project, request):
             )
 
             # Display notification message.
-            request.session.flash("Removed role", queue="success")
+            request.session.flash("Removed permissions", queue="success")
     except NoResultFound:
-        request.session.flash("Could not find role", queue="error")
+        request.session.flash("Could not find permissions", queue="error")
 
     return HTTPSeeOther(
         request.route_path("manage.project.roles", project_name=project.name)

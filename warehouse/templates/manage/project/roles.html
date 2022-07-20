@@ -39,17 +39,18 @@
     <p>{% trans %}There are two possible roles for collaborators:{% endtrans %}</p>
     <dl>
       <dt>{% trans %}Maintainer{% endtrans %}</dt>
-      <dd>{% trans %}Can upload releases for a package. Cannot invite collaborators. Cannot delete files, releases, or the project.{% endtrans %}</dd>
+      <dd>{% trans %}Has permissions to <strong>Upload</strong> releases for a package. Can upload releases. Cannot invite collaborators. Cannot delete files, releases, or the project.{% endtrans %}</dd>
       <dt>{% trans %}Owner{% endtrans %}</dt>
-      <dd>{% trans %}Can upload releases. Can invite other collaborators. Can delete files, releases, or the entire project.{% endtrans %}</dd>
+      <dd>{% trans %}Has permissions to <strong>Administer</strong> the entire project. Can upload releases. Can invite other collaborators. Can delete files, releases, or the entire project.{% endtrans %}</dd>
     </dl>
   </div>
   <table class="table table--collaborators">
     <caption class="sr-only">{% trans project_name=project.name %}Collaborators who can manage {{ project_name }}{% endtrans %}</caption>
     <thead>
       <tr>
-        <th scope="col">{% trans %}Collaborator{% endtrans %}</th>
-        <th scope="col">{% trans %}Role{% endtrans %}</th>
+        <th scope="col" class="table__align-left">{% trans %}Collaborator{% endtrans %}</th>
+        <th scope="col" class="table__align-left">{% trans %}Role{% endtrans %}</th>
+        <th scope="col" class="table__align-left">{% trans %}Permissions{% endtrans %}</th>
         <th scope="col" class="table__align-center">{% trans %}2FA{% endtrans %}</th>
         <th scope="col" class="table__align-right"></th>
       </tr>
@@ -75,7 +76,10 @@
           </a>
         </th>
         <td>
-          {% trans %}Owner{% endtrans %}
+          —
+        </td>
+        <td>
+          {% trans %}Administer{% endtrans %}
         </td>
         <td class="table__align-center"></td>
         <td class="table__align-right">
@@ -114,11 +118,14 @@
           </a>
         </th>
         <td>
+          —
+        </td>
+        <td>
         {% if request.user in role.team.members and request.user not in project.organization.owners %}
           {% if role.role_name == TeamProjectRoleType.Administer %}
-              {% trans %}Administer{% endtrans %}
+            {% trans %}Administer{% endtrans %}
           {% elif role.role_name == TeamProjectRoleType.Upload %}
-              {% trans %}Upload{% endtrans %}
+            {% trans %}Upload{% endtrans %}
           {% endif %}
         {% else %}
           <form class="table__change-role" method="POST" action="{{ request.route_path('manage.project.change_team_project_role', project_name=project.name) }}">
@@ -133,7 +140,7 @@
             </option>
             {% endfor %}
             </select>
-            <button type="submit" class="button button--primary table__change-button" title="{% trans %}Save role{% endtrans %}">
+            <button type="submit" class="button button--primary table__change-button" title="{% trans %}Save permissions{% endtrans %}">
               {% trans %}Save{% endtrans %}
             </button>
           </form>
@@ -148,7 +155,7 @@
               type="submit"
               class="button"
               {% if role.role_name == TeamProjectRoleType.Administer and request.user in role.team.members and request.user not in project.organization.owners %}
-                title="{% trans %}Cannot remove yourself as Administer{% endtrans %}"
+                title="{% trans %}Cannot remove your own team with Administer permissions{% endtrans %}"
                 disabled
               {% else %}
                 title="{% trans collaborator=role.team.name %}Remove {{ collaborator }} from this project{% endtrans %}"
@@ -179,9 +186,9 @@
         <td>
         {% if role.user == request.user %}
           {% if role.role_name == "Owner" %}
-              {% trans %}Owner{% endtrans %}
+            {% trans %}Owner{% endtrans %}
           {% elif role.role_name == "Maintainer" %}
-              {% trans %}Maintainer{% endtrans %}
+            {% trans %}Maintainer{% endtrans %}
           {% endif %}
         {% else %}
           <form class="table__change-role" method="POST" action="{{ request.route_path('manage.project.change_role', project_name=project.name) }}">
@@ -200,6 +207,13 @@
               {% trans %}Save{% endtrans %}
             </button>
           </form>
+        {% endif %}
+        </td>
+        <td>
+        {% if role.role_name == "Owner" %}
+          {% trans %}Administer{% endtrans %}
+        {% elif role.role_name == "Maintainer" %}
+          {% trans %}Upload{% endtrans %}
         {% endif %}
         </td>
         <td class="table__align-center">{{ two_factor_badge(role.user) }}</td>
@@ -246,6 +260,7 @@
             {% trans %}Invite expired{% endtrans %}
           {% endif %}
         </td>
+        <td></td>
         <td></td>
         <td class="table__align-right">
           <form method="POST" action="{{ request.route_path('manage.project.revoke_invite', project_name=project.name) }}">
@@ -303,7 +318,7 @@
     </div>
     <div class="form-group radio-toggle radio-toggle-1">
       <label for="team_project_role_name" class="form-group__label">
-        {% trans %}Role{% endtrans %}
+        {% trans %}Permissions{% endtrans %}
         <span class="form-group__required">{% trans %}(required){% endtrans %}</span>
       </label>
       {{ internal_role_form.team_project_role_name(class_="form-group__field", autocomplete="off", **{"aria-describedby":"team-project-role-errors"}) }}
