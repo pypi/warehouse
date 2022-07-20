@@ -5103,6 +5103,10 @@ class TestManageProjects:
         another_project_where_pypi_mandates_2fa = ProjectFactory(
             releases=[], created=datetime.datetime(2022, 3, 2), pypi_mandates_2fa=True
         )
+        team_project = ProjectFactory(
+            name="team-proj", releases=[], created=datetime.datetime(2022, 3, 3)
+        )
+
         db_request.user = UserFactory()
         RoleFactory.create(
             user=db_request.user,
@@ -5158,9 +5162,17 @@ class TestManageProjects:
             project=another_project_where_pypi_mandates_2fa,
             role_name="Maintainer",
         )
+        team = TeamFactory()
+        TeamRoleFactory.create(team=team, user=db_request.user)
+        TeamProjectRoleFactory(
+            team=team,
+            project=team_project,
+            role_name=TeamProjectRoleType.Upload,
+        )
 
         assert views.manage_projects(db_request) == {
             "projects": [
+                team_project,
                 another_project_where_pypi_mandates_2fa,
                 another_project_where_owners_require_2fa,
                 project_where_pypi_mandates_2fa,

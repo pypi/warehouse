@@ -135,6 +135,7 @@ from warehouse.organizations.models import (
     Team,
     TeamProjectRole,
     TeamProjectRoleType,
+    TeamRole,
     TeamRoleType,
 )
 from warehouse.packaging.models import (
@@ -206,10 +207,21 @@ def user_projects(request):
             .subquery()
         )
 
+        teams = (
+            request.db.query(Team.id)
+            .join(TeamRole.team)
+            .filter(TeamRole.user == request.user)
+            .subquery()
+        )
+
         projects_owned = projects_owned.union(
             request.db.query(Project.id.label("id"))
             .join(Organization.projects)
-            .join(organizations_owned, Organization.id == organizations_owned.c.id)
+            .join(organizations_owned, Organization.id == organizations_owned.c.id),
+            request.db.query(Project.id.label("id"))
+            .join(TeamProjectRole.project)
+            .join(teams, TeamProjectRole.team_id == teams.c.id)
+            .filter(TeamProjectRole.role_name == TeamProjectRoleType.Administer),
         )
 
         with_sole_owner = with_sole_owner.union(
@@ -2546,8 +2558,10 @@ def manage_projects(request):
             return project.releases[0].created
         return project.created
 
+    projects = set(request.user.projects)
+
     all_user_projects = user_projects(request)
-    projects = set(request.user.projects) | set(all_user_projects["projects_owned"])
+    projects |= set(all_user_projects["projects_owned"])
     projects_owned = set(
         project.name for project in all_user_projects["projects_owned"]
     )
@@ -2557,6 +2571,9 @@ def manage_projects(request):
     projects_requiring_2fa = set(
         project.name for project in all_user_projects["projects_requiring_2fa"]
     )
+
+    for team in request.user.teams:
+        projects |= set(team.projects)
 
     project_invites = (
         request.db.query(RoleInvitation)
