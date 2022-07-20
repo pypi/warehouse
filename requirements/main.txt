@@ -895,9 +895,9 @@ pastedeploy==2.1.1 \
     --hash=sha256:14923cfd6ad4281b570693afc278bab5076fbdd4cd15aa9d99b042d694aa4217 \
     --hash=sha256:6dead6ab9823a85d585ef27f878bc647f787edb9ca8da0716aa9f1261b464817
     # via plaster-pastedeploy
-pip-api==0.0.29 \
-    --hash=sha256:36c3211975e69c46c1d3b13b702dcc96d054d54e02147b1485300cf5fc45c1a0 \
-    --hash=sha256:f701584eb1c3e01021c846f89d629ab9373b6624f0626757774ad54fc4c29571
+pip-api==0.0.30 \
+    --hash=sha256:2a0314bd31522eb9ffe8a99668b0d07fee34ebc537931e7b6483001dbedcbdc9 \
+    --hash=sha256:a05df2c7aa9b7157374bcf4273544201a0c7bae60a9c65bcf84f3959ef3896f3
     # via -r requirements/main.in
 plaster==1.0 \
     --hash=sha256:215c921a438b5349931fd7df9a5a11a3572947f20f4bc6dd622ac08f1c3ba249 \
