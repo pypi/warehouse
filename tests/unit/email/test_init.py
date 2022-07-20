@@ -1299,7 +1299,7 @@ class TestBasicAuthWith2FAEmail:
             pyramid_request, stub_user, project_name=project_name
         )
 
-        assert result == {}
+        assert result == {"project_name": project_name}
         assert pyramid_request.task.calls == [pretend.call(send_email)]
         assert send_email.delay.calls == [
             pretend.call(
