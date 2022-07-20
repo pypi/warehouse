@@ -17,7 +17,7 @@
 
 {% block content %}
 <p>
-  {% trans project=project, submitter=submitter %}Your team's role in the {{ project }} project has been changed by {{ submitter }}.{% endtrans %}
+  {% trans project=project, submitter=submitter %}Your team's permissions for the {{ project }} project have been changed by {{ submitter }}.{% endtrans %}
 </p>
 
 <p>
@@ -30,5 +30,5 @@
 {% endblock %}
 
 {% block reason %}
-{% trans project=project, submitter=submitter %}You are receiving this because your team's role was changed by {{ submitter }} on the {{ project }} project.{% endtrans %}
+{% trans project=project, submitter=submitter %}You are receiving this because your team's permissions were changed by {{ submitter }} for the {{ project }} project.{% endtrans %}
 {% endblock %}

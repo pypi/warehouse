@@ -16,7 +16,7 @@
 {% set site = request.registry.settings["site.name"] %}
 
 {% block content %}
-  {% trans role=role, site=site, project=project, submitter=submitter %}Your team was removed as {{ role }} from the {{ site }} project {{ project }} by {{ submitter }}.{% endtrans %}
+  {% trans role=role, site=site, project=project, submitter=submitter %}Your team was removed from the {{ site }} project {{ project }} by {{ submitter }}.{% endtrans %}
 {% endblock %}
 
 {% block reason %}

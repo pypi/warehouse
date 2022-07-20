@@ -1499,8 +1499,8 @@ msgstr ""
 #: warehouse/templates/email/added-as-team-collaborator/body.html:20
 #, python-format
 msgid ""
-"Your team has been added as <strong>%(role)s</strong> to the %(site)s "
-"project %(project)s by %(submitter)s."
+"Your team has been added with <strong>%(role)s</strong> permissions to "
+"the %(site)s project %(project)s by %(submitter)s."
 msgstr ""
 
 #: warehouse/templates/email/added-as-team-collaborator/body.html:26
@@ -1730,8 +1730,6 @@ msgstr ""
 
 #: warehouse/templates/email/organization-member-added/body.html:31
 #: warehouse/templates/email/organization-member-invited/body.html:31
-#: warehouse/templates/email/team-collaborator-added/body.html:30
-#: warehouse/templates/email/team-collaborator-role-changed/body.html:30
 #: warehouse/templates/manage/organization/roles.html:60
 #: warehouse/templates/manage/organization/roles.html:99
 #: warehouse/templates/manage/organization/roles.html:202
@@ -2036,8 +2034,8 @@ msgstr ""
 #: warehouse/templates/email/removed-as-team-collaborator/body.html:19
 #, python-format
 msgid ""
-"Your team was removed as <strong>%(role)s</strong> from the %(site)s "
-"project %(project)s by %(submitter)s."
+"Your team was removed from the %(site)s project %(project)s by "
+"%(submitter)s."
 msgstr ""
 
 #: warehouse/templates/email/removed-as-team-collaborator/body.html:23
@@ -2068,7 +2066,7 @@ msgstr ""
 #: warehouse/templates/email/role-changed-as-team-collaborator/body.html:20
 #, python-format
 msgid ""
-"Your team's role in the %(project)s project has been changed by "
+"Your team's permissions for the %(project)s project have been changed by "
 "%(submitter)s."
 msgstr ""
 
@@ -2089,8 +2087,8 @@ msgstr ""
 #: warehouse/templates/email/role-changed-as-team-collaborator/body.html:33
 #, python-format
 msgid ""
-"You are receiving this because your team's role was changed by "
-"%(submitter)s on the %(project)s project."
+"You are receiving this because your team's permissions were changed by "
+"%(submitter)s for the %(project)s project."
 msgstr ""
 
 #: warehouse/templates/email/team-collaborator-added/body.html:26
@@ -2102,6 +2100,12 @@ msgstr ""
 #: warehouse/templates/email/team-collaborator-removed/body.html:29
 #: warehouse/templates/email/team-collaborator-role-changed/body.html:29
 msgid "Team"
+msgstr ""
+
+#: warehouse/templates/email/team-collaborator-added/body.html:30
+#: warehouse/templates/email/team-collaborator-role-changed/body.html:30
+#: warehouse/templates/manage/account/token.html:143
+msgid "Permissions"
 msgstr ""
 
 #: warehouse/templates/email/team-collaborator-added/body.html:31
@@ -2123,7 +2127,9 @@ msgstr ""
 
 #: warehouse/templates/email/team-collaborator-role-changed/body.html:26
 #, python-format
-msgid "A collaborator's role was changed on a project you own on %(site)s"
+msgid ""
+"A collaborator's permissions were changed for a project you own on "
+"%(site)s"
 msgstr ""
 
 #: warehouse/templates/email/team-created/body.html:18
@@ -3810,10 +3816,6 @@ msgstr ""
 
 #: warehouse/templates/manage/account/token.html:140
 msgid "What is this token for?"
-msgstr ""
-
-#: warehouse/templates/manage/account/token.html:143
-msgid "Permissions"
 msgstr ""
 
 #: warehouse/templates/manage/account/token.html:154

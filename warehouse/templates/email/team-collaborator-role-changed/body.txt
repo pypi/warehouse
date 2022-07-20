@@ -16,10 +16,10 @@
 {% set site = request.registry.settings["site.name"] %}
 
 {% block content %}
-{% trans site=site %}A collaborator's role was changed on a project you own on {{ site }}{% endtrans %}:
+{% trans site=site %}A collaborator's permissions were changed for a project you own on {{ site }}{% endtrans %}:
 
   {% trans %}Team{% endtrans %}: {{ team_name }}
-  {% trans %}Role{% endtrans %}: {{ role }}
+  {% trans %}Permissions{% endtrans %}: {{ role }}
   {% trans %}Collaborator for{% endtrans %}: {{ project }}
   {% trans %}Added by{% endtrans %}: {{ submitter }}
 

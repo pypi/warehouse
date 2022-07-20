@@ -19,7 +19,7 @@
 {% trans site=site %}A new collaborator has been added to a project you own on {{ site }}{% endtrans %}:
 
   {% trans %}Team{% endtrans %}: {{ team_name }}
-  {% trans %}Role{% endtrans %}: {{ role }}
+  {% trans %}Permissions{% endtrans %}: {{ role }}
   {% trans %}Collaborator for{% endtrans %}: {{ project }}
   {% trans %}Added by{% endtrans %}: {{ submitter }}
 
