@@ -4255,11 +4255,14 @@ def change_team_project_role(project, request, _form_class=ChangeTeamProjectRole
                 .one()
             )
             if (
-                role.role_name == TeamProjectRoleType.Admin
+                role.role_name == TeamProjectRoleType.Administer
                 and request.user in role.team.members
                 and request.user not in role.team.organization.owners
             ):
-                request.session.flash("Cannot remove yourself as Admin", queue="error")
+                request.session.flash(
+                    "Cannot remove your own team with Administer permissions",
+                    queue="error",
+                )
             else:
                 # Add journal entry.
                 request.db.add(
@@ -4358,12 +4361,14 @@ def delete_team_project_role(project, request):
             .one()
         )
         removing_self = (
-            role.role_name == TeamProjectRoleType.Admin
+            role.role_name == TeamProjectRoleType.Administer
             and request.user in role.team.members
             and request.user not in role.team.organization.owners
         )
         if removing_self:
-            request.session.flash("Cannot remove yourself as Admin", queue="error")
+            request.session.flash(
+                "Cannot remove your own team with Administer permissions", queue="error"
+            )
         else:
             role_name = role.role_name
             team = role.team

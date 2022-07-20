@@ -4641,7 +4641,7 @@ class TestManageTeamProjects:
         project = ProjectFactory.create()
 
         TeamProjectRoleFactory.create(
-            project=project, team=team, role_name=TeamProjectRoleType.Admin
+            project=project, team=team, role_name=TeamProjectRoleType.Administer
         )
 
         view = views.ManageTeamProjectsViews(team, db_request)
@@ -6984,7 +6984,7 @@ class TestManageProjectRoles:
             {
                 "is_team": "true",
                 "team_name": organization_team.name,
-                "team_project_role_name": "Admin",
+                "team_project_role_name": "Administer",
                 "username": "",
                 "role_name": "",
             }
@@ -7016,7 +7016,7 @@ class TestManageProjectRoles:
                 team=organization_team,
                 submitter=db_request.user,
                 project_name=organization_project.name,
-                role="Admin",
+                role="Administer",
             )
         ]
         assert send_added_as_team_collaborator_email.calls == [
@@ -7026,7 +7026,7 @@ class TestManageProjectRoles:
                 team=organization_team,
                 submitter=db_request.user,
                 project_name=organization_project.name,
-                role="Admin",
+                role="Administer",
             )
         ]
         assert isinstance(result, HTTPSeeOther)
@@ -7043,7 +7043,7 @@ class TestManageProjectRoles:
             {
                 "is_team": "true",
                 "team_name": organization_team.name,
-                "team_project_role_name": "Admin",
+                "team_project_role_name": "Administer",
                 "username": "",
                 "role_name": "",
             }
@@ -7055,7 +7055,7 @@ class TestManageProjectRoles:
         team_project_role = TeamProjectRoleFactory.create(
             team=organization_team,
             project=organization_project,
-            role_name=TeamProjectRoleType.Admin,
+            role_name=TeamProjectRoleType.Administer,
         )
 
         result = views.manage_project_roles(organization_project, db_request)
@@ -7092,7 +7092,7 @@ class TestManageProjectRoles:
             {
                 "is_team": "false",
                 "team_name": "",
-                "team_project_role_name": "Admin",
+                "team_project_role_name": "Administer",
                 "username": organization_member.username,
                 "role_name": "Owner",
             }
@@ -7999,7 +7999,7 @@ class TestChangeTeamProjectRole:
         role = TeamProjectRoleFactory.create(
             team=organization_team,
             project=organization_project,
-            role_name=TeamProjectRoleType.Admin,
+            role_name=TeamProjectRoleType.Administer,
         )
         new_role_name = TeamProjectRoleType.Upload
 
@@ -8066,7 +8066,7 @@ class TestChangeTeamProjectRole:
         )
 
         assert entry.name == organization_project.name
-        assert entry.action == f"change Admin {organization_team.name} to Upload"
+        assert entry.action == f"change Administer {organization_team.name} to Upload"
         assert entry.submitted_by == db_request.user
         assert entry.submitted_from == db_request.remote_addr
 
@@ -8095,7 +8095,7 @@ class TestChangeTeamProjectRole:
 
         db_request.method = "POST"
         db_request.POST = MultiDict(
-            {"role_id": missing_role_id, "team_project_role_name": "Admin"}
+            {"role_id": missing_role_id, "team_project_role_name": "Administer"}
         )
         db_request.session = pretend.stub(
             flash=pretend.call_recorder(lambda *a, **kw: None)
@@ -8120,7 +8120,7 @@ class TestChangeTeamProjectRole:
         role = TeamProjectRoleFactory.create(
             team=organization_team,
             project=organization_project,
-            role_name=TeamProjectRoleType.Admin,
+            role_name=TeamProjectRoleType.Administer,
         )
 
         db_request.method = "POST"
@@ -8136,7 +8136,9 @@ class TestChangeTeamProjectRole:
         result = views.change_team_project_role(organization_project, db_request)
 
         assert db_request.session.flash.calls == [
-            pretend.call("Cannot remove yourself as Admin", queue="error")
+            pretend.call(
+                "Cannot remove your own team with Administer permissions", queue="error"
+            )
         ]
         assert isinstance(result, HTTPSeeOther)
         assert result.headers["Location"] == "/the-redirect"
@@ -8187,7 +8189,7 @@ class TestDeleteTeamProjectRole:
         role = TeamProjectRoleFactory.create(
             team=organization_team,
             project=organization_project,
-            role_name=TeamProjectRoleType.Admin,
+            role_name=TeamProjectRoleType.Administer,
         )
 
         db_request.method = "POST"
@@ -8249,7 +8251,7 @@ class TestDeleteTeamProjectRole:
         )
 
         assert entry.name == organization_project.name
-        assert entry.action == f"remove Admin {organization_team.name}"
+        assert entry.action == f"remove Administer {organization_team.name}"
         assert entry.submitted_by == db_request.user
         assert entry.submitted_from == db_request.remote_addr
 
@@ -8281,7 +8283,7 @@ class TestDeleteTeamProjectRole:
         role = TeamProjectRoleFactory.create(
             team=organization_team,
             project=organization_project,
-            role_name=TeamProjectRoleType.Admin,
+            role_name=TeamProjectRoleType.Administer,
         )
 
         db_request.method = "POST"
@@ -8295,7 +8297,9 @@ class TestDeleteTeamProjectRole:
         result = views.delete_team_project_role(organization_project, db_request)
 
         assert db_request.session.flash.calls == [
-            pretend.call("Cannot remove yourself as Admin", queue="error")
+            pretend.call(
+                "Cannot remove your own team with Administer permissions", queue="error"
+            )
         ]
         assert isinstance(result, HTTPSeeOther)
         assert result.headers["Location"] == "/the-redirect"

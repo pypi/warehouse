@@ -115,8 +115,8 @@
         </th>
         <td>
         {% if request.user in role.team.members and request.user not in project.organization.owners %}
-          {% if role.role_name == TeamProjectRoleType.Admin %}
-              {% trans %}Admin{% endtrans %}
+          {% if role.role_name == TeamProjectRoleType.Administer %}
+              {% trans %}Administer{% endtrans %}
           {% elif role.role_name == TeamProjectRoleType.Upload %}
               {% trans %}Upload{% endtrans %}
           {% endif %}
@@ -127,7 +127,7 @@
 
             <label for="role-for-{{ role.id }}" class="sr-only">{% trans %}Role{% endtrans %}</label>
             <select id="role-for-{{ role.id }}" class="table__change-field" name="team_project_role_name" data-original="{{ role.role_name.value }}" autocomplete="off">
-            {% for role_name, role_name_label in [('Admin', gettext('Admin')), ('Upload', gettext('Upload'))] %}
+            {% for role_name, role_name_label in [('Administer', gettext('Administer')), ('Upload', gettext('Upload'))] %}
             <option value="{{ role_name }}" {{ 'selected' if role_name == role.role_name.value else '' }}>
               {{ role_name_label }}
             </option>
@@ -147,8 +147,8 @@
             <button
               type="submit"
               class="button"
-              {% if role.role_name == TeamProjectRoleType.Admin and request.user in role.team.members and request.user not in project.organization.owners %}
-                title="{% trans %}Cannot remove yourself as Admin{% endtrans %}"
+              {% if role.role_name == TeamProjectRoleType.Administer and request.user in role.team.members and request.user not in project.organization.owners %}
+                title="{% trans %}Cannot remove yourself as Administer{% endtrans %}"
                 disabled
               {% else %}
                 title="{% trans collaborator=role.team.name %}Remove {{ collaborator }} from this project{% endtrans %}"
@@ -211,7 +211,7 @@
               type="submit"
               class="button"
               {% if (role.role_name == "Owner" and request.user.username == role.user.username) %}
-                title="{% trans %}Cannot remove yourself as Admin{% endtrans %}"
+                title="{% trans %}Cannot remove yourself as Owner{% endtrans %}"
                 disabled
               {% else %}
                 title="{% trans collaborator=role.user.username %}Remove {{ collaborator }} from this project{% endtrans %}"

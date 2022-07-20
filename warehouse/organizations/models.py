@@ -381,7 +381,7 @@ class TeamRole(db.Model):
 
 class TeamProjectRoleType(str, enum.Enum):
 
-    Admin = "Admin"
+    Administer = "Administer"
     Upload = "Upload"
 
 

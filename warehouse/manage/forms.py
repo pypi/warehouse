@@ -49,7 +49,11 @@ class TeamProjectRoleNameMixin:
 
     team_project_role_name = wtforms.SelectField(
         "Select role",
-        choices=[("", "Select role"), ("Upload", "Upload"), ("Admin", "Admin")],
+        choices=[
+            ("", "Select role"),
+            ("Upload", "Upload"),
+            ("Administer", "Administer"),
+        ],
         coerce=lambda string: TeamProjectRoleType(string) if string else None,
         validators=[wtforms.validators.DataRequired(message="Select role")],
     )

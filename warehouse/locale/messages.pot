@@ -70,7 +70,7 @@ msgid ""
 "different email."
 msgstr ""
 
-#: warehouse/accounts/forms.py:280 warehouse/manage/forms.py:139
+#: warehouse/accounts/forms.py:280 warehouse/manage/forms.py:143
 msgid "The name is too long. Choose a name with 100 characters or less."
 msgstr ""
 
@@ -258,11 +258,11 @@ msgstr ""
 msgid "Banner Preview"
 msgstr ""
 
-#: warehouse/manage/forms.py:402
+#: warehouse/manage/forms.py:406
 msgid "Choose an organization account name with 50 characters or less."
 msgstr ""
 
-#: warehouse/manage/forms.py:410
+#: warehouse/manage/forms.py:414
 msgid ""
 "The organization account name is invalid. Organization account names must"
 " be composed of letters, numbers, dots, hyphens and underscores. And must"
@@ -270,65 +270,65 @@ msgid ""
 "organization account name."
 msgstr ""
 
-#: warehouse/manage/forms.py:425
+#: warehouse/manage/forms.py:429
 msgid ""
 "This organization account name has already been used. Choose a different "
 "organization account name."
 msgstr ""
 
-#: warehouse/manage/forms.py:465
+#: warehouse/manage/forms.py:469
 msgid "Select project"
 msgstr ""
 
-#: warehouse/manage/forms.py:470
+#: warehouse/manage/forms.py:474
 msgid "Specify project name"
 msgstr ""
 
-#: warehouse/manage/forms.py:473
+#: warehouse/manage/forms.py:477
 msgid ""
 "Start and end with a letter or numeral containing only ASCII numeric and "
 "'.', '_' and '-'."
 msgstr ""
 
-#: warehouse/manage/forms.py:480
+#: warehouse/manage/forms.py:484
 msgid "This project name has already been used. Choose a different project name."
 msgstr ""
 
-#: warehouse/manage/forms.py:550
+#: warehouse/manage/forms.py:554
 msgid ""
 "The organization name is too long. Choose a organization name with 100 "
 "characters or less."
 msgstr ""
 
-#: warehouse/manage/forms.py:562
+#: warehouse/manage/forms.py:566
 msgid ""
 "The organization URL is too long. Choose a organization URL with 400 "
 "characters or less."
 msgstr ""
 
-#: warehouse/manage/forms.py:576
+#: warehouse/manage/forms.py:580
 msgid ""
 "The organization description is too long. Choose a organization "
 "description with 400 characters or less."
 msgstr ""
 
-#: warehouse/manage/forms.py:606
+#: warehouse/manage/forms.py:610
 msgid ""
 "No organization owner, manager, or member found with that username. "
 "Please try again."
 msgstr ""
 
-#: warehouse/manage/forms.py:622
+#: warehouse/manage/forms.py:626
 msgid "Choose a team name with 50 characters or less."
 msgstr ""
 
-#: warehouse/manage/forms.py:628
+#: warehouse/manage/forms.py:632
 msgid ""
 "The team name is invalid. Team names cannot start or end with a space, "
 "period, underscore, hyphen, or slash. Choose a different team name."
 msgstr ""
 
-#: warehouse/manage/forms.py:645
+#: warehouse/manage/forms.py:649
 msgid "This team name has already been used. Choose a different team name."
 msgstr ""
 
@@ -2074,9 +2074,9 @@ msgstr ""
 
 #: warehouse/templates/email/role-changed-as-team-collaborator/body.html:25
 msgid ""
-"Your team now has Admin permissions for the project. You can add other "
-"collaborators, upload releases and delete files, releases or the entire "
-"project."
+"Your team now has Administer permissions for the project. You can add "
+"other collaborators, upload releases and delete files, releases or the "
+"entire project."
 msgstr ""
 
 #: warehouse/templates/email/role-changed-as-team-collaborator/body.html:27
@@ -2217,8 +2217,6 @@ msgid "This link will expire in %(n_hours)s hours."
 msgstr ""
 
 #: warehouse/templates/includes/current-user-indicator.html:30
-#: warehouse/templates/manage/project/roles.html:119
-#: warehouse/templates/manage/project/roles.html:130
 msgid "Admin"
 msgstr ""
 
@@ -4980,20 +4978,28 @@ msgid_plural "%(count)s team members"
 msgstr[0] ""
 msgstr[1] ""
 
+#: warehouse/templates/manage/project/roles.html:119
+#: warehouse/templates/manage/project/roles.html:130
+msgid "Administer"
+msgstr ""
+
 #: warehouse/templates/manage/project/roles.html:121
 #: warehouse/templates/manage/project/roles.html:130
 msgid "Upload"
 msgstr ""
 
 #: warehouse/templates/manage/project/roles.html:151
-#: warehouse/templates/manage/project/roles.html:214
-msgid "Cannot remove yourself as Admin"
+msgid "Cannot remove yourself as Administer"
 msgstr ""
 
 #: warehouse/templates/manage/project/roles.html:154
 #: warehouse/templates/manage/project/roles.html:217
 #, python-format
 msgid "Remove %(collaborator)s from this project"
+msgstr ""
+
+#: warehouse/templates/manage/project/roles.html:214
+msgid "Cannot remove yourself as Owner"
 msgstr ""
 
 #: warehouse/templates/manage/project/roles.html:270
