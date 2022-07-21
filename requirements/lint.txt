@@ -221,9 +221,9 @@ types-requests==2.28.0 \
     --hash=sha256:85383b4ef0535f639c3f06c5bbb6494bbf59570c4cd88bbcf540f0b2ac1b49ab \
     --hash=sha256:9863d16dfbb3fa55dcda64fa3b989e76e8859033b26c1e1623e30465cfe294d3
     # via -r requirements/lint.in
-types-s3transfer==0.6.0.post1 \
-    --hash=sha256:698a671ad8c211b9df8ce284538aee7bbbb24bad1026bad2e0d96d4560a274bb \
-    --hash=sha256:78479647a44c9f94ca4c0d2b90f8da77013daf35485c8786b618136fb7b4501b
+types-s3transfer==0.6.0.post2 \
+    --hash=sha256:9d9a2b2a068c0cd18dd20db81a118e7664d801427fdc36cb345a85fe8d245d20 \
+    --hash=sha256:af5222a02eb1491828c01d3f7b0f77bc9600989ecfbff6df63a60b8ba88c4565
     # via boto3-stubs
 types-setuptools==57.4.18 \
     --hash=sha256:8ee03d823fe7fda0bd35faeae33d35cb5c25b497263e6a58b34c4cfd05f40bcf \
@@ -246,6 +246,7 @@ typing-extensions==4.3.0 \
     --hash=sha256:e6d2677a32f47fc7eb2795db1dd15c1f34eff616bcaf2cfb5e997f854fa1c4a6
     # via
     #   boto3-stubs
+    #   botocore-stubs
     #   celery-types
     #   mypy
 zope-event==4.5.0 \
@@ -313,9 +314,14 @@ zope-schema==6.2.0 \
     # via mypy-zope
 
 # The following packages are considered to be unsafe in a requirements file:
+pip==22.1.2 \
+    --hash=sha256:6d55b27e10f506312894a87ccc59f280136bad9061719fac9101bdad5a6bce69 \
+    --hash=sha256:a3edacb89022ef5258bf61852728bf866632a394da837ca49eb4303635835f17
+    # via types-s3transfer
 setuptools==63.1.0 \
     --hash=sha256:16923d366ced322712c71ccb97164d07472abeecd13f3a6c283f6d5d26722793 \
     --hash=sha256:db3b8e2f922b2a910a29804776c643ea609badb6a32c4bcc226fd4fd902cce65
     # via
+    #   zope-event
     #   zope-interface
     #   zope-schema
