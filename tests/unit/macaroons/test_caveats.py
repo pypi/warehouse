@@ -222,7 +222,7 @@ class TestVerifier:
 
     def test_verify_invalid_signature(self, monkeypatch):
         verify = pretend.call_recorder(
-            pretend.raiser(MacaroonInvalidSignatureException)
+            pretend.raiser(MacaroonInvalidSignatureException("Signatures do not match"))
         )
         macaroon = pretend.stub()
         context = pretend.stub()
@@ -232,7 +232,24 @@ class TestVerifier:
         verifier = Verifier(macaroon, context, principals, permission)
 
         monkeypatch.setattr(verifier.verifier, "verify", verify)
-        assert not verifier.verify(key)
+        status = verifier.verify(key)
+        assert not status
+        assert status.msg == "Signatures do not match"
+        assert verify.calls == [pretend.call(macaroon, key)]
+
+    def test_verify_generic_exception(self, monkeypatch):
+        verify = pretend.call_recorder(pretend.raiser(ValueError))
+        macaroon = pretend.stub()
+        context = pretend.stub()
+        principals = pretend.stub()
+        permission = pretend.stub()
+        key = pretend.stub()
+        verifier = Verifier(macaroon, context, principals, permission)
+
+        monkeypatch.setattr(verifier.verifier, "verify", verify)
+        status = verifier.verify(key)
+        assert not status
+        assert status.msg == "malformed macaroon"
         assert verify.calls == [pretend.call(macaroon, key)]
 
     def test_verify_inner_verifier_returns_false(self, monkeypatch):
