@@ -147,10 +147,7 @@ class Verifier:
 
         try:
             result = self.verifier.verify(self.macaroon, key)
-        except (
-            pymacaroons.exceptions.MacaroonInvalidSignatureException,
-            Exception,  # https://github.com/ecordell/pymacaroons/issues/50
-        ) as exc:
+        except (pymacaroons.exceptions.MacaroonInvalidSignatureException,) as exc:
             failure_reasons = []
             for cb in self.verifier.callbacks:
                 failure_reason = getattr(cb, "failure_reason", None)
@@ -165,6 +162,14 @@ class Verifier:
                 )
             else:
                 return WarehouseDenied(str(exc), reason="invalid_api_token")
+        except Exception:
+            # The pymacaroons `verify` API with leak exceptions raised during caveat
+            # verification, which *normally* indicate a deserialization error
+            # (i.e., a malformed caveat body).
+            # When this happens, we don't want to display a random stringified
+            # Python exception to the user, so instead we emit a generic error.
+            # See https://github.com/ecordell/pymacaroons/issues/50
+            return WarehouseDenied("malformed macaroon", reason="invalid_api_token")
 
         # NOTE: We should never hit this case, since pymacaroons *should* always either
         # raise on failure *or* return true. But there's nothing stopping that from
