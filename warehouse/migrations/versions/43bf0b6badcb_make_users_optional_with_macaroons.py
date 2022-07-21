@@ -13,7 +13,7 @@
 Make users optional with Macaroons
 
 Revision ID: 43bf0b6badcb
-Revises: 8bee9c119e41
+Revises: 1e61006a47c2
 Create Date: 2022-04-19 14:57:54.765006
 """
 
@@ -24,7 +24,7 @@ from citext import CIText
 from sqlalchemy.dialects import postgresql
 
 revision = "43bf0b6badcb"
-down_revision = "8bee9c119e41"
+down_revision = "1e61006a47c2"
 
 
 def upgrade():
