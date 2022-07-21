@@ -165,6 +165,7 @@ def configure(settings=None):
     maybe_set(settings, "aws.region", "AWS_REGION")
     maybe_set(settings, "billing.backend", "BILLING_BACKEND")
     maybe_set(settings, "subscription.api_base", "STRIPE_API_BASE")
+    maybe_set(settings, "subscription.api_version", "STRIPE_API_VERSION")
     maybe_set(settings, "subscription.publishable_key", "STRIPE_PUBLISHABLE_KEY")
     maybe_set(settings, "subscription.secret_key", "STRIPE_SECRET_KEY")
     maybe_set(settings, "subscription.webhook_key", "STRIPE_WEBHOOK_SECRET")
