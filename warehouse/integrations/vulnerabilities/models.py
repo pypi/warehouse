@@ -62,6 +62,9 @@ class VulnerabilityRecord(db.Model):
     # Details about the vulnerability
     details = Column(String)
 
+    # A short, plaintext summary of the vulnerability
+    summary = Column(String)
+
     # Events of introduced/fixed versions
     fixed_in = Column(ARRAY(String))
 

@@ -17,9 +17,9 @@ import { Application } from "stimulus";
 import NotificationController from "../../warehouse/static/js/warehouse/controllers/notification_controller";
 
 const notificationContent = `
-  <div id="notification" class="notification-bar notification-bar--danger notification-bar--dismissable" data-controller="notification" data-target="notification.notification">
+  <div id="notification" class="notification-bar notification-bar--danger notification-bar--dismissable" data-controller="notification" data-notification-target="notification">
     <span class="notification-bar__message">message</span>
-    <button type="button" title="Dismiss this notification" data-target="notification.dismissButton" data-action="click->notification#dismiss" class="notification-bar__dismiss" aria-label="close"><i class="fa fa-times" aria-hidden="true"></i></button>
+    <button type="button" title="Dismiss this notification" data-notification-target="dismissButton" data-action="click->notification#dismiss" class="notification-bar__dismiss" aria-label="close"><i class="fa fa-times" aria-hidden="true"></i></button>
   </div>
 `;
 

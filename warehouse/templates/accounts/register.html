@@ -113,11 +113,11 @@
                 {% endif %}
               </label>
               <label for="show-password">
-                <input data-action="change->password#togglePasswords" data-target="password.showPassword"
+                <input data-action="change->password#togglePasswords" data-password-target="showPassword"
                   id="show-password" type="checkbox">&nbsp;{% trans %}Show passwords{% endtrans %}
               </label>
             </div>
-            {{ form.new_password(placeholder=gettext("Select a password"), required="required", class_="form-group__field", autocomplete="new-password", spellcheck="false", data_target="password.password password-match.passwordMatch password-strength-gauge.password password-breach.password", data_action="input->password-match#checkPasswordsMatch input->password-strength-gauge#checkPasswordStrength input->password-breach#check", **{"aria-describedby":"password-errors password-strength"}) }}
+            {{ form.new_password(placeholder=gettext("Select a password"), required="required", class_="form-group__field", autocomplete="new-password", spellcheck="false", data_password_target="password", data_password_match_target="passwordMatch", data_password_strength_gauge_target="password", data_password_breach_target="password", data_action="input->password-match#checkPasswordsMatch input->password-strength-gauge#checkPasswordStrength input->password-breach#check", **{"aria-describedby":"password-errors password-strength"}) }}
             <div id="password-errors">
               {% if form.new_password.errors %}
               <ul class="form-errors" role="alert">
@@ -127,7 +127,7 @@
               </ul>
               {% endif %}
             </div>
-            {{ password_strength_gauge(data_target="password-strength-gauge.strengthGauge") }}
+            {{ password_strength_gauge(data_password_strength_gauge_target="strengthGauge") }}
           </div>
 
           <div class="form-group">
@@ -137,7 +137,7 @@
               <span class="form-group__required">{% trans %}(required){% endtrans %}</span>
               {% endif %}
             </label>
-            {{ form.password_confirm(placeholder=gettext("Confirm password"), required="required", class_="form-group__field", autocomplete="new-password", spellcheck="false", data_target="password.password password-match.passwordMatch", data_action="input->password-match#checkPasswordsMatch", **{"aria-describedby":"password-confirm-errors"}) }}
+            {{ form.password_confirm(placeholder=gettext("Confirm password"), required="required", class_="form-group__field", autocomplete="new-password", spellcheck="false", data_password_target="password", data_password_match_target="passwordMatch", data_action="input->password-match#checkPasswordsMatch", **{"aria-describedby":"password-confirm-errors"}) }}
             <div id="password-confirm-errors">
               {% if form.password_confirm.errors %}
               <ul class="form-errors" role="alert">
@@ -152,14 +152,14 @@
 
         <div class="form-group">
           <ul class="form-errors">
-            <li data-target="password-match.matchMessage" class="hidden"></li>
-            <li data-target="password-breach.message" class="hidden">
+            <li data-password-match-target="matchMessage" class="hidden"></li>
+            <li data-password-breach-target="message" class="hidden">
               {{ gettext("This password appears in a security breach or has been compromised and cannot be used. Please refer to the <a href=\"/help/#compromised-password\">FAQ</a> for more information.") }}
             </li>
           </ul>
         </div>
 
-        <input type="submit" value="{% trans %}Create account{% endtrans %}" class="button button--primary" data-target="password-match.submit">
+        <input type="submit" value="{% trans %}Create account{% endtrans %}" class="button button--primary" data-password-match-target="submit">
       </form>
     </div>
   </div>
