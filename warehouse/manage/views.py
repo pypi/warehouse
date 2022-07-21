@@ -13,6 +13,8 @@
 import base64
 import io
 
+from urllib.parse import urljoin
+
 import pyqrcode
 
 from paginate_sqlalchemy import SqlalchemyOrmPage as SQLAlchemyORMPage
@@ -1483,8 +1485,11 @@ class ManageOrganizationBillingViews:
 
     @property
     def return_url(self):
-        return self.request.GET.get(
-            "next", self.request.route_path("manage.organizations")
+        return urljoin(
+            self.request.application_url,
+            self.request.GET.get(
+                "next", self.request.route_path("manage.organizations")
+            ),
         )
 
     def initialize_subscription_price(self):
