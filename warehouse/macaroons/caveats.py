@@ -147,7 +147,7 @@ class Verifier:
 
         try:
             result = self.verifier.verify(self.macaroon, key)
-        except (pymacaroons.exceptions.MacaroonInvalidSignatureException,) as exc:
+        except pymacaroons.exceptions.MacaroonInvalidSignatureException as exc:
             failure_reasons = []
             for cb in self.verifier.callbacks:
                 failure_reason = getattr(cb, "failure_reason", None)
