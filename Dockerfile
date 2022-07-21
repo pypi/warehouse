@@ -104,6 +104,7 @@ RUN set -x \
                     -r /tmp/requirements/deploy.txt \
                     -r /tmp/requirements/main.txt \
                     $(if [ "$DEVEL" = "yes" ]; then echo '-r /tmp/requirements/tests.txt -r /tmp/requirements/lint.txt -r /tmp/requirements/docs.txt'; fi) \
+    && pip check \
     && find /opt/warehouse -name '*.pyc' -delete
 
 

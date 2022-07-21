@@ -305,7 +305,7 @@ def send_token_compromised_email_leak(request, user, *, public_url, origin):
     repeat_window=datetime.timedelta(days=1),
 )
 def send_basic_auth_with_two_factor_email(request, user, *, project_name):
-    return {}
+    return {"project_name": project_name}
 
 
 @_email("account-deleted")
