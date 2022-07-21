@@ -31,7 +31,7 @@
             <a href="{{ request.route_path('manage.organizations') }}">{% trans organization_count=organizations|length %}Your organizations ({{ organization_count }}){% endtrans %}</a>
           </h3>
           <h3 class="sidebar-section__title">
-            <a href="{{ request.route_path('manage.organization.teams', organization_name=team.organization.normalized_name) }}">{% trans team_count=team.organization.teams|length %}Your teams ({{ team_count }}){% endtrans %}</a>
+            <a href="{{ request.route_path('manage.organization.teams', organization_name=team.organization.normalized_name) }}">{% trans organization_name=team.organization.name, team_count=team.organization.teams|length %}{{ organization_name }} teams ({{ team_count }}){% endtrans %}</a>
           </h3>
           {% include "warehouse:templates/includes/manage/manage-team-menu.html" %}
         </div>
@@ -47,11 +47,19 @@
           {% trans %}Back to teams{% endtrans %}
         </a>
         <div class="vertical-tabs__content">
-          <div class="organization-snippet organization-snippet--margin-bottom">
+          <a class="organization-snippet organization-snippet--margin-bottom" href="{{ request.route_path('manage.organization.teams', organization_name=team.organization.normalized_name) }}">
             <h1 class="organization-snippet__title organization-snippet__title--page-title">{{ team.organization.name }}</h1>
-          </div>
+            <p class="organization-snippet__description">{{ team.organization.display_name }}</p>
+          </a>
           <div class="team-snippet team-snippet--margin-bottom">
             <h1 class="team-snippet__title team-snippet__title--page-title">{{ team.name }}</h1>
+            <p class="team-snippet__meta">
+              {% trans member_count=team.members|length %}
+              {{ member_count }} member
+              {% pluralize %}
+              {{ member_count }} members
+              {% endtrans %}
+            </p>
           </div>
           <!-- mobile nav -->
           {% with mode="mobile" %}

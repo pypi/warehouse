@@ -3376,6 +3376,7 @@ msgstr ""
 
 #: warehouse/templates/manage/organization/manage_organization_base.html:31
 #: warehouse/templates/manage/organizations.html:49
+#: warehouse/templates/manage/project/manage_project_base.html:32
 #: warehouse/templates/manage/team/manage_team_base.html:31
 #, python-format
 msgid "Your organizations (%(organization_count)s)"
@@ -3512,7 +3513,7 @@ msgstr ""
 msgid "Create"
 msgstr ""
 
-#: warehouse/templates/manage/project/manage_project_base.html:31
+#: warehouse/templates/manage/project/manage_project_base.html:39
 #: warehouse/templates/manage/projects.html:58
 #, python-format
 msgid "Your projects (%(project_count)s)"
@@ -4498,7 +4499,12 @@ msgstr ""
 msgid "Manage '%(project_name)s'"
 msgstr ""
 
-#: warehouse/templates/manage/project/manage_project_base.html:40
+#: warehouse/templates/manage/project/manage_project_base.html:35
+#, python-format
+msgid "%(organization_name)s projects (%(project_count)s)"
+msgstr ""
+
+#: warehouse/templates/manage/project/manage_project_base.html:49
 msgid "Back to projects"
 msgstr ""
 
@@ -5275,12 +5281,25 @@ msgstr ""
 
 #: warehouse/templates/manage/team/manage_team_base.html:34
 #, python-format
-msgid "Your teams (%(team_count)s)"
+msgid "%(organization_name)s teams (%(team_count)s)"
 msgstr ""
 
 #: warehouse/templates/manage/team/manage_team_base.html:47
 msgid "Back to teams"
 msgstr ""
+
+#: warehouse/templates/manage/team/manage_team_base.html:57
+#, python-format
+msgid ""
+"\n"
+"              %(member_count)s member\n"
+"              "
+msgid_plural ""
+"\n"
+"              %(member_count)s members\n"
+"              "
+msgstr[0] ""
+msgstr[1] ""
 
 #: warehouse/templates/manage/team/projects.html:17
 msgid "Team projects"
