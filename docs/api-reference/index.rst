@@ -4,8 +4,6 @@ API reference
 Warehouse has several API endpoints. See :doc:`../application` for the
 parts of Warehouse that generate them.
 
-.. contents:: :local:
-
 API policies
 ------------
 
