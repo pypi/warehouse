@@ -947,7 +947,10 @@ class TestWebAuthn:
             validate=pretend.call_recorder(lambda: True),
             credential=pretend.stub(errors=["Fake validation failure"]),
             validated_credential=VerifiedAuthentication(
-                credential_id=b"", new_sign_count=1
+                credential_id=b"",
+                new_sign_count=1,
+                credential_device_type="single_device",
+                credential_backed_up=False,
             ),
         )
         form_class = pretend.call_recorder(lambda *a, **kw: form_obj)
