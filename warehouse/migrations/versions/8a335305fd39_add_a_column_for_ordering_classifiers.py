@@ -9,23 +9,28 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+"""
+Add a column for ordering classifiers
 
-from sqlalchemy import CheckConstraint, Column, Integer, Text
+Revision ID: 8a335305fd39
+Revises: 4490777c984f
+Create Date: 2022-07-22 00:06:40.868910
+"""
 
-from warehouse import db
-from warehouse.utils.attrs import make_repr
+import sqlalchemy as sa
+
+from alembic import op
 
 
-class Classifier(db.ModelBase):
+revision = "8a335305fd39"
+down_revision = "4490777c984f"
 
-    __tablename__ = "trove_classifiers"
-    __tableargs__ = CheckConstraint(
-        "classifier not ilike 'private ::%'",
-        name="ck_disallow_private_top_level_classifier",
+
+def upgrade():
+    op.add_column(
+        "trove_classifiers", sa.Column("ordering", sa.Integer(), nullable=True)
     )
 
-    __repr__ = make_repr("classifier")
 
-    id = Column(Integer, primary_key=True, nullable=False)
-    classifier = Column(Text, unique=True)
-    ordering = Column(Integer, nullable=True)
+def downgrade():
+    op.drop_column("trove_classifiers", "ordering")

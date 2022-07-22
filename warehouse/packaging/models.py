@@ -461,10 +461,7 @@ class Release(db.Model):
         Classifier,
         backref="project_releases",
         secondary=lambda: release_classifiers,  # type: ignore
-        order_by=expression.case(
-            {c: i for i, c in enumerate(sorted_classifiers)},
-            value=Classifier.classifier,
-        ),
+        order_by=Classifier.ordering,
         passive_deletes=True,
     )
     classifiers = association_proxy("_classifiers", "classifier")
