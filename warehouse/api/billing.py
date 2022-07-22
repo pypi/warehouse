@@ -1,0 +1,66 @@
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+# http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+
+import stripe
+
+from pyramid.httpexceptions import HTTPBadRequest, HTTPNoContent
+from pyramid.view import view_config
+from sqlalchemy import func
+
+from warehouse.subscriptions.interfaces import (
+    IGenericBillingService,
+    ISubscriptionService,
+)
+from warehouse.subscriptions.models import SubscriptionStatus
+
+
+@view_config(route_name="api.billing.webhook")
+def billing_webhook(request):
+    billing_service = request.find_service(IGenericBillingService, context=None)
+    subscription_service = request.find_service(ISubscriptionService, context=None)
+
+    try:
+        event = billing_service.webhook_received(
+            payload=request.POST,
+            sig_header=request.headers["HTTP_STRIPE_SIGNATURE"],
+        )
+    except ValueError:
+        raise HTTPBadRequest("Invalid payload")
+    except stripe.error.SignatureVerificationError:
+        raise HTTPBadRequest("Invalid signature")
+
+    match event["type"]:
+        case "checkout.session.completed":
+            session = event["data"]["object"]
+            status = sessions["status"]
+            customer_id = session["customer"]
+            subscription_id = session["subscription"]
+            if session["status"] != "complete":
+                raise HTTPBadRequest("Invalid checkout session status")
+            if not customer_id:
+                raise HTTPBadRequest("Invalid customer ID")
+            if not subscription_id:
+                raise HTTPBadRequest("Invalid subscription ID")
+            if id := subscription_service.find_subscriptionid(subscription_id):
+                subscription_service.update_subscription_status(
+                    id, SubscriptionStatus.Active
+                )
+            else:
+                # TODO: Activate subscription for customer.
+                subscription_service.add_subscription(
+                    customer_id,
+                    subscription_id,
+                    subscription_price_id=None,
+                )
+
+    return HTTPNoContent

@@ -63,12 +63,15 @@ class GenericBillingService:
     #     )
     #     return subscription.customer
 
-    def create_checkout_session(self, price_id, success_url, cancel_url):
+    def create_checkout_session(self, organization_id, price_id, success_url, cancel_url):
         """
         # Create new Checkout Session for the order
         # For full details see https://stripe.com/docs/api/checkout/sessions/create
         """
+        # TODO: Get or create customer ID for organization first.
+        customer_id = None
         checkout_session = self.api.checkout.Session.create(
+            customer=customer_id,
             # TODO: What payment methods will we accept?
             # payment_method_types=['card'],
             success_url=success_url + "?session_id={CHECKOUT_SESSION_ID}",
@@ -92,14 +95,14 @@ class GenericBillingService:
         )
         return session.url
 
-    # TODO: Decide what events to support =>
+    # See Stripe webhook documentation:
     # https://stripe.com/docs/api/webhook_endpoints/create#create_webhook_endpoint-enabled_events
     # https://stripe.com/docs/webhooks/quickstart
-    def webhook_received(self, request):
+    def webhook_received(self, payload, sig_header):
         """
-        Webhook to handle stripe events
+        Return parsed webhook event from Stripe
         """
-        raise NotImplementedError
+        return stripe.Webhook.construct_event(payload, sig_header, self.webhook_secret)
 
     def create_or_update_product(self, name, description, tax_code):
         """

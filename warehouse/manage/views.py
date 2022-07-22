@@ -1517,6 +1517,7 @@ class ManageOrganizationBillingViews:
 
     def create_subscription(self):
         checkout_session = self.billing_service.create_checkout_session(
+            organization_id=self.organization.id,
             price_id=self.price_id,
             success_url=self.return_url,
             cancel_url=self.return_url,

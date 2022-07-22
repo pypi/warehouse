@@ -180,6 +180,7 @@ def includeme(config):
         "/account/verify-project-role/",
         domain=warehouse,
     )
+
     # Management (views for logged-in users)
     config.add_route("manage.account", "/manage/account/", domain=warehouse)
     config.add_route(
@@ -435,6 +436,7 @@ def includeme(config):
     )
 
     # API URLs
+    config.add_route("api.billing.webhook", "/billing/webhook/", domain=warehouse)
     config.add_route("api.simple.index", "/simple/", domain=warehouse)
     config.add_route(
         "api.simple.detail",

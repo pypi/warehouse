@@ -29,7 +29,7 @@ class IGenericBillingService(Interface):
     #     Fetch the Customer resource attached to the Subscription
     #     """
 
-    def create_checkout_session(product_id, success_url, cancel_url):
+    def create_checkout_session(organization_id, price_id, success_url, cancel_url):
         """
         # Create new Checkout Session for the order
         # For full details see https://stripe.com/docs/api/checkout/sessions/create
