@@ -14,8 +14,7 @@ import pretend
 
 from warehouse import db
 from warehouse.classifiers.models import Classifier
-from warehouse.cli import classifiers, sponsors
-from warehouse.sponsors.models import Sponsor
+from warehouse.cli import classifiers
 
 
 def test_classifiers_update(db_request, monkeypatch, cli):
