@@ -14,7 +14,7 @@ disposable-email-domains
 elasticsearch>=7.0.0,<7.11.0
 elasticsearch_dsl>=7.0.0,<8.0.0
 first
-google-cloud-bigquery<3.0.0  # https://github.com/googleapis/python-bigquery/issues/1196
+google-cloud-bigquery<4.0.0  # https://github.com/googleapis/python-bigquery/issues/1196
 google-cloud-storage
 hiredis
 html5lib
