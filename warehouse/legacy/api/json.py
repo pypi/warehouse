@@ -13,12 +13,12 @@
 from packaging.utils import canonicalize_name, canonicalize_version
 from pyramid.httpexceptions import HTTPMovedPermanently, HTTPNotFound
 from pyramid.view import view_config
-from sqlalchemy.orm import Load, joinedload
+from sqlalchemy.orm import Load, contains_eager, joinedload
 from sqlalchemy.orm.exc import MultipleResultsFound, NoResultFound
 
 from warehouse.cache.http import cache_control
 from warehouse.cache.origin import origin_cache
-from warehouse.packaging.models import File, Project, Release
+from warehouse.packaging.models import File, Project, Release, ReleaseURL
 
 # Generate appropriate CORS headers for the JSON endpoint.
 # We want to allow Cross-Origin requests here so that users can interact
@@ -175,16 +175,9 @@ def json_project(request):
     normalized_name = canonicalize_name(request.matchdict["name"])
 
     try:
-        release = (
-            request.db.query(Release)
-            .join(Project)
-            .options(
-                joinedload(Release.project),
-                joinedload(Release.description),
-                joinedload(Release._project_urls),
-                joinedload(Release._requires_dist),
-                joinedload(Release.vulnerabilities),
-            )
+        latest = (
+            request.db.query(Release.id, Release.version)
+            .join(Release.project)
             .filter(Project.normalized_name == normalized_name)
             .order_by(
                 Release.yanked.asc(),
@@ -194,9 +187,24 @@ def json_project(request):
             .limit(1)
             .one()
         )
-        project = release.project
     except NoResultFound:
         return HTTPNotFound(headers=_CORS_HEADERS)
+
+    release = (
+        request.db.query(Release)
+        .join(Project)
+        .outerjoin(ReleaseURL)
+        .options(
+            contains_eager(Release.project),
+            contains_eager(Release._project_urls),
+            joinedload(Release.description),
+            joinedload(Release._requires_dist),
+            joinedload(Release.vulnerabilities),
+        )
+        .filter(Release.id == latest.id)
+        .one()
+    )
+    project = release.project
 
     if project.normalized_name != request.matchdict["name"]:
         return HTTPMovedPermanently(
@@ -238,10 +246,11 @@ def json_release(request):
     project_q = (
         request.db.query(Release)
         .join(Project)
+        .outerjoin(ReleaseURL)
         .options(
-            joinedload(Release.project),
+            contains_eager(Release.project),
+            contains_eager(Release._project_urls),
             joinedload(Release.description),
-            joinedload(Release._project_urls),
             joinedload(Release._requires_dist),
             joinedload(Release.vulnerabilities),
         )
