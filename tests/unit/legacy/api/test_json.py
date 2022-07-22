@@ -11,6 +11,7 @@
 # limitations under the License.
 
 import pretend
+import pytest
 
 from pyramid.httpexceptions import HTTPMovedPermanently, HTTPNotFound
 
@@ -464,7 +465,32 @@ class TestJSONRelease:
         assert isinstance(resp, HTTPNotFound)
         _assert_has_cors_headers(resp.headers)
 
-    def test_detail_renders(self, pyramid_config, db_request, db_session):
+    def test_missing_release_with_multiple_canonical(self, db_request):
+        project = ProjectFactory.create()
+        ReleaseFactory.create(project=project, version="3.0.0")
+        ReleaseFactory.create(project=project, version="3.0.0.0")
+        db_request.matchdict = {"name": project.normalized_name, "version": "3.0"}
+        resp = json.json_release(db_request)
+        assert isinstance(resp, HTTPNotFound)
+        _assert_has_cors_headers(resp.headers)
+
+    @pytest.mark.parametrize(
+        "other_versions,the_version,lookup_version",
+        [
+            (["0.1", "1.0", "2.0"], "3.0", "3.0"),
+            (["0.1", "1.0", "2.0"], "3.0.0", "3.0"),
+            (["0.1", "1.0", "2.0", "3.0.0"], "3.0.0.0.0", "3.0.0.0.0"),
+        ],
+    )
+    def test_detail_renders(
+        self,
+        pyramid_config,
+        db_request,
+        db_session,
+        other_versions,
+        the_version,
+        lookup_version,
+    ):
         project = ProjectFactory.create(has_docs=True)
         description_content_type = "text/x-rst"
         url = "/the/fake/url/"
@@ -488,13 +514,12 @@ class TestJSONRelease:
         expected_urls = dict(tuple(expected_urls))
 
         releases = [
-            ReleaseFactory.create(project=project, version=v)
-            for v in ["0.1", "1.0", "2.0"]
+            ReleaseFactory.create(project=project, version=v) for v in other_versions
         ]
         releases += [
             ReleaseFactory.create(
                 project=project,
-                version="3.0",
+                version=the_version,
                 description=DescriptionFactory.create(
                     content_type=description_content_type
                 ),
@@ -528,7 +553,7 @@ class TestJSONRelease:
         db_request.route_url = pretend.call_recorder(lambda *args, **kw: url)
         db_request.matchdict = {
             "name": project.normalized_name,
-            "version": releases[3].canonical_version,
+            "version": lookup_version,
         }
 
         result = json.json_release(db_request)
@@ -572,7 +597,7 @@ class TestJSONRelease:
                 "summary": None,
                 "yanked": False,
                 "yanked_reason": None,
-                "version": "3.0",
+                "version": the_version,
             },
             "urls": [
                 {
