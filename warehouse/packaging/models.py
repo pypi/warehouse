@@ -404,6 +404,7 @@ class Release(db.Model):
             Index("release_created_idx", cls.created.desc()),
             Index("release_project_created_idx", cls.project_id, cls.created.desc()),
             Index("release_version_idx", cls.version),
+            Index("release_canonical_version_idx", cls.canonical_version),
             UniqueConstraint("project_id", "version"),
         )
 
