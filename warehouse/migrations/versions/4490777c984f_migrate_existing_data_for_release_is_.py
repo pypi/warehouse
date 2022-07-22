@@ -25,14 +25,37 @@ revision = "4490777c984f"
 down_revision = "b0dbcd2f5c77"
 
 
+def _get_num_rows(conn):
+    return list(
+        conn.execute(
+            sa.text("SELECT COUNT(id) FROM releases WHERE is_prerelease IS NULL")
+        )
+    )[0][0]
+
+
 def upgrade():
-    op.execute(
-        """
-        UPDATE releases
-        SET is_prerelease = pep440_is_prerelease(version)
-        WHERE is_prerelease IS NULL
-        """
-    )
+    conn = op.get_bind()
+    total_rows = _get_num_rows(conn)
+    max_loops = total_rows / 100000 * 2
+    loops = 0
+    while _get_num_rows(conn) > 0 and loops < max_loops:
+        loops += 1
+        conn.execute(
+            sa.text(
+                """
+                UPDATE releases
+                SET is_prerelease = pep440_is_prerelease(version)
+                WHERE id IN (
+                    SELECT id
+                    FROM releases
+                    WHERE is_prerelease IS NULL
+                    LIMIT 100000
+                )
+                """
+            )
+        )
+        conn.execute("COMMIT")
+
     op.alter_column(
         "releases",
         "is_prerelease",
