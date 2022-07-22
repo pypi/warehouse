@@ -530,7 +530,7 @@ class TestJSONRelease:
             label, _, purl = urlspec.partition(",")
             db_session.add(
                 ReleaseURL(
-                    release=releases[3],
+                    release=releases[-1],
                     name=label.strip(),
                     url=purl.strip(),
                 )
@@ -559,10 +559,10 @@ class TestJSONRelease:
         result = json.json_release(db_request)
 
         assert set(db_request.route_url.calls) == {
-            pretend.call("packaging.file", path=files[2].path),
+            pretend.call("packaging.file", path=files[-1].path),
             pretend.call("packaging.project", name=project.name),
             pretend.call(
-                "packaging.release", name=project.name, version=releases[3].version
+                "packaging.release", name=project.name, version=releases[-1].version
             ),
             pretend.call("legacy.docs", project=project.name),
         }
@@ -603,18 +603,18 @@ class TestJSONRelease:
                 {
                     "comment_text": None,
                     "downloads": -1,
-                    "filename": files[2].filename,
+                    "filename": files[-1].filename,
                     "has_sig": True,
-                    "md5_digest": files[2].md5_digest,
+                    "md5_digest": files[-1].md5_digest,
                     "digests": {
-                        "md5": files[2].md5_digest,
-                        "sha256": files[2].sha256_digest,
+                        "md5": files[-1].md5_digest,
+                        "sha256": files[-1].sha256_digest,
                     },
                     "packagetype": None,
                     "python_version": "source",
                     "size": 200,
-                    "upload_time": files[2].upload_time.strftime("%Y-%m-%dT%H:%M:%S"),
-                    "upload_time_iso_8601": files[2].upload_time.isoformat() + "Z",
+                    "upload_time": files[-1].upload_time.strftime("%Y-%m-%dT%H:%M:%S"),
+                    "upload_time_iso_8601": files[-1].upload_time.isoformat() + "Z",
                     "url": "/the/fake/url/",
                     "requires_python": None,
                     "yanked": False,
