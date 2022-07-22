@@ -10,9 +10,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from packaging.utils import canonicalize_name, canonicalize_version
 from pyramid.httpexceptions import HTTPMovedPermanently, HTTPNotFound
 from pyramid.view import view_config
-from sqlalchemy.orm import Load
+from sqlalchemy.orm import Load, joinedload
 from sqlalchemy.orm.exc import NoResultFound
 
 from warehouse.cache.http import cache_control
@@ -167,23 +168,24 @@ def _json_data(request, project, release, *, all_releases):
 
 @view_config(
     route_name="legacy.api.json.project",
-    context=Project,
     renderer="json",
     decorator=_CACHE_DECORATOR,
 )
-def json_project(project, request):
-    if project.normalized_name != request.matchdict.get(
-        "name", project.normalized_name
-    ):
-        return HTTPMovedPermanently(
-            request.current_route_path(name=project.normalized_name),
-            headers=_CORS_HEADERS,
-        )
+def json_project(request):
+    normalized_name = canonicalize_name(request.matchdict["name"])
 
     try:
         release = (
             request.db.query(Release)
-            .filter(Release.project == project)
+            .join(Project)
+            .options(
+                joinedload(Release.project),
+                joinedload(Release.description),
+                joinedload(Release._project_urls),
+                joinedload(Release._requires_dist),
+                joinedload(Release.vulnerabilities),
+            )
+            .filter(Project.normalized_name == normalized_name)
             .order_by(
                 Release.yanked.asc(),
                 Release.is_prerelease.nullslast(),
@@ -192,8 +194,15 @@ def json_project(project, request):
             .limit(1)
             .one()
         )
+        project = release.project
     except NoResultFound:
         return HTTPNotFound(headers=_CORS_HEADERS)
+
+    if project.normalized_name != request.matchdict["name"]:
+        return HTTPMovedPermanently(
+            request.current_route_path(name=project.normalized_name),
+            headers=_CORS_HEADERS,
+        )
 
     # Apply CORS headers.
     request.response.headers.update(_CORS_HEADERS)
@@ -209,26 +218,44 @@ def json_project(project, request):
 
 @view_config(
     route_name="legacy.api.json.project_slash",
-    context=Project,
     renderer="json",
     decorator=_CACHE_DECORATOR,
 )
-def json_project_slash(project, request):
-    return json_project(project, request)
+def json_project_slash(request):
+    return json_project(request)
 
 
 @view_config(
     route_name="legacy.api.json.release",
-    context=Release,
     renderer="json",
     decorator=_CACHE_DECORATOR,
 )
-def json_release(release, request):
-    project = release.project
+def json_release(request):
+    normalized_name = canonicalize_name(request.matchdict["name"])
+    canonical_version = canonicalize_version(request.matchdict["version"])
 
-    if project.normalized_name != request.matchdict.get(
-        "name", project.normalized_name
-    ):
+    try:
+        release = (
+            request.db.query(Release)
+            .join(Project)
+            .options(
+                joinedload(Release.project),
+                joinedload(Release.description),
+                joinedload(Release._project_urls),
+                joinedload(Release._requires_dist),
+                joinedload(Release.vulnerabilities),
+            )
+            .filter(Project.normalized_name == normalized_name)
+            .filter(
+                Release.canonical_version == canonical_version,
+            )
+            .one()
+        )
+        project = release.project
+    except NoResultFound:
+        return HTTPNotFound(headers=_CORS_HEADERS)
+
+    if project.normalized_name != request.matchdict["name"]:
         return HTTPMovedPermanently(
             request.current_route_path(name=project.normalized_name),
             headers=_CORS_HEADERS,
@@ -246,9 +273,8 @@ def json_release(release, request):
 
 @view_config(
     route_name="legacy.api.json.release_slash",
-    context=Release,
     renderer="json",
     decorator=_CACHE_DECORATOR,
 )
-def json_release_slash(release, request):
-    return json_release(release, request)
+def json_release_slash(request):
+    return json_release(request)
