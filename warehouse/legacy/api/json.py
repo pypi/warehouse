@@ -197,9 +197,7 @@ def json_project(request):
         .options(
             contains_eager(Release.project),
             contains_eager(Release._project_urls),
-            joinedload(Release.description),
             joinedload(Release._requires_dist),
-            joinedload(Release.vulnerabilities),
         )
         .filter(Release.id == latest.id)
         .one()
@@ -250,9 +248,7 @@ def json_release(request):
         .options(
             contains_eager(Release.project),
             contains_eager(Release._project_urls),
-            joinedload(Release.description),
             joinedload(Release._requires_dist),
-            joinedload(Release.vulnerabilities),
         )
         .filter(Project.normalized_name == normalized_name)
     )
