@@ -21,7 +21,6 @@ import sqlalchemy as sa
 
 from alembic import op
 
-
 revision = "8a335305fd39"
 down_revision = "4490777c984f"
 
