@@ -14,7 +14,7 @@ from packaging.utils import canonicalize_name, canonicalize_version
 from pyramid.httpexceptions import HTTPMovedPermanently, HTTPNotFound
 from pyramid.view import view_config
 from sqlalchemy.orm import Load, joinedload
-from sqlalchemy.orm.exc import NoResultFound
+from sqlalchemy.orm.exc import MultipleResultsFound, NoResultFound
 
 from warehouse.cache.http import cache_control
 from warehouse.cache.origin import origin_cache
@@ -232,28 +232,39 @@ def json_project_slash(request):
 )
 def json_release(request):
     normalized_name = canonicalize_name(request.matchdict["name"])
-    canonical_version = canonicalize_version(request.matchdict["version"])
+    version = request.matchdict["version"]
+    canonical_version = canonicalize_version(version)
+
+    project_q = (
+        request.db.query(Release)
+        .join(Project)
+        .options(
+            joinedload(Release.project),
+            joinedload(Release.description),
+            joinedload(Release._project_urls),
+            joinedload(Release._requires_dist),
+            joinedload(Release.vulnerabilities),
+        )
+        .filter(Project.normalized_name == normalized_name)
+    )
 
     try:
-        release = (
-            request.db.query(Release)
-            .join(Project)
-            .options(
-                joinedload(Release.project),
-                joinedload(Release.description),
-                joinedload(Release._project_urls),
-                joinedload(Release._requires_dist),
-                joinedload(Release.vulnerabilities),
-            )
-            .filter(Project.normalized_name == normalized_name)
-            .filter(
-                Release.canonical_version == canonical_version,
-            )
-            .one()
-        )
-        project = release.project
+        release = project_q.filter(Release.canonical_version == canonical_version).one()
+    except MultipleResultsFound:
+        # There are multiple releases of this project which have the same
+        # canonical version that were uploaded before we checked for
+        # canonical version equivalence, so return the exact match instead
+        try:
+            release = project_q.filter(Release.version == version).one()
+        except NoResultFound:
+            # There are multiple releases of this project which have the
+            # same canonical version, but none that have the exact version
+            # specified, so just 404
+            return HTTPNotFound(headers=_CORS_HEADERS)
     except NoResultFound:
         return HTTPNotFound(headers=_CORS_HEADERS)
+
+    project = release.project
 
     if project.normalized_name != request.matchdict["name"]:
         return HTTPMovedPermanently(
