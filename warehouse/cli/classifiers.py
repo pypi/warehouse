@@ -12,7 +12,7 @@
 
 import click
 
-from trove_classifiers import sorted_classifiers as _sorted_classifiers
+from trove_classifiers import all_classifiers as sorted_classifiers
 
 from warehouse.cli import warehouse
 
@@ -34,11 +34,6 @@ def sync(config):
     # but warehouse.cli at the module scope.
     from warehouse.db import Session
     from warehouse.classifiers.models import Classifier
-
-    sorted_classifiers = _sorted_classifiers + [
-        "Natural Language :: Ukranian",
-        "Topic :: Communications :: Chat :: AOL Instant Messenger",
-    ]
 
     session = Session(bind=config.registry["sqlalchemy.engine"])
 
