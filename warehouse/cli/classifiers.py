@@ -58,10 +58,4 @@ def sync(config):
     for classifier in all_classifiers:
         classifier.ordering = sorted_classifiers.index(classifier.classifier)
 
-    try:
-        session.commit()
-        print("classifiers synced")
-    except Exception as e:
-        session.rollback()
-        print("Error while syncing classifiers:")
-        print(f"\t{e}")
+    session.commit()
