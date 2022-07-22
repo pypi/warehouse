@@ -63,7 +63,9 @@ class GenericBillingService:
     #     )
     #     return subscription.customer
 
-    def create_checkout_session(self, organization_id, price_id, success_url, cancel_url):
+    def create_checkout_session(
+        self, organization_id, price_id, success_url, cancel_url
+    ):
         """
         # Create new Checkout Session for the order
         # For full details see https://stripe.com/docs/api/checkout/sessions/create

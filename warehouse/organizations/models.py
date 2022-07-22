@@ -282,6 +282,14 @@ class Organization(HasEvents, db.Model):
                 acls.append((Allow, f"user:{role.user.id}", ["view:organization"]))
         return acls
 
+    @property
+    def active_subscription(self):
+        for subscription in self.subscriptions:
+            if not subscription.is_restricted:
+                return subscription
+        else:
+            return None
+
 
 class OrganizationNameCatalog(db.Model):
 

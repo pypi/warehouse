@@ -154,11 +154,11 @@
   <section id="billing-details">
     <h2>{% trans %}Billing details{% endtrans %}</h2>
     <div class="form-group">
-      {% if organization.subscription %}
+      {% if organization.active_subscription %}
       <span class="form-group__label">{% trans %}Billing status{% endtrans %}</span>
-      <p class="form-group__text">{{ gettext(organization.subscription.status.label) }}</p>
+      <p class="form-group__text">{{ gettext(organization.active_subscription.status.label) }}</p>
       <span class="form-group__label">{% trans %}Last updated{% endtrans %}</span>
-      <p class="form-group__text"> {{ humanize(organization.subscription.last_updated) }} </p>
+      <p class="form-group__text"> {{ humanize(organization.active_subscription.last_updated) }} </p>
       {% else %}
       <span class="form-group__label">{% trans %}Billing status{% endtrans %}</span>
       <p class="form-group__text">{% trans %}Incomplete{% endtrans %}</p>

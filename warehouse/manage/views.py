@@ -1469,13 +1469,6 @@ class ManageOrganizationBillingViews:
         )
 
     @property
-    def active_subscription(self):
-        try:
-            return self.organization.subscriptions[0]
-        except IndexError:
-            return None
-
-    @property
     def price_id(self):
         default_subscription_price = (
             self.subscription_service.get_default_subscription_price()
@@ -1535,7 +1528,7 @@ class ManageOrganizationBillingViews:
 
     @view_config(route_name="manage.organization.subscription")
     def create_or_manage_subscription(self):
-        if not self.active_subscription:
+        if not self.organization.active_subscription:
             return self.create_subscription()
         else:
             return self.manage_subscription()
