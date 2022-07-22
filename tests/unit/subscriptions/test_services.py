@@ -12,6 +12,7 @@
 
 import pretend
 import pytest
+import stripe
 
 from zope.interface.verify import verifyClass
 
@@ -28,6 +29,7 @@ from warehouse.subscriptions.services import (
     StripeBillingService,
 )
 
+from ...common.db.organizations import OrganizationFactory
 from ...common.db.subscriptions import (
     SubscriptionFactory,
     SubscriptionPriceFactory,
@@ -57,6 +59,7 @@ class TestStripeBillingService:
             registry=pretend.stub(
                 settings={
                     "subscription.api_base": "http://stripe:12111",
+                    "subscription.api_version": "2020-08-27",
                     "subscription.secret_key": "sk_test_123",
                     "subscription.publishable_key": "pk_test_123",
                     "subscription.webhook_key": "whsec_123",
@@ -66,6 +69,7 @@ class TestStripeBillingService:
         billing_service = StripeBillingService.create_service(None, request)
         # Assert api_base isn't overwritten with mock service even if we try
         assert not billing_service.api.api_base == "http://stripe:12111"
+        assert billing_service.api.api_version == "2020-08-27"
         assert billing_service.api.api_key == "sk_test_123"
         assert billing_service.publishable_key == "pk_test_123"
         assert billing_service.webhook_secret == "whsec_123"
@@ -93,6 +97,7 @@ class TestLocalBillingService:
             registry=pretend.stub(
                 settings={
                     "subscription.api_base": "http://stripe:12111",
+                    "subscription.api_version": "2020-08-27",
                     "subscription.secret_key": "sk_test_123",
                     "subscription.publishable_key": "pk_test_123",
                     "subscription.webhook_key": "whsec_123",
@@ -101,6 +106,7 @@ class TestLocalBillingService:
         )
         billing_service = LocalBillingService.create_service(None, request)
         assert billing_service.api.api_base == "http://stripe:12111"
+        assert billing_service.api.api_version == "2020-08-27"
         assert billing_service.api.api_key == "sk_test_123"
         assert billing_service.publishable_key == "pk_test_123"
         assert billing_service.webhook_secret == "whsec_123"
@@ -110,6 +116,7 @@ class TestLocalBillingService:
             registry=pretend.stub(
                 settings={
                     "subscription.api_base": "http://stripe:12111",
+                    "subscription.api_version": "2020-08-27",
                     "subscription.secret_key": "sk_test_123",
                     "subscription.publishable_key": "pk_test_123",
                     "subscription.webhook_key": "whsec_123",
@@ -135,6 +142,7 @@ class TestLocalBillingService:
             registry=pretend.stub(
                 settings={
                     "subscription.api_base": "http://stripe:12111",
+                    "subscription.api_version": "2020-08-27",
                     "subscription.secret_key": "sk_test_123",
                     "subscription.publishable_key": "pk_test_123",
                     "subscription.webhook_key": "whsec_123",
@@ -142,11 +150,13 @@ class TestLocalBillingService:
             )
         )
         billing_service = LocalBillingService.create_service(None, request)
+        organization = OrganizationFactory.create()
         subscription_price = SubscriptionPriceFactory.create()
         success_url = "http://what.ever"
         cancel_url = "http://no.way"
 
         checkout_session = billing_service.create_checkout_session(
+            organization_id = organization.id,
             price_id=subscription_price.price_id,
             success_url=success_url,
             cancel_url=cancel_url,
@@ -160,6 +170,7 @@ class TestLocalBillingService:
             registry=pretend.stub(
                 settings={
                     "subscription.api_base": "http://stripe:12111",
+                    "subscription.api_version": "2020-08-27",
                     "subscription.secret_key": "sk_test_123",
                     "subscription.publishable_key": "pk_test_123",
                     "subscription.webhook_key": "whsec_123",
@@ -175,26 +186,38 @@ class TestLocalBillingService:
         )
         assert session_url is not None
 
-    def test_webhook_received(self):
-        with pytest.raises(NotImplementedError):
-            request = pretend.stub(
-                registry=pretend.stub(
-                    settings={
-                        "subscription.api_base": "http://stripe:12111",
-                        "subscription.secret_key": "sk_test_123",
-                        "subscription.publishable_key": "pk_test_123",
-                        "subscription.webhook_key": "whsec_123",
-                    }
-                )
+    def test_webhook_received(self, monkeypatch):
+        request = pretend.stub(
+            registry=pretend.stub(
+                settings={
+                    "subscription.api_base": "http://stripe:12111",
+                    "subscription.api_version": "2020-08-27",
+                    "subscription.secret_key": "sk_test_123",
+                    "subscription.publishable_key": "pk_test_123",
+                    "subscription.webhook_key": "whsec_123",
+                }
             )
-            billing_service = LocalBillingService.create_service(None, request)
-            billing_service.webhook_received(request)
+        )
+
+        payload = pretend.stub()
+        sig_header = pretend.stub()
+
+        construct_event = pretend.call_recorder(lambda *a, **kw: None)
+        monkeypatch.setattr(stripe.Webhook, "construct_event", construct_event)
+
+        billing_service = LocalBillingService.create_service(None, request)
+        billing_service.webhook_received(payload, sig_header)
+
+        construct_event.calls == [
+            pretend.call(payload, sig_header, billing_service.webhook_secret),
+        ]
 
     def test_create_product(self, subscription_service):
         request = pretend.stub(
             registry=pretend.stub(
                 settings={
                     "subscription.api_base": "http://stripe:12111",
+                    "subscription.api_version": "2020-08-27",
                     "subscription.secret_key": "sk_test_123",
                     "subscription.publishable_key": "pk_test_123",
                     "subscription.webhook_key": "whsec_123",
@@ -217,6 +240,7 @@ class TestLocalBillingService:
             registry=pretend.stub(
                 settings={
                     "subscription.api_base": "http://stripe:12111",
+                    "subscription.api_version": "2020-08-27",
                     "subscription.secret_key": "sk_test_123",
                     "subscription.publishable_key": "pk_test_123",
                     "subscription.webhook_key": "whsec_123",
@@ -237,6 +261,7 @@ class TestLocalBillingService:
             registry=pretend.stub(
                 settings={
                     "subscription.api_base": "http://stripe:12111",
+                    "subscription.api_version": "2020-08-27",
                     "subscription.secret_key": "sk_test_123",
                     "subscription.publishable_key": "pk_test_123",
                     "subscription.webhook_key": "whsec_123",
@@ -262,6 +287,7 @@ class TestLocalBillingService:
             registry=pretend.stub(
                 settings={
                     "subscription.api_base": "http://stripe:12111",
+                    "subscription.api_version": "2020-08-27",
                     "subscription.secret_key": "sk_test_123",
                     "subscription.publishable_key": "pk_test_123",
                     "subscription.webhook_key": "whsec_123",
@@ -278,6 +304,7 @@ class TestLocalBillingService:
             registry=pretend.stub(
                 settings={
                     "subscription.api_base": "http://stripe:12111",
+                    "subscription.api_version": "2020-08-27",
                     "subscription.secret_key": "sk_test_123",
                     "subscription.publishable_key": "pk_test_123",
                     "subscription.webhook_key": "whsec_123",
@@ -297,6 +324,7 @@ class TestLocalBillingService:
             registry=pretend.stub(
                 settings={
                     "subscription.api_base": "http://stripe:12111",
+                    "subscription.api_version": "2020-08-27",
                     "subscription.secret_key": "sk_test_123",
                     "subscription.publishable_key": "pk_test_123",
                     "subscription.webhook_key": "whsec_123",
@@ -313,6 +341,7 @@ class TestLocalBillingService:
             registry=pretend.stub(
                 settings={
                     "subscription.api_base": "http://stripe:12111",
+                    "subscription.api_version": "2020-08-27",
                     "subscription.secret_key": "sk_test_123",
                     "subscription.publishable_key": "pk_test_123",
                     "subscription.webhook_key": "whsec_123",
@@ -337,6 +366,7 @@ class TestLocalBillingService:
             registry=pretend.stub(
                 settings={
                     "subscription.api_base": "http://stripe:12111",
+                    "subscription.api_version": "2020-08-27",
                     "subscription.secret_key": "sk_test_123",
                     "subscription.publishable_key": "pk_test_123",
                     "subscription.webhook_key": "whsec_123",
@@ -357,6 +387,7 @@ class TestLocalBillingService:
             registry=pretend.stub(
                 settings={
                     "subscription.api_base": "http://stripe:12111",
+                    "subscription.api_version": "2020-08-27",
                     "subscription.secret_key": "sk_test_123",
                     "subscription.publishable_key": "pk_test_123",
                     "subscription.webhook_key": "whsec_123",
@@ -369,7 +400,6 @@ class TestLocalBillingService:
         price = billing_service.update_price(
             price_id=subscription_price.price_id,
             active="false",
-            tax_behavior=subscription_price.tax_behavior,
         )
 
         assert not price.active
@@ -379,6 +409,7 @@ class TestLocalBillingService:
             registry=pretend.stub(
                 settings={
                     "subscription.api_base": "http://stripe:12111",
+                    "subscription.api_version": "2020-08-27",
                     "subscription.secret_key": "sk_test_123",
                     "subscription.publishable_key": "pk_test_123",
                     "subscription.webhook_key": "whsec_123",
@@ -395,6 +426,7 @@ class TestLocalBillingService:
             registry=pretend.stub(
                 settings={
                     "subscription.api_base": "http://stripe:12111",
+                    "subscription.api_version": "2020-08-27",
                     "subscription.secret_key": "sk_test_123",
                     "subscription.publishable_key": "pk_test_123",
                     "subscription.webhook_key": "whsec_123",
@@ -450,6 +482,7 @@ class TestSubscriptionService:
             registry=pretend.stub(
                 settings={
                     "subscription.api_base": "http://stripe:12111",
+                    "subscription.api_version": "2020-08-27",
                     "subscription.secret_key": "sk_test_123",
                     "subscription.publishable_key": "pk_test_123",
                     "subscription.webhook_key": "whsec_123",

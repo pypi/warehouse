@@ -439,6 +439,7 @@ def test_routes(warehouse):
             "/_/vulnerabilities/osv/report",
             domain=warehouse,
         ),
+        pretend.call("api.billing.webhook", "/billing/webhook/", domain=warehouse),
         pretend.call("api.simple.index", "/simple/", domain=warehouse),
         pretend.call(
             "api.simple.detail",

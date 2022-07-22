@@ -1523,7 +1523,7 @@ class ManageOrganizationBillingViews:
             organization_id=self.organization.id,
             return_url=self.return_url,
         )
-        manage_subscription_url = portal_session.url
+        manage_subscription_url = portal_session["url"]
         return HTTPSeeOther(manage_subscription_url)
 
     @view_config(route_name="manage.organization.subscription")

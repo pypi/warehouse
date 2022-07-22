@@ -40,9 +40,9 @@ class IGenericBillingService(Interface):
         Return customer portal session to allow customer to managing their subscription
         """
 
-    def webhook_received(request):
+    def webhook_received(payload, sig_header):
         """
-        Webhooks to handle stripe events
+        Return parsed webhook event from Stripe
         """
 
     def create_or_update_product(name, description, tax_code):
@@ -95,7 +95,7 @@ class IGenericBillingService(Interface):
         Get a price resource via Billing API
         """
 
-    def update_price(price_id, active, tax_behavior):
+    def update_price(price_id, active):
         """
         Update a price resource by id via Billing API
         only allowing update of those attributes we use

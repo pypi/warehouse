@@ -2568,6 +2568,7 @@ class TestManageOrganizations:
         organization = pretend.stub(
             id=pretend.stub(),
             name="psf",
+            normalized_name="psf",
             display_name="Python Software Foundation",
             orgtype="Company",
             link_url="https://www.python.org/psf/",
@@ -3179,7 +3180,9 @@ class TestManageOrganizationBillingViews:
             lambda *a, **kw: "/manage/organizations/"
         )
 
-        create_checkout_session = pretend.call_recorder(lambda *a, **kw: "session-url")
+        create_checkout_session = pretend.call_recorder(
+            lambda *a, **kw: {"url": "session-url"}
+        )
         monkeypatch.setattr(
             billing_service, "create_checkout_session", create_checkout_session
         )
@@ -3211,7 +3214,9 @@ class TestManageOrganizationBillingViews:
             lambda *a, **kw: "/manage/organizations/"
         )
 
-        create_portal_session = pretend.call_recorder(lambda *a, **kw: "session-url")
+        create_portal_session = pretend.call_recorder(
+                lambda *a, **kw: {"url": "session-url"}
+        )
         monkeypatch.setattr(
             billing_service, "create_portal_session", create_portal_session
         )
