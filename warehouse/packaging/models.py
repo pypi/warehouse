@@ -47,8 +47,6 @@ from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy.orm import validates
 from sqlalchemy.orm.collections import attribute_mapped_collection
 from sqlalchemy.orm.exc import MultipleResultsFound, NoResultFound
-from sqlalchemy.sql import expression
-from trove_classifiers import sorted_classifiers
 
 from warehouse import db
 from warehouse.accounts.models import User

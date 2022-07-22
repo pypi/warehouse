@@ -198,9 +198,7 @@ def json_project(request):
     except NoResultFound:
         return HTTPNotFound(headers=_CORS_HEADERS)
 
-    if project.normalized_name != request.matchdict.get(
-        "name", project.normalized_name
-    ):
+    if project.normalized_name != request.matchdict["name"]:
         return HTTPMovedPermanently(
             request.current_route_path(name=project.normalized_name),
             headers=_CORS_HEADERS,
@@ -257,9 +255,7 @@ def json_release(request):
     except NoResultFound:
         return HTTPNotFound(headers=_CORS_HEADERS)
 
-    if project.normalized_name != request.matchdict.get(
-        "name", project.normalized_name
-    ):
+    if project.normalized_name != request.matchdict["name"]:
         return HTTPMovedPermanently(
             request.current_route_path(name=project.normalized_name),
             headers=_CORS_HEADERS,
