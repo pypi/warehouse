@@ -1,9 +1,6 @@
 Patterns
 ========
 
-.. contents::
-    :local:
-
 Dependency management
 ---------------------
 
