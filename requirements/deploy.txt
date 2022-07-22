@@ -12,9 +12,9 @@ bytecode==0.13.0 \
     --hash=sha256:6af3c2f0a31ce05dce41f7eea5cc380e33f5e8fbb7dcee3b52467a00acd52fcd \
     --hash=sha256:e69f92e7d27f99d5d7d76e6a824bd3d9ff857c72b59927aaf87e1a620f67fe50
     # via ddtrace
-ddsketch==2.0.3 \
-    --hash=sha256:464469f53380aa878eb1dd4dc644086341e0d2a54b19dfca7d7a4645c8353ac6 \
-    --hash=sha256:a5fd40785aa70ae45c240c769aab9158c2046da91ddb44ac0c42e4d4930ce302
+ddsketch==2.0.4 \
+    --hash=sha256:3227a270fd686a29d3a7128f9352ccf852314410380fc11384356f1ae2a75938 \
+    --hash=sha256:32f7314077fec8747d4faebaec2c854b5ffc399c5f552f73fa94024f48d74d64
     # via ddtrace
 ddtrace==1.2.2 \
     --hash=sha256:0744ed17d63a90ed23ac1477b9109f4358b4321652a4d6b5e287ab9eb2141fc8 \
