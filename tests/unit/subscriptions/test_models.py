@@ -10,14 +10,22 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from ...common.db.organizations import OrganizationFactory as DBOrganizationFactory
 from ...common.db.subscriptions import SubscriptionFactory as DBSubscriptionFactory
 
 
 class TestSubscription:
     def test_is_restricted(self, db_session):
-        subscription = DBSubscriptionFactory.create(status="past_due")
+        organization = DBOrganizationFactory.create(customer_id="cus_123")
+        subscription = DBSubscriptionFactory.create(
+            customer_id=organization.customer_id,
+            status="past_due",
+        )
         assert subscription.is_restricted
 
     def test_not_is_restricted(self, db_session):
-        subscription = DBSubscriptionFactory.create()
+        organization = DBOrganizationFactory.create(customer_id="cus_123")
+        subscription = DBSubscriptionFactory.create(
+            customer_id=organization.customer_id
+        )
         assert not subscription.is_restricted
