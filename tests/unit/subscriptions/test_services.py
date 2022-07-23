@@ -111,22 +111,7 @@ class TestLocalBillingService:
         assert billing_service.publishable_key == "pk_test_123"
         assert billing_service.webhook_secret == "whsec_123"
 
-    def test_get_checkout_session(self):
-        request = pretend.stub(
-            registry=pretend.stub(
-                settings={
-                    "subscription.api_base": "http://stripe:12111",
-                    "subscription.api_version": "2020-08-27",
-                    "subscription.secret_key": "sk_test_123",
-                    "subscription.publishable_key": "pk_test_123",
-                    "subscription.webhook_key": "whsec_123",
-                }
-            )
-        )
-        billing_service = LocalBillingService.create_service(None, request)
-
-        assert billing_service.api.api_key == "sk_test_123"
-
+    def test_get_checkout_session(self, billing_service):
         random_session = billing_service.api.checkout.Session.list(limit=1)
 
         assert random_session.data[0].object == "checkout.session"
@@ -137,19 +122,24 @@ class TestLocalBillingService:
 
         assert retrieved_session.id == random_session.data[0].id
 
-    def test_create_checkout_session(self, subscription_service):
-        request = pretend.stub(
-            registry=pretend.stub(
-                settings={
-                    "subscription.api_base": "http://stripe:12111",
-                    "subscription.api_version": "2020-08-27",
-                    "subscription.secret_key": "sk_test_123",
-                    "subscription.publishable_key": "pk_test_123",
-                    "subscription.webhook_key": "whsec_123",
-                }
-            )
+    def test_get_customer(self, billing_service, subscription_service):
+        customer = billing_service.get_customer(subscription_id="sub_12345")
+
+        assert customer is not None
+        assert customer["id"]
+
+    def test_create_customer(self, billing_service, organization_service):
+        organization = OrganizationFactory.create()
+
+        customer = billing_service.create_customer(
+            name=organization.name,
+            description=organization.description,
         )
-        billing_service = LocalBillingService.create_service(None, request)
+
+        assert customer is not None
+        assert customer["id"]
+
+    def test_create_checkout_session(self, billing_service, subscription_service):
         organization = OrganizationFactory.create()
         subscription_price = SubscriptionPriceFactory.create()
         success_url = "http://what.ever"
@@ -165,19 +155,7 @@ class TestLocalBillingService:
         assert checkout_session.id is not None
         # assert checkout_session.url is not None
 
-    def test_create_portal_session(self):
-        request = pretend.stub(
-            registry=pretend.stub(
-                settings={
-                    "subscription.api_base": "http://stripe:12111",
-                    "subscription.api_version": "2020-08-27",
-                    "subscription.secret_key": "sk_test_123",
-                    "subscription.publishable_key": "pk_test_123",
-                    "subscription.webhook_key": "whsec_123",
-                }
-            )
-        )
-        billing_service = LocalBillingService.create_service(None, request)
+    def test_create_portal_session(self, billing_service):
         return_url = "http://return.url"
 
         session_url = billing_service.create_portal_session(
@@ -186,45 +164,20 @@ class TestLocalBillingService:
         )
         assert session_url is not None
 
-    def test_webhook_received(self, monkeypatch):
-        request = pretend.stub(
-            registry=pretend.stub(
-                settings={
-                    "subscription.api_base": "http://stripe:12111",
-                    "subscription.api_version": "2020-08-27",
-                    "subscription.secret_key": "sk_test_123",
-                    "subscription.publishable_key": "pk_test_123",
-                    "subscription.webhook_key": "whsec_123",
-                }
-            )
-        )
-
+    def test_webhook_received(self, billing_service, monkeypatch):
         payload = pretend.stub()
         sig_header = pretend.stub()
 
         construct_event = pretend.call_recorder(lambda *a, **kw: None)
         monkeypatch.setattr(stripe.Webhook, "construct_event", construct_event)
 
-        billing_service = LocalBillingService.create_service(None, request)
         billing_service.webhook_received(payload, sig_header)
 
         construct_event.calls == [
             pretend.call(payload, sig_header, billing_service.webhook_secret),
         ]
 
-    def test_create_product(self, subscription_service):
-        request = pretend.stub(
-            registry=pretend.stub(
-                settings={
-                    "subscription.api_base": "http://stripe:12111",
-                    "subscription.api_version": "2020-08-27",
-                    "subscription.secret_key": "sk_test_123",
-                    "subscription.publishable_key": "pk_test_123",
-                    "subscription.webhook_key": "whsec_123",
-                }
-            )
-        )
-        billing_service = LocalBillingService.create_service(None, request)
+    def test_create_product(self, billing_service, subscription_service):
         subscription_product = SubscriptionProductFactory.create()
 
         product = billing_service.create_product(
@@ -235,19 +188,7 @@ class TestLocalBillingService:
 
         assert product is not None
 
-    def test_retrieve_product(self, subscription_service):
-        request = pretend.stub(
-            registry=pretend.stub(
-                settings={
-                    "subscription.api_base": "http://stripe:12111",
-                    "subscription.api_version": "2020-08-27",
-                    "subscription.secret_key": "sk_test_123",
-                    "subscription.publishable_key": "pk_test_123",
-                    "subscription.webhook_key": "whsec_123",
-                }
-            )
-        )
-        billing_service = LocalBillingService.create_service(None, request)
+    def test_retrieve_product(self, billing_service, subscription_service):
         subscription_product = SubscriptionProductFactory.create()
 
         product = billing_service.retrieve_product(
@@ -256,19 +197,7 @@ class TestLocalBillingService:
 
         assert product is not None
 
-    def test_update_product(self, subscription_service):
-        request = pretend.stub(
-            registry=pretend.stub(
-                settings={
-                    "subscription.api_base": "http://stripe:12111",
-                    "subscription.api_version": "2020-08-27",
-                    "subscription.secret_key": "sk_test_123",
-                    "subscription.publishable_key": "pk_test_123",
-                    "subscription.webhook_key": "whsec_123",
-                }
-            )
-        )
-        billing_service = LocalBillingService.create_service(None, request)
+    def test_update_product(self, billing_service, subscription_service):
         subscription_product = SubscriptionProductFactory.create()
 
         product = billing_service.update_product(
@@ -282,36 +211,12 @@ class TestLocalBillingService:
         # updating the object or not, so just make sure we got one back
         assert product is not None
 
-    def test_list_all_products(self):
-        request = pretend.stub(
-            registry=pretend.stub(
-                settings={
-                    "subscription.api_base": "http://stripe:12111",
-                    "subscription.api_version": "2020-08-27",
-                    "subscription.secret_key": "sk_test_123",
-                    "subscription.publishable_key": "pk_test_123",
-                    "subscription.webhook_key": "whsec_123",
-                }
-            )
-        )
-        billing_service = LocalBillingService.create_service(None, request)
+    def test_list_all_products(self, billing_service):
         products = billing_service.list_all_products()
 
         assert products is not None
 
-    def test_delete_product(self, subscription_service):
-        request = pretend.stub(
-            registry=pretend.stub(
-                settings={
-                    "subscription.api_base": "http://stripe:12111",
-                    "subscription.api_version": "2020-08-27",
-                    "subscription.secret_key": "sk_test_123",
-                    "subscription.publishable_key": "pk_test_123",
-                    "subscription.webhook_key": "whsec_123",
-                }
-            )
-        )
-        billing_service = LocalBillingService.create_service(None, request)
+    def test_delete_product(self, billing_service, subscription_service):
         subscription_product = SubscriptionProductFactory.create()
 
         product = billing_service.delete_product(
@@ -319,36 +224,12 @@ class TestLocalBillingService:
         )
         assert product.deleted
 
-    def test_search_products(self):
-        request = pretend.stub(
-            registry=pretend.stub(
-                settings={
-                    "subscription.api_base": "http://stripe:12111",
-                    "subscription.api_version": "2020-08-27",
-                    "subscription.secret_key": "sk_test_123",
-                    "subscription.publishable_key": "pk_test_123",
-                    "subscription.webhook_key": "whsec_123",
-                }
-            )
-        )
-        billing_service = LocalBillingService.create_service(None, request)
+    def test_search_products(self, billing_service):
         products = billing_service.search_products(query="active:'true'")
 
         assert products is not None
 
-    def test_create_price(self, subscription_service):
-        request = pretend.stub(
-            registry=pretend.stub(
-                settings={
-                    "subscription.api_base": "http://stripe:12111",
-                    "subscription.api_version": "2020-08-27",
-                    "subscription.secret_key": "sk_test_123",
-                    "subscription.publishable_key": "pk_test_123",
-                    "subscription.webhook_key": "whsec_123",
-                }
-            )
-        )
-        billing_service = LocalBillingService.create_service(None, request)
+    def test_create_price(self, billing_service, subscription_service):
         subscription_price = SubscriptionPriceFactory.create()
 
         price = billing_service.create_price(
@@ -361,19 +242,7 @@ class TestLocalBillingService:
 
         assert price is not None
 
-    def test_retrieve_price(self, subscription_service):
-        request = pretend.stub(
-            registry=pretend.stub(
-                settings={
-                    "subscription.api_base": "http://stripe:12111",
-                    "subscription.api_version": "2020-08-27",
-                    "subscription.secret_key": "sk_test_123",
-                    "subscription.publishable_key": "pk_test_123",
-                    "subscription.webhook_key": "whsec_123",
-                }
-            )
-        )
-        billing_service = LocalBillingService.create_service(None, request)
+    def test_retrieve_price(self, billing_service, subscription_service):
         subscription_price = SubscriptionPriceFactory.create()
 
         price = billing_service.retrieve_price(
@@ -382,19 +251,7 @@ class TestLocalBillingService:
 
         assert price is not None
 
-    def test_update_price(self, subscription_service):
-        request = pretend.stub(
-            registry=pretend.stub(
-                settings={
-                    "subscription.api_base": "http://stripe:12111",
-                    "subscription.api_version": "2020-08-27",
-                    "subscription.secret_key": "sk_test_123",
-                    "subscription.publishable_key": "pk_test_123",
-                    "subscription.webhook_key": "whsec_123",
-                }
-            )
-        )
-        billing_service = LocalBillingService.create_service(None, request)
+    def test_update_price(self, billing_service, subscription_service):
         subscription_price = SubscriptionPriceFactory.create()
 
         price = billing_service.update_price(
@@ -404,36 +261,12 @@ class TestLocalBillingService:
 
         assert not price.active
 
-    def test_list_all_prices(self):
-        request = pretend.stub(
-            registry=pretend.stub(
-                settings={
-                    "subscription.api_base": "http://stripe:12111",
-                    "subscription.api_version": "2020-08-27",
-                    "subscription.secret_key": "sk_test_123",
-                    "subscription.publishable_key": "pk_test_123",
-                    "subscription.webhook_key": "whsec_123",
-                }
-            )
-        )
-        billing_service = LocalBillingService.create_service(None, request)
+    def test_list_all_prices(self, billing_service):
         prices = billing_service.list_all_prices()
 
         assert prices is not None
 
-    def test_search_prices(self):
-        request = pretend.stub(
-            registry=pretend.stub(
-                settings={
-                    "subscription.api_base": "http://stripe:12111",
-                    "subscription.api_version": "2020-08-27",
-                    "subscription.secret_key": "sk_test_123",
-                    "subscription.publishable_key": "pk_test_123",
-                    "subscription.webhook_key": "whsec_123",
-                }
-            )
-        )
-        billing_service = LocalBillingService.create_service(None, request)
+    def test_search_prices(self, billing_service):
         prices = billing_service.search_prices(query="active:'true'")
 
         assert prices is not None
@@ -477,25 +310,13 @@ class TestSubscriptionService:
 
         assert service.db is session
 
-    def test_get_publishable_key(self, subscription_service):
-        request = pretend.stub(
-            registry=pretend.stub(
-                settings={
-                    "subscription.api_base": "http://stripe:12111",
-                    "subscription.api_version": "2020-08-27",
-                    "subscription.secret_key": "sk_test_123",
-                    "subscription.publishable_key": "pk_test_123",
-                    "subscription.webhook_key": "whsec_123",
-                }
-            )
-        )
-        billing_service = LocalBillingService.create_service(None, request)
-
+    def test_get_publishable_key(self, billing_service, subscription_service):
         request = pretend.stub(
             find_service=pretend.call_recorder(lambda *args, **kwargs: billing_service),
         )
 
         pub_key = subscription_service.get_publishable_key(request)
+        assert pub_key is not None
         assert pub_key == "pk_test_123"
 
     def test_find_subscriptionid_nonexistent_sub(self, subscription_service):

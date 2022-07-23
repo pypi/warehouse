@@ -326,7 +326,9 @@ def organization_service(db_session, remote_addr):
 @pytest.fixture
 def billing_service():
     return subscription_services.GenericBillingService(
-        api=stripe, publishable_key="publishable-key", webhook_secret="webhook-secret"
+        api=stripe,
+        publishable_key=os.environ["STRIPE_PUBLISHABLE_KEY"],
+        webhook_secret=os.environ["STRIPE_WEBHOOK_SECRET"],
     )
 
 
