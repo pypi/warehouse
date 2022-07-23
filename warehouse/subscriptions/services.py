@@ -53,15 +53,24 @@ class GenericBillingService:
         )
         return checkout_session
 
-    # def get_customer(self, subscription_id):
-    #     """
-    #     Fetch the Customer resource attached to the Subscription
-    #     """
-    #     subscription = self.api.Subscription.retrieve(
-    #         subscription_id,
-    #         # expand=["customer"],
-    #     )
-    #     return subscription.customer
+    def get_customer(self, subscription_id):
+        """
+        Fetch the Customer resource attached to the Subscription
+        """
+        subscription = self.api.Subscription.retrieve(
+            subscription_id,
+            expand=["customer"],
+        )
+        return subscription.customer
+
+    def create_customer(self, name, description):
+        """
+        Create the Customer resource via Billing API with the given name and description
+        """
+        return self.api.Customer.create(
+            name=name,
+            description=description,
+        )
 
     def create_checkout_session(
         self, organization_id, price_id, success_url, cancel_url

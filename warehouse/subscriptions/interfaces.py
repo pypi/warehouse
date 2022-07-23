@@ -24,10 +24,15 @@ class IGenericBillingService(Interface):
         Fetch the Checkout Session to based on the session_id passed to the success page
         """
 
-    # def get_customer(subscription_id):
-    #     """
-    #     Fetch the Customer resource attached to the Subscription
-    #     """
+    def get_customer(subscription_id):
+        """
+        Fetch the Customer resource attached to the Subscription
+        """
+
+    def create_customer(name, description):
+        """
+        Create the Customer resource via Billing API with the given name and description
+        """
 
     def create_checkout_session(organization_id, price_id, success_url, cancel_url):
         """
