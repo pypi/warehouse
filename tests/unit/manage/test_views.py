@@ -83,7 +83,7 @@ from ...common.db.packaging import (
     RoleInvitationFactory,
     UserFactory,
 )
-from ...common.db.subscriptions import SubscriptionPriceFactory
+from ...common.db.subscriptions import SubscriptionFactory, SubscriptionPriceFactory
 
 
 class TestManageAccount:
@@ -3157,11 +3157,17 @@ class TestManageOrganizationSettings:
 class TestManageOrganizationBillingViews:
     @pytest.fixture
     def organization(self):
-        return OrganizationFactory.create()
+        return OrganizationFactory.create(customer_id="cus_12345")
 
     @pytest.fixture
-    def organization_subscription(self, organization):
-        return OrganizationSubscriptionFactory.create(organization=organization)
+    def subscription(self, organization):
+        return SubscriptionFactory.create(customer_id=organization.customer_id)
+
+    @pytest.fixture
+    def organization_subscription(self, organization, subscription):
+        return OrganizationSubscriptionFactory.create(
+            organization=organization, subscription=subscription
+        )
 
     @pytest.fixture
     def subscription_price(self):
@@ -3215,7 +3221,7 @@ class TestManageOrganizationBillingViews:
         )
 
         create_portal_session = pretend.call_recorder(
-                lambda *a, **kw: {"url": "session-url"}
+            lambda *a, **kw: {"url": "session-url"}
         )
         monkeypatch.setattr(
             billing_service, "create_portal_session", create_portal_session
