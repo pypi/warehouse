@@ -317,8 +317,8 @@ class TestDatabaseOrganizationService:
         assert organization.date_approved is not None
 
     def test_delete_organization(self, organization_service, db_request):
-        organization = OrganizationFactory.create()
-        subscription = SubscriptionFactory.create()
+        organization = OrganizationFactory.create(customer_id="cus_123")
+        subscription = SubscriptionFactory.create(customer_id=organization.customer_id)
         OrganizationSubscriptionFactory.create(
             organization=organization, subscription=subscription
         )
@@ -455,8 +455,8 @@ class TestDatabaseOrganizationService:
         )
 
     def test_add_organization_subscription(self, organization_service, db_request):
-        organization = OrganizationFactory.create()
-        subscription = SubscriptionFactory.create()
+        organization = OrganizationFactory.create(customer_id="cus_123")
+        subscription = SubscriptionFactory.create(customer_id=organization.customer_id)
 
         organization_service.add_organization_subscription(
             organization.id, subscription.id
@@ -471,8 +471,8 @@ class TestDatabaseOrganizationService:
         )
 
     def test_delete_organization_subscription(self, organization_service, db_request):
-        organization = OrganizationFactory.create()
-        subscription = SubscriptionFactory.create()
+        organization = OrganizationFactory.create(customer_id="cus_123")
+        subscription = SubscriptionFactory.create(customer_id=organization.customer_id)
         OrganizationSubscriptionFactory.create(
             organization=organization, subscription=subscription
         )

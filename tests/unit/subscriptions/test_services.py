@@ -156,7 +156,7 @@ class TestLocalBillingService:
         cancel_url = "http://no.way"
 
         checkout_session = billing_service.create_checkout_session(
-            organization_id = organization.id,
+            organization_id=organization.id,
             price_id=subscription_price.price_id,
             success_url=success_url,
             cancel_url=cancel_url,
@@ -502,7 +502,9 @@ class TestSubscriptionService:
         assert subscription_service.find_subscriptionid("fake_news") is None
 
     def test_find_subscriptionid(self, subscription_service):
-        subscription = SubscriptionFactory.create()
+        organization = OrganizationFactory.create(customer_id="cus_123")
+        subscription = SubscriptionFactory.create(customer_id=organization.customer_id)
+
         assert (
             subscription_service.find_subscriptionid(subscription.subscription_id)
             == subscription.id
@@ -510,9 +512,10 @@ class TestSubscriptionService:
 
     def test_add_subscription(self, subscription_service):
         subscription_price = SubscriptionPriceFactory.create()
+        organization = OrganizationFactory.create(customer_id="cus_12345")
 
         new_subscription = subscription_service.add_subscription(
-            customer_id="cus_12345",
+            customer_id=organization.customer_id,
             subscription_id="sub_12345",
             subscription_price_id=subscription_price.id,
         )
@@ -532,7 +535,8 @@ class TestSubscriptionService:
         assert subscription_from_db.status == SubscriptionStatus.Active.value
 
     def test_update_subscription_status(self, subscription_service, db_request):
-        subscription = SubscriptionFactory.create()
+        organization = OrganizationFactory.create(customer_id="cus_123")
+        subscription = SubscriptionFactory.create(customer_id=organization.customer_id)
 
         assert subscription.status == SubscriptionStatus.Active.value
 
