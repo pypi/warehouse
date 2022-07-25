@@ -46,7 +46,6 @@ from warehouse.accounts.interfaces import (
 from warehouse.accounts.models import Email, User
 from warehouse.accounts.views import logout
 from warehouse.admin.flags import AdminFlagValue
-from warehouse.config import Environment
 from warehouse.email import (
     send_account_deletion_email,
     send_admin_new_organization_requested_email,
@@ -136,6 +135,7 @@ from warehouse.subscriptions.interfaces import (
     ISubscriptionService,
 )
 from warehouse.subscriptions.models import SubscriptionPriceInterval
+from warehouse.subscriptions.services import LocalBillingService
 from warehouse.utils.http import is_safe_url
 from warehouse.utils.organization import confirm_organization
 from warehouse.utils.paginate import paginate_url_factory
@@ -1479,10 +1479,8 @@ class ManageOrganizationBillingViews:
                 description=self.organization.description,
             )
             self.organization.customer_id = customer["id"]
-            if (
-                self.request.registry.settings.get("warehouse.env").value
-                == Environment.development.value
-            ):
+            if isinstance(self.billing_service, LocalBillingService):
+                # Use mock customer ID.
                 self.organization.customer_id = "mockcus_" + "".join(
                     random.choices(digits + ascii_letters, k=14)
                 )
@@ -1537,10 +1535,8 @@ class ManageOrganizationBillingViews:
             cancel_url=self.return_url,
         )
         create_subscription_url = checkout_session["url"]
-        if (
-            self.request.registry.settings.get("warehouse.env").value
-            == Environment.development.value
-        ):
+        if isinstance(self.billing_service, LocalBillingService):
+            # Use local mock of billing UI.
             create_subscription_url = self.request.route_path(
                 "mock.billing.checkout-session",
                 organization_name=self.organization.normalized_name,
