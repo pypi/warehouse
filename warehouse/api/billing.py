@@ -24,25 +24,31 @@ from warehouse.subscriptions.interfaces import (
 from warehouse.subscriptions.models import SubscriptionStatus
 
 
-@view_config(route_name="api.billing.webhook")
+@view_config(
+    route_name="api.billing.webhook",
+    require_csrf=False,
+    require_methods=["POST"],
+    uses_session=True,
+)
 def billing_webhook(request):
     billing_service = request.find_service(IGenericBillingService, context=None)
     subscription_service = request.find_service(ISubscriptionService, context=None)
 
     try:
+        sig_header=request.headers.get("Stripe-Signature")
         event = billing_service.webhook_received(
-            payload=request.POST,
-            sig_header=request.headers["HTTP_STRIPE_SIGNATURE"],
+            payload=request.body,
+            sig_header=sig_header,
         )
     except ValueError:
         raise HTTPBadRequest("Invalid payload")
     except stripe.error.SignatureVerificationError:
-        raise HTTPBadRequest("Invalid signature")
+        raise HTTPBadRequest(f"Invalid signature")
 
     match event["type"]:
         case "checkout.session.completed":
             session = event["data"]["object"]
-            status = sessions["status"]
+            status = session["status"]
             customer_id = session["customer"]
             subscription_id = session["subscription"]
             if session["status"] != "complete":
