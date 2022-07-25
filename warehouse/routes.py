@@ -447,6 +447,22 @@ def includeme(config):
         domain=warehouse,
     )
 
+    # Mock URLs
+    config.add_route(
+        "mock.billing.checkout-session",
+        "/mock/billing/{organization_name}/checkout/",
+        factory="warehouse.organizations.models:OrganizationFactory",
+        traverse="/{organization_name}",
+        domain=warehouse,
+    )
+    config.add_route(
+        "mock.billing.trigger-checkout-session-completed",
+        "/mock/billing/{organization_name}/checkout/completed/",
+        factory="warehouse.organizations.models:OrganizationFactory",
+        traverse="/{organization_name}",
+        domain=warehouse,
+    )
+
     # Legacy URLs
     config.add_route(
         "legacy.api.json.project",

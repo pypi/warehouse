@@ -12,7 +12,9 @@
 
 import base64
 import io
+import random
 
+from string import ascii_letters, digits
 from urllib.parse import urljoin
 
 import pyqrcode
@@ -44,6 +46,7 @@ from warehouse.accounts.interfaces import (
 from warehouse.accounts.models import Email, User
 from warehouse.accounts.views import logout
 from warehouse.admin.flags import AdminFlagValue
+from warehouse.config import Environment
 from warehouse.email import (
     send_account_deletion_email,
     send_admin_new_organization_requested_email,
@@ -1469,6 +1472,23 @@ class ManageOrganizationBillingViews:
         )
 
     @property
+    def customer_id(self):
+        if self.organization.customer_id is None:
+            customer = self.billing_service.create_customer(
+                name=self.organization.name,
+                description=self.organization.description,
+            )
+            self.organization.customer_id = customer["id"]
+            if (
+                self.request.registry.settings.get("warehouse.env").value
+                == Environment.development.value
+            ):
+                self.organization.customer_id = "mockcus_" + "".join(
+                    random.choices(digits + ascii_letters, k=14)
+                )
+        return self.organization.customer_id
+
+    @property
     def price_id(self):
         default_subscription_price = (
             self.subscription_service.get_default_subscription_price()
@@ -1509,13 +1529,22 @@ class ManageOrganizationBillingViews:
         return subscription_price
 
     def create_subscription(self):
+        # Create checkout session.
         checkout_session = self.billing_service.create_checkout_session(
-            organization_id=self.organization.id,
+            customer_id=self.customer_id,
             price_id=self.price_id,
             success_url=self.return_url,
             cancel_url=self.return_url,
         )
         create_subscription_url = checkout_session["url"]
+        if (
+            self.request.registry.settings.get("warehouse.env").value
+            == Environment.development.value
+        ):
+            create_subscription_url = self.request.route_path(
+                "mock.billing.checkout-session",
+                organization_name=self.organization.normalized_name,
+            )
         return HTTPSeeOther(create_subscription_url)
 
     def manage_subscription(self):

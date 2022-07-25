@@ -72,15 +72,11 @@ class GenericBillingService:
             description=description,
         )
 
-    def create_checkout_session(
-        self, organization_id, price_id, success_url, cancel_url
-    ):
+    def create_checkout_session(self, customer_id, price_id, success_url, cancel_url):
         """
         # Create new Checkout Session for the order
         # For full details see https://stripe.com/docs/api/checkout/sessions/create
         """
-        # TODO: Get or create customer ID for organization first.
-        customer_id = None
         checkout_session = self.api.checkout.Session.create(
             customer=customer_id,
             # TODO: What payment methods will we accept?
