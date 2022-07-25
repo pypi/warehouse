@@ -442,12 +442,14 @@ def includeme(config):
     config.add_route(
         "legacy.api.json.project",
         "/pypi/{name}/json",
+        factory="warehouse.legacy.api.json.latest_release_factory",
         read_only=True,
         domain=warehouse,
     )
     config.add_route(
         "legacy.api.json.project_slash",
         "/pypi/{name}/json/",
+        factory="warehouse.legacy.api.json.latest_release_factory",
         read_only=True,
         domain=warehouse,
     )
@@ -455,12 +457,14 @@ def includeme(config):
     config.add_route(
         "legacy.api.json.release",
         "/pypi/{name}/{version}/json",
+        factory="warehouse.legacy.api.json.release_factory",
         read_only=True,
         domain=warehouse,
     )
     config.add_route(
         "legacy.api.json.release_slash",
         "/pypi/{name}/{version}/json/",
+        factory="warehouse.legacy.api.json.release_factory",
         read_only=True,
         domain=warehouse,
     )
