@@ -15,7 +15,6 @@ import stripe
 
 from pyramid.httpexceptions import HTTPBadRequest, HTTPNoContent
 from pyramid.view import view_config
-from sqlalchemy import func
 
 from warehouse.subscriptions.interfaces import (
     IGenericBillingService,
@@ -24,26 +23,8 @@ from warehouse.subscriptions.interfaces import (
 from warehouse.subscriptions.models import SubscriptionStatus
 
 
-@view_config(
-    route_name="api.billing.webhook",
-    require_csrf=False,
-    require_methods=["POST"],
-    uses_session=True,
-)
-def billing_webhook(request):
-    billing_service = request.find_service(IGenericBillingService, context=None)
+def handle_billing_webhook_event(request, event):
     subscription_service = request.find_service(ISubscriptionService, context=None)
-
-    try:
-        sig_header=request.headers.get("Stripe-Signature")
-        event = billing_service.webhook_received(
-            payload=request.body,
-            sig_header=sig_header,
-        )
-    except ValueError:
-        raise HTTPBadRequest("Invalid payload")
-    except stripe.error.SignatureVerificationError:
-        raise HTTPBadRequest(f"Invalid signature")
 
     match event["type"]:
         case "checkout.session.completed":
@@ -68,5 +49,26 @@ def billing_webhook(request):
                     subscription_id,
                     subscription_price_id=None,
                 )
+
+
+@view_config(
+    route_name="api.billing.webhook",
+    require_csrf=False,
+    require_methods=["POST"],
+    uses_session=True,
+)
+def billing_webhook(request):
+    billing_service = request.find_service(IGenericBillingService, context=None)
+
+    try:
+        payload = request.body
+        sig_header = request.headers.get("Stripe-Signature")
+        event = billing_service.webhook_received(payload, sig_header)
+    except ValueError:
+        raise HTTPBadRequest("Invalid payload")
+    except stripe.error.SignatureVerificationError:
+        raise HTTPBadRequest("Invalid signature")
+
+    handle_billing_webhook_event(request, event)
 
     return HTTPNoContent
