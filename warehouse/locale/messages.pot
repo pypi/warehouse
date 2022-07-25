@@ -3388,6 +3388,7 @@ msgstr ""
 msgid "This organization is not active"
 msgstr ""
 
+#: warehouse/templates/manage/organization/settings.html:164
 #: warehouse/templates/manage/organizations.html:65
 msgid "Inactive"
 msgstr ""
@@ -4855,10 +4856,6 @@ msgstr ""
 #: warehouse/templates/manage/organization/settings.html:160
 #: warehouse/templates/manage/organization/settings.html:165
 msgid "Last updated"
-msgstr ""
-
-#: warehouse/templates/manage/organization/settings.html:164
-msgid "Incomplete"
 msgstr ""
 
 #: warehouse/templates/manage/organization/settings.html:171

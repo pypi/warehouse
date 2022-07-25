@@ -53,7 +53,7 @@
       <div class="split-layout split-layout--no-wrap split-layout--wrap-on-tablet">
         <div>
           <h3 class="organization-snippet__title">{{ organization.name }}
-            {% if organization.orgtype == OrganizationType.Company and not self.active_subscription %}
+            {% if organization.orgtype == OrganizationType.Company and not organization.active_subscription %}
               {% if organization.name in (organizations_owned + organizations_billing) %}
               <a class="badge badge--danger organization-snippet__badge" href="{{ request.route_path('manage.organization.subscription', organization_name=organization.normalized_name) }}">{% trans %}Billing Inactive{% endtrans %}</a>
               {% else %}

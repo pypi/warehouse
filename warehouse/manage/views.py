@@ -1549,7 +1549,7 @@ class ManageOrganizationBillingViews:
 
     def manage_subscription(self):
         portal_session = self.billing_service.create_portal_session(
-            organization_id=self.organization.id,
+            customer_id=self.organization.customer_id,
             return_url=self.return_url,
         )
         manage_subscription_url = portal_session["url"]

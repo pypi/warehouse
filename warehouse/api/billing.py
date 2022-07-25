@@ -39,16 +39,13 @@ def handle_billing_webhook_event(request, event):
             if not subscription_id:
                 raise HTTPBadRequest("Invalid subscription ID")
             if id := subscription_service.find_subscriptionid(subscription_id):
+                # Set subscription status to active.
                 subscription_service.update_subscription_status(
                     id, SubscriptionStatus.Active
                 )
             else:
-                # TODO: Activate subscription for customer.
-                subscription_service.add_subscription(
-                    customer_id,
-                    subscription_id,
-                    subscription_price_id=None,
-                )
+                # Activate subscription for customer.
+                subscription_service.add_subscription(customer_id, subscription_id)
 
 
 @view_config(
@@ -71,4 +68,4 @@ def billing_webhook(request):
 
     handle_billing_webhook_event(request, event)
 
-    return HTTPNoContent
+    return HTTPNoContent()

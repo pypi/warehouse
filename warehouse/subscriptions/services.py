@@ -96,11 +96,11 @@ class GenericBillingService:
         """
         Return customer portal session to allow customer to managing their subscription
         """
-        session = self.api.billing_portal.Session.create(
+        portal_session = self.api.billing_portal.Session.create(
             customer=customer_id,
             return_url=return_url,
         )
-        return session.url
+        return portal_session
 
     # See Stripe webhook documentation:
     # https://stripe.com/docs/api/webhook_endpoints/create#create_webhook_endpoint-enabled_events
