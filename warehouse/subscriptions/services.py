@@ -18,7 +18,7 @@ from sqlalchemy import or_
 from sqlalchemy.orm.exc import NoResultFound
 from zope.interface import implementer
 
-# from warehouse.organizations.models import Organization
+from warehouse.organizations.models import Organization, OrganizationSubscription
 from warehouse.subscriptions.interfaces import IBillingService, ISubscriptionService
 from warehouse.subscriptions.models import (
     Subscription,
@@ -328,19 +328,35 @@ class SubscriptionService:
 
         return id
 
-    def add_subscription(self, customer_id, subscription_id, subscription_price_id):
+    def add_subscription(self, customer_id, subscription_id):
         """
         Attempts to create a subscription object for the organization
-        with the specified customer_id, subscription id, customer id and price id
+        with the specified customer ID and subscription ID
         """
-        # Add new subscription object
+        # Get default subscription price.
+        subscription_price = self.get_default_subscription_price()
+
+        # Add new subscription.
         subscription = Subscription(
             customer_id=customer_id,
             subscription_id=subscription_id,
-            subscription_price_id=subscription_price_id,
-            status=SubscriptionStatus.Active,  # TODO: What status should we use?
+            subscription_price_id=subscription_price.id,
+            status=SubscriptionStatus.Active,  # default active subscription
         )
+
+        # Link to organization.
+        organization = (
+            self.db.query(Organization)
+            .filter(Organization.customer_id == customer_id)
+            .one()
+        )
+        organization_subscription = OrganizationSubscription(
+            organization=organization,
+            subscription=subscription,
+        )
+
         self.db.add(subscription)
+        self.db.add(organization_subscription)
         self.db.flush()  # get back the subscription id
 
         return subscription

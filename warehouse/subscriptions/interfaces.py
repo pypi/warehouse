@@ -141,10 +141,10 @@ class ISubscriptionService(Interface):
         by the payment service provider subscription id or None
         """
 
-    def add_subscription(customer_id, subscription_id, price_id):
+    def add_subscription(customer_id, subscription_id):
         """
-        Attempts to create a subscription object with the specified
-        customer id, subscription id and price id
+        Attempts to create a subscription object for the organization
+        with the specified customer ID and subscription ID
         """
 
     def update_subscription_status(id, status):
