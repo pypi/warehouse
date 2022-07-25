@@ -1042,25 +1042,12 @@ def file_upload(request):
             .one()
         )
     except NoResultFound:
-        # Look up all of the valid classifiers
-        all_classifiers = request.db.query(Classifier).all()
-
         # Get all the classifiers for this release
-        release_classifiers = [
-            c for c in all_classifiers if c.classifier in form.classifiers.data
-        ]
-
-        # Determine if we need to add any new classifiers to the database
-        missing_classifiers = set(form.classifiers.data or []) - set(
-            c.classifier for c in release_classifiers
+        release_classifiers = (
+            request.db.query(Classifier)
+            .filter(Classifier.classifier.in_(form.classifiers.data))
+            .all()
         )
-
-        # Add any new classifiers to the database
-        if missing_classifiers:
-            for missing_classifier_name in missing_classifiers:
-                missing_classifier = Classifier(classifier=missing_classifier_name)
-                request.db.add(missing_classifier)
-                release_classifiers.append(missing_classifier)
 
         # Parse the Project URLs structure into a key/value dict
         project_urls = {
