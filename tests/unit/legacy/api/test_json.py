@@ -413,7 +413,7 @@ class TestReleaseFactory:
 
         user = UserFactory.create()
         JournalEntryFactory.reset_sequence()
-        je = JournalEntryFactory.create(name=project.name, submitted_by=user)
+        JournalEntryFactory.create(name=project.name, submitted_by=user)
 
         db_request.matchdict = {
             "name": project.normalized_name,
