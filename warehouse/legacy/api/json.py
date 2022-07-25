@@ -166,12 +166,7 @@ def _json_data(request, project, release, *, all_releases):
     return data
 
 
-@view_config(
-    route_name="legacy.api.json.project",
-    renderer="json",
-    decorator=_CACHE_DECORATOR,
-)
-def json_project(request):
+def latest_release_factory(request):
     normalized_name = canonicalize_name(request.matchdict["name"])
 
     try:
@@ -202,6 +197,17 @@ def json_project(request):
         .filter(Release.id == latest.id)
         .one()
     )
+
+    return release
+
+
+@view_config(
+    route_name="legacy.api.json.project",
+    context=Release,
+    renderer="json",
+    decorator=_CACHE_DECORATOR,
+)
+def json_project(release, request):
     project = release.project
 
     if project.normalized_name != request.matchdict["name"]:
@@ -224,19 +230,15 @@ def json_project(request):
 
 @view_config(
     route_name="legacy.api.json.project_slash",
+    context=Release,
     renderer="json",
     decorator=_CACHE_DECORATOR,
 )
-def json_project_slash(request):
-    return json_project(request)
+def json_project_slash(release, request):
+    return json_project(release, request)
 
 
-@view_config(
-    route_name="legacy.api.json.release",
-    renderer="json",
-    decorator=_CACHE_DECORATOR,
-)
-def json_release(request):
+def release_factory(request):
     normalized_name = canonicalize_name(request.matchdict["name"])
     version = request.matchdict["version"]
     canonical_version = canonicalize_version(version)
@@ -269,6 +271,16 @@ def json_release(request):
     except NoResultFound:
         return HTTPNotFound(headers=_CORS_HEADERS)
 
+    return release
+
+
+@view_config(
+    route_name="legacy.api.json.release",
+    context=Release,
+    renderer="json",
+    decorator=_CACHE_DECORATOR,
+)
+def json_release(release, request):
     project = release.project
 
     if project.normalized_name != request.matchdict["name"]:
@@ -289,8 +301,9 @@ def json_release(request):
 
 @view_config(
     route_name="legacy.api.json.release_slash",
+    context=Release,
     renderer="json",
     decorator=_CACHE_DECORATOR,
 )
-def json_release_slash(request):
-    return json_release(request)
+def json_release_slash(release, request):
+    return json_release(release, request)
