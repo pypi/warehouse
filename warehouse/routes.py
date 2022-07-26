@@ -422,13 +422,6 @@ def includeme(config):
         traverse="/{project_name}",
         domain=warehouse,
     )
-    config.add_route(
-        "manage.project.journal",
-        "/manage/project/{project_name}/journal/",
-        factory="warehouse.packaging.models:ProjectFactory",
-        traverse="/{project_name}",
-        domain=warehouse,
-    )
 
     # Packaging
     config.add_redirect("/p/{name}/", "/project/{name}/", domain=warehouse)
