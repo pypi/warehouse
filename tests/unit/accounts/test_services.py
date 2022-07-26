@@ -694,6 +694,8 @@ class TestDatabaseUserService:
             credential_type=PublicKeyCredentialType.PUBLIC_KEY,
             user_verified=False,
             attestation_object=b"foobar",
+            credential_device_type="single_device",
+            credential_backed_up=False,
         )
         verify_registration_response = pretend.call_recorder(
             lambda *a, **kw: fake_validated_credential
