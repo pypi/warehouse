@@ -1,9 +1,6 @@
 Working with E-mails
 ====================
 
-.. contents::
-    :local:
-
 Writing e-mails
 ---------------
 

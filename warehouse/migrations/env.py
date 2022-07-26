@@ -57,6 +57,7 @@ def run_migrations_online():
             connection=connection,
             target_metadata=db.metadata,
             compare_server_default=True,
+            transaction_per_migration=True,
         )
         with context.begin_transaction():
             context.run_migrations()

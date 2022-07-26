@@ -91,6 +91,7 @@ initdb: .state/docker-build-web
 	docker-compose run --rm web psql -h db -d warehouse -U postgres -c "UPDATE users SET name='Ee Durbin' WHERE username='ewdurbin'"
 	docker-compose run --rm web python -m warehouse db upgrade head
 	docker-compose run --rm web python -m warehouse sponsors populate-db
+	docker-compose run --rm web python -m warehouse classifiers sync
 	$(MAKE) reindex
 
 reindex: .state/docker-build-web
