@@ -23,7 +23,7 @@ from alembic import op
 from sqlalchemy.dialects import postgresql
 
 revision = "7eaad728b806"
-down_revision = "1e61006a47c2"
+down_revision = "2db9b00c8d00"
 
 # Note: It is VERY important to ensure that a migration does not lock for a
 #       long period of time and to ensure that each individual migration does
