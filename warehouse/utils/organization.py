@@ -39,3 +39,32 @@ def confirm_organization(
         raise HTTPSeeOther(
             request.route_path(fail_route, organization_name=organization_name)
         )
+
+
+def confirm_team(
+    team,
+    request,
+    fail_route,
+    field_name="confirm_team_name",
+    error_message="Could not delete team",
+):
+    confirm = request.POST.get(field_name)
+    organization_name = team.organization.normalized_name
+    team_name = team.normalized_name
+    if not confirm:
+        request.session.flash("Confirm the request", queue="error")
+        raise HTTPSeeOther(
+            request.route_path(
+                fail_route, organization_name=organization_name, team_name=team_name
+            )
+        )
+    if confirm.strip() != team.name.strip():
+        request.session.flash(
+            (f"{error_message} - " f"{confirm!r} is not the same as {team.name!r}"),
+            queue="error",
+        )
+        raise HTTPSeeOther(
+            request.route_path(
+                fail_route, organization_name=organization_name, team_name=team_name
+            )
+        )

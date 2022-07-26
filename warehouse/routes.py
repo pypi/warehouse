@@ -247,6 +247,13 @@ def includeme(config):
         domain=warehouse,
     )
     config.add_route(
+        "manage.organization.teams",
+        "/manage/organization/{organization_name}/teams/",
+        factory="warehouse.organizations.models:OrganizationFactory",
+        traverse="/{organization_name}",
+        domain=warehouse,
+    )
+    config.add_route(
         "manage.organization.roles",
         "/manage/organization/{organization_name}/people/",
         factory="warehouse.organizations.models:OrganizationFactory",
@@ -272,6 +279,34 @@ def includeme(config):
         "/manage/organization/{organization_name}/people/delete/",
         factory="warehouse.organizations.models:OrganizationFactory",
         traverse="/{organization_name}",
+        domain=warehouse,
+    )
+    config.add_route(
+        "manage.team.settings",
+        "/manage/organization/{organization_name}/team/{team_name}/settings/",
+        factory="warehouse.organizations.models:TeamFactory",
+        traverse="/{organization_name}/{team_name}",
+        domain=warehouse,
+    )
+    config.add_route(
+        "manage.team.projects",
+        "/manage/organization/{organization_name}/team/{team_name}/projects/",
+        factory="warehouse.organizations.models:TeamFactory",
+        traverse="/{organization_name}/{team_name}",
+        domain=warehouse,
+    )
+    config.add_route(
+        "manage.team.roles",
+        "/manage/organization/{organization_name}/team/{team_name}/members/",
+        factory="warehouse.organizations.models:TeamFactory",
+        traverse="/{organization_name}/{team_name}",
+        domain=warehouse,
+    )
+    config.add_route(
+        "manage.team.delete_role",
+        "/manage/organization/{organization_name}/team/{team_name}/members/delete/",
+        factory="warehouse.organizations.models:TeamFactory",
+        traverse="/{organization_name}/{team_name}",
         domain=warehouse,
     )
     config.add_route("manage.projects", "/manage/projects/", domain=warehouse)
@@ -355,6 +390,20 @@ def includeme(config):
     config.add_route(
         "manage.project.delete_role",
         "/manage/project/{project_name}/collaboration/delete/",
+        factory="warehouse.packaging.models:ProjectFactory",
+        traverse="/{project_name}",
+        domain=warehouse,
+    )
+    config.add_route(
+        "manage.project.change_team_project_role",
+        "/manage/project/{project_name}/collaboration/change_team/",
+        factory="warehouse.packaging.models:ProjectFactory",
+        traverse="/{project_name}",
+        domain=warehouse,
+    )
+    config.add_route(
+        "manage.project.delete_team_project_role",
+        "/manage/project/{project_name}/collaboration/delete_team/",
         factory="warehouse.packaging.models:ProjectFactory",
         traverse="/{project_name}",
         domain=warehouse,
