@@ -2432,7 +2432,7 @@ msgid "Teams"
 msgstr ""
 
 #: warehouse/templates/includes/manage/manage-organization-menu.html:37
-#: warehouse/templates/includes/manage/manage-project-menu.html:59
+#: warehouse/templates/includes/manage/manage-project-menu.html:53
 #: warehouse/templates/includes/manage/manage-team-menu.html:31
 msgid "Settings"
 msgstr ""
@@ -2457,16 +2457,12 @@ msgstr ""
 msgid "Security history"
 msgstr ""
 
-#: warehouse/templates/includes/manage/manage-project-menu.html:37
-msgid "Journal"
-msgstr ""
-
-#: warehouse/templates/includes/manage/manage-project-menu.html:44
+#: warehouse/templates/includes/manage/manage-project-menu.html:38
 #: warehouse/templates/manage/project/documentation.html:21
 msgid "Documentation"
 msgstr ""
 
-#: warehouse/templates/includes/manage/manage-project-menu.html:52
+#: warehouse/templates/includes/manage/manage-project-menu.html:46
 msgid "Publishing"
 msgstr ""
 
@@ -4114,8 +4110,6 @@ msgstr ""
 
 #: warehouse/templates/manage/organization/roles.html:59
 #: warehouse/templates/manage/organization/roles.html:190
-#: warehouse/templates/manage/project/journal.html:37
-#: warehouse/templates/manage/project/journal.html:52
 #: warehouse/templates/manage/project/roles.html:374
 #: warehouse/templates/manage/team/roles.html:43
 #: warehouse/templates/manage/team/roles.html:94
@@ -4445,53 +4439,6 @@ msgstr ""
 #: warehouse/templates/manage/project/history.html:104
 #, python-format
 msgid "Security history for %(project_name)s"
-msgstr ""
-
-#: warehouse/templates/manage/project/journal.html:20
-#, python-format
-msgid "'%(project_name)s' project journal"
-msgstr ""
-
-#: warehouse/templates/manage/project/journal.html:23
-msgid "Project journal"
-msgstr ""
-
-#: warehouse/templates/manage/project/journal.html:25
-msgid ""
-"Each time you or your collaborators update this project, the action is "
-"recorded and displayed here."
-msgstr ""
-
-#: warehouse/templates/manage/project/journal.html:28
-#, python-format
-msgid ""
-"This feature will be deprecated in the future, replaced by the <a "
-"href=\"%(href)s\">security history page</a>."
-msgstr ""
-
-#: warehouse/templates/manage/project/journal.html:32
-#, python-format
-msgid "History for %(project_name)s"
-msgstr ""
-
-#: warehouse/templates/manage/project/journal.html:35
-#: warehouse/templates/manage/project/journal.html:44
-msgid "Action"
-msgstr ""
-
-#: warehouse/templates/manage/project/journal.html:36
-#: warehouse/templates/manage/project/journal.html:48
-msgid "Date"
-msgstr ""
-
-#: warehouse/templates/manage/project/journal.html:45
-#, python-format
-msgid "Release %(version)s:"
-msgstr ""
-
-#: warehouse/templates/manage/project/journal.html:54
-#, python-format
-msgid "from %(ip_address)s"
 msgstr ""
 
 #: warehouse/templates/manage/project/manage_project_base.html:20
