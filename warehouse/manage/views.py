@@ -1540,9 +1540,11 @@ class ManageOrganizationBillingViews:
 
     @view_config(route_name="manage.organization.subscription")
     def create_or_manage_subscription(self):
-        if not self.organization.active_subscription:
+        if not self.organization.subscriptions:
+            # Create subscription if there are no existing subscription.
             return self.create_subscription()
         else:
+            # Manage subscription if there is an existing subscription.
             return self.manage_subscription()
 
 

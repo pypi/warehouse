@@ -324,53 +324,53 @@ msgstr ""
 msgid "Generating new recovery codes will invalidate your existing codes."
 msgstr ""
 
-#: warehouse/manage/views.py:1762
+#: warehouse/manage/views.py:1764
 msgid "User '${username}' already has ${role_name} role for organization"
 msgstr ""
 
-#: warehouse/manage/views.py:1773
+#: warehouse/manage/views.py:1775
 msgid ""
 "User '${username}' does not have a verified primary email address and "
 "cannot be added as a ${role_name} for organization"
 msgstr ""
 
-#: warehouse/manage/views.py:1787 warehouse/manage/views.py:3268
+#: warehouse/manage/views.py:1789 warehouse/manage/views.py:3270
 msgid "User '${username}' already has an active invite. Please try again later."
 msgstr ""
 
-#: warehouse/manage/views.py:1844 warehouse/manage/views.py:3326
+#: warehouse/manage/views.py:1846 warehouse/manage/views.py:3328
 msgid "Invitation sent to '${username}'"
 msgstr ""
 
-#: warehouse/manage/views.py:1887
+#: warehouse/manage/views.py:1889
 msgid "Could not find organization invitation."
 msgstr ""
 
-#: warehouse/manage/views.py:1901 warehouse/manage/views.py:3384
+#: warehouse/manage/views.py:1903 warehouse/manage/views.py:3386
 msgid "Invitation already expired."
 msgstr ""
 
-#: warehouse/manage/views.py:1934 warehouse/manage/views.py:3408
+#: warehouse/manage/views.py:1936 warehouse/manage/views.py:3410
 msgid "Invitation revoked from '${username}'."
 msgstr ""
 
-#: warehouse/manage/views.py:2339
+#: warehouse/manage/views.py:2341
 msgid ""
 "There have been too many attempted OpenID Connect registrations. Try "
 "again later."
 msgstr ""
 
-#: warehouse/manage/views.py:3244
+#: warehouse/manage/views.py:3246
 msgid "User '${username}' already has ${role_name} role for project"
 msgstr ""
 
-#: warehouse/manage/views.py:3255
+#: warehouse/manage/views.py:3257
 msgid ""
 "User '${username}' does not have a verified primary email address and "
 "cannot be added as a ${role_name} for project"
 msgstr ""
 
-#: warehouse/manage/views.py:3373
+#: warehouse/manage/views.py:3375
 msgid "Could not find role invitation."
 msgstr ""
 
