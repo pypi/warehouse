@@ -1530,6 +1530,12 @@ class ManageOrganizationBillingViews:
             return_url=self.return_url,
         )
         manage_subscription_url = portal_session["url"]
+        if isinstance(self.billing_service, LocalBillingService):
+            # Use local mock of billing UI.
+            manage_subscription_url = self.request.route_path(
+                "mock.billing.portal-session",
+                organization_name=self.organization.normalized_name,
+            )
         return HTTPSeeOther(manage_subscription_url)
 
     @view_config(route_name="manage.organization.subscription")

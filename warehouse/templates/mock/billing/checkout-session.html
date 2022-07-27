@@ -21,7 +21,7 @@
   <div class="site-container">
     <h1 class="page-title">Subscribe to PyPI</h1>
     <p>
-      This is a local mock of the billing checkout page where users enter their billing information. When connected to the third-party billing provider, the billing checkout page will look like the screenshot below. Please select <strong>Subscribe</strong> below to simulate a successful payment or <strong>Cancel</strong> to return to the previous page.
+      This is a local mock of the billing checkout page where users enter their billing information. Please click <strong>Subscribe</strong> below to simulate a successful payment or <strong>Cancel</strong> to return to the previous page.
     </p>
     <form method="POST" action="{{ request.route_path('mock.billing.trigger-checkout-session-completed', organization_name=organization.normalized_name) }}">
       <div class="form-group">
@@ -33,6 +33,10 @@
 
     <hr>
 
+    <h2>Screenshot of billing checkout page</h2>
+    <p>
+      When connected to the third-party billing provider, the billing checkout page will look like the screenshot below. 
+    </p>
     <div class="callout-block">
       <img src="{{ request.static_path('warehouse:static/dist/images/billing-checkout.png') }}" alt="Screenshot of billing checkout page">
     </div>

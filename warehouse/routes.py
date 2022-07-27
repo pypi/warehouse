@@ -456,6 +456,13 @@ def includeme(config):
         domain=warehouse,
     )
     config.add_route(
+        "mock.billing.portal-session",
+        "/mock/billing/{organization_name}/portal/",
+        factory="warehouse.organizations.models:OrganizationFactory",
+        traverse="/{organization_name}",
+        domain=warehouse,
+    )
+    config.add_route(
         "mock.billing.trigger-checkout-session-completed",
         "/mock/billing/{organization_name}/checkout/completed/",
         factory="warehouse.organizations.models:OrganizationFactory",

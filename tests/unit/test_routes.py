@@ -458,6 +458,13 @@ def test_routes(warehouse):
             domain=warehouse,
         ),
         pretend.call(
+            "mock.billing.portal-session",
+            "/mock/billing/{organization_name}/portal/",
+            factory="warehouse.organizations.models:OrganizationFactory",
+            traverse="/{organization_name}",
+            domain=warehouse,
+        ),
+        pretend.call(
             "mock.billing.trigger-checkout-session-completed",
             "/mock/billing/{organization_name}/checkout/completed/",
             factory="warehouse.organizations.models:OrganizationFactory",
