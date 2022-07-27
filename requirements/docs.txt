@@ -120,9 +120,9 @@ soupsieve==2.3.2.post1 \
     --hash=sha256:3b2503d3c7084a42b1ebd08116e5f81aadfaea95863628c80a3b774a11b7c759 \
     --hash=sha256:fc53893b3da2c33de295667a0e19f078c14bf86544af307354de5fcf12a3f30d
     # via beautifulsoup4
-sphinx==5.1.0 \
-    --hash=sha256:50661b4dbe6a4a1ac15692a7b6db48671da6bae1d4d507e814f1b8525b6bba86 \
-    --hash=sha256:7893d10d9d852c16673f9b1b7e9eda1606b420b7810270294d6e4b44c0accacc
+sphinx==5.1.1 \
+    --hash=sha256:309a8da80cb6da9f4713438e5b55861877d5d7976b69d87e336733637ea12693 \
+    --hash=sha256:ba3224a4e206e1fbdecf98a4fae4992ef9b24b85ebf7b584bb340156eaf08d89
     # via
     #   -r requirements/docs.in
     #   furo
