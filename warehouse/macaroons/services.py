@@ -152,7 +152,9 @@ class DatabaseMacaroonService:
                 break
 
         dm = Macaroon(
-            user=user, description=description, permissions_caveat=permissions
+            user=user,
+            description=description,
+            permissions_caveat={"permissions": permissions},
         )
         self.db.add(dm)
         self.db.flush()

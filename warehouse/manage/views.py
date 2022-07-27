@@ -995,12 +995,17 @@ class ProvisionMacaroonViews:
         response = {**self.default_response}
         if form.validate():
             if form.validated_scope == "user":
+                recorded_caveats = [{"permissions": form.validated_scope, "version": 1}]
                 macaroon_caveats = [caveats.RequestUser(user_id=self.request.user.id)]
             else:
                 project_ids = [
                     str(project.id)
                     for project in self.request.user.projects
                     if project.normalized_name in form.validated_scope["projects"]
+                ]
+                recorded_caveats = [
+                    {"permissions": form.validated_scope, "version": 1},
+                    {"project_ids": project_ids},
                 ]
                 macaroon_caveats = [
                     caveats.ProjectName(
@@ -1013,14 +1018,14 @@ class ProvisionMacaroonViews:
                 location=self.request.domain,
                 user_id=self.request.user.id,
                 description=form.description.data,
-                caveats=macaroon_caveats,
+                scopes=macaroon_caveats,
             )
             self.user_service.record_event(
                 self.request.user.id,
                 tag="account:api_token:added",
                 additional={
                     "description": form.description.data,
-                    "caveats": macaroon_caveats,
+                    "caveats": recorded_caveats,
                 },
             )
             if "projects" in form.validated_scope:
