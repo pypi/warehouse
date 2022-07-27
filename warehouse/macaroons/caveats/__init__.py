@@ -35,11 +35,7 @@ from warehouse.macaroons.caveats._core import (
 from warehouse.packaging.models import Project
 
 
-__all__ = ["InvalidMacaroonError", "deserialize", "serialize", "verify"]
-
-
-class InvalidMacaroonError(Exception):
-    ...
+__all__ = ["deserialize", "serialize", "verify"]
 
 
 @as_caveat(tag=0)
@@ -106,7 +102,7 @@ class RequestUser(Caveat):
 
 def verify(
     macaroon: Macaroon, key: bytes, request: Request, context: Any, permission: str
-) -> bool:
+) -> Allowed | WarehouseDenied:
     errors: list[str] = []
 
     def _verify_caveat(predicate: bytes):
