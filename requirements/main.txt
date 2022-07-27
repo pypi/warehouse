@@ -80,15 +80,15 @@ bleach==5.0.1 \
     --hash=sha256:085f7f33c15bd408dd9b17a4ad77c577db66d76203e5984b1bd59baeee948b2a \
     --hash=sha256:0d03255c47eb9bd2f26aa9bb7f2107732e7e8fe195ca2f64709fcf3b0a4a085c
     # via readme-renderer
-boto3==1.24.34 \
-    --hash=sha256:5c775dcb12ca5d6be3f5aa3c49d77783faa64eb30fd3f4af93ff116bb42f9ffb \
-    --hash=sha256:5d9bcc355cf6edd7f3849fedac4252e12a0aa2b436cdbc0d4371b16a0f852a30
+boto3==1.24.36 \
+    --hash=sha256:8844bbcb69ac0afc68225b58abe105852231cf1b562e6c8c9eb6b2b97fd4757a \
+    --hash=sha256:b1855ede59e725b968d6336908ffc864b65985ca441d730625b09c43ccd6413b
     # via
     #   -r requirements/main.in
     #   kombu
-botocore==1.27.34 \
-    --hash=sha256:0d824a5315f5f5c3bea53c14107a69695ef43190edf647f1281bac8f172ca77c \
-    --hash=sha256:9c695d47f1f1212f3e306e51f7bacdf67e58055194ddcf7d8296660b124cf135
+botocore==1.27.37 \
+    --hash=sha256:4616a7bb869b890c4b582460423e04447dd24b4af76ac761ec68236b6cb0ef7a \
+    --hash=sha256:c73988eff91897fe840ae6a9b459705e3086bc7f62f37a12999a7f4564002f63
     # via
     #   boto3
     #   s3transfer
@@ -324,9 +324,9 @@ cssselect==1.1.0 \
     --hash=sha256:f612ee47b749c877ebae5bb77035d8f4202c6ad0f0fc1271b3c18ad6c4468ecf \
     --hash=sha256:f95f8dedd925fd8f54edb3d2dfb44c190d9d18512377d3c1e2388d16126879bc
     # via premailer
-cssutils==2.5.0 \
-    --hash=sha256:d47e4dd67b28c26ff9a1e541115deed39617ff9265111c6d2500f7a81707795b \
-    --hash=sha256:ebc711de9a20bc0119c2e168df8584c45277bac51395fa0908510719c724c970
+cssutils==2.5.1 \
+    --hash=sha256:5b24b5e2d34a280d561b4b719c0eba6f8417a38dd5d967ac585eb5522d3d0786 \
+    --hash=sha256:b4a4da58e78326ec9f4a9d3555004ddf706f3e99f7a1026c1880f0934362b8b4
     # via premailer
 datadog==0.44.0 \
     --hash=sha256:071170f0c7ef22511dbf7f9bd76c4be500ee2d3d52072900a5c87b5495d2c733 \
@@ -346,9 +346,9 @@ dnspython==2.2.1 \
     --hash=sha256:0f7569a4a6ff151958b64304071d370daa3243d15941a7beedf0c9fe5105603e \
     --hash=sha256:a851e51367fb93e9e1361732c1d60dab63eff98712e503ea7d92e6eccb109b4f
     # via email-validator
-docutils==0.18.1 \
-    --hash=sha256:23010f129180089fbcd3bc08cfefccb3b890b0050e1ca00c867036e9d161b98c \
-    --hash=sha256:679987caf361a7539d76e584cbeddc311e3aee937877c87346f31debc63e9d06
+docutils==0.19 \
+    --hash=sha256:33995a6753c30b7f577febfc2c50411fec6aac7f7ffeb7c4cfe5991072dcf9e6 \
+    --hash=sha256:5e1de4d849fee02c63b040a4a3fd567f4ab104defd8a5511fbbc24a8a017efbc
     # via readme-renderer
 elasticsearch==7.10.1 \
     --hash=sha256:4ebd34fd223b31c99d9f3b6b6236d3ac18b3046191a37231e8235b06ae7db955 \
@@ -1267,9 +1267,9 @@ typing-extensions==4.3.0 \
     # via
     #   limits
     #   pydantic
-urllib3==1.26.10 \
-    --hash=sha256:8298d6d56d39be0e3bc13c1c97d133f9b45d797169a0e11cdd0e0489d786f7ec \
-    --hash=sha256:879ba4d1e89654d9769ce13121e0f94310ea32e8d2f8cf587b77c08bbcdb30d6
+urllib3==1.26.11 \
+    --hash=sha256:c33ccba33c819596124764c23a97d25f32b28433ba0dedeb77d873a38722c9bc \
+    --hash=sha256:ea6e8fb210b19d950fab93b60c9009226c63a28808bc8386e05301e25883ac0a
     # via
     #   botocore
     #   elasticsearch
@@ -1293,9 +1293,9 @@ wcwidth==0.2.5 \
     --hash=sha256:beb4802a9cebb9144e99086eff703a642a13d6a0052920003a230f3294bbe784 \
     --hash=sha256:c4d647b99872929fdb7bdcaa4fbe7f01413ed3d98077df798530e5b04f116c83
     # via prompt-toolkit
-webauthn==1.5.2 \
-    --hash=sha256:44d57d953d712ac3db543b77ad69f176dc7ec531bd677e779951e3380ee6f5e6 \
-    --hash=sha256:85b0780329755d3bb0cf9bf456002cddddf8718daa42293316d26c09c1eceec4
+webauthn==1.6.0 \
+    --hash=sha256:6811b3f1b5ff627dadfe9685a1eaf80cbb5689c35f9ae00d4ee63681c0dd64b2 \
+    --hash=sha256:9c74b0e4aea4579fbf0ecb77a72d0b1cb7d7dcab7ca2d105474925b731178686
     # via -r requirements/main.in
 webencodings==0.5.1 \
     --hash=sha256:a0af1213f3c2226497a97e2b3aa01a7e4bee4f403f95be16fc9acd2947514a78 \

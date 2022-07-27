@@ -20,11 +20,9 @@ from sqlalchemy.orm import joinedload
 from sqlalchemy.orm.exc import NoResultFound
 from zope.interface import implementer
 
-from warehouse.accounts.models import User
 from warehouse.macaroons.caveats import InvalidMacaroonError, Verifier
 from warehouse.macaroons.interfaces import IMacaroonService
 from warehouse.macaroons.models import Macaroon
-from warehouse.oidc import models as oidc_models
 
 
 @implementer(IMacaroonService)
@@ -121,11 +119,12 @@ class DatabaseMacaroonService:
             raise InvalidMacaroonError("deleted or nonexistent macaroon")
 
         verifier = Verifier(m, context, principals, permission, identity)
-        if verifier.verify(dm.key):
+        verified = verifier.verify(dm.key)
+        if verified:
             dm.last_used = datetime.datetime.now()
             return True
 
-        raise InvalidMacaroonError("invalid macaroon")
+        raise InvalidMacaroonError(verified.msg)
 
     def create_macaroon(
         self, *, location, description, caveats, user_id=None, oidc_provider_id=None

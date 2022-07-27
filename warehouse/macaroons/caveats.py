@@ -15,6 +15,9 @@ import time
 
 import pymacaroons
 
+from pyramid.security import Allowed
+
+from warehouse.errors import WarehouseDenied
 from warehouse.oidc import models as oidc_models
 from warehouse.packaging.models import Project
 
@@ -59,17 +62,15 @@ class V1Caveat(Caveat):
     def verify(self, predicate) -> bool:
         try:
             data = json.loads(predicate)
-        except ValueError:
-            self.failure_reason = "malformatted predicate"
+            version = data["version"]
+            permissions = data["permissions"]
+        except (KeyError, ValueError, TypeError):
             return False
 
-        if data.get("version") != 1:
-            self.failure_reason = "invalid version in predicate"
+        if version != 1:
             return False
 
-        permissions = data.get("permissions")
         if permissions is None:
-            self.failure_reason = "invalid permissions in predicate"
             return False
 
         if permissions == "user":
@@ -88,6 +89,10 @@ class V1Caveat(Caveat):
             projects = [p.normalized_name for p in self.verifier.identity.projects]
             return self.verify_projects(projects)
 
+        if not isinstance(permissions, dict):
+            self.failure_reason = "invalid permissions format"
+            return False
+
         projects = permissions.get("projects")
         if projects is None:
             self.failure_reason = "invalid projects in predicate"
@@ -103,7 +108,6 @@ class ExpiryCaveat(Caveat):
             expiry = data["exp"]
             not_before = data["nbf"]
         except (KeyError, ValueError, TypeError):
-            self.failure_reason = "malformatted predicate"
             return False
 
         if not expiry or not not_before:
@@ -124,7 +128,6 @@ class ProjectIDsCaveat(Caveat):
             data = json.loads(predicate)
             project_ids = data["project_ids"]
         except (KeyError, ValueError, TypeError):
-            self.failure_reason = "malformatted predicate"
             return False
 
         if not project_ids:
@@ -138,7 +141,6 @@ class ProjectIDsCaveat(Caveat):
             return False
 
         if str(self.verifier.context.id) not in project_ids:
-            self.failure_reason = "current project does not matched scoped project IDs"
             return False
 
         return True
@@ -159,9 +161,35 @@ class Verifier:
         self.verifier.satisfy_general(ProjectIDsCaveat(self))
 
         try:
-            return self.verifier.verify(self.macaroon, key)
-        except (
-            pymacaroons.exceptions.MacaroonInvalidSignatureException,
-            Exception,  # https://github.com/ecordell/pymacaroons/issues/50
-        ):
-            return False
+            result = self.verifier.verify(self.macaroon, key)
+        except pymacaroons.exceptions.MacaroonInvalidSignatureException as exc:
+            failure_reasons = []
+            for cb in self.verifier.callbacks:
+                failure_reason = getattr(cb, "failure_reason", None)
+                if failure_reason is not None:
+                    failure_reasons.append(failure_reason)
+
+            # If we have a more detailed set of failure reasons, use them.
+            # Otherwise, use whatever the exception gives us.
+            if len(failure_reasons) > 0:
+                return WarehouseDenied(
+                    ", ".join(failure_reasons), reason="invalid_api_token"
+                )
+            else:
+                return WarehouseDenied(str(exc), reason="invalid_api_token")
+        except Exception:
+            # The pymacaroons `verify` API with leak exceptions raised during caveat
+            # verification, which *normally* indicate a deserialization error
+            # (i.e., a malformed caveat body).
+            # When this happens, we don't want to display a random stringified
+            # Python exception to the user, so instead we emit a generic error.
+            # See https://github.com/ecordell/pymacaroons/issues/50
+            return WarehouseDenied("malformed macaroon", reason="invalid_api_token")
+
+        # NOTE: We should never hit this case, since pymacaroons *should* always either
+        # raise on failure *or* return true. But there's nothing stopping that from
+        # silently breaking in the future, so we check the result defensively here.
+        if not result:
+            return WarehouseDenied("unknown error", reason="invalid_api_token")
+        else:
+            return Allowed("signature and caveats OK")

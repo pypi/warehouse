@@ -160,7 +160,7 @@ class MacaroonAuthorizationPolicy:
                 )
             except InvalidMacaroonError as exc:
                 return WarehouseDenied(
-                    f"Invalid API Token: {exc!r}", reason="invalid_api_token"
+                    f"Invalid API Token: {exc}", reason="invalid_api_token"
                 )
 
             # If our Macaroon is verified, and for a valid permission then we'll pass

@@ -16,7 +16,7 @@
 {% set site = request.registry.settings["site.name"] %}
 
 {% block content %}
-{% trans role=role, site=site, organization_name=organization_name, initiator_username=initiator_username %}You have been added as {{ role }} of the {{ site }} organization "{{ organization_name }}" by {{ initiator_username }}.{% endtrans %}
+{% trans role=role, site=site, organization_name=organization_name, submitter=submitter %}You have been added as {{ role }} of the {{ site }} organization "{{ organization_name }}" by {{ submitter }}.{% endtrans %}
 {% endblock %}
 
 {% block reason %}{% trans %}You are receiving this because you are a member of this organization.{% endtrans %}{% endblock %}

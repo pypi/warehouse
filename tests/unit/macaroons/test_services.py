@@ -22,6 +22,7 @@ import pytest
 
 from pymacaroons.exceptions import MacaroonDeserializationException
 
+from warehouse.errors import WarehouseDenied
 from warehouse.macaroons import services
 from warehouse.macaroons.models import Macaroon
 
@@ -151,7 +152,9 @@ class TestDatabaseMacaroonService:
             version=pymacaroons.MACAROON_V2,
         ).serialize()
 
-        with pytest.raises(services.InvalidMacaroonError):
+        with pytest.raises(
+            services.InvalidMacaroonError, match="malformed or nonexistent macaroon"
+        ):
             macaroon_service.verify(
                 raw_macaroon, pretend.stub(), pretend.stub(), pretend.stub()
             )
@@ -165,7 +168,9 @@ class TestDatabaseMacaroonService:
         ).serialize()
         raw_macaroon = f"pypi-{raw_macaroon}"
 
-        with pytest.raises(services.InvalidMacaroonError):
+        with pytest.raises(
+            services.InvalidMacaroonError, match="deleted or nonexistent macaroon"
+        ):
             macaroon_service.verify(
                 raw_macaroon, pretend.stub(), pretend.stub(), pretend.stub()
             )
@@ -179,7 +184,9 @@ class TestDatabaseMacaroonService:
             user_id=user.id,
         )
 
-        verifier_obj = pretend.stub(verify=pretend.call_recorder(lambda k: False))
+        verifier_obj = pretend.stub(
+            verify=pretend.call_recorder(lambda k: WarehouseDenied("foo"))
+        )
         verifier_cls = pretend.call_recorder(lambda *a: verifier_obj)
         monkeypatch.setattr(services, "Verifier", verifier_cls)
 
@@ -187,7 +194,7 @@ class TestDatabaseMacaroonService:
         principals = pretend.stub()
         permissions = pretend.stub()
 
-        with pytest.raises(services.InvalidMacaroonError):
+        with pytest.raises(services.InvalidMacaroonError, match="foo"):
             macaroon_service.verify(raw_macaroon, context, principals, permissions)
         assert verifier_cls.calls == [
             pretend.call(mock.ANY, context, principals, permissions)
@@ -197,7 +204,9 @@ class TestDatabaseMacaroonService:
         raw_macaroon = pretend.stub()
         macaroon_service._extract_raw_macaroon = pretend.call_recorder(lambda a: None)
 
-        with pytest.raises(services.InvalidMacaroonError):
+        with pytest.raises(
+            services.InvalidMacaroonError, match="malformed or nonexistent macaroon"
+        ):
             macaroon_service._deserialize_raw_macaroon(raw_macaroon)
 
         assert macaroon_service._extract_raw_macaroon.calls == [

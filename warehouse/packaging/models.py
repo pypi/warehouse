@@ -58,6 +58,7 @@ from warehouse.organizations.models import (
     OrganizationProject,
     OrganizationRole,
     OrganizationRoleType,
+    TeamProjectRole,
 )
 from warehouse.sitemap.models import SitemapMixin
 from warehouse.utils import dotted_navigator
@@ -257,7 +258,19 @@ class Project(SitemapMixin, TwoFactorRequireable, HasEvents, db.Model):
         query = session.query(Role).filter(Role.project == self)
         query = query.options(orm.lazyload("project"))
         query = query.options(orm.lazyload("user"))
-        roles = {(role.user_id, role.role_name) for role in query.all()}
+        permissions = {
+            (role.user_id, "Administer" if role.role_name == "Owner" else "Upload")
+            for role in query.all()
+        }
+
+        # Add all of the team members for this project.
+        query = session.query(TeamProjectRole).filter(TeamProjectRole.project == self)
+        query = query.options(orm.lazyload("project"))
+        query = query.options(orm.lazyload("team"))
+        for role in query.all():
+            permissions |= {
+                (user.id, role.role_name.value) for user in role.team.members
+            }
 
         # Add all organization owners for this project.
         if self.organization:
@@ -267,12 +280,10 @@ class Project(SitemapMixin, TwoFactorRequireable, HasEvents, db.Model):
             )
             query = query.options(orm.lazyload("organization"))
             query = query.options(orm.lazyload("user"))
-            roles |= {(role.user_id, "Owner") for role in query.all()}
+            permissions |= {(role.user_id, "Administer") for role in query.all()}
 
-        for user_id, role_name in sorted(
-            roles, key=lambda x: (["Owner", "Maintainer"].index(x[1]), x[0])
-        ):
-            if role_name == "Owner":
+        for user_id, permission_name in sorted(permissions, key=lambda x: (x[1], x[0])):
+            if permission_name == "Administer":
                 acls.append((Allow, f"user:{user_id}", ["manage:project", "upload"]))
             else:
                 acls.append((Allow, f"user:{user_id}", ["upload"]))
@@ -292,7 +303,7 @@ class Project(SitemapMixin, TwoFactorRequireable, HasEvents, db.Model):
 
     @property
     def owners(self):
-        """Return all owners who are owners of the project."""
+        """Return all users who are owners of the project."""
         owner_roles = (
             orm.object_session(self)
             .query(User.id)
