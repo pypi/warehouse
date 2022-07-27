@@ -121,11 +121,12 @@ class DatabaseMacaroonService:
             raise InvalidMacaroonError("deleted or nonexistent macaroon")
 
         verifier = Verifier(m, context, principals, permission)
-        if verifier.verify(dm.key):
+        verified = verifier.verify(dm.key)
+        if verified:
             dm.last_used = datetime.datetime.now()
             return True
 
-        raise InvalidMacaroonError("invalid macaroon")
+        raise InvalidMacaroonError(verified.msg)
 
     def create_macaroon(self, location, user_id, description, caveats):
         """
