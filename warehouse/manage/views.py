@@ -4503,40 +4503,6 @@ def manage_project_history(project, request):
 
 
 @view_config(
-    route_name="manage.project.journal",
-    context=Project,
-    renderer="manage/project/journal.html",
-    uses_session=True,
-    permission="manage:project",
-    has_translations=True,
-)
-def manage_project_journal(project, request):
-    try:
-        page_num = int(request.params.get("page", 1))
-    except ValueError:
-        raise HTTPBadRequest("'page' must be an integer.")
-
-    journals_query = (
-        request.db.query(JournalEntry)
-        .options(joinedload("submitted_by"))
-        .filter(JournalEntry.name == project.name)
-        .order_by(JournalEntry.submitted_date.desc(), JournalEntry.id.desc())
-    )
-
-    journals = SQLAlchemyORMPage(
-        journals_query,
-        page=page_num,
-        items_per_page=25,
-        url_maker=paginate_url_factory(request),
-    )
-
-    if journals.page_count and page_num > journals.page_count:
-        raise HTTPNotFound
-
-    return {"project": project, "journals": journals}
-
-
-@view_config(
     route_name="manage.project.documentation",
     context=Project,
     renderer="manage/project/documentation.html",
