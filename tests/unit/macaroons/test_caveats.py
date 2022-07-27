@@ -11,20 +11,14 @@
 # limitations under the License.
 
 import dataclasses
-import json
-import os
 import time
 
 import pretend
-import pymacaroons
 import pytest
 
 from pydantic.dataclasses import dataclass
 from pymacaroons import Macaroon
-from pymacaroons.exceptions import MacaroonInvalidSignatureException
-from pyramid.security import Allowed
 
-from warehouse.errors import WarehouseDenied
 from warehouse.macaroons import caveats
 from warehouse.macaroons.caveats import (
     Caveat,
@@ -53,8 +47,8 @@ class TestCaveat(Caveat):
 
 
 def test_bools():
-    assert bool(Success()) == True
-    assert bool(Failure("anything")) == False
+    assert bool(Success()) is True
+    assert bool(Failure("anything")) is False
 
 
 def test_caveat_verify_fails():

@@ -12,10 +12,7 @@
 from __future__ import annotations
 
 import dataclasses
-import inspect
 import json
-import time
-import types
 import typing
 
 from collections.abc import Mapping, Sequence
@@ -92,13 +89,13 @@ class Caveat:
 
 class _CaveatRegistry:
 
-    _tags: dict[int, Caveat]
+    _tags: dict[int, Type[Caveat]]
 
     def __init__(self, *args: Any, **kwargs: Any):
         super().__init__(*args, **kwargs)
         self._tags = {}
 
-    def add(self, tag: int, cls: Caveat):
+    def add(self, tag: int, cls: Type[Caveat]):
         if tag in self._tags:
             raise TypeError(
                 f"Cannot re-use tag: {tag}, already used by {self._tags[tag]}"
@@ -107,7 +104,7 @@ class _CaveatRegistry:
         self._tags[tag] = cls
         cls.tag = tag
 
-    def lookup(self, /, tag: int) -> Caveat:
+    def lookup(self, /, tag: int) -> Type[Caveat] | None:
         return self._tags.get(tag)
 
 
@@ -116,7 +113,7 @@ _caveat_registry = _CaveatRegistry()
 
 def as_caveat(*, tag: int) -> Callable[[Type[T]], Type[T]]:
     def deco(cls: Type[T]) -> Type[T]:
-        _caveat_registry.add(tag, cls)
+        _caveat_registry.add(tag, typing.cast(Type[Caveat], cls))
         return cls
 
     return deco

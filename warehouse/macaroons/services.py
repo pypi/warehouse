@@ -11,7 +11,6 @@
 # limitations under the License.
 
 import datetime
-import json
 import uuid
 
 import pymacaroons
