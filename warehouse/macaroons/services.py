@@ -22,7 +22,8 @@ from sqlalchemy.orm.exc import NoResultFound
 from zope.interface import implementer
 
 from warehouse.accounts.models import User
-from warehouse.macaroons import InvalidMacaroonError, caveats
+from warehouse.macaroons import caveats
+from warehouse.macaroons.errors import InvalidMacaroonError
 from warehouse.macaroons.interfaces import IMacaroonService
 from warehouse.macaroons.models import Macaroon
 
