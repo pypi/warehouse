@@ -24,6 +24,8 @@ from typing import Any, Callable, ClassVar, Type, TypeVar
 
 from pyramid.request import Request
 
+from warehouse.macaroons.caveats import _legacy
+
 
 T = TypeVar("T")
 S = TypeVar("S")
@@ -150,8 +152,13 @@ def serialize(caveat: Caveat) -> bytes:
 def deserialize(data: bytes) -> Caveat:
     loaded = json.loads(data)
 
+    # Our original caveats were implemented as a mapping with arbitrary keys,
+    # so if we've gotten one of our those, we'll attempt to adapt it to our
+    # new format.
     if isinstance(loaded, Mapping):
-        raise NotImplementedError  # Transform old to new
+        loaded = _legacy.adapt(loaded)
+        if loaded is None:
+            raise CaveatDeserializationError("caveat must be an array")
 
     if not isinstance(loaded, Sequence) or isinstance(loaded, str):
         raise CaveatDeserializationError("caveat must be an array")
