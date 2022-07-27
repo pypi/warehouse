@@ -15,7 +15,20 @@ import pytest
 
 from pyramid.exceptions import ConfigurationError
 
-from warehouse.predicates import DomainPredicate, HeadersPredicate, includeme
+from warehouse.organizations.models import OrganizationType
+from warehouse.predicates import (
+    ActiveOrganizationPredicate,
+    DomainPredicate,
+    HeadersPredicate,
+    includeme,
+)
+from warehouse.subscriptions.models import SubscriptionStatus
+
+from ..common.db.organizations import (
+    OrganizationFactory,
+    OrganizationSubscriptionFactory,
+)
+from ..common.db.subscriptions import SubscriptionFactory
 
 
 class TestDomainPredicate:
@@ -75,6 +88,85 @@ class TestHeadersPredicate:
         assert not predicate(None, pretend.stub(headers={"Foo": "a", "Bar": "baz"}))
 
 
+class TestActiveOrganizationPredicate:
+    @pytest.fixture
+    def organization(self):
+        return OrganizationFactory(
+            orgtype=OrganizationType.Company,
+            customer_id="mock-customer-id",
+        )
+
+    @pytest.fixture
+    def active_subscription(self, organization):
+        subscription = SubscriptionFactory(
+            customer_id=organization.customer_id,
+            status=SubscriptionStatus.Active,
+        )
+        OrganizationSubscriptionFactory(
+            organization=organization,
+            subscription=subscription,
+        )
+        return subscription
+
+    @pytest.fixture
+    def inactive_subscription(self, organization):
+        subscription = SubscriptionFactory(
+            customer_id=organization.customer_id,
+            status=SubscriptionStatus.PastDue,
+        )
+        OrganizationSubscriptionFactory(
+            organization=organization,
+            subscription=subscription,
+        )
+        return subscription
+
+    @pytest.mark.parametrize(
+        ("value", "expected"),
+        [
+            (True, "require_active_organization = True"),
+            (False, "require_active_organization = False"),
+        ],
+    )
+    def test_text(self, value, expected):
+        predicate = ActiveOrganizationPredicate(value, None)
+        assert predicate.text() == expected
+        assert predicate.phash() == expected
+
+    def test_disable_predicate(self, db_request, organization):
+        predicate = ActiveOrganizationPredicate(False, None)
+        assert predicate(organization, db_request)
+
+    def test_disable_organizations(self, db_request, organization):
+        predicate = ActiveOrganizationPredicate(True, None)
+        assert not predicate(organization, db_request)
+
+    def test_inactive_organization(
+        self,
+        db_request,
+        organization,
+        enable_organizations,
+    ):
+        organization.is_active = False
+        predicate = ActiveOrganizationPredicate(True, None)
+        assert not predicate(organization, db_request)
+
+    def test_inactive_subscription(
+        self,
+        db_request,
+        organization,
+        enable_organizations,
+        inactive_subscription,
+    ):
+        predicate = ActiveOrganizationPredicate(True, None)
+        assert not predicate(organization, db_request)
+
+    def test_active_subscription(
+        self, db_request, organization, enable_organizations, active_subscription
+    ):
+        predicate = ActiveOrganizationPredicate(True, None)
+        assert predicate(organization, db_request)
+
+
 def test_includeme():
     config = pretend.stub(
         add_route_predicate=pretend.call_recorder(lambda name, pred: None),
@@ -85,5 +177,6 @@ def test_includeme():
     assert config.add_route_predicate.calls == [pretend.call("domain", DomainPredicate)]
 
     assert config.add_view_predicate.calls == [
-        pretend.call("require_headers", HeadersPredicate)
+        pretend.call("require_headers", HeadersPredicate),
+        pretend.call("require_active_organization", ActiveOrganizationPredicate),
     ]

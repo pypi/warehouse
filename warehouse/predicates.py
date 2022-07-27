@@ -16,6 +16,9 @@ from pyramid import predicates
 from pyramid.exceptions import ConfigurationError
 from pyramid.util import is_same_domain
 
+from warehouse.admin.flags import AdminFlagValue
+from warehouse.organizations.models import OrganizationType
+
 
 class DomainPredicate:
     def __init__(self, val, config):
@@ -55,6 +58,35 @@ class HeadersPredicate:
         return all(sub(context, request) for sub in self.sub_predicates)
 
 
+class ActiveOrganizationPredicate:
+    def __init__(self, val, config):
+        self.val = bool(val)
+
+    def text(self):
+        return f"require_active_organization = {self.val}"
+
+    phash = text
+
+    def __call__(self, organization, request):
+        if self.val is False:
+            return True
+
+        return (
+            # Organization accounts are enabled.
+            not request.flags.enabled(AdminFlagValue.DISABLE_ORGANIZATIONS)
+            # Organization is active.
+            and organization.is_active
+            # Organization has active subscription if it is a Company.
+            and (
+                organization.orgtype != OrganizationType.Company
+                or organization.active_subscription
+            )
+        )
+
+
 def includeme(config):
     config.add_route_predicate("domain", DomainPredicate)
     config.add_view_predicate("require_headers", HeadersPredicate)
+    config.add_view_predicate(
+        "require_active_organization", ActiveOrganizationPredicate
+    )

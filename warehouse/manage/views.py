@@ -1190,16 +1190,10 @@ class ManageOrganizationsViews:
 
     @view_config(request_method="GET")
     def manage_organizations(self):
-        if self.request.flags.enabled(AdminFlagValue.DISABLE_ORGANIZATIONS):
-            raise HTTPNotFound
-
         return self.default_response
 
     @view_config(request_method="POST", request_param=CreateOrganizationForm.__params__)
     def create_organization(self):
-        if self.request.flags.enabled(AdminFlagValue.DISABLE_ORGANIZATIONS):
-            raise HTTPNotFound
-
         form = CreateOrganizationForm(
             self.request.POST,
             organization_service=self.organization_service,
@@ -1283,6 +1277,7 @@ class ManageOrganizationsViews:
     context=Organization,
     renderer="manage/organization/settings.html",
     uses_session=True,
+    require_active_organization=True,
     require_csrf=True,
     require_methods=False,
     permission="manage:organization",
@@ -1319,16 +1314,10 @@ class ManageOrganizationSettingsViews:
 
     @view_config(request_method="GET", permission="view:organization")
     def manage_organization(self):
-        if self.request.flags.enabled(AdminFlagValue.DISABLE_ORGANIZATIONS):
-            raise HTTPNotFound
-
         return self.default_response
 
     @view_config(request_method="POST", request_param=SaveOrganizationForm.__params__)
     def save_organization(self):
-        if self.request.flags.enabled(AdminFlagValue.DISABLE_ORGANIZATIONS):
-            raise HTTPNotFound
-
         form = SaveOrganizationForm(
             self.request.POST,
             organization_service=self.organization_service,
@@ -1347,9 +1336,6 @@ class ManageOrganizationSettingsViews:
         + SaveOrganizationNameForm.__params__,
     )
     def save_organization_name(self):
-        if self.request.flags.enabled(AdminFlagValue.DISABLE_ORGANIZATIONS):
-            raise HTTPNotFound
-
         confirm_organization(
             self.organization,
             self.request,
@@ -1408,9 +1394,6 @@ class ManageOrganizationSettingsViews:
 
     @view_config(request_method="POST", request_param=["confirm_organization_name"])
     def delete_organization(self):
-        if self.request.flags.enabled(AdminFlagValue.DISABLE_ORGANIZATIONS):
-            raise HTTPNotFound
-
         confirm_organization(
             self.organization, self.request, fail_route="manage.organization.settings"
         )
@@ -1540,6 +1523,9 @@ class ManageOrganizationBillingViews:
 
     @view_config(route_name="manage.organization.subscription")
     def create_or_manage_subscription(self):
+        if self.request.flags.enabled(AdminFlagValue.DISABLE_ORGANIZATIONS):
+            raise HTTPNotFound()
+
         if not self.organization.subscriptions:
             # Create subscription if there are no existing subscription.
             return self.create_subscription()
@@ -1553,6 +1539,7 @@ class ManageOrganizationBillingViews:
     context=Organization,
     renderer="manage/organization/projects.html",
     uses_session=True,
+    require_active_organization=True,
     require_csrf=True,
     require_methods=False,
     permission="manage:organization",
@@ -1608,16 +1595,10 @@ class ManageOrganizationProjectsViews:
 
     @view_config(request_method="GET", permission="view:organization")
     def manage_organization_projects(self):
-        if self.request.flags.enabled(AdminFlagValue.DISABLE_ORGANIZATIONS):
-            raise HTTPNotFound
-
         return self.default_response
 
     @view_config(request_method="POST")
     def add_organization_project(self):
-        if self.request.flags.enabled(AdminFlagValue.DISABLE_ORGANIZATIONS):
-            raise HTTPNotFound
-
         # Get and validate form from default response.
         default_response = self.default_response
         form = default_response["add_organization_project_form"]
@@ -1719,6 +1700,7 @@ class ManageOrganizationProjectsViews:
     context=Organization,
     renderer="manage/organization/roles.html",
     uses_session=True,
+    require_active_organization=True,
     require_methods=False,
     permission="view:organization",
     has_translations=True,
@@ -1727,9 +1709,6 @@ class ManageOrganizationProjectsViews:
 def manage_organization_roles(
     organization, request, _form_class=CreateOrganizationRoleForm
 ):
-    if request.flags.enabled(AdminFlagValue.DISABLE_ORGANIZATIONS):
-        raise HTTPNotFound
-
     organization_service = request.find_service(IOrganizationService, context=None)
     user_service = request.find_service(IUserService, context=None)
     form = _form_class(
@@ -1871,6 +1850,7 @@ def manage_organization_roles(
     route_name="manage.organization.revoke_invite",
     context=Organization,
     uses_session=True,
+    require_active_organization=True,
     require_methods=["POST"],
     permission="manage:organization",
     has_translations=True,
@@ -1951,6 +1931,7 @@ def revoke_organization_invitation(organization, request):
     route_name="manage.organization.change_role",
     context=Organization,
     uses_session=True,
+    require_active_organization=True,
     require_methods=["POST"],
     permission="manage:organization",
     has_translations=True,
@@ -2026,6 +2007,7 @@ def change_organization_role(
     route_name="manage.organization.delete_role",
     context=Organization,
     uses_session=True,
+    require_active_organization=True,
     require_methods=["POST"],
     permission="view:organization",
     has_translations=True,

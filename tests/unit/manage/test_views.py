@@ -2373,11 +2373,8 @@ class TestManageOrganizations:
             "create_organization_form": create_organization_obj,
         }
 
-    def test_manage_organizations(self, monkeypatch):
-        request = pretend.stub(
-            find_service=lambda *a, **kw: pretend.stub(),
-            flags=pretend.stub(enabled=pretend.call_recorder(lambda *a: False)),
-        )
+    def test_manage_organizations(self, enable_organizations, monkeypatch):
+        request = pretend.stub(find_service=lambda *a, **kw: pretend.stub())
 
         default_response = {"default": "response"}
         monkeypatch.setattr(
@@ -2386,25 +2383,9 @@ class TestManageOrganizations:
         view = views.ManageOrganizationsViews(request)
         result = view.manage_organizations()
 
-        assert request.flags.enabled.calls == [
-            pretend.call(AdminFlagValue.DISABLE_ORGANIZATIONS),
-        ]
         assert result == default_response
 
-    def test_manage_organizations_disable_organizations(self, monkeypatch):
-        request = pretend.stub(
-            find_service=lambda *a, **kw: pretend.stub(),
-            flags=pretend.stub(enabled=pretend.call_recorder(lambda *a: True)),
-        )
-
-        view = views.ManageOrganizationsViews(request)
-        with pytest.raises(HTTPNotFound):
-            view.manage_organizations()
-        assert request.flags.enabled.calls == [
-            pretend.call(AdminFlagValue.DISABLE_ORGANIZATIONS),
-        ]
-
-    def test_create_organization(self, monkeypatch):
+    def test_create_organization(self, enable_organizations, monkeypatch):
         admins = []
         user_service = pretend.stub(
             get_admins=pretend.call_recorder(lambda *a, **kw: admins),
@@ -2453,7 +2434,6 @@ class TestManageOrganizations:
                 IUserService: user_service,
                 IOrganizationService: organization_service,
             }[interface],
-            flags=pretend.stub(enabled=pretend.call_recorder(lambda *a: False)),
             remote_addr="0.0.0.0",
         )
 
@@ -2481,9 +2461,6 @@ class TestManageOrganizations:
         view = views.ManageOrganizationsViews(request)
         result = view.create_organization()
 
-        assert request.flags.enabled.calls == [
-            pretend.call(AdminFlagValue.DISABLE_ORGANIZATIONS),
-        ]
         assert user_service.get_admins.calls == [pretend.call()]
         assert organization_service.add_organization.calls == [
             pretend.call(
@@ -2561,7 +2538,9 @@ class TestManageOrganizations:
         ]
         assert result == default_response
 
-    def test_create_organization_with_subscription(self, monkeypatch):
+    def test_create_organization_with_subscription(
+        self, enable_organizations, monkeypatch
+    ):
         admins = []
         user_service = pretend.stub(
             get_admins=pretend.call_recorder(lambda *a, **kw: admins),
@@ -2611,7 +2590,6 @@ class TestManageOrganizations:
                 IUserService: user_service,
                 IOrganizationService: organization_service,
             }[interface],
-            flags=pretend.stub(enabled=pretend.call_recorder(lambda *a: False)),
             remote_addr="0.0.0.0",
             route_path=lambda *a, **kw: "manage-subscription-url",
         )
@@ -2640,9 +2618,6 @@ class TestManageOrganizations:
         view = views.ManageOrganizationsViews(request)
         result = view.create_organization()
 
-        assert request.flags.enabled.calls == [
-            pretend.call(AdminFlagValue.DISABLE_ORGANIZATIONS),
-        ]
         assert user_service.get_admins.calls == [pretend.call()]
         assert organization_service.add_organization.calls == [
             pretend.call(
@@ -2757,7 +2732,6 @@ class TestManageOrganizations:
                 IUserService: user_service,
                 IOrganizationService: organization_service,
             }[interface],
-            flags=pretend.stub(enabled=pretend.call_recorder(lambda *a: False)),
             remote_addr="0.0.0.0",
         )
 
@@ -2778,9 +2752,6 @@ class TestManageOrganizations:
         view = views.ManageOrganizationsViews(request)
         result = view.create_organization()
 
-        assert request.flags.enabled.calls == [
-            pretend.call(AdminFlagValue.DISABLE_ORGANIZATIONS),
-        ]
         assert user_service.get_admins.calls == []
         assert organization_service.add_organization.calls == []
         assert organization_service.add_catalog_entry.calls == []
@@ -2788,19 +2759,6 @@ class TestManageOrganizations:
         assert organization_service.record_event.calls == []
         assert send_email.calls == []
         assert result == {"create_organization_form": create_organization_obj}
-
-    def test_create_organizations_disable_organizations(self, monkeypatch):
-        request = pretend.stub(
-            find_service=lambda *a, **kw: pretend.stub(),
-            flags=pretend.stub(enabled=pretend.call_recorder(lambda *a: True)),
-        )
-
-        view = views.ManageOrganizationsViews(request)
-        with pytest.raises(HTTPNotFound):
-            view.create_organization()
-        assert request.flags.enabled.calls == [
-            pretend.call(AdminFlagValue.DISABLE_ORGANIZATIONS),
-        ]
 
 
 class TestManageOrganizationSettings:
@@ -2838,13 +2796,6 @@ class TestManageOrganizationSettings:
                 organization_service=organization_service,
             ),
         ]
-
-    def test_manage_organization_disable_organizations(self, db_request):
-        organization = OrganizationFactory.create()
-
-        view = views.ManageOrganizationSettingsViews(organization, db_request)
-        with pytest.raises(HTTPNotFound):
-            view.manage_organization()
 
     def test_save_organization(
         self, db_request, organization_service, enable_organizations, monkeypatch
@@ -2915,13 +2866,6 @@ class TestManageOrganizationSettings:
             "save_organization_form": save_organization_obj,
         }
         assert organization_service.update_organization.calls == []
-
-    def test_save_organization_disable_organizations(self, db_request):
-        organization = OrganizationFactory.create()
-
-        view = views.ManageOrganizationSettingsViews(organization, db_request)
-        with pytest.raises(HTTPNotFound):
-            view.save_organization()
 
     def test_save_organization_name(
         self,
@@ -3048,13 +2992,6 @@ class TestManageOrganizationSettings:
         assert result == view.default_response
         assert organization_service.rename_organization.calls == []
 
-    def test_save_organization_name_disable_organizations(self, db_request):
-        organization = OrganizationFactory.create(name="old-name")
-
-        view = views.ManageOrganizationSettingsViews(organization, db_request)
-        with pytest.raises(HTTPNotFound):
-            view.save_organization_name()
-
     def test_delete_organization(
         self,
         db_request,
@@ -3149,13 +3086,6 @@ class TestManageOrganizationSettings:
         assert organization_service.delete_organization.calls == []
         assert db_request.route_path.calls == []
 
-    def test_delete_organization_disable_organizations(self, db_request):
-        organization = OrganizationFactory.create()
-
-        view = views.ManageOrganizationSettingsViews(organization, db_request)
-        with pytest.raises(HTTPNotFound):
-            view.delete_organization()
-
 
 class TestManageOrganizationBillingViews:
     @pytest.fixture
@@ -3177,6 +3107,18 @@ class TestManageOrganizationBillingViews:
     @pytest.fixture
     def subscription_price(self):
         return SubscriptionPriceFactory.create()
+
+    def test_disable_organizations(
+        self,
+        db_request,
+        billing_service,
+        subscription_service,
+        organization,
+    ):
+        view = views.ManageOrganizationBillingViews(organization, db_request)
+
+        with pytest.raises(HTTPNotFound):
+            view.create_or_manage_subscription()
 
     def test_create_subscription(
         self,
@@ -3223,6 +3165,7 @@ class TestManageOrganizationBillingViews:
         subscription_service,
         organization,
         subscription_price,
+        enable_organizations,
         monkeypatch,
     ):
         db_request.route_path = pretend.call_recorder(
@@ -3258,6 +3201,7 @@ class TestManageOrganizationBillingViews:
         subscription_service,
         organization,
         organization_subscription,
+        enable_organizations,
         monkeypatch,
     ):
         db_request.route_path = pretend.call_recorder(
@@ -3358,13 +3302,6 @@ class TestManageOrganizationProjects:
             "add_organization_project_form": add_organization_project_obj,
         }
         assert len(add_organization_project_cls.calls) == 1
-
-    def test_manage_organization_projects_disable_organizations(self, db_request):
-        organization = OrganizationFactory.create()
-
-        view = views.ManageOrganizationProjectsViews(organization, db_request)
-        with pytest.raises(HTTPNotFound):
-            view.manage_organization_projects()
 
     def test_add_organization_project_existing_project(
         self,
@@ -3734,13 +3671,6 @@ class TestManageOrganizationProjects:
         ]
         assert len(organization.projects) == 1
 
-    def test_add_organization_project_disable_organizations(self, db_request):
-        organization = OrganizationFactory.create()
-
-        view = views.ManageOrganizationProjectsViews(organization, db_request)
-        with pytest.raises(HTTPNotFound):
-            view.add_organization_project()
-
 
 class TestManageOrganizationRoles:
     def test_get_manage_organization_roles(self, db_request, enable_organizations):
@@ -3759,12 +3689,6 @@ class TestManageOrganizationRoles:
             "invitations": set(),
             "form": form_obj,
         }
-
-    def test_get_manage_organization_roles_disable_organizations(self, db_request):
-        organization = OrganizationFactory.create(name="foobar")
-
-        with pytest.raises(HTTPNotFound):
-            views.manage_organization_roles(organization, db_request)
 
     @freeze_time(datetime.datetime.utcnow())
     @pytest.mark.parametrize("orgtype", list(OrganizationType))

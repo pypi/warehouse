@@ -16,6 +16,7 @@ from warehouse.subscriptions.models import (
     Subscription,
     SubscriptionPrice,
     SubscriptionProduct,
+    SubscriptionStatus,
 )
 
 from .base import WarehouseFactory
@@ -52,4 +53,4 @@ class SubscriptionFactory(WarehouseFactory):
     customer_id = factory.Faker("uuid4")
     subscription_id = factory.Faker("uuid4")
     subscription_price = factory.SubFactory(SubscriptionPriceFactory)
-    status = "active"
+    status = SubscriptionStatus.Active
