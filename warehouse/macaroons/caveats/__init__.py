@@ -26,15 +26,14 @@ from warehouse.errors import WarehouseDenied
 from warehouse.macaroons.caveats._core import (
     Caveat,
     CaveatError,
+    Failure,
     Result,
     Success,
-    Failure,
     as_caveat,
     deserialize,
     serialize,
 )
 from warehouse.packaging.models import Project
-
 
 __all__ = ["deserialize", "serialize", "verify"]
 

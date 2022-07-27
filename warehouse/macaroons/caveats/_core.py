@@ -13,10 +13,10 @@ from __future__ import annotations
 
 import dataclasses
 import inspect
+import json
 import time
 import types
 import typing
-import json
 
 from collections.abc import Mapping, Sequence
 from dataclasses import dataclass
@@ -27,7 +27,6 @@ from pydantic.dataclasses import dataclass as pydantic_dataclass
 from pyramid.request import Request
 
 from warehouse.macaroons.caveats import _legacy
-
 
 T = TypeVar("T")
 S = TypeVar("S")

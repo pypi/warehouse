@@ -30,14 +30,14 @@ from warehouse.macaroons.caveats import (
     Caveat,
     CaveatError,
     Expiration,
-    ProjectName,
-    ProjectID,
-    RequestUser,
-    verify,
-    Success,
     Failure,
-    serialize,
+    ProjectID,
+    ProjectName,
+    RequestUser,
+    Success,
     deserialize,
+    serialize,
+    verify,
 )
 from warehouse.macaroons.caveats._core import _CaveatRegistry
 
