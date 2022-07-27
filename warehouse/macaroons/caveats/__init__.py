@@ -20,6 +20,7 @@ from pymacaroons.exceptions import MacaroonInvalidSignatureException
 from pyramid.request import Request
 from pyramid.security import Allowed
 
+from warehouse.accounts.models import User
 from warehouse.errors import WarehouseDenied
 from warehouse.macaroons.caveats._core import (
     Caveat,
@@ -31,6 +32,7 @@ from warehouse.macaroons.caveats._core import (
     deserialize,
     serialize,
 )
+from warehouse.packaging.models import Project
 
 
 __all__ = ["InvalidMacaroonError", "deserialize", "serialize", "verify"]
@@ -50,6 +52,55 @@ class Expiration(Caveat):
         now = int(time.time())
         if now < self.not_before or now >= self.expires_at:
             return Failure("token is expired")
+        return Success()
+
+
+@as_caveat(tag=1)
+@dataclass(frozen=True, slots=True, kw_only=True)
+class ProjectName(Caveat):
+    normalized_names: list[str]
+
+    def verify(self, request: Request, context: Any, permission: str) -> Result:
+        if not isinstance(context, Project):
+            return Failure("project-scoped toekn used outside of a project context")
+
+        if context.normalized_name not in self.normalized_names:
+            return Failure(
+                f"project-scoped token is not valid for project: {context.name!r}"
+            )
+
+        return Success()
+
+
+@as_caveat(tag=2)
+@dataclass(frozen=True, slots=True, kw_only=True)
+class ProjectID(Caveat):
+    project_ids: list[str]
+
+    def verify(self, request: Request, context: Any, permission: str) -> Result:
+        if not isinstance(context, Project):
+            return Failure("project-scoped token used outside of a project context")
+
+        if str(context.id) not in self.project_ids:
+            return Failure(
+                f"project-scoped token is not valid for project: {context.name!r}"
+            )
+
+        return Success()
+
+
+@as_caveat(tag=3)
+@dataclass(frozen=True, slots=True, kw_only=True)
+class RequestUser(Caveat):
+    user_id: str
+
+    def verify(self, request: Request, context: Any, permission: str) -> Result:
+        if not isinstance(request.identity, User):
+            return Failure("token with user restriction used without a user")
+
+        if str(request.identity.id) != self.user_id:
+            return Failure(f"current user does not match user restriction in token")
+
         return Success()
 
 
