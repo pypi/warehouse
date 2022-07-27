@@ -154,17 +154,8 @@
   <section id="billing-details">
     <h2>{% trans %}Billing details{% endtrans %}</h2>
     <div class="form-group">
-      {% if organization.active_subscription %}
       <span class="form-group__label">{% trans %}Billing status{% endtrans %}</span>
-      <p class="form-group__text">{{ gettext(organization.active_subscription.status.value) }}</p>
-      <span class="form-group__label">{% trans %}Last updated{% endtrans %}</span>
-      <p class="form-group__text">{# humanize(organization.active_subscription.last_updated) #}</p>
-      {% else %}
-      <span class="form-group__label">{% trans %}Billing status{% endtrans %}</span>
-      <p class="form-group__text">{% trans %}Inactive{% endtrans %}</p>
-      <span class="form-group__label">{% trans %}Last updated{% endtrans %}</span>
-      <p class="form-group__text">—</p>
-      {% endif %}
+      <p class="form-group__text">{{ gettext(organization.active_subscription.status.label) }}</p>
     </div>
     <div class="form-group">
       <a href="{{ request.route_path('manage.organization.subscription', organization_name=organization.normalized_name, _query={'next': request.current_route_path(organization_name=organization.normalized_name)}) }}" class="button button--primary">

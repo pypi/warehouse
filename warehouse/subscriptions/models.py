@@ -27,19 +27,21 @@ from sqlalchemy import (
 from sqlalchemy.dialects.postgresql import UUID
 
 from warehouse import db
+from warehouse.i18n import localize as _
 from warehouse.organizations.models import Organization, OrganizationSubscription
 from warehouse.utils.attrs import make_repr
+from warehouse.utils.enum import StrLabelEnum
 
 
-class SubscriptionStatus(str, enum.Enum):
-
-    Active = "active"
-    PastDue = "past_due"
-    Unpaid = "unpaid"
-    Canceled = "canceled"
-    Incomplete = "incomplete"
-    IncompleteExpired = "incomplete_expired"
-    Trialing = "trialing"
+class SubscriptionStatus(StrLabelEnum):
+    # Name = "value", _("Label")
+    Active = "active", _("Active")
+    PastDue = "past_due", _("Past Due")
+    Unpaid = "unpaid", _("Unpaid")
+    Canceled = "canceled", _("Canceled")
+    Incomplete = "incomplete", _("Incomplete")
+    IncompleteExpired = "incomplete_expired", _("Incomplete Expired")
+    Trialing = "trialing", _("Trialing")
 
     @classmethod
     def has_value(cls, value):
