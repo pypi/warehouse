@@ -94,6 +94,7 @@ from warehouse.email import (
     send_yanked_project_release_email,
 )
 from warehouse.forklift.legacy import MAX_FILESIZE, MAX_PROJECT_SIZE
+from warehouse.macaroons import caveats
 from warehouse.macaroons.interfaces import IMacaroonService
 from warehouse.manage.forms import (
     AddEmailForm,
@@ -994,7 +995,7 @@ class ProvisionMacaroonViews:
         response = {**self.default_response}
         if form.validate():
             if form.validated_scope == "user":
-                macaroon_caveats = [{"permissions": form.validated_scope, "version": 1}]
+                macaroon_caveats = [caveats.RequestUser(user_id=self.request.user.id)]
             else:
                 project_ids = [
                     str(project.id)
@@ -1002,8 +1003,10 @@ class ProvisionMacaroonViews:
                     if project.normalized_name in form.validated_scope["projects"]
                 ]
                 macaroon_caveats = [
-                    {"permissions": form.validated_scope, "version": 1},
-                    {"project_ids": project_ids},
+                    caveats.ProjectName(
+                        normalized_names=form.validated_scope["projects"]
+                    ),
+                    caveats.ProjectID(project_ids=project_ids),
                 ]
 
             serialized_macaroon, macaroon = self.macaroon_service.create_macaroon(

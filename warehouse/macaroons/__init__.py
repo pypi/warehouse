@@ -14,5 +14,9 @@ from warehouse.macaroons.interfaces import IMacaroonService
 from warehouse.macaroons.services import database_macaroon_factory
 
 
+class InvalidMacaroonError(Exception):
+    ...
+
+
 def includeme(config):
     config.register_service_factory(database_macaroon_factory, IMacaroonService)
