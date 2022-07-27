@@ -22,6 +22,8 @@ from collections.abc import Mapping, Sequence
 from dataclasses import dataclass
 from typing import Any, Callable, ClassVar, Type, TypeVar
 
+from pydantic import ValidationError
+from pydantic.dataclasses import dataclass as pydantic_dataclass
 from pyramid.request import Request
 
 from warehouse.macaroons.caveats import _legacy
@@ -56,7 +58,7 @@ class Failure:
 Result = Success | Failure
 
 
-@dataclass(frozen=True, slots=True, kw_only=True)
+@pydantic_dataclass(frozen=True)
 class Caveat:
     tag: ClassVar[int]
 
@@ -67,14 +69,7 @@ class Caveat:
         return (self.tag,) + dataclasses.astuple(self)
 
     @classmethod
-    def __deserialize__(cls: Type[S], data: Any) -> S:
-        if not isinstance(data, Sequence):
-            raise CaveatDeserializationError(f"Must be a sequence, not a {type(data)}")
-
-        valid = getattr(cls, "_valid_types", [])
-        if len(data) > len(getattr(cls, "_valid_types")):
-            raise CaveatDeserializationError(f"Too many values, expected {len(valid)}")
-
+    def __deserialize__(cls: Type[S], data: Sequence) -> S:
         kwargs = {}
         for i, field in enumerate(dataclasses.fields(cls)):
             if len(data) > i:
@@ -86,14 +81,14 @@ class Caveat:
             else:
                 raise CaveatDeserializationError("Not enough values")
 
-            if not isinstance(value, valid[i]):
-                raise CaveatDeserializationError(
-                    f"Invalid value: {value}, expected {valid[i]}"
-                )
-
             kwargs[field.name] = value
 
-        return cls(**kwargs)
+        try:
+            obj = cls(**kwargs)
+        except ValidationError:
+            raise CaveatDeserializationError("invalid values for fields")
+
+        return obj
 
 
 class _CaveatRegistry:
@@ -120,23 +115,8 @@ class _CaveatRegistry:
 _caveat_registry = _CaveatRegistry()
 
 
-def _resolve_types(t: Any) -> Any:
-    if inspect.isclass(t):
-        return t
-    else:
-        origin_type = typing.get_origin(t)
-        if origin_type is typing.ClassVar:
-            return _resolve_types(typing.get_args(t)[0])
-        elif origin_type == types.UnionType:
-            return tuple([_resolve_types(a) for a in typing.get_args(t)])
-        raise TypeError(f"I can't resolve: {t}")
-
-
 def as_caveat(*, tag: int) -> Callable[[Type[T]], Type[T]]:
     def deco(cls: Type[T]) -> Type[T]:
-        cls._valid_types = [
-            _resolve_types(t) for t in list(typing.get_type_hints(cls).values())[1:]
-        ]
         _caveat_registry.add(tag, cls)
         return cls
 

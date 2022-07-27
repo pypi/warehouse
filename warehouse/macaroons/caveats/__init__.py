@@ -12,9 +12,10 @@
 
 import time
 
-from dataclasses import dataclass
 from typing import Any
 
+from pydantic import StrictInt, StrictStr
+from pydantic.dataclasses import dataclass
 from pymacaroons import Macaroon, Verifier
 from pymacaroons.exceptions import MacaroonInvalidSignatureException
 from pyramid.request import Request
@@ -39,10 +40,10 @@ __all__ = ["deserialize", "serialize", "verify"]
 
 
 @as_caveat(tag=0)
-@dataclass(frozen=True, slots=True, kw_only=True)
+@dataclass(frozen=True)
 class Expiration(Caveat):
-    expires_at: int
-    not_before: int
+    expires_at: StrictInt
+    not_before: StrictInt
 
     def verify(self, request: Request, context: Any, permission: str) -> Result:
         now = int(time.time())
@@ -52,13 +53,13 @@ class Expiration(Caveat):
 
 
 @as_caveat(tag=1)
-@dataclass(frozen=True, slots=True, kw_only=True)
+@dataclass(frozen=True)
 class ProjectName(Caveat):
-    normalized_names: list[str]
+    normalized_names: list[StrictStr]
 
     def verify(self, request: Request, context: Any, permission: str) -> Result:
         if not isinstance(context, Project):
-            return Failure("project-scoped toekn used outside of a project context")
+            return Failure("project-scoped token used outside of a project context")
 
         if context.normalized_name not in self.normalized_names:
             return Failure(
@@ -69,9 +70,9 @@ class ProjectName(Caveat):
 
 
 @as_caveat(tag=2)
-@dataclass(frozen=True, slots=True, kw_only=True)
+@dataclass(frozen=True)
 class ProjectID(Caveat):
-    project_ids: list[str]
+    project_ids: list[StrictStr]
 
     def verify(self, request: Request, context: Any, permission: str) -> Result:
         if not isinstance(context, Project):
@@ -86,16 +87,16 @@ class ProjectID(Caveat):
 
 
 @as_caveat(tag=3)
-@dataclass(frozen=True, slots=True, kw_only=True)
+@dataclass(frozen=True)
 class RequestUser(Caveat):
-    user_id: str
+    user_id: StrictStr
 
     def verify(self, request: Request, context: Any, permission: str) -> Result:
         if not isinstance(request.identity, User):
-            return Failure("token with user restriction used without a user")
+            return Failure("token with user restriction without a user")
 
         if str(request.identity.id) != self.user_id:
-            return Failure(f"current user does not match user restriction in token")
+            return Failure("current user does not match user restriction in token")
 
         return Success()
 

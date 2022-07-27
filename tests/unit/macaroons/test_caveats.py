@@ -10,6 +10,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import dataclasses
 import json
 import os
 import time
@@ -18,309 +19,321 @@ import pretend
 import pymacaroons
 import pytest
 
+from pydantic.dataclasses import dataclass
+from pymacaroons import Macaroon
 from pymacaroons.exceptions import MacaroonInvalidSignatureException
 from pyramid.security import Allowed
 
 from warehouse.errors import WarehouseDenied
+from warehouse.macaroons import caveats
 from warehouse.macaroons.caveats import (
     Caveat,
-    ExpiryCaveat,
-    ProjectIDsCaveat,
-    V1Caveat,
-    Verifier,
+    CaveatError,
+    Expiration,
+    ProjectName,
+    ProjectID,
+    RequestUser,
+    verify,
+    Success,
+    Failure,
+    serialize,
+    deserialize,
 )
+from warehouse.macaroons.caveats._core import _CaveatRegistry
 
+from ...common.db.accounts import UserFactory
 from ...common.db.packaging import ProjectFactory
 
 
-class TestCaveat:
-    def test_creation(self):
-        verifier = pretend.stub()
-        caveat = Caveat(verifier)
-
-        assert caveat.verifier is verifier
-        assert caveat.verify(pretend.stub()) is False
-        assert caveat(pretend.stub()) is False
+@dataclass(frozen=True)
+class TestCaveat(Caveat):
+    first: int
+    second: int = 2
+    third: int = dataclasses.field(default_factory=lambda: 3)
 
 
-class TestV1Caveat:
+def test_bools():
+    assert bool(Success()) == True
+    assert bool(Failure("anything")) == False
+
+
+def test_caveat_verify_fails():
+    caveat = Caveat()
+    with pytest.raises(NotImplementedError):
+        caveat.verify(pretend.stub(), pretend.stub(), pretend.stub())
+
+
+@pytest.mark.parametrize(
+    "caveat,expected",
+    [
+        (Expiration(expires_at=50, not_before=10), b"[0,50,10]"),
+        (ProjectName(normalized_names=["foo", "bar"]), b'[1,["foo","bar"]]'),
+        (
+            ProjectID(project_ids=["123uuid", "456uuid"]),
+            b'[2,["123uuid","456uuid"]]',
+        ),
+        (RequestUser(user_id="a uuid"), b'[3,"a uuid"]'),
+    ],
+)
+def test_serialization(caveat, expected):
+    assert serialize(caveat) == expected
+
+
+class TestDeserialization:
     @pytest.mark.parametrize(
-        ["predicate", "result"],
+        "data,expected",
         [
-            ("invalid json", False),
-            ('{"version": 2}', False),
-            ('{"permissions": null, "version": 1}', False),
-            ('{"permissions": null, "version": 2}', False),
-            ('{"permissions": "user", "version": 2}', False),
-            ('{"permissions": "", "version": 2}', False),
+            # Current Caveat Style
+            (b"[0,50,10]", Expiration(expires_at=50, not_before=10)),
+            (b'[1,["foo","bar"]]', ProjectName(normalized_names=["foo", "bar"])),
+            (
+                b'[2,["123uuid","456uuid"]]',
+                ProjectID(project_ids=["123uuid", "456uuid"]),
+            ),
+            (b'[3,"a uuid"]', RequestUser(user_id="a uuid")),
+            # Legacy Caveat Style
+            (b'{"exp": 50, "nbf": 10}', Expiration(expires_at=50, not_before=10)),
+            (
+                b'{"version": 1, "permissions": {"projects": ["foo", "bar"]}}',
+                ProjectName(normalized_names=["foo", "bar"]),
+            ),
+            (
+                b'{"project_ids": ["123uuid", "456uuid"]}',
+                ProjectID(project_ids=["123uuid", "456uuid"]),
+            ),
         ],
     )
-    def test_verify_invalid_predicates(self, predicate, result):
-        verifier = pretend.stub()
-        caveat = V1Caveat(verifier)
+    def test_valid_deserialization(self, data, expected):
+        assert deserialize(data) == expected
 
-        assert caveat(predicate) is False
-
-    def test_verify_valid_predicate(self):
-        verifier = pretend.stub()
-        caveat = V1Caveat(verifier)
-        predicate = '{"permissions": "user", "version": 1}'
-
-        assert caveat(predicate) is True
-
-    def test_verify_project_invalid_context(self):
-        verifier = pretend.stub(context=pretend.stub())
-        caveat = V1Caveat(verifier)
-
-        predicate = {"version": 1, "permissions": {"projects": ["notfoobar"]}}
-
-        assert caveat(json.dumps(predicate)) is False
-
-    def test_verify_project_invalid_project_name(self, db_request):
-        project = ProjectFactory.create(name="foobar")
-        verifier = pretend.stub(context=project)
-        caveat = V1Caveat(verifier)
-
-        predicate = {"version": 1, "permissions": {"projects": ["notfoobar"]}}
-
-        assert caveat(json.dumps(predicate)) is False
-
-    def test_verify_project_no_projects_object(self, db_request):
-        project = ProjectFactory.create(name="foobar")
-        verifier = pretend.stub(context=project)
-        caveat = V1Caveat(verifier)
-
-        predicate = {
-            "version": 1,
-            "permissions": {"somethingthatisntprojects": ["blah"]},
-        }
-
-        assert caveat(json.dumps(predicate)) is False
-
-    def test_verify_project(self, db_request):
-        project = ProjectFactory.create(name="foobar")
-        verifier = pretend.stub(context=project)
-        caveat = V1Caveat(verifier)
-
-        predicate = {"version": 1, "permissions": {"projects": ["foobar"]}}
-        assert caveat(json.dumps(predicate)) is True
-
-
-class TestExpiryCaveat:
     @pytest.mark.parametrize(
-        "predicate",
+        "data",
         [
-            # invalid JSON
-            "invalid json",
-            # missing nbf and exp
-            '{"missing": "values"}',
-            # nbf and exp present, but null
-            '{"nbf": null, "exp": null}',
-            # nbf and exp present, but empty
-            '{"nbf": "", "exp": ""}',
-            # valid JSON, but wrong type
-            "[]",
+            b'{"version": 1}',
+            b'{"version": 1, "permissions": "user"}',
+            b'{"version": 1, "permissions": []}',
+            b'{"version": 1, "permissions": {"otherkey": "foo"}}',
+            b'{"exp": 1}',
+            b'{"nbf": 1}',
+            b'[0,"50",10]',
+            b"[0,5]",
+            b'"foo"',
+            b"null",
+            b"[]",
+            b"[9999999]",
         ],
     )
-    def test_verify_invalid_predicates(self, predicate):
-        verifier = pretend.stub()
-        caveat = ExpiryCaveat(verifier)
+    def test_invalid_deserialization(self, data):
+        with pytest.raises(CaveatError):
+            deserialize(data)
 
-        assert caveat(predicate) is False
+    def test_valid_test_valid_deserialization_request_user(
+        self, pyramid_request, pyramid_config
+    ):
+        pyramid_request.user = pretend.stub(id="a uuid")
+        assert deserialize(b'{"version": 1, "permissions": "user"}') == RequestUser(
+            user_id="a uuid"
+        )
 
+    def test_invalid_deserialization_request_user(
+        self, pyramid_request, pyramid_config
+    ):
+        pyramid_request.user = None
+        with pytest.raises(CaveatError):
+            deserialize(b'{"version": 1, "permissions": "user"}')
+
+    def test_deserialize_with_defaults(self):
+        assert TestCaveat.__deserialize__([1]) == TestCaveat(first=1, second=2, third=3)
+        assert TestCaveat.__deserialize__([1, 5]) == TestCaveat(
+            first=1, second=5, third=3
+        )
+        assert TestCaveat.__deserialize__([1, 5, 7]) == TestCaveat(
+            first=1, second=5, third=7
+        )
+
+
+class TestExpirationCaveat:
     def test_verify_not_before(self):
-        verifier = pretend.stub()
-        caveat = ExpiryCaveat(verifier)
-
         not_before = int(time.time()) + 60
         expiry = not_before + 60
-        predicate = json.dumps({"exp": expiry, "nbf": not_before})
-        assert caveat(predicate) is False
+
+        caveat = Expiration(expires_at=expiry, not_before=not_before)
+        result = caveat.verify(pretend.stub(), pretend.stub(), pretend.stub())
+
+        assert result == Failure("token is expired")
 
     def test_verify_already_expired(self):
-        verifier = pretend.stub()
-        caveat = ExpiryCaveat(verifier)
-
         not_before = int(time.time()) - 10
         expiry = not_before - 5
-        predicate = json.dumps({"exp": expiry, "nbf": not_before})
-        assert caveat(predicate) is False
+
+        caveat = Expiration(expires_at=expiry, not_before=not_before)
+        result = caveat.verify(pretend.stub(), pretend.stub(), pretend.stub())
+
+        assert result == Failure("token is expired")
 
     def test_verify_ok(self):
-        verifier = pretend.stub()
-        caveat = ExpiryCaveat(verifier)
-
         not_before = int(time.time()) - 10
         expiry = int(time.time()) + 60
-        predicate = json.dumps({"exp": expiry, "nbf": not_before})
-        assert caveat(predicate)
+
+        caveat = Expiration(expires_at=expiry, not_before=not_before)
+        result = caveat.verify(pretend.stub(), pretend.stub(), pretend.stub())
+
+        assert result == Success()
 
 
-class TestProjectIDsCaveat:
-    @pytest.mark.parametrize(
-        "predicate",
-        [
-            # invalid JSON
-            "invalid json",
-            # missing project_ids
-            '{"missing": "values"}',
-            # project_ids present, but null
-            '{"project_ids": null}',
-            # nbf and exp present, but empty
-            '{"project_ids": ""}',
-            '{"project_ids": []}',
-            # valid JSON, but wrong type
-            "[]",
-            '""',
-        ],
-    )
-    def test_verify_invalid_predicates(self, predicate):
-        verifier = pretend.stub()
-        caveat = ProjectIDsCaveat(verifier)
-
-        assert caveat(predicate) is False
-
+class TestProjectNameCaveat:
     def test_verify_invalid_context(self):
-        verifier = pretend.stub(context=pretend.stub())
-        caveat = ProjectIDsCaveat(verifier)
+        caveat = ProjectName(normalized_names=[])
+        result = caveat.verify(pretend.stub(), pretend.stub(), pretend.stub())
 
-        predicate = {"project_ids": ["foo"]}
-
-        assert caveat(json.dumps(predicate)) is False
+        assert result == Failure(
+            "project-scoped token used outside of a project context"
+        )
 
     def test_verify_invalid_project_id(self, db_request):
         project = ProjectFactory.create(name="foobar")
-        verifier = pretend.stub(context=project)
-        caveat = ProjectIDsCaveat(verifier)
 
-        predicate = {"project_ids": ["not-foobars-uuid"]}
+        caveat = ProjectName(normalized_names=["not_foobar"])
+        result = caveat.verify(db_request, project, pretend.stub())
 
-        assert caveat(json.dumps(predicate)) is False
+        assert result == Failure(
+            f"project-scoped token is not valid for project: {project.name!r}"
+        )
 
     def test_verify_ok(self, db_request):
         project = ProjectFactory.create(name="foobar")
-        verifier = pretend.stub(context=project)
-        caveat = ProjectIDsCaveat(verifier)
 
-        predicate = {"project_ids": [str(project.id)]}
+        caveat = ProjectName(normalized_names=["foobar"])
+        result = caveat.verify(db_request, project, pretend.stub())
 
-        assert caveat(json.dumps(predicate)) is True
+        assert result == Success()
 
 
-class TestVerifier:
-    def test_creation(self):
-        macaroon = pretend.stub()
-        context = pretend.stub()
-        principals = pretend.stub()
-        permission = pretend.stub()
-        verifier = Verifier(macaroon, context, principals, permission)
+class TestProjectIDsCaveat:
+    def test_verify_invalid_context(self):
+        caveat = ProjectID(project_ids=[])
+        result = caveat.verify(pretend.stub(), pretend.stub(), pretend.stub())
 
-        assert verifier.macaroon is macaroon
-        assert verifier.context is context
-        assert verifier.principals is principals
-        assert verifier.permission is permission
-
-    def test_verify_invalid_signature(self, monkeypatch):
-        verify = pretend.call_recorder(
-            pretend.raiser(MacaroonInvalidSignatureException("Signatures do not match"))
+        assert result == Failure(
+            "project-scoped token used outside of a project context"
         )
-        macaroon = pretend.stub()
-        context = pretend.stub()
-        principals = pretend.stub()
-        permission = pretend.stub()
-        key = pretend.stub()
-        verifier = Verifier(macaroon, context, principals, permission)
 
-        monkeypatch.setattr(verifier.verifier, "verify", verify)
-        status = verifier.verify(key)
+    def test_verify_invalid_project_id(self, db_request):
+        project = ProjectFactory.create(name="foobar")
+
+        caveat = ProjectID(project_ids=["not-foobars-uuid"])
+        result = caveat.verify(db_request, project, pretend.stub())
+
+        assert result == Failure(
+            f"project-scoped token is not valid for project: {project.name!r}"
+        )
+
+    def test_verify_ok(self, db_request):
+        project = ProjectFactory.create(name="foobar")
+
+        caveat = ProjectID(project_ids=[str(project.id)])
+        result = caveat.verify(db_request, project, pretend.stub())
+
+        assert result == Success()
+
+
+class TestRequestUserCaveat:
+    def test_verify_no_identity(self):
+        caveat = RequestUser(user_id="invalid")
+        result = caveat.verify(
+            pretend.stub(identity=None), pretend.stub(), pretend.stub()
+        )
+
+        assert result == Failure("token with user restriction without a user")
+
+    def test_verify_invalid_identity(self):
+        caveat = RequestUser(user_id="invalid")
+        result = caveat.verify(
+            pretend.stub(identity=pretend.stub()), pretend.stub(), pretend.stub()
+        )
+
+        assert result == Failure("token with user restriction without a user")
+
+    def test_verify_invalid_user_id(self, db_request):
+        user = UserFactory.create()
+
+        caveat = RequestUser(user_id="invalid")
+        result = caveat.verify(
+            pretend.stub(identity=user), pretend.stub(), pretend.stub()
+        )
+
+        assert result == Failure(
+            "current user does not match user restriction in token"
+        )
+
+    def test_verify_ok(self, db_request):
+        user = UserFactory.create()
+
+        caveat = RequestUser(user_id=str(user.id))
+        result = caveat.verify(
+            pretend.stub(identity=user), pretend.stub(), pretend.stub()
+        )
+
+        assert result == Success()
+
+
+class TestCaveatRegistry:
+    def test_cannot_reuse_tag(self):
+        registry = _CaveatRegistry()
+        registry.add(0, Expiration)
+        with pytest.raises(TypeError):
+            registry.add(0, ProjectName)
+
+
+class TestVerification:
+    def test_verify_invalid_signature(self):
+        m = Macaroon(location="somewhere", identifier="something", key=b"a secure key")
+        status = verify(
+            m, b"a different key", pretend.stub(), pretend.stub(), pretend.stub()
+        )
         assert not status
-        assert status.msg == "Signatures do not match"
-        assert verify.calls == [pretend.call(macaroon, key)]
+        assert status.msg == "signatures do not match"
 
-    def test_verify_generic_exception(self, monkeypatch):
-        verify = pretend.call_recorder(pretend.raiser(ValueError))
-        macaroon = pretend.stub()
-        context = pretend.stub()
-        principals = pretend.stub()
-        permission = pretend.stub()
-        key = pretend.stub()
-        verifier = Verifier(macaroon, context, principals, permission)
-
-        monkeypatch.setattr(verifier.verifier, "verify", verify)
-        status = verifier.verify(key)
+    def test_caveat_returns_false(self):
+        m = Macaroon(location="somewhere", identifier="something", key=b"a secure key")
+        m.add_first_party_caveat(serialize(Expiration(expires_at=10, not_before=0)))
+        status = verify(
+            m, b"a secure key", pretend.stub(), pretend.stub(), pretend.stub()
+        )
         assert not status
-        assert status.msg == "malformed macaroon"
-        assert verify.calls == [pretend.call(macaroon, key)]
+        assert status.msg == "token is expired"
 
-    def test_verify_inner_verifier_returns_false(self, monkeypatch):
-        verify = pretend.call_recorder(lambda macaroon, key: False)
-        macaroon = pretend.stub()
-        context = pretend.stub()
-        principals = pretend.stub()
-        permission = pretend.stub()
-        key = pretend.stub()
-        verifier = Verifier(macaroon, context, principals, permission)
+    def test_caveat_errors_on_deserialize(self):
+        m = Macaroon(location="somewhere", identifier="something", key=b"a secure key")
+        m.add_first_party_caveat(b"[]")
+        status = verify(
+            m, b"a secure key", pretend.stub(), pretend.stub(), pretend.stub()
+        )
+        assert not status
+        assert status.msg == "caveat array cannot be empty"
 
-        monkeypatch.setattr(verifier.verifier, "verify", verify)
-        status = verifier.verify(key)
+    def test_valid_caveat(self):
+        now = int(time.time())
+        m = Macaroon(location="somewhere", identifier="something", key=b"a secure key")
+        m.add_first_party_caveat(
+            serialize(Expiration(expires_at=now + 1000, not_before=now - 1000))
+        )
+        status = verify(
+            m, b"a secure key", pretend.stub(), pretend.stub(), pretend.stub()
+        )
+        assert status
+        assert status.msg == "signature and caveats OK"
+
+    def test_generic_exception(self, monkeypatch):
+        def _raiser(*args, **kwargs):
+            raise Exception("my generic exception")
+
+        monkeypatch.setattr(caveats, "deserialize", _raiser)
+
+        m = Macaroon(location="somewhere", identifier="something", key=b"a secure key")
+        m.add_first_party_caveat(serialize(Expiration(expires_at=1, not_before=1)))
+        status = verify(
+            m, b"a secure key", pretend.stub(), pretend.stub(), pretend.stub()
+        )
         assert not status
         assert status.msg == "unknown error"
-        assert verify.calls == [pretend.call(macaroon, key)]
-
-    @pytest.mark.parametrize(
-        ["caveats", "expected_status"],
-        [
-            # Both V1 and expiry present and valid.
-            (
-                [
-                    {"permissions": "user", "version": 1},
-                    {"exp": int(time.time()) + 3600, "nbf": int(time.time()) - 1},
-                ],
-                Allowed("signature and caveats OK"),
-            ),
-            # V1 only present and valid.
-            (
-                [{"permissions": "user", "version": 1}],
-                Allowed("signature and caveats OK"),
-            ),
-            # V1 and expiry present but V1 invalid.
-            (
-                [{"permissions": "bad", "version": 1}],
-                WarehouseDenied(
-                    "invalid permissions format", reason="invalid_api_token"
-                ),
-            ),
-            # V1 and expiry present but expiry invalid.
-            (
-                [
-                    {"permissions": "user", "version": 1},
-                    {"exp": int(time.time()) + 1, "nbf": int(time.time()) + 3600},
-                ],
-                WarehouseDenied("token is expired", reason="invalid_api_token"),
-            ),
-        ],
-    )
-    def test_verify(self, monkeypatch, caveats, expected_status):
-        key = os.urandom(32)
-        m = pymacaroons.Macaroon(
-            location="fakelocation",
-            identifier="fakeid",
-            key=key,
-            version=pymacaroons.MACAROON_V2,
-        )
-
-        for caveat in caveats:
-            m.add_first_party_caveat(json.dumps(caveat))
-
-        # Round-trip through serialization to ensure we're not clinging to any state.
-        serialized_macaroon = m.serialize()
-        deserialized_macaroon = pymacaroons.Macaroon.deserialize(serialized_macaroon)
-
-        context = pretend.stub()
-        principals = pretend.stub()
-        permission = pretend.stub()
-
-        verifier = Verifier(deserialized_macaroon, context, principals, permission)
-        status = verifier.verify(key)
-        assert bool(status) is bool(expected_status)
-        assert status.msg == expected_status.msg

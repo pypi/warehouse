@@ -35,6 +35,7 @@ pip-api
 premailer
 psycopg2
 pycurl
+pydantic
 pyqrcode
 pyramid>=2.0
 pymacaroons
