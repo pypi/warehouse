@@ -285,7 +285,10 @@ class TestDatabaseMacaroonService:
             "fake location",
             user.id,
             "fake description",
-            [caveats.RequestUser(user_id=str(user.id))],
+            [
+                caveats.ProjectName(normalized_names=["foo", "bar"]),
+                caveats.Expiration(expires_at=10, not_before=5),
+            ],
         )
 
         dm = macaroon_service.find_macaroon(str(macaroon.id))
@@ -294,3 +297,14 @@ class TestDatabaseMacaroonService:
             macaroon_service.get_macaroon_by_description(user.id, macaroon.description)
             == dm
         )
+
+    def test_errors_with_wrong_caveats(self, macaroon_service):
+        user = UserFactory.create()
+
+        with pytest.raises(TypeError):
+            macaroon_service.create_macaroon(
+                "fake location",
+                user.id,
+                "fake description",
+                [{"version": 1, "permissions": "user"}],
+            )
