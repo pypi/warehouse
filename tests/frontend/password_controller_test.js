@@ -21,10 +21,10 @@ describe("Password controller", () => {
     document.body.innerHTML = `
   <div data-controller="password">
     <label for="show-password">
-      <input data-action="change->password#togglePasswords" data-target="password.showPassword" type="checkbox">&nbsp;Show password
+      <input data-action="change->password#togglePasswords" data-password-target="showPassword" type="checkbox">&nbsp;Show password
     </label>
-    <input id="password" data-target="password.password" placeholder="Your password" type="password" />
-    <input id="confirm" data-target="password.password" placeholder="Confirm password" type="password" />
+    <input id="password" data-password-target="password" placeholder="Your password" type="password" />
+    <input id="confirm" data-password-target="password" placeholder="Confirm password" type="password" />
   </div>
     `;
 

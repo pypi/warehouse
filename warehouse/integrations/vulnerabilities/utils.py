@@ -90,6 +90,7 @@ def _analyze_vulnerability(request, vulnerability_report, origin, metrics):
             link=report.advisory_link,
             aliases=report.aliases,
             details=report.details,
+            summary=report.summary,
             fixed_in=report.fixed_in,
         )
         _add_vuln_record(request, vulnerability_record)

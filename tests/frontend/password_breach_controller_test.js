@@ -24,8 +24,8 @@ describe("Password breach controller", () => {
   beforeEach(() => {
     document.body.innerHTML = `
   <div id="controller" data-controller="password-breach">
-    <input id="password" data-target="password-breach.password" data-action="input->password-breach#check" placeholder="Your password" type="password" />
-    <p id="message" data-target="password-breach.message" class="hidden">Password breached</p>
+    <input id="password" data-password-breach-target="password" data-action="input->password-breach#check" placeholder="Your password" type="password" />
+    <p id="message" data-password-breach-target="message" class="hidden">Password breached</p>
   </div>
     `;
 

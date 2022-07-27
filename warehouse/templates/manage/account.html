@@ -370,11 +370,11 @@
             {% endif %}
           </label>
           <label for="show-password">
-            <input data-action="change->password#togglePasswords" data-target="password.showPassword"
+            <input data-action="change->password#togglePasswords" data-password-target="showPassword"
               id="show-password" type="checkbox">&nbsp;{% trans %}Show passwords{% endtrans %}
           </label>
         </div>
-        {{ change_password_form.password(placeholder=gettext("Your current password"), required="required", autocomplete="current-password", spellcheck="false", class_="form-group__field", data_target="password.password", **{"aria-describedby":"current-password-errors"}) }}
+        {{ change_password_form.password(placeholder=gettext("Your current password"), required="required", autocomplete="current-password", spellcheck="false", class_="form-group__field", data_password_target="password", **{"aria-describedby":"current-password-errors"}) }}
         <div id="current-password-errors">
           {{ field_errors(change_password_form.password) }}
         </div>
@@ -388,12 +388,12 @@
         </label>
         {# the password field needs to be wrapped in a div to properly place tooltips #}
         <div>
-          {{ change_password_form.new_password(placeholder=gettext("Select a new password"), required="required", autocomplete="new-password", spellcheck="false", class_="form-group__field", data_target="password.password password-match.passwordMatch password-strength-gauge.password", data_action="input->password-match#checkPasswordsMatch input->password-strength-gauge#checkPasswordStrength", **{"aria-describedby":"new-password-errors"}) }}
+          {{ change_password_form.new_password(placeholder=gettext("Select a new password"), required="required", autocomplete="new-password", spellcheck="false", class_="form-group__field", data_password_target="password", data_password_match_target="passwordMatch", data_password_strength_gauge_target="password", data_action="input->password-match#checkPasswordsMatch input->password-strength-gauge#checkPasswordStrength", **{"aria-describedby":"new-password-errors"}) }}
         </div>
         <div id="new-password-errors">
           {{ field_errors(change_password_form.new_password) }}
         </div>
-        {{ password_strength_gauge(data_target="password-strength-gauge.strengthGauge") }}
+        {{ password_strength_gauge(data_password_strength_gauge_target="strengthGauge") }}
       </div>
       <div class="form-group">
         <label class="form-group__label" for="name">
@@ -402,18 +402,18 @@
           <span class="form-group__required">{% trans %}(required){% endtrans %}</span>
           {% endif %}
         </label>
-        {{ change_password_form.password_confirm(placeholder=gettext("Confirm password"), required="required", autocomplete="new-password", spellcheck="false", class_="form-group__field", data_target="password.password password-match.passwordMatch", data_action="input->password-match#checkPasswordsMatch", **{"aria-describedby":"confirm-password-errors"}) }}
+        {{ change_password_form.password_confirm(placeholder=gettext("Confirm password"), required="required", autocomplete="new-password", spellcheck="false", class_="form-group__field", data_password_target="password", data_password_match_target="passwordMatch", data_action="input->password-match#checkPasswordsMatch", **{"aria-describedby":"confirm-password-errors"}) }}
         <div id="confirm-password-errors">
           {{ field_errors(change_password_form.password_confirm) }}
         </div>
       </div>
       <div class="form-group">
         <ul class="form-errors">
-          <li data-target="password-match.matchMessage" class="hidden"></li>
+          <li data-password-match-target="matchMessage" class="hidden"></li>
         </ul>
       </div>
       <div>
-        <input value="{% trans %}Update password{% endtrans %}" class="button button--primary" type="submit" data-target="password-match.submit">
+        <input value="{% trans %}Update password{% endtrans %}" class="button button--primary" type="submit" data-password-match-target="submit">
       </div>
     </form>
   </section>

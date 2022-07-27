@@ -27,9 +27,9 @@ describe("Modal close controller", () => {
       </a>
       <div class="modal__body">
         <h3 class="modal__title">Modal Title</h3>
-        <input id="input-target" name="package" data-target="modal-close.input" type="text" autocomplete="off" autocorrect="off" autocapitalize="off">
+        <input id="input-target" name="package" data-modal-close-target="input" type="text" autocomplete="off" autocorrect="off" autocapitalize="off">
         <div class="modal__footer">
-          <button id="button-target" data-target="modal-close.button" type="submit">
+          <button id="button-target" data-modal-close-target="button" type="submit">
               Confirm
           </button>
         </div>

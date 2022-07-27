@@ -21,7 +21,7 @@
     </li>
     <li>
       <a href="{{ request.route_path('manage.project.roles', project_name=project.normalized_name)}}" class="vertical-tabs__tab vertical-tabs__tab--with-icon {% if active_tab == 'collaborators' %}vertical-tabs__tab--is-active{% endif %} {% if mode == 'mobile' %}vertical-tabs__tab--mobile{% endif %}" {% if active_tab == 'collaborators' %}aria-selected="true"{% endif %}>
-        <i class="fa fa-users" aria-hidden="true"></i>
+        <i class="fa fa-user" aria-hidden="true"></i>
         {% trans %}Collaborators{% endtrans %}
       </a>
     </li>
@@ -29,12 +29,6 @@
       <a href="{{ request.route_path('manage.project.history', project_name=project.normalized_name)}}" class="vertical-tabs__tab vertical-tabs__tab--with-icon {% if active_tab == 'history' %}vertical-tabs__tab--is-active{% endif %} {% if mode == 'mobile' %}vertical-tabs__tab--mobile{% endif %}" {% if active_tab == 'history' %}aria-selected="true"{% endif %}>
         <i class="fa fa-history" aria-hidden="true"></i>
         {% trans %}Security history{% endtrans %}
-      </a>
-    </li>
-    <li>
-      <a href="{{ request.route_path('manage.project.journal', project_name=project.normalized_name)}}" class="vertical-tabs__tab vertical-tabs__tab--with-icon {% if active_tab == 'journal' %}vertical-tabs__tab--is-active{% endif %} {% if mode == 'mobile' %}vertical-tabs__tab--mobile{% endif %}" {% if active_tab == 'journal' %}aria-selected="true"{% endif %}>
-        <i class="fa fa-history" aria-hidden="true"></i>
-        {% trans %}Journal{% endtrans %}
       </a>
     </li>
     {% if project.has_docs %}
