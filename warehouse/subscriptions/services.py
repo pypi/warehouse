@@ -23,6 +23,7 @@ from warehouse.subscriptions.interfaces import IBillingService, ISubscriptionSer
 from warehouse.subscriptions.models import (
     Subscription,
     SubscriptionPrice,
+    SubscriptionPriceInterval,
     SubscriptionProduct,
     SubscriptionStatus,
 )
@@ -293,16 +294,15 @@ class StripeBillingService(GenericBillingService):
 
 @implementer(ISubscriptionService)
 class SubscriptionService:
-    def __init__(self, db_session):
+    def __init__(self, db_session, billing_service):
         self.db = db_session
+        self.billing_service = billing_service
 
     def get_publishable_key(self, request):
         """
         Fetch the publishable key from the billing api
         """
-        billing_service = request.find_service(IBillingService, context=None)
-
-        return billing_service.publishable_key
+        return self.billing_service.publishable_key
 
     def get_subscription(self, id):
         """
@@ -328,13 +328,13 @@ class SubscriptionService:
 
         return id
 
-    def add_subscription(self, customer_id, subscription_id):
+    def add_subscription(self, request, customer_id, subscription_id):
         """
         Attempts to create a subscription object for the organization
         with the specified customer ID and subscription ID
         """
         # Get default subscription price.
-        subscription_price = self.get_default_subscription_price()
+        subscription_price = self.get_or_create_default_subscription_price(request)
 
         # Add new subscription.
         subscription = Subscription(
@@ -368,6 +368,44 @@ class SubscriptionService:
         self.db.query(Subscription).filter(
             Subscription.id == id,
         ).update({Subscription.status: status})
+
+    def delete_subscription(self, id):
+        """
+        Delete a subscription by ID
+        """
+        subscription = self.get_subscription(id)
+
+        # Delete link to organization
+        self.db.query(OrganizationSubscription).filter_by(
+            subscription=subscription
+        ).delete()
+
+        self.db.delete(subscription)
+        self.db.flush()
+
+    def get_subscriptions_by_customer(self, customer_id):
+        """
+        Get a list of subscriptions tied to the given customer ID
+        """
+        return (
+            self.db.query(Subscription)
+            .filter(Subscription.customer_id == customer_id)
+            .all()
+        )
+
+    def delete_customer(self, customer_id):
+        """
+        Deletes a customer and all associated subscription data
+        """
+        subscriptions = self.get_subscriptions_by_customer(customer_id)
+
+        for subscription in subscriptions:
+            self.delete_subscription(subscription.id)
+
+        # Null the customer field in the organization object
+        self.db.query(Organization).filter(
+            Organization.customer_id == customer_id
+        ).update({Organization.customer_id: None})
 
     def get_subscription_product(self, subscription_product_id):
         """
@@ -442,9 +480,34 @@ class SubscriptionService:
         self.db.delete(subscription_product)
         self.db.flush()
 
-    def get_default_subscription_price(self):
+    def initialize_subscription_price(self, request):
         """
-        Get the default subscription price or None if nothing is found
+        Get or create product and price in database.
+        """
+        subscription_product = self.add_subscription_product(
+            product_name="PyPI",
+            description="Organization account for companies",
+            product_id=None,
+            tax_code="txcd_10103001"  # "Software as a service (SaaS) - business use"
+            # See Stripe docs for tax codes. https://stripe.com/docs/tax/tax-categories
+        )
+        subscription_price = self.add_subscription_price(
+            price_id=None,
+            currency="usd",
+            subscription_product_id=subscription_product.id,
+            unit_amount=5000,
+            recurring=SubscriptionPriceInterval.Month,
+            tax_behavior="inclusive",
+        )
+        # Synchronize product and price with billing service.
+        self.billing_service.sync_product(subscription_product)
+        self.billing_service.sync_price(subscription_price)
+        # Return initialized subscription price.
+        return subscription_price
+
+    def get_or_create_default_subscription_price(self, request):
+        """
+        Get the default subscription price or initialize one if nothing is found
         """
         try:
             subscription_price = (
@@ -453,7 +516,7 @@ class SubscriptionService:
                 .one()
             )
         except NoResultFound:
-            return
+            subscription_price = self.initialize_subscription_price(request)
 
         return subscription_price
 
@@ -535,4 +598,4 @@ class SubscriptionService:
 
 
 def subscription_factory(context, request):
-    return SubscriptionService(request.db)
+    return SubscriptionService(request.db, request.billing_service)

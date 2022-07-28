@@ -34,13 +34,13 @@ class IGenericBillingService(Interface):
         Create the Customer resource via Billing API with the given name and description
         """
 
-    def create_checkout_session(organization_id, price_id, success_url, cancel_url):
+    def create_checkout_session(customer_id, price_id, success_url, cancel_url):
         """
         # Create new Checkout Session for the order
         # For full details see https://stripe.com/docs/api/checkout/sessions/create
         """
 
-    def create_portal_session(organization_id, return_url):
+    def create_portal_session(customer_id, return_url):
         """
         Return customer portal session to allow customer to managing their subscription
         """
@@ -90,6 +90,20 @@ class IGenericBillingService(Interface):
         example: query="active:'true'"
         """
 
+    def sync_product(subscription_product):
+        """
+        Synchronize a product resource via Billing API with a
+        subscription product from the database.
+        """
+
+    def create_or_update_price(
+        unit_amount, currency, recurring, product_id, tax_behavior
+    ):
+        """
+        Create price resource via Billing API, or update an active price
+        resource with the same product and currency
+        """
+
     def create_price(unit_amount, currency, recurring, product_id, tax_behavior):
         """
         Create and return a price resource via Billing API
@@ -119,6 +133,12 @@ class IGenericBillingService(Interface):
         example: query="active:'true'"
         """
 
+    def sync_price(subscription_price):
+        """
+        Synchronize a price resource via Billing API with a
+        subscription price from the database.
+        """
+
 
 class IBillingService(IGenericBillingService):
     pass
@@ -141,7 +161,7 @@ class ISubscriptionService(Interface):
         by the payment service provider subscription id or None
         """
 
-    def add_subscription(customer_id, subscription_id):
+    def add_subscription(request, customer_id, subscription_id):
         """
         Attempts to create a subscription object for the organization
         with the specified customer ID and subscription ID
@@ -150,6 +170,21 @@ class ISubscriptionService(Interface):
     def update_subscription_status(id, status):
         """
         Update the status of a subscription object by subscription.id
+        """
+
+    def delete_subscription(id):
+        """
+        Delete a subscription by ID
+        """
+
+    def get_subscriptions_by_customer(customer_id):
+        """
+        Get a list of subscriptions tied to the given customer ID
+        """
+
+    def delete_customer(customer_id):
+        """
+        Deletes a customer and all associated subscription data
         """
 
     def get_subscription_product(subscription_product_id):
@@ -182,6 +217,16 @@ class ISubscriptionService(Interface):
     def delete_subscription_product(subscription_product_id):
         """
         Delete a subscription product
+        """
+
+    def initialize_subscription_price(request):
+        """
+        Get or create product and price in database.
+        """
+
+    def get_or_create_default_subscription_price(request):
+        """
+        Get the default subscription price or initialize one if nothing is found
         """
 
     def get_subscription_price(subscription_price_id):
