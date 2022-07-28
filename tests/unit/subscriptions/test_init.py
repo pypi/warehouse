@@ -16,10 +16,6 @@ from warehouse import subscriptions
 from warehouse.subscriptions.interfaces import IBillingService, ISubscriptionService
 from warehouse.subscriptions.services import subscription_factory
 
-# from warehouse.subscriptions.tasks import check_customer_payment_status
-
-# from celery.schedules import crontab
-
 
 def test_includeme():
     billing_class = pretend.stub(
@@ -39,7 +35,6 @@ def test_includeme():
             }
         ),
         get_settings=lambda: settings,
-        # add_periodic_task=pretend.call_recorder(lambda *a, **kw: None),
     )
 
     subscriptions.includeme(config)
@@ -48,7 +43,3 @@ def test_includeme():
         pretend.call(subscription_factory, ISubscriptionService),
         pretend.call(billing_class.create_service, IBillingService),
     ]
-
-    # assert config.add_periodic_task.calls == [
-    #     pretend.call(crontab(minute=0, hour=0), check_customer_payment_status),
-    # ]
