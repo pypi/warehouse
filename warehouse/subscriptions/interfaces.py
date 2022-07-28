@@ -214,7 +214,7 @@ class ISubscriptionService(Interface):
         Delete a subscription product
         """
 
-    def get_or_create_default_subscription_price(request):
+    def get_or_create_default_subscription_price():
         """
         Get the default subscription price or initialize one if nothing is found
         """

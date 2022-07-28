@@ -334,9 +334,7 @@ def billing_service():
 
 @pytest.fixture
 def subscription_service(db_session, billing_service):
-    return subscription_services.SubscriptionService(
-        db_session, billing_service=billing_service
-    )
+    return subscription_services.SubscriptionService(db_session)
 
 
 @pytest.fixture

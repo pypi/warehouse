@@ -194,14 +194,17 @@ class TestLocalBillingService:
 
         assert product is not None
 
-    # def test_create_or_update_product_new_product(self, billing_service):
-    #     product = billing_service.create_or_update_product(
-    #         name="Vitamin PyPI",
-    #         description="Take two and call me in the morning.",
-    #         tax_code="txcd_10103001",  # "Software as a service (SaaS) - business use"
-    #     )
+    def test_create_or_update_product_new_product(self, billing_service, monkeypatch):
+        search_products = pretend.call_recorder(lambda *a, **kw: {"data": []})
+        monkeypatch.setattr(billing_service, "search_products", search_products)
 
-    #     assert product is None
+        product = billing_service.create_or_update_product(
+            name="Vitamin PyPI",
+            description="Take two and call me in the morning.",
+            tax_code="txcd_10103001",  # "Software as a service (SaaS) - business use"
+        )
+
+        assert product is not None
 
     def test_create_product(self, billing_service, subscription_service):
         subscription_product = SubscriptionProductFactory.create()
@@ -320,12 +323,10 @@ class TestGenericBillingService:
 def test_subscription_factory():
     db = pretend.stub()
     context = pretend.stub()
-    billing_service = pretend.stub()
-    request = pretend.stub(db=db, billing_service=billing_service)
+    request = pretend.stub(db=db)
 
     service = services.subscription_factory(context, request)
     assert service.db is db
-    assert service.billing_service is billing_service
 
 
 class TestSubscriptionService:
@@ -334,20 +335,9 @@ class TestSubscriptionService:
 
     def test_service_creation(self, remote_addr):
         session = pretend.stub()
-        billing_service = pretend.stub()
-        service = services.SubscriptionService(session, billing_service)
+        service = services.SubscriptionService(session)
 
         assert service.db is session
-        assert service.billing_service is billing_service
-
-    def test_get_publishable_key(self, billing_service, subscription_service):
-        request = pretend.stub(
-            find_service=pretend.call_recorder(lambda *args, **kwargs: billing_service),
-        )
-
-        pub_key = subscription_service.get_publishable_key(request)
-        assert pub_key is not None
-        assert pub_key == os.environ["STRIPE_PUBLISHABLE_KEY"]
 
     def test_find_subscriptionid_nonexistent_sub(self, subscription_service):
         assert subscription_service.find_subscriptionid("fake_news") is None
@@ -362,13 +352,9 @@ class TestSubscriptionService:
         )
 
     def test_add_subscription(self, billing_service, subscription_service):
-        request = pretend.stub(
-            find_service=pretend.call_recorder(lambda *args, **kwargs: billing_service),
-        )
         organization = OrganizationFactory.create(customer_id="cus_12345")
 
         new_subscription = subscription_service.add_subscription(
-            request=request,
             customer_id=organization.customer_id,
             subscription_id="sub_12345",
         )
