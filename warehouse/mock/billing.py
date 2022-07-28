@@ -36,10 +36,9 @@ from warehouse.subscriptions.services import LocalBillingService
 class MockBillingViews:
     def __init__(self, organization, request):
         billing_service = request.find_service(IGenericBillingService, context=None)
-        if (
-            request.flags.enabled(AdminFlagValue.DISABLE_ORGANIZATIONS)
-            or not isinstance(billing_service, LocalBillingService)
-        ):
+        if request.flags.enabled(
+            AdminFlagValue.DISABLE_ORGANIZATIONS
+        ) or not isinstance(billing_service, LocalBillingService):
             raise HTTPNotFound
         self.organization = organization
         self.request = request
