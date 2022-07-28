@@ -449,6 +449,21 @@ def test_routes(warehouse):
             read_only=True,
             domain=warehouse,
         ),
+        # Mock URLs
+        pretend.call(
+            "mock.billing.checkout-session",
+            "/mock/billing/{organization_name}/checkout/",
+            factory="warehouse.organizations.models:OrganizationFactory",
+            traverse="/{organization_name}",
+            domain=warehouse,
+        ),
+        pretend.call(
+            "mock.billing.trigger-checkout-session-completed",
+            "/mock/billing/{organization_name}/checkout/completed/",
+            factory="warehouse.organizations.models:OrganizationFactory",
+            traverse="/{organization_name}",
+            domain=warehouse,
+        ),
         pretend.call(
             "legacy.api.json.project",
             "/pypi/{name}/json",
