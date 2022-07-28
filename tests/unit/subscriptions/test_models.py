@@ -10,6 +10,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from warehouse.subscriptions.models import SubscriptionStatus
+
 from ...common.db.organizations import OrganizationFactory as DBOrganizationFactory
 from ...common.db.subscriptions import SubscriptionFactory as DBSubscriptionFactory
 
@@ -29,3 +31,13 @@ class TestSubscription:
             customer_id=organization.customer_id
         )
         assert not subscription.is_restricted
+
+
+class TestSubscriptionStatus:
+    def test_has_value(self, db_session):
+        organization = DBOrganizationFactory.create(customer_id="cus_123")
+        subscription = DBSubscriptionFactory.create(
+            customer_id=organization.customer_id
+        )
+        assert SubscriptionStatus.has_value(subscription.status)
+        assert not SubscriptionStatus.has_value("invalid_status")

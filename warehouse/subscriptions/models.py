@@ -41,6 +41,10 @@ class SubscriptionStatus(str, enum.Enum):
     IncompleteExpired = "incomplete_expired"
     Trialing = "trialing"
 
+    @classmethod
+    def has_value(cls, value):
+        return value in set(item.value for item in SubscriptionStatus)
+
 
 class SubscriptionPriceInterval(str, enum.Enum):
 

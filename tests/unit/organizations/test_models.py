@@ -23,7 +23,9 @@ from ...common.db.organizations import (
     OrganizationFactory as DBOrganizationFactory,
     OrganizationNameCatalogFactory as DBOrganizationNameCatalogFactory,
     OrganizationRoleFactory as DBOrganizationRoleFactory,
+    OrganizationSubscriptionFactory as DBOrganizationSubscriptionFactory,
 )
+from ...common.db.subscriptions import SubscriptionFactory as DBSubscriptionFactory
 
 
 class TestOrganizationFactory:
@@ -142,3 +144,24 @@ class TestOrganization:
             ],
             key=lambda x: x[1],
         )
+
+    def test_active_subscription(self, db_session):
+        organization = DBOrganizationFactory.create(customer_id="cus_123")
+        subscription = DBSubscriptionFactory.create(
+            customer_id=organization.customer_id
+        )
+        DBOrganizationSubscriptionFactory.create(
+            organization=organization, subscription=subscription
+        )
+        assert organization.active_subscription is not None
+
+    def test_active_subscription_none(self, db_session):
+        organization = DBOrganizationFactory.create(customer_id="cus_123")
+        subscription = DBSubscriptionFactory.create(
+            customer_id=organization.customer_id,
+            status="canceled",
+        )
+        DBOrganizationSubscriptionFactory.create(
+            organization=organization, subscription=subscription
+        )
+        assert organization.active_subscription is None
