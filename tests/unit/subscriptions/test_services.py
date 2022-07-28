@@ -10,12 +10,16 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import os
+import os.path
+
 import pretend
 import pytest
 import stripe
 
 from zope.interface.verify import verifyClass
 
+from warehouse.organizations.models import Organization, OrganizationSubscription
 from warehouse.subscriptions import services
 from warehouse.subscriptions.interfaces import IBillingService, ISubscriptionService
 from warehouse.subscriptions.models import (
@@ -29,7 +33,10 @@ from warehouse.subscriptions.services import (
     StripeBillingService,
 )
 
-from ...common.db.organizations import OrganizationFactory
+from ...common.db.organizations import (
+    OrganizationFactory,
+    OrganizationSubscriptionFactory,
+)
 from ...common.db.subscriptions import (
     SubscriptionFactory,
     SubscriptionPriceFactory,
@@ -140,13 +147,12 @@ class TestLocalBillingService:
         assert customer["id"]
 
     def test_create_checkout_session(self, billing_service, subscription_service):
-        organization = OrganizationFactory.create()
         subscription_price = SubscriptionPriceFactory.create()
         success_url = "http://what.ever"
         cancel_url = "http://no.way"
 
         checkout_session = billing_service.create_checkout_session(
-            organization_id=organization.id,
+            customer_id="cus_123",
             price_id=subscription_price.price_id,
             success_url=success_url,
             cancel_url=cancel_url,
@@ -176,6 +182,26 @@ class TestLocalBillingService:
         construct_event.calls == [
             pretend.call(payload, sig_header, billing_service.webhook_secret),
         ]
+
+    def test_create_or_update_product(self, billing_service, subscription_service):
+        subscription_product = SubscriptionProductFactory.create()
+
+        product = billing_service.create_or_update_product(
+            name=subscription_product.product_name,
+            description=subscription_product.description,
+            tax_code=subscription_product.tax_code,
+        )
+
+        assert product is not None
+
+    # def test_create_or_update_product_new_product(self, billing_service):
+    #     product = billing_service.create_or_update_product(
+    #         name="Vitamin PyPI",
+    #         description="Take two and call me in the morning.",
+    #         tax_code="txcd_10103001",  # "Software as a service (SaaS) - business use"
+    #     )
+
+    #     assert product is None
 
     def test_create_product(self, billing_service, subscription_service):
         subscription_product = SubscriptionProductFactory.create()
@@ -294,10 +320,12 @@ class TestGenericBillingService:
 def test_subscription_factory():
     db = pretend.stub()
     context = pretend.stub()
-    request = pretend.stub(db=db)
+    billing_service = pretend.stub()
+    request = pretend.stub(db=db, billing_service=billing_service)
 
     service = services.subscription_factory(context, request)
     assert service.db is db
+    assert service.billing_service is billing_service
 
 
 class TestSubscriptionService:
@@ -306,9 +334,11 @@ class TestSubscriptionService:
 
     def test_service_creation(self, remote_addr):
         session = pretend.stub()
-        service = services.SubscriptionService(session)
+        billing_service = pretend.stub()
+        service = services.SubscriptionService(session, billing_service)
 
         assert service.db is session
+        assert service.billing_service is billing_service
 
     def test_get_publishable_key(self, billing_service, subscription_service):
         request = pretend.stub(
@@ -317,7 +347,7 @@ class TestSubscriptionService:
 
         pub_key = subscription_service.get_publishable_key(request)
         assert pub_key is not None
-        assert pub_key == "pk_test_123"
+        assert pub_key == os.environ["STRIPE_PUBLISHABLE_KEY"]
 
     def test_find_subscriptionid_nonexistent_sub(self, subscription_service):
         assert subscription_service.find_subscriptionid("fake_news") is None
@@ -331,14 +361,16 @@ class TestSubscriptionService:
             == subscription.id
         )
 
-    def test_add_subscription(self, subscription_service):
-        subscription_price = SubscriptionPriceFactory.create()
+    def test_add_subscription(self, billing_service, subscription_service):
+        request = pretend.stub(
+            find_service=pretend.call_recorder(lambda *args, **kwargs: billing_service),
+        )
         organization = OrganizationFactory.create(customer_id="cus_12345")
 
         new_subscription = subscription_service.add_subscription(
+            request=request,
             customer_id=organization.customer_id,
             subscription_id="sub_12345",
-            subscription_price_id=subscription_price.id,
         )
 
         subscription_service.db.flush()
@@ -367,6 +399,75 @@ class TestSubscriptionService:
         )
 
         assert subscription.status == SubscriptionStatus.Active.value
+
+    def test_delete_subscription(self, subscription_service, db_request):
+        organization = OrganizationFactory.create(customer_id="cus_123")
+        subscription = SubscriptionFactory.create(customer_id=organization.customer_id)
+        OrganizationSubscriptionFactory.create(
+            organization=organization, subscription=subscription
+        )
+
+        subscription_service.delete_subscription(subscription.id)
+
+        assert subscription_service.get_subscription(subscription.id) is None
+        assert not (
+            (
+                db_request.db.query(OrganizationSubscription)
+                .filter_by(subscription=subscription)
+                .count()
+            )
+        )
+
+    def test_get_subscriptions_by_customer(self, subscription_service):
+        organization = OrganizationFactory.create(customer_id="cus_123")
+        subscription = SubscriptionFactory.create(customer_id=organization.customer_id)
+        subscription1 = SubscriptionFactory.create(customer_id=organization.customer_id)
+
+        subscriptions = subscription_service.get_subscriptions_by_customer(
+            organization.customer_id
+        )
+
+        assert subscription in subscriptions
+        assert subscription1 in subscriptions
+
+    def test_delete_customer(self, subscription_service, db_request):
+        customer_id = "cus_123"
+        organization = OrganizationFactory.create(customer_id=customer_id)
+        subscription = SubscriptionFactory.create(customer_id=customer_id)
+        OrganizationSubscriptionFactory.create(
+            organization=organization, subscription=subscription
+        )
+        subscription1 = SubscriptionFactory.create(customer_id=customer_id)
+        OrganizationSubscriptionFactory.create(
+            organization=organization, subscription=subscription1
+        )
+
+        subscription_service.delete_customer(customer_id)
+
+        assert subscription_service.get_subscription(subscription.id) is None
+        assert not (
+            (
+                db_request.db.query(OrganizationSubscription)
+                .filter_by(subscription=subscription)
+                .count()
+            )
+        )
+        assert subscription_service.get_subscription(subscription1.id) is None
+        assert not (
+            (
+                db_request.db.query(OrganizationSubscription)
+                .filter_by(subscription=subscription1)
+                .count()
+            )
+        )
+        # assert not
+        assert not (
+            (
+                db_request.db.query(Organization)
+                .filter(Organization.customer_id == customer_id)
+                .count()
+            )
+        )
 
     def test_get_subscription_products(self, subscription_service):
         subscription_product = SubscriptionProductFactory.create()
