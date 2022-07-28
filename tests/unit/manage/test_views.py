@@ -12,7 +12,10 @@
 
 import base64
 import datetime
+import random
 import uuid
+
+from string import ascii_letters, digits
 
 import pretend
 import pytest
@@ -3157,7 +3160,9 @@ class TestManageOrganizationSettings:
 class TestManageOrganizationBillingViews:
     @pytest.fixture
     def organization(self):
-        return OrganizationFactory.create(customer_id="cus_12345")
+        return OrganizationFactory.create(
+            customer_id="cus_" + "".join(random.choices(digits + ascii_letters, k=14))
+        )
 
     @pytest.fixture
     def subscription(self, organization):
@@ -3198,7 +3203,7 @@ class TestManageOrganizationBillingViews:
 
         assert create_checkout_session.calls == [
             pretend.call(
-                organization_id=organization.id,
+                customer_id=organization.customer_id,
                 price_id=subscription_price.price_id,
                 success_url=view.return_url,
                 cancel_url=view.return_url,
@@ -3232,7 +3237,7 @@ class TestManageOrganizationBillingViews:
 
         assert create_portal_session.calls == [
             pretend.call(
-                organization_id=organization.id,
+                customer_id=organization.customer_id,
                 return_url=view.return_url,
             ),
         ]
