@@ -117,7 +117,8 @@ class GenericBillingService:
         Create product resource via Billing API, or update an active
         product resource with the same name
         """
-        products = self.search_products(f'active:"true" name:"{name}"')
+        product_search = self.search_products(f'active:"true" name:"{name}"')
+        products = product_search["data"]
         if products:
             product = max(products, key=lambda p: p["created"])
             return self.update_product(product["id"], name, description, tax_code)
@@ -192,9 +193,10 @@ class GenericBillingService:
         resource with the same product and currency
         """
         # Deactivate existing prices.
-        prices = self.search_prices(
+        price_search = self.search_prices(
             f'active:"true" product:"{product_id}" currency:"{currency}"'
         )
+        prices = price_search["data"]
         for price in prices:
             self.update_price(price["id"], active=False)
         # Create new price.
