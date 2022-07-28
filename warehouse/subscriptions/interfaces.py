@@ -145,11 +145,6 @@ class IBillingService(IGenericBillingService):
 
 
 class ISubscriptionService(Interface):
-    def get_publishable_key(request):
-        """
-        Fetch the publishable key from the billing api
-        """
-
     def get_subscription(id):
         """
         Get a subscription by id
@@ -161,7 +156,7 @@ class ISubscriptionService(Interface):
         by the payment service provider subscription id or None
         """
 
-    def add_subscription(request, customer_id, subscription_id):
+    def add_subscription(customer_id, subscription_id):
         """
         Attempts to create a subscription object for the organization
         with the specified customer ID and subscription ID
@@ -217,11 +212,6 @@ class ISubscriptionService(Interface):
     def delete_subscription_product(subscription_product_id):
         """
         Delete a subscription product
-        """
-
-    def initialize_subscription_price(request):
-        """
-        Get or create product and price in database.
         """
 
     def get_or_create_default_subscription_price(request):

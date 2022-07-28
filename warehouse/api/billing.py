@@ -46,9 +46,7 @@ def handle_billing_webhook_event(request, event):
                 )
             else:
                 # Activate subscription for customer.
-                subscription_service.add_subscription(
-                    request, customer_id, subscription_id
-                )
+                subscription_service.add_subscription(customer_id, subscription_id)
         # Occurs whenever a customer’s subscription ends.
         case "customer.subscription.deleted":
             subscription = event["data"]["object"]

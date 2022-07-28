@@ -294,15 +294,8 @@ class StripeBillingService(GenericBillingService):
 
 @implementer(ISubscriptionService)
 class SubscriptionService:
-    def __init__(self, db_session, billing_service):
+    def __init__(self, db_session):
         self.db = db_session
-        self.billing_service = billing_service
-
-    def get_publishable_key(self, request):
-        """
-        Fetch the publishable key from the billing api
-        """
-        return self.billing_service.publishable_key
 
     def get_subscription(self, id):
         """
@@ -328,13 +321,13 @@ class SubscriptionService:
 
         return id
 
-    def add_subscription(self, request, customer_id, subscription_id):
+    def add_subscription(self, customer_id, subscription_id):
         """
         Attempts to create a subscription object for the organization
         with the specified customer ID and subscription ID
         """
         # Get default subscription price.
-        subscription_price = self.get_or_create_default_subscription_price(request)
+        subscription_price = self.get_or_create_default_subscription_price()
 
         # Add new subscription.
         subscription = Subscription(
@@ -480,32 +473,7 @@ class SubscriptionService:
         self.db.delete(subscription_product)
         self.db.flush()
 
-    def initialize_subscription_price(self, request):
-        """
-        Get or create product and price in database.
-        """
-        subscription_product = self.add_subscription_product(
-            product_name="PyPI",
-            description="Organization account for companies",
-            product_id=None,
-            tax_code="txcd_10103001"  # "Software as a service (SaaS) - business use"
-            # See Stripe docs for tax codes. https://stripe.com/docs/tax/tax-categories
-        )
-        subscription_price = self.add_subscription_price(
-            price_id=None,
-            currency="usd",
-            subscription_product_id=subscription_product.id,
-            unit_amount=5000,
-            recurring=SubscriptionPriceInterval.Month,
-            tax_behavior="inclusive",
-        )
-        # Synchronize product and price with billing service.
-        self.billing_service.sync_product(subscription_product)
-        self.billing_service.sync_price(subscription_price)
-        # Return initialized subscription price.
-        return subscription_price
-
-    def get_or_create_default_subscription_price(self, request):
+    def get_or_create_default_subscription_price(self):
         """
         Get the default subscription price or initialize one if nothing is found
         """
@@ -516,7 +484,21 @@ class SubscriptionService:
                 .one()
             )
         except NoResultFound:
-            subscription_price = self.initialize_subscription_price(request)
+            subscription_product = self.add_subscription_product(
+                product_name="PyPI",
+                description="Organization account for companies",
+                product_id=None,
+                tax_code="txcd_10103001"  # "Software as a service (SaaS) - business use"
+                # See Stripe docs for tax codes. https://stripe.com/docs/tax/tax-categories
+            )
+            subscription_price = self.add_subscription_price(
+                price_id=None,
+                currency="usd",
+                subscription_product_id=subscription_product.id,
+                unit_amount=5000,
+                recurring=SubscriptionPriceInterval.Month,
+                tax_behavior="inclusive",
+            )
 
         return subscription_price
 
@@ -598,4 +580,4 @@ class SubscriptionService:
 
 
 def subscription_factory(context, request):
-    return SubscriptionService(request.db, request.billing_service)
+    return SubscriptionService(request.db)

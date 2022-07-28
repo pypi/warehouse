@@ -1487,11 +1487,15 @@ class ManageOrganizationBillingViews:
 
     @property
     def price_id(self):
+        # Get or create default subscription price with subscription service.
         default_subscription_price = (
-            self.subscription_service.get_or_create_default_subscription_price(
-                self.request
-            )
+            self.subscription_service.get_or_create_default_subscription_price()
         )
+        # Synchronize product and price with billing service.
+        self.billing_service.sync_product(
+            default_subscription_price.subscription_product
+        )
+        self.billing_service.sync_price(default_subscription_price)
         return default_subscription_price.price_id
 
     @property
