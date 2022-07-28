@@ -325,7 +325,10 @@ def organization_service(db_session, remote_addr):
 
 @pytest.fixture
 def billing_service():
-    return subscription_services.GenericBillingService(
+    stripe.api_base = os.environ["STRIPE_API_BASE"]
+    stripe.api_version = os.environ["STRIPE_API_VERSION"]
+    stripe.api_key = os.environ["STRIPE_SECRET_KEY"]
+    return subscription_services.LocalBillingService(
         api=stripe,
         publishable_key=os.environ["STRIPE_PUBLISHABLE_KEY"],
         webhook_secret=os.environ["STRIPE_WEBHOOK_SECRET"],
@@ -333,7 +336,7 @@ def billing_service():
 
 
 @pytest.fixture
-def subscription_service(db_session, billing_service):
+def subscription_service(db_session):
     return subscription_services.SubscriptionService(db_session)
 
 

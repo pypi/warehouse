@@ -3210,7 +3210,7 @@ class TestManageOrganizationBillingViews:
             ),
         ]
         assert isinstance(result, HTTPSeeOther)
-        assert result.headers["Location"] == "session-url"
+        assert result.headers["Location"] == "/manage/organizations/"
 
     def test_manage_subscription(
         self,

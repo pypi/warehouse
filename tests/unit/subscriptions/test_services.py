@@ -10,6 +10,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import importlib
 import os
 import os.path
 
@@ -62,6 +63,9 @@ class TestStripeBillingService:
         assert billing_service.webhook_secret == "keep_it_secret_keep_it_safe"
 
     def test_create_service(self):
+        # Reload stripe to reset the global stripe.api_key to default.
+        importlib.reload(stripe)
+
         request = pretend.stub(
             registry=pretend.stub(
                 settings={
