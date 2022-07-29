@@ -71,6 +71,23 @@ class DatabaseNotAvailableError(Exception): ...
 metadata = sqlalchemy.MetaData()
 
 
+# We'll add a basic predicate that won't do anything except allow marking a
+# route to be sent to a specific database.
+class WithDatabasePredicate:
+    def __init__(self, val, config):
+        self.val = val
+
+    def text(self):
+        return f"with_database = {self.val!r}"
+
+    phash = text
+
+    # This predicate doesn't actually participate in the route selection
+    # process, so we'll just always return True.
+    def __call__(self, info, request):
+        return True
+
+
 class ModelBase(DeclarativeBase):
     """Base class for models using declarative syntax."""
 
@@ -83,7 +100,6 @@ class ModelBase(DeclarativeBase):
             enum.Enum, values_callable=lambda x: [e.value for e in x]
         ),
     }
-
     def __repr__(self):
         inst = inspect(self)
         self.__repr__ = make_repr(
@@ -133,15 +149,24 @@ def _configure_alembic(config):
     return alembic_cfg
 
 
+def _select_database(request):
+    if request.matched_route is not None:
+        for predicate in request.matched_route.predicates:
+            if isinstance(predicate, WithDatabasePredicate):
+                return predicate.val
+
+    return "primary"
+
+
 def _create_session(request):
     metrics = request.find_service(IMetricsService, context=None)
 
     # Create our connection, most likely pulling it from the pool of
     # connections
-    engine_name = "primary" if not request.read_only else "replica"
-    metrics.increment("warehouse.db.session.start", tags=[f"db:{engine_name}"])
+    db_name = _select_database(request)
+    metrics.increment("warehouse.db.session.start", tags=[f"db:{db_name}"])
     try:
-        connection = request.registry["sqlalchemy.engines"][engine_name].connect()
+        connection = request.registry["sqlalchemy.engines"][db_name].connect()
     except OperationalError:
         # When we tried to connection to PostgreSQL, our database was not available for
         # some reason. We're going to log it here and then raise our error. Most likely
@@ -149,7 +174,7 @@ def _create_session(request):
         logger.warning("Got an error connecting to PostgreSQL", exc_info=True)
         metrics.increment(
             "warehouse.db.session.error",
-            tags=["error_in:connecting", f"db:{engine_name}"],
+            tags=["error_in:connecting", f"db:{db_name}"],
         )
         raise DatabaseNotAvailableError()
 
@@ -163,7 +188,7 @@ def _create_session(request):
     # end of our connection.
     @request.add_finished_callback
     def cleanup(request):
-        metrics.increment("warehouse.db.session.finished", tags=[f"db:{engine_name}"])
+        metrics.increment("warehouse.db.session.finished", tags=[f"db:{db_name}"])
         session.close()
         connection.close()
 
@@ -218,7 +243,6 @@ def includeme(config):
     db_session_factory = config.registry.settings.get(
         "warehouse.db_create_session", _create_session
     )
-    config.add_request_method(db_session_factory, name="db", reify=True)
 
     # Set a custom JSON serializer for psycopg
     renderer = JSON()
@@ -228,3 +252,9 @@ def includeme(config):
         return renderer_factory(obj, {})
 
     psycopg.types.json.set_json_dumps(serialize_as_json)
+
+    # Register our request.db property
+    config.add_request_method(_create_session, name="db", reify=True)
+
+    # Add a route predicate to mark a route as using a specific database.
+    config.add_route_predicate("with_database", WithDatabasePredicate)
