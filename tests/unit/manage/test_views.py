@@ -3108,6 +3108,37 @@ class TestManageOrganizationBillingViews:
     def subscription_price(self):
         return SubscriptionPriceFactory.create()
 
+    def test_customer_id(
+        self,
+        db_request,
+        subscription_service,
+        organization,
+    ):
+        billing_service = pretend.stub(
+            create_customer=lambda *a, **kw: {"id": "customer-id"},
+        )
+        organization.customer_id = None
+
+        view = views.ManageOrganizationBillingViews(organization, db_request)
+        view.billing_service = billing_service
+        customer_id = view.customer_id
+
+        assert customer_id == "customer-id"
+
+    def test_customer_id_local_mock(
+        self,
+        db_request,
+        billing_service,
+        subscription_service,
+        organization,
+    ):
+        organization.customer_id = None
+
+        view = views.ManageOrganizationBillingViews(organization, db_request)
+        customer_id = view.customer_id
+
+        assert customer_id.startswith("mockcus_")
+
     def test_disable_organizations(
         self,
         db_request,
