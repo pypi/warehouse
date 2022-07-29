@@ -10,11 +10,14 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import json
+
 import pytest
+import stripe
 
-from pyramid.httpexceptions import HTTPBadRequest, HTTPNotFound
+from pyramid.httpexceptions import HTTPBadRequest, HTTPNoContent, HTTPNotFound
 
-from warehouse.api.billing import handle_billing_webhook_event
+from warehouse.api import billing
 
 from ...common.db.organizations import (
     OrganizationFactory,
@@ -23,7 +26,7 @@ from ...common.db.organizations import (
 from ...common.db.subscriptions import SubscriptionFactory
 
 
-class TestBillingWebhook:
+class TestHandleBillingWebhookEvent:
     # checkout.session.completed
     def test_handle_billing_webhook_event_checkout_complete_update(
         self, db_request, subscription_service
@@ -45,7 +48,7 @@ class TestBillingWebhook:
             },
         }
 
-        handle_billing_webhook_event(db_request, event)
+        billing.handle_billing_webhook_event(db_request, event)
 
     def test_handle_billing_webhook_event_checkout_complete_add(
         self, db_request, subscription_service
@@ -63,7 +66,7 @@ class TestBillingWebhook:
             },
         }
 
-        handle_billing_webhook_event(db_request, event)
+        billing.handle_billing_webhook_event(db_request, event)
 
     def test_handle_billing_webhook_event_checkout_complete_invalid_status(
         self, db_request
@@ -80,7 +83,7 @@ class TestBillingWebhook:
         }
 
         with pytest.raises(HTTPBadRequest):
-            handle_billing_webhook_event(db_request, event)
+            billing.handle_billing_webhook_event(db_request, event)
 
     def test_handle_billing_webhook_event_checkout_complete_invalid_customer(
         self, db_request
@@ -97,7 +100,7 @@ class TestBillingWebhook:
         }
 
         with pytest.raises(HTTPBadRequest):
-            handle_billing_webhook_event(db_request, event)
+            billing.handle_billing_webhook_event(db_request, event)
 
     def test_handle_billing_webhook_event_checkout_complete_invalid_subscription(
         self, db_request
@@ -114,7 +117,7 @@ class TestBillingWebhook:
         }
 
         with pytest.raises(HTTPBadRequest):
-            handle_billing_webhook_event(db_request, event)
+            billing.handle_billing_webhook_event(db_request, event)
 
     # customer.subscription.deleted
     def test_handle_billing_webhook_event_subscription_deleted_update(
@@ -137,7 +140,7 @@ class TestBillingWebhook:
             },
         }
 
-        handle_billing_webhook_event(db_request, event)
+        billing.handle_billing_webhook_event(db_request, event)
 
     def test_handle_billing_webhook_event_subscription_deleted_not_found(
         self, db_request, subscription_service
@@ -156,7 +159,7 @@ class TestBillingWebhook:
         }
 
         with pytest.raises(HTTPNotFound):
-            handle_billing_webhook_event(db_request, event)
+            billing.handle_billing_webhook_event(db_request, event)
 
     def test_handle_billing_webhook_event_subscription_deleted_invalid_status(
         self, db_request
@@ -173,7 +176,7 @@ class TestBillingWebhook:
         }
 
         with pytest.raises(HTTPBadRequest):
-            handle_billing_webhook_event(db_request, event)
+            billing.handle_billing_webhook_event(db_request, event)
 
     def test_handle_billing_webhook_event_subscription_deleted_invalid_customer(
         self, db_request
@@ -190,7 +193,7 @@ class TestBillingWebhook:
         }
 
         with pytest.raises(HTTPBadRequest):
-            handle_billing_webhook_event(db_request, event)
+            billing.handle_billing_webhook_event(db_request, event)
 
     def test_handle_billing_webhook_event_subscription_deleted_invalid_subscription(
         self, db_request
@@ -207,7 +210,7 @@ class TestBillingWebhook:
         }
 
         with pytest.raises(HTTPBadRequest):
-            handle_billing_webhook_event(db_request, event)
+            billing.handle_billing_webhook_event(db_request, event)
 
     # customer.subscription.updated
     def test_handle_billing_webhook_event_subscription_updated_update(
@@ -230,7 +233,7 @@ class TestBillingWebhook:
             },
         }
 
-        handle_billing_webhook_event(db_request, event)
+        billing.handle_billing_webhook_event(db_request, event)
 
     def test_handle_billing_webhook_event_subscription_updated_not_found(
         self, db_request, subscription_service
@@ -249,7 +252,7 @@ class TestBillingWebhook:
         }
 
         with pytest.raises(HTTPNotFound):
-            handle_billing_webhook_event(db_request, event)
+            billing.handle_billing_webhook_event(db_request, event)
 
     def test_handle_billing_webhook_event_subscription_updated_no_change(
         self, db_request
@@ -275,7 +278,7 @@ class TestBillingWebhook:
             },
         }
 
-        handle_billing_webhook_event(db_request, event)
+        billing.handle_billing_webhook_event(db_request, event)
 
     def test_handle_billing_webhook_event_subscription_updated_invalid_status(
         self, db_request
@@ -292,7 +295,7 @@ class TestBillingWebhook:
         }
 
         with pytest.raises(HTTPBadRequest):
-            handle_billing_webhook_event(db_request, event)
+            billing.handle_billing_webhook_event(db_request, event)
 
     def test_handle_billing_webhook_event_subscription_updated_invalid_customer(
         self, db_request
@@ -309,7 +312,7 @@ class TestBillingWebhook:
         }
 
         with pytest.raises(HTTPBadRequest):
-            handle_billing_webhook_event(db_request, event)
+            billing.handle_billing_webhook_event(db_request, event)
 
     def test_handle_billing_webhook_event_subscription_updated_invalid_subscription(
         self, db_request
@@ -326,7 +329,7 @@ class TestBillingWebhook:
         }
 
         with pytest.raises(HTTPBadRequest):
-            handle_billing_webhook_event(db_request, event)
+            billing.handle_billing_webhook_event(db_request, event)
 
     # customer.deleted
     def test_handle_billing_webhook_event_customer_deleted(
@@ -347,7 +350,7 @@ class TestBillingWebhook:
             },
         }
 
-        handle_billing_webhook_event(db_request, event)
+        billing.handle_billing_webhook_event(db_request, event)
 
     def test_handle_billing_webhook_event_customer_deleted_no_subscriptions(
         self, db_request
@@ -362,7 +365,7 @@ class TestBillingWebhook:
         }
 
         with pytest.raises(HTTPNotFound):
-            handle_billing_webhook_event(db_request, event)
+            billing.handle_billing_webhook_event(db_request, event)
 
     def test_handle_billing_webhook_event_customer_deleted_invalid_customer(
         self, db_request
@@ -377,7 +380,7 @@ class TestBillingWebhook:
         }
 
         with pytest.raises(HTTPBadRequest):
-            handle_billing_webhook_event(db_request, event)
+            billing.handle_billing_webhook_event(db_request, event)
 
     def test_handle_billing_webhook_event_unmatched_event(self, db_request):
         event = {
@@ -389,4 +392,52 @@ class TestBillingWebhook:
             },
         }
 
-        handle_billing_webhook_event(db_request, event)
+        billing.handle_billing_webhook_event(db_request, event)
+
+
+class TestBillingWebhook:
+    def test_billing_webhook(self, pyramid_request, billing_service, monkeypatch):
+        pyramid_request.body = json.dumps({"type": "mock.webhook.payload"})
+        pyramid_request.headers = {"Stripe-Signature": "mock-stripe-signature"}
+
+        monkeypatch.setattr(
+            billing_service,
+            "webhook_received",
+            lambda p, s: json.loads(p),
+        )
+
+        monkeypatch.setattr(
+            billing, "handle_billing_webhook_event", lambda *a, **kw: None
+        )
+
+        result = billing.billing_webhook(pyramid_request)
+
+        assert isinstance(result, HTTPNoContent)
+
+    def test_billing_webhook_value_error(
+        self, pyramid_request, billing_service, monkeypatch
+    ):
+        pyramid_request.body = json.dumps({"type": "mock.webhook.payload"})
+        pyramid_request.headers = {"Stripe-Signature": "mock-stripe-signature"}
+
+        def webhook_received(payload, sig_header):
+            raise ValueError()
+
+        monkeypatch.setattr(billing_service, "webhook_received", webhook_received)
+
+        with pytest.raises(HTTPBadRequest):
+            billing.billing_webhook(pyramid_request)
+
+    def test_billing_webhook_signature_error(
+        self, pyramid_request, billing_service, monkeypatch
+    ):
+        pyramid_request.body = json.dumps({"type": "mock.webhook.payload"})
+        pyramid_request.headers = {"Stripe-Signature": "mock-stripe-signature"}
+
+        def webhook_received(payload, sig_header):
+            raise stripe.error.SignatureVerificationError("signature error", sig_header)
+
+        monkeypatch.setattr(billing_service, "webhook_received", webhook_received)
+
+        with pytest.raises(HTTPBadRequest):
+            billing.billing_webhook(pyramid_request)
