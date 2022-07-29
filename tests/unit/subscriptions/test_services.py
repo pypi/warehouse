@@ -11,8 +11,6 @@
 # limitations under the License.
 
 import importlib
-import os
-import os.path
 
 import pretend
 import pytest

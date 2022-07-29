@@ -10,19 +10,11 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import random
-import time
-
-from string import ascii_letters, digits
-
-import pretend
 import pytest
-import stripe
 
-from pyramid.httpexceptions import HTTPBadRequest, HTTPNoContent, HTTPNotFound
-from webob.multidict import MultiDict
+from pyramid.httpexceptions import HTTPBadRequest, HTTPNotFound
 
-from warehouse.api.billing import billing_webhook, handle_billing_webhook_event
+from warehouse.api.billing import handle_billing_webhook_event
 
 from ...common.db.organizations import (
     OrganizationFactory,
