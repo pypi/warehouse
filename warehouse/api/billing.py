@@ -80,14 +80,8 @@ def handle_billing_webhook_event(request, event):
                 raise HTTPBadRequest("Invalid subscription ID")
 
             if id := subscription_service.find_subscriptionid(subscription_id):
-                db_subscription = subscription_service.get_subscription(
-                    subscription_service.find_subscriptionid(id)
-                )
-                if db_subscription.status != status:
-                    # Update subscription status.
-                    subscription_service.update_subscription_status(
-                        db_subscription.id, status
-                    )
+                # Update subscription status.
+                subscription_service.update_subscription_status(id, status)
             else:
                 raise HTTPNotFound("Subscription not found")
         # Occurs whenever a customer is deleted.
