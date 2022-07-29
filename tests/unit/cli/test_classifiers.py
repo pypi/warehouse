@@ -19,7 +19,7 @@ from warehouse.cli import classifiers
 
 def test_classifiers_update(db_request, monkeypatch, cli):
     engine = pretend.stub()
-    config = pretend.stub(registry={"sqlalchemy.engine": engine})
+    config = pretend.stub(registry={"sqlalchemy.engines": {"primary": engine}})
     session_cls = pretend.call_recorder(lambda bind: db_request.db)
     monkeypatch.setattr(db, "Session", session_cls)
 
@@ -47,7 +47,7 @@ def test_classifiers_update(db_request, monkeypatch, cli):
 
 def test_classifiers_no_update(db_request, monkeypatch, cli):
     engine = pretend.stub()
-    config = pretend.stub(registry={"sqlalchemy.engine": engine})
+    config = pretend.stub(registry={"sqlalchemy.engines": {"primary": engine}})
     session_cls = pretend.call_recorder(lambda bind: db_request.db)
     monkeypatch.setattr(db, "Session", session_cls)
 

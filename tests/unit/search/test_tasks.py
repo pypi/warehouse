@@ -352,6 +352,7 @@ class TestReindex:
                 "opensearch.index": "warehouse",
                 "opensearch.shards": 42,
                 "sqlalchemy.engine": db_engine,
+                "sqlalchemy.engines": {"primary": db_engine},
             }
         )
         db_request.registry.settings = {
@@ -599,7 +600,7 @@ class TestPartialReindex:
                 "opensearch.client": es_client,
                 "opensearch.index": "warehouse",
                 "opensearch.shards": 42,
-                "sqlalchemy.engine": db_engine,
+                "sqlalchemy.engines": {"primary": db_engine},
             }
         )
 

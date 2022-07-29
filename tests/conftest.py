@@ -309,7 +309,7 @@ def get_app_config(database, nondefaults=None):
         "celery.broker_url": "amqp://",
         "celery.result_url": "redis://localhost:0/",
         "celery.scheduler_url": "redis://localhost:0/",
-        "database.url": database,
+        "database.primary.url": database,
         "docs.url": "http://docs.example.com/",
         "ratelimit.url": "memory://",
         "opensearch.url": "https://localhost/warehouse",
@@ -364,7 +364,7 @@ def get_db_session_for_app_config(app_config):
     #    database session through the initial config.
     #
     # 1) and 2) clash.
-    engine = app_config.registry["sqlalchemy.engine"]  # get_sqlalchemy_engine(database)
+    engine = app_config.registry["sqlalchemy.engines"]["primary"]  # get_sqlalchemy_engine(database)
     conn = engine.connect()
     trans = conn.begin()
     session = Session(bind=conn, join_transaction_mode="create_savepoint")
@@ -601,7 +601,7 @@ class QueryRecorder:
 def query_recorder(app_config):
     recorder = QueryRecorder()
 
-    engine = app_config.registry["sqlalchemy.engine"]
+    engine = app_config.registry["sqlalchemy.engines"]["primary"]
     event.listen(engine, "before_cursor_execute", recorder.record)
 
     try:

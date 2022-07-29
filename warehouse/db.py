@@ -124,7 +124,7 @@ def listens_for(target, identifier, *args, **kwargs):
 def _configure_alembic(config):
     alembic_cfg = alembic.config.Config()
     alembic_cfg.set_main_option("script_location", "warehouse:migrations")
-    alembic_cfg.set_main_option("url", config.registry.settings["database.url"])
+    alembic_cfg.set_main_option("url", config.registry.settings["database.primary.url"])
     alembic_cfg.set_section_option("post_write_hooks", "hooks", "black, isort")
     alembic_cfg.set_section_option("post_write_hooks", "black.type", "console_scripts")
     alembic_cfg.set_section_option("post_write_hooks", "black.entrypoint", "black")
@@ -140,7 +140,7 @@ def _create_session(request):
     # Create our connection, most likely pulling it from the pool of
     # connections
     try:
-        connection = request.registry["sqlalchemy.engine"].connect()
+        connection = request.registry["sqlalchemy.engines"]["primary"].connect()
     except OperationalError:
         # When we tried to connection to PostgreSQL, our database was not available for
         # some reason. We're going to log it here and then raise our error. Most likely
@@ -179,13 +179,15 @@ def includeme(config):
     config.add_directive("alembic_config", _configure_alembic)
 
     # Create our SQLAlchemy Engine.
-    config.registry["sqlalchemy.engine"] = sqlalchemy.create_engine(
-        config.registry.settings["database.url"],
-        isolation_level=DEFAULT_ISOLATION,
-        pool_size=35,
-        max_overflow=65,
-        pool_timeout=20,
-    )
+    config.registry["sqlalchemy.engines"] = {
+        "primary": sqlalchemy.create_engine(
+            config.registry.settings["database.primary.url"],
+            isolation_level=DEFAULT_ISOLATION,
+            pool_size=35,
+            max_overflow=65,
+            pool_timeout=20,
+        ),
+    }
 
     # Possibly override how to fetch new db sessions from config.settings
     #  Useful in test fixtures

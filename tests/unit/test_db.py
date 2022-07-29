@@ -93,7 +93,7 @@ def test_configure_alembic(monkeypatch):
     monkeypatch.setattr(alembic.config, "Config", config_cls)
 
     config = pretend.stub(
-        registry=pretend.stub(settings={"database.url": pretend.stub()})
+        registry=pretend.stub(settings={"database.primary.url": pretend.stub()})
     )
 
     alembic_config = _configure_alembic(config)
@@ -101,7 +101,7 @@ def test_configure_alembic(monkeypatch):
     assert alembic_config is config_obj
     assert alembic_config.set_main_option.calls == [
         pretend.call("script_location", "warehouse:migrations"),
-        pretend.call("url", config.registry.settings["database.url"]),
+        pretend.call("url", config.registry.settings["database.primary.url"]),
     ]
     assert alembic_config.set_section_option.calls == [
         pretend.call("post_write_hooks", "hooks", "black, isort"),
@@ -119,7 +119,7 @@ def test_raises_db_available_error(pyramid_services, metrics):
     engine = pretend.stub(connect=raiser)
     request = pretend.stub(
         find_service=pyramid_services.find_service,
-        registry={"sqlalchemy.engine": engine},
+        registry={"sqlalchemy.engines": {"primary": engine}},
     )
 
     with pytest.raises(DatabaseNotAvailableError):
@@ -148,7 +148,7 @@ def test_create_session(monkeypatch, pyramid_services):
     engine = pretend.stub(connect=pretend.call_recorder(lambda: connection))
     request = pretend.stub(
         find_service=pyramid_services.find_service,
-        registry={"sqlalchemy.engine": engine},
+        registry={"sqlalchemy.engines": {"primary": engine}},
         tm=pretend.stub(),
         add_finished_callback=pretend.call_recorder(lambda callback: None),
     )
@@ -208,7 +208,7 @@ def test_create_session_read_only_mode(
     engine = pretend.stub(connect=pretend.call_recorder(lambda: connection))
     request = pretend.stub(
         find_service=pyramid_services.find_service,
-        registry={"sqlalchemy.engine": engine},
+        registry={"sqlalchemy.engines": {"primary": engine}},
         tm=pretend.stub(doom=pretend.call_recorder(lambda: None)),
         add_finished_callback=lambda callback: None,
         user=pretend.stub(is_superuser=is_superuser),
@@ -221,7 +221,7 @@ def test_create_session_read_only_mode(
 
 def test_includeme(monkeypatch):
     class FakeRegistry(dict):
-        settings = {"database.url": pretend.stub()}
+        settings = {"database.primary.url": pretend.stub()}
 
     engine = pretend.stub()
     create_engine = pretend.call_recorder(lambda url, **kw: engine)
@@ -240,11 +240,11 @@ def test_includeme(monkeypatch):
     ]
     assert create_engine.calls == [
         pretend.call(
-            config.registry.settings["database.url"],
+            config.registry.settings["database.primary.url"],
             isolation_level=DEFAULT_ISOLATION,
             pool_size=35,
             max_overflow=65,
             pool_timeout=20,
         )
     ]
-    assert config.registry["sqlalchemy.engine"] is engine
+    assert config.registry["sqlalchemy.engines"]["primary"] is engine
