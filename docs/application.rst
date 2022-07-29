@@ -5,7 +5,7 @@ Warehouse uses the
 `Pyramid`_ web framework, the
 `SQLAlchemy <https://docs.sqlalchemy.org/en/latest/>`__ ORM, and
 `Postgres <https://www.postgresql.org/docs/>`__ for its database.
-Warehouse's front end uses `Jinja2 <http://jinja.pocoo.org/>`__ templates.
+Warehouse's front end uses `Jinja2 <https://jinja.palletsprojects.com/>`__ templates.
 
 The production deployment for Warehouse is deployed using
 `Cabotage <https://github.com/cabotage/cabotage-app>`__, which manages
@@ -146,7 +146,7 @@ may be used to from the legacy site, such as:
   SSH public keys
 
 - uploading new releases via the web UI: instead, maintainers should
-  use the command-line tool `Twine <http://twine.readthedocs.io/>`_
+  use the command-line tool `Twine <https://twine.readthedocs.io/>`_
 
 - updating release descriptions via the web UI: instead, to update
   release metadata, you need to upload a new release (`discussion

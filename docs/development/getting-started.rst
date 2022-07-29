@@ -32,9 +32,9 @@ Detailed installation instructions
 
 Getting the Warehouse source code
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-`Fork <https://help.github.com/articles/fork-a-repo/>`_ the repository
+`Fork <https://docs.github.com/en/get-started/quickstart/fork-a-repo>`_ the repository
 on `GitHub`_ and
-`clone <https://help.github.com/articles/cloning-a-repository/>`_ it to
+`clone <https://docs.github.com/en/repositories/creating-and-managing-repositories/cloning-a-repository>`_ it to
 your local machine:
 
 .. code-block:: console
@@ -42,8 +42,8 @@ your local machine:
     git clone git@github.com:YOUR-USERNAME/warehouse.git
 
 Add a `remote
-<https://help.github.com/articles/configuring-a-remote-for-a-fork/>`_ and
-regularly `sync <https://help.github.com/articles/syncing-a-fork/>`_ to make sure
+<https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/working-with-forks/configuring-a-remote-for-a-fork>`_ and
+regularly `sync <https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/working-with-forks/syncing-a-fork>`_ to make sure
 you stay up-to-date with our repository:
 
 .. code-block:: console
@@ -421,7 +421,7 @@ compilation errors due to your system not including libraries
 or binaries required by some of Warehouse's dependencies.
 
 An example of such dependency is
-`psycopg2 <http://initd.org/psycopg/docs/install.html#prerequisites>`_
+`psycopg2 <https://www.psycopg.org/docs/install.html#prerequisites>`_
 which requires PostgreSQL binaries and will fail if not present.
 
 If there's a specific use case you think requires development outside
@@ -568,7 +568,7 @@ You can run linters, programs that check the code, with:
 
     make lint
 
-Warehouse uses `black <https://github.com/ambv/black>`_ for opinionated
+Warehouse uses `black <https://github.com/psf/black>`_ for opinionated
 formatting and linting. You can reformat with:
 
 .. code-block:: console
@@ -654,7 +654,7 @@ Resources to help you learn Warehouse's context:
 
 .. _`pip`: https://pypi.org/project/pip
 .. _`sphinx`: https://pypi.org/project/Sphinx
-.. _`reStructured Text`: http://sphinx-doc.org/rest.html
+.. _`reStructured Text`: https://www.sphinx-doc.org/en/master/usage/restructuredtext/index.html
 .. _`open issues that are labelled "good first issue"`: https://github.com/pypi/warehouse/issues?q=is%3Aissue+is%3Aopen+label%3A%22good+first+issue%22
 .. _`GitHub`: https://github.com/pypi/warehouse
 .. _`on Libera`: https://web.libera.chat/#pypa,#pypa-dev

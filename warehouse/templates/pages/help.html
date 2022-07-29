@@ -613,12 +613,12 @@
 
         <h3 id="vulnerability-data">{{ vulnerability_data() }}</h3>
         <p>
-          {% trans trimmed osv_href='https://osv.dev/', title=gettext('External link'), vulns_href='https://github.com/pypa/advisory-db' %}
+          {% trans trimmed osv_href='https://osv.dev/', title=gettext('External link'), vulns_href='https://github.com/pypa/advisory-database' %}
           PyPI receives reports on vulnerabilities in the packages hosted on it from the <a href="{{ osv_href }}" title="{{ title }}" target="_blank" rel="noopener">Open Source Vulnerabilities project</a>, which in turn ingests vulnerabilities from the <a href="{{ vulns_href }}" title="{{ title }}" target="_blank" rel="noopener">Python Packaging Advisory Database</a>.
           {% endtrans %}
         </p>
         <p>
-          {% trans trimmed file_issue_href='https://github.com/pypa/advisory-db/issues', title=gettext('External link') %}
+          {% trans trimmed file_issue_href='https://github.com/pypa/advisory-database/issues', title=gettext('External link') %}
             If you believe vulnerability data for your project is invalid or incorrect, <a href="{{ file_issue_href }}" title="{{ title }}" target="_blank" rel="noopener">file an issue</a> with details.
           {% endtrans %}
         </p>
@@ -852,7 +852,7 @@
 
         <h3 id="upcoming-changes">{{ upcoming_changes() }}</h3>
         <p>
-          {% trans trimmed mailing_list_href='https://mail.python.org/mm3/mailman3/lists/pypi-announce.python.org/', blog_href='https://pyfound.blogspot.com/search/label/pypi', atom_href='https://pyfound.blogspot.com/feeds/posts/default/-/pypi', rss_href='https://pyfound.blogspot.com/feeds/posts/default/-/pypi?alt=rss', title=gettext('External link') %}
+          {% trans trimmed mailing_list_href='https://mail.python.org/mailman3/lists/pypi-announce.python.org/', blog_href='https://pyfound.blogspot.com/search/label/pypi', atom_href='https://pyfound.blogspot.com/feeds/posts/default/-/pypi', rss_href='https://pyfound.blogspot.com/feeds/posts/default/-/pypi?alt=rss', title=gettext('External link') %}
           Changes to PyPI are generally announced on both the
           <a href="{{ mailing_list_href }}" title="{{ title }}" target="_blank" rel="noopener">pypi-announce mailing list</a>
           and the <a href="{{ blog_href }}" title="{{ title }}" target="_blank" rel="noopener">PSF blog</a> under the label "pypi".

@@ -20,7 +20,7 @@ to redirects, but you should use pypi.org instead.
 
 You should also watch `our status page <https://status.python.org/>`__
 and subscribe to `the PyPI announcement list (low-traffic)
-<https://mail.python.org/mm3/mailman3/lists/pypi-announce.python.org/>`_
+<https://mail.python.org/mailman3/lists/pypi-announce.python.org/>`_
 to find out about future changes.
 
 Here are some tips.
@@ -73,7 +73,7 @@ Here are some tips.
   regardless of their ``User-Agent``.
 
 * Subscribe to `the PyPI announcement list (low-traffic)
-  <https://mail.python.org/mm3/mailman3/lists/pypi-announce.python.org/>`_.
+  <https://mail.python.org/mailman3/lists/pypi-announce.python.org/>`_.
 
 If you're a PyPI end user or packager looking to migrate to the new
 PyPI, see `the official Python Packaging User Guide on migrating to PyPI
