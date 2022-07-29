@@ -470,13 +470,19 @@ def includeme(config):
     )
 
     # API URLs
-    config.add_route("api.simple.index", "/simple/", domain=warehouse)
+    config.add_route(
+        "api.simple.index",
+        "/simple/",
+        domain=warehouse,
+        with_database="replica",
+    )
     config.add_route(
         "api.simple.detail",
         "/simple/{name}/",
         factory="warehouse.packaging.models:ProjectFactory",
         traverse="/{name}/",
         domain=warehouse,
+        with_database="replica",
     )
 
     # Legacy URLs
@@ -485,12 +491,14 @@ def includeme(config):
         "/pypi/{name}/json",
         factory="warehouse.legacy.api.json.latest_release_factory",
         domain=warehouse,
+        with_database="replica",
     )
     config.add_route(
         "legacy.api.json.project_slash",
         "/pypi/{name}/json/",
         factory="warehouse.legacy.api.json.latest_release_factory",
         domain=warehouse,
+        with_database="replica",
     )
 
     config.add_route(
@@ -498,12 +506,14 @@ def includeme(config):
         "/pypi/{name}/{version}/json",
         factory="warehouse.legacy.api.json.release_factory",
         domain=warehouse,
+        with_database="replica",
     )
     config.add_route(
         "legacy.api.json.release_slash",
         "/pypi/{name}/{version}/json/",
         factory="warehouse.legacy.api.json.release_factory",
         domain=warehouse,
+        with_database="replica",
     )
 
     # Legacy Action URLs
