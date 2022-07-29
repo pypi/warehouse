@@ -126,5 +126,4 @@ where ``project_l`` is the first letter of the project name.
 structure PyPI used to hold on disk. In general this is only a good idea
 for ``source`` as a ``python_version`` to fetch tar and zip files.
 Otherwise, you will want to match the format of the ``python_version``
-field of the releases in the `JSON
-API <https://warehouse.pypa.io/api-reference/json/>`__.
+field of the releases in the :doc:`json`.

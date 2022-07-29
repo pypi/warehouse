@@ -489,6 +489,8 @@ Styles are written in the scss variant of Sass and compiled using
 ``make serve`` is running.
 
 
+.. _running-the-interactive-shell:
+
 Running the Interactive Shell
 -----------------------------
 
