@@ -93,7 +93,7 @@ Official guidance
 -----------------
 
 Query PyPI’s `JSON
-API <https://warehouse.readthedocs.io/api-reference/json/>`__ to
+API <https://warehouse.pypa.io/api-reference/json/>`__ to
 determine where to download files from.
 
 If you so choose
@@ -127,4 +127,4 @@ structure PyPI used to hold on disk. In general this is only a good idea
 for ``source`` as a ``python_version`` to fetch tar and zip files.
 Otherwise, you will want to match the format of the ``python_version``
 field of the releases in the `JSON
-API <https://warehouse.readthedocs.io/api-reference/json/>`__.
+API <https://warehouse.pypa.io/api-reference/json/>`__.

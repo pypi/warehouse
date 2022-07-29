@@ -95,7 +95,7 @@ Directories within the repository:
   - `cache/ <https://github.com/pypi/warehouse/tree/main/warehouse/cache>`_ - caching
   - `classifiers/ <https://github.com/pypi/warehouse/tree/main/warehouse/classifiers>`_ - frame trove classifiers
   - `cli/ <https://github.com/pypi/warehouse/tree/main/warehouse/cli>`_ - entry scripts and
-    `the interactive shell <https://warehouse.readthedocs.io/development/getting-started/#running-the-interactive-shell>`_
+    `the interactive shell <https://warehouse.pypa.io/development/getting-started/#running-the-interactive-shell>`_
   - `email/ <https://github.com/pypi/warehouse/tree/main/warehouse/email>`_ - services for sending emails
   - `forklift/ <https://github.com/pypi/warehouse/tree/main/warehouse/forklift>`_ - :ref:`upload-api-forklift`
   - `i18n/ <https://github.com/pypi/warehouse/tree/main/warehouse/i18n>`_ - internationalization
@@ -139,7 +139,7 @@ may be used to from the legacy site, such as:
 - uploading to pythonhosted.com documentation hosting (`discussion and
   plans <https://github.com/pypi/warehouse/issues/582>`_)
 
-- `download counts visible in the API <https://warehouse.readthedocs.io/api-reference/xml-rpc/#changes-to-legacy-api>`_
+- `download counts visible in the API <https://warehouse.pypa.io/api-reference/xml-rpc/#changes-to-legacy-api>`_
   (instead, use `the Google BigQuery service <https://packaging.python.org/guides/analyzing-pypi-package-downloads/>`_)
 
 - key management: PyPI no longer has a UI for users to manage GPG or
