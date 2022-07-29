@@ -28,7 +28,7 @@ To add a new known locale:
 3. Commit these changes and make a new pull request.
 
 .. |warehouse/i18n/__init__.py| replace:: ``warehouse/i18n/__init__.py``
-.. _warehouse/i18n/__init__.py: https://github.com/pypi/warehouse/blob/master/warehouse/i18n/__init__.py
+.. _warehouse/i18n/__init__.py: https://github.com/pypi/warehouse/blob/main/warehouse/i18n/__init__.py
 
 Marking new strings for translation
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

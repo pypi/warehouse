@@ -32,7 +32,7 @@ GitHub's Token scanning feature used to be called "Token Scanning" and is now
 the regex above (actually the limit to at least 130 characters long). For all
 tokens identified within a "push" event, they send us reports in bulk. The
 format is explained thouroughly in `their doc
-<https://docs.github.com/en/developers/overview/secret-scanning>`_ as well as
+<https://docs.github.com/en/developers/overview/secret-scanning-partner-program>`_ as well as
 in the `warehouse implementation ticket
 <https://github.com/pypi/warehouse/issues/6051>`_.
 

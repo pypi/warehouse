@@ -379,7 +379,7 @@ class TestRelease:
                 "https://api.github.com/repos/pypa/warehouse",
             ),
             (
-                "https://github.com/pypi/warehouse/tree/master",
+                "https://github.com/pypi/warehouse/tree/main",
                 "https://api.github.com/repos/pypa/warehouse",
             ),
             (

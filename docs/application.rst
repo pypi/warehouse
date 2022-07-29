@@ -13,7 +13,7 @@ The production deployment for Warehouse is deployed using
 
 In the development environment, we use several `Docker`_  containers
 orchestrated by `Docker Compose <https://docs.docker.com/compose/overview/>`__
-to `manage <https://github.com/pypi/warehouse/blob/master/docker-compose.yml#L3>`__
+to `manage <https://github.com/pypi/warehouse/blob/main/docker-compose.yml#L3>`__
 running the containers and the connections between them.
 
 Since Warehouse was built on top of an existing database (for legacy
@@ -84,39 +84,39 @@ The top-level directory of the Warehouse repo contains files including:
 
 Directories within the repository:
 
-- `bin/ <https://github.com/pypi/warehouse/tree/master/bin>`_ - high-level scripts for Docker, Continuous Integration, and Makefile commands
-- `dev/ <https://github.com/pypi/warehouse/tree/master/dev>`_ - assets for developer environment
-- `tests/ <https://github.com/pypi/warehouse/tree/master/tests>`_ - tests
-- `warehouse/ <https://github.com/pypi/warehouse/tree/master/warehouse>`_ - code in modules
+- `bin/ <https://github.com/pypi/warehouse/tree/main/bin>`_ - high-level scripts for Docker, Continuous Integration, and Makefile commands
+- `dev/ <https://github.com/pypi/warehouse/tree/main/dev>`_ - assets for developer environment
+- `tests/ <https://github.com/pypi/warehouse/tree/main/tests>`_ - tests
+- `warehouse/ <https://github.com/pypi/warehouse/tree/main/warehouse>`_ - code in modules
 
-  - `accounts/ <https://github.com/pypi/warehouse/tree/master/warehouse/accounts>`_ - user accounts
-  - `admin/ <https://github.com/pypi/warehouse/tree/master/warehouse/admin>`_ - application-administrator-specific
-  - `banners/ <https://github.com/pypi/warehouse/tree/master/warehouse/banners>`_ - notification banners
-  - `cache/ <https://github.com/pypi/warehouse/tree/master/warehouse/cache>`_ - caching
-  - `classifiers/ <https://github.com/pypi/warehouse/tree/master/warehouse/classifiers>`_ - frame trove classifiers
-  - `cli/ <https://github.com/pypi/warehouse/tree/master/warehouse/cli>`_ - entry scripts and
+  - `accounts/ <https://github.com/pypi/warehouse/tree/main/warehouse/accounts>`_ - user accounts
+  - `admin/ <https://github.com/pypi/warehouse/tree/main/warehouse/admin>`_ - application-administrator-specific
+  - `banners/ <https://github.com/pypi/warehouse/tree/main/warehouse/banners>`_ - notification banners
+  - `cache/ <https://github.com/pypi/warehouse/tree/main/warehouse/cache>`_ - caching
+  - `classifiers/ <https://github.com/pypi/warehouse/tree/main/warehouse/classifiers>`_ - frame trove classifiers
+  - `cli/ <https://github.com/pypi/warehouse/tree/main/warehouse/cli>`_ - entry scripts and
     `the interactive shell <https://warehouse.readthedocs.io/development/getting-started/#running-the-interactive-shell>`_
-  - `email/ <https://github.com/pypi/warehouse/tree/master/warehouse/email>`_ - services for sending emails
-  - `forklift/ <https://github.com/pypi/warehouse/tree/master/warehouse/forklift>`_ - :ref:`upload-api-forklift`
-  - `i18n/ <https://github.com/pypi/warehouse/tree/master/warehouse/i18n>`_ - internationalization
-  - `integrations/ <https://github.com/pypi/warehouse/tree/master/warehouse/integrations>`_ - integrations with other services
-  - `legacy/ <https://github.com/pypi/warehouse/tree/master/warehouse/legacy>`_ - most of the read-only APIs implemented here
-  - `locale/ <https://github.com/pypi/warehouse/tree/master/warehouse/locale>`_ - internationalization
-  - `macaroons/ <https://github.com/pypi/warehouse/tree/master/warehouse/macaroons>`_ - API token support
-  - `malware/ <https://github.com/pypi/warehouse/tree/master/warehouse/malware>`_ - automated malware checks
-  - `manage/ <https://github.com/pypi/warehouse/tree/master/warehouse/manage>`_ - logged-in user functionality (i.e., manage account &
+  - `email/ <https://github.com/pypi/warehouse/tree/main/warehouse/email>`_ - services for sending emails
+  - `forklift/ <https://github.com/pypi/warehouse/tree/main/warehouse/forklift>`_ - :ref:`upload-api-forklift`
+  - `i18n/ <https://github.com/pypi/warehouse/tree/main/warehouse/i18n>`_ - internationalization
+  - `integrations/ <https://github.com/pypi/warehouse/tree/main/warehouse/integrations>`_ - integrations with other services
+  - `legacy/ <https://github.com/pypi/warehouse/tree/main/warehouse/legacy>`_ - most of the read-only APIs implemented here
+  - `locale/ <https://github.com/pypi/warehouse/tree/main/warehouse/locale>`_ - internationalization
+  - `macaroons/ <https://github.com/pypi/warehouse/tree/main/warehouse/macaroons>`_ - API token support
+  - `malware/ <https://github.com/pypi/warehouse/tree/main/warehouse/malware>`_ - automated malware checks
+  - `manage/ <https://github.com/pypi/warehouse/tree/main/warehouse/manage>`_ - logged-in user functionality (i.e., manage account &
     owned/maintained projects)
-  - `metrics/ <https://github.com/pypi/warehouse/tree/master/warehouse/metrics>`_ - services for recording metrics
-  - `migrations/ <https://github.com/pypi/warehouse/tree/master/warehouse/migrations>`_ - changes to the database schema
-  - `packaging/ <https://github.com/pypi/warehouse/tree/master/warehouse/packaging>`_ - models
-  - `rate_limiting/ <https://github.com/pypi/warehouse/tree/master/warehouse/rate_limiting>`_ - rate limiting to prevent abuse
-  - `rss/ <https://github.com/pypi/warehouse/tree/master/warehouse/rss>`_ - RSS feeds: :doc:`api-reference/feeds`
-  - `search/ <https://github.com/pypi/warehouse/tree/master/warehouse/search>`_ - utilities for building and querying the search index
-  - `sitemap/ <https://github.com/pypi/warehouse/tree/master/warehouse/sitemap>`_ - site maps
-  - `sponsors/ <https://github.com/pypi/warehouse/tree/master/warehouse/sponsors>`_ - sponsors management
-  - `static/ <https://github.com/pypi/warehouse/tree/master/warehouse/static>`_ - static site assets
-  - `templates/ <https://github.com/pypi/warehouse/tree/master/warehouse/templates>`_ - Jinja templates for web pages, emails, etc.
-  - `utils/ <https://github.com/pypi/warehouse/tree/master/warehouse/utils>`_ - various utilities Warehouse uses
+  - `metrics/ <https://github.com/pypi/warehouse/tree/main/warehouse/metrics>`_ - services for recording metrics
+  - `migrations/ <https://github.com/pypi/warehouse/tree/main/warehouse/migrations>`_ - changes to the database schema
+  - `packaging/ <https://github.com/pypi/warehouse/tree/main/warehouse/packaging>`_ - models
+  - `rate_limiting/ <https://github.com/pypi/warehouse/tree/main/warehouse/rate_limiting>`_ - rate limiting to prevent abuse
+  - `rss/ <https://github.com/pypi/warehouse/tree/main/warehouse/rss>`_ - RSS feeds: :doc:`api-reference/feeds`
+  - `search/ <https://github.com/pypi/warehouse/tree/main/warehouse/search>`_ - utilities for building and querying the search index
+  - `sitemap/ <https://github.com/pypi/warehouse/tree/main/warehouse/sitemap>`_ - site maps
+  - `sponsors/ <https://github.com/pypi/warehouse/tree/main/warehouse/sponsors>`_ - sponsors management
+  - `static/ <https://github.com/pypi/warehouse/tree/main/warehouse/static>`_ - static site assets
+  - `templates/ <https://github.com/pypi/warehouse/tree/main/warehouse/templates>`_ - Jinja templates for web pages, emails, etc.
+  - `utils/ <https://github.com/pypi/warehouse/tree/main/warehouse/utils>`_ - various utilities Warehouse uses
 
 .. _Pyramid: https://docs.pylonsproject.org/projects/pyramid/en/latest/index.html
 .. _Docker: https://docs.docker.com/
@@ -157,7 +157,7 @@ may be used to from the legacy site, such as:
 - `HTTP access to APIs; now it's HTTPS-only <https://mail.python.org/pipermail/distutils-sig/2017-October/031712.html>`_
 
 - GPG/PGP signatures for packages (still visible in the :doc:`../api-reference/legacy/`
-  per `PEP 503 <https://www.python.org/dev/peps/pep-0503/>`_, but no
+  per `PEP 503 <https://peps.python.org/pep-0503/>`_, but no
   longer visible in the web UI)
 
 - `OpenID and Google auth login <https://mail.python.org/pipermail/distutils-sig/2018-January/031855.html>`_
