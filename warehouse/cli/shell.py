@@ -71,7 +71,7 @@ def shell(config, type_):
 
     runner = {"bpython": bpython, "ipython": ipython, "plain": plain}[type_]
 
-    session = Session(bind=config.registry["sqlalchemy.engine"])
+    session = Session(bind=config.registry["sqlalchemy.engines"]["primary"])
 
     try:
         runner(config=config, db=session)

@@ -365,7 +365,7 @@ class TestReindex:
             {
                 "elasticsearch.index": "warehouse",
                 "elasticsearch.shards": 42,
-                "sqlalchemy.engine": db_engine,
+                "sqlalchemy.engines": {"primary": db_engine},
             }
         )
         db_request.registry.settings = {
@@ -631,7 +631,7 @@ class TestPartialReindex:
                 "elasticsearch.client": es_client,
                 "elasticsearch.index": "warehouse",
                 "elasticsearch.shards": 42,
-                "sqlalchemy.engine": db_engine,
+                "sqlalchemy.engines": {"primary": db_engine},
             }
         )
 

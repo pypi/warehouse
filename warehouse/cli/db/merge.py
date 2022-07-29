@@ -35,6 +35,6 @@ def merge(config, revisions, **kwargs):
     a single revision.
     """
     with alembic_lock(
-        config.registry["sqlalchemy.engine"], config.alembic_config()
+        config.registry["sqlalchemy.engines"]["primary"], config.alembic_config()
     ) as alembic_config:
         alembic.command.merge(alembic_config, revisions, **kwargs)

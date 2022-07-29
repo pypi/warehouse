@@ -24,6 +24,6 @@ def upgrade(config, revision, **kwargs):
     Upgrade database.
     """
     with alembic_lock(
-        config.registry["sqlalchemy.engine"], config.alembic_config()
+        config.registry["sqlalchemy.engines"]["primary"], config.alembic_config()
     ) as alembic_config:
         alembic.command.upgrade(alembic_config, revision, **kwargs)
