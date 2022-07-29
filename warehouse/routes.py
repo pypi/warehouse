@@ -452,7 +452,6 @@ def includeme(config):
         "/rss/project/{name}/releases.xml",
         factory="warehouse.packaging.models:ProjectFactory",
         traverse="/{name}/",
-        read_only=True,
         domain=warehouse,
     )
     # Integration URLs
@@ -476,7 +475,6 @@ def includeme(config):
         "/simple/{name}/",
         factory="warehouse.packaging.models:ProjectFactory",
         traverse="/{name}/",
-        read_only=True,
         domain=warehouse,
     )
 
@@ -485,14 +483,12 @@ def includeme(config):
         "legacy.api.json.project",
         "/pypi/{name}/json",
         factory="warehouse.legacy.api.json.latest_release_factory",
-        read_only=True,
         domain=warehouse,
     )
     config.add_route(
         "legacy.api.json.project_slash",
         "/pypi/{name}/json/",
         factory="warehouse.legacy.api.json.latest_release_factory",
-        read_only=True,
         domain=warehouse,
     )
 
@@ -500,14 +496,12 @@ def includeme(config):
         "legacy.api.json.release",
         "/pypi/{name}/{version}/json",
         factory="warehouse.legacy.api.json.release_factory",
-        read_only=True,
         domain=warehouse,
     )
     config.add_route(
         "legacy.api.json.release_slash",
         "/pypi/{name}/{version}/json/",
         factory="warehouse.legacy.api.json.release_factory",
-        read_only=True,
         domain=warehouse,
     )
 
