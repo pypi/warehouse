@@ -52,7 +52,7 @@ rooms, and mailing lists is expected to follow the `PSF Code of Conduct`_.
 .. _`architectural overview`: https://warehouse.readthedocs.io/application/
 .. _`documentation`: https://warehouse.readthedocs.io
 .. _`Getting started`: https://warehouse.readthedocs.io/development/getting-started/
-.. _`Github issue tracker`: https://github.com/pypa/warehouse/issues
+.. _`Github issue tracker`: https://github.com/pypi/warehouse/issues
 .. _`pypi.org`: https://pypi.org/
 .. _`Running tests and linters section`: https://warehouse.readthedocs.io/development/getting-started/#running-tests-and-linters
 .. _BrowserStack: https://browserstack.com/

@@ -58,12 +58,12 @@ Here are some tips.
   ``https://pypi.org/rss/packages.xml``. See :doc:`feeds` for
   descriptions. `The data differs from the legacy feed data because
   the new feeds are standards-compliant and fix inaccuracies in the
-  publication date <https://github.com/pypa/warehouse/issues/3238>`_.
+  publication date <https://github.com/pypi/warehouse/issues/3238>`_.
 
 * Documentation upload: Users can no longer use ``doc_upload`` in the
   API to upload documentation ZIP files, separate from packages, to be
   hosted at pythonhosted.org (`discussion
-  <https://github.com/pypa/warehouse/issues/509>`_).
+  <https://github.com/pypi/warehouse/issues/509>`_).
 
 * ``User-Agent`` Filtering: Some client user agents were filtered to
   always use ``legacy.pypi.org``, a temporary deployment of the legacy

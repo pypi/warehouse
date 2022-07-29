@@ -371,15 +371,15 @@ class TestRelease:
         [
             (None, None),
             (
-                "https://github.com/pypa/warehouse",
+                "https://github.com/pypi/warehouse",
                 "https://api.github.com/repos/pypa/warehouse",
             ),
             (
-                "https://github.com/pypa/warehouse/",
+                "https://github.com/pypi/warehouse/",
                 "https://api.github.com/repos/pypa/warehouse",
             ),
             (
-                "https://github.com/pypa/warehouse/tree/master",
+                "https://github.com/pypi/warehouse/tree/master",
                 "https://api.github.com/repos/pypa/warehouse",
             ),
             (

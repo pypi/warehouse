@@ -29,7 +29,7 @@ class Caveat:
     def __init__(self, verifier):
         self.verifier = verifier
         # TODO: Surface this failure reason to the user.
-        # See: https://github.com/pypa/warehouse/issues/9018
+        # See: https://github.com/pypi/warehouse/issues/9018
         self.failure_reason = None
 
     def verify(self, predicate) -> bool:

@@ -97,8 +97,8 @@ Your output looks like this:
 
   origin  https://github.com/username/warehouse.git (fetch)
   origin  https://github.com/username/warehouse.git (push)
-  upstream  https://github.com/pypa/warehouse.git (fetch)
-  upstream  https://github.com/pypa/warehouse.git (push)
+  upstream  https://github.com/pypi/warehouse.git (fetch)
+  upstream  https://github.com/pypi/warehouse.git (push)
 
 
 In the example above, ``<username>`` is your username on GitHub.

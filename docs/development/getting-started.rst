@@ -48,7 +48,7 @@ you stay up-to-date with our repository:
 
 .. code-block:: console
 
-    git remote add upstream https://github.com/pypa/warehouse.git
+    git remote add upstream https://github.com/pypi/warehouse.git
     git checkout main
     git fetch upstream
     git merge upstream/main
@@ -398,7 +398,7 @@ migrations. Try modifying your Docker configuration to allow more RAM for each
 container, temporarily stop ``make_serve`` and run ``make initdb`` again.
 
 This may also be due to enabling Compose V2 (see
-https://github.com/pypa/warehouse/issues/10772 for more details).
+https://github.com/pypi/warehouse/issues/10772 for more details).
 
 
 ``make initdb`` complains about PostgreSQL Version
@@ -426,7 +426,7 @@ which requires PostgreSQL binaries and will fail if not present.
 
 If there's a specific use case you think requires development outside
 Docker please raise an issue in
-`Warehouse's issue tracker <https://github.com/pypa/warehouse/issues>`_.
+`Warehouse's issue tracker <https://github.com/pypi/warehouse/issues>`_.
 
 
 Disabling services locally
@@ -655,8 +655,8 @@ Resources to help you learn Warehouse's context:
 .. _`pip`: https://pypi.org/project/pip
 .. _`sphinx`: https://pypi.org/project/Sphinx
 .. _`reStructured Text`: http://sphinx-doc.org/rest.html
-.. _`open issues that are labelled "good first issue"`: https://github.com/pypa/warehouse/issues?q=is%3Aissue+is%3Aopen+label%3A%22good+first+issue%22
-.. _`GitHub`: https://github.com/pypa/warehouse
+.. _`open issues that are labelled "good first issue"`: https://github.com/pypi/warehouse/issues?q=is%3Aissue+is%3Aopen+label%3A%22good+first+issue%22
+.. _`GitHub`: https://github.com/pypi/warehouse
 .. _`on Libera`: https://web.libera.chat/#pypa,#pypa-dev
 .. _`Discourse` : https://discuss.python.org/c/packaging/14
 .. _`PyPA Discord` : https://discord.gg/pypa
