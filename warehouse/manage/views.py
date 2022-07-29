@@ -154,10 +154,7 @@ from warehouse.packaging.models import (
     RoleInvitationStatus,
 )
 from warehouse.rate_limiting import IRateLimiter
-from warehouse.subscriptions.interfaces import (
-    IGenericBillingService,
-    ISubscriptionService,
-)
+from warehouse.subscriptions.interfaces import IBillingService, ISubscriptionService
 from warehouse.subscriptions.services import LocalBillingService
 from warehouse.utils.http import is_safe_url
 from warehouse.utils.organization import confirm_organization, confirm_team
@@ -1511,9 +1508,7 @@ class ManageOrganizationBillingViews:
     def __init__(self, organization, request):
         self.organization = organization
         self.request = request
-        self.billing_service = request.find_service(
-            IGenericBillingService, context=None
-        )
+        self.billing_service = request.find_service(IBillingService, context=None)
         self.subscription_service = request.find_service(
             ISubscriptionService, context=None
         )

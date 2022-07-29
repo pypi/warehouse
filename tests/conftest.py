@@ -50,10 +50,7 @@ from warehouse.metrics import IMetricsService
 from warehouse.organizations import services as organization_services
 from warehouse.organizations.interfaces import IOrganizationService
 from warehouse.subscriptions import services as subscription_services
-from warehouse.subscriptions.interfaces import (
-    IGenericBillingService,
-    ISubscriptionService,
-)
+from warehouse.subscriptions.interfaces import IBillingService, ISubscriptionService
 
 from .common.db import Session
 from .common.db.accounts import EmailFactory, UserFactory
@@ -140,7 +137,7 @@ def pyramid_services(
     services = _Services()
 
     # Register our global services.
-    services.register_service(billing_service, IGenericBillingService, None, name="")
+    services.register_service(billing_service, IBillingService, None, name="")
     services.register_service(email_service, IEmailSender, None, name="")
     services.register_service(metrics, IMetricsService, None, name="")
     services.register_service(organization_service, IOrganizationService, None, name="")
@@ -257,6 +254,11 @@ def app_config(database):
         "docs.backend": "warehouse.packaging.services.LocalDocsStorage",
         "sponsorlogos.backend": "warehouse.admin.services.LocalSponsorLogoStorage",
         "billing.backend": "warehouse.subscriptions.services.LocalBillingService",
+        "subscription.api_base": "http://stripe:12111",
+        "subscription.api_version": "2020-08-27",
+        "subscription.publishable_key": "pk_test_123",
+        "subscription.secret_key": "sk_test_123",
+        "subscription.webhook_key": "whsec_123",
         "mail.backend": "warehouse.email.services.SMTPEmailSender",
         "malware_check.backend": (
             "warehouse.malware.services.PrinterMalwareCheckService"

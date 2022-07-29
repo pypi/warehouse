@@ -21,7 +21,7 @@ from pyramid.view import view_config, view_defaults
 from warehouse.admin.flags import AdminFlagValue
 from warehouse.api.billing import handle_billing_webhook_event
 from warehouse.organizations.models import Organization
-from warehouse.subscriptions.interfaces import IGenericBillingService
+from warehouse.subscriptions.interfaces import IBillingService
 from warehouse.subscriptions.services import LocalBillingService
 
 
@@ -35,7 +35,7 @@ from warehouse.subscriptions.services import LocalBillingService
 )
 class MockBillingViews:
     def __init__(self, organization, request):
-        billing_service = request.find_service(IGenericBillingService, context=None)
+        billing_service = request.find_service(IBillingService, context=None)
         if request.flags.enabled(
             AdminFlagValue.DISABLE_ORGANIZATIONS
         ) or not isinstance(billing_service, LocalBillingService):

@@ -16,10 +16,7 @@ import stripe
 from pyramid.httpexceptions import HTTPBadRequest, HTTPNoContent, HTTPNotFound
 from pyramid.view import view_config
 
-from warehouse.subscriptions.interfaces import (
-    IGenericBillingService,
-    ISubscriptionService,
-)
+from warehouse.subscriptions.interfaces import IBillingService, ISubscriptionService
 from warehouse.subscriptions.models import SubscriptionStatus
 
 
@@ -104,7 +101,7 @@ def handle_billing_webhook_event(request, event):
     uses_session=True,
 )
 def billing_webhook(request):
-    billing_service = request.find_service(IGenericBillingService, context=None)
+    billing_service = request.find_service(IBillingService, context=None)
 
     try:
         payload = request.body
