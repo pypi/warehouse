@@ -182,6 +182,7 @@ def configure(settings=None):
     maybe_set(settings, "celery.scheduler_url", "REDIS_URL")
     maybe_set(settings, "oidc.jwk_cache_url", "REDIS_URL")
     maybe_set(settings, "database.primary.url", "DATABASE_URL")
+    maybe_set(settings, "database.replica.url", "DATABASE_REPLICA_URL")
     maybe_set(settings, "elasticsearch.url", "ELASTICSEARCH_URL")
     maybe_set(settings, "elasticsearch.url", "ELASTICSEARCH_SIX_URL")
     maybe_set(settings, "sentry.dsn", "SENTRY_DSN")
