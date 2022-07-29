@@ -84,11 +84,7 @@ def upgrade():
         sa.Column(
             "is_active", sa.Boolean(), server_default=sa.text("true"), nullable=False
         ),
-        sa.Column(
-            "recurring",
-            sa.Enum("month", "year", "week", "day", name="subscriptionpriceinterval"),
-            nullable=False,
-        ),
+        sa.Column("recurring", sa.Text(), nullable=False),
         sa.Column("tax_behavior", sa.Text(), nullable=True),
         sa.ForeignKeyConstraint(
             ["subscription_product_id"],
@@ -111,20 +107,7 @@ def upgrade():
         sa.Column(
             "subscription_price_id", postgresql.UUID(as_uuid=True), nullable=False
         ),
-        sa.Column(
-            "status",
-            sa.Enum(
-                "active",
-                "past_due",
-                "unpaid",
-                "canceled",
-                "incomplete",
-                "incomplete_expired",
-                "trialing",
-                name="subscriptionstatus",
-            ),
-            nullable=False,
-        ),
+        sa.Column("status", sa.Text(), nullable=False),
         sa.ForeignKeyConstraint(
             ["subscription_price_id"],
             ["subscription_prices.id"],
