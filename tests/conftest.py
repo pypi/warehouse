@@ -327,13 +327,13 @@ def organization_service(db_session, remote_addr):
 
 @pytest.fixture
 def billing_service():
-    stripe.api_base = os.environ["STRIPE_API_BASE"]
-    stripe.api_version = os.environ["STRIPE_API_VERSION"]
-    stripe.api_key = os.environ["STRIPE_SECRET_KEY"]
+    stripe.api_base = "http://stripe:12111"
+    stripe.api_version = "2020-08-27"
+    stripe.api_key = "sk_test_123"
     return subscription_services.LocalBillingService(
         api=stripe,
-        publishable_key=os.environ["STRIPE_PUBLISHABLE_KEY"],
-        webhook_secret=os.environ["STRIPE_WEBHOOK_SECRET"],
+        publishable_key="pk_test_123",
+        webhook_secret="whsec_123",
     )
 
 
