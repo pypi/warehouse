@@ -183,7 +183,7 @@ class TestLocalBillingService:
 
         billing_service.webhook_received(payload, sig_header)
 
-        construct_event.calls == [
+        assert construct_event.calls == [
             pretend.call(payload, sig_header, billing_service.webhook_secret),
         ]
 
