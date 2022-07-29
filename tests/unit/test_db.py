@@ -71,6 +71,12 @@ def test_with_database(matched_route, value, expected):
     assert db._select_database(request) == expected
 
 
+def test_with_database_is_true():
+    assert db.WithDatabasePredicate("foo", pretend.stub())(
+        pretend.stub(), pretend.stub()
+    )
+
+
 def test_listens_for(monkeypatch):
     venusian_attach = pretend.call_recorder(lambda fn, cb, category=None: None)
     monkeypatch.setattr(venusian, "attach", venusian_attach)
