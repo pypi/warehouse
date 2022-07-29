@@ -207,7 +207,7 @@
               {% if not request.flags.enabled(AdminFlagValue.DISABLE_ORGANIZATIONS) %}
               <li>
                 <a href="{{ request.route_path('manage.organizations') }}" class="vertical-tabs__tab vertical-tabs__tab--with-icon {% if active_tab == 'organizations' %}vertical-tabs__tab--is-active{% endif %}" {% if active_tab == 'organizations' %}aria-selected="true"{% endif %}>
-                  <i class="fa fa-users" aria-hidden="true"></i>
+                  <i class="fa fa-sitemap" aria-hidden="true"></i>
                   {% trans %}Your organizations{% endtrans %}
                 </a>
               </li>

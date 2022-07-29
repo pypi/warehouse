@@ -6,8 +6,6 @@ content managers run regexes to try and identify published secrets, and ideally
 have them deactivated. PyPI has started integrating with such systems in order
 to help secure packages.
 
-.. contents::
-    :local:
 
 How to recognize a PyPI secret
 ------------------------------

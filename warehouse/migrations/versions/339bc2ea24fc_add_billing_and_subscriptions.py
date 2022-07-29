@@ -13,7 +13,7 @@
 add_billing_and_subscriptions
 
 Revision ID: 339bc2ea24fc
-Revises: 1e61006a47c2
+Revises: 7eaad728b806
 Create Date: 2022-07-12 00:41:55.635862
 """
 
@@ -23,7 +23,7 @@ from alembic import op
 from sqlalchemy.dialects import postgresql
 
 revision = "339bc2ea24fc"
-down_revision = "1e61006a47c2"
+down_revision = "7eaad728b806"
 
 # Note: It is VERY important to ensure that a migration does not lock for a
 #       long period of time and to ensure that each individual migration does

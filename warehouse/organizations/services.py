@@ -26,6 +26,9 @@ from warehouse.organizations.models import (
     OrganizationProject,
     OrganizationRole,
     OrganizationSubscription,
+    Team,
+    TeamProjectRole,
+    TeamRole,
 )
 from warehouse.subscriptions.models import Subscription
 
@@ -323,6 +326,9 @@ class DatabaseOrganizationService:
                 self.db.query(Subscription).filter(
                     Subscription.id == subscription.id
                 ).delete()
+            # TODO: Delete any stored card data from payment processor?
+        # Delete teams (and related data)
+        self.delete_teams_by_organization(organization_id)
         # Delete organization
         self.db.delete(organization)
         self.db.flush()
@@ -430,6 +436,183 @@ class DatabaseOrganizationService:
         )
 
         self.db.delete(organization_subscription)
+        self.db.flush()
+
+    def get_teams_by_organization(self, organization_id):
+        """
+        Return a list of all team objects for the specified organization,
+        or None if there are none.
+        """
+        return self.db.query(Team).filter(Team.organization_id == organization_id).all()
+
+    def get_team(self, team_id):
+        """
+        Return a team object for the specified identifier,
+        """
+        return self.db.query(Team).get(team_id)
+
+    def find_teamid(self, organization_id, team_name):
+        """
+        Find the unique team identifier for the given organization and
+        team name or None if there is no such team.
+        """
+        normalized_name = func.normalize_team_name(team_name)
+        try:
+            (team_id,) = (
+                self.db.query(Team.id)
+                .filter(
+                    Team.organization_id == organization_id,
+                    Team.normalized_name == normalized_name,
+                )
+                .one()
+            )
+        except NoResultFound:
+            return
+
+        return team_id
+
+    def get_teams_by_user(self, user_id):
+        """
+        Return a list of all team objects associated with a given user id.
+        """
+        return (
+            self.db.query(Team)
+            .join(TeamRole, TeamRole.team_id == Team.id)
+            .filter(TeamRole.user_id == user_id)
+            .order_by(Team.name)
+            .all()
+        )
+
+    def add_team(self, organization_id, name):
+        """
+        Attempts to create a team with the specified name in an organization
+        """
+        team = Team(
+            name=name,
+            organization_id=organization_id,
+        )
+        self.db.add(team)
+        self.db.flush()
+
+        return team
+
+    def rename_team(self, team_id, name):
+        """
+        Performs operations necessary to rename a Team
+        """
+        team = self.get_team(team_id)
+
+        team.name = name
+        self.db.flush()
+
+        return team
+
+    def delete_team(self, team_id):
+        """
+        Delete team for the specified team id and all associated objects
+        """
+        team = self.get_team(team_id)
+        # Delete team members
+        self.db.query(TeamRole).filter_by(team=team).delete()
+        # Delete projects
+        self.db.query(TeamProjectRole).filter_by(team=team).delete()
+        # Delete team
+        self.db.delete(team)
+        self.db.flush()
+
+    def delete_teams_by_organization(self, organization_id):
+        """
+        Delete all teams for the specified organization id
+        """
+        teams = self.get_teams_by_organization(organization_id)
+        for team in teams:
+            self.delete_team(team.id)
+
+    def get_team_role(self, team_role_id):
+        """
+        Return the team role object that represents the given team role id,
+        """
+        return self.db.query(TeamRole).get(team_role_id)
+
+    def get_team_role_by_user(self, team_id, user_id):
+        """
+        Gets a team role for a specified team and user
+        """
+        try:
+            team_role = (
+                self.db.query(TeamRole)
+                .filter(
+                    TeamRole.team_id == team_id,
+                    TeamRole.user_id == user_id,
+                )
+                .one()
+            )
+        except NoResultFound:
+            return
+
+        return team_role
+
+    def get_team_roles(self, team_id):
+        """
+        Gets a list of organization roles for a specified org
+        """
+        return (
+            self.db.query(TeamRole).join(User).filter(TeamRole.team_id == team_id).all()
+        )
+
+    def add_team_role(self, team_id, user_id, role_name):
+        """
+        Add the team role object to a team for a specified team id and user id
+        """
+        member = TeamRole(
+            team_id=team_id,
+            user_id=user_id,
+            role_name=role_name,
+        )
+
+        self.db.add(member)
+        self.db.flush()
+
+        return member
+
+    def delete_team_role(self, team_role_id):
+        """
+        Remove the team role for a specified team id and user id
+        """
+        member = self.get_team_role(team_role_id)
+
+        self.db.delete(member)
+        self.db.flush()
+
+    def get_team_project_role(self, team_project_role_id):
+        """
+        Return the team project role object that
+        represents the given team project role id,
+        """
+        return self.db.query(TeamProjectRole).get(team_project_role_id)
+
+    def add_team_project_role(self, team_id, project_id, role_name):
+        """
+        Adds a team project role for the specified team and project
+        """
+        team_project_role = TeamProjectRole(
+            team_id=team_id,
+            project_id=project_id,
+            role_name=role_name,
+        )
+
+        self.db.add(team_project_role)
+        self.db.flush()
+
+        return team_project_role
+
+    def delete_team_project_role(self, team_project_role_id):
+        """
+        Remove a team project role for a specified team project role id
+        """
+        team_project_role = self.get_team_project_role(team_project_role_id)
+
+        self.db.delete(team_project_role)
         self.db.flush()
 
     def record_event(self, organization_id, *, tag, additional=None):

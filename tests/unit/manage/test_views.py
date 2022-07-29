@@ -55,6 +55,9 @@ from warehouse.organizations.models import (
     OrganizationRole,
     OrganizationRoleType,
     OrganizationType,
+    TeamProjectRole,
+    TeamProjectRoleType,
+    TeamRoleType,
 )
 from warehouse.packaging.models import (
     File,
@@ -75,6 +78,9 @@ from ...common.db.organizations import (
     OrganizationProjectFactory,
     OrganizationRoleFactory,
     OrganizationSubscriptionFactory,
+    TeamFactory,
+    TeamProjectRoleFactory,
+    TeamRoleFactory,
 )
 from ...common.db.packaging import (
     FileFactory,
@@ -3297,6 +3303,125 @@ class TestManageOrganizationBillingViews:
         assert result.headers["Location"] == "mock-session-url"
 
 
+class TestManageOrganizationTeams:
+    def test_manage_teams(
+        self,
+        db_request,
+        pyramid_user,
+        organization_service,
+        enable_organizations,
+        monkeypatch,
+    ):
+        organization = OrganizationFactory.create()
+        organization.teams = [TeamFactory.create()]
+
+        db_request.POST = MultiDict()
+
+        view = views.ManageOrganizationTeamsViews(organization, db_request)
+        result = view.manage_teams()
+        form = result["create_team_form"]
+
+        assert view.request == db_request
+        assert view.organization_service == organization_service
+        assert result == {
+            "organization": organization,
+            "create_team_form": form,
+        }
+
+    def test_manage_teams_disable_organizations(self, db_request):
+        organization = OrganizationFactory.create()
+
+        view = views.ManageOrganizationTeamsViews(organization, db_request)
+        with pytest.raises(HTTPNotFound):
+            view.manage_teams()
+
+    def test_create_team(
+        self,
+        db_request,
+        pyramid_user,
+        organization_service,
+        enable_organizations,
+        monkeypatch,
+    ):
+        organization = OrganizationFactory.create()
+        organization.teams = [TeamFactory.create()]
+
+        db_request.POST = MultiDict({"name": "Team Name"})
+
+        OrganizationRoleFactory.create(
+            organization=organization, user=db_request.user, role_name="Owner"
+        )
+
+        def add_team(name, *args, **kwargs):
+            team = TeamFactory.create(name=name)
+            organization.teams.append(team)
+            return team
+
+        monkeypatch.setattr(organization_service, "add_team", add_team)
+
+        send_team_created_email = pretend.call_recorder(lambda *a, **kw: None)
+        monkeypatch.setattr(
+            views,
+            "send_team_created_email",
+            send_team_created_email,
+        )
+
+        view = views.ManageOrganizationTeamsViews(organization, db_request)
+        result = view.create_team()
+
+        assert isinstance(result, HTTPSeeOther)
+        assert result.headers["Location"] == db_request.path
+        assert len(organization.teams) == 2
+        assert organization.teams[-1].name == "Team Name"
+        assert send_team_created_email.calls == [
+            pretend.call(
+                db_request,
+                {db_request.user},
+                organization_name=organization.name,
+                team_name="Team Name",
+            )
+        ]
+
+    def test_create_team_invalid(
+        self,
+        db_request,
+        pyramid_user,
+        organization_service,
+        enable_organizations,
+        monkeypatch,
+    ):
+        organization = OrganizationFactory.create()
+        organization.teams = [TeamFactory.create(name="Used Name")]
+
+        OrganizationRoleFactory.create(
+            organization=organization, user=db_request.user, role_name="Owner"
+        )
+
+        db_request.POST = MultiDict({"name": "Used Name"})
+
+        view = views.ManageOrganizationTeamsViews(organization, db_request)
+        result = view.create_team()
+        form = result["create_team_form"]
+
+        assert view.request == db_request
+        assert view.organization_service == organization_service
+        assert result == {
+            "organization": organization,
+            "create_team_form": form,
+        }
+        assert form.name.errors == [
+            "This team name has already been used. Choose a different team name."
+        ]
+        assert len(organization.teams) == 1
+
+    def test_create_team_disable_organizations(self, db_request):
+        organization = OrganizationFactory.create()
+
+        view = views.ManageOrganizationTeamsViews(organization, db_request)
+        with pytest.raises(HTTPNotFound):
+            view.create_team()
+
+
 class TestManageOrganizationProjects:
     def test_manage_organization_projects(
         self,
@@ -4637,6 +4762,612 @@ class TestDeleteOrganizationRoles:
         assert result.headers["Location"] == "/the-redirect"
 
 
+class TestManageTeamSettings:
+    def test_manage_team(
+        self, db_request, organization_service, user_service, enable_organizations
+    ):
+        team = TeamFactory.create()
+
+        view = views.ManageTeamSettingsViews(team, db_request)
+        result = view.manage_team()
+        form = result["save_team_form"]
+
+        assert view.request == db_request
+        assert view.organization_service == organization_service
+        assert view.user_service == user_service
+        assert result == {
+            "team": team,
+            "save_team_form": form,
+        }
+
+    def test_manage_team_disable_organizations(self, db_request):
+        team = TeamFactory.create()
+
+        view = views.ManageTeamSettingsViews(team, db_request)
+        with pytest.raises(HTTPNotFound):
+            view.manage_team()
+
+    def test_save_team(self, db_request, organization_service, enable_organizations):
+        team = TeamFactory.create(name="Team Name")
+        db_request.POST = MultiDict({"name": "New Team Name"})
+        db_request.route_path = pretend.call_recorder(lambda *a, **kw: "/foo/bar/")
+
+        view = views.ManageTeamSettingsViews(team, db_request)
+        result = view.save_team()
+
+        assert isinstance(result, HTTPSeeOther)
+        assert result.headers["Location"] == "/foo/bar/"
+        assert team.name == "New Team Name"
+
+    def test_save_team_validation_fails(
+        self, db_request, organization_service, enable_organizations
+    ):
+        team = TeamFactory.create(name="Team Name")
+        db_request.POST = MultiDict({"name": "Team Name"})
+
+        view = views.ManageTeamSettingsViews(team, db_request)
+        result = view.save_team()
+        form = result["save_team_form"]
+
+        assert result == {
+            "team": team,
+            "save_team_form": form,
+        }
+        assert team.name == "Team Name"
+        assert form.name.errors == [
+            ("This team name has already been used. " "Choose a different team name.")
+        ]
+
+    def test_save_team_disable_organizations(self, db_request):
+        team = TeamFactory.create()
+
+        view = views.ManageTeamSettingsViews(team, db_request)
+        with pytest.raises(HTTPNotFound):
+            view.save_team()
+
+    def test_delete_team(
+        self,
+        db_request,
+        pyramid_user,
+        organization_service,
+        user_service,
+        enable_organizations,
+        monkeypatch,
+    ):
+        team = TeamFactory.create()
+        db_request.POST = MultiDict({"confirm_team_name": team.name})
+        db_request.route_path = pretend.call_recorder(lambda *a, **kw: "/foo/bar/")
+
+        send_email = pretend.call_recorder(lambda *a, **kw: None)
+        monkeypatch.setattr(views, "send_team_deleted_email", send_email)
+
+        view = views.ManageTeamSettingsViews(team, db_request)
+        result = view.delete_team()
+
+        assert isinstance(result, HTTPSeeOther)
+        assert result.headers["Location"] == "/foo/bar/"
+        assert send_email.calls == [
+            pretend.call(
+                db_request,
+                set(),
+                organization_name=team.organization.name,
+                team_name=team.name,
+            ),
+        ]
+
+    def test_delete_team_no_confirm(
+        self,
+        db_request,
+        pyramid_user,
+        organization_service,
+        user_service,
+        enable_organizations,
+        monkeypatch,
+    ):
+        team = TeamFactory.create()
+        db_request.POST = MultiDict()
+        db_request.session = pretend.stub(
+            flash=pretend.call_recorder(lambda *a, **kw: None)
+        )
+        db_request.route_path = pretend.call_recorder(lambda *a, **kw: "/foo/bar/")
+
+        view = views.ManageTeamSettingsViews(team, db_request)
+        with pytest.raises(HTTPSeeOther):
+            view.delete_team()
+
+        assert db_request.session.flash.calls == [
+            pretend.call("Confirm the request", queue="error")
+        ]
+
+    def test_delete_team_wrong_confirm(
+        self,
+        db_request,
+        pyramid_user,
+        organization_service,
+        user_service,
+        enable_organizations,
+        monkeypatch,
+    ):
+        team = TeamFactory.create(name="Team Name")
+        db_request.POST = MultiDict({"confirm_team_name": "Wrong Team Name"})
+        db_request.session = pretend.stub(
+            flash=pretend.call_recorder(lambda *a, **kw: None)
+        )
+        db_request.route_path = pretend.call_recorder(lambda *a, **kw: "/foo/bar/")
+
+        view = views.ManageTeamSettingsViews(team, db_request)
+        with pytest.raises(HTTPSeeOther):
+            view.delete_team()
+
+        assert db_request.session.flash.calls == [
+            pretend.call(
+                (
+                    "Could not delete team - "
+                    "'Wrong Team Name' is not the same as 'Team Name'"
+                ),
+                queue="error",
+            )
+        ]
+
+    def test_delete_organization_disable_organizations(self, db_request):
+        team = TeamFactory.create()
+
+        view = views.ManageTeamSettingsViews(team, db_request)
+        with pytest.raises(HTTPNotFound):
+            view.delete_team()
+
+
+class TestManageTeamProjects:
+    def test_manage_team_projects(
+        self,
+        db_request,
+        pyramid_user,
+        organization_service,
+        enable_organizations,
+        monkeypatch,
+    ):
+        team = TeamFactory.create()
+        project = ProjectFactory.create()
+
+        TeamProjectRoleFactory.create(
+            project=project, team=team, role_name=TeamProjectRoleType.Administer
+        )
+
+        view = views.ManageTeamProjectsViews(team, db_request)
+        result = view.manage_team_projects()
+
+        assert view.team == team
+        assert view.request == db_request
+        assert result == {
+            "team": team,
+            "active_projects": view.active_projects,
+            "projects_owned": set(),
+            "projects_sole_owned": set(),
+            "projects_requiring_2fa": set(),
+        }
+
+    def test_manage_team_projects_disable_teams(self, db_request):
+        team = TeamFactory.create()
+
+        view = views.ManageTeamProjectsViews(team, db_request)
+        with pytest.raises(HTTPNotFound):
+            view.manage_team_projects()
+
+
+class TestManageTeamRoles:
+    def test_manage_team_roles(
+        self,
+        db_request,
+        organization_service,
+        user_service,
+        enable_organizations,
+    ):
+        team = TeamFactory.create()
+
+        db_request.POST = MultiDict()
+
+        view = views.ManageTeamRolesViews(team, db_request)
+        result = view.manage_team_roles()
+        form = result["form"]
+
+        assert result == {
+            "team": team,
+            "roles": [],
+            "form": form,
+        }
+
+    def test_manage_team_roles_disable_organizations(self, db_request):
+        team = TeamFactory.create()
+
+        view = views.ManageTeamRolesViews(team, db_request)
+        with pytest.raises(HTTPNotFound):
+            view.manage_team_roles()
+
+    def test_create_team_role(
+        self,
+        db_request,
+        organization_service,
+        user_service,
+        enable_organizations,
+        monkeypatch,
+    ):
+        organization = OrganizationFactory.create()
+        team = TeamFactory(organization=organization)
+        owner = UserFactory.create(username="owner")
+        manager = UserFactory.create(username="manager")
+        member = UserFactory.create(username="user")
+        OrganizationRoleFactory.create(
+            organization=organization,
+            user=owner,
+            role_name=OrganizationRoleType.Owner,
+        )
+        OrganizationRoleFactory.create(
+            organization=organization,
+            user=manager,
+            role_name=OrganizationRoleType.Manager,
+        )
+        OrganizationRoleFactory.create(
+            organization=organization,
+            user=member,
+            role_name=OrganizationRoleType.Member,
+        )
+
+        db_request.method = "POST"
+        db_request.POST = MultiDict({"username": member.username})
+        db_request.user = owner
+        db_request.session = pretend.stub(
+            flash=pretend.call_recorder(lambda *a, **kw: None)
+        )
+
+        send_team_member_added_email = pretend.call_recorder(lambda *a, **kw: None)
+        monkeypatch.setattr(
+            views,
+            "send_team_member_added_email",
+            send_team_member_added_email,
+        )
+        send_added_as_team_member_email = pretend.call_recorder(lambda *a, **kw: None)
+        monkeypatch.setattr(
+            views,
+            "send_added_as_team_member_email",
+            send_added_as_team_member_email,
+        )
+
+        view = views.ManageTeamRolesViews(team, db_request)
+        result = view.create_team_role()
+        roles = organization_service.get_team_roles(team.id)
+
+        assert len(roles) == 1
+        assert roles[0].team_id == team.id
+        assert roles[0].user_id == member.id
+        assert send_team_member_added_email.calls == [
+            pretend.call(
+                db_request,
+                {owner, manager},
+                user=member,
+                submitter=db_request.user,
+                organization_name=team.organization.name,
+                team_name=team.name,
+            )
+        ]
+        assert send_added_as_team_member_email.calls == [
+            pretend.call(
+                db_request,
+                member,
+                submitter=db_request.user,
+                organization_name=team.organization.name,
+                team_name=team.name,
+            )
+        ]
+        assert db_request.session.flash.calls == [
+            pretend.call(
+                f"Added the team {team.name!r} to {team.organization.name!r}",
+                queue="success",
+            )
+        ]
+        assert isinstance(result, HTTPSeeOther)
+
+    def test_create_team_role_duplicate_member(
+        self,
+        db_request,
+        organization_service,
+        user_service,
+        enable_organizations,
+    ):
+        organization = OrganizationFactory.create()
+        team = TeamFactory(organization=organization)
+        owner = UserFactory.create(username="owner")
+        manager = UserFactory.create(username="manager")
+        member = UserFactory.create(username="user")
+        OrganizationRoleFactory.create(
+            organization=organization,
+            user=owner,
+            role_name=OrganizationRoleType.Owner,
+        )
+        OrganizationRoleFactory.create(
+            organization=organization,
+            user=manager,
+            role_name=OrganizationRoleType.Manager,
+        )
+        OrganizationRoleFactory.create(
+            organization=organization,
+            user=member,
+            role_name=OrganizationRoleType.Member,
+        )
+        role = TeamRoleFactory.create(
+            team=team,
+            user=member,
+            role_name=TeamRoleType.Member,
+        )
+
+        db_request.method = "POST"
+        db_request.POST = MultiDict({"username": member.username})
+        db_request.user = owner
+        db_request.session = pretend.stub(
+            flash=pretend.call_recorder(lambda *a, **kw: None)
+        )
+
+        view = views.ManageTeamRolesViews(team, db_request)
+        result = view.create_team_role()
+        form = result["form"]
+
+        assert organization_service.get_team_roles(team.id) == [role]
+        assert db_request.session.flash.calls == [
+            pretend.call(
+                f"User '{member.username}' is already a team member", queue="error"
+            )
+        ]
+        assert result == {
+            "team": team,
+            "roles": [role],
+            "form": form,
+        }
+
+    def test_create_team_role_not_a_member(
+        self,
+        db_request,
+        organization_service,
+        user_service,
+        enable_organizations,
+    ):
+        organization = OrganizationFactory.create()
+        team = TeamFactory(organization=organization)
+        owner = UserFactory.create(username="owner")
+        manager = UserFactory.create(username="manager")
+        not_a_member = UserFactory.create(username="user")
+        OrganizationRoleFactory.create(
+            organization=organization,
+            user=owner,
+            role_name=OrganizationRoleType.Owner,
+        )
+        OrganizationRoleFactory.create(
+            organization=organization,
+            user=manager,
+            role_name=OrganizationRoleType.Manager,
+        )
+
+        db_request.method = "POST"
+        db_request.POST = MultiDict({"username": not_a_member.username})
+        db_request.user = owner
+        db_request.session = pretend.stub(
+            flash=pretend.call_recorder(lambda *a, **kw: None)
+        )
+
+        view = views.ManageTeamRolesViews(team, db_request)
+        result = view.create_team_role()
+        form = result["form"]
+
+        assert result == {
+            "team": team,
+            "roles": [],
+            "form": form,
+        }
+        assert form.username.errors == [
+            (
+                "No organization owner, manager, or member found "
+                "with that username. Please try again."
+            )
+        ]
+
+    def test_create_team_role_disable_organizations(self, db_request):
+        team = TeamFactory.create()
+
+        view = views.ManageTeamRolesViews(team, db_request)
+        with pytest.raises(HTTPNotFound):
+            view.create_team_role()
+
+    def test_delete_team_role(
+        self,
+        db_request,
+        organization_service,
+        user_service,
+        enable_organizations,
+        monkeypatch,
+    ):
+        organization = OrganizationFactory.create()
+        team = TeamFactory(organization=organization)
+        owner = UserFactory.create(username="owner")
+        manager = UserFactory.create(username="manager")
+        member = UserFactory.create(username="user")
+        OrganizationRoleFactory.create(
+            organization=organization,
+            user=owner,
+            role_name=OrganizationRoleType.Owner,
+        )
+        OrganizationRoleFactory.create(
+            organization=organization,
+            user=manager,
+            role_name=OrganizationRoleType.Manager,
+        )
+        OrganizationRoleFactory.create(
+            organization=organization,
+            user=member,
+            role_name=OrganizationRoleType.Member,
+        )
+        role = TeamRoleFactory.create(
+            team=team,
+            user=member,
+            role_name=TeamRoleType.Member,
+        )
+
+        db_request.method = "POST"
+        db_request.POST = MultiDict({"role_id": role.id})
+        db_request.user = owner
+        db_request.session = pretend.stub(
+            flash=pretend.call_recorder(lambda *a, **kw: None)
+        )
+        db_request.route_path = pretend.call_recorder(lambda *a, **kw: "/foo/bar/")
+
+        send_team_member_removed_email = pretend.call_recorder(lambda *a, **kw: None)
+        monkeypatch.setattr(
+            views,
+            "send_team_member_removed_email",
+            send_team_member_removed_email,
+        )
+        send_removed_as_team_member_email = pretend.call_recorder(lambda *a, **kw: None)
+        monkeypatch.setattr(
+            views,
+            "send_removed_as_team_member_email",
+            send_removed_as_team_member_email,
+        )
+
+        view = views.ManageTeamRolesViews(team, db_request)
+        result = view.delete_team_role()
+
+        assert organization_service.get_team_roles(team.id) == []
+        assert send_team_member_removed_email.calls == [
+            pretend.call(
+                db_request,
+                {owner, manager},
+                user=member,
+                submitter=db_request.user,
+                organization_name=team.organization.name,
+                team_name=team.name,
+            )
+        ]
+        assert send_removed_as_team_member_email.calls == [
+            pretend.call(
+                db_request,
+                member,
+                submitter=db_request.user,
+                organization_name=team.organization.name,
+                team_name=team.name,
+            )
+        ]
+        assert db_request.session.flash.calls == [
+            pretend.call("Removed from team", queue="success")
+        ]
+        assert isinstance(result, HTTPSeeOther)
+
+    def test_delete_team_role_not_a_member(
+        self,
+        db_request,
+        organization_service,
+        user_service,
+        enable_organizations,
+    ):
+        organization = OrganizationFactory.create()
+        team = TeamFactory(organization=organization)
+        other_team = TeamFactory(organization=organization)
+        owner = UserFactory.create(username="owner")
+        manager = UserFactory.create(username="manager")
+        not_a_member = UserFactory.create(username="user")
+        OrganizationRoleFactory.create(
+            organization=organization,
+            user=owner,
+            role_name=OrganizationRoleType.Owner,
+        )
+        OrganizationRoleFactory.create(
+            organization=organization,
+            user=manager,
+            role_name=OrganizationRoleType.Manager,
+        )
+        OrganizationRoleFactory.create(
+            organization=organization,
+            user=not_a_member,
+            role_name=OrganizationRoleType.Member,
+        )
+        other_team_role = TeamRoleFactory.create(
+            team=other_team,
+            user=not_a_member,
+            role_name=TeamRoleType.Member,
+        )
+
+        db_request.method = "POST"
+        db_request.POST = MultiDict({"role_id": other_team_role.id})
+        db_request.user = owner
+        db_request.session = pretend.stub(
+            flash=pretend.call_recorder(lambda *a, **kw: None)
+        )
+        db_request.route_path = pretend.call_recorder(lambda *a, **kw: "/foo/bar/")
+
+        view = views.ManageTeamRolesViews(team, db_request)
+        result = view.delete_team_role()
+
+        assert organization_service.get_team_roles(team.id) == []
+        assert db_request.session.flash.calls == [
+            pretend.call("Could not find member", queue="error")
+        ]
+        assert isinstance(result, HTTPSeeOther)
+
+    def test_delete_team_role_not_a_manager(
+        self,
+        db_request,
+        organization_service,
+        user_service,
+        enable_organizations,
+    ):
+        organization = OrganizationFactory.create()
+        team = TeamFactory(organization=organization)
+        owner = UserFactory.create(username="owner")
+        not_a_manager = UserFactory.create(username="manager")
+        member = UserFactory.create(username="user")
+        OrganizationRoleFactory.create(
+            organization=organization,
+            user=owner,
+            role_name=OrganizationRoleType.Owner,
+        )
+        OrganizationRoleFactory.create(
+            organization=organization,
+            user=not_a_manager,
+            role_name=OrganizationRoleType.Member,
+        )
+        OrganizationRoleFactory.create(
+            organization=organization,
+            user=member,
+            role_name=OrganizationRoleType.Member,
+        )
+        role = TeamRoleFactory.create(
+            team=team,
+            user=member,
+            role_name=TeamRoleType.Member,
+        )
+
+        db_request.method = "POST"
+        db_request.POST = MultiDict({"role_id": role.id})
+        db_request.user = not_a_manager
+        db_request.has_permission = lambda *a, **kw: False
+        db_request.session = pretend.stub(
+            flash=pretend.call_recorder(lambda *a, **kw: None)
+        )
+        db_request.route_path = pretend.call_recorder(lambda *a, **kw: "/foo/bar/")
+
+        view = views.ManageTeamRolesViews(team, db_request)
+        result = view.delete_team_role()
+
+        assert organization_service.get_team_roles(team.id) == [role]
+        assert db_request.session.flash.calls == [
+            pretend.call("Cannot remove other people from the team", queue="error")
+        ]
+        assert isinstance(result, HTTPSeeOther)
+
+    def test_delete_team_role_disable_organizations(self, db_request):
+        team = TeamFactory.create()
+
+        view = views.ManageTeamRolesViews(team, db_request)
+        with pytest.raises(HTTPNotFound):
+            view.delete_team_role()
+
+
 class TestManageProjects:
     def test_manage_projects(self, db_request):
         older_release = ReleaseFactory(created=datetime.datetime(2015, 1, 1))
@@ -4661,6 +5392,10 @@ class TestManageProjects:
         another_project_where_pypi_mandates_2fa = ProjectFactory(
             releases=[], created=datetime.datetime(2022, 3, 2), pypi_mandates_2fa=True
         )
+        team_project = ProjectFactory(
+            name="team-proj", releases=[], created=datetime.datetime(2022, 3, 3)
+        )
+
         db_request.user = UserFactory()
         RoleFactory.create(
             user=db_request.user,
@@ -4716,9 +5451,17 @@ class TestManageProjects:
             project=another_project_where_pypi_mandates_2fa,
             role_name="Maintainer",
         )
+        team = TeamFactory()
+        TeamRoleFactory.create(team=team, user=db_request.user)
+        TeamProjectRoleFactory(
+            team=team,
+            project=team_project,
+            role_name=TeamProjectRoleType.Upload,
+        )
 
         assert views.manage_projects(db_request) == {
             "projects": [
+                team_project,
                 another_project_where_pypi_mandates_2fa,
                 another_project_where_owners_require_2fa,
                 project_where_pypi_mandates_2fa,
@@ -6464,6 +7207,38 @@ class TestManageProjectRelease:
 
 
 class TestManageProjectRoles:
+    @pytest.fixture
+    def organization(self, enable_organizations, pyramid_user):
+        organization = OrganizationFactory.create()
+        OrganizationRoleFactory.create(
+            organization=organization,
+            user=pyramid_user,
+            role_name=OrganizationRoleType.Owner,
+        )
+        return organization
+
+    @pytest.fixture
+    def organization_project(self, organization):
+        project = ProjectFactory.create(organization=organization)
+        OrganizationProjectFactory(organization=organization, project=project)
+        return project
+
+    @pytest.fixture
+    def organization_member(self, organization):
+        member = UserFactory.create()
+        OrganizationRoleFactory.create(
+            organization=organization,
+            user=member,
+            role_name=OrganizationRoleType.Member,
+        )
+        return member
+
+    @pytest.fixture
+    def organization_team(self, organization, organization_member):
+        team = TeamFactory(organization=organization)
+        TeamRoleFactory.create(team=team, user=organization_member)
+        return team
+
     def test_get_manage_project_roles(self, db_request):
         user_service = pretend.stub()
         db_request.find_service = pretend.call_recorder(
@@ -6481,7 +7256,8 @@ class TestManageProjectRoles:
         result = views.manage_project_roles(project, db_request, _form_class=form_class)
 
         assert db_request.find_service.calls == [
-            pretend.call(IUserService, context=None)
+            pretend.call(IOrganizationService, context=None),
+            pretend.call(IUserService, context=None),
         ]
         assert form_class.calls == [
             pretend.call(db_request.POST, user_service=user_service)
@@ -6491,7 +7267,176 @@ class TestManageProjectRoles:
             "roles": {role},
             "invitations": {role_invitation},
             "form": form_obj,
+            "enable_internal_collaborator": False,
+            "team_project_roles": set(),
+            "internal_role_form": None,
         }
+
+    def test_post_new_internal_team_role(
+        self,
+        db_request,
+        organization_project,
+        organization_team,
+        organization_member,
+        monkeypatch,
+    ):
+        db_request.method = "POST"
+        db_request.POST = MultiDict(
+            {
+                "is_team": "true",
+                "team_name": organization_team.name,
+                "team_project_role_name": "Administer",
+                "username": "",
+                "role_name": "",
+            }
+        )
+
+        send_team_collaborator_added_email = pretend.call_recorder(
+            lambda *a, **kw: None
+        )
+        monkeypatch.setattr(
+            views,
+            "send_team_collaborator_added_email",
+            send_team_collaborator_added_email,
+        )
+        send_added_as_team_collaborator_email = pretend.call_recorder(
+            lambda *a, **kw: None
+        )
+        monkeypatch.setattr(
+            views,
+            "send_added_as_team_collaborator_email",
+            send_added_as_team_collaborator_email,
+        )
+
+        result = views.manage_project_roles(organization_project, db_request)
+
+        assert send_team_collaborator_added_email.calls == [
+            pretend.call(
+                db_request,
+                {db_request.user},
+                team=organization_team,
+                submitter=db_request.user,
+                project_name=organization_project.name,
+                role="Administer",
+            )
+        ]
+        assert send_added_as_team_collaborator_email.calls == [
+            pretend.call(
+                db_request,
+                {organization_member},
+                team=organization_team,
+                submitter=db_request.user,
+                project_name=organization_project.name,
+                role="Administer",
+            )
+        ]
+        assert isinstance(result, HTTPSeeOther)
+
+    def test_post_duplicate_internal_team_role(
+        self,
+        db_request,
+        organization_project,
+        organization_team,
+        monkeypatch,
+    ):
+        db_request.method = "POST"
+        db_request.POST = MultiDict(
+            {
+                "is_team": "true",
+                "team_name": organization_team.name,
+                "team_project_role_name": "Administer",
+                "username": "",
+                "role_name": "",
+            }
+        )
+        db_request.session = pretend.stub(
+            flash=pretend.call_recorder(lambda *a, **kw: None)
+        )
+
+        team_project_role = TeamProjectRoleFactory.create(
+            team=organization_team,
+            project=organization_project,
+            role_name=TeamProjectRoleType.Administer,
+        )
+
+        result = views.manage_project_roles(organization_project, db_request)
+        form = result["form"]
+        internal_role_form = result["internal_role_form"]
+
+        # No additional roles are created
+        assert team_project_role == db_request.db.query(TeamProjectRole).one()
+        assert db_request.session.flash.calls == [
+            pretend.call(
+                (
+                    f"Team '{organization_team.name}' already has "
+                    "Administer permissions for project"
+                ),
+                queue="error",
+            )
+        ]
+        assert result == {
+            "project": organization_project,
+            "roles": set(),
+            "invitations": set(),
+            "form": form,
+            "enable_internal_collaborator": True,
+            "team_project_roles": {team_project_role},
+            "internal_role_form": internal_role_form,
+        }
+
+    def test_post_new_internal_role(
+        self,
+        db_request,
+        organization_project,
+        organization_member,
+        monkeypatch,
+    ):
+        db_request.method = "POST"
+        db_request.POST = MultiDict(
+            {
+                "is_team": "false",
+                "team_name": "",
+                "team_project_role_name": "Administer",
+                "username": organization_member.username,
+                "role_name": "Owner",
+            }
+        )
+
+        send_collaborator_added_email = pretend.call_recorder(lambda *a, **kw: None)
+        monkeypatch.setattr(
+            views,
+            "send_collaborator_added_email",
+            send_collaborator_added_email,
+        )
+        send_added_as_collaborator_email = pretend.call_recorder(lambda *a, **kw: None)
+        monkeypatch.setattr(
+            views,
+            "send_added_as_collaborator_email",
+            send_added_as_collaborator_email,
+        )
+
+        result = views.manage_project_roles(organization_project, db_request)
+
+        assert send_collaborator_added_email.calls == [
+            pretend.call(
+                db_request,
+                {db_request.user},
+                user=organization_member,
+                submitter=db_request.user,
+                project_name=organization_project.name,
+                role="Owner",
+            )
+        ]
+        assert send_added_as_collaborator_email.calls == [
+            pretend.call(
+                db_request,
+                organization_member,
+                submitter=db_request.user,
+                project_name=organization_project.name,
+                role="Owner",
+            )
+        ]
+        assert isinstance(result, HTTPSeeOther)
 
     def test_post_new_role_validation_fails(self, db_request):
         project = ProjectFactory.create(name="foobar")
@@ -6511,7 +7456,8 @@ class TestManageProjectRoles:
         result = views.manage_project_roles(project, db_request, _form_class=form_class)
 
         assert db_request.find_service.calls == [
-            pretend.call(IUserService, context=None)
+            pretend.call(IOrganizationService, context=None),
+            pretend.call(IUserService, context=None),
         ]
         assert form_class.calls == [
             pretend.call(db_request.POST, user_service=user_service)
@@ -6522,6 +7468,9 @@ class TestManageProjectRoles:
             "roles": {role},
             "invitations": {role_invitation},
             "form": form_obj,
+            "enable_internal_collaborator": False,
+            "team_project_roles": set(),
+            "internal_role_form": None,
         }
 
     def test_post_new_role(self, monkeypatch, db_request):
@@ -6530,13 +7479,10 @@ class TestManageProjectRoles:
         EmailFactory.create(user=new_user, verified=True, primary=True)
         owner_1 = UserFactory.create(username="owner_1")
         owner_2 = UserFactory.create(username="owner_2")
-        owner_1_role = RoleFactory.create(
-            user=owner_1, project=project, role_name="Owner"
-        )
-        owner_2_role = RoleFactory.create(
-            user=owner_2, project=project, role_name="Owner"
-        )
+        RoleFactory.create(user=owner_1, project=project, role_name="Owner")
+        RoleFactory.create(user=owner_2, project=project, role_name="Owner")
 
+        organization_service = pretend.stub()
         user_service = pretend.stub(
             find_userid=lambda username: new_user.id, get_user=lambda userid: new_user
         )
@@ -6545,6 +7491,7 @@ class TestManageProjectRoles:
         )
         db_request.find_service = pretend.call_recorder(
             lambda iface, context=None, name=None: {
+                IOrganizationService: organization_service,
                 ITokenService: token_service,
                 IUserService: user_service,
             }.get(iface)
@@ -6574,32 +7521,27 @@ class TestManageProjectRoles:
         result = views.manage_project_roles(project, db_request, _form_class=form_class)
 
         assert db_request.find_service.calls == [
+            pretend.call(IOrganizationService, context=None),
             pretend.call(IUserService, context=None),
             pretend.call(ITokenService, name="email"),
         ]
         assert form_obj.validate.calls == [pretend.call()]
         assert form_class.calls == [
             pretend.call(db_request.POST, user_service=user_service),
-            pretend.call(user_service=user_service),
         ]
         assert db_request.session.flash.calls == [
             pretend.call(f"Invitation sent to '{new_user.username}'", queue="success")
         ]
 
         # Only one role invitation is created
-        role_invitation = (
+        assert (
             db_request.db.query(RoleInvitation)
             .filter(RoleInvitation.user == new_user)
             .filter(RoleInvitation.project == project)
             .one()
         )
 
-        assert result == {
-            "project": project,
-            "roles": {owner_1_role, owner_2_role},
-            "invitations": {role_invitation},
-            "form": form_obj,
-        }
+        assert isinstance(result, HTTPSeeOther)
 
         assert send_project_role_verification_email.calls == [
             pretend.call(
@@ -6625,6 +7567,7 @@ class TestManageProjectRoles:
         user = UserFactory.create(username="testuser")
         role = RoleFactory.create(user=user, project=project, role_name="Owner")
 
+        organization_service = pretend.stub()
         user_service = pretend.stub(
             find_userid=lambda username: user.id, get_user=lambda userid: user
         )
@@ -6633,6 +7576,7 @@ class TestManageProjectRoles:
         )
         db_request.find_service = pretend.call_recorder(
             lambda iface, context=None, name=None: {
+                IOrganizationService: organization_service,
                 ITokenService: token_service,
                 IUserService: user_service,
             }.get(iface)
@@ -6652,13 +7596,12 @@ class TestManageProjectRoles:
         result = views.manage_project_roles(project, db_request, _form_class=form_class)
 
         assert db_request.find_service.calls == [
+            pretend.call(IOrganizationService, context=None),
             pretend.call(IUserService, context=None),
-            pretend.call(ITokenService, name="email"),
         ]
         assert form_obj.validate.calls == [pretend.call()]
         assert form_class.calls == [
             pretend.call(db_request.POST, user_service=user_service),
-            pretend.call(user_service=user_service),
         ]
         assert db_request.session.flash.calls == [
             pretend.call(
@@ -6674,6 +7617,9 @@ class TestManageProjectRoles:
             "roles": {role},
             "invitations": set(),
             "form": form_obj,
+            "enable_internal_collaborator": False,
+            "team_project_roles": set(),
+            "internal_role_form": None,
         }
 
     def test_reinvite_role_after_expiration(self, monkeypatch, db_request):
@@ -6682,16 +7628,13 @@ class TestManageProjectRoles:
         EmailFactory.create(user=new_user, verified=True, primary=True)
         owner_1 = UserFactory.create(username="owner_1")
         owner_2 = UserFactory.create(username="owner_2")
-        owner_1_role = RoleFactory.create(
-            user=owner_1, project=project, role_name="Owner"
-        )
-        owner_2_role = RoleFactory.create(
-            user=owner_2, project=project, role_name="Owner"
-        )
-        new_user_role_invitation = RoleInvitationFactory.create(
+        RoleFactory.create(user=owner_1, project=project, role_name="Owner")
+        RoleFactory.create(user=owner_2, project=project, role_name="Owner")
+        RoleInvitationFactory.create(
             user=new_user, project=project, invite_status="expired"
         )
 
+        organization_service = pretend.stub()
         user_service = pretend.stub(
             find_userid=lambda username: new_user.id, get_user=lambda userid: new_user
         )
@@ -6700,6 +7643,7 @@ class TestManageProjectRoles:
         )
         db_request.find_service = pretend.call_recorder(
             lambda iface, context=None, name=None: {
+                IOrganizationService: organization_service,
                 ITokenService: token_service,
                 IUserService: user_service,
             }.get(iface)
@@ -6730,34 +7674,27 @@ class TestManageProjectRoles:
         result = views.manage_project_roles(project, db_request, _form_class=form_class)
 
         assert db_request.find_service.calls == [
+            pretend.call(IOrganizationService, context=None),
             pretend.call(IUserService, context=None),
             pretend.call(ITokenService, name="email"),
         ]
         assert form_obj.validate.calls == [pretend.call()]
         assert form_class.calls == [
             pretend.call(db_request.POST, user_service=user_service),
-            pretend.call(user_service=user_service),
         ]
         assert db_request.session.flash.calls == [
             pretend.call(f"Invitation sent to '{new_user.username}'", queue="success")
         ]
 
         # Only one role invitation is created
-        role_invitation = (
+        assert (
             db_request.db.query(RoleInvitation)
             .filter(RoleInvitation.user == new_user)
             .filter(RoleInvitation.project == project)
             .one()
         )
 
-        assert result["invitations"] == {new_user_role_invitation}
-
-        assert result == {
-            "project": project,
-            "roles": {owner_1_role, owner_2_role},
-            "invitations": {role_invitation},
-            "form": form_obj,
-        }
+        assert isinstance(result, HTTPSeeOther)
 
         assert send_project_role_verification_email.calls == [
             pretend.call(
@@ -6785,6 +7722,7 @@ class TestManageProjectRoles:
         if with_email:
             EmailFactory.create(user=user, verified=False, primary=True)
 
+        organization_service = pretend.stub()
         user_service = pretend.stub(
             find_userid=lambda username: user.id, get_user=lambda userid: user
         )
@@ -6795,6 +7733,7 @@ class TestManageProjectRoles:
         )
         db_request.find_service = pretend.call_recorder(
             lambda iface, context=None, name=None: {
+                IOrganizationService: organization_service,
                 ITokenService: token_service,
                 IUserService: user_service,
             }.get(iface)
@@ -6814,13 +7753,13 @@ class TestManageProjectRoles:
         result = views.manage_project_roles(project, db_request, _form_class=form_class)
 
         assert db_request.find_service.calls == [
+            pretend.call(IOrganizationService, context=None),
             pretend.call(IUserService, context=None),
             pretend.call(ITokenService, name="email"),
         ]
         assert form_obj.validate.calls == [pretend.call()]
         assert form_class.calls == [
             pretend.call(db_request.POST, user_service=user_service),
-            pretend.call(user_service=user_service),
         ]
         assert db_request.session.flash.calls == [
             pretend.call(
@@ -6838,6 +7777,9 @@ class TestManageProjectRoles:
             "roles": set(),
             "invitations": set(),
             "form": form_obj,
+            "enable_internal_collaborator": False,
+            "team_project_roles": set(),
+            "internal_role_form": None,
         }
 
     def test_cannot_reinvite_role(self, db_request):
@@ -6856,6 +7798,7 @@ class TestManageProjectRoles:
             user=new_user, project=project, invite_status="pending"
         )
 
+        organization_service = pretend.stub()
         user_service = pretend.stub(
             find_userid=lambda username: new_user.id, get_user=lambda userid: new_user
         )
@@ -6866,6 +7809,7 @@ class TestManageProjectRoles:
         )
         db_request.find_service = pretend.call_recorder(
             lambda iface, context=None, name=None: {
+                IOrganizationService: organization_service,
                 ITokenService: token_service,
                 IUserService: user_service,
             }.get(iface)
@@ -6887,13 +7831,13 @@ class TestManageProjectRoles:
         result = views.manage_project_roles(project, db_request, _form_class=form_class)
 
         assert db_request.find_service.calls == [
+            pretend.call(IOrganizationService, context=None),
             pretend.call(IUserService, context=None),
             pretend.call(ITokenService, name="email"),
         ]
         assert form_obj.validate.calls == [pretend.call()]
         assert form_class.calls == [
             pretend.call(db_request.POST, user_service=user_service),
-            pretend.call(user_service=user_service),
         ]
         assert db_request.session.flash.calls == [
             pretend.call(
@@ -6907,6 +7851,9 @@ class TestManageProjectRoles:
             "roles": {owner_1_role, owner_2_role},
             "invitations": {new_user_invitation},
             "form": form_obj,
+            "enable_internal_collaborator": False,
+            "team_project_roles": set(),
+            "internal_role_form": None,
         }
 
 
@@ -7188,7 +8135,7 @@ class TestChangeProjectRole:
         assert result.headers["Location"] == "/the-redirect"
 
 
-class TestDeleteProjectRoles:
+class TestDeleteProjectRole:
     def test_delete_role(self, db_request, monkeypatch):
         project = ProjectFactory.create(name="foobar")
         user = UserFactory.create(username="testuser")
@@ -7306,6 +8253,357 @@ class TestDeleteProjectRoles:
 
         assert db_request.session.flash.calls == [
             pretend.call("Could not find role", queue="error")
+        ]
+        assert isinstance(result, HTTPSeeOther)
+        assert result.headers["Location"] == "/the-redirect"
+
+
+class TestChangeTeamProjectRole:
+    @pytest.fixture
+    def organization(self, enable_organizations, pyramid_user):
+        organization = OrganizationFactory.create()
+        OrganizationRoleFactory.create(
+            organization=organization,
+            user=pyramid_user,
+            role_name=OrganizationRoleType.Owner,
+        )
+        return organization
+
+    @pytest.fixture
+    def organization_project(self, organization):
+        project = ProjectFactory.create(organization=organization)
+        OrganizationProjectFactory(organization=organization, project=project)
+        return project
+
+    @pytest.fixture
+    def organization_member(self, organization):
+        member = UserFactory.create()
+        OrganizationRoleFactory.create(
+            organization=organization,
+            user=member,
+            role_name=OrganizationRoleType.Member,
+        )
+        return member
+
+    @pytest.fixture
+    def organization_team(self, organization, organization_member):
+        team = TeamFactory(organization=organization)
+        TeamRoleFactory.create(team=team, user=organization_member)
+        return team
+
+    def test_change_role(
+        self,
+        db_request,
+        pyramid_user,
+        organization_member,
+        organization_team,
+        organization_project,
+        monkeypatch,
+    ):
+        role = TeamProjectRoleFactory.create(
+            team=organization_team,
+            project=organization_project,
+            role_name=TeamProjectRoleType.Administer,
+        )
+        new_role_name = TeamProjectRoleType.Upload
+
+        db_request.method = "POST"
+        db_request.POST = MultiDict(
+            {"role_id": role.id, "team_project_role_name": new_role_name}
+        )
+        db_request.session = pretend.stub(
+            flash=pretend.call_recorder(lambda *a, **kw: None)
+        )
+        db_request.route_path = pretend.call_recorder(lambda *a, **kw: "/the-redirect")
+
+        send_team_collaborator_role_changed_email = pretend.call_recorder(
+            lambda *a, **kw: None
+        )
+        monkeypatch.setattr(
+            views,
+            "send_team_collaborator_role_changed_email",
+            send_team_collaborator_role_changed_email,
+        )
+        send_role_changed_as_team_collaborator_email = pretend.call_recorder(
+            lambda *a, **kw: None
+        )
+        monkeypatch.setattr(
+            views,
+            "send_role_changed_as_team_collaborator_email",
+            send_role_changed_as_team_collaborator_email,
+        )
+
+        result = views.change_team_project_role(organization_project, db_request)
+
+        assert role.role_name == new_role_name
+        assert db_request.route_path.calls == [
+            pretend.call("manage.project.roles", project_name=organization_project.name)
+        ]
+        assert send_team_collaborator_role_changed_email.calls == [
+            pretend.call(
+                db_request,
+                {pyramid_user},
+                team=organization_team,
+                submitter=pyramid_user,
+                project_name=organization_project.name,
+                role=new_role_name.value,
+            )
+        ]
+        assert send_role_changed_as_team_collaborator_email.calls == [
+            pretend.call(
+                db_request,
+                {organization_member},
+                team=organization_team,
+                submitter=pyramid_user,
+                project_name=organization_project.name,
+                role=new_role_name.value,
+            )
+        ]
+        assert db_request.session.flash.calls == [
+            pretend.call("Changed permissions", queue="success")
+        ]
+        assert isinstance(result, HTTPSeeOther)
+        assert result.headers["Location"] == "/the-redirect"
+
+        entry = (
+            db_request.db.query(JournalEntry).options(joinedload("submitted_by")).one()
+        )
+
+        assert entry.name == organization_project.name
+        assert entry.action == f"change Administer {organization_team.name} to Upload"
+        assert entry.submitted_by == db_request.user
+        assert entry.submitted_from == db_request.remote_addr
+
+    def test_change_role_invalid_role_name(self, pyramid_request, organization_project):
+        pyramid_request.method = "POST"
+        pyramid_request.POST = MultiDict(
+            {
+                "role_id": str(uuid.uuid4()),
+                "team_project_role_name": "Invalid Role Name",
+            }
+        )
+        pyramid_request.route_path = pretend.call_recorder(
+            lambda *a, **kw: "/the-redirect"
+        )
+
+        result = views.change_team_project_role(organization_project, pyramid_request)
+
+        assert pyramid_request.route_path.calls == [
+            pretend.call("manage.project.roles", project_name=organization_project.name)
+        ]
+        assert isinstance(result, HTTPSeeOther)
+        assert result.headers["Location"] == "/the-redirect"
+
+    def test_change_missing_role(self, db_request, organization_project):
+        missing_role_id = str(uuid.uuid4())
+
+        db_request.method = "POST"
+        db_request.POST = MultiDict(
+            {"role_id": missing_role_id, "team_project_role_name": "Administer"}
+        )
+        db_request.session = pretend.stub(
+            flash=pretend.call_recorder(lambda *a, **kw: None)
+        )
+        db_request.route_path = pretend.call_recorder(lambda *a, **kw: "/the-redirect")
+
+        result = views.change_team_project_role(organization_project, db_request)
+
+        assert db_request.session.flash.calls == [
+            pretend.call("Could not find permissions", queue="error")
+        ]
+        assert isinstance(result, HTTPSeeOther)
+        assert result.headers["Location"] == "/the-redirect"
+
+    def test_change_own_owner_role(
+        self,
+        db_request,
+        organization_member,
+        organization_team,
+        organization_project,
+    ):
+        role = TeamProjectRoleFactory.create(
+            team=organization_team,
+            project=organization_project,
+            role_name=TeamProjectRoleType.Administer,
+        )
+
+        db_request.method = "POST"
+        db_request.user = organization_member
+        db_request.POST = MultiDict(
+            {"role_id": role.id, "team_project_role_name": "Upload"}
+        )
+        db_request.session = pretend.stub(
+            flash=pretend.call_recorder(lambda *a, **kw: None)
+        )
+        db_request.route_path = pretend.call_recorder(lambda *a, **kw: "/the-redirect")
+
+        result = views.change_team_project_role(organization_project, db_request)
+
+        assert db_request.session.flash.calls == [
+            pretend.call(
+                "Cannot remove your own team with Administer permissions", queue="error"
+            )
+        ]
+        assert isinstance(result, HTTPSeeOther)
+        assert result.headers["Location"] == "/the-redirect"
+
+
+class TestDeleteTeamProjectRole:
+    @pytest.fixture
+    def organization(self, enable_organizations, pyramid_user):
+        organization = OrganizationFactory.create()
+        OrganizationRoleFactory.create(
+            organization=organization,
+            user=pyramid_user,
+            role_name=OrganizationRoleType.Owner,
+        )
+        return organization
+
+    @pytest.fixture
+    def organization_project(self, organization):
+        project = ProjectFactory.create(organization=organization)
+        OrganizationProjectFactory(organization=organization, project=project)
+        return project
+
+    @pytest.fixture
+    def organization_member(self, organization):
+        member = UserFactory.create()
+        OrganizationRoleFactory.create(
+            organization=organization,
+            user=member,
+            role_name=OrganizationRoleType.Member,
+        )
+        return member
+
+    @pytest.fixture
+    def organization_team(self, organization, organization_member):
+        team = TeamFactory(organization=organization)
+        TeamRoleFactory.create(team=team, user=organization_member)
+        return team
+
+    def test_delete_role(
+        self,
+        db_request,
+        organization_member,
+        organization_team,
+        organization_project,
+        pyramid_user,
+        monkeypatch,
+    ):
+        role = TeamProjectRoleFactory.create(
+            team=organization_team,
+            project=organization_project,
+            role_name=TeamProjectRoleType.Administer,
+        )
+
+        db_request.method = "POST"
+        db_request.POST = MultiDict({"role_id": role.id})
+        db_request.session = pretend.stub(
+            flash=pretend.call_recorder(lambda *a, **kw: None)
+        )
+        db_request.route_path = pretend.call_recorder(lambda *a, **kw: "/the-redirect")
+
+        send_team_collaborator_removed_email = pretend.call_recorder(
+            lambda *a, **kw: None
+        )
+        monkeypatch.setattr(
+            views,
+            "send_team_collaborator_removed_email",
+            send_team_collaborator_removed_email,
+        )
+        send_removed_as_team_collaborator_email = pretend.call_recorder(
+            lambda *a, **kw: None
+        )
+        monkeypatch.setattr(
+            views,
+            "send_removed_as_team_collaborator_email",
+            send_removed_as_team_collaborator_email,
+        )
+
+        result = views.delete_team_project_role(organization_project, db_request)
+
+        assert db_request.route_path.calls == [
+            pretend.call("manage.project.roles", project_name=organization_project.name)
+        ]
+        assert db_request.db.query(TeamProjectRole).all() == []
+        assert send_team_collaborator_removed_email.calls == [
+            pretend.call(
+                db_request,
+                {pyramid_user},
+                team=organization_team,
+                submitter=pyramid_user,
+                project_name=organization_project.name,
+            )
+        ]
+        assert send_removed_as_team_collaborator_email.calls == [
+            pretend.call(
+                db_request,
+                {organization_member},
+                team=organization_team,
+                submitter=pyramid_user,
+                project_name=organization_project.name,
+            )
+        ]
+        assert db_request.session.flash.calls == [
+            pretend.call("Removed permissions", queue="success")
+        ]
+        assert isinstance(result, HTTPSeeOther)
+        assert result.headers["Location"] == "/the-redirect"
+
+        entry = (
+            db_request.db.query(JournalEntry).options(joinedload("submitted_by")).one()
+        )
+
+        assert entry.name == organization_project.name
+        assert entry.action == f"remove Administer {organization_team.name}"
+        assert entry.submitted_by == db_request.user
+        assert entry.submitted_from == db_request.remote_addr
+
+    def test_delete_missing_role(self, db_request, organization_project):
+        missing_role_id = str(uuid.uuid4())
+
+        db_request.method = "POST"
+        db_request.POST = MultiDict({"role_id": missing_role_id})
+        db_request.session = pretend.stub(
+            flash=pretend.call_recorder(lambda *a, **kw: None)
+        )
+        db_request.route_path = pretend.call_recorder(lambda *a, **kw: "/the-redirect")
+
+        result = views.delete_team_project_role(organization_project, db_request)
+
+        assert db_request.session.flash.calls == [
+            pretend.call("Could not find permissions", queue="error")
+        ]
+        assert isinstance(result, HTTPSeeOther)
+        assert result.headers["Location"] == "/the-redirect"
+
+    def test_delete_own_owner_role(
+        self,
+        db_request,
+        organization_member,
+        organization_team,
+        organization_project,
+    ):
+        role = TeamProjectRoleFactory.create(
+            team=organization_team,
+            project=organization_project,
+            role_name=TeamProjectRoleType.Administer,
+        )
+
+        db_request.method = "POST"
+        db_request.user = organization_member
+        db_request.POST = MultiDict({"role_id": role.id})
+        db_request.session = pretend.stub(
+            flash=pretend.call_recorder(lambda *a, **kw: None)
+        )
+        db_request.route_path = pretend.call_recorder(lambda *a, **kw: "/the-redirect")
+
+        result = views.delete_team_project_role(organization_project, db_request)
+
+        assert db_request.session.flash.calls == [
+            pretend.call(
+                "Cannot remove your own team with Administer permissions", queue="error"
+            )
         ]
         assert isinstance(result, HTTPSeeOther)
         assert result.headers["Location"] == "/the-redirect"
@@ -7432,125 +8730,6 @@ class TestManageProjectHistory:
 
         with pytest.raises(HTTPNotFound):
             assert views.manage_project_history(project, db_request)
-
-
-class TestManageProjectJournal:
-    def test_get(self, db_request):
-        project = ProjectFactory.create()
-        older_journal = JournalEntryFactory.create(
-            name=project.name,
-            submitted_date=datetime.datetime(2017, 2, 5, 17, 18, 18, 462_634),
-        )
-        newer_journal = JournalEntryFactory.create(
-            name=project.name,
-            submitted_date=datetime.datetime(2018, 2, 5, 17, 18, 18, 462_634),
-        )
-
-        assert views.manage_project_journal(project, db_request) == {
-            "project": project,
-            "journals": [newer_journal, older_journal],
-        }
-
-    def test_raises_400_with_pagenum_type_str(self, monkeypatch, db_request):
-        params = MultiDict({"page": "abc"})
-        db_request.params = params
-
-        journals_query = pretend.stub()
-        db_request.journals_query = pretend.stub(
-            journals_query=lambda *a, **kw: journals_query
-        )
-
-        page_obj = pretend.stub(page_count=10, item_count=1000)
-        page_cls = pretend.call_recorder(lambda *a, **kw: page_obj)
-        monkeypatch.setattr(views, "SQLAlchemyORMPage", page_cls)
-
-        url_maker = pretend.stub()
-        url_maker_factory = pretend.call_recorder(lambda request: url_maker)
-        monkeypatch.setattr(views, "paginate_url_factory", url_maker_factory)
-
-        project = ProjectFactory.create()
-        with pytest.raises(HTTPBadRequest):
-            views.manage_project_journal(project, db_request)
-
-        assert page_cls.calls == []
-
-    def test_first_page(self, db_request):
-        page_number = 1
-        params = MultiDict({"page": page_number})
-        db_request.params = params
-
-        project = ProjectFactory.create()
-        items_per_page = 25
-        total_items = items_per_page + 2
-        for _ in range(total_items):
-            JournalEntryFactory.create(
-                name=project.name, submitted_date=datetime.datetime.now()
-            )
-        journals_query = (
-            db_request.db.query(JournalEntry)
-            .options(joinedload("submitted_by"))
-            .filter(JournalEntry.name == project.name)
-            .order_by(JournalEntry.submitted_date.desc(), JournalEntry.id.desc())
-        )
-
-        journals_page = SQLAlchemyORMPage(
-            journals_query,
-            page=page_number,
-            items_per_page=items_per_page,
-            item_count=total_items,
-            url_maker=paginate_url_factory(db_request),
-        )
-        assert views.manage_project_journal(project, db_request) == {
-            "project": project,
-            "journals": journals_page,
-        }
-
-    def test_last_page(self, db_request):
-        page_number = 2
-        params = MultiDict({"page": page_number})
-        db_request.params = params
-
-        project = ProjectFactory.create()
-        items_per_page = 25
-        total_items = items_per_page + 2
-        for _ in range(total_items):
-            JournalEntryFactory.create(
-                name=project.name, submitted_date=datetime.datetime.now()
-            )
-        journals_query = (
-            db_request.db.query(JournalEntry)
-            .options(joinedload("submitted_by"))
-            .filter(JournalEntry.name == project.name)
-            .order_by(JournalEntry.submitted_date.desc(), JournalEntry.id.desc())
-        )
-
-        journals_page = SQLAlchemyORMPage(
-            journals_query,
-            page=page_number,
-            items_per_page=items_per_page,
-            item_count=total_items,
-            url_maker=paginate_url_factory(db_request),
-        )
-        assert views.manage_project_journal(project, db_request) == {
-            "project": project,
-            "journals": journals_page,
-        }
-
-    def test_raises_404_with_out_of_range_page(self, db_request):
-        page_number = 3
-        params = MultiDict({"page": page_number})
-        db_request.params = params
-
-        project = ProjectFactory.create()
-        items_per_page = 25
-        total_items = items_per_page + 2
-        for _ in range(total_items):
-            JournalEntryFactory.create(
-                name=project.name, submitted_date=datetime.datetime.now()
-            )
-
-        with pytest.raises(HTTPNotFound):
-            assert views.manage_project_journal(project, db_request)
 
 
 class TestManageOIDCProviderViews:

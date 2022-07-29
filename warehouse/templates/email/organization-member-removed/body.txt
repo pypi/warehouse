@@ -16,7 +16,7 @@
 {% set site = request.registry.settings["site.name"] %}
 
 {% block content %}
-{% trans username=username, organization_name=organization_name %}{{ username }} has been removed from the "{{ organization_nmae }}" organization{% endtrans %}:
+{% trans username=username, organization_name=organization_name %}{{ username }} has been removed from the "{{ organization_name }}" organization{% endtrans %}:
 
   {% trans %}Username{% endtrans %}: {{ username }}
   {% trans %}Member of{% endtrans %}: {{ organization_name }}
