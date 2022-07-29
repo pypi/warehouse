@@ -120,14 +120,17 @@ def test_raises_db_available_error(pyramid_services, metrics):
     request = pretend.stub(
         find_service=pyramid_services.find_service,
         registry={"sqlalchemy.engines": {"primary": engine}},
+        read_only=False,
     )
 
     with pytest.raises(DatabaseNotAvailableError):
         _create_session(request)
 
     assert metrics.increment.calls == [
-        pretend.call("warehouse.db.session.start"),
-        pretend.call("warehouse.db.session.error", tags=["error_in:connecting"]),
+        pretend.call("warehouse.db.session.start", tags=["db:primary"]),
+        pretend.call(
+            "warehouse.db.session.error", tags=["error_in:connecting", "db:primary"]
+        ),
     ]
 
 
@@ -146,9 +149,10 @@ def test_create_session(monkeypatch, pyramid_services):
         close=pretend.call_recorder(lambda: None),
     )
     engine = pretend.stub(connect=pretend.call_recorder(lambda: connection))
+    replica_engine = pretend.stub(connect=pretend.call_recorder(lambda: connection))
     request = pretend.stub(
         find_service=pyramid_services.find_service,
-        registry={"sqlalchemy.engines": {"primary": engine}},
+        registry={"sqlalchemy.engines": {"primary": engine, "replica": replica_engine}},
         tm=pretend.stub(),
         add_finished_callback=pretend.call_recorder(lambda callback: None),
     )
@@ -245,6 +249,56 @@ def test_includeme(monkeypatch):
             pool_size=35,
             max_overflow=65,
             pool_timeout=20,
-        )
+            logging_name="primary",
+        ),
     ]
     assert config.registry["sqlalchemy.engines"]["primary"] is engine
+    assert config.registry["sqlalchemy.engines"]["replica"] is engine
+
+
+def test_includeme_with_replica(monkeypatch):
+    class FakeRegistry(dict):
+        settings = {
+            "database.primary.url": pretend.stub(),
+            "database.replica.url": pretend.stub(),
+        }
+
+    engine = pretend.stub()
+    replica_engine = pretend.stub()
+    create_engine = pretend.call_recorder(
+        lambda url, **kw: engine if kw["logging_name"] == "primary" else replica_engine
+    )
+    config = pretend.stub(
+        add_directive=pretend.call_recorder(lambda *a: None),
+        registry=FakeRegistry(),
+        add_request_method=pretend.call_recorder(lambda f, name, reify: None),
+        add_route_predicate=pretend.call_recorder(lambda *a, **kw: None),
+    )
+
+    monkeypatch.setattr(sqlalchemy, "create_engine", create_engine)
+
+    includeme(config)
+
+    assert config.add_directive.calls == [
+        pretend.call("alembic_config", _configure_alembic)
+    ]
+    assert create_engine.calls == [
+        pretend.call(
+            config.registry.settings["database.primary.url"],
+            isolation_level=DEFAULT_ISOLATION,
+            pool_size=35,
+            max_overflow=65,
+            pool_timeout=20,
+            logging_name="primary",
+        ),
+        pretend.call(
+            config.registry.settings["database.replica.url"],
+            isolation_level=DEFAULT_ISOLATION,
+            pool_size=35,
+            max_overflow=65,
+            pool_timeout=20,
+            logging_name="replica",
+        ),
+    ]
+    assert config.registry["sqlalchemy.engines"]["primary"] is engine
+    assert config.registry["sqlalchemy.engines"]["replica"] is replica_engine
