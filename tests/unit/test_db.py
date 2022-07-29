@@ -53,6 +53,24 @@ def test_model_base_repr(monkeypatch):
     assert repr(model) == "Base(foo={})".format(repr("bar"))
 
 
+@pytest.mark.parametrize(
+    "matched_route,value,expected",
+    [
+        (None, None, "primary"),
+        (True, None, "primary"),
+        (True, "primary", "primary"),
+        (True, "replica", "replica"),
+    ],
+)
+def test_with_database(matched_route, value, expected):
+    route = pretend.stub(predicates=[])
+    if value is not None:
+        route.predicates.append(db.WithDatabasePredicate(value, pretend.stub()))
+    request = pretend.stub(matched_route=route if matched_route else None)
+
+    assert db._select_database(request) == expected
+
+
 def test_listens_for(monkeypatch):
     venusian_attach = pretend.call_recorder(lambda fn, cb, category=None: None)
     monkeypatch.setattr(venusian, "attach", venusian_attach)
@@ -102,9 +120,12 @@ def test_configure_alembic(monkeypatch):
     ]
 
 
-def test_raises_db_available_error(pyramid_services, metrics):
+def test_raises_db_available_error(monkeypatch, pyramid_services, metrics):
     def raiser():
         raise OperationalError("foo", {}, psycopg2.OperationalError())
+
+    def select_database(request):
+        return "primary"
 
     engine = pretend.stub(connect=raiser)
     request = pretend.stub(
@@ -112,6 +133,7 @@ def test_raises_db_available_error(pyramid_services, metrics):
         registry={"sqlalchemy.engines": {"primary": engine}},
         read_only=False,
     )
+    monkeypatch.setattr(db, "_select_database", select_database)
 
     with pytest.raises(DatabaseNotAvailableError):
         _create_session(request)
@@ -124,7 +146,8 @@ def test_raises_db_available_error(pyramid_services, metrics):
     ]
 
 
-def test_create_session(monkeypatch, pyramid_services):
+@pytest.mark.parametrize("db_name", ["primary", "replica"])
+def test_create_session(monkeypatch, pyramid_services, db_name):
     session_obj = pretend.stub(
         close=pretend.call_recorder(lambda: None),
         query=lambda *a: pretend.stub(get=lambda *a: None),
@@ -132,10 +155,13 @@ def test_create_session(monkeypatch, pyramid_services):
     session_cls = pretend.call_recorder(lambda bind: session_obj)
     monkeypatch.setattr(db, "Session", session_cls)
 
+    def select_database(request):
+        return db_name
+
+    monkeypatch.setattr(db, "_select_database", select_database)
+
     connection = pretend.stub(
-        connection=pretend.stub(
-            # set_session=pretend.call_recorder(lambda **kw: None),
-        ),
+        connection=pretend.stub(),
         close=pretend.call_recorder(lambda: None),
     )
     engine = pretend.stub(connect=pretend.call_recorder(lambda: connection))
@@ -185,6 +211,11 @@ def test_create_session_read_only_mode(
     )
     session_cls = pretend.call_recorder(lambda bind: session_obj)
     monkeypatch.setattr(db, "Session", session_cls)
+
+    def select_database(request):
+        return "primary"
+
+    monkeypatch.setattr(db, "_select_database", select_database)
 
     register = pretend.call_recorder(lambda session, transaction_manager: None)
     monkeypatch.setattr(zope.sqlalchemy, "register", register)
