@@ -273,11 +273,11 @@ class LocalBillingService(GenericBillingService):
     @classmethod
     def create_service(cls, context, request):
         # Override api_base to hit mock-stripe in development
-        stripe.api_base = request.registry.settings["subscription.api_base"]
-        stripe.api_version = request.registry.settings["subscription.api_version"]
-        stripe.api_key = request.registry.settings["subscription.secret_key"]
-        publishable_key = request.registry.settings["subscription.publishable_key"]
-        webhook_secret = request.registry.settings["subscription.webhook_key"]
+        stripe.api_base = request.registry.settings["billing.api_base"]
+        stripe.api_version = request.registry.settings["billing.api_version"]
+        stripe.api_key = request.registry.settings["billing.secret_key"]
+        publishable_key = request.registry.settings["billing.publishable_key"]
+        webhook_secret = request.registry.settings["billing.webhook_key"]
 
         return cls(stripe, publishable_key, webhook_secret)
 
@@ -286,10 +286,10 @@ class LocalBillingService(GenericBillingService):
 class StripeBillingService(GenericBillingService):
     @classmethod
     def create_service(cls, context, request):
-        stripe.api_version = request.registry.settings["subscription.api_version"]
-        stripe.api_key = request.registry.settings["subscription.secret_key"]
-        publishable_key = request.registry.settings["subscription.publishable_key"]
-        webhook_secret = request.registry.settings["subscription.webhook_key"]
+        stripe.api_version = request.registry.settings["billing.api_version"]
+        stripe.api_key = request.registry.settings["billing.secret_key"]
+        publishable_key = request.registry.settings["billing.publishable_key"]
+        webhook_secret = request.registry.settings["billing.webhook_key"]
 
         return cls(stripe, publishable_key, webhook_secret)
 

@@ -67,11 +67,11 @@ class TestStripeBillingService:
         request = pretend.stub(
             registry=pretend.stub(
                 settings={
-                    "subscription.api_base": "http://stripe:12111",
-                    "subscription.api_version": "2020-08-27",
-                    "subscription.secret_key": "sk_test_123",
-                    "subscription.publishable_key": "pk_test_123",
-                    "subscription.webhook_key": "whsec_123",
+                    "billing.api_base": "http://stripe:12111",
+                    "billing.api_version": "2020-08-27",
+                    "billing.secret_key": "sk_test_123",
+                    "billing.publishable_key": "pk_test_123",
+                    "billing.webhook_key": "whsec_123",
                 }
             )
         )
@@ -105,11 +105,11 @@ class TestLocalBillingService:
         request = pretend.stub(
             registry=pretend.stub(
                 settings={
-                    "subscription.api_base": "http://stripe:12111",
-                    "subscription.api_version": "2020-08-27",
-                    "subscription.secret_key": "sk_test_123",
-                    "subscription.publishable_key": "pk_test_123",
-                    "subscription.webhook_key": "whsec_123",
+                    "billing.api_base": "http://stripe:12111",
+                    "billing.api_version": "2020-08-27",
+                    "billing.secret_key": "sk_test_123",
+                    "billing.publishable_key": "pk_test_123",
+                    "billing.webhook_key": "whsec_123",
                 }
             )
         )
