@@ -63,8 +63,10 @@ jobs:
       stripe:
         image: stripe/stripe-mock:v0.140.0
         ports:
-          - "12111-12112:12111-12112"
+          - 12111:12111
     name: ${{ matrix.name }}
+    env:
+      STRIPE_API_BASE: http://localhost:12111
     steps:
       - name: Check out repository
         uses: actions/checkout@v3

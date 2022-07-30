@@ -254,7 +254,7 @@ def app_config(database):
         "docs.backend": "warehouse.packaging.services.LocalDocsStorage",
         "sponsorlogos.backend": "warehouse.admin.services.LocalSponsorLogoStorage",
         "billing.backend": "warehouse.subscriptions.services.LocalBillingService",
-        "billing.api_base": "http://stripe:12111",
+        # "billing.api_base": Always set using STRIPE_API_BASE environment variable.
         "billing.api_version": "2020-08-27",
         "billing.publishable_key": "pk_test_123",
         "billing.secret_key": "sk_test_123",
@@ -326,14 +326,14 @@ def organization_service(db_session, remote_addr):
 
 
 @pytest.fixture
-def billing_service():
-    stripe.api_base = "http://stripe:12111"
-    stripe.api_version = "2020-08-27"
-    stripe.api_key = "sk_test_123"
+def billing_service(app_config):
+    stripe.api_base = app_config.registry.settings["billing.api_base"]
+    stripe.api_version = app_config.registry.settings["billing.api_version"]
+    stripe.api_key = app_config.registry.settings["billing.secret_key"]
     return subscription_services.LocalBillingService(
         api=stripe,
-        publishable_key="pk_test_123",
-        webhook_secret="whsec_123",
+        publishable_key=app_config.registry.settings["billing.publishable_key"],
+        webhook_secret=app_config.registry.settings["billing.webhook_key"],
     )
 
 

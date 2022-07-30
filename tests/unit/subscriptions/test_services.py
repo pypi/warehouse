@@ -67,7 +67,7 @@ class TestStripeBillingService:
         request = pretend.stub(
             registry=pretend.stub(
                 settings={
-                    "billing.api_base": "http://stripe:12111",
+                    "billing.api_base": "http://localhost:12111",
                     "billing.api_version": "2020-08-27",
                     "billing.secret_key": "sk_test_123",
                     "billing.publishable_key": "pk_test_123",
@@ -77,7 +77,7 @@ class TestStripeBillingService:
         )
         billing_service = StripeBillingService.create_service(None, request)
         # Assert api_base isn't overwritten with mock service even if we try
-        assert not billing_service.api.api_base == "http://stripe:12111"
+        assert not billing_service.api.api_base == "http://localhost:12111"
         assert billing_service.api.api_version == "2020-08-27"
         assert billing_service.api.api_key == "sk_test_123"
         assert billing_service.publishable_key == "pk_test_123"
@@ -105,7 +105,7 @@ class TestLocalBillingService:
         request = pretend.stub(
             registry=pretend.stub(
                 settings={
-                    "billing.api_base": "http://stripe:12111",
+                    "billing.api_base": "http://localhost:12111",
                     "billing.api_version": "2020-08-27",
                     "billing.secret_key": "sk_test_123",
                     "billing.publishable_key": "pk_test_123",
@@ -114,7 +114,7 @@ class TestLocalBillingService:
             )
         )
         billing_service = LocalBillingService.create_service(None, request)
-        assert billing_service.api.api_base == "http://stripe:12111"
+        assert billing_service.api.api_base == "http://localhost:12111"
         assert billing_service.api.api_version == "2020-08-27"
         assert billing_service.api.api_key == "sk_test_123"
         assert billing_service.publishable_key == "pk_test_123"

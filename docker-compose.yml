@@ -37,7 +37,7 @@ services:
   stripe:
     image: stripe/stripe-mock:v0.140.0
     ports:
-      - "12111-12112:12111-12112"
+      - "12111:12111"
 
   redis:
     image: redis:4.0
