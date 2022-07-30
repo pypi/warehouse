@@ -35,15 +35,9 @@ services:
       test: ["CMD", "pg_isready", "-U", "postgres", "-d", "postgres"]
   
   stripe:
-    image: stripe/stripe-mock:latest
+    image: stripe/stripe-mock:v0.140.0
     ports:
       - "12111-12112:12111-12112"
-    environment:
-      STRIPE_API_BASE: "http://stripe:12111"
-      STRIPE_PUBLISHABLE_KEY: "pk_test_123"
-      STRIPE_SECRET_KEY: "sk_test_123"
-      STRIPE_WEBHOOK_SECRET: "whsec_123"
-      BILLING_BACKEND: "warehouse.subscriptions.services.LocalBillingService"
 
   redis:
     image: redis:4.0
