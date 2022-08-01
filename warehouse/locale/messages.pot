@@ -354,11 +354,11 @@ msgid ""
 "cannot be added as a ${role_name} for organization"
 msgstr ""
 
-#: warehouse/manage/views.py:1831 warehouse/manage/views.py:3968
+#: warehouse/manage/views.py:1831 warehouse/manage/views.py:3978
 msgid "User '${username}' already has an active invite. Please try again later."
 msgstr ""
 
-#: warehouse/manage/views.py:1888 warehouse/manage/views.py:4036
+#: warehouse/manage/views.py:1888 warehouse/manage/views.py:4046
 msgid "Invitation sent to '${username}'"
 msgstr ""
 
@@ -366,11 +366,11 @@ msgstr ""
 msgid "Could not find organization invitation."
 msgstr ""
 
-#: warehouse/manage/views.py:1945 warehouse/manage/views.py:4080
+#: warehouse/manage/views.py:1945 warehouse/manage/views.py:4090
 msgid "Invitation already expired."
 msgstr ""
 
-#: warehouse/manage/views.py:1978 warehouse/manage/views.py:4104
+#: warehouse/manage/views.py:1978 warehouse/manage/views.py:4114
 msgid "Invitation revoked from '${username}'."
 msgstr ""
 
@@ -378,27 +378,27 @@ msgstr ""
 msgid "User '${username}' is already a team member"
 msgstr ""
 
-#: warehouse/manage/views.py:2791
+#: warehouse/manage/views.py:2797
 msgid ""
 "There have been too many attempted OpenID Connect registrations. Try "
 "again later."
 msgstr ""
 
-#: warehouse/manage/views.py:3854
+#: warehouse/manage/views.py:3864
 msgid "User '${username}' already has ${role_name} role for project"
 msgstr ""
 
-#: warehouse/manage/views.py:3921
+#: warehouse/manage/views.py:3931
 msgid "${username} is now ${role} of the '${project_name}' project."
 msgstr ""
 
-#: warehouse/manage/views.py:3954
+#: warehouse/manage/views.py:3964
 msgid ""
 "User '${username}' does not have a verified primary email address and "
 "cannot be added as a ${role_name} for project"
 msgstr ""
 
-#: warehouse/manage/views.py:4069
+#: warehouse/manage/views.py:4079
 msgid "Could not find role invitation."
 msgstr ""
 
@@ -3997,10 +3997,10 @@ msgstr ""
 
 #: warehouse/templates/manage/organization/projects.html:180
 msgid ""
-"Owners of this organization can transfer a project that they own to this "
-"organization if the project has not been added to another organization. A"
-" project that has been added to another organization can be transferred "
-"from the project settings page."
+"Owners or managers of this organization can transfer a project that they "
+"own to this organization if the project has not been added to another "
+"organization. A project that has been added to another organization can "
+"be transferred from the project settings page."
 msgstr ""
 
 #: warehouse/templates/manage/organization/projects.html:185
@@ -5173,15 +5173,17 @@ msgid "Cannot transfer project to an organization"
 msgstr ""
 
 #: warehouse/templates/manage/project/settings.html:212
-msgid "Project owners can transfer the project to organizations that they own."
+msgid ""
+"Project owners can transfer the project to organizations that they own or"
+" manage."
 msgstr ""
 
 #: warehouse/templates/manage/project/settings.html:214
-msgid "You are not an owner of any other organizations."
+msgid "You are not an owner or manager of any other organizations."
 msgstr ""
 
 #: warehouse/templates/manage/project/settings.html:216
-msgid "You are not an owner of any organizations."
+msgid "You are not an owner or manager of any organizations."
 msgstr ""
 
 #: warehouse/templates/manage/project/settings.html:225

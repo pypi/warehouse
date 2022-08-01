@@ -1655,7 +1655,7 @@ class ManageOrganizationProjectsViews:
 
         return self.default_response
 
-    @view_config(request_method="POST")
+    @view_config(request_method="POST", permission="add:project")
     def add_organization_project(self):
         if self.request.flags.enabled(AdminFlagValue.DISABLE_ORGANIZATIONS):
             raise HTTPNotFound
@@ -2613,14 +2613,20 @@ class ManageProjectSettingsViews:
     @view_config(request_method="GET")
     def manage_project_settings(self):
         if self.request.flags.enabled(AdminFlagValue.DISABLE_ORGANIZATIONS):
+            # Disable transfer of project to any organization.
             organization_choices = set()
         else:
+            # Allow transfer of project to organizations owned or managed by user.
             all_user_organizations = user_organizations(self.request)
             organizations_owned = set(
                 organization.name
                 for organization in all_user_organizations["organizations_owned"]
             )
-            organization_choices = organizations_owned - (
+            organizations_managed = set(
+                organization.name
+                for organization in all_user_organizations["organizations_managed"]
+            )
+            organization_choices = (organizations_owned | organizations_managed) - (
                 {self.project.organization.name} if self.project.organization else set()
             )
 
@@ -3031,7 +3037,11 @@ def transfer_organization_project(project, request):
         organization.name
         for organization in all_user_organizations["organizations_owned"]
     )
-    organization_choices = organizations_owned - (
+    organizations_managed = set(
+        organization.name
+        for organization in all_user_organizations["organizations_managed"]
+    )
+    organization_choices = (organizations_owned | organizations_managed) - (
         {project.organization.name} if project.organization else set()
     )
 
