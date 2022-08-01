@@ -2950,6 +2950,19 @@ def remove_organization_project(project, request):
             request.route_path("manage.project.settings", project_name=project.name)
         )
 
+    if (
+        # Check that user has permission to remove projects from organization.
+        (project.organization and request.user not in project.organization.owners)
+        # Check that project has an individual owner.
+        or not project_owners(request, project)
+    ):
+        request.session.flash(
+            "Could not remove project from organization", queue="error"
+        )
+        return HTTPSeeOther(
+            request.route_path("manage.project.settings", project_name=project.name)
+        )
+
     confirm_project(
         project,
         request,
@@ -2957,14 +2970,6 @@ def remove_organization_project(project, request):
         field_name="confirm_remove_organization_project_name",
         error_message="Could not remove project from organization",
     )
-
-    if not project_owners(request, project):
-        request.session.flash(
-            "Could not remove project from organization", queue="error"
-        )
-        return HTTPSeeOther(
-            request.route_path("manage.project.settings", project_name=project.name)
-        )
 
     # Remove project from current organization.
     organization_service = request.find_service(IOrganizationService, context=None)
@@ -3020,6 +3025,13 @@ def remove_organization_project(project, request):
 def transfer_organization_project(project, request):
     if request.flags.enabled(AdminFlagValue.DISABLE_ORGANIZATIONS):
         request.session.flash("Organizations are disabled", queue="error")
+        return HTTPSeeOther(
+            request.route_path("manage.project.settings", project_name=project.name)
+        )
+
+    # Check that user has permission to remove projects from organization.
+    if project.organization and request.user not in project.organization.owners:
+        request.session.flash("Could not transfer project", queue="error")
         return HTTPSeeOther(
             request.route_path("manage.project.settings", project_name=project.name)
         )

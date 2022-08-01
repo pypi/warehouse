@@ -5365,9 +5365,15 @@ class TestManageProjectSettings:
         assert event.additional == {"modified_by": db_request.user.username}
 
     def test_remove_organization_project_no_confirm(self):
-        project = pretend.stub(normalized_name="foo")
+        user = pretend.stub()
+        project = pretend.stub(
+            normalized_name="foo",
+            organization=pretend.stub(owners=[user]),
+            owners=[user],
+        )
         request = pretend.stub(
             POST={},
+            user=user,
             flags=pretend.stub(enabled=pretend.call_recorder(lambda *a: False)),
             session=pretend.stub(flash=pretend.call_recorder(lambda *a, **kw: None)),
             route_path=lambda *a, **kw: "/foo/bar/",
@@ -5386,9 +5392,15 @@ class TestManageProjectSettings:
         ]
 
     def test_remove_organization_project_wrong_confirm(self):
-        project = pretend.stub(normalized_name="foo")
+        user = pretend.stub()
+        project = pretend.stub(
+            normalized_name="foo",
+            organization=pretend.stub(owners=[user]),
+            owners=[user],
+        )
         request = pretend.stub(
             POST={"confirm_remove_organization_project_name": "bar"},
+            user=user,
             flags=pretend.stub(enabled=pretend.call_recorder(lambda *a: False)),
             session=pretend.stub(flash=pretend.call_recorder(lambda *a, **kw: None)),
             route_path=lambda *a, **kw: "/foo/bar/",
@@ -5471,6 +5483,33 @@ class TestManageProjectSettings:
         assert isinstance(result, HTTPSeeOther)
         assert result.headers["Location"] == "/the-redirect"
         assert send_organization_project_removed_email.calls == []
+
+    def test_remove_organization_project_not_organization_owner(self):
+        user = pretend.stub()
+        project = pretend.stub(
+            name="foo",
+            normalized_name="foo",
+            organization=pretend.stub(owners=[]),
+            owners=[user],
+        )
+        request = pretend.stub(
+            POST={},
+            user=user,
+            flags=pretend.stub(enabled=pretend.call_recorder(lambda *a: False)),
+            session=pretend.stub(flash=pretend.call_recorder(lambda *a, **kw: None)),
+            route_path=lambda *a, **kw: "/foo/bar/",
+        )
+
+        result = views.remove_organization_project(project, request)
+
+        assert isinstance(result, HTTPSeeOther)
+        assert result.headers["Location"] == "/foo/bar/"
+        assert request.flags.enabled.calls == [
+            pretend.call(AdminFlagValue.DISABLE_ORGANIZATIONS)
+        ]
+        assert request.session.flash.calls == [
+            pretend.call("Could not remove project from organization", queue="error")
+        ]
 
     def test_remove_organization_project_no_individual_owner(
         self, monkeypatch, db_request
@@ -5562,9 +5601,14 @@ class TestManageProjectSettings:
         ]
 
     def test_transfer_organization_project_no_confirm(self):
-        project = pretend.stub(normalized_name="foo")
+        user = pretend.stub()
+        project = pretend.stub(
+            normalized_name="foo",
+            organization=pretend.stub(owners=[user]),
+        )
         request = pretend.stub(
             POST={},
+            user=user,
             flags=pretend.stub(enabled=pretend.call_recorder(lambda *a: False)),
             session=pretend.stub(flash=pretend.call_recorder(lambda *a, **kw: None)),
             route_path=lambda *a, **kw: "/foo/bar/",
@@ -5583,9 +5627,14 @@ class TestManageProjectSettings:
         ]
 
     def test_transfer_organization_project_wrong_confirm(self):
-        project = pretend.stub(normalized_name="foo")
+        user = pretend.stub()
+        project = pretend.stub(
+            normalized_name="foo",
+            organization=pretend.stub(owners=[user]),
+        )
         request = pretend.stub(
             POST={"confirm_transfer_organization_project_name": "bar"},
+            user=user,
             flags=pretend.stub(enabled=pretend.call_recorder(lambda *a: False)),
             session=pretend.stub(flash=pretend.call_recorder(lambda *a, **kw: None)),
             route_path=lambda *a, **kw: "/foo/bar/",
@@ -5690,6 +5739,32 @@ class TestManageProjectSettings:
                 organization_name=organization.name,
                 project_name=project.name,
             )
+        ]
+
+    def test_transfer_organization_project_not_organization_owner(self):
+        user = pretend.stub()
+        project = pretend.stub(
+            name="foo",
+            normalized_name="foo",
+            organization=pretend.stub(owners=[]),
+        )
+        request = pretend.stub(
+            POST={},
+            user=user,
+            flags=pretend.stub(enabled=pretend.call_recorder(lambda *a: False)),
+            session=pretend.stub(flash=pretend.call_recorder(lambda *a, **kw: None)),
+            route_path=lambda *a, **kw: "/foo/bar/",
+        )
+
+        result = views.transfer_organization_project(project, request)
+
+        assert isinstance(result, HTTPSeeOther)
+        assert result.headers["Location"] == "/foo/bar/"
+        assert request.flags.enabled.calls == [
+            pretend.call(AdminFlagValue.DISABLE_ORGANIZATIONS)
+        ]
+        assert request.session.flash.calls == [
+            pretend.call("Could not transfer project", queue="error")
         ]
 
     def test_transfer_organization_project_no_individual_owner(
