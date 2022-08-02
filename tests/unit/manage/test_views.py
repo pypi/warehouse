@@ -5508,7 +5508,13 @@ class TestManageProjectSettings:
             pretend.call(AdminFlagValue.DISABLE_ORGANIZATIONS)
         ]
         assert request.session.flash.calls == [
-            pretend.call("Could not remove project from organization", queue="error")
+            pretend.call(
+                (
+                    "Could not remove project from organization - "
+                    "you do not have the required permissions"
+                ),
+                queue="error",
+            )
         ]
 
     def test_remove_organization_project_no_individual_owner(
@@ -5543,7 +5549,13 @@ class TestManageProjectSettings:
             pretend.call(AdminFlagValue.DISABLE_ORGANIZATIONS)
         ]
         assert db_request.session.flash.calls == [
-            pretend.call("Could not remove project from organization", queue="error")
+            pretend.call(
+                (
+                    "Could not remove project from organization - "
+                    "you do not have the required permissions"
+                ),
+                queue="error",
+            )
         ]
         assert db_request.route_path.calls == [
             pretend.call("manage.project.settings", project_name="foo")
@@ -5764,7 +5776,13 @@ class TestManageProjectSettings:
             pretend.call(AdminFlagValue.DISABLE_ORGANIZATIONS)
         ]
         assert request.session.flash.calls == [
-            pretend.call("Could not transfer project", queue="error")
+            pretend.call(
+                (
+                    "Could not transfer project - "
+                    "you do not have the required permissions"
+                ),
+                queue="error",
+            )
         ]
 
     def test_transfer_organization_project_no_individual_owner(

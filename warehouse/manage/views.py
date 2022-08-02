@@ -2957,7 +2957,11 @@ def remove_organization_project(project, request):
         or not project_owners(request, project)
     ):
         request.session.flash(
-            "Could not remove project from organization", queue="error"
+            (
+                "Could not remove project from organization - "
+                "you do not have the required permissions"
+            ),
+            queue="error",
         )
         return HTTPSeeOther(
             request.route_path("manage.project.settings", project_name=project.name)
@@ -3031,7 +3035,10 @@ def transfer_organization_project(project, request):
 
     # Check that user has permission to remove projects from organization.
     if project.organization and request.user not in project.organization.owners:
-        request.session.flash("Could not transfer project", queue="error")
+        request.session.flash(
+            "Could not transfer project - you do not have the required permissions",
+            queue="error",
+        )
         return HTTPSeeOther(
             request.route_path("manage.project.settings", project_name=project.name)
         )
