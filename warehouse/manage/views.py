@@ -1201,6 +1201,7 @@ def organization_members(request, organization):
     route_name="manage.organizations",
     renderer="manage/organizations.html",
     uses_session=True,
+    require_active_organization=False,  # Allow list/create orgs without active org.
     require_csrf=True,
     require_methods=False,
     permission="manage:user",
@@ -1252,10 +1253,18 @@ class ManageOrganizationsViews:
 
     @view_config(request_method="GET")
     def manage_organizations(self):
+        # Organizations must be enabled.
+        if self.request.flags.enabled(AdminFlagValue.DISABLE_ORGANIZATIONS):
+            raise HTTPNotFound()
+
         return self.default_response
 
     @view_config(request_method="POST", request_param=CreateOrganizationForm.__params__)
     def create_organization(self):
+        # Organizations must be enabled.
+        if self.request.flags.enabled(AdminFlagValue.DISABLE_ORGANIZATIONS):
+            raise HTTPNotFound()
+
         form = CreateOrganizationForm(
             self.request.POST,
             organization_service=self.organization_service,
@@ -1498,6 +1507,7 @@ class ManageOrganizationSettingsViews:
 @view_defaults(
     context=Organization,
     uses_session=True,
+    require_active_organization=False,  # Allow reactivate billing for inactive org.
     require_csrf=True,
     require_methods=False,
     permission="manage:billing",
@@ -1583,6 +1593,7 @@ class ManageOrganizationBillingViews:
 
     @view_config(route_name="manage.organization.subscription")
     def create_or_manage_subscription(self):
+        # Organizations must be enabled.
         if self.request.flags.enabled(AdminFlagValue.DISABLE_ORGANIZATIONS):
             raise HTTPNotFound()
 
@@ -1599,6 +1610,7 @@ class ManageOrganizationBillingViews:
     context=Organization,
     renderer="manage/organization/teams.html",
     uses_session=True,
+    require_active_organization=True,
     require_csrf=True,
     require_methods=False,
     permission="manage:organization",
@@ -1627,14 +1639,14 @@ class ManageOrganizationTeamsViews:
     @view_config(request_method="GET", permission="view:organization")
     def manage_teams(self):
         if self.request.flags.enabled(AdminFlagValue.DISABLE_ORGANIZATIONS):
-            raise HTTPNotFound
+            raise HTTPNotFound()
 
         return self.default_response
 
     @view_config(request_method="POST")
     def create_team(self):
         if self.request.flags.enabled(AdminFlagValue.DISABLE_ORGANIZATIONS):
-            raise HTTPNotFound
+            raise HTTPNotFound()
 
         # Get and validate form from default response.
         default_response = self.default_response
@@ -2269,7 +2281,7 @@ class ManageTeamSettingsViews:
     @view_config(request_method="GET", permission="view:team")
     def manage_team(self):
         if self.request.flags.enabled(AdminFlagValue.DISABLE_ORGANIZATIONS):
-            raise HTTPNotFound
+            raise HTTPNotFound()
 
         return self.default_response
 

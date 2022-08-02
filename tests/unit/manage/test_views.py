@@ -2379,8 +2379,11 @@ class TestManageOrganizations:
             "create_organization_form": create_organization_obj,
         }
 
-    def test_manage_organizations(self, enable_organizations, monkeypatch):
-        request = pretend.stub(find_service=lambda *a, **kw: pretend.stub())
+    def test_manage_organizations(self, monkeypatch):
+        request = pretend.stub(
+            find_service=lambda *a, **kw: pretend.stub(),
+            flags=pretend.stub(enabled=pretend.call_recorder(lambda f: False)),
+        )
 
         default_response = {"default": "response"}
         monkeypatch.setattr(
@@ -2390,6 +2393,16 @@ class TestManageOrganizations:
         result = view.manage_organizations()
 
         assert result == default_response
+
+    def test_manage_organizations_disable_organizations(self):
+        request = pretend.stub(
+            find_service=lambda *a, **kw: pretend.stub(),
+            flags=pretend.stub(enabled=pretend.call_recorder(lambda f: True)),
+        )
+
+        view = views.ManageOrganizationsViews(request)
+        with pytest.raises(HTTPNotFound):
+            view.manage_organizations()
 
     def test_create_organization(self, enable_organizations, monkeypatch):
         admins = []
@@ -2440,6 +2453,7 @@ class TestManageOrganizations:
                 IUserService: user_service,
                 IOrganizationService: organization_service,
             }[interface],
+            flags=pretend.stub(enabled=pretend.call_recorder(lambda f: False)),
             remote_addr="0.0.0.0",
         )
 
@@ -2596,6 +2610,7 @@ class TestManageOrganizations:
                 IUserService: user_service,
                 IOrganizationService: organization_service,
             }[interface],
+            flags=pretend.stub(enabled=pretend.call_recorder(lambda f: False)),
             remote_addr="0.0.0.0",
             route_path=lambda *a, **kw: "manage-subscription-url",
         )
@@ -2738,6 +2753,7 @@ class TestManageOrganizations:
                 IUserService: user_service,
                 IOrganizationService: organization_service,
             }[interface],
+            flags=pretend.stub(enabled=pretend.call_recorder(lambda f: False)),
             remote_addr="0.0.0.0",
         )
 
@@ -2765,6 +2781,16 @@ class TestManageOrganizations:
         assert organization_service.record_event.calls == []
         assert send_email.calls == []
         assert result == {"create_organization_form": create_organization_obj}
+
+    def test_create_organization_disable_organizations(self):
+        request = pretend.stub(
+            find_service=lambda *a, **kw: pretend.stub(),
+            flags=pretend.stub(enabled=pretend.call_recorder(lambda f: True)),
+        )
+
+        view = views.ManageOrganizationsViews(request)
+        with pytest.raises(HTTPNotFound):
+            view.create_organization()
 
 
 class TestManageOrganizationSettings:
