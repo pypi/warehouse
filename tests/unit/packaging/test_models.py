@@ -372,22 +372,22 @@ class TestRelease:
             (None, None),
             (
                 "https://github.com/pypi/warehouse",
-                "https://api.github.com/repos/pypa/warehouse",
+                "https://api.github.com/repos/pypi/warehouse",
             ),
             (
                 "https://github.com/pypi/warehouse/",
-                "https://api.github.com/repos/pypa/warehouse",
+                "https://api.github.com/repos/pypi/warehouse",
             ),
             (
                 "https://github.com/pypi/warehouse/tree/main",
-                "https://api.github.com/repos/pypa/warehouse",
+                "https://api.github.com/repos/pypi/warehouse",
             ),
             (
-                "https://www.github.com/pypa/warehouse",
-                "https://api.github.com/repos/pypa/warehouse",
+                "https://www.github.com/pypi/warehouse",
+                "https://api.github.com/repos/pypi/warehouse",
             ),
             ("https://github.com/pypa/", None),
-            ("https://google.com/pypa/warehouse/tree/master", None),
+            ("https://google.com/pypi/warehouse/tree/main", None),
             ("https://google.com", None),
             ("incorrect url", None),
         ],
