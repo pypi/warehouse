@@ -2252,6 +2252,7 @@ def delete_organization_role(organization, request):
     context=Team,
     renderer="manage/team/settings.html",
     uses_session=True,
+    require_active_organization=True,
     require_csrf=True,
     require_methods=False,
     permission="manage:team",
@@ -2280,16 +2281,10 @@ class ManageTeamSettingsViews:
 
     @view_config(request_method="GET", permission="view:team")
     def manage_team(self):
-        if self.request.flags.enabled(AdminFlagValue.DISABLE_ORGANIZATIONS):
-            raise HTTPNotFound()
-
         return self.default_response
 
     @view_config(request_method="POST", request_param=SaveTeamForm.__params__)
     def save_team(self):
-        if self.request.flags.enabled(AdminFlagValue.DISABLE_ORGANIZATIONS):
-            raise HTTPNotFound
-
         form = SaveTeamForm(
             self.request.POST,
             organization_id=self.team.organization_id,
@@ -2312,9 +2307,6 @@ class ManageTeamSettingsViews:
 
     @view_config(request_method="POST", request_param=["confirm_team_name"])
     def delete_team(self):
-        if self.request.flags.enabled(AdminFlagValue.DISABLE_ORGANIZATIONS):
-            raise HTTPNotFound
-
         # Confirm team name.
         confirm_team(self.team, self.request, fail_route="manage.team.settings")
 
@@ -2370,6 +2362,7 @@ class ManageTeamSettingsViews:
     context=Team,
     renderer="manage/team/projects.html",
     uses_session=True,
+    require_active_organization=True,
     require_csrf=True,
     require_methods=False,
     permission="manage:team",
@@ -2409,9 +2402,6 @@ class ManageTeamProjectsViews:
 
     @view_config(request_method="GET", permission="view:team")
     def manage_team_projects(self):
-        if self.request.flags.enabled(AdminFlagValue.DISABLE_ORGANIZATIONS):
-            raise HTTPNotFound
-
         return self.default_response
 
 
@@ -2420,6 +2410,7 @@ class ManageTeamProjectsViews:
     context=Team,
     renderer="manage/team/roles.html",
     uses_session=True,
+    require_active_organization=True,
     require_csrf=True,
     require_methods=False,
     permission="manage:team",
@@ -2456,16 +2447,10 @@ class ManageTeamRolesViews:
 
     @view_config(request_method="GET", permission="view:team")
     def manage_team_roles(self):
-        if self.request.flags.enabled(AdminFlagValue.DISABLE_ORGANIZATIONS):
-            raise HTTPNotFound
-
         return self.default_response
 
     @view_config(request_method="POST")
     def create_team_role(self):
-        if self.request.flags.enabled(AdminFlagValue.DISABLE_ORGANIZATIONS):
-            raise HTTPNotFound
-
         # Get and validate form from default response.
         default_response = self.default_response
         form = default_response["form"]
@@ -2564,9 +2549,6 @@ class ManageTeamRolesViews:
         permission="view:team",
     )
     def delete_team_role(self):
-        if self.request.flags.enabled(AdminFlagValue.DISABLE_ORGANIZATIONS):
-            raise HTTPNotFound
-
         # Get team role.
         role_id = self.request.POST["role_id"]
         role = self.organization_service.get_team_role(role_id)

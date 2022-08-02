@@ -17,7 +17,7 @@ from pyramid.exceptions import ConfigurationError
 from pyramid.util import is_same_domain
 
 from warehouse.admin.flags import AdminFlagValue
-from warehouse.organizations.models import OrganizationType
+from warehouse.organizations.models import Organization, OrganizationType, Team
 
 
 class DomainPredicate:
@@ -67,9 +67,20 @@ class ActiveOrganizationPredicate:
 
     phash = text
 
-    def __call__(self, organization, request):
+    def __call__(self, context: Organization | Team, request):
+        """Check organizations are enabled globally and this organization is active.
+
+        1. `AdminFlagValue.DISABLE_ORGANIZATIONS` flag is off.
+        2. `Organization.is_active` is true.
+        3. `Organization.active_subscription` exists if organization is a company.
+
+        """
         if self.val is False:
             return True
+
+        organization = (
+            context if isinstance(context, Organization) else context.organization
+        )
 
         return (
             # Organization accounts are enabled.

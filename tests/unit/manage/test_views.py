@@ -4806,13 +4806,6 @@ class TestManageTeamSettings:
             "save_team_form": form,
         }
 
-    def test_manage_team_disable_organizations(self, db_request):
-        team = TeamFactory.create()
-
-        view = views.ManageTeamSettingsViews(team, db_request)
-        with pytest.raises(HTTPNotFound):
-            view.manage_team()
-
     def test_save_team(self, db_request, organization_service, enable_organizations):
         team = TeamFactory.create(name="Team Name")
         db_request.POST = MultiDict({"name": "New Team Name"})
@@ -4843,13 +4836,6 @@ class TestManageTeamSettings:
         assert form.name.errors == [
             ("This team name has already been used. " "Choose a different team name.")
         ]
-
-    def test_save_team_disable_organizations(self, db_request):
-        team = TeamFactory.create()
-
-        view = views.ManageTeamSettingsViews(team, db_request)
-        with pytest.raises(HTTPNotFound):
-            view.save_team()
 
     def test_delete_team(
         self,
@@ -4935,13 +4921,6 @@ class TestManageTeamSettings:
             )
         ]
 
-    def test_delete_organization_disable_organizations(self, db_request):
-        team = TeamFactory.create()
-
-        view = views.ManageTeamSettingsViews(team, db_request)
-        with pytest.raises(HTTPNotFound):
-            view.delete_team()
-
 
 class TestManageTeamProjects:
     def test_manage_team_projects(
@@ -4972,13 +4951,6 @@ class TestManageTeamProjects:
             "projects_requiring_2fa": set(),
         }
 
-    def test_manage_team_projects_disable_teams(self, db_request):
-        team = TeamFactory.create()
-
-        view = views.ManageTeamProjectsViews(team, db_request)
-        with pytest.raises(HTTPNotFound):
-            view.manage_team_projects()
-
 
 class TestManageTeamRoles:
     def test_manage_team_roles(
@@ -5001,13 +4973,6 @@ class TestManageTeamRoles:
             "roles": [],
             "form": form,
         }
-
-    def test_manage_team_roles_disable_organizations(self, db_request):
-        team = TeamFactory.create()
-
-        view = views.ManageTeamRolesViews(team, db_request)
-        with pytest.raises(HTTPNotFound):
-            view.manage_team_roles()
 
     def test_create_team_role(
         self,
@@ -5194,13 +5159,6 @@ class TestManageTeamRoles:
             )
         ]
 
-    def test_create_team_role_disable_organizations(self, db_request):
-        team = TeamFactory.create()
-
-        view = views.ManageTeamRolesViews(team, db_request)
-        with pytest.raises(HTTPNotFound):
-            view.create_team_role()
-
     def test_delete_team_role(
         self,
         db_request,
@@ -5385,13 +5343,6 @@ class TestManageTeamRoles:
             pretend.call("Cannot remove other people from the team", queue="error")
         ]
         assert isinstance(result, HTTPSeeOther)
-
-    def test_delete_team_role_disable_organizations(self, db_request):
-        team = TeamFactory.create()
-
-        view = views.ManageTeamRolesViews(team, db_request)
-        with pytest.raises(HTTPNotFound):
-            view.delete_team_role()
 
 
 class TestManageProjects:
