@@ -715,7 +715,7 @@ msgstr ""
 #: warehouse/templates/includes/session-notifications.html:20
 #: warehouse/templates/manage/account.html:716
 #: warehouse/templates/manage/manage_base.html:293
-#: warehouse/templates/manage/manage_base.html:350
+#: warehouse/templates/manage/manage_base.html:352
 #: warehouse/templates/manage/organization/settings.html:159
 #: warehouse/templates/manage/organization/settings.html:205
 #: warehouse/templates/manage/project/documentation.html:27
@@ -1004,7 +1004,7 @@ msgstr ""
 #: warehouse/templates/accounts/login.html:69
 #: warehouse/templates/accounts/register.html:110
 #: warehouse/templates/accounts/reset-password.html:38
-#: warehouse/templates/manage/manage_base.html:359
+#: warehouse/templates/manage/manage_base.html:361
 #: warehouse/templates/re-auth.html:49
 msgid "Password"
 msgstr ""
@@ -1034,8 +1034,8 @@ msgstr ""
 #: warehouse/templates/manage/account/webauthn-provision.html:44
 #: warehouse/templates/manage/organization/projects.html:172
 #: warehouse/templates/manage/organization/projects.html:190
-#: warehouse/templates/manage/organization/roles.html:192
-#: warehouse/templates/manage/organization/roles.html:204
+#: warehouse/templates/manage/organization/roles.html:176
+#: warehouse/templates/manage/organization/roles.html:188
 #: warehouse/templates/manage/organization/settings.html:44
 #: warehouse/templates/manage/organization/settings.html:74
 #: warehouse/templates/manage/organization/settings.html:98
@@ -1067,7 +1067,7 @@ msgid "Your password"
 msgstr ""
 
 #: warehouse/templates/accounts/login.html:92
-#: warehouse/templates/manage/manage_base.html:362
+#: warehouse/templates/manage/manage_base.html:364
 #: warehouse/templates/re-auth.html:72
 msgid "Show password"
 msgstr ""
@@ -1150,7 +1150,7 @@ msgstr ""
 #: warehouse/templates/email/organization-member-removed/body.html:30
 #: warehouse/templates/email/organization-member-role-changed/body.html:30
 #: warehouse/templates/manage/account.html:248
-#: warehouse/templates/manage/organization/roles.html:195
+#: warehouse/templates/manage/organization/roles.html:179
 #: warehouse/templates/manage/project/roles.html:336
 #: warehouse/templates/manage/project/roles.html:379
 #: warehouse/templates/manage/team/roles.html:99
@@ -1193,7 +1193,7 @@ msgstr ""
 #: warehouse/templates/accounts/profile.html:29
 #: warehouse/templates/manage/account.html:223
 #: warehouse/templates/manage/organization/roles.html:71
-#: warehouse/templates/manage/organization/roles.html:145
+#: warehouse/templates/manage/organization/roles.html:136
 #: warehouse/templates/manage/project/roles.html:174
 #: warehouse/templates/manage/project/roles.html:244
 #: warehouse/templates/manage/team/roles.html:53
@@ -1724,7 +1724,7 @@ msgstr ""
 #: warehouse/templates/email/organization-member-invited/body.html:31
 #: warehouse/templates/manage/organization/roles.html:60
 #: warehouse/templates/manage/organization/roles.html:99
-#: warehouse/templates/manage/organization/roles.html:202
+#: warehouse/templates/manage/organization/roles.html:186
 #: warehouse/templates/manage/project/roles.html:52
 #: warehouse/templates/manage/project/roles.html:135
 #: warehouse/templates/manage/project/roles.html:198
@@ -3189,6 +3189,9 @@ msgstr ""
 
 #: warehouse/templates/manage/manage_base.html:64
 #: warehouse/templates/manage/manage_base.html:78
+#: warehouse/templates/manage/organization/roles.html:118
+#: warehouse/templates/manage/organization/roles.html:120
+#: warehouse/templates/manage/organization/roles.html:125
 #: warehouse/templates/manage/project/publishing.html:44
 msgid "Remove"
 msgstr ""
@@ -3328,29 +3331,29 @@ msgid "Account navigation"
 msgstr ""
 
 #: warehouse/templates/manage/manage_base.html:294
-#: warehouse/templates/manage/manage_base.html:351
+#: warehouse/templates/manage/manage_base.html:353
 msgid "This action cannot be undone!"
 msgstr ""
 
-#: warehouse/templates/manage/manage_base.html:305
+#: warehouse/templates/manage/manage_base.html:306
 msgid "Confirm your username to continue."
 msgstr ""
 
-#: warehouse/templates/manage/manage_base.html:307
+#: warehouse/templates/manage/manage_base.html:308
 #, python-format
 msgid "Confirm the %(item)s to continue."
 msgstr ""
 
-#: warehouse/templates/manage/manage_base.html:317
-#: warehouse/templates/manage/manage_base.html:369
+#: warehouse/templates/manage/manage_base.html:319
+#: warehouse/templates/manage/manage_base.html:371
 msgid "Cancel"
 msgstr ""
 
-#: warehouse/templates/manage/manage_base.html:340
+#: warehouse/templates/manage/manage_base.html:342
 msgid "close"
 msgstr ""
 
-#: warehouse/templates/manage/manage_base.html:356
+#: warehouse/templates/manage/manage_base.html:358
 msgid "Enter your password to continue."
 msgstr ""
 
@@ -4109,7 +4112,7 @@ msgid "Users who can manage %(organization_name)s"
 msgstr ""
 
 #: warehouse/templates/manage/organization/roles.html:59
-#: warehouse/templates/manage/organization/roles.html:190
+#: warehouse/templates/manage/organization/roles.html:174
 #: warehouse/templates/manage/project/roles.html:374
 #: warehouse/templates/manage/team/roles.html:43
 #: warehouse/templates/manage/team/roles.html:94
@@ -4121,45 +4124,52 @@ msgstr ""
 msgid "Save role"
 msgstr ""
 
-#: warehouse/templates/manage/organization/roles.html:124
+#: warehouse/templates/manage/organization/roles.html:118
 msgid "Cannot remove other people from the organization"
 msgstr ""
 
-#: warehouse/templates/manage/organization/roles.html:127
+#: warehouse/templates/manage/organization/roles.html:120
 msgid "Cannot remove yourself as owner"
 msgstr ""
 
-#: warehouse/templates/manage/organization/roles.html:130
+#: warehouse/templates/manage/organization/roles.html:123
+#: warehouse/templates/manage/organization/roles.html:124
 #, python-format
 msgid "Remove %(user)s from this organization"
 msgstr ""
 
-#: warehouse/templates/manage/organization/roles.html:159
+#: warehouse/templates/manage/organization/roles.html:123
+#: warehouse/templates/manage/organization/roles.html:158
+msgid "."
+msgstr ""
+
+#: warehouse/templates/manage/organization/roles.html:150
 #: warehouse/templates/manage/project/roles.html:258
 msgid "Invite pending"
 msgstr ""
 
-#: warehouse/templates/manage/organization/roles.html:161
+#: warehouse/templates/manage/organization/roles.html:152
 #: warehouse/templates/manage/project/roles.html:260
 msgid "Invite expired"
 msgstr ""
 
-#: warehouse/templates/manage/organization/roles.html:172
+#: warehouse/templates/manage/organization/roles.html:158
+#: warehouse/templates/manage/organization/roles.html:159
 #: warehouse/templates/manage/project/roles.html:272
 #, python-format
 msgid "Revoke invitation for %(user)s"
 msgstr ""
 
-#: warehouse/templates/manage/organization/roles.html:174
+#: warehouse/templates/manage/organization/roles.html:160
 #: warehouse/templates/manage/project/roles.html:274
 msgid "Revoke invite"
 msgstr ""
 
-#: warehouse/templates/manage/organization/roles.html:185
+#: warehouse/templates/manage/organization/roles.html:169
 msgid "Invite member"
 msgstr ""
 
-#: warehouse/templates/manage/organization/roles.html:213
+#: warehouse/templates/manage/organization/roles.html:197
 #: warehouse/templates/manage/project/roles.html:397
 msgid "Invite"
 msgstr ""
