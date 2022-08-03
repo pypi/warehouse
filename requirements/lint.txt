@@ -242,9 +242,9 @@ types-stdlib-list==0.8.3 \
     --hash=sha256:08c76c6592ac30ce64bc723980e9dd39d364cca74649ce5c7899c0a8d85b6b0d \
     --hash=sha256:50abded58e14067956279affc197d41bea8559d1a206c74cc46fe70097dce389
     # via -r requirements/lint.in
-types-urllib3==1.26.17 \
-    --hash=sha256:0d027fcd27dbb3cb532453b4d977e05bc1e13aefd70519866af211b3003d895d \
-    --hash=sha256:73fd274524c3fc7cd8cd9ceb0cb67ed99b45f9cb2831013e46d50c1451044800
+types-urllib3==1.26.21 \
+    --hash=sha256:2f7fb7ae6a1884241e588c7becd5f005ce1e03f6eface8a3f65e378c2adf9516 \
+    --hash=sha256:2f960d8681002a37385263c372882fd12c676e10b127553738a2b6064e4438d1
     # via types-requests
 typing-extensions==4.3.0 \
     --hash=sha256:25642c956049920a5aa49edcdd6ab1e06d7e5d467fc00e0506c44ac86fbfca02 \
