@@ -33,13 +33,13 @@ black==22.6.0 \
     --hash=sha256:f586c26118bc6e714ec58c09df0157fe2d9ee195c764f630eb0d8e7ccce72e69 \
     --hash=sha256:f6fe02afde060bbeef044af7996f335fbe90b039ccf3f5eb8f16df8b20f77666
     # via -r requirements/lint.in
-boto3-stubs==1.24.37 \
-    --hash=sha256:18c2e1256f14bcc58923809e2e1fc083599a1644ad197dbc1a522f15e5d25a1f \
-    --hash=sha256:a14ba5257448d3c2a1077d4ddaca12313abeac0ffc9502bc714acd5c0fb2a065
+boto3-stubs==1.24.39 \
+    --hash=sha256:5f4f00d06179a33ecd39c4eacd574f5d0c0ab9e52523e66338d7efa81f01afd9 \
+    --hash=sha256:7118ec18c1a8a93dfda61b42073e5256bedbc19529c7b45a6b31241dadf97ac2
     # via types-boto3
-botocore-stubs==1.27.37 \
-    --hash=sha256:256332ba82f7723f0896d7b54a349ed6d46e332a94f62f38791424a75823f0d9 \
-    --hash=sha256:d96ee82d1377a0af6e3e9ea400e706490cb13a54424060301d2b53ae90157efc
+botocore-stubs==1.27.43 \
+    --hash=sha256:b1f872ea65a27ed09eb69a904e89c03bbcb2011e99180d09bb93c0aabb056bdd \
+    --hash=sha256:d5770667e229c1738753ab51faf9eb55d5d87a946f0699942d90bcca2d347cd1
     # via boto3-stubs
 celery-types==0.13.1 \
     --hash=sha256:0a92d8eded085d055595b04290dd8e5fcd84f4412a00a25f2122d4e6c58a1f56 \
@@ -55,9 +55,9 @@ curlylint==0.13.1 \
     --hash=sha256:008b9d160f3920404ac12efb05c0a39e209cb972f9aafd956b79c5f4e2162752 \
     --hash=sha256:9546ea82cdfc9292fd6fe49dca28587164bd315782a209c0a46e013d7f38d2fa
     # via -r requirements/lint.in
-doc8==0.11.2 \
-    --hash=sha256:9187da8c9f115254bbe34f74e2bbbdd3eaa1b9e92efd19ccac7461e347b5055c \
-    --hash=sha256:c35a231f88f15c204659154ed3d499fa4d402d7e63d41cba7b54cf5e646123ab
+doc8==1.0.0 \
+    --hash=sha256:0c6c3104fa7f7bb2103589c0a8e272c105fdff3ddd1ef4808e51b2782185e9ab \
+    --hash=sha256:1e999a14fe415ea96d89d5053c790d01061f19b6737706b817d1579c2a07cc16
     # via -r requirements/lint.in
 docutils==0.19 \
     --hash=sha256:33995a6753c30b7f577febfc2c50411fec6aac7f7ffeb7c4cfe5991072dcf9e6 \
@@ -170,7 +170,12 @@ tomli==2.0.1 \
     --hash=sha256:de526c12914f0c550d15924c62d72abc48d6fe7364aa87328337a31007fe8a4f
     # via
     #   black
+    #   doc8
     #   mypy
+types-awscrt==0.13.14 \
+    --hash=sha256:39a69df579036fa5c390c5721a9470cb8a34e1dc216c38198f83e42d5c62f3be \
+    --hash=sha256:786b99c86833bede6e848ef91d274c0ea97caad8c5fba9d9f61c05564ad56633
+    # via botocore-stubs
 types-babel==2.10.0 \
     --hash=sha256:9b9396c79839f294aa341d74e97fb309f9e3a3700f521c345487d49fb1c49116 \
     --hash=sha256:c1e329fa1fb4b24faae333d30e38227e92a8e0477fc179100c001acba1d858c6
@@ -217,17 +222,17 @@ types-redis==4.3.11 \
     --hash=sha256:83e5633f216c729fb39c5d3f71dd3b0080c651f75b5d4128733878512409c744 \
     --hash=sha256:ba4612407a758353aa4fe5e1e4b804126e1160dbd6797840223958b1b5dda34d
     # via -r requirements/lint.in
-types-requests==2.28.4 \
-    --hash=sha256:1b9bedd60e789db62b73a4a5e5f5a78c3106e535ad69faba97b0bbdb1ea36b8f \
-    --hash=sha256:3ded964449fbd695ab0f8570828e2fa7cb120c3ebe8cac520e7db5834d2c8e75
+types-requests==2.28.5 \
+    --hash=sha256:98ab647ae88b5e2c41d6d20cfcb5117da1bea561110000b6fdeeea07b3e89877 \
+    --hash=sha256:ac618bfefcb3742eaf97c961e13e9e5a226e545eda4a3dbe293b898d40933ad1
     # via -r requirements/lint.in
 types-s3transfer==0.6.0.post3 \
     --hash=sha256:92c3704e5d041202bfb5ddb79d083fd1a02de2c5dfec6a91576823e6b5c93993 \
     --hash=sha256:eedc5117275565b3c83662c0ccc81662a34da5dda8bd502b89d296b6d5cb091d
     # via boto3-stubs
-types-setuptools==63.2.1 \
-    --hash=sha256:2957a40addfca5c7125fd8d386a9efda5379098c6e66a08e02257fd1cea42131 \
-    --hash=sha256:eca7cbdd8db15e0ec37174a7dcfc9c8cbc87106f453066340e31729ec853cd63
+types-setuptools==63.2.2 \
+    --hash=sha256:a370df7a1e0dc856af9d998234f6e2ab04f30f25b8e1410f6db65910979f6252 \
+    --hash=sha256:a9aa0c01d5f3443cd544026d5ffc97b95ddadf731dab13419c393d43fd8617c0
     # via -r requirements/lint.in
 types-sqlalchemy-utils==1.0.0 \
     --hash=sha256:64403b5260fffcb0ee04fd37167f5c1d1cc68d103f82ef2d5d868e7ac281d5e5 \
@@ -317,5 +322,6 @@ setuptools==63.2.0 \
     --hash=sha256:0d33c374d41c7863419fc8f6c10bfe25b7b498aa34164d135c622e52580c6b16 \
     --hash=sha256:c04b44a57a6265fe34a4a444e965884716d34bae963119a76353434d6f18e450
     # via
+    #   zope-event
     #   zope-interface
     #   zope-schema
