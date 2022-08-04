@@ -79,14 +79,14 @@ class OrganizationRole(db.Model):
 
 class OrganizationProject(db.Model):
 
-    __tablename__ = "organization_project"
+    __tablename__ = "organization_projects"
     __table_args__ = (
-        Index("organization_project_organization_id_idx", "organization_id"),
-        Index("organization_project_project_id_idx", "project_id"),
+        Index("organization_projects_organization_id_idx", "organization_id"),
+        Index("organization_projects_project_id_idx", "project_id"),
         UniqueConstraint(
             "organization_id",
             "project_id",
-            name="_organization_project_organization_project_uc",
+            name="_organization_projects_organization_project_uc",
         ),
     )
 
