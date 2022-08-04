@@ -16,7 +16,6 @@ types-html5lib
 types-itsdangerous
 types-passlib
 types-psycopg2
-# types-python-dateutil
 types-python-slugify
 types-pytz
 types-redis
