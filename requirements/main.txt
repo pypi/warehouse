@@ -1475,9 +1475,9 @@ zxcvbn==4.4.28 \
     # via -r requirements/main.in
 
 # The following packages are considered to be unsafe in a requirements file:
-pip==22.2.1 \
-    --hash=sha256:0bbbc87dfbe6eed217beff0021f8b7dea04c8f4a0baa9d31dc4cff281ffc5b2b \
-    --hash=sha256:50516e47a2b79e77446f0d05649f0d53772c192571486236b1905492bfc24bac
+pip==22.2.2 \
+    --hash=sha256:3fd1929db052f056d7a998439176d3333fa1b3f6c1ad881de1885c0717608a4b \
+    --hash=sha256:b61a374b5bc40a6e982426aede40c9b5a08ff20e640f5b56977f4f91fed1e39a
     # via pip-api
 setuptools==63.2.0 \
     --hash=sha256:0d33c374d41c7863419fc8f6c10bfe25b7b498aa34164d135c622e52580c6b16 \
