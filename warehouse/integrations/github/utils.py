@@ -104,7 +104,7 @@ class TokenLeakDisclosureRequest:
             extracted_token = matcher.extract(record["token"])
         except ExtractionFailedError:
             raise InvalidTokenLeakRequestError(
-                "Cannot extract token from recieved match", reason="extraction"
+                "Cannot extract token from received match", reason="extraction"
             )
 
         return cls(
@@ -217,7 +217,7 @@ def _analyze_disclosure(request, disclosure_record, origin):
 
     metrics = request.find_service(IMetricsService, context=None)
 
-    metrics.increment(f"warehouse.token_leak.{origin}.recieved")
+    metrics.increment(f"warehouse.token_leak.{origin}.received")
 
     try:
         disclosure = TokenLeakDisclosureRequest.from_api_record(

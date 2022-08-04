@@ -263,7 +263,7 @@ class TestMacaroonAuthorizationPolicy:
 
     @pytest.mark.parametrize(
         "invalid_permission",
-        ["admin", "moderator", "manage:user", "manage:project", "nonexistant"],
+        ["admin", "moderator", "manage:user", "manage:project", "nonexistent"],
     )
     def test_denies_valid_macaroon_for_incorrect_permission(
         self, monkeypatch, invalid_permission

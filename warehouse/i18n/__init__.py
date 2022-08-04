@@ -27,7 +27,7 @@ KNOWN_LOCALES = {
         "fr",  # French
         "ja",  # Japanese
         "pt_BR",  # Brazilian Portugeuse
-        "uk",  # Ukranian
+        "uk",  # Ukrainian
         "el",  # Greek
         "de",  # German
         "zh_Hans",  # Simplified Chinese

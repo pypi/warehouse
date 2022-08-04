@@ -11,6 +11,7 @@ export LANG="${ENCODING:-en_US.UTF-8}"
 set -x
 
 # Actually run our tests.
+python -m codespell_lib -S "*.po,*.js,*.json,*.svg,*.scss" -I .codespellignore
 python -m flake8 .
 python -m black --check *.py warehouse/ tests/
 python -m isort --check *.py warehouse/ tests/

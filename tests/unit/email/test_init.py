@@ -421,7 +421,7 @@ class TestSendAdminNewOrganizationRequestedEmail:
         admin_user = pretend.stub(
             id="admin",
             username="admin",
-            name="PyPI Adminstrator",
+            name="PyPI Administrator",
             email="admin@pypi.org",
             primary_email=pretend.stub(email="admin@pypi.org", verified=True),
         )
@@ -525,7 +525,7 @@ class TestSendAdminNewOrganizationApprovedEmail:
         admin_user = pretend.stub(
             id="admin",
             username="admin",
-            name="PyPI Adminstrator",
+            name="PyPI Administrator",
             email="admin@pypi.org",
             primary_email=pretend.stub(email="admin@pypi.org", verified=True),
         )
@@ -629,7 +629,7 @@ class TestSendAdminNewOrganizationDeclinedEmail:
         admin_user = pretend.stub(
             id="admin",
             username="admin",
-            name="PyPI Adminstrator",
+            name="PyPI Administrator",
             email="admin@pypi.org",
             primary_email=pretend.stub(email="admin@pypi.org", verified=True),
         )

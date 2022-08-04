@@ -169,7 +169,7 @@ class TestReportVulnerabilities:
         assert response.status_int == 400
         assert metrics == {
             (
-                "warehouse.vulnerabilties.error.payload.json_error",
+                "warehouse.vulnerabilities.error.payload.json_error",
                 ("origin:osv",),
             ): 1,
         }

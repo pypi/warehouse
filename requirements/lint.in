@@ -23,3 +23,4 @@ types-requests
 types-setuptools
 types-sqlalchemy-utils
 types-stdlib-list
+codespell

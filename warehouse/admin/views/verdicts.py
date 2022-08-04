@@ -118,7 +118,7 @@ def validate_fields(request, validators):
 
 def generate_query(db, params):
     """
-    Returns an SQLAlchemy query wth request params applied as filters.
+    Returns an SQLAlchemy query with request params applied as filters.
     """
     query = db.query(MalwareVerdict)
     if params.get("check_name"):

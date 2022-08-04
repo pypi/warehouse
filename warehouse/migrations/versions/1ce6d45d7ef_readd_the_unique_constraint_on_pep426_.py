@@ -10,7 +10,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 """
-readd the unique constraint on pep426 normalization
+re-add the unique constraint on pep426 normalization
 
 Revision ID: 1ce6d45d7ef
 Revises: 23a3c4ffe5d

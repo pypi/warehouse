@@ -80,7 +80,7 @@ class SMTPEmailSender:
         )
 
     def last_sent(self, to, subject):
-        # We don't store previously sent emails, so nothing to comapre against
+        # We don't store previously sent emails, so nothing to compare against
         return None
 
 
