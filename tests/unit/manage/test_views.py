@@ -3196,7 +3196,7 @@ class TestManageOrganizationBillingViews:
             lambda *a, **kw: "mock-session-url"
         )
 
-        # Stub for billing service is not instance of LocalBillingService.
+        # Stub for billing service is not instance of MockStripeBillingService.
         create_checkout_session = pretend.call_recorder(
             lambda *a, **kw: {"url": "session-url"}
         )
@@ -3235,7 +3235,7 @@ class TestManageOrganizationBillingViews:
             lambda *a, **kw: "mock-session-url"
         )
 
-        # Fixture for billing service is instance of LocalBillingService.
+        # Fixture for billing service is instance of MockStripeBillingService.
         create_checkout_session = pretend.call_recorder(
             lambda *a, **kw: {"url": "session-url"}
         )
@@ -3271,7 +3271,7 @@ class TestManageOrganizationBillingViews:
             lambda *a, **kw: "mock-session-url"
         )
 
-        # Stub for billing service is not instance of LocalBillingService.
+        # Stub for billing service is not instance of MockStripeBillingService.
         create_portal_session = pretend.call_recorder(
             lambda *a, **kw: {"url": "session-url"}
         )
@@ -3308,7 +3308,7 @@ class TestManageOrganizationBillingViews:
             lambda *a, **kw: "mock-session-url"
         )
 
-        # Fixture for billing service is instance of LocalBillingService.
+        # Fixture for billing service is instance of MockStripeBillingService.
         create_portal_session = pretend.call_recorder(
             lambda *a, **kw: {"url": "session-url"}
         )

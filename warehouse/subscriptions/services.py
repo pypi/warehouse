@@ -269,7 +269,7 @@ class GenericBillingService:
 
 
 @implementer(IBillingService)
-class LocalBillingService(GenericBillingService):
+class MockStripeBillingService(GenericBillingService):
     @classmethod
     def create_service(cls, context, request):
         # Override api_base to hit mock-stripe in development

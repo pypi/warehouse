@@ -155,7 +155,7 @@ from warehouse.packaging.models import (
 )
 from warehouse.rate_limiting import IRateLimiter
 from warehouse.subscriptions.interfaces import IBillingService, ISubscriptionService
-from warehouse.subscriptions.services import LocalBillingService
+from warehouse.subscriptions.services import MockStripeBillingService
 from warehouse.utils.http import is_safe_url
 from warehouse.utils.organization import confirm_organization, confirm_team
 from warehouse.utils.paginate import paginate_url_factory
@@ -1531,7 +1531,7 @@ class ManageOrganizationBillingViews:
                 description=self.organization.description,
             )
             self.organization.customer_id = customer["id"]
-            if isinstance(self.billing_service, LocalBillingService):
+            if isinstance(self.billing_service, MockStripeBillingService):
                 # Use mock customer ID.
                 self.organization.customer_id = "mockcus_" + "".join(
                     random.choices(digits + ascii_letters, k=14)
@@ -1569,7 +1569,7 @@ class ManageOrganizationBillingViews:
             cancel_url=self.return_url,
         )
         create_subscription_url = checkout_session["url"]
-        if isinstance(self.billing_service, LocalBillingService):
+        if isinstance(self.billing_service, MockStripeBillingService):
             # Use local mock of billing UI.
             create_subscription_url = self.request.route_path(
                 "mock.billing.checkout-session",
@@ -1583,7 +1583,7 @@ class ManageOrganizationBillingViews:
             return_url=self.return_url,
         )
         manage_subscription_url = portal_session["url"]
-        if isinstance(self.billing_service, LocalBillingService):
+        if isinstance(self.billing_service, MockStripeBillingService):
             # Use local mock of billing UI.
             manage_subscription_url = self.request.route_path(
                 "mock.billing.portal-session",

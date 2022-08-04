@@ -28,7 +28,7 @@ from warehouse.subscriptions.models import (
 )
 from warehouse.subscriptions.services import (
     GenericBillingService,
-    LocalBillingService,
+    MockStripeBillingService,
     StripeBillingService,
 )
 
@@ -84,14 +84,14 @@ class TestStripeBillingService:
         assert billing_service.webhook_secret == "whsec_123"
 
 
-class TestLocalBillingService:
+class TestMockStripeBillingService:
     def test_verify_service(self):
-        assert verifyClass(IBillingService, LocalBillingService)
+        assert verifyClass(IBillingService, MockStripeBillingService)
 
     def test_basic_init(self):
         api = pretend.stub()
 
-        billing_service = LocalBillingService(
+        billing_service = MockStripeBillingService(
             api=api,
             publishable_key="secret_to_everybody",
             webhook_secret="keep_it_secret_keep_it_safe",
@@ -113,7 +113,7 @@ class TestLocalBillingService:
                 }
             )
         )
-        billing_service = LocalBillingService.create_service(None, request)
+        billing_service = MockStripeBillingService.create_service(None, request)
         assert billing_service.api.api_base == "http://localhost:12111"
         assert billing_service.api.api_version == "2020-08-27"
         assert billing_service.api.api_key == "sk_test_123"

@@ -253,7 +253,7 @@ def app_config(database):
         "simple.backend": "warehouse.packaging.services.LocalSimpleStorage",
         "docs.backend": "warehouse.packaging.services.LocalDocsStorage",
         "sponsorlogos.backend": "warehouse.admin.services.LocalSponsorLogoStorage",
-        "billing.backend": "warehouse.subscriptions.services.LocalBillingService",
+        "billing.backend": "warehouse.subscriptions.services.MockStripeBillingService",
         "mail.backend": "warehouse.email.services.SMTPEmailSender",
         "malware_check.backend": (
             "warehouse.malware.services.PrinterMalwareCheckService"
@@ -325,7 +325,7 @@ def billing_service(app_config):
     stripe.api_base = app_config.registry.settings["billing.api_base"]
     stripe.api_version = app_config.registry.settings["billing.api_version"]
     stripe.api_key = app_config.registry.settings["billing.secret_key"]
-    return subscription_services.LocalBillingService(
+    return subscription_services.MockStripeBillingService(
         api=stripe,
         publishable_key=app_config.registry.settings["billing.publishable_key"],
         webhook_secret=app_config.registry.settings["billing.webhook_key"],
