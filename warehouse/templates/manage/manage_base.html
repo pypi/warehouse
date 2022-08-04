@@ -277,7 +277,7 @@
   confirm_string_in_title=True,
   modifier="--danger")
 %}
-  <div id="{{ slug }}" class="modal" data-controller="confirm modal-close">
+  <div id="{{ slug }}" class="modal" data-controller="{% if confirm_string %}confirm {% endif %}modal-close">
     <div class="modal__content" role="dialog">
       <a href="#modal-close" data-action="click->modal-close#cancel" title="{% trans %}Close{% endtrans %}" class="modal__close">
         <i class="fa fa-times" aria-hidden="true"></i>
@@ -317,7 +317,7 @@
         </div>
         <div class="modal__footer">
           <button type="reset" class="button modal__action js-cancel" data-action="click->modal-close#cancel">{% trans %}Cancel{% endtrans %}</button>
-          <button type="submit" class="button button{{ modifier }} modal__action js-confirm" {% if confirm_string %}data-confirm-target="button" data-modal-close-target="button" data-expected="{{ confirm_string }}"{% endif %}>
+          <button type="submit" class="button button{{ modifier }} modal__action js-confirm"{% if confirm_string %} data-confirm-target="button" data-expected="{{ confirm_string }}"{% endif %} data-modal-close-target="button">
             {{ confirm_button_label if confirm_button_label else title }}
           </button>
         </div>
