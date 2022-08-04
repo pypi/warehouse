@@ -254,11 +254,6 @@ def app_config(database):
         "docs.backend": "warehouse.packaging.services.LocalDocsStorage",
         "sponsorlogos.backend": "warehouse.admin.services.LocalSponsorLogoStorage",
         "billing.backend": "warehouse.subscriptions.services.LocalBillingService",
-        # "billing.api_base": Always set using STRIPE_API_BASE environment variable.
-        "billing.api_version": "2020-08-27",
-        "billing.publishable_key": "pk_test_123",
-        "billing.secret_key": "sk_test_123",
-        "billing.webhook_key": "whsec_123",
         "mail.backend": "warehouse.email.services.SMTPEmailSender",
         "malware_check.backend": (
             "warehouse.malware.services.PrinterMalwareCheckService"

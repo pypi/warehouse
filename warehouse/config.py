@@ -163,12 +163,6 @@ def configure(settings=None):
     maybe_set(settings, "aws.key_id", "AWS_ACCESS_KEY_ID")
     maybe_set(settings, "aws.secret_key", "AWS_SECRET_ACCESS_KEY")
     maybe_set(settings, "aws.region", "AWS_REGION")
-    maybe_set(settings, "billing.backend", "BILLING_BACKEND")
-    maybe_set(settings, "billing.api_base", "STRIPE_API_BASE")
-    maybe_set(settings, "billing.api_version", "STRIPE_API_VERSION")
-    maybe_set(settings, "billing.publishable_key", "STRIPE_PUBLISHABLE_KEY")
-    maybe_set(settings, "billing.secret_key", "STRIPE_SECRET_KEY")
-    maybe_set(settings, "billing.webhook_key", "STRIPE_WEBHOOK_SECRET")
     maybe_set(settings, "gcloud.credentials", "GCLOUD_CREDENTIALS")
     maybe_set(settings, "gcloud.project", "GCLOUD_PROJECT")
     maybe_set(
@@ -233,6 +227,7 @@ def configure(settings=None):
         coercer=int,
         default=21600,  # 6 hours
     )
+    maybe_set_compound(settings, "billing", "backend", "BILLING_BACKEND")
     maybe_set_compound(settings, "files", "backend", "FILES_BACKEND")
     maybe_set_compound(settings, "simple", "backend", "SIMPLE_BACKEND")
     maybe_set_compound(settings, "docs", "backend", "DOCS_BACKEND")
