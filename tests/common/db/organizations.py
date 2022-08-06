@@ -22,6 +22,7 @@ from warehouse.organizations.models import (
     OrganizationProject,
     OrganizationRole,
     OrganizationRoleType,
+    OrganizationStripeCustomer,
     OrganizationSubscription,
     Team,
     TeamProjectRole,
@@ -117,6 +118,15 @@ class OrganizationSubscriptionFactory(WarehouseFactory):
     id = factory.Faker("uuid4", cast_to=None)
     organization = factory.SubFactory(OrganizationFactory)
     subscription = factory.SubFactory(SubscriptionFactory)
+
+
+class OrganizationStripeCustomerFactory(WarehouseFactory):
+    class Meta:
+        model = OrganizationStripeCustomer
+
+    id = factory.Faker("uuid4", cast_to=None)
+    customer_id = factory.Faker("uuid4")
+    organization = factory.SubFactory(OrganizationFactory)
 
 
 class TeamFactory(WarehouseFactory):

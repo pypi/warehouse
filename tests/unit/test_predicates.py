@@ -26,6 +26,7 @@ from warehouse.subscriptions.models import SubscriptionStatus
 
 from ..common.db.organizations import (
     OrganizationFactory,
+    OrganizationStripeCustomerFactory,
     OrganizationSubscriptionFactory,
 )
 from ..common.db.subscriptions import SubscriptionFactory
@@ -91,15 +92,19 @@ class TestHeadersPredicate:
 class TestActiveOrganizationPredicate:
     @pytest.fixture
     def organization(self):
-        return OrganizationFactory(
+        organization = OrganizationFactory(
             orgtype=OrganizationType.Company,
+        )
+        OrganizationStripeCustomerFactory(
+            organization=organization,
             customer_id="mock-customer-id",
         )
+        return organization
 
     @pytest.fixture
     def active_subscription(self, organization):
         subscription = SubscriptionFactory(
-            customer_id=organization.customer_id,
+            customer_id=organization.stripe_customer_id,
             status=SubscriptionStatus.Active,
         )
         OrganizationSubscriptionFactory(
@@ -111,7 +116,7 @@ class TestActiveOrganizationPredicate:
     @pytest.fixture
     def inactive_subscription(self, organization):
         subscription = SubscriptionFactory(
-            customer_id=organization.customer_id,
+            customer_id=organization.stripe_customer_id,
             status=SubscriptionStatus.PastDue,
         )
         OrganizationSubscriptionFactory(

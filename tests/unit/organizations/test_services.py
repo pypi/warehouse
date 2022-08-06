@@ -22,6 +22,7 @@ from warehouse.organizations.models import (
     OrganizationProject,
     OrganizationRole,
     OrganizationRoleType,
+    OrganizationStripeCustomer,
     OrganizationSubscription,
     OrganizationType,
     Team,
@@ -35,6 +36,7 @@ from ...common.db.organizations import (
     OrganizationInvitationFactory,
     OrganizationProjectFactory,
     OrganizationRoleFactory,
+    OrganizationStripeCustomerFactory,
     OrganizationSubscriptionFactory,
     TeamFactory,
     TeamProjectRoleFactory,
@@ -323,8 +325,13 @@ class TestDatabaseOrganizationService:
         assert organization.date_approved is not None
 
     def test_delete_organization(self, organization_service, db_request):
-        organization = OrganizationFactory.create(customer_id="cus_123")
-        subscription = SubscriptionFactory.create(customer_id=organization.customer_id)
+        organization = OrganizationFactory.create()
+        organization_stripe_customer = OrganizationStripeCustomerFactory.create(
+            organization=organization
+        )
+        subscription = SubscriptionFactory.create(
+            customer_id=organization_stripe_customer.customer_id
+        )
         OrganizationSubscriptionFactory.create(
             organization=organization, subscription=subscription
         )
@@ -465,8 +472,13 @@ class TestDatabaseOrganizationService:
         )
 
     def test_add_organization_subscription(self, organization_service, db_request):
-        organization = OrganizationFactory.create(customer_id="cus_123")
-        subscription = SubscriptionFactory.create(customer_id=organization.customer_id)
+        organization = OrganizationFactory.create()
+        organization_stripe_customer = OrganizationStripeCustomerFactory.create(
+            organization=organization
+        )
+        subscription = SubscriptionFactory.create(
+            customer_id=organization_stripe_customer.customer_id
+        )
 
         organization_service.add_organization_subscription(
             organization.id, subscription.id
@@ -476,6 +488,56 @@ class TestDatabaseOrganizationService:
             .filter(
                 OrganizationSubscription.organization_id == organization.id,
                 OrganizationSubscription.subscription_id == subscription.id,
+            )
+            .count()
+        )
+
+    def test_delete_organization_subscription(self, organization_service, db_request):
+        organization = OrganizationFactory.create()
+        organization_stripe_customer = OrganizationStripeCustomerFactory.create(
+            organization=organization
+        )
+        subscription = SubscriptionFactory.create(
+            customer_id=organization_stripe_customer.customer_id
+        )
+        OrganizationSubscriptionFactory.create(
+            organization=organization, subscription=subscription
+        )
+
+        organization_service.delete_organization_subscription(
+            organization.id, subscription.id
+        )
+        assert not (
+            db_request.db.query(OrganizationSubscription)
+            .filter(
+                OrganizationSubscription.organization_id == organization.id,
+                OrganizationSubscription.subscription_id == subscription.id,
+            )
+            .count()
+        )
+
+    def test_get_organization_stripe_customer(self, organization_service):
+        organization = OrganizationFactory.create()
+        organization_stripe_customer = OrganizationStripeCustomerFactory.create(
+            organization=organization
+        )
+
+        assert (
+            organization_service.get_organization_stripe_customer(organization.id)
+            == organization_stripe_customer
+        )
+
+    def test_add_organization_stripe_customer(self, organization_service, db_request):
+        organization = OrganizationFactory.create()
+
+        organization_service.add_organization_stripe_customer(
+            organization.id, "cus_1234"
+        )
+        assert (
+            db_request.db.query(OrganizationStripeCustomer)
+            .filter(
+                OrganizationStripeCustomer.organization_id == organization.id,
+                OrganizationStripeCustomer.customer_id == "cus_1234",
             )
             .count()
         )
@@ -604,25 +666,6 @@ class TestDatabaseOrganizationService:
                 TeamRole.team_id == team.id,
                 TeamRole.user_id == user.id,
                 TeamRole.role_name == "Member",
-            )
-            .count()
-        )
-
-    def test_delete_organization_subscription(self, organization_service, db_request):
-        organization = OrganizationFactory.create(customer_id="cus_123")
-        subscription = SubscriptionFactory.create(customer_id=organization.customer_id)
-        OrganizationSubscriptionFactory.create(
-            organization=organization, subscription=subscription
-        )
-
-        organization_service.delete_organization_subscription(
-            organization.id, subscription.id
-        )
-        assert not (
-            db_request.db.query(OrganizationSubscription)
-            .filter(
-                OrganizationSubscription.organization_id == organization.id,
-                OrganizationSubscription.subscription_id == subscription.id,
             )
             .count()
         )

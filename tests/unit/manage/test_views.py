@@ -12,10 +12,7 @@
 
 import base64
 import datetime
-import random
 import uuid
-
-from string import ascii_letters, digits
 
 import pretend
 import pytest
@@ -77,6 +74,7 @@ from ...common.db.organizations import (
     OrganizationInvitationFactory,
     OrganizationProjectFactory,
     OrganizationRoleFactory,
+    OrganizationStripeCustomerFactory,
     OrganizationSubscriptionFactory,
     TeamFactory,
     TeamProjectRoleFactory,
@@ -3122,13 +3120,17 @@ class TestManageOrganizationSettings:
 class TestManageOrganizationBillingViews:
     @pytest.fixture
     def organization(self):
-        return OrganizationFactory.create(
-            customer_id="cus_" + "".join(random.choices(digits + ascii_letters, k=14))
-        )
+        organization = OrganizationFactory.create()
+        OrganizationStripeCustomerFactory.create(organization=organization)
+        return organization
+
+    @pytest.fixture
+    def organization_no_customer(self):
+        return OrganizationFactory.create()
 
     @pytest.fixture
     def subscription(self, organization):
-        return SubscriptionFactory.create(customer_id=organization.customer_id)
+        return SubscriptionFactory.create(customer_id=organization.stripe_customer_id)
 
     @pytest.fixture
     def organization_subscription(self, organization, subscription):
@@ -3147,26 +3149,25 @@ class TestManageOrganizationBillingViews:
         organization,
     ):
         billing_service = pretend.stub(
-            create_customer=lambda *a, **kw: {"id": "customer-id"},
+            create_customer=lambda *a, **kw: {"id": organization.stripe_customer_id},
         )
-        organization.customer_id = None
 
         view = views.ManageOrganizationBillingViews(organization, db_request)
         view.billing_service = billing_service
         customer_id = view.customer_id
 
-        assert customer_id == "customer-id"
+        assert customer_id == organization.stripe_customer_id
 
     def test_customer_id_local_mock(
         self,
         db_request,
         billing_service,
         subscription_service,
-        organization,
+        organization_no_customer,
     ):
-        organization.customer_id = None
-
-        view = views.ManageOrganizationBillingViews(organization, db_request)
+        view = views.ManageOrganizationBillingViews(
+            organization_no_customer, db_request
+        )
         customer_id = view.customer_id
 
         assert customer_id.startswith("mockcus_")
@@ -3200,8 +3201,10 @@ class TestManageOrganizationBillingViews:
         create_checkout_session = pretend.call_recorder(
             lambda *a, **kw: {"url": "session-url"}
         )
+
         billing_service = pretend.stub(
             create_checkout_session=create_checkout_session,
+            create_customer=lambda *a, **kw: {"id": organization.stripe_customer_id},
             sync_price=lambda *a, **kw: None,
             sync_product=lambda *a, **kw: None,
         )
@@ -3212,7 +3215,7 @@ class TestManageOrganizationBillingViews:
 
         assert create_checkout_session.calls == [
             pretend.call(
-                customer_id=organization.customer_id,
+                customer_id=organization.stripe_customer_id,
                 price_id=subscription_price.price_id,
                 success_url=view.return_url,
                 cancel_url=view.return_url,
@@ -3248,7 +3251,7 @@ class TestManageOrganizationBillingViews:
 
         assert create_checkout_session.calls == [
             pretend.call(
-                customer_id=organization.customer_id,
+                customer_id=view.customer_id,
                 price_id=subscription_price.price_id,
                 success_url=view.return_url,
                 cancel_url=view.return_url,
@@ -3287,7 +3290,7 @@ class TestManageOrganizationBillingViews:
 
         assert create_portal_session.calls == [
             pretend.call(
-                customer_id=organization.customer_id,
+                customer_id=organization.stripe_customer_id,
                 return_url=view.return_url,
             ),
         ]
@@ -3321,7 +3324,7 @@ class TestManageOrganizationBillingViews:
 
         assert create_portal_session.calls == [
             pretend.call(
-                customer_id=organization.customer_id,
+                customer_id=organization.stripe_customer_id,
                 return_url=view.return_url,
             ),
         ]
@@ -5152,6 +5155,7 @@ class TestManageTeamRoles:
             "roles": [],
             "form": form,
         }
+
         assert form.username.errors == [
             (
                 "No organization owner, manager, or member found "

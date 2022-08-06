@@ -27,6 +27,7 @@ from ...common.db.organizations import (
     OrganizationFactory as DBOrganizationFactory,
     OrganizationNameCatalogFactory as DBOrganizationNameCatalogFactory,
     OrganizationRoleFactory as DBOrganizationRoleFactory,
+    OrganizationStripeCustomerFactory as DBOrganizationStripeCustomerFactory,
     OrganizationSubscriptionFactory as DBOrganizationSubscriptionFactory,
     TeamFactory as DBTeamFactory,
 )
@@ -285,9 +286,12 @@ class TestTeam:
         )
 
     def test_active_subscription(self, db_session):
-        organization = DBOrganizationFactory.create(customer_id="cus_123")
+        organization = DBOrganizationFactory.create()
+        organization_stripe_customer = DBOrganizationStripeCustomerFactory.create(
+            organization=organization
+        )
         subscription = DBSubscriptionFactory.create(
-            customer_id=organization.customer_id
+            customer_id=organization_stripe_customer.customer_id
         )
         DBOrganizationSubscriptionFactory.create(
             organization=organization, subscription=subscription
@@ -295,12 +299,29 @@ class TestTeam:
         assert organization.active_subscription is not None
 
     def test_active_subscription_none(self, db_session):
-        organization = DBOrganizationFactory.create(customer_id="cus_123")
+        organization = DBOrganizationFactory.create()
+        organization_stripe_customer = DBOrganizationStripeCustomerFactory.create(
+            organization=organization
+        )
         subscription = DBSubscriptionFactory.create(
-            customer_id=organization.customer_id,
+            customer_id=organization_stripe_customer.customer_id,
             status="canceled",
         )
         DBOrganizationSubscriptionFactory.create(
             organization=organization, subscription=subscription
         )
         assert organization.active_subscription is None
+
+    def test_stripe_customer_id(self, db_session):
+        organization = DBOrganizationFactory.create()
+        DBOrganizationStripeCustomerFactory.create(
+            organization=organization,
+            customer_id="cus_12345",
+        )
+
+        assert organization.stripe_customer_id == "cus_12345"
+
+    def test_stripe_customer_id_none(self, db_session):
+        organization = DBOrganizationFactory.create()
+
+        assert organization.stripe_customer_id is None

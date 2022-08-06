@@ -18,7 +18,10 @@ import stripe
 
 from zope.interface.verify import verifyClass
 
-from warehouse.organizations.models import Organization, OrganizationSubscription
+from warehouse.organizations.models import (
+    OrganizationStripeCustomer,
+    OrganizationSubscription,
+)
 from warehouse.subscriptions import services
 from warehouse.subscriptions.interfaces import IBillingService, ISubscriptionService
 from warehouse.subscriptions.models import (
@@ -34,6 +37,7 @@ from warehouse.subscriptions.services import (
 
 from ...common.db.organizations import (
     OrganizationFactory,
+    OrganizationStripeCustomerFactory,
     OrganizationSubscriptionFactory,
 )
 from ...common.db.subscriptions import (
@@ -345,8 +349,13 @@ class TestSubscriptionService:
         assert subscription_service.find_subscriptionid("fake_news") is None
 
     def test_find_subscriptionid(self, subscription_service):
-        organization = OrganizationFactory.create(customer_id="cus_123")
-        subscription = SubscriptionFactory.create(customer_id=organization.customer_id)
+        organization = OrganizationFactory.create()
+        organization_stripe_customer = OrganizationStripeCustomerFactory.create(
+            organization=organization
+        )
+        subscription = SubscriptionFactory.create(
+            customer_id=organization_stripe_customer.customer_id
+        )
 
         assert (
             subscription_service.find_subscriptionid(subscription.subscription_id)
@@ -354,10 +363,13 @@ class TestSubscriptionService:
         )
 
     def test_add_subscription(self, billing_service, subscription_service):
-        organization = OrganizationFactory.create(customer_id="cus_12345")
+        organization = OrganizationFactory.create()
+        organization_stripe_customer = OrganizationStripeCustomerFactory.create(
+            organization=organization
+        )
 
         new_subscription = subscription_service.add_subscription(
-            customer_id=organization.customer_id,
+            customer_id=organization_stripe_customer.customer_id,
             subscription_id="sub_12345",
         )
 
@@ -376,8 +388,13 @@ class TestSubscriptionService:
         assert subscription_from_db.status == SubscriptionStatus.Active.value
 
     def test_update_subscription_status(self, subscription_service, db_request):
-        organization = OrganizationFactory.create(customer_id="cus_123")
-        subscription = SubscriptionFactory.create(customer_id=organization.customer_id)
+        organization = OrganizationFactory.create()
+        organization_stripe_customer = OrganizationStripeCustomerFactory.create(
+            organization=organization
+        )
+        subscription = SubscriptionFactory.create(
+            customer_id=organization_stripe_customer.customer_id
+        )
 
         assert subscription.status == SubscriptionStatus.Active.value
 
@@ -389,8 +406,13 @@ class TestSubscriptionService:
         assert subscription.status == SubscriptionStatus.Active.value
 
     def test_delete_subscription(self, subscription_service, db_request):
-        organization = OrganizationFactory.create(customer_id="cus_123")
-        subscription = SubscriptionFactory.create(customer_id=organization.customer_id)
+        organization = OrganizationFactory.create()
+        organization_stripe_customer = OrganizationStripeCustomerFactory.create(
+            organization=organization
+        )
+        subscription = SubscriptionFactory.create(
+            customer_id=organization_stripe_customer.customer_id
+        )
         OrganizationSubscriptionFactory.create(
             organization=organization, subscription=subscription
         )
@@ -407,30 +429,43 @@ class TestSubscriptionService:
         )
 
     def test_get_subscriptions_by_customer(self, subscription_service):
-        organization = OrganizationFactory.create(customer_id="cus_123")
-        subscription = SubscriptionFactory.create(customer_id=organization.customer_id)
-        subscription1 = SubscriptionFactory.create(customer_id=organization.customer_id)
+        organization = OrganizationFactory.create()
+        organization_stripe_customer = OrganizationStripeCustomerFactory.create(
+            organization=organization
+        )
+        subscription = SubscriptionFactory.create(
+            customer_id=organization_stripe_customer.customer_id
+        )
+        subscription1 = SubscriptionFactory.create(
+            customer_id=organization_stripe_customer.customer_id
+        )
 
         subscriptions = subscription_service.get_subscriptions_by_customer(
-            organization.customer_id
+            organization_stripe_customer.customer_id
         )
 
         assert subscription in subscriptions
         assert subscription1 in subscriptions
 
     def test_delete_customer(self, subscription_service, db_request):
-        customer_id = "cus_123"
-        organization = OrganizationFactory.create(customer_id=customer_id)
-        subscription = SubscriptionFactory.create(customer_id=customer_id)
+        organization = OrganizationFactory.create()
+        organization_stripe_customer = OrganizationStripeCustomerFactory.create(
+            organization=organization
+        )
+        subscription = SubscriptionFactory.create(
+            customer_id=organization_stripe_customer.customer_id
+        )
         OrganizationSubscriptionFactory.create(
             organization=organization, subscription=subscription
         )
-        subscription1 = SubscriptionFactory.create(customer_id=customer_id)
+        subscription1 = SubscriptionFactory.create(
+            customer_id=organization_stripe_customer.customer_id
+        )
         OrganizationSubscriptionFactory.create(
             organization=organization, subscription=subscription1
         )
 
-        subscription_service.delete_customer(customer_id)
+        subscription_service.delete_customer(organization_stripe_customer.customer_id)
 
         assert subscription_service.get_subscription(subscription.id) is None
         assert not (
@@ -451,8 +486,8 @@ class TestSubscriptionService:
         # assert not
         assert not (
             (
-                db_request.db.query(Organization)
-                .filter(Organization.customer_id == customer_id)
+                db_request.db.query(OrganizationStripeCustomer)
+                .filter_by(organization=organization)
                 .count()
             )
         )

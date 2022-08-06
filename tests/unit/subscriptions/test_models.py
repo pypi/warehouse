@@ -12,32 +12,44 @@
 
 from warehouse.subscriptions.models import SubscriptionStatus
 
-from ...common.db.organizations import OrganizationFactory as DBOrganizationFactory
+from ...common.db.organizations import (
+    OrganizationFactory as DBOrganizationFactory,
+    OrganizationStripeCustomerFactory as DBOrganizationStripeCustomerFactory,
+)
 from ...common.db.subscriptions import SubscriptionFactory as DBSubscriptionFactory
 
 
 class TestSubscription:
     def test_is_restricted(self, db_session):
-        organization = DBOrganizationFactory.create(customer_id="cus_123")
+        organization = DBOrganizationFactory.create()
+        organization_stripe_customer = DBOrganizationStripeCustomerFactory.create(
+            organization=organization
+        )
         subscription = DBSubscriptionFactory.create(
-            customer_id=organization.customer_id,
+            customer_id=organization_stripe_customer.customer_id,
             status="past_due",
         )
         assert subscription.is_restricted
 
     def test_not_is_restricted(self, db_session):
-        organization = DBOrganizationFactory.create(customer_id="cus_123")
+        organization = DBOrganizationFactory.create()
+        organization_stripe_customer = DBOrganizationStripeCustomerFactory.create(
+            organization=organization
+        )
         subscription = DBSubscriptionFactory.create(
-            customer_id=organization.customer_id
+            customer_id=organization_stripe_customer.customer_id
         )
         assert not subscription.is_restricted
 
 
 class TestSubscriptionStatus:
     def test_has_value(self, db_session):
-        organization = DBOrganizationFactory.create(customer_id="cus_123")
+        organization = DBOrganizationFactory.create()
+        organization_stripe_customer = DBOrganizationStripeCustomerFactory.create(
+            organization=organization
+        )
         subscription = DBSubscriptionFactory.create(
-            customer_id=organization.customer_id
+            customer_id=organization_stripe_customer.customer_id
         )
         assert SubscriptionStatus.has_value(subscription.status)
         assert not SubscriptionStatus.has_value("invalid_status")

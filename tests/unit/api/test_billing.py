@@ -21,6 +21,7 @@ from warehouse.api import billing
 
 from ...common.db.organizations import (
     OrganizationFactory,
+    OrganizationStripeCustomerFactory,
     OrganizationSubscriptionFactory,
 )
 from ...common.db.subscriptions import SubscriptionFactory
@@ -31,8 +32,13 @@ class TestHandleBillingWebhookEvent:
     def test_handle_billing_webhook_event_checkout_complete_update(
         self, db_request, subscription_service
     ):
-        organization = OrganizationFactory.create(customer_id="cus_123")
-        subscription = SubscriptionFactory.create(customer_id=organization.customer_id)
+        organization = OrganizationFactory.create()
+        organization_stripe_customer = OrganizationStripeCustomerFactory.create(
+            organization=organization
+        )
+        subscription = SubscriptionFactory.create(
+            customer_id=organization_stripe_customer.customer_id
+        )
         OrganizationSubscriptionFactory.create(
             organization=organization, subscription=subscription
         )
@@ -41,7 +47,7 @@ class TestHandleBillingWebhookEvent:
             "type": "checkout.session.completed",
             "data": {
                 "object": {
-                    "customer": organization.customer_id,
+                    "customer": organization_stripe_customer.customer_id,
                     "status": "complete",
                     "subscription": subscription.subscription_id,
                 },
@@ -53,13 +59,16 @@ class TestHandleBillingWebhookEvent:
     def test_handle_billing_webhook_event_checkout_complete_add(
         self, db_request, subscription_service
     ):
-        organization = OrganizationFactory.create(customer_id="cus_123")
+        organization = OrganizationFactory.create()
+        organization_stripe_customer = OrganizationStripeCustomerFactory.create(
+            organization=organization
+        )
 
         event = {
             "type": "checkout.session.completed",
             "data": {
                 "object": {
-                    "customer": organization.customer_id,
+                    "customer": organization_stripe_customer.customer_id,
                     "status": "complete",
                     "subscription": "sub_12345",
                 },
@@ -123,8 +132,13 @@ class TestHandleBillingWebhookEvent:
     def test_handle_billing_webhook_event_subscription_deleted_update(
         self, db_request, subscription_service
     ):
-        organization = OrganizationFactory.create(customer_id="cus_123")
-        subscription = SubscriptionFactory.create(customer_id=organization.customer_id)
+        organization = OrganizationFactory.create()
+        organization_stripe_customer = OrganizationStripeCustomerFactory.create(
+            organization=organization
+        )
+        subscription = SubscriptionFactory.create(
+            customer_id=organization_stripe_customer.customer_id
+        )
         OrganizationSubscriptionFactory.create(
             organization=organization, subscription=subscription
         )
@@ -133,7 +147,7 @@ class TestHandleBillingWebhookEvent:
             "type": "customer.subscription.deleted",
             "data": {
                 "object": {
-                    "customer": organization.customer_id,
+                    "customer": organization_stripe_customer.customer_id,
                     "status": "canceled",
                     "id": subscription.subscription_id,
                 },
@@ -145,13 +159,16 @@ class TestHandleBillingWebhookEvent:
     def test_handle_billing_webhook_event_subscription_deleted_not_found(
         self, db_request, subscription_service
     ):
-        organization = OrganizationFactory.create(customer_id="cus_123")
+        organization = OrganizationFactory.create()
+        organization_stripe_customer = OrganizationStripeCustomerFactory.create(
+            organization=organization
+        )
 
         event = {
             "type": "customer.subscription.deleted",
             "data": {
                 "object": {
-                    "customer": organization.customer_id,
+                    "customer": organization_stripe_customer.customer_id,
                     "status": "canceled",
                     "id": "sub_12345",
                 },
@@ -216,8 +233,13 @@ class TestHandleBillingWebhookEvent:
     def test_handle_billing_webhook_event_subscription_updated_update(
         self, db_request, subscription_service
     ):
-        organization = OrganizationFactory.create(customer_id="cus_123")
-        subscription = SubscriptionFactory.create(customer_id=organization.customer_id)
+        organization = OrganizationFactory.create()
+        organization_stripe_customer = OrganizationStripeCustomerFactory.create(
+            organization=organization
+        )
+        subscription = SubscriptionFactory.create(
+            customer_id=organization_stripe_customer.customer_id
+        )
         OrganizationSubscriptionFactory.create(
             organization=organization, subscription=subscription
         )
@@ -226,7 +248,7 @@ class TestHandleBillingWebhookEvent:
             "type": "customer.subscription.updated",
             "data": {
                 "object": {
-                    "customer": organization.customer_id,
+                    "customer": organization_stripe_customer.customer_id,
                     "status": "canceled",
                     "id": subscription.subscription_id,
                 },
@@ -238,13 +260,16 @@ class TestHandleBillingWebhookEvent:
     def test_handle_billing_webhook_event_subscription_updated_not_found(
         self, db_request, subscription_service
     ):
-        organization = OrganizationFactory.create(customer_id="cus_123")
+        organization = OrganizationFactory.create()
+        organization_stripe_customer = OrganizationStripeCustomerFactory.create(
+            organization=organization
+        )
 
         event = {
             "type": "customer.subscription.updated",
             "data": {
                 "object": {
-                    "customer": organization.customer_id,
+                    "customer": organization_stripe_customer.customer_id,
                     "status": "canceled",
                     "id": "sub_12345",
                 },
@@ -257,9 +282,12 @@ class TestHandleBillingWebhookEvent:
     def test_handle_billing_webhook_event_subscription_updated_no_change(
         self, db_request
     ):
-        organization = OrganizationFactory.create(customer_id="cus_123")
+        organization = OrganizationFactory.create()
+        organization_stripe_customer = OrganizationStripeCustomerFactory.create(
+            organization=organization
+        )
         subscription = SubscriptionFactory.create(
-            customer_id=organization.customer_id, status="active"
+            customer_id=organization_stripe_customer.customer_id
         )
         OrganizationSubscriptionFactory.create(
             organization=organization, subscription=subscription
@@ -271,7 +299,7 @@ class TestHandleBillingWebhookEvent:
             "type": "customer.subscription.updated",
             "data": {
                 "object": {
-                    "customer": organization.customer_id,
+                    "customer": organization_stripe_customer.customer_id,
                     "status": "active",
                     "id": subscription.subscription_id,
                 },
@@ -335,8 +363,13 @@ class TestHandleBillingWebhookEvent:
     def test_handle_billing_webhook_event_customer_deleted(
         self, db_request, subscription_service
     ):
-        organization = OrganizationFactory.create(customer_id="cus_123")
-        subscription = SubscriptionFactory.create(customer_id=organization.customer_id)
+        organization = OrganizationFactory.create()
+        organization_stripe_customer = OrganizationStripeCustomerFactory.create(
+            organization=organization
+        )
+        subscription = SubscriptionFactory.create(
+            customer_id=organization_stripe_customer.customer_id
+        )
         OrganizationSubscriptionFactory.create(
             organization=organization, subscription=subscription
         )
@@ -345,7 +378,7 @@ class TestHandleBillingWebhookEvent:
             "type": "customer.deleted",
             "data": {
                 "object": {
-                    "id": organization.customer_id,
+                    "id": organization_stripe_customer.customer_id,
                 },
             },
         }
