@@ -84,6 +84,7 @@ def includeme(config):
                     "*.fastly-insights.com",
                     "*.ethicalads.io",
                     "https://api.pwnedpasswords.com",
+                    "https://cdn.jsdelivr.net/npm/mathjax@3.2.2/",
                 ]
                 + [
                     item
@@ -110,6 +111,9 @@ def includeme(config):
                     "*.ethicalads.io",
                     # Hash for v1.4.0 of ethicalads.min.js
                     "'sha256-U3hKDidudIaxBDEzwGJApJgPEf2mWk6cfMWghrAa6i0='",
+                    "https://cdn.jsdelivr.net/npm/mathjax@3.2.2/",
+                    # Hash for v3.2.2 of MathJax tex-svg.js
+                    "'sha256-1CldwzdEg2k1wTmf7s5RWVd7NMXI/7nxxjJM2C4DqII='",
                 ],
                 "style-src": [
                     SELF,

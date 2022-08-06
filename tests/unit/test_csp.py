@@ -205,6 +205,7 @@ def test_includeme():
                         "*.fastly-insights.com",
                         "*.ethicalads.io",
                         "https://api.pwnedpasswords.com",
+                        "https://cdn.jsdelivr.net/npm/mathjax@3.2.2/",
                         "https://2p66nmmycsj3.statuspage.io",
                     ],
                     "default-src": ["'none'"],
@@ -226,6 +227,8 @@ def test_includeme():
                         "*.fastly-insights.com",
                         "*.ethicalads.io",
                         "'sha256-U3hKDidudIaxBDEzwGJApJgPEf2mWk6cfMWghrAa6i0='",
+                        "https://cdn.jsdelivr.net/npm/mathjax@3.2.2/",
+                        "'sha256-1CldwzdEg2k1wTmf7s5RWVd7NMXI/7nxxjJM2C4DqII='",
                     ],
                     "style-src": [
                         "'self'",
