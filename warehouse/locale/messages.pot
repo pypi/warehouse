@@ -121,7 +121,7 @@ msgstr ""
 msgid "Successful WebAuthn assertion"
 msgstr ""
 
-#: warehouse/accounts/views.py:447 warehouse/manage/views.py:935
+#: warehouse/accounts/views.py:447 warehouse/manage/views.py:933
 msgid "Recovery code accepted. The supplied code cannot be used again."
 msgstr ""
 
@@ -332,15 +332,15 @@ msgstr ""
 msgid "This team name has already been used. Choose a different team name."
 msgstr ""
 
-#: warehouse/manage/views.py:366
+#: warehouse/manage/views.py:364
 msgid "Email ${email_address} added - check your email for a verification link"
 msgstr ""
 
-#: warehouse/manage/views.py:883
+#: warehouse/manage/views.py:881
 msgid "Recovery codes already generated"
 msgstr ""
 
-#: warehouse/manage/views.py:884
+#: warehouse/manage/views.py:882
 msgid "Generating new recovery codes will invalidate your existing codes."
 msgstr ""
 
