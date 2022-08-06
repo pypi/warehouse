@@ -10,7 +10,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# import datetime
+import random
+
+from string import ascii_letters, digits
 
 import stripe
 
@@ -18,7 +20,10 @@ from sqlalchemy import or_
 from sqlalchemy.orm.exc import NoResultFound
 from zope.interface import implementer
 
-from warehouse.organizations.models import Organization, OrganizationSubscription
+from warehouse.organizations.models import (
+    OrganizationStripeCustomer,
+    OrganizationSubscription,
+)
 from warehouse.subscriptions.interfaces import IBillingService, ISubscriptionService
 from warehouse.subscriptions.models import (
     Subscription,
@@ -27,8 +32,6 @@ from warehouse.subscriptions.models import (
     SubscriptionProduct,
     SubscriptionStatus,
 )
-
-# from dateutil import relativedelta
 
 
 class GenericBillingService:
@@ -340,13 +343,13 @@ class SubscriptionService:
         )
 
         # Link to organization.
-        organization = (
-            self.db.query(Organization)
-            .filter(Organization.customer_id == customer_id)
+        organization_stripe_customer = (
+            self.db.query(OrganizationStripeCustomer)
+            .filter(OrganizationStripeCustomer.customer_id == customer_id)
             .one()
         )
         organization_subscription = OrganizationSubscription(
-            organization=organization,
+            organization=organization_stripe_customer.organization,
             subscription=subscription,
         )
 
@@ -397,10 +400,10 @@ class SubscriptionService:
         for subscription in subscriptions:
             self.delete_subscription(subscription.id)
 
-        # Null the customer field in the organization object
-        self.db.query(Organization).filter(
-            Organization.customer_id == customer_id
-        ).update({Organization.customer_id: None})
+        # Delete OrganizationStripeCustomer association
+        self.db.query(OrganizationStripeCustomer).filter(
+            OrganizationStripeCustomer.customer_id == customer_id
+        ).delete()
 
     def get_subscription_product(self, subscription_product_id):
         """

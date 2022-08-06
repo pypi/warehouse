@@ -25,6 +25,7 @@ from warehouse.organizations.models import (
     OrganizationNameCatalog,
     OrganizationProject,
     OrganizationRole,
+    OrganizationStripeCustomer,
     OrganizationSubscription,
     Team,
     TeamProjectRole,
@@ -437,6 +438,33 @@ class DatabaseOrganizationService:
 
         self.db.delete(organization_subscription)
         self.db.flush()
+
+    def get_organization_stripe_customer(self, organization_id):
+        """
+        Return the organization stripe customer object that is
+        associated to the given organization id or None
+        """
+        return (
+            self.db.query(OrganizationStripeCustomer)
+            .filter(
+                OrganizationStripeCustomer.organization_id == organization_id,
+            )
+            .first()
+        )
+
+    def add_organization_stripe_customer(self, organization_id, customer_id):
+        """
+        Adds an association between the specified organization and customer
+        """
+        organization_stripe_customer = OrganizationStripeCustomer(
+            organization_id=organization_id,
+            customer_id=customer_id,
+        )
+
+        self.db.add(organization_stripe_customer)
+        self.db.flush()
+
+        return organization_stripe_customer
 
     def get_teams_by_organization(self, organization_id):
         """
