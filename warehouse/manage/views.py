@@ -12,9 +12,7 @@
 
 import base64
 import io
-import random
 
-from string import ascii_letters, digits
 from urllib.parse import urljoin
 
 import pyqrcode
@@ -1522,21 +1520,23 @@ class ManageOrganizationBillingViews:
         self.subscription_service = request.find_service(
             ISubscriptionService, context=None
         )
+        self.organization_service = request.find_service(
+            IOrganizationService, context=None
+        )
 
     @property
     def customer_id(self):
-        if self.organization.customer_id is None:
+        if self.organization.stripe_customer_id is None:
             customer = self.billing_service.create_customer(
                 name=self.organization.name,
                 description=self.organization.description,
             )
-            self.organization.customer_id = customer["id"]
-            if isinstance(self.billing_service, MockStripeBillingService):
-                # Use mock customer ID.
-                self.organization.customer_id = "mockcus_" + "".join(
-                    random.choices(digits + ascii_letters, k=14)
-                )
-        return self.organization.customer_id
+            self.organization_service.add_organization_stripe_customer(
+                organization_id=self.organization.id,
+                customer_id=customer["id"],
+            )
+            return customer["id"]
+        return self.organization.stripe_customer_id
 
     @property
     def price_id(self):
@@ -1579,7 +1579,7 @@ class ManageOrganizationBillingViews:
 
     def manage_subscription(self):
         portal_session = self.billing_service.create_portal_session(
-            customer_id=self.organization.customer_id,
+            customer_id=self.organization.stripe_customer_id,
             return_url=self.return_url,
         )
         manage_subscription_url = portal_session["url"]

@@ -284,6 +284,14 @@ class MockStripeBillingService(GenericBillingService):
 
         return cls(stripe, publishable_key, webhook_secret)
 
+    def create_customer(self, name, description):
+        # Mock Stripe doesn't return a customer_id so create a mock id by default
+        customer = super().create_customer(name, description)
+        customer["id"] = "mockcus_" + "".join(
+            random.choices(digits + ascii_letters, k=14)
+        )
+        return customer
+
 
 @implementer(IBillingService)
 class StripeBillingService(GenericBillingService):

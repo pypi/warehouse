@@ -63,7 +63,7 @@ class MockBillingViews:
             "type": "checkout.session.completed",
             "data": {
                 "object": {
-                    "customer": self.organization.customer_id,
+                    "customer": self.organization.stripe_customer_id,
                     "status": "complete",
                     "subscription": (
                         "mocksub_"
