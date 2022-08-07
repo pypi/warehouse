@@ -26,12 +26,12 @@ from warehouse.organizations.models import (
     OrganizationProject,
     OrganizationRole,
     OrganizationStripeCustomer,
-    OrganizationSubscription,
+    OrganizationStripeSubscription,
     Team,
     TeamProjectRole,
     TeamRole,
 )
-from warehouse.subscriptions.models import Subscription
+from warehouse.subscriptions.models import StripeSubscription
 
 NAME_FIELD = "name"
 
@@ -321,11 +321,11 @@ class DatabaseOrganizationService:
         #       Make them cancel via portal before allowing deletion?
         if organization.subscriptions:
             for subscription in organization.subscriptions:
-                self.db.query(OrganizationSubscription).filter_by(
+                self.db.query(OrganizationStripeSubscription).filter_by(
                     subscription=subscription
                 ).delete()
-                self.db.query(Subscription).filter(
-                    Subscription.id == subscription.id
+                self.db.query(StripeSubscription).filter(
+                    StripeSubscription.id == subscription.id
                 ).delete()
             # TODO: Delete any stored card data from payment processor?
         # Delete teams (and related data)
@@ -406,10 +406,10 @@ class DatabaseOrganizationService:
         organization subscription id or None
         """
         return (
-            self.db.query(OrganizationSubscription)
+            self.db.query(OrganizationStripeSubscription)
             .filter(
-                OrganizationSubscription.organization_id == organization_id,
-                OrganizationSubscription.subscription_id == subscription_id,
+                OrganizationStripeSubscription.organization_id == organization_id,
+                OrganizationStripeSubscription.subscription_id == subscription_id,
             )
             .first()
         )
@@ -418,7 +418,7 @@ class DatabaseOrganizationService:
         """
         Adds an association between the specified organization and subscription
         """
-        organization_subscription = OrganizationSubscription(
+        organization_subscription = OrganizationStripeSubscription(
             organization_id=organization_id,
             subscription_id=subscription_id,
         )

@@ -22,9 +22,9 @@ from warehouse.api import billing
 from ...common.db.organizations import (
     OrganizationFactory,
     OrganizationStripeCustomerFactory,
-    OrganizationSubscriptionFactory,
+    OrganizationStripeSubscriptionFactory,
 )
-from ...common.db.subscriptions import SubscriptionFactory
+from ...common.db.subscriptions import StripeSubscriptionFactory
 
 
 class TestHandleBillingWebhookEvent:
@@ -36,10 +36,10 @@ class TestHandleBillingWebhookEvent:
         organization_stripe_customer = OrganizationStripeCustomerFactory.create(
             organization=organization
         )
-        subscription = SubscriptionFactory.create(
+        subscription = StripeSubscriptionFactory.create(
             customer_id=organization_stripe_customer.customer_id
         )
-        OrganizationSubscriptionFactory.create(
+        OrganizationStripeSubscriptionFactory.create(
             organization=organization, subscription=subscription
         )
 
@@ -136,10 +136,10 @@ class TestHandleBillingWebhookEvent:
         organization_stripe_customer = OrganizationStripeCustomerFactory.create(
             organization=organization
         )
-        subscription = SubscriptionFactory.create(
+        subscription = StripeSubscriptionFactory.create(
             customer_id=organization_stripe_customer.customer_id
         )
-        OrganizationSubscriptionFactory.create(
+        OrganizationStripeSubscriptionFactory.create(
             organization=organization, subscription=subscription
         )
 
@@ -237,10 +237,10 @@ class TestHandleBillingWebhookEvent:
         organization_stripe_customer = OrganizationStripeCustomerFactory.create(
             organization=organization
         )
-        subscription = SubscriptionFactory.create(
+        subscription = StripeSubscriptionFactory.create(
             customer_id=organization_stripe_customer.customer_id
         )
-        OrganizationSubscriptionFactory.create(
+        OrganizationStripeSubscriptionFactory.create(
             organization=organization, subscription=subscription
         )
 
@@ -286,10 +286,10 @@ class TestHandleBillingWebhookEvent:
         organization_stripe_customer = OrganizationStripeCustomerFactory.create(
             organization=organization
         )
-        subscription = SubscriptionFactory.create(
+        subscription = StripeSubscriptionFactory.create(
             customer_id=organization_stripe_customer.customer_id
         )
-        OrganizationSubscriptionFactory.create(
+        OrganizationStripeSubscriptionFactory.create(
             organization=organization, subscription=subscription
         )
 
@@ -367,10 +367,10 @@ class TestHandleBillingWebhookEvent:
         organization_stripe_customer = OrganizationStripeCustomerFactory.create(
             organization=organization
         )
-        subscription = SubscriptionFactory.create(
+        subscription = StripeSubscriptionFactory.create(
             customer_id=organization_stripe_customer.customer_id
         )
-        OrganizationSubscriptionFactory.create(
+        OrganizationStripeSubscriptionFactory.create(
             organization=organization, subscription=subscription
         )
 

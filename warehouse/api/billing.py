@@ -17,7 +17,7 @@ from pyramid.httpexceptions import HTTPBadRequest, HTTPNoContent, HTTPNotFound
 from pyramid.view import view_config
 
 from warehouse.subscriptions.interfaces import IBillingService, ISubscriptionService
-from warehouse.subscriptions.models import SubscriptionStatus
+from warehouse.subscriptions.models import StripeSubscriptionStatus
 
 
 def handle_billing_webhook_event(request, event):
@@ -39,7 +39,7 @@ def handle_billing_webhook_event(request, event):
             if id := subscription_service.find_subscriptionid(subscription_id):
                 # Set subscription status to active.
                 subscription_service.update_subscription_status(
-                    id, SubscriptionStatus.Active
+                    id, StripeSubscriptionStatus.Active
                 )
             else:
                 # Activate subscription for customer.
@@ -50,7 +50,7 @@ def handle_billing_webhook_event(request, event):
             status = subscription["status"]
             customer_id = subscription["customer"]
             subscription_id = subscription["id"]
-            if not status or not SubscriptionStatus.has_value(status):
+            if not status or not StripeSubscriptionStatus.has_value(status):
                 raise HTTPBadRequest("Invalid subscription status")
             if not customer_id:
                 raise HTTPBadRequest("Invalid customer ID")
@@ -59,7 +59,7 @@ def handle_billing_webhook_event(request, event):
             if id := subscription_service.find_subscriptionid(subscription_id):
                 # Set subscription status to canceled.
                 subscription_service.update_subscription_status(
-                    id, SubscriptionStatus.Canceled
+                    id, StripeSubscriptionStatus.Canceled
                 )
             else:
                 raise HTTPNotFound("Subscription not found")
@@ -69,7 +69,7 @@ def handle_billing_webhook_event(request, event):
             status = subscription["status"]
             customer_id = subscription["customer"]
             subscription_id = subscription["id"]
-            if not status or not SubscriptionStatus.has_value(status):
+            if not status or not StripeSubscriptionStatus.has_value(status):
                 raise HTTPBadRequest("Invalid subscription status")
             if not customer_id:
                 raise HTTPBadRequest("Invalid customer ID")

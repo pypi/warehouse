@@ -13,18 +13,18 @@
 import factory
 
 from warehouse.subscriptions.models import (
-    Subscription,
-    SubscriptionPrice,
-    SubscriptionProduct,
-    SubscriptionStatus,
+    StripeSubscription,
+    StripeSubscriptionPrice,
+    StripeSubscriptionProduct,
+    StripeSubscriptionStatus,
 )
 
 from .base import WarehouseFactory
 
 
-class SubscriptionProductFactory(WarehouseFactory):
+class StripeSubscriptionProductFactory(WarehouseFactory):
     class Meta:
-        model = SubscriptionProduct
+        model = StripeSubscriptionProduct
 
     id = factory.Faker("uuid4", cast_to=None)
     product_id = "prod_123"
@@ -32,9 +32,9 @@ class SubscriptionProductFactory(WarehouseFactory):
     description = factory.Faker("sentence")
 
 
-class SubscriptionPriceFactory(WarehouseFactory):
+class StripeSubscriptionPriceFactory(WarehouseFactory):
     class Meta:
-        model = SubscriptionPrice
+        model = StripeSubscriptionPrice
 
     id = factory.Faker("uuid4", cast_to=None)
     price_id = "price_123"
@@ -42,15 +42,15 @@ class SubscriptionPriceFactory(WarehouseFactory):
     unit_amount = 2500
     recurring = "month"
 
-    subscription_product = factory.SubFactory(SubscriptionProductFactory)
+    subscription_product = factory.SubFactory(StripeSubscriptionProductFactory)
 
 
-class SubscriptionFactory(WarehouseFactory):
+class StripeSubscriptionFactory(WarehouseFactory):
     class Meta:
-        model = Subscription
+        model = StripeSubscription
 
     id = factory.Faker("uuid4", cast_to=None)
     customer_id = factory.Faker("uuid4")
     subscription_id = factory.Faker("uuid4")
-    subscription_price = factory.SubFactory(SubscriptionPriceFactory)
-    status = SubscriptionStatus.Active
+    subscription_price = factory.SubFactory(StripeSubscriptionPriceFactory)
+    status = StripeSubscriptionStatus.Active

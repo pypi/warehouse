@@ -10,22 +10,24 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from warehouse.subscriptions.models import SubscriptionStatus
+from warehouse.subscriptions.models import StripeSubscriptionStatus
 
 from ...common.db.organizations import (
     OrganizationFactory as DBOrganizationFactory,
     OrganizationStripeCustomerFactory as DBOrganizationStripeCustomerFactory,
 )
-from ...common.db.subscriptions import SubscriptionFactory as DBSubscriptionFactory
+from ...common.db.subscriptions import (
+    StripeSubscriptionFactory as DBStripeSubscriptionFactory,
+)
 
 
-class TestSubscription:
+class TestStripeSubscription:
     def test_is_restricted(self, db_session):
         organization = DBOrganizationFactory.create()
         organization_stripe_customer = DBOrganizationStripeCustomerFactory.create(
             organization=organization
         )
-        subscription = DBSubscriptionFactory.create(
+        subscription = DBStripeSubscriptionFactory.create(
             customer_id=organization_stripe_customer.customer_id,
             status="past_due",
         )
@@ -36,20 +38,20 @@ class TestSubscription:
         organization_stripe_customer = DBOrganizationStripeCustomerFactory.create(
             organization=organization
         )
-        subscription = DBSubscriptionFactory.create(
+        subscription = DBStripeSubscriptionFactory.create(
             customer_id=organization_stripe_customer.customer_id
         )
         assert not subscription.is_restricted
 
 
-class TestSubscriptionStatus:
+class TestStripeSubscriptionStatus:
     def test_has_value(self, db_session):
         organization = DBOrganizationFactory.create()
         organization_stripe_customer = DBOrganizationStripeCustomerFactory.create(
             organization=organization
         )
-        subscription = DBSubscriptionFactory.create(
+        subscription = DBStripeSubscriptionFactory.create(
             customer_id=organization_stripe_customer.customer_id
         )
-        assert SubscriptionStatus.has_value(subscription.status)
-        assert not SubscriptionStatus.has_value("invalid_status")
+        assert StripeSubscriptionStatus.has_value(subscription.status)
+        assert not StripeSubscriptionStatus.has_value("invalid_status")

@@ -105,16 +105,20 @@ class OrganizationProject(db.Model):
     project = orm.relationship("Project", lazy=False)
 
 
-class OrganizationSubscription(db.Model):
+class OrganizationStripeSubscription(db.Model):
 
-    __tablename__ = "organization_subscription"
+    __tablename__ = "organization_stripe_subscriptions"
     __table_args__ = (
-        Index("organization_subscription_organization_id_idx", "organization_id"),
-        Index("organization_subscription_subscription_id_idx", "subscription_id"),
+        Index(
+            "organization_stripe_subscriptions_organization_id_idx", "organization_id"
+        ),
+        Index(
+            "organization_stripe_subscriptions_subscription_id_idx", "subscription_id"
+        ),
         UniqueConstraint(
             "organization_id",
             "subscription_id",
-            name="_organization_subscription_organization_subscription_uc",
+            name="_organization_stripe_subscriptions_organization_subscription_uc",
         ),
     )
 
@@ -125,12 +129,12 @@ class OrganizationSubscription(db.Model):
         nullable=False,
     )
     subscription_id = Column(
-        ForeignKey("subscriptions.id", onupdate="CASCADE", ondelete="CASCADE"),
+        ForeignKey("stripe_subscriptions.id", onupdate="CASCADE", ondelete="CASCADE"),
         nullable=False,
     )
 
     organization = orm.relationship("Organization", lazy=False)
-    subscription = orm.relationship("Subscription", lazy=False)
+    subscription = orm.relationship("StripeSubscription", lazy=False)
 
 
 class OrganizationStripeCustomer(db.Model):
@@ -251,7 +255,7 @@ class Organization(HasEvents, db.Model):
         "Project", secondary=OrganizationProject.__table__, back_populates="organization", viewonly=True  # type: ignore # noqa
     )
     subscriptions = orm.relationship(
-        "Subscription", secondary=OrganizationSubscription.__table__, back_populates="organization", viewonly=True  # type: ignore # noqa
+        "StripeSubscription", secondary=OrganizationStripeSubscription.__table__, back_populates="organization", viewonly=True  # type: ignore # noqa
     )
 
     @property

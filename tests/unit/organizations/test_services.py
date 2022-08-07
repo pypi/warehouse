@@ -23,13 +23,13 @@ from warehouse.organizations.models import (
     OrganizationRole,
     OrganizationRoleType,
     OrganizationStripeCustomer,
-    OrganizationSubscription,
+    OrganizationStripeSubscription,
     OrganizationType,
     Team,
     TeamProjectRole,
     TeamRole,
 )
-from warehouse.subscriptions.models import Subscription
+from warehouse.subscriptions.models import StripeSubscription
 
 from ...common.db.organizations import (
     OrganizationFactory,
@@ -37,14 +37,14 @@ from ...common.db.organizations import (
     OrganizationProjectFactory,
     OrganizationRoleFactory,
     OrganizationStripeCustomerFactory,
-    OrganizationSubscriptionFactory,
+    OrganizationStripeSubscriptionFactory,
     TeamFactory,
     TeamProjectRoleFactory,
     TeamRoleFactory,
     UserFactory,
 )
 from ...common.db.packaging import ProjectFactory
-from ...common.db.subscriptions import SubscriptionFactory
+from ...common.db.subscriptions import StripeSubscriptionFactory
 
 
 def test_database_organizations_factory():
@@ -329,10 +329,10 @@ class TestDatabaseOrganizationService:
         organization_stripe_customer = OrganizationStripeCustomerFactory.create(
             organization=organization
         )
-        subscription = SubscriptionFactory.create(
+        subscription = StripeSubscriptionFactory.create(
             customer_id=organization_stripe_customer.customer_id
         )
-        OrganizationSubscriptionFactory.create(
+        OrganizationStripeSubscriptionFactory.create(
             organization=organization, subscription=subscription
         )
         TeamFactory.create(organization=organization)
@@ -369,15 +369,15 @@ class TestDatabaseOrganizationService:
         )
         assert not (
             (
-                db_request.db.query(OrganizationSubscription)
+                db_request.db.query(OrganizationStripeSubscription)
                 .filter_by(organization=organization, subscription=subscription)
                 .count()
             )
         )
         assert not (
             (
-                db_request.db.query(Subscription)
-                .filter(Subscription.id == subscription.id)
+                db_request.db.query(StripeSubscription)
+                .filter(StripeSubscription.id == subscription.id)
                 .count()
             )
         )
@@ -476,7 +476,7 @@ class TestDatabaseOrganizationService:
         organization_stripe_customer = OrganizationStripeCustomerFactory.create(
             organization=organization
         )
-        subscription = SubscriptionFactory.create(
+        subscription = StripeSubscriptionFactory.create(
             customer_id=organization_stripe_customer.customer_id
         )
 
@@ -484,10 +484,10 @@ class TestDatabaseOrganizationService:
             organization.id, subscription.id
         )
         assert (
-            db_request.db.query(OrganizationSubscription)
+            db_request.db.query(OrganizationStripeSubscription)
             .filter(
-                OrganizationSubscription.organization_id == organization.id,
-                OrganizationSubscription.subscription_id == subscription.id,
+                OrganizationStripeSubscription.organization_id == organization.id,
+                OrganizationStripeSubscription.subscription_id == subscription.id,
             )
             .count()
         )
@@ -497,10 +497,10 @@ class TestDatabaseOrganizationService:
         organization_stripe_customer = OrganizationStripeCustomerFactory.create(
             organization=organization
         )
-        subscription = SubscriptionFactory.create(
+        subscription = StripeSubscriptionFactory.create(
             customer_id=organization_stripe_customer.customer_id
         )
-        OrganizationSubscriptionFactory.create(
+        OrganizationStripeSubscriptionFactory.create(
             organization=organization, subscription=subscription
         )
 
@@ -508,10 +508,10 @@ class TestDatabaseOrganizationService:
             organization.id, subscription.id
         )
         assert not (
-            db_request.db.query(OrganizationSubscription)
+            db_request.db.query(OrganizationStripeSubscription)
             .filter(
-                OrganizationSubscription.organization_id == organization.id,
-                OrganizationSubscription.subscription_id == subscription.id,
+                OrganizationStripeSubscription.organization_id == organization.id,
+                OrganizationStripeSubscription.subscription_id == subscription.id,
             )
             .count()
         )

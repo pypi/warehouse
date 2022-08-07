@@ -28,10 +28,12 @@ from ...common.db.organizations import (
     OrganizationNameCatalogFactory as DBOrganizationNameCatalogFactory,
     OrganizationRoleFactory as DBOrganizationRoleFactory,
     OrganizationStripeCustomerFactory as DBOrganizationStripeCustomerFactory,
-    OrganizationSubscriptionFactory as DBOrganizationSubscriptionFactory,
+    OrganizationStripeSubscriptionFactory as DBOrganizationStripeSubscriptionFactory,
     TeamFactory as DBTeamFactory,
 )
-from ...common.db.subscriptions import SubscriptionFactory as DBSubscriptionFactory
+from ...common.db.subscriptions import (
+    StripeSubscriptionFactory as DBStripeSubscriptionFactory,
+)
 
 
 class TestOrganizationFactory:
@@ -290,10 +292,10 @@ class TestTeam:
         organization_stripe_customer = DBOrganizationStripeCustomerFactory.create(
             organization=organization
         )
-        subscription = DBSubscriptionFactory.create(
+        subscription = DBStripeSubscriptionFactory.create(
             customer_id=organization_stripe_customer.customer_id
         )
-        DBOrganizationSubscriptionFactory.create(
+        DBOrganizationStripeSubscriptionFactory.create(
             organization=organization, subscription=subscription
         )
         assert organization.active_subscription is not None
@@ -303,11 +305,11 @@ class TestTeam:
         organization_stripe_customer = DBOrganizationStripeCustomerFactory.create(
             organization=organization
         )
-        subscription = DBSubscriptionFactory.create(
+        subscription = DBStripeSubscriptionFactory.create(
             customer_id=organization_stripe_customer.customer_id,
             status="canceled",
         )
-        DBOrganizationSubscriptionFactory.create(
+        DBOrganizationStripeSubscriptionFactory.create(
             organization=organization, subscription=subscription
         )
         assert organization.active_subscription is None

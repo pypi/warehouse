@@ -22,14 +22,14 @@ from warehouse.predicates import (
     HeadersPredicate,
     includeme,
 )
-from warehouse.subscriptions.models import SubscriptionStatus
+from warehouse.subscriptions.models import StripeSubscriptionStatus
 
 from ..common.db.organizations import (
     OrganizationFactory,
     OrganizationStripeCustomerFactory,
-    OrganizationSubscriptionFactory,
+    OrganizationStripeSubscriptionFactory,
 )
-from ..common.db.subscriptions import SubscriptionFactory
+from ..common.db.subscriptions import StripeSubscriptionFactory
 
 
 class TestDomainPredicate:
@@ -103,11 +103,11 @@ class TestActiveOrganizationPredicate:
 
     @pytest.fixture
     def active_subscription(self, organization):
-        subscription = SubscriptionFactory(
+        subscription = StripeSubscriptionFactory(
             customer_id=organization.stripe_customer_id,
-            status=SubscriptionStatus.Active,
+            status=StripeSubscriptionStatus.Active,
         )
-        OrganizationSubscriptionFactory(
+        OrganizationStripeSubscriptionFactory(
             organization=organization,
             subscription=subscription,
         )
@@ -115,11 +115,11 @@ class TestActiveOrganizationPredicate:
 
     @pytest.fixture
     def inactive_subscription(self, organization):
-        subscription = SubscriptionFactory(
+        subscription = StripeSubscriptionFactory(
             customer_id=organization.stripe_customer_id,
-            status=SubscriptionStatus.PastDue,
+            status=StripeSubscriptionStatus.PastDue,
         )
-        OrganizationSubscriptionFactory(
+        OrganizationStripeSubscriptionFactory(
             organization=organization,
             subscription=subscription,
         )

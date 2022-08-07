@@ -23,7 +23,7 @@ from warehouse.organizations.models import (
     OrganizationRole,
     OrganizationRoleType,
     OrganizationStripeCustomer,
-    OrganizationSubscription,
+    OrganizationStripeSubscription,
     Team,
     TeamProjectRole,
     TeamProjectRoleType,
@@ -34,7 +34,7 @@ from warehouse.organizations.models import (
 from .accounts import UserFactory
 from .base import WarehouseFactory
 from .packaging import ProjectFactory
-from .subscriptions import SubscriptionFactory
+from .subscriptions import StripeSubscriptionFactory
 
 fake = faker.Faker()
 
@@ -111,13 +111,13 @@ class OrganizationProjectFactory(WarehouseFactory):
     project = factory.SubFactory(ProjectFactory)
 
 
-class OrganizationSubscriptionFactory(WarehouseFactory):
+class OrganizationStripeSubscriptionFactory(WarehouseFactory):
     class Meta:
-        model = OrganizationSubscription
+        model = OrganizationStripeSubscription
 
     id = factory.Faker("uuid4", cast_to=None)
     organization = factory.SubFactory(OrganizationFactory)
-    subscription = factory.SubFactory(SubscriptionFactory)
+    subscription = factory.SubFactory(StripeSubscriptionFactory)
 
 
 class OrganizationStripeCustomerFactory(WarehouseFactory):

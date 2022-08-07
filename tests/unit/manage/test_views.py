@@ -75,7 +75,7 @@ from ...common.db.organizations import (
     OrganizationProjectFactory,
     OrganizationRoleFactory,
     OrganizationStripeCustomerFactory,
-    OrganizationSubscriptionFactory,
+    OrganizationStripeSubscriptionFactory,
     TeamFactory,
     TeamProjectRoleFactory,
     TeamRoleFactory,
@@ -90,7 +90,10 @@ from ...common.db.packaging import (
     RoleInvitationFactory,
     UserFactory,
 )
-from ...common.db.subscriptions import SubscriptionFactory, SubscriptionPriceFactory
+from ...common.db.subscriptions import (
+    StripeSubscriptionFactory,
+    StripeSubscriptionPriceFactory,
+)
 
 
 class TestManageAccount:
@@ -3130,17 +3133,19 @@ class TestManageOrganizationBillingViews:
 
     @pytest.fixture
     def subscription(self, organization):
-        return SubscriptionFactory.create(customer_id=organization.stripe_customer_id)
+        return StripeSubscriptionFactory.create(
+            customer_id=organization.stripe_customer_id
+        )
 
     @pytest.fixture
     def organization_subscription(self, organization, subscription):
-        return OrganizationSubscriptionFactory.create(
+        return OrganizationStripeSubscriptionFactory.create(
             organization=organization, subscription=subscription
         )
 
     @pytest.fixture
     def subscription_price(self):
-        return SubscriptionPriceFactory.create()
+        return StripeSubscriptionPriceFactory.create()
 
     def test_customer_id(
         self,

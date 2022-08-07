@@ -22,15 +22,15 @@ from zope.interface import implementer
 
 from warehouse.organizations.models import (
     OrganizationStripeCustomer,
-    OrganizationSubscription,
+    OrganizationStripeSubscription,
 )
 from warehouse.subscriptions.interfaces import IBillingService, ISubscriptionService
 from warehouse.subscriptions.models import (
-    Subscription,
-    SubscriptionPrice,
-    SubscriptionPriceInterval,
-    SubscriptionProduct,
-    SubscriptionStatus,
+    StripeSubscription,
+    StripeSubscriptionPrice,
+    StripeSubscriptionPriceInterval,
+    StripeSubscriptionProduct,
+    StripeSubscriptionStatus,
 )
 
 
@@ -306,7 +306,7 @@ class StripeBillingService(GenericBillingService):
 
 
 @implementer(ISubscriptionService)
-class SubscriptionService:
+class StripeSubscriptionService:
     def __init__(self, db_session):
         self.db = db_session
 
@@ -314,7 +314,7 @@ class SubscriptionService:
         """
         Get a subscription by id
         """
-        return self.db.query(Subscription).get(id)
+        return self.db.query(StripeSubscription).get(id)
 
     def find_subscriptionid(self, subscription_id):
         """
@@ -323,9 +323,9 @@ class SubscriptionService:
         """
         try:
             (id,) = (
-                self.db.query(Subscription.id)
+                self.db.query(StripeSubscription.id)
                 .filter(
-                    Subscription.subscription_id == subscription_id,
+                    StripeSubscription.subscription_id == subscription_id,
                 )
                 .one()
             )
@@ -343,11 +343,11 @@ class SubscriptionService:
         subscription_price = self.get_or_create_default_subscription_price()
 
         # Add new subscription.
-        subscription = Subscription(
+        subscription = StripeSubscription(
             customer_id=customer_id,
             subscription_id=subscription_id,
             subscription_price_id=subscription_price.id,
-            status=SubscriptionStatus.Active,  # default active subscription
+            status=StripeSubscriptionStatus.Active,  # default active subscription
         )
 
         # Link to organization.
@@ -356,7 +356,7 @@ class SubscriptionService:
             .filter(OrganizationStripeCustomer.customer_id == customer_id)
             .one()
         )
-        organization_subscription = OrganizationSubscription(
+        organization_subscription = OrganizationStripeSubscription(
             organization=organization_stripe_customer.organization,
             subscription=subscription,
         )
@@ -371,9 +371,9 @@ class SubscriptionService:
         """
         Update the status of a subscription object by subscription.id
         """
-        self.db.query(Subscription).filter(
-            Subscription.id == id,
-        ).update({Subscription.status: status})
+        self.db.query(StripeSubscription).filter(
+            StripeSubscription.id == id,
+        ).update({StripeSubscription.status: status})
 
     def delete_subscription(self, id):
         """
@@ -382,7 +382,7 @@ class SubscriptionService:
         subscription = self.get_subscription(id)
 
         # Delete link to organization
-        self.db.query(OrganizationSubscription).filter_by(
+        self.db.query(OrganizationStripeSubscription).filter_by(
             subscription=subscription
         ).delete()
 
@@ -394,8 +394,8 @@ class SubscriptionService:
         Get a list of subscriptions tied to the given customer ID
         """
         return (
-            self.db.query(Subscription)
-            .filter(Subscription.customer_id == customer_id)
+            self.db.query(StripeSubscription)
+            .filter(StripeSubscription.customer_id == customer_id)
             .all()
         )
 
@@ -417,15 +417,15 @@ class SubscriptionService:
         """
         Get a product by subscription product id
         """
-        return self.db.query(SubscriptionProduct).get(subscription_product_id)
+        return self.db.query(StripeSubscriptionProduct).get(subscription_product_id)
 
     def get_subscription_products(self):
         """
         Get a list of all products
         """
         return (
-            self.db.query(SubscriptionProduct)
-            .order_by(SubscriptionProduct.product_name)
+            self.db.query(StripeSubscriptionProduct)
+            .order_by(StripeSubscriptionProduct.product_name)
             .all()
         )
 
@@ -436,11 +436,11 @@ class SubscriptionService:
         """
         try:
             (subscription_product_id,) = (
-                self.db.query(SubscriptionProduct.id)
+                self.db.query(StripeSubscriptionProduct.id)
                 .filter(
                     or_(
-                        SubscriptionProduct.product_name == search_term,
-                        SubscriptionProduct.product_id == search_term,
+                        StripeSubscriptionProduct.product_name == search_term,
+                        StripeSubscriptionProduct.product_id == search_term,
                     )
                 )
                 .one()
@@ -454,7 +454,7 @@ class SubscriptionService:
         """
         Add a subscription product
         """
-        subscription_product = SubscriptionProduct(
+        subscription_product = StripeSubscriptionProduct(
             product_name=product_name,
             description=description,
             product_id=product_id,
@@ -492,8 +492,8 @@ class SubscriptionService:
         """
         try:
             subscription_price = (
-                self.db.query(SubscriptionPrice)
-                .filter(SubscriptionPrice.is_active)
+                self.db.query(StripeSubscriptionPrice)
+                .filter(StripeSubscriptionPrice.is_active)
                 .one()
             )
         except NoResultFound:
@@ -509,7 +509,7 @@ class SubscriptionService:
                 currency="usd",
                 subscription_product_id=subscription_product.id,
                 unit_amount=5000,
-                recurring=SubscriptionPriceInterval.Month,
+                recurring=StripeSubscriptionPriceInterval.Month,
                 tax_behavior="inclusive",
             )
 
@@ -519,13 +519,17 @@ class SubscriptionService:
         """
         Get a subscription price by id
         """
-        return self.db.query(SubscriptionPrice).get(subscription_price_id)
+        return self.db.query(StripeSubscriptionPrice).get(subscription_price_id)
 
     def get_subscription_prices(self):
         """
         Get a list of all subscription prices
         """
-        return self.db.query(SubscriptionPrice).order_by(SubscriptionPrice.id).all()
+        return (
+            self.db.query(StripeSubscriptionPrice)
+            .order_by(StripeSubscriptionPrice.id)
+            .all()
+        )
 
     def find_subscription_priceid(self, search_term):
         """
@@ -534,9 +538,9 @@ class SubscriptionService:
         """
         try:
             (subscription_price_id,) = (
-                self.db.query(SubscriptionPrice.id)
+                self.db.query(StripeSubscriptionPrice.id)
                 .filter(
-                    SubscriptionPrice.price_id == search_term,
+                    StripeSubscriptionPrice.price_id == search_term,
                 )
                 .one()
             )
@@ -557,7 +561,7 @@ class SubscriptionService:
         """
         Add a subscription price
         """
-        subscription_price = SubscriptionPrice(
+        subscription_price = StripeSubscriptionPrice(
             price_id=price_id,
             currency=currency,
             subscription_product_id=subscription_product_id,
@@ -593,4 +597,4 @@ class SubscriptionService:
 
 
 def subscription_factory(context, request):
-    return SubscriptionService(request.db)
+    return StripeSubscriptionService(request.db)

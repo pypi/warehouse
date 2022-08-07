@@ -20,14 +20,14 @@ from zope.interface.verify import verifyClass
 
 from warehouse.organizations.models import (
     OrganizationStripeCustomer,
-    OrganizationSubscription,
+    OrganizationStripeSubscription,
 )
 from warehouse.subscriptions import services
 from warehouse.subscriptions.interfaces import IBillingService, ISubscriptionService
 from warehouse.subscriptions.models import (
-    SubscriptionPrice,
-    SubscriptionPriceInterval,
-    SubscriptionStatus,
+    StripeSubscriptionPrice,
+    StripeSubscriptionPriceInterval,
+    StripeSubscriptionStatus,
 )
 from warehouse.subscriptions.services import (
     GenericBillingService,
@@ -38,12 +38,12 @@ from warehouse.subscriptions.services import (
 from ...common.db.organizations import (
     OrganizationFactory,
     OrganizationStripeCustomerFactory,
-    OrganizationSubscriptionFactory,
+    OrganizationStripeSubscriptionFactory,
 )
 from ...common.db.subscriptions import (
-    SubscriptionFactory,
-    SubscriptionPriceFactory,
-    SubscriptionProductFactory,
+    StripeSubscriptionFactory,
+    StripeSubscriptionPriceFactory,
+    StripeSubscriptionProductFactory,
 )
 
 
@@ -153,7 +153,7 @@ class TestMockStripeBillingService:
         assert customer["id"]
 
     def test_create_checkout_session(self, billing_service, subscription_service):
-        subscription_price = SubscriptionPriceFactory.create()
+        subscription_price = StripeSubscriptionPriceFactory.create()
         success_url = "http://what.ever"
         cancel_url = "http://no.way"
 
@@ -190,7 +190,7 @@ class TestMockStripeBillingService:
         ]
 
     def test_create_or_update_product(self, billing_service, subscription_service):
-        subscription_product = SubscriptionProductFactory.create()
+        subscription_product = StripeSubscriptionProductFactory.create()
 
         product = billing_service.create_or_update_product(
             name=subscription_product.product_name,
@@ -213,7 +213,7 @@ class TestMockStripeBillingService:
         assert product is not None
 
     def test_create_product(self, billing_service, subscription_service):
-        subscription_product = SubscriptionProductFactory.create()
+        subscription_product = StripeSubscriptionProductFactory.create()
 
         product = billing_service.create_product(
             name=subscription_product.product_name,
@@ -224,7 +224,7 @@ class TestMockStripeBillingService:
         assert product is not None
 
     def test_retrieve_product(self, billing_service, subscription_service):
-        subscription_product = SubscriptionProductFactory.create()
+        subscription_product = StripeSubscriptionProductFactory.create()
 
         product = billing_service.retrieve_product(
             product_id=subscription_product.product_id,
@@ -233,7 +233,7 @@ class TestMockStripeBillingService:
         assert product is not None
 
     def test_update_product(self, billing_service, subscription_service):
-        subscription_product = SubscriptionProductFactory.create()
+        subscription_product = StripeSubscriptionProductFactory.create()
 
         product = billing_service.update_product(
             product_id=subscription_product.product_id,
@@ -252,7 +252,7 @@ class TestMockStripeBillingService:
         assert products is not None
 
     def test_delete_product(self, billing_service, subscription_service):
-        subscription_product = SubscriptionProductFactory.create()
+        subscription_product = StripeSubscriptionProductFactory.create()
 
         product = billing_service.delete_product(
             product_id=subscription_product.product_id
@@ -265,7 +265,7 @@ class TestMockStripeBillingService:
         assert products is not None
 
     def test_create_price(self, billing_service, subscription_service):
-        subscription_price = SubscriptionPriceFactory.create()
+        subscription_price = StripeSubscriptionPriceFactory.create()
 
         price = billing_service.create_price(
             unit_amount=subscription_price.unit_amount,
@@ -278,7 +278,7 @@ class TestMockStripeBillingService:
         assert price is not None
 
     def test_retrieve_price(self, billing_service, subscription_service):
-        subscription_price = SubscriptionPriceFactory.create()
+        subscription_price = StripeSubscriptionPriceFactory.create()
 
         price = billing_service.retrieve_price(
             price_id=subscription_price.price_id,
@@ -287,7 +287,7 @@ class TestMockStripeBillingService:
         assert price is not None
 
     def test_update_price(self, billing_service, subscription_service):
-        subscription_price = SubscriptionPriceFactory.create()
+        subscription_price = StripeSubscriptionPriceFactory.create()
 
         price = billing_service.update_price(
             price_id=subscription_price.price_id,
@@ -335,13 +335,13 @@ def test_subscription_factory():
     assert service.db is db
 
 
-class TestSubscriptionService:
+class TestStripeSubscriptionService:
     def test_verify_service(self):
-        assert verifyClass(ISubscriptionService, services.SubscriptionService)
+        assert verifyClass(ISubscriptionService, services.StripeSubscriptionService)
 
     def test_service_creation(self, remote_addr):
         session = pretend.stub()
-        service = services.SubscriptionService(session)
+        service = services.StripeSubscriptionService(session)
 
         assert service.db is session
 
@@ -353,7 +353,7 @@ class TestSubscriptionService:
         organization_stripe_customer = OrganizationStripeCustomerFactory.create(
             organization=organization
         )
-        subscription = SubscriptionFactory.create(
+        subscription = StripeSubscriptionFactory.create(
             customer_id=organization_stripe_customer.customer_id
         )
 
@@ -385,35 +385,35 @@ class TestSubscriptionService:
             subscription_from_db.subscription_price_id
             == new_subscription.subscription_price_id
         )
-        assert subscription_from_db.status == SubscriptionStatus.Active.value
+        assert subscription_from_db.status == StripeSubscriptionStatus.Active.value
 
     def test_update_subscription_status(self, subscription_service, db_request):
         organization = OrganizationFactory.create()
         organization_stripe_customer = OrganizationStripeCustomerFactory.create(
             organization=organization
         )
-        subscription = SubscriptionFactory.create(
+        subscription = StripeSubscriptionFactory.create(
             customer_id=organization_stripe_customer.customer_id
         )
 
-        assert subscription.status == SubscriptionStatus.Active.value
+        assert subscription.status == StripeSubscriptionStatus.Active.value
 
         subscription_service.update_subscription_status(
             subscription.id,
-            status=SubscriptionStatus.Active.value,
+            status=StripeSubscriptionStatus.Active.value,
         )
 
-        assert subscription.status == SubscriptionStatus.Active.value
+        assert subscription.status == StripeSubscriptionStatus.Active.value
 
     def test_delete_subscription(self, subscription_service, db_request):
         organization = OrganizationFactory.create()
         organization_stripe_customer = OrganizationStripeCustomerFactory.create(
             organization=organization
         )
-        subscription = SubscriptionFactory.create(
+        subscription = StripeSubscriptionFactory.create(
             customer_id=organization_stripe_customer.customer_id
         )
-        OrganizationSubscriptionFactory.create(
+        OrganizationStripeSubscriptionFactory.create(
             organization=organization, subscription=subscription
         )
 
@@ -422,7 +422,7 @@ class TestSubscriptionService:
         assert subscription_service.get_subscription(subscription.id) is None
         assert not (
             (
-                db_request.db.query(OrganizationSubscription)
+                db_request.db.query(OrganizationStripeSubscription)
                 .filter_by(subscription=subscription)
                 .count()
             )
@@ -433,10 +433,10 @@ class TestSubscriptionService:
         organization_stripe_customer = OrganizationStripeCustomerFactory.create(
             organization=organization
         )
-        subscription = SubscriptionFactory.create(
+        subscription = StripeSubscriptionFactory.create(
             customer_id=organization_stripe_customer.customer_id
         )
-        subscription1 = SubscriptionFactory.create(
+        subscription1 = StripeSubscriptionFactory.create(
             customer_id=organization_stripe_customer.customer_id
         )
 
@@ -452,16 +452,16 @@ class TestSubscriptionService:
         organization_stripe_customer = OrganizationStripeCustomerFactory.create(
             organization=organization
         )
-        subscription = SubscriptionFactory.create(
+        subscription = StripeSubscriptionFactory.create(
             customer_id=organization_stripe_customer.customer_id
         )
-        OrganizationSubscriptionFactory.create(
+        OrganizationStripeSubscriptionFactory.create(
             organization=organization, subscription=subscription
         )
-        subscription1 = SubscriptionFactory.create(
+        subscription1 = StripeSubscriptionFactory.create(
             customer_id=organization_stripe_customer.customer_id
         )
-        OrganizationSubscriptionFactory.create(
+        OrganizationStripeSubscriptionFactory.create(
             organization=organization, subscription=subscription1
         )
 
@@ -470,7 +470,7 @@ class TestSubscriptionService:
         assert subscription_service.get_subscription(subscription.id) is None
         assert not (
             (
-                db_request.db.query(OrganizationSubscription)
+                db_request.db.query(OrganizationStripeSubscription)
                 .filter_by(subscription=subscription)
                 .count()
             )
@@ -478,7 +478,7 @@ class TestSubscriptionService:
         assert subscription_service.get_subscription(subscription1.id) is None
         assert not (
             (
-                db_request.db.query(OrganizationSubscription)
+                db_request.db.query(OrganizationStripeSubscription)
                 .filter_by(subscription=subscription1)
                 .count()
             )
@@ -493,8 +493,8 @@ class TestSubscriptionService:
         )
 
     def test_get_subscription_products(self, subscription_service):
-        subscription_product = SubscriptionProductFactory.create()
-        subscription_product_deux = SubscriptionProductFactory.create()
+        subscription_product = StripeSubscriptionProductFactory.create()
+        subscription_product_deux = StripeSubscriptionProductFactory.create()
         subscription_products = subscription_service.get_subscription_products()
 
         assert subscription_product in subscription_products
@@ -504,7 +504,7 @@ class TestSubscriptionService:
         assert subscription_service.find_subscription_productid("can't_see_me") is None
 
     def test_find_subscription_productid(self, subscription_service):
-        subscription_product = SubscriptionProductFactory.create()
+        subscription_product = StripeSubscriptionProductFactory.create()
         assert (
             subscription_service.find_subscription_productid(
                 subscription_product.product_name
@@ -519,7 +519,7 @@ class TestSubscriptionService:
         )
 
     def test_add_subscription_product(self, subscription_service):
-        subscription_product = SubscriptionProductFactory.create()
+        subscription_product = StripeSubscriptionProductFactory.create()
 
         new_subscription_product = subscription_service.add_subscription_product(
             product_name=subscription_product.product_name,
@@ -539,7 +539,7 @@ class TestSubscriptionService:
         assert product_from_db.is_active
 
     def test_update_subscription_product(self, subscription_service, db_request):
-        subscription_product = SubscriptionProductFactory.create(
+        subscription_product = StripeSubscriptionProductFactory.create(
             product_name="original_name"
         )
 
@@ -555,7 +555,7 @@ class TestSubscriptionService:
         assert db_subscription_product.product_name == "updated_product_name"
 
     def test_delete_subscription_product(self, subscription_service):
-        subscription_product = SubscriptionProductFactory.create()
+        subscription_product = StripeSubscriptionProductFactory.create()
 
         subscription_service.delete_subscription_product(subscription_product.id)
 
@@ -565,8 +565,8 @@ class TestSubscriptionService:
         )
 
     def test_get_subscription_prices(self, subscription_service):
-        subscription_price = SubscriptionPriceFactory.create()
-        subscription_price_deux = SubscriptionPriceFactory.create()
+        subscription_price = StripeSubscriptionPriceFactory.create()
+        subscription_price_deux = StripeSubscriptionPriceFactory.create()
         subscription_prices = subscription_service.get_subscription_prices()
 
         assert subscription_price in subscription_prices
@@ -576,14 +576,14 @@ class TestSubscriptionService:
         assert subscription_service.find_subscription_priceid("john_cena") is None
 
     def test_add_subscription_price(self, subscription_service, db_request):
-        subscription_product = SubscriptionProductFactory.create()
+        subscription_product = StripeSubscriptionProductFactory.create()
 
         subscription_service.add_subscription_price(
             "price_321",
             "usd",
             subscription_product.id,
             1500,
-            SubscriptionPriceInterval.Month.value,
+            StripeSubscriptionPriceInterval.Month.value,
             "taxerrific",
         )
 
@@ -599,38 +599,49 @@ class TestSubscriptionService:
         assert subscription_price.currency == "usd"
         assert subscription_price.subscription_product_id == subscription_product.id
         assert subscription_price.unit_amount == 1500
-        assert subscription_price.recurring == SubscriptionPriceInterval.Month.value
+        assert (
+            subscription_price.recurring == StripeSubscriptionPriceInterval.Month.value
+        )
         assert subscription_price.tax_behavior == "taxerrific"
 
     def test_update_subscription_price(self, subscription_service, db_request):
-        subscription_price = SubscriptionPriceFactory.create()
+        subscription_price = StripeSubscriptionPriceFactory.create()
 
         assert subscription_price.price_id == "price_123"
-        assert subscription_price.recurring == SubscriptionPriceInterval.Month.value
+        assert (
+            subscription_price.recurring == StripeSubscriptionPriceInterval.Month.value
+        )
 
         subscription_service.update_subscription_price(
             subscription_price.id,
             price_id="price_321",
-            recurring=SubscriptionPriceInterval.Year.value,
+            recurring=StripeSubscriptionPriceInterval.Year.value,
         )
 
         assert subscription_price.price_id == "price_321"
-        assert subscription_price.recurring == SubscriptionPriceInterval.Year.value
+        assert (
+            subscription_price.recurring == StripeSubscriptionPriceInterval.Year.value
+        )
 
         db_subscription_price = subscription_service.get_subscription_price(
             subscription_price.id
         )
         assert db_subscription_price.price_id == "price_321"
-        assert db_subscription_price.recurring == SubscriptionPriceInterval.Year.value
+        assert (
+            db_subscription_price.recurring
+            == StripeSubscriptionPriceInterval.Year.value
+        )
 
     def test_delete_subscription_price(self, subscription_service, db_request):
         """
         Delete a subscription price
         """
-        subscription_price = SubscriptionPriceFactory.create()
+        subscription_price = StripeSubscriptionPriceFactory.create()
 
-        assert db_request.db.query(SubscriptionPrice).get(subscription_price.id)
+        assert db_request.db.query(StripeSubscriptionPrice).get(subscription_price.id)
 
         subscription_service.delete_subscription_price(subscription_price.id)
 
-        assert not (db_request.db.query(SubscriptionPrice).get(subscription_price.id))
+        assert not (
+            db_request.db.query(StripeSubscriptionPrice).get(subscription_price.id)
+        )
