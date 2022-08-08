@@ -97,6 +97,7 @@ class CreateInternalRoleForm(
     team_name = wtforms.SelectField(
         "Select team",
         choices=[("", "Select team")],
+        default="",  # Set default to avoid error when there are no team choices.
         validators=[wtforms.validators.InputRequired()],
     )
 
@@ -448,6 +449,7 @@ class AddOrganizationProjectForm(forms.Form):
     existing_project_name = wtforms.SelectField(
         "Select project",
         choices=[("", "Select project")],
+        default="",  # Set default to avoid error when there are no project choices.
     )
 
     new_project_name = wtforms.StringField()
