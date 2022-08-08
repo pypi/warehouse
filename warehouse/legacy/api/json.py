@@ -39,12 +39,23 @@ _CORS_HEADERS = {
     "Access-Control-Expose-Headers": ", ".join(["X-PyPI-Last-Serial"]),
 }
 
-_CACHE_DECORATOR = [
+_RELEASE_CACHE_DECORATOR = [
     cache_control(15 * 60),  # 15 minutes
     origin_cache(
         1 * 24 * 60 * 60,  # 1 day
         stale_while_revalidate=5 * 60,  # 5 minutes
         stale_if_error=1 * 24 * 60 * 60,  # 1 day
+        keys=["all-legacy-json", "release-legacy-json"],
+    ),
+]
+
+_PROJECT_CACHE_DECORATOR = [
+    cache_control(15 * 60),  # 15 minutes
+    origin_cache(
+        1 * 24 * 60 * 60,  # 1 day
+        stale_while_revalidate=5 * 60,  # 5 minutes
+        stale_if_error=1 * 24 * 60 * 60,  # 1 day
+        keys=["all-legacy-json", "project-legacy-json"],
     ),
 ]
 
@@ -205,7 +216,7 @@ def latest_release_factory(request):
     route_name="legacy.api.json.project",
     context=Release,
     renderer="json",
-    decorator=_CACHE_DECORATOR,
+    decorator=_PROJECT_CACHE_DECORATOR,
 )
 def json_project(release, request):
     project = release.project
@@ -232,7 +243,7 @@ def json_project(release, request):
     route_name="legacy.api.json.project_slash",
     context=Release,
     renderer="json",
-    decorator=_CACHE_DECORATOR,
+    decorator=_PROJECT_CACHE_DECORATOR,
 )
 def json_project_slash(release, request):
     return json_project(release, request)
@@ -278,7 +289,7 @@ def release_factory(request):
     route_name="legacy.api.json.release",
     context=Release,
     renderer="json",
-    decorator=_CACHE_DECORATOR,
+    decorator=_RELEASE_CACHE_DECORATOR,
 )
 def json_release(release, request):
     project = release.project
@@ -303,7 +314,7 @@ def json_release(release, request):
     route_name="legacy.api.json.release_slash",
     context=Release,
     renderer="json",
-    decorator=_CACHE_DECORATOR,
+    decorator=_RELEASE_CACHE_DECORATOR,
 )
 def json_release_slash(release, request):
     return json_release(release, request)

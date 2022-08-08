@@ -12,4 +12,4 @@ Examples of contributions include:
 
 Extensive contribution guidelines are available in the repository at
 ``docs/development/index.rst`` or
-`online <https://warehouse.readthedocs.io/development/>`_.
+`online <https://warehouse.pypa.io/development/>`_.

@@ -141,7 +141,7 @@
     {% endfor %}
   </div>
 
-  {% if request.has_permission("manage:organization") %}
+  {% if request.has_permission("add:project") %}
   <hr>
 
   {{ form_error_anchor(add_organization_project_form) }}
@@ -178,7 +178,7 @@
         </div>
         <p class="form-group__help-text">
           {% trans trimmed %}
-          Owners of this organization can transfer a project that they own to this organization if the project has not been added to another organization. A project that has been added to another organization can be transferred from the project settings page.
+          Owners or managers of this organization can transfer a project that they own to this organization if the project has not been added to another organization. A project that has been added to another organization can be transferred from the project settings page.
           {% endtrans %}
         </p>
       </div>

@@ -331,6 +331,7 @@ class ManageAccountViews:
             for email in self.request.user.emails:
                 email.public = email.email == public_email
             self.request.session.flash("Account details updated", queue="success")
+            return HTTPSeeOther(self.request.path)
 
         return {**self.default_response, "save_account_form": form}
 
@@ -364,7 +365,7 @@ class ManageAccountViews:
                 ),
                 queue="success",
             )
-            return self.default_response
+            return HTTPSeeOther(self.request.path)
 
         return {**self.default_response, "add_email_form": form}
 
@@ -399,6 +400,8 @@ class ManageAccountViews:
             self.request.session.flash(
                 f"Email address {email.email} removed", queue="success"
             )
+            return HTTPSeeOther(self.request.path)
+
         return self.default_response
 
     @view_config(
@@ -444,7 +447,8 @@ class ManageAccountViews:
             send_primary_email_change_email(
                 self.request, (self.request.user, previous_primary_email)
             )
-        return self.default_response
+
+        return HTTPSeeOther(self.request.path)
 
     @view_config(request_method="POST", request_param=["reverify_email_id"])
     def reverify_email(self):
@@ -475,7 +479,7 @@ class ManageAccountViews:
                 f"Verification email for {email.email} resent", queue="success"
             )
 
-        return self.default_response
+        return HTTPSeeOther(self.request.path)
 
     @view_config(request_method="POST", request_param=ChangePasswordForm.__params__)
     def change_password(self):
@@ -505,6 +509,7 @@ class ManageAccountViews:
                 self.user_service.get_password_timestamp(self.request.user.id)
             )
             self.request.session.flash("Password updated", queue="success")
+            return HTTPSeeOther(self.request.path)
 
         return {**self.default_response, "change_password_form": form}
 
@@ -1048,6 +1053,7 @@ class ProvisionMacaroonViews:
                         },
                     )
 
+            # This is an exception to our pattern of redirecting POST to GET.
             response.update(serialized_macaroon=serialized_macaroon, macaroon=macaroon)
 
         return {**response, "create_macaroon_form": form}
@@ -1330,7 +1336,7 @@ class ManageOrganizationsViews:
         else:
             return {"create_organization_form": form}
 
-        return self.default_response
+        return HTTPSeeOther(self.request.path)
 
 
 @view_defaults(
@@ -1393,6 +1399,7 @@ class ManageOrganizationSettingsViews:
             data = form.data
             self.organization_service.update_organization(self.organization.id, **data)
             self.request.session.flash("Organization details updated", queue="success")
+            return HTTPSeeOther(self.request.path)
 
         return {**self.default_response, "save_organization_form": form}
 
@@ -1663,7 +1670,7 @@ class ManageOrganizationProjectsViews:
 
         return self.default_response
 
-    @view_config(request_method="POST")
+    @view_config(request_method="POST", permission="add:project")
     def add_organization_project(self):
         if self.request.flags.enabled(AdminFlagValue.DISABLE_ORGANIZATIONS):
             raise HTTPNotFound
@@ -1900,11 +1907,7 @@ def manage_organization_roles(
                 queue="success",
             )
 
-        form = _form_class(
-            orgtype=organization.orgtype,
-            organization_service=organization_service,
-            user_service=user_service,
-        )
+        return HTTPSeeOther(request.path)
 
     roles = set(organization_service.get_organization_roles(organization.id))
     invitations = set(organization_service.get_organization_invites(organization.id))
@@ -2621,14 +2624,20 @@ class ManageProjectSettingsViews:
     @view_config(request_method="GET")
     def manage_project_settings(self):
         if self.request.flags.enabled(AdminFlagValue.DISABLE_ORGANIZATIONS):
+            # Disable transfer of project to any organization.
             organization_choices = set()
         else:
+            # Allow transfer of project to organizations owned or managed by user.
             all_user_organizations = user_organizations(self.request)
             organizations_owned = set(
                 organization.name
                 for organization in all_user_organizations["organizations_owned"]
             )
-            organization_choices = organizations_owned - (
+            organizations_managed = set(
+                organization.name
+                for organization in all_user_organizations["organizations_managed"]
+            )
+            organization_choices = (organizations_owned | organizations_managed) - (
                 {self.project.organization.name} if self.project.organization else set()
             )
 
@@ -2869,6 +2878,8 @@ class ManageOIDCProviderViews:
                 "warehouse.oidc.add_provider.ok", tags=["provider:GitHub"]
             )
 
+            return HTTPSeeOther(self.request.path)
+
         return response
 
     @view_config(request_method="POST", request_param=DeleteProviderForm.__params__)
@@ -2933,6 +2944,8 @@ class ManageOIDCProviderViews:
                 tags=[f"provider:{provider.provider_name}"],
             )
 
+            return HTTPSeeOther(self.request.path)
+
         return self.default_response
 
 
@@ -2952,6 +2965,23 @@ def remove_organization_project(project, request):
             request.route_path("manage.project.settings", project_name=project.name)
         )
 
+    if (
+        # Check that user has permission to remove projects from organization.
+        (project.organization and request.user not in project.organization.owners)
+        # Check that project has an individual owner.
+        or not project_owners(request, project)
+    ):
+        request.session.flash(
+            (
+                "Could not remove project from organization - "
+                "you do not have the required permissions"
+            ),
+            queue="error",
+        )
+        return HTTPSeeOther(
+            request.route_path("manage.project.settings", project_name=project.name)
+        )
+
     confirm_project(
         project,
         request,
@@ -2959,14 +2989,6 @@ def remove_organization_project(project, request):
         field_name="confirm_remove_organization_project_name",
         error_message="Could not remove project from organization",
     )
-
-    if not project_owners(request, project):
-        request.session.flash(
-            "Could not remove project from organization", queue="error"
-        )
-        return HTTPSeeOther(
-            request.route_path("manage.project.settings", project_name=project.name)
-        )
 
     # Remove project from current organization.
     organization_service = request.find_service(IOrganizationService, context=None)
@@ -3026,6 +3048,16 @@ def transfer_organization_project(project, request):
             request.route_path("manage.project.settings", project_name=project.name)
         )
 
+    # Check that user has permission to remove projects from organization.
+    if project.organization and request.user not in project.organization.owners:
+        request.session.flash(
+            "Could not transfer project - you do not have the required permissions",
+            queue="error",
+        )
+        return HTTPSeeOther(
+            request.route_path("manage.project.settings", project_name=project.name)
+        )
+
     confirm_project(
         project,
         request,
@@ -3039,7 +3071,11 @@ def transfer_organization_project(project, request):
         organization.name
         for organization in all_user_organizations["organizations_owned"]
     )
-    organization_choices = organizations_owned - (
+    organizations_managed = set(
+        organization.name
+        for organization in all_user_organizations["organizations_managed"]
+    )
+    organization_choices = (organizations_owned | organizations_managed) - (
         {project.organization.name} if project.organization else set()
     )
 
@@ -3868,7 +3904,9 @@ def manage_project_roles(project, request, _form_class=CreateRoleForm):
             ),
             queue="error",
         )
-        return default_response
+
+        # Refresh project collaborators.
+        return HTTPSeeOther(request.path)
 
     if enable_internal_collaborator and user in internal_users:
 
@@ -3966,7 +4004,6 @@ def manage_project_roles(project, request, _form_class=CreateRoleForm):
                 ),
                 queue="error",
             )
-            return default_response
         elif (
             user_invite
             and user_invite.invite_status == RoleInvitationStatus.Pending
@@ -3980,7 +4017,6 @@ def manage_project_roles(project, request, _form_class=CreateRoleForm):
                 ),
                 queue="error",
             )
-            return default_response
         else:
             invite_token = token_service.dumps(
                 {
@@ -4048,8 +4084,8 @@ def manage_project_roles(project, request, _form_class=CreateRoleForm):
                 queue="success",
             )
 
-            # Refresh project collaborators.
-            return HTTPSeeOther(request.path)
+        # Refresh project collaborators.
+        return HTTPSeeOther(request.path)
 
 
 @view_config(
