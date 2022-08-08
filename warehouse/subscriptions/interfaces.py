@@ -139,6 +139,12 @@ class IGenericBillingService(Interface):
         subscription price from the database.
         """
 
+    def cancel_subscription(subscription_id):
+        """
+        Cancels a customer’s subscription immediately.
+        The customer will not be charged again for the subscription.
+        """
+
 
 class IBillingService(IGenericBillingService):
     pass

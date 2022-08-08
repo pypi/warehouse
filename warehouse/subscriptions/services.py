@@ -270,6 +270,13 @@ class GenericBillingService:
         )
         subscription_price.price_id = price["id"]
 
+    def cancel_subscription(self, subscription_id):
+        """
+        Cancels a customer’s subscription immediately.
+        The customer will not be charged again for the subscription.
+        """
+        return stripe.Subscription.delete(subscription_id)
+
 
 @implementer(IBillingService)
 class MockStripeBillingService(GenericBillingService):
