@@ -306,6 +306,23 @@ class TestMockStripeBillingService:
 
         assert prices is not None
 
+    def test_cancel_subscription(self, billing_service, subscription_service):
+        organization = OrganizationFactory.create()
+        organization_stripe_customer = OrganizationStripeCustomerFactory.create(
+            organization=organization
+        )
+        db_subscription = StripeSubscriptionFactory.create(
+            customer_id=organization_stripe_customer.customer_id
+        )
+
+        subscription = billing_service.cancel_subscription(
+            subscription_id=db_subscription.subscription_id
+        )
+
+        # I would check to ensure the status is Canceled but mock stripe
+        # doesn't care enough to update the status for whatever reason ¯\_(ツ)_/¯
+        assert subscription.status is not None
+
 
 class TestGenericBillingService:
     def test_basic_init(self):
