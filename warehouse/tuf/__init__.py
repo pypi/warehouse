@@ -13,7 +13,7 @@
 from celery.schedules import crontab
 
 from warehouse.tuf.interfaces import IKeyService, IRepositoryService, IStorageService
-from warehouse.tuf.repository import SPEC_VERSION
+from warehouse.tuf.services import SPEC_VERSION
 from warehouse.tuf.tasks import bump_bin_n_roles, bump_snapshot
 
 
