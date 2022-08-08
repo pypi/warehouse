@@ -1150,7 +1150,10 @@ msgstr ""
 #: warehouse/templates/email/organization-member-removed/body.html:30
 #: warehouse/templates/email/organization-member-role-changed/body.html:30
 #: warehouse/templates/manage/account.html:248
+#: warehouse/templates/manage/organization/roles.html:125
 #: warehouse/templates/manage/organization/roles.html:179
+#: warehouse/templates/manage/project/roles.html:146
+#: warehouse/templates/manage/project/roles.html:208
 #: warehouse/templates/manage/project/roles.html:302
 #: warehouse/templates/manage/project/roles.html:345
 #: warehouse/templates/manage/team/roles.html:99
