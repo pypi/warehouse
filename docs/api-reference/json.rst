@@ -291,7 +291,7 @@ Known vulnerabilities
 ~~~~~~~~~~~~~~~~~~~~~
 
 In the example above, the combination of the requested project and version
-had no `known vulnerabilities <https://github.com/pypa/advisory-db>`_.
+had no `known vulnerabilities <https://github.com/pypa/advisory-database>`_.
 An example of a response for a project with known vulnerabilities is
 provided below, with unrelated fields collapsed for readability.
 
