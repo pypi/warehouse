@@ -213,6 +213,7 @@ class TestManageAccount:
             ),
             session=pretend.stub(flash=pretend.call_recorder(lambda *a, **kw: None)),
             find_service=lambda *a, **kw: user_service,
+            path="request-path",
         )
         save_account_obj = pretend.stub(validate=lambda: True, data=request.POST)
         monkeypatch.setattr(views, "SaveAccountForm", lambda *a, **kw: save_account_obj)
@@ -221,10 +222,7 @@ class TestManageAccount:
         )
         view = views.ManageAccountViews(request)
 
-        assert view.save_account() == {
-            **view.default_response,
-            "save_account_form": save_account_obj,
-        }
+        assert isinstance(view.save_account(), HTTPSeeOther)
         assert request.session.flash.calls == [
             pretend.call("Account details updated", queue="success")
         ]
@@ -286,7 +284,7 @@ class TestManageAccount:
         )
         view = views.ManageAccountViews(pyramid_request)
 
-        assert view.add_email() == view.default_response
+        assert isinstance(view.add_email(), HTTPSeeOther)
         assert user_service.add_email.calls == [
             pretend.call(pyramid_request.user.id, email_address)
         ]
@@ -359,13 +357,14 @@ class TestManageAccount:
             find_service=lambda *a, **kw: user_service,
             session=pretend.stub(flash=pretend.call_recorder(lambda *a, **kw: None)),
             remote_addr="0.0.0.0",
+            path="request-path",
         )
         monkeypatch.setattr(
             views.ManageAccountViews, "default_response", {"_": pretend.stub()}
         )
         view = views.ManageAccountViews(request)
 
-        assert view.delete_email() == view.default_response
+        assert isinstance(view.delete_email(), HTTPSeeOther)
         assert request.session.flash.calls == [
             pretend.call(f"Email address {email.email} removed", queue="success")
         ]
@@ -451,7 +450,8 @@ class TestManageAccount:
 
         send_email = pretend.call_recorder(lambda *a: None)
         monkeypatch.setattr(views, "send_primary_email_change_email", send_email)
-        assert view.change_primary_email() == view.default_response
+
+        assert isinstance(view.change_primary_email(), HTTPSeeOther)
         assert send_email.calls == [
             pretend.call(db_request, (db_request.user, old_primary))
         ]
@@ -489,7 +489,8 @@ class TestManageAccount:
 
         send_email = pretend.call_recorder(lambda *a: None)
         monkeypatch.setattr(views, "send_primary_email_change_email", send_email)
-        assert view.change_primary_email() == view.default_response
+
+        assert isinstance(view.change_primary_email(), HTTPSeeOther)
         assert send_email.calls == []
         assert db_request.session.flash.calls == [
             pretend.call(
@@ -545,6 +546,7 @@ class TestManageAccount:
             find_service=lambda *a, **kw: pretend.stub(),
             user=pretend.stub(id=pretend.stub(), username="username", name="Name"),
             remote_addr="0.0.0.0",
+            path="request-path",
         )
         send_email = pretend.call_recorder(lambda *a: None)
         monkeypatch.setattr(views, "send_email_verification_email", send_email)
@@ -553,7 +555,7 @@ class TestManageAccount:
         )
         view = views.ManageAccountViews(request)
 
-        assert view.reverify_email() == view.default_response
+        assert isinstance(view.reverify_email(), HTTPSeeOther)
         assert request.session.flash.calls == [
             pretend.call("Verification email for email_address resent", queue="success")
         ]
@@ -607,6 +609,7 @@ class TestManageAccount:
             session=pretend.stub(flash=pretend.call_recorder(lambda *a, **kw: None)),
             find_service=lambda *a, **kw: pretend.stub(),
             user=pretend.stub(id=pretend.stub()),
+            path="request-path",
         )
         send_email = pretend.call_recorder(lambda *a: None)
         monkeypatch.setattr(views, "send_email_verification_email", send_email)
@@ -615,7 +618,7 @@ class TestManageAccount:
         )
         view = views.ManageAccountViews(request)
 
-        assert view.reverify_email() == view.default_response
+        assert isinstance(view.reverify_email(), HTTPSeeOther)
         assert request.session.flash.calls == [
             pretend.call("Email is already verified", queue="error")
         ]
@@ -651,6 +654,7 @@ class TestManageAccount:
                 refresh=lambda obj: None,
             ),
             remote_addr="0.0.0.0",
+            path="request-path",
         )
         change_pwd_obj = pretend.stub(
             validate=lambda: True, new_password=pretend.stub(data=new_password)
@@ -665,10 +669,7 @@ class TestManageAccount:
         )
         view = views.ManageAccountViews(request)
 
-        assert view.change_password() == {
-            **view.default_response,
-            "change_password_form": change_pwd_obj,
-        }
+        assert isinstance(view.change_password(), HTTPSeeOther)
         assert request.session.flash.calls == [
             pretend.call("Password updated", queue="success")
         ]
@@ -2456,6 +2457,7 @@ class TestManageOrganizations:
             }[interface],
             flags=pretend.stub(enabled=pretend.call_recorder(lambda *a: False)),
             remote_addr="0.0.0.0",
+            path="request-path",
         )
 
         create_organization_obj = pretend.stub(validate=lambda: True, data=request.POST)
@@ -2556,7 +2558,7 @@ class TestManageOrganizations:
                 organization_name=organization.name,
             ),
         ]
-        assert result == default_response
+        assert isinstance(result, HTTPSeeOther)
 
     def test_create_organization_validation_fails(self, monkeypatch):
         admins = []
@@ -2711,10 +2713,7 @@ class TestManageOrganizationSettings:
         view = views.ManageOrganizationSettingsViews(organization, db_request)
         result = view.save_organization()
 
-        assert result == {
-            **view.default_response,
-            "save_organization_form": save_organization_obj,
-        }
+        assert isinstance(result, HTTPSeeOther)
         assert organization_service.update_organization.calls == [
             pretend.call(organization.id, **db_request.POST)
         ]
@@ -3574,12 +3573,12 @@ class TestManageOrganizationRoles:
         EmailFactory.create(user=new_user, verified=True, primary=True)
         owner_1 = UserFactory.create(username="owner_1")
         owner_2 = UserFactory.create(username="owner_2")
-        owner_1_role = OrganizationRoleFactory.create(
+        OrganizationRoleFactory.create(
             organization=organization,
             user=owner_1,
             role_name=OrganizationRoleType.Owner,
         )
-        owner_2_role = OrganizationRoleFactory.create(
+        OrganizationRoleFactory.create(
             organization=organization,
             user=owner_2,
             role_name=OrganizationRoleType.Owner,
@@ -3612,26 +3611,20 @@ class TestManageOrganizationRoles:
         )
 
         result = views.manage_organization_roles(organization, db_request)
-        form_obj = result["form"]
 
         assert db_request.session.flash.calls == [
             pretend.call(f"Invitation sent to '{new_user.username}'", queue="success")
         ]
 
         # Only one role invitation is created
-        organization_invitation = (
+        (
             db_request.db.query(OrganizationInvitation)
             .filter(OrganizationInvitation.user == new_user)
             .filter(OrganizationInvitation.organization == organization)
             .one()
         )
 
-        assert result == {
-            "organization": organization,
-            "roles": {owner_1_role, owner_2_role},
-            "invitations": {organization_invitation},
-            "form": form_obj,
-        }
+        assert isinstance(result, HTTPSeeOther)
         assert send_organization_member_invited_email.calls == [
             pretend.call(
                 db_request,
@@ -3707,11 +3700,6 @@ class TestManageOrganizationRoles:
                 organization_service=organization_service,
                 user_service=user_service,
             ),
-            pretend.call(
-                orgtype=organization.orgtype,
-                organization_service=organization_service,
-                user_service=user_service,
-            ),
         ]
         assert db_request.session.flash.calls == [
             pretend.call(
@@ -3722,12 +3710,7 @@ class TestManageOrganizationRoles:
         # No additional roles are created
         assert role == db_request.db.query(OrganizationRole).one()
 
-        assert result == {
-            "organization": organization,
-            "roles": {role},
-            "invitations": set(),
-            "form": form_obj,
-        }
+        assert isinstance(result, HTTPSeeOther)
 
     @pytest.mark.parametrize("with_email", [True, False])
     def test_post_unverified_email(
@@ -3767,11 +3750,6 @@ class TestManageOrganizationRoles:
                 organization_service=organization_service,
                 user_service=user_service,
             ),
-            pretend.call(
-                orgtype=organization.orgtype,
-                organization_service=organization_service,
-                user_service=user_service,
-            ),
         ]
         assert db_request.session.flash.calls == [
             pretend.call(
@@ -3784,12 +3762,7 @@ class TestManageOrganizationRoles:
         # No additional roles are created
         assert db_request.db.query(OrganizationRole).all() == []
 
-        assert result == {
-            "organization": organization,
-            "roles": set(),
-            "invitations": set(),
-            "form": form_obj,
-        }
+        assert isinstance(result, HTTPSeeOther)
 
     def test_cannot_reinvite_organization_role(
         self, db_request, organization_service, user_service, enable_organizations
@@ -3799,18 +3772,18 @@ class TestManageOrganizationRoles:
         EmailFactory.create(user=new_user, verified=True, primary=True)
         owner_1 = UserFactory.create(username="owner_1")
         owner_2 = UserFactory.create(username="owner_2")
-        owner_1_role = OrganizationRoleFactory.create(
+        OrganizationRoleFactory.create(
             organization=organization,
             user=owner_1,
             role_name=OrganizationRoleType.Owner,
         )
-        owner_2_role = OrganizationRoleFactory.create(
+        OrganizationRoleFactory.create(
             organization=organization,
             user=owner_2,
             role_name=OrganizationRoleType.Owner,
         )
         token_service = db_request.find_service(ITokenService, name="email")
-        new_organization_invitation = OrganizationInvitationFactory.create(
+        OrganizationInvitationFactory.create(
             organization=organization,
             user=new_user,
             invite_status=OrganizationInvitationStatus.Pending,
@@ -3843,11 +3816,6 @@ class TestManageOrganizationRoles:
                 organization_service=organization_service,
                 user_service=user_service,
             ),
-            pretend.call(
-                orgtype=organization.orgtype,
-                organization_service=organization_service,
-                user_service=user_service,
-            ),
         ]
         assert db_request.session.flash.calls == [
             pretend.call(
@@ -3855,13 +3823,7 @@ class TestManageOrganizationRoles:
                 queue="error",
             )
         ]
-
-        assert result == {
-            "organization": organization,
-            "roles": {owner_1_role, owner_2_role},
-            "invitations": {new_organization_invitation},
-            "form": form_obj,
-        }
+        assert isinstance(result, HTTPSeeOther)
 
     @freeze_time(datetime.datetime.utcnow())
     def test_reinvite_organization_role_after_expiration(
@@ -3877,18 +3839,18 @@ class TestManageOrganizationRoles:
         EmailFactory.create(user=new_user, verified=True, primary=True)
         owner_1 = UserFactory.create(username="owner_1")
         owner_2 = UserFactory.create(username="owner_2")
-        owner_1_role = OrganizationRoleFactory.create(
+        OrganizationRoleFactory.create(
             organization=organization,
             user=owner_1,
             role_name=OrganizationRoleType.Owner,
         )
-        owner_2_role = OrganizationRoleFactory.create(
+        OrganizationRoleFactory.create(
             user=owner_2,
             organization=organization,
             role_name=OrganizationRoleType.Owner,
         )
         token_service = db_request.find_service(ITokenService, name="email")
-        new_organization_invitation = OrganizationInvitationFactory.create(
+        OrganizationInvitationFactory.create(
             user=new_user,
             organization=organization,
             invite_status=OrganizationInvitationStatus.Expired,
@@ -3938,31 +3900,20 @@ class TestManageOrganizationRoles:
                 organization_service=organization_service,
                 user_service=user_service,
             ),
-            pretend.call(
-                orgtype=organization.orgtype,
-                organization_service=organization_service,
-                user_service=user_service,
-            ),
         ]
         assert db_request.session.flash.calls == [
             pretend.call(f"Invitation sent to '{new_user.username}'", queue="success")
         ]
 
         # Only one role invitation is created
-        organization_invitation = (
+        (
             db_request.db.query(OrganizationInvitation)
             .filter(OrganizationInvitation.user == new_user)
             .filter(OrganizationInvitation.organization == organization)
             .one()
         )
 
-        assert result["invitations"] == {new_organization_invitation}
-        assert result == {
-            "organization": organization,
-            "roles": {owner_1_role, owner_2_role},
-            "invitations": {organization_invitation},
-            "form": form_obj,
-        }
+        assert isinstance(result, HTTPSeeOther)
         assert send_organization_member_invited_email.calls == [
             pretend.call(
                 db_request,
@@ -7416,15 +7367,7 @@ class TestManageProjectRoles:
         # No additional roles are created
         assert role == db_request.db.query(Role).one()
 
-        assert result == {
-            "project": project,
-            "roles": {role},
-            "invitations": set(),
-            "form": form_obj,
-            "enable_internal_collaborator": False,
-            "team_project_roles": set(),
-            "internal_role_form": None,
-        }
+        assert isinstance(result, HTTPSeeOther)
 
     def test_reinvite_role_after_expiration(self, monkeypatch, db_request):
         project = ProjectFactory.create(name="foobar")
@@ -7576,15 +7519,7 @@ class TestManageProjectRoles:
         # No additional roles are created
         assert db_request.db.query(Role).all() == []
 
-        assert result == {
-            "project": project,
-            "roles": set(),
-            "invitations": set(),
-            "form": form_obj,
-            "enable_internal_collaborator": False,
-            "team_project_roles": set(),
-            "internal_role_form": None,
-        }
+        assert isinstance(result, HTTPSeeOther)
 
     def test_cannot_reinvite_role(self, db_request):
         project = ProjectFactory.create(name="foobar")
@@ -7592,13 +7527,9 @@ class TestManageProjectRoles:
         EmailFactory.create(user=new_user, verified=True, primary=True)
         owner_1 = UserFactory.create(username="owner_1")
         owner_2 = UserFactory.create(username="owner_2")
-        owner_1_role = RoleFactory.create(
-            user=owner_1, project=project, role_name="Owner"
-        )
-        owner_2_role = RoleFactory.create(
-            user=owner_2, project=project, role_name="Owner"
-        )
-        new_user_invitation = RoleInvitationFactory.create(
+        RoleFactory.create(user=owner_1, project=project, role_name="Owner")
+        RoleFactory.create(user=owner_2, project=project, role_name="Owner")
+        RoleInvitationFactory.create(
             user=new_user, project=project, invite_status="pending"
         )
 
@@ -7650,15 +7581,7 @@ class TestManageProjectRoles:
             )
         ]
 
-        assert result == {
-            "project": project,
-            "roles": {owner_1_role, owner_2_role},
-            "invitations": {new_user_invitation},
-            "form": form_obj,
-            "enable_internal_collaborator": False,
-            "team_project_roles": set(),
-            "internal_role_form": None,
-        }
+        assert isinstance(result, HTTPSeeOther)
 
 
 class TestRevokeRoleInvitation:
@@ -8749,6 +8672,7 @@ class TestManageOIDCProviderViews:
                 add=pretend.call_recorder(lambda o: None),
             ),
             remote_addr="0.0.0.0",
+            path="request-path",
         )
 
         github_provider_form_obj = pretend.stub(
@@ -8770,11 +8694,7 @@ class TestManageOIDCProviderViews:
             view, "_check_ratelimits", pretend.call_recorder(lambda: None)
         )
 
-        assert view.add_github_oidc_provider() == {
-            "oidc_enabled": True,
-            "project": project,
-            "github_provider_form": github_provider_form_obj,
-        }
+        assert isinstance(view.add_github_oidc_provider(), HTTPSeeOther)
         assert view.metrics.increment.calls == [
             pretend.call(
                 "warehouse.oidc.add_provider.attempt", tags=["provider:GitHub"]
@@ -8833,6 +8753,7 @@ class TestManageOIDCProviderViews:
                 add=pretend.call_recorder(lambda o: setattr(o, "id", "fakeid")),
             ),
             remote_addr="0.0.0.0",
+            path="request-path",
         )
 
         github_provider_form_obj = pretend.stub(
@@ -8860,11 +8781,7 @@ class TestManageOIDCProviderViews:
             view, "_check_ratelimits", pretend.call_recorder(lambda: None)
         )
 
-        assert view.add_github_oidc_provider() == {
-            "oidc_enabled": True,
-            "project": project,
-            "github_provider_form": github_provider_form_obj,
-        }
+        assert isinstance(view.add_github_oidc_provider(), HTTPSeeOther)
         assert view.metrics.increment.calls == [
             pretend.call(
                 "warehouse.oidc.add_provider.attempt", tags=["provider:GitHub"]
@@ -9131,6 +9048,7 @@ class TestManageOIDCProviderViews:
                 query=lambda *a: pretend.stub(get=lambda id: provider),
             ),
             remote_addr="0.0.0.0",
+            path="request-path",
         )
 
         delete_provider_form_obj = pretend.stub(
@@ -9153,7 +9071,7 @@ class TestManageOIDCProviderViews:
             views.ManageOIDCProviderViews, "default_response", default_response
         )
 
-        assert view.delete_oidc_provider() == default_response
+        assert isinstance(view.delete_oidc_provider(), HTTPSeeOther)
         assert provider not in project.oidc_providers
 
         assert view.metrics.increment.calls == [
