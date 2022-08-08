@@ -275,7 +275,7 @@ class GenericBillingService:
         Cancels a customer’s subscription immediately.
         The customer will not be charged again for the subscription.
         """
-        return stripe.Subscription.delete(subscription_id)
+        return self.api.Subscription.delete(subscription_id)
 
 
 @implementer(IBillingService)
