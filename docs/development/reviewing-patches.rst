@@ -58,8 +58,8 @@ Has this output:
 
   origin  https://github.com/<username>/warehouse.git (fetch)
   origin  https://github.com/<username>/warehouse.git (push)
-  upstream  https://github.com/pypa/warehouse.git (fetch)
-  upstream  https://github.com/pypa/warehouse.git (push)
+  upstream  https://github.com/pypi/warehouse.git (fetch)
+  upstream  https://github.com/pypi/warehouse.git (push)
 
 In this output, ``<username>`` is your GitHub username. If you do not have an
 ``upstream`` branch configured, you can add one by running the following
