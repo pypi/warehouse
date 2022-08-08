@@ -48,15 +48,15 @@ Everyone interacting in the Warehouse project's codebases, issue trackers, chat
 rooms, and mailing lists is expected to follow the `PSF Code of Conduct`_.
 
 .. _`PyPI`: https://pypi.org/
-.. _`our development roadmap`: https://warehouse.readthedocs.io/roadmap/
-.. _`architectural overview`: https://warehouse.readthedocs.io/application/
-.. _`documentation`: https://warehouse.readthedocs.io
-.. _`Getting started`: https://warehouse.readthedocs.io/development/getting-started/
-.. _`Github issue tracker`: https://github.com/pypa/warehouse/issues
+.. _`our development roadmap`: https://warehouse.pypa.io/roadmap/
+.. _`architectural overview`: https://warehouse.pypa.io/application/
+.. _`documentation`: https://warehouse.pypa.io
+.. _`Getting started`: https://warehouse.pypa.io/development/getting-started/
+.. _`Github issue tracker`: https://github.com/pypi/warehouse/issues
 .. _`pypi.org`: https://pypi.org/
-.. _`Running tests and linters section`: https://warehouse.readthedocs.io/development/getting-started/#running-tests-and-linters
+.. _`Running tests and linters section`: https://warehouse.pypa.io/development/getting-started/#running-tests-and-linters
 .. _BrowserStack: https://browserstack.com/
-.. _`supported browsers`: https://warehouse.readthedocs.io/development/frontend/#browser-support
+.. _`supported browsers`: https://warehouse.pypa.io/development/frontend/#browser-support
 .. |BrowserStackImg| image:: docs/_static/browserstack-logo.png
 .. _BrowserStackImg: https://browserstack.com/
 .. _`PSF Code of Conduct`: https://github.com/pypa/.github/blob/main/CODE_OF_CONDUCT.md

@@ -39,7 +39,7 @@ FILTERS = {
 def test_templates_for_empty_titles():
     """
     Test if all HTML templates have defined the title block. See
-    https://github.com/pypa/warehouse/issues/784
+    https://github.com/pypi/warehouse/issues/784
     """
     dir_name = os.path.join(os.path.dirname(warehouse.__file__), "templates")
 
@@ -76,7 +76,7 @@ def test_templates_for_empty_titles():
 def test_render_templates():
     """
     Test if all HTML templates are rendered without Jinja exceptions.
-    see https://github.com/pypa/warehouse/issues/6634
+    see https://github.com/pypi/warehouse/issues/6634
     """
     dir_name = os.path.join(os.path.dirname(warehouse.__file__), "templates")
 

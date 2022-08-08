@@ -113,8 +113,12 @@
 
   <hr>
 
-  {% if project.organization %}
-  {% if project.owners|length %}
+  {#
+   # To remove project from an organization:
+   # 1. User must be organization owner.
+   # 2. There must be an individual project owner.
+   #}
+  {% if (project.organization and request.user in project.organization.owners) and (project.owners|length) %}
   <div class="callout-block callout-block--danger">
     <h3>{% trans %}Remove project from organization{% endtrans %}</h3>
     <p>
@@ -149,9 +153,13 @@
     </p>
   </div>
   {% endif %}
-  {% endif %}
 
-  {% if transfer_organization_project_form.organization.choices|length > 1 %}
+  {#
+   # To transfer project to an organization:
+   # 1. If project is currently in an organization, the user must be organization owner.
+   # 2. User must have an organization to transfer the project to.
+   #}
+  {% if (not project.organization or request.user in project.organization.owners) and (transfer_organization_project_form.organization.choices|length > 1) %}
   <div class="callout-block callout-block--danger">
     <h3>
       {% if project.organization %}
@@ -209,11 +217,11 @@
       {% endif %}
     </h3>
     <p>
-      {% trans %}Project owners can transfer the project to organizations that they own.{% endtrans %}
+      {% trans %}Project owners can transfer the project to organizations that they own or manage.{% endtrans %}
       {% if project.organization %}
-      {% trans %}You are not an owner of any other organizations.{% endtrans %}
+      {% trans %}You are not an owner or manager of any other organizations.{% endtrans %}
       {% else %}
-      {% trans %}You are not an owner of any organizations.{% endtrans %}
+      {% trans %}You are not an owner or manager of any organizations.{% endtrans %}
       {% endif %}
     </p>
   </div>

@@ -203,4 +203,4 @@ Mirroring Support
   Retrieve a dictionary mapping package names to the last serial for each
   package.
 
-.. _pypi-announce: https://mail.python.org/mm3/mailman3/lists/pypi-announce.python.org/
+.. _pypi-announce: https://mail.python.org/mailman3/lists/pypi-announce.python.org/

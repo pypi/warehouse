@@ -83,18 +83,7 @@
         </td>
         <td class="table__align-center"></td>
         <td class="table__align-right">
-          <form method="POST" action="{{ request.route_path('manage.project.delete_team_project_role', project_name=project.name) }}">
-            <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
-            <input type="hidden" name="role_id" value="">
-            <button
-              type="submit"
-              class="button"
-              title="{% trans %}Cannot remove organization owners as Owner{% endtrans %}"
-              disabled
-            >
-            Remove
-            </button>
-          </form>
+          <button class="button" title="{% trans %}Cannot remove organization owners with Administer permissions{% endtrans %}" disabled>{% trans %}Remove{% endtrans %}</button>
         </td>
       </tr>
     {% endif %}
@@ -148,22 +137,14 @@
         </td>
         <td class="table__align-center"></td>
         <td class="table__align-right">
-          <form method="POST" action="{{ request.route_path('manage.project.delete_team_project_role', project_name=project.name) }}">
-            <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
-            <input type="hidden" name="role_id" value="{{ role.id }}">
-            <button
-              type="submit"
-              class="button"
-              {% if role.role_name == TeamProjectRoleType.Administer and request.user in role.team.members and request.user not in project.organization.owners %}
-                title="{% trans %}Cannot remove your own team with Administer permissions{% endtrans %}"
-                disabled
-              {% else %}
-                title="{% trans collaborator=role.team.name %}Remove {{ collaborator }} from this project{% endtrans %}"
-              {% endif %}
-            >
-            Remove
-            </button>
-          </form>
+        {% if role.role_name == TeamProjectRoleType.Administer and request.user in role.team.members and request.user not in project.organization.owners %}
+          <button type="submit" class="button" title="{% trans %}Cannot remove your own team with Administer permissions{% endtrans %}" disabled>{% trans %}Remove{% endtrans %}</button>
+        {% else %}
+          {% set extra_fields %}<input type="hidden" name="role_id" value="{{ role.id }}">{% endset %}
+          {% set extra_description %}{% trans collaborator=role.team.name %}Remove {{ collaborator }} from this project{% endtrans %}{% trans %}.{% endtrans %}{% endset %}
+          {% set tooltip %}{% trans collaborator=role.team.name %}Remove {{ collaborator }} from this project{% endtrans %}{% endset %}
+          {{ confirm_button(gettext("Remove"), gettext("Username"), "remove-" + role.id|string, gettext(role.user.username), extra_fields=extra_fields, extra_description=extra_description, action=request.route_path('manage.project.delete_team_project_role', project_name=project.name), warning=False, modifier="--primary", tooltip=tooltip) }}
+        {% endif %}
         </td>
       </tr>
     {% endfor %}
@@ -203,7 +184,7 @@
             </option>
             {% endfor %}
             </select>
-            <button type="submit" class="button button--primary table__change-button" title="{% trans %}Save role{% endtrans %}">
+            <button class="button button--primary table__change-button" title="{% trans %}Save role{% endtrans %}">
               {% trans %}Save{% endtrans %}
             </button>
           </form>
@@ -218,22 +199,14 @@
         </td>
         <td class="table__align-center">{{ two_factor_badge(role.user) }}</td>
         <td class="table__align-right">
-          <form method="POST" action="{{ request.route_path('manage.project.delete_role', project_name=project.name) }}">
-            <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
-            <input type="hidden" name="role_id" value="{{ role.id }}">
-            <button
-              type="submit"
-              class="button"
-              {% if (role.role_name == "Owner" and request.user.username == role.user.username) %}
-                title="{% trans %}Cannot remove yourself as Owner{% endtrans %}"
-                disabled
-              {% else %}
-                title="{% trans collaborator=role.user.username %}Remove {{ collaborator }} from this project{% endtrans %}"
-              {% endif %}
-            >
-            Remove
-            </button>
-          </form>
+          {% if role.role_name == "Owner" and request.user.username == role.user.username %}
+            <button class="button" title="{% trans %}Cannot remove yourself as Owner{% endtrans %}" disabled>{% trans %}Remove{% endtrans %}</button>
+          {% else %}
+            {% set extra_fields %}<input type="hidden" name="role_id" value="{{ role.id }}">{% endset %}
+            {% set extra_description %}{% trans collaborator=role.user.username %}Remove {{ collaborator }} from this project{% endtrans %}{% trans %}.{% endtrans %}{% endset %}
+            {% set tooltip %}{% trans collaborator=role.user.username %}Remove {{ collaborator }} from this project{% endtrans %}{% endset %}
+            {{ confirm_button(gettext("Remove"), gettext("Username"), "remove-" + role.id|string, gettext(role.user.username), extra_fields=extra_fields, extra_description=extra_description, action=request.route_path('manage.project.delete_role', project_name=project.name), warning=False, modifier="--primary", tooltip=tooltip) }}
+          {% endif %}
         </td>
       </tr>
     {% endfor %}
@@ -263,17 +236,10 @@
         <td></td>
         <td></td>
         <td class="table__align-right">
-          <form method="POST" action="{{ request.route_path('manage.project.revoke_invite', project_name=project.name) }}">
-            <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
-            <input name="user_id" type="hidden" value="{{ invite.user_id }}">
-            <button
-              type="submit"
-              class="button"
-              title="{% trans user=invite.user.username %}Revoke invitation for {{ user }}{% endtrans %}"
-            >
-            {% trans %}Revoke invite{% endtrans %}
-            </button>
-          </form>
+          {% set extra_fields %}<input name="user_id" type="hidden" value="{{ invite.user_id }}">{% endset %}
+          {% set extra_description %}{% trans user=invite.user.username %}Revoke invitation for {{ user }}{% endtrans %}{% trans %}.{% endtrans %}{% endset %}
+          {% set tooltip %}{% trans user=invite.user.username %}Revoke invitation for {{ user }}{% endtrans %}{% endset %}
+          {{ confirm_button(gettext("Revoke invite"), None, "revoke-invite-" + invite.user_id|string, None, extra_fields=extra_fields, extra_description=extra_description, action=request.route_path('manage.project.revoke_invite', project_name=project.name), warning=False, modifier="--primary", tooltip=tooltip) }}
         </td>
       </tr>
     {% endfor %}
