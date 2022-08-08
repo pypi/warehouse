@@ -20,7 +20,7 @@ to redirects, but you should use pypi.org instead.
 
 You should also watch `our status page <https://status.python.org/>`__
 and subscribe to `the PyPI announcement list (low-traffic)
-<https://mail.python.org/mm3/mailman3/lists/pypi-announce.python.org/>`_
+<https://mail.python.org/mailman3/lists/pypi-announce.python.org/>`_
 to find out about future changes.
 
 Here are some tips.
@@ -58,12 +58,12 @@ Here are some tips.
   ``https://pypi.org/rss/packages.xml``. See :doc:`feeds` for
   descriptions. `The data differs from the legacy feed data because
   the new feeds are standards-compliant and fix inaccuracies in the
-  publication date <https://github.com/pypa/warehouse/issues/3238>`_.
+  publication date <https://github.com/pypi/warehouse/issues/3238>`_.
 
 * Documentation upload: Users can no longer use ``doc_upload`` in the
   API to upload documentation ZIP files, separate from packages, to be
   hosted at pythonhosted.org (`discussion
-  <https://github.com/pypa/warehouse/issues/509>`_).
+  <https://github.com/pypi/warehouse/issues/509>`_).
 
 * ``User-Agent`` Filtering: Some client user agents were filtered to
   always use ``legacy.pypi.org``, a temporary deployment of the legacy
@@ -73,7 +73,7 @@ Here are some tips.
   regardless of their ``User-Agent``.
 
 * Subscribe to `the PyPI announcement list (low-traffic)
-  <https://mail.python.org/mm3/mailman3/lists/pypi-announce.python.org/>`_.
+  <https://mail.python.org/mailman3/lists/pypi-announce.python.org/>`_.
 
 If you're a PyPI end user or packager looking to migrate to the new
 PyPI, see `the official Python Packaging User Guide on migrating to PyPI
@@ -93,7 +93,7 @@ Official guidance
 -----------------
 
 Query PyPI’s `JSON
-API <https://warehouse.readthedocs.io/api-reference/json/>`__ to
+API <https://warehouse.pypa.io/api-reference/json/>`__ to
 determine where to download files from.
 
 If you so choose
@@ -126,5 +126,4 @@ where ``project_l`` is the first letter of the project name.
 structure PyPI used to hold on disk. In general this is only a good idea
 for ``source`` as a ``python_version`` to fetch tar and zip files.
 Otherwise, you will want to match the format of the ``python_version``
-field of the releases in the `JSON
-API <https://warehouse.readthedocs.io/api-reference/json/>`__.
+field of the releases in the :doc:`json`.

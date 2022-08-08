@@ -77,14 +77,14 @@ Sprint planners should consider the following checklist for organising events:
   useful for large issues, or for newer developers.
 
 .. _`security, accessibility, and localization work funded by the Open Technology Fund`: https://pyfound.blogspot.com/2019/03/commencing-security-accessibility-and.html
-.. _`two-factor authentication for PyPI`: https://github.com/pypa/warehouse/issues/996
-.. _`Security milestone`: https://github.com/pypa/warehouse/milestone/13
-.. _`accessibility milestone`: https://github.com/pypa/warehouse/milestone/15
-.. _`localisation milestone`: https://github.com/pypa/warehouse/milestone/14
-.. _`package signing & detection/verification milestone`: https://github.com/pypa/warehouse/milestone/16
+.. _`two-factor authentication for PyPI`: https://github.com/pypi/warehouse/issues/996
+.. _`Security milestone`: https://github.com/pypi/warehouse/milestone/13
+.. _`accessibility milestone`: https://github.com/pypi/warehouse/milestone/15
+.. _`localisation milestone`: https://github.com/pypi/warehouse/milestone/14
+.. _`package signing & detection/verification milestone`: https://github.com/pypi/warehouse/milestone/16
 .. _`This work is funded by a gift from Facebook.`: https://pyfound.blogspot.com/2018/12/upcoming-pypi-improvements-for-2019.html
-.. _`issues marked with the post-legacy shutdown milestone`: https://github.com/pypa/warehouse/milestone/12
-.. _`issues marked with the cool-but-not-urgent milestone`: https://github.com/pypa/warehouse/milestone/11
-.. _`contact us`: https://github.com/pypa/warehouse/blob/master/README.rst#discussion
+.. _`issues marked with the post-legacy shutdown milestone`: https://github.com/pypi/warehouse/milestone/12
+.. _`issues marked with the cool-but-not-urgent milestone`: https://github.com/pypi/warehouse/milestone/11
+.. _`contact us`: https://github.com/pypi/warehouse/blob/master/README.rst#discussion
 .. _`our past roadmap`: https://wiki.python.org/psf/WarehouseRoadmap
 .. _`sprints`: https://wiki.python.org/psf/PackagingSprints

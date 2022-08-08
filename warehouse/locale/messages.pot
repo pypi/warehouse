@@ -621,7 +621,7 @@ msgstr ""
 
 #: warehouse/templates/500.html:37
 msgid ""
-"Consider <a href=\"https://github.com/pypa/warehouse\" target=\"_blank\" "
+"Consider <a href=\"https://github.com/pypi/warehouse\" target=\"_blank\" "
 "rel=\"noopener\"> contributing </a> or <a "
 "href=\"https://psfmember.org/civicrm/contribute/transact?reset=1&id=13\" "
 "target=\"_blank\" rel=\"noopener\"> donating </a> to help us build a more"
