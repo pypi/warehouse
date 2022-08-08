@@ -73,7 +73,7 @@ necessary to update references to these files any time source strings are change
 line numbers of the source strings in the source files. This can be done by running ``make translations``.
 
 For instructions on how to mark strings and views for translation,
-see the `Translation Docs`_.
+see the :doc:`../translations` docs.
 
 
 Keeping your local branch updated
@@ -97,8 +97,8 @@ Your output looks like this:
 
   origin  https://github.com/username/warehouse.git (fetch)
   origin  https://github.com/username/warehouse.git (push)
-  upstream  https://github.com/pypa/warehouse.git (fetch)
-  upstream  https://github.com/pypa/warehouse.git (push)
+  upstream  https://github.com/pypi/warehouse.git (fetch)
+  upstream  https://github.com/pypi/warehouse.git (push)
 
 
 In the example above, ``<username>`` is your username on GitHub.
@@ -184,10 +184,9 @@ as dependency upgrades are merged, so you will probably have to update your
 feature branch at least once while you are working on it.
 
 
-.. _`Write comments as complete sentences.`: http://nedbatchelder.com/blog/201401/comments_should_be_sentences.html
-.. _`syntax`: http://sphinx-doc.org/domains.html#info-field-lists
-.. _`Studies have shown`: https://smartbear.com/smartbear/media/pdfs/wp-cc-11-best-practices-of-peer-code-review.pdf
-.. _`doc8`: https://github.com/stackforge/doc8
+.. _`Write comments as complete sentences.`: https://nedbatchelder.com/blog/201401/comments_should_be_sentences.html
+.. _`syntax`: https://sphinx-doc.org/domains.html#info-field-lists
+.. _`Studies have shown`: https://static1.smartbear.co/support/media/resources/cc/book/code-review-cisco-case-study.pdf
+.. _`doc8`: https://github.com/PyCQA/doc8
 .. _`coverage.py`: https://pypi.org/project/coverage
-.. _`the Black Code Style`: https://github.com/ambv/black#the-black-code-style
-.. _`Translation Docs`: https://warehouse.readthedocs.io/translations/
+.. _`the Black Code Style`: https://github.com/psf/black#the-black-code-style

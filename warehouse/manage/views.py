@@ -1655,7 +1655,7 @@ class ManageOrganizationProjectsViews:
 
         return self.default_response
 
-    @view_config(request_method="POST")
+    @view_config(request_method="POST", permission="add:project")
     def add_organization_project(self):
         if self.request.flags.enabled(AdminFlagValue.DISABLE_ORGANIZATIONS):
             raise HTTPNotFound
@@ -2613,14 +2613,20 @@ class ManageProjectSettingsViews:
     @view_config(request_method="GET")
     def manage_project_settings(self):
         if self.request.flags.enabled(AdminFlagValue.DISABLE_ORGANIZATIONS):
+            # Disable transfer of project to any organization.
             organization_choices = set()
         else:
+            # Allow transfer of project to organizations owned or managed by user.
             all_user_organizations = user_organizations(self.request)
             organizations_owned = set(
                 organization.name
                 for organization in all_user_organizations["organizations_owned"]
             )
-            organization_choices = organizations_owned - (
+            organizations_managed = set(
+                organization.name
+                for organization in all_user_organizations["organizations_managed"]
+            )
+            organization_choices = (organizations_owned | organizations_managed) - (
                 {self.project.organization.name} if self.project.organization else set()
             )
 
@@ -2944,6 +2950,23 @@ def remove_organization_project(project, request):
             request.route_path("manage.project.settings", project_name=project.name)
         )
 
+    if (
+        # Check that user has permission to remove projects from organization.
+        (project.organization and request.user not in project.organization.owners)
+        # Check that project has an individual owner.
+        or not project_owners(request, project)
+    ):
+        request.session.flash(
+            (
+                "Could not remove project from organization - "
+                "you do not have the required permissions"
+            ),
+            queue="error",
+        )
+        return HTTPSeeOther(
+            request.route_path("manage.project.settings", project_name=project.name)
+        )
+
     confirm_project(
         project,
         request,
@@ -2951,14 +2974,6 @@ def remove_organization_project(project, request):
         field_name="confirm_remove_organization_project_name",
         error_message="Could not remove project from organization",
     )
-
-    if not project_owners(request, project):
-        request.session.flash(
-            "Could not remove project from organization", queue="error"
-        )
-        return HTTPSeeOther(
-            request.route_path("manage.project.settings", project_name=project.name)
-        )
 
     # Remove project from current organization.
     organization_service = request.find_service(IOrganizationService, context=None)
@@ -3018,6 +3033,16 @@ def transfer_organization_project(project, request):
             request.route_path("manage.project.settings", project_name=project.name)
         )
 
+    # Check that user has permission to remove projects from organization.
+    if project.organization and request.user not in project.organization.owners:
+        request.session.flash(
+            "Could not transfer project - you do not have the required permissions",
+            queue="error",
+        )
+        return HTTPSeeOther(
+            request.route_path("manage.project.settings", project_name=project.name)
+        )
+
     confirm_project(
         project,
         request,
@@ -3031,7 +3056,11 @@ def transfer_organization_project(project, request):
         organization.name
         for organization in all_user_organizations["organizations_owned"]
     )
-    organization_choices = organizations_owned - (
+    organizations_managed = set(
+        organization.name
+        for organization in all_user_organizations["organizations_managed"]
+    )
+    organization_choices = (organizations_owned | organizations_managed) - (
         {project.organization.name} if project.organization else set()
     )
 

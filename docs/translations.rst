@@ -6,7 +6,7 @@ We use `Weblate <https://weblate.org/>`_ to manage PyPI translations across seve
 to contribute.
 
 If you are experiencing issues as a translator, please let us know by opening a
-`translation issue on the Warehouse issue tracker <https://github.com/pypa/warehouse/issues/new?template=translation-issue.md>`_.
+`translation issue on the Warehouse issue tracker <https://github.com/pypi/warehouse/issues/new?template=translation-issue.md>`_.
 
 Adding a newly completed translation
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -20,7 +20,7 @@ it's MO file (Machine Object file) compiled.
 To add a new known locale:
 
 1. Check for `outstanding Weblate pull requests
-   <https://github.com/pypa/warehouse/pulls/weblate>`_ and merge them if so.
+   <https://github.com/pypi/warehouse/pulls/weblate>`_ and merge them if so.
 2. In a new branch, add a key/value to the ``KNOWN_LOCALES`` mapping in
    |warehouse/i18n/__init__.py|_.
    The key is the locale code, and corresponds to a directory in
@@ -28,7 +28,7 @@ To add a new known locale:
 3. Commit these changes and make a new pull request.
 
 .. |warehouse/i18n/__init__.py| replace:: ``warehouse/i18n/__init__.py``
-.. _warehouse/i18n/__init__.py: https://github.com/pypa/warehouse/blob/master/warehouse/i18n/__init__.py
+.. _warehouse/i18n/__init__.py: https://github.com/pypi/warehouse/blob/main/warehouse/i18n/__init__.py
 
 Marking new strings for translation
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
