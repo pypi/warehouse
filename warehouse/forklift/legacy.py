@@ -836,8 +836,8 @@ def file_upload(request):
     # Check if any fields were supplied as a tuple and have become a
     # FieldStorage. The 'content' and 'gpg_signature' fields _should_ be a
     # FieldStorage, however.
-    # ref: https://github.com/pypa/warehouse/issues/2185
-    # ref: https://github.com/pypa/warehouse/issues/2491
+    # ref: https://github.com/pypi/warehouse/issues/2185
+    # ref: https://github.com/pypi/warehouse/issues/2491
     for field in set(request.POST) - {"content", "gpg_signature"}:
         values = request.POST.getall(field)
         if any(isinstance(value, FieldStorage) for value in values):
@@ -1259,7 +1259,7 @@ def file_upload(request):
                 # Note: Changing this error message to something that doesn't
                 # start with "File already exists" will break the
                 # --skip-existing functionality in twine
-                # ref: https://github.com/pypa/warehouse/issues/3482
+                # ref: https://github.com/pypi/warehouse/issues/3482
                 # ref: https://github.com/pypa/twine/issues/332
                 "File already exists. See "
                 + request.help_url(_anchor="file-name-reuse")

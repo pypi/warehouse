@@ -276,9 +276,9 @@
     }
 
     .table__change-button {
-      display: none;
-      margin-left: -10px;
+      margin-left: 10px;
       margin-top: 5px;
+      visibility: hidden;
     }
 
     @media only screen and (max-width: $small-tablet) {
@@ -292,7 +292,7 @@
         width: 100%;
 
         .table__change-field,
-        .tabel__change-button {
+        .table__change-button {
           margin-left: 0;
           width: 100%;
         }

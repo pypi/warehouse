@@ -331,7 +331,7 @@ def update_bigquery_release_files(task, request, dist_metadata):
                 # str instead of a list, hence, this workaround to comply
                 # with PEP 345 and the Core Metadata specifications.
                 # This extra check can be removed once
-                # https://github.com/pypa/warehouse/issues/8257 is fixed
+                # https://github.com/pypi/warehouse/issues/8257 is fixed
                 if isinstance(field_data, str):
                     json_rows[sch.name] = [field_data]
                 else:
@@ -392,7 +392,7 @@ def sync_bigquery_release_files(request):
                     # str instead of a list, hence, this workaround to comply
                     # with PEP 345 and the Core Metadata specifications.
                     # This extra check can be removed once
-                    # https://github.com/pypa/warehouse/issues/8257 is fixed
+                    # https://github.com/pypi/warehouse/issues/8257 is fixed
                     if isinstance(field_data, str):
                         row_data[sch.name] = [field_data]
                     else:

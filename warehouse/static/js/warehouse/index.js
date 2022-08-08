@@ -144,9 +144,9 @@ docReady(() => {
 
       changeSelect.addEventListener("change", function (event) {
         if (event.target.value === changeSelect.dataset.original) {
-          changeButton.style.display = "none";
+          changeButton.style.visibility = "hidden";
         } else {
-          changeButton.style.display = "block";
+          changeButton.style.visibility = "visible";
         }
       });
     }
