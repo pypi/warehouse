@@ -118,7 +118,7 @@ def key_maker_factory(cache_keys, purge_keys):
             # a limit to how many surrogate keys we can attach to a single HTTP
             # response, and being able to use use `iterate_on` would allow this
             # size to be unbounded.
-            # ref: https://github.com/pypa/warehouse/pull/3189
+            # ref: https://github.com/pypi/warehouse/pull/3189
             cache=[k.format(obj=obj) for k in cache_keys],
             purge=chain.from_iterable(key(obj) for key in purge_keys),
         )
