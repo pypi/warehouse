@@ -143,7 +143,7 @@
           {% set extra_fields %}<input type="hidden" name="role_id" value="{{ role.id }}">{% endset %}
           {% set extra_description %}{% trans collaborator=role.team.name %}Remove {{ collaborator }} from this project{% endtrans %}{% trans %}.{% endtrans %}{% endset %}
           {% set tooltip %}{% trans collaborator=role.team.name %}Remove {{ collaborator }} from this project{% endtrans %}{% endset %}
-          {{ confirm_button(gettext("Remove"), None, "remove-" + role.id|string, None, extra_fields=extra_fields, extra_description=extra_description, action=request.route_path('manage.project.delete_team_project_role', project_name=project.name), warning=False, modifier="--primary", tooltip=tooltip) }}
+          {{ confirm_button(gettext("Remove"), gettext("Username"), "remove-" + role.id|string, gettext(role.user.username), extra_fields=extra_fields, extra_description=extra_description, action=request.route_path('manage.project.delete_team_project_role', project_name=project.name), warning=False, modifier="--primary", tooltip=tooltip) }}
         {% endif %}
         </td>
       </tr>
