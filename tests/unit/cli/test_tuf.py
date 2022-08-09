@@ -297,9 +297,8 @@ class TestCLITUF:
 
         result = cli.invoke(add_all_indexes, obj=config)
 
-        assert result.exit_code == 0
+        assert result.exit_code == 1
         assert config.task.calls == [
-            pretend.call(_add_hashed_targets),
             pretend.call(_add_hashed_targets),
         ]
         assert task.get_request.calls == [pretend.call()]

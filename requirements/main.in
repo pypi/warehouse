@@ -64,7 +64,7 @@ stripe
 structlog
 transaction
 trove-classifiers
-tuf==1.1.0
+tuf==2.0.0
 typeguard
 webauthn>=1.0.0,<2.0.0
 whitenoise

@@ -27,4 +27,4 @@ HASH_ALGORITHM = "blake2b"
 
 TUF_REPO_LOCK = "tuf-repo"
 
-BIN_N_COUNT = 16384
+BIN_N_COUNT = 32

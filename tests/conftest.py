@@ -53,7 +53,7 @@ from warehouse.organizations.interfaces import IOrganizationService
 from warehouse.subscriptions import services as subscription_services
 from warehouse.subscriptions.interfaces import IBillingService, ISubscriptionService
 from warehouse.tuf.interfaces import IKeyService
-from warehouse.tuf.repository import MetadataRepository
+from warehouse.tuf.services import RepositoryService
 
 from .common.db import Session
 from .common.db.accounts import EmailFactory, UserFactory
@@ -475,7 +475,7 @@ def tuf_repository(db_request):
         "tuf.bin-n.expiry": 604800,
     }
 
-    tuf_repo = MetadataRepository(
+    tuf_repo = RepositoryService(
         FakeStorageBackend, FakeKeyBackend, db_request.registry.settings
     )
     return tuf_repo

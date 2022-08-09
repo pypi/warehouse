@@ -13,7 +13,7 @@ import redis
 
 from warehouse.tasks import task
 from warehouse.tuf.constants import TUF_REPO_LOCK
-from warehouse.tuf.services import IRepositoryService
+from warehouse.tuf.services import IRepositoryService, TargetFile  # noqa F401
 
 
 @task(bind=True, ignore_result=True, acks_late=True)

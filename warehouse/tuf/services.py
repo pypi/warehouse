@@ -18,7 +18,7 @@ import warnings
 
 from contextlib import contextmanager
 from datetime import datetime, timedelta
-from typing import List, Optional, Tuple
+from typing import Dict, List, Tuple
 
 from securesystemslib.exceptions import StorageError  # type: ignore
 from securesystemslib.interface import (  # type: ignore
@@ -36,6 +36,7 @@ from tuf.api.metadata import (
     Role,
     Root,
     Snapshot,
+    SuccinctRoles,
     TargetFile,
     Targets,
     Timestamp,
@@ -45,7 +46,6 @@ from zope.interface import implementer
 
 from warehouse.config import Environment
 from warehouse.tuf.constants import BIN_N_COUNT, Role as RoleType
-from warehouse.tuf.hash_bins import HashBins
 from warehouse.tuf.interfaces import IKeyService, IRepositoryService, IStorageService
 
 SPEC_VERSION: str = ".".join(SPECIFICATION_VERSION)
@@ -186,19 +186,21 @@ class RepositoryService:
         key_service = request.find_service(IKeyService)
         return cls(storage_service, key_service, request)
 
-    def _get_hash_bins(self):
+    def _get_bit_length(self):
         """
         Returns a 'hash bin delegation' management object.
         """
         if self._request.registry.settings["warehouse.env"] == Environment.development:
-            number_of_bins = 32
+            bit_length = 8
         else:
-            number_of_bins = BIN_N_COUNT
+            bit_length = BIN_N_COUNT
 
-        return HashBins(number_of_bins)
+        return bit_length
 
     def _is_initialized(self) -> bool:
-        """Returns True if any top-level role metadata exists, False otherwise."""
+        """
+        Returns True if any top-level role metadata exists, False otherwise.
+        """
         try:
             if any(role for role in TOP_LEVEL_ROLE_NAMES if self._load(role)):
                 return True
@@ -217,7 +219,8 @@ class RepositoryService:
         return Metadata.from_file(role_name, None, self._storage_backend)
 
     def _sign(self, role: Metadata, role_name: str) -> None:
-        """Re-signs metadata with role-specific key from global key store.
+        """
+        Re-signs metadata with role-specific key from global key store.
 
         The metadata role type is used as default key id. This is only allowed for
         top-level roles.
@@ -227,7 +230,8 @@ class RepositoryService:
             role.sign(signer, append=True)
 
     def _persist(self, role: Metadata, role_name: str) -> None:
-        """Persists metadata using the configured storage backend.
+        """
+        Persists metadata using the configured storage backend.
 
         The metadata role type is used as default role name. This is only allowed for
         top-level roles. All names but 'timestamp' are prefixed with a version number.
@@ -240,7 +244,8 @@ class RepositoryService:
         role.to_file(filename, JSONSerializer(), self._storage_backend)
 
     def _bump_expiry(self, role: Metadata, expiry_id: str) -> None:
-        """Bumps metadata expiration date by role-specific interval.
+        """
+        Bumps metadata expiration date by role-specific interval.
 
         The metadata role type is used as default expiry id. This is only allowed for
         top-level roles.
@@ -255,12 +260,16 @@ class RepositoryService:
         )
 
     def _bump_version(self, role: Metadata) -> None:
-        """Bumps metadata version by 1."""
+        """
+        Bumps metadata version by 1.
+        """
         role.signed.version += 1
 
-    def _update_timestamp(self, snapshot_version: int) -> Metadata[Timestamp]:
-        """Loads 'timestamp', updates meta info about passed 'snapshot' metadata,
-        bumps version and expiration, signs and persists."""
+    def _update_timestamp(self, snapshot_version: int) -> None:
+        """
+        Loads 'timestamp', updates meta info about passed 'snapshot' metadata,
+        bumps version and expiration, signs and persists.
+        """
         timestamp = self._load(Timestamp.type)
         timestamp.signed.snapshot_meta = MetaFile(version=snapshot_version)
 
@@ -269,12 +278,12 @@ class RepositoryService:
         self._sign(timestamp, RoleType.TIMESTAMP.value)
         self._persist(timestamp, RoleType.TIMESTAMP.value)
 
-    def _update_snapshot(
-        self, targets_meta: List[Tuple[str, int]]
-    ) -> Metadata[Snapshot]:
-        """Loads 'snapshot', updates meta info about passed 'targets' metadata, bumps
+    def _update_snapshot(self, targets_meta: List[Tuple[str, int]]) -> int:
+        """
+        Loads 'snapshot', updates meta info about passed 'targets' metadata, bumps
         version and expiration, signs and persists. Returns new snapshot version, e.g.
-        to update 'timestamp'."""
+        to update 'timestamp'.
+        """
         snapshot = self._load(Snapshot.type)
 
         for name, version in targets_meta:
@@ -287,7 +296,7 @@ class RepositoryService:
 
         return snapshot.signed.version
 
-    def init_dev_repository(self):
+    def init_dev_repository(self) -> None:
         """
         Creates development TUF top-level role metadata (root, targets, snapshot,
         timestamp).
@@ -320,18 +329,18 @@ class RepositoryService:
                 f"signing threshold '{threshold}'"
             )
 
-            root.roles[role_name] = Role([], threshold)
+            root.roles[role_name] = Role([], threshold)  # type: ignore
             for signer in signers:
-                root.add_key(role_name, Key.from_securesystemslib_key(signer.key_dict))
+                root.add_key(Key.from_securesystemslib_key(signer.key_dict), role_name)
 
         # Add signature wrapper, bump expiration, and sign and persist
         for role in [targets, snapshot, timestamp, root]:
-            metadata = Metadata(role)
+            metadata = Metadata(role)  # type: ignore
             self._bump_expiry(metadata, role.type)
             self._sign(metadata, role.type)
             self._persist(metadata, role.type)
 
-    def init_targets_delegation(self):
+    def init_targets_delegation(self) -> None:
         """
         Creates TUF metadata for hash bin delegated targets roles (bins, bin-n).
 
@@ -355,7 +364,9 @@ class RepositoryService:
         # signature thresholds.
         targets = self._load(Targets.type)
         targets.signed.delegations = Delegations(keys={}, roles={})
-        targets.signed.delegations.roles[RoleType.BINS.value] = DelegatedRole(
+        targets.signed.delegations.roles[  # type: ignore
+            RoleType.BINS.value
+        ] = DelegatedRole(
             name=RoleType.BINS.value,
             keyids=[],
             threshold=self._request.registry.settings[
@@ -367,7 +378,7 @@ class RepositoryService:
 
         for signer in self._key_storage_backend.get(RoleType.BINS.value):
             targets.signed.add_key(
-                RoleType.BINS.value, Key.from_securesystemslib_key(signer.key_dict)
+                Key.from_securesystemslib_key(signer.key_dict), RoleType.BINS.value
             )
 
         # Bump version and expiration, and sign and persist updated 'targets'.
@@ -378,36 +389,22 @@ class RepositoryService:
 
         targets_meta.append((RoleType.TARGETS.value, targets.signed.version))
 
+        succinct_roles = SuccinctRoles(
+            [], 1, self._get_bit_length(), RoleType.BIN_N.value
+        )
         # Create new 'bins' role and delegate trust from 'bins' for all target files to
         # 'bin-n' roles based on file path hash prefixes, a.k.a hash bin delegation.
         bins = Metadata(Targets())
-        bins.signed.delegations = Delegations(keys={}, roles={})
-        hash_bins = self._get_hash_bins()
-        for bin_n_name, bin_n_hash_prefixes in hash_bins.generate():
-            bins.signed.delegations.roles[bin_n_name] = DelegatedRole(
-                name=bin_n_name,
-                keyids=[],
-                threshold=self._request.registry.settings[
-                    f"tuf.{RoleType.BIN_N.value}.threshold"
-                ],
-                terminating=False,
-                path_hash_prefixes=bin_n_hash_prefixes,
-            )
-
+        bins.signed.delegations = Delegations(keys={}, succinct_roles=succinct_roles)
+        for delegated_name in succinct_roles.get_roles():
             for signer in self._key_storage_backend.get(RoleType.BIN_N.value):
                 bins.signed.add_key(
-                    bin_n_name, Key.from_securesystemslib_key(signer.key_dict)
+                    Key.from_securesystemslib_key(signer.key_dict), delegated_name
                 )
-
-            # Create new empty 'bin-n' roles, bump expiration, and sign and persist
             bin_n = Metadata(Targets())
             self._bump_expiry(bin_n, RoleType.BIN_N.value)
             self._sign(bin_n, RoleType.BIN_N.value)
-            self._persist(bin_n, bin_n_name)
-
-            # FIXME: Possible performance gain by updating 'snapshot' right here, to
-            # omit creation of massive list and iterating over all 'bin-n' roles twice.
-            targets_meta.append((bin_n_name, bin_n.signed.version))
+            self._persist(bin_n, delegated_name)
 
         # Bump expiration, and sign and persist new 'bins' role.
         self._bump_expiry(bins, RoleType.BINS.value)
@@ -418,7 +415,7 @@ class RepositoryService:
 
         self._update_timestamp(self._update_snapshot(targets_meta))
 
-    def add_hashed_targets(self, targets):
+    def add_hashed_targets(self, targets: List[TargetFile]) -> None:
         """
         Updates 'bin-n' roles metadata, assigning each passed target to the correct bin.
 
@@ -428,16 +425,17 @@ class RepositoryService:
         Updating 'bin-n' also updates 'snapshot' and 'timestamp'.
         """
         # Group target files by responsible 'bin-n' roles
-        bin_n_target_groups = {}
-        hash_bins = self._get_hash_bins()
+        bin_n = self._load(RoleType.BINS.value)
+        bin_n_succinct_roles = bin_n.signed.delegations.succinct_roles
+        bin_n_target_groups: Dict[str, List[TargetFile]] = {}
+
         for target in targets:
-            bin_n_name = hash_bins.get_delegate(target["path"])
+            bin_n_name = bin_n_succinct_roles.get_role_for_target(target.path)
 
             if bin_n_name not in bin_n_target_groups:
                 bin_n_target_groups[bin_n_name] = []
 
-            target_file = TargetFile.from_dict(target["info"], target["path"])
-            bin_n_target_groups[bin_n_name].append(target_file)
+            bin_n_target_groups[bin_n_name].append(target)
 
         # Update target file info in responsible 'bin-n' roles, bump version and expiry
         # and sign and persist
@@ -457,7 +455,7 @@ class RepositoryService:
 
         self._update_timestamp(self._update_snapshot(targets_meta))
 
-    def bump_bin_n_roles(self):
+    def bump_bin_n_roles(self) -> None:
         """
         Bumps version and expiration date of 'bin-n' role metadata (multiple).
 
@@ -467,9 +465,10 @@ class RepositoryService:
 
         Updating 'bin-n' also updates 'snapshot' and 'timestamp'.
         """
-        hash_bins = self._get_hash_bins()
+        bin_n = self._load(RoleType.BINS.value)
+        bin_n_succinct_roles = bin_n.signed.delegations.succinct_roles
         targets_meta = []
-        for bin_n_name, _ in hash_bins.generate():
+        for bin_n_name in bin_n_succinct_roles.get_roles():
             bin_n = self._load(bin_n_name)
 
             self._bump_expiry(bin_n, RoleType.BIN_N.value)
@@ -481,7 +480,7 @@ class RepositoryService:
 
         self._update_timestamp(self._update_snapshot(targets_meta))
 
-    def bump_snapshot(self):
+    def bump_snapshot(self) -> None:
         """
         Bumps version and expiration date of TUF 'snapshot' role metadata.
 

@@ -20,6 +20,7 @@ from securesystemslib.interface import (  # type: ignore
 from warehouse.cli import warehouse
 from warehouse.packaging.utils import render_simple_detail
 from warehouse.tuf.tasks import (
+    TargetFile,
     add_hashed_targets as _add_hashed_targets,
     bump_bin_n_roles as _bump_bin_n_roles,
     bump_snapshot as _bump_snapshot,
@@ -135,11 +136,14 @@ def add_all_packages(config):
     targets = list()
     for file in db.query(File).all():
         hashes = {"blake2b-256": file.blake2_256_digest}
-        targetinfo = dict()
-        targetinfo["length"] = file.size
-        targetinfo["hashes"] = hashes
-        targetinfo["custom"] = {"backsigned": True}
-        targets.append({"info": targetinfo, "path": file.path})
+        targets.append(
+            TargetFile(
+                length=file.size,
+                hashes=hashes,
+                path=file.path,
+                unrecognized_fields={"backsigned": True},
+            )
+        )
 
     config.task(_add_hashed_targets).run(request, targets)
 
@@ -163,15 +167,12 @@ def add_all_indexes(config):
         except OSError as err:
             click.ClickException(str(err))
         hashes = {"blake2b-256": simple_detail.get("content_hash")}
-        targetinfo = dict()
-        targetinfo["hashes"] = hashes
-        targetinfo["length"] = simple_detail.get("length")
-        targetinfo["custom"] = {"backsigned": True}
         targets.append(
-            {
-                "info": targetinfo,
-                "path": f"{project.normalized_name}/{project.normalized_name}.html",
-            }
+            TargetFile(
+                length=simple_detail.get("length"),
+                hashes=hashes,
+                path=f"{project.normalized_name}/{project.normalized_name}.html",
+            )
         )
 
     config.task(_add_hashed_targets).run(request, targets)

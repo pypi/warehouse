@@ -14,7 +14,7 @@ import pretend
 
 from warehouse.tuf import tasks
 from warehouse.tuf.interfaces import IRepositoryService
-from warehouse.tuf.repository import TargetFile
+from warehouse.tuf.services import TargetFile
 
 
 class TestBumpSnapshot:

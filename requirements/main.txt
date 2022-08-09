@@ -1265,10 +1265,6 @@ securesystemslib==0.22.0 \
     # via
     #   -r requirements/main.in
     #   tuf
-sentry-sdk==1.6.0 \
-    --hash=sha256:b82ad57306d5546713f15d5d70daea0408cf7f998c7566db16e0e6257e51e561 \
-    --hash=sha256:ddbd191b6f4e696b7845b4d87389898ae1207981faf114f968a57363aa6be03c
-    # via -r requirements/main.in
 six==1.16.0 \
     --hash=sha256:1e61c37477a1626458e36f7b1d82aa5c9b094fa4802892072e49de9c60c4c926 \
     --hash=sha256:8abb2f1d86890a2dfb989f9a77cfcfd3e47c2a354b01111771326f8aa26e0254
@@ -1371,9 +1367,9 @@ trove-classifiers==2022.8.31 \
     --hash=sha256:0db52e6a5cbe1035f306fcfee0066f22bcf842004f19dcc6258e309e36e5eb5f \
     --hash=sha256:9e32190e4ec0b7a173789ee0db20c433ef25060e98f64ff32ae4111990085526
     # via -r requirements/main.in
-tuf==1.1.0 \
-    --hash=sha256:28cd35eafa5aa4223eba03a397d14acb57c522381180db9ff3b54477dcbe1b73 \
-    --hash=sha256:512a864789e291b5e8f5a5ace0e87b2d158303364a77ad6e53ffd042ba2b4933
+tuf==2.0.0 \
+    --hash=sha256:1524b0fbd8504245f600f121daf86b8fdcb30df74410acc9655944c4868e461c \
+    --hash=sha256:76e7f2a7aced84466865fac2a7127b6085afae51d4328af896fb46f952dd3a53
     # via -r requirements/main.in
 typeguard==2.13.3 \
     --hash=sha256:00edaa8da3a133674796cf5ea87d9f4b4c367d77476e185e80251cc13dfbb8c4 \

@@ -23,7 +23,6 @@ from zope.interface.verify import verifyClass
 from warehouse.config import Environment
 from warehouse.tuf import services
 from warehouse.tuf.constants import BIN_N_COUNT, Role
-from warehouse.tuf.hash_bins import HashBins
 from warehouse.tuf.interfaces import IKeyService, IRepositoryService, IStorageService
 
 
@@ -166,7 +165,7 @@ class TestLocalStorageService:
             services.__builtins__, "open", lambda *a, **kw: fake_file_object
         )
 
-        with service.get("timestamp") as r:
+        with service.get(Role.TIMESTAMP.value) as r:
             result = r.read()
 
         assert result == fake_file_object.read()
@@ -295,7 +294,15 @@ class TestRepositoryService:
     def test_verify_service(self):
         assert verifyClass(IRepositoryService, services.RepositoryService)
 
-    def test_create_service(self, db_request):
+    def test_basic_init(self):
+        service = services.RepositoryService(
+            "fake_storage", "fake_key_storage", "fake_request"
+        )
+        assert service._storage_backend == "fake_storage"
+        assert service._key_storage_backend == "fake_key_storage"
+        assert service._request == "fake_request"
+
+    def test_create_service(self):
         fake_service = "Fake Service"
         request = pretend.stub(
             find_service=pretend.call_recorder(lambda interface: fake_service)
@@ -309,47 +316,154 @@ class TestRepositoryService:
             pretend.call(IKeyService),
         ]
 
-    def test_basic_init(self):
-        service = services.RepositoryService(
-            "fake_storage", "fake_key_storage", "fake_request"
-        )
-        assert service._storage_backend == "fake_storage"
-        assert service._key_storage_backend == "fake_key_storage"
-        assert service._request == "fake_request"
-
-    def test__get_hash_bins_development(self, db_request):
-        fake_storage = pretend.stub()
-        fake_key_storage = pretend.stub()
+    def test__get_bit_lenght(self, db_request):
         db_request.registry.settings["warehouse.env"] = Environment.development
-        service = services.RepositoryService(fake_storage, fake_key_storage, db_request)
+        fake_storage_service = pretend.stub()
+        fake_key_service = pretend.stub()
+        repository_service = services.RepositoryService(
+            fake_storage_service, fake_key_service, db_request
+        )
+        response = repository_service._get_bit_length()
+        assert response == 8
 
-        result = service._get_hash_bins()
-        assert type(result) == HashBins
-        assert result.number_of_bins == 32
-        assert result.number_of_prefixes == 256
-        assert result.bin_size == 8
-
-    def test__get_hash_bins_production(self, db_request):
-        fake_storage = pretend.stub()
-        fake_key_storage = pretend.stub()
+    def test__get_bit_lenght_production(self, db_request):
         db_request.registry.settings["warehouse.env"] = Environment.production
-        service = services.RepositoryService(fake_storage, fake_key_storage, db_request)
+        fake_storage_service = pretend.stub()
+        fake_key_service = pretend.stub()
 
-        result = service._get_hash_bins()
-        assert type(result) == HashBins
-        assert result.number_of_bins == BIN_N_COUNT
-        assert result.number_of_prefixes == 65536
-        assert result.bin_size == 4
+        repository_service = services.RepositoryService(
+            fake_storage_service, fake_key_service, db_request
+        )
+        response = repository_service._get_bit_length()
+        assert response == BIN_N_COUNT
 
-    def test_init_repository(self, db_request, monkeypatch):
-        fake_storage = pretend.stub()
-        fake_key_storage = pretend.stub(
-            get=pretend.call_recorder(lambda role: "fake_key")
+    def test__is_initialized_true(self, db_request):
+        fake_storage_service = pretend.stub()
+        fake_key_service = pretend.stub()
+
+        repository_service = services.RepositoryService(
+            fake_storage_service, fake_key_service, db_request
+        )
+        repository_service._load = pretend.call_recorder(lambda *a: services.Root())
+
+        assert repository_service._is_initialized() is True
+        assert repository_service._load.calls in [
+            [pretend.call(role)] for role in services.TOP_LEVEL_ROLE_NAMES
+        ]
+
+    def test__is_initialized_false(self, db_request):
+        fake_storage_service = pretend.stub()
+        fake_key_service = pretend.stub()
+
+        repository_service = services.RepositoryService(
+            fake_storage_service, fake_key_service, db_request
+        )
+        repository_service._load = pretend.call_recorder(lambda *a: None)
+
+        assert repository_service._is_initialized() is False
+        for pretend_call in repository_service._load.calls:
+            assert pretend_call in [
+                pretend.call(role) for role in services.TOP_LEVEL_ROLE_NAMES
+            ]
+
+    def test__is_initialized_false_by_exception(self, db_request):
+        fake_storage_service = pretend.stub()
+        fake_key_service = pretend.stub()
+
+        repository_service = services.RepositoryService(
+            fake_storage_service, fake_key_service, db_request
+        )
+        repository_service._load = pretend.raiser(services.StorageError)
+
+        assert repository_service._is_initialized() is False
+
+    def test__load(self, monkeypatch, db_request):
+        fake_storage_service = pretend.stub()
+        fake_key_service = pretend.stub()
+
+        fake_metadata = pretend.stub(
+            from_file=pretend.call_recorder(lambda *a: "Metadata")
+        )
+        monkeypatch.setattr("warehouse.tuf.services.Metadata", fake_metadata)
+
+        repository_service = services.RepositoryService(
+            fake_storage_service, fake_key_service, db_request
+        )
+        result = repository_service._load("root")
+
+        assert result == "Metadata"
+        assert fake_metadata.from_file.calls == [
+            pretend.call("root", None, fake_storage_service)
+        ]
+
+    def test__sign(self, db_request):
+        fake_storage_service = pretend.stub()
+        fake_key_service = pretend.stub(
+            get=pretend.call_recorder(lambda *a: ["signer1"])
         )
 
-        fake_time = datetime.datetime(2019, 6, 16, 9, 5, 1)
-        fake_datetime = pretend.stub(now=pretend.call_recorder(lambda: fake_time))
-        monkeypatch.setattr(datetime, "datetime", fake_datetime)
+        role = pretend.stub(
+            signatures=pretend.stub(clear=pretend.call_recorder(lambda: None)),
+            sign=pretend.call_recorder(lambda *a, **kw: None),
+        )
+
+        repository_service = services.RepositoryService(
+            fake_storage_service, fake_key_service, db_request
+        )
+        result = repository_service._sign(role, "fake_role")
+
+        assert result is None
+        assert fake_key_service.get.calls == [pretend.call("fake_role")]
+        assert role.signatures.clear.calls == [pretend.call()]
+        assert role.sign.calls == [pretend.call("signer1", append=True)]
+
+    def test__persist(self, db_request):
+        fake_storage_service = pretend.stub()
+        fake_key_service = pretend.stub()
+
+        role = pretend.stub(
+            signed=pretend.stub(version=2),
+            to_file=pretend.call_recorder(lambda *a, **kw: None),
+        )
+
+        services.JSONSerializer = pretend.call_recorder(lambda: None)
+        repository_service = services.RepositoryService(
+            fake_storage_service, fake_key_service, db_request
+        )
+        result = repository_service._persist(role, "root")
+
+        assert result is None
+        assert role.to_file.calls == [
+            pretend.call("2.root.json", services.JSONSerializer(), fake_storage_service)
+        ]
+        assert services.JSONSerializer.calls == [pretend.call(), pretend.call()]
+
+    def test__persist_timestamp(self, db_request):
+        fake_storage_service = pretend.stub()
+        fake_key_service = pretend.stub()
+
+        role = pretend.stub(
+            signed=pretend.stub(version=2),
+            to_file=pretend.call_recorder(lambda *a, **kw: None),
+        )
+
+        services.JSONSerializer = pretend.call_recorder(lambda: None)
+        repository_service = services.RepositoryService(
+            fake_storage_service, fake_key_service, db_request
+        )
+        result = repository_service._persist(role, Role.TIMESTAMP.value)
+
+        assert result is None
+        assert role.to_file.calls == [
+            pretend.call(
+                "timestamp.json", services.JSONSerializer(), fake_storage_service
+            )
+        ]
+        assert services.JSONSerializer.calls == [pretend.call(), pretend.call()]
+
+    def test__bump_expiry(self, monkeypatch, db_request):
+        fake_storage_service = pretend.stub()
+        fake_key_service = pretend.stub()
 
         db_request.registry.settings["warehouse.env"] = Environment.production
         test_tuf_config = {
@@ -365,81 +479,227 @@ class TestRepositoryService:
         for name, value in test_tuf_config.items():
             db_request.registry.settings[name] = value
 
-        fake_metadata_repository = pretend.stub(
-            is_initialized=False,
-            initialize=pretend.call_recorder(lambda *a, **kw: None),
-        )
-        monkeypatch.setattr(
-            "warehouse.tuf.services.MetadataRepository",
-            lambda *a, **kw: fake_metadata_repository,
-        )
-
-        service = services.RepositoryService(fake_storage, fake_key_storage, db_request)
-        result = service.init_dev_repository()
-
-        assert result is None
-        assert fake_metadata_repository.initialize.calls == [
-            pretend.call(
-                {
-                    "targets": "fake_key",
-                    "root": "fake_key",
-                    "timestamp": "fake_key",
-                    "snapshot": "fake_key",
-                },
-                store=True,
-            )
-        ]
-        for test_call in [
-            pretend.call(Role.SNAPSHOT.value),
-            pretend.call(Role.ROOT.value),
-            pretend.call(Role.TARGETS.value),
-            pretend.call(Role.TIMESTAMP.value),
-        ]:
-            assert test_call in fake_key_storage.get.calls
-
-    def test_init_repository_already_initialized(self, db_request, monkeypatch):
-        fake_storage = pretend.stub()
-        fake_key_storage = pretend.stub()
-
-        db_request.registry.settings["warehouse.env"] = Environment.production
-
-        fake_metadata_repository = pretend.stub(
-            is_initialized=True,
-        )
-
-        monkeypatch.setattr(
-            "warehouse.tuf.services.MetadataRepository",
-            lambda *a, **kw: fake_metadata_repository,
-        )
-        service = services.RepositoryService(fake_storage, fake_key_storage, db_request)
-
-        with pytest.raises(FileExistsError) as err:
-            service.init_dev_repository()
-
-        assert "TUF Metadata Repository files already exists." in str(err.value)
-
-    def test_init_targets_delegation(self, db_request, monkeypatch):
-        fake_storage = pretend.stub()
-        fake_signers = [
-            pretend.stub(
-                key_dict={"keyid": "fake_id"},
-                sign=pretend.call_recorder(lambda *a: "key1"),
-            )
-        ]
-        fake_key_storage = pretend.stub(
-            get=pretend.call_recorder(lambda role: fake_signers)
-        )
-
         fake_time = datetime.datetime(2019, 6, 16, 9, 5, 1)
         fake_datetime = pretend.stub(now=pretend.call_recorder(lambda: fake_time))
-        monkeypatch.setattr(datetime, "datetime", fake_datetime)
+        monkeypatch.setattr("warehouse.tuf.services.datetime", fake_datetime)
+
+        role = pretend.stub(
+            signed=pretend.stub(expires=fake_datetime),
+        )
+
+        repository_service = services.RepositoryService(
+            fake_storage_service, fake_key_service, db_request
+        )
+        result = repository_service._bump_expiry(role, "root")
+
+        assert result is None
+        assert role.signed.expires == datetime.datetime(2020, 6, 15, 9, 5, 1)
+        assert fake_datetime.now.calls == [pretend.call()]
+
+    def test__bump_version(self, db_request):
+        fake_storage_service = pretend.stub()
+        fake_key_service = pretend.stub()
+
+        role = pretend.stub(
+            signed=pretend.stub(version=2),
+        )
+
+        repository_service = services.RepositoryService(
+            fake_storage_service, fake_key_service, db_request
+        )
+        result = repository_service._bump_version(role)
+
+        assert result is None
+        assert role.signed.version == 3
+
+    def test__update_timestamp(self, monkeypatch, db_request):
+        fake_storage_service = pretend.stub()
+        fake_key_service = pretend.stub()
+
+        repository_service = services.RepositoryService(
+            fake_storage_service, fake_key_service, db_request
+        )
+
+        snapshot_version = 3
+        fake_metafile = pretend.call_recorder(lambda *a, **kw: snapshot_version)
+        monkeypatch.setattr("warehouse.tuf.services.MetaFile", fake_metafile)
+
+        mocked_timestamp = pretend.stub(signed=pretend.stub(snapshot_meta=2))
+        repository_service._load = pretend.call_recorder(lambda *a: mocked_timestamp)
+        repository_service._bump_version = pretend.call_recorder(lambda *a: None)
+        repository_service._bump_expiry = pretend.call_recorder(lambda *a: None)
+        repository_service._sign = pretend.call_recorder(lambda *a: None)
+        repository_service._persist = pretend.call_recorder(lambda *a: None)
+
+        result = repository_service._update_timestamp(snapshot_version)
+
+        assert result is None
+        assert mocked_timestamp.signed.snapshot_meta == snapshot_version
+        assert repository_service._load.calls == [pretend.call(Role.TIMESTAMP.value)]
+        assert repository_service._bump_version.calls == [
+            pretend.call(mocked_timestamp)
+        ]
+        assert repository_service._bump_expiry.calls == [
+            pretend.call(mocked_timestamp, Role.TIMESTAMP.value)
+        ]
+        assert repository_service._sign.calls == [
+            pretend.call(mocked_timestamp, Role.TIMESTAMP.value)
+        ]
+        assert repository_service._persist.calls == [
+            pretend.call(mocked_timestamp, Role.TIMESTAMP.value)
+        ]
+
+    def test__update_snapshot(self, db_request):
+        fake_storage_service = pretend.stub()
+        fake_key_service = pretend.stub()
+
+        snapshot_version = 3
+        test_target_meta = [("bins", 3), ("f", 4)]
+        mocked_snapshot = pretend.stub(
+            signed=pretend.stub(
+                meta={},
+                version=snapshot_version,
+            )
+        )
+
+        repository_service = services.RepositoryService(
+            fake_storage_service, fake_key_service, db_request
+        )
+        repository_service._load = pretend.call_recorder(lambda *a: mocked_snapshot)
+        repository_service._bump_version = pretend.call_recorder(lambda *a: None)
+        repository_service._bump_expiry = pretend.call_recorder(lambda *a: None)
+        repository_service._sign = pretend.call_recorder(lambda *a: None)
+        repository_service._persist = pretend.call_recorder(lambda *a: None)
+
+        result = repository_service._update_snapshot(test_target_meta)
+
+        assert result is snapshot_version
+        assert repository_service._load.calls == [pretend.call(Role.SNAPSHOT.value)]
+        assert repository_service._bump_version.calls == [pretend.call(mocked_snapshot)]
+        assert repository_service._bump_expiry.calls == [
+            pretend.call(mocked_snapshot, Role.SNAPSHOT.value)
+        ]
+        assert repository_service._sign.calls == [
+            pretend.call(mocked_snapshot, Role.SNAPSHOT.value)
+        ]
+        assert repository_service._persist.calls == [
+            pretend.call(mocked_snapshot, Role.SNAPSHOT.value)
+        ]
+
+    def test_init_dev_repository(self, db_request):
+        fake_key = {
+            "keytype": "ed25519",
+            "scheme": "ed25519",
+            "keyid": (
+                "6dcd53f0a90fca17700f819e939a74b133aa5cd8619f3dc03228c0c68dcc2abb"
+            ),
+            "keyid_hash_algorithms": ["sha256", "sha512"],
+            "keyval": {
+                "public": (
+                    "c864d93b521d5851275a7b7c79fb0ac76311c206262eabd67319eba6665b1417"
+                ),
+                "private": (
+                    "bbe40143bfe1a3b6a41647f590e398fb8dd38fddf6b279edefdc022cdb649cdc"
+                ),
+            },
+        }
+        fake_signers = [
+            pretend.stub(
+                key_dict=fake_key,
+                sign=pretend.call_recorder(lambda *a: "key1"),
+            ),
+            pretend.stub(
+                key_dict=fake_key,
+                sign=pretend.call_recorder(lambda *a: "key1"),
+            ),
+        ]
+        fake_storage_service = pretend.stub()
+        fake_key_service = pretend.stub(
+            get=pretend.call_recorder(lambda *a: fake_signers)
+        )
 
         db_request.registry.settings["warehouse.env"] = Environment.production
         test_tuf_config = {
+            "tuf.root.threshold": 1,
+            "tuf.root.expiry": 31536000,
             "tuf.snapshot.threshold": 1,
             "tuf.snapshot.expiry": 86400,
             "tuf.targets.threshold": 2,
             "tuf.targets.expiry": 31536000,
+            "tuf.timestamp.threshold": 1,
+            "tuf.timestamp.expiry": 86400,
+        }
+        for name, value in test_tuf_config.items():
+            db_request.registry.settings[name] = value
+
+        repository_service = services.RepositoryService(
+            fake_storage_service, fake_key_service, db_request
+        )
+
+        repository_service._is_initialized = pretend.call_recorder(lambda: False)
+        repository_service._bump_expiry = pretend.call_recorder(lambda *a: None)
+        repository_service._sign = pretend.call_recorder(lambda *a: None)
+        repository_service._persist = pretend.call_recorder(lambda *a: None)
+
+        result = repository_service.init_dev_repository()
+        assert result is None
+
+    def test_init_dev_repository_already_initialized(self, db_request):
+        fake_storage_service = pretend.stub()
+        fake_key_service = pretend.stub()
+
+        repository_service = services.RepositoryService(
+            fake_storage_service, fake_key_service, db_request
+        )
+        repository_service._is_initialized = pretend.call_recorder(lambda: True)
+        with pytest.raises(FileExistsError) as err:
+            repository_service.init_dev_repository()
+
+        assert "TUF Metadata Repository files already exists." in str(err)
+
+    def test_init_targets_delegation(self, db_request):
+        fake_key = {
+            "keytype": "ed25519",
+            "scheme": "ed25519",
+            "keyid": (
+                "6dcd53f0a90fca17700f819e939a74b133aa5cd8619f3dc03228c0c68dcc2abb"
+            ),
+            "keyid_hash_algorithms": ["sha256", "sha512"],
+            "keyval": {
+                "public": (
+                    "c864d93b521d5851275a7b7c79fb0ac76311c206262eabd67319eba6665b1417"
+                ),
+                "private": (
+                    "bbe40143bfe1a3b6a41647f590e398fb8dd38fddf6b279edefdc022cdb649cdc"
+                ),
+            },
+        }
+        fake_signers = [
+            pretend.stub(
+                key_dict=fake_key,
+                sign=pretend.call_recorder(lambda *a: "key1"),
+            ),
+            pretend.stub(
+                key_dict=fake_key,
+                sign=pretend.call_recorder(lambda *a: "key1"),
+            ),
+        ]
+        fake_storage_service = pretend.stub()
+        fake_key_service = pretend.stub(
+            get=pretend.call_recorder(lambda *a: fake_signers)
+        )
+
+        db_request.registry.settings["warehouse.env"] = Environment.development
+
+        test_tuf_config = {
+            "tuf.root.threshold": 1,
+            "tuf.root.expiry": 31536000,
+            "tuf.snapshot.threshold": 1,
+            "tuf.snapshot.expiry": 86400,
+            "tuf.targets.threshold": 2,
+            "tuf.targets.expiry": 31536000,
+            "tuf.timestamp.threshold": 1,
+            "tuf.timestamp.expiry": 86400,
             "tuf.bins.threshold": 1,
             "tuf.bins.expiry": 31536000,
             "tuf.bin-n.threshold": 1,
@@ -448,241 +708,211 @@ class TestRepositoryService:
         for name, value in test_tuf_config.items():
             db_request.registry.settings[name] = value
 
-        fake_metadata_repository = pretend.stub(
-            is_initialized=False,
-            delegate_targets_roles=pretend.call_recorder(lambda *a: None),
-            _set_expiration_for_role=pretend.call_recorder(lambda *a: fake_datetime),
+        fake_targets = pretend.stub(
+            signed=pretend.stub(
+                delegations=None,
+                roles={},
+                add_key=pretend.call_recorder(lambda *a: None),
+                version=3,
+            )
         )
-        monkeypatch.setattr(
-            "warehouse.tuf.services.MetadataRepository",
-            lambda *a, **kw: fake_metadata_repository,
+        repository_service = services.RepositoryService(
+            fake_storage_service, fake_key_service, db_request
         )
+        repository_service._load = pretend.call_recorder(lambda *a: fake_targets)
+        repository_service._bump_version = pretend.call_recorder(lambda *a: None)
+        repository_service._bump_expiry = pretend.call_recorder(lambda *a: None)
+        repository_service._sign = pretend.call_recorder(lambda *a: None)
+        repository_service._persist = pretend.call_recorder(lambda *a: None)
+        repository_service._update_timestamp = pretend.call_recorder(lambda *a: None)
+        repository_service._update_snapshot = pretend.call_recorder(lambda *a: 3)
 
-        service = services.RepositoryService(fake_storage, fake_key_storage, db_request)
-        service.bump_snapshot = pretend.call_recorder(lambda snapshot_metadata: None)
-        result = service.init_targets_delegation()
+        result = repository_service.init_targets_delegation()
 
         assert result is None
-        call_args = fake_metadata_repository.delegate_targets_roles.calls[0].args[0]
-        assert sorted(["targets", "bins"]) == sorted(list(call_args.keys()))
-        assert len(call_args["targets"]) == 1
-        assert type(call_args["targets"][0][0]) == services.DelegatedRole
-        assert call_args["targets"][0][1][0].key_dict == {"keyid": "fake_id"}
-        assert (
-            len(call_args["bins"]) == 16384
-        )  # PEP458 https://peps.python.org/pep-0458/#metadata-scalability
-        assert type(call_args["bins"][0][0]) == services.DelegatedRole
-        assert call_args["bins"][0][1][0].key_dict == {"keyid": "fake_id"}
-        # 1 target + # PEP458 https://peps.python.org/pep-0458/#metadata-scalability
-        assert len(fake_metadata_repository._set_expiration_for_role.calls) == 16385
+        assert repository_service._load.calls == [pretend.call("targets")]
+        assert repository_service._bump_version.calls == [pretend.call(fake_targets)]
+        assert repository_service._update_snapshot.calls == [
+            pretend.call([("targets", 3), ("bins", 1)])
+        ]
+        assert repository_service._update_timestamp.calls == [pretend.call(3)]
 
-    def test_bump_snapshot(self, db_request, monkeypatch):
-        fake_storage = pretend.stub()
-        fake_key_storage = pretend.stub(
-            get=pretend.call_recorder(lambda role: "fake_key")
-        )
-
-        fake_time = datetime.datetime(2019, 6, 16, 9, 5, 1)
-        fake_datetime = pretend.stub(now=pretend.call_recorder(lambda: fake_time))
-        monkeypatch.setattr(datetime, "datetime", fake_datetime)
-
-        db_request.registry.settings["warehouse.env"] = Environment.production
-        test_tuf_config = {
-            "tuf.snapshot.expiry": 86400,
-            "tuf.timestamp.expiry": 86400,
+    def test_add_hashed_targets(self, db_request):
+        fake_key = {
+            "keytype": "ed25519",
+            "scheme": "ed25519",
+            "keyid": (
+                "6dcd53f0a90fca17700f819e939a74b133aa5cd8619f3dc03228c0c68dcc2abb"
+            ),
+            "keyid_hash_algorithms": ["sha256", "sha512"],
+            "keyval": {
+                "public": (
+                    "c864d93b521d5851275a7b7c79fb0ac76311c206262eabd67319eba6665b1417"
+                ),
+                "private": (
+                    "bbe40143bfe1a3b6a41647f590e398fb8dd38fddf6b279edefdc022cdb649cdc"
+                ),
+            },
         }
-
-        for name, value in test_tuf_config.items():
-            db_request.registry.settings[name] = value
-
-        fake_snapshot = pretend.stub(signed=pretend.stub(version=2))
-        fake_metadata_repository = pretend.stub(
-            load_role=pretend.call_recorder(lambda role: fake_snapshot),
-            snapshot_bump_version=pretend.call_recorder(lambda *a, **kw: fake_snapshot),
-            timestamp_bump_version=pretend.call_recorder(lambda *a, **kw: None),
-        )
-        monkeypatch.setattr(
-            "warehouse.tuf.services.MetadataRepository",
-            lambda *a, **kw: fake_metadata_repository,
-        )
-
-        service = services.RepositoryService(fake_storage, fake_key_storage, db_request)
-        result = service.bump_snapshot()
-
-        bump_s_calls = fake_metadata_repository.snapshot_bump_version.calls[0].kwargs
-        bump_t_calls = fake_metadata_repository.timestamp_bump_version.calls[0].kwargs
-
-        assert result is None
-        assert fake_metadata_repository.load_role.calls == [pretend.call("snapshot")]
-        assert bump_s_calls["snapshot_metadata"].signed.version == 2
-        assert bump_s_calls["store"] is True
-        assert bump_t_calls["snapshot_version"] == 2
-        assert bump_t_calls["store"] is True
-
-    def test_bump_snapshot_specific_snapshot_metadata(self, db_request, monkeypatch):
-        fake_storage = pretend.stub()
-        fake_key_storage = pretend.stub(
-            get=pretend.call_recorder(lambda role: "fake_key")
-        )
-
-        fake_time = datetime.datetime(2019, 6, 16, 9, 5, 1)
-        fake_datetime = pretend.stub(now=pretend.call_recorder(lambda: fake_time))
-        monkeypatch.setattr(datetime, "datetime", fake_datetime)
-
-        db_request.registry.settings["warehouse.env"] = Environment.production
-        test_tuf_config = {
-            "tuf.snapshot.expiry": 86400,
-            "tuf.timestamp.expiry": 86400,
-        }
-
-        for name, value in test_tuf_config.items():
-            db_request.registry.settings[name] = value
-
-        fake_snapshot = pretend.stub(signed=pretend.stub(version=2))
-        fake_metadata_repository = pretend.stub(
-            snapshot_bump_version=pretend.call_recorder(lambda *a, **kw: fake_snapshot),
-            timestamp_bump_version=pretend.call_recorder(lambda *a, **kw: None),
-        )
-        monkeypatch.setattr(
-            "warehouse.tuf.services.MetadataRepository",
-            lambda *a, **kw: fake_metadata_repository,
-        )
-
-        service = services.RepositoryService(fake_storage, fake_key_storage, db_request)
-        result = service.bump_snapshot(fake_snapshot)
-
-        bump_s_calls = fake_metadata_repository.snapshot_bump_version.calls[0].kwargs
-        bump_t_calls = fake_metadata_repository.timestamp_bump_version.calls[0].kwargs
-
-        assert result is None
-        assert bump_s_calls["snapshot_metadata"].signed.version == 2
-        assert bump_s_calls["store"] is True
-        assert bump_t_calls["snapshot_version"] == 2
-        assert bump_t_calls["store"] is True
-
-    def test_bump_bin_n_roles(self, db_request, monkeypatch):
-        fake_storage = pretend.stub()
         fake_signers = [
             pretend.stub(
-                key_dict={"keyid": "fake_id"},
+                key_dict=fake_key,
                 sign=pretend.call_recorder(lambda *a: "key1"),
-            )
+            ),
+            pretend.stub(
+                key_dict=fake_key,
+                sign=pretend.call_recorder(lambda *a: "key1"),
+            ),
         ]
-        fake_key_storage = pretend.stub(
-            get=pretend.call_recorder(lambda role: fake_signers)
+        fake_storage_service = pretend.stub()
+        fake_key_service = pretend.stub(
+            get=pretend.call_recorder(lambda *a: fake_signers)
         )
 
-        fake_time = datetime.datetime(2019, 6, 16, 9, 5, 1)
-        fake_datetime = pretend.stub(now=pretend.call_recorder(lambda: fake_time))
-        monkeypatch.setattr(datetime, "datetime", fake_datetime)
+        db_request.registry.settings["warehouse.env"] = Environment.development
 
-        db_request.registry.settings["warehouse.env"] = Environment.production
         test_tuf_config = {
-            "tuf.snapshot.expiry": 86400,
-            "tuf.timestamp.expiry": 86400,
+            "tuf.bin-n.threshold": 1,
             "tuf.bin-n.expiry": 604800,
-            "tuf.bins.expiry": 31536000,
         }
-
         for name, value in test_tuf_config.items():
             db_request.registry.settings[name] = value
 
-        fake_bin_n_metadata = pretend.stub(signed=pretend.stub(version=5))
-        fake_snapshot = pretend.stub(signed=pretend.stub(version=2))
-        fake_metadata_repository = pretend.stub(
-            load_role=pretend.call_recorder(
-                lambda role: fake_snapshot
-                if role == Role.SNAPSHOT.value
-                else fake_bin_n_metadata
-            ),
-            bump_role_version=pretend.call_recorder(lambda *a, **kw: None),
-            snapshot_bump_version=pretend.call_recorder(lambda *a, **kw: fake_snapshot),
-            snapshot_update_meta=pretend.call_recorder(
-                lambda *a, **kw: "snapshot_metadata"
-            ),
-            timestamp_bump_version=pretend.call_recorder(lambda *a, **kw: None),
-            _set_expiration_for_role=pretend.call_recorder(lambda *a: fake_datetime),
-            _key_storage_backend=pretend.call_recorder(lambda *a: fake_signers),
+        fake_bins = pretend.stub(
+            signed=pretend.stub(
+                delegations=pretend.stub(
+                    succinct_roles=pretend.stub(
+                        get_role_for_target=pretend.call_recorder(lambda *a: "bin-n-3d")
+                    )
+                ),
+            )
         )
-        monkeypatch.setattr(
-            "warehouse.tuf.services.MetadataRepository",
-            lambda *a, **kw: fake_metadata_repository,
-        )
+        fake_bin_n = pretend.stub(signed=pretend.stub(targets={}, version=4))
 
-        service = services.RepositoryService(fake_storage, fake_key_storage, db_request)
-        service.bump_snapshot = pretend.call_recorder(lambda snapshot_metadata: None)
+        def mocked_load(role):
+            if role == "bins":
+                return fake_bins
+            else:
+                return fake_bin_n
 
-        result = service.bump_bin_n_roles()
-
-        assert result is None
-        # PEP458 https://peps.python.org/pep-0458/#metadata-scalability
-        assert len(fake_metadata_repository.bump_role_version.calls) == 16384
-        assert len(fake_metadata_repository.snapshot_update_meta.calls) == 16384
-        assert (
-            len(fake_metadata_repository.load_role.calls) == 16385
-        )  # +1 snapshot call
-        assert (
-            fake_metadata_repository.load_role.calls.count(pretend.call("snapshot"))
-            == 1
-        )
-        assert len(fake_metadata_repository._set_expiration_for_role.calls) == 16384
-        assert service.bump_snapshot.calls == [pretend.call("snapshot_metadata")]
-
-    def test_add_hashed_targets(self, db_request, monkeypatch):
-        db_request.registry.settings["warehouse.env"] = Environment.production
-
-        fake_storage = pretend.stub()
-        fake_key_storage = pretend.stub()
-        fake_metadata_repository = pretend.stub(
-            add_targets=pretend.call_recorder(lambda *a, **kw: "snapshot_metadata"),
-        )
-        monkeypatch.setattr(
-            "warehouse.tuf.services.MetadataRepository",
-            lambda *a, **kw: fake_metadata_repository,
+        repository_service = services.RepositoryService(
+            fake_storage_service, fake_key_service, db_request
         )
 
-        monkeypatch.setattr(
-            "warehouse.tuf.services.TargetFile.from_dict",
-            lambda *a, **kw: "target_dict",
-        )
-
-        fake_hash_bins = pretend.stub(
-            get_delegate=pretend.call_recorder(lambda filepath: "xxxx-yyyy")
-        )
-        service = services.RepositoryService(fake_storage, fake_key_storage, db_request)
-        service.bump_snapshot = pretend.call_recorder(lambda snapshot_metadata: None)
-        service._get_hash_bins = pretend.call_recorder(lambda: fake_hash_bins)
+        repository_service._load = pretend.call_recorder(lambda r: mocked_load(r))
+        repository_service._bump_version = pretend.call_recorder(lambda *a: None)
+        repository_service._bump_expiry = pretend.call_recorder(lambda *a: None)
+        repository_service._sign = pretend.call_recorder(lambda *a: None)
+        repository_service._persist = pretend.call_recorder(lambda *a: None)
+        repository_service._update_timestamp = pretend.call_recorder(lambda *a: None)
+        repository_service._update_snapshot = pretend.call_recorder(lambda *a: 3)
 
         targets = [
-            {
-                "info": {
-                    "hashes": {"blake2b-256": "sdfaslkajsdfkjhadsljkhfsdjkh"},
-                    "length": 1024,
-                    "custom": {"backsigned": True},
-                },
-                "path": "/sd/fa/lkajsdfkjhadsljkhfsdjkh.packagexv1.tar.gz",
-            },
-            {
-                "info": {
-                    "hashes": {"blake2b-256": "dlskjflkdjflsdjfsdfdfsdfsdfs"},
-                    "length": 1025,
-                    "custom": {"backsigned": True},
-                },
-                "path": "/sd/fa/dlskjflkdjflsdjfsdfdfsdfsdfs.packageyv1.tar.gz",
-            },
+            services.TargetFile(
+                1024,
+                {"blake2b-256": "fake_hash_0123456789abcdef"},
+                "/xy/some_package.tar.gz",
+                {"backsigned": True},
+            ),
+            services.TargetFile(
+                1024,
+                {"blake2b-256": "fake_hash_0123456789abcdef"},
+                "/xy/some_package.tar.gz",
+                {"backsigned": True},
+            ),
         ]
-        result = service.add_hashed_targets(targets)
+        result = repository_service.add_hashed_targets(targets)
 
         assert result is None
-        assert fake_metadata_repository.add_targets.calls == [
-            pretend.call(
-                {"xxxx-yyyy": ["target_dict", "target_dict"]},
-                "bin-n",
-            )
-        ], fake_metadata_repository.add_targets.calls
-        assert service.bump_snapshot.calls == [pretend.call("snapshot_metadata")]
-        assert service._get_hash_bins.calls == [pretend.call()]
-        assert fake_hash_bins.get_delegate.calls == [
-            pretend.call("/sd/fa/lkajsdfkjhadsljkhfsdjkh.packagexv1.tar.gz"),
-            pretend.call("/sd/fa/dlskjflkdjflsdjfsdfdfsdfsdfs.packageyv1.tar.gz"),
+        assert repository_service._load.calls == [
+            pretend.call("bins"),
+            pretend.call("bin-n-3d"),
         ]
+        assert repository_service._bump_version.calls == [pretend.call(fake_bin_n)]
+        assert repository_service._bump_expiry.calls == [
+            pretend.call(fake_bin_n, "bin-n")
+        ]
+        assert repository_service._sign.calls == [pretend.call(fake_bin_n, "bin-n")]
+        assert repository_service._sign.calls == [pretend.call(fake_bin_n, "bin-n")]
+        assert repository_service._update_snapshot.calls == [
+            pretend.call([("bin-n-3d", 4)])
+        ]
+        assert repository_service._update_timestamp.calls == [pretend.call(3)]
+
+    def test_bump_bin_n_roles(self, db_request):
+
+        fake_storage_service = pretend.stub()
+        fake_key_service = pretend.stub()
+
+        fake_bins = pretend.stub(
+            signed=pretend.stub(
+                delegations=pretend.stub(
+                    succinct_roles=pretend.stub(
+                        get_roles=pretend.call_recorder(lambda: ["bin-0", "bin-f"])
+                    )
+                ),
+            )
+        )
+        fake_bin_n = pretend.stub(signed=pretend.stub(targets={}, version=5))
+
+        def mocked_load(role):
+            if role == "bins":
+                return fake_bins
+            else:
+                return fake_bin_n
+
+        repository_service = services.RepositoryService(
+            fake_storage_service, fake_key_service, db_request
+        )
+        repository_service._load = pretend.call_recorder(lambda r: mocked_load(r))
+        repository_service._bump_version = pretend.call_recorder(lambda *a: None)
+        repository_service._bump_expiry = pretend.call_recorder(lambda *a: None)
+        repository_service._sign = pretend.call_recorder(lambda *a: None)
+        repository_service._persist = pretend.call_recorder(lambda *a: None)
+        repository_service._update_timestamp = pretend.call_recorder(lambda *a: None)
+        repository_service._update_snapshot = pretend.call_recorder(lambda *a: 6)
+
+        result = repository_service.bump_bin_n_roles()
+
+        assert result is None
+        assert repository_service._load.calls == [
+            pretend.call("bins"),
+            pretend.call("bin-0"),
+            pretend.call("bin-f"),
+        ]
+        assert repository_service._bump_version.calls == [
+            pretend.call(fake_bin_n),
+            pretend.call(fake_bin_n),
+        ]
+        assert repository_service._bump_expiry.calls == [
+            pretend.call(fake_bin_n, "bin-n"),
+            pretend.call(fake_bin_n, "bin-n"),
+        ]
+        assert repository_service._sign.calls == [
+            pretend.call(fake_bin_n, "bin-n"),
+            pretend.call(fake_bin_n, "bin-n"),
+        ]
+        assert repository_service._sign.calls == [
+            pretend.call(fake_bin_n, "bin-n"),
+            pretend.call(fake_bin_n, "bin-n"),
+        ]
+        assert repository_service._update_snapshot.calls == [
+            pretend.call([("bin-0", 5), ("bin-f", 5)])
+        ]
+        assert repository_service._update_timestamp.calls == [pretend.call(6)]
+
+    def test_bump_snapshot(self, db_request):
+        fake_storage_service = pretend.stub()
+        fake_key_service = pretend.stub()
+
+        repository_service = services.RepositoryService(
+            fake_storage_service, fake_key_service, db_request
+        )
+        repository_service._update_snapshot = pretend.call_recorder(lambda *a: 41)
+        repository_service._update_timestamp = pretend.call_recorder(lambda *a: None)
+
+        result = repository_service.bump_snapshot()
+
+        assert result is None
+        assert repository_service._update_snapshot.calls == [pretend.call([])]
+        assert repository_service._update_timestamp.calls == [pretend.call(41)]
