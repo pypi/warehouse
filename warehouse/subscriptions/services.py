@@ -89,7 +89,7 @@ class GenericBillingService:
             cancel_url=cancel_url,
             mode="subscription",
             # automatic_tax={'enabled': True},
-            line_items=[{"price": price_id, "quantity": 1}],
+            line_items=[{"price": price_id}],
             # # TODO: Will these work with stripe checkout?
             # billing_cycle_anchor=first_day_next_month,
             # proration_behavior="none",
@@ -220,7 +220,13 @@ class GenericBillingService:
         return self.api.Price.create(
             unit_amount=unit_amount,
             currency=currency,
-            recurring={"interval": "month"},  # {"interval": recurring},
+            recurring={
+                "interval": "month",
+                # Set "metered" and "max" to enable Stripe usage records.
+                # https://stripe.com/docs/products-prices/pricing-models#aggregate-metered-usage
+                "usage_type": "metered",
+                "aggregate_usage": "max",
+            },
             product=product_id,
             tax_behavior=tax_behavior,
         )
