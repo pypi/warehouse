@@ -3119,6 +3119,73 @@ class TestManageOrganizationSettings:
         assert organization_service.delete_organization.calls == []
         assert db_request.route_path.calls == []
 
+    def test_delete_organization_with_subscriptions(
+        self,
+        db_request,
+        pyramid_user,
+        organization_service,
+        user_service,
+        enable_organizations,
+        monkeypatch,
+    ):
+        organization = OrganizationFactory.create()
+        organization_stripe_customer = OrganizationStripeCustomerFactory.create(
+            organization=organization
+        )
+        subscription = StripeSubscriptionFactory.create(
+            customer_id=organization_stripe_customer.customer_id
+        )
+        OrganizationStripeSubscriptionFactory.create(
+            organization=organization, subscription=subscription
+        )
+
+        db_request.POST = {"confirm_organization_name": organization.name}
+        db_request.route_path = pretend.call_recorder(
+            lambda *a, **kw: "/manage/organizations/"
+        )
+
+        monkeypatch.setattr(
+            organization_service,
+            "delete_organization",
+            pretend.call_recorder(lambda *a, **kw: None),
+        )
+
+        admins = []
+        monkeypatch.setattr(
+            user_service,
+            "get_admins",
+            pretend.call_recorder(lambda *a, **kw: admins),
+        )
+
+        send_email = pretend.call_recorder(lambda *a, **kw: None)
+        monkeypatch.setattr(views, "send_admin_organization_deleted_email", send_email)
+        monkeypatch.setattr(views, "send_organization_deleted_email", send_email)
+        monkeypatch.setattr(
+            views, "organization_owners", lambda *a, **kw: [pyramid_user]
+        )
+
+        view = views.ManageOrganizationSettingsViews(organization, db_request)
+        result = view.delete_organization()
+
+        assert isinstance(result, HTTPSeeOther)
+        assert result.headers["Location"] == "/manage/organizations/"
+        assert organization_service.delete_organization.calls == [
+            pretend.call(organization.id)
+        ]
+        assert send_email.calls == [
+            pretend.call(
+                db_request,
+                admins,
+                organization_name=organization.name,
+            ),
+            pretend.call(
+                db_request,
+                {pyramid_user},
+                organization_name=organization.name,
+            ),
+        ]
+        assert db_request.route_path.calls == [pretend.call("manage.organizations")]
+
 
 class TestManageOrganizationBillingViews:
     @pytest.fixture

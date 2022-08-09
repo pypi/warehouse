@@ -316,9 +316,7 @@ class DatabaseOrganizationService:
         self.db.query(OrganizationProject).filter_by(organization=organization).delete()
         # Delete roles
         self.db.query(OrganizationRole).filter_by(organization=organization).delete()
-        # TODO: Delete any billing data if it exists
-        #       Cancel their Subscription for them?
-        #       Make them cancel via portal before allowing deletion?
+        # Delete billing data if it exists
         if organization.subscriptions:
             for subscription in organization.subscriptions:
                 self.db.query(OrganizationStripeSubscription).filter_by(
@@ -327,7 +325,6 @@ class DatabaseOrganizationService:
                 self.db.query(StripeSubscription).filter(
                     StripeSubscription.id == subscription.id
                 ).delete()
-            # TODO: Delete any stored card data from payment processor?
         # Delete teams (and related data)
         self.delete_teams_by_organization(organization_id)
         # Delete organization

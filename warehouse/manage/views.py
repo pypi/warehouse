@@ -1361,6 +1361,7 @@ class ManageOrganizationSettingsViews:
         self.organization_service = request.find_service(
             IOrganizationService, context=None
         )
+        self.billing_service = request.find_service(IBillingService, context=None)
 
     @property
     def active_projects(self):
@@ -1485,6 +1486,11 @@ class ManageOrganizationSettingsViews:
 
         # Get owners before deleting organization.
         owner_users = set(organization_owners(self.request, self.organization))
+
+        # Cancel any subscriptions tied to this organization.
+        if self.organization.subscriptions:
+            for subscription in self.organization.subscriptions:
+                self.billing_service.cancel_subscription(subscription.subscription_id)
 
         self.organization_service.delete_organization(self.organization.id)
 
