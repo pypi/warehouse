@@ -17,6 +17,7 @@ from warehouse.organizations.services import database_organization_factory
 from warehouse.organizations.tasks import (
     delete_declined_organizations,
     update_organization_invitation_status,
+    update_organziation_subscription_usage_record,
 )
 
 
@@ -27,5 +28,7 @@ def includeme(config):
     config.add_periodic_task(
         crontab(minute="*/5"), update_organization_invitation_status
     )
-
     config.add_periodic_task(crontab(minute=0, hour=0), delete_declined_organizations)
+    config.add_periodic_task(
+        crontab(minute=0, hour=0), update_organziation_subscription_usage_record
+    )
