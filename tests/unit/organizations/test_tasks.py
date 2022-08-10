@@ -15,27 +15,32 @@ import datetime
 import pretend
 
 from warehouse.accounts.interfaces import ITokenService, TokenExpired
-from warehouse.organizations.models import (  # OrganizationRoleType,
+from warehouse.organizations.models import (
     Organization,
     OrganizationInvitationStatus,
+    OrganizationRoleType,
 )
-from warehouse.organizations.tasks import (  # update_organziation_subscription_usage_record,  # noqa
+from warehouse.organizations.tasks import (
     delete_declined_organizations,
     update_organization_invitation_status,
+    update_organziation_subscription_usage_record,
 )
+from warehouse.subscriptions.interfaces import IBillingService
 
-from ...common.db.organizations import (  # OrganizationRoleFactory,; OrganizationStripeCustomerFactory,; OrganizationStripeSubscriptionFactory,  # noqa
+from ...common.db.organizations import (
     OrganizationFactory,
     OrganizationInvitationFactory,
+    OrganizationRoleFactory,
+    OrganizationStripeCustomerFactory,
+    OrganizationStripeSubscriptionFactory,
     UserFactory,
 )
-
-# from ...common.db.subscriptions import (
-#     StripeSubscriptionFactory,
-#     StripeSubscriptionItemFactory,
-#     StripeSubscriptionPriceFactory,
-#     StripeSubscriptionProductFactory,
-# )
+from ...common.db.subscriptions import (
+    StripeSubscriptionFactory,
+    StripeSubscriptionItemFactory,
+    StripeSubscriptionPriceFactory,
+    StripeSubscriptionProductFactory,
+)
 
 
 class TestUpdateInvitationStatus:
@@ -121,44 +126,56 @@ class TestDeleteOrganizations:
         assert db_request.db.query(Organization).count() == 1
 
 
-# TODO: Get this test working
-# class TestUpdateOrganizationSubscriptionUsage:
-#     def test_update_organziation_subscription_usage_record(self, db_request):
-#         # Create an organization with a subscription and members
-#         organization = OrganizationFactory.create()
-#         # Add a couple members
-#         owner_user = UserFactory.create()
-#         OrganizationRoleFactory(
-#             organization=organization,
-#             user=owner_user,
-#             role_name=OrganizationRoleType.Owner,
-#         )
-#         member_user = UserFactory.create()
-#         OrganizationRoleFactory(
-#             organization=organization,
-#             user=member_user,
-#             role_name=OrganizationRoleType.Member,
-#         )
-#         # Wire up the customer, subscripton, organization, and subscription item
-#         organization_stripe_customer = OrganizationStripeCustomerFactory.create(
-#             organization=organization
-#         )
-#         subscription_product = StripeSubscriptionProductFactory.create()
-#         subscription_price = StripeSubscriptionPriceFactory.create(
-#             subscription_product=subscription_product
-#         )
-#         subscription = StripeSubscriptionFactory.create(
-#             customer_id=organization_stripe_customer.customer_id,
-#             subscription_price=subscription_price,
-#         )
-#         OrganizationStripeSubscriptionFactory.create(
-#             organization=organization, subscription=subscription
-#         )
-#         StripeSubscriptionItemFactory.create(
-#             subscription=subscription, subscription_price=subscription_price
-#         )
+class TestUpdateOrganizationSubscriptionUsage:
+    def test_update_organziation_subscription_usage_record(self, db_request):
+        # Create an organization with a subscription and members
+        organization = OrganizationFactory.create()
+        # Add a couple members
+        owner_user = UserFactory.create()
+        OrganizationRoleFactory(
+            organization=organization,
+            user=owner_user,
+            role_name=OrganizationRoleType.Owner,
+        )
+        member_user = UserFactory.create()
+        OrganizationRoleFactory(
+            organization=organization,
+            user=member_user,
+            role_name=OrganizationRoleType.Member,
+        )
+        # Wire up the customer, subscripton, organization, and subscription item
+        organization_stripe_customer = OrganizationStripeCustomerFactory.create(
+            organization=organization
+        )
+        subscription_product = StripeSubscriptionProductFactory.create()
+        subscription_price = StripeSubscriptionPriceFactory.create(
+            subscription_product=subscription_product
+        )
+        subscription = StripeSubscriptionFactory.create(
+            customer_id=organization_stripe_customer.customer_id,
+            subscription_price=subscription_price,
+        )
+        OrganizationStripeSubscriptionFactory.create(
+            organization=organization, subscription=subscription
+        )
+        StripeSubscriptionItemFactory.create(subscription=subscription)
 
-#         result = update_organziation_subscription_usage_record(db_request)
+        create_or_update_usage_record = pretend.call_recorder(
+            lambda *a, **kw: {
+                "subscription_item_id": "si_1234",
+                "organization_member_count": "5",
+            }
+        )
+        billing_service = pretend.stub(
+            create_or_update_usage_record=create_or_update_usage_record,
+        )
 
-#         # TODO: This is silly, need to figure out what I should actually be checking for  # noqa
-#         assert isinstance(result, None)
+        db_request.find_service = pretend.call_recorder(
+            lambda *a, **kw: billing_service
+        )
+
+        update_organziation_subscription_usage_record(db_request)
+
+        assert db_request.find_service.calls == [
+            pretend.call(IBillingService, context=None)
+        ]
