@@ -10,11 +10,11 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 """
-add_stripe_prefix_to_subscription_tables
+add_billing_and_subscriptions
 
-Revision ID: d6a3f5776ff6
-Revises: 188b02e2d33a
-Create Date: 2022-08-07 03:34:11.793233
+Revision ID: 944d0a47db9d
+Revises: 7eaad728b806
+Create Date: 2022-08-10 03:30:13.933665
 """
 
 import sqlalchemy as sa
@@ -22,8 +22,8 @@ import sqlalchemy as sa
 from alembic import op
 from sqlalchemy.dialects import postgresql
 
-revision = "d6a3f5776ff6"
-down_revision = "188b02e2d33a"
+revision = "944d0a47db9d"
+down_revision = "7eaad728b806"
 
 # Note: It is VERY important to ensure that a migration does not lock for a
 #       long period of time and to ensure that each individual migration does
@@ -66,6 +66,80 @@ def upgrade():
         ),
         sa.Column("tax_code", sa.Text(), nullable=True),
         sa.PrimaryKeyConstraint("id"),
+    )
+    op.create_table(
+        "organization_projects",
+        sa.Column(
+            "id",
+            postgresql.UUID(as_uuid=True),
+            server_default=sa.text("gen_random_uuid()"),
+            nullable=False,
+        ),
+        sa.Column("organization_id", postgresql.UUID(as_uuid=True), nullable=False),
+        sa.Column("project_id", postgresql.UUID(as_uuid=True), nullable=False),
+        sa.ForeignKeyConstraint(
+            ["organization_id"],
+            ["organizations.id"],
+            onupdate="CASCADE",
+            ondelete="CASCADE",
+        ),
+        sa.ForeignKeyConstraint(
+            ["project_id"], ["projects.id"], onupdate="CASCADE", ondelete="CASCADE"
+        ),
+        sa.PrimaryKeyConstraint("id"),
+        sa.UniqueConstraint(
+            "organization_id",
+            "project_id",
+            name="_organization_projects_organization_project_uc",
+        ),
+    )
+    op.create_index(
+        "organization_projects_organization_id_idx",
+        "organization_projects",
+        ["organization_id"],
+        unique=False,
+    )
+    op.create_index(
+        "organization_projects_project_id_idx",
+        "organization_projects",
+        ["project_id"],
+        unique=False,
+    )
+    op.create_table(
+        "organization_stripe_customers",
+        sa.Column(
+            "id",
+            postgresql.UUID(as_uuid=True),
+            server_default=sa.text("gen_random_uuid()"),
+            nullable=False,
+        ),
+        sa.Column("organization_id", postgresql.UUID(as_uuid=True), nullable=False),
+        sa.Column("customer_id", sa.Text(), nullable=False),
+        sa.ForeignKeyConstraint(
+            ["organization_id"],
+            ["organizations.id"],
+            onupdate="CASCADE",
+            ondelete="CASCADE",
+        ),
+        sa.PrimaryKeyConstraint("id"),
+        sa.UniqueConstraint("customer_id"),
+        sa.UniqueConstraint(
+            "organization_id",
+            "customer_id",
+            name="_organization_stripe_customers_organization_customer_uc",
+        ),
+    )
+    op.create_index(
+        "organization_stripe_customers_customer_id_idx",
+        "organization_stripe_customers",
+        ["customer_id"],
+        unique=False,
+    )
+    op.create_index(
+        "organization_stripe_customers_organization_id_idx",
+        "organization_stripe_customers",
+        ["organization_id"],
+        unique=False,
     )
     op.create_table(
         "stripe_subscription_prices",
@@ -198,27 +272,48 @@ def upgrade():
         ["subscription_id"],
         unique=False,
     )
-    op.drop_index("subscriptions_customer_id_idx", table_name="subscriptions")
-    op.drop_index("subscriptions_subscription_id_idx", table_name="subscriptions")
-    op.drop_index(
-        "organization_subscription_organization_id_idx",
-        table_name="organization_subscription",
+    op.create_table(
+        "stripe_subscription_items",
+        sa.Column(
+            "id",
+            postgresql.UUID(as_uuid=True),
+            server_default=sa.text("gen_random_uuid()"),
+            nullable=False,
+        ),
+        sa.Column("subscription_item_id", sa.Text(), nullable=True),
+        sa.Column("subscription_id", postgresql.UUID(as_uuid=True), nullable=False),
+        sa.Column(
+            "subscription_price_id", postgresql.UUID(as_uuid=True), nullable=False
+        ),
+        sa.Column("quantity", sa.Integer(), nullable=False),
+        sa.ForeignKeyConstraint(
+            ["subscription_id"],
+            ["stripe_subscriptions.id"],
+            onupdate="CASCADE",
+            ondelete="CASCADE",
+        ),
+        sa.ForeignKeyConstraint(
+            ["subscription_price_id"],
+            ["stripe_subscription_prices.id"],
+            onupdate="CASCADE",
+            ondelete="CASCADE",
+        ),
+        sa.PrimaryKeyConstraint("id"),
     )
     op.drop_index(
-        "organization_subscription_subscription_id_idx",
-        table_name="organization_subscription",
+        "organization_project_organization_id_idx", table_name="organization_project"
     )
-    op.drop_table("organization_subscription")
-    op.drop_table("subscriptions")
-    op.drop_table("subscription_prices")
-    op.drop_table("subscription_products")
+    op.drop_index(
+        "organization_project_project_id_idx", table_name="organization_project"
+    )
+    op.drop_table("organization_project")
     # ### end Alembic commands ###
 
 
 def downgrade():
     # ### commands auto generated by Alembic - please adjust! ###
     op.create_table(
-        "organization_subscription",
+        "organization_project",
         sa.Column(
             "id",
             postgresql.UUID(),
@@ -229,148 +324,41 @@ def downgrade():
         sa.Column(
             "organization_id", postgresql.UUID(), autoincrement=False, nullable=False
         ),
-        sa.Column(
-            "subscription_id", postgresql.UUID(), autoincrement=False, nullable=False
-        ),
+        sa.Column("project_id", postgresql.UUID(), autoincrement=False, nullable=False),
         sa.ForeignKeyConstraint(
             ["organization_id"],
             ["organizations.id"],
-            name="organization_subscription_organization_id_fkey",
+            name="organization_project_organization_id_fkey",
             onupdate="CASCADE",
             ondelete="CASCADE",
         ),
         sa.ForeignKeyConstraint(
-            ["subscription_id"],
-            ["subscriptions.id"],
-            name="organization_subscription_subscription_id_fkey",
+            ["project_id"],
+            ["projects.id"],
+            name="organization_project_project_id_fkey",
             onupdate="CASCADE",
             ondelete="CASCADE",
         ),
-        sa.PrimaryKeyConstraint("id", name="organization_subscription_pkey"),
+        sa.PrimaryKeyConstraint("id", name="organization_project_pkey"),
         sa.UniqueConstraint(
             "organization_id",
-            "subscription_id",
-            name="_organization_subscription_organization_subscription_uc",
+            "project_id",
+            name="_organization_project_organization_project_uc",
         ),
     )
     op.create_index(
-        "organization_subscription_subscription_id_idx",
-        "organization_subscription",
-        ["subscription_id"],
+        "organization_project_project_id_idx",
+        "organization_project",
+        ["project_id"],
         unique=False,
     )
     op.create_index(
-        "organization_subscription_organization_id_idx",
-        "organization_subscription",
+        "organization_project_organization_id_idx",
+        "organization_project",
         ["organization_id"],
         unique=False,
     )
-    op.create_table(
-        "subscription_prices",
-        sa.Column(
-            "id",
-            postgresql.UUID(),
-            server_default=sa.text("gen_random_uuid()"),
-            autoincrement=False,
-            nullable=False,
-        ),
-        sa.Column("price_id", sa.TEXT(), autoincrement=False, nullable=True),
-        sa.Column("currency", sa.TEXT(), autoincrement=False, nullable=False),
-        sa.Column(
-            "subscription_product_id",
-            postgresql.UUID(),
-            autoincrement=False,
-            nullable=False,
-        ),
-        sa.Column("unit_amount", sa.INTEGER(), autoincrement=False, nullable=False),
-        sa.Column(
-            "is_active",
-            sa.BOOLEAN(),
-            server_default=sa.text("true"),
-            autoincrement=False,
-            nullable=False,
-        ),
-        sa.Column("recurring", sa.TEXT(), autoincrement=False, nullable=False),
-        sa.Column("tax_behavior", sa.TEXT(), autoincrement=False, nullable=True),
-        sa.ForeignKeyConstraint(
-            ["subscription_product_id"],
-            ["subscription_products.id"],
-            name="subscription_prices_subscription_product_id_fkey",
-            onupdate="CASCADE",
-            ondelete="CASCADE",
-        ),
-        sa.PrimaryKeyConstraint("id", name="subscription_prices_pkey"),
-        postgresql_ignore_search_path=False,
-    )
-    op.create_table(
-        "subscriptions",
-        sa.Column(
-            "id",
-            postgresql.UUID(),
-            server_default=sa.text("gen_random_uuid()"),
-            autoincrement=False,
-            nullable=False,
-        ),
-        sa.Column("customer_id", sa.TEXT(), autoincrement=False, nullable=False),
-        sa.Column("subscription_id", sa.TEXT(), autoincrement=False, nullable=False),
-        sa.Column(
-            "subscription_price_id",
-            postgresql.UUID(),
-            autoincrement=False,
-            nullable=False,
-        ),
-        sa.Column("status", sa.TEXT(), autoincrement=False, nullable=False),
-        sa.ForeignKeyConstraint(
-            ["customer_id"],
-            ["organization_stripe_customers.customer_id"],
-            name="subscriptions_customer_id_fkey",
-            onupdate="CASCADE",
-        ),
-        sa.ForeignKeyConstraint(
-            ["subscription_price_id"],
-            ["subscription_prices.id"],
-            name="subscriptions_subscription_price_id_fkey",
-            onupdate="CASCADE",
-            ondelete="CASCADE",
-        ),
-        sa.PrimaryKeyConstraint("id", name="subscriptions_pkey"),
-        sa.UniqueConstraint(
-            "customer_id",
-            "subscription_id",
-            name="_subscription_customer_subscription_uc",
-        ),
-    )
-    op.create_index(
-        "subscriptions_subscription_id_idx",
-        "subscriptions",
-        ["subscription_id"],
-        unique=False,
-    )
-    op.create_index(
-        "subscriptions_customer_id_idx", "subscriptions", ["customer_id"], unique=False
-    )
-    op.create_table(
-        "subscription_products",
-        sa.Column(
-            "id",
-            postgresql.UUID(),
-            server_default=sa.text("gen_random_uuid()"),
-            autoincrement=False,
-            nullable=False,
-        ),
-        sa.Column("product_id", sa.TEXT(), autoincrement=False, nullable=True),
-        sa.Column("product_name", sa.TEXT(), autoincrement=False, nullable=False),
-        sa.Column("description", sa.TEXT(), autoincrement=False, nullable=False),
-        sa.Column(
-            "is_active",
-            sa.BOOLEAN(),
-            server_default=sa.text("true"),
-            autoincrement=False,
-            nullable=False,
-        ),
-        sa.Column("tax_code", sa.TEXT(), autoincrement=False, nullable=True),
-        sa.PrimaryKeyConstraint("id", name="subscription_products_pkey"),
-    )
+    op.drop_table("stripe_subscription_items")
     op.drop_index(
         "organization_stripe_subscriptions_subscription_id_idx",
         table_name="organization_stripe_subscriptions",
@@ -388,5 +376,21 @@ def downgrade():
     )
     op.drop_table("stripe_subscriptions")
     op.drop_table("stripe_subscription_prices")
+    op.drop_index(
+        "organization_stripe_customers_organization_id_idx",
+        table_name="organization_stripe_customers",
+    )
+    op.drop_index(
+        "organization_stripe_customers_customer_id_idx",
+        table_name="organization_stripe_customers",
+    )
+    op.drop_table("organization_stripe_customers")
+    op.drop_index(
+        "organization_projects_project_id_idx", table_name="organization_projects"
+    )
+    op.drop_index(
+        "organization_projects_organization_id_idx", table_name="organization_projects"
+    )
+    op.drop_table("organization_projects")
     op.drop_table("stripe_subscription_products")
     # ### end Alembic commands ###
