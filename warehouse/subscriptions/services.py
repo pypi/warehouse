@@ -10,6 +10,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import datetime
 import random
 
 from string import ascii_letters, digits
@@ -27,6 +28,7 @@ from warehouse.organizations.models import (
 from warehouse.subscriptions.interfaces import IBillingService, ISubscriptionService
 from warehouse.subscriptions.models import (
     StripeSubscription,
+    StripeSubscriptionItem,
     StripeSubscriptionPrice,
     StripeSubscriptionPriceInterval,
     StripeSubscriptionProduct,
@@ -54,6 +56,7 @@ class GenericBillingService:
         checkout_session = self.api.checkout.Session.retrieve(
             session_id,
             expand=["customer", "line_items", "subscription"],
+            # expand=["subscription"],
         )
         return checkout_session
 
@@ -90,9 +93,12 @@ class GenericBillingService:
             mode="subscription",
             # automatic_tax={'enabled': True},
             line_items=[{"price": price_id}],
-            # # TODO: Will these work with stripe checkout?
-            # billing_cycle_anchor=first_day_next_month,
-            # proration_behavior="none",
+            # Set free trial to first day of the next month
+            subscription_data={
+                "trial_end": (
+                    datetime.datetime.now().replace(day=1) + datetime.timedelta(days=32)
+                ).replace(day=1)
+            },
         )
         return checkout_session
 
@@ -283,6 +289,20 @@ class GenericBillingService:
         """
         return self.api.Subscription.delete(subscription_id)
 
+    def create_or_update_usage_record(
+        self, subscription_item_id, organization_member_count
+    ):
+        """
+        Creates a usage record via Billing API
+        for a specified subscription item and date with default=now,
+        and fills it with a quantity=number of members in the org.
+        """
+        return self.api.SubscriptionItem.create_usage_record(
+            subscription_item_id,
+            action="set",
+            quantity=organization_member_count,
+        )
+
 
 @implementer(IBillingService)
 class MockStripeBillingService(GenericBillingService):
@@ -347,7 +367,7 @@ class StripeSubscriptionService:
 
         return id
 
-    def add_subscription(self, customer_id, subscription_id):
+    def add_subscription(self, customer_id, subscription_id, subscription_item_id):
         """
         Attempts to create a subscription object for the organization
         with the specified customer ID and subscription ID
@@ -378,6 +398,17 @@ class StripeSubscriptionService:
         self.db.add(organization_subscription)
         self.db.flush()  # get back the subscription id
 
+        # Create new subscription item.
+        subscription_item = StripeSubscriptionItem(
+            subscription_item_id=subscription_item_id,
+            subscription_id=subscription.id,
+            subscription_price_id=subscription_price.id,
+            quantity=len(organization_stripe_customer.organization.users),
+        )
+
+        self.db.add(subscription_item)
+        self.db.flush()
+
         return subscription
 
     def update_subscription_status(self, id, status):
@@ -396,6 +427,11 @@ class StripeSubscriptionService:
 
         # Delete link to organization
         self.db.query(OrganizationStripeSubscription).filter_by(
+            subscription=subscription
+        ).delete()
+
+        # Delete subscription items
+        self.db.query(StripeSubscriptionItem).filter_by(
             subscription=subscription
         ).delete()
 

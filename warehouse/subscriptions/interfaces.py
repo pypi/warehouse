@@ -145,6 +145,13 @@ class IGenericBillingService(Interface):
         The customer will not be charged again for the subscription.
         """
 
+    def create_or_update_usage_record(subscription_item_id, organization_member_count):
+        """
+        Creates a usage record via Billing API
+        for a specified subscription item and date with default=now,
+        and fills it with a quantity=number of members in the org.
+        """
+
 
 class IBillingService(IGenericBillingService):
     pass
@@ -162,7 +169,7 @@ class ISubscriptionService(Interface):
         by the payment service provider subscription id or None
         """
 
-    def add_subscription(customer_id, subscription_id):
+    def add_subscription(customer_id, subscription_id, subscription_item_id):
         """
         Attempts to create a subscription object for the organization
         with the specified customer ID and subscription ID

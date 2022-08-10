@@ -21,15 +21,20 @@ from warehouse.subscriptions.models import StripeSubscriptionStatus
 
 
 def handle_billing_webhook_event(request, event):
+    billing_service = request.find_service(IBillingService, context=None)
     subscription_service = request.find_service(ISubscriptionService, context=None)
 
     match event["type"]:
         # Occurs when a Checkout Session has been successfully completed.
         case "checkout.session.completed":
             checkout_session = event["data"]["object"]
+            # Get expanded checkout session object
+            checkout_session = billing_service.get_checkout_session(
+                checkout_session["id"]
+            )
             status = checkout_session["status"]
-            customer_id = checkout_session["customer"]
-            subscription_id = checkout_session["subscription"]
+            customer_id = checkout_session["customer"]["id"]
+            subscription_id = checkout_session["subscription"]["id"]
             if status != "complete":
                 raise HTTPBadRequest("Invalid checkout session status")
             if not customer_id:
@@ -42,8 +47,13 @@ def handle_billing_webhook_event(request, event):
                     id, StripeSubscriptionStatus.Active
                 )
             else:
-                # Activate subscription for customer.
-                subscription_service.add_subscription(customer_id, subscription_id)
+                # Get expanded subscription object
+                subscription_items = checkout_session["subscription"]["items"]["data"]
+                for subscription_item in subscription_items:
+                    # Activate subscription for customer.
+                    subscription_service.add_subscription(
+                        customer_id, subscription_id, subscription_item["id"]
+                    )
         # Occurs whenever a customer’s subscription ends.
         case "customer.subscription.deleted":
             subscription = event["data"]["object"]

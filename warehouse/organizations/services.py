@@ -31,7 +31,7 @@ from warehouse.organizations.models import (
     TeamProjectRole,
     TeamRole,
 )
-from warehouse.subscriptions.models import StripeSubscription
+from warehouse.subscriptions.models import StripeSubscription, StripeSubscriptionItem
 
 NAME_FIELD = "name"
 
@@ -319,9 +319,15 @@ class DatabaseOrganizationService:
         # Delete billing data if it exists
         if organization.subscriptions:
             for subscription in organization.subscriptions:
+                # Delete subscription items
+                self.db.query(StripeSubscriptionItem).filter_by(
+                    subscription=subscription
+                ).delete()
+                # Delete link to organization
                 self.db.query(OrganizationStripeSubscription).filter_by(
                     subscription=subscription
                 ).delete()
+                # Delete subscription object
                 self.db.query(StripeSubscription).filter(
                     StripeSubscription.id == subscription.id
                 ).delete()
