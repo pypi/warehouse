@@ -323,6 +323,12 @@ class TestMockStripeBillingService:
         # doesn't care enough to update the status for whatever reason ¯\_(ツ)_/¯
         assert subscription.status is not None
 
+    def test_create_or_update_usage_record(self, billing_service, subscription_service):
+        result = billing_service.create_or_update_usage_record("si_1234", 5)
+
+        # TODO: What do I even check for?
+        assert True == True
+
 
 class TestGenericBillingService:
     def test_basic_init(self):
@@ -388,6 +394,7 @@ class TestStripeSubscriptionService:
         new_subscription = subscription_service.add_subscription(
             customer_id=organization_stripe_customer.customer_id,
             subscription_id="sub_12345",
+            subscription_item_id="si_12345",
         )
 
         subscription_service.db.flush()

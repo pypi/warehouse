@@ -54,3 +54,15 @@ class StripeSubscriptionFactory(WarehouseFactory):
     subscription_id = factory.Faker("uuid4")
     subscription_price = factory.SubFactory(StripeSubscriptionPriceFactory)
     status = StripeSubscriptionStatus.Active
+
+
+class StripeSubscriptionItemFactory(WarehouseFactory):
+    class Meta:
+        model = StripeSubscriptionPrice
+
+    id = factory.Faker("uuid4", cast_to=None)
+    subscription_item_id = "si_123"
+    quantity = 1
+
+    subscription = factory.SubFactory(StripeSubscription)
+    subscription_price = factory.SubFactory(StripeSubscriptionPriceFactory)
