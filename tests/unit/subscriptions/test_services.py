@@ -326,8 +326,10 @@ class TestMockStripeBillingService:
     def test_create_or_update_usage_record(self, billing_service, subscription_service):
         result = billing_service.create_or_update_usage_record("si_1234", 5)
 
-        # TODO: What do I even check for?
-        assert True == True
+        # Ensure we got a record back with the subscription_item and quantity
+        assert result.id
+        assert result.subscription_item == "si_1234"
+        assert result.quantity == 5
 
 
 class TestGenericBillingService:
