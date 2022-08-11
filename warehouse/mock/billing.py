@@ -63,6 +63,10 @@ class MockBillingViews:
             "type": "checkout.session.completed",
             "data": {
                 "object": {
+                    "id": (
+                        "mockcs_"
+                        + "".join(random.choices(digits + ascii_letters, k=58))
+                    ),
                     "customer": self.organization.stripe_customer_id,
                     "status": "complete",
                     "subscription": (

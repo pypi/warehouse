@@ -30,7 +30,9 @@ def handle_billing_webhook_event(request, event):
             checkout_session = event["data"]["object"]
             # Get expanded checkout session object
             checkout_session = billing_service.get_checkout_session(
-                checkout_session["id"]
+                checkout_session["id"],
+                # Provide mock_checkout_session used by MockStripeBillingService only.
+                mock_checkout_session=checkout_session,
             )
             status = checkout_session["status"]
             customer_id = checkout_session["customer"]["id"]

@@ -49,7 +49,7 @@ class GenericBillingService:
         """
         raise NotImplementedError
 
-    def get_checkout_session(self, session_id):
+    def get_checkout_session(self, session_id, **kwargs):
         """
         Fetch the Checkout Session to based on the session_id passed to the success page
         """
@@ -323,6 +323,21 @@ class MockStripeBillingService(GenericBillingService):
             random.choices(digits + ascii_letters, k=14)
         )
         return customer
+
+    def get_checkout_session(self, session_id, mock_checkout_session={}, **kwargs):
+        # Mock Stripe doesn't persist data so allow passing in a mock_checkout_session.
+        checkout_session = super().get_checkout_session(session_id)
+        # Fill in customer ID, status, and subscription ID from mock_checkout_session.
+        checkout_session["customer"]["id"] = mock_checkout_session.get(
+            "customer", checkout_session["customer"]["id"]
+        )
+        checkout_session["status"] = mock_checkout_session.get(
+            "status", checkout_session["status"]
+        )
+        checkout_session["subscription"]["id"] = mock_checkout_session.get(
+            "subscription", checkout_session["subscription"]["id"]
+        )
+        return checkout_session
 
 
 @implementer(IBillingService)
