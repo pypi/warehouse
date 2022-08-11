@@ -120,7 +120,7 @@ class GenericBillingService:
         """
         return stripe.Webhook.construct_event(payload, sig_header, self.webhook_secret)
 
-    def create_or_update_product(self, name, description, tax_code):
+    def create_or_update_product(self, name, description, tax_code, unit_label):
         """
         Create product resource via Billing API, or update an active
         product resource with the same name
@@ -129,16 +129,21 @@ class GenericBillingService:
         products = product_search["data"]
         if products:
             product = max(products, key=lambda p: p["created"])
-            return self.update_product(product["id"], name, description, tax_code)
+            return self.update_product(
+                product["id"], name, description, tax_code, unit_label
+            )
         else:
-            return self.create_product(name, description, tax_code)
+            return self.create_product(name, description, tax_code, unit_label)
 
-    def create_product(self, name, description, tax_code):
+    def create_product(self, name, description, tax_code, unit_label):
         """
         Create and return a product resource via Billing API
         """
         return self.api.Product.create(
-            name=name, description=description, tax_code=tax_code
+            name=name,
+            description=description,
+            tax_code=tax_code,
+            unit_label=unit_label,
         )
 
     def retrieve_product(self, product_id):
@@ -147,7 +152,7 @@ class GenericBillingService:
         """
         return self.api.Product.retrieve(product_id)
 
-    def update_product(self, product_id, name, description, tax_code):
+    def update_product(self, product_id, name, description, tax_code, unit_label):
         """
         Update a product resource via Billing API
         only allowing update of those attributes we use
@@ -158,6 +163,7 @@ class GenericBillingService:
             name=name,
             description=description,
             tax_code=tax_code,
+            unit_label=unit_label,
         )
 
     def list_all_products(self, limit=10):
@@ -188,8 +194,9 @@ class GenericBillingService:
         product = self.create_or_update_product(
             name=subscription_product.product_name,
             description=subscription_product.description,
-            tax_code=subscription_product.tax_code,
             # See Stripe docs for tax codes. https://stripe.com/docs/tax/tax-categories
+            tax_code=subscription_product.tax_code,
+            unit_label="user",
         )
         subscription_product.product_id = product["id"]
 
@@ -564,14 +571,14 @@ class StripeSubscriptionService:
                 product_name="PyPI",
                 description="Organization account for companies",
                 product_id=None,
-                tax_code="txcd_10103001"  # "Software as a service (SaaS) - business use" # noqa: E501
                 # See Stripe docs for tax codes. https://stripe.com/docs/tax/tax-categories # noqa: E501
+                tax_code="txcd_10103001",  # Software as a service (SaaS) - business use
             )
             subscription_price = self.add_subscription_price(
                 price_id=None,
                 currency="usd",
                 subscription_product_id=subscription_product.id,
-                unit_amount=5000,
+                unit_amount=700,
                 recurring=StripeSubscriptionPriceInterval.Month,
                 tax_behavior="inclusive",
             )

@@ -50,13 +50,13 @@ class IGenericBillingService(Interface):
         Return parsed webhook event from Stripe
         """
 
-    def create_or_update_product(name, description, tax_code):
+    def create_or_update_product(name, description, tax_code, unit_label):
         """
         Create product resource via Billing API, or update an active
         product resource with the same name
         """
 
-    def create_product(name, description, tax_code):
+    def create_product(name, description, tax_code, unit_label):
         """
         Create and return a product resource via Billing API
         """
@@ -66,7 +66,7 @@ class IGenericBillingService(Interface):
         Get a product resource by id via Billing API
         """
 
-    def update_product(product_id, name, description, tax_code):
+    def update_product(product_id, name, description, tax_code, unit_label):
         """
         Update a product resource via Billing API
         only allowing update of those attributes we use

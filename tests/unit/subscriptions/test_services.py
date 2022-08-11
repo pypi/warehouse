@@ -196,6 +196,7 @@ class TestMockStripeBillingService:
             name=subscription_product.product_name,
             description=subscription_product.description,
             tax_code=subscription_product.tax_code,
+            unit_label="user",
         )
 
         assert product is not None
@@ -208,6 +209,7 @@ class TestMockStripeBillingService:
             name="Vitamin PyPI",
             description="Take two and call me in the morning.",
             tax_code="txcd_10103001",  # "Software as a service (SaaS) - business use"
+            unit_label="user",
         )
 
         assert product is not None
@@ -219,6 +221,7 @@ class TestMockStripeBillingService:
             name=subscription_product.product_name,
             description=subscription_product.description,
             tax_code=subscription_product.tax_code,
+            unit_label="user",
         )
 
         assert product is not None
@@ -240,6 +243,7 @@ class TestMockStripeBillingService:
             name=subscription_product.product_name,
             description=subscription_product.description,
             tax_code=subscription_product.tax_code,
+            unit_label="user",
         )
 
         # stripe-mock has no persistence so we can't really check if we're
