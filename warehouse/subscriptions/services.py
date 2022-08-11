@@ -56,7 +56,6 @@ class GenericBillingService:
         checkout_session = self.api.checkout.Session.retrieve(
             session_id,
             expand=["customer", "line_items", "subscription"],
-            # expand=["subscription"],
         )
         return checkout_session
 

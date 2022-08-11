@@ -12,6 +12,7 @@
 
 import json
 
+import pretend
 import pytest
 import stripe
 
@@ -28,56 +29,94 @@ from ...common.db.subscriptions import StripeSubscriptionFactory
 
 
 class TestHandleBillingWebhookEvent:
-    # # checkout.session.completed
-    # def test_handle_billing_webhook_event_checkout_complete_update(
-    #     self, db_request, subscription_service
-    # ):
-    #     organization = OrganizationFactory.create()
-    #     organization_stripe_customer = OrganizationStripeCustomerFactory.create(
-    #         organization=organization
-    #     )
-    #     subscription = StripeSubscriptionFactory.create(
-    #         customer_id=organization_stripe_customer.customer_id
-    #     )
-    #     OrganizationStripeSubscriptionFactory.create(
-    #         organization=organization, subscription=subscription
-    #     )
+    # checkout.session.completed
+    def test_handle_billing_webhook_event_checkout_complete_update(
+        self, db_request, subscription_service, monkeypatch, billing_service
+    ):
+        organization = OrganizationFactory.create()
+        organization_stripe_customer = OrganizationStripeCustomerFactory.create(
+            organization=organization
+        )
+        subscription = StripeSubscriptionFactory.create(
+            customer_id=organization_stripe_customer.customer_id
+        )
+        OrganizationStripeSubscriptionFactory.create(
+            organization=organization, subscription=subscription
+        )
 
-    #     event = {
-    #         "type": "checkout.session.completed",
-    #         "data": {
-    #             "object": {
-    #                 "id": "cs_test_12345",
-    #                 "customer": organization_stripe_customer.customer_id,
-    #                 "status": "complete",
-    #                 "subscription": subscription.subscription_id,
-    #             },
-    #         },
-    #     }
+        event = {
+            "type": "checkout.session.completed",
+            "data": {
+                "object": {
+                    "id": "cs_test_12345",
+                    "customer": organization_stripe_customer.customer_id,
+                    "status": "complete",
+                    "subscription": subscription.subscription_id,
+                },
+            },
+        }
 
-    #     billing.handle_billing_webhook_event(db_request, event)
+        checkout_session = {
+            "id": "cs_test_12345",
+            "customer": {
+                "id": organization_stripe_customer.customer_id,
+            },
+            "status": "complete",
+            "subscription": {
+                "id": subscription.subscription_id,
+                "items": {
+                    "data": [{"id": "si_12345"}],
+                },
+            },
+        }
 
-    # def test_handle_billing_webhook_event_checkout_complete_add(
-    #     self, db_request, subscription_service
-    # ):
-    #     organization = OrganizationFactory.create()
-    #     organization_stripe_customer = OrganizationStripeCustomerFactory.create(
-    #         organization=organization
-    #     )
+        get_checkout_session = pretend.call_recorder(lambda *a, **kw: checkout_session)
+        monkeypatch.setattr(
+            billing_service, "get_checkout_session", get_checkout_session
+        )
 
-    #     event = {
-    #         "type": "checkout.session.completed",
-    #         "data": {
-    #             "object": {
-    #                 "id": "cs_test_12345",
-    #                 "customer": organization_stripe_customer.customer_id,
-    #                 "status": "complete",
-    #                 "subscription": "sub_12345",
-    #             },
-    #         },
-    #     }
+        billing.handle_billing_webhook_event(db_request, event)
 
-    #     billing.handle_billing_webhook_event(db_request, event)
+    def test_handle_billing_webhook_event_checkout_complete_add(
+        self, db_request, subscription_service, monkeypatch, billing_service
+    ):
+        organization = OrganizationFactory.create()
+        organization_stripe_customer = OrganizationStripeCustomerFactory.create(
+            organization=organization
+        )
+
+        event = {
+            "type": "checkout.session.completed",
+            "data": {
+                "object": {
+                    "id": "cs_test_12345",
+                    "customer": organization_stripe_customer.customer_id,
+                    "status": "complete",
+                    "subscription": "sub_12345",
+                },
+            },
+        }
+
+        checkout_session = {
+            "id": "cs_test_12345",
+            "customer": {
+                "id": organization_stripe_customer.customer_id,
+            },
+            "status": "complete",
+            "subscription": {
+                "id": "sub_12345",
+                "items": {
+                    "data": [{"id": "si_12345"}],
+                },
+            },
+        }
+
+        get_checkout_session = pretend.call_recorder(lambda *a, **kw: checkout_session)
+        monkeypatch.setattr(
+            billing_service, "get_checkout_session", get_checkout_session
+        )
+
+        billing.handle_billing_webhook_event(db_request, event)
 
     def test_handle_billing_webhook_event_checkout_complete_invalid_status(
         self, db_request
@@ -98,7 +137,7 @@ class TestHandleBillingWebhookEvent:
             billing.handle_billing_webhook_event(db_request, event)
 
     def test_handle_billing_webhook_event_checkout_complete_invalid_customer(
-        self, db_request
+        self, db_request, monkeypatch, billing_service
     ):
         event = {
             "type": "checkout.session.completed",
@@ -112,11 +151,30 @@ class TestHandleBillingWebhookEvent:
             },
         }
 
+        checkout_session = {
+            "id": "cs_test_12345",
+            "customer": {
+                "id": "",
+            },
+            "status": "complete",
+            "subscription": {
+                "id": "sub_12345",
+                "items": {
+                    "data": [{"id": "si_12345"}],
+                },
+            },
+        }
+
+        get_checkout_session = pretend.call_recorder(lambda *a, **kw: checkout_session)
+        monkeypatch.setattr(
+            billing_service, "get_checkout_session", get_checkout_session
+        )
+
         with pytest.raises(HTTPBadRequest):
             billing.handle_billing_webhook_event(db_request, event)
 
     def test_handle_billing_webhook_event_checkout_complete_invalid_subscription(
-        self, db_request
+        self, db_request, monkeypatch, billing_service
     ):
         event = {
             "type": "checkout.session.completed",
@@ -129,6 +187,22 @@ class TestHandleBillingWebhookEvent:
                 },
             },
         }
+
+        checkout_session = {
+            "id": "cs_test_12345",
+            "customer": {
+                "id": "cus_1234",
+            },
+            "status": "complete",
+            "subscription": {
+                "id": "",
+            },
+        }
+
+        get_checkout_session = pretend.call_recorder(lambda *a, **kw: checkout_session)
+        monkeypatch.setattr(
+            billing_service, "get_checkout_session", get_checkout_session
+        )
 
         with pytest.raises(HTTPBadRequest):
             billing.handle_billing_webhook_event(db_request, event)

@@ -36,7 +36,7 @@ def handle_billing_webhook_event(request, event):
             customer_id = checkout_session["customer"]["id"]
             subscription_id = checkout_session["subscription"]["id"]
             if status != "complete":
-                raise HTTPBadRequest("Invalid checkout session status")
+                raise HTTPBadRequest(f"Invalid checkout session status '{status}'")
             if not customer_id:
                 raise HTTPBadRequest("Invalid customer ID")
             if not subscription_id:
@@ -61,7 +61,7 @@ def handle_billing_webhook_event(request, event):
             customer_id = subscription["customer"]
             subscription_id = subscription["id"]
             if not status or not StripeSubscriptionStatus.has_value(status):
-                raise HTTPBadRequest("Invalid subscription status")
+                raise HTTPBadRequest(f"Invalid subscription status '{status}'")
             if not customer_id:
                 raise HTTPBadRequest("Invalid customer ID")
             if not subscription_id:
@@ -80,7 +80,7 @@ def handle_billing_webhook_event(request, event):
             customer_id = subscription["customer"]
             subscription_id = subscription["id"]
             if not status or not StripeSubscriptionStatus.has_value(status):
-                raise HTTPBadRequest("Invalid subscription status")
+                raise HTTPBadRequest(f"Invalid subscription status '{status}'")
             if not customer_id:
                 raise HTTPBadRequest("Invalid customer ID")
             if not subscription_id:
