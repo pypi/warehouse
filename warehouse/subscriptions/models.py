@@ -108,9 +108,10 @@ class StripeSubscription(db.Model):
 
     @property
     def is_restricted(self):
-        if self.status != StripeSubscriptionStatus.Active.value:
-            return True
-        return False
+        return (
+            self.status != StripeSubscriptionStatus.Active.value
+            and self.status != StripeSubscriptionStatus.Trialing.value
+        )
 
 
 class StripeSubscriptionProduct(db.Model):

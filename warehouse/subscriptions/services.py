@@ -10,7 +10,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import datetime
 import random
 
 from string import ascii_letters, digits
@@ -92,12 +91,6 @@ class GenericBillingService:
             mode="subscription",
             # automatic_tax={'enabled': True},
             line_items=[{"price": price_id}],
-            # Set free trial to first day of the next month
-            subscription_data={
-                "trial_end": (
-                    datetime.datetime.now().replace(day=1) + datetime.timedelta(days=32)
-                ).replace(day=1)
-            },
         )
         return checkout_session
 
