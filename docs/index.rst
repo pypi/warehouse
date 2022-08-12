@@ -35,5 +35,5 @@ Indices and tables
 * :ref:`search`
 
 .. _`Python package index (repository)`: https://packaging.python.org/glossary/#term-package-index
-.. _`web application`: https://github.com/pypa/warehouse
+.. _`web application`: https://github.com/pypi/warehouse
 .. _PyPI: https://pypi.org

@@ -28,12 +28,12 @@ When working on the UI:
 
 - Ensure contrast is high, particularly on text. This can be checked:
    - On Chrome by installing `Accessibility Developer Tools
-     <http://bit.ly/1ikZ68B>`_
+     <https://bit.ly/1ikZ68B>`_
    - On Firefox by installing the `WCAG Contrast Checker
-     <https://addons.mozilla.org/en-us/firefox/addon/wcag-contrast-checker/>`_
+     <https://addons.mozilla.org/en-US/firefox/addon/wcag-contrast-checker/>`_
 - Write `semantic HTML <https://en.wikipedia.org/wiki/Semantic_HTML>`_
 - Ensure image `alt tags are present and meaningful
-  <http://webaim.org/techniques/alttext/>`_
+  <https://webaim.org/techniques/alttext/>`_
 - Add labels to all form fields (if you want to hide a label visually but leave
   it readable to screen readers, apply ``.sr-only``)
 - Where possible add `ARIA roles
@@ -69,7 +69,7 @@ Warehouse follows the `Material design writing style guide
 When writing interfaces use direct, clear and simple language. This is
 especially important as Warehouse caters to an international audience with
 varying proficiency in English. If you're unsure, `check the readability of
-your text <http://www.webpagefx.com/tools/read-able/>`_.
+your text <https://www.webfx.com/tools/read-able/>`_.
 For consistency, we prefer using American English spellings over British
 English.
 

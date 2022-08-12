@@ -54,6 +54,13 @@ exclude_patterns = ["_build"]
 # The name of the Pygments (syntax highlighting) style to use.
 pygments_style = "sphinx"
 
+# Patterns to during `make linkcheck`
+linkcheck_ignore = [
+    r'http://localhost.*',
+    'http://134.122.111.11',  # example IP
+    'https://web.libera.chat/#pypa,#pypa-dev',  # can't visit anchors
+]
+
 
 # -- Options for HTML output ----------------------------------------------
 

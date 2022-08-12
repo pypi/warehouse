@@ -307,6 +307,16 @@ class Organization(HasEvents, db.Model):
             # Allow all people in organization read access.
             # Allow write access depending on role.
             if role.role_name == OrganizationRoleType.Owner:
+                # Allowed:
+                # - View organization ("view:organization")
+                # - View team ("view:team")
+                # - Invite/remove organization member ("manage:organization")
+                # - Add/remove team member ("manage:team")
+                # - Manage billing ("manage:billing")
+                # - Create project ("add:project")
+                # - Delete project ("remove:project")
+                # Disallowed:
+                # - (none)
                 acls.append(
                     (
                         Allow,
@@ -317,10 +327,21 @@ class Organization(HasEvents, db.Model):
                             "manage:organization",
                             "manage:team",
                             "manage:billing",
+                            "add:project",
+                            "remove:project",
                         ],
                     )
                 )
             elif role.role_name == OrganizationRoleType.BillingManager:
+                # Allowed:
+                # - View organization ("view:organization")
+                # - View team ("view:team")
+                # - Manage billing ("manage:billing")
+                # Disallowed:
+                # - Invite/remove organization member ("manage:organization")
+                # - Add/remove team member ("manage:team")
+                # - Create project ("add:project")
+                # - Delete project ("remove:project")
                 acls.append(
                     (
                         Allow,
@@ -329,15 +350,39 @@ class Organization(HasEvents, db.Model):
                     )
                 )
             elif role.role_name == OrganizationRoleType.Manager:
+                # Allowed:
+                # - View organization ("view:organization")
+                # - View team ("view:team")
+                # - Add/remove team member ("manage:team")
+                # - Create project ("add:project")
+                # Disallowed:
+                # - Invite/remove organization member ("manage:organization")
+                # - Manage billing ("manage:billing")
+                # - Delete project ("remove:project")
                 acls.append(
                     (
                         Allow,
                         f"user:{role.user.id}",
-                        ["view:organization", "view:team", "manage:team"],
+                        [
+                            "view:organization",
+                            "view:team",
+                            "manage:team",
+                            "add:project",
+                        ],
                     )
                 )
             else:
                 # No member-specific write access needed for now.
+
+                # Allowed:
+                # - View organization ("view:organization")
+                # - View team ("view:team")
+                # Disallowed:
+                # - Invite/remove organization member ("manage:organization")
+                # - Add/remove team member ("manage:team")
+                # - Manage billing ("manage:billing")
+                # - Create project ("add:project")
+                # - Delete project ("remove:project")
                 acls.append(
                     (Allow, f"user:{role.user.id}", ["view:organization", "view:team"])
                 )
