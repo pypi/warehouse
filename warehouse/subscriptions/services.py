@@ -310,9 +310,9 @@ class MockStripeBillingService(GenericBillingService):
         # Override api_base to hit mock-stripe in development
         stripe.api_base = request.registry.settings["billing.api_base"]
         stripe.api_version = request.registry.settings["billing.api_version"]
-        stripe.api_key = request.registry.settings["billing.secret_key"]
-        publishable_key = request.registry.settings["billing.publishable_key"]
-        webhook_secret = request.registry.settings["billing.webhook_key"]
+        stripe.api_key = "sk_test_123"
+        publishable_key = "pk_test_123"
+        webhook_secret = "whsec_123"
 
         return cls(stripe, publishable_key, webhook_secret)
 

@@ -324,11 +324,11 @@ def organization_service(db_session, remote_addr):
 def billing_service(app_config):
     stripe.api_base = app_config.registry.settings["billing.api_base"]
     stripe.api_version = app_config.registry.settings["billing.api_version"]
-    stripe.api_key = app_config.registry.settings["billing.secret_key"]
+    stripe.api_key = "sk_test_123"
     return subscription_services.MockStripeBillingService(
         api=stripe,
-        publishable_key=app_config.registry.settings["billing.publishable_key"],
-        webhook_secret=app_config.registry.settings["billing.webhook_key"],
+        publishable_key="pk_test_123",
+        webhook_secret="whsec_123",
     )
 
 
