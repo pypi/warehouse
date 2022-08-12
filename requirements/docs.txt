@@ -100,9 +100,9 @@ pyparsing==3.0.9 \
     --hash=sha256:2b020ecf7d21b687f219b71ecad3631f644a47f01403fa1d1036b0c6416d70fb \
     --hash=sha256:5026bae9a10eeaefb61dab2f09052b9f4307d44aee4eda64b309723d8d206bbc
     # via packaging
-pytz==2022.1 \
-    --hash=sha256:1e760e2fe6a8163bc0b3d9a19c4f84342afa0a2affebfaa84b01b978a02ecaa7 \
-    --hash=sha256:e68985985296d9a66a881eb3193b0906246245294a881e7c8afe623866ac6a5c
+pytz==2022.2 \
+    --hash=sha256:bc824559e43e8ab983426a49525079d186b25372ff63aa3430ccd527d95edc3a \
+    --hash=sha256:d9b245e63af49c4e51afdec5402f56b99c0cb483a84a12bb8b7db980386baade
     # via babel
 requests==2.28.1 \
     --hash=sha256:7c5599b102feddaa661c826c56ab4fee28bfd17f5abca1ebbe3e7f19d7c97983 \
