@@ -177,6 +177,10 @@
       border: 0;
       padding: 10px 7px;
       border-right: 1px solid $border-color;
+
+      p {
+        margin: inherit;
+      }
     }
 
     thead tr {
