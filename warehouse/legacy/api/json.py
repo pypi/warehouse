@@ -173,6 +173,7 @@ def _json_data(request, project, release, *, all_releases):
 
     if all_releases:
         data["releases"] = releases
+        data["versions"] = sorted(releases)
 
     return data
 

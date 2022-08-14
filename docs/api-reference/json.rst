@@ -167,6 +167,7 @@ Project
                     "yanked_reason": null
                 }
             ],
+            "versions": ["1.0", "1.2.0"],
             "vulnerabilities": []
         }
 

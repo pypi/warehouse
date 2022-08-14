@@ -326,6 +326,7 @@ class TestJSONProject:
                     }
                 ],
             },
+            "versions": ["0.1", "1.0", "2.0", "3.0"],
             "urls": [
                 {
                     "comment_text": None,
