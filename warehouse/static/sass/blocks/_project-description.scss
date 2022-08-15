@@ -149,6 +149,24 @@
   dl {
     margin: ($spacing-unit / 2) 0 0 0;
 
+    &.docinfo,
+    &.field-list {
+      display: grid;
+      grid-template-columns: max-content auto;
+
+      dt {
+        grid-column-start: 1;
+
+        &:first-of-type {
+          margin-top: ($spacing-unit / 2); // override inherited _lists.scss
+        }
+      }
+
+      dd {
+        grid-column-start: 2;
+      }
+    }
+
     dt {
       font-weight: $bold-font-weight;
     }
@@ -177,6 +195,10 @@
       border: 0;
       padding: 10px 7px;
       border-right: 1px solid $border-color;
+
+      p {
+        margin: inherit;
+      }
     }
 
     thead tr {
