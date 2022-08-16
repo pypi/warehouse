@@ -10,8 +10,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import datetime
-
 import stripe
 
 from pyramid.httpexceptions import HTTPBadRequest, HTTPNoContent, HTTPNotFound
@@ -57,16 +55,6 @@ def handle_billing_webhook_event(request, event):
                     subscription_service.add_subscription(
                         customer_id, subscription_id, subscription_item["id"]
                     )
-                # Set subscription cycle to 1st of next month with no proration.
-                # https://stripe.com/docs/billing/subscriptions/billing-cycle#api-trials
-                stripe.Subscription.modify(
-                    checkout_session["subscription"]["id"],
-                    trial_end=(
-                        datetime.datetime.now().replace(day=1)
-                        + datetime.timedelta(days=32)
-                    ).replace(day=1),
-                    proration_behavior="none",
-                )
         # Occurs whenever a customer’s subscription ends.
         case "customer.subscription.deleted":
             subscription = event["data"]["object"]
