@@ -57,7 +57,7 @@ sqlalchemy[asyncio]>=0.9,<1.5.0  # https://github.com/pypi/warehouse/pull/9228
 sqlalchemy-citext
 sqlalchemy-utils
 stdlib-list
-stripe  # Pin to 3.5.0?
+stripe
 structlog
 transaction
 trove-classifiers
