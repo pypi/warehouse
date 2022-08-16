@@ -87,8 +87,11 @@ class GenericBillingService:
             success_url=success_url,
             cancel_url=cancel_url,
             mode="subscription",
-            # automatic_tax={'enabled': True},
             line_items=[{"price": price_id}],
+            # Uncomment `automatic_tax` to calculate tax automatically.
+            # Requires active tax settings on Stripe Dashboard.
+            # https://dashboard.stripe.com/settings/tax/activate
+            # automatic_tax={"enabled": True},
         )
         return checkout_session
 
