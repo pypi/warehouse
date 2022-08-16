@@ -1577,7 +1577,7 @@ class ManageOrganizationBillingViews:
         # Create checkout session.
         checkout_session = self.billing_service.create_checkout_session(
             customer_id=self.customer_id,
-            price_id=self.price_id,
+            price_ids=[self.price_id],
             success_url=self.return_url,
             cancel_url=self.return_url,
         )

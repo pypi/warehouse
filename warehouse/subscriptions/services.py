@@ -77,7 +77,7 @@ class GenericBillingService:
             description=description,
         )
 
-    def create_checkout_session(self, customer_id, price_id, success_url, cancel_url):
+    def create_checkout_session(self, customer_id, price_ids, success_url, cancel_url):
         """
         # Create new Checkout Session for the order
         # For full details see https://stripe.com/docs/api/checkout/sessions/create
@@ -87,7 +87,7 @@ class GenericBillingService:
             success_url=success_url,
             cancel_url=cancel_url,
             mode="subscription",
-            line_items=[{"price": price_id}],
+            line_items=[{"price": price_id} for price_id in price_ids],
             # Uncomment `automatic_tax` to calculate tax automatically.
             # Requires active tax settings on Stripe Dashboard.
             # https://dashboard.stripe.com/settings/tax/activate

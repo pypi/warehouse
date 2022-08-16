@@ -159,13 +159,12 @@ class TestMockStripeBillingService:
 
         checkout_session = billing_service.create_checkout_session(
             customer_id="cus_123",
-            price_id=subscription_price.price_id,
+            price_ids=[subscription_price.price_id],
             success_url=success_url,
             cancel_url=cancel_url,
         )
 
         assert checkout_session.id is not None
-        # assert checkout_session.url is not None
 
     def test_create_portal_session(self, billing_service):
         return_url = "http://return.url"

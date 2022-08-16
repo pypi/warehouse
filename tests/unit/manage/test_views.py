@@ -3287,7 +3287,7 @@ class TestManageOrganizationBillingViews:
         assert create_checkout_session.calls == [
             pretend.call(
                 customer_id=organization.stripe_customer_id,
-                price_id=subscription_price.price_id,
+                price_ids=[subscription_price.price_id],
                 success_url=view.return_url,
                 cancel_url=view.return_url,
             ),
@@ -3323,7 +3323,7 @@ class TestManageOrganizationBillingViews:
         assert create_checkout_session.calls == [
             pretend.call(
                 customer_id=view.customer_id,
-                price_id=subscription_price.price_id,
+                price_ids=[subscription_price.price_id],
                 success_url=view.return_url,
                 cancel_url=view.return_url,
             ),
