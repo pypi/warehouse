@@ -84,7 +84,7 @@ class GenericBillingService:
         """
         checkout_session = self.api.checkout.Session.create(
             customer=customer_id,
-            success_url=success_url + "?session_id={CHECKOUT_SESSION_ID}",
+            success_url=success_url,
             cancel_url=cancel_url,
             mode="subscription",
             # automatic_tax={'enabled': True},
