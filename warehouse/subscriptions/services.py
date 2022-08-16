@@ -193,9 +193,7 @@ class GenericBillingService:
         )
         subscription_product.product_id = product["id"]
 
-    def create_or_update_price(
-        self, unit_amount, currency, recurring, product_id, tax_behavior
-    ):
+    def create_or_update_price(self, unit_amount, currency, product_id, tax_behavior):
         """
         Create price resource via Billing API, or update an active price
         resource with the same product and currency
@@ -207,18 +205,12 @@ class GenericBillingService:
             f'active:"true" product:"{product_id}" currency:"{currency}"'
         )
         # (b) Filter for other fields not supported by Stripe API.
-        prices = [
-            p
-            for p in price_search["data"]
-            if p["unit_amount"] == unit_amount
-            and p["recurring"]["interval"] == recurring
-        ]
+        prices = [p for p in price_search["data"] if p["unit_amount"] == unit_amount]
         # Create new price if no match found.
         if not prices:
             return self.create_price(
                 unit_amount,
                 currency,
-                recurring,
                 product_id,
                 tax_behavior,
             )
@@ -229,16 +221,15 @@ class GenericBillingService:
             self.update_price(other["id"], active=False)
         return self.update_price(price["id"], tax_behavior=tax_behavior)
 
-    def create_price(self, unit_amount, currency, recurring, product_id, tax_behavior):
+    def create_price(self, unit_amount, currency, product_id, tax_behavior):
         """
         Create and return a price resource via Billing API
         """
-        # TODO: Hard-coding to a month for recurring interval
-        #       as that is the requirement at this time
         return self.api.Price.create(
             unit_amount=unit_amount,
             currency=currency,
             recurring={
+                # Hardcode 1 month. Different interval does not make sense with metered.
                 "interval": "month",
                 # Set "metered" and "max" to enable Stripe usage records.
                 # https://stripe.com/docs/products-prices/pricing-models#aggregate-metered-usage
@@ -285,7 +276,6 @@ class GenericBillingService:
         price = self.create_or_update_price(
             unit_amount=subscription_price.unit_amount,
             currency=subscription_price.currency,
-            recurring=subscription_price.recurring.value,
             product_id=subscription_price.subscription_product.product_id,
             tax_behavior=subscription_price.tax_behavior,
         )

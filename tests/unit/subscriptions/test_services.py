@@ -274,7 +274,6 @@ class TestMockStripeBillingService:
         price = billing_service.create_price(
             unit_amount=subscription_price.unit_amount,
             currency=subscription_price.currency,
-            recurring=subscription_price.recurring,
             product_id=subscription_price.subscription_product.id,
             tax_behavior=subscription_price.tax_behavior,
         )
@@ -319,7 +318,7 @@ class TestMockStripeBillingService:
             "unit_amount": subscription_price.unit_amount,
             "currency": subscription_price.currency,
             "recurring": {
-                "interval": subscription_price.recurring,
+                "interval": "month",
                 "usage_type": "metered",
                 "aggregate_usage": "max",
             },
@@ -332,7 +331,7 @@ class TestMockStripeBillingService:
             "unit_amount": subscription_price.unit_amount,
             "currency": subscription_price.currency,
             "recurring": {
-                "interval": subscription_price.recurring,
+                "interval": "month",
                 "usage_type": "metered",
                 "aggregate_usage": "max",
             },
@@ -347,7 +346,6 @@ class TestMockStripeBillingService:
         price = billing_service.create_or_update_price(
             unit_amount=subscription_price.unit_amount,
             currency=subscription_price.currency,
-            recurring=subscription_price.recurring,
             product_id=subscription_price.subscription_product.id,
             tax_behavior=subscription_price.tax_behavior,
         )

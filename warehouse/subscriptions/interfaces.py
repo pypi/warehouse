@@ -96,15 +96,13 @@ class IGenericBillingService(Interface):
         subscription product from the database.
         """
 
-    def create_or_update_price(
-        unit_amount, currency, recurring, product_id, tax_behavior
-    ):
+    def create_or_update_price(unit_amount, currency, product_id, tax_behavior):
         """
         Create price resource via Billing API, or update an active price
         resource with the same product and currency
         """
 
-    def create_price(unit_amount, currency, recurring, product_id, tax_behavior):
+    def create_price(unit_amount, currency, product_id, tax_behavior):
         """
         Create and return a price resource via Billing API
         """
