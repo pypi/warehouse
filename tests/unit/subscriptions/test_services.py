@@ -310,6 +310,50 @@ class TestMockStripeBillingService:
 
         assert prices is not None
 
+    def test_create_or_update_price(
+        self, billing_service, subscription_service, monkeypatch
+    ):
+        subscription_price = StripeSubscriptionPriceFactory.create()
+        price = {
+            "id": "price_1",
+            "unit_amount": subscription_price.unit_amount,
+            "currency": subscription_price.currency,
+            "recurring": {
+                "interval": subscription_price.recurring,
+                "usage_type": "metered",
+                "aggregate_usage": "max",
+            },
+            "product_id": subscription_price.subscription_product.id,
+            "tax_behavior": subscription_price.tax_behavior,
+            "created": 1,
+        }
+        other = {
+            "id": "price_0",
+            "unit_amount": subscription_price.unit_amount,
+            "currency": subscription_price.currency,
+            "recurring": {
+                "interval": subscription_price.recurring,
+                "usage_type": "metered",
+                "aggregate_usage": "max",
+            },
+            "product_id": subscription_price.subscription_product.id,
+            "tax_behavior": subscription_price.tax_behavior,
+            "created": 0,
+        }
+        monkeypatch.setattr(
+            billing_service, "search_prices", lambda *a, **kw: {"data": [price, other]}
+        )
+
+        price = billing_service.create_or_update_price(
+            unit_amount=subscription_price.unit_amount,
+            currency=subscription_price.currency,
+            recurring=subscription_price.recurring,
+            product_id=subscription_price.subscription_product.id,
+            tax_behavior=subscription_price.tax_behavior,
+        )
+
+        assert price["id"] == "price_1"
+
     def test_cancel_subscription(self, billing_service, subscription_service):
         organization = OrganizationFactory.create()
         organization_stripe_customer = OrganizationStripeCustomerFactory.create(

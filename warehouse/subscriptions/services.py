@@ -200,21 +200,34 @@ class GenericBillingService:
         Create price resource via Billing API, or update an active price
         resource with the same product and currency
         """
-        # Deactivate existing prices.
+        # Search for active price that match all non-updatable fields.
+        # (a) Use query fields supported by Stripe API.
+        #     https://stripe.com/docs/search#query-fields-for-prices
         price_search = self.search_prices(
             f'active:"true" product:"{product_id}" currency:"{currency}"'
         )
-        prices = price_search["data"]
-        for price in prices:
-            self.update_price(price["id"], active=False)
-        # Create new price.
-        return self.create_price(
-            unit_amount,
-            currency,
-            recurring,
-            product_id,
-            tax_behavior,
-        )
+        # (b) Filter for other fields not supported by Stripe API.
+        prices = [
+            p
+            for p in price_search["data"]
+            if p["unit_amount"] == unit_amount
+            and p["recurring"]["interval"] == recurring
+        ]
+        # Create new price if no match found.
+        if not prices:
+            return self.create_price(
+                unit_amount,
+                currency,
+                recurring,
+                product_id,
+                tax_behavior,
+            )
+        # Update most recent matching price and archive other matching prices.
+        # https://stripe.com/docs/api/prices/update
+        [*others, price] = sorted(prices, key=lambda p: p["created"])
+        for other in others:
+            self.update_price(other["id"], active=False)
+        return self.update_price(price["id"], tax_behavior=tax_behavior)
 
     def create_price(self, unit_amount, currency, recurring, product_id, tax_behavior):
         """
@@ -242,16 +255,13 @@ class GenericBillingService:
         """
         return self.api.Price.retrieve(price_id)
 
-    def update_price(self, price_id, active):
+    def update_price(self, price_id, **parameters):
         """
         Update a price resource by id via Billing API
         only allowing update of those attributes we use
         return the updated price
         """
-        return self.api.Price.modify(
-            price_id,
-            active=active,
-        )
+        return self.api.Price.modify(price_id, **parameters)
 
     def list_all_prices(self, limit=10):
         """

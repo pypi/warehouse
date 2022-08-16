@@ -114,7 +114,7 @@ class IGenericBillingService(Interface):
         Get a price resource via Billing API
         """
 
-    def update_price(price_id, active):
+    def update_price(price_id, **parameters):
         """
         Update a price resource by id via Billing API
         only allowing update of those attributes we use
