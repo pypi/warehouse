@@ -84,8 +84,6 @@ class GenericBillingService:
         """
         checkout_session = self.api.checkout.Session.create(
             customer=customer_id,
-            # TODO: What payment methods will we accept?
-            # payment_method_types=['card'],
             success_url=success_url + "?session_id={CHECKOUT_SESSION_ID}",
             cancel_url=cancel_url,
             mode="subscription",
