@@ -1541,7 +1541,11 @@ class ManageOrganizationBillingViews:
     def customer_id(self):
         if self.organization.stripe_customer_id is None:
             customer = self.billing_service.create_customer(
-                name=self.organization.name,
+                name=(
+                    self.request.registry.settings["site.name"]
+                    + " Organization - "
+                    + self.organization.name
+                ),
                 description=self.organization.description,
             )
             self.organization_service.add_organization_stripe_customer(

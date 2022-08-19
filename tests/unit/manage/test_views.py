@@ -3236,6 +3236,8 @@ class TestManageOrganizationBillingViews:
         subscription_service,
         organization_no_customer,
     ):
+        db_request.registry.settings["site.name"] = "PyPI"
+
         view = views.ManageOrganizationBillingViews(
             organization_no_customer, db_request
         )
