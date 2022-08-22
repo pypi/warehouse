@@ -324,9 +324,9 @@ cssselect==1.1.0 \
     --hash=sha256:f612ee47b749c877ebae5bb77035d8f4202c6ad0f0fc1271b3c18ad6c4468ecf \
     --hash=sha256:f95f8dedd925fd8f54edb3d2dfb44c190d9d18512377d3c1e2388d16126879bc
     # via premailer
-cssutils==2.5.1 \
-    --hash=sha256:5b24b5e2d34a280d561b4b719c0eba6f8417a38dd5d967ac585eb5522d3d0786 \
-    --hash=sha256:b4a4da58e78326ec9f4a9d3555004ddf706f3e99f7a1026c1880f0934362b8b4
+cssutils==2.6.0 \
+    --hash=sha256:30c72f3a5c5951a11151640600aae7b3bf10e4c0d5c87f5bc505c2cd4a26e0c2 \
+    --hash=sha256:f7dcd23c1cec909fdf3630de346e1413b7b2555936dec14ba2ebb9913bf0818e
     # via premailer
 datadog==0.44.0 \
     --hash=sha256:071170f0c7ef22511dbf7f9bd76c4be500ee2d3d52072900a5c87b5495d2c733 \
