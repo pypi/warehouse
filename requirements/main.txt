@@ -338,9 +338,9 @@ deprecated==1.2.13 \
     # via
     #   limits
     #   redis
-disposable-email-domains==0.0.79 \
-    --hash=sha256:575dc0247355b153f0b092b70bd49f26d89d4d0b3eb555eb6be7988213eed1e7 \
-    --hash=sha256:893ebd1076581c30dd3c19e104f83f0866200a1e9efdb6e4824e98a0811cfe32
+disposable-email-domains==0.0.80 \
+    --hash=sha256:97342c8c496ec913168345ed9966fdc9a2ff014f347e7238b776e30059bdf486 \
+    --hash=sha256:c65f1924126dd5a4b27b037e2125f6dc7e357e35732a50f7261355b94631054e
     # via -r requirements/main.in
 dnspython==2.2.1 \
     --hash=sha256:0f7569a4a6ff151958b64304071d370daa3243d15941a7beedf0c9fe5105603e \
