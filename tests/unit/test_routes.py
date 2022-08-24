@@ -541,6 +541,7 @@ def test_routes(warehouse):
     assert config.add_redirect.calls == [
         pretend.call("/sponsor/", "/sponsors/", domain=warehouse),
         pretend.call("/u/{username}/", "/user/{username}/", domain=warehouse),
+        pretend.call("/2fa/", "/manage/account/two-factor/", domain=warehouse),
         pretend.call("/p/{name}/", "/project/{name}/", domain=warehouse),
         pretend.call("/pypi/{name}/", "/project/{name}/", domain=warehouse),
         pretend.call(
