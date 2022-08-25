@@ -66,6 +66,7 @@
 {% macro recoverycodes() %}{% trans %}How does two factor authentication with a recovery code work? How do I set it up on PyPI?{% endtrans %}{% endmacro %}
 {% macro apitoken() %}{% trans %}How can I use API tokens to authenticate with PyPI?{% endtrans %}{% endmacro %}
 {% macro sensitiveactions() %}{% trans %}Why do certain actions require me to confirm my password?{% endtrans %}{% endmacro %}
+{% macro username_change() %}{% trans %}How do I change my PyPI username?{% endtrans %}{% endmacro %}
 
 {% macro mirroring() %}{% trans %}How can I run a mirror of PyPI?{% endtrans %}{% endmacro %}
 {% macro APIs() %}{% trans %}Does PyPI have APIs I can use?{% endtrans %}{% endmacro %}
@@ -135,6 +136,7 @@
           <li><a href="#recoverycodes">{{ recoverycodes() }}</a></li>
           <li><a href="#apitoken">{{ apitoken() }}</a></li>
           <li><a href="#sensitiveactions">{{ sensitiveactions() }}</a></li>
+          <li><a href="#username-change">{{ username_change() }}</a></li>
         </ul>
       </section>
 
@@ -511,6 +513,10 @@
           <p>You'll only have to re-confirm your password if it's been more than an hour since you last confirmed it.</p>
           <p><strong>We strongly recommend you only perform such actions on your personal, password-protected computer.</strong></p>
         {% endtrans %}
+
+        <h3 id="username-change">{{ username_change() }}</h3>
+        <p>{% trans %}PyPI does not currently support changing a username.{% endtrans %}</p>
+        <p>{% trans %}Instead, you can create a new account with the desired username, add the new account as a maintainer of all the projects your old account owns, and then delete the old account, which will have the same effect.{% endtrans %}</p>
 
       </section>
 

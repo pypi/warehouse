@@ -11,6 +11,7 @@ click
 cryptography
 datadog>=0.19.0
 disposable-email-domains
+docutils<0.19
 elasticsearch>=7.0.0,<7.11.0
 elasticsearch_dsl>=7.0.0,<8.0.0
 first
@@ -47,7 +48,7 @@ pyramid_services>=2.1
 pyramid_tm>=0.12
 python-slugify
 PyJWT[crypto]>=2.3.0
-readme-renderer[md]>=0.7.0
+readme-renderer[md]>=36.0
 requests
 requests-aws4auth
 redis>=2.8.0,<5.0.0
