@@ -18,12 +18,16 @@ import pytest
 from pyramid.authorization import Allow
 from pyramid.location import lineage
 
+from warehouse.organizations.models import TeamProjectRoleType
 from warehouse.packaging.models import File, ProjectFactory, ReleaseURL
 
 from ...common.db.organizations import (
     OrganizationFactory as DBOrganizationFactory,
     OrganizationProjectFactory as DBOrganizationProjectFactory,
     OrganizationRoleFactory as DBOrganizationRoleFactory,
+    TeamFactory as DBTeamFactory,
+    TeamProjectRoleFactory as DBTeamProjectRoleFactory,
+    TeamRoleFactory as DBTeamRoleFactory,
 )
 from ...common.db.packaging import (
     FileFactory as DBFileFactory,
@@ -117,6 +121,12 @@ class TestProject:
         owner3 = DBOrganizationRoleFactory.create(organization=organization)
         DBOrganizationProjectFactory.create(organization=organization, project=project)
 
+        team = DBTeamFactory.create()
+        owner4 = DBTeamRoleFactory.create(team=team)
+        DBTeamProjectRoleFactory.create(
+            team=team, project=project, role_name=TeamProjectRoleType.Administer
+        )
+
         acls = []
         for location in lineage(project):
             try:
@@ -137,6 +147,7 @@ class TestProject:
                 (Allow, f"user:{owner1.user.id}", ["manage:project", "upload"]),
                 (Allow, f"user:{owner2.user.id}", ["manage:project", "upload"]),
                 (Allow, f"user:{owner3.user.id}", ["manage:project", "upload"]),
+                (Allow, f"user:{owner4.user.id}", ["manage:project", "upload"]),
             ],
             key=lambda x: x[1],
         ) + sorted(
@@ -360,23 +371,23 @@ class TestRelease:
         [
             (None, None),
             (
-                "https://github.com/pypa/warehouse",
-                "https://api.github.com/repos/pypa/warehouse",
+                "https://github.com/pypi/warehouse",
+                "https://api.github.com/repos/pypi/warehouse",
             ),
             (
-                "https://github.com/pypa/warehouse/",
-                "https://api.github.com/repos/pypa/warehouse",
+                "https://github.com/pypi/warehouse/",
+                "https://api.github.com/repos/pypi/warehouse",
             ),
             (
-                "https://github.com/pypa/warehouse/tree/master",
-                "https://api.github.com/repos/pypa/warehouse",
+                "https://github.com/pypi/warehouse/tree/main",
+                "https://api.github.com/repos/pypi/warehouse",
             ),
             (
-                "https://www.github.com/pypa/warehouse",
-                "https://api.github.com/repos/pypa/warehouse",
+                "https://www.github.com/pypi/warehouse",
+                "https://api.github.com/repos/pypi/warehouse",
             ),
             ("https://github.com/pypa/", None),
-            ("https://google.com/pypa/warehouse/tree/master", None),
+            ("https://google.com/pypi/warehouse/tree/main", None),
             ("https://google.com", None),
             ("incorrect url", None),
         ],

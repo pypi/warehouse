@@ -172,7 +172,8 @@ def releases_list(project, request):
                 if field.lower() == "version":
                     filters.append(Release.version.ilike(value))
 
-        releases_query = releases_query.filter(or_(*filters))
+        filters = filters or [True]
+        releases_query = releases_query.filter(or_(False, *filters))
 
     releases = SQLAlchemyORMPage(
         releases_query,
@@ -241,7 +242,8 @@ def journals_list(project, request):
                 if field.lower() == "version":
                     filters.append(JournalEntry.version.ilike(value))
 
-        journals_query = journals_query.filter(or_(*filters))
+        filters = filters or [True]
+        journals_query = journals_query.filter(or_(False, *filters))
 
     journals = SQLAlchemyORMPage(
         journals_query,

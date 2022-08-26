@@ -97,6 +97,7 @@ class User(SitemapMixin, HasEvents, db.Model):
     webauthn = orm.relationship(
         "WebAuthn", backref="user", cascade="all, delete-orphan", lazy=True
     )
+
     recovery_codes = orm.relationship(
         "RecoveryCode", backref="user", cascade="all, delete-orphan", lazy=True
     )
@@ -136,7 +137,15 @@ class User(SitemapMixin, HasEvents, db.Model):
 
     @property
     def has_two_factor(self):
-        return self.totp_secret is not None or len(self.webauthn) > 0
+        return self.has_totp or self.has_webauthn
+
+    @property
+    def has_totp(self):
+        return self.totp_secret is not None
+
+    @property
+    def has_webauthn(self):
+        return len(self.webauthn) > 0
 
     @property
     def has_recovery_codes(self):

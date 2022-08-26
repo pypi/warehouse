@@ -17,6 +17,7 @@ from itertools import product
 import pip_api
 
 from google.cloud.bigquery import LoadJobConfig
+from packaging.utils import canonicalize_name
 
 from warehouse import tasks
 from warehouse.accounts.models import User, WebAuthn
@@ -64,15 +65,17 @@ def compute_2fa_mandate(request):
     )
     top_projects = set(row.get("project_name") for row in query.result())
 
-    project_names = our_dependencies | top_projects
+    project_names = {canonicalize_name(n) for n in our_dependencies | top_projects}
 
     # Get the projects that were not previously in the mandate
     new_projects = request.db.query(Project).filter(
-        Project.name.in_(project_names), Project.pypi_mandates_2fa.is_(False)
+        Project.normalized_name.in_(project_names), Project.pypi_mandates_2fa.is_(False)
     )
 
     # Get their maintainers
-    users = request.db.query(User).join(Project.users).join(new_projects).all()
+    users = (
+        request.db.query(User).join(Project.users).join(new_projects.subquery()).all()
+    )
 
     # Email them
     for user in users:
@@ -90,7 +93,7 @@ def compute_2fa_metrics(request):
         Project.pypi_mandates_2fa.is_(True)
     )
     critical_maintainers = (
-        request.db.query(User).join(Project.users).join(critical_projects)
+        request.db.query(User).join(Project.users).join(critical_projects.subquery())
     )
 
     # Number of projects marked critical
@@ -328,7 +331,7 @@ def update_bigquery_release_files(task, request, dist_metadata):
                 # str instead of a list, hence, this workaround to comply
                 # with PEP 345 and the Core Metadata specifications.
                 # This extra check can be removed once
-                # https://github.com/pypa/warehouse/issues/8257 is fixed
+                # https://github.com/pypi/warehouse/issues/8257 is fixed
                 if isinstance(field_data, str):
                     json_rows[sch.name] = [field_data]
                 else:
@@ -389,7 +392,7 @@ def sync_bigquery_release_files(request):
                     # str instead of a list, hence, this workaround to comply
                     # with PEP 345 and the Core Metadata specifications.
                     # This extra check can be removed once
-                    # https://github.com/pypa/warehouse/issues/8257 is fixed
+                    # https://github.com/pypi/warehouse/issues/8257 is fixed
                     if isinstance(field_data, str):
                         row_data[sch.name] = [field_data]
                     else:

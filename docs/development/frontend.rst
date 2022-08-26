@@ -34,7 +34,7 @@ JavaScript tests use the `Jest testing framework <https://jestjs.io/>`_
 along with `jest-dom <https://github.com/testing-library/jest-dom>`_
 for assertion helpers. We can invoke Jest directly specify a particular
 test suite via ``node_modules/.bin/jest tests/frontend/<TEST_FILE>.js`` or
-add any of the `Jest CLI options <https://jestjs.io/docs/en/cli>`_ .
+add any of the `Jest CLI options <https://jestjs.io/docs/cli>`_ .
 All tests are located in the ``tests/frontend``.
 
 `Stimulus <https://stimulusjs.org/>`_ controller tests leverage on Jest
@@ -98,7 +98,7 @@ Exceptions to these rules include:
 
 We also allow both dashes and underscores in our class names, as we
 follow the `Nicholas Gallagher variation
-<http://nicolasgallagher.com/about-html-semantics-front-end-architecture/>`_
+<https://nicolasgallagher.com/about-html-semantics-front-end-architecture/>`_
 of the `BEM naming methodology <https://en.bem.info/>`_.
 
 More information on how BEM works can be found in `this article from

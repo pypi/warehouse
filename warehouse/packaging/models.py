@@ -47,8 +47,6 @@ from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy.orm import validates
 from sqlalchemy.orm.collections import attribute_mapped_collection
 from sqlalchemy.orm.exc import MultipleResultsFound, NoResultFound
-from sqlalchemy.sql import expression
-from trove_classifiers import sorted_classifiers
 
 from warehouse import db
 from warehouse.accounts.models import User
@@ -60,6 +58,7 @@ from warehouse.organizations.models import (
     OrganizationProject,
     OrganizationRole,
     OrganizationRoleType,
+    TeamProjectRole,
 )
 from warehouse.sitemap.models import SitemapMixin
 from warehouse.utils import dotted_navigator
@@ -200,9 +199,10 @@ class Project(SitemapMixin, TwoFactorRequireable, HasEvents, db.Model):
         secondary=OrganizationProject.__table__,  # type: ignore
         back_populates="projects",
         uselist=False,
+        viewonly=True,
     )
     roles = orm.relationship(Role, back_populates="project", passive_deletes=True)
-    users = orm.relationship(User, secondary=Role.__table__, backref="projects")  # type: ignore # noqa
+    users = orm.relationship(User, secondary=Role.__table__, backref="projects", viewonly=True)  # type: ignore # noqa
     releases = orm.relationship(
         "Release",
         backref="project",
@@ -253,7 +253,19 @@ class Project(SitemapMixin, TwoFactorRequireable, HasEvents, db.Model):
         query = session.query(Role).filter(Role.project == self)
         query = query.options(orm.lazyload("project"))
         query = query.options(orm.lazyload("user"))
-        roles = {(role.user_id, role.role_name) for role in query.all()}
+        permissions = {
+            (role.user_id, "Administer" if role.role_name == "Owner" else "Upload")
+            for role in query.all()
+        }
+
+        # Add all of the team members for this project.
+        query = session.query(TeamProjectRole).filter(TeamProjectRole.project == self)
+        query = query.options(orm.lazyload("project"))
+        query = query.options(orm.lazyload("team"))
+        for role in query.all():
+            permissions |= {
+                (user.id, role.role_name.value) for user in role.team.members
+            }
 
         # Add all organization owners for this project.
         if self.organization:
@@ -263,12 +275,10 @@ class Project(SitemapMixin, TwoFactorRequireable, HasEvents, db.Model):
             )
             query = query.options(orm.lazyload("organization"))
             query = query.options(orm.lazyload("user"))
-            roles |= {(role.user_id, "Owner") for role in query.all()}
+            permissions |= {(role.user_id, "Administer") for role in query.all()}
 
-        for user_id, role_name in sorted(
-            roles, key=lambda x: (["Owner", "Maintainer"].index(x[1]), x[0])
-        ):
-            if role_name == "Owner":
+        for user_id, permission_name in sorted(permissions, key=lambda x: (x[1], x[0])):
+            if permission_name == "Administer":
                 acls.append((Allow, f"user:{user_id}", ["manage:project", "upload"]))
             else:
                 acls.append((Allow, f"user:{user_id}", ["upload"]))
@@ -288,7 +298,7 @@ class Project(SitemapMixin, TwoFactorRequireable, HasEvents, db.Model):
 
     @property
     def owners(self):
-        """Return all owners who are owners of the project."""
+        """Return all users who are owners of the project."""
         owner_roles = (
             orm.object_session(self)
             .query(User.id)
@@ -405,6 +415,7 @@ class Release(db.Model):
             Index("release_created_idx", cls.created.desc()),
             Index("release_project_created_idx", cls.project_id, cls.created.desc()),
             Index("release_version_idx", cls.version),
+            Index("release_canonical_version_idx", cls.canonical_version),
             UniqueConstraint("project_id", "version"),
         )
 
@@ -418,7 +429,7 @@ class Release(db.Model):
     )
     version = Column(Text, nullable=False)
     canonical_version = Column(Text, nullable=False)
-    is_prerelease = orm.column_property(func.pep440_is_prerelease(version))
+    is_prerelease = Column(Boolean, nullable=False, server_default=sql.false())
     author = Column(Text)
     author_email = Column(Text)
     maintainer = Column(Text)
@@ -460,10 +471,7 @@ class Release(db.Model):
         Classifier,
         backref="project_releases",
         secondary=lambda: release_classifiers,  # type: ignore
-        order_by=expression.case(
-            {c: i for i, c in enumerate(sorted_classifiers)},
-            value=Classifier.classifier,
-        ),
+        order_by=Classifier.ordering,
         passive_deletes=True,
     )
     classifiers = association_proxy("_classifiers", "classifier")

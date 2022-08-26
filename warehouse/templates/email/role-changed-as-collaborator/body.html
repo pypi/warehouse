@@ -20,9 +20,9 @@
   Your role in the {{ project }} project has been changed by {{ submitter }}.
 
   {% if role == 'Owner' %}
-  You are now a project owner. You can add other collaborators, upload releases and delete files, releases or the entire project.
+  As project <strong>Owner</strong>, you now have permissions to <strong>Administer</strong> the entire project. You can add other collaborators, upload releases and delete files, releases or the entire project.
   {% elif role == 'Maintainer' %}
-  You are now a project maintainer. You can upload releases but cannot add collaborators, delete files, releases or the project.
+  As project <strong>Maintainer</strong>, you now have permissions to <strong>Upload</strong> releases for a package. You can upload releases but cannot add collaborators, delete files, releases or the project.
   {% endif %}
 </p>
 {% endblock %}

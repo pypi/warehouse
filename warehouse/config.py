@@ -15,6 +15,7 @@ import enum
 import os
 import shlex
 
+import orjson
 import transaction
 
 from pyramid import renderers
@@ -175,6 +176,7 @@ def configure(settings=None):
         default="https://api.github.com/meta/public_keys/token_scanning",
     )
     maybe_set(settings, "warehouse.trending_table", "WAREHOUSE_TRENDING_TABLE")
+    maybe_set(settings, "warehouse.downloads_table", "WAREHOUSE_DOWNLOADS_TABLE")
     maybe_set(settings, "celery.broker_url", "BROKER_URL")
     maybe_set(settings, "celery.result_url", "REDIS_URL")
     maybe_set(settings, "celery.scheduler_url", "REDIS_URL")
@@ -419,6 +421,7 @@ def configure(settings=None):
     filters.setdefault("localize_datetime", "warehouse.filters:localize_datetime")
     filters.setdefault("is_recent", "warehouse.filters:is_recent")
     filters.setdefault("canonicalize_name", "packaging.utils:canonicalize_name")
+    filters.setdefault("format_author_email", "warehouse.filters:format_author_email")
 
     # We also want to register some global functions for Jinja
     jglobals = config.get_settings().setdefault("jinja2.globals", {})
@@ -442,6 +445,9 @@ def configure(settings=None):
     jglobals.setdefault(
         "RoleInvitationStatus", "warehouse.packaging.models:RoleInvitationStatus"
     )
+    jglobals.setdefault(
+        "TeamProjectRoleType", "warehouse.organizations.models:TeamProjectRoleType"
+    )
 
     # We'll store all of our templates in one location, warehouse/templates
     # so we'll go ahead and add that to the Jinja2 search path.
@@ -451,7 +457,13 @@ def configure(settings=None):
 
     # We want to configure our JSON renderer to sort the keys, and also to use
     # an ultra compact serialization format.
-    config.add_renderer("json", renderers.JSON(sort_keys=True, separators=(",", ":")))
+    config.add_renderer(
+        "json",
+        renderers.JSON(
+            serializer=orjson.dumps,
+            option=orjson.OPT_SORT_KEYS | orjson.OPT_APPEND_NEWLINE,
+        ),
+    )
 
     # Configure retry support.
     config.add_settings({"retry.attempts": 3})

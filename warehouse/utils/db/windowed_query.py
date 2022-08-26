@@ -11,7 +11,7 @@
 # limitations under the License.
 
 # Taken from "Theatrum Chemicum" at
-# https://bitbucket.org/zzzeek/sqlalchemy/wiki/UsageRecipes/WindowedRangeQuery
+# https://github.com/sqlalchemy/sqlalchemy/wiki/RangeQuery-and-WindowedRangeQuery
 
 from sqlalchemy import and_, func, text
 

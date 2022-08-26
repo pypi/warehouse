@@ -28,3 +28,4 @@ class Classifier(db.ModelBase):
 
     id = Column(Integer, primary_key=True, nullable=False)
     classifier = Column(Text, unique=True)
+    ordering = Column(Integer, nullable=True)

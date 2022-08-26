@@ -19,7 +19,7 @@ import wtforms.validators
 from paginate_sqlalchemy import SqlalchemyOrmPage as SQLAlchemyORMPage
 from pyramid.httpexceptions import HTTPBadRequest, HTTPNotFound, HTTPSeeOther
 from pyramid.view import view_config
-from sqlalchemy import literal, or_
+from sqlalchemy import literal, or_, select
 from sqlalchemy.orm import joinedload
 from sqlalchemy.orm.exc import NoResultFound
 
@@ -59,7 +59,8 @@ def user_list(request):
             else:
                 filters.append(User.username.ilike(term))
 
-        users_query = users_query.filter(or_(*filters))
+        filters = filters or [True]
+        users_query = users_query.filter(or_(False, *filters))
 
     users = SQLAlchemyORMPage(
         users_query,
@@ -184,10 +185,7 @@ def _nuke_user(user, request):
     # Delete all the user's projects
     projects = request.db.query(Project).filter(
         Project.name.in_(
-            request.db.query(Project.name)
-            .join(Role.project)
-            .filter(Role.user == user)
-            .subquery()
+            select(Project.name).join(Role.project).where(Role.user == user)
         )
     )
     for project in projects:

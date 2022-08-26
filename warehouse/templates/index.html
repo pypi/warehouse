@@ -54,8 +54,8 @@
     <form class="search-form search-form--large search-form--fullwidth" action="{{ request.route_path('search') }}" role="search">
       <label for="search" class="sr-only">{% trans %}Search PyPI{% endtrans %}</label>
 
-      <!-- The following input is intentionally not autofocused, see https://github.com/pypa/warehouse/issues/6088 for more details -->
-      <input id="search" class="search-form__search large-input" type="text" name="q" placeholder="{% trans %}Search projects{% endtrans %}" autocomplete="off" autocapitalize="off" spellcheck="false" data-controller="search-focus" data-action="keydown@window->search-focus#focusSearchField" data-target="search-focus.searchField">
+      <!-- The following input is intentionally not autofocused, see https://github.com/pypi/warehouse/issues/6088 for more details -->
+      <input id="search" class="search-form__search large-input" type="text" name="q" placeholder="{% trans %}Search projects{% endtrans %}" autocomplete="off" autocapitalize="off" spellcheck="false" data-controller="search-focus" data-action="keydown@window->search-focus#focusSearchField" data-search-focus-target="searchField">
 
       <button type="submit" class="search-form__button">
         <i class="fa fa-search" aria-hidden="true"></i>

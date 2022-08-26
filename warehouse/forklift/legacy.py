@@ -793,8 +793,8 @@ def file_upload(request):
 
     # Ensure that user has a verified, primary email address. This should both
     # reduce the ease of spam account creation and activity, as well as act as
-    # a forcing function for https://github.com/pypa/warehouse/issues/3632.
-    # TODO: Once https://github.com/pypa/warehouse/issues/3632 has been solved,
+    # a forcing function for https://github.com/pypi/warehouse/issues/3632.
+    # TODO: Once https://github.com/pypi/warehouse/issues/3632 has been solved,
     #       we might consider a different condition, possibly looking at
     #       User.is_active instead.
     if not (request.user.primary_email and request.user.primary_email.verified):
@@ -833,8 +833,8 @@ def file_upload(request):
     # Check if any fields were supplied as a tuple and have become a
     # FieldStorage. The 'content' and 'gpg_signature' fields _should_ be a
     # FieldStorage, however.
-    # ref: https://github.com/pypa/warehouse/issues/2185
-    # ref: https://github.com/pypa/warehouse/issues/2491
+    # ref: https://github.com/pypi/warehouse/issues/2185
+    # ref: https://github.com/pypi/warehouse/issues/2491
     for field in set(request.POST) - {"content", "gpg_signature"}:
         values = request.POST.getall(field)
         if any(isinstance(value, FieldStorage) for value in values):
@@ -947,7 +947,9 @@ def file_upload(request):
         and request.user.has_two_factor
     ):
         # Eventually, raise here to disable basic auth with 2FA enabled
-        send_basic_auth_with_two_factor_email(request, request.user)
+        send_basic_auth_with_two_factor_email(
+            request, request.user, project_name=project.name
+        )
 
     # Update name if it differs but is still equivalent. We don't need to check if
     # they are equivalent when normalized because that's already been done when we
@@ -1009,25 +1011,12 @@ def file_upload(request):
             .one()
         )
     except NoResultFound:
-        # Look up all of the valid classifiers
-        all_classifiers = request.db.query(Classifier).all()
-
         # Get all the classifiers for this release
-        release_classifiers = [
-            c for c in all_classifiers if c.classifier in form.classifiers.data
-        ]
-
-        # Determine if we need to add any new classifiers to the database
-        missing_classifiers = set(form.classifiers.data or []) - set(
-            c.classifier for c in release_classifiers
+        release_classifiers = (
+            request.db.query(Classifier)
+            .filter(Classifier.classifier.in_(form.classifiers.data))
+            .all()
         )
-
-        # Add any new classifiers to the database
-        if missing_classifiers:
-            for missing_classifier_name in missing_classifiers:
-                missing_classifier = Classifier(classifier=missing_classifier_name)
-                request.db.add(missing_classifier)
-                release_classifiers.append(missing_classifier)
 
         # Parse the Project URLs structure into a key/value dict
         project_urls = {
@@ -1235,7 +1224,7 @@ def file_upload(request):
                 # Note: Changing this error message to something that doesn't
                 # start with "File already exists" will break the
                 # --skip-existing functionality in twine
-                # ref: https://github.com/pypa/warehouse/issues/3482
+                # ref: https://github.com/pypi/warehouse/issues/3482
                 # ref: https://github.com/pypa/twine/issues/332
                 "File already exists. See "
                 + request.help_url(_anchor="file-name-reuse")

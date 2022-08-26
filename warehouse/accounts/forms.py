@@ -37,6 +37,9 @@ from warehouse.email import (
 from warehouse.i18n import localize as _
 from warehouse.utils.otp import TOTP_LENGTH
 
+# Taken from passlib
+MAX_PASSWORD_SIZE = 4096
+
 
 class UsernameMixin:
 
@@ -117,7 +120,15 @@ class NewUsernameMixin:
 
 class PasswordMixin:
 
-    password = wtforms.PasswordField(validators=[wtforms.validators.DataRequired()])
+    password = wtforms.PasswordField(
+        validators=[
+            wtforms.validators.DataRequired(),
+            wtforms.validators.Length(
+                max=MAX_PASSWORD_SIZE,
+                message=_("Password too long."),
+            ),
+        ]
+    )
 
     def __init__(
         self, *args, request, action="login", check_password_metrics_tags=None, **kwargs
@@ -158,19 +169,27 @@ class NewPasswordMixin:
     new_password = wtforms.PasswordField(
         validators=[
             wtforms.validators.DataRequired(),
+            wtforms.validators.Length(
+                max=MAX_PASSWORD_SIZE,
+                message=_("Password too long."),
+            ),
             forms.PasswordStrengthValidator(
                 user_input_fields=["full_name", "username", "email"]
             ),
-        ]
+        ],
     )
 
     password_confirm = wtforms.PasswordField(
         validators=[
             wtforms.validators.DataRequired(),
+            wtforms.validators.Length(
+                max=MAX_PASSWORD_SIZE,
+                message=_("Password too long."),
+            ),
             wtforms.validators.EqualTo(
                 "new_password", message=_("Your passwords don't match. Try again.")
             ),
-        ]
+        ],
     )
 
     # These fields are here to provide the various user-defined fields to the

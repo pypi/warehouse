@@ -12,7 +12,10 @@
  # limitations under the License.
 -#}
 {% extends "base.html" %}
+
 {% block title %}PyPI 2FA Security Key Giveaway{% endblock %}
+{% block description %}PyPI is implementing a 2FA requirement for critical projects, and distributing security keys to critical maintainers.{% endblock %}
+{% block image %}{{ request.static_url('warehouse:static/dist/images/titan.png') }}{% endblock %}
 
 {% block content %}
   <div class="horizontal-section">
@@ -95,9 +98,9 @@
       <h2 id="faq">FAQ</h2>
       <p>Answers to frequently asked questions regarding this effort:</p>
 
-      <h3 id="critical-eligiblity">What determines if project is a critical project?</h3>
+      <h3 id="critical-eligiblity">What determines if a project is a critical project?</h3>
       <p>
-        PyPI determines project eligibility based on download counts derived
+        PyPI determines eligibility based on download counts derived
         from PyPI's <a
         href="https://warehouse.pypa.io/api-reference/bigquery-datasets.html">public
       dataset of download statistics</a>. Any project in the top 1% of
@@ -185,6 +188,13 @@
         the need to fully recover an account, which is burdensome and
         time-consuming both for maintainers and PyPI administrators. Enabling
         multiple 2FA methods reduces the potential disruption if one is lost.
+      </p>
+       
+      <h3 id="promo-error">What should I do if I'm getting the error 'Promo code doesn't apply'?</h3>
+      <p>
+        Increase the quantity in the cart from 1 key to 2 keys. See
+        <a href="#why-two-keys">Why two keys instead of one?</a> for more 
+        details.
       </p>
 
       <h3 id="supply">The key I want is not in stock, what should I do?</h3>

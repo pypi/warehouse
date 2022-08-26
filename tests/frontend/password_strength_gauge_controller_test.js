@@ -21,11 +21,11 @@ describe("Password strength gauge controller", () => {
   beforeEach(() => {
     document.body.innerHTML = `
   <div data-controller="password-strength-gauge">
-    <input id="password" data-target="password-strength-gauge.password" placeholder="Your password" type="password" data-action="input->password-strength-gauge#checkPasswordStrength" />
+    <input id="password" data-password-strength-gauge-target="password" placeholder="Your password" type="password" data-action="input->password-strength-gauge#checkPasswordStrength" />
     <p class="form-group__help-text">
       <strong>Password strength:</strong>
       <span class="password-strength">
-        <span id="gauge" class="password-strength__gauge" data-target="password-strength-gauge.strengthGauge">
+        <span id="gauge" class="password-strength__gauge" data-password-strength-gauge-target="strengthGauge">
           <span class="sr-only">Password field is empty</span>
         </span>
       </span>

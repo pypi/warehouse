@@ -1,9 +1,6 @@
 Patterns
 ========
 
-.. contents::
-    :local:
-
 Dependency management
 ---------------------
 
@@ -112,4 +109,4 @@ Class                     Method
 
 .. |pip-tools| replace:: ``pip-tools``
 .. _pip-tools: https://pypi.org/project/pip-tools/
-.. _Dependabot pull requests: https://github.com/pypa/warehouse/pulls?q=is%3Apr+is%3Aopen+label%3Adependencies
+.. _Dependabot pull requests: https://github.com/pypi/warehouse/pulls?q=is%3Apr+is%3Aopen+label%3Adependencies

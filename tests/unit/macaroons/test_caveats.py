@@ -19,8 +19,16 @@ import pymacaroons
 import pytest
 
 from pymacaroons.exceptions import MacaroonInvalidSignatureException
+from pyramid.security import Allowed
 
-from warehouse.macaroons.caveats import Caveat, ExpiryCaveat, V1Caveat, Verifier
+from warehouse.errors import WarehouseDenied
+from warehouse.macaroons.caveats import (
+    Caveat,
+    ExpiryCaveat,
+    ProjectIDsCaveat,
+    V1Caveat,
+    Verifier,
+)
 
 from ...common.db.packaging import ProjectFactory
 
@@ -42,6 +50,9 @@ class TestV1Caveat:
             ("invalid json", False),
             ('{"version": 2}', False),
             ('{"permissions": null, "version": 1}', False),
+            ('{"permissions": null, "version": 2}', False),
+            ('{"permissions": "user", "version": 2}', False),
+            ('{"permissions": "", "version": 2}', False),
         ],
     )
     def test_verify_invalid_predicates(self, predicate, result):
@@ -145,6 +156,57 @@ class TestExpiryCaveat:
         assert caveat(predicate)
 
 
+class TestProjectIDsCaveat:
+    @pytest.mark.parametrize(
+        "predicate",
+        [
+            # invalid JSON
+            "invalid json",
+            # missing project_ids
+            '{"missing": "values"}',
+            # project_ids present, but null
+            '{"project_ids": null}',
+            # nbf and exp present, but empty
+            '{"project_ids": ""}',
+            '{"project_ids": []}',
+            # valid JSON, but wrong type
+            "[]",
+            '""',
+        ],
+    )
+    def test_verify_invalid_predicates(self, predicate):
+        verifier = pretend.stub()
+        caveat = ProjectIDsCaveat(verifier)
+
+        assert caveat(predicate) is False
+
+    def test_verify_invalid_context(self):
+        verifier = pretend.stub(context=pretend.stub())
+        caveat = ProjectIDsCaveat(verifier)
+
+        predicate = {"project_ids": ["foo"]}
+
+        assert caveat(json.dumps(predicate)) is False
+
+    def test_verify_invalid_project_id(self, db_request):
+        project = ProjectFactory.create(name="foobar")
+        verifier = pretend.stub(context=project)
+        caveat = ProjectIDsCaveat(verifier)
+
+        predicate = {"project_ids": ["not-foobars-uuid"]}
+
+        assert caveat(json.dumps(predicate)) is False
+
+    def test_verify_ok(self, db_request):
+        project = ProjectFactory.create(name="foobar")
+        verifier = pretend.stub(context=project)
+        caveat = ProjectIDsCaveat(verifier)
+
+        predicate = {"project_ids": [str(project.id)]}
+
+        assert caveat(json.dumps(predicate)) is True
+
+
 class TestVerifier:
     def test_creation(self):
         macaroon = pretend.stub()
@@ -160,7 +222,7 @@ class TestVerifier:
 
     def test_verify_invalid_signature(self, monkeypatch):
         verify = pretend.call_recorder(
-            pretend.raiser(MacaroonInvalidSignatureException)
+            pretend.raiser(MacaroonInvalidSignatureException("Signatures do not match"))
         )
         macaroon = pretend.stub()
         context = pretend.stub()
@@ -170,11 +232,43 @@ class TestVerifier:
         verifier = Verifier(macaroon, context, principals, permission)
 
         monkeypatch.setattr(verifier.verifier, "verify", verify)
-        assert verifier.verify(key) is False
+        status = verifier.verify(key)
+        assert not status
+        assert status.msg == "Signatures do not match"
+        assert verify.calls == [pretend.call(macaroon, key)]
+
+    def test_verify_generic_exception(self, monkeypatch):
+        verify = pretend.call_recorder(pretend.raiser(ValueError))
+        macaroon = pretend.stub()
+        context = pretend.stub()
+        principals = pretend.stub()
+        permission = pretend.stub()
+        key = pretend.stub()
+        verifier = Verifier(macaroon, context, principals, permission)
+
+        monkeypatch.setattr(verifier.verifier, "verify", verify)
+        status = verifier.verify(key)
+        assert not status
+        assert status.msg == "malformed macaroon"
+        assert verify.calls == [pretend.call(macaroon, key)]
+
+    def test_verify_inner_verifier_returns_false(self, monkeypatch):
+        verify = pretend.call_recorder(lambda macaroon, key: False)
+        macaroon = pretend.stub()
+        context = pretend.stub()
+        principals = pretend.stub()
+        permission = pretend.stub()
+        key = pretend.stub()
+        verifier = Verifier(macaroon, context, principals, permission)
+
+        monkeypatch.setattr(verifier.verifier, "verify", verify)
+        status = verifier.verify(key)
+        assert not status
+        assert status.msg == "unknown error"
         assert verify.calls == [pretend.call(macaroon, key)]
 
     @pytest.mark.parametrize(
-        ["caveats", "valid"],
+        ["caveats", "expected_status"],
         [
             # Both V1 and expiry present and valid.
             (
@@ -182,23 +276,31 @@ class TestVerifier:
                     {"permissions": "user", "version": 1},
                     {"exp": int(time.time()) + 3600, "nbf": int(time.time()) - 1},
                 ],
-                True,
+                Allowed("signature and caveats OK"),
             ),
             # V1 only present and valid.
-            ([{"permissions": "user", "version": 1}], True),
+            (
+                [{"permissions": "user", "version": 1}],
+                Allowed("signature and caveats OK"),
+            ),
             # V1 and expiry present but V1 invalid.
-            ([{"permissions": "bad", "version": 1}], False),
+            (
+                [{"permissions": "bad", "version": 1}],
+                WarehouseDenied(
+                    "invalid permissions format", reason="invalid_api_token"
+                ),
+            ),
             # V1 and expiry present but expiry invalid.
             (
                 [
                     {"permissions": "user", "version": 1},
                     {"exp": int(time.time()) + 1, "nbf": int(time.time()) + 3600},
                 ],
-                False,
+                WarehouseDenied("token is expired", reason="invalid_api_token"),
             ),
         ],
     )
-    def test_verify(self, monkeypatch, caveats, valid):
+    def test_verify(self, monkeypatch, caveats, expected_status):
         key = os.urandom(32)
         m = pymacaroons.Macaroon(
             location="fakelocation",
@@ -219,4 +321,6 @@ class TestVerifier:
         permission = pretend.stub()
 
         verifier = Verifier(deserialized_macaroon, context, principals, permission)
-        assert verifier.verify(key) is valid
+        status = verifier.verify(key)
+        assert bool(status) is bool(expected_status)
+        assert status.msg == expected_status.msg

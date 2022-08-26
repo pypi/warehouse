@@ -40,8 +40,8 @@ Get involved or find help using:
     malware-checks
     token-scanning
 
-.. _`GitHub`: https://github.com/pypa/warehouse
-.. _`"What to put in your bug report"`: http://www.contribution-guide.org/#what-to-put-in-your-bug-report
+.. _`GitHub`: https://github.com/pypi/warehouse
+.. _`"What to put in your bug report"`: https://www.contribution-guide.org/#what-to-put-in-your-bug-report
 .. _`Libera`: https://web.libera.chat/#pypa,#pypa-dev
 .. _`PyPA Discord`: https://discord.gg/pypa
 .. _`Discourse`: https://discuss.python.org/c/packaging/14
