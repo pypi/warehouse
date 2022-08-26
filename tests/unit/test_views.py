@@ -594,11 +594,16 @@ class TestSecurityKeyGiveaway:
 
     def test_eligible_projects_owners_require_2fa(self, db_request):
         db_request.user = UserFactory.create()
-        ProjectFactory.create()
-        project = ProjectFactory.create(owners_require_2fa=True)
-        RoleFactory.create(user=db_request.user, project=project)
 
-        assert SecurityKeyGiveaway(db_request).eligible_projects == {project.name}
+        ProjectFactory.create()
+        ProjectFactory.create(owners_require_2fa=True)
+        p1 = ProjectFactory.create(pypi_mandates_2fa=True)
+        p2 = ProjectFactory.create(owners_require_2fa=True, pypi_mandates_2fa=True)
+
+        RoleFactory.create(user=db_request.user, project=p1)
+        RoleFactory.create(user=db_request.user, project=p2)
+
+        assert SecurityKeyGiveaway(db_request).eligible_projects == {p1.name, p2.name}
 
     def test_eligible_projects_pypi_mandates_2fa(self, db_request):
         db_request.user = UserFactory.create()
