@@ -27,14 +27,17 @@ API_VERSION = "1.0"
 def _simple_index(request, serial):
     # Fetch the name and normalized name for all of our projects
     projects = (
-        request.db.query(Project.name, Project.normalized_name)
+        request.db.query(Project.name, Project.normalized_name, Project.last_serial)
         .order_by(Project.normalized_name)
         .all()
     )
 
     return {
         "meta": {"api-version": API_VERSION, "_last-serial": serial},
-        "projects": [{"name": p.name} for p in projects],
+        "projects": [
+            {"name": p.name, "_last-serial": p.last_serial}
+            for p in projects
+        ],
     }
 
 
