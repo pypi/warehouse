@@ -76,7 +76,7 @@
   <p><strong>{% trans %}License:{% endtrans %}</strong> {{ license }}</p>
   {% endif %}
   {% if release.author_email %}
-    <p><strong>{% trans %}Author:{% endtrans %}</strong> <a href="mailto:{{ release.author_email }}">{{ release.author or release.author_email }}</a></p>
+    <p><strong>{% trans %}Author:{% endtrans %}</strong> <a href="mailto:{{ release.author_email|format_author_email|last }}">{{ release.author or release.author_email|format_author_email|first }}</a></p>
   {% elif release.author %}
     <p><strong>{% trans %}Author:{% endtrans %}</strong> {{ release.author }}</p>
   {% endif %}

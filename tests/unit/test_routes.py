@@ -535,6 +535,7 @@ def test_routes(warehouse):
     assert config.add_redirect.calls == [
         pretend.call("/sponsor/", "/sponsors/", domain=warehouse),
         pretend.call("/u/{username}/", "/user/{username}/", domain=warehouse),
+        pretend.call("/2fa/", "/manage/account/two-factor/", domain=warehouse),
         pretend.call("/p/{name}/", "/project/{name}/", domain=warehouse),
         pretend.call("/pypi/{name}/", "/project/{name}/", domain=warehouse),
         pretend.call(
@@ -572,16 +573,22 @@ def test_routes(warehouse):
 
     assert config.add_xmlrpc_endpoint.calls == [
         pretend.call(
-            "pypi", pattern="/pypi", header="Content-Type:text/xml", domain=warehouse
+            "xmlrpc.pypi",
+            pattern="/pypi",
+            header="Content-Type:text/xml",
+            domain=warehouse,
         ),
         pretend.call(
-            "pypi_slash",
+            "xmlrpc.pypi_slash",
             pattern="/pypi/",
             header="Content-Type:text/xml",
             domain=warehouse,
         ),
         pretend.call(
-            "RPC2", pattern="/RPC2", header="Content-Type:text/xml", domain=warehouse
+            "xmlrpc.RPC2",
+            pattern="/RPC2",
+            header="Content-Type:text/xml",
+            domain=warehouse,
         ),
     ]
 
