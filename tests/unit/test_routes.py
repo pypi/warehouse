@@ -461,7 +461,6 @@ def test_routes(warehouse):
             "/rss/project/{name}/releases.xml",
             factory="warehouse.packaging.models:ProjectFactory",
             traverse="/{name}/",
-            read_only=True,
             domain=warehouse,
         ),
         pretend.call(
@@ -480,35 +479,30 @@ def test_routes(warehouse):
             "/simple/{name}/",
             factory="warehouse.packaging.models:ProjectFactory",
             traverse="/{name}/",
-            read_only=True,
             domain=warehouse,
         ),
         pretend.call(
             "legacy.api.json.project",
             "/pypi/{name}/json",
             factory="warehouse.legacy.api.json.latest_release_factory",
-            read_only=True,
             domain=warehouse,
         ),
         pretend.call(
             "legacy.api.json.project_slash",
             "/pypi/{name}/json/",
             factory="warehouse.legacy.api.json.latest_release_factory",
-            read_only=True,
             domain=warehouse,
         ),
         pretend.call(
             "legacy.api.json.release",
             "/pypi/{name}/{version}/json",
             factory="warehouse.legacy.api.json.release_factory",
-            read_only=True,
             domain=warehouse,
         ),
         pretend.call(
             "legacy.api.json.release_slash",
             "/pypi/{name}/{version}/json/",
             factory="warehouse.legacy.api.json.release_factory",
-            read_only=True,
             domain=warehouse,
         ),
         pretend.call("legacy.docs", docs_route_url),
@@ -579,16 +573,22 @@ def test_routes(warehouse):
 
     assert config.add_xmlrpc_endpoint.calls == [
         pretend.call(
-            "pypi", pattern="/pypi", header="Content-Type:text/xml", domain=warehouse
+            "xmlrpc.pypi",
+            pattern="/pypi",
+            header="Content-Type:text/xml",
+            domain=warehouse,
         ),
         pretend.call(
-            "pypi_slash",
+            "xmlrpc.pypi_slash",
             pattern="/pypi/",
             header="Content-Type:text/xml",
             domain=warehouse,
         ),
         pretend.call(
-            "RPC2", pattern="/RPC2", header="Content-Type:text/xml", domain=warehouse
+            "xmlrpc.RPC2",
+            pattern="/RPC2",
+            header="Content-Type:text/xml",
+            domain=warehouse,
         ),
     ]
 
