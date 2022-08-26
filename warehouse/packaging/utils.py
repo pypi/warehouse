@@ -34,10 +34,7 @@ def _simple_index(request, serial):
 
     return {
         "meta": {"api-version": API_VERSION, "_last-serial": serial},
-        "projects": [
-            {"name": p.name, "_last-serial": p.last_serial}
-            for p in projects
-        ],
+        "projects": [{"name": p.name, "_last-serial": p.last_serial} for p in projects],
     }
 
 
