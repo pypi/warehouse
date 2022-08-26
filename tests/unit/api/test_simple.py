@@ -120,7 +120,10 @@ class TestSimpleIndex:
         ]
         assert simple.simple_index(db_request) == {
             "meta": {"_last-serial": 0, "api-version": "1.0"},
-            "projects": [{"name": x[0]} for x in sorted(projects, key=lambda x: x[1])],
+            "projects": [
+                {"name": x[0], "_last-serial": 0}
+                for x in sorted(projects, key=lambda x: x[1])
+            ],
         }
         assert db_request.response.headers["X-PyPI-Last-Serial"] == "0"
         assert db_request.response.content_type == content_type
@@ -145,7 +148,10 @@ class TestSimpleIndex:
 
         assert simple.simple_index(db_request) == {
             "meta": {"_last-serial": je.id, "api-version": "1.0"},
-            "projects": [{"name": x[0]} for x in sorted(projects, key=lambda x: x[1])],
+            "projects": [
+                {"name": x[0], "_last-serial": 0}
+                for x in sorted(projects, key=lambda x: x[1])
+            ],
         }
         assert db_request.response.headers["X-PyPI-Last-Serial"] == str(je.id)
         assert db_request.response.content_type == content_type
