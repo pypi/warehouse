@@ -118,40 +118,42 @@
    # 1. User must be organization owner.
    # 2. There must be an individual project owner.
    #}
-  {% if (project.organization and request.user in project.organization.owners) and (project.owners|length) %}
-  <div class="callout-block callout-block--danger">
-    <h3>{% trans %}Remove project from organization{% endtrans %}</h3>
-    <p>
-      <i class="fa fa-exclamation-triangle" aria-hidden="true"><span class="sr-only">{% trans %}Warning{% endtrans %}</span></i>
-      {% trans %}Removing this project from the organization will:{% endtrans %}
-    </p>
-    <ul>
-      <li>
-        {% trans organization_name=project.organization.name %}Remove this project from the '{{ organization_name }}' organization.{% endtrans %}
-      </li>
-      <li>
-        {% trans organization_name=project.organization.name %}Revoke project permissions for teams in the '{{ organization_name }}' organization.{% endtrans %}
-      </li>
-    </ul>
-    <p>
-      {% trans %}Individual owners and maintainers of the project will retain their project permissions.{% endtrans %}
-    </p>
-    {% set action = request.route_path('manage.project.remove_organization_project', project_name=project.normalized_name) %}
-    {% set extra_description %}
-    <p>
-      {% trans organization_name=project.organization.name %}This will remove the project from the '{{ organization_name }}' organization.{% endtrans %}
-      {% trans %}Individual owners and maintainers of the project will retain their project permissions.{% endtrans %}
-    </p>
-    {% endset %}
-    {{ confirm_button(gettext("Remove project"), gettext("Project Name"), "remove_organization_project_name", project.name, extra_description=extra_description, action=action) }}
-  </div>
-  {% else %}
-  <div class="callout-block">
-    <h3>{% trans %}Cannot remove project from organization{% endtrans %}</h3>
-    <p>
-      {% trans %}Your organization is currently the <strong>sole owner</strong> of the project. You must add an individual owner to the project before you can remove the project from your organization.{% endtrans %}
-    </p>
-  </div>
+  {% if (project.organization and request.user in project.organization.owners) %}
+    {% if (project.owners|length) %}
+    <div class="callout-block callout-block--danger">
+      <h3>{% trans %}Remove project from organization{% endtrans %}</h3>
+      <p>
+        <i class="fa fa-exclamation-triangle" aria-hidden="true"><span class="sr-only">{% trans %}Warning{% endtrans %}</span></i>
+        {% trans %}Removing this project from the organization will:{% endtrans %}
+      </p>
+      <ul>
+        <li>
+          {% trans organization_name=project.organization.name %}Remove this project from the '{{ organization_name }}' organization.{% endtrans %}
+        </li>
+        <li>
+          {% trans organization_name=project.organization.name %}Revoke project permissions for teams in the '{{ organization_name }}' organization.{% endtrans %}
+        </li>
+      </ul>
+      <p>
+        {% trans %}Individual owners and maintainers of the project will retain their project permissions.{% endtrans %}
+      </p>
+      {% set action = request.route_path('manage.project.remove_organization_project', project_name=project.normalized_name) %}
+      {% set extra_description %}
+      <p>
+        {% trans organization_name=project.organization.name %}This will remove the project from the '{{ organization_name }}' organization.{% endtrans %}
+        {% trans %}Individual owners and maintainers of the project will retain their project permissions.{% endtrans %}
+      </p>
+      {% endset %}
+      {{ confirm_button(gettext("Remove project"), gettext("Project Name"), "remove_organization_project_name", project.name, extra_description=extra_description, action=action) }}
+    </div>
+    {% else %}
+    <div class="callout-block">
+      <h3>{% trans %}Cannot remove project from organization{% endtrans %}</h3>
+      <p>
+        {% trans %}Your organization is currently the <strong>sole owner</strong> of the project. You must add an individual owner to the project before you can remove the project from your organization.{% endtrans %}
+      </p>
+    </div>
+    {% endif %}
   {% endif %}
 
   {#
