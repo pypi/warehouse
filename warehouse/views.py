@@ -485,6 +485,7 @@ class SecurityKeyGiveaway:
             return set(
                 project.name
                 for project in user_projects(self.request)["projects_requiring_2fa"]
+                if project.pypi_mandates_2fa
             )
         else:
             return set()
