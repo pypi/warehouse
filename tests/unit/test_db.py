@@ -181,10 +181,15 @@ def test_create_session(monkeypatch, pyramid_services, db_name):
         close=pretend.call_recorder(lambda: None),
     )
     engine = pretend.stub(connect=pretend.call_recorder(lambda: connection))
-    replica_engine = pretend.stub(connect=pretend.call_recorder(lambda: connection))
+    replica_engine = pretend.stub(
+        connect=pretend.call_recorder(lambda: connection),
+        pool=pretend.stub(checkedout=lambda: 0),
+    )
     request = pretend.stub(
         find_service=pyramid_services.find_service,
-        registry={"sqlalchemy.engines": {"primary": engine, "replica": replica_engine}},
+        registry={
+            "sqlalchemy.engines": {"primary": engine, "replica": [replica_engine]}
+        },
         tm=pretend.stub(),
         add_finished_callback=pretend.call_recorder(lambda callback: None),
     )
@@ -290,14 +295,14 @@ def test_includeme(monkeypatch):
         ),
     ]
     assert config.registry["sqlalchemy.engines"]["primary"] is engine
-    assert config.registry["sqlalchemy.engines"]["replica"] is engine
+    assert config.registry["sqlalchemy.engines"]["replica"] == [engine]
 
 
 def test_includeme_with_replica(monkeypatch):
     class FakeRegistry(dict):
         settings = {
             "database.primary.url": pretend.stub(),
-            "database.replica.url": pretend.stub(),
+            "database.replica.urls": [pretend.stub()],
         }
 
     engine = pretend.stub()
@@ -329,7 +334,7 @@ def test_includeme_with_replica(monkeypatch):
             logging_name="primary",
         ),
         pretend.call(
-            config.registry.settings["database.replica.url"],
+            config.registry.settings["database.replica.urls"][0],
             isolation_level=DEFAULT_ISOLATION,
             pool_size=35,
             max_overflow=65,
@@ -338,4 +343,4 @@ def test_includeme_with_replica(monkeypatch):
         ),
     ]
     assert config.registry["sqlalchemy.engines"]["primary"] is engine
-    assert config.registry["sqlalchemy.engines"]["replica"] is replica_engine
+    assert config.registry["sqlalchemy.engines"]["replica"] == [replica_engine]

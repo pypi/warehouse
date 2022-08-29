@@ -164,9 +164,14 @@ def _create_session(request):
     # Create our connection, most likely pulling it from the pool of
     # connections
     db_name = _select_database(request)
+    engine = request.registry["sqlalchemy.engines"][db_name]
+    # If our engine is a list, then we select one of the items in the list based
+    # on how who has the least number of connections.
+    if isinstance(engine, list):
+        engine = sorted(engine, key=lambda e: e.pool.checkedout())[0]
     metrics.increment("warehouse.db.session.start", tags=[f"db:{db_name}"])
     try:
-        connection = request.registry["sqlalchemy.engines"][db_name].connect()
+        connection = engine.connect()
     except OperationalError:
         # When we tried to connection to PostgreSQL, our database was not available for
         # some reason. We're going to log it here and then raise our error. Most likely
@@ -221,22 +226,25 @@ def includeme(config):
 
     # If we have a replica url configured, then we'll set our replica engine
     # to connect to that url.
-    if replica_url := config.registry.settings.get("database.replica.url"):
-        replica_engine = sqlalchemy.create_engine(
-            replica_url,
-            isolation_level=DEFAULT_ISOLATION,
-            pool_size=35,
-            max_overflow=65,
-            pool_timeout=20,
-            logging_name="replica",
-        )
+    if replica_urls := config.registry.settings.get("database.replica.urls"):
+        replica_engines = [
+            sqlalchemy.create_engine(
+                replica_url,
+                isolation_level=DEFAULT_ISOLATION,
+                pool_size=35,
+                max_overflow=65,
+                pool_timeout=20,
+                logging_name="replica",
+            )
+            for replica_url in replica_urls
+        ]
     # If we don't have a replica, then we'll just stash our primary engine
     # as our replica engine as well. This will make other logic simpler, as
     # we won't have to conditionalize engine selection on whether a replica
     # exists or not.
     else:
-        replica_engine = config.registry["sqlalchemy.engines"]["primary"]
-    config.registry["sqlalchemy.engines"]["replica"] = replica_engine
+        replica_engines = [config.registry["sqlalchemy.engines"]["primary"]]
+    config.registry["sqlalchemy.engines"]["replica"] = replica_engines
 
     # Possibly override how to fetch new db sessions from config.settings
     #  Useful in test fixtures

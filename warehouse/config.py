@@ -191,6 +191,13 @@ def template_view(config, name, route, template, route_kw=None, view_kw=None):
     config.add_view(renderer=template, route_name=name, **view_kw)
 
 
+def as_list(delim):
+    def inner(value):
+        return [v.strip() for v in value.split(delim)]
+
+    return inner
+
+
 def maybe_set(settings, name, envvar, coercer=None, default=None):
     if envvar in os.environ:
         value = os.environ[envvar]
@@ -275,7 +282,9 @@ def configure(settings=None):
     maybe_set(settings, "celery.scheduler_url", "REDIS_URL")
     maybe_set(settings, "oidc.jwk_cache_url", "REDIS_URL")
     maybe_set(settings, "database.primary.url", "DATABASE_URL")
-    maybe_set(settings, "database.replica.url", "DATABASE_REPLICA_URL")
+    maybe_set(
+        settings, "database.replica.urls", "DATABASE_REPLICA_URLS", coercer=as_list(",")
+    )
     maybe_set(settings, "opensearch.url", "OPENSEARCH_URL")
     maybe_set(settings, "sentry.dsn", "SENTRY_DSN")
     maybe_set(settings, "sentry.transport", "SENTRY_TRANSPORT")
