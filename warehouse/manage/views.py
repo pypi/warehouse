@@ -1001,7 +1001,9 @@ class ProvisionMacaroonViews:
         if form.validate():
             if form.validated_scope == "user":
                 recorded_caveats = [{"permissions": form.validated_scope, "version": 1}]
-                macaroon_caveats = [caveats.RequestUser(user_id=self.request.user.id)]
+                macaroon_caveats = [
+                    caveats.RequestUser(user_id=str(self.request.user.id))
+                ]
             else:
                 project_ids = [
                     str(project.id)
