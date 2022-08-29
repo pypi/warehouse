@@ -95,6 +95,18 @@ def test_template_view(route_kw):
 
 
 @pytest.mark.parametrize(
+    ("delim", "value", "expected"),
+    [
+        (",", "foo,bar", ["foo", "bar"]),
+        (" ", "bar foo", ["bar", "foo"]),
+        (",", "foo", ["foo"]),
+    ],
+)
+def test_as_list(delim, value, expected):
+    config.as_list(delim)(value) == expected
+
+
+@pytest.mark.parametrize(
     ("environ", "name", "envvar", "coercer", "default", "expected"),
     [
         ({}, "test.foo", "TEST_FOO", None, None, {}),
