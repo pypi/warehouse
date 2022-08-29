@@ -41,6 +41,7 @@ from warehouse.accounts.interfaces import (
 )
 from warehouse.admin.flags import AdminFlagValue
 from warehouse.forklift.legacy import MAX_FILESIZE, MAX_PROJECT_SIZE
+from warehouse.macaroons import caveats
 from warehouse.macaroons.interfaces import IMacaroonService
 from warehouse.manage import views
 from warehouse.metrics.interfaces import IMetricsService
@@ -1944,7 +1945,7 @@ class TestProvisionMacaroonViews:
         request = pretend.stub(
             POST={},
             domain=pretend.stub(),
-            user=pretend.stub(id=pretend.stub(), has_primary_verified_email=True),
+            user=pretend.stub(id="a user id", has_primary_verified_email=True),
             find_service=lambda interface, **kw: {
                 IMacaroonService: macaroon_service,
                 IUserService: user_service,
@@ -1980,11 +1981,8 @@ class TestProvisionMacaroonViews:
                 location=request.domain,
                 user_id=request.user.id,
                 description=create_macaroon_obj.description.data,
-                caveats=[
-                    {
-                        "permissions": create_macaroon_obj.validated_scope,
-                        "version": 1,
-                    }
+                scopes=[
+                    caveats.RequestUser(user_id="a user id"),
                 ],
             )
         ]
@@ -2075,12 +2073,11 @@ class TestProvisionMacaroonViews:
                 location=request.domain,
                 user_id=request.user.id,
                 description=create_macaroon_obj.description.data,
-                caveats=[
-                    {
-                        "permissions": create_macaroon_obj.validated_scope,
-                        "version": 1,
-                    },
-                    {"project_ids": [str(p.id) for p in request.user.projects]},
+                scopes=[
+                    caveats.ProjectName(normalized_names=["foo", "bar"]),
+                    caveats.ProjectID(
+                        project_ids=[str(p.id) for p in request.user.projects]
+                    ),
                 ],
             )
         ]
