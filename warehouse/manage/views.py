@@ -94,6 +94,7 @@ from warehouse.email import (
     send_yanked_project_release_email,
 )
 from warehouse.forklift.legacy import MAX_FILESIZE, MAX_PROJECT_SIZE
+from warehouse.macaroons import caveats
 from warehouse.macaroons.interfaces import IMacaroonService
 from warehouse.manage.forms import (
     AddEmailForm,
@@ -999,30 +1000,39 @@ class ProvisionMacaroonViews:
         response = {**self.default_response}
         if form.validate():
             if form.validated_scope == "user":
-                macaroon_caveats = [{"permissions": form.validated_scope, "version": 1}]
+                recorded_caveats = [{"permissions": form.validated_scope, "version": 1}]
+                macaroon_caveats = [
+                    caveats.RequestUser(user_id=str(self.request.user.id))
+                ]
             else:
                 project_ids = [
                     str(project.id)
                     for project in self.request.user.projects
                     if project.normalized_name in form.validated_scope["projects"]
                 ]
-                macaroon_caveats = [
+                recorded_caveats = [
                     {"permissions": form.validated_scope, "version": 1},
                     {"project_ids": project_ids},
+                ]
+                macaroon_caveats = [
+                    caveats.ProjectName(
+                        normalized_names=form.validated_scope["projects"]
+                    ),
+                    caveats.ProjectID(project_ids=project_ids),
                 ]
 
             serialized_macaroon, macaroon = self.macaroon_service.create_macaroon(
                 location=self.request.domain,
-                user_id=self.request.user.id,
                 description=form.description.data,
-                caveats=macaroon_caveats,
+                scopes=macaroon_caveats,
+                user_id=self.request.user.id,
             )
             self.user_service.record_event(
                 self.request.user.id,
                 tag="account:api_token:added",
                 additional={
                     "description": form.description.data,
-                    "caveats": macaroon_caveats,
+                    "caveats": recorded_caveats,
                 },
             )
             if "projects" in form.validated_scope:
