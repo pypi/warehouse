@@ -60,7 +60,7 @@ class NullOIDCProviderService:
                 audience="pypi",
             )
         except jwt.PyJWTError:
-            return False
+            return None
 
         # NOTE: We do NOT verify the claims against the provider, since this
         # service is for development purposes only.
@@ -273,7 +273,7 @@ class OIDCProviderService:
             return None
         else:
             self.metrics.increment(
-                "warehouse.oidc.verify_for_project.ok",
+                "warehouse.oidc.find_provider.ok",
                 tags=metrics_tags,
             )
 
