@@ -30,6 +30,7 @@ def test_oidc_provider_service_factory():
 
     metrics = pretend.stub()
     request = pretend.stub(
+        db=pretend.stub(),
         registry=pretend.stub(
             settings={"oidc.jwk_cache_url": "rediss://another.example.com"}
         ),
@@ -38,6 +39,7 @@ def test_oidc_provider_service_factory():
     service = factory(pretend.stub(), request)
 
     assert isinstance(service, factory.service_class)
+    assert service.db == request.db
     assert service.provider == factory.provider
     assert service.issuer_url == factory.issuer_url
     assert service.cache_url == "rediss://another.example.com"
@@ -57,6 +59,7 @@ class TestOIDCProviderService:
 
     def test_verify_signature_only(self, monkeypatch):
         service = services.OIDCProviderService(
+            session=pretend.stub(),
             provider=pretend.stub(),
             issuer_url=pretend.stub(),
             cache_url=pretend.stub(),
@@ -95,6 +98,7 @@ class TestOIDCProviderService:
     @pytest.mark.parametrize("exc", [PyJWTError, ValueError])
     def test_verify_signature_only_fails(self, monkeypatch, exc):
         service = services.OIDCProviderService(
+            session=pretend.stub(),
             provider=pretend.stub(),
             issuer_url=pretend.stub(),
             cache_url=pretend.stub(),
@@ -110,8 +114,9 @@ class TestOIDCProviderService:
 
         assert service._verify_signature_only(token) is None
 
-    def test_verify_for_project(self, monkeypatch):
+    def test_find_provider(self, monkeypatch):
         service = services.OIDCProviderService(
+            session=pretend.stub(),
             provider="fakeprovider",
             issuer_url=pretend.stub(),
             cache_url=pretend.stub(),
@@ -127,24 +132,28 @@ class TestOIDCProviderService:
         )
 
         provider = pretend.stub(verify_claims=pretend.call_recorder(lambda c: True))
-        project = pretend.stub(name="fakeproject", oidc_providers=[provider])
+        find_provider_by_issuer = pretend.call_recorder(lambda *a: provider)
+        monkeypatch.setattr(
+            services, "find_provider_by_issuer", find_provider_by_issuer
+        )
 
-        assert service.verify_for_project(token, project)
+        assert service.find_provider(token)
         assert service.metrics.increment.calls == [
             pretend.call(
-                "warehouse.oidc.verify_for_project.attempt",
-                tags=["project:fakeproject", "provider:fakeprovider"],
+                "warehouse.oidc.find_provider.attempt",
+                tags=["provider:fakeprovider"],
             ),
             pretend.call(
-                "warehouse.oidc.verify_for_project.ok",
-                tags=["project:fakeproject", "provider:fakeprovider"],
+                "warehouse.oidc.find_provider.ok",
+                tags=["provider:fakeprovider"],
             ),
         ]
         assert service._verify_signature_only.calls == [pretend.call(token)]
         assert provider.verify_claims.calls == [pretend.call(claims)]
 
-    def test_verify_for_project_invalid_signature(self, monkeypatch):
+    def test_find_provider_invalid_signature(self, monkeypatch):
         service = services.OIDCProviderService(
+            session=pretend.stub(),
             provider="fakeprovider",
             issuer_url=pretend.stub(),
             cache_url=pretend.stub(),
@@ -156,22 +165,21 @@ class TestOIDCProviderService:
         token = pretend.stub()
         monkeypatch.setattr(service, "_verify_signature_only", lambda t: None)
 
-        project = pretend.stub(name="fakeproject")
-
-        assert not service.verify_for_project(token, project)
+        assert not service.find_provider(token)
         assert service.metrics.increment.calls == [
             pretend.call(
-                "warehouse.oidc.verify_for_project.attempt",
-                tags=["project:fakeproject", "provider:fakeprovider"],
+                "warehouse.oidc.find_provider.attempt",
+                tags=["provider:fakeprovider"],
             ),
             pretend.call(
-                "warehouse.oidc.verify_for_project.invalid_signature",
-                tags=["project:fakeproject", "provider:fakeprovider"],
+                "warehouse.oidc.find_provider.invalid_signature",
+                tags=["provider:fakeprovider"],
             ),
         ]
 
-    def test_verify_for_project_invalid_claims(self, monkeypatch):
+    def test_find_provider_invalid_claims(self, monkeypatch):
         service = services.OIDCProviderService(
+            session=pretend.stub(),
             provider="fakeprovider",
             issuer_url=pretend.stub(),
             cache_url=pretend.stub(),
@@ -187,17 +195,20 @@ class TestOIDCProviderService:
         )
 
         provider = pretend.stub(verify_claims=pretend.call_recorder(lambda c: False))
-        project = pretend.stub(name="fakeproject", oidc_providers=[provider])
+        find_provider_by_issuer = pretend.call_recorder(lambda *a: provider)
+        monkeypatch.setattr(
+            services, "find_provider_by_issuer", find_provider_by_issuer
+        )
 
-        assert not service.verify_for_project(token, project)
+        assert not service.find_provider(token)
         assert service.metrics.increment.calls == [
             pretend.call(
-                "warehouse.oidc.verify_for_project.attempt",
-                tags=["project:fakeproject", "provider:fakeprovider"],
+                "warehouse.oidc.find_provider.attempt",
+                tags=["provider:fakeprovider"],
             ),
             pretend.call(
-                "warehouse.oidc.verify_for_project.invalid_claims",
-                tags=["project:fakeproject", "provider:fakeprovider"],
+                "warehouse.oidc.find_provider.invalid_claims",
+                tags=["provider:fakeprovider"],
             ),
         ]
         assert service._verify_signature_only.calls == [pretend.call(token)]
@@ -205,6 +216,7 @@ class TestOIDCProviderService:
 
     def test_get_keyset_not_cached(self, monkeypatch, mockredis):
         service = services.OIDCProviderService(
+            session=pretend.stub(),
             provider="example",
             issuer_url=pretend.stub(),
             cache_url="rediss://fake.example.com",
@@ -220,6 +232,7 @@ class TestOIDCProviderService:
 
     def test_get_keyset_cached(self, monkeypatch, mockredis):
         service = services.OIDCProviderService(
+            session=pretend.stub(),
             provider="example",
             issuer_url=pretend.stub(),
             cache_url="rediss://fake.example.com",
@@ -238,6 +251,7 @@ class TestOIDCProviderService:
     def test_refresh_keyset_timeout(self, monkeypatch, mockredis):
         metrics = pretend.stub(increment=pretend.call_recorder(lambda *a, **kw: None))
         service = services.OIDCProviderService(
+            session=pretend.stub(),
             provider="example",
             issuer_url="https://example.com",
             cache_url="rediss://fake.example.com",
@@ -260,6 +274,7 @@ class TestOIDCProviderService:
     def test_refresh_keyset_oidc_config_fails(self, monkeypatch, mockredis):
         metrics = pretend.stub(increment=pretend.call_recorder(lambda *a, **kw: None))
         service = services.OIDCProviderService(
+            session=pretend.stub(),
             provider="example",
             issuer_url="https://example.com",
             cache_url="rediss://fake.example.com",
@@ -294,6 +309,7 @@ class TestOIDCProviderService:
     def test_refresh_keyset_oidc_config_no_jwks_uri(self, monkeypatch, mockredis):
         metrics = pretend.stub(increment=pretend.call_recorder(lambda *a, **kw: None))
         service = services.OIDCProviderService(
+            session=pretend.stub(),
             provider="example",
             issuer_url="https://example.com",
             cache_url="rediss://fake.example.com",
@@ -330,6 +346,7 @@ class TestOIDCProviderService:
     def test_refresh_keyset_oidc_config_no_jwks_json(self, monkeypatch, mockredis):
         metrics = pretend.stub(increment=pretend.call_recorder(lambda *a, **kw: None))
         service = services.OIDCProviderService(
+            session=pretend.stub(),
             provider="example",
             issuer_url="https://example.com",
             cache_url="rediss://fake.example.com",
@@ -377,6 +394,7 @@ class TestOIDCProviderService:
     def test_refresh_keyset_oidc_config_no_jwks_keys(self, monkeypatch, mockredis):
         metrics = pretend.stub(increment=pretend.call_recorder(lambda *a, **kw: None))
         service = services.OIDCProviderService(
+            session=pretend.stub(),
             provider="example",
             issuer_url="https://example.com",
             cache_url="rediss://fake.example.com",
@@ -421,6 +439,7 @@ class TestOIDCProviderService:
     def test_refresh_keyset_successful(self, monkeypatch, mockredis):
         metrics = pretend.stub(increment=pretend.call_recorder(lambda *a, **kw: None))
         service = services.OIDCProviderService(
+            session=pretend.stub(),
             provider="example",
             issuer_url="https://example.com",
             cache_url="rediss://fake.example.com",
@@ -470,6 +489,7 @@ class TestOIDCProviderService:
     def test_get_key_cached(self, monkeypatch):
         metrics = pretend.stub(increment=pretend.call_recorder(lambda *a, **kw: None))
         service = services.OIDCProviderService(
+            session=pretend.stub(),
             provider="example",
             issuer_url="https://example.com",
             cache_url="rediss://fake.example.com",
@@ -499,6 +519,7 @@ class TestOIDCProviderService:
     def test_get_key_uncached(self, monkeypatch):
         metrics = pretend.stub(increment=pretend.call_recorder(lambda *a, **kw: None))
         service = services.OIDCProviderService(
+            session=pretend.stub(),
             provider="example",
             issuer_url="https://example.com",
             cache_url="rediss://fake.example.com",
@@ -529,6 +550,7 @@ class TestOIDCProviderService:
     def test_get_key_refresh_fails(self, monkeypatch):
         metrics = pretend.stub(increment=pretend.call_recorder(lambda *a, **kw: None))
         service = services.OIDCProviderService(
+            session=pretend.stub(),
             provider="example",
             issuer_url="https://example.com",
             cache_url="rediss://fake.example.com",
@@ -553,6 +575,7 @@ class TestOIDCProviderService:
         key = pretend.stub()
 
         service = services.OIDCProviderService(
+            session=pretend.stub(),
             provider="example",
             issuer_url="https://example.com",
             cache_url="rediss://fake.example.com",
@@ -577,6 +600,7 @@ class TestNullOIDCProviderService:
         monkeypatch.setattr(services, "warnings", warnings)
 
         service = services.NullOIDCProviderService(
+            session=pretend.stub(),
             provider="example",
             issuer_url="https://example.com",
             cache_url="rediss://fake.example.com",
@@ -593,17 +617,18 @@ class TestNullOIDCProviderService:
             )
         ]
 
-    def test_verify_for_project_malformed_jwt(self):
+    def test_find_provider_for_project_malformed_jwt(self):
         service = services.NullOIDCProviderService(
+            session=pretend.stub(),
             provider="example",
             issuer_url="https://example.com",
             cache_url="rediss://fake.example.com",
             metrics=pretend.stub(),
         )
 
-        assert not service.verify_for_project("malformed-jwt", pretend.stub())
+        assert not service.find_provider("malformed-jwt")
 
-    def test_verify_for_project_missing_aud(self):
+    def test_find_provider_for_project_missing_aud(self):
         # {
         #   "iss": "foo",
         #   "iat": 1516239022,
@@ -621,15 +646,16 @@ class TestNullOIDCProviderService:
         )
 
         service = services.NullOIDCProviderService(
+            session=pretend.stub(),
             provider="example",
             issuer_url="https://example.com",
             cache_url="rediss://fake.example.com",
             metrics=pretend.stub(),
         )
 
-        assert not service.verify_for_project(jwt, pretend.stub())
+        assert not service.find_provider(jwt)
 
-    def test_verify_for_project_wrong_aud(self):
+    def test_find_provider_for_project_wrong_aud(self):
         # {
         #   "iss": "foo",
         #   "iat": 1516239022,
@@ -649,15 +675,16 @@ class TestNullOIDCProviderService:
         )
 
         service = services.NullOIDCProviderService(
+            session=pretend.stub(),
             provider="example",
             issuer_url="https://example.com",
             cache_url="rediss://fake.example.com",
             metrics=pretend.stub(),
         )
 
-        assert not service.verify_for_project(jwt, pretend.stub())
+        assert not service.find_provider(jwt)
 
-    def test_verify_for_project(self):
+    def test_find_provider(self, monkeypatch):
         # {
         #  "iss": "foo",
         #  "iat": 1516239022,
@@ -677,14 +704,17 @@ class TestNullOIDCProviderService:
         )
 
         service = services.NullOIDCProviderService(
+            session=pretend.stub(),
             provider="example",
             issuer_url="https://example.com",
             cache_url="rediss://fake.example.com",
             metrics=pretend.stub(),
         )
 
-        project = pretend.stub(
-            oidc_providers=[pretend.stub(verify_claims=lambda c: True)]
+        provider = pretend.stub(verify_claims=pretend.call_recorder(lambda c: True))
+        find_provider_by_issuer = pretend.call_recorder(lambda *a: provider)
+        monkeypatch.setattr(
+            services, "find_provider_by_issuer", find_provider_by_issuer
         )
 
-        assert service.verify_for_project(jwt, project)
+        assert service.find_provider(jwt) == provider
