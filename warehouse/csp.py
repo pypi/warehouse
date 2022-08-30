@@ -115,6 +115,9 @@ def includeme(config):
                     "https://cdn.jsdelivr.net/npm/mathjax@3.2.2/",
                     # Hash for v3.2.2 of MathJax tex-svg.js
                     "'sha256-1CldwzdEg2k1wTmf7s5RWVd7NMXI/7nxxjJM2C4DqII='",
+                    # Hash for MathJax inline config
+                    # See warehouse/templates/packaging/detail.html
+                    "'sha256-0POaN8stWYQxhzjKS+/eOfbbJ/u4YHO5ZagJvLpMypo='",
                 ],
                 "style-src": [
                     SELF,
