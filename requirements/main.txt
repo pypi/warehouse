@@ -1026,7 +1026,9 @@ pydantic==1.9.2 \
     --hash=sha256:f1a68f4f65a9ee64b6ccccb5bf7e17db07caebd2730109cb8a95863cfa9c4e55 \
     --hash=sha256:fafe841be1103f340a24977f61dee76172e4ae5f647ab9e7fd1e1fca51524f08 \
     --hash=sha256:ff68fc85355532ea77559ede81f35fff79a6a5543477e168ab3a381887caea76
-    # via webauthn
+    # via
+    #   -r requirements/main.in
+    #   webauthn
 pygments==2.12.0 \
     --hash=sha256:5eb116118f9612ff1ee89ac96437bb6b49e8f04d8a13b514ba26f620208e26eb \
     --hash=sha256:dc9c10fb40944260f6ed4c688ece0cd2048414940f1cea51b8b226318411c519
