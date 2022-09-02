@@ -235,14 +235,11 @@ def search(request, spec: Mapping[str, Union[str, List[str]]], operator: str = "
     # deploy, but it should be infrequent enough to not matter.
     if not request.registry.settings.get("warehouse.xmlrpc.search.enabled", True):
         metrics.increment("warehouse.xmlrpc.search.deprecated")
+        domain = request.registry.settings.get("warehouse.domain", request.domain)
         raise XMLRPCWrappedError(
             RuntimeError(
-                (
-                    "PyPI's XMLRPC API is currently disabled due to "
-                    "unmanageable load and will be deprecated in the near "
-                    "future. See https://status.python.org/ for more "
-                    "information."
-                )
+                "PyPI does not support 'pip search' / XMLRPC search. "
+                f"Please use https://{domain}/search (via a browser) instead."
             )
         )
 

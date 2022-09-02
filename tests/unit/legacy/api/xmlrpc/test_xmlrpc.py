@@ -114,19 +114,21 @@ class TestRateLimiting:
 
 
 class TestSearch:
-    def test_error_when_disabled(self, pyramid_request, metrics, monkeypatch):
-        monkeypatch.setattr(
-            pyramid_request.registry,
-            "settings",
-            {"warehouse.xmlrpc.search.enabled": False},
-        )
+    @pytest.mark.parametrize("domain", [None, "example.com"])
+    def test_error_when_disabled(self, pyramid_request, metrics, monkeypatch, domain):
+        registry_settings = {"warehouse.xmlrpc.search.enabled": False}
+        if domain:
+            registry_settings["warehouse.domain"] = domain
+        monkeypatch.setattr(pyramid_request.registry, "settings", registry_settings)
+        monkeypatch.setattr(pyramid_request, "domain", "example.org")
+
         with pytest.raises(xmlrpc.XMLRPCWrappedError) as exc:
             xmlrpc.search(pyramid_request, {"name": "foo", "summary": ["one", "two"]})
 
         assert exc.value.faultString == (
-            "RuntimeError: PyPI's XMLRPC API is currently disabled due to "
-            "unmanageable load and will be deprecated in the near future. See "
-            "https://status.python.org/ for more information."
+            "RuntimeError: PyPI does not support 'pip search' / XMLRPC search. "
+            f"Please use https://{domain if domain else 'example.org'}/search "
+            "(via a browser) instead."
         )
         assert metrics.increment.calls == [
             pretend.call("warehouse.xmlrpc.search.deprecated")
