@@ -120,8 +120,14 @@ class GenericBillingService:
         Create product resource via Billing API, or update an active
         product resource with the same name
         """
+        # Search for active product with the given name.
+        # (a) Search exact or substring match for name as supported by Stripe API.
+        #     https://stripe.com/docs/search#query-fields-for-products
         product_search = self.search_products(f'active:"true" name:"{name}"')
-        products = product_search["data"]
+        # (b) Make sure name is an exact match.
+        products = [
+            product for product in product_search["data"] if product["name"] == name
+        ]
         if products:
             product = max(products, key=lambda p: p["created"])
             return self.update_product(

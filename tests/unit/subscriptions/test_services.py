@@ -189,8 +189,23 @@ class TestMockStripeBillingService:
             pretend.call(payload, sig_header, billing_service.webhook_secret),
         ]
 
-    def test_create_or_update_product(self, billing_service, subscription_service):
+    def test_create_or_update_product(
+        self, billing_service, subscription_service, monkeypatch
+    ):
         subscription_product = StripeSubscriptionProductFactory.create()
+
+        search_products = pretend.call_recorder(
+            lambda *a, **kw: {
+                "data": [
+                    {
+                        "id": str(subscription_product.id),
+                        "name": subscription_product.product_name,
+                        "created": 0,
+                    },
+                ],
+            }
+        )
+        monkeypatch.setattr(billing_service, "search_products", search_products)
 
         product = billing_service.create_or_update_product(
             name=subscription_product.product_name,
