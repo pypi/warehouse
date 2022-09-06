@@ -181,7 +181,7 @@ msgstr "Ήδη πιστοποιημένος"
 msgid "Successful WebAuthn assertion"
 msgstr "Επιτυχής WebAuthn assertion"
 
-#: warehouse/accounts/views.py:447 warehouse/manage/views.py:933
+#: warehouse/accounts/views.py:447 warehouse/manage/views.py:934
 msgid "Recovery code accepted. The supplied code cannot be used again."
 msgstr ""
 "Ο κωδικός ανάκτησης έγινε δεκτός. Ο παρεχόμενος κωδικός δεν μπορεί να "
@@ -460,60 +460,60 @@ msgstr ""
 "Αυτό το όνομα χρήστη χρησιμοποιείται ήδη από άλλον λογαριασμό. Διαλέξτε ένα "
 "διαφορετικό όνομα χρήστη."
 
-#: warehouse/manage/views.py:360
+#: warehouse/manage/views.py:361
 msgid "Email ${email_address} added - check your email for a verification link"
 msgstr ""
 "Το email ${email_address} προστέθηκε - ελέγξτε το email σας για τον σύνδεσμο "
 "επαλήθευσης"
 
-#: warehouse/manage/views.py:881
+#: warehouse/manage/views.py:882
 msgid "Recovery codes already generated"
 msgstr "Οι κωδικοί ανάκτησης έχουν ήδη δημιουργηθεί"
 
-#: warehouse/manage/views.py:882
+#: warehouse/manage/views.py:883
 msgid "Generating new recovery codes will invalidate your existing codes."
 msgstr ""
 
-#: warehouse/manage/views.py:1813
+#: warehouse/manage/views.py:1823
 msgid "User '${username}' already has ${role_name} role for organization"
 msgstr ""
 
-#: warehouse/manage/views.py:1824
+#: warehouse/manage/views.py:1834
 msgid ""
 "User '${username}' does not have a verified primary email address and cannot "
 "be added as a ${role_name} for organization"
 msgstr ""
 
-#: warehouse/manage/views.py:1838 warehouse/manage/views.py:4005
+#: warehouse/manage/views.py:1848 warehouse/manage/views.py:4015
 msgid ""
 "User '${username}' already has an active invite. Please try again later."
 msgstr ""
 
-#: warehouse/manage/views.py:1895 warehouse/manage/views.py:4072
+#: warehouse/manage/views.py:1905 warehouse/manage/views.py:4082
 msgid "Invitation sent to '${username}'"
 msgstr ""
 
-#: warehouse/manage/views.py:1934
+#: warehouse/manage/views.py:1944
 #, fuzzy
 #| msgid "%(user)s has not uploaded any projects to PyPI, yet"
 msgid "Could not find organization invitation."
 msgstr "Ο χρήστης %(user)s δεν έχει ανεβάσει projects στο PyPI, ακόμα"
 
-#: warehouse/manage/views.py:1948 warehouse/manage/views.py:4116
+#: warehouse/manage/views.py:1958 warehouse/manage/views.py:4126
 #, fuzzy
 #| msgid "Email already verified"
 msgid "Invitation already expired."
 msgstr "Το email είναι ήδη επιβεβαιωμένο"
 
-#: warehouse/manage/views.py:1981 warehouse/manage/views.py:4140
+#: warehouse/manage/views.py:1991 warehouse/manage/views.py:4150
 msgid "Invitation revoked from '${username}'."
 msgstr ""
 
-#: warehouse/manage/views.py:2382
+#: warehouse/manage/views.py:2392
 msgid "User '${username}' is already a team member"
 msgstr ""
 
-#: warehouse/manage/views.py:2800
+#: warehouse/manage/views.py:2810
 #, fuzzy
 #| msgid ""
 #| "There have been too many unsuccessful login attempts. Try again later."
@@ -522,23 +522,23 @@ msgid ""
 "later."
 msgstr "Έγιναν πολλές ανεπιτυχείς απόπειρες σύνδεσης. Δοκιμάστε ξανά αργότερα."
 
-#: warehouse/manage/views.py:3890
+#: warehouse/manage/views.py:3900
 msgid "User '${username}' already has ${role_name} role for project"
 msgstr ""
 
-#: warehouse/manage/views.py:3959
+#: warehouse/manage/views.py:3969
 #, fuzzy
 #| msgid "You are not an owner of this project"
 msgid "${username} is now ${role} of the '${project_name}' project."
 msgstr "Δεν είστε ο κάτοχος αυτού του project"
 
-#: warehouse/manage/views.py:3992
+#: warehouse/manage/views.py:4002
 msgid ""
 "User '${username}' does not have a verified primary email address and cannot "
 "be added as a ${role_name} for project"
 msgstr ""
 
-#: warehouse/manage/views.py:4105
+#: warehouse/manage/views.py:4115
 msgid "Could not find role invitation."
 msgstr ""
 
@@ -884,9 +884,9 @@ msgstr "Αλλαγή στην έκδοση για κινητά"
 #: warehouse/templates/manage/organization/settings.html:205
 #: warehouse/templates/manage/project/documentation.html:27
 #: warehouse/templates/manage/project/release.html:163
-#: warehouse/templates/manage/project/settings.html:125
-#: warehouse/templates/manage/project/settings.html:172
-#: warehouse/templates/manage/project/settings.html:235
+#: warehouse/templates/manage/project/settings.html:126
+#: warehouse/templates/manage/project/settings.html:175
+#: warehouse/templates/manage/project/settings.html:239
 #: warehouse/templates/manage/team/settings.html:77
 msgid "Warning"
 msgstr "Προειδοποίηση"
@@ -6106,27 +6106,27 @@ msgstr ""
 "\" rel=\"noopener\" target=\"_blank\">the Python Packaging User Guide</a> "
 "για περισσότερες πληροφορίες."
 
-#: warehouse/templates/manage/project/settings.html:123
+#: warehouse/templates/manage/project/settings.html:124
 #, fuzzy
 #| msgid "Remove %(user)s from this project"
 msgid "Remove project from organization"
 msgstr "Αφαίρεση του χρήστη %(user)s από αυτό το project"
 
-#: warehouse/templates/manage/project/settings.html:126
+#: warehouse/templates/manage/project/settings.html:127
 #, fuzzy
 #| msgid "You are not an owner of this project"
 msgid "Removing this project from the organization will:"
 msgstr "Δεν είστε ο κάτοχος αυτού του project"
 
-#: warehouse/templates/manage/project/settings.html:130
-#: warehouse/templates/manage/project/settings.html:178
+#: warehouse/templates/manage/project/settings.html:131
+#: warehouse/templates/manage/project/settings.html:181
 #, fuzzy, python-format
 #| msgid "You are not an owner of this project"
 msgid "Remove this project from the '%(organization_name)s' organization."
 msgstr "Δεν είστε ο κάτοχος αυτού του project"
 
-#: warehouse/templates/manage/project/settings.html:133
-#: warehouse/templates/manage/project/settings.html:181
+#: warehouse/templates/manage/project/settings.html:134
+#: warehouse/templates/manage/project/settings.html:184
 #, fuzzy, python-format
 #| msgid "You are not an owner of this project"
 msgid ""
@@ -6134,97 +6134,97 @@ msgid ""
 "organization."
 msgstr "Δεν είστε ο κάτοχος αυτού του project"
 
-#: warehouse/templates/manage/project/settings.html:137
-#: warehouse/templates/manage/project/settings.html:143
-#: warehouse/templates/manage/project/settings.html:196
+#: warehouse/templates/manage/project/settings.html:138
+#: warehouse/templates/manage/project/settings.html:144
+#: warehouse/templates/manage/project/settings.html:199
 msgid ""
 "Individual owners and maintainers of the project will retain their project "
 "permissions."
 msgstr ""
 
-#: warehouse/templates/manage/project/settings.html:142
+#: warehouse/templates/manage/project/settings.html:143
 #, fuzzy, python-format
 #| msgid "You are not an owner of this project"
 msgid ""
 "This will remove the project from the '%(organization_name)s' organization."
 msgstr "Δεν είστε ο κάτοχος αυτού του project"
 
-#: warehouse/templates/manage/project/settings.html:146
+#: warehouse/templates/manage/project/settings.html:147
 #, fuzzy
 #| msgid "No projects"
 msgid "Remove project"
 msgstr "Χωρίς projects"
 
-#: warehouse/templates/manage/project/settings.html:146
-#: warehouse/templates/manage/project/settings.html:208
-#: warehouse/templates/manage/project/settings.html:264
+#: warehouse/templates/manage/project/settings.html:147
+#: warehouse/templates/manage/project/settings.html:211
+#: warehouse/templates/manage/project/settings.html:268
 msgid "Project Name"
 msgstr "Όνομα project"
 
-#: warehouse/templates/manage/project/settings.html:150
+#: warehouse/templates/manage/project/settings.html:151
 #, fuzzy
 #| msgid "You are not an owner of this project"
 msgid "Cannot remove project from organization"
 msgstr "Δεν είστε ο κάτοχος αυτού του project"
 
-#: warehouse/templates/manage/project/settings.html:152
+#: warehouse/templates/manage/project/settings.html:153
 msgid ""
 "Your organization is currently the <strong>sole owner</strong> of the "
 "project. You must add an individual owner to the project before you can "
 "remove the project from your organization."
 msgstr ""
 
-#: warehouse/templates/manage/project/settings.html:166
+#: warehouse/templates/manage/project/settings.html:169
 #, fuzzy
 #| msgid "You are not an owner of this project"
 msgid "Transfer project to another organization"
 msgstr "Δεν είστε ο κάτοχος αυτού του project"
 
-#: warehouse/templates/manage/project/settings.html:168
+#: warehouse/templates/manage/project/settings.html:171
 #, fuzzy
 #| msgid "Create an account"
 msgid "Transfer project to an organization"
 msgstr "Δημιουργία λογαριασμού"
 
-#: warehouse/templates/manage/project/settings.html:173
+#: warehouse/templates/manage/project/settings.html:176
 #, fuzzy
 #| msgid "Deleting this project will:"
 msgid "Transferring this project will:"
 msgstr "Διαγράφοντας αυτό το project θα:"
 
-#: warehouse/templates/manage/project/settings.html:186
+#: warehouse/templates/manage/project/settings.html:189
 msgid "Add the project to another organization that you own."
 msgstr ""
 
-#: warehouse/templates/manage/project/settings.html:188
+#: warehouse/templates/manage/project/settings.html:191
 #, fuzzy
 #| msgid "Invalid token: not an email verification token"
 msgid "Add the project to an organization that you own."
 msgstr "Μη έγκυρο token: αυτό δεν αποτελεί ένα email επιβεβαίωσης token"
 
-#: warehouse/templates/manage/project/settings.html:192
+#: warehouse/templates/manage/project/settings.html:195
 msgid "Grant full project permissions to owners of the organization."
 msgstr ""
 
-#: warehouse/templates/manage/project/settings.html:208
+#: warehouse/templates/manage/project/settings.html:211
 #, fuzzy
 #| msgid "Manage project"
 msgid "Transfer project"
 msgstr "Διαχείριση project"
 
-#: warehouse/templates/manage/project/settings.html:214
+#: warehouse/templates/manage/project/settings.html:217
 #, fuzzy
 #| msgid "You are not an owner of this project"
 msgid "Cannot transfer project to another organization"
 msgstr "Δεν είστε ο κάτοχος αυτού του project"
 
-#: warehouse/templates/manage/project/settings.html:216
+#: warehouse/templates/manage/project/settings.html:219
 #, fuzzy
 #| msgid "Create an account"
 msgid "Cannot transfer project to an organization"
 msgstr "Δημιουργία λογαριασμού"
 
-#: warehouse/templates/manage/project/settings.html:220
+#: warehouse/templates/manage/project/settings.html:223
 #, fuzzy
 #| msgid "Invalid token: not an email verification token"
 msgid ""
@@ -6232,28 +6232,28 @@ msgid ""
 "manage."
 msgstr "Μη έγκυρο token: αυτό δεν αποτελεί ένα email επιβεβαίωσης token"
 
-#: warehouse/templates/manage/project/settings.html:222
+#: warehouse/templates/manage/project/settings.html:225
 #, fuzzy
 #| msgid "You are not an owner of this project"
 msgid "You are not an owner or manager of any other organizations."
 msgstr "Δεν είστε ο κάτοχος αυτού του project"
 
-#: warehouse/templates/manage/project/settings.html:224
+#: warehouse/templates/manage/project/settings.html:227
 #, fuzzy
 #| msgid "%(user)s has not uploaded any projects to PyPI, yet"
 msgid "You are not an owner or manager of any organizations."
 msgstr "Ο χρήστης %(user)s δεν έχει ανεβάσει projects στο PyPI, ακόμα"
 
-#: warehouse/templates/manage/project/settings.html:233
-#: warehouse/templates/manage/project/settings.html:264
+#: warehouse/templates/manage/project/settings.html:237
+#: warehouse/templates/manage/project/settings.html:268
 msgid "Delete project"
 msgstr "Διαγραφή project"
 
-#: warehouse/templates/manage/project/settings.html:236
+#: warehouse/templates/manage/project/settings.html:240
 msgid "Deleting this project will:"
 msgstr "Διαγράφοντας αυτό το project θα:"
 
-#: warehouse/templates/manage/project/settings.html:241
+#: warehouse/templates/manage/project/settings.html:245
 #, python-format
 msgid ""
 "Irreversibly delete the project along with <a href=\"%(href)s\">%(count)s "
@@ -6268,17 +6268,17 @@ msgstr[1] ""
 "Διαγραφεί ανεπιστρεπτί το project μαζί με <a href=\"%(href)s\">%(count)s "
 "εκδόσεις</a>"
 
-#: warehouse/templates/manage/project/settings.html:247
+#: warehouse/templates/manage/project/settings.html:251
 msgid "Irreversibly delete the project"
 msgstr "Διαγραφή project ανεπιστρεπτί"
 
-#: warehouse/templates/manage/project/settings.html:251
+#: warehouse/templates/manage/project/settings.html:255
 msgid "Make the project name available to <strong>any other PyPI</strong> user"
 msgstr ""
 "Κάνε το όνομα του project διαθέσιμο σε <strong>οποιοδήποτε άλλον PyPI</"
 "strong> χρήστη"
 
-#: warehouse/templates/manage/project/settings.html:253
+#: warehouse/templates/manage/project/settings.html:257
 msgid ""
 "This user will be able to make new releases under this project name, so long "
 "as the distribution filenames do not match filenames from a previously "
