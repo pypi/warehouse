@@ -20,7 +20,7 @@ msgstr ""
 "Project-Id-Version: Warehouse VERSION\n"
 "Report-Msgid-Bugs-To: admin@pypi.org\n"
 "POT-Creation-Date: 2020-04-06 17:52-0500\n"
-"PO-Revision-Date: 2022-07-15 09:51+0000\n"
+"PO-Revision-Date: 2022-09-04 16:21+0000\n"
 "Last-Translator: moto kawasaki <moto@kawasaki3.org>\n"
 "Language-Team: Japanese <https://hosted.weblate.org/projects/pypa/warehouse/"
 "ja/>\n"
@@ -29,7 +29,7 @@ msgstr ""
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Generator: Weblate 4.14-dev\n"
+"X-Generator: Weblate 4.14.1-dev\n"
 "Generated-By: Babel 2.8.0\n"
 
 #: warehouse/views.py:129
@@ -76,10 +76,8 @@ msgstr ""
 
 #: warehouse/accounts/forms.py:128 warehouse/accounts/forms.py:174
 #: warehouse/accounts/forms.py:187
-#, fuzzy
-#| msgid "Password strength:"
 msgid "Password too long."
-msgstr "パスワードの強度:"
+msgstr "パスワードが長すぎます。"
 
 #: warehouse/accounts/forms.py:156
 msgid "The password is invalid. Try again."
@@ -175,7 +173,7 @@ msgstr "既に認証済みです"
 msgid "Successful WebAuthn assertion"
 msgstr "WebAuthnアサーションに成功しました"
 
-#: warehouse/accounts/views.py:447 warehouse/manage/views.py:933
+#: warehouse/accounts/views.py:447 warehouse/manage/views.py:934
 msgid "Recovery code accepted. The supplied code cannot be used again."
 msgstr ""
 "リカバリーコードを受け付けました。今回入力されたコードを再度使用することはで"
@@ -260,20 +258,16 @@ msgstr ""
 "メールアドレス ${email_address} が確認されました。 ${confirm_message}。"
 
 #: warehouse/accounts/views.py:846
-#, fuzzy
-#| msgid "Expired token: request a new project role invite"
 msgid "Expired token: request a new organization invitation"
-msgstr "期限切れのトークン: 新しいプロジェクト ロールの招待をリクエストする"
+msgstr "期限切れのトークン: 組織への招待を新たにリクエストして下さい"
 
 #: warehouse/accounts/views.py:848
 msgid "Invalid token: request a new organization invitation"
-msgstr "無効なトークン: 新しいプロジェクト ロールの招待をリクエストする"
+msgstr "無効なトークン: 組織への招待を新たにリクエストして下さい"
 
 #: warehouse/accounts/views.py:854
-#, fuzzy
-#| msgid "Invalid token: not a collaboration invitation token"
 msgid "Invalid token: not an organization invitation token"
-msgstr "無効なトークン: コラボレーション招待トークンではありません"
+msgstr "無効なトークン: 組織への招待トークンではありません"
 
 #: warehouse/accounts/views.py:858
 msgid "Organization invitation is not valid."
@@ -292,10 +286,8 @@ msgid "Invitation for '${organization_name}' is declined."
 msgstr "'${project_name}' への招待を辞退しました。"
 
 #: warehouse/accounts/views.py:979
-#, fuzzy
-#| msgid "You are now ${role} of the '${project_name}' project."
 msgid "You are now ${role} of the '${organization_name}' organization."
-msgstr "プロジェクト '${project_name}' の ${role} になりました。"
+msgstr "組織 '${organization_name}' の ${role} になりました。"
 
 #: warehouse/accounts/views.py:1013
 #, fuzzy
@@ -361,16 +353,12 @@ msgstr ""
 "カウント名を選択してください。"
 
 #: warehouse/manage/forms.py:471
-#, fuzzy
-#| msgid "Delete project"
 msgid "Select project"
-msgstr "プロジェクトの削除"
+msgstr "プロジェクトの選択"
 
 #: warehouse/manage/forms.py:476
-#, fuzzy
-#| msgid "Specify repository name"
 msgid "Specify project name"
-msgstr "リポジトリ名を指定する"
+msgstr "プロジェクト名を指定する"
 
 #: warehouse/manage/forms.py:479
 msgid ""
@@ -435,21 +423,21 @@ msgstr ""
 "この組織のアカウント名は、すでに別のアカウントで使用されています。別の組織ア"
 "カウント名を選択してください。"
 
-#: warehouse/manage/views.py:360
+#: warehouse/manage/views.py:361
 msgid "Email ${email_address} added - check your email for a verification link"
 msgstr ""
 "メールアドレス ${email_address} が追加されました - メールにある確認用のリンク"
 "をチェックしてください"
 
-#: warehouse/manage/views.py:881
-msgid "Recovery codes already generated"
-msgstr "リカバリーコードが既に存在します。"
-
 #: warehouse/manage/views.py:882
+msgid "Recovery codes already generated"
+msgstr "リカバリーコードは既に生成済みです"
+
+#: warehouse/manage/views.py:883
 msgid "Generating new recovery codes will invalidate your existing codes."
 msgstr "新しいリカバリーコードを生成すると、既存のコードが無効となります。"
 
-#: warehouse/manage/views.py:1813
+#: warehouse/manage/views.py:1823
 #, fuzzy
 #| msgid "User '${username}' already has ${role_name} role for project"
 msgid "User '${username}' already has ${role_name} role for organization"
@@ -457,7 +445,7 @@ msgstr ""
 "ユーザ '${username}' には、既にプロジェクトの ${role_name} の役割が与えられて"
 "います"
 
-#: warehouse/manage/views.py:1824
+#: warehouse/manage/views.py:1834
 #, fuzzy
 #| msgid ""
 #| "User '${username}' does not have a verified primary email address and "
@@ -469,32 +457,32 @@ msgstr ""
 "ユーザ '${username}' には確認済みの主要メールアドレスが登録されていないため、"
 "プロジェクトの ${role_name} に追加することはできません"
 
-#: warehouse/manage/views.py:1838 warehouse/manage/views.py:4005
+#: warehouse/manage/views.py:1848 warehouse/manage/views.py:4015
 msgid ""
 "User '${username}' already has an active invite. Please try again later."
 msgstr ""
 "ユーザ '${username}' には既にアクティブな招待があります。後でもう一度お試しく"
 "ださい。"
 
-#: warehouse/manage/views.py:1895 warehouse/manage/views.py:4072
+#: warehouse/manage/views.py:1905 warehouse/manage/views.py:4082
 msgid "Invitation sent to '${username}'"
 msgstr "'${username}' に招待を送信しました"
 
-#: warehouse/manage/views.py:1934
+#: warehouse/manage/views.py:1944
 #, fuzzy
 #| msgid "Could not find role invitation."
 msgid "Could not find organization invitation."
 msgstr "役割への招待が見つかりません。"
 
-#: warehouse/manage/views.py:1948 warehouse/manage/views.py:4116
+#: warehouse/manage/views.py:1958 warehouse/manage/views.py:4126
 msgid "Invitation already expired."
 msgstr "招待の期限が切れています。"
 
-#: warehouse/manage/views.py:1981 warehouse/manage/views.py:4140
+#: warehouse/manage/views.py:1991 warehouse/manage/views.py:4150
 msgid "Invitation revoked from '${username}'."
 msgstr "'${username}' の招待を無効化しました。"
 
-#: warehouse/manage/views.py:2382
+#: warehouse/manage/views.py:2392
 #, fuzzy
 #| msgid "User '${username}' already has ${role_name} role for project"
 msgid "User '${username}' is already a team member"
@@ -502,7 +490,7 @@ msgstr ""
 "ユーザ '${username}' には、既にプロジェクトの ${role_name} の役割が与えられて"
 "います"
 
-#: warehouse/manage/views.py:2800
+#: warehouse/manage/views.py:2810
 msgid ""
 "There have been too many attempted OpenID Connect registrations. Try again "
 "later."
@@ -510,19 +498,19 @@ msgstr ""
 "OpenID Connect の登録が試行された回数が多すぎます。後でもう一度やり直してくだ"
 "さい。"
 
-#: warehouse/manage/views.py:3890
+#: warehouse/manage/views.py:3900
 msgid "User '${username}' already has ${role_name} role for project"
 msgstr ""
 "ユーザ '${username}' には、既にプロジェクトの ${role_name} の役割が与えられて"
 "います"
 
-#: warehouse/manage/views.py:3959
+#: warehouse/manage/views.py:3969
 #, fuzzy
 #| msgid "You are now ${role} of the '${project_name}' project."
 msgid "${username} is now ${role} of the '${project_name}' project."
 msgstr "プロジェクト '${project_name}' の ${role} になりました。"
 
-#: warehouse/manage/views.py:3992
+#: warehouse/manage/views.py:4002
 msgid ""
 "User '${username}' does not have a verified primary email address and cannot "
 "be added as a ${role_name} for project"
@@ -530,7 +518,7 @@ msgstr ""
 "ユーザ '${username}' には確認済みの主要メールアドレスが登録されていないため、"
 "プロジェクトの ${role_name} に追加することはできません"
 
-#: warehouse/manage/views.py:4105
+#: warehouse/manage/views.py:4115
 msgid "Could not find role invitation."
 msgstr "役割への招待が見つかりません。"
 
@@ -873,9 +861,9 @@ msgstr "モバイル版に切替"
 #: warehouse/templates/manage/organization/settings.html:205
 #: warehouse/templates/manage/project/documentation.html:27
 #: warehouse/templates/manage/project/release.html:163
-#: warehouse/templates/manage/project/settings.html:125
-#: warehouse/templates/manage/project/settings.html:172
-#: warehouse/templates/manage/project/settings.html:235
+#: warehouse/templates/manage/project/settings.html:126
+#: warehouse/templates/manage/project/settings.html:175
+#: warehouse/templates/manage/project/settings.html:239
 #: warehouse/templates/manage/team/settings.html:77
 msgid "Warning"
 msgstr "警告"
@@ -2989,7 +2977,7 @@ msgstr "リリース"
 #: warehouse/templates/includes/manage/manage-project-menu.html:25
 #: warehouse/templates/manage/project/roles.html:35
 msgid "Collaborators"
-msgstr "共同編集者"
+msgstr "協力者"
 
 #: warehouse/templates/includes/manage/manage-project-menu.html:31
 #: warehouse/templates/manage/account.html:459
@@ -6074,27 +6062,27 @@ msgstr ""
 "は、<a href=\"%(distribution_href)s\" rel=\"noopener\" target=\"_blank"
 "\">Pythonパッケージユーザーガイド</a>を参照してください。"
 
-#: warehouse/templates/manage/project/settings.html:123
+#: warehouse/templates/manage/project/settings.html:124
 #, fuzzy
 #| msgid "Remove %(user)s from this project"
 msgid "Remove project from organization"
 msgstr "このプロジェクトから %(user)s を削除する"
 
-#: warehouse/templates/manage/project/settings.html:126
+#: warehouse/templates/manage/project/settings.html:127
 #, fuzzy
 #| msgid "You are not an owner of this project"
 msgid "Removing this project from the organization will:"
 msgstr "あなたはこのプロジェクトの所有者ではありません"
 
-#: warehouse/templates/manage/project/settings.html:130
-#: warehouse/templates/manage/project/settings.html:178
+#: warehouse/templates/manage/project/settings.html:131
+#: warehouse/templates/manage/project/settings.html:181
 #, fuzzy, python-format
 #| msgid "You are now ${role} of the '${project_name}' project."
 msgid "Remove this project from the '%(organization_name)s' organization."
 msgstr "プロジェクト '${project_name}' の ${role} になりました。"
 
-#: warehouse/templates/manage/project/settings.html:133
-#: warehouse/templates/manage/project/settings.html:181
+#: warehouse/templates/manage/project/settings.html:134
+#: warehouse/templates/manage/project/settings.html:184
 #, fuzzy, python-format
 #| msgid ""
 #| "Your request to create a new organization named \"%(organization_name)s\" "
@@ -6106,97 +6094,97 @@ msgstr ""
 "\"%(organization_name)s\" という名前の新しい組織を作成する要求が承認されませ"
 "んでした。"
 
-#: warehouse/templates/manage/project/settings.html:137
-#: warehouse/templates/manage/project/settings.html:143
-#: warehouse/templates/manage/project/settings.html:196
+#: warehouse/templates/manage/project/settings.html:138
+#: warehouse/templates/manage/project/settings.html:144
+#: warehouse/templates/manage/project/settings.html:199
 msgid ""
 "Individual owners and maintainers of the project will retain their project "
 "permissions."
 msgstr ""
 
-#: warehouse/templates/manage/project/settings.html:142
+#: warehouse/templates/manage/project/settings.html:143
 #, fuzzy, python-format
 #| msgid "You are now ${role} of the '${project_name}' project."
 msgid ""
 "This will remove the project from the '%(organization_name)s' organization."
 msgstr "プロジェクト '${project_name}' の ${role} になりました。"
 
-#: warehouse/templates/manage/project/settings.html:146
+#: warehouse/templates/manage/project/settings.html:147
 #, fuzzy
 #| msgid "No projects"
 msgid "Remove project"
 msgstr "プロジェクト無し"
 
-#: warehouse/templates/manage/project/settings.html:146
-#: warehouse/templates/manage/project/settings.html:208
-#: warehouse/templates/manage/project/settings.html:264
+#: warehouse/templates/manage/project/settings.html:147
+#: warehouse/templates/manage/project/settings.html:211
+#: warehouse/templates/manage/project/settings.html:268
 msgid "Project Name"
 msgstr "プロジェクト名"
 
-#: warehouse/templates/manage/project/settings.html:150
+#: warehouse/templates/manage/project/settings.html:151
 #, fuzzy
 #| msgid "You are not an owner of this project"
 msgid "Cannot remove project from organization"
 msgstr "あなたはこのプロジェクトの所有者ではありません"
 
-#: warehouse/templates/manage/project/settings.html:152
+#: warehouse/templates/manage/project/settings.html:153
 msgid ""
 "Your organization is currently the <strong>sole owner</strong> of the "
 "project. You must add an individual owner to the project before you can "
 "remove the project from your organization."
 msgstr ""
 
-#: warehouse/templates/manage/project/settings.html:166
+#: warehouse/templates/manage/project/settings.html:169
 #, fuzzy
 #| msgid "You are not an owner of this project"
 msgid "Transfer project to another organization"
 msgstr "あなたはこのプロジェクトの所有者ではありません"
 
-#: warehouse/templates/manage/project/settings.html:168
+#: warehouse/templates/manage/project/settings.html:171
 #, fuzzy
 #| msgid "Create an account"
 msgid "Transfer project to an organization"
 msgstr "アカウントを作成する"
 
-#: warehouse/templates/manage/project/settings.html:173
+#: warehouse/templates/manage/project/settings.html:176
 #, fuzzy
 #| msgid "Deleting this project will:"
 msgid "Transferring this project will:"
 msgstr "このプロジェクトを削除することによって:"
 
-#: warehouse/templates/manage/project/settings.html:186
+#: warehouse/templates/manage/project/settings.html:189
 msgid "Add the project to another organization that you own."
 msgstr ""
 
-#: warehouse/templates/manage/project/settings.html:188
+#: warehouse/templates/manage/project/settings.html:191
 #, fuzzy
 #| msgid "Invalid token: not a collaboration invitation token"
 msgid "Add the project to an organization that you own."
 msgstr "無効なトークン: コラボレーション招待トークンではありません"
 
-#: warehouse/templates/manage/project/settings.html:192
+#: warehouse/templates/manage/project/settings.html:195
 msgid "Grant full project permissions to owners of the organization."
 msgstr ""
 
-#: warehouse/templates/manage/project/settings.html:208
+#: warehouse/templates/manage/project/settings.html:211
 #, fuzzy
 #| msgid "Manage project"
 msgid "Transfer project"
 msgstr "プロジェクトの管理"
 
-#: warehouse/templates/manage/project/settings.html:214
+#: warehouse/templates/manage/project/settings.html:217
 #, fuzzy
 #| msgid "You are not an owner of this project"
 msgid "Cannot transfer project to another organization"
 msgstr "あなたはこのプロジェクトの所有者ではありません"
 
-#: warehouse/templates/manage/project/settings.html:216
+#: warehouse/templates/manage/project/settings.html:219
 #, fuzzy
 #| msgid "Create an account"
 msgid "Cannot transfer project to an organization"
 msgstr "アカウントを作成する"
 
-#: warehouse/templates/manage/project/settings.html:220
+#: warehouse/templates/manage/project/settings.html:223
 #, fuzzy
 #| msgid "Invalid token: not a collaboration invitation token"
 msgid ""
@@ -6204,28 +6192,28 @@ msgid ""
 "manage."
 msgstr "無効なトークン: コラボレーション招待トークンではありません"
 
-#: warehouse/templates/manage/project/settings.html:222
+#: warehouse/templates/manage/project/settings.html:225
 #, fuzzy
 #| msgid "You are not an owner of this project"
 msgid "You are not an owner or manager of any other organizations."
 msgstr "あなたはこのプロジェクトの所有者ではありません"
 
-#: warehouse/templates/manage/project/settings.html:224
+#: warehouse/templates/manage/project/settings.html:227
 #, fuzzy
 #| msgid "%(user)s has not uploaded any projects to PyPI, yet"
 msgid "You are not an owner or manager of any organizations."
 msgstr "%(user)s はまだPyPIにプロジェクトをアップロードしていません"
 
-#: warehouse/templates/manage/project/settings.html:233
-#: warehouse/templates/manage/project/settings.html:264
+#: warehouse/templates/manage/project/settings.html:237
+#: warehouse/templates/manage/project/settings.html:268
 msgid "Delete project"
 msgstr "プロジェクトの削除"
 
-#: warehouse/templates/manage/project/settings.html:236
+#: warehouse/templates/manage/project/settings.html:240
 msgid "Deleting this project will:"
 msgstr "このプロジェクトを削除することによって:"
 
-#: warehouse/templates/manage/project/settings.html:241
+#: warehouse/templates/manage/project/settings.html:245
 #, python-format
 msgid ""
 "Irreversibly delete the project along with <a href=\"%(href)s\">%(count)s "
@@ -6237,16 +6225,16 @@ msgstr[0] ""
 "このプロジェクトと<a href=\"%(href)s\">%(count)s 個のリリース</a>を完全に削除"
 "します"
 
-#: warehouse/templates/manage/project/settings.html:247
+#: warehouse/templates/manage/project/settings.html:251
 msgid "Irreversibly delete the project"
 msgstr "プロジェクトを完全に削除する"
 
-#: warehouse/templates/manage/project/settings.html:251
+#: warehouse/templates/manage/project/settings.html:255
 msgid "Make the project name available to <strong>any other PyPI</strong> user"
 msgstr ""
 "<strong>他の PyPI </strong>ユーザーがプロジェクト名を利用できるようになります"
 
-#: warehouse/templates/manage/project/settings.html:253
+#: warehouse/templates/manage/project/settings.html:257
 msgid ""
 "This user will be able to make new releases under this project name, so long "
 "as the distribution filenames do not match filenames from a previously "
@@ -8413,12 +8401,12 @@ msgid ""
 "software that runs PyPI. Before writing a new issue, first check that a "
 "similar issue does not already exist."
 msgstr ""
-"PyPI自体に問題が発生している場合は、 <a href=\"%(href)s\" title=\"%(title)s"
-"\" target=\"_blank\" rel=\"noopener\"> イシュートラッカー </a> を通じて  "
-"<strong>  建設的な  </strong> フィードバックとバグレポートを送って頂くことを"
-"歓迎します。このトラッカーで扱うのは、PyPIを実行するソフトウェアに関するイ"
-"シューだけであることに注意してください。新しいイシューを書くときは、まず既に"
-"似たようなイシューがないことを確認してください。"
+"PyPI自体に問題が発生している場合は、<a href=\"%(href)s\" title=\"%(title)s\" "
+"target=\"_blank\" rel=\"noopener\">イシュートラッカー </a>を通じて<strong>建"
+"設的な</strong>フィードバックとバグレポートを送って頂くことを歓迎します。この"
+"トラッカーで扱うのは、PyPIを実行するソフトウェアに関するイシューだけであるこ"
+"とに注意してください。新しいイシューを書くときは、まず既に似たようなイシュー"
+"がないことを確認してください。"
 
 #: warehouse/templates/pages/help.html:776
 msgid ""

@@ -40,8 +40,8 @@ msgstr ""
 "Project-Id-Version: Warehouse VERSION\n"
 "Report-Msgid-Bugs-To: admin@pypi.org\n"
 "POT-Creation-Date: 2020-04-06 17:52-0500\n"
-"PO-Revision-Date: 2022-08-23 14:02+0000\n"
-"Last-Translator: Eric <alchemillatruth@purelymail.com>\n"
+"PO-Revision-Date: 2022-08-31 01:22+0000\n"
+"Last-Translator: Yang Yulin <yylteam@hotmail.com>\n"
 "Language-Team: Chinese (Simplified) <https://hosted.weblate.org/projects/"
 "pypa/warehouse/zh_Hans/>\n"
 "Language: zh_Hans\n"
@@ -49,7 +49,7 @@ msgstr ""
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Generator: Weblate 4.14-dev\n"
+"X-Generator: Weblate 4.14.1-dev\n"
 "Generated-By: Babel 2.8.0\n"
 
 #: warehouse/views.py:129
@@ -183,7 +183,7 @@ msgstr "已通过身份验证"
 msgid "Successful WebAuthn assertion"
 msgstr "成功的 WebAuthn 断言"
 
-#: warehouse/accounts/views.py:447 warehouse/manage/views.py:933
+#: warehouse/accounts/views.py:447 warehouse/manage/views.py:934
 msgid "Recovery code accepted. The supplied code cannot be used again."
 msgstr "接受恢复代码。无法再次使用提供的代码。"
 
@@ -402,23 +402,23 @@ msgstr ""
 msgid "This team name has already been used. Choose a different team name."
 msgstr "此团队名已被使用。 选择不同的团队名称。"
 
-#: warehouse/manage/views.py:360
+#: warehouse/manage/views.py:361
 msgid "Email ${email_address} added - check your email for a verification link"
 msgstr "电子邮件${email_address}已添加 - 请检查邮箱中的验证链接"
 
-#: warehouse/manage/views.py:881
+#: warehouse/manage/views.py:882
 msgid "Recovery codes already generated"
 msgstr "已生成恢复代码"
 
-#: warehouse/manage/views.py:882
+#: warehouse/manage/views.py:883
 msgid "Generating new recovery codes will invalidate your existing codes."
 msgstr "生成新的恢复代码将使现有代码失效。"
 
-#: warehouse/manage/views.py:1813
+#: warehouse/manage/views.py:1823
 msgid "User '${username}' already has ${role_name} role for organization"
 msgstr "用户 '${username}' 已在组织中任 ${role_name}"
 
-#: warehouse/manage/views.py:1824
+#: warehouse/manage/views.py:1834
 msgid ""
 "User '${username}' does not have a verified primary email address and cannot "
 "be added as a ${role_name} for organization"
@@ -426,46 +426,46 @@ msgstr ""
 "用户'$ {username}'没有经过验证的主电子邮件地址，因此不能被加为组织的$ "
 "{role_name}"
 
-#: warehouse/manage/views.py:1838 warehouse/manage/views.py:4005
+#: warehouse/manage/views.py:1848 warehouse/manage/views.py:4015
 msgid ""
 "User '${username}' already has an active invite. Please try again later."
 msgstr "用户'$ {username}'已经具有有效的邀请。请稍后再试。"
 
-#: warehouse/manage/views.py:1895 warehouse/manage/views.py:4072
+#: warehouse/manage/views.py:1905 warehouse/manage/views.py:4082
 msgid "Invitation sent to '${username}'"
 msgstr "邀请已发送到“ $ {username}”"
 
-#: warehouse/manage/views.py:1934
+#: warehouse/manage/views.py:1944
 msgid "Could not find organization invitation."
 msgstr "找不到组织邀请。"
 
-#: warehouse/manage/views.py:1948 warehouse/manage/views.py:4116
+#: warehouse/manage/views.py:1958 warehouse/manage/views.py:4126
 msgid "Invitation already expired."
 msgstr "邀请已过期。"
 
-#: warehouse/manage/views.py:1981 warehouse/manage/views.py:4140
+#: warehouse/manage/views.py:1991 warehouse/manage/views.py:4150
 msgid "Invitation revoked from '${username}'."
 msgstr "从“${username}”撤回邀请。"
 
-#: warehouse/manage/views.py:2382
+#: warehouse/manage/views.py:2392
 msgid "User '${username}' is already a team member"
 msgstr "用户“${username}”已经是团队成员"
 
-#: warehouse/manage/views.py:2800
+#: warehouse/manage/views.py:2810
 msgid ""
 "There have been too many attempted OpenID Connect registrations. Try again "
 "later."
 msgstr "OpenID Connect 注册尝试次数过多。请稍后重试。"
 
-#: warehouse/manage/views.py:3890
+#: warehouse/manage/views.py:3900
 msgid "User '${username}' already has ${role_name} role for project"
 msgstr "用户“${username}”在这个项目中已有${role_name}"
 
-#: warehouse/manage/views.py:3959
+#: warehouse/manage/views.py:3969
 msgid "${username} is now ${role} of the '${project_name}' project."
 msgstr "${username} 现为 '${project_name}' 项目的 ${role}。"
 
-#: warehouse/manage/views.py:3992
+#: warehouse/manage/views.py:4002
 msgid ""
 "User '${username}' does not have a verified primary email address and cannot "
 "be added as a ${role_name} for project"
@@ -473,7 +473,7 @@ msgstr ""
 "用户'$ {username}'没有经过验证的主电子邮件地址，因此不能作为项目的$ "
 "{role_name}添加"
 
-#: warehouse/manage/views.py:4105
+#: warehouse/manage/views.py:4115
 msgid "Could not find role invitation."
 msgstr "找不到角色邀请。"
 
@@ -803,9 +803,9 @@ msgstr "切换到手机版本"
 #: warehouse/templates/manage/organization/settings.html:205
 #: warehouse/templates/manage/project/documentation.html:27
 #: warehouse/templates/manage/project/release.html:163
-#: warehouse/templates/manage/project/settings.html:125
-#: warehouse/templates/manage/project/settings.html:172
-#: warehouse/templates/manage/project/settings.html:235
+#: warehouse/templates/manage/project/settings.html:126
+#: warehouse/templates/manage/project/settings.html:175
+#: warehouse/templates/manage/project/settings.html:239
 #: warehouse/templates/manage/team/settings.html:77
 msgid "Warning"
 msgstr "警告"
@@ -938,7 +938,7 @@ msgstr "隐私策略（英文）"
 
 #: warehouse/templates/base.html:298 warehouse/templates/pages/sitemap.html:43
 msgid "Terms of use"
-msgstr "使用条款"
+msgstr "使用条款（英文）"
 
 #: warehouse/templates/base.html:308
 msgid "Status: "
@@ -5553,57 +5553,57 @@ msgstr ""
 "\">Twine</a>来上传你的这些数据。在<a href=\"%(distribution_href)s\" rel="
 "\"noopener\" target=\"_blank\">Python打包用户指南</a>获取更多帮助。"
 
-#: warehouse/templates/manage/project/settings.html:123
+#: warehouse/templates/manage/project/settings.html:124
 msgid "Remove project from organization"
 msgstr "从组织中删除项目"
 
-#: warehouse/templates/manage/project/settings.html:126
+#: warehouse/templates/manage/project/settings.html:127
 msgid "Removing this project from the organization will:"
 msgstr "从组织中删除此项目会："
 
-#: warehouse/templates/manage/project/settings.html:130
-#: warehouse/templates/manage/project/settings.html:178
+#: warehouse/templates/manage/project/settings.html:131
+#: warehouse/templates/manage/project/settings.html:181
 #, python-format
 msgid "Remove this project from the '%(organization_name)s' organization."
 msgstr "将此项目从“%(organization_name)s”组织中删除。"
 
-#: warehouse/templates/manage/project/settings.html:133
-#: warehouse/templates/manage/project/settings.html:181
+#: warehouse/templates/manage/project/settings.html:134
+#: warehouse/templates/manage/project/settings.html:184
 #, python-format
 msgid ""
 "Revoke project permissions for teams in the '%(organization_name)s' "
 "organization."
 msgstr "撤销 “%(organization_name)s” 组织中团队的项目权限。"
 
-#: warehouse/templates/manage/project/settings.html:137
-#: warehouse/templates/manage/project/settings.html:143
-#: warehouse/templates/manage/project/settings.html:196
+#: warehouse/templates/manage/project/settings.html:138
+#: warehouse/templates/manage/project/settings.html:144
+#: warehouse/templates/manage/project/settings.html:199
 msgid ""
 "Individual owners and maintainers of the project will retain their project "
 "permissions."
 msgstr "项目的各个所有者和维护者将保留其项目权限。"
 
-#: warehouse/templates/manage/project/settings.html:142
+#: warehouse/templates/manage/project/settings.html:143
 #, python-format
 msgid ""
 "This will remove the project from the '%(organization_name)s' organization."
 msgstr "这将从 “%(organization_name)s”组织中删除项目。"
 
-#: warehouse/templates/manage/project/settings.html:146
+#: warehouse/templates/manage/project/settings.html:147
 msgid "Remove project"
 msgstr "删除项目"
 
-#: warehouse/templates/manage/project/settings.html:146
-#: warehouse/templates/manage/project/settings.html:208
-#: warehouse/templates/manage/project/settings.html:264
+#: warehouse/templates/manage/project/settings.html:147
+#: warehouse/templates/manage/project/settings.html:211
+#: warehouse/templates/manage/project/settings.html:268
 msgid "Project Name"
 msgstr "项目名称"
 
-#: warehouse/templates/manage/project/settings.html:150
+#: warehouse/templates/manage/project/settings.html:151
 msgid "Cannot remove project from organization"
 msgstr "无法从组织中删除项目"
 
-#: warehouse/templates/manage/project/settings.html:152
+#: warehouse/templates/manage/project/settings.html:153
 msgid ""
 "Your organization is currently the <strong>sole owner</strong> of the "
 "project. You must add an individual owner to the project before you can "
@@ -5612,66 +5612,66 @@ msgstr ""
 "您的组织目前是该项目的<strong>唯一所有者</strong>。不过，在从组织中删除项目之"
 "前，必须向项目中添加个人所有者。"
 
-#: warehouse/templates/manage/project/settings.html:166
+#: warehouse/templates/manage/project/settings.html:169
 msgid "Transfer project to another organization"
 msgstr "将项目转移到另一个组织"
 
-#: warehouse/templates/manage/project/settings.html:168
+#: warehouse/templates/manage/project/settings.html:171
 msgid "Transfer project to an organization"
 msgstr "将项目转移到组织"
 
-#: warehouse/templates/manage/project/settings.html:173
+#: warehouse/templates/manage/project/settings.html:176
 msgid "Transferring this project will:"
 msgstr "转移此项目会："
 
-#: warehouse/templates/manage/project/settings.html:186
+#: warehouse/templates/manage/project/settings.html:189
 msgid "Add the project to another organization that you own."
 msgstr "将此项目添加到您所拥有的其他组织。"
 
-#: warehouse/templates/manage/project/settings.html:188
+#: warehouse/templates/manage/project/settings.html:191
 msgid "Add the project to an organization that you own."
 msgstr "将项目添加到你拥有的组织。"
 
-#: warehouse/templates/manage/project/settings.html:192
+#: warehouse/templates/manage/project/settings.html:195
 msgid "Grant full project permissions to owners of the organization."
 msgstr "向组织的所有者授予该项目的所有权限。"
 
-#: warehouse/templates/manage/project/settings.html:208
+#: warehouse/templates/manage/project/settings.html:211
 msgid "Transfer project"
 msgstr "转移项目"
 
-#: warehouse/templates/manage/project/settings.html:214
+#: warehouse/templates/manage/project/settings.html:217
 msgid "Cannot transfer project to another organization"
 msgstr "无法将项目转移到另一个组织"
 
-#: warehouse/templates/manage/project/settings.html:216
+#: warehouse/templates/manage/project/settings.html:219
 msgid "Cannot transfer project to an organization"
 msgstr "无法将项目转移到组织"
 
-#: warehouse/templates/manage/project/settings.html:220
+#: warehouse/templates/manage/project/settings.html:223
 msgid ""
 "Project owners can transfer the project to organizations that they own or "
 "manage."
 msgstr "项目的所有者可将项目转让至其所拥有或管理的组织。"
 
-#: warehouse/templates/manage/project/settings.html:222
+#: warehouse/templates/manage/project/settings.html:225
 msgid "You are not an owner or manager of any other organizations."
 msgstr "你不是任何其他组织的所有者或管理者。"
 
-#: warehouse/templates/manage/project/settings.html:224
+#: warehouse/templates/manage/project/settings.html:227
 msgid "You are not an owner or manager of any organizations."
 msgstr "你不是任何组织的所有者或管理者。"
 
-#: warehouse/templates/manage/project/settings.html:233
-#: warehouse/templates/manage/project/settings.html:264
+#: warehouse/templates/manage/project/settings.html:237
+#: warehouse/templates/manage/project/settings.html:268
 msgid "Delete project"
 msgstr "删除项目"
 
-#: warehouse/templates/manage/project/settings.html:236
+#: warehouse/templates/manage/project/settings.html:240
 msgid "Deleting this project will:"
 msgstr "删除此项目将："
 
-#: warehouse/templates/manage/project/settings.html:241
+#: warehouse/templates/manage/project/settings.html:245
 #, python-format
 msgid ""
 "Irreversibly delete the project along with <a href=\"%(href)s\">%(count)s "
@@ -5681,15 +5681,15 @@ msgid_plural ""
 "releases</a>"
 msgstr[0] "彻底删除此项目和其 <a href=\"%(href)s\">%(count)s 个释出版本</a>"
 
-#: warehouse/templates/manage/project/settings.html:247
+#: warehouse/templates/manage/project/settings.html:251
 msgid "Irreversibly delete the project"
 msgstr "删除此项目后将不可撤消"
 
-#: warehouse/templates/manage/project/settings.html:251
+#: warehouse/templates/manage/project/settings.html:255
 msgid "Make the project name available to <strong>any other PyPI</strong> user"
 msgstr "使该文件名称向<strong>其他任何PyPI</strong>用户公开"
 
-#: warehouse/templates/manage/project/settings.html:253
+#: warehouse/templates/manage/project/settings.html:257
 msgid ""
 "This user will be able to make new releases under this project name, so long "
 "as the distribution filenames do not match filenames from a previously "
@@ -7044,7 +7044,8 @@ msgid ""
 "Instead, you can create a new account with the desired username, add the new "
 "account as a maintainer of all the projects your old account owns, and then "
 "delete the old account, which will have the same effect."
-msgstr "你可以使用所需的用户名创建一个新账户，将新账户添加为旧账户拥有的所有项目的维"
+msgstr ""
+"你可以使用所需的用户名创建一个新账户，将新账户添加为旧账户拥有的所有项目的维"
 "护者，然后删除旧账户，这具有相同的效果。"
 
 #: warehouse/templates/pages/help.html:527

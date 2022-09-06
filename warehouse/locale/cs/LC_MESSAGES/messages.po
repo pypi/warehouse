@@ -166,7 +166,7 @@ msgstr "Již autenizován"
 msgid "Successful WebAuthn assertion"
 msgstr "Úspšená aserce WebAuthn"
 
-#: warehouse/accounts/views.py:447 warehouse/manage/views.py:933
+#: warehouse/accounts/views.py:447 warehouse/manage/views.py:934
 msgid "Recovery code accepted. The supplied code cannot be used again."
 msgstr "Obnovovací kód byl již přijat. Poskytnutý kód nelze použít znovu."
 
@@ -438,28 +438,28 @@ msgstr ""
 "Toto uživatelské jméno je již využíváno jiným účtem. Zvolte jiné uživatelské "
 "jméno."
 
-#: warehouse/manage/views.py:360
+#: warehouse/manage/views.py:361
 msgid "Email ${email_address} added - check your email for a verification link"
 msgstr ""
 "E-mailová adresa ${email_address} byla přidána - odkaz pro ověření naleznete "
 "ve vaší e-mailové schránce"
 
-#: warehouse/manage/views.py:881
+#: warehouse/manage/views.py:882
 msgid "Recovery codes already generated"
 msgstr "Obnovovací kódy již byly vygenerovány"
 
-#: warehouse/manage/views.py:882
+#: warehouse/manage/views.py:883
 msgid "Generating new recovery codes will invalidate your existing codes."
 msgstr ""
 "Vygenerování nových obnovovacích kódu způsobí invalidaci již existujících."
 
-#: warehouse/manage/views.py:1813
+#: warehouse/manage/views.py:1823
 #, fuzzy
 #| msgid "User '${username}' already has ${role_name} role for project"
 msgid "User '${username}' already has ${role_name} role for organization"
 msgstr "Uživatel '${username}' již má v projektu roli ${role_name}"
 
-#: warehouse/manage/views.py:1824
+#: warehouse/manage/views.py:1834
 #, fuzzy
 #| msgid ""
 #| "User '${username}' does not have a verified primary email address and "
@@ -471,37 +471,37 @@ msgstr ""
 "Uživatel '${username}' nemá ověřenou primární e-mailovou adresu a proto "
 "nemůže být přidán do projektu jako ${role_name}"
 
-#: warehouse/manage/views.py:1838 warehouse/manage/views.py:4005
+#: warehouse/manage/views.py:1848 warehouse/manage/views.py:4015
 msgid ""
 "User '${username}' already has an active invite. Please try again later."
 msgstr ""
 "Uživatel '${username}' již má aktivní pozvánku. Prosím, zkuste to později."
 
-#: warehouse/manage/views.py:1895 warehouse/manage/views.py:4072
+#: warehouse/manage/views.py:1905 warehouse/manage/views.py:4082
 msgid "Invitation sent to '${username}'"
 msgstr "Pozvánka poslána uživateli '${username}'"
 
-#: warehouse/manage/views.py:1934
+#: warehouse/manage/views.py:1944
 #, fuzzy
 #| msgid "Could not find role invitation."
 msgid "Could not find organization invitation."
 msgstr "Nelze najít pozvánka do role."
 
-#: warehouse/manage/views.py:1948 warehouse/manage/views.py:4116
+#: warehouse/manage/views.py:1958 warehouse/manage/views.py:4126
 msgid "Invitation already expired."
 msgstr "Pozvánka již vypršela."
 
-#: warehouse/manage/views.py:1981 warehouse/manage/views.py:4140
+#: warehouse/manage/views.py:1991 warehouse/manage/views.py:4150
 msgid "Invitation revoked from '${username}'."
 msgstr "Uživatel '${username}' odmítl pozvánku."
 
-#: warehouse/manage/views.py:2382
+#: warehouse/manage/views.py:2392
 #, fuzzy
 #| msgid "User '${username}' already has ${role_name} role for project"
 msgid "User '${username}' is already a team member"
 msgstr "Uživatel '${username}' již má v projektu roli ${role_name}"
 
-#: warehouse/manage/views.py:2800
+#: warehouse/manage/views.py:2810
 #, fuzzy
 #| msgid ""
 #| "There have been too many unsuccessful login attempts. Try again later."
@@ -511,17 +511,17 @@ msgid ""
 msgstr ""
 "Přiliš mnoho neúspěšných pokusů o přihlášení. Zkuste to prosím později."
 
-#: warehouse/manage/views.py:3890
+#: warehouse/manage/views.py:3900
 msgid "User '${username}' already has ${role_name} role for project"
 msgstr "Uživatel '${username}' již má v projektu roli ${role_name}"
 
-#: warehouse/manage/views.py:3959
+#: warehouse/manage/views.py:3969
 #, fuzzy
 #| msgid "You are now ${role} of the '${project_name}' project."
 msgid "${username} is now ${role} of the '${project_name}' project."
 msgstr "Nyní jste ${role} projektu '${project_name}'."
 
-#: warehouse/manage/views.py:3992
+#: warehouse/manage/views.py:4002
 msgid ""
 "User '${username}' does not have a verified primary email address and cannot "
 "be added as a ${role_name} for project"
@@ -529,7 +529,7 @@ msgstr ""
 "Uživatel '${username}' nemá ověřenou primární e-mailovou adresu a proto "
 "nemůže být přidán do projektu jako ${role_name}"
 
-#: warehouse/manage/views.py:4105
+#: warehouse/manage/views.py:4115
 msgid "Could not find role invitation."
 msgstr "Nelze najít pozvánka do role."
 
@@ -869,9 +869,9 @@ msgstr "Přepnout na mobilní verzi"
 #: warehouse/templates/manage/organization/settings.html:205
 #: warehouse/templates/manage/project/documentation.html:27
 #: warehouse/templates/manage/project/release.html:163
-#: warehouse/templates/manage/project/settings.html:125
-#: warehouse/templates/manage/project/settings.html:172
-#: warehouse/templates/manage/project/settings.html:235
+#: warehouse/templates/manage/project/settings.html:126
+#: warehouse/templates/manage/project/settings.html:175
+#: warehouse/templates/manage/project/settings.html:239
 #: warehouse/templates/manage/team/settings.html:77
 msgid "Warning"
 msgstr "Upozornění"
@@ -5939,27 +5939,27 @@ msgid ""
 "Packaging User Guide</a> for more help."
 msgstr ""
 
-#: warehouse/templates/manage/project/settings.html:123
+#: warehouse/templates/manage/project/settings.html:124
 #, fuzzy
 #| msgid "Remove %(user)s from this project"
 msgid "Remove project from organization"
 msgstr "Odebrat %(user)s z tohoto projektu"
 
-#: warehouse/templates/manage/project/settings.html:126
+#: warehouse/templates/manage/project/settings.html:127
 #, fuzzy
 #| msgid "You are not an owner of this project"
 msgid "Removing this project from the organization will:"
 msgstr "Nejste vlastník tohoto projektu"
 
-#: warehouse/templates/manage/project/settings.html:130
-#: warehouse/templates/manage/project/settings.html:178
+#: warehouse/templates/manage/project/settings.html:131
+#: warehouse/templates/manage/project/settings.html:181
 #, fuzzy, python-format
 #| msgid "You are now ${role} of the '${project_name}' project."
 msgid "Remove this project from the '%(organization_name)s' organization."
 msgstr "Nyní jste ${role} projektu '${project_name}'."
 
-#: warehouse/templates/manage/project/settings.html:133
-#: warehouse/templates/manage/project/settings.html:181
+#: warehouse/templates/manage/project/settings.html:134
+#: warehouse/templates/manage/project/settings.html:184
 #, fuzzy, python-format
 #| msgid "You are now ${role} of the '${project_name}' project."
 msgid ""
@@ -5967,97 +5967,97 @@ msgid ""
 "organization."
 msgstr "Nyní jste ${role} projektu '${project_name}'."
 
-#: warehouse/templates/manage/project/settings.html:137
-#: warehouse/templates/manage/project/settings.html:143
-#: warehouse/templates/manage/project/settings.html:196
+#: warehouse/templates/manage/project/settings.html:138
+#: warehouse/templates/manage/project/settings.html:144
+#: warehouse/templates/manage/project/settings.html:199
 msgid ""
 "Individual owners and maintainers of the project will retain their project "
 "permissions."
 msgstr ""
 
-#: warehouse/templates/manage/project/settings.html:142
+#: warehouse/templates/manage/project/settings.html:143
 #, fuzzy, python-format
 #| msgid "You are now ${role} of the '${project_name}' project."
 msgid ""
 "This will remove the project from the '%(organization_name)s' organization."
 msgstr "Nyní jste ${role} projektu '${project_name}'."
 
-#: warehouse/templates/manage/project/settings.html:146
+#: warehouse/templates/manage/project/settings.html:147
 #, fuzzy
 #| msgid "No projects"
 msgid "Remove project"
 msgstr "Žádné projekty"
 
-#: warehouse/templates/manage/project/settings.html:146
-#: warehouse/templates/manage/project/settings.html:208
-#: warehouse/templates/manage/project/settings.html:264
+#: warehouse/templates/manage/project/settings.html:147
+#: warehouse/templates/manage/project/settings.html:211
+#: warehouse/templates/manage/project/settings.html:268
 msgid "Project Name"
 msgstr "Název projektu"
 
-#: warehouse/templates/manage/project/settings.html:150
+#: warehouse/templates/manage/project/settings.html:151
 #, fuzzy
 #| msgid "You are not an owner of this project"
 msgid "Cannot remove project from organization"
 msgstr "Nejste vlastník tohoto projektu"
 
-#: warehouse/templates/manage/project/settings.html:152
+#: warehouse/templates/manage/project/settings.html:153
 msgid ""
 "Your organization is currently the <strong>sole owner</strong> of the "
 "project. You must add an individual owner to the project before you can "
 "remove the project from your organization."
 msgstr ""
 
-#: warehouse/templates/manage/project/settings.html:166
+#: warehouse/templates/manage/project/settings.html:169
 #, fuzzy
 #| msgid "You are not an owner of this project"
 msgid "Transfer project to another organization"
 msgstr "Nejste vlastník tohoto projektu"
 
-#: warehouse/templates/manage/project/settings.html:168
+#: warehouse/templates/manage/project/settings.html:171
 #, fuzzy
 #| msgid "Create an account"
 msgid "Transfer project to an organization"
 msgstr "Vytvořit účet"
 
-#: warehouse/templates/manage/project/settings.html:173
+#: warehouse/templates/manage/project/settings.html:176
 #, fuzzy
 #| msgid "Deleting this project will:"
 msgid "Transferring this project will:"
 msgstr "Smazání projektu způsobí:"
 
-#: warehouse/templates/manage/project/settings.html:186
+#: warehouse/templates/manage/project/settings.html:189
 msgid "Add the project to another organization that you own."
 msgstr ""
 
-#: warehouse/templates/manage/project/settings.html:188
+#: warehouse/templates/manage/project/settings.html:191
 #, fuzzy
 #| msgid "Invalid token: not a collaboration invitation token"
 msgid "Add the project to an organization that you own."
 msgstr "Neplatný token: nejedná se o token pozvánky ke spolupráci"
 
-#: warehouse/templates/manage/project/settings.html:192
+#: warehouse/templates/manage/project/settings.html:195
 msgid "Grant full project permissions to owners of the organization."
 msgstr ""
 
-#: warehouse/templates/manage/project/settings.html:208
+#: warehouse/templates/manage/project/settings.html:211
 #, fuzzy
 #| msgid "Manage project"
 msgid "Transfer project"
 msgstr "Spravovat projekt"
 
-#: warehouse/templates/manage/project/settings.html:214
+#: warehouse/templates/manage/project/settings.html:217
 #, fuzzy
 #| msgid "You are not an owner of this project"
 msgid "Cannot transfer project to another organization"
 msgstr "Nejste vlastník tohoto projektu"
 
-#: warehouse/templates/manage/project/settings.html:216
+#: warehouse/templates/manage/project/settings.html:219
 #, fuzzy
 #| msgid "Create an account"
 msgid "Cannot transfer project to an organization"
 msgstr "Vytvořit účet"
 
-#: warehouse/templates/manage/project/settings.html:220
+#: warehouse/templates/manage/project/settings.html:223
 #, fuzzy
 #| msgid "Invalid token: not a collaboration invitation token"
 msgid ""
@@ -6065,28 +6065,28 @@ msgid ""
 "manage."
 msgstr "Neplatný token: nejedná se o token pozvánky ke spolupráci"
 
-#: warehouse/templates/manage/project/settings.html:222
+#: warehouse/templates/manage/project/settings.html:225
 #, fuzzy
 #| msgid "You are not an owner of this project"
 msgid "You are not an owner or manager of any other organizations."
 msgstr "Nejste vlastník tohoto projektu"
 
-#: warehouse/templates/manage/project/settings.html:224
+#: warehouse/templates/manage/project/settings.html:227
 #, fuzzy
 #| msgid "%(user)s has not uploaded any projects to PyPI, yet"
 msgid "You are not an owner or manager of any organizations."
 msgstr "%(user)s nenahrál zatím žádné projekty na PyPI"
 
-#: warehouse/templates/manage/project/settings.html:233
-#: warehouse/templates/manage/project/settings.html:264
+#: warehouse/templates/manage/project/settings.html:237
+#: warehouse/templates/manage/project/settings.html:268
 msgid "Delete project"
 msgstr "Smazat projekt"
 
-#: warehouse/templates/manage/project/settings.html:236
+#: warehouse/templates/manage/project/settings.html:240
 msgid "Deleting this project will:"
 msgstr "Smazání projektu způsobí:"
 
-#: warehouse/templates/manage/project/settings.html:241
+#: warehouse/templates/manage/project/settings.html:245
 #, python-format
 msgid ""
 "Irreversibly delete the project along with <a href=\"%(href)s\">%(count)s "
@@ -6101,17 +6101,17 @@ msgstr[1] ""
 msgstr[2] ""
 "Nezvratně smaže projekt včetně jeho <a href=\"%(href)s\">%(count)s vydání</a>"
 
-#: warehouse/templates/manage/project/settings.html:247
+#: warehouse/templates/manage/project/settings.html:251
 msgid "Irreversibly delete the project"
 msgstr "Nevratně smaže tento projekt"
 
-#: warehouse/templates/manage/project/settings.html:251
+#: warehouse/templates/manage/project/settings.html:255
 msgid "Make the project name available to <strong>any other PyPI</strong> user"
 msgstr ""
 "Uvolní jméno pro projektu pro použití <strong>jakýmkoliv jiným PyPI</strong> "
 "uživatelem"
 
-#: warehouse/templates/manage/project/settings.html:253
+#: warehouse/templates/manage/project/settings.html:257
 msgid ""
 "This user will be able to make new releases under this project name, so long "
 "as the distribution filenames do not match filenames from a previously "
