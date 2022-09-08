@@ -2654,6 +2654,14 @@ class TestManageOrganizationSettings:
         )
         monkeypatch.setattr(views, "SaveOrganizationForm", save_organization_cls)
 
+        save_organization_name_obj = pretend.stub()
+        save_organization_name_cls = pretend.call_recorder(
+            lambda *a, **kw: save_organization_name_obj
+        )
+        monkeypatch.setattr(
+            views, "SaveOrganizationNameForm", save_organization_name_cls
+        )
+
         view = views.ManageOrganizationSettingsViews(organization, db_request)
         result = view.manage_organization()
 
@@ -2662,6 +2670,7 @@ class TestManageOrganizationSettings:
         assert result == {
             "organization": organization,
             "save_organization_form": save_organization_obj,
+            "save_organization_name_form": save_organization_name_obj,
             "active_projects": view.active_projects,
         }
         assert save_organization_cls.calls == [
@@ -2739,6 +2748,14 @@ class TestManageOrganizationSettings:
             lambda *a, **kw: save_organization_obj
         )
         monkeypatch.setattr(views, "SaveOrganizationForm", save_organization_cls)
+
+        save_organization_name_obj = pretend.stub()
+        save_organization_name_cls = pretend.call_recorder(
+            lambda *a, **kw: save_organization_name_obj
+        )
+        monkeypatch.setattr(
+            views, "SaveOrganizationNameForm", save_organization_name_cls
+        )
 
         view = views.ManageOrganizationSettingsViews(organization, db_request)
         result = view.save_organization()
@@ -2878,7 +2895,10 @@ class TestManageOrganizationSettings:
         view = views.ManageOrganizationSettingsViews(organization, db_request)
         result = view.save_organization_name()
 
-        assert result == view.default_response
+        assert result == {
+            **view.default_response,
+            "save_organization_name_form": save_organization_name_obj,
+        }
         assert organization_service.rename_organization.calls == []
 
     def test_save_organization_name_disable_organizations(self, db_request):
@@ -2968,6 +2988,14 @@ class TestManageOrganizationSettings:
             lambda *a, **kw: save_organization_obj
         )
         monkeypatch.setattr(views, "SaveOrganizationForm", save_organization_cls)
+
+        save_organization_name_obj = pretend.stub()
+        save_organization_name_cls = pretend.call_recorder(
+            lambda *a, **kw: save_organization_name_obj
+        )
+        monkeypatch.setattr(
+            views, "SaveOrganizationNameForm", save_organization_name_cls
+        )
 
         monkeypatch.setattr(
             organization_service,
