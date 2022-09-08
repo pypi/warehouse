@@ -1465,6 +1465,7 @@ class ManageOrganizationSettingsViews:
                     "manage.organization.settings",
                     organization_name=self.organization.normalized_name,
                 )
+                + "#modal-close"
             )
 
         return {**self.default_response, "save_organization_name_form": form}

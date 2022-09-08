@@ -2836,9 +2836,8 @@ class TestManageOrganizationSettings:
         result = view.save_organization_name()
 
         assert isinstance(result, HTTPSeeOther)
-        assert (
-            result.headers["Location"]
-            == f"/manage/organization/{organization.normalized_name}/settings/"
+        assert result.headers["Location"] == (
+            f"/manage/organization/{organization.normalized_name}/settings/#modal-close"
         )
         assert organization_service.rename_organization.calls == [
             pretend.call(organization.id, "new-name")
