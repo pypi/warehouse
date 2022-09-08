@@ -167,7 +167,9 @@ class ISubscriptionService(Interface):
         by the payment service provider subscription id or None
         """
 
-    def add_subscription(customer_id, subscription_id, subscription_item_id):
+    def add_subscription(
+        customer_id, subscription_id, subscription_item_id, billing_email
+    ):
         """
         Attempts to create a subscription object for the organization
         with the specified customer ID and subscription ID
@@ -191,6 +193,11 @@ class ISubscriptionService(Interface):
     def delete_customer(customer_id):
         """
         Deletes a customer and all associated subscription data
+        """
+
+    def update_customer_email(customer_id, billing_email):
+        """
+        Update the customer's billing email
         """
 
     def get_subscription_product(subscription_product_id):

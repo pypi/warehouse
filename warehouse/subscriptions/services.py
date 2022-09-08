@@ -382,7 +382,9 @@ class StripeSubscriptionService:
 
         return id
 
-    def add_subscription(self, customer_id, subscription_id, subscription_item_id):
+    def add_subscription(
+        self, customer_id, subscription_id, subscription_item_id, billing_email
+    ):
         """
         Attempts to create a subscription object for the organization
         with the specified customer ID and subscription ID
@@ -398,12 +400,17 @@ class StripeSubscriptionService:
             status=StripeSubscriptionStatus.Active,  # default active subscription
         )
 
-        # Link to organization.
+        # Get the organization stripe customer.
         organization_stripe_customer = (
             self.db.query(OrganizationStripeCustomer)
             .filter(OrganizationStripeCustomer.customer_id == customer_id)
             .one()
         )
+
+        # Set the billing email
+        organization_stripe_customer.billing_email = billing_email
+
+        # Link to organization.
         organization_subscription = OrganizationStripeSubscription(
             organization=organization_stripe_customer.organization,
             subscription=subscription,
@@ -476,6 +483,14 @@ class StripeSubscriptionService:
         self.db.query(OrganizationStripeCustomer).filter(
             OrganizationStripeCustomer.customer_id == customer_id
         ).delete()
+
+    def update_customer_email(self, customer_id, billing_email):
+        """
+        Update the customer's billing email
+        """
+        self.db.query(OrganizationStripeCustomer).filter(
+            OrganizationStripeCustomer.customer_id == customer_id,
+        ).update({OrganizationStripeCustomer.billing_email: billing_email})
 
     def get_subscription_product(self, subscription_product_id):
         """

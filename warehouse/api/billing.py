@@ -35,6 +35,7 @@ def handle_billing_webhook_event(request, event):
             )
             status = checkout_session["status"]
             customer_id = checkout_session["customer"]["id"]
+            billing_email = checkout_session["customer"]["email"]
             subscription_id = checkout_session["subscription"]["id"]
             if status != "complete":
                 raise HTTPBadRequest(f"Invalid checkout session status '{status}'")
@@ -53,7 +54,10 @@ def handle_billing_webhook_event(request, event):
                 # Activate subscription for customer.
                 for subscription_item in subscription_items:
                     subscription_service.add_subscription(
-                        customer_id, subscription_id, subscription_item["id"]
+                        customer_id,
+                        subscription_id,
+                        subscription_item["id"],
+                        billing_email,
                     )
         # Occurs whenever a customer’s subscription ends.
         case "customer.subscription.deleted":
@@ -103,6 +107,17 @@ def handle_billing_webhook_event(request, event):
                 subscription_service.delete_customer(customer_id)
             else:
                 raise HTTPNotFound("Customer subscription data not found")
+        # Occurs whenever a customer is updated.
+        case "customer.updated":
+            customer = event["data"]["object"]
+            customer_id = customer["id"]
+            billing_email = customer["email"]
+            if not customer_id:
+                raise HTTPBadRequest("Invalid customer ID")
+            if not billing_email:
+                raise HTTPBadRequest("Invalid billing email")
+            # Update customer email
+            subscription_service.update_customer_email(customer_id, billing_email)
 
 
 @view_config(
