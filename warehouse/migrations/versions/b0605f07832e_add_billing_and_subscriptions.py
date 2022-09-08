@@ -12,9 +12,9 @@
 """
 add_billing_and_subscriptions
 
-Revision ID: 944d0a47db9d
+Revision ID: b0605f07832e
 Revises: 7eaad728b806
-Create Date: 2022-08-10 03:30:13.933665
+Create Date: 2022-09-07 22:36:07.746238
 """
 
 import sqlalchemy as sa
@@ -22,7 +22,7 @@ import sqlalchemy as sa
 from alembic import op
 from sqlalchemy.dialects import postgresql
 
-revision = "944d0a47db9d"
+revision = "b0605f07832e"
 down_revision = "7eaad728b806"
 
 # Note: It is VERY important to ensure that a migration does not lock for a
@@ -115,6 +115,7 @@ def upgrade():
         ),
         sa.Column("organization_id", postgresql.UUID(as_uuid=True), nullable=False),
         sa.Column("customer_id", sa.Text(), nullable=False),
+        sa.Column("billing_email", sa.Text(), nullable=True),
         sa.ForeignKeyConstraint(
             ["organization_id"],
             ["organizations.id"],
