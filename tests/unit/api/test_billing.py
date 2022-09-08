@@ -60,6 +60,7 @@ class TestHandleBillingWebhookEvent:
             "id": "cs_test_12345",
             "customer": {
                 "id": organization_stripe_customer.customer_id,
+                "email": "good@day.com",
             },
             "status": "complete",
             "subscription": {
@@ -101,6 +102,7 @@ class TestHandleBillingWebhookEvent:
             "id": "cs_test_12345",
             "customer": {
                 "id": organization_stripe_customer.customer_id,
+                "email": "good@day.com",
             },
             "status": "complete",
             "subscription": {
@@ -155,6 +157,7 @@ class TestHandleBillingWebhookEvent:
             "id": "cs_test_12345",
             "customer": {
                 "id": "",
+                "email": "good@day.com",
             },
             "status": "complete",
             "subscription": {
@@ -192,6 +195,7 @@ class TestHandleBillingWebhookEvent:
             "id": "cs_test_12345",
             "customer": {
                 "id": "cus_1234",
+                "email": "good@day.com",
             },
             "status": "complete",
             "subscription": {
@@ -505,6 +509,50 @@ class TestHandleBillingWebhookEvent:
         }
 
         billing.handle_billing_webhook_event(db_request, event)
+
+    # customer.updated
+    def test_handle_billing_webhook_event_customer_updated_email(self, db_request):
+        event = {
+            "type": "customer.updated",
+            "data": {
+                "object": {
+                    "id": "cus_12345",
+                    "email": "great@day.com",
+                },
+            },
+        }
+
+        billing.handle_billing_webhook_event(db_request, event)
+
+    def test_handle_billing_webhook_event_customer_updated_invalid_customer(
+        self, db_request
+    ):
+        event = {
+            "type": "customer.updated",
+            "data": {
+                "object": {
+                    "id": "",
+                    "email": "good@day.com",
+                },
+            },
+        }
+
+        with pytest.raises(HTTPBadRequest):
+            billing.handle_billing_webhook_event(db_request, event)
+
+    def test_handle_billing_webhook_event_no_billing_email(self, db_request):
+        event = {
+            "type": "customer.updated",
+            "data": {
+                "object": {
+                    "id": "cus_12345",
+                    "email": "",
+                },
+            },
+        }
+
+        with pytest.raises(HTTPBadRequest):
+            billing.handle_billing_webhook_event(db_request, event)
 
 
 class TestBillingWebhook:

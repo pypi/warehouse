@@ -126,6 +126,7 @@ class OrganizationStripeCustomerFactory(WarehouseFactory):
 
     id = factory.Faker("uuid4", cast_to=None)
     customer_id = factory.Faker("uuid4")
+    billing_email = factory.Faker("safe_email")
     organization = factory.SubFactory(OrganizationFactory)
 
 

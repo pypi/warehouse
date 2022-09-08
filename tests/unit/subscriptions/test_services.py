@@ -442,6 +442,7 @@ class TestStripeSubscriptionService:
             customer_id=organization_stripe_customer.customer_id,
             subscription_id="sub_12345",
             subscription_item_id="si_12345",
+            billing_email="good@day.com",
         )
 
         subscription_service.db.flush()
@@ -562,6 +563,19 @@ class TestStripeSubscriptionService:
                 .count()
             )
         )
+
+    def test_update_customer_email(self, subscription_service, db_request):
+        organization = OrganizationFactory.create()
+        organization_stripe_customer = OrganizationStripeCustomerFactory.create(
+            organization=organization
+        )
+
+        subscription_service.update_customer_email(
+            organization_stripe_customer.customer_id,
+            billing_email="great@day.com",
+        )
+
+        assert organization_stripe_customer.billing_email == "great@day.com"
 
     def test_get_subscription_products(self, subscription_service):
         subscription_product = StripeSubscriptionProductFactory.create()
