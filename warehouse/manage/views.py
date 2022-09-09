@@ -1678,8 +1678,8 @@ class ManageOrganizationTeamsViews:
             "organization": self.organization,
             "create_team_form": CreateTeamForm(
                 self.request.POST,
-                organization_id=self.organization.id,
                 organization_service=self.organization_service,
+                organization_id=self.organization.id,
             ),
         }
 
@@ -2317,8 +2317,9 @@ class ManageTeamSettingsViews:
             "team": self.team,
             "save_team_form": SaveTeamForm(
                 name=self.team.name,
-                organization_id=self.team.organization_id,
                 organization_service=self.organization_service,
+                organization_id=self.team.organization_id,
+                team_id=self.team.id,
             ),
         }
 
@@ -2330,8 +2331,9 @@ class ManageTeamSettingsViews:
     def save_team(self):
         form = SaveTeamForm(
             self.request.POST,
-            organization_id=self.team.organization_id,
             organization_service=self.organization_service,
+            organization_id=self.team.organization_id,
+            team_id=self.team.id,
         )
 
         if form.validate():

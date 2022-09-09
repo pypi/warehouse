@@ -4884,8 +4884,17 @@ class TestManageTeamSettings:
     def test_save_team_validation_fails(
         self, db_request, organization_service, enable_organizations
     ):
-        team = TeamFactory.create(name="Team Name")
-        db_request.POST = MultiDict({"name": "Team Name"})
+        organization = OrganizationFactory.create()
+        team = TeamFactory.create(
+            name="Team Name",
+            organization=organization,
+        )
+        TeamFactory.create(
+            name="Existing Team Name",
+            organization=organization,
+        )
+
+        db_request.POST = MultiDict({"name": "Existing Team Name"})
 
         view = views.ManageTeamSettingsViews(team, db_request)
         result = view.save_team()
@@ -4897,7 +4906,7 @@ class TestManageTeamSettings:
         }
         assert team.name == "Team Name"
         assert form.name.errors == [
-            ("This team name has already been used. " "Choose a different team name.")
+            "This team name has already been used. Choose a different team name."
         ]
 
     def test_delete_team(
