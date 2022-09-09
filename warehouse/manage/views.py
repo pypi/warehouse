@@ -1446,6 +1446,7 @@ class ManageOrganizationSettingsViews:
         form = SaveOrganizationNameForm(
             self.request.POST,
             organization_service=self.organization_service,
+            organization_id=self.organization.id,
         )
 
         if form.validate():
