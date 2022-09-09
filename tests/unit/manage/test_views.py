@@ -5697,6 +5697,7 @@ class TestManageProjectSettings:
     def test_remove_organization_project_no_confirm(self):
         user = pretend.stub()
         project = pretend.stub(
+            name="foo",
             normalized_name="foo",
             organization=pretend.stub(owners=[user]),
             owners=[user],
@@ -5724,6 +5725,7 @@ class TestManageProjectSettings:
     def test_remove_organization_project_wrong_confirm(self):
         user = pretend.stub()
         project = pretend.stub(
+            name="foo",
             normalized_name="foo",
             organization=pretend.stub(owners=[user]),
             owners=[user],
@@ -5783,7 +5785,7 @@ class TestManageProjectSettings:
 
         db_request.POST = MultiDict(
             {
-                "confirm_remove_organization_project_name": project.normalized_name,
+                "confirm_remove_organization_project_name": project.name,
             }
         )
         db_request.flags = pretend.stub(enabled=pretend.call_recorder(lambda *a: False))
@@ -5857,7 +5859,7 @@ class TestManageProjectSettings:
 
         db_request.POST = MultiDict(
             {
-                "confirm_remove_organization_project_name": project.normalized_name,
+                "confirm_remove_organization_project_name": project.name,
             }
         )
         db_request.flags = pretend.stub(enabled=pretend.call_recorder(lambda *a: False))
@@ -5899,7 +5901,7 @@ class TestManageProjectSettings:
 
         db_request.POST = MultiDict(
             {
-                "confirm_remove_organization_project_name": project.normalized_name,
+                "confirm_remove_organization_project_name": project.name,
             }
         )
         db_request.flags = pretend.stub(enabled=pretend.call_recorder(lambda *a: False))
@@ -5945,6 +5947,7 @@ class TestManageProjectSettings:
     def test_transfer_organization_project_no_confirm(self):
         user = pretend.stub()
         project = pretend.stub(
+            name="foo",
             normalized_name="foo",
             organization=pretend.stub(owners=[user]),
         )
@@ -5971,6 +5974,7 @@ class TestManageProjectSettings:
     def test_transfer_organization_project_wrong_confirm(self):
         user = pretend.stub()
         project = pretend.stub(
+            name="foo",
             normalized_name="foo",
             organization=pretend.stub(owners=[user]),
         )
@@ -6030,7 +6034,7 @@ class TestManageProjectSettings:
         db_request.POST = MultiDict(
             {
                 "organization": organization.normalized_name,
-                "confirm_transfer_organization_project_name": project.normalized_name,
+                "confirm_transfer_organization_project_name": project.name,
             }
         )
         db_request.flags = pretend.stub(enabled=pretend.call_recorder(lambda *a: False))
@@ -6127,7 +6131,7 @@ class TestManageProjectSettings:
         db_request.POST = MultiDict(
             {
                 "organization": organization.normalized_name,
-                "confirm_transfer_organization_project_name": project.normalized_name,
+                "confirm_transfer_organization_project_name": project.name,
             }
         )
         db_request.flags = pretend.stub(enabled=pretend.call_recorder(lambda *a: False))
@@ -6198,7 +6202,7 @@ class TestManageProjectSettings:
         db_request.POST = MultiDict(
             {
                 "organization": "",
-                "confirm_transfer_organization_project_name": project.normalized_name,
+                "confirm_transfer_organization_project_name": project.name,
             }
         )
         db_request.flags = pretend.stub(enabled=pretend.call_recorder(lambda *a: False))
@@ -6234,7 +6238,7 @@ class TestManageProjectSettings:
         db_request.POST = MultiDict(
             {
                 "organization": organization.normalized_name,
-                "confirm_transfer_organization_project_name": project.normalized_name,
+                "confirm_transfer_organization_project_name": project.name,
             }
         )
         db_request.flags = pretend.stub(enabled=pretend.call_recorder(lambda *a: False))
@@ -6319,7 +6323,7 @@ class TestManageProjectSettings:
         ]
 
     def test_delete_project_wrong_confirm(self):
-        project = pretend.stub(normalized_name="foo")
+        project = pretend.stub(name="foo", normalized_name="foo")
         request = pretend.stub(
             POST={"confirm_project_name": "bar"},
             flags=pretend.stub(enabled=pretend.call_recorder(lambda *a: False)),
@@ -6401,7 +6405,7 @@ class TestManageProjectSettings:
         db_request.session = pretend.stub(
             flash=pretend.call_recorder(lambda *a, **kw: None)
         )
-        db_request.POST["confirm_project_name"] = project.normalized_name
+        db_request.POST["confirm_project_name"] = project.name
         db_request.user = UserFactory.create()
 
         RoleFactory.create(project=project, user=db_request.user, role_name="Owner")
@@ -6470,7 +6474,7 @@ class TestManageProjectDocumentation:
         ]
 
     def test_destroy_project_docs_wrong_confirm(self):
-        project = pretend.stub(normalized_name="foo")
+        project = pretend.stub(name="foo", normalized_name="foo")
         request = pretend.stub(
             POST={"confirm_project_name": "bar"},
             session=pretend.stub(flash=pretend.call_recorder(lambda *a, **kw: None)),
@@ -6500,7 +6504,7 @@ class TestManageProjectDocumentation:
         db_request.session = pretend.stub(
             flash=pretend.call_recorder(lambda *a, **kw: None)
         )
-        db_request.POST["confirm_project_name"] = project.normalized_name
+        db_request.POST["confirm_project_name"] = project.name
         db_request.user = UserFactory.create()
         db_request.task = task
 
@@ -7226,7 +7230,10 @@ class TestManageProjectRelease:
         ]
 
     def test_delete_project_release_file_no_confirm(self):
-        release = pretend.stub(version="1.2.3", project=pretend.stub(name="foobar"))
+        release = pretend.stub(
+            version="1.2.3",
+            project=pretend.stub(name="foobar", normalized_name="foobar"),
+        )
         request = pretend.stub(
             POST={"confirm_project_name": ""},
             method="POST",
