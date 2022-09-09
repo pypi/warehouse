@@ -10,7 +10,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from packaging.utils import canonicalize_name
 from pyramid.httpexceptions import HTTPSeeOther
 
 
@@ -21,23 +20,27 @@ def confirm_organization(
     field_name="confirm_organization_name",
     error_message="Could not delete organization",
 ):
-    confirm = request.POST.get(field_name)
-    organization_name = organization.normalized_name
+    confirm = request.POST.get(field_name, "").strip()
     if not confirm:
         request.session.flash("Confirm the request", queue="error")
         raise HTTPSeeOther(
-            request.route_path(fail_route, organization_name=organization_name)
+            request.route_path(
+                fail_route,
+                organization_name=organization.normalized_name,
+            )
         )
-    if canonicalize_name(confirm) != organization.normalized_name:
+
+    organization_name = organization.name.strip()
+    if confirm != organization_name:
         request.session.flash(
-            (
-                f"{error_message} - "
-                f"{confirm!r} is not the same as {organization.normalized_name!r}"
-            ),
+            f"{error_message} - {confirm!r} is not the same as {organization_name!r}",
             queue="error",
         )
         raise HTTPSeeOther(
-            request.route_path(fail_route, organization_name=organization_name)
+            request.route_path(
+                fail_route,
+                organization_name=organization.normalized_name,
+            )
         )
 
 
