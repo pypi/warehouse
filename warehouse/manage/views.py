@@ -1548,12 +1548,15 @@ class ManageOrganizationBillingViews:
                 ),
                 description=self.organization.description,
             )
-            self.organization_service.add_organization_stripe_customer(
-                organization_id=self.organization.id,
+            stripe_customer = self.subscription_service.add_stripe_customer(
                 customer_id=customer["id"],
             )
+            self.organization_service.add_organization_stripe_customer(
+                organization_id=self.organization.id,
+                stripe_customer_id=stripe_customer.id,
+            )
             return customer["id"]
-        return self.organization.stripe_customer_id
+        return self.organization.billing_customer_id
 
     @property
     def price_id(self):
@@ -1596,7 +1599,7 @@ class ManageOrganizationBillingViews:
 
     def manage_subscription(self):
         portal_session = self.billing_service.create_portal_session(
-            customer_id=self.organization.stripe_customer_id,
+            customer_id=self.organization.billing_customer_id,
             return_url=self.return_url,
         )
         manage_subscription_url = portal_session["url"]
