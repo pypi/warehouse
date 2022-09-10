@@ -36,6 +36,7 @@ from ...common.db.organizations import (
     UserFactory,
 )
 from ...common.db.subscriptions import (
+    StripeCustomerFactory,
     StripeSubscriptionFactory,
     StripeSubscriptionItemFactory,
     StripeSubscriptionPriceFactory,
@@ -127,7 +128,7 @@ class TestDeleteOrganizations:
 
 
 class TestUpdateOrganizationSubscriptionUsage:
-    def test_update_organziation_subscription_usage_record(self, db_request):
+    def test_update_organization_subscription_usage_record(self, db_request):
         # Create an organization with a subscription and members
         organization = OrganizationFactory.create()
         # Add a couple members
@@ -144,15 +145,16 @@ class TestUpdateOrganizationSubscriptionUsage:
             role_name=OrganizationRoleType.Member,
         )
         # Wire up the customer, subscripton, organization, and subscription item
-        organization_stripe_customer = OrganizationStripeCustomerFactory.create(
-            organization=organization
+        stripe_customer = StripeCustomerFactory.create()
+        OrganizationStripeCustomerFactory.create(
+            organization=organization, customer=stripe_customer
         )
         subscription_product = StripeSubscriptionProductFactory.create()
         subscription_price = StripeSubscriptionPriceFactory.create(
             subscription_product=subscription_product
         )
         subscription = StripeSubscriptionFactory.create(
-            customer_id=organization_stripe_customer.customer_id,
+            customer=stripe_customer,
             subscription_price=subscription_price,
         )
         OrganizationStripeSubscriptionFactory.create(

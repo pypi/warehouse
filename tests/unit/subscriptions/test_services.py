@@ -41,6 +41,7 @@ from ...common.db.organizations import (
     OrganizationStripeSubscriptionFactory,
 )
 from ...common.db.subscriptions import (
+    StripeCustomerFactory,
     StripeSubscriptionFactory,
     StripeSubscriptionPriceFactory,
     StripeSubscriptionProductFactory,
@@ -353,12 +354,11 @@ class TestMockStripeBillingService:
 
     def test_cancel_subscription(self, billing_service, subscription_service):
         organization = OrganizationFactory.create()
-        organization_stripe_customer = OrganizationStripeCustomerFactory.create(
-            organization=organization
+        stripe_customer = StripeCustomerFactory.create()
+        OrganizationStripeCustomerFactory.create(
+            organization=organization, customer=stripe_customer
         )
-        db_subscription = StripeSubscriptionFactory.create(
-            customer_id=organization_stripe_customer.customer_id
-        )
+        db_subscription = StripeSubscriptionFactory.create(customer=stripe_customer)
 
         subscription = billing_service.cancel_subscription(
             subscription_id=db_subscription.subscription_id
@@ -420,12 +420,11 @@ class TestStripeSubscriptionService:
 
     def test_find_subscriptionid(self, subscription_service):
         organization = OrganizationFactory.create()
-        organization_stripe_customer = OrganizationStripeCustomerFactory.create(
-            organization=organization
+        stripe_customer = StripeCustomerFactory.create()
+        OrganizationStripeCustomerFactory.create(
+            organization=organization, customer=stripe_customer
         )
-        subscription = StripeSubscriptionFactory.create(
-            customer_id=organization_stripe_customer.customer_id
-        )
+        subscription = StripeSubscriptionFactory.create(customer=stripe_customer)
 
         assert (
             subscription_service.find_subscriptionid(subscription.subscription_id)
@@ -434,12 +433,13 @@ class TestStripeSubscriptionService:
 
     def test_add_subscription(self, billing_service, subscription_service):
         organization = OrganizationFactory.create()
-        organization_stripe_customer = OrganizationStripeCustomerFactory.create(
-            organization=organization
+        stripe_customer = StripeCustomerFactory.create()
+        OrganizationStripeCustomerFactory.create(
+            organization=organization, customer=stripe_customer
         )
 
         new_subscription = subscription_service.add_subscription(
-            customer_id=organization_stripe_customer.customer_id,
+            customer_id=stripe_customer.customer_id,
             subscription_id="sub_12345",
             subscription_item_id="si_12345",
             billing_email="good@day.com",
@@ -451,22 +451,25 @@ class TestStripeSubscriptionService:
             new_subscription.id
         )
 
-        assert subscription_from_db.customer_id == new_subscription.customer_id
+        assert (
+            subscription_from_db.customer.customer_id
+            == new_subscription.customer.customer_id
+        )
         assert subscription_from_db.subscription_id == new_subscription.subscription_id
         assert (
             subscription_from_db.subscription_price_id
             == new_subscription.subscription_price_id
         )
         assert subscription_from_db.status == StripeSubscriptionStatus.Active.value
+        assert stripe_customer.billing_email == "good@day.com"
 
     def test_update_subscription_status(self, subscription_service, db_request):
         organization = OrganizationFactory.create()
-        organization_stripe_customer = OrganizationStripeCustomerFactory.create(
-            organization=organization
+        stripe_customer = StripeCustomerFactory.create()
+        OrganizationStripeCustomerFactory.create(
+            organization=organization, customer=stripe_customer
         )
-        subscription = StripeSubscriptionFactory.create(
-            customer_id=organization_stripe_customer.customer_id
-        )
+        subscription = StripeSubscriptionFactory.create(customer=stripe_customer)
 
         assert subscription.status == StripeSubscriptionStatus.Active.value
 
@@ -479,12 +482,11 @@ class TestStripeSubscriptionService:
 
     def test_delete_subscription(self, subscription_service, db_request):
         organization = OrganizationFactory.create()
-        organization_stripe_customer = OrganizationStripeCustomerFactory.create(
-            organization=organization
+        stripe_customer = StripeCustomerFactory.create()
+        OrganizationStripeCustomerFactory.create(
+            organization=organization, customer=stripe_customer
         )
-        subscription = StripeSubscriptionFactory.create(
-            customer_id=organization_stripe_customer.customer_id
-        )
+        subscription = StripeSubscriptionFactory.create(customer=stripe_customer)
         OrganizationStripeSubscriptionFactory.create(
             organization=organization, subscription=subscription
         )
@@ -502,18 +504,15 @@ class TestStripeSubscriptionService:
 
     def test_get_subscriptions_by_customer(self, subscription_service):
         organization = OrganizationFactory.create()
-        organization_stripe_customer = OrganizationStripeCustomerFactory.create(
-            organization=organization
+        stripe_customer = StripeCustomerFactory.create()
+        OrganizationStripeCustomerFactory.create(
+            organization=organization, customer=stripe_customer
         )
-        subscription = StripeSubscriptionFactory.create(
-            customer_id=organization_stripe_customer.customer_id
-        )
-        subscription1 = StripeSubscriptionFactory.create(
-            customer_id=organization_stripe_customer.customer_id
-        )
+        subscription = StripeSubscriptionFactory.create(customer=stripe_customer)
+        subscription1 = StripeSubscriptionFactory.create(customer=stripe_customer)
 
         subscriptions = subscription_service.get_subscriptions_by_customer(
-            organization_stripe_customer.customer_id
+            stripe_customer.customer_id
         )
 
         assert subscription in subscriptions
@@ -521,23 +520,20 @@ class TestStripeSubscriptionService:
 
     def test_delete_customer(self, subscription_service, db_request):
         organization = OrganizationFactory.create()
-        organization_stripe_customer = OrganizationStripeCustomerFactory.create(
-            organization=organization
+        stripe_customer = StripeCustomerFactory.create()
+        OrganizationStripeCustomerFactory.create(
+            organization=organization, customer=stripe_customer
         )
-        subscription = StripeSubscriptionFactory.create(
-            customer_id=organization_stripe_customer.customer_id
-        )
+        subscription = StripeSubscriptionFactory.create(customer=stripe_customer)
         OrganizationStripeSubscriptionFactory.create(
             organization=organization, subscription=subscription
         )
-        subscription1 = StripeSubscriptionFactory.create(
-            customer_id=organization_stripe_customer.customer_id
-        )
+        subscription1 = StripeSubscriptionFactory.create(customer=stripe_customer)
         OrganizationStripeSubscriptionFactory.create(
             organization=organization, subscription=subscription1
         )
 
-        subscription_service.delete_customer(organization_stripe_customer.customer_id)
+        subscription_service.delete_customer(stripe_customer.customer_id)
 
         assert subscription_service.get_subscription(subscription.id) is None
         assert not (
@@ -566,16 +562,17 @@ class TestStripeSubscriptionService:
 
     def test_update_customer_email(self, subscription_service, db_request):
         organization = OrganizationFactory.create()
-        organization_stripe_customer = OrganizationStripeCustomerFactory.create(
-            organization=organization
+        stripe_customer = StripeCustomerFactory.create()
+        OrganizationStripeCustomerFactory.create(
+            organization=organization, customer=stripe_customer
         )
 
         subscription_service.update_customer_email(
-            organization_stripe_customer.customer_id,
+            stripe_customer.customer_id,
             billing_email="great@day.com",
         )
 
-        assert organization_stripe_customer.billing_email == "great@day.com"
+        assert stripe_customer.billing_email == "great@day.com"
 
     def test_get_subscription_products(self, subscription_service):
         subscription_product = StripeSubscriptionProductFactory.create()

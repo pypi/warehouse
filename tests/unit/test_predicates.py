@@ -97,14 +97,14 @@ class TestActiveOrganizationPredicate:
         )
         OrganizationStripeCustomerFactory(
             organization=organization,
-            customer_id="mock-customer-id",
+            stripe_customer_id="mock-customer-id",
         )
         return organization
 
     @pytest.fixture
     def active_subscription(self, organization):
         subscription = StripeSubscriptionFactory(
-            customer_id=organization.stripe_customer_id,
+            stripe_customer_id=organization.stripe_customer_id,
             status=StripeSubscriptionStatus.Active,
         )
         OrganizationStripeSubscriptionFactory(
@@ -116,7 +116,7 @@ class TestActiveOrganizationPredicate:
     @pytest.fixture
     def inactive_subscription(self, organization):
         subscription = StripeSubscriptionFactory(
-            customer_id=organization.stripe_customer_id,
+            stripe_customer_id=organization.stripe_customer_id,
             status=StripeSubscriptionStatus.PastDue,
         )
         OrganizationStripeSubscriptionFactory(

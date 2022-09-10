@@ -91,6 +91,7 @@ from ...common.db.packaging import (
     UserFactory,
 )
 from ...common.db.subscriptions import (
+    StripeCustomerFactory,
     StripeSubscriptionFactory,
     StripeSubscriptionPriceFactory,
 )
@@ -3128,12 +3129,11 @@ class TestManageOrganizationSettings:
         monkeypatch,
     ):
         organization = OrganizationFactory.create()
-        organization_stripe_customer = OrganizationStripeCustomerFactory.create(
-            organization=organization
+        stripe_customer = StripeCustomerFactory.create()
+        OrganizationStripeCustomerFactory.create(
+            organization=organization, customer=stripe_customer
         )
-        subscription = StripeSubscriptionFactory.create(
-            customer_id=organization_stripe_customer.customer_id
-        )
+        subscription = StripeSubscriptionFactory.create(customer=stripe_customer)
         OrganizationStripeSubscriptionFactory.create(
             organization=organization, subscription=subscription
         )
@@ -3200,7 +3200,7 @@ class TestManageOrganizationBillingViews:
     @pytest.fixture
     def subscription(self, organization):
         return StripeSubscriptionFactory.create(
-            customer_id=organization.stripe_customer_id
+            stripe_customer_id=organization.stripe_customer_id
         )
 
     @pytest.fixture
@@ -3220,14 +3220,14 @@ class TestManageOrganizationBillingViews:
         organization,
     ):
         billing_service = pretend.stub(
-            create_customer=lambda *a, **kw: {"id": organization.stripe_customer_id},
+            create_customer=lambda *a, **kw: {"id": organization.billing_customer_id},
         )
 
         view = views.ManageOrganizationBillingViews(organization, db_request)
         view.billing_service = billing_service
         customer_id = view.customer_id
 
-        assert customer_id == organization.stripe_customer_id
+        assert customer_id == organization.billing_customer_id
 
     def test_customer_id_local_mock(
         self,
@@ -3277,7 +3277,7 @@ class TestManageOrganizationBillingViews:
 
         billing_service = pretend.stub(
             create_checkout_session=create_checkout_session,
-            create_customer=lambda *a, **kw: {"id": organization.stripe_customer_id},
+            create_customer=lambda *a, **kw: {"id": organization.billing_customer_id},
             sync_price=lambda *a, **kw: None,
             sync_product=lambda *a, **kw: None,
         )
@@ -3288,7 +3288,7 @@ class TestManageOrganizationBillingViews:
 
         assert create_checkout_session.calls == [
             pretend.call(
-                customer_id=organization.stripe_customer_id,
+                customer_id=organization.billing_customer_id,
                 price_ids=[subscription_price.price_id],
                 success_url=view.return_url,
                 cancel_url=view.return_url,
@@ -3363,7 +3363,7 @@ class TestManageOrganizationBillingViews:
 
         assert create_portal_session.calls == [
             pretend.call(
-                customer_id=organization.stripe_customer_id,
+                customer_id=organization.billing_customer_id,
                 return_url=view.return_url,
             ),
         ]
@@ -3397,7 +3397,7 @@ class TestManageOrganizationBillingViews:
 
         assert create_portal_session.calls == [
             pretend.call(
-                customer_id=organization.stripe_customer_id,
+                customer_id=organization.billing_customer_id,
                 return_url=view.return_url,
             ),
         ]

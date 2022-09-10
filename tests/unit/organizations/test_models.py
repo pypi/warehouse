@@ -32,6 +32,7 @@ from ...common.db.organizations import (
     TeamFactory as DBTeamFactory,
 )
 from ...common.db.subscriptions import (
+    StripeCustomerFactory as DBStripeCustomerFactory,
     StripeSubscriptionFactory as DBStripeSubscriptionFactory,
 )
 
@@ -297,12 +298,11 @@ class TestTeam:
 
     def test_active_subscription(self, db_session):
         organization = DBOrganizationFactory.create()
-        organization_stripe_customer = DBOrganizationStripeCustomerFactory.create(
-            organization=organization
+        stripe_customer = DBStripeCustomerFactory.create()
+        DBOrganizationStripeCustomerFactory.create(
+            organization=organization, customer=stripe_customer
         )
-        subscription = DBStripeSubscriptionFactory.create(
-            customer_id=organization_stripe_customer.customer_id
-        )
+        subscription = DBStripeSubscriptionFactory.create(customer=stripe_customer)
         DBOrganizationStripeSubscriptionFactory.create(
             organization=organization, subscription=subscription
         )
@@ -310,11 +310,12 @@ class TestTeam:
 
     def test_active_subscription_none(self, db_session):
         organization = DBOrganizationFactory.create()
-        organization_stripe_customer = DBOrganizationStripeCustomerFactory.create(
-            organization=organization
+        stripe_customer = DBStripeCustomerFactory.create()
+        DBOrganizationStripeCustomerFactory.create(
+            organization=organization, customer=stripe_customer
         )
         subscription = DBStripeSubscriptionFactory.create(
-            customer_id=organization_stripe_customer.customer_id,
+            customer=stripe_customer,
             status="canceled",
         )
         DBOrganizationStripeSubscriptionFactory.create(
@@ -324,14 +325,30 @@ class TestTeam:
 
     def test_stripe_customer_id(self, db_session):
         organization = DBOrganizationFactory.create()
+        stripe_customer = DBStripeCustomerFactory.create()
         DBOrganizationStripeCustomerFactory.create(
             organization=organization,
-            customer_id="cus_12345",
+            customer=stripe_customer,
         )
 
-        assert organization.stripe_customer_id == "cus_12345"
+        assert organization.stripe_customer_id == stripe_customer.id
 
     def test_stripe_customer_id_none(self, db_session):
         organization = DBOrganizationFactory.create()
 
         assert organization.stripe_customer_id is None
+
+    def test_billing_customer_id(self, db_session):
+        organization = DBOrganizationFactory.create()
+        stripe_customer = DBStripeCustomerFactory.create()
+        DBOrganizationStripeCustomerFactory.create(
+            organization=organization,
+            customer=stripe_customer,
+        )
+
+        assert organization.billing_customer_id == stripe_customer.customer_id
+
+    def test_billing_customer_id_none(self, db_session):
+        organization = DBOrganizationFactory.create()
+
+        assert organization.billing_customer_id is None

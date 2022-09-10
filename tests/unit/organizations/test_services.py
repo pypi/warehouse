@@ -44,7 +44,7 @@ from ...common.db.organizations import (
     UserFactory,
 )
 from ...common.db.packaging import ProjectFactory
-from ...common.db.subscriptions import StripeSubscriptionFactory
+from ...common.db.subscriptions import StripeCustomerFactory, StripeSubscriptionFactory
 
 
 def test_database_organizations_factory():
@@ -326,12 +326,11 @@ class TestDatabaseOrganizationService:
 
     def test_delete_organization(self, organization_service, db_request):
         organization = OrganizationFactory.create()
-        organization_stripe_customer = OrganizationStripeCustomerFactory.create(
-            organization=organization
+        stripe_customer = StripeCustomerFactory.create()
+        OrganizationStripeCustomerFactory.create(
+            organization=organization, customer=stripe_customer
         )
-        subscription = StripeSubscriptionFactory.create(
-            customer_id=organization_stripe_customer.customer_id
-        )
+        subscription = StripeSubscriptionFactory.create(customer=stripe_customer)
         OrganizationStripeSubscriptionFactory.create(
             organization=organization, subscription=subscription
         )
@@ -371,6 +370,13 @@ class TestDatabaseOrganizationService:
             (
                 db_request.db.query(OrganizationStripeSubscription)
                 .filter_by(organization=organization, subscription=subscription)
+                .count()
+            )
+        )
+        assert not (
+            (
+                db_request.db.query(OrganizationStripeCustomer)
+                .filter_by(organization=organization, customer=stripe_customer)
                 .count()
             )
         )
@@ -473,12 +479,11 @@ class TestDatabaseOrganizationService:
 
     def test_add_organization_subscription(self, organization_service, db_request):
         organization = OrganizationFactory.create()
-        organization_stripe_customer = OrganizationStripeCustomerFactory.create(
-            organization=organization
+        stripe_customer = StripeCustomerFactory.create()
+        OrganizationStripeCustomerFactory.create(
+            organization=organization, customer=stripe_customer
         )
-        subscription = StripeSubscriptionFactory.create(
-            customer_id=organization_stripe_customer.customer_id
-        )
+        subscription = StripeSubscriptionFactory.create(customer=stripe_customer)
 
         organization_service.add_organization_subscription(
             organization.id, subscription.id
@@ -494,12 +499,11 @@ class TestDatabaseOrganizationService:
 
     def test_delete_organization_subscription(self, organization_service, db_request):
         organization = OrganizationFactory.create()
-        organization_stripe_customer = OrganizationStripeCustomerFactory.create(
-            organization=organization
+        stripe_customer = StripeCustomerFactory.create()
+        OrganizationStripeCustomerFactory.create(
+            organization=organization, customer=stripe_customer
         )
-        subscription = StripeSubscriptionFactory.create(
-            customer_id=organization_stripe_customer.customer_id
-        )
+        subscription = StripeSubscriptionFactory.create(customer=stripe_customer)
         OrganizationStripeSubscriptionFactory.create(
             organization=organization, subscription=subscription
         )
@@ -529,15 +533,15 @@ class TestDatabaseOrganizationService:
 
     def test_add_organization_stripe_customer(self, organization_service, db_request):
         organization = OrganizationFactory.create()
-
+        stripe_customer = StripeCustomerFactory.create()
         organization_service.add_organization_stripe_customer(
-            organization.id, "cus_1234"
+            organization.id, stripe_customer.id
         )
         assert (
             db_request.db.query(OrganizationStripeCustomer)
             .filter(
                 OrganizationStripeCustomer.organization_id == organization.id,
-                OrganizationStripeCustomer.customer_id == "cus_1234",
+                OrganizationStripeCustomer.stripe_customer_id == stripe_customer.id,
             )
             .count()
         )
