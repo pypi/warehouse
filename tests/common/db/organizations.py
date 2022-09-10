@@ -34,7 +34,7 @@ from warehouse.organizations.models import (
 from .accounts import UserFactory
 from .base import WarehouseFactory
 from .packaging import ProjectFactory
-from .subscriptions import StripeSubscriptionFactory
+from .subscriptions import StripeCustomerFactory, StripeSubscriptionFactory
 
 fake = faker.Faker()
 
@@ -125,9 +125,8 @@ class OrganizationStripeCustomerFactory(WarehouseFactory):
         model = OrganizationStripeCustomer
 
     id = factory.Faker("uuid4", cast_to=None)
-    customer_id = factory.Faker("uuid4")
-    billing_email = factory.Faker("safe_email")
     organization = factory.SubFactory(OrganizationFactory)
+    customer = factory.SubFactory(StripeCustomerFactory)
 
 
 class TeamFactory(WarehouseFactory):

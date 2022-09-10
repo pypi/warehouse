@@ -13,6 +13,7 @@
 import factory
 
 from warehouse.subscriptions.models import (
+    StripeCustomer,
     StripeSubscription,
     StripeSubscriptionItem,
     StripeSubscriptionPrice,
@@ -21,6 +22,15 @@ from warehouse.subscriptions.models import (
 )
 
 from .base import WarehouseFactory
+
+
+class StripeCustomerFactory(WarehouseFactory):
+    class Meta:
+        model = StripeCustomer
+
+    id = factory.Faker("uuid4", cast_to=None)
+    customer_id = factory.Faker("uuid4")
+    billing_email = factory.Faker("safe_email")
 
 
 class StripeSubscriptionProductFactory(WarehouseFactory):
@@ -51,10 +61,11 @@ class StripeSubscriptionFactory(WarehouseFactory):
         model = StripeSubscription
 
     id = factory.Faker("uuid4", cast_to=None)
-    customer_id = factory.Faker("uuid4")
     subscription_id = factory.Faker("uuid4")
-    subscription_price = factory.SubFactory(StripeSubscriptionPriceFactory)
     status = StripeSubscriptionStatus.Active
+
+    subscription_price = factory.SubFactory(StripeSubscriptionPriceFactory)
+    customer = factory.SubFactory(StripeCustomerFactory)
 
 
 class StripeSubscriptionItemFactory(WarehouseFactory):
