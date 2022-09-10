@@ -26,6 +26,7 @@ from warehouse.organizations.models import (
 )
 from warehouse.subscriptions.interfaces import IBillingService, ISubscriptionService
 from warehouse.subscriptions.models import (
+    StripeCustomer,
     StripeSubscription,
     StripeSubscriptionItem,
     StripeSubscriptionPrice,
@@ -392,9 +393,17 @@ class StripeSubscriptionService:
         # Get default subscription price.
         subscription_price = self.get_or_create_default_subscription_price()
 
+        # Get the stripe customer.
+        stripe_customer = self.get_stripe_customer(
+            self.find_stripe_customer_id(customer_id)
+        )
+
+        # Set the billing email
+        stripe_customer.billing_email = billing_email
+
         # Add new subscription.
         subscription = StripeSubscription(
-            customer_id=customer_id,
+            stripe_customer_id=stripe_customer.id,
             subscription_id=subscription_id,
             subscription_price_id=subscription_price.id,
             status=StripeSubscriptionStatus.Active,  # default active subscription
@@ -403,12 +412,9 @@ class StripeSubscriptionService:
         # Get the organization stripe customer.
         organization_stripe_customer = (
             self.db.query(OrganizationStripeCustomer)
-            .filter(OrganizationStripeCustomer.customer_id == customer_id)
+            .filter(OrganizationStripeCustomer.stripe_customer_id == stripe_customer.id)
             .one()
         )
-
-        # Set the billing email
-        organization_stripe_customer.billing_email = billing_email
 
         # Link to organization.
         organization_subscription = OrganizationStripeSubscription(
@@ -464,11 +470,35 @@ class StripeSubscriptionService:
         """
         Get a list of subscriptions tied to the given customer ID
         """
+        stripe_customer_id = self.find_stripe_customer_id(customer_id)
         return (
             self.db.query(StripeSubscription)
-            .filter(StripeSubscription.customer_id == customer_id)
+            .filter(StripeSubscription.stripe_customer_id == stripe_customer_id)
             .all()
         )
+
+    def get_stripe_customer(self, stripe_customer_id):
+        """
+        Get a stripe customer by id
+        """
+        return self.db.query(StripeCustomer).get(stripe_customer_id)
+
+    def find_stripe_customer_id(self, customer_id):
+        """
+        Get the stripe customer UUID tied to the given customer ID
+        """
+        try:
+            (id,) = (
+                self.db.query(StripeCustomer.id)
+                .filter(
+                    StripeCustomer.customer_id == customer_id,
+                )
+                .one()
+            )
+        except NoResultFound:
+            return
+
+        return id
 
     def delete_customer(self, customer_id):
         """
@@ -479,18 +509,38 @@ class StripeSubscriptionService:
         for subscription in subscriptions:
             self.delete_subscription(subscription.id)
 
+        stripe_customer_id = self.find_stripe_customer_id(customer_id)
         # Delete OrganizationStripeCustomer association
         self.db.query(OrganizationStripeCustomer).filter(
-            OrganizationStripeCustomer.customer_id == customer_id
+            OrganizationStripeCustomer.stripe_customer_id == stripe_customer_id
         ).delete()
+
+        # Delete StripeCustomer object
+        self.db.query(StripeCustomer).filter(
+            StripeCustomer.id == stripe_customer_id
+        ).delete()
+
+    def add_stripe_customer(self, customer_id):
+        """
+        Create a StripeCustomer object to associate to the Stripe customer ID
+        """
+        stripe_customer = StripeCustomer(
+            customer_id=customer_id,
+        )
+
+        self.db.add(stripe_customer)
+        self.db.flush()
+
+        return stripe_customer
 
     def update_customer_email(self, customer_id, billing_email):
         """
         Update the customer's billing email
         """
-        self.db.query(OrganizationStripeCustomer).filter(
-            OrganizationStripeCustomer.customer_id == customer_id,
-        ).update({OrganizationStripeCustomer.billing_email: billing_email})
+        stripe_customer_id = self.find_stripe_customer_id(customer_id)
+        self.db.query(StripeCustomer).filter(
+            StripeCustomer.id == stripe_customer_id,
+        ).update({StripeCustomer.billing_email: billing_email})
 
     def get_subscription_product(self, subscription_product_id):
         """

@@ -327,6 +327,10 @@ class DatabaseOrganizationService:
                 self.db.query(OrganizationStripeSubscription).filter_by(
                     subscription=subscription
                 ).delete()
+                # Delete customer link to organization
+                self.db.query(OrganizationStripeCustomer).filter_by(
+                    organization=organization
+                ).delete()
                 # Delete subscription object
                 self.db.query(StripeSubscription).filter(
                     StripeSubscription.id == subscription.id
@@ -455,13 +459,13 @@ class DatabaseOrganizationService:
             .first()
         )
 
-    def add_organization_stripe_customer(self, organization_id, customer_id):
+    def add_organization_stripe_customer(self, organization_id, stripe_customer_id):
         """
         Adds an association between the specified organization and customer
         """
         organization_stripe_customer = OrganizationStripeCustomer(
             organization_id=organization_id,
-            customer_id=customer_id,
+            stripe_customer_id=stripe_customer_id,
         )
 
         self.db.add(organization_stripe_customer)

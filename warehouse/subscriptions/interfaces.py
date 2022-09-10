@@ -190,9 +190,24 @@ class ISubscriptionService(Interface):
         Get a list of subscriptions tied to the given customer ID
         """
 
+    def get_stripe_customer(stripe_customer_id):
+        """
+        Get a stripe customer by id
+        """
+
+    def find_stripe_customer_id(customer_id):
+        """
+        Get the stripe customer UUID tied to the given customer ID
+        """
+
     def delete_customer(customer_id):
         """
         Deletes a customer and all associated subscription data
+        """
+
+    def add_stripe_customer(customer_id):
+        """
+        Create a StripeCustomer object to associate to the Stripe customer ID
         """
 
     def update_customer_email(customer_id, billing_email):

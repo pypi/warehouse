@@ -180,7 +180,7 @@ class IOrganizationService(Interface):
         associated to the given organization id or None
         """
 
-    def add_organization_stripe_customer(organization_id, customer_id):
+    def add_organization_stripe_customer(organization_id, stripe_customer_id):
         """
         Adds an association between the specified organization and customer
         """
