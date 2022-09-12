@@ -258,6 +258,9 @@ class Organization(HasEvents, db.Model):
     projects = orm.relationship(
         "Project", secondary=OrganizationProject.__table__, back_populates="organization", viewonly=True  # type: ignore # noqa
     )
+    customer = orm.relationship(
+        "StripeCustomer", secondary=OrganizationStripeCustomer.__table__, back_populates="organization", uselist=False, viewonly=True  # type: ignore # noqa
+    )
     subscriptions = orm.relationship(
         "StripeSubscription", secondary=OrganizationStripeSubscription.__table__, back_populates="organization", viewonly=True  # type: ignore # noqa
     )
