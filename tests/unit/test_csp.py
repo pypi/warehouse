@@ -229,6 +229,7 @@ def test_includeme():
                         "'sha256-U3hKDidudIaxBDEzwGJApJgPEf2mWk6cfMWghrAa6i0='",
                         "https://cdn.jsdelivr.net/npm/mathjax@3.2.2/",
                         "'sha256-1CldwzdEg2k1wTmf7s5RWVd7NMXI/7nxxjJM2C4DqII='",
+                        "'sha256-0POaN8stWYQxhzjKS+/eOfbbJ/u4YHO5ZagJvLpMypo='",
                     ],
                     "style-src": [
                         "'self'",

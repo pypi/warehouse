@@ -96,6 +96,7 @@ from warehouse.email import (
     send_yanked_project_release_email,
 )
 from warehouse.forklift.legacy import MAX_FILESIZE, MAX_PROJECT_SIZE
+from warehouse.macaroons import caveats
 from warehouse.macaroons.interfaces import IMacaroonService
 from warehouse.manage.forms import (
     AddEmailForm,
@@ -1004,30 +1005,39 @@ class ProvisionMacaroonViews:
         response = {**self.default_response}
         if form.validate():
             if form.validated_scope == "user":
-                macaroon_caveats = [{"permissions": form.validated_scope, "version": 1}]
+                recorded_caveats = [{"permissions": form.validated_scope, "version": 1}]
+                macaroon_caveats = [
+                    caveats.RequestUser(user_id=str(self.request.user.id))
+                ]
             else:
                 project_ids = [
                     str(project.id)
                     for project in self.request.user.projects
                     if project.normalized_name in form.validated_scope["projects"]
                 ]
-                macaroon_caveats = [
+                recorded_caveats = [
                     {"permissions": form.validated_scope, "version": 1},
                     {"project_ids": project_ids},
+                ]
+                macaroon_caveats = [
+                    caveats.ProjectName(
+                        normalized_names=form.validated_scope["projects"]
+                    ),
+                    caveats.ProjectID(project_ids=project_ids),
                 ]
 
             serialized_macaroon, macaroon = self.macaroon_service.create_macaroon(
                 location=self.request.domain,
                 user_id=self.request.user.id,
                 description=form.description.data,
-                caveats=macaroon_caveats,
+                scopes=macaroon_caveats,
             )
             self.user_service.record_event(
                 self.request.user.id,
                 tag="account:api_token:added",
                 additional={
                     "description": form.description.data,
-                    "caveats": macaroon_caveats,
+                    "caveats": recorded_caveats,
                 },
             )
             if "projects" in form.validated_scope:
@@ -1223,6 +1233,7 @@ class ManageOrganizationsViews:
     def default_response(self):
         all_user_organizations = user_organizations(self.request)
 
+        # Get list of invites as (organization, token) tuples.
         organization_invites = (
             self.organization_service.get_organization_invites_by_user(
                 self.request.user.id
@@ -1233,11 +1244,19 @@ class ManageOrganizationsViews:
             for organization_invite in organization_invites
         ]
 
+        # Get list of organizations that are approved (True) or pending (None).
+        organizations = self.organization_service.get_organizations_by_user(
+            self.request.user.id
+        )
+        organizations = [
+            organization
+            for organization in organizations
+            if organization.is_approved is not False
+        ]
+
         return {
             "organization_invites": organization_invites,
-            "organizations": self.organization_service.get_organizations_by_user(
-                self.request.user.id
-            ),
+            "organizations": organizations,
             "organizations_managed": list(
                 organization.name
                 for organization in all_user_organizations["organizations_managed"]
@@ -1385,6 +1404,9 @@ class ManageOrganizationSettingsViews:
                 orgtype=self.organization.orgtype,
                 organization_service=self.organization_service,
             ),
+            "save_organization_name_form": SaveOrganizationNameForm(
+                organization_service=self.organization_service,
+            ),
             "active_projects": self.active_projects,
         }
 
@@ -1461,13 +1483,10 @@ class ManageOrganizationSettingsViews:
                     "manage.organization.settings",
                     organization_name=self.organization.normalized_name,
                 )
+                + "#modal-close"
             )
-        else:
-            for error_list in form.errors.values():
-                for error in error_list:
-                    self.request.session.flash(error, queue="error")
 
-        return self.default_response
+        return {**self.default_response, "save_organization_name_form": form}
 
     @view_config(request_method="POST", request_param=["confirm_organization_name"])
     def delete_organization(self):

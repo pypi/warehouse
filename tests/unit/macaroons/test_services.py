@@ -23,7 +23,7 @@ import pytest
 from pymacaroons.exceptions import MacaroonDeserializationException
 
 from warehouse.errors import WarehouseDenied
-from warehouse.macaroons import services
+from warehouse.macaroons import caveats, services
 from warehouse.macaroons.models import Macaroon
 
 from ...common.db.accounts import UserFactory
@@ -62,7 +62,10 @@ class TestDatabaseMacaroonService:
     def test_find_macaroon(self, user_service, macaroon_service):
         user = UserFactory.create()
         _, macaroon = macaroon_service.create_macaroon(
-            "fake location", user.id, "fake description", [{"permissions": "user"}]
+            "fake location",
+            user.id,
+            "fake description",
+            [caveats.RequestUser(user_id=str(user.id))],
         )
 
         dm = macaroon_service.find_macaroon(str(macaroon.id))
@@ -73,7 +76,10 @@ class TestDatabaseMacaroonService:
     def test_find_from_raw(self, user_service, macaroon_service):
         user = UserFactory.create()
         serialized, macaroon = macaroon_service.create_macaroon(
-            "fake location", user.id, "fake description", [{"permissions": "user"}]
+            "fake location",
+            user.id,
+            "fake description",
+            [caveats.RequestUser(user_id=str(user.id))],
         )
 
         dm = macaroon_service.find_from_raw(serialized)
@@ -117,14 +123,20 @@ class TestDatabaseMacaroonService:
     def test_find_userid_valid_macaroon_trailinglinebreak(self, macaroon_service):
         user = UserFactory.create()
         raw_macaroon, _ = macaroon_service.create_macaroon(
-            "fake location", user.id, "fake description", [{"permissions": "user"}]
+            "fake location",
+            user.id,
+            "fake description",
+            [caveats.ProjectName(normalized_names=["foo"])],
         )
         assert macaroon_service.find_userid(f"{raw_macaroon}\n") is None
 
     def test_find_userid(self, macaroon_service):
         user = UserFactory.create()
         raw_macaroon, _ = macaroon_service.create_macaroon(
-            "fake location", user.id, "fake description", [{"permissions": "user"}]
+            "fake location",
+            user.id,
+            "fake description",
+            [caveats.RequestUser(user_id=str(user.id))],
         )
         user_id = macaroon_service.find_userid(raw_macaroon)
 
@@ -164,23 +176,23 @@ class TestDatabaseMacaroonService:
     def test_verify_invalid_macaroon(self, monkeypatch, user_service, macaroon_service):
         user = UserFactory.create()
         raw_macaroon, _ = macaroon_service.create_macaroon(
-            "fake location", user.id, "fake description", [{"permissions": "user"}]
+            "fake location",
+            user.id,
+            "fake description",
+            [caveats.RequestUser(user_id=str(user.id))],
         )
 
-        verifier_obj = pretend.stub(
-            verify=pretend.call_recorder(lambda k: WarehouseDenied("foo"))
-        )
-        verifier_cls = pretend.call_recorder(lambda *a: verifier_obj)
-        monkeypatch.setattr(services, "Verifier", verifier_cls)
+        verify = pretend.call_recorder(lambda m, k, r, c, p: WarehouseDenied("foo"))
+        monkeypatch.setattr(caveats, "verify", verify)
 
+        request = pretend.stub()
         context = pretend.stub()
-        principals = pretend.stub()
         permissions = pretend.stub()
 
         with pytest.raises(services.InvalidMacaroonError, match="foo"):
-            macaroon_service.verify(raw_macaroon, context, principals, permissions)
-        assert verifier_cls.calls == [
-            pretend.call(mock.ANY, context, principals, permissions)
+            macaroon_service.verify(raw_macaroon, request, context, permissions)
+        assert verify.calls == [
+            pretend.call(mock.ANY, mock.ANY, request, context, permissions)
         ]
 
     def test_deserialize_raw_macaroon_when_none(self, macaroon_service):
@@ -228,26 +240,31 @@ class TestDatabaseMacaroonService:
     def test_verify_valid_macaroon(self, monkeypatch, macaroon_service):
         user = UserFactory.create()
         raw_macaroon, _ = macaroon_service.create_macaroon(
-            "fake location", user.id, "fake description", [{"permissions": "user"}]
+            "fake location",
+            user.id,
+            "fake description",
+            [caveats.RequestUser(user_id=str(user.id))],
         )
 
-        verifier_obj = pretend.stub(verify=pretend.call_recorder(lambda k: True))
-        verifier_cls = pretend.call_recorder(lambda *a: verifier_obj)
-        monkeypatch.setattr(services, "Verifier", verifier_cls)
+        verify = pretend.call_recorder(lambda m, k, r, c, p: True)
+        monkeypatch.setattr(caveats, "verify", verify)
 
+        request = pretend.stub()
         context = pretend.stub()
-        principals = pretend.stub()
         permissions = pretend.stub()
 
-        assert macaroon_service.verify(raw_macaroon, context, principals, permissions)
-        assert verifier_cls.calls == [
-            pretend.call(mock.ANY, context, principals, permissions)
+        assert macaroon_service.verify(raw_macaroon, request, context, permissions)
+        assert verify.calls == [
+            pretend.call(mock.ANY, mock.ANY, request, context, permissions)
         ]
 
     def test_delete_macaroon(self, user_service, macaroon_service):
         user = UserFactory.create()
         _, macaroon = macaroon_service.create_macaroon(
-            "fake location", user.id, "fake description", [{"permissions": "user"}]
+            "fake location",
+            user.id,
+            "fake description",
+            [caveats.RequestUser(user_id=str(user.id))],
         )
         macaroon_id = str(macaroon.id)
 
@@ -265,7 +282,13 @@ class TestDatabaseMacaroonService:
     def test_get_macaroon_by_description(self, macaroon_service):
         user = UserFactory.create()
         _, macaroon = macaroon_service.create_macaroon(
-            "fake location", user.id, "fake description", [{"permissions": "user"}]
+            "fake location",
+            user.id,
+            "fake description",
+            [
+                caveats.ProjectName(normalized_names=["foo", "bar"]),
+                caveats.Expiration(expires_at=10, not_before=5),
+            ],
         )
 
         dm = macaroon_service.find_macaroon(str(macaroon.id))
@@ -274,3 +297,14 @@ class TestDatabaseMacaroonService:
             macaroon_service.get_macaroon_by_description(user.id, macaroon.description)
             == dm
         )
+
+    def test_errors_with_wrong_caveats(self, macaroon_service):
+        user = UserFactory.create()
+
+        with pytest.raises(TypeError):
+            macaroon_service.create_macaroon(
+                "fake location",
+                user.id,
+                "fake description",
+                [{"version": 1, "permissions": "user"}],
+            )

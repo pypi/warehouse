@@ -41,6 +41,7 @@ from warehouse.accounts.interfaces import (
 )
 from warehouse.admin.flags import AdminFlagValue
 from warehouse.forklift.legacy import MAX_FILESIZE, MAX_PROJECT_SIZE
+from warehouse.macaroons import caveats
 from warehouse.macaroons.interfaces import IMacaroonService
 from warehouse.manage import views
 from warehouse.metrics.interfaces import IMetricsService
@@ -1951,7 +1952,7 @@ class TestProvisionMacaroonViews:
         request = pretend.stub(
             POST={},
             domain=pretend.stub(),
-            user=pretend.stub(id=pretend.stub(), has_primary_verified_email=True),
+            user=pretend.stub(id="a user id", has_primary_verified_email=True),
             find_service=lambda interface, **kw: {
                 IMacaroonService: macaroon_service,
                 IUserService: user_service,
@@ -1987,11 +1988,8 @@ class TestProvisionMacaroonViews:
                 location=request.domain,
                 user_id=request.user.id,
                 description=create_macaroon_obj.description.data,
-                caveats=[
-                    {
-                        "permissions": create_macaroon_obj.validated_scope,
-                        "version": 1,
-                    }
+                scopes=[
+                    caveats.RequestUser(user_id="a user id"),
                 ],
             )
         ]
@@ -2082,12 +2080,11 @@ class TestProvisionMacaroonViews:
                 location=request.domain,
                 user_id=request.user.id,
                 description=create_macaroon_obj.description.data,
-                caveats=[
-                    {
-                        "permissions": create_macaroon_obj.validated_scope,
-                        "version": 1,
-                    },
-                    {"project_ids": [str(p.id) for p in request.user.projects]},
+                scopes=[
+                    caveats.ProjectName(normalized_names=["foo", "bar"]),
+                    caveats.ProjectID(
+                        project_ids=[str(p.id) for p in request.user.projects]
+                    ),
                 ],
             )
         ]
@@ -2347,7 +2344,7 @@ class TestManageOrganizations:
         )
         monkeypatch.setattr(views, "CreateOrganizationForm", create_organization_cls)
 
-        organization = pretend.stub(name=pretend.stub())
+        organization = pretend.stub(name=pretend.stub(), is_approved=None)
 
         user_organizations = pretend.call_recorder(
             lambda *a, **kw: {
@@ -2812,6 +2809,14 @@ class TestManageOrganizationSettings:
         )
         monkeypatch.setattr(views, "SaveOrganizationForm", save_organization_cls)
 
+        save_organization_name_obj = pretend.stub()
+        save_organization_name_cls = pretend.call_recorder(
+            lambda *a, **kw: save_organization_name_obj
+        )
+        monkeypatch.setattr(
+            views, "SaveOrganizationNameForm", save_organization_name_cls
+        )
+
         view = views.ManageOrganizationSettingsViews(organization, db_request)
         result = view.manage_organization()
 
@@ -2820,6 +2825,7 @@ class TestManageOrganizationSettings:
         assert result == {
             "organization": organization,
             "save_organization_form": save_organization_obj,
+            "save_organization_name_form": save_organization_name_obj,
             "active_projects": view.active_projects,
         }
         assert save_organization_cls.calls == [
@@ -2890,6 +2896,14 @@ class TestManageOrganizationSettings:
             lambda *a, **kw: save_organization_obj
         )
         monkeypatch.setattr(views, "SaveOrganizationForm", save_organization_cls)
+
+        save_organization_name_obj = pretend.stub()
+        save_organization_name_cls = pretend.call_recorder(
+            lambda *a, **kw: save_organization_name_obj
+        )
+        monkeypatch.setattr(
+            views, "SaveOrganizationNameForm", save_organization_name_cls
+        )
 
         view = views.ManageOrganizationSettingsViews(organization, db_request)
         result = view.save_organization()
@@ -2963,9 +2977,8 @@ class TestManageOrganizationSettings:
         result = view.save_organization_name()
 
         assert isinstance(result, HTTPSeeOther)
-        assert (
-            result.headers["Location"]
-            == f"/manage/organization/{organization.normalized_name}/settings/"
+        assert result.headers["Location"] == (
+            f"/manage/organization/{organization.normalized_name}/settings/#modal-close"
         )
         assert organization_service.rename_organization.calls == [
             pretend.call(organization.id, "new-name")
@@ -3022,7 +3035,10 @@ class TestManageOrganizationSettings:
         view = views.ManageOrganizationSettingsViews(organization, db_request)
         result = view.save_organization_name()
 
-        assert result == view.default_response
+        assert result == {
+            **view.default_response,
+            "save_organization_name_form": save_organization_name_obj,
+        }
         assert organization_service.rename_organization.calls == []
 
     def test_delete_organization(
@@ -3105,6 +3121,14 @@ class TestManageOrganizationSettings:
             lambda *a, **kw: save_organization_obj
         )
         monkeypatch.setattr(views, "SaveOrganizationForm", save_organization_cls)
+
+        save_organization_name_obj = pretend.stub()
+        save_organization_name_cls = pretend.call_recorder(
+            lambda *a, **kw: save_organization_name_obj
+        )
+        monkeypatch.setattr(
+            views, "SaveOrganizationNameForm", save_organization_name_cls
+        )
 
         monkeypatch.setattr(
             organization_service,

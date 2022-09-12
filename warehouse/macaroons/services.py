@@ -11,7 +11,6 @@
 # limitations under the License.
 
 import datetime
-import json
 import uuid
 
 import pymacaroons
@@ -22,7 +21,8 @@ from sqlalchemy.orm.exc import NoResultFound
 from zope.interface import implementer
 
 from warehouse.accounts.models import User
-from warehouse.macaroons.caveats import InvalidMacaroonError, Verifier
+from warehouse.macaroons import caveats
+from warehouse.macaroons.errors import InvalidMacaroonError
 from warehouse.macaroons.interfaces import IMacaroonService
 from warehouse.macaroons.models import Macaroon
 
@@ -107,10 +107,10 @@ class DatabaseMacaroonService:
             raise InvalidMacaroonError("Macaroon not found")
         return dm
 
-    def verify(self, raw_macaroon, context, principals, permission):
+    def verify(self, raw_macaroon, request, context, permission):
         """
         Returns True if the given raw (serialized) macaroon is
-        valid for the context, principals, and requested permission.
+        valid for the request, context, and requested permission.
 
         Raises InvalidMacaroonError if the macaroon is not valid.
         """
@@ -120,15 +120,14 @@ class DatabaseMacaroonService:
         if dm is None:
             raise InvalidMacaroonError("deleted or nonexistent macaroon")
 
-        verifier = Verifier(m, context, principals, permission)
-        verified = verifier.verify(dm.key)
+        verified = caveats.verify(m, dm.key, request, context, permission)
         if verified:
             dm.last_used = datetime.datetime.now()
             return True
 
         raise InvalidMacaroonError(verified.msg)
 
-    def create_macaroon(self, location, user_id, description, caveats):
+    def create_macaroon(self, location, user_id, description, scopes):
         """
         Returns a tuple of a new raw (serialized) macaroon and its DB model.
         The description provided is not embedded into the macaroon, only stored
@@ -136,12 +135,25 @@ class DatabaseMacaroonService:
         """
         user = self.db.query(User).filter(User.id == user_id).one()
 
+        if not all(isinstance(c, caveats.Caveat) for c in scopes):
+            raise TypeError("scopes must be a list of Caveat instances")
+
         # NOTE: This is a bit of a hack: we keep a separate copy of the
         # permissions caveat in the DB, so that we can display scope information
         # in the UI.
-        permissions = next(c for c in caveats if "permissions" in c)  # pragma: no cover
+        permissions = {}
+        for caveat in scopes:
+            if isinstance(caveat, caveats.ProjectName):
+                projects = permissions.setdefault("projects", [])
+                projects.extend(caveat.normalized_names)
+            elif isinstance(caveat, caveats.RequestUser):
+                permissions = "user"
+                break
+
         dm = Macaroon(
-            user=user, description=description, permissions_caveat=permissions
+            user=user,
+            description=description,
+            permissions_caveat={"permissions": permissions},
         )
         self.db.add(dm)
         self.db.flush()
@@ -152,8 +164,8 @@ class DatabaseMacaroonService:
             key=dm.key,
             version=pymacaroons.MACAROON_V2,
         )
-        for caveat in caveats:
-            m.add_first_party_caveat(json.dumps(caveat))
+        for caveat in scopes:
+            m.add_first_party_caveat(caveats.serialize(caveat))
         serialized_macaroon = f"pypi-{m.serialize()}"
         return serialized_macaroon, dm
 
