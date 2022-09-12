@@ -717,7 +717,7 @@ msgstr ""
 #: warehouse/templates/manage/manage_base.html:293
 #: warehouse/templates/manage/manage_base.html:352
 #: warehouse/templates/manage/organization/settings.html:159
-#: warehouse/templates/manage/organization/settings.html:205
+#: warehouse/templates/manage/organization/settings.html:214
 #: warehouse/templates/manage/project/documentation.html:27
 #: warehouse/templates/manage/project/release.html:163
 #: warehouse/templates/manage/project/settings.html:126
@@ -3116,7 +3116,7 @@ msgstr[0] ""
 msgstr[1] ""
 
 #: warehouse/templates/manage/account.html:705
-#: warehouse/templates/manage/organization/settings.html:194
+#: warehouse/templates/manage/organization/settings.html:203
 #, python-format
 msgid ""
 "<a href=\"%(transfer_href)s\">transfer ownership</a> or <a "
@@ -3126,7 +3126,7 @@ msgstr ""
 #: warehouse/templates/manage/account.html:714
 #: warehouse/templates/manage/account/token.html:166
 #: warehouse/templates/manage/organization/settings.html:157
-#: warehouse/templates/manage/organization/settings.html:203
+#: warehouse/templates/manage/organization/settings.html:212
 #: warehouse/templates/manage/team/settings.html:75
 msgid "Proceed with caution!"
 msgstr ""
@@ -4209,7 +4209,7 @@ msgid "Update organization"
 msgstr ""
 
 #: warehouse/templates/manage/organization/settings.html:155
-#: warehouse/templates/manage/organization/settings.html:167
+#: warehouse/templates/manage/organization/settings.html:176
 msgid "Change organization account name"
 msgstr ""
 
@@ -4219,20 +4219,20 @@ msgid ""
 "rename your organization."
 msgstr ""
 
-#: warehouse/templates/manage/organization/settings.html:167
+#: warehouse/templates/manage/organization/settings.html:176
 msgid "Current organization account name"
 msgstr ""
 
-#: warehouse/templates/manage/organization/settings.html:174
-#: warehouse/templates/manage/organization/settings.html:208
+#: warehouse/templates/manage/organization/settings.html:183
+#: warehouse/templates/manage/organization/settings.html:217
 msgid "Delete organization"
 msgstr ""
 
-#: warehouse/templates/manage/organization/settings.html:177
+#: warehouse/templates/manage/organization/settings.html:186
 msgid "Cannot delete organization"
 msgstr ""
 
-#: warehouse/templates/manage/organization/settings.html:179
+#: warehouse/templates/manage/organization/settings.html:188
 #, python-format
 msgid ""
 "\n"
@@ -4245,7 +4245,7 @@ msgid_plural ""
 msgstr[0] ""
 msgstr[1] ""
 
-#: warehouse/templates/manage/organization/settings.html:184
+#: warehouse/templates/manage/organization/settings.html:193
 msgid ""
 "\n"
 "          You must transfer ownership or delete this project before you "
@@ -4259,11 +4259,11 @@ msgid_plural ""
 msgstr[0] ""
 msgstr[1] ""
 
-#: warehouse/templates/manage/organization/settings.html:206
+#: warehouse/templates/manage/organization/settings.html:215
 msgid "You will not be able to recover your organization after you delete it."
 msgstr ""
 
-#: warehouse/templates/manage/organization/settings.html:208
+#: warehouse/templates/manage/organization/settings.html:217
 msgid "Organization Name"
 msgstr ""
 

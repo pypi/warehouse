@@ -1386,6 +1386,9 @@ class ManageOrganizationSettingsViews:
                 orgtype=self.organization.orgtype,
                 organization_service=self.organization_service,
             ),
+            "save_organization_name_form": SaveOrganizationNameForm(
+                organization_service=self.organization_service,
+            ),
             "active_projects": self.active_projects,
         }
 
@@ -1471,13 +1474,10 @@ class ManageOrganizationSettingsViews:
                     "manage.organization.settings",
                     organization_name=self.organization.normalized_name,
                 )
+                + "#modal-close"
             )
-        else:
-            for error_list in form.errors.values():
-                for error in error_list:
-                    self.request.session.flash(error, queue="error")
 
-        return self.default_response
+        return {**self.default_response, "save_organization_name_form": form}
 
     @view_config(request_method="POST", request_param=["confirm_organization_name"])
     def delete_organization(self):
