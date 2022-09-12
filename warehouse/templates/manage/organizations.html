@@ -106,6 +106,15 @@
   {{ form_error_anchor(create_organization_form) }}
   <section id="create-organization">
     <h2 class="sub-title">{% trans %}Create new organization{% endtrans %}</h2>
+    {% set pending_organization_request = organizations|selectattr("is_approved", "none")|first %}
+    {% if pending_organization_request %}
+    <p>
+      {% trans organization_name=pending_organization_request.name %}Your request for a new PyPI organization named '{{ organization_name }}' has been submitted.{% endtrans %}
+    </p>
+    <p>
+      {% trans %}You will receive an email when the organization has been approved{% endtrans %}{% trans %}.{% endtrans %}
+    </p>
+    {% else %}
     <form method="POST">
       <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
       {{ form_errors(create_organization_form) }}
@@ -213,5 +222,6 @@
 
       <input value="{% trans %}Create{% endtrans %}" class="button button--primary" type="submit">
     </form>
+    {% endif %}
   </section>
 {% endblock %}

@@ -2337,7 +2337,7 @@ class TestManageOrganizations:
         )
         monkeypatch.setattr(views, "CreateOrganizationForm", create_organization_cls)
 
-        organization = pretend.stub(name=pretend.stub())
+        organization = pretend.stub(name=pretend.stub(), is_approved=None)
 
         user_organizations = pretend.call_recorder(
             lambda *a, **kw: {

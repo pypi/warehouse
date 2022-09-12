@@ -1227,6 +1227,7 @@ class ManageOrganizationsViews:
     def default_response(self):
         all_user_organizations = user_organizations(self.request)
 
+        # Get list of invites as (organization, token) tuples.
         organization_invites = (
             self.organization_service.get_organization_invites_by_user(
                 self.request.user.id
@@ -1237,11 +1238,19 @@ class ManageOrganizationsViews:
             for organization_invite in organization_invites
         ]
 
+        # Get list of organizations that are approved (True) or pending (None).
+        organizations = self.organization_service.get_organizations_by_user(
+            self.request.user.id
+        )
+        organizations = [
+            organization
+            for organization in organizations
+            if organization.is_approved is not False
+        ]
+
         return {
             "organization_invites": organization_invites,
-            "organizations": self.organization_service.get_organizations_by_user(
-                self.request.user.id
-            ),
+            "organizations": organizations,
             "organizations_managed": list(
                 organization.name
                 for organization in all_user_organizations["organizations_managed"]
