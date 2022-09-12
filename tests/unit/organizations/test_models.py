@@ -322,33 +322,3 @@ class TestTeam:
             organization=organization, subscription=subscription
         )
         assert organization.active_subscription is None
-
-    def test_stripe_customer_id(self, db_session):
-        organization = DBOrganizationFactory.create()
-        stripe_customer = DBStripeCustomerFactory.create()
-        DBOrganizationStripeCustomerFactory.create(
-            organization=organization,
-            customer=stripe_customer,
-        )
-
-        assert organization.stripe_customer_id == stripe_customer.id
-
-    def test_stripe_customer_id_none(self, db_session):
-        organization = DBOrganizationFactory.create()
-
-        assert organization.stripe_customer_id is None
-
-    def test_billing_customer_id(self, db_session):
-        organization = DBOrganizationFactory.create()
-        stripe_customer = DBStripeCustomerFactory.create()
-        DBOrganizationStripeCustomerFactory.create(
-            organization=organization,
-            customer=stripe_customer,
-        )
-
-        assert organization.billing_customer_id == stripe_customer.customer_id
-
-    def test_billing_customer_id_none(self, db_session):
-        organization = DBOrganizationFactory.create()
-
-        assert organization.billing_customer_id is None

@@ -67,7 +67,7 @@ class MockBillingViews:
                         "mockcs_"
                         + "".join(random.choices(digits + ascii_letters, k=58))
                     ),
-                    "customer": self.organization.stripe_customer_id,
+                    "customer": self.organization.customer,
                     "status": "complete",
                     "subscription": (
                         "mocksub_"

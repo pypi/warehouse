@@ -403,32 +403,6 @@ class Organization(HasEvents, db.Model):
         else:
             return None
 
-    @property
-    def billing_customer_id(self):
-        try:
-            organization_stripe_customer = (
-                orm.object_session(self)
-                .query(OrganizationStripeCustomer)
-                .filter(OrganizationStripeCustomer.organization == self)
-                .one()
-            )
-            return organization_stripe_customer.customer.customer_id
-        except NoResultFound:
-            return None
-
-    @property
-    def stripe_customer_id(self):
-        try:
-            organization_stripe_customer = (
-                orm.object_session(self)
-                .query(OrganizationStripeCustomer)
-                .filter(OrganizationStripeCustomer.organization == self)
-                .one()
-            )
-            return organization_stripe_customer.stripe_customer_id
-        except NoResultFound:
-            return None
-
 
 class OrganizationNameCatalog(db.Model):
 

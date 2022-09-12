@@ -28,7 +28,11 @@ from sqlalchemy.dialects.postgresql import UUID
 
 from warehouse import db
 from warehouse.i18n import localize as _
-from warehouse.organizations.models import Organization, OrganizationStripeSubscription
+from warehouse.organizations.models import (
+    Organization,
+    OrganizationStripeCustomer,
+    OrganizationStripeSubscription,
+)
 from warehouse.utils.attrs import make_repr
 from warehouse.utils.enum import StrLabelEnum
 

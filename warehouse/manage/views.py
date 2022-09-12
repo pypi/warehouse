@@ -1539,7 +1539,7 @@ class ManageOrganizationBillingViews:
 
     @property
     def customer_id(self):
-        if self.organization.stripe_customer_id is None:
+        if self.organization.customer is None:
             customer = self.billing_service.create_customer(
                 name=(
                     self.request.registry.settings["site.name"]
@@ -1556,7 +1556,7 @@ class ManageOrganizationBillingViews:
                 stripe_customer_id=stripe_customer.id,
             )
             return customer["id"]
-        return self.organization.billing_customer_id
+        return self.organization.customer.customer_id
 
     @property
     def price_id(self):
@@ -1599,7 +1599,7 @@ class ManageOrganizationBillingViews:
 
     def manage_subscription(self):
         portal_session = self.billing_service.create_portal_session(
-            customer_id=self.organization.billing_customer_id,
+            customer_id=self.customer_id,
             return_url=self.return_url,
         )
         manage_subscription_url = portal_session["url"]
