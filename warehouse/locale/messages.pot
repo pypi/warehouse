@@ -344,61 +344,61 @@ msgstr ""
 msgid "Generating new recovery codes will invalidate your existing codes."
 msgstr ""
 
-#: warehouse/manage/views.py:1928
+#: warehouse/manage/views.py:1935
 msgid "User '${username}' already has ${role_name} role for organization"
 msgstr ""
 
-#: warehouse/manage/views.py:1939
+#: warehouse/manage/views.py:1946
 msgid ""
 "User '${username}' does not have a verified primary email address and "
 "cannot be added as a ${role_name} for organization"
 msgstr ""
 
-#: warehouse/manage/views.py:1953 warehouse/manage/views.py:4105
+#: warehouse/manage/views.py:1960 warehouse/manage/views.py:4112
 msgid "User '${username}' already has an active invite. Please try again later."
 msgstr ""
 
-#: warehouse/manage/views.py:2010 warehouse/manage/views.py:4172
+#: warehouse/manage/views.py:2017 warehouse/manage/views.py:4179
 msgid "Invitation sent to '${username}'"
 msgstr ""
 
-#: warehouse/manage/views.py:2050
+#: warehouse/manage/views.py:2057
 msgid "Could not find organization invitation."
 msgstr ""
 
-#: warehouse/manage/views.py:2064 warehouse/manage/views.py:4216
+#: warehouse/manage/views.py:2071 warehouse/manage/views.py:4223
 msgid "Invitation already expired."
 msgstr ""
 
-#: warehouse/manage/views.py:2097 warehouse/manage/views.py:4240
+#: warehouse/manage/views.py:2104 warehouse/manage/views.py:4247
 msgid "Invitation revoked from '${username}'."
 msgstr ""
 
-#: warehouse/manage/views.py:2485
+#: warehouse/manage/views.py:2492
 msgid "User '${username}' is already a team member"
 msgstr ""
 
-#: warehouse/manage/views.py:2900
+#: warehouse/manage/views.py:2907
 msgid ""
 "There have been too many attempted OpenID Connect registrations. Try "
 "again later."
 msgstr ""
 
-#: warehouse/manage/views.py:3990
+#: warehouse/manage/views.py:3997
 msgid "User '${username}' already has ${role_name} role for project"
 msgstr ""
 
-#: warehouse/manage/views.py:4059
+#: warehouse/manage/views.py:4066
 msgid "${username} is now ${role} of the '${project_name}' project."
 msgstr ""
 
-#: warehouse/manage/views.py:4092
+#: warehouse/manage/views.py:4099
 msgid ""
 "User '${username}' does not have a verified primary email address and "
 "cannot be added as a ${role_name} for project"
 msgstr ""
 
-#: warehouse/manage/views.py:4205
+#: warehouse/manage/views.py:4212
 msgid "Could not find role invitation."
 msgstr ""
 
@@ -910,6 +910,10 @@ msgstr ""
 
 #: warehouse/templates/confirm-action.html:17
 msgid "Confirm Action"
+msgstr ""
+
+#: warehouse/templates/confirm-action.html:26
+msgid "Are you sure?"
 msgstr ""
 
 #: warehouse/templates/error-base.html:31
@@ -3383,6 +3387,7 @@ msgstr ""
 
 #: warehouse/templates/manage/manage_base.html:319
 #: warehouse/templates/manage/manage_base.html:371
+#: warehouse/templates/manage/organization/activate_subscription.html:32
 msgid "Cancel"
 msgstr ""
 
@@ -3998,6 +4003,18 @@ msgstr ""
 msgid ""
 "Note that some older USB keys do not adhere to the FIDO standard and will"
 " not work with PyPI."
+msgstr ""
+
+#: warehouse/templates/manage/organization/activate_subscription.html:17
+#: warehouse/templates/manage/organization/activate_subscription.html:21
+#: warehouse/templates/manage/organization/activate_subscription.html:35
+msgid "Activate Subscription"
+msgstr ""
+
+#: warehouse/templates/manage/organization/activate_subscription.html:27
+msgid ""
+"Company accounts require an active subscription. Please enter up-to-date "
+"billing information to enable the account."
 msgstr ""
 
 #: warehouse/templates/manage/organization/manage_organization_base.html:20

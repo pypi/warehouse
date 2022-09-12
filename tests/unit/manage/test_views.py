@@ -3257,6 +3257,17 @@ class TestManageOrganizationBillingViews:
         with pytest.raises(HTTPNotFound):
             view.create_or_manage_subscription()
 
+    def test_activate_subscription(
+        self,
+        db_request,
+        organization,
+        enable_organizations,
+    ):
+        view = views.ManageOrganizationBillingViews(organization, db_request)
+        result = view.activate_subscription()
+
+        assert result == {"organization": organization}
+
     def test_create_subscription(
         self,
         db_request,

@@ -1339,7 +1339,7 @@ class ManageOrganizationsViews:
         if form.orgtype.data == OrganizationType.Company:
             return HTTPSeeOther(
                 self.request.route_path(
-                    "manage.organization.subscription",
+                    "manage.organization.activate_subscription",
                     organization_name=organization.normalized_name,
                 )
             )
@@ -1610,6 +1610,13 @@ class ManageOrganizationBillingViews:
                 organization_name=self.organization.normalized_name,
             )
         return HTTPSeeOther(manage_subscription_url)
+
+    @view_config(
+        route_name="manage.organization.activate_subscription",
+        renderer="manage/organization/activate_subscription.html",
+    )
+    def activate_subscription(self):
+        return {"organization": self.organization}
 
     @view_config(route_name="manage.organization.subscription")
     def create_or_manage_subscription(self):
