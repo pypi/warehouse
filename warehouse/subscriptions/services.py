@@ -339,6 +339,9 @@ class MockStripeBillingService(GenericBillingService):
         checkout_session["customer"]["id"] = mock_checkout_session.get(
             "customer", checkout_session["customer"]["id"]
         )
+        checkout_session["customer"]["email"] = mock_checkout_session.get(
+            "customer_email", checkout_session["customer"]["email"]
+        )
         checkout_session["status"] = mock_checkout_session.get(
             "status", checkout_session["status"]
         )

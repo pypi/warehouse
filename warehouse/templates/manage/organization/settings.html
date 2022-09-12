@@ -158,6 +158,10 @@
       <p class="form-group__text">{{ gettext(organization.active_subscription.status.label) }}</p>
     </div>
     <div class="form-group">
+      <span class="form-group__label">{% trans %}Billing email{% endtrans %}</span>
+      <p class="form-group__text">{{ gettext(organization.active_subscription.customer.billing_email) }}</p>
+    </div>
+    <div class="form-group">
       <a href="{{ request.route_path('manage.organization.subscription', organization_name=organization.normalized_name, _query={'next': request.current_route_path(organization_name=organization.normalized_name)}) }}" class="button button--primary">
         {% trans %}Manage billing{% endtrans %}
       </a>
