@@ -14,4 +14,4 @@
 
 {% extends "email/_base/subject.txt" %}
 
-{% block subject %}{{ initiator_username }}'s request to create a new organization named "{{ organization_name }}" was not approved{% endblock %}
+{% block subject %}{{ initiator_username }}'s request to create a new organization named '{{ organization_name }}' was not approved{% endblock %}
