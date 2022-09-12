@@ -4303,6 +4303,10 @@ msgid ""
 msgstr ""
 
 #: warehouse/templates/manage/organization/settings.html:197
+msgid "Change organization account name for"
+msgstr ""
+
+#: warehouse/templates/manage/organization/settings.html:197
 msgid "Current organization account name"
 msgstr ""
 
