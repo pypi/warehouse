@@ -38,6 +38,15 @@
     - warning: Makes border brown
     - success: Makes border green
     - bottom-margin: Adds extra margin below the callout
+
+  // Collapsible
+    - Use <details> and <summary> instead of <div> and <h3>
+    - Add open attribute to open callout block by default
+
+  <details class="callout-block" open>
+    <summary class="callout-block__heading>Required Heading</summary>
+    // Any important message here.
+  </details>
 */
 
 .callout-block {
@@ -53,6 +62,16 @@
 
   &__heading {
     @include h3;
+
+    details & {
+      padding: 15px;
+      margin: -15px;
+      cursor: pointer;
+    }
+
+    details[open] & {
+      margin-bottom: 0;
+    }
   }
 
   &:before {
