@@ -34,8 +34,8 @@
 {% block main %}
   <h2>{% trans %}People{% endtrans %}</h2>
   <p>{% trans organization_name=organization.name %}Use this page to control which PyPI users can help you to manage '{{ organization_name }}'.{% endtrans %}</p>
-  <details class="callout-block" open>
-    <summary class="callout-block__heading">{% trans %}Organization Roles{% endtrans %}</summary>
+  <details class="callout-block" data-controller="collapsible" data-collapsible-identifier="organization_roles" data-collapsible-setting="global" open>
+    <summary class="callout-block__heading" data-action="click->collapsible#save">{% trans %}Organization Roles{% endtrans %}</summary>
     <p>{% trans number_of_roles=(form.role_name.choices|length - 1) %}There are {{ number_of_roles }} possible roles for people in this organization:{% endtrans %}</p>
     <dl>
       <dt>{% trans %}Member{% endtrans %}</dt>
