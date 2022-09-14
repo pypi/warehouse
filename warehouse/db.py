@@ -19,7 +19,7 @@ import sqlalchemy
 import venusian
 import zope.sqlalchemy
 
-from sqlalchemy import event, inspect
+from sqlalchemy import Column, DateTime, event, inspect, sql
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.exc import IntegrityError, OperationalError
 from sqlalchemy.ext.declarative import declarative_base  # type: ignore
@@ -89,6 +89,11 @@ class Model(ModelBase):
         UUID(as_uuid=True),
         primary_key=True,
         server_default=sqlalchemy.text("gen_random_uuid()"),
+    )
+    created = Column(
+        DateTime(timezone=False),
+        server_default=sql.func.now(),
+        index=True,
     )
 
 

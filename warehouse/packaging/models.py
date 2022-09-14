@@ -181,12 +181,6 @@ class Project(SitemapMixin, TwoFactorRequireable, HasEvents, db.Model):
         server_default=FetchedValue(),
         server_onupdate=FetchedValue(),
     )
-    created = Column(
-        DateTime(timezone=False),
-        nullable=False,
-        server_default=sql.func.now(),
-        index=True,
-    )
     has_docs = Column(Boolean)
     upload_limit = Column(Integer, nullable=True)
     total_size_limit = Column(BigInteger, nullable=True)
@@ -442,9 +436,6 @@ class Release(db.Model):
     download_url = Column(Text)
     _pypi_ordering = Column(Integer)
     requires_python = Column(Text)
-    created = Column(
-        DateTime(timezone=False), nullable=False, server_default=sql.func.now()
-    )
 
     description_id = Column(
         ForeignKey("release_descriptions.id", onupdate="CASCADE", ondelete="CASCADE"),
@@ -720,9 +711,6 @@ class ProhibitedProjectName(db.Model):
 
     __repr__ = make_repr("name")
 
-    created = Column(
-        DateTime(timezone=False), nullable=False, server_default=sql.func.now()
-    )
     name = Column(Text, unique=True, nullable=False)
     _prohibited_by = Column(
         "prohibited_by", UUID(as_uuid=True), ForeignKey("users.id"), index=True
