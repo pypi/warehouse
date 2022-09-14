@@ -112,6 +112,13 @@ def includeme(config):
         traverse="/{project_name}",
         domain=warehouse,
     )
+    config.add_route(
+        "includes.administer-user-include",
+        "/_includes/administer-user-include/{user_name}",
+        factory="warehouse.accounts.models:UserFactory",
+        traverse="/{user_name}",
+        domain=warehouse,
+    )
 
     # Classifier Routes
     config.add_route("classifiers", "/classifiers/", domain=warehouse)

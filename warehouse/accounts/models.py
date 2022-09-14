@@ -14,6 +14,7 @@ import datetime
 import enum
 
 from citext import CIText
+from pyramid.authorization import Allow
 from sqlalchemy import (
     Boolean,
     CheckConstraint,
@@ -181,6 +182,12 @@ class User(SitemapMixin, HasEvents, db.Model):
                 self.prohibit_password_reset,
             ]
         )
+
+    def __acl__(self):
+        return [
+            (Allow, "group:admins", "admin"),
+            (Allow, "group:moderators", "moderator"),
+        ]
 
 
 class WebAuthn(db.Model):
