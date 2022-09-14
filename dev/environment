@@ -16,6 +16,13 @@ REDIS_URL=redis://redis:6379/0
 
 SESSION_SECRET="an insecure development secret"
 
+# Use stripe-mock local billing service for development.
+# Use Stripe billing service with test keys for development.
+# See Stripe Dashboard for keys. https://dashboard.stripe.com/apikeys
+# See Stripe Docs for more information. https://stripe.com/docs/keys
+BILLING_BACKEND=warehouse.subscriptions.services.MockStripeBillingService api_base=http://stripe:12111 api_version=2020-08-27
+# BILLING_BACKEND=warehouse.subscriptions.services.StripeBillingService api_version=2020-08-27 publishable_key=pk_test_123 secret_key=sk_test_123 webhook_key=whsec_123
+
 CAMO_URL={request.scheme}://{request.domain}:9000/
 CAMO_KEY=insecurecamokey
 

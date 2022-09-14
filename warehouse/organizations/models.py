@@ -79,14 +79,14 @@ class OrganizationRole(db.Model):
 
 class OrganizationProject(db.Model):
 
-    __tablename__ = "organization_project"
+    __tablename__ = "organization_projects"
     __table_args__ = (
-        Index("organization_project_organization_id_idx", "organization_id"),
-        Index("organization_project_project_id_idx", "project_id"),
+        Index("organization_projects_organization_id_idx", "organization_id"),
+        Index("organization_projects_project_id_idx", "project_id"),
         UniqueConstraint(
             "organization_id",
             "project_id",
-            name="_organization_project_organization_project_uc",
+            name="_organization_projects_organization_project_uc",
         ),
     )
 
@@ -103,6 +103,68 @@ class OrganizationProject(db.Model):
 
     organization = orm.relationship("Organization", lazy=False)
     project = orm.relationship("Project", lazy=False)
+
+
+class OrganizationStripeSubscription(db.Model):
+
+    __tablename__ = "organization_stripe_subscriptions"
+    __table_args__ = (
+        Index(
+            "organization_stripe_subscriptions_organization_id_idx", "organization_id"
+        ),
+        Index(
+            "organization_stripe_subscriptions_subscription_id_idx", "subscription_id"
+        ),
+        UniqueConstraint(
+            "organization_id",
+            "subscription_id",
+            name="_organization_stripe_subscriptions_organization_subscription_uc",
+        ),
+    )
+
+    __repr__ = make_repr("organization_id", "subscription_id")
+
+    organization_id = Column(
+        ForeignKey("organizations.id", onupdate="CASCADE", ondelete="CASCADE"),
+        nullable=False,
+    )
+    subscription_id = Column(
+        ForeignKey("stripe_subscriptions.id", onupdate="CASCADE", ondelete="CASCADE"),
+        nullable=False,
+    )
+
+    organization = orm.relationship("Organization", lazy=False)
+    subscription = orm.relationship("StripeSubscription", lazy=False)
+
+
+class OrganizationStripeCustomer(db.Model):
+
+    __tablename__ = "organization_stripe_customers"
+    __table_args__ = (
+        Index("organization_stripe_customers_organization_id_idx", "organization_id"),
+        Index(
+            "organization_stripe_customers_stripe_customer_id_idx", "stripe_customer_id"
+        ),
+        UniqueConstraint(
+            "organization_id",
+            "stripe_customer_id",
+            name="_organization_stripe_customers_organization_customer_uc",
+        ),
+    )
+
+    __repr__ = make_repr("organization_id", "stripe_customer_id")
+
+    organization_id = Column(
+        ForeignKey("organizations.id", onupdate="CASCADE", ondelete="CASCADE"),
+        nullable=False,
+    )
+    stripe_customer_id = Column(
+        ForeignKey("stripe_customers.id", onupdate="CASCADE", ondelete="CASCADE"),
+        nullable=False,
+    )
+
+    organization = orm.relationship("Organization", lazy=False)
+    customer = orm.relationship("StripeCustomer", lazy=False)
 
 
 class OrganizationType(str, enum.Enum):
@@ -195,6 +257,12 @@ class Organization(HasEvents, db.Model):
     )
     projects = orm.relationship(
         "Project", secondary=OrganizationProject.__table__, back_populates="organization", viewonly=True  # type: ignore # noqa
+    )
+    customer = orm.relationship(
+        "StripeCustomer", secondary=OrganizationStripeCustomer.__table__, back_populates="organization", uselist=False, viewonly=True  # type: ignore # noqa
+    )
+    subscriptions = orm.relationship(
+        "StripeSubscription", secondary=OrganizationStripeSubscription.__table__, back_populates="organization", viewonly=True  # type: ignore # noqa
     )
 
     @property
@@ -326,6 +394,14 @@ class Organization(HasEvents, db.Model):
                     (Allow, f"user:{role.user.id}", ["view:organization", "view:team"])
                 )
         return acls
+
+    @property
+    def active_subscription(self):
+        for subscription in self.subscriptions:
+            if not subscription.is_restricted:
+                return subscription
+        else:
+            return None
 
 
 class OrganizationNameCatalog(db.Model):

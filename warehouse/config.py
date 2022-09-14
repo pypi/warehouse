@@ -227,6 +227,7 @@ def configure(settings=None):
         coercer=int,
         default=21600,  # 6 hours
     )
+    maybe_set_compound(settings, "billing", "backend", "BILLING_BACKEND")
     maybe_set_compound(settings, "files", "backend", "FILES_BACKEND")
     maybe_set_compound(settings, "simple", "backend", "SIMPLE_BACKEND")
     maybe_set_compound(settings, "docs", "backend", "DOCS_BACKEND")
@@ -551,6 +552,9 @@ def configure(settings=None):
 
     # Register our organization support.
     config.include(".organizations")
+
+    # Register our subscription support.
+    config.include(".subscriptions")
 
     # Allow the packaging app to register any services it has.
     config.include(".packaging")
