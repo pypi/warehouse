@@ -2998,6 +2998,33 @@ class TestManageOrganizationSettings:
             ),
         ]
 
+    def test_save_organization_name_wrong_confirm(
+        self, db_request, organization_service, enable_organizations, monkeypatch
+    ):
+        organization = OrganizationFactory.create(name="old-name")
+        db_request.POST = {
+            "confirm_current_organization_name": organization.name.upper(),
+            "name": "new-name",
+        }
+        db_request.route_path = pretend.call_recorder(lambda *a, **kw: "/the-redirect")
+        db_request.session = pretend.stub(
+            flash=pretend.call_recorder(lambda *a, **kw: None)
+        )
+
+        view = views.ManageOrganizationSettingsViews(organization, db_request)
+        with pytest.raises(HTTPSeeOther):
+            view.save_organization_name()
+
+        assert db_request.session.flash.calls == [
+            pretend.call(
+                (
+                    "Could not rename organization - "
+                    "'OLD-NAME' is not the same as 'old-name'"
+                ),
+                queue="error",
+            )
+        ]
+
     def test_save_organization_name_validation_fails(
         self, db_request, organization_service, enable_organizations, monkeypatch
     ):
@@ -4973,7 +5000,7 @@ class TestManageTeamSettings:
         monkeypatch,
     ):
         team = TeamFactory.create(name="Team Name")
-        db_request.POST = MultiDict({"confirm_team_name": "Wrong Team Name"})
+        db_request.POST = MultiDict({"confirm_team_name": "TEAM NAME"})
         db_request.session = pretend.stub(
             flash=pretend.call_recorder(lambda *a, **kw: None)
         )
@@ -4987,7 +5014,7 @@ class TestManageTeamSettings:
             pretend.call(
                 (
                     "Could not delete team - "
-                    "'Wrong Team Name' is not the same as 'Team Name'"
+                    "'TEAM NAME' is not the same as 'Team Name'"
                 ),
                 queue="error",
             )
@@ -5740,7 +5767,7 @@ class TestManageProjectSettings:
             owners=[user],
         )
         request = pretend.stub(
-            POST={"confirm_remove_organization_project_name": "bar"},
+            POST={"confirm_remove_organization_project_name": "FOO"},
             user=user,
             flags=pretend.stub(enabled=pretend.call_recorder(lambda *a: False)),
             session=pretend.stub(flash=pretend.call_recorder(lambda *a, **kw: None)),
@@ -5759,7 +5786,7 @@ class TestManageProjectSettings:
             pretend.call(
                 (
                     "Could not remove project from organization - "
-                    "'bar' is not the same as 'foo'"
+                    "'FOO' is not the same as 'foo'"
                 ),
                 queue="error",
             )
@@ -5988,7 +6015,7 @@ class TestManageProjectSettings:
             organization=pretend.stub(owners=[user]),
         )
         request = pretend.stub(
-            POST={"confirm_transfer_organization_project_name": "bar"},
+            POST={"confirm_transfer_organization_project_name": "FOO"},
             user=user,
             flags=pretend.stub(enabled=pretend.call_recorder(lambda *a: False)),
             session=pretend.stub(flash=pretend.call_recorder(lambda *a, **kw: None)),
@@ -6005,7 +6032,7 @@ class TestManageProjectSettings:
         ]
         assert request.session.flash.calls == [
             pretend.call(
-                "Could not transfer project - 'bar' is not the same as 'foo'",
+                "Could not transfer project - 'FOO' is not the same as 'foo'",
                 queue="error",
             )
         ]
@@ -6334,7 +6361,7 @@ class TestManageProjectSettings:
     def test_delete_project_wrong_confirm(self):
         project = pretend.stub(name="foo", normalized_name="foo")
         request = pretend.stub(
-            POST={"confirm_project_name": "bar"},
+            POST={"confirm_project_name": "FOO"},
             flags=pretend.stub(enabled=pretend.call_recorder(lambda *a: False)),
             session=pretend.stub(flash=pretend.call_recorder(lambda *a, **kw: None)),
             route_path=lambda *a, **kw: "/foo/bar/",
@@ -6350,7 +6377,7 @@ class TestManageProjectSettings:
         ]
         assert request.session.flash.calls == [
             pretend.call(
-                "Could not delete project - 'bar' is not the same as 'foo'",
+                "Could not delete project - 'FOO' is not the same as 'foo'",
                 queue="error",
             )
         ]
@@ -6485,7 +6512,7 @@ class TestManageProjectDocumentation:
     def test_destroy_project_docs_wrong_confirm(self):
         project = pretend.stub(name="foo", normalized_name="foo")
         request = pretend.stub(
-            POST={"confirm_project_name": "bar"},
+            POST={"confirm_project_name": "FOO"},
             session=pretend.stub(flash=pretend.call_recorder(lambda *a, **kw: None)),
             route_path=lambda *a, **kw: "/foo/bar/",
         )
@@ -6497,7 +6524,7 @@ class TestManageProjectDocumentation:
 
         assert request.session.flash.calls == [
             pretend.call(
-                "Could not delete project - 'bar' is not the same as 'foo'",
+                "Could not delete project - 'FOO' is not the same as 'foo'",
                 queue="error",
             )
         ]
