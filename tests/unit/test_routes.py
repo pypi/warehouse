@@ -134,6 +134,13 @@ def test_routes(warehouse):
             traverse="/{project_name}",
             domain=warehouse,
         ),
+        pretend.call(
+            "includes.administer-user-include",
+            "/_includes/administer-user-include/{user_name}",
+            factory="warehouse.accounts.models:UserFactory",
+            traverse="/{user_name}",
+            domain=warehouse,
+        ),
         pretend.call("classifiers", "/classifiers/", domain=warehouse),
         pretend.call("search", "/search/", domain=warehouse),
         pretend.call("stats", "/stats/", accept="text/html", domain=warehouse),
