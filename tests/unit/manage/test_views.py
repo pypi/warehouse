@@ -2923,10 +2923,10 @@ class TestManageOrganizationSettings:
         enable_organizations,
         monkeypatch,
     ):
-        organization = OrganizationFactory.create(name="old-name")
+        organization = OrganizationFactory.create(name="foobar")
         db_request.POST = {
             "confirm_current_organization_name": organization.name,
-            "name": "new-name",
+            "name": "FooBar",
         }
         db_request.route_path = pretend.call_recorder(
             lambda *a, organization_name, **kw: (
@@ -2981,30 +2981,30 @@ class TestManageOrganizationSettings:
             f"/manage/organization/{organization.normalized_name}/settings/#modal-close"
         )
         assert organization_service.rename_organization.calls == [
-            pretend.call(organization.id, "new-name")
+            pretend.call(organization.id, "FooBar")
         ]
         assert send_email.calls == [
             pretend.call(
                 db_request,
                 admins,
-                organization_name="new-name",
-                previous_organization_name="old-name",
+                organization_name="FooBar",
+                previous_organization_name="foobar",
             ),
             pretend.call(
                 db_request,
                 {pyramid_user},
-                organization_name="new-name",
-                previous_organization_name="old-name",
+                organization_name="FooBar",
+                previous_organization_name="foobar",
             ),
         ]
 
     def test_save_organization_name_wrong_confirm(
         self, db_request, organization_service, enable_organizations, monkeypatch
     ):
-        organization = OrganizationFactory.create(name="old-name")
+        organization = OrganizationFactory.create(name="foobar")
         db_request.POST = {
             "confirm_current_organization_name": organization.name.upper(),
-            "name": "new-name",
+            "name": "FooBar",
         }
         db_request.route_path = pretend.call_recorder(lambda *a, **kw: "/the-redirect")
         db_request.session = pretend.stub(
@@ -3019,7 +3019,7 @@ class TestManageOrganizationSettings:
             pretend.call(
                 (
                     "Could not rename organization - "
-                    "'OLD-NAME' is not the same as 'old-name'"
+                    "'FOOBAR' is not the same as 'foobar'"
                 ),
                 queue="error",
             )
@@ -3028,10 +3028,10 @@ class TestManageOrganizationSettings:
     def test_save_organization_name_validation_fails(
         self, db_request, organization_service, enable_organizations, monkeypatch
     ):
-        organization = OrganizationFactory.create(name="old-name")
+        organization = OrganizationFactory.create(name="foobar")
         db_request.POST = {
             "confirm_current_organization_name": organization.name,
-            "name": "new-name",
+            "name": "FooBar",
         }
 
         def rename_organization(organization_id, organization_name):
@@ -4898,7 +4898,7 @@ class TestManageTeamSettings:
 
     def test_save_team(self, db_request, organization_service, enable_organizations):
         team = TeamFactory.create(name="Team Name")
-        db_request.POST = MultiDict({"name": "New Team Name"})
+        db_request.POST = MultiDict({"name": "Team name"})
         db_request.route_path = pretend.call_recorder(lambda *a, **kw: "/foo/bar/")
 
         view = views.ManageTeamSettingsViews(team, db_request)
@@ -4906,7 +4906,7 @@ class TestManageTeamSettings:
 
         assert isinstance(result, HTTPSeeOther)
         assert result.headers["Location"] == "/foo/bar/"
-        assert team.name == "New Team Name"
+        assert team.name == "Team name"
 
     def test_save_team_validation_fails(
         self, db_request, organization_service, enable_organizations
