@@ -194,7 +194,7 @@
           {% endif %}
         </div>
       {% endset %}
-      {{ confirm_button(gettext("Change organization account name"), gettext("Current organization account name"), "current_organization_name", organization.name, extra_fields=extra_fields, action=action, confirm_string_in_title=False) }}
+      {{ confirm_button(gettext("Change organization account name for"), gettext("Current organization account name"), "current_organization_name", organization.name, confirm_button_label=gettext("Change organization account name"), extra_fields=extra_fields, action=action) }}
     </div>
   </section>
 

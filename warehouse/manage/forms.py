@@ -425,7 +425,13 @@ class OrganizationNameMixin:
     )
 
     def validate_name(self, field):
-        if self.organization_service.find_organizationid(field.data) is not None:
+        # Find organization by name.
+        organization_id = self.organization_service.find_organizationid(field.data)
+
+        # Name is valid if one of the following is true:
+        # - There is no name conflict with any organization.
+        # - The name conflict is with the current organization.
+        if organization_id is not None and organization_id != self.organization_id:
             raise wtforms.validators.ValidationError(
                 _(
                     "This organization account name has already been used. "
@@ -539,9 +545,10 @@ class SaveOrganizationNameForm(OrganizationNameMixin, forms.Form):
 
     __params__ = ["name"]
 
-    def __init__(self, *args, organization_service, **kwargs):
+    def __init__(self, *args, organization_service, organization_id=None, **kwargs):
         super().__init__(*args, **kwargs)
         self.organization_service = organization_service
+        self.organization_id = organization_id
 
 
 class SaveOrganizationForm(forms.Form):
@@ -640,13 +647,24 @@ class SaveTeamForm(forms.Form):
         ]
     )
 
-    def __init__(self, *args, organization_id, organization_service, **kwargs):
+    def __init__(
+        self, *args, organization_service, organization_id, team_id=None, **kwargs
+    ):
         super().__init__(*args, **kwargs)
+        self.team_id = team_id
         self.organization_id = organization_id
         self.organization_service = organization_service
 
     def validate_name(self, field):
-        if self.organization_service.find_teamid(self.organization_id, field.data):
+        # Find team by name.
+        team_id = self.organization_service.find_teamid(
+            self.organization_id, field.data
+        )
+
+        # Name is valid if one of the following is true:
+        # - There is no name conflict with any team.
+        # - The name conflict is with the current team.
+        if team_id is not None and team_id != self.team_id:
             raise wtforms.validators.ValidationError(
                 _(
                     "This team name has already been used. "

@@ -19,7 +19,7 @@ from warehouse.utils.organization import confirm_organization
 
 
 def test_confirm():
-    organization = stub(normalized_name="foobar")
+    organization = stub(name="foobar", normalized_name="foobar")
     request = stub(
         POST={"confirm_organization_name": "foobar"},
         route_path=call_recorder(lambda *a, **kw: stub()),
@@ -33,7 +33,7 @@ def test_confirm():
 
 
 def test_confirm_no_input():
-    organization = stub(normalized_name="foobar")
+    organization = stub(name="foobar", normalized_name="foobar")
     request = stub(
         POST={"confirm_organization_name": ""},
         route_path=call_recorder(lambda *a, **kw: "/the-redirect"),
@@ -49,7 +49,7 @@ def test_confirm_no_input():
 
 
 def test_confirm_incorrect_input():
-    organization = stub(normalized_name="foobar")
+    organization = stub(name="foobar", normalized_name="foobar")
     request = stub(
         POST={"confirm_organization_name": "bizbaz"},
         route_path=call_recorder(lambda *a, **kw: "/the-redirect"),
