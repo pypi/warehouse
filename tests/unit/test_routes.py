@@ -263,6 +263,20 @@ def test_routes(warehouse):
             domain=warehouse,
         ),
         pretend.call(
+            "manage.organization.activate_subscription",
+            "/manage/organization/{organization_name}/subscription/activate/",
+            factory="warehouse.organizations.models:OrganizationFactory",
+            traverse="/{organization_name}",
+            domain=warehouse,
+        ),
+        pretend.call(
+            "manage.organization.subscription",
+            "/manage/organization/{organization_name}/subscription/",
+            factory="warehouse.organizations.models:OrganizationFactory",
+            traverse="/{organization_name}",
+            domain=warehouse,
+        ),
+        pretend.call(
             "manage.organization.projects",
             "/manage/organization/{organization_name}/projects/",
             factory="warehouse.organizations.models:OrganizationFactory",
@@ -480,12 +494,35 @@ def test_routes(warehouse):
             "/_/vulnerabilities/osv/report",
             domain=warehouse,
         ),
+        pretend.call("api.billing.webhook", "/billing/webhook/", domain=warehouse),
         pretend.call("api.simple.index", "/simple/", domain=warehouse),
         pretend.call(
             "api.simple.detail",
             "/simple/{name}/",
             factory="warehouse.packaging.models:ProjectFactory",
             traverse="/{name}/",
+            domain=warehouse,
+        ),
+        # Mock URLs
+        pretend.call(
+            "mock.billing.checkout-session",
+            "/mock/billing/{organization_name}/checkout/",
+            factory="warehouse.organizations.models:OrganizationFactory",
+            traverse="/{organization_name}",
+            domain=warehouse,
+        ),
+        pretend.call(
+            "mock.billing.portal-session",
+            "/mock/billing/{organization_name}/portal/",
+            factory="warehouse.organizations.models:OrganizationFactory",
+            traverse="/{organization_name}",
+            domain=warehouse,
+        ),
+        pretend.call(
+            "mock.billing.trigger-checkout-session-completed",
+            "/mock/billing/{organization_name}/checkout/completed/",
+            factory="warehouse.organizations.models:OrganizationFactory",
+            traverse="/{organization_name}",
             domain=warehouse,
         ),
         pretend.call(

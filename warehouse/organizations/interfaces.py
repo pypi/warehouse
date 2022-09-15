@@ -158,6 +158,33 @@ class IOrganizationService(Interface):
         Removes an association between the specified organization and project
         """
 
+    def get_organization_subscription(organization_id, subscription_id):
+        """
+        Return the organization subscription object that represents the given
+        organization subscription id or None
+        """
+
+    def add_organization_subscription(organization_id, subscription_id):
+        """
+        Adds an association between the specified organization and subscription
+        """
+
+    def delete_organization_subscription(organization_id, subscription_id):
+        """
+        Delete association between specified organization and subscription
+        """
+
+    def get_organization_stripe_customer(organization_id):
+        """
+        Return the organization stripe customer object that is
+        associated to the given organization id or None
+        """
+
+    def add_organization_stripe_customer(organization_id, stripe_customer_id):
+        """
+        Adds an association between the specified organization and customer
+        """
+
     def get_teams_by_organization(organization_id):
         """
         Return a list of all team objects for the specified organization,

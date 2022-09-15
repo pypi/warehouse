@@ -25,10 +25,13 @@ from warehouse.organizations.models import (
     OrganizationNameCatalog,
     OrganizationProject,
     OrganizationRole,
+    OrganizationStripeCustomer,
+    OrganizationStripeSubscription,
     Team,
     TeamProjectRole,
     TeamRole,
 )
+from warehouse.subscriptions.models import StripeSubscription, StripeSubscriptionItem
 
 NAME_FIELD = "name"
 
@@ -313,9 +316,27 @@ class DatabaseOrganizationService:
         self.db.query(OrganizationProject).filter_by(organization=organization).delete()
         # Delete roles
         self.db.query(OrganizationRole).filter_by(organization=organization).delete()
+        # Delete billing data if it exists
+        if organization.subscriptions:
+            for subscription in organization.subscriptions:
+                # Delete subscription items
+                self.db.query(StripeSubscriptionItem).filter_by(
+                    subscription=subscription
+                ).delete()
+                # Delete link to organization
+                self.db.query(OrganizationStripeSubscription).filter_by(
+                    subscription=subscription
+                ).delete()
+                # Delete customer link to organization
+                self.db.query(OrganizationStripeCustomer).filter_by(
+                    organization=organization
+                ).delete()
+                # Delete subscription object
+                self.db.query(StripeSubscription).filter(
+                    StripeSubscription.id == subscription.id
+                ).delete()
         # Delete teams (and related data)
         self.delete_teams_by_organization(organization_id)
-        # TODO: Delete any stored card data from payment processor
         # Delete organization
         self.db.delete(organization)
         self.db.flush()
@@ -377,7 +398,7 @@ class DatabaseOrganizationService:
 
     def delete_organization_project(self, organization_id, project_id):
         """
-        Performs soft delete of association between specified organization and project
+        Delete association between specified organization and project
         """
         organization_project = self.get_organization_project(
             organization_id, project_id
@@ -385,6 +406,72 @@ class DatabaseOrganizationService:
 
         self.db.delete(organization_project)
         self.db.flush()
+
+    def get_organization_subscription(self, organization_id, subscription_id):
+        """
+        Return the organization subscription object that represents the given
+        organization subscription id or None
+        """
+        return (
+            self.db.query(OrganizationStripeSubscription)
+            .filter(
+                OrganizationStripeSubscription.organization_id == organization_id,
+                OrganizationStripeSubscription.subscription_id == subscription_id,
+            )
+            .first()
+        )
+
+    def add_organization_subscription(self, organization_id, subscription_id):
+        """
+        Adds an association between the specified organization and subscription
+        """
+        organization_subscription = OrganizationStripeSubscription(
+            organization_id=organization_id,
+            subscription_id=subscription_id,
+        )
+
+        self.db.add(organization_subscription)
+        self.db.flush()
+
+        return organization_subscription
+
+    def delete_organization_subscription(self, organization_id, subscription_id):
+        """
+        Delete association between specified organization and subscription
+        """
+        organization_subscription = self.get_organization_subscription(
+            organization_id, subscription_id
+        )
+
+        self.db.delete(organization_subscription)
+        self.db.flush()
+
+    def get_organization_stripe_customer(self, organization_id):
+        """
+        Return the organization stripe customer object that is
+        associated to the given organization id or None
+        """
+        return (
+            self.db.query(OrganizationStripeCustomer)
+            .filter(
+                OrganizationStripeCustomer.organization_id == organization_id,
+            )
+            .first()
+        )
+
+    def add_organization_stripe_customer(self, organization_id, stripe_customer_id):
+        """
+        Adds an association between the specified organization and customer
+        """
+        organization_stripe_customer = OrganizationStripeCustomer(
+            organization_id=organization_id,
+            stripe_customer_id=stripe_customer_id,
+        )
+
+        self.db.add(organization_stripe_customer)
+        self.db.flush()
+
+        return organization_stripe_customer
 
     def get_teams_by_organization(self, organization_id):
         """
