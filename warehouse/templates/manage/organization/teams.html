@@ -24,7 +24,7 @@
   <h2>{% trans team_count=organization.teams|length %}Teams ({{ team_count }}){% endtrans %}</h2>
 
   <div class="team-list">
-    {% for team in organization.teams|sort(attribute="name") %}
+    {% for team in organization.teams %}
     <div class="team-snippet">
       <div class="split-layout split-layout--no-wrap split-layout--wrap-on-tablet">
         <div>
