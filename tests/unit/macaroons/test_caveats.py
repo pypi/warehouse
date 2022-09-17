@@ -137,7 +137,9 @@ class TestDeserialization:
             deserialize(b'{"version": 1, "permissions": "user"}')
 
     def test_deserialize_with_defaults(self):
-        assert SampleCaveat.__deserialize__([1]) == SampleCaveat(first=1, second=2, third=3)
+        assert SampleCaveat.__deserialize__([1]) == SampleCaveat(
+            first=1, second=2, third=3
+        )
         assert SampleCaveat.__deserialize__([1, 5]) == SampleCaveat(
             first=1, second=5, third=3
         )
