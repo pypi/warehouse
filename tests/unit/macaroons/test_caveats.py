@@ -40,7 +40,7 @@ from ...common.db.packaging import ProjectFactory
 
 
 @dataclass(frozen=True)
-class TestCaveat(Caveat):
+class SampleCaveat(Caveat):
     first: int
     second: int = 2
     third: int = dataclasses.field(default_factory=lambda: 3)
@@ -137,11 +137,11 @@ class TestDeserialization:
             deserialize(b'{"version": 1, "permissions": "user"}')
 
     def test_deserialize_with_defaults(self):
-        assert TestCaveat.__deserialize__([1]) == TestCaveat(first=1, second=2, third=3)
-        assert TestCaveat.__deserialize__([1, 5]) == TestCaveat(
+        assert SampleCaveat.__deserialize__([1]) == SampleCaveat(first=1, second=2, third=3)
+        assert SampleCaveat.__deserialize__([1, 5]) == SampleCaveat(
             first=1, second=5, third=3
         )
-        assert TestCaveat.__deserialize__([1, 5, 7]) == TestCaveat(
+        assert SampleCaveat.__deserialize__([1, 5, 7]) == SampleCaveat(
             first=1, second=5, third=7
         )
 
