@@ -354,11 +354,11 @@ msgid ""
 "cannot be added as a ${role_name} for organization"
 msgstr ""
 
-#: warehouse/manage/views.py:1980 warehouse/manage/views.py:4145
+#: warehouse/manage/views.py:1980 warehouse/manage/views.py:4144
 msgid "User '${username}' already has an active invite. Please try again later."
 msgstr ""
 
-#: warehouse/manage/views.py:2037 warehouse/manage/views.py:4212
+#: warehouse/manage/views.py:2037 warehouse/manage/views.py:4211
 msgid "Invitation sent to '${username}'"
 msgstr ""
 
@@ -366,11 +366,11 @@ msgstr ""
 msgid "Could not find organization invitation."
 msgstr ""
 
-#: warehouse/manage/views.py:2091 warehouse/manage/views.py:4256
+#: warehouse/manage/views.py:2091 warehouse/manage/views.py:4255
 msgid "Invitation already expired."
 msgstr ""
 
-#: warehouse/manage/views.py:2124 warehouse/manage/views.py:4280
+#: warehouse/manage/views.py:2124 warehouse/manage/views.py:4279
 msgid "Invitation revoked from '${username}'."
 msgstr ""
 
@@ -378,27 +378,27 @@ msgstr ""
 msgid "User '${username}' is already a team member"
 msgstr ""
 
-#: warehouse/manage/views.py:2935
+#: warehouse/manage/views.py:2934
 msgid ""
 "There have been too many attempted OpenID Connect registrations. Try "
 "again later."
 msgstr ""
 
-#: warehouse/manage/views.py:4030
+#: warehouse/manage/views.py:4029
 msgid "User '${username}' already has ${role_name} role for project"
 msgstr ""
 
-#: warehouse/manage/views.py:4099
+#: warehouse/manage/views.py:4098
 msgid "${username} is now ${role} of the '${project_name}' project."
 msgstr ""
 
-#: warehouse/manage/views.py:4132
+#: warehouse/manage/views.py:4131
 msgid ""
 "User '${username}' does not have a verified primary email address and "
 "cannot be added as a ${role_name} for project"
 msgstr ""
 
-#: warehouse/manage/views.py:4245
+#: warehouse/manage/views.py:4244
 msgid "Could not find role invitation."
 msgstr ""
 

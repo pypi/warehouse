@@ -2764,9 +2764,8 @@ class ManageProjectSettingsViews:
                 {self.project.organization.name} if self.project.organization else set()
             )
             organization_choices = (
-                active_organizations_owned
-                | active_organizations_managed - current_organization
-            )
+                active_organizations_owned | active_organizations_managed
+            ) - current_organization
 
         return {
             "project": self.project,
@@ -3208,8 +3207,8 @@ def transfer_organization_project(project, request):
         {project.organization.name} if project.organization else set()
     )
     organization_choices = (
-        active_organizations_owned | active_organizations_managed - current_organization
-    )
+        active_organizations_owned | active_organizations_managed
+    ) - current_organization
 
     form = TransferOrganizationProjectForm(
         request.POST,
