@@ -45,14 +45,12 @@ def test_gcloud_bigquery_factory(monkeypatch):
 def test_gcloud_gcs_factory(monkeypatch):
     client = pretend.stub()
 
-    storage = pretend.stub(
-        Client=pretend.stub(
-            from_service_account_json=pretend.call_recorder(
-                lambda path, project: client
-            )
+    storage_Client = pretend.stub(
+        from_service_account_json=pretend.call_recorder(
+            lambda path, project: client
         )
     )
-    monkeypatch.setattr(gcloud, "storage", storage)
+    monkeypatch.setattr(gcloud, "storage_Client", storage_Client)
 
     request = pretend.stub(
         registry=pretend.stub(
@@ -64,7 +62,7 @@ def test_gcloud_gcs_factory(monkeypatch):
     )
 
     assert gcloud.gcloud_gcs_factory(None, request) is client
-    assert storage.Client.from_service_account_json.calls == [
+    assert storage_Client.from_service_account_json.calls == [
         pretend.call("/the/path/to/gcloud.json", project="my-cool-project")
     ]
 
