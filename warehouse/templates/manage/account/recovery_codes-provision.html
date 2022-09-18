@@ -48,13 +48,14 @@
         <h2>{% trans %}Save your recovery codes{% endtrans %}</h2>
         <div class="recovery-codes">
           <div>
-            <div class="recovery-codes__-codes">
+            <div class="recovery-codes__-codes" data-controller="clipboard">
               <ul>
                 {% for recovery_code in recovery_codes %}
                 <li><code>{{ recovery_code }}</code></li>
                 {% endfor %}
               </ul>
-              <button class="button button-secondary copy-tooltip copy-tooltip-w" data-tooltip-label="{% trans %}Copy to clipboard{% endtrans %}" data-clipboard-text="{{ 'PyPI recovery codes\n' + recovery_codes|join('\n') }}">
+              <span hidden data-clipboard-target="source">{{ 'PyPI recovery codes\n' + recovery_codes|join('\n') }}</span>
+              <button class="button button-secondary copy-tooltip copy-tooltip-w" data-action="clipboard#copy" data-clipboard-target="tooltip" data-clipboard-tooltip-value="{% trans %}Copy to clipboard{% endtrans %}">
                 {% trans %}Copy{% endtrans %}
               </button>
               {% set _sitename = "TestPyPI" if testPyPI else "PyPI" %}

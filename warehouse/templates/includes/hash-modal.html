@@ -34,29 +34,29 @@
           </tr>
         </thead>
         <tbody>
-          <tr>
+          <tr data-controller="clipboard">
             <th scope="row">SHA256</th>
-            <td><code>{{ file.sha256_digest }}</code></td>
+            <td><code data-clipboard-target="source">{{ file.sha256_digest }}</code></td>
             <td class="table__align-right">
-              <button type="button" class="button button--small copy-tooltip copy-tooltip-w" data-tooltip-label="{% trans %}Copy to clipboard{% endtrans %}" data-clipboard-text="{{ file.sha256_digest }}">
+              <button type="button" class="button button--small copy-tooltip copy-tooltip-w" data-action="clipboard#copy" data-clipboard-target="tooltip" data-clipboard-tooltip-value="{% trans %}Copy to clipboard{% endtrans %}">
                 {% trans %}Copy{% endtrans %}
               </button>
             </td>
           </tr>
-          <tr>
+          <tr data-controller="clipboard">
             <th scope="row">MD5</th>
-            <td><code>{{ file.md5_digest }}</code></td>
+            <td><code data-clipboard-target="source">{{ file.md5_digest }}</code></td>
             <td class="table__align-right">
-              <button type="button" class="button button--small copy-tooltip copy-tooltip-w" data-tooltip-label="{% trans %}Copy to clipboard{% endtrans %}" data-clipboard-text="{{ file.md5_digest }}">
+              <button type="button" class="button button--small copy-tooltip copy-tooltip-w" data-action="clipboard#copy" data-clipboard-target="tooltip" data-clipboard-tooltip-value="{% trans %}Copy to clipboard{% endtrans %}">
                 {% trans %}Copy{% endtrans %}
               </button>
             </td>
           </tr>
-          <tr>
+          <tr data-controller="clipboard">
             <th scope="row">BLAKE2b-256</th>
-            <td><code>{{ file.blake2_256_digest }}</code></td>
+            <td><code data-clipboard-target="source">{{ file.blake2_256_digest }}</code></td>
             <td class="table__align-right">
-              <button type="button" class="button button--small copy-tooltip copy-tooltip-w" data-tooltip-label="{% trans %}Copy to clipboard{% endtrans %}" data-clipboard-text="{{ file.blake2_256_digest }}">
+              <button type="button" class="button button--small copy-tooltip copy-tooltip-w" data-action="clipboard#copy" data-clipboard-target="tooltip" data-clipboard-tooltip-value="{% trans %}Copy to clipboard{% endtrans %}">
                 {% trans %}Copy{% endtrans %}
               </button>
             </td>
