@@ -355,6 +355,7 @@ def test_configure(monkeypatch, settings, environment):
             pretend.call(".malware"),
             pretend.call(".manage"),
             pretend.call(".organizations"),
+            pretend.call(".subscriptions"),
             pretend.call(".packaging"),
             pretend.call(".redirects"),
             pretend.call(".routes"),

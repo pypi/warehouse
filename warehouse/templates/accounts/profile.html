@@ -22,6 +22,8 @@
 {% endblock %}
 
 {% block content %}
+{% csi request.route_path("includes.administer-user-include", user_name=user.username) %}
+{% endcsi %}
 <div class="horizontal-section horizontal-section--medium">
   <div class="left-layout">
     <div class="left-layout__sidebar">

@@ -14,14 +14,18 @@
 {% extends "base.html" %}
 
 {% block title %}
-    {% trans %}Confirm Action{% endtrans %}
+  {% trans %}Confirm Action{% endtrans %}
 {% endblock %}
 
 {% block content %}
 
 <div class="horizontal-section">
   <div class="site-container">
-    <h1 class="page-title">Are you sure?</h1>
+    <h1 class="page-title">
+      {% block prompt %}
+        {% trans %}Are you sure?{% endtrans %}
+      {% endblock %}
+    </h1>
 
     {% block main %}{% endblock %}
   </div>

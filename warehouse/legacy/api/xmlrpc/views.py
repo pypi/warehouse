@@ -151,9 +151,9 @@ def xmlrpc_method(**kwargs):
     )
 
     def decorator(f):
-        rpc2 = _xmlrpc_method(endpoint="RPC2", **kwargs)
-        pypi = _xmlrpc_method(endpoint="pypi", **kwargs)
-        pypi_slash = _xmlrpc_method(endpoint="pypi_slash", **kwargs)
+        rpc2 = _xmlrpc_method(endpoint="xmlrpc.RPC2", **kwargs)
+        pypi = _xmlrpc_method(endpoint="xmlrpc.pypi", **kwargs)
+        pypi_slash = _xmlrpc_method(endpoint="xmlrpc.pypi_slash", **kwargs)
         return rpc2(pypi_slash(pypi(f)))
 
     return decorator
@@ -220,7 +220,7 @@ class TypedMapplyViewMapper(MapplyViewMapper):
         return super().mapply(fn, args, kwargs)
 
 
-@view_config(route_name="pypi", context=Exception, renderer="xmlrpc")
+@view_config(route_name="xmlrpc.pypi", context=Exception, renderer="xmlrpc")
 def exception_view(exc, request):
     return _exception_view(exc, request)
 

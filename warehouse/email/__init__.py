@@ -305,7 +305,7 @@ def send_token_compromised_email_leak(request, user, *, public_url, origin):
     repeat_window=datetime.timedelta(days=1),
 )
 def send_basic_auth_with_two_factor_email(request, user, *, project_name):
-    return {}
+    return {"project_name": project_name}
 
 
 @_email("account-deleted")
@@ -583,6 +583,92 @@ def send_organization_deleted_email(request, user, *, organization_name):
     }
 
 
+@_email("team-created")
+def send_team_created_email(request, user, *, organization_name, team_name):
+    return {
+        "organization_name": organization_name,
+        "team_name": team_name,
+    }
+
+
+@_email("team-deleted")
+def send_team_deleted_email(request, user, *, organization_name, team_name):
+    return {
+        "organization_name": organization_name,
+        "team_name": team_name,
+    }
+
+
+@_email("team-member-added")
+def send_team_member_added_email(
+    request,
+    email_recipients,
+    *,
+    user,
+    submitter,
+    organization_name,
+    team_name,
+):
+    return {
+        "username": user.username,
+        "submitter": submitter.username,
+        "organization_name": organization_name,
+        "team_name": team_name,
+    }
+
+
+@_email("added-as-team-member")
+def send_added_as_team_member_email(
+    request,
+    user,
+    *,
+    submitter,
+    organization_name,
+    team_name,
+):
+    return {
+        "username": user.username,
+        "submitter": submitter.username,
+        "organization_name": organization_name,
+        "team_name": team_name,
+    }
+
+
+@_email("team-member-removed")
+def send_team_member_removed_email(
+    request,
+    email_recipients,
+    *,
+    user,
+    submitter,
+    organization_name,
+    team_name,
+):
+    return {
+        "username": user.username,
+        "submitter": submitter.username,
+        "organization_name": organization_name,
+        "team_name": team_name,
+    }
+
+
+@_email("removed-as-team-member")
+def send_removed_as_team_member_email(
+    request,
+    user,
+    *,
+    submitter,
+    organization_name,
+    team_name,
+):
+    return {
+        "username": user.username,
+        "submitter": submitter.username,
+        "organization_name": organization_name,
+        "team_name": team_name,
+    }
+
+
 @_email("verify-project-role", allow_unverified=True)
 def send_project_role_verification_email(
     request,
@@ -660,6 +746,76 @@ def send_role_changed_as_collaborator_email(
     request, user, *, submitter, project_name, role
 ):
     return {
+        "project": project_name,
+        "submitter": submitter.username,
+        "role": role,
+    }
+
+
+@_email("team-collaborator-added")
+def send_team_collaborator_added_email(
+    request, email_recipients, *, team, submitter, project_name, role
+):
+    return {
+        "team_name": team.name,
+        "project": project_name,
+        "submitter": submitter.username,
+        "role": role,
+    }
+
+
+@_email("added-as-team-collaborator")
+def send_added_as_team_collaborator_email(
+    request, email_recipients, *, team, submitter, project_name, role
+):
+    return {
+        "team_name": team.name,
+        "project": project_name,
+        "submitter": submitter.username,
+        "role": role,
+    }
+
+
+@_email("team-collaborator-removed")
+def send_team_collaborator_removed_email(
+    request, email_recipients, *, team, submitter, project_name
+):
+    return {
+        "team_name": team.name,
+        "project": project_name,
+        "submitter": submitter.username,
+    }
+
+
+@_email("removed-as-team-collaborator")
+def send_removed_as_team_collaborator_email(
+    request, email_recipients, *, team, submitter, project_name
+):
+    return {
+        "team_name": team.name,
+        "project": project_name,
+        "submitter": submitter.username,
+    }
+
+
+@_email("team-collaborator-role-changed")
+def send_team_collaborator_role_changed_email(
+    request, email_recipients, *, team, submitter, project_name, role
+):
+    return {
+        "team_name": team.name,
+        "project": project_name,
+        "submitter": submitter.username,
+        "role": role,
+    }
+
+
+@_email("role-changed-as-team-collaborator")
+def send_role_changed_as_team_collaborator_email(
+    request, email_recipients, *, team, submitter, project_name, role
+):
+    return {
+        "team_name": team.name,
         "project": project_name,
         "submitter": submitter.username,
         "role": role,

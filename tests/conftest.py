@@ -24,6 +24,7 @@ import click.testing
 import pretend
 import pyramid.testing
 import pytest
+import stripe
 import webtest as _webtest
 
 from jinja2 import Environment, FileSystemLoader
@@ -48,6 +49,8 @@ from warehouse.macaroons import services as macaroon_services
 from warehouse.metrics import IMetricsService
 from warehouse.organizations import services as organization_services
 from warehouse.organizations.interfaces import IOrganizationService
+from warehouse.subscriptions import services as subscription_services
+from warehouse.subscriptions.interfaces import IBillingService, ISubscriptionService
 
 from .common.db import Session
 from .common.db.accounts import EmailFactory, UserFactory
@@ -123,14 +126,22 @@ class _Services:
 
 @pytest.fixture
 def pyramid_services(
-    email_service, metrics, organization_service, token_service, user_service
+    billing_service,
+    email_service,
+    metrics,
+    organization_service,
+    subscription_service,
+    token_service,
+    user_service,
 ):
     services = _Services()
 
     # Register our global services.
+    services.register_service(billing_service, IBillingService, None, name="")
     services.register_service(email_service, IEmailSender, None, name="")
     services.register_service(metrics, IMetricsService, None, name="")
     services.register_service(organization_service, IOrganizationService, None, name="")
+    services.register_service(subscription_service, ISubscriptionService, None, name="")
     services.register_service(token_service, ITokenService, None, name="password")
     services.register_service(token_service, ITokenService, None, name="email")
     services.register_service(user_service, IUserService, None, name="")
@@ -242,6 +253,7 @@ def app_config(database):
         "simple.backend": "warehouse.packaging.services.LocalSimpleStorage",
         "docs.backend": "warehouse.packaging.services.LocalDocsStorage",
         "sponsorlogos.backend": "warehouse.admin.services.LocalSponsorLogoStorage",
+        "billing.backend": "warehouse.subscriptions.services.MockStripeBillingService",
         "mail.backend": "warehouse.email.services.SMTPEmailSender",
         "malware_check.backend": (
             "warehouse.malware.services.PrinterMalwareCheckService"
@@ -306,6 +318,23 @@ def organization_service(db_session, remote_addr):
     return organization_services.DatabaseOrganizationService(
         db_session, remote_addr=remote_addr
     )
+
+
+@pytest.fixture
+def billing_service(app_config):
+    stripe.api_base = app_config.registry.settings["billing.api_base"]
+    stripe.api_version = app_config.registry.settings["billing.api_version"]
+    stripe.api_key = "sk_test_123"
+    return subscription_services.MockStripeBillingService(
+        api=stripe,
+        publishable_key="pk_test_123",
+        webhook_secret="whsec_123",
+    )
+
+
+@pytest.fixture
+def subscription_service(db_session):
+    return subscription_services.StripeSubscriptionService(db_session)
 
 
 @pytest.fixture

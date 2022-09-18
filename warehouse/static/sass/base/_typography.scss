@@ -40,7 +40,8 @@ code,
 kbd,
 pre,
 samp,
-tt {
+tt,
+.docutils.literal {
   font-family: $code-font;
   background-color: lighten($base-grey, 5);
   border: 1px solid $border-color;

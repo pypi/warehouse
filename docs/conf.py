@@ -32,13 +32,17 @@ extensions = [
     "sphinx.ext.doctest",
     "sphinx.ext.todo",
     "sphinxcontrib.httpdomain",
+    "myst_parser",
 ]
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ["_templates"]
 
 # The suffix of source filenames.
-source_suffix = ".rst"
+source_suffix = {
+    ".rst": 'restructuredtext',
+    ".md": 'markdown',
+}
 
 # The master toctree document.
 master_doc = "index"
@@ -54,19 +58,22 @@ exclude_patterns = ["_build"]
 # The name of the Pygments (syntax highlighting) style to use.
 pygments_style = "sphinx"
 
+# Patterns to during `make linkcheck`
+linkcheck_ignore = [
+    r'http://localhost.*',
+    'http://134.122.111.11',  # example IP
+    'https://web.libera.chat/#pypa,#pypa-dev',  # can't visit anchors
+]
+
 
 # -- Options for HTML output ----------------------------------------------
 
 # The theme to use for HTML and HTML Help pages.  See the documentation for
 # a list of builtin themes.
-if sphinx_rtd_theme:
-    html_theme = "sphinx_rtd_theme"
-    html_theme_path = [sphinx_rtd_theme.get_html_theme_path()]
-else:
-    html_theme = "default"
+html_theme = "furo"
 
 # Output file base name for HTML help builder.
-htmlhelp_basename = 'Warehousedoc'
+htmlhelp_basename = "Warehousedoc"
 
 # Enable display of todos
 todo_include_todos = True

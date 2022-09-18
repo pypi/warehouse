@@ -48,6 +48,8 @@ def test_verify_registration_response(monkeypatch):
         credential_type=PublicKeyCredentialType.PUBLIC_KEY,
         user_verified=False,
         attestation_object=b"foobar",
+        credential_device_type="single_device",
+        credential_backed_up=False,
     )
     mock_verify_registration_response = pretend.call_recorder(
         lambda *a, **kw: fake_verified_registration
@@ -109,6 +111,8 @@ def test_verify_assertion_response(monkeypatch):
     fake_verified_authentication = VerifiedAuthentication(
         credential_id=b"a credential id",
         new_sign_count=69,
+        credential_device_type="single_device",
+        credential_backed_up=False,
     )
     mock_verify_authentication_response = pretend.call_recorder(
         lambda *a, **kw: fake_verified_authentication

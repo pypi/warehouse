@@ -33,6 +33,11 @@ services:
       POSTGRES_HOST_AUTH_METHOD: trust  # never do this in production!
     healthcheck:
       test: ["CMD", "pg_isready", "-U", "postgres", "-d", "postgres"]
+  
+  stripe:
+    image: stripe/stripe-mock:v0.140.0
+    ports:
+      - "12111:12111"
 
   redis:
     image: redis:4.0
@@ -101,6 +106,8 @@ services:
       elasticsearch:
         condition: service_started
       redis:
+        condition: service_started
+      stripe:
         condition: service_started
 
   files:

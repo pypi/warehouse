@@ -153,6 +153,14 @@
     border-bottom: 0;
   }
 
+  &__align-left {
+    text-align: left;
+  }
+
+  &__align-center {
+    text-align: center;
+  }
+
   &__align-right {
     text-align: right;
   }
@@ -232,6 +240,10 @@
   }
 
   &--collaborators {
+    td:empty:after {
+      content: "—";
+    }
+
     .table__user-details {
       display: flex;
       align-items: center;
@@ -242,10 +254,12 @@
       display: block;
       width: 50px;
       flex-shrink: 0;
+      text-align: center;
     }
 
     .table__user-text {
       margin-left: 10px;
+      text-align: left;
 
       > * {
         display: inline-block;
@@ -256,9 +270,15 @@
       }
     }
 
+    .table__change-field {
+      margin-left: -10px;
+      width: 120px;
+    }
+
     .table__change-button {
-      display: none;
+      margin-left: 10px;
       margin-top: 5px;
+      visibility: hidden;
     }
 
     @media only screen and (max-width: $small-tablet) {
@@ -272,7 +292,8 @@
         width: 100%;
 
         .table__change-field,
-        .tabel__change-button {
+        .table__change-button {
+          margin-left: 0;
           width: 100%;
         }
       }

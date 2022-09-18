@@ -594,11 +594,16 @@ class TestSecurityKeyGiveaway:
 
     def test_eligible_projects_owners_require_2fa(self, db_request):
         db_request.user = UserFactory.create()
-        ProjectFactory.create()
-        project = ProjectFactory.create(owners_require_2fa=True)
-        RoleFactory.create(user=db_request.user, project=project)
 
-        assert SecurityKeyGiveaway(db_request).eligible_projects == {project.name}
+        ProjectFactory.create()
+        ProjectFactory.create(owners_require_2fa=True)
+        p1 = ProjectFactory.create(pypi_mandates_2fa=True)
+        p2 = ProjectFactory.create(owners_require_2fa=True, pypi_mandates_2fa=True)
+
+        RoleFactory.create(user=db_request.user, project=p1)
+        RoleFactory.create(user=db_request.user, project=p2)
+
+        assert SecurityKeyGiveaway(db_request).eligible_projects == {p1.name, p2.name}
 
     def test_eligible_projects_pypi_mandates_2fa(self, db_request):
         db_request.user = UserFactory.create()
@@ -630,7 +635,7 @@ class TestSecurityKeyGiveaway:
                 False,
                 {"foo"},
                 None,
-                pretend.stub(has_two_factor=False),
+                pretend.stub(has_webauthn=False),
                 False,
                 "At this time there are no keys available",
             ),
@@ -638,7 +643,7 @@ class TestSecurityKeyGiveaway:
                 True,
                 set(),
                 None,
-                pretend.stub(has_two_factor=False),
+                pretend.stub(has_webauthn=False),
                 False,
                 "You are not a collaborator on any critical projects",
             ),
@@ -646,15 +651,16 @@ class TestSecurityKeyGiveaway:
                 True,
                 {"foo"},
                 None,
-                pretend.stub(has_two_factor=True),
+                pretend.stub(has_webauthn=True),
                 False,
-                "You already have two-factor authentication enabled",
+                "You already have two-factor authentication enabled with a hardware "
+                "security key",
             ),
             (
                 True,
                 {"foo"},
                 pretend.stub(),
-                pretend.stub(has_two_factor=False),
+                pretend.stub(has_webauthn=False),
                 False,
                 "Promo code has already been generated",
             ),

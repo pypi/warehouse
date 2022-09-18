@@ -485,6 +485,7 @@ class SecurityKeyGiveaway:
             return set(
                 project.name
                 for project in user_projects(self.request)["projects_requiring_2fa"]
+                if project.pypi_mandates_2fa
             )
         else:
             return set()
@@ -507,12 +508,12 @@ class SecurityKeyGiveaway:
         codes_available = self.codes_available
         eligible_projects = self.eligible_projects
         promo_code = self.promo_code
-        has_two_factor = self.request.user and self.request.user.has_two_factor
+        has_webauthn = self.request.user and self.request.user.has_webauthn
 
         eligible = (
             codes_available
             and bool(eligible_projects)
-            and not has_two_factor
+            and not has_webauthn
             and not promo_code
         )
 
@@ -520,8 +521,11 @@ class SecurityKeyGiveaway:
             reason_ineligible = "At this time there are no keys available"
         elif not eligible_projects:
             reason_ineligible = "You are not a collaborator on any critical projects"
-        elif has_two_factor:
-            reason_ineligible = "You already have two-factor authentication enabled"
+        elif has_webauthn:
+            reason_ineligible = (
+                "You already have two-factor authentication enabled with a hardware "
+                "security key"
+            )
         elif promo_code:
             reason_ineligible = "Promo code has already been generated"
         else:
