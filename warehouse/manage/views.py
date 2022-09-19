@@ -3154,7 +3154,10 @@ def remove_organization_project(project, request):
         )
 
     return HTTPSeeOther(
-        request.route_path("manage.project.settings", project_name=project.name)
+        request.route_path(
+            "manage.organization.projects",
+            organization_name=organization.normalized_name,
+        )
     )
 
 
