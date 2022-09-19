@@ -2172,7 +2172,7 @@ def change_organization_role(
                 user=role.user,
                 submitter=request.user,
                 organization_name=organization.name,
-                role=role.role_name,
+                role=role.role_name.value,
             )
 
             send_role_changed_as_organization_member_email(
@@ -2180,7 +2180,7 @@ def change_organization_role(
                 role.user,
                 submitter=request.user,
                 organization_name=organization.name,
-                role=role.role_name,
+                role=role.role_name.value,
             )
 
             organization.record_event(
@@ -4509,7 +4509,7 @@ def change_team_project_role(project, request, _form_class=ChangeTeamProjectRole
                     team=role.team,
                     submitter=request.user,
                     project_name=project.name,
-                    role=role.role_name,
+                    role=role.role_name.value,
                 )
                 send_role_changed_as_team_collaborator_email(
                     request,
