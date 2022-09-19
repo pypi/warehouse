@@ -255,6 +255,11 @@ class Organization(HasEvents, db.Model):
     users = orm.relationship(
         User, secondary=OrganizationRole.__table__, backref="organizations", viewonly=True  # type: ignore # noqa
     )
+    teams = orm.relationship(
+        "Team",
+        back_populates="organization",
+        order_by=lambda: Team.name.asc(),  # type: ignore
+    )
     projects = orm.relationship(
         "Project", secondary=OrganizationProject.__table__, back_populates="organization", viewonly=True  # type: ignore # noqa
     )
@@ -587,7 +592,7 @@ class Team(HasEvents, db.Model):
         index=True,
     )
 
-    organization = orm.relationship("Organization", lazy=False, backref="teams")
+    organization = orm.relationship("Organization", lazy=False, back_populates="teams")
     members = orm.relationship(
         User, secondary=TeamRole.__table__, backref="teams", viewonly=True  # type: ignore # noqa
     )
