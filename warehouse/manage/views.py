@@ -2748,19 +2748,24 @@ class ManageProjectSettingsViews:
             # Disable transfer of project to any organization.
             organization_choices = set()
         else:
-            # Allow transfer of project to organizations owned or managed by user.
+            # Allow transfer of project to active orgs owned or managed by user.
             all_user_organizations = user_organizations(self.request)
-            organizations_owned = set(
+            active_organizations_owned = set(
                 organization.name
                 for organization in all_user_organizations["organizations_owned"]
+                if organization.is_active
             )
-            organizations_managed = set(
+            active_organizations_managed = set(
                 organization.name
                 for organization in all_user_organizations["organizations_managed"]
+                if organization.is_active
             )
-            organization_choices = (organizations_owned | organizations_managed) - (
+            current_organization = (
                 {self.project.organization.name} if self.project.organization else set()
             )
+            organization_choices = (
+                active_organizations_owned | active_organizations_managed
+            ) - current_organization
 
         return {
             "project": self.project,
@@ -3188,17 +3193,22 @@ def transfer_organization_project(project, request):
     )
 
     all_user_organizations = user_organizations(request)
-    organizations_owned = set(
+    active_organizations_owned = set(
         organization.name
         for organization in all_user_organizations["organizations_owned"]
+        if organization.is_active
     )
-    organizations_managed = set(
+    active_organizations_managed = set(
         organization.name
         for organization in all_user_organizations["organizations_managed"]
+        if organization.is_active
     )
-    organization_choices = (organizations_owned | organizations_managed) - (
+    current_organization = (
         {project.organization.name} if project.organization else set()
     )
+    organization_choices = (
+        active_organizations_owned | active_organizations_managed
+    ) - current_organization
 
     form = TransferOrganizationProjectForm(
         request.POST,
