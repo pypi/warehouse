@@ -2306,10 +2306,8 @@ msgstr ""
 #: warehouse/templates/manage/account.html:211
 #: warehouse/templates/manage/manage_base.html:282
 #: warehouse/templates/manage/manage_base.html:284
-#: warehouse/templates/manage/organization/roles.html:38
 #: warehouse/templates/manage/project/release.html:118
 #: warehouse/templates/manage/project/releases.html:172
-#: warehouse/templates/manage/project/roles.html:38
 #: warehouse/templates/manage/project/settings.html:111
 #: warehouse/templates/search/results.html:199
 msgid "Close"
@@ -4146,11 +4144,7 @@ msgid ""
 msgstr ""
 
 #: warehouse/templates/manage/organization/roles.html:38
-#: warehouse/templates/manage/project/release.html:118
-#: warehouse/templates/manage/project/releases.html:172
-#: warehouse/templates/manage/project/roles.html:38
-#: warehouse/templates/manage/project/settings.html:111
-msgid "Dismiss"
+msgid "Organization Roles"
 msgstr ""
 
 #: warehouse/templates/manage/organization/roles.html:39
@@ -4730,6 +4724,12 @@ msgstr ""
 msgid "No files found"
 msgstr ""
 
+#: warehouse/templates/manage/project/release.html:118
+#: warehouse/templates/manage/project/releases.html:172
+#: warehouse/templates/manage/project/settings.html:111
+msgid "Dismiss"
+msgstr ""
+
 #: warehouse/templates/manage/project/release.html:119
 #, python-format
 msgid ""
@@ -4984,6 +4984,10 @@ msgstr ""
 msgid ""
 "Use this page to control which PyPI users can help you to manage "
 "%(project_name)s."
+msgstr ""
+
+#: warehouse/templates/manage/project/roles.html:38
+msgid "Project Roles"
 msgstr ""
 
 #: warehouse/templates/manage/project/roles.html:39
