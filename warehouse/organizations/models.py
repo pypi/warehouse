@@ -508,8 +508,8 @@ class TeamRole(db.Model):
 
 class TeamProjectRoleType(str, enum.Enum):
 
-    Administer = "Administer"
-    Upload = "Upload"
+    Owner = "Owner"  # Granted "Administer" permissions.
+    Maintainer = "Maintainer"  # Granted "Upload" permissions.
 
 
 class TeamProjectRole(db.Model):

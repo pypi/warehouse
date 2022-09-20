@@ -49,13 +49,9 @@ class TeamProjectRoleNameMixin:
 
     team_project_role_name = wtforms.SelectField(
         "Select permissions",
-        choices=[
-            ("", "Select permissions"),
-            ("Upload", "Upload"),
-            ("Administer", "Administer"),
-        ],
+        choices=[("", "Select role"), ("Maintainer", "Maintainer"), ("Owner", "Owner")],
         coerce=lambda string: TeamProjectRoleType(string) if string else None,
-        validators=[wtforms.validators.DataRequired(message="Select permissions")],
+        validators=[wtforms.validators.DataRequired(message="Select role")],
     )
 
 

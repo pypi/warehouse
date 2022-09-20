@@ -138,7 +138,7 @@ class TestProject:
         team = DBTeamFactory.create()
         owner4 = DBTeamRoleFactory.create(team=team)
         DBTeamProjectRoleFactory.create(
-            team=team, project=project, role_name=TeamProjectRoleType.Administer
+            team=team, project=project, role_name=TeamProjectRoleType.Owner
         )
 
         acls = []

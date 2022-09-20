@@ -227,7 +227,7 @@ def user_projects(request):
             request.db.query(Project.id.label("id"))
             .join(TeamProjectRole.project)
             .join(teams, TeamProjectRole.team_id == teams.c.id)
-            .filter(TeamProjectRole.role_name == TeamProjectRoleType.Administer),
+            .filter(TeamProjectRole.role_name == TeamProjectRoleType.Owner),
         )
 
         with_sole_owner = with_sole_owner.union(
@@ -3927,10 +3927,7 @@ def manage_project_roles(project, request, _form_class=CreateRoleForm):
         if existing_role:
             request.session.flash(
                 request._(
-                    (
-                        "Team '${team_name}' already has "
-                        "${role_name} permissions for project"
-                    ),
+                    "Team '${team_name}' already has ${role_name} role for project",
                     mapping={
                         "team_name": team_name,
                         "role_name": existing_role.role_name.value,
@@ -4464,12 +4461,12 @@ def change_team_project_role(project, request, _form_class=ChangeTeamProjectRole
                 .one()
             )
             if (
-                role.role_name == TeamProjectRoleType.Administer
+                role.role_name == TeamProjectRoleType.Owner
                 and request.user in role.team.members
                 and request.user not in role.team.organization.owners
             ):
                 request.session.flash(
-                    "Cannot remove your own team with Administer permissions",
+                    "Cannot remove your own team as Owner",
                     queue="error",
                 )
             else:
@@ -4570,14 +4567,12 @@ def delete_team_project_role(project, request):
             .one()
         )
         removing_self = (
-            role.role_name == TeamProjectRoleType.Administer
+            role.role_name == TeamProjectRoleType.Owner
             and request.user in role.team.members
             and request.user not in role.team.organization.owners
         )
         if removing_self:
-            request.session.flash(
-                "Cannot remove your own team with Administer permissions", queue="error"
-            )
+            request.session.flash("Cannot remove your own team as Owner", queue="error")
         else:
             role_name = role.role_name
             team = role.team

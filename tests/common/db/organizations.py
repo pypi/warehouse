@@ -156,6 +156,6 @@ class TeamProjectRoleFactory(WarehouseFactory):
     class Meta:
         model = TeamProjectRole
 
-    role_name = TeamProjectRoleType.Administer
+    role_name = TeamProjectRoleType.Owner
     project = factory.SubFactory(ProjectFactory)
     team = factory.SubFactory(TeamFactory)

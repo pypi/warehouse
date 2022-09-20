@@ -39,9 +39,9 @@
     <p>{% trans %}There are two possible roles for collaborators:{% endtrans %}</p>
     <dl>
       <dt>{% trans %}Maintainer{% endtrans %}</dt>
-      <dd>{% trans %}Has permissions to <strong>Upload</strong> releases for a package. Can upload releases. Cannot invite collaborators. Cannot delete files, releases, or the project.{% endtrans %}</dd>
+      <dd>{% trans %}Has permissions to upload releases for the project. Can upload releases. Cannot invite collaborators. Cannot delete files, releases, or the project.{% endtrans %}</dd>
       <dt>{% trans %}Owner{% endtrans %}</dt>
-      <dd>{% trans %}Has permissions to <strong>Administer</strong> the entire project. Can upload releases. Can invite other collaborators. Can delete files, releases, or the entire project.{% endtrans %}</dd>
+      <dd>{% trans %}Has permissions to administer the project. Can upload releases. Can invite other collaborators. Can delete files, releases, or the entire project.{% endtrans %}</dd>
     </dl>
   </details>
   <table class="table table--collaborators">
@@ -50,7 +50,6 @@
       <tr>
         <th scope="col" class="table__align-left">{% trans %}Collaborator{% endtrans %}</th>
         <th scope="col" class="table__align-left">{% trans %}Role{% endtrans %}</th>
-        <th scope="col" class="table__align-left">{% trans %}Permissions{% endtrans %}</th>
         <th scope="col" class="table__align-center">{% trans %}2FA{% endtrans %}</th>
         <th scope="col" class="table__align-right"></th>
       </tr>
@@ -76,14 +75,11 @@
           </a>
         </th>
         <td>
-          —
-        </td>
-        <td>
-          {% trans %}Administer{% endtrans %}
+          {% trans %}Owner{% endtrans %}
         </td>
         <td class="table__align-center"></td>
         <td class="table__align-right">
-          <button class="button" title="{% trans %}Cannot remove organization owners with Administer permissions{% endtrans %}" disabled>{% trans %}Remove{% endtrans %}</button>
+          <button class="button" title="{% trans %}Cannot remove organization owners{% endtrans %}" disabled>{% trans %}Remove{% endtrans %}</button>
         </td>
       </tr>
     {% endif %}
@@ -107,14 +103,11 @@
           </a>
         </th>
         <td>
-          —
-        </td>
-        <td>
         {% if request.user in role.team.members and request.user not in project.organization.owners %}
-          {% if role.role_name == TeamProjectRoleType.Administer %}
-            {% trans %}Administer{% endtrans %}
-          {% elif role.role_name == TeamProjectRoleType.Upload %}
-            {% trans %}Upload{% endtrans %}
+          {% if role.role_name == TeamProjectRoleType.Owner %}
+            {% trans %}Owner{% endtrans %}
+          {% elif role.role_name == TeamProjectRoleType.Maintainer %}
+            {% trans %}Maintainer{% endtrans %}
           {% endif %}
         {% else %}
           <form class="table__change-role" method="POST" action="{{ request.route_path('manage.project.change_team_project_role', project_name=project.name) }}">
@@ -123,13 +116,13 @@
 
             <label for="role-for-{{ role.id }}" class="sr-only">{% trans %}Role{% endtrans %}</label>
             <select id="role-for-{{ role.id }}" class="table__change-field" name="team_project_role_name" data-original="{{ role.role_name.value }}" autocomplete="off">
-            {% for role_name, role_name_label in [('Administer', gettext('Administer')), ('Upload', gettext('Upload'))] %}
+            {% for role_name, role_name_label in [('Maintainer', gettext('Maintainer')), ('Owner', gettext('Owner'))] %}
             <option value="{{ role_name }}" {{ 'selected' if role_name == role.role_name.value else '' }}>
               {{ role_name_label }}
             </option>
             {% endfor %}
             </select>
-            <button type="submit" class="button button--primary table__change-button" title="{% trans %}Save permissions{% endtrans %}">
+            <button type="submit" class="button button--primary table__change-button" title="{% trans %}Save role{% endtrans %}">
               {% trans %}Save{% endtrans %}
             </button>
           </form>
@@ -137,8 +130,8 @@
         </td>
         <td class="table__align-center"></td>
         <td class="table__align-right">
-        {% if role.role_name == TeamProjectRoleType.Administer and request.user in role.team.members and request.user not in project.organization.owners %}
-          <button type="submit" class="button" title="{% trans %}Cannot remove your own team with Administer permissions{% endtrans %}" disabled>{% trans %}Remove{% endtrans %}</button>
+        {% if role.role_name == TeamProjectRoleType.Owner and request.user in role.team.members and request.user not in project.organization.owners %}
+          <button type="submit" class="button" title="{% trans %}Cannot remove your own team as Owner{% endtrans %}" disabled>{% trans %}Remove{% endtrans %}</button>
         {% else %}
           {% set extra_fields %}<input type="hidden" name="role_id" value="{{ role.id }}">{% endset %}
           {% set extra_description %}{% trans collaborator=role.team.name %}Remove {{ collaborator }} from this project{% endtrans %}{% trans %}.{% endtrans %}{% endset %}
@@ -190,13 +183,6 @@
           </form>
         {% endif %}
         </td>
-        <td>
-        {% if role.role_name == "Owner" %}
-          {% trans %}Administer{% endtrans %}
-        {% elif role.role_name == "Maintainer" %}
-          {% trans %}Upload{% endtrans %}
-        {% endif %}
-        </td>
         <td class="table__align-center">{{ two_factor_badge(role.user) }}</td>
         <td class="table__align-right">
           {% if role.role_name == "Owner" and request.user.username == role.user.username %}
@@ -233,7 +219,6 @@
             {% trans %}Invite expired{% endtrans %}
           {% endif %}
         </td>
-        <td></td>
         <td></td>
         <td class="table__align-right">
           {% set extra_fields %}<input name="user_id" type="hidden" value="{{ invite.user_id }}">{% endset %}
@@ -284,7 +269,7 @@
     </div>
     <div class="form-group radio-toggle radio-toggle-1">
       <label for="team_project_role_name" class="form-group__label">
-        {% trans %}Permissions{% endtrans %}
+        {% trans %}Role{% endtrans %}
         <span class="form-group__required">{% trans %}(required){% endtrans %}</span>
       </label>
       {{ internal_role_form.team_project_role_name(class_="form-group__field", autocomplete="off", **{"aria-describedby":"team-project-role-errors"}) }}

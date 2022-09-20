@@ -264,7 +264,8 @@ class Project(SitemapMixin, TwoFactorRequireable, HasEvents, db.Model):
         query = query.options(orm.lazyload("team"))
         for role in query.all():
             permissions |= {
-                (user.id, role.role_name.value) for user in role.team.members
+                (user.id, "Administer" if role.role_name.value == "Owner" else "Upload")
+                for user in role.team.members
             }
 
         # Add all organization owners for this project.
