@@ -5912,7 +5912,12 @@ class TestManageProjectSettings:
 
         result = views.remove_organization_project(project, db_request)
 
-        assert db_request.session.flash.calls == []
+        assert db_request.session.flash.calls == [
+            pretend.call(
+                ("Could not remove project from organization - no organization found"),
+                queue="error",
+            )
+        ]
         assert db_request.route_path.calls == [
             pretend.call("manage.project.settings", project_name="foo")
         ]
@@ -6035,7 +6040,10 @@ class TestManageProjectSettings:
             pretend.call("Removed the project 'foo' from 'bar'", queue="success")
         ]
         assert db_request.route_path.calls == [
-            pretend.call("manage.project.settings", project_name="foo")
+            pretend.call(
+                "manage.organization.projects",
+                organization_name=project.organization.normalized_name,
+            )
         ]
         assert isinstance(result, HTTPSeeOther)
         assert result.headers["Location"] == "/the-redirect"

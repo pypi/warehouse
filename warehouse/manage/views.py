@@ -3153,6 +3153,17 @@ def remove_organization_project(project, request):
             queue="success",
         )
 
+        return HTTPSeeOther(
+            request.route_path(
+                "manage.organization.projects",
+                organization_name=organization.normalized_name,
+            )
+        )
+
+    request.session.flash(
+        ("Could not remove project from organization - no organization found"),
+        queue="error",
+    )
     return HTTPSeeOther(
         request.route_path("manage.project.settings", project_name=project.name)
     )
