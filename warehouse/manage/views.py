@@ -2477,6 +2477,7 @@ class ManageTeamRolesViews:
                 + organization_managers(self.request, self.team.organization)
                 + organization_members(self.request, self.team.organization)
             )
+            if user not in self.team.members
         )
 
     @property
