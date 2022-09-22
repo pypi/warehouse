@@ -2502,24 +2502,10 @@ class ManageTeamRolesViews:
         if not form.validate():
             return default_response
 
-        # Check for existing role.
+        # Add user to team.
         username = form.username.data
         role_name = TeamRoleType.Member
         user_id = self.user_service.find_userid(username)
-        existing_role = self.organization_service.get_team_role_by_user(
-            self.team.id, user_id
-        )
-        if existing_role:
-            self.request.session.flash(
-                self.request._(
-                    "User '${username}' is already a team member",
-                    mapping={"username": username},
-                ),
-                queue="error",
-            )
-            return default_response
-
-        # Add user to team.
         role = self.organization_service.add_team_role(
             team_id=self.team.id,
             user_id=user_id,

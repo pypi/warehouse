@@ -5201,11 +5201,7 @@ class TestManageTeamRoles:
         form = result["form"]
 
         assert organization_service.get_team_roles(team.id) == [role]
-        assert db_request.session.flash.calls == [
-            pretend.call(
-                f"User '{member.username}' is already a team member", queue="error"
-            )
-        ]
+        assert db_request.session.flash.calls == []
         assert result == {
             "team": team,
             "roles": [role],
@@ -5252,12 +5248,7 @@ class TestManageTeamRoles:
             "form": form,
         }
 
-        assert form.username.errors == [
-            (
-                "No organization owner, manager, or member found "
-                "with that username. Please try again."
-            )
-        ]
+        assert form.username.errors == ["Not a valid choice."]
 
     def test_delete_team_role(
         self,
