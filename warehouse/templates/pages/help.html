@@ -201,10 +201,10 @@
 
         <h3 id="packages">{{ packages() }}</h3>
         {% trans requests_href='https://pypi.org/project/requests/', wheel_href='https://pypi.org/project/wheel/#files' %}
-          <p>We use a number of terms to describe software available on PyPI, like "project", "release", "file", and "package". Sometimes those terms are confusing because they're used to describe different things in other contexts. Here's how we use them on PyPI:</p>
-          <p>A "project" on PyPI is the name of a collection of releases and files, and information about them. Projects on PyPI are made and shared by other members of the Python community so that you can use them.</p>
-          <p>A "release" on PyPI is a specific version of a project. For example, the <a href="{{ requests_href }}">requests</a> project has many releases, like "requests 2.10" and "requests 1.2.1". A release consists of one or more "files".</p>
-          <p>A "file", also known as a "package", on PyPI is something that you can download and install. Because of different hardware, operating systems, and file formats, a release may have several files (packages), like an archive containing source code or a binary <a href="{{ wheel_href }}">wheel</a>.</p>
+          <p>We use a number of terms to describe software available on PyPI, like <i>"Project"</i>, <i>"Release"</i>, <i>"File"</i>, and <i>"Package"</i>. Sometimes those terms are confusing because they're used to describe different things in other contexts. Here's how we use them on PyPI:</p>
+          <p>A <b>Project</b> on PyPI is the name of a collection of releases and files, and information about them. Projects on PyPI are made and shared by other members of the Python community so that you can use them.</p>
+          <p>A <b>Release</b> on PyPI is a specific version of a project. For example, the <a href="{{ requests_href }}">requests</a> project has many releases, like "requests 2.10" and "requests 1.2.1". A release consists of one or more "files".</p>
+          <p>A <b>File</b>, also known as a <b>Package</b>, on PyPI is something that you can download and install. Because of different hardware, operating systems, and file formats, a release may have several files (packages), like an archive containing source code or a binary <a href="{{ wheel_href }}">wheel</a>.</p>
         {% endtrans %}
 
         <h3 id="installing">{{ installing() }}</h3>
