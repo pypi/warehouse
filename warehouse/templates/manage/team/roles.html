@@ -105,6 +105,9 @@
       <div id="user-errors">
         {{ field_errors(form.username) }}
       </div>
+      <p class="form-group__help-text">
+        {% trans manage_organization_roles_link=request.route_path('manage.organization.roles', organization_name=team.organization.normalized_name) %}Add an organization owner, manager, or member to the team. <a href="{{ manage_organization_roles_link }}">Manage organization members</a> to view all users in the organization or to invite a user to the organization.{% endtrans %}
+      </p>
     </div>
     <div class="form-group">
       <input type="submit" value="{% trans %}Add{% endtrans %}" class="button button--primary">

@@ -4620,7 +4620,7 @@ msgstr ""
 
 #: warehouse/templates/manage/project/publishing.html:118
 #: warehouse/templates/manage/project/roles.html:309
-#: warehouse/templates/manage/team/roles.html:110
+#: warehouse/templates/manage/team/roles.html:113
 msgid "Add"
 msgstr ""
 
@@ -5396,6 +5396,15 @@ msgstr ""
 
 #: warehouse/templates/manage/team/roles.html:89
 msgid "Add member"
+msgstr ""
+
+#: warehouse/templates/manage/team/roles.html:109
+#, python-format
+msgid ""
+"Add an organization owner, manager, or member to the team. <a "
+"href=\"%(manage_organization_roles_link)s\">Manage organization "
+"members</a> to view all users in the organization or to invite a user to "
+"the organization."
 msgstr ""
 
 #: warehouse/templates/manage/team/settings.html:17
