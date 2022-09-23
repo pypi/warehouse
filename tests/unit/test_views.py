@@ -54,11 +54,7 @@ from warehouse.views import (
 
 from ..common.db.accounts import UserFactory
 from ..common.db.classifiers import ClassifierFactory
-from ..common.db.packaging import (
-    FileFactory,
-    ProjectFactory,
-    ReleaseFactory,
-)
+from ..common.db.packaging import FileFactory, ProjectFactory, ReleaseFactory
 
 
 class TestHTTPExceptionView:
