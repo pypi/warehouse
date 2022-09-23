@@ -40,6 +40,12 @@
         project maintainers.
       </p>
       <p>
+        <b>
+          As of Sept 23, 2022, these keys are available to any PyPI that
+          existed before this restriction was removed, while supplies remain.
+        </b>
+      </p>
+      <p>
         Eligible maintainers will be able to redeem a promo code for two
         free <a
         href="https://store.google.com/product/titan_security_key">Titan
@@ -75,13 +81,8 @@
       {% else %}
         {# The user is eligible, show the form #}
         <p>
-          Congrats, you may be eligible to receive a promo code! The following projects you maintain are considered critical projects:
+          Congrats, you may be eligible to receive a promo code!
         </p>
-        <ul>
-          {% for project in eligible_projects %}
-          <li>{{ project }}</li>
-          {% endfor %}
-        </ul>
         <p>
           We just need a little more information. (<a href="#regions">Why?</a>)
           <form method="POST">
@@ -189,11 +190,11 @@
         time-consuming both for maintainers and PyPI administrators. Enabling
         multiple 2FA methods reduces the potential disruption if one is lost.
       </p>
-       
+
       <h3 id="promo-error">What should I do if I'm getting the error 'Promo code doesn't apply'?</h3>
       <p>
         Increase the quantity in the cart from 1 key to 2 keys. See
-        <a href="#why-two-keys">Why two keys instead of one?</a> for more 
+        <a href="#why-two-keys">Why two keys instead of one?</a> for more
         details.
       </p>
 
