@@ -14,6 +14,7 @@ import datetime
 import uuid
 
 import elasticsearch
+import freezegun
 import pretend
 import pytest
 
@@ -587,32 +588,6 @@ class TestSecurityKeyGiveaway:
 
         assert SecurityKeyGiveaway(db_request).codes_available is True
 
-    def test_eligible_projects_no_user(self, db_request):
-        db_request.user = None
-
-        assert SecurityKeyGiveaway(db_request).eligible_projects == set()
-
-    def test_eligible_projects_owners_require_2fa(self, db_request):
-        db_request.user = UserFactory.create()
-
-        ProjectFactory.create()
-        ProjectFactory.create(owners_require_2fa=True)
-        p1 = ProjectFactory.create(pypi_mandates_2fa=True)
-        p2 = ProjectFactory.create(owners_require_2fa=True, pypi_mandates_2fa=True)
-
-        RoleFactory.create(user=db_request.user, project=p1)
-        RoleFactory.create(user=db_request.user, project=p2)
-
-        assert SecurityKeyGiveaway(db_request).eligible_projects == {p1.name, p2.name}
-
-    def test_eligible_projects_pypi_mandates_2fa(self, db_request):
-        db_request.user = UserFactory.create()
-        ProjectFactory.create()
-        project = ProjectFactory.create(pypi_mandates_2fa=True)
-        RoleFactory.create(user=db_request.user, project=project)
-
-        assert SecurityKeyGiveaway(db_request).eligible_projects == {project.name}
-
     def test_promo_code_no_user(self, db_request):
         db_request.user = None
         assert SecurityKeyGiveaway(db_request).promo_code is None
@@ -628,56 +603,55 @@ class TestSecurityKeyGiveaway:
         assert SecurityKeyGiveaway(db_request).promo_code == code
 
     @pytest.mark.parametrize(
-        "codes_available, eligible_projects, promo_code, user, eligible, reason_ineligible",  # noqa
+        "codes_available, promo_code, user, eligible, reason_ineligible",  # noqa
         [
-            (True, {"foo"}, None, False, True, None),
+            (True, None, None, True, None),
             (
                 False,
-                {"foo"},
                 None,
-                pretend.stub(has_webauthn=False),
+                pretend.stub(
+                    has_webauthn=False,
+                    date_joined=datetime.datetime(2021, 9, 23, 20, 20, 0, 0),
+                ),
                 False,
                 "At this time there are no keys available",
             ),
             (
                 True,
-                set(),
                 None,
-                pretend.stub(has_webauthn=False),
+                pretend.stub(
+                    has_webauthn=False,
+                    date_joined=datetime.datetime(2022, 9, 24, 20, 20, 0, 0),  # Too new
+                ),
                 False,
-                "You are not a collaborator on any critical projects",
+                "Your account was created too recently",
             ),
             (
                 True,
-                {"foo"},
                 None,
-                pretend.stub(has_webauthn=True),
+                pretend.stub(
+                    has_webauthn=True,
+                    date_joined=datetime.datetime(2021, 9, 23, 20, 20, 0, 0),
+                ),
                 False,
                 "You already have two-factor authentication enabled with a hardware "
                 "security key",
             ),
             (
                 True,
-                {"foo"},
                 pretend.stub(),
-                pretend.stub(has_webauthn=False),
+                pretend.stub(
+                    has_webauthn=False,
+                    date_joined=datetime.datetime(2021, 9, 23, 20, 20, 0, 0),
+                ),
                 False,
                 "Promo code has already been generated",
-            ),
-            (
-                True,
-                set(),
-                None,
-                None,
-                False,
-                "You are not a collaborator on any critical projects",
             ),
         ],
     )
     def test_default_response(
         self,
         codes_available,
-        eligible_projects,
         promo_code,
         user,
         eligible,
@@ -686,7 +660,6 @@ class TestSecurityKeyGiveaway:
     ):
         request = pretend.stub(user=user)
         SecurityKeyGiveaway.codes_available = property(lambda a: codes_available)
-        SecurityKeyGiveaway.eligible_projects = property(lambda a: eligible_projects)
         SecurityKeyGiveaway.promo_code = property(lambda a: promo_code)
         form = pretend.stub()
         SecurityKeyGiveaway.form = property(lambda a: form)
@@ -697,7 +670,6 @@ class TestSecurityKeyGiveaway:
             "reason_ineligible": reason_ineligible,
             "form": ins.form,
             "codes_available": codes_available,
-            "eligible_projects": eligible_projects,
             "promo_code": promo_code,
             "REDIRECT_FIELD_NAME": REDIRECT_FIELD_NAME,
         }
