@@ -498,6 +498,7 @@ class SecurityKeyGiveaway:
         has_webauthn = self.request.user and self.request.user.has_webauthn
         is_too_new = (
             self.request.user
+            and self.request.user.date_joined is not None
             and self.request.user.date_joined
             > datetime.datetime(2022, 9, 23, 20, 20, 0, 0)
         )

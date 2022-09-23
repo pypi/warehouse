@@ -600,6 +600,16 @@ class TestSecurityKeyGiveaway:
         "codes_available, promo_code, user, eligible, reason_ineligible",  # noqa
         [
             (True, None, None, True, None),
+            (  # A very old user without date_joined
+                True,
+                None,
+                pretend.stub(
+                    has_webauthn=False,
+                    date_joined=None,
+                ),
+                True,
+                None,
+            ),
             (
                 False,
                 None,
