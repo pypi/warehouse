@@ -54,7 +54,6 @@ from warehouse.db import DatabaseNotAvailableError
 from warehouse.errors import WarehouseDenied
 from warehouse.forms import SetLocaleForm
 from warehouse.i18n import LOCALE_ATTR
-from warehouse.manage.views import user_projects
 from warehouse.metrics import IMetricsService
 from warehouse.packaging.models import File, Project, Release, release_classifiers
 from warehouse.search.queries import SEARCH_FILTER_ORDER, get_es_query

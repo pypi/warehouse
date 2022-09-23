@@ -14,7 +14,6 @@ import datetime
 import uuid
 
 import elasticsearch
-import freezegun
 import pretend
 import pytest
 
@@ -59,7 +58,6 @@ from ..common.db.packaging import (
     FileFactory,
     ProjectFactory,
     ReleaseFactory,
-    RoleFactory,
 )
 
 
