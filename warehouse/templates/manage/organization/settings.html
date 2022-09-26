@@ -28,6 +28,12 @@
     <div class="form-group">
       <span class="form-group__label">{% trans %}Organization account name{% endtrans %}</span>
       <p class="form-group__text">{{ organization.name }}</p>
+      <p class="form-group__help-text">
+        {% trans %}This account name is used in URLs on PyPI.{% endtrans %}<br>
+        {% trans %}Change the organization account name <a href="#change-organization-account-name">below</a>.{% endtrans %}
+      </p>
+    </div>
+    <div class="form-group">
       <span class="form-group__label">{% trans %}Date created{% endtrans %}</span>
       <p class="form-group__text">
         {{ humanize(organization.created) }}
