@@ -14,7 +14,7 @@ msgstr ""
 "Project-Id-Version: Warehouse VERSION\n"
 "Report-Msgid-Bugs-To: admin@pypi.org\n"
 "POT-Creation-Date: 2020-04-06 17:52-0500\n"
-"PO-Revision-Date: 2022-08-28 16:02+0000\n"
+"PO-Revision-Date: 2022-09-11 14:38+0000\n"
 "Last-Translator: Adolfo Jayme Barrientos <fitojb@ubuntu.com>\n"
 "Language-Team: Spanish <https://hosted.weblate.org/projects/pypa/warehouse/"
 "es/>\n"
@@ -26,7 +26,7 @@ msgstr ""
 "X-Generator: Weblate 4.14.1-dev\n"
 "Generated-By: Babel 2.8.0\n"
 
-#: warehouse/views.py:129
+#: warehouse/views.py:128
 msgid ""
 "Two-factor authentication must be enabled on your account to perform this "
 "action."
@@ -34,7 +34,7 @@ msgstr ""
 "Para efectuar esta acción, la autenticación en dos fases debe estar activada "
 "en su cuenta."
 
-#: warehouse/views.py:292
+#: warehouse/views.py:291
 msgid "Locale updated"
 msgstr "Se actualizó la configuración de idioma"
 
@@ -113,7 +113,7 @@ msgstr ""
 "Otra cuenta ya utiliza esta dirección de correo. Utilice una dirección "
 "distinta."
 
-#: warehouse/accounts/forms.py:280 warehouse/manage/forms.py:144
+#: warehouse/accounts/forms.py:280 warehouse/manage/forms.py:140
 msgid "The name is too long. Choose a name with 100 characters or less."
 msgstr ""
 "El nombre es demasiado extenso. Elija un nombre con 100 caracteres o menos."
@@ -170,7 +170,7 @@ msgstr "Ya se autenticó"
 msgid "Successful WebAuthn assertion"
 msgstr "La aserción de WebAuthn es correcta"
 
-#: warehouse/accounts/views.py:447 warehouse/manage/views.py:934
+#: warehouse/accounts/views.py:447 warehouse/manage/views.py:939
 msgid "Recovery code accepted. The supplied code cannot be used again."
 msgstr ""
 "Se aceptó el código de recuperación. El código proporcionado no puede "
@@ -322,11 +322,11 @@ msgstr "Ahora es ${role} del proyecto «${project_name}»."
 msgid "Banner Preview"
 msgstr "Previsualización del anuncio"
 
-#: warehouse/manage/forms.py:407
+#: warehouse/manage/forms.py:403
 msgid "Choose an organization account name with 50 characters or less."
 msgstr "Elija un nombre de cuenta de organización de 50 caracteres o menos."
 
-#: warehouse/manage/forms.py:415
+#: warehouse/manage/forms.py:411
 msgid ""
 "The organization account name is invalid. Organization account names must be "
 "composed of letters, numbers, dots, hyphens and underscores. And must also "
@@ -338,7 +338,7 @@ msgstr ""
 "guiones bajos; además, deben comenzar y finalizar por una letra o un número. "
 "Elíjase otro nombre para la cuenta de la organización."
 
-#: warehouse/manage/forms.py:430
+#: warehouse/manage/forms.py:432
 #, fuzzy
 #| msgid ""
 #| "This username is already being used by another account. Choose a "
@@ -350,30 +350,30 @@ msgstr ""
 "Otra cuenta ya utiliza este nombre de usuario. Elija un nombre de usuario "
 "distinto."
 
-#: warehouse/manage/forms.py:471
+#: warehouse/manage/forms.py:473
 #, fuzzy
 #| msgid "Delete project"
 msgid "Select project"
 msgstr "Eliminar proyecto"
 
-#: warehouse/manage/forms.py:476
+#: warehouse/manage/forms.py:478
 msgid "Specify project name"
 msgstr "Especifique el nombre del proyecto"
 
-#: warehouse/manage/forms.py:479
+#: warehouse/manage/forms.py:481
 msgid ""
 "Start and end with a letter or numeral containing only ASCII numeric and "
 "'.', '_' and '-'."
 msgstr ""
 
-#: warehouse/manage/forms.py:486
+#: warehouse/manage/forms.py:488
 msgid ""
 "This project name has already been used. Choose a different project name."
 msgstr ""
 "Ya se ha utilizado este nombre de proyecto. Elija un nombre de proyecto "
 "distinto."
 
-#: warehouse/manage/forms.py:556
+#: warehouse/manage/forms.py:559
 msgid ""
 "The organization name is too long. Choose a organization name with 100 "
 "characters or less."
@@ -381,7 +381,7 @@ msgstr ""
 "El nombre de la organización es demasiado extenso. Elija un nombre de "
 "organización de 100 caracteres o menos."
 
-#: warehouse/manage/forms.py:568
+#: warehouse/manage/forms.py:571
 msgid ""
 "The organization URL is too long. Choose a organization URL with 400 "
 "characters or less."
@@ -389,7 +389,7 @@ msgstr ""
 "El URL de la organización es demasiado extenso. Elija un URL de organización "
 "de 400 caracteres o menos."
 
-#: warehouse/manage/forms.py:582
+#: warehouse/manage/forms.py:585
 msgid ""
 "The organization description is too long. Choose a organization description "
 "with 400 characters or less."
@@ -397,23 +397,23 @@ msgstr ""
 "La descripción de la organización es demasiado extensa. Elija una "
 "descripción con 400 caracteres o menos."
 
-#: warehouse/manage/forms.py:612
+#: warehouse/manage/forms.py:615
 msgid ""
 "No organization owner, manager, or member found with that username. Please "
 "try again."
 msgstr ""
 
-#: warehouse/manage/forms.py:628
+#: warehouse/manage/forms.py:631
 msgid "Choose a team name with 50 characters or less."
 msgstr "Elija un nombre de equipo de 50 caracteres o menos."
 
-#: warehouse/manage/forms.py:634
+#: warehouse/manage/forms.py:637
 msgid ""
 "The team name is invalid. Team names cannot start or end with a space, "
 "period, underscore, hyphen, or slash. Choose a different team name."
 msgstr ""
 
-#: warehouse/manage/forms.py:651
+#: warehouse/manage/forms.py:665
 #, fuzzy
 #| msgid ""
 #| "This username is already being used by another account. Choose a "
@@ -423,26 +423,26 @@ msgstr ""
 "Otra cuenta ya utiliza este nombre de usuario. Elija un nombre de usuario "
 "distinto."
 
-#: warehouse/manage/views.py:361
+#: warehouse/manage/views.py:366
 msgid "Email ${email_address} added - check your email for a verification link"
 msgstr ""
 "Se añadió la dirección de correo ${email_address}. Encuentre en su buzón el "
 "enlace de verificación"
 
-#: warehouse/manage/views.py:882
+#: warehouse/manage/views.py:887
 msgid "Recovery codes already generated"
 msgstr "Ya se generaron códigos de recuperación"
 
-#: warehouse/manage/views.py:883
+#: warehouse/manage/views.py:888
 msgid "Generating new recovery codes will invalidate your existing codes."
 msgstr ""
 "Generar códigos de recuperación nuevos invalidará sus códigos existentes."
 
-#: warehouse/manage/views.py:1823
+#: warehouse/manage/views.py:1955
 msgid "User '${username}' already has ${role_name} role for organization"
 msgstr "«${username}» ya funge como ${role_name} en la organización"
 
-#: warehouse/manage/views.py:1834
+#: warehouse/manage/views.py:1966
 #, fuzzy
 #| msgid ""
 #| "User '${username}' does not have a verified primary email address and "
@@ -454,38 +454,38 @@ msgstr ""
 "No se puede añadir a «${username}» como ${role_name} del proyecto porque no "
 "tiene verificada ninguna dirección de correo principal"
 
-#: warehouse/manage/views.py:1848 warehouse/manage/views.py:4015
+#: warehouse/manage/views.py:1980 warehouse/manage/views.py:4152
 msgid ""
 "User '${username}' already has an active invite. Please try again later."
 msgstr ""
 "«${username}» ya tiene una invitación activa. Inténtelo de nuevo más "
 "adelante."
 
-#: warehouse/manage/views.py:1905 warehouse/manage/views.py:4082
+#: warehouse/manage/views.py:2037 warehouse/manage/views.py:4219
 msgid "Invitation sent to '${username}'"
 msgstr "Se envió la invitación a «${username}»"
 
-#: warehouse/manage/views.py:1944
+#: warehouse/manage/views.py:2077
 #, fuzzy
 #| msgid "Could not find role invitation."
 msgid "Could not find organization invitation."
 msgstr "No se encontró la invitación al puesto."
 
-#: warehouse/manage/views.py:1958 warehouse/manage/views.py:4126
+#: warehouse/manage/views.py:2091 warehouse/manage/views.py:4263
 msgid "Invitation already expired."
 msgstr "Ya caducó la invitación."
 
-#: warehouse/manage/views.py:1991 warehouse/manage/views.py:4150
+#: warehouse/manage/views.py:2124 warehouse/manage/views.py:4287
 msgid "Invitation revoked from '${username}'."
 msgstr "Se revocó la invitación para «${username}»."
 
-#: warehouse/manage/views.py:2392
+#: warehouse/manage/views.py:2514
 #, fuzzy
 #| msgid "User '${username}' already has ${role_name} role for project"
 msgid "User '${username}' is already a team member"
 msgstr "«${username}» ya funge como ${role_name} en el proyecto"
 
-#: warehouse/manage/views.py:2810
+#: warehouse/manage/views.py:2934
 #, fuzzy
 #| msgid ""
 #| "There have been too many unsuccessful login attempts. Try again later."
@@ -496,17 +496,23 @@ msgstr ""
 "Hubo demasiados intentos infructuosos de acceso. Inténtelo de nuevo más "
 "tarde."
 
-#: warehouse/manage/views.py:3900
+#: warehouse/manage/views.py:3929
+#, fuzzy
+#| msgid "User '${username}' already has ${role_name} role for project"
+msgid "Team '${team_name}' already has ${role_name} role for project"
+msgstr "«${username}» ya funge como ${role_name} en el proyecto"
+
+#: warehouse/manage/views.py:4037
 msgid "User '${username}' already has ${role_name} role for project"
 msgstr "«${username}» ya funge como ${role_name} en el proyecto"
 
-#: warehouse/manage/views.py:3969
+#: warehouse/manage/views.py:4106
 #, fuzzy
 #| msgid "You are now ${role} of the '${project_name}' project."
 msgid "${username} is now ${role} of the '${project_name}' project."
 msgstr "Ahora es ${role} del proyecto «${project_name}»."
 
-#: warehouse/manage/views.py:4002
+#: warehouse/manage/views.py:4139
 msgid ""
 "User '${username}' does not have a verified primary email address and cannot "
 "be added as a ${role_name} for project"
@@ -514,7 +520,7 @@ msgstr ""
 "No se puede añadir a «${username}» como ${role_name} del proyecto porque no "
 "tiene verificada ninguna dirección de correo principal"
 
-#: warehouse/manage/views.py:4115
+#: warehouse/manage/views.py:4252
 msgid "Could not find role invitation."
 msgstr "No se encontró la invitación al puesto."
 
@@ -564,6 +570,42 @@ msgstr ""
 
 #: warehouse/oidc/forms.py:146
 msgid "Provider must be specified by ID"
+msgstr ""
+
+#: warehouse/subscriptions/models.py:42
+#, fuzzy
+#| msgid "Action"
+msgid "Active"
+msgstr "Acción"
+
+#: warehouse/subscriptions/models.py:43
+#, fuzzy
+#| msgid "Last used"
+msgid "Past Due"
+msgstr "Último uso"
+
+#: warehouse/subscriptions/models.py:44
+msgid "Unpaid"
+msgstr ""
+
+#: warehouse/subscriptions/models.py:45
+#, fuzzy
+#| msgid "Cancel"
+msgid "Canceled"
+msgstr "Cancelar"
+
+#: warehouse/subscriptions/models.py:46
+msgid "Incomplete"
+msgstr ""
+
+#: warehouse/subscriptions/models.py:47
+#, fuzzy
+#| msgid "Invite expired"
+msgid "Incomplete Expired"
+msgstr "Invitación caducada"
+
+#: warehouse/subscriptions/models.py:48
+msgid "Trialing"
 msgstr ""
 
 #: warehouse/templates/403.html:16
@@ -843,8 +885,8 @@ msgstr "Cambiar a la versión para móviles"
 #: warehouse/templates/manage/account.html:716
 #: warehouse/templates/manage/manage_base.html:293
 #: warehouse/templates/manage/manage_base.html:352
-#: warehouse/templates/manage/organization/settings.html:159
-#: warehouse/templates/manage/organization/settings.html:205
+#: warehouse/templates/manage/organization/settings.html:180
+#: warehouse/templates/manage/organization/settings.html:235
 #: warehouse/templates/manage/project/documentation.html:27
 #: warehouse/templates/manage/project/release.html:163
 #: warehouse/templates/manage/project/settings.html:126
@@ -1019,6 +1061,10 @@ msgstr "Cambiar a la versión de escritorio"
 msgid "Confirm Action"
 msgstr "Confirme la acción"
 
+#: warehouse/templates/confirm-action.html:26
+msgid "Are you sure?"
+msgstr ""
+
 #: warehouse/templates/error-base.html:31
 msgid "Error code"
 msgstr "Código de error"
@@ -1184,20 +1230,20 @@ msgstr "Contraseña"
 #: warehouse/templates/manage/organization/settings.html:98
 #: warehouse/templates/manage/organization/settings.html:123
 #: warehouse/templates/manage/organization/teams.html:84
-#: warehouse/templates/manage/organizations.html:116
-#: warehouse/templates/manage/organizations.html:139
-#: warehouse/templates/manage/organizations.html:161
-#: warehouse/templates/manage/organizations.html:179
-#: warehouse/templates/manage/organizations.html:198
+#: warehouse/templates/manage/organizations.html:143
+#: warehouse/templates/manage/organizations.html:166
+#: warehouse/templates/manage/organizations.html:188
+#: warehouse/templates/manage/organizations.html:206
+#: warehouse/templates/manage/organizations.html:225
 #: warehouse/templates/manage/project/publishing.html:85
 #: warehouse/templates/manage/project/publishing.html:97
 #: warehouse/templates/manage/project/publishing.html:109
-#: warehouse/templates/manage/project/roles.html:277
-#: warehouse/templates/manage/project/roles.html:288
+#: warehouse/templates/manage/project/roles.html:262
+#: warehouse/templates/manage/project/roles.html:273
+#: warehouse/templates/manage/project/roles.html:285
 #: warehouse/templates/manage/project/roles.html:300
-#: warehouse/templates/manage/project/roles.html:315
-#: warehouse/templates/manage/project/roles.html:342
-#: warehouse/templates/manage/project/roles.html:354
+#: warehouse/templates/manage/project/roles.html:327
+#: warehouse/templates/manage/project/roles.html:339
 #: warehouse/templates/manage/team/roles.html:96
 #: warehouse/templates/manage/team/settings.html:35
 #: warehouse/templates/re-auth.html:51
@@ -1302,7 +1348,7 @@ msgid "Log in to %(title)s"
 msgstr "Acceder a %(title)s"
 
 #: warehouse/templates/accounts/login.html:49
-#: warehouse/templates/accounts/profile.html:38
+#: warehouse/templates/accounts/profile.html:40
 #: warehouse/templates/accounts/register.html:89
 #: warehouse/templates/email/organization-member-added/body.html:30
 #: warehouse/templates/email/organization-member-invited/body.html:30
@@ -1311,10 +1357,10 @@ msgstr "Acceder a %(title)s"
 #: warehouse/templates/manage/account.html:248
 #: warehouse/templates/manage/organization/roles.html:125
 #: warehouse/templates/manage/organization/roles.html:179
-#: warehouse/templates/manage/project/roles.html:146
-#: warehouse/templates/manage/project/roles.html:208
-#: warehouse/templates/manage/project/roles.html:302
-#: warehouse/templates/manage/project/roles.html:345
+#: warehouse/templates/manage/project/roles.html:139
+#: warehouse/templates/manage/project/roles.html:194
+#: warehouse/templates/manage/project/roles.html:287
+#: warehouse/templates/manage/project/roles.html:330
 #: warehouse/templates/manage/team/roles.html:99
 msgid "Username"
 msgstr "Nombre de usuario"
@@ -1358,26 +1404,26 @@ msgstr ""
 msgid "Profile of %(username)s"
 msgstr "Perfil de %(username)s"
 
-#: warehouse/templates/accounts/profile.html:29
+#: warehouse/templates/accounts/profile.html:31
 #: warehouse/templates/manage/account.html:223
 #: warehouse/templates/manage/organization/roles.html:71
 #: warehouse/templates/manage/organization/roles.html:136
-#: warehouse/templates/manage/project/roles.html:155
-#: warehouse/templates/manage/project/roles.html:217
+#: warehouse/templates/manage/project/roles.html:148
+#: warehouse/templates/manage/project/roles.html:203
 #: warehouse/templates/manage/team/roles.html:53
 msgid "Avatar for {user} from gravatar.com"
 msgstr "Avatar de {user} de gravatar.com"
 
-#: warehouse/templates/accounts/profile.html:49
+#: warehouse/templates/accounts/profile.html:51
 msgid "Date joined"
 msgstr "Fecha de alta"
 
-#: warehouse/templates/accounts/profile.html:50
+#: warehouse/templates/accounts/profile.html:52
 #, python-format
 msgid "Joined %(start_date)s"
 msgstr "Se dio de alta el %(start_date)s"
 
-#: warehouse/templates/accounts/profile.html:64
+#: warehouse/templates/accounts/profile.html:66
 #, python-format
 msgid ""
 "\n"
@@ -1396,11 +1442,11 @@ msgstr[1] ""
 "            %(count)s proyectos\n"
 "          "
 
-#: warehouse/templates/accounts/profile.html:70
+#: warehouse/templates/accounts/profile.html:72
 msgid "No projects"
 msgstr "No hay ningún proyecto"
 
-#: warehouse/templates/accounts/profile.html:79
+#: warehouse/templates/accounts/profile.html:81
 #: warehouse/templates/manage/organization/projects.html:71
 #: warehouse/templates/manage/projects.html:34
 #: warehouse/templates/manage/projects.html:104
@@ -1409,7 +1455,7 @@ msgstr "No hay ningún proyecto"
 msgid "Last released %(release_date)s"
 msgstr "Última versión publicada el %(release_date)s"
 
-#: warehouse/templates/accounts/profile.html:87
+#: warehouse/templates/accounts/profile.html:89
 #, python-format
 msgid "%(user)s has not uploaded any projects to PyPI, yet"
 msgstr "%(user)s aún no ha cargado ningún proyecto en PyPI"
@@ -1846,9 +1892,12 @@ msgstr ""
 "«%(organization_name)s»."
 
 #: warehouse/templates/email/new-organization-approved/body.html:17
-#, python-format
+#, fuzzy, python-format
+#| msgid ""
+#| "Your new organization named \"%(organization_name)s\" has been approved "
+#| "and created."
 msgid ""
-"Your new organization named \"%(organization_name)s\" has been approved and "
+"Your new organization named '%(organization_name)s' has been approved and "
 "created."
 msgstr ""
 "Se creó y aprobó su organización nueva, de nombre «%(organization_name)s»."
@@ -1860,23 +1909,33 @@ msgid ""
 msgstr ""
 
 #: warehouse/templates/email/new-organization-declined/body.html:17
-#, python-format
+#, fuzzy, python-format
+#| msgid ""
+#| "Your request to create a new organization named \"%(organization_name)s\" "
+#| "was not approved."
 msgid ""
-"Your request to create a new organization named \"%(organization_name)s\" "
-"was not approved."
+"Your request to create a new organization named '%(organization_name)s' was "
+"not approved."
 msgstr ""
 "No se aprobó su solicitud de crear una organización llamada "
 "«%(organization_name)s»."
 
 #: warehouse/templates/email/new-organization-requested/body.html:17
-#, python-format
+#: warehouse/templates/manage/organizations.html:130
+#, fuzzy, python-format
+#| msgid ""
+#| "Your request to create a new organization named \"%(organization_name)s\" "
+#| "was not approved."
 msgid ""
-"Your request for a new PyPI organization named \"%(organization_name)s\" has "
+"Your request for a new PyPI organization named '%(organization_name)s' has "
 "been submitted."
 msgstr ""
+"No se aprobó su solicitud de crear una organización llamada "
+"«%(organization_name)s»."
 
 #: warehouse/templates/email/new-organization-requested/body.html:19
-#: warehouse/templates/manage/organizations.html:57
+#: warehouse/templates/manage/organizations.html:63
+#: warehouse/templates/manage/organizations.html:133
 #, fuzzy
 #| msgid "You'll receive an email with a password reset link."
 msgid "You will receive an email when the organization has been approved"
@@ -2001,10 +2060,11 @@ msgstr ""
 #: warehouse/templates/manage/organization/roles.html:99
 #: warehouse/templates/manage/organization/roles.html:186
 #: warehouse/templates/manage/project/roles.html:52
-#: warehouse/templates/manage/project/roles.html:124
-#: warehouse/templates/manage/project/roles.html:179
-#: warehouse/templates/manage/project/roles.html:314
-#: warehouse/templates/manage/project/roles.html:352
+#: warehouse/templates/manage/project/roles.html:117
+#: warehouse/templates/manage/project/roles.html:172
+#: warehouse/templates/manage/project/roles.html:272
+#: warehouse/templates/manage/project/roles.html:299
+#: warehouse/templates/manage/project/roles.html:337
 msgid "Role"
 msgstr "Puesto"
 
@@ -2030,11 +2090,9 @@ msgstr "Añadido por:"
 #: warehouse/templates/email/organization-member-removed/body.html:43
 #: warehouse/templates/email/organization-member-role-changed/body.html:44
 #: warehouse/templates/email/organization-renamed/body.html:37
-#, fuzzy
-#| msgid "You are receiving this because you are an owner of this project."
 msgid "You are receiving this because you are an owner of this organization."
 msgstr ""
-"Ha recibido esto porque forma parte de los propietarios de este proyecto."
+"Ha recibido esto porque forma parte de los propietarios de esta organización."
 
 #: warehouse/templates/email/organization-member-invite-canceled/body.html:19
 #, python-format
@@ -2097,10 +2155,8 @@ msgid ""
 msgstr ""
 
 #: warehouse/templates/email/organization-member-role-changed/body.html:31
-#, fuzzy
-#| msgid "Save role"
 msgid "New role"
-msgstr "Guardar puesto"
+msgstr "Puesto nuevo"
 
 #: warehouse/templates/email/organization-member-role-changed/body.html:33
 #, fuzzy
@@ -2460,9 +2516,12 @@ msgid ""
 msgstr ""
 
 #: warehouse/templates/email/role-changed-as-team-collaborator/body.html:20
-#, python-format
+#, fuzzy, python-format
+#| msgid ""
+#| "Your team's permissions for the %(project)s project have been changed by "
+#| "%(submitter)s."
 msgid ""
-"Your team's permissions for the %(project)s project have been changed by "
+"Your team's role for the %(project)s project has been changed by "
 "%(submitter)s."
 msgstr ""
 "%(submitter)s cambió los permisos de su equipo para con el proyecto "
@@ -2474,7 +2533,7 @@ msgstr ""
 #| "Can upload releases. Can add other collaborators. Can delete files, "
 #| "releases, or the entire project."
 msgid ""
-"Your team now has Administer permissions for the project. You can add other "
+"Your team now has permissions to administer the project. You can add other "
 "collaborators, upload releases and delete files, releases or the entire "
 "project."
 msgstr ""
@@ -2487,8 +2546,9 @@ msgstr ""
 #| "Can upload releases for a package. Cannot add collaborators. Cannot "
 #| "delete files, releases, or the project."
 msgid ""
-"Your team now has Upload permissions for the project. You can upload "
-"releases but cannot add collaborators, delete files, releases or the project."
+"Your team now has permissions to upload releases for the project. You can "
+"upload releases but cannot add collaborators, delete files, releases or the "
+"project."
 msgstr ""
 "Puede cargar versiones de paquetes. No puede añadir colaboradores. No puede "
 "eliminar archivos, versiones o el proyecto mismo."
@@ -2499,8 +2559,8 @@ msgstr ""
 #| "You are receiving this because you have been added by "
 #| "%(initiator_username)s to a project on %(site)s."
 msgid ""
-"You are receiving this because your team's permissions were changed by "
-"%(submitter)s for the %(project)s project."
+"You are receiving this because your team's role was changed by %(submitter)s "
+"for the %(project)s project."
 msgstr ""
 "Ha recibido esto porque %(initiator_username)s le ha añadido a un proyecto "
 "en %(site)s."
@@ -2521,8 +2581,6 @@ msgstr "Equipo"
 #: warehouse/templates/email/team-collaborator-added/body.html:30
 #: warehouse/templates/email/team-collaborator-role-changed/body.html:30
 #: warehouse/templates/manage/account/token.html:143
-#: warehouse/templates/manage/project/roles.html:53
-#: warehouse/templates/manage/project/roles.html:287
 msgid "Permissions"
 msgstr "Permisos"
 
@@ -2537,8 +2595,6 @@ msgstr "Colaboradores"
 #: warehouse/templates/email/team-collaborator-added/body.html:42
 #: warehouse/templates/email/team-collaborator-removed/body.html:41
 #: warehouse/templates/email/team-collaborator-role-changed/body.html:42
-#, fuzzy
-#| msgid "You are receiving this because you are an owner of this project."
 msgid "You are receiving this because you are an owner of this project."
 msgstr ""
 "Ha recibido esto porque forma parte de los propietarios de este proyecto."
@@ -2741,10 +2797,8 @@ msgstr "Descartar esta notificación"
 #: warehouse/templates/manage/account.html:211
 #: warehouse/templates/manage/manage_base.html:282
 #: warehouse/templates/manage/manage_base.html:284
-#: warehouse/templates/manage/organization/roles.html:38
 #: warehouse/templates/manage/project/release.html:118
 #: warehouse/templates/manage/project/releases.html:172
-#: warehouse/templates/manage/project/roles.html:38
 #: warehouse/templates/manage/project/settings.html:111
 #: warehouse/templates/search/results.html:199
 msgid "Close"
@@ -3660,7 +3714,7 @@ msgstr[1] ""
 "        "
 
 #: warehouse/templates/manage/account.html:705
-#: warehouse/templates/manage/organization/settings.html:194
+#: warehouse/templates/manage/organization/settings.html:224
 #, python-format
 msgid ""
 "<a href=\"%(transfer_href)s\">transfer ownership</a> or <a href="
@@ -3671,8 +3725,8 @@ msgstr ""
 
 #: warehouse/templates/manage/account.html:714
 #: warehouse/templates/manage/account/token.html:166
-#: warehouse/templates/manage/organization/settings.html:157
-#: warehouse/templates/manage/organization/settings.html:203
+#: warehouse/templates/manage/organization/settings.html:178
+#: warehouse/templates/manage/organization/settings.html:233
 #: warehouse/templates/manage/team/settings.html:75
 msgid "Proceed with caution!"
 msgstr "¡Prosiga con cautela!"
@@ -3689,9 +3743,10 @@ msgstr "Eliminar su cuenta de PyPI"
 #: warehouse/templates/manage/organization/projects.html:115
 #: warehouse/templates/manage/organization/projects.html:120
 #: warehouse/templates/manage/organization/teams.html:53
-#: warehouse/templates/manage/organizations.html:81
-#: warehouse/templates/manage/organizations.html:86
-#: warehouse/templates/manage/organizations.html:91
+#: warehouse/templates/manage/organizations.html:93
+#: warehouse/templates/manage/organizations.html:99
+#: warehouse/templates/manage/organizations.html:104
+#: warehouse/templates/manage/organizations.html:109
 #: warehouse/templates/manage/project/releases.html:88
 #: warehouse/templates/manage/projects.html:148
 #: warehouse/templates/manage/projects.html:153
@@ -3747,11 +3802,11 @@ msgstr "Método de dos fases"
 #: warehouse/templates/manage/organization/roles.html:120
 #: warehouse/templates/manage/organization/roles.html:125
 #: warehouse/templates/manage/project/publishing.html:44
-#: warehouse/templates/manage/project/roles.html:86
-#: warehouse/templates/manage/project/roles.html:141
-#: warehouse/templates/manage/project/roles.html:146
-#: warehouse/templates/manage/project/roles.html:203
-#: warehouse/templates/manage/project/roles.html:208
+#: warehouse/templates/manage/project/roles.html:82
+#: warehouse/templates/manage/project/roles.html:134
+#: warehouse/templates/manage/project/roles.html:139
+#: warehouse/templates/manage/project/roles.html:189
+#: warehouse/templates/manage/project/roles.html:194
 msgid "Remove"
 msgstr "Quitar"
 
@@ -3968,6 +4023,7 @@ msgstr "Confirme %(item)s para continuar."
 
 #: warehouse/templates/manage/manage_base.html:319
 #: warehouse/templates/manage/manage_base.html:371
+#: warehouse/templates/manage/organization/activate_subscription.html:32
 msgid "Cancel"
 msgstr "Cancelar"
 
@@ -3988,7 +4044,7 @@ msgstr "Invitaciones pendientes (%(project_count)s)"
 
 #: warehouse/templates/manage/organization/projects.html:78
 #: warehouse/templates/manage/organizations.html:32
-#: warehouse/templates/manage/organizations.html:69
+#: warehouse/templates/manage/organizations.html:75
 #: warehouse/templates/manage/projects.html:41
 #: warehouse/templates/manage/projects.html:111
 #: warehouse/templates/manage/team/projects.html:78
@@ -4005,24 +4061,36 @@ msgstr "Creado el %(creation_date)s"
 msgid "Your organizations (%(organization_count)s)"
 msgstr "Sus proyectos (%(project_count)s)"
 
-#: warehouse/templates/manage/organizations.html:57
+#: warehouse/templates/manage/organizations.html:58
+#: warehouse/templates/manage/organizations.html:60
+msgid "Billing Inactive"
+msgstr ""
+
+#: warehouse/templates/manage/organizations.html:60
+msgid ""
+"This organization's billing can be activated by an organization owner or "
+"billing manager"
+msgstr ""
+
+#: warehouse/templates/manage/organizations.html:63
 msgid "Request Submitted"
 msgstr ""
 
-#: warehouse/templates/manage/organizations.html:59
-#: warehouse/templates/manage/organizations.html:80
+#: warehouse/templates/manage/organizations.html:65
+#: warehouse/templates/manage/organizations.html:92
+#: warehouse/templates/manage/organizations.html:98
 #, fuzzy
 #| msgid "Role invitation is not valid."
 msgid "This organization is not active"
 msgstr "La invitación al puesto no es válida."
 
-#: warehouse/templates/manage/organizations.html:59
+#: warehouse/templates/manage/organizations.html:65
 msgid "Inactive"
 msgstr ""
 
 #: warehouse/templates/manage/organization/roles.html:43
 #: warehouse/templates/manage/organization/roles.html:88
-#: warehouse/templates/manage/organizations.html:61
+#: warehouse/templates/manage/organizations.html:67
 #, fuzzy
 #| msgid "Manage"
 msgid "Manager"
@@ -4030,21 +4098,24 @@ msgstr "Gestionar"
 
 #: warehouse/templates/manage/organization/roles.html:45
 #: warehouse/templates/manage/organization/roles.html:90
-#: warehouse/templates/manage/organizations.html:63
+#: warehouse/templates/manage/organizations.html:69
 #: warehouse/templates/manage/project/publishing.html:83
 #: warehouse/templates/manage/project/roles.html:43
-#: warehouse/templates/manage/project/roles.html:170
-#: warehouse/templates/manage/project/roles.html:181
+#: warehouse/templates/manage/project/roles.html:78
+#: warehouse/templates/manage/project/roles.html:108
+#: warehouse/templates/manage/project/roles.html:119
+#: warehouse/templates/manage/project/roles.html:163
+#: warehouse/templates/manage/project/roles.html:174
 msgid "Owner"
 msgstr "Propietario"
 
 #: warehouse/templates/manage/organization/roles.html:48
 #: warehouse/templates/manage/organization/roles.html:92
-#: warehouse/templates/manage/organizations.html:65
+#: warehouse/templates/manage/organizations.html:71
 msgid "Billing Manager"
 msgstr ""
 
-#: warehouse/templates/manage/organizations.html:75
+#: warehouse/templates/manage/organizations.html:81
 #, fuzzy
 #| msgid "Create an account"
 msgid "View this organization"
@@ -4053,7 +4124,7 @@ msgstr "Crear cuenta"
 #: warehouse/templates/manage/organization/projects.html:128
 #: warehouse/templates/manage/organization/projects.html:131
 #: warehouse/templates/manage/organization/teams.html:60
-#: warehouse/templates/manage/organizations.html:76
+#: warehouse/templates/manage/organizations.html:82
 #: warehouse/templates/manage/project/releases.html:94
 #: warehouse/templates/manage/projects.html:161
 #: warehouse/templates/manage/projects.html:164
@@ -4062,89 +4133,109 @@ msgstr "Crear cuenta"
 msgid "View"
 msgstr "Ver"
 
-#: warehouse/templates/manage/organizations.html:90
+#: warehouse/templates/manage/organizations.html:87
+#, fuzzy
+#| msgid "Create an account"
+msgid "Activate billing for this organization"
+msgstr "Crear cuenta"
+
+#: warehouse/templates/manage/organizations.html:88
+msgid "Activate Billing"
+msgstr ""
+
+#: warehouse/templates/manage/organizations.html:103
+#: warehouse/templates/manage/organizations.html:108
 #, fuzzy
 #| msgid "Create an account"
 msgid "Manage this organization"
 msgstr "Crear cuenta"
 
-#: warehouse/templates/manage/organizations.html:99
+#: warehouse/templates/manage/organizations.html:117
 #, fuzzy
 #| msgid "%(user)s has not uploaded any projects to PyPI, yet"
 msgid "You have not joined any organizations on PyPI, yet."
 msgstr "%(user)s aún no ha cargado ningún proyecto en PyPI"
 
-#: warehouse/templates/manage/organizations.html:108
+#: warehouse/templates/manage/organizations.html:126
 #, fuzzy
 #| msgid "Create an account"
 msgid "Create new organization"
 msgstr "Crear cuenta"
 
+#: warehouse/templates/manage/organization/roles.html:123
+#: warehouse/templates/manage/organization/roles.html:158
+#: warehouse/templates/manage/organizations.html:133
+#: warehouse/templates/manage/project/roles.html:137
+#: warehouse/templates/manage/project/roles.html:192
+#: warehouse/templates/manage/project/roles.html:225
+msgid "."
+msgstr "."
+
 #: warehouse/templates/manage/organization/settings.html:29
-#: warehouse/templates/manage/organizations.html:114
+#: warehouse/templates/manage/organizations.html:141
 msgid "Organization account name"
 msgstr ""
 
-#: warehouse/templates/manage/organizations.html:119
+#: warehouse/templates/manage/organizations.html:146
 msgid "Select an organization account name"
 msgstr ""
 
-#: warehouse/templates/manage/organizations.html:130
+#: warehouse/templates/manage/organizations.html:157
 msgid "This account name will be used in URLs on PyPI."
 msgstr ""
 
 #: warehouse/templates/manage/organization/settings.html:65
 #: warehouse/templates/manage/organization/settings.html:89
-#: warehouse/templates/manage/organizations.html:131
-#: warehouse/templates/manage/organizations.html:153
-#: warehouse/templates/manage/organizations.html:171
+#: warehouse/templates/manage/organizations.html:158
+#: warehouse/templates/manage/organizations.html:180
+#: warehouse/templates/manage/organizations.html:198
 msgid "For example"
 msgstr "Por ejemplo"
 
 #: warehouse/templates/manage/organization/settings.html:42
-#: warehouse/templates/manage/organizations.html:137
+#: warehouse/templates/manage/organizations.html:164
 msgid "Organization name"
 msgstr "Nombre de organización"
 
 #: warehouse/templates/manage/organization/settings.html:48
-#: warehouse/templates/manage/organizations.html:142
+#: warehouse/templates/manage/organizations.html:169
 msgid "Name of your business, product, or project"
 msgstr ""
 
 #: warehouse/templates/manage/organization/settings.html:72
-#: warehouse/templates/manage/organizations.html:159
+#: warehouse/templates/manage/organizations.html:186
 msgid "️Organization URL"
 msgstr "URL de organización"
 
 #: warehouse/templates/manage/organization/settings.html:78
-#: warehouse/templates/manage/organizations.html:165
+#: warehouse/templates/manage/organizations.html:192
 msgid "URL for your business, product, or project"
 msgstr "URL del negocio, producto o proyecto"
 
 #: warehouse/templates/manage/organization/settings.html:96
-#: warehouse/templates/manage/organizations.html:177
+#: warehouse/templates/manage/organizations.html:204
 msgid "Organization description"
 msgstr "Descripción de la organización"
 
 #: warehouse/templates/manage/organization/settings.html:102
-#: warehouse/templates/manage/organizations.html:182
+#: warehouse/templates/manage/organizations.html:209
 msgid "Description of your business, product, or project"
 msgstr "Descripción de su negocio, producto o proyecto"
 
 #: warehouse/templates/manage/organization/settings.html:121
-#: warehouse/templates/manage/organizations.html:196
+#: warehouse/templates/manage/organizations.html:223
 msgid "️Organization type"
 msgstr "Tipo de organización"
 
 #: warehouse/templates/manage/organization/settings.html:138
-#: warehouse/templates/manage/organizations.html:208
+#: warehouse/templates/manage/organizations.html:235
 msgid ""
 "Companies can create organization accounts as a paid service while community "
 "projects are granted complimentary access."
 msgstr ""
 
 #: warehouse/templates/manage/organization/teams.html:96
-#: warehouse/templates/manage/organizations.html:214
+#: warehouse/templates/manage/organizations.html:241
 msgid "Create"
 msgstr "Crear"
 
@@ -4327,8 +4418,8 @@ msgstr "Descargar como archivo"
 
 #: warehouse/templates/manage/account/recovery_codes-provision.html:63
 #: warehouse/templates/manage/organization/roles.html:110
-#: warehouse/templates/manage/project/roles.html:133
-#: warehouse/templates/manage/project/roles.html:188
+#: warehouse/templates/manage/project/roles.html:126
+#: warehouse/templates/manage/project/roles.html:181
 msgid "Save"
 msgstr "Guardar"
 
@@ -4635,6 +4726,20 @@ msgstr ""
 "Observe que algunos dispositivos USB antiguos no respetan la norma FIDO y no "
 "funcionarán con PyPI."
 
+#: warehouse/templates/manage/organization/activate_subscription.html:17
+#: warehouse/templates/manage/organization/activate_subscription.html:21
+#: warehouse/templates/manage/organization/activate_subscription.html:35
+#, fuzzy
+#| msgid "Project description"
+msgid "Activate Subscription"
+msgstr "Descripción de proyecto"
+
+#: warehouse/templates/manage/organization/activate_subscription.html:27
+msgid ""
+"Company accounts require an active subscription. Please enter up-to-date "
+"billing information to enable the account."
+msgstr ""
+
 #: warehouse/templates/manage/organization/manage_organization_base.html:20
 #, fuzzy, python-format
 #| msgid "Manage '%(project_name)s'"
@@ -4759,7 +4864,7 @@ msgstr "A2F activada"
 #: warehouse/templates/manage/organization/roles.html:61
 #: warehouse/templates/manage/project/roles.html:23
 #: warehouse/templates/manage/project/roles.html:28
-#: warehouse/templates/manage/project/roles.html:54
+#: warehouse/templates/manage/project/roles.html:53
 #: warehouse/templates/manage/team/roles.html:23
 #: warehouse/templates/manage/team/roles.html:28
 msgid "2FA"
@@ -4784,12 +4889,10 @@ msgstr ""
 "gestionar %(project_name)s"
 
 #: warehouse/templates/manage/organization/roles.html:38
-#: warehouse/templates/manage/project/release.html:118
-#: warehouse/templates/manage/project/releases.html:172
-#: warehouse/templates/manage/project/roles.html:38
-#: warehouse/templates/manage/project/settings.html:111
-msgid "Dismiss"
-msgstr "Descartar"
+#, fuzzy
+#| msgid "Organization teams"
+msgid "Organization Roles"
+msgstr "Equipos de la organización"
 
 #: warehouse/templates/manage/organization/roles.html:39
 #, fuzzy, python-format
@@ -4800,7 +4903,7 @@ msgstr "Los colaboradores pueden ocupar dos puestos:"
 
 #: warehouse/templates/manage/organization/roles.html:41
 #: warehouse/templates/manage/organization/roles.html:86
-#: warehouse/templates/manage/project/roles.html:299
+#: warehouse/templates/manage/project/roles.html:284
 msgid "Member"
 msgstr ""
 
@@ -4840,14 +4943,15 @@ msgstr "Usuarios que pueden gestionar %(project_name)s"
 
 #: warehouse/templates/manage/organization/roles.html:59
 #: warehouse/templates/manage/organization/roles.html:174
-#: warehouse/templates/manage/project/roles.html:340
+#: warehouse/templates/manage/project/roles.html:325
 #: warehouse/templates/manage/team/roles.html:43
 #: warehouse/templates/manage/team/roles.html:94
 msgid "User"
 msgstr "Usuario"
 
 #: warehouse/templates/manage/organization/roles.html:109
-#: warehouse/templates/manage/project/roles.html:187
+#: warehouse/templates/manage/project/roles.html:125
+#: warehouse/templates/manage/project/roles.html:180
 msgid "Save role"
 msgstr "Guardar puesto"
 
@@ -4865,34 +4969,26 @@ msgstr "No puede eliminarse como propietario"
 msgid "Remove %(user)s from this organization"
 msgstr "Eliminar a %(user)s de esta organización"
 
-#: warehouse/templates/manage/organization/roles.html:123
-#: warehouse/templates/manage/organization/roles.html:158
-#: warehouse/templates/manage/project/roles.html:144
-#: warehouse/templates/manage/project/roles.html:206
-#: warehouse/templates/manage/project/roles.html:240
-msgid "."
-msgstr "."
-
 #: warehouse/templates/manage/organization/roles.html:150
-#: warehouse/templates/manage/project/roles.html:231
+#: warehouse/templates/manage/project/roles.html:217
 msgid "Invite pending"
 msgstr "Invitación pendiente"
 
 #: warehouse/templates/manage/organization/roles.html:152
-#: warehouse/templates/manage/project/roles.html:233
+#: warehouse/templates/manage/project/roles.html:219
 msgid "Invite expired"
 msgstr "Invitación caducada"
 
 #: warehouse/templates/manage/organization/roles.html:158
 #: warehouse/templates/manage/organization/roles.html:159
-#: warehouse/templates/manage/project/roles.html:240
-#: warehouse/templates/manage/project/roles.html:241
+#: warehouse/templates/manage/project/roles.html:225
+#: warehouse/templates/manage/project/roles.html:226
 #, python-format
 msgid "Revoke invitation for %(user)s"
 msgstr "Revocar invitación de %(user)s"
 
 #: warehouse/templates/manage/organization/roles.html:160
-#: warehouse/templates/manage/project/roles.html:242
+#: warehouse/templates/manage/project/roles.html:227
 msgid "Revoke invite"
 msgstr "Revocar invitación"
 
@@ -4901,7 +4997,7 @@ msgid "Invite member"
 msgstr "Invitar a miembro"
 
 #: warehouse/templates/manage/organization/roles.html:197
-#: warehouse/templates/manage/project/roles.html:363
+#: warehouse/templates/manage/project/roles.html:348
 msgid "Invite"
 msgstr "Invitar"
 
@@ -4924,19 +5020,35 @@ msgid "Date created"
 msgstr "Fecha de creación"
 
 #: warehouse/templates/manage/organization/settings.html:146
-#, fuzzy
-#| msgid "Create an account"
 msgid "Update organization"
-msgstr "Crear cuenta"
+msgstr "Actualizar organización"
 
 #: warehouse/templates/manage/organization/settings.html:155
-#: warehouse/templates/manage/organization/settings.html:167
 #, fuzzy
-#| msgid "Manage '%(project_name)s'"
-msgid "Change organization account name"
-msgstr "Gestionar «%(project_name)s»"
+#| msgid "Account details"
+msgid "Billing details"
+msgstr "Datos de cuenta"
 
-#: warehouse/templates/manage/organization/settings.html:160
+#: warehouse/templates/manage/organization/settings.html:157
+msgid "Billing status"
+msgstr ""
+
+#: warehouse/templates/manage/organization/settings.html:161
+msgid "Billing email"
+msgstr ""
+
+#: warehouse/templates/manage/organization/settings.html:166
+#, fuzzy
+#| msgid "Manage version"
+msgid "Manage billing"
+msgstr "Gestionar versión"
+
+#: warehouse/templates/manage/organization/settings.html:176
+#: warehouse/templates/manage/organization/settings.html:197
+msgid "Change organization account name"
+msgstr "Cambiar nombre de cuenta de la organización"
+
+#: warehouse/templates/manage/organization/settings.html:181
 #, fuzzy
 #| msgid "You will not be able to recover your account after you delete it"
 msgid ""
@@ -4944,26 +5056,28 @@ msgid ""
 "your organization."
 msgstr "No podrá recuperar la cuenta después de que la elimine"
 
-#: warehouse/templates/manage/organization/settings.html:167
+#: warehouse/templates/manage/organization/settings.html:197
+#, fuzzy
+#| msgid "Change organization account name"
+msgid "Change organization account name for"
+msgstr "Cambiar nombre de cuenta de la organización"
+
+#: warehouse/templates/manage/organization/settings.html:197
 #, fuzzy
 #| msgid "Create an account"
 msgid "Current organization account name"
 msgstr "Crear cuenta"
 
-#: warehouse/templates/manage/organization/settings.html:174
-#: warehouse/templates/manage/organization/settings.html:208
-#, fuzzy
-#| msgid "Create an account"
+#: warehouse/templates/manage/organization/settings.html:204
+#: warehouse/templates/manage/organization/settings.html:238
 msgid "Delete organization"
-msgstr "Crear cuenta"
+msgstr "Eliminar organización"
 
-#: warehouse/templates/manage/organization/settings.html:177
-#, fuzzy
-#| msgid "Create an account"
+#: warehouse/templates/manage/organization/settings.html:207
 msgid "Cannot delete organization"
-msgstr "Crear cuenta"
+msgstr "No se puede eliminar la organización"
 
-#: warehouse/templates/manage/organization/settings.html:179
+#: warehouse/templates/manage/organization/settings.html:209
 #, fuzzy, python-format
 #| msgid ""
 #| "\n"
@@ -4994,7 +5108,7 @@ msgstr[1] ""
 "%(count)s proyectos.\n"
 "        "
 
-#: warehouse/templates/manage/organization/settings.html:184
+#: warehouse/templates/manage/organization/settings.html:214
 #, fuzzy
 #| msgid ""
 #| "\n"
@@ -5027,17 +5141,15 @@ msgstr[1] ""
 "quiere eliminar su cuenta.\n"
 "        "
 
-#: warehouse/templates/manage/organization/settings.html:206
+#: warehouse/templates/manage/organization/settings.html:236
 #, fuzzy
 #| msgid "You will not be able to recover your account after you delete it"
 msgid "You will not be able to recover your organization after you delete it."
 msgstr "No podrá recuperar la cuenta después de que la elimine"
 
-#: warehouse/templates/manage/organization/settings.html:208
-#, fuzzy
-#| msgid "️Organization type"
+#: warehouse/templates/manage/organization/settings.html:238
 msgid "Organization Name"
-msgstr "Tipo de organización"
+msgstr "Nombre de organización"
 
 #: warehouse/templates/manage/organization/teams.html:17
 msgid "Organization teams"
@@ -5346,7 +5458,7 @@ msgid "workflow.yml"
 msgstr "flujodetrabajo.yml"
 
 #: warehouse/templates/manage/project/publishing.html:118
-#: warehouse/templates/manage/project/roles.html:324
+#: warehouse/templates/manage/project/roles.html:309
 #: warehouse/templates/manage/team/roles.html:110
 msgid "Add"
 msgstr "Añadir"
@@ -5457,6 +5569,12 @@ msgstr "Carga de archivos nuevos"
 #: warehouse/templates/manage/project/release.html:116
 msgid "No files found"
 msgstr "No se encontró ningún archivo"
+
+#: warehouse/templates/manage/project/release.html:118
+#: warehouse/templates/manage/project/releases.html:172
+#: warehouse/templates/manage/project/settings.html:111
+msgid "Dismiss"
+msgstr "Descartar"
 
 #: warehouse/templates/manage/project/release.html:119
 #, python-format
@@ -5781,14 +5899,22 @@ msgstr ""
 "Utilice esta página para controlar cuáles usuarios de PyPI pueden ayudarle a "
 "gestionar %(project_name)s"
 
+#: warehouse/templates/manage/project/roles.html:38
+#, fuzzy
+#| msgid "Project links"
+msgid "Project Roles"
+msgstr "Enlaces del proyecto"
+
 #: warehouse/templates/manage/project/roles.html:39
 #: warehouse/templates/pages/help.html:569
 msgid "There are two possible roles for collaborators:"
 msgstr "Los colaboradores pueden ocupar dos puestos:"
 
 #: warehouse/templates/manage/project/roles.html:41
-#: warehouse/templates/manage/project/roles.html:172
-#: warehouse/templates/manage/project/roles.html:181
+#: warehouse/templates/manage/project/roles.html:110
+#: warehouse/templates/manage/project/roles.html:119
+#: warehouse/templates/manage/project/roles.html:165
+#: warehouse/templates/manage/project/roles.html:174
 msgid "Maintainer"
 msgstr "Responsable"
 
@@ -5798,9 +5924,8 @@ msgstr "Responsable"
 #| "Can upload releases for a package. Cannot invite collaborators. Cannot "
 #| "delete files, releases, or the project."
 msgid ""
-"Has permissions to <strong>Upload</strong> releases for a package. Can "
-"upload releases. Cannot invite collaborators. Cannot delete files, releases, "
-"or the project."
+"Has permissions to upload releases for the project. Can upload releases. "
+"Cannot invite collaborators. Cannot delete files, releases, or the project."
 msgstr ""
 "Puede cargar versiones de paquetes. No puede invitar colaboradores. No puede "
 "eliminar archivos, versiones o el proyecto mismo."
@@ -5811,9 +5936,8 @@ msgstr ""
 #| "Can upload releases. Can invite other collaborators. Can delete files, "
 #| "releases, or the entire project."
 msgid ""
-"Has permissions to <strong>Administer</strong> the entire project. Can "
-"upload releases. Can invite other collaborators. Can delete files, releases, "
-"or the entire project."
+"Has permissions to administer the project. Can upload releases. Can invite "
+"other collaborators. Can delete files, releases, or the entire project."
 msgstr ""
 "Puede cargar versiones. Puede invitar a otros colaboradores. Puede eliminar "
 "archivos, versiones o todo el proyecto."
@@ -5830,7 +5954,7 @@ msgstr "Usuarios que pueden gestionar %(project_name)s"
 msgid "Collaborator"
 msgstr "Colaboradores"
 
-#: warehouse/templates/manage/project/roles.html:69
+#: warehouse/templates/manage/project/roles.html:68
 #, fuzzy, python-format
 #| msgid "Create an account"
 msgid "%(count)s organization owner"
@@ -5839,93 +5963,72 @@ msgstr[0] "Crear cuenta"
 msgstr[1] "Crear cuenta"
 
 #: warehouse/templates/manage/project/roles.html:82
-#: warehouse/templates/manage/project/roles.html:115
-#: warehouse/templates/manage/project/roles.html:126
-#: warehouse/templates/manage/project/roles.html:195
 #, fuzzy
-#| msgid "Admin"
-msgid "Administer"
-msgstr "Administración"
+#| msgid "Cannot delete organization"
+msgid "Cannot remove organization owners"
+msgstr "No se puede eliminar la organización"
 
-#: warehouse/templates/manage/project/roles.html:86
-#, fuzzy
-#| msgid "Cannot remove yourself as owner"
-msgid "Cannot remove organization owners with Administer permissions"
-msgstr "No puede eliminarse como propietario"
-
-#: warehouse/templates/manage/project/roles.html:100
+#: warehouse/templates/manage/project/roles.html:96
 #, python-format
 msgid "%(count)s team member"
 msgid_plural "%(count)s team members"
 msgstr[0] ""
 msgstr[1] ""
 
-#: warehouse/templates/manage/project/roles.html:117
-#: warehouse/templates/manage/project/roles.html:126
-#: warehouse/templates/manage/project/roles.html:197
+#: warehouse/templates/manage/project/roles.html:134
 #, fuzzy
-#| msgid "Upload date"
-msgid "Upload"
-msgstr "Fecha de carga"
+#| msgid "Cannot remove yourself as owner"
+msgid "Cannot remove your own team as Owner"
+msgstr "No puede eliminarse como propietario"
 
-#: warehouse/templates/manage/project/roles.html:132
-#, fuzzy
-#| msgid "Permissions"
-msgid "Save permissions"
-msgstr "Permisos"
-
-#: warehouse/templates/manage/project/roles.html:141
-msgid "Cannot remove your own team with Administer permissions"
-msgstr ""
-
-#: warehouse/templates/manage/project/roles.html:144
-#: warehouse/templates/manage/project/roles.html:145
-#: warehouse/templates/manage/project/roles.html:206
-#: warehouse/templates/manage/project/roles.html:207
+#: warehouse/templates/manage/project/roles.html:137
+#: warehouse/templates/manage/project/roles.html:138
+#: warehouse/templates/manage/project/roles.html:192
+#: warehouse/templates/manage/project/roles.html:193
 #, fuzzy, python-format
 #| msgid "Remove %(user)s from this project"
 msgid "Remove %(collaborator)s from this project"
 msgstr "Eliminar %(user)s de este proyecto"
 
-#: warehouse/templates/manage/project/roles.html:203
+#: warehouse/templates/manage/project/roles.html:189
 #, fuzzy
 #| msgid "Cannot remove yourself as owner"
 msgid "Cannot remove yourself as Owner"
 msgstr "No puede eliminarse como propietario"
 
-#: warehouse/templates/manage/project/roles.html:251
+#: warehouse/templates/manage/project/roles.html:236
 #, fuzzy
 #| msgid "Invite collaborator"
 msgid "Add internal collaborator"
 msgstr "Invitar colaborador"
 
-#: warehouse/templates/manage/project/roles.html:258
+#: warehouse/templates/manage/project/roles.html:243
 msgid "️Team or member?"
 msgstr ""
 
-#: warehouse/templates/manage/project/roles.html:268
+#: warehouse/templates/manage/project/roles.html:253
 msgid "Add a team or an individual member as a collaborator."
 msgstr ""
 
-#: warehouse/templates/manage/project/roles.html:276
+#: warehouse/templates/manage/project/roles.html:261
 #, fuzzy
 #| msgid "Register a new project."
 msgid "️Name of team"
 msgstr "Registrar un proyecto nuevo."
 
-#: warehouse/templates/manage/project/roles.html:280
+#: warehouse/templates/manage/project/roles.html:265
 #, fuzzy
 #| msgid "You are not an owner of this project"
 msgid "There are no teams in the organization."
 msgstr "No es propietario de este proyecto"
 
-#: warehouse/templates/manage/project/roles.html:331
+#: warehouse/templates/manage/project/roles.html:316
 #, fuzzy
 #| msgid "Invite collaborator"
 msgid "Invite external collaborator"
 msgstr "Invitar colaborador"
 
-#: warehouse/templates/manage/project/roles.html:333
+#: warehouse/templates/manage/project/roles.html:318
 msgid "Invite collaborator"
 msgstr "Invitar colaborador"
 
@@ -9257,6 +9360,26 @@ msgstr[1] ""
 "                  Los filtros «%(filters)s» no produjeron ningún resultado\n"
 "                "
 
+#, fuzzy
+#~| msgid "Admin"
+#~ msgid "Administer"
+#~ msgstr "Administración"
+
+#, fuzzy
+#~| msgid "Cannot remove yourself as owner"
+#~ msgid "Cannot remove organization owners with Administer permissions"
+#~ msgstr "No puede eliminarse como propietario"
+
+#, fuzzy
+#~| msgid "Upload date"
+#~ msgid "Upload"
+#~ msgstr "Fecha de carga"
+
+#, fuzzy
+#~| msgid "Permissions"
+#~ msgid "Save permissions"
+#~ msgstr "Permisos"
+
 #~ msgid "Journal"
 #~ msgstr "Registro"
 
@@ -9285,9 +9408,6 @@ msgstr[1] ""
 #, python-format
 #~ msgid "History for %(project_name)s"
 #~ msgstr "Histórico de %(project_name)s"
-
-#~ msgid "Action"
-#~ msgstr "Acción"
 
 #~ msgid "Date"
 #~ msgstr "Fecha"
