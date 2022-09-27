@@ -19,7 +19,10 @@
 
 {% block main %}
   {% if organization_invites %}
-  <h1 class="page-title">{% trans invitation_count=organization_invites|length %}Pending invitations ({{ invitation_count }}){% endtrans %}</h1>
+  <h1 class="page-title">
+    {% trans %}Pending invitations{% endtrans %}
+    <span class="badge badge--neutral">{{ organization_invites|length }}</span>
+  </h1>
   <div class="organization-list">
     {% for organization, token in organization_invites %}
     <div class="organization-snippet">
