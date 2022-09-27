@@ -30,7 +30,7 @@
         <div>
           <h3 class="team-snippet__title">{{ team.name }}
             {% if request.user in team.members %}
-            <a href="{{ request.route_path('manage.team.roles', organization_name=organization.normalized_name, team_name=team.normalized_name) }}" class="badge team-snippet__badge">
+            <a href="{{ request.route_path('manage.team.roles', organization_name=organization.normalized_name, team_name=team.normalized_name) }}" class="badge">
               Member
             </a>
             {% endif %}

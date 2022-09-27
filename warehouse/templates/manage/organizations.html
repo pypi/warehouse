@@ -55,20 +55,20 @@
           <h3 class="organization-snippet__title">{{ organization.name }}
             {% if organization.orgtype == OrganizationType.Company and not organization.active_subscription %}
               {% if organization.name in (organizations_owned + organizations_billing) %}
-              <a class="badge badge--danger organization-snippet__badge" href="{{ request.route_path('manage.organization.activate_subscription', organization_name=organization.normalized_name) }}">{% trans %}Billing Inactive{% endtrans %}</a>
+              <a class="badge badge--danger" href="{{ request.route_path('manage.organization.activate_subscription', organization_name=organization.normalized_name) }}">{% trans %}Billing Inactive{% endtrans %}</a>
               {% else %}
-              <span class="badge badge--danger organization-snippet__badge" title="{% trans %}This organization's billing can be activated by an organization owner or billing manager{% endtrans %}">{% trans %}Billing Inactive{% endtrans %}</span>
+              <span class="badge badge--danger" title="{% trans %}This organization's billing can be activated by an organization owner or billing manager{% endtrans %}">{% trans %}Billing Inactive{% endtrans %}</span>
               {% endif %}
             {% elif organization.is_approved == None %}
-            <span class="badge badge--neutral organization-snippet__badge" title="{% trans %}You will receive an email when the organization has been approved{% endtrans %}">{% trans %}Request Submitted{% endtrans %}</span>
+            <span class="badge badge--neutral" title="{% trans %}You will receive an email when the organization has been approved{% endtrans %}">{% trans %}Request Submitted{% endtrans %}</span>
             {% elif organization.is_active == False %}
-            <span class="badge badge--danger organization-snippet__badge" title="{% trans %}This organization is not active{% endtrans %}">{% trans %}Inactive{% endtrans %}</span>
+            <span class="badge badge--danger" title="{% trans %}This organization is not active{% endtrans %}">{% trans %}Inactive{% endtrans %}</span>
             {% elif organization.name in organizations_managed %}
-            <a class="badge badge--warning organization-snippet__badge" href="{{ request.route_path('manage.organization.roles', organization_name=organization.normalized_name) }}">{% trans %}Manager{% endtrans %}</a>
+            <a class="badge badge--warning" href="{{ request.route_path('manage.organization.roles', organization_name=organization.normalized_name) }}">{% trans %}Manager{% endtrans %}</a>
             {% elif organization.name in organizations_owned %}
-            <a class="badge badge--warning organization-snippet__badge" href="{{ request.route_path('manage.organization.roles', organization_name=organization.normalized_name) }}">{% trans %}Owner{% endtrans %}</a>
+            <a class="badge badge--warning" href="{{ request.route_path('manage.organization.roles', organization_name=organization.normalized_name) }}">{% trans %}Owner{% endtrans %}</a>
             {% elif organization.name in organizations_billing %}
-            <a class="badge badge--success organization-snippet__badge" href="{{ request.route_path('manage.organization.settings', organization_name=organization.normalized_name) }}">{% trans %}Billing Manager{% endtrans %}</a>
+            <a class="badge badge--success" href="{{ request.route_path('manage.organization.settings', organization_name=organization.normalized_name) }}">{% trans %}Billing Manager{% endtrans %}</a>
             {% endif %}
           </h3>
           <p class="organization-snippet__meta">
