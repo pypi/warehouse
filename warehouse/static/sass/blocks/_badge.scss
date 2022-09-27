@@ -23,6 +23,8 @@
 
 .badge {
   font-size: $small-font-size;
+  margin-left: 0.5em;
+  vertical-align: 0.15em;
   text-transform: uppercase;
   border: 1px solid $primary-color;
   background-color: $primary-color;
