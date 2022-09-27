@@ -74,7 +74,7 @@
             {% elif organization.name in organizations_owned %}
             <a class="badge badge--warning" href="{{ request.route_path('manage.organization.roles', organization_name=organization.normalized_name) }}">{% trans %}Owner{% endtrans %}</a>
             {% elif organization.name in organizations_billing %}
-            <a class="badge badge--success" href="{{ request.route_path('manage.organization.settings', organization_name=organization.normalized_name) }}">{% trans %}Billing Manager{% endtrans %}</a>
+            <a class="badge badge--success" href="{{ request.route_path('manage.organization.roles', organization_name=organization.normalized_name) }}">{% trans %}Billing Manager{% endtrans %}</a>
             {% endif %}
           </h3>
           <p class="organization-snippet__meta">
@@ -84,7 +84,7 @@
         <div class="organization-snippet__buttons">
           {% if organization.name not in (organizations_managed + organizations_owned + organizations_billing) %}
           {# Show "View" button for non-manager and non-owner #}
-          <a class="button" href="{{ request.route_path('manage.organization.roles', organization_name=organization.normalized_name) }}" title="{% trans %}View this organization{% endtrans %}">
+          <a class="button" href="{{ request.route_path('manage.organization.projects', organization_name=organization.normalized_name) }}" title="{% trans %}View this organization{% endtrans %}">
             {% trans %}View{% endtrans %}
           </a>
           {% elif organization.orgtype == OrganizationType.Company and not organization.active_subscription %}
@@ -111,7 +111,7 @@
           </a>
           {% else %}
           {# Show "Manage" button for managers and owners #}
-          <a class="button button--primary" href="{{ request.route_path('manage.organization.roles', organization_name=organization.normalized_name) }}" title="{% trans %}Manage this organization{% endtrans %}">
+          <a class="button button--primary" href="{{ request.route_path('manage.organization.projects', organization_name=organization.normalized_name) }}" title="{% trans %}Manage this organization{% endtrans %}">
             {% trans %}Manage{% endtrans %}
           </a>
           {% endif %}
