@@ -153,13 +153,19 @@
 {% block main %}
 {% set releases = project.releases|rejectattr("yanked")|list %}
   {% if releases %}
-  <h2>{% trans release_count=releases|length %}Releases ({{ release_count }}){% endtrans %}</h2>
+  <h2>
+    {% trans %}Releases{% endtrans %}
+    <span class="badge badge--neutral">{{ releases|length }}</span>
+  </h2>
   {{ release_table(releases) }}
   {% endif %}
 
   {% set yanked_releases = project.releases|selectattr("yanked")|list %}
   {% if yanked_releases %}
-  <h2>{% trans release_count=yanked_releases|length %}Yanked Releases ({{ release_count }}){% endtrans %}</h2>
+  <h2>
+    {% trans %}Yanked Releases{% endtrans %}
+    <span class="badge badge--neutral">{{ yanked_releases|length }}</span>
+  </h2>
   {{ release_table(yanked_releases, show_yanked_reason=True) }}
   {% endif %}
 
