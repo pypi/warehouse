@@ -35,11 +35,17 @@
             </a>
           </h3>
           <h3 class="sidebar-section__title">
-            <a href="{{ request.route_path('manage.organization.projects', organization_name=project.organization.normalized_name) }}">{% trans organization_name=project.organization.name, project_count=project.organization.projects|length %}{{ organization_name }} projects ({{ project_count }}){% endtrans %}</a>
+            <a href="{{ request.route_path('manage.organization.projects', organization_name=project.organization.normalized_name) }}">
+              {% trans organization_name=project.organization.name %}{{ organization_name }} projects{% endtrans %}
+              <span class="badge badge--neutral">{{ project.organization.projects|length }}</span>
+            </a>
           </h3>
           {% else %}
           <h3 class="sidebar-section__title">
-            <a href="{{ request.route_path('manage.projects') }}">{% trans project_count=projects|length %}Your projects ({{ project_count }}){% endtrans %}</a>
+            <a href="{{ request.route_path('manage.projects') }}">
+              {% trans %}Your projects{% endtrans %}
+              <span class="badge badge--neutral">{{ projects|length }}</span>
+            </a>
           </h3>
           {% endif %}
           {% include "warehouse:templates/includes/manage/manage-project-menu.html" %}

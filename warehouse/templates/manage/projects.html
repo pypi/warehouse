@@ -55,7 +55,10 @@
     {% endfor%}
   </div>
   {% endif %}
-  <h1 class="page-title">{% trans project_count=projects|length %}Your projects ({{ project_count }}){% endtrans %}</h1>
+  <h1 class="page-title">
+    {% trans %}Your projects{% endtrans %}
+    <span class="badge badge--neutral">{{ projects|length }}</span>
+  </h1>
   <div class="package-list">
     {% set user_has_two_factor = request.user.has_two_factor %}
     {% for project in projects %}
