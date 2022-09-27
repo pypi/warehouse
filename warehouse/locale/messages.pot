@@ -2462,7 +2462,7 @@ msgstr ""
 
 #: warehouse/templates/includes/manage/manage-organization-menu.html:40
 #: warehouse/templates/includes/manage/manage-project-menu.html:53
-#: warehouse/templates/includes/manage/manage-team-menu.html:31
+#: warehouse/templates/includes/manage/manage-team-menu.html:33
 msgid "Settings"
 msgstr ""
 
@@ -2500,7 +2500,7 @@ msgstr ""
 msgid "Navigation for managing %(team)s"
 msgstr ""
 
-#: warehouse/templates/includes/manage/manage-team-menu.html:25
+#: warehouse/templates/includes/manage/manage-team-menu.html:26
 #: warehouse/templates/manage/team/roles.html:35
 msgid "Members"
 msgstr ""
