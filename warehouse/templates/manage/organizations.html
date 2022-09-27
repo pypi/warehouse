@@ -46,7 +46,10 @@
   </div>
   {% endif %}
 
-  <h1 class="page-title">{% trans organization_count=organizations|length %}Your organizations ({{ organization_count }}){% endtrans %}</h1>
+  <h1 class="page-title">
+    {% trans %}Your organizations{% endtrans %}
+    <span class="badge badge--neutral">{{ organizations|length }}</span>
+  </h1>
   <div class="organization-list">
     {% for organization in organizations if organization.is_approved != False %}
     <div class="organization-snippet">
