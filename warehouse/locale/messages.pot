@@ -2253,7 +2253,7 @@ msgstr ""
 #: warehouse/templates/includes/current-user-indicator.html:37
 #: warehouse/templates/manage/manage_base.html:204
 #: warehouse/templates/manage/manage_base.html:232
-#: warehouse/templates/manage/project/manage_project_base.html:46
+#: warehouse/templates/manage/project/manage_project_base.html:44
 #: warehouse/templates/manage/projects.html:18
 #: warehouse/templates/manage/projects.html:62
 msgid "Your projects"
@@ -4026,8 +4026,8 @@ msgstr ""
 msgid "Manage '%(organization_name)s'"
 msgstr ""
 
-#: warehouse/templates/manage/organization/manage_organization_base.html:43
-#: warehouse/templates/manage/team/manage_team_base.html:49
+#: warehouse/templates/manage/organization/manage_organization_base.html:42
+#: warehouse/templates/manage/team/manage_team_base.html:47
 msgid "Back to organizations"
 msgstr ""
 
@@ -4542,12 +4542,12 @@ msgstr ""
 msgid "Manage '%(project_name)s'"
 msgstr ""
 
-#: warehouse/templates/manage/project/manage_project_base.html:39
+#: warehouse/templates/manage/project/manage_project_base.html:38
 #, python-format
 msgid "%(organization_name)s projects"
 msgstr ""
 
-#: warehouse/templates/manage/project/manage_project_base.html:58
+#: warehouse/templates/manage/project/manage_project_base.html:55
 msgid "Back to projects"
 msgstr ""
 
@@ -5315,16 +5315,16 @@ msgstr ""
 msgid "Manage '%(team_name)s'"
 msgstr ""
 
-#: warehouse/templates/manage/team/manage_team_base.html:38
+#: warehouse/templates/manage/team/manage_team_base.html:37
 #, python-format
 msgid "%(organization_name)s teams"
 msgstr ""
 
-#: warehouse/templates/manage/team/manage_team_base.html:53
+#: warehouse/templates/manage/team/manage_team_base.html:51
 msgid "Back to teams"
 msgstr ""
 
-#: warehouse/templates/manage/team/manage_team_base.html:63
+#: warehouse/templates/manage/team/manage_team_base.html:61
 #, python-format
 msgid ""
 "\n"

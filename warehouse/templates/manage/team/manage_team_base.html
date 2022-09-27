@@ -30,13 +30,11 @@
           <h3 class="sidebar-section__title">
             <a href="{{ request.route_path('manage.organizations') }}">
               {% trans %}Your organizations{% endtrans %}
-              <span class="badge badge--neutral">{{ organizations|length }}</span>
             </a>
           </h3>
           <h3 class="sidebar-section__title">
             <a href="{{ request.route_path('manage.organization.teams', organization_name=team.organization.normalized_name) }}">
               {% trans organization_name=team.organization.name %}{{ organization_name }} teams{% endtrans %}
-              <span class="badge badge--neutral">{{ team.organization.teams|length }}</span>
             </a>
           </h3>
           {% include "warehouse:templates/includes/manage/manage-team-menu.html" %}

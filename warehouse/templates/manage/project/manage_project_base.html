@@ -31,20 +31,17 @@
           <h3 class="sidebar-section__title">
             <a href="{{ request.route_path('manage.organizations') }}">
               {% trans %}Your organizations{% endtrans %}
-              <span class="badge badge--neutral">{{ request.user.organizations|length }}</span>
             </a>
           </h3>
           <h3 class="sidebar-section__title">
             <a href="{{ request.route_path('manage.organization.projects', organization_name=project.organization.normalized_name) }}">
               {% trans organization_name=project.organization.name %}{{ organization_name }} projects{% endtrans %}
-              <span class="badge badge--neutral">{{ project.organization.projects|length }}</span>
             </a>
           </h3>
           {% else %}
           <h3 class="sidebar-section__title">
             <a href="{{ request.route_path('manage.projects') }}">
               {% trans %}Your projects{% endtrans %}
-              <span class="badge badge--neutral">{{ projects|length }}</span>
             </a>
           </h3>
           {% endif %}
