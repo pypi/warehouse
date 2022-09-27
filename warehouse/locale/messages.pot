@@ -4027,7 +4027,7 @@ msgid "Manage '%(organization_name)s'"
 msgstr ""
 
 #: warehouse/templates/manage/organization/manage_organization_base.html:43
-#: warehouse/templates/manage/team/manage_team_base.html:46
+#: warehouse/templates/manage/team/manage_team_base.html:49
 msgid "Back to organizations"
 msgstr ""
 
@@ -5315,16 +5315,16 @@ msgstr ""
 msgid "Manage '%(team_name)s'"
 msgstr ""
 
-#: warehouse/templates/manage/team/manage_team_base.html:37
+#: warehouse/templates/manage/team/manage_team_base.html:38
 #, python-format
-msgid "%(organization_name)s teams (%(team_count)s)"
+msgid "%(organization_name)s teams"
 msgstr ""
 
-#: warehouse/templates/manage/team/manage_team_base.html:50
+#: warehouse/templates/manage/team/manage_team_base.html:53
 msgid "Back to teams"
 msgstr ""
 
-#: warehouse/templates/manage/team/manage_team_base.html:60
+#: warehouse/templates/manage/team/manage_team_base.html:63
 #, python-format
 msgid ""
 "\n"
