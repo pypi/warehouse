@@ -2461,7 +2461,7 @@ msgid "Teams"
 msgstr ""
 
 #: warehouse/templates/includes/manage/manage-organization-menu.html:40
-#: warehouse/templates/includes/manage/manage-project-menu.html:53
+#: warehouse/templates/includes/manage/manage-project-menu.html:59
 #: warehouse/templates/includes/manage/manage-team-menu.html:33
 msgid "Settings"
 msgstr ""
@@ -2475,23 +2475,23 @@ msgstr ""
 msgid "Releases"
 msgstr ""
 
-#: warehouse/templates/includes/manage/manage-project-menu.html:25
+#: warehouse/templates/includes/manage/manage-project-menu.html:26
 #: warehouse/templates/manage/project/roles.html:35
 msgid "Collaborators"
 msgstr ""
 
-#: warehouse/templates/includes/manage/manage-project-menu.html:31
+#: warehouse/templates/includes/manage/manage-project-menu.html:37
 #: warehouse/templates/manage/account.html:459
 #: warehouse/templates/manage/project/history.html:23
 msgid "Security history"
 msgstr ""
 
-#: warehouse/templates/includes/manage/manage-project-menu.html:38
+#: warehouse/templates/includes/manage/manage-project-menu.html:44
 #: warehouse/templates/manage/project/documentation.html:21
 msgid "Documentation"
 msgstr ""
 
-#: warehouse/templates/includes/manage/manage-project-menu.html:46
+#: warehouse/templates/includes/manage/manage-project-menu.html:52
 msgid "Publishing"
 msgstr ""
 

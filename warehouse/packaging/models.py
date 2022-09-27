@@ -201,7 +201,16 @@ class Project(SitemapMixin, TwoFactorRequireable, HasEvents, db.Model):
         uselist=False,
         viewonly=True,
     )
-    roles = orm.relationship(Role, back_populates="project", passive_deletes=True)
+    roles = orm.relationship(
+        Role,
+        back_populates="project",
+        passive_deletes=True,
+    )
+    team_project_roles = orm.relationship(
+        TeamProjectRole,
+        back_populates="project",
+        passive_deletes=True,
+    )
     users = orm.relationship(User, secondary=Role.__table__, backref="projects", viewonly=True)  # type: ignore # noqa
     releases = orm.relationship(
         "Release",
