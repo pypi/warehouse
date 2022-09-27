@@ -21,7 +21,10 @@
 {% block title %}{% trans team_name=team.name %}Manage '{{ team_name }}' projects{% endtrans %}{% endblock %}
 
 {% block main %}
-  <h2>{% trans project_count=active_projects|length %}Projects ({{ project_count }}){% endtrans %}</h2>
+  <h2>
+    {% trans %}Projects{% endtrans %}
+    <span class="badge badge--neutral">{{ active_projects|length }}</span>
+  </h2>
 
   <div class="package-list">
     {% set user_has_two_factor = request.user.has_two_factor %}
