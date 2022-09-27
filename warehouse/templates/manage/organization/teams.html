@@ -21,7 +21,10 @@
 {% block title %}{% trans organization_name=organization.name %}Manage '{{ organization_name }}' teams{% endtrans %}{% endblock %}
 
 {% block main %}
-  <h2>{% trans team_count=organization.teams|length %}Teams ({{ team_count }}){% endtrans %}</h2>
+  <h2>
+    {% trans %}Teams{% endtrans %}
+    <span class="badge badge--neutral">{{ organization.teams|length }}</span>
+  </h2>
 
   <div class="team-list">
     {% for team in organization.teams %}
