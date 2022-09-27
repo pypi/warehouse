@@ -35,6 +35,10 @@
   white-space: nowrap;
   @include link-without-underline;
 
+  .fa {
+    margin-right: 0.4em;
+  }
+
   &:hover {
     color: $white;
   }
