@@ -14,7 +14,7 @@ import enum
 
 import automat
 
-from sqlalchemy import Boolean, Column, DateTime, Enum, ForeignKey, Text, orm, sql
+from sqlalchemy import Boolean, Column, Enum, ForeignKey, Text, orm, sql
 from sqlalchemy.dialects.postgresql import JSONB, UUID
 from sqlalchemy.ext.mutable import MutableDict
 from sqlalchemy.orm.session import object_session
@@ -232,7 +232,6 @@ class EmailMessage(db.Model):
 
     __tablename__ = "ses_emails"
 
-    created = Column(DateTime, nullable=False, server_default=sql.func.now())
     status = Column(
         Enum(EmailStatuses, values_callable=lambda x: [e.value for e in x]),
         nullable=False,
@@ -265,8 +264,6 @@ class EventTypes(enum.Enum):
 class Event(db.Model):
 
     __tablename__ = "ses_events"
-
-    created = Column(DateTime, nullable=False, server_default=sql.func.now())
 
     email_id = Column(
         UUID(as_uuid=True),

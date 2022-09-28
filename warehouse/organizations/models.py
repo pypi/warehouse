@@ -240,12 +240,6 @@ class Organization(HasEvents, db.Model):
     description = Column(Text, nullable=False)
     is_active = Column(Boolean, nullable=False, server_default=sql.false())
     is_approved = Column(Boolean)
-    created = Column(
-        DateTime(timezone=False),
-        nullable=False,
-        server_default=sql.func.now(),
-        index=True,
-    )
     date_approved = Column(
         DateTime(timezone=False),
         nullable=True,
@@ -584,12 +578,6 @@ class Team(HasEvents, db.Model):
     organization_id = Column(
         ForeignKey("organizations.id", onupdate="CASCADE", ondelete="CASCADE"),
         nullable=False,
-    )
-    created = Column(
-        DateTime(timezone=False),
-        nullable=False,
-        server_default=sql.func.now(),
-        index=True,
     )
 
     organization = orm.relationship("Organization", lazy=False, back_populates="teams")

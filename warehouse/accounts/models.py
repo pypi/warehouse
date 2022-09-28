@@ -272,9 +272,6 @@ class ProhibitedUserName(db.Model):
 
     __repr__ = make_repr("name")
 
-    created = Column(
-        DateTime(timezone=False), nullable=False, server_default=sql.func.now()
-    )
     name = Column(Text, unique=True, nullable=False)
     _prohibited_by = Column(
         "prohibited_by", UUID(as_uuid=True), ForeignKey("users.id"), index=True
@@ -294,5 +291,4 @@ class TitanPromoCode(db.Model):
         unique=True,
     )
     code = Column(String, nullable=False, unique=True)
-    created = Column(DateTime, nullable=False, server_default=sql.func.now())
     distributed = Column(DateTime, nullable=True)
