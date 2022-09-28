@@ -227,6 +227,7 @@ def configure(settings=None):
         coercer=int,
         default=21600,  # 6 hours
     )
+    maybe_set_compound(settings, "billing", "backend", "BILLING_BACKEND")
     maybe_set_compound(settings, "files", "backend", "FILES_BACKEND")
     maybe_set_compound(settings, "simple", "backend", "SIMPLE_BACKEND")
     maybe_set_compound(settings, "docs", "backend", "DOCS_BACKEND")
@@ -421,6 +422,7 @@ def configure(settings=None):
     filters.setdefault("localize_datetime", "warehouse.filters:localize_datetime")
     filters.setdefault("is_recent", "warehouse.filters:is_recent")
     filters.setdefault("canonicalize_name", "packaging.utils:canonicalize_name")
+    filters.setdefault("format_author_email", "warehouse.filters:format_author_email")
 
     # We also want to register some global functions for Jinja
     jglobals = config.get_settings().setdefault("jinja2.globals", {})
@@ -443,6 +445,9 @@ def configure(settings=None):
     )
     jglobals.setdefault(
         "RoleInvitationStatus", "warehouse.packaging.models:RoleInvitationStatus"
+    )
+    jglobals.setdefault(
+        "TeamProjectRoleType", "warehouse.organizations.models:TeamProjectRoleType"
     )
 
     # We'll store all of our templates in one location, warehouse/templates
@@ -547,6 +552,9 @@ def configure(settings=None):
 
     # Register our organization support.
     config.include(".organizations")
+
+    # Register our subscription support.
+    config.include(".subscriptions")
 
     # Allow the packaging app to register any services it has.
     config.include(".packaging")

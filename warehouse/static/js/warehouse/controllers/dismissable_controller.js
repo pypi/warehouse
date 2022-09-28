@@ -18,20 +18,30 @@ export default class extends Controller {
    * Get element's dismissed status from the cookie.
    * @private
    */
-  _getDimissedFromCookie() {
+  _getDismissedCookie() {
     const id = this.data.get("identifier");
     const value = document.cookie.split(";").find(item => item.startsWith(`callout_block_${id}_dismissed=`));
     return value ? value.split("=")[1] : null;
   }
 
+  /**
+   * Set element's dismissed status as a cookie.
+   * @private
+   */
+  _setDismissedCookie(value) {
+    if (this.data.get("setting") === "global")
+      document.cookie = `callout_block_${this.data.get("identifier")}_dismissed=${value};path=/`;
+    else
+      document.cookie = `callout_block_${this.data.get("identifier")}_dismissed=${value}`;
+  }
+
   initialize() {
-    if (this._getDimissedFromCookie() == "1")
+    if (this._getDismissedCookie() === "1")
       this.dismiss();
   }
 
   dismiss() {
     this.element.classList.add("callout-block--dismissed");
-    if (!this._getDimissedFromCookie())
-      document.cookie = `callout_block_${this.data.get("identifier")}_dismissed=1`;
+    this._setDismissedCookie("1");
   }
 }

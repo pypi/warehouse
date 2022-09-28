@@ -33,9 +33,9 @@
 
 {% block main %}
   <h2>{% trans %}People{% endtrans %}</h2>
-  <p>{% trans organization_name=organization.name %}Use this page to control which PyPI users can help you to manage {{ organization_name }}.{% endtrans %}</p>
-  <div class="callout-block" data-controller="dismissable" data-dismissable-identifier="roles">
-    <button type="button" title="{% trans %}Dismiss{% endtrans %}" data-action="click->dismissable#dismiss" class="callout-block__dismiss" aria-label="{% trans %}Close{% endtrans %}"><i class="fa fa-times" aria-hidden="true"></i></button>
+  <p>{% trans organization_name=organization.name %}Use this page to control which PyPI users can help you to manage '{{ organization_name }}'.{% endtrans %}</p>
+  <details class="callout-block" data-controller="collapsible" data-collapsible-identifier="organization_roles" data-collapsible-setting="global" open>
+    <summary class="callout-block__heading" data-action="click->collapsible#save">{% trans %}Organization Roles{% endtrans %}</summary>
     <p>{% trans number_of_roles=(form.role_name.choices|length - 1) %}There are {{ number_of_roles }} possible roles for people in this organization:{% endtrans %}</p>
     <dl>
       <dt>{% trans %}Member{% endtrans %}</dt>
@@ -49,17 +49,17 @@
       <dd>{% trans %}Can manage billing for the organization.{% endtrans %}</dd>
       {% endif %}
     </dl>
-  </div>
+  </details>
 
   <table class="table table--collaborators">
     <caption class="sr-only">{% trans organization_name=organization.name %}Users who can manage {{ organization_name }}{% endtrans %}</caption>
 
     <thead>
       <tr>
-        <th scope="col">{% trans %}User{% endtrans %}</th>
-        <th scope="col">{% trans %}Role{% endtrans %}</th>
-        <th scope="col">{% trans %}2FA{% endtrans %}</th>
-        <th></th>
+        <th scope="col" class="table__align-left">{% trans %}User{% endtrans %}</th>
+        <th scope="col" class="table__align-left">{% trans %}Role{% endtrans %}</th>
+        <th scope="col" class="table__align-center">{% trans %}2FA{% endtrans %}</th>
+        <th scope="col" class="table__align-right"></th>
       </tr>
     </thead>
     <tbody>
@@ -97,7 +97,7 @@
             <input type="hidden" name="role_id" value="{{ role.id }}">
 
             <label for="role-for-{{ role.id }}" class="sr-only">{% trans %}Role{% endtrans %}</label>
-            <select id="role-for-{{ role.id }}" class="table__change-field" name="role_name" data-original="{{ role.role_name }}" autocomplete="off">
+            <select id="role-for-{{ role.id }}" class="table__change-field" name="role_name" data-original="{{ role.role_name.value }}" autocomplete="off">
             {# Reuse `.role_name.choices` from "Invite" form to include/exclude "Billing Manager" appropriately. #}
             {% for role_name, role_name_label in form.role_name.choices if role_name %}
             {% set role_name_label = gettext(role_name_label) %}
@@ -112,27 +112,18 @@
           </form>
         {% endif %}
         </td>
-        <td>{{ two_factor_badge(role.user) }}</td>
+        <td class="table__align-center">{{ two_factor_badge(role.user) }}</td>
         <td class="table__align-right">
-          <form method="POST" action="{{ request.route_path('manage.organization.delete_role', organization_name=organization.normalized_name) }}">
-            <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
-            <input type="hidden" name="role_id" value="{{ role.id }}">
-            <button
-              type="submit"
-              class="button"
-              {% if not request.has_permission("manage:organization") and request.user.username != role.user.username %}
-                title="{% trans %}Cannot remove other people from the organization{% endtrans %}"
-                disabled
-              {% elif request.has_permission("manage:organization") and request.user.username == role.user.username %}
-                title="{% trans %}Cannot remove yourself as owner{% endtrans %}"
-                disabled
-              {% else %}
-                title="{% trans user=('yourself' if request.user.username == role.user.username else role.user.username) %}Remove {{ user }} from this organization{% endtrans %}"
-              {% endif %}
-            >
-            Remove
-            </button>
-          </form>
+        {% if not request.has_permission("manage:organization") and request.user.username != role.user.username %}
+          <button class="button" title="{% trans %}Cannot remove other people from the organization{% endtrans %}" disabled>{% trans %}Remove{% endtrans %}</button>
+        {% elif request.has_permission("manage:organization") and request.user.username == role.user.username %}
+          <button class="button" title="{% trans %}Cannot remove yourself as owner{% endtrans %}" disabled>{% trans %}Remove{% endtrans %}</button>
+        {% else %}
+          {% set extra_fields %}<input type="hidden" name="role_id" value="{{ role.id }}">{% endset %}
+          {% set extra_description %}{% trans user=('yourself' if request.user.username == role.user.username else role.user.username) %}Remove {{ user }} from this organization{% endtrans %}{% trans %}.{% endtrans %}{% endset %}
+          {% set tooltip %}{% trans user=('yourself' if request.user.username == role.user.username else role.user.username) %}Remove {{ user }} from this organization{% endtrans %}{% endset %}
+          {{ confirm_button(gettext("Remove"), gettext("Username"), "remove-" + role.id|string, gettext(role.user.username), extra_fields=extra_fields, extra_description=extra_description, action=request.route_path('manage.organization.delete_role', organization_name=organization.normalized_name), warning=False, modifier="--primary", tooltip=tooltip) }}
+        {% endif %}
         </td>
       </tr>
     {% endfor %}
@@ -161,19 +152,12 @@
             {% trans %}Invite expired{% endtrans %}
           {% endif %}
         </td>
-        <td></td>
+        <td class="table__align-center"></td>
         <td class="table__align-right">
-          <form method="POST" action="{{ request.route_path('manage.organization.revoke_invite', organization_name=organization.normalized_name) }}">
-            <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
-            <input name="user_id" type="hidden" value="{{ invite.user_id }}">
-            <button
-              type="submit"
-              class="button"
-              title="{% trans user=invite.user.username %}Revoke invitation for {{ user }}{% endtrans %}"
-            >
-            {% trans %}Revoke invite{% endtrans %}
-            </button>
-          </form>
+          {% set extra_fields %}<input name="user_id" type="hidden" value="{{ invite.user_id }}">{% endset %}
+          {% set extra_description %}{% trans user=invite.user.username %}Revoke invitation for {{ user }}{% endtrans %}{% trans %}.{% endtrans %}{% endset %}
+          {% set tooltip %}{% trans user=invite.user.username %}Revoke invitation for {{ user }}{% endtrans %}{% endset %}
+          {{ confirm_button(gettext("Revoke invite"), None, "revoke-invite-" + invite.user_id|string, None, extra_fields=extra_fields, extra_description=extra_description, action=request.route_path('manage.organization.revoke_invite', organization_name=organization.normalized_name), warning=False, modifier="--primary", tooltip=tooltip) }}
         </td>
       </tr>
     {% endfor %}

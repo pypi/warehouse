@@ -66,7 +66,7 @@
           <h3 class="package-snippet__title">{{ project.name }}
             {% if project.organization %}
             <a href="{{ request.route_path('manage.organization.projects', organization_name=project.organization.normalized_name) }}" class="badge package-snippet__badge">
-              <i class="fa fa-users" aria-hidden="true"></i>
+              <i class="fa fa-sitemap" aria-hidden="true"></i>
               {{ project.organization.name }}
             </a>
             {% endif %}

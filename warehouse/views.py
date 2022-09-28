@@ -54,7 +54,6 @@ from warehouse.db import DatabaseNotAvailableError
 from warehouse.errors import WarehouseDenied
 from warehouse.forms import SetLocaleForm
 from warehouse.i18n import LOCALE_ATTR
-from warehouse.manage.views import user_projects
 from warehouse.metrics import IMetricsService
 from warehouse.packaging.models import File, Project, Release, release_classifiers
 from warehouse.search.queries import SEARCH_FILTER_ORDER, get_es_query
@@ -480,16 +479,6 @@ class SecurityKeyGiveaway:
         ) > 0
 
     @property
-    def eligible_projects(self):
-        if self.request.user:
-            return set(
-                project.name
-                for project in user_projects(self.request)["projects_requiring_2fa"]
-            )
-        else:
-            return set()
-
-    @property
     def promo_code(self):
         if self.request.user:
             try:
@@ -505,23 +494,28 @@ class SecurityKeyGiveaway:
     @property
     def default_response(self):
         codes_available = self.codes_available
-        eligible_projects = self.eligible_projects
         promo_code = self.promo_code
-        has_two_factor = self.request.user and self.request.user.has_two_factor
+        has_webauthn = self.request.user and self.request.user.has_webauthn
+        is_too_new = (
+            self.request.user
+            and self.request.user.date_joined is not None
+            and self.request.user.date_joined
+            > datetime.datetime(2022, 9, 23, 20, 20, 0, 0)
+        )
 
         eligible = (
-            codes_available
-            and bool(eligible_projects)
-            and not has_two_factor
-            and not promo_code
+            codes_available and not has_webauthn and not promo_code and not is_too_new
         )
 
         if not codes_available:
             reason_ineligible = "At this time there are no keys available"
-        elif not eligible_projects:
-            reason_ineligible = "You are not a collaborator on any critical projects"
-        elif has_two_factor:
-            reason_ineligible = "You already have two-factor authentication enabled"
+        elif is_too_new:
+            reason_ineligible = "Your account was created too recently"
+        elif has_webauthn:
+            reason_ineligible = (
+                "You already have two-factor authentication enabled with a hardware "
+                "security key"
+            )
         elif promo_code:
             reason_ineligible = "Promo code has already been generated"
         else:
@@ -532,7 +526,6 @@ class SecurityKeyGiveaway:
             "reason_ineligible": reason_ineligible,
             "form": self.form,
             "codes_available": self.codes_available,
-            "eligible_projects": self.eligible_projects,
             "promo_code": self.promo_code,
             "REDIRECT_FIELD_NAME": REDIRECT_FIELD_NAME,
         }

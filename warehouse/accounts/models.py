@@ -14,6 +14,7 @@ import datetime
 import enum
 
 from citext import CIText
+from pyramid.authorization import Allow
 from sqlalchemy import (
     Boolean,
     CheckConstraint,
@@ -84,6 +85,7 @@ class User(SitemapMixin, HasEvents, db.Model):
     prohibit_password_reset = Column(
         Boolean, nullable=False, server_default=sql.false()
     )
+    hide_avatar = Column(Boolean, nullable=False, server_default=sql.false())
     date_joined = Column(DateTime, server_default=sql.func.now())
     last_login = Column(TZDateTime, nullable=False, server_default=sql.func.now())
     disabled_for = Column(
@@ -137,7 +139,15 @@ class User(SitemapMixin, HasEvents, db.Model):
 
     @property
     def has_two_factor(self):
-        return self.totp_secret is not None or len(self.webauthn) > 0
+        return self.has_totp or self.has_webauthn
+
+    @property
+    def has_totp(self):
+        return self.totp_secret is not None
+
+    @property
+    def has_webauthn(self):
+        return len(self.webauthn) > 0
 
     @property
     def has_recovery_codes(self):
@@ -173,6 +183,12 @@ class User(SitemapMixin, HasEvents, db.Model):
                 self.prohibit_password_reset,
             ]
         )
+
+    def __acl__(self):
+        return [
+            (Allow, "group:admins", "admin"),
+            (Allow, "group:moderators", "moderator"),
+        ]
 
 
 class WebAuthn(db.Model):

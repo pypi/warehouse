@@ -2,7 +2,7 @@
 # our static assets with. It is important that the steps in this remain the
 # same as the steps in Dockerfile.static, EXCEPT this may include additional
 # steps appended onto the end.
-FROM node:14.19.1 as static
+FROM node:14.19.1-bullseye as static
 
 WORKDIR /opt/warehouse/src/
 
@@ -104,6 +104,7 @@ RUN set -x \
                     -r /tmp/requirements/deploy.txt \
                     -r /tmp/requirements/main.txt \
                     $(if [ "$DEVEL" = "yes" ]; then echo '-r /tmp/requirements/tests.txt -r /tmp/requirements/lint.txt -r /tmp/requirements/docs.txt'; fi) \
+    && pip check \
     && find /opt/warehouse -name '*.pyc' -delete
 
 

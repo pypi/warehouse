@@ -148,3 +148,10 @@ class TestUser:
     def test_has_no_burned_recovery_codes(self, db_session):
         user = DBUserFactory.create()
         assert user.has_burned_recovery_codes is False
+
+    def test_acl(self, db_session):
+        user = DBUserFactory.create()
+        assert user.__acl__() == [
+            ("Allow", "group:admins", "admin"),
+            ("Allow", "group:moderators", "moderator"),
+        ]

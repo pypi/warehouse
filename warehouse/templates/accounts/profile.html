@@ -22,12 +22,15 @@
 {% endblock %}
 
 {% block content %}
+{% csi request.route_path("includes.administer-user-include", user_name=user.username) %}
+{% endcsi %}
 <div class="horizontal-section horizontal-section--medium">
   <div class="left-layout">
     <div class="left-layout__sidebar">
       <div class="author-profile">
         {% set alt = gettext("Avatar for {user} from gravatar.com").format(user=user.name|default(user.username, true)) %}
-        <img src="{{ gravatar(request, user.email, size=225) }}" alt="{{ alt }}" title="{{ alt }}">
+        {% set email = 'hidden@pypi.org' if user.hide_avatar else user.email %}
+        <img src="{{ gravatar(request, email, size=225) }}" alt="{{ alt }}" title="{{ alt }}">
         <div class="author-profile__info">
           {% if user.name %}
           <h1 class="author-profile__name">{{ user.name }}</h1>
