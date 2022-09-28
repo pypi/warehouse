@@ -546,6 +546,7 @@ def register(request, _form_class=RegistrationForm):
     )
 
     if request.method == "POST" and form.validate():
+        email_limiter = request.find_service(IRateLimiter, name="email.verify")
         user = user_service.create_user(
             form.username.data, form.full_name.data, form.new_password.data
         )
@@ -557,6 +558,7 @@ def register(request, _form_class=RegistrationForm):
         )
 
         send_email_verification_email(request, (user, email))
+        email_limiter.hit(user.id)
 
         return HTTPSeeOther(
             request.route_path("index"), headers=dict(_login_user(request, user.id))
@@ -737,6 +739,7 @@ def reset_password(request, _form_class=ResetPasswordForm):
 def verify_email(request):
     token_service = request.find_service(ITokenService, name="email")
     email_limiter = request.find_service(IRateLimiter, name="email.add")
+    verify_limiter = request.find_service(IRateLimiter, name="email.verify")
 
     def _error(message):
         request.session.flash(message, queue="error")
@@ -779,6 +782,8 @@ def verify_email(request):
 
     # Reset the email-adding rate limiter for this IP address
     email_limiter.clear(request.remote_addr)
+    # Reset the email verification rate limiter for this User
+    verify_limiter.clear(request.user.id)
 
     if not email.primary:
         confirm_message = request._(
