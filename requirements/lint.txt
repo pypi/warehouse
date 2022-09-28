@@ -246,9 +246,9 @@ types-stripe==3.5.2 \
     --hash=sha256:647990c4e4bf11b193e47881b4fcb54cd476a72c1b5bc0833cd48cd1c4fe2b39 \
     --hash=sha256:cf610b0da283a4988fe10c9a776e2836f5f220a4b93306c8d471b8137ac6be74
     # via -r requirements/lint.in
-types-urllib3==1.26.23 \
-    --hash=sha256:333e675b188a1c1fd980b4b352f9e40572413a4c1ac689c23cd546e96310070a \
-    --hash=sha256:b78e819f0e350221d0689a5666162e467ba3910737bafda14b5c2c85e9bb1e56
+types-urllib3==1.26.25 \
+    --hash=sha256:5aef0e663724eef924afa8b320b62ffef2c1736c1fa6caecfc9bc6c8ae2c3def \
+    --hash=sha256:c1d78cef7bd581e162e46c20a57b2e1aa6ebecdcf01fd0713bb90978ff3e3427
     # via types-requests
 typing-extensions==4.3.0 \
     --hash=sha256:25642c956049920a5aa49edcdd6ab1e06d7e5d467fc00e0506c44ac86fbfca02 \
