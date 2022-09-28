@@ -178,9 +178,9 @@ soupsieve==2.3.2.post1 \
     --hash=sha256:3b2503d3c7084a42b1ebd08116e5f81aadfaea95863628c80a3b774a11b7c759 \
     --hash=sha256:fc53893b3da2c33de295667a0e19f078c14bf86544af307354de5fcf12a3f30d
     # via beautifulsoup4
-sphinx==5.1.1 \
-    --hash=sha256:309a8da80cb6da9f4713438e5b55861877d5d7976b69d87e336733637ea12693 \
-    --hash=sha256:ba3224a4e206e1fbdecf98a4fae4992ef9b24b85ebf7b584bb340156eaf08d89
+sphinx==5.2.2 \
+    --hash=sha256:7225c104dc06169eb73b061582c4bc84a9594042acae6c1582564de274b7df2f \
+    --hash=sha256:9150a8ed2e98d70e778624373f183c5498bf429dd605cf7b63e80e2a166c35a5
     # via
     #   -r requirements/docs.in
     #   furo
