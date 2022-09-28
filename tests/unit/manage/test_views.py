@@ -551,7 +551,12 @@ class TestManageAccount:
                 )
             ),
             session=pretend.stub(flash=pretend.call_recorder(lambda *a, **kw: None)),
-            find_service=lambda *a, **kw: pretend.stub(),
+            find_service=lambda svc, name=None, context=None: {
+                IRateLimiter: pretend.stub(
+                    test=pretend.call_recorder(lambda user_id: True),
+                    hit=pretend.call_recorder(lambda user_id: None),
+                )
+            }.get(svc, pretend.stub()),
             user=pretend.stub(id=pretend.stub(), username="username", name="Name"),
             remote_addr="0.0.0.0",
             path="request-path",
@@ -575,6 +580,53 @@ class TestManageAccount:
                 additional={"email": email.email},
             )
         ]
+
+    def test_reverify_email_ratelimit_exceeded(self, monkeypatch):
+        email = pretend.stub(
+            verified=False,
+            email="email_address",
+            user=pretend.stub(
+                record_event=pretend.call_recorder(lambda *a, **kw: None)
+            ),
+        )
+
+        request = pretend.stub(
+            POST={"reverify_email_id": pretend.stub()},
+            db=pretend.stub(
+                query=lambda *a: pretend.stub(
+                    filter=lambda *a: pretend.stub(one=lambda: email)
+                )
+            ),
+            session=pretend.stub(flash=pretend.call_recorder(lambda *a, **kw: None)),
+            find_service=lambda svc, name=None, context=None: {
+                IRateLimiter: pretend.stub(
+                    test=pretend.call_recorder(lambda user_id: False),
+                )
+            }.get(svc, pretend.stub()),
+            user=pretend.stub(id=pretend.stub(), username="username", name="Name"),
+            remote_addr="0.0.0.0",
+            path="request-path",
+        )
+        send_email = pretend.call_recorder(lambda *a: None)
+        monkeypatch.setattr(views, "send_email_verification_email", send_email)
+        monkeypatch.setattr(
+            views.ManageAccountViews, "default_response", {"_": pretend.stub()}
+        )
+        view = views.ManageAccountViews(request)
+
+        assert isinstance(view.reverify_email(), HTTPSeeOther)
+        assert request.session.flash.calls == [
+            pretend.call(
+                (
+                    "Too many incomplete attempts to verify email address(es) for "
+                    f"{request.user.username}. Complete a pending "
+                    "verification or wait before attempting again."
+                ),
+                queue="error",
+            )
+        ]
+        assert send_email.calls == []
+        assert email.user.record_event.calls == []
 
     def test_reverify_email_not_found(self, monkeypatch):
         def raise_no_result():
