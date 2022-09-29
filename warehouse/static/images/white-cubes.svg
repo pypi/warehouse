@@ -1,183 +1,84 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<!-- Created with Inkscape (http://www.inkscape.org/) -->
-
-<svg
-   width="8.9453621mm"
-   height="8.4733219mm"
-   viewBox="0 0 31.696165 30.023581"
-   id="svg5956"
-   version="1.1"
-   inkscape:version="1.2.1 (9c6d41e, 2022-07-14)"
-   sodipodi:docname="white-cubes.svg"
-   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
-   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
-   xmlns="http://www.w3.org/2000/svg"
-   xmlns:svg="http://www.w3.org/2000/svg"
-   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
-   xmlns:cc="http://creativecommons.org/ns#"
-   xmlns:dc="http://purl.org/dc/elements/1.1/">
-  <defs
-     id="defs5958" />
-  <sodipodi:namedview
-     id="base"
-     pagecolor="#ffffff"
-     bordercolor="#666666"
-     borderopacity="1.0"
-     inkscape:pageopacity="0.0"
-     inkscape:pageshadow="2"
-     inkscape:zoom="9.8603452"
-     inkscape:cx="13.133414"
-     inkscape:cy="17.342192"
-     inkscape:document-units="px"
-     inkscape:current-layer="layer1"
-     showgrid="false"
-     fit-margin-top="0"
-     fit-margin-left="0"
-     fit-margin-right="0"
-     fit-margin-bottom="0"
-     inkscape:window-width="1309"
-     inkscape:window-height="456"
-     inkscape:window-x="0"
-     inkscape:window-y="38"
-     inkscape:window-maximized="0"
-     inkscape:showpageshadow="2"
-     inkscape:pagecheckerboard="0"
-     inkscape:deskcolor="#d1d1d1" />
-  <metadata
-     id="metadata5961">
-    <rdf:RDF>
-      <cc:Work
-         rdf:about="">
-        <dc:format>image/svg+xml</dc:format>
-        <dc:type
-           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title />
-      </cc:Work>
-    </rdf:RDF>
-  </metadata>
-  <g
-     inkscape:label="Layer 1"
-     inkscape:groupmode="layer"
-     id="layer1"
-     transform="translate(-592.72335,-420.20756)">
-    <g
-       id="g295"
-       transform="matrix(0.49958478,0,0,0.49958478,304.64647,211.79176)">
-      <g
-         id="g4506"
-         transform="translate(-67.857146,-23.035712)"
-         inkscape:export-xdpi="98.922112"
-         inkscape:export-ydpi="98.922112">
+<svg width="40" height="38" viewBox="0 0 37.5 35.624999" xmlns="http://www.w3.org/2000/svg">
+  <g transform="translate(-592.72335,-420.20756)">
+    <g transform="matrix(0.5935466,0,0,0.59354645,250.33305,172.30823)">
+      <g transform="translate(-67.857146,-23.035712)">
         <path
-           inkscape:connector-curvature="0"
-           id="path5201-0-9"
-           fill="#f7f7f4"
+           fill="#f3f3f0"
            fill-opacity="1"
-           stroke="#cccccc"
+           stroke="#c4c4c4"
            stroke-width="0.355076"
            stroke-linejoin="bevel"
            stroke-miterlimit="4"
-           stroke-dasharray="none"
            d="m 660.75803,449.15562 15.55544,5.66172 15.78565,-5.74552 -15.55544,-5.66172 z" />
         <path
-           inkscape:connector-curvature="0"
-           id="path5203-3-8"
            fill="#ffffff"
            fill-opacity="1"
-           stroke="#cccccc"
+           stroke="#c4c4c4"
            stroke-width="0.355076"
            stroke-linejoin="bevel"
            stroke-miterlimit="4"
-           stroke-dasharray="none"
            d="m 676.31347,454.81734 v 18.28268 l 15.78565,-5.74551 v -18.28269 z" />
         <path
-           inkscape:connector-curvature="0"
-           id="path5205-3-0"
-           fill="#efeeea"
+           fill="#e7e6e2"
            fill-opacity="1"
-           stroke="#cccccc"
+           stroke="#c4c4c4"
            stroke-width="0.355076"
            stroke-linejoin="bevel"
            stroke-miterlimit="4"
-           stroke-dasharray="none"
            d="m 660.75803,449.15562 15.55544,5.66172 v 18.28268 l -15.55544,-5.66171 z" />
       </g>
-      <g
-         id="g273"
-         transform="translate(-83.545471,1.0197198)"
-         inkscape:export-xdpi="98.922112"
-         inkscape:export-ydpi="98.922112">
+      <g transform="translate(-83.545471,1.0197198)">
         <path
-           inkscape:connector-curvature="0"
-           id="path267"
-           fill="#f7f7f4"
+           fill="#f3f3f0"
            fill-opacity="1"
-           stroke="#cccccc"
+           stroke="#c4c4c4"
            stroke-width="0.355076"
            stroke-linejoin="bevel"
            stroke-miterlimit="4"
-           stroke-dasharray="none"
            d="m 660.75803,449.15562 15.55544,5.66172 15.78565,-5.74552 -15.55544,-5.66172 z" />
         <path
-           inkscape:connector-curvature="0"
-           id="path269"
            fill="#ffffff"
            fill-opacity="1"
-           stroke="#cccccc"
+           stroke="#c4c4c4"
            stroke-width="0.355076"
            stroke-linejoin="bevel"
            stroke-miterlimit="4"
-           stroke-dasharray="none"
            d="m 676.31347,454.81734 v 18.28268 l 15.78565,-5.74551 v -18.28269 z" />
         <path
-           inkscape:connector-curvature="0"
            id="path271"
-           fill="#efeeea"
+           fill="#e7e6e2"
            fill-opacity="1"
-           stroke="#cccccc"
+           stroke="#c4c4c4"
            stroke-width="0.355076"
            stroke-linejoin="bevel"
            stroke-miterlimit="4"
-           stroke-dasharray="none"
            d="m 660.75803,449.15562 15.55544,5.66172 v 18.28268 l -15.55544,-5.66171 z" />
       </g>
-      <g
-         id="g281"
-         transform="translate(-52.377998,1.0197198)"
-         inkscape:export-xdpi="98.922112"
-         inkscape:export-ydpi="98.922112">
+      <g transform="translate(-52.377998,1.0197198)">
         <path
-           inkscape:connector-curvature="0"
-           id="path275"
-           fill="#f7f7f4"
+           fill="#f3f3f0"
            fill-opacity="1"
-           stroke="#cccccc"
+           stroke="#c4c4c4"
            stroke-width="0.355076"
            stroke-linejoin="bevel"
            stroke-miterlimit="4"
-           stroke-dasharray="none"
            d="m 660.75803,449.15562 15.55544,5.66172 15.78565,-5.74552 -15.55544,-5.66172 z" />
         <path
-           inkscape:connector-curvature="0"
-           id="path277"
            fill="#ffffff"
            fill-opacity="1"
-           stroke="#cccccc"
+           stroke="#c4c4c4"
            stroke-width="0.355076"
            stroke-linejoin="bevel"
            stroke-miterlimit="4"
-           stroke-dasharray="none"
            d="m 676.31347,454.81734 v 18.28268 l 15.78565,-5.74551 v -18.28269 z" />
         <path
-           inkscape:connector-curvature="0"
-           id="path279"
-           fill="#efeeea"
+           fill="#e7e6e2"
            fill-opacity="1"
-           stroke="#cccccc"
+           stroke="#c4c4c4"
            stroke-width="0.355076"
            stroke-linejoin="bevel"
            stroke-miterlimit="4"
-           stroke-dasharray="none"
            d="m 660.75803,449.15562 15.55544,5.66172 v 18.28268 l -15.55544,-5.66171 z" />
       </g>
     </g>
