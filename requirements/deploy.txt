@@ -76,11 +76,11 @@ ddtrace==1.4.3 \
     --hash=sha256:ddfe96b6987e3421207a933c1b33edd7580dc282d8cffd895a48b3857040eb5d \
     --hash=sha256:df2989cf4f8d5f4c486a9defa6d2fe66368c8c0114fefd50c9c57ce369492eae \
     --hash=sha256:e49031808ef936e6de86437287916cbf5cdf3e0ef5bd52efdae00b6b6c58f4a9
-    # via -r deploy.in
+    # via -r requirements/deploy.in
 gunicorn==20.1.0 \
     --hash=sha256:9dcc4547dbb1cb284accfb15ab5667a0e5d1881cc443e0677b4882a4067a807e \
     --hash=sha256:e0a968b5ba15f8a328fdfd7ab1fcb5af4470c28aaf7e55df02a99bc13138e6e8
-    # via -r deploy.in
+    # via -r requirements/deploy.in
 packaging==21.3 \
     --hash=sha256:dd47c42927d89ab911e606518907cc2d3a1f38bbd026385970643f9c5b8ecfeb \
     --hash=sha256:ef103e05f519cdc783ae24ea4e2e0f508a9c99b2d4969652eed6a2e1ea5bd522
