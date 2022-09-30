@@ -55,7 +55,7 @@
     "eslint": "8.16.0",
     "jest": "28.1.0",
     "jest-environment-jsdom": "^28.1.0",
-    "jest-fetch-mock": "2.1.2",
+    "jest-fetch-mock": "^3.0.3",
     "sass-lint": "1.13.1"
   },
   "eslintConfig": {
