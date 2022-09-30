@@ -265,6 +265,7 @@ def app_config(database):
             "warehouse.malware.services.PrinterMalwareCheckService"
         ),
         "files.url": "http://localhost:7000/",
+        "tuf.url": "http://licalhost:7000/metadata/",
         "sessions.secret": "123456",
         "sessions.url": "redis://localhost:0/",
         "statuspage.url": "https://2p66nmmycsj3.statuspage.io",
