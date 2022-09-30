@@ -187,9 +187,9 @@ sphinx==5.1.1 \
     #   myst-parser
     #   sphinx-basic-ng
     #   sphinxcontrib-httpdomain
-sphinx-basic-ng==0.0.1a12 \
-    --hash=sha256:cffffb14914ddd26c94b1330df1d72dab5a42e220aaeb5953076a40b9c50e801 \
-    --hash=sha256:e8b6efd2c5ece014156de76065eda01ddfca0fee465aa020b1e3c12f84570bbe
+sphinx-basic-ng==1.0.0b1 \
+    --hash=sha256:89374bd3ccd9452a301786781e28c8718e99960f2d4f411845ea75fc7bb5a9b0 \
+    --hash=sha256:ade597a3029c7865b24ad0eda88318766bcc2f9f4cef60df7e28126fde94db2a
     # via furo
 sphinxcontrib-applehelp==1.0.2 \
     --hash=sha256:806111e5e962be97c29ec4c1e7fe277bfd19e9652fb1a4392105b43e01af885a \
