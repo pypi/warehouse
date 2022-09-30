@@ -59,7 +59,6 @@
     "jest": "28.1.0",
     "jest-environment-jsdom": "^28.1.0",
     "jest-fetch-mock": "2.1.2",
-    "mutationobserver-shim": "0.3.3",
     "sass-lint": "1.13.1"
   },
   "eslintConfig": {
