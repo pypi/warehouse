@@ -133,6 +133,7 @@ from warehouse.organizations.interfaces import IOrganizationService
 from warehouse.organizations.models import (
     Organization,
     OrganizationInvitationStatus,
+    OrganizationProject,
     OrganizationRole,
     OrganizationRoleType,
     OrganizationType,
@@ -3340,12 +3341,49 @@ def transfer_organization_project(project, request):
 
 
 def get_user_role_in_project(project, user, request):
-    return (
-        request.db.query(Role)
-        .filter(Role.user == user, Role.project == project)
-        .one()
-        .role_name
-    )
+    try:
+        return (
+            request.db.query(Role)
+            .filter(Role.user == user, Role.project == project)
+            .one()
+            .role_name
+        )
+    except NoResultFound:
+        # No project role found so check for Organization roles
+        return get_user_role_in_organization_project(project, user, request)
+
+
+def get_user_role_in_organization_project(project, user, request):
+    try:
+        # If this is an organzation project check to see if user is Org Owner
+        role_name = (
+            request.db.query(OrganizationRole)
+            .join(
+                OrganizationProject,
+                OrganizationProject.organization_id == OrganizationRole.organization_id,
+            )
+            .filter(
+                OrganizationRole.user == user,
+                OrganizationProject.project == project,
+                OrganizationRole.role_name == OrganizationRoleType.Owner,
+            )
+            .one()
+            .role_name
+        )
+    except NoResultFound:
+        # Last but not least check if this is a Team Project and user has a team role
+        role_name = (
+            request.db.query(TeamProjectRole)
+            .join(TeamRole, TeamRole.team_id == TeamProjectRole.team_id)
+            .filter(
+                TeamRole.user == user,
+                TeamProjectRole.project == project,
+            )
+            .one()
+            .role_name
+        )
+
+    return role_name.value
 
 
 @view_config(
