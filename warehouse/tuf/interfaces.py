@@ -86,7 +86,7 @@ class IRepositoryService(Interface):
         Args:
             targets: list of dictionary with file ``info`` and ``path``.
 
-                ``info`` contains a dict with ``lenght``, ``hashes`` optionally
+                ``info`` contains a dict with ``length``, ``hashes`` optionally
                 ``custom`` nested dictionary.
                 ``path`` file path
 
@@ -96,7 +96,7 @@ class IRepositoryService(Interface):
                     {
                         "info": {
                             "hashes": {"blake2b-256": file.blake2_256_digest},
-                            "lenght": 256,
+                            "length": 256,
                             "custom": {"key": "value},
                         },
                         "path": "/xx/yy/file.tar.gz"
