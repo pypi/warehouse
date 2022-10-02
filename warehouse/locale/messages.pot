@@ -1081,7 +1081,7 @@ msgstr ""
 #: warehouse/templates/manage/project/roles.html:300
 #: warehouse/templates/manage/project/roles.html:327
 #: warehouse/templates/manage/project/roles.html:339
-#: warehouse/templates/manage/team/roles.html:100
+#: warehouse/templates/manage/team/roles.html:92
 #: warehouse/templates/manage/team/settings.html:35
 #: warehouse/templates/re-auth.html:51
 msgid "(required)"
@@ -1182,7 +1182,8 @@ msgstr ""
 #: warehouse/templates/manage/project/roles.html:194
 #: warehouse/templates/manage/project/roles.html:287
 #: warehouse/templates/manage/project/roles.html:330
-#: warehouse/templates/manage/team/roles.html:103
+#: warehouse/templates/manage/team/roles.html:73
+#: warehouse/templates/manage/team/roles.html:95
 msgid "Username"
 msgstr ""
 
@@ -3227,6 +3228,8 @@ msgstr ""
 #: warehouse/templates/manage/project/roles.html:139
 #: warehouse/templates/manage/project/roles.html:189
 #: warehouse/templates/manage/project/roles.html:194
+#: warehouse/templates/manage/team/roles.html:68
+#: warehouse/templates/manage/team/roles.html:73
 msgid "Remove"
 msgstr ""
 
@@ -4192,7 +4195,7 @@ msgstr ""
 #: warehouse/templates/manage/organization/roles.html:174
 #: warehouse/templates/manage/project/roles.html:325
 #: warehouse/templates/manage/team/roles.html:44
-#: warehouse/templates/manage/team/roles.html:98
+#: warehouse/templates/manage/team/roles.html:90
 msgid "User"
 msgstr ""
 
@@ -4616,7 +4619,7 @@ msgstr ""
 
 #: warehouse/templates/manage/project/publishing.html:118
 #: warehouse/templates/manage/project/roles.html:309
-#: warehouse/templates/manage/team/roles.html:117
+#: warehouse/templates/manage/team/roles.html:109
 msgid "Add"
 msgstr ""
 
@@ -5381,26 +5384,27 @@ msgstr ""
 msgid "Use this page to manage which organization users are members of this team."
 msgstr ""
 
-#: warehouse/templates/manage/team/roles.html:74
+#: warehouse/templates/manage/team/roles.html:68
 msgid "Cannot remove other people from the team"
 msgstr ""
 
-#: warehouse/templates/manage/team/roles.html:77
+#: warehouse/templates/manage/team/roles.html:71
+#: warehouse/templates/manage/team/roles.html:72
 #, python-format
 msgid "Remove %(user)s from this team"
 msgstr ""
 
-#: warehouse/templates/manage/team/roles.html:89
+#: warehouse/templates/manage/team/roles.html:81
 msgid ""
 "There are no members in your team, yet. Get started by adding a team "
 "member below."
 msgstr ""
 
-#: warehouse/templates/manage/team/roles.html:93
+#: warehouse/templates/manage/team/roles.html:85
 msgid "Add member"
 msgstr ""
 
-#: warehouse/templates/manage/team/roles.html:113
+#: warehouse/templates/manage/team/roles.html:105
 #, python-format
 msgid ""
 "Add an organization owner, manager, or member to the team. <a "
