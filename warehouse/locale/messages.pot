@@ -4269,9 +4269,8 @@ msgid "Manage '%(organization_name)s' settings"
 msgstr ""
 
 #: warehouse/templates/manage/organization/settings.html:33
-msgid ""
-"Change the organization account name <a href=\"#change-organization-"
-"account-name\">below</a>."
+#, python-format
+msgid "Change the organization account name <a href=\"%(href)s\">below</a>."
 msgstr ""
 
 #: warehouse/templates/manage/organization/settings.html:37
