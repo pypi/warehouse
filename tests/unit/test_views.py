@@ -11,7 +11,6 @@
 # limitations under the License.
 
 import datetime
-import uuid
 
 import elasticsearch
 import pretend
@@ -27,11 +26,8 @@ from trove_classifiers import sorted_classifiers
 from webob.multidict import MultiDict
 
 from warehouse import views
-from warehouse.accounts.forms import TitanPromoCodeForm
-from warehouse.accounts.models import TitanPromoCode
 from warehouse.errors import WarehouseDenied
 from warehouse.views import (
-    REDIRECT_FIELD_NAME,
     SecurityKeyGiveaway,
     current_user_indicator,
     flash_messages,
@@ -561,122 +557,8 @@ class TestForceStatus:
 
 
 class TestSecurityKeyGiveaway:
-    def test_form(self):
-        country = "United States"
-        request = pretend.stub(POST={"country": country})
-        form = SecurityKeyGiveaway(request).form
-
-        assert isinstance(form, TitanPromoCodeForm)
-        assert form.country.data == country
-
-    def test_codes_available_no_codes(self, db_request):
-        assert SecurityKeyGiveaway(db_request).codes_available is False
-
-    def test_codes_available_no_unused_codes(self, db_request):
-        db_request.db.add(TitanPromoCode(code="foo", user_id=str(uuid.uuid4())))
-
-        assert SecurityKeyGiveaway(db_request).codes_available is False
-
-    def test_codes_available(self, db_request):
-        db_request.db.add(TitanPromoCode(code="foo"))
-
-        assert SecurityKeyGiveaway(db_request).codes_available is True
-
-    def test_promo_code_no_user(self, db_request):
-        db_request.user = None
-        assert SecurityKeyGiveaway(db_request).promo_code is None
-
-    def test_promo_code_no_codes(self, db_request):
-        db_request.user = UserFactory.create()
-        assert SecurityKeyGiveaway(db_request).promo_code is None
-
-    def test_promo_code(self, db_request):
-        db_request.user = UserFactory.create()
-        code = TitanPromoCode(code="foo", user_id=db_request.user.id)
-        db_request.db.add(code)
-        assert SecurityKeyGiveaway(db_request).promo_code == code
-
-    @pytest.mark.parametrize(
-        "codes_available, promo_code, user, eligible, reason_ineligible",  # noqa
-        [
-            (True, None, None, True, None),
-            (  # A very old user without date_joined
-                True,
-                None,
-                pretend.stub(
-                    has_webauthn=False,
-                    date_joined=None,
-                ),
-                True,
-                None,
-            ),
-            (
-                False,
-                None,
-                pretend.stub(
-                    has_webauthn=False,
-                    date_joined=datetime.datetime(2021, 9, 23, 20, 20, 0, 0),
-                ),
-                False,
-                "At this time there are no keys available",
-            ),
-            (
-                True,
-                None,
-                pretend.stub(
-                    has_webauthn=False,
-                    date_joined=datetime.datetime(2022, 9, 24, 20, 20, 0, 0),  # Too new
-                ),
-                False,
-                "Your account was created too recently",
-            ),
-            (
-                True,
-                None,
-                pretend.stub(
-                    has_webauthn=True,
-                    date_joined=datetime.datetime(2021, 9, 23, 20, 20, 0, 0),
-                ),
-                False,
-                "You already have two-factor authentication enabled with a hardware "
-                "security key",
-            ),
-            (
-                True,
-                pretend.stub(),
-                pretend.stub(
-                    has_webauthn=False,
-                    date_joined=datetime.datetime(2021, 9, 23, 20, 20, 0, 0),
-                ),
-                False,
-                "Promo code has already been generated",
-            ),
-        ],
-    )
-    def test_default_response(
-        self,
-        codes_available,
-        promo_code,
-        user,
-        eligible,
-        reason_ineligible,
-        monkeypatch,
-    ):
-        request = pretend.stub(user=user)
-        SecurityKeyGiveaway.codes_available = property(lambda a: codes_available)
-        SecurityKeyGiveaway.promo_code = property(lambda a: promo_code)
-        form = pretend.stub()
-        SecurityKeyGiveaway.form = property(lambda a: form)
-        ins = SecurityKeyGiveaway(request)
-
-        assert ins.default_response == {
-            "eligible": eligible,
-            "reason_ineligible": reason_ineligible,
-            "form": ins.form,
-            "codes_available": codes_available,
-            "promo_code": promo_code,
-            "REDIRECT_FIELD_NAME": REDIRECT_FIELD_NAME,
-        }
+    def test_default_response(self):
+        assert SecurityKeyGiveaway(pretend.stub()).default_response == {}
 
     def test_security_key_giveaway_not_found(self):
         request = pretend.stub(registry=pretend.stub(settings={}))
@@ -694,65 +576,3 @@ class TestSecurityKeyGiveaway:
         SecurityKeyGiveaway.default_response = default_response
 
         assert SecurityKeyGiveaway(request).security_key_giveaway() == default_response
-
-    def test_security_key_giveaway_submit_not_found(self):
-        request = pretend.stub(registry=pretend.stub(settings={}))
-
-        with pytest.raises(HTTPNotFound):
-            SecurityKeyGiveaway(request).security_key_giveaway_submit()
-
-    def test_security_key_giveaway_submit_invalid_form(self):
-        request = pretend.stub(
-            registry=pretend.stub(
-                settings={"warehouse.two_factor_mandate.available": True}
-            ),
-            session=pretend.stub(flash=pretend.call_recorder(lambda a: None)),
-        )
-        default_response = pretend.stub()
-        SecurityKeyGiveaway.default_response = default_response
-        form = pretend.stub(validate=lambda: False)
-        SecurityKeyGiveaway.form = property(lambda a: form)
-
-        assert (
-            SecurityKeyGiveaway(request).security_key_giveaway_submit()
-            == default_response
-        )
-        assert request.session.flash.calls == [pretend.call("Form is not valid")]
-
-    def test_security_key_giveaway_submit_ineligible(self):
-        request = pretend.stub(
-            registry=pretend.stub(
-                settings={"warehouse.two_factor_mandate.available": True}
-            ),
-            session=pretend.stub(flash=pretend.call_recorder(lambda a: None)),
-        )
-        reason_ineligible = pretend.stub()
-        default_response = {"eligible": False, "reason_ineligible": reason_ineligible}
-        SecurityKeyGiveaway.default_response = default_response
-        form = pretend.stub(validate=lambda: True)
-        SecurityKeyGiveaway.form = property(lambda a: form)
-
-        assert (
-            SecurityKeyGiveaway(request).security_key_giveaway_submit()
-            == default_response
-        )
-        assert request.session.flash.calls == [pretend.call(reason_ineligible)]
-
-    def test_security_key_giveaway_submit(self, db_request):
-        db_request.registry = pretend.stub(
-            settings={"warehouse.two_factor_mandate.available": True}
-        )
-        db_request.session = pretend.stub(flash=pretend.call_recorder(lambda a: None))
-        db_request.user = UserFactory.create()
-        promo_code = TitanPromoCode(code="foo")
-        db_request.db.add(promo_code)
-
-        default_response = {"eligible": True}
-        SecurityKeyGiveaway.default_response = default_response
-        form = pretend.stub(validate=lambda: True)
-        SecurityKeyGiveaway.form = property(lambda a: form)
-
-        assert (
-            SecurityKeyGiveaway(db_request).security_key_giveaway_submit()
-            == default_response
-        )
