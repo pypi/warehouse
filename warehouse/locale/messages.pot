@@ -5398,9 +5398,8 @@ msgstr ""
 #, python-format
 msgid ""
 "Add an organization owner, manager, or member to the team. <a "
-"href=\"%(manage_organization_roles_link)s\">Manage organization "
-"members</a> to view all users in the organization or to invite a user to "
-"the organization."
+"href=\"%(href)s\">Manage organization members</a> to view all users in "
+"the organization or to invite a user to the organization."
 msgstr ""
 
 #: warehouse/templates/manage/team/settings.html:17
