@@ -315,7 +315,7 @@ class TestSendEmail:
         task = pretend.stub()
         request = pretend.stub(
             find_service=pretend.call_recorder(
-                lambda svc, context=None: {
+                lambda svc, context=None, name=None: {
                     IUserService: user_service,
                     IEmailSender: sender,
                 }.get(svc)

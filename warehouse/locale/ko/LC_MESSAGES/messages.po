@@ -38,13 +38,13 @@ msgstr ""
 "X-Generator: Weblate 4.13.1-dev\n"
 "Generated-By: Babel 2.7.0\n"
 
-#: warehouse/views.py:129
+#: warehouse/views.py:128
 msgid ""
 "Two-factor authentication must be enabled on your account to perform this "
 "action."
 msgstr "이 작업을 수행하려면 계정에서 2단계 인증을 활성화해야 합니다."
 
-#: warehouse/views.py:292
+#: warehouse/views.py:291
 msgid "Locale updated"
 msgstr "지역이 변경되었습니다"
 
@@ -120,7 +120,7 @@ msgstr ""
 "해당 이메일은 다른 계정에서 이미 사용되고 있습니다. 다른 이메일을 사용해 주세"
 "요."
 
-#: warehouse/accounts/forms.py:280 warehouse/manage/forms.py:144
+#: warehouse/accounts/forms.py:280 warehouse/manage/forms.py:140
 msgid "The name is too long. Choose a name with 100 characters or less."
 msgstr "너무 긴 이름입니다. 100글자 이하의 이름을 입력해주세요."
 
@@ -175,7 +175,7 @@ msgstr "이미 인증됨"
 msgid "Successful WebAuthn assertion"
 msgstr "WebAuthn 승인 성공"
 
-#: warehouse/accounts/views.py:447 warehouse/manage/views.py:934
+#: warehouse/accounts/views.py:447 warehouse/manage/views.py:939
 msgid "Recovery code accepted. The supplied code cannot be used again."
 msgstr "복구 코드가 승인되었습니다. 주어진 코드는 재사용이 불가능합니다."
 
@@ -332,11 +332,11 @@ msgstr "당신은 이제 '${project_name}' 프로젝트의 ${role} 역할 입니
 msgid "Banner Preview"
 msgstr "배너 미리보기"
 
-#: warehouse/manage/forms.py:407
+#: warehouse/manage/forms.py:403
 msgid "Choose an organization account name with 50 characters or less."
 msgstr "50자 이하의 조직 계정 이름을 선택하세요."
 
-#: warehouse/manage/forms.py:415
+#: warehouse/manage/forms.py:411
 msgid ""
 "The organization account name is invalid. Organization account names must be "
 "composed of letters, numbers, dots, hyphens and underscores. And must also "
@@ -347,7 +347,7 @@ msgstr ""
 "밑줄로 구성되어야 합니다. 또한 문자나 숫자로 시작하고 끝나야 합니다. 다른 조"
 "직 계정 이름을 선택하세요."
 
-#: warehouse/manage/forms.py:430
+#: warehouse/manage/forms.py:432
 #, fuzzy
 #| msgid ""
 #| "This organization account name is already being used by another account. "
@@ -359,25 +359,25 @@ msgstr ""
 "이 조직 계정 이름은 이미 다른 계정에서 사용 중입니다. 다른 조직 계정 이름을 "
 "선택합니다."
 
-#: warehouse/manage/forms.py:471
+#: warehouse/manage/forms.py:473
 #, fuzzy
 #| msgid "Delete project"
 msgid "Select project"
 msgstr "프로젝트 삭제"
 
-#: warehouse/manage/forms.py:476
+#: warehouse/manage/forms.py:478
 #, fuzzy
 #| msgid "Project name"
 msgid "Specify project name"
 msgstr "프로젝트 이름"
 
-#: warehouse/manage/forms.py:479
+#: warehouse/manage/forms.py:481
 msgid ""
 "Start and end with a letter or numeral containing only ASCII numeric and "
 "'.', '_' and '-'."
 msgstr ""
 
-#: warehouse/manage/forms.py:486
+#: warehouse/manage/forms.py:488
 #, fuzzy
 #| msgid ""
 #| "This organization account name is already being used by another account. "
@@ -388,19 +388,19 @@ msgstr ""
 "이 조직 계정 이름은 이미 다른 계정에서 사용 중입니다. 다른 조직 계정 이름을 "
 "선택합니다."
 
-#: warehouse/manage/forms.py:556
+#: warehouse/manage/forms.py:559
 msgid ""
 "The organization name is too long. Choose a organization name with 100 "
 "characters or less."
 msgstr "조직 이름이 너무 깁니다. 100자 이하의 조직 이름을 선택합니다."
 
-#: warehouse/manage/forms.py:568
+#: warehouse/manage/forms.py:571
 msgid ""
 "The organization URL is too long. Choose a organization URL with 400 "
 "characters or less."
 msgstr "조직 URL이 너무 깁니다. 400자 이하의 조직 URL을 선택합니다."
 
-#: warehouse/manage/forms.py:582
+#: warehouse/manage/forms.py:585
 #, fuzzy
 #| msgid "The name is too long. Choose a name with 100 characters or less."
 msgid ""
@@ -408,25 +408,25 @@ msgid ""
 "with 400 characters or less."
 msgstr "너무 긴 이름입니다. 100글자 이하의 이름을 입력해주세요."
 
-#: warehouse/manage/forms.py:612
+#: warehouse/manage/forms.py:615
 msgid ""
 "No organization owner, manager, or member found with that username. Please "
 "try again."
 msgstr ""
 
-#: warehouse/manage/forms.py:628
+#: warehouse/manage/forms.py:631
 #, fuzzy
 #| msgid "Choose a username with 50 characters or less."
 msgid "Choose a team name with 50 characters or less."
 msgstr "사용자 이름을 50자 내외로 정해 주세요."
 
-#: warehouse/manage/forms.py:634
+#: warehouse/manage/forms.py:637
 msgid ""
 "The team name is invalid. Team names cannot start or end with a space, "
 "period, underscore, hyphen, or slash. Choose a different team name."
 msgstr ""
 
-#: warehouse/manage/forms.py:651
+#: warehouse/manage/forms.py:665
 #, fuzzy
 #| msgid ""
 #| "This organization account name is already being used by another account. "
@@ -436,21 +436,21 @@ msgstr ""
 "이 조직 계정 이름은 이미 다른 계정에서 사용 중입니다. 다른 조직 계정 이름을 "
 "선택합니다."
 
-#: warehouse/manage/views.py:361
+#: warehouse/manage/views.py:366
 msgid "Email ${email_address} added - check your email for a verification link"
 msgstr ""
 "이메일 주소 ${email_address}가 추가되었습니다 - 이메일에서 확인 링크를 살펴보"
 "세요"
 
-#: warehouse/manage/views.py:882
+#: warehouse/manage/views.py:887
 msgid "Recovery codes already generated"
 msgstr "복구 코드가 이미 생성되었습니다"
 
-#: warehouse/manage/views.py:883
+#: warehouse/manage/views.py:888
 msgid "Generating new recovery codes will invalidate your existing codes."
 msgstr "복구 코드를 새로 생성하면 기존 코드가 무효화됩니다."
 
-#: warehouse/manage/views.py:1823
+#: warehouse/manage/views.py:1955
 #, fuzzy
 #| msgid "User '${username}' already has ${role_name} role for project"
 msgid "User '${username}' already has ${role_name} role for organization"
@@ -458,7 +458,7 @@ msgstr ""
 "사용자 '${username}'는 이미 ${role_name}이라는 이 프로젝트의 역할을 가지고 있"
 "습니다"
 
-#: warehouse/manage/views.py:1834
+#: warehouse/manage/views.py:1966
 #, fuzzy
 #| msgid ""
 #| "User '${username}' does not have a verified primary email address and "
@@ -470,32 +470,32 @@ msgstr ""
 "사용자 '${username}'는 인증된 이메일을 가지고있지 않으므로 이 프로젝트에서 "
 "${role_name}으로 추가될 수 없습니다"
 
-#: warehouse/manage/views.py:1848 warehouse/manage/views.py:4015
+#: warehouse/manage/views.py:1980 warehouse/manage/views.py:4152
 msgid ""
 "User '${username}' already has an active invite. Please try again later."
 msgstr ""
 "사용자 '${username}'는 이미 활성화되어 있는 초대를 가지고 있습니다. 나중에 다"
 "시 시도해보세요."
 
-#: warehouse/manage/views.py:1905 warehouse/manage/views.py:4082
+#: warehouse/manage/views.py:2037 warehouse/manage/views.py:4219
 msgid "Invitation sent to '${username}'"
 msgstr "'${username}'에게 초대가 전송되었습니다"
 
-#: warehouse/manage/views.py:1944
+#: warehouse/manage/views.py:2077
 #, fuzzy
 #| msgid "Could not find role invitation."
 msgid "Could not find organization invitation."
 msgstr "역할 초대를 찾을 수 없습니다."
 
-#: warehouse/manage/views.py:1958 warehouse/manage/views.py:4126
+#: warehouse/manage/views.py:2091 warehouse/manage/views.py:4263
 msgid "Invitation already expired."
 msgstr "초대가 이미 만료되었습니다."
 
-#: warehouse/manage/views.py:1991 warehouse/manage/views.py:4150
+#: warehouse/manage/views.py:2124 warehouse/manage/views.py:4287
 msgid "Invitation revoked from '${username}'."
 msgstr "'${username}'의 초대가 취소되었습니다."
 
-#: warehouse/manage/views.py:2392
+#: warehouse/manage/views.py:2514
 #, fuzzy
 #| msgid "User '${username}' already has ${role_name} role for project"
 msgid "User '${username}' is already a team member"
@@ -503,7 +503,7 @@ msgstr ""
 "사용자 '${username}'는 이미 ${role_name}이라는 이 프로젝트의 역할을 가지고 있"
 "습니다"
 
-#: warehouse/manage/views.py:2810
+#: warehouse/manage/views.py:2934
 #, fuzzy
 #| msgid ""
 #| "There have been too many unsuccessful login attempts. Try again later."
@@ -512,19 +512,27 @@ msgid ""
 "later."
 msgstr "너무 많은 잘못된 로그인 시도가 있었습니다. 나중에 다시 시도해주세요."
 
-#: warehouse/manage/views.py:3900
+#: warehouse/manage/views.py:3929
+#, fuzzy
+#| msgid "User '${username}' already has ${role_name} role for project"
+msgid "Team '${team_name}' already has ${role_name} role for project"
+msgstr ""
+"사용자 '${username}'는 이미 ${role_name}이라는 이 프로젝트의 역할을 가지고 있"
+"습니다"
+
+#: warehouse/manage/views.py:4037
 msgid "User '${username}' already has ${role_name} role for project"
 msgstr ""
 "사용자 '${username}'는 이미 ${role_name}이라는 이 프로젝트의 역할을 가지고 있"
 "습니다"
 
-#: warehouse/manage/views.py:3969
+#: warehouse/manage/views.py:4106
 #, fuzzy
 #| msgid "You are now ${role} of the '${project_name}' project."
 msgid "${username} is now ${role} of the '${project_name}' project."
 msgstr "당신은 이제 '${project_name}' 프로젝트의 ${role} 역할 입니다."
 
-#: warehouse/manage/views.py:4002
+#: warehouse/manage/views.py:4139
 msgid ""
 "User '${username}' does not have a verified primary email address and cannot "
 "be added as a ${role_name} for project"
@@ -532,7 +540,7 @@ msgstr ""
 "사용자 '${username}'는 인증된 이메일을 가지고있지 않으므로 이 프로젝트에서 "
 "${role_name}으로 추가될 수 없습니다"
 
-#: warehouse/manage/views.py:4115
+#: warehouse/manage/views.py:4252
 msgid "Could not find role invitation."
 msgstr "역할 초대를 찾을 수 없습니다."
 
@@ -584,6 +592,40 @@ msgstr ""
 
 #: warehouse/oidc/forms.py:146
 msgid "Provider must be specified by ID"
+msgstr ""
+
+#: warehouse/subscriptions/models.py:42
+#, fuzzy
+#| msgid "Action"
+msgid "Active"
+msgstr "작업"
+
+#: warehouse/subscriptions/models.py:43
+#, fuzzy
+#| msgid "Last used"
+msgid "Past Due"
+msgstr "마지막으로 사용됨"
+
+#: warehouse/subscriptions/models.py:44
+msgid "Unpaid"
+msgstr ""
+
+#: warehouse/subscriptions/models.py:45
+#, fuzzy
+#| msgid "Cancel"
+msgid "Canceled"
+msgstr "취소"
+
+#: warehouse/subscriptions/models.py:46
+msgid "Incomplete"
+msgstr ""
+
+#: warehouse/subscriptions/models.py:47
+msgid "Incomplete Expired"
+msgstr ""
+
+#: warehouse/subscriptions/models.py:48
+msgid "Trialing"
 msgstr ""
 
 #: warehouse/templates/403.html:16
@@ -868,8 +910,8 @@ msgstr "모바일 버전으로 전환"
 #: warehouse/templates/manage/account.html:716
 #: warehouse/templates/manage/manage_base.html:293
 #: warehouse/templates/manage/manage_base.html:352
-#: warehouse/templates/manage/organization/settings.html:159
-#: warehouse/templates/manage/organization/settings.html:205
+#: warehouse/templates/manage/organization/settings.html:180
+#: warehouse/templates/manage/organization/settings.html:235
 #: warehouse/templates/manage/project/documentation.html:27
 #: warehouse/templates/manage/project/release.html:163
 #: warehouse/templates/manage/project/settings.html:126
@@ -1042,6 +1084,10 @@ msgstr "데스크탑 버전으로 전환"
 msgid "Confirm Action"
 msgstr "확인 작업"
 
+#: warehouse/templates/confirm-action.html:26
+msgid "Are you sure?"
+msgstr ""
+
 #: warehouse/templates/error-base.html:31
 msgid "Error code"
 msgstr "오류 코드"
@@ -1199,20 +1245,20 @@ msgstr "패스워드"
 #: warehouse/templates/manage/organization/settings.html:98
 #: warehouse/templates/manage/organization/settings.html:123
 #: warehouse/templates/manage/organization/teams.html:84
-#: warehouse/templates/manage/organizations.html:116
-#: warehouse/templates/manage/organizations.html:139
-#: warehouse/templates/manage/organizations.html:161
-#: warehouse/templates/manage/organizations.html:179
-#: warehouse/templates/manage/organizations.html:198
+#: warehouse/templates/manage/organizations.html:143
+#: warehouse/templates/manage/organizations.html:166
+#: warehouse/templates/manage/organizations.html:188
+#: warehouse/templates/manage/organizations.html:206
+#: warehouse/templates/manage/organizations.html:225
 #: warehouse/templates/manage/project/publishing.html:85
 #: warehouse/templates/manage/project/publishing.html:97
 #: warehouse/templates/manage/project/publishing.html:109
-#: warehouse/templates/manage/project/roles.html:277
-#: warehouse/templates/manage/project/roles.html:288
+#: warehouse/templates/manage/project/roles.html:262
+#: warehouse/templates/manage/project/roles.html:273
+#: warehouse/templates/manage/project/roles.html:285
 #: warehouse/templates/manage/project/roles.html:300
-#: warehouse/templates/manage/project/roles.html:315
-#: warehouse/templates/manage/project/roles.html:342
-#: warehouse/templates/manage/project/roles.html:354
+#: warehouse/templates/manage/project/roles.html:327
+#: warehouse/templates/manage/project/roles.html:339
 #: warehouse/templates/manage/team/roles.html:96
 #: warehouse/templates/manage/team/settings.html:35
 #: warehouse/templates/re-auth.html:51
@@ -1313,7 +1359,7 @@ msgid "Log in to %(title)s"
 msgstr "%(title)s에 로그인"
 
 #: warehouse/templates/accounts/login.html:49
-#: warehouse/templates/accounts/profile.html:38
+#: warehouse/templates/accounts/profile.html:40
 #: warehouse/templates/accounts/register.html:89
 #: warehouse/templates/email/organization-member-added/body.html:30
 #: warehouse/templates/email/organization-member-invited/body.html:30
@@ -1322,10 +1368,10 @@ msgstr "%(title)s에 로그인"
 #: warehouse/templates/manage/account.html:248
 #: warehouse/templates/manage/organization/roles.html:125
 #: warehouse/templates/manage/organization/roles.html:179
-#: warehouse/templates/manage/project/roles.html:146
-#: warehouse/templates/manage/project/roles.html:208
-#: warehouse/templates/manage/project/roles.html:302
-#: warehouse/templates/manage/project/roles.html:345
+#: warehouse/templates/manage/project/roles.html:139
+#: warehouse/templates/manage/project/roles.html:194
+#: warehouse/templates/manage/project/roles.html:287
+#: warehouse/templates/manage/project/roles.html:330
 #: warehouse/templates/manage/team/roles.html:99
 msgid "Username"
 msgstr "사용자명"
@@ -1374,27 +1420,27 @@ msgstr ""
 msgid "Profile of %(username)s"
 msgstr "%(username)s 프로필"
 
-#: warehouse/templates/accounts/profile.html:29
+#: warehouse/templates/accounts/profile.html:31
 #: warehouse/templates/manage/account.html:223
 #: warehouse/templates/manage/organization/roles.html:71
 #: warehouse/templates/manage/organization/roles.html:136
-#: warehouse/templates/manage/project/roles.html:155
-#: warehouse/templates/manage/project/roles.html:217
+#: warehouse/templates/manage/project/roles.html:148
+#: warehouse/templates/manage/project/roles.html:203
 #: warehouse/templates/manage/team/roles.html:53
 msgid "Avatar for {user} from gravatar.com"
 msgstr "gravatar.com의 {user} 아바타"
 
-#: warehouse/templates/accounts/profile.html:49
+#: warehouse/templates/accounts/profile.html:51
 msgid "Date joined"
 msgstr "가입한 날짜"
 
-#: warehouse/templates/accounts/profile.html:50
+#: warehouse/templates/accounts/profile.html:52
 #, fuzzy, python-format
 #| msgid "Joined on %(start_date)s"
 msgid "Joined %(start_date)s"
 msgstr "%(start_date)s에 가입"
 
-#: warehouse/templates/accounts/profile.html:64
+#: warehouse/templates/accounts/profile.html:66
 #, python-format
 msgid ""
 "\n"
@@ -1409,11 +1455,11 @@ msgstr[0] ""
 "            %(count)s 프로젝트\n"
 "          "
 
-#: warehouse/templates/accounts/profile.html:70
+#: warehouse/templates/accounts/profile.html:72
 msgid "No projects"
 msgstr "프로젝트 없음"
 
-#: warehouse/templates/accounts/profile.html:79
+#: warehouse/templates/accounts/profile.html:81
 #: warehouse/templates/manage/organization/projects.html:71
 #: warehouse/templates/manage/projects.html:34
 #: warehouse/templates/manage/projects.html:104
@@ -1423,7 +1469,7 @@ msgstr "프로젝트 없음"
 msgid "Last released %(release_date)s"
 msgstr "%(release_date)s에 마지막으로 릴리즈됨"
 
-#: warehouse/templates/accounts/profile.html:87
+#: warehouse/templates/accounts/profile.html:89
 #, python-format
 msgid "%(user)s has not uploaded any projects to PyPI, yet"
 msgstr "%(user)s 사용자는 아직 PyPI에 프로젝트를 등록하지 않았습니다"
@@ -1837,7 +1883,7 @@ msgstr ""
 #: warehouse/templates/email/new-organization-approved/body.html:17
 #, python-format
 msgid ""
-"Your new organization named \"%(organization_name)s\" has been approved and "
+"Your new organization named '%(organization_name)s' has been approved and "
 "created."
 msgstr ""
 
@@ -1850,19 +1896,21 @@ msgstr ""
 #: warehouse/templates/email/new-organization-declined/body.html:17
 #, python-format
 msgid ""
-"Your request to create a new organization named \"%(organization_name)s\" "
-"was not approved."
+"Your request to create a new organization named '%(organization_name)s' was "
+"not approved."
 msgstr ""
 
 #: warehouse/templates/email/new-organization-requested/body.html:17
+#: warehouse/templates/manage/organizations.html:130
 #, python-format
 msgid ""
-"Your request for a new PyPI organization named \"%(organization_name)s\" has "
+"Your request for a new PyPI organization named '%(organization_name)s' has "
 "been submitted."
 msgstr ""
 
 #: warehouse/templates/email/new-organization-requested/body.html:19
-#: warehouse/templates/manage/organizations.html:57
+#: warehouse/templates/manage/organizations.html:63
+#: warehouse/templates/manage/organizations.html:133
 msgid "You will receive an email when the organization has been approved"
 msgstr ""
 
@@ -1983,10 +2031,11 @@ msgstr ""
 #: warehouse/templates/manage/organization/roles.html:99
 #: warehouse/templates/manage/organization/roles.html:186
 #: warehouse/templates/manage/project/roles.html:52
-#: warehouse/templates/manage/project/roles.html:124
-#: warehouse/templates/manage/project/roles.html:179
-#: warehouse/templates/manage/project/roles.html:314
-#: warehouse/templates/manage/project/roles.html:352
+#: warehouse/templates/manage/project/roles.html:117
+#: warehouse/templates/manage/project/roles.html:172
+#: warehouse/templates/manage/project/roles.html:272
+#: warehouse/templates/manage/project/roles.html:299
+#: warehouse/templates/manage/project/roles.html:337
 msgid "Role"
 msgstr "역할"
 
@@ -2406,23 +2455,29 @@ msgid ""
 msgstr ""
 
 #: warehouse/templates/email/role-changed-as-team-collaborator/body.html:20
-#, python-format
+#, fuzzy, python-format
+#| msgid ""
+#| "You have been added as <strong>%(role)s</strong> to the %(site)s project "
+#| "%(project_name)s by %(initiator_username)s."
 msgid ""
-"Your team's permissions for the %(project)s project have been changed by "
+"Your team's role for the %(project)s project has been changed by "
 "%(submitter)s."
 msgstr ""
+"당신은 %(initiator_username)s에 의해 %(site)s 프로젝트 %(project_name)s에 "
+"<strong>%(role)s</strong>으로 추가되었습니다."
 
 #: warehouse/templates/email/role-changed-as-team-collaborator/body.html:25
 msgid ""
-"Your team now has Administer permissions for the project. You can add other "
+"Your team now has permissions to administer the project. You can add other "
 "collaborators, upload releases and delete files, releases or the entire "
 "project."
 msgstr ""
 
 #: warehouse/templates/email/role-changed-as-team-collaborator/body.html:27
 msgid ""
-"Your team now has Upload permissions for the project. You can upload "
-"releases but cannot add collaborators, delete files, releases or the project."
+"Your team now has permissions to upload releases for the project. You can "
+"upload releases but cannot add collaborators, delete files, releases or the "
+"project."
 msgstr ""
 
 #: warehouse/templates/email/role-changed-as-team-collaborator/body.html:33
@@ -2431,8 +2486,8 @@ msgstr ""
 #| "You are receiving this because you have been added by "
 #| "%(initiator_username)s to a project on %(site)s."
 msgid ""
-"You are receiving this because your team's permissions were changed by "
-"%(submitter)s for the %(project)s project."
+"You are receiving this because your team's role was changed by %(submitter)s "
+"for the %(project)s project."
 msgstr ""
 "%(site)s의 %(initiator_username)s님께서 당신을 프로젝트로 추가하셨고 그것때문"
 "에 이 메일을 받으셨습니다."
@@ -2452,8 +2507,6 @@ msgstr ""
 #: warehouse/templates/email/team-collaborator-added/body.html:30
 #: warehouse/templates/email/team-collaborator-role-changed/body.html:30
 #: warehouse/templates/manage/account/token.html:143
-#: warehouse/templates/manage/project/roles.html:53
-#: warehouse/templates/manage/project/roles.html:287
 msgid "Permissions"
 msgstr "권한"
 
@@ -2667,10 +2720,8 @@ msgstr "이 알림 지우기"
 #: warehouse/templates/manage/account.html:211
 #: warehouse/templates/manage/manage_base.html:282
 #: warehouse/templates/manage/manage_base.html:284
-#: warehouse/templates/manage/organization/roles.html:38
 #: warehouse/templates/manage/project/release.html:118
 #: warehouse/templates/manage/project/releases.html:172
-#: warehouse/templates/manage/project/roles.html:38
 #: warehouse/templates/manage/project/settings.html:111
 #: warehouse/templates/search/results.html:199
 msgid "Close"
@@ -3563,7 +3614,7 @@ msgstr[0] ""
 "        "
 
 #: warehouse/templates/manage/account.html:705
-#: warehouse/templates/manage/organization/settings.html:194
+#: warehouse/templates/manage/organization/settings.html:224
 #, python-format
 msgid ""
 "<a href=\"%(transfer_href)s\">transfer ownership</a> or <a href="
@@ -3574,8 +3625,8 @@ msgstr ""
 
 #: warehouse/templates/manage/account.html:714
 #: warehouse/templates/manage/account/token.html:166
-#: warehouse/templates/manage/organization/settings.html:157
-#: warehouse/templates/manage/organization/settings.html:203
+#: warehouse/templates/manage/organization/settings.html:178
+#: warehouse/templates/manage/organization/settings.html:233
 #: warehouse/templates/manage/team/settings.html:75
 msgid "Proceed with caution!"
 msgstr "실행하는데 주의를 요합니다!"
@@ -3592,9 +3643,10 @@ msgstr "PyPI 계정 삭제"
 #: warehouse/templates/manage/organization/projects.html:115
 #: warehouse/templates/manage/organization/projects.html:120
 #: warehouse/templates/manage/organization/teams.html:53
-#: warehouse/templates/manage/organizations.html:81
-#: warehouse/templates/manage/organizations.html:86
-#: warehouse/templates/manage/organizations.html:91
+#: warehouse/templates/manage/organizations.html:93
+#: warehouse/templates/manage/organizations.html:99
+#: warehouse/templates/manage/organizations.html:104
+#: warehouse/templates/manage/organizations.html:109
 #: warehouse/templates/manage/project/releases.html:88
 #: warehouse/templates/manage/projects.html:148
 #: warehouse/templates/manage/projects.html:153
@@ -3654,11 +3706,11 @@ msgstr "2단계 인증 방법"
 #: warehouse/templates/manage/organization/roles.html:120
 #: warehouse/templates/manage/organization/roles.html:125
 #: warehouse/templates/manage/project/publishing.html:44
-#: warehouse/templates/manage/project/roles.html:86
-#: warehouse/templates/manage/project/roles.html:141
-#: warehouse/templates/manage/project/roles.html:146
-#: warehouse/templates/manage/project/roles.html:203
-#: warehouse/templates/manage/project/roles.html:208
+#: warehouse/templates/manage/project/roles.html:82
+#: warehouse/templates/manage/project/roles.html:134
+#: warehouse/templates/manage/project/roles.html:139
+#: warehouse/templates/manage/project/roles.html:189
+#: warehouse/templates/manage/project/roles.html:194
 msgid "Remove"
 msgstr "삭제"
 
@@ -3871,6 +3923,7 @@ msgstr "계속하기 위해 %(item)s 를 확인해주세요."
 
 #: warehouse/templates/manage/manage_base.html:319
 #: warehouse/templates/manage/manage_base.html:371
+#: warehouse/templates/manage/organization/activate_subscription.html:32
 msgid "Cancel"
 msgstr "취소"
 
@@ -3891,7 +3944,7 @@ msgstr "대기중인 초대 개수 (%(project_count)s)"
 
 #: warehouse/templates/manage/organization/projects.html:78
 #: warehouse/templates/manage/organizations.html:32
-#: warehouse/templates/manage/organizations.html:69
+#: warehouse/templates/manage/organizations.html:75
 #: warehouse/templates/manage/projects.html:41
 #: warehouse/templates/manage/projects.html:111
 #: warehouse/templates/manage/team/projects.html:78
@@ -3909,24 +3962,36 @@ msgstr "%(creation_date)s에 생성됨"
 msgid "Your organizations (%(organization_count)s)"
 msgstr "프로젝트 목록 (%(project_count)s)"
 
-#: warehouse/templates/manage/organizations.html:57
+#: warehouse/templates/manage/organizations.html:58
+#: warehouse/templates/manage/organizations.html:60
+msgid "Billing Inactive"
+msgstr ""
+
+#: warehouse/templates/manage/organizations.html:60
+msgid ""
+"This organization's billing can be activated by an organization owner or "
+"billing manager"
+msgstr ""
+
+#: warehouse/templates/manage/organizations.html:63
 msgid "Request Submitted"
 msgstr ""
 
-#: warehouse/templates/manage/organizations.html:59
-#: warehouse/templates/manage/organizations.html:80
+#: warehouse/templates/manage/organizations.html:65
+#: warehouse/templates/manage/organizations.html:92
+#: warehouse/templates/manage/organizations.html:98
 #, fuzzy
 #| msgid "Role invitation is not valid."
 msgid "This organization is not active"
 msgstr "역할 초대가 유효하지 않습니다."
 
-#: warehouse/templates/manage/organizations.html:59
+#: warehouse/templates/manage/organizations.html:65
 msgid "Inactive"
 msgstr ""
 
 #: warehouse/templates/manage/organization/roles.html:43
 #: warehouse/templates/manage/organization/roles.html:88
-#: warehouse/templates/manage/organizations.html:61
+#: warehouse/templates/manage/organizations.html:67
 #, fuzzy
 #| msgid "Manage"
 msgid "Manager"
@@ -3934,21 +3999,24 @@ msgstr "관리"
 
 #: warehouse/templates/manage/organization/roles.html:45
 #: warehouse/templates/manage/organization/roles.html:90
-#: warehouse/templates/manage/organizations.html:63
+#: warehouse/templates/manage/organizations.html:69
 #: warehouse/templates/manage/project/publishing.html:83
 #: warehouse/templates/manage/project/roles.html:43
-#: warehouse/templates/manage/project/roles.html:170
-#: warehouse/templates/manage/project/roles.html:181
+#: warehouse/templates/manage/project/roles.html:78
+#: warehouse/templates/manage/project/roles.html:108
+#: warehouse/templates/manage/project/roles.html:119
+#: warehouse/templates/manage/project/roles.html:163
+#: warehouse/templates/manage/project/roles.html:174
 msgid "Owner"
 msgstr ""
 
 #: warehouse/templates/manage/organization/roles.html:48
 #: warehouse/templates/manage/organization/roles.html:92
-#: warehouse/templates/manage/organizations.html:65
+#: warehouse/templates/manage/organizations.html:71
 msgid "Billing Manager"
 msgstr ""
 
-#: warehouse/templates/manage/organizations.html:75
+#: warehouse/templates/manage/organizations.html:81
 #, fuzzy
 #| msgid "Create an account"
 msgid "View this organization"
@@ -3957,7 +4025,7 @@ msgstr "계정 생성하기"
 #: warehouse/templates/manage/organization/projects.html:128
 #: warehouse/templates/manage/organization/projects.html:131
 #: warehouse/templates/manage/organization/teams.html:60
-#: warehouse/templates/manage/organizations.html:76
+#: warehouse/templates/manage/organizations.html:82
 #: warehouse/templates/manage/project/releases.html:94
 #: warehouse/templates/manage/projects.html:161
 #: warehouse/templates/manage/projects.html:164
@@ -3966,91 +4034,111 @@ msgstr "계정 생성하기"
 msgid "View"
 msgstr "보기"
 
-#: warehouse/templates/manage/organizations.html:90
+#: warehouse/templates/manage/organizations.html:87
+#, fuzzy
+#| msgid "Create an account"
+msgid "Activate billing for this organization"
+msgstr "계정 생성하기"
+
+#: warehouse/templates/manage/organizations.html:88
+msgid "Activate Billing"
+msgstr ""
+
+#: warehouse/templates/manage/organizations.html:103
+#: warehouse/templates/manage/organizations.html:108
 #, fuzzy
 #| msgid "Create an account"
 msgid "Manage this organization"
 msgstr "계정 생성하기"
 
-#: warehouse/templates/manage/organizations.html:99
+#: warehouse/templates/manage/organizations.html:117
 #, fuzzy
 #| msgid "%(user)s has not uploaded any projects to PyPI, yet"
 msgid "You have not joined any organizations on PyPI, yet."
 msgstr "%(user)s 사용자는 아직 PyPI에 프로젝트를 등록하지 않았습니다"
 
-#: warehouse/templates/manage/organizations.html:108
+#: warehouse/templates/manage/organizations.html:126
 #, fuzzy
 #| msgid "Create an account"
 msgid "Create new organization"
 msgstr "계정 생성하기"
 
+#: warehouse/templates/manage/organization/roles.html:123
+#: warehouse/templates/manage/organization/roles.html:158
+#: warehouse/templates/manage/organizations.html:133
+#: warehouse/templates/manage/project/roles.html:137
+#: warehouse/templates/manage/project/roles.html:192
+#: warehouse/templates/manage/project/roles.html:225
+msgid "."
+msgstr ""
+
 #: warehouse/templates/manage/organization/settings.html:29
-#: warehouse/templates/manage/organizations.html:114
+#: warehouse/templates/manage/organizations.html:141
 msgid "Organization account name"
 msgstr ""
 
-#: warehouse/templates/manage/organizations.html:119
+#: warehouse/templates/manage/organizations.html:146
 msgid "Select an organization account name"
 msgstr ""
 
-#: warehouse/templates/manage/organizations.html:130
+#: warehouse/templates/manage/organizations.html:157
 msgid "This account name will be used in URLs on PyPI."
 msgstr ""
 
 #: warehouse/templates/manage/organization/settings.html:65
 #: warehouse/templates/manage/organization/settings.html:89
-#: warehouse/templates/manage/organizations.html:131
-#: warehouse/templates/manage/organizations.html:153
-#: warehouse/templates/manage/organizations.html:171
+#: warehouse/templates/manage/organizations.html:158
+#: warehouse/templates/manage/organizations.html:180
+#: warehouse/templates/manage/organizations.html:198
 msgid "For example"
 msgstr ""
 
 #: warehouse/templates/manage/organization/settings.html:42
-#: warehouse/templates/manage/organizations.html:137
+#: warehouse/templates/manage/organizations.html:164
 msgid "Organization name"
 msgstr ""
 
 #: warehouse/templates/manage/organization/settings.html:48
-#: warehouse/templates/manage/organizations.html:142
+#: warehouse/templates/manage/organizations.html:169
 msgid "Name of your business, product, or project"
 msgstr ""
 
 #: warehouse/templates/manage/organization/settings.html:72
-#: warehouse/templates/manage/organizations.html:159
+#: warehouse/templates/manage/organizations.html:186
 msgid "️Organization URL"
 msgstr ""
 
 #: warehouse/templates/manage/organization/settings.html:78
-#: warehouse/templates/manage/organizations.html:165
+#: warehouse/templates/manage/organizations.html:192
 msgid "URL for your business, product, or project"
 msgstr ""
 
 #: warehouse/templates/manage/organization/settings.html:96
-#: warehouse/templates/manage/organizations.html:177
+#: warehouse/templates/manage/organizations.html:204
 #, fuzzy
 #| msgid "Project documentation"
 msgid "Organization description"
 msgstr "프로젝트 문서"
 
 #: warehouse/templates/manage/organization/settings.html:102
-#: warehouse/templates/manage/organizations.html:182
+#: warehouse/templates/manage/organizations.html:209
 msgid "Description of your business, product, or project"
 msgstr ""
 
 #: warehouse/templates/manage/organization/settings.html:121
-#: warehouse/templates/manage/organizations.html:196
+#: warehouse/templates/manage/organizations.html:223
 msgid "️Organization type"
 msgstr ""
 
 #: warehouse/templates/manage/organization/settings.html:138
-#: warehouse/templates/manage/organizations.html:208
+#: warehouse/templates/manage/organizations.html:235
 msgid ""
 "Companies can create organization accounts as a paid service while community "
 "projects are granted complimentary access."
 msgstr ""
 
 #: warehouse/templates/manage/organization/teams.html:96
-#: warehouse/templates/manage/organizations.html:214
+#: warehouse/templates/manage/organizations.html:241
 #, fuzzy
 #| msgid "Created"
 msgid "Create"
@@ -4234,8 +4322,8 @@ msgstr "파일 다운로드"
 
 #: warehouse/templates/manage/account/recovery_codes-provision.html:63
 #: warehouse/templates/manage/organization/roles.html:110
-#: warehouse/templates/manage/project/roles.html:133
-#: warehouse/templates/manage/project/roles.html:188
+#: warehouse/templates/manage/project/roles.html:126
+#: warehouse/templates/manage/project/roles.html:181
 msgid "Save"
 msgstr "저장"
 
@@ -4505,6 +4593,20 @@ msgid ""
 "not work with PyPI."
 msgstr ""
 
+#: warehouse/templates/manage/organization/activate_subscription.html:17
+#: warehouse/templates/manage/organization/activate_subscription.html:21
+#: warehouse/templates/manage/organization/activate_subscription.html:35
+#, fuzzy
+#| msgid "Project documentation"
+msgid "Activate Subscription"
+msgstr "프로젝트 문서"
+
+#: warehouse/templates/manage/organization/activate_subscription.html:27
+msgid ""
+"Company accounts require an active subscription. Please enter up-to-date "
+"billing information to enable the account."
+msgstr ""
+
 #: warehouse/templates/manage/organization/manage_organization_base.html:20
 #, fuzzy, python-format
 #| msgid "Manage '%(project_name)s'"
@@ -4628,7 +4730,7 @@ msgstr ""
 #: warehouse/templates/manage/organization/roles.html:61
 #: warehouse/templates/manage/project/roles.html:23
 #: warehouse/templates/manage/project/roles.html:28
-#: warehouse/templates/manage/project/roles.html:54
+#: warehouse/templates/manage/project/roles.html:53
 #: warehouse/templates/manage/team/roles.html:23
 #: warehouse/templates/manage/team/roles.html:28
 msgid "2FA"
@@ -4649,12 +4751,10 @@ msgid ""
 msgstr "'%(project_name)s' 관리"
 
 #: warehouse/templates/manage/organization/roles.html:38
-#: warehouse/templates/manage/project/release.html:118
-#: warehouse/templates/manage/project/releases.html:172
-#: warehouse/templates/manage/project/roles.html:38
-#: warehouse/templates/manage/project/settings.html:111
-msgid "Dismiss"
-msgstr "확인"
+#, fuzzy
+#| msgid "Project documentation"
+msgid "Organization Roles"
+msgstr "프로젝트 문서"
 
 #: warehouse/templates/manage/organization/roles.html:39
 #, python-format
@@ -4664,7 +4764,7 @@ msgstr ""
 
 #: warehouse/templates/manage/organization/roles.html:41
 #: warehouse/templates/manage/organization/roles.html:86
-#: warehouse/templates/manage/project/roles.html:299
+#: warehouse/templates/manage/project/roles.html:284
 msgid "Member"
 msgstr ""
 
@@ -4704,14 +4804,15 @@ msgstr "'%(project_name)s' 관리"
 
 #: warehouse/templates/manage/organization/roles.html:59
 #: warehouse/templates/manage/organization/roles.html:174
-#: warehouse/templates/manage/project/roles.html:340
+#: warehouse/templates/manage/project/roles.html:325
 #: warehouse/templates/manage/team/roles.html:43
 #: warehouse/templates/manage/team/roles.html:94
 msgid "User"
 msgstr "사용자"
 
 #: warehouse/templates/manage/organization/roles.html:109
-#: warehouse/templates/manage/project/roles.html:187
+#: warehouse/templates/manage/project/roles.html:125
+#: warehouse/templates/manage/project/roles.html:180
 msgid "Save role"
 msgstr "역할 저장"
 
@@ -4732,35 +4833,27 @@ msgstr "스스로를 소유자에서 제거할 수 없습니다"
 msgid "Remove %(user)s from this organization"
 msgstr "%(user)s 사용자를 프로젝트에서 제거하기"
 
-#: warehouse/templates/manage/organization/roles.html:123
-#: warehouse/templates/manage/organization/roles.html:158
-#: warehouse/templates/manage/project/roles.html:144
-#: warehouse/templates/manage/project/roles.html:206
-#: warehouse/templates/manage/project/roles.html:240
-msgid "."
-msgstr ""
-
 #: warehouse/templates/manage/organization/roles.html:150
-#: warehouse/templates/manage/project/roles.html:231
+#: warehouse/templates/manage/project/roles.html:217
 msgid "Invite pending"
 msgstr ""
 
 #: warehouse/templates/manage/organization/roles.html:152
-#: warehouse/templates/manage/project/roles.html:233
+#: warehouse/templates/manage/project/roles.html:219
 msgid "Invite expired"
 msgstr ""
 
 #: warehouse/templates/manage/organization/roles.html:158
 #: warehouse/templates/manage/organization/roles.html:159
-#: warehouse/templates/manage/project/roles.html:240
-#: warehouse/templates/manage/project/roles.html:241
+#: warehouse/templates/manage/project/roles.html:225
+#: warehouse/templates/manage/project/roles.html:226
 #, fuzzy, python-format
 #| msgid "History for %(project_name)s"
 msgid "Revoke invitation for %(user)s"
 msgstr "%(project_name)s 이력"
 
 #: warehouse/templates/manage/organization/roles.html:160
-#: warehouse/templates/manage/project/roles.html:242
+#: warehouse/templates/manage/project/roles.html:227
 msgid "Revoke invite"
 msgstr ""
 
@@ -4769,7 +4862,7 @@ msgid "Invite member"
 msgstr ""
 
 #: warehouse/templates/manage/organization/roles.html:197
-#: warehouse/templates/manage/project/roles.html:363
+#: warehouse/templates/manage/project/roles.html:348
 msgid "Invite"
 msgstr ""
 
@@ -4800,13 +4893,33 @@ msgid "Update organization"
 msgstr "계정 생성하기"
 
 #: warehouse/templates/manage/organization/settings.html:155
-#: warehouse/templates/manage/organization/settings.html:167
+#, fuzzy
+#| msgid "Account details"
+msgid "Billing details"
+msgstr "계정 상세 정보"
+
+#: warehouse/templates/manage/organization/settings.html:157
+msgid "Billing status"
+msgstr ""
+
+#: warehouse/templates/manage/organization/settings.html:161
+msgid "Billing email"
+msgstr ""
+
+#: warehouse/templates/manage/organization/settings.html:166
+#, fuzzy
+#| msgid "Manage"
+msgid "Manage billing"
+msgstr "관리"
+
+#: warehouse/templates/manage/organization/settings.html:176
+#: warehouse/templates/manage/organization/settings.html:197
 #, fuzzy
 #| msgid "Manage '%(project_name)s'"
 msgid "Change organization account name"
 msgstr "'%(project_name)s' 관리"
 
-#: warehouse/templates/manage/organization/settings.html:160
+#: warehouse/templates/manage/organization/settings.html:181
 #, fuzzy
 #| msgid "You will not be able to recover your account after you delete it"
 msgid ""
@@ -4814,26 +4927,32 @@ msgid ""
 "your organization."
 msgstr "한 번 삭제된 계정은 복구할 수 없습니다"
 
-#: warehouse/templates/manage/organization/settings.html:167
+#: warehouse/templates/manage/organization/settings.html:197
+#, fuzzy
+#| msgid "Manage '%(project_name)s'"
+msgid "Change organization account name for"
+msgstr "'%(project_name)s' 관리"
+
+#: warehouse/templates/manage/organization/settings.html:197
 #, fuzzy
 #| msgid "Create an account"
 msgid "Current organization account name"
 msgstr "계정 생성하기"
 
-#: warehouse/templates/manage/organization/settings.html:174
-#: warehouse/templates/manage/organization/settings.html:208
+#: warehouse/templates/manage/organization/settings.html:204
+#: warehouse/templates/manage/organization/settings.html:238
 #, fuzzy
 #| msgid "Create an account"
 msgid "Delete organization"
 msgstr "계정 생성하기"
 
-#: warehouse/templates/manage/organization/settings.html:177
+#: warehouse/templates/manage/organization/settings.html:207
 #, fuzzy
 #| msgid "Create an account"
 msgid "Cannot delete organization"
 msgstr "계정 생성하기"
 
-#: warehouse/templates/manage/organization/settings.html:179
+#: warehouse/templates/manage/organization/settings.html:209
 #, fuzzy, python-format
 #| msgid ""
 #| "\n"
@@ -4859,7 +4978,7 @@ msgstr[0] ""
 "입니다.\n"
 "        "
 
-#: warehouse/templates/manage/organization/settings.html:184
+#: warehouse/templates/manage/organization/settings.html:214
 #, fuzzy
 #| msgid ""
 #| "\n"
@@ -4887,13 +5006,13 @@ msgstr[0] ""
 "다.\n"
 "        "
 
-#: warehouse/templates/manage/organization/settings.html:206
+#: warehouse/templates/manage/organization/settings.html:236
 #, fuzzy
 #| msgid "You will not be able to recover your account after you delete it"
 msgid "You will not be able to recover your organization after you delete it."
 msgstr "한 번 삭제된 계정은 복구할 수 없습니다"
 
-#: warehouse/templates/manage/organization/settings.html:208
+#: warehouse/templates/manage/organization/settings.html:238
 #, fuzzy
 #| msgid "Project documentation"
 msgid "Organization Name"
@@ -5212,7 +5331,7 @@ msgid "workflow.yml"
 msgstr ""
 
 #: warehouse/templates/manage/project/publishing.html:118
-#: warehouse/templates/manage/project/roles.html:324
+#: warehouse/templates/manage/project/roles.html:309
 #: warehouse/templates/manage/team/roles.html:110
 msgid "Add"
 msgstr ""
@@ -5327,6 +5446,12 @@ msgstr "새 파일 업로드"
 #: warehouse/templates/manage/project/release.html:116
 msgid "No files found"
 msgstr "파일이 없습니다"
+
+#: warehouse/templates/manage/project/release.html:118
+#: warehouse/templates/manage/project/releases.html:172
+#: warehouse/templates/manage/project/settings.html:111
+msgid "Dismiss"
+msgstr "확인"
 
 #: warehouse/templates/manage/project/release.html:119
 #, python-format
@@ -5624,29 +5749,35 @@ msgid ""
 "%(project_name)s."
 msgstr ""
 
+#: warehouse/templates/manage/project/roles.html:38
+#, fuzzy
+#| msgid "Project links"
+msgid "Project Roles"
+msgstr "프로젝트 링크"
+
 #: warehouse/templates/manage/project/roles.html:39
 #: warehouse/templates/pages/help.html:569
 msgid "There are two possible roles for collaborators:"
 msgstr ""
 
 #: warehouse/templates/manage/project/roles.html:41
-#: warehouse/templates/manage/project/roles.html:172
-#: warehouse/templates/manage/project/roles.html:181
+#: warehouse/templates/manage/project/roles.html:110
+#: warehouse/templates/manage/project/roles.html:119
+#: warehouse/templates/manage/project/roles.html:165
+#: warehouse/templates/manage/project/roles.html:174
 msgid "Maintainer"
 msgstr "관리자"
 
 #: warehouse/templates/manage/project/roles.html:42
 msgid ""
-"Has permissions to <strong>Upload</strong> releases for a package. Can "
-"upload releases. Cannot invite collaborators. Cannot delete files, releases, "
-"or the project."
+"Has permissions to upload releases for the project. Can upload releases. "
+"Cannot invite collaborators. Cannot delete files, releases, or the project."
 msgstr ""
 
 #: warehouse/templates/manage/project/roles.html:44
 msgid ""
-"Has permissions to <strong>Administer</strong> the entire project. Can "
-"upload releases. Can invite other collaborators. Can delete files, releases, "
-"or the entire project."
+"Has permissions to administer the project. Can upload releases. Can invite "
+"other collaborators. Can delete files, releases, or the entire project."
 msgstr ""
 
 #: warehouse/templates/manage/project/roles.html:48
@@ -5661,7 +5792,7 @@ msgstr "'%(project_name)s' 관리"
 msgid "Collaborator"
 msgstr "공동작업자"
 
-#: warehouse/templates/manage/project/roles.html:69
+#: warehouse/templates/manage/project/roles.html:68
 #, fuzzy, python-format
 #| msgid "Create an account"
 msgid "%(count)s organization owner"
@@ -5669,92 +5800,71 @@ msgid_plural "%(count)s organization owners"
 msgstr[0] "계정 생성하기"
 
 #: warehouse/templates/manage/project/roles.html:82
-#: warehouse/templates/manage/project/roles.html:115
-#: warehouse/templates/manage/project/roles.html:126
-#: warehouse/templates/manage/project/roles.html:195
 #, fuzzy
-#| msgid "Admin"
-msgid "Administer"
-msgstr "관리자"
+#| msgid "Create an account"
+msgid "Cannot remove organization owners"
+msgstr "계정 생성하기"
 
-#: warehouse/templates/manage/project/roles.html:86
-#, fuzzy
-#| msgid "Cannot remove yourself as owner"
-msgid "Cannot remove organization owners with Administer permissions"
-msgstr "스스로를 소유자에서 제거할 수 없습니다"
-
-#: warehouse/templates/manage/project/roles.html:100
+#: warehouse/templates/manage/project/roles.html:96
 #, python-format
 msgid "%(count)s team member"
 msgid_plural "%(count)s team members"
 msgstr[0] ""
 
-#: warehouse/templates/manage/project/roles.html:117
-#: warehouse/templates/manage/project/roles.html:126
-#: warehouse/templates/manage/project/roles.html:197
+#: warehouse/templates/manage/project/roles.html:134
 #, fuzzy
-#| msgid "Upload date"
-msgid "Upload"
-msgstr "업로드 날짜"
+#| msgid "Cannot remove yourself as owner"
+msgid "Cannot remove your own team as Owner"
+msgstr "스스로를 소유자에서 제거할 수 없습니다"
 
-#: warehouse/templates/manage/project/roles.html:132
-#, fuzzy
-#| msgid "Permissions"
-msgid "Save permissions"
-msgstr "권한"
-
-#: warehouse/templates/manage/project/roles.html:141
-msgid "Cannot remove your own team with Administer permissions"
-msgstr ""
-
-#: warehouse/templates/manage/project/roles.html:144
-#: warehouse/templates/manage/project/roles.html:145
-#: warehouse/templates/manage/project/roles.html:206
-#: warehouse/templates/manage/project/roles.html:207
+#: warehouse/templates/manage/project/roles.html:137
+#: warehouse/templates/manage/project/roles.html:138
+#: warehouse/templates/manage/project/roles.html:192
+#: warehouse/templates/manage/project/roles.html:193
 #, fuzzy, python-format
 #| msgid "Remove %(user)s from this project"
 msgid "Remove %(collaborator)s from this project"
 msgstr "%(user)s 사용자를 프로젝트에서 제거하기"
 
-#: warehouse/templates/manage/project/roles.html:203
+#: warehouse/templates/manage/project/roles.html:189
 #, fuzzy
 #| msgid "Cannot remove yourself as owner"
 msgid "Cannot remove yourself as Owner"
 msgstr "스스로를 소유자에서 제거할 수 없습니다"
 
-#: warehouse/templates/manage/project/roles.html:251
+#: warehouse/templates/manage/project/roles.html:236
 #, fuzzy
 #| msgid "Add collaborator"
 msgid "Add internal collaborator"
 msgstr "공동작업자 추가"
 
-#: warehouse/templates/manage/project/roles.html:258
+#: warehouse/templates/manage/project/roles.html:243
 msgid "️Team or member?"
 msgstr ""
 
-#: warehouse/templates/manage/project/roles.html:268
+#: warehouse/templates/manage/project/roles.html:253
 msgid "Add a team or an individual member as a collaborator."
 msgstr ""
 
-#: warehouse/templates/manage/project/roles.html:276
+#: warehouse/templates/manage/project/roles.html:261
 #, fuzzy
 #| msgid "Manage project"
 msgid "️Name of team"
 msgstr "프로젝트 관리"
 
-#: warehouse/templates/manage/project/roles.html:280
+#: warehouse/templates/manage/project/roles.html:265
 #, fuzzy
 #| msgid "You are not an owner of this project"
 msgid "There are no teams in the organization."
 msgstr "이 프로젝트의 소유자가 아닙니다"
 
-#: warehouse/templates/manage/project/roles.html:331
+#: warehouse/templates/manage/project/roles.html:316
 #, fuzzy
 #| msgid "Add collaborator"
 msgid "Invite external collaborator"
 msgstr "공동작업자 추가"
 
-#: warehouse/templates/manage/project/roles.html:333
+#: warehouse/templates/manage/project/roles.html:318
 #, fuzzy
 #| msgid "Add collaborator"
 msgid "Invite collaborator"
@@ -8472,6 +8582,26 @@ msgstr[0] ""
 "                  '%(filters)s' 필터의 결과는 없습니다\n"
 "                "
 
+#, fuzzy
+#~| msgid "Admin"
+#~ msgid "Administer"
+#~ msgstr "관리자"
+
+#, fuzzy
+#~| msgid "Cannot remove yourself as owner"
+#~ msgid "Cannot remove organization owners with Administer permissions"
+#~ msgstr "스스로를 소유자에서 제거할 수 없습니다"
+
+#, fuzzy
+#~| msgid "Upload date"
+#~ msgid "Upload"
+#~ msgstr "업로드 날짜"
+
+#, fuzzy
+#~| msgid "Permissions"
+#~ msgid "Save permissions"
+#~ msgstr "권한"
+
 #~ msgid "Journal"
 #~ msgstr "저널"
 
@@ -8500,9 +8630,6 @@ msgstr[0] ""
 #, python-format
 #~ msgid "History for %(project_name)s"
 #~ msgstr "%(project_name)s 이력"
-
-#~ msgid "Action"
-#~ msgstr "작업"
 
 #~ msgid "Date"
 #~ msgstr "날짜"

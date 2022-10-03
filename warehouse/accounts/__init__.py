@@ -127,3 +127,11 @@ def includeme(config):
     config.register_service_factory(
         RateLimit(password_reset_ratelimit_string), IRateLimiter, name="password.reset"
     )
+    verify_email_ratelimit_string = config.registry.settings.get(
+        "warehouse.account.verify_email_ratelimit_string"
+    )
+    config.register_service_factory(
+        RateLimit(verify_email_ratelimit_string),
+        IRateLimiter,
+        name="email.verify",
+    )

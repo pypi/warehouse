@@ -473,16 +473,30 @@ class ManageAccountViews:
         if email.verified:
             self.request.session.flash("Email is already verified", queue="error")
         else:
-            send_email_verification_email(self.request, (self.request.user, email))
-            email.user.record_event(
-                tag="account:email:reverify",
-                ip_address=self.request.remote_addr,
-                additional={"email": email.email},
+            verify_email_ratelimit = self.request.find_service(
+                IRateLimiter, name="email.verify"
             )
+            if verify_email_ratelimit.test(self.request.user.id):
+                send_email_verification_email(self.request, (self.request.user, email))
+                verify_email_ratelimit.hit(self.request.user.id)
+                email.user.record_event(
+                    tag="account:email:reverify",
+                    ip_address=self.request.remote_addr,
+                    additional={"email": email.email},
+                )
 
-            self.request.session.flash(
-                f"Verification email for {email.email} resent", queue="success"
-            )
+                self.request.session.flash(
+                    f"Verification email for {email.email} resent", queue="success"
+                )
+            else:
+                self.request.session.flash(
+                    (
+                        "Too many incomplete attempts to verify email address(es) for "
+                        f"{self.request.user.username}. Complete a pending "
+                        "verification or wait before attempting again."
+                    ),
+                    queue="error",
+                )
 
         return HTTPSeeOther(self.request.path)
 
