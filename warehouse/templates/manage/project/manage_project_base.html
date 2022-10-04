@@ -33,17 +33,20 @@
         {% if not request.flags.enabled(AdminFlagValue.DISABLE_ORGANIZATIONS) and project.organization and request.user in project.organization.users %}
         <li class="breadcrumbs__breadcrumb">
           <a href="{{ request.route_path('manage.organizations') }}">
+            <i class="fa fa-sm fa-sitemap" aria-hidden="true"></i>
             {% trans %}Your organizations{% endtrans %}
           </a>
         </li>
         <li class="breadcrumbs__breadcrumb">
           <a href="{{ request.route_path('manage.organization.projects', organization_name=project.organization.normalized_name) }}">
+            <i class="fa fa-sm fa-cubes" aria-hidden="true"></i>
             {% trans organization_name=project.organization.name %}{{ organization_name }} projects{% endtrans %}
           </a>
         </li>
         {% else %}
         <li class="breadcrumbs__breadcrumb">
           <a href="{{ request.route_path('manage.projects') }}">
+            <i class="fa fa-sm fa-cubes" aria-hidden="true"></i>
             {% trans %}Your projects{% endtrans %}
           </a>
         </li>

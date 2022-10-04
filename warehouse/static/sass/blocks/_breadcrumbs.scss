@@ -49,11 +49,20 @@
     display: inline-block;
     float: left;
 
+    a {
+      @include link-without-underline;
+    }
+
+    .fa {
+      margin-right: 0.1em;
+    }
+
     &:not(:last-child):after {
       content: "\f054";
       font-family: "Font Awesome 5 Free";
       font-weight: 900;
-      margin: 0 5px;
+      margin-left: 4px;
+      margin-right: 6px;
       color: $light-grey;
       font-size: 12px;
     }
