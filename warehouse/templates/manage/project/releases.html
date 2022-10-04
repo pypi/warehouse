@@ -171,7 +171,7 @@
   {% set yanked_releases = project.releases|selectattr("yanked")|list %}
   {% if yanked_releases %}
   <h2>
-    {% trans %}Yanked Releases{% endtrans %}
+    {% trans %}Yanked releases{% endtrans %}
     <span class="badge badge--neutral">{{ yanked_releases|length }}</span>
   </h2>
   {{ release_table(yanked_releases, show_yanked_reason=True) }}

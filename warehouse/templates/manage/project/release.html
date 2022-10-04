@@ -25,17 +25,28 @@
 </li>
 <li class="breadcrumbs__breadcrumb">
   <a>
-    {% trans version=release.version %}Release version {{ version }}{% endtrans %}
+    {% trans version=release.version %}Version {{ version }}{% endtrans %}
   </a>
 </li>
 {% endblock %}
 
 {% block main %}
   <div class="heading-wsubtitle heading-wsubtitle--in-content">
-    <h2 class="heading-wsubtitle__heading">{% trans version=release.version %}Release version {{ version }}{% endtrans %}</h2>
-    <p class="heading-wsubtitle__subtitle">
+    <h2 class="heading-wsubtitle__heading">
+      {% if not release.yanked %}
+      {% set releases = project.releases|rejectattr("yanked")|list %}
+      <a href="{{ request.route_path('manage.project.releases', project_name=project.normalized_name)}}">{% trans %}Releases{% endtrans %}</a>
+      <span class="badge badge--neutral">{{ releases|length }}</span>
+      {% else %}
+      {% set yanked_releases = project.releases|selectattr("yanked")|list %}
+      <a href="{{ request.route_path('manage.project.releases', project_name=project.normalized_name)}}">{% trans %}Yanked releases{% endtrans %}</a>
+      <span class="badge badge--neutral">{{ yanked_releases|length }}</span>
+      {% endif %}
+    </h2>
+    <h3 class="heading-wsubtitle__subtitle">
+      <strong>{% trans version=release.version %}Version {{ version }}{% endtrans %}</strong> —
       <a href="{{ request.route_path('packaging.release', name=release.project.name, version=release.version) }}">{% trans %}view release{% endtrans %}</a>
-    </p>
+    </h3>
   </div>
 
   {% if files %}
