@@ -312,23 +312,17 @@ msgid ""
 "description with 400 characters or less."
 msgstr ""
 
-#: warehouse/manage/forms.py:615
-msgid ""
-"No organization owner, manager, or member found with that username. "
-"Please try again."
-msgstr ""
-
-#: warehouse/manage/forms.py:631
+#: warehouse/manage/forms.py:630
 msgid "Choose a team name with 50 characters or less."
 msgstr ""
 
-#: warehouse/manage/forms.py:637
+#: warehouse/manage/forms.py:636
 msgid ""
 "The team name is invalid. Team names cannot start or end with a space, "
 "period, underscore, hyphen, or slash. Choose a different team name."
 msgstr ""
 
-#: warehouse/manage/forms.py:665
+#: warehouse/manage/forms.py:664
 msgid "This team name has already been used. Choose a different team name."
 msgstr ""
 
@@ -354,11 +348,11 @@ msgid ""
 "cannot be added as a ${role_name} for organization"
 msgstr ""
 
-#: warehouse/manage/views.py:1994 warehouse/manage/views.py:4166
+#: warehouse/manage/views.py:1994 warehouse/manage/views.py:4153
 msgid "User '${username}' already has an active invite. Please try again later."
 msgstr ""
 
-#: warehouse/manage/views.py:2051 warehouse/manage/views.py:4233
+#: warehouse/manage/views.py:2051 warehouse/manage/views.py:4220
 msgid "Invitation sent to '${username}'"
 msgstr ""
 
@@ -366,43 +360,39 @@ msgstr ""
 msgid "Could not find organization invitation."
 msgstr ""
 
-#: warehouse/manage/views.py:2105 warehouse/manage/views.py:4277
+#: warehouse/manage/views.py:2105 warehouse/manage/views.py:4264
 msgid "Invitation already expired."
 msgstr ""
 
-#: warehouse/manage/views.py:2138 warehouse/manage/views.py:4301
+#: warehouse/manage/views.py:2138 warehouse/manage/views.py:4288
 msgid "Invitation revoked from '${username}'."
 msgstr ""
 
-#: warehouse/manage/views.py:2528
-msgid "User '${username}' is already a team member"
-msgstr ""
-
-#: warehouse/manage/views.py:2948
+#: warehouse/manage/views.py:2935
 msgid ""
 "There have been too many attempted OpenID Connect registrations. Try "
 "again later."
 msgstr ""
 
-#: warehouse/manage/views.py:3943
+#: warehouse/manage/views.py:3930
 msgid "Team '${team_name}' already has ${role_name} role for project"
 msgstr ""
 
-#: warehouse/manage/views.py:4051
+#: warehouse/manage/views.py:4038
 msgid "User '${username}' already has ${role_name} role for project"
 msgstr ""
 
-#: warehouse/manage/views.py:4120
+#: warehouse/manage/views.py:4107
 msgid "${username} is now ${role} of the '${project_name}' project."
 msgstr ""
 
-#: warehouse/manage/views.py:4153
+#: warehouse/manage/views.py:4140
 msgid ""
 "User '${username}' does not have a verified primary email address and "
 "cannot be added as a ${role_name} for project"
 msgstr ""
 
-#: warehouse/manage/views.py:4266
+#: warehouse/manage/views.py:4253
 msgid "Could not find role invitation."
 msgstr ""
 
@@ -1091,7 +1081,7 @@ msgstr ""
 #: warehouse/templates/manage/project/roles.html:300
 #: warehouse/templates/manage/project/roles.html:327
 #: warehouse/templates/manage/project/roles.html:339
-#: warehouse/templates/manage/team/roles.html:96
+#: warehouse/templates/manage/team/roles.html:100
 #: warehouse/templates/manage/team/settings.html:35
 #: warehouse/templates/re-auth.html:51
 msgid "(required)"
@@ -1192,7 +1182,7 @@ msgstr ""
 #: warehouse/templates/manage/project/roles.html:194
 #: warehouse/templates/manage/project/roles.html:287
 #: warehouse/templates/manage/project/roles.html:330
-#: warehouse/templates/manage/team/roles.html:99
+#: warehouse/templates/manage/team/roles.html:103
 msgid "Username"
 msgstr ""
 
@@ -1235,7 +1225,7 @@ msgstr ""
 #: warehouse/templates/manage/organization/roles.html:136
 #: warehouse/templates/manage/project/roles.html:148
 #: warehouse/templates/manage/project/roles.html:203
-#: warehouse/templates/manage/team/roles.html:53
+#: warehouse/templates/manage/team/roles.html:54
 msgid "Avatar for {user} from gravatar.com"
 msgstr ""
 
@@ -4192,7 +4182,7 @@ msgid "Can manage billing for the organization."
 msgstr ""
 
 #: warehouse/templates/manage/organization/roles.html:55
-#: warehouse/templates/manage/team/roles.html:39
+#: warehouse/templates/manage/team/roles.html:40
 #, python-format
 msgid "Users who can manage %(organization_name)s"
 msgstr ""
@@ -4200,8 +4190,8 @@ msgstr ""
 #: warehouse/templates/manage/organization/roles.html:59
 #: warehouse/templates/manage/organization/roles.html:174
 #: warehouse/templates/manage/project/roles.html:325
-#: warehouse/templates/manage/team/roles.html:43
-#: warehouse/templates/manage/team/roles.html:94
+#: warehouse/templates/manage/team/roles.html:44
+#: warehouse/templates/manage/team/roles.html:98
 msgid "User"
 msgstr ""
 
@@ -4620,7 +4610,7 @@ msgstr ""
 
 #: warehouse/templates/manage/project/publishing.html:118
 #: warehouse/templates/manage/project/roles.html:309
-#: warehouse/templates/manage/team/roles.html:110
+#: warehouse/templates/manage/team/roles.html:117
 msgid "Add"
 msgstr ""
 
@@ -5385,17 +5375,31 @@ msgstr ""
 msgid "Use this page to manage which organization users are members of this team."
 msgstr ""
 
-#: warehouse/templates/manage/team/roles.html:73
+#: warehouse/templates/manage/team/roles.html:74
 msgid "Cannot remove other people from the team"
 msgstr ""
 
-#: warehouse/templates/manage/team/roles.html:76
+#: warehouse/templates/manage/team/roles.html:77
 #, python-format
 msgid "Remove %(user)s from this team"
 msgstr ""
 
 #: warehouse/templates/manage/team/roles.html:89
+msgid ""
+"There are no members in your team, yet. Get started by adding a team "
+"member below."
+msgstr ""
+
+#: warehouse/templates/manage/team/roles.html:93
 msgid "Add member"
+msgstr ""
+
+#: warehouse/templates/manage/team/roles.html:113
+#, python-format
+msgid ""
+"Add an organization owner, manager, or member to the team. <a "
+"href=\"%(href)s\">Manage organization members</a> to view all users in "
+"the organization or to invite a user to the organization."
 msgstr ""
 
 #: warehouse/templates/manage/team/settings.html:17
