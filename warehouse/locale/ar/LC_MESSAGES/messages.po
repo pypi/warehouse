@@ -33,13 +33,13 @@ msgstr ""
 "X-Generator: Weblate 4.14.1-dev\n"
 "Generated-By: Babel 2.7.0\n"
 
-#: warehouse/views.py:128
+#: warehouse/views.py:125
 msgid ""
 "Two-factor authentication must be enabled on your account to perform this "
 "action."
 msgstr "يجب تمكين المصادقة الثنائية على حسابك لتنفيذ هذا الإجراء."
 
-#: warehouse/views.py:291
+#: warehouse/views.py:288
 msgid "Locale updated"
 msgstr "تم تحديث الإعدادات المحلية"
 
@@ -169,7 +169,7 @@ msgstr "موثق بالفعل"
 msgid "Successful WebAuthn assertion"
 msgstr "توكيد WebAuthn ناجح"
 
-#: warehouse/accounts/views.py:447 warehouse/manage/views.py:939
+#: warehouse/accounts/views.py:447 warehouse/manage/views.py:954
 msgid "Recovery code accepted. The supplied code cannot be used again."
 msgstr "تم قبول رمز الاسترداد. لا يمكن استخدام الرمز مرة أخرى."
 
@@ -181,126 +181,126 @@ msgstr ""
 "تسجيل المستخدمين الجدد موقوف مؤقتاً. للتفاصيل: https://pypi.org/help#admin-"
 "intervention."
 
-#: warehouse/accounts/views.py:651
+#: warehouse/accounts/views.py:653
 msgid "Expired token: request a new password reset link"
 msgstr "رمز منتهي الصلاحية: برجاء طلب رابط جديد لتغيير كلمة السر"
 
-#: warehouse/accounts/views.py:653
+#: warehouse/accounts/views.py:655
 msgid "Invalid token: request a new password reset link"
 msgstr "رمز غير صحيح: برجاء طلب رابط جديد لتغيير كلمة السر"
 
-#: warehouse/accounts/views.py:655 warehouse/accounts/views.py:753
-#: warehouse/accounts/views.py:850 warehouse/accounts/views.py:1017
+#: warehouse/accounts/views.py:657 warehouse/accounts/views.py:756
+#: warehouse/accounts/views.py:855 warehouse/accounts/views.py:1022
 msgid "Invalid token: no token supplied"
 msgstr "رمز غير صحيح: لا يوجد رمز"
 
-#: warehouse/accounts/views.py:659
+#: warehouse/accounts/views.py:661
 msgid "Invalid token: not a password reset token"
 msgstr "رمز غير صحيح: ليس رمزاً لتغيير كلمة السر"
 
-#: warehouse/accounts/views.py:664
+#: warehouse/accounts/views.py:666
 msgid "Invalid token: user not found"
 msgstr "رمز غير صحيح: لم يتم العثور على المستخدم"
 
-#: warehouse/accounts/views.py:675
+#: warehouse/accounts/views.py:677
 msgid "Invalid token: user has logged in since this token was requested"
 msgstr "رمز غير صحيح: المستخدم سجل الدخول منذ وقت طلب هذا الرمز"
 
-#: warehouse/accounts/views.py:693
+#: warehouse/accounts/views.py:695
 msgid ""
 "Invalid token: password has already been changed since this token was "
 "requested"
 msgstr "رمز غير صحيح: كلمة السر تغيرت بالفعل منذ وقت طلب هذا الرمز"
 
-#: warehouse/accounts/views.py:722
+#: warehouse/accounts/views.py:724
 msgid "You have reset your password"
 msgstr "لقد قمت بتغيير كلمة السر الخاصة بك"
 
-#: warehouse/accounts/views.py:749
+#: warehouse/accounts/views.py:752
 msgid "Expired token: request a new email verification link"
 msgstr "رمز منتهي الصلاحية: برجاء طلب رابط جديد لتأكيد البريد الاليكتروني"
 
-#: warehouse/accounts/views.py:751
+#: warehouse/accounts/views.py:754
 msgid "Invalid token: request a new email verification link"
 msgstr "رمز غير صحيح: برجاء طلب رابط جديد لتأكيد البريد الاليكتروني"
 
-#: warehouse/accounts/views.py:757
+#: warehouse/accounts/views.py:760
 msgid "Invalid token: not an email verification token"
 msgstr "رمز غير صحيح: ليس رمزاً لتأكيد البريد الاليكتروني"
 
-#: warehouse/accounts/views.py:766
+#: warehouse/accounts/views.py:769
 msgid "Email not found"
 msgstr "لم يتم العثور على البريد الاليكتروني"
 
-#: warehouse/accounts/views.py:769
+#: warehouse/accounts/views.py:772
 msgid "Email already verified"
 msgstr "تم تأكيد البريد الاليكتروني بالفعل"
 
-#: warehouse/accounts/views.py:784
+#: warehouse/accounts/views.py:789
 msgid "You can now set this email as your primary address"
 msgstr "تستطيع الآن استخدام هذا البريد الاليكتروني كبريدك الاليكتروني الأساسي"
 
-#: warehouse/accounts/views.py:788
+#: warehouse/accounts/views.py:793
 msgid "This is your primary address"
 msgstr "هذا بريدك الاليكتروني الأساسي"
 
-#: warehouse/accounts/views.py:793
+#: warehouse/accounts/views.py:798
 msgid "Email address ${email_address} verified. ${confirm_message}."
 msgstr "تم تأكيد البريد الاليكتروني ${email_address}. ${confirm_message}."
 
-#: warehouse/accounts/views.py:846
+#: warehouse/accounts/views.py:851
 msgid "Expired token: request a new organization invitation"
 msgstr "رمز منتهي الصلاحية: قم بطلب رابط دعوة جديد للمنظمة"
 
-#: warehouse/accounts/views.py:848
+#: warehouse/accounts/views.py:853
 msgid "Invalid token: request a new organization invitation"
 msgstr "رمز غير صالح: قم بطلب دعوة جديدة"
 
-#: warehouse/accounts/views.py:854
+#: warehouse/accounts/views.py:859
 msgid "Invalid token: not an organization invitation token"
 msgstr "رمز غير صالح: ليس رمزاً لدعوة إلى مؤسسة"
 
-#: warehouse/accounts/views.py:858
+#: warehouse/accounts/views.py:863
 msgid "Organization invitation is not valid."
 msgstr "دعوة المنظمة غير صالحة."
 
-#: warehouse/accounts/views.py:867
+#: warehouse/accounts/views.py:872
 msgid "Organization invitation no longer exists."
 msgstr "دعوة المنظمة لم تعد صالحة."
 
-#: warehouse/accounts/views.py:916
+#: warehouse/accounts/views.py:921
 msgid "Invitation for '${organization_name}' is declined."
 msgstr "تم رفض دعوة '${organization_name}'."
 
-#: warehouse/accounts/views.py:979
+#: warehouse/accounts/views.py:984
 msgid "You are now ${role} of the '${organization_name}' organization."
 msgstr "تم تحديث صلاحياتك لتكن ${role} فى المشروع ${organization_name}."
 
-#: warehouse/accounts/views.py:1013
+#: warehouse/accounts/views.py:1018
 msgid "Expired token: request a new project role invitation"
 msgstr "رمز منتهي الصلاحية: قم بطلب رابط دعوة جديد لدور في المشروع"
 
-#: warehouse/accounts/views.py:1015
+#: warehouse/accounts/views.py:1020
 msgid "Invalid token: request a new project role invitation"
 msgstr "رمز منتهي الصلاحية: قم بطلب رابط دعوة جديد لدور في المشروع"
 
-#: warehouse/accounts/views.py:1021
+#: warehouse/accounts/views.py:1026
 msgid "Invalid token: not a collaboration invitation token"
 msgstr "رمز غير صحيح: ليس رمزاً لدعوة مشاركة"
 
-#: warehouse/accounts/views.py:1025
+#: warehouse/accounts/views.py:1030
 msgid "Role invitation is not valid."
 msgstr "دعوة الدور غير صالحة."
 
-#: warehouse/accounts/views.py:1040
+#: warehouse/accounts/views.py:1045
 msgid "Role invitation no longer exists."
 msgstr "دعوة الدور لم تعد صالحة."
 
-#: warehouse/accounts/views.py:1052
+#: warehouse/accounts/views.py:1057
 msgid "Invitation for '${project_name}' is declined."
 msgstr "دعوة '${project_name}' تم رفضها."
 
-#: warehouse/accounts/views.py:1119
+#: warehouse/accounts/views.py:1124
 msgid "You are now ${role} of the '${project_name}' project."
 msgstr "تم تحديث صلاحياتك لتكن ${role} فى المشروع ${project_name}."
 
@@ -366,25 +366,19 @@ msgid ""
 "with 400 characters or less."
 msgstr "وصف المؤسسة هذا طويل للغاية. اختر وصف مؤسسة طوله 400 حرفاً أو أقل."
 
-#: warehouse/manage/forms.py:615
-msgid ""
-"No organization owner, manager, or member found with that username. Please "
-"try again."
-msgstr ""
-
-#: warehouse/manage/forms.py:631
+#: warehouse/manage/forms.py:630
 #, fuzzy
 #| msgid "Choose a username with 50 characters or less."
 msgid "Choose a team name with 50 characters or less."
 msgstr "الرجاء اختيار اسم مستخدم طوله 50 حرفاً أو أقل."
 
-#: warehouse/manage/forms.py:637
+#: warehouse/manage/forms.py:636
 msgid ""
 "The team name is invalid. Team names cannot start or end with a space, "
 "period, underscore, hyphen, or slash. Choose a different team name."
 msgstr ""
 
-#: warehouse/manage/forms.py:665
+#: warehouse/manage/forms.py:664
 #, fuzzy
 #| msgid ""
 #| "This username is already being used by another account. Choose a "
@@ -392,27 +386,27 @@ msgstr ""
 msgid "This team name has already been used. Choose a different team name."
 msgstr "اسم المستخدم هذا يستخدمه حساب آخر. برجاء اختيار اسم مستخدم مختلف."
 
-#: warehouse/manage/views.py:366
+#: warehouse/manage/views.py:367
 msgid "Email ${email_address} added - check your email for a verification link"
 msgstr ""
 "تم إضافة البريد الاليكتروني ${email_address} - برجاء التحقق من بريدك "
 "الايكتروني للحصول على رابط التأكيد"
 
-#: warehouse/manage/views.py:887
+#: warehouse/manage/views.py:902
 msgid "Recovery codes already generated"
 msgstr "تم اصدار رمز الأصلاح"
 
-#: warehouse/manage/views.py:888
+#: warehouse/manage/views.py:903
 msgid "Generating new recovery codes will invalidate your existing codes."
 msgstr "اصدار رمز اصلاح جديد سوف يوقف رمز الأصلاح الحالى."
 
-#: warehouse/manage/views.py:1955
+#: warehouse/manage/views.py:1970
 #, fuzzy
 #| msgid "User '${username}' already has ${role_name} role for project"
 msgid "User '${username}' already has ${role_name} role for organization"
 msgstr "المستخدم '{username}' له صلاحيات ${rol_name} فى المشروع"
 
-#: warehouse/manage/views.py:1966
+#: warehouse/manage/views.py:1981
 #, fuzzy
 #| msgid ""
 #| "User '${username}' does not have a verified primary email address and "
@@ -424,38 +418,32 @@ msgstr ""
 "المستخدم '${username}' ليس لديه بريد إلكتروني أولي صالح ولا يمكن إضافتة كـ"
 "${role_name} للمشروع"
 
-#: warehouse/manage/views.py:1980 warehouse/manage/views.py:4152
+#: warehouse/manage/views.py:1995 warehouse/manage/views.py:4191
 msgid ""
 "User '${username}' already has an active invite. Please try again later."
 msgstr ""
 "دعوة المستخدم '${username}' قد انتهت صلاحيتها. الرجاء المحاولة مرة أخرى "
 "لاحقاً."
 
-#: warehouse/manage/views.py:2037 warehouse/manage/views.py:4219
+#: warehouse/manage/views.py:2052 warehouse/manage/views.py:4258
 msgid "Invitation sent to '${username}'"
 msgstr "تم إرسال الدعوة إلي '${username}'"
 
-#: warehouse/manage/views.py:2077
+#: warehouse/manage/views.py:2092
 #, fuzzy
 #| msgid "Could not find role invitation."
 msgid "Could not find organization invitation."
 msgstr "لم يتم العثور علي الدعوة."
 
-#: warehouse/manage/views.py:2091 warehouse/manage/views.py:4263
+#: warehouse/manage/views.py:2106 warehouse/manage/views.py:4302
 msgid "Invitation already expired."
 msgstr "الدعوه لم تعد صالحه."
 
-#: warehouse/manage/views.py:2124 warehouse/manage/views.py:4287
+#: warehouse/manage/views.py:2139 warehouse/manage/views.py:4326
 msgid "Invitation revoked from '${username}'."
 msgstr "تم إنهاء الدعوة من خلال '${username}'."
 
-#: warehouse/manage/views.py:2514
-#, fuzzy
-#| msgid "User '${username}' already has ${role_name} role for project"
-msgid "User '${username}' is already a team member"
-msgstr "المستخدم '{username}' له صلاحيات ${rol_name} فى المشروع"
-
-#: warehouse/manage/views.py:2934
+#: warehouse/manage/views.py:2936
 #, fuzzy
 #| msgid ""
 #| "There have been too many unsuccessful login attempts. Try again later."
@@ -465,23 +453,23 @@ msgid ""
 msgstr ""
 "كانت هناك محاولات تسجيل دخول فاشلة كثيرة جداً. برجاء المحاولة في وقت لاحق."
 
-#: warehouse/manage/views.py:3929
+#: warehouse/manage/views.py:3968
 #, fuzzy
 #| msgid "User '${username}' already has ${role_name} role for project"
 msgid "Team '${team_name}' already has ${role_name} role for project"
 msgstr "المستخدم '{username}' له صلاحيات ${rol_name} فى المشروع"
 
-#: warehouse/manage/views.py:4037
+#: warehouse/manage/views.py:4076
 msgid "User '${username}' already has ${role_name} role for project"
 msgstr "المستخدم '{username}' له صلاحيات ${rol_name} فى المشروع"
 
-#: warehouse/manage/views.py:4106
+#: warehouse/manage/views.py:4145
 #, fuzzy
 #| msgid "You are now ${role} of the '${project_name}' project."
 msgid "${username} is now ${role} of the '${project_name}' project."
 msgstr "تم تحديث صلاحياتك لتكن ${role} فى المشروع ${project_name}."
 
-#: warehouse/manage/views.py:4139
+#: warehouse/manage/views.py:4178
 msgid ""
 "User '${username}' does not have a verified primary email address and cannot "
 "be added as a ${role_name} for project"
@@ -489,7 +477,7 @@ msgstr ""
 "المستخدم '${username}' ليس لديه بريد إلكتروني أولي صالح ولا يمكن إضافتة كـ"
 "${role_name} للمشروع"
 
-#: warehouse/manage/views.py:4252
+#: warehouse/manage/views.py:4291
 msgid "Could not find role invitation."
 msgstr "لم يتم العثور علي الدعوة."
 
@@ -851,8 +839,8 @@ msgstr "تحويل الى اصدار الموبايل"
 #: warehouse/templates/manage/account.html:716
 #: warehouse/templates/manage/manage_base.html:293
 #: warehouse/templates/manage/manage_base.html:352
-#: warehouse/templates/manage/organization/settings.html:180
-#: warehouse/templates/manage/organization/settings.html:235
+#: warehouse/templates/manage/organization/settings.html:186
+#: warehouse/templates/manage/organization/settings.html:241
 #: warehouse/templates/manage/project/documentation.html:27
 #: warehouse/templates/manage/project/release.html:163
 #: warehouse/templates/manage/project/settings.html:126
@@ -1197,10 +1185,10 @@ msgstr "كلمة السر"
 #: warehouse/templates/manage/organization/projects.html:190
 #: warehouse/templates/manage/organization/roles.html:176
 #: warehouse/templates/manage/organization/roles.html:188
-#: warehouse/templates/manage/organization/settings.html:44
-#: warehouse/templates/manage/organization/settings.html:74
-#: warehouse/templates/manage/organization/settings.html:98
-#: warehouse/templates/manage/organization/settings.html:123
+#: warehouse/templates/manage/organization/settings.html:50
+#: warehouse/templates/manage/organization/settings.html:80
+#: warehouse/templates/manage/organization/settings.html:104
+#: warehouse/templates/manage/organization/settings.html:129
 #: warehouse/templates/manage/organization/teams.html:84
 #: warehouse/templates/manage/organizations.html:143
 #: warehouse/templates/manage/organizations.html:166
@@ -1216,7 +1204,7 @@ msgstr "كلمة السر"
 #: warehouse/templates/manage/project/roles.html:300
 #: warehouse/templates/manage/project/roles.html:327
 #: warehouse/templates/manage/project/roles.html:339
-#: warehouse/templates/manage/team/roles.html:96
+#: warehouse/templates/manage/team/roles.html:92
 #: warehouse/templates/manage/team/settings.html:35
 #: warehouse/templates/re-auth.html:51
 msgid "(required)"
@@ -1305,7 +1293,7 @@ msgid "Log in to %(title)s"
 msgstr "تسجيل الدخول الى %(title)s"
 
 #: warehouse/templates/accounts/login.html:49
-#: warehouse/templates/accounts/profile.html:40
+#: warehouse/templates/accounts/profile.html:41
 #: warehouse/templates/accounts/register.html:89
 #: warehouse/templates/email/organization-member-added/body.html:30
 #: warehouse/templates/email/organization-member-invited/body.html:30
@@ -1318,7 +1306,8 @@ msgstr "تسجيل الدخول الى %(title)s"
 #: warehouse/templates/manage/project/roles.html:194
 #: warehouse/templates/manage/project/roles.html:287
 #: warehouse/templates/manage/project/roles.html:330
-#: warehouse/templates/manage/team/roles.html:99
+#: warehouse/templates/manage/team/roles.html:73
+#: warehouse/templates/manage/team/roles.html:95
 msgid "Username"
 msgstr "اسم المستخدم"
 
@@ -1363,20 +1352,20 @@ msgstr "حساب المستخدم %(username)s"
 #: warehouse/templates/manage/organization/roles.html:136
 #: warehouse/templates/manage/project/roles.html:148
 #: warehouse/templates/manage/project/roles.html:203
-#: warehouse/templates/manage/team/roles.html:53
+#: warehouse/templates/manage/team/roles.html:54
 msgid "Avatar for {user} from gravatar.com"
 msgstr "صورة رمزية للمستخدم {user} من gravatar.com"
 
-#: warehouse/templates/accounts/profile.html:51
+#: warehouse/templates/accounts/profile.html:52
 msgid "Date joined"
 msgstr "تاريخ الانضمام"
 
-#: warehouse/templates/accounts/profile.html:52
+#: warehouse/templates/accounts/profile.html:53
 #, python-format
 msgid "Joined %(start_date)s"
 msgstr "انضم بتاريخ %(start_date)s"
 
-#: warehouse/templates/accounts/profile.html:66
+#: warehouse/templates/accounts/profile.html:67
 #, python-format
 msgid ""
 "\n"
@@ -1393,11 +1382,11 @@ msgstr[3] ""
 msgstr[4] ""
 msgstr[5] ""
 
-#: warehouse/templates/accounts/profile.html:72
+#: warehouse/templates/accounts/profile.html:73
 msgid "No projects"
 msgstr "لا توجد مشاريع"
 
-#: warehouse/templates/accounts/profile.html:81
+#: warehouse/templates/accounts/profile.html:82
 #: warehouse/templates/manage/organization/projects.html:71
 #: warehouse/templates/manage/projects.html:34
 #: warehouse/templates/manage/projects.html:104
@@ -1406,7 +1395,7 @@ msgstr "لا توجد مشاريع"
 msgid "Last released %(release_date)s"
 msgstr "آخر إصدار بتاريخ %(release_date)s"
 
-#: warehouse/templates/accounts/profile.html:89
+#: warehouse/templates/accounts/profile.html:90
 #, python-format
 msgid "%(user)s has not uploaded any projects to PyPI, yet"
 msgstr "%(user)s لم يقم برفع أي مشروع بعد."
@@ -3496,7 +3485,7 @@ msgstr[4] ""
 msgstr[5] ""
 
 #: warehouse/templates/manage/account.html:705
-#: warehouse/templates/manage/organization/settings.html:224
+#: warehouse/templates/manage/organization/settings.html:230
 #, python-format
 msgid ""
 "<a href=\"%(transfer_href)s\">transfer ownership</a> or <a href="
@@ -3505,8 +3494,8 @@ msgstr ""
 
 #: warehouse/templates/manage/account.html:714
 #: warehouse/templates/manage/account/token.html:166
-#: warehouse/templates/manage/organization/settings.html:178
-#: warehouse/templates/manage/organization/settings.html:233
+#: warehouse/templates/manage/organization/settings.html:184
+#: warehouse/templates/manage/organization/settings.html:239
 #: warehouse/templates/manage/team/settings.html:75
 msgid "Proceed with caution!"
 msgstr ""
@@ -3588,6 +3577,8 @@ msgstr ""
 #: warehouse/templates/manage/project/roles.html:139
 #: warehouse/templates/manage/project/roles.html:189
 #: warehouse/templates/manage/project/roles.html:194
+#: warehouse/templates/manage/team/roles.html:68
+#: warehouse/templates/manage/team/roles.html:73
 msgid "Remove"
 msgstr ""
 
@@ -3900,54 +3891,55 @@ msgstr ""
 msgid "Select an organization account name"
 msgstr ""
 
+#: warehouse/templates/manage/organization/settings.html:32
 #: warehouse/templates/manage/organizations.html:157
-msgid "This account name will be used in URLs on PyPI."
+msgid "This account name is used in URLs on PyPI."
 msgstr ""
 
-#: warehouse/templates/manage/organization/settings.html:65
-#: warehouse/templates/manage/organization/settings.html:89
+#: warehouse/templates/manage/organization/settings.html:71
+#: warehouse/templates/manage/organization/settings.html:95
 #: warehouse/templates/manage/organizations.html:158
 #: warehouse/templates/manage/organizations.html:180
 #: warehouse/templates/manage/organizations.html:198
 msgid "For example"
 msgstr ""
 
-#: warehouse/templates/manage/organization/settings.html:42
+#: warehouse/templates/manage/organization/settings.html:48
 #: warehouse/templates/manage/organizations.html:164
 msgid "Organization name"
 msgstr ""
 
-#: warehouse/templates/manage/organization/settings.html:48
+#: warehouse/templates/manage/organization/settings.html:54
 #: warehouse/templates/manage/organizations.html:169
 msgid "Name of your business, product, or project"
 msgstr ""
 
-#: warehouse/templates/manage/organization/settings.html:72
+#: warehouse/templates/manage/organization/settings.html:78
 #: warehouse/templates/manage/organizations.html:186
 msgid "️Organization URL"
 msgstr ""
 
-#: warehouse/templates/manage/organization/settings.html:78
+#: warehouse/templates/manage/organization/settings.html:84
 #: warehouse/templates/manage/organizations.html:192
 msgid "URL for your business, product, or project"
 msgstr ""
 
-#: warehouse/templates/manage/organization/settings.html:96
+#: warehouse/templates/manage/organization/settings.html:102
 #: warehouse/templates/manage/organizations.html:204
 msgid "Organization description"
 msgstr ""
 
-#: warehouse/templates/manage/organization/settings.html:102
+#: warehouse/templates/manage/organization/settings.html:108
 #: warehouse/templates/manage/organizations.html:209
 msgid "Description of your business, product, or project"
 msgstr ""
 
-#: warehouse/templates/manage/organization/settings.html:121
+#: warehouse/templates/manage/organization/settings.html:127
 #: warehouse/templates/manage/organizations.html:223
 msgid "️Organization type"
 msgstr ""
 
-#: warehouse/templates/manage/organization/settings.html:138
+#: warehouse/templates/manage/organization/settings.html:144
 #: warehouse/templates/manage/organizations.html:235
 msgid ""
 "Companies can create organization accounts as a paid service while community "
@@ -4595,7 +4587,7 @@ msgid "Can manage billing for the organization."
 msgstr "تسجيل مستخدم جديد"
 
 #: warehouse/templates/manage/organization/roles.html:55
-#: warehouse/templates/manage/team/roles.html:39
+#: warehouse/templates/manage/team/roles.html:40
 #, fuzzy, python-format
 #| msgid "Create an account"
 msgid "Users who can manage %(organization_name)s"
@@ -4604,8 +4596,8 @@ msgstr "تسجيل مستخدم جديد"
 #: warehouse/templates/manage/organization/roles.html:59
 #: warehouse/templates/manage/organization/roles.html:174
 #: warehouse/templates/manage/project/roles.html:325
-#: warehouse/templates/manage/team/roles.html:43
-#: warehouse/templates/manage/team/roles.html:94
+#: warehouse/templates/manage/team/roles.html:44
+#: warehouse/templates/manage/team/roles.html:90
 msgid "User"
 msgstr ""
 
@@ -4677,74 +4669,80 @@ msgstr "دعوة الدور غير صالحة."
 msgid "Manage '%(organization_name)s' settings"
 msgstr "تسجيل مستخدم جديد"
 
-#: warehouse/templates/manage/organization/settings.html:31
+#: warehouse/templates/manage/organization/settings.html:33
+#, fuzzy, python-format
+#| msgid "Create an account"
+msgid "Change the organization account name <a href=\"%(href)s\">below</a>."
+msgstr "تسجيل مستخدم جديد"
+
+#: warehouse/templates/manage/organization/settings.html:37
 #: warehouse/templates/manage/team/settings.html:57
 #, fuzzy
 #| msgid "Date joined"
 msgid "Date created"
 msgstr "تاريخ الانضمام"
 
-#: warehouse/templates/manage/organization/settings.html:146
+#: warehouse/templates/manage/organization/settings.html:152
 #, fuzzy
 #| msgid "Create an account"
 msgid "Update organization"
 msgstr "تسجيل مستخدم جديد"
 
-#: warehouse/templates/manage/organization/settings.html:155
+#: warehouse/templates/manage/organization/settings.html:161
 msgid "Billing details"
 msgstr ""
 
-#: warehouse/templates/manage/organization/settings.html:157
+#: warehouse/templates/manage/organization/settings.html:163
 msgid "Billing status"
 msgstr ""
 
-#: warehouse/templates/manage/organization/settings.html:161
+#: warehouse/templates/manage/organization/settings.html:167
 msgid "Billing email"
 msgstr ""
 
-#: warehouse/templates/manage/organization/settings.html:166
+#: warehouse/templates/manage/organization/settings.html:172
 msgid "Manage billing"
 msgstr ""
 
-#: warehouse/templates/manage/organization/settings.html:176
-#: warehouse/templates/manage/organization/settings.html:197
+#: warehouse/templates/manage/organization/settings.html:182
+#: warehouse/templates/manage/organization/settings.html:203
 #, fuzzy
 #| msgid "Create an account"
 msgid "Change organization account name"
 msgstr "تسجيل مستخدم جديد"
 
-#: warehouse/templates/manage/organization/settings.html:181
+#: warehouse/templates/manage/organization/settings.html:187
 msgid ""
 "You will not be able to revert to your current account name after you rename "
 "your organization."
 msgstr ""
 
-#: warehouse/templates/manage/organization/settings.html:197
+#: warehouse/templates/manage/organization/settings.html:203
 #, fuzzy
 #| msgid "Create an account"
 msgid "Change organization account name for"
 msgstr "تسجيل مستخدم جديد"
 
-#: warehouse/templates/manage/organization/settings.html:197
+#: warehouse/templates/manage/organization/settings.html:203
 #, fuzzy
 #| msgid "Create an account"
 msgid "Current organization account name"
 msgstr "تسجيل مستخدم جديد"
 
-#: warehouse/templates/manage/organization/settings.html:204
-#: warehouse/templates/manage/organization/settings.html:238
+#: warehouse/templates/manage/organization/settings.html:210
+#: warehouse/templates/manage/organization/settings.html:244
 #, fuzzy
 #| msgid "Create an account"
 msgid "Delete organization"
 msgstr "تسجيل مستخدم جديد"
 
-#: warehouse/templates/manage/organization/settings.html:207
+#: warehouse/templates/manage/organization/settings.html:213
 #, fuzzy
 #| msgid "Create an account"
 msgid "Cannot delete organization"
 msgstr "تسجيل مستخدم جديد"
 
-#: warehouse/templates/manage/organization/settings.html:209
+#: warehouse/templates/manage/organization/settings.html:215
 #, python-format
 msgid ""
 "\n"
@@ -4761,7 +4759,7 @@ msgstr[3] ""
 msgstr[4] ""
 msgstr[5] ""
 
-#: warehouse/templates/manage/organization/settings.html:214
+#: warehouse/templates/manage/organization/settings.html:220
 msgid ""
 "\n"
 "          You must transfer ownership or delete this project before you can "
@@ -4779,11 +4777,11 @@ msgstr[3] ""
 msgstr[4] ""
 msgstr[5] ""
 
-#: warehouse/templates/manage/organization/settings.html:236
+#: warehouse/templates/manage/organization/settings.html:242
 msgid "You will not be able to recover your organization after you delete it."
 msgstr ""
 
-#: warehouse/templates/manage/organization/settings.html:238
+#: warehouse/templates/manage/organization/settings.html:244
 #, fuzzy
 #| msgid "Confirm Invite"
 msgid "Organization Name"
@@ -5081,7 +5079,7 @@ msgstr ""
 
 #: warehouse/templates/manage/project/publishing.html:118
 #: warehouse/templates/manage/project/roles.html:309
-#: warehouse/templates/manage/team/roles.html:110
+#: warehouse/templates/manage/team/roles.html:109
 msgid "Add"
 msgstr ""
 
@@ -5934,20 +5932,35 @@ msgid ""
 "Use this page to manage which organization users are members of this team."
 msgstr ""
 
-#: warehouse/templates/manage/team/roles.html:73
+#: warehouse/templates/manage/team/roles.html:68
 #, fuzzy
 #| msgid "You are receiving this because you are an owner of this project."
 msgid "Cannot remove other people from the team"
 msgstr "تتلقى هذا البريد الإلكتروني لأتك أحد أصحاب هذا المشروع."
 
-#: warehouse/templates/manage/team/roles.html:76
+#: warehouse/templates/manage/team/roles.html:71
+#: warehouse/templates/manage/team/roles.html:72
 #, fuzzy, python-format
 #| msgid "Create an account"
 msgid "Remove %(user)s from this team"
 msgstr "تسجيل مستخدم جديد"
 
-#: warehouse/templates/manage/team/roles.html:89
+#: warehouse/templates/manage/team/roles.html:81
+msgid ""
+"There are no members in your team, yet. Get started by adding a team member "
+"below."
+msgstr ""
+
+#: warehouse/templates/manage/team/roles.html:85
 msgid "Add member"
+msgstr ""
+
+#: warehouse/templates/manage/team/roles.html:105
+#, python-format
+msgid ""
+"Add an organization owner, manager, or member to the team. <a href=\"%(href)s"
+"\">Manage organization members</a> to view all users in the organization or "
+"to invite a user to the organization."
 msgstr ""
 
 #: warehouse/templates/manage/team/settings.html:17
@@ -7716,16 +7729,15 @@ msgstr ""
 "لإستعادة الوصول الى حسابك، برجاء <a href=\"%(href)s\">تغيير كلمة السر الخاصة "
 "بك</a> على PyPI.\n"
 
-#: warehouse/templates/pages/help.html:873
-#: warehouse/templates/pages/help.html:877
-msgid "Currently, no features are in beta."
-msgstr ""
-
 #: warehouse/templates/pages/help.html:876
 msgid ""
 "When Warehouse's maintainers are deploying new features, at first we mark "
 "them with a small \"beta feature\" symbol to tell you: this should probably "
 "work fine, but it's new and less tested than other site functionality."
+msgstr ""
+
+#: warehouse/templates/pages/help.html:877
+msgid "Currently, no features are in beta."
 msgstr ""
 
 #: warehouse/templates/pages/help.html:881
@@ -8218,6 +8230,11 @@ msgstr[2] ""
 msgstr[3] ""
 msgstr[4] ""
 msgstr[5] ""
+
+#, fuzzy
+#~| msgid "User '${username}' already has ${role_name} role for project"
+#~ msgid "User '${username}' is already a team member"
+#~ msgstr "المستخدم '{username}' له صلاحيات ${rol_name} فى المشروع"
 
 #, fuzzy
 #~| msgid "Admin"

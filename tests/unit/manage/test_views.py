@@ -5253,11 +5253,7 @@ class TestManageTeamRoles:
         form = result["form"]
 
         assert organization_service.get_team_roles(team.id) == [role]
-        assert db_request.session.flash.calls == [
-            pretend.call(
-                f"User '{member.username}' is already a team member", queue="error"
-            )
-        ]
+        assert db_request.session.flash.calls == []
         assert result == {
             "team": team,
             "roles": [role],
@@ -5304,12 +5300,7 @@ class TestManageTeamRoles:
             "form": form,
         }
 
-        assert form.username.errors == [
-            (
-                "No organization owner, manager, or member found "
-                "with that username. Please try again."
-            )
-        ]
+        assert form.username.errors == ["Not a valid choice."]
 
     def test_delete_team_role(
         self,
@@ -6684,6 +6675,45 @@ class TestManageProjectSettings:
 
         res = views.get_user_role_in_project(project, db_request.user, db_request)
         assert res == "Maintainer"
+
+    def test_get_user_role_in_project_org_owner(self, db_request):
+        organization = OrganizationFactory.create(name="baz")
+        project = ProjectFactory.create(name="foo")
+        OrganizationProjectFactory.create(organization=organization, project=project)
+        db_request.user = UserFactory.create()
+        OrganizationRoleFactory.create(
+            organization=organization, user=db_request.user, role_name="Owner"
+        )
+        db_request.session = pretend.stub(
+            flash=pretend.call_recorder(lambda *a, **kw: None),
+        )
+
+        res = views.get_user_role_in_project(project, db_request.user, db_request)
+        assert res == "Owner"
+
+    def test_get_user_role_in_project_team_project_owner(self, db_request):
+        organization = OrganizationFactory.create(name="baz")
+        team = TeamFactory(organization=organization)
+        project = ProjectFactory.create(name="foo")
+        OrganizationProjectFactory.create(organization=organization, project=project)
+        db_request.user = UserFactory.create()
+        OrganizationRoleFactory.create(
+            organization=organization,
+            user=db_request.user,
+            role_name=OrganizationRoleType.Member,
+        )
+        TeamRoleFactory.create(team=team, user=db_request.user)
+        TeamProjectRoleFactory.create(
+            team=team,
+            project=project,
+            role_name=TeamProjectRoleType.Owner,
+        )
+        db_request.session = pretend.stub(
+            flash=pretend.call_recorder(lambda *a, **kw: None),
+        )
+
+        res = views.get_user_role_in_project(project, db_request.user, db_request)
+        assert res == "Owner"
 
     def test_delete_project(self, monkeypatch, db_request):
         project = ProjectFactory.create(name="foo")
