@@ -63,16 +63,17 @@ def test_compute_recipient(user, address, expected):
 
 
 @pytest.mark.parametrize(
-    ("unauthenticated_userid", "user", "expected"),
+    ("unauthenticated_userid", "user", "remote_addr", "expected"),
     [
-        ("the_users_id", None, False),
-        ("some_other_id", None, True),
-        (None, pretend.stub(id="the_users_id"), False),
-        (None, pretend.stub(id="some_other_id"), True),
-        (None, None, False),
+        ("the_users_id", None, "1.2.3.4", False),
+        ("some_other_id", None, "1.2.3.4", True),
+        (None, pretend.stub(id="the_users_id"), "1.2.3.4", False),
+        (None, pretend.stub(id="some_other_id"), "1.2.3.4", True),
+        (None, None, "1.2.3.4", False),
+        (None, None, "127.0.0.1", True),
     ],
 )
-def test_redact_ip(unauthenticated_userid, user, expected):
+def test_redact_ip(unauthenticated_userid, user, remote_addr, expected):
     user_email = pretend.stub(user_id="the_users_id")
 
     request = pretend.stub(
@@ -83,6 +84,7 @@ def test_redact_ip(unauthenticated_userid, user, expected):
                 filter=lambda a: pretend.stub(one=lambda: user_email)
             )
         ),
+        remote_addr=remote_addr,
     )
     assert email._redact_ip(request, user_email) == expected
 
@@ -315,7 +317,7 @@ class TestSendEmail:
         task = pretend.stub()
         request = pretend.stub(
             find_service=pretend.call_recorder(
-                lambda svc, context=None: {
+                lambda svc, context=None, name=None: {
                     IUserService: user_service,
                     IEmailSender: sender,
                 }.get(svc)

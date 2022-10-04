@@ -51,6 +51,9 @@ def _redact_ip(request, email):
         return user_email.user_id != request.unauthenticated_userid
     if request.user:
         return user_email.user_id != request.user.id
+    if request.remote_addr == "127.0.0.1":
+        # This is the IP used when synthesizing a request in a task
+        return True
     return False
 
 

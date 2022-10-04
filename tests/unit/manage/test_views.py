@@ -551,7 +551,12 @@ class TestManageAccount:
                 )
             ),
             session=pretend.stub(flash=pretend.call_recorder(lambda *a, **kw: None)),
-            find_service=lambda *a, **kw: pretend.stub(),
+            find_service=lambda svc, name=None, context=None: {
+                IRateLimiter: pretend.stub(
+                    test=pretend.call_recorder(lambda user_id: True),
+                    hit=pretend.call_recorder(lambda user_id: None),
+                )
+            }.get(svc, pretend.stub()),
             user=pretend.stub(id=pretend.stub(), username="username", name="Name"),
             remote_addr="0.0.0.0",
             path="request-path",
@@ -575,6 +580,53 @@ class TestManageAccount:
                 additional={"email": email.email},
             )
         ]
+
+    def test_reverify_email_ratelimit_exceeded(self, monkeypatch):
+        email = pretend.stub(
+            verified=False,
+            email="email_address",
+            user=pretend.stub(
+                record_event=pretend.call_recorder(lambda *a, **kw: None)
+            ),
+        )
+
+        request = pretend.stub(
+            POST={"reverify_email_id": pretend.stub()},
+            db=pretend.stub(
+                query=lambda *a: pretend.stub(
+                    filter=lambda *a: pretend.stub(one=lambda: email)
+                )
+            ),
+            session=pretend.stub(flash=pretend.call_recorder(lambda *a, **kw: None)),
+            find_service=lambda svc, name=None, context=None: {
+                IRateLimiter: pretend.stub(
+                    test=pretend.call_recorder(lambda user_id: False),
+                )
+            }.get(svc, pretend.stub()),
+            user=pretend.stub(id=pretend.stub(), username="username", name="Name"),
+            remote_addr="0.0.0.0",
+            path="request-path",
+        )
+        send_email = pretend.call_recorder(lambda *a: None)
+        monkeypatch.setattr(views, "send_email_verification_email", send_email)
+        monkeypatch.setattr(
+            views.ManageAccountViews, "default_response", {"_": pretend.stub()}
+        )
+        view = views.ManageAccountViews(request)
+
+        assert isinstance(view.reverify_email(), HTTPSeeOther)
+        assert request.session.flash.calls == [
+            pretend.call(
+                (
+                    "Too many incomplete attempts to verify email address(es) for "
+                    f"{request.user.username}. Complete a pending "
+                    "verification or wait before attempting again."
+                ),
+                queue="error",
+            )
+        ]
+        assert send_email.calls == []
+        assert email.user.record_event.calls == []
 
     def test_reverify_email_not_found(self, monkeypatch):
         def raise_no_result():
@@ -5201,11 +5253,7 @@ class TestManageTeamRoles:
         form = result["form"]
 
         assert organization_service.get_team_roles(team.id) == [role]
-        assert db_request.session.flash.calls == [
-            pretend.call(
-                f"User '{member.username}' is already a team member", queue="error"
-            )
-        ]
+        assert db_request.session.flash.calls == []
         assert result == {
             "team": team,
             "roles": [role],
@@ -5252,12 +5300,7 @@ class TestManageTeamRoles:
             "form": form,
         }
 
-        assert form.username.errors == [
-            (
-                "No organization owner, manager, or member found "
-                "with that username. Please try again."
-            )
-        ]
+        assert form.username.errors == ["Not a valid choice."]
 
     def test_delete_team_role(
         self,
@@ -6632,6 +6675,45 @@ class TestManageProjectSettings:
 
         res = views.get_user_role_in_project(project, db_request.user, db_request)
         assert res == "Maintainer"
+
+    def test_get_user_role_in_project_org_owner(self, db_request):
+        organization = OrganizationFactory.create(name="baz")
+        project = ProjectFactory.create(name="foo")
+        OrganizationProjectFactory.create(organization=organization, project=project)
+        db_request.user = UserFactory.create()
+        OrganizationRoleFactory.create(
+            organization=organization, user=db_request.user, role_name="Owner"
+        )
+        db_request.session = pretend.stub(
+            flash=pretend.call_recorder(lambda *a, **kw: None),
+        )
+
+        res = views.get_user_role_in_project(project, db_request.user, db_request)
+        assert res == "Owner"
+
+    def test_get_user_role_in_project_team_project_owner(self, db_request):
+        organization = OrganizationFactory.create(name="baz")
+        team = TeamFactory(organization=organization)
+        project = ProjectFactory.create(name="foo")
+        OrganizationProjectFactory.create(organization=organization, project=project)
+        db_request.user = UserFactory.create()
+        OrganizationRoleFactory.create(
+            organization=organization,
+            user=db_request.user,
+            role_name=OrganizationRoleType.Member,
+        )
+        TeamRoleFactory.create(team=team, user=db_request.user)
+        TeamProjectRoleFactory.create(
+            team=team,
+            project=project,
+            role_name=TeamProjectRoleType.Owner,
+        )
+        db_request.session = pretend.stub(
+            flash=pretend.call_recorder(lambda *a, **kw: None),
+        )
+
+        res = views.get_user_role_in_project(project, db_request.user, db_request)
+        assert res == "Owner"
 
     def test_delete_project(self, monkeypatch, db_request):
         project = ProjectFactory.create(name="foo")
