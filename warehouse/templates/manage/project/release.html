@@ -19,16 +19,13 @@
 
 {% block breadcrumb %}
 <li class="breadcrumbs__breadcrumb">
-  {{ project.name }}
   <a href="{{ request.route_path('manage.project.releases', project_name=project.normalized_name) }}">
-    <i class="fa fa-sm fa-cube" aria-hidden="true"></i>
-    {% trans %}Releases{% endtrans %}
+    <i class="fa fa-cubes" aria-hidden="true"></i>
+    {{ project.name }}
   </a>
 </li>
 <li class="breadcrumbs__breadcrumb">
-  <a>
-    {% trans version=release.version %}Version {{ version }}{% endtrans %}
-  </a>
+  {% trans version=release.version %}Version {{ version }}{% endtrans %}
 </li>
 {% endblock %}
 

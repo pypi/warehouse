@@ -17,15 +17,6 @@
 
 {% block title %}{% trans %}Your projects{% endtrans %}{% endblock %}
 
-{% block breadcrumb %}
-<li class="breadcrumbs__breadcrumb">
-  <a>
-    <i class="fa fa-cubes" aria-hidden="true"></i>
-    {% trans %}Your projects{% endtrans %}
-  </a>
-</li>
-{% endblock %}
-
 {% block main %}
   {% if project_invites %}
   <h1 class="page-title">

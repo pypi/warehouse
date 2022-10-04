@@ -20,16 +20,6 @@
 
 {% block title %}{% trans organization_name=organization.name %}Manage '{{ organization_name }}' teams{% endtrans %}{% endblock %}
 
-{% block breadcrumb %}
-<li class="breadcrumbs__breadcrumb">
-  {{ organization.name }}
-  <a>
-    <i class="fa fa-sm fa-users" aria-hidden="true"></i>
-    {% trans %}Teams{% endtrans %}
-  </a>
-</li>
-{% endblock %}
-
 {% block main %}
   <h2>
     {% trans %}Teams{% endtrans %}

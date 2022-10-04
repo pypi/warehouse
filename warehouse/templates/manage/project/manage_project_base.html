@@ -28,31 +28,26 @@
     <nav aria-label="{% trans %}Breadcrumbs{% endtrans %}" class="breadcrumbs">
       <ul>
         <li class="breadcrumbs__breadcrumb">
-          {% trans %}Your account{% endtrans %}
+          <a href="{{ request.route_path('manage.projects') }}">
+            {% trans %}Your account{% endtrans %}
+          </a>
         </li>
         {% if not request.flags.enabled(AdminFlagValue.DISABLE_ORGANIZATIONS) and project.organization and request.user in project.organization.users %}
         <li class="breadcrumbs__breadcrumb">
-          <a href="{{ request.route_path('manage.organizations') }}">
-            <i class="fa fa-sm fa-sitemap" aria-hidden="true"></i>
-            {% trans %}Your organizations{% endtrans %}
-          </a>
-        </li>
-        <li class="breadcrumbs__breadcrumb">
-          {{ project.organization.name }}
           <a href="{{ request.route_path('manage.organization.projects', organization_name=project.organization.normalized_name) }}">
-            <i class="fa fa-cubes" aria-hidden="true"></i>
-            {% trans %}Projects{% endtrans %}
-          </a>
-        </li>
-        {% else %}
-        <li class="breadcrumbs__breadcrumb">
-          <a href="{{ request.route_path('manage.projects') }}">
-            <i class="fa fa-cubes" aria-hidden="true"></i>
-            {% trans %}Your projects{% endtrans %}
+            <i class="fa fa-sm fa-sitemap" aria-hidden="true"></i>
+            {{ project.organization.name }}
           </a>
         </li>
         {% endif %}
-        {% block breadcrumb %}{% endblock %}
+
+        {# Last breadcrumb can be overriden #}
+        {% block breadcrumb %}
+        <li class="breadcrumbs__breadcrumb">
+          <i class="fa fa-cubes" aria-hidden="true"></i>
+          {{ project.name }}
+        </li>
+        {% endblock %}
       </ul>
     </nav>
     {% endblock %}

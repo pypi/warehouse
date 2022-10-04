@@ -19,16 +19,6 @@
 
 {% block title %}{% trans project_name=project.name %}'{{ project_name }}' project history{% endtrans %}{% endblock %}
 
-{% block breadcrumb %}
-<li class="breadcrumbs__breadcrumb">
-  {{ project.name }}
-  <a>
-    <i class="fa fa-sm fa-history" aria-hidden="true"></i>
-    {% trans %}Security history{% endtrans %}
-  </a>
-</li>
-{% endblock %}
-
 {% block main %}
   <h2>{% trans %}Security history{% endtrans %}</h2>
 

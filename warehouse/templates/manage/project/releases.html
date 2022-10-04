@@ -150,16 +150,6 @@
 
 {% block title %}{% trans project_name=project.name %}Manage '{{ project_name }}' releases{% endtrans %}{% endblock %}
 
-{% block breadcrumb %}
-<li class="breadcrumbs__breadcrumb">
-  {{ project.name }}
-  <a>
-    <i class="fa fa-sm fa-cube" aria-hidden="true"></i>
-    {% trans %}Releases{% endtrans %}
-  </a>
-</li>
-{% endblock %}
-
 {% block main %}
 {% set releases = project.releases|rejectattr("yanked")|list %}
   {% if releases %}

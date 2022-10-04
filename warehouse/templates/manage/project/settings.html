@@ -17,16 +17,6 @@
 
 {% block title %}{% trans project_name=project.name %}Manage '{{ project_name }}' settings{% endtrans %}{% endblock %}
 
-{% block breadcrumb %}
-<li class="breadcrumbs__breadcrumb">
-  {{ project.name }}
-  <a>
-    <i class="fa fa-sm fa-wrench" aria-hidden="true"></i>
-    {% trans %}Settings{% endtrans %}
-  </a>
-</li>
-{% endblock %}
-
 {% block main %}
   <h2>{% trans %}Project settings{% endtrans %}</h2>
   <ul>

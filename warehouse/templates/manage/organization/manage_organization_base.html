@@ -28,15 +28,18 @@
     <nav aria-label="{% trans %}Breadcrumbs{% endtrans %}" class="breadcrumbs">
       <ul>
         <li class="breadcrumbs__breadcrumb">
-          {% trans %}Your account{% endtrans %}
-        </li>
-        <li class="breadcrumbs__breadcrumb">
           <a href="{{ request.route_path('manage.organizations') }}">
-            <i class="fa fa-sm fa-sitemap" aria-hidden="true"></i>
-            {% trans %}Your organizations{% endtrans %}
+            {% trans %}Your account{% endtrans %}
           </a>
         </li>
-        {% block breadcrumb %}{% endblock %}
+
+        {# Last breadcrumb can be overriden #}
+        {% block breadcrumb %}
+        <li class="breadcrumbs__breadcrumb">
+          <i class="fa fa-sm fa-sitemap" aria-hidden="true"></i>
+          {{ organization.name }}
+        </li>
+        {% endblock %}
       </ul>
     </nav>
     {% endblock %}

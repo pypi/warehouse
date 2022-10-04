@@ -17,16 +17,6 @@
 
 {% block title %}{% trans project_name=project.name %}Manage '{{ project_name }}' documentation{% endtrans %}{% endblock %}
 
-{% block breadcrumb %}
-<li class="breadcrumbs__breadcrumb">
-  {{ project.name }}
-  <a>
-    <i class="fa fa-sm fa-book" aria-hidden="true"></i>
-    {% trans %}Documentation{% endtrans %}
-  </a>
-</li>
-{% endblock %}
-
 {% block main %}
   <h2>{% trans %}Documentation{% endtrans %}</h2>
 

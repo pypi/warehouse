@@ -20,16 +20,6 @@
 
 {% block title %}{% trans team_name=team.name %}Manage '{{ team_name }}' settings{% endtrans %}{% endblock %}
 
-{% block breadcrumb %}
-<li class="breadcrumbs__breadcrumb">
-  {{ team.name }}
-  <a>
-    <i class="fa fa-sm fa-wrench" aria-hidden="true"></i>
-    {% trans %}Settings{% endtrans %}
-  </a>
-</li>
-{% endblock %}
-
 {% block main %}
   <h2>{% trans %}Team settings{% endtrans %}</h2>
 

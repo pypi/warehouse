@@ -195,10 +195,12 @@
     {% block breadcrumbs %}
     <nav aria-label="{% trans %}Breadcrumbs{% endtrans %}" class="breadcrumbs">
       <ul>
+        {# Last breadcrumb can be overriden #}
+        {% block breadcrumb %}
         <li class="breadcrumbs__breadcrumb">
           {% trans %}Your account{% endtrans %}
         </li>
-        {% block breadcrumb %}{% endblock %}
+        {% endblock %}
       </ul>
     </nav>
     {% endblock %}
