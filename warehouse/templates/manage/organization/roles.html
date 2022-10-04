@@ -17,6 +17,14 @@
 
 {% block title %}{% trans organization_name=organization.name %}Manage people in '{{ organization_name }}'{% endtrans %}{% endblock %}
 
+{% block breadcrumb %}
+<li class="breadcrumbs__breadcrumb">
+  <a>
+    {% trans organization_name=organization.name %}{{ organization_name }} people{% endtrans %}
+  </a>
+</li>
+{% endblock %}
+
 {% macro two_factor_badge(user) -%}
   {% if user.has_two_factor %}
   <span class="badge badge--success" title="{% trans %}2FA enabled{% endtrans %}">

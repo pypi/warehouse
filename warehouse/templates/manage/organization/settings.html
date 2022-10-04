@@ -20,6 +20,14 @@
 
 {% block title %}{% trans organization_name=organization.name %}Manage '{{ organization_name }}' settings{% endtrans %}{% endblock %}
 
+{% block breadcrumb %}
+<li class="breadcrumbs__breadcrumb">
+  <a>
+    {% trans organization_name=organization.name %}{{ organization_name }} settings{% endtrans %}
+  </a>
+</li>
+{% endblock %}
+
 {% block main %}
   <h2>{% trans %}Organization settings{% endtrans %}</h2>
 
