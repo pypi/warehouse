@@ -38,9 +38,10 @@
           </a>
         </li>
         <li class="breadcrumbs__breadcrumb">
+          {{ project.organization.name }}
           <a href="{{ request.route_path('manage.organization.projects', organization_name=project.organization.normalized_name) }}">
             <i class="fa fa-cubes" aria-hidden="true"></i>
-            {% trans organization_name=project.organization.name %}{{ organization_name }} projects{% endtrans %}
+            {% trans %}Projects{% endtrans %}
           </a>
         </li>
         {% else %}

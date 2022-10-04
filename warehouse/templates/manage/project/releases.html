@@ -152,9 +152,10 @@
 
 {% block breadcrumb %}
 <li class="breadcrumbs__breadcrumb">
+  {{ project.name }}
   <a>
     <i class="fa fa-sm fa-cube" aria-hidden="true"></i>
-    {% trans project_name=project.name %}{{ project_name }} releases{% endtrans %}
+    {% trans %}Releases{% endtrans %}
   </a>
 </li>
 {% endblock %}

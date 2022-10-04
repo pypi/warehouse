@@ -45,15 +45,21 @@
   }
 
   &__breadcrumb {
-    list-style-type: none;
+    color: grayscale($primary-color);
     display: inline-block;
     float: left;
+    list-style-type: none;
+
+    &:first-child {
+      color: $text-color;
+    }
 
     a {
       @include link-without-underline;
     }
 
     .fa {
+      margin-left: 0.1em;
       margin-right: 0.1em;
     }
 

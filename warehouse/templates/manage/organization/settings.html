@@ -22,9 +22,10 @@
 
 {% block breadcrumb %}
 <li class="breadcrumbs__breadcrumb">
+  {{ organization.name }}
   <a>
     <i class="fa fa-sm fa-wrench" aria-hidden="true"></i>
-    {% trans organization_name=organization.name %}{{ organization_name }} settings{% endtrans %}
+    {% trans %}Settings{% endtrans %}
   </a>
 </li>
 {% endblock %}

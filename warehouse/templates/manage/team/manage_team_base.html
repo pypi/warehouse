@@ -37,9 +37,10 @@
           </a>
         </li>
         <li class="breadcrumbs__breadcrumb">
+          {{ team.organization.name }}
           <a href="{{ request.route_path('manage.organization.teams', organization_name=team.organization.normalized_name, team_name=team.normalized_name) }}">
             <i class="fa fa-sm fa-users" aria-hidden="true"></i>
-            {% trans organization_name=team.organization.name %}{{ organization_name }} teams{% endtrans %}
+            {% trans %}Teams{% endtrans %}
           </a>
         </li>
         {% block breadcrumb %}{% endblock %}
