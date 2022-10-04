@@ -738,8 +738,8 @@ msgstr ""
 #: warehouse/templates/manage/account.html:716
 #: warehouse/templates/manage/manage_base.html:293
 #: warehouse/templates/manage/manage_base.html:352
-#: warehouse/templates/manage/organization/settings.html:180
-#: warehouse/templates/manage/organization/settings.html:235
+#: warehouse/templates/manage/organization/settings.html:186
+#: warehouse/templates/manage/organization/settings.html:241
 #: warehouse/templates/manage/project/documentation.html:27
 #: warehouse/templates/manage/project/release.html:163
 #: warehouse/templates/manage/project/settings.html:126
@@ -1062,10 +1062,10 @@ msgstr ""
 #: warehouse/templates/manage/organization/projects.html:190
 #: warehouse/templates/manage/organization/roles.html:176
 #: warehouse/templates/manage/organization/roles.html:188
-#: warehouse/templates/manage/organization/settings.html:44
-#: warehouse/templates/manage/organization/settings.html:74
-#: warehouse/templates/manage/organization/settings.html:98
-#: warehouse/templates/manage/organization/settings.html:123
+#: warehouse/templates/manage/organization/settings.html:50
+#: warehouse/templates/manage/organization/settings.html:80
+#: warehouse/templates/manage/organization/settings.html:104
+#: warehouse/templates/manage/organization/settings.html:129
 #: warehouse/templates/manage/organization/teams.html:84
 #: warehouse/templates/manage/organizations.html:143
 #: warehouse/templates/manage/organizations.html:166
@@ -3139,7 +3139,7 @@ msgstr[0] ""
 msgstr[1] ""
 
 #: warehouse/templates/manage/account.html:705
-#: warehouse/templates/manage/organization/settings.html:224
+#: warehouse/templates/manage/organization/settings.html:230
 #, python-format
 msgid ""
 "<a href=\"%(transfer_href)s\">transfer ownership</a> or <a "
@@ -3148,8 +3148,8 @@ msgstr ""
 
 #: warehouse/templates/manage/account.html:714
 #: warehouse/templates/manage/account/token.html:166
-#: warehouse/templates/manage/organization/settings.html:178
-#: warehouse/templates/manage/organization/settings.html:233
+#: warehouse/templates/manage/organization/settings.html:184
+#: warehouse/templates/manage/organization/settings.html:239
 #: warehouse/templates/manage/team/settings.html:75
 msgid "Proceed with caution!"
 msgstr ""
@@ -3521,54 +3521,55 @@ msgstr ""
 msgid "Select an organization account name"
 msgstr ""
 
+#: warehouse/templates/manage/organization/settings.html:32
 #: warehouse/templates/manage/organizations.html:157
-msgid "This account name will be used in URLs on PyPI."
+msgid "This account name is used in URLs on PyPI."
 msgstr ""
 
-#: warehouse/templates/manage/organization/settings.html:65
-#: warehouse/templates/manage/organization/settings.html:89
+#: warehouse/templates/manage/organization/settings.html:71
+#: warehouse/templates/manage/organization/settings.html:95
 #: warehouse/templates/manage/organizations.html:158
 #: warehouse/templates/manage/organizations.html:180
 #: warehouse/templates/manage/organizations.html:198
 msgid "For example"
 msgstr ""
 
-#: warehouse/templates/manage/organization/settings.html:42
+#: warehouse/templates/manage/organization/settings.html:48
 #: warehouse/templates/manage/organizations.html:164
 msgid "Organization name"
 msgstr ""
 
-#: warehouse/templates/manage/organization/settings.html:48
+#: warehouse/templates/manage/organization/settings.html:54
 #: warehouse/templates/manage/organizations.html:169
 msgid "Name of your business, product, or project"
 msgstr ""
 
-#: warehouse/templates/manage/organization/settings.html:72
+#: warehouse/templates/manage/organization/settings.html:78
 #: warehouse/templates/manage/organizations.html:186
 msgid "️Organization URL"
 msgstr ""
 
-#: warehouse/templates/manage/organization/settings.html:78
+#: warehouse/templates/manage/organization/settings.html:84
 #: warehouse/templates/manage/organizations.html:192
 msgid "URL for your business, product, or project"
 msgstr ""
 
-#: warehouse/templates/manage/organization/settings.html:96
+#: warehouse/templates/manage/organization/settings.html:102
 #: warehouse/templates/manage/organizations.html:204
 msgid "Organization description"
 msgstr ""
 
-#: warehouse/templates/manage/organization/settings.html:102
+#: warehouse/templates/manage/organization/settings.html:108
 #: warehouse/templates/manage/organizations.html:209
 msgid "Description of your business, product, or project"
 msgstr ""
 
-#: warehouse/templates/manage/organization/settings.html:121
+#: warehouse/templates/manage/organization/settings.html:127
 #: warehouse/templates/manage/organizations.html:223
 msgid "️Organization type"
 msgstr ""
 
-#: warehouse/templates/manage/organization/settings.html:138
+#: warehouse/templates/manage/organization/settings.html:144
 #: warehouse/templates/manage/organizations.html:235
 msgid ""
 "Companies can create organization accounts as a paid service while "
@@ -4257,60 +4258,65 @@ msgstr ""
 msgid "Manage '%(organization_name)s' settings"
 msgstr ""
 
-#: warehouse/templates/manage/organization/settings.html:31
+#: warehouse/templates/manage/organization/settings.html:33
+#, python-format
+msgid "Change the organization account name <a href=\"%(href)s\">below</a>."
+msgstr ""
+
+#: warehouse/templates/manage/organization/settings.html:37
 #: warehouse/templates/manage/team/settings.html:57
 msgid "Date created"
 msgstr ""
 
-#: warehouse/templates/manage/organization/settings.html:146
+#: warehouse/templates/manage/organization/settings.html:152
 msgid "Update organization"
 msgstr ""
 
-#: warehouse/templates/manage/organization/settings.html:155
+#: warehouse/templates/manage/organization/settings.html:161
 msgid "Billing details"
 msgstr ""
 
-#: warehouse/templates/manage/organization/settings.html:157
+#: warehouse/templates/manage/organization/settings.html:163
 msgid "Billing status"
 msgstr ""
 
-#: warehouse/templates/manage/organization/settings.html:161
+#: warehouse/templates/manage/organization/settings.html:167
 msgid "Billing email"
 msgstr ""
 
-#: warehouse/templates/manage/organization/settings.html:166
+#: warehouse/templates/manage/organization/settings.html:172
 msgid "Manage billing"
 msgstr ""
 
-#: warehouse/templates/manage/organization/settings.html:176
-#: warehouse/templates/manage/organization/settings.html:197
+#: warehouse/templates/manage/organization/settings.html:182
+#: warehouse/templates/manage/organization/settings.html:203
 msgid "Change organization account name"
 msgstr ""
 
-#: warehouse/templates/manage/organization/settings.html:181
+#: warehouse/templates/manage/organization/settings.html:187
 msgid ""
 "You will not be able to revert to your current account name after you "
 "rename your organization."
 msgstr ""
 
-#: warehouse/templates/manage/organization/settings.html:197
+#: warehouse/templates/manage/organization/settings.html:203
 msgid "Change organization account name for"
 msgstr ""
 
-#: warehouse/templates/manage/organization/settings.html:197
+#: warehouse/templates/manage/organization/settings.html:203
 msgid "Current organization account name"
 msgstr ""
 
-#: warehouse/templates/manage/organization/settings.html:204
-#: warehouse/templates/manage/organization/settings.html:238
+#: warehouse/templates/manage/organization/settings.html:210
+#: warehouse/templates/manage/organization/settings.html:244
 msgid "Delete organization"
 msgstr ""
 
-#: warehouse/templates/manage/organization/settings.html:207
+#: warehouse/templates/manage/organization/settings.html:213
 msgid "Cannot delete organization"
 msgstr ""
 
-#: warehouse/templates/manage/organization/settings.html:209
+#: warehouse/templates/manage/organization/settings.html:215
 #, python-format
 msgid ""
 "\n"
@@ -4323,7 +4329,7 @@ msgid_plural ""
 msgstr[0] ""
 msgstr[1] ""
 
-#: warehouse/templates/manage/organization/settings.html:214
+#: warehouse/templates/manage/organization/settings.html:220
 msgid ""
 "\n"
 "          You must transfer ownership or delete this project before you "
@@ -4337,11 +4343,11 @@ msgid_plural ""
 msgstr[0] ""
 msgstr[1] ""
 
-#: warehouse/templates/manage/organization/settings.html:236
+#: warehouse/templates/manage/organization/settings.html:242
 msgid "You will not be able to recover your organization after you delete it."
 msgstr ""
 
-#: warehouse/templates/manage/organization/settings.html:238
+#: warehouse/templates/manage/organization/settings.html:244
 msgid "Organization Name"
 msgstr ""
 
