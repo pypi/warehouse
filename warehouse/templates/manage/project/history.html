@@ -19,6 +19,14 @@
 
 {% block title %}{% trans project_name=project.name %}'{{ project_name }}' project history{% endtrans %}{% endblock %}
 
+{% block breadcrumb %}
+<li class="breadcrumbs__breadcrumb">
+  <a>
+    {% trans project_name=project.name %}{{ project_name }} security history{% endtrans %}
+  </a>
+</li>
+{% endblock %}
+
 {% block main %}
   <h2>{% trans %}Security history{% endtrans %}</h2>
 

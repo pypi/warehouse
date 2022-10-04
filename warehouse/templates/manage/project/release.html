@@ -17,16 +17,25 @@
 
 {% block title %}{% trans project_name=project.name, version=release.version %}Manage '{{ project_name }}' – release version {{ version }}{% endtrans %}{% endblock %}
 
+{% block breadcrumb %}
+<li class="breadcrumbs__breadcrumb">
+  <a href="{{ request.route_path('manage.project.releases', project_name=project.normalized_name) }}">
+    {% trans project_name=project.name %}{{ project_name }} releases{% endtrans %}
+  </a>
+</li>
+<li class="breadcrumbs__breadcrumb">
+  <a>
+    {% trans version=release.version %}Release version {{ version }}{% endtrans %}
+  </a>
+</li>
+{% endblock %}
+
 {% block main %}
   <div class="heading-wsubtitle heading-wsubtitle--in-content">
     <h2 class="heading-wsubtitle__heading">{% trans version=release.version %}Release version {{ version }}{% endtrans %}</h2>
-
-    <nav aria-label="{% trans %}Breadcrumb{% endtrans %}" class="breadcrumbs">
-      <ul class="heading-wsubtitle__subtitle">
-        <li class="breadcrumbs__breadcrumb"><a href="{{ request.route_path('manage.project.releases', project_name=project.normalized_name)}}">{% trans project_name=project.name %}All {{ project_name }} releases{% endtrans %}</a></li>
-        <li class="breadcrumbs__breadcrumb">{% trans version=release.version %}Release version {{ version }}{% endtrans %} – <a href="{{ request.route_path('packaging.release', name=release.project.name, version=release.version) }}">{% trans %}view release{% endtrans %}</a></li>
-      </ul>
-    </nav>
+    <p class="heading-wsubtitle__subtitle">
+      <a href="{{ request.route_path('packaging.release', name=release.project.name, version=release.version) }}">{% trans %}view release{% endtrans %}</a>
+    </p>
   </div>
 
   {% if files %}

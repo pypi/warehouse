@@ -20,6 +20,14 @@
   {% trans %}OpenID Connect publisher management{% endtrans %}
 {% endblock %}
 
+{% block breadcrumb %}
+<li class="breadcrumbs__breadcrumb">
+  <a>
+    {% trans project_name=project.name %}{{ project_name }} publishing{% endtrans %}
+  </a>
+</li>
+{% endblock %}
+
 {% block main %}
 {% if testPyPI %}
 {% set title = "TestPyPI" %}

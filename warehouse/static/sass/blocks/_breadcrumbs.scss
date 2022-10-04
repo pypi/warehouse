@@ -25,7 +25,18 @@
 
 
 .breadcrumbs {
-  padding-bottom: ($spacing-unit / 2);
+  font-size: 1.1rem;
+  font-weight: 600;
+  margin-bottom: $spacing-unit / 2;
+  margin-top: $spacing-unit;
+
+  + div {
+    margin-top: $spacing-unit / 2;
+  }
+
+  @media only screen and (max-width: $tablet) {
+    display: none;
+  }
 
   ul {
     margin: 0;
