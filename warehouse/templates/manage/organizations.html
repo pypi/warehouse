@@ -17,6 +17,14 @@
 
 {% block title %}{% trans %}Your organizations{% endtrans %}{% endblock %}
 
+{% block breadcrumb %}
+<li class="breadcrumbs__breadcrumb">
+  <a>
+    {% trans %}Your organizations{% endtrans %}
+  </a>
+</li>
+{% endblock %}
+
 {% block main %}
   {% if organization_invites %}
   <h1 class="page-title">
