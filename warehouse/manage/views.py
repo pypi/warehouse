@@ -133,6 +133,7 @@ from warehouse.organizations.interfaces import IOrganizationService
 from warehouse.organizations.models import (
     Organization,
     OrganizationInvitationStatus,
+    OrganizationProject,
     OrganizationRole,
     OrganizationRoleType,
     OrganizationType,
@@ -473,16 +474,30 @@ class ManageAccountViews:
         if email.verified:
             self.request.session.flash("Email is already verified", queue="error")
         else:
-            send_email_verification_email(self.request, (self.request.user, email))
-            email.user.record_event(
-                tag="account:email:reverify",
-                ip_address=self.request.remote_addr,
-                additional={"email": email.email},
+            verify_email_ratelimit = self.request.find_service(
+                IRateLimiter, name="email.verify"
             )
+            if verify_email_ratelimit.test(self.request.user.id):
+                send_email_verification_email(self.request, (self.request.user, email))
+                verify_email_ratelimit.hit(self.request.user.id)
+                email.user.record_event(
+                    tag="account:email:reverify",
+                    ip_address=self.request.remote_addr,
+                    additional={"email": email.email},
+                )
 
-            self.request.session.flash(
-                f"Verification email for {email.email} resent", queue="success"
-            )
+                self.request.session.flash(
+                    f"Verification email for {email.email} resent", queue="success"
+                )
+            else:
+                self.request.session.flash(
+                    (
+                        "Too many incomplete attempts to verify email address(es) for "
+                        f"{self.request.user.username}. Complete a pending "
+                        "verification or wait before attempting again."
+                    ),
+                    queue="error",
+                )
 
         return HTTPSeeOther(self.request.path)
 
@@ -2477,6 +2492,7 @@ class ManageTeamRolesViews:
                 + organization_managers(self.request, self.team.organization)
                 + organization_members(self.request, self.team.organization)
             )
+            if user not in self.team.members
         )
 
     @property
@@ -2502,24 +2518,10 @@ class ManageTeamRolesViews:
         if not form.validate():
             return default_response
 
-        # Check for existing role.
+        # Add user to team.
         username = form.username.data
         role_name = TeamRoleType.Member
         user_id = self.user_service.find_userid(username)
-        existing_role = self.organization_service.get_team_role_by_user(
-            self.team.id, user_id
-        )
-        if existing_role:
-            self.request.session.flash(
-                self.request._(
-                    "User '${username}' is already a team member",
-                    mapping={"username": username},
-                ),
-                queue="error",
-            )
-            return default_response
-
-        # Add user to team.
         role = self.organization_service.add_team_role(
             team_id=self.team.id,
             user_id=user_id,
@@ -3339,12 +3341,49 @@ def transfer_organization_project(project, request):
 
 
 def get_user_role_in_project(project, user, request):
-    return (
-        request.db.query(Role)
-        .filter(Role.user == user, Role.project == project)
-        .one()
-        .role_name
-    )
+    try:
+        return (
+            request.db.query(Role)
+            .filter(Role.user == user, Role.project == project)
+            .one()
+            .role_name
+        )
+    except NoResultFound:
+        # No project role found so check for Organization roles
+        return get_user_role_in_organization_project(project, user, request)
+
+
+def get_user_role_in_organization_project(project, user, request):
+    try:
+        # If this is an organzation project check to see if user is Org Owner
+        role_name = (
+            request.db.query(OrganizationRole)
+            .join(
+                OrganizationProject,
+                OrganizationProject.organization_id == OrganizationRole.organization_id,
+            )
+            .filter(
+                OrganizationRole.user == user,
+                OrganizationProject.project == project,
+                OrganizationRole.role_name == OrganizationRoleType.Owner,
+            )
+            .one()
+            .role_name
+        )
+    except NoResultFound:
+        # Last but not least check if this is a Team Project and user has a team role
+        role_name = (
+            request.db.query(TeamProjectRole)
+            .join(TeamRole, TeamRole.team_id == TeamProjectRole.team_id)
+            .filter(
+                TeamRole.user == user,
+                TeamProjectRole.project == project,
+            )
+            .one()
+            .role_name
+        )
+
+    return role_name.value
 
 
 @view_config(

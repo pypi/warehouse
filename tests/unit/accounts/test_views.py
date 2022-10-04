@@ -1340,21 +1340,23 @@ class TestRegister:
         )
         db_request.session.record_password_timestamp = lambda ts: None
         db_request.find_service = pretend.call_recorder(
-            lambda *args, **kwargs: pretend.stub(
-                csp_policy={},
-                merge=lambda _: {},
-                enabled=False,
-                verify_response=pretend.call_recorder(lambda _: None),
-                username_is_prohibited=lambda a: False,
-                find_userid=pretend.call_recorder(lambda _: None),
-                find_userid_by_email=pretend.call_recorder(lambda _: None),
-                update_user=lambda *args, **kwargs: None,
-                create_user=create_user,
-                add_email=add_email,
-                check_password=lambda pw, tags=None: False,
-                record_event=record_event,
-                get_password_timestamp=lambda uid: 0,
-            )
+            lambda svc, name=None, context=None: {
+                IUserService: pretend.stub(
+                    username_is_prohibited=lambda a: False,
+                    find_userid=pretend.call_recorder(lambda _: None),
+                    find_userid_by_email=pretend.call_recorder(lambda _: None),
+                    update_user=lambda *args, **kwargs: None,
+                    create_user=create_user,
+                    add_email=add_email,
+                    check_password=lambda pw, tags=None: False,
+                    record_event=record_event,
+                    get_password_timestamp=lambda uid: 0,
+                ),
+                IPasswordBreachedService: pretend.stub(
+                    check_password=lambda pw, tags=None: False,
+                ),
+                IRateLimiter: pretend.stub(hit=lambda user_id: None),
+            }.get(svc)
         )
         db_request.route_path = pretend.call_recorder(lambda name: "/")
         db_request.POST.update(
@@ -2045,9 +2047,11 @@ class TestVerifyEmail:
             lambda token: {"action": "email-verify", "email.id": str(email.id)}
         )
         email_limiter = pretend.stub(clear=pretend.call_recorder(lambda a: None))
+        verify_limiter = pretend.stub(clear=pretend.call_recorder(lambda a: None))
         services = {
             "email": token_service,
             "email.add": email_limiter,
+            "email.verify": verify_limiter,
         }
         db_request.find_service = pretend.call_recorder(
             lambda a, name, **kwargs: services[name]
@@ -2064,6 +2068,7 @@ class TestVerifyEmail:
         assert db_request.route_path.calls == [pretend.call("manage.account")]
         assert token_service.loads.calls == [pretend.call("RANDOM_KEY")]
         assert email_limiter.clear.calls == [pretend.call(db_request.remote_addr)]
+        assert verify_limiter.clear.calls == [pretend.call(user.id)]
         assert db_request.session.flash.calls == [
             pretend.call(
                 f"Email address {email.email} verified. " + confirm_message,
@@ -2073,6 +2078,7 @@ class TestVerifyEmail:
         assert db_request.find_service.calls == [
             pretend.call(ITokenService, name="email"),
             pretend.call(IRateLimiter, name="email.add"),
+            pretend.call(IRateLimiter, name="email.verify"),
         ]
 
     @pytest.mark.parametrize(
