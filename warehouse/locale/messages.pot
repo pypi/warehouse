@@ -745,7 +745,7 @@ msgstr ""
 #: warehouse/templates/manage/project/settings.html:134
 #: warehouse/templates/manage/project/settings.html:183
 #: warehouse/templates/manage/project/settings.html:247
-#: warehouse/templates/manage/team/settings.html:77
+#: warehouse/templates/manage/team/settings.html:85
 msgid "Warning"
 msgstr ""
 
@@ -1081,8 +1081,8 @@ msgstr ""
 #: warehouse/templates/manage/project/roles.html:315
 #: warehouse/templates/manage/project/roles.html:342
 #: warehouse/templates/manage/project/roles.html:354
-#: warehouse/templates/manage/team/roles.html:95
-#: warehouse/templates/manage/team/settings.html:35
+#: warehouse/templates/manage/team/roles.html:103
+#: warehouse/templates/manage/team/settings.html:43
 #: warehouse/templates/re-auth.html:51
 msgid "(required)"
 msgstr ""
@@ -1182,8 +1182,8 @@ msgstr ""
 #: warehouse/templates/manage/project/roles.html:209
 #: warehouse/templates/manage/project/roles.html:302
 #: warehouse/templates/manage/project/roles.html:345
-#: warehouse/templates/manage/team/roles.html:76
-#: warehouse/templates/manage/team/roles.html:98
+#: warehouse/templates/manage/team/roles.html:84
+#: warehouse/templates/manage/team/roles.html:106
 msgid "Username"
 msgstr ""
 
@@ -1226,7 +1226,7 @@ msgstr ""
 #: warehouse/templates/manage/organization/roles.html:147
 #: warehouse/templates/manage/project/roles.html:163
 #: warehouse/templates/manage/project/roles.html:218
-#: warehouse/templates/manage/team/roles.html:57
+#: warehouse/templates/manage/team/roles.html:65
 msgid "Avatar for {user} from gravatar.com"
 msgstr ""
 
@@ -1260,7 +1260,7 @@ msgstr ""
 #: warehouse/templates/manage/organization/projects.html:81
 #: warehouse/templates/manage/projects.html:37
 #: warehouse/templates/manage/projects.html:109
-#: warehouse/templates/manage/team/projects.html:73
+#: warehouse/templates/manage/team/projects.html:81
 #, python-format
 msgid "Last released %(release_date)s"
 msgstr ""
@@ -2266,7 +2266,7 @@ msgstr ""
 #: warehouse/templates/manage/organizations.html:18
 #: warehouse/templates/manage/organizations.html:53
 #: warehouse/templates/manage/project/manage_project_base.html:36
-#: warehouse/templates/manage/team/manage_team_base.html:32
+#: warehouse/templates/manage/team/manage_team_base.html:35
 msgid "Your organizations"
 msgstr ""
 
@@ -2455,7 +2455,7 @@ msgstr ""
 #: warehouse/templates/includes/manage/manage-organization-menu.html:19
 #: warehouse/templates/includes/manage/manage-team-menu.html:19
 #: warehouse/templates/manage/organization/projects.html:33
-#: warehouse/templates/manage/team/projects.html:25
+#: warehouse/templates/manage/team/projects.html:33
 msgid "Projects"
 msgstr ""
 
@@ -2512,7 +2512,7 @@ msgid "Navigation for managing %(team)s"
 msgstr ""
 
 #: warehouse/templates/includes/manage/manage-team-menu.html:26
-#: warehouse/templates/manage/team/roles.html:36
+#: warehouse/templates/manage/team/roles.html:44
 msgid "Members"
 msgstr ""
 
@@ -3162,7 +3162,7 @@ msgstr ""
 #: warehouse/templates/manage/account/token.html:166
 #: warehouse/templates/manage/organization/settings.html:192
 #: warehouse/templates/manage/organization/settings.html:247
-#: warehouse/templates/manage/team/settings.html:75
+#: warehouse/templates/manage/team/settings.html:83
 msgid "Proceed with caution!"
 msgstr ""
 
@@ -3185,8 +3185,8 @@ msgstr ""
 #: warehouse/templates/manage/project/releases.html:88
 #: warehouse/templates/manage/projects.html:153
 #: warehouse/templates/manage/projects.html:158
-#: warehouse/templates/manage/team/projects.html:117
-#: warehouse/templates/manage/team/projects.html:122
+#: warehouse/templates/manage/team/projects.html:125
+#: warehouse/templates/manage/team/projects.html:130
 msgid "Manage"
 msgstr ""
 
@@ -3239,8 +3239,8 @@ msgstr ""
 #: warehouse/templates/manage/project/roles.html:154
 #: warehouse/templates/manage/project/roles.html:204
 #: warehouse/templates/manage/project/roles.html:209
-#: warehouse/templates/manage/team/roles.html:71
-#: warehouse/templates/manage/team/roles.html:76
+#: warehouse/templates/manage/team/roles.html:79
+#: warehouse/templates/manage/team/roles.html:84
 msgid "Remove"
 msgstr ""
 
@@ -3372,6 +3372,7 @@ msgstr ""
 #: warehouse/templates/manage/manage_base.html:198
 #: warehouse/templates/manage/organization/manage_organization_base.html:31
 #: warehouse/templates/manage/project/manage_project_base.html:31
+#: warehouse/templates/manage/team/manage_team_base.html:31
 msgid "Your account"
 msgstr ""
 
@@ -3418,7 +3419,7 @@ msgstr ""
 #: warehouse/templates/manage/organizations.html:81
 #: warehouse/templates/manage/projects.html:44
 #: warehouse/templates/manage/projects.html:116
-#: warehouse/templates/manage/team/projects.html:80
+#: warehouse/templates/manage/team/projects.html:88
 #, python-format
 msgid "Created %(creation_date)s"
 msgstr ""
@@ -3484,8 +3485,8 @@ msgstr ""
 #: warehouse/templates/manage/project/releases.html:94
 #: warehouse/templates/manage/projects.html:166
 #: warehouse/templates/manage/projects.html:169
-#: warehouse/templates/manage/team/projects.html:130
-#: warehouse/templates/manage/team/projects.html:133
+#: warehouse/templates/manage/team/projects.html:138
+#: warehouse/templates/manage/team/projects.html:141
 msgid "View"
 msgstr ""
 
@@ -3592,8 +3593,8 @@ msgstr ""
 #: warehouse/templates/manage/organization/projects.html:117
 #: warehouse/templates/manage/projects.html:82
 #: warehouse/templates/manage/projects.html:145
-#: warehouse/templates/manage/team/projects.html:46
-#: warehouse/templates/manage/team/projects.html:109
+#: warehouse/templates/manage/team/projects.html:54
+#: warehouse/templates/manage/team/projects.html:117
 msgid "This project requires 2FA to be enabled to manage"
 msgstr ""
 
@@ -3601,8 +3602,8 @@ msgstr ""
 #: warehouse/templates/manage/organization/projects.html:118
 #: warehouse/templates/manage/projects.html:83
 #: warehouse/templates/manage/projects.html:146
-#: warehouse/templates/manage/team/projects.html:47
-#: warehouse/templates/manage/team/projects.html:110
+#: warehouse/templates/manage/team/projects.html:55
+#: warehouse/templates/manage/team/projects.html:118
 msgid "2FA Required"
 msgstr ""
 
@@ -3610,8 +3611,8 @@ msgstr ""
 #: warehouse/templates/manage/organization/projects.html:71
 #: warehouse/templates/manage/projects.html:89
 #: warehouse/templates/manage/projects.html:99
-#: warehouse/templates/manage/team/projects.html:53
-#: warehouse/templates/manage/team/projects.html:63
+#: warehouse/templates/manage/team/projects.html:61
+#: warehouse/templates/manage/team/projects.html:71
 msgid "This is a critical project for the Python ecosystem"
 msgstr ""
 
@@ -3619,8 +3620,8 @@ msgstr ""
 #: warehouse/templates/manage/organization/projects.html:72
 #: warehouse/templates/manage/projects.html:90
 #: warehouse/templates/manage/projects.html:100
-#: warehouse/templates/manage/team/projects.html:54
-#: warehouse/templates/manage/team/projects.html:64
+#: warehouse/templates/manage/team/projects.html:62
+#: warehouse/templates/manage/team/projects.html:72
 msgid "Critical Project"
 msgstr ""
 
@@ -3628,8 +3629,8 @@ msgstr ""
 #: warehouse/templates/manage/organization/projects.html:105
 #: warehouse/templates/manage/projects.html:92
 #: warehouse/templates/manage/projects.html:133
-#: warehouse/templates/manage/team/projects.html:56
-#: warehouse/templates/manage/team/projects.html:97
+#: warehouse/templates/manage/team/projects.html:64
+#: warehouse/templates/manage/team/projects.html:105
 msgid "PyPI requires 2FA to be enabled to manage this project"
 msgstr ""
 
@@ -3637,38 +3638,38 @@ msgstr ""
 #: warehouse/templates/manage/organization/projects.html:106
 #: warehouse/templates/manage/projects.html:93
 #: warehouse/templates/manage/projects.html:134
-#: warehouse/templates/manage/team/projects.html:57
-#: warehouse/templates/manage/team/projects.html:98
+#: warehouse/templates/manage/team/projects.html:65
+#: warehouse/templates/manage/team/projects.html:106
 msgid "2FA Mandated"
 msgstr ""
 
 #: warehouse/templates/manage/organization/projects.html:76
 #: warehouse/templates/manage/projects.html:104
-#: warehouse/templates/manage/team/projects.html:68
+#: warehouse/templates/manage/team/projects.html:76
 msgid "Sole owner"
 msgstr ""
 
 #: warehouse/templates/manage/organization/projects.html:124
 #: warehouse/templates/manage/projects.html:152
-#: warehouse/templates/manage/team/projects.html:116
+#: warehouse/templates/manage/team/projects.html:124
 msgid "Manage this project"
 msgstr ""
 
 #: warehouse/templates/manage/organization/projects.html:129
 #: warehouse/templates/manage/projects.html:157
-#: warehouse/templates/manage/team/projects.html:121
+#: warehouse/templates/manage/team/projects.html:129
 msgid "You are not an owner of this project"
 msgstr ""
 
 #: warehouse/templates/manage/organization/projects.html:137
 #: warehouse/templates/manage/projects.html:165
-#: warehouse/templates/manage/team/projects.html:129
+#: warehouse/templates/manage/team/projects.html:137
 msgid "View this project's public page"
 msgstr ""
 
 #: warehouse/templates/manage/organization/projects.html:140
 #: warehouse/templates/manage/projects.html:168
-#: warehouse/templates/manage/team/projects.html:132
+#: warehouse/templates/manage/team/projects.html:140
 msgid "This project has no releases"
 msgstr ""
 
@@ -4031,11 +4032,12 @@ msgstr ""
 
 #: warehouse/templates/manage/organization/manage_organization_base.html:28
 #: warehouse/templates/manage/project/manage_project_base.html:28
+#: warehouse/templates/manage/team/manage_team_base.html:28
 msgid "Breadcrumbs"
 msgstr ""
 
 #: warehouse/templates/manage/organization/manage_organization_base.html:53
-#: warehouse/templates/manage/team/manage_team_base.html:47
+#: warehouse/templates/manage/team/manage_team_base.html:58
 msgid "Back to organizations"
 msgstr ""
 
@@ -4123,7 +4125,7 @@ msgstr ""
 
 #: warehouse/templates/manage/organization/roles.html:30
 #: warehouse/templates/manage/project/roles.html:30
-#: warehouse/templates/manage/team/roles.html:22
+#: warehouse/templates/manage/team/roles.html:30
 msgid "2FA enabled"
 msgstr ""
 
@@ -4133,14 +4135,14 @@ msgstr ""
 #: warehouse/templates/manage/project/roles.html:31
 #: warehouse/templates/manage/project/roles.html:36
 #: warehouse/templates/manage/project/roles.html:68
-#: warehouse/templates/manage/team/roles.html:23
-#: warehouse/templates/manage/team/roles.html:28
+#: warehouse/templates/manage/team/roles.html:31
+#: warehouse/templates/manage/team/roles.html:36
 msgid "2FA"
 msgstr ""
 
 #: warehouse/templates/manage/organization/roles.html:35
 #: warehouse/templates/manage/project/roles.html:35
-#: warehouse/templates/manage/team/roles.html:27
+#: warehouse/templates/manage/team/roles.html:35
 msgid "2FA disabled"
 msgstr ""
 
@@ -4194,7 +4196,7 @@ msgid "Can manage billing for the organization."
 msgstr ""
 
 #: warehouse/templates/manage/organization/roles.html:66
-#: warehouse/templates/manage/team/roles.html:43
+#: warehouse/templates/manage/team/roles.html:51
 #, python-format
 msgid "Users who can manage %(organization_name)s"
 msgstr ""
@@ -4202,8 +4204,8 @@ msgstr ""
 #: warehouse/templates/manage/organization/roles.html:70
 #: warehouse/templates/manage/organization/roles.html:185
 #: warehouse/templates/manage/project/roles.html:340
-#: warehouse/templates/manage/team/roles.html:47
-#: warehouse/templates/manage/team/roles.html:93
+#: warehouse/templates/manage/team/roles.html:55
+#: warehouse/templates/manage/team/roles.html:101
 msgid "User"
 msgstr ""
 
@@ -4280,7 +4282,7 @@ msgid "Change the organization account name <a href=\"%(href)s\">below</a>."
 msgstr ""
 
 #: warehouse/templates/manage/organization/settings.html:45
-#: warehouse/templates/manage/team/settings.html:57
+#: warehouse/templates/manage/team/settings.html:65
 msgid "Date created"
 msgstr ""
 
@@ -4377,7 +4379,7 @@ msgid "Manage '%(organization_name)s' teams"
 msgstr ""
 
 #: warehouse/templates/manage/organization/teams.html:26
-#: warehouse/templates/manage/team/manage_team_base.html:37
+#: warehouse/templates/manage/team/manage_team_base.html:40
 #, python-format
 msgid "%(organization_name)s teams"
 msgstr ""
@@ -4643,7 +4645,7 @@ msgstr ""
 
 #: warehouse/templates/manage/project/publishing.html:126
 #: warehouse/templates/manage/project/roles.html:324
-#: warehouse/templates/manage/team/roles.html:112
+#: warehouse/templates/manage/team/roles.html:120
 msgid "Add"
 msgstr ""
 
@@ -5363,11 +5365,11 @@ msgstr ""
 msgid "Manage '%(team_name)s'"
 msgstr ""
 
-#: warehouse/templates/manage/team/manage_team_base.html:51
+#: warehouse/templates/manage/team/manage_team_base.html:62
 msgid "Back to teams"
 msgstr ""
 
-#: warehouse/templates/manage/team/manage_team_base.html:61
+#: warehouse/templates/manage/team/manage_team_base.html:72
 #, python-format
 msgid ""
 "\n"
@@ -5389,7 +5391,12 @@ msgstr ""
 msgid "Manage '%(team_name)s' projects"
 msgstr ""
 
-#: warehouse/templates/manage/team/projects.html:141
+#: warehouse/templates/manage/team/projects.html:26
+#, python-format
+msgid "%(team_name)s projects"
+msgstr ""
+
+#: warehouse/templates/manage/team/projects.html:149
 msgid ""
 "Your team does not have admin or upload permissions for any projects, "
 "yet. Get started by configuring collaborators for a project in your "
@@ -5401,31 +5408,36 @@ msgstr ""
 msgid "Manage members of '%(team_name)s'"
 msgstr ""
 
-#: warehouse/templates/manage/team/roles.html:39
+#: warehouse/templates/manage/team/roles.html:23
+#, python-format
+msgid "%(team_name)s members"
+msgstr ""
+
+#: warehouse/templates/manage/team/roles.html:47
 msgid "Use this page to manage which organization users are members of this team."
 msgstr ""
 
-#: warehouse/templates/manage/team/roles.html:71
+#: warehouse/templates/manage/team/roles.html:79
 msgid "Cannot remove other people from the team"
 msgstr ""
 
-#: warehouse/templates/manage/team/roles.html:74
-#: warehouse/templates/manage/team/roles.html:75
+#: warehouse/templates/manage/team/roles.html:82
+#: warehouse/templates/manage/team/roles.html:83
 #, python-format
 msgid "Remove %(user)s from this team"
 msgstr ""
 
-#: warehouse/templates/manage/team/roles.html:84
+#: warehouse/templates/manage/team/roles.html:92
 msgid ""
 "There are no members in your team, yet. Get started by adding a team "
 "member below."
 msgstr ""
 
-#: warehouse/templates/manage/team/roles.html:88
+#: warehouse/templates/manage/team/roles.html:96
 msgid "Add member"
 msgstr ""
 
-#: warehouse/templates/manage/team/roles.html:108
+#: warehouse/templates/manage/team/roles.html:116
 #, python-format
 msgid ""
 "Add an organization owner, manager, or member to the team. <a "
@@ -5434,7 +5446,7 @@ msgid ""
 msgstr ""
 
 #: warehouse/templates/manage/team/settings.html:17
-#: warehouse/templates/manage/team/settings.html:24
+#: warehouse/templates/manage/team/settings.html:32
 msgid "Team settings"
 msgstr ""
 
@@ -5443,28 +5455,33 @@ msgstr ""
 msgid "Manage '%(team_name)s' settings"
 msgstr ""
 
-#: warehouse/templates/manage/team/settings.html:33
+#: warehouse/templates/manage/team/settings.html:26
+#, python-format
+msgid "%(team_name)s settings"
+msgstr ""
+
+#: warehouse/templates/manage/team/settings.html:41
 msgid "Team name"
 msgstr ""
 
-#: warehouse/templates/manage/team/settings.html:39
+#: warehouse/templates/manage/team/settings.html:47
 msgid "Name of your team"
 msgstr ""
 
-#: warehouse/templates/manage/team/settings.html:64
+#: warehouse/templates/manage/team/settings.html:72
 msgid "Update team"
 msgstr ""
 
-#: warehouse/templates/manage/team/settings.html:73
-#: warehouse/templates/manage/team/settings.html:80
+#: warehouse/templates/manage/team/settings.html:81
+#: warehouse/templates/manage/team/settings.html:88
 msgid "Delete team"
 msgstr ""
 
-#: warehouse/templates/manage/team/settings.html:78
+#: warehouse/templates/manage/team/settings.html:86
 msgid "You will not be able to recover your team after you delete it."
 msgstr ""
 
-#: warehouse/templates/manage/team/settings.html:80
+#: warehouse/templates/manage/team/settings.html:88
 msgid "Team Name"
 msgstr ""
 
