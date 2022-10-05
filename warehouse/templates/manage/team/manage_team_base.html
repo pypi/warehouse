@@ -58,10 +58,6 @@
       </div>
       <div class="vertical-tabs__panel">
         <!-- mobile nav -->
-        <a href="{{ request.route_path('manage.organizations') }}" class="vertical-tabs__tab vertical-tabs__tab--with-icon vertical-tabs__tab--mobile vertical-tabs__tab--no-top-border">
-          <i class="fa fa-arrow-left" aria-hidden="true"></i>
-          {% trans %}Back to organizations{% endtrans %}
-        </a>
         <a href="{{ request.route_path('manage.organization.teams', organization_name=team.organization.normalized_name) }}" class="vertical-tabs__tab vertical-tabs__tab--with-icon vertical-tabs__tab--mobile vertical-tabs__tab--no-top-border">
           <i class="fa fa-arrow-left" aria-hidden="true"></i>
           {% trans %}Back to teams{% endtrans %}
