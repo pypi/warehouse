@@ -1247,7 +1247,7 @@ def file_upload(request):
         with open(temporary_filename, "wb") as fp:
             file_size = 0
             file_hashes = {
-                "md5": hashlib.md5(),
+                "md5": hashlib.md5(usedforsecurity=False),
                 "sha256": hashlib.sha256(),
                 "blake2_256": hashlib.blake2b(digest_size=256 // 8),
             }
