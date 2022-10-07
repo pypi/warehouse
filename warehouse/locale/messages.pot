@@ -3050,8 +3050,8 @@ msgstr ""
 
 #: warehouse/templates/manage/account.html:611
 #: warehouse/templates/manage/account.html:634
-#: warehouse/templates/manage/project/history.html:69
-#: warehouse/templates/manage/project/history.html:76
+#: warehouse/templates/manage/project/history.html:70
+#: warehouse/templates/manage/project/history.html:77
 msgid "Token name:"
 msgstr ""
 
@@ -3087,21 +3087,21 @@ msgid "Recent account activity"
 msgstr ""
 
 #: warehouse/templates/manage/account.html:657
-#: warehouse/templates/manage/project/history.html:107
+#: warehouse/templates/manage/project/history.html:106
 msgid "Event"
 msgstr ""
 
 #: warehouse/templates/manage/account.html:658
 #: warehouse/templates/manage/account.html:666
-#: warehouse/templates/manage/project/history.html:108
-#: warehouse/templates/manage/project/history.html:117
+#: warehouse/templates/manage/project/history.html:107
+#: warehouse/templates/manage/project/history.html:116
 msgid "Date / time"
 msgstr ""
 
 #: warehouse/templates/manage/account.html:659
 #: warehouse/templates/manage/account.html:670
-#: warehouse/templates/manage/project/history.html:109
-#: warehouse/templates/manage/project/history.html:121
+#: warehouse/templates/manage/project/history.html:108
+#: warehouse/templates/manage/project/history.html:120
 msgid "IP address"
 msgstr ""
 
@@ -4506,8 +4506,8 @@ msgstr ""
 msgid "Changed by:"
 msgstr ""
 
-#: warehouse/templates/manage/project/history.html:67
-#: warehouse/templates/manage/project/history.html:74
+#: warehouse/templates/manage/project/history.html:66
+#: warehouse/templates/manage/project/history.html:73
 msgid "Permissions: Can upload to this project"
 msgstr ""
 
@@ -4525,23 +4525,23 @@ msgstr ""
 msgid "Yanked by:"
 msgstr ""
 
-#: warehouse/templates/manage/project/history.html:88
+#: warehouse/templates/manage/project/history.html:87
 msgid "2FA requirement enabled"
 msgstr ""
 
-#: warehouse/templates/manage/project/history.html:90
+#: warehouse/templates/manage/project/history.html:89
 msgid "Enabled by:"
 msgstr ""
 
-#: warehouse/templates/manage/project/history.html:93
+#: warehouse/templates/manage/project/history.html:92
 msgid "2FA requirement disabled"
 msgstr ""
 
-#: warehouse/templates/manage/project/history.html:95
+#: warehouse/templates/manage/project/history.html:94
 msgid "Disabled by:"
 msgstr ""
 
-#: warehouse/templates/manage/project/history.html:104
+#: warehouse/templates/manage/project/history.html:103
 #, python-format
 msgid "Security history for %(project_name)s"
 msgstr ""

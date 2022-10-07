@@ -350,6 +350,13 @@
       font-size: 95%;
     }
 
+    td {
+      small,
+      strong {
+        display: block;
+      }
+    }
+
     @media only screen and (max-width: $small-tablet) {
       @include mobile-friendly-table;
     }
