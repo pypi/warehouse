@@ -359,6 +359,10 @@
             </h3>
 
             {{ file_table(sdists) }}
+            {% else %}
+            <h3>
+              {% trans %}No source distribution files available for this release.{% endtrans %}
+            </h3>
             {% endif %}
 
             {% if bdists %}
