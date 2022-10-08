@@ -17,7 +17,7 @@
 
 {% set active_tab = 'history' %}
 
-{% block title %}{% trans project_name=project.name %}'{{ project_name }}' project history{% endtrans %}{% endblock %}
+{% block title %}{% trans source_name=project.name %}'{{ source_name }}' security history{% endtrans %}{% endblock %}
 
 {% block main %}
   <h2>{% trans %}Security history{% endtrans %}</h2>
@@ -100,7 +100,7 @@
 
   {% if events %}
   <table class="table table--security-logs">
-    <caption class="sr-only">{% trans project_name=project.name %}Security history for {{ project_name }}{% endtrans %}</caption>
+    <caption class="sr-only">{% trans source_name=project.name %}Security history for {{ source_name }}{% endtrans %}</caption>
     <thead>
       <tr>
         <th scope="col">{% trans %}Event{% endtrans %}</th>

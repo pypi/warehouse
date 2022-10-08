@@ -1314,14 +1314,13 @@ class ManageOrganizationsViews:
             organization = self.organization_service.add_organization(**data)
             self.organization_service.record_event(
                 organization.id,
-                tag=EventTag.Organization.OrganizationCreate,
-                additional={"created_by_user_id": str(self.request.user.id)},
-            )
-            self.organization_service.add_catalog_entry(organization.id)
-            self.organization_service.record_event(
-                organization.id,
                 tag=EventTag.Organization.CatalogEntryAdd,
                 additional={"submitted_by_user_id": str(self.request.user.id)},
+            )
+            self.organization_service.record_event(
+                organization.id,
+                tag=EventTag.Organization.OrganizationCreate,
+                additional={"created_by_user_id": str(self.request.user.id)},
             )
             self.organization_service.add_organization_role(
                 organization.id,
@@ -1461,6 +1460,11 @@ class ManageOrganizationSettingsViews:
             self.organization_service.rename_organization(
                 self.organization.id,
                 form.name.data,
+            )
+            self.organization.record_event(
+                tag=EventTag.Organization.CatalogEntryAdd,
+                ip_address=self.request.remote_addr,
+                additional={"submitted_by_user_id": str(self.request.user.id)},
             )
             self.organization.record_event(
                 tag=EventTag.Organization.OrganizationRename,
@@ -1714,7 +1718,7 @@ class ManageOrganizationTeamsViews:
             tag=EventTag.Organization.TeamCreate,
             ip_address=self.request.remote_addr,
             additional={
-                "submitted_by_user_id": str(self.request.user.id),
+                "created_by_user_id": str(self.request.user.id),
                 "team_name": team.name,
             },
         )
@@ -1722,7 +1726,7 @@ class ManageOrganizationTeamsViews:
             tag=EventTag.Team.TeamCreate,
             ip_address=self.request.remote_addr,
             additional={
-                "submitted_by_user_id": str(self.request.user.id),
+                "created_by_user_id": str(self.request.user.id),
             },
         )
 
@@ -2319,6 +2323,47 @@ def delete_organization_role(organization, request):
         )
 
 
+@view_config(
+    route_name="manage.organization.history",
+    context=Organization,
+    renderer="manage/organization/history.html",
+    uses_session=True,
+    permission="manage:organization",
+    has_translations=True,
+)
+def manage_organization_history(organization, request):
+    try:
+        page_num = int(request.params.get("page", 1))
+    except ValueError:
+        raise HTTPBadRequest("'page' must be an integer.")
+
+    events_query = (
+        request.db.query(Organization.Event)
+        .join(Organization.Event.source)
+        .filter(Organization.Event.source_id == organization.id)
+        .order_by(Organization.Event.time.desc())
+        .order_by(Organization.Event.tag.desc())
+    )
+
+    events = SQLAlchemyORMPage(
+        events_query,
+        page=page_num,
+        items_per_page=25,
+        url_maker=paginate_url_factory(request),
+    )
+
+    if events.page_count and page_num > events.page_count:
+        raise HTTPNotFound
+
+    user_service = request.find_service(IUserService, context=None)
+
+    return {
+        "events": events,
+        "get_user": user_service.get_user,
+        "organization": organization,
+    }
+
+
 @view_defaults(
     route_name="manage.team.settings",
     context=Team,
@@ -2373,18 +2418,17 @@ class ManageTeamSettingsViews:
                 tag=EventTag.Organization.TeamRename,
                 ip_address=self.request.remote_addr,
                 additional={
-                    "renamed_by_user_id": str(self.request.user.id),
                     "team_name": self.team.name,
                     "previous_team_name": previous_team_name,
+                    "renamed_by_user_id": str(self.request.user.id),
                 },
             )
             self.team.record_event(
                 tag=EventTag.Team.TeamRename,
                 ip_address=self.request.remote_addr,
                 additional={
-                    "renamed_by_user_id": str(self.request.user.id),
-                    "team_name": self.team.name,
                     "previous_team_name": previous_team_name,
+                    "renamed_by_user_id": str(self.request.user.id),
                 },
             )
             self.request.session.flash("Team name updated", queue="success")

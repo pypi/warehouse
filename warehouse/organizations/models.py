@@ -608,11 +608,15 @@ class Team(HasEvents, db.Model):
     )
 
     def record_event(self, *, tag, ip_address, additional={}):
-        """Record team name in events in case team is ever deleted."""
+        """Record org and team name in events in case they are ever deleted."""
         super().record_event(
             tag=tag,
             ip_address=ip_address,
-            additional={"team_name": self.name, **additional},
+            additional={
+                "organization_name": self.organization.name,
+                "team_name": self.name,
+                **additional,
+            },
         )
 
     def __acl__(self):

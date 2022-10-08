@@ -121,6 +121,8 @@ class DatabaseOrganizationService:
         self.db.add(organization)
         self.db.flush()
 
+        self.add_catalog_entry(organization.id)
+
         return organization
 
     def add_catalog_entry(self, organization_id):

@@ -305,6 +305,13 @@ def includeme(config):
         domain=warehouse,
     )
     config.add_route(
+        "manage.organization.history",
+        "/manage/organization/{organization_name}/history/",
+        factory="warehouse.organizations.models:OrganizationFactory",
+        traverse="/{organization_name}",
+        domain=warehouse,
+    )
+    config.add_route(
         "manage.team.settings",
         "/manage/organization/{organization_name}/team/{team_name}/settings/",
         factory="warehouse.organizations.models:TeamFactory",
