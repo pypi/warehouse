@@ -59,6 +59,41 @@ class EventTagEnum(str, enum.Enum):
 
 class EventTag:
 
+    class Account(EventTagEnum):
+        # Name = "source_type:subject_type:action"
+        APITokenAdded = "account:api_token:added"
+        APITokenRemoved = "account:api_token:removed"
+        APITokenRemovedLeak = "account:api_token:removed_leak"
+        AccountCreate = "account:create"
+        EmailAdd = "account:email:add"
+        EmailPrimaryChange = "account:email:primary:change"
+        EmailRemove = "account:email:remove"
+        EmailReverify = "account:email:reverify"
+        EmailVerified = "account:email:verified"
+        LoginFailure = "account:login:failure"
+        LoginSuccess = "account:login:success"
+        OrganizationRoleAccepted = "account:organization_role:accepted"
+        OrganizationRoleChange = "account:organization_role:change"
+        OrganizationRoleDeclined = "account:organization_role:declined"
+        OrganizationRoleDelete = "account:organization_role:delete"
+        PasswordChange = "account:password:change"
+        PasswordReset = "account:password:reset"
+        PasswordResetAttempt = "account:password:reset:attempt"
+        PasswordResetRequest = "account:password:reset:request"
+        RecoveryCodesGenerated = "account:recovery_codes:generated"
+        RecoveryCodesRegenerated = "account:recovery_codes:regenerated"
+        RecoveryCodesUsed = "account:recovery_codes:used"
+        RoleCreate = "account:role:create"
+        RoleInvite = "account:role:invite"
+        TeamRoleAdd = "account:team_role:add"
+        TeamRoleDelete = "account:team_role:delete"
+        TwoFactorMethodAdded = "account:two_factor:method_added"
+        TwoFactorMethodRemoved = "account:two_factor:method_removed"
+        # The following tags are no longer used when recording events.
+        # EmailSent = "account:email:sent"
+        # ReauthenticateFailure = "account:reauthenticate:failure"
+        # RoleAccepted = "account:role:accepted"
+
     class Project(EventTagEnum):
         # Name = "source_type:subject_type:action"
         APITokenAdded = "project:api_token:added"

@@ -358,7 +358,7 @@ class ManageAccountViews:
             email = self.user_service.add_email(self.request.user.id, form.email.data)
             self.user_service.record_event(
                 self.request.user.id,
-                tag="account:email:add",
+                tag=EventTag.Account.EmailAdd,
                 additional={"email": email.email},
             )
 
@@ -401,7 +401,7 @@ class ManageAccountViews:
             self.request.user.emails.remove(email)
             self.user_service.record_event(
                 self.request.user.id,
-                tag="account:email:remove",
+                tag=EventTag.Account.EmailRemove,
                 additional={"email": email.email},
             )
             self.request.session.flash(
@@ -437,7 +437,7 @@ class ManageAccountViews:
         new_primary_email.primary = True
         self.user_service.record_event(
             self.request.user.id,
-            tag="account:email:primary:change",
+            tag=EventTag.Account.EmailPrimaryChange,
             additional={
                 "old_primary": previous_primary_email.email
                 if previous_primary_email
@@ -482,7 +482,7 @@ class ManageAccountViews:
                 send_email_verification_email(self.request, (self.request.user, email))
                 verify_email_ratelimit.hit(self.request.user.id)
                 email.user.record_event(
-                    tag="account:email:reverify",
+                    tag=EventTag.Account.EmailReverify,
                     ip_address=self.request.remote_addr,
                     additional={"email": email.email},
                 )
@@ -521,7 +521,7 @@ class ManageAccountViews:
             )
             self.user_service.record_event(
                 self.request.user.id,
-                tag="account:password:change",
+                tag=EventTag.Account.PasswordChange,
             )
             send_password_change_email(self.request, self.request.user)
             self.request.db.flush()  # Ensure changes are persisted to DB
@@ -699,7 +699,7 @@ class ProvisionTOTPViews:
             self.request.session.clear_totp_secret()
             self.user_service.record_event(
                 self.request.user.id,
-                tag="account:two_factor:method_added",
+                tag=EventTag.Account.TwoFactorMethodAdded,
                 additional={"method": "totp"},
             )
             self.request.session.flash(
@@ -737,7 +737,7 @@ class ProvisionTOTPViews:
             self.user_service.update_user(self.request.user.id, totp_secret=None)
             self.user_service.record_event(
                 self.request.user.id,
-                tag="account:two_factor:method_removed",
+                tag=EventTag.Account.TwoFactorMethodRemoved,
                 additional={"method": "totp"},
             )
             self.request.session.flash(
@@ -824,7 +824,7 @@ class ProvisionWebAuthnViews:
             )
             self.user_service.record_event(
                 self.request.user.id,
-                tag="account:two_factor:method_added",
+                tag=EventTag.Account.TwoFactorMethodAdded,
                 additional={"method": "webauthn", "label": form.label.data},
             )
             self.request.session.flash(
@@ -864,7 +864,7 @@ class ProvisionWebAuthnViews:
             self.request.user.webauthn.remove(form.webauthn)
             self.user_service.record_event(
                 self.request.user.id,
-                tag="account:two_factor:method_removed",
+                tag=EventTag.Account.TwoFactorMethodRemoved,
                 additional={"method": "webauthn", "label": form.label.data},
             )
             self.request.session.flash("Security device removed", queue="success")
@@ -910,7 +910,7 @@ class ProvisionRecoveryCodesViews:
         send_recovery_codes_generated_email(self.request, self.request.user)
         self.user_service.record_event(
             self.request.user.id,
-            tag="account:recovery_codes:generated",
+            tag=EventTag.Account.RecoveryCodesGenerated,
         )
 
         return {"recovery_codes": recovery_codes}
@@ -926,7 +926,7 @@ class ProvisionRecoveryCodesViews:
         send_recovery_codes_generated_email(self.request, self.request.user)
         self.user_service.record_event(
             self.request.user.id,
-            tag="account:recovery_codes:regenerated",
+            tag=EventTag.Account.RecoveryCodesRegenerated,
         )
 
         return {"recovery_codes": recovery_codes}
@@ -1050,7 +1050,7 @@ class ProvisionMacaroonViews:
             )
             self.user_service.record_event(
                 self.request.user.id,
-                tag="account:api_token:added",
+                tag=EventTag.Account.APITokenAdded,
                 additional={
                     "description": form.description.data,
                     "caveats": recorded_caveats,
@@ -1101,7 +1101,7 @@ class ProvisionMacaroonViews:
             self.macaroon_service.delete_macaroon(form.macaroon_id.data)
             self.user_service.record_event(
                 self.request.user.id,
-                tag="account:api_token:removed",
+                tag=EventTag.Account.APITokenRemoved,
                 additional={"macaroon_id": form.macaroon_id.data},
             )
             if "projects" in macaroon.permissions_caveat:
@@ -1348,7 +1348,7 @@ class ManageOrganizationsViews:
             )
             self.user_service.record_event(
                 self.request.user.id,
-                tag="account:organization_role:accepted",
+                tag=EventTag.Account.OrganizationRoleAccepted,
                 additional={
                     "submitted_by_user_id": str(self.request.user.id),
                     "organization_name": organization.name,
@@ -2204,7 +2204,7 @@ def change_organization_role(
                 },
             )
             role.user.record_event(
-                tag="account:organization_role:change",
+                tag=EventTag.Account.OrganizationRoleChange,
                 ip_address=request.remote_addr,
                 additional={
                     "submitted_by_user_id": str(request.user.id),
@@ -2258,7 +2258,7 @@ def delete_organization_role(organization, request):
             },
         )
         role.user.record_event(
-            tag="account:organization_role:delete",
+            tag=EventTag.Account.OrganizationRoleDelete,
             ip_address=request.remote_addr,
             additional={
                 "submitted_by_user_id": str(request.user.id),
@@ -2545,7 +2545,7 @@ class ManageTeamRolesViews:
             },
         )
         role.user.record_event(
-            tag="account:team_role:add",
+            tag=EventTag.Account.TeamRoleAdd,
             ip_address=self.request.remote_addr,
             additional={
                 "submitted_by_user_id": str(self.request.user.id),
@@ -2630,7 +2630,7 @@ class ManageTeamRolesViews:
                 },
             )
             role.user.record_event(
-                tag="account:team_role:delete",
+                tag=EventTag.Account.TeamRoleDelete,
                 ip_address=self.request.remote_addr,
                 additional={
                     "submitted_by_user_id": str(self.request.user.id),
@@ -4108,7 +4108,7 @@ def manage_project_roles(project, request, _form_class=CreateRoleForm):
             },
         )
         user.record_event(
-            tag="account:role:create",
+            tag=EventTag.Account.RoleCreate,
             ip_address=request.remote_addr,
             additional={
                 "submitted_by": request.user.username,
@@ -4241,7 +4241,7 @@ def manage_project_roles(project, request, _form_class=CreateRoleForm):
                 },
             )
             user.record_event(
-                tag="account:role:invite",
+                tag=EventTag.Account.RoleInvite,
                 ip_address=request.remote_addr,
                 additional={
                     "submitted_by": request.user.username,

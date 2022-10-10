@@ -41,6 +41,7 @@ from warehouse.accounts.interfaces import (
 from warehouse.accounts.models import User
 from warehouse.accounts.views import two_factor_and_totp_validate
 from warehouse.admin.flags import AdminFlag, AdminFlagValue
+from warehouse.events.tags import EventTag
 from warehouse.organizations.models import (
     OrganizationInvitation,
     OrganizationRole,
@@ -273,7 +274,7 @@ class TestLogin:
         assert user_service.record_event.calls == [
             pretend.call(
                 user_id,
-                tag="account:login:success",
+                tag=EventTag.Account.LoginSuccess,
                 additional={"two_factor_method": None, "two_factor_label": None},
             )
         ]
@@ -333,7 +334,7 @@ class TestLogin:
         assert user_service.record_event.calls == [
             pretend.call(
                 1,
-                tag="account:login:success",
+                tag=EventTag.Account.LoginSuccess,
                 additional={"two_factor_method": None, "two_factor_label": None},
             )
         ]
@@ -697,7 +698,7 @@ class TestTwoFactor:
         assert user_service.record_event.calls == [
             pretend.call(
                 "1",
-                tag="account:login:success",
+                tag=EventTag.Account.LoginSuccess,
                 additional={"two_factor_method": "totp", "two_factor_label": "totp"},
             )
         ]
@@ -1141,7 +1142,7 @@ class TestRecoveryCode:
         assert user_service.record_event.calls == [
             pretend.call(
                 "1",
-                tag="account:login:success",
+                tag=EventTag.Account.LoginSuccess,
                 additional={
                     "two_factor_method": "recovery-code",
                     "two_factor_label": None,
@@ -1149,7 +1150,7 @@ class TestRecoveryCode:
             ),
             pretend.call(
                 "1",
-                tag="account:recovery_codes:used",
+                tag=EventTag.Account.RecoveryCodesUsed,
             ),
         ]
         assert pyramid_request.session.flash.calls == [
@@ -1384,12 +1385,12 @@ class TestRegister:
         assert record_event.calls == [
             pretend.call(
                 user.id,
-                tag="account:create",
+                tag=EventTag.Account.AccountCreate,
                 additional={"email": "foo@bar.com"},
             ),
             pretend.call(
                 user.id,
-                tag="account:login:success",
+                tag=EventTag.Account.LoginSuccess,
                 additional={"two_factor_method": None, "two_factor_label": None},
             ),
         ]
@@ -1496,7 +1497,7 @@ class TestRequestPasswordReset:
         assert user_service.record_event.calls == [
             pretend.call(
                 stub_user.id,
-                tag="account:password:reset:request",
+                tag=EventTag.Account.PasswordResetRequest,
             )
         ]
 
@@ -1561,7 +1562,7 @@ class TestRequestPasswordReset:
         assert user_service.record_event.calls == [
             pretend.call(
                 stub_user.id,
-                tag="account:password:reset:request",
+                tag=EventTag.Account.PasswordResetRequest,
             )
         ]
         assert user_service.ratelimiters["password.reset"].test.calls == [
@@ -1637,7 +1638,7 @@ class TestRequestPasswordReset:
         assert user_service.record_event.calls == [
             pretend.call(
                 stub_user.id,
-                tag="account:password:reset:request",
+                tag=EventTag.Account.PasswordResetRequest,
             )
         ]
         assert user_service.ratelimiters["password.reset"].test.calls == [
@@ -1735,7 +1736,7 @@ class TestRequestPasswordReset:
         assert user_service.record_event.calls == [
             pretend.call(
                 stub_user.id,
-                tag="account:password:reset:attempt",
+                tag=EventTag.Account.PasswordResetAttempt,
             )
         ]
 

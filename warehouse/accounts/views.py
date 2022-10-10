@@ -441,7 +441,7 @@ def recovery_code(request, _form_class=RecoveryCodeAuthenticationForm):
 
             user_service.record_event(
                 userid,
-                tag="account:recovery_codes:used",
+                tag=EventTag.Account.RecoveryCodesUsed,
             )
 
             request.session.flash(
@@ -554,7 +554,7 @@ def register(request, _form_class=RegistrationForm):
         email = user_service.add_email(user.id, form.email.data, primary=True)
         user_service.record_event(
             user.id,
-            tag="account:create",
+            tag=EventTag.Account.AccountCreate,
             additional={"email": form.email.data},
         )
 
@@ -601,7 +601,7 @@ def request_password_reset(request, _form_class=RequestPasswordResetForm):
             send_password_reset_email(request, (user, email))
             user_service.record_event(
                 user.id,
-                tag="account:password:reset:request",
+                tag=EventTag.Account.PasswordResetRequest,
             )
             user_service.ratelimiters["password.reset"].hit(user.id)
 
@@ -611,7 +611,7 @@ def request_password_reset(request, _form_class=RequestPasswordResetForm):
         else:
             user_service.record_event(
                 user.id,
-                tag="account:password:reset:attempt",
+                tag=EventTag.Account.PasswordResetAttempt,
             )
             request.session.flash(
                 request._(
@@ -714,7 +714,7 @@ def reset_password(request, _form_class=ResetPasswordForm):
         )
         # Update password.
         user_service.update_user(user.id, password=form.new_password.data)
-        user_service.record_event(user.id, tag="account:password:reset")
+        user_service.record_event(user.id, tag=EventTag.Account.PasswordReset)
         password_reset_limiter.clear(user.id)
 
         # Send password change email
@@ -776,7 +776,7 @@ def verify_email(request):
     email.unverify_reason = None
     email.transient_bounces = 0
     email.user.record_event(
-        tag="account:email:verified",
+        tag=EventTag.Account.EmailVerified,
         ip_address=request.remote_addr,
         additional={"email": email.email, "primary": email.primary},
     )
@@ -892,7 +892,7 @@ def verify_organization_role(request):
             },
         )
         user.record_event(
-            tag="account:organization_role:declined",
+            tag=EventTag.Account.OrganizationRoleDeclined,
             ip_address=request.remote_addr,
             additional={
                 "submitted_by_user_id": str(submitter_user.id),
@@ -944,7 +944,7 @@ def verify_organization_role(request):
         },
     )
     user.record_event(
-        tag="account:organization_role:accepted",
+        tag=EventTag.Account.OrganizationRoleAccepted,
         ip_address=request.remote_addr,
         additional={
             "submitted_by_user_id": str(submitter_user.id),
@@ -1083,7 +1083,7 @@ def verify_project_role(request):
         },
     )
     user.record_event(
-        tag="account:role:create",
+        tag=EventTag.Account.RoleCreate,
         ip_address=request.remote_addr,
         additional={
             "submitted_by": request.user.username,
@@ -1178,7 +1178,7 @@ def _login_user(request, userid, two_factor_method=None, two_factor_label=None):
     user_service.update_user(userid, last_login=datetime.datetime.utcnow())
     user_service.record_event(
         userid,
-        tag="account:login:success",
+        tag=EventTag.Account.LoginSuccess,
         additional={
             "two_factor_method": two_factor_method,
             "two_factor_label": two_factor_label,

@@ -310,7 +310,7 @@ class TestManageAccount:
         assert user_service.record_event.calls == [
             pretend.call(
                 pyramid_request.user.id,
-                tag="account:email:add",
+                tag=EventTag.Account.EmailAdd,
                 additional={"email": email_address},
             )
         ]
@@ -381,7 +381,7 @@ class TestManageAccount:
         assert user_service.record_event.calls == [
             pretend.call(
                 request.user.id,
-                tag="account:email:remove",
+                tag=EventTag.Account.EmailRemove,
                 additional={"email": email.email},
             )
         ]
@@ -474,7 +474,7 @@ class TestManageAccount:
         assert user_service.record_event.calls == [
             pretend.call(
                 user.id,
-                tag="account:email:primary:change",
+                tag=EventTag.Account.EmailPrimaryChange,
                 additional={"old_primary": "old", "new_primary": "new"},
             )
         ]
@@ -510,7 +510,7 @@ class TestManageAccount:
         assert user_service.record_event.calls == [
             pretend.call(
                 user.id,
-                tag="account:email:primary:change",
+                tag=EventTag.Account.EmailPrimaryChange,
                 additional={"old_primary": None, "new_primary": new_primary.email},
             )
         ]
@@ -576,7 +576,7 @@ class TestManageAccount:
         assert send_email.calls == [pretend.call(request, (request.user, email))]
         assert email.user.record_event.calls == [
             pretend.call(
-                tag="account:email:reverify",
+                tag=EventTag.Account.EmailReverify,
                 ip_address=request.remote_addr,
                 additional={"email": email.email},
             )
@@ -739,7 +739,7 @@ class TestManageAccount:
             pretend.call(request.user.id, password=new_password)
         ]
         assert user_service.record_event.calls == [
-            pretend.call(request.user.id, tag="account:password:change")
+            pretend.call(request.user.id, tag=EventTag.Account.PasswordChange)
         ]
 
     def test_change_password_validation_fails(self, monkeypatch):
@@ -1143,7 +1143,7 @@ class TestProvisionTOTP:
         assert user_service.record_event.calls == [
             pretend.call(
                 request.user.id,
-                tag="account:two_factor:method_added",
+                tag=EventTag.Account.TwoFactorMethodAdded,
                 additional={"method": "totp"},
             )
         ]
@@ -1300,7 +1300,7 @@ class TestProvisionTOTP:
         assert user_service.record_event.calls == [
             pretend.call(
                 request.user.id,
-                tag="account:two_factor:method_removed",
+                tag=EventTag.Account.TwoFactorMethodRemoved,
                 additional={"method": "totp"},
             )
         ]
@@ -1513,7 +1513,7 @@ class TestProvisionWebAuthn:
         assert user_service.record_event.calls == [
             pretend.call(
                 request.user.id,
-                tag="account:two_factor:method_added",
+                tag=EventTag.Account.TwoFactorMethodAdded,
                 additional={
                     "method": "webauthn",
                     "label": provision_webauthn_obj.label.data,
@@ -1606,7 +1606,7 @@ class TestProvisionWebAuthn:
         assert user_service.record_event.calls == [
             pretend.call(
                 request.user.id,
-                tag="account:two_factor:method_removed",
+                tag=EventTag.Account.TwoFactorMethodRemoved,
                 additional={
                     "method": "webauthn",
                     "label": delete_webauthn_obj.label.data,
@@ -1692,7 +1692,7 @@ class TestProvisionRecoveryCodes:
         result = view.recovery_codes_generate()
 
         assert user_service.record_event.calls == [
-            pretend.call(1, tag="account:recovery_codes:generated")
+            pretend.call(1, tag=EventTag.Account.RecoveryCodesGenerated)
         ]
 
         assert result == {"recovery_codes": ["aaaaaaaaaaaa", "bbbbbbbbbbbb"]}
@@ -1759,7 +1759,7 @@ class TestProvisionRecoveryCodes:
         result = view.recovery_codes_regenerate()
 
         assert user_service.record_event.calls == [
-            pretend.call(1, tag="account:recovery_codes:regenerated")
+            pretend.call(1, tag=EventTag.Account.RecoveryCodesRegenerated)
         ]
 
         assert result == {"recovery_codes": ["cccccccccccc", "dddddddddddd"]}
@@ -2055,7 +2055,7 @@ class TestProvisionMacaroonViews:
         assert user_service.record_event.calls == [
             pretend.call(
                 request.user.id,
-                tag="account:api_token:added",
+                tag=EventTag.Account.APITokenAdded,
                 additional={
                     "description": create_macaroon_obj.description.data,
                     "caveats": [
@@ -2150,7 +2150,7 @@ class TestProvisionMacaroonViews:
         assert record_user_event.calls == [
             pretend.call(
                 request.user.id,
-                tag="account:api_token:added",
+                tag=EventTag.Account.APITokenAdded,
                 additional={
                     "description": create_macaroon_obj.description.data,
                     "caveats": [
@@ -2297,7 +2297,7 @@ class TestProvisionMacaroonViews:
         assert record_event.calls == [
             pretend.call(
                 request.user.id,
-                tag="account:api_token:removed",
+                tag=EventTag.Account.APITokenRemoved,
                 additional={"macaroon_id": delete_macaroon_obj.macaroon_id.data},
             )
         ]
@@ -2365,7 +2365,7 @@ class TestProvisionMacaroonViews:
         assert record_user_event.calls == [
             pretend.call(
                 request.user.id,
-                tag="account:api_token:removed",
+                tag=EventTag.Account.APITokenRemoved,
                 additional={"macaroon_id": delete_macaroon_obj.macaroon_id.data},
             )
         ]
@@ -2588,7 +2588,7 @@ class TestManageOrganizations:
         assert user_service.record_event.calls == [
             pretend.call(
                 request.user.id,
-                tag="account:organization_role:accepted",
+                tag=EventTag.Account.OrganizationRoleAccepted,
                 additional={
                     "submitted_by_user_id": str(request.user.id),
                     "organization_name": organization.name,
@@ -2746,7 +2746,7 @@ class TestManageOrganizations:
         assert user_service.record_event.calls == [
             pretend.call(
                 request.user.id,
-                tag="account:organization_role:accepted",
+                tag=EventTag.Account.OrganizationRoleAccepted,
                 additional={
                     "submitted_by_user_id": str(request.user.id),
                     "organization_name": organization.name,

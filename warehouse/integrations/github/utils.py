@@ -21,6 +21,7 @@ import requests
 from warehouse import integrations
 from warehouse.accounts.interfaces import IUserService
 from warehouse.email import send_token_compromised_email_leak
+from warehouse.events.tags import EventTag
 from warehouse.macaroons import InvalidMacaroonError
 from warehouse.macaroons.interfaces import IMacaroonService
 from warehouse.metrics import IMetricsService
@@ -250,7 +251,7 @@ def _analyze_disclosure(request, disclosure_record, origin):
 
     user_service.record_event(
         database_macaroon.user.id,
-        tag="account:api_token:removed_leak",
+        tag=EventTag.Account.APITokenRemovedLeak,
         additional={
             "macaroon_id": str(database_macaroon.id),
             "public_url": disclosure.public_url,

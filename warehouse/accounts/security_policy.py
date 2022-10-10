@@ -31,6 +31,7 @@ from warehouse.errors import (
     BasicAuthFailedPassword,
     WarehouseDenied,
 )
+from warehouse.events.tags import EventTag
 from warehouse.packaging.models import TwoFactorRequireable
 from warehouse.utils.security_policy import AuthenticationMethod
 
@@ -93,7 +94,7 @@ def _basic_auth_check(username, password, request):
             return True
         else:
             user.record_event(
-                tag="account:login:failure",
+                tag=EventTag.Account.LoginFailure,
                 ip_address=request.remote_addr,
                 additional={"reason": "invalid_password", "auth_method": "basic"},
             )
