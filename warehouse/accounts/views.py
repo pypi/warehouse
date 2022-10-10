@@ -66,6 +66,7 @@ from warehouse.email import (
     send_password_reset_email,
     send_recovery_code_reminder_email,
 )
+from warehouse.events.tags import EventTag
 from warehouse.organizations.interfaces import IOrganizationService
 from warehouse.organizations.models import OrganizationRole, OrganizationRoleType
 from warehouse.packaging.models import (
@@ -1073,7 +1074,7 @@ def verify_project_role(request):
         )
     )
     project.record_event(
-        tag="project:role:create",
+        tag=EventTag.Project.RoleCreate,
         ip_address=request.remote_addr,
         additional={
             "submitted_by": request.user.username,

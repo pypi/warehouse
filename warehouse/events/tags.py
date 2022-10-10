@@ -55,3 +55,34 @@ class EventTagEnum(str, enum.Enum):
         obj.subject_type = ":".join(values[1:-1]) or value[0]
         obj.action = values[-1]
         return obj
+
+
+class EventTag:
+
+    class Project(EventTagEnum):
+        # Name = "source_type:subject_type:action"
+        APITokenAdded = "project:api_token:added"
+        APITokenRemoved = "project:api_token:removed"
+        OIDCProviderAdded = "project:oidc:provider-added"
+        OIDCProviderRemoved = "project:oidc:provider-removed"
+        OrganizationProjectAdd = "project:organization_project:add"
+        OrganizationProjectRemove = "project:organization_project:remove"
+        OwnersRequire2FADisabled = "project:owners_require_2fa:disabled"
+        OwnersRequire2FAEnabled = "project:owners_require_2fa:enabled"
+        ProjectCreate = "project:create"
+        ReleaseAdd = "project:release:add"
+        ReleaseFileRemove = "project:release:file:remove"
+        ReleaseRemove = "project:release:remove"
+        ReleaseUnyank = "project:release:unyank"
+        ReleaseYank = "project:release:yank"
+        RoleChange = "project:role:change"
+        RoleCreate = "project:role:create"
+        RoleDelete = "project:role:delete"
+        RoleInvite = "project:role:invite"
+        RoleRevokeInvite = "project:role:revoke_invite"
+        TeamProjectRoleChange = "project:team_project_role:change"
+        TeamProjectRoleCreate = "project:team_project_role:create"
+        TeamProjectRoleDelete = "project:team_project_role:delete"
+        # The following tags are no longer used when recording events.
+        # RoleAccepted = "project:role:accepted"
+        # RoleAdd = "project:role:add"

@@ -40,6 +40,7 @@ from warehouse.accounts.interfaces import (
     TokenExpired,
 )
 from warehouse.admin.flags import AdminFlagValue
+from warehouse.events.tags import EventTag
 from warehouse.forklift.legacy import MAX_FILESIZE, MAX_PROJECT_SIZE
 from warehouse.macaroons import caveats
 from warehouse.macaroons.interfaces import IMacaroonService
@@ -2164,7 +2165,7 @@ class TestProvisionMacaroonViews:
         ]
         assert record_project_event.calls == [
             pretend.call(
-                tag="project:api_token:added",
+                tag=EventTag.Project.APITokenAdded,
                 ip_address=request.remote_addr,
                 additional={
                     "description": create_macaroon_obj.description.data,
@@ -2172,7 +2173,7 @@ class TestProvisionMacaroonViews:
                 },
             ),
             pretend.call(
-                tag="project:api_token:added",
+                tag=EventTag.Project.APITokenAdded,
                 ip_address=request.remote_addr,
                 additional={
                     "description": create_macaroon_obj.description.data,
@@ -2370,7 +2371,7 @@ class TestProvisionMacaroonViews:
         ]
         assert record_project_event.calls == [
             pretend.call(
-                tag="project:api_token:removed",
+                tag=EventTag.Project.APITokenRemoved,
                 ip_address=request.remote_addr,
                 additional={
                     "description": "fake macaroon",
@@ -2378,7 +2379,7 @@ class TestProvisionMacaroonViews:
                 },
             ),
             pretend.call(
-                tag="project:api_token:removed",
+                tag=EventTag.Project.APITokenRemoved,
                 ip_address=request.remote_addr,
                 additional={
                     "description": "fake macaroon",
@@ -5775,13 +5776,13 @@ class TestManageProjectSettings:
                 False,
                 True,
                 [pretend.call("2FA requirement enabled for foo", queue="success")],
-                "project:owners_require_2fa:enabled",
+                EventTag.Project.OwnersRequire2FAEnabled,
             ),
             (
                 True,
                 False,
                 [pretend.call("2FA requirement disabled for foo", queue="success")],
-                "project:owners_require_2fa:disabled",
+                EventTag.Project.OwnersRequire2FADisabled,
             ),
         ],
     )
@@ -6996,7 +6997,7 @@ class TestManageProjectRelease:
         ]
         assert release.project.record_event.calls == [
             pretend.call(
-                tag="project:release:yank",
+                tag=EventTag.Project.ReleaseYank,
                 ip_address=request.remote_addr,
                 additional={
                     "submitted_by": request.user.username,
@@ -7165,7 +7166,7 @@ class TestManageProjectRelease:
         ]
         assert release.project.record_event.calls == [
             pretend.call(
-                tag="project:release:unyank",
+                tag=EventTag.Project.ReleaseUnyank,
                 ip_address=request.remote_addr,
                 additional={
                     "submitted_by": request.user.username,
@@ -7339,7 +7340,7 @@ class TestManageProjectRelease:
         ]
         assert release.project.record_event.calls == [
             pretend.call(
-                tag="project:release:remove",
+                tag=EventTag.Project.ReleaseRemove,
                 ip_address=request.remote_addr,
                 additional={
                     "submitted_by": request.user.username,
@@ -9385,7 +9386,7 @@ class TestManageOIDCProviderViews:
         ]
         assert project.record_event.calls == [
             pretend.call(
-                tag="project:oidc:provider-added",
+                tag=EventTag.Project.OIDCProviderAdded,
                 ip_address=request.remote_addr,
                 additional={
                     "provider": "GitHub",
@@ -9472,7 +9473,7 @@ class TestManageOIDCProviderViews:
         ]
         assert project.record_event.calls == [
             pretend.call(
-                tag="project:oidc:provider-added",
+                tag=EventTag.Project.OIDCProviderAdded,
                 ip_address=request.remote_addr,
                 additional={
                     "provider": "GitHub",
@@ -9767,7 +9768,7 @@ class TestManageOIDCProviderViews:
 
         assert project.record_event.calls == [
             pretend.call(
-                tag="project:oidc:provider-removed",
+                tag=EventTag.Project.OIDCProviderRemoved,
                 ip_address=request.remote_addr,
                 additional={
                     "provider": "fakeprovider",
