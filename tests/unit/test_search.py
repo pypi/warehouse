@@ -39,7 +39,7 @@ class TestQueries:
 
         query = queries.get_es_query(es, "", "", [])
 
-        assert query == es.query()
+        assert query.to_dict() == {"query": {"match_all": {}}}
 
     @pytest.mark.parametrize(
         "terms,expected_prefix,expected_type",
@@ -54,22 +54,31 @@ class TestQueries:
 
         query = queries.get_es_query(es, terms, "", [])
 
-        query_dict = query.to_dict()
-        assert len(query_dict["query"]["bool"]["should"]) == 2
-        assert query_dict["query"]["bool"]["should"][1] == {
-            "prefix": {"normalized_name": expected_prefix}
+        assert query.to_dict() == {
+            "query": {
+                "bool": {
+                    "should": [
+                        {
+                            "bool": {
+                                "must": [
+                                    {
+                                        "multi_match": {
+                                            "fields": EXPECTED_SEARCH_FIELDS,
+                                            "query": "foo bar"
+                                            if terms != '"a"'
+                                            else "a",
+                                            "type": expected_type,
+                                        }
+                                    },
+                                ]
+                            }
+                        },
+                        {"prefix": {"normalized_name": expected_prefix}},
+                    ]
+                }
+            },
+            "suggest": {"name_suggestion": {"text": terms, "term": {"field": "name"}}},
         }
-        must_params = query_dict["query"]["bool"]["should"][0]["bool"]["must"]
-        assert len(must_params) == 1
-        assert must_params[0]["multi_match"] == {
-            "fields": EXPECTED_SEARCH_FIELDS,
-            "type": expected_type,
-            "query": "foo bar" if terms != '"a"' else "a",
-        }
-        assert query_dict["suggest"] == {
-            "name_suggestion": {"text": terms, "term": {"field": "name"}}
-        }
-        assert "sort" not in query_dict  # default "relevance" mode does no sorting
 
     def test_single_not_quoted_character(self):
         es = Search()
@@ -77,18 +86,22 @@ class TestQueries:
 
         query = queries.get_es_query(es, terms, "", [])
 
-        query_dict = query.to_dict()
-        must_params = query_dict["query"]["bool"]["must"]
-        assert len(must_params) == 1
-        assert must_params[0]["multi_match"] == {
-            "fields": EXPECTED_SEARCH_FIELDS,
-            "type": "best_fields",
-            "query": "a",
+        assert query.to_dict() == {
+            "query": {
+                "bool": {
+                    "must": [
+                        {
+                            "multi_match": {
+                                "fields": EXPECTED_SEARCH_FIELDS,
+                                "query": "a",
+                                "type": "best_fields",
+                            }
+                        },
+                    ]
+                }
+            },
+            "suggest": {"name_suggestion": {"text": "a", "term": {"field": "name"}}},
         }
-        assert query_dict["suggest"] == {
-            "name_suggestion": {"text": terms, "term": {"field": "name"}}
-        }
-        assert "sort" not in query_dict  # default "relevance" mode does no sorting
 
     def test_mixed_quoted_query(self):
         es = Search()
@@ -96,27 +109,38 @@ class TestQueries:
 
         query = queries.get_es_query(es, terms, "", [])
 
-        query_dict = query.to_dict()
-        assert len(query_dict["query"]["bool"]["should"]) == 2
-        assert query_dict["query"]["bool"]["should"][1] == {
-            "prefix": {"normalized_name": '"foo bar" baz'}
+        assert query.to_dict() == {
+            "query": {
+                "bool": {
+                    "should": [
+                        {
+                            "bool": {
+                                "must": [
+                                    {
+                                        "multi_match": {
+                                            "fields": EXPECTED_SEARCH_FIELDS,
+                                            "query": "foo bar",
+                                            "type": "phrase",
+                                        }
+                                    },
+                                    {
+                                        "multi_match": {
+                                            "fields": EXPECTED_SEARCH_FIELDS,
+                                            "query": "baz",
+                                            "type": "best_fields",
+                                        }
+                                    },
+                                ]
+                            }
+                        },
+                        {"prefix": {"normalized_name": '"foo bar" baz'}},
+                    ]
+                }
+            },
+            "suggest": {
+                "name_suggestion": {"text": '"foo bar" baz', "term": {"field": "name"}}
+            },
         }
-        must_params = query_dict["query"]["bool"]["should"][0]["bool"]["must"]
-        assert len(must_params) == 2
-        assert must_params[0]["multi_match"] == {
-            "fields": EXPECTED_SEARCH_FIELDS,
-            "type": "phrase",
-            "query": "foo bar",
-        }
-        assert must_params[1]["multi_match"] == {
-            "fields": EXPECTED_SEARCH_FIELDS,
-            "type": "best_fields",
-            "query": "baz",
-        }
-        assert query_dict["suggest"] == {
-            "name_suggestion": {"text": terms, "term": {"field": "name"}}
-        }
-        assert "sort" not in query_dict  # default "relevance" mode does no sorting
 
     @pytest.mark.parametrize(
         "order,field", [("created", "created"), ("-zscore", "zscore")]
@@ -127,29 +151,37 @@ class TestQueries:
 
         query = queries.get_es_query(es, terms, order, [])
 
-        query_dict = query.to_dict()
-        assert len(query_dict["query"]["bool"]["should"]) == 2
-        assert query_dict["query"]["bool"]["should"][1] == {
-            "prefix": {"normalized_name": "foo bar"}
-        }
-        must_params = query_dict["query"]["bool"]["should"][0]["bool"]["must"]
-        assert len(must_params) == 1
-        assert must_params[0]["multi_match"] == {
-            "fields": EXPECTED_SEARCH_FIELDS,
-            "type": "best_fields",
-            "query": "foo bar",
-        }
-        assert query_dict["suggest"] == {
-            "name_suggestion": {"text": terms, "term": {"field": "name"}}
-        }
-        assert query_dict["sort"] == [
-            {
-                field: {
-                    "order": "desc" if order.startswith("-") else "asc",
-                    "unmapped_type": "long",
+        assert query.to_dict() == {
+            "query": {
+                "bool": {
+                    "should": [
+                        {
+                            "bool": {
+                                "must": [
+                                    {
+                                        "multi_match": {
+                                            "fields": EXPECTED_SEARCH_FIELDS,
+                                            "query": terms,
+                                            "type": "best_fields",
+                                        }
+                                    },
+                                ]
+                            }
+                        },
+                        {"prefix": {"normalized_name": terms}},
+                    ]
                 }
-            }
-        ]
+            },
+            "suggest": {"name_suggestion": {"text": terms, "term": {"field": "name"}}},
+            "sort": [
+                {
+                    field: {
+                        "order": "desc" if order.startswith("-") else "asc",
+                        "unmapped_type": "long",
+                    }
+                }
+            ],
+        }
 
     def test_with_classifiers_with_terms(self):
         es = Search()
@@ -158,26 +190,34 @@ class TestQueries:
 
         query = queries.get_es_query(es, terms, "", classifiers)
 
-        query_dict = query.to_dict()
-        assert len(query_dict["query"]["bool"]["should"]) == 2
-        assert query_dict["query"]["bool"]["should"][1] == {
-            "prefix": {"normalized_name": "foo bar"}
+        assert query.to_dict() == {
+            "query": {
+                "bool": {
+                    "should": [
+                        {
+                            "bool": {
+                                "must": [
+                                    {
+                                        "multi_match": {
+                                            "fields": EXPECTED_SEARCH_FIELDS,
+                                            "query": terms,
+                                            "type": "best_fields",
+                                        }
+                                    }
+                                ]
+                            }
+                        },
+                        {"prefix": {"normalized_name": terms}},
+                    ],
+                    "must": [
+                        {"prefix": {"classifiers": classifier}}
+                        for classifier in classifiers
+                    ],
+                    "minimum_should_match": 1,
+                }
+            },
+            "suggest": {"name_suggestion": {"text": terms, "term": {"field": "name"}}},
         }
-        must_params = query_dict["query"]["bool"]["should"][0]["bool"]["must"]
-        assert len(must_params) == 1
-        assert must_params[0]["multi_match"] == {
-            "fields": EXPECTED_SEARCH_FIELDS,
-            "type": "best_fields",
-            "query": "foo bar",
-        }
-        assert query_dict["suggest"] == {
-            "name_suggestion": {"text": terms, "term": {"field": "name"}}
-        }
-        assert "sort" not in query_dict
-        assert query_dict["query"]["bool"]["must"] == [
-            {"prefix": {"classifiers": classifier}} for classifier in classifiers
-        ]
-        assert query_dict["query"]["bool"]["minimum_should_match"] == 1
 
     def test_with_classifiers_with_no_terms(self):
         es = Search()
@@ -186,10 +226,16 @@ class TestQueries:
 
         query = queries.get_es_query(es, terms, "", classifiers)
 
-        query_dict = query.to_dict()
-        assert query_dict["query"]["bool"]["must"] == [
-            {"prefix": {"classifiers": classifier}} for classifier in classifiers
-        ]
+        assert query.to_dict() == {
+            "query": {
+                "bool": {
+                    "must": [
+                        {"prefix": {"classifiers": classifier}}
+                        for classifier in classifiers
+                    ]
+                }
+            }
+        }
 
     def test_with_classifier_with_no_terms_and_order(self):
         es = Search()
@@ -198,8 +244,7 @@ class TestQueries:
 
         query = queries.get_es_query(es, terms, "-created", classifiers)
 
-        query_dict = query.to_dict()
-        assert query_dict["query"] == {"prefix": {"classifiers": "foo :: bar"}}
-        assert query_dict["sort"] == [
-            {"created": {"order": "desc", "unmapped_type": "long"}}
-        ]
+        assert query.to_dict() == {
+            "query": {"prefix": {"classifiers": "foo :: bar"}},
+            "sort": [{"created": {"order": "desc", "unmapped_type": "long"}}],
+        }
