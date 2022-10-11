@@ -24,27 +24,37 @@
 
 {% block content %}
   <div class="tabs-container">
+    {% block breadcrumbs %}
+    <nav aria-label="{% trans %}Breadcrumbs{% endtrans %}" class="breadcrumbs">
+      <ul>
+        <li class="breadcrumbs__breadcrumb">
+          <a href="{{ request.route_path('manage.projects') }}">
+            {% trans %}Your account{% endtrans %}
+          </a>
+        </li>
+        {% if not request.flags.enabled(AdminFlagValue.DISABLE_ORGANIZATIONS) and project.organization and request.user in project.organization.users %}
+        <li class="breadcrumbs__breadcrumb">
+          <a href="{{ request.route_path('manage.organization.projects', organization_name=project.organization.normalized_name) }}">
+            <i class="fa fa-sm fa-sitemap" aria-hidden="true"></i>
+            {{ project.organization.name }}
+          </a>
+        </li>
+        {% endif %}
+
+        {# Last breadcrumb can be overriden #}
+        {% block breadcrumb %}
+        <li class="breadcrumbs__breadcrumb">
+          <i class="fa fa-cubes" aria-hidden="true"></i>
+          {{ project.name }}
+        </li>
+        {% endblock %}
+      </ul>
+    </nav>
+    {% endblock %}
+
     <div class="vertical-tabs">
       <div class="vertical-tabs__tabs">
         <div class="sidebar-section">
-          {% if not request.flags.enabled(AdminFlagValue.DISABLE_ORGANIZATIONS) and project.organization and request.user in project.organization.users %}
-          <h3 class="sidebar-section__title">
-            <a href="{{ request.route_path('manage.organizations') }}">
-              {% trans %}Your organizations{% endtrans %}
-            </a>
-          </h3>
-          <h3 class="sidebar-section__title">
-            <a href="{{ request.route_path('manage.organization.projects', organization_name=project.organization.normalized_name) }}">
-              {% trans organization_name=project.organization.name %}{{ organization_name }} projects{% endtrans %}
-            </a>
-          </h3>
-          {% else %}
-          <h3 class="sidebar-section__title">
-            <a href="{{ request.route_path('manage.projects') }}">
-              {% trans %}Your projects{% endtrans %}
-            </a>
-          </h3>
-          {% endif %}
           {% include "warehouse:templates/includes/manage/manage-project-menu.html" %}
         </div>
       </div>
@@ -56,17 +66,10 @@
         </a>
         <div class="vertical-tabs__content">
           {% if not request.flags.enabled(AdminFlagValue.DISABLE_ORGANIZATIONS) and project.organization %}
-            {% if request.user in project.organization.users %}
-            <a class="organization-snippet organization-snippet--margin-bottom" href="{{ request.route_path('manage.organization.projects', organization_name=project.organization.normalized_name) }}">
-              <h1 class="organization-snippet__title organization-snippet__title--page-title">{{ project.organization.name }}</h1>
-              <p class="organization-snippet__description">{{ project.organization.display_name }}</p>
-            </a>
-            {% else %}
             <div class="organization-snippet organization-snippet--margin-bottom">
               <h1 class="organization-snippet__title organization-snippet__title--page-title">{{ project.organization.name }}</h1>
               <p class="organization-snippet__description">{{ project.organization.display_name }}</p>
             </div>
-            {% endif %}
           {% endif %}
           <a class="package-snippet package-snippet--margin-bottom" href="{{ request.route_path('packaging.project', name=project.normalized_name) }}">
             {% set release = project.releases[0] if project.releases else None %}

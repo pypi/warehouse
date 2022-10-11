@@ -192,15 +192,27 @@
 
 {% block content %}
   <div class="tabs-container">
+    {% block breadcrumbs %}
+    <nav aria-label="{% trans %}Breadcrumbs{% endtrans %}" class="breadcrumbs">
+      <ul>
+        {# Last breadcrumb can be overriden #}
+        {% block breadcrumb %}
+        <li class="breadcrumbs__breadcrumb">
+          {% trans %}Your account{% endtrans %}
+        </li>
+        {% endblock %}
+      </ul>
+    </nav>
+    {% endblock %}
+
     <div class="vertical-tabs">
       <div class="vertical-tabs__tabs">
         <div class="sidebar-section">
-          <h3 class="sidebar-section__title">{% trans %}Your account{% endtrans %}</h3>
           <nav aria-label="{% trans %}Account navigation{% endtrans %}">
             <ul class="vertical-tabs__list">
               <li>
                 <a href="{{ request.route_path('manage.projects') }}" class="vertical-tabs__tab vertical-tabs__tab--with-icon {% if active_tab == 'projects' %}vertical-tabs__tab--is-active{% endif %}" {% if active_tab == 'projects' %}aria-selected="true"{% endif %}>
-                  <i class="fa fa-cube" aria-hidden="true"></i>
+                  <i class="fa fa-lg fa-cubes" aria-hidden="true"></i>
                   {% trans %}Your projects{% endtrans %}
                 </a>
               </li>
@@ -228,14 +240,14 @@
           <ul class="vertical-tabs__list">
             <li>
               <a href="{{ request.route_path('manage.projects') }}" class="vertical-tabs__tab vertical-tabs__tab--mobile vertical-tabs__tab--with-icon vertical-tabs__tab--no-top-border {% if active_tab == 'projects' %}vertical-tabs__tab--is-active{% endif %}" {% if active_tab == 'projects' %}aria-selected="true"{% endif %}>
-                <i class="fa fa-cube" aria-hidden="true"></i>
+                <i class="fa fa-lg fa-cubes" aria-hidden="true"></i>
                 {% trans %}Your projects{% endtrans %}
               </a>
             </li>
             {% if not request.flags.enabled(AdminFlagValue.DISABLE_ORGANIZATIONS) %}
             <li>
               <a href="{{ request.route_path('manage.organizations') }}" class="vertical-tabs__tab vertical-tabs__tab--mobile vertical-tabs__tab--with-icon vertical-tabs__tab--no-top-border {% if active_tab == 'organizations' %}vertical-tabs__tab--is-active{% endif %}" {% if active_tab == 'organizations' %}aria-selected="true"{% endif %}>
-                <i class="fa fa-users" aria-hidden="true"></i>
+                <i class="fa fa-sitemap" aria-hidden="true"></i>
                 {% trans %}Your organizations{% endtrans %}
               </a>
             </li>

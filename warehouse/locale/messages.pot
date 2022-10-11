@@ -520,8 +520,8 @@ msgstr ""
 #: warehouse/templates/manage/account/webauthn-provision.html:53
 #: warehouse/templates/manage/account/webauthn-provision.html:74
 #: warehouse/templates/manage/manage_base.html:185
-#: warehouse/templates/manage/project/release.html:119
-#: warehouse/templates/manage/project/release.html:175
+#: warehouse/templates/manage/project/release.html:138
+#: warehouse/templates/manage/project/release.html:194
 #: warehouse/templates/manage/project/releases.html:140
 #: warehouse/templates/manage/project/releases.html:179
 #: warehouse/templates/packaging/detail.html:350
@@ -736,12 +736,12 @@ msgstr ""
 #: warehouse/templates/includes/flash-messages.html:30
 #: warehouse/templates/includes/session-notifications.html:20
 #: warehouse/templates/manage/account.html:716
-#: warehouse/templates/manage/manage_base.html:293
-#: warehouse/templates/manage/manage_base.html:352
+#: warehouse/templates/manage/manage_base.html:305
+#: warehouse/templates/manage/manage_base.html:364
 #: warehouse/templates/manage/organization/settings.html:186
 #: warehouse/templates/manage/organization/settings.html:241
 #: warehouse/templates/manage/project/documentation.html:27
-#: warehouse/templates/manage/project/release.html:163
+#: warehouse/templates/manage/project/release.html:182
 #: warehouse/templates/manage/project/settings.html:126
 #: warehouse/templates/manage/project/settings.html:175
 #: warehouse/templates/manage/project/settings.html:239
@@ -1030,7 +1030,7 @@ msgstr ""
 #: warehouse/templates/accounts/login.html:69
 #: warehouse/templates/accounts/register.html:110
 #: warehouse/templates/accounts/reset-password.html:38
-#: warehouse/templates/manage/manage_base.html:361
+#: warehouse/templates/manage/manage_base.html:373
 #: warehouse/templates/re-auth.html:49
 msgid "Password"
 msgstr ""
@@ -1093,7 +1093,7 @@ msgid "Your password"
 msgstr ""
 
 #: warehouse/templates/accounts/login.html:92
-#: warehouse/templates/manage/manage_base.html:364
+#: warehouse/templates/manage/manage_base.html:376
 #: warehouse/templates/re-auth.html:72
 msgid "Show password"
 msgstr ""
@@ -2251,30 +2251,26 @@ msgid "Admin"
 msgstr ""
 
 #: warehouse/templates/includes/current-user-indicator.html:37
-#: warehouse/templates/manage/manage_base.html:204
-#: warehouse/templates/manage/manage_base.html:232
-#: warehouse/templates/manage/project/manage_project_base.html:44
+#: warehouse/templates/manage/manage_base.html:216
+#: warehouse/templates/manage/manage_base.html:244
 #: warehouse/templates/manage/projects.html:18
 #: warehouse/templates/manage/projects.html:62
 msgid "Your projects"
 msgstr ""
 
 #: warehouse/templates/includes/current-user-indicator.html:44
-#: warehouse/templates/manage/manage_base.html:211
-#: warehouse/templates/manage/manage_base.html:239
-#: warehouse/templates/manage/organization/manage_organization_base.html:32
+#: warehouse/templates/manage/manage_base.html:223
+#: warehouse/templates/manage/manage_base.html:251
 #: warehouse/templates/manage/organizations.html:18
 #: warehouse/templates/manage/organizations.html:53
-#: warehouse/templates/manage/project/manage_project_base.html:33
-#: warehouse/templates/manage/team/manage_team_base.html:32
 msgid "Your organizations"
 msgstr ""
 
 #: warehouse/templates/includes/current-user-indicator.html:51
 #: warehouse/templates/manage/account.html:17
 #: warehouse/templates/manage/account/two-factor.html:17
-#: warehouse/templates/manage/manage_base.html:218
-#: warehouse/templates/manage/manage_base.html:246
+#: warehouse/templates/manage/manage_base.html:230
+#: warehouse/templates/manage/manage_base.html:258
 msgid "Account settings"
 msgstr ""
 
@@ -2304,9 +2300,9 @@ msgstr ""
 #: warehouse/templates/manage/account.html:199
 #: warehouse/templates/manage/account.html:201
 #: warehouse/templates/manage/account.html:211
-#: warehouse/templates/manage/manage_base.html:282
-#: warehouse/templates/manage/manage_base.html:284
-#: warehouse/templates/manage/project/release.html:118
+#: warehouse/templates/manage/manage_base.html:294
+#: warehouse/templates/manage/manage_base.html:296
+#: warehouse/templates/manage/project/release.html:137
 #: warehouse/templates/manage/project/releases.html:178
 #: warehouse/templates/manage/project/settings.html:111
 #: warehouse/templates/search/results.html:199
@@ -2481,6 +2477,7 @@ msgid "Navigation for managing %(project)s"
 msgstr ""
 
 #: warehouse/templates/includes/manage/manage-project-menu.html:19
+#: warehouse/templates/manage/project/release.html:37
 #: warehouse/templates/manage/project/releases.html:157
 msgid "Releases"
 msgstr ""
@@ -2630,7 +2627,7 @@ msgstr ""
 
 #: warehouse/templates/manage/account.html:87
 #: warehouse/templates/manage/account.html:163
-#: warehouse/templates/manage/project/release.html:67
+#: warehouse/templates/manage/project/release.html:86
 #: warehouse/templates/manage/project/releases.html:68
 msgid "Options"
 msgstr ""
@@ -2887,7 +2884,7 @@ msgid "Two factor method:"
 msgstr ""
 
 #: warehouse/templates/manage/account.html:485
-#: warehouse/templates/manage/project/release.html:58
+#: warehouse/templates/manage/project/release.html:77
 msgid "None"
 msgstr ""
 
@@ -3368,40 +3365,50 @@ msgid ""
 "authentication with a security device (e.g. USB key)"
 msgstr ""
 
-#: warehouse/templates/manage/manage_base.html:198
+#: warehouse/templates/manage/manage_base.html:196
+#: warehouse/templates/manage/organization/manage_organization_base.html:28
+#: warehouse/templates/manage/project/manage_project_base.html:28
+#: warehouse/templates/manage/team/manage_team_base.html:28
+msgid "Breadcrumbs"
+msgstr ""
+
+#: warehouse/templates/manage/manage_base.html:201
+#: warehouse/templates/manage/organization/manage_organization_base.html:32
+#: warehouse/templates/manage/project/manage_project_base.html:32
+#: warehouse/templates/manage/team/manage_team_base.html:32
 msgid "Your account"
 msgstr ""
 
-#: warehouse/templates/manage/manage_base.html:199
-#: warehouse/templates/manage/manage_base.html:227
+#: warehouse/templates/manage/manage_base.html:211
+#: warehouse/templates/manage/manage_base.html:239
 msgid "Account navigation"
 msgstr ""
 
-#: warehouse/templates/manage/manage_base.html:294
-#: warehouse/templates/manage/manage_base.html:353
+#: warehouse/templates/manage/manage_base.html:306
+#: warehouse/templates/manage/manage_base.html:365
 msgid "This action cannot be undone!"
 msgstr ""
 
-#: warehouse/templates/manage/manage_base.html:306
+#: warehouse/templates/manage/manage_base.html:318
 msgid "Confirm your username to continue."
 msgstr ""
 
-#: warehouse/templates/manage/manage_base.html:308
+#: warehouse/templates/manage/manage_base.html:320
 #, python-format
 msgid "Confirm the %(item)s to continue."
 msgstr ""
 
-#: warehouse/templates/manage/manage_base.html:319
-#: warehouse/templates/manage/manage_base.html:371
+#: warehouse/templates/manage/manage_base.html:331
+#: warehouse/templates/manage/manage_base.html:383
 #: warehouse/templates/manage/organization/activate_subscription.html:32
 msgid "Cancel"
 msgstr ""
 
-#: warehouse/templates/manage/manage_base.html:342
+#: warehouse/templates/manage/manage_base.html:354
 msgid "close"
 msgstr ""
 
-#: warehouse/templates/manage/manage_base.html:358
+#: warehouse/templates/manage/manage_base.html:370
 msgid "Enter your password to continue."
 msgstr ""
 
@@ -4026,8 +4033,7 @@ msgstr ""
 msgid "Manage '%(organization_name)s'"
 msgstr ""
 
-#: warehouse/templates/manage/organization/manage_organization_base.html:42
-#: warehouse/templates/manage/team/manage_team_base.html:47
+#: warehouse/templates/manage/organization/manage_organization_base.html:57
 msgid "Back to organizations"
 msgstr ""
 
@@ -4415,7 +4421,7 @@ msgid "Destroy Documentation for project"
 msgstr ""
 
 #: warehouse/templates/manage/project/documentation.html:35
-#: warehouse/templates/manage/project/release.html:104
+#: warehouse/templates/manage/project/release.html:123
 #: warehouse/templates/pages/stats.html:42
 msgid "Project name"
 msgstr ""
@@ -4474,7 +4480,7 @@ msgid "File removed from release version %(version)s"
 msgstr ""
 
 #: warehouse/templates/manage/project/history.html:45
-#: warehouse/templates/manage/project/release.html:99
+#: warehouse/templates/manage/project/release.html:118
 msgid "Filename:"
 msgstr ""
 
@@ -4542,12 +4548,7 @@ msgstr ""
 msgid "Manage '%(project_name)s'"
 msgstr ""
 
-#: warehouse/templates/manage/project/manage_project_base.html:38
-#, python-format
-msgid "%(organization_name)s projects"
-msgstr ""
-
-#: warehouse/templates/manage/project/manage_project_base.html:55
+#: warehouse/templates/manage/project/manage_project_base.html:65
 msgid "Back to projects"
 msgstr ""
 
@@ -4633,111 +4634,107 @@ msgstr ""
 msgid "Manage '%(project_name)s' – release version %(version)s"
 msgstr ""
 
-#: warehouse/templates/manage/project/release.html:22
-#: warehouse/templates/manage/project/release.html:27
+#: warehouse/templates/manage/project/release.html:28
+#: warehouse/templates/manage/project/release.html:46
 #, python-format
-msgid "Release version %(version)s"
+msgid "Version %(version)s"
 msgstr ""
 
-#: warehouse/templates/manage/project/release.html:24
-msgid "Breadcrumb"
+#: warehouse/templates/manage/project/release.html:41
+#: warehouse/templates/manage/project/releases.html:166
+msgid "Yanked releases"
 msgstr ""
 
-#: warehouse/templates/manage/project/release.html:26
-#, python-format
-msgid "All %(project_name)s releases"
-msgstr ""
-
-#: warehouse/templates/manage/project/release.html:27
+#: warehouse/templates/manage/project/release.html:47
 msgid "view release"
 msgstr ""
 
-#: warehouse/templates/manage/project/release.html:34
+#: warehouse/templates/manage/project/release.html:53
 #, python-format
 msgid "Files for release %(version)s of %(project_name)s"
 msgstr ""
 
-#: warehouse/templates/manage/project/release.html:37
-#: warehouse/templates/manage/project/release.html:48
+#: warehouse/templates/manage/project/release.html:56
+#: warehouse/templates/manage/project/release.html:67
 msgid "Filename, size"
 msgstr ""
 
-#: warehouse/templates/manage/project/release.html:38
-#: warehouse/templates/manage/project/release.html:53
+#: warehouse/templates/manage/project/release.html:57
+#: warehouse/templates/manage/project/release.html:72
 msgid "Type"
 msgstr ""
 
-#: warehouse/templates/manage/project/release.html:39
-#: warehouse/templates/manage/project/release.html:57
+#: warehouse/templates/manage/project/release.html:58
+#: warehouse/templates/manage/project/release.html:76
 msgid "Python version"
 msgstr ""
 
-#: warehouse/templates/manage/project/release.html:40
-#: warehouse/templates/manage/project/release.html:61
+#: warehouse/templates/manage/project/release.html:59
+#: warehouse/templates/manage/project/release.html:80
 msgid "Upload date"
 msgstr ""
 
-#: warehouse/templates/manage/project/release.html:66
+#: warehouse/templates/manage/project/release.html:85
 msgid "View file options"
 msgstr ""
 
-#: warehouse/templates/manage/project/release.html:72
+#: warehouse/templates/manage/project/release.html:91
 msgid "File options"
 msgstr ""
 
-#: warehouse/templates/manage/project/release.html:76
+#: warehouse/templates/manage/project/release.html:95
 msgid "Download"
 msgstr ""
 
-#: warehouse/templates/manage/project/release.html:82
+#: warehouse/templates/manage/project/release.html:101
 msgid "View Hashes"
 msgstr ""
 
-#: warehouse/templates/manage/project/release.html:87
+#: warehouse/templates/manage/project/release.html:106
 msgid "Delete file from"
 msgstr ""
 
-#: warehouse/templates/manage/project/release.html:89
+#: warehouse/templates/manage/project/release.html:108
 msgid "Delete file"
 msgstr ""
 
-#: warehouse/templates/manage/project/release.html:93
+#: warehouse/templates/manage/project/release.html:112
 #: warehouse/templates/manage/project/releases.html:109
 msgid "Delete"
 msgstr ""
 
-#: warehouse/templates/manage/project/release.html:114
+#: warehouse/templates/manage/project/release.html:133
 msgid "Uploading new files"
 msgstr ""
 
-#: warehouse/templates/manage/project/release.html:116
+#: warehouse/templates/manage/project/release.html:135
 msgid "No files found"
 msgstr ""
 
-#: warehouse/templates/manage/project/release.html:118
+#: warehouse/templates/manage/project/release.html:137
 #: warehouse/templates/manage/project/releases.html:178
 #: warehouse/templates/manage/project/settings.html:111
 msgid "Dismiss"
 msgstr ""
 
-#: warehouse/templates/manage/project/release.html:119
+#: warehouse/templates/manage/project/release.html:138
 #, python-format
 msgid ""
 "Learn how to upload files on the <a href=\"%(href)s\" title=\"%(title)s\""
 " target=\"_blank\" rel=\"noopener\">Python Packaging User Guide</a>"
 msgstr ""
 
-#: warehouse/templates/manage/project/release.html:122
+#: warehouse/templates/manage/project/release.html:141
 msgid "Release settings"
 msgstr ""
 
-#: warehouse/templates/manage/project/release.html:126
-#: warehouse/templates/manage/project/release.html:156
+#: warehouse/templates/manage/project/release.html:145
+#: warehouse/templates/manage/project/release.html:175
 #: warehouse/templates/manage/project/releases.html:123
 msgid "Yank release"
 msgstr ""
 
-#: warehouse/templates/manage/project/release.html:129
+#: warehouse/templates/manage/project/release.html:148
 #, python-format
 msgid ""
 "\n"
@@ -4752,7 +4749,7 @@ msgid_plural ""
 msgstr[0] ""
 msgstr[1] ""
 
-#: warehouse/templates/manage/project/release.html:135
+#: warehouse/templates/manage/project/release.html:154
 msgid ""
 "\n"
 "          Yanking will mark this release to be ignored when installing in"
@@ -4760,7 +4757,7 @@ msgid ""
 "        "
 msgstr ""
 
-#: warehouse/templates/manage/project/release.html:139
+#: warehouse/templates/manage/project/release.html:158
 #, python-format
 msgid ""
 "\n"
@@ -4770,7 +4767,7 @@ msgid ""
 "      "
 msgstr ""
 
-#: warehouse/templates/manage/project/release.html:142
+#: warehouse/templates/manage/project/release.html:161
 #, python-format
 msgid ""
 "\n"
@@ -4778,7 +4775,7 @@ msgid ""
 "      "
 msgstr ""
 
-#: warehouse/templates/manage/project/release.html:149
+#: warehouse/templates/manage/project/release.html:168
 #, python-format
 msgid ""
 "\n"
@@ -4788,13 +4785,13 @@ msgid ""
 "          "
 msgstr ""
 
-#: warehouse/templates/manage/project/release.html:153
+#: warehouse/templates/manage/project/release.html:172
 #: warehouse/templates/manage/project/releases.html:130
 msgid "Reason (optional)"
 msgstr ""
 
-#: warehouse/templates/manage/project/release.html:156
-#: warehouse/templates/manage/project/release.html:177
+#: warehouse/templates/manage/project/release.html:175
+#: warehouse/templates/manage/project/release.html:196
 #: warehouse/templates/manage/project/releases.html:23
 #: warehouse/templates/manage/project/releases.html:120
 #: warehouse/templates/manage/project/releases.html:133
@@ -4802,13 +4799,13 @@ msgstr ""
 msgid "Version"
 msgstr ""
 
-#: warehouse/templates/manage/project/release.html:161
-#: warehouse/templates/manage/project/release.html:177
+#: warehouse/templates/manage/project/release.html:180
+#: warehouse/templates/manage/project/release.html:196
 #: warehouse/templates/manage/project/releases.html:136
 msgid "Delete release"
 msgstr ""
 
-#: warehouse/templates/manage/project/release.html:165
+#: warehouse/templates/manage/project/release.html:184
 #, python-format
 msgid ""
 "\n"
@@ -4823,18 +4820,18 @@ msgid_plural ""
 msgstr[0] ""
 msgstr[1] ""
 
-#: warehouse/templates/manage/project/release.html:171
+#: warehouse/templates/manage/project/release.html:190
 msgid "Deleting will irreversibly delete this release."
 msgstr ""
 
-#: warehouse/templates/manage/project/release.html:173
+#: warehouse/templates/manage/project/release.html:192
 #: warehouse/templates/manage/project/releases.html:138
 msgid ""
 "You will not be able to re-upload a new distribution of the same type "
 "with the same version number."
 msgstr ""
 
-#: warehouse/templates/manage/project/release.html:174
+#: warehouse/templates/manage/project/release.html:193
 #: warehouse/templates/manage/project/releases.html:139
 msgid ""
 "Deletion will break any downstream projects relying on a pinned version "
@@ -4842,7 +4839,7 @@ msgid ""
 "or remove harmful releases."
 msgstr ""
 
-#: warehouse/templates/manage/project/release.html:175
+#: warehouse/templates/manage/project/release.html:194
 #, python-format
 msgid ""
 "Consider <a href=\"%(yank_href)s\" title=\"%(title)s\" target=\"_blank\" "
@@ -4936,10 +4933,6 @@ msgstr ""
 #: warehouse/templates/manage/project/releases.html:151
 #, python-format
 msgid "Manage '%(project_name)s' releases"
-msgstr ""
-
-#: warehouse/templates/manage/project/releases.html:166
-msgid "Yanked Releases"
 msgstr ""
 
 #: warehouse/templates/manage/project/releases.html:174
@@ -5315,16 +5308,11 @@ msgstr ""
 msgid "Manage '%(team_name)s'"
 msgstr ""
 
-#: warehouse/templates/manage/team/manage_team_base.html:37
-#, python-format
-msgid "%(organization_name)s teams"
-msgstr ""
-
-#: warehouse/templates/manage/team/manage_team_base.html:51
+#: warehouse/templates/manage/team/manage_team_base.html:63
 msgid "Back to teams"
 msgstr ""
 
-#: warehouse/templates/manage/team/manage_team_base.html:61
+#: warehouse/templates/manage/team/manage_team_base.html:73
 #, python-format
 msgid ""
 "\n"
