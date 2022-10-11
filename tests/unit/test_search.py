@@ -203,17 +203,36 @@ class TestQueries:
                                             "query": terms,
                                             "type": "best_fields",
                                         }
-                                    }
+                                    },
+                                    {
+                                        "bool": {
+                                            "must": [
+                                                {
+                                                    "bool": {
+                                                        "should": [
+                                                            {
+                                                                "term": {
+                                                                    "classifiers": classifier  # noqa
+                                                                }
+                                                            },
+                                                            {
+                                                                "prefix": {
+                                                                    "classifiers": classifier  # noqa
+                                                                    + " :: "
+                                                                }
+                                                            },
+                                                        ]
+                                                    }
+                                                }
+                                                for classifier in classifiers
+                                            ]
+                                        }
+                                    },
                                 ]
                             }
                         },
                         {"prefix": {"normalized_name": terms}},
-                    ],
-                    "must": [
-                        {"prefix": {"classifiers": classifier}}
-                        for classifier in classifiers
-                    ],
-                    "minimum_should_match": 1,
+                    ]
                 }
             },
             "suggest": {"name_suggestion": {"text": terms, "term": {"field": "name"}}},
@@ -230,7 +249,14 @@ class TestQueries:
             "query": {
                 "bool": {
                     "must": [
-                        {"prefix": {"classifiers": classifier}}
+                        {
+                            "bool": {
+                                "should": [
+                                    {"term": {"classifiers": classifier}},
+                                    {"prefix": {"classifiers": classifier + " :: "}},
+                                ]
+                            }
+                        }
                         for classifier in classifiers
                     ]
                 }
@@ -245,6 +271,19 @@ class TestQueries:
         query = queries.get_es_query(es, terms, "-created", classifiers)
 
         assert query.to_dict() == {
-            "query": {"prefix": {"classifiers": "foo :: bar"}},
+            "query": {
+                "bool": {
+                    "must": [
+                        {
+                            "bool": {
+                                "should": [
+                                    {"term": {"classifiers": "foo :: bar"}},
+                                    {"prefix": {"classifiers": "foo :: bar :: "}},
+                                ]
+                            }
+                        }
+                    ]
+                }
+            },
             "sort": [{"created": {"order": "desc", "unmapped_type": "long"}}],
         }
