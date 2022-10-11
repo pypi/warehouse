@@ -4428,9 +4428,13 @@ def delete_project_role(project, request):
             .filter(Role.id == request.POST["role_id"])
             .one()
         )
+        projects_sole_owned = set(
+            project.name for project in user_projects(request)["projects_sole_owned"]
+        )
         removing_self = role.role_name == "Owner" and role.user == request.user
-        if removing_self:
-            request.session.flash("Cannot remove yourself as Owner", queue="error")
+        is_sole_owner = project.name in projects_sole_owned
+        if removing_self and is_sole_owner:
+            request.session.flash("Cannot remove yourself as Sole Owner", queue="error")
         else:
             request.db.delete(role)
             request.db.add(
@@ -4468,6 +4472,8 @@ def delete_project_role(project, request):
             )
 
             request.session.flash("Removed role", queue="success")
+            if removing_self:
+                return HTTPSeeOther(request.route_path("manage.projects"))
     except NoResultFound:
         request.session.flash("Could not find role", queue="error")
 
