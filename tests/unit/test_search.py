@@ -154,7 +154,7 @@ class TestQueries:
     def test_with_classifiers_with_terms(self):
         es = Search()
         terms = "foo bar"
-        classifiers = [("c", "foo :: bar"), ("c", "fiz :: buz")]
+        classifiers = ["foo :: bar", "fiz :: buz"]
 
         query = queries.get_es_query(es, terms, "", classifiers)
 
@@ -182,7 +182,7 @@ class TestQueries:
     def test_with_classifiers_with_no_terms(self):
         es = Search()
         terms = ""
-        classifiers = [("c", "foo :: bar"), ("c", "fiz :: buz")]
+        classifiers = ["foo :: bar", "fiz :: buz"]
 
         query = queries.get_es_query(es, terms, "", classifiers)
 
@@ -194,12 +194,12 @@ class TestQueries:
     def test_with_classifier_with_no_terms_and_order(self):
         es = Search()
         terms = ""
-        classifiers = [("c", "foo :: bar")]
+        classifiers = ["foo :: bar"]
 
         query = queries.get_es_query(es, terms, "-created", classifiers)
 
         query_dict = query.to_dict()
-        assert query_dict["query"] == {"prefix": {"classifiers": ("c", "foo :: bar")}}
+        assert query_dict["query"] == {"prefix": {"classifiers": "foo :: bar"}}
         assert query_dict["sort"] == [
             {"created": {"order": "desc", "unmapped_type": "long"}}
         ]
