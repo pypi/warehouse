@@ -28,10 +28,14 @@
       <div class="vertical-tabs__tabs">
         <div class="sidebar-section">
           <h3 class="sidebar-section__title">
-            <a href="{{ request.route_path('manage.organizations') }}">{% trans organization_count=organizations|length %}Your organizations ({{ organization_count }}){% endtrans %}</a>
+            <a href="{{ request.route_path('manage.organizations') }}">
+              {% trans %}Your organizations{% endtrans %}
+            </a>
           </h3>
           <h3 class="sidebar-section__title">
-            <a href="{{ request.route_path('manage.organization.teams', organization_name=team.organization.normalized_name) }}">{% trans organization_name=team.organization.name, team_count=team.organization.teams|length %}{{ organization_name }} teams ({{ team_count }}){% endtrans %}</a>
+            <a href="{{ request.route_path('manage.organization.teams', organization_name=team.organization.normalized_name) }}">
+              {% trans organization_name=team.organization.name %}{{ organization_name }} teams{% endtrans %}
+            </a>
           </h3>
           {% include "warehouse:templates/includes/manage/manage-team-menu.html" %}
         </div>

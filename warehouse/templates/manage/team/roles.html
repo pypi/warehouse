@@ -32,7 +32,10 @@
 {% endmacro %}
 
 {% block main %}
-  <h2>{% trans %}Members{% endtrans %}</h2>
+  <h2>
+    {% trans %}Members{% endtrans %}
+    <span class="badge badge--neutral">{{ team.members|length }}</span>
+  </h2>
   <p>{% trans %}Use this page to manage which organization users are members of this team.{% endtrans %}</p>
 
   {% if roles %}

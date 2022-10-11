@@ -32,7 +32,14 @@
 {% endmacro %}
 
 {% block main %}
-  <h2>{% trans %}Collaborators{% endtrans %}</h2>
+  <h2>
+    {% trans %}Collaborators{% endtrans %}
+    {% if enable_internal_collaborator %}
+    <span class="badge badge--neutral">{{ 1 + team_project_roles|length + roles|length }}</span>
+    {% else %}
+    <span class="badge badge--neutral">{{ roles|length }}</span>
+    {% endif %}
+  </h2>
   <p>{% trans project_name=project.name %}Use this page to control which PyPI users can help you to manage {{ project_name }}.{% endtrans %}</p>
   <details class="callout-block" data-controller="collapsible" data-collapsible-identifier="project_roles" data-collapsible-setting="global" open>
     <summary class="callout-block__heading" data-action="click->collapsible#save">{% trans %}Project Roles{% endtrans %}</summary>

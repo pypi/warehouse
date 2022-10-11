@@ -540,8 +540,15 @@ class TeamProjectRole(db.Model):
         nullable=False,
     )
 
-    project = orm.relationship("Project", lazy=False)
-    team = orm.relationship("Team", lazy=False)
+    project = orm.relationship(
+        "Project",
+        lazy=False,
+        back_populates="team_project_roles",
+    )
+    team = orm.relationship(
+        "Team",
+        lazy=False,
+    )
 
 
 class TeamFactory:
