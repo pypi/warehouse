@@ -144,3 +144,13 @@ class EventTag:
         TeamProjectRoleDelete = "organization:team_project_role:delete"
         TeamRoleAdd = "organization:team_role:add"
         TeamRoleDelete = "organization:team_role:delete"
+
+    class Team(EventTagEnum):
+        # Name = "source_type:subject_type:action"
+        TeamCreate = "team:create"
+        TeamDelete = "team:delete"
+        TeamProjectRoleChange = "team:team_project_role:change"
+        TeamProjectRoleCreate = "team:team_project_role:create"
+        TeamProjectRoleDelete = "team:team_project_role:delete"
+        TeamRoleAdd = "team:team_role:add"
+        TeamRoleDelete = "team:team_role:delete"
