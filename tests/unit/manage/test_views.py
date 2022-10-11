@@ -2558,17 +2558,17 @@ class TestManageOrganizations:
         assert organization_service.record_event.calls == [
             pretend.call(
                 organization.id,
-                tag="organization:create",
+                tag=EventTag.Organization.OrganizationCreate,
                 additional={"created_by_user_id": str(request.user.id)},
             ),
             pretend.call(
                 organization.id,
-                tag="organization:catalog_entry:add",
+                tag=EventTag.Organization.CatalogEntryAdd,
                 additional={"submitted_by_user_id": str(request.user.id)},
             ),
             pretend.call(
                 organization.id,
-                tag="organization:organization_role:invite",
+                tag=EventTag.Organization.OrganizationRoleInvite,
                 additional={
                     "submitted_by_user_id": str(request.user.id),
                     "role_name": "Owner",
@@ -2577,7 +2577,7 @@ class TestManageOrganizations:
             ),
             pretend.call(
                 organization.id,
-                tag="organization:organization_role:accepted",
+                tag=EventTag.Organization.OrganizationRoleAccepted,
                 additional={
                     "submitted_by_user_id": str(request.user.id),
                     "role_name": "Owner",
@@ -2716,17 +2716,17 @@ class TestManageOrganizations:
         assert organization_service.record_event.calls == [
             pretend.call(
                 organization.id,
-                tag="organization:create",
+                tag=EventTag.Organization.OrganizationCreate,
                 additional={"created_by_user_id": str(request.user.id)},
             ),
             pretend.call(
                 organization.id,
-                tag="organization:catalog_entry:add",
+                tag=EventTag.Organization.CatalogEntryAdd,
                 additional={"submitted_by_user_id": str(request.user.id)},
             ),
             pretend.call(
                 organization.id,
-                tag="organization:organization_role:invite",
+                tag=EventTag.Organization.OrganizationRoleInvite,
                 additional={
                     "submitted_by_user_id": str(request.user.id),
                     "role_name": "Owner",
@@ -2735,7 +2735,7 @@ class TestManageOrganizations:
             ),
             pretend.call(
                 organization.id,
-                tag="organization:organization_role:accepted",
+                tag=EventTag.Organization.OrganizationRoleAccepted,
                 additional={
                     "submitted_by_user_id": str(request.user.id),
                     "role_name": "Owner",

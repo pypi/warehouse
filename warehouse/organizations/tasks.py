@@ -14,6 +14,7 @@ import datetime
 
 from warehouse import tasks
 from warehouse.accounts.interfaces import ITokenService, TokenExpired
+from warehouse.events.tags import EventTag
 from warehouse.organizations.interfaces import IOrganizationService
 from warehouse.organizations.models import (
     Organization,
@@ -61,7 +62,7 @@ def delete_declined_organizations(request):
         # TODO: Cannot call this after deletion so how exactly do we handle this?
         organization_service.record_event(
             organization.id,
-            tag="organization:delete",
+            tag=EventTag.Organization.OrganizationDelete,
             additional={"deleted_by": "CRON"},
         )
         organization_service.delete_organization(organization.id)

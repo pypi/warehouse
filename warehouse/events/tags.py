@@ -58,7 +58,6 @@ class EventTagEnum(str, enum.Enum):
 
 
 class EventTag:
-
     class Account(EventTagEnum):
         # Name = "source_type:subject_type:action"
         APITokenAdded = "account:api_token:added"
@@ -121,3 +120,27 @@ class EventTag:
         # The following tags are no longer used when recording events.
         # RoleAccepted = "project:role:accepted"
         # RoleAdd = "project:role:add"
+
+    class Organization(EventTagEnum):
+        # Name = "source_type:subject_type:action"
+        CatalogEntryAdd = "organization:catalog_entry:add"
+        OrganizationApprove = "organization:approve"
+        OrganizationCreate = "organization:create"
+        OrganizationDecline = "organization:decline"
+        OrganizationDelete = "organization:delete"
+        OrganizationRename = "organization:rename"
+        OrganizationProjectAdd = "organization:organization_project:add"
+        OrganizationProjectRemove = "organization:organization_project:remove"
+        OrganizationRoleAccepted = "organization:organization_role:accepted"
+        OrganizationRoleChange = "organization:organization_role:change"
+        OrganizationRoleDeclined = "organization:organization_role:declined"
+        OrganizationRoleDelete = "organization:organization_role:delete"
+        OrganizationRoleInvite = "organization:organization_role:invite"
+        OrganizationRoleRevokeInvite = "organization:organization_role:revoke_invite"
+        TeamCreate = "organization:team:create"
+        TeamDelete = "organization:team:delete"
+        TeamProjectRoleChange = "organization:team_project_role:change"
+        TeamProjectRoleCreate = "organization:team_project_role:create"
+        TeamProjectRoleDelete = "organization:team_project_role:delete"
+        TeamRoleAdd = "organization:team_role:add"
+        TeamRoleDelete = "organization:team_role:delete"
