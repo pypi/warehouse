@@ -1330,29 +1330,11 @@ class ManageOrganizationsViews:
             )
             self.organization_service.record_event(
                 organization.id,
-                tag=EventTag.Organization.OrganizationRoleInvite,
-                additional={
-                    "submitted_by_user_id": str(self.request.user.id),
-                    "role_name": "Owner",
-                    "target_user_id": str(self.request.user.id),
-                },
-            )
-            self.organization_service.record_event(
-                organization.id,
                 tag=EventTag.Organization.OrganizationRoleAdd,
                 additional={
                     "submitted_by_user_id": str(self.request.user.id),
                     "role_name": "Owner",
                     "target_user_id": str(self.request.user.id),
-                },
-            )
-            self.user_service.record_event(
-                self.request.user.id,
-                tag=EventTag.Account.OrganizationRoleInvite,
-                additional={
-                    "submitted_by_user_id": str(self.request.user.id),
-                    "organization_name": organization.name,
-                    "role_name": "Owner",
                 },
             )
             self.user_service.record_event(
