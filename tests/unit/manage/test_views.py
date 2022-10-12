@@ -9722,6 +9722,10 @@ class TestManageOIDCProviderViews:
         provider = pretend.stub(
             provider_name="fakeprovider",
             id="fakeid",
+            # NOTE: This is technically out of sync with the state below;
+            # it should be projects=[project], but we make it empty
+            # to trigger the DB deletion case.
+            projects=[],
         )
         # NOTE: Can't set __str__ using pretend.stub()
         monkeypatch.setattr(provider.__class__, "__str__", lambda s: "fakespecifier")
@@ -9742,6 +9746,7 @@ class TestManageOIDCProviderViews:
             POST=pretend.stub(),
             db=pretend.stub(
                 query=lambda *a: pretend.stub(get=lambda id: provider),
+                delete=pretend.call_recorder(lambda o: None),
             ),
             remote_addr="0.0.0.0",
             path="request-path",
@@ -9797,6 +9802,7 @@ class TestManageOIDCProviderViews:
         assert request.session.flash.calls == [
             pretend.call("Removed fakespecifier from fakeproject", queue="success")
         ]
+        assert request.db.delete.calls == [pretend.call(provider)]
 
         assert delete_provider_form_cls.calls == [pretend.call(request.POST)]
         assert delete_provider_form_obj.validate.calls == [pretend.call()]
