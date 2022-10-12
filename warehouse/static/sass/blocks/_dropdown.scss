@@ -104,10 +104,14 @@
     }
 
     .fa {
-      font-size: 14px;
+      font-size: 15px;
       position: absolute;
       left: 15px;
       top: calc(50% - 7px);
+    }
+
+    .fa-lg {
+      font-size: 17px;
     }
   }
 

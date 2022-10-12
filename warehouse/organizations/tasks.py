@@ -19,7 +19,9 @@ from warehouse.organizations.models import (
     Organization,
     OrganizationInvitation,
     OrganizationInvitationStatus,
+    OrganizationStripeSubscription,
 )
+from warehouse.subscriptions.interfaces import IBillingService
 
 CLEANUP_AFTER = datetime.timedelta(days=30)
 
@@ -63,3 +65,17 @@ def delete_declined_organizations(request):
             additional={"deleted_by": "CRON"},
         )
         organization_service.delete_organization(organization.id)
+
+
+@tasks.task(ignore_result=True, acks_late=True)
+def update_organziation_subscription_usage_record(request):
+    # Get organizations with a subscription
+    organization_subscriptions = request.db.query(OrganizationStripeSubscription).all()
+
+    # Call the Billing API to update the usage record of this subscription item
+    for organization_subscription in organization_subscriptions:
+        billing_service = request.find_service(IBillingService, context=None)
+        billing_service.create_or_update_usage_record(
+            organization_subscription.subscription.subscription_item.subscription_item_id,  # type: ignore # noqa
+            len(organization_subscription.organization.users),
+        )

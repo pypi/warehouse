@@ -52,34 +52,43 @@ def get_es_query(es, terms, order, classifiers):
     """
     Returns an Elasticsearch query from data from the request.
     """
+    classifier_q = Q(
+        "bool",
+        # Theh results must have all selected classifiers
+        must=[
+            Q(
+                "bool",
+                should=[
+                    # Term search for the exact classifier
+                    Q("term", classifiers=classifier),
+                    # Prefix search for potential children classifiers
+                    Q("prefix", classifiers=classifier + " :: "),
+                ],
+            )
+            for classifier in classifiers
+        ],
+    )
     if not terms:
-        query = es.query()
+        query = es.query(classifier_q) if classifiers else es.query()
     else:
-        bool_query = gather_es_queries(terms)
+        quoted_string, unquoted_string = filter_query(terms)
+        bool_query = Q(
+            "bool",
+            must=[form_query("phrase", i) for i in quoted_string]
+            + [form_query("best_fields", i) for i in unquoted_string]
+            + ([classifier_q] if classifiers else []),
+        )
+
+        # Allow to optionally match on prefix
+        # if ``q`` is longer than one character.
+        if len(terms) > 1:
+            bool_query = bool_query | Q("prefix", normalized_name=terms)
+
         query = es.query(bool_query)
         query = query.suggest("name_suggestion", terms, term={"field": "name"})
 
-    # Require match to all specified classifiers
-    for classifier in classifiers:
-        query = query.query("prefix", classifiers=classifier)
-
     query = query_for_order(query, order)
     return query
-
-
-def gather_es_queries(q):
-    quoted_string, unquoted_string = filter_query(q)
-    must = [form_query("phrase", i) for i in quoted_string] + [
-        form_query("best_fields", i) for i in unquoted_string
-    ]
-
-    bool_query = Q("bool", must=must)
-
-    # Allow to optionally match on prefix
-    # if ``q`` is longer than one character.
-    if len(q) > 1:
-        bool_query = bool_query | Q("prefix", normalized_name=q)
-    return bool_query
 
 
 def filter_query(s):

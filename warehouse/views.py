@@ -12,7 +12,6 @@
 
 
 import collections
-import datetime
 import re
 
 import elasticsearch
@@ -40,13 +39,11 @@ from pyramid.view import (
 )
 from sqlalchemy import func
 from sqlalchemy.orm import aliased, joinedload
-from sqlalchemy.orm.exc import NoResultFound
 from sqlalchemy.sql import exists, expression
 from trove_classifiers import deprecated_classifiers, sorted_classifiers
 
 from warehouse.accounts import REDIRECT_FIELD_NAME
-from warehouse.accounts.forms import TitanPromoCodeForm
-from warehouse.accounts.models import TitanPromoCode, User
+from warehouse.accounts.models import User
 from warehouse.cache.http import add_vary, cache_control
 from warehouse.cache.origin import origin_cache
 from warehouse.classifiers.models import Classifier
@@ -54,7 +51,6 @@ from warehouse.db import DatabaseNotAvailableError
 from warehouse.errors import WarehouseDenied
 from warehouse.forms import SetLocaleForm
 from warehouse.i18n import LOCALE_ATTR
-from warehouse.manage.views import user_projects
 from warehouse.metrics import IMetricsService
 from warehouse.packaging.models import File, Project, Release, release_classifiers
 from warehouse.search.queries import SEARCH_FILTER_ORDER, get_es_query
@@ -468,78 +464,8 @@ class SecurityKeyGiveaway:
         self.request = request
 
     @property
-    def form(self):
-        return TitanPromoCodeForm(**self.request.POST)
-
-    @property
-    def codes_available(self):
-        return (
-            self.request.db.query(TitanPromoCode)
-            .filter(TitanPromoCode.user_id.is_(None))
-            .count()
-        ) > 0
-
-    @property
-    def eligible_projects(self):
-        if self.request.user:
-            return set(
-                project.name
-                for project in user_projects(self.request)["projects_requiring_2fa"]
-                if project.pypi_mandates_2fa
-            )
-        else:
-            return set()
-
-    @property
-    def promo_code(self):
-        if self.request.user:
-            try:
-                return (
-                    self.request.db.query(TitanPromoCode).filter(
-                        TitanPromoCode.user_id == self.request.user.id
-                    )
-                ).one()
-            except NoResultFound:
-                pass
-        return None
-
-    @property
     def default_response(self):
-        codes_available = self.codes_available
-        eligible_projects = self.eligible_projects
-        promo_code = self.promo_code
-        has_webauthn = self.request.user and self.request.user.has_webauthn
-
-        eligible = (
-            codes_available
-            and bool(eligible_projects)
-            and not has_webauthn
-            and not promo_code
-        )
-
-        if not codes_available:
-            reason_ineligible = "At this time there are no keys available"
-        elif not eligible_projects:
-            reason_ineligible = "You are not a collaborator on any critical projects"
-        elif has_webauthn:
-            reason_ineligible = (
-                "You already have two-factor authentication enabled with a hardware "
-                "security key"
-            )
-        elif promo_code:
-            reason_ineligible = "Promo code has already been generated"
-        else:
-            reason_ineligible = None
-
-        return {
-            "eligible": eligible,
-            "reason_ineligible": reason_ineligible,
-            "form": self.form,
-            "codes_available": self.codes_available,
-            "eligible_projects": self.eligible_projects,
-            "promo_code": self.promo_code,
-            "REDIRECT_FIELD_NAME": REDIRECT_FIELD_NAME,
-        }
+        return {}
 
     @view_config(request_method="GET")
     def security_key_giveaway(self):
@@ -549,33 +475,6 @@ class SecurityKeyGiveaway:
             raise HTTPNotFound
 
         return self.default_response
-
-    @view_config(request_method="POST")
-    def security_key_giveaway_submit(self):
-        if not self.request.registry.settings.get(
-            "warehouse.two_factor_mandate.available"
-        ):
-            raise HTTPNotFound
-
-        default_response = self.default_response
-
-        if not self.form.validate():
-            self.request.session.flash("Form is not valid")
-        elif not default_response["eligible"]:
-            self.request.session.flash(default_response["reason_ineligible"])
-        else:
-            # The form is valid, assign a promo code to the user
-            promo_code = (
-                self.request.db.query(TitanPromoCode).filter(
-                    TitanPromoCode.user_id.is_(None)
-                )
-            ).first()
-            promo_code.user_id = self.request.user.id
-            promo_code.distributed = datetime.datetime.now()
-            # Flush so the promo code is available for the response
-            self.request.db.flush()
-            default_response["promo_code"] = promo_code
-        return default_response
 
 
 @view_config(

@@ -18,7 +18,7 @@
   - Extended by .organization-snippet and often found in package lists.
 */
 
-@mixin snippet($snippet-icon-svg, $snippet-icon-png) {
+@mixin snippet($snippet-icon-png, $snippet-icon-svg) {
   @include card;
   direction: ltr;
   text-align: left;
@@ -34,10 +34,11 @@
     &,
     &:hover {
       // Use png fallback
-      background: $white $snippet-icon-png no-repeat 0 50%;
+      background: $white $snippet-icon-png no-repeat;
       // Or svg if the browser supports it
       background-image: $snippet-icon-svg, linear-gradient(transparent, transparent);
-      background-position: 20px;
+      background-position: 18px;
+      background-size: 45px;
     }
   }
 
@@ -77,12 +78,6 @@
   &__description {
     clear: both;
     color: $text-color;
-  }
-
-  &__badge {
-    margin-left: 4px;
-    position: relative;
-    top: -1px;
   }
 
   &__buttons {

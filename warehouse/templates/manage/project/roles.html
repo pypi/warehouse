@@ -32,25 +32,31 @@
 {% endmacro %}
 
 {% block main %}
-  <h2>{% trans %}Collaborators{% endtrans %}</h2>
+  <h2>
+    {% trans %}Collaborators{% endtrans %}
+    {% if enable_internal_collaborator %}
+    <span class="badge badge--neutral">{{ 1 + team_project_roles|length + roles|length }}</span>
+    {% else %}
+    <span class="badge badge--neutral">{{ roles|length }}</span>
+    {% endif %}
+  </h2>
   <p>{% trans project_name=project.name %}Use this page to control which PyPI users can help you to manage {{ project_name }}.{% endtrans %}</p>
-  <div class="callout-block" data-controller="dismissable" data-dismissable-identifier="roles">
-    <button type="button" title="{% trans %}Dismiss{% endtrans %}" data-action="click->dismissable#dismiss" class="callout-block__dismiss" aria-label="{% trans %}Close{% endtrans %}"><i class="fa fa-times" aria-hidden="true"></i></button>
+  <details class="callout-block" data-controller="collapsible" data-collapsible-identifier="project_roles" data-collapsible-setting="global" open>
+    <summary class="callout-block__heading" data-action="click->collapsible#save">{% trans %}Project Roles{% endtrans %}</summary>
     <p>{% trans %}There are two possible roles for collaborators:{% endtrans %}</p>
     <dl>
       <dt>{% trans %}Maintainer{% endtrans %}</dt>
-      <dd>{% trans %}Has permissions to <strong>Upload</strong> releases for a package. Can upload releases. Cannot invite collaborators. Cannot delete files, releases, or the project.{% endtrans %}</dd>
+      <dd>{% trans %}Has permissions to upload releases for the project. Can upload releases. Cannot invite collaborators. Cannot delete files, releases, or the project.{% endtrans %}</dd>
       <dt>{% trans %}Owner{% endtrans %}</dt>
-      <dd>{% trans %}Has permissions to <strong>Administer</strong> the entire project. Can upload releases. Can invite other collaborators. Can delete files, releases, or the entire project.{% endtrans %}</dd>
+      <dd>{% trans %}Has permissions to administer the project. Can upload releases. Can invite other collaborators. Can delete files, releases, or the entire project.{% endtrans %}</dd>
     </dl>
-  </div>
+  </details>
   <table class="table table--collaborators">
     <caption class="sr-only">{% trans project_name=project.name %}Collaborators who can manage {{ project_name }}{% endtrans %}</caption>
     <thead>
       <tr>
         <th scope="col" class="table__align-left">{% trans %}Collaborator{% endtrans %}</th>
         <th scope="col" class="table__align-left">{% trans %}Role{% endtrans %}</th>
-        <th scope="col" class="table__align-left">{% trans %}Permissions{% endtrans %}</th>
         <th scope="col" class="table__align-center">{% trans %}2FA{% endtrans %}</th>
         <th scope="col" class="table__align-right"></th>
       </tr>
@@ -76,14 +82,11 @@
           </a>
         </th>
         <td>
-          —
-        </td>
-        <td>
-          {% trans %}Administer{% endtrans %}
+          {% trans %}Owner{% endtrans %}
         </td>
         <td class="table__align-center"></td>
         <td class="table__align-right">
-          <button class="button" title="{% trans %}Cannot remove organization owners with Administer permissions{% endtrans %}" disabled>{% trans %}Remove{% endtrans %}</button>
+          <button class="button" title="{% trans %}Cannot remove organization owners{% endtrans %}" disabled>{% trans %}Remove{% endtrans %}</button>
         </td>
       </tr>
     {% endif %}
@@ -107,14 +110,11 @@
           </a>
         </th>
         <td>
-          —
-        </td>
-        <td>
         {% if request.user in role.team.members and request.user not in project.organization.owners %}
-          {% if role.role_name == TeamProjectRoleType.Administer %}
-            {% trans %}Administer{% endtrans %}
-          {% elif role.role_name == TeamProjectRoleType.Upload %}
-            {% trans %}Upload{% endtrans %}
+          {% if role.role_name == TeamProjectRoleType.Owner %}
+            {% trans %}Owner{% endtrans %}
+          {% elif role.role_name == TeamProjectRoleType.Maintainer %}
+            {% trans %}Maintainer{% endtrans %}
           {% endif %}
         {% else %}
           <form class="table__change-role" method="POST" action="{{ request.route_path('manage.project.change_team_project_role', project_name=project.name) }}">
@@ -123,13 +123,13 @@
 
             <label for="role-for-{{ role.id }}" class="sr-only">{% trans %}Role{% endtrans %}</label>
             <select id="role-for-{{ role.id }}" class="table__change-field" name="team_project_role_name" data-original="{{ role.role_name.value }}" autocomplete="off">
-            {% for role_name, role_name_label in [('Administer', gettext('Administer')), ('Upload', gettext('Upload'))] %}
+            {% for role_name, role_name_label in [('Maintainer', gettext('Maintainer')), ('Owner', gettext('Owner'))] %}
             <option value="{{ role_name }}" {{ 'selected' if role_name == role.role_name.value else '' }}>
               {{ role_name_label }}
             </option>
             {% endfor %}
             </select>
-            <button type="submit" class="button button--primary table__change-button" title="{% trans %}Save permissions{% endtrans %}">
+            <button type="submit" class="button button--primary table__change-button" title="{% trans %}Save role{% endtrans %}">
               {% trans %}Save{% endtrans %}
             </button>
           </form>
@@ -137,13 +137,13 @@
         </td>
         <td class="table__align-center"></td>
         <td class="table__align-right">
-        {% if role.role_name == TeamProjectRoleType.Administer and request.user in role.team.members and request.user not in project.organization.owners %}
-          <button type="submit" class="button" title="{% trans %}Cannot remove your own team with Administer permissions{% endtrans %}" disabled>{% trans %}Remove{% endtrans %}</button>
+        {% if role.role_name == TeamProjectRoleType.Owner and request.user in role.team.members and request.user not in project.organization.owners %}
+          <button type="submit" class="button" title="{% trans %}Cannot remove your own team as Owner{% endtrans %}" disabled>{% trans %}Remove{% endtrans %}</button>
         {% else %}
           {% set extra_fields %}<input type="hidden" name="role_id" value="{{ role.id }}">{% endset %}
           {% set extra_description %}{% trans collaborator=role.team.name %}Remove {{ collaborator }} from this project{% endtrans %}{% trans %}.{% endtrans %}{% endset %}
           {% set tooltip %}{% trans collaborator=role.team.name %}Remove {{ collaborator }} from this project{% endtrans %}{% endset %}
-          {{ confirm_button(gettext("Remove"), gettext("Username"), "remove-" + role.id|string, gettext(role.user.username), extra_fields=extra_fields, extra_description=extra_description, action=request.route_path('manage.project.delete_team_project_role', project_name=project.name), warning=False, modifier="--primary", tooltip=tooltip) }}
+          {{ confirm_button(gettext("Remove"), gettext("Username"), "remove-" + role.id|string, gettext(role.team.name), extra_fields=extra_fields, extra_description=extra_description, action=request.route_path('manage.project.delete_team_project_role', project_name=project.name), warning=False, modifier="--primary", tooltip=tooltip) }}
         {% endif %}
         </td>
       </tr>
@@ -190,13 +190,6 @@
           </form>
         {% endif %}
         </td>
-        <td>
-        {% if role.role_name == "Owner" %}
-          {% trans %}Administer{% endtrans %}
-        {% elif role.role_name == "Maintainer" %}
-          {% trans %}Upload{% endtrans %}
-        {% endif %}
-        </td>
         <td class="table__align-center">{{ two_factor_badge(role.user) }}</td>
         <td class="table__align-right">
           {% if role.role_name == "Owner" and request.user.username == role.user.username %}
@@ -233,7 +226,6 @@
             {% trans %}Invite expired{% endtrans %}
           {% endif %}
         </td>
-        <td></td>
         <td></td>
         <td class="table__align-right">
           {% set extra_fields %}<input name="user_id" type="hidden" value="{{ invite.user_id }}">{% endset %}
@@ -284,7 +276,7 @@
     </div>
     <div class="form-group radio-toggle radio-toggle-1">
       <label for="team_project_role_name" class="form-group__label">
-        {% trans %}Permissions{% endtrans %}
+        {% trans %}Role{% endtrans %}
         <span class="form-group__required">{% trans %}(required){% endtrans %}</span>
       </label>
       {{ internal_role_form.team_project_role_name(class_="form-group__field", autocomplete="off", **{"aria-describedby":"team-project-role-errors"}) }}

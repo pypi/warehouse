@@ -228,6 +228,7 @@ def configure(settings=None):
         coercer=int,
         default=21600,  # 6 hours
     )
+    maybe_set_compound(settings, "billing", "backend", "BILLING_BACKEND")
     maybe_set_compound(settings, "files", "backend", "FILES_BACKEND")
     maybe_set_compound(settings, "simple", "backend", "SIMPLE_BACKEND")
     maybe_set_compound(settings, "docs", "backend", "DOCS_BACKEND")
@@ -272,6 +273,12 @@ def configure(settings=None):
         "warehouse.account.email_add_ratelimit_string",
         "EMAIL_ADD_RATELIMIT_STRING",
         default="2 per day",
+    )
+    maybe_set(
+        settings,
+        "warehouse.account.verify_email_ratelimit_string",
+        "VERIFY_EMAIL_RATELIMIT_STRING",
+        default="3 per 6 hours",
     )
     maybe_set(
         settings,
@@ -558,6 +565,9 @@ def configure(settings=None):
 
     # Register our organization support.
     config.include(".organizations")
+
+    # Register our subscription support.
+    config.include(".subscriptions")
 
     # Allow the packaging app to register any services it has.
     config.include(".packaging")

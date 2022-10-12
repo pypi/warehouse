@@ -27,7 +27,13 @@ from ...common.db.organizations import (
     OrganizationFactory as DBOrganizationFactory,
     OrganizationNameCatalogFactory as DBOrganizationNameCatalogFactory,
     OrganizationRoleFactory as DBOrganizationRoleFactory,
+    OrganizationStripeCustomerFactory as DBOrganizationStripeCustomerFactory,
+    OrganizationStripeSubscriptionFactory as DBOrganizationStripeSubscriptionFactory,
     TeamFactory as DBTeamFactory,
+)
+from ...common.db.subscriptions import (
+    StripeCustomerFactory as DBStripeCustomerFactory,
+    StripeSubscriptionFactory as DBStripeSubscriptionFactory,
 )
 
 
@@ -289,3 +295,30 @@ class TestTeam:
             ],
             key=lambda x: x[1],
         )
+
+    def test_active_subscription(self, db_session):
+        organization = DBOrganizationFactory.create()
+        stripe_customer = DBStripeCustomerFactory.create()
+        DBOrganizationStripeCustomerFactory.create(
+            organization=organization, customer=stripe_customer
+        )
+        subscription = DBStripeSubscriptionFactory.create(customer=stripe_customer)
+        DBOrganizationStripeSubscriptionFactory.create(
+            organization=organization, subscription=subscription
+        )
+        assert organization.active_subscription is not None
+
+    def test_active_subscription_none(self, db_session):
+        organization = DBOrganizationFactory.create()
+        stripe_customer = DBStripeCustomerFactory.create()
+        DBOrganizationStripeCustomerFactory.create(
+            organization=organization, customer=stripe_customer
+        )
+        subscription = DBStripeSubscriptionFactory.create(
+            customer=stripe_customer,
+            status="canceled",
+        )
+        DBOrganizationStripeSubscriptionFactory.create(
+            organization=organization, subscription=subscription
+        )
+        assert organization.active_subscription is None

@@ -22,6 +22,8 @@ from warehouse.organizations.models import (
     OrganizationProject,
     OrganizationRole,
     OrganizationRoleType,
+    OrganizationStripeCustomer,
+    OrganizationStripeSubscription,
     Team,
     TeamProjectRole,
     TeamProjectRoleType,
@@ -32,6 +34,7 @@ from warehouse.organizations.models import (
 from .accounts import UserFactory
 from .base import WarehouseFactory
 from .packaging import ProjectFactory
+from .subscriptions import StripeCustomerFactory, StripeSubscriptionFactory
 
 fake = faker.Faker()
 
@@ -108,6 +111,24 @@ class OrganizationProjectFactory(WarehouseFactory):
     project = factory.SubFactory(ProjectFactory)
 
 
+class OrganizationStripeSubscriptionFactory(WarehouseFactory):
+    class Meta:
+        model = OrganizationStripeSubscription
+
+    id = factory.Faker("uuid4", cast_to=None)
+    organization = factory.SubFactory(OrganizationFactory)
+    subscription = factory.SubFactory(StripeSubscriptionFactory)
+
+
+class OrganizationStripeCustomerFactory(WarehouseFactory):
+    class Meta:
+        model = OrganizationStripeCustomer
+
+    id = factory.Faker("uuid4", cast_to=None)
+    organization = factory.SubFactory(OrganizationFactory)
+    customer = factory.SubFactory(StripeCustomerFactory)
+
+
 class TeamFactory(WarehouseFactory):
     class Meta:
         model = Team
@@ -135,6 +156,6 @@ class TeamProjectRoleFactory(WarehouseFactory):
     class Meta:
         model = TeamProjectRole
 
-    role_name = TeamProjectRoleType.Administer
+    role_name = TeamProjectRoleType.Owner
     project = factory.SubFactory(ProjectFactory)
     team = factory.SubFactory(TeamFactory)

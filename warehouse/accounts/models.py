@@ -14,6 +14,7 @@ import datetime
 import enum
 
 from citext import CIText
+from pyramid.authorization import Allow
 from sqlalchemy import (
     Boolean,
     CheckConstraint,
@@ -84,6 +85,7 @@ class User(SitemapMixin, HasEvents, db.Model):
     prohibit_password_reset = Column(
         Boolean, nullable=False, server_default=sql.false()
     )
+    hide_avatar = Column(Boolean, nullable=False, server_default=sql.false())
     date_joined = Column(DateTime, server_default=sql.func.now())
     last_login = Column(TZDateTime, nullable=False, server_default=sql.func.now())
     disabled_for = Column(
@@ -182,6 +184,12 @@ class User(SitemapMixin, HasEvents, db.Model):
             ]
         )
 
+    def __acl__(self):
+        return [
+            (Allow, "group:admins", "admin"),
+            (Allow, "group:moderators", "moderator"),
+        ]
+
 
 class WebAuthn(db.Model):
     __tablename__ = "user_security_keys"
@@ -273,18 +281,3 @@ class ProhibitedUserName(db.Model):
     )
     prohibited_by = orm.relationship(User)
     comment = Column(Text, nullable=False, server_default="")
-
-
-class TitanPromoCode(db.Model):
-    __tablename__ = "user_titan_codes"
-
-    user_id = Column(
-        UUID(as_uuid=True),
-        ForeignKey("users.id", deferrable=True, initially="DEFERRED"),
-        nullable=True,
-        index=True,
-        unique=True,
-    )
-    code = Column(String, nullable=False, unique=True)
-    created = Column(DateTime, nullable=False, server_default=sql.func.now())
-    distributed = Column(DateTime, nullable=True)
