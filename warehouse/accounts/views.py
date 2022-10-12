@@ -1054,6 +1054,25 @@ def verify_project_role(request):
         }
     elif request.method == "POST" and "decline" in request.POST:
         request.db.delete(role_invite)
+        submitter_user = user_service.get_user(data.get("submitter_id"))
+        project.record_event(
+            tag=EventTag.Project.RoleDeclineInvite,
+            ip_address=request.remote_addr,
+            additional={
+                "submitted_by": submitter_user.username,
+                "role_name": desired_role,
+                "target_user": user.username,
+            },
+        )
+        user.record_event(
+            tag=EventTag.Account.RoleDeclineInvite,
+            ip_address=request.remote_addr,
+            additional={
+                "submitted_by": submitter_user.username,
+                "project_name": project.name,
+                "role_name": desired_role,
+            },
+        )
         request.session.flash(
             request._(
                 "Invitation for '${project_name}' is declined.",

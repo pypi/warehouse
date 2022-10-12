@@ -1348,6 +1348,15 @@ class ManageOrganizationsViews:
             )
             self.user_service.record_event(
                 self.request.user.id,
+                tag=EventTag.Account.OrganizationRoleInvite,
+                additional={
+                    "submitted_by_user_id": str(self.request.user.id),
+                    "organization_name": organization.name,
+                    "role_name": "Owner",
+                },
+            )
+            self.user_service.record_event(
+                self.request.user.id,
                 tag=EventTag.Account.OrganizationRoleAdd,
                 additional={
                     "submitted_by_user_id": str(self.request.user.id),
@@ -1862,6 +1871,15 @@ class ManageOrganizationProjectsViews:
                         "target_user": role.user.username,
                     },
                 )
+                role.user.record_event(
+                    tag=EventTag.Account.RoleRemove,
+                    ip_address=self.request.remote_addr,
+                    additional={
+                        "submitted_by": self.request.user.username,
+                        "project_name": project.name,
+                        "role_name": role.role_name,
+                    },
+                )
         else:
             # Validate new project name.
             try:
@@ -2023,6 +2041,15 @@ def manage_organization_roles(
                     "target_user_id": str(userid),
                 },
             )
+            user.record_event(
+                tag=EventTag.Account.OrganizationRoleInvite,
+                ip_address=request.remote_addr,
+                additional={
+                    "submitted_by_user_id": str(request.user.id),
+                    "organization_name": organization.name,
+                    "role_name": role_name.value,
+                },
+            )
             request.db.flush()  # in order to get id
             owner_users = set(organization_owners(request, organization))
             send_organization_member_invited_email(
@@ -2115,6 +2142,15 @@ def revoke_organization_invitation(organization, request):
             "submitted_by_user_id": str(request.user.id),
             "role_name": role_name,
             "target_user_id": str(user.id),
+        },
+    )
+    user.record_event(
+        tag=EventTag.Account.OrganizationRoleRevokeInvite,
+        ip_address=request.remote_addr,
+        additional={
+            "submitted_by_user_id": str(request.user.id),
+            "organization_name": organization.name,
+            "role_name": role_name,
         },
     )
 
@@ -4245,8 +4281,8 @@ def manage_project_roles(project, request, _form_class=CreateRoleForm):
                 ip_address=request.remote_addr,
                 additional={
                     "submitted_by": request.user.username,
+                    "project_name": project.name,
                     "role_name": role_name,
-                    "target_user": username,
                 },
             )
             request.db.flush()  # in order to get id
@@ -4318,6 +4354,15 @@ def revoke_project_role_invitation(project, request, _form_class=ChangeRoleForm)
             "target_user": user.username,
         },
     )
+    user.record_event(
+        tag=EventTag.Account.RoleRevokeInvite,
+        ip_address=request.remote_addr,
+        additional={
+            "submitted_by": request.user.username,
+            "project_name": project.name,
+            "role_name": role_name,
+        },
+    )
     request.session.flash(
         request._(
             "Invitation revoked from '${username}'.",
@@ -4373,6 +4418,15 @@ def change_project_role(project, request, _form_class=ChangeRoleForm):
                         "submitted_by": request.user.username,
                         "role_name": form.role_name.data,
                         "target_user": role.user.username,
+                    },
+                )
+                role.user.record_event(
+                    tag=EventTag.Account.RoleChange,
+                    ip_address=request.remote_addr,
+                    additional={
+                        "submitted_by": request.user.username,
+                        "project_name": project.name,
+                        "role_name": form.role_name.data,
                     },
                 )
 

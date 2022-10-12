@@ -2588,6 +2588,15 @@ class TestManageOrganizations:
         assert user_service.record_event.calls == [
             pretend.call(
                 request.user.id,
+                tag=EventTag.Account.OrganizationRoleInvite,
+                additional={
+                    "submitted_by_user_id": str(request.user.id),
+                    "organization_name": organization.name,
+                    "role_name": "Owner",
+                },
+            ),
+            pretend.call(
+                request.user.id,
                 tag=EventTag.Account.OrganizationRoleAdd,
                 additional={
                     "submitted_by_user_id": str(request.user.id),
@@ -2744,6 +2753,15 @@ class TestManageOrganizations:
             ),
         ]
         assert user_service.record_event.calls == [
+            pretend.call(
+                request.user.id,
+                tag=EventTag.Account.OrganizationRoleInvite,
+                additional={
+                    "submitted_by_user_id": str(request.user.id),
+                    "organization_name": organization.name,
+                    "role_name": "Owner",
+                },
+            ),
             pretend.call(
                 request.user.id,
                 tag=EventTag.Account.OrganizationRoleAdd,
