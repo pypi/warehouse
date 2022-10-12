@@ -2385,7 +2385,26 @@ class ManageTeamSettingsViews:
 
         if form.validate():
             name = form.name.data
+            previous_team_name = self.team.name
             self.organization_service.rename_team(self.team.id, name)
+            self.team.organization.record_event(
+                tag=EventTag.Organization.TeamRename,
+                ip_address=self.request.remote_addr,
+                additional={
+                    "renamed_by_user_id": str(self.request.user.id),
+                    "team_name": self.team.name,
+                    "previous_team_name": previous_team_name,
+                },
+            )
+            self.team.record_event(
+                tag=EventTag.Team.TeamRename,
+                ip_address=self.request.remote_addr,
+                additional={
+                    "renamed_by_user_id": str(self.request.user.id),
+                    "team_name": self.team.name,
+                    "previous_team_name": previous_team_name,
+                },
+            )
             self.request.session.flash("Team name updated", queue="success")
             return HTTPSeeOther(
                 self.request.route_path(

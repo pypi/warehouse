@@ -4953,7 +4953,9 @@ class TestManageTeamSettings:
             "save_team_form": form,
         }
 
-    def test_save_team(self, db_request, organization_service, enable_organizations):
+    def test_save_team(
+        self, db_request, pyramid_user, organization_service, enable_organizations
+    ):
         team = TeamFactory.create(name="Team Name")
         db_request.POST = MultiDict({"name": "Team name"})
         db_request.route_path = pretend.call_recorder(lambda *a, **kw: "/foo/bar/")
