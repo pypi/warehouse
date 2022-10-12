@@ -4045,7 +4045,9 @@ class TestManageOrganizationProjects:
 
 
 class TestManageOrganizationRoles:
-    def test_get_manage_organization_roles(self, db_request, enable_organizations):
+    def test_get_manage_organization_roles(
+        self, db_request, pyramid_user, enable_organizations
+    ):
         organization = OrganizationFactory.create(name="foobar")
         form_obj = pretend.stub()
 
@@ -4060,6 +4062,7 @@ class TestManageOrganizationRoles:
             "roles": set(),
             "invitations": set(),
             "form": form_obj,
+            "organizations_with_sole_owner": [],
         }
 
     @freeze_time(datetime.datetime.utcnow())
@@ -4824,9 +4827,19 @@ class TestDeleteOrganizationRoles:
         assert isinstance(result, HTTPSeeOther)
         assert result.headers["Location"] == "/the-redirect"
 
-    def test_delete_missing_role(self, db_request, enable_organizations):
+    def test_delete_missing_role(self, db_request, enable_organizations, monkeypatch):
         organization = OrganizationFactory.create(name="foobar")
         missing_role_id = str(uuid.uuid4())
+
+        user_organizations = pretend.call_recorder(
+            lambda *a, **kw: {
+                "organizations_managed": [],
+                "organizations_owned": [organization],
+                "organizations_billing": [],
+                "organizations_with_sole_owner": [],
+            }
+        )
+        monkeypatch.setattr(views, "user_organizations", user_organizations)
 
         db_request.method = "POST"
         db_request.user = pretend.stub()
@@ -4894,7 +4907,7 @@ class TestDeleteOrganizationRoles:
         result = views.delete_organization_role(organization, db_request)
 
         assert db_request.session.flash.calls == [
-            pretend.call("Cannot remove yourself as Owner", queue="error")
+            pretend.call("Cannot remove yourself as Sole Owner", queue="error")
         ]
         assert isinstance(result, HTTPSeeOther)
         assert result.headers["Location"] == "/the-redirect"
