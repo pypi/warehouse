@@ -19,6 +19,7 @@ from pyramid.security import Denied
 from warehouse.utils import security_policy
 
 from ...common.db.accounts import UserFactory
+from ...common.db.oidc import GitHubProviderFactory
 
 
 @pytest.mark.parametrize(
@@ -207,6 +208,25 @@ class TestMultiSecurityPolicy:
             pretend.call(
                 context,
                 [Authenticated, f"user:{user.id}", "some:principal"],
+                permission,
+            )
+        ]
+
+    def test_permits_oidc_provider(self, db_request):
+        subpolicies = pretend.stub()
+        status = pretend.stub()
+        authz = pretend.stub(permits=pretend.call_recorder(lambda *a: status))
+        policy = security_policy.MultiSecurityPolicy(subpolicies, authz)
+
+        provider = GitHubProviderFactory.create()
+        request = pretend.stub(identity=provider)
+        context = pretend.stub()
+        permission = pretend.stub()
+        assert policy.permits(request, context, permission) is status
+        assert authz.permits.calls == [
+            pretend.call(
+                context,
+                [Authenticated, f"oidc:{provider.id}"],
                 permission,
             )
         ]
