@@ -935,7 +935,7 @@ def verify_organization_role(request):
     organization_service.delete_organization_invite(organization_invite.id)
     submitter_user = user_service.get_user(data.get("submitter_id"))
     organization.record_event(
-        tag=EventTag.Organization.OrganizationRoleAccepted,
+        tag=EventTag.Organization.OrganizationRoleAdd,
         ip_address=request.remote_addr,
         additional={
             "submitted_by_user_id": str(submitter_user.id),
@@ -944,7 +944,7 @@ def verify_organization_role(request):
         },
     )
     user.record_event(
-        tag=EventTag.Account.OrganizationRoleAccepted,
+        tag=EventTag.Account.OrganizationRoleAdd,
         ip_address=request.remote_addr,
         additional={
             "submitted_by_user_id": str(submitter_user.id),
@@ -1074,7 +1074,7 @@ def verify_project_role(request):
         )
     )
     project.record_event(
-        tag=EventTag.Project.RoleCreate,
+        tag=EventTag.Project.RoleAdd,
         ip_address=request.remote_addr,
         additional={
             "submitted_by": request.user.username,
@@ -1083,7 +1083,7 @@ def verify_project_role(request):
         },
     )
     user.record_event(
-        tag=EventTag.Account.RoleCreate,
+        tag=EventTag.Account.RoleAdd,
         ip_address=request.remote_addr,
         additional={
             "submitted_by": request.user.username,

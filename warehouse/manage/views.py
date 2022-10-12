@@ -1339,7 +1339,7 @@ class ManageOrganizationsViews:
             )
             self.organization_service.record_event(
                 organization.id,
-                tag=EventTag.Organization.OrganizationRoleAccepted,
+                tag=EventTag.Organization.OrganizationRoleAdd,
                 additional={
                     "submitted_by_user_id": str(self.request.user.id),
                     "role_name": "Owner",
@@ -1348,7 +1348,7 @@ class ManageOrganizationsViews:
             )
             self.user_service.record_event(
                 self.request.user.id,
-                tag=EventTag.Account.OrganizationRoleAccepted,
+                tag=EventTag.Account.OrganizationRoleAdd,
                 additional={
                     "submitted_by_user_id": str(self.request.user.id),
                     "organization_name": organization.name,
@@ -1854,7 +1854,7 @@ class ManageOrganizationProjectsViews:
                     )
                 )
                 project.record_event(
-                    tag=EventTag.Project.RoleDelete,
+                    tag=EventTag.Project.RoleRemove,
                     ip_address=self.request.remote_addr,
                     additional={
                         "submitted_by": self.request.user.username,
@@ -2249,7 +2249,7 @@ def delete_organization_role(organization, request):
     else:
         organization_service.delete_organization_role(role.id)
         organization.record_event(
-            tag=EventTag.Organization.OrganizationRoleDelete,
+            tag=EventTag.Organization.OrganizationRoleRemove,
             ip_address=request.remote_addr,
             additional={
                 "submitted_by_user_id": str(request.user.id),
@@ -2258,7 +2258,7 @@ def delete_organization_role(organization, request):
             },
         )
         role.user.record_event(
-            tag=EventTag.Account.OrganizationRoleDelete,
+            tag=EventTag.Account.OrganizationRoleRemove,
             ip_address=request.remote_addr,
             additional={
                 "submitted_by_user_id": str(request.user.id),
@@ -2611,7 +2611,7 @@ class ManageTeamRolesViews:
 
             # Record events.
             self.team.organization.record_event(
-                tag=EventTag.Organization.TeamRoleDelete,
+                tag=EventTag.Organization.TeamRoleRemove,
                 ip_address=self.request.remote_addr,
                 additional={
                     "submitted_by_user_id": str(self.request.user.id),
@@ -2621,7 +2621,7 @@ class ManageTeamRolesViews:
                 },
             )
             self.team.record_event(
-                tag=EventTag.Team.TeamRoleDelete,
+                tag=EventTag.Team.TeamRoleRemove,
                 ip_address=self.request.remote_addr,
                 additional={
                     "submitted_by_user_id": str(self.request.user.id),
@@ -2630,7 +2630,7 @@ class ManageTeamRolesViews:
                 },
             )
             role.user.record_event(
-                tag=EventTag.Account.TeamRoleDelete,
+                tag=EventTag.Account.TeamRoleRemove,
                 ip_address=self.request.remote_addr,
                 additional={
                     "submitted_by_user_id": str(self.request.user.id),
@@ -3254,7 +3254,7 @@ def transfer_organization_project(project, request):
             )
         )
         project.record_event(
-            tag=EventTag.Project.RoleDelete,
+            tag=EventTag.Project.RoleRemove,
             ip_address=request.remote_addr,
             additional={
                 "submitted_by": request.user.username,
@@ -3987,7 +3987,7 @@ def manage_project_roles(project, request, _form_class=CreateRoleForm):
 
         # Record events.
         project.record_event(
-            tag=EventTag.Project.TeamProjectRoleCreate,
+            tag=EventTag.Project.TeamProjectRoleAdd,
             ip_address=request.remote_addr,
             additional={
                 "submitted_by_user_id": str(request.user.id),
@@ -3996,7 +3996,7 @@ def manage_project_roles(project, request, _form_class=CreateRoleForm):
             },
         )
         team.organization.record_event(
-            tag=EventTag.Organization.TeamProjectRoleCreate,
+            tag=EventTag.Organization.TeamProjectRoleAdd,
             ip_address=request.remote_addr,
             additional={
                 "submitted_by_user_id": str(request.user.id),
@@ -4006,7 +4006,7 @@ def manage_project_roles(project, request, _form_class=CreateRoleForm):
             },
         )
         team.record_event(
-            tag=EventTag.Team.TeamProjectRoleCreate,
+            tag=EventTag.Team.TeamProjectRoleAdd,
             ip_address=request.remote_addr,
             additional={
                 "submitted_by_user_id": str(request.user.id),
@@ -4099,7 +4099,7 @@ def manage_project_roles(project, request, _form_class=CreateRoleForm):
 
         # Record events.
         project.record_event(
-            tag=EventTag.Project.RoleCreate,
+            tag=EventTag.Project.RoleAdd,
             ip_address=request.remote_addr,
             additional={
                 "submitted_by": request.user.username,
@@ -4108,7 +4108,7 @@ def manage_project_roles(project, request, _form_class=CreateRoleForm):
             },
         )
         user.record_event(
-            tag=EventTag.Account.RoleCreate,
+            tag=EventTag.Account.RoleAdd,
             ip_address=request.remote_addr,
             additional={
                 "submitted_by": request.user.username,
@@ -4438,7 +4438,7 @@ def delete_project_role(project, request):
                 )
             )
             project.record_event(
-                tag=EventTag.Project.RoleDelete,
+                tag=EventTag.Project.RoleRemove,
                 ip_address=request.remote_addr,
                 additional={
                     "submitted_by": request.user.username,
@@ -4627,7 +4627,7 @@ def delete_team_project_role(project, request):
 
             # Record event.
             project.record_event(
-                tag=EventTag.Project.TeamProjectRoleDelete,
+                tag=EventTag.Project.TeamProjectRoleRemove,
                 ip_address=request.remote_addr,
                 additional={
                     "submitted_by_user_id": str(request.user.id),
@@ -4636,7 +4636,7 @@ def delete_team_project_role(project, request):
                 },
             )
             team.organization.record_event(
-                tag=EventTag.Organization.TeamProjectRoleDelete,
+                tag=EventTag.Organization.TeamProjectRoleRemove,
                 ip_address=request.remote_addr,
                 additional={
                     "submitted_by_user_id": str(request.user.id),
@@ -4646,7 +4646,7 @@ def delete_team_project_role(project, request):
                 },
             )
             team.record_event(
-                tag=EventTag.Team.TeamProjectRoleDelete,
+                tag=EventTag.Team.TeamProjectRoleRemove,
                 ip_address=request.remote_addr,
                 additional={
                     "submitted_by_user_id": str(request.user.id),

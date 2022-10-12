@@ -2577,7 +2577,7 @@ class TestManageOrganizations:
             ),
             pretend.call(
                 organization.id,
-                tag=EventTag.Organization.OrganizationRoleAccepted,
+                tag=EventTag.Organization.OrganizationRoleAdd,
                 additional={
                     "submitted_by_user_id": str(request.user.id),
                     "role_name": "Owner",
@@ -2588,7 +2588,7 @@ class TestManageOrganizations:
         assert user_service.record_event.calls == [
             pretend.call(
                 request.user.id,
-                tag=EventTag.Account.OrganizationRoleAccepted,
+                tag=EventTag.Account.OrganizationRoleAdd,
                 additional={
                     "submitted_by_user_id": str(request.user.id),
                     "organization_name": organization.name,
@@ -2735,7 +2735,7 @@ class TestManageOrganizations:
             ),
             pretend.call(
                 organization.id,
-                tag=EventTag.Organization.OrganizationRoleAccepted,
+                tag=EventTag.Organization.OrganizationRoleAdd,
                 additional={
                     "submitted_by_user_id": str(request.user.id),
                     "role_name": "Owner",
@@ -2746,7 +2746,7 @@ class TestManageOrganizations:
         assert user_service.record_event.calls == [
             pretend.call(
                 request.user.id,
-                tag=EventTag.Account.OrganizationRoleAccepted,
+                tag=EventTag.Account.OrganizationRoleAdd,
                 additional={
                     "submitted_by_user_id": str(request.user.id),
                     "organization_name": organization.name,
