@@ -11,7 +11,6 @@
 # limitations under the License.
 
 import datetime
-import uuid
 
 import pymacaroons
 
@@ -20,7 +19,6 @@ from sqlalchemy.orm import joinedload
 from sqlalchemy.orm.exc import NoResultFound
 from zope.interface import implementer
 
-from warehouse.accounts.models import User
 from warehouse.macaroons import caveats
 from warehouse.macaroons.errors import InvalidMacaroonError
 from warehouse.macaroons.interfaces import IMacaroonService

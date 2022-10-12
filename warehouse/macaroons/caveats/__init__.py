@@ -127,7 +127,7 @@ class OIDCProvider(Caveat):
         # to the current identifying OpenID provider.
         if context not in request.identity.projects:
             return Failure(
-                f"OIDC scoped token is not valid for project '{project.name}'"
+                f"OIDC scoped token is not valid for project '{context.name}'"
             )
 
         return Success()
