@@ -338,61 +338,61 @@ msgstr ""
 msgid "Generating new recovery codes will invalidate your existing codes."
 msgstr ""
 
-#: warehouse/manage/views.py:1970
+#: warehouse/manage/views.py:1965
 msgid "User '${username}' already has ${role_name} role for organization"
 msgstr ""
 
-#: warehouse/manage/views.py:1981
+#: warehouse/manage/views.py:1976
 msgid ""
 "User '${username}' does not have a verified primary email address and "
 "cannot be added as a ${role_name} for organization"
 msgstr ""
 
-#: warehouse/manage/views.py:1995 warehouse/manage/views.py:4191
+#: warehouse/manage/views.py:1990 warehouse/manage/views.py:4186
 msgid "User '${username}' already has an active invite. Please try again later."
 msgstr ""
 
-#: warehouse/manage/views.py:2052 warehouse/manage/views.py:4258
+#: warehouse/manage/views.py:2047 warehouse/manage/views.py:4253
 msgid "Invitation sent to '${username}'"
 msgstr ""
 
-#: warehouse/manage/views.py:2092
+#: warehouse/manage/views.py:2087
 msgid "Could not find organization invitation."
 msgstr ""
 
-#: warehouse/manage/views.py:2106 warehouse/manage/views.py:4302
+#: warehouse/manage/views.py:2101 warehouse/manage/views.py:4297
 msgid "Invitation already expired."
 msgstr ""
 
-#: warehouse/manage/views.py:2139 warehouse/manage/views.py:4326
+#: warehouse/manage/views.py:2134 warehouse/manage/views.py:4321
 msgid "Invitation revoked from '${username}'."
 msgstr ""
 
-#: warehouse/manage/views.py:2936
+#: warehouse/manage/views.py:2931
 msgid ""
 "There have been too many attempted OpenID Connect registrations. Try "
 "again later."
 msgstr ""
 
-#: warehouse/manage/views.py:3968
+#: warehouse/manage/views.py:3963
 msgid "Team '${team_name}' already has ${role_name} role for project"
 msgstr ""
 
-#: warehouse/manage/views.py:4076
+#: warehouse/manage/views.py:4071
 msgid "User '${username}' already has ${role_name} role for project"
 msgstr ""
 
-#: warehouse/manage/views.py:4145
+#: warehouse/manage/views.py:4140
 msgid "${username} is now ${role} of the '${project_name}' project."
 msgstr ""
 
-#: warehouse/manage/views.py:4178
+#: warehouse/manage/views.py:4173
 msgid ""
 "User '${username}' does not have a verified primary email address and "
 "cannot be added as a ${role_name} for project"
 msgstr ""
 
-#: warehouse/manage/views.py:4291
+#: warehouse/manage/views.py:4286
 msgid "Could not find role invitation."
 msgstr ""
 
@@ -744,7 +744,7 @@ msgstr ""
 #: warehouse/templates/manage/project/release.html:182
 #: warehouse/templates/manage/project/settings.html:126
 #: warehouse/templates/manage/project/settings.html:175
-#: warehouse/templates/manage/project/settings.html:239
+#: warehouse/templates/manage/project/settings.html:240
 #: warehouse/templates/manage/team/settings.html:77
 msgid "Warning"
 msgstr ""
@@ -5201,7 +5201,7 @@ msgstr ""
 
 #: warehouse/templates/manage/project/settings.html:147
 #: warehouse/templates/manage/project/settings.html:211
-#: warehouse/templates/manage/project/settings.html:268
+#: warehouse/templates/manage/project/settings.html:269
 msgid "Project Name"
 msgstr ""
 
@@ -5252,10 +5252,10 @@ msgstr ""
 msgid "Cannot transfer project to an organization"
 msgstr ""
 
-#: warehouse/templates/manage/project/settings.html:223
+#: warehouse/templates/manage/project/settings.html:224
 msgid ""
-"Project owners can transfer the project to organizations that they own or"
-" manage."
+"Organization owners can transfer the project to organizations that they "
+"own or manage."
 msgstr ""
 
 #: warehouse/templates/manage/project/settings.html:225
@@ -5263,19 +5263,25 @@ msgid "You are not an owner or manager of any other organizations."
 msgstr ""
 
 #: warehouse/templates/manage/project/settings.html:227
+msgid ""
+"Project owners can transfer the project to organizations that they own or"
+" manage."
+msgstr ""
+
+#: warehouse/templates/manage/project/settings.html:228
 msgid "You are not an owner or manager of any organizations."
 msgstr ""
 
-#: warehouse/templates/manage/project/settings.html:237
-#: warehouse/templates/manage/project/settings.html:268
+#: warehouse/templates/manage/project/settings.html:238
+#: warehouse/templates/manage/project/settings.html:269
 msgid "Delete project"
 msgstr ""
 
-#: warehouse/templates/manage/project/settings.html:240
+#: warehouse/templates/manage/project/settings.html:241
 msgid "Deleting this project will:"
 msgstr ""
 
-#: warehouse/templates/manage/project/settings.html:245
+#: warehouse/templates/manage/project/settings.html:246
 #, python-format
 msgid ""
 "Irreversibly delete the project along with <a href=\"%(href)s\">%(count)s"
@@ -5286,15 +5292,15 @@ msgid_plural ""
 msgstr[0] ""
 msgstr[1] ""
 
-#: warehouse/templates/manage/project/settings.html:251
+#: warehouse/templates/manage/project/settings.html:252
 msgid "Irreversibly delete the project"
 msgstr ""
 
-#: warehouse/templates/manage/project/settings.html:255
+#: warehouse/templates/manage/project/settings.html:256
 msgid "Make the project name available to <strong>any other PyPI</strong> user"
 msgstr ""
 
-#: warehouse/templates/manage/project/settings.html:257
+#: warehouse/templates/manage/project/settings.html:258
 msgid ""
 "This user will be able to make new releases under this project name, so "
 "long as the distribution filenames do not match filenames from a "
