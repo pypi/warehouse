@@ -39,7 +39,7 @@ def mint_token_from_oidc(request):
         )
 
     unverified_jwt = body.get("token")
-    if not unverified_jwt:
+    if not unverified_jwt or not isinstance(unverified_jwt, str):
         return _invalid(
             errors=[{"code": "invalid-token", "description": "missing or empty token"}]
         )
