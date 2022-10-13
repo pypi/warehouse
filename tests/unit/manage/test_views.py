@@ -3544,13 +3544,6 @@ class TestManageOrganizationTeams:
             "create_team_form": form,
         }
 
-    def test_manage_teams_disable_organizations(self, db_request):
-        organization = OrganizationFactory.create()
-
-        view = views.ManageOrganizationTeamsViews(organization, db_request)
-        with pytest.raises(HTTPNotFound):
-            view.manage_teams()
-
     def test_create_team(
         self,
         db_request,
@@ -3629,13 +3622,6 @@ class TestManageOrganizationTeams:
             "This team name has already been used. Choose a different team name."
         ]
         assert len(organization.teams) == 1
-
-    def test_create_team_disable_organizations(self, db_request):
-        organization = OrganizationFactory.create()
-
-        view = views.ManageOrganizationTeamsViews(organization, db_request)
-        with pytest.raises(HTTPNotFound):
-            view.create_team()
 
 
 class TestManageOrganizationProjects:
