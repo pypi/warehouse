@@ -1058,8 +1058,8 @@ msgstr ""
 #: warehouse/templates/manage/account/token.html:150
 #: warehouse/templates/manage/account/totp-provision.html:69
 #: warehouse/templates/manage/account/webauthn-provision.html:44
-#: warehouse/templates/manage/organization/projects.html:174
-#: warehouse/templates/manage/organization/projects.html:192
+#: warehouse/templates/manage/organization/projects.html:179
+#: warehouse/templates/manage/organization/projects.html:197
 #: warehouse/templates/manage/organization/roles.html:179
 #: warehouse/templates/manage/organization/roles.html:191
 #: warehouse/templates/manage/organization/settings.html:50
@@ -4046,38 +4046,41 @@ msgstr ""
 msgid "Manage '%(organization_name)s' projects"
 msgstr ""
 
-#: warehouse/templates/manage/organization/projects.html:141
-#, python-format
-msgid ""
-"You have not added any projects to your organization, yet. Get started by"
-" adding a project that you own using the form below. To learn how to "
-"create a new project, visit the <a href=\"%(href)s\" target=\"_blank\" "
-"rel=\"noopener\">Python Packaging User Guide</a>"
+#: warehouse/templates/manage/organization/projects.html:142
+msgid "There are no projects in your organization, yet."
 msgstr ""
 
-#: warehouse/templates/manage/organization/projects.html:151
+#: warehouse/templates/manage/organization/projects.html:144
+#, python-format
+msgid ""
+"Get started by adding a project that you own using the form below. To "
+"learn how to create a new project, visit the <a href=\"%(href)s\" "
+"target=\"_blank\" rel=\"noopener\">Python Packaging User Guide</a>"
+msgstr ""
+
+#: warehouse/templates/manage/organization/projects.html:156
 msgid "Add project to organization"
 msgstr ""
 
-#: warehouse/templates/manage/organization/projects.html:157
+#: warehouse/templates/manage/organization/projects.html:162
 msgid "️New or existing project?"
 msgstr ""
 
-#: warehouse/templates/manage/organization/projects.html:167
+#: warehouse/templates/manage/organization/projects.html:172
 msgid ""
 "Transfer an existing project that you own, or create and add a new "
 "project to the organization."
 msgstr ""
 
-#: warehouse/templates/manage/organization/projects.html:173
+#: warehouse/templates/manage/organization/projects.html:178
 msgid "️Name of existing project"
 msgstr ""
 
-#: warehouse/templates/manage/organization/projects.html:177
+#: warehouse/templates/manage/organization/projects.html:182
 msgid "You do not own any projects that you can add to this organization."
 msgstr ""
 
-#: warehouse/templates/manage/organization/projects.html:182
+#: warehouse/templates/manage/organization/projects.html:187
 msgid ""
 "Owners or managers of this organization can transfer a project that they "
 "own to this organization if the project has not been added to another "
@@ -4085,21 +4088,21 @@ msgid ""
 "be transferred from the project settings page."
 msgstr ""
 
-#: warehouse/templates/manage/organization/projects.html:187
+#: warehouse/templates/manage/organization/projects.html:192
 msgid "Transfer existing project"
 msgstr ""
 
-#: warehouse/templates/manage/organization/projects.html:191
+#: warehouse/templates/manage/organization/projects.html:196
 msgid "️Name of new project"
 msgstr ""
 
-#: warehouse/templates/manage/organization/projects.html:199
+#: warehouse/templates/manage/organization/projects.html:204
 msgid ""
 "Owners of this organization can create an empty project and add it to the"
 " organization."
 msgstr ""
 
-#: warehouse/templates/manage/organization/projects.html:204
+#: warehouse/templates/manage/organization/projects.html:209
 msgid "Create and add new project"
 msgstr ""
 
