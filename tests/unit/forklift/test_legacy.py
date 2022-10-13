@@ -53,6 +53,7 @@ from warehouse.utils.security_policy import AuthenticationMethod
 
 from ...common.db.accounts import EmailFactory, UserFactory
 from ...common.db.classifiers import ClassifierFactory
+from ...common.db.oidc import GitHubProviderFactory
 from ...common.db.packaging import (
     FileFactory,
     ProjectFactory,
@@ -1517,7 +1518,7 @@ class TestFileUpload:
         ]
 
     @pytest.mark.parametrize("content_type", [None, "image/foobar"])
-    def test_upload_fails_invlaid_content_type(
+    def test_upload_fails_invalid_content_type(
         self, tmpdir, monkeypatch, pyramid_config, db_request, content_type
     ):
         monkeypatch.setattr(tempfile, "tempdir", str(tmpdir))
@@ -2561,7 +2562,7 @@ class TestFileUpload:
         assert resp.status_code == 400
         assert resp.status == "400 Cannot upload a file with '/' or '\\' in the name."
 
-    def test_upload_fails_without_permission(self, pyramid_config, db_request):
+    def test_upload_fails_without_user_permission(self, pyramid_config, db_request):
         user1 = UserFactory.create()
         EmailFactory.create(user=user1)
         user2 = UserFactory.create()
@@ -2603,6 +2604,47 @@ class TestFileUpload:
             "isn't allowed to upload to project '{1}'. "
             "See /the/help/url/ for more information."
         ).format(user2.username, project.name)
+
+    def test_upload_fails_without_oidc_provider_permission(
+        self, pyramid_config, db_request
+    ):
+        project = ProjectFactory.create()
+        release = ReleaseFactory.create(project=project, version="1.0")
+
+        provider = GitHubProviderFactory.create(projects=[project])
+
+        filename = "{}-{}.tar.wat".format(project.name, release.version)
+
+        pyramid_config.testing_securitypolicy(identity=provider, permissive=False)
+        db_request.user = None
+        db_request.POST = MultiDict(
+            {
+                "metadata_version": "1.2",
+                "name": project.name,
+                "version": release.version,
+                "filetype": "sdist",
+                "md5_digest": "nope!",
+                "content": pretend.stub(
+                    filename=filename,
+                    file=io.BytesIO(b"a" * (legacy.MAX_FILESIZE + 1)),
+                    type="application/tar",
+                ),
+            }
+        )
+
+        db_request.help_url = pretend.call_recorder(lambda **kw: "/the/help/url/")
+
+        with pytest.raises(HTTPForbidden) as excinfo:
+            legacy.file_upload(db_request)
+
+        resp = excinfo.value
+
+        assert db_request.help_url.calls == [pretend.call(_anchor="project-name")]
+        assert resp.status_code == 403
+        assert resp.status == (
+            "403 The given token isn't allowed to upload to project '{0}'. "
+            "See /the/help/url/ for more information."
+        ).format(project.name)
 
     def test_upload_succeeds_with_2fa_enabled(
         self, pyramid_config, db_request, metrics, monkeypatch
@@ -3228,6 +3270,49 @@ class TestFileUpload:
 
         assert len(release_a.files.all()) == 0
         assert len(release_b.files.all()) == 1
+
+    def test_upload_fails_nonuser_identity_cannot_create_project(
+        self, pyramid_config, db_request, metrics
+    ):
+        provider = GitHubProviderFactory.create()
+
+        filename = "{}-{}.tar.gz".format("example", "1.0")
+
+        pyramid_config.testing_securitypolicy(identity=provider)
+        db_request.user = None
+        db_request.POST = MultiDict(
+            {
+                "metadata_version": "1.2",
+                "name": "example",
+                "version": "1.0",
+                "filetype": "sdist",
+                "md5_digest": _TAR_GZ_PKG_MD5,
+                "content": pretend.stub(
+                    filename=filename,
+                    file=io.BytesIO(_TAR_GZ_PKG_TESTDATA),
+                    type="application/tar",
+                ),
+            }
+        )
+
+        storage_service = pretend.stub(store=lambda path, filepath, meta: None)
+        db_request.find_service = lambda svc, name=None, context=None: {
+            IFileStorage: storage_service,
+            IMetricsService: metrics,
+        }.get(svc)
+        db_request.user_agent = "warehouse-tests/6.6.6"
+
+        with pytest.raises(HTTPBadRequest) as excinfo:
+            legacy.file_upload(db_request)
+
+        resp = excinfo.value
+
+        assert resp.status_code == 400
+        assert resp.status == (
+            "400 Non-user identities cannot create new projects. "
+            "You must first create a project as a user, and then "
+            "configure the project to use OpenID Connect."
+        )
 
     def test_upload_succeeds_creates_project(self, pyramid_config, db_request, metrics):
 
