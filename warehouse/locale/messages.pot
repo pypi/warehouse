@@ -1066,7 +1066,7 @@ msgstr ""
 #: warehouse/templates/manage/organization/settings.html:80
 #: warehouse/templates/manage/organization/settings.html:104
 #: warehouse/templates/manage/organization/settings.html:129
-#: warehouse/templates/manage/organization/teams.html:87
+#: warehouse/templates/manage/organization/teams.html:89
 #: warehouse/templates/manage/organizations.html:149
 #: warehouse/templates/manage/organizations.html:172
 #: warehouse/templates/manage/organizations.html:194
@@ -1081,7 +1081,7 @@ msgstr ""
 #: warehouse/templates/manage/project/roles.html:307
 #: warehouse/templates/manage/project/roles.html:334
 #: warehouse/templates/manage/project/roles.html:346
-#: warehouse/templates/manage/team/roles.html:95
+#: warehouse/templates/manage/team/roles.html:106
 #: warehouse/templates/manage/team/settings.html:35
 #: warehouse/templates/re-auth.html:51
 msgid "(required)"
@@ -1182,8 +1182,8 @@ msgstr ""
 #: warehouse/templates/manage/project/roles.html:201
 #: warehouse/templates/manage/project/roles.html:294
 #: warehouse/templates/manage/project/roles.html:337
-#: warehouse/templates/manage/team/roles.html:76
-#: warehouse/templates/manage/team/roles.html:98
+#: warehouse/templates/manage/team/roles.html:80
+#: warehouse/templates/manage/team/roles.html:109
 msgid "Username"
 msgstr ""
 
@@ -1226,7 +1226,7 @@ msgstr ""
 #: warehouse/templates/manage/organization/roles.html:139
 #: warehouse/templates/manage/project/roles.html:155
 #: warehouse/templates/manage/project/roles.html:210
-#: warehouse/templates/manage/team/roles.html:57
+#: warehouse/templates/manage/team/roles.html:61
 msgid "Avatar for {user} from gravatar.com"
 msgstr ""
 
@@ -3235,8 +3235,8 @@ msgstr ""
 #: warehouse/templates/manage/project/roles.html:146
 #: warehouse/templates/manage/project/roles.html:196
 #: warehouse/templates/manage/project/roles.html:201
-#: warehouse/templates/manage/team/roles.html:71
-#: warehouse/templates/manage/team/roles.html:76
+#: warehouse/templates/manage/team/roles.html:75
+#: warehouse/templates/manage/team/roles.html:80
 msgid "Remove"
 msgstr ""
 
@@ -3587,7 +3587,7 @@ msgid ""
 "community projects are granted complimentary access."
 msgstr ""
 
-#: warehouse/templates/manage/organization/teams.html:99
+#: warehouse/templates/manage/organization/teams.html:101
 #: warehouse/templates/manage/organizations.html:247
 msgid "Create"
 msgstr ""
@@ -4181,7 +4181,7 @@ msgid "Can manage billing for the organization."
 msgstr ""
 
 #: warehouse/templates/manage/organization/roles.html:58
-#: warehouse/templates/manage/team/roles.html:43
+#: warehouse/templates/manage/team/roles.html:47
 #, python-format
 msgid "Users who can manage %(organization_name)s"
 msgstr ""
@@ -4189,8 +4189,8 @@ msgstr ""
 #: warehouse/templates/manage/organization/roles.html:62
 #: warehouse/templates/manage/organization/roles.html:177
 #: warehouse/templates/manage/project/roles.html:332
-#: warehouse/templates/manage/team/roles.html:47
-#: warehouse/templates/manage/team/roles.html:93
+#: warehouse/templates/manage/team/roles.html:51
+#: warehouse/templates/manage/team/roles.html:104
 msgid "User"
 msgstr ""
 
@@ -4379,21 +4379,21 @@ msgstr ""
 msgid "View this team"
 msgstr ""
 
-#: warehouse/templates/manage/organization/teams.html:70
+#: warehouse/templates/manage/organization/teams.html:71
 msgid ""
 "There are no teams in your organization, yet. Organization owners and "
 "managers can create new teams for the organization."
 msgstr ""
 
-#: warehouse/templates/manage/organization/teams.html:80
+#: warehouse/templates/manage/organization/teams.html:82
 msgid "Create new team"
 msgstr ""
 
-#: warehouse/templates/manage/organization/teams.html:86
+#: warehouse/templates/manage/organization/teams.html:88
 msgid "️Team name"
 msgstr ""
 
-#: warehouse/templates/manage/organization/teams.html:94
+#: warehouse/templates/manage/organization/teams.html:96
 msgid ""
 "Owners and managers of this organization can create a team for the "
 "organization and manage team members, team projects, and team settings."
@@ -4604,7 +4604,7 @@ msgstr ""
 
 #: warehouse/templates/manage/project/publishing.html:118
 #: warehouse/templates/manage/project/roles.html:316
-#: warehouse/templates/manage/team/roles.html:112
+#: warehouse/templates/manage/team/roles.html:123
 msgid "Add"
 msgstr ""
 
@@ -5340,9 +5340,9 @@ msgstr ""
 msgid "Manage '%(team_name)s' projects"
 msgstr ""
 
-#: warehouse/templates/manage/team/projects.html:141
+#: warehouse/templates/manage/team/projects.html:142
 msgid ""
-"Your team does not have admin or upload permissions for any projects, "
+"This team does not have admin or upload permissions for any projects, "
 "yet. Get started by configuring collaborators for a project in your "
 "organization."
 msgstr ""
@@ -5352,31 +5352,33 @@ msgstr ""
 msgid "Manage members of '%(team_name)s'"
 msgstr ""
 
-#: warehouse/templates/manage/team/roles.html:39
+#: warehouse/templates/manage/team/roles.html:43
 msgid "Use this page to manage which organization users are members of this team."
 msgstr ""
 
-#: warehouse/templates/manage/team/roles.html:71
+#: warehouse/templates/manage/team/roles.html:75
 msgid "Cannot remove other people from the team"
 msgstr ""
 
-#: warehouse/templates/manage/team/roles.html:74
-#: warehouse/templates/manage/team/roles.html:75
+#: warehouse/templates/manage/team/roles.html:78
+#: warehouse/templates/manage/team/roles.html:79
 #, python-format
 msgid "Remove %(user)s from this team"
 msgstr ""
 
-#: warehouse/templates/manage/team/roles.html:84
-msgid ""
-"There are no members in your team, yet. Get started by adding a team "
-"member below."
+#: warehouse/templates/manage/team/roles.html:90
+msgid "There are no members in this team, yet."
 msgstr ""
 
-#: warehouse/templates/manage/team/roles.html:88
+#: warehouse/templates/manage/team/roles.html:92
+msgid "Get started by adding a team member below."
+msgstr ""
+
+#: warehouse/templates/manage/team/roles.html:99
 msgid "Add member"
 msgstr ""
 
-#: warehouse/templates/manage/team/roles.html:108
+#: warehouse/templates/manage/team/roles.html:119
 #, python-format
 msgid ""
 "Add an organization owner, manager, or member to the team. <a "
