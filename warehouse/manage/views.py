@@ -1675,7 +1675,7 @@ class ManageOrganizationBillingViews:
     require_active_organization=True,
     require_csrf=True,
     require_methods=False,
-    permission="manage:organization",
+    permission="manage:team",
     has_translations=True,
     require_reauth=True,
 )

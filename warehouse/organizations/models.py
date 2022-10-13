@@ -323,7 +323,7 @@ class Organization(HasEvents, db.Model):
                 # - View organization ("view:organization")
                 # - View team ("view:team")
                 # - Invite/remove organization member ("manage:organization")
-                # - Add/remove team member ("manage:team")
+                # - Create/delete team and add/remove team member ("manage:team")
                 # - Manage billing ("manage:billing")
                 # - Create project ("add:project")
                 # - Delete project ("remove:project")
@@ -351,7 +351,7 @@ class Organization(HasEvents, db.Model):
                 # - Manage billing ("manage:billing")
                 # Disallowed:
                 # - Invite/remove organization member ("manage:organization")
-                # - Add/remove team member ("manage:team")
+                # - Create/delete team and add/remove team member ("manage:team")
                 # - Create project ("add:project")
                 # - Delete project ("remove:project")
                 acls.append(
@@ -365,7 +365,7 @@ class Organization(HasEvents, db.Model):
                 # Allowed:
                 # - View organization ("view:organization")
                 # - View team ("view:team")
-                # - Add/remove team member ("manage:team")
+                # - Create/delete team and add/remove team member ("manage:team")
                 # - Create project ("add:project")
                 # Disallowed:
                 # - Invite/remove organization member ("manage:organization")
@@ -391,7 +391,7 @@ class Organization(HasEvents, db.Model):
                 # - View team ("view:team")
                 # Disallowed:
                 # - Invite/remove organization member ("manage:organization")
-                # - Add/remove team member ("manage:team")
+                # - Create/delete team and add/remove team member ("manage:team")
                 # - Manage billing ("manage:billing")
                 # - Create project ("add:project")
                 # - Delete project ("remove:project")
