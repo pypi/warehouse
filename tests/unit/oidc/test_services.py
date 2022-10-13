@@ -151,6 +151,40 @@ class TestOIDCProviderService:
         assert service._verify_signature_only.calls == [pretend.call(token)]
         assert provider.verify_claims.calls == [pretend.call(claims)]
 
+    def test_find_provider_issuer_lookup_fails(self, monkeypatch):
+        service = services.OIDCProviderService(
+            session=pretend.stub(),
+            provider="fakeprovider",
+            issuer_url=pretend.stub(),
+            cache_url=pretend.stub(),
+            metrics=pretend.stub(
+                increment=pretend.call_recorder(lambda *a, **kw: None)
+            ),
+        )
+
+        token = pretend.stub()
+        claims = pretend.stub()
+        monkeypatch.setattr(
+            service, "_verify_signature_only", pretend.call_recorder(lambda t: claims)
+        )
+
+        find_provider_by_issuer = pretend.call_recorder(lambda *a: None)
+        monkeypatch.setattr(
+            services, "find_provider_by_issuer", find_provider_by_issuer
+        )
+
+        assert service.find_provider(token) is None
+        assert service.metrics.increment.calls == [
+            pretend.call(
+                "warehouse.oidc.find_provider.attempt",
+                tags=["provider:fakeprovider"],
+            ),
+            pretend.call(
+                "warehouse.oidc.find_provider.provider_not_found",
+                tags=["provider:fakeprovider"],
+            ),
+        ]
+
     def test_find_provider_invalid_signature(self, monkeypatch):
         service = services.OIDCProviderService(
             session=pretend.stub(),
