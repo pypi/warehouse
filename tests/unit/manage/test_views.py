@@ -55,6 +55,7 @@ from warehouse.organizations.models import (
     OrganizationRole,
     OrganizationRoleType,
     OrganizationType,
+    Team,
     TeamProjectRole,
     TeamProjectRoleType,
     TeamRoleType,
@@ -80,6 +81,7 @@ from ...common.db.organizations import (
     OrganizationRoleFactory,
     OrganizationStripeCustomerFactory,
     OrganizationStripeSubscriptionFactory,
+    TeamEventFactory,
     TeamFactory,
     TeamProjectRoleFactory,
     TeamRoleFactory,
@@ -5579,6 +5581,126 @@ class TestManageTeamRoles:
             pretend.call("Cannot remove other people from the team", queue="error")
         ]
         assert isinstance(result, HTTPSeeOther)
+
+
+class TestManageTeamHistory:
+    def test_get(self, db_request, user_service):
+        team = TeamFactory.create()
+        older_event = TeamEventFactory.create(
+            source=team,
+            tag="fake:event",
+            ip_address="0.0.0.0",
+            time=datetime.datetime(2017, 2, 5, 17, 18, 18, 462_634),
+        )
+        newer_event = TeamEventFactory.create(
+            source=team,
+            tag="fake:event",
+            ip_address="0.0.0.0",
+            time=datetime.datetime(2018, 2, 5, 17, 18, 18, 462_634),
+        )
+
+        assert views.manage_team_history(team, db_request) == {
+            "events": [newer_event, older_event],
+            "get_user": user_service.get_user,
+            "team": team,
+        }
+
+    def test_raises_400_with_pagenum_type_str(self, monkeypatch, db_request):
+        params = MultiDict({"page": "abc"})
+        db_request.params = params
+
+        events_query = pretend.stub()
+        db_request.events_query = pretend.stub(
+            events_query=lambda *a, **kw: events_query
+        )
+
+        page_obj = pretend.stub(page_count=10, item_count=1000)
+        page_cls = pretend.call_recorder(lambda *a, **kw: page_obj)
+        monkeypatch.setattr(views, "SQLAlchemyORMPage", page_cls)
+
+        url_maker = pretend.stub()
+        url_maker_factory = pretend.call_recorder(lambda request: url_maker)
+        monkeypatch.setattr(views, "paginate_url_factory", url_maker_factory)
+
+        team = TeamFactory.create()
+        with pytest.raises(HTTPBadRequest):
+            views.manage_team_history(team, db_request)
+
+        assert page_cls.calls == []
+
+    def test_first_page(self, db_request, user_service):
+        page_number = 1
+        params = MultiDict({"page": page_number})
+        db_request.params = params
+
+        team = TeamFactory.create()
+        items_per_page = 25
+        total_items = items_per_page + 2
+        for _ in range(total_items):
+            TeamEventFactory.create(source=team, tag="fake:event", ip_address="0.0.0.0")
+        events_query = (
+            db_request.db.query(Team.Event)
+            .join(Team.Event.source)
+            .filter(Team.Event.source_id == team.id)
+            .order_by(Team.Event.time.desc())
+        )
+
+        events_page = SQLAlchemyORMPage(
+            events_query,
+            page=page_number,
+            items_per_page=items_per_page,
+            item_count=total_items,
+            url_maker=paginate_url_factory(db_request),
+        )
+        assert views.manage_team_history(team, db_request) == {
+            "events": events_page,
+            "get_user": user_service.get_user,
+            "team": team,
+        }
+
+    def test_last_page(self, db_request, user_service):
+        page_number = 2
+        params = MultiDict({"page": page_number})
+        db_request.params = params
+
+        team = TeamFactory.create()
+        items_per_page = 25
+        total_items = items_per_page + 2
+        for _ in range(total_items):
+            TeamEventFactory.create(source=team, tag="fake:event", ip_address="0.0.0.0")
+        events_query = (
+            db_request.db.query(Team.Event)
+            .join(Team.Event.source)
+            .filter(Team.Event.source_id == team.id)
+            .order_by(Team.Event.time.desc())
+        )
+
+        events_page = SQLAlchemyORMPage(
+            events_query,
+            page=page_number,
+            items_per_page=items_per_page,
+            item_count=total_items,
+            url_maker=paginate_url_factory(db_request),
+        )
+        assert views.manage_team_history(team, db_request) == {
+            "events": events_page,
+            "get_user": user_service.get_user,
+            "team": team,
+        }
+
+    def test_raises_404_with_out_of_range_page(self, db_request):
+        page_number = 3
+        params = MultiDict({"page": page_number})
+        db_request.params = params
+
+        team = TeamFactory.create()
+        items_per_page = 25
+        total_items = items_per_page + 2
+        for _ in range(total_items):
+            TeamEventFactory.create(source=team, tag="fake:event", ip_address="0.0.0.0")
+
+        with pytest.raises(HTTPNotFound):
+            assert views.manage_team_history(team, db_request)
 
 
 class TestManageProjects:

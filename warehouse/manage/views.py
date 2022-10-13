@@ -2757,6 +2757,47 @@ class ManageTeamRolesViews:
 
 
 @view_config(
+    route_name="manage.team.history",
+    context=Team,
+    renderer="manage/team/history.html",
+    uses_session=True,
+    permission="manage:team",
+    has_translations=True,
+)
+def manage_team_history(team, request):
+    try:
+        page_num = int(request.params.get("page", 1))
+    except ValueError:
+        raise HTTPBadRequest("'page' must be an integer.")
+
+    events_query = (
+        request.db.query(Team.Event)
+        .join(Team.Event.source)
+        .filter(Team.Event.source_id == team.id)
+        .order_by(Team.Event.time.desc())
+        .order_by(Team.Event.tag.desc())
+    )
+
+    events = SQLAlchemyORMPage(
+        events_query,
+        page=page_num,
+        items_per_page=25,
+        url_maker=paginate_url_factory(request),
+    )
+
+    if events.page_count and page_num > events.page_count:
+        raise HTTPNotFound
+
+    user_service = request.find_service(IUserService, context=None)
+
+    return {
+        "events": events,
+        "get_user": user_service.get_user,
+        "team": team,
+    }
+
+
+@view_config(
     route_name="manage.projects",
     renderer="manage/projects.html",
     uses_session=True,

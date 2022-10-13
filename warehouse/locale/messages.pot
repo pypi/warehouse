@@ -348,11 +348,11 @@ msgid ""
 "cannot be added as a ${role_name} for organization"
 msgstr ""
 
-#: warehouse/manage/views.py:1995 warehouse/manage/views.py:4268
+#: warehouse/manage/views.py:1995 warehouse/manage/views.py:4309
 msgid "User '${username}' already has an active invite. Please try again later."
 msgstr ""
 
-#: warehouse/manage/views.py:2061 warehouse/manage/views.py:4335
+#: warehouse/manage/views.py:2061 warehouse/manage/views.py:4376
 msgid "Invitation sent to '${username}'"
 msgstr ""
 
@@ -360,39 +360,39 @@ msgstr ""
 msgid "Could not find organization invitation."
 msgstr ""
 
-#: warehouse/manage/views.py:2115 warehouse/manage/views.py:4379
+#: warehouse/manage/views.py:2115 warehouse/manage/views.py:4420
 msgid "Invitation already expired."
 msgstr ""
 
-#: warehouse/manage/views.py:2157 warehouse/manage/views.py:4412
+#: warehouse/manage/views.py:2157 warehouse/manage/views.py:4453
 msgid "Invitation revoked from '${username}'."
 msgstr ""
 
-#: warehouse/manage/views.py:3013
+#: warehouse/manage/views.py:3054
 msgid ""
 "There have been too many attempted OpenID Connect registrations. Try "
 "again later."
 msgstr ""
 
-#: warehouse/manage/views.py:4045
+#: warehouse/manage/views.py:4086
 msgid "Team '${team_name}' already has ${role_name} role for project"
 msgstr ""
 
-#: warehouse/manage/views.py:4153
+#: warehouse/manage/views.py:4194
 msgid "User '${username}' already has ${role_name} role for project"
 msgstr ""
 
-#: warehouse/manage/views.py:4222
+#: warehouse/manage/views.py:4263
 msgid "${username} is now ${role} of the '${project_name}' project."
 msgstr ""
 
-#: warehouse/manage/views.py:4255
+#: warehouse/manage/views.py:4296
 msgid ""
 "User '${username}' does not have a verified primary email address and "
 "cannot be added as a ${role_name} for project"
 msgstr ""
 
-#: warehouse/manage/views.py:4368
+#: warehouse/manage/views.py:4409
 msgid "Could not find role invitation."
 msgstr ""
 
@@ -2467,15 +2467,17 @@ msgstr ""
 
 #: warehouse/templates/includes/manage/manage-organization-menu.html:41
 #: warehouse/templates/includes/manage/manage-project-menu.html:37
+#: warehouse/templates/includes/manage/manage-team-menu.html:34
 #: warehouse/templates/manage/account.html:459
 #: warehouse/templates/manage/organization/history.html:23
 #: warehouse/templates/manage/project/history.html:23
+#: warehouse/templates/manage/team/history.html:23
 msgid "Security history"
 msgstr ""
 
 #: warehouse/templates/includes/manage/manage-organization-menu.html:48
 #: warehouse/templates/includes/manage/manage-project-menu.html:59
-#: warehouse/templates/includes/manage/manage-team-menu.html:33
+#: warehouse/templates/includes/manage/manage-team-menu.html:41
 msgid "Settings"
 msgstr ""
 
@@ -3091,6 +3093,7 @@ msgstr ""
 #: warehouse/templates/manage/account.html:657
 #: warehouse/templates/manage/organization/history.html:195
 #: warehouse/templates/manage/project/history.html:106
+#: warehouse/templates/manage/team/history.html:107
 msgid "Event"
 msgstr ""
 
@@ -3105,6 +3108,8 @@ msgstr ""
 #: warehouse/templates/manage/organization/history.html:209
 #: warehouse/templates/manage/project/history.html:108
 #: warehouse/templates/manage/project/history.html:120
+#: warehouse/templates/manage/team/history.html:109
+#: warehouse/templates/manage/team/history.html:121
 msgid "IP address"
 msgstr ""
 
@@ -4033,6 +4038,7 @@ msgstr ""
 
 #: warehouse/templates/manage/organization/history.html:20
 #: warehouse/templates/manage/project/history.html:20
+#: warehouse/templates/manage/team/history.html:20
 #, python-format
 msgid "'%(source_name)s' security history"
 msgstr ""
@@ -4128,16 +4134,19 @@ msgid ""
 msgstr ""
 
 #: warehouse/templates/manage/organization/history.html:89
+#: warehouse/templates/manage/team/history.html:31
 #, python-format
 msgid "%(team_name)s team created"
 msgstr ""
 
 #: warehouse/templates/manage/organization/history.html:91
+#: warehouse/templates/manage/team/history.html:33
 #, python-format
 msgid "%(team_name)s team deleted"
 msgstr ""
 
 #: warehouse/templates/manage/organization/history.html:96
+#: warehouse/templates/manage/team/history.html:40
 #, python-format
 msgid ""
 "%(team_name)s team added as project %(role_name)s for <a "
@@ -4145,6 +4154,7 @@ msgid ""
 msgstr ""
 
 #: warehouse/templates/manage/organization/history.html:100
+#: warehouse/templates/manage/team/history.html:44
 #, python-format
 msgid ""
 "%(team_name)s team removed as project %(role_name)s for <a "
@@ -4152,6 +4162,7 @@ msgid ""
 msgstr ""
 
 #: warehouse/templates/manage/organization/history.html:104
+#: warehouse/templates/manage/team/history.html:48
 #, python-format
 msgid ""
 "%(team_name)s team changed to project %(role_name)s for <a "
@@ -4159,11 +4170,13 @@ msgid ""
 msgstr ""
 
 #: warehouse/templates/manage/organization/history.html:111
+#: warehouse/templates/manage/team/history.html:55
 #, python-format
 msgid "<a href=\"%(href)s\">%(username)s</a> added to %(team_name)s team"
 msgstr ""
 
 #: warehouse/templates/manage/organization/history.html:115
+#: warehouse/templates/manage/team/history.html:59
 #, python-format
 msgid "<a href=\"%(href)s\">%(username)s</a> removed from %(team_name)s team"
 msgstr ""
@@ -4174,14 +4187,17 @@ msgstr ""
 
 #: warehouse/templates/manage/organization/history.html:133
 #: warehouse/templates/manage/project/history.html:31
+#: warehouse/templates/manage/team/history.html:70
 msgid "Created by:"
 msgstr ""
 
 #: warehouse/templates/manage/organization/history.html:138
+#: warehouse/templates/manage/team/history.html:75
 msgid "Deleted by:"
 msgstr ""
 
 #: warehouse/templates/manage/organization/history.html:143
+#: warehouse/templates/manage/team/history.html:80
 msgid "Renamed by:"
 msgstr ""
 
@@ -4196,6 +4212,7 @@ msgstr ""
 #: warehouse/templates/manage/organization/history.html:160
 #: warehouse/templates/manage/project/history.html:36
 #: warehouse/templates/manage/project/history.html:52
+#: warehouse/templates/manage/team/history.html:87
 msgid "Added by:"
 msgstr ""
 
@@ -4203,11 +4220,13 @@ msgstr ""
 #: warehouse/templates/manage/project/history.html:41
 #: warehouse/templates/manage/project/history.html:47
 #: warehouse/templates/manage/project/history.html:57
+#: warehouse/templates/manage/team/history.html:92
 msgid "Removed by:"
 msgstr ""
 
 #: warehouse/templates/manage/organization/history.html:170
 #: warehouse/templates/manage/project/history.html:62
+#: warehouse/templates/manage/team/history.html:97
 msgid "Changed by:"
 msgstr ""
 
@@ -4222,6 +4241,7 @@ msgstr ""
 
 #: warehouse/templates/manage/organization/history.html:192
 #: warehouse/templates/manage/project/history.html:103
+#: warehouse/templates/manage/team/history.html:104
 #, python-format
 msgid "Security history for %(source_name)s"
 msgstr ""
@@ -4230,6 +4250,8 @@ msgstr ""
 #: warehouse/templates/manage/organization/history.html:205
 #: warehouse/templates/manage/project/history.html:107
 #: warehouse/templates/manage/project/history.html:116
+#: warehouse/templates/manage/team/history.html:108
+#: warehouse/templates/manage/team/history.html:117
 msgid "Time"
 msgstr ""
 
@@ -5486,6 +5508,17 @@ msgid ""
 "previously released distribution (all PyPI distribution filenames are "
 "unique, as they are generated by combining the project name + version "
 "number + distribution type)"
+msgstr ""
+
+#: warehouse/templates/manage/team/history.html:25
+msgid ""
+"Each time you (or your collaborators) perform a security action related "
+"to this team, the action is recorded and displayed here."
+msgstr ""
+
+#: warehouse/templates/manage/team/history.html:35
+#, python-format
+msgid "%(previous_team_name)s team renamed to %(team_name)s"
 msgstr ""
 
 #: warehouse/templates/manage/team/manage_team_base.html:20
