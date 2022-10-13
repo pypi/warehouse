@@ -104,7 +104,7 @@
     <thead>
       <tr>
         <th scope="col">{% trans %}Event{% endtrans %}</th>
-        <th scope="col">{% trans %}Date / time{% endtrans %}</th>
+        <th scope="col">{% trans %}Time{% endtrans %}</th>
         <th scope="col">{% trans %}IP address{% endtrans %}</th>
       </tr>
     </thead>
@@ -113,7 +113,7 @@
       <tr>
         <td>{{ event_summary(event) }}</td>
         <td>
-          <span class="table__mobile-label">{% trans %}Date / time{% endtrans %}</span>
+          <span class="table__mobile-label">{% trans %}Time{% endtrans %}</span>
           {{ humanize(event.time, time="true") }}
         </td>
         <td>

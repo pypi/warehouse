@@ -3096,10 +3096,6 @@ msgstr ""
 
 #: warehouse/templates/manage/account.html:658
 #: warehouse/templates/manage/account.html:666
-#: warehouse/templates/manage/organization/history.html:196
-#: warehouse/templates/manage/organization/history.html:205
-#: warehouse/templates/manage/project/history.html:107
-#: warehouse/templates/manage/project/history.html:116
 msgid "Date / time"
 msgstr ""
 
@@ -4228,6 +4224,13 @@ msgstr ""
 #: warehouse/templates/manage/project/history.html:103
 #, python-format
 msgid "Security history for %(source_name)s"
+msgstr ""
+
+#: warehouse/templates/manage/organization/history.html:196
+#: warehouse/templates/manage/organization/history.html:205
+#: warehouse/templates/manage/project/history.html:107
+#: warehouse/templates/manage/project/history.html:116
+msgid "Time"
 msgstr ""
 
 #: warehouse/templates/manage/organization/manage_organization_base.html:20
