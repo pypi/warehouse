@@ -96,10 +96,7 @@ class MacaroonSecurityPolicy:
         # Every Macaroon is either associated with a user or an OIDC provider.
         if dm.user is not None:
             return dm.user
-        elif dm.oidc_provider is not None:
-            return dm.oidc_provider
-        else:
-            return None
+        return dm.oidc_provider
 
     def remember(self, request, userid, **kw):
         # This is a NO-OP because our Macaroon header policy doesn't allow
