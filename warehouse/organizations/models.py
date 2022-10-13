@@ -325,8 +325,8 @@ class Organization(HasEvents, db.Model):
                 # - Invite/remove organization member ("manage:organization")
                 # - Create/delete team and add/remove team member ("manage:team")
                 # - Manage billing ("manage:billing")
-                # - Create project ("add:project")
-                # - Delete project ("remove:project")
+                # - Add project ("add:project")
+                # - Remove project ("remove:project")
                 # Disallowed:
                 # - (none)
                 acls.append(
@@ -352,8 +352,8 @@ class Organization(HasEvents, db.Model):
                 # Disallowed:
                 # - Invite/remove organization member ("manage:organization")
                 # - Create/delete team and add/remove team member ("manage:team")
-                # - Create project ("add:project")
-                # - Delete project ("remove:project")
+                # - Add project ("add:project")
+                # - Remove project ("remove:project")
                 acls.append(
                     (
                         Allow,
@@ -366,11 +366,11 @@ class Organization(HasEvents, db.Model):
                 # - View organization ("view:organization")
                 # - View team ("view:team")
                 # - Create/delete team and add/remove team member ("manage:team")
-                # - Create project ("add:project")
+                # - Add project ("add:project")
                 # Disallowed:
                 # - Invite/remove organization member ("manage:organization")
                 # - Manage billing ("manage:billing")
-                # - Delete project ("remove:project")
+                # - Remove project ("remove:project")
                 acls.append(
                     (
                         Allow,
@@ -393,8 +393,8 @@ class Organization(HasEvents, db.Model):
                 # - Invite/remove organization member ("manage:organization")
                 # - Create/delete team and add/remove team member ("manage:team")
                 # - Manage billing ("manage:billing")
-                # - Create project ("add:project")
-                # - Delete project ("remove:project")
+                # - Add project ("add:project")
+                # - Remove project ("remove:project")
                 acls.append(
                     (Allow, f"user:{role.user.id}", ["view:organization", "view:team"])
                 )
