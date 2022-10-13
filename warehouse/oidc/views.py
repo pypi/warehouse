@@ -14,6 +14,7 @@ import time
 
 from pyramid.view import view_config
 
+from warehouse.admin.flags import AdminFlagValue
 from warehouse.macaroons import caveats
 from warehouse.macaroons.interfaces import IMacaroonService
 from warehouse.oidc.interfaces import IOIDCProviderService
@@ -30,6 +31,19 @@ def mint_token_from_oidc(request):
     def _invalid(errors):
         request.response.status = 422
         return {"message": "Token request failed", "errors": errors}
+
+    oidc_enabled = request.registry.settings[
+        "warehouse.oidc.enabled"
+    ] and not request.flags.enabled(AdminFlagValue.DISALLOW_OIDC)
+    if not oidc_enabled:
+        return _invalid(
+            errors=[
+                {
+                    "code": "not-enabled",
+                    "description": "OIDC functionality not enabled",
+                }
+            ]
+        )
 
     try:
         body = request.json_body

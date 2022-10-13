@@ -19,10 +19,32 @@ from warehouse.oidc import views
 from warehouse.oidc.interfaces import IOIDCProviderService
 
 
+@pytest.mark.parametrize(
+    ("registry", "admin"), [(False, False), (False, True), (True, True)]
+)
+def test_mint_token_from_oidc_not_enabled(registry, admin):
+    request = pretend.stub(
+        response=pretend.stub(status=None),
+        registry=pretend.stub(settings={"warehouse.oidc.enabled": registry}),
+        flags=pretend.stub(enabled=lambda *a: admin),
+    )
+
+    response = views.mint_token_from_oidc(request)
+    assert request.response.status == 422
+    assert response == {
+        "message": "Token request failed",
+        "errors": [
+            {"code": "not-enabled", "description": "OIDC functionality not enabled"}
+        ],
+    }
+
+
 def test_mint_token_from_oidc_invalid_json():
     class Request:
         def __init__(self):
             self.response = pretend.stub(status=None)
+            self.registry = pretend.stub(settings={"warehouse.oidc.enabled": True})
+            self.flags = pretend.stub(enabled=lambda *a: False)
 
         @property
         def json_body(self):
@@ -51,7 +73,12 @@ def test_mint_token_from_oidc_invalid_json():
     ],
 )
 def test_mint_token_from_oidc_missing_token(body):
-    request = pretend.stub(response=pretend.stub(status=None), json_body=body)
+    request = pretend.stub(
+        response=pretend.stub(status=None),
+        json_body=body,
+        registry=pretend.stub(settings={"warehouse.oidc.enabled": True}),
+        flags=pretend.stub(enabled=lambda *a: False),
+    )
     resp = views.mint_token_from_oidc(request)
     assert request.response.status == 422
     assert resp == {
@@ -66,6 +93,8 @@ def test_mint_token_from_oidc_provider_lookup_fails():
         response=pretend.stub(status=None),
         json_body={"token": "faketoken"},
         find_service=pretend.call_recorder(lambda cls, **kw: oidc_service),
+        registry=pretend.stub(settings={"warehouse.oidc.enabled": True}),
+        flags=pretend.stub(enabled=lambda *a: False),
     )
 
     response = views.mint_token_from_oidc(request)
@@ -122,6 +151,8 @@ def test_mint_token_from_oidc_ok(monkeypatch):
         find_service=find_service,
         domain="fakedomain",
         remote_addr="0.0.0.0",
+        registry=pretend.stub(settings={"warehouse.oidc.enabled": True}),
+        flags=pretend.stub(enabled=lambda *a: False),
     )
 
     response = views.mint_token_from_oidc(request)
