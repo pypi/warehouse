@@ -27,6 +27,7 @@ from warehouse.macaroons import caveats, services
 from warehouse.macaroons.models import Macaroon
 
 from ...common.db.accounts import UserFactory
+from ...common.db.oidc import GitHubProviderFactory
 
 
 def test_database_macaroon_factory():
@@ -131,6 +132,16 @@ class TestDatabaseMacaroonService:
             user_id=user.id,
         )
         assert macaroon_service.find_userid(f"{raw_macaroon}\n") is None
+
+    def test_find_userid_oidc_macaroon(self, macaroon_service):
+        provider = GitHubProviderFactory.create()
+        raw_macaroon, _, = macaroon_service.create_macaroon(
+            "fake location",
+            "fake description",
+            [caveats.OIDCProvider(oidc_provider_id=str(provider.id))],
+            oidc_provider_id=provider.id,
+        )
+        assert macaroon_service.find_userid(raw_macaroon) is None
 
     def test_find_userid(self, macaroon_service):
         user = UserFactory.create()
@@ -303,10 +314,12 @@ class TestDatabaseMacaroonService:
     def test_errors_with_wrong_caveats(self, macaroon_service):
         user = UserFactory.create()
 
-        with pytest.raises(TypeError):
+        with pytest.raises(
+            TypeError, match="scopes must be a list of Caveat instances"
+        ):
             macaroon_service.create_macaroon(
                 "fake location",
-                user.id,
                 "fake description",
                 [{"version": 1, "permissions": "user"}],
+                user_id=user.id,
             )
