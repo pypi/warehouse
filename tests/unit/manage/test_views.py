@@ -9248,7 +9248,7 @@ class TestDeleteTeamProjectRole:
 
 
 class TestManageProjectHistory:
-    def test_get(self, db_request):
+    def test_get(self, db_request, user_service):
         project = ProjectFactory.create()
         older_event = ProjectEventFactory.create(
             source=project,
@@ -9264,8 +9264,9 @@ class TestManageProjectHistory:
         )
 
         assert views.manage_project_history(project, db_request) == {
-            "project": project,
             "events": [newer_event, older_event],
+            "get_user": user_service.get_user,
+            "project": project,
         }
 
     def test_raises_400_with_pagenum_type_str(self, monkeypatch, db_request):
@@ -9291,7 +9292,7 @@ class TestManageProjectHistory:
 
         assert page_cls.calls == []
 
-    def test_first_page(self, db_request):
+    def test_first_page(self, db_request, user_service):
         page_number = 1
         params = MultiDict({"page": page_number})
         db_request.params = params
@@ -9318,11 +9319,12 @@ class TestManageProjectHistory:
             url_maker=paginate_url_factory(db_request),
         )
         assert views.manage_project_history(project, db_request) == {
-            "project": project,
             "events": events_page,
+            "get_user": user_service.get_user,
+            "project": project,
         }
 
-    def test_last_page(self, db_request):
+    def test_last_page(self, db_request, user_service):
         page_number = 2
         params = MultiDict({"page": page_number})
         db_request.params = params
@@ -9349,8 +9351,9 @@ class TestManageProjectHistory:
             url_maker=paginate_url_factory(db_request),
         )
         assert views.manage_project_history(project, db_request) == {
-            "project": project,
             "events": events_page,
+            "get_user": user_service.get_user,
+            "project": project,
         }
 
     def test_raises_404_with_out_of_range_page(self, db_request):

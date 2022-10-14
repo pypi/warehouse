@@ -4855,7 +4855,13 @@ def manage_project_history(project, request):
     if events.page_count and page_num > events.page_count:
         raise HTTPNotFound
 
-    return {"project": project, "events": events}
+    user_service = request.find_service(IUserService, context=None)
+
+    return {
+        "events": events,
+        "get_user": user_service.get_user,
+        "project": project,
+    }
 
 
 @view_config(
