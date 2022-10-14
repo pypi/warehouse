@@ -1675,7 +1675,7 @@ class ManageOrganizationBillingViews:
     require_active_organization=True,
     require_csrf=True,
     require_methods=False,
-    permission="manage:organization",
+    permission="manage:team",
     has_translations=True,
     require_reauth=True,
 )
@@ -1700,15 +1700,10 @@ class ManageOrganizationTeamsViews:
 
     @view_config(request_method="GET", permission="view:organization")
     def manage_teams(self):
-        if self.request.flags.enabled(AdminFlagValue.DISABLE_ORGANIZATIONS):
-            raise HTTPNotFound()
-
         return self.default_response
 
     @view_config(request_method="POST")
     def create_team(self):
-        if self.request.flags.enabled(AdminFlagValue.DISABLE_ORGANIZATIONS):
-            raise HTTPNotFound()
 
         # Get and validate form from default response.
         default_response = self.default_response
