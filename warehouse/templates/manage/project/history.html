@@ -25,6 +25,7 @@
   <p>{% trans %}Each time you (or your collaborators) perform a security action related to this project, the action is recorded and displayed here.{% endtrans %}</p>
 
   {% macro event_summary(event) -%}
+    {# Keep in sync with: warehouse/events/tags.py #}
 
     {# Display project events #}
     {% if event.tag == EventTag.Project.ProjectCreate %}
