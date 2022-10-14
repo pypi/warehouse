@@ -137,9 +137,11 @@
       </div>
     </div>
     {% else %}
-      <div class="callout-block no-top-margin">
-        <p>{% trans %}Your team does not have admin or upload permissions for any projects, yet. Get started by configuring collaborators for a project in your organization.{% endtrans %}</p>
-      </div>
+    <div class="callout-block no-top-margin">
+      <p>
+        {% trans %}This team does not have admin or upload permissions for any projects, yet. Get started by configuring collaborators for a project in your organization.{% endtrans %}
+      </p>
+    </div>
     {% endfor %}
   </div>
 {% endblock %}
