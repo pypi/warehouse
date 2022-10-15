@@ -3296,13 +3296,13 @@ msgstr "Tokens de API ativos para esta conta"
 
 #: warehouse/templates/manage/account.html:449
 #: warehouse/templates/manage/account/token.html:17
-msgid "Add API token"
+msgid "Create API token"
 msgstr "Adicionar token de API"
 
 #: warehouse/templates/manage/account.html:451
 #, python-format
 msgid ""
-"<a href=\"%(href)s\">Verify your primary email address</a> to add API tokens "
+"<a href=\"%(href)s\">Verify your primary email address</a> to create API tokens "
 "to your account."
 msgstr ""
 "<a href=\"%(href)s\">Verifique o seu endereço de e-mail principal</a> para "
@@ -7726,7 +7726,7 @@ msgstr "(confira as suas <a href=\"%(href)s\">configurações de conta</a>)"
 #, python-format
 msgid ""
 "In your <a href=\"%(href)s\">account settings</a>, go to the API tokens "
-"section and select \"Add API token\""
+"section and select \"Create API token\""
 msgstr ""
 "Nas suas <a href=\"%(href)s\">configurações de conta</a>, vá à secção de "
 "tokens de API e selecione \"Adicionar token de API\""

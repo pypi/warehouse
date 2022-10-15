@@ -3233,13 +3233,13 @@ msgstr "為帳戶啟用 API 密鑰"
 
 #: warehouse/templates/manage/account.html:449
 #: warehouse/templates/manage/account/token.html:17
-msgid "Add API token"
+msgid "Create API token"
 msgstr "增加 API 密鑰"
 
 #: warehouse/templates/manage/account.html:451
 #, python-format
 msgid ""
-"<a href=\"%(href)s\">Verify your primary email address</a> to add API tokens "
+"<a href=\"%(href)s\">Verify your primary email address</a> to create API tokens "
 "to your account."
 msgstr "<a href=\"%(href)s\"> 驗證主要信箱地址</a> 以增加 API 密鑰。"
 
@@ -7407,7 +7407,7 @@ msgstr "(檢查你的 <a href=\"%(href)s\"> 帳戶設定 </a>)"
 #, python-format
 msgid ""
 "In your <a href=\"%(href)s\">account settings</a>, go to the API tokens "
-"section and select \"Add API token\""
+"section and select \"Create API token\""
 msgstr ""
 "在你的 <a href=\"%(href)s\"> 帳戶設定 </a>中, 選擇 API 密鑰作業，再選擇 \"增"
 "加 API 密鑰\""

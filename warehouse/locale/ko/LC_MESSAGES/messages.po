@@ -3275,13 +3275,13 @@ msgstr "이 계정에 활성화된 API 토큰"
 
 #: warehouse/templates/manage/account.html:449
 #: warehouse/templates/manage/account/token.html:17
-msgid "Add API token"
+msgid "Create API token"
 msgstr "API 토큰 추가하기"
 
 #: warehouse/templates/manage/account.html:451
 #, python-format
 msgid ""
-"<a href=\"%(href)s\">Verify your primary email address</a> to add API tokens "
+"<a href=\"%(href)s\">Verify your primary email address</a> to create API tokens "
 "to your account."
 msgstr ""
 "API 토큰을 추가하기 위해 먼저 <a href=\"%(href)s\">기본 이메일 주소를 인증</"
@@ -7312,7 +7312,7 @@ msgstr ""
 #, python-format
 msgid ""
 "In your <a href=\"%(href)s\">account settings</a>, go to the API tokens "
-"section and select \"Add API token\""
+"section and select \"Create API token\""
 msgstr ""
 
 #: warehouse/templates/pages/help.html:495

@@ -3299,13 +3299,13 @@ msgstr "Aktivovat API tokeny pro tento účet"
 
 #: warehouse/templates/manage/account.html:449
 #: warehouse/templates/manage/account/token.html:17
-msgid "Add API token"
+msgid "Create API token"
 msgstr "Přidat API token"
 
 #: warehouse/templates/manage/account.html:451
 #, python-format
 msgid ""
-"<a href=\"%(href)s\">Verify your primary email address</a> to add API tokens "
+"<a href=\"%(href)s\">Verify your primary email address</a> to create API tokens "
 "to your account."
 msgstr ""
 "Pro přidání API tokenu<a href=\"%(href)s\">ověř svou primární emailovou "
@@ -7405,7 +7405,7 @@ msgstr ""
 #, python-format
 msgid ""
 "In your <a href=\"%(href)s\">account settings</a>, go to the API tokens "
-"section and select \"Add API token\""
+"section and select \"Create API token\""
 msgstr ""
 
 #: warehouse/templates/pages/help.html:495
