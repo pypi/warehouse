@@ -881,6 +881,7 @@ def verify_organization_role(request):
     elif request.method == "POST" and "decline" in request.POST:
         organization_service.delete_organization_invite(organization_invite.id)
         submitter_user = user_service.get_user(data.get("submitter_id"))
+        message = request.params.get("message", "")
         organization.record_event(
             tag="organization:organization_role:declined",
             ip_address=request.remote_addr,
@@ -911,6 +912,7 @@ def verify_organization_role(request):
             owner_users,
             user=user,
             organization_name=organization.name,
+            message=message,
         )
         send_declined_as_invited_organization_member_email(
             request,
