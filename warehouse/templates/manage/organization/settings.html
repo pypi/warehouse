@@ -45,7 +45,7 @@
       {{ form_errors(save_organization_form) }}
       <div class="form-group">
         <label for="display_name" class="form-group__label">
-          {% trans %}Organization name{% endtrans %}
+          {% trans %}Organization display name{% endtrans %}
           {% if request.has_permission("manage:organization") and save_organization_form.display_name.flags.required %}
           <span class="form-group__required">{% trans %}(required){% endtrans %}</span>
           {% endif %}
