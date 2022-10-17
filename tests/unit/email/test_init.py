@@ -2576,6 +2576,90 @@ class TestOrganizationMemberEmails:
         ]
 
 
+class TestOrganizationUpdateEmails:
+    @pytest.fixture
+    def organization_update(self, pyramid_user):
+        self.user = UserFactory.create()
+        EmailFactory.create(user=self.user, verified=True)
+        self.organization_name = "example"
+        self.organization_display_name = "Example"
+        self.organization_link_url = "https://www.example.com/"
+        self.organization_description = "An example organization for testing"
+        self.organization_orgtype = "Company"
+        self.previous_organization_display_name = "Example Group"
+        self.previous_organization_link_url = "https://www.example.com/group/"
+        self.previous_organization_description = "An example group for testing"
+        self.previous_organization_orgtype = "Community"
+
+    def test_send_organization_renamed_email(
+        self,
+        db_request,
+        organization_update,
+        make_email_renderers,
+        send_email,
+    ):
+        subject_renderer, body_renderer, html_renderer = make_email_renderers(
+            "organization-updated"
+        )
+
+        result = email.send_organization_updated_email(
+            db_request,
+            self.user,
+            organization_name=self.organization_name,
+            organization_display_name=self.organization_display_name,
+            organization_link_url=self.organization_link_url,
+            organization_description=self.organization_description,
+            organization_orgtype=self.organization_orgtype,
+            previous_organization_display_name=self.previous_organization_display_name,
+            previous_organization_link_url=self.previous_organization_link_url,
+            previous_organization_description=self.previous_organization_description,
+            previous_organization_orgtype=self.previous_organization_orgtype,
+        )
+
+        assert result == {
+            "organization_name": self.organization_name,
+            "organization_display_name": self.organization_display_name,
+            "organization_link_url": self.organization_link_url,
+            "organization_description": self.organization_description,
+            "organization_orgtype": self.organization_orgtype,
+            "previous_organization_display_name": (
+                self.previous_organization_display_name
+            ),
+            "previous_organization_link_url": self.previous_organization_link_url,
+            "previous_organization_description": self.previous_organization_description,
+            "previous_organization_orgtype": self.previous_organization_orgtype,
+        }
+        subject_renderer.assert_(**result)
+        body_renderer.assert_(**result)
+        html_renderer.assert_(**result)
+        assert db_request.task.calls == [pretend.call(send_email)]
+        assert send_email.delay.calls == [
+            pretend.call(
+                f"{self.user.name} <{self.user.email}>",
+                {
+                    "subject": subject_renderer.string_response,
+                    "body_text": body_renderer.string_response,
+                    "body_html": (
+                        f"<html>\n"
+                        f"<head></head>\n"
+                        f"<body><p>{html_renderer.string_response}</p></body>\n"
+                        f"</html>\n"
+                    ),
+                },
+                {
+                    "tag": "account:email:sent",
+                    "user_id": self.user.id,
+                    "additional": {
+                        "from_": db_request.registry.settings["mail.sender"],
+                        "to": self.user.email,
+                        "subject": subject_renderer.string_response,
+                        "redact_ip": True,
+                    },
+                },
+            )
+        ]
+
+
 class TestOrganizationRenameEmails:
     @pytest.fixture
     def organization_rename(self, pyramid_user):
