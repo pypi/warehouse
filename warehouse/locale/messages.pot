@@ -1734,6 +1734,7 @@ msgstr ""
 #: warehouse/templates/email/organization-project-added/body.html:24
 #: warehouse/templates/email/organization-project-removed/body.html:24
 #: warehouse/templates/email/organization-renamed/body.html:31
+#: warehouse/templates/email/organization-updated/body.html:69
 #, python-format
 msgid ""
 "If this was a mistake, you can email <a "
@@ -1786,6 +1787,7 @@ msgstr ""
 #: warehouse/templates/email/organization-member-removed/body.html:43
 #: warehouse/templates/email/organization-member-role-changed/body.html:44
 #: warehouse/templates/email/organization-renamed/body.html:37
+#: warehouse/templates/email/organization-updated/body.html:75
 msgid "You are receiving this because you are an owner of this organization."
 msgstr ""
 
@@ -1860,6 +1862,43 @@ msgstr ""
 msgid ""
 "The %(site)s project \"%(project_name)s\" has been removed from the "
 "\"%(organization_name)s\" organization."
+msgstr ""
+
+#: warehouse/templates/email/organization-updated/body.html:31
+#, python-format
+msgid "The %(site)s organization \"%(organization_name)s\" has been updated."
+msgstr ""
+
+#: warehouse/templates/email/organization-updated/body.html:36
+msgid "Old display name:"
+msgstr ""
+
+#: warehouse/templates/email/organization-updated/body.html:39
+msgid "New display name:"
+msgstr ""
+
+#: warehouse/templates/email/organization-updated/body.html:44
+msgid "Old URL:"
+msgstr ""
+
+#: warehouse/templates/email/organization-updated/body.html:47
+msgid "New URL:"
+msgstr ""
+
+#: warehouse/templates/email/organization-updated/body.html:52
+msgid "Old description:"
+msgstr ""
+
+#: warehouse/templates/email/organization-updated/body.html:55
+msgid "New description:"
+msgstr ""
+
+#: warehouse/templates/email/organization-updated/body.html:60
+msgid "Old organization type:"
+msgstr ""
+
+#: warehouse/templates/email/organization-updated/body.html:63
+msgid "New organization type:"
 msgstr ""
 
 #: warehouse/templates/email/password-change/body.html:18
