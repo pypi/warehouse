@@ -1418,7 +1418,6 @@ class ManageOrganizationSettingsViews:
                 link_url=self.organization.link_url,
                 description=self.organization.description,
                 orgtype=self.organization.orgtype,
-                organization_service=self.organization_service,
             ),
             "save_organization_name_form": SaveOrganizationNameForm(
                 organization_service=self.organization_service,
@@ -1432,10 +1431,7 @@ class ManageOrganizationSettingsViews:
 
     @view_config(request_method="POST", request_param=SaveOrganizationForm.__params__)
     def save_organization(self):
-        form = SaveOrganizationForm(
-            self.request.POST,
-            organization_service=self.organization_service,
-        )
+        form = SaveOrganizationForm(self.request.POST)
 
         if form.validate():
             previous_organization_display_name = self.organization.display_name
@@ -1444,6 +1440,9 @@ class ManageOrganizationSettingsViews:
             previous_organization_orgtype = self.organization.orgtype
 
             data = form.data
+            if previous_organization_orgtype == OrganizationType.Company:
+                # Disable changing Company account to Community account.
+                data["orgtype"] = previous_organization_orgtype
             self.organization_service.update_organization(self.organization.id, **data)
 
             owner_users = set(organization_owners(self.request, self.organization))

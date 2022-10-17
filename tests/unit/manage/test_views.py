@@ -2887,19 +2887,20 @@ class TestManageOrganizationSettings:
                 link_url=organization.link_url,
                 description=organization.description,
                 orgtype=organization.orgtype,
-                organization_service=organization_service,
             ),
         ]
 
+    @pytest.mark.parametrize("orgtype", list(OrganizationType))
     def test_save_organization(
         self,
         db_request,
         pyramid_user,
+        orgtype,
         organization_service,
         enable_organizations,
         monkeypatch,
     ):
-        organization = OrganizationFactory.create()
+        organization = OrganizationFactory.create(orgtype=orgtype)
         db_request.POST = {
             "display_name": organization.display_name,
             "link_url": organization.link_url,
