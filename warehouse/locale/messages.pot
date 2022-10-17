@@ -121,7 +121,7 @@ msgstr ""
 msgid "Successful WebAuthn assertion"
 msgstr ""
 
-#: warehouse/accounts/views.py:447 warehouse/manage/views.py:954
+#: warehouse/accounts/views.py:447 warehouse/manage/views.py:955
 msgid "Recovery code accepted. The supplied code cannot be used again."
 msgstr ""
 
@@ -326,73 +326,73 @@ msgstr ""
 msgid "This team name has already been used. Choose a different team name."
 msgstr ""
 
-#: warehouse/manage/views.py:367
+#: warehouse/manage/views.py:368
 msgid "Email ${email_address} added - check your email for a verification link"
 msgstr ""
 
-#: warehouse/manage/views.py:902
+#: warehouse/manage/views.py:903
 msgid "Recovery codes already generated"
 msgstr ""
 
-#: warehouse/manage/views.py:903
+#: warehouse/manage/views.py:904
 msgid "Generating new recovery codes will invalidate your existing codes."
 msgstr ""
 
-#: warehouse/manage/views.py:1965
+#: warehouse/manage/views.py:1988
 msgid "User '${username}' already has ${role_name} role for organization"
 msgstr ""
 
-#: warehouse/manage/views.py:1976
+#: warehouse/manage/views.py:1999
 msgid ""
 "User '${username}' does not have a verified primary email address and "
 "cannot be added as a ${role_name} for organization"
 msgstr ""
 
-#: warehouse/manage/views.py:1990 warehouse/manage/views.py:4186
+#: warehouse/manage/views.py:2013 warehouse/manage/views.py:4209
 msgid "User '${username}' already has an active invite. Please try again later."
 msgstr ""
 
-#: warehouse/manage/views.py:2047 warehouse/manage/views.py:4253
+#: warehouse/manage/views.py:2070 warehouse/manage/views.py:4276
 msgid "Invitation sent to '${username}'"
 msgstr ""
 
-#: warehouse/manage/views.py:2087
+#: warehouse/manage/views.py:2110
 msgid "Could not find organization invitation."
 msgstr ""
 
-#: warehouse/manage/views.py:2101 warehouse/manage/views.py:4297
+#: warehouse/manage/views.py:2124 warehouse/manage/views.py:4320
 msgid "Invitation already expired."
 msgstr ""
 
-#: warehouse/manage/views.py:2134 warehouse/manage/views.py:4321
+#: warehouse/manage/views.py:2157 warehouse/manage/views.py:4344
 msgid "Invitation revoked from '${username}'."
 msgstr ""
 
-#: warehouse/manage/views.py:2931
+#: warehouse/manage/views.py:2954
 msgid ""
 "There have been too many attempted OpenID Connect registrations. Try "
 "again later."
 msgstr ""
 
-#: warehouse/manage/views.py:3963
+#: warehouse/manage/views.py:3986
 msgid "Team '${team_name}' already has ${role_name} role for project"
 msgstr ""
 
-#: warehouse/manage/views.py:4071
+#: warehouse/manage/views.py:4094
 msgid "User '${username}' already has ${role_name} role for project"
 msgstr ""
 
-#: warehouse/manage/views.py:4140
+#: warehouse/manage/views.py:4163
 msgid "${username} is now ${role} of the '${project_name}' project."
 msgstr ""
 
-#: warehouse/manage/views.py:4173
+#: warehouse/manage/views.py:4196
 msgid ""
 "User '${username}' does not have a verified primary email address and "
 "cannot be added as a ${role_name} for project"
 msgstr ""
 
-#: warehouse/manage/views.py:4286
+#: warehouse/manage/views.py:4309
 msgid "Could not find role invitation."
 msgstr ""
 
