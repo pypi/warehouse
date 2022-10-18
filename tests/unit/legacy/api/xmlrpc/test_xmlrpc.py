@@ -126,7 +126,7 @@ class TestSearch:
             xmlrpc.search(pyramid_request, {"name": "foo", "summary": ["one", "two"]})
 
         assert exc.value.faultString == (
-            "RuntimeError: PyPI does not support 'pip search' / XMLRPC search. "
+            "RuntimeError: PyPI no longer supports 'pip search' (or XML-RPC search). "
             f"Please use https://{domain if domain else 'example.org'}/search "
             "(via a browser) instead."
         )

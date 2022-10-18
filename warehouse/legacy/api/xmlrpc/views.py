@@ -238,7 +238,7 @@ def search(request, spec: Mapping[str, Union[str, List[str]]], operator: str = "
         domain = request.registry.settings.get("warehouse.domain", request.domain)
         raise XMLRPCWrappedError(
             RuntimeError(
-                "PyPI does not support 'pip search' / XMLRPC search. "
+                "PyPI no longer supports 'pip search' (or XML-RPC search). "
                 f"Please use https://{domain}/search (via a browser) instead."
             )
         )
