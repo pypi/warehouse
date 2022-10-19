@@ -220,10 +220,11 @@
         {% endif %}
       </h3>
       <p>
-        {% trans %}Project owners can transfer the project to organizations that they own or manage.{% endtrans %}
         {% if project.organization %}
+        {% trans %}Organization owners can transfer the project to organizations that they own or manage.{% endtrans %}
         {% trans %}You are not an owner or manager of any other organizations.{% endtrans %}
         {% else %}
+        {% trans %}Project owners can transfer the project to organizations that they own or manage.{% endtrans %}
         {% trans %}You are not an owner or manager of any organizations.{% endtrans %}
         {% endif %}
       </p>
