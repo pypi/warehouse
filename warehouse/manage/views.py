@@ -2259,10 +2259,10 @@ def delete_organization_role(organization, request):
     role_id = request.POST["role_id"]
     role = organization_service.get_organization_role(role_id)
     organizations_sole_owned = set(
-        organization.name
+        organization.id
         for organization in user_organizations(request)["organizations_with_sole_owner"]
     )
-    is_sole_owner = organization.name in organizations_sole_owned
+    is_sole_owner = organization.id in organizations_sole_owned
 
     if not role or role.organization_id != organization.id:
         request.session.flash("Could not find member", queue="error")
