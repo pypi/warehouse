@@ -238,6 +238,14 @@ def send_admin_organization_deleted_email(request, user, *, organization_name):
         "organization_name": organization_name,
     }
 
+@_email("admin-reset-2fa")
+def send_admin_reset_2fa_email(request, user, *, project_name, token, gh_link):
+    return {
+        "username": user.username,
+        "project_name": project_name,
+        "token": token,
+        "gh_link": gh_link,
+    }
 
 # Email templates for users.
 
