@@ -59,6 +59,8 @@ class EventTagEnum(str, enum.Enum):
 
 class EventTag:
     class Account(EventTagEnum):
+        """Tags for User events."""
+
         # Name = "source_type:subject_type:action"
         APITokenAdded = "account:api_token:added"
         APITokenRemoved = "account:api_token:removed"
@@ -100,6 +102,11 @@ class EventTag:
         # RoleAccepted = "account:role:accepted"
 
     class Project(EventTagEnum):
+        """Tags for Project events.
+
+        Keep in sync with: warehouse/templates/manage/project/history.html
+        """
+
         # Name = "source_type:subject_type:action"
         APITokenAdded = "project:api_token:added"
         APITokenRemoved = "project:api_token:removed"
@@ -129,6 +136,11 @@ class EventTag:
         # RoleDelete = "project:role:delete"
 
     class Organization(EventTagEnum):
+        """Tags for Organization events.
+
+        Keep in sync with: warehouse/templates/manage/organization/history.html
+        """
+
         # Name = "source_type:subject_type:action"
         CatalogEntryAdd = "organization:catalog_entry:add"
         OrganizationApprove = "organization:approve"
@@ -154,6 +166,11 @@ class EventTag:
         TeamRoleRemove = "organization:team_role:remove"
 
     class Team(EventTagEnum):
+        """Tags for Organization events.
+
+        Keep in sync with: warehouse/templates/manage/team/history.html
+        """
+
         # Name = "source_type:subject_type:action"
         TeamCreate = "team:create"
         TeamDelete = "team:delete"

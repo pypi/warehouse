@@ -94,7 +94,11 @@ class DatabaseUserService:
         # TODO: We probably don't actually want to just return the database
         #       object here.
         # TODO: We need some sort of Anonymous User.
-        return self.db.query(User).options(joinedload(User.webauthn)).get(userid)
+        return (
+            self.db.query(User).options(joinedload(User.webauthn)).get(userid)
+            if userid
+            else None
+        )
 
     def get_user(self, userid):
         return self.cached_get_user(userid)

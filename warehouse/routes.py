@@ -305,6 +305,13 @@ def includeme(config):
         domain=warehouse,
     )
     config.add_route(
+        "manage.organization.history",
+        "/manage/organization/{organization_name}/history/",
+        factory="warehouse.organizations.models:OrganizationFactory",
+        traverse="/{organization_name}",
+        domain=warehouse,
+    )
+    config.add_route(
         "manage.team.settings",
         "/manage/organization/{organization_name}/team/{team_name}/settings/",
         factory="warehouse.organizations.models:TeamFactory",
@@ -328,6 +335,13 @@ def includeme(config):
     config.add_route(
         "manage.team.delete_role",
         "/manage/organization/{organization_name}/team/{team_name}/members/delete/",
+        factory="warehouse.organizations.models:TeamFactory",
+        traverse="/{organization_name}/{team_name}",
+        domain=warehouse,
+    )
+    config.add_route(
+        "manage.team.history",
+        "/manage/organization/{organization_name}/team/{team_name}/history/",
         factory="warehouse.organizations.models:TeamFactory",
         traverse="/{organization_name}/{team_name}",
         domain=warehouse,
