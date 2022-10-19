@@ -448,10 +448,12 @@ def send_organization_member_invite_declined_email(
     *,
     user,
     organization_name,
+    message,
 ):
     return {
         "username": user.username,
         "organization_name": organization_name,
+        "message": message,
     }
 
 
