@@ -474,10 +474,10 @@
     {%- endmacro %}
 
     {% macro event_summary(event) -%}
-      {% if event.tag == "account:create" %}
+      {% if event.tag == EventTag.Account.AccountCreate %}
       <strong>{% trans %}Account created{% endtrans %}</strong>
 
-      {% elif event.tag == "account:login:success" %}
+      {% elif event.tag == EventTag.Account.LoginSuccess %}
       <strong>{% trans %}Logged in{% endtrans %}</strong><br>
       <small>
         {% trans %}Two factor method:{% endtrans %}
@@ -492,7 +492,7 @@
         {% endif %}
       </small>
 
-      {% elif event.tag == "account:login:failure" %}
+      {% elif event.tag == EventTag.Account.LoginFailure %}
       <strong>{% trans %}Login failed{% endtrans %}</strong>
       {% if event.additional.auth_method %}
         {% if event.additional.auth_method == "basic" %}
@@ -528,19 +528,19 @@
         {% endif %}
       </small>
 
-      {% elif event.tag  == "account:email:add" %}
+      {% elif event.tag  == EventTag.Account.EmailAdd %}
       <strong>{% trans %}Email added to account{% endtrans %}</strong><br>
       <small>{{ event.additional.email }}</small>
-      {% elif event.tag  == "account:email:remove" %}
+      {% elif event.tag  == EventTag.Account.EmailRemove %}
       <strong>{% trans %}Email removed from account{% endtrans %}</strong><br>
       <small>{{ event.additional.email }}</small>
-      {% elif event.tag  == "account:email:verified" %}
+      {% elif event.tag  == EventTag.Account.EmailVerified %}
       <strong>{% trans %}Email verified{% endtrans %}</strong><br>
       <small>{{ event.additional.email }}</small>
-      {% elif event.tag  == "account:email:reverify" %}
+      {% elif event.tag  == EventTag.Account.EmailReverify %}
       <strong>{% trans %}Email reverified{% endtrans %}</strong><br>
       <small>{{ event.additional.email }}</small>
-      {% elif event.tag  == "account:email:primary:change" %}
+      {% elif event.tag  == EventTag.Account.EmailPrimaryChange %}
         {% if event.additional.old_primary %}
         <strong>{% trans %}Primary email changed{% endtrans %}</strong><br>
         <small>
@@ -561,16 +561,16 @@
         {% trans %}Subject:{% endtrans %} <span class="table__monospace">{{event.additional.subject}}</span>
       </small>
 
-      {% elif event.tag  == "account:password:reset:request" %}
+      {% elif event.tag  == EventTag.Account.PasswordResetRequest %}
       <strong>{% trans %}Password reset requested{% endtrans %}</strong>
-      {% elif event.tag  == "account:password:reset:attempt" %}
+      {% elif event.tag  == EventTag.Account.PasswordResetAttempt %}
       <strong>{% trans %}Password reset attempted{% endtrans %}</strong>
-      {% elif event.tag  == "account:password:reset" %}
+      {% elif event.tag  == EventTag.Account.PasswordReset %}
       <strong>{% trans %}Password successfully reset{% endtrans %}</strong>
-      {% elif event.tag  == "account:password:change" %}
+      {% elif event.tag  == EventTag.Account.PasswordChange %}
       <strong>{% trans %}Password successfully changed{% endtrans %}</strong>
 
-      {% elif event.tag  == "account:two_factor:method_added" %}
+      {% elif event.tag  == EventTag.Account.TwoFactorMethodAdded %}
       <strong>{% trans %}Two factor authentication added{% endtrans %}</strong><br>
       <small>
         {% if event.additional.method == "webauthn" %}
@@ -580,7 +580,7 @@
           {% trans %}Method: Authentication application (<abbr title="time-based one-time password">TOTP</abbr>){% endtrans %}
         {% endif %}
       </small>
-      {% elif event.tag  == "account:two_factor:method_removed" %}
+      {% elif event.tag  == EventTag.Account.TwoFactorMethodRemoved %}
       <strong>{% trans %}Two factor authentication removed{% endtrans %}</strong><br>
       <small>
         {% if event.additional.method == "webauthn" %}
@@ -591,21 +591,21 @@
         {% endif %}
       </small>
 
-      {% elif event.tag == "account:recovery_codes:generated" %}
+      {% elif event.tag == EventTag.Account.RecoveryCodesGenerated %}
       <strong>{% trans %}Recovery codes generated{% endtrans %}</strong><br>
       <small>
       </small>
-      {% elif event.tag == "account:recovery_codes:regenerated" %}
+      {% elif event.tag == EventTag.Account.RecoveryCodesRegenerated %}
       <strong>{% trans %}Recovery codes regenerated{% endtrans %}</strong><br>
       <small>
       </small>
-      {% elif event.tag == "account:recovery_codes:used" %}
+      {% elif event.tag == EventTag.Account.RecoveryCodesUsed %}
       <strong>{% trans %}Recovery code used for login{% endtrans %}</strong><br>
       <small>
       </small>
 
 
-      {% elif event.tag  == "account:api_token:added" %}
+      {% elif event.tag  == EventTag.Account.APITokenAdded %}
       <strong>{% trans %}API token added{% endtrans %}</strong><br>
       <small>
         {% trans %}Token name:{% endtrans %} {{ event.additional.description }}<br>
@@ -624,11 +624,11 @@
         {% endif %}
       </small>
 
-      {% elif event.tag  == "account:api_token:removed" %}
+      {% elif event.tag  == EventTag.Account.APITokenRemoved %}
       <strong>{% trans %}API token removed{% endtrans %}</strong><br>
       <small>{% trans %}Unique identifier:{% endtrans %} {{ event.additional.macaroon_id }}</small>
 
-      {% elif event.tag  == "account:api_token:removed_leak" %}
+      {% elif event.tag  == EventTag.Account.APITokenRemovedLeak %}
       <strong>{% trans %}API token automatically removed for security reasons{% endtrans %}</strong><br>
       <small>
         {% trans %}Token name:{% endtrans %} {{ event.additional.description }}<br>

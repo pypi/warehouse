@@ -40,6 +40,7 @@ from warehouse.accounts.interfaces import (
     TokenExpired,
 )
 from warehouse.admin.flags import AdminFlagValue
+from warehouse.events.tags import EventTag
 from warehouse.forklift.legacy import MAX_FILESIZE, MAX_PROJECT_SIZE
 from warehouse.macaroons import caveats
 from warehouse.macaroons.interfaces import IMacaroonService
@@ -48,11 +49,13 @@ from warehouse.metrics.interfaces import IMetricsService
 from warehouse.oidc.interfaces import TooManyOIDCRegistrations
 from warehouse.organizations.interfaces import IOrganizationService
 from warehouse.organizations.models import (
+    Organization,
     OrganizationInvitation,
     OrganizationInvitationStatus,
     OrganizationRole,
     OrganizationRoleType,
     OrganizationType,
+    Team,
     TeamProjectRole,
     TeamProjectRoleType,
     TeamRoleType,
@@ -71,12 +74,14 @@ from warehouse.utils.project import remove_documentation
 
 from ...common.db.accounts import EmailFactory
 from ...common.db.organizations import (
+    OrganizationEventFactory,
     OrganizationFactory,
     OrganizationInvitationFactory,
     OrganizationProjectFactory,
     OrganizationRoleFactory,
     OrganizationStripeCustomerFactory,
     OrganizationStripeSubscriptionFactory,
+    TeamEventFactory,
     TeamFactory,
     TeamProjectRoleFactory,
     TeamRoleFactory,
@@ -309,7 +314,7 @@ class TestManageAccount:
         assert user_service.record_event.calls == [
             pretend.call(
                 pyramid_request.user.id,
-                tag="account:email:add",
+                tag=EventTag.Account.EmailAdd,
                 additional={"email": email_address},
             )
         ]
@@ -380,7 +385,7 @@ class TestManageAccount:
         assert user_service.record_event.calls == [
             pretend.call(
                 request.user.id,
-                tag="account:email:remove",
+                tag=EventTag.Account.EmailRemove,
                 additional={"email": email.email},
             )
         ]
@@ -473,7 +478,7 @@ class TestManageAccount:
         assert user_service.record_event.calls == [
             pretend.call(
                 user.id,
-                tag="account:email:primary:change",
+                tag=EventTag.Account.EmailPrimaryChange,
                 additional={"old_primary": "old", "new_primary": "new"},
             )
         ]
@@ -509,7 +514,7 @@ class TestManageAccount:
         assert user_service.record_event.calls == [
             pretend.call(
                 user.id,
-                tag="account:email:primary:change",
+                tag=EventTag.Account.EmailPrimaryChange,
                 additional={"old_primary": None, "new_primary": new_primary.email},
             )
         ]
@@ -575,7 +580,7 @@ class TestManageAccount:
         assert send_email.calls == [pretend.call(request, (request.user, email))]
         assert email.user.record_event.calls == [
             pretend.call(
-                tag="account:email:reverify",
+                tag=EventTag.Account.EmailReverify,
                 ip_address=request.remote_addr,
                 additional={"email": email.email},
             )
@@ -738,7 +743,7 @@ class TestManageAccount:
             pretend.call(request.user.id, password=new_password)
         ]
         assert user_service.record_event.calls == [
-            pretend.call(request.user.id, tag="account:password:change")
+            pretend.call(request.user.id, tag=EventTag.Account.PasswordChange)
         ]
 
     def test_change_password_validation_fails(self, monkeypatch):
@@ -1142,7 +1147,7 @@ class TestProvisionTOTP:
         assert user_service.record_event.calls == [
             pretend.call(
                 request.user.id,
-                tag="account:two_factor:method_added",
+                tag=EventTag.Account.TwoFactorMethodAdded,
                 additional={"method": "totp"},
             )
         ]
@@ -1299,7 +1304,7 @@ class TestProvisionTOTP:
         assert user_service.record_event.calls == [
             pretend.call(
                 request.user.id,
-                tag="account:two_factor:method_removed",
+                tag=EventTag.Account.TwoFactorMethodRemoved,
                 additional={"method": "totp"},
             )
         ]
@@ -1512,7 +1517,7 @@ class TestProvisionWebAuthn:
         assert user_service.record_event.calls == [
             pretend.call(
                 request.user.id,
-                tag="account:two_factor:method_added",
+                tag=EventTag.Account.TwoFactorMethodAdded,
                 additional={
                     "method": "webauthn",
                     "label": provision_webauthn_obj.label.data,
@@ -1605,7 +1610,7 @@ class TestProvisionWebAuthn:
         assert user_service.record_event.calls == [
             pretend.call(
                 request.user.id,
-                tag="account:two_factor:method_removed",
+                tag=EventTag.Account.TwoFactorMethodRemoved,
                 additional={
                     "method": "webauthn",
                     "label": delete_webauthn_obj.label.data,
@@ -1691,7 +1696,7 @@ class TestProvisionRecoveryCodes:
         result = view.recovery_codes_generate()
 
         assert user_service.record_event.calls == [
-            pretend.call(1, tag="account:recovery_codes:generated")
+            pretend.call(1, tag=EventTag.Account.RecoveryCodesGenerated)
         ]
 
         assert result == {"recovery_codes": ["aaaaaaaaaaaa", "bbbbbbbbbbbb"]}
@@ -1758,7 +1763,7 @@ class TestProvisionRecoveryCodes:
         result = view.recovery_codes_regenerate()
 
         assert user_service.record_event.calls == [
-            pretend.call(1, tag="account:recovery_codes:regenerated")
+            pretend.call(1, tag=EventTag.Account.RecoveryCodesRegenerated)
         ]
 
         assert result == {"recovery_codes": ["cccccccccccc", "dddddddddddd"]}
@@ -2054,7 +2059,7 @@ class TestProvisionMacaroonViews:
         assert user_service.record_event.calls == [
             pretend.call(
                 request.user.id,
-                tag="account:api_token:added",
+                tag=EventTag.Account.APITokenAdded,
                 additional={
                     "description": create_macaroon_obj.description.data,
                     "caveats": [
@@ -2149,7 +2154,7 @@ class TestProvisionMacaroonViews:
         assert record_user_event.calls == [
             pretend.call(
                 request.user.id,
-                tag="account:api_token:added",
+                tag=EventTag.Account.APITokenAdded,
                 additional={
                     "description": create_macaroon_obj.description.data,
                     "caveats": [
@@ -2164,7 +2169,7 @@ class TestProvisionMacaroonViews:
         ]
         assert record_project_event.calls == [
             pretend.call(
-                tag="project:api_token:added",
+                tag=EventTag.Project.APITokenAdded,
                 ip_address=request.remote_addr,
                 additional={
                     "description": create_macaroon_obj.description.data,
@@ -2172,7 +2177,7 @@ class TestProvisionMacaroonViews:
                 },
             ),
             pretend.call(
-                tag="project:api_token:added",
+                tag=EventTag.Project.APITokenAdded,
                 ip_address=request.remote_addr,
                 additional={
                     "description": create_macaroon_obj.description.data,
@@ -2296,7 +2301,7 @@ class TestProvisionMacaroonViews:
         assert record_event.calls == [
             pretend.call(
                 request.user.id,
-                tag="account:api_token:removed",
+                tag=EventTag.Account.APITokenRemoved,
                 additional={"macaroon_id": delete_macaroon_obj.macaroon_id.data},
             )
         ]
@@ -2364,13 +2369,13 @@ class TestProvisionMacaroonViews:
         assert record_user_event.calls == [
             pretend.call(
                 request.user.id,
-                tag="account:api_token:removed",
+                tag=EventTag.Account.APITokenRemoved,
                 additional={"macaroon_id": delete_macaroon_obj.macaroon_id.data},
             )
         ]
         assert record_project_event.calls == [
             pretend.call(
-                tag="project:api_token:removed",
+                tag=EventTag.Project.APITokenRemoved,
                 ip_address=request.remote_addr,
                 additional={
                     "description": "fake macaroon",
@@ -2378,7 +2383,7 @@ class TestProvisionMacaroonViews:
                 },
             ),
             pretend.call(
-                tag="project:api_token:removed",
+                tag=EventTag.Project.APITokenRemoved,
                 ip_address=request.remote_addr,
                 additional={
                     "description": "fake macaroon",
@@ -2544,9 +2549,6 @@ class TestManageOrganizations:
                 description=organization.description,
             )
         ]
-        assert organization_service.add_catalog_entry.calls == [
-            pretend.call(organization.id)
-        ]
         assert organization_service.add_organization_role.calls == [
             pretend.call(
                 organization.id,
@@ -2557,26 +2559,17 @@ class TestManageOrganizations:
         assert organization_service.record_event.calls == [
             pretend.call(
                 organization.id,
-                tag="organization:create",
-                additional={"created_by_user_id": str(request.user.id)},
-            ),
-            pretend.call(
-                organization.id,
-                tag="organization:catalog_entry:add",
+                tag=EventTag.Organization.CatalogEntryAdd,
                 additional={"submitted_by_user_id": str(request.user.id)},
             ),
             pretend.call(
                 organization.id,
-                tag="organization:organization_role:invite",
-                additional={
-                    "submitted_by_user_id": str(request.user.id),
-                    "role_name": "Owner",
-                    "target_user_id": str(request.user.id),
-                },
+                tag=EventTag.Organization.OrganizationCreate,
+                additional={"created_by_user_id": str(request.user.id)},
             ),
             pretend.call(
                 organization.id,
-                tag="organization:organization_role:accepted",
+                tag=EventTag.Organization.OrganizationRoleAdd,
                 additional={
                     "submitted_by_user_id": str(request.user.id),
                     "role_name": "Owner",
@@ -2587,7 +2580,7 @@ class TestManageOrganizations:
         assert user_service.record_event.calls == [
             pretend.call(
                 request.user.id,
-                tag="account:organization_role:accepted",
+                tag=EventTag.Account.OrganizationRoleAdd,
                 additional={
                     "submitted_by_user_id": str(request.user.id),
                     "organization_name": organization.name,
@@ -2702,9 +2695,6 @@ class TestManageOrganizations:
                 description=organization.description,
             )
         ]
-        assert organization_service.add_catalog_entry.calls == [
-            pretend.call(organization.id)
-        ]
         assert organization_service.add_organization_role.calls == [
             pretend.call(
                 organization.id,
@@ -2715,26 +2705,17 @@ class TestManageOrganizations:
         assert organization_service.record_event.calls == [
             pretend.call(
                 organization.id,
-                tag="organization:create",
-                additional={"created_by_user_id": str(request.user.id)},
-            ),
-            pretend.call(
-                organization.id,
-                tag="organization:catalog_entry:add",
+                tag=EventTag.Organization.CatalogEntryAdd,
                 additional={"submitted_by_user_id": str(request.user.id)},
             ),
             pretend.call(
                 organization.id,
-                tag="organization:organization_role:invite",
-                additional={
-                    "submitted_by_user_id": str(request.user.id),
-                    "role_name": "Owner",
-                    "target_user_id": str(request.user.id),
-                },
+                tag=EventTag.Organization.OrganizationCreate,
+                additional={"created_by_user_id": str(request.user.id)},
             ),
             pretend.call(
                 organization.id,
-                tag="organization:organization_role:accepted",
+                tag=EventTag.Organization.OrganizationRoleAdd,
                 additional={
                     "submitted_by_user_id": str(request.user.id),
                     "role_name": "Owner",
@@ -2745,7 +2726,7 @@ class TestManageOrganizations:
         assert user_service.record_event.calls == [
             pretend.call(
                 request.user.id,
-                tag="account:organization_role:accepted",
+                tag=EventTag.Account.OrganizationRoleAdd,
                 additional={
                     "submitted_by_user_id": str(request.user.id),
                     "organization_name": organization.name,
@@ -2887,14 +2868,20 @@ class TestManageOrganizationSettings:
                 link_url=organization.link_url,
                 description=organization.description,
                 orgtype=organization.orgtype,
-                organization_service=organization_service,
             ),
         ]
 
+    @pytest.mark.parametrize("orgtype", list(OrganizationType))
     def test_save_organization(
-        self, db_request, organization_service, enable_organizations, monkeypatch
+        self,
+        db_request,
+        pyramid_user,
+        orgtype,
+        organization_service,
+        enable_organizations,
+        monkeypatch,
     ):
-        organization = OrganizationFactory.create()
+        organization = OrganizationFactory.create(orgtype=orgtype)
         db_request.POST = {
             "display_name": organization.display_name,
             "link_url": organization.link_url,
@@ -2916,12 +2903,33 @@ class TestManageOrganizationSettings:
         )
         monkeypatch.setattr(views, "SaveOrganizationForm", save_organization_cls)
 
+        send_email = pretend.call_recorder(lambda *a, **kw: None)
+        monkeypatch.setattr(views, "send_organization_updated_email", send_email)
+        monkeypatch.setattr(
+            views, "organization_owners", lambda *a, **kw: [pyramid_user]
+        )
+
         view = views.ManageOrganizationSettingsViews(organization, db_request)
         result = view.save_organization()
 
         assert isinstance(result, HTTPSeeOther)
         assert organization_service.update_organization.calls == [
             pretend.call(organization.id, **db_request.POST)
+        ]
+        assert send_email.calls == [
+            pretend.call(
+                db_request,
+                {pyramid_user},
+                organization_name=organization.name,
+                organization_display_name=organization.display_name,
+                organization_link_url=organization.link_url,
+                organization_description=organization.description,
+                organization_orgtype=organization.orgtype,
+                previous_organization_display_name=organization.display_name,
+                previous_organization_link_url=organization.link_url,
+                previous_organization_description=organization.description,
+                previous_organization_orgtype=organization.orgtype,
+            ),
         ]
 
     def test_save_organization_validation_fails(
@@ -4031,7 +4039,9 @@ class TestManageOrganizationProjects:
 
 
 class TestManageOrganizationRoles:
-    def test_get_manage_organization_roles(self, db_request, enable_organizations):
+    def test_get_manage_organization_roles(
+        self, db_request, pyramid_user, enable_organizations
+    ):
         organization = OrganizationFactory.create(name="foobar")
         form_obj = pretend.stub()
 
@@ -4046,6 +4056,7 @@ class TestManageOrganizationRoles:
             "roles": set(),
             "invitations": set(),
             "form": form_obj,
+            "organizations_with_sole_owner": [],
         }
 
     @freeze_time(datetime.datetime.utcnow())
@@ -4810,9 +4821,19 @@ class TestDeleteOrganizationRoles:
         assert isinstance(result, HTTPSeeOther)
         assert result.headers["Location"] == "/the-redirect"
 
-    def test_delete_missing_role(self, db_request, enable_organizations):
+    def test_delete_missing_role(self, db_request, enable_organizations, monkeypatch):
         organization = OrganizationFactory.create(name="foobar")
         missing_role_id = str(uuid.uuid4())
+
+        user_organizations = pretend.call_recorder(
+            lambda *a, **kw: {
+                "organizations_managed": [],
+                "organizations_owned": [organization],
+                "organizations_billing": [],
+                "organizations_with_sole_owner": [],
+            }
+        )
+        monkeypatch.setattr(views, "user_organizations", user_organizations)
 
         db_request.method = "POST"
         db_request.user = pretend.stub()
@@ -4880,7 +4901,7 @@ class TestDeleteOrganizationRoles:
         result = views.delete_organization_role(organization, db_request)
 
         assert db_request.session.flash.calls == [
-            pretend.call("Cannot remove yourself as Owner", queue="error")
+            pretend.call("Cannot remove yourself as Sole Owner", queue="error")
         ]
         assert isinstance(result, HTTPSeeOther)
         assert result.headers["Location"] == "/the-redirect"
@@ -4916,6 +4937,132 @@ class TestDeleteOrganizationRoles:
         assert result.headers["Location"] == "/the-redirect"
 
 
+class TestManageOrganizationHistory:
+    def test_get(self, db_request, user_service):
+        organization = OrganizationFactory.create()
+        older_event = OrganizationEventFactory.create(
+            source=organization,
+            tag="fake:event",
+            ip_address="0.0.0.0",
+            time=datetime.datetime(2017, 2, 5, 17, 18, 18, 462_634),
+        )
+        newer_event = OrganizationEventFactory.create(
+            source=organization,
+            tag="fake:event",
+            ip_address="0.0.0.0",
+            time=datetime.datetime(2018, 2, 5, 17, 18, 18, 462_634),
+        )
+
+        assert views.manage_organization_history(organization, db_request) == {
+            "events": [newer_event, older_event],
+            "get_user": user_service.get_user,
+            "organization": organization,
+        }
+
+    def test_raises_400_with_pagenum_type_str(self, monkeypatch, db_request):
+        params = MultiDict({"page": "abc"})
+        db_request.params = params
+
+        events_query = pretend.stub()
+        db_request.events_query = pretend.stub(
+            events_query=lambda *a, **kw: events_query
+        )
+
+        page_obj = pretend.stub(page_count=10, item_count=1000)
+        page_cls = pretend.call_recorder(lambda *a, **kw: page_obj)
+        monkeypatch.setattr(views, "SQLAlchemyORMPage", page_cls)
+
+        url_maker = pretend.stub()
+        url_maker_factory = pretend.call_recorder(lambda request: url_maker)
+        monkeypatch.setattr(views, "paginate_url_factory", url_maker_factory)
+
+        organization = OrganizationFactory.create()
+        with pytest.raises(HTTPBadRequest):
+            views.manage_organization_history(organization, db_request)
+
+        assert page_cls.calls == []
+
+    def test_first_page(self, db_request, user_service):
+        page_number = 1
+        params = MultiDict({"page": page_number})
+        db_request.params = params
+
+        organization = OrganizationFactory.create()
+        items_per_page = 25
+        total_items = items_per_page + 2
+        for _ in range(total_items):
+            OrganizationEventFactory.create(
+                source=organization, tag="fake:event", ip_address="0.0.0.0"
+            )
+        events_query = (
+            db_request.db.query(Organization.Event)
+            .join(Organization.Event.source)
+            .filter(Organization.Event.source_id == organization.id)
+            .order_by(Organization.Event.time.desc())
+        )
+
+        events_page = SQLAlchemyORMPage(
+            events_query,
+            page=page_number,
+            items_per_page=items_per_page,
+            item_count=total_items,
+            url_maker=paginate_url_factory(db_request),
+        )
+        assert views.manage_organization_history(organization, db_request) == {
+            "events": events_page,
+            "get_user": user_service.get_user,
+            "organization": organization,
+        }
+
+    def test_last_page(self, db_request, user_service):
+        page_number = 2
+        params = MultiDict({"page": page_number})
+        db_request.params = params
+
+        organization = OrganizationFactory.create()
+        items_per_page = 25
+        total_items = items_per_page + 2
+        for _ in range(total_items):
+            OrganizationEventFactory.create(
+                source=organization, tag="fake:event", ip_address="0.0.0.0"
+            )
+        events_query = (
+            db_request.db.query(Organization.Event)
+            .join(Organization.Event.source)
+            .filter(Organization.Event.source_id == organization.id)
+            .order_by(Organization.Event.time.desc())
+        )
+
+        events_page = SQLAlchemyORMPage(
+            events_query,
+            page=page_number,
+            items_per_page=items_per_page,
+            item_count=total_items,
+            url_maker=paginate_url_factory(db_request),
+        )
+        assert views.manage_organization_history(organization, db_request) == {
+            "events": events_page,
+            "get_user": user_service.get_user,
+            "organization": organization,
+        }
+
+    def test_raises_404_with_out_of_range_page(self, db_request):
+        page_number = 3
+        params = MultiDict({"page": page_number})
+        db_request.params = params
+
+        organization = OrganizationFactory.create()
+        items_per_page = 25
+        total_items = items_per_page + 2
+        for _ in range(total_items):
+            OrganizationEventFactory.create(
+                source=organization, tag="fake:event", ip_address="0.0.0.0"
+            )
+
+        with pytest.raises(HTTPNotFound):
+            assert views.manage_organization_history(organization, db_request)
+
+
 class TestManageTeamSettings:
     def test_manage_team(
         self, db_request, organization_service, user_service, enable_organizations
@@ -4934,7 +5081,9 @@ class TestManageTeamSettings:
             "save_team_form": form,
         }
 
-    def test_save_team(self, db_request, organization_service, enable_organizations):
+    def test_save_team(
+        self, db_request, pyramid_user, organization_service, enable_organizations
+    ):
         team = TeamFactory.create(name="Team Name")
         db_request.POST = MultiDict({"name": "Team name"})
         db_request.route_path = pretend.call_recorder(lambda *a, **kw: "/foo/bar/")
@@ -5474,6 +5623,126 @@ class TestManageTeamRoles:
         assert isinstance(result, HTTPSeeOther)
 
 
+class TestManageTeamHistory:
+    def test_get(self, db_request, user_service):
+        team = TeamFactory.create()
+        older_event = TeamEventFactory.create(
+            source=team,
+            tag="fake:event",
+            ip_address="0.0.0.0",
+            time=datetime.datetime(2017, 2, 5, 17, 18, 18, 462_634),
+        )
+        newer_event = TeamEventFactory.create(
+            source=team,
+            tag="fake:event",
+            ip_address="0.0.0.0",
+            time=datetime.datetime(2018, 2, 5, 17, 18, 18, 462_634),
+        )
+
+        assert views.manage_team_history(team, db_request) == {
+            "events": [newer_event, older_event],
+            "get_user": user_service.get_user,
+            "team": team,
+        }
+
+    def test_raises_400_with_pagenum_type_str(self, monkeypatch, db_request):
+        params = MultiDict({"page": "abc"})
+        db_request.params = params
+
+        events_query = pretend.stub()
+        db_request.events_query = pretend.stub(
+            events_query=lambda *a, **kw: events_query
+        )
+
+        page_obj = pretend.stub(page_count=10, item_count=1000)
+        page_cls = pretend.call_recorder(lambda *a, **kw: page_obj)
+        monkeypatch.setattr(views, "SQLAlchemyORMPage", page_cls)
+
+        url_maker = pretend.stub()
+        url_maker_factory = pretend.call_recorder(lambda request: url_maker)
+        monkeypatch.setattr(views, "paginate_url_factory", url_maker_factory)
+
+        team = TeamFactory.create()
+        with pytest.raises(HTTPBadRequest):
+            views.manage_team_history(team, db_request)
+
+        assert page_cls.calls == []
+
+    def test_first_page(self, db_request, user_service):
+        page_number = 1
+        params = MultiDict({"page": page_number})
+        db_request.params = params
+
+        team = TeamFactory.create()
+        items_per_page = 25
+        total_items = items_per_page + 2
+        for _ in range(total_items):
+            TeamEventFactory.create(source=team, tag="fake:event", ip_address="0.0.0.0")
+        events_query = (
+            db_request.db.query(Team.Event)
+            .join(Team.Event.source)
+            .filter(Team.Event.source_id == team.id)
+            .order_by(Team.Event.time.desc())
+        )
+
+        events_page = SQLAlchemyORMPage(
+            events_query,
+            page=page_number,
+            items_per_page=items_per_page,
+            item_count=total_items,
+            url_maker=paginate_url_factory(db_request),
+        )
+        assert views.manage_team_history(team, db_request) == {
+            "events": events_page,
+            "get_user": user_service.get_user,
+            "team": team,
+        }
+
+    def test_last_page(self, db_request, user_service):
+        page_number = 2
+        params = MultiDict({"page": page_number})
+        db_request.params = params
+
+        team = TeamFactory.create()
+        items_per_page = 25
+        total_items = items_per_page + 2
+        for _ in range(total_items):
+            TeamEventFactory.create(source=team, tag="fake:event", ip_address="0.0.0.0")
+        events_query = (
+            db_request.db.query(Team.Event)
+            .join(Team.Event.source)
+            .filter(Team.Event.source_id == team.id)
+            .order_by(Team.Event.time.desc())
+        )
+
+        events_page = SQLAlchemyORMPage(
+            events_query,
+            page=page_number,
+            items_per_page=items_per_page,
+            item_count=total_items,
+            url_maker=paginate_url_factory(db_request),
+        )
+        assert views.manage_team_history(team, db_request) == {
+            "events": events_page,
+            "get_user": user_service.get_user,
+            "team": team,
+        }
+
+    def test_raises_404_with_out_of_range_page(self, db_request):
+        page_number = 3
+        params = MultiDict({"page": page_number})
+        db_request.params = params
+
+        team = TeamFactory.create()
+        items_per_page = 25
+        total_items = items_per_page + 2
+        for _ in range(total_items):
+            TeamEventFactory.create(source=team, tag="fake:event", ip_address="0.0.0.0")
+
+        with pytest.raises(HTTPNotFound):
+            assert views.manage_team_history(team, db_request)
+
+
 class TestManageProjects:
     def test_manage_projects(self, db_request):
         older_release = ReleaseFactory(created=datetime.datetime(2015, 1, 1))
@@ -5775,13 +6044,13 @@ class TestManageProjectSettings:
                 False,
                 True,
                 [pretend.call("2FA requirement enabled for foo", queue="success")],
-                "project:owners_require_2fa:enabled",
+                EventTag.Project.OwnersRequire2FAEnabled,
             ),
             (
                 True,
                 False,
                 [pretend.call("2FA requirement disabled for foo", queue="success")],
-                "project:owners_require_2fa:disabled",
+                EventTag.Project.OwnersRequire2FADisabled,
             ),
         ],
     )
@@ -6996,7 +7265,7 @@ class TestManageProjectRelease:
         ]
         assert release.project.record_event.calls == [
             pretend.call(
-                tag="project:release:yank",
+                tag=EventTag.Project.ReleaseYank,
                 ip_address=request.remote_addr,
                 additional={
                     "submitted_by": request.user.username,
@@ -7165,7 +7434,7 @@ class TestManageProjectRelease:
         ]
         assert release.project.record_event.calls == [
             pretend.call(
-                tag="project:release:unyank",
+                tag=EventTag.Project.ReleaseUnyank,
                 ip_address=request.remote_addr,
                 additional={
                     "submitted_by": request.user.username,
@@ -7339,7 +7608,7 @@ class TestManageProjectRelease:
         ]
         assert release.project.record_event.calls == [
             pretend.call(
-                tag="project:release:remove",
+                tag=EventTag.Project.ReleaseRemove,
                 ip_address=request.remote_addr,
                 additional={
                     "submitted_by": request.user.username,
@@ -8641,10 +8910,65 @@ class TestDeleteProjectRole:
         result = views.delete_project_role(project, db_request)
 
         assert db_request.session.flash.calls == [
-            pretend.call("Cannot remove yourself as Owner", queue="error")
+            pretend.call("Cannot remove yourself as Sole Owner", queue="error")
         ]
         assert isinstance(result, HTTPSeeOther)
         assert result.headers["Location"] == "/the-redirect"
+
+    def test_delete_not_sole_owner_role(self, db_request, monkeypatch):
+        project = ProjectFactory.create(name="foobar")
+        user = UserFactory.create()
+        RoleFactory.create(user=user, project=project, role_name="Owner")
+        user_2 = UserFactory.create(username="testuser")
+        role_2 = RoleFactory.create(user=user_2, project=project, role_name="Owner")
+
+        db_request.method = "POST"
+        db_request.user = user_2
+        db_request.POST = MultiDict({"role_id": role_2.id})
+        db_request.session = pretend.stub(
+            flash=pretend.call_recorder(lambda *a, **kw: None)
+        )
+        db_request.route_path = pretend.call_recorder(lambda *a, **kw: "/the-redirect")
+
+        send_collaborator_removed_email = pretend.call_recorder(lambda *a, **kw: None)
+        monkeypatch.setattr(
+            views, "send_collaborator_removed_email", send_collaborator_removed_email
+        )
+        send_removed_as_collaborator_email = pretend.call_recorder(
+            lambda *a, **kw: None
+        )
+        monkeypatch.setattr(
+            views,
+            "send_removed_as_collaborator_email",
+            send_removed_as_collaborator_email,
+        )
+
+        result = views.delete_project_role(project, db_request)
+
+        assert db_request.route_path.calls == [pretend.call("manage.projects")]
+        assert db_request.db.query(Role).filter(Role.user_id == user_2.id).all() == []
+        assert send_collaborator_removed_email.calls == [
+            pretend.call(
+                db_request, {user}, user=user_2, submitter=user_2, project_name="foobar"
+            )
+        ]
+        assert send_removed_as_collaborator_email.calls == [
+            pretend.call(db_request, user_2, submitter=user_2, project_name="foobar")
+        ]
+        assert db_request.session.flash.calls == [
+            pretend.call("Removed role", queue="success")
+        ]
+        assert isinstance(result, HTTPSeeOther)
+        assert result.headers["Location"] == "/the-redirect"
+
+        entry = (
+            db_request.db.query(JournalEntry).options(joinedload("submitted_by")).one()
+        )
+
+        assert entry.name == project.name
+        assert entry.action == "remove Owner testuser"
+        assert entry.submitted_by == db_request.user
+        assert entry.submitted_from == db_request.remote_addr
 
     def test_delete_non_owner_role(self, db_request):
         project = ProjectFactory.create(name="foobar")
@@ -9019,7 +9343,7 @@ class TestDeleteTeamProjectRole:
 
 
 class TestManageProjectHistory:
-    def test_get(self, db_request):
+    def test_get(self, db_request, user_service):
         project = ProjectFactory.create()
         older_event = ProjectEventFactory.create(
             source=project,
@@ -9035,8 +9359,9 @@ class TestManageProjectHistory:
         )
 
         assert views.manage_project_history(project, db_request) == {
-            "project": project,
             "events": [newer_event, older_event],
+            "get_user": user_service.get_user,
+            "project": project,
         }
 
     def test_raises_400_with_pagenum_type_str(self, monkeypatch, db_request):
@@ -9062,7 +9387,7 @@ class TestManageProjectHistory:
 
         assert page_cls.calls == []
 
-    def test_first_page(self, db_request):
+    def test_first_page(self, db_request, user_service):
         page_number = 1
         params = MultiDict({"page": page_number})
         db_request.params = params
@@ -9089,11 +9414,12 @@ class TestManageProjectHistory:
             url_maker=paginate_url_factory(db_request),
         )
         assert views.manage_project_history(project, db_request) == {
-            "project": project,
             "events": events_page,
+            "get_user": user_service.get_user,
+            "project": project,
         }
 
-    def test_last_page(self, db_request):
+    def test_last_page(self, db_request, user_service):
         page_number = 2
         params = MultiDict({"page": page_number})
         db_request.params = params
@@ -9120,8 +9446,9 @@ class TestManageProjectHistory:
             url_maker=paginate_url_factory(db_request),
         )
         assert views.manage_project_history(project, db_request) == {
-            "project": project,
             "events": events_page,
+            "get_user": user_service.get_user,
+            "project": project,
         }
 
     def test_raises_404_with_out_of_range_page(self, db_request):
@@ -9385,7 +9712,7 @@ class TestManageOIDCProviderViews:
         ]
         assert project.record_event.calls == [
             pretend.call(
-                tag="project:oidc:provider-added",
+                tag=EventTag.Project.OIDCProviderAdded,
                 ip_address=request.remote_addr,
                 additional={
                     "provider": "GitHub",
@@ -9472,7 +9799,7 @@ class TestManageOIDCProviderViews:
         ]
         assert project.record_event.calls == [
             pretend.call(
-                tag="project:oidc:provider-added",
+                tag=EventTag.Project.OIDCProviderAdded,
                 ip_address=request.remote_addr,
                 additional={
                     "provider": "GitHub",
@@ -9767,7 +10094,7 @@ class TestManageOIDCProviderViews:
 
         assert project.record_event.calls == [
             pretend.call(
-                tag="project:oidc:provider-removed",
+                tag=EventTag.Project.OIDCProviderRemoved,
                 ip_address=request.remote_addr,
                 additional={
                     "provider": "fakeprovider",
