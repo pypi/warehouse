@@ -281,6 +281,35 @@
             </table>
           </div>
         </div>
+      </div>
+      <div class="box">
+        <div class="box-header with-border">
+          <h3 class="box-title">2FA - Reset</h3>
+        </div>
+        <div>
+          <div class="box-body">
+            <form class="form-horizontal" method="POST" action="{{ request.route_path('admin.user.reset_2fa', user_id=user.id) }}">
+                {{ render_field("Github Issue", form.name, "user-name", class="form-control", placeholder="Github Issue URL") }}
+                <table class="table table-hover">
+                <tr>
+                    <th>Project</th>
+                    <th>{% if user.has_recovery_codes %}<i class="fa fa-check text-green"></i>{% else %}<i class="fa fa-times text-red"></i>{% endif %}</th>
+                </tr>
+                <tr>
+                    <th>Token</th>
+                    <th>{% if user.has_recovery_codes %}<i class="fa fa-check text-green"></i>{% else %}<i class="fa fa-times text-red"></i>{% endif %}</th>
+                </tr>
+                <tr>
+                    <th>Reset 2FA</th>
+                    <th>
+                        <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
+                        <button type="submit" class="btn btn-danger" title="Reset 2fa" if not request.has_permission('admin') }}" {{ "disabled" if not request.has_permission('admin') }}>Reset 2FA</button>
+                    </th>
+                </tr>
+                </table>
+            </form>
+          </div>
+        </div>
         {% if user.webauthn %}
         <div>
           <div class="box-header with-border">

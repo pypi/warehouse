@@ -47,6 +47,9 @@ def includeme(config):
         "admin.user.add_email", "/admin/users/{user_id}/add_email/", domain=warehouse
     )
     config.add_route(
+        "admin.user.reset_2fa", "/admin/users/{user_id}/reset_2fa/", domain=warehouse
+    )
+    config.add_route(
         "admin.user.delete", "/admin/users/{user_id}/delete/", domain=warehouse
     )
     config.add_route(

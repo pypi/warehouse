@@ -10,8 +10,11 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import random
+import secrets
 import shlex
 
+import requests
 import wtforms
 import wtforms.fields
 import wtforms.validators
@@ -26,7 +29,7 @@ from sqlalchemy.orm.exc import NoResultFound
 from warehouse import forms
 from warehouse.accounts.interfaces import IUserService
 from warehouse.accounts.models import DisableReason, Email, ProhibitedUserName, User
-from warehouse.email import send_password_compromised_email
+from warehouse.email import send_admin_reset_2fa_email, send_password_compromised_email
 from warehouse.packaging.models import JournalEntry, Project, Role
 from warehouse.utils.paginate import paginate_url_factory
 
@@ -179,6 +182,51 @@ def user_add_email(request):
             f"Added email for user {user.username!r}", queue="success"
         )
 
+    return HTTPSeeOther(request.route_path("admin.user.detail", user_id=user.id))
+
+
+@view_config(
+    route_name="admin.user.reset_2fa",
+    require_methods=["POST"],
+    permission="admin",
+    uses_session=True,
+    require_csrf=True,
+)
+def user_reset_2fa(request):
+    user = request.db.query(User).get(request.matchdict["user_id"])
+    form = UserForm(request.POST if request.method == "POST" else None, user)
+    gh_link = form.data["name"]
+
+    if form.validate():
+        valid_sites = set()
+        if len(user.projects) > 0:
+            options = {}
+            for i, project in enumerate([p for p in user.projects if len(p.releases)>0]):
+                options[i] = project
+                for k, v in project.releases[0].urls.items():
+                    try:
+                        status_code = requests.get(v).status_code
+                    except:
+                        status_code = 404
+
+                    if status_code == 200:
+                        valid_sites.add(project.name)
+
+            if valid_sites:
+                choice = random.choice(list(valid_sites))
+                token = secrets.token_urlsafe().replace('-','').replace('_','')[:16]
+                primary_email = user.primary_email.email
+                cc_email = ', '.join([email.email for email in user.emails if not email.primary])
+
+                send_admin_reset_2fa_email(request, user, project_name=choice.name, token=token, gh_link=gh_link)
+            else:
+                send_admin_reset_2fa_email(request, user, project_name=None, token=token, gh_link=gh_link)
+        else:
+            pass
+
+    request.session.flash(
+        f"Reset 2FA for {user.username!r} on issue {gh_link}", queue="success"
+    )
     return HTTPSeeOther(request.route_path("admin.user.detail", user_id=user.id))
 
 
