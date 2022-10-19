@@ -1089,7 +1089,7 @@ def verify_project_role(request):
     request.db.add(
         JournalEntry(
             name=project.name,
-            action=f"add {desired_role} {user.username}",
+            action=f"accepted {desired_role} {user.username}",
             submitted_by=request.user,
             submitted_from=request.remote_addr,
         )
