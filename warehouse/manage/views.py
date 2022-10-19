@@ -1161,6 +1161,14 @@ def user_organizations(request):
         )
         .subquery()
     )
+    organizations_with_sole_owner = (
+        request.db.query(OrganizationRole.organization_id)
+        .join(organizations_owned)
+        .filter(OrganizationRole.role_name == "Owner")
+        .group_by(OrganizationRole.organization_id)
+        .having(func.count(OrganizationRole.organization_id) == 1)
+        .subquery()
+    )
     return {
         "organizations_owned": (
             request.db.query(Organization)
@@ -1177,6 +1185,15 @@ def user_organizations(request):
         "organizations_billing": (
             request.db.query(Organization)
             .join(organizations_billing, Organization.id == organizations_billing.c.id)
+            .order_by(Organization.name)
+            .all()
+        ),
+        "organizations_with_sole_owner": (
+            request.db.query(Organization)
+            .join(
+                organizations_with_sole_owner,
+                Organization.id == organizations_with_sole_owner.c.organization_id,
+            )
             .order_by(Organization.name)
             .all()
         ),
@@ -2071,6 +2088,12 @@ def manage_organization_roles(
         "roles": roles,
         "invitations": invitations,
         "form": form,
+        "organizations_with_sole_owner": list(
+            organization.name
+            for organization in user_organizations(request)[
+                "organizations_with_sole_owner"
+            ]
+        ),
     }
 
 
@@ -2254,6 +2277,12 @@ def delete_organization_role(organization, request):
     organization_service = request.find_service(IOrganizationService, context=None)
     role_id = request.POST["role_id"]
     role = organization_service.get_organization_role(role_id)
+    organizations_sole_owned = set(
+        organization.id
+        for organization in user_organizations(request)["organizations_with_sole_owner"]
+    )
+    is_sole_owner = organization.id in organizations_sole_owned
+
     if not role or role.organization_id != organization.id:
         request.session.flash("Could not find member", queue="error")
     elif (
@@ -2262,8 +2291,12 @@ def delete_organization_role(organization, request):
         request.session.flash(
             "Cannot remove other people from the organization", queue="error"
         )
-    elif role.role_name == OrganizationRoleType.Owner and role.user == request.user:
-        request.session.flash("Cannot remove yourself as Owner", queue="error")
+    elif (
+        role.role_name == OrganizationRoleType.Owner
+        and role.user == request.user
+        and is_sole_owner
+    ):
+        request.session.flash("Cannot remove yourself as Sole Owner", queue="error")
     else:
         organization_service.delete_organization_role(role.id)
         organization.record_event(
@@ -4479,9 +4512,13 @@ def delete_project_role(project, request):
             .filter(Role.id == request.POST["role_id"])
             .one()
         )
+        projects_sole_owned = set(
+            project.name for project in user_projects(request)["projects_sole_owned"]
+        )
         removing_self = role.role_name == "Owner" and role.user == request.user
-        if removing_self:
-            request.session.flash("Cannot remove yourself as Owner", queue="error")
+        is_sole_owner = project.name in projects_sole_owned
+        if removing_self and is_sole_owner:
+            request.session.flash("Cannot remove yourself as Sole Owner", queue="error")
         else:
             request.db.delete(role)
             request.db.add(
@@ -4519,6 +4556,8 @@ def delete_project_role(project, request):
             )
 
             request.session.flash("Removed role", queue="success")
+            if removing_self:
+                return HTTPSeeOther(request.route_path("manage.projects"))
     except NoResultFound:
         request.session.flash("Could not find role", queue="error")
 

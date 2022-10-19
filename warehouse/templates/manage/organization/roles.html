@@ -119,8 +119,8 @@
         <td class="table__align-right">
         {% if not request.has_permission("manage:organization") and request.user.username != role.user.username %}
           <button class="button" title="{% trans %}Cannot remove other people from the organization{% endtrans %}" disabled>{% trans %}Remove{% endtrans %}</button>
-        {% elif request.has_permission("manage:organization") and request.user.username == role.user.username %}
-          <button class="button" title="{% trans %}Cannot remove yourself as owner{% endtrans %}" disabled>{% trans %}Remove{% endtrans %}</button>
+        {% elif request.has_permission("manage:organization") and request.user.username == role.user.username and organization.name in organizations_with_sole_owner %}
+          <button class="button" title="{% trans %}Cannot remove yourself as Sole Owner{% endtrans %}" disabled>{% trans %}Remove{% endtrans %}</button>
         {% else %}
           {% set extra_fields %}<input type="hidden" name="role_id" value="{{ role.id }}">{% endset %}
           {% set extra_description %}{% trans user=('yourself' if request.user.username == role.user.username else role.user.username) %}Remove {{ user }} from this organization{% endtrans %}{% trans %}.{% endtrans %}{% endset %}

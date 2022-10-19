@@ -40,8 +40,18 @@
             <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
             <input name="token" type="hidden" value="{{ token }}">
             <input name="accept" type="submit" value="{% trans %}Accept{% endtrans %}" class="button button--primary">
-            <input name="decline" type="submit" value="{% trans %}Decline{% endtrans %}" class="button">
           </form>
+          {% set extra_fields %}
+            <input type="hidden" name="token" value="{{ token }}">
+            <input type="hidden" name="decline" value="{% trans %}Decline{% endtrans %}">
+            <textarea class="form-group__field" name="message" placeholder="Optional explanatory message"></textarea>
+            <p class="form-group__help-text">
+              This message will be included in the notification email.
+            </p>
+          {% endset %}
+          {% set extra_description %}{% trans org=organization.name %}Decline invitation to {{ org }}{% endtrans %}{% endset %}
+          {% set tooltip %}{% trans %}Decline invitation{% endtrans %}{% endset %}
+          {{ confirm_button(gettext("Decline"), gettext("Organization Name"), "decline-" + organization.name|string, None, extra_fields=extra_fields, extra_description=extra_description, action=request.route_path('accounts.verify-organization-role'), warning=False, modifier="", tooltip=tooltip) }}
         </div>
       </div>
     </div>
