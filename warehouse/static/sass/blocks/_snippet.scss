@@ -83,9 +83,11 @@
   &__buttons {
     flex-shrink: 0;
 
+    > form,
     .button {
       display: inline-block;
       float: left;
+      line-height: 1.15;
       pointer-events: auto;
     }
 

@@ -61,6 +61,13 @@ class LazyString:
     def __str__(self):
         return self.fn(*self.args, **self.kwargs)
 
+    def __eq__(self, other):
+        return (
+            self.args == other.args and self.kwargs == other.kwargs
+            if isinstance(other, LazyString)
+            else self.args == (other,) and not self.kwargs
+        )
+
 
 def _locale(request):
     """

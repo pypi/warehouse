@@ -45,7 +45,7 @@
       {{ form_errors(save_organization_form) }}
       <div class="form-group">
         <label for="display_name" class="form-group__label">
-          {% trans %}Organization name{% endtrans %}
+          {% trans %}Organization display name{% endtrans %}
           {% if request.has_permission("manage:organization") and save_organization_form.display_name.flags.required %}
           <span class="form-group__required">{% trans %}(required){% endtrans %}</span>
           {% endif %}
@@ -125,11 +125,11 @@
       <div class="form-group">
         <label class="form-group__label" for="orgtype">
           {% trans %}️Organization type{% endtrans %}
-          {% if request.has_permission("manage:organization") and save_organization_form.orgtype.flags.required %}
+          {% if request.has_permission("manage:organization") and organization.orgtype != OrganizationType.Company and save_organization_form.orgtype.flags.required %}
           <span class="form-group__required">{% trans %}(required){% endtrans %}</span>
           {% endif %}
         </label>
-        {% if request.has_permission("manage:organization") %}
+        {% if request.has_permission("manage:organization") and organization.orgtype != OrganizationType.Company %}
         {{ save_organization_form.orgtype(class_="form-group__field", **{"aria-describedby":"orgtype-errors"}) }}
         {% else %}
         <p class="form-group__text">
@@ -142,9 +142,16 @@
         {% if request.has_permission("manage:organization") %}
         <p class="form-group__help-text">
           {% trans trimmed %}
-            Companies can create organization accounts as a paid service while community projects are granted complimentary access.
+          Companies can create organization accounts as a paid service while community projects are granted complimentary access.
           {% endtrans %}
         </p>
+        {% if organization.orgtype == OrganizationType.Company %}
+        <p class="form-group__help-text">
+          {% trans trimmed email="admin@pypi.org",site=request.registry.settings["site.name"] %}
+          If you need to convert your organization account from a Company account to a Community account, you can email <a href="mailto:{{ email }}">{{ email }}</a> to communicate with {{ site }} administrators.
+          {% endtrans %}
+        </p>
+        {% endif %}
         {% endif %}
       </div>
 

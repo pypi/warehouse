@@ -11,13 +11,7 @@
  # See the License for the specific language governing permissions and
  # limitations under the License.
 -#}
-{% extends "email/_base/body.txt" %}
 
-{% block content %}
-{% trans username=username, organization_name=organization_name %}{{ username }} has declined an invitation to join the "{{ organization_name }}" organization{% endtrans %}.
-{{ message|default('') }}
-{% endblock %}
+{% extends "email/_base/subject.txt" %}
 
-{% block reason %}
-{% trans %}You are receiving this because you are an owner of this organization.{% endtrans %}
-{% endblock %}
+{% block subject %}{% trans organization_name=organization_name %}"{{ organization_name }}" organization updated{% endtrans %}{% endblock %}

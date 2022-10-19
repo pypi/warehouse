@@ -2868,14 +2868,20 @@ class TestManageOrganizationSettings:
                 link_url=organization.link_url,
                 description=organization.description,
                 orgtype=organization.orgtype,
-                organization_service=organization_service,
             ),
         ]
 
+    @pytest.mark.parametrize("orgtype", list(OrganizationType))
     def test_save_organization(
-        self, db_request, organization_service, enable_organizations, monkeypatch
+        self,
+        db_request,
+        pyramid_user,
+        orgtype,
+        organization_service,
+        enable_organizations,
+        monkeypatch,
     ):
-        organization = OrganizationFactory.create()
+        organization = OrganizationFactory.create(orgtype=orgtype)
         db_request.POST = {
             "display_name": organization.display_name,
             "link_url": organization.link_url,
@@ -2897,12 +2903,33 @@ class TestManageOrganizationSettings:
         )
         monkeypatch.setattr(views, "SaveOrganizationForm", save_organization_cls)
 
+        send_email = pretend.call_recorder(lambda *a, **kw: None)
+        monkeypatch.setattr(views, "send_organization_updated_email", send_email)
+        monkeypatch.setattr(
+            views, "organization_owners", lambda *a, **kw: [pyramid_user]
+        )
+
         view = views.ManageOrganizationSettingsViews(organization, db_request)
         result = view.save_organization()
 
         assert isinstance(result, HTTPSeeOther)
         assert organization_service.update_organization.calls == [
             pretend.call(organization.id, **db_request.POST)
+        ]
+        assert send_email.calls == [
+            pretend.call(
+                db_request,
+                {pyramid_user},
+                organization_name=organization.name,
+                organization_display_name=organization.display_name,
+                organization_link_url=organization.link_url,
+                organization_description=organization.description,
+                organization_orgtype=organization.orgtype,
+                previous_organization_display_name=organization.display_name,
+                previous_organization_link_url=organization.link_url,
+                previous_organization_description=organization.description,
+                previous_organization_orgtype=organization.orgtype,
+            ),
         ]
 
     def test_save_organization_validation_fails(
@@ -4012,7 +4039,9 @@ class TestManageOrganizationProjects:
 
 
 class TestManageOrganizationRoles:
-    def test_get_manage_organization_roles(self, db_request, enable_organizations):
+    def test_get_manage_organization_roles(
+        self, db_request, pyramid_user, enable_organizations
+    ):
         organization = OrganizationFactory.create(name="foobar")
         form_obj = pretend.stub()
 
@@ -4027,6 +4056,7 @@ class TestManageOrganizationRoles:
             "roles": set(),
             "invitations": set(),
             "form": form_obj,
+            "organizations_with_sole_owner": [],
         }
 
     @freeze_time(datetime.datetime.utcnow())
@@ -4791,9 +4821,19 @@ class TestDeleteOrganizationRoles:
         assert isinstance(result, HTTPSeeOther)
         assert result.headers["Location"] == "/the-redirect"
 
-    def test_delete_missing_role(self, db_request, enable_organizations):
+    def test_delete_missing_role(self, db_request, enable_organizations, monkeypatch):
         organization = OrganizationFactory.create(name="foobar")
         missing_role_id = str(uuid.uuid4())
+
+        user_organizations = pretend.call_recorder(
+            lambda *a, **kw: {
+                "organizations_managed": [],
+                "organizations_owned": [organization],
+                "organizations_billing": [],
+                "organizations_with_sole_owner": [],
+            }
+        )
+        monkeypatch.setattr(views, "user_organizations", user_organizations)
 
         db_request.method = "POST"
         db_request.user = pretend.stub()
@@ -4861,7 +4901,7 @@ class TestDeleteOrganizationRoles:
         result = views.delete_organization_role(organization, db_request)
 
         assert db_request.session.flash.calls == [
-            pretend.call("Cannot remove yourself as Owner", queue="error")
+            pretend.call("Cannot remove yourself as Sole Owner", queue="error")
         ]
         assert isinstance(result, HTTPSeeOther)
         assert result.headers["Location"] == "/the-redirect"
@@ -8870,10 +8910,65 @@ class TestDeleteProjectRole:
         result = views.delete_project_role(project, db_request)
 
         assert db_request.session.flash.calls == [
-            pretend.call("Cannot remove yourself as Owner", queue="error")
+            pretend.call("Cannot remove yourself as Sole Owner", queue="error")
         ]
         assert isinstance(result, HTTPSeeOther)
         assert result.headers["Location"] == "/the-redirect"
+
+    def test_delete_not_sole_owner_role(self, db_request, monkeypatch):
+        project = ProjectFactory.create(name="foobar")
+        user = UserFactory.create()
+        RoleFactory.create(user=user, project=project, role_name="Owner")
+        user_2 = UserFactory.create(username="testuser")
+        role_2 = RoleFactory.create(user=user_2, project=project, role_name="Owner")
+
+        db_request.method = "POST"
+        db_request.user = user_2
+        db_request.POST = MultiDict({"role_id": role_2.id})
+        db_request.session = pretend.stub(
+            flash=pretend.call_recorder(lambda *a, **kw: None)
+        )
+        db_request.route_path = pretend.call_recorder(lambda *a, **kw: "/the-redirect")
+
+        send_collaborator_removed_email = pretend.call_recorder(lambda *a, **kw: None)
+        monkeypatch.setattr(
+            views, "send_collaborator_removed_email", send_collaborator_removed_email
+        )
+        send_removed_as_collaborator_email = pretend.call_recorder(
+            lambda *a, **kw: None
+        )
+        monkeypatch.setattr(
+            views,
+            "send_removed_as_collaborator_email",
+            send_removed_as_collaborator_email,
+        )
+
+        result = views.delete_project_role(project, db_request)
+
+        assert db_request.route_path.calls == [pretend.call("manage.projects")]
+        assert db_request.db.query(Role).filter(Role.user_id == user_2.id).all() == []
+        assert send_collaborator_removed_email.calls == [
+            pretend.call(
+                db_request, {user}, user=user_2, submitter=user_2, project_name="foobar"
+            )
+        ]
+        assert send_removed_as_collaborator_email.calls == [
+            pretend.call(db_request, user_2, submitter=user_2, project_name="foobar")
+        ]
+        assert db_request.session.flash.calls == [
+            pretend.call("Removed role", queue="success")
+        ]
+        assert isinstance(result, HTTPSeeOther)
+        assert result.headers["Location"] == "/the-redirect"
+
+        entry = (
+            db_request.db.query(JournalEntry).options(joinedload("submitted_by")).one()
+        )
+
+        assert entry.name == project.name
+        assert entry.action == "remove Owner testuser"
+        assert entry.submitted_by == db_request.user
+        assert entry.submitted_from == db_request.remote_addr
 
     def test_delete_non_owner_role(self, db_request):
         project = ProjectFactory.create(name="foobar")

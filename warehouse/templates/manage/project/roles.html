@@ -192,8 +192,8 @@
         </td>
         <td class="table__align-center">{{ two_factor_badge(role.user) }}</td>
         <td class="table__align-right">
-          {% if role.role_name == "Owner" and request.user.username == role.user.username %}
-            <button class="button" title="{% trans %}Cannot remove yourself as Owner{% endtrans %}" disabled>{% trans %}Remove{% endtrans %}</button>
+          {% if request.user.username == role.user.username and project.name in projects_sole_owned %}
+            <button class="button" title="{% trans %}Cannot remove yourself as Sole Owner{% endtrans %}" disabled>{% trans %}Remove{% endtrans %}</button>
           {% else %}
             {% set extra_fields %}<input type="hidden" name="role_id" value="{{ role.id }}">{% endset %}
             {% set extra_description %}{% trans collaborator=role.user.username %}Remove {{ collaborator }} from this project{% endtrans %}{% trans %}.{% endtrans %}{% endset %}

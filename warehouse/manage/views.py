@@ -69,6 +69,7 @@ from warehouse.email import (
     send_organization_project_removed_email,
     send_organization_renamed_email,
     send_organization_role_verification_email,
+    send_organization_updated_email,
     send_password_change_email,
     send_primary_email_change_email,
     send_project_role_verification_email,
@@ -1161,6 +1162,14 @@ def user_organizations(request):
         )
         .subquery()
     )
+    organizations_with_sole_owner = (
+        request.db.query(OrganizationRole.organization_id)
+        .join(organizations_owned)
+        .filter(OrganizationRole.role_name == "Owner")
+        .group_by(OrganizationRole.organization_id)
+        .having(func.count(OrganizationRole.organization_id) == 1)
+        .subquery()
+    )
     return {
         "organizations_owned": (
             request.db.query(Organization)
@@ -1177,6 +1186,15 @@ def user_organizations(request):
         "organizations_billing": (
             request.db.query(Organization)
             .join(organizations_billing, Organization.id == organizations_billing.c.id)
+            .order_by(Organization.name)
+            .all()
+        ),
+        "organizations_with_sole_owner": (
+            request.db.query(Organization)
+            .join(
+                organizations_with_sole_owner,
+                Organization.id == organizations_with_sole_owner.c.organization_id,
+            )
             .order_by(Organization.name)
             .all()
         ),
@@ -1408,7 +1426,6 @@ class ManageOrganizationSettingsViews:
                 link_url=self.organization.link_url,
                 description=self.organization.description,
                 orgtype=self.organization.orgtype,
-                organization_service=self.organization_service,
             ),
             "save_organization_name_form": SaveOrganizationNameForm(
                 organization_service=self.organization_service,
@@ -1422,15 +1439,37 @@ class ManageOrganizationSettingsViews:
 
     @view_config(request_method="POST", request_param=SaveOrganizationForm.__params__)
     def save_organization(self):
-        form = SaveOrganizationForm(
-            self.request.POST,
-            organization_service=self.organization_service,
-        )
+        form = SaveOrganizationForm(self.request.POST)
 
         if form.validate():
+            previous_organization_display_name = self.organization.display_name
+            previous_organization_link_url = self.organization.link_url
+            previous_organization_description = self.organization.description
+            previous_organization_orgtype = self.organization.orgtype
+
             data = form.data
+            if previous_organization_orgtype == OrganizationType.Company:
+                # Disable changing Company account to Community account.
+                data["orgtype"] = previous_organization_orgtype
             self.organization_service.update_organization(self.organization.id, **data)
+
+            owner_users = set(organization_owners(self.request, self.organization))
+            send_organization_updated_email(
+                self.request,
+                owner_users,
+                organization_name=self.organization.name,
+                organization_display_name=self.organization.display_name,
+                organization_link_url=self.organization.link_url,
+                organization_description=self.organization.description,
+                organization_orgtype=self.organization.orgtype,
+                previous_organization_display_name=previous_organization_display_name,
+                previous_organization_link_url=previous_organization_link_url,
+                previous_organization_description=previous_organization_description,
+                previous_organization_orgtype=previous_organization_orgtype,
+            )
+
             self.request.session.flash("Organization details updated", queue="success")
+
             return HTTPSeeOther(self.request.path)
 
         return {**self.default_response, "save_organization_form": form}
@@ -2075,6 +2114,12 @@ def manage_organization_roles(
         "roles": roles,
         "invitations": invitations,
         "form": form,
+        "organizations_with_sole_owner": list(
+            organization.name
+            for organization in user_organizations(request)[
+                "organizations_with_sole_owner"
+            ]
+        ),
     }
 
 
@@ -2258,6 +2303,12 @@ def delete_organization_role(organization, request):
     organization_service = request.find_service(IOrganizationService, context=None)
     role_id = request.POST["role_id"]
     role = organization_service.get_organization_role(role_id)
+    organizations_sole_owned = set(
+        organization.id
+        for organization in user_organizations(request)["organizations_with_sole_owner"]
+    )
+    is_sole_owner = organization.id in organizations_sole_owned
+
     if not role or role.organization_id != organization.id:
         request.session.flash("Could not find member", queue="error")
     elif (
@@ -2266,8 +2317,12 @@ def delete_organization_role(organization, request):
         request.session.flash(
             "Cannot remove other people from the organization", queue="error"
         )
-    elif role.role_name == OrganizationRoleType.Owner and role.user == request.user:
-        request.session.flash("Cannot remove yourself as Owner", queue="error")
+    elif (
+        role.role_name == OrganizationRoleType.Owner
+        and role.user == request.user
+        and is_sole_owner
+    ):
+        request.session.flash("Cannot remove yourself as Sole Owner", queue="error")
     else:
         organization_service.delete_organization_role(role.id)
         organization.record_event(
@@ -4564,9 +4619,13 @@ def delete_project_role(project, request):
             .filter(Role.id == request.POST["role_id"])
             .one()
         )
+        projects_sole_owned = set(
+            project.name for project in user_projects(request)["projects_sole_owned"]
+        )
         removing_self = role.role_name == "Owner" and role.user == request.user
-        if removing_self:
-            request.session.flash("Cannot remove yourself as Owner", queue="error")
+        is_sole_owner = project.name in projects_sole_owned
+        if removing_self and is_sole_owner:
+            request.session.flash("Cannot remove yourself as Sole Owner", queue="error")
         else:
             request.db.delete(role)
             request.db.add(
@@ -4604,6 +4663,8 @@ def delete_project_role(project, request):
             )
 
             request.session.flash("Removed role", queue="success")
+            if removing_self:
+                return HTTPSeeOther(request.route_path("manage.projects"))
     except NoResultFound:
         request.session.flash("Could not find role", queue="error")
 
