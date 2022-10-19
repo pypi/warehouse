@@ -571,6 +571,34 @@ def send_role_changed_as_organization_member_email(
     }
 
 
+@_email("organization-updated")
+def send_organization_updated_email(
+    request,
+    user,
+    *,
+    organization_name,
+    organization_display_name,
+    organization_link_url,
+    organization_description,
+    organization_orgtype,
+    previous_organization_display_name,
+    previous_organization_link_url,
+    previous_organization_description,
+    previous_organization_orgtype,
+):
+    return {
+        "organization_name": organization_name,
+        "organization_display_name": organization_display_name,
+        "organization_link_url": organization_link_url,
+        "organization_description": organization_description,
+        "organization_orgtype": organization_orgtype,
+        "previous_organization_display_name": previous_organization_display_name,
+        "previous_organization_link_url": previous_organization_link_url,
+        "previous_organization_description": previous_organization_description,
+        "previous_organization_orgtype": previous_organization_orgtype,
+    }
+
+
 @_email("organization-renamed")
 def send_organization_renamed_email(
     request, user, *, organization_name, previous_organization_name

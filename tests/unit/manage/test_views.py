@@ -2870,14 +2870,20 @@ class TestManageOrganizationSettings:
                 link_url=organization.link_url,
                 description=organization.description,
                 orgtype=organization.orgtype,
-                organization_service=organization_service,
             ),
         ]
 
+    @pytest.mark.parametrize("orgtype", list(OrganizationType))
     def test_save_organization(
-        self, db_request, organization_service, enable_organizations, monkeypatch
+        self,
+        db_request,
+        pyramid_user,
+        orgtype,
+        organization_service,
+        enable_organizations,
+        monkeypatch,
     ):
-        organization = OrganizationFactory.create()
+        organization = OrganizationFactory.create(orgtype=orgtype)
         db_request.POST = {
             "display_name": organization.display_name,
             "link_url": organization.link_url,
@@ -2899,12 +2905,33 @@ class TestManageOrganizationSettings:
         )
         monkeypatch.setattr(views, "SaveOrganizationForm", save_organization_cls)
 
+        send_email = pretend.call_recorder(lambda *a, **kw: None)
+        monkeypatch.setattr(views, "send_organization_updated_email", send_email)
+        monkeypatch.setattr(
+            views, "organization_owners", lambda *a, **kw: [pyramid_user]
+        )
+
         view = views.ManageOrganizationSettingsViews(organization, db_request)
         result = view.save_organization()
 
         assert isinstance(result, HTTPSeeOther)
         assert organization_service.update_organization.calls == [
             pretend.call(organization.id, **db_request.POST)
+        ]
+        assert send_email.calls == [
+            pretend.call(
+                db_request,
+                {pyramid_user},
+                organization_name=organization.name,
+                organization_display_name=organization.display_name,
+                organization_link_url=organization.link_url,
+                organization_description=organization.description,
+                organization_orgtype=organization.orgtype,
+                previous_organization_display_name=organization.display_name,
+                previous_organization_link_url=organization.link_url,
+                previous_organization_description=organization.description,
+                previous_organization_orgtype=organization.orgtype,
+            ),
         ]
 
     def test_save_organization_validation_fails(

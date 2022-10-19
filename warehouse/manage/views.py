@@ -69,6 +69,7 @@ from warehouse.email import (
     send_organization_project_removed_email,
     send_organization_renamed_email,
     send_organization_role_verification_email,
+    send_organization_updated_email,
     send_password_change_email,
     send_primary_email_change_email,
     send_project_role_verification_email,
@@ -1426,7 +1427,6 @@ class ManageOrganizationSettingsViews:
                 link_url=self.organization.link_url,
                 description=self.organization.description,
                 orgtype=self.organization.orgtype,
-                organization_service=self.organization_service,
             ),
             "save_organization_name_form": SaveOrganizationNameForm(
                 organization_service=self.organization_service,
@@ -1440,15 +1440,37 @@ class ManageOrganizationSettingsViews:
 
     @view_config(request_method="POST", request_param=SaveOrganizationForm.__params__)
     def save_organization(self):
-        form = SaveOrganizationForm(
-            self.request.POST,
-            organization_service=self.organization_service,
-        )
+        form = SaveOrganizationForm(self.request.POST)
 
         if form.validate():
+            previous_organization_display_name = self.organization.display_name
+            previous_organization_link_url = self.organization.link_url
+            previous_organization_description = self.organization.description
+            previous_organization_orgtype = self.organization.orgtype
+
             data = form.data
+            if previous_organization_orgtype == OrganizationType.Company:
+                # Disable changing Company account to Community account.
+                data["orgtype"] = previous_organization_orgtype
             self.organization_service.update_organization(self.organization.id, **data)
+
+            owner_users = set(organization_owners(self.request, self.organization))
+            send_organization_updated_email(
+                self.request,
+                owner_users,
+                organization_name=self.organization.name,
+                organization_display_name=self.organization.display_name,
+                organization_link_url=self.organization.link_url,
+                organization_description=self.organization.description,
+                organization_orgtype=self.organization.orgtype,
+                previous_organization_display_name=previous_organization_display_name,
+                previous_organization_link_url=previous_organization_link_url,
+                previous_organization_description=previous_organization_description,
+                previous_organization_orgtype=previous_organization_orgtype,
+            )
+
             self.request.session.flash("Organization details updated", queue="success")
+
             return HTTPSeeOther(self.request.path)
 
         return {**self.default_response, "save_organization_form": form}
