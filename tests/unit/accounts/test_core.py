@@ -33,6 +33,7 @@ from warehouse.accounts.services import (
     database_login_factory,
 )
 from warehouse.errors import BasicAuthBreachedPassword, BasicAuthFailedPassword
+from warehouse.events.tags import EventTag
 from warehouse.rate_limiting import IRateLimiter, RateLimit
 
 from ...common.db.accounts import UserFactory
@@ -98,7 +99,7 @@ class TestLogin:
         ]
         assert user.record_event.calls == [
             pretend.call(
-                tag="account:login:failure",
+                tag=EventTag.Account.LoginFailure,
                 ip_address="1.2.3.4",
                 additional={"reason": "invalid_password", "auth_method": "basic"},
             )

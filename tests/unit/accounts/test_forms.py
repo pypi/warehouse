@@ -24,6 +24,7 @@ from warehouse.accounts.interfaces import (
     TooManyFailedLogins,
 )
 from warehouse.accounts.models import DisableReason
+from warehouse.events.tags import EventTag
 from warehouse.utils.webauthn import AuthenticationRejectedError
 
 
@@ -179,7 +180,7 @@ class TestLoginForm:
         assert user_service.record_event.calls == [
             pretend.call(
                 1,
-                tag="account:login:failure",
+                tag=EventTag.Account.LoginFailure,
                 additional={"reason": "invalid_password"},
             )
         ]
@@ -654,7 +655,7 @@ class TestTOTPAuthenticationForm:
         assert user_service.record_event.calls == [
             pretend.call(
                 1,
-                tag="account:login:failure",
+                tag=EventTag.Account.LoginFailure,
                 additional={"reason": "invalid_totp"},
             )
         ]
@@ -743,7 +744,7 @@ class TestWebAuthnAuthenticationForm:
         assert user_service.record_event.calls == [
             pretend.call(
                 1,
-                tag="account:login:failure",
+                tag=EventTag.Account.LoginFailure,
                 additional={"reason": "invalid_webauthn"},
             )
         ]
@@ -841,7 +842,7 @@ class TestRecoveryCodeForm:
         assert user_service.record_event.calls == [
             pretend.call(
                 1,
-                tag="account:login:failure",
+                tag=EventTag.Account.LoginFailure,
                 additional={"reason": expected_reason},
             )
         ]

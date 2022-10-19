@@ -1918,6 +1918,7 @@ class TestOrganizationMemberEmails:
         EmailFactory.create(user=self.user, verified=True)
         self.desired_role = "Manager"
         self.organization_name = "example"
+        self.message = "test message"
         self.email_token = "token"
         self.token_age = 72 * 60 * 60
 
@@ -2159,11 +2160,13 @@ class TestOrganizationMemberEmails:
             self.initiator_user,
             user=self.user,
             organization_name=self.organization_name,
+            message=self.message,
         )
 
         assert result == {
             "username": self.user.username,
             "organization_name": self.organization_name,
+            "message": self.message,
         }
         subject_renderer.assert_(**result)
         body_renderer.assert_(**result)
