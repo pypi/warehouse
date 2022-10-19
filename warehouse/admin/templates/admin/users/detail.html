@@ -315,7 +315,7 @@
               </tr>
               <tr>
                 <td>{{ user.recovery_codes[0].generated }}</td>
-                <td>{{ user.recovery_codes|length }}</td>
+                <td>{{ user.recovery_codes.filter_by(burned=None).all()|length }}</td>
               </tr>
             </table>
           </div>
