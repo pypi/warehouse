@@ -590,7 +590,6 @@ class SaveOrganizationForm(forms.Form):
         ]
     )
     orgtype = wtforms.SelectField(
-        # TODO: Map additional choices to "Company" and "Community".
         choices=[("Company", "Company"), ("Community", "Community")],
         coerce=OrganizationType,
         validators=[

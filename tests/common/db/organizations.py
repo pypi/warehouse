@@ -143,6 +143,13 @@ class TeamFactory(WarehouseFactory):
     organization = factory.SubFactory(OrganizationFactory)
 
 
+class TeamEventFactory(WarehouseFactory):
+    class Meta:
+        model = Team.Event
+
+    source = factory.SubFactory(TeamFactory)
+
+
 class TeamRoleFactory(WarehouseFactory):
     class Meta:
         model = TeamRole

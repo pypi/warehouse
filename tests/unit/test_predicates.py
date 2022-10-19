@@ -14,6 +14,7 @@ import pretend
 import pytest
 
 from pyramid.exceptions import ConfigurationError
+from pyramid.httpexceptions import HTTPSeeOther
 
 from warehouse.organizations.models import OrganizationType
 from warehouse.predicates import (
@@ -151,9 +152,16 @@ class TestActiveOrganizationPredicate:
         organization,
         enable_organizations,
     ):
+        db_request.route_path = pretend.call_recorder(
+            lambda *a, **kw: "/manage/organizations/"
+        )
+
         organization.is_active = False
         predicate = ActiveOrganizationPredicate(True, None)
-        assert not predicate(organization, db_request)
+        with pytest.raises(HTTPSeeOther):
+            predicate(organization, db_request)
+
+        assert db_request.route_path.calls == [pretend.call("manage.organizations")]
 
     def test_inactive_subscription(
         self,
@@ -162,8 +170,15 @@ class TestActiveOrganizationPredicate:
         enable_organizations,
         inactive_subscription,
     ):
+        db_request.route_path = pretend.call_recorder(
+            lambda *a, **kw: "/manage/organizations/"
+        )
+
         predicate = ActiveOrganizationPredicate(True, None)
-        assert not predicate(organization, db_request)
+        with pytest.raises(HTTPSeeOther):
+            predicate(organization, db_request)
+
+        assert db_request.route_path.calls == [pretend.call("manage.organizations")]
 
     def test_active_subscription(
         self, db_request, organization, enable_organizations, active_subscription

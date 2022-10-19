@@ -69,6 +69,7 @@ from warehouse.email import (
     send_organization_project_removed_email,
     send_organization_renamed_email,
     send_organization_role_verification_email,
+    send_organization_updated_email,
     send_password_change_email,
     send_primary_email_change_email,
     send_project_role_verification_email,
@@ -95,6 +96,7 @@ from warehouse.email import (
     send_unyanked_project_release_email,
     send_yanked_project_release_email,
 )
+from warehouse.events.tags import EventTag
 from warehouse.forklift.legacy import MAX_FILESIZE, MAX_PROJECT_SIZE
 from warehouse.macaroons import caveats
 from warehouse.macaroons.interfaces import IMacaroonService
@@ -357,7 +359,7 @@ class ManageAccountViews:
             email = self.user_service.add_email(self.request.user.id, form.email.data)
             self.user_service.record_event(
                 self.request.user.id,
-                tag="account:email:add",
+                tag=EventTag.Account.EmailAdd,
                 additional={"email": email.email},
             )
 
@@ -400,7 +402,7 @@ class ManageAccountViews:
             self.request.user.emails.remove(email)
             self.user_service.record_event(
                 self.request.user.id,
-                tag="account:email:remove",
+                tag=EventTag.Account.EmailRemove,
                 additional={"email": email.email},
             )
             self.request.session.flash(
@@ -436,7 +438,7 @@ class ManageAccountViews:
         new_primary_email.primary = True
         self.user_service.record_event(
             self.request.user.id,
-            tag="account:email:primary:change",
+            tag=EventTag.Account.EmailPrimaryChange,
             additional={
                 "old_primary": previous_primary_email.email
                 if previous_primary_email
@@ -481,7 +483,7 @@ class ManageAccountViews:
                 send_email_verification_email(self.request, (self.request.user, email))
                 verify_email_ratelimit.hit(self.request.user.id)
                 email.user.record_event(
-                    tag="account:email:reverify",
+                    tag=EventTag.Account.EmailReverify,
                     ip_address=self.request.remote_addr,
                     additional={"email": email.email},
                 )
@@ -520,7 +522,7 @@ class ManageAccountViews:
             )
             self.user_service.record_event(
                 self.request.user.id,
-                tag="account:password:change",
+                tag=EventTag.Account.PasswordChange,
             )
             send_password_change_email(self.request, self.request.user)
             self.request.db.flush()  # Ensure changes are persisted to DB
@@ -698,7 +700,7 @@ class ProvisionTOTPViews:
             self.request.session.clear_totp_secret()
             self.user_service.record_event(
                 self.request.user.id,
-                tag="account:two_factor:method_added",
+                tag=EventTag.Account.TwoFactorMethodAdded,
                 additional={"method": "totp"},
             )
             self.request.session.flash(
@@ -736,7 +738,7 @@ class ProvisionTOTPViews:
             self.user_service.update_user(self.request.user.id, totp_secret=None)
             self.user_service.record_event(
                 self.request.user.id,
-                tag="account:two_factor:method_removed",
+                tag=EventTag.Account.TwoFactorMethodRemoved,
                 additional={"method": "totp"},
             )
             self.request.session.flash(
@@ -823,7 +825,7 @@ class ProvisionWebAuthnViews:
             )
             self.user_service.record_event(
                 self.request.user.id,
-                tag="account:two_factor:method_added",
+                tag=EventTag.Account.TwoFactorMethodAdded,
                 additional={"method": "webauthn", "label": form.label.data},
             )
             self.request.session.flash(
@@ -863,7 +865,7 @@ class ProvisionWebAuthnViews:
             self.request.user.webauthn.remove(form.webauthn)
             self.user_service.record_event(
                 self.request.user.id,
-                tag="account:two_factor:method_removed",
+                tag=EventTag.Account.TwoFactorMethodRemoved,
                 additional={"method": "webauthn", "label": form.label.data},
             )
             self.request.session.flash("Security device removed", queue="success")
@@ -909,7 +911,7 @@ class ProvisionRecoveryCodesViews:
         send_recovery_codes_generated_email(self.request, self.request.user)
         self.user_service.record_event(
             self.request.user.id,
-            tag="account:recovery_codes:generated",
+            tag=EventTag.Account.RecoveryCodesGenerated,
         )
 
         return {"recovery_codes": recovery_codes}
@@ -925,7 +927,7 @@ class ProvisionRecoveryCodesViews:
         send_recovery_codes_generated_email(self.request, self.request.user)
         self.user_service.record_event(
             self.request.user.id,
-            tag="account:recovery_codes:regenerated",
+            tag=EventTag.Account.RecoveryCodesRegenerated,
         )
 
         return {"recovery_codes": recovery_codes}
@@ -1049,7 +1051,7 @@ class ProvisionMacaroonViews:
             )
             self.user_service.record_event(
                 self.request.user.id,
-                tag="account:api_token:added",
+                tag=EventTag.Account.APITokenAdded,
                 additional={
                     "description": form.description.data,
                     "caveats": recorded_caveats,
@@ -1067,7 +1069,7 @@ class ProvisionMacaroonViews:
                     # have access to projects that this project's owner
                     # isn't aware of.
                     project.record_event(
-                        tag="project:api_token:added",
+                        tag=EventTag.Project.APITokenAdded,
                         ip_address=self.request.remote_addr,
                         additional={
                             "description": form.description.data,
@@ -1100,7 +1102,7 @@ class ProvisionMacaroonViews:
             self.macaroon_service.delete_macaroon(form.macaroon_id.data)
             self.user_service.record_event(
                 self.request.user.id,
-                tag="account:api_token:removed",
+                tag=EventTag.Account.APITokenRemoved,
                 additional={"macaroon_id": form.macaroon_id.data},
             )
             if "projects" in macaroon.permissions_caveat:
@@ -1112,7 +1114,7 @@ class ProvisionMacaroonViews:
                 ]
                 for project in projects:
                     project.record_event(
-                        tag="project:api_token:removed",
+                        tag=EventTag.Project.APITokenRemoved,
                         ip_address=self.request.remote_addr,
                         additional={
                             "description": macaroon.description,
@@ -1330,14 +1332,13 @@ class ManageOrganizationsViews:
             organization = self.organization_service.add_organization(**data)
             self.organization_service.record_event(
                 organization.id,
-                tag="organization:create",
-                additional={"created_by_user_id": str(self.request.user.id)},
+                tag=EventTag.Organization.CatalogEntryAdd,
+                additional={"submitted_by_user_id": str(self.request.user.id)},
             )
-            self.organization_service.add_catalog_entry(organization.id)
             self.organization_service.record_event(
                 organization.id,
-                tag="organization:catalog_entry:add",
-                additional={"submitted_by_user_id": str(self.request.user.id)},
+                tag=EventTag.Organization.OrganizationCreate,
+                additional={"created_by_user_id": str(self.request.user.id)},
             )
             self.organization_service.add_organization_role(
                 organization.id,
@@ -1346,16 +1347,7 @@ class ManageOrganizationsViews:
             )
             self.organization_service.record_event(
                 organization.id,
-                tag="organization:organization_role:invite",
-                additional={
-                    "submitted_by_user_id": str(self.request.user.id),
-                    "role_name": "Owner",
-                    "target_user_id": str(self.request.user.id),
-                },
-            )
-            self.organization_service.record_event(
-                organization.id,
-                tag="organization:organization_role:accepted",
+                tag=EventTag.Organization.OrganizationRoleAdd,
                 additional={
                     "submitted_by_user_id": str(self.request.user.id),
                     "role_name": "Owner",
@@ -1364,7 +1356,7 @@ class ManageOrganizationsViews:
             )
             self.user_service.record_event(
                 self.request.user.id,
-                tag="account:organization_role:accepted",
+                tag=EventTag.Account.OrganizationRoleAdd,
                 additional={
                     "submitted_by_user_id": str(self.request.user.id),
                     "organization_name": organization.name,
@@ -1434,7 +1426,6 @@ class ManageOrganizationSettingsViews:
                 link_url=self.organization.link_url,
                 description=self.organization.description,
                 orgtype=self.organization.orgtype,
-                organization_service=self.organization_service,
             ),
             "save_organization_name_form": SaveOrganizationNameForm(
                 organization_service=self.organization_service,
@@ -1448,15 +1439,37 @@ class ManageOrganizationSettingsViews:
 
     @view_config(request_method="POST", request_param=SaveOrganizationForm.__params__)
     def save_organization(self):
-        form = SaveOrganizationForm(
-            self.request.POST,
-            organization_service=self.organization_service,
-        )
+        form = SaveOrganizationForm(self.request.POST)
 
         if form.validate():
+            previous_organization_display_name = self.organization.display_name
+            previous_organization_link_url = self.organization.link_url
+            previous_organization_description = self.organization.description
+            previous_organization_orgtype = self.organization.orgtype
+
             data = form.data
+            if previous_organization_orgtype == OrganizationType.Company:
+                # Disable changing Company account to Community account.
+                data["orgtype"] = previous_organization_orgtype
             self.organization_service.update_organization(self.organization.id, **data)
+
+            owner_users = set(organization_owners(self.request, self.organization))
+            send_organization_updated_email(
+                self.request,
+                owner_users,
+                organization_name=self.organization.name,
+                organization_display_name=self.organization.display_name,
+                organization_link_url=self.organization.link_url,
+                organization_description=self.organization.description,
+                organization_orgtype=self.organization.orgtype,
+                previous_organization_display_name=previous_organization_display_name,
+                previous_organization_link_url=previous_organization_link_url,
+                previous_organization_description=previous_organization_description,
+                previous_organization_orgtype=previous_organization_orgtype,
+            )
+
             self.request.session.flash("Organization details updated", queue="success")
+
             return HTTPSeeOther(self.request.path)
 
         return {**self.default_response, "save_organization_form": form}
@@ -1488,7 +1501,12 @@ class ManageOrganizationSettingsViews:
                 form.name.data,
             )
             self.organization.record_event(
-                tag="organization:rename",
+                tag=EventTag.Organization.CatalogEntryAdd,
+                ip_address=self.request.remote_addr,
+                additional={"submitted_by_user_id": str(self.request.user.id)},
+            )
+            self.organization.record_event(
+                tag=EventTag.Organization.OrganizationRename,
                 ip_address=self.request.remote_addr,
                 additional={
                     "previous_organization_name": previous_organization_name,
@@ -1536,7 +1554,7 @@ class ManageOrganizationSettingsViews:
 
         # Record event before deleting organization.
         self.organization.record_event(
-            tag="organization:delete",
+            tag=EventTag.Organization.OrganizationDelete,
             ip_address=self.request.remote_addr,
             additional={
                 "deleted_by_user_id": str(self.request.user.id),
@@ -1736,18 +1754,18 @@ class ManageOrganizationTeamsViews:
 
         # Record events.
         self.organization.record_event(
-            tag="organization:team:create",
+            tag=EventTag.Organization.TeamCreate,
             ip_address=self.request.remote_addr,
             additional={
-                "submitted_by_user_id": str(self.request.user.id),
+                "created_by_user_id": str(self.request.user.id),
                 "team_name": team.name,
             },
         )
         team.record_event(
-            tag="team:create",
+            tag=EventTag.Team.TeamCreate,
             ip_address=self.request.remote_addr,
             additional={
-                "submitted_by_user_id": str(self.request.user.id),
+                "created_by_user_id": str(self.request.user.id),
             },
         )
 
@@ -1870,12 +1888,21 @@ class ManageOrganizationProjectsViews:
                     )
                 )
                 project.record_event(
-                    tag="project:role:delete",
+                    tag=EventTag.Project.RoleRemove,
                     ip_address=self.request.remote_addr,
                     additional={
                         "submitted_by": self.request.user.username,
                         "role_name": role.role_name,
                         "target_user": role.user.username,
+                    },
+                )
+                role.user.record_event(
+                    tag=EventTag.Account.RoleRemove,
+                    ip_address=self.request.remote_addr,
+                    additional={
+                        "submitted_by": self.request.user.username,
+                        "project_name": project.name,
+                        "role_name": role.role_name,
                     },
                 )
         else:
@@ -1896,7 +1923,7 @@ class ManageOrganizationProjectsViews:
 
         # Record events.
         self.organization.record_event(
-            tag="organization:organization_project:add",
+            tag=EventTag.Organization.OrganizationProjectAdd,
             ip_address=self.request.remote_addr,
             additional={
                 "submitted_by_user_id": str(self.request.user.id),
@@ -1904,7 +1931,7 @@ class ManageOrganizationProjectsViews:
             },
         )
         project.record_event(
-            tag="project:organization_project:add",
+            tag=EventTag.Project.OrganizationProjectAdd,
             ip_address=self.request.remote_addr,
             additional={
                 "submitted_by_user_id": str(self.request.user.id),
@@ -2031,12 +2058,21 @@ def manage_organization_roles(
                     invite_token=invite_token,
                 )
             organization.record_event(
-                tag="organization:organization_role:invite",
+                tag=EventTag.Organization.OrganizationRoleInvite,
                 ip_address=request.remote_addr,
                 additional={
                     "submitted_by_user_id": str(request.user.id),
                     "role_name": role_name.value,
                     "target_user_id": str(userid),
+                },
+            )
+            user.record_event(
+                tag=EventTag.Account.OrganizationRoleInvite,
+                ip_address=request.remote_addr,
+                additional={
+                    "submitted_by_user_id": str(request.user.id),
+                    "organization_name": organization.name,
+                    "role_name": role_name.value,
                 },
             )
             request.db.flush()  # in order to get id
@@ -2131,12 +2167,21 @@ def revoke_organization_invitation(organization, request):
     role_name = token_data.get("desired_role")
 
     organization.record_event(
-        tag="organization:organization_role:revoke_invite",
+        tag=EventTag.Organization.OrganizationRoleRevokeInvite,
         ip_address=request.remote_addr,
         additional={
             "submitted_by_user_id": str(request.user.id),
             "role_name": role_name,
             "target_user_id": str(user.id),
+        },
+    )
+    user.record_event(
+        tag=EventTag.Account.OrganizationRoleRevokeInvite,
+        ip_address=request.remote_addr,
+        additional={
+            "submitted_by_user_id": str(request.user.id),
+            "organization_name": organization.name,
+            "role_name": role_name,
         },
     )
 
@@ -2217,7 +2262,7 @@ def change_organization_role(
             )
 
             organization.record_event(
-                tag="organization:organization_role:change",
+                tag=EventTag.Organization.OrganizationRoleChange,
                 ip_address=request.remote_addr,
                 additional={
                     "submitted_by_user_id": str(request.user.id),
@@ -2226,7 +2271,7 @@ def change_organization_role(
                 },
             )
             role.user.record_event(
-                tag="account:organization_role:change",
+                tag=EventTag.Account.OrganizationRoleChange,
                 ip_address=request.remote_addr,
                 additional={
                     "submitted_by_user_id": str(request.user.id),
@@ -2281,7 +2326,7 @@ def delete_organization_role(organization, request):
     else:
         organization_service.delete_organization_role(role.id)
         organization.record_event(
-            tag="organization:organization_role:delete",
+            tag=EventTag.Organization.OrganizationRoleRemove,
             ip_address=request.remote_addr,
             additional={
                 "submitted_by_user_id": str(request.user.id),
@@ -2290,7 +2335,7 @@ def delete_organization_role(organization, request):
             },
         )
         role.user.record_event(
-            tag="account:organization_role:delete",
+            tag=EventTag.Account.OrganizationRoleRemove,
             ip_address=request.remote_addr,
             additional={
                 "submitted_by_user_id": str(request.user.id),
@@ -2331,6 +2376,47 @@ def delete_organization_role(organization, request):
                 organization_name=organization.normalized_name,
             )
         )
+
+
+@view_config(
+    route_name="manage.organization.history",
+    context=Organization,
+    renderer="manage/organization/history.html",
+    uses_session=True,
+    permission="manage:organization",
+    has_translations=True,
+)
+def manage_organization_history(organization, request):
+    try:
+        page_num = int(request.params.get("page", 1))
+    except ValueError:
+        raise HTTPBadRequest("'page' must be an integer.")
+
+    events_query = (
+        request.db.query(Organization.Event)
+        .join(Organization.Event.source)
+        .filter(Organization.Event.source_id == organization.id)
+        .order_by(Organization.Event.time.desc())
+        .order_by(Organization.Event.tag.desc())
+    )
+
+    events = SQLAlchemyORMPage(
+        events_query,
+        page=page_num,
+        items_per_page=25,
+        url_maker=paginate_url_factory(request),
+    )
+
+    if events.page_count and page_num > events.page_count:
+        raise HTTPNotFound
+
+    user_service = request.find_service(IUserService, context=None)
+
+    return {
+        "events": events,
+        "get_user": user_service.get_user,
+        "organization": organization,
+    }
 
 
 @view_defaults(
@@ -2381,7 +2467,25 @@ class ManageTeamSettingsViews:
 
         if form.validate():
             name = form.name.data
+            previous_team_name = self.team.name
             self.organization_service.rename_team(self.team.id, name)
+            self.team.organization.record_event(
+                tag=EventTag.Organization.TeamRename,
+                ip_address=self.request.remote_addr,
+                additional={
+                    "team_name": self.team.name,
+                    "previous_team_name": previous_team_name,
+                    "renamed_by_user_id": str(self.request.user.id),
+                },
+            )
+            self.team.record_event(
+                tag=EventTag.Team.TeamRename,
+                ip_address=self.request.remote_addr,
+                additional={
+                    "previous_team_name": previous_team_name,
+                    "renamed_by_user_id": str(self.request.user.id),
+                },
+            )
             self.request.session.flash("Team name updated", queue="success")
             return HTTPSeeOther(
                 self.request.route_path(
@@ -2404,7 +2508,7 @@ class ManageTeamSettingsViews:
 
         # Record events.
         organization.record_event(
-            tag="organization:team:delete",
+            tag=EventTag.Organization.TeamDelete,
             ip_address=self.request.remote_addr,
             additional={
                 "deleted_by_user_id": str(self.request.user.id),
@@ -2412,7 +2516,7 @@ class ManageTeamSettingsViews:
             },
         )
         self.team.record_event(
-            tag="team:delete",
+            tag=EventTag.Team.TeamDelete,
             ip_address=self.request.remote_addr,
             additional={
                 "deleted_by_user_id": str(self.request.user.id),
@@ -2558,7 +2662,7 @@ class ManageTeamRolesViews:
 
         # Record events.
         self.team.organization.record_event(
-            tag="organization:team_role:add",
+            tag=EventTag.Organization.TeamRoleAdd,
             ip_address=self.request.remote_addr,
             additional={
                 "submitted_by_user_id": str(self.request.user.id),
@@ -2568,7 +2672,7 @@ class ManageTeamRolesViews:
             },
         )
         self.team.record_event(
-            tag="team:team_role:add",
+            tag=EventTag.Team.TeamRoleAdd,
             ip_address=self.request.remote_addr,
             additional={
                 "submitted_by_user_id": str(self.request.user.id),
@@ -2577,7 +2681,7 @@ class ManageTeamRolesViews:
             },
         )
         role.user.record_event(
-            tag="account:team_role:add",
+            tag=EventTag.Account.TeamRoleAdd,
             ip_address=self.request.remote_addr,
             additional={
                 "submitted_by_user_id": str(self.request.user.id),
@@ -2643,7 +2747,7 @@ class ManageTeamRolesViews:
 
             # Record events.
             self.team.organization.record_event(
-                tag="organization:team_role:delete",
+                tag=EventTag.Organization.TeamRoleRemove,
                 ip_address=self.request.remote_addr,
                 additional={
                     "submitted_by_user_id": str(self.request.user.id),
@@ -2653,7 +2757,7 @@ class ManageTeamRolesViews:
                 },
             )
             self.team.record_event(
-                tag="team:team_role:delete",
+                tag=EventTag.Team.TeamRoleRemove,
                 ip_address=self.request.remote_addr,
                 additional={
                     "submitted_by_user_id": str(self.request.user.id),
@@ -2662,7 +2766,7 @@ class ManageTeamRolesViews:
                 },
             )
             role.user.record_event(
-                tag="account:team_role:delete",
+                tag=EventTag.Account.TeamRoleRemove,
                 ip_address=self.request.remote_addr,
                 additional={
                     "submitted_by_user_id": str(self.request.user.id),
@@ -2705,6 +2809,47 @@ class ManageTeamRolesViews:
                 team_name=self.team.normalized_name,
             )
         )
+
+
+@view_config(
+    route_name="manage.team.history",
+    context=Team,
+    renderer="manage/team/history.html",
+    uses_session=True,
+    permission="manage:team",
+    has_translations=True,
+)
+def manage_team_history(team, request):
+    try:
+        page_num = int(request.params.get("page", 1))
+    except ValueError:
+        raise HTTPBadRequest("'page' must be an integer.")
+
+    events_query = (
+        request.db.query(Team.Event)
+        .join(Team.Event.source)
+        .filter(Team.Event.source_id == team.id)
+        .order_by(Team.Event.time.desc())
+        .order_by(Team.Event.tag.desc())
+    )
+
+    events = SQLAlchemyORMPage(
+        events_query,
+        page=page_num,
+        items_per_page=25,
+        url_maker=paginate_url_factory(request),
+    )
+
+    if events.page_count and page_num > events.page_count:
+        raise HTTPNotFound
+
+    user_service = request.find_service(IUserService, context=None)
+
+    return {
+        "events": events,
+        "get_user": user_service.get_user,
+        "team": team,
+    }
 
 
 @view_config(
@@ -2828,7 +2973,7 @@ class ManageProjectSettingsViews:
         elif self.project.owners_require_2fa:
             self.project.owners_require_2fa = False
             self.project.record_event(
-                tag="project:owners_require_2fa:disabled",
+                tag=EventTag.Project.OwnersRequire2FADisabled,
                 ip_address=self.request.remote_addr,
                 additional={"modified_by": self.request.user.username},
             )
@@ -2839,7 +2984,7 @@ class ManageProjectSettingsViews:
         else:
             self.project.owners_require_2fa = True
             self.project.record_event(
-                tag="project:owners_require_2fa:enabled",
+                tag=EventTag.Project.OwnersRequire2FAEnabled,
                 ip_address=self.request.remote_addr,
                 additional={"modified_by": self.request.user.username},
             )
@@ -3016,7 +3161,7 @@ class ManageOIDCProviderViews:
             self.project.oidc_providers.append(provider)
 
             self.project.record_event(
-                tag="project:oidc:provider-added",
+                tag=EventTag.Project.OIDCProviderAdded,
                 ip_address=self.request.remote_addr,
                 additional={
                     "provider": provider.provider_name,
@@ -3082,7 +3227,7 @@ class ManageOIDCProviderViews:
             self.project.oidc_providers.remove(provider)
 
             self.project.record_event(
-                tag="project:oidc:provider-removed",
+                tag=EventTag.Project.OIDCProviderRemoved,
                 ip_address=self.request.remote_addr,
                 additional={
                     "provider": provider.provider_name,
@@ -3151,7 +3296,7 @@ def remove_organization_project(project, request):
     if organization := project.organization:
         organization_service.delete_organization_project(organization.id, project.id)
         organization.record_event(
-            tag="organization:organization_project:remove",
+            tag=EventTag.Organization.OrganizationProjectRemove,
             ip_address=request.remote_addr,
             additional={
                 "submitted_by_user_id": str(request.user.id),
@@ -3159,7 +3304,7 @@ def remove_organization_project(project, request):
             },
         )
         project.record_event(
-            tag="project:organization_project:remove",
+            tag=EventTag.Project.OrganizationProjectRemove,
             ip_address=request.remote_addr,
             additional={
                 "submitted_by_user_id": str(request.user.id),
@@ -3286,7 +3431,7 @@ def transfer_organization_project(project, request):
             )
         )
         project.record_event(
-            tag="project:role:delete",
+            tag=EventTag.Project.RoleRemove,
             ip_address=request.remote_addr,
             additional={
                 "submitted_by": request.user.username,
@@ -3300,7 +3445,7 @@ def transfer_organization_project(project, request):
     if organization := project.organization:
         organization_service.delete_organization_project(organization.id, project.id)
         organization.record_event(
-            tag="organization:organization_project:remove",
+            tag=EventTag.Organization.OrganizationProjectRemove,
             ip_address=request.remote_addr,
             additional={
                 "submitted_by_user_id": str(request.user.id),
@@ -3308,7 +3453,7 @@ def transfer_organization_project(project, request):
             },
         )
         project.record_event(
-            tag="project:organization_project:remove",
+            tag=EventTag.Project.OrganizationProjectRemove,
             ip_address=request.remote_addr,
             additional={
                 "submitted_by_user_id": str(request.user.id),
@@ -3331,7 +3476,7 @@ def transfer_organization_project(project, request):
     organization = organization_service.get_organization_by_name(form.organization.data)
     organization_service.add_organization_project(organization.id, project.id)
     organization.record_event(
-        tag="organization:organization_project:add",
+        tag=EventTag.Organization.OrganizationProjectAdd,
         ip_address=request.remote_addr,
         additional={
             "submitted_by_user_id": str(request.user.id),
@@ -3339,7 +3484,7 @@ def transfer_organization_project(project, request):
         },
     )
     project.record_event(
-        tag="project:organization_project:add",
+        tag=EventTag.Project.OrganizationProjectAdd,
         ip_address=request.remote_addr,
         additional={
             "submitted_by_user_id": str(request.user.id),
@@ -3592,7 +3737,7 @@ class ManageProjectRelease:
         )
 
         self.release.project.record_event(
-            tag="project:release:yank",
+            tag=EventTag.Project.ReleaseYank,
             ip_address=self.request.remote_addr,
             additional={
                 "submitted_by": self.request.user.username,
@@ -3674,7 +3819,7 @@ class ManageProjectRelease:
         )
 
         self.release.project.record_event(
-            tag="project:release:unyank",
+            tag=EventTag.Project.ReleaseUnyank,
             ip_address=self.request.remote_addr,
             additional={
                 "submitted_by": self.request.user.username,
@@ -3771,7 +3916,7 @@ class ManageProjectRelease:
         )
 
         self.release.project.record_event(
-            tag="project:release:remove",
+            tag=EventTag.Project.ReleaseRemove,
             ip_address=self.request.remote_addr,
             additional={
                 "submitted_by": self.request.user.username,
@@ -3862,7 +4007,7 @@ class ManageProjectRelease:
         )
 
         self.release.project.record_event(
-            tag="project:release:file:remove",
+            tag=EventTag.Project.ReleaseFileRemove,
             ip_address=self.request.remote_addr,
             additional={
                 "submitted_by": self.request.user.username,
@@ -4019,7 +4164,7 @@ def manage_project_roles(project, request, _form_class=CreateRoleForm):
 
         # Record events.
         project.record_event(
-            tag="project:team_project_role:create",
+            tag=EventTag.Project.TeamProjectRoleAdd,
             ip_address=request.remote_addr,
             additional={
                 "submitted_by_user_id": str(request.user.id),
@@ -4028,7 +4173,7 @@ def manage_project_roles(project, request, _form_class=CreateRoleForm):
             },
         )
         team.organization.record_event(
-            tag="organization:team_project_role:create",
+            tag=EventTag.Organization.TeamProjectRoleAdd,
             ip_address=request.remote_addr,
             additional={
                 "submitted_by_user_id": str(request.user.id),
@@ -4038,7 +4183,7 @@ def manage_project_roles(project, request, _form_class=CreateRoleForm):
             },
         )
         team.record_event(
-            tag="team:team_project_role:create",
+            tag=EventTag.Team.TeamProjectRoleAdd,
             ip_address=request.remote_addr,
             additional={
                 "submitted_by_user_id": str(request.user.id),
@@ -4131,7 +4276,7 @@ def manage_project_roles(project, request, _form_class=CreateRoleForm):
 
         # Record events.
         project.record_event(
-            tag="project:role:create",
+            tag=EventTag.Project.RoleAdd,
             ip_address=request.remote_addr,
             additional={
                 "submitted_by": request.user.username,
@@ -4140,7 +4285,7 @@ def manage_project_roles(project, request, _form_class=CreateRoleForm):
             },
         )
         user.record_event(
-            tag="account:role:create",
+            tag=EventTag.Account.RoleAdd,
             ip_address=request.remote_addr,
             additional={
                 "submitted_by": request.user.username,
@@ -4264,7 +4409,7 @@ def manage_project_roles(project, request, _form_class=CreateRoleForm):
                 token_age=token_service.max_age,
             )
             project.record_event(
-                tag="project:role:invite",
+                tag=EventTag.Project.RoleInvite,
                 ip_address=request.remote_addr,
                 additional={
                     "submitted_by": request.user.username,
@@ -4273,12 +4418,12 @@ def manage_project_roles(project, request, _form_class=CreateRoleForm):
                 },
             )
             user.record_event(
-                tag="account:role:invite",
+                tag=EventTag.Account.RoleInvite,
                 ip_address=request.remote_addr,
                 additional={
                     "submitted_by": request.user.username,
+                    "project_name": project.name,
                     "role_name": role_name,
-                    "target_user": username,
                 },
             )
             request.db.flush()  # in order to get id
@@ -4342,12 +4487,21 @@ def revoke_project_role_invitation(project, request, _form_class=ChangeRoleForm)
         )
     )
     project.record_event(
-        tag="project:role:revoke_invite",
+        tag=EventTag.Project.RoleRevokeInvite,
         ip_address=request.remote_addr,
         additional={
             "submitted_by": request.user.username,
             "role_name": role_name,
             "target_user": user.username,
+        },
+    )
+    user.record_event(
+        tag=EventTag.Account.RoleRevokeInvite,
+        ip_address=request.remote_addr,
+        additional={
+            "submitted_by": request.user.username,
+            "project_name": project.name,
+            "role_name": role_name,
         },
     )
     request.session.flash(
@@ -4399,12 +4553,21 @@ def change_project_role(project, request, _form_class=ChangeRoleForm):
                 )
                 role.role_name = form.role_name.data
                 project.record_event(
-                    tag="project:role:change",
+                    tag=EventTag.Project.RoleChange,
                     ip_address=request.remote_addr,
                     additional={
                         "submitted_by": request.user.username,
                         "role_name": form.role_name.data,
                         "target_user": role.user.username,
+                    },
+                )
+                role.user.record_event(
+                    tag=EventTag.Account.RoleChange,
+                    ip_address=request.remote_addr,
+                    additional={
+                        "submitted_by": request.user.username,
+                        "project_name": project.name,
+                        "role_name": form.role_name.data,
                     },
                 )
 
@@ -4474,7 +4637,7 @@ def delete_project_role(project, request):
                 )
             )
             project.record_event(
-                tag="project:role:delete",
+                tag=EventTag.Project.RoleRemove,
                 ip_address=request.remote_addr,
                 additional={
                     "submitted_by": request.user.username,
@@ -4562,7 +4725,7 @@ def change_team_project_role(project, request, _form_class=ChangeTeamProjectRole
 
                 # Record events.
                 project.record_event(
-                    tag="project:team_project_role:change",
+                    tag=EventTag.Project.TeamProjectRoleChange,
                     ip_address=request.remote_addr,
                     additional={
                         "submitted_by_user_id": str(request.user.id),
@@ -4571,7 +4734,7 @@ def change_team_project_role(project, request, _form_class=ChangeTeamProjectRole
                     },
                 )
                 role.team.organization.record_event(
-                    tag="organization:team_project_role:change",
+                    tag=EventTag.Organization.TeamProjectRoleChange,
                     ip_address=request.remote_addr,
                     additional={
                         "submitted_by_user_id": str(request.user.id),
@@ -4581,7 +4744,7 @@ def change_team_project_role(project, request, _form_class=ChangeTeamProjectRole
                     },
                 )
                 role.team.record_event(
-                    tag="team:team_project_role:change",
+                    tag=EventTag.Team.TeamProjectRoleChange,
                     ip_address=request.remote_addr,
                     additional={
                         "submitted_by_user_id": str(request.user.id),
@@ -4665,7 +4828,7 @@ def delete_team_project_role(project, request):
 
             # Record event.
             project.record_event(
-                tag="project:team_project_role:delete",
+                tag=EventTag.Project.TeamProjectRoleRemove,
                 ip_address=request.remote_addr,
                 additional={
                     "submitted_by_user_id": str(request.user.id),
@@ -4674,7 +4837,7 @@ def delete_team_project_role(project, request):
                 },
             )
             team.organization.record_event(
-                tag="organization:team_project_role:delete",
+                tag=EventTag.Organization.TeamProjectRoleRemove,
                 ip_address=request.remote_addr,
                 additional={
                     "submitted_by_user_id": str(request.user.id),
@@ -4684,7 +4847,7 @@ def delete_team_project_role(project, request):
                 },
             )
             team.record_event(
-                tag="team:team_project_role:delete",
+                tag=EventTag.Team.TeamProjectRoleRemove,
                 ip_address=request.remote_addr,
                 additional={
                     "submitted_by_user_id": str(request.user.id),
@@ -4753,7 +4916,13 @@ def manage_project_history(project, request):
     if events.page_count and page_num > events.page_count:
         raise HTTPNotFound
 
-    return {"project": project, "events": events}
+    user_service = request.find_service(IUserService, context=None)
+
+    return {
+        "events": events,
+        "get_user": user_service.get_user,
+        "project": project,
+    }
 
 
 @view_config(

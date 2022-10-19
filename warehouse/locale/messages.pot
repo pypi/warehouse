@@ -8,249 +8,249 @@ msgstr ""
 msgid "Locale updated"
 msgstr ""
 
-#: warehouse/accounts/forms.py:53
+#: warehouse/accounts/forms.py:54
 msgid "No user found with that username"
 msgstr ""
 
-#: warehouse/accounts/forms.py:64
+#: warehouse/accounts/forms.py:65
 msgid "TOTP code must be ${totp_length} digits."
 msgstr ""
 
-#: warehouse/accounts/forms.py:91
+#: warehouse/accounts/forms.py:92
 msgid "Choose a username with 50 characters or less."
 msgstr ""
 
-#: warehouse/accounts/forms.py:97
+#: warehouse/accounts/forms.py:98
 msgid ""
 "The username is invalid. Usernames must be composed of letters, numbers, "
 "dots, hyphens and underscores. And must also start and finish with a "
 "letter or number. Choose a different username."
 msgstr ""
 
-#: warehouse/accounts/forms.py:114
+#: warehouse/accounts/forms.py:115
 msgid ""
 "This username is already being used by another account. Choose a "
 "different username."
 msgstr ""
 
-#: warehouse/accounts/forms.py:128 warehouse/accounts/forms.py:174
-#: warehouse/accounts/forms.py:187
+#: warehouse/accounts/forms.py:129 warehouse/accounts/forms.py:175
+#: warehouse/accounts/forms.py:188
 msgid "Password too long."
 msgstr ""
 
-#: warehouse/accounts/forms.py:156
+#: warehouse/accounts/forms.py:157
 msgid "The password is invalid. Try again."
 msgstr ""
 
-#: warehouse/accounts/forms.py:160 warehouse/accounts/views.py:87
+#: warehouse/accounts/forms.py:161 warehouse/accounts/views.py:88
 msgid "There have been too many unsuccessful login attempts. Try again later."
 msgstr ""
 
-#: warehouse/accounts/forms.py:190
+#: warehouse/accounts/forms.py:191
 msgid "Your passwords don't match. Try again."
 msgstr ""
 
-#: warehouse/accounts/forms.py:221 warehouse/accounts/forms.py:232
+#: warehouse/accounts/forms.py:222 warehouse/accounts/forms.py:233
 msgid "The email address isn't valid. Try again."
 msgstr ""
 
-#: warehouse/accounts/forms.py:240
+#: warehouse/accounts/forms.py:241
 msgid "You can't use an email address from this domain. Use a different email."
 msgstr ""
 
-#: warehouse/accounts/forms.py:251
+#: warehouse/accounts/forms.py:252
 msgid ""
 "This email address is already being used by this account. Use a different"
 " email."
 msgstr ""
 
-#: warehouse/accounts/forms.py:258
+#: warehouse/accounts/forms.py:259
 msgid ""
 "This email address is already being used by another account. Use a "
 "different email."
 msgstr ""
 
-#: warehouse/accounts/forms.py:280 warehouse/manage/forms.py:140
+#: warehouse/accounts/forms.py:281 warehouse/manage/forms.py:140
 msgid "The name is too long. Choose a name with 100 characters or less."
 msgstr ""
 
-#: warehouse/accounts/forms.py:349
+#: warehouse/accounts/forms.py:350
 msgid "Invalid TOTP code."
 msgstr ""
 
-#: warehouse/accounts/forms.py:366
+#: warehouse/accounts/forms.py:367
 msgid "Invalid WebAuthn assertion: Bad payload"
 msgstr ""
 
-#: warehouse/accounts/forms.py:424
+#: warehouse/accounts/forms.py:425
 msgid "Invalid recovery code."
 msgstr ""
 
-#: warehouse/accounts/forms.py:432
+#: warehouse/accounts/forms.py:433
 msgid "Recovery code has been previously used."
 msgstr ""
 
-#: warehouse/accounts/forms.py:451
+#: warehouse/accounts/forms.py:452
 msgid "No user found with that username or email"
 msgstr ""
 
-#: warehouse/accounts/views.py:104
+#: warehouse/accounts/views.py:105
 msgid ""
 "Too many emails have been added to this account without verifying them. "
 "Check your inbox and follow the verification links. (IP: ${ip})"
 msgstr ""
 
-#: warehouse/accounts/views.py:116
+#: warehouse/accounts/views.py:117
 msgid ""
 "Too many password resets have been requested for this account without "
 "completing them. Check your inbox and follow the verification links. (IP:"
 " ${ip})"
 msgstr ""
 
-#: warehouse/accounts/views.py:256 warehouse/accounts/views.py:320
-#: warehouse/accounts/views.py:322 warehouse/accounts/views.py:349
-#: warehouse/accounts/views.py:351 warehouse/accounts/views.py:417
+#: warehouse/accounts/views.py:257 warehouse/accounts/views.py:321
+#: warehouse/accounts/views.py:323 warehouse/accounts/views.py:350
+#: warehouse/accounts/views.py:352 warehouse/accounts/views.py:418
 msgid "Invalid or expired two factor login."
 msgstr ""
 
-#: warehouse/accounts/views.py:314
+#: warehouse/accounts/views.py:315
 msgid "Already authenticated"
 msgstr ""
 
-#: warehouse/accounts/views.py:393
+#: warehouse/accounts/views.py:394
 msgid "Successful WebAuthn assertion"
 msgstr ""
 
-#: warehouse/accounts/views.py:447 warehouse/manage/views.py:954
+#: warehouse/accounts/views.py:448 warehouse/manage/views.py:956
 msgid "Recovery code accepted. The supplied code cannot be used again."
 msgstr ""
 
-#: warehouse/accounts/views.py:533
+#: warehouse/accounts/views.py:534
 msgid ""
 "New user registration temporarily disabled. See https://pypi.org/help"
 "#admin-intervention for details."
 msgstr ""
 
-#: warehouse/accounts/views.py:653
+#: warehouse/accounts/views.py:654
 msgid "Expired token: request a new password reset link"
 msgstr ""
 
-#: warehouse/accounts/views.py:655
+#: warehouse/accounts/views.py:656
 msgid "Invalid token: request a new password reset link"
 msgstr ""
 
-#: warehouse/accounts/views.py:657 warehouse/accounts/views.py:756
-#: warehouse/accounts/views.py:855 warehouse/accounts/views.py:1024
+#: warehouse/accounts/views.py:658 warehouse/accounts/views.py:757
+#: warehouse/accounts/views.py:856 warehouse/accounts/views.py:1025
 msgid "Invalid token: no token supplied"
 msgstr ""
 
-#: warehouse/accounts/views.py:661
+#: warehouse/accounts/views.py:662
 msgid "Invalid token: not a password reset token"
 msgstr ""
 
-#: warehouse/accounts/views.py:666
+#: warehouse/accounts/views.py:667
 msgid "Invalid token: user not found"
 msgstr ""
 
-#: warehouse/accounts/views.py:677
+#: warehouse/accounts/views.py:678
 msgid "Invalid token: user has logged in since this token was requested"
 msgstr ""
 
-#: warehouse/accounts/views.py:695
+#: warehouse/accounts/views.py:696
 msgid ""
 "Invalid token: password has already been changed since this token was "
 "requested"
 msgstr ""
 
-#: warehouse/accounts/views.py:724
+#: warehouse/accounts/views.py:725
 msgid "You have reset your password"
 msgstr ""
 
-#: warehouse/accounts/views.py:752
+#: warehouse/accounts/views.py:753
 msgid "Expired token: request a new email verification link"
 msgstr ""
 
-#: warehouse/accounts/views.py:754
+#: warehouse/accounts/views.py:755
 msgid "Invalid token: request a new email verification link"
 msgstr ""
 
-#: warehouse/accounts/views.py:760
+#: warehouse/accounts/views.py:761
 msgid "Invalid token: not an email verification token"
 msgstr ""
 
-#: warehouse/accounts/views.py:769
+#: warehouse/accounts/views.py:770
 msgid "Email not found"
 msgstr ""
 
-#: warehouse/accounts/views.py:772
+#: warehouse/accounts/views.py:773
 msgid "Email already verified"
 msgstr ""
 
-#: warehouse/accounts/views.py:789
+#: warehouse/accounts/views.py:790
 msgid "You can now set this email as your primary address"
 msgstr ""
 
-#: warehouse/accounts/views.py:793
+#: warehouse/accounts/views.py:794
 msgid "This is your primary address"
 msgstr ""
 
-#: warehouse/accounts/views.py:798
+#: warehouse/accounts/views.py:799
 msgid "Email address ${email_address} verified. ${confirm_message}."
 msgstr ""
 
-#: warehouse/accounts/views.py:851
+#: warehouse/accounts/views.py:852
 msgid "Expired token: request a new organization invitation"
 msgstr ""
 
-#: warehouse/accounts/views.py:853
+#: warehouse/accounts/views.py:854
 msgid "Invalid token: request a new organization invitation"
 msgstr ""
 
-#: warehouse/accounts/views.py:859
+#: warehouse/accounts/views.py:860
 msgid "Invalid token: not an organization invitation token"
 msgstr ""
 
-#: warehouse/accounts/views.py:863
+#: warehouse/accounts/views.py:864
 msgid "Organization invitation is not valid."
 msgstr ""
 
-#: warehouse/accounts/views.py:872
+#: warehouse/accounts/views.py:873
 msgid "Organization invitation no longer exists."
 msgstr ""
 
-#: warehouse/accounts/views.py:923
+#: warehouse/accounts/views.py:924
 msgid "Invitation for '${organization_name}' is declined."
 msgstr ""
 
-#: warehouse/accounts/views.py:986
+#: warehouse/accounts/views.py:987
 msgid "You are now ${role} of the '${organization_name}' organization."
 msgstr ""
 
-#: warehouse/accounts/views.py:1020
+#: warehouse/accounts/views.py:1021
 msgid "Expired token: request a new project role invitation"
 msgstr ""
 
-#: warehouse/accounts/views.py:1022
+#: warehouse/accounts/views.py:1023
 msgid "Invalid token: request a new project role invitation"
 msgstr ""
 
-#: warehouse/accounts/views.py:1028
+#: warehouse/accounts/views.py:1029
 msgid "Invalid token: not a collaboration invitation token"
 msgstr ""
 
-#: warehouse/accounts/views.py:1032
+#: warehouse/accounts/views.py:1033
 msgid "Role invitation is not valid."
 msgstr ""
 
-#: warehouse/accounts/views.py:1047
+#: warehouse/accounts/views.py:1048
 msgid "Role invitation no longer exists."
 msgstr ""
 
-#: warehouse/accounts/views.py:1059
+#: warehouse/accounts/views.py:1079
 msgid "Invitation for '${project_name}' is declined."
 msgstr ""
 
-#: warehouse/accounts/views.py:1126
+#: warehouse/accounts/views.py:1146
 msgid "You are now ${role} of the '${project_name}' project."
 msgstr ""
 
@@ -312,87 +312,87 @@ msgid ""
 "description with 400 characters or less."
 msgstr ""
 
-#: warehouse/manage/forms.py:630
+#: warehouse/manage/forms.py:629
 msgid "Choose a team name with 50 characters or less."
 msgstr ""
 
-#: warehouse/manage/forms.py:636
+#: warehouse/manage/forms.py:635
 msgid ""
 "The team name is invalid. Team names cannot start or end with a space, "
 "period, underscore, hyphen, or slash. Choose a different team name."
 msgstr ""
 
-#: warehouse/manage/forms.py:664
+#: warehouse/manage/forms.py:663
 msgid "This team name has already been used. Choose a different team name."
 msgstr ""
 
-#: warehouse/manage/views.py:367
+#: warehouse/manage/views.py:369
 msgid "Email ${email_address} added - check your email for a verification link"
 msgstr ""
 
-#: warehouse/manage/views.py:902
+#: warehouse/manage/views.py:904
 msgid "Recovery codes already generated"
 msgstr ""
 
-#: warehouse/manage/views.py:903
+#: warehouse/manage/views.py:905
 msgid "Generating new recovery codes will invalidate your existing codes."
 msgstr ""
 
-#: warehouse/manage/views.py:1982
+#: warehouse/manage/views.py:2009
 msgid "User '${username}' already has ${role_name} role for organization"
 msgstr ""
 
-#: warehouse/manage/views.py:1993
+#: warehouse/manage/views.py:2020
 msgid ""
 "User '${username}' does not have a verified primary email address and "
 "cannot be added as a ${role_name} for organization"
 msgstr ""
 
-#: warehouse/manage/views.py:2007 warehouse/manage/views.py:4219
+#: warehouse/manage/views.py:2034 warehouse/manage/views.py:4364
 msgid "User '${username}' already has an active invite. Please try again later."
 msgstr ""
 
-#: warehouse/manage/views.py:2064 warehouse/manage/views.py:4286
+#: warehouse/manage/views.py:2100 warehouse/manage/views.py:4431
 msgid "Invitation sent to '${username}'"
 msgstr ""
 
-#: warehouse/manage/views.py:2110
+#: warehouse/manage/views.py:2146
 msgid "Could not find organization invitation."
 msgstr ""
 
-#: warehouse/manage/views.py:2124 warehouse/manage/views.py:4330
+#: warehouse/manage/views.py:2160 warehouse/manage/views.py:4475
 msgid "Invitation already expired."
 msgstr ""
 
-#: warehouse/manage/views.py:2157 warehouse/manage/views.py:4354
+#: warehouse/manage/views.py:2202 warehouse/manage/views.py:4508
 msgid "Invitation revoked from '${username}'."
 msgstr ""
 
-#: warehouse/manage/views.py:2964
+#: warehouse/manage/views.py:3109
 msgid ""
 "There have been too many attempted OpenID Connect registrations. Try "
 "again later."
 msgstr ""
 
-#: warehouse/manage/views.py:3996
+#: warehouse/manage/views.py:4141
 msgid "Team '${team_name}' already has ${role_name} role for project"
 msgstr ""
 
-#: warehouse/manage/views.py:4104
+#: warehouse/manage/views.py:4249
 msgid "User '${username}' already has ${role_name} role for project"
 msgstr ""
 
-#: warehouse/manage/views.py:4173
+#: warehouse/manage/views.py:4318
 msgid "${username} is now ${role} of the '${project_name}' project."
 msgstr ""
 
-#: warehouse/manage/views.py:4206
+#: warehouse/manage/views.py:4351
 msgid ""
 "User '${username}' does not have a verified primary email address and "
 "cannot be added as a ${role_name} for project"
 msgstr ""
 
-#: warehouse/manage/views.py:4319
+#: warehouse/manage/views.py:4464
 msgid "Could not find role invitation."
 msgstr ""
 
@@ -738,8 +738,8 @@ msgstr ""
 #: warehouse/templates/manage/account.html:716
 #: warehouse/templates/manage/manage_base.html:305
 #: warehouse/templates/manage/manage_base.html:364
-#: warehouse/templates/manage/organization/settings.html:186
-#: warehouse/templates/manage/organization/settings.html:241
+#: warehouse/templates/manage/organization/settings.html:193
+#: warehouse/templates/manage/organization/settings.html:248
 #: warehouse/templates/manage/project/documentation.html:27
 #: warehouse/templates/manage/project/release.html:182
 #: warehouse/templates/manage/project/settings.html:126
@@ -1735,6 +1735,7 @@ msgstr ""
 #: warehouse/templates/email/organization-project-added/body.html:24
 #: warehouse/templates/email/organization-project-removed/body.html:24
 #: warehouse/templates/email/organization-renamed/body.html:31
+#: warehouse/templates/email/organization-updated/body.html:69
 #, python-format
 msgid ""
 "If this was a mistake, you can email <a "
@@ -1787,6 +1788,7 @@ msgstr ""
 #: warehouse/templates/email/organization-member-removed/body.html:43
 #: warehouse/templates/email/organization-member-role-changed/body.html:44
 #: warehouse/templates/email/organization-renamed/body.html:37
+#: warehouse/templates/email/organization-updated/body.html:75
 msgid "You are receiving this because you are an owner of this organization."
 msgstr ""
 
@@ -1861,6 +1863,43 @@ msgstr ""
 msgid ""
 "The %(site)s project \"%(project_name)s\" has been removed from the "
 "\"%(organization_name)s\" organization."
+msgstr ""
+
+#: warehouse/templates/email/organization-updated/body.html:31
+#, python-format
+msgid "The %(site)s organization \"%(organization_name)s\" has been updated."
+msgstr ""
+
+#: warehouse/templates/email/organization-updated/body.html:36
+msgid "Old display name:"
+msgstr ""
+
+#: warehouse/templates/email/organization-updated/body.html:39
+msgid "New display name:"
+msgstr ""
+
+#: warehouse/templates/email/organization-updated/body.html:44
+msgid "Old URL:"
+msgstr ""
+
+#: warehouse/templates/email/organization-updated/body.html:47
+msgid "New URL:"
+msgstr ""
+
+#: warehouse/templates/email/organization-updated/body.html:52
+msgid "Old description:"
+msgstr ""
+
+#: warehouse/templates/email/organization-updated/body.html:55
+msgid "New description:"
+msgstr ""
+
+#: warehouse/templates/email/organization-updated/body.html:60
+msgid "Old organization type:"
+msgstr ""
+
+#: warehouse/templates/email/organization-updated/body.html:63
+msgid "New organization type:"
 msgstr ""
 
 #: warehouse/templates/email/password-change/body.html:18
@@ -2466,9 +2505,19 @@ msgstr ""
 msgid "Teams"
 msgstr ""
 
-#: warehouse/templates/includes/manage/manage-organization-menu.html:40
+#: warehouse/templates/includes/manage/manage-organization-menu.html:41
+#: warehouse/templates/includes/manage/manage-project-menu.html:37
+#: warehouse/templates/includes/manage/manage-team-menu.html:34
+#: warehouse/templates/manage/account.html:459
+#: warehouse/templates/manage/organization/history.html:23
+#: warehouse/templates/manage/project/history.html:23
+#: warehouse/templates/manage/team/history.html:23
+msgid "Security history"
+msgstr ""
+
+#: warehouse/templates/includes/manage/manage-organization-menu.html:48
 #: warehouse/templates/includes/manage/manage-project-menu.html:59
-#: warehouse/templates/includes/manage/manage-team-menu.html:33
+#: warehouse/templates/includes/manage/manage-team-menu.html:41
 msgid "Settings"
 msgstr ""
 
@@ -2486,12 +2535,6 @@ msgstr ""
 #: warehouse/templates/includes/manage/manage-project-menu.html:26
 #: warehouse/templates/manage/project/roles.html:36
 msgid "Collaborators"
-msgstr ""
-
-#: warehouse/templates/includes/manage/manage-project-menu.html:37
-#: warehouse/templates/manage/account.html:459
-#: warehouse/templates/manage/project/history.html:23
-msgid "Security history"
 msgstr ""
 
 #: warehouse/templates/includes/manage/manage-project-menu.html:44
@@ -2915,7 +2958,7 @@ msgstr ""
 
 #: warehouse/templates/manage/account.html:504
 #: warehouse/templates/manage/account.html:523
-#: warehouse/templates/manage/project/history.html:84
+#: warehouse/templates/manage/project/history.html:182
 msgid "Reason:"
 msgstr ""
 
@@ -3045,19 +3088,19 @@ msgid "Recovery code used for login"
 msgstr ""
 
 #: warehouse/templates/manage/account.html:609
-#: warehouse/templates/manage/project/history.html:65
+#: warehouse/templates/manage/project/history.html:168
 msgid "API token added"
 msgstr ""
 
 #: warehouse/templates/manage/account.html:611
 #: warehouse/templates/manage/account.html:634
-#: warehouse/templates/manage/project/history.html:69
-#: warehouse/templates/manage/project/history.html:76
+#: warehouse/templates/manage/project/history.html:173
+#: warehouse/templates/manage/project/history.html:180
 msgid "Token name:"
 msgstr ""
 
 #: warehouse/templates/manage/account.html:628
-#: warehouse/templates/manage/project/history.html:72
+#: warehouse/templates/manage/project/history.html:175
 msgid "API token removed"
 msgstr ""
 
@@ -3088,21 +3131,25 @@ msgid "Recent account activity"
 msgstr ""
 
 #: warehouse/templates/manage/account.html:657
-#: warehouse/templates/manage/project/history.html:107
+#: warehouse/templates/manage/organization/history.html:196
+#: warehouse/templates/manage/project/history.html:217
+#: warehouse/templates/manage/team/history.html:108
 msgid "Event"
 msgstr ""
 
 #: warehouse/templates/manage/account.html:658
 #: warehouse/templates/manage/account.html:666
-#: warehouse/templates/manage/project/history.html:108
-#: warehouse/templates/manage/project/history.html:117
 msgid "Date / time"
 msgstr ""
 
 #: warehouse/templates/manage/account.html:659
 #: warehouse/templates/manage/account.html:670
-#: warehouse/templates/manage/project/history.html:109
-#: warehouse/templates/manage/project/history.html:121
+#: warehouse/templates/manage/organization/history.html:198
+#: warehouse/templates/manage/organization/history.html:210
+#: warehouse/templates/manage/project/history.html:219
+#: warehouse/templates/manage/project/history.html:231
+#: warehouse/templates/manage/team/history.html:110
+#: warehouse/templates/manage/team/history.html:122
 msgid "IP address"
 msgstr ""
 
@@ -3148,7 +3195,7 @@ msgstr[0] ""
 msgstr[1] ""
 
 #: warehouse/templates/manage/account.html:705
-#: warehouse/templates/manage/organization/settings.html:230
+#: warehouse/templates/manage/organization/settings.html:237
 #, python-format
 msgid ""
 "<a href=\"%(transfer_href)s\">transfer ownership</a> or <a "
@@ -3157,8 +3204,8 @@ msgstr ""
 
 #: warehouse/templates/manage/account.html:714
 #: warehouse/templates/manage/account/token.html:166
-#: warehouse/templates/manage/organization/settings.html:184
-#: warehouse/templates/manage/organization/settings.html:239
+#: warehouse/templates/manage/organization/settings.html:191
+#: warehouse/templates/manage/organization/settings.html:246
 #: warehouse/templates/manage/team/settings.html:75
 msgid "Proceed with caution!"
 msgstr ""
@@ -3437,7 +3484,7 @@ msgstr ""
 msgid "Decline invitation"
 msgstr ""
 
-#: warehouse/templates/manage/organization/settings.html:244
+#: warehouse/templates/manage/organization/settings.html:251
 #: warehouse/templates/manage/organizations.html:54
 msgid "Organization Name"
 msgstr ""
@@ -3562,7 +3609,7 @@ msgstr ""
 
 #: warehouse/templates/manage/organization/settings.html:48
 #: warehouse/templates/manage/organizations.html:180
-msgid "Organization name"
+msgid "Organization display name"
 msgstr ""
 
 #: warehouse/templates/manage/organization/settings.html:54
@@ -4043,6 +4090,233 @@ msgid ""
 "billing information to enable the account."
 msgstr ""
 
+#: warehouse/templates/manage/organization/history.html:20
+#: warehouse/templates/manage/project/history.html:20
+#: warehouse/templates/manage/team/history.html:20
+#, python-format
+msgid "'%(source_name)s' security history"
+msgstr ""
+
+#: warehouse/templates/manage/organization/history.html:25
+msgid ""
+"Each time you (or your collaborators) perform a security action related "
+"to this organization, the action is recorded and displayed here."
+msgstr ""
+
+#: warehouse/templates/manage/organization/history.html:32
+#, python-format
+msgid "'%(organization_name)s' registered as organization name"
+msgstr ""
+
+#: warehouse/templates/manage/organization/history.html:36
+#, python-format
+msgid "%(organization_name)s organization created"
+msgstr ""
+
+#: warehouse/templates/manage/organization/history.html:38
+#, python-format
+msgid "%(organization_name)s organization deleted"
+msgstr ""
+
+#: warehouse/templates/manage/organization/history.html:40
+#, python-format
+msgid ""
+"%(previous_organization_name)s organization renamed to "
+"%(organization_name)s"
+msgstr ""
+
+#: warehouse/templates/manage/organization/history.html:42
+#, python-format
+msgid "%(organization_name)s organization approved"
+msgstr ""
+
+#: warehouse/templates/manage/organization/history.html:44
+#, python-format
+msgid "%(organization_name)s organization declined"
+msgstr ""
+
+#: warehouse/templates/manage/organization/history.html:49
+#, python-format
+msgid "<a href=\"%(href)s\">%(project_name)s</a> project added to organization"
+msgstr ""
+
+#: warehouse/templates/manage/organization/history.html:53
+#, python-format
+msgid ""
+"<a href=\"%(href)s\">%(project_name)s</a> project removed from "
+"organization"
+msgstr ""
+
+#: warehouse/templates/manage/organization/history.html:60
+#, python-format
+msgid "<a href=\"%(href)s\">%(username)s</a> added as organization %(role_name)s"
+msgstr ""
+
+#: warehouse/templates/manage/organization/history.html:65
+#, python-format
+msgid ""
+"<a href=\"%(href)s\">%(username)s</a> removed as organization "
+"%(role_name)s"
+msgstr ""
+
+#: warehouse/templates/manage/organization/history.html:70
+#, python-format
+msgid ""
+"<a href=\"%(href)s\">%(username)s</a> changed to organization "
+"%(role_name)s"
+msgstr ""
+
+#: warehouse/templates/manage/organization/history.html:75
+#, python-format
+msgid ""
+"<a href=\"%(href)s\">%(username)s</a> invited to join as organization "
+"%(role_name)s"
+msgstr ""
+
+#: warehouse/templates/manage/organization/history.html:80
+#, python-format
+msgid ""
+"<a href=\"%(href)s\">%(username)s</a> declined invitation to join as "
+"organization %(role_name)s"
+msgstr ""
+
+#: warehouse/templates/manage/organization/history.html:85
+#, python-format
+msgid ""
+"Revoked invitation for <a href=\"%(href)s\">%(username)s</a> to join as "
+"organization %(role_name)s"
+msgstr ""
+
+#: warehouse/templates/manage/organization/history.html:90
+#: warehouse/templates/manage/team/history.html:32
+#, python-format
+msgid "%(team_name)s team created"
+msgstr ""
+
+#: warehouse/templates/manage/organization/history.html:92
+#: warehouse/templates/manage/team/history.html:34
+#, python-format
+msgid "%(team_name)s team deleted"
+msgstr ""
+
+#: warehouse/templates/manage/organization/history.html:97
+#: warehouse/templates/manage/team/history.html:41
+#, python-format
+msgid ""
+"%(team_name)s team added as project %(role_name)s for <a "
+"href=\"%(href)s\">%(project_name)s</a>"
+msgstr ""
+
+#: warehouse/templates/manage/organization/history.html:101
+#: warehouse/templates/manage/team/history.html:45
+#, python-format
+msgid ""
+"%(team_name)s team removed as project %(role_name)s for <a "
+"href=\"%(href)s\">%(project_name)s</a>"
+msgstr ""
+
+#: warehouse/templates/manage/organization/history.html:105
+#: warehouse/templates/manage/team/history.html:49
+#, python-format
+msgid ""
+"%(team_name)s team changed to project %(role_name)s for <a "
+"href=\"%(href)s\">%(project_name)s</a>"
+msgstr ""
+
+#: warehouse/templates/manage/organization/history.html:112
+#: warehouse/templates/manage/team/history.html:56
+#, python-format
+msgid "<a href=\"%(href)s\">%(username)s</a> added to %(team_name)s team"
+msgstr ""
+
+#: warehouse/templates/manage/organization/history.html:116
+#: warehouse/templates/manage/team/history.html:60
+#, python-format
+msgid "<a href=\"%(href)s\">%(username)s</a> removed from %(team_name)s team"
+msgstr ""
+
+#: warehouse/templates/manage/organization/history.html:127
+msgid "Registered by:"
+msgstr ""
+
+#: warehouse/templates/manage/organization/history.html:134
+#: warehouse/templates/manage/project/history.html:34
+#: warehouse/templates/manage/team/history.html:71
+msgid "Created by:"
+msgstr ""
+
+#: warehouse/templates/manage/organization/history.html:139
+#: warehouse/templates/manage/team/history.html:76
+msgid "Deleted by:"
+msgstr ""
+
+#: warehouse/templates/manage/organization/history.html:144
+#: warehouse/templates/manage/team/history.html:81
+msgid "Renamed by:"
+msgstr ""
+
+#: warehouse/templates/manage/organization/history.html:149
+msgid "Approved by:"
+msgstr ""
+
+#: warehouse/templates/manage/organization/history.html:154
+msgid "Declined by:"
+msgstr ""
+
+#: warehouse/templates/manage/organization/history.html:161
+#: warehouse/templates/manage/project/history.html:43
+#: warehouse/templates/manage/project/history.html:84
+#: warehouse/templates/manage/project/history.html:129
+#: warehouse/templates/manage/project/history.html:155
+#: warehouse/templates/manage/team/history.html:88
+msgid "Added by:"
+msgstr ""
+
+#: warehouse/templates/manage/organization/history.html:166
+#: warehouse/templates/manage/project/history.html:51
+#: warehouse/templates/manage/project/history.html:61
+#: warehouse/templates/manage/project/history.html:91
+#: warehouse/templates/manage/project/history.html:137
+#: warehouse/templates/manage/project/history.html:163
+#: warehouse/templates/manage/team/history.html:93
+msgid "Removed by:"
+msgstr ""
+
+#: warehouse/templates/manage/organization/history.html:171
+#: warehouse/templates/manage/project/history.html:98
+#: warehouse/templates/manage/project/history.html:145
+#: warehouse/templates/manage/team/history.html:98
+msgid "Changed by:"
+msgstr ""
+
+#: warehouse/templates/manage/organization/history.html:176
+#: warehouse/templates/manage/organization/history.html:181
+#: warehouse/templates/manage/project/history.html:105
+#: warehouse/templates/manage/project/history.html:112
+msgid "Invited by:"
+msgstr ""
+
+#: warehouse/templates/manage/organization/history.html:186
+#: warehouse/templates/manage/project/history.html:119
+msgid "Revoked by:"
+msgstr ""
+
+#: warehouse/templates/manage/organization/history.html:193
+#: warehouse/templates/manage/project/history.html:214
+#: warehouse/templates/manage/team/history.html:105
+#, python-format
+msgid "Security history for %(source_name)s"
+msgstr ""
+
+#: warehouse/templates/manage/organization/history.html:197
+#: warehouse/templates/manage/organization/history.html:206
+#: warehouse/templates/manage/project/history.html:218
+#: warehouse/templates/manage/project/history.html:227
+#: warehouse/templates/manage/team/history.html:109
+#: warehouse/templates/manage/team/history.html:118
+msgid "Time"
+msgstr ""
+
 #: warehouse/templates/manage/organization/manage_organization_base.html:20
 #, python-format
 msgid "Manage '%(organization_name)s'"
@@ -4285,55 +4559,64 @@ msgstr ""
 msgid "Date created"
 msgstr ""
 
-#: warehouse/templates/manage/organization/settings.html:152
+#: warehouse/templates/manage/organization/settings.html:150
+#, python-format
+msgid ""
+"If you need to convert your organization account from a Company account "
+"to a Community account, you can email <a "
+"href=\"mailto:%(email)s\">%(email)s</a> to communicate with %(site)s "
+"administrators."
+msgstr ""
+
+#: warehouse/templates/manage/organization/settings.html:159
 msgid "Update organization"
 msgstr ""
 
-#: warehouse/templates/manage/organization/settings.html:161
+#: warehouse/templates/manage/organization/settings.html:168
 msgid "Billing details"
 msgstr ""
 
-#: warehouse/templates/manage/organization/settings.html:163
+#: warehouse/templates/manage/organization/settings.html:170
 msgid "Billing status"
 msgstr ""
 
-#: warehouse/templates/manage/organization/settings.html:167
+#: warehouse/templates/manage/organization/settings.html:174
 msgid "Billing email"
 msgstr ""
 
-#: warehouse/templates/manage/organization/settings.html:172
+#: warehouse/templates/manage/organization/settings.html:179
 msgid "Manage billing"
 msgstr ""
 
-#: warehouse/templates/manage/organization/settings.html:182
-#: warehouse/templates/manage/organization/settings.html:203
+#: warehouse/templates/manage/organization/settings.html:189
+#: warehouse/templates/manage/organization/settings.html:210
 msgid "Change organization account name"
 msgstr ""
 
-#: warehouse/templates/manage/organization/settings.html:187
+#: warehouse/templates/manage/organization/settings.html:194
 msgid ""
 "You will not be able to revert to your current account name after you "
 "rename your organization."
 msgstr ""
 
-#: warehouse/templates/manage/organization/settings.html:203
+#: warehouse/templates/manage/organization/settings.html:210
 msgid "Change organization account name for"
 msgstr ""
 
-#: warehouse/templates/manage/organization/settings.html:203
+#: warehouse/templates/manage/organization/settings.html:210
 msgid "Current organization account name"
 msgstr ""
 
-#: warehouse/templates/manage/organization/settings.html:210
-#: warehouse/templates/manage/organization/settings.html:244
+#: warehouse/templates/manage/organization/settings.html:217
+#: warehouse/templates/manage/organization/settings.html:251
 msgid "Delete organization"
 msgstr ""
 
-#: warehouse/templates/manage/organization/settings.html:213
+#: warehouse/templates/manage/organization/settings.html:220
 msgid "Cannot delete organization"
 msgstr ""
 
-#: warehouse/templates/manage/organization/settings.html:215
+#: warehouse/templates/manage/organization/settings.html:222
 #, python-format
 msgid ""
 "\n"
@@ -4346,7 +4629,7 @@ msgid_plural ""
 msgstr[0] ""
 msgstr[1] ""
 
-#: warehouse/templates/manage/organization/settings.html:220
+#: warehouse/templates/manage/organization/settings.html:227
 msgid ""
 "\n"
 "          You must transfer ownership or delete this project before you "
@@ -4360,7 +4643,7 @@ msgid_plural ""
 msgstr[0] ""
 msgstr[1] ""
 
-#: warehouse/templates/manage/organization/settings.html:242
+#: warehouse/templates/manage/organization/settings.html:249
 msgid "You will not be able to recover your organization after you delete it."
 msgstr ""
 
@@ -4449,113 +4732,154 @@ msgstr ""
 msgid "Uploading new documentation is no longer supported"
 msgstr ""
 
-#: warehouse/templates/manage/project/history.html:20
-#, python-format
-msgid "'%(project_name)s' project history"
-msgstr ""
-
 #: warehouse/templates/manage/project/history.html:25
 msgid ""
 "Each time you (or your collaborators) perform a security action related "
 "to this project, the action is recorded and displayed here."
 msgstr ""
 
-#: warehouse/templates/manage/project/history.html:29
+#: warehouse/templates/manage/project/history.html:32
 msgid "Project created"
 msgstr ""
 
-#: warehouse/templates/manage/project/history.html:31
-msgid "Created by:"
-msgstr ""
-
-#: warehouse/templates/manage/project/history.html:34
+#: warehouse/templates/manage/project/history.html:40
 #, python-format
-msgid "<a href=\"%(href)s\">Release version %(version)s</a> created"
+msgid "<a href=\"%(href)s\">Version %(version)s</a> created"
 msgstr ""
 
-#: warehouse/templates/manage/project/history.html:36
-#: warehouse/templates/manage/project/history.html:52
-msgid "Added by:"
-msgstr ""
-
-#: warehouse/templates/manage/project/history.html:39
+#: warehouse/templates/manage/project/history.html:48
 #, python-format
-msgid "Release version %(version)s removed"
-msgstr ""
-
-#: warehouse/templates/manage/project/history.html:41
-#: warehouse/templates/manage/project/history.html:47
-#: warehouse/templates/manage/project/history.html:57
-msgid "Removed by:"
-msgstr ""
-
-#: warehouse/templates/manage/project/history.html:44
-#, python-format
-msgid "File removed from release version %(version)s"
-msgstr ""
-
-#: warehouse/templates/manage/project/history.html:45
-#: warehouse/templates/manage/project/release.html:118
-msgid "Filename:"
-msgstr ""
-
-#: warehouse/templates/manage/project/history.html:50
-#, python-format
-msgid "<a href=\"%(href)s\">%(username)s</a> added as project %(role_name)s"
+msgid "Version %(version)s removed"
 msgstr ""
 
 #: warehouse/templates/manage/project/history.html:55
 #, python-format
-msgid "<a href=\"%(href)s\">%(username)s</a> removed as project %(role_name)s"
+msgid "File removed from <a href=\"%(href)s\">version %(version)s</a>"
 msgstr ""
 
-#: warehouse/templates/manage/project/history.html:60
+#: warehouse/templates/manage/project/history.html:58
+#: warehouse/templates/manage/project/release.html:118
+msgid "Filename:"
+msgstr ""
+
+#: warehouse/templates/manage/project/history.html:65
 #, python-format
-msgid "<a href=\"%(href)s\">%(username)s</a> changed to project %(role_name)s"
-msgstr ""
-
-#: warehouse/templates/manage/project/history.html:62
-msgid "Changed by:"
-msgstr ""
-
-#: warehouse/templates/manage/project/history.html:67
-#: warehouse/templates/manage/project/history.html:74
-msgid "Permissions: Can upload to this project"
+msgid "<a href=\"%(href)s\">Version %(version)s</a> yanked"
 msgstr ""
 
 #: warehouse/templates/manage/project/history.html:68
 #: warehouse/templates/manage/project/history.html:75
-msgid "Controlled by:"
-msgstr ""
-
-#: warehouse/templates/manage/project/history.html:79
-#, python-format
-msgid "Release version %(version)s yanked"
-msgstr ""
-
-#: warehouse/templates/manage/project/history.html:81
 msgid "Yanked by:"
 msgstr ""
 
+#: warehouse/templates/manage/project/history.html:72
+#, python-format
+msgid "<a href=\"%(href)s\">Version %(version)s</a> unyanked"
+msgstr ""
+
+#: warehouse/templates/manage/project/history.html:81
+#, python-format
+msgid "<a href=\"%(href)s\">%(username)s</a> added as project %(role_name)s"
+msgstr ""
+
 #: warehouse/templates/manage/project/history.html:88
-msgid "2FA requirement enabled"
-msgstr ""
-
-#: warehouse/templates/manage/project/history.html:90
-msgid "Enabled by:"
-msgstr ""
-
-#: warehouse/templates/manage/project/history.html:93
-msgid "2FA requirement disabled"
+#, python-format
+msgid "<a href=\"%(href)s\">%(username)s</a> removed as project %(role_name)s"
 msgstr ""
 
 #: warehouse/templates/manage/project/history.html:95
-msgid "Disabled by:"
+#, python-format
+msgid "<a href=\"%(href)s\">%(username)s</a> changed to project %(role_name)s"
 msgstr ""
 
-#: warehouse/templates/manage/project/history.html:104
+#: warehouse/templates/manage/project/history.html:102
 #, python-format
-msgid "Security history for %(project_name)s"
+msgid ""
+"<a href=\"%(href)s\">%(username)s</a> invited to join as project "
+"%(role_name)s"
+msgstr ""
+
+#: warehouse/templates/manage/project/history.html:109
+#, python-format
+msgid ""
+"<a href=\"%(href)s\">%(username)s</a> declined invitation to join as "
+"project %(role_name)s"
+msgstr ""
+
+#: warehouse/templates/manage/project/history.html:116
+#, python-format
+msgid ""
+"Revoked invitation for <a href=\"%(href)s\">%(username)s</a> to join as "
+"project %(role_name)s"
+msgstr ""
+
+#: warehouse/templates/manage/project/history.html:126
+#, python-format
+msgid "%(team_name)s team added as project %(role_name)s"
+msgstr ""
+
+#: warehouse/templates/manage/project/history.html:134
+#, python-format
+msgid "%(team_name)s team changed to project %(role_name)s"
+msgstr ""
+
+#: warehouse/templates/manage/project/history.html:142
+#, python-format
+msgid "%(team_name)s team removed as project %(role_name)s"
+msgstr ""
+
+#: warehouse/templates/manage/project/history.html:152
+#, python-format
+msgid "Project added to %(organization_name)s organization"
+msgstr ""
+
+#: warehouse/templates/manage/project/history.html:160
+#, python-format
+msgid "Project removed from %(organization_name)s organization"
+msgstr ""
+
+#: warehouse/templates/manage/project/history.html:169
+#: warehouse/templates/manage/project/history.html:176
+msgid "Permissions: Can upload to this project"
+msgstr ""
+
+#: warehouse/templates/manage/project/history.html:171
+#: warehouse/templates/manage/project/history.html:178
+msgid "Controlled by:"
+msgstr ""
+
+#: warehouse/templates/manage/project/history.html:187
+msgid "OpenID Connect provider added"
+msgstr ""
+
+#: warehouse/templates/manage/project/history.html:188
+#: warehouse/templates/manage/project/history.html:192
+msgid "Provider:"
+msgstr ""
+
+#: warehouse/templates/manage/project/history.html:189
+#: warehouse/templates/manage/project/history.html:193
+msgid "Publisher:"
+msgstr ""
+
+#: warehouse/templates/manage/project/history.html:191
+msgid "OpenID Connect provider removed"
+msgstr ""
+
+#: warehouse/templates/manage/project/history.html:197
+msgid "2FA requirement enabled"
+msgstr ""
+
+#: warehouse/templates/manage/project/history.html:199
+msgid "Enabled by:"
+msgstr ""
+
+#: warehouse/templates/manage/project/history.html:202
+msgid "2FA requirement disabled"
+msgstr ""
+
+#: warehouse/templates/manage/project/history.html:204
+msgid "Disabled by:"
 msgstr ""
 
 #: warehouse/templates/manage/project/manage_project_base.html:20
@@ -5318,6 +5642,17 @@ msgid ""
 "previously released distribution (all PyPI distribution filenames are "
 "unique, as they are generated by combining the project name + version "
 "number + distribution type)"
+msgstr ""
+
+#: warehouse/templates/manage/team/history.html:25
+msgid ""
+"Each time you (or your collaborators) perform a security action related "
+"to this team, the action is recorded and displayed here."
+msgstr ""
+
+#: warehouse/templates/manage/team/history.html:36
+#, python-format
+msgid "%(previous_team_name)s team renamed to %(team_name)s"
 msgstr ""
 
 #: warehouse/templates/manage/team/manage_team_base.html:20

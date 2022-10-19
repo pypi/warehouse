@@ -14,6 +14,7 @@ from typing import List
 
 from pyramid import predicates
 from pyramid.exceptions import ConfigurationError
+from pyramid.httpexceptions import HTTPSeeOther
 from pyramid.util import is_same_domain
 
 from warehouse.admin.flags import AdminFlagValue
@@ -82,17 +83,23 @@ class ActiveOrganizationPredicate:
             context if isinstance(context, Organization) else context.organization
         )
 
-        return (
-            # Organization accounts are enabled.
-            not request.flags.enabled(AdminFlagValue.DISABLE_ORGANIZATIONS)
+        if (
+            # Organization accounts are disabled.
+            request.flags.enabled(AdminFlagValue.DISABLE_ORGANIZATIONS)
+        ):
+            return False
+        elif (
             # Organization is active.
-            and organization.is_active
+            organization.is_active
             # Organization has active subscription if it is a Company.
             and (
                 organization.orgtype != OrganizationType.Company
                 or organization.active_subscription
             )
-        )
+        ):
+            return True
+        else:
+            raise HTTPSeeOther(request.route_path("manage.organizations"))
 
 
 def includeme(config):
