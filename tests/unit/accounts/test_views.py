@@ -2363,10 +2363,13 @@ class TestVerifyOrganizationRole:
             user=owner_user,
             role_name=OrganizationRoleType.Owner,
         )
+        message = "Some reason to decline."
 
         db_request.user = user
         db_request.method = "POST"
-        db_request.POST.update({"token": "RANDOM_KEY", "decline": "Decline"})
+        db_request.POST.update(
+            {"token": "RANDOM_KEY", "decline": "Decline", "message": message}
+        )
         db_request.route_path = pretend.call_recorder(lambda name: "/")
         db_request.remote_addr = "192.168.1.1"
         db_request.session.flash = pretend.call_recorder(lambda *a, **kw: None)
@@ -2411,6 +2414,7 @@ class TestVerifyOrganizationRole:
                 {owner_user},
                 user=user,
                 organization_name=organization.name,
+                message=message,
             )
         ]
         assert declined_as_invited_organization_member_email.calls == [
