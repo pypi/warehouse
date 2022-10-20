@@ -832,7 +832,7 @@ class TestRecoveryCodeForm:
         )
         form = forms.RecoveryCodeAuthenticationForm(
             request=request,
-            data={"recovery_code_value": "invalid"},
+            data={"recovery_code_value": "deadbeef00001111"},
             user_id=1,
             user_service=user_service,
         )
@@ -852,7 +852,7 @@ class TestRecoveryCodeForm:
         user = pretend.stub(id=pretend.stub(), username="foobar")
         form = forms.RecoveryCodeAuthenticationForm(
             request=request,
-            data={"recovery_code_value": "valid"},
+            data={"recovery_code_value": "deadbeef00001111"},
             user_id=pretend.stub(),
             user_service=pretend.stub(
                 check_recovery_code=pretend.call_recorder(lambda *a, **kw: True),
@@ -868,3 +868,37 @@ class TestRecoveryCodeForm:
 
         assert form.validate()
         assert send_recovery_code_used_email.calls == [pretend.call(request, user)]
+
+    @pytest.mark.parametrize(
+        "input_string, validates",
+        [
+            (" deadbeef00001111 ", True),
+            ("deadbeef00001111 ", True),
+            (" deadbeef00001111", True),
+            ("deadbeef00001111", True),
+            ("wu-tang", False),
+            ("deadbeef00001111 deadbeef11110000", False),
+        ],
+    )
+    def test_recovery_code_string_validation(
+        self, monkeypatch, input_string, validates
+    ):
+        request = pretend.stub(remote_addr="127.0.0.1")
+        user = pretend.stub(id=pretend.stub(), username="foobar")
+        form = forms.RecoveryCodeAuthenticationForm(
+            request=request,
+            data={"recovery_code_value": input_string},
+            user_id=pretend.stub(),
+            user_service=pretend.stub(
+                check_recovery_code=pretend.call_recorder(lambda *a, **kw: True),
+                get_user=lambda _: user,
+            ),
+        )
+        send_recovery_code_used_email = pretend.call_recorder(
+            lambda request, user: None
+        )
+        monkeypatch.setattr(
+            forms, "send_recovery_code_used_email", send_recovery_code_used_email
+        )
+
+        assert form.validate() == validates

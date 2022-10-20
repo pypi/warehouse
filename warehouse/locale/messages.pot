@@ -8,89 +8,93 @@ msgstr ""
 msgid "Locale updated"
 msgstr ""
 
-#: warehouse/accounts/forms.py:54
+#: warehouse/accounts/forms.py:55
 msgid "No user found with that username"
 msgstr ""
 
-#: warehouse/accounts/forms.py:65
+#: warehouse/accounts/forms.py:66
 msgid "TOTP code must be ${totp_length} digits."
 msgstr ""
 
-#: warehouse/accounts/forms.py:92
+#: warehouse/accounts/forms.py:87
+msgid "Recovery Codes must be ${recovery_code_length} characters."
+msgstr ""
+
+#: warehouse/accounts/forms.py:102
 msgid "Choose a username with 50 characters or less."
 msgstr ""
 
-#: warehouse/accounts/forms.py:98
+#: warehouse/accounts/forms.py:108
 msgid ""
 "The username is invalid. Usernames must be composed of letters, numbers, "
 "dots, hyphens and underscores. And must also start and finish with a "
 "letter or number. Choose a different username."
 msgstr ""
 
-#: warehouse/accounts/forms.py:115
+#: warehouse/accounts/forms.py:125
 msgid ""
 "This username is already being used by another account. Choose a "
 "different username."
 msgstr ""
 
-#: warehouse/accounts/forms.py:129 warehouse/accounts/forms.py:175
-#: warehouse/accounts/forms.py:188
+#: warehouse/accounts/forms.py:139 warehouse/accounts/forms.py:185
+#: warehouse/accounts/forms.py:198
 msgid "Password too long."
 msgstr ""
 
-#: warehouse/accounts/forms.py:157
+#: warehouse/accounts/forms.py:167
 msgid "The password is invalid. Try again."
 msgstr ""
 
-#: warehouse/accounts/forms.py:161 warehouse/accounts/views.py:88
+#: warehouse/accounts/forms.py:171 warehouse/accounts/views.py:88
 msgid "There have been too many unsuccessful login attempts. Try again later."
 msgstr ""
 
-#: warehouse/accounts/forms.py:191
+#: warehouse/accounts/forms.py:201
 msgid "Your passwords don't match. Try again."
 msgstr ""
 
-#: warehouse/accounts/forms.py:222 warehouse/accounts/forms.py:233
+#: warehouse/accounts/forms.py:232 warehouse/accounts/forms.py:243
 msgid "The email address isn't valid. Try again."
 msgstr ""
 
-#: warehouse/accounts/forms.py:241
+#: warehouse/accounts/forms.py:251
 msgid "You can't use an email address from this domain. Use a different email."
 msgstr ""
 
-#: warehouse/accounts/forms.py:252
+#: warehouse/accounts/forms.py:262
 msgid ""
 "This email address is already being used by this account. Use a different"
 " email."
 msgstr ""
 
-#: warehouse/accounts/forms.py:259
+#: warehouse/accounts/forms.py:269
 msgid ""
 "This email address is already being used by another account. Use a "
 "different email."
 msgstr ""
 
-#: warehouse/accounts/forms.py:281 warehouse/manage/forms.py:140
+#: warehouse/accounts/forms.py:291 warehouse/manage/forms.py:140
 msgid "The name is too long. Choose a name with 100 characters or less."
 msgstr ""
 
-#: warehouse/accounts/forms.py:350
+#: warehouse/accounts/forms.py:360
 msgid "Invalid TOTP code."
 msgstr ""
 
-#: warehouse/accounts/forms.py:367
+#: warehouse/accounts/forms.py:377
 msgid "Invalid WebAuthn assertion: Bad payload"
 msgstr ""
 
-#: warehouse/accounts/forms.py:425
+#: warehouse/accounts/forms.py:435
 msgid "Invalid recovery code."
 msgstr ""
 
-#: warehouse/accounts/forms.py:433
+#: warehouse/accounts/forms.py:443
 msgid "Recovery code has been previously used."
 msgstr ""
 
-#: warehouse/accounts/forms.py:452
+#: warehouse/accounts/forms.py:462
 msgid "No user found with that username or email"
 msgstr ""
 
@@ -1286,13 +1290,20 @@ msgstr ""
 msgid "Enter recovery code"
 msgstr ""
 
-#: warehouse/templates/accounts/recovery-code.html:55
+#: warehouse/templates/accounts/recovery-code.html:54
+msgid ""
+"Recovery codes are 16 character hexadecimal strings comprised of "
+"lowercase <code>a-z</code> and digits <code>0-9</code> (e.g., "
+"<code>badc0ffee0ddf00d</code>)."
+msgstr ""
+
+#: warehouse/templates/accounts/recovery-code.html:58
 #: warehouse/templates/accounts/two-factor.html:112
 #: warehouse/templates/manage/account/recovery_codes-burn.html:83
 msgid "Verify"
 msgstr ""
 
-#: warehouse/templates/accounts/recovery-code.html:58
+#: warehouse/templates/accounts/recovery-code.html:61
 msgid ""
 "PyPI allows for generating recovery codes to be stored securely offline "
 "in the event that your device or application is lost. Enter one of these "
@@ -1300,7 +1311,7 @@ msgid ""
 "will no longer be valid."
 msgstr ""
 
-#: warehouse/templates/accounts/recovery-code.html:59
+#: warehouse/templates/accounts/recovery-code.html:62
 #, python-format
 msgid "<p>Not working? <a href=\"%(href)s\">Get help</a>.</p>"
 msgstr ""
