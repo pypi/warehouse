@@ -60,6 +60,7 @@ logger = logging.getLogger(__name__)
 
 PASSWORD_FIELD = "password"
 RECOVERY_CODE_COUNT = 8
+RECOVERY_CODE_BYTES = 8
 
 
 @implementer(IUserService)
@@ -574,7 +575,9 @@ class DatabaseUserService:
         if user.has_recovery_codes:
             self.db.query(RecoveryCode).filter_by(user=user).delete()
 
-        recovery_codes = [secrets.token_hex(8) for _ in range(RECOVERY_CODE_COUNT)]
+        recovery_codes = [
+            secrets.token_hex(RECOVERY_CODE_BYTES) for _ in range(RECOVERY_CODE_COUNT)
+        ]
         for recovery_code in recovery_codes:
             self.db.add(RecoveryCode(user=user, code=self.hasher.hash(recovery_code)))
 

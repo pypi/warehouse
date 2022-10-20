@@ -30,6 +30,7 @@ from warehouse.accounts.interfaces import (
     TooManyFailedLogins,
 )
 from warehouse.accounts.models import DisableReason
+from warehouse.accounts.services import RECOVERY_CODE_BYTES
 from warehouse.email import (
     send_password_compromised_email_hibp,
     send_recovery_code_used_email,
@@ -79,7 +80,16 @@ class WebAuthnCredentialMixin:
 class RecoveryCodeValueMixin:
 
     recovery_code_value = wtforms.StringField(
-        validators=[wtforms.validators.DataRequired()]
+        validators=[
+            wtforms.validators.DataRequired(),
+            wtforms.validators.Regexp(
+                rf"^ *([0-9a-f] *){{{2*RECOVERY_CODE_BYTES}}}$",
+                message=_(
+                    "Recovery Codes must be ${recovery_code_length} characters.",
+                    mapping={"recovery_code_length": 2 * RECOVERY_CODE_BYTES},
+                ),
+            ),
+        ]
     )
 
 
@@ -409,7 +419,7 @@ class RecoveryCodeAuthenticationForm(
     RecoveryCodeValueMixin, _TwoFactorAuthenticationForm
 ):
     def validate_recovery_code_value(self, field):
-        recovery_code_value = field.data.encode("utf-8")
+        recovery_code_value = field.data.encode("utf-8").strip()
 
         try:
             self.user_service.check_recovery_code(self.user_id, recovery_code_value)
