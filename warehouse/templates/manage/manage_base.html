@@ -36,7 +36,7 @@
       <tbody>
         <tr>
           <th scope="row">
-            {% trans %}Recovery codes{% endtrans %} - {% trans generated_datetime=humanize(request.user.recovery_codes[0].generated, time="true") %}generated {{ generated_datetime }}{% endtrans %}
+            {% trans %}Recovery codes{% endtrans %} - {% trans generated_datetime=humanize(request.user.recovery_codes[0].generated, time="true") %}generated {{ generated_datetime }}{% endtrans %} ({% trans remaining=request.user.recovery_codes.filter_by(burned=None).count() %}{{ remaining }} unused{% endtrans %}).
           </th>
           <td class="table__align-right">
             <a href="{{ request.route_path('manage.account.recovery-codes.regenerate') }}" class="button button--secondary">
