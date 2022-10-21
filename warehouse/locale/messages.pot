@@ -529,6 +529,7 @@ msgstr ""
 #: warehouse/templates/manage/project/releases.html:140
 #: warehouse/templates/manage/project/releases.html:179
 #: warehouse/templates/packaging/detail.html:350
+#: warehouse/templates/packaging/detail.html:369
 #: warehouse/templates/pages/classifiers.html:25
 #: warehouse/templates/pages/help.html:20
 #: warehouse/templates/pages/help.html:212
@@ -5928,7 +5929,7 @@ msgid ""
 "target=\"_blank\" rel=\"noopener\">installing packages</a>."
 msgstr ""
 
-#: warehouse/templates/packaging/detail.html:354
+#: warehouse/templates/packaging/detail.html:352
 msgid ""
 "\n"
 "                Source Distribution\n"
@@ -5940,11 +5941,18 @@ msgid_plural ""
 msgstr[0] ""
 msgstr[1] ""
 
-#: warehouse/templates/packaging/detail.html:364
+#: warehouse/templates/packaging/detail.html:368
 msgid "No source distribution files available for this release."
 msgstr ""
 
-#: warehouse/templates/packaging/detail.html:370
+#: warehouse/templates/packaging/detail.html:369
+#, python-format
+msgid ""
+"See tutorial on <a href=\"%(href)s\" title=\"%(title)s\" "
+"target=\"_blank\" rel=\"noopener\">generating distribution archives</a>."
+msgstr ""
+
+#: warehouse/templates/packaging/detail.html:376
 msgid ""
 "\n"
 "                Built Distribution\n"
