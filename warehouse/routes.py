@@ -57,6 +57,12 @@ def includeme(config):
 
     # Our legal policies
     config.add_policy("terms-of-use", "terms.md")
+    config.add_template_view(
+        "trademarks",
+        "/trademarks/",
+        "pages/trademarks.html",
+        view_kw={"has_translations": True},
+    )
 
     # HTML Snippets for including into other pages.
     config.add_route(

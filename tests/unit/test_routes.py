@@ -588,6 +588,12 @@ def test_routes(warehouse):
             "pages/sponsors.html",
             view_kw={"has_translations": True},
         ),
+        pretend.call(
+            "trademarks",
+            "/trademarks/",
+            "pages/trademarks.html",
+            view_kw={"has_translations": True},
+        ),
     ]
 
     assert config.add_redirect.calls == [
