@@ -269,6 +269,12 @@ def configure(settings=None):
     )
     maybe_set(
         settings,
+        "warehouse.account.verify_email_ratelimit_string",
+        "VERIFY_EMAIL_RATELIMIT_STRING",
+        default="3 per 6 hours",
+    )
+    maybe_set(
+        settings,
         "warehouse.account.password_reset_ratelimit_string",
         "PASSWORD_RESET_RATELIMIT_STRING",
         default="5 per day",
@@ -433,6 +439,7 @@ def configure(settings=None):
 
     # And some enums to reuse in the templates
     jglobals.setdefault("AdminFlagValue", "warehouse.admin.flags:AdminFlagValue")
+    jglobals.setdefault("EventTag", "warehouse.events.tags:EventTag")
     jglobals.setdefault(
         "OrganizationInvitationStatus",
         "warehouse.organizations.models:OrganizationInvitationStatus",

@@ -121,6 +121,8 @@ class DatabaseOrganizationService:
         self.db.add(organization)
         self.db.flush()
 
+        self.add_catalog_entry(organization.id)
+
         return organization
 
     def add_catalog_entry(self, organization_id):
@@ -568,24 +570,6 @@ class DatabaseOrganizationService:
         Return the team role object that represents the given team role id,
         """
         return self.db.query(TeamRole).get(team_role_id)
-
-    def get_team_role_by_user(self, team_id, user_id):
-        """
-        Gets a team role for a specified team and user
-        """
-        try:
-            team_role = (
-                self.db.query(TeamRole)
-                .filter(
-                    TeamRole.team_id == team_id,
-                    TeamRole.user_id == user_id,
-                )
-                .one()
-            )
-        except NoResultFound:
-            return
-
-        return team_role
 
     def get_team_roles(self, team_id):
         """

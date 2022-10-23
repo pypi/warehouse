@@ -25,6 +25,7 @@ from warehouse.email import (
     send_new_organization_approved_email,
     send_new_organization_declined_email,
 )
+from warehouse.events.tags import EventTag
 from warehouse.organizations.interfaces import IOrganizationService
 from warehouse.organizations.models import Organization
 from warehouse.utils.paginate import paginate_url_factory
@@ -156,7 +157,9 @@ def organization_detail(request):
         raise HTTPNotFound
 
     create_event = (
-        organization.events.filter(Organization.Event.tag == "organization:create")
+        organization.events.filter(
+            Organization.Event.tag == EventTag.Organization.OrganizationCreate
+        )
         .order_by(Organization.Event.time.desc())
         .first()
     )
@@ -164,14 +167,18 @@ def organization_detail(request):
 
     if organization.is_approved is True:
         approve_event = (
-            organization.events.filter(Organization.Event.tag == "organization:approve")
+            organization.events.filter(
+                Organization.Event.tag == EventTag.Organization.OrganizationApprove
+            )
             .order_by(Organization.Event.time.desc())
             .first()
         )
         admin = user_service.get_user(approve_event.additional["approved_by_user_id"])
     elif organization.is_approved is False:
         decline_event = (
-            organization.events.filter(Organization.Event.tag == "organization:decline")
+            organization.events.filter(
+                Organization.Event.tag == EventTag.Organization.OrganizationDecline
+            )
             .order_by(Organization.Event.time.desc())
             .first()
         )
@@ -216,7 +223,9 @@ def organization_approve(request):
         )
 
     create_event = (
-        organization.events.filter(Organization.Event.tag == "organization:create")
+        organization.events.filter(
+            Organization.Event.tag == EventTag.Organization.OrganizationCreate
+        )
         .order_by(Organization.Event.time.desc())
         .first()
     )
@@ -227,7 +236,7 @@ def organization_approve(request):
     organization_service.approve_organization(organization.id)
     organization_service.record_event(
         organization.id,
-        tag="organization:approve",
+        tag=EventTag.Organization.OrganizationApprove,
         additional={"approved_by_user_id": str(request.user.id)},
     )
     send_admin_new_organization_approved_email(
@@ -282,7 +291,9 @@ def organization_decline(request):
         )
 
     create_event = (
-        organization.events.filter(Organization.Event.tag == "organization:create")
+        organization.events.filter(
+            Organization.Event.tag == EventTag.Organization.OrganizationCreate
+        )
         .order_by(Organization.Event.time.desc())
         .first()
     )
@@ -293,7 +304,7 @@ def organization_decline(request):
     organization_service.decline_organization(organization.id)
     organization_service.record_event(
         organization.id,
-        tag="organization:decline",
+        tag=EventTag.Organization.OrganizationDecline,
         additional={"declined_by_user_id": str(request.user.id)},
     )
     send_admin_new_organization_declined_email(

@@ -33,6 +33,7 @@ from warehouse.accounts.services import (
     database_login_factory,
 )
 from warehouse.errors import BasicAuthBreachedPassword, BasicAuthFailedPassword
+from warehouse.events.tags import EventTag
 from warehouse.rate_limiting import IRateLimiter, RateLimit
 
 from ...common.db.accounts import UserFactory
@@ -98,7 +99,7 @@ class TestLogin:
         ]
         assert user.record_event.calls == [
             pretend.call(
-                tag="account:login:failure",
+                tag=EventTag.Account.LoginFailure,
                 ip_address="1.2.3.4",
                 additional={"reason": "invalid_password", "auth_method": "basic"},
             )
@@ -335,6 +336,7 @@ def test_includeme(monkeypatch):
                 "warehouse.account.ip_login_ratelimit_string": "10 per 5 minutes",
                 "warehouse.account.global_login_ratelimit_string": "1000 per 5 minutes",
                 "warehouse.account.email_add_ratelimit_string": "2 per day",
+                "warehouse.account.verify_email_ratelimit_string": "3 per 6 hours",
                 "warehouse.account.password_reset_ratelimit_string": "5 per day",
             }
         ),
@@ -369,6 +371,7 @@ def test_includeme(monkeypatch):
         ),
         pretend.call(RateLimit("2 per day"), IRateLimiter, name="email.add"),
         pretend.call(RateLimit("5 per day"), IRateLimiter, name="password.reset"),
+        pretend.call(RateLimit("3 per 6 hours"), IRateLimiter, name="email.verify"),
     ]
     assert config.add_request_method.calls == [
         pretend.call(accounts._user, name="user", reify=True)

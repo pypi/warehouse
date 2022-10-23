@@ -181,5 +181,8 @@ def test_lazy_string():
         return string_in
 
     lazy_string = i18n.LazyString(stringify, "test_string")
+    equally_lazy_string = i18n.LazyString(stringify, "test_string")
 
     assert lazy_string.__json__(None) == "test_string"
+    assert lazy_string == "test_string"
+    assert lazy_string == equally_lazy_string

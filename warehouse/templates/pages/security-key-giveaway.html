@@ -21,6 +21,10 @@
   <div class="horizontal-section">
     <div class="narrow-container">
       <h1 class="page-title">PyPI 2FA Security Key Giveaway</h1>
+      <div class="callout-block callout-block--danger">
+        <h2>Giveaway has ended</h2>
+        <p>The givaway has closed as of Oct 1, 2022.</p>
+      </div>
       <p>
         <img src="{{ request.static_path('warehouse:static/dist/images/titan.png') }}" alt="Two Titan security keys, one USB-A and one USB-C">
         <center><small>Pictured: two Titan security keys, one USB-A and the other USB-C. (Source: <a href="https://store.google.com/product/titan_security_key">Google</a>)</small></center>
@@ -40,60 +44,11 @@
         project maintainers.
       </p>
       <p>
-        <b>
-          As of Sept 23, 2022, these keys are available to any PyPI account that
-          existed before this restriction was removed, while supplies remain.
-        </b>
-      </p>
-      <p>
         Eligible maintainers will be able to redeem a promo code for two
         free <a
         href="https://store.google.com/product/titan_security_key">Titan
         Security Keys</a> (either USB-C or USB-A), including free shipping.
       </p>
-
-      <div class="callout-block">
-      <h2>Determine your eligibility</h2>
-      {% if promo_code %}
-        {# Show the user their promo code #}
-        <p>
-        Success! Your promo code is:
-        </p>
-        <p class="copyable">
-            <span id="promo-code">{{ promo_code.code }}</span>
-            <button type="button" class="copy-tooltip copy-tooltip-s" data-clipboard-target="#promo-code" data-tooltip-label="Copy to clipboard">
-              <i class="fa fa-copy" aria-hidden="true"></i>
-              <span class="sr-only">Copy promo code</span>
-            </button>
-        </p>
-        <p>
-        You can order your keys via <a href="https://store.google.com/product/titan_security_key">the Google Store</a> by applying this promo code at checkout. This code expires on October 1, 2022.
-        </p>
-      {% elif not request.user %}
-        {# The user is logged out, ask them to log in #}
-        <a href="{{ request.route_url("accounts.login", _query={REDIRECT_FIELD_NAME: request.path_qs}) }}" class="button button--primary">
-          Log in to determine if you are eligible
-        </a>
-      {% elif not eligible %}
-        {# The user is not eligible, tell them why #}
-        <p>Sorry, you're not currently eligible for a promo code.</p>
-        <p><b>Reason:</b> {{ reason_ineligible }}</p>
-      {% else %}
-        {# The user is eligible, show the form #}
-        <p>
-          Congrats, you may be eligible to receive a promo code!
-        </p>
-        <p>
-          We just need a little more information. (<a href="#regions">Why?</a>)
-          <form method="POST">
-            <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
-            {{ form.country }}
-            <button type="submit" class="button button--primary">Request a promo code</button>
-          </form>
-        </p>
-      {% endif %}
-      </div>
-
 
       <section class="faq-group">
       <h2 id="faq">FAQ</h2>

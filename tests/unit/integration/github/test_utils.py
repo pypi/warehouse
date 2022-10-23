@@ -20,6 +20,7 @@ import pytest
 import requests
 
 from warehouse import integrations
+from warehouse.events.tags import EventTag
 from warehouse.integrations.github import tasks, utils
 
 
@@ -606,7 +607,7 @@ def test_analyze_disclosure(monkeypatch):
     assert record_event.calls == [
         pretend.call(
             user_id,
-            tag="account:api_token:removed_leak",
+            tag=EventTag.Account.APITokenRemovedLeak,
             additional={
                 "macaroon_id": "12",
                 "public_url": "http://example.com",

@@ -41,6 +41,7 @@ from warehouse.accounts.interfaces import (
 from warehouse.accounts.models import User
 from warehouse.accounts.views import two_factor_and_totp_validate
 from warehouse.admin.flags import AdminFlag, AdminFlagValue
+from warehouse.events.tags import EventTag
 from warehouse.organizations.models import (
     OrganizationInvitation,
     OrganizationRole,
@@ -273,7 +274,7 @@ class TestLogin:
         assert user_service.record_event.calls == [
             pretend.call(
                 user_id,
-                tag="account:login:success",
+                tag=EventTag.Account.LoginSuccess,
                 additional={"two_factor_method": None, "two_factor_label": None},
             )
         ]
@@ -333,7 +334,7 @@ class TestLogin:
         assert user_service.record_event.calls == [
             pretend.call(
                 1,
-                tag="account:login:success",
+                tag=EventTag.Account.LoginSuccess,
                 additional={"two_factor_method": None, "two_factor_label": None},
             )
         ]
@@ -697,7 +698,7 @@ class TestTwoFactor:
         assert user_service.record_event.calls == [
             pretend.call(
                 "1",
-                tag="account:login:success",
+                tag=EventTag.Account.LoginSuccess,
                 additional={"two_factor_method": "totp", "two_factor_label": "totp"},
             )
         ]
@@ -1141,7 +1142,7 @@ class TestRecoveryCode:
         assert user_service.record_event.calls == [
             pretend.call(
                 "1",
-                tag="account:login:success",
+                tag=EventTag.Account.LoginSuccess,
                 additional={
                     "two_factor_method": "recovery-code",
                     "two_factor_label": None,
@@ -1149,7 +1150,7 @@ class TestRecoveryCode:
             ),
             pretend.call(
                 "1",
-                tag="account:recovery_codes:used",
+                tag=EventTag.Account.RecoveryCodesUsed,
             ),
         ]
         assert pyramid_request.session.flash.calls == [
@@ -1340,21 +1341,23 @@ class TestRegister:
         )
         db_request.session.record_password_timestamp = lambda ts: None
         db_request.find_service = pretend.call_recorder(
-            lambda *args, **kwargs: pretend.stub(
-                csp_policy={},
-                merge=lambda _: {},
-                enabled=False,
-                verify_response=pretend.call_recorder(lambda _: None),
-                username_is_prohibited=lambda a: False,
-                find_userid=pretend.call_recorder(lambda _: None),
-                find_userid_by_email=pretend.call_recorder(lambda _: None),
-                update_user=lambda *args, **kwargs: None,
-                create_user=create_user,
-                add_email=add_email,
-                check_password=lambda pw, tags=None: False,
-                record_event=record_event,
-                get_password_timestamp=lambda uid: 0,
-            )
+            lambda svc, name=None, context=None: {
+                IUserService: pretend.stub(
+                    username_is_prohibited=lambda a: False,
+                    find_userid=pretend.call_recorder(lambda _: None),
+                    find_userid_by_email=pretend.call_recorder(lambda _: None),
+                    update_user=lambda *args, **kwargs: None,
+                    create_user=create_user,
+                    add_email=add_email,
+                    check_password=lambda pw, tags=None: False,
+                    record_event=record_event,
+                    get_password_timestamp=lambda uid: 0,
+                ),
+                IPasswordBreachedService: pretend.stub(
+                    check_password=lambda pw, tags=None: False,
+                ),
+                IRateLimiter: pretend.stub(hit=lambda user_id: None),
+            }.get(svc)
         )
         db_request.route_path = pretend.call_recorder(lambda name: "/")
         db_request.POST.update(
@@ -1382,12 +1385,12 @@ class TestRegister:
         assert record_event.calls == [
             pretend.call(
                 user.id,
-                tag="account:create",
+                tag=EventTag.Account.AccountCreate,
                 additional={"email": "foo@bar.com"},
             ),
             pretend.call(
                 user.id,
-                tag="account:login:success",
+                tag=EventTag.Account.LoginSuccess,
                 additional={"two_factor_method": None, "two_factor_label": None},
             ),
         ]
@@ -1494,7 +1497,7 @@ class TestRequestPasswordReset:
         assert user_service.record_event.calls == [
             pretend.call(
                 stub_user.id,
-                tag="account:password:reset:request",
+                tag=EventTag.Account.PasswordResetRequest,
             )
         ]
 
@@ -1559,7 +1562,7 @@ class TestRequestPasswordReset:
         assert user_service.record_event.calls == [
             pretend.call(
                 stub_user.id,
-                tag="account:password:reset:request",
+                tag=EventTag.Account.PasswordResetRequest,
             )
         ]
         assert user_service.ratelimiters["password.reset"].test.calls == [
@@ -1635,7 +1638,7 @@ class TestRequestPasswordReset:
         assert user_service.record_event.calls == [
             pretend.call(
                 stub_user.id,
-                tag="account:password:reset:request",
+                tag=EventTag.Account.PasswordResetRequest,
             )
         ]
         assert user_service.ratelimiters["password.reset"].test.calls == [
@@ -1733,7 +1736,7 @@ class TestRequestPasswordReset:
         assert user_service.record_event.calls == [
             pretend.call(
                 stub_user.id,
-                tag="account:password:reset:attempt",
+                tag=EventTag.Account.PasswordResetAttempt,
             )
         ]
 
@@ -2045,9 +2048,11 @@ class TestVerifyEmail:
             lambda token: {"action": "email-verify", "email.id": str(email.id)}
         )
         email_limiter = pretend.stub(clear=pretend.call_recorder(lambda a: None))
+        verify_limiter = pretend.stub(clear=pretend.call_recorder(lambda a: None))
         services = {
             "email": token_service,
             "email.add": email_limiter,
+            "email.verify": verify_limiter,
         }
         db_request.find_service = pretend.call_recorder(
             lambda a, name, **kwargs: services[name]
@@ -2064,6 +2069,7 @@ class TestVerifyEmail:
         assert db_request.route_path.calls == [pretend.call("manage.account")]
         assert token_service.loads.calls == [pretend.call("RANDOM_KEY")]
         assert email_limiter.clear.calls == [pretend.call(db_request.remote_addr)]
+        assert verify_limiter.clear.calls == [pretend.call(user.id)]
         assert db_request.session.flash.calls == [
             pretend.call(
                 f"Email address {email.email} verified. " + confirm_message,
@@ -2073,6 +2079,7 @@ class TestVerifyEmail:
         assert db_request.find_service.calls == [
             pretend.call(ITokenService, name="email"),
             pretend.call(IRateLimiter, name="email.add"),
+            pretend.call(IRateLimiter, name="email.verify"),
         ]
 
     @pytest.mark.parametrize(
@@ -2357,10 +2364,13 @@ class TestVerifyOrganizationRole:
             user=owner_user,
             role_name=OrganizationRoleType.Owner,
         )
+        message = "Some reason to decline."
 
         db_request.user = user
         db_request.method = "POST"
-        db_request.POST.update({"token": "RANDOM_KEY", "decline": "Decline"})
+        db_request.POST.update(
+            {"token": "RANDOM_KEY", "decline": "Decline", "message": message}
+        )
         db_request.route_path = pretend.call_recorder(lambda name: "/")
         db_request.remote_addr = "192.168.1.1"
         db_request.session.flash = pretend.call_recorder(lambda *a, **kw: None)
@@ -2405,6 +2415,7 @@ class TestVerifyOrganizationRole:
                 {owner_user},
                 user=user,
                 organization_name=organization.name,
+                message=message,
             )
         ]
         assert declined_as_invited_organization_member_email.calls == [

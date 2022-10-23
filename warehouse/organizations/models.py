@@ -323,10 +323,10 @@ class Organization(HasEvents, db.Model):
                 # - View organization ("view:organization")
                 # - View team ("view:team")
                 # - Invite/remove organization member ("manage:organization")
-                # - Add/remove team member ("manage:team")
+                # - Create/delete team and add/remove team member ("manage:team")
                 # - Manage billing ("manage:billing")
-                # - Create project ("add:project")
-                # - Delete project ("remove:project")
+                # - Add project ("add:project")
+                # - Remove project ("remove:project")
                 # Disallowed:
                 # - (none)
                 acls.append(
@@ -351,9 +351,9 @@ class Organization(HasEvents, db.Model):
                 # - Manage billing ("manage:billing")
                 # Disallowed:
                 # - Invite/remove organization member ("manage:organization")
-                # - Add/remove team member ("manage:team")
-                # - Create project ("add:project")
-                # - Delete project ("remove:project")
+                # - Create/delete team and add/remove team member ("manage:team")
+                # - Add project ("add:project")
+                # - Remove project ("remove:project")
                 acls.append(
                     (
                         Allow,
@@ -365,12 +365,12 @@ class Organization(HasEvents, db.Model):
                 # Allowed:
                 # - View organization ("view:organization")
                 # - View team ("view:team")
-                # - Add/remove team member ("manage:team")
-                # - Create project ("add:project")
+                # - Create/delete team and add/remove team member ("manage:team")
+                # - Add project ("add:project")
                 # Disallowed:
                 # - Invite/remove organization member ("manage:organization")
                 # - Manage billing ("manage:billing")
-                # - Delete project ("remove:project")
+                # - Remove project ("remove:project")
                 acls.append(
                     (
                         Allow,
@@ -391,10 +391,10 @@ class Organization(HasEvents, db.Model):
                 # - View team ("view:team")
                 # Disallowed:
                 # - Invite/remove organization member ("manage:organization")
-                # - Add/remove team member ("manage:team")
+                # - Create/delete team and add/remove team member ("manage:team")
                 # - Manage billing ("manage:billing")
-                # - Create project ("add:project")
-                # - Delete project ("remove:project")
+                # - Add project ("add:project")
+                # - Remove project ("remove:project")
                 acls.append(
                     (Allow, f"user:{role.user.id}", ["view:organization", "view:team"])
                 )
@@ -540,8 +540,15 @@ class TeamProjectRole(db.Model):
         nullable=False,
     )
 
-    project = orm.relationship("Project", lazy=False)
-    team = orm.relationship("Team", lazy=False)
+    project = orm.relationship(
+        "Project",
+        lazy=False,
+        back_populates="team_project_roles",
+    )
+    team = orm.relationship(
+        "Team",
+        lazy=False,
+    )
 
 
 class TeamFactory:
@@ -601,11 +608,15 @@ class Team(HasEvents, db.Model):
     )
 
     def record_event(self, *, tag, ip_address, additional={}):
-        """Record team name in events in case team is ever deleted."""
+        """Record org and team name in events in case they are ever deleted."""
         super().record_event(
             tag=tag,
             ip_address=ip_address,
-            additional={"team_name": self.name, **additional},
+            additional={
+                "organization_name": self.organization.name,
+                "team_name": self.name,
+                **additional,
+            },
         )
 
     def __acl__(self):

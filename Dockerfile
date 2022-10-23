@@ -2,7 +2,7 @@
 # our static assets with. It is important that the steps in this remain the
 # same as the steps in Dockerfile.static, EXCEPT this may include additional
 # steps appended onto the end.
-FROM node:14.19.1-bullseye as static
+FROM node:16.17.1-bullseye as static
 
 WORKDIR /opt/warehouse/src/
 
