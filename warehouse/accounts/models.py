@@ -101,7 +101,7 @@ class User(SitemapMixin, HasEvents, db.Model):
     )
 
     recovery_codes = orm.relationship(
-        "RecoveryCode", backref="user", cascade="all, delete-orphan", lazy=True
+        "RecoveryCode", backref="user", cascade="all, delete-orphan", lazy="dynamic"
     )
 
     emails = orm.relationship(

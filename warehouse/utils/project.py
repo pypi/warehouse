@@ -25,6 +25,7 @@ from sqlalchemy import exists, func
 from sqlalchemy.orm.exc import NoResultFound
 
 from warehouse.admin.flags import AdminFlagValue
+from warehouse.events.tags import EventTag
 from warehouse.packaging.interfaces import IDocsStorage
 from warehouse.packaging.models import JournalEntry, ProhibitedProjectName, Project
 from warehouse.tasks import task
@@ -165,7 +166,7 @@ def add_project(name, request):
         )
     )
     project.record_event(
-        tag="project:create",
+        tag=EventTag.Project.ProjectCreate,
         ip_address=request.remote_addr,
         additional={"created_by": request.user.username},
     )

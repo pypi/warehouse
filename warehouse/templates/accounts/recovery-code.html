@@ -42,7 +42,7 @@
               <span class="form-group__required">{% trans %}(required){% endtrans %}</span>
               {% endif %}
             </label>
-            {{ form.recovery_code_value(autocapitalize="off", spellcheck="false", required="required", class_="form-group__field", autocomplete="one-time-code", **{"aria-describedby":"recovery_code-errors"}) }}
+            {{ form.recovery_code_value(autocapitalize="off", spellcheck="false", required="required", pattern="[0-9a-f]{16}", class_="form-group__field", autocomplete="off", **{"aria-describedby":"recovery_code-errors", "aria-label":"16 character hexadecimal"}) }}
             {% if form.recovery_code_value.errors %}
             <ul id="recovery_code-errors" class="form-errors" role="alert">
               {% for error in form.recovery_code_value.errors %}
@@ -50,6 +50,9 @@
               {% endfor %}
             </ul>
             {% endif %}
+            <p class="form-group__help-text">
+                {% trans %}Recovery codes are 16 character hexadecimal strings comprised of lowercase <code>a-z</code> and digits <code>0-9</code> (e.g., <code>badc0ffee0ddf00d</code>).{% endtrans %}
+            </p>
           </div>
           <div class="form-group">
             <input type="submit" value="{% trans %}Verify{% endtrans %}" class="button button--primary">

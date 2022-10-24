@@ -319,6 +319,13 @@ def test_routes(warehouse):
             domain=warehouse,
         ),
         pretend.call(
+            "manage.organization.history",
+            "/manage/organization/{organization_name}/history/",
+            factory="warehouse.organizations.models:OrganizationFactory",
+            traverse="/{organization_name}",
+            domain=warehouse,
+        ),
+        pretend.call(
             "manage.team.settings",
             "/manage/organization/{organization_name}/team/{team_name}/settings/",
             factory="warehouse.organizations.models:TeamFactory",
@@ -342,6 +349,13 @@ def test_routes(warehouse):
         pretend.call(
             "manage.team.delete_role",
             "/manage/organization/{organization_name}/team/{team_name}/members/delete/",
+            factory="warehouse.organizations.models:TeamFactory",
+            traverse="/{organization_name}/{team_name}",
+            domain=warehouse,
+        ),
+        pretend.call(
+            "manage.team.history",
+            "/manage/organization/{organization_name}/team/{team_name}/history/",
             factory="warehouse.organizations.models:TeamFactory",
             traverse="/{organization_name}/{team_name}",
             domain=warehouse,
@@ -572,6 +586,12 @@ def test_routes(warehouse):
             "sponsors",
             "/sponsors/",
             "pages/sponsors.html",
+            view_kw={"has_translations": True},
+        ),
+        pretend.call(
+            "trademarks",
+            "/trademarks/",
+            "pages/trademarks.html",
             view_kw={"has_translations": True},
         ),
     ]
