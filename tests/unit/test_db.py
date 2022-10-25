@@ -164,6 +164,7 @@ def test_create_session(monkeypatch, pyramid_services):
         (None, pretend.stub(is_superuser=False), []),
         (pretend.stub(enabled=False), pretend.stub(is_superuser=True), []),
         (pretend.stub(enabled=False), pretend.stub(is_superuser=False), []),
+        (pretend.stub(enabled=False), None, []),
         (
             pretend.stub(enabled=True, description="flag description"),
             pretend.stub(is_superuser=True),
@@ -172,6 +173,11 @@ def test_create_session(monkeypatch, pyramid_services):
         (
             pretend.stub(enabled=True, description="flag description"),
             pretend.stub(is_superuser=False),
+            [pretend.call()],
+        ),
+        (
+            pretend.stub(enabled=True, description="flag description"),
+            None,
             [pretend.call()],
         ),
     ],
