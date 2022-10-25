@@ -154,17 +154,13 @@ def _create_session(request):
 
     flag = session.query(AdminFlag).get(AdminFlagValue.READ_ONLY.value)
 
-    # We do this to avoid invoking the session-creation machinery
-    user = request.__dict__.get("user")
+    if flag and flag.enabled:
+        # We do this to avoid invoking the session-creation machinery
+        user = request.__dict__.get("user")
 
-    is_super_user = (
-        not isinstance(request.session, InvalidSession)
-        and user is not None
-        and user.is_superuser
-    )
-
-    if flag and flag.enabled and not is_super_user:
-        request.tm.doom()
+        # Doom if there is no user or if they aren't a superuser
+        if user is None or not user.is_superuser:
+            request.tm.doom()
 
     # Return our session now that it's created and registered
     return session
