@@ -153,10 +153,14 @@ def _create_session(request):
     from warehouse.admin.flags import AdminFlag, AdminFlagValue
 
     flag = session.query(AdminFlag).get(AdminFlagValue.READ_ONLY.value)
+
+    # We do this to avoid invoking the session-creation machinery
+    user = request.__dict__.get("user")
+
     is_super_user = (
         not isinstance(request.session, InvalidSession)
-        and request.user is not None
-        and request.user.is_superuser
+        and user is not None
+        and user.is_superuser
     )
 
     if flag and flag.enabled and not is_super_user:
