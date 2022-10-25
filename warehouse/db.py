@@ -26,6 +26,7 @@ from sqlalchemy.ext.declarative import declarative_base  # type: ignore
 from sqlalchemy.orm import sessionmaker
 
 from warehouse.metrics import IMetricsService
+from warehouse.sessions import InvalidSession
 from warehouse.utils.attrs import make_repr
 
 __all__ = ["includeme", "metadata", "ModelBase"]
@@ -152,11 +153,13 @@ def _create_session(request):
     from warehouse.admin.flags import AdminFlag, AdminFlagValue
 
     flag = session.query(AdminFlag).get(AdminFlagValue.READ_ONLY.value)
-    if (
-        flag
-        and flag.enabled
-        and (request.user is None or not request.user.is_superuser)
-    ):
+    is_super_user = (
+        not isinstance(request.session, InvalidSession)
+        and request.user is not None
+        and request.user.is_superuser
+    )
+
+    if flag and flag.enabled and not is_super_user:
         request.tm.doom()
 
     # Return our session now that it's created and registered
