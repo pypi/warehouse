@@ -36,19 +36,23 @@ msgstr ""
 msgid "Locale updated"
 msgstr "Μείνετε ενημερωμένοι"
 
-#: warehouse/accounts/forms.py:53
+#: warehouse/accounts/forms.py:55
 msgid "No user found with that username"
 msgstr "Δεν βρέθηκε χρήστης με αυτό το όνομα χρήστη"
 
-#: warehouse/accounts/forms.py:64
+#: warehouse/accounts/forms.py:66
 msgid "TOTP code must be ${totp_length} digits."
 msgstr "Ο κώδικας TOTP πρέπει να αποτελείται από ${totp_length} ψηφία."
 
-#: warehouse/accounts/forms.py:91
+#: warehouse/accounts/forms.py:87
+msgid "Recovery Codes must be ${recovery_code_length} characters."
+msgstr ""
+
+#: warehouse/accounts/forms.py:102
 msgid "Choose a username with 50 characters or less."
 msgstr "Επιλέξτε ένα όνομα χρήστη μέχρι 50 χαρακτήρες."
 
-#: warehouse/accounts/forms.py:97
+#: warehouse/accounts/forms.py:108
 msgid ""
 "The username is invalid. Usernames must be composed of letters, numbers, "
 "dots, hyphens and underscores. And must also start and finish with a letter "
@@ -59,7 +63,7 @@ msgstr ""
 "αρχίζουν και να τελειώνουν με γράμμα ή αριθμό. Διαλέξτε ένα διαφορετικό "
 "όνομα χρήστη."
 
-#: warehouse/accounts/forms.py:114
+#: warehouse/accounts/forms.py:125
 msgid ""
 "This username is already being used by another account. Choose a different "
 "username."
@@ -67,36 +71,36 @@ msgstr ""
 "Αυτό το όνομα χρήστη χρησιμοποιείται ήδη από άλλον λογαριασμό. Διαλέξτε ένα "
 "διαφορετικό όνομα χρήστη."
 
-#: warehouse/accounts/forms.py:128 warehouse/accounts/forms.py:174
-#: warehouse/accounts/forms.py:187
+#: warehouse/accounts/forms.py:139 warehouse/accounts/forms.py:185
+#: warehouse/accounts/forms.py:198
 #, fuzzy
 #| msgid "Password strength:"
 msgid "Password too long."
 msgstr "Δύναμη κωδικού χρήστη:"
 
-#: warehouse/accounts/forms.py:156
+#: warehouse/accounts/forms.py:167
 msgid "The password is invalid. Try again."
 msgstr "Ο κωδικός χρήστη δεν είναι έγκυρος. Δοκιμάστε ξανά."
 
-#: warehouse/accounts/forms.py:160 warehouse/accounts/views.py:87
+#: warehouse/accounts/forms.py:171 warehouse/accounts/views.py:88
 msgid "There have been too many unsuccessful login attempts. Try again later."
 msgstr "Έγιναν πολλές ανεπιτυχείς απόπειρες σύνδεσης. Δοκιμάστε ξανά αργότερα."
 
-#: warehouse/accounts/forms.py:190
+#: warehouse/accounts/forms.py:201
 msgid "Your passwords don't match. Try again."
 msgstr "Οι κωδικοί δεν ταιριάζουν. Δοκιμάστε ξανά."
 
-#: warehouse/accounts/forms.py:221 warehouse/accounts/forms.py:232
+#: warehouse/accounts/forms.py:232 warehouse/accounts/forms.py:243
 msgid "The email address isn't valid. Try again."
 msgstr "Το email δεν είναι έγκυρο. Δοκιμάστε ξανά."
 
-#: warehouse/accounts/forms.py:240
+#: warehouse/accounts/forms.py:251
 msgid "You can't use an email address from this domain. Use a different email."
 msgstr ""
 "Δεν μπορείτε να χρησιμοποιήσετε ένα email από αυτό το domain. Δοκιμάστε με "
 "άλλο email."
 
-#: warehouse/accounts/forms.py:251
+#: warehouse/accounts/forms.py:262
 msgid ""
 "This email address is already being used by this account. Use a different "
 "email."
@@ -104,7 +108,7 @@ msgstr ""
 "Αυτό το email χρησιμοποιείται ήδη από αυτόν τον λογαριασμό. Χρησιμοποιήστε "
 "ένα διαφορετικό email."
 
-#: warehouse/accounts/forms.py:258
+#: warehouse/accounts/forms.py:269
 msgid ""
 "This email address is already being used by another account. Use a different "
 "email."
@@ -112,35 +116,35 @@ msgstr ""
 "Αυτό το email χρησιμοποιείται ήδη από άλλο λογαριασμό. Χρησιμοποιήστε ένα "
 "διαφορετικό email."
 
-#: warehouse/accounts/forms.py:280 warehouse/manage/forms.py:140
+#: warehouse/accounts/forms.py:291 warehouse/manage/forms.py:143
 msgid "The name is too long. Choose a name with 100 characters or less."
 msgstr ""
 "Το όνομα είναι πολύ μεγάλο. Διαλέξτε ένα όνομα με μέγιστο 100 χαρακτήρες."
 
-#: warehouse/accounts/forms.py:349
+#: warehouse/accounts/forms.py:360
 msgid "Invalid TOTP code."
 msgstr "Μη έγκυρος TOTP κωδικός."
 
-#: warehouse/accounts/forms.py:366
+#: warehouse/accounts/forms.py:377
 msgid "Invalid WebAuthn assertion: Bad payload"
 msgstr "Μη έγκυρο WebAuthn assertion: Bad payload"
 
 # | msgid "Invalid TOTP code."
-#: warehouse/accounts/forms.py:424
+#: warehouse/accounts/forms.py:435
 msgid "Invalid recovery code."
 msgstr "Μη έγκυρος κωδικός ανάκτησης."
 
-#: warehouse/accounts/forms.py:432
+#: warehouse/accounts/forms.py:443
 #, fuzzy
 #| msgid "Recovery codes already generated"
 msgid "Recovery code has been previously used."
 msgstr "Οι κωδικοί ανάκτησης έχουν ήδη δημιουργηθεί"
 
-#: warehouse/accounts/forms.py:451
+#: warehouse/accounts/forms.py:462
 msgid "No user found with that username or email"
 msgstr "Δεν βρέθηκε χρήστης με αυτό το όνομα ή email"
 
-#: warehouse/accounts/views.py:104
+#: warehouse/accounts/views.py:105
 #, fuzzy
 #| msgid ""
 #| "Too many emails have been added to this account without verifying them. "
@@ -153,7 +157,7 @@ msgstr ""
 "χωρίς να τα επαληθεύσετε. Ελέγξτε τα εισερχόμενά σας και ακολουθήστε τους "
 "συνδέσμους επαλήθευσης."
 
-#: warehouse/accounts/views.py:116
+#: warehouse/accounts/views.py:117
 #, fuzzy
 #| msgid ""
 #| "Too many emails have been added to this account without verifying them. "
@@ -167,27 +171,27 @@ msgstr ""
 "χωρίς να τα επαληθεύσετε. Ελέγξτε τα εισερχόμενά σας και ακολουθήστε τους "
 "συνδέσμους επαλήθευσης."
 
-#: warehouse/accounts/views.py:256 warehouse/accounts/views.py:320
-#: warehouse/accounts/views.py:322 warehouse/accounts/views.py:349
-#: warehouse/accounts/views.py:351 warehouse/accounts/views.py:417
+#: warehouse/accounts/views.py:257 warehouse/accounts/views.py:321
+#: warehouse/accounts/views.py:323 warehouse/accounts/views.py:350
+#: warehouse/accounts/views.py:352 warehouse/accounts/views.py:418
 msgid "Invalid or expired two factor login."
 msgstr "Μη έγκυρη ή ληγμένη σύνδεση two factor."
 
-#: warehouse/accounts/views.py:314
+#: warehouse/accounts/views.py:315
 msgid "Already authenticated"
 msgstr "Ήδη πιστοποιημένος"
 
-#: warehouse/accounts/views.py:393
+#: warehouse/accounts/views.py:394
 msgid "Successful WebAuthn assertion"
 msgstr "Επιτυχής WebAuthn assertion"
 
-#: warehouse/accounts/views.py:447 warehouse/manage/views.py:954
+#: warehouse/accounts/views.py:448 warehouse/manage/views.py:956
 msgid "Recovery code accepted. The supplied code cannot be used again."
 msgstr ""
 "Ο κωδικός ανάκτησης έγινε δεκτός. Ο παρεχόμενος κωδικός δεν μπορεί να "
 "χρησιμοποιηθεί ξανά."
 
-#: warehouse/accounts/views.py:533
+#: warehouse/accounts/views.py:534
 msgid ""
 "New user registration temporarily disabled. See https://pypi.org/help#admin-"
 "intervention for details."
@@ -195,33 +199,33 @@ msgstr ""
 "Η εγγραφή του νέου χρήστη είναι προσωρινά απενεργοποιημένη. Δείτε στο "
 "https://pypi.org/help#admin-intervention για λεπτομέρειες."
 
-#: warehouse/accounts/views.py:653
+#: warehouse/accounts/views.py:654
 msgid "Expired token: request a new password reset link"
 msgstr "Ληγμένο token: ζητήστε ένα νέο σύνδεσμο επαναφοράς κωδικού"
 
-#: warehouse/accounts/views.py:655
+#: warehouse/accounts/views.py:656
 msgid "Invalid token: request a new password reset link"
 msgstr "Μη έγκυρο token: ζητήστε ένα νέο σύνδεσμο επαναφοράς κωδικού"
 
-#: warehouse/accounts/views.py:657 warehouse/accounts/views.py:756
-#: warehouse/accounts/views.py:855 warehouse/accounts/views.py:1022
+#: warehouse/accounts/views.py:658 warehouse/accounts/views.py:757
+#: warehouse/accounts/views.py:856 warehouse/accounts/views.py:1025
 msgid "Invalid token: no token supplied"
 msgstr "Μη έγκυρο token: δεν έγινε παροχή του token"
 
-#: warehouse/accounts/views.py:661
+#: warehouse/accounts/views.py:662
 msgid "Invalid token: not a password reset token"
 msgstr "Μη έγκυρο token: δεν αποτελεί token επαναφοράς κωδικού"
 
-#: warehouse/accounts/views.py:666
+#: warehouse/accounts/views.py:667
 msgid "Invalid token: user not found"
 msgstr "Μη έγκυρο token: ο χρήστης δεν βρέθηκε"
 
-#: warehouse/accounts/views.py:677
+#: warehouse/accounts/views.py:678
 msgid "Invalid token: user has logged in since this token was requested"
 msgstr ""
 "Μη έγκυρο token: ο χρήστης συνδέθηκε από τότε που ζητήθηκε αυτό το token"
 
-#: warehouse/accounts/views.py:695
+#: warehouse/accounts/views.py:696
 msgid ""
 "Invalid token: password has already been changed since this token was "
 "requested"
@@ -229,109 +233,109 @@ msgstr ""
 "Μη έγκυρο token: ο κωδικός έχει ήδη αλλάξει από τότε που ζητήθηκε αυτό το "
 "token"
 
-#: warehouse/accounts/views.py:724
+#: warehouse/accounts/views.py:725
 msgid "You have reset your password"
 msgstr "Έχετε μηδενίσει τον κωδικό χρήστη σας"
 
-#: warehouse/accounts/views.py:752
+#: warehouse/accounts/views.py:753
 msgid "Expired token: request a new email verification link"
 msgstr "Ληγμένο token: ζητήστε ένα νέο email επιβεβαίωσης συνδέσμου"
 
-#: warehouse/accounts/views.py:754
+#: warehouse/accounts/views.py:755
 msgid "Invalid token: request a new email verification link"
 msgstr "Μη έγκυρο token: ζητήστε ένα νέο email επιβεβαίωσης συνδέσμου"
 
-#: warehouse/accounts/views.py:760
+#: warehouse/accounts/views.py:761
 msgid "Invalid token: not an email verification token"
 msgstr "Μη έγκυρο token: αυτό δεν αποτελεί ένα email επιβεβαίωσης token"
 
-#: warehouse/accounts/views.py:769
+#: warehouse/accounts/views.py:770
 msgid "Email not found"
 msgstr "Το email δεν βρέθηκε"
 
-#: warehouse/accounts/views.py:772
+#: warehouse/accounts/views.py:773
 msgid "Email already verified"
 msgstr "Το email είναι ήδη επιβεβαιωμένο"
 
-#: warehouse/accounts/views.py:789
+#: warehouse/accounts/views.py:790
 msgid "You can now set this email as your primary address"
 msgstr "Μπορείτε, πλέον, να θέσετε αυτό το email ως την κύρια διεύθυνση σας"
 
-#: warehouse/accounts/views.py:793
+#: warehouse/accounts/views.py:794
 msgid "This is your primary address"
 msgstr "Αυτή είναι η κύρια διεύθυνση σας"
 
-#: warehouse/accounts/views.py:798
+#: warehouse/accounts/views.py:799
 msgid "Email address ${email_address} verified. ${confirm_message}."
 msgstr "Η διεύθυνση email ${email_address} επιβεβαιώθηκε. ${confirm_message}."
 
-#: warehouse/accounts/views.py:851
+#: warehouse/accounts/views.py:852
 #, fuzzy
 #| msgid "Expired token: request a new project role invite"
 msgid "Expired token: request a new organization invitation"
 msgstr "Λειγμένο token: ζητήστε πρόσκληση για νέο ρόλο έργου"
 
-#: warehouse/accounts/views.py:853
+#: warehouse/accounts/views.py:854
 #, fuzzy
 #| msgid "Invalid token: request a new password reset link"
 msgid "Invalid token: request a new organization invitation"
 msgstr "Μη έγκυρο token: ζητήστε ένα νέο σύνδεσμο επαναφοράς κωδικού"
 
-#: warehouse/accounts/views.py:859
+#: warehouse/accounts/views.py:860
 #, fuzzy
 #| msgid "Invalid token: not an email verification token"
 msgid "Invalid token: not an organization invitation token"
 msgstr "Μη έγκυρο token: αυτό δεν αποτελεί ένα email επιβεβαίωσης token"
 
-#: warehouse/accounts/views.py:863
+#: warehouse/accounts/views.py:864
 msgid "Organization invitation is not valid."
 msgstr ""
 
-#: warehouse/accounts/views.py:872
+#: warehouse/accounts/views.py:873
 msgid "Organization invitation no longer exists."
 msgstr ""
 
-#: warehouse/accounts/views.py:921
+#: warehouse/accounts/views.py:924
 msgid "Invitation for '${organization_name}' is declined."
 msgstr ""
 
-#: warehouse/accounts/views.py:984
+#: warehouse/accounts/views.py:987
 #, fuzzy
 #| msgid "You are not an owner of this project"
 msgid "You are now ${role} of the '${organization_name}' organization."
 msgstr "Δεν είστε ο κάτοχος αυτού του project"
 
-#: warehouse/accounts/views.py:1018
+#: warehouse/accounts/views.py:1021
 #, fuzzy
 #| msgid "Expired token: request a new project role invite"
 msgid "Expired token: request a new project role invitation"
 msgstr "Λειγμένο token: ζητήστε πρόσκληση για νέο ρόλο έργου"
 
-#: warehouse/accounts/views.py:1020
+#: warehouse/accounts/views.py:1023
 #, fuzzy
 #| msgid "Invalid token: request a new password reset link"
 msgid "Invalid token: request a new project role invitation"
 msgstr "Μη έγκυρο token: ζητήστε ένα νέο σύνδεσμο επαναφοράς κωδικού"
 
-#: warehouse/accounts/views.py:1026
+#: warehouse/accounts/views.py:1029
 #, fuzzy
 #| msgid "Invalid token: not an email verification token"
 msgid "Invalid token: not a collaboration invitation token"
 msgstr "Μη έγκυρο token: αυτό δεν αποτελεί ένα email επιβεβαίωσης token"
 
-#: warehouse/accounts/views.py:1030
+#: warehouse/accounts/views.py:1033
 msgid "Role invitation is not valid."
 msgstr ""
 
-#: warehouse/accounts/views.py:1045
+#: warehouse/accounts/views.py:1048
 msgid "Role invitation no longer exists."
 msgstr ""
 
-#: warehouse/accounts/views.py:1057
+#: warehouse/accounts/views.py:1079
 msgid "Invitation for '${project_name}' is declined."
 msgstr ""
 
-#: warehouse/accounts/views.py:1124
+#: warehouse/accounts/views.py:1146
 #, fuzzy
 #| msgid "You are not an owner of this project"
 msgid "You are now ${role} of the '${project_name}' project."
@@ -341,13 +345,13 @@ msgstr "Δεν είστε ο κάτοχος αυτού του project"
 msgid "Banner Preview"
 msgstr ""
 
-#: warehouse/manage/forms.py:403
+#: warehouse/manage/forms.py:406
 #, fuzzy
 #| msgid "Choose a username with 50 characters or less."
 msgid "Choose an organization account name with 50 characters or less."
 msgstr "Επιλέξτε ένα όνομα χρήστη μέχρι 50 χαρακτήρες."
 
-#: warehouse/manage/forms.py:411
+#: warehouse/manage/forms.py:414
 #, fuzzy
 #| msgid ""
 #| "The username is invalid. Usernames must be composed of letters, numbers, "
@@ -364,7 +368,7 @@ msgstr ""
 "αρχίζουν και να τελειώνουν με γράμμα ή αριθμό. Διαλέξτε ένα διαφορετικό "
 "όνομα χρήστη."
 
-#: warehouse/manage/forms.py:432
+#: warehouse/manage/forms.py:435
 #, fuzzy
 #| msgid ""
 #| "This username is already being used by another account. Choose a "
@@ -376,25 +380,25 @@ msgstr ""
 "Αυτό το όνομα χρήστη χρησιμοποιείται ήδη από άλλον λογαριασμό. Διαλέξτε ένα "
 "διαφορετικό όνομα χρήστη."
 
-#: warehouse/manage/forms.py:473
+#: warehouse/manage/forms.py:476
 #, fuzzy
 #| msgid "Delete project"
 msgid "Select project"
 msgstr "Διαγραφή project"
 
-#: warehouse/manage/forms.py:478
+#: warehouse/manage/forms.py:481
 #, fuzzy
 #| msgid "Project name"
 msgid "Specify project name"
 msgstr "Όνομα project"
 
-#: warehouse/manage/forms.py:481
+#: warehouse/manage/forms.py:484
 msgid ""
 "Start and end with a letter or numeral containing only ASCII numeric and "
 "'.', '_' and '-'."
 msgstr ""
 
-#: warehouse/manage/forms.py:488
+#: warehouse/manage/forms.py:491
 #, fuzzy
 #| msgid ""
 #| "This username is already being used by another account. Choose a "
@@ -405,7 +409,7 @@ msgstr ""
 "Αυτό το όνομα χρήστη χρησιμοποιείται ήδη από άλλον λογαριασμό. Διαλέξτε ένα "
 "διαφορετικό όνομα χρήστη."
 
-#: warehouse/manage/forms.py:559
+#: warehouse/manage/forms.py:562
 #, fuzzy
 #| msgid "The name is too long. Choose a name with 100 characters or less."
 msgid ""
@@ -414,7 +418,7 @@ msgid ""
 msgstr ""
 "Το όνομα είναι πολύ μεγάλο. Διαλέξτε ένα όνομα με μέγιστο 100 χαρακτήρες."
 
-#: warehouse/manage/forms.py:571
+#: warehouse/manage/forms.py:574
 #, fuzzy
 #| msgid "The name is too long. Choose a name with 100 characters or less."
 msgid ""
@@ -423,7 +427,7 @@ msgid ""
 msgstr ""
 "Το όνομα είναι πολύ μεγάλο. Διαλέξτε ένα όνομα με μέγιστο 100 χαρακτήρες."
 
-#: warehouse/manage/forms.py:585
+#: warehouse/manage/forms.py:588
 #, fuzzy
 #| msgid "The name is too long. Choose a name with 100 characters or less."
 msgid ""
@@ -432,19 +436,19 @@ msgid ""
 msgstr ""
 "Το όνομα είναι πολύ μεγάλο. Διαλέξτε ένα όνομα με μέγιστο 100 χαρακτήρες."
 
-#: warehouse/manage/forms.py:630
+#: warehouse/manage/forms.py:632
 #, fuzzy
 #| msgid "Choose a username with 50 characters or less."
 msgid "Choose a team name with 50 characters or less."
 msgstr "Επιλέξτε ένα όνομα χρήστη μέχρι 50 χαρακτήρες."
 
-#: warehouse/manage/forms.py:636
+#: warehouse/manage/forms.py:638
 msgid ""
 "The team name is invalid. Team names cannot start or end with a space, "
 "period, underscore, hyphen, or slash. Choose a different team name."
 msgstr ""
 
-#: warehouse/manage/forms.py:664
+#: warehouse/manage/forms.py:666
 #, fuzzy
 #| msgid ""
 #| "This username is already being used by another account. Choose a "
@@ -454,56 +458,56 @@ msgstr ""
 "Αυτό το όνομα χρήστη χρησιμοποιείται ήδη από άλλον λογαριασμό. Διαλέξτε ένα "
 "διαφορετικό όνομα χρήστη."
 
-#: warehouse/manage/views.py:367
+#: warehouse/manage/views.py:369
 msgid "Email ${email_address} added - check your email for a verification link"
 msgstr ""
 "Το email ${email_address} προστέθηκε - ελέγξτε το email σας για τον σύνδεσμο "
 "επαλήθευσης"
 
-#: warehouse/manage/views.py:902
+#: warehouse/manage/views.py:904
 msgid "Recovery codes already generated"
 msgstr "Οι κωδικοί ανάκτησης έχουν ήδη δημιουργηθεί"
 
-#: warehouse/manage/views.py:903
+#: warehouse/manage/views.py:905
 msgid "Generating new recovery codes will invalidate your existing codes."
 msgstr ""
 
-#: warehouse/manage/views.py:1970
+#: warehouse/manage/views.py:2009
 msgid "User '${username}' already has ${role_name} role for organization"
 msgstr ""
 
-#: warehouse/manage/views.py:1981
+#: warehouse/manage/views.py:2020
 msgid ""
 "User '${username}' does not have a verified primary email address and cannot "
 "be added as a ${role_name} for organization"
 msgstr ""
 
-#: warehouse/manage/views.py:1995 warehouse/manage/views.py:4191
+#: warehouse/manage/views.py:2034 warehouse/manage/views.py:4367
 msgid ""
 "User '${username}' already has an active invite. Please try again later."
 msgstr ""
 
-#: warehouse/manage/views.py:2052 warehouse/manage/views.py:4258
+#: warehouse/manage/views.py:2100 warehouse/manage/views.py:4434
 msgid "Invitation sent to '${username}'"
 msgstr ""
 
-#: warehouse/manage/views.py:2092
+#: warehouse/manage/views.py:2146
 #, fuzzy
 #| msgid "%(user)s has not uploaded any projects to PyPI, yet"
 msgid "Could not find organization invitation."
 msgstr "Ο χρήστης %(user)s δεν έχει ανεβάσει projects στο PyPI, ακόμα"
 
-#: warehouse/manage/views.py:2106 warehouse/manage/views.py:4302
+#: warehouse/manage/views.py:2160 warehouse/manage/views.py:4478
 #, fuzzy
 #| msgid "Email already verified"
 msgid "Invitation already expired."
 msgstr "Το email είναι ήδη επιβεβαιωμένο"
 
-#: warehouse/manage/views.py:2139 warehouse/manage/views.py:4326
+#: warehouse/manage/views.py:2202 warehouse/manage/views.py:4511
 msgid "Invitation revoked from '${username}'."
 msgstr ""
 
-#: warehouse/manage/views.py:2936
+#: warehouse/manage/views.py:3109
 #, fuzzy
 #| msgid ""
 #| "There have been too many unsuccessful login attempts. Try again later."
@@ -512,27 +516,27 @@ msgid ""
 "later."
 msgstr "Έγιναν πολλές ανεπιτυχείς απόπειρες σύνδεσης. Δοκιμάστε ξανά αργότερα."
 
-#: warehouse/manage/views.py:3968
+#: warehouse/manage/views.py:4144
 msgid "Team '${team_name}' already has ${role_name} role for project"
 msgstr ""
 
-#: warehouse/manage/views.py:4076
+#: warehouse/manage/views.py:4252
 msgid "User '${username}' already has ${role_name} role for project"
 msgstr ""
 
-#: warehouse/manage/views.py:4145
+#: warehouse/manage/views.py:4321
 #, fuzzy
 #| msgid "You are not an owner of this project"
 msgid "${username} is now ${role} of the '${project_name}' project."
 msgstr "Δεν είστε ο κάτοχος αυτού του project"
 
-#: warehouse/manage/views.py:4178
+#: warehouse/manage/views.py:4354
 msgid ""
 "User '${username}' does not have a verified primary email address and cannot "
 "be added as a ${role_name} for project"
 msgstr ""
 
-#: warehouse/manage/views.py:4291
+#: warehouse/manage/views.py:4467
 msgid "Could not find role invitation."
 msgstr ""
 
@@ -650,13 +654,13 @@ msgstr "Monty Python - The Cheese Shop Sketch"
 #: warehouse/templates/404.html:34 warehouse/templates/500.html:28
 #: warehouse/templates/500.html:29
 #: warehouse/templates/accounts/two-factor.html:55
-#: warehouse/templates/base.html:259 warehouse/templates/base.html:260
-#: warehouse/templates/base.html:261 warehouse/templates/base.html:271
-#: warehouse/templates/base.html:272 warehouse/templates/base.html:273
+#: warehouse/templates/base.html:271 warehouse/templates/base.html:272
+#: warehouse/templates/base.html:273 warehouse/templates/base.html:283
 #: warehouse/templates/base.html:284 warehouse/templates/base.html:285
-#: warehouse/templates/base.html:286 warehouse/templates/base.html:295
-#: warehouse/templates/base.html:297 warehouse/templates/base.html:308
-#: warehouse/templates/base.html:317
+#: warehouse/templates/base.html:296 warehouse/templates/base.html:297
+#: warehouse/templates/base.html:298 warehouse/templates/base.html:307
+#: warehouse/templates/base.html:309 warehouse/templates/base.html:320
+#: warehouse/templates/base.html:333
 #: warehouse/templates/includes/accounts/profile-actions.html:21
 #: warehouse/templates/includes/accounts/profile-actions.html:30
 #: warehouse/templates/includes/accounts/profile-callout.html:18
@@ -671,11 +675,12 @@ msgstr "Monty Python - The Cheese Shop Sketch"
 #: warehouse/templates/manage/account/webauthn-provision.html:53
 #: warehouse/templates/manage/account/webauthn-provision.html:74
 #: warehouse/templates/manage/manage_base.html:185
-#: warehouse/templates/manage/project/release.html:119
-#: warehouse/templates/manage/project/release.html:175
+#: warehouse/templates/manage/project/release.html:138
+#: warehouse/templates/manage/project/release.html:194
 #: warehouse/templates/manage/project/releases.html:140
-#: warehouse/templates/manage/project/releases.html:173
+#: warehouse/templates/manage/project/releases.html:179
 #: warehouse/templates/packaging/detail.html:350
+#: warehouse/templates/packaging/detail.html:369
 #: warehouse/templates/pages/classifiers.html:25
 #: warehouse/templates/pages/help.html:20
 #: warehouse/templates/pages/help.html:212
@@ -714,32 +719,32 @@ msgstr "Monty Python - The Cheese Shop Sketch"
 #: warehouse/templates/pages/help.html:627
 #: warehouse/templates/pages/help.html:639
 #: warehouse/templates/pages/help.html:660
-#: warehouse/templates/pages/help.html:683
-#: warehouse/templates/pages/help.html:690
-#: warehouse/templates/pages/help.html:702
-#: warehouse/templates/pages/help.html:713
-#: warehouse/templates/pages/help.html:718
-#: warehouse/templates/pages/help.html:726
-#: warehouse/templates/pages/help.html:737
-#: warehouse/templates/pages/help.html:754
-#: warehouse/templates/pages/help.html:761
-#: warehouse/templates/pages/help.html:769
-#: warehouse/templates/pages/help.html:785
-#: warehouse/templates/pages/help.html:790
-#: warehouse/templates/pages/help.html:795
-#: warehouse/templates/pages/help.html:805
-#: warehouse/templates/pages/help.html:814
-#: warehouse/templates/pages/help.html:828
-#: warehouse/templates/pages/help.html:836
-#: warehouse/templates/pages/help.html:844
-#: warehouse/templates/pages/help.html:852
-#: warehouse/templates/pages/help.html:861
-#: warehouse/templates/pages/help.html:881
-#: warehouse/templates/pages/help.html:896
+#: warehouse/templates/pages/help.html:684
+#: warehouse/templates/pages/help.html:691
+#: warehouse/templates/pages/help.html:703
+#: warehouse/templates/pages/help.html:714
+#: warehouse/templates/pages/help.html:719
+#: warehouse/templates/pages/help.html:727
+#: warehouse/templates/pages/help.html:738
+#: warehouse/templates/pages/help.html:755
+#: warehouse/templates/pages/help.html:762
+#: warehouse/templates/pages/help.html:770
+#: warehouse/templates/pages/help.html:786
+#: warehouse/templates/pages/help.html:791
+#: warehouse/templates/pages/help.html:796
+#: warehouse/templates/pages/help.html:806
+#: warehouse/templates/pages/help.html:815
+#: warehouse/templates/pages/help.html:829
+#: warehouse/templates/pages/help.html:837
+#: warehouse/templates/pages/help.html:845
+#: warehouse/templates/pages/help.html:853
+#: warehouse/templates/pages/help.html:862
+#: warehouse/templates/pages/help.html:882
 #: warehouse/templates/pages/help.html:897
 #: warehouse/templates/pages/help.html:898
 #: warehouse/templates/pages/help.html:899
-#: warehouse/templates/pages/help.html:904
+#: warehouse/templates/pages/help.html:900
+#: warehouse/templates/pages/help.html:905
 #: warehouse/templates/pages/sponsors.html:33
 #: warehouse/templates/pages/sponsors.html:37
 #: warehouse/templates/pages/sponsors.html:41
@@ -838,7 +843,7 @@ msgid "Main navigation"
 msgstr "Κύρια πλοήγηση"
 
 #: warehouse/templates/base.html:41 warehouse/templates/base.html:55
-#: warehouse/templates/base.html:256
+#: warehouse/templates/base.html:268
 #: warehouse/templates/includes/current-user-indicator.html:63
 #: warehouse/templates/pages/help.html:107
 #: warehouse/templates/pages/sitemap.html:27
@@ -877,7 +882,33 @@ msgstr "Μενού"
 msgid "Main menu"
 msgstr "Κυρίως μενού"
 
-#: warehouse/templates/base.html:81 warehouse/templates/index.html:109
+#: warehouse/templates/base.html:66
+#, python-format
+msgid ""
+"\n"
+"\"%(wordmark)s\", \"%(name)s\", and the blocks logos are registered "
+"trademarks of the <a href=\"%(psf_href)s\" target=\"_blank\" rel=\"noopener"
+"\">Python Software Foundation</a> referring to the products and services "
+"associated with pypi.org. Any other use by any other party is prohibited.\n"
+msgstr ""
+
+# | msgid ""
+# | "Learn how to upload files on the <a href=\"%(href)s\"
+# title=\"%(title)s\"
+# "
+# | "target=\"_blank\" rel=\"noopener\">Python Packaging User Guide</a>"
+#: warehouse/templates/base.html:70
+#, fuzzy, python-format
+msgid ""
+"\n"
+"\"%(wordmark)s\", \"%(name)s\", and the blocks logos are registered <a href="
+"\"%(trademarks_href)s\">trademarks</a> of the <a href=\"%(psf_href)s\" "
+"target=\"_blank\" rel=\"noopener\">Python Software Foundation</a>.\n"
+msgstr ""
+"Μάθετε πως να ανεβάζετε αρχεία στο <a href=\"%(href)s\" title=\"%(title)s\" "
+"target=\"_blank\" rel=\"noopener\">Python Packaging User Guide</a>"
+
+#: warehouse/templates/base.html:93 warehouse/templates/index.html:109
 msgid ""
 "The Python Package Index (PyPI) is a repository of software for the Python "
 "programming language."
@@ -885,47 +916,47 @@ msgstr ""
 "Το Python Package Index (PyPI) είναι ένα αποθετήριο λογισμικού για την "
 "γλώσσα προγραμματισμού Python."
 
-#: warehouse/templates/base.html:97
+#: warehouse/templates/base.html:109
 msgid "RSS: 40 latest updates"
 msgstr "RSS: 40 τελευταίες ενημερώσεις"
 
-#: warehouse/templates/base.html:98
+#: warehouse/templates/base.html:110
 msgid "RSS: 40 newest packages"
 msgstr "RSS: 40 νέα πακέτα"
 
-#: warehouse/templates/base.html:141
+#: warehouse/templates/base.html:153
 msgid "Skip to main content"
 msgstr "Μετάβαση στο κυρίως περιεχόμενο"
 
-#: warehouse/templates/base.html:144
+#: warehouse/templates/base.html:156
 msgid "Switch to mobile version"
 msgstr "Αλλαγή στην έκδοση για κινητά"
 
-#: warehouse/templates/base.html:153 warehouse/templates/base.html:162
-#: warehouse/templates/base.html:172
+#: warehouse/templates/base.html:165 warehouse/templates/base.html:174
+#: warehouse/templates/base.html:184
 #: warehouse/templates/includes/flash-messages.html:30
 #: warehouse/templates/includes/session-notifications.html:20
 #: warehouse/templates/manage/account.html:716
-#: warehouse/templates/manage/manage_base.html:293
-#: warehouse/templates/manage/manage_base.html:352
-#: warehouse/templates/manage/organization/settings.html:186
-#: warehouse/templates/manage/organization/settings.html:241
+#: warehouse/templates/manage/manage_base.html:305
+#: warehouse/templates/manage/manage_base.html:364
+#: warehouse/templates/manage/organization/settings.html:193
+#: warehouse/templates/manage/organization/settings.html:248
 #: warehouse/templates/manage/project/documentation.html:27
-#: warehouse/templates/manage/project/release.html:163
+#: warehouse/templates/manage/project/release.html:182
 #: warehouse/templates/manage/project/settings.html:126
 #: warehouse/templates/manage/project/settings.html:175
-#: warehouse/templates/manage/project/settings.html:239
+#: warehouse/templates/manage/project/settings.html:240
 #: warehouse/templates/manage/team/settings.html:77
 msgid "Warning"
 msgstr "Προειδοποίηση"
 
-#: warehouse/templates/base.html:155
+#: warehouse/templates/base.html:167
 msgid "You are using an unsupported browser, upgrade to a newer version."
 msgstr ""
 "Χρησιμοποιείτε ένα μη υποστηριζόμενο περιηγητή. Αναβαθμίστε τον σε μια "
 "νεώτερη έκδοση."
 
-#: warehouse/templates/base.html:164
+#: warehouse/templates/base.html:176
 msgid ""
 "You are using TestPyPI – a separate instance of the Python Package Index "
 "that allows you to try distribution tools and processes without affecting "
@@ -935,7 +966,7 @@ msgstr ""
 "Index η οποία σας επιτρέπει να δοκιμάσετε τα εργαλεία διανομής καθώς και τις "
 "διεργασίες χωρίς να επηρεάζεται η πραγματική βάση δεδομένων."
 
-#: warehouse/templates/base.html:174
+#: warehouse/templates/base.html:186
 msgid ""
 "Some features may not work without JavaScript. Please try enabling it if you "
 "encounter problems."
@@ -943,139 +974,139 @@ msgstr ""
 "Μερικά χαρακτηριστικά δεν θα λειτουργούν χωρίς την JavaScript. Αν "
 "αντιμετωπίζετε προβλήματα, παρακαλούμε, ενεργοποιήστε την."
 
-#: warehouse/templates/base.html:212 warehouse/templates/base.html:233
+#: warehouse/templates/base.html:224 warehouse/templates/base.html:245
 #: warehouse/templates/error-base-with-search.html:20
 #: warehouse/templates/index.html:55
 msgid "Search PyPI"
 msgstr "Αναζήτηση στο PyPI"
 
-#: warehouse/templates/base.html:213 warehouse/templates/base.html:234
+#: warehouse/templates/base.html:225 warehouse/templates/base.html:246
 #: warehouse/templates/error-base-with-search.html:21
 #: warehouse/templates/index.html:58
 msgid "Search projects"
 msgstr "Αναζήτηση projects"
 
-#: warehouse/templates/base.html:217 warehouse/templates/base.html:238
+#: warehouse/templates/base.html:229 warehouse/templates/base.html:250
 #: warehouse/templates/error-base-with-search.html:24
 #: warehouse/templates/index.html:62
 msgid "Search"
 msgstr "Αναζήτηση"
 
-#: warehouse/templates/base.html:257
+#: warehouse/templates/base.html:269
 msgid "Help navigation"
 msgstr "Βοήθεια πλοήγησης"
 
-#: warehouse/templates/base.html:259
+#: warehouse/templates/base.html:271
 msgid "Installing packages"
 msgstr "Εγκατάσταση πακέτων"
 
-#: warehouse/templates/base.html:260
+#: warehouse/templates/base.html:272
 msgid "Uploading packages"
 msgstr "Ανέβασμα πακέτων"
 
-#: warehouse/templates/base.html:261
+#: warehouse/templates/base.html:273
 msgid "User guide"
 msgstr "Οδηγός χρήστη"
 
-#: warehouse/templates/base.html:262
+#: warehouse/templates/base.html:274
 msgid "FAQs"
 msgstr "FAQs"
 
-#: warehouse/templates/base.html:268 warehouse/templates/pages/sitemap.html:37
+#: warehouse/templates/base.html:280 warehouse/templates/pages/sitemap.html:37
 msgid "About PyPI"
 msgstr "Σχετικά με το PyPI"
 
-#: warehouse/templates/base.html:269
+#: warehouse/templates/base.html:281
 msgid "About PyPI navigation"
 msgstr "Σχετικά με την πλοήγηση στο PyPI"
 
-#: warehouse/templates/base.html:271
+#: warehouse/templates/base.html:283
 msgid "PyPI on Twitter"
 msgstr "Το PyPI στο Twitter"
 
-#: warehouse/templates/base.html:272
+#: warehouse/templates/base.html:284
 msgid "Infrastructure dashboard"
 msgstr "Ταμπλό υποδομής"
 
-#: warehouse/templates/base.html:273
+#: warehouse/templates/base.html:285
 msgid "Package index name retention"
 msgstr "Αρχείο ονομάτων πακέτων"
 
-#: warehouse/templates/base.html:274
+#: warehouse/templates/base.html:286
 msgid "Our sponsors"
 msgstr "Οι χορηγοί μας"
 
-#: warehouse/templates/base.html:280
+#: warehouse/templates/base.html:292
 msgid "Contributing to PyPI"
 msgstr "Συνεισφορά στο PyPI"
 
-#: warehouse/templates/base.html:281
+#: warehouse/templates/base.html:293
 msgid "How to contribute navigation"
 msgstr "Πλοήγηση στο πως να συνεισφέρετε"
 
-#: warehouse/templates/base.html:283
+#: warehouse/templates/base.html:295
 msgid "Bugs and feedback"
 msgstr "Σφάλματα και ανατροφοδότηση"
 
-#: warehouse/templates/base.html:284
+#: warehouse/templates/base.html:296
 msgid "Contribute on GitHub"
 msgstr "Συνεισφέρετε στο GitHub"
 
-#: warehouse/templates/base.html:285
+#: warehouse/templates/base.html:297
 msgid "Translate PyPI"
 msgstr "Μεταφράστε το PyPI"
 
-#: warehouse/templates/base.html:286
+#: warehouse/templates/base.html:298
 msgid "Development credits"
 msgstr "Έπαινοι ανάπτυξης"
 
-#: warehouse/templates/base.html:292 warehouse/templates/pages/sitemap.html:23
+#: warehouse/templates/base.html:304 warehouse/templates/pages/sitemap.html:23
 msgid "Using PyPI"
 msgstr "Χρησιμοποιώντας το PyPI"
 
-#: warehouse/templates/base.html:293
+#: warehouse/templates/base.html:305
 msgid "Using PyPI navigation"
 msgstr "Χρησιμοποιώντας την πλοήγηση του PyPI"
 
-#: warehouse/templates/base.html:295
+#: warehouse/templates/base.html:307
 msgid "Code of conduct"
 msgstr "Κώδικας δεοντολογίας"
 
-#: warehouse/templates/base.html:296
+#: warehouse/templates/base.html:308
 msgid "Report security issue"
 msgstr "Αναφορά θέματος ασφάλειας"
 
-#: warehouse/templates/base.html:297
+#: warehouse/templates/base.html:309
 msgid "Privacy policy"
 msgstr "Πολιτική απορρήτου"
 
-#: warehouse/templates/base.html:298 warehouse/templates/pages/sitemap.html:43
+#: warehouse/templates/base.html:310 warehouse/templates/pages/sitemap.html:43
 msgid "Terms of use"
 msgstr "Όροι χρήσης"
 
-#: warehouse/templates/base.html:308
+#: warehouse/templates/base.html:320
 msgid "Status: "
 msgstr "Κατάσταση: "
 
-#: warehouse/templates/base.html:309
+#: warehouse/templates/base.html:321
 msgid "all systems operational"
 msgstr "όλα τα συστήματα δουλεύουν"
 
-#: warehouse/templates/base.html:313
+#: warehouse/templates/base.html:325
 msgid ""
 "Developed and maintained by the Python community, for the Python community."
 msgstr ""
 "Ανάπτυξη και υποστήριξη από την κοινότητα Python, για την κοινότητα Python."
 
-#: warehouse/templates/base.html:315
+#: warehouse/templates/base.html:327
 msgid "Donate today!"
 msgstr "Δωρίστε σήμερα!"
 
-#: warehouse/templates/base.html:318 warehouse/templates/pages/sitemap.html:16
+#: warehouse/templates/base.html:334 warehouse/templates/pages/sitemap.html:16
 msgid "Site map"
 msgstr "Χάρτης ιστότοπου"
 
-#: warehouse/templates/base.html:324
+#: warehouse/templates/base.html:340
 msgid "Switch to desktop version"
 msgstr "Μετάβαση στην έκδοση για υπολογιστές"
 
@@ -1226,7 +1257,7 @@ msgstr "Εισάγετε τον κωδικό χρήστη σας για να σ�
 #: warehouse/templates/accounts/login.html:69
 #: warehouse/templates/accounts/register.html:110
 #: warehouse/templates/accounts/reset-password.html:38
-#: warehouse/templates/manage/manage_base.html:361
+#: warehouse/templates/manage/manage_base.html:373
 #: warehouse/templates/re-auth.html:49
 msgid "Password"
 msgstr "Κωδικός πρόσβασης"
@@ -1254,30 +1285,30 @@ msgstr "Κωδικός πρόσβασης"
 #: warehouse/templates/manage/account/token.html:150
 #: warehouse/templates/manage/account/totp-provision.html:69
 #: warehouse/templates/manage/account/webauthn-provision.html:44
-#: warehouse/templates/manage/organization/projects.html:172
-#: warehouse/templates/manage/organization/projects.html:190
-#: warehouse/templates/manage/organization/roles.html:176
-#: warehouse/templates/manage/organization/roles.html:188
+#: warehouse/templates/manage/organization/projects.html:179
+#: warehouse/templates/manage/organization/projects.html:197
+#: warehouse/templates/manage/organization/roles.html:179
+#: warehouse/templates/manage/organization/roles.html:191
 #: warehouse/templates/manage/organization/settings.html:50
 #: warehouse/templates/manage/organization/settings.html:80
 #: warehouse/templates/manage/organization/settings.html:104
 #: warehouse/templates/manage/organization/settings.html:129
-#: warehouse/templates/manage/organization/teams.html:84
-#: warehouse/templates/manage/organizations.html:143
-#: warehouse/templates/manage/organizations.html:166
-#: warehouse/templates/manage/organizations.html:188
-#: warehouse/templates/manage/organizations.html:206
-#: warehouse/templates/manage/organizations.html:225
+#: warehouse/templates/manage/organization/teams.html:89
+#: warehouse/templates/manage/organizations.html:159
+#: warehouse/templates/manage/organizations.html:182
+#: warehouse/templates/manage/organizations.html:204
+#: warehouse/templates/manage/organizations.html:222
+#: warehouse/templates/manage/organizations.html:241
 #: warehouse/templates/manage/project/publishing.html:85
 #: warehouse/templates/manage/project/publishing.html:97
 #: warehouse/templates/manage/project/publishing.html:109
-#: warehouse/templates/manage/project/roles.html:262
-#: warehouse/templates/manage/project/roles.html:273
-#: warehouse/templates/manage/project/roles.html:285
-#: warehouse/templates/manage/project/roles.html:300
-#: warehouse/templates/manage/project/roles.html:327
-#: warehouse/templates/manage/project/roles.html:339
-#: warehouse/templates/manage/team/roles.html:92
+#: warehouse/templates/manage/project/roles.html:269
+#: warehouse/templates/manage/project/roles.html:280
+#: warehouse/templates/manage/project/roles.html:292
+#: warehouse/templates/manage/project/roles.html:307
+#: warehouse/templates/manage/project/roles.html:334
+#: warehouse/templates/manage/project/roles.html:346
+#: warehouse/templates/manage/team/roles.html:106
 #: warehouse/templates/manage/team/settings.html:35
 #: warehouse/templates/re-auth.html:51
 msgid "(required)"
@@ -1289,7 +1320,7 @@ msgid "Your password"
 msgstr "Ο κωδικός σας"
 
 #: warehouse/templates/accounts/login.html:92
-#: warehouse/templates/manage/manage_base.html:364
+#: warehouse/templates/manage/manage_base.html:376
 #: warehouse/templates/re-auth.html:72
 msgid "Show password"
 msgstr "Εμφάνιση κωδικού"
@@ -1352,15 +1383,16 @@ msgstr ""
 
 #: warehouse/templates/accounts/invite-confirmation.html:32
 #: warehouse/templates/accounts/organization-invite-confirmation.html:32
-#: warehouse/templates/manage/organizations.html:39
-#: warehouse/templates/manage/projects.html:49
+#: warehouse/templates/manage/organizations.html:42
+#: warehouse/templates/manage/projects.html:52
 msgid "Accept"
 msgstr ""
 
 #: warehouse/templates/accounts/invite-confirmation.html:33
 #: warehouse/templates/accounts/organization-invite-confirmation.html:33
-#: warehouse/templates/manage/organizations.html:40
-#: warehouse/templates/manage/projects.html:50
+#: warehouse/templates/manage/organizations.html:46
+#: warehouse/templates/manage/organizations.html:54
+#: warehouse/templates/manage/projects.html:53
 msgid "Decline"
 msgstr ""
 
@@ -1377,14 +1409,14 @@ msgstr "Σύνδεση στο %(title)s"
 #: warehouse/templates/email/organization-member-removed/body.html:30
 #: warehouse/templates/email/organization-member-role-changed/body.html:30
 #: warehouse/templates/manage/account.html:248
-#: warehouse/templates/manage/organization/roles.html:125
-#: warehouse/templates/manage/organization/roles.html:179
-#: warehouse/templates/manage/project/roles.html:139
-#: warehouse/templates/manage/project/roles.html:194
-#: warehouse/templates/manage/project/roles.html:287
-#: warehouse/templates/manage/project/roles.html:330
-#: warehouse/templates/manage/team/roles.html:73
-#: warehouse/templates/manage/team/roles.html:95
+#: warehouse/templates/manage/organization/roles.html:128
+#: warehouse/templates/manage/organization/roles.html:182
+#: warehouse/templates/manage/project/roles.html:146
+#: warehouse/templates/manage/project/roles.html:201
+#: warehouse/templates/manage/project/roles.html:294
+#: warehouse/templates/manage/project/roles.html:337
+#: warehouse/templates/manage/team/roles.html:80
+#: warehouse/templates/manage/team/roles.html:109
 msgid "Username"
 msgstr "Όνομα χρήστη"
 
@@ -1425,11 +1457,11 @@ msgstr "Προφίλ %(username)s"
 
 #: warehouse/templates/accounts/profile.html:31
 #: warehouse/templates/manage/account.html:223
-#: warehouse/templates/manage/organization/roles.html:71
-#: warehouse/templates/manage/organization/roles.html:136
-#: warehouse/templates/manage/project/roles.html:148
-#: warehouse/templates/manage/project/roles.html:203
-#: warehouse/templates/manage/team/roles.html:54
+#: warehouse/templates/manage/organization/roles.html:74
+#: warehouse/templates/manage/organization/roles.html:139
+#: warehouse/templates/manage/project/roles.html:155
+#: warehouse/templates/manage/project/roles.html:210
+#: warehouse/templates/manage/team/roles.html:61
 msgid "Avatar for {user} from gravatar.com"
 msgstr "Το avatar του χρήστη {user} από το gravatar.com"
 
@@ -1467,10 +1499,10 @@ msgid "No projects"
 msgstr "Χωρίς projects"
 
 #: warehouse/templates/accounts/profile.html:82
-#: warehouse/templates/manage/organization/projects.html:71
-#: warehouse/templates/manage/projects.html:34
-#: warehouse/templates/manage/projects.html:104
-#: warehouse/templates/manage/team/projects.html:71
+#: warehouse/templates/manage/organization/projects.html:73
+#: warehouse/templates/manage/projects.html:37
+#: warehouse/templates/manage/projects.html:109
+#: warehouse/templates/manage/team/projects.html:73
 #, fuzzy, python-format
 #| msgid "Last released on %(release_date)s"
 msgid "Last released %(release_date)s"
@@ -1502,13 +1534,20 @@ msgstr "Κωδικός σφάλματος"
 msgid "Enter recovery code"
 msgstr "Κωδικός σφάλματος"
 
-#: warehouse/templates/accounts/recovery-code.html:55
+#: warehouse/templates/accounts/recovery-code.html:54
+msgid ""
+"Recovery codes are 16 character hexadecimal strings comprised of lowercase "
+"<code>a-z</code> and digits <code>0-9</code> (e.g., <code>badc0ffee0ddf00d</"
+"code>)."
+msgstr ""
+
+#: warehouse/templates/accounts/recovery-code.html:58
 #: warehouse/templates/accounts/two-factor.html:112
 #: warehouse/templates/manage/account/recovery_codes-burn.html:83
 msgid "Verify"
 msgstr "Επιβεβαίωση"
 
-#: warehouse/templates/accounts/recovery-code.html:58
+#: warehouse/templates/accounts/recovery-code.html:61
 msgid ""
 "PyPI allows for generating recovery codes to be stored securely offline in "
 "the event that your device or application is lost. Enter one of these codes "
@@ -1518,7 +1557,7 @@ msgstr ""
 
 # | msgid "Lost your device? Not working? <a href=\"%(href)s\">Get
 # help</a>."
-#: warehouse/templates/accounts/recovery-code.html:59
+#: warehouse/templates/accounts/recovery-code.html:62
 #, fuzzy, python-format
 msgid "<p>Not working? <a href=\"%(href)s\">Get help</a>.</p>"
 msgstr ""
@@ -1924,7 +1963,7 @@ msgid ""
 msgstr ""
 
 #: warehouse/templates/email/new-organization-requested/body.html:17
-#: warehouse/templates/manage/organizations.html:130
+#: warehouse/templates/manage/organizations.html:146
 #, python-format
 msgid ""
 "Your request for a new PyPI organization named '%(organization_name)s' has "
@@ -1932,8 +1971,8 @@ msgid ""
 msgstr ""
 
 #: warehouse/templates/email/new-organization-requested/body.html:19
-#: warehouse/templates/manage/organizations.html:63
-#: warehouse/templates/manage/organizations.html:133
+#: warehouse/templates/manage/organizations.html:79
+#: warehouse/templates/manage/organizations.html:149
 #, fuzzy
 #| msgid "You'll receive an email with a password reset link."
 msgid "You will receive an email when the organization has been approved"
@@ -2024,6 +2063,7 @@ msgstr ""
 #: warehouse/templates/email/organization-project-added/body.html:24
 #: warehouse/templates/email/organization-project-removed/body.html:24
 #: warehouse/templates/email/organization-renamed/body.html:31
+#: warehouse/templates/email/organization-updated/body.html:69
 #, fuzzy, python-format
 #| msgid ""
 #| "If this was a mistake, you can email <a href=\"%(href)s\">"
@@ -2053,15 +2093,15 @@ msgstr ""
 
 #: warehouse/templates/email/organization-member-added/body.html:31
 #: warehouse/templates/email/organization-member-invited/body.html:31
-#: warehouse/templates/manage/organization/roles.html:60
-#: warehouse/templates/manage/organization/roles.html:99
-#: warehouse/templates/manage/organization/roles.html:186
-#: warehouse/templates/manage/project/roles.html:52
-#: warehouse/templates/manage/project/roles.html:117
-#: warehouse/templates/manage/project/roles.html:172
-#: warehouse/templates/manage/project/roles.html:272
-#: warehouse/templates/manage/project/roles.html:299
-#: warehouse/templates/manage/project/roles.html:337
+#: warehouse/templates/manage/organization/roles.html:63
+#: warehouse/templates/manage/organization/roles.html:102
+#: warehouse/templates/manage/organization/roles.html:189
+#: warehouse/templates/manage/project/roles.html:59
+#: warehouse/templates/manage/project/roles.html:124
+#: warehouse/templates/manage/project/roles.html:179
+#: warehouse/templates/manage/project/roles.html:279
+#: warehouse/templates/manage/project/roles.html:306
+#: warehouse/templates/manage/project/roles.html:344
 msgid "Role"
 msgstr "Ρόλος"
 
@@ -2082,11 +2122,12 @@ msgstr "Προστέθηκε από:"
 
 #: warehouse/templates/email/organization-member-added/body.html:44
 #: warehouse/templates/email/organization-member-invite-canceled/body.html:25
-#: warehouse/templates/email/organization-member-invite-declined/body.html:25
+#: warehouse/templates/email/organization-member-invite-declined/body.html:26
 #: warehouse/templates/email/organization-member-invited/body.html:44
 #: warehouse/templates/email/organization-member-removed/body.html:43
 #: warehouse/templates/email/organization-member-role-changed/body.html:44
 #: warehouse/templates/email/organization-renamed/body.html:37
+#: warehouse/templates/email/organization-updated/body.html:75
 #, fuzzy
 #| msgid "You are receiving this because you are an owner of this project."
 msgid "You are receiving this because you are an owner of this organization."
@@ -2191,6 +2232,53 @@ msgid ""
 msgstr ""
 "<a href=\"%(href)s\">%(username)s</a> αφαιρέθηκε από %(role_name)s στο "
 "project"
+
+#: warehouse/templates/email/organization-updated/body.html:31
+#, fuzzy, python-format
+#| msgid "You'll receive an email with a password reset link."
+msgid "The %(site)s organization \"%(organization_name)s\" has been updated."
+msgstr ""
+"Θα λάβετε ένα email που θα περιέχει ένα σύνδεσμο για μηδενισμό του κωδικού."
+
+#: warehouse/templates/email/organization-updated/body.html:36
+msgid "Old display name:"
+msgstr ""
+
+#: warehouse/templates/email/organization-updated/body.html:39
+msgid "New display name:"
+msgstr ""
+
+#: warehouse/templates/email/organization-updated/body.html:44
+msgid "Old URL:"
+msgstr ""
+
+#: warehouse/templates/email/organization-updated/body.html:47
+msgid "New URL:"
+msgstr ""
+
+#: warehouse/templates/email/organization-updated/body.html:52
+#, fuzzy
+#| msgid "Project description"
+msgid "Old description:"
+msgstr "Περιγραφή project"
+
+#: warehouse/templates/email/organization-updated/body.html:55
+#, fuzzy
+#| msgid "Project description"
+msgid "New description:"
+msgstr "Περιγραφή project"
+
+#: warehouse/templates/email/organization-updated/body.html:60
+#, fuzzy
+#| msgid "Project description"
+msgid "Old organization type:"
+msgstr "Περιγραφή project"
+
+#: warehouse/templates/email/organization-updated/body.html:63
+#, fuzzy
+#| msgid "Project description"
+msgid "New organization type:"
+msgstr "Περιγραφή project"
 
 #: warehouse/templates/email/password-change/body.html:18
 #, python-format
@@ -2733,24 +2821,26 @@ msgid "Admin"
 msgstr "Διαχείριση"
 
 #: warehouse/templates/includes/current-user-indicator.html:37
-#: warehouse/templates/manage/manage_base.html:204
-#: warehouse/templates/manage/manage_base.html:232
+#: warehouse/templates/manage/manage_base.html:216
+#: warehouse/templates/manage/manage_base.html:244
 #: warehouse/templates/manage/projects.html:18
+#: warehouse/templates/manage/projects.html:62
 msgid "Your projects"
 msgstr "Τα project σας"
 
 #: warehouse/templates/includes/current-user-indicator.html:44
-#: warehouse/templates/manage/manage_base.html:211
-#: warehouse/templates/manage/manage_base.html:239
+#: warehouse/templates/manage/manage_base.html:223
+#: warehouse/templates/manage/manage_base.html:251
 #: warehouse/templates/manage/organizations.html:18
+#: warehouse/templates/manage/organizations.html:63
 msgid "Your organizations"
 msgstr ""
 
 #: warehouse/templates/includes/current-user-indicator.html:51
 #: warehouse/templates/manage/account.html:17
 #: warehouse/templates/manage/account/two-factor.html:17
-#: warehouse/templates/manage/manage_base.html:218
-#: warehouse/templates/manage/manage_base.html:246
+#: warehouse/templates/manage/manage_base.html:230
+#: warehouse/templates/manage/manage_base.html:258
 msgid "Account settings"
 msgstr "Ρυθμίσεις λογαριασμού"
 
@@ -2780,10 +2870,10 @@ msgstr "Απαλοιφή αυτής της ειδοποίησης"
 #: warehouse/templates/manage/account.html:199
 #: warehouse/templates/manage/account.html:201
 #: warehouse/templates/manage/account.html:211
-#: warehouse/templates/manage/manage_base.html:282
-#: warehouse/templates/manage/manage_base.html:284
-#: warehouse/templates/manage/project/release.html:118
-#: warehouse/templates/manage/project/releases.html:172
+#: warehouse/templates/manage/manage_base.html:294
+#: warehouse/templates/manage/manage_base.html:296
+#: warehouse/templates/manage/project/release.html:137
+#: warehouse/templates/manage/project/releases.html:178
 #: warehouse/templates/manage/project/settings.html:111
 #: warehouse/templates/search/results.html:199
 msgid "Close"
@@ -2958,23 +3048,36 @@ msgstr "Πλοήγηση για διαχείριση του %(project)s"
 
 #: warehouse/templates/includes/manage/manage-organization-menu.html:19
 #: warehouse/templates/includes/manage/manage-team-menu.html:19
+#: warehouse/templates/manage/organization/projects.html:25
+#: warehouse/templates/manage/team/projects.html:25
 #, fuzzy
 #| msgid "Project:"
 msgid "Projects"
 msgstr "Project:"
 
-#: warehouse/templates/includes/manage/manage-organization-menu.html:25
-#: warehouse/templates/manage/organization/roles.html:35
+#: warehouse/templates/includes/manage/manage-organization-menu.html:26
+#: warehouse/templates/manage/organization/roles.html:36
 msgid "People"
 msgstr ""
 
-#: warehouse/templates/includes/manage/manage-organization-menu.html:31
+#: warehouse/templates/includes/manage/manage-organization-menu.html:33
+#: warehouse/templates/manage/organization/teams.html:25
 msgid "Teams"
 msgstr ""
 
-#: warehouse/templates/includes/manage/manage-organization-menu.html:37
-#: warehouse/templates/includes/manage/manage-project-menu.html:53
-#: warehouse/templates/includes/manage/manage-team-menu.html:31
+#: warehouse/templates/includes/manage/manage-organization-menu.html:41
+#: warehouse/templates/includes/manage/manage-project-menu.html:37
+#: warehouse/templates/includes/manage/manage-team-menu.html:34
+#: warehouse/templates/manage/account.html:459
+#: warehouse/templates/manage/organization/history.html:23
+#: warehouse/templates/manage/project/history.html:23
+#: warehouse/templates/manage/team/history.html:23
+msgid "Security history"
+msgstr "Ιστορικό ασφάλειας"
+
+#: warehouse/templates/includes/manage/manage-organization-menu.html:48
+#: warehouse/templates/includes/manage/manage-project-menu.html:59
+#: warehouse/templates/includes/manage/manage-team-menu.html:41
 msgid "Settings"
 msgstr "Ρυθμίσεις"
 
@@ -2984,26 +3087,22 @@ msgid "Navigation for managing %(project)s"
 msgstr "Πλοήγηση για διαχείριση του %(project)s"
 
 #: warehouse/templates/includes/manage/manage-project-menu.html:19
+#: warehouse/templates/manage/project/release.html:37
+#: warehouse/templates/manage/project/releases.html:157
 msgid "Releases"
 msgstr "Κυκλοφορίες"
 
-#: warehouse/templates/includes/manage/manage-project-menu.html:25
-#: warehouse/templates/manage/project/roles.html:35
+#: warehouse/templates/includes/manage/manage-project-menu.html:26
+#: warehouse/templates/manage/project/roles.html:36
 msgid "Collaborators"
 msgstr "Συνεργάτες"
 
-#: warehouse/templates/includes/manage/manage-project-menu.html:31
-#: warehouse/templates/manage/account.html:459
-#: warehouse/templates/manage/project/history.html:23
-msgid "Security history"
-msgstr "Ιστορικό ασφάλειας"
-
-#: warehouse/templates/includes/manage/manage-project-menu.html:38
+#: warehouse/templates/includes/manage/manage-project-menu.html:44
 #: warehouse/templates/manage/project/documentation.html:21
 msgid "Documentation"
 msgstr "Τεκμηρίωση"
 
-#: warehouse/templates/includes/manage/manage-project-menu.html:46
+#: warehouse/templates/includes/manage/manage-project-menu.html:52
 msgid "Publishing"
 msgstr ""
 
@@ -3013,8 +3112,8 @@ msgstr ""
 msgid "Navigation for managing %(team)s"
 msgstr "Πλοήγηση για διαχείριση του %(project)s"
 
-#: warehouse/templates/includes/manage/manage-team-menu.html:25
-#: warehouse/templates/manage/team/roles.html:35
+#: warehouse/templates/includes/manage/manage-team-menu.html:26
+#: warehouse/templates/manage/team/roles.html:36
 msgid "Members"
 msgstr ""
 
@@ -3146,7 +3245,7 @@ msgstr "Προβολή επιλογών email"
 
 #: warehouse/templates/manage/account.html:87
 #: warehouse/templates/manage/account.html:163
-#: warehouse/templates/manage/project/release.html:67
+#: warehouse/templates/manage/project/release.html:86
 #: warehouse/templates/manage/project/releases.html:68
 msgid "Options"
 msgstr "Επιλογές"
@@ -3424,7 +3523,7 @@ msgid "Two factor method:"
 msgstr "Μέθοδος δύο-παραγόντων:"
 
 #: warehouse/templates/manage/account.html:485
-#: warehouse/templates/manage/project/release.html:58
+#: warehouse/templates/manage/project/release.html:77
 msgid "None"
 msgstr "None"
 
@@ -3458,7 +3557,7 @@ msgstr ""
 
 #: warehouse/templates/manage/account.html:504
 #: warehouse/templates/manage/account.html:523
-#: warehouse/templates/manage/project/history.html:84
+#: warehouse/templates/manage/project/history.html:182
 msgid "Reason:"
 msgstr ""
 
@@ -3614,19 +3713,19 @@ msgid "Recovery code used for login"
 msgstr "Οι κωδικοί ανάκτησης έχουν ήδη δημιουργηθεί"
 
 #: warehouse/templates/manage/account.html:609
-#: warehouse/templates/manage/project/history.html:65
+#: warehouse/templates/manage/project/history.html:168
 msgid "API token added"
 msgstr "Το API token προστέθηκε"
 
 #: warehouse/templates/manage/account.html:611
 #: warehouse/templates/manage/account.html:634
-#: warehouse/templates/manage/project/history.html:69
-#: warehouse/templates/manage/project/history.html:76
+#: warehouse/templates/manage/project/history.html:173
+#: warehouse/templates/manage/project/history.html:180
 msgid "Token name:"
 msgstr "Όνομα token:"
 
 #: warehouse/templates/manage/account.html:628
-#: warehouse/templates/manage/project/history.html:72
+#: warehouse/templates/manage/project/history.html:175
 msgid "API token removed"
 msgstr "Το API token αφαιρέθηκε"
 
@@ -3658,21 +3757,25 @@ msgid "Recent account activity"
 msgstr "Πρόσφατη δραστηριότητα λογαριασμού"
 
 #: warehouse/templates/manage/account.html:657
-#: warehouse/templates/manage/project/history.html:107
+#: warehouse/templates/manage/organization/history.html:196
+#: warehouse/templates/manage/project/history.html:217
+#: warehouse/templates/manage/team/history.html:108
 msgid "Event"
 msgstr "Συμβάν"
 
 #: warehouse/templates/manage/account.html:658
 #: warehouse/templates/manage/account.html:666
-#: warehouse/templates/manage/project/history.html:108
-#: warehouse/templates/manage/project/history.html:117
 msgid "Date / time"
 msgstr "Ημερομηνία / ώρα"
 
 #: warehouse/templates/manage/account.html:659
 #: warehouse/templates/manage/account.html:670
-#: warehouse/templates/manage/project/history.html:109
-#: warehouse/templates/manage/project/history.html:121
+#: warehouse/templates/manage/organization/history.html:198
+#: warehouse/templates/manage/organization/history.html:210
+#: warehouse/templates/manage/project/history.html:219
+#: warehouse/templates/manage/project/history.html:231
+#: warehouse/templates/manage/team/history.html:110
+#: warehouse/templates/manage/team/history.html:122
 msgid "IP address"
 msgstr "Διεύθυνση IP"
 
@@ -3737,7 +3840,7 @@ msgstr[1] ""
 "        "
 
 #: warehouse/templates/manage/account.html:705
-#: warehouse/templates/manage/organization/settings.html:230
+#: warehouse/templates/manage/organization/settings.html:237
 #, python-format
 msgid ""
 "<a href=\"%(transfer_href)s\">transfer ownership</a> or <a href="
@@ -3748,8 +3851,8 @@ msgstr ""
 
 #: warehouse/templates/manage/account.html:714
 #: warehouse/templates/manage/account/token.html:166
-#: warehouse/templates/manage/organization/settings.html:184
-#: warehouse/templates/manage/organization/settings.html:239
+#: warehouse/templates/manage/organization/settings.html:191
+#: warehouse/templates/manage/organization/settings.html:246
 #: warehouse/templates/manage/team/settings.html:75
 msgid "Proceed with caution!"
 msgstr "Προχωρήστε με προσοχή!"
@@ -3764,18 +3867,18 @@ msgid "Delete your PyPI account"
 msgstr "Διαγραφή του PyPI λογαριασμού σας"
 
 #: warehouse/templates/manage/manage_base.html:16
-#: warehouse/templates/manage/organization/projects.html:115
-#: warehouse/templates/manage/organization/projects.html:120
-#: warehouse/templates/manage/organization/teams.html:53
-#: warehouse/templates/manage/organizations.html:93
-#: warehouse/templates/manage/organizations.html:99
-#: warehouse/templates/manage/organizations.html:104
+#: warehouse/templates/manage/organization/projects.html:117
+#: warehouse/templates/manage/organization/projects.html:122
+#: warehouse/templates/manage/organization/teams.html:56
 #: warehouse/templates/manage/organizations.html:109
+#: warehouse/templates/manage/organizations.html:115
+#: warehouse/templates/manage/organizations.html:120
+#: warehouse/templates/manage/organizations.html:125
 #: warehouse/templates/manage/project/releases.html:88
-#: warehouse/templates/manage/projects.html:148
 #: warehouse/templates/manage/projects.html:153
-#: warehouse/templates/manage/team/projects.html:115
-#: warehouse/templates/manage/team/projects.html:120
+#: warehouse/templates/manage/projects.html:158
+#: warehouse/templates/manage/team/projects.html:117
+#: warehouse/templates/manage/team/projects.html:122
 msgid "Manage"
 msgstr "Διαχείριση"
 
@@ -3811,6 +3914,11 @@ msgstr "Κωδικός σφάλματος"
 msgid "generated %(generated_datetime)s"
 msgstr "Τελευταία εκδόθηκε: %(generated_datetime)s"
 
+#: warehouse/templates/manage/manage_base.html:39
+#, python-format
+msgid "%(remaining)s unused"
+msgstr ""
+
 #: warehouse/templates/manage/account/recovery_codes-burn.html:49
 #: warehouse/templates/manage/manage_base.html:43
 msgid "Regenerate"
@@ -3826,17 +3934,17 @@ msgstr "Μέθοδος δύο-παραγόντων"
 
 #: warehouse/templates/manage/manage_base.html:64
 #: warehouse/templates/manage/manage_base.html:78
-#: warehouse/templates/manage/organization/roles.html:118
-#: warehouse/templates/manage/organization/roles.html:120
-#: warehouse/templates/manage/organization/roles.html:125
+#: warehouse/templates/manage/organization/roles.html:121
+#: warehouse/templates/manage/organization/roles.html:123
+#: warehouse/templates/manage/organization/roles.html:128
 #: warehouse/templates/manage/project/publishing.html:44
-#: warehouse/templates/manage/project/roles.html:82
-#: warehouse/templates/manage/project/roles.html:134
-#: warehouse/templates/manage/project/roles.html:139
-#: warehouse/templates/manage/project/roles.html:189
-#: warehouse/templates/manage/project/roles.html:194
-#: warehouse/templates/manage/team/roles.html:68
-#: warehouse/templates/manage/team/roles.html:73
+#: warehouse/templates/manage/project/roles.html:89
+#: warehouse/templates/manage/project/roles.html:141
+#: warehouse/templates/manage/project/roles.html:146
+#: warehouse/templates/manage/project/roles.html:196
+#: warehouse/templates/manage/project/roles.html:201
+#: warehouse/templates/manage/team/roles.html:75
+#: warehouse/templates/manage/team/roles.html:80
 msgid "Remove"
 msgstr "Αφαίρεση"
 
@@ -4031,344 +4139,362 @@ msgstr ""
 "\">Αναβαθμίστε τον περιηγητή σας</a> για να ρυθμίσετε την πιστοποίηση δύο-"
 "παραγόντων με μια συσκευή ασφαλείας (πχ USB key)"
 
-#: warehouse/templates/manage/manage_base.html:198
+#: warehouse/templates/manage/manage_base.html:196
+#: warehouse/templates/manage/organization/manage_organization_base.html:28
+#: warehouse/templates/manage/project/manage_project_base.html:28
+#: warehouse/templates/manage/team/manage_team_base.html:28
+#, fuzzy
+#| msgid "Breadcrumb"
+msgid "Breadcrumbs"
+msgstr "Breadcrumb"
+
+#: warehouse/templates/manage/manage_base.html:201
+#: warehouse/templates/manage/organization/manage_organization_base.html:32
+#: warehouse/templates/manage/project/manage_project_base.html:32
+#: warehouse/templates/manage/team/manage_team_base.html:32
 msgid "Your account"
 msgstr "Ο λογαριασμός σας"
 
-#: warehouse/templates/manage/manage_base.html:199
-#: warehouse/templates/manage/manage_base.html:227
+#: warehouse/templates/manage/manage_base.html:211
+#: warehouse/templates/manage/manage_base.html:239
 msgid "Account navigation"
 msgstr "Πλοήγηση λογαριασμού"
 
-#: warehouse/templates/manage/manage_base.html:294
-#: warehouse/templates/manage/manage_base.html:353
+#: warehouse/templates/manage/manage_base.html:306
+#: warehouse/templates/manage/manage_base.html:365
 msgid "This action cannot be undone!"
 msgstr "Αυτή η ενέργεια δεν μπορεί να αναιρεθεί!"
 
-#: warehouse/templates/manage/manage_base.html:306
+#: warehouse/templates/manage/manage_base.html:318
 msgid "Confirm your username to continue."
 msgstr "Επιβεβαιώστε τον όνομα χρήστη σας για να συνεχίσετε."
 
-#: warehouse/templates/manage/manage_base.html:308
+#: warehouse/templates/manage/manage_base.html:320
 #, python-format
 msgid "Confirm the %(item)s to continue."
 msgstr "Επιβεβαιώστε τα %(item)s για να συνεχίσετε."
 
-#: warehouse/templates/manage/manage_base.html:319
-#: warehouse/templates/manage/manage_base.html:371
+#: warehouse/templates/manage/manage_base.html:331
+#: warehouse/templates/manage/manage_base.html:383
 #: warehouse/templates/manage/organization/activate_subscription.html:32
 msgid "Cancel"
 msgstr "Άκυρο"
 
-#: warehouse/templates/manage/manage_base.html:342
+#: warehouse/templates/manage/manage_base.html:354
 msgid "close"
 msgstr "κλείσιμο"
 
-#: warehouse/templates/manage/manage_base.html:358
+#: warehouse/templates/manage/manage_base.html:370
 msgid "Enter your password to continue."
 msgstr "Εισάγετε τον κωδικό χρήστη σας για να συνεχίσετε."
 
-#: warehouse/templates/manage/organizations.html:22
-#: warehouse/templates/manage/projects.html:22
-#, fuzzy, python-format
-#| msgid "Your projects (%(project_count)s)"
-msgid "Pending invitations (%(invitation_count)s)"
-msgstr "Τα projects σας (%(project_count)s)"
+#: warehouse/templates/manage/organizations.html:23
+#: warehouse/templates/manage/projects.html:23
+#, fuzzy
+#| msgid "Main navigation"
+msgid "Pending invitations"
+msgstr "Κύρια πλοήγηση"
 
-#: warehouse/templates/manage/organization/projects.html:78
-#: warehouse/templates/manage/organizations.html:32
-#: warehouse/templates/manage/organizations.html:75
-#: warehouse/templates/manage/projects.html:41
-#: warehouse/templates/manage/projects.html:111
-#: warehouse/templates/manage/team/projects.html:78
+#: warehouse/templates/manage/organization/projects.html:80
+#: warehouse/templates/manage/organizations.html:35
+#: warehouse/templates/manage/organizations.html:91
+#: warehouse/templates/manage/projects.html:44
+#: warehouse/templates/manage/projects.html:116
+#: warehouse/templates/manage/team/projects.html:80
 #, fuzzy, python-format
 #| msgid "Created on %(creation_date)s"
 msgid "Created %(creation_date)s"
 msgstr "Δημιουργήθηκε στις %(creation_date)s"
 
-#: warehouse/templates/manage/organization/manage_organization_base.html:31
-#: warehouse/templates/manage/organizations.html:49
-#: warehouse/templates/manage/project/manage_project_base.html:32
-#: warehouse/templates/manage/team/manage_team_base.html:31
+#: warehouse/templates/manage/organizations.html:52
 #, fuzzy, python-format
-#| msgid "Your projects (%(project_count)s)"
-msgid "Your organizations (%(organization_count)s)"
-msgstr "Τα projects σας (%(project_count)s)"
+#| msgid "Navigation for %(project)s"
+msgid "Decline invitation to %(org)s"
+msgstr "Πλοήγηση για το %(project)s"
 
-#: warehouse/templates/manage/organizations.html:58
-#: warehouse/templates/manage/organizations.html:60
+#: warehouse/templates/manage/organizations.html:53
+#, fuzzy
+#| msgid "Main navigation"
+msgid "Decline invitation"
+msgstr "Κύρια πλοήγηση"
+
+#: warehouse/templates/manage/organization/settings.html:251
+#: warehouse/templates/manage/organizations.html:54
+#, fuzzy
+#| msgid "Project description"
+msgid "Organization Name"
+msgstr "Περιγραφή project"
+
+#: warehouse/templates/manage/organizations.html:74
+#: warehouse/templates/manage/organizations.html:76
 msgid "Billing Inactive"
 msgstr ""
 
-#: warehouse/templates/manage/organizations.html:60
+#: warehouse/templates/manage/organizations.html:76
 msgid ""
 "This organization's billing can be activated by an organization owner or "
 "billing manager"
 msgstr ""
 
-#: warehouse/templates/manage/organizations.html:63
+#: warehouse/templates/manage/organizations.html:79
 msgid "Request Submitted"
 msgstr ""
 
-#: warehouse/templates/manage/organizations.html:65
-#: warehouse/templates/manage/organizations.html:92
-#: warehouse/templates/manage/organizations.html:98
+#: warehouse/templates/manage/organizations.html:81
+#: warehouse/templates/manage/organizations.html:108
+#: warehouse/templates/manage/organizations.html:114
 msgid "This organization is not active"
 msgstr ""
 
-#: warehouse/templates/manage/organizations.html:65
+#: warehouse/templates/manage/organizations.html:81
 msgid "Inactive"
 msgstr ""
 
-#: warehouse/templates/manage/organization/roles.html:43
-#: warehouse/templates/manage/organization/roles.html:88
-#: warehouse/templates/manage/organizations.html:67
+#: warehouse/templates/manage/organization/roles.html:46
+#: warehouse/templates/manage/organization/roles.html:91
+#: warehouse/templates/manage/organizations.html:83
 #, fuzzy
 #| msgid "Manage"
 msgid "Manager"
 msgstr "Διαχείριση"
 
-#: warehouse/templates/manage/organization/roles.html:45
-#: warehouse/templates/manage/organization/roles.html:90
-#: warehouse/templates/manage/organizations.html:69
+#: warehouse/templates/manage/organization/roles.html:48
+#: warehouse/templates/manage/organization/roles.html:93
+#: warehouse/templates/manage/organizations.html:85
 #: warehouse/templates/manage/project/publishing.html:83
-#: warehouse/templates/manage/project/roles.html:43
-#: warehouse/templates/manage/project/roles.html:78
-#: warehouse/templates/manage/project/roles.html:108
-#: warehouse/templates/manage/project/roles.html:119
-#: warehouse/templates/manage/project/roles.html:163
-#: warehouse/templates/manage/project/roles.html:174
+#: warehouse/templates/manage/project/roles.html:50
+#: warehouse/templates/manage/project/roles.html:85
+#: warehouse/templates/manage/project/roles.html:115
+#: warehouse/templates/manage/project/roles.html:126
+#: warehouse/templates/manage/project/roles.html:170
+#: warehouse/templates/manage/project/roles.html:181
 msgid "Owner"
 msgstr "Κάτοχος"
 
-#: warehouse/templates/manage/organization/roles.html:48
-#: warehouse/templates/manage/organization/roles.html:92
-#: warehouse/templates/manage/organizations.html:71
+#: warehouse/templates/manage/organization/roles.html:51
+#: warehouse/templates/manage/organization/roles.html:95
+#: warehouse/templates/manage/organizations.html:87
 msgid "Billing Manager"
 msgstr ""
 
-#: warehouse/templates/manage/organizations.html:81
+#: warehouse/templates/manage/organizations.html:97
 #, fuzzy
 #| msgid "Create an account"
 msgid "View this organization"
 msgstr "Δημιουργία λογαριασμού"
 
-#: warehouse/templates/manage/organization/projects.html:128
-#: warehouse/templates/manage/organization/projects.html:131
-#: warehouse/templates/manage/organization/teams.html:60
-#: warehouse/templates/manage/organizations.html:82
+#: warehouse/templates/manage/organization/projects.html:130
+#: warehouse/templates/manage/organization/projects.html:133
+#: warehouse/templates/manage/organization/teams.html:63
+#: warehouse/templates/manage/organizations.html:98
 #: warehouse/templates/manage/project/releases.html:94
-#: warehouse/templates/manage/projects.html:161
-#: warehouse/templates/manage/projects.html:164
-#: warehouse/templates/manage/team/projects.html:128
-#: warehouse/templates/manage/team/projects.html:131
+#: warehouse/templates/manage/projects.html:166
+#: warehouse/templates/manage/projects.html:169
+#: warehouse/templates/manage/team/projects.html:130
+#: warehouse/templates/manage/team/projects.html:133
 msgid "View"
 msgstr "Προβολή"
 
-#: warehouse/templates/manage/organizations.html:87
+#: warehouse/templates/manage/organizations.html:103
 #, fuzzy
 #| msgid "Create an account"
 msgid "Activate billing for this organization"
 msgstr "Δημιουργία λογαριασμού"
 
-#: warehouse/templates/manage/organizations.html:88
+#: warehouse/templates/manage/organizations.html:104
 msgid "Activate Billing"
 msgstr ""
 
-#: warehouse/templates/manage/organizations.html:103
-#: warehouse/templates/manage/organizations.html:108
+#: warehouse/templates/manage/organizations.html:119
+#: warehouse/templates/manage/organizations.html:124
 #, fuzzy
 #| msgid "Create an account"
 msgid "Manage this organization"
 msgstr "Δημιουργία λογαριασμού"
 
-#: warehouse/templates/manage/organizations.html:117
+#: warehouse/templates/manage/organizations.html:133
 #, fuzzy
 #| msgid "%(user)s has not uploaded any projects to PyPI, yet"
 msgid "You have not joined any organizations on PyPI, yet."
 msgstr "Ο χρήστης %(user)s δεν έχει ανεβάσει projects στο PyPI, ακόμα"
 
-#: warehouse/templates/manage/organizations.html:126
+#: warehouse/templates/manage/organizations.html:142
 #, fuzzy
 #| msgid "Create an account"
 msgid "Create new organization"
 msgstr "Δημιουργία λογαριασμού"
 
-#: warehouse/templates/manage/organization/roles.html:123
-#: warehouse/templates/manage/organization/roles.html:158
-#: warehouse/templates/manage/organizations.html:133
-#: warehouse/templates/manage/project/roles.html:137
-#: warehouse/templates/manage/project/roles.html:192
-#: warehouse/templates/manage/project/roles.html:225
+#: warehouse/templates/manage/organization/roles.html:126
+#: warehouse/templates/manage/organization/roles.html:161
+#: warehouse/templates/manage/organizations.html:149
+#: warehouse/templates/manage/project/roles.html:144
+#: warehouse/templates/manage/project/roles.html:199
+#: warehouse/templates/manage/project/roles.html:232
 msgid "."
 msgstr ""
 
 #: warehouse/templates/manage/organization/settings.html:29
-#: warehouse/templates/manage/organizations.html:141
+#: warehouse/templates/manage/organizations.html:157
 msgid "Organization account name"
 msgstr ""
 
-#: warehouse/templates/manage/organizations.html:146
+#: warehouse/templates/manage/organizations.html:162
 msgid "Select an organization account name"
 msgstr ""
 
 #: warehouse/templates/manage/organization/settings.html:32
-#: warehouse/templates/manage/organizations.html:157
+#: warehouse/templates/manage/organizations.html:173
 msgid "This account name is used in URLs on PyPI."
 msgstr ""
 
 #: warehouse/templates/manage/organization/settings.html:71
 #: warehouse/templates/manage/organization/settings.html:95
-#: warehouse/templates/manage/organizations.html:158
-#: warehouse/templates/manage/organizations.html:180
-#: warehouse/templates/manage/organizations.html:198
+#: warehouse/templates/manage/organizations.html:174
+#: warehouse/templates/manage/organizations.html:196
+#: warehouse/templates/manage/organizations.html:214
 msgid "For example"
 msgstr ""
 
 #: warehouse/templates/manage/organization/settings.html:48
-#: warehouse/templates/manage/organizations.html:164
-msgid "Organization name"
-msgstr ""
+#: warehouse/templates/manage/organizations.html:180
+#, fuzzy
+#| msgid "Project description"
+msgid "Organization display name"
+msgstr "Περιγραφή project"
 
 #: warehouse/templates/manage/organization/settings.html:54
-#: warehouse/templates/manage/organizations.html:169
+#: warehouse/templates/manage/organizations.html:185
 msgid "Name of your business, product, or project"
 msgstr ""
 
 #: warehouse/templates/manage/organization/settings.html:78
-#: warehouse/templates/manage/organizations.html:186
+#: warehouse/templates/manage/organizations.html:202
 msgid "️Organization URL"
 msgstr ""
 
 #: warehouse/templates/manage/organization/settings.html:84
-#: warehouse/templates/manage/organizations.html:192
+#: warehouse/templates/manage/organizations.html:208
 msgid "URL for your business, product, or project"
 msgstr ""
 
 #: warehouse/templates/manage/organization/settings.html:102
-#: warehouse/templates/manage/organizations.html:204
+#: warehouse/templates/manage/organizations.html:220
 #, fuzzy
 #| msgid "Project description"
 msgid "Organization description"
 msgstr "Περιγραφή project"
 
 #: warehouse/templates/manage/organization/settings.html:108
-#: warehouse/templates/manage/organizations.html:209
+#: warehouse/templates/manage/organizations.html:225
 msgid "Description of your business, product, or project"
 msgstr ""
 
 #: warehouse/templates/manage/organization/settings.html:127
-#: warehouse/templates/manage/organizations.html:223
+#: warehouse/templates/manage/organizations.html:239
 msgid "️Organization type"
 msgstr ""
 
 #: warehouse/templates/manage/organization/settings.html:144
-#: warehouse/templates/manage/organizations.html:235
+#: warehouse/templates/manage/organizations.html:251
 msgid ""
 "Companies can create organization accounts as a paid service while community "
 "projects are granted complimentary access."
 msgstr ""
 
-#: warehouse/templates/manage/organization/teams.html:96
-#: warehouse/templates/manage/organizations.html:241
+#: warehouse/templates/manage/organization/teams.html:101
+#: warehouse/templates/manage/organizations.html:257
 #, fuzzy
 #| msgid "Created"
 msgid "Create"
 msgstr "Δημιουργήθηκε"
 
-#: warehouse/templates/manage/project/manage_project_base.html:39
-#: warehouse/templates/manage/projects.html:58
-#, python-format
-msgid "Your projects (%(project_count)s)"
-msgstr "Τα projects σας (%(project_count)s)"
-
-#: warehouse/templates/manage/organization/projects.html:44
-#: warehouse/templates/manage/organization/projects.html:107
-#: warehouse/templates/manage/projects.html:77
-#: warehouse/templates/manage/projects.html:140
-#: warehouse/templates/manage/team/projects.html:44
-#: warehouse/templates/manage/team/projects.html:107
+#: warehouse/templates/manage/organization/projects.html:46
+#: warehouse/templates/manage/organization/projects.html:109
+#: warehouse/templates/manage/projects.html:82
+#: warehouse/templates/manage/projects.html:145
+#: warehouse/templates/manage/team/projects.html:46
+#: warehouse/templates/manage/team/projects.html:109
 msgid "This project requires 2FA to be enabled to manage"
 msgstr ""
 
-#: warehouse/templates/manage/organization/projects.html:45
-#: warehouse/templates/manage/organization/projects.html:108
-#: warehouse/templates/manage/projects.html:78
-#: warehouse/templates/manage/projects.html:141
-#: warehouse/templates/manage/team/projects.html:45
-#: warehouse/templates/manage/team/projects.html:108
+#: warehouse/templates/manage/organization/projects.html:47
+#: warehouse/templates/manage/organization/projects.html:110
+#: warehouse/templates/manage/projects.html:83
+#: warehouse/templates/manage/projects.html:146
+#: warehouse/templates/manage/team/projects.html:47
+#: warehouse/templates/manage/team/projects.html:110
 #, fuzzy
 #| msgid "Requires:"
 msgid "2FA Required"
 msgstr "Απαιτήσεις:"
 
-#: warehouse/templates/manage/organization/projects.html:51
-#: warehouse/templates/manage/organization/projects.html:61
-#: warehouse/templates/manage/projects.html:84
-#: warehouse/templates/manage/projects.html:94
-#: warehouse/templates/manage/team/projects.html:51
-#: warehouse/templates/manage/team/projects.html:61
+#: warehouse/templates/manage/organization/projects.html:53
+#: warehouse/templates/manage/organization/projects.html:63
+#: warehouse/templates/manage/projects.html:89
+#: warehouse/templates/manage/projects.html:99
+#: warehouse/templates/manage/team/projects.html:53
+#: warehouse/templates/manage/team/projects.html:63
 msgid "This is a critical project for the Python ecosystem"
 msgstr ""
 
-#: warehouse/templates/manage/organization/projects.html:52
-#: warehouse/templates/manage/organization/projects.html:62
-#: warehouse/templates/manage/projects.html:85
-#: warehouse/templates/manage/projects.html:95
-#: warehouse/templates/manage/team/projects.html:52
-#: warehouse/templates/manage/team/projects.html:62
+#: warehouse/templates/manage/organization/projects.html:54
+#: warehouse/templates/manage/organization/projects.html:64
+#: warehouse/templates/manage/projects.html:90
+#: warehouse/templates/manage/projects.html:100
+#: warehouse/templates/manage/team/projects.html:54
+#: warehouse/templates/manage/team/projects.html:64
 msgid "Critical Project"
 msgstr ""
 
-#: warehouse/templates/manage/organization/projects.html:54
-#: warehouse/templates/manage/organization/projects.html:95
-#: warehouse/templates/manage/projects.html:87
-#: warehouse/templates/manage/projects.html:128
-#: warehouse/templates/manage/team/projects.html:54
-#: warehouse/templates/manage/team/projects.html:95
+#: warehouse/templates/manage/organization/projects.html:56
+#: warehouse/templates/manage/organization/projects.html:97
+#: warehouse/templates/manage/projects.html:92
+#: warehouse/templates/manage/projects.html:133
+#: warehouse/templates/manage/team/projects.html:56
+#: warehouse/templates/manage/team/projects.html:97
 msgid "PyPI requires 2FA to be enabled to manage this project"
 msgstr ""
 
-#: warehouse/templates/manage/organization/projects.html:55
-#: warehouse/templates/manage/organization/projects.html:96
-#: warehouse/templates/manage/projects.html:88
-#: warehouse/templates/manage/projects.html:129
-#: warehouse/templates/manage/team/projects.html:55
-#: warehouse/templates/manage/team/projects.html:96
+#: warehouse/templates/manage/organization/projects.html:57
+#: warehouse/templates/manage/organization/projects.html:98
+#: warehouse/templates/manage/projects.html:93
+#: warehouse/templates/manage/projects.html:134
+#: warehouse/templates/manage/team/projects.html:57
+#: warehouse/templates/manage/team/projects.html:98
 msgid "2FA Mandated"
 msgstr ""
 
-#: warehouse/templates/manage/organization/projects.html:66
-#: warehouse/templates/manage/projects.html:99
-#: warehouse/templates/manage/team/projects.html:66
+#: warehouse/templates/manage/organization/projects.html:68
+#: warehouse/templates/manage/projects.html:104
+#: warehouse/templates/manage/team/projects.html:68
 msgid "Sole owner"
 msgstr "Μοναδικός κάτοχος"
 
-#: warehouse/templates/manage/organization/projects.html:114
-#: warehouse/templates/manage/projects.html:147
-#: warehouse/templates/manage/team/projects.html:114
+#: warehouse/templates/manage/organization/projects.html:116
+#: warehouse/templates/manage/projects.html:152
+#: warehouse/templates/manage/team/projects.html:116
 msgid "Manage this project"
 msgstr "Διαχείριση αυτού του project"
 
-#: warehouse/templates/manage/organization/projects.html:119
-#: warehouse/templates/manage/projects.html:152
-#: warehouse/templates/manage/team/projects.html:119
+#: warehouse/templates/manage/organization/projects.html:121
+#: warehouse/templates/manage/projects.html:157
+#: warehouse/templates/manage/team/projects.html:121
 msgid "You are not an owner of this project"
 msgstr "Δεν είστε ο κάτοχος αυτού του project"
 
-#: warehouse/templates/manage/organization/projects.html:127
-#: warehouse/templates/manage/projects.html:160
-#: warehouse/templates/manage/team/projects.html:127
+#: warehouse/templates/manage/organization/projects.html:129
+#: warehouse/templates/manage/projects.html:165
+#: warehouse/templates/manage/team/projects.html:129
 msgid "View this project's public page"
 msgstr "Προβολή της δημόσιας σελίδας αυτού του project"
 
-#: warehouse/templates/manage/organization/projects.html:130
-#: warehouse/templates/manage/projects.html:163
-#: warehouse/templates/manage/team/projects.html:130
+#: warehouse/templates/manage/organization/projects.html:132
+#: warehouse/templates/manage/projects.html:168
+#: warehouse/templates/manage/team/projects.html:132
 msgid "This project has no releases"
 msgstr "Αυτό το project δεν έχει κυκλοφορίες"
 
-#: warehouse/templates/manage/projects.html:172
+#: warehouse/templates/manage/projects.html:177
 #, python-format
 msgid ""
 "You have not uploaded any projects to PyPI, yet. To learn how to get "
@@ -4453,9 +4579,9 @@ msgid "Download as file"
 msgstr "Κατέβασμα αρχείων"
 
 #: warehouse/templates/manage/account/recovery_codes-provision.html:63
-#: warehouse/templates/manage/organization/roles.html:110
-#: warehouse/templates/manage/project/roles.html:126
-#: warehouse/templates/manage/project/roles.html:181
+#: warehouse/templates/manage/organization/roles.html:113
+#: warehouse/templates/manage/project/roles.html:133
+#: warehouse/templates/manage/project/roles.html:188
 msgid "Save"
 msgstr "Αποθήκευση"
 
@@ -4779,14 +4905,301 @@ msgid ""
 "billing information to enable the account."
 msgstr ""
 
+#: warehouse/templates/manage/organization/history.html:20
+#: warehouse/templates/manage/project/history.html:20
+#: warehouse/templates/manage/team/history.html:20
+#, fuzzy, python-format
+#| msgid "'%(project_name)s' project history"
+msgid "'%(source_name)s' security history"
+msgstr "Ιστορικό '%(project_name)s'"
+
+#: warehouse/templates/manage/organization/history.html:25
+#, fuzzy
+#| msgid ""
+#| "Each time you (or your collaborators) perform a security action related "
+#| "to this project, the action is recorded and displayed here."
+msgid ""
+"Each time you (or your collaborators) perform a security action related to "
+"this organization, the action is recorded and displayed here."
+msgstr ""
+"Κάθε φορά που εσείς (ή κάποιος συνεργάτης σας) πραγματοποιεί κάποια ενέργεια "
+"ασφάλειας σχετιζόμενη με αυτό το project, τότε αυτή η ενέργεια θα "
+"καταγράφεται και τα εμφανίζεται εδώ."
+
+#: warehouse/templates/manage/organization/history.html:32
+#, fuzzy, python-format
+#| msgid "Manage '%(project_name)s'"
+msgid "'%(organization_name)s' registered as organization name"
+msgstr "Διαχείριση '%(project_name)s'"
+
+#: warehouse/templates/manage/organization/history.html:36
+#, fuzzy, python-format
+#| msgid "Manage '%(project_name)s'"
+msgid "%(organization_name)s organization created"
+msgstr "Διαχείριση '%(project_name)s'"
+
+#: warehouse/templates/manage/organization/history.html:38
+#, fuzzy, python-format
+#| msgid "Manage '%(project_name)s'"
+msgid "%(organization_name)s organization deleted"
+msgstr "Διαχείριση '%(project_name)s'"
+
+#: warehouse/templates/manage/organization/history.html:40
+#, fuzzy, python-format
+#| msgid ""
+#| "<a href=\"%(href)s\">%(username)s</a> removed as project %(role_name)s"
+msgid ""
+"%(previous_organization_name)s organization renamed to %(organization_name)s"
+msgstr ""
+"<a href=\"%(href)s\">%(username)s</a> αφαιρέθηκε από %(role_name)s στο "
+"project"
+
+#: warehouse/templates/manage/organization/history.html:42
+#, fuzzy, python-format
+#| msgid "Manage '%(project_name)s'"
+msgid "%(organization_name)s organization approved"
+msgstr "Διαχείριση '%(project_name)s'"
+
+#: warehouse/templates/manage/organization/history.html:44
+#, fuzzy, python-format
+#| msgid "Manage '%(project_name)s'"
+msgid "%(organization_name)s organization declined"
+msgstr "Διαχείριση '%(project_name)s'"
+
+#: warehouse/templates/manage/organization/history.html:49
+#, fuzzy, python-format
+#| msgid ""
+#| "<a href=\"%(href)s\">%(username)s</a> changed to project %(role_name)s"
+msgid "<a href=\"%(href)s\">%(project_name)s</a> project added to organization"
+msgstr ""
+"<a href=\"%(href)s\">%(username)s</a> άλλαξε ως %(role_name)s στο project"
+
+#: warehouse/templates/manage/organization/history.html:53
+#, fuzzy, python-format
+#| msgid ""
+#| "<a href=\"%(href)s\">%(username)s</a> removed as project %(role_name)s"
+msgid ""
+"<a href=\"%(href)s\">%(project_name)s</a> project removed from organization"
+msgstr ""
+"<a href=\"%(href)s\">%(username)s</a> αφαιρέθηκε από %(role_name)s στο "
+"project"
+
+#: warehouse/templates/manage/organization/history.html:60
+#, fuzzy, python-format
+#| msgid "<a href=\"%(href)s\">%(username)s</a> added as project %(role_name)s"
+msgid ""
+"<a href=\"%(href)s\">%(username)s</a> added as organization %(role_name)s"
+msgstr ""
+"<a href=\"%(href)s\">%(username)s</a> προστέθηκε ως %(role_name)s στο project"
+
+#: warehouse/templates/manage/organization/history.html:65
+#, fuzzy, python-format
+#| msgid ""
+#| "<a href=\"%(href)s\">%(username)s</a> removed as project %(role_name)s"
+msgid ""
+"<a href=\"%(href)s\">%(username)s</a> removed as organization %(role_name)s"
+msgstr ""
+"<a href=\"%(href)s\">%(username)s</a> αφαιρέθηκε από %(role_name)s στο "
+"project"
+
+#: warehouse/templates/manage/organization/history.html:70
+#, fuzzy, python-format
+#| msgid ""
+#| "<a href=\"%(href)s\">%(username)s</a> changed to project %(role_name)s"
+msgid ""
+"<a href=\"%(href)s\">%(username)s</a> changed to organization %(role_name)s"
+msgstr ""
+"<a href=\"%(href)s\">%(username)s</a> άλλαξε ως %(role_name)s στο project"
+
+#: warehouse/templates/manage/organization/history.html:75
+#, fuzzy, python-format
+#| msgid ""
+#| "<a href=\"%(href)s\">%(username)s</a> changed to project %(role_name)s"
+msgid ""
+"<a href=\"%(href)s\">%(username)s</a> invited to join as organization "
+"%(role_name)s"
+msgstr ""
+"<a href=\"%(href)s\">%(username)s</a> άλλαξε ως %(role_name)s στο project"
+
+#: warehouse/templates/manage/organization/history.html:80
+#, fuzzy, python-format
+#| msgid ""
+#| "<a href=\"%(href)s\">%(username)s</a> changed to project %(role_name)s"
+msgid ""
+"<a href=\"%(href)s\">%(username)s</a> declined invitation to join as "
+"organization %(role_name)s"
+msgstr ""
+"<a href=\"%(href)s\">%(username)s</a> άλλαξε ως %(role_name)s στο project"
+
+#: warehouse/templates/manage/organization/history.html:85
+#, fuzzy, python-format
+#| msgid ""
+#| "<a href=\"%(href)s\">%(username)s</a> removed as project %(role_name)s"
+msgid ""
+"Revoked invitation for <a href=\"%(href)s\">%(username)s</a> to join as "
+"organization %(role_name)s"
+msgstr ""
+"<a href=\"%(href)s\">%(username)s</a> αφαιρέθηκε από %(role_name)s στο "
+"project"
+
+#: warehouse/templates/manage/organization/history.html:90
+#: warehouse/templates/manage/team/history.html:32
+#, python-format
+msgid "%(team_name)s team created"
+msgstr ""
+
+#: warehouse/templates/manage/organization/history.html:92
+#: warehouse/templates/manage/team/history.html:34
+#, python-format
+msgid "%(team_name)s team deleted"
+msgstr ""
+
+#: warehouse/templates/manage/organization/history.html:97
+#: warehouse/templates/manage/team/history.html:41
+#, python-format
+msgid ""
+"%(team_name)s team added as project %(role_name)s for <a href=\"%(href)s\">"
+"%(project_name)s</a>"
+msgstr ""
+
+#: warehouse/templates/manage/organization/history.html:101
+#: warehouse/templates/manage/team/history.html:45
+#, python-format
+msgid ""
+"%(team_name)s team removed as project %(role_name)s for <a href=\"%(href)s\">"
+"%(project_name)s</a>"
+msgstr ""
+
+#: warehouse/templates/manage/organization/history.html:105
+#: warehouse/templates/manage/team/history.html:49
+#, python-format
+msgid ""
+"%(team_name)s team changed to project %(role_name)s for <a href=\"%(href)s\">"
+"%(project_name)s</a>"
+msgstr ""
+
+#: warehouse/templates/manage/organization/history.html:112
+#: warehouse/templates/manage/team/history.html:56
+#, fuzzy, python-format
+#| msgid "<a href=\"%(href)s\">%(username)s</a> added as project %(role_name)s"
+msgid "<a href=\"%(href)s\">%(username)s</a> added to %(team_name)s team"
+msgstr ""
+"<a href=\"%(href)s\">%(username)s</a> προστέθηκε ως %(role_name)s στο project"
+
+#: warehouse/templates/manage/organization/history.html:116
+#: warehouse/templates/manage/team/history.html:60
+#, fuzzy, python-format
+#| msgid ""
+#| "<a href=\"%(href)s\">%(username)s</a> removed as project %(role_name)s"
+msgid "<a href=\"%(href)s\">%(username)s</a> removed from %(team_name)s team"
+msgstr ""
+"<a href=\"%(href)s\">%(username)s</a> αφαιρέθηκε από %(role_name)s στο "
+"project"
+
+#: warehouse/templates/manage/organization/history.html:127
+#, fuzzy
+#| msgid "Register"
+msgid "Registered by:"
+msgstr "Εγγραφή"
+
+#: warehouse/templates/manage/organization/history.html:134
+#: warehouse/templates/manage/project/history.html:34
+#: warehouse/templates/manage/team/history.html:71
+msgid "Created by:"
+msgstr "Δημιουργία από:"
+
+#: warehouse/templates/manage/organization/history.html:139
+#: warehouse/templates/manage/team/history.html:76
+#, fuzzy
+#| msgid "Created by:"
+msgid "Deleted by:"
+msgstr "Δημιουργία από:"
+
+#: warehouse/templates/manage/organization/history.html:144
+#: warehouse/templates/manage/team/history.html:81
+#, fuzzy
+#| msgid "Removed by:"
+msgid "Renamed by:"
+msgstr "Αφαιρέθηκε από:"
+
+#: warehouse/templates/manage/organization/history.html:149
+#, fuzzy
+#| msgid "Removed by:"
+msgid "Approved by:"
+msgstr "Αφαιρέθηκε από:"
+
+#: warehouse/templates/manage/organization/history.html:154
+#, fuzzy
+#| msgid "Changed by:"
+msgid "Declined by:"
+msgstr "Αλλαγή από:"
+
+#: warehouse/templates/manage/organization/history.html:161
+#: warehouse/templates/manage/project/history.html:43
+#: warehouse/templates/manage/project/history.html:84
+#: warehouse/templates/manage/project/history.html:129
+#: warehouse/templates/manage/project/history.html:155
+#: warehouse/templates/manage/team/history.html:88
+msgid "Added by:"
+msgstr "Προστέθηκε από:"
+
+#: warehouse/templates/manage/organization/history.html:166
+#: warehouse/templates/manage/project/history.html:51
+#: warehouse/templates/manage/project/history.html:61
+#: warehouse/templates/manage/project/history.html:91
+#: warehouse/templates/manage/project/history.html:137
+#: warehouse/templates/manage/project/history.html:163
+#: warehouse/templates/manage/team/history.html:93
+msgid "Removed by:"
+msgstr "Αφαιρέθηκε από:"
+
+#: warehouse/templates/manage/organization/history.html:171
+#: warehouse/templates/manage/project/history.html:98
+#: warehouse/templates/manage/project/history.html:145
+#: warehouse/templates/manage/team/history.html:98
+msgid "Changed by:"
+msgstr "Αλλαγή από:"
+
+#: warehouse/templates/manage/organization/history.html:176
+#: warehouse/templates/manage/organization/history.html:181
+#: warehouse/templates/manage/project/history.html:105
+#: warehouse/templates/manage/project/history.html:112
+#, fuzzy
+#| msgid "Changed by:"
+msgid "Invited by:"
+msgstr "Αλλαγή από:"
+
+#: warehouse/templates/manage/organization/history.html:186
+#: warehouse/templates/manage/project/history.html:119
+#, fuzzy
+#| msgid "Removed by:"
+msgid "Revoked by:"
+msgstr "Αφαιρέθηκε από:"
+
+#: warehouse/templates/manage/organization/history.html:193
+#: warehouse/templates/manage/project/history.html:214
+#: warehouse/templates/manage/team/history.html:105
+#, fuzzy, python-format
+#| msgid "Security history for %(project_name)s"
+msgid "Security history for %(source_name)s"
+msgstr "Ιστορικό ασφάλειας για το %(project_name)s"
+
+#: warehouse/templates/manage/organization/history.html:197
+#: warehouse/templates/manage/organization/history.html:206
+#: warehouse/templates/manage/project/history.html:218
+#: warehouse/templates/manage/project/history.html:227
+#: warehouse/templates/manage/team/history.html:109
+#: warehouse/templates/manage/team/history.html:118
+msgid "Time"
+msgstr ""
+
 #: warehouse/templates/manage/organization/manage_organization_base.html:20
 #, fuzzy, python-format
 #| msgid "Manage '%(project_name)s'"
 msgid "Manage '%(organization_name)s'"
 msgstr "Διαχείριση '%(project_name)s'"
 
-#: warehouse/templates/manage/organization/manage_organization_base.html:40
-#: warehouse/templates/manage/team/manage_team_base.html:43
+#: warehouse/templates/manage/organization/manage_organization_base.html:57
 #, fuzzy
 #| msgid "Create an account"
 msgid "Back to organizations"
@@ -4804,56 +5217,54 @@ msgstr "Περιγραφή project"
 msgid "Manage '%(organization_name)s' projects"
 msgstr "Διαχείριση '%(project_name)s'"
 
-#: warehouse/templates/manage/organization/projects.html:24
-#: warehouse/templates/manage/team/projects.html:24
-#, fuzzy, python-format
-#| msgid "Your projects (%(project_count)s)"
-msgid "Projects (%(project_count)s)"
-msgstr "Τα projects σας (%(project_count)s)"
+#: warehouse/templates/manage/organization/projects.html:142
+#, fuzzy
+#| msgid "You are not an owner of this project"
+msgid "There are no projects in your organization, yet."
+msgstr "Δεν είστε ο κάτοχος αυτού του project"
 
-#: warehouse/templates/manage/organization/projects.html:139
+#: warehouse/templates/manage/organization/projects.html:144
 #, fuzzy, python-format
 #| msgid ""
 #| "You have not uploaded any projects to PyPI, yet. To learn how to get "
 #| "started, visit the <a href=\"%(href)s\" target=\"_blank\" rel=\"noopener"
 #| "\">Python Packaging User Guide</a>"
 msgid ""
-"You have not added any projects to your organization, yet. Get started by "
-"adding a project that you own using the form below. To learn how to create a "
-"new project, visit the <a href=\"%(href)s\" target=\"_blank\" rel=\"noopener"
-"\">Python Packaging User Guide</a>"
+"Get started by adding a project that you own using the form below. To learn "
+"how to create a new project, visit the <a href=\"%(href)s\" target=\"_blank"
+"\" rel=\"noopener\">Python Packaging User Guide</a>"
 msgstr ""
 "Δεν έχετε ανεβάσει ακόμα κάποια projects στο PyPI. Για να μάθετε πως να "
 "ξεκινήσετε, επισκεφτείτε το <a href=\"%(href)s\" target=\"_blank\" rel="
 "\"noopener\">Python Packaging User Guide</a>"
 
-#: warehouse/templates/manage/organization/projects.html:149
+#: warehouse/templates/manage/organization/projects.html:156
 #, fuzzy
 #| msgid "Create an account"
 msgid "Add project to organization"
 msgstr "Δημιουργία λογαριασμού"
 
-#: warehouse/templates/manage/organization/projects.html:155
+#: warehouse/templates/manage/organization/projects.html:162
 msgid "️New or existing project?"
 msgstr ""
 
-#: warehouse/templates/manage/organization/projects.html:165
+#: warehouse/templates/manage/organization/projects.html:172
 msgid ""
 "Transfer an existing project that you own, or create and add a new project "
 "to the organization."
 msgstr ""
 
-#: warehouse/templates/manage/organization/projects.html:171
+#: warehouse/templates/manage/organization/projects.html:178
 msgid "️Name of existing project"
 msgstr ""
 
-#: warehouse/templates/manage/organization/projects.html:175
+#: warehouse/templates/manage/organization/projects.html:182
 #, fuzzy
 #| msgid "You are receiving this because you are an owner of this project."
 msgid "You do not own any projects that you can add to this organization."
 msgstr "Το λαμβάνετε αυτό επειδή είστε ένας κάτοχος αυτού του project."
 
-#: warehouse/templates/manage/organization/projects.html:180
+#: warehouse/templates/manage/organization/projects.html:187
 msgid ""
 "Owners or managers of this organization can transfer a project that they own "
 "to this organization if the project has not been added to another "
@@ -4861,25 +5272,25 @@ msgid ""
 "transferred from the project settings page."
 msgstr ""
 
-#: warehouse/templates/manage/organization/projects.html:185
+#: warehouse/templates/manage/organization/projects.html:192
 #, fuzzy
 #| msgid "Trending projects"
 msgid "Transfer existing project"
 msgstr "Τα projects στην τάση"
 
-#: warehouse/templates/manage/organization/projects.html:189
+#: warehouse/templates/manage/organization/projects.html:196
 #, fuzzy
 #| msgid "Register a new project."
 msgid "️Name of new project"
 msgstr "Εγγραφή ενός νέου project."
 
-#: warehouse/templates/manage/organization/projects.html:197
+#: warehouse/templates/manage/organization/projects.html:204
 msgid ""
 "Owners of this organization can create an empty project and add it to the "
 "organization."
 msgstr ""
 
-#: warehouse/templates/manage/organization/projects.html:202
+#: warehouse/templates/manage/organization/projects.html:209
 #, fuzzy
 #| msgid "Register a new project."
 msgid "Create and add new project"
@@ -4899,10 +5310,10 @@ msgstr ""
 
 #: warehouse/templates/manage/organization/roles.html:23
 #: warehouse/templates/manage/organization/roles.html:28
-#: warehouse/templates/manage/organization/roles.html:61
+#: warehouse/templates/manage/organization/roles.html:64
 #: warehouse/templates/manage/project/roles.html:23
 #: warehouse/templates/manage/project/roles.html:28
-#: warehouse/templates/manage/project/roles.html:53
+#: warehouse/templates/manage/project/roles.html:60
 #: warehouse/templates/manage/team/roles.html:23
 #: warehouse/templates/manage/team/roles.html:28
 msgid "2FA"
@@ -4914,7 +5325,7 @@ msgstr ""
 msgid "2FA disabled"
 msgstr ""
 
-#: warehouse/templates/manage/organization/roles.html:36
+#: warehouse/templates/manage/organization/roles.html:39
 #, fuzzy, python-format
 #| msgid ""
 #| "Use this page to control which PyPI users can help you to manage "
@@ -4926,120 +5337,123 @@ msgstr ""
 "Χρησιμοποιήστε αυτή τη σελίδα για να ελέγξετε ποιοι χρήστες του PyPI μπορούν "
 "να σας βοηθήσουν στη διαχείριση του %(project_name)s"
 
-#: warehouse/templates/manage/organization/roles.html:38
+#: warehouse/templates/manage/organization/roles.html:41
 #, fuzzy
 #| msgid "Project description"
 msgid "Organization Roles"
 msgstr "Περιγραφή project"
 
-#: warehouse/templates/manage/organization/roles.html:39
+#: warehouse/templates/manage/organization/roles.html:42
 #, fuzzy, python-format
 #| msgid "There are two possible roles for collaborators:"
 msgid ""
 "There are %(number_of_roles)s possible roles for people in this organization:"
 msgstr "Υπάρχουν δύο πιθανοί ρόλοι για τους συνεργάτες:"
 
-#: warehouse/templates/manage/organization/roles.html:41
-#: warehouse/templates/manage/organization/roles.html:86
-#: warehouse/templates/manage/project/roles.html:284
+#: warehouse/templates/manage/organization/roles.html:44
+#: warehouse/templates/manage/organization/roles.html:89
+#: warehouse/templates/manage/project/roles.html:291
 msgid "Member"
 msgstr ""
 
-#: warehouse/templates/manage/organization/roles.html:42
+#: warehouse/templates/manage/organization/roles.html:45
 msgid ""
 "Can be owner or maintainer for specific projects. Cannot create new "
 "projects. Cannot create or manage teams. Cannot invite or manage "
 "organization members. Cannot delete projects or the organization itself."
 msgstr ""
 
-#: warehouse/templates/manage/organization/roles.html:44
+#: warehouse/templates/manage/organization/roles.html:47
 msgid ""
 "Can be owner or maintainer for specific projects. Can create new projects. "
 "Can create and manage teams. Cannot invite or manage organization members. "
 "Cannot delete projects or the organization itself."
 msgstr ""
 
-#: warehouse/templates/manage/organization/roles.html:46
+#: warehouse/templates/manage/organization/roles.html:49
 msgid ""
 "Can be owner or maintainer for specific projects. Can create new projects. "
 "Can create and manage teams. Can invite and manage organization members. Can "
 "delete projects and the organization itself."
 msgstr ""
 
-#: warehouse/templates/manage/organization/roles.html:49
+#: warehouse/templates/manage/organization/roles.html:52
 #, fuzzy
 #| msgid "Create an account"
 msgid "Can manage billing for the organization."
 msgstr "Δημιουργία λογαριασμού"
 
-#: warehouse/templates/manage/organization/roles.html:55
-#: warehouse/templates/manage/team/roles.html:40
+#: warehouse/templates/manage/organization/roles.html:58
+#: warehouse/templates/manage/team/roles.html:47
 #, fuzzy, python-format
 #| msgid "Users who can manage %(project_name)s"
 msgid "Users who can manage %(organization_name)s"
 msgstr "Χρήστες που μπορούν να διαχειριστούν το %(project_name)s"
 
-#: warehouse/templates/manage/organization/roles.html:59
-#: warehouse/templates/manage/organization/roles.html:174
-#: warehouse/templates/manage/project/roles.html:325
-#: warehouse/templates/manage/team/roles.html:44
-#: warehouse/templates/manage/team/roles.html:90
+#: warehouse/templates/manage/organization/roles.html:62
+#: warehouse/templates/manage/organization/roles.html:177
+#: warehouse/templates/manage/project/roles.html:332
+#: warehouse/templates/manage/team/roles.html:51
+#: warehouse/templates/manage/team/roles.html:104
 msgid "User"
 msgstr "Χρήστης"
 
-#: warehouse/templates/manage/organization/roles.html:109
-#: warehouse/templates/manage/project/roles.html:125
-#: warehouse/templates/manage/project/roles.html:180
+#: warehouse/templates/manage/organization/roles.html:112
+#: warehouse/templates/manage/project/roles.html:132
+#: warehouse/templates/manage/project/roles.html:187
 msgid "Save role"
 msgstr "Αποθήκευση ρόλου"
 
-#: warehouse/templates/manage/organization/roles.html:118
+#: warehouse/templates/manage/organization/roles.html:121
 #, fuzzy
 #| msgid "You are not an owner of this project"
 msgid "Cannot remove other people from the organization"
 msgstr "Δεν είστε ο κάτοχος αυτού του project"
 
-#: warehouse/templates/manage/organization/roles.html:120
-msgid "Cannot remove yourself as owner"
+#: warehouse/templates/manage/organization/roles.html:123
+#: warehouse/templates/manage/project/roles.html:196
+#, fuzzy
+#| msgid "Cannot remove yourself as owner"
+msgid "Cannot remove yourself as Sole Owner"
 msgstr "Δεν μπορείτε να αφαιρέσετε τον εαυτό σας από κάτοχο"
 
-#: warehouse/templates/manage/organization/roles.html:123
-#: warehouse/templates/manage/organization/roles.html:124
+#: warehouse/templates/manage/organization/roles.html:126
+#: warehouse/templates/manage/organization/roles.html:127
 #, fuzzy, python-format
 #| msgid "Remove %(user)s from this project"
 msgid "Remove %(user)s from this organization"
 msgstr "Αφαίρεση του χρήστη %(user)s από αυτό το project"
 
-#: warehouse/templates/manage/organization/roles.html:150
-#: warehouse/templates/manage/project/roles.html:217
+#: warehouse/templates/manage/organization/roles.html:153
+#: warehouse/templates/manage/project/roles.html:224
 msgid "Invite pending"
 msgstr ""
 
-#: warehouse/templates/manage/organization/roles.html:152
-#: warehouse/templates/manage/project/roles.html:219
+#: warehouse/templates/manage/organization/roles.html:155
+#: warehouse/templates/manage/project/roles.html:226
 msgid "Invite expired"
 msgstr ""
 
-#: warehouse/templates/manage/organization/roles.html:158
-#: warehouse/templates/manage/organization/roles.html:159
-#: warehouse/templates/manage/project/roles.html:225
-#: warehouse/templates/manage/project/roles.html:226
+#: warehouse/templates/manage/organization/roles.html:161
+#: warehouse/templates/manage/organization/roles.html:162
+#: warehouse/templates/manage/project/roles.html:232
+#: warehouse/templates/manage/project/roles.html:233
 #, fuzzy, python-format
 #| msgid "Navigation for %(project)s"
 msgid "Revoke invitation for %(user)s"
 msgstr "Πλοήγηση για το %(project)s"
 
-#: warehouse/templates/manage/organization/roles.html:160
-#: warehouse/templates/manage/project/roles.html:227
+#: warehouse/templates/manage/organization/roles.html:163
+#: warehouse/templates/manage/project/roles.html:234
 msgid "Revoke invite"
 msgstr ""
 
-#: warehouse/templates/manage/organization/roles.html:169
+#: warehouse/templates/manage/organization/roles.html:172
 msgid "Invite member"
 msgstr ""
 
-#: warehouse/templates/manage/organization/roles.html:197
-#: warehouse/templates/manage/project/roles.html:348
+#: warehouse/templates/manage/organization/roles.html:200
+#: warehouse/templates/manage/project/roles.html:355
 msgid "Invite"
 msgstr ""
 
@@ -5069,40 +5483,53 @@ msgstr "Διαχείριση '%(project_name)s'"
 msgid "Date created"
 msgstr "Ο λογαριασμός δημιουργήθηκε"
 
-#: warehouse/templates/manage/organization/settings.html:152
+#: warehouse/templates/manage/organization/settings.html:150
+#, fuzzy, python-format
+#| msgid ""
+#| "If this was a mistake, you can email <a href=\"%(href)s\">"
+#| "%(email_address)s</a> to communicate with the PyPI administrators."
+msgid ""
+"If you need to convert your organization account from a Company account to a "
+"Community account, you can email <a href=\"mailto:%(email)s\">%(email)s</a> "
+"to communicate with %(site)s administrators."
+msgstr ""
+"Αν αυτό ήταν λάθος, μπορείτε να στείλετε ένα email στο <a href=\"%(href)s\">"
+"%(email_address)s</a> για να επικοινωνήσετε με τους διαχειριστές του PyPI."
+
+#: warehouse/templates/manage/organization/settings.html:159
 #, fuzzy
 #| msgid "Create an account"
 msgid "Update organization"
 msgstr "Δημιουργία λογαριασμού"
 
-#: warehouse/templates/manage/organization/settings.html:161
+#: warehouse/templates/manage/organization/settings.html:168
 #, fuzzy
 #| msgid "Account details"
 msgid "Billing details"
 msgstr "Λεπτομέρειες λογαριασμού"
 
-#: warehouse/templates/manage/organization/settings.html:163
+#: warehouse/templates/manage/organization/settings.html:170
 msgid "Billing status"
 msgstr ""
 
-#: warehouse/templates/manage/organization/settings.html:167
+#: warehouse/templates/manage/organization/settings.html:174
 msgid "Billing email"
 msgstr ""
 
-#: warehouse/templates/manage/organization/settings.html:172
+#: warehouse/templates/manage/organization/settings.html:179
 #, fuzzy
 #| msgid "Manage version"
 msgid "Manage billing"
 msgstr "Διαχείριση έκδοσης"
 
-#: warehouse/templates/manage/organization/settings.html:182
-#: warehouse/templates/manage/organization/settings.html:203
+#: warehouse/templates/manage/organization/settings.html:189
+#: warehouse/templates/manage/organization/settings.html:210
 #, fuzzy
 #| msgid "Manage '%(project_name)s'"
 msgid "Change organization account name"
 msgstr "Διαχείριση '%(project_name)s'"
 
-#: warehouse/templates/manage/organization/settings.html:187
+#: warehouse/templates/manage/organization/settings.html:194
 #, fuzzy
 #| msgid "You will not be able to recover your account after you delete it"
 msgid ""
@@ -5111,32 +5538,32 @@ msgid ""
 msgstr ""
 "Δεν θα έχετε τη δυνατότητα να ανακτήσετε τον λογαριασμό σας αφού διαγραφεί"
 
-#: warehouse/templates/manage/organization/settings.html:203
+#: warehouse/templates/manage/organization/settings.html:210
 #, fuzzy
 #| msgid "Manage '%(project_name)s'"
 msgid "Change organization account name for"
 msgstr "Διαχείριση '%(project_name)s'"
 
-#: warehouse/templates/manage/organization/settings.html:203
+#: warehouse/templates/manage/organization/settings.html:210
 #, fuzzy
 #| msgid "Create an account"
 msgid "Current organization account name"
 msgstr "Δημιουργία λογαριασμού"
 
-#: warehouse/templates/manage/organization/settings.html:210
-#: warehouse/templates/manage/organization/settings.html:244
+#: warehouse/templates/manage/organization/settings.html:217
+#: warehouse/templates/manage/organization/settings.html:251
 #, fuzzy
 #| msgid "Create an account"
 msgid "Delete organization"
 msgstr "Δημιουργία λογαριασμού"
 
-#: warehouse/templates/manage/organization/settings.html:213
+#: warehouse/templates/manage/organization/settings.html:220
 #, fuzzy
 #| msgid "Create an account"
 msgid "Cannot delete organization"
 msgstr "Δημιουργία λογαριασμού"
 
-#: warehouse/templates/manage/organization/settings.html:215
+#: warehouse/templates/manage/organization/settings.html:222
 #, fuzzy, python-format
 #| msgid ""
 #| "\n"
@@ -5167,7 +5594,7 @@ msgstr[1] ""
 "strong> %(count)s projects.\n"
 "        "
 
-#: warehouse/templates/manage/organization/settings.html:220
+#: warehouse/templates/manage/organization/settings.html:227
 #, fuzzy
 #| msgid ""
 #| "\n"
@@ -5200,18 +5627,12 @@ msgstr[1] ""
 "projects προτού διαγράψετε τον λογαριασμό σας.\n"
 "        "
 
-#: warehouse/templates/manage/organization/settings.html:242
+#: warehouse/templates/manage/organization/settings.html:249
 #, fuzzy
 #| msgid "You will not be able to recover your account after you delete it"
 msgid "You will not be able to recover your organization after you delete it."
 msgstr ""
 "Δεν θα έχετε τη δυνατότητα να ανακτήσετε τον λογαριασμό σας αφού διαγραφεί"
-
-#: warehouse/templates/manage/organization/settings.html:244
-#, fuzzy
-#| msgid "Project description"
-msgid "Organization Name"
-msgstr "Περιγραφή project"
 
 #: warehouse/templates/manage/organization/teams.html:17
 #, fuzzy
@@ -5225,13 +5646,7 @@ msgstr "Περιγραφή project"
 msgid "Manage '%(organization_name)s' teams"
 msgstr "Διαχείριση '%(project_name)s'"
 
-#: warehouse/templates/manage/organization/teams.html:24
-#, fuzzy, python-format
-#| msgid "Releases (%(release_count)s)"
-msgid "Teams (%(team_count)s)"
-msgstr "Εκδόσεις (%(release_count)s)"
-
-#: warehouse/templates/manage/organization/teams.html:39
+#: warehouse/templates/manage/organization/teams.html:42
 #, fuzzy, python-format
 #| msgid ""
 #| "\n"
@@ -5258,37 +5673,37 @@ msgstr[1] ""
 "            %(count)s projects\n"
 "          "
 
-#: warehouse/templates/manage/organization/teams.html:52
+#: warehouse/templates/manage/organization/teams.html:55
 #, fuzzy
 #| msgid "Manage this project"
 msgid "Manage this team"
 msgstr "Διαχείριση αυτού του project"
 
-#: warehouse/templates/manage/organization/teams.html:59
+#: warehouse/templates/manage/organization/teams.html:62
 #, fuzzy
 #| msgid "Create an account"
 msgid "View this team"
 msgstr "Δημιουργία λογαριασμού"
 
-#: warehouse/templates/manage/organization/teams.html:67
+#: warehouse/templates/manage/organization/teams.html:71
 msgid ""
 "There are no teams in your organization, yet. Organization owners and "
 "managers can create new teams for the organization."
 msgstr ""
 
-#: warehouse/templates/manage/organization/teams.html:77
+#: warehouse/templates/manage/organization/teams.html:82
 #, fuzzy
 #| msgid "Creating a new release"
 msgid "Create new team"
 msgstr "Δημιουργία μια νέας έκδοσης"
 
-#: warehouse/templates/manage/organization/teams.html:83
+#: warehouse/templates/manage/organization/teams.html:88
 #, fuzzy
 #| msgid "Token name"
 msgid "️Team name"
 msgstr "Όνομα token"
 
-#: warehouse/templates/manage/organization/teams.html:91
+#: warehouse/templates/manage/organization/teams.html:96
 msgid ""
 "Owners and managers of this organization can create a team for the "
 "organization and manage team members, team projects, and team settings."
@@ -5319,7 +5734,7 @@ msgid "Destroy Documentation for project"
 msgstr "Διαγραφή τεκμηρίωσης αυτού του project"
 
 #: warehouse/templates/manage/project/documentation.html:35
-#: warehouse/templates/manage/project/release.html:104
+#: warehouse/templates/manage/project/release.html:123
 #: warehouse/templates/pages/stats.html:42
 msgid "Project name"
 msgstr "Όνομα project"
@@ -5332,11 +5747,6 @@ msgstr "Τεκμηρίωση project"
 msgid "Uploading new documentation is no longer supported"
 msgstr "Το ανέβασμα νέας τεκμηρίωσης δεν υποστηρίζεται πλέον"
 
-#: warehouse/templates/manage/project/history.html:20
-#, python-format
-msgid "'%(project_name)s' project history"
-msgstr "Ιστορικό '%(project_name)s'"
-
 #: warehouse/templates/manage/project/history.html:25
 msgid ""
 "Each time you (or your collaborators) perform a security action related to "
@@ -5346,132 +5756,202 @@ msgstr ""
 "ασφάλειας σχετιζόμενη με αυτό το project, τότε αυτή η ενέργεια θα "
 "καταγράφεται και τα εμφανίζεται εδώ."
 
-#: warehouse/templates/manage/project/history.html:29
+#: warehouse/templates/manage/project/history.html:32
 msgid "Project created"
 msgstr "Το project δημιουργήθηκε"
 
-#: warehouse/templates/manage/project/history.html:31
-msgid "Created by:"
-msgstr "Δημιουργία από:"
-
-#: warehouse/templates/manage/project/history.html:34
-#, python-format
-msgid "<a href=\"%(href)s\">Release version %(version)s</a> created"
+#: warehouse/templates/manage/project/history.html:40
+#, fuzzy, python-format
+#| msgid "<a href=\"%(href)s\">Release version %(version)s</a> created"
+msgid "<a href=\"%(href)s\">Version %(version)s</a> created"
 msgstr ""
 "<a href=\"%(href)s\">Η εκδοση κυκλοφορίας %(version)s</a> δημιουργήθηκε"
 
-#: warehouse/templates/manage/project/history.html:36
-#: warehouse/templates/manage/project/history.html:52
-msgid "Added by:"
-msgstr "Προστέθηκε από:"
-
-#: warehouse/templates/manage/project/history.html:39
-#, python-format
-msgid "Release version %(version)s removed"
+#: warehouse/templates/manage/project/history.html:48
+#, fuzzy, python-format
+#| msgid "Release version %(version)s removed"
+msgid "Version %(version)s removed"
 msgstr "Η έκδοση κυκλοφορίας %(version)s αφαιρέθηκε"
 
-#: warehouse/templates/manage/project/history.html:41
-#: warehouse/templates/manage/project/history.html:47
-#: warehouse/templates/manage/project/history.html:57
-msgid "Removed by:"
-msgstr "Αφαιρέθηκε από:"
-
-#: warehouse/templates/manage/project/history.html:44
-#, python-format
-msgid "File removed from release version %(version)s"
+#: warehouse/templates/manage/project/history.html:55
+#, fuzzy, python-format
+#| msgid "File removed from release version %(version)s"
+msgid "File removed from <a href=\"%(href)s\">version %(version)s</a>"
 msgstr "Το αρχείο αφαιρέθηκε από την κυκλοφορία έκδοσης %(version)s"
 
-#: warehouse/templates/manage/project/history.html:45
-#: warehouse/templates/manage/project/release.html:99
+#: warehouse/templates/manage/project/history.html:58
+#: warehouse/templates/manage/project/release.html:118
 msgid "Filename:"
 msgstr "Όνομα αρχείου:"
 
-#: warehouse/templates/manage/project/history.html:50
+#: warehouse/templates/manage/project/history.html:65
+#, fuzzy, python-format
+#| msgid "<a href=\"%(href)s\">Release version %(version)s</a> created"
+msgid "<a href=\"%(href)s\">Version %(version)s</a> yanked"
+msgstr ""
+"<a href=\"%(href)s\">Η εκδοση κυκλοφορίας %(version)s</a> δημιουργήθηκε"
+
+#: warehouse/templates/manage/project/history.html:68
+#: warehouse/templates/manage/project/history.html:75
+#, fuzzy
+#| msgid "Changed by:"
+msgid "Yanked by:"
+msgstr "Αλλαγή από:"
+
+#: warehouse/templates/manage/project/history.html:72
+#, fuzzy, python-format
+#| msgid "<a href=\"%(href)s\">Release version %(version)s</a> created"
+msgid "<a href=\"%(href)s\">Version %(version)s</a> unyanked"
+msgstr ""
+"<a href=\"%(href)s\">Η εκδοση κυκλοφορίας %(version)s</a> δημιουργήθηκε"
+
+#: warehouse/templates/manage/project/history.html:81
 #, python-format
 msgid "<a href=\"%(href)s\">%(username)s</a> added as project %(role_name)s"
 msgstr ""
 "<a href=\"%(href)s\">%(username)s</a> προστέθηκε ως %(role_name)s στο project"
 
-#: warehouse/templates/manage/project/history.html:55
+#: warehouse/templates/manage/project/history.html:88
 #, python-format
 msgid "<a href=\"%(href)s\">%(username)s</a> removed as project %(role_name)s"
 msgstr ""
 "<a href=\"%(href)s\">%(username)s</a> αφαιρέθηκε από %(role_name)s στο "
 "project"
 
-#: warehouse/templates/manage/project/history.html:60
+#: warehouse/templates/manage/project/history.html:95
 #, python-format
 msgid "<a href=\"%(href)s\">%(username)s</a> changed to project %(role_name)s"
 msgstr ""
 "<a href=\"%(href)s\">%(username)s</a> άλλαξε ως %(role_name)s στο project"
 
-#: warehouse/templates/manage/project/history.html:62
-msgid "Changed by:"
-msgstr "Αλλαγή από:"
+#: warehouse/templates/manage/project/history.html:102
+#, fuzzy, python-format
+#| msgid ""
+#| "<a href=\"%(href)s\">%(username)s</a> removed as project %(role_name)s"
+msgid ""
+"<a href=\"%(href)s\">%(username)s</a> invited to join as project "
+"%(role_name)s"
+msgstr ""
+"<a href=\"%(href)s\">%(username)s</a> αφαιρέθηκε από %(role_name)s στο "
+"project"
 
-#: warehouse/templates/manage/project/history.html:67
-#: warehouse/templates/manage/project/history.html:74
+#: warehouse/templates/manage/project/history.html:109
+#, fuzzy, python-format
+#| msgid ""
+#| "<a href=\"%(href)s\">%(username)s</a> changed to project %(role_name)s"
+msgid ""
+"<a href=\"%(href)s\">%(username)s</a> declined invitation to join as project "
+"%(role_name)s"
+msgstr ""
+"<a href=\"%(href)s\">%(username)s</a> άλλαξε ως %(role_name)s στο project"
+
+#: warehouse/templates/manage/project/history.html:116
+#, fuzzy, python-format
+#| msgid ""
+#| "<a href=\"%(href)s\">%(username)s</a> removed as project %(role_name)s"
+msgid ""
+"Revoked invitation for <a href=\"%(href)s\">%(username)s</a> to join as "
+"project %(role_name)s"
+msgstr ""
+"<a href=\"%(href)s\">%(username)s</a> αφαιρέθηκε από %(role_name)s στο "
+"project"
+
+#: warehouse/templates/manage/project/history.html:126
+#, fuzzy, python-format
+#| msgid "<a href=\"%(href)s\">%(username)s</a> added as project %(role_name)s"
+msgid "%(team_name)s team added as project %(role_name)s"
+msgstr ""
+"<a href=\"%(href)s\">%(username)s</a> προστέθηκε ως %(role_name)s στο project"
+
+#: warehouse/templates/manage/project/history.html:134
+#, fuzzy, python-format
+#| msgid ""
+#| "<a href=\"%(href)s\">%(username)s</a> changed to project %(role_name)s"
+msgid "%(team_name)s team changed to project %(role_name)s"
+msgstr ""
+"<a href=\"%(href)s\">%(username)s</a> άλλαξε ως %(role_name)s στο project"
+
+#: warehouse/templates/manage/project/history.html:142
+#, fuzzy, python-format
+#| msgid ""
+#| "<a href=\"%(href)s\">%(username)s</a> removed as project %(role_name)s"
+msgid "%(team_name)s team removed as project %(role_name)s"
+msgstr ""
+"<a href=\"%(href)s\">%(username)s</a> αφαιρέθηκε από %(role_name)s στο "
+"project"
+
+#: warehouse/templates/manage/project/history.html:152
+#, fuzzy, python-format
+#| msgid "You are not an owner of this project"
+msgid "Project added to %(organization_name)s organization"
+msgstr "Δεν είστε ο κάτοχος αυτού του project"
+
+#: warehouse/templates/manage/project/history.html:160
+#, fuzzy, python-format
+#| msgid "You are not an owner of this project"
+msgid "Project removed from %(organization_name)s organization"
+msgstr "Δεν είστε ο κάτοχος αυτού του project"
+
+#: warehouse/templates/manage/project/history.html:169
+#: warehouse/templates/manage/project/history.html:176
 msgid "Permissions: Can upload to this project"
 msgstr "Άδειες: Μπορεί να ανεβάσει σε αυτό το project"
 
-#: warehouse/templates/manage/project/history.html:68
-#: warehouse/templates/manage/project/history.html:75
+#: warehouse/templates/manage/project/history.html:171
+#: warehouse/templates/manage/project/history.html:178
 msgid "Controlled by:"
 msgstr "Ελέγχεται από:"
 
-#: warehouse/templates/manage/project/history.html:79
-#, fuzzy, python-format
-#| msgid "Release version %(version)s"
-msgid "Release version %(version)s yanked"
-msgstr "Έκδοση %(version)s"
+#: warehouse/templates/manage/project/history.html:187
+msgid "OpenID Connect provider added"
+msgstr ""
 
-#: warehouse/templates/manage/project/history.html:81
+#: warehouse/templates/manage/project/history.html:188
+#: warehouse/templates/manage/project/history.html:192
+msgid "Provider:"
+msgstr ""
+
+#: warehouse/templates/manage/project/history.html:189
+#: warehouse/templates/manage/project/history.html:193
 #, fuzzy
-#| msgid "Changed by:"
-msgid "Yanked by:"
-msgstr "Αλλαγή από:"
+#| msgid "Username"
+msgid "Publisher:"
+msgstr "Όνομα χρήστη"
 
-#: warehouse/templates/manage/project/history.html:88
+#: warehouse/templates/manage/project/history.html:191
+msgid "OpenID Connect provider removed"
+msgstr ""
+
+#: warehouse/templates/manage/project/history.html:197
 #, fuzzy
 #| msgid "Requires:"
 msgid "2FA requirement enabled"
 msgstr "Απαιτήσεις:"
 
-#: warehouse/templates/manage/project/history.html:90
+#: warehouse/templates/manage/project/history.html:199
 #, fuzzy
 #| msgid "Changed by:"
 msgid "Enabled by:"
 msgstr "Αλλαγή από:"
 
-#: warehouse/templates/manage/project/history.html:93
+#: warehouse/templates/manage/project/history.html:202
 #, fuzzy
 #| msgid "Requires:"
 msgid "2FA requirement disabled"
 msgstr "Απαιτήσεις:"
 
-#: warehouse/templates/manage/project/history.html:95
+#: warehouse/templates/manage/project/history.html:204
 #, fuzzy
 #| msgid "Changed by:"
 msgid "Disabled by:"
 msgstr "Αλλαγή από:"
-
-#: warehouse/templates/manage/project/history.html:104
-#, python-format
-msgid "Security history for %(project_name)s"
-msgstr "Ιστορικό ασφάλειας για το %(project_name)s"
 
 #: warehouse/templates/manage/project/manage_project_base.html:20
 #, python-format
 msgid "Manage '%(project_name)s'"
 msgstr "Διαχείριση '%(project_name)s'"
 
-#: warehouse/templates/manage/project/manage_project_base.html:35
-#, fuzzy, python-format
-#| msgid "Your projects (%(project_count)s)"
-msgid "%(organization_name)s projects (%(project_count)s)"
-msgstr "Τα projects σας (%(project_count)s)"
-
-#: warehouse/templates/manage/project/manage_project_base.html:49
+#: warehouse/templates/manage/project/manage_project_base.html:65
 msgid "Back to projects"
 msgstr "Πίσω στα projects"
 
@@ -5530,8 +6010,8 @@ msgid "workflow.yml"
 msgstr ""
 
 #: warehouse/templates/manage/project/publishing.html:118
-#: warehouse/templates/manage/project/roles.html:309
-#: warehouse/templates/manage/team/roles.html:109
+#: warehouse/templates/manage/project/roles.html:316
+#: warehouse/templates/manage/team/roles.html:123
 msgid "Add"
 msgstr ""
 
@@ -5565,94 +6045,93 @@ msgstr ""
 msgid "Manage '%(project_name)s' – release version %(version)s"
 msgstr "Διαχείριση '%(project_name)s' – έκδοση %(version)s"
 
-#: warehouse/templates/manage/project/release.html:22
-#: warehouse/templates/manage/project/release.html:27
-#, python-format
-msgid "Release version %(version)s"
+#: warehouse/templates/manage/project/release.html:28
+#: warehouse/templates/manage/project/release.html:46
+#, fuzzy, python-format
+#| msgid "Release version %(version)s"
+msgid "Version %(version)s"
 msgstr "Έκδοση %(version)s"
 
-#: warehouse/templates/manage/project/release.html:24
-msgid "Breadcrumb"
-msgstr "Breadcrumb"
+#: warehouse/templates/manage/project/release.html:41
+#: warehouse/templates/manage/project/releases.html:166
+#, fuzzy
+#| msgid "New releases"
+msgid "Yanked releases"
+msgstr "Νέες κυκλοφορίες"
 
-#: warehouse/templates/manage/project/release.html:26
-#, python-format
-msgid "All %(project_name)s releases"
-msgstr "Όλες οι εκδόσεις του %(project_name)s"
-
-#: warehouse/templates/manage/project/release.html:27
+#: warehouse/templates/manage/project/release.html:47
 msgid "view release"
 msgstr "προβολή έκδοσης"
 
-#: warehouse/templates/manage/project/release.html:34
+#: warehouse/templates/manage/project/release.html:53
 #, python-format
 msgid "Files for release %(version)s of %(project_name)s"
 msgstr "Αρχεία για την έκδοση %(version)s του %(project_name)s"
 
-#: warehouse/templates/manage/project/release.html:37
-#: warehouse/templates/manage/project/release.html:48
+#: warehouse/templates/manage/project/release.html:56
+#: warehouse/templates/manage/project/release.html:67
 msgid "Filename, size"
 msgstr "Όνομα αρχείου, μέγεθος"
 
-#: warehouse/templates/manage/project/release.html:38
-#: warehouse/templates/manage/project/release.html:53
+#: warehouse/templates/manage/project/release.html:57
+#: warehouse/templates/manage/project/release.html:72
 msgid "Type"
 msgstr "Τύπος"
 
-#: warehouse/templates/manage/project/release.html:39
-#: warehouse/templates/manage/project/release.html:57
+#: warehouse/templates/manage/project/release.html:58
+#: warehouse/templates/manage/project/release.html:76
 msgid "Python version"
 msgstr "Έκδοση Python"
 
-#: warehouse/templates/manage/project/release.html:40
-#: warehouse/templates/manage/project/release.html:61
+#: warehouse/templates/manage/project/release.html:59
+#: warehouse/templates/manage/project/release.html:80
 msgid "Upload date"
 msgstr "Ημερομηνία μεταφόρτωσης"
 
-#: warehouse/templates/manage/project/release.html:66
+#: warehouse/templates/manage/project/release.html:85
 msgid "View file options"
 msgstr "Προβολή επιλογών αρχείων"
 
-#: warehouse/templates/manage/project/release.html:72
+#: warehouse/templates/manage/project/release.html:91
 msgid "File options"
 msgstr "Επιλογές αρχείων"
 
-#: warehouse/templates/manage/project/release.html:76
+#: warehouse/templates/manage/project/release.html:95
 msgid "Download"
 msgstr "Λήψη"
 
-#: warehouse/templates/manage/project/release.html:82
+#: warehouse/templates/manage/project/release.html:101
 msgid "View Hashes"
 msgstr "Προβολή hashes"
 
-#: warehouse/templates/manage/project/release.html:87
+#: warehouse/templates/manage/project/release.html:106
 msgid "Delete file from"
 msgstr "Διαγραφή αρχείου από"
 
-#: warehouse/templates/manage/project/release.html:89
+#: warehouse/templates/manage/project/release.html:108
 msgid "Delete file"
 msgstr "Διαγραφή αρχείου"
 
-#: warehouse/templates/manage/project/release.html:93
+#: warehouse/templates/manage/project/release.html:112
 #: warehouse/templates/manage/project/releases.html:109
 msgid "Delete"
 msgstr "Διαγραφή"
 
-#: warehouse/templates/manage/project/release.html:114
+#: warehouse/templates/manage/project/release.html:133
 msgid "Uploading new files"
 msgstr "Ανέβασμα καινούργιων αρχείων"
 
-#: warehouse/templates/manage/project/release.html:116
+#: warehouse/templates/manage/project/release.html:135
 msgid "No files found"
 msgstr "Δεν βρέθηκαν αρχεία"
 
-#: warehouse/templates/manage/project/release.html:118
-#: warehouse/templates/manage/project/releases.html:172
+#: warehouse/templates/manage/project/release.html:137
+#: warehouse/templates/manage/project/releases.html:178
 #: warehouse/templates/manage/project/settings.html:111
 msgid "Dismiss"
 msgstr "Κλείσιμο"
 
-#: warehouse/templates/manage/project/release.html:119
+#: warehouse/templates/manage/project/release.html:138
 #, python-format
 msgid ""
 "Learn how to upload files on the <a href=\"%(href)s\" title=\"%(title)s\" "
@@ -5661,19 +6140,19 @@ msgstr ""
 "Μάθετε πως να ανεβάζετε αρχεία στο <a href=\"%(href)s\" title=\"%(title)s\" "
 "target=\"_blank\" rel=\"noopener\">Python Packaging User Guide</a>"
 
-#: warehouse/templates/manage/project/release.html:122
+#: warehouse/templates/manage/project/release.html:141
 msgid "Release settings"
 msgstr "Ρυθμίσεις κυκλοφορίας"
 
-#: warehouse/templates/manage/project/release.html:126
-#: warehouse/templates/manage/project/release.html:156
+#: warehouse/templates/manage/project/release.html:145
+#: warehouse/templates/manage/project/release.html:175
 #: warehouse/templates/manage/project/releases.html:123
 #, fuzzy
 #| msgid "New releases"
 msgid "Yank release"
 msgstr "Νέες κυκλοφορίες"
 
-#: warehouse/templates/manage/project/release.html:129
+#: warehouse/templates/manage/project/release.html:148
 #, python-format
 msgid ""
 "\n"
@@ -5688,7 +6167,7 @@ msgid_plural ""
 msgstr[0] ""
 msgstr[1] ""
 
-#: warehouse/templates/manage/project/release.html:135
+#: warehouse/templates/manage/project/release.html:154
 msgid ""
 "\n"
 "          Yanking will mark this release to be ignored when installing in "
@@ -5696,7 +6175,7 @@ msgid ""
 "        "
 msgstr ""
 
-#: warehouse/templates/manage/project/release.html:139
+#: warehouse/templates/manage/project/release.html:158
 #, python-format
 msgid ""
 "\n"
@@ -5705,7 +6184,7 @@ msgid ""
 "      "
 msgstr ""
 
-#: warehouse/templates/manage/project/release.html:142
+#: warehouse/templates/manage/project/release.html:161
 #, python-format
 msgid ""
 "\n"
@@ -5713,7 +6192,7 @@ msgid ""
 "      "
 msgstr ""
 
-#: warehouse/templates/manage/project/release.html:149
+#: warehouse/templates/manage/project/release.html:168
 #, python-format
 msgid ""
 "\n"
@@ -5723,13 +6202,13 @@ msgid ""
 "          "
 msgstr ""
 
-#: warehouse/templates/manage/project/release.html:153
+#: warehouse/templates/manage/project/release.html:172
 #: warehouse/templates/manage/project/releases.html:130
 msgid "Reason (optional)"
 msgstr ""
 
-#: warehouse/templates/manage/project/release.html:156
-#: warehouse/templates/manage/project/release.html:177
+#: warehouse/templates/manage/project/release.html:175
+#: warehouse/templates/manage/project/release.html:196
 #: warehouse/templates/manage/project/releases.html:23
 #: warehouse/templates/manage/project/releases.html:120
 #: warehouse/templates/manage/project/releases.html:133
@@ -5737,13 +6216,13 @@ msgstr ""
 msgid "Version"
 msgstr "Έκδοση"
 
-#: warehouse/templates/manage/project/release.html:161
-#: warehouse/templates/manage/project/release.html:177
+#: warehouse/templates/manage/project/release.html:180
+#: warehouse/templates/manage/project/release.html:196
 #: warehouse/templates/manage/project/releases.html:136
 msgid "Delete release"
 msgstr "Διαγραφή κυκλοφορίας"
 
-#: warehouse/templates/manage/project/release.html:165
+#: warehouse/templates/manage/project/release.html:184
 #, python-format
 msgid ""
 "\n"
@@ -5766,18 +6245,18 @@ msgstr[1] ""
 "τα αρχεία %(count)s.\n"
 "      "
 
-#: warehouse/templates/manage/project/release.html:171
+#: warehouse/templates/manage/project/release.html:190
 msgid "Deleting will irreversibly delete this release."
 msgstr "Διαγράφοντας αυτό θα διαγραφεί χωρίς επιστροφή αυτή η κυκλοφορία."
 
-#: warehouse/templates/manage/project/release.html:173
+#: warehouse/templates/manage/project/release.html:192
 #: warehouse/templates/manage/project/releases.html:138
 msgid ""
 "You will not be able to re-upload a new distribution of the same type with "
 "the same version number."
 msgstr ""
 
-#: warehouse/templates/manage/project/release.html:174
+#: warehouse/templates/manage/project/release.html:193
 #: warehouse/templates/manage/project/releases.html:139
 msgid ""
 "Deletion will break any downstream projects relying on a pinned version of "
@@ -5785,7 +6264,7 @@ msgid ""
 "remove harmful releases."
 msgstr ""
 
-#: warehouse/templates/manage/project/release.html:175
+#: warehouse/templates/manage/project/release.html:194
 #, fuzzy, python-format
 #| msgid ""
 #| "Duo Mobile for <a href=\"%(android_href)s\" title=\"%(title)s\" target="
@@ -5915,26 +6394,15 @@ msgstr ""
 msgid "Manage '%(project_name)s' releases"
 msgstr "Διαχείριση εκδόσεων του '%(project_name)s'"
 
-#: warehouse/templates/manage/project/releases.html:156
-#, python-format
-msgid "Releases (%(release_count)s)"
-msgstr "Εκδόσεις (%(release_count)s)"
-
-#: warehouse/templates/manage/project/releases.html:162
-#, fuzzy, python-format
-#| msgid "Releases (%(release_count)s)"
-msgid "Yanked Releases (%(release_count)s)"
-msgstr "Εκδόσεις (%(release_count)s)"
-
-#: warehouse/templates/manage/project/releases.html:168
+#: warehouse/templates/manage/project/releases.html:174
 msgid "Creating a new release"
 msgstr "Δημιουργία μια νέας έκδοσης"
 
-#: warehouse/templates/manage/project/releases.html:170
+#: warehouse/templates/manage/project/releases.html:176
 msgid "No releases found"
 msgstr "Δεν βρέθηκαν εκδόσεις"
 
-#: warehouse/templates/manage/project/releases.html:173
+#: warehouse/templates/manage/project/releases.html:179
 #, python-format
 msgid ""
 "Learn how to create a new release on the <a href=\"%(href)s\" title="
@@ -5950,7 +6418,7 @@ msgstr ""
 msgid "Manage '%(project_name)s' collaborators"
 msgstr "Διαχείριση συνεργατών για το '%(project_name)s'"
 
-#: warehouse/templates/manage/project/roles.html:36
+#: warehouse/templates/manage/project/roles.html:43
 #, fuzzy, python-format
 #| msgid ""
 #| "Use this page to control which PyPI users can help you to manage "
@@ -5962,26 +6430,26 @@ msgstr ""
 "Χρησιμοποιήστε αυτή τη σελίδα για να ελέγξετε ποιοι χρήστες του PyPI μπορούν "
 "να σας βοηθήσουν στη διαχείριση του %(project_name)s"
 
-#: warehouse/templates/manage/project/roles.html:38
+#: warehouse/templates/manage/project/roles.html:45
 #, fuzzy
 #| msgid "Project links"
 msgid "Project Roles"
 msgstr "Σύνδεσμοι project"
 
-#: warehouse/templates/manage/project/roles.html:39
+#: warehouse/templates/manage/project/roles.html:46
 #: warehouse/templates/pages/help.html:569
 msgid "There are two possible roles for collaborators:"
 msgstr "Υπάρχουν δύο πιθανοί ρόλοι για τους συνεργάτες:"
 
-#: warehouse/templates/manage/project/roles.html:41
-#: warehouse/templates/manage/project/roles.html:110
-#: warehouse/templates/manage/project/roles.html:119
-#: warehouse/templates/manage/project/roles.html:165
-#: warehouse/templates/manage/project/roles.html:174
+#: warehouse/templates/manage/project/roles.html:48
+#: warehouse/templates/manage/project/roles.html:117
+#: warehouse/templates/manage/project/roles.html:126
+#: warehouse/templates/manage/project/roles.html:172
+#: warehouse/templates/manage/project/roles.html:181
 msgid "Maintainer"
 msgstr "Συντηρητής"
 
-#: warehouse/templates/manage/project/roles.html:42
+#: warehouse/templates/manage/project/roles.html:49
 #, fuzzy
 #| msgid ""
 #| "Can upload releases for a package. Cannot add collaborators. Cannot "
@@ -5993,7 +6461,7 @@ msgstr ""
 "Μπορεί να ανεβάζει εκδόσεις για ένα πακέτο. Δεν μπορεί να προσθέτει "
 "συνεργάτες. Δεν μπορεί να διαγράφει αρχεία, εκδόσεις ή το ίδιο το project."
 
-#: warehouse/templates/manage/project/roles.html:44
+#: warehouse/templates/manage/project/roles.html:51
 #, fuzzy
 #| msgid ""
 #| "Can upload releases. Can add other collaborators. Can delete files, "
@@ -6005,19 +6473,19 @@ msgstr ""
 "Μπορεί να ανεβάζει εκδόσεις. Μπορεί να προσθέτει συνεργάτες. Μπορεί να "
 "διαγράφει αρχεία, εκδόσεις ή όλο το project."
 
-#: warehouse/templates/manage/project/roles.html:48
+#: warehouse/templates/manage/project/roles.html:55
 #, fuzzy, python-format
 #| msgid "Users who can manage %(project_name)s"
 msgid "Collaborators who can manage %(project_name)s"
 msgstr "Χρήστες που μπορούν να διαχειριστούν το %(project_name)s"
 
-#: warehouse/templates/manage/project/roles.html:51
+#: warehouse/templates/manage/project/roles.html:58
 #, fuzzy
 #| msgid "Collaborators"
 msgid "Collaborator"
 msgstr "Συνεργάτες"
 
-#: warehouse/templates/manage/project/roles.html:68
+#: warehouse/templates/manage/project/roles.html:75
 #, fuzzy, python-format
 #| msgid "Create an account"
 msgid "%(count)s organization owner"
@@ -6025,73 +6493,67 @@ msgid_plural "%(count)s organization owners"
 msgstr[0] "Δημιουργία λογαριασμού"
 msgstr[1] "Δημιουργία λογαριασμού"
 
-#: warehouse/templates/manage/project/roles.html:82
+#: warehouse/templates/manage/project/roles.html:89
 #, fuzzy
 #| msgid "Create an account"
 msgid "Cannot remove organization owners"
 msgstr "Δημιουργία λογαριασμού"
 
-#: warehouse/templates/manage/project/roles.html:96
+#: warehouse/templates/manage/project/roles.html:103
 #, python-format
 msgid "%(count)s team member"
 msgid_plural "%(count)s team members"
 msgstr[0] ""
 msgstr[1] ""
 
-#: warehouse/templates/manage/project/roles.html:134
+#: warehouse/templates/manage/project/roles.html:141
 #, fuzzy
 #| msgid "Cannot remove yourself as owner"
 msgid "Cannot remove your own team as Owner"
 msgstr "Δεν μπορείτε να αφαιρέσετε τον εαυτό σας από κάτοχο"
 
-#: warehouse/templates/manage/project/roles.html:137
-#: warehouse/templates/manage/project/roles.html:138
-#: warehouse/templates/manage/project/roles.html:192
-#: warehouse/templates/manage/project/roles.html:193
+#: warehouse/templates/manage/project/roles.html:144
+#: warehouse/templates/manage/project/roles.html:145
+#: warehouse/templates/manage/project/roles.html:199
+#: warehouse/templates/manage/project/roles.html:200
 #, fuzzy, python-format
 #| msgid "Remove %(user)s from this project"
 msgid "Remove %(collaborator)s from this project"
 msgstr "Αφαίρεση του χρήστη %(user)s από αυτό το project"
 
-#: warehouse/templates/manage/project/roles.html:189
-#, fuzzy
-#| msgid "Cannot remove yourself as owner"
-msgid "Cannot remove yourself as Owner"
-msgstr "Δεν μπορείτε να αφαιρέσετε τον εαυτό σας από κάτοχο"
-
-#: warehouse/templates/manage/project/roles.html:236
+#: warehouse/templates/manage/project/roles.html:243
 #, fuzzy
 #| msgid "Add collaborator"
 msgid "Add internal collaborator"
 msgstr "Προσθήκη συνεργάτη"
 
-#: warehouse/templates/manage/project/roles.html:243
+#: warehouse/templates/manage/project/roles.html:250
 msgid "️Team or member?"
 msgstr ""
 
-#: warehouse/templates/manage/project/roles.html:253
+#: warehouse/templates/manage/project/roles.html:260
 msgid "Add a team or an individual member as a collaborator."
 msgstr ""
 
-#: warehouse/templates/manage/project/roles.html:261
+#: warehouse/templates/manage/project/roles.html:268
 #, fuzzy
 #| msgid "Register a new project."
 msgid "️Name of team"
 msgstr "Εγγραφή ενός νέου project."
 
-#: warehouse/templates/manage/project/roles.html:265
+#: warehouse/templates/manage/project/roles.html:272
 #, fuzzy
 #| msgid "You are not an owner of this project"
 msgid "There are no teams in the organization."
 msgstr "Δεν είστε ο κάτοχος αυτού του project"
 
-#: warehouse/templates/manage/project/roles.html:316
+#: warehouse/templates/manage/project/roles.html:323
 #, fuzzy
 #| msgid "Add collaborator"
 msgid "Invite external collaborator"
 msgstr "Προσθήκη συνεργάτη"
 
-#: warehouse/templates/manage/project/roles.html:318
+#: warehouse/templates/manage/project/roles.html:325
 #, fuzzy
 #| msgid "Add collaborator"
 msgid "Invite collaborator"
@@ -6265,7 +6727,7 @@ msgstr "Χωρίς projects"
 
 #: warehouse/templates/manage/project/settings.html:147
 #: warehouse/templates/manage/project/settings.html:211
-#: warehouse/templates/manage/project/settings.html:268
+#: warehouse/templates/manage/project/settings.html:269
 msgid "Project Name"
 msgstr "Όνομα project"
 
@@ -6332,12 +6794,12 @@ msgstr "Δεν είστε ο κάτοχος αυτού του project"
 msgid "Cannot transfer project to an organization"
 msgstr "Δημιουργία λογαριασμού"
 
-#: warehouse/templates/manage/project/settings.html:223
+#: warehouse/templates/manage/project/settings.html:224
 #, fuzzy
 #| msgid "Invalid token: not an email verification token"
 msgid ""
-"Project owners can transfer the project to organizations that they own or "
-"manage."
+"Organization owners can transfer the project to organizations that they own "
+"or manage."
 msgstr "Μη έγκυρο token: αυτό δεν αποτελεί ένα email επιβεβαίωσης token"
 
 #: warehouse/templates/manage/project/settings.html:225
@@ -6348,20 +6810,28 @@ msgstr "Δεν είστε ο κάτοχος αυτού του project"
 
 #: warehouse/templates/manage/project/settings.html:227
 #, fuzzy
+#| msgid "Invalid token: not an email verification token"
+msgid ""
+"Project owners can transfer the project to organizations that they own or "
+"manage."
+msgstr "Μη έγκυρο token: αυτό δεν αποτελεί ένα email επιβεβαίωσης token"
+
+#: warehouse/templates/manage/project/settings.html:228
+#, fuzzy
 #| msgid "%(user)s has not uploaded any projects to PyPI, yet"
 msgid "You are not an owner or manager of any organizations."
 msgstr "Ο χρήστης %(user)s δεν έχει ανεβάσει projects στο PyPI, ακόμα"
 
-#: warehouse/templates/manage/project/settings.html:237
-#: warehouse/templates/manage/project/settings.html:268
+#: warehouse/templates/manage/project/settings.html:238
+#: warehouse/templates/manage/project/settings.html:269
 msgid "Delete project"
 msgstr "Διαγραφή project"
 
-#: warehouse/templates/manage/project/settings.html:240
+#: warehouse/templates/manage/project/settings.html:241
 msgid "Deleting this project will:"
 msgstr "Διαγράφοντας αυτό το project θα:"
 
-#: warehouse/templates/manage/project/settings.html:245
+#: warehouse/templates/manage/project/settings.html:246
 #, python-format
 msgid ""
 "Irreversibly delete the project along with <a href=\"%(href)s\">%(count)s "
@@ -6376,17 +6846,17 @@ msgstr[1] ""
 "Διαγραφεί ανεπιστρεπτί το project μαζί με <a href=\"%(href)s\">%(count)s "
 "εκδόσεις</a>"
 
-#: warehouse/templates/manage/project/settings.html:251
+#: warehouse/templates/manage/project/settings.html:252
 msgid "Irreversibly delete the project"
 msgstr "Διαγραφή project ανεπιστρεπτί"
 
-#: warehouse/templates/manage/project/settings.html:255
+#: warehouse/templates/manage/project/settings.html:256
 msgid "Make the project name available to <strong>any other PyPI</strong> user"
 msgstr ""
 "Κάνε το όνομα του project διαθέσιμο σε <strong>οποιοδήποτε άλλον PyPI</"
 "strong> χρήστη"
 
-#: warehouse/templates/manage/project/settings.html:257
+#: warehouse/templates/manage/project/settings.html:258
 msgid ""
 "This user will be able to make new releases under this project name, so long "
 "as the distribution filenames do not match filenames from a previously "
@@ -6400,25 +6870,37 @@ msgstr ""
 "δημιουργούνται συνδυάζοντας το όνομα του project + τον αριθμό έκδοσης + τον "
 "τύπο της διανομής)"
 
+#: warehouse/templates/manage/team/history.html:25
+#, fuzzy
+#| msgid ""
+#| "Each time you (or your collaborators) perform a security action related "
+#| "to this project, the action is recorded and displayed here."
+msgid ""
+"Each time you (or your collaborators) perform a security action related to "
+"this team, the action is recorded and displayed here."
+msgstr ""
+"Κάθε φορά που εσείς (ή κάποιος συνεργάτης σας) πραγματοποιεί κάποια ενέργεια "
+"ασφάλειας σχετιζόμενη με αυτό το project, τότε αυτή η ενέργεια θα "
+"καταγράφεται και τα εμφανίζεται εδώ."
+
+#: warehouse/templates/manage/team/history.html:36
+#, python-format
+msgid "%(previous_team_name)s team renamed to %(team_name)s"
+msgstr ""
+
 #: warehouse/templates/manage/team/manage_team_base.html:20
 #, fuzzy, python-format
 #| msgid "Manage '%(project_name)s'"
 msgid "Manage '%(team_name)s'"
 msgstr "Διαχείριση '%(project_name)s'"
 
-#: warehouse/templates/manage/team/manage_team_base.html:34
-#, fuzzy, python-format
-#| msgid "Manage '%(project_name)s'"
-msgid "%(organization_name)s teams (%(team_count)s)"
-msgstr "Διαχείριση '%(project_name)s'"
-
-#: warehouse/templates/manage/team/manage_team_base.html:47
+#: warehouse/templates/manage/team/manage_team_base.html:63
 #, fuzzy
 #| msgid "Back to projects"
 msgid "Back to teams"
 msgstr "Πίσω στα projects"
 
-#: warehouse/templates/manage/team/manage_team_base.html:57
+#: warehouse/templates/manage/team/manage_team_base.html:73
 #, fuzzy, python-format
 #| msgid ""
 #| "\n"
@@ -6457,9 +6939,9 @@ msgstr "Αναζήτηση projects"
 msgid "Manage '%(team_name)s' projects"
 msgstr "Διαχείριση '%(project_name)s'"
 
-#: warehouse/templates/manage/team/projects.html:139
+#: warehouse/templates/manage/team/projects.html:142
 msgid ""
-"Your team does not have admin or upload permissions for any projects, yet. "
+"This team does not have admin or upload permissions for any projects, yet. "
 "Get started by configuring collaborators for a project in your organization."
 msgstr ""
 
@@ -6469,37 +6951,41 @@ msgstr ""
 msgid "Manage members of '%(team_name)s'"
 msgstr "Διαχείριση '%(project_name)s'"
 
-#: warehouse/templates/manage/team/roles.html:36
+#: warehouse/templates/manage/team/roles.html:43
 msgid ""
 "Use this page to manage which organization users are members of this team."
 msgstr ""
 
-#: warehouse/templates/manage/team/roles.html:68
+#: warehouse/templates/manage/team/roles.html:75
 #, fuzzy
 #| msgid "You are not an owner of this project"
 msgid "Cannot remove other people from the team"
 msgstr "Δεν είστε ο κάτοχος αυτού του project"
 
-#: warehouse/templates/manage/team/roles.html:71
-#: warehouse/templates/manage/team/roles.html:72
+#: warehouse/templates/manage/team/roles.html:78
+#: warehouse/templates/manage/team/roles.html:79
 #, fuzzy, python-format
 #| msgid "Remove %(user)s from this project"
 msgid "Remove %(user)s from this team"
 msgstr "Αφαίρεση του χρήστη %(user)s από αυτό το project"
 
-#: warehouse/templates/manage/team/roles.html:81
-msgid ""
-"There are no members in your team, yet. Get started by adding a team member "
-"below."
+#: warehouse/templates/manage/team/roles.html:90
+#, fuzzy
+#| msgid "You are not an owner of this project"
+msgid "There are no members in this team, yet."
+msgstr "Δεν είστε ο κάτοχος αυτού του project"
+
+#: warehouse/templates/manage/team/roles.html:92
+msgid "Get started by adding a team member below."
 msgstr ""
 
-#: warehouse/templates/manage/team/roles.html:85
+#: warehouse/templates/manage/team/roles.html:99
 #, fuzzy
 #| msgid "Add email"
 msgid "Add member"
 msgstr "Προσθήκη ηλεκτρονικού ταχυδρομείου"
 
-#: warehouse/templates/manage/team/roles.html:105
+#: warehouse/templates/manage/team/roles.html:119
 #, python-format
 msgid ""
 "Add an organization owner, manager, or member to the team. <a href=\"%(href)s"
@@ -6688,7 +7174,7 @@ msgstr ""
 "μάθετε περισσότερα στη σελίδα <a href=\"%(href)s\" title=\"%(title)s\" "
 "target=\"_blank\" rel=\"noopener\">εγκατάσταση πακέτων</a>."
 
-#: warehouse/templates/packaging/detail.html:354
+#: warehouse/templates/packaging/detail.html:352
 #, fuzzy
 #| msgid ""
 #| "\n"
@@ -6715,7 +7201,23 @@ msgstr[1] ""
 "                  με τους επιλεγμένους classifiers\n"
 "                "
 
-#: warehouse/templates/packaging/detail.html:366
+#: warehouse/templates/packaging/detail.html:368
+msgid "No source distribution files available for this release."
+msgstr ""
+
+#: warehouse/templates/packaging/detail.html:369
+#, fuzzy, python-format
+#| msgid ""
+#| "Learn how to upload files on the <a href=\"%(href)s\" title=\"%(title)s\" "
+#| "target=\"_blank\" rel=\"noopener\">Python Packaging User Guide</a>"
+msgid ""
+"See tutorial on <a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" "
+"rel=\"noopener\">generating distribution archives</a>."
+msgstr ""
+"Μάθετε πως να ανεβάζετε αρχεία στο <a href=\"%(href)s\" title=\"%(title)s\" "
+"target=\"_blank\" rel=\"noopener\">Python Packaging User Guide</a>"
+
+#: warehouse/templates/packaging/detail.html:376
 #, fuzzy
 #| msgid ""
 #| "\n"
@@ -7136,7 +7638,7 @@ msgid "Troubleshooting"
 msgstr "Αντιμετώπιση προβλημάτων"
 
 #: warehouse/templates/pages/help.html:186
-#: warehouse/templates/pages/help.html:781
+#: warehouse/templates/pages/help.html:782
 msgid "About"
 msgstr "Σχετικά"
 
@@ -8409,13 +8911,19 @@ msgid ""
 "and does not contain any trailing characters such as newlines."
 msgstr ""
 
-#: warehouse/templates/pages/help.html:677
+#: warehouse/templates/pages/help.html:676
+#, fuzzy
+#| msgid "Set your username to <code>__token__</code>"
+msgid "Ensure that the username you are using is <code>__token__</code>."
+msgstr "Ορίστε το όνομα χρήστη ως <code>__token__</code>"
+
+#: warehouse/templates/pages/help.html:678
 msgid ""
 "In both cases, remember that PyPI and TestPyPI each require you to create an "
 "account, so your credentials may be different."
 msgstr ""
 
-#: warehouse/templates/pages/help.html:679
+#: warehouse/templates/pages/help.html:680
 msgid ""
 "\n"
 "            If you're using Windows and trying to paste your password or "
@@ -8426,7 +8934,7 @@ msgid ""
 "          "
 msgstr ""
 
-#: warehouse/templates/pages/help.html:683
+#: warehouse/templates/pages/help.html:684
 #, fuzzy, python-format
 #| msgid ""
 #| "<a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener"
@@ -8438,7 +8946,7 @@ msgstr ""
 "<a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener"
 "\">Hashes</a> για %(filename)s"
 
-#: warehouse/templates/pages/help.html:690
+#: warehouse/templates/pages/help.html:691
 #, python-format
 msgid ""
 "Transport Layer Security, or TLS, is part of how we make sure connections "
@@ -8458,7 +8966,7 @@ msgstr ""
 "\"%(reason_href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener"
 "\">Μάθετε γιατί στο PSF blog</a>."
 
-#: warehouse/templates/pages/help.html:697
+#: warehouse/templates/pages/help.html:698
 #, python-format
 msgid ""
 "If you are having trouble with <code>%(command)s</code> and get a <code>No "
@@ -8470,7 +8978,7 @@ msgstr ""
 "code>, προσπαθήστε να προσθέσετε το <code>-v</code> (πρώτο γράμμα από τη "
 "λέξη verbose) στην εντολή για να πάρετε παραπάνω πληροφορίες:"
 
-#: warehouse/templates/pages/help.html:699
+#: warehouse/templates/pages/help.html:700
 msgid ""
 "If you see an error like <code>There was a problem confirming the ssl "
 "certificate</code> or <code>tlsv1 alert protocol version</code> or "
@@ -8482,7 +8990,7 @@ msgstr ""
 "<code>TLSV1_ALERT_PROTOCOL_VERSION</code>, θα χρειαστεί να συνδεθείτε στο "
 "PyPI με μια νεώτερη έκδοση του TLS."
 
-#: warehouse/templates/pages/help.html:700
+#: warehouse/templates/pages/help.html:701
 msgid ""
 "The specific steps you need to take will depend on your operating system "
 "version, where your installation of Python originated (python.org, your OS "
@@ -8495,7 +9003,7 @@ msgstr ""
 "μεσολαβητή) και από την έκδοση της εγκατεστημένης Python, του πακέτου "
 "<code>setuptools</code> και του πακέτου <code>pip</code>."
 
-#: warehouse/templates/pages/help.html:702
+#: warehouse/templates/pages/help.html:703
 #, fuzzy, python-format
 #| msgid ""
 #| "For help, go to <a href=\"%(irc_href)s\" title=\"%(title)s\" target="
@@ -8524,7 +9032,7 @@ msgstr ""
 "λειτουργικό σας σύστημα και οδηγίες εγκατάστασης του καθώς και την έξοδο από "
 "την εντολή <code>%(command)s</code>."
 
-#: warehouse/templates/pages/help.html:713
+#: warehouse/templates/pages/help.html:714
 #, python-format
 msgid ""
 "We take <a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel="
@@ -8535,7 +9043,7 @@ msgstr ""
 "target=\"_blank\" rel=\"noopener\">προσβασιμότητα</a> και θέλουμε να κάνουμε "
 "την ιστοσελίδα εύκολα προσβάσιμη από όλους."
 
-#: warehouse/templates/pages/help.html:718
+#: warehouse/templates/pages/help.html:719
 #, python-format
 msgid ""
 "If you are experiencing an accessibility problem, <a href=\"%(href)s\" title="
@@ -8547,7 +9055,7 @@ msgstr ""
 "GitHub</a>, ούτως ώστε να προσπαθήσουμε να διορθώσουμε το πρόβλημα τόσο για "
 "εσάς όσο και για τους άλλους."
 
-#: warehouse/templates/pages/help.html:726
+#: warehouse/templates/pages/help.html:727
 #, python-format
 msgid ""
 "In a previous version of PyPI, it used to be possible for maintainers to "
@@ -8563,7 +9071,7 @@ msgstr ""
 "\"%(title)s\" target=\"_blank\" rel=\"noopener\">twine για το ανέβασμα του "
 "project σας στο PyPI</a>."
 
-#: warehouse/templates/pages/help.html:735
+#: warehouse/templates/pages/help.html:736
 msgid ""
 "Spammers return to PyPI with some regularity hoping to place their Search "
 "Engine Optimized phishing, scam, and click-farming content on the site. "
@@ -8577,7 +9085,7 @@ msgstr ""
 "γίνεται index η περιγραφή καθώς και άλλα δεδομένα του project και έχει "
 "γενικά πολύ καλή φήμη στην αναζήτηση, το καθιστά πρωταρχικό στόχο."
 
-#: warehouse/templates/pages/help.html:737
+#: warehouse/templates/pages/help.html:738
 #, python-format
 msgid ""
 "When the PyPI administrators are overwhelmed by spam <strong>or</strong> "
@@ -8594,24 +9102,24 @@ msgstr ""
 "κατάστασης μας</a> για περισσότερες πληροφορίες, καθώς θα έχουμε σχετική "
 "ανακοίνωση εκεί για το λόγο της διακοπής αυτών των υπηρεσιών."
 
-#: warehouse/templates/pages/help.html:746
+#: warehouse/templates/pages/help.html:747
 msgid "PyPI will return these errors for one of these reasons:"
 msgstr ""
 "Το PyPI θα επιστρέψει αυτά τα σφάλματα για έναν από τους ακόλουθους λόγους:"
 
-#: warehouse/templates/pages/help.html:748
+#: warehouse/templates/pages/help.html:749
 msgid "Filename has been used and file exists"
 msgstr "Το όνομα αρχείου χρησιμοποιείται και το αρχείο υπάρχει ήδη"
 
-#: warehouse/templates/pages/help.html:749
+#: warehouse/templates/pages/help.html:750
 msgid "Filename has been used but file no longer exists"
 msgstr "Το όνομα αρχείου χρησιμοποιείται αλλά το αρχείο δεν υπάρχει"
 
-#: warehouse/templates/pages/help.html:750
+#: warehouse/templates/pages/help.html:751
 msgid "A file with the exact same content exists"
 msgstr "Το αρχείο υπάρχει με ακριβώς το ίδιο όνομα"
 
-#: warehouse/templates/pages/help.html:752
+#: warehouse/templates/pages/help.html:753
 msgid ""
 "PyPI does not allow for a filename to be reused, even once a project has "
 "been deleted and recreated."
@@ -8619,7 +9127,7 @@ msgstr ""
 "Το PyPI δεν επιτρέπει σε ένα όνομα αρχείου να επαναχρησιμοποιείται ακόμα και "
 "όταν ένα project διαγραφεί ή επαναδημιουργηθεί."
 
-#: warehouse/templates/pages/help.html:754
+#: warehouse/templates/pages/help.html:755
 #, python-format
 msgid ""
 "To avoid this situation, <a href=\"%(test_pypi_href)s\" title=\"%(title)s\" "
@@ -8640,7 +9148,7 @@ msgstr ""
 # | "\">issue tracker</a>. Include the name of the requested classifier
 # and a
 # | "brief justification of why it is important."
-#: warehouse/templates/pages/help.html:761
+#: warehouse/templates/pages/help.html:762
 #, fuzzy, python-format
 msgid ""
 "If you would like to request a new trove classifier file a pull request on "
@@ -8653,7 +9161,7 @@ msgstr ""
 "\">issue tracker μας</a>. Συμπεριλάβετε το όνομα του επιθυμητού classifier "
 "και μια μικρή αιτιολόγηση γιατί αυτό είναι σημαντικό."
 
-#: warehouse/templates/pages/help.html:769
+#: warehouse/templates/pages/help.html:770
 #, python-format
 msgid ""
 "If you're experiencing an issue with PyPI itself, we welcome "
@@ -8670,7 +9178,7 @@ msgstr ""
 "μόνο για θέματα λογισμικού που τρέχουν στο PyPI. Προτού γράψετε ένα νέο "
 "θέμα, ελέγξτε πρώτα αν κάποιο παρόμοιο υπάρχει ήδη."
 
-#: warehouse/templates/pages/help.html:776
+#: warehouse/templates/pages/help.html:777
 msgid ""
 "If you are having an issue is with a specific package installed from PyPI, "
 "you should reach out to the maintainers of that project directly instead."
@@ -8678,7 +9186,7 @@ msgstr ""
 "Αν το θέμα σας αφορά ένα συγκεκριμένο πακέτο εγκατεστημένο από το PyPI, θα "
 "πρέπει να επικοινωνήσετε με τους συντηρητές αυτού του project."
 
-#: warehouse/templates/pages/help.html:785
+#: warehouse/templates/pages/help.html:786
 #, python-format
 msgid ""
 "PyPI is powered by the Warehouse project; <a href=\"%(href)s\" title="
@@ -8693,7 +9201,7 @@ msgstr ""
 "Packaging Authority (PyPA) και υποστηριζόμενο από το Python Packaging "
 "Working Group (PackagingWG)."
 
-#: warehouse/templates/pages/help.html:790
+#: warehouse/templates/pages/help.html:791
 #, python-format
 msgid ""
 "The <a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener"
@@ -8705,7 +9213,7 @@ msgstr ""
 "είναι η βελτίωση και η διατήρηση πολλών κεντρικών projects σχετικά με το "
 "Python packaging."
 
-#: warehouse/templates/pages/help.html:795
+#: warehouse/templates/pages/help.html:796
 #, python-format
 msgid ""
 "The <a href=\"%(packaging_wg_href)s\" title=\"%(title)s\" target=\"_blank\" "
@@ -8725,7 +9233,7 @@ msgstr ""
 "του οποίου η χρηματοδότηση επιτρέπει στους developers να βελτιώσουν την "
 "ασφάλεια και την προσβασιμότητα του Warehouse."
 
-#: warehouse/templates/pages/help.html:805
+#: warehouse/templates/pages/help.html:806
 #, python-format
 msgid ""
 "PyPI is powered by <a href=\"%(warehouse_href)s\" title=\"%(title)s\" target="
@@ -8737,7 +9245,7 @@ msgstr ""
 "εργαλεία και υπηρεσίες που παρέχονται από τους <a href=\"%(sponsors_href)s"
 "\">γενναιόδωρους χορηγούς μας</a>."
 
-#: warehouse/templates/pages/help.html:812
+#: warehouse/templates/pages/help.html:813
 msgid ""
 "As of April 16, 2018, PyPI.org is at \"production\" status, meaning that it "
 "has moved out of beta and replaced the old site (pypi.python.org). It is now "
@@ -8748,7 +9256,7 @@ msgstr ""
 "ιστοσελίδα (pypi.python.org). Είναι πλέον στιβαρό, τεσταρισμένο και έτοιμο "
 "για την αναμενόμενη κυκλοφορία σε επίπεδο browser και API."
 
-#: warehouse/templates/pages/help.html:814
+#: warehouse/templates/pages/help.html:815
 #, python-format
 msgid ""
 "PyPI is heavily cached and distributed via <abbr title=\"content delivery "
@@ -8777,7 +9285,7 @@ msgstr ""
 "κάποιον <a href=\"%(mirror_href)s\">καθρέπτη</a> είτε να φτιάξετε ένα <a "
 "href=\"%(private_index_href)s\">ιδιωτικό αποθετήριο</a>."
 
-#: warehouse/templates/pages/help.html:828
+#: warehouse/templates/pages/help.html:829
 #, python-format
 msgid ""
 "We have a huge amount of work to do to continue to maintain and improve PyPI "
@@ -8789,11 +9297,11 @@ msgstr ""
 "title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">το Warehouse project</"
 "a>)."
 
-#: warehouse/templates/pages/help.html:833
+#: warehouse/templates/pages/help.html:834
 msgid "Financial:"
 msgstr "Οικονομικά:"
 
-#: warehouse/templates/pages/help.html:833
+#: warehouse/templates/pages/help.html:834
 #, python-format
 msgid ""
 "We would deeply appreciate <a href=\"%(href)s\">your donations to fund "
@@ -8802,11 +9310,11 @@ msgstr ""
 "Θα εκτιμούσαμε βαθύτατα <a href=\"%(href)s\">τις δωρεές σας για τη "
 "χρηματοδότηση της ανάπτυξης και της συντήρησης</a>."
 
-#: warehouse/templates/pages/help.html:834
+#: warehouse/templates/pages/help.html:835
 msgid "Development:"
 msgstr "Ανάπτυξη:"
 
-#: warehouse/templates/pages/help.html:834
+#: warehouse/templates/pages/help.html:835
 msgid ""
 "Warehouse is open source, and we would love to see some new faces working on "
 "the project. You <strong>do not</strong> need to be an experienced open-"
@@ -8819,7 +9327,7 @@ msgstr ""
 "πραγματικότητα, θα χαρούμε να σας βοηθήσουμε να κάνετε το πρώτο σας pull "
 "request ανοικτού-κώδικα!"
 
-#: warehouse/templates/pages/help.html:836
+#: warehouse/templates/pages/help.html:837
 #, python-format
 msgid ""
 "If you have skills in Python, ElasticSearch, HTML, SCSS, JavaScript, or "
@@ -8840,7 +9348,7 @@ msgstr ""
 "title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">'Good first issue'</"
 "a> – προτείνουμε να ξεκινήσετε από εκεί."
 
-#: warehouse/templates/pages/help.html:844
+#: warehouse/templates/pages/help.html:845
 #, python-format
 msgid ""
 "Issues are grouped into <a href=\"%(href)s\" title=\"%(title)s\" target="
@@ -8855,11 +9363,11 @@ msgstr ""
 "Αν ενδιαφέρεστε να δουλέψετε πάνω σε ένα συγκεκριμένο issue, αφήστε ένα "
 "σχόλιο και θα σας καθοδηγήσουμε στη διαδικασία συνεισφοράς."
 
-#: warehouse/templates/pages/help.html:851
+#: warehouse/templates/pages/help.html:852
 msgid "Stay updated:"
 msgstr "Μείνετε ενημερωμένοι:"
 
-#: warehouse/templates/pages/help.html:852
+#: warehouse/templates/pages/help.html:853
 #, fuzzy, python-format
 #| msgid ""
 #| "You can also follow the ongoing development of the project on the <a href="
@@ -8878,7 +9386,7 @@ msgstr ""
 "\"%(message_group_href)s\" title=\"%(title)s\" target=\"_blank\" rel="
 "\"noopener\">PyPA Dev message group</a>."
 
-#: warehouse/templates/pages/help.html:861
+#: warehouse/templates/pages/help.html:862
 #, python-format
 msgid ""
 "Changes to PyPI are generally announced on both the <a href="
@@ -8899,14 +9407,14 @@ msgstr ""
 "title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">RSS</a> feeds για την "
 "ετικέτα \"pypi\"."
 
-#: warehouse/templates/pages/help.html:871
+#: warehouse/templates/pages/help.html:872
 #, python-format
 msgid ""
 "All traffic is routed through our global CDN, which lists their public IP "
 "addresses here: <a href=\"%(href)s\">%(href)s</a>."
 msgstr ""
 
-#: warehouse/templates/pages/help.html:872
+#: warehouse/templates/pages/help.html:873
 #, fuzzy, python-format
 #| msgid ""
 #| "To regain access to your account, <a href=\"%(href)s\">reset your "
@@ -8918,7 +9426,7 @@ msgstr ""
 "Για να μπορείτε να ανακτήσετε την πρόσβαση στο λογαριασμό σας, <a href="
 "\"%(href)s\">μηδενίστε τον κωδικό σας</a> στο PyPI."
 
-#: warehouse/templates/pages/help.html:876
+#: warehouse/templates/pages/help.html:877
 msgid ""
 "When Warehouse's maintainers are deploying new features, at first we mark "
 "them with a small \"beta feature\" symbol to tell you: this should probably "
@@ -8930,12 +9438,12 @@ msgstr ""
 "άλλη λειτουργία της ιστοσελίδας."
 
 # | msgid "Currently, the following features are in beta:"
-#: warehouse/templates/pages/help.html:877
+#: warehouse/templates/pages/help.html:878
 #, fuzzy
 msgid "Currently, no features are in beta."
 msgstr "Προς το παρόν, τα ακόλουθα χαρακτηριστικά είναι σε beta:"
 
-#: warehouse/templates/pages/help.html:881
+#: warehouse/templates/pages/help.html:882
 #, python-format
 msgid ""
 "\"PyPI\" should be pronounced like \"pie pea eye\", specifically with the "
@@ -8950,39 +9458,39 @@ msgstr ""
 "project, το οποίο είναι ένα δημοφιλές εναλλακτικό implementation της γλώσσας "
 "προγραμματισμού Python."
 
-#: warehouse/templates/pages/help.html:893
+#: warehouse/templates/pages/help.html:894
 msgid "Resources"
 msgstr "Πόροι"
 
-#: warehouse/templates/pages/help.html:894
+#: warehouse/templates/pages/help.html:895
 msgid "Looking for something else? Perhaps these links will help:"
 msgstr "Ψάχνετε για κάτι άλλο; Ίσως οι παρακάτω σύνδέσμοι να βοηθήσουν:"
 
-#: warehouse/templates/pages/help.html:896
+#: warehouse/templates/pages/help.html:897
 msgid "Python Packaging User Guide"
 msgstr "Python Packaging User Guide"
 
-#: warehouse/templates/pages/help.html:897
+#: warehouse/templates/pages/help.html:898
 msgid "Python documentation"
 msgstr "Τεκμηρίωση Python"
 
-#: warehouse/templates/pages/help.html:898
+#: warehouse/templates/pages/help.html:899
 msgid "(main Python website)"
 msgstr "(κύρια ιστοσελίδα της Python)"
 
-#: warehouse/templates/pages/help.html:899
+#: warehouse/templates/pages/help.html:900
 msgid "Python community page"
 msgstr "Ιστοσελίδα κοινότητας της Python"
 
-#: warehouse/templates/pages/help.html:899
+#: warehouse/templates/pages/help.html:900
 msgid "(lists IRC channels, mailing lists, etc.)"
 msgstr "(προβολή καναλιών IRC, mailing lists, κλπ)"
 
-#: warehouse/templates/pages/help.html:902
+#: warehouse/templates/pages/help.html:903
 msgid "Contact"
 msgstr "Επικοινωνία"
 
-#: warehouse/templates/pages/help.html:904
+#: warehouse/templates/pages/help.html:905
 #, fuzzy, python-format
 #| msgid ""
 #| "The <a href=\"%(pypa_href)s\" title=\"%(title)s\" target=\"_blank\" rel="
@@ -9160,6 +9668,11 @@ msgstr "Σύνδεση"
 #: warehouse/templates/pages/sitemap.html:42
 msgid "Security policy"
 msgstr "Πολιτική ασφάλειας"
+
+#: warehouse/templates/pages/sitemap.html:44
+#: warehouse/templates/pages/trademarks.html:20
+msgid "PyPI Trademarks"
+msgstr ""
 
 # | msgid "Search and filter projects"
 #: warehouse/templates/pages/sponsors.html:23
@@ -9404,6 +9917,32 @@ msgstr "Συνολικός όγκος αρχείων (bytes)"
 msgid "All of PyPI"
 msgstr "Όλα από το PyPI"
 
+#: warehouse/templates/pages/trademarks.html:15
+msgid "Trademarks"
+msgstr ""
+
+#: warehouse/templates/pages/trademarks.html:24
+msgid "Wordmarks"
+msgstr ""
+
+#: warehouse/templates/pages/trademarks.html:28
+#: warehouse/templates/pages/trademarks.html:34
+#: warehouse/templates/pages/trademarks.html:41
+#: warehouse/templates/pages/trademarks.html:47
+msgid "USPTO Registration Number"
+msgstr ""
+
+#: warehouse/templates/pages/trademarks.html:29
+#: warehouse/templates/pages/trademarks.html:35
+#: warehouse/templates/pages/trademarks.html:42
+#: warehouse/templates/pages/trademarks.html:48
+msgid "International Registration Number"
+msgstr ""
+
+#: warehouse/templates/pages/trademarks.html:37
+msgid "Logos"
+msgstr ""
+
 #: warehouse/templates/search/results.html:18
 #: warehouse/templates/search/results.html:114
 #: warehouse/templates/search/results.html:212
@@ -9539,6 +10078,61 @@ msgstr[1] ""
 "\n"
 "                  Δεν βρέθηκαν αποτελέσματα για τα φίλτρα '%(filters)s'\n"
 "                "
+
+#, fuzzy, python-format
+#~| msgid "Release version %(version)s"
+#~ msgid "Release version %(version)s yanked"
+#~ msgstr "Έκδοση %(version)s"
+
+#~ msgid "Cannot remove yourself as owner"
+#~ msgstr "Δεν μπορείτε να αφαιρέσετε τον εαυτό σας από κάτοχο"
+
+#, python-format
+#~ msgid "All %(project_name)s releases"
+#~ msgstr "Όλες οι εκδόσεις του %(project_name)s"
+
+#, fuzzy, python-format
+#~| msgid "Your projects (%(project_count)s)"
+#~ msgid "Pending invitations (%(invitation_count)s)"
+#~ msgstr "Τα projects σας (%(project_count)s)"
+
+#, fuzzy, python-format
+#~| msgid "Your projects (%(project_count)s)"
+#~ msgid "Your organizations (%(organization_count)s)"
+#~ msgstr "Τα projects σας (%(project_count)s)"
+
+#, python-format
+#~ msgid "Your projects (%(project_count)s)"
+#~ msgstr "Τα projects σας (%(project_count)s)"
+
+#, fuzzy, python-format
+#~| msgid "Your projects (%(project_count)s)"
+#~ msgid "Projects (%(project_count)s)"
+#~ msgstr "Τα projects σας (%(project_count)s)"
+
+#, fuzzy, python-format
+#~| msgid "Releases (%(release_count)s)"
+#~ msgid "Teams (%(team_count)s)"
+#~ msgstr "Εκδόσεις (%(release_count)s)"
+
+#, fuzzy, python-format
+#~| msgid "Your projects (%(project_count)s)"
+#~ msgid "%(organization_name)s projects (%(project_count)s)"
+#~ msgstr "Τα projects σας (%(project_count)s)"
+
+#, python-format
+#~ msgid "Releases (%(release_count)s)"
+#~ msgstr "Εκδόσεις (%(release_count)s)"
+
+#, fuzzy, python-format
+#~| msgid "Releases (%(release_count)s)"
+#~ msgid "Yanked Releases (%(release_count)s)"
+#~ msgstr "Εκδόσεις (%(release_count)s)"
+
+#, fuzzy, python-format
+#~| msgid "Manage '%(project_name)s'"
+#~ msgid "%(organization_name)s teams (%(team_count)s)"
+#~ msgstr "Διαχείριση '%(project_name)s'"
 
 #, fuzzy
 #~| msgid "Admin"
@@ -9680,20 +10274,6 @@ msgstr[1] ""
 #~ "<strong>Individual</strong> blog post on the <a href=\"%(href)s\" title="
 #~ "\"%(title)s\" target=\"_blank\" rel=\"noopener\">Python Software "
 #~ "Foundation blog</a>"
-#~ msgstr ""
-#~ "Μάθετε πως να ανεβάζετε αρχεία στο <a href=\"%(href)s\" title=\"%(title)s"
-#~ "\" target=\"_blank\" rel=\"noopener\">Python Packaging User Guide</a>"
-
-# | msgid ""
-# | "Learn how to upload files on the <a href=\"%(href)s\"
-# title=\"%(title)s\"
-# "
-# | "target=\"_blank\" rel=\"noopener\">Python Packaging User Guide</a>"
-#, fuzzy
-#~ msgid ""
-#~ "<strong>Quarterly</strong> thank you tweet from the <a href=\"%(href)s\" "
-#~ "title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">Python Software "
-#~ "Foundation</a>"
 #~ msgstr ""
 #~ "Μάθετε πως να ανεβάζετε αρχεία στο <a href=\"%(href)s\" title=\"%(title)s"
 #~ "\" target=\"_blank\" rel=\"noopener\">Python Packaging User Guide</a>"
