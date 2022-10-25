@@ -158,22 +158,26 @@ def test_create_session(monkeypatch, pyramid_services):
 
 
 @pytest.mark.parametrize(
-    "admin_flag, is_superuser, doom_calls",
+    "admin_flag, user, doom_calls",
     [
-        (None, True, []),
-        (None, False, []),
-        (pretend.stub(enabled=False), True, []),
-        (pretend.stub(enabled=False), False, []),
-        (pretend.stub(enabled=True, description="flag description"), True, []),
+        (None, pretend.stub(is_superuser=True), []),
+        (None, pretend.stub(is_superuser=False), []),
+        (pretend.stub(enabled=False), pretend.stub(is_superuser=True), []),
+        (pretend.stub(enabled=False), pretend.stub(is_superuser=False), []),
         (
             pretend.stub(enabled=True, description="flag description"),
-            False,
+            pretend.stub(is_superuser=True),
+            [],
+        ),
+        (
+            pretend.stub(enabled=True, description="flag description"),
+            pretend.stub(is_superuser=False),
             [pretend.call()],
         ),
     ],
 )
 def test_create_session_read_only_mode(
-    admin_flag, is_superuser, doom_calls, monkeypatch, pyramid_services
+    admin_flag, user, doom_calls, monkeypatch, pyramid_services
 ):
     get = pretend.call_recorder(lambda *a: admin_flag)
     session_obj = pretend.stub(
@@ -200,7 +204,7 @@ def test_create_session_read_only_mode(
         registry={"sqlalchemy.engine": engine},
         tm=pretend.stub(doom=pretend.call_recorder(lambda: None)),
         add_finished_callback=lambda callback: None,
-        user=pretend.stub(is_superuser=is_superuser),
+        user=user,
     )
 
     assert _create_session(request) is session_obj
