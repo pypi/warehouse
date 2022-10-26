@@ -74,7 +74,7 @@ msgid ""
 "different email."
 msgstr ""
 
-#: warehouse/accounts/forms.py:291 warehouse/manage/forms.py:140
+#: warehouse/accounts/forms.py:291 warehouse/manage/forms.py:143
 msgid "The name is too long. Choose a name with 100 characters or less."
 msgstr ""
 
@@ -262,11 +262,11 @@ msgstr ""
 msgid "Banner Preview"
 msgstr ""
 
-#: warehouse/manage/forms.py:403
+#: warehouse/manage/forms.py:406
 msgid "Choose an organization account name with 50 characters or less."
 msgstr ""
 
-#: warehouse/manage/forms.py:411
+#: warehouse/manage/forms.py:414
 msgid ""
 "The organization account name is invalid. Organization account names must"
 " be composed of letters, numbers, dots, hyphens and underscores. And must"
@@ -274,59 +274,59 @@ msgid ""
 "organization account name."
 msgstr ""
 
-#: warehouse/manage/forms.py:432
+#: warehouse/manage/forms.py:435
 msgid ""
 "This organization account name has already been used. Choose a different "
 "organization account name."
 msgstr ""
 
-#: warehouse/manage/forms.py:473
+#: warehouse/manage/forms.py:476
 msgid "Select project"
 msgstr ""
 
-#: warehouse/manage/forms.py:478
+#: warehouse/manage/forms.py:481
 msgid "Specify project name"
 msgstr ""
 
-#: warehouse/manage/forms.py:481
+#: warehouse/manage/forms.py:484
 msgid ""
 "Start and end with a letter or numeral containing only ASCII numeric and "
 "'.', '_' and '-'."
 msgstr ""
 
-#: warehouse/manage/forms.py:488
+#: warehouse/manage/forms.py:491
 msgid "This project name has already been used. Choose a different project name."
 msgstr ""
 
-#: warehouse/manage/forms.py:559
+#: warehouse/manage/forms.py:562
 msgid ""
 "The organization name is too long. Choose a organization name with 100 "
 "characters or less."
 msgstr ""
 
-#: warehouse/manage/forms.py:571
+#: warehouse/manage/forms.py:574
 msgid ""
 "The organization URL is too long. Choose a organization URL with 400 "
 "characters or less."
 msgstr ""
 
-#: warehouse/manage/forms.py:585
+#: warehouse/manage/forms.py:588
 msgid ""
 "The organization description is too long. Choose a organization "
 "description with 400 characters or less."
 msgstr ""
 
-#: warehouse/manage/forms.py:629
+#: warehouse/manage/forms.py:632
 msgid "Choose a team name with 50 characters or less."
 msgstr ""
 
-#: warehouse/manage/forms.py:635
+#: warehouse/manage/forms.py:638
 msgid ""
 "The team name is invalid. Team names cannot start or end with a space, "
 "period, underscore, hyphen, or slash. Choose a different team name."
 msgstr ""
 
-#: warehouse/manage/forms.py:663
+#: warehouse/manage/forms.py:666
 msgid "This team name has already been used. Choose a different team name."
 msgstr ""
 
@@ -352,11 +352,11 @@ msgid ""
 "cannot be added as a ${role_name} for organization"
 msgstr ""
 
-#: warehouse/manage/views.py:2034 warehouse/manage/views.py:4366
+#: warehouse/manage/views.py:2034 warehouse/manage/views.py:4369
 msgid "User '${username}' already has an active invite. Please try again later."
 msgstr ""
 
-#: warehouse/manage/views.py:2100 warehouse/manage/views.py:4433
+#: warehouse/manage/views.py:2100 warehouse/manage/views.py:4436
 msgid "Invitation sent to '${username}'"
 msgstr ""
 
@@ -364,11 +364,11 @@ msgstr ""
 msgid "Could not find organization invitation."
 msgstr ""
 
-#: warehouse/manage/views.py:2160 warehouse/manage/views.py:4477
+#: warehouse/manage/views.py:2160 warehouse/manage/views.py:4480
 msgid "Invitation already expired."
 msgstr ""
 
-#: warehouse/manage/views.py:2202 warehouse/manage/views.py:4510
+#: warehouse/manage/views.py:2202 warehouse/manage/views.py:4513
 msgid "Invitation revoked from '${username}'."
 msgstr ""
 
@@ -378,25 +378,25 @@ msgid ""
 "again later."
 msgstr ""
 
-#: warehouse/manage/views.py:4143
+#: warehouse/manage/views.py:4146
 msgid "Team '${team_name}' already has ${role_name} role for project"
 msgstr ""
 
-#: warehouse/manage/views.py:4251
+#: warehouse/manage/views.py:4254
 msgid "User '${username}' already has ${role_name} role for project"
 msgstr ""
 
-#: warehouse/manage/views.py:4320
+#: warehouse/manage/views.py:4323
 msgid "${username} is now ${role} of the '${project_name}' project."
 msgstr ""
 
-#: warehouse/manage/views.py:4353
+#: warehouse/manage/views.py:4356
 msgid ""
 "User '${username}' does not have a verified primary email address and "
 "cannot be added as a ${role_name} for project"
 msgstr ""
 
-#: warehouse/manage/views.py:4466
+#: warehouse/manage/views.py:4469
 msgid "Could not find role invitation."
 msgstr ""
 

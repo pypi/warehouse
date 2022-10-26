@@ -4088,15 +4088,18 @@ def manage_project_roles(project, request, _form_class=CreateRoleForm):
             .filter(TeamProjectRole.project == project)
             .all()
         )
-        internal_role_form = CreateInternalRoleForm(
-            request.POST,
-            team_choices=sorted(team.name for team in project.organization.teams),
-            user_service=user_service,
-        )
         internal_users = set(
             organization_owners(request, project.organization)
             + organization_managers(request, project.organization)
             + organization_members(request, project.organization)
+        )
+        internal_role_form = CreateInternalRoleForm(
+            request.POST,
+            team_choices=sorted(team.name for team in project.organization.teams),
+            user_choices=sorted(
+                user.username for user in internal_users if user not in project.users
+            ),
+            user_service=user_service,
         )
     else:
         team_project_roles = set()
