@@ -130,6 +130,7 @@ _macosx_major_versions = {
     "10",
     "11",
     "12",
+    "13",
 }
 
 # manylinux pep600 and musllinux pep656 are a little more complicated:
