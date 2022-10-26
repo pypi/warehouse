@@ -74,9 +74,9 @@ def _analyze_vulnerability(request, vulnerability_report, origin, metrics):
     try:
         vulnerability_record = _get_vuln_record(request, report, origin)
 
-        if not report.versions or report.withdrawn is not None:
-            # No versions or a withdrawn date indicates the vulnerability is no
-            # longer considered valid, so delete it.
+        if not report.versions:
+            # No versions indicates the vulnerability is no longer considered
+            # valid, so delete it.
             _delete_vuln_record(request, vulnerability_record)
             return
 
@@ -92,6 +92,7 @@ def _analyze_vulnerability(request, vulnerability_report, origin, metrics):
             details=report.details,
             summary=report.summary,
             fixed_in=report.fixed_in,
+            withdrawn=report.withdrawn,
         )
         _add_vuln_record(request, vulnerability_record)
 

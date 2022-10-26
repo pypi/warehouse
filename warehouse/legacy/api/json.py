@@ -119,7 +119,7 @@ def _json_data(request, project, release, *, all_releases):
         for r, fs in releases.items()
     }
 
-    # Serialize a list of vulnerabilties for this release
+    # Serialize a list of vulnerabilities for this release
     vulnerabilities = [
         {
             "id": vulnerability_record.id,
@@ -129,6 +129,9 @@ def _json_data(request, project, release, *, all_releases):
             "details": vulnerability_record.details,
             "summary": vulnerability_record.summary,
             "fixed_in": vulnerability_record.fixed_in,
+            "withdrawn": vulnerability_record.withdrawn.strftime("%Y-%m-%dT%H:%M:%SZ")
+            if vulnerability_record.withdrawn
+            else None,
         }
         for vulnerability_record in release.vulnerabilities
     ]
