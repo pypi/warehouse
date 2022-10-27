@@ -326,7 +326,27 @@ provided below, with unrelated fields collapsed for readability.
         ]
     }
 
-The ``withdrawn`` field is of particular note: when non-``null``, it contains
+The ``withdrawn`` field is of particular interest: when non-``null``, it contains
 the RFC 3339 timestamp when the vulnerability was withdrawn by an upstream
 vulnerability reporting source. API consumers can use this field to retract
 vulnerability reports that are later determined to be invalid.
+
+For example, here is what a withdrawn vulnerability might look like:
+
+.. code:: json
+
+
+    {
+        "aliases": [
+            "CVE-2022-XXXXX"
+        ],
+        "details": "A long description.",
+        "summary": "A shorter summary.",
+        "fixed_in": [
+            "1.2.3"
+        ],
+        "id": "PYSEC-2022-XXX",
+        "link": "https://osv.dev/vulnerability/PYSEC-2022-XXX",
+        "source": "osv",
+        "withdrawn": "2022-06-28T16:39:06Z"
+    }
