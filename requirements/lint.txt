@@ -161,9 +161,9 @@ tomli==2.0.1 \
     # via
     #   black
     #   mypy
-types-awscrt==0.14.7 \
-    --hash=sha256:42a99eaa9e9312e723e4b3793e23c5be155cdacde20cb554ff0d74fd6780808b \
-    --hash=sha256:b65355b9926ce0cdf5f9949b2c310937f6f44b2e56292243888041dce60bc47b
+types-awscrt==0.15.1 \
+    --hash=sha256:38c3d0d5c20a5516eead8860be264063a8ceb5997a7a890599174ab96915a7b4 \
+    --hash=sha256:c9a49c024376e425c12ea72332ec4448c9bb1544fdb8f71a40e889e43f296109
     # via botocore-stubs
 types-babel==2.10.0 \
     --hash=sha256:9b9396c79839f294aa341d74e97fb309f9e3a3700f521c345487d49fb1c49116 \
