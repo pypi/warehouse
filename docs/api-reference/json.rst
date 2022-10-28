@@ -326,10 +326,10 @@ provided below, with unrelated fields collapsed for readability.
         ]
     }
 
-The ``withdrawn`` field is of particular interest: when non-``null``, it contains
-the RFC 3339 timestamp when the vulnerability was withdrawn by an upstream
-vulnerability reporting source. API consumers can use this field to retract
-vulnerability reports that are later determined to be invalid.
+The ``withdrawn`` field is of particular interest: when non-``null``, it
+contains the RFC 3339 timestamp when the vulnerability was withdrawn by an
+upstream vulnerability reporting source. API consumers can use this field to
+retract vulnerability reports that are later determined to be invalid.
 
 For example, here is what a withdrawn vulnerability might look like:
 
