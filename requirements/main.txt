@@ -333,9 +333,9 @@ cryptography==38.0.2 \
     #   pyjwt
     #   pyopenssl
     #   webauthn
-cssselect==1.1.0 \
-    --hash=sha256:f612ee47b749c877ebae5bb77035d8f4202c6ad0f0fc1271b3c18ad6c4468ecf \
-    --hash=sha256:f95f8dedd925fd8f54edb3d2dfb44c190d9d18512377d3c1e2388d16126879bc
+cssselect==1.2.0 \
+    --hash=sha256:666b19839cfaddb9ce9d36bfe4c969132c647b92fc9088c4e23f786b30f1b3dc \
+    --hash=sha256:da1885f0c10b60c03ed5eccbb6b68d6eff248d91976fcde348f395d54c9fd35e
     # via premailer
 cssutils==2.6.0 \
     --hash=sha256:30c72f3a5c5951a11151640600aae7b3bf10e4c0d5c87f5bc505c2cd4a26e0c2 \
