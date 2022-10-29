@@ -195,7 +195,7 @@ def user_add_email(request):
 def user_reset_2fa(request):
     user = request.db.query(User).get(request.matchdict["user_id"])
     form = UserForm(request.POST if request.method == "POST" else None, user)
-    gh_link = form.data["name"]
+    gh_link = request.params.get("issue-url")
 
     if form.validate():
         valid_sites = set()
@@ -225,7 +225,7 @@ def user_reset_2fa(request):
             pass
 
     request.session.flash(
-        f"Reset 2FA for {user.username!r} on issue {gh_link}", queue="success"
+        f"Initiating Reset 2FA for {user.username!r} from issue '{gh_link}'.", queue="success"
     )
     return HTTPSeeOther(request.route_path("admin.user.detail", user_id=user.id))
 
