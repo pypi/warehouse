@@ -14,7 +14,7 @@
 /* global expect, beforeEach, describe, it, jest */
 
 import { getByPlaceholderText, fireEvent } from "@testing-library/dom";
-import { Application } from "stimulus";
+import { Application } from "@hotwired/stimulus";
 import PasswordStrengthGaugeController from "../../warehouse/static/js/warehouse/controllers/password_strength_gauge_controller";
 
 describe("Password strength gauge controller", () => {

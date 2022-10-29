@@ -13,7 +13,7 @@
 
 /* global expect, beforeEach, describe, it */
 
-import { Application } from "stimulus";
+import { Application } from "@hotwired/stimulus";
 import CollapsibleController from "../../warehouse/static/js/warehouse/controllers/collapsible_controller";
 
 describe("Collapsible controller", () => {
