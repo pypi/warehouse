@@ -84,13 +84,11 @@ def release_detail(release, request):
     if project.name != request.matchdict.get("name", project.name):
         return HTTPMovedPermanently(request.current_route_path(name=project.name))
 
-    # Prefer plain text if explicitly set, otherwise prefer html.
-    if release.description.content_type == "text/plain":
-        # Wrap as preformatted text to preserve whitespace.
-        description = f"<pre>{release.description.raw}</pre>"
     # Grab the rendered description if it exists, and if it doesn't, then we will render
     # it inline.
-    elif release.description.html:
+    # TODO: Remove the fallback to rendering inline and only support displaying the
+    #       already rendered content.
+    if release.description.html:
         description = release.description.html
     else:
         description = readme.render(
