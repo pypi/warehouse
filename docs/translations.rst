@@ -74,7 +74,7 @@ placing it directly in the string like so:
 
 .. code-block:: html
 
-      {% trans trimmed %}
+      {% trans %}
       Filter by <a href="request.route_path('classifiers')">classifier</a>
       {% endtrans %}
 
@@ -82,7 +82,7 @@ Instead, define it inside the :code:`{% trans %}` tag:
 
 .. code-block:: html
 
-      {% trans trimmed href=request.route_path('classifiers') %}
+      {% trans href=request.route_path('classifiers') %}
       Filter by <a href="{{ href }}">classifier</a>
       {% endtrans %}
 
@@ -97,7 +97,7 @@ variants of a string, for example:
 .. code-block:: html
       :emphasize-lines: 3
 
-      {% trans trimmed n_hours=n_hours %}
+      {% trans n_hours=n_hours %}
       This link will expire in {{ n_hours }} hour.
       {% pluralize %}
       This link will expire in {{ n_hours }} hours.
