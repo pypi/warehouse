@@ -410,7 +410,11 @@ def configure(settings=None):
 
     # We need to enable our Client Side Include extension
     config.get_settings().setdefault(
-        "jinja2.extensions", ["warehouse.utils.html.ClientSideIncludeExtension"]
+        "jinja2.extensions",
+        [
+            "warehouse.utils.html.ClientSideIncludeExtension",
+            "warehouse.i18n.extensions.TrimmedTranslatableTagsExtension",
+        ],
     )
 
     # We'll want to configure some filters for Jinja2 as well.

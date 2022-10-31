@@ -14,7 +14,7 @@
 {% extends "email/_base/body.txt" %}
 
 {% block content %}
-{% trans trimmed username=username, email_address='admin@pypi.org' %}
+{% trans username=username, email_address='admin@pypi.org' %}
 New recovery codes for your PyPI account '{{ username }}' have been generated.
 
 If you did not make this change, you can email {{ email_address }} to communicate
