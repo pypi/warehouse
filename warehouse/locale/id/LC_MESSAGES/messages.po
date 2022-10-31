@@ -930,8 +930,8 @@ msgstr "Beralih ke versi seluler"
 #: warehouse/templates/manage/account.html:716
 #: warehouse/templates/manage/manage_base.html:305
 #: warehouse/templates/manage/manage_base.html:364
-#: warehouse/templates/manage/organization/settings.html:193
-#: warehouse/templates/manage/organization/settings.html:248
+#: warehouse/templates/manage/organization/settings.html:194
+#: warehouse/templates/manage/organization/settings.html:249
 #: warehouse/templates/manage/project/documentation.html:27
 #: warehouse/templates/manage/project/release.html:182
 #: warehouse/templates/manage/project/settings.html:126
@@ -3780,7 +3780,7 @@ msgstr[0] ""
 "        "
 
 #: warehouse/templates/manage/account.html:705
-#: warehouse/templates/manage/organization/settings.html:237
+#: warehouse/templates/manage/organization/settings.html:238
 #, python-format
 msgid ""
 "<a href=\"%(transfer_href)s\">transfer ownership</a> or <a href="
@@ -3791,8 +3791,8 @@ msgstr ""
 
 #: warehouse/templates/manage/account.html:714
 #: warehouse/templates/manage/account/token.html:166
-#: warehouse/templates/manage/organization/settings.html:191
-#: warehouse/templates/manage/organization/settings.html:246
+#: warehouse/templates/manage/organization/settings.html:192
+#: warehouse/templates/manage/organization/settings.html:247
 #: warehouse/templates/manage/team/settings.html:75
 msgid "Proceed with caution!"
 msgstr "Lanjutkan dengan hati-hati!"
@@ -4135,7 +4135,7 @@ msgstr "Cabut undangan untuk %(user)s"
 msgid "Decline invitation"
 msgstr "Navigasi utama"
 
-#: warehouse/templates/manage/organization/settings.html:251
+#: warehouse/templates/manage/organization/settings.html:252
 #: warehouse/templates/manage/organizations.html:54
 #, fuzzy
 #| msgid "Project description"
@@ -4313,7 +4313,7 @@ msgstr ""
 msgid "️Organization type"
 msgstr ""
 
-#: warehouse/templates/manage/organization/settings.html:144
+#: warehouse/templates/manage/organization/settings.html:145
 #: warehouse/templates/manage/organizations.html:251
 msgid ""
 "Companies can create organization accounts as a paid service while community "
@@ -5400,7 +5400,7 @@ msgstr "Kelola '%(project_name)s'"
 msgid "Date created"
 msgstr "Akun telah dibuat"
 
-#: warehouse/templates/manage/organization/settings.html:150
+#: warehouse/templates/manage/organization/settings.html:151
 #, fuzzy, python-format
 #| msgid ""
 #| "If this was a mistake, you can email <a href=\"%(href)s\">"
@@ -5413,40 +5413,40 @@ msgstr ""
 "Jika ini sebuah kesalahan, Anda bisa mengemail <a href=\"%(href)s\">"
 "%(email_address)s</a> untuk berkomunikasi dengan administrator PyPI."
 
-#: warehouse/templates/manage/organization/settings.html:159
+#: warehouse/templates/manage/organization/settings.html:160
 #, fuzzy
 #| msgid "Create an account"
 msgid "Update organization"
 msgstr "Buat sebuah akun"
 
-#: warehouse/templates/manage/organization/settings.html:168
+#: warehouse/templates/manage/organization/settings.html:169
 #, fuzzy
 #| msgid "Account details"
 msgid "Billing details"
 msgstr "Detail akun"
 
-#: warehouse/templates/manage/organization/settings.html:170
+#: warehouse/templates/manage/organization/settings.html:171
 msgid "Billing status"
 msgstr ""
 
-#: warehouse/templates/manage/organization/settings.html:174
+#: warehouse/templates/manage/organization/settings.html:175
 msgid "Billing email"
 msgstr ""
 
-#: warehouse/templates/manage/organization/settings.html:179
+#: warehouse/templates/manage/organization/settings.html:180
 #, fuzzy
 #| msgid "Manage version"
 msgid "Manage billing"
 msgstr "Mengelola versi"
 
-#: warehouse/templates/manage/organization/settings.html:189
-#: warehouse/templates/manage/organization/settings.html:210
+#: warehouse/templates/manage/organization/settings.html:190
+#: warehouse/templates/manage/organization/settings.html:211
 #, fuzzy
 #| msgid "Manage '%(project_name)s'"
 msgid "Change organization account name"
 msgstr "Kelola '%(project_name)s'"
 
-#: warehouse/templates/manage/organization/settings.html:194
+#: warehouse/templates/manage/organization/settings.html:195
 #, fuzzy
 #| msgid "You will not be able to recover your account after you delete it"
 msgid ""
@@ -5454,32 +5454,32 @@ msgid ""
 "your organization."
 msgstr "Anda tidak akan dapat memulihkan akun setelah menghapusnya"
 
-#: warehouse/templates/manage/organization/settings.html:210
+#: warehouse/templates/manage/organization/settings.html:211
 #, fuzzy
 #| msgid "Manage '%(project_name)s'"
 msgid "Change organization account name for"
 msgstr "Kelola '%(project_name)s'"
 
-#: warehouse/templates/manage/organization/settings.html:210
+#: warehouse/templates/manage/organization/settings.html:211
 #, fuzzy
 #| msgid "Create an account"
 msgid "Current organization account name"
 msgstr "Buat sebuah akun"
 
-#: warehouse/templates/manage/organization/settings.html:217
-#: warehouse/templates/manage/organization/settings.html:251
+#: warehouse/templates/manage/organization/settings.html:218
+#: warehouse/templates/manage/organization/settings.html:252
 #, fuzzy
 #| msgid "Create an account"
 msgid "Delete organization"
 msgstr "Buat sebuah akun"
 
-#: warehouse/templates/manage/organization/settings.html:220
+#: warehouse/templates/manage/organization/settings.html:221
 #, fuzzy
 #| msgid "Create an account"
 msgid "Cannot delete organization"
 msgstr "Buat sebuah akun"
 
-#: warehouse/templates/manage/organization/settings.html:222
+#: warehouse/templates/manage/organization/settings.html:223
 #, fuzzy, python-format
 #| msgid ""
 #| "\n"
@@ -5505,7 +5505,7 @@ msgstr[0] ""
 "strong> dari%(count)s proyek.\n"
 "        "
 
-#: warehouse/templates/manage/organization/settings.html:227
+#: warehouse/templates/manage/organization/settings.html:228
 #, fuzzy
 #| msgid ""
 #| "\n"
@@ -5533,7 +5533,7 @@ msgstr[0] ""
 "sebelum Anda dapat menghapus akun Anda.\n"
 "        "
 
-#: warehouse/templates/manage/organization/settings.html:249
+#: warehouse/templates/manage/organization/settings.html:250
 #, fuzzy
 #| msgid "You will not be able to recover your account after you delete it"
 msgid "You will not be able to recover your organization after you delete it."

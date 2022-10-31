@@ -132,6 +132,7 @@
         {% if request.has_permission("manage:organization") and organization.orgtype != OrganizationType.Company %}
         {{ save_organization_form.orgtype(class_="form-group__field", **{"aria-describedby":"orgtype-errors"}) }}
         {% else %}
+        <input name="orgtype" type="hidden" value="Company">  {# Ensure request params match Pyramid POST route #}
         <p class="form-group__text">
           {{ save_organization_form.orgtype.data.value }}
         </p>

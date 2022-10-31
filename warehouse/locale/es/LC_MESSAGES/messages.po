@@ -909,8 +909,8 @@ msgstr "Cambiar a la versión para móviles"
 #: warehouse/templates/manage/account.html:716
 #: warehouse/templates/manage/manage_base.html:305
 #: warehouse/templates/manage/manage_base.html:364
-#: warehouse/templates/manage/organization/settings.html:193
-#: warehouse/templates/manage/organization/settings.html:248
+#: warehouse/templates/manage/organization/settings.html:194
+#: warehouse/templates/manage/organization/settings.html:249
 #: warehouse/templates/manage/project/documentation.html:27
 #: warehouse/templates/manage/project/release.html:182
 #: warehouse/templates/manage/project/settings.html:126
@@ -3811,7 +3811,7 @@ msgstr[1] ""
 "        "
 
 #: warehouse/templates/manage/account.html:705
-#: warehouse/templates/manage/organization/settings.html:237
+#: warehouse/templates/manage/organization/settings.html:238
 #, python-format
 msgid ""
 "<a href=\"%(transfer_href)s\">transfer ownership</a> or <a href="
@@ -3822,8 +3822,8 @@ msgstr ""
 
 #: warehouse/templates/manage/account.html:714
 #: warehouse/templates/manage/account/token.html:166
-#: warehouse/templates/manage/organization/settings.html:191
-#: warehouse/templates/manage/organization/settings.html:246
+#: warehouse/templates/manage/organization/settings.html:192
+#: warehouse/templates/manage/organization/settings.html:247
 #: warehouse/templates/manage/team/settings.html:75
 msgid "Proceed with caution!"
 msgstr "¡Prosiga con cautela!"
@@ -4180,7 +4180,7 @@ msgstr "Revocar invitación de %(user)s"
 msgid "Decline invitation"
 msgstr "Navegación principal"
 
-#: warehouse/templates/manage/organization/settings.html:251
+#: warehouse/templates/manage/organization/settings.html:252
 #: warehouse/templates/manage/organizations.html:54
 msgid "Organization Name"
 msgstr "Nombre de organización"
@@ -4354,7 +4354,7 @@ msgstr "Descripción de su negocio, producto o proyecto"
 msgid "️Organization type"
 msgstr "Tipo de organización"
 
-#: warehouse/templates/manage/organization/settings.html:144
+#: warehouse/templates/manage/organization/settings.html:145
 #: warehouse/templates/manage/organizations.html:251
 msgid ""
 "Companies can create organization accounts as a paid service while community "
@@ -5440,7 +5440,7 @@ msgstr "Cambiar nombre de cuenta de la organización"
 msgid "Date created"
 msgstr "Fecha de creación"
 
-#: warehouse/templates/manage/organization/settings.html:150
+#: warehouse/templates/manage/organization/settings.html:151
 #, fuzzy, python-format
 #| msgid ""
 #| "If this was a mistake, you can email <a href=\"%(href)s\">"
@@ -5454,36 +5454,36 @@ msgstr ""
 "%(email_address)s</a> (en inglés) para ponerse en contacto con los "
 "administradores de PyPI."
 
-#: warehouse/templates/manage/organization/settings.html:159
+#: warehouse/templates/manage/organization/settings.html:160
 msgid "Update organization"
 msgstr "Actualizar organización"
 
-#: warehouse/templates/manage/organization/settings.html:168
+#: warehouse/templates/manage/organization/settings.html:169
 #, fuzzy
 #| msgid "Account details"
 msgid "Billing details"
 msgstr "Datos de cuenta"
 
-#: warehouse/templates/manage/organization/settings.html:170
+#: warehouse/templates/manage/organization/settings.html:171
 msgid "Billing status"
 msgstr ""
 
-#: warehouse/templates/manage/organization/settings.html:174
+#: warehouse/templates/manage/organization/settings.html:175
 msgid "Billing email"
 msgstr ""
 
-#: warehouse/templates/manage/organization/settings.html:179
+#: warehouse/templates/manage/organization/settings.html:180
 #, fuzzy
 #| msgid "Manage version"
 msgid "Manage billing"
 msgstr "Gestionar versión"
 
-#: warehouse/templates/manage/organization/settings.html:189
-#: warehouse/templates/manage/organization/settings.html:210
+#: warehouse/templates/manage/organization/settings.html:190
+#: warehouse/templates/manage/organization/settings.html:211
 msgid "Change organization account name"
 msgstr "Cambiar nombre de cuenta de la organización"
 
-#: warehouse/templates/manage/organization/settings.html:194
+#: warehouse/templates/manage/organization/settings.html:195
 #, fuzzy
 #| msgid "You will not be able to recover your account after you delete it"
 msgid ""
@@ -5491,28 +5491,28 @@ msgid ""
 "your organization."
 msgstr "No podrá recuperar la cuenta después de que la elimine"
 
-#: warehouse/templates/manage/organization/settings.html:210
+#: warehouse/templates/manage/organization/settings.html:211
 #, fuzzy
 #| msgid "Change organization account name"
 msgid "Change organization account name for"
 msgstr "Cambiar nombre de cuenta de la organización"
 
-#: warehouse/templates/manage/organization/settings.html:210
+#: warehouse/templates/manage/organization/settings.html:211
 #, fuzzy
 #| msgid "Create an account"
 msgid "Current organization account name"
 msgstr "Crear cuenta"
 
-#: warehouse/templates/manage/organization/settings.html:217
-#: warehouse/templates/manage/organization/settings.html:251
+#: warehouse/templates/manage/organization/settings.html:218
+#: warehouse/templates/manage/organization/settings.html:252
 msgid "Delete organization"
 msgstr "Eliminar organización"
 
-#: warehouse/templates/manage/organization/settings.html:220
+#: warehouse/templates/manage/organization/settings.html:221
 msgid "Cannot delete organization"
 msgstr "No se puede eliminar la organización"
 
-#: warehouse/templates/manage/organization/settings.html:222
+#: warehouse/templates/manage/organization/settings.html:223
 #, fuzzy, python-format
 #| msgid ""
 #| "\n"
@@ -5543,7 +5543,7 @@ msgstr[1] ""
 "%(count)s proyectos.\n"
 "        "
 
-#: warehouse/templates/manage/organization/settings.html:227
+#: warehouse/templates/manage/organization/settings.html:228
 #, fuzzy
 #| msgid ""
 #| "\n"
@@ -5576,7 +5576,7 @@ msgstr[1] ""
 "quiere eliminar su cuenta.\n"
 "        "
 
-#: warehouse/templates/manage/organization/settings.html:249
+#: warehouse/templates/manage/organization/settings.html:250
 #, fuzzy
 #| msgid "You will not be able to recover your account after you delete it"
 msgid "You will not be able to recover your organization after you delete it."
