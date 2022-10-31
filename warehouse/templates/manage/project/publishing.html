@@ -51,7 +51,7 @@
     <h1 class="page-title">{% trans %}OpenID Connect publisher management{% endtrans %}</h1>
 
     <p>
-      {% trans trimmed %}
+      {% trans %}
         OpenID Connect provides a flexible, credential-free mechanism for delegating
         publishing authority for a PyPI package to a third party service,
         like GitHub Actions.
@@ -59,7 +59,7 @@
     </p>
 
     <p class="no-bottom-padding">
-      {% trans trimmed %}
+      {% trans %}
         PyPI projects can use trusted OpenID Connect publishers to automate their release
         processes, without having to explicitly provision or manage API tokens.
       {% endtrans %}
@@ -69,7 +69,7 @@
     <h3>GitHub</h3>
 
     <p>
-      {% trans trimmed href="https://docs.github.com/en/actions/deployment/security-hardening-your-deployments/about-security-hardening-with-openid-connect" %}
+      {% trans href="https://docs.github.com/en/actions/deployment/security-hardening-your-deployments/about-security-hardening-with-openid-connect" %}
       Read more about GitHub's OpenID Connect provider <a href="{{ href }}">here</a>.
       {% endtrans %}
     </p>

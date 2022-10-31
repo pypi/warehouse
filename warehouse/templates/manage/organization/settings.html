@@ -142,13 +142,13 @@
         </div>
         {% if request.has_permission("manage:organization") %}
         <p class="form-group__help-text">
-          {% trans trimmed %}
+          {% trans %}
           Companies can create organization accounts as a paid service while community projects are granted complimentary access.
           {% endtrans %}
         </p>
         {% if organization.orgtype == OrganizationType.Company %}
         <p class="form-group__help-text">
-          {% trans trimmed email="admin@pypi.org",site=request.registry.settings["site.name"] %}
+          {% trans email="admin@pypi.org",site=request.registry.settings["site.name"] %}
           If you need to convert your organization account from a Company account to a Community account, you can email <a href="mailto:{{ email }}">{{ email }}</a> to communicate with {{ site }} administrators.
           {% endtrans %}
         </p>
@@ -235,7 +235,7 @@
         {% for project in active_projects %}
         <li>
           <strong>{{ project.name }}</strong> -
-          {% trans trimmed transfer_href=request.route_path('manage.project.roles', project_name=project.name), delete_href=request.route_path('manage.project.settings', project_name=project.name) %}
+          {% trans transfer_href=request.route_path('manage.project.roles', project_name=project.name), delete_href=request.route_path('manage.project.settings', project_name=project.name) %}
             <a href="{{ transfer_href }}">transfer ownership</a>
             or
             <a href="{{ delete_href }}">delete project</a>

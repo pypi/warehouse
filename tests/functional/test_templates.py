@@ -48,6 +48,7 @@ def test_templates_for_empty_titles():
         extensions=[
             "jinja2.ext.i18n",
             "warehouse.utils.html.ClientSideIncludeExtension",
+            "warehouse.i18n.extensions.TrimmedTranslatableTagsExtension",
         ],
         cache_size=0,
     )
@@ -85,6 +86,7 @@ def test_render_templates():
         extensions=[
             "jinja2.ext.i18n",
             "warehouse.utils.html.ClientSideIncludeExtension",
+            "warehouse.i18n.extensions.TrimmedTranslatableTagsExtension",
         ],
         cache_size=0,
     )
