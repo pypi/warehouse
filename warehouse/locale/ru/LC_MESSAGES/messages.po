@@ -21,13 +21,14 @@
 # Andrey Rybakov <rybakov.ad@icloud.com>, 2022.
 # Anton Rosin <rosin886@gmail.com>, 2022.
 # Vik <xasertop@gmail.com>, 2022.
+# imartemy1524 <imartemy1524@gmail.com>, 2022.
 msgid ""
 msgstr ""
 "Project-Id-Version: Warehouse VERSION\n"
 "Report-Msgid-Bugs-To: admin@pypi.org\n"
 "POT-Creation-Date: 2020-04-06 17:52-0500\n"
-"PO-Revision-Date: 2022-09-20 21:59+0000\n"
-"Last-Translator: Vik <xasertop@gmail.com>\n"
+"PO-Revision-Date: 2022-10-28 16:07+0000\n"
+"Last-Translator: imartemy1524 <imartemy1524@gmail.com>\n"
 "Language-Team: Russian <https://hosted.weblate.org/projects/pypa/warehouse/"
 "ru/>\n"
 "Language: ru\n"
@@ -36,7 +37,7 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=n%10==1 && n%100!=11 ? 0 : n%10>=2 && n"
 "%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2;\n"
-"X-Generator: Weblate 4.14.1\n"
+"X-Generator: Weblate 4.14.2-dev\n"
 "Generated-By: Babel 2.8.0\n"
 
 #: warehouse/views.py:125
@@ -61,7 +62,7 @@ msgstr "TOTP-код должен состоять из ${totp_length} цифр."
 
 #: warehouse/accounts/forms.py:87
 msgid "Recovery Codes must be ${recovery_code_length} characters."
-msgstr ""
+msgstr "Резервные коды должны быть длиной в ${recovery_code_length} символов."
 
 #: warehouse/accounts/forms.py:102
 msgid "Choose a username with 50 characters or less."
@@ -162,10 +163,6 @@ msgstr ""
 "подтверждения. (IP: ${ip})"
 
 #: warehouse/accounts/views.py:117
-#, fuzzy
-#| msgid ""
-#| "Too many emails have been added to this account without verifying them. "
-#| "Check your inbox and follow the verification links. (IP: ${ip})"
 msgid ""
 "Too many password resets have been requested for this account without "
 "completing them. Check your inbox and follow the verification links. (IP: "
@@ -640,8 +637,9 @@ msgid "Page Not Found (404)"
 msgstr "Страница не найдена (404)"
 
 #: warehouse/templates/404.html:18
+#, fuzzy
 msgid "We looked everywhere but couldn't find this page"
-msgstr "Мы везде посмотрели, но не могли найти эту страницу"
+msgstr "Мы везде посмотрели, но не смогли найти эту страницу"
 
 #: warehouse/templates/404.html:29
 msgid "And now for something <br><span>completely different</span>"
@@ -938,8 +936,8 @@ msgstr "Переключиться на мобильную версию"
 #: warehouse/templates/manage/account.html:716
 #: warehouse/templates/manage/manage_base.html:305
 #: warehouse/templates/manage/manage_base.html:364
-#: warehouse/templates/manage/organization/settings.html:193
-#: warehouse/templates/manage/organization/settings.html:248
+#: warehouse/templates/manage/organization/settings.html:194
+#: warehouse/templates/manage/organization/settings.html:249
 #: warehouse/templates/manage/project/documentation.html:27
 #: warehouse/templates/manage/project/release.html:182
 #: warehouse/templates/manage/project/settings.html:126
@@ -3813,7 +3811,7 @@ msgstr[2] ""
 "        "
 
 #: warehouse/templates/manage/account.html:705
-#: warehouse/templates/manage/organization/settings.html:237
+#: warehouse/templates/manage/organization/settings.html:238
 #, python-format
 msgid ""
 "<a href=\"%(transfer_href)s\">transfer ownership</a> or <a href="
@@ -3824,8 +3822,8 @@ msgstr ""
 
 #: warehouse/templates/manage/account.html:714
 #: warehouse/templates/manage/account/token.html:166
-#: warehouse/templates/manage/organization/settings.html:191
-#: warehouse/templates/manage/organization/settings.html:246
+#: warehouse/templates/manage/organization/settings.html:192
+#: warehouse/templates/manage/organization/settings.html:247
 #: warehouse/templates/manage/team/settings.html:75
 msgid "Proceed with caution!"
 msgstr "Действуйте осторожно!"
@@ -4175,7 +4173,7 @@ msgstr "Отозвать приглашение пользователю %(user)
 msgid "Decline invitation"
 msgstr "Основная навигация"
 
-#: warehouse/templates/manage/organization/settings.html:251
+#: warehouse/templates/manage/organization/settings.html:252
 #: warehouse/templates/manage/organizations.html:54
 #, fuzzy
 #| msgid "Project description"
@@ -4353,7 +4351,7 @@ msgstr ""
 msgid "️Organization type"
 msgstr ""
 
-#: warehouse/templates/manage/organization/settings.html:144
+#: warehouse/templates/manage/organization/settings.html:145
 #: warehouse/templates/manage/organizations.html:251
 msgid ""
 "Companies can create organization accounts as a paid service while community "
@@ -5454,7 +5452,7 @@ msgstr "Управление проектом «%(project_name)s»"
 msgid "Date created"
 msgstr "Учётная запись создана"
 
-#: warehouse/templates/manage/organization/settings.html:150
+#: warehouse/templates/manage/organization/settings.html:151
 #, fuzzy, python-format
 #| msgid ""
 #| "If this was a mistake, you can email <a href=\"mailto:%(email_address)s\">"
@@ -5468,40 +5466,40 @@ msgstr ""
 "%(email_address)s\">%(email_address)s</a> , чтобы связаться с "
 "администраторами %(site)s."
 
-#: warehouse/templates/manage/organization/settings.html:159
+#: warehouse/templates/manage/organization/settings.html:160
 #, fuzzy
 #| msgid "Create an account"
 msgid "Update organization"
 msgstr "Создание учётной записи"
 
-#: warehouse/templates/manage/organization/settings.html:168
+#: warehouse/templates/manage/organization/settings.html:169
 #, fuzzy
 #| msgid "Account details"
 msgid "Billing details"
 msgstr "Информация об учётной записи"
 
-#: warehouse/templates/manage/organization/settings.html:170
+#: warehouse/templates/manage/organization/settings.html:171
 msgid "Billing status"
 msgstr ""
 
-#: warehouse/templates/manage/organization/settings.html:174
+#: warehouse/templates/manage/organization/settings.html:175
 msgid "Billing email"
 msgstr ""
 
-#: warehouse/templates/manage/organization/settings.html:179
+#: warehouse/templates/manage/organization/settings.html:180
 #, fuzzy
 #| msgid "Manage version"
 msgid "Manage billing"
 msgstr "Управлять версией"
 
-#: warehouse/templates/manage/organization/settings.html:189
-#: warehouse/templates/manage/organization/settings.html:210
+#: warehouse/templates/manage/organization/settings.html:190
+#: warehouse/templates/manage/organization/settings.html:211
 #, fuzzy
 #| msgid "Manage '%(project_name)s'"
 msgid "Change organization account name"
 msgstr "Управление проектом «%(project_name)s»"
 
-#: warehouse/templates/manage/organization/settings.html:194
+#: warehouse/templates/manage/organization/settings.html:195
 #, fuzzy
 #| msgid "You will not be able to recover your account after you delete it"
 msgid ""
@@ -5509,32 +5507,32 @@ msgid ""
 "your organization."
 msgstr "Вы не сможете восстановить свою учётную запись после её удаления"
 
-#: warehouse/templates/manage/organization/settings.html:210
+#: warehouse/templates/manage/organization/settings.html:211
 #, fuzzy
 #| msgid "Manage '%(project_name)s'"
 msgid "Change organization account name for"
 msgstr "Управление проектом «%(project_name)s»"
 
-#: warehouse/templates/manage/organization/settings.html:210
+#: warehouse/templates/manage/organization/settings.html:211
 #, fuzzy
 #| msgid "Create an account"
 msgid "Current organization account name"
 msgstr "Создание учётной записи"
 
-#: warehouse/templates/manage/organization/settings.html:217
-#: warehouse/templates/manage/organization/settings.html:251
+#: warehouse/templates/manage/organization/settings.html:218
+#: warehouse/templates/manage/organization/settings.html:252
 #, fuzzy
 #| msgid "Create an account"
 msgid "Delete organization"
 msgstr "Создание учётной записи"
 
-#: warehouse/templates/manage/organization/settings.html:220
+#: warehouse/templates/manage/organization/settings.html:221
 #, fuzzy
 #| msgid "Create an account"
 msgid "Cannot delete organization"
 msgstr "Создание учётной записи"
 
-#: warehouse/templates/manage/organization/settings.html:222
+#: warehouse/templates/manage/organization/settings.html:223
 #, fuzzy, python-format
 #| msgid ""
 #| "\n"
@@ -5570,7 +5568,7 @@ msgstr[2] ""
 "<strong>единственным владельцем</strong> %(count)s проектов.\n"
 "        "
 
-#: warehouse/templates/manage/organization/settings.html:227
+#: warehouse/templates/manage/organization/settings.html:228
 #, fuzzy
 #| msgid ""
 #| "\n"
@@ -5608,7 +5606,7 @@ msgstr[2] ""
 "прежде чем вы сможете удалить свою учётную запись.\n"
 "        "
 
-#: warehouse/templates/manage/organization/settings.html:249
+#: warehouse/templates/manage/organization/settings.html:250
 #, fuzzy
 #| msgid "You will not be able to recover your account after you delete it"
 msgid "You will not be able to recover your organization after you delete it."
