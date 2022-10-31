@@ -225,7 +225,7 @@
       <img src="{{ gravatar(request, user.email, size=140) }}" alt="{{ alt }}" title="{{ alt }}" class="gravatar-form__image">
       <div class="gravatar-form__content">
         <p>
-        {% trans trimmed href='https://gravatar.com/', title=gettext('External link')%}
+        {% trans href='https://gravatar.com/', title=gettext('External link')%}
           We use
           <a href="{{ href }}" title="{{ title }}" target="_blank" rel="noopener">gravatar.com</a>
           to generate your profile picture based on your primary email address
@@ -254,7 +254,7 @@
       </p>
       {% endif %}
       <p class="form-group__help-text">
-        {% trans trimmed href=request.route_path('accounts.profile', username=user.username) %}
+        {% trans href=request.route_path('accounts.profile', username=user.username) %}
           Displayed on your <a href="{{ href }}">public profile</a>. Cannot be changed.
         {% endtrans %}
       </p>
@@ -275,7 +275,7 @@
           {{ field_errors(save_account_form.name) }}
         </div>
         <p class="form-group__help-text">
-          {% trans trimmed href=request.route_path('accounts.profile', username=user.username) %}
+          {% trans href=request.route_path('accounts.profile', username=user.username) %}
             Displayed on your <a href="{{ href }}">public profile</a>
           {% endtrans %}
         </p>
@@ -294,7 +294,7 @@
           {{ field_errors(save_account_form.public_email) }}
         </div>
         <p class="form-group__help-text">
-          {% trans trimmed href=request.route_path('accounts.profile', username=user.username) %}
+          {% trans href=request.route_path('accounts.profile', username=user.username) %}
             One of your verified emails can be displayed on your <a href="{{ href }}">public profile</a> to logged-in users.
           {% endtrans %}
         </p>
@@ -469,7 +469,7 @@
           {% trans project_name=caveat.permissions.projects[0] %}Token scope: Project {{ project_name }}{% endtrans %}
         {% endif %}
       {% elif "exp" in caveat %}
-        {% trans trimmed exp=humanize(caveat.exp) %}Expires: {{ exp }}{% endtrans %}
+        {% trans exp=humanize(caveat.exp) %}Expires: {{ exp }}{% endtrans %}
       {% endif %}
     {%- endmacro %}
 
@@ -647,7 +647,7 @@
     {%- endmacro %}
 
     <p>
-      {% trans trimmed faq_url=request.help_url(_anchor='suspicious-activity')%}
+      {% trans faq_url=request.help_url(_anchor='suspicious-activity')%}
       Events appear here as security-related actions occur on your account. If you notice anything suspicious, please <a href="{{ faq_url }}">secure your account</a> as soon as possible.
       {% endtrans %}
     </p>
@@ -702,7 +702,7 @@
         {% for project in active_projects %}
         <li>
           <strong>{{ project.name }}</strong> -
-          {% trans trimmed transfer_href=request.route_path('manage.project.roles', project_name=project.name), delete_href=request.route_path('manage.project.settings', project_name=project.name) %}
+          {% trans transfer_href=request.route_path('manage.project.roles', project_name=project.name), delete_href=request.route_path('manage.project.settings', project_name=project.name) %}
             <a href="{{ transfer_href }}">transfer ownership</a>
             or
             <a href="{{ delete_href }}">delete project</a>

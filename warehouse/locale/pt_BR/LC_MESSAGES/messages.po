@@ -875,8 +875,8 @@ msgstr "Mudar para versão móvel"
 #: warehouse/templates/manage/account.html:716
 #: warehouse/templates/manage/manage_base.html:305
 #: warehouse/templates/manage/manage_base.html:364
-#: warehouse/templates/manage/organization/settings.html:193
-#: warehouse/templates/manage/organization/settings.html:248
+#: warehouse/templates/manage/organization/settings.html:194
+#: warehouse/templates/manage/organization/settings.html:249
 #: warehouse/templates/manage/project/documentation.html:27
 #: warehouse/templates/manage/project/release.html:182
 #: warehouse/templates/manage/project/settings.html:126
@@ -3715,7 +3715,7 @@ msgstr[1] ""
 "        "
 
 #: warehouse/templates/manage/account.html:705
-#: warehouse/templates/manage/organization/settings.html:237
+#: warehouse/templates/manage/organization/settings.html:238
 #, python-format
 msgid ""
 "<a href=\"%(transfer_href)s\">transfer ownership</a> or <a href="
@@ -3726,8 +3726,8 @@ msgstr ""
 
 #: warehouse/templates/manage/account.html:714
 #: warehouse/templates/manage/account/token.html:166
-#: warehouse/templates/manage/organization/settings.html:191
-#: warehouse/templates/manage/organization/settings.html:246
+#: warehouse/templates/manage/organization/settings.html:192
+#: warehouse/templates/manage/organization/settings.html:247
 #: warehouse/templates/manage/team/settings.html:75
 msgid "Proceed with caution!"
 msgstr "Prossiga com cautela!"
@@ -4069,7 +4069,7 @@ msgstr "Revogar convite para %(user)s"
 msgid "Decline invitation"
 msgstr "Navegação principal"
 
-#: warehouse/templates/manage/organization/settings.html:251
+#: warehouse/templates/manage/organization/settings.html:252
 #: warehouse/templates/manage/organizations.html:54
 #, fuzzy
 #| msgid "Organization name"
@@ -4239,7 +4239,7 @@ msgstr "Descrição de sua empresa, produto ou projeto"
 msgid "️Organization type"
 msgstr "Tipo da organização"
 
-#: warehouse/templates/manage/organization/settings.html:144
+#: warehouse/templates/manage/organization/settings.html:145
 #: warehouse/templates/manage/organizations.html:251
 msgid ""
 "Companies can create organization accounts as a paid service while community "
@@ -5337,7 +5337,7 @@ msgstr "Nome de conta da organização"
 msgid "Date created"
 msgstr "Conta criada"
 
-#: warehouse/templates/manage/organization/settings.html:150
+#: warehouse/templates/manage/organization/settings.html:151
 #, fuzzy, python-format
 #| msgid ""
 #| "If this was a mistake, you can email <a href=\"mailto:%(email_address)s\">"
@@ -5351,44 +5351,44 @@ msgstr ""
 "%(email_address)s\">%(email_address)s</a> para se comunicar com os "
 "administradores do %(site)s."
 
-#: warehouse/templates/manage/organization/settings.html:159
+#: warehouse/templates/manage/organization/settings.html:160
 #, fuzzy
 #| msgid "Create new organization"
 msgid "Update organization"
 msgstr "Criar nova organização"
 
-#: warehouse/templates/manage/organization/settings.html:168
+#: warehouse/templates/manage/organization/settings.html:169
 #, fuzzy
 #| msgid "Account details"
 msgid "Billing details"
 msgstr "Detalhes da conta"
 
-#: warehouse/templates/manage/organization/settings.html:170
+#: warehouse/templates/manage/organization/settings.html:171
 #, fuzzy
 #| msgid "Billing Manager"
 msgid "Billing status"
 msgstr "Gerente de faturamento"
 
-#: warehouse/templates/manage/organization/settings.html:174
+#: warehouse/templates/manage/organization/settings.html:175
 #, fuzzy
 #| msgid "Billing Manager"
 msgid "Billing email"
 msgstr "Gerente de faturamento"
 
-#: warehouse/templates/manage/organization/settings.html:179
+#: warehouse/templates/manage/organization/settings.html:180
 #, fuzzy
 #| msgid "Manage version"
 msgid "Manage billing"
 msgstr "Gerenciar versão"
 
-#: warehouse/templates/manage/organization/settings.html:189
-#: warehouse/templates/manage/organization/settings.html:210
+#: warehouse/templates/manage/organization/settings.html:190
+#: warehouse/templates/manage/organization/settings.html:211
 #, fuzzy
 #| msgid "Organization account name"
 msgid "Change organization account name"
 msgstr "Nome de conta da organização"
 
-#: warehouse/templates/manage/organization/settings.html:194
+#: warehouse/templates/manage/organization/settings.html:195
 #, fuzzy
 #| msgid "You will not be able to recover your account after you delete it"
 msgid ""
@@ -5396,32 +5396,32 @@ msgid ""
 "your organization."
 msgstr "Você não poderá recuperar sua conta depois de excluí-la"
 
-#: warehouse/templates/manage/organization/settings.html:210
+#: warehouse/templates/manage/organization/settings.html:211
 #, fuzzy
 #| msgid "Organization account name"
 msgid "Change organization account name for"
 msgstr "Nome de conta da organização"
 
-#: warehouse/templates/manage/organization/settings.html:210
+#: warehouse/templates/manage/organization/settings.html:211
 #, fuzzy
 #| msgid "Organization account name"
 msgid "Current organization account name"
 msgstr "Nome de conta da organização"
 
-#: warehouse/templates/manage/organization/settings.html:217
-#: warehouse/templates/manage/organization/settings.html:251
+#: warehouse/templates/manage/organization/settings.html:218
+#: warehouse/templates/manage/organization/settings.html:252
 #, fuzzy
 #| msgid "Create new organization"
 msgid "Delete organization"
 msgstr "Criar nova organização"
 
-#: warehouse/templates/manage/organization/settings.html:220
+#: warehouse/templates/manage/organization/settings.html:221
 #, fuzzy
 #| msgid "Create new organization"
 msgid "Cannot delete organization"
 msgstr "Criar nova organização"
 
-#: warehouse/templates/manage/organization/settings.html:222
+#: warehouse/templates/manage/organization/settings.html:223
 #, fuzzy, python-format
 #| msgid ""
 #| "\n"
@@ -5452,7 +5452,7 @@ msgstr[1] ""
 "%(count)s projetos.\n"
 "        "
 
-#: warehouse/templates/manage/organization/settings.html:227
+#: warehouse/templates/manage/organization/settings.html:228
 #, fuzzy
 #| msgid ""
 #| "\n"
@@ -5485,7 +5485,7 @@ msgstr[1] ""
 "antes que você possa excluir sua conta.\n"
 "        "
 
-#: warehouse/templates/manage/organization/settings.html:249
+#: warehouse/templates/manage/organization/settings.html:250
 #, fuzzy
 #| msgid "You will not be able to recover your account after you delete it"
 msgid "You will not be able to recover your organization after you delete it."

@@ -72,7 +72,7 @@
             <span class="table__user-text">
               <strong>{{ project.organization.display_name }}</strong><br>
               <span>
-                {% trans trimmed count=project.organization.owners|length %}
+                {% trans count=project.organization.owners|length %}
                 {{ count }} organization owner
                 {% pluralize %}
                 {{ count }} organization owners
@@ -100,7 +100,7 @@
             <span class="table__user-text">
               <strong>{{ role.team.name }}</strong><br>
               <span>
-                {% trans trimmed count=role.team.members|length %}
+                {% trans count=role.team.members|length %}
                 {{ count }} team member
                 {% pluralize %}
                 {{ count }} team members

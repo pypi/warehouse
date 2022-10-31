@@ -29,11 +29,11 @@
 {% block main %}
 <h1 class="page-title page-title--wsubtitle heading-wsubtitle__heading">{{ title }}</h1>
 <p class="heading-wsubtitle__subtitle">
-  {% trans trimmed href='https://en.wikipedia.org/wiki/Time-based_One-time_Password_algorithm', title=gettext('External link') %}
+  {% trans href='https://en.wikipedia.org/wiki/Time-based_One-time_Password_algorithm', title=gettext('External link') %}
     PyPI supports any application that follows the <a href="{{ href }}" title="{{ title }}" target="_blank" rel="noopener"><abbr title="time-based one-time password">TOTP</abbr> standard</a>.
   {% endtrans %}
   <br>
-  {% trans trimmed href=request.route_path('help', _anchor='totp') %}
+  {% trans href=request.route_path('help', _anchor='totp') %}
     Visit <a href="{{ href }}">PyPI's help page</a> for a list of compatible applications.
   {% endtrans %}
 </p>
