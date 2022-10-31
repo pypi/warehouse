@@ -863,8 +863,8 @@ msgstr "切换到手机版本"
 #: warehouse/templates/manage/account.html:716
 #: warehouse/templates/manage/manage_base.html:305
 #: warehouse/templates/manage/manage_base.html:364
-#: warehouse/templates/manage/organization/settings.html:193
-#: warehouse/templates/manage/organization/settings.html:248
+#: warehouse/templates/manage/organization/settings.html:194
+#: warehouse/templates/manage/organization/settings.html:249
 #: warehouse/templates/manage/project/documentation.html:27
 #: warehouse/templates/manage/project/release.html:182
 #: warehouse/templates/manage/project/settings.html:126
@@ -3537,7 +3537,7 @@ msgstr[0] ""
 "        "
 
 #: warehouse/templates/manage/account.html:705
-#: warehouse/templates/manage/organization/settings.html:237
+#: warehouse/templates/manage/organization/settings.html:238
 #, python-format
 msgid ""
 "<a href=\"%(transfer_href)s\">transfer ownership</a> or <a href="
@@ -3548,8 +3548,8 @@ msgstr ""
 
 #: warehouse/templates/manage/account.html:714
 #: warehouse/templates/manage/account/token.html:166
-#: warehouse/templates/manage/organization/settings.html:191
-#: warehouse/templates/manage/organization/settings.html:246
+#: warehouse/templates/manage/organization/settings.html:192
+#: warehouse/templates/manage/organization/settings.html:247
 #: warehouse/templates/manage/team/settings.html:75
 msgid "Proceed with caution!"
 msgstr "请谨慎操作！"
@@ -3876,7 +3876,7 @@ msgstr "撤销加入 %(org)s 的邀请"
 msgid "Decline invitation"
 msgstr "拒绝邀请"
 
-#: warehouse/templates/manage/organization/settings.html:251
+#: warehouse/templates/manage/organization/settings.html:252
 #: warehouse/templates/manage/organizations.html:54
 msgid "Organization Name"
 msgstr "组织名称"
@@ -4034,7 +4034,7 @@ msgstr "你的业务、产品或项目描述"
 msgid "️Organization type"
 msgstr "️组织类型"
 
-#: warehouse/templates/manage/organization/settings.html:144
+#: warehouse/templates/manage/organization/settings.html:145
 #: warehouse/templates/manage/organizations.html:251
 msgid ""
 "Companies can create organization accounts as a paid service while community "
@@ -5002,7 +5002,7 @@ msgstr "在<a href=\"%(href)s\">下方</a>更改组织名。"
 msgid "Date created"
 msgstr "创建日期"
 
-#: warehouse/templates/manage/organization/settings.html:150
+#: warehouse/templates/manage/organization/settings.html:151
 #, python-format
 msgid ""
 "If you need to convert your organization account from a Company account to a "
@@ -5012,55 +5012,55 @@ msgstr ""
 "如你需要将你组织的账户类型从公司账户转换为社区账户，你可以发电子邮件到 <a "
 "href=\"mailto:%(email)s\">%(email)s</a> 和 %(site)s 管理员沟通。"
 
-#: warehouse/templates/manage/organization/settings.html:159
+#: warehouse/templates/manage/organization/settings.html:160
 msgid "Update organization"
 msgstr "更新组织"
 
-#: warehouse/templates/manage/organization/settings.html:168
+#: warehouse/templates/manage/organization/settings.html:169
 msgid "Billing details"
 msgstr "计费信息"
 
-#: warehouse/templates/manage/organization/settings.html:170
+#: warehouse/templates/manage/organization/settings.html:171
 msgid "Billing status"
 msgstr "计费状态"
 
-#: warehouse/templates/manage/organization/settings.html:174
+#: warehouse/templates/manage/organization/settings.html:175
 msgid "Billing email"
 msgstr "计费邮箱"
 
-#: warehouse/templates/manage/organization/settings.html:179
+#: warehouse/templates/manage/organization/settings.html:180
 msgid "Manage billing"
 msgstr "管理计费"
 
-#: warehouse/templates/manage/organization/settings.html:189
-#: warehouse/templates/manage/organization/settings.html:210
+#: warehouse/templates/manage/organization/settings.html:190
+#: warehouse/templates/manage/organization/settings.html:211
 msgid "Change organization account name"
 msgstr "更改组织帐户名"
 
-#: warehouse/templates/manage/organization/settings.html:194
+#: warehouse/templates/manage/organization/settings.html:195
 msgid ""
 "You will not be able to revert to your current account name after you rename "
 "your organization."
 msgstr "重命名组织后，你将无法恢复为当前帐户名。"
 
-#: warehouse/templates/manage/organization/settings.html:210
+#: warehouse/templates/manage/organization/settings.html:211
 msgid "Change organization account name for"
 msgstr "更改组织帐户名"
 
-#: warehouse/templates/manage/organization/settings.html:210
+#: warehouse/templates/manage/organization/settings.html:211
 msgid "Current organization account name"
 msgstr "当前组织帐户名"
 
-#: warehouse/templates/manage/organization/settings.html:217
-#: warehouse/templates/manage/organization/settings.html:251
+#: warehouse/templates/manage/organization/settings.html:218
+#: warehouse/templates/manage/organization/settings.html:252
 msgid "Delete organization"
 msgstr "删除组织"
 
-#: warehouse/templates/manage/organization/settings.html:220
+#: warehouse/templates/manage/organization/settings.html:221
 msgid "Cannot delete organization"
 msgstr "无法删除组织"
 
-#: warehouse/templates/manage/organization/settings.html:222
+#: warehouse/templates/manage/organization/settings.html:223
 #, python-format
 msgid ""
 "\n"
@@ -5075,7 +5075,7 @@ msgstr[0] ""
 "          你的组织当前拥有 %(count)s 个项目。\n"
 "        "
 
-#: warehouse/templates/manage/organization/settings.html:227
+#: warehouse/templates/manage/organization/settings.html:228
 msgid ""
 "\n"
 "          You must transfer ownership or delete this project before you can "
@@ -5091,7 +5091,7 @@ msgstr[0] ""
 "          你必须先转移所有权或删除这些项目，然后才能删除你的组织。\n"
 "        "
 
-#: warehouse/templates/manage/organization/settings.html:249
+#: warehouse/templates/manage/organization/settings.html:250
 msgid "You will not be able to recover your organization after you delete it."
 msgstr "删除组织后，你将无法恢复组织。"
 
