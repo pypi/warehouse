@@ -152,7 +152,7 @@ def _create_session(request):
     from warehouse.admin.flags import AdminFlag, AdminFlagValue
 
     flag = session.query(AdminFlag).get(AdminFlagValue.READ_ONLY.value)
-    if flag and flag.enabled and not request.user.is_superuser:
+    if flag and flag.enabled:
         request.tm.doom()
 
     # Return our session now that it's created and registered

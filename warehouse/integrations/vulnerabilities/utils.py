@@ -92,6 +92,7 @@ def _analyze_vulnerability(request, vulnerability_report, origin, metrics):
             details=report.details,
             summary=report.summary,
             fixed_in=report.fixed_in,
+            withdrawn=report.withdrawn,
         )
         _add_vuln_record(request, vulnerability_record)
 
