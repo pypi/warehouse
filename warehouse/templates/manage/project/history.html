@@ -172,9 +172,16 @@
     {% elif event.tag == EventTag.Project.APITokenAdded %}
     <strong>{% trans %}API token added{% endtrans %}</strong>
     <small>{% trans %}Permissions: Can upload to this project{% endtrans %}</small>
+    {% if event.additional.user %}
     <small>
       {% trans %}Controlled by:{% endtrans %} <a href="{{ request.route_path('accounts.profile', username=event.additional.user) }}">{{ event.additional.user }}</a>
     </small>
+    {% endif %}
+    {% if event.additional.expires %}
+    <small>
+      {% trans %}Expiration: {% endtrans %} {{ humanize(event.additional.expires | ctime) }}
+    </small>
+    {% endif %}
     <small>{% trans %}Token name:{% endtrans %} {{ event.additional.description }}</small>
     {% elif event.tag == EventTag.Project.APITokenRemoved %}
     <strong>{% trans %}API token removed{% endtrans %}</strong>

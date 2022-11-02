@@ -437,6 +437,7 @@ def configure(settings=None):
     filters.setdefault("format_package_type", "warehouse.filters:format_package_type")
     filters.setdefault("parse_version", "warehouse.filters:parse_version")
     filters.setdefault("localize_datetime", "warehouse.filters:localize_datetime")
+    filters.setdefault("ctime", "warehouse.filters:ctime")
     filters.setdefault("is_recent", "warehouse.filters:is_recent")
     filters.setdefault("canonicalize_name", "packaging.utils:canonicalize_name")
     filters.setdefault("format_author_email", "warehouse.filters:format_author_email")
