@@ -169,8 +169,31 @@
     </small>
 
     {# Display API token events #}
+    {% elif event.tag == EventTag.Project.ShortLivedAPITokenAdded %}
+    <strong>{% trans %}Short-lived API token created{% endtrans %}</strong>
+    <small>{% trans %}Permissions: Can upload to this project{% endtrans %}</small>
+    {% if event.additional.expires %}
+    <small>
+      {% trans %}Expiration: {% endtrans %} {{ humanize(event.additional.expires | ctime, relative="false", time="true") }}
+    </small>
+    <small>
+      {% trans %} Expiration Status: {% endtrans %}
+      {% if (event.additional.expires | ctime) > now() %}
+        {% trans %}Active{% endtrans %}
+      {% else %}
+        {% trans %}Expired{% endtrans %}
+      {% endif %}
+    </small>
+    {% endif %}
+    <small>
+      {% trans %}Creator: {% endtrans %}
+      {{ event.additional.provider_name }}:
+      <a href="{{ event.additional.provider_url }}">
+        {{ event.additional.provider_spec }}
+      </a>
+    </small>
     {% elif event.tag == EventTag.Project.APITokenAdded %}
-    <strong>{% trans %}API token added{% endtrans %}</strong>
+    <strong>{% trans %}API token created{% endtrans %}</strong>
     <small>{% trans %}Permissions: Can upload to this project{% endtrans %}</small>
     {% if event.additional.user %}
     <small>

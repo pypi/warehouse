@@ -108,6 +108,7 @@ class EventTag:
         """
 
         # Name = "source_type:subject_type:action"
+        ShortLivedAPITokenAdded = "account:short_lived_api_token:added"
         APITokenAdded = "project:api_token:added"
         APITokenRemoved = "project:api_token:removed"
         OIDCProviderAdded = "project:oidc:provider-added"

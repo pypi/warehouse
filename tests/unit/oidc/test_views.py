@@ -232,7 +232,7 @@ def test_mint_token_from_oidc_ok(monkeypatch):
     ]
     assert project.record_event.calls == [
         pretend.call(
-            tag="project:api_token:added",
+            tag="project:short_lived_api_token:added",
             ip_address="0.0.0.0",
             additional={
                 "description": "fakemacaroon",

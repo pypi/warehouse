@@ -163,6 +163,11 @@ class OIDCProvider(db.Model):
         # Only concrete subclasses of OIDCProvider are constructed.
         return NotImplemented
 
+    @property
+    def provider_url(self):  # pragma: no cover
+        # Only concrete subclasses of OIDCProvider are constructed.
+        return NotImplemented
+
 
 class GitHubProvider(OIDCProvider):
     __tablename__ = "github_oidc_providers"
@@ -208,8 +213,18 @@ class GitHubProvider(OIDCProvider):
     }
 
     @property
+    def _workflow_slug(self):
+        return f".github/workflows/{self.workflow_filename}"
+
+    @property
     def provider_name(self):
         return "GitHub"
+
+    @property
+    def provider_url(self):
+        # NOTE: Until we embed the SHA, this URL is not guaranteed to contain
+        # the exact contents of the workflow that their OIDC provider corresponds to.
+        return f"https://github.com/{self.repository}/blob/HEAD/{self._workflow_slug}"
 
     @property
     def repository(self):
@@ -217,7 +232,7 @@ class GitHubProvider(OIDCProvider):
 
     @property
     def job_workflow_ref(self):
-        return f"{self.repository}/.github/workflows/{self.workflow_filename}"
+        return f"{self.repository}/{self._workflow_slug}"
 
     def __str__(self):
         return f"{self.workflow_filename} @ {self.repository}"

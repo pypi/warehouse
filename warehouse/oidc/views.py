@@ -90,6 +90,8 @@ def mint_token_from_oidc(request):
 
     # At this point, we've verified that the given JWT is valid for the given
     # project. All we need to do is mint a new token.
+    # NOTE: For OIDC-minted API tokens, the Macaroon's description string
+    # is purely an implementation detail and is not displayed to the user.
     macaroon_service = request.find_service(IMacaroonService, context=None)
     not_before = int(time.time())
     expires_at = not_before + 900
@@ -105,11 +107,13 @@ def mint_token_from_oidc(request):
     )
     for project in provider.projects:
         project.record_event(
-            tag=EventTag.Project.APITokenAdded,
+            tag=EventTag.Project.ShortLivedAPITokenAdded,
             ip_address=request.remote_addr,
             additional={
-                "description": dm.description,
                 "expires": expires_at,
+                "provider_name": provider.provider_name,
+                "provider_spec": str(provider),
+                "provider_url": provider.provider_url,
             },
         )
     return {"success": True, "token": serialized}
