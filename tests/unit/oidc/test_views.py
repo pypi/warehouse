@@ -86,7 +86,12 @@ def test_mint_token_from_oidc_invalid_payload(body):
     assert req.response.status == 422
     assert resp == {
         "message": "Token request failed",
-        "errors": [{"code": "invalid-payload", "description": "payload is not a JSON dictionary"}],
+        "errors": [
+            {
+                "code": "invalid-payload",
+                "description": "payload is not a JSON dictionary",
+            }
+        ],
     }
 
 
@@ -94,12 +99,7 @@ def test_mint_token_from_oidc_invalid_payload(body):
     "body",
     [
         {},
-        {"token": ""},
         {"token": None},
-        {"token": 0},
-        {"token": [""]},
-        {"token": []},
-        {"token": {}},
         {"wrongkey": ""},
     ],
 )
@@ -114,7 +114,32 @@ def test_mint_token_from_oidc_missing_token(body):
     assert request.response.status == 422
     assert resp == {
         "message": "Token request failed",
-        "errors": [{"code": "invalid-token", "description": "missing or empty token"}],
+        "errors": [{"code": "invalid-token", "description": "token is missing"}],
+    }
+
+
+@pytest.mark.parametrize(
+    "body",
+    [
+        {"token": 3.14},
+        {"token": 0},
+        {"token": [""]},
+        {"token": []},
+        {"token": {}},
+    ],
+)
+def test_mint_token_from_oidc_invalid_token(body):
+    request = pretend.stub(
+        response=pretend.stub(status=None),
+        json_body=body,
+        registry=pretend.stub(settings={"warehouse.oidc.enabled": True}),
+        flags=pretend.stub(enabled=lambda *a: False),
+    )
+    resp = views.mint_token_from_oidc(request)
+    assert request.response.status == 422
+    assert resp == {
+        "message": "Token request failed",
+        "errors": [{"code": "invalid-token", "description": "token is not a string"}],
     }
 
 
