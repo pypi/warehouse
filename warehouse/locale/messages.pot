@@ -449,6 +449,7 @@ msgid "Provider must be specified by ID"
 msgstr ""
 
 #: warehouse/subscriptions/models.py:42
+#: warehouse/templates/manage/project/history.html:182
 msgid "Active"
 msgstr ""
 
@@ -2935,7 +2936,7 @@ msgstr ""
 
 #: warehouse/templates/manage/account.html:504
 #: warehouse/templates/manage/account.html:523
-#: warehouse/templates/manage/project/history.html:194
+#: warehouse/templates/manage/project/history.html:217
 msgid "Reason:"
 msgstr ""
 
@@ -3065,19 +3066,18 @@ msgid "Recovery code used for login"
 msgstr ""
 
 #: warehouse/templates/manage/account.html:609
-#: warehouse/templates/manage/project/history.html:173
 msgid "API token added"
 msgstr ""
 
 #: warehouse/templates/manage/account.html:611
 #: warehouse/templates/manage/account.html:634
-#: warehouse/templates/manage/project/history.html:185
-#: warehouse/templates/manage/project/history.html:192
+#: warehouse/templates/manage/project/history.html:208
+#: warehouse/templates/manage/project/history.html:215
 msgid "Token name:"
 msgstr ""
 
 #: warehouse/templates/manage/account.html:628
-#: warehouse/templates/manage/project/history.html:187
+#: warehouse/templates/manage/project/history.html:210
 msgid "API token removed"
 msgstr ""
 
@@ -3109,7 +3109,7 @@ msgstr ""
 
 #: warehouse/templates/manage/account.html:657
 #: warehouse/templates/manage/organization/history.html:196
-#: warehouse/templates/manage/project/history.html:228
+#: warehouse/templates/manage/project/history.html:251
 #: warehouse/templates/manage/team/history.html:108
 msgid "Event"
 msgstr ""
@@ -3123,8 +3123,8 @@ msgstr ""
 #: warehouse/templates/manage/account.html:670
 #: warehouse/templates/manage/organization/history.html:198
 #: warehouse/templates/manage/organization/history.html:210
-#: warehouse/templates/manage/project/history.html:230
-#: warehouse/templates/manage/project/history.html:242
+#: warehouse/templates/manage/project/history.html:253
+#: warehouse/templates/manage/project/history.html:265
 #: warehouse/templates/manage/team/history.html:110
 #: warehouse/templates/manage/team/history.html:122
 msgid "IP address"
@@ -4240,7 +4240,7 @@ msgid "Revoked by:"
 msgstr ""
 
 #: warehouse/templates/manage/organization/history.html:193
-#: warehouse/templates/manage/project/history.html:225
+#: warehouse/templates/manage/project/history.html:248
 #: warehouse/templates/manage/team/history.html:105
 #, python-format
 msgid "Security history for %(source_name)s"
@@ -4248,8 +4248,8 @@ msgstr ""
 
 #: warehouse/templates/manage/organization/history.html:197
 #: warehouse/templates/manage/organization/history.html:206
-#: warehouse/templates/manage/project/history.html:229
-#: warehouse/templates/manage/project/history.html:238
+#: warehouse/templates/manage/project/history.html:252
+#: warehouse/templates/manage/project/history.html:261
 #: warehouse/templates/manage/team/history.html:109
 #: warehouse/templates/manage/team/history.html:118
 msgid "Time"
@@ -4761,51 +4761,73 @@ msgstr ""
 msgid "Project removed from %(organization_name)s organization"
 msgstr ""
 
+#: warehouse/templates/manage/project/history.html:173
+msgid "Short-lived API token created"
+msgstr ""
+
 #: warehouse/templates/manage/project/history.html:174
-#: warehouse/templates/manage/project/history.html:188
+#: warehouse/templates/manage/project/history.html:197
+#: warehouse/templates/manage/project/history.html:211
 msgid "Permissions: Can upload to this project"
 msgstr ""
 
 #: warehouse/templates/manage/project/history.html:177
-#: warehouse/templates/manage/project/history.html:190
-msgid "Controlled by:"
-msgstr ""
-
-#: warehouse/templates/manage/project/history.html:182
+#: warehouse/templates/manage/project/history.html:205
 msgid "Expiration:"
 msgstr ""
 
-#: warehouse/templates/manage/project/history.html:199
-msgid "OpenID Connect provider added"
+#: warehouse/templates/manage/project/history.html:180
+msgid "Expiration Status:"
+msgstr ""
+
+#: warehouse/templates/manage/project/history.html:184
+msgid "Expired"
+msgstr ""
+
+#: warehouse/templates/manage/project/history.html:189
+msgid "Creator:"
+msgstr ""
+
+#: warehouse/templates/manage/project/history.html:196
+msgid "API token created"
 msgstr ""
 
 #: warehouse/templates/manage/project/history.html:200
-#: warehouse/templates/manage/project/history.html:204
+#: warehouse/templates/manage/project/history.html:213
+msgid "Controlled by:"
+msgstr ""
+
+#: warehouse/templates/manage/project/history.html:222
+msgid "OpenID Connect provider added"
+msgstr ""
+
+#: warehouse/templates/manage/project/history.html:223
+#: warehouse/templates/manage/project/history.html:227
 msgid "Provider:"
 msgstr ""
 
-#: warehouse/templates/manage/project/history.html:201
-#: warehouse/templates/manage/project/history.html:205
+#: warehouse/templates/manage/project/history.html:224
+#: warehouse/templates/manage/project/history.html:228
 msgid "Publisher:"
 msgstr ""
 
-#: warehouse/templates/manage/project/history.html:203
+#: warehouse/templates/manage/project/history.html:226
 msgid "OpenID Connect provider removed"
 msgstr ""
 
-#: warehouse/templates/manage/project/history.html:209
+#: warehouse/templates/manage/project/history.html:232
 msgid "2FA requirement enabled"
 msgstr ""
 
-#: warehouse/templates/manage/project/history.html:211
+#: warehouse/templates/manage/project/history.html:234
 msgid "Enabled by:"
 msgstr ""
 
-#: warehouse/templates/manage/project/history.html:214
+#: warehouse/templates/manage/project/history.html:237
 msgid "2FA requirement disabled"
 msgstr ""
 
-#: warehouse/templates/manage/project/history.html:216
+#: warehouse/templates/manage/project/history.html:239
 msgid "Disabled by:"
 msgstr ""
 
