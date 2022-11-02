@@ -159,7 +159,8 @@ services:
     build:
       context: .
     command: python /opt/warehouse/dev/notdatadog.py 0.0.0.0:8125
-    env_file: dev/environment
+    environment:
+      METRICS_OUTPUT: "false"
     ports:
       - "8125:8125/udp"
     volumes:
