@@ -189,7 +189,7 @@
       {% trans %}Creator: {% endtrans %}
       {{ event.additional.provider_name }}:
       <a href="{{ event.additional.provider_url }}">
-        {{ event.additional.provider_spec }}
+        {{ event.additional.provider_url }}
       </a>
     </small>
     {% elif event.tag == EventTag.Project.APITokenAdded %}

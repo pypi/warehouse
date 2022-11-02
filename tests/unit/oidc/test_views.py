@@ -240,7 +240,6 @@ def test_mint_token_from_oidc_ok(monkeypatch):
             additional={
                 "expires": 900,
                 "provider_name": "fakeprovidername",
-                "provider_spec": "fakespecifier",
                 "provider_url": "https://fake/url",
             },
         )

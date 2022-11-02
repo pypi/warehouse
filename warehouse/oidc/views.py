@@ -112,7 +112,6 @@ def mint_token_from_oidc(request):
             additional={
                 "expires": expires_at,
                 "provider_name": provider.provider_name,
-                "provider_spec": str(provider),
                 "provider_url": provider.provider_url,
             },
         )
