@@ -75,8 +75,8 @@ class TestGitHubProvider:
 
         assert str(provider) == "fakeworkflow.yml @ fakeowner/fakerepo"
         assert (
-            provider.provider_url
-            == f"https://github.com/fakeowner/fakerepo/blob/HEAD/.github/workflows/{provider.workflow_filename}"
+            provider.provider_url == "https://github.com/fakeowner/fakerepo/blob/HEAD/"
+            f".github/workflows/{provider.workflow_filename}"
         )
 
     def test_github_provider_unaccounted_claims(self, monkeypatch):
