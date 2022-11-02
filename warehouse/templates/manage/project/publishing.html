@@ -38,7 +38,7 @@
     {{ provider.provider_name }}
   </td>
   <td scope="row">
-    {{ provider|string }}
+    <code>{{ provider|string }}</code>
   </td>
   <td scope="row">
     <input form="delete-provider-{{ provider.id }}" type="submit" value="{% trans %}Remove{% endtrans %}" class="button button--danger">
