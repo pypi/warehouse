@@ -81,12 +81,6 @@ def mint_token_from_oidc(request):
         f"OpenID token: {provider} ({not_before})",
         [
             caveats.OIDCProvider(oidc_provider_id=str(provider.id)),
-            # TODO: Does this caveat make sense anymore?
-            # Conceptually, an OIDC provider authorizes either for every project
-            # registered against it at the time of token creation, *or* for
-            # every project that happens to be registered against it at the time
-            # of use. This caveat constrains the token to the former, but maybe
-            # the latter is fine/expected?
             caveats.ProjectID(project_ids=[str(p.id) for p in provider.projects]),
             caveats.Expiration(expires_at=expires_at, not_before=not_before),
         ],
