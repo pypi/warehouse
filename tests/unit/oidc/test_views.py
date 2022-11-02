@@ -13,6 +13,7 @@
 import pretend
 import pytest
 
+from warehouse.events.tags import EventTag
 from warehouse.macaroons import caveats
 from warehouse.macaroons.interfaces import IMacaroonService
 from warehouse.oidc import views
@@ -179,6 +180,8 @@ def test_mint_token_from_oidc_ok(monkeypatch):
     provider = pretend.stub(
         id="fakeproviderid",
         projects=[project],
+        provider_name="fakeprovidername",
+        provider_url="https://fake/url",
     )
     # NOTE: Can't set __str__ using pretend.stub()
     monkeypatch.setattr(provider.__class__, "__str__", lambda s: "fakespecifier")
@@ -232,11 +235,13 @@ def test_mint_token_from_oidc_ok(monkeypatch):
     ]
     assert project.record_event.calls == [
         pretend.call(
-            tag="project:short_lived_api_token:added",
+            tag=EventTag.Project.ShortLivedAPITokenAdded,
             ip_address="0.0.0.0",
             additional={
-                "description": "fakemacaroon",
                 "expires": 900,
+                "provider_name": "fakeprovidername",
+                "provider_spec": "fakespecifier",
+                "provider_url": "https://fake/url",
             },
         )
     ]
