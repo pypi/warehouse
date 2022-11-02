@@ -15,6 +15,7 @@ import time
 from pyramid.view import view_config
 
 from warehouse.admin.flags import AdminFlagValue
+from warehouse.events.tags import EventTag
 from warehouse.macaroons import caveats
 from warehouse.macaroons.interfaces import IMacaroonService
 from warehouse.oidc.interfaces import IOIDCProviderService
@@ -93,7 +94,7 @@ def mint_token_from_oidc(request):
     )
     for project in provider.projects:
         project.record_event(
-            tag="project:api_token:added",
+            tag=EventTag.Project.APITokenAdded,
             ip_address=request.remote_addr,
             additional={
                 "description": dm.description,
