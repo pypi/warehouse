@@ -121,7 +121,7 @@
 
     <h2>{% trans %}Manage current providers{% endtrans %}</h2>
     {% if project.oidc_providers %}
-    <table class="table">
+    <table class="table table--publisher-list">
       <caption class="sr-only">
         {% trans project_name=project.name %}OpenID Connect publishers associated with {{ project_name }}{% endtrans %}
       </caption>
