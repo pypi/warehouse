@@ -2935,7 +2935,7 @@ msgstr ""
 
 #: warehouse/templates/manage/account.html:504
 #: warehouse/templates/manage/account.html:523
-#: warehouse/templates/manage/project/history.html:187
+#: warehouse/templates/manage/project/history.html:194
 msgid "Reason:"
 msgstr ""
 
@@ -3071,13 +3071,13 @@ msgstr ""
 
 #: warehouse/templates/manage/account.html:611
 #: warehouse/templates/manage/account.html:634
-#: warehouse/templates/manage/project/history.html:178
 #: warehouse/templates/manage/project/history.html:185
+#: warehouse/templates/manage/project/history.html:192
 msgid "Token name:"
 msgstr ""
 
 #: warehouse/templates/manage/account.html:628
-#: warehouse/templates/manage/project/history.html:180
+#: warehouse/templates/manage/project/history.html:187
 msgid "API token removed"
 msgstr ""
 
@@ -3109,7 +3109,7 @@ msgstr ""
 
 #: warehouse/templates/manage/account.html:657
 #: warehouse/templates/manage/organization/history.html:196
-#: warehouse/templates/manage/project/history.html:221
+#: warehouse/templates/manage/project/history.html:228
 #: warehouse/templates/manage/team/history.html:108
 msgid "Event"
 msgstr ""
@@ -3123,8 +3123,8 @@ msgstr ""
 #: warehouse/templates/manage/account.html:670
 #: warehouse/templates/manage/organization/history.html:198
 #: warehouse/templates/manage/organization/history.html:210
-#: warehouse/templates/manage/project/history.html:223
-#: warehouse/templates/manage/project/history.html:235
+#: warehouse/templates/manage/project/history.html:230
+#: warehouse/templates/manage/project/history.html:242
 #: warehouse/templates/manage/team/history.html:110
 #: warehouse/templates/manage/team/history.html:122
 msgid "IP address"
@@ -4240,7 +4240,7 @@ msgid "Revoked by:"
 msgstr ""
 
 #: warehouse/templates/manage/organization/history.html:193
-#: warehouse/templates/manage/project/history.html:218
+#: warehouse/templates/manage/project/history.html:225
 #: warehouse/templates/manage/team/history.html:105
 #, python-format
 msgid "Security history for %(source_name)s"
@@ -4248,8 +4248,8 @@ msgstr ""
 
 #: warehouse/templates/manage/organization/history.html:197
 #: warehouse/templates/manage/organization/history.html:206
-#: warehouse/templates/manage/project/history.html:222
-#: warehouse/templates/manage/project/history.html:231
+#: warehouse/templates/manage/project/history.html:229
+#: warehouse/templates/manage/project/history.html:238
 #: warehouse/templates/manage/team/history.html:109
 #: warehouse/templates/manage/team/history.html:118
 msgid "Time"
@@ -4762,46 +4762,50 @@ msgid "Project removed from %(organization_name)s organization"
 msgstr ""
 
 #: warehouse/templates/manage/project/history.html:174
-#: warehouse/templates/manage/project/history.html:181
+#: warehouse/templates/manage/project/history.html:188
 msgid "Permissions: Can upload to this project"
 msgstr ""
 
-#: warehouse/templates/manage/project/history.html:176
-#: warehouse/templates/manage/project/history.html:183
+#: warehouse/templates/manage/project/history.html:177
+#: warehouse/templates/manage/project/history.html:190
 msgid "Controlled by:"
 msgstr ""
 
-#: warehouse/templates/manage/project/history.html:192
+#: warehouse/templates/manage/project/history.html:182
+msgid "Expiration:"
+msgstr ""
+
+#: warehouse/templates/manage/project/history.html:199
 msgid "OpenID Connect provider added"
 msgstr ""
 
-#: warehouse/templates/manage/project/history.html:193
-#: warehouse/templates/manage/project/history.html:197
+#: warehouse/templates/manage/project/history.html:200
+#: warehouse/templates/manage/project/history.html:204
 msgid "Provider:"
 msgstr ""
 
-#: warehouse/templates/manage/project/history.html:194
-#: warehouse/templates/manage/project/history.html:198
+#: warehouse/templates/manage/project/history.html:201
+#: warehouse/templates/manage/project/history.html:205
 msgid "Publisher:"
 msgstr ""
 
-#: warehouse/templates/manage/project/history.html:196
+#: warehouse/templates/manage/project/history.html:203
 msgid "OpenID Connect provider removed"
 msgstr ""
 
-#: warehouse/templates/manage/project/history.html:202
+#: warehouse/templates/manage/project/history.html:209
 msgid "2FA requirement enabled"
 msgstr ""
 
-#: warehouse/templates/manage/project/history.html:204
+#: warehouse/templates/manage/project/history.html:211
 msgid "Enabled by:"
 msgstr ""
 
-#: warehouse/templates/manage/project/history.html:207
+#: warehouse/templates/manage/project/history.html:214
 msgid "2FA requirement disabled"
 msgstr ""
 
-#: warehouse/templates/manage/project/history.html:209
+#: warehouse/templates/manage/project/history.html:216
 msgid "Disabled by:"
 msgstr ""
 
