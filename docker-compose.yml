@@ -33,7 +33,7 @@ services:
       POSTGRES_HOST_AUTH_METHOD: trust  # never do this in production!
     healthcheck:
       test: ["CMD", "pg_isready", "-U", "postgres", "-d", "postgres"]
-  
+
   stripe:
     image: stripe/stripe-mock:v0.140.0
     ports:

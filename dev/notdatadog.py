@@ -20,7 +20,7 @@ class AsyncoreSocketUDP(asyncore.dispatcher):
     def __init__(self, host="127.0.0.1", port=8125, output=True):
         asyncore.dispatcher.__init__(self)
         self.create_socket(socket.AF_INET, socket.SOCK_DGRAM)
-        print(f'Listening on udp {host}:{port}')
+        print(f"Listening on udp {host}:{port}")
         self.bind((host, port))
         self.output = output
 
@@ -39,7 +39,7 @@ class AsyncoreSocketUDP(asyncore.dispatcher):
         return False
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     options = smtpd.parseargs()
     AsyncoreSocketUDP(
         options.localhost,
