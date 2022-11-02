@@ -107,8 +107,8 @@ class OIDCProvider(Caveat):
     oidc_provider_id: StrictStr
 
     def verify(self, request: Request, context: Any, permission: str) -> Result:
-        # This caveat can only be used when the surrounding request is identified
-        # with OpenID, rather than a user or some other identity.
+        # If the identity associated with this macaroon is not an OpenID provider,
+        # then it doesn't make sense to restrict it with an `OIDCProvider` caveat.
         if not isinstance(request.identity, oidc_models.OIDCProvider):
             return Failure(
                 "OIDC scoped token used outside of an OIDC identified request"
