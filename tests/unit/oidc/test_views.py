@@ -62,6 +62,37 @@ def test_mint_token_from_oidc_invalid_json():
 @pytest.mark.parametrize(
     "body",
     [
+        "",
+        [],
+        "this is a valid JSON string",
+        12345,
+        3.14,
+        None,
+    ],
+)
+def test_mint_token_from_oidc_invalid_payload(body):
+    class Request:
+        def __init__(self):
+            self.response = pretend.stub(status=None)
+            self.registry = pretend.stub(settings={"warehouse.oidc.enabled": True})
+            self.flags = pretend.stub(enabled=lambda *a: False)
+
+        @property
+        def json_body(self):
+            return body
+
+    req = Request()
+    resp = views.mint_token_from_oidc(req)
+    assert req.response.status == 422
+    assert resp == {
+        "message": "Token request failed",
+        "errors": [{"code": "invalid-payload", "description": "payload is not a JSON dictionary"}],
+    }
+
+
+@pytest.mark.parametrize(
+    "body",
+    [
         {},
         {"token": ""},
         {"token": None},
