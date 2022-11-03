@@ -38,6 +38,7 @@ from sqlalchemy.orm.exc import NoResultFound
 
 from warehouse import db
 from warehouse.events.models import HasEvents
+from warehouse.identity.models import Identity
 from warehouse.sitemap.models import SitemapMixin
 from warehouse.utils.attrs import make_repr
 from warehouse.utils.db.types import TZDateTime
@@ -60,9 +61,13 @@ class DisableReason(enum.Enum):
     AccountFrozen = "account frozen"
 
 
-class User(SitemapMixin, HasEvents, db.Model):
+class User(SitemapMixin, HasEvents, Identity, db.Model):
 
     __tablename__ = "users"
+    __mapper_args__ = {
+        "polymorphic_identity": "users",
+        "concrete": True,
+    }
     __table_args__ = (
         CheckConstraint("length(username) <= 50", name="users_valid_username_length"),
         CheckConstraint(

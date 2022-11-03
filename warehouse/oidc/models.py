@@ -19,6 +19,7 @@ from sqlalchemy import Column, ForeignKey, String, UniqueConstraint, orm
 from sqlalchemy.dialects.postgresql import UUID
 
 from warehouse import db
+from warehouse.identity.models import Identity
 from warehouse.packaging.models import Project
 
 
@@ -68,7 +69,7 @@ class OIDCProviderProjectAssociation(db.Model):
     )
 
 
-class OIDCProvider(db.Model):
+class OIDCProvider(Identity, db.Model):
     __tablename__ = "oidc_providers"
 
     discriminator = Column(String)
@@ -81,6 +82,7 @@ class OIDCProvider(db.Model):
     __mapper_args__ = {
         "polymorphic_identity": "oidc_providers",
         "polymorphic_on": discriminator,
+        "concrete": True,
     }
 
     # A map of claim names to "check" functions, each of which
