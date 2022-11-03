@@ -4922,7 +4922,7 @@ msgid "Publisher"
 msgstr ""
 
 #: warehouse/templates/manage/project/publishing.html:140
-msgid "Specification"
+msgid "URL"
 msgstr ""
 
 #: warehouse/templates/manage/project/publishing.html:151
