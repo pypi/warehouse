@@ -60,11 +60,14 @@ class NullOIDCProviderService:
                 audience="pypi",
             )
         except jwt.PyJWTError:
-            return None
+            return None, None
 
         # NOTE: We do NOT verify the claims against the provider, since this
         # service is for development purposes only.
-        return find_provider_by_issuer(self.db, self.issuer_url, unverified_payload)
+        return (
+            find_provider_by_issuer(self.db, self.issuer_url, unverified_payload),
+            unverified_payload,
+        )
 
 
 @implementer(IOIDCProviderService)
@@ -255,7 +258,7 @@ class OIDCProviderService:
                 "warehouse.oidc.find_provider.invalid_signature",
                 tags=metrics_tags,
             )
-            return None
+            return None, None
 
         provider = find_provider_by_issuer(self.db, self.issuer_url, signed_payload)
         if provider is None:
@@ -263,21 +266,21 @@ class OIDCProviderService:
                 "warehouse.oidc.find_provider.provider_not_found",
                 tags=metrics_tags,
             )
-            return None
+            return None, None
 
         if not provider.verify_claims(signed_payload):
             self.metrics.increment(
                 "warehouse.oidc.find_provider.invalid_claims",
                 tags=metrics_tags,
             )
-            return None
+            return None, None
         else:
             self.metrics.increment(
                 "warehouse.oidc.find_provider.ok",
                 tags=metrics_tags,
             )
 
-        return provider
+        return provider, signed_payload
 
 
 class OIDCProviderServiceFactory:

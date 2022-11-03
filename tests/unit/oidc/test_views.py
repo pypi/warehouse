@@ -145,7 +145,9 @@ def test_mint_token_from_oidc_invalid_token(body):
 
 
 def test_mint_token_from_oidc_provider_lookup_fails():
-    oidc_service = pretend.stub(find_provider=pretend.call_recorder(lambda token: None))
+    oidc_service = pretend.stub(
+        find_provider=pretend.call_recorder(lambda token: (None, None))
+    )
     request = pretend.stub(
         response=pretend.stub(status=None),
         json_body={"token": "faketoken"},
@@ -187,7 +189,7 @@ def test_mint_token_from_oidc_ok(monkeypatch):
     monkeypatch.setattr(provider.__class__, "__str__", lambda s: "fakespecifier")
 
     oidc_service = pretend.stub(
-        find_provider=pretend.call_recorder(lambda token: provider)
+        find_provider=pretend.call_recorder(lambda token: (provider, pretend.stub()))
     )
 
     db_macaroon = pretend.stub(description="fakemacaroon")

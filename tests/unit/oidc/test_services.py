@@ -173,7 +173,7 @@ class TestOIDCProviderService:
             services, "find_provider_by_issuer", find_provider_by_issuer
         )
 
-        assert service.find_provider(token) is None
+        assert service.find_provider(token) == (None, None)
         assert service.metrics.increment.calls == [
             pretend.call(
                 "warehouse.oidc.find_provider.attempt",
@@ -199,7 +199,7 @@ class TestOIDCProviderService:
         token = pretend.stub()
         monkeypatch.setattr(service, "_verify_signature_only", lambda t: None)
 
-        assert not service.find_provider(token)
+        assert service.find_provider(token) == (None, None)
         assert service.metrics.increment.calls == [
             pretend.call(
                 "warehouse.oidc.find_provider.attempt",
@@ -234,7 +234,7 @@ class TestOIDCProviderService:
             services, "find_provider_by_issuer", find_provider_by_issuer
         )
 
-        assert not service.find_provider(token)
+        assert service.find_provider(token) == (None, None)
         assert service.metrics.increment.calls == [
             pretend.call(
                 "warehouse.oidc.find_provider.attempt",
@@ -660,7 +660,7 @@ class TestNullOIDCProviderService:
             metrics=pretend.stub(),
         )
 
-        assert not service.find_provider("malformed-jwt")
+        assert service.find_provider("malformed-jwt") == (None, None)
 
     def test_find_provider_for_project_missing_aud(self):
         # {
@@ -687,7 +687,7 @@ class TestNullOIDCProviderService:
             metrics=pretend.stub(),
         )
 
-        assert not service.find_provider(jwt)
+        assert service.find_provider(jwt) == (None, None)
 
     def test_find_provider_for_project_wrong_aud(self):
         # {
@@ -716,16 +716,17 @@ class TestNullOIDCProviderService:
             metrics=pretend.stub(),
         )
 
-        assert not service.find_provider(jwt)
+        assert service.find_provider(jwt) == (None, None)
 
     def test_find_provider(self, monkeypatch):
-        # {
-        #  "iss": "foo",
-        #  "iat": 1516239022,
-        #  "nbf": 1516239022,
-        #  "exp": 9999999999,
-        #  "aud": "pypi"
-        # }
+        claims = {
+            "iss": "foo",
+            "iat": 1516239022,
+            "nbf": 1516239022,
+            "exp": 9999999999,
+            "aud": "pypi",
+        }
+
         jwt = (
             "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJmb28iLCJpYXQiOj"
             "E1MTYyMzkwMjIsIm5iZiI6MTUxNjIzOTAyMiwiZXhwIjo5OTk5OTk5OTk5LCJhd"
@@ -751,4 +752,4 @@ class TestNullOIDCProviderService:
             services, "find_provider_by_issuer", find_provider_by_issuer
         )
 
-        assert service.find_provider(jwt) == provider
+        assert service.find_provider(jwt) == (provider, claims)

@@ -22,8 +22,9 @@ class IOIDCProviderService(Interface):
         Verify the given JWT's signature and retrieve the OIDCProvider
         corresponding to its claims, verifying the claim set along the way.
 
-        Returns None if the JWT's signature is invalid, if no corresponding
-        OIDCProvider exists, or if the claims do not verify.
+        Returns a tuple of `(OIDCProvider, Dict[str, Any])` on success, where
+        the dictionary is the set of claims in the verified JWT. On failure,
+        a tuple of `(None, None)` is returned.
         """
 
 
