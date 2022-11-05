@@ -24,12 +24,29 @@
 
 {% block content %}
   <div class="tabs-container">
+    {% block breadcrumbs %}
+    <nav aria-label="{% trans %}Breadcrumbs{% endtrans %}" class="breadcrumbs">
+      <ul>
+        <li class="breadcrumbs__breadcrumb">
+          <a href="{{ request.route_path('manage.organizations') }}">
+            {% trans %}Your account{% endtrans %}
+          </a>
+        </li>
+
+        {# Last breadcrumb can be overriden #}
+        {% block breadcrumb %}
+        <li class="breadcrumbs__breadcrumb">
+          <i class="fa fa-sm fa-sitemap" aria-hidden="true"></i>
+          {{ organization.name }}
+        </li>
+        {% endblock %}
+      </ul>
+    </nav>
+    {% endblock %}
+
     <div class="vertical-tabs">
       <div class="vertical-tabs__tabs">
         <div class="sidebar-section">
-          <h3 class="sidebar-section__title">
-            <a href="{{ request.route_path('manage.organizations') }}">{% trans organization_count=organizations|length %}Your organizations ({{ organization_count }}){% endtrans %}</a>
-          </h3>
           {% include "warehouse:templates/includes/manage/manage-organization-menu.html" %}
         </div>
       </div>

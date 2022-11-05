@@ -410,7 +410,11 @@ def configure(settings=None):
 
     # We need to enable our Client Side Include extension
     config.get_settings().setdefault(
-        "jinja2.extensions", ["warehouse.utils.html.ClientSideIncludeExtension"]
+        "jinja2.extensions",
+        [
+            "warehouse.utils.html.ClientSideIncludeExtension",
+            "warehouse.i18n.extensions.TrimmedTranslatableTagsExtension",
+        ],
     )
 
     # We'll want to configure some filters for Jinja2 as well.
@@ -439,6 +443,7 @@ def configure(settings=None):
 
     # And some enums to reuse in the templates
     jglobals.setdefault("AdminFlagValue", "warehouse.admin.flags:AdminFlagValue")
+    jglobals.setdefault("EventTag", "warehouse.events.tags:EventTag")
     jglobals.setdefault(
         "OrganizationInvitationStatus",
         "warehouse.organizations.models:OrganizationInvitationStatus",

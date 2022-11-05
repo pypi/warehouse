@@ -36,7 +36,7 @@
       <tbody>
         <tr>
           <th scope="row">
-            {% trans %}Recovery codes{% endtrans %} - {% trans generated_datetime=humanize(request.user.recovery_codes[0].generated, time="true") %}generated {{ generated_datetime }}{% endtrans %}
+            {% trans %}Recovery codes{% endtrans %} - {% trans generated_datetime=humanize(request.user.recovery_codes[0].generated, time="true") %}generated {{ generated_datetime }}{% endtrans %} ({% trans remaining=request.user.recovery_codes.filter_by(burned=None).count() %}{{ remaining }} unused{% endtrans %}).
           </th>
           <td class="table__align-right">
             <a href="{{ request.route_path('manage.account.recovery-codes.regenerate') }}" class="button button--secondary">
@@ -182,7 +182,7 @@
 
     <ul id="webauthn-errors" class="form-errors form-errors--full-width">
       <li id="webauthn-browser-support" class="hidden margin-top--large">
-        {% trans trimmed href='https://developer.mozilla.org/en-US/docs/Web/API/PublicKeyCredential#Browser_compatibility', title=gettext('External link') %}
+        {% trans href='https://developer.mozilla.org/en-US/docs/Web/API/PublicKeyCredential#Browser_compatibility', title=gettext('External link') %}
         <a href="{{ href }}" title="{{ title }}" target="_blank" rel="noopener">Upgrade your browser</a> to set up two factor authentication with a security device (e.g. USB key)
         {% endtrans %}
       </li>
@@ -192,15 +192,27 @@
 
 {% block content %}
   <div class="tabs-container">
+    {% block breadcrumbs %}
+    <nav aria-label="{% trans %}Breadcrumbs{% endtrans %}" class="breadcrumbs">
+      <ul>
+        {# Last breadcrumb can be overriden #}
+        {% block breadcrumb %}
+        <li class="breadcrumbs__breadcrumb">
+          {% trans %}Your account{% endtrans %}
+        </li>
+        {% endblock %}
+      </ul>
+    </nav>
+    {% endblock %}
+
     <div class="vertical-tabs">
       <div class="vertical-tabs__tabs">
         <div class="sidebar-section">
-          <h3 class="sidebar-section__title">{% trans %}Your account{% endtrans %}</h3>
           <nav aria-label="{% trans %}Account navigation{% endtrans %}">
             <ul class="vertical-tabs__list">
               <li>
                 <a href="{{ request.route_path('manage.projects') }}" class="vertical-tabs__tab vertical-tabs__tab--with-icon {% if active_tab == 'projects' %}vertical-tabs__tab--is-active{% endif %}" {% if active_tab == 'projects' %}aria-selected="true"{% endif %}>
-                  <i class="fa fa-cube" aria-hidden="true"></i>
+                  <i class="fa fa-lg fa-cubes" aria-hidden="true"></i>
                   {% trans %}Your projects{% endtrans %}
                 </a>
               </li>
@@ -228,14 +240,14 @@
           <ul class="vertical-tabs__list">
             <li>
               <a href="{{ request.route_path('manage.projects') }}" class="vertical-tabs__tab vertical-tabs__tab--mobile vertical-tabs__tab--with-icon vertical-tabs__tab--no-top-border {% if active_tab == 'projects' %}vertical-tabs__tab--is-active{% endif %}" {% if active_tab == 'projects' %}aria-selected="true"{% endif %}>
-                <i class="fa fa-cube" aria-hidden="true"></i>
+                <i class="fa fa-lg fa-cubes" aria-hidden="true"></i>
                 {% trans %}Your projects{% endtrans %}
               </a>
             </li>
             {% if not request.flags.enabled(AdminFlagValue.DISABLE_ORGANIZATIONS) %}
             <li>
               <a href="{{ request.route_path('manage.organizations') }}" class="vertical-tabs__tab vertical-tabs__tab--mobile vertical-tabs__tab--with-icon vertical-tabs__tab--no-top-border {% if active_tab == 'organizations' %}vertical-tabs__tab--is-active{% endif %}" {% if active_tab == 'organizations' %}aria-selected="true"{% endif %}>
-                <i class="fa fa-users" aria-hidden="true"></i>
+                <i class="fa fa-sitemap" aria-hidden="true"></i>
                 {% trans %}Your organizations{% endtrans %}
               </a>
             </li>
@@ -317,7 +329,7 @@
         </div>
         <div class="modal__footer">
           <button type="reset" class="button modal__action js-cancel" data-action="click->modal-close#cancel">{% trans %}Cancel{% endtrans %}</button>
-          <button type="submit" class="button button{{ modifier }} modal__action js-confirm"{% if confirm_string %} data-confirm-target="button" data-expected="{{ confirm_string }}"{% endif %} data-modal-close-target="button">
+          <button type="submit" class="button button{{ modifier or '--primary' }} modal__action js-confirm"{% if confirm_string %} data-confirm-target="button" data-expected="{{ confirm_string }}"{% endif %} data-modal-close-target="button">
             {{ confirm_button_label if confirm_button_label else title }}
           </button>
         </div>

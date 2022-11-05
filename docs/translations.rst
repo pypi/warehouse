@@ -21,14 +21,32 @@ To add a new known locale:
 
 1. Check for `outstanding Weblate pull requests
    <https://github.com/pypi/warehouse/pulls/weblate>`_ and merge them if so.
-2. In a new branch, add a key/value to the ``KNOWN_LOCALES`` mapping in
-   |warehouse/i18n/__init__.py|_.
-   The key is the locale code, and corresponds to a directory in
+2. In a new branch for |pypi/warehouse|_, add the new language identifier to
+   ``KNOWN_LOCALES`` in |warehouse/i18n/__init__.py|_.
+   The value is the locale code, and corresponds to a directory in
    ``warehouse/locale``.
-3. Commit these changes and make a new pull request.
+3. Commit these changes and make a new pull request to |pypi/warehouse|_.
+4. In a new branch for |pypi/infra|_, add the new identifier to the
+   ``accept.language_lookup`` call in `PyPI's VCL configuration
+   <https://github.com/pypi/infra/blob/main/terraform/warehouse/vcl/main.vcl>`_.
+   The value is the `IANA language subtag
+   <https://www.iana.org/assignments/language-subtag-registry/language-subtag-registry>`_
+   string for the locale.
 
+   .. note::
+
+      This value may differ from the identifier used for ``KNOWN_LOCALES``,
+      e.g. ``pt-BR`` vs ``pt_BR``.
+
+5. Commit these change and make a new pull request to |pypi/infra|_ referencing
+   your pull request to |pypi/warehouse|_.
+
+.. |pypi/warehouse| replace:: ``pypi/warehouse``
+.. _pypi/warehouse: https://github.com/pypi/warehouse
 .. |warehouse/i18n/__init__.py| replace:: ``warehouse/i18n/__init__.py``
 .. _warehouse/i18n/__init__.py: https://github.com/pypi/warehouse/blob/main/warehouse/i18n/__init__.py
+.. |pypi/infra| replace:: ``pypi/infra``
+.. _pypi/infra: https://github.com/pypi/infra
 
 Marking new strings for translation
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -56,7 +74,7 @@ placing it directly in the string like so:
 
 .. code-block:: html
 
-      {% trans trimmed %}
+      {% trans %}
       Filter by <a href="request.route_path('classifiers')">classifier</a>
       {% endtrans %}
 
@@ -64,7 +82,7 @@ Instead, define it inside the :code:`{% trans %}` tag:
 
 .. code-block:: html
 
-      {% trans trimmed href=request.route_path('classifiers') %}
+      {% trans href=request.route_path('classifiers') %}
       Filter by <a href="{{ href }}">classifier</a>
       {% endtrans %}
 
@@ -79,7 +97,7 @@ variants of a string, for example:
 .. code-block:: html
       :emphasize-lines: 3
 
-      {% trans trimmed n_hours=n_hours %}
+      {% trans n_hours=n_hours %}
       This link will expire in {{ n_hours }} hour.
       {% pluralize %}
       This link will expire in {{ n_hours }} hours.

@@ -324,12 +324,12 @@
                 <p class="release__version">
                   {{ hversion.version }}
                   {% if hversion.is_prerelease %}
-                  <span class="badge badge--warning release__version-badge">
+                  <span class="badge badge--warning">
                     {% trans %}pre-release{% endtrans %}
                   </span>
                   {% endif %}
                   {% if hversion.yanked %}
-                  <span class="badge badge--danger release__version-badge">
+                  <span class="badge badge--danger">
                     {% trans %}yanked{% endtrans %}
                   </span>
                   {% endif %}
@@ -348,8 +348,6 @@
           <div id="files" data-project-tabs-target="content" class="vertical-tabs__content" role="tabpanel" aria-labelledby="files-tab mobile-files-tab" tabindex="-1">
             <h2 class="page-title">{% trans %}Download files{% endtrans %}</h2>
             <p>{% trans href='https://packaging.python.org/installing/', title=gettext('External link') %}Download the file for your platform. If you're not sure which to choose, learn more about <a href="{{ href }}" title="{{ title }}" target="_blank" rel="noopener">installing packages</a>.{% endtrans %}</p>
-
-            {% if sdists %}
             <h3>
               {% trans count=sdists|length %}
                 Source Distribution
@@ -358,7 +356,19 @@
               {% endtrans %}
             </h3>
 
-            {{ file_table(sdists) }}
+            {% if sdists %}
+              {{ file_table(sdists) }}
+            {% else %}
+              <div class="file">
+                <div class="file__graphic">
+                  <i class="fas fa-exclamation-circle" aria-hidden="true"></i>
+                </div>
+
+                <div class="card">
+                  {% trans %}No source distribution files available for this release.{% endtrans %}
+                  {% trans href='https://packaging.python.org/tutorials/packaging-projects/#generating-distribution-archives', title=gettext('External link') %}See tutorial on <a href="{{ href }}" title="{{ title }}" target="_blank" rel="noopener">generating distribution archives</a>.{% endtrans %}
+                </div>
+              </div>
             {% endif %}
 
             {% if bdists %}

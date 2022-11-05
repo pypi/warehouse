@@ -121,6 +121,8 @@ class DatabaseOrganizationService:
         self.db.add(organization)
         self.db.flush()
 
+        self.add_catalog_entry(organization.id)
+
         return organization
 
     def add_catalog_entry(self, organization_id):
@@ -133,8 +135,19 @@ class DatabaseOrganizationService:
             organization_id=organization.id,
         )
 
-        self.db.add(catalog_entry)
-        self.db.flush()
+        try:
+            # Check if this organization name has already been used
+            catalog_entry = (
+                self.db.query(OrganizationNameCatalog)
+                .filter(
+                    OrganizationNameCatalog.normalized_name
+                    == organization.normalized_name,
+                )
+                .one()
+            )
+        except NoResultFound:
+            self.db.add(catalog_entry)
+            self.db.flush()
 
         return catalog_entry
 

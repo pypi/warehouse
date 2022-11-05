@@ -79,7 +79,6 @@ class CreateRoleForm(RoleNameMixin, UsernameMixin, forms.Form):
 class CreateInternalRoleForm(
     RoleNameMixin,
     TeamProjectRoleNameMixin,
-    UsernameMixin,
     forms.Form,
 ):
     is_team = wtforms.RadioField(
@@ -97,9 +96,17 @@ class CreateInternalRoleForm(
         validators=[wtforms.validators.InputRequired()],
     )
 
-    def __init__(self, *args, team_choices, user_service, **kwargs):
+    username = wtforms.SelectField(
+        "Select user",
+        choices=[("", "Select user")],
+        default="",  # Set default to avoid error when there are no user choices.
+        validators=[wtforms.validators.InputRequired()],
+    )
+
+    def __init__(self, *args, team_choices, user_choices, user_service, **kwargs):
         super().__init__(*args, **kwargs)
         self.team_name.choices += [(name, name) for name in sorted(team_choices)]
+        self.username.choices += [(name, name) for name in sorted(user_choices)]
         self.user_service = user_service
 
         # Do not check for required fields in browser.
@@ -115,10 +122,6 @@ class CreateInternalRoleForm(
         else:
             self.team_name.validators = []
             self.team_project_role_name.validators = []
-
-    def validate_username(self, field):
-        if not self.is_team.data:
-            super().validate_username(field)
 
 
 class ChangeRoleForm(RoleNameMixin, forms.Form):
@@ -590,7 +593,6 @@ class SaveOrganizationForm(forms.Form):
         ]
     )
     orgtype = wtforms.SelectField(
-        # TODO: Map additional choices to "Company" and "Community".
         choices=[("Company", "Company"), ("Community", "Community")],
         coerce=OrganizationType,
         validators=[

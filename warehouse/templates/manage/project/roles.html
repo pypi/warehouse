@@ -32,7 +32,14 @@
 {% endmacro %}
 
 {% block main %}
-  <h2>{% trans %}Collaborators{% endtrans %}</h2>
+  <h2>
+    {% trans %}Collaborators{% endtrans %}
+    {% if enable_internal_collaborator %}
+    <span class="badge badge--neutral">{{ 1 + team_project_roles|length + roles|length }}</span>
+    {% else %}
+    <span class="badge badge--neutral">{{ roles|length }}</span>
+    {% endif %}
+  </h2>
   <p>{% trans project_name=project.name %}Use this page to control which PyPI users can help you to manage {{ project_name }}.{% endtrans %}</p>
   <details class="callout-block" data-controller="collapsible" data-collapsible-identifier="project_roles" data-collapsible-setting="global" open>
     <summary class="callout-block__heading" data-action="click->collapsible#save">{% trans %}Project Roles{% endtrans %}</summary>
@@ -65,7 +72,7 @@
             <span class="table__user-text">
               <strong>{{ project.organization.display_name }}</strong><br>
               <span>
-                {% trans trimmed count=project.organization.owners|length %}
+                {% trans count=project.organization.owners|length %}
                 {{ count }} organization owner
                 {% pluralize %}
                 {{ count }} organization owners
@@ -93,7 +100,7 @@
             <span class="table__user-text">
               <strong>{{ role.team.name }}</strong><br>
               <span>
-                {% trans trimmed count=role.team.members|length %}
+                {% trans count=role.team.members|length %}
                 {{ count }} team member
                 {% pluralize %}
                 {{ count }} team members
@@ -185,8 +192,8 @@
         </td>
         <td class="table__align-center">{{ two_factor_badge(role.user) }}</td>
         <td class="table__align-right">
-          {% if role.role_name == "Owner" and request.user.username == role.user.username %}
-            <button class="button" title="{% trans %}Cannot remove yourself as Owner{% endtrans %}" disabled>{% trans %}Remove{% endtrans %}</button>
+          {% if request.user.username == role.user.username and project.name in projects_sole_owned %}
+            <button class="button" title="{% trans %}Cannot remove yourself as Sole Owner{% endtrans %}" disabled>{% trans %}Remove{% endtrans %}</button>
           {% else %}
             {% set extra_fields %}<input type="hidden" name="role_id" value="{{ role.id }}">{% endset %}
             {% set extra_description %}{% trans collaborator=role.user.username %}Remove {{ collaborator }} from this project{% endtrans %}{% trans %}.{% endtrans %}{% endset %}

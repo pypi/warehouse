@@ -19,7 +19,10 @@
 
 {% block main %}
   {% if organization_invites %}
-  <h1 class="page-title">{% trans invitation_count=organization_invites|length %}Pending invitations ({{ invitation_count }}){% endtrans %}</h1>
+  <h1 class="page-title">
+    {% trans %}Pending invitations{% endtrans %}
+    <span class="badge badge--neutral">{{ organization_invites|length }}</span>
+  </h1>
   <div class="organization-list">
     {% for organization, token in organization_invites %}
     <div class="organization-snippet">
@@ -37,8 +40,18 @@
             <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
             <input name="token" type="hidden" value="{{ token }}">
             <input name="accept" type="submit" value="{% trans %}Accept{% endtrans %}" class="button button--primary">
-            <input name="decline" type="submit" value="{% trans %}Decline{% endtrans %}" class="button">
           </form>
+          {% set extra_fields %}
+            <input type="hidden" name="token" value="{{ token }}">
+            <input type="hidden" name="decline" value="{% trans %}Decline{% endtrans %}">
+            <textarea class="form-group__field" name="message" placeholder="Optional explanatory message"></textarea>
+            <p class="form-group__help-text">
+              This message will be included in the notification email.
+            </p>
+          {% endset %}
+          {% set extra_description %}{% trans org=organization.name %}Decline invitation to {{ org }}{% endtrans %}{% endset %}
+          {% set tooltip %}{% trans %}Decline invitation{% endtrans %}{% endset %}
+          {{ confirm_button(gettext("Decline"), gettext("Organization Name"), "decline-" + organization.name|string, None, extra_fields=extra_fields, extra_description=extra_description, action=request.route_path('accounts.verify-organization-role'), warning=False, modifier="", tooltip=tooltip) }}
         </div>
       </div>
     </div>
@@ -46,7 +59,10 @@
   </div>
   {% endif %}
 
-  <h1 class="page-title">{% trans organization_count=organizations|length %}Your organizations ({{ organization_count }}){% endtrans %}</h1>
+  <h1 class="page-title">
+    {% trans %}Your organizations{% endtrans %}
+    <span class="badge badge--neutral">{{ organizations|length }}</span>
+  </h1>
   <div class="organization-list">
     {% for organization in organizations if organization.is_approved != False %}
     <div class="organization-snippet">
@@ -55,20 +71,20 @@
           <h3 class="organization-snippet__title">{{ organization.name }}
             {% if organization.orgtype == OrganizationType.Company and not organization.active_subscription %}
               {% if organization.name in (organizations_owned + organizations_billing) %}
-              <a class="badge badge--danger organization-snippet__badge" href="{{ request.route_path('manage.organization.activate_subscription', organization_name=organization.normalized_name) }}">{% trans %}Billing Inactive{% endtrans %}</a>
+              <a class="badge badge--danger" href="{{ request.route_path('manage.organization.activate_subscription', organization_name=organization.normalized_name) }}">{% trans %}Billing Inactive{% endtrans %}</a>
               {% else %}
-              <span class="badge badge--danger organization-snippet__badge" title="{% trans %}This organization's billing can be activated by an organization owner or billing manager{% endtrans %}">{% trans %}Billing Inactive{% endtrans %}</span>
+              <span class="badge badge--danger" title="{% trans %}This organization's billing can be activated by an organization owner or billing manager{% endtrans %}">{% trans %}Billing Inactive{% endtrans %}</span>
               {% endif %}
             {% elif organization.is_approved == None %}
-            <span class="badge badge--neutral organization-snippet__badge" title="{% trans %}You will receive an email when the organization has been approved{% endtrans %}">{% trans %}Request Submitted{% endtrans %}</span>
+            <span class="badge badge--neutral" title="{% trans %}You will receive an email when the organization has been approved{% endtrans %}">{% trans %}Request Submitted{% endtrans %}</span>
             {% elif organization.is_active == False %}
-            <span class="badge badge--danger organization-snippet__badge" title="{% trans %}This organization is not active{% endtrans %}">{% trans %}Inactive{% endtrans %}</span>
+            <span class="badge badge--danger" title="{% trans %}This organization is not active{% endtrans %}">{% trans %}Inactive{% endtrans %}</span>
             {% elif organization.name in organizations_managed %}
-            <a class="badge badge--warning organization-snippet__badge" href="{{ request.route_path('manage.organization.roles', organization_name=organization.normalized_name) }}">{% trans %}Manager{% endtrans %}</a>
+            <a class="badge badge--warning" href="{{ request.route_path('manage.organization.roles', organization_name=organization.normalized_name) }}">{% trans %}Manager{% endtrans %}</a>
             {% elif organization.name in organizations_owned %}
-            <a class="badge badge--warning organization-snippet__badge" href="{{ request.route_path('manage.organization.roles', organization_name=organization.normalized_name) }}">{% trans %}Owner{% endtrans %}</a>
+            <a class="badge badge--warning" href="{{ request.route_path('manage.organization.roles', organization_name=organization.normalized_name) }}">{% trans %}Owner{% endtrans %}</a>
             {% elif organization.name in organizations_billing %}
-            <a class="badge badge--success organization-snippet__badge" href="{{ request.route_path('manage.organization.settings', organization_name=organization.normalized_name) }}">{% trans %}Billing Manager{% endtrans %}</a>
+            <a class="badge badge--success" href="{{ request.route_path('manage.organization.roles', organization_name=organization.normalized_name) }}">{% trans %}Billing Manager{% endtrans %}</a>
             {% endif %}
           </h3>
           <p class="organization-snippet__meta">
@@ -78,7 +94,7 @@
         <div class="organization-snippet__buttons">
           {% if organization.name not in (organizations_managed + organizations_owned + organizations_billing) %}
           {# Show "View" button for non-manager and non-owner #}
-          <a class="button" href="{{ request.route_path('manage.organization.roles', organization_name=organization.normalized_name) }}" title="{% trans %}View this organization{% endtrans %}">
+          <a class="button" href="{{ request.route_path('manage.organization.projects', organization_name=organization.normalized_name) }}" title="{% trans %}View this organization{% endtrans %}">
             {% trans %}View{% endtrans %}
           </a>
           {% elif organization.orgtype == OrganizationType.Company and not organization.active_subscription %}
@@ -105,7 +121,7 @@
           </a>
           {% else %}
           {# Show "Manage" button for managers and owners #}
-          <a class="button button--primary" href="{{ request.route_path('manage.organization.roles', organization_name=organization.normalized_name) }}" title="{% trans %}Manage this organization{% endtrans %}">
+          <a class="button button--primary" href="{{ request.route_path('manage.organization.projects', organization_name=organization.normalized_name) }}" title="{% trans %}Manage this organization{% endtrans %}">
             {% trans %}Manage{% endtrans %}
           </a>
           {% endif %}
@@ -161,7 +177,7 @@
 
       <div class="form-group">
         <label for="display_name" class="form-group__label">
-          {% trans %}Organization name{% endtrans %}
+          {% trans %}Organization display name{% endtrans %}
           {% if create_organization_form.display_name.flags.required %}
           <span class="form-group__required">{% trans %}(required){% endtrans %}</span>
           {% endif %}
@@ -232,7 +248,7 @@
           {{ field_errors(create_organization_form.orgtype) }}
         </div>
         <p class="form-group__help-text">
-          {% trans trimmed %}
+          {% trans %}
             Companies can create organization accounts as a paid service while community projects are granted complimentary access.
           {% endtrans %}
         </p>

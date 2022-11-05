@@ -30,10 +30,12 @@ from warehouse.accounts.interfaces import (
     TooManyFailedLogins,
 )
 from warehouse.accounts.models import DisableReason
+from warehouse.accounts.services import RECOVERY_CODE_BYTES
 from warehouse.email import (
     send_password_compromised_email_hibp,
     send_recovery_code_used_email,
 )
+from warehouse.events.tags import EventTag
 from warehouse.i18n import localize as _
 from warehouse.utils.otp import TOTP_LENGTH
 
@@ -78,7 +80,16 @@ class WebAuthnCredentialMixin:
 class RecoveryCodeValueMixin:
 
     recovery_code_value = wtforms.StringField(
-        validators=[wtforms.validators.DataRequired()]
+        validators=[
+            wtforms.validators.DataRequired(),
+            wtforms.validators.Regexp(
+                rf"^ *([0-9a-f] *){{{2*RECOVERY_CODE_BYTES}}}$",
+                message=_(
+                    "Recovery Codes must be ${recovery_code_length} characters.",
+                    mapping={"recovery_code_length": 2 * RECOVERY_CODE_BYTES},
+                ),
+            ),
+        ]
     )
 
 
@@ -343,7 +354,7 @@ class TOTPAuthenticationForm(TOTPValueMixin, _TwoFactorAuthenticationForm):
         if not self.user_service.check_totp_value(self.user_id, totp_value):
             self.user_service.record_event(
                 self.user_id,
-                tag="account:login:failure",
+                tag=EventTag.Account.LoginFailure,
                 additional={"reason": "invalid_totp"},
             )
             raise wtforms.validators.ValidationError(_("Invalid TOTP code."))
@@ -378,7 +389,7 @@ class WebAuthnAuthenticationForm(WebAuthnCredentialMixin, _TwoFactorAuthenticati
         except webauthn.AuthenticationRejectedError as e:
             self.user_service.record_event(
                 self.user_id,
-                tag="account:login:failure",
+                tag=EventTag.Account.LoginFailure,
                 additional={"reason": "invalid_webauthn"},
             )
             raise wtforms.validators.ValidationError(str(e))
@@ -408,7 +419,7 @@ class RecoveryCodeAuthenticationForm(
     RecoveryCodeValueMixin, _TwoFactorAuthenticationForm
 ):
     def validate_recovery_code_value(self, field):
-        recovery_code_value = field.data.encode("utf-8")
+        recovery_code_value = field.data.encode("utf-8").strip()
 
         try:
             self.user_service.check_recovery_code(self.user_id, recovery_code_value)
@@ -418,14 +429,14 @@ class RecoveryCodeAuthenticationForm(
         except (InvalidRecoveryCode, NoRecoveryCodes):
             self.user_service.record_event(
                 self.user_id,
-                tag="account:login:failure",
+                tag=EventTag.Account.LoginFailure,
                 additional={"reason": "invalid_recovery_code"},
             )
             raise wtforms.validators.ValidationError(_("Invalid recovery code."))
         except BurnedRecoveryCode:
             self.user_service.record_event(
                 self.user_id,
-                tag="account:login:failure",
+                tag=EventTag.Account.LoginFailure,
                 additional={"reason": "burned_recovery_code"},
             )
             raise wtforms.validators.ValidationError(

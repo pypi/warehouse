@@ -60,6 +60,7 @@ logger = logging.getLogger(__name__)
 
 PASSWORD_FIELD = "password"
 RECOVERY_CODE_COUNT = 8
+RECOVERY_CODE_BYTES = 8
 
 
 @implementer(IUserService)
@@ -94,7 +95,11 @@ class DatabaseUserService:
         # TODO: We probably don't actually want to just return the database
         #       object here.
         # TODO: We need some sort of Anonymous User.
-        return self.db.query(User).options(joinedload(User.webauthn)).get(userid)
+        return (
+            self.db.query(User).options(joinedload(User.webauthn)).get(userid)
+            if userid
+            else None
+        )
 
     def get_user(self, userid):
         return self.cached_get_user(userid)
@@ -570,7 +575,9 @@ class DatabaseUserService:
         if user.has_recovery_codes:
             self.db.query(RecoveryCode).filter_by(user=user).delete()
 
-        recovery_codes = [secrets.token_hex(8) for _ in range(RECOVERY_CODE_COUNT)]
+        recovery_codes = [
+            secrets.token_hex(RECOVERY_CODE_BYTES) for _ in range(RECOVERY_CODE_COUNT)
+        ]
         for recovery_code in recovery_codes:
             self.db.add(RecoveryCode(user=user, code=self.hasher.hash(recovery_code)))
 
