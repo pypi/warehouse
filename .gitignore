@@ -21,6 +21,7 @@ docker-compose.override.yaml
 node_modules/
 
 dev/example.sql
+dev/example.sql.xz
 dev/prod.sql
 dev/prod.sql.xz
 ./data/

@@ -1,6 +1,9 @@
 DB := example
 IPYTHON := no
 
+DEV_DB_DUMP := https://pypi-warehouse-dev.s3.us-east-2.amazonaws.com/example-2022-11-07.sql.xz
+DEV_DB_DUMP_SHA := 457a060cef2c63181ed6fe5efc6727c2de4a11385bf558851718210627583ff6
+
 # set environment variable WAREHOUSE_IPYTHON_SHELL=1 if IPython
 # needed in development environment
 ifeq ($(WAREHOUSE_IPYTHON_SHELL), 1)
@@ -83,7 +86,10 @@ translations: .state/docker-build-web
 requirements/%.txt: requirements/%.in
 	docker-compose run --rm web bin/pip-compile --allow-unsafe --generate-hashes --output-file=$@ $<
 
-initdb: .state/docker-build-web
+dev/example.sql.xz:
+	docker-compose run --rm web curl -o dev/example.sql.xz $(DEV_DB_DUMP)
+
+initdb: .state/docker-build-web dev/example.sql.xz
 	docker-compose run --rm web psql -h db -d postgres -U postgres -c "SELECT pg_terminate_backend(pid) FROM pg_stat_activity WHERE datname ='warehouse';"
 	docker-compose run --rm web psql -h db -d postgres -U postgres -c "DROP DATABASE IF EXISTS warehouse"
 	docker-compose run --rm web psql -h db -d postgres -U postgres -c "CREATE DATABASE warehouse ENCODING 'UTF8'"
