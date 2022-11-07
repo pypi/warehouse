@@ -262,7 +262,9 @@ class TestLogin:
                 lambda userid, password, tags=None: True
             ),
             is_disabled=pretend.call_recorder(lambda user_id: (False, None)),
-            disable_password=pretend.call_recorder(lambda user_id, reason=None: None),
+            disable_password=pretend.call_recorder(
+                lambda user_id, reason=None, ip_address="127.0.0.1": None
+            ),
         )
         breach_service = pretend.stub(
             check_password=pretend.call_recorder(lambda pw, tags=None: True),
@@ -294,7 +296,9 @@ class TestLogin:
             pretend.call("mypass", tags=["method:auth", "auth_method:basic"])
         ]
         assert service.disable_password.calls == [
-            pretend.call(2, reason=DisableReason.CompromisedPassword)
+            pretend.call(
+                2, reason=DisableReason.CompromisedPassword, ip_address="1.2.3.4"
+            )
         ]
         assert send_email.calls == [pretend.call(pyramid_request, user)]
 
