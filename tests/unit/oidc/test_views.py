@@ -129,7 +129,7 @@ def test_mint_token_from_oidc_missing_token(body):
         {"token": {}},
     ],
 )
-def test_mint_token_from_oidc_invalid_token(body):
+def test_mint_token_from_oidc_nonstring_token(body):
     request = pretend.stub(
         response=pretend.stub(status=None),
         json_body=body,
@@ -144,9 +144,9 @@ def test_mint_token_from_oidc_invalid_token(body):
     }
 
 
-def test_mint_token_from_oidc_provider_lookup_fails():
+def test_mint_token_from_oidc_provider_verify_jwt_signature_fails():
     oidc_service = pretend.stub(
-        find_provider=pretend.call_recorder(lambda token: (None, None))
+        verify_jwt_signature=pretend.call_recorder(lambda token: None),
     )
     request = pretend.stub(
         response=pretend.stub(status=None),
@@ -161,14 +161,50 @@ def test_mint_token_from_oidc_provider_lookup_fails():
     assert response == {
         "message": "Token request failed",
         "errors": [
-            {"code": "invalid-token", "description": "malformed or invalid token"}
+            {
+                "code": "invalid-token",
+                "description": "malformed or invalid token",
+            }
         ],
     }
 
     assert request.find_service.calls == [
         pretend.call(IOIDCProviderService, name="github")
     ]
-    assert oidc_service.find_provider.calls == [pretend.call("faketoken")]
+    assert oidc_service.verify_jwt_signature.calls == [pretend.call("faketoken")]
+
+
+def test_mint_token_from_oidc_provider_lookup_fails():
+    claims = pretend.stub()
+    oidc_service = pretend.stub(
+        verify_jwt_signature=pretend.call_recorder(lambda token: claims),
+        find_provider=pretend.call_recorder(lambda claims: None),
+    )
+    request = pretend.stub(
+        response=pretend.stub(status=None),
+        json_body={"token": "faketoken"},
+        find_service=pretend.call_recorder(lambda cls, **kw: oidc_service),
+        registry=pretend.stub(settings={"warehouse.oidc.enabled": True}),
+        flags=pretend.stub(enabled=lambda *a: False),
+    )
+
+    response = views.mint_token_from_oidc(request)
+    assert request.response.status == 422
+    assert response == {
+        "message": "Token request failed",
+        "errors": [
+            {
+                "code": "invalid-provider",
+                "description": "valid token, but no corresponding provider",
+            }
+        ],
+    }
+
+    assert request.find_service.calls == [
+        pretend.call(IOIDCProviderService, name="github")
+    ]
+    assert oidc_service.verify_jwt_signature.calls == [pretend.call("faketoken")]
+    assert oidc_service.find_provider.calls == [pretend.call(claims)]
 
 
 def test_mint_token_from_oidc_ok(monkeypatch):
@@ -188,8 +224,10 @@ def test_mint_token_from_oidc_ok(monkeypatch):
     # NOTE: Can't set __str__ using pretend.stub()
     monkeypatch.setattr(provider.__class__, "__str__", lambda s: "fakespecifier")
 
+    claims = pretend.stub()
     oidc_service = pretend.stub(
-        find_provider=pretend.call_recorder(lambda token: (provider, pretend.stub()))
+        verify_jwt_signature=pretend.call_recorder(lambda token: claims),
+        find_provider=pretend.call_recorder(lambda claims: provider),
     )
 
     db_macaroon = pretend.stub(description="fakemacaroon")
@@ -222,7 +260,8 @@ def test_mint_token_from_oidc_ok(monkeypatch):
         "token": "raw-macaroon",
     }
 
-    assert oidc_service.find_provider.calls == [pretend.call("faketoken")]
+    assert oidc_service.verify_jwt_signature.calls == [pretend.call("faketoken")]
+    assert oidc_service.find_provider.calls == [pretend.call(claims)]
     assert macaroon_service.create_macaroon.calls == [
         pretend.call(
             "fakedomain",

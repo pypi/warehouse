@@ -93,7 +93,7 @@ def mint_token_from_oidc(request):
         return _invalid(
             errors=[
                 {
-                    "code": "invalid-token",
+                    "code": "invalid-provider",
                     "description": "valid token, but no corresponding provider",
                 }
             ]

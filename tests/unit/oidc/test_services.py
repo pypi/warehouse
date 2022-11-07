@@ -52,12 +52,12 @@ def test_oidc_provider_service_factory():
 
 
 class TestOIDCProviderService:
-    def test_verify(self):
+    def test_interface_matches(self):
         assert verifyClass(
             interfaces.IOIDCProviderService, services.OIDCProviderService
         )
 
-    def test_verify_signature_only(self, monkeypatch):
+    def test_verify_jwt_signature(self, monkeypatch):
         service = services.OIDCProviderService(
             session=pretend.stub(),
             provider=pretend.stub(),
@@ -74,7 +74,7 @@ class TestOIDCProviderService:
         )
         monkeypatch.setattr(services, "jwt", jwt)
 
-        assert service._verify_signature_only(token) == decoded
+        assert service.verify_jwt_signature(token) == decoded
         assert jwt.decode.calls == [
             pretend.call(
                 token,
@@ -96,13 +96,15 @@ class TestOIDCProviderService:
         ]
 
     @pytest.mark.parametrize("exc", [PyJWTError, ValueError])
-    def test_verify_signature_only_fails(self, monkeypatch, exc):
+    def test_verify_jwt_signature_fails(self, monkeypatch, exc):
         service = services.OIDCProviderService(
             session=pretend.stub(),
-            provider=pretend.stub(),
+            provider="fakeprovider",
             issuer_url=pretend.stub(),
             cache_url=pretend.stub(),
-            metrics=pretend.stub(),
+            metrics=pretend.stub(
+                increment=pretend.call_recorder(lambda *a, **kw: None)
+            ),
         )
 
         token = pretend.stub()
@@ -112,7 +114,13 @@ class TestOIDCProviderService:
         )
         monkeypatch.setattr(services, "jwt", jwt)
 
-        assert service._verify_signature_only(token) is None
+        assert service.verify_jwt_signature(token) is None
+        assert service.metrics.increment.calls == [
+            pretend.call(
+                "warehouse.oidc.verify_jwt_signature.invalid_signature",
+                tags=["provider:fakeprovider"],
+            )
+        ]
 
     def test_find_provider(self, monkeypatch):
         service = services.OIDCProviderService(
@@ -126,10 +134,6 @@ class TestOIDCProviderService:
         )
 
         token = pretend.stub()
-        claims = pretend.stub()
-        monkeypatch.setattr(
-            service, "_verify_signature_only", pretend.call_recorder(lambda t: claims)
-        )
 
         provider = pretend.stub(verify_claims=pretend.call_recorder(lambda c: True))
         find_provider_by_issuer = pretend.call_recorder(lambda *a: provider)
@@ -137,7 +141,7 @@ class TestOIDCProviderService:
             services, "find_provider_by_issuer", find_provider_by_issuer
         )
 
-        assert service.find_provider(token)
+        assert service.find_provider(token) == provider
         assert service.metrics.increment.calls == [
             pretend.call(
                 "warehouse.oidc.find_provider.attempt",
@@ -148,8 +152,6 @@ class TestOIDCProviderService:
                 tags=["provider:fakeprovider"],
             ),
         ]
-        assert service._verify_signature_only.calls == [pretend.call(token)]
-        assert provider.verify_claims.calls == [pretend.call(claims)]
 
     def test_find_provider_issuer_lookup_fails(self, monkeypatch):
         service = services.OIDCProviderService(
@@ -162,18 +164,13 @@ class TestOIDCProviderService:
             ),
         )
 
-        token = pretend.stub()
-        claims = pretend.stub()
-        monkeypatch.setattr(
-            service, "_verify_signature_only", pretend.call_recorder(lambda t: claims)
-        )
-
         find_provider_by_issuer = pretend.call_recorder(lambda *a: None)
         monkeypatch.setattr(
             services, "find_provider_by_issuer", find_provider_by_issuer
         )
 
-        assert service.find_provider(token) == (None, None)
+        claims = pretend.stub()
+        assert service.find_provider(claims) is None
         assert service.metrics.increment.calls == [
             pretend.call(
                 "warehouse.oidc.find_provider.attempt",
@@ -185,7 +182,7 @@ class TestOIDCProviderService:
             ),
         ]
 
-    def test_find_provider_invalid_signature(self, monkeypatch):
+    def test_find_provider_verify_claims_fails(self, monkeypatch):
         service = services.OIDCProviderService(
             session=pretend.stub(),
             provider="fakeprovider",
@@ -194,38 +191,6 @@ class TestOIDCProviderService:
             metrics=pretend.stub(
                 increment=pretend.call_recorder(lambda *a, **kw: None)
             ),
-        )
-
-        token = pretend.stub()
-        monkeypatch.setattr(service, "_verify_signature_only", lambda t: None)
-
-        assert service.find_provider(token) == (None, None)
-        assert service.metrics.increment.calls == [
-            pretend.call(
-                "warehouse.oidc.find_provider.attempt",
-                tags=["provider:fakeprovider"],
-            ),
-            pretend.call(
-                "warehouse.oidc.find_provider.invalid_signature",
-                tags=["provider:fakeprovider"],
-            ),
-        ]
-
-    def test_find_provider_invalid_claims(self, monkeypatch):
-        service = services.OIDCProviderService(
-            session=pretend.stub(),
-            provider="fakeprovider",
-            issuer_url=pretend.stub(),
-            cache_url=pretend.stub(),
-            metrics=pretend.stub(
-                increment=pretend.call_recorder(lambda *a, **kw: None)
-            ),
-        )
-
-        token = pretend.stub()
-        claims = pretend.stub()
-        monkeypatch.setattr(
-            service, "_verify_signature_only", pretend.call_recorder(lambda t: claims)
         )
 
         provider = pretend.stub(verify_claims=pretend.call_recorder(lambda c: False))
@@ -234,7 +199,8 @@ class TestOIDCProviderService:
             services, "find_provider_by_issuer", find_provider_by_issuer
         )
 
-        assert service.find_provider(token) == (None, None)
+        claims = pretend.stub()
+        assert service.find_provider(claims) is None
         assert service.metrics.increment.calls == [
             pretend.call(
                 "warehouse.oidc.find_provider.attempt",
@@ -245,7 +211,6 @@ class TestOIDCProviderService:
                 tags=["provider:fakeprovider"],
             ),
         ]
-        assert service._verify_signature_only.calls == [pretend.call(token)]
         assert provider.verify_claims.calls == [pretend.call(claims)]
 
     def test_get_keyset_not_cached(self, monkeypatch, mockredis):
@@ -629,6 +594,11 @@ class TestOIDCProviderService:
 
 
 class TestNullOIDCProviderService:
+    def test_interface_matches(self):
+        assert verifyClass(
+            interfaces.IOIDCProviderService, services.NullOIDCProviderService
+        )
+
     def test_warns_on_init(self, monkeypatch):
         warnings = pretend.stub(warn=pretend.call_recorder(lambda m, c: None))
         monkeypatch.setattr(services, "warnings", warnings)
@@ -651,7 +621,7 @@ class TestNullOIDCProviderService:
             )
         ]
 
-    def test_find_provider_for_project_malformed_jwt(self):
+    def test_verify_jwt_signature_malformed_jwt(self):
         service = services.NullOIDCProviderService(
             session=pretend.stub(),
             provider="example",
@@ -660,9 +630,9 @@ class TestNullOIDCProviderService:
             metrics=pretend.stub(),
         )
 
-        assert service.find_provider("malformed-jwt") == (None, None)
+        assert service.verify_jwt_signature("malformed-jwt") is None
 
-    def test_find_provider_for_project_missing_aud(self):
+    def test_verify_jwt_signature_missing_aud(self):
         # {
         #   "iss": "foo",
         #   "iat": 1516239022,
@@ -687,9 +657,9 @@ class TestNullOIDCProviderService:
             metrics=pretend.stub(),
         )
 
-        assert service.find_provider(jwt) == (None, None)
+        assert service.verify_jwt_signature(jwt) is None
 
-    def test_find_provider_for_project_wrong_aud(self):
+    def test_verify_jwt_signature_wrong_aud(self):
         # {
         #   "iss": "foo",
         #   "iat": 1516239022,
@@ -716,7 +686,7 @@ class TestNullOIDCProviderService:
             metrics=pretend.stub(),
         )
 
-        assert service.find_provider(jwt) == (None, None)
+        assert service.verify_jwt_signature(jwt) is None
 
     def test_find_provider(self, monkeypatch):
         claims = {
@@ -726,17 +696,6 @@ class TestNullOIDCProviderService:
             "exp": 9999999999,
             "aud": "pypi",
         }
-
-        jwt = (
-            "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJmb28iLCJpYXQiOj"
-            "E1MTYyMzkwMjIsIm5iZiI6MTUxNjIzOTAyMiwiZXhwIjo5OTk5OTk5OTk5LCJhd"
-            "WQiOiJweXBpIn0.JQF7ozT5RgI3g1b75DACO3rSxD7ZRYzC0yqBpvvUrGoOUQQZ"
-            "SfFRc7w9loudk04am2KlLIGjfPum5IITHuiK41XkSFHoTT0fo1aJegHk5_qrk1a"
-            "jXlfNa8otN2woORZdGqUUgF01bDB-1uwfcus5cjBNXYiNzIFO3VeRlBTLNIhUNH"
-            "5I3KKb5T1tFad46E5H7HyzOG4EVwTPHK1-6a5WB3DmC-ExJW831zPda2VKXaFrl"
-            "v3pUZalLOIVulmuvMkw89FrCsm6V5LF5BxbsWn1G5lJAO6XNqPC--xdN3OsloZI"
-            "FVi4A1Y23Ni2LwertdzGumDKrQeEUCarOzkQIjckAg"
-        )
 
         service = services.NullOIDCProviderService(
             session=pretend.stub(),
@@ -752,4 +711,4 @@ class TestNullOIDCProviderService:
             services, "find_provider_by_issuer", find_provider_by_issuer
         )
 
-        assert service.find_provider(jwt) == (provider, claims)
+        assert service.find_provider(claims) == provider

@@ -236,17 +236,16 @@ class OIDCProviderService:
                 leeway=30,
             )
             return SignedClaims(signed_payload)
-        except jwt.PyJWTError:
+        except Exception as e:
             self.metrics.increment(
-                "warehouse.oidc.find_provider.invalid_signature",
+                "warehouse.oidc.verify_jwt_signature.invalid_signature",
                 tags=[f"provider:{self.provider}"],
             )
-            return None
-        except Exception as e:
-            # We expect pyjwt to only raise subclasses of PyJWTError, but
-            # we can't enforce this. Other exceptions indicate an abstraction
-            # leak, so we log them for upstream reporting.
-            sentry_sdk.capture_message(f"JWT verify raised generic error: {e}")
+            if not isinstance(e, jwt.PyJWTError):
+                # We expect pyjwt to only raise subclasses of PyJWTError, but
+                # we can't enforce this. Other exceptions indicate an abstraction
+                # leak, so we log them for upstream reporting.
+                sentry_sdk.capture_message(f"JWT verify raised generic error: {e}")
             return None
 
     def find_provider(self, signed_claims: SignedClaims) -> OIDCProvider | None:
