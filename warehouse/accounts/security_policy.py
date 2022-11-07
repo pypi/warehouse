@@ -91,6 +91,11 @@ def _basic_auth_check(username, password, request):
                 )
 
             login_service.update_user(user.id, last_login=datetime.datetime.utcnow())
+            user.record_event(
+                tag=EventTag.Account.LoginSuccess,
+                ip_address=request.remote_addr,
+                additional={"auth_method": "basic"},
+            )
             return True
         else:
             user.record_event(
