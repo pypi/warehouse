@@ -10,16 +10,21 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from __future__ import annotations
+
 from sqlalchemy.sql.expression import func, literal
 
-from warehouse.oidc.models import GitHubProvider
+from warehouse.oidc.interfaces import SignedClaims
+from warehouse.oidc.models import GitHubProvider, OIDCProvider
 
 GITHUB_OIDC_ISSUER_URL = "https://token.actions.githubusercontent.com"
 
 OIDC_ISSUER_URLS = {GITHUB_OIDC_ISSUER_URL}
 
 
-def find_provider_by_issuer(session, issuer_url, signed_claims):
+def find_provider_by_issuer(
+    session, issuer_url: str, signed_claims: SignedClaims
+) -> OIDCProvider | None:
     """
     Given an OIDC issuer URL and a dictionary of claims that have been verified
     for a token from that OIDC issuer, retrieve a concrete `OIDCProvider` registered

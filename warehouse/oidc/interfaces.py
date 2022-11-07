@@ -10,22 +10,36 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from __future__ import annotations
+
+from typing import Any, NewType
 
 from zope.interface import Interface
 
 from warehouse.rate_limiting.interfaces import RateLimiterException
 
+SignedClaims = NewType("SignedClaims", dict[str, Any])
+
 
 class IOIDCProviderService(Interface):
-    def find_provider(unverified_token):
+    def verify_jwt_signature(unverified_token: str):
         """
-        Verify the given JWT's signature and retrieve the OIDCProvider
-        corresponding to its claims, verifying the claim set along the way.
+        Verify the given JWT's signature, returning its signed claims if
+        valid. If the signature is invalid, `None` is returned.
 
-        Returns a tuple of `(OIDCProvider, Dict[str, Any])` on success, where
-        the dictionary is the set of claims in the verified JWT. On failure,
-        a tuple of `(None, None)` is returned.
+        This method does **not** verify the claim set itself -- the API
+        consumer is responsible for evaluating the claim set.
         """
+        pass
+
+    def find_provider(signed_claims: SignedClaims):
+        """
+        Given a mapping of signed claims produced by `verify_jwt_signature`,
+        attempt to find and return an `OIDCProvider` that matches them.
+
+        If no `OIDCProvider` matches the claims, `None` is returned.
+        """
+        pass
 
 
 class TooManyOIDCRegistrations(RateLimiterException):

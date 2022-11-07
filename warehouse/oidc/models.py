@@ -20,6 +20,7 @@ from sqlalchemy.dialects.postgresql import UUID
 
 from warehouse import db
 from warehouse.macaroons.models import Macaroon
+from warehouse.oidc.interfaces import SignedClaims
 from warehouse.packaging.models import Project
 
 
@@ -119,7 +120,7 @@ class OIDCProvider(db.Model):
             | cls.__unchecked_claims__
         )
 
-    def verify_claims(self, signed_claims):
+    def verify_claims(self, signed_claims: SignedClaims):
         """
         Given a JWT that has been successfully decoded (checked for a valid
         signature and basic claims), verify it against the more specific

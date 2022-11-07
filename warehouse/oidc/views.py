@@ -80,11 +80,22 @@ def mint_token_from_oidc(request):
     # In the future, this should locate the correct service based on an
     # identifier in the request body.
     oidc_service = request.find_service(IOIDCProviderService, name="github")
-    provider, _claims = oidc_service.find_provider(unverified_jwt)
-    if not provider:
+    claims = oidc_service.verify_jwt_signature(unverified_jwt)
+    if not claims:
         return _invalid(
             errors=[
                 {"code": "invalid-token", "description": "malformed or invalid token"}
+            ]
+        )
+
+    provider = oidc_service.find_provider(claims)
+    if not provider:
+        return _invalid(
+            errors=[
+                {
+                    "code": "invalid-token",
+                    "description": "valid token, but no corresponding provider",
+                }
             ]
         )
 

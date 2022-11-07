@@ -21,7 +21,8 @@ import sentry_sdk
 from zope.interface import implementer
 
 from warehouse.metrics.interfaces import IMetricsService
-from warehouse.oidc.interfaces import IOIDCProviderService
+from warehouse.oidc.interfaces import IOIDCProviderService, SignedClaims
+from warehouse.oidc.models import OIDCProvider
 from warehouse.oidc.utils import find_provider_by_issuer
 
 
@@ -42,32 +43,32 @@ class NullOIDCProviderService:
         self.db = session
         self.issuer_url = issuer_url
 
-    def find_provider(self, unverified_token):
+    def verify_jwt_signature(self, unverified_token: str) -> SignedClaims | None:
         try:
-            unverified_payload = jwt.decode(
-                unverified_token,
-                options=dict(
-                    verify_signature=False,
-                    # We require all of these to be present, but for the
-                    # null provider we only actually verify the audience.
-                    require=["iss", "iat", "nbf", "exp", "aud"],
-                    verify_iss=False,
-                    verify_iat=False,
-                    verify_nbf=False,
-                    verify_exp=False,
-                    verify_aud=True,
-                ),
-                audience="pypi",
+            return SignedClaims(
+                jwt.decode(
+                    unverified_token,
+                    options=dict(
+                        verify_signature=False,
+                        # We require all of these to be present, but for the
+                        # null provider we only actually verify the audience.
+                        require=["iss", "iat", "nbf", "exp", "aud"],
+                        verify_iss=False,
+                        verify_iat=False,
+                        verify_nbf=False,
+                        verify_exp=False,
+                        verify_aud=True,
+                    ),
+                    audience="pypi",
+                )
             )
         except jwt.PyJWTError:
-            return None, None
+            return None
 
+    def find_provider(self, signed_claims: SignedClaims) -> OIDCProvider | None:
         # NOTE: We do NOT verify the claims against the provider, since this
         # service is for development purposes only.
-        return (
-            find_provider_by_issuer(self.db, self.issuer_url, unverified_payload),
-            unverified_payload,
-        )
+        return find_provider_by_issuer(self.db, self.issuer_url, signed_claims)
 
 
 @implementer(IOIDCProviderService)
@@ -208,14 +209,14 @@ class OIDCProviderService:
         unverified_header = jwt.get_unverified_header(token)
         return self._get_key(unverified_header["kid"])
 
-    def _verify_signature_only(self, token):
-        key = self._get_key_for_token(token)
+    def verify_jwt_signature(self, unverified_token: str) -> SignedClaims | None:
+        key = self._get_key_for_token(unverified_token)
 
         try:
             # NOTE: Many of the keyword arguments here are defaults, but we
             # set them explicitly to assert the intended verification behavior.
             signed_payload = jwt.decode(
-                token,
+                unverified_token,
                 key=key,
                 algorithms=["RS256"],
                 options=dict(
@@ -234,8 +235,12 @@ class OIDCProviderService:
                 audience="pypi",
                 leeway=30,
             )
-            return signed_payload
+            return SignedClaims(signed_payload)
         except jwt.PyJWTError:
+            self.metrics.increment(
+                "warehouse.oidc.find_provider.invalid_signature",
+                tags=[f"provider:{self.provider}"],
+            )
             return None
         except Exception as e:
             # We expect pyjwt to only raise subclasses of PyJWTError, but
@@ -244,43 +249,34 @@ class OIDCProviderService:
             sentry_sdk.capture_message(f"JWT verify raised generic error: {e}")
             return None
 
-    def find_provider(self, unverified_token):
-        signed_payload = self._verify_signature_only(unverified_token)
-
+    def find_provider(self, signed_claims: SignedClaims) -> OIDCProvider | None:
         metrics_tags = [f"provider:{self.provider}"]
         self.metrics.increment(
             "warehouse.oidc.find_provider.attempt",
             tags=metrics_tags,
         )
 
-        if signed_payload is None:
-            self.metrics.increment(
-                "warehouse.oidc.find_provider.invalid_signature",
-                tags=metrics_tags,
-            )
-            return None, None
-
-        provider = find_provider_by_issuer(self.db, self.issuer_url, signed_payload)
+        provider = find_provider_by_issuer(self.db, self.issuer_url, signed_claims)
         if provider is None:
             self.metrics.increment(
                 "warehouse.oidc.find_provider.provider_not_found",
                 tags=metrics_tags,
             )
-            return None, None
+            return None
 
-        if not provider.verify_claims(signed_payload):
+        if not provider.verify_claims(signed_claims):
             self.metrics.increment(
                 "warehouse.oidc.find_provider.invalid_claims",
                 tags=metrics_tags,
             )
-            return None, None
+            return None
         else:
             self.metrics.increment(
                 "warehouse.oidc.find_provider.ok",
                 tags=metrics_tags,
             )
 
-        return provider, signed_payload
+        return provider
 
 
 class OIDCProviderServiceFactory:
