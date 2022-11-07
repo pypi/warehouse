@@ -223,7 +223,9 @@ class TestLoginForm:
             find_userid=lambda _: 1,
             get_user=lambda _: user,
             check_password=lambda userid, pw, tags=None: True,
-            disable_password=pretend.call_recorder(lambda user_id, reason=None: None),
+            disable_password=pretend.call_recorder(
+                lambda user_id, reason=None, ip_address="127.0.0.1": None
+            ),
             is_disabled=lambda userid: (False, None),
         )
         breach_service = pretend.stub(
@@ -239,7 +241,9 @@ class TestLoginForm:
         assert not form.validate()
         assert form.password.errors.pop() == "Bad Password!"
         assert user_service.disable_password.calls == [
-            pretend.call(1, reason=DisableReason.CompromisedPassword)
+            pretend.call(
+                1, reason=DisableReason.CompromisedPassword, ip_address="1.2.3.4"
+            )
         ]
         assert send_email.calls == [pretend.call(request, user)]
 

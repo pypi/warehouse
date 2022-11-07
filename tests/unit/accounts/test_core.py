@@ -194,7 +194,11 @@ class TestLogin:
         assert service.is_disabled.calls == [pretend.call(1)]
 
     def test_with_valid_password(self, monkeypatch, pyramid_request, pyramid_services):
-        user = pretend.stub(id=2, has_two_factor=False)
+        user = pretend.stub(
+            id=2,
+            has_two_factor=False,
+            record_event=pretend.call_recorder(lambda *a, **kw: None),
+        )
         service = pretend.stub(
             get_user=pretend.call_recorder(lambda user_id: user),
             find_userid=pretend.call_recorder(lambda username: 2),
@@ -234,6 +238,13 @@ class TestLogin:
             pretend.call("mypass", tags=["method:auth", "auth_method:basic"])
         ]
         assert service.update_user.calls == [pretend.call(2, last_login=now)]
+        assert user.record_event.calls == [
+            pretend.call(
+                ip_address="1.2.3.4",
+                tag=EventTag.Account.LoginSuccess,
+                additional={"auth_method": "basic"},
+            )
+        ]
 
     def test_via_basic_auth_compromised(
         self, monkeypatch, pyramid_request, pyramid_services
@@ -251,7 +262,9 @@ class TestLogin:
                 lambda userid, password, tags=None: True
             ),
             is_disabled=pretend.call_recorder(lambda user_id: (False, None)),
-            disable_password=pretend.call_recorder(lambda user_id, reason=None: None),
+            disable_password=pretend.call_recorder(
+                lambda user_id, reason=None, ip_address="127.0.0.1": None
+            ),
         )
         breach_service = pretend.stub(
             check_password=pretend.call_recorder(lambda pw, tags=None: True),
@@ -283,7 +296,9 @@ class TestLogin:
             pretend.call("mypass", tags=["method:auth", "auth_method:basic"])
         ]
         assert service.disable_password.calls == [
-            pretend.call(2, reason=DisableReason.CompromisedPassword)
+            pretend.call(
+                2, reason=DisableReason.CompromisedPassword, ip_address="1.2.3.4"
+            )
         ]
         assert send_email.calls == [pretend.call(pyramid_request, user)]
 

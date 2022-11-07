@@ -44,8 +44,8 @@ msgstr ""
 "Project-Id-Version: Warehouse VERSION\n"
 "Report-Msgid-Bugs-To: admin@pypi.org\n"
 "POT-Creation-Date: 2020-04-06 17:52-0500\n"
-"PO-Revision-Date: 2022-10-25 12:09+0000\n"
-"Last-Translator: Xu ZhuoHan <yylteam@hotmail.com>\n"
+"PO-Revision-Date: 2022-11-03 19:49+0000\n"
+"Last-Translator: Eric <hamburger1024@mailbox.org>\n"
 "Language-Team: Chinese (Simplified) <https://hosted.weblate.org/projects/"
 "pypa/warehouse/zh_Hans/>\n"
 "Language: zh_Hans\n"
@@ -139,24 +139,24 @@ msgstr "此电子邮件地址已被另一个帐户使用。使用一个不同的
 msgid "The name is too long. Choose a name with 100 characters or less."
 msgstr "用户名太长。请选择一个不超过100个字符的用户名。"
 
-#: warehouse/accounts/forms.py:360
+#: warehouse/accounts/forms.py:362
 msgid "Invalid TOTP code."
 msgstr "无效的 TOTP 代码。"
 
-#: warehouse/accounts/forms.py:377
+#: warehouse/accounts/forms.py:379
 msgid "Invalid WebAuthn assertion: Bad payload"
 msgstr "无效的 WebAuthn 断言：数据错误"
 
 # | msgid "Invalid TOTP code."
-#: warehouse/accounts/forms.py:435
+#: warehouse/accounts/forms.py:437
 msgid "Invalid recovery code."
 msgstr "无效的恢复代码。"
 
-#: warehouse/accounts/forms.py:443
+#: warehouse/accounts/forms.py:445
 msgid "Recovery code has been previously used."
 msgstr "恢复代码先前已用过。"
 
-#: warehouse/accounts/forms.py:462
+#: warehouse/accounts/forms.py:464
 msgid "No user found with that username or email"
 msgstr "未找到使用该用户名或电子邮件的用户"
 
@@ -804,17 +804,15 @@ msgstr "主菜单"
 #: warehouse/templates/base.html:66
 #, python-format
 msgid ""
-"\n"
 "\"%(wordmark)s\", \"%(name)s\", and the blocks logos are registered "
 "trademarks of the <a href=\"%(psf_href)s\" target=\"_blank\" rel=\"noopener"
 "\">Python Software Foundation</a> referring to the products and services "
-"associated with pypi.org. Any other use by any other party is prohibited.\n"
+"associated with pypi.org. Any other use by any other party is prohibited."
 msgstr ""
-"\n"
 "\"%(wordmark)s\"、 \"%(name)s\"及方块图标为注册商标，所有人 <a href="
 "\"%(psf_href)s\" target=\"_blank\" rel=\"noopener\">Python Software "
 "Foundation</a> ，指与 pypi.org 相关的产品和服务。禁止任何其他方的任何其他使"
-"用。\n"
+"用。"
 
 # | msgid ""
 # | "Learn how to upload files on the <a href=\"%(href)s\"
@@ -824,15 +822,13 @@ msgstr ""
 #: warehouse/templates/base.html:70
 #, python-format
 msgid ""
-"\n"
 "\"%(wordmark)s\", \"%(name)s\", and the blocks logos are registered <a href="
 "\"%(trademarks_href)s\">trademarks</a> of the <a href=\"%(psf_href)s\" "
-"target=\"_blank\" rel=\"noopener\">Python Software Foundation</a>.\n"
+"target=\"_blank\" rel=\"noopener\">Python Software Foundation</a>."
 msgstr ""
-"\n"
 "\"%(wordmark)s\"、\"%(name)s\"及方块图标为注册 <a href=\"%(trademarks_href)s"
 "\">商标</a>，所有权属于 <a href=\"%(psf_href)s\" target=\"_blank\" rel="
-"\"noopener\">Python 软件基金会</a>。\n"
+"\"noopener\">Python 软件基金会</a>。"
 
 #: warehouse/templates/base.html:93 warehouse/templates/index.html:109
 msgid ""
@@ -1005,8 +1001,8 @@ msgid "Terms of use"
 msgstr "使用条款（英文）"
 
 #: warehouse/templates/base.html:320
-msgid "Status: "
-msgstr "状态： "
+msgid "Status:"
+msgstr "状态："
 
 #: warehouse/templates/base.html:321
 msgid "all systems operational"
@@ -1196,8 +1192,8 @@ msgstr "密码"
 #: warehouse/templates/manage/organizations.html:222
 #: warehouse/templates/manage/organizations.html:241
 #: warehouse/templates/manage/project/publishing.html:85
-#: warehouse/templates/manage/project/publishing.html:97
-#: warehouse/templates/manage/project/publishing.html:109
+#: warehouse/templates/manage/project/publishing.html:100
+#: warehouse/templates/manage/project/publishing.html:115
 #: warehouse/templates/manage/project/roles.html:269
 #: warehouse/templates/manage/project/roles.html:280
 #: warehouse/templates/manage/project/roles.html:292
@@ -1229,21 +1225,13 @@ msgstr "忘记密码了？"
 #: warehouse/templates/re-auth.html:80
 #, python-format
 msgid ""
-"\n"
-"              <b>Tip:</b> you are about to perform a <a href=\"%(href)s"
-"\">sensitive action</a>.\n"
-"              If you are not on a personal computer, make sure to log out "
-"once you're done with your session.\n"
-"              We won't ask you to confirm your password again for the next "
-"hour.\n"
-"              "
+"<b>Tip:</b> you are about to perform a <a href=\"%(href)s\">sensitive "
+"action</a>. If you are not on a personal computer, make sure to log out once "
+"you're done with your session. We won't ask you to confirm your password "
+"again for the next hour."
 msgstr ""
-"\n"
-"              <b>提示：</b>你将要执行一个  <a href=\"%(href)s\">敏感的操作</"
-"a>。\n"
-"如果你不在个人电脑上，请确保在完成编辑后退出。\n"
-"你不需要在接下来的一个小时内再次输入密码。\n"
-"              "
+"<b>提示：</b>你将要执行一个<a href=\"%(href)s\">敏感的操作</a>。如果你不在个"
+"人电脑上，请确保在完成编辑后退出。你不需要在接下来的一个小时内再次输入密码。"
 
 #: warehouse/templates/upload.html:25
 msgid "This URL is an API endpoint for uploading files to PyPI."
@@ -1272,15 +1260,11 @@ msgstr "确认邀请"
 #: warehouse/templates/accounts/invite-confirmation.html:26
 #, python-format
 msgid ""
-"\n"
-"      Would you like to accept this invitation to join '<a href="
-"\"%(project_link)s\">%(project_name)s</a>' as a project %(role_name)s?\n"
-"      "
+"Would you like to accept this invitation to join '<a href=\"%(project_link)s"
+"\">%(project_name)s</a>' as a project %(role_name)s?"
 msgstr ""
-"\n"
-"      你想接受这个邀请作为项目的 %(role_name)s 加入 '<a href="
-"\"%(project_link)s\">%(project_name)s</a>' 吗?\n"
-"      "
+"你想接受这个邀请作为项目的 %(role_name)s 加入 '<a href=\"%(project_link)s\">"
+"%(project_name)s</a>' 吗?"
 
 #: warehouse/templates/accounts/invite-confirmation.html:32
 #: warehouse/templates/accounts/organization-invite-confirmation.html:32
@@ -1343,15 +1327,10 @@ msgstr "确认组织邀请"
 #: warehouse/templates/accounts/organization-invite-confirmation.html:26
 #, python-format
 msgid ""
-"\n"
-"      Would you like to accept this invitation to join "
-"'%(organization_name)s' as an organization %(role_name)s?\n"
-"      "
+"Would you like to accept this invitation to join '%(organization_name)s' as "
+"an organization %(role_name)s?"
 msgstr ""
-"\n"
-"      你想接受这份邀请加入 '%(organization_name)s'，任该组织的 %(role_name)s "
-"吗？\n"
-"      "
+"你想接受这份邀请加入 '%(organization_name)s'，任该组织的 %(role_name)s 吗？"
 
 #: warehouse/templates/accounts/profile.html:16
 #, python-format
@@ -1379,18 +1358,9 @@ msgstr "在 %(start_date)s 加入"
 
 #: warehouse/templates/accounts/profile.html:67
 #, python-format
-msgid ""
-"\n"
-"            %(count)s project\n"
-"          "
-msgid_plural ""
-"\n"
-"            %(count)s projects\n"
-"          "
-msgstr[0] ""
-"\n"
-"            %(count)s个项目\n"
-"          "
+msgid "%(count)s project"
+msgid_plural "%(count)s projects"
+msgstr[0] "%(count)s 个项目"
 
 #: warehouse/templates/accounts/profile.html:73
 msgid "No projects"
@@ -1644,6 +1614,8 @@ msgstr "你的 PyPI 帐户 <strong>%(username)s</strong> 已被删除。"
 #: warehouse/templates/email/account-deleted/body.html:20
 #: warehouse/templates/email/password-change/body.html:20
 #: warehouse/templates/email/primary-email-change/body.html:20
+#: warehouse/templates/email/recovery-code-used/body.html:25
+#: warehouse/templates/email/recovery-codes-generated/body.html:25
 #: warehouse/templates/email/two-factor-added/body.html:20
 #: warehouse/templates/email/two-factor-removed/body.html:20
 #, python-format
@@ -1845,21 +1817,14 @@ msgstr "当组织获得批准后，你将收到一封电子邮件"
 #: warehouse/templates/email/oidc-provider-added/body.html:19
 #, python-format
 msgid ""
-"\n"
-"  PyPI user <strong>%(username)s</strong> has added a new OpenID Connect\n"
-"  publisher to a project (<strong>%(project_name)s</strong>) that you "
-"manage.\n"
-"  OpenID Connect publishers act as trusted users and can create project "
-"releases\n"
-"  automatically.\n"
-"  "
+"PyPI user <strong>%(username)s</strong> has added a new OpenID Connect "
+"publisher to a project (<strong>%(project_name)s</strong>) that you manage. "
+"OpenID Connect publishers act as trusted users and can create project "
+"releases automatically."
 msgstr ""
-"\n"
-"  PyPI 用户 <strong>%(username)s</strong> 添加了新的 OpenID 连接\n"
-"  发布到你管理的项目 （<strong>%(project_name)s</strong>）。\n"
-"  OpenID Connect 发布者充当受信任的用户，可以创建项目版本\n"
-"  自然而然。\n"
-"  "
+"PyPI 用户 <strong>%(username)s</strong> 添加了新的 OpenID 连接发布到你管理的"
+"项目 （<strong>%(project_name)s</strong>）。OpenID Connect 发布者充当受信任的"
+"用户，可以自动创建项目版本。"
 
 #: warehouse/templates/email/oidc-provider-added/body.html:28
 #: warehouse/templates/email/oidc-provider-removed/body.html:26
@@ -1878,60 +1843,40 @@ msgstr "发布者规范"
 
 #: warehouse/templates/email/oidc-provider-added/body.html:36
 msgid ""
-"\n"
-"  If you did not make this change and you think it was made maliciously, you "
-"can\n"
-"  remove it from the project via the \"Publishing\" tab on the project's "
-"page.\n"
-"  "
+"If you did not make this change and you think it was made maliciously, you "
+"can remove it from the project via the \"Publishing\" tab on the project's "
+"page."
 msgstr ""
-"\n"
-"  如果你没有进行此更改，并且你认为这是恶意进行的，则可以\n"
-"  通过项目页面上的“发布”选项卡将其从项目中删除。\n"
-"  "
+"如果你没有进行此更改，并且你认为这是恶意进行的，则可以通过项目页面上的“发"
+"布”选项卡将其从项目中删除。"
 
 #: warehouse/templates/email/oidc-provider-added/body.html:43
 #: warehouse/templates/email/oidc-provider-removed/body.html:41
 #, python-format
 msgid ""
-"\n"
-"  If you are unable to revert the change and need to do so, you can email\n"
-"  <a href=\"%(href)s\">%(email_address)s</a> to communicate with the PyPI\n"
-"  administrators.\n"
-"  "
+"If you are unable to revert the change and need to do so, you can email <a "
+"href=\"%(href)s\">%(email_address)s</a> to communicate with the PyPI "
+"administrators."
 msgstr ""
-"\n"
-"  如果你无法恢复更改而需要这样做，你可以发电子邮件到\n"
-"  <a href=\"%(href)s\">%(email_address)s</a> 和 PyPI\n"
-"  管理员进行沟通。\n"
-"  "
+"如果你无法恢复更改而需要这样做，你可以发电子邮件到 <a href=\"%(href)s\">"
+"%(email_address)s</a> 和 PyPI 管理员进行沟通。"
 
 #: warehouse/templates/email/oidc-provider-removed/body.html:19
 #, python-format
 msgid ""
-"\n"
-"  PyPI user <strong>%(username)s</strong> has removed an OpenID Connect\n"
-"  publisher from a project (<strong>%(project_name)s</strong>) that you "
-"manage.\n"
-"  "
+"PyPI user <strong>%(username)s</strong> has removed an OpenID Connect "
+"publisher from a project (<strong>%(project_name)s</strong>) that you manage."
 msgstr ""
-"\n"
-"  PyPI 用户 <strong>%(username)s</strong> 已删除 OpenID 连接\n"
-"  来自你管理的项目 （<strong>%(project_name)s</strong>）的发布者。\n"
-"  "
+"PyPI 用户 <strong>%(username)s</strong> 已删除 OpenID 连接来自你管理的项目 "
+"（<strong>%(project_name)s</strong>）的发布者。"
 
 #: warehouse/templates/email/oidc-provider-removed/body.html:34
 msgid ""
-"\n"
-"  If you did not make this change and you think it was made maliciously, you "
-"can\n"
-"  check the \"Security history\" tab on the project's page.\n"
-"  "
+"If you did not make this change and you think it was made maliciously, you "
+"can check the \"Security history\" tab on the project's page."
 msgstr ""
-"\n"
-"  如果你没有进行此更改并且你认为它是恶意的，你可以\n"
-"  检查项目页面上的“安全历史记录”选项卡。\n"
-"  "
+"如果你没有进行此更改并且你认为它是恶意的，你可以检查项目页面上的“安全历史记"
+"录”选项卡。"
 
 #: warehouse/templates/email/organization-deleted/body.html:31
 #: warehouse/templates/email/organization-member-added/body.html:38
@@ -2131,25 +2076,20 @@ msgstr ""
 
 #: warehouse/templates/email/password-compromised/body.html:20
 msgid ""
-"PyPI administrators have determined that your password is compromised. To\n"
-"  protect you and other users, we have preemptively reset your password and "
-"you\n"
-"  will no longer be able to log in or upload to PyPI with your existing\n"
-"  password."
+"PyPI administrators have determined that your password is compromised. To "
+"protect you and other users, we have preemptively reset your password and "
+"you will no longer be able to log in or upload to PyPI with your existing "
+"password."
 msgstr ""
-"PyPI 管理员已确定你的密码已泄露。为了\n"
-"  保护你和其他用户，我们已重置了你的密码，你\n"
-"  将不能使用现有密码登录或\n"
-"上传文件到 PyPI 。"
+"PyPI 管理员已确定你的密码已泄露。为了保护你和其他用户，我们已重置了你的密码，"
+"你将不能使用现有密码登录或上传文件到 PyPI 。"
 
 #: warehouse/templates/email/password-compromised/body.html:26
 msgid ""
 "PyPI itself has not suffered a breach. This is a protective measure to "
-"reduce the\n"
-"  risk for PyPI and its users."
+"reduce the risk for PyPI and its users."
 msgstr ""
-"PyPI 本身并没有受到破坏。这是一种保护措施，以减少\n"
-"   PyPI 及其用户的风险。"
+"PyPI 本身并没有受到破坏。这是一种保护措施，以减少 PyPI 及其用户的风险。"
 
 #: warehouse/templates/email/password-compromised/body.html:33
 #, python-format
@@ -2167,38 +2107,33 @@ msgstr "如何联系你？"
 #: warehouse/templates/email/password-compromised/body.html:41
 #, python-format
 msgid ""
-"For more information, you can email %(email_address)s to communicate with\n"
-"  the PyPI administrators."
+"For more information, you can email %(email_address)s to communicate with "
+"the PyPI administrators."
 msgstr ""
-"有关详细信息，你可以向 %(email_address)s 发送电子邮件并\n"
-"  与 PyPI 管理员进行沟通。"
+"有关详细信息，你可以向 %(email_address)s 发送电子邮件并与 PyPI 管理员进行沟"
+"通。"
 
 #: warehouse/templates/email/password-compromised-hibp/body.html:20
 msgid ""
 "During your recent attempt to log in or upload to PyPI, we noticed your "
-"password appears\n"
-"  in public data breaches. To protect you and other users, we have "
-"preemptively reset your\n"
-"  password and you will no longer be able to log in or upload to PyPI with "
-"your existing\n"
-"  password."
+"password appears in public data breaches. To protect you and other users, we "
+"have preemptively reset your password and you will no longer be able to log "
+"in or upload to PyPI with your existing password."
 msgstr ""
-"在你最近尝试登录或上传到 PyPI 期间，我们注意到你的密码出现\n"
-"  在公共数据泄露中。为了保护你和其他用户，我们先发制人地重置了你的\n"
-"  密码，你将无法用现有密码进行登录或\n"
-"  上传文件到 PyPI 。"
+"在你最近尝试登录或上传到 PyPI 期间，我们注意到你的密码出现在公共数据泄露中。"
+"为了保护你和其他用户，我们先发制人地重置了你的密码，你将无法用现有密码进行登"
+"录或\n"
+"上传文件到 PyPI 。"
 
 #: warehouse/templates/email/password-compromised-hibp/body.html:26
 #, python-format
 msgid ""
 "PyPI itself has not suffered a breach. This is a protective measure to "
-"reduce the\n"
-"  risk of <a href=\"%(href)s\">credential stuffing</a>\n"
-"  attacks against PyPI and its users."
+"reduce the risk of <a href=\"%(href)s\">credential stuffing</a> attacks "
+"against PyPI and its users."
 msgstr ""
-"PyPI 本身并没有遭受破坏。 这是一种降低针对 PyPI 及\n"
-"  其用户的<a href=\"%(href)s\">凭据填充</a>\n"
-"  攻击风险的保护性措施。"
+"PyPI 本身并没有遭受破坏。 这是一种降低针对 PyPI 及其用户的<a href=\"%(href)s"
+"\">凭据填充</a>攻击风险的保护性措施。"
 
 #: warehouse/templates/email/password-compromised-hibp/body.html:34
 #, python-format
@@ -2280,72 +2215,42 @@ msgstr ""
 #: warehouse/templates/email/recovery-code-reminder/body.html:19
 #, python-format
 msgid ""
-"\n"
 "We noticed you recently logged into your PyPI account <strong>%(username)s</"
-"strong>, which has two-factor authentication enabled, but haven't generated\n"
-"recovery codes for this account.\n"
+"strong>, which has two-factor authentication enabled, but haven't generated "
+"recovery codes for this account."
 msgstr ""
-"\n"
 "我们注意到你最近登录了 PyPI 帐户 <strong>%(username)s</strong>，该帐户启用了"
-"双因素身份验证，但尚未生成\n"
-"此帐户的恢复代码。\n"
+"双因素身份验证，但尚未生成此帐户的恢复代码。"
 
 #: warehouse/templates/email/recovery-code-reminder/body.html:27
 msgid ""
-"\n"
 "If you lose your authentication application or security key(s) and do not "
-"have\n"
-"access to these recovery codes, you may permanently lose access to your "
-"PyPI\n"
-"account!\n"
+"have access to these recovery codes, you may permanently lose access to your "
+"PyPI account!"
 msgstr ""
-"\n"
-"如果你丢失了身份验证应用程序或安全密钥，并且无法\n"
-"访问这些恢复代码，则可能会永久性地失去对\n"
-"PyPI 帐户的访问权限！\n"
+"如果你丢失了身份验证应用程序或安全密钥，并且无法访问这些恢复代码，则可能会永"
+"久性地失去对 PyPI 帐户的访问权限！"
 
 #: warehouse/templates/email/recovery-code-reminder/body.html:35
 #, python-format
 msgid ""
-"\n"
-"You can generate recovery codes for your account here:\n"
-"<a href=\"%(href)s\">%(href)s</a>\n"
-msgstr ""
-"\n"
-"你可在此处生成帐户的恢复代码：\n"
-"<a href=\"%(href)s\">%(href)s</a>\n"
+"You can generate recovery codes for your account here: <a href=\"%(href)s\">"
+"%(href)s</a>"
+msgstr "你可在此处生成帐户的恢复代码：<a href=\"%(href)s\">%(href)s</a>"
 
 #: warehouse/templates/email/recovery-code-used/body.html:19
 #, python-format
 msgid ""
-"\n"
 "A recovery code for your PyPI account <strong>%(username)s</strong> has been "
-"used.\n"
-msgstr ""
-"\n"
-"你的 PyPI 帐户 <strong>%(username)s</strong> 的恢复代码已被使用。\n"
-
-#: warehouse/templates/email/recovery-code-used/body.html:25
-#: warehouse/templates/email/recovery-codes-generated/body.html:25
-#, python-format
-msgid ""
-"\n"
-"If you did not make this change, you can email <a href=\"%(href)s\">"
-"%(email_address)s</a> to communicate with the PyPI administrators.\n"
-msgstr ""
-"\n"
-"如果未进行此项更改，可以通过向 <a href=\"%(href)s\">%(email_address)s</a> 发"
-"送电子邮件的方式与 PyPI 管理员进行沟通。\n"
+"used."
+msgstr "你的 PyPI 帐户 <strong>%(username)s</strong> 的恢复代码已被使用。"
 
 #: warehouse/templates/email/recovery-codes-generated/body.html:19
 #, python-format
 msgid ""
-"\n"
 "New recovery codes for your PyPI account <strong>%(username)s</strong> have "
-"been generated.\n"
-msgstr ""
-"\n"
-"你的 PyPI 帐户 <strong>%(username)s</strong> 的新恢复代码已生成。\n"
+"been generated."
+msgstr "你的 PyPI 帐户 <strong>%(username)s</strong> 的新恢复代码已生成。"
 
 #: warehouse/templates/email/removed-as-organization-member/body.html:18
 #, python-format
@@ -3506,35 +3411,21 @@ msgstr "无法删除帐户"
 #: warehouse/templates/manage/account.html:690
 #, python-format
 msgid ""
-"\n"
-"          Your account is currently the <strong>sole owner</strong> of "
-"%(count)s project.\n"
-"        "
+"Your account is currently the <strong>sole owner</strong> of %(count)s "
+"project."
 msgid_plural ""
-"\n"
-"          Your account is currently the <strong>sole owner</strong> of "
-"%(count)s projects.\n"
-"        "
-msgstr[0] ""
-"\n"
-"          你当前是 %(count)s 个项目的<strong>唯一所有者</strong>。\n"
-"        "
+"Your account is currently the <strong>sole owner</strong> of %(count)s "
+"projects."
+msgstr[0] "你当前是 %(count)s 个项目的<strong>唯一所有者</strong>。"
 
 #: warehouse/templates/manage/account.html:695
 msgid ""
-"\n"
-"          You must transfer ownership or delete this project before you can "
-"delete your account.\n"
-"        "
+"You must transfer ownership or delete this project before you can delete "
+"your account."
 msgid_plural ""
-"\n"
-"          You must transfer ownership or delete these projects before you "
-"can delete your account.\n"
-"        "
-msgstr[0] ""
-"\n"
-"          在删除你的帐号前，你必须将这些项目转移给他人或删除。\n"
-"        "
+"You must transfer ownership or delete these projects before you can delete "
+"your account."
+msgstr[0] "在删除你的帐号前，你必须将这些项目转移给他人或删除。"
 
 #: warehouse/templates/manage/account.html:705
 #: warehouse/templates/manage/organization/settings.html:238
@@ -3662,130 +3553,73 @@ msgstr "设备名称"
 #: warehouse/templates/manage/manage_base.html:99
 #, python-format
 msgid ""
-"\n"
-"        <a href=\"%(href)s\">Verify your primary email address</a>\n"
-"        before adding additional two factor authentication methods to your "
-"account.\n"
-"        "
+"<a href=\"%(href)s\">Verify your primary email address</a> before adding "
+"additional two factor authentication methods to your account."
 msgstr ""
-"\n"
-"        <a href=\"%(href)s\">验证你的主邮件地址后</a>\n"
-"              再添加额外的双因素身份验证方法到你的你帐户。\n"
-"        "
+"<a href=\"%(href)s\">验证你的主邮件地址后</a>再添加额外的双因素身份验证方法到"
+"你的帐户。"
 
 #: warehouse/templates/manage/manage_base.html:104
 #, python-format
 msgid ""
-"\n"
-"        <a href=\"%(href)s\">Verify your primary email address</a>\n"
-"        before enabling two factor authentication on your account.\n"
-"        "
+"<a href=\"%(href)s\">Verify your primary email address</a> before enabling "
+"two factor authentication on your account."
 msgstr ""
-"\n"
-"        <a href=\"%(href)s\">验证你的主邮件地址后</a>\n"
-"        再启用你帐户的双因素身份验证。\n"
-"        "
+"<a href=\"%(href)s\">验证你的主邮件地址后</a>再启用你帐户的双因素身份验证。"
 
 #: warehouse/templates/manage/manage_base.html:115
 msgid ""
-"\n"
-"        You must generate and safely store recovery codes before adding "
-"additional two factor\n"
-"        authentication methods to your account.\n"
-"        "
+"You must generate and safely store recovery codes before adding additional "
+"two factor authentication methods to your account."
 msgstr ""
-"\n"
-"        你必须先生成并安全存储恢复代码，再 添加额外的双因素\n"
-"        身份验证方法到你的帐户。\n"
-"        "
+"你必须先生成并安全存储恢复代码，再 添加额外的双因素身份验证方法到你的帐户。"
 
 #: warehouse/templates/manage/manage_base.html:120
 msgid ""
-"\n"
-"        You must generate and safely store recovery codes before enabling "
-"two factor authentication on your account.\n"
-"        "
-msgstr ""
-"\n"
-"        你必须先生成并安全存储恢复代码，再启用你帐户的双因素认证。.\n"
-"        "
+"You must generate and safely store recovery codes before enabling two factor "
+"authentication on your account."
+msgstr "你必须先生成并安全存储恢复代码，再启用你帐户的双因素认证。"
 
 #: warehouse/templates/manage/manage_base.html:126
-msgid ""
-"\n"
-"        Generate recovery codes\n"
-"        "
-msgstr ""
-"\n"
-"        生成恢复代码\n"
-"        "
+msgid "Generate recovery codes"
+msgstr "重新生成恢复代码"
 
 #: warehouse/templates/manage/manage_base.html:135
 msgid ""
-"\n"
-"        Use a recovery code before adding additional two factor\n"
-"        authentication methods to your account.\n"
-"        "
-msgstr ""
-"\n"
-"        先使用恢复代码，再添加额外的双因素\n"
-"        身份验证方法到你的帐户。\n"
-"        "
+"Use a recovery code before adding additional two factor authentication "
+"methods to your account."
+msgstr "先使用恢复代码，再添加额外的双因素身份验证方法到你的帐户。"
 
 #: warehouse/templates/manage/manage_base.html:140
 msgid ""
-"\n"
-"        Use a recovery code before enabling two factor authentication on "
-"your account.\n"
-"        "
-msgstr ""
-"\n"
-"        使用恢复代码，再启用你帐户的双因素认证。.\n"
-"        "
+"Use a recovery code before enabling two factor authentication on your "
+"account."
+msgstr "使用恢复代码，再启用你帐户的双因素认证。"
 
+# | msgid "Error code"
+#: warehouse/templates/manage/account/recovery_codes-burn.html:17
 #: warehouse/templates/manage/manage_base.html:149
-msgid ""
-"\n"
-"        Use a recovery code\n"
-"        "
-msgstr ""
-"\n"
-"        使用恢复代码\n"
-"        "
+msgid "Use a recovery code"
+msgstr "使用恢复代码"
 
 #: warehouse/templates/manage/manage_base.html:160
-msgid ""
-"\n"
-"        You have not enabled two factor authentication on your account.\n"
-"        "
-msgstr ""
-"\n"
-"        你尚未启用你帐户的双因素认证。.\n"
-"        "
+msgid "You have not enabled two factor authentication on your account."
+msgstr "你尚未启用你帐户的双因素认证。"
 
 #: warehouse/templates/manage/manage_base.html:168
 msgid ""
-"\n"
-"        Add <abbr title=\"two factor authentication\">2FA</abbr> with "
-"authentication application\n"
-"        "
+"Add <abbr title=\"two factor authentication\">2FA</abbr> with authentication "
+"application"
 msgstr ""
-"\n"
-"        添加 <abbr title=\"two factor authentication\">双因素身份验证</"
-"abbr>，方法是使用身份验证应用程序\n"
-"        "
+"使用身份验证程序添加<abbr title=\"two factor authentication\">2FA</abbr>"
 
 #: warehouse/templates/manage/manage_base.html:173
 msgid ""
-"\n"
-"        Add <abbr title=\"two factor authentication\">2FA</abbr> with "
-"security device (e.g. USB key)\n"
-"        "
+"Add <abbr title=\"two factor authentication\">2FA</abbr> with security "
+"device (e.g. USB key)"
 msgstr ""
-"\n"
-"        添加 <abbr title=\"two factor authentication\">双因素身份验证</"
-"abbr> ，方法为安全设备（如，USB 安全密钥）\n"
-"        "
+"添加 <abbr title=\"two factor authentication\">双因素身份验证</abbr> ，方法为"
+"安全设备（如，USB 安全密钥）"
 
 #: warehouse/templates/manage/account/webauthn-provision.html:37
 #: warehouse/templates/manage/manage_base.html:180
@@ -4140,45 +3974,25 @@ msgstr ""
 "您尚未将任何项目上传到 PyPI。要了解如何开始使用，请访问 <a href=\"%(href)s\" "
 "target=\"_blank\" rel=\"noopener\">Python 打包用户指南</a>"
 
-# | msgid "Error code"
-#: warehouse/templates/manage/account/recovery_codes-burn.html:17
-msgid "Use a recovery code"
-msgstr "使用恢复代码"
-
 #: warehouse/templates/manage/account/recovery_codes-burn.html:34
 msgid ""
-"\n"
-"        In order to verify that you have safely stored your recovery codes "
-"for use in the event of a lost 2FA device, submit one of your recovery codes "
-"here.\n"
-"      "
+"In order to verify that you have safely stored your recovery codes for use "
+"in the event of a lost 2FA device, submit one of your recovery codes here."
 msgstr ""
-"\n"
-"        为了验证你是否已安全存储恢复码，以便在双重身份验证设备丢失时使用，请"
-"在此处提交一个恢复码。\n"
-"      "
+"为了验证你是否已安全存储恢复码，以便在双重身份验证设备丢失时使用，请在此处提"
+"交一个恢复码。"
 
 #: warehouse/templates/manage/account/recovery_codes-burn.html:39
 msgid ""
-"\n"
-"        The recovery code you choose will be considered used and no longer "
-"be available to bypass 2FA.\n"
-"      "
-msgstr ""
-"\n"
-"        你选择的恢复代码将被设为已使用，不再可用于双重身份验证\n"
-"      "
+"The recovery code you choose will be considered used and no longer be "
+"available to bypass 2FA."
+msgstr "你选择的恢复代码将被设为已使用，不再可用于双重身份验证。"
 
 #: warehouse/templates/manage/account/recovery_codes-burn.html:44
 msgid ""
-"\n"
-"      <strong>Forgot to safely store your recovery codes?</strong> You'll "
-"need to generate them again.\n"
-"      "
-msgstr ""
-"\n"
-"      <strong>你是否忘记了你的恢复码？</strong>你需要再次生成它们。\n"
-"      "
+"<strong>Forgot to safely store your recovery codes?</strong> You'll need to "
+"generate them again."
+msgstr "<strong>你是否忘记了你的恢复码？</strong>你需要再次生成它们。"
 
 #: warehouse/templates/manage/account/recovery_codes-provision.html:17
 msgid "Account recovery codes"
@@ -5062,34 +4876,18 @@ msgstr "无法删除组织"
 
 #: warehouse/templates/manage/organization/settings.html:223
 #, python-format
-msgid ""
-"\n"
-"          Your organization currently owns %(count)s project.\n"
-"        "
-msgid_plural ""
-"\n"
-"          Your organization currently owns %(count)s projects.\n"
-"        "
-msgstr[0] ""
-"\n"
-"          你的组织当前拥有 %(count)s 个项目。\n"
-"        "
+msgid "Your organization currently owns %(count)s project."
+msgid_plural "Your organization currently owns %(count)s projects."
+msgstr[0] "你的组织当前拥有 %(count)s 个项目。"
 
 #: warehouse/templates/manage/organization/settings.html:228
 msgid ""
-"\n"
-"          You must transfer ownership or delete this project before you can "
-"delete your organization.\n"
-"        "
+"You must transfer ownership or delete this project before you can delete "
+"your organization."
 msgid_plural ""
-"\n"
-"          You must transfer ownership or delete these projects before you "
-"can delete your organization.\n"
-"        "
-msgstr[0] ""
-"\n"
-"          你必须先转移所有权或删除这些项目，然后才能删除你的组织。\n"
-"        "
+"You must transfer ownership or delete these projects before you can delete "
+"your organization."
+msgstr[0] "你必须先转移所有权或删除这些项目，然后才能删除你的组织。"
 
 #: warehouse/templates/manage/organization/settings.html:250
 msgid "You will not be able to recover your organization after you delete it."
@@ -5105,19 +4903,11 @@ msgid "Manage '%(organization_name)s' teams"
 msgstr "管理 '%(organization_name)s'中的团队"
 
 #: warehouse/templates/manage/organization/teams.html:42
+#: warehouse/templates/manage/team/manage_team_base.html:73
 #, python-format
-msgid ""
-"\n"
-"            %(member_count)s member\n"
-"            "
-msgid_plural ""
-"\n"
-"            %(member_count)s members\n"
-"            "
-msgstr[0] ""
-"\n"
-"            %(member_count)s 名成员\n"
-"            "
+msgid "%(member_count)s member"
+msgid_plural "%(member_count)s members"
+msgstr[0] "%(member_count)s 名成员"
 
 #: warehouse/templates/manage/organization/teams.html:55
 msgid "Manage this team"
@@ -5391,46 +5181,58 @@ msgstr ""
 msgid "owner"
 msgstr "所有者"
 
-#: warehouse/templates/manage/project/publishing.html:95
+#: warehouse/templates/manage/project/publishing.html:90
+msgid "The organization name or username that owns the repository"
+msgstr "拥有存储库的组织名或用户名"
+
+#: warehouse/templates/manage/project/publishing.html:98
 msgid "Repository name"
 msgstr "存储库名称"
 
-#: warehouse/templates/manage/project/publishing.html:100
+#: warehouse/templates/manage/project/publishing.html:103
 msgid "repository"
 msgstr "存储库"
 
-#: warehouse/templates/manage/project/publishing.html:107
+#: warehouse/templates/manage/project/publishing.html:105
+msgid "The name of the repository that contains the publishing workflow"
+msgstr "包含发布工作流的存储库的名称"
+
+#: warehouse/templates/manage/project/publishing.html:113
 msgid "Workflow name"
 msgstr "工作流名称"
 
-#: warehouse/templates/manage/project/publishing.html:112
+#: warehouse/templates/manage/project/publishing.html:118
 msgid "workflow.yml"
 msgstr "workflow.yml"
 
-#: warehouse/templates/manage/project/publishing.html:118
+#: warehouse/templates/manage/project/publishing.html:120
+msgid "The filename of the publishing workflow"
+msgstr "发布工作流的文件名"
+
+#: warehouse/templates/manage/project/publishing.html:127
 #: warehouse/templates/manage/project/roles.html:316
 #: warehouse/templates/manage/team/roles.html:123
 msgid "Add"
 msgstr "添加"
 
-#: warehouse/templates/manage/project/publishing.html:122
+#: warehouse/templates/manage/project/publishing.html:131
 msgid "Manage current providers"
 msgstr "管理当前提供商"
 
-#: warehouse/templates/manage/project/publishing.html:126
+#: warehouse/templates/manage/project/publishing.html:135
 #, python-format
 msgid "OpenID Connect publishers associated with %(project_name)s"
 msgstr "与 %(project_name)s 关联的 OpenID Connect 发布者"
 
-#: warehouse/templates/manage/project/publishing.html:130
+#: warehouse/templates/manage/project/publishing.html:139
 msgid "Publisher"
 msgstr "发布者"
 
-#: warehouse/templates/manage/project/publishing.html:131
+#: warehouse/templates/manage/project/publishing.html:140
 msgid "Specification"
 msgstr "技术参数"
 
-#: warehouse/templates/manage/project/publishing.html:142
+#: warehouse/templates/manage/project/publishing.html:151
 msgid "No publishers are currently configured."
 msgstr "当前未配置任何发布者。"
 
@@ -5544,70 +5346,44 @@ msgstr "新版本"
 #: warehouse/templates/manage/project/release.html:148
 #, python-format
 msgid ""
-"\n"
-"          Yanking will mark this release (and %(count)s file within it) to "
-"be ignored when installing in most common scenarios.\n"
-"        "
+"Yanking will mark this release (and %(count)s file within it) to be ignored "
+"when installing in most common scenarios."
 msgid_plural ""
-"\n"
-"          Yanking will mark this release (and %(count)s files within it) to "
-"be ignored when installing in most common scenarios.\n"
-"        "
+"Yanking will mark this release (and %(count)s files within it) to be ignored "
+"when installing in most common scenarios."
 msgstr[0] ""
-"\n"
-"          Yanking 将会标记这个发布版本（和其内的%(count)s个文件）在最常见的安"
-"装时被忽略。\n"
-"        "
+"Yanking 将会标记这个发布版本（和其内的%(count)s个文件）在最常见的安装时被忽"
+"略。"
 
 #: warehouse/templates/manage/project/release.html:154
 msgid ""
-"\n"
-"          Yanking will mark this release to be ignored when installing in "
-"most common scenarios.\n"
-"        "
-msgstr ""
-"\n"
-"          当这个发布的程序在大多数正常环境中安装时，Yanking将会忽略这个发布"
-"项。\n"
-"        "
+"Yanking will mark this release to be ignored when installing in most common "
+"scenarios."
+msgstr "当这个发布的程序在大多数正常环境中安装时，Yanking将会忽略这个发布项。"
 
 #: warehouse/templates/manage/project/release.html:158
 #, python-format
 msgid ""
-"\n"
-"        This release will still be installable for users pinning to this "
-"exact version, e.g. when using <code>%(project_name)s==%(version)s</code>.\n"
-"      "
+"This release will still be installable for users pinning to this exact "
+"version, e.g. when using <code>%(project_name)s==%(version)s</code>."
 msgstr ""
-"\n"
-"        这个版本仍然可以安装到这个确切的版本的用户，例如，当使用<code>"
-"%(project_name)s==%(version)s</code>。\n"
-"      "
+"这个版本仍然可以安装到这个确切的版本的用户，例如，当使用<code>"
+"%(project_name)s==%(version)s</code>。"
 
 #: warehouse/templates/manage/project/release.html:161
 #, python-format
-msgid ""
-"\n"
-"        For more information, see <a href=\"%(href)s\">PEP 592</a>.\n"
-"      "
-msgstr ""
-"\n"
-"        获取更多信息，请查看<a href=\"%(href)s\">PEP 592</a>。\n"
-"      "
+msgid "For more information, see <a href=\"%(href)s\">PEP 592</a>."
+msgstr "获取更多信息，请查看<a href=\"%(href)s\">PEP 592</a>。"
 
 #: warehouse/templates/manage/project/release.html:168
+#: warehouse/templates/manage/project/releases.html:126
 #, python-format
 msgid ""
-"\n"
-"            You may provide a reason for yanking this release, which will be "
-"displayed by pip to users who install <code>%(project_name)s==%(version)s</"
-"code>.\n"
-"          "
+"You may provide a reason for yanking this release, which will be displayed "
+"by pip to users who install <code>%(project_name)s==%(version)s</code>."
 msgstr ""
-"\n"
-"            你可以提供一个取消该发布版本的原因，它将会在pip安装<code>"
-"%(project_name)s==%(version)s</code>时显示给用户。\n"
-"          "
+"你可以提供一个取消该发布版本的原因，它将会在pip安装<code>%(project_name)s=="
+"%(version)s</code>时显示给用户。"
 
 #: warehouse/templates/manage/project/release.html:172
 #: warehouse/templates/manage/project/releases.html:130
@@ -5632,19 +5408,10 @@ msgstr "删除版本"
 #: warehouse/templates/manage/project/release.html:184
 #, python-format
 msgid ""
-"\n"
-"        Deleting will irreversibly delete this release along with %(count)s "
-"file.\n"
-"      "
+"Deleting will irreversibly delete this release along with %(count)s file."
 msgid_plural ""
-"\n"
-"        Deleting will irreversibly delete this release along with %(count)s "
-"files.\n"
-"      "
-msgstr[0] ""
-"\n"
-"        删除将不可撤消地删除此发行版以及 %(count)s 个文件。\n"
-"      "
+"Deleting will irreversibly delete this release along with %(count)s files."
+msgstr[0] "删除将不可撤消地删除此发行版以及 %(count)s 个文件。"
 
 #: warehouse/templates/manage/project/release.html:190
 msgid "Deleting will irreversibly delete this release."
@@ -5704,18 +5471,9 @@ msgstr "管理版本"
 
 #: warehouse/templates/manage/project/releases.html:44
 #, python-format
-msgid ""
-"\n"
-"          %(count)s file\n"
-"        "
-msgid_plural ""
-"\n"
-"          %(count)s files\n"
-"        "
-msgstr[0] ""
-"\n"
-"          %(count)s 个文件\n"
-"        "
+msgid "%(count)s file"
+msgid_plural "%(count)s files"
+msgstr[0] "%(count)s 个文件"
 
 #: warehouse/templates/manage/project/releases.html:57
 msgid "No files"
@@ -5745,20 +5503,6 @@ msgstr "撤销"
 #: warehouse/templates/manage/project/releases.html:119
 msgid "Un-yank release"
 msgstr "取消释放"
-
-#: warehouse/templates/manage/project/releases.html:126
-#, python-format
-msgid ""
-"\n"
-"              You may provide a reason for yanking this release, which will "
-"be displayed by pip to users who install <code>%(project_name)s=="
-"%(version)s</code>.\n"
-"            "
-msgstr ""
-"\n"
-"              你可以提供一个中止这个版本的理由，这个理由将由pip显示给安装"
-"<code>%(project_name)s==%(version)s</code>的用户。\n"
-"            "
 
 #: warehouse/templates/manage/project/releases.html:140
 #, python-format
@@ -5923,12 +5667,8 @@ msgstr "项目规模："
 #: warehouse/templates/manage/project/settings.html:31
 #: warehouse/templates/manage/project/settings.html:39
 #, python-format
-msgid ""
-"\n"
-"    <a href=\"%(help_url)s\"> (request an increase) </a>"
-msgstr ""
-"\n"
-"    去<a href=\"%(help_url)s\">重置你的密码</a>"
+msgid "<a href=\"%(help_url)s\"> (request an increase) </a>"
+msgstr "去<a href=\"%(help_url)s\">重置你的密码</a>"
 
 #: warehouse/templates/manage/project/settings.html:48
 #, python-format
@@ -6187,21 +5927,6 @@ msgstr "管理 '%(team_name)s'"
 msgid "Back to teams"
 msgstr "返回团队"
 
-#: warehouse/templates/manage/team/manage_team_base.html:73
-#, python-format
-msgid ""
-"\n"
-"              %(member_count)s member\n"
-"              "
-msgid_plural ""
-"\n"
-"              %(member_count)s members\n"
-"              "
-msgstr[0] ""
-"\n"
-"              %(member_count)s 名成员\n"
-"              "
-
 #: warehouse/templates/manage/team/projects.html:17
 msgid "Team projects"
 msgstr "团队项目"
@@ -6423,18 +6148,9 @@ msgstr ""
 "</a> 的更多信息。"
 
 #: warehouse/templates/packaging/detail.html:352
-msgid ""
-"\n"
-"                Source Distribution\n"
-"              "
-msgid_plural ""
-"\n"
-"                Source Distributions\n"
-"              "
-msgstr[0] ""
-"\n"
-"                源代码分发\n"
-"              "
+msgid "Source Distribution"
+msgid_plural "Source Distributions"
+msgstr[0] "源分发"
 
 #: warehouse/templates/packaging/detail.html:368
 msgid "No source distribution files available for this release."
@@ -6450,18 +6166,9 @@ msgstr ""
 "\">生成分发文件</a>的教程。"
 
 #: warehouse/templates/packaging/detail.html:376
-msgid ""
-"\n"
-"                Built Distribution\n"
-"              "
-msgid_plural ""
-"\n"
-"                Built Distributions\n"
-"              "
-msgstr[0] ""
-"\n"
-"                构建版分发\n"
-"              "
+msgid "Built Distribution"
+msgid_plural "Built Distributions"
+msgstr[0] "构建分发"
 
 #: warehouse/templates/pages/classifiers.html:22
 msgid ""
@@ -6821,39 +6528,31 @@ msgstr "关于"
 #: warehouse/templates/pages/help.html:203
 #, python-format
 msgid ""
-"\n"
-"          <p>We use a number of terms to describe software available on "
-"PyPI, like \"project\", \"release\", \"file\", and \"package\". Sometimes "
-"those terms are confusing because they're used to describe different things "
-"in other contexts. Here's how we use them on PyPI:</p>\n"
-"          <p>A \"project\" on PyPI is the name of a collection of releases "
-"and files, and information about them. Projects on PyPI are made and shared "
-"by other members of the Python community so that you can use them.</p>\n"
-"          <p>A \"release\" on PyPI is a specific version of a project. For "
-"example, the <a href=\"%(requests_href)s\">requests</a> project has many "
-"releases, like \"requests 2.10\" and \"requests 1.2.1\". A release consists "
-"of one or more \"files\".</p>\n"
-"          <p>A \"file\", also known as a \"package\", on PyPI is something "
-"that you can download and install. Because of different hardware, operating "
-"systems, and file formats, a release may have several files (packages), like "
-"an archive containing source code or a binary <a href=\"%(wheel_href)s"
-"\">wheel</a>.</p>\n"
-"        "
+"<p>We use a number of terms to describe software available on PyPI, like "
+"\"project\", \"release\", \"file\", and \"package\". Sometimes those terms "
+"are confusing because they're used to describe different things in other "
+"contexts. Here's how we use them on PyPI:</p> <p>A \"project\" on PyPI is "
+"the name of a collection of releases and files, and information about them. "
+"Projects on PyPI are made and shared by other members of the Python "
+"community so that you can use them.</p> <p>A \"release\" on PyPI is a "
+"specific version of a project. For example, the <a href=\"%(requests_href)s"
+"\">requests</a> project has many releases, like \"requests 2.10\" and "
+"\"requests 1.2.1\". A release consists of one or more \"files\".</p> <p>A "
+"\"file\", also known as a \"package\", on PyPI is something that you can "
+"download and install. Because of different hardware, operating systems, and "
+"file formats, a release may have several files (packages), like an archive "
+"containing source code or a binary <a href=\"%(wheel_href)s\">wheel</a>.</p>"
 msgstr ""
-"\n"
-"          <p>我们使用许多术语来描述PyPI上可用的软件，比如“project”（程"
-"序）、“release”（发布）、“file”（文件）和“package”（包）。有时这些术语会让人"
-"困惑，因为它们被用于在其他上下文中描述不同的事物。下面是我们如何在PyPI上使用"
-"它们：</p>\n"
-"          <p>PyPI上的“项目”是发布和文件的集合的名称，以及有关它们的信息。PyPI"
-"上的项目由Python社区的其他成员创建和共享，以便你可以使用它们。</p>\n"
-"          <p>PyPI上的“发行版”是项目的特定版本。例如，<a href="
-"\"%(requests_href)s\">requests</a>项目有许多版本，如“requests "
-"2.10”和“requests 1.2.1”。发行版由一个或多个“文件”组成。</p>\n"
-"          <p>PyPI上的“文件”（也称为“包”）可以下载和安装。由于不同的硬件、操作"
-"系统和文件格式，一个版本可能有多个文件（包），像包含源代码或一个二进制的<a "
-"href=\"%(wheel_href)s\">wheel</a>文件。</p>\n"
-"        "
+"<p> 我们使用许多术语来描述 PyPI 上可用的软件，比如“project”（项"
+"目）、“release”（发行版）、“file”（文件）和“package”（包）。有时这些术语会让"
+"人困惑，因为它们在其他上下文中被用于描述不同的事物。下面是我们如何在 PyPI 上"
+"使用它们的：</p> <p> PyPI上的“项目”是发布和文件的集合的名称，以及有关它们的信"
+"息。PyPI 上的项目由 Python 社区的其他成员创建和共享，以便你可以使用它们。</"
+"p> </p>PyPI 上的“发行版”是项目的特定版本。例如，<a href=\"%(requests_href)s"
+"\">requests </a>项目有许多版本，如“requests 2.10”和“requests 1.2.1”。发行版由"
+"一个或多个“文件”组成。</p> </p>PyPI 上的“文件”（也称为“包”）可以下载和安装。"
+"由于不同的硬件、操作系统和文件格式，一个发行版可以有多个文件（包），像包含源"
+"代码或一个二进制的<a href=\"%(wheel_href)s\">wheel</a>。</p>"
 
 #: warehouse/templates/pages/help.html:212
 #, python-format
@@ -7264,25 +6963,17 @@ msgstr "按照以下步骤操作："
 
 #: warehouse/templates/pages/help.html:412
 msgid ""
-"\n"
-"          <li>Log in to your PyPI account, go to your account settings, and "
-"choose \"Add <abbr title=\"two factor authentication\">2FA</abbr> with "
-"security device (e.g. USB key)\"</li>\n"
-"          <li>Give your key a name. This is necessary because it's possible "
-"to add more than one security device to your account.</li>\n"
-"          <li>Click on the \"Set up security device\" button</li>\n"
-"          <li>Insert and touch your USB key, as instructed by your browser</"
-"li>\n"
-"          "
+"<li>Log in to your PyPI account, go to your account settings, and choose "
+"\"Add <abbr title=\"two factor authentication\">2FA</abbr> with security "
+"device (e.g. USB key)\"</li> <li>Give your key a name. This is necessary "
+"because it's possible to add more than one security device to your account.</"
+"li> <li>Click on the \"Set up security device\" button</li> <li>Insert and "
+"touch your USB key, as instructed by your browser</li>"
 msgstr ""
-"\n"
-"          <li>登录到你的PyPI帐户，转到你的帐户设置，然后选择“使用安全设备（如"
-"USB密钥）添加<abbr title=\"two factor authentication\">2FA</abbr>”</li>\n"
-"          <li>给你的钥匙起个名字。这是必要的，因为可以向你的帐户添加多个安全"
-"设备。</li>\n"
-"          <li>点击“设置安全设备”按钮</li>\n"
-"          <li>按照浏览器的指示插入并加载USB密钥</li>\n"
-"          "
+"<li>登录到你的PyPI帐户，转到你的帐户设置，然后选择“添加 <abbr title=\"two "
+"factor authentication\">2FA</abbr>，借助于安全设备（如USB密钥）”</li> </li>给"
+"你的钥匙起个名字。这是必要的，因为可以向你的帐户添加多个安全设备。</li> </li>"
+"点击“设置安全设备”按钮</li> <li>按照浏览器的指示插入并触碰USB密钥</li>"
 
 #: warehouse/templates/pages/help.html:419
 msgid ""
@@ -7292,16 +6983,11 @@ msgstr "完成后，你的USB密钥将注册到你的PyPI帐户，并可在登�
 
 #: warehouse/templates/pages/help.html:423
 msgid ""
-"\n"
-"          <li>Provide your username and password, as normal</li>\n"
-"          <li>Insert and touch your USB key to finish logging into PyPI</"
-"li>\n"
-"          "
+"<li>Provide your username and password, as normal</li> <li>Insert and touch "
+"your USB key to finish logging into PyPI</li>"
 msgstr ""
-"\n"
-"          <li>正常情况下，请提供你的用户名和密码</li>\n"
-"          <li>插入并加载你的USB密钥以完成登录到PyPI</li>\n"
-"          "
+"<li>正常情况下，请提供你的用户名和密码</li> <li>插入并加载你的USB密钥以完成登"
+"录到PyPI</li>"
 
 #: warehouse/templates/pages/help.html:434
 #, python-format
@@ -7435,27 +7121,18 @@ msgstr ""
 # | "        "
 #: warehouse/templates/pages/help.html:481
 msgid ""
-"\n"
-"          <p>API tokens provide an alternative way (instead of username and "
-"password) to authenticate when <strong>uploading packages</strong> to PyPI.</"
-"p>\n"
-"          <p>You can create a token for an entire PyPI account, in which "
-"case, the token will work for all projects associated with that account. "
-"Alternatively, you can limit a token's scope to a specific project.</p>\n"
-"          <p><strong>We strongly recommend you authenticate with an API "
-"token where possible.</strong></p>\n"
-"\n"
-"        "
+"<p>API tokens provide an alternative way (instead of username and password) "
+"to authenticate when <strong>uploading packages</strong> to PyPI.</p> <p>You "
+"can create a token for an entire PyPI account, in which case, the token will "
+"work for all projects associated with that account. Alternatively, you can "
+"limit a token's scope to a specific project.</p> <p><strong>We strongly "
+"recommend you authenticate with an API token where possible.</strong></p>"
 msgstr ""
-"\n"
-"          <p>API令牌提供了一种在<strong>将包上载</strong>到PyPI时进行身份验证"
-"的替代方法（而不是用户名和密码）。</p>\n"
-"          <p>你可以为整个PyPI帐户创建一个令牌，在这种情况下，该令牌将适用于与"
-"该帐户关联的所有项目。或者，可以将令牌的范围限制为特定项目。</p>\n"
-"          <p><strong>我们强烈建议你尽可能使用API令牌进行身份验证。</strong></"
-"p>\n"
-"\n"
-"        "
+"<p>API令牌提供了一种在<strong>将包上载</strong>到PyPI时进行身份验证的替代方法"
+"（而不是用户名和密码）。</p> <p>你可以为整个PyPI帐户创建一个令牌，在这种情况"
+"下，该令牌将适用于与该帐户关联的所有项目。或者，可以将令牌的范围限制为特定项"
+"目。</p> <p><strong>我们强烈建议你尽可能使用API令牌进行身份验证。</strong></"
+"p>"
 
 #: warehouse/templates/pages/help.html:488
 msgid "To make an API token:"
@@ -7517,25 +7194,18 @@ msgstr ""
 
 #: warehouse/templates/pages/help.html:511
 msgid ""
-"\n"
-"          <p>PyPI asks you to confirm your password before you want to "
-"perform a <i>sensitive action</i>. Sensitive actions include things like "
-"adding or removing maintainers, deleting distributions, generating API "
-"tokens, and setting up two-factor authentication.</p>\n"
-"          <p>You'll only have to re-confirm your password if it's been more "
-"than an hour since you last confirmed it.</p>\n"
-"          <p><strong>We strongly recommend you only perform such actions on "
-"your personal, password-protected computer.</strong></p>\n"
-"        "
+"<p>PyPI asks you to confirm your password before you want to perform a "
+"<i>sensitive action</i>. Sensitive actions include things like adding or "
+"removing maintainers, deleting distributions, generating API tokens, and "
+"setting up two-factor authentication.</p> <p>You'll only have to re-confirm "
+"your password if it's been more than an hour since you last confirmed it.</"
+"p> <p><strong>We strongly recommend you only perform such actions on your "
+"personal, password-protected computer.</strong></p>"
 msgstr ""
-"\n"
-"          <p>PyPI 请求你确认你的密码，在你想执行一项 <i>敏感操作</i>前。敏感"
-"操作包括添加或删除维护者、删除分发、生成 API 令牌、及设置双因素验证。</p>\n"
-"          <p>如果距离你上次确认密码的时间已经超过一个小时，你需要重新确认密"
-"码。</p>\n"
-"          <p><strong>我们强烈建议你只在你的个人、有密码保护的计算机上执行这些"
-"操作。</strong></p>\n"
-"        "
+"<p>PyPI 请求你确认你的密码，在你想执行一项 <i>敏感操作</i>前。敏感操作包括添"
+"加或删除维护者、删除分发、生成 API 令牌、及设置双因素验证。</p> <p>如果距离你"
+"上次确认密码的时间已经超过一个小时，你需要重新确认密码。</p> <p><strong>我们"
+"强烈建议你只在你的个人、有密码保护的计算机上执行这些操作。</strong></p>"
 
 #: warehouse/templates/pages/help.html:518
 msgid "PyPI does not currently support changing a username."
@@ -7954,20 +7624,14 @@ msgstr ""
 
 #: warehouse/templates/pages/help.html:680
 msgid ""
-"\n"
-"            If you're using Windows and trying to paste your password or "
-"token in the Command Prompt or PowerShell, note that Ctrl-V and Shift+Insert "
-"won't work.\n"
-"            Instead, you can use \"Edit > Paste\" from the window menu, or "
-"enable \"Use Ctrl+Shift+C/V as Copy/Paste\" in \"Properties\".\n"
-"          "
+"If you're using Windows and trying to paste your password or token in the "
+"Command Prompt or PowerShell, note that Ctrl-V and Shift+Insert won't work. "
+"Instead, you can use \"Edit > Paste\" from the window menu, or enable \"Use "
+"Ctrl+Shift+C/V as Copy/Paste\" in \"Properties\"."
 msgstr ""
-"\n"
-"            如果你在使用Windows，并试图在命令提示符或PowerShell中粘贴你的密码"
-"或令牌, 注意Ctrl-V和Shift+Insert无法正常工作。\n"
-"            相反，你可以在窗口菜单中使用“编辑>粘贴”，或者在“属性”中启用“使用"
-"Ctrl+Shift+C/V作为复制/粘贴”。\n"
-"          "
+"如果你在使用Windows，并试图在命令提示符或PowerShell中粘贴你的密码或令牌, 注意"
+"Ctrl-V和Shift+Insert无法正常工作。相反，你可以在窗口菜单中使用“编辑>粘贴”，或"
+"者在“属性”中启用“使用Ctrl+Shift+C/V作为复制/粘贴”。"
 
 #: warehouse/templates/pages/help.html:684
 #, python-format
@@ -8920,18 +8584,9 @@ msgstr "使用OSI许可证的“图形”相关项目"
 
 #: warehouse/templates/search/results.html:150
 #, python-format
-msgid ""
-"\n"
-"              <strong>%(count_display)s</strong> project\n"
-"              "
-msgid_plural ""
-"\n"
-"              <strong>%(count_display)s</strong> projects\n"
-"              "
-msgstr[0] ""
-"\n"
-"              <strong>%(count_display)s</strong> 个项目\n"
-"              "
+msgid "<strong>%(count_display)s</strong> project"
+msgid_plural "<strong>%(count_display)s</strong> projects"
+msgstr[0] "<strong>%(count_display)s</strong> 个项目"
 
 #: warehouse/templates/search/results.html:157
 #, python-format
@@ -8939,18 +8594,9 @@ msgid "for \"%(term)s\""
 msgstr "匹配“%(term)s”"
 
 #: warehouse/templates/search/results.html:161
-msgid ""
-"\n"
-"                  with the selected classifier\n"
-"                "
-msgid_plural ""
-"\n"
-"                  with the selected classifiers\n"
-"                "
-msgstr[0] ""
-"\n"
-"                  使用了选定的筛选器\n"
-"                "
+msgid "with the selected classifier"
+msgid_plural "with the selected classifiers"
+msgstr[0] "使用了选定的筛选器"
 
 #: warehouse/templates/search/results.html:177
 msgid "Order by"
@@ -8983,18 +8629,157 @@ msgstr "“%(term)s”没有结果"
 
 #: warehouse/templates/search/results.html:223
 #, python-format
-msgid ""
-"\n"
-"                  There were no results for '%(filters)s' filter\n"
-"                "
-msgid_plural ""
-"\n"
-"                  There were no results for '%(filters)s' filters\n"
-"                "
-msgstr[0] ""
-"\n"
-"                  “%(filters)s”过滤器没有结果\n"
-"                "
+msgid "There were no results for '%(filters)s' filter"
+msgid_plural "There were no results for '%(filters)s' filters"
+msgstr[0] "“%(filters)s”筛选器没有结果"
+
+#, python-format
+#~ msgid ""
+#~ "\n"
+#~ "            %(count)s project\n"
+#~ "          "
+#~ msgid_plural ""
+#~ "\n"
+#~ "            %(count)s projects\n"
+#~ "          "
+#~ msgstr[0] ""
+#~ "\n"
+#~ "            %(count)s个项目\n"
+#~ "          "
+
+#, python-format
+#~ msgid ""
+#~ "\n"
+#~ "If you did not make this change, you can email <a href=\"%(href)s\">"
+#~ "%(email_address)s</a> to communicate with the PyPI administrators.\n"
+#~ msgstr ""
+#~ "\n"
+#~ "如果未进行此项更改，可以通过向 <a href=\"%(href)s\">%(email_address)s</a> "
+#~ "发送电子邮件的方式与 PyPI 管理员进行沟通。\n"
+
+#~ msgid ""
+#~ "\n"
+#~ "        Generate recovery codes\n"
+#~ "        "
+#~ msgstr ""
+#~ "\n"
+#~ "        生成恢复代码\n"
+#~ "        "
+
+#~ msgid ""
+#~ "\n"
+#~ "        Use a recovery code\n"
+#~ "        "
+#~ msgstr ""
+#~ "\n"
+#~ "        使用恢复代码\n"
+#~ "        "
+
+#~ msgid ""
+#~ "\n"
+#~ "        Add <abbr title=\"two factor authentication\">2FA</abbr> with "
+#~ "authentication application\n"
+#~ "        "
+#~ msgstr ""
+#~ "\n"
+#~ "        添加 <abbr title=\"two factor authentication\">双因素身份验证</"
+#~ "abbr>，方法是使用身份验证应用程序\n"
+#~ "        "
+
+#, python-format
+#~ msgid ""
+#~ "\n"
+#~ "            %(member_count)s member\n"
+#~ "            "
+#~ msgid_plural ""
+#~ "\n"
+#~ "            %(member_count)s members\n"
+#~ "            "
+#~ msgstr[0] ""
+#~ "\n"
+#~ "            %(member_count)s 名成员\n"
+#~ "            "
+
+#, python-format
+#~ msgid ""
+#~ "\n"
+#~ "          %(count)s file\n"
+#~ "        "
+#~ msgid_plural ""
+#~ "\n"
+#~ "          %(count)s files\n"
+#~ "        "
+#~ msgstr[0] ""
+#~ "\n"
+#~ "          %(count)s 个文件\n"
+#~ "        "
+
+#, python-format
+#~ msgid ""
+#~ "\n"
+#~ "              You may provide a reason for yanking this release, which "
+#~ "will be displayed by pip to users who install <code>%(project_name)s=="
+#~ "%(version)s</code>.\n"
+#~ "            "
+#~ msgstr ""
+#~ "\n"
+#~ "              你可以提供一个中止这个版本的理由，这个理由将由pip显示给安装"
+#~ "<code>%(project_name)s==%(version)s</code>的用户。\n"
+#~ "            "
+
+#, python-format
+#~ msgid ""
+#~ "\n"
+#~ "              %(member_count)s member\n"
+#~ "              "
+#~ msgid_plural ""
+#~ "\n"
+#~ "              %(member_count)s members\n"
+#~ "              "
+#~ msgstr[0] ""
+#~ "\n"
+#~ "              %(member_count)s 名成员\n"
+#~ "              "
+
+#~ msgid ""
+#~ "\n"
+#~ "                Source Distribution\n"
+#~ "              "
+#~ msgid_plural ""
+#~ "\n"
+#~ "                Source Distributions\n"
+#~ "              "
+#~ msgstr[0] ""
+#~ "\n"
+#~ "                源代码分发\n"
+#~ "              "
+
+#~ msgid ""
+#~ "\n"
+#~ "                Built Distribution\n"
+#~ "              "
+#~ msgid_plural ""
+#~ "\n"
+#~ "                Built Distributions\n"
+#~ "              "
+#~ msgstr[0] ""
+#~ "\n"
+#~ "                构建版分发\n"
+#~ "              "
+
+#, python-format
+#~ msgid ""
+#~ "\n"
+#~ "                  There were no results for '%(filters)s' filter\n"
+#~ "                "
+#~ msgid_plural ""
+#~ "\n"
+#~ "                  There were no results for '%(filters)s' filters\n"
+#~ "                "
+#~ msgstr[0] ""
+#~ "\n"
+#~ "                  “%(filters)s”过滤器没有结果\n"
+#~ "                "
 
 #, python-format
 #~ msgid "Release version %(version)s yanked"
@@ -9128,9 +8913,6 @@ msgstr[0] ""
 
 #~ msgid "Invalid credentials. Try again"
 #~ msgstr "无效凭据。再试一次"
-
-#~ msgid "Generate recovery codes"
-#~ msgstr "重新生成恢复代码"
 
 #, python-format
 #~ msgid "Files for %(project_name)s, version %(version)s"
@@ -9495,9 +9277,6 @@ msgstr[0] ""
 
 #~ msgid "User's username"
 #~ msgstr "用户的用户名"
-
-#~ msgid "%(num_projects)s projects"
-#~ msgstr "%(num_projects)s 个项目"
 
 #~ msgid "%(num_releases)s releases"
 #~ msgstr "%(num_releases)s  个版本"
