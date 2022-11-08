@@ -64,7 +64,9 @@ class TestBasicAuthSecurityPolicy:
         monkeypatch.setattr(security_policy, "add_vary_callback", add_vary_cb)
 
         request = pretend.stub(
-            add_response_callback=pretend.call_recorder(lambda cb: None)
+            add_response_callback=pretend.call_recorder(lambda cb: None),
+            banned=pretend.stub(by_ip=lambda ip_address: False),
+            remote_addr="1.2.3.4",
         )
 
         assert policy.identity(request) is None
@@ -91,7 +93,9 @@ class TestBasicAuthSecurityPolicy:
         monkeypatch.setattr(security_policy, "add_vary_callback", add_vary_cb)
 
         request = pretend.stub(
-            add_response_callback=pretend.call_recorder(lambda cb: None)
+            add_response_callback=pretend.call_recorder(lambda cb: None),
+            banned=pretend.stub(by_ip=lambda ip_address: False),
+            remote_addr="1.2.3.4",
         )
 
         assert policy.identity(request) is None
@@ -103,8 +107,16 @@ class TestBasicAuthSecurityPolicy:
     @pytest.mark.parametrize(
         "fake_request",
         [
-            pretend.stub(matched_route=None),
-            pretend.stub(matched_route=pretend.stub(name="an.invalid.route")),
+            pretend.stub(
+                matched_route=None,
+                banned=pretend.stub(by_ip=lambda ip_address: False),
+                remote_addr="1.2.3.4",
+            ),
+            pretend.stub(
+                matched_route=pretend.stub(name="an.invalid.route"),
+                banned=pretend.stub(by_ip=lambda ip_address: False),
+                remote_addr="1.2.3.4",
+            ),
         ],
     )
     def test_invalid_request_fail(self, monkeypatch, fake_request):
@@ -145,6 +157,8 @@ class TestBasicAuthSecurityPolicy:
         request = pretend.stub(
             add_response_callback=pretend.call_recorder(lambda cb: None),
             find_service=pretend.call_recorder(lambda a, **kw: user_service),
+            banned=pretend.stub(by_ip=lambda ip_address: False),
+            remote_addr="1.2.3.4",
         )
 
         assert policy.identity(request) is user
@@ -214,6 +228,8 @@ class TestSessionSecurityPolicy:
         request = pretend.stub(
             add_response_callback=pretend.call_recorder(lambda cb: None),
             matched_route=None,
+            banned=pretend.stub(by_ip=lambda ip_address: False),
+            remote_addr="1.2.3.4",
         )
 
         assert policy.identity(request) is None
@@ -239,6 +255,8 @@ class TestSessionSecurityPolicy:
         request = pretend.stub(
             add_response_callback=pretend.call_recorder(lambda cb: None),
             matched_route=pretend.stub(name="forklift.legacy.file_upload"),
+            banned=pretend.stub(by_ip=lambda ip_address: False),
+            remote_addr="1.2.3.4",
         )
 
         assert policy.identity(request) is None
@@ -266,6 +284,8 @@ class TestSessionSecurityPolicy:
         request = pretend.stub(
             add_response_callback=pretend.call_recorder(lambda cb: None),
             matched_route=pretend.stub(name="a.permitted.route"),
+            banned=pretend.stub(by_ip=lambda ip_address: False),
+            remote_addr="1.2.3.4",
         )
 
         assert policy.identity(request) is None
@@ -297,6 +317,8 @@ class TestSessionSecurityPolicy:
             add_response_callback=pretend.call_recorder(lambda cb: None),
             matched_route=pretend.stub(name="a.permitted.route"),
             find_service=pretend.call_recorder(lambda i, **kw: user_service),
+            banned=pretend.stub(by_ip=lambda ip_address: False),
+            remote_addr="1.2.3.4",
         )
 
         assert policy.identity(request) is None
@@ -340,6 +362,8 @@ class TestSessionSecurityPolicy:
                 invalidate=pretend.call_recorder(lambda: None),
                 flash=pretend.call_recorder(lambda *a, **kw: None),
             ),
+            banned=pretend.stub(by_ip=lambda ip_address: False),
+            remote_addr="1.2.3.4",
         )
 
         assert policy.identity(request) is None
@@ -387,6 +411,8 @@ class TestSessionSecurityPolicy:
             session=pretend.stub(
                 password_outdated=pretend.call_recorder(lambda ts: False)
             ),
+            banned=pretend.stub(by_ip=lambda ip_address: False),
+            remote_addr="1.2.3.4",
         )
 
         assert policy.identity(request) is user

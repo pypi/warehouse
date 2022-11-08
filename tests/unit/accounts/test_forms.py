@@ -71,7 +71,12 @@ class TestLoginForm:
         assert user_service.find_userid.calls == [pretend.call("my_username")]
 
     def test_validate_password_no_user(self):
-        request = pretend.stub()
+        request = pretend.stub(
+            remote_addr="1.2.3.4",
+            banned=pretend.stub(
+                by_ip=lambda ip_address: False,
+            ),
+        )
         user_service = pretend.stub(
             find_userid=pretend.call_recorder(lambda userid: None)
         )
@@ -115,7 +120,12 @@ class TestLoginForm:
         assert user_service.is_disabled.calls == [pretend.call(1)]
 
     def test_validate_password_ok(self):
-        request = pretend.stub(remote_addr="1.2.3.4")
+        request = pretend.stub(
+            remote_addr="1.2.3.4",
+            banned=pretend.stub(
+                by_ip=lambda ip_address: False,
+            ),
+        )
         user_service = pretend.stub(
             find_userid=pretend.call_recorder(lambda userid: 1),
             check_password=pretend.call_recorder(
@@ -150,7 +160,12 @@ class TestLoginForm:
         ]
 
     def test_validate_password_notok(self, db_session):
-        request = pretend.stub(remote_addr="127.0.0.1")
+        request = pretend.stub(
+            remote_addr="1.2.3.4",
+            banned=pretend.stub(
+                by_ip=lambda ip_address: False,
+            ),
+        )
         user_service = pretend.stub(
             find_userid=pretend.call_recorder(lambda userid: 1),
             check_password=pretend.call_recorder(
@@ -186,7 +201,12 @@ class TestLoginForm:
         ]
 
     def test_validate_password_too_many_failed(self):
-        request = pretend.stub(remote_addr="1.2.3.4")
+        request = pretend.stub(
+            remote_addr="1.2.3.4",
+            banned=pretend.stub(
+                by_ip=lambda ip_address: False,
+            ),
+        )
         user_service = pretend.stub(
             find_userid=pretend.call_recorder(lambda userid: 1),
             check_password=pretend.call_recorder(
@@ -218,7 +238,12 @@ class TestLoginForm:
         monkeypatch.setattr(forms, "send_password_compromised_email_hibp", send_email)
 
         user = pretend.stub(id=1)
-        request = pretend.stub(remote_addr="1.2.3.4")
+        request = pretend.stub(
+            remote_addr="1.2.3.4",
+            banned=pretend.stub(
+                by_ip=lambda ip_address: False,
+            ),
+        )
         user_service = pretend.stub(
             find_userid=lambda _: 1,
             get_user=lambda _: user,

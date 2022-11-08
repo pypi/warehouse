@@ -13,15 +13,26 @@
 from sqlalchemy import Column, DateTime, ForeignKey, Index, String, orm, sql
 from sqlalchemy.dialects.postgresql import JSONB, UUID
 from sqlalchemy.ext.declarative import AbstractConcreteBase, declared_attr
+from sqlalchemy.ext.hybrid import hybrid_property
+from sqlalchemy.orm.exc import NoResultFound
 
 from warehouse import db
+from warehouse.ip_addresses.models import IpAddress
 
 
 class Event(AbstractConcreteBase):
     tag = Column(String, nullable=False)
     time = Column(DateTime, nullable=False, server_default=sql.func.now())
-    ip_address = Column(String, nullable=False)
+    ip_address_string = Column(String, nullable=True)
     additional = Column(JSONB, nullable=True)
+
+    @declared_attr
+    def ip_address_id(cls):  # noqa: N805
+        return Column(
+            UUID(as_uuid=True),
+            ForeignKey("ip_addresses.id", onupdate="CASCADE", ondelete="CASCADE"),
+            nullable=True,
+        )
 
     @declared_attr
     def __tablename__(cls):  # noqa: N805
@@ -55,6 +66,30 @@ class Event(AbstractConcreteBase):
     def source(cls):  # noqa: N805
         return orm.relationship(cls._parent_class, back_populates="events")
 
+    @declared_attr
+    def ip_address_obj(cls):  # noqa: N805
+        return orm.relationship(IpAddress)
+
+    @hybrid_property
+    def ip_address(cls):  # noqa: N805
+        if cls.ip_address_obj is not None:
+            return cls.ip_address_obj
+        return cls.ip_address_string
+
+    @ip_address.setter  # type: ignore ref: https://github.com/python/mypy/issues/11008
+    def ip_address(cls, value):  # noqa: N805
+        session = orm.object_session(cls)
+
+        cls.ip_address_string = value
+        try:
+            _ip_address = (
+                session.query(IpAddress).filter(IpAddress.ip_address == value).one()
+            )
+        except NoResultFound:
+            _ip_address = IpAddress(ip_address=value)
+            session.add(_ip_address)
+        cls.ip_address_obj = _ip_address
+
     def __init_subclass__(cls, /, parent_class, **kwargs):
         cls._parent_class = parent_class
         return cls
@@ -80,7 +115,10 @@ class HasEvents:
     def record_event(self, *, tag, ip_address, additional=None):
         session = orm.object_session(self)
         event = self.Event(
-            source=self, tag=tag, ip_address=ip_address, additional=additional
+            source=self,
+            tag=tag,
+            ip_address=ip_address,
+            additional=additional,
         )
         session.add(event)
         session.flush()
