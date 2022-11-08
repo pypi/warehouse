@@ -150,11 +150,6 @@ class PasswordMixin:
         super().__init__(*args, **kwargs)
 
     def validate_password(self, field):
-        if self.request.banned.by_ip(self.request.remote_addr):
-            raise wtforms.validators.ValidationError(
-                _("The password is invalid. Try again.")
-            )
-
         userid = self.user_service.find_userid(self.username.data)
         if userid is not None:
             try:
@@ -314,6 +309,12 @@ class LoginForm(PasswordMixin, UsernameMixin, forms.Form):
         self.breach_service = breach_service
 
     def validate_password(self, field):
+        # Before we try to validate anything, we'll first check to see if the IP is banned
+        if self.request.banned.by_ip(self.request.remote_addr):
+            raise wtforms.validators.ValidationError(
+                _("The password is invalid. Try again.")
+            )
+
         # Before we try to validate the user's password, we'll first to check to see if
         # they are disabled.
         userid = self.user_service.find_userid(self.username.data)
