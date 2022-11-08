@@ -171,6 +171,45 @@ class TestBasicAuthSecurityPolicy:
         assert add_vary_cb.calls == [pretend.call("Authorization")]
         assert request.add_response_callback.calls == [pretend.call(vary_cb)]
 
+    def test_identityi_ip_banned(self, monkeypatch):
+        creds = (pretend.stub(), pretend.stub())
+        extract_http_basic_credentials = pretend.call_recorder(lambda request: creds)
+        monkeypatch.setattr(
+            security_policy,
+            "extract_http_basic_credentials",
+            extract_http_basic_credentials,
+        )
+
+        basic_auth_check = pretend.call_recorder(lambda u, p, r: True)
+        monkeypatch.setattr(security_policy, "_basic_auth_check", basic_auth_check)
+
+        policy = security_policy.BasicAuthSecurityPolicy()
+
+        vary_cb = pretend.stub()
+        add_vary_cb = pretend.call_recorder(lambda *v: vary_cb)
+        monkeypatch.setattr(security_policy, "add_vary_callback", add_vary_cb)
+
+        user = pretend.stub()
+        user_service = pretend.stub(
+            get_user_by_username=pretend.call_recorder(lambda u: user)
+        )
+        request = pretend.stub(
+            add_response_callback=pretend.call_recorder(lambda cb: None),
+            find_service=pretend.call_recorder(lambda a, **kw: user_service),
+            banned=pretend.stub(by_ip=lambda ip_address: True),
+            remote_addr="1.2.3.4",
+        )
+
+        assert policy.identity(request) is None
+        assert request.authentication_method == AuthenticationMethod.BASIC_AUTH
+        assert extract_http_basic_credentials.calls == []
+        assert basic_auth_check.calls == []
+        assert request.find_service.calls == []
+        assert user_service.get_user_by_username.calls == []
+
+        assert add_vary_cb.calls == [pretend.call("Authorization")]
+        assert request.add_response_callback.calls == [pretend.call(vary_cb)]
+
 
 class TestSessionSecurityPolicy:
     def test_verify(self):
@@ -423,6 +462,51 @@ class TestSessionSecurityPolicy:
         assert request.session.password_outdated.calls == [pretend.call(timestamp)]
         assert user_service.get_password_timestamp.calls == [pretend.call(userid)]
         assert user_service.get_user.calls == [pretend.call(userid)]
+
+        assert add_vary_cb.calls == [pretend.call("Cookie")]
+        assert request.add_response_callback.calls == [pretend.call(vary_cb)]
+
+    def test_identity_ip_banned(self, monkeypatch):
+        userid = pretend.stub()
+        session_helper_obj = pretend.stub(
+            authenticated_userid=pretend.call_recorder(lambda r: userid)
+        )
+        session_helper_cls = pretend.call_recorder(lambda: session_helper_obj)
+        monkeypatch.setattr(
+            security_policy, "SessionAuthenticationHelper", session_helper_cls
+        )
+
+        policy = security_policy.SessionSecurityPolicy()
+
+        vary_cb = pretend.stub()
+        add_vary_cb = pretend.call_recorder(lambda *v: vary_cb)
+        monkeypatch.setattr(security_policy, "add_vary_callback", add_vary_cb)
+
+        user = pretend.stub()
+        timestamp = pretend.stub()
+        user_service = pretend.stub(
+            get_user=pretend.call_recorder(lambda uid: user),
+            get_password_timestamp=pretend.call_recorder(lambda uid: timestamp),
+        )
+        request = pretend.stub(
+            add_response_callback=pretend.call_recorder(lambda cb: None),
+            matched_route=pretend.stub(name="a.permitted.route"),
+            find_service=pretend.call_recorder(lambda i, **kw: user_service),
+            session=pretend.stub(
+                password_outdated=pretend.call_recorder(lambda ts: False)
+            ),
+            banned=pretend.stub(by_ip=lambda ip_address: True),
+            remote_addr="1.2.3.4",
+        )
+
+        assert policy.identity(request) is None
+        assert request.authentication_method == AuthenticationMethod.SESSION
+        assert session_helper_obj.authenticated_userid.calls == []
+        assert session_helper_cls.calls == [pretend.call()]
+        assert request.find_service.calls == []
+        assert request.session.password_outdated.calls == []
+        assert user_service.get_password_timestamp.calls == []
+        assert user_service.get_user.calls == []
 
         assert add_vary_cb.calls == [pretend.call("Cookie")]
         assert request.add_response_callback.calls == [pretend.call(vary_cb)]
