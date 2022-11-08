@@ -309,7 +309,7 @@ class LoginForm(PasswordMixin, UsernameMixin, forms.Form):
         self.breach_service = breach_service
 
     def validate_password(self, field):
-        # Before we try to validate anything, we'll first check to see if the IP is banned
+        # Before we try to validate anything, first check to see if the IP is banned
         if self.request.banned.by_ip(self.request.remote_addr):
             raise wtforms.validators.ValidationError(
                 _("The password is invalid. Try again.")

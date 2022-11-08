@@ -10,8 +10,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import enum
-
 from ...common.db.ip_addresses import IpAddressFactory
 
 
