@@ -76,7 +76,8 @@ class Event(AbstractConcreteBase):
             return cls.ip_address_obj
         return cls.ip_address_string
 
-    @ip_address.setter  # type: ignore ref: https://github.com/python/mypy/issues/11008
+    # ref: https://github.com/python/mypy/issues/11008
+    @ip_address.setter  # type: ignore
     def ip_address(cls, value):  # noqa: N805
         session = orm.object_session(cls)
 
