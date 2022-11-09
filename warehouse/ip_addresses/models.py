@@ -12,6 +12,7 @@
 import enum
 
 from sqlalchemy import Boolean, Column, DateTime, Enum, Index, String, sql
+from sqlalchemy.dialects.postgresql import INET
 
 from warehouse import db
 
@@ -28,7 +29,7 @@ class IpAddress(db.Model):
     def __repr__(self):
         return self.ip_address
 
-    ip_address = Column(String, nullable=False, unique=True)
+    ip_address = Column(INET, nullable=False, unique=True)
     is_banned = Column(Boolean, nullable=False, server_default=sql.false())
     ban_reason = Column(
         Enum(BanReason, values_callable=lambda x: [e.value for e in x]),

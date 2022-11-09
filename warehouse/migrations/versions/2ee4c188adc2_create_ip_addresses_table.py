@@ -35,7 +35,7 @@ def upgrade():
             server_default=sa.text("gen_random_uuid()"),
             nullable=False,
         ),
-        sa.Column("ip_address", sa.String(), nullable=False),
+        sa.Column("ip_address", postgresql.INET, nullable=False),
         sa.Column(
             "is_banned", sa.Boolean(), server_default=sa.text("false"), nullable=False
         ),
