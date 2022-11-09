@@ -265,7 +265,7 @@ def test_mint_token_from_oidc_ok(monkeypatch):
     assert macaroon_service.create_macaroon.calls == [
         pretend.call(
             "fakedomain",
-            "OpenID token: fakespecifier (0)",
+            "OpenID token: https://fake/url (0)",
             [
                 caveats.OIDCProvider(oidc_provider_id="fakeproviderid"),
                 caveats.ProjectID(project_ids=["fakeprojectid"]),

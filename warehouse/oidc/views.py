@@ -108,7 +108,7 @@ def mint_token_from_oidc(request):
     expires_at = not_before + 900
     serialized, dm = macaroon_service.create_macaroon(
         request.domain,
-        f"OpenID token: {provider} ({not_before})",
+        f"OpenID token: {provider.provider_url} ({not_before})",
         [
             caveats.OIDCProvider(oidc_provider_id=str(provider.id)),
             caveats.ProjectID(project_ids=[str(p.id) for p in provider.projects]),
