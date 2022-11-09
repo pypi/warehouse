@@ -10,9 +10,13 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 import enum
+import ipaddress
 
-from sqlalchemy import Boolean, Column, DateTime, Enum, Index, String, sql
+import sentry_sdk
+
+from sqlalchemy import Boolean, Column, DateTime, Enum, Index, sql
 from sqlalchemy.dialects.postgresql import INET
+from sqlalchemy.orm import validates
 
 from warehouse import db
 
@@ -36,3 +40,14 @@ class IpAddress(db.Model):
         nullable=True,
     )
     ban_date = Column(DateTime, nullable=True)
+
+    @validates("ip_address")
+    def validate_ip_address(self, key, ip_address):
+        # Check to see if the ip_address is valid
+        try:
+            _ = ipaddress.ip_address(ip_address)
+        except ValueError as e:
+            sentry_sdk.capture_message(f"Attempted to store invalid ip_address: {e}")
+            # If not, transform it into an IP in the range reserved for documentation
+            return "192.0.2.69"  # https://datatracker.ietf.org/doc/html/rfc5737
+        return ip_address

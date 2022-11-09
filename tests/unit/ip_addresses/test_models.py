@@ -18,3 +18,7 @@ class TestIpAddress:
         ip_address = DBIpAddressFactory(ip_address="1.2.3.4")
         assert isinstance(repr(ip_address), str)
         assert repr(ip_address) == "1.2.3.4"
+
+    def test_invalid_transformed(self, db_request):
+        ip_address = DBIpAddressFactory(ip_address="wutang")
+        assert repr(ip_address) == "192.0.2.69"
