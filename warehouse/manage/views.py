@@ -120,6 +120,7 @@ from warehouse.manage.forms import (
     DeleteWebAuthnForm,
     ProvisionTOTPForm,
     ProvisionWebAuthnForm,
+    ReserveProjectForm,
     SaveAccountForm,
     SaveOrganizationForm,
     SaveOrganizationNameForm,
@@ -2852,52 +2853,77 @@ def manage_team_history(team, request):
     }
 
 
-@view_config(
+@view_defaults(
     route_name="manage.projects",
     renderer="manage/projects.html",
     uses_session=True,
     permission="manage:user",
     has_translations=True,
+    require_csrf=True,
+    require_methods=False,
 )
-def manage_projects(request):
-    def _key(project):
-        if project.releases:
-            return project.releases[0].created
-        return project.created
+class ManageProjectsViews:
+    def __init__(self, request):
+        self.request = request
 
-    projects = set(request.user.projects)
+    @property
+    def default_response(self):
+        def _key(project):
+            if project.releases:
+                return project.releases[0].created
+            return project.created
 
-    all_user_projects = user_projects(request)
-    projects |= set(all_user_projects["projects_owned"])
-    projects_owned = set(
-        project.name for project in all_user_projects["projects_owned"]
-    )
-    projects_sole_owned = set(
-        project.name for project in all_user_projects["projects_sole_owned"]
-    )
-    projects_requiring_2fa = set(
-        project.name for project in all_user_projects["projects_requiring_2fa"]
-    )
+        projects = set(self.request.user.projects)
 
-    for team in request.user.teams:
-        projects |= set(team.projects)
+        all_user_projects = user_projects(self.request)
+        projects |= set(all_user_projects["projects_owned"])
+        projects_owned = set(
+            project.name for project in all_user_projects["projects_owned"]
+        )
+        projects_sole_owned = set(
+            project.name for project in all_user_projects["projects_sole_owned"]
+        )
+        projects_requiring_2fa = set(
+            project.name for project in all_user_projects["projects_requiring_2fa"]
+        )
 
-    project_invites = (
-        request.db.query(RoleInvitation)
-        .filter(RoleInvitation.invite_status == RoleInvitationStatus.Pending)
-        .filter(RoleInvitation.user == request.user)
-        .all()
-    )
-    project_invites = [
-        (role_invite.project, role_invite.token) for role_invite in project_invites
-    ]
-    return {
-        "projects": sorted(projects, key=_key, reverse=True),
-        "projects_owned": projects_owned,
-        "projects_sole_owned": projects_sole_owned,
-        "projects_requiring_2fa": projects_requiring_2fa,
-        "project_invites": project_invites,
-    }
+        for team in self.request.user.teams:
+            projects |= set(team.projects)
+
+        project_invites = (
+            self.request.db.query(RoleInvitation)
+            .filter(RoleInvitation.invite_status == RoleInvitationStatus.Pending)
+            .filter(RoleInvitation.user == self.request.user)
+            .all()
+        )
+        project_invites = [
+            (role_invite.project, role_invite.token) for role_invite in project_invites
+        ]
+
+        return {
+            "projects": sorted(projects, key=_key, reverse=True),
+            "projects_owned": projects_owned,
+            "projects_sole_owned": projects_sole_owned,
+            "projects_requiring_2fa": projects_requiring_2fa,
+            "project_invites": project_invites,
+            "can_reserve_projects": self.request.user.can_reserve_projects,
+            "reserve_project_form": ReserveProjectForm(),
+        }
+
+    @view_config(request_method="GET")
+    def manage_project_settings(self):
+        return self.default_response
+
+    @view_config(request_method="POST", request_param=ReserveProjectForm.__params__)
+    def reserve_project(self):
+        form = ReserveProjectForm(self.request.POST)
+
+        if not form.validate():
+            return {**self.default_response, "reserve_project_form": form}
+
+        # TODO: Actually reserve the project here.
+
+        return self.default_response
 
 
 @view_defaults(

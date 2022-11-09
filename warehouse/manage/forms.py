@@ -33,7 +33,7 @@ from warehouse.organizations.models import (
     TeamProjectRoleType,
 )
 
-# /manage/account/ forms
+# /manage/account/ and /manage/projects/ forms
 
 
 class RoleNameMixin:
@@ -673,3 +673,24 @@ class SaveTeamForm(forms.Form):
 class CreateTeamForm(SaveTeamForm):
 
     __params__ = SaveTeamForm.__params__
+
+
+class ReserveProjectForm(forms.Form):
+    __params__ = ["project_name"]
+
+    project_name = wtforms.StringField(
+        validators=[
+            wtforms.validators.DataRequired(message="Specify project name."),
+            # This regexp must match the CheckConstraint for the
+            # name field in packaging.models.Project.
+            wtforms.validators.Regexp(
+                r"^([A-Z0-9]|[A-Z0-9][A-Z0-9._-]*[A-Z0-9])$",
+                flags=re.IGNORECASE,
+                message=_(
+                    "The project name is invalid. Valid project names "
+                    "start and end with an alphanumeric character, and may "
+                    "contain periods, underscores, and hyphens."
+                ),
+            ),
+        ]
+    )

@@ -62,6 +62,30 @@
     {% trans %}Your projects{% endtrans %}
     <span class="badge badge--neutral">{{ projects|length }}</span>
   </h1>
+  {% if can_reserve_projects %}
+  <div class="callout-block">
+    <p>
+      {% trans %}Your account is capable of reserving project names.{% endtrans %}
+      <a href="">{% trans %}Learn more about project reservations here.{% endtrans %}</a>
+    </p>
+    <form method="POST">
+      <input type="hidden" name="csrf_token" value="{{ request.session.get_csrf_token() }}">
+      <div class="form-group">
+        {{
+            reserve_project_form.project_name(
+              placeholder=gettext("Project name"),
+              class_="form-group__field",
+              **{"aria-describedby":"project_name-errors"}
+            )
+        }}
+        <div id="project_name-errors">
+          {{ field_errors(reserve_project_form.project_name) }}
+        </div>
+      </div>
+      <input type="submit" value="{% trans %}Reserve{% endtrans%}" class="button button--primary">
+    </form>
+  </div>
+  {% endif %}
   <div class="package-list">
     {% set user_has_two_factor = request.user.has_two_factor %}
     {% for project in projects %}
