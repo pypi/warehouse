@@ -42,6 +42,9 @@ from warehouse.utils.otp import TOTP_LENGTH
 # Taken from passlib
 MAX_PASSWORD_SIZE = 4096
 
+# Common messages, set as constants to keep them from drifting.
+INVALID_PASSWORD_MESSAGE = _("The password is invalid. Try again.")
+
 
 class UsernameMixin:
 
@@ -163,9 +166,7 @@ class PasswordMixin:
                         tag=f"account:{self.action}:failure",
                         additional={"reason": "invalid_password"},
                     )
-                    raise wtforms.validators.ValidationError(
-                        _("The password is invalid. Try again.")
-                    )
+                    raise wtforms.validators.ValidationError(INVALID_PASSWORD_MESSAGE)
             except TooManyFailedLogins:
                 raise wtforms.validators.ValidationError(
                     _(
@@ -311,9 +312,7 @@ class LoginForm(PasswordMixin, UsernameMixin, forms.Form):
     def validate_password(self, field):
         # Before we try to validate anything, first check to see if the IP is banned
         if self.request.banned.by_ip(self.request.remote_addr):
-            raise wtforms.validators.ValidationError(
-                _("The password is invalid. Try again.")
-            )
+            raise wtforms.validators.ValidationError(INVALID_PASSWORD_MESSAGE)
 
         # Before we try to validate the user's password, we'll first to check to see if
         # they are disabled.
