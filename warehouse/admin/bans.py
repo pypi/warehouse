@@ -21,9 +21,9 @@ class Bans:
         banned = (
             self.request.db.query(IpAddress)
             .filter_by(ip_address=ip_address, is_banned=True)
-            .first()
+            .one_or_none()
         )
-        return True if banned else False
+        return True if banned is not None else False
 
 
 def includeme(config):
