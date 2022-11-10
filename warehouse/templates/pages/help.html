@@ -89,6 +89,7 @@
 {% macro file_name_reuse() %}{% trans %}Why am I getting a "Filename or contents already exists" or "Filename has been previously used" error?{% endtrans %}{% endmacro %}
 {% macro project_name() %}{% trans %}Why isn't my desired project name available?{% endtrans %}{% endmacro %}
 {% macro project_name_claim() %}{% trans %}How do I claim an abandoned or previously registered project name?{% endtrans %}{% endmacro %}
+{% macro project_name_reservation() %}{% trans %}How do I reserve a project name for future use?{% endtrans %}{% endmacro %}
 {% macro collaborator_roles() %}{% trans %}What collaborator roles are available for a project on PyPI?{% endtrans %}{% endmacro %}
 {% macro request_ownership() %}{% trans %}How do I become an owner/maintainer of a project on PyPI?{% endtrans %}{% endmacro %}
 {% macro description_content_type() %}{% trans %}How can I upload a project description in a different format?{% endtrans %}{% endmacro %}
@@ -156,6 +157,7 @@
           <li><a href="#private-indices">{{ private_indices() }}</a></li>
           <li><a href="#project-name">{{ project_name() }}</a></li>
           <li><a href="#project-name-claim">{{ project_name_claim() }}</a></li>
+          <li><a href="#project-name-reservation">{{ project_name_reservation() }}</a></li>
           <li><a href="#collaborator-roles">{{ collaborator_roles() }}</a></li>
           <li><a href="#request-ownership">{{ request_ownership() }}</a></li>
           <li><a href="#description-content-type">{{ description_content_type() }}</a></li>
@@ -564,6 +566,36 @@
 
         <h3 id="project-name-claim">{{ project_name_claim() }}</h3>
         <p>{% trans href='https://www.python.org/dev/peps/pep-0541/#how-to-request-a-name-transfer', title=gettext('External link') %}Follow the <a href="{{ href }}" title="{{ title }}" target="_blank" rel="noopener">"How to request a name transfer"</a> section of <abbr title="Python enhancement proposal">PEP</abbr> 541.{% endtrans %}</p>
+
+        <h3 id="project-name-reservation">{{ project_name_reservation() }}</h3>
+        <p>
+          {% trans %}
+          PyPI allows eligible users to temporarily reserve project names.
+          The eligibility requirements are:
+          {% endtrans %}
+        </p>
+        <ul>
+          <li>{% trans %}You account must have a verified primary email.{% endtrans %}</li>
+          <li>{% trans %}Your account must be at least 90 days old.{% endtrans %}</li>
+          <li>{% trans %}You must have two factor authentication (2FA) enabled.{% endtrans %}</li>
+          <li>{% trans %}You do not currently have another active project reservation.{% endtrans %}</li>
+        </ul>
+        <p>
+          {% trans %}
+          Temporary project reservations last for 24 hours, during which time you can make
+          the reservation permanent by uploading a release to the project. If you do not
+          upload a release within 24 hours, the reservation is invalidated and the project name
+          is released for anyone else to use.
+          {% endtrans %}
+        </p>
+        <p>
+          {% trans %}
+          Any API tokens created on a reserved project remain valid, so long as the reservation
+          is not invalidated. This means that you can use reservations to simplify your
+          use of PyPI API tokens, as you no longer need to manually upload a release
+          of the project (or use a user-scoped token) to enable the project's scope.
+          {% endtrans %}
+        </p>
 
         <h3 id="collaborator-roles">{{ collaborator_roles() }}</h3>
         <p>{% trans %}There are two possible roles for collaborators:{% endtrans %}</p>

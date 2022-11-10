@@ -195,6 +195,10 @@ class User(SitemapMixin, HasEvents, db.Model):
             #  * Must have 2FA enabled
             #  * Must be at least 90 days old
             #  * Must not already have a project name reserved
+            # TODO(ww): Checking for an already reserved project should
+            # probably go in form validation instead, so that we can present
+            # a more reasonable error message to the user (rather than hiding
+            # project reservation entirely).
             has_already_reserved_project = any(p.is_reserved for p in self.projects)
             ninety_days_ago = datetime.datetime.now() - datetime.timedelta(days=90)
             return (

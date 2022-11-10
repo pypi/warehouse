@@ -66,7 +66,7 @@
   <div class="callout-block">
     <p>
       {% trans %}Your account is capable of reserving project names.{% endtrans %}
-      <a href="">{% trans %}Learn more about project reservations here.{% endtrans %}</a>
+      <a href="{{ request.help_url(_anchor='project-name-reservation') }}">{% trans %}Learn more about project reservations here.{% endtrans %}</a>
     </p>
     <form method="POST">
       <input type="hidden" name="csrf_token" value="{{ request.session.get_csrf_token() }}">
@@ -95,9 +95,9 @@
         <div>
           <h3 class="package-snippet__title">{{ project.name }}
             {% if project.is_reserved %}
-            <span class="badge badge--neutral" title="{% trans %}This project is temporarily reserved{% endtrans %}">
+            <a href="{{ request.help_url(_anchor='project-name-reservation') }}" class="badge badge--neutral" title="{% trans %}This project is temporarily reserved{% endtrans %}">
               Reserved
-            </span>
+            </a>
             {% elif project.organization %}
             <a href="{{ request.route_path('manage.organization.projects', organization_name=project.organization.normalized_name) }}" class="badge">
               <i class="fa fa-sitemap" aria-hidden="true"></i>{{ project.organization.name }}

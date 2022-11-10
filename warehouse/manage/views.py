@@ -2917,6 +2917,12 @@ class ManageProjectsViews:
 
     @view_config(request_method="POST", request_param=ReserveProjectForm.__params__)
     def reserve_project(self):
+        if not self.request.user.can_reserve_projects:
+            self.request.session.flash(
+                "Your account is not permitted to reserve projects", queue="error"
+            )
+            return self.default_response
+
         form = ReserveProjectForm(self.request.POST, request=self.request)
 
         if not form.validate():
