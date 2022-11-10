@@ -10,6 +10,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import datetime
 import enum
 
 from collections import OrderedDict
@@ -193,6 +194,7 @@ class Project(SitemapMixin, TwoFactorRequireable, HasEvents, db.Model):
     last_serial = Column(Integer, nullable=False, server_default=sql.text("0"))
     zscore = Column(Float, nullable=True)
     total_size = Column(BigInteger, server_default=sql.text("0"))
+    reserved_until = Column(DateTime, nullable=True)
 
     organization = orm.relationship(
         Organization,
@@ -343,6 +345,18 @@ class Project(SitemapMixin, TwoFactorRequireable, HasEvents, db.Model):
             .filter(Release.project == self, Release.yanked.is_(False))
             .order_by(Release.is_prerelease.nullslast(), Release._pypi_ordering.desc())
             .first()
+        )
+
+    @property
+    def is_reserved(self):
+        # We consider a project reserved if it has an active reservation timestamp
+        # *and* has no had any releases added to it. Once releases are added to
+        # a project it is no longer considered reserved, even if the reservation
+        # hasn't expired.
+        return (
+            self.reserved_until is not None
+            and self.reserved_until > datetime.datetime.now()
+            and len(self.releases) == 0
         )
 
 

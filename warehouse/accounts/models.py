@@ -186,17 +186,16 @@ class User(SitemapMixin, HasEvents, db.Model):
 
     @property
     def can_reserve_projects(self) -> bool:
-        # Special users (superusers, moderators, PSF staff) can always reserve projects;
-        # ordinary users can reserve projects under the following conditions:
-        #  * Must have a verified primary email
-        #  * Must have 2FA enabled
-        #  * Must be at least 90 days old
-        #  * Must not already have a project name reserved
         if self.is_superuser or self.is_moderator or self.is_psf_staff:
+            # Special users (superusers, moderators, PSF staff) can always reserve projects.
             return True
         else:
-            # TODO: Fill this in with a query on `user.projects`.
-            has_already_reserved_project = False
+            # Ordinary users can reserve projects under the following conditions:
+            #  * Must have a verified primary email
+            #  * Must have 2FA enabled
+            #  * Must be at least 90 days old
+            #  * Must not already have a project name reserved
+            has_already_reserved_project = any(p.is_reserved for p in self.projects)
             ninety_days_ago = datetime.datetime.now() - datetime.timedelta(days=90)
             return (
                 self.has_primary_verified_email
