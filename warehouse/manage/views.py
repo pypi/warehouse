@@ -167,6 +167,7 @@ from warehouse.utils.project import (
     confirm_project,
     destroy_docs,
     remove_project,
+    reserve_project,
     validate_project_name,
 )
 
@@ -2907,7 +2908,7 @@ class ManageProjectsViews:
             "projects_requiring_2fa": projects_requiring_2fa,
             "project_invites": project_invites,
             "can_reserve_projects": self.request.user.can_reserve_projects,
-            "reserve_project_form": ReserveProjectForm(),
+            "reserve_project_form": ReserveProjectForm(request=self.request),
         }
 
     @view_config(request_method="GET")
@@ -2916,13 +2917,14 @@ class ManageProjectsViews:
 
     @view_config(request_method="POST", request_param=ReserveProjectForm.__params__)
     def reserve_project(self):
-        form = ReserveProjectForm(self.request.POST)
+        form = ReserveProjectForm(self.request.POST, request=self.request)
 
         if not form.validate():
             return {**self.default_response, "reserve_project_form": form}
 
-        # TODO: Actually reserve the project here.
+        _ = reserve_project(form.project_name.data, self.request)
 
+        # TODO: Redirect to project settings page for the newly created project?
         return self.default_response
 
 

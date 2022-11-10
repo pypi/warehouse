@@ -10,6 +10,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import datetime
+
 from itertools import chain
 
 import stdlib_list
@@ -27,7 +29,12 @@ from sqlalchemy.orm.exc import NoResultFound
 from warehouse.admin.flags import AdminFlagValue
 from warehouse.events.tags import EventTag
 from warehouse.packaging.interfaces import IDocsStorage
-from warehouse.packaging.models import JournalEntry, ProhibitedProjectName, Project
+from warehouse.packaging.models import (
+    JournalEntry,
+    ProhibitedProjectName,
+    Project,
+    Role,
+)
 from warehouse.tasks import task
 
 
@@ -145,6 +152,42 @@ def validate_project_name(name, request):
 
         # Project name is valid.
         return True
+
+
+def reserve_project(name, request):
+    """
+    Attempts to reserve a project with the given name.
+
+    The behavior of this helper is slightly different from that of
+    `add_project`: we don't create a JournalEntry for the reservation,
+    and we emit a reservation event rather than a creation one.
+    """
+
+    # All project reservations are for 24 hours.
+    reserved_until = datetime.datetime.now() + datetime.timedelta(days=1)
+    project = Project(name=name, reserved_until=reserved_until)
+    request.db.add(project)
+    project.record_event(
+        tag=EventTag.Project.ProjectReserve,
+        ip_address=request.remote_addr,
+        additional={
+            "reserved_by": request.user.username,
+            "reserved_until": int(reserved_until.timestamp()),
+        },
+    )
+
+    request.db.add(Role(user=request.user, project=project, role_name="Owner"))
+    project.record_event(
+        tag=EventTag.Project.RoleAdd,
+        ip_address=request.remote_addr,
+        additional={
+            "submitted_by": request.user.username,
+            "role_name": "Owner",
+            "target_user": request.user.username,
+        },
+    )
+
+    return project
 
 
 def add_project(name, request):

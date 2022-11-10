@@ -118,6 +118,7 @@ class EventTag:
         OwnersRequire2FADisabled = "project:owners_require_2fa:disabled"
         OwnersRequire2FAEnabled = "project:owners_require_2fa:enabled"
         ProjectCreate = "project:create"
+        ProjectReserve = "project:reserve"
         ReleaseAdd = "project:release:add"
         ReleaseFileRemove = "project:release:file:remove"
         ReleaseRemove = "project:release:remove"

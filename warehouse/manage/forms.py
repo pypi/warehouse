@@ -32,6 +32,7 @@ from warehouse.organizations.models import (
     OrganizationType,
     TeamProjectRoleType,
 )
+from warehouse.utils.project import validate_project_name
 
 # /manage/account/ and /manage/projects/ forms
 
@@ -678,6 +679,10 @@ class CreateTeamForm(SaveTeamForm):
 class ReserveProjectForm(forms.Form):
     __params__ = ["project_name"]
 
+    def __init__(self, *args, request, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.request = request
+
     project_name = wtforms.StringField(
         validators=[
             wtforms.validators.DataRequired(message="Specify project name."),
@@ -694,3 +699,9 @@ class ReserveProjectForm(forms.Form):
             ),
         ]
     )
+
+    def validate_project_name(self, field):
+        try:
+            validate_project_name(field.data, self.request)
+        except Exception as exc:
+            raise wtforms.validators.ValidationError(str(exc))

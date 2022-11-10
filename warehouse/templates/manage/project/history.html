@@ -33,6 +33,11 @@
     <small>
       {% trans %}Created by:{% endtrans %} <a href="{{ request.route_path('accounts.profile', username=event.additional.created_by) }}">{{ event.additional.created_by }}</a>
     </small>
+    {% elif event.tag == EventTag.Project.ProjectReserve %}
+    <strong>{% trans %}Project reserved{% endtrans %}</strong>
+    <small>
+      {% trans %}Reserved by:{% endtrans %} <a href="{{ request.route_path('accounts.profile', username=event.additional.reserved_by) }}">{{ event.additional.reserved_by }}</a>
+    </small>
 
     {# Display release events #}
     {% elif event.tag == EventTag.Project.ReleaseAdd %}
