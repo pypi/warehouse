@@ -39,13 +39,14 @@
 # Xu ZhuoHan <yylteam@hotmail.com>, 2022.
 # Harvey Li <harvey.li@beaconos.org>, 2022.
 # Eric <lessonaeamazon@paranoid.email>, 2022.
+# 快乐的老鼠宝宝 <keaitianxinmail@qq.com>, 2022.
 msgid ""
 msgstr ""
 "Project-Id-Version: Warehouse VERSION\n"
 "Report-Msgid-Bugs-To: admin@pypi.org\n"
 "POT-Creation-Date: 2020-04-06 17:52-0500\n"
-"PO-Revision-Date: 2022-11-03 19:49+0000\n"
-"Last-Translator: Eric <hamburger1024@mailbox.org>\n"
+"PO-Revision-Date: 2022-11-10 04:34+0000\n"
+"Last-Translator: 快乐的老鼠宝宝 <keaitianxinmail@qq.com>\n"
 "Language-Team: Chinese (Simplified) <https://hosted.weblate.org/projects/"
 "pypa/warehouse/zh_Hans/>\n"
 "Language: zh_Hans\n"
@@ -53,7 +54,7 @@ msgstr ""
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Generator: Weblate 4.14.2-dev\n"
+"X-Generator: Weblate 4.15-dev\n"
 "Generated-By: Babel 2.8.0\n"
 
 #: warehouse/views.py:125
@@ -7266,9 +7267,9 @@ msgid ""
 "\"%(title)s\" target=\"_blank\" rel=\"noopener\">download usage statistics</"
 "a> via our public dataset on Google BigQuery."
 msgstr ""
-"你可以通过我们在Google BigQuery上的公共数据集来分析PyPI项目/包元数据和<a "
-"href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">"
-"%(title)s\" target=\"_blank\" rel=\"noopener\">下载使用统计</a>。"
+"你可以通过我们在Google BigQuery上的公共数据集来分析PyPI项目/包的元数据和<a "
+"href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener\""
+">下载使用统计</a>。"
 
 #: warehouse/templates/pages/help.html:538
 #, python-format

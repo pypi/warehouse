@@ -13,13 +13,15 @@
 # Un Anonyme <vehrzafk1@gmail.com>, 2021, 2022.
 # Amit Senouf <amit9021@gmail.com>, 2022.
 # Hila <hip023@g.harvard.edu>, 2022.
+# אברהם רוזנטל <tcruo123@gmail.com>, 2022.
+# Mike Fiedler <miketheman@gmail.com>, 2022.
 msgid ""
 msgstr ""
 "Project-Id-Version: Warehouse VERSION\n"
 "Report-Msgid-Bugs-To: admin@pypi.org\n"
 "POT-Creation-Date: 2020-01-15 20:11+0200\n"
-"PO-Revision-Date: 2022-10-23 16:57+0000\n"
-"Last-Translator: Hila <hip023@g.harvard.edu>\n"
+"PO-Revision-Date: 2022-11-11 15:05+0000\n"
+"Last-Translator: Mike Fiedler <miketheman@gmail.com>\n"
 "Language-Team: Hebrew <https://hosted.weblate.org/projects/pypa/warehouse/he/"
 ">\n"
 "Language: he\n"
@@ -28,7 +30,7 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=4; plural=(n == 1) ? 0 : ((n == 2) ? 1 : ((n > 10 && "
 "n % 10 == 0) ? 2 : 3));\n"
-"X-Generator: Weblate 4.14.2-dev\n"
+"X-Generator: Weblate 4.15-dev\n"
 "Generated-By: Babel 2.7.0\n"
 
 #: warehouse/views.py:125
@@ -50,8 +52,9 @@ msgid "TOTP code must be ${totp_length} digits."
 msgstr "קוד TOTP חייב להכיל ${totp_length} ספרות."
 
 #: warehouse/accounts/forms.py:87
+#, fuzzy
 msgid "Recovery Codes must be ${recovery_code_length} characters."
-msgstr ""
+msgstr "קודי השחזור חייבים להיות ${אורך שחזור תווים}תווים."
 
 #: warehouse/accounts/forms.py:102
 msgid "Choose a username with 50 characters or less."
@@ -75,10 +78,8 @@ msgstr "שם המשתמש נמצא בשימוש חשבון אחר. בחר/י ש�
 
 #: warehouse/accounts/forms.py:139 warehouse/accounts/forms.py:185
 #: warehouse/accounts/forms.py:198
-#, fuzzy
-#| msgid "Password strength:"
 msgid "Password too long."
-msgstr "חוזק סיסמא:"
+msgstr "סיסמא ארוכה מדי."
 
 #: warehouse/accounts/forms.py:167
 msgid "The password is invalid. Try again."
@@ -1120,10 +1121,8 @@ msgid "Test Python package publishing with the Test Python Package Index"
 msgstr "בדיקת פרסום חבילות פייתון באמצעות האינדקס לבדיקות TestPyPI"
 
 #: warehouse/templates/index.html:45
-#, fuzzy
-#| msgid "Test Python package publishing with the Test Python Package Index"
 msgid "Develop the codebase behind PyPI with the Dev Python Package Index"
-msgstr "בדיקת פרסום חבילות פייתון באמצעות האינדקס לבדיקות TestPyPI"
+msgstr "פיתוח קוד המקור של PyPI עם DevPyPI"
 
 #: warehouse/templates/index.html:47
 msgid "Find, install and publish Python packages with the Python Package Index"
@@ -3519,10 +3518,8 @@ msgid "Password reset requested"
 msgstr "איפוס סיסמה התבקש"
 
 #: warehouse/templates/manage/account.html:567
-#, fuzzy
-#| msgid "Password reset requested"
 msgid "Password reset attempted"
-msgstr "איפוס סיסמה התבקש"
+msgstr "ניסיון לאיפוס סיסמה התבצע"
 
 #: warehouse/templates/manage/account.html:569
 msgid "Password successfully reset"
@@ -5532,8 +5529,8 @@ msgid ""
 "\"%(url)s\">%(url)s</a> there is <strong>no</strong> undo, as uploading new "
 "documentation is no longer supported."
 msgstr ""
-"אם ברצונך <strong>להרוס</strong> כל תיעוד קיים המתארח ב-<a href=\"%(url)s\">"
-"%(url)s</a>, <strong>אין</strong> אפשרות לבטל בדיעבד פעולה זו, כיוון שהעלאת "
+"אם ברצונך <strong>להרוס</strong> כל תיעוד קיים המתארח ב-<a href=\"%(url)s\""
+">%(url)s</a>,<strong>אין</strong> אפשרות לבטל בדיעבד פעולה זו, כיוון שהעלאת "
 "תיעוד חדש אינה נתמכת יותר."
 
 #: warehouse/templates/manage/project/documentation.html:35
