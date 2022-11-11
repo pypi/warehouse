@@ -10,6 +10,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from sqlalchemy import sql
+
 from warehouse.ip_addresses.models import BanReason
 
 from ...common.db.ip_addresses import IpAddressFactory
@@ -28,5 +30,6 @@ class TestAdminFlag:
             ip_address="1.2.3.4",
             is_banned=True,
             ban_reason=BanReason.AUTHENTICATION_ATTEMPTS,
+            ban_date=sql.func.now(),
         )
         assert db_request.banned.by_ip("1.2.3.4")
