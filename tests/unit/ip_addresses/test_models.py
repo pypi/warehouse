@@ -10,6 +10,13 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import pytest
+
+from sqlalchemy import sql
+from sqlalchemy.exc import IntegrityError
+
+from warehouse.ip_addresses.models import BanReason
+
 from ...common.db.ip_addresses import IpAddressFactory as DBIpAddressFactory
 
 
@@ -22,3 +29,31 @@ class TestIpAddress:
     def test_invalid_transformed(self, db_request):
         ip_address = DBIpAddressFactory(ip_address="wutang")
         assert repr(ip_address) == "192.0.2.69"
+
+    @pytest.mark.parametrize(
+        "kwargs",
+        [
+            {"ip_address": "1.2.3.4", "is_banned": True},
+            {
+                "ip_address": "1.2.3.4",
+                "is_banned": True,
+                "ban_reason": BanReason.AUTHENTICATION_ATTEMPTS,
+            },
+            {"ip_address": "1.2.3.4", "is_banned": True, "ban_date": sql.func.now()},
+            {
+                "ip_address": "1.2.3.4",
+                "is_banned": False,
+                "ban_reason": BanReason.AUTHENTICATION_ATTEMPTS,
+            },
+            {"ip_address": "1.2.3.4", "is_banned": False, "ban_date": sql.func.now()},
+            {
+                "ip_address": "1.2.3.4",
+                "is_banned": False,
+                "ban_reason": BanReason.AUTHENTICATION_ATTEMPTS,
+                "ban_date": sql.func.now(),
+            },
+        ],
+    )
+    def test_ban_data_constraint(self, db_request, kwargs):
+        with pytest.raises(IntegrityError):
+            DBIpAddressFactory(**kwargs)

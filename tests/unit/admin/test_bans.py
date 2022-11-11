@@ -10,6 +10,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from warehouse.ip_addresses.models import BanReason
+
 from ...common.db.ip_addresses import IpAddressFactory
 
 
@@ -22,5 +24,9 @@ class TestAdminFlag:
         assert not db_request.banned.by_ip("1.2.3.4")
 
     def test_with_ip_banned(self, db_request):
-        IpAddressFactory(ip_address="1.2.3.4", is_banned=True)
+        IpAddressFactory(
+            ip_address="1.2.3.4",
+            is_banned=True,
+            ban_reason=BanReason.AUTHENTICATION_ATTEMPTS,
+        )
         assert db_request.banned.by_ip("1.2.3.4")

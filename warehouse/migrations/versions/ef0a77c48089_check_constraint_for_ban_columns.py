@@ -27,7 +27,10 @@ def upgrade():
     op.create_check_constraint(
         "ip_addresses_ban_constraints",
         table_name="ip_addresses",
-        condition="NOT is_banned <> NOT (ban_reason IS NULL OR ban_date IS NULL)",
+        condition=(
+            "(is_banned AND ban_reason IS NOT NULL AND ban_date IS NOT NULL)"
+            "OR (NOT is_banned AND ban_reason IS NULL AND ban_date IS NULL)"
+        ),
     )
 
 
