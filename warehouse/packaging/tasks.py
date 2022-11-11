@@ -40,7 +40,7 @@ def prune_expired_reserved_projects(request):
             ~Project.releases.any()
             & (Project.reserved_until <= datetime.datetime.now())
         )
-        .delete()
+        .delete(synchronize_session=False)
     )
 
     metrics.gauge(
