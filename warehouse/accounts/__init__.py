@@ -95,6 +95,8 @@ def includeme(config):
     # Add a request method which will allow people to access the user object.
     config.add_request_method(_user, name="user", reify=True)
 
+    config.add_request_method(lambda request: None, name="_unauthenticated_userid")
+
     # Register the rate limits that we're going to be using for our login
     # attempts and account creation
     user_login_ratelimit_string = config.registry.settings.get(

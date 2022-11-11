@@ -54,6 +54,7 @@ def _basic_auth_check(username, password, request):
     breach_service = request.find_service(IPasswordBreachedService, context=None)
 
     userid = login_service.find_userid(username)
+    request._unauthenticated_userid = userid
     if userid is not None:
         user = login_service.get_user(userid)
         is_disabled, disabled_for = login_service.is_disabled(user.id)
@@ -141,6 +142,8 @@ class SessionSecurityPolicy:
             return None
 
         userid = self._session_helper.authenticated_userid(request)
+        request._unauthenticated_userid = userid
+
         if userid is None:
             return None
 
