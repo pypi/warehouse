@@ -15,13 +15,14 @@
 # Oğuz Ersen <oguz@ersen.moe>, 2022.
 # Fatih Arda Zengin <fatihardazengin@gmail.com>, 2022.
 # Yourredyknowwhoitisss <dirt@stu.khas.edu.tr>, 2022.
+# JokerSob <joker.sob@hotmail.com>, 2022.
 msgid ""
 msgstr ""
 "Project-Id-Version: Warehouse VERSION\n"
 "Report-Msgid-Bugs-To: admin@pypi.org\n"
 "POT-Creation-Date: 2020-01-15 20:11+0200\n"
-"PO-Revision-Date: 2022-10-02 23:00+0000\n"
-"Last-Translator: Yourredyknowwhoitisss <dirt@stu.khas.edu.tr>\n"
+"PO-Revision-Date: 2022-11-09 18:47+0000\n"
+"Last-Translator: JokerSob <joker.sob@hotmail.com>\n"
 "Language-Team: Turkish <https://hosted.weblate.org/projects/pypa/warehouse/"
 "tr/>\n"
 "Language: tr\n"
@@ -29,7 +30,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Generator: Weblate 4.14.1\n"
+"X-Generator: Weblate 4.15-dev\n"
 "Generated-By: Babel 2.7.0\n"
 
 #: warehouse/views.py:125
@@ -54,7 +55,7 @@ msgstr "TOTP kodu ${totp_length} rakamdan oluşmalıdır."
 
 #: warehouse/accounts/forms.py:87
 msgid "Recovery Codes must be ${recovery_code_length} characters."
-msgstr ""
+msgstr "Kurtarma Kodları ${recovery_code_length} karakterlerinden oluşmalıdır."
 
 #: warehouse/accounts/forms.py:102
 msgid "Choose a username with 50 characters or less."
@@ -359,9 +360,7 @@ msgstr ""
 #: warehouse/manage/forms.py:491
 msgid ""
 "This project name has already been used. Choose a different project name."
-msgstr ""
-"Bu  kullanıcı adı başka bir hesap tarafından kullanılıyor. Başka bir "
-"kullanıcı adı seçin."
+msgstr "Bu proje adı zaten kullanılmıştır. Farklı bir proje adı seçin."
 
 #: warehouse/manage/forms.py:562
 msgid ""
@@ -401,7 +400,7 @@ msgstr ""
 
 #: warehouse/manage/forms.py:666
 msgid "This team name has already been used. Choose a different team name."
-msgstr "Bu takım adı  kullanılıyor. Başka bir takım adı seçin."
+msgstr "Bu takım adı zaten kullanılmıştır. Farklı bir takım adı seçin."
 
 #: warehouse/manage/views.py:369
 msgid "Email ${email_address} added - check your email for a verification link"
@@ -424,16 +423,12 @@ msgid "User '${username}' already has ${role_name} role for organization"
 msgstr "'${username}' kullanıcısı projede zaten ${role_name} rolüne sahip"
 
 #: warehouse/manage/views.py:2020
-#, fuzzy
-#| msgid ""
-#| "User '${username}' does not have a verified primary email address and "
-#| "cannot be added as a ${role_name} for project"
 msgid ""
 "User '${username}' does not have a verified primary email address and cannot "
 "be added as a ${role_name} for organization"
 msgstr ""
-"'${username}' adlı kullanıcıya ait doğrulanmış birincil e-posta adresi "
-"mevcut değil ve bu yüzden projeye ${role_name} rolünde atanamıyor"
+"Kullanıcı \"${username}\", doğrulanmış bir birincil e-posta adresine sahip "
+"değil ve kuruluş için ${role_name} olarak eklenemez"
 
 #: warehouse/manage/views.py:2034 warehouse/manage/views.py:4367
 msgid ""
@@ -447,10 +442,8 @@ msgid "Invitation sent to '${username}'"
 msgstr "'${username}' adlı kullanıcıya davetiye gönderildi"
 
 #: warehouse/manage/views.py:2146
-#, fuzzy
-#| msgid "Could not find role invitation."
 msgid "Could not find organization invitation."
-msgstr "Rol davetiyesi bulunamadı."
+msgstr "Organizasyon davetiyesi bulunamadı."
 
 #: warehouse/manage/views.py:2160 warehouse/manage/views.py:4478
 msgid "Invitation already expired."
@@ -461,29 +454,23 @@ msgid "Invitation revoked from '${username}'."
 msgstr "'${username}' adlı kullanıcıdan gelen davetiye iptal edildi."
 
 #: warehouse/manage/views.py:3109
-#, fuzzy
-#| msgid ""
-#| "There have been too many unsuccessful login attempts. Try again later."
 msgid ""
 "There have been too many attempted OpenID Connect registrations. Try again "
 "later."
-msgstr "Çok fazla başarısız giriş denemesi oldu. Sonra tekrar deneyin."
+msgstr ""
+"Çok fazla sayıda OpenID Connect kaydı denendi. Daha sonra tekrar deneyin."
 
 #: warehouse/manage/views.py:4144
-#, fuzzy
-#| msgid "User '${username}' already has ${role_name} role for project"
 msgid "Team '${team_name}' already has ${role_name} role for project"
-msgstr "Kullanıcı '${username}' projede zaten ${role_name} rolüne sahip"
+msgstr "Takımın '${team_name}' zaten projede için ${role_name} rolü var"
 
 #: warehouse/manage/views.py:4252
 msgid "User '${username}' already has ${role_name} role for project"
 msgstr "Kullanıcı '${username}' projede zaten ${role_name} rolüne sahip"
 
 #: warehouse/manage/views.py:4321
-#, fuzzy
-#| msgid "You are now ${role} of the '${project_name}' project."
 msgid "${username} is now ${role} of the '${project_name}' project."
-msgstr "Artık '${project_name}' projesinde ${role} oldunuz."
+msgstr "${username} artık ${project_name}' projesinin ${role}'sidir."
 
 #: warehouse/manage/views.py:4354
 msgid ""
@@ -499,89 +486,79 @@ msgstr "Rol davetiyesi bulunamadı."
 
 #: warehouse/oidc/forms.py:32
 msgid "Specify GitHub repository owner (username or organization)"
-msgstr ""
+msgstr "GitHub deposu sahibini belirtin (kullanıcı adı veya kuruluş)"
 
 #: warehouse/oidc/forms.py:39
 msgid "Specify repository name"
-msgstr ""
+msgstr "Depo adını belirtin"
 
 #: warehouse/oidc/forms.py:41
-#, fuzzy
-#| msgid "Invalid recovery code."
 msgid "Invalid repository name"
-msgstr "Geçersiz kurtarma kodu."
+msgstr "Geçersiz depo adı"
 
 #: warehouse/oidc/forms.py:48
 msgid "Specify workflow filename"
-msgstr ""
+msgstr "İş akışı dosya adını belirtin"
 
 #: warehouse/oidc/forms.py:77
 msgid "Unknown GitHub user or organization."
-msgstr ""
+msgstr "Bilinmeyen GitHub kullanıcısı veya kuruluşu."
 
 #: warehouse/oidc/forms.py:87
 msgid "GitHub has rate-limited this action. Try again in a few minutes."
-msgstr ""
+msgstr "GitHub bu eylemi sınırladı. Birkaç dakika sonra tekrar deneyin."
 
 #: warehouse/oidc/forms.py:97
 msgid "Unexpected error from GitHub. Try again."
-msgstr ""
+msgstr "GitHub'dan beklenmeyen hata. Tekrar deneyin."
 
 #: warehouse/oidc/forms.py:104
 msgid "Unexpected timeout from GitHub. Try again in a few minutes."
-msgstr ""
+msgstr "GitHub'dan beklenmeyen zaman aşımı. Birkaç dakika sonra tekrar deneyin."
 
 #: warehouse/oidc/forms.py:116
 msgid "Invalid GitHub user or organization name."
-msgstr ""
+msgstr "Geçersiz GitHub kullanıcı veya kuruluş adı."
 
 #: warehouse/oidc/forms.py:132
 msgid "Workflow name must end with .yml or .yaml"
-msgstr ""
+msgstr "İş akışı adı .yml veya .yaml ile bitmelidir"
 
 #: warehouse/oidc/forms.py:137
 msgid "Workflow filename must be a filename only, without directories"
-msgstr ""
+msgstr "İş akışı dosya adı, dizinler olmadan yalnızca bir dosya adı olmalıdır"
 
 #: warehouse/oidc/forms.py:146
 msgid "Provider must be specified by ID"
-msgstr ""
+msgstr "Sağlayıcı kimlik ile belirtilmelidir"
 
 #: warehouse/subscriptions/models.py:42
-#, fuzzy
-#| msgid "Action"
 msgid "Active"
-msgstr "Eylem"
+msgstr "Aktif"
 
 #: warehouse/subscriptions/models.py:43
-#, fuzzy
-#| msgid "Last used"
 msgid "Past Due"
-msgstr "Son Erişim Tarihi"
+msgstr "Vadesi Geçmiş"
 
 #: warehouse/subscriptions/models.py:44
 msgid "Unpaid"
-msgstr ""
+msgstr "ödenmemiş"
 
 #: warehouse/subscriptions/models.py:45
-#, fuzzy
-#| msgid "Cancel"
 msgid "Canceled"
-msgstr "İptal Et"
+msgstr "İptal edildi"
 
 #: warehouse/subscriptions/models.py:46
 msgid "Incomplete"
-msgstr ""
+msgstr "tamamlanmamış"
 
 #: warehouse/subscriptions/models.py:47
-#, fuzzy
-#| msgid "Invite expired"
 msgid "Incomplete Expired"
-msgstr "Davetiye süresi dolmuş"
+msgstr "Tamamlanmamış Süresi Dolmuş"
 
 #: warehouse/subscriptions/models.py:48
 msgid "Trialing"
-msgstr ""
+msgstr "deneme"
 
 #: warehouse/templates/403.html:16
 msgid "Access Denied / Forbidden (403)"
@@ -757,24 +734,17 @@ msgid "Rely on PyPI to get your job done?"
 msgstr "PyPI'ye senin işini tamamlaması için güveniyor musun?"
 
 #: warehouse/templates/500.html:37
-#, fuzzy
-#| msgid ""
-#| "Consider <a href=\"https://github.com/pypa/warehouse\" target=\"_blank\" "
-#| "rel=\"noopener\"> contributing </a> or <a href=\"https://psfmember.org/"
-#| "civicrm/contribute/transact?reset=1&id=13\" target=\"_blank\" rel="
-#| "\"noopener\"> donating </a> to help us build a more stable and secure "
-#| "platform."
 msgid ""
 "Consider <a href=\"https://github.com/pypi/warehouse\" target=\"_blank\" rel="
 "\"noopener\"> contributing </a> or <a href=\"https://psfmember.org/civicrm/"
 "contribute/transact?reset=1&id=13\" target=\"_blank\" rel=\"noopener\"> "
 "donating </a> to help us build a more stable and secure platform."
 msgstr ""
-"Bize daha stabil ve güvenli bir platform kurmamız için <a href=\"https://"
-"github.com/pypa/warehouse\" target=\"_blank\" rel=\"noopener\"> katkıda "
-"bulunmayı \n"
-" </a> veya <a href=\"https://psfmember.org/civicrm/contribute/transact?"
-"reset=1&id=13\" target=\"_blank\" rel=\"noopener\"> bağış yapmayı </a> düşün."
+"Daha istikrarlı ve güvenli bir platform oluşturmamıza yardımcı olması için "
+"<a href=\"https://github.com/pypi/warehouse\" target=\"_blank\" rel="
+"\"noopener\"> contributing </a> veya <a href=\"https://psfmember.org/civicrm/"
+"contribute/transact?reset=1&id=13\" target=\"_blank\" rel=\"noopener\"> "
+"donating </a> 'yi düşünün."
 
 #: warehouse/templates/base.html:24
 msgid ""
@@ -838,33 +808,29 @@ msgid "Main menu"
 msgstr "Ana menü"
 
 #: warehouse/templates/base.html:66
-#, fuzzy, python-format
-#| msgid ""
-#| "Learn how to upload files on the <a href=\"%(href)s\" title=\"%(title)s\" "
-#| "target=\"_blank\" rel=\"noopener\">Python Packaging User Guide</a>"
+#, python-format
 msgid ""
 "\"%(wordmark)s\", \"%(name)s\", and the blocks logos are registered "
 "trademarks of the <a href=\"%(psf_href)s\" target=\"_blank\" rel=\"noopener"
 "\">Python Software Foundation</a> referring to the products and services "
 "associated with pypi.org. Any other use by any other party is prohibited."
 msgstr ""
-"Nasıl dosya yüklemen gerektiğini <a href=\"%(href)s\" title=\"%(title)s\" "
-"target=\"_blank\" rel=\"noopener\">Python Paketleme Kullanıcı Kılavuzu</a> "
-"üzerinde öğren"
+"\"%(wordmark)s\", \"%(name)s\", ve blok logoları, pypi.org ile ilişkili ürün "
+"ve hizmetlere atıfta bulunan <a href=\"%(psf_href)s\" target=\"_blank\" rel="
+"\"noopener\">Python Software Foundation</a> 'nin tescilli ticari "
+"markalarıdır. Başka herhangi bir tarafça başka herhangi bir şekilde "
+"kullanılması yasaktır."
 
 #: warehouse/templates/base.html:70
-#, fuzzy, python-format
-#| msgid ""
-#| "Learn how to upload files on the <a href=\"%(href)s\" title=\"%(title)s\" "
-#| "target=\"_blank\" rel=\"noopener\">Python Packaging User Guide</a>"
+#, python-format
 msgid ""
 "\"%(wordmark)s\", \"%(name)s\", and the blocks logos are registered <a href="
 "\"%(trademarks_href)s\">trademarks</a> of the <a href=\"%(psf_href)s\" "
 "target=\"_blank\" rel=\"noopener\">Python Software Foundation</a>."
 msgstr ""
-"Nasıl dosya yüklemen gerektiğini <a href=\"%(href)s\" title=\"%(title)s\" "
-"target=\"_blank\" rel=\"noopener\">Python Paketleme Kullanıcı Kılavuzu</a> "
-"üzerinde öğren"
+"\"%(wordmark)s\", \"%(name)s\" ve blok logoları <a href=\"%(trademarks_href)"
+"s\">trademarks</a> of the <a href=\"%(psf_href)s\" target=\"_blank\" rel="
+"\"noopener\">Python Software Foundation</a> olarak kaydedilir."
 
 #: warehouse/templates/base.html:93 warehouse/templates/index.html:109
 msgid ""
@@ -1040,10 +1006,8 @@ msgid "Terms of use"
 msgstr "Kullanım şartları"
 
 #: warehouse/templates/base.html:320
-#, fuzzy
-#| msgid "Status: "
 msgid "Status:"
-msgstr "Durum: "
+msgstr "Durum:"
 
 #: warehouse/templates/base.html:321
 msgid "all systems operational"
@@ -1072,7 +1036,7 @@ msgstr "Eylemi onayla"
 
 #: warehouse/templates/confirm-action.html:26
 msgid "Are you sure?"
-msgstr ""
+msgstr "Emin misin?"
 
 #: warehouse/templates/error-base.html:31
 msgid "Error code"
@@ -1091,10 +1055,9 @@ msgid "Test Python package publishing with the Test Python Package Index"
 msgstr "Python paket yayımlanmasını Test Python Paket Diziniyle test edin"
 
 #: warehouse/templates/index.html:45
-#, fuzzy
-#| msgid "Test Python package publishing with the Test Python Package Index"
 msgid "Develop the codebase behind PyPI with the Dev Python Package Index"
-msgstr "Python paket yayımlanmasını Test Python Paket Diziniyle test edin"
+msgstr ""
+"Dev Python Paket Dizini ile PyPI'nin arkasındaki kod tabanını geliştirin"
 
 #: warehouse/templates/index.html:47
 msgid "Find, install and publish Python packages with the Python Package Index"
@@ -1274,30 +1237,17 @@ msgid "Forgot password?"
 msgstr "Parolanızı unuttunuz mu?"
 
 #: warehouse/templates/re-auth.html:80
-#, fuzzy, python-format
-#| msgid ""
-#| "\n"
-#| "              <b>Tip:</b> you are about to perform a <a href=\"%(href)s"
-#| "\">sensitive action</a>.\n"
-#| "              If you are not on a personal computer, make sure to log out "
-#| "once you're done with your session.\n"
-#| "              We won't ask you to confirm your password again for the "
-#| "next hour.\n"
-#| "              "
+#, python-format
 msgid ""
 "<b>Tip:</b> you are about to perform a <a href=\"%(href)s\">sensitive "
 "action</a>. If you are not on a personal computer, make sure to log out once "
 "you're done with your session. We won't ask you to confirm your password "
 "again for the next hour."
 msgstr ""
-"\n"
-"              <b>İpucu:</b> Şu anda <a href=\"%(href)s\">hassas bir "
-"değişiklik</a> yapmak üzeresiniz.\n"
-"              Eğer kişisel bilgisayarınızda değilseniz, oturumunuz "
-"bittiğinde çıkış yaptığınızdan emin olunuz.\n"
-"              Önümüzdeki saat için sizden doğrulama için şifre "
-"istemeyeceğiz.\n"
-"              "
+"<b>İpucu:</b> bir <a href=\"%(href)s\">hassas eylem</a> gerçekleştirmek "
+"üzeresiniz. Kişisel bir bilgisayarda değilseniz, oturumunuz bittiğinde "
+"oturumu kapattığınızdan emin olun. Önümüzdeki bir saat boyunca şifrenizi "
+"tekrar onaylamanızı istemeyeceğiz."
 
 #: warehouse/templates/upload.html:25
 msgid "This URL is an API endpoint for uploading files to PyPI."
