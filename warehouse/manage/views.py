@@ -2928,10 +2928,13 @@ class ManageProjectsViews:
         if not form.validate():
             return {**self.default_response, "reserve_project_form": form}
 
-        _ = reserve_project(form.project_name.data, self.request)
+        project = reserve_project(form.project_name.data, self.request)
 
-        # TODO: Redirect to project settings page for the newly created project?
-        return self.default_response
+        return HTTPSeeOther(
+            self.request.route_path(
+                "manage.project.settings", project_name=project.name
+            )
+        )
 
 
 @view_defaults(
