@@ -52,6 +52,10 @@ def _user(request):
     return request.identity
 
 
+def _unauthenticated_userid(request):
+    return None
+
+
 def includeme(config):
     # Register our login service
     config.register_service_factory(database_login_factory, IUserService)
@@ -95,7 +99,7 @@ def includeme(config):
     # Add a request method which will allow people to access the user object.
     config.add_request_method(_user, name="user", reify=True)
 
-    config.add_request_method(lambda request: None, name="_unauthenticated_userid")
+    config.add_request_method(_unauthenticated_userid, name="_unauthenticated_userid")
 
     # Register the rate limits that we're going to be using for our login
     # attempts and account creation

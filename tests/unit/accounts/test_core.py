@@ -321,6 +321,12 @@ class TestUser:
         assert accounts._user(request) is None
 
 
+class TestUnauthenticatedUserid:
+    def test_unauthenticated_userid(self):
+        request = pretend.stub()
+        assert accounts._unauthenticated_userid(request) is None
+
+
 def test_includeme(monkeypatch):
     authz_obj = pretend.stub()
     authz_cls = pretend.call_recorder(lambda *a, **kw: authz_obj)
@@ -358,7 +364,7 @@ def test_includeme(monkeypatch):
         register_service_factory=pretend.call_recorder(
             lambda factory, iface, name=None: None
         ),
-        add_request_method=pretend.call_recorder(lambda f, name, reify: None),
+        add_request_method=pretend.call_recorder(lambda f, name, reify=False: None),
         set_security_policy=pretend.call_recorder(lambda p: None),
         maybe_dotted=pretend.call_recorder(lambda path: path),
         add_route_predicate=pretend.call_recorder(lambda name, cls: None),
@@ -389,7 +395,8 @@ def test_includeme(monkeypatch):
         pretend.call(RateLimit("3 per 6 hours"), IRateLimiter, name="email.verify"),
     ]
     assert config.add_request_method.calls == [
-        pretend.call(accounts._user, name="user", reify=True)
+        pretend.call(accounts._user, name="user", reify=True),
+        pretend.call(accounts._unauthenticated_userid, name="_unauthenticated_userid"),
     ]
     assert config.set_security_policy.calls == [pretend.call(multi_policy_obj)]
     assert multi_policy_cls.calls == [
