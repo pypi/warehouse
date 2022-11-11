@@ -1168,8 +1168,8 @@ def _login_user(request, userid, two_factor_method=None, two_factor_label=None):
     # that we create a new session (which will cause it to get a new
     # session identifier).
     if (
-        request.unauthenticated_userid is not None
-        and request.unauthenticated_userid != userid
+        request._unauthenticated_userid is not None
+        and request._unauthenticated_userid != userid
     ):
         # There is already a userid associated with this request and it is
         # a different userid than the one we're trying to remember now. In

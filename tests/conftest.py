@@ -156,6 +156,7 @@ def pyramid_request(pyramid_services, jinja, remote_addr):
     dummy_request.find_service = pyramid_services.find_service
     dummy_request.remote_addr = remote_addr
     dummy_request.authentication_method = pretend.stub()
+    dummy_request._unauthenticated_userid = None
 
     dummy_request.registry.registerUtility(jinja, IJinja2Environment, name=".jinja2")
 
@@ -391,6 +392,7 @@ def query_recorder(app_config):
 def db_request(pyramid_request, db_session):
     pyramid_request.db = db_session
     pyramid_request.flags = admin.flags.Flags(pyramid_request)
+    pyramid_request.banned = admin.bans.Bans(pyramid_request)
     return pyramid_request
 
 
