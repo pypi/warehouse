@@ -14,7 +14,7 @@ import ipaddress
 
 import sentry_sdk
 
-from sqlalchemy import Boolean, Column, DateTime, Enum, Index, sql
+from sqlalchemy import Boolean, CheckConstraint, Column, DateTime, Enum, Index, sql
 from sqlalchemy.dialects.postgresql import INET
 from sqlalchemy.orm import validates
 
@@ -28,7 +28,10 @@ class BanReason(enum.Enum):
 class IpAddress(db.Model):
 
     __tablename__ = "ip_addresses"
-    __table_args__ = (Index("bans_idx", "is_banned"),)
+    __table_args__ = (
+        Index("bans_idx", "is_banned"),
+        CheckConstraint('NOT is_banned <> NOT (ban_reason IS NULL OR ban_date IS NULL)'),
+    )
 
     def __repr__(self):
         return self.ip_address
