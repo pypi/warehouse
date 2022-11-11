@@ -10,6 +10,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from warehouse.accounts.interfaces import IUserService
 from warehouse.events.models import IpAddress
 
 
@@ -23,7 +24,13 @@ class Bans:
             .filter_by(ip_address=ip_address, is_banned=True)
             .one_or_none()
         )
-        return True if banned is not None else False
+        if banned is not None:
+            login_service = self.request.find_service(IUserService, context=None)
+            login_service._check_ratelimits(userid=None, tags=["banned:by_ip"])
+            login_service._hit_ratelimits(userid=None)
+            return True
+
+        return False
 
 
 def includeme(config):

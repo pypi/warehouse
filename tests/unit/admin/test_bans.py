@@ -10,6 +10,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import pretend
+
 from sqlalchemy import sql
 
 from warehouse.ip_addresses.models import BanReason
@@ -26,6 +28,13 @@ class TestAdminFlag:
         assert not db_request.banned.by_ip("1.2.3.4")
 
     def test_with_ip_banned(self, db_request):
+        user_service = pretend.stub(
+            _hit_ratelimits=pretend.call_recorder(lambda userid=None: None),
+            _check_ratelimits=pretend.call_recorder(
+                lambda userid=None, tags=None: None
+            ),
+        )
+        db_request.find_service = lambda service_name, context=None: user_service
         IpAddressFactory(
             ip_address="1.2.3.4",
             is_banned=True,
@@ -33,3 +42,7 @@ class TestAdminFlag:
             ban_date=sql.func.now(),
         )
         assert db_request.banned.by_ip("1.2.3.4")
+        assert user_service._hit_ratelimits.calls == [pretend.call(userid=None)]
+        assert user_service._check_ratelimits.calls == [
+            pretend.call(userid=None, tags=["banned:by_ip"])
+        ]
