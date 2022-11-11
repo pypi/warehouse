@@ -29,6 +29,27 @@ from warehouse.utils import readme
 
 
 @tasks.task(ignore_result=True, acks_late=True)
+def prune_expired_reserved_projects(request):
+    metrics = request.find_service(IMetricsService, context=None)
+
+    # A reserved project is eligible for pruning if it hasn't had any releases
+    # added to it, *and* if its `reserved_until` timestamp has expired.
+    deletion_count = (
+        request.db.query(Project)
+        .filter(
+            ~Project.releases.any()
+            & (Project.reserved_until <= datetime.datetime.now())
+        )
+        .delete()
+    )
+
+    metrics.gauge(
+        "warehouse.packaging.project_reservations_pruned",
+        deletion_count,
+    )
+
+
+@tasks.task(ignore_result=True, acks_late=True)
 def compute_2fa_mandate(request):
     # Get our own production dependencies
     our_dependencies = set(

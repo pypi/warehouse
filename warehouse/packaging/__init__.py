@@ -23,6 +23,7 @@ from warehouse.packaging.tasks import (
     compute_2fa_mandate,
     compute_2fa_metrics,
     compute_trending,
+    prune_expired_reserved_projects,
     update_description_html,
 )
 
@@ -114,6 +115,8 @@ def includeme(config):
     # been configured to be able to access BigQuery.
     if config.get_settings().get("warehouse.trending_table"):
         config.add_periodic_task(crontab(minute=0, hour=3), compute_trending)
+
+    config.add_periodic_task(crontab(minute="*/5"), prune_expired_reserved_projects)
 
     # TODO: restore this
     # if config.get_settings().get("warehouse.release_files_table"):
