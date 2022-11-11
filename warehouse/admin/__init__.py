@@ -52,6 +52,3 @@ def includeme(config):
 
     # Add our flags
     config.include(".flags")
-
-    # Add our bans
-    config.include(".bans")
