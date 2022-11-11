@@ -391,6 +391,7 @@ def query_recorder(app_config):
 def db_request(pyramid_request, db_session):
     pyramid_request.db = db_session
     pyramid_request.flags = admin.flags.Flags(pyramid_request)
+    pyramid_request.banned = admin.bans.Bans(pyramid_request)
     return pyramid_request
 
 

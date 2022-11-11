@@ -129,6 +129,9 @@ class SessionSecurityPolicy:
         request.add_response_callback(add_vary_callback("Cookie"))
         request.authentication_method = AuthenticationMethod.SESSION
 
+        if request.banned.by_ip(request.remote_addr):
+            return None
+
         # A route must be matched
         if not request.matched_route:
             return None
@@ -188,6 +191,9 @@ class BasicAuthSecurityPolicy:
         # Authorization header.
         request.add_response_callback(add_vary_callback("Authorization"))
         request.authentication_method = AuthenticationMethod.BASIC_AUTH
+
+        if request.banned.by_ip(request.remote_addr):
+            return None
 
         credentials = extract_http_basic_credentials(request)
         if credentials is None:
