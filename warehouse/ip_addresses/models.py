@@ -30,7 +30,9 @@ class IpAddress(db.Model):
     __tablename__ = "ip_addresses"
     __table_args__ = (
         Index("bans_idx", "is_banned"),
-        CheckConstraint('NOT is_banned <> NOT (ban_reason IS NULL OR ban_date IS NULL)'),
+        CheckConstraint(
+            "NOT is_banned <> NOT (ban_reason IS NULL OR ban_date IS NULL)"
+        ),
     )
 
     def __repr__(self):

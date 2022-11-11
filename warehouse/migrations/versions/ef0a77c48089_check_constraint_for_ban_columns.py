@@ -17,25 +17,22 @@ Revises: f7d91bbfd59e
 Create Date: 2022-11-10 20:14:30.253975
 """
 
-import sqlalchemy as sa
-
 from alembic import op
 
-
-revision = 'ef0a77c48089'
-down_revision = 'f7d91bbfd59e'
+revision = "ef0a77c48089"
+down_revision = "f7d91bbfd59e"
 
 
 def upgrade():
     op.create_check_constraint(
-        'ip_addresses_ban_constraints',
+        "ip_addresses_ban_constraints",
         table_name="ip_addresses",
-        condition='NOT is_banned <> NOT (ban_reason IS NULL OR ban_date IS NULL)'
+        condition="NOT is_banned <> NOT (ban_reason IS NULL OR ban_date IS NULL)",
     )
 
 
 def downgrade():
     op.drop_constraint(
-        'ip_addresses_ban_constraints',
+        "ip_addresses_ban_constraints",
         table_name="ip_addresses",
     )
