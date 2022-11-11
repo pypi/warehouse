@@ -258,6 +258,11 @@
     margin-right: auto;
   }
 
+  s { /* pygments Literal.String */
+    /* Override browser default behavior */
+    text-decoration: none;
+  }
+
 }
 
 
