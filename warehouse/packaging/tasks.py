@@ -35,8 +35,7 @@ def prune_expired_reserved_projects(request):
     # A reserved project is eligible for pruning if it hasn't had any releases
     # added to it, *and* if its `reserved_until` timestamp has expired.
     expired_projects = (
-        request.db.query(Project)
-        .filter(
+        request.db.query(Project).filter(
             ~Project.releases.any()
             & (Project.reserved_until <= datetime.datetime.now())
         )
