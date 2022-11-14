@@ -34,18 +34,20 @@ def prune_expired_reserved_projects(request):
 
     # A reserved project is eligible for pruning if it hasn't had any releases
     # added to it, *and* if its `reserved_until` timestamp has expired.
-    deletion_count = (
+    expired_projects = (
         request.db.query(Project)
         .filter(
             ~Project.releases.any()
             & (Project.reserved_until <= datetime.datetime.now())
         )
-        .delete(synchronize_session=False)
-    )
+    ).all()
+
+    for project in expired_projects:
+        request.db.delete(project)
 
     metrics.gauge(
         "warehouse.packaging.project_reservations_pruned",
-        deletion_count,
+        len(expired_projects),
     )
 
 
