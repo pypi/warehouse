@@ -12,7 +12,6 @@
 
 import datetime
 
-import elasticsearch
 import pretend
 import pytest
 
@@ -128,10 +127,11 @@ class TestSearch:
         assert exc.value.faultString == (
             "RuntimeError: PyPI no longer supports 'pip search' (or XML-RPC search). "
             f"Please use https://{domain if domain else 'example.org'}/search "
-            "(via a browser) instead."
+            "(via a browser) instead. See "
+            "https://warehouse.pypa.io/api-reference/xml-rpc.html#deprecated-methods "
+            "for more information."
         )
-        assert metrics.increment.calls == [
-        ]
+        assert metrics.increment.calls == []
 
 
 def test_list_packages(db_request):
@@ -187,9 +187,10 @@ def test_top_packages(num, pyramid_request):
     with pytest.raises(xmlrpc.XMLRPCWrappedError) as exc:
         xmlrpc.top_packages(pyramid_request, num)
 
-    assert (
-        exc.value.faultString
-        == "RuntimeError: This API has been removed. Use BigQuery instead."
+    assert exc.value.faultString == (
+        "RuntimeError: This API has been removed. Use BigQuery instead. "
+        "See https://warehouse.pypa.io/api-reference/xml-rpc.html#deprecated-methods "
+        "for more information."
     )
 
 
@@ -203,10 +204,9 @@ def test_package_urls(domain, db_request):
         xmlrpc.package_urls(db_request, "foo", "1.0.0")
 
     assert exc.value.faultString == (
-        "RuntimeError: This API has been deprecated. Use "
-        f"https://{domain if domain else 'example.org'}/foo/1.0.0/json "
-        "instead. The XMLRPC method release_urls can be used in the "
-        "interim, but will be deprecated in the future."
+        "RuntimeError: This API has been deprecated. "
+        "See https://warehouse.pypa.io/api-reference/xml-rpc.html#deprecated-methods "
+        "for more information."
     )
 
 
@@ -220,10 +220,9 @@ def test_package_data(domain, db_request):
         xmlrpc.package_data(db_request, "foo", "1.0.0")
 
     assert exc.value.faultString == (
-        "RuntimeError: This API has been deprecated. Use "
-        f"https://{domain if domain else 'example.org'}/foo/1.0.0/json "
-        "instead. The XMLRPC method release_data can be used in the "
-        "interim, but will be deprecated in the future."
+        "RuntimeError: This API has been deprecated. "
+        "See https://warehouse.pypa.io/api-reference/xml-rpc.html#deprecated-methods "
+        "for more information."
     )
 
 
