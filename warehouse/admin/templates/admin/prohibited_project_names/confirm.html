@@ -62,7 +62,11 @@
 
               <p>
                 Are you sure you want to prohibit
-                <strong>{{ prohibited_project_names.project }}</strong>?
+                <code id="project-name">{{ prohibited_project_names.project }}</code>
+                <button type="button" class="copy-tooltip copy-tooltip-s" data-clipboard-target="#project-name" data-tooltip-label="Copy to clipboard">
+                  <i class="fa fa-copy" aria-hidden="true"></i>
+                </button>
+                ?
               </p>
 
               <form action="{{ request.current_route_path() }}" method="POST">
