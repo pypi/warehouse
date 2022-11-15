@@ -30,11 +30,22 @@
               <p>
                 Prohibiting {{ prohibited_project_names.project }} will irreversibly delete
                 the <a href="{{ request.route_path('admin.project.detail', project_name=existing.project.normalized_name) }}">{{ existing.project.name }}</a>
-                project along with
-                <a href="{{ request.route_path('admin.project.releases', project_name=existing.project.normalized_name) }}">{{ existing.releases|length() }} releases</a>
-                and {{ existing.files|length() }} files. This project has
-                {{ existing.users|length() }} users able to access it, listed
-                below:
+                project along with the following
+                <a href="{{ request.route_path('admin.project.releases', project_name=existing.project.normalized_name) }}">{{ existing.releases|length() }} releases</a>:
+
+                <ul>
+                  {% for date, releases in existing.releases_by_date|dictsort(reverse=True) %}
+                  <li>
+                    {{ date }} -
+                    {% for release in releases %}
+                    <a href="{{ request.route_path('admin.project.release', project_name=release.project.normalized_name, version=release.version) }}">{{ release.version }}</a>{% if not loop.last %}, {% endif %}
+                    {% endfor %}
+                  </li>
+                  {% endfor %}
+                </ul>
+
+                This project has {{ existing.roles|length }} users able to
+                access it, listed below:
 
                 <ul>
                   {% for role in existing.roles %}
