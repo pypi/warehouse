@@ -88,10 +88,10 @@ text in the project descriptions associated with your Account, but they must be
 related to the project you are hosting on PyPI.
 
 You may not promote or distribute content or activity that is illegal or
-otherwise prohibited by our [Terms of Service](TODO) or Acceptable Use
-Policies, including excessive automated bulk activity (for example, spamming),
-get-rich-quick schemes, and misrepresentation or deception related to your
-promotion.
+otherwise prohibited by our [Terms of use](/policy/terms-of-use/) or Acceptable
+Use Policies, including excessive automated bulk activity (for example,
+spamming), get-rich-quick schemes, and misrepresentation or deception related
+to your promotion.
 
 If you decide to post any promotional materials in your Account, you are solely
 responsible for complying with all applicable laws and regulations, including
@@ -286,30 +286,6 @@ physical harm against human beings or animals. This includes:
 
 ## Usage Limits
 
-You will not reproduce, duplicate, copy, sell, resell or exploit any portion of
-PyPI, use of PyPI, or access to PyPI without our express written permission.
-
-You may use information from PyPI for the following reasons, regardless of
-whether the information was scraped, collected through our API, or obtained
-otherwise:
-
--  Researchers may use public, non-personal information from PyPI for research
-   purposes, only if any publications resulting from that research are [open
-   access](https://en.wikipedia.org/wiki/Open_access).
--  Archivists may use public information from PyPI for archival purposes.
-
-Scraping refers to extracting information from PyPI via an automated process,
-such as a bot or webcrawler. Scraping does not refer to the collection of
-information through our API.
-
-You may not use information from PyPI (whether scraped, collected through our
-API, or obtained otherwise) for spamming purposes, including for the purposes
-of sending unsolicited emails to users or selling personal information, such as
-to recruiters, headhunters, and job boards.
-
-Your use of information from PyPI must comply with the [Python Software
-Foundation Privacy Policy](https://www.python.org/privacy/).
-
 PyPI generally does not impose resource limitations on any features. If we
 determine your usage of PyPI to be significantly excessive in relation to other
 users of similar features, we reserve the right to suspend your Account,
@@ -319,6 +295,18 @@ your usage.
 You may not use our servers to disrupt or to attempt to disrupt, or to gain or
 to attempt to gain unauthorized access to, any service, device, data, account
 or network.
+
+You may not use information from PyPI (whether scraped, collected through our
+API, or obtained otherwise) for spamming purposes, including for the purposes
+of sending unsolicited emails to users or selling personal information, such as
+to recruiters, headhunters, and job boards.
+
+Scraping refers to extracting information from PyPI via an automated process,
+such as a bot or webcrawler. Scraping does not refer to the collection of
+information through our API.
+
+Your use of information from PyPI must comply with the [Python Software
+Foundation Privacy Policy](https://www.python.org/privacy/).
 
 
 ## Violations and Enforcement
