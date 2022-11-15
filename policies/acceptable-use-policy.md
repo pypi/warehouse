@@ -88,10 +88,10 @@ text in the project descriptions associated with your Account, but they must be
 related to the project you are hosting on PyPI.
 
 You may not promote or distribute content or activity that is illegal or
-otherwise prohibited by our [Terms of Service](TODO) or Acceptable Use
-Policies, including excessive automated bulk activity (for example, spamming),
-get-rich-quick schemes, and misrepresentation or deception related to your
-promotion.
+otherwise prohibited by our [Terms of use](/policy/terms-of-use/) or Acceptable
+Use Policies, including excessive automated bulk activity (for example,
+spamming), get-rich-quick schemes, and misrepresentation or deception related
+to your promotion.
 
 If you decide to post any promotional materials in your Account, you are solely
 responsible for complying with all applicable laws and regulations, including
