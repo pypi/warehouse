@@ -255,3 +255,11 @@ class TestMultiSecurityPolicy:
         permission = pretend.stub()
         assert policy.permits(request, context, permission) is status
         assert authz.permits.calls == [pretend.call(context, [], permission)]
+
+    def test_cant_use_unauthenticated_userid(self):
+        subpolicies = pretend.stub()
+        authz = pretend.stub(permits=pretend.call_recorder(lambda *a: pretend.stub()))
+        policy = security_policy.MultiSecurityPolicy(subpolicies, authz)
+
+        with pytest.raises(NotImplementedError):
+            policy.unauthenticated_userid(pretend.stub())

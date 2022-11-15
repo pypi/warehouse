@@ -11,6 +11,13 @@
  * limitations under the License.
  */
 
+// We'll use docReady as a modern replacement for $(document).ready() which
+// does not require all of jQuery to use. This will let us use it without
+// having to load all of jQuery, which will make things faster.
+import docReady from "warehouse/utils/doc-ready";
+
+import Clipboard from "clipboard";
+
 document.querySelectorAll("a[data-form-submit]").forEach(function (element) {
   element.addEventListener("click", function(event) {
     // We're turning this element into a form submission, so instead of the
@@ -72,5 +79,40 @@ document.querySelectorAll(".btn-group[data-input][data-state]").forEach(function
       // Find the form for the input, and submit it.
       input.form.submit();
     });
+  });
+});
+
+// Copy handler for copy tooltips, e.g.
+//   - the pip command on package detail page
+//   - the copy hash on package detail page
+//   - the copy hash on release maintainers page
+//
+// Copied from https://github.com/pypi/warehouse/blob/3ebae1ffe8f9f258f80eb8bf048f0e1fcc2df2b4/warehouse/static/js/warehouse/index.js#LL76-L107C4
+docReady(() => {
+  let setCopiedTooltip = (e) => {
+    e.trigger.setAttribute("data-tooltip-label", "Copied");
+    e.trigger.setAttribute("role", "alert");
+    e.clearSelection();
+  };
+
+  new Clipboard(".copy-tooltip").on("success", setCopiedTooltip);
+
+  let setOriginalLabel = (element) => {
+    element.setAttribute("data-tooltip-label", "Copy to clipboard");
+    element.removeAttribute("role");
+    element.blur();
+  };
+
+  let tooltippedElems = Array.from(document.querySelectorAll(".copy-tooltip"));
+
+  tooltippedElems.forEach((element) => {
+    element.addEventListener("focusout",
+      setOriginalLabel.bind(undefined, element),
+      false
+    );
+    element.addEventListener("mouseout",
+      setOriginalLabel.bind(undefined, element),
+      false
+    );
   });
 });

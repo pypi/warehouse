@@ -79,6 +79,10 @@ class MultiSecurityPolicy:
                 return str(ident.id)
         return None
 
+    def unauthenticated_userid(self, request):
+        # This is deprecated and we shouldn't use it
+        raise NotImplementedError
+
     def forget(self, request, **kw):
         headers = []
         for policy in self._policies:
