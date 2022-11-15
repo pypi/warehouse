@@ -227,97 +227,13 @@ def exception_view(exc, request):
 
 @xmlrpc_method(method="search")
 def search(request, spec: Mapping[str, Union[str, List[str]]], operator: str = "and"):
-    metrics = request.find_service(IMetricsService, context=None)
-
-    # This uses a setting instead of an admin flag to avoid hitting the DB/Elasticsearch
-    # at all since the broad purpose of this flag is to enable us to control the load to
-    # our backend servers. This does mean that turning search on or off requires a
-    # deploy, but it should be infrequent enough to not matter.
-    if not request.registry.settings.get("warehouse.xmlrpc.search.enabled", True):
-        metrics.increment("warehouse.xmlrpc.search.deprecated")
-        domain = request.registry.settings.get("warehouse.domain", request.domain)
-        raise XMLRPCWrappedError(
-            RuntimeError(
-                "PyPI no longer supports 'pip search' (or XML-RPC search). "
-                f"Please use https://{domain}/search (via a browser) instead."
-            )
+    domain = request.registry.settings.get("warehouse.domain", request.domain)
+    raise XMLRPCWrappedError(
+        RuntimeError(
+            "PyPI no longer supports 'pip search' (or XML-RPC search). "
+            f"Please use https://{domain}/search (via a browser) instead."
         )
-
-    if operator not in {"and", "or"}:
-        raise XMLRPCWrappedError(
-            ValueError("Invalid operator, must be one of 'and' or 'or'.")
-        )
-
-    # Remove any invalid spec fields
-    spec = {
-        k: [v] if isinstance(v, str) else v
-        for k, v in spec.items()
-        if v
-        and k
-        in {
-            "name",
-            "version",
-            "author",
-            "author_email",
-            "maintainer",
-            "maintainer_email",
-            "home_page",
-            "license",
-            "summary",
-            "description",
-            "keywords",
-            "platform",
-            "download_url",
-        }
-    }
-
-    queries = []
-    for field, value in sorted(spec.items()):
-        q = None
-        for item in value:
-            kw = {"query": item}
-            if field in SEARCH_BOOSTS:
-                kw["boost"] = SEARCH_BOOSTS[field]  # type: ignore
-            if q is None:
-                q = Q("match", **{field: kw})
-            else:
-                q |= Q("match", **{field: kw})
-        queries.append(q)
-
-    if operator == "and":
-        query = request.es.query("bool", must=queries)
-    else:
-        query = request.es.query("bool", should=queries)
-
-    try:
-        results = query[:100].execute()
-    except elasticsearch.TransportError:
-        metrics.increment("warehouse.xmlrpc.search.error")
-        raise XMLRPCServiceUnavailable
-
-    metrics.histogram("warehouse.xmlrpc.search.results", len(results))
-
-    if "version" in spec.keys():
-        return [
-            {
-                "name": r.name,
-                "summary": _clean_for_xml(getattr(r, "summary", None)),
-                "version": v,
-                "_pypi_ordering": False,
-            }
-            for r in results
-            for v in r.version
-            if v in spec.get("version", [v])
-        ]
-    return [
-        {
-            "name": r.name,
-            "summary": _clean_for_xml(getattr(r, "summary", None)),
-            "version": r.latest_version,
-            "_pypi_ordering": False,
-        }
-        for r in results
-    ]
+    )
 
 
 @xmlrpc_cache_all_projects(method="list_packages")
