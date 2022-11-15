@@ -98,9 +98,9 @@ envier==0.4.0 \
     --hash=sha256:7b91af0f16ea3e56d91ec082f038987e81b441fc19c657a8b8afe0909740a706 \
     --hash=sha256:e68dcd1ed67d8b6313883e27dff3e701b7fba944d2ed4b7f53d0cc2e12364a82
     # via ddtrace
-exceptiongroup==1.0.1 \
-    --hash=sha256:4d6c0aa6dd825810941c792f53d7b8d71da26f5e5f84f20f9508e8f2d33b140a \
-    --hash=sha256:73866f7f842ede6cb1daa42c4af078e2035e5f7607f0e2c762cc51bb31bbe7b2
+exceptiongroup==1.0.3 \
+    --hash=sha256:6002703c7d31fb9950ddc8780840f67880c440895dc1151dd551553aa1246e4a \
+    --hash=sha256:76cac74b5207c5997678a1c7105cb6f14213c9c63c096a38cfcb529d83ce5c02
     # via cattrs
 forbiddenfruit==0.1.4 \
     --hash=sha256:e3f7e66561a29ae129aac139a85d610dbf3dd896128187ed5454b6421f624253
