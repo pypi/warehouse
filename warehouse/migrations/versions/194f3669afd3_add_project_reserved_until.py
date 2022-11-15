@@ -13,7 +13,7 @@
 add Project.reserved_until
 
 Revision ID: 194f3669afd3
-Revises: ef0a77c48089
+Revises: 43bf0b6badcb
 Create Date: 2022-11-10 14:49:01.090836
 """
 
@@ -22,7 +22,7 @@ import sqlalchemy as sa
 from alembic import op
 
 revision = "194f3669afd3"
-down_revision = "ef0a77c48089"
+down_revision = "43bf0b6badcb"
 
 
 def upgrade():
