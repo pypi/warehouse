@@ -33,6 +33,7 @@ from warehouse.macaroons.caveats._core import (
     deserialize,
     serialize,
 )
+from warehouse.oidc import models as oidc_models
 from warehouse.packaging.models import Project
 
 __all__ = ["deserialize", "serialize", "verify"]
@@ -96,6 +97,38 @@ class RequestUser(Caveat):
 
         if str(request.identity.id) != self.user_id:
             return Failure("current user does not match user restriction in token")
+
+        return Success()
+
+
+@as_caveat(tag=4)
+@dataclass(frozen=True)
+class OIDCProvider(Caveat):
+    oidc_provider_id: StrictStr
+
+    def verify(self, request: Request, context: Any, permission: str) -> Result:
+        # If the identity associated with this macaroon is not an OpenID provider,
+        # then it doesn't make sense to restrict it with an `OIDCProvider` caveat.
+        if not isinstance(request.identity, oidc_models.OIDCProvider):
+            return Failure(
+                "OIDC scoped token used outside of an OIDC identified request"
+            )
+
+        if str(request.identity.id) != self.oidc_provider_id:
+            return Failure(
+                "current OIDC provider does not match provider restriction in token"
+            )
+
+        # OpenID-scoped tokens are only valid against projects.
+        if not isinstance(context, Project):
+            return Failure("OIDC scoped token used outside of a project context")
+
+        # Specifically, they are only valid against projects that are registered
+        # to the current identifying OpenID provider.
+        if context not in request.identity.projects:
+            return Failure(
+                f"OIDC scoped token is not valid for project '{context.name}'"
+            )
 
         return Success()
 

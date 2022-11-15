@@ -11,6 +11,7 @@
 # limitations under the License.
 
 import json
+import warnings
 
 import jwt
 import redis
@@ -20,12 +21,60 @@ import sentry_sdk
 from zope.interface import implementer
 
 from warehouse.metrics.interfaces import IMetricsService
-from warehouse.oidc.interfaces import IOIDCProviderService
+from warehouse.oidc.interfaces import IOIDCProviderService, SignedClaims
+from warehouse.oidc.models import OIDCProvider
+from warehouse.oidc.utils import find_provider_by_issuer
+
+
+class InsecureOIDCProviderWarning(UserWarning):
+    pass
+
+
+@implementer(IOIDCProviderService)
+class NullOIDCProviderService:
+    def __init__(self, session, provider, issuer_url, cache_url, metrics):
+        warnings.warn(
+            "NullOIDCProviderService is intended only for use in development, "
+            "you should not use it in production due to the lack of actual "
+            "JWT verification.",
+            InsecureOIDCProviderWarning,
+        )
+
+        self.db = session
+        self.issuer_url = issuer_url
+
+    def verify_jwt_signature(self, unverified_token: str) -> SignedClaims | None:
+        try:
+            return SignedClaims(
+                jwt.decode(
+                    unverified_token,
+                    options=dict(
+                        verify_signature=False,
+                        # We require all of these to be present, but for the
+                        # null provider we only actually verify the audience.
+                        require=["iss", "iat", "nbf", "exp", "aud"],
+                        verify_iss=False,
+                        verify_iat=False,
+                        verify_nbf=False,
+                        verify_exp=False,
+                        verify_aud=True,
+                    ),
+                    audience="pypi",
+                )
+            )
+        except jwt.PyJWTError:
+            return None
+
+    def find_provider(self, signed_claims: SignedClaims) -> OIDCProvider | None:
+        # NOTE: We do NOT verify the claims against the provider, since this
+        # service is for development purposes only.
+        return find_provider_by_issuer(self.db, self.issuer_url, signed_claims)
 
 
 @implementer(IOIDCProviderService)
 class OIDCProviderService:
-    def __init__(self, provider, issuer_url, cache_url, metrics):
+    def __init__(self, session, provider, issuer_url, cache_url, metrics):
+        self.db = session
         self.provider = provider
         self.issuer_url = issuer_url
         self.cache_url = cache_url
@@ -133,7 +182,7 @@ class OIDCProviderService:
 
         return keys
 
-    def get_key(self, key_id):
+    def _get_key(self, key_id):
         """
         Return a JWK for the given key ID, or None if the key can't be found
         in this provider's keyset.
@@ -158,77 +207,75 @@ class OIDCProviderService:
         prior to any verification.
         """
         unverified_header = jwt.get_unverified_header(token)
-        return self.get_key(unverified_header["kid"])
+        return self._get_key(unverified_header["kid"])
 
-    def verify_signature_only(self, token):
-        key = self._get_key_for_token(token)
+    def verify_jwt_signature(self, unverified_token: str) -> SignedClaims | None:
+        key = self._get_key_for_token(unverified_token)
 
         try:
             # NOTE: Many of the keyword arguments here are defaults, but we
             # set them explicitly to assert the intended verification behavior.
             signed_payload = jwt.decode(
-                token,
+                unverified_token,
                 key=key,
                 algorithms=["RS256"],
-                verify_signature=True,
-                # "require" only checks for the presence of these claims, not
-                # their validity. Each has a corresponding "verify_" kwarg
-                # that enforces their actual validity.
-                require=["iss", "iat", "nbf", "exp", "aud"],
-                verify_iss=True,
-                verify_iat=True,
-                verify_nbf=True,
-                verify_exp=True,
-                verify_aud=True,
+                options=dict(
+                    verify_signature=True,
+                    # "require" only checks for the presence of these claims, not
+                    # their validity. Each has a corresponding "verify_" kwarg
+                    # that enforces their actual validity.
+                    require=["iss", "iat", "nbf", "exp", "aud"],
+                    verify_iss=True,
+                    verify_iat=True,
+                    verify_nbf=True,
+                    verify_exp=True,
+                    verify_aud=True,
+                ),
                 issuer=self.issuer_url,
                 audience="pypi",
                 leeway=30,
             )
-            return signed_payload
-        except jwt.PyJWTError:
-            return None
+            return SignedClaims(signed_payload)
         except Exception as e:
-            # We expect pyjwt to only raise subclasses of PyJWTError, but
-            # we can't enforce this. Other exceptions indicate an abstraction
-            # leak, so we log them for upstream reporting.
-            sentry_sdk.capture_message(f"JWT verify raised generic error: {e}")
+            self.metrics.increment(
+                "warehouse.oidc.verify_jwt_signature.invalid_signature",
+                tags=[f"provider:{self.provider}"],
+            )
+            if not isinstance(e, jwt.PyJWTError):
+                # We expect pyjwt to only raise subclasses of PyJWTError, but
+                # we can't enforce this. Other exceptions indicate an abstraction
+                # leak, so we log them for upstream reporting.
+                sentry_sdk.capture_message(f"JWT verify raised generic error: {e}")
             return None
 
-    def verify_for_project(self, token, project):
-        signed_payload = self.verify_signature_only(token)
-
-        metrics_tags = [f"project:{project.name}", f"provider:{self.provider}"]
+    def find_provider(self, signed_claims: SignedClaims) -> OIDCProvider | None:
+        metrics_tags = [f"provider:{self.provider}"]
         self.metrics.increment(
-            "warehouse.oidc.verify_for_project.attempt",
+            "warehouse.oidc.find_provider.attempt",
             tags=metrics_tags,
         )
 
-        if signed_payload is None:
+        provider = find_provider_by_issuer(self.db, self.issuer_url, signed_claims)
+        if provider is None:
             self.metrics.increment(
-                "warehouse.oidc.verify_for_project.invalid_signature",
+                "warehouse.oidc.find_provider.provider_not_found",
                 tags=metrics_tags,
             )
-            return False
+            return None
 
-        # In order for a signed JWT to be valid for a particular PyPI project,
-        # it must match at least one of the OIDC providers registered to
-        # the project.
-        verified = any(
-            provider.verify_claims(signed_payload)
-            for provider in project.oidc_providers
-        )
-        if not verified:
+        if not provider.verify_claims(signed_claims):
             self.metrics.increment(
-                "warehouse.oidc.verify_for_project.invalid_claims",
+                "warehouse.oidc.find_provider.invalid_claims",
                 tags=metrics_tags,
             )
+            return None
         else:
             self.metrics.increment(
-                "warehouse.oidc.verify_for_project.ok",
+                "warehouse.oidc.find_provider.ok",
                 tags=metrics_tags,
             )
 
-        return verified
+        return provider
 
 
 class OIDCProviderServiceFactory:
@@ -241,7 +288,9 @@ class OIDCProviderServiceFactory:
         cache_url = request.registry.settings["oidc.jwk_cache_url"]
         metrics = request.find_service(IMetricsService, context=None)
 
-        return self.service_class(self.provider, self.issuer_url, cache_url, metrics)
+        return self.service_class(
+            request.db, self.provider, self.issuer_url, cache_url, metrics
+        )
 
     def __eq__(self, other):
         if not isinstance(other, OIDCProviderServiceFactory):

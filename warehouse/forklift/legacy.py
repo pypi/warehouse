@@ -782,9 +782,9 @@ def file_upload(request):
     metrics = request.find_service(IMetricsService, context=None)
     metrics.increment("warehouse.upload.attempt")
 
-    # Before we do anything, if there isn't an authenticated user with this
-    # request, then we'll go ahead and bomb out.
-    if request.authenticated_userid is None:
+    # Before we do anything, if there isn't an authenticated identity with
+    # this request, then we'll go ahead and bomb out.
+    if request.identity is None:
         raise _exc_with_message(
             HTTPForbidden,
             "Invalid or non-existent authentication information. "
@@ -793,24 +793,27 @@ def file_upload(request):
             ),
         )
 
-    # Ensure that user has a verified, primary email address. This should both
-    # reduce the ease of spam account creation and activity, as well as act as
-    # a forcing function for https://github.com/pypi/warehouse/issues/3632.
-    # TODO: Once https://github.com/pypi/warehouse/issues/3632 has been solved,
-    #       we might consider a different condition, possibly looking at
-    #       User.is_active instead.
-    if not (request.user.primary_email and request.user.primary_email.verified):
-        raise _exc_with_message(
-            HTTPBadRequest,
-            (
-                "User {!r} does not have a verified primary email address. "
-                "Please add a verified primary email before attempting to "
-                "upload to PyPI. See {project_help} for more information."
-            ).format(
-                request.user.username,
-                project_help=request.help_url(_anchor="verified-email"),
-            ),
-        ) from None
+    # These checks only make sense when our authenticated identity is a user,
+    # not a project identity (like OIDC-minted tokens.)
+    if request.user:
+        # Ensure that user has a verified, primary email address. This should both
+        # reduce the ease of spam account creation and activity, as well as act as
+        # a forcing function for https://github.com/pypa/warehouse/issues/3632.
+        # TODO: Once https://github.com/pypa/warehouse/issues/3632 has been solved,
+        #       we might consider a different condition, possibly looking at
+        #       User.is_active instead.
+        if not (request.user.primary_email and request.user.primary_email.verified):
+            raise _exc_with_message(
+                HTTPBadRequest,
+                (
+                    "User {!r} does not have a verified primary email address. "
+                    "Please add a verified primary email before attempting to "
+                    "upload to PyPI. See {project_help} for more information."
+                ).format(
+                    request.user.username,
+                    project_help=request.help_url(_anchor="verified-email"),
+                ),
+            ) from None
 
     # Do some cleanup of the various form fields
     for key in list(request.POST):
@@ -892,6 +895,19 @@ def file_upload(request):
     )
 
     if project is None:
+        # Another sanity check: we should be preventing non-user identities
+        # from creating projects in the first place with scoped tokens,
+        # but double-check anyways.
+        if not request.user:
+            raise _exc_with_message(
+                HTTPBadRequest,
+                (
+                    "Non-user identities cannot create new projects. "
+                    "You must first create a project as a user, and then "
+                    "configure the project to use OpenID Connect."
+                ),
+            )
+
         # We attempt to create the project.
         try:
             validate_project_name(form.name.data, request)
@@ -923,27 +939,42 @@ def file_upload(request):
             },
         )
 
-    # Check that the user has permission to do things to this project, if this
+    # Check that the identity has permission to do things to this project, if this
     # is a new project this will act as a sanity check for the role we just
     # added above.
     allowed = request.has_permission("upload", project)
     if not allowed:
         reason = getattr(allowed, "reason", None)
-        msg = (
-            (
-                "The user '{0}' isn't allowed to upload to project '{1}'. "
-                "See {2} for more information."
-            ).format(
-                request.user.username,
-                project.name,
-                request.help_url(_anchor="project-name"),
+        if request.user:
+            msg = (
+                (
+                    "The user '{0}' isn't allowed to upload to project '{1}'. "
+                    "See {2} for more information."
+                ).format(
+                    request.user.username,
+                    project.name,
+                    request.help_url(_anchor="project-name"),
+                )
+                if reason is None
+                else allowed.msg
             )
-            if reason is None
-            else allowed.msg
-        )
+        else:
+            msg = (
+                (
+                    "The given token isn't allowed to upload to project '{0}'. "
+                    "See {1} for more information."
+                ).format(
+                    project.name,
+                    request.help_url(_anchor="project-name"),
+                )
+                if reason is None
+                else allowed.msg
+            )
         raise _exc_with_message(HTTPForbidden, msg)
 
     # Check if the user has 2FA and used basic auth
+    # NOTE: We don't need to guard request.user here because basic auth
+    # can only be used with user identities.
     if (
         request.authentication_method == AuthenticationMethod.BASIC_AUTH
         and request.user.has_two_factor
@@ -1072,10 +1103,11 @@ def file_upload(request):
                     "requires_python",
                 }
             },
-            uploader=request.user,
+            uploader=request.user if request.user else None,
             uploaded_via=request.user_agent,
         )
         request.db.add(release)
+
         # TODO: This should be handled by some sort of database trigger or
         #       a SQLAlchemy hook or the like instead of doing it inline in
         #       this view.
@@ -1084,7 +1116,7 @@ def file_upload(request):
                 name=release.project.name,
                 version=release.version,
                 action="new release",
-                submitted_by=request.user,
+                submitted_by=request.user if request.user else None,
                 submitted_from=request.remote_addr,
             )
         )
@@ -1093,7 +1125,10 @@ def file_upload(request):
             tag=EventTag.Project.ReleaseAdd,
             ip_address=request.remote_addr,
             additional={
-                "submitted_by": request.user.username,
+                "ephemeral": request.user is None,
+                "submitted_by": request.user.username
+                if request.user
+                else "OpenID created token",
                 "canonical_version": release.canonical_version,
             },
         )
@@ -1342,7 +1377,7 @@ def file_upload(request):
                 action="add {python_version} file {filename}".format(
                     python_version=file_.python_version, filename=file_.filename
                 ),
-                submitted_by=request.user,
+                submitted_by=request.user if request.user else None,
                 submitted_from=request.remote_addr,
             )
         )
