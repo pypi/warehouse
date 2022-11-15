@@ -30,23 +30,27 @@ msgstr ""
 msgid "Locale updated"
 msgstr "Atualizado localmente"
 
-#: warehouse/accounts/forms.py:55
+#: warehouse/accounts/forms.py:46
+msgid "The password is invalid. Try again."
+msgstr "A palavra-passe é inválida. Tente novamente."
+
+#: warehouse/accounts/forms.py:58
 msgid "No user found with that username"
 msgstr "Nenhum utilizador encontrado com esse nome de utilizador"
 
-#: warehouse/accounts/forms.py:66
+#: warehouse/accounts/forms.py:69
 msgid "TOTP code must be ${totp_length} digits."
 msgstr "Código TOTP deve ter ${totp_length} dígitos."
 
-#: warehouse/accounts/forms.py:87
+#: warehouse/accounts/forms.py:90
 msgid "Recovery Codes must be ${recovery_code_length} characters."
 msgstr ""
 
-#: warehouse/accounts/forms.py:102
+#: warehouse/accounts/forms.py:105
 msgid "Choose a username with 50 characters or less."
 msgstr "Escolha um nome de utilizador com 50 carateres ou menos."
 
-#: warehouse/accounts/forms.py:108
+#: warehouse/accounts/forms.py:111
 msgid ""
 "The username is invalid. Usernames must be composed of letters, numbers, "
 "dots, hyphens and underscores. And must also start and finish with a letter "
@@ -56,7 +60,7 @@ msgstr ""
 "por letras, números, pontos, hífenes e sublinhados. E também deve começar e "
 "terminar com uma letra ou número. Escolha um nome de utilizador diferente."
 
-#: warehouse/accounts/forms.py:125
+#: warehouse/accounts/forms.py:128
 msgid ""
 "This username is already being used by another account. Choose a different "
 "username."
@@ -64,36 +68,32 @@ msgstr ""
 "Este nome de utilizador já está a ser utilizado por outra conta. Escolha um "
 "nome de utilizador diferente."
 
-#: warehouse/accounts/forms.py:139 warehouse/accounts/forms.py:185
-#: warehouse/accounts/forms.py:198
+#: warehouse/accounts/forms.py:142 warehouse/accounts/forms.py:186
+#: warehouse/accounts/forms.py:199
 msgid "Password too long."
 msgstr "Senha grande demais."
 
-#: warehouse/accounts/forms.py:167
-msgid "The password is invalid. Try again."
-msgstr "A palavra-passe é inválida. Tente novamente."
-
-#: warehouse/accounts/forms.py:171 warehouse/accounts/views.py:88
+#: warehouse/accounts/forms.py:172 warehouse/accounts/views.py:88
 msgid "There have been too many unsuccessful login attempts. Try again later."
 msgstr ""
 "Ocorreram muitas tentativas para iniciar a sessão sem êxito. Tente mais "
 "tarde."
 
-#: warehouse/accounts/forms.py:201
+#: warehouse/accounts/forms.py:202
 msgid "Your passwords don't match. Try again."
 msgstr "As suas palavras-passe não coincidem. Tente novamente."
 
-#: warehouse/accounts/forms.py:232 warehouse/accounts/forms.py:243
+#: warehouse/accounts/forms.py:233 warehouse/accounts/forms.py:244
 msgid "The email address isn't valid. Try again."
 msgstr "O endereço de e-mail não é válido. Tente novamente."
 
-#: warehouse/accounts/forms.py:251
+#: warehouse/accounts/forms.py:252
 msgid "You can't use an email address from this domain. Use a different email."
 msgstr ""
 "Não pode utilizar um endereço de e-mail deste domínio. Utilize um e-mail "
 "diferente."
 
-#: warehouse/accounts/forms.py:262
+#: warehouse/accounts/forms.py:263
 msgid ""
 "This email address is already being used by this account. Use a different "
 "email."
@@ -101,7 +101,7 @@ msgstr ""
 "Este endereço de e-mail já está a ser utilizado por esta conta. Utilize um e-"
 "mail diferente."
 
-#: warehouse/accounts/forms.py:269
+#: warehouse/accounts/forms.py:270
 msgid ""
 "This email address is already being used by another account. Use a different "
 "email."
@@ -109,27 +109,27 @@ msgstr ""
 "Este endereço de e-mail já está a ser utilizado por outra conta. Utilize um "
 "e-mail diferente."
 
-#: warehouse/accounts/forms.py:291 warehouse/manage/forms.py:143
+#: warehouse/accounts/forms.py:292 warehouse/manage/forms.py:143
 msgid "The name is too long. Choose a name with 100 characters or less."
 msgstr "O nome é muito longo. Escolha um nome com 100 carateres ou menos."
 
-#: warehouse/accounts/forms.py:362
+#: warehouse/accounts/forms.py:367
 msgid "Invalid TOTP code."
 msgstr "Código de TOTP inválido."
 
-#: warehouse/accounts/forms.py:379
+#: warehouse/accounts/forms.py:384
 msgid "Invalid WebAuthn assertion: Bad payload"
 msgstr "Asserção inválida do WebAuthn: Carga incorreta"
 
-#: warehouse/accounts/forms.py:437
+#: warehouse/accounts/forms.py:442
 msgid "Invalid recovery code."
 msgstr "Código de recuperação inválido."
 
-#: warehouse/accounts/forms.py:445
+#: warehouse/accounts/forms.py:450
 msgid "Recovery code has been previously used."
 msgstr "Código de recuperação já utilizado anteriormente."
 
-#: warehouse/accounts/forms.py:464
+#: warehouse/accounts/forms.py:469
 msgid "No user found with that username or email"
 msgstr ""
 "Não foi encontrado nenhum utilizador com esse nome de utilizador ou e-mail"
@@ -435,14 +435,14 @@ msgstr ""
 "O usuário \"${username}\" não tem um endereço de e-mail principal verificado "
 "e não pode ser adicionado como um ${role_name} para a equipe"
 
-#: warehouse/manage/views.py:2034 warehouse/manage/views.py:4367
+#: warehouse/manage/views.py:2034 warehouse/manage/views.py:4369
 msgid ""
 "User '${username}' already has an active invite. Please try again later."
 msgstr ""
 "O utilizador \"${username}\" já tem um convite ativo. Tente novamente mais "
 "tarde."
 
-#: warehouse/manage/views.py:2100 warehouse/manage/views.py:4434
+#: warehouse/manage/views.py:2100 warehouse/manage/views.py:4436
 msgid "Invitation sent to '${username}'"
 msgstr "Convite enviado para \"${username}\""
 
@@ -450,11 +450,11 @@ msgstr "Convite enviado para \"${username}\""
 msgid "Could not find organization invitation."
 msgstr "Não foi possível encontrar o convite para uma equipe."
 
-#: warehouse/manage/views.py:2160 warehouse/manage/views.py:4478
+#: warehouse/manage/views.py:2160 warehouse/manage/views.py:4480
 msgid "Invitation already expired."
 msgstr "O convite já expirou."
 
-#: warehouse/manage/views.py:2202 warehouse/manage/views.py:4511
+#: warehouse/manage/views.py:2202 warehouse/manage/views.py:4513
 msgid "Invitation revoked from '${username}'."
 msgstr "Convite revogado de \"${username}\"."
 
@@ -466,23 +466,23 @@ msgstr ""
 "Ocorreram muitas tentativas para iniciar a sessão por OpenID sem êxito. "
 "Tente mais tarde."
 
-#: warehouse/manage/views.py:4144
+#: warehouse/manage/views.py:4146
 #, fuzzy
 #| msgid "User '${username}' already has ${role_name} role for project"
 msgid "Team '${team_name}' already has ${role_name} role for project"
 msgstr ""
 "O utilizador \"${username}\" já tem a função de ${role_name} para o projeto"
 
-#: warehouse/manage/views.py:4252
+#: warehouse/manage/views.py:4254
 msgid "User '${username}' already has ${role_name} role for project"
 msgstr ""
 "O utilizador \"${username}\" já tem a função de ${role_name} para o projeto"
 
-#: warehouse/manage/views.py:4321
+#: warehouse/manage/views.py:4323
 msgid "${username} is now ${role} of the '${project_name}' project."
 msgstr "${username} agora é ${role} do projeto '${nome_do_projeto}'."
 
-#: warehouse/manage/views.py:4354
+#: warehouse/manage/views.py:4356
 msgid ""
 "User '${username}' does not have a verified primary email address and cannot "
 "be added as a ${role_name} for project"
@@ -490,7 +490,7 @@ msgstr ""
 "O utilizador \"${username}\" não tem um endereço de e-mail principal "
 "verificado e não pode ser adicionado como um ${role_name} para o projeto"
 
-#: warehouse/manage/views.py:4467
+#: warehouse/manage/views.py:4469
 msgid "Could not find role invitation."
 msgstr "Não foi possível encontrar o convite para uma função."
 
@@ -543,6 +543,7 @@ msgid "Provider must be specified by ID"
 msgstr ""
 
 #: warehouse/subscriptions/models.py:42
+#: warehouse/templates/manage/project/history.html:182
 #, fuzzy
 #| msgid "Action"
 msgid "Active"
@@ -3462,7 +3463,7 @@ msgstr "- Autenticação básica (endpoint de upload)"
 
 #: warehouse/templates/manage/account.html:504
 #: warehouse/templates/manage/account.html:523
-#: warehouse/templates/manage/project/history.html:182
+#: warehouse/templates/manage/project/history.html:217
 msgid "Reason:"
 msgstr "Motivo:"
 
@@ -3595,19 +3596,18 @@ msgid "Recovery code used for login"
 msgstr "Código de recuperação usados para iniciar uma sessão"
 
 #: warehouse/templates/manage/account.html:609
-#: warehouse/templates/manage/project/history.html:168
 msgid "API token added"
 msgstr "Token de API adicionado"
 
 #: warehouse/templates/manage/account.html:611
 #: warehouse/templates/manage/account.html:634
-#: warehouse/templates/manage/project/history.html:173
-#: warehouse/templates/manage/project/history.html:180
+#: warehouse/templates/manage/project/history.html:208
+#: warehouse/templates/manage/project/history.html:215
 msgid "Token name:"
 msgstr "Nome do token:"
 
 #: warehouse/templates/manage/account.html:628
-#: warehouse/templates/manage/project/history.html:175
+#: warehouse/templates/manage/project/history.html:210
 msgid "API token removed"
 msgstr "Token de API removido"
 
@@ -3642,7 +3642,7 @@ msgstr "Atividade recente da conta"
 
 #: warehouse/templates/manage/account.html:657
 #: warehouse/templates/manage/organization/history.html:196
-#: warehouse/templates/manage/project/history.html:217
+#: warehouse/templates/manage/project/history.html:251
 #: warehouse/templates/manage/team/history.html:108
 msgid "Event"
 msgstr "Evento"
@@ -3656,8 +3656,8 @@ msgstr "Data / hora"
 #: warehouse/templates/manage/account.html:670
 #: warehouse/templates/manage/organization/history.html:198
 #: warehouse/templates/manage/organization/history.html:210
-#: warehouse/templates/manage/project/history.html:219
-#: warehouse/templates/manage/project/history.html:231
+#: warehouse/templates/manage/project/history.html:253
+#: warehouse/templates/manage/project/history.html:265
 #: warehouse/templates/manage/team/history.html:110
 #: warehouse/templates/manage/team/history.html:122
 msgid "IP address"
@@ -4966,48 +4966,48 @@ msgstr "Rejeitar"
 
 #: warehouse/templates/manage/organization/history.html:161
 #: warehouse/templates/manage/project/history.html:43
-#: warehouse/templates/manage/project/history.html:84
-#: warehouse/templates/manage/project/history.html:129
-#: warehouse/templates/manage/project/history.html:155
+#: warehouse/templates/manage/project/history.html:89
+#: warehouse/templates/manage/project/history.html:134
+#: warehouse/templates/manage/project/history.html:160
 #: warehouse/templates/manage/team/history.html:88
 msgid "Added by:"
 msgstr "Adicionado por:"
 
 #: warehouse/templates/manage/organization/history.html:166
-#: warehouse/templates/manage/project/history.html:51
-#: warehouse/templates/manage/project/history.html:61
-#: warehouse/templates/manage/project/history.html:91
-#: warehouse/templates/manage/project/history.html:137
-#: warehouse/templates/manage/project/history.html:163
+#: warehouse/templates/manage/project/history.html:56
+#: warehouse/templates/manage/project/history.html:66
+#: warehouse/templates/manage/project/history.html:96
+#: warehouse/templates/manage/project/history.html:142
+#: warehouse/templates/manage/project/history.html:168
 #: warehouse/templates/manage/team/history.html:93
 msgid "Removed by:"
 msgstr "Removido por:"
 
 #: warehouse/templates/manage/organization/history.html:171
-#: warehouse/templates/manage/project/history.html:98
-#: warehouse/templates/manage/project/history.html:145
+#: warehouse/templates/manage/project/history.html:103
+#: warehouse/templates/manage/project/history.html:150
 #: warehouse/templates/manage/team/history.html:98
 msgid "Changed by:"
 msgstr "Alterado por:"
 
 #: warehouse/templates/manage/organization/history.html:176
 #: warehouse/templates/manage/organization/history.html:181
-#: warehouse/templates/manage/project/history.html:105
-#: warehouse/templates/manage/project/history.html:112
+#: warehouse/templates/manage/project/history.html:110
+#: warehouse/templates/manage/project/history.html:117
 #, fuzzy
 #| msgid "Invite"
 msgid "Invited by:"
 msgstr "Convidar"
 
 #: warehouse/templates/manage/organization/history.html:186
-#: warehouse/templates/manage/project/history.html:119
+#: warehouse/templates/manage/project/history.html:124
 #, fuzzy
 #| msgid "Removed by:"
 msgid "Revoked by:"
 msgstr "Removido por:"
 
 #: warehouse/templates/manage/organization/history.html:193
-#: warehouse/templates/manage/project/history.html:214
+#: warehouse/templates/manage/project/history.html:248
 #: warehouse/templates/manage/team/history.html:105
 #, fuzzy, python-format
 #| msgid "Security history for %(project_name)s"
@@ -5016,8 +5016,8 @@ msgstr "Histórico de segurança para %(project_name)s"
 
 #: warehouse/templates/manage/organization/history.html:197
 #: warehouse/templates/manage/organization/history.html:206
-#: warehouse/templates/manage/project/history.html:218
-#: warehouse/templates/manage/project/history.html:227
+#: warehouse/templates/manage/project/history.html:252
+#: warehouse/templates/manage/project/history.html:261
 #: warehouse/templates/manage/team/history.html:109
 #: warehouse/templates/manage/team/history.html:118
 msgid "Time"
@@ -5579,60 +5579,60 @@ msgstr "Projeto criado"
 msgid "<a href=\"%(href)s\">Version %(version)s</a> created"
 msgstr "<a href=\"%(href)s\">Versão de lançamento %(version)s</a> criada"
 
-#: warehouse/templates/manage/project/history.html:48
+#: warehouse/templates/manage/project/history.html:53
 #, fuzzy, python-format
 #| msgid "Release version %(version)s removed"
 msgid "Version %(version)s removed"
 msgstr "Versão de lançamento %(version)s removida"
 
-#: warehouse/templates/manage/project/history.html:55
+#: warehouse/templates/manage/project/history.html:60
 #, fuzzy, python-format
 #| msgid "File removed from release version %(version)s"
 msgid "File removed from <a href=\"%(href)s\">version %(version)s</a>"
 msgstr "Ficheiro removido da versão de lançamento %(version)s"
 
-#: warehouse/templates/manage/project/history.html:58
+#: warehouse/templates/manage/project/history.html:63
 #: warehouse/templates/manage/project/release.html:118
 msgid "Filename:"
 msgstr "Nome do ficheiro:"
 
-#: warehouse/templates/manage/project/history.html:65
+#: warehouse/templates/manage/project/history.html:70
 #, fuzzy, python-format
 #| msgid "<a href=\"%(href)s\">Release version %(version)s</a> created"
 msgid "<a href=\"%(href)s\">Version %(version)s</a> yanked"
 msgstr "<a href=\"%(href)s\">Versão de lançamento %(version)s</a> criada"
 
-#: warehouse/templates/manage/project/history.html:68
-#: warehouse/templates/manage/project/history.html:75
+#: warehouse/templates/manage/project/history.html:73
+#: warehouse/templates/manage/project/history.html:80
 msgid "Yanked by:"
 msgstr "Retirada por:"
 
-#: warehouse/templates/manage/project/history.html:72
+#: warehouse/templates/manage/project/history.html:77
 #, fuzzy, python-format
 #| msgid "<a href=\"%(href)s\">Release version %(version)s</a> created"
 msgid "<a href=\"%(href)s\">Version %(version)s</a> unyanked"
 msgstr "<a href=\"%(href)s\">Versão de lançamento %(version)s</a> criada"
 
-#: warehouse/templates/manage/project/history.html:81
+#: warehouse/templates/manage/project/history.html:86
 #, python-format
 msgid "<a href=\"%(href)s\">%(username)s</a> added as project %(role_name)s"
 msgstr ""
 "<a href=\"%(href)s\">%(username)s</a> adicionado como %(role_name)s do "
 "projeto"
 
-#: warehouse/templates/manage/project/history.html:88
+#: warehouse/templates/manage/project/history.html:93
 #, python-format
 msgid "<a href=\"%(href)s\">%(username)s</a> removed as project %(role_name)s"
 msgstr ""
 "<a href=\"%(href)s\">%(username)s</a> removido como %(role_name)s do projeto"
 
-#: warehouse/templates/manage/project/history.html:95
+#: warehouse/templates/manage/project/history.html:100
 #, python-format
 msgid "<a href=\"%(href)s\">%(username)s</a> changed to project %(role_name)s"
 msgstr ""
 "<a href=\"%(href)s\">%(username)s</a> alterado para %(role_name)s do projeto"
 
-#: warehouse/templates/manage/project/history.html:102
+#: warehouse/templates/manage/project/history.html:107
 #, fuzzy, python-format
 #| msgid ""
 #| "<a href=\"%(href)s\">%(username)s</a> removed as project %(role_name)s"
@@ -5642,7 +5642,7 @@ msgid ""
 msgstr ""
 "<a href=\"%(href)s\">%(username)s</a> removido como %(role_name)s do projeto"
 
-#: warehouse/templates/manage/project/history.html:109
+#: warehouse/templates/manage/project/history.html:114
 #, fuzzy, python-format
 #| msgid ""
 #| "<a href=\"%(href)s\">%(username)s</a> changed to project %(role_name)s"
@@ -5652,7 +5652,7 @@ msgid ""
 msgstr ""
 "<a href=\"%(href)s\">%(username)s</a> alterado para %(role_name)s do projeto"
 
-#: warehouse/templates/manage/project/history.html:116
+#: warehouse/templates/manage/project/history.html:121
 #, fuzzy, python-format
 #| msgid ""
 #| "<a href=\"%(href)s\">%(username)s</a> removed as project %(role_name)s"
@@ -5662,7 +5662,7 @@ msgid ""
 msgstr ""
 "<a href=\"%(href)s\">%(username)s</a> removido como %(role_name)s do projeto"
 
-#: warehouse/templates/manage/project/history.html:126
+#: warehouse/templates/manage/project/history.html:131
 #, fuzzy, python-format
 #| msgid "<a href=\"%(href)s\">%(username)s</a> added as project %(role_name)s"
 msgid "%(team_name)s team added as project %(role_name)s"
@@ -5670,7 +5670,7 @@ msgstr ""
 "<a href=\"%(href)s\">%(username)s</a> adicionado como %(role_name)s do "
 "projeto"
 
-#: warehouse/templates/manage/project/history.html:134
+#: warehouse/templates/manage/project/history.html:139
 #, fuzzy, python-format
 #| msgid ""
 #| "<a href=\"%(href)s\">%(username)s</a> changed to project %(role_name)s"
@@ -5678,7 +5678,7 @@ msgid "%(team_name)s team changed to project %(role_name)s"
 msgstr ""
 "<a href=\"%(href)s\">%(username)s</a> alterado para %(role_name)s do projeto"
 
-#: warehouse/templates/manage/project/history.html:142
+#: warehouse/templates/manage/project/history.html:147
 #, fuzzy, python-format
 #| msgid ""
 #| "<a href=\"%(href)s\">%(username)s</a> removed as project %(role_name)s"
@@ -5686,67 +5686,99 @@ msgid "%(team_name)s team removed as project %(role_name)s"
 msgstr ""
 "<a href=\"%(href)s\">%(username)s</a> removido como %(role_name)s do projeto"
 
-#: warehouse/templates/manage/project/history.html:152
+#: warehouse/templates/manage/project/history.html:157
 #, fuzzy, python-format
 #| msgid "You are now ${role} of the '${project_name}' project."
 msgid "Project added to %(organization_name)s organization"
 msgstr "Agora é ${role} do projeto '${nome_do_projeto}'."
 
-#: warehouse/templates/manage/project/history.html:160
+#: warehouse/templates/manage/project/history.html:165
 #, fuzzy, python-format
 #| msgid "You are now ${role} of the '${project_name}' project."
 msgid "Project removed from %(organization_name)s organization"
 msgstr "Agora é ${role} do projeto '${nome_do_projeto}'."
 
-#: warehouse/templates/manage/project/history.html:169
-#: warehouse/templates/manage/project/history.html:176
+#: warehouse/templates/manage/project/history.html:173
+#, fuzzy
+#| msgid "API token removed"
+msgid "Short-lived API token created"
+msgstr "Token de API removido"
+
+#: warehouse/templates/manage/project/history.html:174
+#: warehouse/templates/manage/project/history.html:197
+#: warehouse/templates/manage/project/history.html:211
 msgid "Permissions: Can upload to this project"
 msgstr "Permissões: pode enviar para este projeto"
 
-#: warehouse/templates/manage/project/history.html:171
-#: warehouse/templates/manage/project/history.html:178
-msgid "Controlled by:"
-msgstr "Controlado por:"
-
-#: warehouse/templates/manage/project/history.html:187
-msgid "OpenID Connect provider added"
+#: warehouse/templates/manage/project/history.html:177
+#: warehouse/templates/manage/project/history.html:205
+msgid "Expiration:"
 msgstr ""
 
-#: warehouse/templates/manage/project/history.html:188
-#: warehouse/templates/manage/project/history.html:192
-msgid "Provider:"
+#: warehouse/templates/manage/project/history.html:180
+msgid "Expiration Status:"
+msgstr ""
+
+#: warehouse/templates/manage/project/history.html:184
+msgid "Expired"
 msgstr ""
 
 #: warehouse/templates/manage/project/history.html:189
-#: warehouse/templates/manage/project/history.html:193
+#, fuzzy
+#| msgid "Created"
+msgid "Creator:"
+msgstr "Criada"
+
+#: warehouse/templates/manage/project/history.html:196
+#, fuzzy
+#| msgid "API token removed"
+msgid "API token created"
+msgstr "Token de API removido"
+
+#: warehouse/templates/manage/project/history.html:200
+#: warehouse/templates/manage/project/history.html:213
+msgid "Controlled by:"
+msgstr "Controlado por:"
+
+#: warehouse/templates/manage/project/history.html:222
+msgid "OpenID Connect provider added"
+msgstr ""
+
+#: warehouse/templates/manage/project/history.html:223
+#: warehouse/templates/manage/project/history.html:227
+msgid "Provider:"
+msgstr ""
+
+#: warehouse/templates/manage/project/history.html:224
+#: warehouse/templates/manage/project/history.html:228
 #, fuzzy
 #| msgid "Username"
 msgid "Publisher:"
 msgstr "Nome de utilizador"
 
-#: warehouse/templates/manage/project/history.html:191
+#: warehouse/templates/manage/project/history.html:226
 msgid "OpenID Connect provider removed"
 msgstr ""
 
-#: warehouse/templates/manage/project/history.html:197
+#: warehouse/templates/manage/project/history.html:232
 #, fuzzy
 #| msgid "2FA enabled"
 msgid "2FA requirement enabled"
 msgstr "2FA ativado"
 
-#: warehouse/templates/manage/project/history.html:199
+#: warehouse/templates/manage/project/history.html:234
 #, fuzzy
 #| msgid "Yanked by:"
 msgid "Enabled by:"
 msgstr "Retirada por:"
 
-#: warehouse/templates/manage/project/history.html:202
+#: warehouse/templates/manage/project/history.html:237
 #, fuzzy
 #| msgid "2FA disabled"
 msgid "2FA requirement disabled"
 msgstr "2FA desativado"
 
-#: warehouse/templates/manage/project/history.html:204
+#: warehouse/templates/manage/project/history.html:239
 #, fuzzy
 #| msgid "Yanked by:"
 msgid "Disabled by:"
@@ -5849,10 +5881,8 @@ msgid "Publisher"
 msgstr ""
 
 #: warehouse/templates/manage/project/publishing.html:140
-#, fuzzy
-#| msgid "Verify application"
-msgid "Specification"
-msgstr "Verificar aplicação"
+msgid "URL"
+msgstr ""
 
 #: warehouse/templates/manage/project/publishing.html:151
 msgid "No publishers are currently configured."
@@ -9775,6 +9805,11 @@ msgid "There were no results for '%(filters)s' filter"
 msgid_plural "There were no results for '%(filters)s' filters"
 msgstr[0] "Nenhuma ocorrência para \"%(term)s\""
 msgstr[1] "Nenhuma ocorrência para \"%(term)s\""
+
+#, fuzzy
+#~| msgid "Verify application"
+#~ msgid "Specification"
+#~ msgstr "Verificar aplicação"
 
 #, python-format
 #~ msgid ""
