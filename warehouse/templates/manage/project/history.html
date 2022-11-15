@@ -45,7 +45,12 @@
       {% trans href=request.route_path('manage.project.release', project_name=project.name, version=event.additional.canonical_version), version=event.additional.canonical_version %}<a href="{{ href }}">Version {{ version }}</a> created{% endtrans %}
     </strong>
     <small>
-      {% trans %}Added by:{% endtrans %} <a href="{{ request.route_path('accounts.profile', username=event.additional.submitted_by) }}">{{ event.additional.submitted_by }}</a>
+      {% trans %}Added by:{% endtrans %}
+      {% if event.additional.ephemeral %}
+      <a href="{{ request.route_path('manage.project.settings.publishing', project_name=project.name) }}">{{ event.additional.submitted_by }}</a>
+      {% else %}
+      <a href="{{ request.route_path('accounts.profile', username=event.additional.submitted_by) }}">{{ event.additional.submitted_by }}</a>
+      {% endif %}
     </small>
     {% elif event.tag == EventTag.Project.ReleaseRemove %}
     <strong>
@@ -169,12 +174,42 @@
     </small>
 
     {# Display API token events #}
-    {% elif event.tag == EventTag.Project.APITokenAdded %}
-    <strong>{% trans %}API token added{% endtrans %}</strong>
+    {% elif event.tag == EventTag.Project.ShortLivedAPITokenAdded %}
+    <strong>{% trans %}Short-lived API token created{% endtrans %}</strong>
     <small>{% trans %}Permissions: Can upload to this project{% endtrans %}</small>
+    {% if event.additional.expires %}
+    <small>
+      {% trans %}Expiration: {% endtrans %} {{ humanize(event.additional.expires | ctime, relative="false", time="true") }}
+    </small>
+    <small>
+      {% trans %} Expiration Status: {% endtrans %}
+      {% if (event.additional.expires | ctime) > now() %}
+        {% trans %}Active{% endtrans %}
+      {% else %}
+        {% trans %}Expired{% endtrans %}
+      {% endif %}
+    </small>
+    {% endif %}
+    <small>
+      {% trans %}Creator: {% endtrans %}
+      {{ event.additional.provider_name }}:
+      <a href="{{ event.additional.provider_url }}">
+        {{ event.additional.provider_url }}
+      </a>
+    </small>
+    {% elif event.tag == EventTag.Project.APITokenAdded %}
+    <strong>{% trans %}API token created{% endtrans %}</strong>
+    <small>{% trans %}Permissions: Can upload to this project{% endtrans %}</small>
+    {% if event.additional.user %}
     <small>
       {% trans %}Controlled by:{% endtrans %} <a href="{{ request.route_path('accounts.profile', username=event.additional.user) }}">{{ event.additional.user }}</a>
     </small>
+    {% endif %}
+    {% if event.additional.expires %}
+    <small>
+      {% trans %}Expiration: {% endtrans %} {{ humanize(event.additional.expires | ctime) }}
+    </small>
+    {% endif %}
     <small>{% trans %}Token name:{% endtrans %} {{ event.additional.description }}</small>
     {% elif event.tag == EventTag.Project.APITokenRemoved %}
     <strong>{% trans %}API token removed{% endtrans %}</strong>
@@ -208,7 +243,6 @@
     <small>
       {% trans %}Disabled by:{% endtrans %} <a href="{{ request.route_path('accounts.profile', username=event.additional.modified_by) }}">{{ event.additional.modified_by }}</a>
     </small>
-
     {% else %}
     <strong>{{ event.tag }}</strong>
     {% endif %}

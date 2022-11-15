@@ -4,6 +4,7 @@ volumes:
   simple:
   packages:
   sponsorlogos:
+  policies:
   vault:
 
 services:
@@ -95,6 +96,7 @@ services:
       - .coveragerc:/opt/warehouse/src/.coveragerc:z
       - packages:/var/opt/warehouse/packages
       - sponsorlogos:/var/opt/warehouse/sponsorlogos
+      - policies:/var/opt/warehouse/policies
       - simple:/var/opt/warehouse/simple
       - ./bin:/opt/warehouse/src/bin:z
       - ./requirements:/opt/warehouse/src/requirements:z

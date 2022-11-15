@@ -10,41 +10,36 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from __future__ import annotations
+
+from typing import Any, NewType
 
 from zope.interface import Interface
 
 from warehouse.rate_limiting.interfaces import RateLimiterException
 
+SignedClaims = NewType("SignedClaims", dict[str, Any])
+
 
 class IOIDCProviderService(Interface):
-    def get_key(key_id):
+    def verify_jwt_signature(unverified_token: str):
         """
-        Return the JWK identified by the given KID,
-        fetching it if not already cached locally.
+        Verify the given JWT's signature, returning its signed claims if
+        valid. If the signature is invalid, `None` is returned.
 
-        Returns None if the JWK does not exist or the access pattern is
-        invalid (i.e., exceeds our internal limit on JWK requests to
-        each provider).
+        This method does **not** verify the claim set itself -- the API
+        consumer is responsible for evaluating the claim set.
         """
         pass
 
-    def verify_signature_only(token):
+    def find_provider(signed_claims: SignedClaims):
         """
-        Verify the given JWT's signature and basic claims, returning
-        the decoded JWT, or `None` if invalid.
+        Given a mapping of signed claims produced by `verify_jwt_signature`,
+        attempt to find and return an `OIDCProvider` that matches them.
 
-        This function **does not** verify the token's suitability
-        for a particular action; subsequent checks on the decoded token's
-        third party claims must be done to ensure that.
+        If no `OIDCProvider` matches the claims, `None` is returned.
         """
-
-    def verify_for_project(token, project):
-        """
-        Verify the given JWT's signature and basic claims in the same
-        manner as `verify_signature_only`, but *also* verify that the JWT's
-        claims are consistent with at least one of the project's registered
-        OIDC providers.
-        """
+        pass
 
 
 class TooManyOIDCRegistrations(RateLimiterException):

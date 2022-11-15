@@ -38,7 +38,7 @@
     {{ provider.provider_name }}
   </td>
   <td scope="row">
-    {{ provider|string }}
+    <a href="{{ provider.provider_url }}">{{ provider.provider_url }}</a>
   </td>
   <td scope="row">
     <input form="delete-provider-{{ provider.id }}" type="submit" value="{% trans %}Remove{% endtrans %}" class="button button--danger">
@@ -137,7 +137,7 @@
       <thead>
         <tr>
           <th scope="col">{% trans %}Publisher{% endtrans %}</th>
-          <th scope="col">{% trans %}Specification{% endtrans %}</th>
+          <th scope="col">{% trans %}URL{% endtrans %}</th>
           <th></th>
         </tr>
       </thead>
