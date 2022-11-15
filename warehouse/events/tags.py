@@ -1,0 +1,183 @@
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+# http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+import enum
+
+
+class EventTagEnum(str, enum.Enum):
+    """Base class for Enum representing Event tags.
+
+    Tags can be broken into three colon-separated parts:
+    1. source type
+    2. subject type
+    3. action
+
+    For example, for event tag "project:role:add":
+    1. "project" is the source type
+    2. "role" is the subject type
+    3. "add" is the action
+
+    In some cases, the subject type can contain a colon:
+
+    For example, for event tag "project:release:file:remove":
+    1. "project" is the source type
+    2. "release:file" is the subject type
+    3. "remove" is the action
+
+    If omitted, subject type is implied to be the same as source type.
+
+    For example, for event tag "project:create":
+    1. "project" is the source type
+    2. "project" is also the subject type
+    3. "create" is the action
+
+    """
+
+    source_type: str
+    subject_type: str
+    action: str
+
+    # Name = "source_type:subject_type:action"
+    def __new__(cls, value: str):
+        values = value.split(":")
+        obj = str.__new__(cls, value)
+        obj._value_ = value
+        obj.source_type = values[0]
+        obj.subject_type = ":".join(values[1:-1]) or value[0]
+        obj.action = values[-1]
+        return obj
+
+
+class EventTag:
+    class Account(EventTagEnum):
+        """Tags for User events."""
+
+        # Name = "source_type:subject_type:action"
+        APITokenAdded = "account:api_token:added"
+        APITokenRemoved = "account:api_token:removed"
+        APITokenRemovedLeak = "account:api_token:removed_leak"
+        AccountCreate = "account:create"
+        EmailAdd = "account:email:add"
+        EmailPrimaryChange = "account:email:primary:change"
+        EmailRemove = "account:email:remove"
+        EmailReverify = "account:email:reverify"
+        EmailVerified = "account:email:verified"
+        LoginFailure = "account:login:failure"
+        LoginSuccess = "account:login:success"
+        OrganizationRoleAdd = "account:organization_role:add"
+        OrganizationRoleChange = "account:organization_role:change"
+        OrganizationRoleDeclineInvite = "account:organization_role:decline_invite"
+        OrganizationRoleInvite = "account:organization_role:invite"
+        OrganizationRoleRemove = "account:organization_role:remove"
+        OrganizationRoleRevokeInvite = "account:organization_role:revoke_invite"
+        PasswordChange = "account:password:change"
+        PasswordDisabled = "account:password:disabled"
+        PasswordReset = "account:password:reset"
+        PasswordResetAttempt = "account:password:reset:attempt"
+        PasswordResetRequest = "account:password:reset:request"
+        RecoveryCodesGenerated = "account:recovery_codes:generated"
+        RecoveryCodesRegenerated = "account:recovery_codes:regenerated"
+        RecoveryCodesUsed = "account:recovery_codes:used"
+        RoleAdd = "account:role:add"
+        RoleChange = "account:role:change"
+        RoleDeclineInvite = "account:role:decline_invite"
+        RoleInvite = "account:role:invite"
+        RoleRemove = "account:role:remove"
+        RoleRevokeInvite = "account:role:revoke_invite"
+        TeamRoleAdd = "account:team_role:add"
+        TeamRoleRemove = "account:team_role:remove"
+        TwoFactorMethodAdded = "account:two_factor:method_added"
+        TwoFactorMethodRemoved = "account:two_factor:method_removed"
+        # The following tags are no longer used when recording events.
+        # EmailSent = "account:email:sent"
+        # ReauthenticateFailure = "account:reauthenticate:failure"
+        # RoleAccepted = "account:role:accepted"
+
+    class Project(EventTagEnum):
+        """Tags for Project events.
+
+        Keep in sync with: warehouse/templates/manage/project/history.html
+        """
+
+        # Name = "source_type:subject_type:action"
+        APITokenAdded = "project:api_token:added"
+        APITokenRemoved = "project:api_token:removed"
+        OIDCProviderAdded = "project:oidc:provider-added"
+        OIDCProviderRemoved = "project:oidc:provider-removed"
+        OrganizationProjectAdd = "project:organization_project:add"
+        OrganizationProjectRemove = "project:organization_project:remove"
+        OwnersRequire2FADisabled = "project:owners_require_2fa:disabled"
+        OwnersRequire2FAEnabled = "project:owners_require_2fa:enabled"
+        ProjectCreate = "project:create"
+        ReleaseAdd = "project:release:add"
+        ReleaseFileRemove = "project:release:file:remove"
+        ReleaseRemove = "project:release:remove"
+        ReleaseUnyank = "project:release:unyank"
+        ReleaseYank = "project:release:yank"
+        RoleAdd = "project:role:add"
+        RoleChange = "project:role:change"
+        RoleDeclineInvite = "project:role:decline_invite"
+        RoleInvite = "project:role:invite"
+        RoleRemove = "project:role:remove"
+        RoleRevokeInvite = "project:role:revoke_invite"
+        TeamProjectRoleAdd = "project:team_project_role:add"
+        TeamProjectRoleChange = "project:team_project_role:change"
+        TeamProjectRoleRemove = "project:team_project_role:remove"
+        # The following tags are no longer used when recording events.
+        # RoleAccepted = "project:role:accepted"
+        # RoleDelete = "project:role:delete"
+
+    class Organization(EventTagEnum):
+        """Tags for Organization events.
+
+        Keep in sync with: warehouse/templates/manage/organization/history.html
+        """
+
+        # Name = "source_type:subject_type:action"
+        CatalogEntryAdd = "organization:catalog_entry:add"
+        OrganizationApprove = "organization:approve"
+        OrganizationCreate = "organization:create"
+        OrganizationDecline = "organization:decline"
+        OrganizationDelete = "organization:delete"
+        OrganizationRename = "organization:rename"
+        OrganizationProjectAdd = "organization:organization_project:add"
+        OrganizationProjectRemove = "organization:organization_project:remove"
+        OrganizationRoleAdd = "organization:organization_role:add"
+        OrganizationRoleChange = "organization:organization_role:change"
+        OrganizationRoleDeclineInvite = "organization:organization_role:decline_invite"
+        OrganizationRoleInvite = "organization:organization_role:invite"
+        OrganizationRoleRemove = "organization:organization_role:remove"
+        OrganizationRoleRevokeInvite = "organization:organization_role:revoke_invite"
+        TeamCreate = "organization:team:create"
+        TeamDelete = "organization:team:delete"
+        TeamRename = "organization:team:rename"
+        TeamProjectRoleAdd = "organization:team_project_role:add"
+        TeamProjectRoleChange = "organization:team_project_role:change"
+        TeamProjectRoleRemove = "organization:team_project_role:remove"
+        TeamRoleAdd = "organization:team_role:add"
+        TeamRoleRemove = "organization:team_role:remove"
+
+    class Team(EventTagEnum):
+        """Tags for Organization events.
+
+        Keep in sync with: warehouse/templates/manage/team/history.html
+        """
+
+        # Name = "source_type:subject_type:action"
+        TeamCreate = "team:create"
+        TeamDelete = "team:delete"
+        TeamRename = "team:rename"
+        TeamProjectRoleAdd = "team:team_project_role:add"
+        TeamProjectRoleChange = "team:team_project_role:change"
+        TeamProjectRoleRemove = "team:team_project_role:remove"
+        TeamRoleAdd = "team:team_role:add"
+        TeamRoleRemove = "team:team_role:remove"

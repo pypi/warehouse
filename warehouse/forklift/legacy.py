@@ -47,6 +47,7 @@ from warehouse import forms
 from warehouse.admin.flags import AdminFlagValue
 from warehouse.classifiers.models import Classifier
 from warehouse.email import send_basic_auth_with_two_factor_email
+from warehouse.events.tags import EventTag
 from warehouse.metrics import IMetricsService
 from warehouse.packaging.interfaces import IFileStorage
 from warehouse.packaging.models import (
@@ -129,6 +130,7 @@ _macosx_major_versions = {
     "10",
     "11",
     "12",
+    "13",
 }
 
 # manylinux pep600 and musllinux pep656 are a little more complicated:
@@ -912,7 +914,7 @@ def file_upload(request):
             )
         )
         project.record_event(
-            tag="project:role:add",
+            tag=EventTag.Project.RoleAdd,
             ip_address=request.remote_addr,
             additional={
                 "submitted_by": request.user.username,
@@ -1088,7 +1090,7 @@ def file_upload(request):
         )
 
         project.record_event(
-            tag="project:release:add",
+            tag=EventTag.Project.ReleaseAdd,
             ip_address=request.remote_addr,
             additional={
                 "submitted_by": request.user.username,

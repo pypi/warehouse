@@ -30,15 +30,20 @@ from warehouse.accounts.interfaces import (
     TooManyFailedLogins,
 )
 from warehouse.accounts.models import DisableReason
+from warehouse.accounts.services import RECOVERY_CODE_BYTES
 from warehouse.email import (
     send_password_compromised_email_hibp,
     send_recovery_code_used_email,
 )
+from warehouse.events.tags import EventTag
 from warehouse.i18n import localize as _
 from warehouse.utils.otp import TOTP_LENGTH
 
 # Taken from passlib
 MAX_PASSWORD_SIZE = 4096
+
+# Common messages, set as constants to keep them from drifting.
+INVALID_PASSWORD_MESSAGE = _("The password is invalid. Try again.")
 
 
 class UsernameMixin:
@@ -78,7 +83,16 @@ class WebAuthnCredentialMixin:
 class RecoveryCodeValueMixin:
 
     recovery_code_value = wtforms.StringField(
-        validators=[wtforms.validators.DataRequired()]
+        validators=[
+            wtforms.validators.DataRequired(),
+            wtforms.validators.Regexp(
+                rf"^ *([0-9a-f] *){{{2*RECOVERY_CODE_BYTES}}}$",
+                message=_(
+                    "Recovery Codes must be ${recovery_code_length} characters.",
+                    mapping={"recovery_code_length": 2 * RECOVERY_CODE_BYTES},
+                ),
+            ),
+        ]
     )
 
 
@@ -152,9 +166,7 @@ class PasswordMixin:
                         tag=f"account:{self.action}:failure",
                         additional={"reason": "invalid_password"},
                     )
-                    raise wtforms.validators.ValidationError(
-                        _("The password is invalid. Try again.")
-                    )
+                    raise wtforms.validators.ValidationError(INVALID_PASSWORD_MESSAGE)
             except TooManyFailedLogins:
                 raise wtforms.validators.ValidationError(
                     _(
@@ -298,6 +310,10 @@ class LoginForm(PasswordMixin, UsernameMixin, forms.Form):
         self.breach_service = breach_service
 
     def validate_password(self, field):
+        # Before we try to validate anything, first check to see if the IP is banned
+        if self.request.banned.by_ip(self.request.remote_addr):
+            raise wtforms.validators.ValidationError(INVALID_PASSWORD_MESSAGE)
+
         # Before we try to validate the user's password, we'll first to check to see if
         # they are disabled.
         userid = self.user_service.find_userid(self.username.data)
@@ -321,7 +337,9 @@ class LoginForm(PasswordMixin, UsernameMixin, forms.Form):
                 user = self.user_service.get_user(userid)
                 send_password_compromised_email_hibp(self.request, user)
                 self.user_service.disable_password(
-                    user.id, reason=DisableReason.CompromisedPassword
+                    user.id,
+                    reason=DisableReason.CompromisedPassword,
+                    ip_address=self.request.remote_addr,
                 )
                 raise wtforms.validators.ValidationError(
                     markupsafe.Markup(self.breach_service.failure_message)
@@ -343,7 +361,7 @@ class TOTPAuthenticationForm(TOTPValueMixin, _TwoFactorAuthenticationForm):
         if not self.user_service.check_totp_value(self.user_id, totp_value):
             self.user_service.record_event(
                 self.user_id,
-                tag="account:login:failure",
+                tag=EventTag.Account.LoginFailure,
                 additional={"reason": "invalid_totp"},
             )
             raise wtforms.validators.ValidationError(_("Invalid TOTP code."))
@@ -378,7 +396,7 @@ class WebAuthnAuthenticationForm(WebAuthnCredentialMixin, _TwoFactorAuthenticati
         except webauthn.AuthenticationRejectedError as e:
             self.user_service.record_event(
                 self.user_id,
-                tag="account:login:failure",
+                tag=EventTag.Account.LoginFailure,
                 additional={"reason": "invalid_webauthn"},
             )
             raise wtforms.validators.ValidationError(str(e))
@@ -408,7 +426,7 @@ class RecoveryCodeAuthenticationForm(
     RecoveryCodeValueMixin, _TwoFactorAuthenticationForm
 ):
     def validate_recovery_code_value(self, field):
-        recovery_code_value = field.data.encode("utf-8")
+        recovery_code_value = field.data.encode("utf-8").strip()
 
         try:
             self.user_service.check_recovery_code(self.user_id, recovery_code_value)
@@ -418,14 +436,14 @@ class RecoveryCodeAuthenticationForm(
         except (InvalidRecoveryCode, NoRecoveryCodes):
             self.user_service.record_event(
                 self.user_id,
-                tag="account:login:failure",
+                tag=EventTag.Account.LoginFailure,
                 additional={"reason": "invalid_recovery_code"},
             )
             raise wtforms.validators.ValidationError(_("Invalid recovery code."))
         except BurnedRecoveryCode:
             self.user_service.record_event(
                 self.user_id,
-                tag="account:login:failure",
+                tag=EventTag.Account.LoginFailure,
                 additional={"reason": "burned_recovery_code"},
             )
             raise wtforms.validators.ValidationError(
@@ -455,26 +473,3 @@ class RequestPasswordResetForm(forms.Form):
 class ResetPasswordForm(NewPasswordMixin, forms.Form):
 
     pass
-
-
-class TitanPromoCodeForm(forms.Form):
-    country = wtforms.SelectField(
-        "Select destination country",
-        choices=[
-            ("", "Select destination country"),
-            ("Austria", "Austria"),
-            ("Belgium", "Belgium"),
-            ("Canada", "Canada"),
-            ("France", "France"),
-            ("Germany", "Germany"),
-            ("Italy", "Italy"),
-            ("Japan", "Japan"),
-            ("Spain", "Spain"),
-            ("Switzerland", "Switzerland"),
-            ("United Kingdom", "United Kingdom"),
-            ("United States", "United States"),
-        ],
-        validators=[
-            wtforms.validators.DataRequired(message="Select destination country")
-        ],
-    )

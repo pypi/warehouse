@@ -53,14 +53,20 @@ jobs:
     runs-on: ubuntu-latest
     services:
       postgres:
-        image: postgres:12.8
+        image: postgres:14.4
         ports:
           - 5432:5432
         env:
           POSTGRES_HOST_AUTH_METHOD: trust  # never do this in production!
         # Set health checks to wait until postgres has started
         options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
+      stripe:
+        image: stripe/stripe-mock:v0.140.0
+        ports:
+          - 12111:12111
     name: ${{ matrix.name }}
+    env:
+      BILLING_BACKEND: warehouse.subscriptions.services.MockStripeBillingService api_base=http://localhost:12111 api_version=2020-08-27
     steps:
       - name: Check out repository
         uses: actions/checkout@v3
@@ -86,7 +92,7 @@ jobs:
       - uses: actions/setup-node@v3
         if: ${{ matrix.needs-node }}
         with:
-          node-version: 14.15.5
+          node-version: 16.17.1
           cache: 'npm'
       - name: Install Node dependencies
         if: ${{ matrix.needs-node }}

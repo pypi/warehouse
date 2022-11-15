@@ -201,7 +201,16 @@ class Project(SitemapMixin, TwoFactorRequireable, HasEvents, db.Model):
         uselist=False,
         viewonly=True,
     )
-    roles = orm.relationship(Role, back_populates="project", passive_deletes=True)
+    roles = orm.relationship(
+        Role,
+        back_populates="project",
+        passive_deletes=True,
+    )
+    team_project_roles = orm.relationship(
+        TeamProjectRole,
+        back_populates="project",
+        passive_deletes=True,
+    )
     users = orm.relationship(User, secondary=Role.__table__, backref="projects", viewonly=True)  # type: ignore # noqa
     releases = orm.relationship(
         "Release",
@@ -264,7 +273,8 @@ class Project(SitemapMixin, TwoFactorRequireable, HasEvents, db.Model):
         query = query.options(orm.lazyload("team"))
         for role in query.all():
             permissions |= {
-                (user.id, role.role_name.value) for user in role.team.members
+                (user.id, "Administer" if role.role_name.value == "Owner" else "Upload")
+                for user in role.team.members
             }
 
         # Add all organization owners for this project.
@@ -353,7 +363,7 @@ class Dependency(db.Model):
     __table_args__ = (
         Index("release_dependencies_release_kind_idx", "release_id", "kind"),
     )
-    __repr__ = make_repr("name", "version", "kind", "specifier")
+    __repr__ = make_repr("release", "kind", "specifier")
 
     release_id = Column(
         ForeignKey("releases.id", onupdate="CASCADE", ondelete="CASCADE"),

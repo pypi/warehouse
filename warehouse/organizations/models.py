@@ -79,14 +79,14 @@ class OrganizationRole(db.Model):
 
 class OrganizationProject(db.Model):
 
-    __tablename__ = "organization_project"
+    __tablename__ = "organization_projects"
     __table_args__ = (
-        Index("organization_project_organization_id_idx", "organization_id"),
-        Index("organization_project_project_id_idx", "project_id"),
+        Index("organization_projects_organization_id_idx", "organization_id"),
+        Index("organization_projects_project_id_idx", "project_id"),
         UniqueConstraint(
             "organization_id",
             "project_id",
-            name="_organization_project_organization_project_uc",
+            name="_organization_projects_organization_project_uc",
         ),
     )
 
@@ -103,6 +103,68 @@ class OrganizationProject(db.Model):
 
     organization = orm.relationship("Organization", lazy=False)
     project = orm.relationship("Project", lazy=False)
+
+
+class OrganizationStripeSubscription(db.Model):
+
+    __tablename__ = "organization_stripe_subscriptions"
+    __table_args__ = (
+        Index(
+            "organization_stripe_subscriptions_organization_id_idx", "organization_id"
+        ),
+        Index(
+            "organization_stripe_subscriptions_subscription_id_idx", "subscription_id"
+        ),
+        UniqueConstraint(
+            "organization_id",
+            "subscription_id",
+            name="_organization_stripe_subscriptions_organization_subscription_uc",
+        ),
+    )
+
+    __repr__ = make_repr("organization_id", "subscription_id")
+
+    organization_id = Column(
+        ForeignKey("organizations.id", onupdate="CASCADE", ondelete="CASCADE"),
+        nullable=False,
+    )
+    subscription_id = Column(
+        ForeignKey("stripe_subscriptions.id", onupdate="CASCADE", ondelete="CASCADE"),
+        nullable=False,
+    )
+
+    organization = orm.relationship("Organization", lazy=False)
+    subscription = orm.relationship("StripeSubscription", lazy=False)
+
+
+class OrganizationStripeCustomer(db.Model):
+
+    __tablename__ = "organization_stripe_customers"
+    __table_args__ = (
+        Index("organization_stripe_customers_organization_id_idx", "organization_id"),
+        Index(
+            "organization_stripe_customers_stripe_customer_id_idx", "stripe_customer_id"
+        ),
+        UniqueConstraint(
+            "organization_id",
+            "stripe_customer_id",
+            name="_organization_stripe_customers_organization_customer_uc",
+        ),
+    )
+
+    __repr__ = make_repr("organization_id", "stripe_customer_id")
+
+    organization_id = Column(
+        ForeignKey("organizations.id", onupdate="CASCADE", ondelete="CASCADE"),
+        nullable=False,
+    )
+    stripe_customer_id = Column(
+        ForeignKey("stripe_customers.id", onupdate="CASCADE", ondelete="CASCADE"),
+        nullable=False,
+    )
+
+    organization = orm.relationship("Organization", lazy=False)
+    customer = orm.relationship("StripeCustomer", lazy=False)
 
 
 class OrganizationType(str, enum.Enum):
@@ -193,8 +255,19 @@ class Organization(HasEvents, db.Model):
     users = orm.relationship(
         User, secondary=OrganizationRole.__table__, backref="organizations", viewonly=True  # type: ignore # noqa
     )
+    teams = orm.relationship(
+        "Team",
+        back_populates="organization",
+        order_by=lambda: Team.name.asc(),  # type: ignore
+    )
     projects = orm.relationship(
         "Project", secondary=OrganizationProject.__table__, back_populates="organization", viewonly=True  # type: ignore # noqa
+    )
+    customer = orm.relationship(
+        "StripeCustomer", secondary=OrganizationStripeCustomer.__table__, back_populates="organization", uselist=False, viewonly=True  # type: ignore # noqa
+    )
+    subscriptions = orm.relationship(
+        "StripeSubscription", secondary=OrganizationStripeSubscription.__table__, back_populates="organization", viewonly=True  # type: ignore # noqa
     )
 
     @property
@@ -250,10 +323,10 @@ class Organization(HasEvents, db.Model):
                 # - View organization ("view:organization")
                 # - View team ("view:team")
                 # - Invite/remove organization member ("manage:organization")
-                # - Add/remove team member ("manage:team")
+                # - Create/delete team and add/remove team member ("manage:team")
                 # - Manage billing ("manage:billing")
-                # - Create project ("add:project")
-                # - Delete project ("remove:project")
+                # - Add project ("add:project")
+                # - Remove project ("remove:project")
                 # Disallowed:
                 # - (none)
                 acls.append(
@@ -278,9 +351,9 @@ class Organization(HasEvents, db.Model):
                 # - Manage billing ("manage:billing")
                 # Disallowed:
                 # - Invite/remove organization member ("manage:organization")
-                # - Add/remove team member ("manage:team")
-                # - Create project ("add:project")
-                # - Delete project ("remove:project")
+                # - Create/delete team and add/remove team member ("manage:team")
+                # - Add project ("add:project")
+                # - Remove project ("remove:project")
                 acls.append(
                     (
                         Allow,
@@ -292,12 +365,12 @@ class Organization(HasEvents, db.Model):
                 # Allowed:
                 # - View organization ("view:organization")
                 # - View team ("view:team")
-                # - Add/remove team member ("manage:team")
-                # - Create project ("add:project")
+                # - Create/delete team and add/remove team member ("manage:team")
+                # - Add project ("add:project")
                 # Disallowed:
                 # - Invite/remove organization member ("manage:organization")
                 # - Manage billing ("manage:billing")
-                # - Delete project ("remove:project")
+                # - Remove project ("remove:project")
                 acls.append(
                     (
                         Allow,
@@ -318,14 +391,22 @@ class Organization(HasEvents, db.Model):
                 # - View team ("view:team")
                 # Disallowed:
                 # - Invite/remove organization member ("manage:organization")
-                # - Add/remove team member ("manage:team")
+                # - Create/delete team and add/remove team member ("manage:team")
                 # - Manage billing ("manage:billing")
-                # - Create project ("add:project")
-                # - Delete project ("remove:project")
+                # - Add project ("add:project")
+                # - Remove project ("remove:project")
                 acls.append(
                     (Allow, f"user:{role.user.id}", ["view:organization", "view:team"])
                 )
         return acls
+
+    @property
+    def active_subscription(self):
+        for subscription in self.subscriptions:
+            if not subscription.is_restricted:
+                return subscription
+        else:
+            return None
 
 
 class OrganizationNameCatalog(db.Model):
@@ -427,8 +508,8 @@ class TeamRole(db.Model):
 
 class TeamProjectRoleType(str, enum.Enum):
 
-    Administer = "Administer"
-    Upload = "Upload"
+    Owner = "Owner"  # Granted "Administer" permissions.
+    Maintainer = "Maintainer"  # Granted "Upload" permissions.
 
 
 class TeamProjectRole(db.Model):
@@ -459,8 +540,15 @@ class TeamProjectRole(db.Model):
         nullable=False,
     )
 
-    project = orm.relationship("Project", lazy=False)
-    team = orm.relationship("Team", lazy=False)
+    project = orm.relationship(
+        "Project",
+        lazy=False,
+        back_populates="team_project_roles",
+    )
+    team = orm.relationship(
+        "Team",
+        lazy=False,
+    )
 
 
 class TeamFactory:
@@ -511,7 +599,7 @@ class Team(HasEvents, db.Model):
         index=True,
     )
 
-    organization = orm.relationship("Organization", lazy=False, backref="teams")
+    organization = orm.relationship("Organization", lazy=False, back_populates="teams")
     members = orm.relationship(
         User, secondary=TeamRole.__table__, backref="teams", viewonly=True  # type: ignore # noqa
     )
@@ -520,11 +608,15 @@ class Team(HasEvents, db.Model):
     )
 
     def record_event(self, *, tag, ip_address, additional={}):
-        """Record team name in events in case team is ever deleted."""
+        """Record org and team name in events in case they are ever deleted."""
         super().record_event(
             tag=tag,
             ip_address=ip_address,
-            additional={"team_name": self.name, **additional},
+            additional={
+                "organization_name": self.organization.name,
+                "team_name": self.name,
+                **additional,
+            },
         )
 
     def __acl__(self):

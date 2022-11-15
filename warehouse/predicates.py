@@ -14,7 +14,11 @@ from typing import List
 
 from pyramid import predicates
 from pyramid.exceptions import ConfigurationError
+from pyramid.httpexceptions import HTTPSeeOther
 from pyramid.util import is_same_domain
+
+from warehouse.admin.flags import AdminFlagValue
+from warehouse.organizations.models import Organization, OrganizationType, Team
 
 
 class DomainPredicate:
@@ -55,6 +59,52 @@ class HeadersPredicate:
         return all(sub(context, request) for sub in self.sub_predicates)
 
 
+class ActiveOrganizationPredicate:
+    def __init__(self, val, config):
+        self.val = bool(val)
+
+    def text(self):
+        return f"require_active_organization = {self.val}"
+
+    phash = text
+
+    def __call__(self, context: Organization | Team, request):
+        """Check organizations are enabled globally and this organization is active.
+
+        1. `AdminFlagValue.DISABLE_ORGANIZATIONS` flag is off.
+        2. `Organization.is_active` is true.
+        3. `Organization.active_subscription` exists if organization is a company.
+
+        """
+        if self.val is False:
+            return True
+
+        organization = (
+            context if isinstance(context, Organization) else context.organization
+        )
+
+        if (
+            # Organization accounts are disabled.
+            request.flags.enabled(AdminFlagValue.DISABLE_ORGANIZATIONS)
+        ):
+            return False
+        elif (
+            # Organization is active.
+            organization.is_active
+            # Organization has active subscription if it is a Company.
+            and (
+                organization.orgtype != OrganizationType.Company
+                or organization.active_subscription
+            )
+        ):
+            return True
+        else:
+            raise HTTPSeeOther(request.route_path("manage.organizations"))
+
+
 def includeme(config):
     config.add_route_predicate("domain", DomainPredicate)
     config.add_view_predicate("require_headers", HeadersPredicate)
+    config.add_view_predicate(
+        "require_active_organization", ActiveOrganizationPredicate
+    )

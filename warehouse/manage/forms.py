@@ -49,13 +49,9 @@ class TeamProjectRoleNameMixin:
 
     team_project_role_name = wtforms.SelectField(
         "Select permissions",
-        choices=[
-            ("", "Select permissions"),
-            ("Upload", "Upload"),
-            ("Administer", "Administer"),
-        ],
+        choices=[("", "Select role"), ("Maintainer", "Maintainer"), ("Owner", "Owner")],
         coerce=lambda string: TeamProjectRoleType(string) if string else None,
-        validators=[wtforms.validators.DataRequired(message="Select permissions")],
+        validators=[wtforms.validators.DataRequired(message="Select role")],
     )
 
 
@@ -83,7 +79,6 @@ class CreateRoleForm(RoleNameMixin, UsernameMixin, forms.Form):
 class CreateInternalRoleForm(
     RoleNameMixin,
     TeamProjectRoleNameMixin,
-    UsernameMixin,
     forms.Form,
 ):
     is_team = wtforms.RadioField(
@@ -101,9 +96,17 @@ class CreateInternalRoleForm(
         validators=[wtforms.validators.InputRequired()],
     )
 
-    def __init__(self, *args, team_choices, user_service, **kwargs):
+    username = wtforms.SelectField(
+        "Select user",
+        choices=[("", "Select user")],
+        default="",  # Set default to avoid error when there are no user choices.
+        validators=[wtforms.validators.InputRequired()],
+    )
+
+    def __init__(self, *args, team_choices, user_choices, user_service, **kwargs):
         super().__init__(*args, **kwargs)
         self.team_name.choices += [(name, name) for name in sorted(team_choices)]
+        self.username.choices += [(name, name) for name in sorted(user_choices)]
         self.user_service = user_service
 
         # Do not check for required fields in browser.
@@ -119,10 +122,6 @@ class CreateInternalRoleForm(
         else:
             self.team_name.validators = []
             self.team_project_role_name.validators = []
-
-    def validate_username(self, field):
-        if not self.is_team.data:
-            super().validate_username(field)
 
 
 class ChangeRoleForm(RoleNameMixin, forms.Form):
@@ -425,7 +424,13 @@ class OrganizationNameMixin:
     )
 
     def validate_name(self, field):
-        if self.organization_service.find_organizationid(field.data) is not None:
+        # Find organization by name.
+        organization_id = self.organization_service.find_organizationid(field.data)
+
+        # Name is valid if one of the following is true:
+        # - There is no name conflict with any organization.
+        # - The name conflict is with the current organization.
+        if organization_id is not None and organization_id != self.organization_id:
             raise wtforms.validators.ValidationError(
                 _(
                     "This organization account name has already been used. "
@@ -539,9 +544,10 @@ class SaveOrganizationNameForm(OrganizationNameMixin, forms.Form):
 
     __params__ = ["name"]
 
-    def __init__(self, *args, organization_service, **kwargs):
+    def __init__(self, *args, organization_service, organization_id=None, **kwargs):
         super().__init__(*args, **kwargs)
         self.organization_service = organization_service
+        self.organization_id = organization_id
 
 
 class SaveOrganizationForm(forms.Form):
@@ -587,7 +593,6 @@ class SaveOrganizationForm(forms.Form):
         ]
     )
     orgtype = wtforms.SelectField(
-        # TODO: Map additional choices to "Company" and "Community".
         choices=[("Company", "Company"), ("Community", "Community")],
         coerce=OrganizationType,
         validators=[
@@ -601,19 +606,18 @@ class CreateOrganizationForm(SaveOrganizationNameForm, SaveOrganizationForm):
     __params__ = SaveOrganizationNameForm.__params__ + SaveOrganizationForm.__params__
 
 
-class CreateTeamRoleForm(UsernameMixin, forms.Form):
+class CreateTeamRoleForm(forms.Form):
+
+    username = wtforms.SelectField(
+        "Select user",
+        choices=[("", "Select user")],
+        default="",  # Set default to avoid error when there are no user choices.
+        validators=[wtforms.validators.InputRequired()],
+    )
+
     def __init__(self, *args, user_choices, **kwargs):
         super().__init__(*args, **kwargs)
-        self.user_choices = user_choices
-
-    def validate_username(self, field):
-        if field.data not in self.user_choices:
-            raise wtforms.validators.ValidationError(
-                _(
-                    "No organization owner, manager, or member found "
-                    "with that username. Please try again."
-                )
-            )
+        self.username.choices += [(name, name) for name in sorted(user_choices)]
 
 
 class SaveTeamForm(forms.Form):
@@ -640,13 +644,24 @@ class SaveTeamForm(forms.Form):
         ]
     )
 
-    def __init__(self, *args, organization_id, organization_service, **kwargs):
+    def __init__(
+        self, *args, organization_service, organization_id, team_id=None, **kwargs
+    ):
         super().__init__(*args, **kwargs)
+        self.team_id = team_id
         self.organization_id = organization_id
         self.organization_service = organization_service
 
     def validate_name(self, field):
-        if self.organization_service.find_teamid(self.organization_id, field.data):
+        # Find team by name.
+        team_id = self.organization_service.find_teamid(
+            self.organization_id, field.data
+        )
+
+        # Name is valid if one of the following is true:
+        # - There is no name conflict with any team.
+        # - The name conflict is with the current team.
+        if team_id is not None and team_id != self.team_id:
             raise wtforms.validators.ValidationError(
                 _(
                     "This team name has already been used. "

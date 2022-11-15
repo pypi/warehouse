@@ -103,6 +103,12 @@ class TestUser:
     def test_recent_events(self, db_session):
         user = DBUserFactory.create()
         recent_event = DBUserEventFactory(source=user, tag="foo", ip_address="0.0.0.0")
+        legacy_event = DBUserEventFactory(
+            source=user,
+            tag="wu",
+            ip_address_string="0.0.0.0",
+            time=datetime.datetime.now() - datetime.timedelta(days=1),
+        )
         stale_event = DBUserEventFactory(
             source=user,
             tag="bar",
@@ -110,8 +116,9 @@ class TestUser:
             time=datetime.datetime.now() - datetime.timedelta(days=91),
         )
 
-        assert user.events.all() == [recent_event, stale_event]
-        assert user.recent_events.all() == [recent_event]
+        assert user.events.all() == [recent_event, legacy_event, stale_event]
+        assert user.recent_events.all() == [recent_event, legacy_event]
+        assert user.recent_events.all()[-1].ip_address == "0.0.0.0"
 
     def test_regular_user_not_prohibited_password_reset(self, db_session):
         user = DBUserFactory.create()
@@ -148,3 +155,10 @@ class TestUser:
     def test_has_no_burned_recovery_codes(self, db_session):
         user = DBUserFactory.create()
         assert user.has_burned_recovery_codes is False
+
+    def test_acl(self, db_session):
+        user = DBUserFactory.create()
+        assert user.__acl__() == [
+            ("Allow", "group:admins", "admin"),
+            ("Allow", "group:moderators", "moderator"),
+        ]
