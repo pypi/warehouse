@@ -656,4 +656,7 @@ def test_routes(warehouse):
         ),
     ]
 
-    assert config.add_policy.calls == [pretend.call("terms-of-use", "terms.md")]
+    assert config.add_policy.calls == [
+        pretend.call("terms-of-use", "terms.md"),
+        pretend.call("acceptable-use-policy", "acceptable-use-policy.md"),
+    ]

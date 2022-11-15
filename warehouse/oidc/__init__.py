@@ -12,13 +12,26 @@
 
 from warehouse.oidc.interfaces import IOIDCProviderService
 from warehouse.oidc.services import OIDCProviderServiceFactory
+from warehouse.oidc.utils import GITHUB_OIDC_ISSUER_URL
 
 
 def includeme(config):
+    oidc_provider_service_class = config.maybe_dotted(
+        config.registry.settings["oidc.backend"]
+    )
+
     config.register_service_factory(
         OIDCProviderServiceFactory(
-            provider="github", issuer_url="https://token.actions.githubusercontent.com"
+            provider="github",
+            issuer_url=GITHUB_OIDC_ISSUER_URL,
+            service_class=oidc_provider_service_class,
         ),
         IOIDCProviderService,
         name="github",
     )
+
+    # During deployments, we separate auth routes into their own subdomain
+    # to simplify caching exclusion.
+    auth = config.get_settings().get("auth.domain")
+
+    config.add_route("oidc.mint_token", "/_/oidc/github/mint-token", domain=auth)

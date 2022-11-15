@@ -57,6 +57,7 @@ def includeme(config):
 
     # Our legal policies
     config.add_policy("terms-of-use", "terms.md")
+    config.add_policy("acceptable-use-policy", "acceptable-use-policy.md")
     config.add_template_view(
         "trademarks",
         "/trademarks/",

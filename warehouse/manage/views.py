@@ -1045,9 +1045,9 @@ class ProvisionMacaroonViews:
 
             serialized_macaroon, macaroon = self.macaroon_service.create_macaroon(
                 location=self.request.domain,
-                user_id=self.request.user.id,
                 description=form.description.data,
                 scopes=macaroon_caveats,
+                user_id=self.request.user.id,
             )
             self.user_service.record_event(
                 self.request.user.id,
@@ -3221,10 +3221,12 @@ class ManageOIDCProviderViews:
                     provider=provider,
                 )
 
-            # NOTE: We remove the provider from the project, but we don't actually
-            # delete the provider model itself (since it might be associated
-            # with other projects).
+            # We remove this provider from the project's list of providers
+            # and, if there are no projects left associated with the provider,
+            # we delete it entirely.
             self.project.oidc_providers.remove(provider)
+            if len(provider.projects) == 0:
+                self.request.db.delete(provider)
 
             self.project.record_event(
                 tag=EventTag.Project.OIDCProviderRemoved,

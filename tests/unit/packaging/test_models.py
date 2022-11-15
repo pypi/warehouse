@@ -21,6 +21,7 @@ from pyramid.location import lineage
 from warehouse.organizations.models import TeamProjectRoleType
 from warehouse.packaging.models import File, ProjectFactory, ReleaseURL
 
+from ...common.db.oidc import GitHubProviderFactory
 from ...common.db.organizations import (
     OrganizationFactory as DBOrganizationFactory,
     OrganizationProjectFactory as DBOrganizationProjectFactory,
@@ -141,6 +142,8 @@ class TestProject:
             team=team, project=project, role_name=TeamProjectRoleType.Owner
         )
 
+        provider = GitHubProviderFactory.create(projects=[project])
+
         acls = []
         for location in lineage(project):
             try:
@@ -157,6 +160,8 @@ class TestProject:
             (Allow, "group:admins", "admin"),
             (Allow, "group:moderators", "moderator"),
         ] + sorted(
+            [(Allow, f"oidc:{provider.id}", ["upload"])], key=lambda x: x[1]
+        ) + sorted(
             [
                 (Allow, f"user:{owner1.user.id}", ["manage:project", "upload"]),
                 (Allow, f"user:{owner2.user.id}", ["manage:project", "upload"]),
