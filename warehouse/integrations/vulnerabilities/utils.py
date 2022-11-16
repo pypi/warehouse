@@ -19,45 +19,6 @@ from warehouse.integrations.vulnerabilities.models import VulnerabilityRecord
 from warehouse.packaging.models import Project, Release
 
 
-def _get_project(request, vuln_report: vulnerabilities.VulnerabilityReportRequest):
-    return (
-        request.db.query(Project)
-        .filter(
-            Project.normalized_name == func.normalize_pep426_name(vuln_report.project)
-        )
-        .one()
-    )
-
-
-def _get_release(request, project: Project, version):
-    return (
-        request.db.query(Release)
-        .filter(Release.project_id == project.id)
-        .filter(Release.version == version)
-        .one()
-    )
-
-
-def _get_vuln_record(
-    request, vuln_report: vulnerabilities.VulnerabilityReportRequest, origin
-):
-    return (
-        request.db.query(VulnerabilityRecord)
-        .filter(VulnerabilityRecord.id == vuln_report.vulnerability_id)
-        .filter(VulnerabilityRecord.source == origin)
-        .options(orm.joinedload(VulnerabilityRecord.releases))
-        .one()
-    )
-
-
-def _delete_vuln_record(request, vuln_record: VulnerabilityRecord):
-    request.db.delete(vuln_record)
-
-
-def _add_vuln_record(request, vuln_record: VulnerabilityRecord):
-    request.db.add(vuln_record)
-
-
 def _analyze_vulnerability(request, vulnerability_report, origin, metrics):
     try:
         report = vulnerabilities.VulnerabilityReportRequest.from_api_request(
@@ -72,12 +33,18 @@ def _analyze_vulnerability(request, vulnerability_report, origin, metrics):
     metrics.increment("warehouse.vulnerabilities.valid", tags=[f"origin:{origin}"])
 
     try:
-        vulnerability_record = _get_vuln_record(request, report, origin)
+        vulnerability_record = (
+            request.db.query(VulnerabilityRecord)
+            .filter(VulnerabilityRecord.id == report.vulnerability_id)
+            .filter(VulnerabilityRecord.source == origin)
+            .options(orm.joinedload(VulnerabilityRecord.releases))
+            .one()
+        )
 
         if not report.versions:
             # No versions indicates the vulnerability is no longer considered
             # valid, so delete it.
-            _delete_vuln_record(request, vulnerability_record)
+            request.db.delete(vulnerability_record)
             return
 
     except NoResultFound:
@@ -94,10 +61,17 @@ def _analyze_vulnerability(request, vulnerability_report, origin, metrics):
             fixed_in=report.fixed_in,
             withdrawn=report.withdrawn,
         )
-        _add_vuln_record(request, vulnerability_record)
+        request.db.add(vulnerability_record)
 
     try:
-        project = _get_project(request, report)
+        project = (
+            request.db.query(Project)
+            .filter(
+                Project.normalized_name == func.normalize_pep426_name(report.project)
+            )
+            .one()
+        )
+
     except NoResultFound:
         metrics.increment(
             "warehouse.vulnerabilities.error.project_not_found",
@@ -109,7 +83,12 @@ def _analyze_vulnerability(request, vulnerability_report, origin, metrics):
 
     for version in report.versions:
         try:
-            release = _get_release(request, project, version)
+            release = (
+                request.db.query(Release)
+                .filter(Release.project_id == project.id)
+                .filter(Release.version == version)
+                .one()
+            )
             found_releases = True  # at least one release found
         except NoResultFound:
             metrics.increment(
