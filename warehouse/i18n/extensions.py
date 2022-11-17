@@ -34,6 +34,11 @@ class TrimmedTranslatableTagsExtension(Extension):
 
 
 def _make_newer_gettext(func: t.Callable[[str], str]) -> t.Callable[..., str]:
+    """
+    Wraps upstream _make_new_gettext with the try/except for KeyError to
+    fallback to untranslated strings when translations have not been updated
+    with new named variables.
+    """
     _old_gettext = _make_new_gettext(func)
 
     @pass_context
@@ -49,6 +54,11 @@ def _make_newer_gettext(func: t.Callable[[str], str]) -> t.Callable[..., str]:
 def _make_newer_ngettext(
     func: t.Callable[[str, str, int], str]
 ) -> t.Callable[..., str]:
+    """
+    Wraps upstream _make_new_ngettext with the try/except for KeyError to
+    fallback to untranslated strings when translations have not been updated
+    with new named variables.
+    """
     _old_ngettext = pass_context(_make_new_ngettext(func))
 
     @pass_context
@@ -70,6 +80,20 @@ def _make_newer_ngettext(
 
 
 class FallbackInternationalizationExtension(InternationalizationExtension):
+    """
+    Replica of InternationalizationExtension which overrides a single
+    method _install_callables to inject our own wrappers for gettext
+    and ngettext with the _make_newer_gettext and _make_newer_ngettext
+    defined above.
+
+    Diff from original method is:
+
+    -            gettext = _make_new_gettext(gettext)
+    -            ngettext = _make_new_ngettext(ngettext)
+    +            gettext = _make_newer_gettext(gettext)
+    +            ngettext = _make_newer_ngettext(ngettext)
+    """
+
     def _install_callables(
         self,
         gettext: t.Callable[[str], str],
