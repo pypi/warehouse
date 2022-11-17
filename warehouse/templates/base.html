@@ -271,6 +271,7 @@
               <li><a href="https://packaging.python.org/installing/" title="{% trans %}External link{% endtrans %}" target="_blank" rel="noopener">{% trans %}Installing packages{% endtrans %}</a></li>
               <li><a href="https://packaging.python.org/tutorials/packaging-projects/" title="{% trans %}External link{% endtrans %}" target="_blank" rel="noopener">{% trans %}Uploading packages{% endtrans %}</a></li>
               <li><a href="https://packaging.python.org/" title="{% trans %}External link{% endtrans %}" target="_blank" rel="noopener">{% trans %}User guide{% endtrans %}</a></li>
+              <li><a href="https://www.python.org/dev/peps/pep-0541/" title="{% trans %}External link{% endtrans %}" target="_blank" rel="noopener">{% trans %}Project name retention{% endtrans %}</a></li>
               <li><a href="{{ request.route_path('help')}}">{% trans %}FAQs{% endtrans %}</a></li>
             </ul>
           </nav>
@@ -282,7 +283,8 @@
             <ul>
               <li><a href="https://twitter.com/PyPI" title="{% trans %}External link{% endtrans %}" target="_blank" rel="noopener">{% trans %}PyPI on Twitter{% endtrans %}</a></li>
               <li><a href="https://dtdg.co/pypi" title="{% trans %}External link{% endtrans %}" target="_blank" rel="noopener">{% trans %}Infrastructure dashboard{% endtrans %}</a></li>
-              <li><a href="https://www.python.org/dev/peps/pep-0541/" title="{% trans %}External link{% endtrans %}" target="_blank" rel="noopener">{% trans %}Package index name retention{% endtrans %}</a></li>
+              <li><a href="{{ request.route_path('stats') }}">{% trans %}Statistics{% endtrans %}</a></li>
+              <li><a href="{{ request.route_path('trademarks') }}">{% trans %}Logos & trademarks{% endtrans %}</a></li>
               <li><a href="{{ request.route_path('sponsors') }}">{% trans %}Our sponsors{% endtrans %}</a></li>
             </ul>
           </nav>
@@ -295,6 +297,7 @@
               <li><a href="{{ request.route_path('help')}}#feedback">{% trans %}Bugs and feedback{% endtrans %}</a></li>
               <li><a href="https://github.com/pypi/warehouse" title="{% trans %}External link{% endtrans %}" target="_blank" rel="noopener">{% trans %}Contribute on GitHub{% endtrans %}</a></li>
               <li><a href="https://hosted.weblate.org/projects/pypa/warehouse/" title="{% trans %}External link{% endtrans %}" target="_blank" rel="noopener">{% trans %}Translate PyPI{% endtrans %}</a></li>
+              <li><a href="{{ request.route_path('sponsors') }}">{% trans %}Sponsor PyPI{% endtrans %}</a></li>
               <li><a href="https://github.com/pypi/warehouse/graphs/contributors" title="{% trans %}External link{% endtrans %}" target="_blank" rel="noopener">{% trans %}Development credits{% endtrans %}</a></li>
             </ul>
           </nav>
@@ -308,6 +311,7 @@
               <li><a href="{{ request.route_path('security') }}">{% trans %}Report security issue{% endtrans %}</a></li>
               <li><a href="https://www.python.org/privacy/" title="{% trans %}External link{% endtrans %}" target="_blank" rel="noopener">{% trans %}Privacy policy{% endtrans %}</a></li>
               <li><a href="{{ request.route_path('policy.terms-of-use') }}">{% trans %}Terms of use{% endtrans %}</a></li>
+              <li><a href="{{ request.route_path('policy.acceptable-use-policy') }}">{% trans %}Acceptable Use Policy{% endtrans %}</a></li>
             </ul>
           </nav>
         </div>
