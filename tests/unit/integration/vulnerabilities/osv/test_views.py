@@ -15,8 +15,6 @@ import json
 
 import pretend
 
-from sqlalchemy.orm.exc import NoResultFound
-
 from warehouse.integrations.vulnerabilities import osv
 from warehouse.integrations.vulnerabilities.osv import views
 
@@ -194,62 +192,3 @@ class TestReportVulnerabilities:
         response = views.report_vulnerabilities(pyramid_request)
 
         assert response.status_int == 400
-
-    def test_report_vulnerabilities_not_found_error(self, pyramid_request, monkeypatch):
-
-        verify = pretend.call_recorder(lambda **k: True)
-        verifier = pretend.stub(verify=verify)
-        verifier_cls = pretend.call_recorder(lambda **k: verifier)
-        monkeypatch.setattr(osv, "VulnerabilityReportVerifier", verifier_cls)
-
-        def raise_not_found(**k):
-            raise NoResultFound()
-
-        delay = pretend.call_recorder(raise_not_found)
-        task = pretend.call_recorder(lambda a: pretend.stub(delay=delay))
-        pyramid_request.task = task
-
-        pyramid_request.headers = {
-            "VULN-PUBLIC-KEY-IDENTIFIER": "vuln_pub_key_id",
-            "VULN-PUBLIC-KEY-SIGNATURE": "vuln_pub_key_sig",
-        }
-
-        pyramid_request.body = """[{
-  "project": "vuln_project",
-  "versions": [
-    "v1",
-    "v2"
-  ],
-  "id": "vuln_id",
-  "link": "vulns.com/vuln_id",
-  "aliases": [
-    "vuln_alias"
-  ]
-}]"""
-        pyramid_request.json_body = [
-            {
-                "project": "vuln_project",
-                "versions": ["v1", "v2"],
-                "id": "vuln_id",
-                "link": "vulns.com/vuln_id",
-                "aliases": ["vuln_alias"],
-            }
-        ]
-        pyramid_request.http = pretend.stub()
-
-        response = views.report_vulnerabilities(pyramid_request)
-
-        assert response.status_int == 404
-        assert task.calls == [pretend.call(views.analyze_vulnerability_task)]
-        assert delay.calls == [
-            pretend.call(
-                vulnerability_report={
-                    "project": "vuln_project",
-                    "versions": ["v1", "v2"],
-                    "id": "vuln_id",
-                    "link": "vulns.com/vuln_id",
-                    "aliases": ["vuln_alias"],
-                },
-                origin="osv",
-            )
-        ]
