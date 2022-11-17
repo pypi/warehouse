@@ -14,10 +14,9 @@ import json
 
 from pyramid.response import Response
 from pyramid.view import view_config
-from sqlalchemy.orm.exc import NoResultFound
 
-from warehouse.integrations import vulnerabilities
-from warehouse.integrations.vulnerabilities import osv, utils
+from warehouse.integrations.vulnerabilities import osv
+from warehouse.integrations.vulnerabilities.tasks import analyze_vulnerability_task
 from warehouse.metrics import IMetricsService
 
 
@@ -49,25 +48,26 @@ def report_vulnerabilities(request):
     if not verifier.verify(payload=body, key_id=key_id, signature=signature):
         return Response(status=400)
 
+    # Body must be valid JSON
     try:
         vulnerability_reports = request.json_body
     except json.decoder.JSONDecodeError:
         metrics.increment(
             "warehouse.vulnerabilties.error.payload.json_error", tags=["origin:osv"]
         )
-        return Response(status=400)
+        return Response(status=400, body="Invalid JSON")
 
-    try:
-        utils.analyze_vulnerabilities(
-            request=request,
-            vulnerability_reports=vulnerability_reports,
+    # Body must be a list
+    if not isinstance(vulnerability_reports, list):
+        metrics.increment("warehouse.vulnerabilities.error.format", tags=["origin:osv"])
+        return Response(status=400, body="Invalid format: payload is not a list")
+
+    # Create a task to analyze each report
+    for vulnerability_report in vulnerability_reports:
+        request.task(analyze_vulnerability_task).delay(
+            vulnerability_report=vulnerability_report,
             origin="osv",
-            metrics=metrics,
         )
-    except vulnerabilities.InvalidVulnerabilityReportError:
-        return Response(status=400)
-    except NoResultFound:
-        return Response(status=404)
 
     # 204 No Content: we acknowledge but we won't comment on the outcome.
     return Response(status=204)
