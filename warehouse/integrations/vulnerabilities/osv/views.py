@@ -49,13 +49,19 @@ def report_vulnerabilities(request):
     if not verifier.verify(payload=body, key_id=key_id, signature=signature):
         return Response(status=400)
 
+    # Body must be valid JSON
     try:
         vulnerability_reports = request.json_body
     except json.decoder.JSONDecodeError:
         metrics.increment(
             "warehouse.vulnerabilties.error.payload.json_error", tags=["origin:osv"]
         )
-        return Response(status=400)
+        return Response(status=400, body="Invalid JSON")
+
+    # Body must be a list
+    if not isinstance(vulnerability_reports, list):
+        metrics.increment("warehouse.vulnerabilities.error.format", tags=["origin:osv"])
+        return Response(status=400, body="Invalid format: payload is not a list")
 
     try:
         utils.analyze_vulnerabilities(

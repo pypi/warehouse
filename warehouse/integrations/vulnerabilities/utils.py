@@ -135,14 +135,6 @@ def analyze_vulnerability(request, vulnerability_report, origin, metrics):
 def analyze_vulnerabilities(request, vulnerability_reports, origin, metrics):
     from warehouse.integrations.vulnerabilities import tasks
 
-    if not isinstance(vulnerability_reports, list):
-        metrics.increment(
-            "warehouse.vulnerabilities.error.format", tags=[f"origin:{origin}"]
-        )
-        raise vulnerabilities.InvalidVulnerabilityReportError(
-            "Invalid format: payload is not a list", "format"
-        )
-
     for vulnerability_report in vulnerability_reports:
         request.task(tasks.analyze_vulnerability_task).delay(
             vulnerability_report=vulnerability_report,
