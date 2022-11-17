@@ -17,7 +17,7 @@ import pretend
 
 from sqlalchemy.orm.exc import NoResultFound
 
-from warehouse.integrations.vulnerabilities import osv, utils
+from warehouse.integrations.vulnerabilities import osv
 from warehouse.integrations.vulnerabilities.osv import views
 
 
@@ -60,8 +60,9 @@ class TestReportVulnerabilities:
         verifier_cls = pretend.call_recorder(lambda **k: verifier)
         monkeypatch.setattr(osv, "VulnerabilityReportVerifier", verifier_cls)
 
-        analyze_vulnerabilities = pretend.call_recorder(lambda **k: None)
-        monkeypatch.setattr(utils, "analyze_vulnerabilities", analyze_vulnerabilities)
+        delay = pretend.call_recorder(lambda **k: None)
+        task = pretend.call_recorder(lambda a: pretend.stub(delay=delay))
+        pyramid_request.task = task
 
         response = views.report_vulnerabilities(pyramid_request)
 
@@ -85,20 +86,17 @@ class TestReportVulnerabilities:
                 signature="vuln_pub_key_sig",
             )
         ]
-        assert analyze_vulnerabilities.calls == [
+        assert task.calls == [pretend.call(views.analyze_vulnerability_task)]
+        assert delay.calls == [
             pretend.call(
-                request=pyramid_request,
-                vulnerability_reports=[
-                    {
-                        "project": "vuln_project",
-                        "versions": ["v1", "v2"],
-                        "id": "vuln_id",
-                        "link": "vulns.com/vuln_id",
-                        "aliases": ["vuln_alias"],
-                    }
-                ],
+                vulnerability_report={
+                    "project": "vuln_project",
+                    "versions": ["v1", "v2"],
+                    "id": "vuln_id",
+                    "link": "vulns.com/vuln_id",
+                    "aliases": ["vuln_alias"],
+                },
                 origin="osv",
-                metrics=metrics,
             )
         ]
 
@@ -204,11 +202,12 @@ class TestReportVulnerabilities:
         verifier_cls = pretend.call_recorder(lambda **k: verifier)
         monkeypatch.setattr(osv, "VulnerabilityReportVerifier", verifier_cls)
 
-        def raise_not_found():
+        def raise_not_found(**k):
             raise NoResultFound()
 
-        analyze_vulnerabilities = pretend.call_recorder(lambda **k: raise_not_found())
-        monkeypatch.setattr(utils, "analyze_vulnerabilities", analyze_vulnerabilities)
+        delay = pretend.call_recorder(raise_not_found)
+        task = pretend.call_recorder(lambda a: pretend.stub(delay=delay))
+        pyramid_request.task = task
 
         pyramid_request.headers = {
             "VULN-PUBLIC-KEY-IDENTIFIER": "vuln_pub_key_id",
@@ -241,3 +240,16 @@ class TestReportVulnerabilities:
         response = views.report_vulnerabilities(pyramid_request)
 
         assert response.status_int == 404
+        assert task.calls == [pretend.call(views.analyze_vulnerability_task)]
+        assert delay.calls == [
+            pretend.call(
+                vulnerability_report={
+                    "project": "vuln_project",
+                    "versions": ["v1", "v2"],
+                    "id": "vuln_id",
+                    "link": "vulns.com/vuln_id",
+                    "aliases": ["vuln_alias"],
+                },
+                origin="osv",
+            )
+        ]

@@ -17,7 +17,8 @@ from pyramid.view import view_config
 from sqlalchemy.orm.exc import NoResultFound
 
 from warehouse.integrations import vulnerabilities
-from warehouse.integrations.vulnerabilities import osv, utils
+from warehouse.integrations.vulnerabilities import osv
+from warehouse.integrations.vulnerabilities.tasks import analyze_vulnerability_task
 from warehouse.metrics import IMetricsService
 
 
@@ -64,12 +65,11 @@ def report_vulnerabilities(request):
         return Response(status=400, body="Invalid format: payload is not a list")
 
     try:
-        utils.analyze_vulnerabilities(
-            request=request,
-            vulnerability_reports=vulnerability_reports,
-            origin="osv",
-            metrics=metrics,
-        )
+        for vulnerability_report in vulnerability_reports:
+            request.task(analyze_vulnerability_task).delay(
+                vulnerability_report=vulnerability_report,
+                origin="osv",
+            )
     except vulnerabilities.InvalidVulnerabilityReportError:
         return Response(status=400)
     except NoResultFound:

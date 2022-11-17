@@ -10,31 +10,397 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import collections
+
+import faker
 import pretend
+import pytest
 
-from warehouse.integrations.vulnerabilities import tasks, utils
+from pyramid.httpexceptions import HTTPBadRequest
+from sqlalchemy.orm.exc import NoResultFound
+
+from tests.common.db.packaging import ProjectFactory, ReleaseFactory
+from warehouse.integrations import vulnerabilities
+from warehouse.integrations.vulnerabilities import tasks
 
 
-def test_analyze_disclosure_task(monkeypatch):
-    analyze_vulnerability = pretend.call_recorder(lambda *a, **k: None)
-    monkeypatch.setattr(utils, "analyze_vulnerability", analyze_vulnerability)
+def test_analyze_vulnerability(db_request, metrics):
+    project = ProjectFactory.create()
+    release1 = ReleaseFactory.create(project=project, version="1.0")
+    release2 = ReleaseFactory.create(project=project, version="2.0")
+    release3 = ReleaseFactory.create(project=project, version="3.0")
 
-    metrics = pretend.stub()
-    request = pretend.stub(find_service=lambda *a, **kw: metrics)
-    vulnerability_report = pretend.stub()
-    origin = pretend.stub()
+    metrics_counter = collections.Counter()
+
+    def metrics_increment(key, tags):
+        metrics_counter.update([(key, tuple(tags))])
+
+    metrics = pretend.stub(increment=metrics_increment, timed=metrics.timed)
+    db_request.find_service = lambda *a, **kw: metrics
 
     tasks.analyze_vulnerability_task(
-        request=request,
-        vulnerability_report=vulnerability_report,
-        origin=origin,
+        request=db_request,
+        vulnerability_report={
+            "project": project.name,
+            "versions": ["1.0", "2.0"],
+            "id": "vuln_id",
+            "link": "vulns.com/vuln_id",
+            "aliases": ["vuln_alias1", "vuln_alias2"],
+        },
+        origin="test_report_source",
     )
 
-    assert analyze_vulnerability.calls == [
-        pretend.call(
-            request=request,
-            vulnerability_report=vulnerability_report,
-            origin=origin,
-            metrics=metrics,
+    assert len(release1.vulnerabilities) == 1
+    assert len(release2.vulnerabilities) == 1
+    assert len(release3.vulnerabilities) == 0
+    assert release1.vulnerabilities[0] == release2.vulnerabilities[0]
+    vuln_record = release1.vulnerabilities[0]
+    assert len(vuln_record.releases) == 2
+    assert release1 in vuln_record.releases
+    assert release2 in vuln_record.releases
+    assert vuln_record.source == "test_report_source"
+    assert vuln_record.id == "vuln_id"
+    assert vuln_record.link == "vulns.com/vuln_id"
+    assert len(vuln_record.aliases) == 2
+    assert "vuln_alias1" in vuln_record.aliases
+    assert "vuln_alias2" in vuln_record.aliases
+
+    assert metrics_counter == {
+        ("warehouse.vulnerabilities.received", ("origin:test_report_source",)): 1,
+        ("warehouse.vulnerabilities.processed", ("origin:test_report_source",)): 1,
+        ("warehouse.vulnerabilities.valid", ("origin:test_report_source",)): 1,
+    }
+
+
+def test_analyze_vulnerability_add_release(db_request, metrics):
+    project = ProjectFactory.create()
+    release1 = ReleaseFactory.create(project=project, version="1.0")
+    release2 = ReleaseFactory.create(project=project, version="2.0")
+
+    metrics_counter = collections.Counter()
+
+    def metrics_increment(key, tags):
+        metrics_counter.update([(key, tuple(tags))])
+
+    metrics = pretend.stub(increment=metrics_increment, timed=metrics.timed)
+    db_request.find_service = lambda *a, **kw: metrics
+
+    tasks.analyze_vulnerability_task(
+        request=db_request,
+        vulnerability_report={
+            "project": project.name,
+            "versions": ["1.0"],
+            "id": "vuln_id",
+            "link": "vulns.com/vuln_id",
+            "aliases": ["vuln_alias"],
+        },
+        origin="test_report_source",
+    )
+
+    assert len(release1.vulnerabilities) == 1
+    assert len(release2.vulnerabilities) == 0
+    assert metrics_counter == {
+        ("warehouse.vulnerabilities.received", ("origin:test_report_source",)): 1,
+        ("warehouse.vulnerabilities.processed", ("origin:test_report_source",)): 1,
+        ("warehouse.vulnerabilities.valid", ("origin:test_report_source",)): 1,
+    }
+
+    metrics_counter.clear()
+
+    tasks.analyze_vulnerability_task(
+        request=db_request,
+        vulnerability_report={
+            "project": project.name,
+            "versions": ["1.0", "2.0"],  # Add 2.0
+            "id": "vuln_id",
+            "link": "vulns.com/vuln_id",
+            "aliases": ["vuln_alias"],
+        },
+        origin="test_report_source",
+    )
+
+    assert len(release1.vulnerabilities) == 1
+    assert len(release2.vulnerabilities) == 1
+    assert release1.vulnerabilities[0] == release2.vulnerabilities[0]
+
+    assert metrics_counter == {
+        ("warehouse.vulnerabilities.received", ("origin:test_report_source",)): 1,
+        ("warehouse.vulnerabilities.processed", ("origin:test_report_source",)): 1,
+        ("warehouse.vulnerabilities.valid", ("origin:test_report_source",)): 1,
+    }
+
+
+def test_analyze_vulnerability_delete_releases(db_request, metrics):
+    project = ProjectFactory.create()
+    release1 = ReleaseFactory.create(project=project, version="1.0")
+    release2 = ReleaseFactory.create(project=project, version="2.0")
+
+    metrics_counter = collections.Counter()
+
+    def metrics_increment(key, tags):
+        metrics_counter.update([(key, tuple(tags))])
+
+    metrics = pretend.stub(increment=metrics_increment, timed=metrics.timed)
+    db_request.find_service = lambda *a, **kw: metrics
+
+    tasks.analyze_vulnerability_task(
+        request=db_request,
+        vulnerability_report={
+            "project": project.name,
+            "versions": ["1.0", "2.0"],
+            "id": "vuln_id",
+            "link": "vulns.com/vuln_id",
+            "aliases": ["vuln_alias"],
+        },
+        origin="test_report_source",
+    )
+
+    assert len(release1.vulnerabilities) == 1
+    assert len(release2.vulnerabilities) == 1
+    assert release1.vulnerabilities[0] == release2.vulnerabilities[0]
+
+    assert metrics_counter == {
+        ("warehouse.vulnerabilities.received", ("origin:test_report_source",)): 1,
+        ("warehouse.vulnerabilities.processed", ("origin:test_report_source",)): 1,
+        ("warehouse.vulnerabilities.valid", ("origin:test_report_source",)): 1,
+    }
+
+    metrics_counter.clear()
+
+    tasks.analyze_vulnerability_task(
+        request=db_request,
+        vulnerability_report={
+            "project": project.name,
+            "versions": ["1.0"],  # Remove v2 as vulnerable
+            "id": "vuln_id",
+            "link": "vulns.com/vuln_id",
+            "aliases": ["vuln_alias"],
+        },
+        origin="test_report_source",
+    )
+
+    assert len(release1.vulnerabilities) == 1
+    assert len(release2.vulnerabilities) == 0
+    assert metrics_counter == {
+        ("warehouse.vulnerabilities.received", ("origin:test_report_source",)): 1,
+        ("warehouse.vulnerabilities.processed", ("origin:test_report_source",)): 1,
+        ("warehouse.vulnerabilities.valid", ("origin:test_report_source",)): 1,
+    }
+
+    metrics_counter.clear()
+
+    tasks.analyze_vulnerability_task(
+        request=db_request,
+        vulnerability_report={
+            "project": project.name,
+            "versions": [],  # Remove all releases
+            "id": "vuln_id",
+            "link": "vulns.com/vuln_id",
+            "aliases": ["vuln_alias"],
+        },
+        origin="test_report_source",
+    )
+
+    # Weird behavior, see:
+    # https://docs.sqlalchemy.org/en/14/orm/cascades.html#notes-on-delete-deleting-objects-referenced-from-collections-and-scalar-relationships
+    # assert len(release1.vulnerabilities) == 0
+    assert len(release2.vulnerabilities) == 0
+    assert metrics_counter == {
+        ("warehouse.vulnerabilities.received", ("origin:test_report_source",)): 1,
+        ("warehouse.vulnerabilities.processed", ("origin:test_report_source",)): 1,
+        ("warehouse.vulnerabilities.valid", ("origin:test_report_source",)): 1,
+    }
+
+
+def test_analyze_vulnerability_invalid_request(db_request, metrics):
+    project = ProjectFactory.create()
+
+    metrics_counter = collections.Counter()
+
+    def metrics_increment(key, tags):
+        metrics_counter.update([(key, tuple(tags))])
+
+    metrics = pretend.stub(increment=metrics_increment, timed=metrics.timed)
+    db_request.find_service = lambda *a, **kw: metrics
+
+    with pytest.raises(vulnerabilities.InvalidVulnerabilityReportError) as exc:
+        tasks.analyze_vulnerability_task(
+            request=db_request,
+            vulnerability_report={
+                "project": project.name,
+                "versions": ["1", "2"],
+                # "id": "vuln_id",
+                "link": "vulns.com/vuln_id",
+                "aliases": ["vuln_alias"],
+            },
+            origin="test_report_source",
         )
+
+    assert str(exc.value) == "Record is missing attribute(s): id"
+    assert exc.value.reason == "format"
+    assert metrics_counter == {
+        ("warehouse.vulnerabilities.received", ("origin:test_report_source",)): 1,
+        ("warehouse.vulnerabilities.error.format", ("origin:test_report_source",)): 1,
+    }
+
+
+def test_analyze_vulnerability_project_not_found(db_request, metrics):
+    metrics_counter = collections.Counter()
+
+    def metrics_increment(key, tags):
+        metrics_counter.update([(key, tuple(tags))])
+
+    metrics = pretend.stub(increment=metrics_increment, timed=metrics.timed)
+    db_request.find_service = lambda *a, **kw: metrics
+
+    with pytest.raises(NoResultFound):
+        tasks.analyze_vulnerability_task(
+            request=db_request,
+            vulnerability_report={
+                "project": faker.Faker().text(max_nb_chars=8),
+                "versions": ["1", "2"],
+                "id": "vuln_id",
+                "link": "vulns.com/vuln_id",
+                "aliases": ["vuln_alias"],
+            },
+            origin="test_report_source",
+        )
+
+    assert metrics_counter == {
+        ("warehouse.vulnerabilities.received", ("origin:test_report_source",)): 1,
+        ("warehouse.vulnerabilities.valid", ("origin:test_report_source",)): 1,
+        (
+            "warehouse.vulnerabilities.error.project_not_found",
+            ("origin:test_report_source",),
+        ): 1,
+    }
+
+
+def test_analyze_vulnerability_release_not_found(db_request, metrics):
+    project = ProjectFactory.create()
+    ReleaseFactory.create(project=project, version="1.0")
+
+    metrics_counter = collections.Counter()
+
+    def metrics_increment(key, tags):
+        metrics_counter.update([(key, tuple(tags))])
+
+    metrics = pretend.stub(increment=metrics_increment, timed=metrics.timed)
+    db_request.find_service = lambda *a, **kw: metrics
+
+    with pytest.raises(HTTPBadRequest):
+        tasks.analyze_vulnerability_task(
+            request=db_request,
+            vulnerability_report={
+                "project": project.name,
+                "versions": ["1", "2"],
+                "id": "vuln_id",
+                "link": "vulns.com/vuln_id",
+                "aliases": ["vuln_alias"],
+            },
+            origin="test_report_source",
+        )
+
+    assert metrics_counter == {
+        ("warehouse.vulnerabilities.received", ("origin:test_report_source",)): 1,
+        ("warehouse.vulnerabilities.valid", ("origin:test_report_source",)): 1,
+        (
+            "warehouse.vulnerabilities.error.release_not_found",
+            ("origin:test_report_source",),
+        ): 2,
+    }
+
+
+def test_analyze_vulnerability_no_versions(db_request, metrics):
+    project = ProjectFactory.create()
+
+    metrics_counter = collections.Counter()
+
+    def metrics_increment(key, tags):
+        metrics_counter.update([(key, tuple(tags))])
+
+    metrics = pretend.stub(increment=metrics_increment, timed=metrics.timed)
+    db_request.find_service = lambda *a, **kw: metrics
+
+    tasks.analyze_vulnerability_task(
+        request=db_request,
+        vulnerability_report={
+            "project": project.name,
+            "versions": [],
+            "id": "vuln_id",
+            "link": "vulns.com/vuln_id",
+            "aliases": ["vuln_alias"],
+        },
+        origin="test_report_source",
+    )
+
+    assert metrics_counter == {
+        ("warehouse.vulnerabilities.received", ("origin:test_report_source",)): 1,
+        ("warehouse.vulnerabilities.valid", ("origin:test_report_source",)): 1,
+        ("warehouse.vulnerabilities.processed", ("origin:test_report_source",)): 1,
+    }
+
+
+def test_analyze_vulnerability_unknown_error(db_request, monkeypatch, metrics):
+    metrics_counter = collections.Counter()
+
+    def metrics_increment(key, tags):
+        metrics_counter.update([(key, tuple(tags))])
+
+    metrics = pretend.stub(increment=metrics_increment, timed=metrics.timed)
+    db_request.find_service = lambda *a, **kw: metrics
+
+    class UnknownError(Exception):
+        pass
+
+    def raise_unknown_err():
+        raise UnknownError()
+
+    vuln_report_from_api_request = pretend.call_recorder(
+        lambda **k: raise_unknown_err()
+    )
+    vuln_report_cls = pretend.stub(from_api_request=vuln_report_from_api_request)
+    monkeypatch.setattr(vulnerabilities, "VulnerabilityReportRequest", vuln_report_cls)
+
+    with pytest.raises(UnknownError):
+        tasks.analyze_vulnerability_task(
+            request=db_request,
+            vulnerability_report={
+                "project": "whatever",
+                "versions": [],
+                "id": "vuln_id",
+                "link": "vulns.com/vuln_id",
+                "aliases": ["vuln_alias"],
+            },
+            origin="test_report_source",
+        )
+
+    assert metrics_counter == {
+        ("warehouse.vulnerabilities.received", ("origin:test_report_source",)): 1,
+        ("warehouse.vulnerabilities.error.unknown", ("origin:test_report_source",)): 1,
+    }
+
+
+"""
+def test_analyze_vulnerabilities(monkeypatch):
+    task = pretend.stub(delay=pretend.call_recorder(lambda *a, **k: None))
+    request = pretend.stub(task=lambda x: task)
+
+    monkeypatch.setattr(tasks, "analyze_vulnerability_task", task)
+
+    metrics = pretend.stub()
+
+    utils.analyze_vulnerabilities(
+        request=request,
+        vulnerability_reports=[1, 2, 3],
+        origin="whatever",
+        metrics=metrics,
+    )
+
+    assert task.delay.calls == [
+        pretend.call(vulnerability_report=1, origin="whatever"),
+        pretend.call(vulnerability_report=2, origin="whatever"),
+        pretend.call(vulnerability_report=3, origin="whatever"),
     ]
+
+"""
