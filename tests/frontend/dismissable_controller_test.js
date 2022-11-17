@@ -13,7 +13,7 @@
 
 /* global expect, beforeEach, describe, it */
 
-import { Application } from "stimulus";
+import { Application } from "@hotwired/stimulus";
 import DismissableController from "../../warehouse/static/js/warehouse/controllers/dismissable_controller";
 
 describe("Dismissable controller", () => {

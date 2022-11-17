@@ -13,7 +13,7 @@
 
 /* global expect, beforeEach, describe, it, jest */
 
-import { Application } from "stimulus";
+import { Application } from "@hotwired/stimulus";
 import ViewportToggleController from "../../warehouse/static/js/warehouse/controllers/viewport_toggle_controller";
 
 
