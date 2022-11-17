@@ -32,82 +32,81 @@ def _analyze_vulnerability(request, vulnerability_report, origin, metrics):
 
     metrics.increment("warehouse.vulnerabilities.valid", tags=[f"origin:{origin}"])
 
-    try:
-        vulnerability_record = (
-            request.db.query(VulnerabilityRecord)
-            .filter(VulnerabilityRecord.id == report.vulnerability_id)
-            .filter(VulnerabilityRecord.source == origin)
-            .options(orm.joinedload(VulnerabilityRecord.releases))
-            .one()
-        )
+    # See if we have an existing VulnerabilityRecord for this report
+    vulnerability_record = (
+        request.db.query(VulnerabilityRecord)
+        .filter(VulnerabilityRecord.id == report.vulnerability_id)
+        .filter(VulnerabilityRecord.source == origin)
+        .options(orm.joinedload(VulnerabilityRecord.releases))
+        .one_or_none()
+    )
 
-        if not report.versions:
-            # No versions indicates the vulnerability is no longer considered
-            # valid, so delete it.
+    # No versions indicates the vulnerability is no longer considered valid
+    if not report.versions:
+        # If we already have a record, delete it
+        if vulnerability_record:
             request.db.delete(vulnerability_record)
-            return
-
-    except NoResultFound:
-        if not report.versions:
-            return
-
-        vulnerability_record = VulnerabilityRecord(
-            id=report.vulnerability_id,
-            source=origin,
-            link=report.advisory_link,
-            aliases=report.aliases,
-            details=report.details,
-            summary=report.summary,
-            fixed_in=report.fixed_in,
-            withdrawn=report.withdrawn,
-        )
-        request.db.add(vulnerability_record)
-
-    try:
-        project = (
-            request.db.query(Project)
-            .filter(
-                Project.normalized_name == func.normalize_pep426_name(report.project)
+    else:
+        # If we don't have a vulnerability record, create it
+        if not vulnerability_record:
+            vulnerability_record = VulnerabilityRecord(
+                id=report.vulnerability_id,
+                source=origin,
+                link=report.advisory_link,
+                aliases=report.aliases,
+                details=report.details,
+                summary=report.summary,
+                fixed_in=report.fixed_in,
+                withdrawn=report.withdrawn,
             )
-            .one()
-        )
+            request.db.add(vulnerability_record)
 
-    except NoResultFound:
-        metrics.increment(
-            "warehouse.vulnerabilities.error.project_not_found",
-            tags=[f"origin:{origin}"],
-        )
-        raise
-
-    found_releases = False  # by now, we don't have any release found
-
-    for version in report.versions:
         try:
-            release = (
-                request.db.query(Release)
-                .filter(Release.project_id == project.id)
-                .filter(Release.version == version)
+            project = (
+                request.db.query(Project)
+                .filter(
+                    Project.normalized_name
+                    == func.normalize_pep426_name(report.project)
+                )
                 .one()
             )
-            found_releases = True  # at least one release found
+
         except NoResultFound:
             metrics.increment(
-                "warehouse.vulnerabilities.error.release_not_found",
+                "warehouse.vulnerabilities.error.project_not_found",
                 tags=[f"origin:{origin}"],
             )
-            continue  # skip that release
+            raise
 
-        if release not in vulnerability_record.releases:
-            vulnerability_record.releases.append(release)
+        found_releases = False  # by now, we don't have any release found
 
-    if not found_releases:
-        # no releases found, then raise an exception
-        raise HTTPBadRequest("None of the releases were found")
+        for version in report.versions:
+            try:
+                release = (
+                    request.db.query(Release)
+                    .filter(Release.project_id == project.id)
+                    .filter(Release.version == version)
+                    .one()
+                )
+                found_releases = True  # at least one release found
+            except NoResultFound:
+                metrics.increment(
+                    "warehouse.vulnerabilities.error.release_not_found",
+                    tags=[f"origin:{origin}"],
+                )
+                continue  # skip that release
 
-    # Unassociate any releases that no longer apply.
-    for release in list(vulnerability_record.releases):
-        if release.version not in report.versions:
-            vulnerability_record.releases.remove(release)
+            if release not in vulnerability_record.releases:
+                vulnerability_record.releases.append(release)
+
+        if not found_releases:
+            # no releases found, then raise an exception
+            raise HTTPBadRequest("None of the releases were found")
+
+        # Unassociate any releases that no longer apply.
+        for release in list(vulnerability_record.releases):
+            if release.version not in report.versions:
+                vulnerability_record.releases.remove(release)
 
 
 def analyze_vulnerability(request, vulnerability_report, origin, metrics):
