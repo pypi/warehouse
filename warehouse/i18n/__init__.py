@@ -19,6 +19,8 @@ from pyramid.threadlocal import get_current_request
 
 from warehouse.cache.http import add_vary
 
+from .extensions import FallbackInternationalizationExtension
+
 KNOWN_LOCALES = {
     identifier: Locale.parse(identifier, sep="_")
     for identifier in [
@@ -189,6 +191,10 @@ def includeme(config):
     config.add_translation_dirs("warehouse:locale/")
 
     config.set_locale_negotiator(_negotiate_locale)
+
+    config.get_settings().setdefault(
+        "jinja2.i18n_extension", FallbackInternationalizationExtension
+    )
 
     # Register our i18n/l10n filters for Jinja2
     filters = config.get_settings().setdefault("jinja2.filters", {})
