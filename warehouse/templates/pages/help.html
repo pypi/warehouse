@@ -750,10 +750,31 @@
           <li>{% trans %}Filename has been used but file no longer exists{% endtrans %}</li>
           <li>{% trans %}A file with the exact same content exists{% endtrans %}</li>
         </ul>
-        <p>{% trans %}PyPI does not allow for a filename to be reused, even once a project has been deleted and recreated.{% endtrans %}</p>
         <p>
-          {% trans test_pypi_href='https://packaging.python.org/guides/using-testpypi/', pypi_href='https://pypi.org', title=gettext('External link') %}
-          To avoid this situation, <a href="{{ test_pypi_href }}" title="{{ title }}" target="_blank" rel="noopener">use Test PyPI to perform and check your upload first</a>, before uploading to <a href="{{ pypi_href }}">pypi.org</a>.
+          {% trans %}
+            PyPI does not allow for a filename to be reused, even once a
+            project has been deleted and recreated.
+          {% endtrans %}
+        </p>
+        <p>
+          {% trans %}
+            A distribution filename on PyPI consists of the combination of
+            project name, version number, and distribution type.
+          {% endtrans %}
+        </p>
+        <p>
+          {% trans %}
+            This ensures that a given distribution for a given release for a
+            given project will always resolve to the same file, and cannot be
+            surreptitiously changed one day by the projects maintainer or a
+            malicious party (it can only be removed).
+          {% endtrans %}
+        </p>
+        <p>
+          {% trans %}
+            To avoid this situation in most cases, you will need to change the
+            version number to one that you haven't previously uploaded to PyPI,
+            rebuild the distribution, and then upload the new distribution.
           {% endtrans %}
         </p>
 
