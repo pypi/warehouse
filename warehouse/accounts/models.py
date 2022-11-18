@@ -112,6 +112,13 @@ class User(SitemapMixin, HasEvents, db.Model):
         "Macaroon", backref="user", cascade="all, delete-orphan", lazy=True
     )
 
+    pending_oidc_providers = orm.relationship(
+        "PendingOIDCProvider",
+        backref="added_by",
+        cascade="all, delete-orphan",
+        lazy=True,
+    )
+
     @property
     def primary_email(self):
         primaries = [x for x in self.emails if x.primary]
