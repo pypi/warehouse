@@ -182,6 +182,7 @@ class PendingOIDCProvider(OIDCProviderMixin, db.Model):
     A "pending" OIDC provider, i.e. one that's been registered by a user
     but doesn't correspond to an existing PyPI project yet.
     """
+
     __tablename__ = "pending_oidc_providers"
 
     discriminator = Column(String)
@@ -284,4 +285,6 @@ class PendingGitHubProvider(GitHubProviderMixin, PendingOIDCProvider):
         ),
     )
 
-    id = Column(UUID(as_uuid=True), ForeignKey(PendingOIDCProvider.id), primary_key=True)
+    id = Column(
+        UUID(as_uuid=True), ForeignKey(PendingOIDCProvider.id), primary_key=True
+    )
