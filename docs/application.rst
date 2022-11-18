@@ -60,7 +60,7 @@ Warehouse serves four main classes of users:
 4. *PyPI application administrators*, e.g., Ee W. Durbin III,
    Dustin Ingram, and Donald Stufft, who can ban
    spam/malware projects, help users with account recovery, and so
-   on. There are under ten such admins.
+   on. There are fewer than ten such admins.
 
 Since reads are *much* more common than writes (much more goes out than
 goes in), we try to cache as much as possible.
