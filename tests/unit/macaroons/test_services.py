@@ -57,7 +57,10 @@ class TestDatabaseMacaroonService:
     def test_extract_raw_macaroon(self, macaroon_service, raw_macaroon, result):
         assert macaroon_service._extract_raw_macaroon(raw_macaroon) == result
 
-    def test_find_macaroon_invalid_macaroon(self, macaroon_service):
+    def test_find_macaroon_invalid_uuid(self, macaroon_service):
+        assert macaroon_service.find_macaroon("foobar") is None
+
+    def test_find_macaroon_missing_macaroon(self, macaroon_service):
         assert macaroon_service.find_macaroon(str(uuid4())) is None
 
     def test_find_macaroon(self, user_service, macaroon_service):
