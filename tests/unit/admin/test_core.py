@@ -60,7 +60,11 @@ def test_includeme(mock_manifest_cache_buster, monkeypatch):
             "admin/static", "warehouse.admin:static/dist", cache_max_age=315360000
         )
     ]
-    assert config.include.calls == [pretend.call(".routes"), pretend.call(".flags")]
+    assert config.include.calls == [
+        pretend.call(".routes"),
+        pretend.call(".flags"),
+        pretend.call(".bans"),
+    ]
 
     assert config.maybe_dotted.calls == [
         pretend.call("warehouse.admin.services.LocalSponsorLogoStorage")

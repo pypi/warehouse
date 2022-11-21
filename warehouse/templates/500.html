@@ -19,7 +19,7 @@
 
 {% block error_text %}
 <div class="viewport-section__text no-top-margin no-top-padding">
-  {% trans trimmed %}
+  {% trans %}
   <p>We are experiencing technical issues that are affecting our ability to serve you this site.</p>
   <p>We are aware of the problem and are working to resolve it as soon as possible.</p>
   {% endtrans %}
@@ -34,7 +34,7 @@
   <p>
     <strong>
       {% trans %}Rely on PyPI to get your job done?{% endtrans %}<br>
-      {% trans trimmed %}
+      {% trans %}
       Consider
       <a href="https://github.com/pypi/warehouse" target="_blank" rel="noopener">
         contributing

@@ -17,8 +17,8 @@
 import "@babel/polyfill";
 
 // Import stimulus
-import { Application } from "stimulus";
-import { definitionsFromContext } from "stimulus/webpack-helpers";
+import { Application } from "@hotwired/stimulus";
+import { definitionsFromContext } from "@hotwired/stimulus-webpack-helpers";
 
 // We'll use docReady as a modern replacement for $(document).ready() which
 // does not require all of jQuery to use. This will let us use it without

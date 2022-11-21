@@ -13,7 +13,7 @@
 
 /* global expect, beforeEach, describe, it */
 
-import { Application } from "stimulus";
+import { Application } from "@hotwired/stimulus";
 import ConfirmController from "../../warehouse/static/js/warehouse/controllers/confirm_controller";
 import { fireEvent } from "@testing-library/dom";
 

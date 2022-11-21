@@ -47,10 +47,13 @@ def _redact_ip(request, email):
         # The email might have been deleted if this is an account deletion event
         return False
 
-    if request.unauthenticated_userid:
-        return user_email.user_id != request.unauthenticated_userid
+    if request._unauthenticated_userid:
+        return user_email.user_id != request._unauthenticated_userid
     if request.user:
         return user_email.user_id != request.user.id
+    if request.remote_addr == "127.0.0.1":
+        # This is the IP used when synthesizing a request in a task
+        return True
     return False
 
 
@@ -445,10 +448,12 @@ def send_organization_member_invite_declined_email(
     *,
     user,
     organization_name,
+    message,
 ):
     return {
         "username": user.username,
         "organization_name": organization_name,
+        "message": message,
     }
 
 
@@ -563,6 +568,34 @@ def send_role_changed_as_organization_member_email(
         "organization_name": organization_name,
         "submitter": submitter.username,
         "role": role,
+    }
+
+
+@_email("organization-updated")
+def send_organization_updated_email(
+    request,
+    user,
+    *,
+    organization_name,
+    organization_display_name,
+    organization_link_url,
+    organization_description,
+    organization_orgtype,
+    previous_organization_display_name,
+    previous_organization_link_url,
+    previous_organization_description,
+    previous_organization_orgtype,
+):
+    return {
+        "organization_name": organization_name,
+        "organization_display_name": organization_display_name,
+        "organization_link_url": organization_link_url,
+        "organization_description": organization_description,
+        "organization_orgtype": organization_orgtype,
+        "previous_organization_display_name": previous_organization_display_name,
+        "previous_organization_link_url": previous_organization_link_url,
+        "previous_organization_description": previous_organization_description,
+        "previous_organization_orgtype": previous_organization_orgtype,
     }
 
 

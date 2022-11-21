@@ -11,7 +11,7 @@
 # limitations under the License.
 
 
-from typing import List
+from typing import List, Optional
 
 from warehouse import integrations
 
@@ -33,6 +33,7 @@ class VulnerabilityReportRequest:
         details: str,
         summary: str,
         fixed_in: List[str],
+        withdrawn: Optional[str],
     ):
         self.project = project
         self.versions = versions
@@ -42,6 +43,7 @@ class VulnerabilityReportRequest:
         self.details = details
         self.summary = summary
         self.fixed_in = fixed_in
+        self.withdrawn = withdrawn
 
     @classmethod
     def from_api_request(cls, request):
@@ -73,6 +75,7 @@ class VulnerabilityReportRequest:
                 for event_type, version in event.items()
                 if event_type == "fixed"
             ],
+            withdrawn=request.get("withdrawn"),
         )
 
 

@@ -18,6 +18,7 @@ from pyramid.security import Denied
 from zope.interface import implementer
 
 from warehouse.accounts.models import User
+from warehouse.oidc.models import OIDCProvider
 
 
 class AuthenticationMethod(enum.Enum):
@@ -78,6 +79,10 @@ class MultiSecurityPolicy:
                 return str(ident.id)
         return None
 
+    def unauthenticated_userid(self, request):
+        # This is deprecated and we shouldn't use it
+        raise NotImplementedError
+
     def forget(self, request, **kw):
         headers = []
         for policy in self._policies:
@@ -99,8 +104,10 @@ class MultiSecurityPolicy:
             if isinstance(identity, User):
                 principals.append(f"user:{identity.id}")
                 principals.extend(_principals_for_authenticated_user(identity))
+            elif isinstance(identity, OIDCProvider):
+                principals.append(f"oidc:{identity.id}")
             else:
-                return Denied("unimplemented")
+                return Denied("unknown identity")
 
         # NOTE: Observe that the parameters passed into the underlying AuthZ
         # policy here are not the same (or in the same order) as the ones

@@ -38,6 +38,20 @@
     - warning: Makes border brown
     - success: Makes border green
     - bottom-margin: Adds extra margin below the callout
+
+  // Collapsible
+    - Use <details> and <summary> instead of <div> and <h3>
+    - Use data-controller="collapsible" to save settings as a cookie
+      - data-collapsible-identifer="foo_bar" is required
+      - data-action="click->collapsible#save" is required
+    - Add data-collapsible-setting="global" to persist across whole site
+      - Without "global" the setting persists for specific pages only
+    - Add open attribute to open callout block by default
+
+  <details class="callout-block" data-controller="collapsible" data-collapsible-identifier="foo_bar" data-collapsible-setting="global" open>
+    <summary class="callout-block__heading data-action="click->collapsible#save">Required Heading</summary>
+    // Any important message here.
+  </details>
 */
 
 .callout-block {
@@ -53,6 +67,16 @@
 
   &__heading {
     @include h3;
+
+    details & {
+      padding: 15px;
+      margin: -15px;
+      cursor: pointer;
+    }
+
+    details[open] & {
+      margin-bottom: 0;
+    }
   }
 
   &:before {

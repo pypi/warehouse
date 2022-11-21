@@ -11,7 +11,6 @@
 # limitations under the License.
 
 import datetime
-import uuid
 
 import pymacaroons
 
@@ -20,7 +19,6 @@ from sqlalchemy.orm import joinedload
 from sqlalchemy.orm.exc import NoResultFound
 from zope.interface import implementer
 
-from warehouse.accounts.models import User
 from warehouse.macaroons import caveats
 from warehouse.macaroons.errors import InvalidMacaroonError
 from warehouse.macaroons.interfaces import IMacaroonService
@@ -54,17 +52,9 @@ class DatabaseMacaroonService:
         Returns a macaroon model from the DB by its identifier.
         Returns None if no macaroon has the given ID.
         """
-        try:
-            dm = (
-                self.db.query(Macaroon)
-                .options(joinedload("user"))
-                .filter(Macaroon.id == uuid.UUID(macaroon_id))
-                .one()
-            )
-        except NoResultFound:
-            return None
-
-        return dm
+        return self.db.get(
+            Macaroon, macaroon_id, (joinedload("user"), joinedload("oidc_provider"))
+        )
 
     def _deserialize_raw_macaroon(self, raw_macaroon):
         raw_macaroon = self._extract_raw_macaroon(raw_macaroon)
@@ -95,11 +85,16 @@ class DatabaseMacaroonService:
         if dm is None:
             return None
 
+        # This can be None if the macaroon has no associated user
+        # (e.g., an OIDC-minted macaroon).
+        if dm.user is None:
+            return None
+
         return dm.user.id
 
     def find_from_raw(self, raw_macaroon):
         """
-        Returns a DB macaroon matching the imput, or raises InvalidMacaroonError
+        Returns a DB macaroon matching the input, or raises InvalidMacaroonError
         """
         m = self._deserialize_raw_macaroon(raw_macaroon)
         dm = self.find_macaroon(m.identifier.decode())
@@ -127,14 +122,16 @@ class DatabaseMacaroonService:
 
         raise InvalidMacaroonError(verified.msg)
 
-    def create_macaroon(self, location, user_id, description, scopes):
+    def create_macaroon(
+        self, location, description, scopes, *, user_id=None, oidc_provider_id=None
+    ):
         """
         Returns a tuple of a new raw (serialized) macaroon and its DB model.
         The description provided is not embedded into the macaroon, only stored
         in the DB model.
-        """
-        user = self.db.query(User).filter(User.id == user_id).one()
 
+        An associated identity (either a user or macaroon, by ID) must be specified.
+        """
         if not all(isinstance(c, caveats.Caveat) for c in scopes):
             raise TypeError("scopes must be a list of Caveat instances")
 
@@ -151,7 +148,8 @@ class DatabaseMacaroonService:
                 break
 
         dm = Macaroon(
-            user=user,
+            user_id=user_id,
+            oidc_provider_id=oidc_provider_id,
             description=description,
             permissions_caveat={"permissions": permissions},
         )

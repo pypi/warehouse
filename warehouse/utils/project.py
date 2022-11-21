@@ -25,6 +25,7 @@ from sqlalchemy import exists, func
 from sqlalchemy.orm.exc import NoResultFound
 
 from warehouse.admin.flags import AdminFlagValue
+from warehouse.events.tags import EventTag
 from warehouse.packaging.interfaces import IDocsStorage
 from warehouse.packaging.models import JournalEntry, ProhibitedProjectName, Project
 from warehouse.tasks import task
@@ -165,7 +166,7 @@ def add_project(name, request):
         )
     )
     project.record_event(
-        tag="project:create",
+        tag=EventTag.Project.ProjectCreate,
         ip_address=request.remote_addr,
         additional={"created_by": request.user.username},
     )
@@ -180,18 +181,28 @@ def confirm_project(
     field_name="confirm_project_name",
     error_message="Could not delete project",
 ):
-    confirm = request.POST.get(field_name)
-    project_name = project.normalized_name
+    confirm = request.POST.get(field_name, "").strip()
     if not confirm:
         request.session.flash("Confirm the request", queue="error")
-        raise HTTPSeeOther(request.route_path(fail_route, project_name=project_name))
-    if canonicalize_name(confirm) != project.normalized_name:
+        raise HTTPSeeOther(
+            request.route_path(
+                fail_route,
+                project_name=project.normalized_name,
+            )
+        )
+
+    project_name = project.name.strip()
+    if confirm != project_name:
         request.session.flash(
-            f"{error_message} - "
-            + f"{confirm!r} is not the same as {project.normalized_name!r}",
+            f"{error_message} - {confirm!r} is not the same as {project_name!r}",
             queue="error",
         )
-        raise HTTPSeeOther(request.route_path(fail_route, project_name=project_name))
+        raise HTTPSeeOther(
+            request.route_path(
+                fail_route,
+                project_name=project.normalized_name,
+            )
+        )
 
 
 def remove_project(project, request, flash=True):

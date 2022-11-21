@@ -440,7 +440,7 @@ class TestProjectSetLimit:
 
 class TestDeleteProject:
     def test_no_confirm(self):
-        project = pretend.stub(normalized_name="foo")
+        project = pretend.stub(name="foo", normalized_name="foo")
         request = pretend.stub(
             POST={},
             session=pretend.stub(flash=pretend.call_recorder(lambda *a, **kw: None)),
@@ -457,7 +457,7 @@ class TestDeleteProject:
         ]
 
     def test_wrong_confirm(self):
-        project = pretend.stub(normalized_name="foo")
+        project = pretend.stub(name="foo", normalized_name="foo")
         request = pretend.stub(
             POST={"confirm_project_name": "bar"},
             session=pretend.stub(flash=pretend.call_recorder(lambda *a, **kw: None)),
@@ -485,7 +485,7 @@ class TestDeleteProject:
         db_request.session = pretend.stub(
             flash=pretend.call_recorder(lambda *a, **kw: None)
         )
-        db_request.POST["confirm_project_name"] = project.normalized_name
+        db_request.POST["confirm_project_name"] = project.name
         db_request.user = UserFactory.create()
 
         views.delete_project(project, db_request)

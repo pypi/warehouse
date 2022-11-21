@@ -11,7 +11,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { Controller } from "stimulus";
+import { Controller } from "@hotwired/stimulus";
 import positionWarning from "../utils/position-warning";
 
 export default class extends Controller {

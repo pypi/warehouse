@@ -30,8 +30,4 @@ Since you already have two-factor authentication enabled on your account, there'
 You can enable two-factor authentication on your account today by visiting <a href="{{ request.route_url("manage.account.two-factor", _host="pypi.org") }}">{{ request.route_url("manage.account.two-factor", _host="pypi.org") }}</a>.
 {% endif %}
 </p>
-
-<p>
-PS: To make it easier for maintainers like you to enable two-factor authentication, we're also distributing security keys to eligible maintainers. See <a href="{{ request.route_url("security-key-giveaway", _host="pypi.org") }}">{{ request.route_url("security-key-giveaway", _host="pypi.org") }}</a> for more details.
-</p>
 {% endblock %}

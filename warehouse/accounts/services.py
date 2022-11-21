@@ -52,6 +52,7 @@ from warehouse.accounts.models import (
     User,
     WebAuthn,
 )
+from warehouse.events.tags import EventTag
 from warehouse.metrics import IMetricsService
 from warehouse.rate_limiting import DummyRateLimiter, IRateLimiter
 from warehouse.utils.crypto import BadData, SignatureExpired, URLSafeTimedSerializer
@@ -60,6 +61,7 @@ logger = logging.getLogger(__name__)
 
 PASSWORD_FIELD = "password"
 RECOVERY_CODE_COUNT = 8
+RECOVERY_CODE_BYTES = 8
 
 
 @implementer(IUserService)
@@ -94,7 +96,11 @@ class DatabaseUserService:
         # TODO: We probably don't actually want to just return the database
         #       object here.
         # TODO: We need some sort of Anonymous User.
-        return self.db.query(User).options(joinedload(User.webauthn)).get(userid)
+        return (
+            self.db.query(User).options(joinedload(User.webauthn)).get(userid)
+            if userid
+            else None
+        )
 
     def get_user(self, userid):
         return self.cached_get_user(userid)
@@ -289,10 +295,15 @@ class DatabaseUserService:
 
         return user
 
-    def disable_password(self, user_id, reason=None):
+    def disable_password(self, user_id, reason=None, ip_address="127.0.0.1"):
         user = self.get_user(user_id)
         user.password = self.hasher.disable()
         user.disabled_for = reason
+        user.record_event(
+            tag=EventTag.Account.PasswordDisabled,
+            ip_address=ip_address,
+            additional={"reason": reason.value if reason else None},
+        )
 
     def is_disabled(self, user_id):
         user = self.get_user(user_id)
@@ -570,7 +581,9 @@ class DatabaseUserService:
         if user.has_recovery_codes:
             self.db.query(RecoveryCode).filter_by(user=user).delete()
 
-        recovery_codes = [secrets.token_hex(8) for _ in range(RECOVERY_CODE_COUNT)]
+        recovery_codes = [
+            secrets.token_hex(RECOVERY_CODE_BYTES) for _ in range(RECOVERY_CODE_COUNT)
+        ]
         for recovery_code in recovery_codes:
             self.db.add(RecoveryCode(user=user, code=self.hasher.hash(recovery_code)))
 

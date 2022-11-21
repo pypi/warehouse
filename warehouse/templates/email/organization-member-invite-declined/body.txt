@@ -15,6 +15,7 @@
 
 {% block content %}
 {% trans username=username, organization_name=organization_name %}{{ username }} has declined an invitation to join the "{{ organization_name }}" organization{% endtrans %}.
+{{ message|default('') }}
 {% endblock %}
 
 {% block reason %}

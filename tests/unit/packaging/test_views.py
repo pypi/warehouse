@@ -176,6 +176,53 @@ class TestReleaseDetail:
             pretend.call(name=release.project.name, version=release.version)
         ]
 
+    def test_detail_render_plain(self, db_request):
+        users = [UserFactory.create(), UserFactory.create(), UserFactory.create()]
+        project = ProjectFactory.create()
+        releases = [
+            ReleaseFactory.create(
+                project=project,
+                version=v,
+                description=DescriptionFactory.create(
+                    raw="plaintext description",
+                    html="",
+                    content_type="text/plain",
+                ),
+            )
+            for v in ["1.0", "2.0", "3.0", "4.0.dev0"]
+        ]
+        files = [
+            FileFactory.create(
+                release=r,
+                filename="{}-{}.tar.gz".format(project.name, r.version),
+                python_version="source",
+                packagetype="sdist",
+            )
+            for r in releases
+        ]
+
+        # Create a role for each user
+        for user in users:
+            RoleFactory.create(user=user, project=project)
+
+        result = views.release_detail(releases[1], db_request)
+
+        assert result == {
+            "project": project,
+            "release": releases[1],
+            "files": [files[1]],
+            "sdists": [files[1]],
+            "bdists": [],
+            "description": "<pre>plaintext description</pre>",
+            "latest_version": project.latest_version,
+            "all_versions": [
+                (r.version, r.created, r.is_prerelease, r.yanked)
+                for r in reversed(releases)
+            ],
+            "maintainers": sorted(users, key=lambda u: u.username.lower()),
+            "license": None,
+        }
+
     def test_detail_rendered(self, db_request):
         users = [UserFactory.create(), UserFactory.create(), UserFactory.create()]
         project = ProjectFactory.create()
@@ -186,7 +233,7 @@ class TestReleaseDetail:
                 description=DescriptionFactory.create(
                     raw="unrendered description",
                     html="rendered description",
-                    content_type="text/plain",
+                    content_type="text/html",
                 ),
             )
             for v in ["1.0", "2.0", "3.0", "4.0.dev0"]
@@ -231,7 +278,7 @@ class TestReleaseDetail:
                 project=project,
                 version=v,
                 description=DescriptionFactory.create(
-                    raw="unrendered description", html="", content_type="text/plain"
+                    raw="unrendered description", html="", content_type="text/html"
                 ),
             )
             for v in ["1.0", "2.0", "3.0", "4.0.dev0"]
@@ -275,7 +322,7 @@ class TestReleaseDetail:
         }
 
         assert render_description.calls == [
-            pretend.call("unrendered description", "text/plain")
+            pretend.call("unrendered description", "text/html")
         ]
 
     def test_detail_renders_files_natural_sort(self, db_request):

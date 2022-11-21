@@ -12,7 +12,7 @@
  * limitations under the License.
  */
 
-import { Controller } from "stimulus";
+import { Controller } from "@hotwired/stimulus";
 
 // A constant value with represents a usual desktop viewport width
 const DESKTOP_WIDTH = 1280;

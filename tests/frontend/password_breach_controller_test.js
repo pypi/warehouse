@@ -14,7 +14,7 @@
 /* global expect, beforeEach, describe, it */
 
 import { fireEvent } from "@testing-library/dom";
-import { Application } from "stimulus";
+import { Application } from "@hotwired/stimulus";
 import { delay } from "./utils";
 import PasswordBreachController from "../../warehouse/static/js/warehouse/controllers/password_breach_controller";
 

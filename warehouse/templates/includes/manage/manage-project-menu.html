@@ -17,12 +17,18 @@
       <a href="{{ request.route_path('manage.project.releases', project_name=project.normalized_name)}}" class="vertical-tabs__tab vertical-tabs__tab--with-icon {% if active_tab == 'releases' %}vertical-tabs__tab--is-active{% endif %} {% if mode == 'mobile' %}vertical-tabs__tab--mobile{% endif %}" {% if active_tab == 'releases' %}aria-selected="true"{% endif %}>
         <i class="fa fa-cube" aria-hidden="true"></i>
         {% trans %}Releases{% endtrans %}
+        <span class="badge badge--neutral">{{ project.releases|rejectattr("yanked")|list|length }}</span>
       </a>
     </li>
     <li>
       <a href="{{ request.route_path('manage.project.roles', project_name=project.normalized_name)}}" class="vertical-tabs__tab vertical-tabs__tab--with-icon {% if active_tab == 'collaborators' %}vertical-tabs__tab--is-active{% endif %} {% if mode == 'mobile' %}vertical-tabs__tab--mobile{% endif %}" {% if active_tab == 'collaborators' %}aria-selected="true"{% endif %}>
         <i class="fa fa-user" aria-hidden="true"></i>
         {% trans %}Collaborators{% endtrans %}
+        {% if not request.flags.enabled(AdminFlagValue.DISABLE_ORGANIZATIONS) and project.organization %}
+        <span class="badge badge--neutral">{{ 1 + project.team_project_roles|length + project.roles|length }}</span>
+        {% else %}
+        <span class="badge badge--neutral">{{ project.roles|length }}</span>
+        {% endif %}
       </a>
     </li>
     <li>

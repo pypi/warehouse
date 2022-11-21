@@ -63,5 +63,9 @@
     width: 350px;
     max-width: 100%;
     font-size: $small-font-size;
+
+    > code {
+      font-size: 0.7rem;
+    }
   }
 }

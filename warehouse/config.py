@@ -165,6 +165,7 @@ def configure(settings=None):
     maybe_set(settings, "warehouse.num_proxies", "WAREHOUSE_NUM_PROXIES", int)
     maybe_set(settings, "warehouse.domain", "WAREHOUSE_DOMAIN")
     maybe_set(settings, "forklift.domain", "FORKLIFT_DOMAIN")
+    maybe_set(settings, "auth.domain", "AUTH_DOMAIN")
     maybe_set(settings, "warehouse.legacy_domain", "WAREHOUSE_LEGACY_DOMAIN")
     maybe_set(settings, "site.name", "SITE_NAME", default="Warehouse")
     maybe_set(settings, "aws.key_id", "AWS_ACCESS_KEY_ID")
@@ -237,6 +238,7 @@ def configure(settings=None):
         coercer=int,
         default=21600,  # 6 hours
     )
+    maybe_set_compound(settings, "billing", "backend", "BILLING_BACKEND")
     maybe_set_compound(settings, "files", "backend", "FILES_BACKEND")
     maybe_set_compound(settings, "simple", "backend", "SIMPLE_BACKEND")
     maybe_set_compound(settings, "docs", "backend", "DOCS_BACKEND")
@@ -246,6 +248,12 @@ def configure(settings=None):
     maybe_set_compound(settings, "metrics", "backend", "METRICS_BACKEND")
     maybe_set_compound(settings, "breached_passwords", "backend", "BREACHED_PASSWORDS")
     maybe_set_compound(settings, "malware_check", "backend", "MALWARE_CHECK_BACKEND")
+    maybe_set(
+        settings,
+        "oidc.backend",
+        "OIDC_BACKEND",
+        default="warehouse.oidc.services.OIDCProviderService",
+    )
 
     # Pythondotorg integration settings
     maybe_set(settings, "pythondotorg.host", "PYTHONDOTORG_HOST", default="python.org")
@@ -275,6 +283,12 @@ def configure(settings=None):
         "warehouse.account.email_add_ratelimit_string",
         "EMAIL_ADD_RATELIMIT_STRING",
         default="2 per day",
+    )
+    maybe_set(
+        settings,
+        "warehouse.account.verify_email_ratelimit_string",
+        "VERIFY_EMAIL_RATELIMIT_STRING",
+        default="3 per 6 hours",
     )
     maybe_set(
         settings,
@@ -413,7 +427,11 @@ def configure(settings=None):
 
     # We need to enable our Client Side Include extension
     config.get_settings().setdefault(
-        "jinja2.extensions", ["warehouse.utils.html.ClientSideIncludeExtension"]
+        "jinja2.extensions",
+        [
+            "warehouse.utils.html.ClientSideIncludeExtension",
+            "warehouse.i18n.extensions.TrimmedTranslatableTagsExtension",
+        ],
     )
 
     # We'll want to configure some filters for Jinja2 as well.
@@ -429,6 +447,7 @@ def configure(settings=None):
     filters.setdefault("format_package_type", "warehouse.filters:format_package_type")
     filters.setdefault("parse_version", "warehouse.filters:parse_version")
     filters.setdefault("localize_datetime", "warehouse.filters:localize_datetime")
+    filters.setdefault("ctime", "warehouse.filters:ctime")
     filters.setdefault("is_recent", "warehouse.filters:is_recent")
     filters.setdefault("canonicalize_name", "packaging.utils:canonicalize_name")
     filters.setdefault("format_author_email", "warehouse.filters:format_author_email")
@@ -442,6 +461,7 @@ def configure(settings=None):
 
     # And some enums to reuse in the templates
     jglobals.setdefault("AdminFlagValue", "warehouse.admin.flags:AdminFlagValue")
+    jglobals.setdefault("EventTag", "warehouse.events.tags:EventTag")
     jglobals.setdefault(
         "OrganizationInvitationStatus",
         "warehouse.organizations.models:OrganizationInvitationStatus",
@@ -561,6 +581,9 @@ def configure(settings=None):
 
     # Register our organization support.
     config.include(".organizations")
+
+    # Register our subscription support.
+    config.include(".subscriptions")
 
     # Allow the packaging app to register any services it has.
     config.include(".packaging")

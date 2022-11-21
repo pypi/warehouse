@@ -21,6 +21,7 @@ from pyramid.location import lineage
 from warehouse.organizations.models import TeamProjectRoleType
 from warehouse.packaging.models import File, ProjectFactory, ReleaseURL
 
+from ...common.db.oidc import GitHubProviderFactory
 from ...common.db.organizations import (
     OrganizationFactory as DBOrganizationFactory,
     OrganizationProjectFactory as DBOrganizationProjectFactory,
@@ -30,11 +31,25 @@ from ...common.db.organizations import (
     TeamRoleFactory as DBTeamRoleFactory,
 )
 from ...common.db.packaging import (
+    DependencyFactory as DBDependencyFactory,
     FileFactory as DBFileFactory,
     ProjectFactory as DBProjectFactory,
     ReleaseFactory as DBReleaseFactory,
     RoleFactory as DBRoleFactory,
+    RoleInvitationFactory as DBRoleInvitationFactory,
 )
+
+
+class TestRole:
+    def test_repr(self, db_request):
+        role = DBRoleFactory()
+        assert isinstance(repr(role), str)
+
+
+class TestRoleInvitation:
+    def test_repr(self, db_request):
+        role_invitation = DBRoleInvitationFactory()
+        assert isinstance(repr(role_invitation), str)
 
 
 class TestProjectFactory:
@@ -124,8 +139,10 @@ class TestProject:
         team = DBTeamFactory.create()
         owner4 = DBTeamRoleFactory.create(team=team)
         DBTeamProjectRoleFactory.create(
-            team=team, project=project, role_name=TeamProjectRoleType.Administer
+            team=team, project=project, role_name=TeamProjectRoleType.Owner
         )
+
+        provider = GitHubProviderFactory.create(projects=[project])
 
         acls = []
         for location in lineage(project):
@@ -143,6 +160,8 @@ class TestProject:
             (Allow, "group:admins", "admin"),
             (Allow, "group:moderators", "moderator"),
         ] + sorted(
+            [(Allow, f"oidc:{provider.id}", ["upload"])], key=lambda x: x[1]
+        ) + sorted(
             [
                 (Allow, f"user:{owner1.user.id}", ["manage:project", "upload"]),
                 (Allow, f"user:{owner2.user.id}", ["manage:project", "upload"]),
@@ -157,6 +176,27 @@ class TestProject:
             ],
             key=lambda x: x[1],
         )
+
+    def test_repr(self, db_request):
+        project = DBProjectFactory()
+        assert isinstance(repr(project), str)
+
+
+class TestDependency:
+    def test_repr(self, db_session):
+        dependency = DBDependencyFactory.create()
+        assert isinstance(repr(dependency), str)
+
+
+class TestReleaseURL:
+    def test_repr(self, db_session):
+        release = DBReleaseFactory.create()
+        release_url = ReleaseURL(
+            release=release,
+            name="Homepage",
+            url="https://example.com/",
+        )
+        assert isinstance(repr(release_url), str)
 
 
 class TestRelease:

@@ -12,7 +12,7 @@
 
 
 from sqlalchemy import Column, ForeignKey, ForeignKeyConstraint, String, Table, orm
-from sqlalchemy.dialects.postgresql import ARRAY
+from sqlalchemy.dialects.postgresql import ARRAY, TIMESTAMP
 
 from warehouse import db
 
@@ -67,6 +67,9 @@ class VulnerabilityRecord(db.Model):
 
     # Events of introduced/fixed versions
     fixed_in = Column(ARRAY(String))
+
+    # When the vulnerability was withdrawn, if it has been withdrawn.
+    withdrawn = Column(TIMESTAMP, nullable=True)
 
     releases = orm.relationship(
         "Release",

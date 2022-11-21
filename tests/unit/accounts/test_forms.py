@@ -24,6 +24,7 @@ from warehouse.accounts.interfaces import (
     TooManyFailedLogins,
 )
 from warehouse.accounts.models import DisableReason
+from warehouse.events.tags import EventTag
 from warehouse.utils.webauthn import AuthenticationRejectedError
 
 
@@ -70,7 +71,12 @@ class TestLoginForm:
         assert user_service.find_userid.calls == [pretend.call("my_username")]
 
     def test_validate_password_no_user(self):
-        request = pretend.stub()
+        request = pretend.stub(
+            remote_addr="1.2.3.4",
+            banned=pretend.stub(
+                by_ip=lambda ip_address: False,
+            ),
+        )
         user_service = pretend.stub(
             find_userid=pretend.call_recorder(lambda userid: None)
         )
@@ -91,7 +97,9 @@ class TestLoginForm:
         ]
 
     def test_validate_password_disabled_for_compromised_pw(self, db_session):
-        request = pretend.stub()
+        request = pretend.stub(
+            remote_addr="1.2.3.4", banned=pretend.stub(by_ip=lambda ip_address: False)
+        )
         user_service = pretend.stub(
             find_userid=pretend.call_recorder(lambda userid: 1),
             is_disabled=pretend.call_recorder(
@@ -114,7 +122,12 @@ class TestLoginForm:
         assert user_service.is_disabled.calls == [pretend.call(1)]
 
     def test_validate_password_ok(self):
-        request = pretend.stub(remote_addr="1.2.3.4")
+        request = pretend.stub(
+            remote_addr="1.2.3.4",
+            banned=pretend.stub(
+                by_ip=lambda ip_address: False,
+            ),
+        )
         user_service = pretend.stub(
             find_userid=pretend.call_recorder(lambda userid: 1),
             check_password=pretend.call_recorder(
@@ -149,7 +162,12 @@ class TestLoginForm:
         ]
 
     def test_validate_password_notok(self, db_session):
-        request = pretend.stub(remote_addr="127.0.0.1")
+        request = pretend.stub(
+            remote_addr="1.2.3.4",
+            banned=pretend.stub(
+                by_ip=lambda ip_address: False,
+            ),
+        )
         user_service = pretend.stub(
             find_userid=pretend.call_recorder(lambda userid: 1),
             check_password=pretend.call_recorder(
@@ -179,13 +197,18 @@ class TestLoginForm:
         assert user_service.record_event.calls == [
             pretend.call(
                 1,
-                tag="account:login:failure",
+                tag=EventTag.Account.LoginFailure,
                 additional={"reason": "invalid_password"},
             )
         ]
 
     def test_validate_password_too_many_failed(self):
-        request = pretend.stub(remote_addr="1.2.3.4")
+        request = pretend.stub(
+            remote_addr="1.2.3.4",
+            banned=pretend.stub(
+                by_ip=lambda ip_address: False,
+            ),
+        )
         user_service = pretend.stub(
             find_userid=pretend.call_recorder(lambda userid: 1),
             check_password=pretend.call_recorder(
@@ -217,12 +240,19 @@ class TestLoginForm:
         monkeypatch.setattr(forms, "send_password_compromised_email_hibp", send_email)
 
         user = pretend.stub(id=1)
-        request = pretend.stub(remote_addr="1.2.3.4")
+        request = pretend.stub(
+            remote_addr="1.2.3.4",
+            banned=pretend.stub(
+                by_ip=lambda ip_address: False,
+            ),
+        )
         user_service = pretend.stub(
             find_userid=lambda _: 1,
             get_user=lambda _: user,
             check_password=lambda userid, pw, tags=None: True,
-            disable_password=pretend.call_recorder(lambda user_id, reason=None: None),
+            disable_password=pretend.call_recorder(
+                lambda user_id, reason=None, ip_address="127.0.0.1": None
+            ),
             is_disabled=lambda userid: (False, None),
         )
         breach_service = pretend.stub(
@@ -238,9 +268,77 @@ class TestLoginForm:
         assert not form.validate()
         assert form.password.errors.pop() == "Bad Password!"
         assert user_service.disable_password.calls == [
-            pretend.call(1, reason=DisableReason.CompromisedPassword)
+            pretend.call(
+                1, reason=DisableReason.CompromisedPassword, ip_address="1.2.3.4"
+            )
         ]
         assert send_email.calls == [pretend.call(request, user)]
+
+    def test_validate_password_ok_ip_banned(self):
+        request = pretend.stub(
+            remote_addr="1.2.3.4",
+            banned=pretend.stub(
+                by_ip=lambda ip_address: True,
+            ),
+        )
+        user_service = pretend.stub(
+            find_userid=pretend.call_recorder(lambda userid: 1),
+            check_password=pretend.call_recorder(
+                lambda userid, password, tags=None: True
+            ),
+            is_disabled=pretend.call_recorder(lambda userid: (False, None)),
+        )
+        breach_service = pretend.stub(
+            check_password=pretend.call_recorder(lambda pw, tags: False)
+        )
+        form = forms.LoginForm(
+            data={"username": "my_username"},
+            request=request,
+            user_service=user_service,
+            breach_service=breach_service,
+            check_password_metrics_tags=["bar"],
+        )
+        field = pretend.stub(data="pw")
+
+        with pytest.raises(wtforms.validators.ValidationError):
+            form.validate_password(field)
+
+        assert user_service.find_userid.calls == []
+        assert user_service.is_disabled.calls == []
+        assert user_service.check_password.calls == []
+        assert breach_service.check_password.calls == []
+
+    def test_validate_password_notok_ip_banned(self, db_session):
+        request = pretend.stub(
+            remote_addr="1.2.3.4",
+            banned=pretend.stub(
+                by_ip=lambda ip_address: True,
+            ),
+        )
+        user_service = pretend.stub(
+            find_userid=pretend.call_recorder(lambda userid: 1),
+            check_password=pretend.call_recorder(
+                lambda userid, password, tags=None: False
+            ),
+            is_disabled=pretend.call_recorder(lambda userid: (False, None)),
+            record_event=pretend.call_recorder(lambda *a, **kw: None),
+        )
+        breach_service = pretend.stub()
+        form = forms.LoginForm(
+            data={"username": "my_username"},
+            request=request,
+            user_service=user_service,
+            breach_service=breach_service,
+        )
+        field = pretend.stub(data="pw")
+
+        with pytest.raises(wtforms.validators.ValidationError):
+            form.validate_password(field)
+
+        assert user_service.find_userid.calls == []
+        assert user_service.is_disabled.calls == []
+        assert user_service.check_password.calls == []
+        assert user_service.record_event.calls == []
 
 
 class TestRegistrationForm:
@@ -654,7 +752,7 @@ class TestTOTPAuthenticationForm:
         assert user_service.record_event.calls == [
             pretend.call(
                 1,
-                tag="account:login:failure",
+                tag=EventTag.Account.LoginFailure,
                 additional={"reason": "invalid_totp"},
             )
         ]
@@ -743,7 +841,7 @@ class TestWebAuthnAuthenticationForm:
         assert user_service.record_event.calls == [
             pretend.call(
                 1,
-                tag="account:login:failure",
+                tag=EventTag.Account.LoginFailure,
                 additional={"reason": "invalid_webauthn"},
             )
         ]
@@ -831,7 +929,7 @@ class TestRecoveryCodeForm:
         )
         form = forms.RecoveryCodeAuthenticationForm(
             request=request,
-            data={"recovery_code_value": "invalid"},
+            data={"recovery_code_value": "deadbeef00001111"},
             user_id=1,
             user_service=user_service,
         )
@@ -841,7 +939,7 @@ class TestRecoveryCodeForm:
         assert user_service.record_event.calls == [
             pretend.call(
                 1,
-                tag="account:login:failure",
+                tag=EventTag.Account.LoginFailure,
                 additional={"reason": expected_reason},
             )
         ]
@@ -851,7 +949,7 @@ class TestRecoveryCodeForm:
         user = pretend.stub(id=pretend.stub(), username="foobar")
         form = forms.RecoveryCodeAuthenticationForm(
             request=request,
-            data={"recovery_code_value": "valid"},
+            data={"recovery_code_value": "deadbeef00001111"},
             user_id=pretend.stub(),
             user_service=pretend.stub(
                 check_recovery_code=pretend.call_recorder(lambda *a, **kw: True),
@@ -867,3 +965,37 @@ class TestRecoveryCodeForm:
 
         assert form.validate()
         assert send_recovery_code_used_email.calls == [pretend.call(request, user)]
+
+    @pytest.mark.parametrize(
+        "input_string, validates",
+        [
+            (" deadbeef00001111 ", True),
+            ("deadbeef00001111 ", True),
+            (" deadbeef00001111", True),
+            ("deadbeef00001111", True),
+            ("wu-tang", False),
+            ("deadbeef00001111 deadbeef11110000", False),
+        ],
+    )
+    def test_recovery_code_string_validation(
+        self, monkeypatch, input_string, validates
+    ):
+        request = pretend.stub(remote_addr="127.0.0.1")
+        user = pretend.stub(id=pretend.stub(), username="foobar")
+        form = forms.RecoveryCodeAuthenticationForm(
+            request=request,
+            data={"recovery_code_value": input_string},
+            user_id=pretend.stub(),
+            user_service=pretend.stub(
+                check_recovery_code=pretend.call_recorder(lambda *a, **kw: True),
+                get_user=lambda _: user,
+            ),
+        )
+        send_recovery_code_used_email = pretend.call_recorder(
+            lambda request, user: None
+        )
+        monkeypatch.setattr(
+            forms, "send_recovery_code_used_email", send_recovery_code_used_email
+        )
+
+        assert form.validate() == validates

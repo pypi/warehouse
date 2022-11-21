@@ -15,7 +15,7 @@ docutils<0.19
 elasticsearch>=7.0.0,<7.11.0
 elasticsearch_dsl>=7.0.0,<8.0.0
 first
-google-cloud-bigquery<3.0.0  # https://github.com/googleapis/python-bigquery/issues/1196
+google-cloud-bigquery
 google-cloud-storage
 hiredis
 html5lib
@@ -59,6 +59,7 @@ sqlalchemy[asyncio]>=0.9,<1.5.0  # https://github.com/pypi/warehouse/pull/9228
 sqlalchemy-citext
 sqlalchemy-utils
 stdlib-list
+stripe
 structlog
 transaction
 trove-classifiers

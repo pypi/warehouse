@@ -107,10 +107,6 @@
     font-weight: $bold-font-weight;
   }
 
-  &__version-badge {
-    margin-left: 4px;
-  }
-
   &--current {
     background-color: darken($background-color, 1);
     border: 1px dotted #ccc;

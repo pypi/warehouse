@@ -13,7 +13,7 @@
 
 /* global expect, beforeEach, describe, it */
 
-import { Application } from "stimulus";
+import { Application } from "@hotwired/stimulus";
 import PasswordController from "../../warehouse/static/js/warehouse/controllers/password_controller";
 
 describe("Password controller", () => {

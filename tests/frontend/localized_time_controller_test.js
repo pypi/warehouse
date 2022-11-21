@@ -14,7 +14,7 @@
 /* global expect, beforeEach, describe, it */
 
 import format from "date-fns/format";
-import { Application } from "stimulus";
+import { Application } from "@hotwired/stimulus";
 import LocalizedTimeController from "../../warehouse/static/js/warehouse/controllers/localized_time_controller";
 
 describe("Localized time controller", () => {

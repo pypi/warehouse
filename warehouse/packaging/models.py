@@ -201,7 +201,16 @@ class Project(SitemapMixin, TwoFactorRequireable, HasEvents, db.Model):
         uselist=False,
         viewonly=True,
     )
-    roles = orm.relationship(Role, back_populates="project", passive_deletes=True)
+    roles = orm.relationship(
+        Role,
+        back_populates="project",
+        passive_deletes=True,
+    )
+    team_project_roles = orm.relationship(
+        TeamProjectRole,
+        back_populates="project",
+        passive_deletes=True,
+    )
     users = orm.relationship(User, secondary=Role.__table__, backref="projects", viewonly=True)  # type: ignore # noqa
     releases = orm.relationship(
         "Release",
@@ -249,6 +258,11 @@ class Project(SitemapMixin, TwoFactorRequireable, HasEvents, db.Model):
             (Allow, "group:moderators", "moderator"),
         ]
 
+        # The project has zero or more OIDC "providers" registered to it,
+        # each of which serves as an identity with the ability to upload releases.
+        for provider in self.oidc_providers:
+            acls.append((Allow, f"oidc:{provider.id}", ["upload"]))
+
         # Get all of the users for this project.
         query = session.query(Role).filter(Role.project == self)
         query = query.options(orm.lazyload("project"))
@@ -264,7 +278,8 @@ class Project(SitemapMixin, TwoFactorRequireable, HasEvents, db.Model):
         query = query.options(orm.lazyload("team"))
         for role in query.all():
             permissions |= {
-                (user.id, role.role_name.value) for user in role.team.members
+                (user.id, "Administer" if role.role_name.value == "Owner" else "Upload")
+                for user in role.team.members
             }
 
         # Add all organization owners for this project.
@@ -353,7 +368,7 @@ class Dependency(db.Model):
     __table_args__ = (
         Index("release_dependencies_release_kind_idx", "release_id", "kind"),
     )
-    __repr__ = make_repr("name", "version", "kind", "specifier")
+    __repr__ = make_repr("release", "kind", "specifier")
 
     release_id = Column(
         ForeignKey("releases.id", onupdate="CASCADE", ondelete="CASCADE"),
@@ -702,7 +717,10 @@ class JournalEntry(db.ModelBase):
         DateTime(timezone=False), nullable=False, server_default=sql.func.now()
     )
     _submitted_by = Column(
-        "submitted_by", CIText, ForeignKey("users.username", onupdate="CASCADE")
+        "submitted_by",
+        CIText,
+        ForeignKey("users.username", onupdate="CASCADE"),
+        nullable=True,
     )
     submitted_by = orm.relationship(User, lazy="raise_on_sql")
     submitted_from = Column(Text)

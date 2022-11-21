@@ -26,9 +26,8 @@ import manifest from "gulp-rev-all";
 import manifestClean from "gulp-rev-napkin";
 import sass from "gulp-dart-sass";
 import sourcemaps from "gulp-sourcemaps";
-import composer from "gulp-uglify/composer";
+import terser from "gulp-terser";
 import path from "path";
-import uglifyjs from "uglify-js";
 import named from "vinyl-named";
 import webpack from "webpack";
 import gulpWebpack from "webpack-stream";
@@ -42,12 +41,6 @@ let staticPrefix = "warehouse/static/";
 let distPath = path.join(staticPrefix, "dist");
 let publicPath = "/static/";
 
-
-// We pass in our own uglify instance rather than allow
-// gulp-uglify to use it's own. This makes the usage slightly
-// more complicated, however it means that we have explicit
-// control over the exact version of uglify-js used.
-var uglify = composer(uglifyjs, console);
 
 // Configure what plugins are used for postcss
 var postCSSPlugins = [
@@ -79,7 +72,6 @@ let webpackConfig = {
   },
   plugins: [
     new webpack.ProvidePlugin({
-      "fetch": "imports-loader?this=>global!exports-loader?global.fetch!whatwg-fetch",
       "jQuery": "jquery",
       "$": "jquery",
     }),
@@ -123,11 +115,7 @@ gulp.task("dist:js", () => {
     }))
     .pipe(gulpWebpack(webpackConfig, webpack))
     .pipe(sourcemaps.init({ loadMaps: true }))
-    .pipe(uglify(
-      // We don't care about IE6-8 so there's no reason to have
-      // uglify contain to maintain compatibility for it.
-      { compress: { ie8: false }, mangle: { ie8: false } }
-    ))
+    .pipe(terser())
     .pipe(sourcemaps.write("."))
     .pipe(gulp.dest(path.join(distPath, "js")));
 });

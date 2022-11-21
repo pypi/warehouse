@@ -669,7 +669,8 @@ class TestJSONRelease:
             "vulnerabilities": [],
         }
 
-    def test_vulnerabilities_renders(self, pyramid_config, db_request):
+    @pytest.mark.parametrize("withdrawn", (None, "2022-06-28T16:39:06Z"))
+    def test_vulnerabilities_renders(self, pyramid_config, db_request, withdrawn):
         project = ProjectFactory.create(has_docs=False)
         release = ReleaseFactory.create(project=project, version="0.1")
         VulnerabilityRecordFactory.create(
@@ -681,6 +682,7 @@ class TestJSONRelease:
             summary="some summary",
             fixed_in=["3.3.2"],
             releases=[release],
+            withdrawn=withdrawn,
         )
 
         url = "/the/fake/url/"
@@ -701,6 +703,7 @@ class TestJSONRelease:
                 "details": "some details",
                 "summary": "some summary",
                 "fixed_in": ["3.3.2"],
+                "withdrawn": withdrawn,
             },
         ]
 

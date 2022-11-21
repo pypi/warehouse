@@ -15,7 +15,6 @@ import pretend
 from webob.multidict import MultiDict
 
 from warehouse.accounts.interfaces import IPasswordBreachedService, IUserService
-from warehouse.admin.flags import AdminFlagValue
 from warehouse.manage import views
 from warehouse.organizations.interfaces import IOrganizationService
 from warehouse.organizations.models import OrganizationType
@@ -55,6 +54,7 @@ class TestManageOrganizations:
         user_service,
         organization_service,
         db_request,
+        enable_organizations,
         monkeypatch,
     ):
         pyramid_services.register_service(user_service, IUserService, None)
@@ -79,11 +79,6 @@ class TestManageOrganizations:
                 ),
             }
         )
-        monkeypatch.setattr(
-            db_request,
-            "flags",
-            pretend.stub(enabled=pretend.call_recorder(lambda *a: False)),
-        )
         send_email = pretend.call_recorder(lambda *a, **kw: None)
         monkeypatch.setattr(
             views, "send_admin_new_organization_requested_email", send_email
@@ -95,9 +90,6 @@ class TestManageOrganizations:
             db_request.POST["name"]
         )
 
-        assert db_request.flags.enabled.calls == [
-            pretend.call(AdminFlagValue.DISABLE_ORGANIZATIONS),
-        ]
         assert organization.name == db_request.POST["name"]
         assert organization.display_name == db_request.POST["display_name"]
         assert organization.orgtype == OrganizationType[db_request.POST["orgtype"]]

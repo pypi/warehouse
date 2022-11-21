@@ -205,7 +205,11 @@ def test_create_session(monkeypatch, pyramid_services, db_name):
         (None, False, []),
         (pretend.stub(enabled=False), True, []),
         (pretend.stub(enabled=False), False, []),
-        (pretend.stub(enabled=True, description="flag description"), True, []),
+        (
+            pretend.stub(enabled=True, description="flag description"),
+            True,
+            [pretend.call()],
+        ),
         (
             pretend.stub(enabled=True, description="flag description"),
             False,

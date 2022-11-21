@@ -267,6 +267,7 @@ def test_configure(monkeypatch, settings, environment):
         "warehouse.account.ip_login_ratelimit_string": "10 per 5 minutes",
         "warehouse.account.global_login_ratelimit_string": "1000 per 5 minutes",
         "warehouse.account.email_add_ratelimit_string": "2 per day",
+        "warehouse.account.verify_email_ratelimit_string": "3 per 6 hours",
         "warehouse.account.password_reset_ratelimit_string": "5 per day",
         "warehouse.manage.oidc.user_registration_ratelimit_string": "20 per day",
         "warehouse.manage.oidc.ip_registration_ratelimit_string": "20 per day",
@@ -274,6 +275,7 @@ def test_configure(monkeypatch, settings, environment):
         "warehouse.two_factor_mandate.available": False,
         "warehouse.two_factor_mandate.enabled": False,
         "warehouse.oidc.enabled": False,
+        "oidc.backend": "warehouse.oidc.services.OIDCProviderService",
         "warehouse.two_factor_mandate.cohort_size": 0,
     }
     if environment == config.Environment.development:
@@ -367,6 +369,7 @@ def test_configure(monkeypatch, settings, environment):
             pretend.call(".malware"),
             pretend.call(".manage"),
             pretend.call(".organizations"),
+            pretend.call(".subscriptions"),
             pretend.call(".packaging"),
             pretend.call(".redirects"),
             pretend.call(".routes"),

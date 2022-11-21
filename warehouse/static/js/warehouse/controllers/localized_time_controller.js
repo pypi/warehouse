@@ -11,7 +11,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { Controller } from "stimulus";
+import { Controller } from "@hotwired/stimulus";
 import distanceInWordsToNow from "date-fns/distance_in_words_to_now";
 import format from "date-fns/format";
 

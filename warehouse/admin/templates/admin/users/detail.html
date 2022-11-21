@@ -185,6 +185,11 @@
               <div class="box-body">
                 {{ render_field("Prohibit Password Reset", form.prohibit_password_reset, "prohibit-password-reset")}}
               </div>
+
+              <div class="box-body">
+                {{ render_field("Hide avatar", form.hide_avatar, "hide-avatar")}}
+              </div>
+
             </div>
 
             <div>
@@ -310,7 +315,7 @@
               </tr>
               <tr>
                 <td>{{ user.recovery_codes[0].generated }}</td>
-                <td>{{ user.recovery_codes|length }}</td>
+                <td>{{ user.recovery_codes.filter_by(burned=None).all()|length }}</td>
               </tr>
             </table>
           </div>

@@ -43,6 +43,7 @@ from warehouse.accounts.interfaces import (
     TooManyFailedLogins,
 )
 from warehouse.accounts.models import DisableReason, ProhibitedUserName
+from warehouse.events.tags import EventTag
 from warehouse.metrics import IMetricsService, NullMetrics
 from warehouse.rate_limiting.interfaces import IRateLimiter
 
@@ -430,16 +431,35 @@ class TestDatabaseUserService:
         assert admin in admins
         assert user not in admins
 
-    def test_disable_password(self, user_service):
+    @pytest.mark.parametrize(
+        ("reason", "expected"),
+        [
+            (None, None),
+            (
+                DisableReason.CompromisedPassword,
+                DisableReason.CompromisedPassword.value,
+            ),
+        ],
+    )
+    def test_disable_password(self, user_service, reason, expected):
         user = UserFactory.create()
+        user.record_event = pretend.call_recorder(lambda *a, **kw: None)
 
         # Need to give the user a good password first.
         user_service.update_user(user.id, password="foo")
         assert user.password != "!"
 
         # Now we'll actually test our disable function.
-        user_service.disable_password(user.id)
+        user_service.disable_password(user.id, reason=reason)
         assert user.password == "!"
+
+        assert user.record_event.calls == [
+            pretend.call(
+                tag=EventTag.Account.PasswordDisabled,
+                ip_address="127.0.0.1",
+                additional={"reason": expected},
+            )
+        ]
 
     @pytest.mark.parametrize(
         ("disabled", "reason"),

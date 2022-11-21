@@ -19,6 +19,8 @@ from sqlalchemy import Column, ForeignKey, String, UniqueConstraint, orm
 from sqlalchemy.dialects.postgresql import UUID
 
 from warehouse import db
+from warehouse.macaroons.models import Macaroon
+from warehouse.oidc.interfaces import SignedClaims
 from warehouse.packaging.models import Project
 
 
@@ -77,6 +79,9 @@ class OIDCProvider(db.Model):
         secondary=OIDCProviderProjectAssociation.__table__,  # type: ignore
         backref="oidc_providers",
     )
+    macaroons = orm.relationship(
+        Macaroon, backref="oidc_provider", cascade="all, delete-orphan", lazy=True
+    )
 
     __mapper_args__ = {
         "polymorphic_identity": "oidc_providers",
@@ -115,7 +120,7 @@ class OIDCProvider(db.Model):
             | cls.__unchecked_claims__
         )
 
-    def verify_claims(self, signed_claims):
+    def verify_claims(self, signed_claims: SignedClaims):
         """
         Given a JWT that has been successfully decoded (checked for a valid
         signature and basic claims), verify it against the more specific
@@ -156,6 +161,11 @@ class OIDCProvider(db.Model):
 
     @property
     def provider_name(self):  # pragma: no cover
+        # Only concrete subclasses of OIDCProvider are constructed.
+        return NotImplemented
+
+    @property
+    def provider_url(self):  # pragma: no cover
         # Only concrete subclasses of OIDCProvider are constructed.
         return NotImplemented
 
@@ -204,8 +214,18 @@ class GitHubProvider(OIDCProvider):
     }
 
     @property
+    def _workflow_slug(self):
+        return f".github/workflows/{self.workflow_filename}"
+
+    @property
     def provider_name(self):
         return "GitHub"
+
+    @property
+    def provider_url(self):
+        # NOTE: Until we embed the SHA, this URL is not guaranteed to contain
+        # the exact contents of the workflow that their OIDC provider corresponds to.
+        return f"https://github.com/{self.repository}/blob/HEAD/{self._workflow_slug}"
 
     @property
     def repository(self):
@@ -213,7 +233,7 @@ class GitHubProvider(OIDCProvider):
 
     @property
     def job_workflow_ref(self):
-        return f"{self.repository}/.github/workflows/{self.workflow_filename}"
+        return f"{self.repository}/{self._workflow_slug}"
 
     def __str__(self):
         return f"{self.workflow_filename} @ {self.repository}"

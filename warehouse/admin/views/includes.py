@@ -12,6 +12,7 @@
 
 from pyramid.view import view_config
 
+from warehouse.accounts.models import User
 from warehouse.packaging.models import Project
 
 
@@ -23,3 +24,13 @@ from warehouse.packaging.models import Project
 )
 def administer_project_include(project, request):
     return {"project": project}
+
+
+@view_config(
+    route_name="includes.administer-user-include",
+    context=User,
+    renderer="includes/admin/administer-user-include.html",
+    uses_session=True,
+)
+def administer_user_include(user, request):
+    return {"user": user}

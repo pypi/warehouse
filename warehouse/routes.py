@@ -57,6 +57,13 @@ def includeme(config):
 
     # Our legal policies
     config.add_policy("terms-of-use", "terms.md")
+    config.add_policy("acceptable-use-policy", "acceptable-use-policy.md")
+    config.add_template_view(
+        "trademarks",
+        "/trademarks/",
+        "pages/trademarks.html",
+        view_kw={"has_translations": True},
+    )
 
     # HTML Snippets for including into other pages.
     config.add_route(
@@ -110,6 +117,13 @@ def includeme(config):
         "/_includes/administer-project-include/{project_name}",
         factory="warehouse.packaging.models:ProjectFactory",
         traverse="/{project_name}",
+        domain=warehouse,
+    )
+    config.add_route(
+        "includes.administer-user-include",
+        "/_includes/administer-user-include/{user_name}",
+        factory="warehouse.accounts.models:UserFactory",
+        traverse="/{user_name}",
         domain=warehouse,
     )
 
@@ -180,6 +194,7 @@ def includeme(config):
         "/account/verify-project-role/",
         domain=warehouse,
     )
+
     # Management (views for logged-in users)
     config.add_route("manage.account", "/manage/account/", domain=warehouse)
     config.add_route(
@@ -241,6 +256,20 @@ def includeme(config):
         domain=warehouse,
     )
     config.add_route(
+        "manage.organization.activate_subscription",
+        "/manage/organization/{organization_name}/subscription/activate/",
+        factory="warehouse.organizations.models:OrganizationFactory",
+        traverse="/{organization_name}",
+        domain=warehouse,
+    )
+    config.add_route(
+        "manage.organization.subscription",
+        "/manage/organization/{organization_name}/subscription/",
+        factory="warehouse.organizations.models:OrganizationFactory",
+        traverse="/{organization_name}",
+        domain=warehouse,
+    )
+    config.add_route(
         "manage.organization.projects",
         "/manage/organization/{organization_name}/projects/",
         factory="warehouse.organizations.models:OrganizationFactory",
@@ -283,6 +312,13 @@ def includeme(config):
         domain=warehouse,
     )
     config.add_route(
+        "manage.organization.history",
+        "/manage/organization/{organization_name}/history/",
+        factory="warehouse.organizations.models:OrganizationFactory",
+        traverse="/{organization_name}",
+        domain=warehouse,
+    )
+    config.add_route(
         "manage.team.settings",
         "/manage/organization/{organization_name}/team/{team_name}/settings/",
         factory="warehouse.organizations.models:TeamFactory",
@@ -306,6 +342,13 @@ def includeme(config):
     config.add_route(
         "manage.team.delete_role",
         "/manage/organization/{organization_name}/team/{team_name}/members/delete/",
+        factory="warehouse.organizations.models:TeamFactory",
+        traverse="/{organization_name}/{team_name}",
+        domain=warehouse,
+    )
+    config.add_route(
+        "manage.team.history",
+        "/manage/organization/{organization_name}/team/{team_name}/history/",
         factory="warehouse.organizations.models:TeamFactory",
         traverse="/{organization_name}/{team_name}",
         domain=warehouse,
@@ -470,6 +513,7 @@ def includeme(config):
     )
 
     # API URLs
+    config.add_route("api.billing.webhook", "/billing/webhook/", domain=warehouse)
     config.add_route(
         "api.simple.index",
         "/simple/",
@@ -483,6 +527,29 @@ def includeme(config):
         traverse="/{name}/",
         domain=warehouse,
         with_database="replica",
+    )
+
+    # Mock URLs
+    config.add_route(
+        "mock.billing.checkout-session",
+        "/mock/billing/{organization_name}/checkout/",
+        factory="warehouse.organizations.models:OrganizationFactory",
+        traverse="/{organization_name}",
+        domain=warehouse,
+    )
+    config.add_route(
+        "mock.billing.portal-session",
+        "/mock/billing/{organization_name}/portal/",
+        factory="warehouse.organizations.models:OrganizationFactory",
+        traverse="/{organization_name}",
+        domain=warehouse,
+    )
+    config.add_route(
+        "mock.billing.trigger-checkout-session-completed",
+        "/mock/billing/{organization_name}/checkout/completed/",
+        factory="warehouse.organizations.models:OrganizationFactory",
+        traverse="/{organization_name}",
+        domain=warehouse,
     )
 
     # Legacy URLs

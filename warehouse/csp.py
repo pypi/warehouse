@@ -94,7 +94,7 @@ def includeme(config):
                 ],
                 "default-src": [NONE],
                 "font-src": [SELF, "fonts.gstatic.com"],
-                "form-action": [SELF],
+                "form-action": [SELF, "https://checkout.stripe.com"],
                 "frame-ancestors": [NONE],
                 "frame-src": [NONE],
                 "img-src": [

@@ -17,18 +17,18 @@
 
 {% block content %}
 <p>
-  {% trans project=project, submitter=submitter %}Your team's permissions for the {{ project }} project have been changed by {{ submitter }}.{% endtrans %}
+  {% trans project=project, submitter=submitter %}Your team's role for the {{ project }} project has been changed by {{ submitter }}.{% endtrans %}
 </p>
 
 <p>
-  {% if role == 'Administer' %}
-  {% trans %}Your team now has Administer permissions for the project. You can add other collaborators, upload releases and delete files, releases or the entire project.{% endtrans %}
-  {% elif role == 'Upload' %}
-  {% trans %}Your team now has Upload permissions for the project. You can upload releases but cannot add collaborators, delete files, releases or the project.{% endtrans %}
+  {% if role == 'Owner' %}
+  {% trans %}Your team now has permissions to administer the project. You can add other collaborators, upload releases and delete files, releases or the entire project.{% endtrans %}
+  {% elif role == 'Maintainer' %}
+  {% trans %}Your team now has permissions to upload releases for the project. You can upload releases but cannot add collaborators, delete files, releases or the project.{% endtrans %}
   {% endif %}
 </p>
 {% endblock %}
 
 {% block reason %}
-{% trans project=project, submitter=submitter %}You are receiving this because your team's permissions were changed by {{ submitter }} for the {{ project }} project.{% endtrans %}
+{% trans project=project, submitter=submitter %}You are receiving this because your team's role was changed by {{ submitter }} for the {{ project }} project.{% endtrans %}
 {% endblock %}

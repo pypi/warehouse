@@ -172,7 +172,9 @@ class TestDeleteTOTPForm:
         assert form.user_service is user_service
 
     def test_validate_confirm_password(self):
-        request = pretend.stub(remote_addr="1.2.3.4")
+        request = pretend.stub(
+            remote_addr="1.2.3.4", banned=pretend.stub(by_ip=lambda ip_address: False)
+        )
         user_service = pretend.stub(
             find_userid=pretend.call_recorder(lambda userid: 1),
             check_password=pretend.call_recorder(
@@ -472,7 +474,9 @@ class TestDeleteMacaroonForm:
         user_service = pretend.stub(
             find_userid=lambda *a, **kw: 1, check_password=lambda *a, **kw: True
         )
-        request = pretend.stub(remote_addr="1.2.3.4")
+        request = pretend.stub(
+            remote_addr="1.2.3.4", banned=pretend.stub(by_ip=lambda ip_address: False)
+        )
         form = forms.DeleteMacaroonForm(
             data={"macaroon_id": pretend.stub(), "password": "password"},
             request=request,
@@ -491,7 +495,9 @@ class TestDeleteMacaroonForm:
         user_service = pretend.stub(
             find_userid=lambda *a, **kw: 1, check_password=lambda *a, **kw: True
         )
-        request = pretend.stub(remote_addr="1.2.3.4")
+        request = pretend.stub(
+            remote_addr="1.2.3.4", banned=pretend.stub(by_ip=lambda ip_address: False)
+        )
         form = forms.DeleteMacaroonForm(
             data={"macaroon_id": pretend.stub(), "password": "password"},
             request=request,

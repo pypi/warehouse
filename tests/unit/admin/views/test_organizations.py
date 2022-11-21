@@ -17,6 +17,7 @@ from pyramid.httpexceptions import HTTPBadRequest, HTTPNotFound
 
 from warehouse.accounts.interfaces import IUserService
 from warehouse.admin.views import organizations as views
+from warehouse.events.tags import EventTag
 from warehouse.organizations.interfaces import IOrganizationService
 
 from ....common.db.organizations import OrganizationFactory
@@ -495,7 +496,7 @@ class TestOrganizationDetail:
         assert organization_service.record_event.calls == [
             pretend.call(
                 organization.id,
-                tag="organization:approve",
+                tag=EventTag.Organization.OrganizationApprove,
                 additional={"approved_by_user_id": str(admin.id)},
             ),
         ]
@@ -641,7 +642,7 @@ class TestOrganizationDetail:
         assert organization_service.record_event.calls == [
             pretend.call(
                 organization.id,
-                tag="organization:decline",
+                tag=EventTag.Organization.OrganizationDecline,
                 additional={"declined_by_user_id": str(admin.id)},
             ),
         ]

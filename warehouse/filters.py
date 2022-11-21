@@ -159,6 +159,10 @@ def localize_datetime(timestamp):
     return pytz.utc.localize(timestamp)
 
 
+def ctime(timestamp):
+    return datetime.datetime.fromtimestamp(timestamp)
+
+
 def is_recent(timestamp):
     if timestamp:
         return timestamp + datetime.timedelta(days=30) > datetime.datetime.now()

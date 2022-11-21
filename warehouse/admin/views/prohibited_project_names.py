@@ -12,6 +12,8 @@
 
 import shlex
 
+from collections import defaultdict
+
 from packaging.utils import canonicalize_name
 from paginate_sqlalchemy import SqlalchemyOrmPage as SQLAlchemyORMPage
 from pyramid.httpexceptions import HTTPBadRequest, HTTPNotFound, HTTPSeeOther
@@ -125,11 +127,16 @@ def confirm_prohibited_project_names(request):
         files = []
         roles = []
 
+    releases_by_date = defaultdict(list)
+    for release in releases:
+        releases_by_date[release.created.strftime("%Y-%m-%d")].append(release)
+
     return {
         "prohibited_project_names": {"project": project_name, "comment": comment},
         "existing": {
             "project": project,
             "releases": releases,
+            "releases_by_date": releases_by_date,
             "files": files,
             "roles": roles,
         },

@@ -13,7 +13,7 @@
 
 /* global expect, beforeEach, describe, it */
 
-import { Application } from "stimulus";
+import { Application } from "@hotwired/stimulus";
 import NotificationController from "../../warehouse/static/js/warehouse/controllers/notification_controller";
 
 const notificationContent = `
