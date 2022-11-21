@@ -156,6 +156,7 @@ def pyramid_request(pyramid_services, jinja, remote_addr):
     dummy_request.find_service = pyramid_services.find_service
     dummy_request.remote_addr = remote_addr
     dummy_request.authentication_method = pretend.stub()
+    dummy_request._unauthenticated_userid = None
 
     dummy_request.registry.registerUtility(jinja, IJinja2Environment, name=".jinja2")
 
@@ -198,7 +199,7 @@ def database(request):
     pg_port = config.get("port") or os.environ.get("PGPORT", 5432)
     pg_user = config.get("user")
     pg_db = config.get("db", "tests")
-    pg_version = config.get("version", 12.8)
+    pg_version = config.get("version", 14.4)
 
     janitor = DatabaseJanitor(pg_user, pg_host, pg_port, pg_db, pg_version)
 
@@ -391,6 +392,7 @@ def query_recorder(app_config):
 def db_request(pyramid_request, db_session):
     pyramid_request.db = db_session
     pyramid_request.flags = admin.flags.Flags(pyramid_request)
+    pyramid_request.banned = admin.bans.Bans(pyramid_request)
     return pyramid_request
 
 

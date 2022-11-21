@@ -226,9 +226,8 @@ class TestLogin:
             new_csrf_token=pretend.call_recorder(lambda: None),
         )
 
-        pyramid_request.set_property(
-            lambda r: str(uuid.uuid4()) if with_user else None,
-            name="unauthenticated_userid",
+        pyramid_request._unauthenticated_userid = (
+            str(uuid.uuid4()) if with_user else None
         )
 
         pyramid_request.registry.settings = {"sessions.secret": "dummy_secret"}

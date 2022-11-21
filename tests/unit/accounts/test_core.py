@@ -194,7 +194,11 @@ class TestLogin:
         assert service.is_disabled.calls == [pretend.call(1)]
 
     def test_with_valid_password(self, monkeypatch, pyramid_request, pyramid_services):
-        user = pretend.stub(id=2, has_two_factor=False)
+        user = pretend.stub(
+            id=2,
+            has_two_factor=False,
+            record_event=pretend.call_recorder(lambda *a, **kw: None),
+        )
         service = pretend.stub(
             get_user=pretend.call_recorder(lambda user_id: user),
             find_userid=pretend.call_recorder(lambda username: 2),
@@ -234,6 +238,13 @@ class TestLogin:
             pretend.call("mypass", tags=["method:auth", "auth_method:basic"])
         ]
         assert service.update_user.calls == [pretend.call(2, last_login=now)]
+        assert user.record_event.calls == [
+            pretend.call(
+                ip_address="1.2.3.4",
+                tag=EventTag.Account.LoginSuccess,
+                additional={"auth_method": "basic"},
+            )
+        ]
 
     def test_via_basic_auth_compromised(
         self, monkeypatch, pyramid_request, pyramid_services
@@ -251,7 +262,9 @@ class TestLogin:
                 lambda userid, password, tags=None: True
             ),
             is_disabled=pretend.call_recorder(lambda user_id: (False, None)),
-            disable_password=pretend.call_recorder(lambda user_id, reason=None: None),
+            disable_password=pretend.call_recorder(
+                lambda user_id, reason=None, ip_address="127.0.0.1": None
+            ),
         )
         breach_service = pretend.stub(
             check_password=pretend.call_recorder(lambda pw, tags=None: True),
@@ -283,7 +296,9 @@ class TestLogin:
             pretend.call("mypass", tags=["method:auth", "auth_method:basic"])
         ]
         assert service.disable_password.calls == [
-            pretend.call(2, reason=DisableReason.CompromisedPassword)
+            pretend.call(
+                2, reason=DisableReason.CompromisedPassword, ip_address="1.2.3.4"
+            )
         ]
         assert send_email.calls == [pretend.call(pyramid_request, user)]
 
@@ -304,6 +319,12 @@ class TestUser:
     def test_without_identity(self):
         request = pretend.stub(identity=None)
         assert accounts._user(request) is None
+
+
+class TestUnauthenticatedUserid:
+    def test_unauthenticated_userid(self):
+        request = pretend.stub()
+        assert accounts._unauthenticated_userid(request) is None
 
 
 def test_includeme(monkeypatch):
@@ -343,7 +364,7 @@ def test_includeme(monkeypatch):
         register_service_factory=pretend.call_recorder(
             lambda factory, iface, name=None: None
         ),
-        add_request_method=pretend.call_recorder(lambda f, name, reify: None),
+        add_request_method=pretend.call_recorder(lambda f, name, reify=False: None),
         set_security_policy=pretend.call_recorder(lambda p: None),
         maybe_dotted=pretend.call_recorder(lambda path: path),
         add_route_predicate=pretend.call_recorder(lambda name, cls: None),
@@ -374,7 +395,8 @@ def test_includeme(monkeypatch):
         pretend.call(RateLimit("3 per 6 hours"), IRateLimiter, name="email.verify"),
     ]
     assert config.add_request_method.calls == [
-        pretend.call(accounts._user, name="user", reify=True)
+        pretend.call(accounts._user, name="user", reify=True),
+        pretend.call(accounts._unauthenticated_userid, name="_unauthenticated_userid"),
     ]
     assert config.set_security_policy.calls == [pretend.call(multi_policy_obj)]
     assert multi_policy_cls.calls == [

@@ -4,6 +4,7 @@ volumes:
   simple:
   packages:
   sponsorlogos:
+  policies:
   vault:
 
 services:
@@ -25,7 +26,7 @@ services:
       - ./dev/vault:/etc/vault
 
   db:
-    image: postgres:12.8
+    image: postgres:14.4
     ports:
       # 5432 may already in use by another PostgreSQL on host
       - "5433:5432"
@@ -33,7 +34,7 @@ services:
       POSTGRES_HOST_AUTH_METHOD: trust  # never do this in production!
     healthcheck:
       test: ["CMD", "pg_isready", "-U", "postgres", "-d", "postgres"]
-  
+
   stripe:
     image: stripe/stripe-mock:v0.140.0
     ports:
@@ -95,6 +96,7 @@ services:
       - .coveragerc:/opt/warehouse/src/.coveragerc:z
       - packages:/var/opt/warehouse/packages
       - sponsorlogos:/var/opt/warehouse/sponsorlogos
+      - policies:/var/opt/warehouse/policies
       - simple:/var/opt/warehouse/simple
       - ./bin:/opt/warehouse/src/bin:z
       - ./requirements:/opt/warehouse/src/requirements:z
@@ -159,6 +161,8 @@ services:
     build:
       context: .
     command: python /opt/warehouse/dev/notdatadog.py 0.0.0.0:8125
+    environment:
+      METRICS_OUTPUT: "false"
     ports:
       - "8125:8125/udp"
     volumes:

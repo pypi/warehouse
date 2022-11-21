@@ -52,6 +52,7 @@ from warehouse.accounts.models import (
     User,
     WebAuthn,
 )
+from warehouse.events.tags import EventTag
 from warehouse.metrics import IMetricsService
 from warehouse.rate_limiting import DummyRateLimiter, IRateLimiter
 from warehouse.utils.crypto import BadData, SignatureExpired, URLSafeTimedSerializer
@@ -294,10 +295,15 @@ class DatabaseUserService:
 
         return user
 
-    def disable_password(self, user_id, reason=None):
+    def disable_password(self, user_id, reason=None, ip_address="127.0.0.1"):
         user = self.get_user(user_id)
         user.password = self.hasher.disable()
         user.disabled_for = reason
+        user.record_event(
+            tag=EventTag.Account.PasswordDisabled,
+            ip_address=ip_address,
+            additional={"reason": reason.value if reason else None},
+        )
 
     def is_disabled(self, user_id):
         user = self.get_user(user_id)

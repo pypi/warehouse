@@ -80,6 +80,7 @@ class EventTag:
         OrganizationRoleRemove = "account:organization_role:remove"
         OrganizationRoleRevokeInvite = "account:organization_role:revoke_invite"
         PasswordChange = "account:password:change"
+        PasswordDisabled = "account:password:disabled"
         PasswordReset = "account:password:reset"
         PasswordResetAttempt = "account:password:reset:attempt"
         PasswordResetRequest = "account:password:reset:request"
@@ -108,6 +109,7 @@ class EventTag:
         """
 
         # Name = "source_type:subject_type:action"
+        ShortLivedAPITokenAdded = "account:short_lived_api_token:added"
         APITokenAdded = "project:api_token:added"
         APITokenRemoved = "project:api_token:removed"
         OIDCProviderAdded = "project:oidc:provider-added"

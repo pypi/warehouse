@@ -17,6 +17,7 @@ from pyramid import viewderivers
 from pyramid.i18n import Localizer
 
 from warehouse import i18n
+from warehouse.i18n.extensions import FallbackInternationalizationExtension
 
 
 class TestInvalidLocalizer:
@@ -172,7 +173,10 @@ def test_includeme():
             "format_rfc822_datetime": "warehouse.i18n.filters:format_rfc822_datetime",
             "format_number": "warehouse.i18n.filters:format_number",
         },
-        "jinja2.globals": {"KNOWN_LOCALES": "warehouse.i18n:KNOWN_LOCALES"},
+        "jinja2.globals": {
+            "KNOWN_LOCALES": "warehouse.i18n:KNOWN_LOCALES",
+        },
+        "jinja2.i18n_extension": FallbackInternationalizationExtension,
     }
 
 

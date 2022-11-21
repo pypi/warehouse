@@ -47,8 +47,8 @@ def _redact_ip(request, email):
         # The email might have been deleted if this is an account deletion event
         return False
 
-    if request.unauthenticated_userid:
-        return user_email.user_id != request.unauthenticated_userid
+    if request._unauthenticated_userid:
+        return user_email.user_id != request._unauthenticated_userid
     if request.user:
         return user_email.user_id != request.user.id
     if request.remote_addr == "127.0.0.1":

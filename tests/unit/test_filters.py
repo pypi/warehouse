@@ -211,6 +211,19 @@ def test_localize_datetime(inp, expected):
 
 
 @pytest.mark.parametrize(
+    ("inp", "expected"),
+    [
+        (
+            1667404296,
+            datetime.datetime(2022, 11, 2, 15, 51, 36),
+        )
+    ],
+)
+def test_ctime(inp, expected):
+    assert filters.ctime(inp) == expected
+
+
+@pytest.mark.parametrize(
     "delta, expected",
     [
         (datetime.timedelta(days=31), False),

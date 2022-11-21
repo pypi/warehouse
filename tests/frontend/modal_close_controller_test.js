@@ -13,7 +13,7 @@
 
 /* global expect, beforeEach, describe, it */
 
-import { Application } from "stimulus";
+import { Application } from "@hotwired/stimulus";
 import ModalCloseController from "../../warehouse/static/js/warehouse/controllers/modal_close_controller";
 
 describe("Modal close controller", () => {

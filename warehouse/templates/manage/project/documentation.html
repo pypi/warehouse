@@ -25,7 +25,7 @@
     <h3>{% trans %}Destroy documentation{% endtrans %}</h3>
     <p>
       <i class="fa fa-exclamation-triangle" aria-hidden="true"><span class="sr-only">{% trans %}Warning{% endtrans %}</span></i>
-      {% trans trimmed url=project.documentation_url %}
+      {% trans url=project.documentation_url %}
         If you would like to DESTROY any existing documentation hosted at
         <a href="{{ url }}">{{ url }}</a>
         there is <strong>no</strong> undo, as uploading new documentation is no longer supported.

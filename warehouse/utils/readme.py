@@ -41,6 +41,10 @@ def render(value, content_type=None, use_fallback=True):
     # also ensure that it's had any disallowed markup removed.
     rendered = renderer.render(value, **parameters)
 
+    # Wrap plaintext as preformatted to preserve whitespace.
+    if content_type == "text/plain":
+        rendered = f"<pre>{rendered}</pre>"
+
     # If the content was not rendered, we'll render as plaintext instead. The
     # reason it's necessary to do this instead of just accepting plaintext is
     # that readme_renderer will deal with sanitizing the content.

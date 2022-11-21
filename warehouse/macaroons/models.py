@@ -13,6 +13,7 @@
 import os
 
 from sqlalchemy import (
+    CheckConstraint,
     Column,
     DateTime,
     ForeignKey,
@@ -37,13 +38,25 @@ class Macaroon(db.Model):
         UniqueConstraint(
             "description", "user_id", name="_user_macaroons_description_uc"
         ),
+        CheckConstraint(
+            "(user_id::text IS NULL) <> (oidc_provider_id::text IS NULL)",
+            name="_user_xor_oidc_provider_macaroon",
+        ),
     )
 
-    # All of our Macaroons belong to a specific user, because a caveat-less
-    # Macaroon should act the same as their password does, instead of as a
-    # global permission to upload files.
+    # Macaroons come in two forms: they either belong to a user, or they
+    # authenticate for one or more projects.
+    # * In the user case, a Macaroon has an associated user, and *might* have
+    #   additional project scope restrictions as part of its caveats.
+    # * In the project case, a Macaroon does *not* have an explicit associated
+    #   project. Instead, depending on how its used (its request context),
+    #   it identifies one of the projects scoped in its caveats.
     user_id = Column(
-        UUID(as_uuid=True), ForeignKey("users.id"), nullable=False, index=True
+        UUID(as_uuid=True), ForeignKey("users.id"), nullable=True, index=True
+    )
+
+    oidc_provider_id = Column(
+        UUID(as_uuid=True), ForeignKey("oidc_providers.id"), nullable=True, index=True
     )
 
     # Store some information about the Macaroon to give users some mechanism

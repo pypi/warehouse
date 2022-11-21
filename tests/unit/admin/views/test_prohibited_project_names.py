@@ -12,6 +12,8 @@
 
 import uuid
 
+from collections import defaultdict
+
 import pretend
 import pytest
 
@@ -101,17 +103,36 @@ class TestConfirmProhibitedProjectName:
 
         assert result == {
             "prohibited_project_names": {"project": "foo", "comment": ""},
-            "existing": {"project": None, "releases": [], "files": [], "roles": []},
+            "existing": {
+                "project": None,
+                "releases": [],
+                "files": [],
+                "roles": [],
+                "releases_by_date": defaultdict(list),
+            },
         }
 
     def test_stuff_to_delete(self, db_request):
+        db_request.user = UserFactory.create()
         project = ProjectFactory.create()
+        release = ReleaseFactory.create(project=project)
+        file_ = FileFactory.create(release=release, filename="who cares")
+        role = RoleFactory.create(project=project, user=db_request.user)
+
         db_request.GET["project"] = project.name
         result = views.confirm_prohibited_project_names(db_request)
 
         assert result == {
             "prohibited_project_names": {"project": project.name, "comment": ""},
-            "existing": {"project": project, "releases": [], "files": [], "roles": []},
+            "existing": {
+                "project": project,
+                "releases": [release],
+                "files": [file_],
+                "roles": [role],
+                "releases_by_date": defaultdict(
+                    list, {release.created.strftime("%Y-%m-%d"): [release]}
+                ),
+            },
         }
 
 

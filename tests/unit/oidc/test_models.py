@@ -74,6 +74,10 @@ class TestGitHubProvider:
             assert getattr(provider, claim_name) is not None
 
         assert str(provider) == "fakeworkflow.yml @ fakeowner/fakerepo"
+        assert (
+            provider.provider_url == "https://github.com/fakeowner/fakerepo/blob/HEAD/"
+            f".github/workflows/{provider.workflow_filename}"
+        )
 
     def test_github_provider_unaccounted_claims(self, monkeypatch):
         provider = models.GitHubProvider(

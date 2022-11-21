@@ -77,7 +77,7 @@ def test_redact_ip(unauthenticated_userid, user, remote_addr, expected):
     user_email = pretend.stub(user_id="the_users_id")
 
     request = pretend.stub(
-        unauthenticated_userid=unauthenticated_userid,
+        _unauthenticated_userid=unauthenticated_userid,
         user=user,
         db=pretend.stub(
             query=lambda a: pretend.stub(

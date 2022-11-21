@@ -18,10 +18,8 @@ import xmlrpc.server
 
 from typing import List, Mapping, Union
 
-import elasticsearch
 import typeguard
 
-from elasticsearch_dsl import Q
 from packaging.utils import canonicalize_name
 from pyramid.httpexceptions import HTTPTooManyRequests
 from pyramid.view import view_config
@@ -47,7 +45,6 @@ from warehouse.packaging.models import (
     release_classifiers,
 )
 from warehouse.rate_limiting import IRateLimiter
-from warehouse.search.queries import SEARCH_BOOSTS
 
 # From https://stackoverflow.com/a/22273639
 _illegal_ranges = [
@@ -76,6 +73,10 @@ _illegal_ranges = [
     "\U0010fffe-\U0010ffff",
 ]
 _illegal_xml_chars_re = re.compile("[%s]" % "".join(_illegal_ranges))
+
+XMLRPC_DEPRECATION_URL = (
+    "https://warehouse.pypa.io/api-reference/xml-rpc.html#deprecated-methods"
+)
 
 
 def _clean_for_xml(data):
@@ -227,100 +228,14 @@ def exception_view(exc, request):
 
 @xmlrpc_method(method="search")
 def search(request, spec: Mapping[str, Union[str, List[str]]], operator: str = "and"):
-    metrics = request.find_service(IMetricsService, context=None)
-
-    # This uses a setting instead of an admin flag to avoid hitting the DB/Elasticsearch
-    # at all since the broad purpose of this flag is to enable us to control the load to
-    # our backend servers. This does mean that turning search on or off requires a
-    # deploy, but it should be infrequent enough to not matter.
-    if not request.registry.settings.get("warehouse.xmlrpc.search.enabled", True):
-        metrics.increment("warehouse.xmlrpc.search.deprecated")
-        raise XMLRPCWrappedError(
-            RuntimeError(
-                (
-                    "PyPI's XMLRPC API is currently disabled due to "
-                    "unmanageable load and will be deprecated in the near "
-                    "future. See https://status.python.org/ for more "
-                    "information."
-                )
-            )
+    domain = request.registry.settings.get("warehouse.domain", request.domain)
+    raise XMLRPCWrappedError(
+        RuntimeError(
+            "PyPI no longer supports 'pip search' (or XML-RPC search). "
+            f"Please use https://{domain}/search (via a browser) instead. "
+            f"See {XMLRPC_DEPRECATION_URL} for more information."
         )
-
-    if operator not in {"and", "or"}:
-        raise XMLRPCWrappedError(
-            ValueError("Invalid operator, must be one of 'and' or 'or'.")
-        )
-
-    # Remove any invalid spec fields
-    spec = {
-        k: [v] if isinstance(v, str) else v
-        for k, v in spec.items()
-        if v
-        and k
-        in {
-            "name",
-            "version",
-            "author",
-            "author_email",
-            "maintainer",
-            "maintainer_email",
-            "home_page",
-            "license",
-            "summary",
-            "description",
-            "keywords",
-            "platform",
-            "download_url",
-        }
-    }
-
-    queries = []
-    for field, value in sorted(spec.items()):
-        q = None
-        for item in value:
-            kw = {"query": item}
-            if field in SEARCH_BOOSTS:
-                kw["boost"] = SEARCH_BOOSTS[field]  # type: ignore
-            if q is None:
-                q = Q("match", **{field: kw})
-            else:
-                q |= Q("match", **{field: kw})
-        queries.append(q)
-
-    if operator == "and":
-        query = request.es.query("bool", must=queries)
-    else:
-        query = request.es.query("bool", should=queries)
-
-    try:
-        results = query[:100].execute()
-    except elasticsearch.TransportError:
-        metrics.increment("warehouse.xmlrpc.search.error")
-        raise XMLRPCServiceUnavailable
-
-    metrics.histogram("warehouse.xmlrpc.search.results", len(results))
-
-    if "version" in spec.keys():
-        return [
-            {
-                "name": r.name,
-                "summary": _clean_for_xml(getattr(r, "summary", None)),
-                "version": v,
-                "_pypi_ordering": False,
-            }
-            for r in results
-            for v in r.version
-            if v in spec.get("version", [v])
-        ]
-    return [
-        {
-            "name": r.name,
-            "summary": _clean_for_xml(getattr(r, "summary", None)),
-            "version": r.latest_version,
-            "_pypi_ordering": False,
-        }
-        for r in results
-    ]
+    )
 
 
 @xmlrpc_cache_all_projects(method="list_packages")
@@ -355,7 +270,10 @@ def user_packages(request, username: str):
 @xmlrpc_method(method="top_packages")
 def top_packages(request, num=None):
     raise XMLRPCWrappedError(
-        RuntimeError("This API has been removed. Use BigQuery instead.")
+        RuntimeError(
+            "This API has been removed. Use BigQuery instead. "
+            f"See {XMLRPC_DEPRECATION_URL} for more information."
+        )
     )
 
 
@@ -385,15 +303,11 @@ def package_releases(request, package_name: str, show_hidden: bool = False):
 
 @xmlrpc_method(method="package_data")
 def package_data(request, package_name, version):
-    settings = request.registry.settings
-    domain = settings.get("warehouse.domain", request.domain)
     raise XMLRPCWrappedError(
         RuntimeError(
             (
-                "This API has been deprecated. Use "
-                f"https://{domain}/{package_name}/{version}/json "
-                "instead. The XMLRPC method release_data can be used in the "
-                "interim, but will be deprecated in the future."
+                "This API has been deprecated. "
+                f"See {XMLRPC_DEPRECATION_URL} for more information."
             )
         )
     )
@@ -461,15 +375,11 @@ def release_data(request, package_name: str, version: str):
 
 @xmlrpc_method(method="package_urls")
 def package_urls(request, package_name, version):
-    settings = request.registry.settings
-    domain = settings.get("warehouse.domain", request.domain)
     raise XMLRPCWrappedError(
         RuntimeError(
             (
-                "This API has been deprecated. Use "
-                f"https://{domain}/{package_name}/{version}/json "
-                "instead. The XMLRPC method release_urls can be used in the "
-                "interim, but will be deprecated in the future."
+                "This API has been deprecated. "
+                f"See {XMLRPC_DEPRECATION_URL} for more information."
             )
         )
     )

@@ -53,6 +53,7 @@ from warehouse.utils.security_policy import AuthenticationMethod
 
 from ...common.db.accounts import EmailFactory, UserFactory
 from ...common.db.classifiers import ClassifierFactory
+from ...common.db.oidc import GitHubProviderFactory
 from ...common.db.packaging import (
     FileFactory,
     ProjectFactory,
@@ -640,7 +641,6 @@ class TestFileValidation:
 
 class TestIsDuplicateFile:
     def test_is_duplicate_true(self, pyramid_config, db_request):
-        pyramid_config.testing_securitypolicy(userid=1)
 
         user = UserFactory.create()
         EmailFactory.create(user=user)
@@ -673,7 +673,6 @@ class TestIsDuplicateFile:
         assert legacy._is_duplicate_file(db_request.db, filename, hashes)
 
     def test_is_duplicate_none(self, pyramid_config, db_request):
-        pyramid_config.testing_securitypolicy(userid=1)
 
         user = UserFactory.create()
         EmailFactory.create(user=user)
@@ -712,7 +711,6 @@ class TestIsDuplicateFile:
         )
 
     def test_is_duplicate_false_same_blake2(self, pyramid_config, db_request):
-        pyramid_config.testing_securitypolicy(userid=1)
 
         user = UserFactory.create()
         EmailFactory.create(user=user)
@@ -749,7 +747,6 @@ class TestIsDuplicateFile:
         )
 
     def test_is_duplicate_false(self, pyramid_config, db_request):
-        pyramid_config.testing_securitypolicy(userid=1)
 
         user = UserFactory.create()
         EmailFactory.create(user=user)
@@ -787,7 +784,6 @@ class TestIsDuplicateFile:
 
 class TestFileUpload:
     def test_fails_disallow_new_upload(self, pyramid_config, pyramid_request):
-        pyramid_config.testing_securitypolicy(userid=1)
         pyramid_request.flags = pretend.stub(
             enabled=lambda value: value == AdminFlagValue.DISALLOW_NEW_UPLOAD
         )
@@ -807,11 +803,12 @@ class TestFileUpload:
 
     @pytest.mark.parametrize("version", ["2", "3", "-1", "0", "dog", "cat"])
     def test_fails_invalid_version(self, pyramid_config, pyramid_request, version):
-        pyramid_config.testing_securitypolicy(userid=1)
         pyramid_request.POST["protocol_version"] = version
         pyramid_request.flags = pretend.stub(enabled=lambda *a: False)
 
-        pyramid_request.user = pretend.stub(primary_email=pretend.stub(verified=True))
+        user = pretend.stub(primary_email=pretend.stub(verified=True))
+        pyramid_config.testing_securitypolicy(identity=user)
+        pyramid_request.user = user
 
         with pytest.raises(HTTPBadRequest) as excinfo:
             legacy.file_upload(pyramid_request)
@@ -1001,9 +998,9 @@ class TestFileUpload:
     def test_fails_invalid_post_data(
         self, pyramid_config, db_request, post_data, message
     ):
-        pyramid_config.testing_securitypolicy(userid=1)
         user = UserFactory.create()
         EmailFactory.create(user=user)
+        pyramid_config.testing_securitypolicy(identity=user)
         db_request.user = user
         db_request.POST = MultiDict(post_data)
 
@@ -1017,9 +1014,9 @@ class TestFileUpload:
 
     @pytest.mark.parametrize("name", ["requirements.txt", "rrequirements.txt"])
     def test_fails_with_invalid_names(self, pyramid_config, db_request, name):
-        pyramid_config.testing_securitypolicy(userid=1)
         user = UserFactory.create()
         EmailFactory.create(user=user)
+        pyramid_config.testing_securitypolicy(identity=user)
         db_request.user = user
 
         db_request.POST = MultiDict(
@@ -1067,10 +1064,10 @@ class TestFileUpload:
     def test_fails_with_ultranormalized_names(
         self, pyramid_config, db_request, conflicting_name
     ):
-        pyramid_config.testing_securitypolicy(userid=1)
         user = UserFactory.create()
         EmailFactory.create(user=user)
         ProjectFactory.create(name="toasting")
+        pyramid_config.testing_securitypolicy(identity=user)
         db_request.user = user
         db_request.db.flush()
 
@@ -1125,9 +1122,9 @@ class TestFileUpload:
     def test_fails_invalid_render(
         self, pyramid_config, db_request, description_content_type, description, message
     ):
-        pyramid_config.testing_securitypolicy(userid=1)
         user = UserFactory.create()
         EmailFactory.create(user=user)
+        pyramid_config.testing_securitypolicy(identity=user)
         db_request.user = user
         db_request.user_agent = "warehouse-tests/6.6.6"
 
@@ -1192,8 +1189,8 @@ class TestFileUpload:
     def test_fails_with_stdlib_names(self, pyramid_config, db_request, name):
         user = UserFactory.create()
         EmailFactory.create(user=user)
+        pyramid_config.testing_securitypolicy(identity=user)
         db_request.user = user
-        pyramid_config.testing_securitypolicy(userid=1)
         db_request.POST = MultiDict(
             {
                 "metadata_version": "1.2",
@@ -1237,9 +1234,9 @@ class TestFileUpload:
             .first()
         )
         admin_flag.enabled = True
-        pyramid_config.testing_securitypolicy(userid=1)
         user = UserFactory.create()
         EmailFactory.create(user=user)
+        pyramid_config.testing_securitypolicy(identity=user)
         db_request.user = user
         name = "fails-with-admin-flag"
         db_request.POST = MultiDict(
@@ -1273,9 +1270,9 @@ class TestFileUpload:
         )
 
     def test_upload_fails_without_file(self, pyramid_config, db_request):
-        pyramid_config.testing_securitypolicy(userid=1)
         user = UserFactory.create()
         EmailFactory.create(user=user)
+        pyramid_config.testing_securitypolicy(identity=user)
         db_request.user = user
         db_request.POST = MultiDict(
             {
@@ -1297,10 +1294,10 @@ class TestFileUpload:
 
     @pytest.mark.parametrize("value", [("UNKNOWN"), ("UNKNOWN\n\n")])
     def test_upload_cleans_unknown_values(self, pyramid_config, db_request, value):
-        pyramid_config.testing_securitypolicy(userid=1)
         user = UserFactory.create()
-        EmailFactory.create(user=user)
+        pyramid_config.testing_securitypolicy(identity=user)
         db_request.user = user
+        EmailFactory.create(user=user)
         db_request.POST = MultiDict(
             {
                 "metadata_version": "1.2",
@@ -1317,9 +1314,9 @@ class TestFileUpload:
         assert "name" not in db_request.POST
 
     def test_upload_escapes_nul_characters(self, pyramid_config, db_request):
-        pyramid_config.testing_securitypolicy(userid=1)
         user = UserFactory.create()
         EmailFactory.create(user=user)
+        pyramid_config.testing_securitypolicy(identity=user)
         db_request.user = user
         db_request.POST = MultiDict(
             {
@@ -1366,7 +1363,6 @@ class TestFileUpload:
     ):
         monkeypatch.setattr(tempfile, "tempdir", str(tmpdir))
 
-        pyramid_config.testing_securitypolicy(userid=1)
         user = UserFactory.create()
         EmailFactory.create(user=user)
         project = ProjectFactory.create()
@@ -1377,6 +1373,7 @@ class TestFileUpload:
 
         filename = "{}-{}.tar.gz".format(project.name, release.version)
 
+        pyramid_config.testing_securitypolicy(identity=user)
         db_request.user = user
         db_request.user_agent = "warehouse-tests/6.6.6"
 
@@ -1521,14 +1518,14 @@ class TestFileUpload:
         ]
 
     @pytest.mark.parametrize("content_type", [None, "image/foobar"])
-    def test_upload_fails_invlaid_content_type(
+    def test_upload_fails_invalid_content_type(
         self, tmpdir, monkeypatch, pyramid_config, db_request, content_type
     ):
         monkeypatch.setattr(tempfile, "tempdir", str(tmpdir))
 
-        pyramid_config.testing_securitypolicy(userid=1)
         user = UserFactory.create()
         EmailFactory.create(user=user)
+        pyramid_config.testing_securitypolicy(identity=user)
         db_request.user = user
         project = ProjectFactory.create()
         release = ReleaseFactory.create(project=project, version="1.0")
@@ -1564,10 +1561,10 @@ class TestFileUpload:
         assert resp.status == "400 Invalid distribution file."
 
     def test_upload_fails_with_legacy_type(self, pyramid_config, db_request):
-        pyramid_config.testing_securitypolicy(userid=1)
 
         user = UserFactory.create()
         EmailFactory.create(user=user)
+        pyramid_config.testing_securitypolicy(identity=user)
         db_request.user = user
         project = ProjectFactory.create()
         release = ReleaseFactory.create(project=project, version="1.0")
@@ -1603,10 +1600,10 @@ class TestFileUpload:
         )
 
     def test_upload_fails_with_legacy_ext(self, pyramid_config, db_request):
-        pyramid_config.testing_securitypolicy(userid=1)
 
         user = UserFactory.create()
         EmailFactory.create(user=user)
+        pyramid_config.testing_securitypolicy(identity=user)
         db_request.user = user
         project = ProjectFactory.create()
         release = ReleaseFactory.create(project=project, version="1.0")
@@ -1642,9 +1639,9 @@ class TestFileUpload:
         )
 
     def test_upload_fails_for_second_sdist(self, pyramid_config, db_request):
-        pyramid_config.testing_securitypolicy(userid=1)
 
         user = UserFactory.create()
+        pyramid_config.testing_securitypolicy(identity=user)
         db_request.user = user
         EmailFactory.create(user=user)
         project = ProjectFactory.create()
@@ -1683,9 +1680,9 @@ class TestFileUpload:
 
     @pytest.mark.parametrize("sig", [b"lol nope"])
     def test_upload_fails_with_invalid_signature(self, pyramid_config, db_request, sig):
-        pyramid_config.testing_securitypolicy(userid=1)
 
         user = UserFactory.create()
+        pyramid_config.testing_securitypolicy(identity=user)
         db_request.user = user
         EmailFactory.create(user=user)
         project = ProjectFactory.create()
@@ -1721,9 +1718,9 @@ class TestFileUpload:
         assert resp.status == "400 PGP signature isn't ASCII armored."
 
     def test_upload_fails_with_invalid_classifier(self, pyramid_config, db_request):
-        pyramid_config.testing_securitypolicy(userid=1)
 
         user = UserFactory.create()
+        pyramid_config.testing_securitypolicy(identity=user)
         db_request.user = user
         EmailFactory.create(user=user)
         project = ProjectFactory.create()
@@ -1778,9 +1775,9 @@ class TestFileUpload:
     def test_upload_fails_with_deprecated_classifier(
         self, pyramid_config, db_request, monkeypatch, deprecated_classifiers, expected
     ):
-        pyramid_config.testing_securitypolicy(userid=1)
 
         user = UserFactory.create()
+        pyramid_config.testing_securitypolicy(identity=user)
         db_request.user = user
         EmailFactory.create(user=user)
         project = ProjectFactory.create()
@@ -1853,9 +1850,9 @@ class TestFileUpload:
     def test_upload_fails_with_invalid_digest(
         self, pyramid_config, db_request, digests
     ):
-        pyramid_config.testing_securitypolicy(userid=1)
 
         user = UserFactory.create()
+        pyramid_config.testing_securitypolicy(identity=user)
         db_request.user = user
         EmailFactory.create(user=user)
         project = ProjectFactory.create()
@@ -1891,9 +1888,9 @@ class TestFileUpload:
         )
 
     def test_upload_fails_with_invalid_file(self, pyramid_config, db_request):
-        pyramid_config.testing_securitypolicy(userid=1)
 
         user = UserFactory.create()
+        pyramid_config.testing_securitypolicy(identity=user)
         db_request.user = user
         EmailFactory.create(user=user)
         project = ProjectFactory.create()
@@ -1924,7 +1921,6 @@ class TestFileUpload:
         assert resp.status == "400 Invalid distribution file."
 
     def test_upload_fails_end_of_file_error(self, pyramid_config, db_request, metrics):
-        pyramid_config.testing_securitypolicy(userid=1)
 
         user = UserFactory.create()
         EmailFactory.create(user=user)
@@ -1934,6 +1930,7 @@ class TestFileUpload:
         # Malformed tar.gz, triggers EOF error
         file_contents = b"\x8b\x08\x00\x00\x00\x00\x00\x00\xff"
 
+        pyramid_config.testing_securitypolicy(identity=user)
         db_request.user = user
         db_request.user_agent = "warehouse-tests/6.6.6"
         db_request.POST = MultiDict(
@@ -1968,9 +1965,9 @@ class TestFileUpload:
         assert resp.status == "400 Invalid distribution file."
 
     def test_upload_fails_with_too_large_file(self, pyramid_config, db_request):
-        pyramid_config.testing_securitypolicy(userid=1)
 
         user = UserFactory.create()
+        pyramid_config.testing_securitypolicy(identity=user)
         db_request.user = user
         EmailFactory.create(user=user)
         project = ProjectFactory.create(name="foobar", upload_limit=(100 * 1024 * 1024))
@@ -2010,9 +2007,9 @@ class TestFileUpload:
     def test_upload_fails_with_too_large_project_size_default_limit(
         self, pyramid_config, db_request
     ):
-        pyramid_config.testing_securitypolicy(userid=1)
 
         user = UserFactory.create()
+        pyramid_config.testing_securitypolicy(identity=user)
         db_request.user = user
         EmailFactory.create(user=user)
         project = ProjectFactory.create(
@@ -2057,9 +2054,9 @@ class TestFileUpload:
     def test_upload_fails_with_too_large_project_size_custom_limit(
         self, pyramid_config, db_request
     ):
-        pyramid_config.testing_securitypolicy(userid=1)
 
         user = UserFactory.create()
+        pyramid_config.testing_securitypolicy(identity=user)
         db_request.user = user
         EmailFactory.create(user=user)
         one_megabyte = 1 * 1024 * 1024
@@ -2107,9 +2104,9 @@ class TestFileUpload:
     def test_upload_succeeds_custom_project_size_limit(
         self, pyramid_config, db_request, metrics
     ):
-        pyramid_config.testing_securitypolicy(userid=1)
 
         user = UserFactory.create()
+        pyramid_config.testing_securitypolicy(identity=user)
         db_request.user = user
         EmailFactory.create(user=user)
         one_megabyte = 1 * 1024 * 1024
@@ -2209,9 +2206,9 @@ class TestFileUpload:
         ]
 
     def test_upload_fails_with_too_large_signature(self, pyramid_config, db_request):
-        pyramid_config.testing_securitypolicy(userid=1)
 
         user = UserFactory.create()
+        pyramid_config.testing_securitypolicy(identity=user)
         db_request.user = user
         EmailFactory.create(user=user)
         project = ProjectFactory.create()
@@ -2250,9 +2247,9 @@ class TestFileUpload:
     def test_upload_fails_with_previously_used_filename(
         self, pyramid_config, db_request
     ):
-        pyramid_config.testing_securitypolicy(userid=1)
 
         user = UserFactory.create()
+        pyramid_config.testing_securitypolicy(identity=user)
         db_request.user = user
         EmailFactory.create(user=user)
         project = ProjectFactory.create()
@@ -2294,9 +2291,9 @@ class TestFileUpload:
     def test_upload_noop_with_existing_filename_same_content(
         self, pyramid_config, db_request
     ):
-        pyramid_config.testing_securitypolicy(userid=1)
 
         user = UserFactory.create()
+        pyramid_config.testing_securitypolicy(identity=user)
         db_request.user = user
         EmailFactory.create(user=user)
         project = ProjectFactory.create()
@@ -2341,9 +2338,9 @@ class TestFileUpload:
     def test_upload_fails_with_existing_filename_diff_content(
         self, pyramid_config, db_request
     ):
-        pyramid_config.testing_securitypolicy(userid=1)
 
         user = UserFactory.create()
+        pyramid_config.testing_securitypolicy(identity=user)
         db_request.user = user
         EmailFactory.create(user=user)
         project = ProjectFactory.create()
@@ -2395,9 +2392,9 @@ class TestFileUpload:
     def test_upload_fails_with_diff_filename_same_blake2(
         self, pyramid_config, db_request
     ):
-        pyramid_config.testing_securitypolicy(userid=1)
 
         user = UserFactory.create()
+        pyramid_config.testing_securitypolicy(identity=user)
         db_request.user = user
         EmailFactory.create(user=user)
         project = ProjectFactory.create()
@@ -2450,9 +2447,9 @@ class TestFileUpload:
         )
 
     def test_upload_fails_with_wrong_filename(self, pyramid_config, db_request):
-        pyramid_config.testing_securitypolicy(userid=1)
 
         user = UserFactory.create()
+        pyramid_config.testing_securitypolicy(identity=user)
         db_request.user = user
         EmailFactory.create(user=user)
         project = ProjectFactory.create()
@@ -2489,9 +2486,9 @@ class TestFileUpload:
         )
 
     def test_upload_fails_with_invalid_extension(self, pyramid_config, db_request):
-        pyramid_config.testing_securitypolicy(userid=1)
 
         user = UserFactory.create()
+        pyramid_config.testing_securitypolicy(identity=user)
         db_request.user = user
         EmailFactory.create(user=user)
         project = ProjectFactory.create()
@@ -2531,9 +2528,9 @@ class TestFileUpload:
     def test_upload_fails_with_unsafe_filename(
         self, pyramid_config, db_request, character
     ):
-        pyramid_config.testing_securitypolicy(userid=1)
 
         user = UserFactory.create()
+        pyramid_config.testing_securitypolicy(identity=user)
         db_request.user = user
         EmailFactory.create(user=user)
         project = ProjectFactory.create()
@@ -2565,9 +2562,7 @@ class TestFileUpload:
         assert resp.status_code == 400
         assert resp.status == "400 Cannot upload a file with '/' or '\\' in the name."
 
-    def test_upload_fails_without_permission(self, pyramid_config, db_request):
-        pyramid_config.testing_securitypolicy(userid=1, permissive=False)
-
+    def test_upload_fails_without_user_permission(self, pyramid_config, db_request):
         user1 = UserFactory.create()
         EmailFactory.create(user=user1)
         user2 = UserFactory.create()
@@ -2578,6 +2573,7 @@ class TestFileUpload:
 
         filename = "{}-{}.tar.wat".format(project.name, release.version)
 
+        pyramid_config.testing_securitypolicy(identity=user2, permissive=False)
         db_request.user = user2
         db_request.POST = MultiDict(
             {
@@ -2609,16 +2605,57 @@ class TestFileUpload:
             "See /the/help/url/ for more information."
         ).format(user2.username, project.name)
 
+    def test_upload_fails_without_oidc_provider_permission(
+        self, pyramid_config, db_request
+    ):
+        project = ProjectFactory.create()
+        release = ReleaseFactory.create(project=project, version="1.0")
+
+        provider = GitHubProviderFactory.create(projects=[project])
+
+        filename = "{}-{}.tar.wat".format(project.name, release.version)
+
+        pyramid_config.testing_securitypolicy(identity=provider, permissive=False)
+        db_request.user = None
+        db_request.POST = MultiDict(
+            {
+                "metadata_version": "1.2",
+                "name": project.name,
+                "version": release.version,
+                "filetype": "sdist",
+                "md5_digest": "nope!",
+                "content": pretend.stub(
+                    filename=filename,
+                    file=io.BytesIO(b"a" * (legacy.MAX_FILESIZE + 1)),
+                    type="application/tar",
+                ),
+            }
+        )
+
+        db_request.help_url = pretend.call_recorder(lambda **kw: "/the/help/url/")
+
+        with pytest.raises(HTTPForbidden) as excinfo:
+            legacy.file_upload(db_request)
+
+        resp = excinfo.value
+
+        assert db_request.help_url.calls == [pretend.call(_anchor="project-name")]
+        assert resp.status_code == 403
+        assert resp.status == (
+            "403 The given token isn't allowed to upload to project '{0}'. "
+            "See /the/help/url/ for more information."
+        ).format(project.name)
+
     def test_upload_succeeds_with_2fa_enabled(
         self, pyramid_config, db_request, metrics, monkeypatch
     ):
-        pyramid_config.testing_securitypolicy(userid=1)
 
         user = UserFactory.create(totp_secret=b"secret")
         EmailFactory.create(user=user)
         project = ProjectFactory.create()
         RoleFactory.create(user=user, project=project)
 
+        pyramid_config.testing_securitypolicy(identity=user)
         db_request.user = user
         db_request.user_agent = "warehouse-tests/6.6.6"
         db_request.POST = MultiDict(
@@ -2696,8 +2733,6 @@ class TestFileUpload:
     ):
         monkeypatch.setattr(tempfile, "tempdir", str(tmpdir))
 
-        pyramid_config.testing_securitypolicy(userid=1)
-
         user = UserFactory.create()
         EmailFactory.create(user=user)
         project = ProjectFactory.create()
@@ -2706,6 +2741,7 @@ class TestFileUpload:
 
         filename = "{}-{}-cp34-none-{}.whl".format(project.name, release.version, plat)
 
+        pyramid_config.testing_securitypolicy(identity=user)
         db_request.user = user
         db_request.user_agent = "warehouse-tests/6.6.6"
         db_request.POST = MultiDict(
@@ -2805,8 +2841,6 @@ class TestFileUpload:
     ):
         monkeypatch.setattr(tempfile, "tempdir", str(tmpdir))
 
-        pyramid_config.testing_securitypolicy(userid=1)
-
         user = UserFactory.create()
         EmailFactory.create(user=user)
         project = ProjectFactory.create()
@@ -2820,6 +2854,7 @@ class TestFileUpload:
 
         filename = "{}-{}-cp34-none-any.whl".format(project.name, release.version)
 
+        pyramid_config.testing_securitypolicy(identity=user)
         db_request.user = user
         db_request.user_agent = "warehouse-tests/6.6.6"
         db_request.POST = MultiDict(
@@ -2914,16 +2949,16 @@ class TestFileUpload:
             "linux_x86_64",
             "linux_x86_64.win32",
             "macosx_9_2_x86_64",
-            "macosx_13_2_arm64",
+            "macosx_14_2_arm64",
             "macosx_10_15_amd64",
         ],
     )
     def test_upload_fails_with_unsupported_wheel_plat(
         self, monkeypatch, pyramid_config, db_request, plat
     ):
-        pyramid_config.testing_securitypolicy(userid=1)
 
         user = UserFactory.create()
+        pyramid_config.testing_securitypolicy(identity=user)
         db_request.user = user
         EmailFactory.create(user=user)
         project = ProjectFactory.create()
@@ -2963,7 +2998,6 @@ class TestFileUpload:
     def test_upload_updates_existing_project_name(
         self, pyramid_config, db_request, metrics
     ):
-        pyramid_config.testing_securitypolicy(userid=1)
 
         user = UserFactory.create()
         EmailFactory.create(user=user)
@@ -2973,6 +3007,7 @@ class TestFileUpload:
         new_project_name = "package-name"
         filename = "{}-{}.tar.gz".format(new_project_name, "1.1")
 
+        pyramid_config.testing_securitypolicy(identity=user)
         db_request.user = user
         db_request.user_agent = "warehouse-tests/6.6.6"
         db_request.POST = MultiDict(
@@ -3027,7 +3062,6 @@ class TestFileUpload:
     def test_upload_succeeds_creates_release(
         self, pyramid_config, db_request, metrics, version, expected_version
     ):
-        pyramid_config.testing_securitypolicy(userid=1)
 
         user = UserFactory.create()
         EmailFactory.create(user=user)
@@ -3039,6 +3073,7 @@ class TestFileUpload:
 
         filename = "{}-{}.tar.gz".format(project.name, "1.0")
 
+        pyramid_config.testing_securitypolicy(identity=user)
         db_request.user = user
         db_request.user_agent = "warehouse-tests/6.6.6"
         db_request.POST = MultiDict(
@@ -3151,7 +3186,6 @@ class TestFileUpload:
         upload with an equivalent version like '1.0.0' will not make a second
         release
         """
-        pyramid_config.testing_securitypolicy(userid=1)
 
         user = UserFactory.create()
         EmailFactory.create(user=user)
@@ -3159,6 +3193,7 @@ class TestFileUpload:
         release = ReleaseFactory.create(project=project, version="1.0")
         RoleFactory.create(user=user, project=project)
 
+        pyramid_config.testing_securitypolicy(identity=user)
         db_request.user = user
         db_request.user_agent = "warehouse-tests/6.6.6"
         db_request.POST = MultiDict(
@@ -3198,7 +3233,6 @@ class TestFileUpload:
         Test that if more than one release with equivalent canonical versions
         exists, we use the one that is an exact match
         """
-        pyramid_config.testing_securitypolicy(userid=1)
 
         user = UserFactory.create()
         EmailFactory.create(user=user)
@@ -3207,6 +3241,7 @@ class TestFileUpload:
         release_b = ReleaseFactory.create(project=project, version="1.0.0")
         RoleFactory.create(user=user, project=project)
 
+        pyramid_config.testing_securitypolicy(identity=user)
         db_request.user = user
         db_request.user_agent = "warehouse-tests/6.6.6"
         db_request.POST = MultiDict(
@@ -3236,14 +3271,57 @@ class TestFileUpload:
         assert len(release_a.files.all()) == 0
         assert len(release_b.files.all()) == 1
 
+    def test_upload_fails_nonuser_identity_cannot_create_project(
+        self, pyramid_config, db_request, metrics
+    ):
+        provider = GitHubProviderFactory.create()
+
+        filename = "{}-{}.tar.gz".format("example", "1.0")
+
+        pyramid_config.testing_securitypolicy(identity=provider)
+        db_request.user = None
+        db_request.POST = MultiDict(
+            {
+                "metadata_version": "1.2",
+                "name": "example",
+                "version": "1.0",
+                "filetype": "sdist",
+                "md5_digest": _TAR_GZ_PKG_MD5,
+                "content": pretend.stub(
+                    filename=filename,
+                    file=io.BytesIO(_TAR_GZ_PKG_TESTDATA),
+                    type="application/tar",
+                ),
+            }
+        )
+
+        storage_service = pretend.stub(store=lambda path, filepath, meta: None)
+        db_request.find_service = lambda svc, name=None, context=None: {
+            IFileStorage: storage_service,
+            IMetricsService: metrics,
+        }.get(svc)
+        db_request.user_agent = "warehouse-tests/6.6.6"
+
+        with pytest.raises(HTTPBadRequest) as excinfo:
+            legacy.file_upload(db_request)
+
+        resp = excinfo.value
+
+        assert resp.status_code == 400
+        assert resp.status == (
+            "400 Non-user identities cannot create new projects. "
+            "You must first create a project as a user, and then "
+            "configure the project to use OpenID Connect."
+        )
+
     def test_upload_succeeds_creates_project(self, pyramid_config, db_request, metrics):
-        pyramid_config.testing_securitypolicy(userid=1)
 
         user = UserFactory.create()
         EmailFactory.create(user=user)
 
         filename = "{}-{}.tar.gz".format("example", "1.0")
 
+        pyramid_config.testing_securitypolicy(identity=user)
         db_request.user = user
         db_request.POST = MultiDict(
             {
@@ -3343,7 +3421,6 @@ class TestFileUpload:
     def test_upload_requires_verified_email(
         self, pyramid_config, db_request, emails_verified, expected_success, metrics
     ):
-        pyramid_config.testing_securitypolicy(userid=1)
 
         user = UserFactory.create()
         for i, verified in enumerate(emails_verified):
@@ -3351,6 +3428,7 @@ class TestFileUpload:
 
         filename = "{}-{}.tar.gz".format("example", "1.0")
 
+        pyramid_config.testing_securitypolicy(identity=user)
         db_request.user = user
         db_request.POST = MultiDict(
             {
@@ -3399,13 +3477,13 @@ class TestFileUpload:
     def test_upload_purges_legacy(
         self, pyramid_config, db_request, monkeypatch, metrics
     ):
-        pyramid_config.testing_securitypolicy(userid=1)
 
         user = UserFactory.create()
         EmailFactory.create(user=user)
 
         filename = "{}-{}.tar.gz".format("example", "1.0")
 
+        pyramid_config.testing_securitypolicy(identity=user)
         db_request.user = user
         db_request.POST = MultiDict(
             {

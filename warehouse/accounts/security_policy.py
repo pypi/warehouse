@@ -54,6 +54,7 @@ def _basic_auth_check(username, password, request):
     breach_service = request.find_service(IPasswordBreachedService, context=None)
 
     userid = login_service.find_userid(username)
+    request._unauthenticated_userid = userid
     if userid is not None:
         user = login_service.get_user(userid)
         is_disabled, disabled_for = login_service.is_disabled(user.id)
@@ -84,13 +85,20 @@ def _basic_auth_check(username, password, request):
             ):
                 send_password_compromised_email_hibp(request, user)
                 login_service.disable_password(
-                    user.id, reason=DisableReason.CompromisedPassword
+                    user.id,
+                    reason=DisableReason.CompromisedPassword,
+                    ip_address=request.remote_addr,
                 )
                 raise _format_exc_status(
                     BasicAuthBreachedPassword(), breach_service.failure_message_plain
                 )
 
             login_service.update_user(user.id, last_login=datetime.datetime.utcnow())
+            user.record_event(
+                tag=EventTag.Account.LoginSuccess,
+                ip_address=request.remote_addr,
+                additional={"auth_method": "basic"},
+            )
             return True
         else:
             user.record_event(
@@ -122,6 +130,9 @@ class SessionSecurityPolicy:
         request.add_response_callback(add_vary_callback("Cookie"))
         request.authentication_method = AuthenticationMethod.SESSION
 
+        if request.banned.by_ip(request.remote_addr):
+            return None
+
         # A route must be matched
         if not request.matched_route:
             return None
@@ -131,6 +142,8 @@ class SessionSecurityPolicy:
             return None
 
         userid = self._session_helper.authenticated_userid(request)
+        request._unauthenticated_userid = userid
+
         if userid is None:
             return None
 
@@ -181,6 +194,9 @@ class BasicAuthSecurityPolicy:
         # Authorization header.
         request.add_response_callback(add_vary_callback("Authorization"))
         request.authentication_method = AuthenticationMethod.BASIC_AUTH
+
+        if request.banned.by_ip(request.remote_addr):
+            return None
 
         credentials = extract_http_basic_credentials(request)
         if credentials is None:
