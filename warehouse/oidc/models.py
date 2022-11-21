@@ -76,6 +76,11 @@ class OIDCProviderMixin:
     "pending" providers that don't correspond to an extant project yet.
     """
 
+    # Each hierarchy of OIDC providers (both `OIDCProvider` and
+    # `PendingOIDCProvider`) use a `discriminator` column for model
+    # polymorphism, but the two are not mutually polymorphic at the DB level.
+    discriminator = Column(String)
+
     # A map of claim names to "check" functions, each of which
     # has the signature `check(ground-truth, signed-claim, all-signed-claims) -> bool`.
     __verifiable_claims__: Dict[
@@ -161,7 +166,6 @@ class OIDCProviderMixin:
 class OIDCProvider(OIDCProviderMixin, db.Model):
     __tablename__ = "oidc_providers"
 
-    discriminator = Column(String)
     projects = orm.relationship(
         Project,
         secondary=OIDCProviderProjectAssociation.__table__,  # type: ignore
@@ -173,7 +177,7 @@ class OIDCProvider(OIDCProviderMixin, db.Model):
 
     __mapper_args__ = {
         "polymorphic_identity": "oidc_providers",
-        "polymorphic_on": discriminator,
+        "polymorphic_on": OIDCProviderMixin.discriminator,
     }
 
 
@@ -185,7 +189,6 @@ class PendingOIDCProvider(OIDCProviderMixin, db.Model):
 
     __tablename__ = "pending_oidc_providers"
 
-    discriminator = Column(String)
     project_name = Column(String, nullable=False)
     added_by_id = Column(
         UUID(as_uuid=True), ForeignKey("users.id"), nullable=True, index=True
@@ -193,7 +196,7 @@ class PendingOIDCProvider(OIDCProviderMixin, db.Model):
 
     __mapper_args__ = {
         "polymorphic_identity": "pending_oidc_providers",
-        "polymorphic_on": discriminator,
+        "polymorphic_on": OIDCProviderMixin.discriminator,
     }
 
 
