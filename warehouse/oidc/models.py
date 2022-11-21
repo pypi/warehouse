@@ -70,23 +70,16 @@ class OIDCProviderProjectAssociation(db.Model):
     )
 
 
-class OIDCProvider(db.Model):
-    __tablename__ = "oidc_providers"
+class OIDCProviderMixin:
+    """
+    A mixin for common functionality between all OIDC providers, including
+    "pending" providers that don't correspond to an extant project yet.
+    """
 
+    # Each hierarchy of OIDC providers (both `OIDCProvider` and
+    # `PendingOIDCProvider`) use a `discriminator` column for model
+    # polymorphism, but the two are not mutually polymorphic at the DB level.
     discriminator = Column(String)
-    projects = orm.relationship(
-        Project,
-        secondary=OIDCProviderProjectAssociation.__table__,  # type: ignore
-        backref="oidc_providers",
-    )
-    macaroons = orm.relationship(
-        Macaroon, backref="oidc_provider", cascade="all, delete-orphan", lazy=True
-    )
-
-    __mapper_args__ = {
-        "polymorphic_identity": "oidc_providers",
-        "polymorphic_on": discriminator,
-    }
 
     # A map of claim names to "check" functions, each of which
     # has the signature `check(ground-truth, signed-claim, all-signed-claims) -> bool`.
@@ -161,28 +154,57 @@ class OIDCProvider(db.Model):
 
     @property
     def provider_name(self):  # pragma: no cover
-        # Only concrete subclasses of OIDCProvider are constructed.
+        # Only concrete subclasses are constructed.
         return NotImplemented
 
     @property
     def provider_url(self):  # pragma: no cover
-        # Only concrete subclasses of OIDCProvider are constructed.
+        # Only concrete subclasses are constructed.
         return NotImplemented
 
 
-class GitHubProvider(OIDCProvider):
-    __tablename__ = "github_oidc_providers"
-    __mapper_args__ = {"polymorphic_identity": "github_oidc_providers"}
-    __table_args__ = (
-        UniqueConstraint(
-            "repository_name",
-            "repository_owner",
-            "workflow_filename",
-            name="_github_oidc_provider_uc",
-        ),
+class OIDCProvider(OIDCProviderMixin, db.Model):
+    __tablename__ = "oidc_providers"
+
+    projects = orm.relationship(
+        Project,
+        secondary=OIDCProviderProjectAssociation.__table__,  # type: ignore
+        backref="oidc_providers",
+    )
+    macaroons = orm.relationship(
+        Macaroon, backref="oidc_provider", cascade="all, delete-orphan", lazy=True
     )
 
-    id = Column(UUID(as_uuid=True), ForeignKey(OIDCProvider.id), primary_key=True)
+    __mapper_args__ = {
+        "polymorphic_identity": "oidc_providers",
+        "polymorphic_on": OIDCProviderMixin.discriminator,
+    }
+
+
+class PendingOIDCProvider(OIDCProviderMixin, db.Model):
+    """
+    A "pending" OIDC provider, i.e. one that's been registered by a user
+    but doesn't correspond to an existing PyPI project yet.
+    """
+
+    __tablename__ = "pending_oidc_providers"
+
+    project_name = Column(String, nullable=False)
+    added_by_id = Column(
+        UUID(as_uuid=True), ForeignKey("users.id"), nullable=True, index=True
+    )
+
+    __mapper_args__ = {
+        "polymorphic_identity": "pending_oidc_providers",
+        "polymorphic_on": OIDCProviderMixin.discriminator,
+    }
+
+
+class GitHubProviderMixin:
+    """
+    Common functionality for both pending and concrete GitHub OIDC providers.
+    """
+
     repository_name = Column(String)
     repository_owner = Column(String)
     repository_owner_id = Column(String)
@@ -237,3 +259,35 @@ class GitHubProvider(OIDCProvider):
 
     def __str__(self):
         return f"{self.workflow_filename} @ {self.repository}"
+
+
+class GitHubProvider(GitHubProviderMixin, OIDCProvider):
+    __tablename__ = "github_oidc_providers"
+    __mapper_args__ = {"polymorphic_identity": "github_oidc_providers"}
+    __table_args__ = (
+        UniqueConstraint(
+            "repository_name",
+            "repository_owner",
+            "workflow_filename",
+            name="_github_oidc_provider_uc",
+        ),
+    )
+
+    id = Column(UUID(as_uuid=True), ForeignKey(OIDCProvider.id), primary_key=True)
+
+
+class PendingGitHubProvider(GitHubProviderMixin, PendingOIDCProvider):
+    __tablename__ = "pending_github_oidc_providers"
+    __mapper_args__ = {"polymorphic_identity": "pending_github_oidc_providers"}
+    __table_args__ = (
+        UniqueConstraint(
+            "repository_name",
+            "repository_owner",
+            "workflow_filename",
+            name="_pending_github_oidc_provider_uc",
+        ),
+    )
+
+    id = Column(
+        UUID(as_uuid=True), ForeignKey(PendingOIDCProvider.id), primary_key=True
+    )
