@@ -237,7 +237,9 @@ def add_prohibited_project_names(request):
         request.db.query(literal(True))
         .filter(
             request.db.query(ProhibitedProjectName)
-            .filter(ProhibitedProjectName.name == project_name)
+            .filter(
+                ProhibitedProjectName.name == func.normalize_pep426_name(project_name)
+            )
             .exists()
         )
         .scalar()
