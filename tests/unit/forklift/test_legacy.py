@@ -383,7 +383,7 @@ class TestValidation:
             legacy._validate_classifiers(form, field)
 
     @pytest.mark.parametrize(
-        "data", [(["Requires-Dist"]), (["Requires-Dist", "Requires-Python"])]
+        "data", [["Requires-Dist"], ["Requires-Dist", "Requires-Python"]]
     )
     def test_validate_dynamic_valid(self, db_request, data):
         form = pretend.stub()
@@ -391,7 +391,7 @@ class TestValidation:
 
         legacy._validate_dynamic(form, field)
 
-    @pytest.mark.parametrize("data", [(["Version"]), (["Name"]), (["Version", "Name"])])
+    @pytest.mark.parametrize("data", [["Version"], ["Name"], ["Version", "Name"]])
     def test_validate_dynamic_invalid(self, db_request, data):
         form = pretend.stub()
         field = pretend.stub(data=data)
@@ -399,9 +399,7 @@ class TestValidation:
         with pytest.raises(ValidationError):
             legacy._validate_dynamic(form, field)
 
-    @pytest.mark.parametrize(
-        "data", [(["dev"]), (["dev-test"])]
-    )
+    @pytest.mark.parametrize("data", [["dev"], ["dev-test"]])
     def test_validate_extras_valid(self, db_request, data):
         form = pretend.stub(
             provides_extra=pretend.stub(data=data),
@@ -411,7 +409,7 @@ class TestValidation:
 
         legacy._validate_extras(form, field)
 
-    @pytest.mark.parametrize("data", [(["dev_test"]), (["dev.lint", "dev--test"])])
+    @pytest.mark.parametrize("data", [["dev_test"], ["dev.lint", "dev--test"]])
     def test_validate_extras_invalid(self, db_request, data):
         form = pretend.stub(
             provides_extra=pretend.stub(data=data),
@@ -422,9 +420,7 @@ class TestValidation:
         with pytest.raises(ValidationError):
             legacy._validate_extras(form, field)
 
-    @pytest.mark.parametrize(
-        "data", [(["dev"]), (["dev-test"])]
-    )
+    @pytest.mark.parametrize("data", [["dev"], ["dev-test"]])
     def test_validate_extras_valid_2_2(self, db_request, data):
         form = pretend.stub(
             provides_extra=pretend.stub(data=data),
@@ -434,7 +430,7 @@ class TestValidation:
 
         legacy._validate_extras(form, field)
 
-    @pytest.mark.parametrize("data", [(["dev_test"]), (["dev.lint", "dev--test"])])
+    @pytest.mark.parametrize("data", [["dev_test"], ["dev.lint", "dev--test"]])
     def test_validate_extras_invalid_2_2(self, db_request, data):
 
         form = pretend.stub(
