@@ -1,12 +1,13 @@
 # 王玎珰 <1330274738@qq.com>, 2022.
 # Harvey Li <harvey.li@beaconos.org>, 2022.
+# 快乐的老鼠宝宝 <keaitianxinmail@qq.com>, 2022.
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: admin@pypi.org\n"
 "POT-Creation-Date: 2022-06-18 14:57+0200\n"
-"PO-Revision-Date: 2022-10-03 19:26+0000\n"
-"Last-Translator: Harvey Li <harvey.li@beaconos.org>\n"
+"PO-Revision-Date: 2022-11-25 22:47+0000\n"
+"Last-Translator: 快乐的老鼠宝宝 <keaitianxinmail@qq.com>\n"
 "Language-Team: Chinese (Literary) <https://hosted.weblate.org/projects/pypa/"
 "warehouse/lzh/>\n"
 "Language: lzh\n"
@@ -14,7 +15,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Generator: Weblate 4.14.1\n"
+"X-Generator: Weblate 4.15-dev\n"
 
 #: warehouse/views.py:125
 msgid ""
@@ -40,7 +41,7 @@ msgstr "TOTP码需持${totp_length}位。"
 
 #: warehouse/accounts/forms.py:90
 msgid "Recovery Codes must be ${recovery_code_length} characters."
-msgstr ""
+msgstr "归码需以${Recovery_code_lenth}方符"
 
 #: warehouse/accounts/forms.py:105
 msgid "Choose a username with 50 characters or less."
@@ -3330,10 +3331,8 @@ msgid ""
 msgstr ""
 
 #: warehouse/templates/manage/manage_base.html:126
-#, fuzzy
-#| msgid "Invalid recovery code."
 msgid "Generate recovery codes"
-msgstr "归码无效。"
+msgstr "生归码"
 
 #: warehouse/templates/manage/manage_base.html:135
 msgid ""
