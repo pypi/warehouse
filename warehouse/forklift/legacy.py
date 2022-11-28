@@ -426,9 +426,9 @@ _extra_name_re = re.compile("^([a-z0-9]|[a-z0-9]([a-z0-9-](?!--))*[a-z0-9])$")
 def _validate_extras(form, field):
 
     # TODO: is metadata_version guaranteed to be valid by this point?
-    metadata_version = float(form.metadata_version.data)
+    metadata_version = packaging.version.Version(form.metadata_version.data)
 
-    if metadata_version >= 2.3:
+    if metadata_version >= packaging.version.Version("2.3"):
         extra_names = field.data or []
 
         invalid = []
