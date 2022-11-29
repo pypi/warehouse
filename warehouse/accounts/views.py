@@ -24,7 +24,7 @@ from pyramid.httpexceptions import (
     HTTPTooManyRequests,
 )
 from pyramid.security import forget, remember
-from pyramid.view import view_config
+from pyramid.view import view_config, view_defaults
 from sqlalchemy.orm.exc import NoResultFound
 from webauthn.helpers import bytes_to_base64url
 
@@ -1288,3 +1288,25 @@ def reauthenticate(request, _form_class=ReAuthenticateForm):
         )
 
     return resp
+
+@view_defaults(
+    route_name="manage.account.publishing",
+    renderer="manage/account/publishing.html",
+    uses_session=True,
+    require_csrf=True,
+    require_methods=False,
+    permission="manage:user",
+    has_translations=True,
+    require_reauth=True,
+)
+class ManageAccountPublishingViews:
+    def __init__(self, request):
+        self.request = request
+
+    @property
+    def default_response(self):
+        return {}
+
+    @view_config(request_method="GET")
+    def manage_publishing(self):
+        return self.default_response
