@@ -191,6 +191,28 @@ class User(SitemapMixin, HasEvents, db.Model):
             ]
         )
 
+    @property
+    def can_register_pending_oidc_providers(self):
+        if self.is_superuser or self.is_moderator or self.is_psf_staff:
+            # Special users (superusers, moderators, PSF staff) can always
+            # register pending OIDC providers.
+            return True
+
+        # Ordinary users can register pending OIDC providers under the following
+        # conditions:
+        #  * Must have a verified primary email
+        #  * Must have 2FA enabled
+        #  * Must be at least 90 days old
+        # We don't place any restrictions on how many pending OIDC providers
+        # an acceptable user may register, since actual project creation
+        # is done on a "TOFU-like" basis, just like normal project creation.
+        ninety_days_ago = datetime.datetime.now() - datetime.timedelta(days=90)
+        return (
+            self.has_primary_verified_email
+            and self.has_two_factor
+            and self.date_joined <= ninety_days_ago
+        )
+
     def __acl__(self):
         return [
             (Allow, "group:admins", "admin"),
