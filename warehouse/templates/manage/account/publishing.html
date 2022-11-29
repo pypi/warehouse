@@ -14,15 +14,15 @@
 {% extends "manage/manage_base.html" %}
 
 {% set user = request.user %}
-{% set title = gettext("OpenID Connect publisher management") %}
 
 {% set active_tab = 'publishing' %}
 
 {% block title %}
-  {{ title }}
+  {{ oidc_title() }}
 {% endblock %}
 
 {% block main %}
-  <h1 class="page-title">{{ title }}</h1>
+  <h1 class="page-title">{{ oidc_title() }}</h1>
 
+  {{ oidc_desc() }}
 {% endblock %}

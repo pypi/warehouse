@@ -455,3 +455,43 @@
   </ul>
   {% endif %}
 {% endmacro %}
+
+{% macro oidc_title() %}
+  {% trans %}OpenID Connect Publisher Management{% endtrans %}
+{% endmacro %}
+
+{% macro oidc_desc() %}
+  <p>
+    {% trans %}
+      OpenID Connect provides a flexible, credential-free mechanism for delegating
+      publishing authority for a PyPI package to a third party service,
+      like GitHub Actions.
+    {% endtrans %}
+  </p>
+
+  <p class="no-bottom-padding">
+    {% trans %}
+      PyPI projects can use trusted OpenID Connect publishers to automate their release
+      processes, without having to explicitly provision or manage API tokens.
+    {% endtrans %}
+  </p>
+{% endmacro %}
+
+{% macro oidc_provider_row(provider) -%}
+<form id="delete-provider-{{ provider.id }}" method="POST" action="{{ request.route_path('manage.project.settings.publishing', project_name=project.name) }}">
+  <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
+  <input name="provider_id" type="hidden" value="{{ provider.id }}">
+</form>
+
+<tr>
+  <td scope="row">
+    {{ provider.provider_name }}
+  </td>
+  <td scope="row">
+    <a href="{{ provider.provider_url }}">{{ provider.provider_url }}</a>
+  </td>
+  <td scope="row">
+    <input form="delete-provider-{{ provider.id }}" type="submit" value="{% trans %}Remove{% endtrans %}" class="button button--danger">
+  </td>
+</tr>
+{%- endmacro %}
