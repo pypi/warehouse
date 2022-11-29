@@ -17,11 +17,10 @@ import wtforms.fields
 import wtforms.validators
 
 from paginate_sqlalchemy import SqlalchemyOrmPage as SQLAlchemyORMPage
-from pyramid.httpexceptions import HTTPBadRequest, HTTPNotFound, HTTPSeeOther
+from pyramid.httpexceptions import HTTPBadRequest, HTTPMovedPermanently, HTTPSeeOther
 from pyramid.view import view_config
 from sqlalchemy import literal, or_, select
 from sqlalchemy.orm import joinedload
-from sqlalchemy.orm.exc import NoResultFound
 
 from warehouse import forms
 from warehouse.accounts.interfaces import IUserService
@@ -123,14 +122,11 @@ class UserForm(forms.Form):
     uses_session=True,
     require_csrf=True,
     require_methods=False,
+    context=User,
 )
-def user_detail(request):
-    try:
-        user = (
-            request.db.query(User).filter(User.id == request.matchdict["user_id"]).one()
-        )
-    except NoResultFound:
-        raise HTTPNotFound
+def user_detail(user, request):
+    if user.username != request.matchdict.get("username", user.username):
+        return HTTPMovedPermanently(request.current_route_path(username=user.username))
 
     roles = (
         request.db.query(Role)
@@ -156,9 +152,12 @@ def user_detail(request):
     permission="admin",
     uses_session=True,
     require_csrf=True,
+    context=User,
 )
-def user_add_email(request):
-    user = request.db.query(User).get(request.matchdict["user_id"])
+def user_add_email(user, request):
+    if user.username != request.matchdict.get("username", user.username):
+        return HTTPMovedPermanently(request.current_route_path(username=user.username))
+
     form = EmailForm(request.POST)
 
     if form.validate():
@@ -179,7 +178,7 @@ def user_add_email(request):
             f"Added email for user {user.username!r}", queue="success"
         )
 
-    return HTTPSeeOther(request.route_path("admin.user.detail", user_id=user.id))
+    return HTTPSeeOther(request.route_path("admin.user.detail", username=user.username))
 
 
 def _nuke_user(user, request):
@@ -238,13 +237,17 @@ def _nuke_user(user, request):
     permission="admin",
     uses_session=True,
     require_csrf=True,
+    context=User,
 )
-def user_delete(request):
-    user = request.db.query(User).get(request.matchdict["user_id"])
+def user_delete(user, request):
+    if user.username != request.matchdict.get("username", user.username):
+        return HTTPMovedPermanently(request.current_route_path(username=user.username))
 
     if user.username != request.params.get("username"):
         request.session.flash("Wrong confirmation input", queue="error")
-        return HTTPSeeOther(request.route_path("admin.user.detail", user_id=user.id))
+        return HTTPSeeOther(
+            request.route_path("admin.user.detail", username=user.username)
+        )
 
     _nuke_user(user, request)
 
@@ -259,20 +262,24 @@ def user_delete(request):
     has_translations=True,
     uses_session=True,
     require_csrf=True,
+    context=User,
 )
-def user_reset_password(request):
-    user = request.db.query(User).get(request.matchdict["user_id"])
+def user_reset_password(user, request):
+    if user.username != request.matchdict.get("username", user.username):
+        return HTTPMovedPermanently(request.current_route_path(username=user.username))
 
     if user.username != request.params.get("username"):
         request.session.flash("Wrong confirmation input", queue="error")
-        return HTTPSeeOther(request.route_path("admin.user.detail", user_id=user.id))
+        return HTTPSeeOther(
+            request.route_path("admin.user.detail", username=user.username)
+        )
 
     login_service = request.find_service(IUserService, context=None)
     send_password_compromised_email(request, user)
     login_service.disable_password(user.id, reason=DisableReason.CompromisedPassword)
 
     request.session.flash(f"Reset password for {user.username!r}", queue="success")
-    return HTTPSeeOther(request.route_path("admin.user.detail", user_id=user.id))
+    return HTTPSeeOther(request.route_path("admin.user.detail", username=user.username))
 
 
 @view_config(
