@@ -50,7 +50,7 @@
                 <ul>
                   {% for role in existing.roles %}
                   <li>
-                    <a href="{{ request.route_path('admin.user.detail', user_id=role.user.id) }}">
+                    <a href="{{ request.route_path('admin.user.detail', username=role.user.username) }}">
                       {{ role.user.username }}
                     </a>
                     <em>({{ role.role_name }})</em>

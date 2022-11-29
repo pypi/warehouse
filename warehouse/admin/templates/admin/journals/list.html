@@ -52,7 +52,7 @@
         <td><a href="{{ request.route_path('admin.project.detail', project_name=journal.name) }}">{{ journal.name }}</a></td>
         <td>{{ journal.version }}</td>
         <td>{{ journal.submitted_date }}</td>
-        <td><a href="{{ request.route_path('admin.user.detail', user_id=journal.submitted_by.id) }}">{{ journal.submitted_by.username }}</a></td>
+        <td><a href="{{ request.route_path('admin.user.detail', username=journal.submitted_by.username) }}">{{ journal.submitted_by.username }}</a></td>
         <td>
           {% if journal.submitted_from %}
           <a href="{{ request.route_path('admin.journals.list', _query={'q': 'ip:' + journal.submitted_from}) }}">
