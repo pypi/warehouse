@@ -1289,6 +1289,7 @@ def reauthenticate(request, _form_class=ReAuthenticateForm):
 
     return resp
 
+
 @view_defaults(
     route_name="manage.account.publishing",
     renderer="manage/account/publishing.html",

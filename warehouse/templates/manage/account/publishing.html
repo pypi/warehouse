@@ -25,4 +25,26 @@
   <h1 class="page-title">{{ oidc_title() }}</h1>
 
   {{ oidc_desc() }}
+
+  <h2>{% trans %}Add a new pending provider{% endtrans %}</h2>
+
+  <p>
+    {% trans %}
+    You can use this page to register "pending" OpenID Connect providers.
+    {% endtrans %}
+  </p>
+
+  <p class="no-bottom-padding">
+    {% trans %}
+    These providers behave similarly to OpenID Connect providers registered
+    against specific projects, except that they allow users to <strong>create</strong>
+    the project if it doesn't already exist. Once the project is created,
+    the "pending" provider becomes an ordinary OpenID Connect provider.
+    You can read more about "pending" and ordinary OpenID Connect providers
+    here.
+    {% endtrans %}
+  </p>
+
+  <h3>GitHub</h3>
+
 {% endblock %}
