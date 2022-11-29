@@ -19,13 +19,14 @@
 # Kevin Wong <wdd1330274738@gmail.com>, 2022.
 # Cryptex <alvinsze837@gmail.com>, 2022.
 # Yuuka <flamango760717@163.com>, 2022.
+# 快乐的老鼠宝宝 <keaitianxinmail@qq.com>, 2022.
 msgid ""
 msgstr ""
 "Project-Id-Version: Warehouse VERSION\n"
 "Report-Msgid-Bugs-To: admin@pypi.org\n"
 "POT-Creation-Date: 2020-01-15 20:11+0200\n"
-"PO-Revision-Date: 2022-07-29 14:59+0000\n"
-"Last-Translator: meowmeowmeowcat <meowmeowcat1211@gmail.com>\n"
+"PO-Revision-Date: 2022-11-25 22:47+0000\n"
+"Last-Translator: 快乐的老鼠宝宝 <keaitianxinmail@qq.com>\n"
 "Language-Team: Chinese (Traditional) <https://hosted.weblate.org/projects/"
 "pypa/warehouse/zh_Hant/>\n"
 "Language: zh_Hant\n"
@@ -33,7 +34,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Generator: Weblate 4.14-dev\n"
+"X-Generator: Weblate 4.15-dev\n"
 "Generated-By: Babel 2.7.0\n"
 
 #: warehouse/views.py:125
@@ -1435,20 +1436,11 @@ msgid "Confirm Organization Invite"
 msgstr "確認邀請"
 
 #: warehouse/templates/accounts/organization-invite-confirmation.html:26
-#, fuzzy, python-format
-#| msgid ""
-#| "\n"
-#| "      Would you like to accept this invitation to join '<a href="
-#| "\"%(project_link)s\">%(project_name)s</a>' as a project %(role_name)s?\n"
-#| "      "
+#, python-format
 msgid ""
 "Would you like to accept this invitation to join '%(organization_name)s' as "
 "an organization %(role_name)s?"
-msgstr ""
-"\n"
-"      您是否願意接受此邀請以項目 %(role_name)s 的身份加入“<a href="
-"\"%(project_link)s\">%(project_name)s</a>”？\n"
-"      "
+msgstr "您是否願意接受此邀請以 %(role_name)s 的身份加入“%(organization_name)s”？"
 
 #: warehouse/templates/accounts/profile.html:16
 #, python-format
@@ -1475,11 +1467,10 @@ msgid "Joined %(start_date)s"
 msgstr "於 %(start_date)s 加入"
 
 #: warehouse/templates/accounts/profile.html:67
-#, fuzzy, python-format
-#| msgid "Your projects"
+#, python-format
 msgid "%(count)s project"
 msgid_plural "%(count)s projects"
-msgstr[0] "你的專案"
+msgstr[0] "%(count)s 專案"
 
 #: warehouse/templates/accounts/profile.html:73
 msgid "No projects"
@@ -1716,8 +1707,9 @@ msgid ""
 "you lose access to your two factor methods, you may lose access to your "
 "account. <a href=\"%(href)s\">Get help with recovery codes.</a></p>"
 msgstr ""
-"你沒有生成帳號找回代碼。如果你失去兩個方式的訪問渠道，那麽你可能失去訪問自己"
-"帳號的途徑。以(找回代碼)獲取幫助"
+"<p><strong>你沒有生成帳號找回代碼。</strong></p><p>如果你失去兩個方式的訪問渠"
+"道，那麽你可能失去訪問自己帳號的途徑。<a href=\"%(href)s\""
+">以找回代碼獲取幫助</a></p>"
 
 #: warehouse/templates/email/account-deleted/body.html:18
 #, python-format
@@ -1777,16 +1769,13 @@ msgid "You are receiving this because you are a member of this organization."
 msgstr "你不是此專案的擁有者"
 
 #: warehouse/templates/email/added-as-team-collaborator/body.html:20
-#, fuzzy, python-format
-#| msgid ""
-#| "You have been added as <strong>%(role)s</strong> to the %(site)s project "
-#| "%(project_name)s by %(initiator_username)s."
+#, python-format
 msgid ""
 "Your team has been added with <strong>%(role)s</strong> permissions to the "
 "%(site)s project %(project)s by %(submitter)s."
 msgstr ""
-"您已被 %(initiator_username)s 添加為 <strong>%(role)s</strong> 到 %(site)s 項"
-"目 %(project_name)s。"
+"您的团队已被 %(submitter)s 带有 <strong>%(role)s</strong> 添加到 %(site)s "
+"的項目 %(project)s 中。"
 
 #: warehouse/templates/email/added-as-team-collaborator/body.html:26
 #, fuzzy, python-format
