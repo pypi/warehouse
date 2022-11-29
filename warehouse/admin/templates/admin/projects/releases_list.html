@@ -55,7 +55,7 @@
         <td>{{ release.yanked }}</td>
         <td>
           {% if release.uploader %}
-          <a href="{{ request.route_path('admin.user.detail', user_id=release.uploader.id) }}">{{ release.uploader.username }}</a>
+          <a href="{{ request.route_path('admin.user.detail', username=release.uploader.username) }}">{{ release.uploader.username }}</a>
           {% endif %}
         </td>
         <td>{{ release.author_email }}</td>
