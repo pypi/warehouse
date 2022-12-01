@@ -132,6 +132,7 @@ class TestFallbackInternationalizationExtension:
         [
             ("Youzer: %(user)s", "Youzer: monty"),
             ("Youzer: %(missing)s", "User: monty"),
+            ("Youzer: %（user）", "User: monty"),
         ],
     )
     def test_gettext_fallback(self, translation, expected):
@@ -183,6 +184,18 @@ class TestFallbackInternationalizationExtension:
             (
                 "%(missing)s Youzer online",
                 "%(missing)s Youzers online",
+                2,
+                "2 Users online",
+            ),
+            (
+                "%（user_num）s Youzer online",
+                "%（user_num）s Youzers online",
+                1,
+                "1 User online",
+            ),
+            (
+                "%（user_num）s Youzer online",
+                "%（user_num）s Youzers online",
                 2,
                 "2 Users online",
             ),
