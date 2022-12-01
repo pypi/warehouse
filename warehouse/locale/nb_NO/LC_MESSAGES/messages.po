@@ -645,8 +645,8 @@ msgstr ""
 #: warehouse/templates/manage/project/release.html:194
 #: warehouse/templates/manage/project/releases.html:140
 #: warehouse/templates/manage/project/releases.html:179
-#: warehouse/templates/packaging/detail.html:350
-#: warehouse/templates/packaging/detail.html:369
+#: warehouse/templates/packaging/detail.html:352
+#: warehouse/templates/packaging/detail.html:371
 #: warehouse/templates/pages/classifiers.html:25
 #: warehouse/templates/pages/help.html:20
 #: warehouse/templates/pages/help.html:212
@@ -2716,7 +2716,7 @@ msgstr ""
 #: warehouse/templates/manage/account.html:206
 #: warehouse/templates/manage/account/recovery_codes-provision.html:57
 #: warehouse/templates/manage/account/totp-provision.html:57
-#: warehouse/templates/packaging/detail.html:150
+#: warehouse/templates/packaging/detail.html:152
 #: warehouse/templates/pages/classifiers.html:38
 msgid "Copy to clipboard"
 msgstr "Kopier til utklippstavle"
@@ -6327,140 +6327,140 @@ msgstr ""
 msgid "Team Name"
 msgstr "Navn"
 
-#: warehouse/templates/packaging/detail.html:106
+#: warehouse/templates/packaging/detail.html:108
 #, fuzzy
 #| msgid "View Hashes"
 msgid "view hashes"
 msgstr "Vis sjekksummer"
 
-#: warehouse/templates/packaging/detail.html:126
+#: warehouse/templates/packaging/detail.html:128
 #, fuzzy, python-format
 #| msgid "Create a token for %(project_name)s"
 msgid "RSS: latest releases for %(project_name)s"
 msgstr "Opprett symbol for %(project_name)s"
 
-#: warehouse/templates/packaging/detail.html:152
+#: warehouse/templates/packaging/detail.html:154
 msgid "Copy PIP instructions"
 msgstr ""
 
-#: warehouse/templates/packaging/detail.html:162
+#: warehouse/templates/packaging/detail.html:164
 msgid "This release has been yanked"
 msgstr ""
 
-#: warehouse/templates/packaging/detail.html:168
+#: warehouse/templates/packaging/detail.html:170
 #, python-format
 msgid "Stable version available (%(version)s)"
 msgstr ""
 
-#: warehouse/templates/packaging/detail.html:172
+#: warehouse/templates/packaging/detail.html:174
 #, python-format
 msgid "Newer version available (%(version)s)"
 msgstr ""
 
-#: warehouse/templates/packaging/detail.html:176
+#: warehouse/templates/packaging/detail.html:178
 #, fuzzy
 #| msgid "Manage version"
 msgid "Latest version"
 msgstr "Håndter versjon"
 
-#: warehouse/templates/packaging/detail.html:181
+#: warehouse/templates/packaging/detail.html:183
 #, python-format
 msgid "Released: %(release_date)s"
 msgstr ""
 
-#: warehouse/templates/packaging/detail.html:193
+#: warehouse/templates/packaging/detail.html:195
 msgid "No project description provided"
 msgstr ""
 
-#: warehouse/templates/packaging/detail.html:206
+#: warehouse/templates/packaging/detail.html:208
 #, fuzzy
 #| msgid "Main navigation"
 msgid "Navigation"
 msgstr "Hovednavigasjon"
 
-#: warehouse/templates/packaging/detail.html:207
-#: warehouse/templates/packaging/detail.html:238
+#: warehouse/templates/packaging/detail.html:209
+#: warehouse/templates/packaging/detail.html:240
 #, python-format
 msgid "Navigation for %(project)s"
 msgstr "Navigasjon for %(project)s"
 
-#: warehouse/templates/packaging/detail.html:210
-#: warehouse/templates/packaging/detail.html:241
+#: warehouse/templates/packaging/detail.html:212
+#: warehouse/templates/packaging/detail.html:243
 msgid "Project description. Focus will be moved to the description."
 msgstr ""
 
-#: warehouse/templates/packaging/detail.html:212
-#: warehouse/templates/packaging/detail.html:243
-#: warehouse/templates/packaging/detail.html:271
+#: warehouse/templates/packaging/detail.html:214
+#: warehouse/templates/packaging/detail.html:245
+#: warehouse/templates/packaging/detail.html:273
 #, fuzzy
 #| msgid "Project documentation"
 msgid "Project description"
 msgstr "Prosjektdokumentasjon"
 
-#: warehouse/templates/packaging/detail.html:216
-#: warehouse/templates/packaging/detail.html:253
+#: warehouse/templates/packaging/detail.html:218
+#: warehouse/templates/packaging/detail.html:255
 msgid "Release history. Focus will be moved to the history panel."
 msgstr ""
 
-#: warehouse/templates/packaging/detail.html:218
-#: warehouse/templates/packaging/detail.html:255
-#: warehouse/templates/packaging/detail.html:293
+#: warehouse/templates/packaging/detail.html:220
+#: warehouse/templates/packaging/detail.html:257
+#: warehouse/templates/packaging/detail.html:295
 msgid "Release history"
-msgstr ""
-
-#: warehouse/templates/packaging/detail.html:223
-#: warehouse/templates/packaging/detail.html:260
-msgid "Download files. Focus will be moved to the project files."
 msgstr ""
 
 #: warehouse/templates/packaging/detail.html:225
 #: warehouse/templates/packaging/detail.html:262
-#: warehouse/templates/packaging/detail.html:349
+msgid "Download files. Focus will be moved to the project files."
+msgstr ""
+
+#: warehouse/templates/packaging/detail.html:227
+#: warehouse/templates/packaging/detail.html:264
+#: warehouse/templates/packaging/detail.html:351
 #, fuzzy
 #| msgid "Download file"
 msgid "Download files"
 msgstr "Last ned fil"
 
-#: warehouse/templates/packaging/detail.html:247
+#: warehouse/templates/packaging/detail.html:249
 msgid "Project details. Focus will be moved to the project details."
 msgstr ""
 
-#: warehouse/templates/packaging/detail.html:249
-#: warehouse/templates/packaging/detail.html:285
+#: warehouse/templates/packaging/detail.html:251
+#: warehouse/templates/packaging/detail.html:287
 #, fuzzy
 #| msgid "Project settings"
 msgid "Project details"
 msgstr "Prosjektinnstillinger"
 
-#: warehouse/templates/packaging/detail.html:278
+#: warehouse/templates/packaging/detail.html:280
 msgid "The author of this package has not provided a project description"
 msgstr ""
 
-#: warehouse/templates/packaging/detail.html:295
+#: warehouse/templates/packaging/detail.html:297
 #, fuzzy
 #| msgid "Dismiss this notification"
 msgid "Release notifications"
 msgstr "Forkast denne merknaden"
 
-#: warehouse/templates/packaging/detail.html:296
+#: warehouse/templates/packaging/detail.html:298
 msgid "RSS feed"
 msgstr ""
 
-#: warehouse/templates/packaging/detail.html:308
+#: warehouse/templates/packaging/detail.html:310
 #, fuzzy
 #| msgid "Python version"
 msgid "This version"
 msgstr "Python-versjon"
 
-#: warehouse/templates/packaging/detail.html:328
+#: warehouse/templates/packaging/detail.html:330
 msgid "pre-release"
 msgstr ""
 
-#: warehouse/templates/packaging/detail.html:333
+#: warehouse/templates/packaging/detail.html:335
 msgid "yanked"
 msgstr ""
 
-#: warehouse/templates/packaging/detail.html:350
+#: warehouse/templates/packaging/detail.html:352
 #, python-format
 msgid ""
 "Download the file for your platform. If you're not sure which to choose, "
@@ -6468,17 +6468,17 @@ msgid ""
 "rel=\"noopener\">installing packages</a>."
 msgstr ""
 
-#: warehouse/templates/packaging/detail.html:352
+#: warehouse/templates/packaging/detail.html:354
 msgid "Source Distribution"
 msgid_plural "Source Distributions"
 msgstr[0] ""
 msgstr[1] ""
 
-#: warehouse/templates/packaging/detail.html:368
+#: warehouse/templates/packaging/detail.html:370
 msgid "No source distribution files available for this release."
 msgstr ""
 
-#: warehouse/templates/packaging/detail.html:369
+#: warehouse/templates/packaging/detail.html:371
 #, fuzzy, python-format
 #| msgid ""
 #| "For US taxpayers, <a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank"
@@ -6491,7 +6491,7 @@ msgstr ""
 "target=\"_blank\" rel=\"noopener\">er donasjonen din "
 "skattefradragsberettighet</a>."
 
-#: warehouse/templates/packaging/detail.html:376
+#: warehouse/templates/packaging/detail.html:378
 msgid "Built Distribution"
 msgid_plural "Built Distributions"
 msgstr[0] ""
