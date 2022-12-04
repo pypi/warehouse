@@ -45,19 +45,33 @@ def test_includeme():
             domain=warehouse,
         ),
         pretend.call("admin.user.list", "/admin/users/", domain=warehouse),
-        pretend.call("admin.user.detail", "/admin/users/{user_id}/", domain=warehouse),
         pretend.call(
-            "admin.user.add_email",
-            "/admin/users/{user_id}/add_email/",
+            "admin.user.detail",
+            "/admin/users/{username}/",
             domain=warehouse,
+            factory="warehouse.accounts.models:UserFactory",
+            traverse="/{username}",
         ),
         pretend.call(
-            "admin.user.delete", "/admin/users/{user_id}/delete/", domain=warehouse
+            "admin.user.add_email",
+            "/admin/users/{username}/add_email/",
+            domain=warehouse,
+            factory="warehouse.accounts.models:UserFactory",
+            traverse="/{username}",
+        ),
+        pretend.call(
+            "admin.user.delete",
+            "/admin/users/{username}/delete/",
+            domain=warehouse,
+            factory="warehouse.accounts.models:UserFactory",
+            traverse="/{username}",
         ),
         pretend.call(
             "admin.user.reset_password",
-            "/admin/users/{user_id}/reset_password/",
+            "/admin/users/{username}/reset_password/",
             domain=warehouse,
+            factory="warehouse.accounts.models:UserFactory",
+            traverse="/{username}",
         ),
         pretend.call(
             "admin.prohibited_user_names.bulk_add",

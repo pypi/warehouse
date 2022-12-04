@@ -11,6 +11,7 @@
 # limitations under the License.
 
 import datetime
+import uuid
 
 import pymacaroons
 
@@ -52,6 +53,11 @@ class DatabaseMacaroonService:
         Returns a macaroon model from the DB by its identifier.
         Returns None if no macaroon has the given ID.
         """
+        try:
+            uuid.UUID(macaroon_id)
+        except ValueError:
+            return None
+
         return self.db.get(
             Macaroon, macaroon_id, (joinedload("user"), joinedload("oidc_provider"))
         )

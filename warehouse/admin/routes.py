@@ -42,17 +42,33 @@ def includeme(config):
 
     # User related Admin pages
     config.add_route("admin.user.list", "/admin/users/", domain=warehouse)
-    config.add_route("admin.user.detail", "/admin/users/{user_id}/", domain=warehouse)
     config.add_route(
-        "admin.user.add_email", "/admin/users/{user_id}/add_email/", domain=warehouse
+        "admin.user.detail",
+        "/admin/users/{username}/",
+        domain=warehouse,
+        factory="warehouse.accounts.models:UserFactory",
+        traverse="/{username}",
     )
     config.add_route(
-        "admin.user.delete", "/admin/users/{user_id}/delete/", domain=warehouse
+        "admin.user.add_email",
+        "/admin/users/{username}/add_email/",
+        domain=warehouse,
+        factory="warehouse.accounts.models:UserFactory",
+        traverse="/{username}",
+    )
+    config.add_route(
+        "admin.user.delete",
+        "/admin/users/{username}/delete/",
+        domain=warehouse,
+        factory="warehouse.accounts.models:UserFactory",
+        traverse="/{username}",
     )
     config.add_route(
         "admin.user.reset_password",
-        "/admin/users/{user_id}/reset_password/",
+        "/admin/users/{username}/reset_password/",
         domain=warehouse,
+        factory="warehouse.accounts.models:UserFactory",
+        traverse="/{username}",
     )
     config.add_route(
         "admin.prohibited_user_names.bulk_add",

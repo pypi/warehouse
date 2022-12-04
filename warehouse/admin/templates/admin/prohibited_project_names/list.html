@@ -51,7 +51,7 @@
         <td>{{ prohibited_project_name.name }}</td>
         <td>
           {% if prohibited_project_name.prohibited_by %}
-            <a href="{{ request.route_path('admin.user.detail', user_id=prohibited_project_name.prohibited_by.id) }}">
+            <a href="{{ request.route_path('admin.user.detail', username=prohibited_project_name.prohibited_by.username) }}">
               {{ prohibited_project_name.prohibited_by.username }}
             </a>
           {% endif %}

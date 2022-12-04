@@ -173,13 +173,22 @@ class TestAddProhibitedProjectName:
         assert result.status_code == 303
         assert result.headers["Location"] == "/foo/bar/"
 
-    def test_already_existing_prohibited_project_names(self, db_request):
-        prohibited_project_name = ProhibitedProjectFactory.create()
+    @pytest.mark.parametrize(
+        "project_name, prohibit_name",
+        [
+            ("foobar", "foobar"),
+            ("FoObAr", "fOoBaR"),
+        ],
+    )
+    def test_already_existing_prohibited_project_names(
+        self, db_request, project_name, prohibit_name
+    ):
+        ProhibitedProjectFactory.create(name=project_name)
 
         db_request.db.expire_all()
         db_request.user = UserFactory.create()
-        db_request.POST["project"] = prohibited_project_name.name
-        db_request.POST["confirm"] = prohibited_project_name.name
+        db_request.POST["project"] = prohibit_name
+        db_request.POST["confirm"] = prohibit_name
         db_request.POST["comment"] = "This is a comment"
         db_request.session = pretend.stub(
             flash=pretend.call_recorder(lambda *a, **kw: None)
@@ -190,7 +199,7 @@ class TestAddProhibitedProjectName:
 
         assert db_request.session.flash.calls == [
             pretend.call(
-                f"{prohibited_project_name.name!r} has already been prohibited.",
+                f"{prohibit_name!r} has already been prohibited.",
                 queue="error",
             )
         ]
