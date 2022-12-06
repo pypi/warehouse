@@ -10,12 +10,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import uuid
-
 import pretend
 import pytest
 
-from pyramid.httpexceptions import HTTPBadRequest, HTTPNotFound
+from pyramid.httpexceptions import HTTPBadRequest, HTTPMovedPermanently
 from sqlalchemy.orm import joinedload
 from webob.multidict import MultiDict, NoVars
 
@@ -108,24 +106,14 @@ class TestUserList:
 
 
 class TestUserDetail:
-    def test_404s_on_nonexistent_user(self, db_request):
-        user = UserFactory.create()
-        user_id = uuid.uuid4()
-        while user.id == user_id:
-            user_id = uuid.uuid4()
-        db_request.matchdict["user_id"] = str(user_id)
-
-        with pytest.raises(HTTPNotFound):
-            views.user_detail(db_request)
-
     def test_gets_user(self, db_request):
         email = EmailFactory.create(primary=True)
         user = UserFactory.create(emails=[email])
         project = ProjectFactory.create()
         roles = sorted([RoleFactory(project=project, user=user, role_name="Owner")])
-        db_request.matchdict["user_id"] = str(user.id)
+        db_request.matchdict["username"] = str(user.username)
         db_request.POST = NoVars()
-        result = views.user_detail(db_request)
+        result = views.user_detail(user, db_request)
 
         assert result["user"] == user
         assert result["roles"] == roles
@@ -133,24 +121,24 @@ class TestUserDetail:
 
     def test_updates_user(self, db_request):
         user = UserFactory.create()
-        db_request.matchdict["user_id"] = str(user.id)
+        db_request.matchdict["username"] = str(user.username)
         db_request.method = "POST"
         db_request.POST["name"] = "Jane Doe"
         db_request.POST = MultiDict(db_request.POST)
         db_request.current_route_path = pretend.call_recorder(
-            lambda: "/admin/users/{}/".format(user.id)
+            lambda: "/admin/users/{}/".format(user.username)
         )
 
-        resp = views.user_detail(db_request)
+        resp = views.user_detail(user, db_request)
 
         assert resp.status_code == 303
-        assert resp.location == "/admin/users/{}/".format(user.id)
+        assert resp.location == "/admin/users/{}/".format(user.username)
         assert user.name == "Jane Doe"
 
     def test_updates_user_no_primary_email(self, db_request):
         email = EmailFactory.create(primary=True)
         user = UserFactory.create(emails=[email])
-        db_request.matchdict["user_id"] = str(user.id)
+        db_request.matchdict["username"] = str(user.username)
         db_request.method = "POST"
         db_request.POST["name"] = "Jane Doe"
         db_request.POST["emails-0-email"] = email.email
@@ -158,10 +146,10 @@ class TestUserDetail:
 
         db_request.POST = MultiDict(db_request.POST)
         db_request.current_route_path = pretend.call_recorder(
-            lambda: "/admin/users/{}/".format(user.id)
+            lambda: "/admin/users/{}/".format(user.username)
         )
 
-        resp = views.user_detail(db_request)
+        resp = views.user_detail(user, db_request)
 
         assert resp["form"].errors == {
             "emails": ["There must be exactly one primary email"]
@@ -171,7 +159,7 @@ class TestUserDetail:
         email1 = EmailFactory.create(primary=True)
         email2 = EmailFactory.create(primary=True)
         user = UserFactory.create(emails=[email1, email2])
-        db_request.matchdict["user_id"] = str(user.id)
+        db_request.matchdict["username"] = str(user.username)
         db_request.method = "POST"
         db_request.POST["name"] = "Jane Doe"
         db_request.POST["emails-0-email"] = email1.email
@@ -182,36 +170,51 @@ class TestUserDetail:
 
         db_request.POST = MultiDict(db_request.POST)
         db_request.current_route_path = pretend.call_recorder(
-            lambda: "/admin/users/{}/".format(user.id)
+            lambda: "/admin/users/{}/".format(user.username)
         )
 
-        resp = views.user_detail(db_request)
+        resp = views.user_detail(user, db_request)
 
         assert resp["form"].errors == {
             "emails": ["There must be exactly one primary email"]
         }
+
+    def test_user_detail_redirects_actual_name(self, db_request):
+        user = UserFactory.create(username="wu-tang")
+        db_request.matchdict["username"] = "Wu-Tang"
+        db_request.current_route_path = pretend.call_recorder(
+            lambda username: "/user/the-redirect/"
+        )
+
+        result = views.user_detail(user, db_request)
+
+        assert isinstance(result, HTTPMovedPermanently)
+        assert result.headers["Location"] == "/user/the-redirect/"
+        assert db_request.current_route_path.calls == [
+            pretend.call(username=user.username)
+        ]
 
 
 class TestUserAddEmail:
     def test_add_primary_email(self, db_request):
         old_email = EmailFactory.create(email="old@bar.com", primary=True)
         user = UserFactory.create(emails=[old_email])
-        db_request.matchdict["user_id"] = str(user.id)
+        db_request.matchdict["username"] = str(user.username)
         db_request.method = "POST"
         db_request.POST["email"] = "foo@bar.com"
         db_request.POST["primary"] = True
         db_request.POST["verified"] = True
         db_request.POST = MultiDict(db_request.POST)
         db_request.route_path = pretend.call_recorder(
-            lambda *a, **kw: "/admin/users/{}/".format(user.id)
+            lambda *a, **kw: "/admin/users/{}/".format(user.username)
         )
 
-        resp = views.user_add_email(db_request)
+        resp = views.user_add_email(user, db_request)
 
         db_request.db.flush()
 
         assert resp.status_code == 303
-        assert resp.location == "/admin/users/{}/".format(user.id)
+        assert resp.location == "/admin/users/{}/".format(user.username)
         assert len(user.emails) == 2
 
         emails = {e.email: e for e in user.emails}
@@ -223,22 +226,22 @@ class TestUserAddEmail:
     def test_add_non_primary_email(self, db_request):
         old_email = EmailFactory.create(email="old@bar.com", primary=True)
         user = UserFactory.create(emails=[old_email])
-        db_request.matchdict["user_id"] = str(user.id)
+        db_request.matchdict["username"] = str(user.username)
         db_request.method = "POST"
         db_request.POST["email"] = "foo@bar.com"
         # No "primary" field
         db_request.POST["verified"] = True
         db_request.POST = MultiDict(db_request.POST)
         db_request.route_path = pretend.call_recorder(
-            lambda *a, **kw: "/admin/users/{}/".format(user.id)
+            lambda *a, **kw: "/admin/users/{}/".format(user.username)
         )
 
-        resp = views.user_add_email(db_request)
+        resp = views.user_add_email(user, db_request)
 
         db_request.db.flush()
 
         assert resp.status_code == 303
-        assert resp.location == "/admin/users/{}/".format(user.id)
+        assert resp.location == "/admin/users/{}/".format(user.username)
         assert len(user.emails) == 2
 
         emails = {e.email: e for e in user.emails}
@@ -248,23 +251,38 @@ class TestUserAddEmail:
 
     def test_add_invalid(self, db_request):
         user = UserFactory.create(emails=[])
-        db_request.matchdict["user_id"] = str(user.id)
+        db_request.matchdict["username"] = str(user.username)
         db_request.method = "POST"
         db_request.POST["email"] = ""
         db_request.POST["primary"] = True
         db_request.POST["verified"] = True
         db_request.POST = MultiDict(db_request.POST)
         db_request.route_path = pretend.call_recorder(
-            lambda *a, **kw: "/admin/users/{}/".format(user.id)
+            lambda *a, **kw: "/admin/users/{}/".format(user.username)
         )
 
-        resp = views.user_add_email(db_request)
+        resp = views.user_add_email(user, db_request)
 
         db_request.db.flush()
 
         assert resp.status_code == 303
-        assert resp.location == "/admin/users/{}/".format(user.id)
+        assert resp.location == "/admin/users/{}/".format(user.username)
         assert user.emails == []
+
+    def test_user_add_email_redirects_actual_name(self, db_request):
+        user = UserFactory.create(username="wu-tang")
+        db_request.matchdict["username"] = "Wu-Tang"
+        db_request.current_route_path = pretend.call_recorder(
+            lambda username: "/user/the-redirect/"
+        )
+
+        result = views.user_add_email(user, db_request)
+
+        assert isinstance(result, HTTPMovedPermanently)
+        assert result.headers["Location"] == "/user/the-redirect/"
+        assert db_request.current_route_path.calls == [
+            pretend.call(username=user.username)
+        ]
 
 
 class TestUserDelete:
@@ -279,12 +297,12 @@ class TestUserDelete:
         # updated with the deleted-user user.
         JournalEntryFactory(submitted_by=user, action="some old journal")
 
-        db_request.matchdict["user_id"] = str(user.id)
+        db_request.matchdict["username"] = str(user.username)
         db_request.params = {"username": user.username}
         db_request.route_path = pretend.call_recorder(lambda a: "/foobar")
         db_request.user = UserFactory.create()
 
-        result = views.user_delete(db_request)
+        result = views.user_delete(user, db_request)
 
         db_request.db.flush()
 
@@ -320,33 +338,48 @@ class TestUserDelete:
         project = ProjectFactory.create()
         RoleFactory(project=project, user=user, role_name="Owner")
 
-        db_request.matchdict["user_id"] = str(user.id)
+        db_request.matchdict["username"] = str(user.username)
         db_request.params = {"username": "wrong"}
         db_request.route_path = pretend.call_recorder(lambda a, **k: "/foobar")
 
-        result = views.user_delete(db_request)
+        result = views.user_delete(user, db_request)
 
         db_request.db.flush()
 
         assert db_request.db.query(User).get(user.id)
         assert db_request.db.query(Project).all() == [project]
         assert db_request.route_path.calls == [
-            pretend.call("admin.user.detail", user_id=user.id)
+            pretend.call("admin.user.detail", username=user.username)
         ]
         assert result.status_code == 303
         assert result.location == "/foobar"
+
+    def test_user_delete_redirects_actual_name(self, db_request):
+        user = UserFactory.create(username="wu-tang")
+        db_request.matchdict["username"] = "Wu-Tang"
+        db_request.current_route_path = pretend.call_recorder(
+            lambda username: "/user/the-redirect/"
+        )
+
+        result = views.user_delete(user, db_request)
+
+        assert isinstance(result, HTTPMovedPermanently)
+        assert result.headers["Location"] == "/user/the-redirect/"
+        assert db_request.current_route_path.calls == [
+            pretend.call(username=user.username)
+        ]
 
 
 class TestUserResetPassword:
     def test_resets_password(self, db_request, monkeypatch):
         user = UserFactory.create()
 
-        db_request.matchdict["user_id"] = str(user.id)
+        db_request.matchdict["username"] = str(user.username)
         db_request.params = {"username": user.username}
         db_request.route_path = pretend.call_recorder(lambda *a, **kw: "/foobar")
         db_request.user = UserFactory.create()
         service = pretend.stub(
-            find_userid=pretend.call_recorder(lambda username: user.id),
+            find_userid=pretend.call_recorder(lambda username: user.username),
             disable_password=pretend.call_recorder(lambda userid, reason: None),
         )
         db_request.find_service = pretend.call_recorder(lambda iface, context: service)
@@ -354,7 +387,7 @@ class TestUserResetPassword:
         send_email = pretend.call_recorder(lambda *a, **kw: None)
         monkeypatch.setattr(views, "send_password_compromised_email", send_email)
 
-        result = views.user_reset_password(db_request)
+        result = views.user_reset_password(user, db_request)
 
         assert db_request.find_service.calls == [
             pretend.call(IUserService, context=None)
@@ -364,7 +397,7 @@ class TestUserResetPassword:
             pretend.call(user.id, reason=DisableReason.CompromisedPassword)
         ]
         assert db_request.route_path.calls == [
-            pretend.call("admin.user.detail", user_id=user.id)
+            pretend.call("admin.user.detail", username=user.username)
         ]
         assert result.status_code == 303
         assert result.location == "/foobar"
@@ -372,12 +405,12 @@ class TestUserResetPassword:
     def test_resets_password_bad_confirm(self, db_request, monkeypatch):
         user = UserFactory.create()
 
-        db_request.matchdict["user_id"] = str(user.id)
+        db_request.matchdict["username"] = str(user.username)
         db_request.params = {"username": "wrong"}
         db_request.route_path = pretend.call_recorder(lambda *a, **kw: "/foobar")
         db_request.user = UserFactory.create()
         service = pretend.stub(
-            find_userid=pretend.call_recorder(lambda username: user.id),
+            find_userid=pretend.call_recorder(lambda username: user.username),
             disable_password=pretend.call_recorder(lambda userid, reason: None),
         )
         db_request.find_service = pretend.call_recorder(lambda iface, context: service)
@@ -385,16 +418,31 @@ class TestUserResetPassword:
         send_email = pretend.call_recorder(lambda *a, **kw: None)
         monkeypatch.setattr(views, "send_password_compromised_email", send_email)
 
-        result = views.user_reset_password(db_request)
+        result = views.user_reset_password(user, db_request)
 
         assert db_request.find_service.calls == []
         assert send_email.calls == []
         assert service.disable_password.calls == []
         assert db_request.route_path.calls == [
-            pretend.call("admin.user.detail", user_id=user.id)
+            pretend.call("admin.user.detail", username=user.username)
         ]
         assert result.status_code == 303
         assert result.location == "/foobar"
+
+    def test_user_reset_password_redirects_actual_name(self, db_request):
+        user = UserFactory.create(username="wu-tang")
+        db_request.matchdict["username"] = "Wu-Tang"
+        db_request.current_route_path = pretend.call_recorder(
+            lambda username: "/user/the-redirect/"
+        )
+
+        result = views.user_reset_password(user, db_request)
+
+        assert isinstance(result, HTTPMovedPermanently)
+        assert result.headers["Location"] == "/user/the-redirect/"
+        assert db_request.current_route_path.calls == [
+            pretend.call(username=user.username)
+        ]
 
 
 class TestBulkAddProhibitedUserName:

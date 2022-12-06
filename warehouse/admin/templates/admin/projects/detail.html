@@ -121,7 +121,7 @@
                 </tr>
                 {% for role in maintainers %}
                 <tr>
-                  <td><a href="{{ request.route_path('admin.user.detail', user_id=role.user.id) }}">{{ role.user.username }}</a></td>
+                  <td><a href="{{ request.route_path('admin.user.detail', username=role.user.username) }}">{{ role.user.username }}</a></td>
                   <td>{{ role.role_name }}</td>
                   <td>
                     <button type="button" class="btn-danger btn-sm" data-toggle="modal" data-target="#deleteRoleModal-{{ role.id }}" {{ "disabled" if not request.has_permission('moderator') }}>
@@ -197,7 +197,7 @@
                   <td>{{ release.created }}</td>
                   <td>
                     {% if release.uploader %}
-                    <a href="{{ request.route_path('admin.user.detail', user_id=release.uploader.id) }}">{{ release.uploader.username }}</a>
+                    <a href="{{ request.route_path('admin.user.detail', username=release.uploader.username) }}">{{ release.uploader.username }}</a>
                     {% endif %}
                   </td>
                   <td>{{ release.author_email }}</td>
@@ -236,7 +236,7 @@
           <td>{{ entry.name }}</td>
           <td>{{ entry.version }}</td>
           <td>{{ entry.submitted_date }}</td>
-          <td><a href="{{ request.route_path('admin.user.detail', user_id=entry.submitted_by.id) }}">{{ entry.submitted_by.username }}</a></td>
+          <td><a href="{{ request.route_path('admin.user.detail', username=entry.submitted_by.username) }}">{{ entry.submitted_by.username }}</a></td>
           <td>{{ entry.submitted_from }}</td>
           <td>{{ entry.action }}</td>
         </tr>

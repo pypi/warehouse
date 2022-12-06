@@ -72,7 +72,7 @@
                 <i class="icon fa fa-bomb"></i> Nuke user
               </button>
               <div class="modal fade" id="nukeModal" tabindex="-1" role="dialog">
-                <form method="POST" action="{{ request.route_path('admin.user.delete', user_id=user.id) }}">
+                <form method="POST" action="{{ request.route_path('admin.user.delete', username=user.username) }}">
                   <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
                   <div class="modal-dialog" role="document">
                     <div class="modal-content">
@@ -118,7 +118,7 @@
                 <i class="icon fa fa-bomb"></i> Reset password
               </button>
               <div class="modal fade" id="pwresetModal" tabindex="-1" role="dialog">
-                <form method="POST" action="{{ request.route_path('admin.user.reset_password', user_id=user.id) }}">
+                <form method="POST" action="{{ request.route_path('admin.user.reset_password', username=user.username) }}">
                   <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
                   <div class="modal-dialog" role="document">
                     <div class="modal-content">
@@ -154,6 +154,14 @@
 
     <div class="col-md-9">
       <div class="box">
+        <div class="box-body">
+            <table class="table table-hover">
+              <tr>
+                <th>User ID</th>
+                <td><code>{{ user.id }}</code></td>
+              </tr>
+            </table>
+        </div>
         <div class="box-header with-border">
           <h3 class="box-title">Edit User</h3>
         </div>
@@ -238,7 +246,7 @@
           <h3 class="box-title">Add a new email</h3>
         </div>
         <div class="box-body">
-          <form class="form-horizontal" method="POST" action="{{ request.route_path('admin.user.add_email', user_id=user.id) }}">
+          <form class="form-horizontal" method="POST" action="{{ request.route_path('admin.user.add_email', username=user.username) }}">
             <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
 
             {% if add_email_form.errors.__all__ %}

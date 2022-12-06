@@ -11,14 +11,14 @@
 # Edgar R. M. <edgarrm358@gmail.com>, 2022.
 # Jaime Marquínez Ferrándiz <weblate@jregistros.fastmail.net>, 2022.
 # Diego Ramirez <dr01191115@gmail.com>, 2022.
+# Cristián Maureira-Fredes <cmaureirafredes@gmail.com>, 2022.
 msgid ""
 msgstr ""
 "Project-Id-Version: Warehouse VERSION\n"
 "Report-Msgid-Bugs-To: admin@pypi.org\n"
 "POT-Creation-Date: 2020-04-06 17:52-0500\n"
-"PO-Revision-Date: 2022-11-17 18:17+0000\n"
-"Last-Translator: Jaime Marquínez Ferrándiz <weblate@jregistros.fastmail."
-"net>\n"
+"PO-Revision-Date: 2022-11-27 08:06+0000\n"
+"Last-Translator: Cristián Maureira-Fredes <cmaureirafredes@gmail.com>\n"
 "Language-Team: Spanish <https://hosted.weblate.org/projects/pypa/warehouse/"
 "es/>\n"
 "Language: es\n"
@@ -583,7 +583,7 @@ msgstr "Cancelar"
 
 #: warehouse/subscriptions/models.py:46
 msgid "Incomplete"
-msgstr ""
+msgstr "Incompleta"
 
 #: warehouse/subscriptions/models.py:47
 #, fuzzy
