@@ -67,11 +67,13 @@ from warehouse.email import (
     send_recovery_code_reminder_email,
 )
 from warehouse.events.tags import EventTag
+from warehouse.oidc.forms import PendingGitHubProviderForm
 from warehouse.organizations.interfaces import IOrganizationService
 from warehouse.organizations.models import OrganizationRole, OrganizationRoleType
 from warehouse.packaging.models import (
     JournalEntry,
     Project,
+    ProjectFactory,
     Release,
     Role,
     RoleInvitation,
@@ -1303,10 +1305,23 @@ def reauthenticate(request, _form_class=ReAuthenticateForm):
 class ManageAccountPublishingViews:
     def __init__(self, request):
         self.request = request
+        self.oidc_enabled = self.request.registry.settings["warehouse.oidc.enabled"]
+        self.project_factory = ProjectFactory(request)
 
     @property
     def default_response(self):
-        return {}
+        return {
+            "oidc_enabled": self.oidc_enabled,
+            "pending_github_provider_form": self.pending_github_provider_form,
+        }
+
+    @property
+    def pending_github_provider_form(self):
+        return PendingGitHubProviderForm(
+            self.request.POST,
+            api_token=self.request.registry.settings.get("github.token"),
+            project_factory=self.project_factory,
+        )
 
     @view_config(request_method="GET")
     def manage_publishing(self):
