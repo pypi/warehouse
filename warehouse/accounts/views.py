@@ -20,6 +20,7 @@ import pytz
 from first import first
 from pyramid.httpexceptions import (
     HTTPMovedPermanently,
+    HTTPNotFound,
     HTTPSeeOther,
     HTTPTooManyRequests,
 )
@@ -67,7 +68,10 @@ from warehouse.email import (
     send_recovery_code_reminder_email,
 )
 from warehouse.events.tags import EventTag
-from warehouse.oidc.forms import PendingGitHubProviderForm
+from warehouse.metrics.interfaces import IMetricsService
+from warehouse.oidc.forms import DeleteProviderForm, PendingGitHubProviderForm
+from warehouse.oidc.interfaces import TooManyOIDCRegistrations
+from warehouse.oidc.models import PendingGitHubProvider, PendingOIDCProvider
 from warehouse.organizations.interfaces import IOrganizationService
 from warehouse.organizations.models import OrganizationRole, OrganizationRoleType
 from warehouse.packaging.models import (
@@ -1307,13 +1311,37 @@ class ManageAccountPublishingViews:
         self.request = request
         self.oidc_enabled = self.request.registry.settings["warehouse.oidc.enabled"]
         self.project_factory = ProjectFactory(request)
+        self.metrics = self.request.find_service(IMetricsService, context=None)
 
     @property
-    def default_response(self):
+    def _ratelimiters(self):
         return {
-            "oidc_enabled": self.oidc_enabled,
-            "pending_github_provider_form": self.pending_github_provider_form,
+            "user.oidc": self.request.find_service(
+                IRateLimiter, name="user_oidc.provider.register"
+            ),
+            "ip.oidc": self.request.find_service(
+                IRateLimiter, name="ip_oidc.provider.register"
+            ),
         }
+
+    def _hit_ratelimits(self):
+        self._ratelimiters["user.oidc"].hit(self.request.user.id)
+        self._ratelimiters["ip.oidc"].hit(self.request.remote_addr)
+
+    def _check_ratelimits(self):
+        if not self._ratelimiters["user.oidc"].test(self.request.user.id):
+            raise TooManyOIDCRegistrations(
+                resets_in=self._ratelimiters["user.oidc"].resets_in(
+                    self.request.user.id
+                )
+            )
+
+        if not self._ratelimiters["ip.oidc"].test(self.request.remote_addr):
+            raise TooManyOIDCRegistrations(
+                resets_in=self._ratelimiters["ip.oidc"].resets_in(
+                    self.request.remote_addr
+                )
+            )
 
     @property
     def pending_github_provider_form(self):
@@ -1323,6 +1351,131 @@ class ManageAccountPublishingViews:
             project_factory=self.project_factory,
         )
 
+    @property
+    def default_response(self):
+        return {
+            "oidc_enabled": self.oidc_enabled,
+            "pending_github_provider_form": self.pending_github_provider_form,
+        }
+
     @view_config(request_method="GET")
     def manage_publishing(self):
+        if not self.oidc_enabled:
+            raise HTTPNotFound
+
+        return self.default_response
+
+    @view_config(
+        request_method="POST", request_param=PendingGitHubProviderForm.__params__
+    )
+    def add_pending_github_oidc_provider(self):
+        if not self.oidc_enabled:
+            raise HTTPNotFound
+
+        self.metrics.increment(
+            "warehouse.oidc.add_pending_provider.attempt", tags=["provider:GitHub"]
+        )
+
+        if self.request.flags.enabled(AdminFlagValue.DISALLOW_OIDC):
+            self.request.session.flash(
+                (
+                    "OpenID Connect is temporarily disabled. "
+                    "See https://pypi.org/help#admin-intervention for details."
+                ),
+                queue="error",
+            )
+            return self.default_response
+
+        try:
+            self._check_ratelimits()
+        except TooManyOIDCRegistrations as exc:
+            self.metrics.increment(
+                "warehouse.oidc.add_provider.ratelimited", tags=["provider:GitHub"]
+            )
+            return HTTPTooManyRequests(
+                self.request._(
+                    "There have been too many attempted OpenID Connect registrations. "
+                    "Try again later."
+                ),
+                retry_after=exc.resets_in.total_seconds(),
+            )
+
+        self._hit_ratelimits()
+
+        response = self.default_response
+        form = response["pending_github_provider_form"]
+
+        if not form.validate():
+            return response
+
+        pending_provider = PendingGitHubProvider(
+            project_name=form.project_name.data,
+            added_by=self.request.user,
+            repository_name=form.repository.data,
+            repository_owner=form.normalized_owner,
+            repository_owner_id=form.owner_id,
+            workflow_filename=form.workflow_filename.data,
+        )
+        self.request.db.add(pending_provider)
+
+        self.request.session.flash(
+            f"Registered {pending_provider} to create {pending_provider.project_name}",
+            queue="success",
+        )
+
+        return HTTPSeeOther(self.request.path)
+
+    @view_config(request_method="POST", request_param=DeleteProviderForm.__params__)
+    def delete_oidc_provider(self):
+        if not self.oidc_enabled:
+            raise HTTPNotFound
+
+        self.metrics.increment("warehouse.oidc.delete_provider.attempt")
+
+        if self.request.flags.enabled(AdminFlagValue.DISALLOW_OIDC):
+            self.request.session.flash(
+                (
+                    "OpenID Connect is temporarily disabled. "
+                    "See https://pypi.org/help#admin-intervention for details."
+                ),
+                queue="error",
+            )
+            return self.default_response
+
+        form = DeleteProviderForm(self.request.POST)
+
+        if form.validate():
+            pending_provider = self.request.db.query(PendingOIDCProvider).get(
+                form.provider_id.data
+            )
+
+            # pending_provider will be `None` here if someone manually futzes with the form.
+            if pending_provider is None:
+                self.request.session.flash(
+                    "Invalid publisher for user",
+                    queue="error",
+                )
+                return self.default_response
+
+            self.request.session.flash(f"Removed {pending_provider}", queue="success")
+
+            self.request.db.delete(pending_provider)
+
+            # self.project.record_event(
+            #     tag=EventTag.Project.OIDCProviderRemoved,
+            #     ip_address=self.request.remote_addr,
+            #     additional={
+            #         "provider": provider.provider_name,
+            #         "id": str(provider.id),
+            #         "specifier": str(provider),
+            #     },
+            # )
+
+            # self.metrics.increment(
+            #     "warehouse.oidc.delete_provider.ok",
+            #     tags=[f"provider:{provider.provider_name}"],
+            # )
+
+            return HTTPSeeOther(self.request.path)
+
         return self.default_response

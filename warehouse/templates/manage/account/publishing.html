@@ -116,4 +116,25 @@
     </div>
   </form>
 
+  <h2>{% trans %}Manage pending providers{% endtrans %}</h2>
+  {% if user.pending_oidc_providers %}
+  <table class="table table--publisher-list">
+    <thead>
+      <tr>
+        <th scope="col">{% trans %}Pending project name{% endtrans %}</th>
+        <th scope="col">{% trans %}Publisher{% endtrans %}</th>
+        <th scope="col">{% trans %}URL{% endtrans %}</th>
+        <th></th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for provider in user.pending_oidc_providers %}
+      {{ oidc_provider_row(provider) }}
+      {% endfor %}
+    </tbody>
+  </table>
+  {% else %}
+  <p class="no-bottom-padding">{% trans %}No publishers are currently configured.{% endtrans %}</p>
+  {% endif %}
+
 {% endblock %}
