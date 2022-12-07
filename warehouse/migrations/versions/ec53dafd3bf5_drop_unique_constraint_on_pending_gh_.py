@@ -13,14 +13,14 @@
 drop unique constraint on pending GH providers
 
 Revision ID: ec53dafd3bf5
-Revises: aa3a4757f33a
+Revises: 1d88dd9242e1
 Create Date: 2022-12-06 20:11:54.617213
 """
 
 from alembic import op
 
 revision = "ec53dafd3bf5"
-down_revision = "aa3a4757f33a"
+down_revision = "1d88dd9242e1"
 
 
 def upgrade():
