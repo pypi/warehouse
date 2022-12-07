@@ -117,6 +117,10 @@ def release_detail(release, request):
     # first line only.
     short_license = release.license.split("\n")[0] if release.license else None
 
+    # Truncate the short license if we were unable to shorten it with newlines
+    if short_license and len(short_license) > 100 and short_license == release.license:
+        short_license = short_license[:100] + "..."
+
     if license_classifiers and short_license:
         license = f"{license_classifiers} ({short_license})"
     else:

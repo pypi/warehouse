@@ -400,6 +400,20 @@ class TestReleaseDetail:
 
         assert result["license"] == "BSD License, MIT License"
 
+    def test_long_singleline_license(self, db_request):
+        """When license metadata contains no newlines, it gets truncated"""
+        release = ReleaseFactory.create(
+            license="Multiline License is very long, so long that it is far longer than"
+            " 100 characters, it's really so long, how terrible"
+        )
+
+        result = views.release_detail(release, db_request)
+
+        assert result["license"] == (
+            "Multiline License is very long, so long that it is far longer than 100 "
+            "characters, it's really so lo..."
+        )
+
 
 class TestEditProjectButton:
     def test_edit_project_button_returns_project(self):
