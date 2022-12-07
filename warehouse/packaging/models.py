@@ -169,6 +169,10 @@ class Project(SitemapMixin, TwoFactorRequireable, HasEvents, db.Model):
             "name ~* '^([A-Z0-9]|[A-Z0-9][A-Z0-9._-]*[A-Z0-9])$'::text",
             name="projects_valid_name",
         ),
+        CheckConstraint(
+            "upload_limit <= 1073741824",  # 1.0 GiB == 1073741824 bytes
+            name="projects_upload_limit_max_value",
+        ),
     )
 
     __repr__ = make_repr("name")
