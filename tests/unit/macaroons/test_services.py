@@ -132,7 +132,7 @@ class TestDatabaseMacaroonService:
     @pytest.mark.parametrize(
         "raw_macaroon",
         [
-            "pypi-thiswillnotdeserialize"
+            "pypi-thiswillnotdeserialize",
             # Macaroon that is malformed and has an invaild (non utf-8) identifier
             # The string is purposedly cut to avoid triggering the github token
             # disclosure feature that this very function implements.
