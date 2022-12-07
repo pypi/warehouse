@@ -96,6 +96,7 @@ class TestProjectDetail:
             "MAX_FILESIZE": views.MAX_FILESIZE,
             "MAX_PROJECT_SIZE": views.MAX_PROJECT_SIZE,
             "ONE_GB": views.ONE_GB,
+            "UPLOAD_LIMIT_CAP": views.UPLOAD_LIMIT_CAP,
         }
 
     def test_non_normalized_name(self, db_request):
@@ -433,6 +434,15 @@ class TestProjectSetLimit:
 
         db_request.matchdict["project_name"] = project.normalized_name
         db_request.POST["upload_limit"] = "20"
+
+        with pytest.raises(HTTPBadRequest):
+            views.set_upload_limit(project, db_request)
+
+    def test_sets_limit_above_maximum(self, db_request):
+        project = ProjectFactory.create(name="foo")
+
+        db_request.matchdict["project_name"] = project.normalized_name
+        db_request.POST["upload_limit"] = str(views.UPLOAD_LIMIT_CAP + 1)
 
         with pytest.raises(HTTPBadRequest):
             views.set_upload_limit(project, db_request)
