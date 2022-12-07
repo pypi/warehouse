@@ -1418,6 +1418,17 @@ class ManageAccountPublishingViews:
         )
         self.request.db.add(pending_provider)
 
+        self.request.user.record_event(
+            tag=EventTag.Account.PendingOIDCProviderAdded,
+            ip_address=self.request.remote_addr,
+            additional={
+                "project": pending_provider.project_name,
+                "provider": pending_provider.provider_name,
+                "id": str(pending_provider.id),
+                "specifier": str(pending_provider),
+            },
+        )
+
         self.request.session.flash(
             f"Registered {pending_provider} to create {pending_provider.project_name}",
             queue="success",
@@ -1430,7 +1441,7 @@ class ManageAccountPublishingViews:
         if not self.oidc_enabled:
             raise HTTPNotFound
 
-        self.metrics.increment("warehouse.oidc.delete_provider.attempt")
+        self.metrics.increment("warehouse.oidc.delete_pending_provider.attempt")
 
         if self.request.flags.enabled(AdminFlagValue.DISALLOW_OIDC):
             self.request.session.flash(
@@ -1459,22 +1470,23 @@ class ManageAccountPublishingViews:
 
             self.request.session.flash(f"Removed {pending_provider}", queue="success")
 
+            self.metrics.increment(
+                "warehouse.oidc.delete_pending_provider.ok",
+                tags=[f"provider:{pending_provider.provider_name}"],
+            )
+
+            self.request.user.record_event(
+                tag=EventTag.Account.PendingOIDCProviderRemoved,
+                ip_address=self.request.remote_addr,
+                additional={
+                    "project": pending_provider.project_name,
+                    "provider": pending_provider.provider_name,
+                    "id": str(pending_provider.id),
+                    "specifier": str(pending_provider),
+                },
+            )
+
             self.request.db.delete(pending_provider)
-
-            # self.project.record_event(
-            #     tag=EventTag.Project.OIDCProviderRemoved,
-            #     ip_address=self.request.remote_addr,
-            #     additional={
-            #         "provider": provider.provider_name,
-            #         "id": str(provider.id),
-            #         "specifier": str(provider),
-            #     },
-            # )
-
-            # self.metrics.increment(
-            #     "warehouse.oidc.delete_provider.ok",
-            #     tags=[f"provider:{provider.provider_name}"],
-            # )
 
             return HTTPSeeOther(self.request.path)
 

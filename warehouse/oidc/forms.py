@@ -105,7 +105,9 @@ class GitHubProviderBase(forms.Form):
                 "Connection error from GitHub user lookup API (possibly offline)"
             )
             raise wtforms.validators.ValidationError(
-                _("Unexpected connection error from GitHub. Try again in a few minutes.")
+                _(
+                    "Unexpected connection error from GitHub. Try again in a few minutes."
+                )
             )
         except requests.Timeout:
             sentry_sdk.capture_message(

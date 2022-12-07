@@ -84,6 +84,8 @@ class EventTag:
         PasswordReset = "account:password:reset"
         PasswordResetAttempt = "account:password:reset:attempt"
         PasswordResetRequest = "account:password:reset:request"
+        PendingOIDCProviderAdded = "account:oidc:pending-provider-added"
+        PendingOIDCProviderRemoved = "account:oidc:pending-provider-removed"
         RecoveryCodesGenerated = "account:recovery_codes:generated"
         RecoveryCodesRegenerated = "account:recovery_codes:regenerated"
         RecoveryCodesUsed = "account:recovery_codes:used"
