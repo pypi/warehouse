@@ -200,6 +200,9 @@ def test_routes(warehouse):
         ),
         pretend.call("manage.account", "/manage/account/", domain=warehouse),
         pretend.call(
+            "manage.account.publishing", "/manage/account/publishing/", domain=warehouse
+        ),
+        pretend.call(
             "manage.account.two-factor",
             "/manage/account/two-factor/",
             domain=warehouse,

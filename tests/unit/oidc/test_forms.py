@@ -14,7 +14,7 @@ import pretend
 import pytest
 import wtforms
 
-from requests import HTTPError, Timeout
+from requests import ConnectionError, HTTPError, Timeout
 from webob.multidict import MultiDict
 
 from warehouse.oidc import forms
@@ -138,6 +138,7 @@ class TestGitHubProviderForm:
             get=pretend.raiser(Timeout),
             Timeout=Timeout,
             HTTPError=HTTPError,
+            ConnectionError=ConnectionError,
         )
         monkeypatch.setattr(forms, "requests", requests)
 
