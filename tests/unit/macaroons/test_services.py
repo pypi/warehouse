@@ -97,12 +97,18 @@ class TestDatabaseMacaroonService:
         "raw_macaroon",
         [
             "pypi-aaaa",  # Invalid macaroon
-            # Macaroon properly formatted but not found. The string is purposedly cut to
-            # avoid triggering the github token disclosure feature that this very
-            # function implements.
+            # Macaroon properly formatted but not found.
+            # The string is purposedly cut to avoid triggering the github token
+            # disclosure feature that this very function implements.
             "py"
             "pi-AgEIcHlwaS5vcmcCJGQ0ZDhhNzA2LTUxYTEtNDg0NC1hNDlmLTEyZDRiYzNkYjZmOQAABi"
             "D6hJOpYl9jFI4jBPvA8gvV1mSu1Ic3xMHmxA4CSA2w_g",
+            # Macaroon that is malformed and has an invaild (non utf-8) identifier
+            # The string is purposedly cut to avoid triggering the github token
+            # disclosure feature that this very function implements.
+            "py"
+            "pi-MDAwZWxvY2F0aW9uIAowMDM0aWRlbnRpZmllciBhmTAyMWY0YS0xYWQzLTQ3OGEtYjljZi1"
+            "kMDU1NTkyMGYxYzcKMDAwZnNpZ25hdHVyZSAK",
         ],
     )
     def test_find_from_raw_not_found_or_invalid(self, macaroon_service, raw_macaroon):
@@ -123,8 +129,20 @@ class TestDatabaseMacaroonService:
 
         assert macaroon_service.find_userid(raw_macaroon) is None
 
-    def test_find_userid_malformed_macaroon(self, macaroon_service):
-        assert macaroon_service.find_userid("pypi-thiswillnotdeserialize") is None
+    @pytest.mark.parametrize(
+        "raw_macaroon",
+        [
+            "pypi-thiswillnotdeserialize"
+            # Macaroon that is malformed and has an invaild (non utf-8) identifier
+            # The string is purposedly cut to avoid triggering the github token
+            # disclosure feature that this very function implements.
+            "py"
+            "pi-MDAwZWxvY2F0aW9uIAowMDM0aWRlbnRpZmllciBhmTAyMWY0YS0xYWQzLTQ3OGEtYjljZi1"
+            "kMDU1NTkyMGYxYzcKMDAwZnNpZ25hdHVyZSAK",
+        ],
+    )
+    def test_find_userid_malformed_macaroon(self, macaroon_service, raw_macaroon):
+        assert macaroon_service.find_userid(raw_macaroon) is None
 
     def test_find_userid_valid_macaroon_trailinglinebreak(self, macaroon_service):
         user = UserFactory.create()
