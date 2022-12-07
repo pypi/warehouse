@@ -459,7 +459,8 @@ msgstr ""
 
 #: warehouse/manage/views.py:4146
 msgid "Team '${team_name}' already has ${role_name} role for project"
-msgstr "A equipa \"${username}\" já tem a função de ${role_name} para o projeto"
+msgstr ""
+"A equipa \"${username}\" já tem a função de ${role_name} para o projeto"
 
 #: warehouse/manage/views.py:4254
 msgid "User '${username}' already has ${role_name} role for project"
@@ -614,8 +615,8 @@ msgstr "Monthy Python - A Cena da Loja de Queijo"
 #: warehouse/templates/manage/project/release.html:194
 #: warehouse/templates/manage/project/releases.html:140
 #: warehouse/templates/manage/project/releases.html:179
-#: warehouse/templates/packaging/detail.html:350
-#: warehouse/templates/packaging/detail.html:369
+#: warehouse/templates/packaging/detail.html:352
+#: warehouse/templates/packaging/detail.html:371
 #: warehouse/templates/pages/classifiers.html:25
 #: warehouse/templates/pages/help.html:20
 #: warehouse/templates/pages/help.html:212
@@ -1756,8 +1757,8 @@ msgid ""
 "%(submitter)s</a>."
 msgstr ""
 "Foi adicionado como <strong>%(role)s</strong> do %(site)s da organização "
-"%(organization_name)s por <a href=\"%(submitter_profile)s\""
-">%(submitter)s</a>."
+"%(organization_name)s por <a href=\"%(submitter_profile)s\">%(submitter)s</"
+"a>."
 
 #: warehouse/templates/email/added-as-organization-member/body.html:26
 #: warehouse/templates/email/role-changed-as-organization-member/body.html:26
@@ -1790,8 +1791,8 @@ msgid ""
 "%(submitter)s</a>."
 msgstr ""
 "Foi adicionado como um membro da equipa \"%(team_name)s\" na organização "
-"%(organization_name)s por <a href=\"%(submitter_profile)s\""
-">%(submitter)s</a>."
+"%(organization_name)s por <a href=\"%(submitter_profile)s\">%(submitter)s</"
+"a>."
 
 #: warehouse/templates/email/added-as-team-member/body.html:24
 msgid "You are receiving this because you are a member of this team."
@@ -1816,8 +1817,8 @@ msgid ""
 "The %(site)s organization has been renamed from "
 "\"%(previous_organization_name)s\" to \"%(organization_name)s\"."
 msgstr ""
-"A organização do %(site)s foi renomeada de \"%(previous_organization_name)s\""
-" para \"%(organization_name)s\"."
+"A organização do %(site)s foi renomeada de \"%(previous_organization_name)s"
+"\" para \"%(organization_name)s\"."
 
 #: warehouse/templates/email/basic-auth-with-2fa/body.html:17
 #: warehouse/templates/email/password-compromised-hibp/body.html:18
@@ -2006,8 +2007,8 @@ msgid ""
 "If this was a mistake, you can email <a href=\"mailto:%(email_address)s\">"
 "%(email_address)s</a> to communicate with the %(site)s administrators."
 msgstr ""
-"Se isso foi um erro, pode enviar um e-mail para <a href=\"mailto"
-":%(email_address)s\">%(email_address)s</a> para se comunicar com os "
+"Se isso foi um erro, pode enviar um e-mail para <a href=\"mailto:"
+"%(email_address)s\">%(email_address)s</a> para se comunicar com os "
 "administradores do %(site)s."
 
 #: warehouse/templates/email/organization-deleted/body.html:37
@@ -2020,8 +2021,8 @@ msgid ""
 "<a href=\"%(user_profile)s\">%(username)s</a> has joined the "
 "\"%(organization_name)s\" organization"
 msgstr ""
-"<a href=\"%(user_profile)s\">%(username)s</a> juntou-se à organização \""
-"%(organization_name)s\""
+"<a href=\"%(user_profile)s\">%(username)s</a> juntou-se à organização "
+"\"%(organization_name)s\""
 
 #: warehouse/templates/email/organization-member-added/body.html:31
 #: warehouse/templates/email/organization-member-invited/body.html:31
@@ -2098,8 +2099,8 @@ msgid ""
 "<a href=\"%(user_profile)s\">%(username)s</a> has been removed from the "
 "\"%(organization_name)s\" organization"
 msgstr ""
-"<a href=\"%(user_profile)s\">%(username)s</a> foi removido da organização \""
-"%(organization_name)s\""
+"<a href=\"%(user_profile)s\">%(username)s</a> foi removido da organização "
+"\"%(organization_name)s\""
 
 #: warehouse/templates/email/organization-member-removed/body.html:32
 #: warehouse/templates/email/team-collaborator-removed/body.html:31
@@ -2129,8 +2130,8 @@ msgid ""
 "The %(site)s project \"%(project_name)s\" has been added to the "
 "\"%(organization_name)s\" organization."
 msgstr ""
-"O projeto \"%(project_name)s\" do %(site)s foi adicionado à organização \""
-"%(organization_name)s\"."
+"O projeto \"%(project_name)s\" do %(site)s foi adicionado à organização "
+"\"%(organization_name)s\"."
 
 #: warehouse/templates/email/organization-project-added/body.html:30
 #: warehouse/templates/email/organization-project-removed/body.html:30
@@ -2146,8 +2147,8 @@ msgid ""
 "The %(site)s project \"%(project_name)s\" has been removed from the "
 "\"%(organization_name)s\" organization."
 msgstr ""
-"O projeto \"%(project_name)s\" de %(site)s foi removido da organização \""
-"%(organization_name)s\"."
+"O projeto \"%(project_name)s\" de %(site)s foi removido da organização "
+"\"%(organization_name)s\"."
 
 #: warehouse/templates/email/organization-updated/body.html:31
 #, python-format
@@ -2475,8 +2476,8 @@ msgid ""
 "You have been removed from the \"%(team_name)s\" team in the "
 "\"%(organization_name)s\" organization"
 msgstr ""
-"Foi removido da equipa \"%(team_name)s\" na organização \""
-"%(organization_name)s\""
+"Foi removido da equipa \"%(team_name)s\" na organização "
+"\"%(organization_name)s\""
 
 #: warehouse/templates/email/removed-as-team-member/body.html:23
 msgid "You are receiving this because you were a member of this team."
@@ -2807,7 +2808,7 @@ msgstr "Digest de hash"
 #: warehouse/templates/manage/account.html:206
 #: warehouse/templates/manage/account/recovery_codes-provision.html:57
 #: warehouse/templates/manage/account/totp-provision.html:57
-#: warehouse/templates/packaging/detail.html:150
+#: warehouse/templates/packaging/detail.html:152
 #: warehouse/templates/pages/classifiers.html:38
 msgid "Copy to clipboard"
 msgstr "Copiar para a área de trabalho"
@@ -2865,8 +2866,8 @@ msgid ""
 "Two-factor recovery codes are available, <a href=\"%(href)s\">generate them "
 "now for your account.</a>"
 msgstr ""
-"Os códigos de recuperação de dois fatores estão disponível, <a href=\"%(href)"
-"s\">gere-os agora para sua conta.</a>"
+"Os códigos de recuperação de dois fatores estão disponível, <a href="
+"\"%(href)s\">gere-os agora para sua conta.</a>"
 
 #: warehouse/templates/includes/accounts/profile-actions.html:16
 msgid "Edit profile"
@@ -6782,125 +6783,125 @@ msgstr "Não poderá recuperar a sua conta depois de apagá-la"
 msgid "Team Name"
 msgstr "Nome"
 
-#: warehouse/templates/packaging/detail.html:106
+#: warehouse/templates/packaging/detail.html:108
 msgid "view hashes"
 msgstr "ver hashes"
 
-#: warehouse/templates/packaging/detail.html:126
+#: warehouse/templates/packaging/detail.html:128
 #, python-format
 msgid "RSS: latest releases for %(project_name)s"
 msgstr "RSS: lançamentos mais recentes para %(project_name)s"
 
-#: warehouse/templates/packaging/detail.html:152
+#: warehouse/templates/packaging/detail.html:154
 msgid "Copy PIP instructions"
 msgstr "Copiar instruções PIP"
 
-#: warehouse/templates/packaging/detail.html:162
+#: warehouse/templates/packaging/detail.html:164
 msgid "This release has been yanked"
 msgstr "Este lançamento foi retirado"
 
-#: warehouse/templates/packaging/detail.html:168
+#: warehouse/templates/packaging/detail.html:170
 #, python-format
 msgid "Stable version available (%(version)s)"
 msgstr "Versão estável disponível (%(version)s)"
 
-#: warehouse/templates/packaging/detail.html:172
+#: warehouse/templates/packaging/detail.html:174
 #, python-format
 msgid "Newer version available (%(version)s)"
 msgstr "Versão mais nova disponível (%(version)s)"
 
-#: warehouse/templates/packaging/detail.html:176
+#: warehouse/templates/packaging/detail.html:178
 msgid "Latest version"
 msgstr "Versão mais recente"
 
-#: warehouse/templates/packaging/detail.html:181
+#: warehouse/templates/packaging/detail.html:183
 #, python-format
 msgid "Released: %(release_date)s"
 msgstr "Lançado em: %(release_date)s"
 
-#: warehouse/templates/packaging/detail.html:193
+#: warehouse/templates/packaging/detail.html:195
 msgid "No project description provided"
 msgstr "Nenhuma descrição do projeto fornecida"
 
-#: warehouse/templates/packaging/detail.html:206
+#: warehouse/templates/packaging/detail.html:208
 msgid "Navigation"
 msgstr "Navegação"
 
-#: warehouse/templates/packaging/detail.html:207
-#: warehouse/templates/packaging/detail.html:238
+#: warehouse/templates/packaging/detail.html:209
+#: warehouse/templates/packaging/detail.html:240
 #, python-format
 msgid "Navigation for %(project)s"
 msgstr "Navegação para %(project)s"
 
-#: warehouse/templates/packaging/detail.html:210
-#: warehouse/templates/packaging/detail.html:241
+#: warehouse/templates/packaging/detail.html:212
+#: warehouse/templates/packaging/detail.html:243
 msgid "Project description. Focus will be moved to the description."
 msgstr "Descrição do projeto. O foco será movido para a descrição."
 
-#: warehouse/templates/packaging/detail.html:212
-#: warehouse/templates/packaging/detail.html:243
-#: warehouse/templates/packaging/detail.html:271
+#: warehouse/templates/packaging/detail.html:214
+#: warehouse/templates/packaging/detail.html:245
+#: warehouse/templates/packaging/detail.html:273
 msgid "Project description"
 msgstr "Descrição do projeto"
 
-#: warehouse/templates/packaging/detail.html:216
-#: warehouse/templates/packaging/detail.html:253
+#: warehouse/templates/packaging/detail.html:218
+#: warehouse/templates/packaging/detail.html:255
 msgid "Release history. Focus will be moved to the history panel."
 msgstr ""
 "Histórico de lançamentos. O foco será movido para o painel de histórico."
 
-#: warehouse/templates/packaging/detail.html:218
-#: warehouse/templates/packaging/detail.html:255
-#: warehouse/templates/packaging/detail.html:293
+#: warehouse/templates/packaging/detail.html:220
+#: warehouse/templates/packaging/detail.html:257
+#: warehouse/templates/packaging/detail.html:295
 msgid "Release history"
 msgstr "Histórico de lançamentos"
 
-#: warehouse/templates/packaging/detail.html:223
-#: warehouse/templates/packaging/detail.html:260
+#: warehouse/templates/packaging/detail.html:225
+#: warehouse/templates/packaging/detail.html:262
 msgid "Download files. Focus will be moved to the project files."
 msgstr ""
 "Descarregar ficheiros. O foco será movido para os ficheiros de projeto."
 
-#: warehouse/templates/packaging/detail.html:225
-#: warehouse/templates/packaging/detail.html:262
-#: warehouse/templates/packaging/detail.html:349
+#: warehouse/templates/packaging/detail.html:227
+#: warehouse/templates/packaging/detail.html:264
+#: warehouse/templates/packaging/detail.html:351
 msgid "Download files"
 msgstr "Descarregar ficheiros"
 
-#: warehouse/templates/packaging/detail.html:247
+#: warehouse/templates/packaging/detail.html:249
 msgid "Project details. Focus will be moved to the project details."
 msgstr "Detalhes do projeto. O foco será movido aos detalhes do projeto."
 
-#: warehouse/templates/packaging/detail.html:249
-#: warehouse/templates/packaging/detail.html:285
+#: warehouse/templates/packaging/detail.html:251
+#: warehouse/templates/packaging/detail.html:287
 msgid "Project details"
 msgstr "Detalhes do projeto"
 
-#: warehouse/templates/packaging/detail.html:278
+#: warehouse/templates/packaging/detail.html:280
 msgid "The author of this package has not provided a project description"
 msgstr "O autor deste pacote não forneceu uma descrição do projeto"
 
-#: warehouse/templates/packaging/detail.html:295
+#: warehouse/templates/packaging/detail.html:297
 msgid "Release notifications"
 msgstr "Notificações de lançamento"
 
-#: warehouse/templates/packaging/detail.html:296
+#: warehouse/templates/packaging/detail.html:298
 msgid "RSS feed"
 msgstr "Feed RSS"
 
-#: warehouse/templates/packaging/detail.html:308
+#: warehouse/templates/packaging/detail.html:310
 msgid "This version"
 msgstr "Esta versão"
 
-#: warehouse/templates/packaging/detail.html:328
+#: warehouse/templates/packaging/detail.html:330
 msgid "pre-release"
 msgstr "Pré-lançamentos"
 
-#: warehouse/templates/packaging/detail.html:333
+#: warehouse/templates/packaging/detail.html:335
 msgid "yanked"
 msgstr "retirado"
 
-#: warehouse/templates/packaging/detail.html:350
+#: warehouse/templates/packaging/detail.html:352
 #, python-format
 msgid ""
 "Download the file for your platform. If you're not sure which to choose, "
@@ -6911,17 +6912,17 @@ msgstr ""
 "escolher, saiba mais sobre <a href=\"%(href)s\" title=\"%(title)s\" target="
 "\"_blank\" rel=\"noopener\">instalação de pacotes</a>."
 
-#: warehouse/templates/packaging/detail.html:352
+#: warehouse/templates/packaging/detail.html:354
 msgid "Source Distribution"
 msgid_plural "Source Distributions"
 msgstr[0] ""
 msgstr[1] ""
 
-#: warehouse/templates/packaging/detail.html:368
+#: warehouse/templates/packaging/detail.html:370
 msgid "No source distribution files available for this release."
 msgstr ""
 
-#: warehouse/templates/packaging/detail.html:369
+#: warehouse/templates/packaging/detail.html:371
 #, fuzzy, python-format
 #| msgid ""
 #| "Learn how to upload files on the <a href=\"%(href)s\" title=\"%(title)s\" "
@@ -6934,7 +6935,7 @@ msgstr ""
 "\"%(title)s\" target=\"_blank\" rel=\"noopener\">Guia de Utilizador para "
 "Empacotamento de Python</a>"
 
-#: warehouse/templates/packaging/detail.html:376
+#: warehouse/templates/packaging/detail.html:378
 msgid "Built Distribution"
 msgid_plural "Built Distributions"
 msgstr[0] ""
@@ -6971,9 +6972,9 @@ msgstr ""
 "Instruções sobre como adicionar classificadores de Trove a um projeto podem "
 "ser encontradas no <a href=\"%(ppug_href)s\" title=\"%(title)s\" target="
 "\"_blank\" rel=\"noopener\">Guia de Utilizador para Empacotamento de Python</"
-"a>. Para ler a especificação de classificador original, consulte a <a href=\""
-"%(pep301_href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener\""
-"><abbr title=\"Proposta de aprimoramento do Python\">PEP</abbr> 301</a>."
+"a>. Para ler a especificação de classificador original, consulte a <a href="
+"\"%(pep301_href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener"
+"\"><abbr title=\"Proposta de aprimoramento do Python\">PEP</abbr> 301</a>."
 
 #: warehouse/templates/pages/classifiers.html:30
 msgid ""
@@ -9036,8 +9037,8 @@ msgid ""
 "\"%(discourse_forum_href)s\" title=\"%(title)s\" target=\"_blank\" rel="
 "\"noopener\">Python packaging forum on Discourse</a>."
 msgstr ""
-"Também pode acompanhar o desenvolvimento contínuo do projeto no <a href=\""
-"%(discourse_forum_href)s\" title=\"%(title)s\" target=\"_blank\" rel="
+"Também pode acompanhar o desenvolvimento contínuo do projeto no <a href="
+"\"%(discourse_forum_href)s\" title=\"%(title)s\" target=\"_blank\" rel="
 "\"noopener\">fórum de empacotamento do Python no Discourse</a>."
 
 #: warehouse/templates/pages/help.html:883
