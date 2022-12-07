@@ -610,8 +610,8 @@ msgstr "Monty Python - 奶酪店素描"
 #: warehouse/templates/manage/project/release.html:194
 #: warehouse/templates/manage/project/releases.html:140
 #: warehouse/templates/manage/project/releases.html:179
-#: warehouse/templates/packaging/detail.html:350
-#: warehouse/templates/packaging/detail.html:369
+#: warehouse/templates/packaging/detail.html:352
+#: warehouse/templates/packaging/detail.html:371
 #: warehouse/templates/pages/classifiers.html:25
 #: warehouse/templates/pages/help.html:20
 #: warehouse/templates/pages/help.html:212
@@ -2613,7 +2613,7 @@ msgstr "哈希摘要"
 #: warehouse/templates/manage/account.html:206
 #: warehouse/templates/manage/account/recovery_codes-provision.html:57
 #: warehouse/templates/manage/account/totp-provision.html:57
-#: warehouse/templates/packaging/detail.html:150
+#: warehouse/templates/packaging/detail.html:152
 #: warehouse/templates/pages/classifiers.html:38
 msgid "Copy to clipboard"
 msgstr "复制到剪贴板"
@@ -6060,123 +6060,123 @@ msgstr "删除团队后，你将无法恢复团队。"
 msgid "Team Name"
 msgstr "团队名"
 
-#: warehouse/templates/packaging/detail.html:106
+#: warehouse/templates/packaging/detail.html:108
 msgid "view hashes"
 msgstr "查看哈希值"
 
-#: warehouse/templates/packaging/detail.html:126
+#: warehouse/templates/packaging/detail.html:128
 #, python-format
 msgid "RSS: latest releases for %(project_name)s"
 msgstr "RSS: 最新发布的%(project_name)s"
 
-#: warehouse/templates/packaging/detail.html:152
+#: warehouse/templates/packaging/detail.html:154
 msgid "Copy PIP instructions"
 msgstr "复制PIP命令"
 
-#: warehouse/templates/packaging/detail.html:162
+#: warehouse/templates/packaging/detail.html:164
 msgid "This release has been yanked"
 msgstr "该版本已被撤销"
 
-#: warehouse/templates/packaging/detail.html:168
+#: warehouse/templates/packaging/detail.html:170
 #, python-format
 msgid "Stable version available (%(version)s)"
 msgstr "发布版本 %(version)s"
 
-#: warehouse/templates/packaging/detail.html:172
+#: warehouse/templates/packaging/detail.html:174
 #, python-format
 msgid "Newer version available (%(version)s)"
 msgstr "发布版本 %(version)s"
 
-#: warehouse/templates/packaging/detail.html:176
+#: warehouse/templates/packaging/detail.html:178
 msgid "Latest version"
 msgstr "最新版本"
 
-#: warehouse/templates/packaging/detail.html:181
+#: warehouse/templates/packaging/detail.html:183
 #, python-format
 msgid "Released: %(release_date)s"
 msgstr "上次发布于 %(release_date)s"
 
-#: warehouse/templates/packaging/detail.html:193
+#: warehouse/templates/packaging/detail.html:195
 msgid "No project description provided"
 msgstr "未提供项目描述"
 
-#: warehouse/templates/packaging/detail.html:206
+#: warehouse/templates/packaging/detail.html:208
 msgid "Navigation"
 msgstr "导航栏"
 
-#: warehouse/templates/packaging/detail.html:207
-#: warehouse/templates/packaging/detail.html:238
+#: warehouse/templates/packaging/detail.html:209
+#: warehouse/templates/packaging/detail.html:240
 #, python-format
 msgid "Navigation for %(project)s"
 msgstr "%(project)s 项目的导航"
 
-#: warehouse/templates/packaging/detail.html:210
-#: warehouse/templates/packaging/detail.html:241
+#: warehouse/templates/packaging/detail.html:212
+#: warehouse/templates/packaging/detail.html:243
 msgid "Project description. Focus will be moved to the description."
 msgstr "项目描述。焦点将移至描述。"
 
-#: warehouse/templates/packaging/detail.html:212
-#: warehouse/templates/packaging/detail.html:243
-#: warehouse/templates/packaging/detail.html:271
+#: warehouse/templates/packaging/detail.html:214
+#: warehouse/templates/packaging/detail.html:245
+#: warehouse/templates/packaging/detail.html:273
 msgid "Project description"
 msgstr "项目描述"
 
-#: warehouse/templates/packaging/detail.html:216
-#: warehouse/templates/packaging/detail.html:253
+#: warehouse/templates/packaging/detail.html:218
+#: warehouse/templates/packaging/detail.html:255
 msgid "Release history. Focus will be moved to the history panel."
 msgstr "发布历史记录。焦点将移到“历史记录”面板。"
 
-#: warehouse/templates/packaging/detail.html:218
-#: warehouse/templates/packaging/detail.html:255
-#: warehouse/templates/packaging/detail.html:293
+#: warehouse/templates/packaging/detail.html:220
+#: warehouse/templates/packaging/detail.html:257
+#: warehouse/templates/packaging/detail.html:295
 msgid "Release history"
 msgstr "发行版"
 
-#: warehouse/templates/packaging/detail.html:223
-#: warehouse/templates/packaging/detail.html:260
+#: warehouse/templates/packaging/detail.html:225
+#: warehouse/templates/packaging/detail.html:262
 msgid "Download files. Focus will be moved to the project files."
 msgstr "下载文件。焦点将移到项目文件。"
 
-#: warehouse/templates/packaging/detail.html:225
-#: warehouse/templates/packaging/detail.html:262
-#: warehouse/templates/packaging/detail.html:349
+#: warehouse/templates/packaging/detail.html:227
+#: warehouse/templates/packaging/detail.html:264
+#: warehouse/templates/packaging/detail.html:351
 msgid "Download files"
 msgstr "下载文件"
 
-#: warehouse/templates/packaging/detail.html:247
+#: warehouse/templates/packaging/detail.html:249
 msgid "Project details. Focus will be moved to the project details."
 msgstr "项目详细信息。焦点将移到项目详细信息。"
 
-#: warehouse/templates/packaging/detail.html:249
-#: warehouse/templates/packaging/detail.html:285
+#: warehouse/templates/packaging/detail.html:251
+#: warehouse/templates/packaging/detail.html:287
 msgid "Project details"
 msgstr "项目详情"
 
-#: warehouse/templates/packaging/detail.html:278
+#: warehouse/templates/packaging/detail.html:280
 msgid "The author of this package has not provided a project description"
 msgstr "该软件包的作者没有提供项目描述"
 
-#: warehouse/templates/packaging/detail.html:295
+#: warehouse/templates/packaging/detail.html:297
 msgid "Release notifications"
 msgstr "版本发布设置"
 
-#: warehouse/templates/packaging/detail.html:296
+#: warehouse/templates/packaging/detail.html:298
 msgid "RSS feed"
 msgstr "RSS 订阅源"
 
-#: warehouse/templates/packaging/detail.html:308
+#: warehouse/templates/packaging/detail.html:310
 msgid "This version"
 msgstr "当前版本"
 
-#: warehouse/templates/packaging/detail.html:328
+#: warehouse/templates/packaging/detail.html:330
 msgid "pre-release"
 msgstr "预览版"
 
-#: warehouse/templates/packaging/detail.html:333
+#: warehouse/templates/packaging/detail.html:335
 msgid "yanked"
 msgstr "撤销"
 
-#: warehouse/templates/packaging/detail.html:350
+#: warehouse/templates/packaging/detail.html:352
 #, python-format
 msgid ""
 "Download the file for your platform. If you're not sure which to choose, "
@@ -6187,16 +6187,16 @@ msgstr ""
 "\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">安装软件包（英文）"
 "</a> 的更多信息。"
 
-#: warehouse/templates/packaging/detail.html:352
+#: warehouse/templates/packaging/detail.html:354
 msgid "Source Distribution"
 msgid_plural "Source Distributions"
 msgstr[0] "源分发"
 
-#: warehouse/templates/packaging/detail.html:368
+#: warehouse/templates/packaging/detail.html:370
 msgid "No source distribution files available for this release."
 msgstr "没有可用于此版本的源代码分发文件。"
 
-#: warehouse/templates/packaging/detail.html:369
+#: warehouse/templates/packaging/detail.html:371
 #, python-format
 msgid ""
 "See tutorial on <a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" "
@@ -6205,7 +6205,7 @@ msgstr ""
 "参考<a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener"
 "\">生成分发文件</a>的教程。"
 
-#: warehouse/templates/packaging/detail.html:376
+#: warehouse/templates/packaging/detail.html:378
 msgid "Built Distribution"
 msgid_plural "Built Distributions"
 msgstr[0] "构建分发"
@@ -7849,7 +7849,8 @@ msgid ""
 "project will always resolve to the same file, and cannot be surreptitiously "
 "changed one day by the projects maintainer or a malicious party (it can only "
 "be removed)."
-msgstr "这确保给定项目的给定版本的给定分发将始终解析到相同的文件，并且不会在某一天被"
+msgstr ""
+"这确保给定项目的给定版本的给定分发将始终解析到相同的文件，并且不会在某一天被"
 "项目维护者或恶意方偷偷更改（它只能被删除）。"
 
 #: warehouse/templates/pages/help.html:774
@@ -7857,8 +7858,9 @@ msgid ""
 "To avoid this situation in most cases, you will need to change the version "
 "number to one that you haven't previously uploaded to PyPI, rebuild the "
 "distribution, and then upload the new distribution."
-msgstr "为了在多数情况下避免这种情况，你需要将版本号更改为之前未上传到 PyPI "
-"的版本号，重建分发，然后上传新分发。"
+msgstr ""
+"为了在多数情况下避免这种情况，你需要将版本号更改为之前未上传到 PyPI 的版本"
+"号，重建分发，然后上传新分发。"
 
 # | msgid ""
 # | "If you would like to request a new trove classifier file a bug on

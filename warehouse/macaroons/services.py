@@ -86,7 +86,12 @@ class DatabaseMacaroonService:
         except InvalidMacaroonError:
             return None
 
-        dm = self.find_macaroon(m.identifier.decode())
+        try:
+            identifier = m.identifier.decode()
+        except UnicodeDecodeError:
+            return None
+
+        dm = self.find_macaroon(identifier)
 
         if dm is None:
             return None
@@ -103,7 +108,14 @@ class DatabaseMacaroonService:
         Returns a DB macaroon matching the input, or raises InvalidMacaroonError
         """
         m = self._deserialize_raw_macaroon(raw_macaroon)
-        dm = self.find_macaroon(m.identifier.decode())
+
+        try:
+            identifier = m.identifier.decode()
+        except UnicodeDecodeError:
+            raise InvalidMacaroonError("Macaroon not found")
+
+        dm = self.find_macaroon(identifier)
+
         if not dm:
             raise InvalidMacaroonError("Macaroon not found")
         return dm
