@@ -1386,6 +1386,28 @@ class ManageAccountPublishingViews:
             )
             return self.default_response
 
+        if not self.request.user.can_register_pending_oidc_providers:
+            self.request.session.flash(
+                self.request._(
+                    "This account isn't allowed to register pending OpenID Connect "
+                    "providers. See https://pypi.org/help#openid-connect for details."
+                ),
+                queue="error",
+            )
+            return self.default_response
+
+        # Separately from having permission to register pending OIDC providers,
+        # we limit users to no more than 3 pending providers at once.
+        if len(self.request.user.pending_oidc_providers) >= 3:
+            self.request.session.flash(
+                self.request._(
+                    "You can't register any more pending OpenID Connect providers "
+                    "at the moment."
+                ),
+                queue="error",
+            )
+            return self.default_response
+
         try:
             self._check_ratelimits()
         except TooManyOIDCRegistrations as exc:
