@@ -28,6 +28,7 @@ from warehouse.utils.project import confirm_project, remove_project
 
 ONE_MB = 1024 * 1024  # bytes
 ONE_GB = 1024 * 1024 * 1024  # bytes
+UPLOAD_LIMIT_CAP = 1073741824  # 1 GiB
 
 
 @view_config(
@@ -132,6 +133,7 @@ def project_detail(project, request):
         "MAX_FILESIZE": MAX_FILESIZE,
         "ONE_GB": ONE_GB,
         "MAX_PROJECT_SIZE": MAX_PROJECT_SIZE,
+        "UPLOAD_LIMIT_CAP": UPLOAD_LIMIT_CAP,
     }
 
 
@@ -281,6 +283,12 @@ def set_upload_limit(project, request):
 
         # The form is in MB, but the database field is in bytes.
         upload_limit *= ONE_MB
+
+        if upload_limit > UPLOAD_LIMIT_CAP:
+            raise HTTPBadRequest(
+                f"Upload limit can not be more than the overall limit of "
+                f"{UPLOAD_LIMIT_CAP / ONE_MB}MiB."
+            )
 
         if upload_limit < MAX_FILESIZE:
             raise HTTPBadRequest(
