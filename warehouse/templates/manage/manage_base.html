@@ -469,10 +469,17 @@
     {% endtrans %}
   </p>
 
-  <p class="no-bottom-padding">
+  <p>
     {% trans %}
-      PyPI projects can use trusted OpenID Connect publishers to automate their release
-      processes, without having to explicitly provision or manage API tokens.
+      PyPI users and projects can use trusted OpenID Connect publishers to automate
+      their release processes, without having to explicitly provision or manage API tokens.
+    {% endtrans %}
+  </p>
+
+  <p class="no-bottom-padding">
+    {% trans href="/help#openid-connect" %}
+    You can read more about OpenID Connect and how to use it
+    <a href="{{ href }}">here</a>.
     {% endtrans %}
   </p>
 {% endmacro %}

@@ -14,6 +14,7 @@
 {% extends "manage/manage_base.html" %}
 
 {% set user = request.user %}
+{% set pending_oidc_enabled = user.can_register_pending_oidc_providers %}
 
 {% set active_tab = 'publishing' %}
 
@@ -34,14 +35,15 @@
     {% endtrans %}
   </p>
 
+
   <p class="no-bottom-padding">
-    {% trans %}
+    {% trans href="/help#openid-connect" %}
     These providers behave similarly to OpenID Connect providers registered
     against specific projects, except that they allow users to <strong>create</strong>
     the project if it doesn't already exist. Once the project is created,
     the "pending" provider becomes an ordinary OpenID Connect provider.
     You can read more about "pending" and ordinary OpenID Connect providers
-    here.
+    <a href="{{ href }}">here</a>.
     {% endtrans %}
   </p>
 
@@ -112,7 +114,7 @@
       </div>
     </div>
     <div>
-      <input type="submit" value="{% trans %}Add{% endtrans %}" class="button button--primary">
+      <input type="submit" value="{% trans %}Add{% endtrans %}" class="button button--primary {{ "button--disabled" if not pending_oidc_enabled else "" }}">
     </div>
   </form>
 

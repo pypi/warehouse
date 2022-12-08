@@ -67,6 +67,7 @@
 {% macro apitoken() %}{% trans %}How can I use API tokens to authenticate with PyPI?{% endtrans %}{% endmacro %}
 {% macro sensitiveactions() %}{% trans %}Why do certain actions require me to confirm my password?{% endtrans %}{% endmacro %}
 {% macro username_change() %}{% trans %}How do I change my PyPI username?{% endtrans %}{% endmacro %}
+{% macro openid_connect() %}{% trans %}How can I use OpenID connect to authenticate with PyPI?{% endtrans %}{% endmacro %}
 
 {% macro mirroring() %}{% trans %}How can I run a mirror of PyPI?{% endtrans %}{% endmacro %}
 {% macro APIs() %}{% trans %}Does PyPI have APIs I can use?{% endtrans %}{% endmacro %}
@@ -137,6 +138,7 @@
           <li><a href="#apitoken">{{ apitoken() }}</a></li>
           <li><a href="#sensitiveactions">{{ sensitiveactions() }}</a></li>
           <li><a href="#username-change">{{ username_change() }}</a></li>
+          <li><a href="#openid-connect">{{ openid_connect() }}</a></li>
         </ul>
       </section>
 
@@ -517,6 +519,26 @@
         <h3 id="username-change">{{ username_change() }}</h3>
         <p>{% trans %}PyPI does not currently support changing a username.{% endtrans %}</p>
         <p>{% trans %}Instead, you can create a new account with the desired username, add the new account as a maintainer of all the projects your old account owns, and then delete the old account, which will have the same effect.{% endtrans %}</p>
+
+        <h3 id="openid-connect">{{ openid_connect() }}</h3>
+        <p>
+          {% trans openid="https://openid.net/connect/", apitoken="#apitoken" %}
+          PyPI users and projects can use <a href="{{ openid }}">OpenID Connect</a> to delegate
+          publishing authority for a PyPI package to a trusted third party service, eliminating
+          the need to perform manual <a href="{{ apitoken }}">API token</a> management.
+          {% endtrans %}
+        </p>
+        <p>
+          {% trans %}
+          Publishing projects with OpenID Connect is done by registering "providers,"
+          which correspond to services like GitHub Actions.
+          Providers, in turn, come in two flavors:
+          {% endtrans %}
+        </p>
+        <ul>
+          <li>{% trans %}"Normal" providers, which are registered against individual PyPI projects;{% endtrans %}</li>
+          <li>{% trans %}"Pending" providers, which are registered against authorized users.{% endtrans %}</li>
+        </ul>
 
       </section>
 
