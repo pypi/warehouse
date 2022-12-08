@@ -156,6 +156,28 @@ class TestUser:
         user = DBUserFactory.create()
         assert user.has_burned_recovery_codes is False
 
+    @pytest.mark.parametrize(
+        ("is_superuser", "is_moderator", "is_psf_staff"),
+        [
+            (True, False, False),
+            (False, True, False),
+            (False, False, True),
+        ],
+    )
+    def test_special_users_can_register_pending_oidc_providers(
+        self, db_session, is_superuser, is_moderator, is_psf_staff
+    ):
+        user = DBUserFactory.create(
+            is_superuser=is_superuser,
+            is_moderator=is_moderator,
+            is_psf_staff=is_psf_staff,
+        )
+        assert user.can_register_pending_oidc_providers
+
+    def test_can_register_pending_oidc_providers(self, db_session):
+        user = DBUserFactory.create()
+        assert not user.can_register_pending_oidc_providers
+
     def test_acl(self, db_session):
         user = DBUserFactory.create()
         assert user.__acl__() == [
