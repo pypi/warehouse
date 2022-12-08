@@ -279,12 +279,14 @@ class GitHubProvider(GitHubProviderMixin, OIDCProvider):
 class PendingGitHubProvider(GitHubProviderMixin, PendingOIDCProvider):
     __tablename__ = "pending_github_oidc_providers"
     __mapper_args__ = {"polymorphic_identity": "pending_github_oidc_providers"}
-
-    # NOTE: Unlike GitHubProvider, pending providers do not have a UniqueConstraint
-    # on their GitHub-specific fields. This is so that any user can configure
-    # a pending provider (if authorized) for any nonexistent project, even if
-    # someone else has configured another pending provider for a different
-    # nonexistent project.
+    __table_args__ = (
+        UniqueConstraint(
+            "repository_name",
+            "repository_owner",
+            "workflow_filename",
+            name="_pending_github_oidc_provider_uc",
+        ),
+    )
 
     id = Column(
         UUID(as_uuid=True), ForeignKey(PendingOIDCProvider.id), primary_key=True
