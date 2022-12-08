@@ -26,6 +26,7 @@ from pyramid.httpexceptions import (
 )
 from pyramid.security import forget, remember
 from pyramid.view import view_config, view_defaults
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm.exc import NoResultFound
 from webauthn.helpers import bytes_to_base64url
 
@@ -1430,6 +1431,27 @@ class ManageAccountPublishingViews:
         if not form.validate():
             return response
 
+        provider_already_exists = (
+            self.request.db.query(PendingGitHubProvider.id)
+            .filter_by(
+                repository_name=form.repository.data,
+                repository_owner=form.normalized_owner,
+                workflow_filename=form.workflow_filename.data,
+            )
+            .first()
+            is not None
+        )
+
+        if provider_already_exists:
+            self.request.session.flash(
+                self.request._(
+                    "This OpenID Connect provider has already been registered. "
+                    "Please contact PyPI's admins if this wasn't intentional."
+                ),
+                queue="error",
+            )
+            return response
+
         pending_provider = PendingGitHubProvider(
             project_name=form.project_name.data,
             added_by=self.request.user,
@@ -1438,6 +1460,7 @@ class ManageAccountPublishingViews:
             repository_owner_id=form.owner_id,
             workflow_filename=form.workflow_filename.data,
         )
+
         self.request.db.add(pending_provider)
 
         self.request.user.record_event(
