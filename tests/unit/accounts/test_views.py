@@ -49,7 +49,6 @@ from warehouse.admin.flags import AdminFlag, AdminFlagValue
 from warehouse.events.tags import EventTag
 from warehouse.metrics.interfaces import IMetricsService
 from warehouse.oidc.interfaces import TooManyOIDCRegistrations
-from warehouse.oidc.models import PendingGitHubProvider
 from warehouse.organizations.models import (
     OrganizationInvitation,
     OrganizationRole,
@@ -3581,7 +3580,8 @@ class TestManageAccountPublishingViews:
 
         assert request.session.flash.calls == [
             pretend.call(
-                f"Registered {pending_provider} to create {pending_provider.project_name}",
+                f"Registered {pending_provider} to create "
+                f"{pending_provider.project_name}",
                 queue="success",
             )
         ]

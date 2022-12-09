@@ -1519,7 +1519,8 @@ class ManageAccountPublishingViews:
                 form.provider_id.data
             )
 
-            # pending_provider will be `None` here if someone manually futzes with the form.
+            # pending_provider will be `None` here if someone manually
+            # futzes with the form.
             if pending_provider is None:
                 self.request.session.flash(
                     "Invalid publisher for user",

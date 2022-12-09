@@ -106,7 +106,8 @@ class GitHubProviderBase(forms.Form):
             )
             raise wtforms.validators.ValidationError(
                 _(
-                    "Unexpected connection error from GitHub. Try again in a few minutes."
+                    "Unexpected connection error from GitHub. "
+                    "Try again in a few minutes."
                 )
             )
         except requests.Timeout:
