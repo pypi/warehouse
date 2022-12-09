@@ -308,7 +308,7 @@ msgstr ""
 msgid "Select project"
 msgstr ""
 
-#: warehouse/manage/forms.py:481 warehouse/oidc/forms.py:160
+#: warehouse/manage/forms.py:481 warehouse/oidc/forms.py:161
 msgid "Specify project name"
 msgstr ""
 
@@ -450,31 +450,31 @@ msgstr ""
 msgid "Unexpected connection error from GitHub. Try again in a few minutes."
 msgstr ""
 
-#: warehouse/oidc/forms.py:117
+#: warehouse/oidc/forms.py:118
 msgid "Unexpected timeout from GitHub. Try again in a few minutes."
 msgstr ""
 
-#: warehouse/oidc/forms.py:129
+#: warehouse/oidc/forms.py:130
 msgid "Invalid GitHub user or organization name."
 msgstr ""
 
-#: warehouse/oidc/forms.py:145
+#: warehouse/oidc/forms.py:146
 msgid "Workflow name must end with .yml or .yaml"
 msgstr ""
 
-#: warehouse/oidc/forms.py:150
+#: warehouse/oidc/forms.py:151
 msgid "Workflow filename must be a filename only, without directories"
 msgstr ""
 
-#: warehouse/oidc/forms.py:163
+#: warehouse/oidc/forms.py:164
 msgid "Invalid project name"
 msgstr ""
 
-#: warehouse/oidc/forms.py:177
+#: warehouse/oidc/forms.py:178
 msgid "This project name is already in use"
 msgstr ""
 
-#: warehouse/oidc/forms.py:190
+#: warehouse/oidc/forms.py:191
 msgid "Provider must be specified by ID"
 msgstr ""
 
