@@ -174,9 +174,34 @@ class TestUser:
         )
         assert user.can_register_pending_oidc_providers
 
-    def test_can_register_pending_oidc_providers(self, db_session):
+    def test_trivial_user_cannot_register_pending_oidc_providers(self, db_session):
         user = DBUserFactory.create()
         assert not user.can_register_pending_oidc_providers
+
+    def test_user_without_primary_email_cannot_register_pending_oidc_providers(
+        self, db_session
+    ):
+        date_joined = datetime.datetime.now() - datetime.timedelta(days=91)
+        user = DBUserFactory.create(totp_secret=b"fake secret", date_joined=date_joined)
+        assert not user.can_register_pending_oidc_providers
+
+    def test_user_without_2fa_cannot_register_pending_oidc_providers(self, db_session):
+        date_joined = datetime.datetime.now() - datetime.timedelta(days=91)
+        user = DBUserFactory.create(date_joined=date_joined)
+        email = DBEmailFactory.create(user=user, primary=True)
+        assert not user.can_register_pending_oidc_providers
+
+    def test_new_user_cannot_register_pending_oidc_providers(self, db_session):
+        date_joined = datetime.datetime.now() - datetime.timedelta(days=1)
+        user = DBUserFactory.create(totp_secret=b"fake secret", date_joined=date_joined)
+        email = DBEmailFactory.create(user=user, primary=True)
+        assert not user.can_register_pending_oidc_providers
+
+    def test_qualifying_user_can_register_pending_oidc_providers(self, db_session):
+        date_joined = datetime.datetime.now() - datetime.timedelta(days=91)
+        user = DBUserFactory.create(totp_secret=b"fake secret", date_joined=date_joined)
+        email = DBEmailFactory.create(user=user, primary=True)
+        assert user.can_register_pending_oidc_providers
 
     def test_acl(self, db_session):
         user = DBUserFactory.create()
