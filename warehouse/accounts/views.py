@@ -1442,7 +1442,7 @@ class ManageAccountPublishingViews:
             return response
 
         provider_already_exists = (
-            self.request.db.query(PendingGitHubProvider.id)
+            self.request.db.query(PendingGitHubProvider)
             .filter_by(
                 repository_name=form.repository.data,
                 repository_owner=form.normalized_owner,

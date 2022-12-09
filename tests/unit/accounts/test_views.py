@@ -49,6 +49,7 @@ from warehouse.admin.flags import AdminFlag, AdminFlagValue
 from warehouse.events.tags import EventTag
 from warehouse.metrics.interfaces import IMetricsService
 from warehouse.oidc.interfaces import TooManyOIDCRegistrations
+from warehouse.oidc.models import PendingGitHubProvider
 from warehouse.organizations.models import (
     OrganizationInvitation,
     OrganizationRole,
@@ -3389,3 +3390,195 @@ class TestManageAccountPublishingViews:
         assert view._hit_ratelimits.calls == [pretend.call()]
         assert view._check_ratelimits.calls == [pretend.call()]
         assert pending_github_provider_form_obj.validate.calls == [pretend.call()]
+
+    def test_add_pending_github_oidc_provider_already_exists(self, monkeypatch):
+        metrics = pretend.stub(increment=pretend.call_recorder(lambda *a, **kw: None))
+        pending_provider = pretend.stub()
+        request = pretend.stub(
+            registry=pretend.stub(
+                settings={
+                    "warehouse.oidc.enabled": True,
+                    "github.token": "fake-api-token",
+                }
+            ),
+            find_service=pretend.call_recorder(lambda *a, **kw: metrics),
+            flags=pretend.stub(enabled=pretend.call_recorder(lambda f: False)),
+            session=pretend.stub(flash=pretend.call_recorder(lambda *a, **kw: None)),
+            POST=pretend.stub(),
+            user=pretend.stub(
+                can_register_pending_oidc_providers=True,
+                pending_oidc_providers=[],
+            ),
+            _=lambda s: s,
+            db=pretend.stub(
+                query=lambda q: pretend.stub(
+                    filter_by=lambda **kw: pretend.stub(first=lambda: pending_provider)
+                )
+            ),
+        )
+
+        project_factory = pretend.stub()
+        project_factory_cls = pretend.call_recorder(lambda r: project_factory)
+        monkeypatch.setattr(views, "ProjectFactory", project_factory_cls)
+
+        pending_github_provider_form_obj = pretend.stub(
+            validate=pretend.call_recorder(lambda: True),
+            repository=pretend.stub(data="some-repo"),
+            normalized_owner="some-owner",
+            workflow_filename=pretend.stub(data="some-workflow.yml"),
+        )
+        pending_github_provider_form_cls = pretend.call_recorder(
+            lambda *a, **kw: pending_github_provider_form_obj
+        )
+        monkeypatch.setattr(
+            views, "PendingGitHubProviderForm", pending_github_provider_form_cls
+        )
+
+        view = views.ManageAccountPublishingViews(request)
+        default_response = {
+            "pending_github_provider_form": pending_github_provider_form_obj
+        }
+        monkeypatch.setattr(
+            views.ManageAccountPublishingViews, "default_response", default_response
+        )
+        monkeypatch.setattr(
+            view, "_check_ratelimits", pretend.call_recorder(lambda: None)
+        )
+        monkeypatch.setattr(
+            view, "_hit_ratelimits", pretend.call_recorder(lambda: None)
+        )
+
+        assert view.add_pending_github_oidc_provider() == default_response
+        assert view.metrics.increment.calls == [
+            pretend.call(
+                "warehouse.oidc.add_pending_provider.attempt", tags=["provider:GitHub"]
+            ),
+        ]
+        assert view._hit_ratelimits.calls == [pretend.call()]
+        assert view._check_ratelimits.calls == [pretend.call()]
+        assert pending_github_provider_form_obj.validate.calls == [pretend.call()]
+        assert request.session.flash.calls == [
+            pretend.call(
+                (
+                    "This OpenID Connect provider has already been registered. "
+                    "Please contact PyPI's admins if this wasn't intentional."
+                ),
+                queue="error",
+            )
+        ]
+
+    def test_add_pending_github_oidc_provider(self, monkeypatch):
+        metrics = pretend.stub(increment=pretend.call_recorder(lambda *a, **kw: None))
+        request = pretend.stub(
+            registry=pretend.stub(
+                settings={
+                    "warehouse.oidc.enabled": True,
+                    "github.token": "fake-api-token",
+                }
+            ),
+            find_service=pretend.call_recorder(lambda *a, **kw: metrics),
+            flags=pretend.stub(enabled=pretend.call_recorder(lambda f: False)),
+            session=pretend.stub(flash=pretend.call_recorder(lambda *a, **kw: None)),
+            POST=pretend.stub(),
+            user=pretend.stub(
+                can_register_pending_oidc_providers=True,
+                pending_oidc_providers=[],
+                record_event=pretend.call_recorder(lambda **kw: None),
+            ),
+            _=lambda s: s,
+            db=pretend.stub(
+                query=lambda q: pretend.stub(
+                    filter_by=lambda **kw: pretend.stub(first=lambda: None)
+                ),
+                add=pretend.call_recorder(lambda o: None),
+            ),
+            path="some-path",
+            remote_addr="0.0.0.0",
+        )
+
+        project_factory = pretend.stub()
+        project_factory_cls = pretend.call_recorder(lambda r: project_factory)
+        monkeypatch.setattr(views, "ProjectFactory", project_factory_cls)
+
+        pending_provider = pretend.stub(
+            project_name="some-project-name",
+            provider_name="some-provider",
+            id=uuid.uuid4(),
+        )
+        # NOTE: Can't set __str__ using pretend.stub()
+        monkeypatch.setattr(
+            pending_provider.__class__, "__str__", lambda s: "fakespecifier"
+        )
+
+        pending_provider_cls = pretend.call_recorder(lambda **kw: pending_provider)
+        monkeypatch.setattr(views, "PendingGitHubProvider", pending_provider_cls)
+
+        pending_github_provider_form_obj = pretend.stub(
+            validate=pretend.call_recorder(lambda: True),
+            project_name=pretend.stub(data="some-project-name"),
+            repository=pretend.stub(data="some-repo"),
+            normalized_owner="some-owner",
+            owner_id="some-owner-id",
+            workflow_filename=pretend.stub(data="some-workflow.yml"),
+        )
+        pending_github_provider_form_cls = pretend.call_recorder(
+            lambda *a, **kw: pending_github_provider_form_obj
+        )
+        monkeypatch.setattr(
+            views, "PendingGitHubProviderForm", pending_github_provider_form_cls
+        )
+
+        view = views.ManageAccountPublishingViews(request)
+        default_response = {
+            "pending_github_provider_form": pending_github_provider_form_obj
+        }
+        monkeypatch.setattr(
+            views.ManageAccountPublishingViews, "default_response", default_response
+        )
+        monkeypatch.setattr(
+            view, "_check_ratelimits", pretend.call_recorder(lambda: None)
+        )
+        monkeypatch.setattr(
+            view, "_hit_ratelimits", pretend.call_recorder(lambda: None)
+        )
+
+        assert view.add_pending_github_oidc_provider().__class__ == HTTPSeeOther
+        assert view.metrics.increment.calls == [
+            pretend.call(
+                "warehouse.oidc.add_pending_provider.attempt", tags=["provider:GitHub"]
+            ),
+        ]
+        assert view._hit_ratelimits.calls == [pretend.call()]
+        assert view._check_ratelimits.calls == [pretend.call()]
+        assert pending_github_provider_form_obj.validate.calls == [pretend.call()]
+
+        assert pending_provider_cls.calls == [
+            pretend.call(
+                project_name="some-project-name",
+                added_by=request.user,
+                repository_name="some-repo",
+                repository_owner="some-owner",
+                repository_owner_id="some-owner-id",
+                workflow_filename="some-workflow.yml",
+            )
+        ]
+        assert request.db.add.calls == [pretend.call(pending_provider)]
+        assert request.user.record_event.calls == [
+            pretend.call(
+                tag=EventTag.Account.PendingOIDCProviderAdded,
+                ip_address="0.0.0.0",
+                additional={
+                    "project": "some-project-name",
+                    "provider": "some-provider",
+                    "id": str(pending_provider.id),
+                    "specifier": "fakespecifier",
+                },
+            )
+        ]
+
+        assert request.session.flash.calls == [
+            pretend.call(
+                f"Registered {pending_provider} to create {pending_provider.project_name}",
+                queue="success",
+            )
+        ]
