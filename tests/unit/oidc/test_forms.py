@@ -20,6 +20,26 @@ from webob.multidict import MultiDict
 from warehouse.oidc import forms
 
 
+class TestPendingGitHubProviderForm:
+    def test_creation(self):
+        project_factory = pretend.stub()
+        form = forms.PendingGitHubProviderForm(
+            api_token="fake-token", project_factory=project_factory
+        )
+
+        assert form._project_factory == project_factory
+
+    def test_validate_project_name_already_in_use(self):
+        project_factory = ["some-project"]
+        form = forms.PendingGitHubProviderForm(
+            api_token="fake-token", project_factory=project_factory
+        )
+
+        field = pretend.stub(data="some-project")
+        with pytest.raises(wtforms.validators.ValidationError):
+            form.validate_project_name(field)
+
+
 class TestGitHubProviderForm:
     @pytest.mark.parametrize(
         "token, headers",
