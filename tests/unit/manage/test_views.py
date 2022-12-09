@@ -10330,10 +10330,9 @@ class TestManageOIDCProviderViews:
 
     def test_delete_oidc_provider_admin_disabled(self, monkeypatch):
         project = pretend.stub()
-        metrics = pretend.stub(increment=pretend.call_recorder(lambda *a, **kw: None))
         request = pretend.stub(
             registry=pretend.stub(settings={"warehouse.oidc.enabled": True}),
-            find_service=lambda *a, **kw: metrics,
+            find_service=lambda *a, **kw: None,
             flags=pretend.stub(enabled=pretend.call_recorder(lambda f: True)),
             session=pretend.stub(flash=pretend.call_recorder(lambda *a, **kw: None)),
         )
@@ -10345,11 +10344,6 @@ class TestManageOIDCProviderViews:
         )
 
         assert view.delete_oidc_provider() == default_response
-        assert view.metrics.increment.calls == [
-            pretend.call(
-                "warehouse.oidc.delete_provider.attempt",
-            ),
-        ]
         assert request.session.flash.calls == [
             pretend.call(
                 (

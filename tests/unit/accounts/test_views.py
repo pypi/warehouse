@@ -3547,6 +3547,9 @@ class TestManageAccountPublishingViews:
             pretend.call(
                 "warehouse.oidc.add_pending_provider.attempt", tags=["provider:GitHub"]
             ),
+            pretend.call(
+                "warehouse.oidc.add_pending_provider.ok", tags=["provider:GitHub"]
+            ),
         ]
         assert view._hit_ratelimits.calls == [pretend.call()]
         assert view._check_ratelimits.calls == [pretend.call()]
@@ -3582,3 +3585,214 @@ class TestManageAccountPublishingViews:
                 queue="success",
             )
         ]
+
+    def test_delete_pending_oidc_provider_oidc_disabled(self):
+        request = pretend.stub(
+            registry=pretend.stub(settings={"warehouse.oidc.enabled": False}),
+            find_service=lambda *a, **kw: None,
+        )
+
+        view = views.ManageAccountPublishingViews(request)
+
+        with pytest.raises(HTTPNotFound):
+            view.delete_pending_oidc_provider()
+
+    def test_delete_pending_oidc_provider_admin_disabled(self, monkeypatch):
+        request = pretend.stub(
+            registry=pretend.stub(
+                settings={
+                    "warehouse.oidc.enabled": True,
+                    "github.token": "fake-api-token",
+                }
+            ),
+            find_service=pretend.call_recorder(lambda *a, **kw: None),
+            flags=pretend.stub(enabled=pretend.call_recorder(lambda f: True)),
+            session=pretend.stub(flash=pretend.call_recorder(lambda *a, **kw: None)),
+            POST=pretend.stub(),
+        )
+
+        project_factory = pretend.stub()
+        project_factory_cls = pretend.call_recorder(lambda r: project_factory)
+        monkeypatch.setattr(views, "ProjectFactory", project_factory_cls)
+
+        pending_github_provider_form_obj = pretend.stub()
+        pending_github_provider_form_cls = pretend.call_recorder(
+            lambda *a, **kw: pending_github_provider_form_obj
+        )
+        monkeypatch.setattr(
+            views, "PendingGitHubProviderForm", pending_github_provider_form_cls
+        )
+
+        view = views.ManageAccountPublishingViews(request)
+
+        assert view.delete_pending_oidc_provider() == {
+            "oidc_enabled": True,
+            "pending_github_provider_form": pending_github_provider_form_obj,
+        }
+
+        assert request.flags.enabled.calls == [
+            pretend.call(AdminFlagValue.DISALLOW_OIDC)
+        ]
+        assert request.session.flash.calls == [
+            pretend.call(
+                (
+                    "OpenID Connect is temporarily disabled. "
+                    "See https://pypi.org/help#admin-intervention for details."
+                ),
+                queue="error",
+            )
+        ]
+        assert pending_github_provider_form_cls.calls == [
+            pretend.call(
+                request.POST,
+                api_token="fake-api-token",
+                project_factory=project_factory,
+            )
+        ]
+
+    def test_delete_pending_oidc_provider_invalid_form(self, monkeypatch):
+        metrics = pretend.stub(increment=pretend.call_recorder(lambda *a, **kw: None))
+        request = pretend.stub(
+            registry=pretend.stub(settings={"warehouse.oidc.enabled": True}),
+            find_service=lambda *a, **kw: metrics,
+            flags=pretend.stub(enabled=pretend.call_recorder(lambda f: False)),
+            POST=pretend.stub(),
+        )
+
+        delete_provider_form_obj = pretend.stub(
+            validate=pretend.call_recorder(lambda: False),
+        )
+        delete_provider_form_cls = pretend.call_recorder(
+            lambda *a, **kw: delete_provider_form_obj
+        )
+        monkeypatch.setattr(views, "DeleteProviderForm", delete_provider_form_cls)
+
+        view = views.ManageAccountPublishingViews(request)
+        default_response = {"_": pretend.stub()}
+        monkeypatch.setattr(
+            views.ManageAccountPublishingViews, "default_response", default_response
+        )
+
+        assert view.delete_pending_oidc_provider() == default_response
+
+        assert view.metrics.increment.calls == [
+            pretend.call(
+                "warehouse.oidc.delete_pending_provider.attempt",
+            ),
+        ]
+
+        assert delete_provider_form_cls.calls == [pretend.call(request.POST)]
+        assert delete_provider_form_obj.validate.calls == [pretend.call()]
+
+    def test_delete_pending_oidc_provider_not_found(self, monkeypatch):
+        metrics = pretend.stub(increment=pretend.call_recorder(lambda *a, **kw: None))
+        request = pretend.stub(
+            registry=pretend.stub(settings={"warehouse.oidc.enabled": True}),
+            find_service=lambda *a, **kw: metrics,
+            flags=pretend.stub(enabled=pretend.call_recorder(lambda f: False)),
+            POST=pretend.stub(),
+            db=pretend.stub(query=lambda m: pretend.stub(get=lambda id: None)),
+            session=pretend.stub(flash=pretend.call_recorder(lambda *a, **kw: None)),
+        )
+
+        delete_provider_form_obj = pretend.stub(
+            validate=pretend.call_recorder(lambda: True),
+            provider_id=pretend.stub(data="some-id"),
+        )
+        delete_provider_form_cls = pretend.call_recorder(
+            lambda *a, **kw: delete_provider_form_obj
+        )
+        monkeypatch.setattr(views, "DeleteProviderForm", delete_provider_form_cls)
+
+        view = views.ManageAccountPublishingViews(request)
+        default_response = {"_": pretend.stub()}
+        monkeypatch.setattr(
+            views.ManageAccountPublishingViews, "default_response", default_response
+        )
+
+        assert view.delete_pending_oidc_provider() == default_response
+
+        assert view.metrics.increment.calls == [
+            pretend.call(
+                "warehouse.oidc.delete_pending_provider.attempt",
+            ),
+        ]
+        assert delete_provider_form_cls.calls == [pretend.call(request.POST)]
+        assert delete_provider_form_obj.validate.calls == [pretend.call()]
+        assert request.session.flash.calls == [
+            pretend.call(
+                "Invalid publisher for user",
+                queue="error",
+            )
+        ]
+
+    def test_delete_pending_oidc_provider(self, monkeypatch):
+        metrics = pretend.stub(increment=pretend.call_recorder(lambda *a, **kw: None))
+        pending_provider = pretend.stub(
+            project_name="some-project-name",
+            provider_name="some-provider",
+            id=uuid.uuid4(),
+        )
+        # NOTE: Can't set __str__ using pretend.stub()
+        monkeypatch.setattr(
+            pending_provider.__class__, "__str__", lambda s: "fakespecifier"
+        )
+        request = pretend.stub(
+            registry=pretend.stub(settings={"warehouse.oidc.enabled": True}),
+            find_service=lambda *a, **kw: metrics,
+            flags=pretend.stub(enabled=pretend.call_recorder(lambda f: False)),
+            POST=pretend.stub(),
+            db=pretend.stub(
+                query=lambda m: pretend.stub(get=lambda id: pending_provider),
+                delete=pretend.call_recorder(lambda m: None),
+            ),
+            session=pretend.stub(flash=pretend.call_recorder(lambda *a, **kw: None)),
+            user=pretend.stub(record_event=pretend.call_recorder(lambda **kw: None)),
+            remote_addr="0.0.0.0",
+            path="some-path",
+        )
+
+        delete_provider_form_obj = pretend.stub(
+            validate=pretend.call_recorder(lambda: True),
+            provider_id=pretend.stub(data="some-id"),
+        )
+        delete_provider_form_cls = pretend.call_recorder(
+            lambda *a, **kw: delete_provider_form_obj
+        )
+        monkeypatch.setattr(views, "DeleteProviderForm", delete_provider_form_cls)
+
+        view = views.ManageAccountPublishingViews(request)
+        default_response = {"_": pretend.stub()}
+        monkeypatch.setattr(
+            views.ManageAccountPublishingViews, "default_response", default_response
+        )
+
+        assert view.delete_pending_oidc_provider().__class__ == HTTPSeeOther
+
+        assert view.metrics.increment.calls == [
+            pretend.call(
+                "warehouse.oidc.delete_pending_provider.attempt",
+            ),
+            pretend.call(
+                "warehouse.oidc.delete_pending_provider.ok",
+                tags=["provider:some-provider"],
+            ),
+        ]
+        assert delete_provider_form_cls.calls == [pretend.call(request.POST)]
+        assert delete_provider_form_obj.validate.calls == [pretend.call()]
+        assert request.session.flash.calls == [
+            pretend.call(f"Removed {pending_provider}", queue="success")
+        ]
+        assert request.user.record_event.calls == [
+            pretend.call(
+                tag=EventTag.Account.PendingOIDCProviderRemoved,
+                ip_address="0.0.0.0",
+                additional={
+                    "project": "some-project-name",
+                    "provider": "some-provider",
+                    "id": str(pending_provider.id),
+                    "specifier": str(pending_provider),
+                },
+            )
+        ]
+        assert request.db.delete.calls == [pretend.call(pending_provider)]

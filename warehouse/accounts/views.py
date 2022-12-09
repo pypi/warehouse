@@ -1489,14 +1489,16 @@ class ManageAccountPublishingViews:
             queue="success",
         )
 
+        self.metrics.increment(
+            "warehouse.oidc.add_pending_provider.ok", tags=["provider:GitHub"]
+        )
+
         return HTTPSeeOther(self.request.path)
 
     @view_config(request_method="POST", request_param=DeleteProviderForm.__params__)
-    def delete_oidc_provider(self):
+    def delete_pending_oidc_provider(self):
         if not self.oidc_enabled:
             raise HTTPNotFound
-
-        self.metrics.increment("warehouse.oidc.delete_pending_provider.attempt")
 
         if self.request.flags.enabled(AdminFlagValue.DISALLOW_OIDC):
             self.request.session.flash(
@@ -1507,6 +1509,8 @@ class ManageAccountPublishingViews:
                 queue="error",
             )
             return self.default_response
+
+        self.metrics.increment("warehouse.oidc.delete_pending_provider.attempt")
 
         form = DeleteProviderForm(self.request.POST)
 
