@@ -26,7 +26,6 @@ from pyramid.httpexceptions import (
 )
 from pyramid.security import forget, remember
 from pyramid.view import view_config, view_defaults
-from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm.exc import NoResultFound
 from webauthn.helpers import bytes_to_base64url
 
@@ -1364,6 +1363,16 @@ class ManageAccountPublishingViews:
         if not self.oidc_enabled:
             raise HTTPNotFound
 
+        if self.request.flags.enabled(AdminFlagValue.DISALLOW_OIDC):
+            self.request.session.flash(
+                (
+                    "OpenID Connect is temporarily disabled. "
+                    "See https://pypi.org/help#admin-intervention for details."
+                ),
+                queue="error",
+            )
+            return self.default_response
+
         return self.default_response
 
     @view_config(
@@ -1372,10 +1381,6 @@ class ManageAccountPublishingViews:
     def add_pending_github_oidc_provider(self):
         if not self.oidc_enabled:
             raise HTTPNotFound
-
-        self.metrics.increment(
-            "warehouse.oidc.add_pending_provider.attempt", tags=["provider:GitHub"]
-        )
 
         if self.request.flags.enabled(AdminFlagValue.DISALLOW_OIDC):
             self.request.session.flash(
@@ -1386,6 +1391,10 @@ class ManageAccountPublishingViews:
                 queue="error",
             )
             return self.default_response
+
+        self.metrics.increment(
+            "warehouse.oidc.add_pending_provider.attempt", tags=["provider:GitHub"]
+        )
 
         if not self.request.user.can_register_pending_oidc_providers:
             self.request.session.flash(
@@ -1413,7 +1422,8 @@ class ManageAccountPublishingViews:
             self._check_ratelimits()
         except TooManyOIDCRegistrations as exc:
             self.metrics.increment(
-                "warehouse.oidc.add_provider.ratelimited", tags=["provider:GitHub"]
+                "warehouse.oidc.add_pending_provider.ratelimited",
+                tags=["provider:GitHub"],
             )
             return HTTPTooManyRequests(
                 self.request._(

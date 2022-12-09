@@ -19,7 +19,12 @@ import pretend
 import pytest
 import pytz
 
-from pyramid.httpexceptions import HTTPMovedPermanently, HTTPSeeOther
+from pyramid.httpexceptions import (
+    HTTPMovedPermanently,
+    HTTPNotFound,
+    HTTPSeeOther,
+    HTTPTooManyRequests,
+)
 from sqlalchemy.orm.exc import NoResultFound
 from webauthn.authentication.verify_authentication_response import (
     VerifiedAuthentication,
@@ -42,6 +47,8 @@ from warehouse.accounts.models import User
 from warehouse.accounts.views import two_factor_and_totp_validate
 from warehouse.admin.flags import AdminFlag, AdminFlagValue
 from warehouse.events.tags import EventTag
+from warehouse.metrics.interfaces import IMetricsService
+from warehouse.oidc.interfaces import TooManyOIDCRegistrations
 from warehouse.organizations.models import (
     OrganizationInvitation,
     OrganizationRole,
@@ -2890,3 +2897,495 @@ class TestReAuthentication:
         assert isinstance(result, HTTPSeeOther)
         assert pyramid_request.route_path.calls == [pretend.call("accounts.login")]
         assert result.headers["Location"] == "/the-redirect"
+
+
+class TestManageAccountPublishingViews:
+    def test_initializes(self):
+        metrics = pretend.stub()
+        request = pretend.stub(
+            registry=pretend.stub(settings={"warehouse.oidc.enabled": True}),
+            find_service=pretend.call_recorder(lambda *a, **kw: metrics),
+        )
+        view = views.ManageAccountPublishingViews(request)
+
+        assert view.request is request
+        assert view.oidc_enabled
+        assert view.metrics is metrics
+
+        assert view.request.find_service.calls == [
+            pretend.call(IMetricsService, context=None)
+        ]
+
+    @pytest.mark.parametrize(
+        "ip_exceeded, user_exceeded",
+        [
+            (False, False),
+            (False, True),
+            (True, False),
+        ],
+    )
+    def test_ratelimiting(self, ip_exceeded, user_exceeded):
+        metrics = pretend.stub()
+        user_rate_limiter = pretend.stub(
+            hit=pretend.call_recorder(lambda *a, **kw: None),
+            test=pretend.call_recorder(lambda uid: not user_exceeded),
+            resets_in=pretend.call_recorder(lambda uid: pretend.stub()),
+        )
+        ip_rate_limiter = pretend.stub(
+            hit=pretend.call_recorder(lambda *a, **kw: None),
+            test=pretend.call_recorder(lambda ip: not ip_exceeded),
+            resets_in=pretend.call_recorder(lambda uid: pretend.stub()),
+        )
+
+        def find_service(iface, name=None, context=None):
+            if iface is IMetricsService:
+                return metrics
+
+            if name == "user_oidc.provider.register":
+                return user_rate_limiter
+            else:
+                return ip_rate_limiter
+
+        request = pretend.stub(
+            registry=pretend.stub(settings={"warehouse.oidc.enabled": True}),
+            find_service=pretend.call_recorder(find_service),
+            user=pretend.stub(id=pretend.stub()),
+            remote_addr=pretend.stub(),
+        )
+
+        view = views.ManageAccountPublishingViews(request)
+
+        assert view._ratelimiters == {
+            "user.oidc": user_rate_limiter,
+            "ip.oidc": ip_rate_limiter,
+        }
+        assert request.find_service.calls == [
+            pretend.call(IMetricsService, context=None),
+            pretend.call(IRateLimiter, name="user_oidc.provider.register"),
+            pretend.call(IRateLimiter, name="ip_oidc.provider.register"),
+        ]
+
+        view._hit_ratelimits()
+
+        assert user_rate_limiter.hit.calls == [
+            pretend.call(request.user.id),
+        ]
+        assert ip_rate_limiter.hit.calls == [pretend.call(request.remote_addr)]
+
+        if user_exceeded or ip_exceeded:
+            with pytest.raises(TooManyOIDCRegistrations):
+                view._check_ratelimits()
+        else:
+            view._check_ratelimits()
+
+    def test_manage_publishing(self, monkeypatch):
+        metrics = pretend.stub()
+        request = pretend.stub(
+            registry=pretend.stub(
+                settings={
+                    "warehouse.oidc.enabled": True,
+                    "github.token": "fake-api-token",
+                }
+            ),
+            find_service=pretend.call_recorder(lambda *a, **kw: metrics),
+            flags=pretend.stub(enabled=pretend.call_recorder(lambda f: False)),
+            POST=pretend.stub(),
+        )
+
+        project_factory = pretend.stub()
+        project_factory_cls = pretend.call_recorder(lambda r: project_factory)
+        monkeypatch.setattr(views, "ProjectFactory", project_factory_cls)
+
+        pending_github_provider_form_obj = pretend.stub()
+        pending_github_provider_form_cls = pretend.call_recorder(
+            lambda *a, **kw: pending_github_provider_form_obj
+        )
+        monkeypatch.setattr(
+            views, "PendingGitHubProviderForm", pending_github_provider_form_cls
+        )
+
+        view = views.ManageAccountPublishingViews(request)
+
+        assert view.manage_publishing() == {
+            "oidc_enabled": True,
+            "pending_github_provider_form": pending_github_provider_form_obj,
+        }
+
+        assert request.flags.enabled.calls == [
+            pretend.call(AdminFlagValue.DISALLOW_OIDC)
+        ]
+        assert project_factory_cls.calls == [pretend.call(request)]
+        assert pending_github_provider_form_cls.calls == [
+            pretend.call(
+                request.POST,
+                api_token="fake-api-token",
+                project_factory=project_factory,
+            )
+        ]
+
+    def test_manage_publishing_oidc_disabled(self):
+        request = pretend.stub(
+            registry=pretend.stub(settings={"warehouse.oidc.enabled": False}),
+            find_service=lambda *a, **kw: None,
+        )
+
+        view = views.ManageAccountPublishingViews(request)
+
+        with pytest.raises(HTTPNotFound):
+            view.manage_publishing()
+
+    def test_manage_publishing_admin_disabled(self, monkeypatch):
+        request = pretend.stub(
+            registry=pretend.stub(
+                settings={
+                    "warehouse.oidc.enabled": True,
+                    "github.token": "fake-api-token",
+                }
+            ),
+            find_service=pretend.call_recorder(lambda *a, **kw: None),
+            flags=pretend.stub(enabled=pretend.call_recorder(lambda f: True)),
+            session=pretend.stub(flash=pretend.call_recorder(lambda *a, **kw: None)),
+            POST=pretend.stub(),
+        )
+
+        project_factory = pretend.stub()
+        project_factory_cls = pretend.call_recorder(lambda r: project_factory)
+        monkeypatch.setattr(views, "ProjectFactory", project_factory_cls)
+
+        pending_github_provider_form_obj = pretend.stub()
+        pending_github_provider_form_cls = pretend.call_recorder(
+            lambda *a, **kw: pending_github_provider_form_obj
+        )
+        monkeypatch.setattr(
+            views, "PendingGitHubProviderForm", pending_github_provider_form_cls
+        )
+
+        view = views.ManageAccountPublishingViews(request)
+
+        assert view.manage_publishing() == {
+            "oidc_enabled": True,
+            "pending_github_provider_form": pending_github_provider_form_obj,
+        }
+
+        assert request.flags.enabled.calls == [
+            pretend.call(AdminFlagValue.DISALLOW_OIDC)
+        ]
+        assert request.session.flash.calls == [
+            pretend.call(
+                (
+                    "OpenID Connect is temporarily disabled. "
+                    "See https://pypi.org/help#admin-intervention for details."
+                ),
+                queue="error",
+            )
+        ]
+        assert pending_github_provider_form_cls.calls == [
+            pretend.call(
+                request.POST,
+                api_token="fake-api-token",
+                project_factory=project_factory,
+            )
+        ]
+
+    def test_add_pending_github_oidc_provider_oidc_disabled(self):
+        request = pretend.stub(
+            registry=pretend.stub(settings={"warehouse.oidc.enabled": False}),
+            find_service=lambda *a, **kw: None,
+        )
+
+        view = views.ManageAccountPublishingViews(request)
+
+        with pytest.raises(HTTPNotFound):
+            view.add_pending_github_oidc_provider()
+
+    def test_add_pending_github_oidc_provider_admin_disabled(self, monkeypatch):
+        request = pretend.stub(
+            registry=pretend.stub(
+                settings={
+                    "warehouse.oidc.enabled": True,
+                    "github.token": "fake-api-token",
+                }
+            ),
+            find_service=pretend.call_recorder(lambda *a, **kw: None),
+            flags=pretend.stub(enabled=pretend.call_recorder(lambda f: True)),
+            session=pretend.stub(flash=pretend.call_recorder(lambda *a, **kw: None)),
+            POST=pretend.stub(),
+        )
+
+        project_factory = pretend.stub()
+        project_factory_cls = pretend.call_recorder(lambda r: project_factory)
+        monkeypatch.setattr(views, "ProjectFactory", project_factory_cls)
+
+        pending_github_provider_form_obj = pretend.stub()
+        pending_github_provider_form_cls = pretend.call_recorder(
+            lambda *a, **kw: pending_github_provider_form_obj
+        )
+        monkeypatch.setattr(
+            views, "PendingGitHubProviderForm", pending_github_provider_form_cls
+        )
+
+        view = views.ManageAccountPublishingViews(request)
+
+        assert view.add_pending_github_oidc_provider() == {
+            "oidc_enabled": True,
+            "pending_github_provider_form": pending_github_provider_form_obj,
+        }
+
+        assert request.flags.enabled.calls == [
+            pretend.call(AdminFlagValue.DISALLOW_OIDC)
+        ]
+        assert request.session.flash.calls == [
+            pretend.call(
+                (
+                    "OpenID Connect is temporarily disabled. "
+                    "See https://pypi.org/help#admin-intervention for details."
+                ),
+                queue="error",
+            )
+        ]
+        assert pending_github_provider_form_cls.calls == [
+            pretend.call(
+                request.POST,
+                api_token="fake-api-token",
+                project_factory=project_factory,
+            )
+        ]
+
+    def test_add_pending_github_oidc_provider_user_cannot_register(self, monkeypatch):
+        metrics = pretend.stub(increment=pretend.call_recorder(lambda *a, **kw: None))
+        request = pretend.stub(
+            registry=pretend.stub(
+                settings={
+                    "warehouse.oidc.enabled": True,
+                    "github.token": "fake-api-token",
+                }
+            ),
+            find_service=pretend.call_recorder(lambda *a, **kw: metrics),
+            flags=pretend.stub(enabled=pretend.call_recorder(lambda f: False)),
+            session=pretend.stub(flash=pretend.call_recorder(lambda *a, **kw: None)),
+            POST=pretend.stub(),
+            user=pretend.stub(can_register_pending_oidc_providers=False),
+            _=lambda s: s,
+        )
+
+        project_factory = pretend.stub()
+        project_factory_cls = pretend.call_recorder(lambda r: project_factory)
+        monkeypatch.setattr(views, "ProjectFactory", project_factory_cls)
+
+        pending_github_provider_form_obj = pretend.stub()
+        pending_github_provider_form_cls = pretend.call_recorder(
+            lambda *a, **kw: pending_github_provider_form_obj
+        )
+        monkeypatch.setattr(
+            views, "PendingGitHubProviderForm", pending_github_provider_form_cls
+        )
+
+        view = views.ManageAccountPublishingViews(request)
+
+        assert view.add_pending_github_oidc_provider() == {
+            "oidc_enabled": True,
+            "pending_github_provider_form": pending_github_provider_form_obj,
+        }
+
+        assert request.flags.enabled.calls == [
+            pretend.call(AdminFlagValue.DISALLOW_OIDC)
+        ]
+        assert view.metrics.increment.calls == [
+            pretend.call(
+                "warehouse.oidc.add_pending_provider.attempt", tags=["provider:GitHub"]
+            ),
+        ]
+        assert request.session.flash.calls == [
+            pretend.call(
+                (
+                    "This account isn't allowed to register pending OpenID Connect "
+                    "providers. See https://pypi.org/help#openid-connect for details."
+                ),
+                queue="error",
+            )
+        ]
+        assert pending_github_provider_form_cls.calls == [
+            pretend.call(
+                request.POST,
+                api_token="fake-api-token",
+                project_factory=project_factory,
+            )
+        ]
+
+    def test_add_pending_github_oidc_provider_too_many_already(self, monkeypatch):
+        metrics = pretend.stub(increment=pretend.call_recorder(lambda *a, **kw: None))
+        request = pretend.stub(
+            registry=pretend.stub(
+                settings={
+                    "warehouse.oidc.enabled": True,
+                    "github.token": "fake-api-token",
+                }
+            ),
+            find_service=pretend.call_recorder(lambda *a, **kw: metrics),
+            flags=pretend.stub(enabled=pretend.call_recorder(lambda f: False)),
+            session=pretend.stub(flash=pretend.call_recorder(lambda *a, **kw: None)),
+            POST=pretend.stub(),
+            user=pretend.stub(
+                can_register_pending_oidc_providers=True,
+                pending_oidc_providers=[pretend.stub(), pretend.stub(), pretend.stub()],
+            ),
+            _=lambda s: s,
+        )
+
+        project_factory = pretend.stub()
+        project_factory_cls = pretend.call_recorder(lambda r: project_factory)
+        monkeypatch.setattr(views, "ProjectFactory", project_factory_cls)
+
+        pending_github_provider_form_obj = pretend.stub()
+        pending_github_provider_form_cls = pretend.call_recorder(
+            lambda *a, **kw: pending_github_provider_form_obj
+        )
+        monkeypatch.setattr(
+            views, "PendingGitHubProviderForm", pending_github_provider_form_cls
+        )
+
+        view = views.ManageAccountPublishingViews(request)
+
+        assert view.add_pending_github_oidc_provider() == {
+            "oidc_enabled": True,
+            "pending_github_provider_form": pending_github_provider_form_obj,
+        }
+
+        assert request.flags.enabled.calls == [
+            pretend.call(AdminFlagValue.DISALLOW_OIDC)
+        ]
+        assert view.metrics.increment.calls == [
+            pretend.call(
+                "warehouse.oidc.add_pending_provider.attempt", tags=["provider:GitHub"]
+            ),
+        ]
+        assert request.session.flash.calls == [
+            pretend.call(
+                (
+                    "You can't register any more pending OpenID Connect providers "
+                    "at the moment."
+                ),
+                queue="error",
+            )
+        ]
+        assert pending_github_provider_form_cls.calls == [
+            pretend.call(
+                request.POST,
+                api_token="fake-api-token",
+                project_factory=project_factory,
+            )
+        ]
+
+    def test_add_pending_github_oidc_provider_ratelimited(self, monkeypatch):
+        metrics = pretend.stub(increment=pretend.call_recorder(lambda *a, **kw: None))
+        request = pretend.stub(
+            registry=pretend.stub(
+                settings={
+                    "warehouse.oidc.enabled": True,
+                    "github.token": "fake-api-token",
+                }
+            ),
+            find_service=pretend.call_recorder(lambda *a, **kw: metrics),
+            flags=pretend.stub(enabled=pretend.call_recorder(lambda f: False)),
+            session=pretend.stub(flash=pretend.call_recorder(lambda *a, **kw: None)),
+            POST=pretend.stub(),
+            user=pretend.stub(
+                can_register_pending_oidc_providers=True,
+                pending_oidc_providers=[],
+            ),
+            _=lambda s: s,
+        )
+
+        project_factory = pretend.stub()
+        project_factory_cls = pretend.call_recorder(lambda r: project_factory)
+        monkeypatch.setattr(views, "ProjectFactory", project_factory_cls)
+
+        pending_github_provider_form_obj = pretend.stub()
+        pending_github_provider_form_cls = pretend.call_recorder(
+            lambda *a, **kw: pending_github_provider_form_obj
+        )
+        monkeypatch.setattr(
+            views, "PendingGitHubProviderForm", pending_github_provider_form_cls
+        )
+
+        view = views.ManageAccountPublishingViews(request)
+        monkeypatch.setattr(
+            view,
+            "_check_ratelimits",
+            pretend.call_recorder(
+                pretend.raiser(
+                    TooManyOIDCRegistrations(
+                        resets_in=pretend.stub(total_seconds=lambda: 60)
+                    )
+                )
+            ),
+        )
+
+        assert view.add_pending_github_oidc_provider().__class__ == HTTPTooManyRequests
+        assert view.metrics.increment.calls == [
+            pretend.call(
+                "warehouse.oidc.add_pending_provider.attempt", tags=["provider:GitHub"]
+            ),
+            pretend.call(
+                "warehouse.oidc.add_pending_provider.ratelimited",
+                tags=["provider:GitHub"],
+            ),
+        ]
+
+    def test_add_pending_github_oidc_provider_invalid_form(self, monkeypatch):
+        metrics = pretend.stub(increment=pretend.call_recorder(lambda *a, **kw: None))
+        request = pretend.stub(
+            registry=pretend.stub(
+                settings={
+                    "warehouse.oidc.enabled": True,
+                    "github.token": "fake-api-token",
+                }
+            ),
+            find_service=pretend.call_recorder(lambda *a, **kw: metrics),
+            flags=pretend.stub(enabled=pretend.call_recorder(lambda f: False)),
+            session=pretend.stub(flash=pretend.call_recorder(lambda *a, **kw: None)),
+            POST=pretend.stub(),
+            user=pretend.stub(
+                can_register_pending_oidc_providers=True,
+                pending_oidc_providers=[],
+            ),
+            _=lambda s: s,
+        )
+
+        project_factory = pretend.stub()
+        project_factory_cls = pretend.call_recorder(lambda r: project_factory)
+        monkeypatch.setattr(views, "ProjectFactory", project_factory_cls)
+
+        pending_github_provider_form_obj = pretend.stub(
+            validate=pretend.call_recorder(lambda: False),
+        )
+        pending_github_provider_form_cls = pretend.call_recorder(
+            lambda *a, **kw: pending_github_provider_form_obj
+        )
+        monkeypatch.setattr(
+            views, "PendingGitHubProviderForm", pending_github_provider_form_cls
+        )
+
+        view = views.ManageAccountPublishingViews(request)
+        default_response = {
+            "pending_github_provider_form": pending_github_provider_form_obj
+        }
+        monkeypatch.setattr(
+            views.ManageAccountPublishingViews, "default_response", default_response
+        )
+        monkeypatch.setattr(
+            view, "_check_ratelimits", pretend.call_recorder(lambda: None)
+        )
+        monkeypatch.setattr(
+            view, "_hit_ratelimits", pretend.call_recorder(lambda: None)
+        )
+
+        assert view.add_pending_github_oidc_provider() == default_response
+        assert view.metrics.increment.calls == [
+            pretend.call(
+                "warehouse.oidc.add_pending_provider.attempt", tags=["provider:GitHub"]
+            ),
+        ]
+        assert view._hit_ratelimits.calls == [pretend.call()]
+        assert view._check_ratelimits.calls == [pretend.call()]
+        assert pending_github_provider_form_obj.validate.calls == [pretend.call()]
