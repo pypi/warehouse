@@ -39,6 +39,25 @@ class TestPendingGitHubProviderForm:
         with pytest.raises(wtforms.validators.ValidationError):
             form.validate_project_name(field)
 
+    def test_validate(self, monkeypatch):
+        data = MultiDict(
+            {
+                "owner": "some-owner",
+                "repository": "some-repo",
+                "workflow_filename": "some-workflow.yml",
+                "project_name": "some-project",
+            }
+        )
+        form = forms.PendingGitHubProviderForm(
+            MultiDict(data), api_token=pretend.stub(), project_factory=[]
+        )
+
+        # We're testing only the basic validation here.
+        owner_info = {"login": "fake-username", "id": "1234"}
+        monkeypatch.setattr(form, "_lookup_owner", lambda o: owner_info)
+
+        assert form.validate()
+
 
 class TestGitHubProviderForm:
     @pytest.mark.parametrize(
