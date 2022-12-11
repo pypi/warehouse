@@ -32,31 +32,31 @@
 <div class="sidebar-section">
   <h3 class="sidebar-section__title">{% trans %}Statistics{% endtrans %}</h3>
   {% if release.github_repo_info_url %}
-  <div class="github-repo-info hidden" data-url="{{release.github_repo_info_url}}">
+  <div class="hidden" data-controller="github-repo-info" data-github-repo-info-url-value="{{release.github_repo_info_url}}">
     {% trans %}GitHub statistics:{% endtrans %}
     <ul class="vertical-tabs__list">
       <li>
-        <a class="vertical-tabs__tab vertical-tabs__tab--with-icon vertical-tabs__tab--condensed github-repo-info__item"
-           data-key="html_url" data-attr="href" data-supplement="/stargazers" rel="noopener">
+        <a class="vertical-tabs__tab vertical-tabs__tab--with-icon vertical-tabs__tab--condensed"
+           data-github-repo-info-target="stargazersUrl" rel="noopener">
           <i class="fa fa-star" aria-hidden="true"></i>
           <strong>{% trans %}Stars:{% endtrans %}</strong>
-          <span class="github-repo-info__item" data-key="stargazers_count"></span>
+          <span data-github-repo-info-target="stargazersCount"></span>
         </a>
       </li>
       <li>
-        <a class="vertical-tabs__tab vertical-tabs__tab--with-icon vertical-tabs__tab--condensed github-repo-info__item"
-           data-key="html_url" data-attr="href" data-supplement="/network/members" rel="noopener">
+        <a class="vertical-tabs__tab vertical-tabs__tab--with-icon vertical-tabs__tab--condensed"
+           data-github-repo-info-target="forksUrl" rel="noopener">
           <i class="fa fa-code-branch" aria-hidden="true"></i>
           <strong>{% trans %}Forks:{% endtrans %}</strong>
-          <span class="github-repo-info__item" data-key="forks_count"></span>
+          <span data-github-repo-info-target="forksCount"></span>
         </a>
       </li>
       <li>
-        <a class="vertical-tabs__tab vertical-tabs__tab--with-icon vertical-tabs__tab--condensed github-repo-info__item"
-           data-key="html_url" data-attr="href" data-supplement="/issues" rel="noopener">
+        <a class="vertical-tabs__tab vertical-tabs__tab--with-icon vertical-tabs__tab--condensed"
+           data-github-repo-info-target="openIssuesUrl" rel="noopener">
           <i class="fa fa-exclamation-circle" aria-hidden="true"></i>
           <strong>{% trans %}Open issues/PRs:{% endtrans %}</strong>
-          <span class="github-repo-info__item" data-key="open_issues_count"></span>
+          <span data-github-repo-info-target="openIssuesCount"></span>
         </a>
       </li>
     </ul>
