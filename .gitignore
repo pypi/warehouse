@@ -15,6 +15,7 @@ build/
 dist/*.tar.gz
 dist/*.whl
 htmlcov/
+coverage/
 
 docker-compose.override.yaml
 
