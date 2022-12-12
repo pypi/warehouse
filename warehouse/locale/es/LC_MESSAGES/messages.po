@@ -17,8 +17,8 @@ msgstr ""
 "Project-Id-Version: Warehouse VERSION\n"
 "Report-Msgid-Bugs-To: admin@pypi.org\n"
 "POT-Creation-Date: 2020-04-06 17:52-0500\n"
-"PO-Revision-Date: 2022-11-27 08:06+0000\n"
-"Last-Translator: Cristián Maureira-Fredes <cmaureirafredes@gmail.com>\n"
+"PO-Revision-Date: 2022-12-10 04:23+0000\n"
+"Last-Translator: Diego Ramirez <dr01191115@gmail.com>\n"
 "Language-Team: Spanish <https://hosted.weblate.org/projects/pypa/warehouse/"
 "es/>\n"
 "Language: es\n"
@@ -70,8 +70,8 @@ msgid ""
 "or number. Choose a different username."
 msgstr ""
 "El nombre de usuario no es válido. Los nombres de usuario deben componerse "
-"de letras, números, puntos, guiones y guiones bajos; además, deben comenzar "
-"y finalizar por una letra o un número. Elíjase otro nombre de usuario."
+"de letras, números, puntos, guiones y guiones bajos. Además, deben comenzar "
+"y finalizar por una letra o un número. Elija otro nombre de usuario."
 
 #: warehouse/accounts/forms.py:128
 msgid ""
@@ -368,6 +368,8 @@ msgid ""
 "Start and end with a letter or numeral containing only ASCII numeric and "
 "'.', '_' and '-'."
 msgstr ""
+"Empiece y termine con una letra o número que contenga solo números ASCII y "
+"'.', '_' y '-'."
 
 #: warehouse/manage/forms.py:491
 msgid ""
@@ -409,6 +411,9 @@ msgid ""
 "The team name is invalid. Team names cannot start or end with a space, "
 "period, underscore, hyphen, or slash. Choose a different team name."
 msgstr ""
+"El nombre del equipo es inválido. Los nombres de los equipos no pueden "
+"comenzar ni terminar con un espacio, un punto, un guion bajo, un guion o una "
+"barra diagonal. Elija un nombre de equipo diferente."
 
 #: warehouse/manage/forms.py:666
 msgid "This team name has already been used. Choose a different team name."
@@ -435,16 +440,12 @@ msgid "User '${username}' already has ${role_name} role for organization"
 msgstr "«${username}» ya funge como ${role_name} en la organización"
 
 #: warehouse/manage/views.py:2020
-#, fuzzy
-#| msgid ""
-#| "User '${username}' does not have a verified primary email address and "
-#| "cannot be added as a ${role_name} for project"
 msgid ""
 "User '${username}' does not have a verified primary email address and cannot "
 "be added as a ${role_name} for organization"
 msgstr ""
-"No se puede añadir a «${username}» como ${role_name} del proyecto porque no "
-"tiene verificada ninguna dirección de correo principal"
+"No se puede añadir a «${username}» como ${role_name} de la organización "
+"porque no tiene verificada ninguna dirección de correo principal"
 
 #: warehouse/manage/views.py:2034 warehouse/manage/views.py:4369
 msgid ""
@@ -458,10 +459,8 @@ msgid "Invitation sent to '${username}'"
 msgstr "Se envió la invitación a «${username}»"
 
 #: warehouse/manage/views.py:2146
-#, fuzzy
-#| msgid "Could not find role invitation."
 msgid "Could not find organization invitation."
-msgstr "No se encontró la invitación al puesto."
+msgstr "No se encontró la invitación a la organización."
 
 #: warehouse/manage/views.py:2160 warehouse/manage/views.py:4480
 msgid "Invitation already expired."
@@ -472,31 +471,24 @@ msgid "Invitation revoked from '${username}'."
 msgstr "Se revocó la invitación para «${username}»."
 
 #: warehouse/manage/views.py:3109
-#, fuzzy
-#| msgid ""
-#| "There have been too many unsuccessful login attempts. Try again later."
 msgid ""
 "There have been too many attempted OpenID Connect registrations. Try again "
 "later."
 msgstr ""
-"Hubo demasiados intentos infructuosos de acceso. Inténtelo de nuevo más "
-"tarde."
+"Hubo demasiados intentos de registrarse con OpenID Connect. Inténtelo de "
+"nuevo más tarde."
 
 #: warehouse/manage/views.py:4146
-#, fuzzy
-#| msgid "User '${username}' already has ${role_name} role for project"
 msgid "Team '${team_name}' already has ${role_name} role for project"
-msgstr "«${username}» ya funge como ${role_name} en el proyecto"
+msgstr "El equipo «${team_name}» ya tiene el rol ${role_name} en el proyecto"
 
 #: warehouse/manage/views.py:4254
 msgid "User '${username}' already has ${role_name} role for project"
 msgstr "«${username}» ya funge como ${role_name} en el proyecto"
 
 #: warehouse/manage/views.py:4323
-#, fuzzy
-#| msgid "You are now ${role} of the '${project_name}' project."
 msgid "${username} is now ${role} of the '${project_name}' project."
-msgstr "Ahora es ${role} del proyecto «${project_name}»."
+msgstr "${username} es ahora ${role} del proyecto «${project_name}»."
 
 #: warehouse/manage/views.py:4356
 msgid ""
@@ -512,7 +504,7 @@ msgstr "No se encontró la invitación al puesto."
 
 #: warehouse/oidc/forms.py:32
 msgid "Specify GitHub repository owner (username or organization)"
-msgstr ""
+msgstr "Especifique el dueño del repositorio en GitHub (usuario u organización)"
 
 #: warehouse/oidc/forms.py:39
 msgid "Specify repository name"
@@ -528,23 +520,27 @@ msgstr "Especifique el nombre de archivo del flujo de trabajo"
 
 #: warehouse/oidc/forms.py:77
 msgid "Unknown GitHub user or organization."
-msgstr ""
+msgstr "Usuario u organización de GitHub desconocido."
 
 #: warehouse/oidc/forms.py:87
 msgid "GitHub has rate-limited this action. Try again in a few minutes."
 msgstr ""
+"GitHub ha limitado la velocidad de esta acción. Vuelve a intentarlo en unos "
+"minutos."
 
 #: warehouse/oidc/forms.py:97
 msgid "Unexpected error from GitHub. Try again."
-msgstr ""
+msgstr "Error inesperado de GitHub. Intente de nuevo."
 
 #: warehouse/oidc/forms.py:104
 msgid "Unexpected timeout from GitHub. Try again in a few minutes."
 msgstr ""
+"Terminó el tiempo de espera inesperadamente en GitHub. Reintente en unos "
+"minutos."
 
 #: warehouse/oidc/forms.py:116
 msgid "Invalid GitHub user or organization name."
-msgstr ""
+msgstr "Nombre de usuario u organización de GitHub inválido."
 
 #: warehouse/oidc/forms.py:132
 msgid "Workflow name must end with .yml or .yaml"
@@ -553,17 +549,17 @@ msgstr "El nombre del flujo de trabajo debe terminar en .yml o .yaml"
 #: warehouse/oidc/forms.py:137
 msgid "Workflow filename must be a filename only, without directories"
 msgstr ""
+"El nombre de archivo del flujo de trabajo debe ser solo un nombre de "
+"archivo, sin directorios"
 
 #: warehouse/oidc/forms.py:146
 msgid "Provider must be specified by ID"
-msgstr ""
+msgstr "El proveedor debe ser especificado mediante un ID"
 
 #: warehouse/subscriptions/models.py:42
 #: warehouse/templates/manage/project/history.html:182
-#, fuzzy
-#| msgid "Action"
 msgid "Active"
-msgstr "Acción"
+msgstr "Activo"
 
 #: warehouse/subscriptions/models.py:43
 #, fuzzy
@@ -573,13 +569,11 @@ msgstr "Último uso"
 
 #: warehouse/subscriptions/models.py:44
 msgid "Unpaid"
-msgstr ""
+msgstr "No pagado"
 
 #: warehouse/subscriptions/models.py:45
-#, fuzzy
-#| msgid "Cancel"
 msgid "Canceled"
-msgstr "Cancelar"
+msgstr "Cancelado"
 
 #: warehouse/subscriptions/models.py:46
 msgid "Incomplete"
@@ -593,7 +587,7 @@ msgstr "Invitación caducada"
 
 #: warehouse/subscriptions/models.py:48
 msgid "Trialing"
-msgstr ""
+msgstr "Probando"
 
 #: warehouse/templates/403.html:16
 msgid "Access Denied / Forbidden (403)"
@@ -847,20 +841,18 @@ msgstr "Menú principal"
 # "
 # | "target=\"_blank\" rel=\"noopener\">Python Packaging User Guide</a>"
 #: warehouse/templates/base.html:66
-#, fuzzy, python-format
-#| msgid ""
-#| "<strong>Quarterly</strong> thank you tweet from the <a href=\"%(href)s\" "
-#| "title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">Python Software "
-#| "Foundation</a>"
+#, python-format
 msgid ""
 "\"%(wordmark)s\", \"%(name)s\", and the blocks logos are registered "
 "trademarks of the <a href=\"%(psf_href)s\" target=\"_blank\" rel=\"noopener"
 "\">Python Software Foundation</a> referring to the products and services "
 "associated with pypi.org. Any other use by any other party is prohibited."
 msgstr ""
-"Tuit <strong>trimestral</strong> de agradecimiento por parte de la <a href="
-"\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">Python "
-"Software Foundation</a>"
+"\"%(wordmark)s\", \"%(name)s\", y los logos de los bloques son marcas "
+"registradas de <a href=\"%(psf_href)s\" target=\"_blank\" rel=\"noopener\""
+">Python Software Foundation</a> refiriéndose a los productos y servicios "
+"asociados con pypi.org. Queda prohibido cualquier otro uso por cualquier "
+"otra parte."
 
 # | msgid ""
 # | "Learn how to upload files on the <a href=\"%(href)s\"
@@ -868,19 +860,15 @@ msgstr ""
 # "
 # | "target=\"_blank\" rel=\"noopener\">Python Packaging User Guide</a>"
 #: warehouse/templates/base.html:70
-#, fuzzy, python-format
-#| msgid ""
-#| "<strong>Quarterly</strong> thank you tweet from the <a href=\"%(href)s\" "
-#| "title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">Python Software "
-#| "Foundation</a>"
+#, python-format
 msgid ""
 "\"%(wordmark)s\", \"%(name)s\", and the blocks logos are registered <a href="
 "\"%(trademarks_href)s\">trademarks</a> of the <a href=\"%(psf_href)s\" "
 "target=\"_blank\" rel=\"noopener\">Python Software Foundation</a>."
 msgstr ""
-"Tuit <strong>trimestral</strong> de agradecimiento por parte de la <a href="
-"\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">Python "
-"Software Foundation</a>"
+"\"%(wordmark)s\", \"%(name)s\", y los logos de los bloques son <a href=\""
+"%(trademarks_href)s\">marcas</a> registradas de <a href=\"%(psf_href)s\" "
+"target=\"_blank\" rel=\"noopener\">Python Software Foundation</a>."
 
 #: warehouse/templates/base.html:93 warehouse/templates/index.html:109
 msgid ""
@@ -4408,6 +4396,7 @@ msgstr "Proyecto crucial"
 #: warehouse/templates/manage/team/projects.html:97
 msgid "PyPI requires 2FA to be enabled to manage this project"
 msgstr ""
+"PyPI requiere la autenticación en dos pasos activa para manejar este proyecto"
 
 #: warehouse/templates/manage/organization/projects.html:57
 #: warehouse/templates/manage/organization/projects.html:98
@@ -6976,7 +6965,7 @@ msgstr "Nombre de equipo"
 
 #: warehouse/templates/packaging/detail.html:108
 msgid "view hashes"
-msgstr "ver resúmenes"
+msgstr "ver hashes"
 
 #: warehouse/templates/packaging/detail.html:128
 #, python-format
