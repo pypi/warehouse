@@ -15,13 +15,14 @@
 # moto kawasaki <moto@kawasaki3.org>, 2021, 2022.
 # YangYulin <yylteam@icloud.com>, 2022.
 # 金城翔平 <job.kinjo@gmail.com>, 2022.
+# Deleted User <noreply+53680@weblate.org>, 2022.
 msgid ""
 msgstr ""
 "Project-Id-Version: Warehouse VERSION\n"
 "Report-Msgid-Bugs-To: admin@pypi.org\n"
 "POT-Creation-Date: 2020-04-06 17:52-0500\n"
-"PO-Revision-Date: 2022-10-31 07:07+0000\n"
-"Last-Translator: moto kawasaki <moto@kawasaki3.org>\n"
+"PO-Revision-Date: 2022-12-12 08:49+0000\n"
+"Last-Translator: Deleted User <noreply+53680@weblate.org>\n"
 "Language-Team: Japanese <https://hosted.weblate.org/projects/pypa/warehouse/"
 "ja/>\n"
 "Language: ja\n"
@@ -29,7 +30,7 @@ msgstr ""
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Generator: Weblate 4.14.2-dev\n"
+"X-Generator: Weblate 4.15-dev\n"
 "Generated-By: Babel 2.8.0\n"
 
 #: warehouse/views.py:125
@@ -58,7 +59,7 @@ msgstr "TOTP コードは ${totp_length} 桁でなければなりません。"
 
 #: warehouse/accounts/forms.py:90
 msgid "Recovery Codes must be ${recovery_code_length} characters."
-msgstr ""
+msgstr "リカバリーコード"
 
 #: warehouse/accounts/forms.py:105
 msgid "Choose a username with 50 characters or less."
