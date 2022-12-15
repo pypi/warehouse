@@ -147,9 +147,9 @@ celery[sqs]==5.2.7 \
 celery-redbeat==2.0.0 \
     --hash=sha256:cb8d6941be5df2666dd3188c3029c74e0fa33d50de6eaf7da88e0a5b591a190c
     # via -r requirements/main.in
-certifi==2022.9.24 \
-    --hash=sha256:0d9c601124e5a6ba9712dbc60d9c53c21e34f5f641fe83002317394311bdce14 \
-    --hash=sha256:90c1a32f1d68f940488354e36370f6cca89f0f106db09518524c88d6ed83f382
+certifi==2022.12.7 \
+    --hash=sha256:35824b4c3a97115964b408844d64aa14db1cc518f6562e8d7261699d1350a9e3 \
+    --hash=sha256:4ad3232f5e926d6718ec31cfc1fcadfde020920e278684144551c91769c7bc18
     # via
     #   -r requirements/main.in
     #   elasticsearch
