@@ -1,0 +1,90 @@
+{
+  "settings": {
+    "expiration": {
+      "root": 365,
+      "targets": 365,
+      "snapshot": 1,
+      "timestamp": 1,
+      "bins": 1
+    },
+    "services": {
+      "number_of_delegated_bins": 256,
+      "targets_base_url": "http://127.0.0.1:9001/simple/",
+      "targets_online_key": true
+    }
+  },
+  "metadata": {
+    "root": {
+      "signatures": [
+        {
+          "keyid": "a0cb8f1d00f8c7455e92272e01f551fc96c38d3b6bd201d7d3bdc08b3a418d1d",
+          "sig": "6fe3f661a40677df1ff5fac724cf3a47c826224be5ff9e1099cb76f826bac64722fa5e8120ad7eb032565a75a561d69255985b9de4ec25bb115710e8d3602d0b"
+        },
+        {
+          "keyid": "d5a3a5b1d77c59675fb830a558b7925a6b3e4da2e888af7372094984fbe37e9e",
+          "sig": "12485c76a748feed1ffdef59c24ba3258e56a20304207ae42138fff2c8c7314a14fb8f0beb7adfe85e78aebfc75200bac233a18a02d8c79ff06813f3900ff50e"
+        }
+      ],
+      "signed": {
+        "_type": "root",
+        "version": 1,
+        "spec_version": "1.0.30",
+        "expires": "2024-06-11T16:40:02Z",
+        "consistent_snapshot": true,
+        "keys": {
+          "a0cb8f1d00f8c7455e92272e01f551fc96c38d3b6bd201d7d3bdc08b3a418d1d": {
+            "keytype": "ed25519",
+            "scheme": "ed25519",
+            "keyval": {
+              "public": "ac5cd92ec491fea3f0b4c8a04af3fb957b5fc8965a79379131cfa4581905739f"
+            },
+            "name": "root key 1"
+          },
+          "d5a3a5b1d77c59675fb830a558b7925a6b3e4da2e888af7372094984fbe37e9e": {
+            "keytype": "ed25519",
+            "scheme": "ed25519",
+            "keyval": {
+              "public": "6d112f8658d1d8f42b17a263641bf7bd8940c97f25f9ea83d3aa609ec5fe9a91"
+            },
+            "name": "root key 2"
+          },
+          "64b5a379908148215a6bc1c9c66aa595fc87037555a054c4dddae5fc96d75bc2": {
+            "keytype": "ed25519",
+            "scheme": "ed25519",
+            "keyval": {
+              "public": "41df147e582fb6c14445da4db011b7d7d03824ea7b64aef5bb3aa8a57269b327"
+            },
+            "name": "online key v1"
+          }
+        },
+        "roles": {
+          "root": {
+            "keyids": [
+              "a0cb8f1d00f8c7455e92272e01f551fc96c38d3b6bd201d7d3bdc08b3a418d1d",
+              "d5a3a5b1d77c59675fb830a558b7925a6b3e4da2e888af7372094984fbe37e9e"
+            ],
+            "threshold": 1
+          },
+          "timestamp": {
+            "keyids": [
+              "64b5a379908148215a6bc1c9c66aa595fc87037555a054c4dddae5fc96d75bc2"
+            ],
+            "threshold": 1
+          },
+          "snapshot": {
+            "keyids": [
+              "64b5a379908148215a6bc1c9c66aa595fc87037555a054c4dddae5fc96d75bc2"
+            ],
+            "threshold": 1
+          },
+          "targets": {
+            "keyids": [
+              "64b5a379908148215a6bc1c9c66aa595fc87037555a054c4dddae5fc96d75bc2"
+            ],
+            "threshold": 1
+          }
+        }
+      }
+    }
+  }
+}

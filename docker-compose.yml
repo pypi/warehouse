@@ -8,6 +8,8 @@ volumes:
   policies:
   vault:
   caches:
+  rstuf-worker-data:
+  rstuf-metadata:
 
 services:
   vault:
@@ -110,6 +112,8 @@ services:
       # Included to support linters during development
       - ./gunicorn-prod.conf.py:/opt/warehouse/src/gunicorn-prod.conf.py:z
       - ./gunicorn-uploads.conf.py:/opt/warehouse/src/gunicorn-uploads.conf.py:z
+      - rstuf-metadata:/var/opt/warehouse/metadata
+      - ./dev/tufkeys:/opt/warehouse/src/dev/tufkeys:z
 
   web:
     image: warehouse:docker-compose
@@ -139,6 +143,7 @@ services:
       - packages-archive:/var/opt/warehouse/packages-archive
       - sponsorlogos:/var/opt/warehouse/sponsorlogos
       - simple:/var/opt/warehouse/simple
+      - rstuf-metadata:/var/opt/warehouse/metadata
     ports:
       - "9001:9001"
 
@@ -156,6 +161,68 @@ services:
       FILES_BACKEND: "warehouse.packaging.services.LocalFileStorage path=/var/opt/warehouse/packages/ url=http://files:9001/packages/{path}"
       ARCHIVE_FILES_BACKEND: "warehouse.packaging.services.LocalArchiveFileStorage path=/var/opt/warehouse/packages-archive/ url=http://files:9001/packages-archive/{path}"
       SIMPLE_BACKEND: "warehouse.packaging.services.LocalSimpleStorage path=/var/opt/warehouse/simple/ url=http://files:9001/simple/{path}"
+
+  rstuf-worker01:
+    image: ghcr.io/repository-service-tuf/repository-service-tuf-worker:latest
+    volumes:
+      - rstuf-worker-data:/data
+      - ./dev/rstuf-workers-supervisor.conf:/opt/repository-service-tuf/supervisor.conf:z
+      - rstuf-metadata:/var/opt/repository-service-tuf/storage
+      - ./dev/tufkeys/online:/var/opt/repository-service-tuf/keystorage
+    environment:
+      - RSTUF_STORAGE_BACKEND=LocalStorage
+      - RSTUF_LOCAL_STORAGE_BACKEND_PATH=/var/opt/repository-service-tuf/storage
+      - RSTUF_KEYVAULT_BACKEND=LocalKeyVault
+      - RSTUF_LOCAL_KEYVAULT_PATH=/var/opt/repository-service-tuf/keystorage
+      - RSTUF_LOCAL_KEYVAULT_KEYS=online,an insecure private key password
+      - RSTUF_BROKER_SERVER=redis://redis/1
+      - RSTUF_REDIS_SERVER=redis://redis
+      - RSTUF_REDIS_SERVER_DB_RESULT=1
+      - RSTUF_REDIS_SERVER_DB_REPO_SETTINGS=2
+      - RSTUF_SQL_SERVER=postgresql://postgres@db:5432/rstuf
+    healthcheck:
+      test: "exit 0"
+    restart: always
+    tty: true
+    depends_on:
+      db:
+        condition: service_healthy
+
+  rstuf-worker02:
+    image: ghcr.io/repository-service-tuf/repository-service-tuf-worker:latest
+    volumes:
+      - rstuf-worker-data:/data
+      - ./dev/rstuf-workers-supervisor.conf:/opt/repository-service-tuf/supervisor.conf:z
+      - rstuf-metadata:/var/opt/repository-service-tuf/storage
+      - ./dev/tufkeys/online:/var/opt/repository-service-tuf/keystorage
+    environment:
+      - RSTUF_STORAGE_BACKEND=LocalStorage
+      - RSTUF_LOCAL_STORAGE_BACKEND_PATH=/var/opt/repository-service-tuf/storage
+      - RSTUF_KEYVAULT_BACKEND=LocalKeyVault
+      - RSTUF_LOCAL_KEYVAULT_PATH=/var/opt/repository-service-tuf/keystorage
+      - RSTUF_LOCAL_KEYVAULT_KEYS=online,an insecure private key password
+      - RSTUF_BROKER_SERVER=redis://redis/1
+      - RSTUF_REDIS_SERVER=redis://redis
+      - RSTUF_REDIS_SERVER_DB_RESULT=1
+      - RSTUF_REDIS_SERVER_DB_REPO_SETTINGS=2
+      - RSTUF_SQL_SERVER=postgresql://postgres@db:5432/rstuf
+    healthcheck:
+      test: "exit 0"
+    restart: always
+    tty: true
+    depends_on:
+      db:
+        condition: service_healthy
+
+  rstuf-api:
+    image: ghcr.io/repository-service-tuf/repository-service-tuf-api:latest
+    ports:
+      - 8001:80
+    environment:
+      - RSTUF_BROKER_SERVER=redis://redis/1
+      - RSTUF_REDIS_SERVER=redis://redis
+      - RSTUF_REDIS_SERVER_DB_RESULT=1
+      - RSTUF_REDIS_SERVER_DB_REPO_SETTINGS=2
 
   static:
     build:

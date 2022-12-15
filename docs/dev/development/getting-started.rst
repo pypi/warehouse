@@ -249,6 +249,27 @@ or that the ``static`` container has finished compiling the static assets:
 
 or maybe something else.
 
+Running the TUF Initialization (PEP 458)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.. code-block:: console
+
+    make tufinit
+
+This command will:
+
+* create a new Postgres RSTUF database
+* restart the RSTUF services and run database migrations
+* use a `RSTUF ceremony payload and bootstrap the TUF Repository
+  <https://repository-service-tuf.readthedocs.io/en/v1.0.0a1-draft/guide/deployment/setup.html#ceremony-and-bootstrap>`_,
+
+
+Optionally, you can import all examples of packages from the Warehouse
+development database to the TUF Metadata
+
+.. code-block:: console
+
+    make tufimport
 
 Viewing Warehouse in a browser
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^

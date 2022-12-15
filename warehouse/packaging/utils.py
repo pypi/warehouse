@@ -96,6 +96,7 @@ def render_simple_detail(project, request, store=False):
     simple_detail_path = (
         f"{project.normalized_name}/{content_hash}.{project.normalized_name}.html"
     )
+    simple_detail_size = len(content.encode("utf-8"))
 
     if store:
         storage = request.find_service(ISimpleStorage)
@@ -122,4 +123,4 @@ def render_simple_detail(project, request, store=False):
                 },
             )
 
-    return (content_hash, simple_detail_path)
+    return (content_hash, simple_detail_path, simple_detail_size)

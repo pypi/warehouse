@@ -117,6 +117,14 @@ reindex: .state/docker-build-base
 shell: .state/docker-build-base
 	docker compose run --rm web python -m warehouse shell
 
+tufinit:
+	docker compose run --rm web psql -h db -d postgres -U postgres -c "CREATE DATABASE rstuf ENCODING 'UTF8'"
+	docker compose restart rstuf-worker01 rstuf-worker02
+	docker compose run --rm web rstuf admin ceremony -b -u -f /opt/warehouse/src/dev/rstuf-bootstrap-payload.json --upload-server http://rstuf-api
+
+tufimport:
+	docker-compose run --rm web python -m warehouse tuf dev import-all
+
 dbshell: .state/docker-build-base
 	docker compose run --rm web psql -h db -d warehouse -U postgres
 
@@ -131,4 +139,4 @@ purge: stop clean
 stop:
 	docker compose stop
 
-.PHONY: default build serve initdb shell dbshell tests dev-docs user-docs deps clean purge debug stop compile-pot runmigrations
+.PHONY: default build serve initdb shell dbshell tests dev-docs user-docs deps clean purge debug stop compile-pot runmigrations tufinit tufimport

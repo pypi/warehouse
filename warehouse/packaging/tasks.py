@@ -28,6 +28,7 @@ from warehouse.accounts.models import User, WebAuthn
 from warehouse.metrics import IMetricsService
 from warehouse.packaging.interfaces import IFileStorage
 from warehouse.packaging.models import Description, File, Project, Release, Role
+from warehouse.packaging.utils import render_simple_detail
 from warehouse.utils import readme
 from warehouse.utils.row_counter import RowCount
 
@@ -557,3 +558,9 @@ def sync_bigquery_release_files(request):
                 json_rows, table_name, job_config=LoadJobConfig(schema=table_schema)
             ).result()
             break
+
+
+@tasks.task(ignore_result=True, acks_late=True)
+def generate_projects_simple_detail(request, projects):
+    for project in projects:
+        render_simple_detail(project, request, store=True)

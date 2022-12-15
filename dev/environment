@@ -70,3 +70,9 @@ OIDC_AUDIENCE=pypi
 # Default to the reCAPTCHA testing keys from https://developers.google.com/recaptcha/docs/faq
 RECAPTCHA_SITE_KEY=6LeIxAcTAAAAAJcZVRqyHh71UMIEGNQ_MXjiZKhI
 RECAPTCHA_SECRET_KEY=6LeIxAcTAAAAAGG-vFI1TnRWxMZNFuojJ4WifJWe
+
+TUF_METADATA_URL="http://files:9001/metadata/"
+TUF_API_URL="http://rstuf-api/api/v1/"
+TUF_DATABASE_URL="postgresql://postgres@db/rstuf"
+TUF_ROOT_SECRET="an insecure private key password"
+TUF_ONLINE_SECRET="an insecure private key password"

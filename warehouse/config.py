@@ -269,6 +269,12 @@ def configure(settings=None):
         coercer=int,
         default=100,
     )
+    maybe_set(settings, "tuf.database.url", "TUF_DATABASE_URL")
+    maybe_set(settings, "tuf.metadata.url", "TUF_METADATA_URL")
+    maybe_set(settings, "tuf.api.url", "TUF_API_URL")
+    maybe_set(settings, "tuf.root1.secret", "TUF_ROOT_SECRET")
+    maybe_set(settings, "tuf.root2.secret", "TUF_ROOT_SECRET")
+    maybe_set(settings, "tuf.online.secret", "TUF_ROOT_SECRET")
     maybe_set_compound(settings, "billing", "backend", "BILLING_BACKEND")
     maybe_set_compound(settings, "files", "backend", "FILES_BACKEND")
     maybe_set_compound(settings, "archive_files", "backend", "ARCHIVE_FILES_BACKEND")
@@ -656,6 +662,9 @@ def configure(settings=None):
 
     # Allow the packaging app to register any services it has.
     config.include(".packaging")
+
+    # Configure TUF (RSTUF)
+    config.include(".tuf")
 
     # Configure redirection support
     config.include(".redirects")
