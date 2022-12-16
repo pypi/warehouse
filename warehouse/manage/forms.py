@@ -576,6 +576,10 @@ class SaveOrganizationForm(forms.Form):
                     "Choose a organization URL with 400 characters or less."
                 ),
             ),
+            wtforms.validators.Regexp(
+                r"^https?://",
+                message=_("The organization URL must start with http:// or https://"),
+            ),
         ]
     )
     description = wtforms.TextAreaField(
