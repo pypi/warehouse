@@ -31,9 +31,9 @@ docutils==0.18.1 \
     #   -r requirements/docs.in
     #   myst-parser
     #   sphinx
-furo==2022.9.29 \
-    --hash=sha256:559ee17999c0f52728481dcf6b1b0cf8c9743e68c5e3a18cb45a7992747869a9 \
-    --hash=sha256:d4238145629c623609c2deb5384f8d036e2a1ee2a101d64b67b4348112470dbd
+furo==2022.12.7 \
+    --hash=sha256:7cb76c12a25ef65db85ab0743df907573d03027a33631f17d267e598ebb191f7 \
+    --hash=sha256:d8008f8efbe7587a97ba533c8b2df1f9c21ee9b3e5cad0d27f61193d38b1a986
     # via -r requirements/docs.in
 idna==3.4 \
     --hash=sha256:814f528e8dead7d329833b91c5faa87d60bf71824cd12a7530b5526063d02cb4 \
