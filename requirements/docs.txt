@@ -97,9 +97,9 @@ markupsafe==2.1.1 \
     --hash=sha256:f121a1420d4e173a5d96e47e9a0c0dcff965afdf1626d28de1460815f7c4ee7a \
     --hash=sha256:fc7b548b17d238737688817ab67deebb30e8073c95749d55538ed473130ec0c7
     # via jinja2
-mdit-py-plugins==0.3.1 \
-    --hash=sha256:3fc13298497d6e04fe96efdd41281bfe7622152f9caa1815ea99b5c893de9441 \
-    --hash=sha256:606a7f29cf56dbdfaf914acb21709b8f8ee29d857e8f29dcc33d8cb84c57bfa1
+mdit-py-plugins==0.3.3 \
+    --hash=sha256:36d08a29def19ec43acdcd8ba471d3ebab132e7879d442760d963f19913e04b9 \
+    --hash=sha256:5cfd7e7ac582a594e23ba6546a2f406e94e42eb33ae596d0734781261c251260
     # via myst-parser
 mdurl==0.1.2 \
     --hash=sha256:84008a41e51615a49fc9966191ff91509e3c40b939176e643fd50a5c2196b8f8 \
