@@ -240,9 +240,9 @@ typing-extensions==4.4.0 \
     #   boto3-stubs
     #   celery-types
     #   mypy
-zope-event==4.5.0 \
-    --hash=sha256:2666401939cdaa5f4e0c08cf7f20c9b21423b95e88f4675b1443973bdb080c42 \
-    --hash=sha256:5e76517f5b9b119acf37ca8819781db6c16ea433f7e2062c4afc2b6fbedb1330
+zope-event==4.6 \
+    --hash=sha256:73d9e3ef750cca14816a9c322c7250b0d7c9dbc337df5d1b807ff8d3d0b9e97c \
+    --hash=sha256:81d98813046fc86cc4136e3698fee628a3282f9c320db18658c21749235fce80
     # via zope-schema
 zope-interface==5.5.1 \
     --hash=sha256:026e7da51147910435950a46c55159d68af319f6e909f14873d35d411f4961db \
