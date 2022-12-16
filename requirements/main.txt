@@ -973,9 +973,9 @@ pip-api==0.0.30 \
     --hash=sha256:2a0314bd31522eb9ffe8a99668b0d07fee34ebc537931e7b6483001dbedcbdc9 \
     --hash=sha256:a05df2c7aa9b7157374bcf4273544201a0c7bae60a9c65bcf84f3959ef3896f3
     # via -r requirements/main.in
-plaster==1.1 \
-    --hash=sha256:136c09ecbd2a8eab1544fb8513cbd77a32f6e7052b1034fe53856bf74a172faa \
-    --hash=sha256:50a76cfa6a283f712660110fb82e254f5444b99a2df5837426eea0b8b47bbd5e
+plaster==1.1.2 \
+    --hash=sha256:42992ab1f4865f1278e2ad740e8ad145683bb4022e03534265528f0c23c0df2d \
+    --hash=sha256:f8befc54bf8c1147c10ab40297ec84c2676fa2d4ea5d6f524d9436a80074ef98
     # via
     #   plaster-pastedeploy
     #   pyramid
