@@ -378,7 +378,11 @@ msgid ""
 "characters or less."
 msgstr "O URL é muito longo. Escolha um URL com 100 carateres ou menos."
 
-#: warehouse/manage/forms.py:588
+#: warehouse/manage/forms.py:581
+msgid "The organization URL must start with http:// or https://"
+msgstr ""
+
+#: warehouse/manage/forms.py:592
 msgid ""
 "The organization description is too long. Choose a organization description "
 "with 400 characters or less."
@@ -386,11 +390,11 @@ msgstr ""
 "A descrição é muito longa. Escolha uma descrição com até 400 caráteres ou "
 "menos."
 
-#: warehouse/manage/forms.py:632
+#: warehouse/manage/forms.py:636
 msgid "Choose a team name with 50 characters or less."
 msgstr "Escolha um nome para sua equipe com 50 caráteres ou menos."
 
-#: warehouse/manage/forms.py:638
+#: warehouse/manage/forms.py:642
 msgid ""
 "The team name is invalid. Team names cannot start or end with a space, "
 "period, underscore, hyphen, or slash. Choose a different team name."
@@ -399,7 +403,7 @@ msgstr ""
 "terminar com espaços, virgulas, sublinhado, hífen ou barrinha. Escolha outro "
 "nome."
 
-#: warehouse/manage/forms.py:666
+#: warehouse/manage/forms.py:670
 msgid "This team name has already been used. Choose a different team name."
 msgstr "Este nome de equipe já está em uso. Escolha um nome diferente."
 
