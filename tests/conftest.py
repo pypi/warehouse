@@ -462,26 +462,6 @@ def webtest(app_config):
         app_config.registry["sqlalchemy.engine"].dispose()
 
 
-@pytest.hookimpl(tryfirst=True, hookwrapper=True)
-def pytest_runtest_makereport(item, call):
-    # execute all other hooks to obtain the report object
-    outcome = yield
-    rep = outcome.get_result()
-
-    # we only look at actual failing test calls, not setup/teardown
-    if rep.when == "call" and rep.failed:
-        if "browser" in item.fixturenames:
-            browser = item.funcargs["browser"]
-            for log_type in set(browser.log_types) - {"har"}:
-                data = "\n\n".join(
-                    filter(
-                        None, (log.get("message") for log in browser.get_log(log_type))
-                    )
-                )
-                if data:
-                    rep.sections.append(("Captured {} log".format(log_type), data))
-
-
 @pytest.fixture(scope="session")
 def monkeypatch_session():
     # NOTE: This is a minor hack to avoid duplicate monkeypatching
