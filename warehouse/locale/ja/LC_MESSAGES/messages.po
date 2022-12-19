@@ -394,25 +394,29 @@ msgid ""
 "characters or less."
 msgstr "組織の URL が長すぎます。400 文字以下の組織の URL を選択します。"
 
-#: warehouse/manage/forms.py:588
+#: warehouse/manage/forms.py:581
+msgid "The organization URL must start with http:// or https://"
+msgstr ""
+
+#: warehouse/manage/forms.py:592
 msgid ""
 "The organization description is too long. Choose a organization description "
 "with 400 characters or less."
 msgstr "組織の説明が長すぎます。400 文字以下の組織の説明を選択します。"
 
-#: warehouse/manage/forms.py:632
+#: warehouse/manage/forms.py:636
 #, fuzzy
 #| msgid "Choose a username with 50 characters or less."
 msgid "Choose a team name with 50 characters or less."
 msgstr "50文字以下のユーザー名を選択してください。"
 
-#: warehouse/manage/forms.py:638
+#: warehouse/manage/forms.py:642
 msgid ""
 "The team name is invalid. Team names cannot start or end with a space, "
 "period, underscore, hyphen, or slash. Choose a different team name."
 msgstr ""
 
-#: warehouse/manage/forms.py:666
+#: warehouse/manage/forms.py:670
 #, fuzzy
 #| msgid ""
 #| "This organization account name is already being used by another account. "

@@ -20,13 +20,14 @@
 # Cryptex <alvinsze837@gmail.com>, 2022.
 # Yuuka <flamango760717@163.com>, 2022.
 # 快乐的老鼠宝宝 <keaitianxinmail@qq.com>, 2022.
+# Python Lover <157396869@qq.com>, 2022.
 msgid ""
 msgstr ""
 "Project-Id-Version: Warehouse VERSION\n"
 "Report-Msgid-Bugs-To: admin@pypi.org\n"
 "POT-Creation-Date: 2020-01-15 20:11+0200\n"
-"PO-Revision-Date: 2022-12-01 17:07+0000\n"
-"Last-Translator: Dustin Ingram <dustin.ingram@gmail.com>\n"
+"PO-Revision-Date: 2022-12-16 13:12+0000\n"
+"Last-Translator: Python Lover <157396869@qq.com>\n"
 "Language-Team: Chinese (Traditional) <https://hosted.weblate.org/projects/"
 "pypa/warehouse/zh_Hant/>\n"
 "Language: zh_Hant\n"
@@ -34,7 +35,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Generator: Weblate 4.15-dev\n"
+"X-Generator: Weblate 4.15\n"
 "Generated-By: Babel 2.7.0\n"
 
 #: warehouse/views.py:125
@@ -45,7 +46,7 @@ msgstr "必須在您的帳戶上啟用雙因素身份驗證才能執行此操作
 
 #: warehouse/views.py:288
 msgid "Locale updated"
-msgstr "已更新語系"
+msgstr "區域設置已更新"
 
 #: warehouse/accounts/forms.py:46
 msgid "The password is invalid. Try again."
@@ -402,7 +403,11 @@ msgid ""
 "characters or less."
 msgstr "名稱太長了。請選擇不超過 100 個字的名稱。"
 
-#: warehouse/manage/forms.py:588
+#: warehouse/manage/forms.py:581
+msgid "The organization URL must start with http:// or https://"
+msgstr ""
+
+#: warehouse/manage/forms.py:592
 #, fuzzy
 #| msgid "The name is too long. Choose a name with 100 characters or less."
 msgid ""
@@ -410,19 +415,19 @@ msgid ""
 "with 400 characters or less."
 msgstr "名稱太長了。請選擇不超過 100 個字的名稱。"
 
-#: warehouse/manage/forms.py:632
+#: warehouse/manage/forms.py:636
 #, fuzzy
 #| msgid "Choose a username with 50 characters or less."
 msgid "Choose a team name with 50 characters or less."
 msgstr "選擇一個不超過 50 字的用戶名。"
 
-#: warehouse/manage/forms.py:638
+#: warehouse/manage/forms.py:642
 msgid ""
 "The team name is invalid. Team names cannot start or end with a space, "
 "period, underscore, hyphen, or slash. Choose a different team name."
 msgstr ""
 
-#: warehouse/manage/forms.py:666
+#: warehouse/manage/forms.py:670
 #, fuzzy
 #| msgid ""
 #| "This username is already being used by another account. Choose a "
@@ -2888,7 +2893,8 @@ msgstr "雙重身份驗證可用，<a href=\"%(href)s\">為你的帳戶啟用</a
 msgid ""
 "Two-factor recovery codes are available, <a href=\"%(href)s\">generate them "
 "now for your account.</a>"
-msgstr "雙因素恢復程式碼已可用，<a href=“%(href)s”>現在為你的帳戶生成它們。</ a>"
+msgstr ""
+"雙因素恢復程式碼已可用，<a href=“%(href)s”>現在為你的帳戶生成它們。</ a>"
 
 #: warehouse/templates/includes/accounts/profile-actions.html:16
 msgid "Edit profile"

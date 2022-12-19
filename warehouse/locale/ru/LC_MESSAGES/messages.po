@@ -35,8 +35,8 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Plural-Forms: nplurals=3; plural=n%10==1 && n%100!=11 ? 0 : n%10>=2 && "
-"n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2;\n"
+"Plural-Forms: nplurals=3; plural=n%10==1 && n%100!=11 ? 0 : n%10>=2 && n"
+"%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2;\n"
 "X-Generator: Weblate 4.15-dev\n"
 "Generated-By: Babel 2.8.0\n"
 
@@ -418,7 +418,11 @@ msgid ""
 "characters or less."
 msgstr "Слишком длинное имя. Выберите имя, используя не более 100 символов."
 
-#: warehouse/manage/forms.py:588
+#: warehouse/manage/forms.py:581
+msgid "The organization URL must start with http:// or https://"
+msgstr ""
+
+#: warehouse/manage/forms.py:592
 #, fuzzy
 #| msgid "The name is too long. Choose a name with 100 characters or less."
 msgid ""
@@ -426,19 +430,19 @@ msgid ""
 "with 400 characters or less."
 msgstr "Слишком длинное имя. Выберите имя, используя не более 100 символов."
 
-#: warehouse/manage/forms.py:632
+#: warehouse/manage/forms.py:636
 #, fuzzy
 #| msgid "Choose a username with 50 characters or less."
 msgid "Choose a team name with 50 characters or less."
 msgstr "Выберите имя пользователя, используя не более 50 символов."
 
-#: warehouse/manage/forms.py:638
+#: warehouse/manage/forms.py:642
 msgid ""
 "The team name is invalid. Team names cannot start or end with a space, "
 "period, underscore, hyphen, or slash. Choose a different team name."
 msgstr ""
 
-#: warehouse/manage/forms.py:666
+#: warehouse/manage/forms.py:670
 #, fuzzy
 #| msgid ""
 #| "This username is already being used by another account. Choose a "

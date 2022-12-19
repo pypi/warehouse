@@ -350,7 +350,11 @@ msgid ""
 "characters or less."
 msgstr "ⵉⵖⵣⵣⵉⴼ ⵢⵉⵙⵎ ⴰ. ⵙⵜⵢ ⵢⴰⵏ ⵙ 100 ⵉⵡⵏⵖⵓⵜⵏ ⵏⵖ ⴷⵔⵓⵙ."
 
-#: warehouse/manage/forms.py:588
+#: warehouse/manage/forms.py:581
+msgid "The organization URL must start with http:// or https://"
+msgstr ""
+
+#: warehouse/manage/forms.py:592
 #, fuzzy
 #| msgid "The name is too long. Choose a name with 100 characters or less."
 msgid ""
@@ -358,19 +362,19 @@ msgid ""
 "with 400 characters or less."
 msgstr "ⵉⵖⵣⵣⵉⴼ ⵢⵉⵙⵎ ⴰ. ⵙⵜⵢ ⵢⴰⵏ ⵙ 100 ⵉⵡⵏⵖⵓⵜⵏ ⵏⵖ ⴷⵔⵓⵙ."
 
-#: warehouse/manage/forms.py:632
+#: warehouse/manage/forms.py:636
 #, fuzzy
 #| msgid "Choose a username with 50 characters or less."
 msgid "Choose a team name with 50 characters or less."
 msgstr "ⵙⵜⵢ ⵢⴰⵏ ⵢⵉⵙⵎ ⵏ ⵓⵏⵙⵙⵎⵔⵙ ⵙ 50 ⵉⵡⵏⵖⵓⵜⵏ ⵏⵖ ⴷⵔⵓⵙ."
 
-#: warehouse/manage/forms.py:638
+#: warehouse/manage/forms.py:642
 msgid ""
 "The team name is invalid. Team names cannot start or end with a space, "
 "period, underscore, hyphen, or slash. Choose a different team name."
 msgstr ""
 
-#: warehouse/manage/forms.py:666
+#: warehouse/manage/forms.py:670
 #, fuzzy
 #| msgid ""
 #| "This username is already being used by another account. Choose a "

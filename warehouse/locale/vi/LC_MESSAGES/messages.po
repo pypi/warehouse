@@ -4,13 +4,14 @@
 # FIRST AUTHOR <EMAIL@ADDRESS>, 2019.
 # trituenhantao.io <video@trituenhantao.io>, 2019, 2022.
 # Ly Vu <Vuducly151092@gmail.com>, 2022.
+# CSharps-Tech <volien03101970@gmail.com>, 2022.
 msgid ""
 msgstr ""
 "Project-Id-Version: Warehouse VERSION\n"
 "Report-Msgid-Bugs-To: admin@pypi.org\n"
 "POT-Creation-Date: 2020-01-15 20:11+0200\n"
-"PO-Revision-Date: 2022-06-28 19:49+0000\n"
-"Last-Translator: trituenhantao.io <video@trituenhantao.io>\n"
+"PO-Revision-Date: 2022-12-19 01:50+0000\n"
+"Last-Translator: CSharps-Tech <volien03101970@gmail.com>\n"
 "Language-Team: Vietnamese <https://hosted.weblate.org/projects/pypa/"
 "warehouse/vi/>\n"
 "Language: vi\n"
@@ -18,7 +19,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Generator: Weblate 4.13.1-dev\n"
+"X-Generator: Weblate 4.15.1-dev\n"
 "Generated-By: Babel 2.7.0\n"
 
 #: warehouse/views.py:125
@@ -47,7 +48,7 @@ msgstr "Mã TOTP phải có ${totp_length} chữ số."
 
 #: warehouse/accounts/forms.py:90
 msgid "Recovery Codes must be ${recovery_code_length} characters."
-msgstr ""
+msgstr "Mã khôi phục phải là ${recovery_code_length} ký tự."
 
 #: warehouse/accounts/forms.py:105
 msgid "Choose a username with 50 characters or less."
@@ -136,13 +137,12 @@ msgid "No user found with that username or email"
 msgstr "Không tìm thấy người dùng với tên người dùng hoặc email đó"
 
 #: warehouse/accounts/views.py:105
-#, fuzzy
 msgid ""
 "Too many emails have been added to this account without verifying them. "
 "Check your inbox and follow the verification links. (IP: ${ip})"
 msgstr ""
 "Có quá nhiều địa chỉ emails chưa được xác minh được gắn với tài khoản này. "
-"Kiểm tra hộp thư đến của bạn và nhấp vào các đường dẫn kiểm tra.  (IP: ${ip})"
+"Kiểm tra hộp thư đến của bạn và nhấp vào các đường dẫn kiểm tra. (IP: {ip})"
 
 #: warehouse/accounts/views.py:117
 #, fuzzy
@@ -255,45 +255,46 @@ msgstr "Địa chỉ email ${email_address} đã được xác thực. ${confirm
 #, fuzzy
 #| msgid "Expired token: request a new password reset link"
 msgid "Expired token: request a new organization invitation"
-msgstr "Mã thông báo đã hết hạn: yêu cầu liên kết đặt lại mật khẩu mới"
+msgstr "Mã thông báo đã hết hạn: yêu cầu lời mời tổ chức mới"
 
 #: warehouse/accounts/views.py:854
 #, fuzzy
 #| msgid "Invalid token: request a new password reset link"
 msgid "Invalid token: request a new organization invitation"
-msgstr "Mã thông báo không hợp lệ: yêu cầu liên kết đặt lại mật khẩu mới"
+msgstr "Mã thông báo không hợp lệ: yêu cầu lời mời tổ chức mới"
 
 #: warehouse/accounts/views.py:860
 #, fuzzy
 #| msgid "Invalid token: not an email verification token"
 msgid "Invalid token: not an organization invitation token"
-msgstr "Mã thông báo không hợp lệ: không phải là mã thông báo xác minh email"
+msgstr "Mã thông báo không hợp lệ: không phải mã thông báo mời tổ chức"
 
 #: warehouse/accounts/views.py:864
+#, fuzzy
 msgid "Organization invitation is not valid."
-msgstr ""
+msgstr "Lời mời tổ chức không hợp lệ."
 
 #: warehouse/accounts/views.py:873
 msgid "Organization invitation no longer exists."
-msgstr ""
+msgstr "Lời mời tổ chức không còn tồn tại."
 
 #: warehouse/accounts/views.py:924
 #, fuzzy
 #| msgid "Invitation for '${project_name}' is declined."
 msgid "Invitation for '${organization_name}' is declined."
-msgstr "Lời mời cho '${project_name}' không được chấp thuận."
+msgstr "Lời mời cho '${project_name}' đã bị từ chối."
 
 #: warehouse/accounts/views.py:987
 #, fuzzy
 #| msgid "You are now ${role} of the '${project_name}' project."
 msgid "You are now ${role} of the '${organization_name}' organization."
-msgstr "Bạn hiện nắm ${role} của dự án '${project_name}'"
+msgstr "Bạn hiện là ${role} của tổ chức '${organization_name}'."
 
 #: warehouse/accounts/views.py:1021
 #, fuzzy
 #| msgid "Expired token: request a new password reset link"
 msgid "Expired token: request a new project role invitation"
-msgstr "Mã thông báo đã hết hạn: yêu cầu liên kết đặt lại mật khẩu mới"
+msgstr "Mã thông báo đã hết hạn: yêu cầu lời mời vai trò dự án mới"
 
 #: warehouse/accounts/views.py:1023
 #, fuzzy
@@ -406,7 +407,11 @@ msgid ""
 "characters or less."
 msgstr "Tên quá dài. Chọn một tên có tối đa 100 ký tự."
 
-#: warehouse/manage/forms.py:588
+#: warehouse/manage/forms.py:581
+msgid "The organization URL must start with http:// or https://"
+msgstr ""
+
+#: warehouse/manage/forms.py:592
 #, fuzzy
 #| msgid "The name is too long. Choose a name with 100 characters or less."
 msgid ""
@@ -414,19 +419,19 @@ msgid ""
 "with 400 characters or less."
 msgstr "Tên quá dài. Chọn một tên có tối đa 100 ký tự."
 
-#: warehouse/manage/forms.py:632
+#: warehouse/manage/forms.py:636
 #, fuzzy
 #| msgid "Choose a username with 50 characters or less."
 msgid "Choose a team name with 50 characters or less."
 msgstr "Chọn một tên người dùng tối đa 50 ký tự."
 
-#: warehouse/manage/forms.py:638
+#: warehouse/manage/forms.py:642
 msgid ""
 "The team name is invalid. Team names cannot start or end with a space, "
 "period, underscore, hyphen, or slash. Choose a different team name."
 msgstr ""
 
-#: warehouse/manage/forms.py:666
+#: warehouse/manage/forms.py:670
 #, fuzzy
 #| msgid ""
 #| "This username is already being used by another account. Choose a "
