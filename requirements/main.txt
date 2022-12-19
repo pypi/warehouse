@@ -621,9 +621,9 @@ grpcio==1.51.1 \
     #   google-api-core
     #   google-cloud-bigquery
     #   grpcio-status
-grpcio-status==1.50.0 \
-    --hash=sha256:69be81c4317ec77983fb0eab80221a01e86e833e0fcf2f6acea0a62597c84b93 \
-    --hash=sha256:6bcf86b1cb1a8929c9cb75c8593ea001a667f5167cf692627f4b3fc1ae0eded4
+grpcio-status==1.51.1 \
+    --hash=sha256:a52cbdc4b18f325bfc13d319ae7c7ae7a0fee07f3d9a005504d6097896d7a495 \
+    --hash=sha256:ac2617a3095935ebd785e2228958f24b10a0d527a0c9eb5a0863c784f648a816
     # via google-api-core
 hiredis==2.1.0 \
     --hash=sha256:0021ba034b74c5006f62e4cfdd79d04c7c720731eda256ce29d769ac6483adc3 \
@@ -1220,9 +1220,9 @@ python-slugify==7.0.0 \
     --hash=sha256:003aee64f9fd955d111549f96c4b58a3f40b9319383c70fad6277a4974bbf570 \
     --hash=sha256:7a0f21a39fa6c1c4bf2e5984c9b9ae944483fd10b54804cb0e23a3ccd4954f0b
     # via -r requirements/main.in
-pytz==2022.6 \
-    --hash=sha256:222439474e9c98fced559f1709d89e6c9cbf8d79c794ff3eb9f8800064291427 \
-    --hash=sha256:e89512406b793ca39f5971bc999cc538ce125c0e51c27941bef4568b460095e2
+pytz==2022.7 \
+    --hash=sha256:7ccfae7b4b2c067464a6733c6261673fdb8fd1be905460396b97a073e9fa683a \
+    --hash=sha256:93007def75ae22f7cd991c84e02d434876818661f8df9ad5df9e950ff4e52cfd
     # via
     #   babel
     #   celery
