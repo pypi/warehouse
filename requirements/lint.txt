@@ -61,9 +61,9 @@ flake8==4.0.1 \
     # via
     #   -r requirements/lint.in
     #   pep8-naming
-isort==5.11.2 \
-    --hash=sha256:dd8bbc5c0990f2a095d754e50360915f73b4c26fc82733eb5bfc6b48396af4d2 \
-    --hash=sha256:e486966fba83f25b8045f8dd7455b0a0d1e4de481e1d7ce4669902d9fb85e622
+isort==5.11.3 \
+    --hash=sha256:83155ffa936239d986b0f190347a3f2285f42a9b9e1725c89d865b27dd0627e5 \
+    --hash=sha256:a8ca25fbfad0f7d5d8447a4314837298d9f6b23aed8618584c894574f626b64b
     # via -r requirements/lint.in
 mccabe==0.6.1 \
     --hash=sha256:ab8a6258860da4b6677da4bd2fe5dc2c659cff31b3ee4f7f5d64e79735b80d42 \
@@ -158,7 +158,9 @@ toml==0.10.2 \
 types-awscrt==0.16.1 \
     --hash=sha256:4e9d8fa79d0b540ccf780a46aa5bb08a30acd5fb6b6aac6491eaee41d69c560b \
     --hash=sha256:8dce0e6b35bb41ed3824b2db82e15408766b3d5f7113a684441ec3ae10a867f7
-    # via botocore-stubs
+    # via
+    #   botocore-stubs
+    #   types-s3transfer
 types-babel==2.11.0.7 \
     --hash=sha256:07c84fe265570b8ec4040abc6c88c6d20465b9e8cc35189d1b2930ae14bd003e \
     --hash=sha256:df99729ab2855638562b1f914524fd58a54e79c6583099a9a31acd90fa1e143f
@@ -294,5 +296,6 @@ setuptools==65.6.3 \
     --hash=sha256:57f6f22bde4e042978bcd50176fdb381d7c21a9efa4041202288d3737a0c6a54 \
     --hash=sha256:a7620757bf984b58deaf32fc8a4577a9bbc0850cf92c20e1ce41c38c19e5fb75
     # via
+    #   zope-event
     #   zope-interface
     #   zope-schema
