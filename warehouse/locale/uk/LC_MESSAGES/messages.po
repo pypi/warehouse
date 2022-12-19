@@ -405,7 +405,11 @@ msgstr ""
 "URL-адреса організації задовга. Оберіть URL-адресу організації довжиною 400 "
 "символів або менше."
 
-#: warehouse/manage/forms.py:588
+#: warehouse/manage/forms.py:581
+msgid "The organization URL must start with http:// or https://"
+msgstr ""
+
+#: warehouse/manage/forms.py:592
 msgid ""
 "The organization description is too long. Choose a organization description "
 "with 400 characters or less."
@@ -413,13 +417,13 @@ msgstr ""
 "Опис цієї організації задовгий. Оберіть опис організації довжиною 400 "
 "символів або менше."
 
-#: warehouse/manage/forms.py:632
+#: warehouse/manage/forms.py:636
 #, fuzzy
 #| msgid "Choose a username with 50 characters or less."
 msgid "Choose a team name with 50 characters or less."
 msgstr "Оберіть ім'я користувача, довжиною 50 символів чи менше."
 
-#: warehouse/manage/forms.py:638
+#: warehouse/manage/forms.py:642
 msgid ""
 "The team name is invalid. Team names cannot start or end with a space, "
 "period, underscore, hyphen, or slash. Choose a different team name."
@@ -428,7 +432,7 @@ msgstr ""
 "пробілом, крапкою, підкресленням, дефісом або косою рискою. Виберіть іншу "
 "назву команди."
 
-#: warehouse/manage/forms.py:666
+#: warehouse/manage/forms.py:670
 #, fuzzy
 #| msgid ""
 #| "This organization account name is already being used by another account. "
