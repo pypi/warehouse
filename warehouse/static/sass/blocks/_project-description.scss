@@ -263,6 +263,14 @@
     text-decoration: none;
   }
 
+  aside.footnote p {
+    display: inline;
+  }
+
+  aside.footnote {
+    padding-left: 2em;
+    text-indent: -2em;
+  }
 }
 
 

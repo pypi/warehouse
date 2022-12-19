@@ -364,7 +364,11 @@ msgid ""
 "characters or less."
 msgstr "De organisatie-URL is te lang. Kies een URL met 100 tekens of minder."
 
-#: warehouse/manage/forms.py:588
+#: warehouse/manage/forms.py:581
+msgid "The organization URL must start with http:// or https://"
+msgstr ""
+
+#: warehouse/manage/forms.py:592
 msgid ""
 "The organization description is too long. Choose a organization description "
 "with 400 characters or less."
@@ -372,19 +376,19 @@ msgstr ""
 "De organisatieomschrijving is te lang. Kies een omschrijving met 400 tekens "
 "of minder."
 
-#: warehouse/manage/forms.py:632
+#: warehouse/manage/forms.py:636
 #, fuzzy
 #| msgid "Choose a username with 50 characters or less."
 msgid "Choose a team name with 50 characters or less."
 msgstr "Kies een gebruikersnaam met 50 tekens of minder."
 
-#: warehouse/manage/forms.py:638
+#: warehouse/manage/forms.py:642
 msgid ""
 "The team name is invalid. Team names cannot start or end with a space, "
 "period, underscore, hyphen, or slash. Choose a different team name."
 msgstr ""
 
-#: warehouse/manage/forms.py:666
+#: warehouse/manage/forms.py:670
 #, fuzzy
 #| msgid ""
 #| "This project name has already been used. Choose a different project name."

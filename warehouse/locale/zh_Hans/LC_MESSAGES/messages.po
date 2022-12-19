@@ -40,13 +40,15 @@
 # Harvey Li <harvey.li@beaconos.org>, 2022.
 # Eric <lessonaeamazon@paranoid.email>, 2022.
 # 快乐的老鼠宝宝 <keaitianxinmail@qq.com>, 2022.
+# Python Lover <157396869@qq.com>, 2022.
+# Eric <hamburger1024@duck.com>, 2022.
 msgid ""
 msgstr ""
 "Project-Id-Version: Warehouse VERSION\n"
 "Report-Msgid-Bugs-To: admin@pypi.org\n"
 "POT-Creation-Date: 2020-04-06 17:52-0500\n"
-"PO-Revision-Date: 2022-11-19 08:28+0000\n"
-"Last-Translator: Eric <hamburger1024@mailbox.org>\n"
+"PO-Revision-Date: 2022-12-17 17:38+0000\n"
+"Last-Translator: Eric <hamburger1024@duck.com>\n"
 "Language-Team: Chinese (Simplified) <https://hosted.weblate.org/projects/"
 "pypa/warehouse/zh_Hans/>\n"
 "Language: zh_Hans\n"
@@ -54,7 +56,7 @@ msgstr ""
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Generator: Weblate 4.15-dev\n"
+"X-Generator: Weblate 4.15.1-dev\n"
 "Generated-By: Babel 2.8.0\n"
 
 #: warehouse/views.py:125
@@ -95,13 +97,13 @@ msgid ""
 "or number. Choose a different username."
 msgstr ""
 "该用户名是无效的。用户名必须由字母、数字、圆点、连字符和下划线组成。而且还必"
-"须以字母或数字开头和结尾。选择一个不同的用户名。"
+"须以字母或数字开头和结尾。请选择一个不同的用户名。"
 
 #: warehouse/accounts/forms.py:128
 msgid ""
 "This username is already being used by another account. Choose a different "
 "username."
-msgstr "此用户名已被另一个帐户使用。选择其他用户名。"
+msgstr "该用户名已被另一个帐户使用。请选择一个其他的用户名。"
 
 #: warehouse/accounts/forms.py:142 warehouse/accounts/forms.py:186
 #: warehouse/accounts/forms.py:199
@@ -110,11 +112,11 @@ msgstr "密码过长。"
 
 #: warehouse/accounts/forms.py:172 warehouse/accounts/views.py:88
 msgid "There have been too many unsuccessful login attempts. Try again later."
-msgstr "尝试登录失败次数过多。请稍后重试。"
+msgstr "尝试登录失败次数过多，请稍后重试。"
 
 #: warehouse/accounts/forms.py:202
 msgid "Your passwords don't match. Try again."
-msgstr "两次输入的密码不一致。请重新输入。"
+msgstr "两次输入的密码不一致，请重新输入。"
 
 #: warehouse/accounts/forms.py:233 warehouse/accounts/forms.py:244
 msgid "The email address isn't valid. Try again."
@@ -383,17 +385,21 @@ msgid ""
 "characters or less."
 msgstr "该组织 URL 太长。请选择一个不超过400个字符的组织 URL。"
 
-#: warehouse/manage/forms.py:588
+#: warehouse/manage/forms.py:581
+msgid "The organization URL must start with http:// or https://"
+msgstr "组织 URL 必须以 http:// 或 https:// 开头"
+
+#: warehouse/manage/forms.py:592
 msgid ""
 "The organization description is too long. Choose a organization description "
 "with 400 characters or less."
 msgstr "组织描述太长。请选择一个不超过400个字符的组织描述。"
 
-#: warehouse/manage/forms.py:632
+#: warehouse/manage/forms.py:636
 msgid "Choose a team name with 50 characters or less."
 msgstr "选择一个不超过 50 个字符的团队名。"
 
-#: warehouse/manage/forms.py:638
+#: warehouse/manage/forms.py:642
 msgid ""
 "The team name is invalid. Team names cannot start or end with a space, "
 "period, underscore, hyphen, or slash. Choose a different team name."
@@ -401,7 +407,7 @@ msgstr ""
 "团队名称无效。 团队名称不能以空格、句点、下划线、连字符或斜杠开头或结尾。 选"
 "择不同的团队名称。"
 
-#: warehouse/manage/forms.py:666
+#: warehouse/manage/forms.py:670
 msgid "This team name has already been used. Choose a different team name."
 msgstr "此团队名已被使用。 选择不同的团队名称。"
 

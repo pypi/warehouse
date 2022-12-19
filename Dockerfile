@@ -44,7 +44,7 @@ RUN gulp dist
 
 # Now we're going to build our actual application, but not the actual production
 # image that it gets deployed into.
-FROM python:3.10.4-slim-buster as build
+FROM python:3.11.1-slim-bullseye as build
 
 # Define whether we're building a production or a development image. This will
 # generally be used to control whether or not we install our development and
@@ -100,7 +100,7 @@ RUN set -x \
 # Warehouse's dependencies.
 RUN set -x \
     && pip --no-cache-dir --disable-pip-version-check \
-            install --no-deps --no-binary hiredis \
+            install --no-deps \
                     -r /tmp/requirements/deploy.txt \
                     -r /tmp/requirements/main.txt \
                     $(if [ "$DEVEL" = "yes" ]; then echo '-r /tmp/requirements/tests.txt -r /tmp/requirements/lint.txt -r /tmp/requirements/docs.txt'; fi) \
@@ -113,7 +113,7 @@ RUN set -x \
 
 # Now we're going to build our actual application image, which will eventually
 # pull in the static files that were built above.
-FROM python:3.10.4-slim-buster
+FROM python:3.11.1-slim-bullseye
 
 # Setup some basic environment variables that are ~never going to change.
 ENV PYTHONUNBUFFERED 1

@@ -17,8 +17,8 @@ msgstr ""
 "Project-Id-Version: Warehouse VERSION\n"
 "Report-Msgid-Bugs-To: admin@pypi.org\n"
 "POT-Creation-Date: 2020-04-06 17:52-0500\n"
-"PO-Revision-Date: 2022-11-27 08:06+0000\n"
-"Last-Translator: Cristián Maureira-Fredes <cmaureirafredes@gmail.com>\n"
+"PO-Revision-Date: 2022-12-19 01:50+0000\n"
+"Last-Translator: Diego Ramirez <dr01191115@gmail.com>\n"
 "Language-Team: Spanish <https://hosted.weblate.org/projects/pypa/warehouse/"
 "es/>\n"
 "Language: es\n"
@@ -26,7 +26,7 @@ msgstr ""
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Generator: Weblate 4.15-dev\n"
+"X-Generator: Weblate 4.15.1-dev\n"
 "Generated-By: Babel 2.8.0\n"
 
 #: warehouse/views.py:125
@@ -70,8 +70,8 @@ msgid ""
 "or number. Choose a different username."
 msgstr ""
 "El nombre de usuario no es válido. Los nombres de usuario deben componerse "
-"de letras, números, puntos, guiones y guiones bajos; además, deben comenzar "
-"y finalizar por una letra o un número. Elíjase otro nombre de usuario."
+"de letras, números, puntos, guiones y guiones bajos. Además, deben comenzar "
+"y finalizar por una letra o un número. Elija otro nombre de usuario."
 
 #: warehouse/accounts/forms.py:128
 msgid ""
@@ -368,6 +368,8 @@ msgid ""
 "Start and end with a letter or numeral containing only ASCII numeric and "
 "'.', '_' and '-'."
 msgstr ""
+"Empiece y termine con una letra o número que contenga solo números ASCII y "
+"'.', '_' y '-'."
 
 #: warehouse/manage/forms.py:491
 msgid ""
@@ -392,7 +394,11 @@ msgstr ""
 "El URL de la organización es demasiado extenso. Elija un URL de organización "
 "de 400 caracteres o menos."
 
-#: warehouse/manage/forms.py:588
+#: warehouse/manage/forms.py:581
+msgid "The organization URL must start with http:// or https://"
+msgstr "La URL de la organización debe empezar con http:// o https://"
+
+#: warehouse/manage/forms.py:592
 msgid ""
 "The organization description is too long. Choose a organization description "
 "with 400 characters or less."
@@ -400,17 +406,20 @@ msgstr ""
 "La descripción de la organización es demasiado extensa. Elija una "
 "descripción con 400 caracteres o menos."
 
-#: warehouse/manage/forms.py:632
+#: warehouse/manage/forms.py:636
 msgid "Choose a team name with 50 characters or less."
 msgstr "Elija un nombre de equipo de 50 caracteres o menos."
 
-#: warehouse/manage/forms.py:638
+#: warehouse/manage/forms.py:642
 msgid ""
 "The team name is invalid. Team names cannot start or end with a space, "
 "period, underscore, hyphen, or slash. Choose a different team name."
 msgstr ""
+"El nombre del equipo es inválido. Los nombres de los equipos no pueden "
+"comenzar ni terminar con un espacio, un punto, un guion bajo, un guion o una "
+"barra diagonal. Elija un nombre de equipo diferente."
 
-#: warehouse/manage/forms.py:666
+#: warehouse/manage/forms.py:670
 msgid "This team name has already been used. Choose a different team name."
 msgstr ""
 "Este nombre de equipo ya se ha utilizado. Elija un nombre de equipo distinto."
@@ -435,16 +444,12 @@ msgid "User '${username}' already has ${role_name} role for organization"
 msgstr "«${username}» ya funge como ${role_name} en la organización"
 
 #: warehouse/manage/views.py:2020
-#, fuzzy
-#| msgid ""
-#| "User '${username}' does not have a verified primary email address and "
-#| "cannot be added as a ${role_name} for project"
 msgid ""
 "User '${username}' does not have a verified primary email address and cannot "
 "be added as a ${role_name} for organization"
 msgstr ""
-"No se puede añadir a «${username}» como ${role_name} del proyecto porque no "
-"tiene verificada ninguna dirección de correo principal"
+"No se puede añadir a «${username}» como ${role_name} de la organización "
+"porque no tiene verificada ninguna dirección de correo principal"
 
 #: warehouse/manage/views.py:2034 warehouse/manage/views.py:4369
 msgid ""
@@ -458,10 +463,8 @@ msgid "Invitation sent to '${username}'"
 msgstr "Se envió la invitación a «${username}»"
 
 #: warehouse/manage/views.py:2146
-#, fuzzy
-#| msgid "Could not find role invitation."
 msgid "Could not find organization invitation."
-msgstr "No se encontró la invitación al puesto."
+msgstr "No se encontró la invitación a la organización."
 
 #: warehouse/manage/views.py:2160 warehouse/manage/views.py:4480
 msgid "Invitation already expired."
@@ -472,31 +475,24 @@ msgid "Invitation revoked from '${username}'."
 msgstr "Se revocó la invitación para «${username}»."
 
 #: warehouse/manage/views.py:3109
-#, fuzzy
-#| msgid ""
-#| "There have been too many unsuccessful login attempts. Try again later."
 msgid ""
 "There have been too many attempted OpenID Connect registrations. Try again "
 "later."
 msgstr ""
-"Hubo demasiados intentos infructuosos de acceso. Inténtelo de nuevo más "
-"tarde."
+"Hubo demasiados intentos de registrarse con OpenID Connect. Inténtelo de "
+"nuevo más tarde."
 
 #: warehouse/manage/views.py:4146
-#, fuzzy
-#| msgid "User '${username}' already has ${role_name} role for project"
 msgid "Team '${team_name}' already has ${role_name} role for project"
-msgstr "«${username}» ya funge como ${role_name} en el proyecto"
+msgstr "El equipo «${team_name}» ya tiene el rol ${role_name} en el proyecto"
 
 #: warehouse/manage/views.py:4254
 msgid "User '${username}' already has ${role_name} role for project"
 msgstr "«${username}» ya funge como ${role_name} en el proyecto"
 
 #: warehouse/manage/views.py:4323
-#, fuzzy
-#| msgid "You are now ${role} of the '${project_name}' project."
 msgid "${username} is now ${role} of the '${project_name}' project."
-msgstr "Ahora es ${role} del proyecto «${project_name}»."
+msgstr "${username} es ahora ${role} del proyecto «${project_name}»."
 
 #: warehouse/manage/views.py:4356
 msgid ""
@@ -513,6 +509,7 @@ msgstr "No se encontró la invitación al puesto."
 #: warehouse/oidc/forms.py:32
 msgid "Specify GitHub repository owner (username or organization)"
 msgstr ""
+"Especifique el dueño del repositorio en GitHub (usuario u organización)"
 
 #: warehouse/oidc/forms.py:39
 msgid "Specify repository name"
@@ -528,23 +525,27 @@ msgstr "Especifique el nombre de archivo del flujo de trabajo"
 
 #: warehouse/oidc/forms.py:77
 msgid "Unknown GitHub user or organization."
-msgstr ""
+msgstr "Usuario u organización de GitHub desconocido."
 
 #: warehouse/oidc/forms.py:87
 msgid "GitHub has rate-limited this action. Try again in a few minutes."
 msgstr ""
+"GitHub ha limitado la velocidad de esta acción. Vuelve a intentarlo en unos "
+"minutos."
 
 #: warehouse/oidc/forms.py:97
 msgid "Unexpected error from GitHub. Try again."
-msgstr ""
+msgstr "Error inesperado de GitHub. Intente de nuevo."
 
 #: warehouse/oidc/forms.py:104
 msgid "Unexpected timeout from GitHub. Try again in a few minutes."
 msgstr ""
+"Terminó el tiempo de espera inesperadamente en GitHub. Reintente en unos "
+"minutos."
 
 #: warehouse/oidc/forms.py:116
 msgid "Invalid GitHub user or organization name."
-msgstr ""
+msgstr "Nombre de usuario u organización de GitHub inválido."
 
 #: warehouse/oidc/forms.py:132
 msgid "Workflow name must end with .yml or .yaml"
@@ -553,33 +554,29 @@ msgstr "El nombre del flujo de trabajo debe terminar en .yml o .yaml"
 #: warehouse/oidc/forms.py:137
 msgid "Workflow filename must be a filename only, without directories"
 msgstr ""
+"El nombre de archivo del flujo de trabajo debe ser solo un nombre de "
+"archivo, sin directorios"
 
 #: warehouse/oidc/forms.py:146
 msgid "Provider must be specified by ID"
-msgstr ""
+msgstr "El proveedor debe ser especificado mediante un ID"
 
 #: warehouse/subscriptions/models.py:42
 #: warehouse/templates/manage/project/history.html:182
-#, fuzzy
-#| msgid "Action"
 msgid "Active"
-msgstr "Acción"
+msgstr "Activo"
 
 #: warehouse/subscriptions/models.py:43
-#, fuzzy
-#| msgid "Last used"
 msgid "Past Due"
-msgstr "Último uso"
+msgstr "Vencido"
 
 #: warehouse/subscriptions/models.py:44
 msgid "Unpaid"
-msgstr ""
+msgstr "No pagado"
 
 #: warehouse/subscriptions/models.py:45
-#, fuzzy
-#| msgid "Cancel"
 msgid "Canceled"
-msgstr "Cancelar"
+msgstr "Cancelado"
 
 #: warehouse/subscriptions/models.py:46
 msgid "Incomplete"
@@ -589,11 +586,11 @@ msgstr "Incompleta"
 #, fuzzy
 #| msgid "Invite expired"
 msgid "Incomplete Expired"
-msgstr "Invitación caducada"
+msgstr "Incomplete Expired"
 
 #: warehouse/subscriptions/models.py:48
 msgid "Trialing"
-msgstr ""
+msgstr "Probando"
 
 #: warehouse/templates/403.html:16
 msgid "Access Denied / Forbidden (403)"
@@ -847,20 +844,18 @@ msgstr "Menú principal"
 # "
 # | "target=\"_blank\" rel=\"noopener\">Python Packaging User Guide</a>"
 #: warehouse/templates/base.html:66
-#, fuzzy, python-format
-#| msgid ""
-#| "<strong>Quarterly</strong> thank you tweet from the <a href=\"%(href)s\" "
-#| "title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">Python Software "
-#| "Foundation</a>"
+#, python-format
 msgid ""
 "\"%(wordmark)s\", \"%(name)s\", and the blocks logos are registered "
 "trademarks of the <a href=\"%(psf_href)s\" target=\"_blank\" rel=\"noopener"
 "\">Python Software Foundation</a> referring to the products and services "
 "associated with pypi.org. Any other use by any other party is prohibited."
 msgstr ""
-"Tuit <strong>trimestral</strong> de agradecimiento por parte de la <a href="
-"\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">Python "
-"Software Foundation</a>"
+"\"%(wordmark)s\", \"%(name)s\", y los logos de los bloques son marcas "
+"registradas de <a href=\"%(psf_href)s\" target=\"_blank\" rel=\"noopener"
+"\">Python Software Foundation</a> refiriéndose a los productos y servicios "
+"asociados con pypi.org. Queda prohibido cualquier otro uso por cualquier "
+"otra parte."
 
 # | msgid ""
 # | "Learn how to upload files on the <a href=\"%(href)s\"
@@ -868,19 +863,15 @@ msgstr ""
 # "
 # | "target=\"_blank\" rel=\"noopener\">Python Packaging User Guide</a>"
 #: warehouse/templates/base.html:70
-#, fuzzy, python-format
-#| msgid ""
-#| "<strong>Quarterly</strong> thank you tweet from the <a href=\"%(href)s\" "
-#| "title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">Python Software "
-#| "Foundation</a>"
+#, python-format
 msgid ""
 "\"%(wordmark)s\", \"%(name)s\", and the blocks logos are registered <a href="
 "\"%(trademarks_href)s\">trademarks</a> of the <a href=\"%(psf_href)s\" "
 "target=\"_blank\" rel=\"noopener\">Python Software Foundation</a>."
 msgstr ""
-"Tuit <strong>trimestral</strong> de agradecimiento por parte de la <a href="
-"\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">Python "
-"Software Foundation</a>"
+"\"%(wordmark)s\", \"%(name)s\", y los logos de los bloques son <a href="
+"\"%(trademarks_href)s\">marcas</a> registradas de <a href=\"%(psf_href)s\" "
+"target=\"_blank\" rel=\"noopener\">Python Software Foundation</a>."
 
 #: warehouse/templates/base.html:93 warehouse/templates/index.html:109
 msgid ""
@@ -983,10 +974,8 @@ msgid "User guide"
 msgstr "Manual de uso"
 
 #: warehouse/templates/base.html:274
-#, fuzzy
-#| msgid "Project name"
 msgid "Project name retention"
-msgstr "Nombre de proyecto"
+msgstr "Retención de nombres de proyecto"
 
 #: warehouse/templates/base.html:275
 msgid "FAQs"
@@ -1019,7 +1008,7 @@ msgstr "Estadísticas"
 
 #: warehouse/templates/base.html:287
 msgid "Logos & trademarks"
-msgstr ""
+msgstr "Logos y trademarks"
 
 #: warehouse/templates/base.html:288
 msgid "Our sponsors"
@@ -1046,10 +1035,8 @@ msgid "Translate PyPI"
 msgstr "Traducir PyPI"
 
 #: warehouse/templates/base.html:300
-#, fuzzy
-#| msgid "Sponsor"
 msgid "Sponsor PyPI"
-msgstr "Auspiciar"
+msgstr "Patrocinar a PyPI"
 
 #: warehouse/templates/base.html:301
 msgid "Development credits"
@@ -1081,13 +1068,11 @@ msgstr "Términos de uso"
 
 #: warehouse/templates/base.html:314
 msgid "Acceptable Use Policy"
-msgstr ""
+msgstr "Políticas de Uso Aceptable"
 
 #: warehouse/templates/base.html:324
-#, fuzzy
-#| msgid "Status: "
 msgid "Status:"
-msgstr "Estado: "
+msgstr "Estado:"
 
 #: warehouse/templates/base.html:325
 msgid "all systems operational"
@@ -1118,7 +1103,7 @@ msgstr "Confirme la acción"
 
 #: warehouse/templates/confirm-action.html:26
 msgid "Are you sure?"
-msgstr ""
+msgstr "¿Está seguro?"
 
 #: warehouse/templates/error-base.html:31
 msgid "Error code"
@@ -1322,30 +1307,17 @@ msgid "Forgot password?"
 msgstr "¿Olvidó la contraseña?"
 
 #: warehouse/templates/re-auth.html:80
-#, fuzzy, python-format
-#| msgid ""
-#| "\n"
-#| "              <b>Tip:</b> you are about to perform a <a href=\"%(href)s"
-#| "\">sensitive action</a>.\n"
-#| "              If you are not on a personal computer, make sure to log out "
-#| "once you're done with your session.\n"
-#| "              We won't ask you to confirm your password again for the "
-#| "next hour.\n"
-#| "              "
+#, python-format
 msgid ""
 "<b>Tip:</b> you are about to perform a <a href=\"%(href)s\">sensitive "
 "action</a>. If you are not on a personal computer, make sure to log out once "
 "you're done with your session. We won't ask you to confirm your password "
 "again for the next hour."
 msgstr ""
-"\n"
-"              <b>Consejo:</b> está a punto de efectuar una <a href=\"%(href)s"
-"\">acción delicada</a>.\n"
-"              Si no está en un equipo personal, no olvide salir de su cuenta "
-"cuando haya acabado.\n"
-"              Durante la próxima hora no le pediremos que confirme su "
-"contraseña.\n"
-"              "
+"<b>Consejo:</b> está a punto de efectuar una <a href=\"%(href)s\">acción "
+"delicada</a>. Si no está en un equipo personal, no olvide salir de su cuenta "
+"cuando haya acabado. Durante la próxima hora no le pediremos que confirme su "
+"contraseña."
 
 #: warehouse/templates/upload.html:25
 msgid "This URL is an API endpoint for uploading files to PyPI."
@@ -1376,20 +1348,13 @@ msgid "Confirm Invite"
 msgstr "Confirme la invitación"
 
 #: warehouse/templates/accounts/invite-confirmation.html:26
-#, fuzzy, python-format
-#| msgid ""
-#| "\n"
-#| "      Would you like to accept this invitation to join '<a href="
-#| "\"%(project_link)s\">%(project_name)s</a>' as a project %(role_name)s?\n"
-#| "      "
+#, python-format
 msgid ""
 "Would you like to accept this invitation to join '<a href=\"%(project_link)s"
 "\">%(project_name)s</a>' as a project %(role_name)s?"
 msgstr ""
-"\n"
-"      ¿Quiere aceptar esta invitación a incorporarse a «<a href="
-"\"%(project_link)s\">%(project_name)s</a>» como %(role_name)s del proyecto?\n"
-"      "
+"¿Quiere aceptar esta invitación a incorporarse a «<a href=\"%(project_link)s"
+"\">%(project_name)s</a>» como %(role_name)s del proyecto?"
 
 #: warehouse/templates/accounts/invite-confirmation.html:32
 #: warehouse/templates/accounts/organization-invite-confirmation.html:32
@@ -1446,26 +1411,17 @@ msgid "Log out of %(account_name)s"
 msgstr "Salir de %(account_name)s"
 
 #: warehouse/templates/accounts/organization-invite-confirmation.html:17
-#, fuzzy
-#| msgid "Confirm Invite"
 msgid "Confirm Organization Invite"
-msgstr "Confirme la invitación"
+msgstr "Confirme la invitación a la organización"
 
 #: warehouse/templates/accounts/organization-invite-confirmation.html:26
-#, fuzzy, python-format
-#| msgid ""
-#| "\n"
-#| "      Would you like to accept this invitation to join "
-#| "'%(organization_name)s' as an organization %(role_name)s?\n"
-#| "      "
+#, python-format
 msgid ""
 "Would you like to accept this invitation to join '%(organization_name)s' as "
 "an organization %(role_name)s?"
 msgstr ""
-"\n"
-"      ¿Quiere aceptar esta invitación a incorporarse a "
-"«%(organization_name)s» como %(role_name)s de la organización?\n"
-"      "
+"¿Quiere aceptar esta invitación a incorporarse a «%(organization_name)s» "
+"como %(role_name)s de la organización?"
 
 #: warehouse/templates/accounts/profile.html:16
 #, python-format
@@ -1492,12 +1448,11 @@ msgid "Joined %(start_date)s"
 msgstr "Se dio de alta el %(start_date)s"
 
 #: warehouse/templates/accounts/profile.html:67
-#, fuzzy, python-format
-#| msgid "%(num_projects)s projects"
+#, python-format
 msgid "%(count)s project"
 msgid_plural "%(count)s projects"
-msgstr[0] "%(num_projects)s proyectos"
-msgstr[1] "%(num_projects)s proyectos"
+msgstr[0] "%(count)s proyecto"
+msgstr[1] "%(count)s proyectos"
 
 #: warehouse/templates/accounts/profile.html:73
 msgid "No projects"
@@ -1538,6 +1493,9 @@ msgid ""
 "<code>a-z</code> and digits <code>0-9</code> (e.g., <code>badc0ffee0ddf00d</"
 "code>)."
 msgstr ""
+"Los códigos de recuperación son cadenas de 16 caracteres hexadecimales "
+"compuesto de las minúsculas <code>a-z</code> y los dígitos <code>a-z</code> "
+"(ejemplo: <code>badc0ffee0ddf00d</code>)."
 
 #: warehouse/templates/accounts/recovery-code.html:58
 #: warehouse/templates/accounts/two-factor.html:112
@@ -1808,28 +1766,22 @@ msgid "You are receiving this because you are a member of this organization."
 msgstr "Ha recibido esto porque es miembro de esta organización."
 
 #: warehouse/templates/email/added-as-team-collaborator/body.html:20
-#, fuzzy, python-format
-#| msgid ""
-#| "You have been added as <strong>%(role)s</strong> to the %(site)s project "
-#| "%(project_name)s by %(initiator_username)s."
+#, python-format
 msgid ""
 "Your team has been added with <strong>%(role)s</strong> permissions to the "
 "%(site)s project %(project)s by %(submitter)s."
 msgstr ""
-"%(initiator_username)s le ha añadido como <strong>%(role)s</strong> al "
-"proyecto %(project_name)s de %(site)s."
+"%(submitter)s ha añadido a su equipo con los permisos <strong>%(role)s</"
+"strong> al proyecto %(project)s de %(site)s."
 
 #: warehouse/templates/email/added-as-team-collaborator/body.html:26
-#, fuzzy, python-format
-#| msgid ""
-#| "You are receiving this because you have been added by "
-#| "%(initiator_username)s to a project on %(site)s."
+#, python-format
 msgid ""
 "You are receiving this because your team has been added by %(submitter)s to "
 "a project on %(site)s."
 msgstr ""
-"Ha recibido esto porque %(submitter)s le ha añadido a un proyecto en "
-"%(site)s."
+"Ha recibido esto porque %(submitter)s ha añadido a su equipo en un proyecto "
+"en %(site)s."
 
 #: warehouse/templates/email/added-as-team-member/body.html:18
 #, fuzzy, python-format
@@ -1845,11 +1797,8 @@ msgstr ""
 "miembro a %(team_name)s en la organización %(organization_name)s."
 
 #: warehouse/templates/email/added-as-team-member/body.html:24
-#, fuzzy
-#| msgid "You are receiving this because you are an owner of this project."
 msgid "You are receiving this because you are a member of this team."
-msgstr ""
-"Ha recibido esto porque forma parte de los propietarios de este proyecto."
+msgstr "Ha recibido esto porque es miembro de este equipo."
 
 #: warehouse/templates/email/admin-organization-deleted/body.html:27
 #: warehouse/templates/email/organization-deleted/body.html:27
@@ -1859,23 +1808,19 @@ msgstr "Se eliminó la organización «%(organization_name)s» de %(site)s."
 
 #: warehouse/templates/email/admin-organization-deleted/body.html:33
 #: warehouse/templates/email/admin-organization-renamed/body.html:33
-#, fuzzy, python-format
-#| msgid "You are receiving this because you are an owner of this project."
+#, python-format
 msgid "You are receiving this because you are a %(site)s administrator."
-msgstr ""
-"Ha recibido esto porque forma parte de los propietarios de este proyecto."
+msgstr "Ha recibido esto porque es un administrador de %(site)s."
 
 #: warehouse/templates/email/admin-organization-renamed/body.html:27
 #: warehouse/templates/email/organization-renamed/body.html:27
-#, fuzzy, python-format
-#| msgid ""
-#| "<a href=\"%(href)s\">%(username)s</a> removed as project %(role_name)s"
+#, python-format
 msgid ""
 "The %(site)s organization has been renamed from "
 "\"%(previous_organization_name)s\" to \"%(organization_name)s\"."
 msgstr ""
-"<a href=\"%(href)s\">%(username)s</a> se eliminó como %(role_name)s del "
-"proyecto"
+"La organización %(site)s ha sido renombrada de \""
+"%(previous_organization_name)s\" a \"%(organization_name)s\"."
 
 #: warehouse/templates/email/basic-auth-with-2fa/body.html:17
 #: warehouse/templates/email/password-compromised-hibp/body.html:18
@@ -1884,19 +1829,16 @@ msgid "What?"
 msgstr "¿Perdón?"
 
 #: warehouse/templates/email/basic-auth-with-2fa/body.html:19
-#, fuzzy, python-format
-#| msgid ""
-#| "During your recent upload or upload attempt to %(site)s, we noticed you "
-#| "used basic authentication (username &amp; password). However, your "
-#| "account has two-factor authentication (2FA) enabled."
+#, python-format
 msgid ""
 "During your recent upload or upload attempt of %(project_name)s to %(site)s, "
 "we noticed you used basic authentication (username &amp; password). However, "
 "your account has two-factor authentication (2FA) enabled."
 msgstr ""
-"Hemos observado que, en su reciente carga o intento de carga en %(site)s, ha "
-"utilizado la autenticación básica (usuario y contraseña). Sin embargo, su "
-"cuenta tiene activada la autenticación en dos fases (A2F)."
+"Hemos observado que, en su reciente carga o intento de carga de "
+"%(project_name)s a %(site)s, ha utilizado la autenticación básica (usuario y "
+"contraseña). Sin embargo, su cuenta tiene activada la autenticación en dos "
+"pasos (A2F)."
 
 #: warehouse/templates/email/basic-auth-with-2fa/body.html:22
 #, python-format
@@ -1934,6 +1876,8 @@ msgid ""
 "An invitation for you to join the \"%(organization_name)s\" organization has "
 "been canceled"
 msgstr ""
+"Se ha cancelado una invitación para usted para unirse a la organización \""
+"%(organization_name)s\""
 
 #: warehouse/templates/email/canceled-as-invited-organization-member/body.html:25
 #: warehouse/templates/email/declined-as-invited-organization-member/body.html:24
@@ -4029,20 +3973,12 @@ msgid ""
 msgstr "No ha activado la autenticación en dos fases para su cuenta."
 
 #: warehouse/templates/manage/manage_base.html:140
-#, fuzzy
-#| msgid ""
-#| "\n"
-#| "        Use a recovery code before enabling two factor authentication on "
-#| "your account.\n"
-#| "        "
 msgid ""
 "Use a recovery code before enabling two factor authentication on your "
 "account."
 msgstr ""
-"\n"
-"        Utilice un código de recuperación antes de activar la autenticación "
-"en dos fases en su cuenta.\n"
-"        "
+"Utilice un código de recuperación antes de activar la autenticación en dos "
+"fases en su cuenta."
 
 #: warehouse/templates/manage/account/recovery_codes-burn.html:17
 #: warehouse/templates/manage/manage_base.html:149
@@ -4050,8 +3986,6 @@ msgid "Use a recovery code"
 msgstr "Utilizar un código de recuperación"
 
 #: warehouse/templates/manage/manage_base.html:160
-#, fuzzy
-#| msgid "You have not enabled two factor authentication on your account."
 msgid "You have not enabled two factor authentication on your account."
 msgstr "No ha activado la autenticación en dos fases para su cuenta."
 
@@ -4151,10 +4085,8 @@ msgstr "Proporcione su contraseña para continuar."
 
 #: warehouse/templates/manage/organizations.html:23
 #: warehouse/templates/manage/projects.html:23
-#, fuzzy
-#| msgid "Main navigation"
 msgid "Pending invitations"
-msgstr "Navegación principal"
+msgstr "Invitaciones pendientes"
 
 #: warehouse/templates/manage/organization/projects.html:80
 #: warehouse/templates/manage/organizations.html:35
@@ -4208,7 +4140,7 @@ msgstr "La invitación al puesto no es válida."
 
 #: warehouse/templates/manage/organizations.html:81
 msgid "Inactive"
-msgstr ""
+msgstr "Inactivo"
 
 #: warehouse/templates/manage/organization/roles.html:46
 #: warehouse/templates/manage/organization/roles.html:91
@@ -4279,10 +4211,8 @@ msgid "You have not joined any organizations on PyPI, yet."
 msgstr "%(user)s aún no ha cargado ningún proyecto en PyPI"
 
 #: warehouse/templates/manage/organizations.html:142
-#, fuzzy
-#| msgid "Create an account"
 msgid "Create new organization"
-msgstr "Crear cuenta"
+msgstr "Crear una nueva organización"
 
 #: warehouse/templates/manage/organization/roles.html:126
 #: warehouse/templates/manage/organization/roles.html:161
@@ -4408,6 +4338,8 @@ msgstr "Proyecto crucial"
 #: warehouse/templates/manage/team/projects.html:97
 msgid "PyPI requires 2FA to be enabled to manage this project"
 msgstr ""
+"PyPI necesita la autenticación con verificación en 2 pasos activa para "
+"administrar este proyecto"
 
 #: warehouse/templates/manage/organization/projects.html:57
 #: warehouse/templates/manage/organization/projects.html:98
@@ -6976,7 +6908,7 @@ msgstr "Nombre de equipo"
 
 #: warehouse/templates/packaging/detail.html:108
 msgid "view hashes"
-msgstr "ver resúmenes"
+msgstr "ver hashes"
 
 #: warehouse/templates/packaging/detail.html:128
 #, python-format

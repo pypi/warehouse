@@ -225,6 +225,10 @@ class Organization(HasEvents, db.Model):
             "name ~* '^([A-Z0-9]|[A-Z0-9][A-Z0-9._-]*[A-Z0-9])$'::text",
             name="organizations_valid_name",
         ),
+        CheckConstraint(
+            "link_url ~* '^https?://.*'::text",
+            name="organizations_valid_link_url",
+        ),
     )
 
     __repr__ = make_repr("name")
