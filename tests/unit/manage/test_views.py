@@ -8860,7 +8860,7 @@ class TestDeleteProjectRole:
             pretend.call(db_request, user, submitter=user_2, project_name="foobar")
         ]
         assert db_request.session.flash.calls == [
-            pretend.call("Removed role", queue="success")
+            pretend.call("Removed collaborator", queue="success")
         ]
         assert isinstance(result, HTTPSeeOther)
         assert result.headers["Location"] == "/the-redirect"
@@ -8956,7 +8956,7 @@ class TestDeleteProjectRole:
             pretend.call(db_request, user_2, submitter=user_2, project_name="foobar")
         ]
         assert db_request.session.flash.calls == [
-            pretend.call("Removed role", queue="success")
+            pretend.call("Removed collaborator", queue="success")
         ]
         assert isinstance(result, HTTPSeeOther)
         assert result.headers["Location"] == "/the-redirect"

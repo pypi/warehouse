@@ -4667,7 +4667,7 @@ def delete_project_role(project, request):
                 request, role.user, submitter=request.user, project_name=project.name
             )
 
-            request.session.flash("Removed role", queue="success")
+            request.session.flash("Removed collaborator", queue="success")
             if removing_self:
                 return HTTPSeeOther(request.route_path("manage.projects"))
     except NoResultFound:
