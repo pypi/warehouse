@@ -228,9 +228,7 @@ class TestSimpleDetail:
         project = ProjectFactory.create()
         releases = [ReleaseFactory.create(project=project) for _ in range(3)]
         files = [
-            FileFactory.create(
-                release=r, filename="{}-{}.tar.gz".format(project.name, r.version)
-            )
+            FileFactory.create(release=r, filename=f"{project.name}-{r.version}.tar.gz")
             for r in releases
         ]
         # let's assert the result is ordered by string comparison of filename
@@ -270,9 +268,7 @@ class TestSimpleDetail:
         project = ProjectFactory.create()
         releases = [ReleaseFactory.create(project=project) for _ in range(3)]
         files = [
-            FileFactory.create(
-                release=r, filename="{}-{}.tar.gz".format(project.name, r.version)
-            )
+            FileFactory.create(release=r, filename=f"{project.name}-{r.version}.tar.gz")
             for r in releases
         ]
         # let's assert the result is ordered by string comparison of filename
@@ -328,7 +324,7 @@ class TestSimpleDetail:
         tar_files = [
             FileFactory.create(
                 release=r,
-                filename="{}-{}.tar.gz".format(project.name, r.version),
+                filename=f"{project.name}-{r.version}.tar.gz",
                 packagetype="sdist",
             )
             for r in releases
@@ -336,7 +332,7 @@ class TestSimpleDetail:
         wheel_files = [
             FileFactory.create(
                 release=r,
-                filename="{}-{}.whl".format(project.name, r.version),
+                filename=f"{project.name}-{r.version}.whl",
                 packagetype="bdist_wheel",
             )
             for r in releases
@@ -344,7 +340,7 @@ class TestSimpleDetail:
         egg_files = [
             FileFactory.create(
                 release=r,
-                filename="{}-{}.egg".format(project.name, r.version),
+                filename=f"{project.name}-{r.version}.egg",
                 packagetype="bdist_egg",
             )
             for r in releases

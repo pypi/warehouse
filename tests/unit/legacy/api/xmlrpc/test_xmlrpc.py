@@ -326,7 +326,7 @@ def test_release_urls(db_request):
     release = ReleaseFactory.create(project=project)
     file_ = FileFactory.create(
         release=release,
-        filename="{}-{}.tar.gz".format(project.name, release.version),
+        filename=f"{project.name}-{release.version}.tar.gz",
         python_version="source",
     )
 
@@ -404,7 +404,7 @@ def test_changelog_since_serial(db_request):
         (
             e.name,
             e.version,
-            int(e.submitted_date.replace(tzinfo=datetime.timezone.utc).timestamp()),
+            int(e.submitted_date.replace(tzinfo=datetime.UTC).timestamp()),
             e.action,
             e.id,
         )
@@ -428,7 +428,7 @@ def test_changelog(db_request, with_ids):
 
     since = int(
         entries[int(len(entries) / 2)]
-        .submitted_date.replace(tzinfo=datetime.timezone.utc)
+        .submitted_date.replace(tzinfo=datetime.UTC)
         .timestamp()
     )
 
@@ -436,12 +436,12 @@ def test_changelog(db_request, with_ids):
         (
             e.name,
             e.version,
-            int(e.submitted_date.replace(tzinfo=datetime.timezone.utc).timestamp()),
+            int(e.submitted_date.replace(tzinfo=datetime.UTC).timestamp()),
             e.action,
             e.id,
         )
         for e in entries
-        if (e.submitted_date.replace(tzinfo=datetime.timezone.utc).timestamp() > since)
+        if (e.submitted_date.replace(tzinfo=datetime.UTC).timestamp() > since)
     ]
 
     if not with_ids:

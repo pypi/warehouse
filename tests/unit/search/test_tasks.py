@@ -50,7 +50,7 @@ def test_project_docs(db_session):
             r.files = [
                 FileFactory.create(
                     release=r,
-                    filename="{}-{}.tar.gz".format(p.name, r.version),
+                    filename=f"{p.name}-{r.version}.tar.gz",
                     python_version="source",
                 )
             ]
@@ -89,7 +89,7 @@ def test_single_project_doc(db_session):
             r.files = [
                 FileFactory.create(
                     release=r,
-                    filename="{}-{}.tar.gz".format(p.name, r.version),
+                    filename=f"{p.name}-{r.version}.tar.gz",
                     python_version="source",
                 )
             ]
@@ -129,7 +129,7 @@ def test_project_docs_empty(db_session):
         r.files = [
             FileFactory.create(
                 release=r,
-                filename="{}-{}.tar.gz".format(project_with_files.name, r.version),
+                filename=f"{project_with_files.name}-{r.version}.tar.gz",
                 python_version="source",
             )
         ]
@@ -184,7 +184,7 @@ class FakeESIndices:
                 elif action == "remove":
                     self.remove_alias(values["alias"], values["index"])
                 else:
-                    raise ValueError("Unknown action: {!r}.".format(action))
+                    raise ValueError(f"Unknown action: {action!r}.")
 
 
 class FakeESClient:

@@ -71,7 +71,7 @@ def pytest_collection_modifyitems(items):
         elif module_root_dir.startswith("unit"):
             item.add_marker(pytest.mark.unit)
         else:
-            raise RuntimeError("Unknown test type (filename = {0})".format(module_path))
+            raise RuntimeError(f"Unknown test type (filename = {module_path})")
 
 
 @contextmanager
@@ -220,7 +220,7 @@ def database(request):
     def drop_database():
         janitor.drop()
 
-    return "postgresql://{}@{}:{}/{}".format(pg_user, pg_host, pg_port, pg_db)
+    return f"postgresql://{pg_user}@{pg_host}:{pg_port}/{pg_db}"
 
 
 class MockManifestCacheBuster(ManifestCacheBuster):

@@ -166,7 +166,7 @@ def reindex(self, request):
             # Create the new index and associate all of our doc types with it.
             index_base = request.registry["elasticsearch.index"]
             random_token = binascii.hexlify(os.urandom(5)).decode("ascii")
-            new_index_name = "{}-{}".format(index_base, random_token)
+            new_index_name = f"{index_base}-{random_token}"
             doc_types = request.registry.get("search.doc_types", set())
             shards = request.registry.get("elasticsearch.shards", 1)
 

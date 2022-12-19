@@ -22,11 +22,11 @@ def _hash(email):
 
 
 def gravatar(request, email, size=80):
-    url = "https://secure.gravatar.com/avatar/{}".format(_hash(email))
+    url = f"https://secure.gravatar.com/avatar/{_hash(email)}"
     params = {"size": size}
 
     return request.camo_url("?".join([url, urllib.parse.urlencode(params)]))
 
 
 def profile(email):
-    return "https://gravatar.com/{}".format(_hash(email))
+    return f"https://gravatar.com/{_hash(email)}"

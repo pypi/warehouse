@@ -31,7 +31,7 @@ def markdown_view_factory(*, filename):
 
         filepath = os.path.join(directory, filename)
 
-        with open(filepath, "r", encoding="utf8") as fp:
+        with open(filepath, encoding="utf8") as fp:
             unrendered = fp.read()
 
         rendered = mistune.markdown(unrendered)
@@ -45,10 +45,10 @@ def markdown_view_factory(*, filename):
 
 
 def add_policy_view(config, name, filename):
-    config.add_route("policy.{}".format(name), "/policy/{}/".format(name))
+    config.add_route(f"policy.{name}", f"/policy/{name}/")
     config.add_view(
         markdown_view_factory(filename=filename),
-        route_name="policy.{}".format(name),
+        route_name=f"policy.{name}",
         renderer="policy.html",
         has_translations=True,
     )
