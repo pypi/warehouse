@@ -146,6 +146,19 @@ def test_format_tags(inp, expected):
             ["Foo :: Bar :: Baz", "Vleep :: Foo", "Foo :: Bar :: Qux"],
             [("Foo", ["Bar :: Baz", "Bar :: Qux"]), ("Vleep", ["Foo"])],
         ),
+        (
+            [
+                "Programming Language :: Python :: 3.11",
+                "Programming Language :: Python :: 3.10",
+                "Programming Language :: Python :: 3.8",
+            ],
+            [
+                (
+                    "Programming Language",
+                    ["Python :: 3.8", "Python :: 3.10", "Python :: 3.11"],
+                )
+            ],
+        ),
     ],
 )
 def test_format_classifiers(inp, expected):

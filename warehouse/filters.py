@@ -28,6 +28,7 @@ import jinja2
 import packaging.version
 import pytz
 
+from natsort import natsorted
 from pyramid.threadlocal import get_current_request
 
 from warehouse.utils.http import is_valid_uri
@@ -136,6 +137,10 @@ def format_classifiers(classifiers):
             if key not in structured:
                 structured[key] = []
             structured[key].append(value[0])
+
+    # Sort all the values in our data structure
+    for key, value in structured.items():
+        structured[key] = natsorted(value)
 
     return structured
 
