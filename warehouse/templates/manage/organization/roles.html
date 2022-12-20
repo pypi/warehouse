@@ -95,12 +95,13 @@
           {% trans %}Billing Manager{% endtrans %}
           {% endif %}
         {% else %}
+        <div data-controller="change-role" data-change-role-current-value="{{ role.role_name.value }}">
           <form class="table__change-role" method="POST" action="{{ request.route_path('manage.organization.change_role', organization_name=organization.normalized_name) }}">
             <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
             <input type="hidden" name="role_id" value="{{ role.id }}">
 
             <label for="role-for-{{ role.id }}" class="sr-only">{% trans %}Role{% endtrans %}</label>
-            <select id="role-for-{{ role.id }}" class="table__change-field" name="role_name" data-original="{{ role.role_name.value }}" autocomplete="off">
+            <select id="role-for-{{ role.id }}" class="table__change-field" name="role_name" data-action="change-role#change" autocomplete="off">
             {# Reuse `.role_name.choices` from "Invite" form to include/exclude "Billing Manager" appropriately. #}
             {% for role_name, role_name_label in form.role_name.choices if role_name %}
             {% set role_name_label = gettext(role_name_label) %}
@@ -109,10 +110,11 @@
             </option>
             {% endfor %}
             </select>
-            <button type="submit" class="button button--primary table__change-button" title="{% trans %}Save role{% endtrans %}">
+            <button type="submit" class="button button--primary table__change-button" title="{% trans %}Save role{% endtrans %}" data-change-role-target="saveButton">
               {% trans %}Save{% endtrans %}
             </button>
           </form>
+        </div>
         {% endif %}
         </td>
         <td class="table__align-center">{{ two_factor_badge(role.user) }}</td>
