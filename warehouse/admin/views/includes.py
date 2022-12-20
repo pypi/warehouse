@@ -18,12 +18,18 @@ from warehouse.packaging.models import Project
 
 @view_config(
     route_name="includes.administer-project-include",
-    context=Project,
     renderer="includes/admin/administer-project-include.html",
     uses_session=True,
 )
-def administer_project_include(project, request):
-    return {"project": project}
+def administer_project_include(request):
+    project_name = request.matchdict.get("project_name")
+    project = (
+        request.db.query(Project)
+        .filter(Project.normalized_name == func.normalize_pep426_name(project_name))
+        .one_or_none()
+    )
+
+    return {"project": project, "project_name": project_name}
 
 
 @view_config(
