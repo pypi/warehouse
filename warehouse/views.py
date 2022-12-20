@@ -102,7 +102,7 @@ def httpexception_view(exc, request):
             )
         else:
             response = render_to_response(
-                "{}.html".format(exc.status_code),
+                f"{exc.status_code}.html",
                 {"project_name": project_name},
                 request=request,
             )

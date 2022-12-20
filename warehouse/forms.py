@@ -58,7 +58,7 @@ class PasswordStrengthValidator:
             try:
                 user_inputs.append(form[fieldname].data)
             except KeyError:
-                raise ValidationError("Invalid field name: {!r}".format(fieldname))
+                raise ValidationError(f"Invalid field name: {fieldname!r}")
 
         # Actually ask zxcvbn to check the strength of the given field's data.
         results = zxcvbn(field.data, user_inputs=user_inputs)

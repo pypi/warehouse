@@ -648,7 +648,7 @@ class TestIsDuplicateFile:
         release = ReleaseFactory.create(project=project, version="1.0")
         RoleFactory.create(user=user, project=project)
 
-        filename = "{}-{}.tar.gz".format(project.name, release.version)
+        filename = f"{project.name}-{release.version}.tar.gz"
         file_content = io.BytesIO(_TAR_GZ_PKG_TESTDATA)
         file_value = file_content.getvalue()
 
@@ -680,8 +680,8 @@ class TestIsDuplicateFile:
         release = ReleaseFactory.create(project=project, version="1.0")
         RoleFactory.create(user=user, project=project)
 
-        filename = "{}-{}.tar.gz".format(project.name, release.version)
-        requested_file_name = "{}-{}-1.tar.gz".format(project.name, release.version)
+        filename = f"{project.name}-{release.version}.tar.gz"
+        requested_file_name = f"{project.name}-{release.version}-1.tar.gz"
         file_content = io.BytesIO(_TAR_GZ_PKG_TESTDATA)
         file_value = file_content.getvalue()
 
@@ -718,8 +718,8 @@ class TestIsDuplicateFile:
         release = ReleaseFactory.create(project=project, version="1.0")
         RoleFactory.create(user=user, project=project)
 
-        filename = "{}-{}.tar.gz".format(project.name, release.version)
-        requested_file_name = "{}-{}-1.tar.gz".format(project.name, release.version)
+        filename = f"{project.name}-{release.version}.tar.gz"
+        requested_file_name = f"{project.name}-{release.version}-1.tar.gz"
         file_content = io.BytesIO(_TAR_GZ_PKG_TESTDATA)
         file_value = file_content.getvalue()
 
@@ -754,7 +754,7 @@ class TestIsDuplicateFile:
         release = ReleaseFactory.create(project=project, version="1.0")
         RoleFactory.create(user=user, project=project)
 
-        filename = "{}-{}.tar.gz".format(project.name, release.version)
+        filename = f"{project.name}-{release.version}.tar.gz"
         file_content = io.BytesIO(_TAR_GZ_PKG_TESTDATA)
         file_value = file_content.getvalue()
 
@@ -1010,7 +1010,7 @@ class TestFileUpload:
         resp = excinfo.value
 
         assert resp.status_code == 400
-        assert resp.status == "400 {}".format(message)
+        assert resp.status == f"400 {message}"
 
     @pytest.mark.parametrize("name", ["requirements.txt", "rrequirements.txt"])
     def test_fails_with_invalid_names(self, pyramid_config, db_request, name):
@@ -1217,12 +1217,10 @@ class TestFileUpload:
 
         assert resp.status_code == 400
         assert resp.status == (
-            (
-                "400 The name {!r} isn't allowed (conflict "
-                "with Python Standard Library module name). "
-                "See /the/help/url/ "
-                "for more information."
-            )
+            "400 The name {!r} isn't allowed (conflict "
+            "with Python Standard Library module name). "
+            "See /the/help/url/ "
+            "for more information."
         ).format(name)
 
     def test_fails_with_admin_flag_set(self, pyramid_config, db_request):
@@ -1371,7 +1369,7 @@ class TestFileUpload:
 
         db_request.db.add(Classifier(classifier="Environment :: Other Environment"))
 
-        filename = "{}-{}.tar.gz".format(project.name, release.version)
+        filename = f"{project.name}-{release.version}.tar.gz"
 
         pyramid_config.testing_securitypolicy(identity=user)
         db_request.user = user
@@ -1504,7 +1502,7 @@ class TestFileUpload:
             (
                 release.project.name,
                 release.version,
-                "add source file {}".format(filename),
+                f"add source file {filename}",
                 user,
                 db_request.remote_addr,
             )
@@ -1533,7 +1531,7 @@ class TestFileUpload:
 
         db_request.db.add(Classifier(classifier="Environment :: Other Environment"))
 
-        filename = "{}-{}.tar.gz".format(project.name, release.version)
+        filename = f"{project.name}-{release.version}.tar.gz"
 
         db_request.POST = MultiDict(
             {
@@ -1570,7 +1568,7 @@ class TestFileUpload:
         release = ReleaseFactory.create(project=project, version="1.0")
         RoleFactory.create(user=user, project=project)
 
-        filename = "{}-{}.tar.gz".format(project.name, release.version)
+        filename = f"{project.name}-{release.version}.tar.gz"
 
         db_request.POST = MultiDict(
             {
@@ -1609,7 +1607,7 @@ class TestFileUpload:
         release = ReleaseFactory.create(project=project, version="1.0")
         RoleFactory.create(user=user, project=project)
 
-        filename = "{}-{}.tar.bz2".format(project.name, release.version)
+        filename = f"{project.name}-{release.version}.tar.bz2"
 
         db_request.POST = MultiDict(
             {
@@ -1649,11 +1647,11 @@ class TestFileUpload:
         FileFactory.create(
             release=release,
             packagetype="sdist",
-            filename="{}-{}.tar.gz".format(project.name, release.version),
+            filename=f"{project.name}-{release.version}.tar.gz",
         )
         RoleFactory.create(user=user, project=project)
 
-        filename = "{}-{}.zip".format(project.name, release.version)
+        filename = f"{project.name}-{release.version}.zip"
 
         db_request.POST = MultiDict(
             {
@@ -1689,7 +1687,7 @@ class TestFileUpload:
         release = ReleaseFactory.create(project=project, version="1.0")
         RoleFactory.create(user=user, project=project)
 
-        filename = "{}-{}.tar.gz".format(project.name, release.version)
+        filename = f"{project.name}-{release.version}.tar.gz"
 
         db_request.POST = MultiDict(
             {
@@ -1727,7 +1725,7 @@ class TestFileUpload:
         release = ReleaseFactory.create(project=project, version="1.0")
         RoleFactory.create(user=user, project=project)
 
-        filename = "{}-{}.tar.gz".format(project.name, release.version)
+        filename = f"{project.name}-{release.version}.tar.gz"
 
         db_request.POST = MultiDict(
             {
@@ -1787,7 +1785,7 @@ class TestFileUpload:
 
         monkeypatch.setattr(legacy, "deprecated_classifiers", deprecated_classifiers)
 
-        filename = "{}-{}.tar.gz".format(project.name, release.version)
+        filename = f"{project.name}-{release.version}.tar.gz"
 
         db_request.POST = MultiDict(
             {
@@ -1859,7 +1857,7 @@ class TestFileUpload:
         release = ReleaseFactory.create(project=project, version="1.0")
         RoleFactory.create(user=user, project=project)
 
-        filename = "{}-{}.tar.gz".format(project.name, release.version)
+        filename = f"{project.name}-{release.version}.tar.gz"
 
         db_request.POST = MultiDict(
             {
@@ -1897,7 +1895,7 @@ class TestFileUpload:
         release = ReleaseFactory.create(project=project, version="1.0")
         RoleFactory.create(user=user, project=project)
 
-        filename = "{}-{}.zip".format(project.name, release.version)
+        filename = f"{project.name}-{release.version}.zip"
 
         db_request.POST = MultiDict(
             {
@@ -1974,7 +1972,7 @@ class TestFileUpload:
         release = ReleaseFactory.create(project=project, version="1.0")
         RoleFactory.create(user=user, project=project)
 
-        filename = "{}-{}.tar.gz".format(project.name, release.version)
+        filename = f"{project.name}-{release.version}.tar.gz"
 
         db_request.POST = MultiDict(
             {
@@ -2020,7 +2018,7 @@ class TestFileUpload:
         release = ReleaseFactory.create(project=project, version="1.0")
         RoleFactory.create(user=user, project=project)
 
-        filename = "{}-{}.tar.gz".format(project.name, release.version)
+        filename = f"{project.name}-{release.version}.tar.gz"
 
         db_request.POST = MultiDict(
             {
@@ -2070,7 +2068,7 @@ class TestFileUpload:
         release = ReleaseFactory.create(project=project, version="1.0")
         RoleFactory.create(user=user, project=project)
 
-        filename = "{}-{}.tar.gz".format(project.name, release.version)
+        filename = f"{project.name}-{release.version}.tar.gz"
 
         db_request.POST = MultiDict(
             {
@@ -2191,7 +2189,7 @@ class TestFileUpload:
             (
                 "example",
                 None,
-                "add Owner {}".format(user.username),
+                f"add Owner {user.username}",
                 user,
                 db_request.remote_addr,
             ),
@@ -2215,7 +2213,7 @@ class TestFileUpload:
         release = ReleaseFactory.create(project=project, version="1.0")
         RoleFactory.create(user=user, project=project)
 
-        filename = "{}-{}.tar.gz".format(project.name, release.version)
+        filename = f"{project.name}-{release.version}.tar.gz"
 
         db_request.POST = MultiDict(
             {
@@ -2256,7 +2254,7 @@ class TestFileUpload:
         release = ReleaseFactory.create(project=project, version="1.0")
         RoleFactory.create(user=user, project=project)
 
-        filename = "{}-{}.tar.gz".format(project.name, release.version)
+        filename = f"{project.name}-{release.version}.tar.gz"
         file_content = io.BytesIO(_TAR_GZ_PKG_TESTDATA)
 
         db_request.POST = MultiDict(
@@ -2300,7 +2298,7 @@ class TestFileUpload:
         release = ReleaseFactory.create(project=project, version="1.0")
         RoleFactory.create(user=user, project=project)
 
-        filename = "{}-{}.tar.gz".format(project.name, release.version)
+        filename = f"{project.name}-{release.version}.tar.gz"
         file_content = io.BytesIO(_TAR_GZ_PKG_TESTDATA)
 
         db_request.POST = MultiDict(
@@ -2347,7 +2345,7 @@ class TestFileUpload:
         release = ReleaseFactory.create(project=project, version="1.0")
         RoleFactory.create(user=user, project=project)
 
-        filename = "{}-{}.tar.gz".format(project.name, release.version)
+        filename = f"{project.name}-{release.version}.tar.gz"
         file_content = io.BytesIO(_TAR_GZ_PKG_TESTDATA)
 
         db_request.POST = MultiDict(
@@ -2401,7 +2399,7 @@ class TestFileUpload:
         release = ReleaseFactory.create(project=project, version="1.0")
         RoleFactory.create(user=user, project=project)
 
-        filename = "{}-{}.tar.gz".format(project.name, release.version)
+        filename = f"{project.name}-{release.version}.tar.gz"
         file_content = io.BytesIO(_TAR_GZ_PKG_TESTDATA)
 
         db_request.POST = MultiDict(
@@ -2412,7 +2410,7 @@ class TestFileUpload:
                 "filetype": "sdist",
                 "md5_digest": hashlib.md5(file_content.getvalue()).hexdigest(),
                 "content": pretend.stub(
-                    filename="{}-fake.tar.gz".format(project.name),
+                    filename=f"{project.name}-fake.tar.gz",
                     file=file_content,
                     type="application/tar",
                 ),
@@ -2456,7 +2454,7 @@ class TestFileUpload:
         release = ReleaseFactory.create(project=project, version="1.0")
         RoleFactory.create(user=user, project=project)
 
-        filename = "nope-{}.tar.gz".format(release.version)
+        filename = f"nope-{release.version}.tar.gz"
 
         db_request.POST = MultiDict(
             {
@@ -2495,7 +2493,7 @@ class TestFileUpload:
         release = ReleaseFactory.create(project=project, version="1.0")
         RoleFactory.create(user=user, project=project)
 
-        filename = "{}-{}.tar.wat".format(project.name, release.version)
+        filename = f"{project.name}-{release.version}.tar.wat"
 
         db_request.POST = MultiDict(
             {
@@ -2537,7 +2535,7 @@ class TestFileUpload:
         release = ReleaseFactory.create(project=project, version="1.0")
         RoleFactory.create(user=user, project=project)
 
-        filename = "{}-{}.tar.wat".format(character + project.name, release.version)
+        filename = f"{character + project.name}-{release.version}.tar.wat"
 
         db_request.POST = MultiDict(
             {
@@ -2571,7 +2569,7 @@ class TestFileUpload:
         release = ReleaseFactory.create(project=project, version="1.0")
         RoleFactory.create(user=user1, project=project)
 
-        filename = "{}-{}.tar.wat".format(project.name, release.version)
+        filename = f"{project.name}-{release.version}.tar.wat"
 
         pyramid_config.testing_securitypolicy(identity=user2, permissive=False)
         db_request.user = user2
@@ -2600,8 +2598,8 @@ class TestFileUpload:
         assert db_request.help_url.calls == [pretend.call(_anchor="project-name")]
         assert resp.status_code == 403
         assert resp.status == (
-            "403 The user '{0}' "
-            "isn't allowed to upload to project '{1}'. "
+            "403 The user '{}' "
+            "isn't allowed to upload to project '{}'. "
             "See /the/help/url/ for more information."
         ).format(user2.username, project.name)
 
@@ -2613,7 +2611,7 @@ class TestFileUpload:
 
         provider = GitHubProviderFactory.create(projects=[project])
 
-        filename = "{}-{}.tar.wat".format(project.name, release.version)
+        filename = f"{project.name}-{release.version}.tar.wat"
 
         pyramid_config.testing_securitypolicy(identity=provider, permissive=False)
         db_request.user = None
@@ -2642,7 +2640,7 @@ class TestFileUpload:
         assert db_request.help_url.calls == [pretend.call(_anchor="project-name")]
         assert resp.status_code == 403
         assert resp.status == (
-            "403 The given token isn't allowed to upload to project '{0}'. "
+            "403 The given token isn't allowed to upload to project '{}'. "
             "See /the/help/url/ for more information."
         ).format(project.name)
 
@@ -2739,7 +2737,7 @@ class TestFileUpload:
         release = ReleaseFactory.create(project=project, version="1.0")
         RoleFactory.create(user=user, project=project)
 
-        filename = "{}-{}-cp34-none-{}.whl".format(project.name, release.version, plat)
+        filename = f"{project.name}-{release.version}-cp34-none-{plat}.whl"
 
         pyramid_config.testing_securitypolicy(identity=user)
         db_request.user = user
@@ -2825,7 +2823,7 @@ class TestFileUpload:
             (
                 release.project.name,
                 release.version,
-                "add cp34 file {}".format(filename),
+                f"add cp34 file {filename}",
                 user,
                 db_request.remote_addr,
             )
@@ -2848,11 +2846,11 @@ class TestFileUpload:
         FileFactory.create(
             release=release,
             packagetype="sdist",
-            filename="{}-{}.tar.gz".format(project.name, release.version),
+            filename=f"{project.name}-{release.version}.tar.gz",
         )
         RoleFactory.create(user=user, project=project)
 
-        filename = "{}-{}-cp34-none-any.whl".format(project.name, release.version)
+        filename = f"{project.name}-{release.version}-cp34-none-any.whl"
 
         pyramid_config.testing_securitypolicy(identity=user)
         db_request.user = user
@@ -2937,7 +2935,7 @@ class TestFileUpload:
             (
                 release.project.name,
                 release.version,
-                "add cp34 file {}".format(filename),
+                f"add cp34 file {filename}",
                 user,
                 db_request.remote_addr,
             )
@@ -2965,7 +2963,7 @@ class TestFileUpload:
         release = ReleaseFactory.create(project=project, version="1.0")
         RoleFactory.create(user=user, project=project)
 
-        filename = "{}-{}-cp34-none-{}.whl".format(project.name, release.version, plat)
+        filename = f"{project.name}-{release.version}-cp34-none-{plat}.whl"
 
         db_request.POST = MultiDict(
             {
@@ -3163,7 +3161,7 @@ class TestFileUpload:
             (
                 release.project.name,
                 release.version,
-                "add source file {}".format(filename),
+                f"add source file {filename}",
                 user,
                 db_request.remote_addr,
             ),
@@ -3392,7 +3390,7 @@ class TestFileUpload:
             (
                 "example",
                 None,
-                "add Owner {}".format(user.username),
+                f"add Owner {user.username}",
                 user,
                 db_request.remote_addr,
             ),

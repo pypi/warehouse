@@ -125,7 +125,7 @@ class GenericS3BlobStorage(GenericBlobStorage):
         except botocore.exceptions.ClientError as exc:
             if exc.response["Error"]["Code"] != "NoSuchKey":
                 raise
-            raise FileNotFoundError("No such key: {!r}".format(path)) from None
+            raise FileNotFoundError(f"No such key: {path!r}") from None
 
     def store(self, path, file_path, *, meta=None):
         extra_args = {}

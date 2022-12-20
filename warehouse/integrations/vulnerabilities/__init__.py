@@ -10,9 +10,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-
-from typing import List, Optional
-
 from warehouse import integrations
 
 
@@ -26,14 +23,14 @@ class VulnerabilityReportRequest:
     def __init__(
         self,
         project: str,
-        versions: List[str],
+        versions: list[str],
         vulnerability_id: str,
         advisory_link: str,
-        aliases: List[str],
+        aliases: list[str],
         details: str,
         summary: str,
-        fixed_in: List[str],
-        withdrawn: Optional[str],
+        fixed_in: list[str],
+        withdrawn: str | None,
     ):
         self.project = project
         self.versions = versions

@@ -448,7 +448,7 @@ class TestFile:
             release = DBReleaseFactory.create(project=project)
             DBFileFactory.create(
                 release=release,
-                filename="{}-{}.tar.gz".format(project.name, release.version),
+                filename=f"{project.name}-{release.version}.tar.gz",
                 python_version="source",
                 requires_python="1.0",
             )
@@ -458,7 +458,7 @@ class TestFile:
         release = DBReleaseFactory.create(project=project)
         rfile = DBFileFactory.create(
             release=release,
-            filename="{}-{}.tar.gz".format(project.name, release.version),
+            filename=f"{project.name}-{release.version}.tar.gz",
             python_version="source",
         )
 
@@ -479,7 +479,7 @@ class TestFile:
         release = DBReleaseFactory.create(project=project)
         rfile = DBFileFactory.create(
             release=release,
-            filename="{}-{}.tar.gz".format(project.name, release.version),
+            filename=f"{project.name}-{release.version}.tar.gz",
             python_version="source",
         )
 
