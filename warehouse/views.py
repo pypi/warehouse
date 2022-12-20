@@ -52,7 +52,13 @@ from warehouse.errors import WarehouseDenied
 from warehouse.forms import SetLocaleForm
 from warehouse.i18n import LOCALE_ATTR
 from warehouse.metrics import IMetricsService
-from warehouse.packaging.models import File, Project, Release, release_classifiers
+from warehouse.packaging.models import (
+    File,
+    Project,
+    ProjectFactory,
+    Release,
+    release_classifiers,
+)
 from warehouse.search.queries import SEARCH_FILTER_ORDER, get_es_query
 from warehouse.utils.http import is_safe_url
 from warehouse.utils.paginate import ElasticsearchPage, paginate_url_factory
@@ -66,6 +72,14 @@ json_path = re.compile(JSON_REGEX)
 @notfound_view_config(append_slash=HTTPMovedPermanently)
 @notfound_view_config(path_info=JSON_REGEX, append_slash=False)
 def httpexception_view(exc, request):
+    # If this is a 404 for a Project, provide the project name requested
+    if isinstance(request.context, Project):
+        project_name = request.context.name
+    elif isinstance(request.context, ProjectFactory):
+        project_name = request.matchdict.get("name")
+    else:
+        project_name = None
+
     # This special case exists for the easter egg that appears on the 404
     # response page. We don't generally allow youtube embeds, but we make an
     # except for this one.
@@ -88,7 +102,9 @@ def httpexception_view(exc, request):
             )
         else:
             response = render_to_response(
-                f"{exc.status_code}.html", {}, request=request
+                f"{exc.status_code}.html",
+                {"project_name": project_name},
+                request=request,
             )
     except LookupError:
         # We don't have a customized template for this error, so we'll just let

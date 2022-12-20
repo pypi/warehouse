@@ -16,6 +16,10 @@
 {% block title %}{{ super() }}{% endblock %}
 
 {% block body %}
+{% if project_name %}
+{% csi request.route_path("includes.administer-project-include", project_name=project_name) %}
+{% endcsi %}
+{% endif %}
 <div class="viewport-section viewport-section--dark">
   <div class="viewport-section__content">
     <a href="/">

@@ -1,10 +1,10 @@
-#: warehouse/views.py:125
+#: warehouse/views.py:141
 msgid ""
 "Two-factor authentication must be enabled on your account to perform this"
 " action."
 msgstr ""
 
-#: warehouse/views.py:288
+#: warehouse/views.py:304
 msgid "Locale updated"
 msgstr ""
 
@@ -959,11 +959,11 @@ msgstr ""
 msgid "Are you sure?"
 msgstr ""
 
-#: warehouse/templates/error-base.html:31
+#: warehouse/templates/error-base.html:35
 msgid "Error code"
 msgstr ""
 
-#: warehouse/templates/error-base.html:33
+#: warehouse/templates/error-base.html:37
 msgid "Back to the homepage"
 msgstr ""
 

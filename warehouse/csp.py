@@ -61,6 +61,12 @@ class CSPPolicy(collections.defaultdict):
         for key, attrs in policy.items():
             self[key].extend(attrs)
 
+            # The keyword 'none' must be the only source expression in the
+            # directive value, otherwise it is ignored. If there's more than
+            # one directive set, attempt to remove 'none' if it is present
+            if NONE in self[key] and len(self[key]) > 1:
+                self[key].remove(NONE)
+
 
 def csp_factory(_, request):
     try:
