@@ -11,9 +11,10 @@
 # limitations under the License.
 
 from pyramid.view import view_config
+from sqlalchemy import func
 
 from warehouse.accounts.models import User
-from warehouse.packaging.models import Project
+from warehouse.packaging.models import ProhibitedProjectName, Project
 
 
 @view_config(
@@ -28,8 +29,13 @@ def administer_project_include(request):
         .filter(Project.normalized_name == func.normalize_pep426_name(project_name))
         .one_or_none()
     )
+    prohibited = (
+        request.db.query(ProhibitedProjectName)
+        .filter(ProhibitedProjectName.name == func.normalize_pep426_name(project_name))
+        .one_or_none()
+    )
 
-    return {"project": project, "project_name": project_name}
+    return {"project": project, "project_name": project_name, "prohibited": prohibited}
 
 
 @view_config(
