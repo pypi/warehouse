@@ -5,6 +5,7 @@ pep8-naming
 black==22.12.0
 docutils<0.19
 isort>=5
+pyupgrade
 mypy
 celery-types
 msgpack-types

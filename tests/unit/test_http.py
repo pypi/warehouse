@@ -62,7 +62,7 @@ class TestSession:
         results = [fifo.get() for _ in range(len(threads))]
         idents, objects = zip(*results)
         assert len(set(idents)) == len(threads)
-        assert len(set(id(obj) for obj in objects)) == len(threads)
+        assert len({id(obj) for obj in objects}) == len(threads)
 
 
 def test_includeme():

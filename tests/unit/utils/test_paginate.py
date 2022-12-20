@@ -38,8 +38,7 @@ class FakeResult:
         return pretend.stub(total={"value": self.total})
 
     def __iter__(self):
-        for i in self.data:
-            yield i
+        yield from self.data
 
 
 class FakeResult6:
@@ -52,8 +51,7 @@ class FakeResult6:
         return pretend.stub(total=self.total)
 
     def __iter__(self):
-        for i in self.data:
-            yield i
+        yield from self.data
 
 
 class FakeSuggestResult(FakeResult):

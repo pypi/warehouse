@@ -41,9 +41,9 @@ def sync(config):
     all_classifiers = session.query(Classifier).all()
 
     # Determine if we need to add any new classifiers to the database
-    missing_classifiers = set(sorted_classifiers) - set(
+    missing_classifiers = set(sorted_classifiers) - {
         c.classifier for c in all_classifiers
-    )
+    }
 
     # Add any new classifiers to the database
     if missing_classifiers:

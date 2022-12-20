@@ -63,10 +63,10 @@ class TestHTTPExceptionView:
 
     @pytest.mark.parametrize("status_code", [403, 404, 410, 500])
     def test_renders_template(self, pyramid_config, status_code):
-        renderer = pyramid_config.testing_add_renderer("{}.html".format(status_code))
+        renderer = pyramid_config.testing_add_renderer(f"{status_code}.html")
 
         context = pretend.stub(
-            status="{} My Cool Status".format(status_code),
+            status=f"{status_code} My Cool Status",
             status_code=status_code,
             headers={},
         )
@@ -74,15 +74,15 @@ class TestHTTPExceptionView:
         response = httpexception_view(context, request)
 
         assert response.status_code == status_code
-        assert response.status == "{} My Cool Status".format(status_code)
+        assert response.status == f"{status_code} My Cool Status"
         renderer.assert_()
 
     @pytest.mark.parametrize("status_code", [403, 404, 410, 500])
     def test_renders_template_with_headers(self, pyramid_config, status_code):
-        renderer = pyramid_config.testing_add_renderer("{}.html".format(status_code))
+        renderer = pyramid_config.testing_add_renderer(f"{status_code}.html")
 
         context = pretend.stub(
-            status="{} My Cool Status".format(status_code),
+            status=f"{status_code} My Cool Status",
             status_code=status_code,
             headers={"Foo": "Bar"},
         )
@@ -90,7 +90,7 @@ class TestHTTPExceptionView:
         response = httpexception_view(context, request)
 
         assert response.status_code == status_code
-        assert response.status == "{} My Cool Status".format(status_code)
+        assert response.status == f"{status_code} My Cool Status"
         assert response.headers["Foo"] == "Bar"
         renderer.assert_()
 
@@ -259,7 +259,7 @@ class TestIndex:
         release2.created = datetime.date(2012, 1, 1)
         FileFactory.create(
             release=release1,
-            filename="{}-{}.tar.gz".format(project.name, release1.version),
+            filename=f"{project.name}-{release1.version}.tar.gz",
             python_version="source",
         )
         UserFactory.create()
@@ -527,7 +527,7 @@ def test_stats(db_request):
     release1.created = datetime.date(2011, 1, 1)
     FileFactory.create(
         release=release1,
-        filename="{}-{}.tar.gz".format(project.name, release1.version),
+        filename=f"{project.name}-{release1.version}.tar.gz",
         python_version="source",
         size=69,
     )
