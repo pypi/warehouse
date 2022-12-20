@@ -96,7 +96,7 @@ def shorten_number(value):
     for i, symbol in enumerate(_SI_SYMBOLS):
         magnitude = value / (1000 ** (i + 1))
         if magnitude >= 1 and magnitude < 1000:
-            return "{:.3g}{}".format(magnitude, symbol)
+            return f"{magnitude:.3g}{symbol}"
 
     return str(value)
 

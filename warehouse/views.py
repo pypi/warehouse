@@ -88,7 +88,7 @@ def httpexception_view(exc, request):
             )
         else:
             response = render_to_response(
-                "{}.html".format(exc.status_code), {}, request=request
+                f"{exc.status_code}.html", {}, request=request
             )
     except LookupError:
         # We don't have a customized template for this error, so we'll just let

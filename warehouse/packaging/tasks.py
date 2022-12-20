@@ -63,7 +63,7 @@ def compute_2fa_mandate(request):
             ],
         )
     )
-    top_projects = set(row.get("project_name") for row in query.result())
+    top_projects = {row.get("project_name") for row in query.result()}
 
     project_names = {canonicalize_name(n) for n in our_dependencies | top_projects}
 

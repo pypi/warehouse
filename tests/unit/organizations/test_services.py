@@ -339,56 +339,42 @@ class TestDatabaseOrganizationService:
         organization_service.delete_organization(organization.id)
 
         assert not (
-            (
-                db_request.db.query(OrganizationInvitation)
-                .filter_by(organization=organization)
-                .count()
-            )
+            db_request.db.query(OrganizationInvitation)
+            .filter_by(organization=organization)
+            .count()
         )
         assert not (
-            (
-                db_request.db.query(OrganizationNameCatalog)
-                .filter(OrganizationNameCatalog.organization_id == organization.id)
-                .count()
-            )
+            db_request.db.query(OrganizationNameCatalog)
+            .filter(OrganizationNameCatalog.organization_id == organization.id)
+            .count()
         )
         assert not (
-            (
-                db_request.db.query(OrganizationProject)
-                .filter_by(organization=organization)
-                .count()
-            )
+            db_request.db.query(OrganizationProject)
+            .filter_by(organization=organization)
+            .count()
         )
         assert not (
-            (
-                db_request.db.query(OrganizationRole)
-                .filter_by(organization=organization)
-                .count()
-            )
+            db_request.db.query(OrganizationRole)
+            .filter_by(organization=organization)
+            .count()
         )
         assert not (
-            (
-                db_request.db.query(OrganizationStripeSubscription)
-                .filter_by(organization=organization, subscription=subscription)
-                .count()
-            )
+            db_request.db.query(OrganizationStripeSubscription)
+            .filter_by(organization=organization, subscription=subscription)
+            .count()
         )
         assert not (
-            (
-                db_request.db.query(OrganizationStripeCustomer)
-                .filter_by(organization=organization, customer=stripe_customer)
-                .count()
-            )
+            db_request.db.query(OrganizationStripeCustomer)
+            .filter_by(organization=organization, customer=stripe_customer)
+            .count()
         )
         assert not (
-            (
-                db_request.db.query(StripeSubscription)
-                .filter(StripeSubscription.id == subscription.id)
-                .count()
-            )
+            db_request.db.query(StripeSubscription)
+            .filter(StripeSubscription.id == subscription.id)
+            .count()
         )
         assert not (
-            (db_request.db.query(Team).filter_by(organization=organization).count())
+            db_request.db.query(Team).filter_by(organization=organization).count()
         )
         assert organization_service.get_organization(organization.id) is None
 

@@ -90,7 +90,7 @@ class DatabaseUserService:
         )
         self.remote_addr = remote_addr
         self._metrics = metrics
-        self.cached_get_user = functools.lru_cache()(self._get_user)
+        self.cached_get_user = functools.lru_cache(self._get_user)
 
     def _get_user(self, userid):
         # TODO: We probably don't actually want to just return the database
@@ -105,17 +105,17 @@ class DatabaseUserService:
     def get_user(self, userid):
         return self.cached_get_user(userid)
 
-    @functools.lru_cache()
+    @functools.lru_cache
     def get_user_by_username(self, username):
         user_id = self.find_userid(username)
         return None if user_id is None else self.get_user(user_id)
 
-    @functools.lru_cache()
+    @functools.lru_cache
     def get_user_by_email(self, email):
         user_id = self.find_userid_by_email(email)
         return None if user_id is None else self.get_user(user_id)
 
-    @functools.lru_cache()
+    @functools.lru_cache
     def get_admins(self):
         return self.db.query(User).filter(User.is_superuser.is_(True)).all()
 
@@ -124,7 +124,7 @@ class DatabaseUserService:
             exists().where(ProhibitedUserName.name == username.lower())
         ).scalar()
 
-    @functools.lru_cache()
+    @functools.lru_cache
     def find_userid(self, username):
         try:
             user = self.db.query(User.id).filter(User.username == username).one()
@@ -133,7 +133,7 @@ class DatabaseUserService:
 
         return user.id
 
-    @functools.lru_cache()
+    @functools.lru_cache
     def find_userid_by_email(self, email):
         try:
             user_id = (self.db.query(Email.user_id).filter(Email.email == email).one())[

@@ -164,7 +164,7 @@ class SaveAccountForm(forms.Form):
             verified_emails = [e.email for e in user.emails if e.verified]
             if field.data not in verified_emails:
                 raise wtforms.validators.ValidationError(
-                    "%s is not a verified email for %s" % (field.data, user.username)
+                    f"{field.data} is not a verified email for {user.username}"
                 )
 
 
