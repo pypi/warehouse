@@ -13,6 +13,7 @@
 import collections
 
 import pretend
+import pytest
 
 from warehouse import csp
 
@@ -164,10 +165,25 @@ class TestCSPPolicy:
         policy = csp.CSPPolicy({"foo": ["bar"]})
         assert isinstance(policy, collections.defaultdict)
 
-    def test_merge(self):
-        policy = csp.CSPPolicy({"foo": ["bar"]})
-        policy.merge({"foo": ["baz"], "something": ["else"]})
-        assert policy == {"foo": ["bar", "baz"], "something": ["else"]}
+    @pytest.mark.parametrize(
+        "existing, incoming, expected",
+        [
+            (
+                {"foo": ["bar"]},
+                {"foo": ["baz"], "something": ["else"]},
+                {"foo": ["bar", "baz"], "something": ["else"]},
+            ),
+            (
+                {"foo": [csp.NONE]},
+                {"foo": ["baz"]},
+                {"foo": ["baz"]},
+            ),
+        ],
+    )
+    def test_merge(self, existing, incoming, expected):
+        policy = csp.CSPPolicy(existing)
+        policy.merge(incoming)
+        assert policy == expected
 
 
 def test_includeme():
