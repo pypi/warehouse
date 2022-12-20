@@ -11,7 +11,8 @@
 # limitations under the License.
 
 
-from typing import Any, Callable, Dict, Set
+from collections.abc import Callable
+from typing import Any
 
 import sentry_sdk
 
@@ -83,8 +84,8 @@ class OIDCProviderMixin:
 
     # A map of claim names to "check" functions, each of which
     # has the signature `check(ground-truth, signed-claim, all-signed-claims) -> bool`.
-    __verifiable_claims__: Dict[
-        str, Callable[[Any, Any, Dict[str, Any]], bool]
+    __verifiable_claims__: dict[
+        str, Callable[[Any, Any, dict[str, Any]], bool]
     ] = dict()
 
     # Claims that have already been verified during the JWT signature
@@ -100,7 +101,7 @@ class OIDCProviderMixin:
     # Individual providers should explicitly override this set,
     # indicating any custom claims that are known to be present but are
     # not checked as part of verifying the JWT.
-    __unchecked_claims__: Set[str] = set()
+    __unchecked_claims__: set[str] = set()
 
     @classmethod
     def all_known_claims(cls):

@@ -22,7 +22,7 @@ def _exc_with_message(exc, message):
     # The crappy old API that PyPI offered uses the status to pass down
     # messages to the client. So this function will make that easier to do.
     resp = exc(message)
-    resp.status = "{} {}".format(resp.status_code, message)
+    resp.status = f"{resp.status_code} {message}"
     return resp
 
 

@@ -110,7 +110,7 @@ class TestRateLimiter:
             metrics=metrics,
         )
 
-        current = datetime.datetime.now(tz=datetime.timezone.utc)
+        current = datetime.datetime.now(tz=datetime.UTC)
         stats = iter(
             [
                 (0, 0),

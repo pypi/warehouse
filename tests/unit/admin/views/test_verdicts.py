@@ -37,8 +37,8 @@ class TestListVerdicts:
         assert views.get_verdicts(db_request) == {
             "verdicts": [],
             "check_names": set(),
-            "classifications": set(["threat", "indeterminate", "benign"]),
-            "confidences": set(["low", "medium", "high"]),
+            "classifications": {"threat", "indeterminate", "benign"},
+            "confidences": {"low", "medium", "high"},
         }
 
     def test_some(self, db_request):
@@ -59,9 +59,9 @@ class TestListVerdicts:
 
         assert views.get_verdicts(db_request) == {
             "verdicts": verdicts,
-            "check_names": set([check.name]),
-            "classifications": set(["threat", "indeterminate", "benign"]),
-            "confidences": set(["low", "medium", "high"]),
+            "check_names": {check.name},
+            "classifications": {"threat", "indeterminate", "benign"},
+            "confidences": {"low", "medium", "high"},
         }
 
     def test_some_with_multipage(self, db_request):
@@ -84,9 +84,9 @@ class TestListVerdicts:
 
         assert views.get_verdicts(db_request) == {
             "verdicts": verdicts,
-            "check_names": set([check1.name, check2.name]),
-            "classifications": set(["threat", "indeterminate", "benign"]),
-            "confidences": set(["low", "medium", "high"]),
+            "check_names": {check1.name, check2.name},
+            "classifications": {"threat", "indeterminate", "benign"},
+            "confidences": {"low", "medium", "high"},
         }
 
     @pytest.mark.parametrize("check_name", ["check0", "check1", ""])
@@ -110,9 +110,9 @@ class TestListVerdicts:
 
         response = {
             "verdicts": verdicts,
-            "check_names": set(["check0", "check1", "check2"]),
-            "classifications": set(["threat", "indeterminate", "benign"]),
-            "confidences": set(["low", "medium", "high"]),
+            "check_names": {"check0", "check1", "check2"},
+            "classifications": {"threat", "indeterminate", "benign"},
+            "confidences": {"low", "medium", "high"},
         }
 
         db_request.GET["check_name"] = check_name
@@ -143,9 +143,9 @@ class TestListVerdicts:
 
         response = {
             "verdicts": verdicts,
-            "check_names": set([check.name]),
-            "classifications": set(["threat", "indeterminate", "benign"]),
-            "confidences": set(["low", "medium", "high"]),
+            "check_names": {check.name},
+            "classifications": {"threat", "indeterminate", "benign"},
+            "confidences": {"low", "medium", "high"},
         }
         assert views.get_verdicts(db_request) == response
 
@@ -172,9 +172,9 @@ class TestListVerdicts:
 
         response = {
             "verdicts": verdicts,
-            "check_names": set([check.name]),
-            "classifications": set(["threat", "indeterminate", "benign"]),
-            "confidences": set(["low", "medium", "high"]),
+            "check_names": {check.name},
+            "classifications": {"threat", "indeterminate", "benign"},
+            "confidences": {"low", "medium", "high"},
         }
 
         assert views.get_verdicts(db_request) == response
@@ -210,9 +210,9 @@ class TestListVerdicts:
 
         response = {
             "verdicts": verdicts,
-            "check_names": set([check.name]),
-            "classifications": set(["threat", "indeterminate", "benign"]),
-            "confidences": set(["low", "medium", "high"]),
+            "check_names": {check.name},
+            "classifications": {"threat", "indeterminate", "benign"},
+            "confidences": {"low", "medium", "high"},
         }
 
         assert views.get_verdicts(db_request) == response

@@ -210,7 +210,7 @@ def _exc_with_message(exc, message, **kwargs):
     # Specifically here, where user-supplied text may appear in the message,
     # which our WSGI server may not appropriately handle (indeed gunicorn does not).
     status_message = message.encode("iso-8859-1", "replace").decode("iso-8859-1")
-    resp.status = "{} {}".format(resp.status_code, status_message)
+    resp.status = f"{resp.status_code} {status_message}"
     return resp
 
 
@@ -255,12 +255,12 @@ def _validate_legacy_non_dist_req(requirement):
         req = packaging.requirements.Requirement(requirement.replace("_", ""))
     except packaging.requirements.InvalidRequirement:
         raise wtforms.validators.ValidationError(
-            "Invalid requirement: {!r}".format(requirement)
+            f"Invalid requirement: {requirement!r}"
         ) from None
 
     if req.url is not None:
         raise wtforms.validators.ValidationError(
-            "Can't direct dependency: {!r}".format(requirement)
+            f"Can't direct dependency: {requirement!r}"
         )
 
     if any(
@@ -280,12 +280,12 @@ def _validate_legacy_dist_req(requirement):
         req = packaging.requirements.Requirement(requirement)
     except packaging.requirements.InvalidRequirement:
         raise wtforms.validators.ValidationError(
-            "Invalid requirement: {!r}.".format(requirement)
+            f"Invalid requirement: {requirement!r}."
         ) from None
 
     if req.url is not None:
         raise wtforms.validators.ValidationError(
-            "Can't have direct dependency: {!r}".format(requirement)
+            f"Can't have direct dependency: {requirement!r}"
         )
 
 
@@ -867,7 +867,7 @@ def file_upload(request):
                         ),
                         field=field.description,
                     )
-                    + "Error: {} ".format(form.errors[field_name][0])
+                    + f"Error: {form.errors[field_name][0]} "
                     + "See "
                     "https://packaging.python.org/specifications/core-metadata"
                     + " for more information."
@@ -877,7 +877,7 @@ def file_upload(request):
                     field=field_name, msgs=form.errors[field_name]
                 )
         else:
-            error_message = "Error: {}".format(form.errors[field_name][0])
+            error_message = f"Error: {form.errors[field_name][0]}"
 
         raise _exc_with_message(HTTPBadRequest, error_message)
 
@@ -924,7 +924,7 @@ def file_upload(request):
         request.db.add(
             JournalEntry(
                 name=project.name,
-                action="add Owner {}".format(request.user.username),
+                action=f"add Owner {request.user.username}",
                 submitted_by=request.user,
                 submitted_from=request.remote_addr,
             )
@@ -948,8 +948,8 @@ def file_upload(request):
         if request.user:
             msg = (
                 (
-                    "The user '{0}' isn't allowed to upload to project '{1}'. "
-                    "See {2} for more information."
+                    "The user '{}' isn't allowed to upload to project '{}'. "
+                    "See {} for more information."
                 ).format(
                     request.user.username,
                     project.name,
@@ -961,8 +961,8 @@ def file_upload(request):
         else:
             msg = (
                 (
-                    "The given token isn't allowed to upload to project '{0}'. "
-                    "See {1} for more information."
+                    "The given token isn't allowed to upload to project '{}'. "
+                    "See {} for more information."
                 ).format(
                     project.name,
                     request.help_url(_anchor="project-name"),
@@ -1173,7 +1173,7 @@ def file_upload(request):
     if not pkg_resources.safe_name(filename).lower().startswith(prefix):
         raise _exc_with_message(
             HTTPBadRequest,
-            "Start filename for {!r} with {!r}.".format(project.name, prefix),
+            f"Start filename for {project.name!r} with {prefix!r}.",
         )
 
     # Check the content type of what is being uploaded
@@ -1238,11 +1238,11 @@ def file_upload(request):
         if not all(
             [
                 hmac.compare_digest(
-                    getattr(form, "{}_digest".format(digest_name)).data.lower(),
+                    getattr(form, f"{digest_name}_digest").data.lower(),
                     digest_value,
                 )
                 for digest_name, digest_value in file_hashes.items()
-                if getattr(form, "{}_digest".format(digest_name)).data
+                if getattr(form, f"{digest_name}_digest").data
             ]
         ):
             raise _exc_with_message(

@@ -192,7 +192,7 @@ class TestJSONProject:
         files = [
             FileFactory.create(
                 release=r,
-                filename="{}-{}.tar.gz".format(project.name, r.version),
+                filename=f"{project.name}-{r.version}.tar.gz",
                 python_version="source",
                 size=200,
                 has_signature=True,
@@ -496,7 +496,7 @@ class TestJSONRelease:
         files = [
             FileFactory.create(
                 release=r,
-                filename="{}-{}.tar.gz".format(project.name, r.version),
+                filename=f"{project.name}-{r.version}.tar.gz",
                 python_version="source",
                 size=200,
                 has_signature=True,
@@ -587,7 +587,7 @@ class TestJSONRelease:
         release = ReleaseFactory.create(project=project, version="0.1")
         file = FileFactory.create(
             release=release,
-            filename="{}-{}.tar.gz".format(project.name, release.version),
+            filename=f"{project.name}-{release.version}.tar.gz",
             python_version="source",
             size=200,
             has_signature=True,

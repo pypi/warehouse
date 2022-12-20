@@ -34,6 +34,4 @@ class ManifestCacheBuster(_ManifestCacheBuster):
             # must be cache busted otherwise it is likely an error of some kind
             # and should be remedied and without a loud error it's unlikely to
             # be noticed.
-            raise ValueError(
-                "{} is not able to be cache busted.".format(subpath)
-            ) from None
+            raise ValueError(f"{subpath} is not able to be cache busted.") from None

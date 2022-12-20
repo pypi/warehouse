@@ -14,8 +14,6 @@ import json
 import re
 import time
 
-from typing import Optional
-
 import requests
 
 from warehouse import integrations
@@ -71,7 +69,7 @@ class InvalidTokenLeakRequestError(Exception):
 
 
 class TokenLeakDisclosureRequest:
-    def __init__(self, token: str, public_url: str, source: Optional[str] = None):
+    def __init__(self, token: str, public_url: str, source: str | None = None):
         self.token = token
         self.public_url = public_url
         self.source = source
@@ -133,7 +131,7 @@ class GitHubTokenScanningPayloadVerifier(integrations.PayloadVerifier):
         session,
         metrics,
         api_url: str,
-        api_token: Optional[str] = None,
+        api_token: str | None = None,
         public_keys_cache=PUBLIC_KEYS_CACHE,
     ):
         super().__init__(metrics=metrics, public_keys_cache=public_keys_cache)

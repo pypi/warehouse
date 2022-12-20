@@ -234,7 +234,7 @@ class SessionFactory:
         return self._process_request(request)
 
     def _redis_key(self, session_id):
-        return "warehouse/session/data/{}".format(session_id)
+        return f"warehouse/session/data/{session_id}"
 
     def _process_request(self, request):
         # Register a callback with the request so we can save the session once
