@@ -2,6 +2,6 @@ furo
 Sphinx
 sphinxcontrib-httpdomain
 myst-parser
-docutils<0.19
+docutils
 # Until resolved https://github.com/googleapis/python-bigquery/issues/1435
 packaging<22.0

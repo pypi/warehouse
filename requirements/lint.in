@@ -1,9 +1,9 @@
-doc8<1.0.0
+doc8
 flake8
 curlylint
 pep8-naming
 black==22.12.0
-docutils<0.19
+docutils
 isort>=5
 pyupgrade
 mypy
