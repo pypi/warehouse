@@ -42,7 +42,7 @@
     "jquery": "3.5.0",
     "normalize.css": "^8.0.1",
     "vinyl-named": "1.1.0",
-    "webpack": "^4.42.1",
+    "webpack": "^5.75.0",
     "webpack-stream": "^6.1.2",
     "zopflipng-bin": "5.0.0"
   },
