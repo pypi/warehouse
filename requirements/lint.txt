@@ -52,7 +52,6 @@ docutils==0.19 \
     --hash=sha256:33995a6753c30b7f577febfc2c50411fec6aac7f7ffeb7c4cfe5991072dcf9e6 \
     --hash=sha256:5e1de4d849fee02c63b040a4a3fd567f4ab104defd8a5511fbbc24a8a017efbc
     # via
-    #   -r requirements/lint.in
     #   doc8
     #   restructuredtext-lint
 flake8==4.0.1 \
