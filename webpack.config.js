@@ -15,10 +15,34 @@
 // See: https://webpack.js.org/configuration/
 
 const path = require("path");
+const zlib = require("zlib");
+const CompressionPlugin = require("compression-webpack-plugin");
 
 module.exports = {
   // TODO: remove and set NODE_ENV during build
   mode: "development",
+  plugins: [
+    new CompressionPlugin({
+      filename: "[path][base].gz",
+      algorithm: "gzip",
+      compressionOptions: { level: 9, memLevel: 9 },
+      // Only compress files that will actually be smaller when compressed.
+      minRatio: 1,
+    }),
+    /* TODO: Add plugins to compress brotli for text/font files vs the generic
+             Use BROTLI_MODE_TEXT/BROTLI_MODE_FONT and add a `test` qualifier. */
+    new CompressionPlugin({
+      filename: "[path][base].br",
+      algorithm: "brotliCompress",
+      compressionOptions: {
+        params: {
+          [zlib.constants.BROTLI_PARAM_QUALITY]: 11,
+        },
+      },
+      // Only compress files that will actually be smaller when compressed.
+      minRatio: 1,
+    }),
+  ],
   resolve: {
     alias: {
       // Use an alias to make inline non-relative `@import` statements.
