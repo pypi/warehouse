@@ -28,8 +28,7 @@
     "debounce": "1.2.0",
     "jquery": "3.5.0",
     "normalize.css": "^8.0.1",
-    "webpack": "^5.75.0",
-    "webpack-stream": "^7.0.0"
+    "webpack": "^5.75.0"
   },
   "devDependencies": {
     "@babel/eslint-parser": "7.17.0",
