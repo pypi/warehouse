@@ -24,7 +24,6 @@
     "babel-loader": "8.2.5",
     "clipboard": "1.7.1",
     "cookie": "0.4.0",
-    "cssnano": "4.1.10",
     "date-fns": "1.29.0",
     "debounce": "1.2.0",
     "del": "3.0.0",
