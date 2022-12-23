@@ -29,8 +29,7 @@
     "jquery": "3.5.0",
     "normalize.css": "^8.0.1",
     "webpack": "^5.75.0",
-    "webpack-stream": "^7.0.0",
-    "zopflipng-bin": "5.0.0"
+    "webpack-stream": "^7.0.0"
   },
   "devDependencies": {
     "@babel/eslint-parser": "7.17.0",
