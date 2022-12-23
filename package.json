@@ -26,7 +26,6 @@
     "cookie": "0.4.0",
     "date-fns": "1.29.0",
     "debounce": "1.2.0",
-    "del": "3.0.0",
     "jquery": "3.5.0",
     "normalize.css": "^8.0.1",
     "vinyl-named": "1.1.0",
