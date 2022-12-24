@@ -17,6 +17,7 @@
 const path = require("path");
 const zlib = require("zlib");
 const CompressionPlugin = require("compression-webpack-plugin");
+const { WebpackManifestPlugin } = require("webpack-manifest-plugin");
 
 module.exports = {
   // TODO: remove and set NODE_ENV during build
@@ -41,6 +42,24 @@ module.exports = {
       },
       // Only compress files that will actually be smaller when compressed.
       minRatio: 1,
+    }),
+    new WebpackManifestPlugin({
+      // Replace each entry with a prefix of a subdirectory.
+      // NOTE: This could be removed if we update the HTML to use the non-prefixed
+      //       paths.
+      map: (file) => {
+        // if the filename matches .js or .js.map, add a prefix of js/
+        if (file.name.match(/\.js(\.map)?$/)) {
+          file.name = `js/${file.name}`; // eslint-disable-line no-param-reassign
+        }
+        // if the filename matches .css or .css.map, add a prefix of css/
+        if (file.name.match(/\.css(\.map)?$/)) {
+          file.name = `css/${file.name}`; // eslint-disable-line no-param-reassign
+        }
+        return file;
+      },
+      // Refs: https://github.com/shellscape/webpack-manifest-plugin/issues/229#issuecomment-737617994
+      publicPath: "",
     }),
   ],
   resolve: {
