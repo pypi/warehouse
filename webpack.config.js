@@ -16,13 +16,37 @@
 
 const path = require("path");
 const zlib = require("zlib");
+const glob = require("glob");
 const CompressionPlugin = require("compression-webpack-plugin");
+const CopyPlugin = require("copy-webpack-plugin");
+const CssMinimizerPlugin = require("css-minimizer-webpack-plugin");
+const MiniCssExtractPlugin = require("mini-css-extract-plugin");
+const RemoveEmptyScriptsPlugin = require("webpack-remove-empty-scripts");
 const { WebpackManifestPlugin } = require("webpack-manifest-plugin");
+
+// FontAwesome resources helpers for dynamic entry points
+const fABasePath = path.dirname(require.resolve("@fortawesome/fontawesome-free/package.json"));
+const fACSSPath = path.resolve(fABasePath, "css", "*.css");
+// TODO: Do we need to handle the remaining fonts, or are imported-in-CSS sufficient?
 
 module.exports = {
   // TODO: remove and set NODE_ENV during build
   mode: "development",
   plugins: [
+    new CopyPlugin({
+      patterns: [
+        {
+          // Most images are not referenced in JS/CSS, copy them manually.
+          from: path.resolve(__dirname, "warehouse/static/images/*"),
+          to: "images/[name].[contenthash][ext]",
+        },
+      ],
+    }),
+    new MiniCssExtractPlugin({
+      // Places CSS into a subdirectory
+      filename: "css/[name].[contenthash].css",
+    }),
+    new RemoveEmptyScriptsPlugin(),
     new CompressionPlugin({
       filename: "[path][base].gz",
       algorithm: "gzip",
@@ -69,11 +93,31 @@ module.exports = {
     },
   },
   entry: {
-    warehouse: "./warehouse/static/js/warehouse/index.js",
-    zxcvbn: {
-      import: "./warehouse/static/js/vendor/zxcvbn.js",
-      filename: "vendor/[name].[contenthash].js",
+    // Webpack will create a bundle for each entry point.
+
+    /* JavaScript */
+    warehouse: {
+      import: "./warehouse/static/js/warehouse/index.js",
+      // override the filename from `index` to `warehouse`
+      filename: "js/warehouse.[contenthash].js",
     },
+    "vendor/zxcvbn": {
+      import: "./warehouse/static/js/vendor/zxcvbn.js",
+      // preserve the `vendor` directory in the output, use `name`
+      filename: "js/[name].[contenthash].js",
+    },
+
+    /* CSS */
+    noscript: "./warehouse/static/sass/noscript.scss",
+    // Fontawesome is a special case, as it's many CSS files in a npm package.
+    // OPTIMIZE: Determine which ones we actually use, and import them directly.
+    ...glob.sync(fACSSPath).reduce((acc, curr) => {
+      return { ...acc, [path.basename(curr, ".css")]: curr };
+    }, {}),
+
+    // Default CSS
+    "warehouse-ltr": "./warehouse/static/sass/warehouse.scss",
+    // TODO: add RTL CSS
   },
   // The default source map. Slowest, but best production-build optimizations.
   // See: https://webpack.js.org/configuration/devtool
@@ -83,8 +127,68 @@ module.exports = {
     clean: true,
     // Matches current behavior. Defaults to 20. 16 in the future.
     hashDigestLength: 8,
+    // Global filename template for all assets. Other assets MUST override.
     filename: "[name].[contenthash].js",
     // Global output path for all assets.
     path: path.resolve(__dirname, "warehouse/static/dist"),
+  },
+  module: {
+    rules: [
+      {
+        // Handle SASS/SCSS files
+        test: /\.s[ac]ss$/i,
+        use: [
+          // Extracts CSS into separate files
+          MiniCssExtractPlugin.loader,
+          // Translates CSS into CommonJS,
+          "css-loader",
+          // Translate SCSS to CSS
+          "sass-loader",
+        ],
+      },
+      {
+        // Handle CSS files
+        test: /\.css$/,
+        use: [
+          MiniCssExtractPlugin.loader,
+          "css-loader",
+        ],
+      },
+      {
+        // Handle image files
+        test: /\.(png|svg|jpg|jpeg|gif)$/i,
+        // disables data URL inline encoding images into CSS,
+        // since it violates our CSP settings.
+        type: "asset/resource",
+        generator: {
+          filename: "images/[name].[contenthash][ext]",
+        },
+      },
+      {
+        // Handle font files
+        test: /\.(woff|woff2|eot|ttf|otf)$/i,
+        type: "asset/resource",
+        generator: {
+          filename: "webfonts/[name].[contenthash][ext]",
+        },
+      },
+    ],
+  },
+  optimization: {
+    minimizer: [
+      // default minimizer is Terser for JS. Extend here vs overriding.
+      "...",
+      // Minimize CSS
+      new CssMinimizerPlugin({
+        minimizerOptions: {
+          preset: [
+            "default",
+            {
+              discardComments: { removeAll: true },
+            },
+          ],
+        },
+      }),
+    ],
   },
 };
