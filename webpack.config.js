@@ -20,6 +20,7 @@ const glob = require("glob");
 const CompressionPlugin = require("compression-webpack-plugin");
 const CopyPlugin = require("copy-webpack-plugin");
 const CssMinimizerPlugin = require("css-minimizer-webpack-plugin");
+const ImageMinimizerPlugin = require("image-minimizer-webpack-plugin");
 const MiniCssExtractPlugin = require("mini-css-extract-plugin");
 const RemoveEmptyScriptsPlugin = require("webpack-remove-empty-scripts");
 const { WebpackManifestPlugin } = require("webpack-manifest-plugin");
@@ -190,6 +191,35 @@ module.exports = {
             },
           ],
         },
+      }),
+      // Minimize Images when `mode` is `production`
+      new ImageMinimizerPlugin({
+        minimizer: {
+          implementation: ImageMinimizerPlugin.imageminMinify,
+          options: {
+            plugins: [
+              "imagemin-gifsicle",
+              "imagemin-mozjpeg",
+              "imagemin-pngquant",
+              "imagemin-svgo",
+            ],
+          },
+        },
+        generator: [
+          {
+            // Apply generator for copied assets
+            type: "asset",
+            implementation: ImageMinimizerPlugin.imageminGenerate,
+            options: {
+              plugins: [
+                "imagemin-gifsicle",
+                "imagemin-mozjpeg",
+                "imagemin-pngquant",
+                "imagemin-svgo",
+              ],
+            },
+          },
+        ],
       }),
     ],
   },
