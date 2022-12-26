@@ -40,6 +40,11 @@ module.exports = {
           from: path.resolve(__dirname, "warehouse/static/images/*"),
           to: "images/[name].[contenthash][ext]",
         },
+        {
+          // Copy vendored zxcvbn code
+          from: path.resolve(__dirname, "warehouse/static/js/vendor/zxcvbn.js"),
+          to: "js/vendor/[name].[contenthash][ext]",
+        },
       ],
     }),
     new MiniCssExtractPlugin({
@@ -72,9 +77,11 @@ module.exports = {
       // NOTE: This could be removed if we update the HTML to use the non-prefixed
       //       paths.
       map: (file) => {
-        // if the filename matches .js or .js.map, add a prefix of js/
+        // if the filename matches .js or .js.map, add js/ prefix if not already present
         if (file.name.match(/\.js(\.map)?$/)) {
-          file.name = `js/${file.name}`; // eslint-disable-line no-param-reassign
+          if (!file.name.startsWith("js/")) {
+            file.name = `js/${file.name}`; // eslint-disable-line no-param-reassign
+          }
         }
         // if the filename matches .css or .css.map, add a prefix of css/
         if (file.name.match(/\.css(\.map)?$/)) {
@@ -100,11 +107,6 @@ module.exports = {
       import: "./warehouse/static/js/warehouse/index.js",
       // override the filename from `index` to `warehouse`
       filename: "js/warehouse.[contenthash].js",
-    },
-    "vendor/zxcvbn": {
-      import: "./warehouse/static/js/vendor/zxcvbn.js",
-      // preserve the `vendor` directory in the output, use `name`
-      filename: "js/[name].[contenthash].js",
     },
 
     /* CSS */
