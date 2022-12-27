@@ -17,6 +17,7 @@
 const path = require("path");
 const zlib = require("zlib");
 const glob = require("glob");
+const rtlcss = require("rtlcss");
 const CompressionPlugin = require("compression-webpack-plugin");
 const CopyPlugin = require("copy-webpack-plugin");
 const CssMinimizerPlugin = require("css-minimizer-webpack-plugin");
@@ -33,6 +34,10 @@ const fACSSPath = path.resolve(fABasePath, "css", "*.css");
 module.exports = {
   // TODO: remove and set NODE_ENV during build
   mode: "development",
+  experiments: {
+    // allow us to manage RTL CSS as a separate file
+    layers: true,
+  },
   plugins: [
     new CopyPlugin({
       patterns: [
@@ -120,7 +125,12 @@ module.exports = {
 
     // Default CSS
     "warehouse-ltr": "./warehouse/static/sass/warehouse.scss",
-    // TODO: add RTL CSS
+    // NOTE: Duplicate RTL CSS target. There's no clean way to generate both
+    //       without duplicating the entry point right now.
+    "warehouse-rtl": {
+      import: "./warehouse/static/sass/warehouse.scss",
+      layer: "rtl",
+    },
   },
   // The default source map. Slowest, but best production-build optimizations.
   // See: https://webpack.js.org/configuration/devtool
@@ -138,23 +148,39 @@ module.exports = {
   module: {
     rules: [
       {
-        // Handle SASS/SCSS files
-        test: /\.s[ac]ss$/i,
-        use: [
-          // Extracts CSS into separate files
-          MiniCssExtractPlugin.loader,
-          // Translates CSS into CommonJS,
-          "css-loader",
-          // Translate SCSS to CSS
-          "sass-loader",
-        ],
-      },
-      {
-        // Handle CSS files
-        test: /\.css$/,
-        use: [
-          MiniCssExtractPlugin.loader,
-          "css-loader",
+        // Handle SASS/SCSS/CSS files
+        test: /\.(sa|sc|c)ss$/,
+        // NOTE: Order is important here, as the first match wins
+        oneOf: [
+          {
+            // For the `rtl` file, needs postcss processing
+            layer: "rtl",
+            issuerLayer: "rtl",
+            use: [
+              MiniCssExtractPlugin.loader,
+              "css-loader",
+              {
+                loader: "postcss-loader",
+                options: {
+                  postcssOptions: {
+                    plugins: [rtlcss()],
+                  },
+                },
+              },
+              "sass-loader",
+            ],
+          },
+          {
+            // All other CSS files
+            use: [
+              // Extracts CSS into separate files
+              MiniCssExtractPlugin.loader,
+              // Translates CSS into CommonJS
+              "css-loader",
+              // Translate SCSS to CSS
+              "sass-loader",
+            ],
+          },
         ],
       },
       {
