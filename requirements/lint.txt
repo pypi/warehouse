@@ -44,9 +44,9 @@ curlylint==0.13.1 \
     --hash=sha256:008b9d160f3920404ac12efb05c0a39e209cb972f9aafd956b79c5f4e2162752 \
     --hash=sha256:9546ea82cdfc9292fd6fe49dca28587164bd315782a209c0a46e013d7f38d2fa
     # via -r requirements/lint.in
-doc8==1.0.0 \
-    --hash=sha256:0c6c3104fa7f7bb2103589c0a8e272c105fdff3ddd1ef4808e51b2782185e9ab \
-    --hash=sha256:1e999a14fe415ea96d89d5053c790d01061f19b6737706b817d1579c2a07cc16
+doc8==1.1.1 \
+    --hash=sha256:d97a93e8f5a2efc4713a0804657dedad83745cca4cd1d88de9186f77f9776004 \
+    --hash=sha256:e493aa3f36820197c49f407583521bb76a0fde4fffbcd0e092be946ff95931ac
     # via -r requirements/lint.in
 docutils==0.19 \
     --hash=sha256:33995a6753c30b7f577febfc2c50411fec6aac7f7ffeb7c4cfe5991072dcf9e6 \
