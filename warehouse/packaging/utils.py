@@ -48,10 +48,12 @@ def _simple_detail(project, request):
         .all(),
         key=lambda f: (parse(f.release.version), f.filename),
     )
+    versions = sorted({f.release.version for f in files}, key=parse)
 
     return {
         "meta": {"api-version": API_VERSION, "_last-serial": project.last_serial},
         "name": project.normalized_name,
+        "versions": versions,
         "files": [
             {
                 "filename": file.filename,

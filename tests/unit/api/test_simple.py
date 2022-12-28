@@ -192,6 +192,7 @@ class TestSimpleDetail:
             "meta": {"_last-serial": 0, "api-version": API_VERSION},
             "name": project.normalized_name,
             "files": [],
+            "versions": [],
         }
         assert db_request.response.headers["X-PyPI-Last-Serial"] == "0"
         assert db_request.response.content_type == content_type
@@ -214,6 +215,7 @@ class TestSimpleDetail:
             "meta": {"_last-serial": je.id, "api-version": API_VERSION},
             "name": project.normalized_name,
             "files": [],
+            "versions": [],
         }
         assert db_request.response.headers["X-PyPI-Last-Serial"] == str(je.id)
         assert db_request.response.content_type == content_type
@@ -229,6 +231,7 @@ class TestSimpleDetail:
         db_request.accept = content_type
         project = ProjectFactory.create()
         releases = [ReleaseFactory.create(project=project) for _ in range(3)]
+        release_versions = sorted([r.version for r in releases], key=parse)
         files = [
             FileFactory.create(release=r, filename=f"{project.name}-{r.version}.tar.gz")
             for r in releases
@@ -244,6 +247,7 @@ class TestSimpleDetail:
         assert simple.simple_detail(project, db_request) == {
             "meta": {"_last-serial": 0, "api-version": API_VERSION},
             "name": project.normalized_name,
+            "versions": release_versions,
             "files": [
                 {
                     "filename": f.filename,
@@ -269,6 +273,7 @@ class TestSimpleDetail:
         db_request.accept = content_type
         project = ProjectFactory.create()
         releases = [ReleaseFactory.create(project=project) for _ in range(3)]
+        release_versions = sorted([r.version for r in releases], key=parse)
         files = [
             FileFactory.create(release=r, filename=f"{project.name}-{r.version}.tar.gz")
             for r in releases
@@ -284,6 +289,7 @@ class TestSimpleDetail:
         assert simple.simple_detail(project, db_request) == {
             "meta": {"_last-serial": je.id, "api-version": API_VERSION},
             "name": project.normalized_name,
+            "versions": release_versions,
             "files": [
                 {
                     "filename": f.filename,
@@ -361,6 +367,7 @@ class TestSimpleDetail:
         assert simple.simple_detail(project, db_request) == {
             "meta": {"_last-serial": je.id, "api-version": API_VERSION},
             "name": project.normalized_name,
+            "versions": release_versions,
             "files": [
                 {
                     "filename": f.filename,
