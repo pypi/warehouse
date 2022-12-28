@@ -21,7 +21,7 @@ from sqlalchemy.orm import joinedload
 from warehouse.packaging.interfaces import ISimpleStorage
 from warehouse.packaging.models import File, Project, Release
 
-API_VERSION = "1.0"
+API_VERSION = "1.1"
 
 
 def _simple_index(request, serial):

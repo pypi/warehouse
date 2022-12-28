@@ -17,6 +17,7 @@ from pyramid.httpexceptions import HTTPMovedPermanently
 from pyramid.testing import DummyRequest
 
 from warehouse.api import simple
+from warehouse.packaging.utils import API_VERSION
 
 from ...common.db.accounts import UserFactory
 from ...common.db.packaging import (
@@ -81,7 +82,7 @@ class TestSimpleIndex:
     def test_no_results_no_serial(self, db_request, content_type, renderer_override):
         db_request.accept = content_type
         assert simple.simple_index(db_request) == {
-            "meta": {"_last-serial": 0, "api-version": "1.0"},
+            "meta": {"_last-serial": 0, "api-version": API_VERSION},
             "projects": [],
         }
         assert db_request.response.headers["X-PyPI-Last-Serial"] == "0"
@@ -99,7 +100,7 @@ class TestSimpleIndex:
         user = UserFactory.create()
         je = JournalEntryFactory.create(submitted_by=user)
         assert simple.simple_index(db_request) == {
-            "meta": {"_last-serial": je.id, "api-version": "1.0"},
+            "meta": {"_last-serial": je.id, "api-version": API_VERSION},
             "projects": [],
         }
         assert db_request.response.headers["X-PyPI-Last-Serial"] == str(je.id)
@@ -119,7 +120,7 @@ class TestSimpleIndex:
             for x in [ProjectFactory.create() for _ in range(3)]
         ]
         assert simple.simple_index(db_request) == {
-            "meta": {"_last-serial": 0, "api-version": "1.0"},
+            "meta": {"_last-serial": 0, "api-version": API_VERSION},
             "projects": [
                 {"name": x[0], "_last-serial": 0}
                 for x in sorted(projects, key=lambda x: x[1])
@@ -147,7 +148,7 @@ class TestSimpleIndex:
         je = JournalEntryFactory.create(submitted_by=user)
 
         assert simple.simple_index(db_request) == {
-            "meta": {"_last-serial": je.id, "api-version": "1.0"},
+            "meta": {"_last-serial": je.id, "api-version": API_VERSION},
             "projects": [
                 {"name": x[0], "_last-serial": 0}
                 for x in sorted(projects, key=lambda x: x[1])
@@ -187,7 +188,7 @@ class TestSimpleDetail:
         JournalEntryFactory.create(submitted_by=user)
 
         assert simple.simple_detail(project, db_request) == {
-            "meta": {"_last-serial": 0, "api-version": "1.0"},
+            "meta": {"_last-serial": 0, "api-version": API_VERSION},
             "name": project.normalized_name,
             "files": [],
         }
@@ -209,7 +210,7 @@ class TestSimpleDetail:
         je = JournalEntryFactory.create(name=project.name, submitted_by=user)
 
         assert simple.simple_detail(project, db_request) == {
-            "meta": {"_last-serial": je.id, "api-version": "1.0"},
+            "meta": {"_last-serial": je.id, "api-version": API_VERSION},
             "name": project.normalized_name,
             "files": [],
         }
@@ -240,7 +241,7 @@ class TestSimpleDetail:
         JournalEntryFactory.create(submitted_by=user)
 
         assert simple.simple_detail(project, db_request) == {
-            "meta": {"_last-serial": 0, "api-version": "1.0"},
+            "meta": {"_last-serial": 0, "api-version": API_VERSION},
             "name": project.normalized_name,
             "files": [
                 {
@@ -280,7 +281,7 @@ class TestSimpleDetail:
         je = JournalEntryFactory.create(name=project.name, submitted_by=user)
 
         assert simple.simple_detail(project, db_request) == {
-            "meta": {"_last-serial": je.id, "api-version": "1.0"},
+            "meta": {"_last-serial": je.id, "api-version": API_VERSION},
             "name": project.normalized_name,
             "files": [
                 {
@@ -357,7 +358,7 @@ class TestSimpleDetail:
         je = JournalEntryFactory.create(name=project.name, submitted_by=user)
 
         assert simple.simple_detail(project, db_request) == {
-            "meta": {"_last-serial": je.id, "api-version": "1.0"},
+            "meta": {"_last-serial": je.id, "api-version": API_VERSION},
             "name": project.normalized_name,
             "files": [
                 {
