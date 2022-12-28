@@ -41,8 +41,6 @@
     "css-loader": "^6.7.3",
     "css-minimizer-webpack-plugin": "^4.2.2",
     "eslint": "8.16.0",
-    "eslint-config-webpack": "^1.2.5",
-    "eslint-plugin-import": "^2.26.0",
     "glob": "^8.0.3",
     "image-minimizer-webpack-plugin": "^3.8.1",
     "imagemin": "^8.0.1",
@@ -70,10 +68,7 @@
       "es6": true,
       "amd": true
     },
-    "extends": [
-      "eslint:recommended",
-      "webpack"
-    ],
+    "extends": "eslint:recommended",
     "parser": "@babel/eslint-parser",
     "parserOptions": {
       "sourceType": "module"
