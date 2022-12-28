@@ -63,6 +63,7 @@ def _simple_detail(project, request):
                 },
                 "requires-python": file.release.requires_python,
                 "size": file.size,
+                "upload-time": file.upload_time.isoformat() + "Z",
                 "yanked": file.release.yanked_reason
                 if file.release.yanked and file.release.yanked_reason
                 else file.release.yanked,

@@ -256,6 +256,7 @@ class TestSimpleDetail:
                     "requires-python": f.requires_python,
                     "yanked": False,
                     "size": f.size,
+                    "upload-time": f.upload_time.isoformat() + "Z",
                 }
                 for f in files
             ],
@@ -299,6 +300,7 @@ class TestSimpleDetail:
                     "requires-python": f.requires_python,
                     "yanked": False,
                     "size": f.size,
+                    "upload-time": f.upload_time.isoformat() + "Z",
                 }
                 for f in files
             ],
@@ -378,6 +380,7 @@ class TestSimpleDetail:
                     "requires-python": f.requires_python,
                     "yanked": False,
                     "size": f.size,
+                    "upload-time": f.upload_time.isoformat() + "Z",
                 }
                 for f in files
             ],
