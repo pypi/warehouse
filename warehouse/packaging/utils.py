@@ -62,6 +62,7 @@ def _simple_detail(project, request):
                     "sha256": file.sha256_digest,
                 },
                 "requires-python": file.release.requires_python,
+                "size": file.size,
                 "yanked": file.release.yanked_reason
                 if file.release.yanked and file.release.yanked_reason
                 else file.release.yanked,

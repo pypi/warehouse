@@ -255,6 +255,7 @@ class TestSimpleDetail:
                     "hashes": {"sha256": f.sha256_digest},
                     "requires-python": f.requires_python,
                     "yanked": False,
+                    "size": f.size,
                 }
                 for f in files
             ],
@@ -297,6 +298,7 @@ class TestSimpleDetail:
                     "hashes": {"sha256": f.sha256_digest},
                     "requires-python": f.requires_python,
                     "yanked": False,
+                    "size": f.size,
                 }
                 for f in files
             ],
@@ -375,6 +377,7 @@ class TestSimpleDetail:
                     "hashes": {"sha256": f.sha256_digest},
                     "requires-python": f.requires_python,
                     "yanked": False,
+                    "size": f.size,
                 }
                 for f in files
             ],

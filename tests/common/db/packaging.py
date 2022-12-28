@@ -111,6 +111,7 @@ class FileFactory(WarehouseFactory):
             ]
         )
     )
+    size = factory.Faker("pyint")
 
 
 class RoleFactory(WarehouseFactory):
