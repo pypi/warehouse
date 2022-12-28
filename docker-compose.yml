@@ -143,6 +143,8 @@ services:
     build:
       context: .
       dockerfile: Dockerfile.static
+    environment:
+      NODE_ENV: "development"
     command: bash -c "npm run watch"
     volumes:
       - ./warehouse:/opt/warehouse/src/warehouse:z

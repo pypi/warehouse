@@ -106,8 +106,6 @@ module.exports = [
         message: /deprecated and will be removed in Dart Sass 2\.0\.0/,
       },
     ],
-    // TODO: remove and set NODE_ENV during build
-    mode: "development",
     experiments: {
     // allow us to manage RTL CSS as a separate file
       layers: true,
@@ -279,8 +277,6 @@ module.exports = [
   },
   {
     name: "admin",
-    // TODO: remove and set NODE_ENV during build
-    mode: "development",
     plugins: [
       ...sharedCompressionPlugins,
       ...sharedCSSPlugins,

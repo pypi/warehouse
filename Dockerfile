@@ -34,7 +34,7 @@ COPY warehouse/static/ /opt/warehouse/src/warehouse/static/
 COPY warehouse/admin/static/ /opt/warehouse/src/warehouse/admin/static/
 COPY webpack.config.js /opt/warehouse/src/
 
-RUN npm run build
+RUN NODE_ENV=production npm run build
 
 
 
