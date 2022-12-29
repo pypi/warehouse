@@ -367,9 +367,9 @@ deprecated==1.2.13 \
     --hash=sha256:43ac5335da90c31c24ba028af536a91d41d53f9e6901ddb021bcc572ce44e38d \
     --hash=sha256:64756e3e14c8c5eea9795d93c524551432a0be75629f8f29e67ab8caf076c76d
     # via limits
-disposable-email-domains==0.0.85 \
-    --hash=sha256:2479cab8f1cb653f82f9d358b86b1c324d44bc837ff8543bc5e1ee16bab1a02c \
-    --hash=sha256:9bfe3623d10130dd2b9bee46fee5d5b6dca504e86afb12b0809ed4071de3ea08
+disposable-email-domains==0.0.86 \
+    --hash=sha256:4bd7b800a1096661f6f57e9b3073fae38f2a9a3cc78a948c53109d91efd0d2f5 \
+    --hash=sha256:a88aa8c734e20bd9aff399e4e446dd71b692240b6c352cb20b8eac53720820aa
     # via -r requirements/main.in
 dnspython==2.2.1 \
     --hash=sha256:0f7569a4a6ff151958b64304071d370daa3243d15941a7beedf0c9fe5105603e \
@@ -378,8 +378,7 @@ dnspython==2.2.1 \
 docutils==0.19 \
     --hash=sha256:33995a6753c30b7f577febfc2c50411fec6aac7f7ffeb7c4cfe5991072dcf9e6 \
     --hash=sha256:5e1de4d849fee02c63b040a4a3fd567f4ab104defd8a5511fbbc24a8a017efbc
-    # via
-    #   readme-renderer
+    # via readme-renderer
 elasticsearch==7.10.1 \
     --hash=sha256:4ebd34fd223b31c99d9f3b6b6236d3ac18b3046191a37231e8235b06ae7db955 \
     --hash=sha256:a725dd923d349ca0652cf95d6ce23d952e2153740cf4ab6daf4a2d804feeed48
