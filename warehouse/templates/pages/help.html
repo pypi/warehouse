@@ -549,25 +549,14 @@
         <p>{% trans href='https://status.python.org/', title=gettext('External link') %}For recent statistics on uptime and performance, see <a href="{{ href }}" title="{{ title }}" target="_blank" rel="noopener">our status page</a>.{% endtrans %}</p>
       
         <h3 id="verify-hashes">{{ verify_hashes() }}</h3>
-        <p>{% trans %}For each package hosted on PyPI, there are corresponding hashes for that file. These hashes can be used to verify that the file you are downloading is the same one that the project maintainer uploaded. This is especially useful if downloading packages from a PyPI mirror. The hashes can be obtained from the project's pypi.org page in the "Download Files" section or from the JSON API. Here is example Python code for how to verify the hashes:{% endtrans %}</p>
+        <p>{% trans %}For each package hosted on PyPI, there are corresponding hashes for that file. These hashes can be used to verify that the file you are downloading is the same one that the project maintainer uploaded. This is especially useful if downloading packages from a mirror. The hashes can be obtained from the project page in the "Download Files" section or from the JSON API. Here is an example of generating the hashes:{% endtrans %}</p>
         <pre class="code-block">import hashlib
-import requests
-
-api_url = "https://pypi.org/pypi/sampleproject/3.0.0/json"
-response_json = requests.get(api_url).json()
-for package_url_data in response_json["urls"]:
-    if package_url_data["filename"] == "sampleproject-3.0.0-py3-none-any.whl":
-        package_url = package_url_data["url"]
-        sha256_hash_api = package_url_data["digests"]["sha256"]
-        blake2b_hash_api = package_url_data["digests"]["blake2b_256"]
-file_contents = requests.get(package_url).content
-sha256_hash_file = hashlib.sha256(file_contents).hexdigest()
-blake2b_hash_file = hashlib.blake2b(file_contents, digest_size=32).hexdigest()
-if sha256_hash_api == sha256_hash_file and blake2b_hash_api == blake2b_hash_file:
-    print("SHA256 and BLAKE2b-256 hashes match")
-else:
-    print("SHA256 and BLAKE2b-256 hashes do not match")</pre>
-        <p>{% trans %}In practice, it would only be necessary to verify one of the hashes. It is not recommended using the MD5 hash because of known security issues with the MD5 algorithm.{% endtrans %}</p>
+with open("file-path-to-verify", "rb") as f:
+    file_contents = f.read()
+blake2b_hash = hashlib.blake2b(file_contents, digest_size=32).hexdigest()
+sha256_hash = hashlib.sha256(file_contents).hexdigest()
+print(f"BLAKE2b-256: {blake2b_hash}\nSHA256: {sha256_hash}")</pre>
+        <p>{% trans %}In practice, it would only be necessary to verify one of the hashes. It is not recommended to use the MD5 hash because of known security issues with the MD5 algorithm. This hash is provided for backwards compatibility only.{% endtrans %}</p>
       </section>
 
       <section class="faq-group" id="administration">
