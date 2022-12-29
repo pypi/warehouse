@@ -378,8 +378,7 @@ dnspython==2.2.1 \
 docutils==0.19 \
     --hash=sha256:33995a6753c30b7f577febfc2c50411fec6aac7f7ffeb7c4cfe5991072dcf9e6 \
     --hash=sha256:5e1de4d849fee02c63b040a4a3fd567f4ab104defd8a5511fbbc24a8a017efbc
-    # via
-    #   readme-renderer
+    # via readme-renderer
 elasticsearch==7.10.1 \
     --hash=sha256:4ebd34fd223b31c99d9f3b6b6236d3ac18b3046191a37231e8235b06ae7db955 \
     --hash=sha256:a725dd923d349ca0652cf95d6ce23d952e2153740cf4ab6daf4a2d804feeed48
@@ -750,9 +749,9 @@ kombu[sqs]==5.2.4 \
     # via
     #   -r requirements/main.in
     #   celery
-limits==2.7.2 \
-    --hash=sha256:159b3c1514af0529854b640f43299aa4a9961b3298e352f4197d9736b8309106 \
-    --hash=sha256:503a22d3b292fccf1a25f26654fefb44f97d83cb6af37b8996c0e2499df5363b
+limits==2.8.0 \
+    --hash=sha256:b47e01c48b3b677c7230cb51775ebe7c30a574e9711dc68499dab810ed883bb9 \
+    --hash=sha256:ee19e9a98dd392d52dd62cfc28d93710eb29a22cf9834c21c16ee19367c4d596
     # via -r requirements/main.in
 lxml==4.9.2 \
     --hash=sha256:01d36c05f4afb8f7c20fd9ed5badca32a2029b93b1750f571ccc0b142531caf7 \
