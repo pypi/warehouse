@@ -100,12 +100,6 @@ const fACSSPath = path.resolve(fABasePath, "css", "*.css");
 module.exports = [
   {
     name: "warehouse",
-    ignoreWarnings: [
-      {
-        // Warnings generated mostly from Bourbon/Neat
-        message: /deprecated and will be removed in Dart Sass 2\.0\.0/,
-      },
-    ],
     experiments: {
     // allow us to manage RTL CSS as a separate file
       layers: true,
