@@ -150,13 +150,6 @@ pyupgrade==3.3.1 \
 restructuredtext-lint==1.4.0 \
     --hash=sha256:1b235c0c922341ab6c530390892eb9e92f90b9b75046063e047cacfb0f050c45
     # via doc8
-setuptools==65.6.3 \
-    --hash=sha256:57f6f22bde4e042978bcd50176fdb381d7c21a9efa4041202288d3737a0c6a54 \
-    --hash=sha256:a7620757bf984b58deaf32fc8a4577a9bbc0850cf92c20e1ce41c38c19e5fb75
-    # via
-    #   zope-event
-    #   zope-interface
-    #   zope-schema
 stevedore==4.1.1 \
     --hash=sha256:7f8aeb6e3f90f96832c301bff21a7eb5eefbe894c88c506483d355565d88cc1a \
     --hash=sha256:aa6436565c069b2946fe4ebff07f5041e0c8bf18c7376dd29edf80cf7d524e4e
@@ -217,9 +210,9 @@ types-pytz==2022.7.0.0 \
     # via
     #   -r requirements/lint.in
     #   types-babel
-types-redis==4.3.21.6 \
-    --hash=sha256:615e5a9142993789ffc22ee54435769b600da3e528bb51cf38430e5cd82af306 \
-    --hash=sha256:f7969f73a0f79e9e7895f053a06d8b429fb7b5d4fe1269b8ee40463388f653ad
+types-redis==4.3.21.7 \
+    --hash=sha256:834e816a84fc570aa96551a9252b0df164ac671bc09e4708e2f8e2b129449ef1 \
+    --hash=sha256:f9baac41fcafb0b8ec655893feebc5d8bd189da05062d03b4566a16c092fc08c
     # via -r requirements/lint.in
 types-requests==2.28.11.5 \
     --hash=sha256:091d4a5a33c1b4f20d8b1b952aa8fa27a6e767c44c3cf65e56580df0b05fd8a9 \
