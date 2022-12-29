@@ -145,8 +145,8 @@
     }
 
     &--condensed {
-      padding-top: $spacing-unit / 4;
-      padding-bottom: $spacing-unit / 4;
+      padding-top: $quarter-spacing-unit;
+      padding-bottom: $quarter-spacing-unit;
     }
 
     &--with-icon {
