@@ -43,7 +43,7 @@
 
   &__heading {
     font-size: 2.4rem;
-    padding: $spacing-unit ($spacing-unit / 2);
+    padding: $spacing-unit $half-spacing-unit;
 
     @media screen and (max-width: $small-tablet) {
       font-size: 1.5rem;
@@ -52,7 +52,7 @@
 
   &__text {
     margin-top: $spacing-unit;
-    padding: $spacing-unit ($spacing-unit / 2);
+    padding: $spacing-unit $half-spacing-unit;
   }
 
   &__rule {

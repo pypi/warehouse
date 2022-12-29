@@ -207,7 +207,7 @@
 
 // Add larger margin to the top of elements
 .margin-top--large {
-  margin-top: $spacing-unit / 2;
+  margin-top: $half-spacing-unit;
 }
 
 // Add small margin to the bottom of elements
@@ -217,7 +217,7 @@
 
 // Add larger margin to the bottom of elements
 .margin-bottom--large {
-  margin-bottom: $spacing-unit / 2;
+  margin-bottom: $half-spacing-unit;
 }
 
 // Add small margin to the left of elements
@@ -227,7 +227,7 @@
 
 // Add larger margin to the left of elements
 .margin-left--large {
-  margin-left: $spacing-unit / 2;
+  margin-left: $half-spacing-unit;
 }
 
 // Add small margin to the right of elements
@@ -237,7 +237,7 @@
 
 // Add larger margin to the right of elements
 .margin-right--large {
-  margin-right: $spacing-unit / 2;
+  margin-right: $half-spacing-unit;
 }
 
 // Apply spacing between elements when they wrap (usually on mobile)

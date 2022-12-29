@@ -26,8 +26,8 @@ A custom styled code block.
 
 .code-block {
   display: block;
-  padding: $spacing-unit / 2;
-  margin-bottom: $spacing-unit / 2;
+  padding: $half-spacing-unit;
+  margin-bottom: $half-spacing-unit;
   word-break: break-all;
   direction: ltr;
   overflow-x: auto;

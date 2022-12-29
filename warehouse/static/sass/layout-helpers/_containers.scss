@@ -43,6 +43,6 @@
   padding: 0 $spacing-unit;
 
   @media screen and (max-width: $small-tablet) {
-    padding: 0 ($spacing-unit / 2);
+    padding: 0 $half-spacing-unit;
   }
 }
