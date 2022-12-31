@@ -67,13 +67,13 @@
       {% endfor %}
     </table>
 
-    <div class="box-footer">
+    <div class="box-footer row">
       <div class="col-sm-5">
           {{ pagination.summary(users) }}
       </div>
 
       <div class="col-sm-7">
-        <div class="pull-right">
+        <div class="float-right">
             {{ pagination.paginate(users) }}
         </div>
       </div>
