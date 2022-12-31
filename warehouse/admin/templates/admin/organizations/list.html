@@ -39,14 +39,14 @@
         <a href="#" data-input="q" data-append="description:">description:</a>"open source"
         <br>
         Filters:&nbsp;
-        <div class="btn-group btn-group-xs" role="group" data-input="q" data-state="approval" aria-label="Approval">
-          <button type="button" class="btn btn-default {{ 'active' if 'is:submitted' in terms else '' }}" data-approval="is:submitted">Submitted</button>
-          <button type="button" class="btn btn-default {{ 'active' if 'is:approved' in terms else '' }}" data-approval="is:approved">Approved</button>
-          <button type="button" class="btn btn-default {{ 'active' if 'is:declined' in terms else '' }}" data-approval="is:declined">Declined</button>
+        <div class="btn-group btn-group-sm" role="group" data-input="q" data-state="approval" aria-label="Approval">
+          <button type="button" class="btn btn-secondary {{ 'active' if 'is:submitted' in terms else '' }}" data-approval="is:submitted">Submitted</button>
+          <button type="button" class="btn btn-secondary {{ 'active' if 'is:approved' in terms else '' }}" data-approval="is:approved">Approved</button>
+          <button type="button" class="btn btn-secondary {{ 'active' if 'is:declined' in terms else '' }}" data-approval="is:declined">Declined</button>
         </div>&nbsp;
-        <div class="btn-group btn-group-xs" role="group" data-input="q" data-state="status" aria-label="Status">
-          <button type="button" class="btn btn-default {{ 'active' if 'is:active' in terms else '' }}" data-status="is:active">Active</button>
-          <button type="button" class="btn btn-default {{ 'active' if 'is:inactive' in terms else '' }}" data-status="is:inactive">Inactive</button>
+        <div class="btn-group btn-group-sm" role="group" data-input="q" data-state="status" aria-label="Status">
+          <button type="button" class="btn btn-secondary {{ 'active' if 'is:active' in terms else '' }}" data-status="is:active">Active</button>
+          <button type="button" class="btn btn-secondary {{ 'active' if 'is:inactive' in terms else '' }}" data-status="is:inactive">Inactive</button>
         </div>
       </span>
     </form>
