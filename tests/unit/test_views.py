@@ -628,7 +628,7 @@ class TestSecurityKeyGiveaway:
         with pytest.raises(HTTPNotFound):
             SecurityKeyGiveaway(request).security_key_giveaway()
 
-    def test_security_key_giveaway(self, monkeypatch):
+    def test_security_key_giveaway(self):
         request = pretend.stub(
             registry=pretend.stub(
                 settings={"warehouse.two_factor_mandate.available": True}
