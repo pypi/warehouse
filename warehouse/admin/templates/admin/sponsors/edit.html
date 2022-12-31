@@ -34,11 +34,11 @@
 {% block title %}{% if sponsor %}{{ sponsor.name }}{% else %}Create sponsor{% endif %}{% endblock %}
 
 {% block breadcrumb %}
-  <li><a href="{{ request.route_path('admin.sponsor.list') }}">Sponsors</a></li>
+  <li class="breadcrumb-item"><a href="{{ request.route_path('admin.sponsor.list') }}">Sponsors</a></li>
   {% if sponsor %}
-  <li class="active">{{ sponsor.name }}</li>
+  <li class="breadcrumb-item active">{{ sponsor.name }}</li>
   {% else %}
-  <li class="active">Create sponsor</li>
+  <li class="breadcrumb-item active">Create sponsor</li>
   {% endif %}
 {% endblock %}
 

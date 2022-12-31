@@ -36,8 +36,8 @@
 {% block title %}{{ user.username }}{% endblock %}
 
 {% block breadcrumb %}
-  <li><a href="{{ request.route_path('admin.user.list') }}">Users</a></li>
-  <li class="active">{{ user.username }}</li>
+  <li class="breadcrumb-item"><a href="{{ request.route_path('admin.user.list') }}">Users</a></li>
+  <li class="breadcrumb-item active">{{ user.username }}</li>
 {% endblock %}
 
 {% block content %}

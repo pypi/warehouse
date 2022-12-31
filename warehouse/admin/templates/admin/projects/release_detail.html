@@ -18,9 +18,9 @@
 {% block title %}Release {{ release.version }} of {{ release.project.name }}{% endblock %}
 
 {% block breadcrumb %}
-  <li><a href="{{ request.route_path('admin.project.list') }}">Projects</a></li>
-  <li><a href="{{ request.route_path('admin.project.detail', project_name=release.project.normalized_name) }}">{{ release.project.name }}</a></li>
-  <li class="active">Release {{ release.version }}</li>
+  <li class="breadcrumb-item"><a href="{{ request.route_path('admin.project.list') }}">Projects</a></li>
+  <li class="breadcrumb-item"><a href="{{ request.route_path('admin.project.detail', project_name=release.project.normalized_name) }}">{{ release.project.name }}</a></li>
+  <li class="breadcrumb-item active">Release {{ release.version }}</li>
 {% endblock %}
 
 {% block content %}

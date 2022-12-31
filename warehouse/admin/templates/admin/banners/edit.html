@@ -40,11 +40,11 @@
 {% block title %}{% if banner %}{{ banner.name }}{% else %}Create banner{% endif %}{% endblock %}
 
 {% block breadcrumb %}
-  <li><a href="{{ request.route_path('admin.banner.list') }}">Banners</a></li>
+  <li class="breadcrumb-item"><a href="{{ request.route_path('admin.banner.list') }}">Banners</a></li>
   {% if banner %}
-  <li class="active">{{ banner.name }}</li>
+  <li class="breadcrumb-item active">{{ banner.name }}</li>
   {% else %}
-  <li class="active">Create banner</li>
+  <li class="breadcrumb-item active">Create banner</li>
   {% endif %}
 {% endblock %}
 

@@ -16,8 +16,8 @@
 {% block title %}Confirm Project Name Prohibition for {{ prohibited_project_names.project }}{% endblock %}
 
 {% block breadcrumb %}
-  <li><a href="{{ request.route_path('admin.prohibited_project_names.list') }}">Prohibit</a></li>
-  <li class="active">Confirm for {{ prohibited_project_names.project }}</li>
+  <li class="breadcrumb-item"><a href="{{ request.route_path('admin.prohibited_project_names.list') }}">Prohibit</a></li>
+  <li class="breadcrumb-item active">Confirm for {{ prohibited_project_names.project }}</li>
 {% endblock %}
 
 {% block content %}
