@@ -294,14 +294,7 @@ module.exports = [
         filename: "js/admin.[contenthash].js",
       },
       all: {
-      // Order matters here, until we convert to SCSS, and have a single entry.
-        import: [
-          "./warehouse/admin/static/css/bootstrap.min.css",
-          "./warehouse/admin/static/css/fontawesome.min.css",
-          "./warehouse/admin/static/css/AdminLTE.min.css",
-          "./warehouse/admin/static/css/skins/skin-purple.min.css",
-          "./warehouse/admin/static/css/admin.css",
-        ],
+        import: "./warehouse/admin/static/css/admin.scss",
       },
     },
     devtool: "source-map",
@@ -314,10 +307,11 @@ module.exports = [
     module: {
       rules: [
         {
-          test: /\.css$/i,
+          test: /\.(sa|sc|c)ss$/,
           use: [
             MiniCssExtractPlugin.loader,
             "css-loader",
+            "sass-loader",
           ],
         },
         {
