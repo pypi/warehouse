@@ -284,13 +284,7 @@ module.exports = [
     resolve: sharedResolve,
     entry: {
       admin: {
-        import: [
-          "./warehouse/admin/static/js/adminlte.min.js",
-          "./warehouse/admin/static/js/bootstrap.min.js",
-          "./warehouse/admin/static/js/fastclick.min.js",
-          "./warehouse/admin/static/js/jquery.slimscroll.min.js",
-          "./warehouse/admin/static/js/warehouse.js",
-        ],
+        import: "./warehouse/admin/static/js/warehouse.js",
         filename: "js/admin.[contenthash].js",
       },
       all: {

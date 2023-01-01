@@ -14,10 +14,8 @@
 
 @charset "utf-8";
 
-@import "./bootstrap.min.css";
 @import "@fortawesome/fontawesome-free/css/all.min.css";
-@import "./AdminLTE.min.css";
-@import "./skins/skin-purple.min.css";
+@import "admin-lte/dist/css/adminlte.css";
 
 /* Admin styles for the Warehouse project (PyPI) */
 
