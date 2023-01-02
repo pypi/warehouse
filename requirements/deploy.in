@@ -1,4 +1,4 @@
 gunicorn==20.1.0
-ddtrace==1.6.3
+ddtrace==1.6.4
 # Until resolved https://github.com/googleapis/python-bigquery/issues/1435
 packaging<22.0
