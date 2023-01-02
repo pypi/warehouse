@@ -295,7 +295,7 @@ class TestUserDelete:
 
         # Create an extra JournalEntry by this user which should be
         # updated with the deleted-user user.
-        JournalEntryFactory(submitted_by=user, action="some old journal")
+        JournalEntryFactory.create(submitted_by=user, action="some old journal")
 
         db_request.matchdict["username"] = str(user.username)
         db_request.params = {"username": user.username}

@@ -174,6 +174,7 @@ class TestWarehouseTask:
         pyramid_env = {"request": pretend.stub()}
 
         obj = tasks.WarehouseTask()
+        obj.request_stack = pretend.stub(top=None)
         obj.request.update(pyramid_env=pyramid_env)
 
         assert obj.get_request() is pyramid_env["request"]
@@ -302,6 +303,7 @@ class TestWarehouseTask:
 
     def test_after_return_without_pyramid_env(self):
         obj = tasks.WarehouseTask()
+        obj.request_stack = pretend.stub(top=None)
         assert (
             obj.after_return(
                 pretend.stub(),
@@ -316,6 +318,7 @@ class TestWarehouseTask:
 
     def test_after_return_closes_env_runs_request_callbacks(self):
         obj = tasks.WarehouseTask()
+        obj.request_stack = pretend.stub(top=None)
         obj.request.pyramid_env = {
             "request": pretend.stub(
                 _process_finished_callbacks=pretend.call_recorder(lambda: None)
