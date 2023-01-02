@@ -263,6 +263,7 @@ class TestJSONProject:
                         "digests": {
                             "md5": files[0].md5_digest,
                             "sha256": files[0].sha256_digest,
+                            "blake2b_256": files[0].blake2_256_digest,
                         },
                         "packagetype": None,
                         "python_version": "source",
@@ -287,6 +288,7 @@ class TestJSONProject:
                         "digests": {
                             "md5": files[1].md5_digest,
                             "sha256": files[1].sha256_digest,
+                            "blake2b_256": files[1].blake2_256_digest,
                         },
                         "packagetype": None,
                         "python_version": "source",
@@ -309,6 +311,7 @@ class TestJSONProject:
                         "has_sig": True,
                         "md5_digest": files[2].md5_digest,
                         "digests": {
+                            "blake2b_256": files[2].blake2_256_digest,
                             "md5": files[2].md5_digest,
                             "sha256": files[2].sha256_digest,
                         },
@@ -336,6 +339,7 @@ class TestJSONProject:
                     "digests": {
                         "md5": files[2].md5_digest,
                         "sha256": files[2].sha256_digest,
+                        "blake2b_256": files[2].blake2_256_digest,
                     },
                     "packagetype": None,
                     "python_version": "source",
@@ -566,6 +570,7 @@ class TestJSONRelease:
                     "digests": {
                         "md5": files[-1].md5_digest,
                         "sha256": files[-1].sha256_digest,
+                        "blake2b_256": files[-1].blake2_256_digest,
                     },
                     "packagetype": None,
                     "python_version": "source",
@@ -653,7 +658,11 @@ class TestJSONRelease:
                     "filename": file.filename,
                     "has_sig": True,
                     "md5_digest": file.md5_digest,
-                    "digests": {"md5": file.md5_digest, "sha256": file.sha256_digest},
+                    "digests": {
+                        "md5": file.md5_digest,
+                        "sha256": file.sha256_digest,
+                        "blake2b_256": file.blake2_256_digest,
+                    },
                     "packagetype": None,
                     "python_version": "source",
                     "size": 200,
