@@ -21,11 +21,11 @@
     {{ field(id=input_id, class=class, placeholder=placeholder, disabled=(not request.has_permission('admin')))}}
 
     {% if field.errors %}
-    <span class="help-block">
+    <div class="help-block">
     {% for error in field.errors %}
       <div>{{ error }}</div>
     {% endfor %}
-    </span>
+    </div>
     {% endif %}
   </div>
 </div>
@@ -41,20 +41,24 @@
 {% block content %}
   <div class="row">
     <div class="col-md-3">
-      <div class="box box-primary">
-        <div class="box-body box-profile">
-          <h3 class="profile-username text-center">{{ organization.name }}</h3>
+      <div class="card card-primary">
+        <div class="card-body card-widget widget-user-1">
+          <div class="widget-user-header">
+            <h3 class="widget-user-username text-center">{{ organization.name }}</h3>
+          </div>
+        </div>
+        <div class="card-body">
           <p class="text-muted text-center">
             Created on {{ organization.created|format_date() }}
           </p>
         </div>
       </div>
 
-      <div class="box">
-        <div class="box-header with-border">
-          <h2 class="box-title">Actions</h2>
+      <div class="card">
+        <div class="card-header with-border">
+          <h2 class="card-title">Actions</h2>
         </div>
-        <div class="box-body">
+        <div class="card-body">
           <p>
             Approve or decline request for organization named <strong>{{ organization.name }}</strong>?
           </p>
@@ -82,16 +86,16 @@
                 <div class="modal-dialog" role="document">
                   <div class="modal-content">
                     <div class="modal-header">
-                      <button type="button" class="close" data-dismiss="modal"aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
-                      </button>
                       <h4 class="modal-title" id="approveModalLabel">
                         Are you sure?
                       </h4>
+                      <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                      </button>
                     </div>
                     <div class="modal-body">
                       <p>
-                        This will approve <a href="{{ request.route_url('accounts.profile', username=user.username) }}" title="{{ user.username }}">{{ user.name }}</a>'s request for a new organization named <strong>{{ organization.name }}</strong>.
+                        This will approve <a href="{{ request.route_url('admin.user.detail', username=user.username) }}" title="{{ user.username }}">{{ user.username }}</a>'s request for a new organization named <strong>{{ organization.name }}</strong>.
                       </p>
                       <div class="form-group">
                         <label for="approveModalOrganizationName">
@@ -112,7 +116,7 @@
                         </span>
                       </div>
                     </div>
-                    <div class="modal-footer">
+                    <div class="modal-footer justify-content-between">
                       <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
                       <button type="submit" class="btn btn-primary">
                         <i class="icon fa fa-check"></i> Approve organization request
@@ -128,16 +132,16 @@
                 <div class="modal-dialog" role="document">
                   <div class="modal-content">
                     <div class="modal-header">
-                      <button type="button" class="close" data-dismiss="modal"aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
-                      </button>
                       <h4 class="modal-title" id="declineModalLabel">
                         Are you sure?
                       </h4>
+                      <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                      </button>
                     </div>
                     <div class="modal-body">
                       <p>
-                        This will decline <a href="{{ request.route_url('accounts.profile', username=user.username) }}" title="{{ user.username }}">{{ user.name }}</a>'s request for a new organization named <strong>{{ organization.name }}</strong>.
+                        This will decline <a href="{{ request.route_url('admin.user.detail', username=user.username) }}" title="{{ user.username }}">{{ user.username }}</a>'s request for a new organization named <strong>{{ organization.name }}</strong>.
                       </p>
                       <div class="form-group">
                         <label for="declineModalOrganizationName">
@@ -158,7 +162,7 @@
                         </span>
                       </div>
                     </div>
-                    <div class="modal-footer">
+                    <div class="modal-footer justify-content-between">
                       <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
                       <button type="submit" class="btn btn-danger">
                         <i class="icon fa fa-times"></i> Decline organization request
@@ -174,11 +178,11 @@
     </div>
 
     <div class="col-md-9">
-      <div class="box">
-        <div class="box-header with-border">
-          <h3 class="box-title">Organization Request</h3>
+      <div class="card">
+        <div class="card-header with-border">
+          <h3 class="card-title">Organization Request</h3>
         </div>
-        <div class="box-body">
+        <div class="card-body">
           <div class="form-horizontal">
             <div class="form-group">
               <label class="col-sm-5 control-label">
@@ -186,13 +190,13 @@
               </label>
               <div class="col-sm-7">
                 {% if organization.is_approved == True %}
-                Approved by <a href="{{ request.route_url('accounts.profile', username=admin.username) }}">{{ admin.username }}</a><br>
+                Approved by <a href="{{ request.route_url('admin.user.detail', username=admin.username) }}">{{ admin.username }}</a><br>
                 {{ organization.date_approved|format_date() }}
                 {% elif organization.is_approved == False %}
-                Declined by <a href="{{ request.route_url('accounts.profile', username=admin.username) }}">{{ admin.username }}</a><br>
+                Declined by <a href="{{ request.route_url('admin.user.detail', username=admin.username) }}">{{ admin.username }}</a><br>
                 {{ organization.date_approved|format_date() }}
                 {% else %}
-                Pending request by <a href="{{ request.route_url('accounts.profile', username=user.username) }}">{{ user.username }}</a><br>
+                Pending request by <a href="{{ request.route_url('admin.user.detail', username=user.username) }}">{{ user.username }}</a><br>
                 {{ organization.created|format_date() }}
                 {% endif %}
               </div>
@@ -202,7 +206,7 @@
                 Requesting User
               </label>
               <div class="col-sm-7">
-                <a href="{{ request.route_url('accounts.profile', username=user.username) }}" title="{{ user.username }}">{{ user.name }}</a><br>
+                <a href="{{ request.route_url('admin.user.detail', username=user.username) }}" title="{{ user.username }}">{{ user.username }}</a><br>
                 <a href="mailto:{{ user.email }}">{{ user.email }}</a>
               </div>
             </div>
@@ -224,10 +228,10 @@
             </div>
             <div class="form-group">
               <label class="col-sm-5 control-label">
-                Organization URL
+                Organization URL <i class="fa-solid fa-arrow-up-right-from-square"></i>
               </label>
               <div class="col-sm-7">
-                <a href="{{ organization.link_url }}"><input class="form-control" value="{{ organization.link_url }}" readonly></a>
+                <a href="{{ organization.link_url }}" rel="nofollow noopener noreferrer" target="_blank"><input class="form-control" value="{{ organization.link_url }}" readonly></a>
               </div>
             </div>
             <div class="form-group">

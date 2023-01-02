@@ -22,8 +22,8 @@
 {% endblock %}
 
 {% block content %}
-<div class="box">
-  <div class="box-body">
+<div class="card">
+  <div class="card-body">
     <form>
       <div class="input-group input-group-lg">
         <input id="q" name="q" type="text" class="form-control input-lg" placeholder="Search"{% if query %} value="{{ query }}"{% endif %} aria-describedby="qHelpBlock">
@@ -31,7 +31,7 @@
           <button type="submit" class="btn btn-default"><i class="fa fa-search"></i></button>
         </div>
       </div>
-      <span id="qHelpBlock" class="help-block no-margin">
+      <div id="qHelpBlock" class="help-block no-margin">
         Examples: word "whole phrase"
         <a href="#" data-input="q" data-append="name:">name:</a>psf
         <a href="#" data-input="q" data-append="organization:">organization:</a>python
@@ -48,14 +48,15 @@
           <button type="button" class="btn btn-secondary {{ 'active' if 'is:active' in terms else '' }}" data-status="is:active">Active</button>
           <button type="button" class="btn btn-secondary {{ 'active' if 'is:inactive' in terms else '' }}" data-status="is:inactive">Inactive</button>
         </div>
-      </span>
+      </div>
     </form>
   </div>
 </div>
 
-<div class="box">
-  <div class="box-body table-responsive no-padding">
+<div class="card">
+  <div class="card-body table-responsive p-0">
     <table class="table table-hover">
+      <thead>
       <tr>
         <th>Account Name</th>
         <th>Organization</th>
@@ -63,14 +64,16 @@
         <th><i class="fa fa-fw"></i> Approval</th>
         <th><i class="fa fa-fw"></i> Status</th>
       </tr>
+      </thead>
 
+      <tbody>
       {% for organization in organizations %}
       <tr>
         <td>
           <a href="{{ request.route_path('admin.organization.detail', organization_id=organization.id) }}">{{ organization.name }}</a>
         </td>
         <td>
-          <a href="{{ organization.link_url }}" rel="nofollow noopener noreferrer" target="_blank">{{ organization.display_name }}</a>
+          <a href="{{ organization.link_url }}" rel="nofollow noopener noreferrer" target="_blank">{{ organization.display_name }} <i class="fa-solid fa-arrow-up-right-from-square"></i></a>
         </td>
         <td>{{ organization.description }}</td>
         {% if organization.is_approved == True %}
@@ -87,20 +90,22 @@
         {% endif %}
       </tr>
       {% endfor %}
+      </tbody>
     </table>
+  </div>
 
-    <div class="box-footer">
+  <div class="card-footer">
+    <div class="row">
       <div class="col-sm-5">
-          {{ pagination.summary(organizations) }}
+        {{ pagination.summary(organizations) }}
       </div>
 
       <div class="col-sm-7">
-        <div class="pull-right">
-            {{ pagination.paginate(organizations) }}
+        <div class="float-right">
+          {{ pagination.paginate(organizations) }}
         </div>
       </div>
     </div>
-
   </div>
 </div>
 {% endblock content %}
