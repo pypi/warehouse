@@ -24,8 +24,8 @@
 {% endblock %}
 
 {% block content %}
-<div class="box">
-  <div class="box-body">
+<div class="card">
+  <div class="card-body">
     <form>
       <div class="input-group input-group-lg">
         <input name="q" type="text" class="form-control input-lg" placeholder="Search"{% if query %} value="{{ query }}"{% endif %}>
@@ -37,9 +37,10 @@
   </div>
 </div>
 
-<div class="box">
-  <div class="box-body table-responsive no-padding">
-    <table class="table table-hover">
+<div class="card">
+  <div class="card-body table-responsive p-0">
+    <table class="table table-hover table-striped">
+      <thead>
       <tr>
         <th>Release version</th>
         <th>Created</th>
@@ -47,7 +48,9 @@
         <th>Uploader</th>
         <th>Author email</th>
       </tr>
+      </thead>
 
+      <tbody>
       {% for release in releases %}
       <tr>
         <td><a href="{{ request.route_path('admin.project.release', project_name=release.project.normalized_name, version=release.version) }}">{{ release.project.name }}-{{ release.version }}</a></td>
@@ -61,9 +64,10 @@
         <td>{{ release.author_email }}</td>
       </tr>
       {% endfor %}
+      </tbody>
     </table>
 
-    <div class="box-footer row">
+    <div class="card-footer row">
       <div class="col-sm-5">
           {{ pagination.summary(releases) }}
       </div>
