@@ -105,7 +105,7 @@
 
   &__tab {
     display: block;
-    padding: $spacing-unit / 2;
+    padding: $half-spacing-unit;
     cursor: pointer;
     @include link-without-underline;
 
@@ -145,8 +145,8 @@
     }
 
     &--condensed {
-      padding-top: $spacing-unit / 4;
-      padding-bottom: $spacing-unit / 4;
+      padding-top: $quarter-spacing-unit;
+      padding-bottom: $quarter-spacing-unit;
     }
 
     &--with-icon {

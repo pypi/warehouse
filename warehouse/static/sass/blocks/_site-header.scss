@@ -30,7 +30,7 @@
   border-bottom: 1px solid $header-border-color;
 
   &__logo {
-    padding: ($spacing-unit / 2) 0;
+    padding: $half-spacing-unit 0;
     max-width: 65px;
     float: left;
     @include link-without-underline;

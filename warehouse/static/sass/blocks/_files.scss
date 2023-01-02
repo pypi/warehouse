@@ -38,7 +38,7 @@
 
   &__meta {
     font-size: 0.8rem;
-    padding-top: ($spacing-unit / 4);
+    padding-top: $quarter-spacing-unit;
   }
 
   &__graphic {
@@ -47,7 +47,7 @@
     text-align: center;
     vertical-align: middle;
     position: relative;
-    padding-right: $spacing-unit / 4;
+    padding-right: $quarter-spacing-unit;
 
     @media screen and (max-width: $tablet) {
       display: none;
@@ -56,7 +56,7 @@
 
   &__card {
     display: block;
-    margin: ($spacing-unit / 4) 0;
+    margin: $quarter-spacing-unit 0;
   }
 
 }
