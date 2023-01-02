@@ -293,7 +293,7 @@ zope-interface==5.5.2 \
     # via
     #   mypy-zope
     #   zope-schema
-zope-schema==6.2.1 \
-    --hash=sha256:843c6fce13886333f707246f135a832f4408555ca9650f07ed6e4d429302f349 \
-    --hash=sha256:e3b33c8bc8ba9d85a56713ab8f0a3c2615d54a8085f1e415ce0c8dfb5e540be6
+zope-schema==7.0.1 \
+    --hash=sha256:cf006c678793b00e0075ad54d55281c8785ea21e5bc1f5ec0584787719c2aab2 \
+    --hash=sha256:ead4dbcb03354d4e410c9a3b904451eb44d90254751b1cbdedf4a61aede9fbb9
     # via mypy-zope
