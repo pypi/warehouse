@@ -26,7 +26,7 @@
 
   &__sidebar {
     float: left;
-    @include calc(width, "25% - " $spacing-unit / 2);
+    @include calc(width, "25% - " $half-spacing-unit);
     margin-right: $spacing-unit;
 
     @media only screen and (max-width: $desktop) {
@@ -37,7 +37,7 @@
 
   &__main {
     float: left;
-    @include calc(width, "75% - " $spacing-unit / 2);
+    @include calc(width, "75% - " $half-spacing-unit);
     margin-right: 0;
 
     @media only screen and (max-width: $desktop) {

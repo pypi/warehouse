@@ -94,7 +94,7 @@
   text-align: center;
   background-color: $primary-color-dark;
   color: $white;
-  padding: ($spacing-unit / 2);
+  padding: $half-spacing-unit;
   position: relative;
 
   &__icon {

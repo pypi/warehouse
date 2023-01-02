@@ -174,7 +174,7 @@
 
   &--downloads {
     word-wrap: break-word;
-    margin-top: ($spacing-unit / 2);
+    margin-top: $half-spacing-unit;
 
     td .button span {
       display: none;
@@ -182,7 +182,7 @@
 
     @media only screen and (max-width: $tablet) {
       @include mobile-friendly-table;
-      margin-bottom: ($spacing-unit / 2);
+      margin-bottom: $half-spacing-unit;
     }
   }
 
@@ -192,13 +192,13 @@
 
     @media only screen and (max-width: $small-tablet) {
       @include mobile-friendly-table;
-      margin-bottom: ($spacing-unit / 2);
+      margin-bottom: $half-spacing-unit;
     }
   }
 
   &--files,
   &--history {
-    margin-top: $spacing-unit / 2;
+    margin-top: $half-spacing-unit;
 
     @media only screen and (max-width: $tablet) {
       @include mobile-friendly-table;
@@ -206,7 +206,7 @@
   }
 
   &--hashes {
-    margin-top: $spacing-unit / 2;
+    margin-top: $half-spacing-unit;
 
     td code {
       word-break: break-all;

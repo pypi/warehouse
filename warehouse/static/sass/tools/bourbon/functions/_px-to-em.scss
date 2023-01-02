@@ -12,6 +12,7 @@
  * limitations under the License.
  */
 
+@use "sass:math";
 
 // Convert pixels to ems
 // eg. for a relational value of 12px write em(12) when the parent is 16px
@@ -24,5 +25,5 @@
   @if not unitless($base) {
     $base: strip-units($base);
   }
-  @return ($pxval / $base) * 1em;
+  @return math.div($pxval, $base) * 1em;
 }

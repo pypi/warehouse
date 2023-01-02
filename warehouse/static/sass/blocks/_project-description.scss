@@ -71,7 +71,7 @@
 
   p {
     padding: 0;
-    margin-top: $spacing-unit / 2;
+    margin-top: $half-spacing-unit;
   }
 
   strong,
@@ -86,7 +86,7 @@
 
   pre {
     display: block;
-    padding: $spacing-unit / 2;
+    padding: $half-spacing-unit;
     margin: $spacing-unit 0 0;
     overflow-x: auto;
   }
@@ -101,11 +101,11 @@
 
   ol,
   ul {
-    margin: ($spacing-unit / 2) 0 0 $spacing-unit;
+    margin: $half-spacing-unit 0 0 $spacing-unit;
     padding-bottom: 0;
 
     @media only screen and (max-width: $mobile) {
-      margin-left: $spacing-unit / 2;
+      margin-left: $half-spacing-unit;
     }
 
     ul,
@@ -113,7 +113,7 @@
       margin: 0 0 0 $spacing-unit;
 
       @media only screen and (max-width: $mobile) {
-        margin-left: $spacing-unit / 2;
+        margin-left: $half-spacing-unit;
       }
     }
   }
@@ -135,10 +135,10 @@
   }
 
   blockquote {
-    margin: ($spacing-unit / 2) 0 0 ($spacing-unit / 2);
+    margin: $half-spacing-unit 0 0 $half-spacing-unit;
     border-left: 3px solid $light-grey;
     font-style: italic;
-    padding-left: ($spacing-unit / 2);
+    padding-left: $half-spacing-unit;
     color: lighten($text-color, 20);
 
     @media only screen and (max-width: $tablet) {
@@ -147,7 +147,7 @@
   }
 
   dl {
-    margin: ($spacing-unit / 2) 0 0 0;
+    margin: $half-spacing-unit 0 0 0;
 
     &.docinfo,
     &.field-list {
@@ -158,7 +158,7 @@
         grid-column-start: 1;
 
         &:first-of-type {
-          margin-top: ($spacing-unit / 2); // override inherited _lists.scss
+          margin-top: $half-spacing-unit; // override inherited _lists.scss
         }
       }
 
@@ -172,7 +172,7 @@
     }
 
     dd {
-      margin: 0 0 5px ($spacing-unit / 2);
+      margin: 0 0 5px $half-spacing-unit;
     }
   }
 
@@ -222,13 +222,13 @@
   }
 
   hr {
-    margin: ($spacing-unit / 2) 0 0;
+    margin: $half-spacing-unit 0 0;
     border: 1px solid $light-grey;
   }
 
   // Add a margin at the top of commonly included status badges
   > a  {
-    margin-top: $spacing-unit / 2;
+    margin-top: $half-spacing-unit;
   }
 
   img.align-left,
@@ -236,8 +236,8 @@
   object.align-left {
     clear: left;
     float: left;
-    margin-top: $spacing-unit / 2;
-    margin-right: $spacing-unit / 2;
+    margin-top: $half-spacing-unit;
+    margin-right: $half-spacing-unit;
   }
 
   img.align-right,
@@ -245,15 +245,15 @@
   object.align-right {
     clear: right;
     float: right;
-    margin-top: $spacing-unit / 2;
-    margin-left: $spacing-unit / 2;
+    margin-top: $half-spacing-unit;
+    margin-left: $half-spacing-unit;
   }
 
   img.align-center,
   .figure.align-center,
   object.align-center {
     display: block;
-    margin-top: $spacing-unit / 2;
+    margin-top: $half-spacing-unit;
     margin-left: auto;
     margin-right: auto;
   }
