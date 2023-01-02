@@ -634,7 +634,6 @@ class TestSecurityKeyGiveaway:
                 settings={"warehouse.two_factor_mandate.available": True}
             )
         )
-        default_response = pretend.stub()
-        SecurityKeyGiveaway.default_response = default_response
+        view = SecurityKeyGiveaway(request)
 
-        assert SecurityKeyGiveaway(request).security_key_giveaway() == default_response
+        assert view.security_key_giveaway() == view.default_response
