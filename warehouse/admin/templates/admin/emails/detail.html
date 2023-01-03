@@ -76,14 +76,14 @@
 {% block content %}
   <div class="row">
     <div class="col-md-12">
-      <div class="box box-solid">
-        <div class="box-header with-border">
+      <div class="card">
+        <div class="card-header">
           <i class="fa fa-envelope-open"></i>
 
-          <h3 class="box-title">Message</h3>
+          <h3 class="card-title">Message</h3>
         </div>
 
-        <div class="box-body">
+        <div class="card-body">
           <dl class="dl-horizontal">
             <dt>Message Id</dt>
             <dd>{{ email.message_id }}</dd>
@@ -112,14 +112,14 @@
 
   <div class="row">
     <div class="col-md-12">
-      <div class="box-solid">
-        <div class="box-header with-border">
+      <div class="card-solid">
+        <div class="card-header">
           <i class="fa fa-exchange-alt"></i>
 
-          <h3 class="box-title">Events</h3>
+          <h3 class="card-title">Events</h3>
         </div>
 
-        <div class="box-body">
+        <div class="card-body">
           <ul class="timeline">
             {% for event in email.events|reverse %}
             <li>

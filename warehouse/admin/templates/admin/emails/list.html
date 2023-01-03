@@ -36,34 +36,34 @@
 {% endblock %}
 
 {% block content %}
-<div class="box box-primary">
-  <form method="POST" action={{ request.route_path('admin.emails.mass') }} enctype="multipart/form-data">
-    <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
-    <div class="box-header with-border">
-      <h3 class="box-title">Send mass emails</h3>
+<form method="POST" action={{ request.route_path('admin.emails.mass') }} enctype="multipart/form-data">
+  <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
+  <div class="card card-primary card-outline">
+    <div class="card-header">
+      <h3 class="card-title">Send mass emails</h3>
     </div>
-    <div class="box-body with-border">
+    <div class="card-body">
       <p>
       Uploaded files should have the following header: <code>user_id,subject,body_text</code>, where <code>user_id</code> is a user's UUID, <code>subject</code> is the subject, and <code>body_text</code> is the plaintext message body.
       </p>
       <p>
       Including <code>body_html</code> is also supported, but optional.
       </p>
-      <input name="csvfile" type="file">
+      <input name="csvfile" type="file" class="form-control-file">
     </div>
-    <div class="box-footer">
-      <div class="pull-right">
+    <div class="card-footer">
+      <div class="float-right">
         <button type="submit" class="btn btn-primary">Send</button>
       </div>
     </div>
-  </form>
-</div>
-
-<div class="box box-primary">
-  <div class="box-header with-border">
-    <h3 class="box-title">Search</h3>
   </div>
-  <div class="box-body with-border">
+</form>
+
+<div class="card card-primary card-outline">
+  <div class="card-header">
+    <h3 class="card-title">Search</h3>
+  </div>
+  <div class="card-body">
     <form>
       <div class="input-group input-group-lg">
         <input name="q" type="text" class="form-control input-lg" placeholder="Search: supported terms are to: from: subject: status:"{% if query %} value="{{ query }}"{% endif %}>
@@ -72,7 +72,10 @@
         </div>
       </div>
     </form>
-    <table class="table table-hover">
+  </div>
+  <div class="card-body table-responsive p-0">
+    <table class="table table-hover table-striped ">
+      <thead>
       <tr>
         <th></th>
         <th>Date</th>
@@ -81,7 +84,9 @@
         <th>Subject</th>
         <th>Status</th>
       </tr>
+      </thead>
 
+      <tbody>
       {% for email in emails %}
       <tr>
         <td>
@@ -96,21 +101,23 @@
         <td class="text-{{ status_color(email.status) }}">{{email.status.value }}</td>
       </tr>
       {% endfor %}
+      </tbody>
 
     </table>
+  </div> <!-- /.card-body -->
 
-    <div class="box-footer">
+  <div class="card-footer">
+    <div class="row">
       <div class="col-sm-5">
           {{ pagination.summary(emails) }}
       </div>
 
       <div class="col-sm-7">
-        <div class="pull-right">
+        <div class="float-right">
             {{ pagination.paginate(emails) }}
         </div>
       </div>
     </div>
-
   </div>
-</div>
+</div> <!-- /.card -->
 {% endblock content %}
