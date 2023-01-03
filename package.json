@@ -17,7 +17,6 @@
   "dependencies": {
     "@babel/core": "7.18.0",
     "@babel/plugin-proposal-class-properties": "7.17.12",
-    "@babel/polyfill": "7.12.1",
     "@babel/preset-env": "7.18.0",
     "@babel/register": "7.17.7",
     "@fortawesome/fontawesome-free": "^6.2.1",
