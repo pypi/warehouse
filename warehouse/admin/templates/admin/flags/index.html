@@ -24,12 +24,13 @@
 {% set csrf_token = request.session.get_csrf_token() %}
 
 {% block content %}
-<div class="box box-primary">
-  <div class="box-header with-border">
-    <h3 class="box-title">Edit Flags</h3>
+<div class="card card-primary card-outline">
+  <div class="card-header with-border">
+    <h3 class="card-title">Edit Flags</h3>
   </div>
-  <div class="box-body table-responsive no-padding">
+  <div class="card-body table-responsive p-0">
     <table class="table table-hover">
+      <thead>
       <tr>
         <th>Flag ID</th>
         <th>Description</th>
@@ -37,6 +38,8 @@
         <th>Enabled?</th>
         <th></th>
       </tr>
+      </thead>
+      <tbody>
       {% for flag in flags %}
       <tr>
         <form method="POST" action="{{ request.route_path('admin.flags.edit') }}">
@@ -46,10 +49,11 @@
           <td><input name="description" size="50" value="{{ flag.description }}" {{ "disabled" if not request.has_permission('admin') }}></td>
           <td>{{ flag.notify }}</td>
           <td><input name="enabled" type="checkbox" {{ "disabled" if not request.has_permission('admin') }} {{ 'checked' if flag.enabled else '' }}></td>
-          <td><input type="submit" title="{{ "Flag changes require superuser privileges" if not request.has_permission('admin') }}" value="Save" {{ "disabled" if not request.has_permission('admin') }}></td>
+          <td><input type="submit" title="{{ 'Flag changes require superuser privileges' if not request.has_permission('admin') }}" value="Save" {{ "disabled" if not request.has_permission('admin') }}></td>
         </form>
       </tr>
       {% endfor %}
+      </tbody>
     </table>
   </div>
 </div>
