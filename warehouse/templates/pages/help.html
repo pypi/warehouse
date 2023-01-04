@@ -593,7 +593,7 @@ print(f"BLAKE2b-256: {blake2b_hash}\nSHA256: {sha256_hash}")</pre>
 
         <h3 id="file-size-limit">{{ file_size_limit() }}</h3>
         <p>
-          {% trans dev_release_href='https://www.python.org/dev/peps/pep-0440/#developmental-releases', file_issue_href='https://github.com/pypa/pypi-support/issues/new?labels=limit+request&template=limit-request.md', title=gettext('External link') %}
+          {% trans dev_release_href='https://www.python.org/dev/peps/pep-0440/#developmental-releases', file_issue_href='https://github.com/pypi/support/issues/new?assignees=&labels=limit+request&template=limit-request-file.yml&title=File+Limit+Request%3A+PROJECT_NAME+-+000+MB', title=gettext('External link') %}
             If you can't upload your project's release to PyPI because you're hitting the upload file size limit,
             we can sometimes increase your limit. Make sure you've uploaded at least one release
             for the project that's <em>under</em> the limit
@@ -618,7 +618,7 @@ print(f"BLAKE2b-256: {blake2b_hash}\nSHA256: {sha256_hash}")</pre>
           {% endtrans %}
         </p>
         <p>
-          {% trans file_issue_href='https://github.com/pypa/pypi-support/issues/new?labels=limit+request&template=limit-request.md', title=gettext('External link') %}
+          {% trans file_issue_href='https://github.com/pypi/support/issues/new?assignees=&labels=limit+request&template=limit-request-project.yml&title=Project+Limit+Request%3A+PROJECT_NAME+-+00+GB', title=gettext('External link') %}
             If that is not possible, we can sometimes increase your limit. <a href="{{ file_issue_href }}" title="{{ title }}" target="_blank" rel="noopener">File an issue</a> and tell us:
           {% endtrans %}
         </p>
@@ -669,7 +669,7 @@ print(f"BLAKE2b-256: {blake2b_hash}\nSHA256: {sha256_hash}")</pre>
           <li>{% trans %}Lost two factor authentication <a href="#totp">application</a>, <a href="#utfkey">device</a>, and <a href="#recoverycodes">recovery codes</a>{% endtrans %}</li>
         </ul>
         <p>
-          {% trans href='https://github.com/pypa/pypi-support/issues/new?labels=account-recovery&template=account-recovery.md&title=Account+recovery+request', title=gettext('External link') %}
+          {% trans href='https://github.com/pypi/support/issues/new?assignees=&labels=account-recovery&template=account-recovery.yml&title=Account+recovery+request', title=gettext('External link') %}
             You can proceed to <a href="{{ href }}" title="{{ title }}" target="_blank" rel="noopener">file an issue on our tracker</a> to request assistance with account recovery.
           {% endtrans %}
         </p>
