@@ -428,6 +428,10 @@ class TestRelease:
             ),
             ("https://github.com/pypa/", None),
             ("https://google.com/pypi/warehouse/tree/main", None),
+            (
+                "https://www.github.com/pypi/warehouse.git",
+                "https://www.github.com/pypi/warehouse",
+            ),
             ("https://google.com", None),
             ("incorrect url", None),
         ],
