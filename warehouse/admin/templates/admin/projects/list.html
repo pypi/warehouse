@@ -18,16 +18,16 @@
 {% block title %}Projects{% endblock %}
 
 {% block breadcrumb %}
-  <li class="active">Projects</li>
+  <li class="breadcrumb-item active">Projects</li>
 {% endblock %}
 
 {% block content %}
-<div class="box">
-  <div class="box-body">
+<div class="card">
+  <div class="card-body">
     <form>
       <div class="input-group input-group-lg">
         <input name="q" type="text" class="form-control input-lg" placeholder="Search"{% if query %} value="{{ query }}"{% endif %}>
-        <div class="input-group-btn">
+        <div class="input-group-btn input-group-append">
           <button type="submit" class="btn btn-default"><i class="fa fa-search"></i></button>
         </div>
       </div>
@@ -36,36 +36,44 @@
 </div>
 
 <h4>Exact match (with normalization)</h4>
-<div class="box">
-  <div class="box-body table-responsive no-padding">
+<div class="card">
+  <div class="card-body table-responsive p-0">
     {% if exact_match %}
     <table class="table table-hover">
+      <thead>
       <tr>
         <th>Project name</th>
         <th>Normalized name</th>
       </tr>
+      </thead>
+      <tbody>
       <tr>
         <td>
           <a href="{{ request.route_path('admin.project.detail', project_name=exact_match.normalized_name) }}">{{ exact_match.name }}</a>
         </td>
         <td>{{ exact_match.normalized_name}}</td>
       </tr>
+      </tbody>
     </table>
     {% else %}
-    <i>No exact match</i>
+    <p class="text-center text-muted">
+      <em>No exact match</em>
+    </p>
     {% endif %}
   </div>
 </div>
 
 <h4>All matches (with ultranormalization)</h4>
-<div class="box">
-  <div class="box-body table-responsive no-padding">
-    <table class="table table-hover">
+<div class="card">
+  <div class="card-body table-responsive p-0">
+    <table class="table table-striped table-hover">
+      <thead>
       <tr>
         <th>Project name</th>
         <th>Normalized name</th>
       </tr>
-
+      </thead>
+      <tbody>
       {% for project in projects %}
       <tr>
         <td>
@@ -74,20 +82,22 @@
         <td>{{ project.normalized_name}}</td>
       </tr>
       {% endfor %}
+      </tbody>
     </table>
+  </div>
 
-    <div class="box-footer">
+  <div class="card-footer">
+    <div class="row">
       <div class="col-sm-5">
           {{ pagination.summary(projects) }}
       </div>
 
       <div class="col-sm-7">
-        <div class="pull-right">
+        <div class="float-right">
             {{ pagination.paginate(projects) }}
         </div>
       </div>
     </div>
-
   </div>
 </div>
 {% endblock content %}

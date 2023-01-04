@@ -171,7 +171,7 @@ class BannerForm(Form):
     )
     fa_icon = wtforms.fields.StringField(
         validators=[
-            wtforms.validators.Length(max=20),
+            wtforms.validators.Length(max=40),
             wtforms.validators.Optional(),
         ],
         default=Banner.DEFAULT_FA_ICON,
