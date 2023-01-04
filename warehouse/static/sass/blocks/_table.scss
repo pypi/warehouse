@@ -120,6 +120,7 @@
   box-sizing: border-box;
   box-shadow: none;
   background-color: transparent;
+  text-align: left;
 
   thead tr {
     background-color: transparent;
@@ -357,10 +358,6 @@
       }
     }
 
-    th {
-      text-align: left;
-    }
-
     @media only screen and (max-width: $small-tablet) {
       @include mobile-friendly-table;
     }
@@ -381,10 +378,6 @@
       strong {
         display: block;
       }
-    }
-
-    th {
-      text-align: left;
     }
 
     @media only screen and (max-width: $small-tablet) {
