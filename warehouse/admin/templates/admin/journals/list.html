@@ -18,16 +18,16 @@
 {% block title %}Journal Entries{% endblock %}
 
 {% block breadcrumb %}
-  <li class="active">Journal Entries</li>
+  <li class="breadcrumb-item active">Journal Entries</li>
 {% endblock %}
 
 {% block content %}
-<div class="box">
-  <div class="box-body">
+<div class="card">
+  <div class="card-body">
     <form>
       <div class="input-group input-group-lg">
         <input name="q" type="text" class="form-control input-lg" placeholder="Search: supported terms are user: project: version: ip:"{% if query %} value="{{ query }}"{% endif %}>
-        <div class="input-group-btn">
+        <div class="input-group-btn input-group-append">
           <button type="submit" class="btn btn-default"><i class="fa fa-search"></i></button>
         </div>
       </div>
@@ -35,9 +35,10 @@
   </div>
 </div>
 
-<div class="box">
-  <div class="box-body table-responsive no-padding">
-    <table class="table table-hover">
+<div class="card">
+  <div class="card-body table-responsive p-0">
+    <table class="table table-hover table-striped">
+      <thead>
       <tr>
         <th>Name</th>
         <th>Version</th>
@@ -46,7 +47,8 @@
         <th>Submitted From</th>
         <th>Action</th>
       </tr>
-
+      </thead>
+      <tbody>
       {% for journal in journals %}
       <tr>
         <td><a href="{{ request.route_path('admin.project.detail', project_name=journal.name) }}">{{ journal.name }}</a></td>
@@ -63,20 +65,22 @@
         <td>{{ journal.action }}</td>
       </tr>
       {% endfor %}
+      </tbody>
     </table>
+  </div>
 
-    <div class="box-footer">
+  <div class="card-footer">
+    <div class="row">
       <div class="col-sm-5">
-          {{ pagination.summary(journals) }}
+        {{ pagination.summary(journals) }}
       </div>
 
       <div class="col-sm-7">
-        <div class="pull-right">
-            {{ pagination.paginate(journals) }}
+        <div class="float-right">
+          {{ pagination.paginate(journals) }}
         </div>
       </div>
     </div>
-
   </div>
 </div>
 {% endblock content %}

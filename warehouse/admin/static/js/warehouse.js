@@ -11,6 +11,13 @@
  * limitations under the License.
  */
 
+// Import the AdminLTE version of Bootstrap JS (4.x) to avoid namespace
+// conflicts with other bootstrap packages.
+// Related: https://github.com/ColorlibHQ/AdminLTE/commit/4f1546acb25dc73b034cb15a598171f4c2b3d835
+import "admin-lte/node_modules/bootstrap";
+// Import AdminLTE JS
+import "admin-lte/build/js/AdminLTE";
+
 // We'll use docReady as a modern replacement for $(document).ready() which
 // does not require all of jQuery to use. This will let us use it without
 // having to load all of jQuery, which will make things faster.

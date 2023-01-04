@@ -119,7 +119,7 @@ a {
     &::after {
       white-space: nowrap;
       font-size: 0.8em;
-      font-family: "Font Awesome 5 Free";
+      font-family: "Font Awesome 6 Free";
       font-weight: 900;
       content: "\f35d" #{"/*rtl:remove*/"};
       margin: 0 0 0 4px;
@@ -133,7 +133,7 @@ a {
   &[href^="mailto:"] {
     &::after {
       font-size: 0.9rem;
-      font-family: "Font Awesome 5 Free";
+      font-family: "Font Awesome 6 Free";
       font-weight: 400;
       content: "\f0e0";
       color: inherit;

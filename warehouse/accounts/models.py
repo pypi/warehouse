@@ -109,7 +109,11 @@ class User(SitemapMixin, HasEvents, db.Model):
     )
 
     macaroons = orm.relationship(
-        "Macaroon", backref="user", cascade="all, delete-orphan", lazy=True
+        "Macaroon",
+        backref="user",
+        cascade="all, delete-orphan",
+        lazy=True,
+        order_by="Macaroon.created.desc()",
     )
 
     pending_oidc_providers = orm.relationship(
