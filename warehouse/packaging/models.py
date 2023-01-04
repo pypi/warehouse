@@ -591,6 +591,8 @@ class Release(db.Model):
             segments = parsed.path.strip("/").split("/")
             if parsed.netloc in {"github.com", "www.github.com"} and len(segments) >= 2:
                 user_name, repo_name = segments[:2]
+                if repo_name.endswith(".git"):
+                    repo_name = repo_name.removesuffix(".git")
                 return f"https://api.github.com/repos/{user_name}/{repo_name}"
 
     @property

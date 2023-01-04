@@ -430,6 +430,14 @@ class TestRelease:
             ("https://google.com/pypi/warehouse/tree/main", None),
             ("https://google.com", None),
             ("incorrect url", None),
+            (
+                "https://www.github.com/pypi/warehouse.git",
+                "https://api.github.com/repos/pypi/warehouse",
+            ),
+            (
+                "https://www.github.com/pypi/warehouse.git/",
+                "https://api.github.com/repos/pypi/warehouse",
+            ),
         ],
     )
     def test_github_repo_info_url(self, db_session, home_page, expected):
