@@ -714,9 +714,9 @@ html5lib==1.1 \
     --hash=sha256:0d78f8fde1c230e99fe37986a60526d7049ed4bf8a9fadbad5f00e22e58e041d \
     --hash=sha256:b2e5b40261e20f354d198eae92afc10d750afb487ed5e50f9c4eaf07c184146f
     # via -r requirements/main.in
-hupper==1.10.3 \
-    --hash=sha256:cd6f51b72c7587bc9bce8a65ecd025a1e95f1b03284519bfe91284d010316cd9 \
-    --hash=sha256:f683850d62598c02faf3c7cdaaa727d8cbe3c5a2497a5737a8358386903b2601
+hupper==1.11 \
+    --hash=sha256:15c11bd775d8f98095b745b4e658a17c25c86e3b73275cae896ac1c8d533cb18 \
+    --hash=sha256:2ae554e0fb7daf4cbd37a8c7e0419f6974614095a41a4529ad35fe3067b408a4
     # via pyramid
 idna==3.4 \
     --hash=sha256:814f528e8dead7d329833b91c5faa87d60bf71824cd12a7530b5526063d02cb4 \
