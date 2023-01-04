@@ -55,8 +55,8 @@
     <caption class="sr-only">{% trans project_name=project.name %}Collaborators who can manage {{ project_name }}{% endtrans %}</caption>
     <thead>
       <tr>
-        <th scope="col" class="table__align-left">{% trans %}Collaborator{% endtrans %}</th>
-        <th scope="col" class="table__align-left">{% trans %}Role{% endtrans %}</th>
+        <th scope="col">{% trans %}Collaborator{% endtrans %}</th>
+        <th scope="col">{% trans %}Role{% endtrans %}</th>
         <th scope="col" class="table__align-center">{% trans %}2FA{% endtrans %}</th>
         <th scope="col" class="table__align-right"></th>
       </tr>
@@ -84,7 +84,7 @@
         <td>
           {% trans %}Owner{% endtrans %}
         </td>
-        <td class="table__align-center"></td>
+        <td></td>
         <td class="table__align-right">
           <button class="button" title="{% trans %}Cannot remove organization owners{% endtrans %}" disabled>{% trans %}Remove{% endtrans %}</button>
         </td>
