@@ -434,6 +434,10 @@ class TestRelease:
                 "https://www.github.com/pypi/warehouse.git",
                 "https://api.github.com/repos/pypi/warehouse",
             ),
+            (
+                "https://www.github.com/pypi/warehouse.git/",
+                "https://api.github.com/repos/pypi/warehouse",
+            ),
         ],
     )
     def test_github_repo_info_url(self, db_session, home_page, expected):
