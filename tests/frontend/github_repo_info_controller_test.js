@@ -69,6 +69,32 @@ describe("GitHub Repo Info controller", () => {
     });
   });
 
+  it("not-found response hides", (done) => {
+    fetch.mockResponse(
+      JSON.stringify({
+        html_url: "https://github.com/ghost/none",
+        stargazers_count: 100,
+        forks_count: 200,
+        open_issues_count: 300,
+      }),
+      { status: 404 }
+    );
+
+    startStimulus();
+    mountDom();
+
+    setTimeout(() => {
+      try {
+        const el = document.getElementById("github-repo-info");
+        expect(el).toHaveClass("hidden");
+        expect(fetch.mock.calls.length).toEqual(2);
+        done();
+      } catch (error) {
+        done(error);
+      }
+    });
+  });
+
   it("valid response shows", (done) => {
     fetch.mockResponse(
       JSON.stringify({
@@ -86,7 +112,7 @@ describe("GitHub Repo Info controller", () => {
       try {
         const el = document.getElementById("github-repo-info");
         expect(el).not.toHaveClass("hidden");
-        expect(fetch.mock.calls.length).toEqual(2);
+        expect(fetch.mock.calls.length).toEqual(3);
 
         const stargazersCount = el.querySelector(
           "[data-github-repo-info-target='stargazersCount']"
