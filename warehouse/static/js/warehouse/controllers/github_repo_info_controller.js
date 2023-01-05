@@ -34,7 +34,7 @@ export default class extends Controller {
       method: "GET",
       mode: "cors",
     })
-      .then((response) => response.json())
+      .then((response) => response.ok === true ? response.json() : null)
       .then((data) => {
         this.forksCountTarget.textContent = data.forks_count;
         this.forksUrlTarget.href = data.html_url + "/network/members";

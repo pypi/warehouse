@@ -69,6 +69,30 @@ describe("GitHub Repo Info controller", () => {
     });
   });
 
+  it("not-found response hides", (done) => {
+    fetch.mockResponse(
+      JSON.stringify({
+        message: "Not Found",
+        documentation_url: "https://docs.github.com/rest/reference/repos#get-a-repository",
+      }),
+      { status: 404 }
+    );
+
+    startStimulus();
+    mountDom();
+
+    setTimeout(() => {
+      try {
+        const el = document.getElementById("github-repo-info");
+        expect(el).toHaveClass("hidden");
+        expect(fetch.mock.calls.length).toEqual(2);
+        done();
+      } catch (error) {
+        done(error);
+      }
+    });
+  });
+
   it("valid response shows", (done) => {
     fetch.mockResponse(
       JSON.stringify({
@@ -86,7 +110,7 @@ describe("GitHub Repo Info controller", () => {
       try {
         const el = document.getElementById("github-repo-info");
         expect(el).not.toHaveClass("hidden");
-        expect(fetch.mock.calls.length).toEqual(2);
+        expect(fetch.mock.calls.length).toEqual(3);
 
         const stargazersCount = el.querySelector(
           "[data-github-repo-info-target='stargazersCount']"
