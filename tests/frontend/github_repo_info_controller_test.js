@@ -72,10 +72,8 @@ describe("GitHub Repo Info controller", () => {
   it("not-found response hides", (done) => {
     fetch.mockResponse(
       JSON.stringify({
-        html_url: "https://github.com/ghost/none",
-        stargazers_count: 100,
-        forks_count: 200,
-        open_issues_count: 300,
+        message: "Not Found",
+        documentation_url: "https://docs.github.com/rest/reference/repos#get-a-repository",
       }),
       { status: 404 }
     );
