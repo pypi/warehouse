@@ -68,6 +68,16 @@ def analyze_vulnerability_task(request, vulnerability_report, origin):
                 )
                 request.db.add(vulnerability_record)
 
+            # Otherwise, update it
+            else:
+                vulnerability_record.link = report.advisory_link
+                vulnerability_record.aliases = report.aliases
+                vulnerability_record.details = report.details
+                vulnerability_record.summary = report.summary
+                vulnerability_record.fixed_in = report.fixed_in
+                vulnerability_record.withdrawn = report.withdrawn
+
+            # Update the relationships between versions
             try:
                 project = (
                     request.db.query(Project)
