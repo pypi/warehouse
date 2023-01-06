@@ -10,6 +10,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import itertools
+
 import celery.exceptions
 import pretend
 import pytest
@@ -188,9 +190,17 @@ class TestFastlyCache:
                     "Fastly-Key": "an api key",
                     "Fastly-Soft-Purge": "1",
                 },
-            )
+            ),
+            pretend.call(
+                "https://api.fastly.com/service/the-service-id/purge/one",
+                headers={
+                    "Accept": "application/json",
+                    "Fastly-Key": "an api key",
+                    "Fastly-Soft-Purge": "1",
+                },
+            ),
         ]
-        assert response.raise_for_status.calls == [pretend.call()]
+        assert response.raise_for_status.calls == [pretend.call(), pretend.call()]
 
     @pytest.mark.parametrize("result", [{"status": "fail"}, {}])
     def test_purge_key_unsuccessful(self, monkeypatch, result):
@@ -218,3 +228,42 @@ class TestFastlyCache:
             )
         ]
         assert response.raise_for_status.calls == [pretend.call()]
+
+    @pytest.mark.parametrize(
+        "result", [[{"status": "ok"}, {"status": "fail"}], [{"status": "ok"}, {}]]
+    )
+    def test_purge_key_second_unsuccessful(self, monkeypatch, result):
+        cacher = fastly.FastlyCache(
+            api_key="an api key", service_id="the-service-id", purger=None
+        )
+
+        _result = itertools.cycle(result)
+        response = pretend.stub(
+            raise_for_status=pretend.call_recorder(lambda: None),
+            json=lambda: next(_result),
+        )
+        requests_post = pretend.call_recorder(lambda *a, **kw: response)
+        monkeypatch.setattr(requests, "post", requests_post)
+
+        with pytest.raises(fastly.UnsuccessfulPurgeError):
+            cacher.purge_key("one")
+
+        assert requests_post.calls == [
+            pretend.call(
+                "https://api.fastly.com/service/the-service-id/purge/one",
+                headers={
+                    "Accept": "application/json",
+                    "Fastly-Key": "an api key",
+                    "Fastly-Soft-Purge": "1",
+                },
+            ),
+            pretend.call(
+                "https://api.fastly.com/service/the-service-id/purge/one",
+                headers={
+                    "Accept": "application/json",
+                    "Fastly-Key": "an api key",
+                    "Fastly-Soft-Purge": "1",
+                },
+            ),
+        ]
+        assert response.raise_for_status.calls == [pretend.call(), pretend.call()]
