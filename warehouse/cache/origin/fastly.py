@@ -10,6 +10,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import time
 import urllib.parse
 
 import requests
@@ -106,3 +107,11 @@ class FastlyCache:
 
         if resp.json().get("status") != "ok":
             raise UnsuccessfulPurgeError(f"Could not purge {key!r}")
+
+        time.sleep(2)
+
+        resp = requests.post(url, headers=headers)
+        resp.raise_for_status()
+
+        if resp.json().get("status") != "ok":
+            raise UnsuccessfulPurgeError(f"Could not double purge {key!r}")

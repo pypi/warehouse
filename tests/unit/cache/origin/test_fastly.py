@@ -188,9 +188,17 @@ class TestFastlyCache:
                     "Fastly-Key": "an api key",
                     "Fastly-Soft-Purge": "1",
                 },
+            ),
+            pretend.call(
+                "https://api.fastly.com/service/the-service-id/purge/one",
+                headers={
+                    "Accept": "application/json",
+                    "Fastly-Key": "an api key",
+                    "Fastly-Soft-Purge": "1",
+                },
             )
         ]
-        assert response.raise_for_status.calls == [pretend.call()]
+        assert response.raise_for_status.calls == [pretend.call(), pretend.call()]
 
     @pytest.mark.parametrize("result", [{"status": "fail"}, {}])
     def test_purge_key_unsuccessful(self, monkeypatch, result):
