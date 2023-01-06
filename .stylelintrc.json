@@ -2,6 +2,9 @@
   "extends": [
     "stylelint-config-standard-scss"
   ],
+  "plugins": [
+    "stylelint-selector-bem-pattern"
+  ],
   "ignoreFiles": [
     "warehouse/static/sass/tools/bourbon/**/*",
     "warehouse/static/sass/tools/neat/**/*",
@@ -41,7 +44,10 @@
       }
     ],
     "no-descending-specificity": null,
-    "selector-class-pattern": "^([_a-z][a-z0-9]*)([-_]*[a-z0-9]+)*$",
+    "plugin/selector-bem-pattern": {
+      "preset": "bem"
+    },
+    "selector-class-pattern": null,
     "scss/dollar-variable-colon-space-after": "at-least-one-space",
     "scss/no-global-function-names": null
   }
