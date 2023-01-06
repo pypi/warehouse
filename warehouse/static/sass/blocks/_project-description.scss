@@ -55,16 +55,6 @@
 
   // Remove top margin on elements at the top of the description
   > div:first-child > *:first-child,
-  > *:first-child,
-  > div:first-child > *:first-child,
-  > *:first-child,
-  > div:first-child > *:first-child,
-  > *:first-child,
-  > div:first-child > *:first-child,
-  > *:first-child,
-  > div:first-child > *:first-child,
-  > *:first-child,
-  > div:first-child > *:first-child,
   > *:first-child {
     margin-top: 0;
   }
