@@ -110,7 +110,7 @@
     @include link-without-underline;
 
     &:hover {
-      color: darken($primary-color, 10)
+      color: darken($primary-color, 10);
     }
 
     &:active,
@@ -183,7 +183,7 @@
     }
 
     @media only screen and (max-width: $tablet) {
-      margin: 25px 10px 10px 10px;
+      margin: 25px 10px 10px;
     }
   }
 }

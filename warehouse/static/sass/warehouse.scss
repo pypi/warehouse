@@ -159,6 +159,7 @@
 
 .public-email {
   @include ellipsis;
+
   max-width: 85%;
   position: relative;
   top: 3px;
@@ -302,8 +303,8 @@
 // RTL SUPPORT. See https://rtlcss.com/
 /*rtl:begin:ignore*/
 // fix padding on split layouts
-html[dir="rtl"] .package-snippet .split-layout>:first-child,
-html[dir="rtl"] .package-description.split-layout>:first-child {
+html[dir="rtl"] .package-snippet .split-layout > :first-child,
+html[dir="rtl"] .package-description.split-layout > :first-child {
   padding-left: 0;
   padding-right: $spacing-unit;
 }
@@ -316,7 +317,7 @@ time {
 
 // force email select to display ltr
 // Remove when/if this is marked for translation
-#public_email {  // sass-lint:disable-line id-name-format
+#public_email {  // stylelint-disable-line selector-id-pattern -- remove when translated
   direction: ltr;
 }
 
@@ -328,6 +329,7 @@ time {
 /*rtl:end:ignore*/
 
 // ACCESSIBILITY
+
 /*
   Apply this class to anything you want to hide visually, but that you want
   screen readers to be able to read. Great for extra labels, etc.

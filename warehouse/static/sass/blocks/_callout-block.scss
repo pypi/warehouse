@@ -79,7 +79,7 @@
     }
   }
 
-  &:before {
+  &::before {
     content: "";
     width: 15px;
     background-color: $primary-color;
@@ -101,7 +101,7 @@
   &--danger {
     border-color: $danger-color;
 
-    > :not(.modal):not(.button) {
+    > :not(.modal, .button) {
       color: $danger-color;
 
       a:not(.button) {
@@ -109,7 +109,7 @@
       }
     }
 
-    &:before {
+    &::before {
       background-color: $danger-color;
     }
 
@@ -121,7 +121,7 @@
   &--warning {
     border-color: $warning-color;
 
-    > :not(.modal):not(.button) {
+    > :not(.modal, .button) {
       color: $warning-color;
 
       a:not(.button) {
@@ -129,7 +129,7 @@
       }
     }
 
-    &:before {
+    &::before {
       background-color: $warning-color;
     }
 
@@ -141,7 +141,7 @@
   &--success {
     border-color: $success-color;
 
-    > :not(.modal):not(.button) {
+    > :not(.modal, .button) {
       color: $success-color;
 
       a:not(.button) {
@@ -149,7 +149,7 @@
       }
     }
 
-    &:before {
+    &::before {
       background-color: $success-color;
     }
 

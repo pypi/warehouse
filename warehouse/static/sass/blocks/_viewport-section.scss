@@ -61,7 +61,7 @@
     max-width: 100%;
     border: 0;
     height: 2px;
-    background: rgba(255, 255, 255, 0.5);
+    background: rgb(255 255 255 / 50%);
   }
 
   &--dark {
@@ -83,7 +83,7 @@
 
     .viewport-section__heading {
       display: inline;
-      font-family: "Ewert", cursive;
+      font-family: Ewert, cursive;
       font-weight: 400;
       color: darken($primary-color, 15);
       background: $highlight-color;

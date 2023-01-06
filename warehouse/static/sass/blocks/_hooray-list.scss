@@ -30,7 +30,7 @@
     list-style-type: none;
     position: relative;
 
-    &:before {
+    &::before {
       font-family: "Font Awesome 6 Free";
       font-weight: 900;
       content: "\f00c";

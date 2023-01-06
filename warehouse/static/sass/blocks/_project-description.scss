@@ -55,16 +55,6 @@
 
   // Remove top margin on elements at the top of the description
   > div:first-child > *:first-child,
-  > *:first-child,
-  > div:first-child > *:first-child,
-  > *:first-child,
-  > div:first-child > *:first-child,
-  > *:first-child,
-  > div:first-child > *:first-child,
-  > *:first-child,
-  > div:first-child > *:first-child,
-  > *:first-child,
-  > div:first-child > *:first-child,
   > *:first-child {
     margin-top: 0;
   }
@@ -81,7 +71,7 @@
 
   em,
   i {
-    font-style: italic
+    font-style: italic;
   }
 
   pre {
@@ -227,7 +217,7 @@
   }
 
   // Add a margin at the top of commonly included status badges
-  > a  {
+  > a {
     margin-top: $half-spacing-unit;
   }
 
@@ -259,6 +249,7 @@
   }
 
   s { /* pygments Literal.String */
+
     /* Override browser default behavior */
     text-decoration: none;
   }
@@ -277,23 +268,22 @@
 // PYGMENTS THEME
 
 $blue:          $primary-color;
-$light-blue:    #0078BD;
+$light-blue:    #0078bd;
 $dark-blue:     darken($primary-color, 10);
 $darkest-blue:  darken($primary-color, 20);
 $green:         darken($success-color, 5);
 $light-green:   $success-color;
 $red:           $danger-color;
 $dark-red:      darken($danger-color, 20);
-$purple:        #bb0066;
-$orange:        #A36200;
+$purple:        #b06;
+$orange:        #a36200;
 $brown:         darken($orange, 7);
-
 $light-grey:    #737373;
 $mid-grey:      #575757;
 $dark-grey:     #303030;
 $black:         #000;
 
-.project-description {
+.project-description { // stylelint-disable-line no-duplicate-selectors -- Allow for visual organization
   .c { /* Comment */
     color: $light-grey;
   }

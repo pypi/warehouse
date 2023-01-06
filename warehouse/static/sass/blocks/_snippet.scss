@@ -35,6 +35,7 @@
     &:hover {
       // Use png fallback
       background: $white $snippet-icon-png no-repeat;
+
       // Or svg if the browser supports it
       background-image: $snippet-icon-svg, linear-gradient(transparent, transparent);
       background-position: 18px;

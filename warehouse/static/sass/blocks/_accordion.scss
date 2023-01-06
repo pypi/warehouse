@@ -45,12 +45,11 @@
     color: $primary-color;
     @include link-without-underline;
 
-    &:before {
+    &::before {
       font-family: "Font Awesome 6 Free";
       font-weight: 900;
       content: "\f139";
       margin-right: $half-spacing-unit #{"/*rtl:5px*/"};
-
     }
 
     @media only screen and (max-width: $desktop) {
@@ -60,7 +59,7 @@
   }
 
   &__content {
-    padding: 0 0 5px 0;
+    padding: 0 0 5px;
 
     a {
       display: block;
@@ -74,7 +73,7 @@
     }
 
     .accordion__link {
-      &:before {
+      &::before {
         font-family: "Font Awesome 6 Free";
         font-weight: 900;
         content: "\f13a";
