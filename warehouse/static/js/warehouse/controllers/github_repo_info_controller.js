@@ -12,6 +12,9 @@
  * limitations under the License.
  */
 import { Controller } from "@hotwired/stimulus";
+import { debounce } from "debounce";
+
+const debouncedFetch = debounce(fetch, 1000);
 
 export default class extends Controller {
   static targets = [
@@ -25,12 +28,18 @@ export default class extends Controller {
   static values = { url: String };
 
   // TODO: Why does this fire twice? Is it because of the position of CSI?
+  // Answer:
+  //   The repo info controller appears twice on the package detail page; once
+  //   within 'sidebar' navigation elements, and once within 'vertical tab'
+  //   navigation elements.  Each controller instance's 'connect' function is
+  //   invoked once.
   connect() {
     this.load();
   }
 
   load() {
-    fetch(this.urlValue, {
+    // TODO: Seems to work, but also raises a TypeError (value is undefined)?
+    debouncedFetch(this.urlValue, {
       method: "GET",
       mode: "cors",
     })
