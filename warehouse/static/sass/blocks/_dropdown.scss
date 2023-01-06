@@ -69,7 +69,7 @@
     position: absolute;
     right: 0;
     margin-bottom: -4px;
-    box-shadow: 1px 1px 2px 1px rgba(0, 0, 0, 0.05);
+    box-shadow: 1px 1px 2px 1px rgb(0 0 0 / 5%);
     z-index: index($z-index-scale, "dropdown");
     border: 1px solid $border-color;
     border-bottom: 0; // Each link has a bottom border, so we don't need one here
