@@ -110,7 +110,7 @@
     @include link-without-underline;
 
     &:hover {
-      color: darken($primary-color, 10)
+      color: darken($primary-color, 10);
     }
 
     &:active,
