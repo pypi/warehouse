@@ -1,6 +1,7 @@
 [run]
 branch = True
-dynamic_context = test_function
+# TODO: Re-Enable when https://github.com/nedbat/coveragepy/issues/1527 is resolved
+# dynamic_context = test_function
 
 source =
     warehouse
