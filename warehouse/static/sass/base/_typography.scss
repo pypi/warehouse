@@ -115,7 +115,7 @@ a {
   @include primary-underlined-link;
 
   // Add 'external link' icon to most external links
-  &[target="_blank"]:not(.copy-tooltip):not(.sponsors__sponsor) {
+  &[target="_blank"]:not(.copy-tooltip, .sponsors__sponsor) {
     &::after {
       white-space: nowrap;
       font-size: 0.8em;

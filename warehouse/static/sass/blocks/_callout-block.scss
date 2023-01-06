@@ -101,7 +101,7 @@
   &--danger {
     border-color: $danger-color;
 
-    > :not(.modal):not(.button) {
+    > :not(.modal, .button) {
       color: $danger-color;
 
       a:not(.button) {
@@ -121,7 +121,7 @@
   &--warning {
     border-color: $warning-color;
 
-    > :not(.modal):not(.button) {
+    > :not(.modal, .button) {
       color: $warning-color;
 
       a:not(.button) {
@@ -141,7 +141,7 @@
   &--success {
     border-color: $success-color;
 
-    > :not(.modal):not(.button) {
+    > :not(.modal, .button) {
       color: $success-color;
 
       a:not(.button) {
