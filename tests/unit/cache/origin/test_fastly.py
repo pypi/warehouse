@@ -196,7 +196,7 @@ class TestFastlyCache:
                     "Fastly-Key": "an api key",
                     "Fastly-Soft-Purge": "1",
                 },
-            )
+            ),
         ]
         assert response.raise_for_status.calls == [pretend.call(), pretend.call()]
 
