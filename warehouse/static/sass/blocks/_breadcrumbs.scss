@@ -65,7 +65,7 @@
       margin-right: 0.1em;
     }
 
-    &:not(:last-child):after {
+    &:not(:last-child)::after {
       content: "\f054";
       font-family: "Font Awesome 6 Free";
       font-weight: 900;

@@ -241,7 +241,7 @@
   }
 
   &--collaborators {
-    td:empty:after {
+    td:empty::after {
       content: "—";
     }
 

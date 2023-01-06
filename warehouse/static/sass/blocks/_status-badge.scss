@@ -51,7 +51,7 @@
     color: $text-color;
   }
 
-  &:before {
+  &::before {
     content: "\f05a"; // Info icon
     font-family: "Font Awesome 6 Free";
     font-weight: 900;
@@ -64,7 +64,7 @@
   }
 
   &--unknown {
-    &:before {
+    &::before {
       content: "\f059"; // Question mark
     }
   }
@@ -77,7 +77,7 @@
       color: $white;
     }
 
-    &:before {
+    &::before {
       content: "\f00c"; // Check / Tick
     }
   }
@@ -89,7 +89,7 @@
       color: $white;
     }
 
-    &:before {
+    &::before {
       content: "\f071"; // Warning
     }
   }
@@ -102,7 +102,7 @@
       color: $white;
     }
 
-    &:before {
+    &::before {
       content: "\f071"; // Warning
     }
   }

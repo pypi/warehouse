@@ -79,7 +79,7 @@
     }
   }
 
-  &:before {
+  &::before {
     content: "";
     width: 15px;
     background-color: $primary-color;
@@ -109,7 +109,7 @@
       }
     }
 
-    &:before {
+    &::before {
       background-color: $danger-color;
     }
 
@@ -129,7 +129,7 @@
       }
     }
 
-    &:before {
+    &::before {
       background-color: $warning-color;
     }
 
@@ -149,7 +149,7 @@
       }
     }
 
-    &:before {
+    &::before {
       background-color: $success-color;
     }
 

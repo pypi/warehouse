@@ -55,7 +55,7 @@
       pointer-events: none;
       @include link-without-underline;
 
-      &:before {
+      &::before {
         font-family: "Font Awesome 6 Free";
         font-weight: 900;
         content: "\f105"#{'/*rtl:"\f104"*/'}; // sass-lint:disable-line quotes

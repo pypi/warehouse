@@ -41,7 +41,7 @@
   li {
     max-width: 350px;
 
-    &:before {
+    &::before {
       font-family: "Font Awesome 6 Free";
       font-weight: 900;
       content: "\f06a";
@@ -65,7 +65,7 @@
     &--valid {
       color: $success-color;
 
-      &:before {
+      &::before {
         font-family: "Font Awesome 6 Free";
         font-weight: 900;
         content: "\f00c"; // Check / Tick

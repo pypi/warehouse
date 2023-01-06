@@ -45,7 +45,7 @@
     color: $primary-color;
     @include link-without-underline;
 
-    &:before {
+    &::before {
       font-family: "Font Awesome 6 Free";
       font-weight: 900;
       content: "\f139";
@@ -73,7 +73,7 @@
     }
 
     .accordion__link {
-      &:before {
+      &::before {
         font-family: "Font Awesome 6 Free";
         font-weight: 900;
         content: "\f13a";
