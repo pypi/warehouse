@@ -11,6 +11,7 @@
 # limitations under the License.
 
 import collections
+import datetime
 
 import faker
 import pretend
@@ -59,6 +60,82 @@ def test_analyze_vulnerability(db_request, metrics):
     assert len(vuln_record.aliases) == 2
     assert "vuln_alias1" in vuln_record.aliases
     assert "vuln_alias2" in vuln_record.aliases
+
+    assert metrics_counter == {
+        ("warehouse.vulnerabilities.received", ("origin:test_report_source",)): 1,
+        ("warehouse.vulnerabilities.processed", ("origin:test_report_source",)): 1,
+        ("warehouse.vulnerabilities.valid", ("origin:test_report_source",)): 1,
+    }
+
+
+def test_analyze_vulnerability_update_metadata(db_request, metrics):
+    project = ProjectFactory.create()
+    release = ReleaseFactory.create(project=project, version="1.0")
+
+    metrics_counter = collections.Counter()
+
+    def metrics_increment(key, tags):
+        metrics_counter.update([(key, tuple(tags))])
+
+    metrics = pretend.stub(increment=metrics_increment, timed=metrics.timed)
+    db_request.find_service = lambda *a, **kw: metrics
+
+    tasks.analyze_vulnerability_task(
+        request=db_request,
+        vulnerability_report={
+            "project": project.name,
+            "versions": ["1.0"],
+            "id": "vuln_id",
+            "link": "vulns.com/vuln_id",
+            "aliases": ["vuln_alias"],
+            "details": "vuln_details",
+            "summary": "vuln_summary",
+            "events": [{"introduced": "1.0"}],
+        },
+        origin="test_report_source",
+    )
+
+    assert release.vulnerabilities[0].id == "vuln_id"
+    assert release.vulnerabilities[0].link == "vulns.com/vuln_id"
+    assert release.vulnerabilities[0].aliases == ["vuln_alias"]
+    assert release.vulnerabilities[0].details == "vuln_details"
+    assert release.vulnerabilities[0].summary == "vuln_summary"
+    assert release.vulnerabilities[0].fixed_in == []
+    assert release.vulnerabilities[0].withdrawn is None
+
+    assert metrics_counter == {
+        ("warehouse.vulnerabilities.received", ("origin:test_report_source",)): 1,
+        ("warehouse.vulnerabilities.processed", ("origin:test_report_source",)): 1,
+        ("warehouse.vulnerabilities.valid", ("origin:test_report_source",)): 1,
+    }
+
+    metrics_counter.clear()
+
+    withdrawn_date = datetime.datetime.utcnow()
+
+    tasks.analyze_vulnerability_task(
+        request=db_request,
+        vulnerability_report={
+            "project": project.name,  # Unchanged
+            "versions": ["1.0"],  # Unchanged
+            "id": "vuln_id",  # Unchanged
+            "link": "vulns.com/vuln_id-new",
+            "aliases": ["vuln_alias-new"],
+            "details": "vuln_details-new",
+            "summary": "vuln_summary-new",
+            "events": [{"introduced": "1.0"}, {"fixed": "2.0"}],
+            "withdrawn": withdrawn_date,
+        },
+        origin="test_report_source",
+    )
+
+    assert release.vulnerabilities[0].id == "vuln_id"
+    assert release.vulnerabilities[0].link == "vulns.com/vuln_id-new"
+    assert release.vulnerabilities[0].aliases == ["vuln_alias-new"]
+    assert release.vulnerabilities[0].details == "vuln_details-new"
+    assert release.vulnerabilities[0].summary == "vuln_summary-new"
+    assert release.vulnerabilities[0].fixed_in == ["2.0"]
+    assert release.vulnerabilities[0].withdrawn is withdrawn_date
 
     assert metrics_counter == {
         ("warehouse.vulnerabilities.received", ("origin:test_report_source",)): 1,
