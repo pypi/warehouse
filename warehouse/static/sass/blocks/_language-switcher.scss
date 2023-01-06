@@ -58,7 +58,7 @@
       &::before {
         font-family: "Font Awesome 6 Free";
         font-weight: 900;
-        content: "\f105"#{'/*rtl:"\f104"*/'}; // sass-lint:disable-line quotes
+        content: "\f105"#{'/*rtl:"\f104"*/'};
         margin-right: 4px;
         color: $white;
         position: relative;

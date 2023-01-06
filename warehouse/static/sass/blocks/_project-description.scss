@@ -293,7 +293,7 @@ $mid-grey:      #575757;
 $dark-grey:     #303030;
 $black:         #000;
 
-.project-description {
+.project-description { // stylelint-disable-line no-duplicate-selectors -- Allow for visual organization
   .c { /* Comment */
     color: $light-grey;
   }
