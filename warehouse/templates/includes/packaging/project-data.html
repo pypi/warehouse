@@ -32,7 +32,7 @@
 <div class="sidebar-section">
   <h3 class="sidebar-section__title">{% trans %}Statistics{% endtrans %}</h3>
   {% if release.github_repo_info_url %}
-  <div class="hidden" data-controller="github-repo-info" data-github-repo-info-url-value="{{release.github_repo_info_url}}">
+  <div class="hidden github-repo-info" data-controller="github-repo-info">
     {% trans %}GitHub statistics:{% endtrans %}
     <ul class="vertical-tabs__list">
       <li>

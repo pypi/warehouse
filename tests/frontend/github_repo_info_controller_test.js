@@ -15,18 +15,23 @@
 
 import { Application } from "@hotwired/stimulus";
 import GitHubRepoInfoController from "../../warehouse/static/js/warehouse/controllers/github_repo_info_controller";
+import GitHubRepoStatsController from "../../warehouse/static/js/warehouse/controllers/github_repo_stats_controller";
 
 const startStimulus = () => {
   const application = Application.start();
   application.register("github-repo-info", GitHubRepoInfoController);
+  application.register("github-repo-stats", GitHubRepoStatsController);
 };
 
 const mountDom = async () => {
   document.body.innerHTML = `
+    <div id="github-repo-stats"
+          data-controller="github-repo-stats"
+          data-github-repo-stats-github-repo-info-outlet="#github-repo-info">
+          data-github-repo-stats-url-value="https://api.github.com/repos/pypi/warehouse">
     <div id="github-repo-info"
           class="hidden"
           data-controller="github-repo-info"
-          data-github-repo-info-url-value="https://api.github.com/repos/pypi/warehouse">
       <li>
         <a data-github-repo-info-target="stargazersUrl">
           <span data-github-repo-info-target="stargazersCount"></span>
