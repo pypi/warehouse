@@ -246,7 +246,7 @@ def app_config(database):
         "celery.broker_url": "amqp://",
         "celery.result_url": "redis://localhost:0/",
         "celery.scheduler_url": "redis://localhost:0/",
-        "database.url": database,
+        "database.primary.url": database,
         "docs.url": "http://docs.example.com/",
         "ratelimit.url": "memory://",
         "elasticsearch.url": "https://localhost/warehouse",
@@ -278,7 +278,7 @@ def app_config(database):
 
 @pytest.fixture
 def db_session(app_config):
-    engine = app_config.registry["sqlalchemy.engine"]
+    engine = app_config.registry["sqlalchemy.engines"]["primary"]
     conn = engine.connect()
     trans = conn.begin()
     session = Session(bind=conn)
@@ -379,7 +379,7 @@ class QueryRecorder:
 def query_recorder(app_config):
     recorder = QueryRecorder()
 
-    engine = app_config.registry["sqlalchemy.engine"]
+    engine = app_config.registry["sqlalchemy.engines"]["primary"]
     event.listen(engine, "before_cursor_execute", recorder.record)
 
     try:
@@ -459,7 +459,7 @@ def webtest(app_config):
     try:
         yield _TestApp(app_config.make_wsgi_app())
     finally:
-        app_config.registry["sqlalchemy.engine"].dispose()
+        app_config.registry["sqlalchemy.engines"]["primary"].dispose()
 
 
 @pytest.fixture(scope="session")

@@ -29,6 +29,6 @@ def heads(config, **kwargs):
     Show current available heads.
     """
     with alembic_lock(
-        config.registry["sqlalchemy.engine"], config.alembic_config()
+        config.registry["sqlalchemy.engines"]["primary"], config.alembic_config()
     ) as alembic_config:
         alembic.command.heads(alembic_config, **kwargs)

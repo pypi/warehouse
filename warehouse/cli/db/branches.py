@@ -23,6 +23,6 @@ def branches(config, **kwargs):
     Show current branch points.
     """
     with alembic_lock(
-        config.registry["sqlalchemy.engine"], config.alembic_config()
+        config.registry["sqlalchemy.engines"]["primary"], config.alembic_config()
     ) as alembic_config:
         alembic.command.branches(alembic_config, **kwargs)

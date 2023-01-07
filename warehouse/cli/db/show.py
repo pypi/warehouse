@@ -24,6 +24,6 @@ def show(config, revision, **kwargs):
     Show the revision(s) denoted by the given symbol.
     """
     with alembic_lock(
-        config.registry["sqlalchemy.engine"], config.alembic_config()
+        config.registry["sqlalchemy.engines"]["primary"], config.alembic_config()
     ) as alembic_config:
         alembic.command.show(alembic_config, revision, **kwargs)

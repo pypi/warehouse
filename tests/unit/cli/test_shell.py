@@ -78,7 +78,7 @@ class TestCLIShell:
         monkeypatch.setattr(shell, "plain", plain)
 
         engine = pretend.stub()
-        config = pretend.stub(registry={"sqlalchemy.engine": engine})
+        config = pretend.stub(registry={"sqlalchemy.engines": {"primary": engine}})
 
         result = cli.invoke(shell.shell, obj=config)
 
@@ -100,7 +100,7 @@ class TestCLIShell:
         monkeypatch.setattr(shell, type_, runner)
 
         engine = pretend.stub()
-        config = pretend.stub(registry={"sqlalchemy.engine": engine})
+        config = pretend.stub(registry={"sqlalchemy.engines": {"primary": engine}})
 
         result = cli.invoke(shell.shell, ["--type", type_], obj=config)
 
@@ -125,7 +125,7 @@ class TestCLIShell:
         monkeypatch.setattr(shell, type_, runner)
 
         engine = pretend.stub()
-        config = pretend.stub(registry={"sqlalchemy.engine": engine})
+        config = pretend.stub(registry={"sqlalchemy.engines": {"primary": engine}})
 
         result = cli.invoke(shell.shell, ["--type", type_], obj=config)
 

@@ -50,6 +50,6 @@ def revision(config, **kwargs):
     Create a new revision file.
     """
     with alembic_lock(
-        config.registry["sqlalchemy.engine"], config.alembic_config()
+        config.registry["sqlalchemy.engines"]["primary"], config.alembic_config()
     ) as alembic_config:
         alembic.command.revision(alembic_config, **kwargs)

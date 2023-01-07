@@ -35,7 +35,7 @@ def sync(config):
     from warehouse.classifiers.models import Classifier
     from warehouse.db import Session
 
-    session = Session(bind=config.registry["sqlalchemy.engine"])
+    session = Session(bind=config.registry["sqlalchemy.engines"]["primary"])
 
     # Look up all of the valid classifiers
     all_classifiers = session.query(Classifier).all()

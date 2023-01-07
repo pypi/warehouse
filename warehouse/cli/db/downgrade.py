@@ -24,6 +24,6 @@ def downgrade(config, revision, **kwargs):
     Revert to a previous version.
     """
     with alembic_lock(
-        config.registry["sqlalchemy.engine"], config.alembic_config()
+        config.registry["sqlalchemy.engines"]["primary"], config.alembic_config()
     ) as alembic_config:
         alembic.command.downgrade(alembic_config, revision, **kwargs)
