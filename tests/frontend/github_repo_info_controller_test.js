@@ -25,7 +25,7 @@ const startStimulus = () => {
 
 const mountDom = async () => {
   const gitHubRepoInfo = `
-    <div class="hidden" data-controller="github-repo-info">
+    <div class="hidden github-repo-info" data-controller="github-repo-info">
       <li>
         <a data-github-repo-info-target="stargazersUrl">
           <span data-github-repo-info-target="stargazersCount"></span>
