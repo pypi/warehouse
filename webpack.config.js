@@ -239,32 +239,41 @@ module.exports = [
         }),
         // Minimize Images when `mode` is `production`
         new ImageMinimizerPlugin({
+          test: /\.(png|jpg|jpeg|gif)$/i,
           minimizer: {
-            implementation: ImageMinimizerPlugin.imageminMinify,
-            options: {
-              plugins: [
-                "imagemin-gifsicle",
-                "imagemin-mozjpeg",
-                "imagemin-pngquant",
-                "imagemin-svgo",
-              ],
-            },
+            implementation: ImageMinimizerPlugin.sharpMinify,
           },
           generator: [
             {
             // Apply generator for copied assets
               type: "asset",
-              implementation: ImageMinimizerPlugin.imageminGenerate,
+              implementation: ImageMinimizerPlugin.sharpGenerate,
               options: {
-                plugins: [
-                  "imagemin-gifsicle",
-                  "imagemin-mozjpeg",
-                  "imagemin-pngquant",
-                  "imagemin-svgo",
-                ],
+                encodeOptions: {
+                  webp: {
+                    quality: 90,
+                  },
+                },
               },
             },
           ],
+        }),
+        new ImageMinimizerPlugin({
+          test: /\.(svg)$/i,
+          minimizer: {
+            implementation: ImageMinimizerPlugin.svgoMinify,
+            options: {
+              encodeOptions: {
+                // Pass over SVGs multiple times to ensure all optimizations are applied. False by default
+                multipass: true,
+                plugins: [
+                  // set of built-in plugins enabled by default
+                  // see: https://github.com/svg/svgo#default-preset
+                  "preset-default",
+                ],
+              },
+            },
+          },
         }),
       ],
     },
