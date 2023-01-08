@@ -28,6 +28,9 @@
     "jquery": "3.5.0",
     "normalize.css": "^8.0.1"
   },
+  "overrides": {
+    "sweetalert2": "11.4.8"
+  },
   "devDependencies": {
     "@babel/core": "^7.20.7",
     "@babel/eslint-parser": "7.17.0",
