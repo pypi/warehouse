@@ -149,36 +149,39 @@
       </h1>
 
       {% if files %}
-      <p class="package-header__pip-instructions">
-        <span id="pip-command">{{ pip_command(release, request.matched_route.name, testPyPI) }}</span>
-        <button type="button" class="copy-tooltip copy-tooltip-s" data-clipboard-target="#pip-command" data-tooltip-label="{% trans %}Copy to clipboard{% endtrans %}">
-          <i class="fa fa-copy" aria-hidden="true"></i>
-          <span class="sr-only">{% trans %}Copy PIP instructions{% endtrans %}</span>
-        </button>
-        <button type="button" class="package-manager-settings-toggle">
-          <i class="fa fa-cog" aria-hidden="true"></i>
-          <span class="sr-only">{% trans %}Package manager settings{% endtrans %}</span>
-        </button>
-        <form class="package-manager-settings hidden">
-          <label>
-            <input type="radio" name="package-manager" value="pip" checked />
-            <span>pip</span>
-          </label>
-          <label>
-            <input type="radio" name="package-manager" value="poetry" />
-            <span>poetry</span>
-          </label>
-          <label>
-            <input type="radio" name="package-manager" value="pipenv" />
-            <span>pipenv</span>
-          </label>
-          <label>
-            <input type="radio" name="package-manager" value="pdm" />
-            <span>pdm</span>
-          </label>
-        </form>
-      </p>
-      {% endif %}
+      <div
+        data-controller="package-manager-instructions"
+        data-package-manager-instructions-package-name-value="{{ release.project.name }}"
+        data-package-manager-instructions-project-version-value="{{ project_version }}"
+        data-package-manager-instructions-index-url-value="{{ index_url }}"
+      >
+        <p class="package-header__pip-instructions">
+          <span id="pip-command" data-package-manager-instructions-target="command">{{ pip_command(release, request.matched_route.name, testPyPI) }}</span>
+          <button type="button" class="copy-tooltip copy-tooltip-s" data-clipboard-target="#pip-command" data-tooltip-label="{% trans %}Copy to clipboard{% endtrans %}">
+            <i class="fa fa-copy" aria-hidden="true"></i>
+              <!-- todo: rename this to installation instructions? -->
+              <span class="sr-only">{% trans %}Copy PIP instructions{% endtrans %}</span>
+            </button>
+            <button type="button" class="package-manager-settings-toggle" data-action="click->package-manager-instructions#showSettings">
+              <i class="fa fa-cog" aria-hidden="true"></i>
+              <span class="sr-only">{% trans %}Package manager settings{% endtrans %}</span>
+            </button>
+            <form class="package-manager-settings hidden" data-package-manager-instructions-target="settings">
+              {% for package_manager in ["pip", "pdm", "poetry", "pipenv"] %}
+              <label>
+                <input
+                  type="radio"
+                  name="package-manager"
+                  value={{ package_manager }}
+                  data-action="change->package-manager-instructions#updateCommand"
+                  {% if package_manager == "pip" %}checked{% endif %} />
+                <span>{{ package_manager }}</span>
+              </label>
+              {% endfor %}
+            </form>
+          </p>
+        </div>
+        {% endif %}
     </div>
 
     <div class="package-header__right">
