@@ -24,12 +24,7 @@ const startStimulus = () => {
 };
 
 const mountDom = async () => {
-  document.body.innerHTML = `
-    <div id="github-repo-stats"
-          data-controller="github-repo-stats"
-          data-github-repo-stats-github-repo-info-outlet="#github-repo-info">
-          data-github-repo-stats-url-value="https://api.github.com/repos/pypi/warehouse">
-    </div>
+  const gitHubRepoInfo = `
     <div class="hidden" data-controller="github-repo-info">
       <li>
         <a data-github-repo-info-target="stargazersUrl">
@@ -47,6 +42,14 @@ const mountDom = async () => {
         </a>
       </li>
     </div>
+  `;
+  document.body.innerHTML = `
+    <div id="github-repo-stats"
+          data-controller="github-repo-stats"
+          data-github-repo-stats-github-repo-info-outlet="#github-repo-info">
+          data-github-repo-stats-url-value="https://api.github.com/repos/pypi/warehouse">
+    </div>
+    ${gitHubRepoInfo}
   `;
 };
 
