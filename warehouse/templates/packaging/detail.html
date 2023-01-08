@@ -139,6 +139,14 @@
 {% block content %}
 {% csi request.route_path("includes.administer-project-include", project_name=project.normalized_name) %}
 {% endcsi %}
+{% if release.github_repo_info_url %}
+<div class="hidden"
+  data-controller="github-repo-stats"
+  data-github-repo-stats-github-repo-info-outlet=".github-repo-info"
+  data-github-repo-stats-url-value="{{release.github_repo_info_url}}">
+</div>
+{% endif %}
+
 <div class="banner">
   <div class="package-header">
     <div class="package-header__left">
@@ -392,13 +400,6 @@
 
         {% endif %}
       </div>
-    {% if release.github_repo_info_url %}
-      <div class="hidden"
-        data-controller="github-repo-stats"
-        data-github-repo-stats-github-repo-info-outlet=".github-repo-info"
-        data-github-repo-stats-url-value="{{release.github_repo_info_url}}">
-      </div>
-    {% endif %}
     </div>
   </div>
 </div>
