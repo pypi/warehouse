@@ -24,10 +24,8 @@ const startStimulus = () => {
 };
 
 const mountDom = async () => {
-  const gitHubRepoInfo = (id) => `
-    <div id="${id}"
-          class="hidden"
-          data-controller="github-repo-info">
+  const gitHubRepoInfo = `
+    <div class="hidden" data-controller="github-repo-info">
       <li>
         <a data-github-repo-info-target="stargazersUrl">
           <span data-github-repo-info-target="stargazersCount"></span>
@@ -51,8 +49,8 @@ const mountDom = async () => {
           data-github-repo-stats-github-repo-info-outlet="#github-repo-info">
           data-github-repo-stats-url-value="https://api.github.com/repos/pypi/warehouse">
     </div>
-    <div id="sidebar">${gitHubRepoInfo('github-repo-info-sidebar')}</div>
-    <div id="tabs">${gitHubRepoInfo('github-repo-info-tabs')}</div>
+    <div id="sidebar">${gitHubRepoInfo}</div>
+    <div id="tabs">${gitHubRepoInfo}</div>
   `;
 };
 
@@ -69,7 +67,7 @@ describe("GitHub Repo Info controller", () => {
 
     setTimeout(() => {
       try {
-        const el = document.getElementById("github-repo-info");
+        const el = document.querySelector("#sidebar .github-repo-info");
         expect(el).toHaveClass("hidden");
         expect(fetch.mock.calls.length).toEqual(1);
         done();
@@ -93,7 +91,7 @@ describe("GitHub Repo Info controller", () => {
 
     setTimeout(() => {
       try {
-        const el = document.getElementById("github-repo-info-sidebar");
+        const el = document.querySelector("#sidebar .github-repo-info");
         expect(el).toHaveClass("hidden");
         expect(fetch.mock.calls.length).toEqual(2);
         done();
@@ -118,7 +116,7 @@ describe("GitHub Repo Info controller", () => {
 
     setTimeout(() => {
       try {
-        const el = document.getElementById("github-repo-info-sidebar");
+        const el = document.querySelector("#sidebar .github-repo-info");
         expect(el).not.toHaveClass("hidden");
         expect(fetch.mock.calls.length).toEqual(3);
 
