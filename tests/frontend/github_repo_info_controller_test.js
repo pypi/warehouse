@@ -49,7 +49,8 @@ const mountDom = async () => {
           data-github-repo-stats-github-repo-info-outlet="#github-repo-info">
           data-github-repo-stats-url-value="https://api.github.com/repos/pypi/warehouse">
     </div>
-    ${gitHubRepoInfo}
+    <div id="sidebar">${gitHubRepoInfo}</div>
+    <div id="tabs">${gitHubRepoInfo}</div>
   `;
 };
 
