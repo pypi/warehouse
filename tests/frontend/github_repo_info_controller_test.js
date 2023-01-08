@@ -30,9 +30,7 @@ const mountDom = async () => {
           data-github-repo-stats-github-repo-info-outlet="#github-repo-info">
           data-github-repo-stats-url-value="https://api.github.com/repos/pypi/warehouse">
     </div>
-    <div id="github-repo-info"
-          class="hidden"
-          data-controller="github-repo-info">
+    <div class="hidden" data-controller="github-repo-info">
       <li>
         <a data-github-repo-info-target="stargazersUrl">
           <span data-github-repo-info-target="stargazersCount"></span>
