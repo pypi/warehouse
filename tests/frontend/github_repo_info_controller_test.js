@@ -32,7 +32,7 @@ const mountDom = async () => {
     </div>
     <div id="github-repo-info"
           class="hidden"
-          data-controller="github-repo-info"
+          data-controller="github-repo-info">
       <li>
         <a data-github-repo-info-target="stargazersUrl">
           <span data-github-repo-info-target="stargazersCount"></span>
