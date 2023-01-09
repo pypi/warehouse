@@ -43,13 +43,14 @@
 # Python Lover <157396869@qq.com>, 2022.
 # Eric <hamburger1024@duck.com>, 2022.
 # Eric <hamburger2048@users.noreply.hosted.weblate.org>, 2023.
+# 陈星宇 <jgbsxx20130315@163.com>, 2023.
 msgid ""
 msgstr ""
 "Project-Id-Version: Warehouse VERSION\n"
 "Report-Msgid-Bugs-To: admin@pypi.org\n"
 "POT-Creation-Date: 2020-04-06 17:52-0500\n"
-"PO-Revision-Date: 2023-01-04 15:49+0000\n"
-"Last-Translator: Eric <hamburger2048@users.noreply.hosted.weblate.org>\n"
+"PO-Revision-Date: 2023-01-09 18:04+0000\n"
+"Last-Translator: 陈星宇 <jgbsxx20130315@163.com>\n"
 "Language-Team: Chinese (Simplified) <https://hosted.weblate.org/projects/"
 "pypa/warehouse/zh_Hans/>\n"
 "Language: zh_Hans\n"
@@ -97,8 +98,8 @@ msgid ""
 "dots, hyphens and underscores. And must also start and finish with a letter "
 "or number. Choose a different username."
 msgstr ""
-"该用户名是无效的。用户名必须由字母、数字、圆点、连字符和下划线组成。而且还必"
-"须以字母或数字开头和结尾。请选择一个不同的用户名。"
+"用户名无效。用户名须由字母、数字、圆点、连字符和下划线组成，以字母或数字开头"
+"和结尾。选择其他用户名。"
 
 #: warehouse/accounts/forms.py:128
 msgid ""
@@ -617,8 +618,8 @@ msgstr "Monty Python - 奶酪店素描"
 #: warehouse/templates/manage/project/release.html:194
 #: warehouse/templates/manage/project/releases.html:140
 #: warehouse/templates/manage/project/releases.html:179
-#: warehouse/templates/packaging/detail.html:352
-#: warehouse/templates/packaging/detail.html:371
+#: warehouse/templates/packaging/detail.html:360
+#: warehouse/templates/packaging/detail.html:379
 #: warehouse/templates/pages/classifiers.html:25
 #: warehouse/templates/pages/help.html:20
 #: warehouse/templates/pages/help.html:214
@@ -2620,7 +2621,7 @@ msgstr "哈希摘要"
 #: warehouse/templates/manage/account.html:206
 #: warehouse/templates/manage/account/recovery_codes-provision.html:57
 #: warehouse/templates/manage/account/totp-provision.html:57
-#: warehouse/templates/packaging/detail.html:152
+#: warehouse/templates/packaging/detail.html:160
 #: warehouse/templates/pages/classifiers.html:38
 msgid "Copy to clipboard"
 msgstr "复制到剪贴板"
@@ -6076,114 +6077,114 @@ msgstr "查看哈希值"
 msgid "RSS: latest releases for %(project_name)s"
 msgstr "RSS: 最新发布的%(project_name)s"
 
-#: warehouse/templates/packaging/detail.html:154
+#: warehouse/templates/packaging/detail.html:162
 msgid "Copy PIP instructions"
 msgstr "复制PIP命令"
 
-#: warehouse/templates/packaging/detail.html:164
+#: warehouse/templates/packaging/detail.html:172
 msgid "This release has been yanked"
 msgstr "该版本已被撤销"
 
-#: warehouse/templates/packaging/detail.html:170
+#: warehouse/templates/packaging/detail.html:178
 #, python-format
 msgid "Stable version available (%(version)s)"
 msgstr "发布版本 %(version)s"
 
-#: warehouse/templates/packaging/detail.html:174
+#: warehouse/templates/packaging/detail.html:182
 #, python-format
 msgid "Newer version available (%(version)s)"
 msgstr "发布版本 %(version)s"
 
-#: warehouse/templates/packaging/detail.html:178
+#: warehouse/templates/packaging/detail.html:186
 msgid "Latest version"
 msgstr "最新版本"
 
-#: warehouse/templates/packaging/detail.html:183
+#: warehouse/templates/packaging/detail.html:191
 #, python-format
 msgid "Released: %(release_date)s"
 msgstr "上次发布于 %(release_date)s"
 
-#: warehouse/templates/packaging/detail.html:195
+#: warehouse/templates/packaging/detail.html:203
 msgid "No project description provided"
 msgstr "未提供项目描述"
 
-#: warehouse/templates/packaging/detail.html:208
+#: warehouse/templates/packaging/detail.html:216
 msgid "Navigation"
 msgstr "导航栏"
 
-#: warehouse/templates/packaging/detail.html:209
-#: warehouse/templates/packaging/detail.html:240
+#: warehouse/templates/packaging/detail.html:217
+#: warehouse/templates/packaging/detail.html:248
 #, python-format
 msgid "Navigation for %(project)s"
 msgstr "%(project)s 项目的导航"
 
-#: warehouse/templates/packaging/detail.html:212
-#: warehouse/templates/packaging/detail.html:243
+#: warehouse/templates/packaging/detail.html:220
+#: warehouse/templates/packaging/detail.html:251
 msgid "Project description. Focus will be moved to the description."
 msgstr "项目描述。焦点将移至描述。"
 
-#: warehouse/templates/packaging/detail.html:214
-#: warehouse/templates/packaging/detail.html:245
-#: warehouse/templates/packaging/detail.html:273
+#: warehouse/templates/packaging/detail.html:222
+#: warehouse/templates/packaging/detail.html:253
+#: warehouse/templates/packaging/detail.html:281
 msgid "Project description"
 msgstr "项目描述"
 
-#: warehouse/templates/packaging/detail.html:218
-#: warehouse/templates/packaging/detail.html:255
+#: warehouse/templates/packaging/detail.html:226
+#: warehouse/templates/packaging/detail.html:263
 msgid "Release history. Focus will be moved to the history panel."
 msgstr "发布历史记录。焦点将移到“历史记录”面板。"
 
-#: warehouse/templates/packaging/detail.html:220
-#: warehouse/templates/packaging/detail.html:257
-#: warehouse/templates/packaging/detail.html:295
+#: warehouse/templates/packaging/detail.html:228
+#: warehouse/templates/packaging/detail.html:265
+#: warehouse/templates/packaging/detail.html:303
 msgid "Release history"
 msgstr "发行版"
 
-#: warehouse/templates/packaging/detail.html:225
-#: warehouse/templates/packaging/detail.html:262
+#: warehouse/templates/packaging/detail.html:233
+#: warehouse/templates/packaging/detail.html:270
 msgid "Download files. Focus will be moved to the project files."
 msgstr "下载文件。焦点将移到项目文件。"
 
-#: warehouse/templates/packaging/detail.html:227
-#: warehouse/templates/packaging/detail.html:264
-#: warehouse/templates/packaging/detail.html:351
+#: warehouse/templates/packaging/detail.html:235
+#: warehouse/templates/packaging/detail.html:272
+#: warehouse/templates/packaging/detail.html:359
 msgid "Download files"
 msgstr "下载文件"
 
-#: warehouse/templates/packaging/detail.html:249
+#: warehouse/templates/packaging/detail.html:257
 msgid "Project details. Focus will be moved to the project details."
 msgstr "项目详细信息。焦点将移到项目详细信息。"
 
-#: warehouse/templates/packaging/detail.html:251
-#: warehouse/templates/packaging/detail.html:287
+#: warehouse/templates/packaging/detail.html:259
+#: warehouse/templates/packaging/detail.html:295
 msgid "Project details"
 msgstr "项目详情"
 
-#: warehouse/templates/packaging/detail.html:280
+#: warehouse/templates/packaging/detail.html:288
 msgid "The author of this package has not provided a project description"
 msgstr "该软件包的作者没有提供项目描述"
 
-#: warehouse/templates/packaging/detail.html:297
+#: warehouse/templates/packaging/detail.html:305
 msgid "Release notifications"
 msgstr "版本发布设置"
 
-#: warehouse/templates/packaging/detail.html:298
+#: warehouse/templates/packaging/detail.html:306
 msgid "RSS feed"
 msgstr "RSS 订阅源"
 
-#: warehouse/templates/packaging/detail.html:310
+#: warehouse/templates/packaging/detail.html:318
 msgid "This version"
 msgstr "当前版本"
 
-#: warehouse/templates/packaging/detail.html:330
+#: warehouse/templates/packaging/detail.html:338
 msgid "pre-release"
 msgstr "预览版"
 
-#: warehouse/templates/packaging/detail.html:335
+#: warehouse/templates/packaging/detail.html:343
 msgid "yanked"
 msgstr "撤销"
 
-#: warehouse/templates/packaging/detail.html:352
+#: warehouse/templates/packaging/detail.html:360
 #, python-format
 msgid ""
 "Download the file for your platform. If you're not sure which to choose, "
@@ -6194,16 +6195,16 @@ msgstr ""
 "\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">安装软件包（英文）"
 "</a> 的更多信息。"
 
-#: warehouse/templates/packaging/detail.html:354
+#: warehouse/templates/packaging/detail.html:362
 msgid "Source Distribution"
 msgid_plural "Source Distributions"
 msgstr[0] "源分发"
 
-#: warehouse/templates/packaging/detail.html:370
+#: warehouse/templates/packaging/detail.html:378
 msgid "No source distribution files available for this release."
 msgstr "没有可用于此版本的源代码分发文件。"
 
-#: warehouse/templates/packaging/detail.html:371
+#: warehouse/templates/packaging/detail.html:379
 #, python-format
 msgid ""
 "See tutorial on <a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" "
@@ -6212,7 +6213,7 @@ msgstr ""
 "参考<a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener"
 "\">生成分发文件</a>的教程。"
 
-#: warehouse/templates/packaging/detail.html:378
+#: warehouse/templates/packaging/detail.html:386
 msgid "Built Distribution"
 msgid_plural "Built Distributions"
 msgstr[0] "构建分发"
@@ -7371,8 +7372,9 @@ msgid ""
 "In practice, it would only be necessary to verify one of the hashes. It is "
 "not recommended to use the MD5 hash because of known security issues with "
 "the MD5 algorithm. This hash is provided for backwards compatibility only."
-msgstr "在实践中，只需验证一个哈希值即可。不过不推荐使用 MD5 哈希，因 MD5 "
-"算法包含已知的安全问题。提供 MD5 哈希的唯一原因是向后兼容性。"
+msgstr ""
+"在实践中，只需验证一个哈希值即可。不过不推荐使用 MD5 哈希，因 MD5 算法包含已"
+"知的安全问题。提供 MD5 哈希的唯一原因是向后兼容性。"
 
 #: warehouse/templates/pages/help.html:566
 #, python-format
