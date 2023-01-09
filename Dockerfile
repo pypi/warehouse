@@ -1,18 +1,8 @@
 # First things first, we build an image which is where we're going to compile
-# our static assets with. It is important that the steps in this remain the
-# same as the steps in Dockerfile.static, EXCEPT this may include additional
-# steps appended onto the end.
-FROM node:16.17.1-bullseye as static
+# our static assets with. We use this stage in development.
+FROM node:16.17.1-bullseye as static-deps
 
 WORKDIR /opt/warehouse/src/
-
-# The list of C packages we need are almost never going to change, so installing
-# them first, right off the bat lets us cache that and having node.js level
-# dependency changes not trigger a reinstall.
-RUN set -x \
-    && apt-get update \
-    && apt-get install --no-install-recommends -y \
-        libjpeg-dev nasm
 
 # However, we do want to trigger a reinstall of our node.js dependencies anytime
 # our package.json changes, so we'll ensure that we're copying that into our
@@ -22,8 +12,13 @@ COPY package.json package-lock.json .babelrc /opt/warehouse/src/
 # Installing npm dependencies is done as a distinct step and *prior* to copying
 # over our static files so that, you guessed it, we don't invalidate the cache
 # of installed dependencies just because files have been modified.
-RUN set -x \
-    && export CFLAGS="-DPNG_ARM_NEON_OPT=0" && npm ci
+RUN npm ci
+
+
+
+
+# This is our actual build stage, where we'll compile our static assets.
+FROM static-deps as static
 
 # Actually copy over our static files, we only copy over the static files to
 # save a small amount of space in our image and because we don't need them. We
