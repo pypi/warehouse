@@ -18,6 +18,7 @@ from urllib.parse import urlparse
 import packaging.utils
 
 from citext import CIText
+from github_reserved_names import ALL as GITHUB_RESERVED_NAMES
 from pyramid.authorization import Allow
 from pyramid.threadlocal import get_current_request
 from sqlalchemy import (
@@ -591,6 +592,8 @@ class Release(db.Model):
             segments = parsed.path.strip("/").split("/")
             if parsed.netloc in {"github.com", "www.github.com"} and len(segments) >= 2:
                 user_name, repo_name = segments[:2]
+                if user_name in GITHUB_RESERVED_NAMES:
+                    continue
                 if repo_name.endswith(".git"):
                     repo_name = repo_name.removesuffix(".git")
                 return f"https://api.github.com/repos/{user_name}/{repo_name}"

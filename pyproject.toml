@@ -25,6 +25,7 @@ module = [
     "citext.*",
     "disposable_email_domains.*",
     "elasticsearch_dsl.*", # https://github.com/elastic/elasticsearch-dsl-py/issues/1533
+    "github_reserved_names.*",
     "google.cloud.*",
     "IPython.*",
     "mistune.*",

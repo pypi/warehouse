@@ -14,6 +14,7 @@ disposable-email-domains
 elasticsearch>=7.0.0,<7.11.0
 elasticsearch_dsl>=7.0.0,<8.0.0
 first
+github-reserved-names>=1.0.0
 google-cloud-bigquery
 google-cloud-storage
 hiredis
