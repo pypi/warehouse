@@ -673,8 +673,8 @@ msgstr "מונטי פייתון - מערכון חנות הגבינות"
 #: warehouse/templates/manage/project/release.html:194
 #: warehouse/templates/manage/project/releases.html:140
 #: warehouse/templates/manage/project/releases.html:179
-#: warehouse/templates/packaging/detail.html:352
-#: warehouse/templates/packaging/detail.html:371
+#: warehouse/templates/packaging/detail.html:360
+#: warehouse/templates/packaging/detail.html:379
 #: warehouse/templates/pages/classifiers.html:25
 #: warehouse/templates/pages/help.html:20
 #: warehouse/templates/pages/help.html:214
@@ -2847,7 +2847,7 @@ msgstr "תמצית גיבוב (hash digest)"
 #: warehouse/templates/manage/account.html:206
 #: warehouse/templates/manage/account/recovery_codes-provision.html:57
 #: warehouse/templates/manage/account/totp-provision.html:57
-#: warehouse/templates/packaging/detail.html:152
+#: warehouse/templates/packaging/detail.html:160
 #: warehouse/templates/pages/classifiers.html:38
 msgid "Copy to clipboard"
 msgstr "העתקה אל לוח הגזירים"
@@ -6892,114 +6892,114 @@ msgstr "צפייה בגיבובים (hash-ים)"
 msgid "RSS: latest releases for %(project_name)s"
 msgstr "RSS: הגרסאות האחרונות עבור %(project_name)s"
 
-#: warehouse/templates/packaging/detail.html:154
+#: warehouse/templates/packaging/detail.html:162
 msgid "Copy PIP instructions"
 msgstr "העתקת הוראות PIP"
 
-#: warehouse/templates/packaging/detail.html:164
+#: warehouse/templates/packaging/detail.html:172
 msgid "This release has been yanked"
 msgstr "גרסה זו נגרעה"
 
-#: warehouse/templates/packaging/detail.html:170
+#: warehouse/templates/packaging/detail.html:178
 #, python-format
 msgid "Stable version available (%(version)s)"
 msgstr "גרסה יציבה זמינה (%(version)s)"
 
-#: warehouse/templates/packaging/detail.html:174
+#: warehouse/templates/packaging/detail.html:182
 #, python-format
 msgid "Newer version available (%(version)s)"
 msgstr "גרסה חדשה יותר זמינה (%(version)s)"
 
-#: warehouse/templates/packaging/detail.html:178
+#: warehouse/templates/packaging/detail.html:186
 msgid "Latest version"
 msgstr "הגרסה האחרונה"
 
-#: warehouse/templates/packaging/detail.html:183
+#: warehouse/templates/packaging/detail.html:191
 #, python-format
 msgid "Released: %(release_date)s"
 msgstr "תאריך שחרור: %(release_date)s"
 
-#: warehouse/templates/packaging/detail.html:195
+#: warehouse/templates/packaging/detail.html:203
 msgid "No project description provided"
 msgstr "לא סופק תיאור לפרויקט"
 
-#: warehouse/templates/packaging/detail.html:208
+#: warehouse/templates/packaging/detail.html:216
 msgid "Navigation"
 msgstr "ניווט"
 
-#: warehouse/templates/packaging/detail.html:209
-#: warehouse/templates/packaging/detail.html:240
+#: warehouse/templates/packaging/detail.html:217
+#: warehouse/templates/packaging/detail.html:248
 #, python-format
 msgid "Navigation for %(project)s"
 msgstr "ניווט עבור %(project)s"
 
-#: warehouse/templates/packaging/detail.html:212
-#: warehouse/templates/packaging/detail.html:243
+#: warehouse/templates/packaging/detail.html:220
+#: warehouse/templates/packaging/detail.html:251
 msgid "Project description. Focus will be moved to the description."
 msgstr "תיאור הפרויקט. המיקוד יועבר אל התיאור."
 
-#: warehouse/templates/packaging/detail.html:214
-#: warehouse/templates/packaging/detail.html:245
-#: warehouse/templates/packaging/detail.html:273
+#: warehouse/templates/packaging/detail.html:222
+#: warehouse/templates/packaging/detail.html:253
+#: warehouse/templates/packaging/detail.html:281
 msgid "Project description"
 msgstr "תיאור הפרויקט"
 
-#: warehouse/templates/packaging/detail.html:218
-#: warehouse/templates/packaging/detail.html:255
+#: warehouse/templates/packaging/detail.html:226
+#: warehouse/templates/packaging/detail.html:263
 msgid "Release history. Focus will be moved to the history panel."
 msgstr "היסטוריית גרסאות. המיקוד יועבר אל פאנל ההיסטוריה."
 
-#: warehouse/templates/packaging/detail.html:220
-#: warehouse/templates/packaging/detail.html:257
-#: warehouse/templates/packaging/detail.html:295
+#: warehouse/templates/packaging/detail.html:228
+#: warehouse/templates/packaging/detail.html:265
+#: warehouse/templates/packaging/detail.html:303
 msgid "Release history"
 msgstr "היסטוריית גרסאות"
 
-#: warehouse/templates/packaging/detail.html:225
-#: warehouse/templates/packaging/detail.html:262
+#: warehouse/templates/packaging/detail.html:233
+#: warehouse/templates/packaging/detail.html:270
 msgid "Download files. Focus will be moved to the project files."
 msgstr "הורדת קבצים. המיקוד יועבר אל קבצי הפרויקט."
 
-#: warehouse/templates/packaging/detail.html:227
-#: warehouse/templates/packaging/detail.html:264
-#: warehouse/templates/packaging/detail.html:351
+#: warehouse/templates/packaging/detail.html:235
+#: warehouse/templates/packaging/detail.html:272
+#: warehouse/templates/packaging/detail.html:359
 msgid "Download files"
 msgstr "הורדת קבצים"
 
-#: warehouse/templates/packaging/detail.html:249
+#: warehouse/templates/packaging/detail.html:257
 msgid "Project details. Focus will be moved to the project details."
 msgstr "פרטי הפרויקט. המיקוד יועבר אל פרטי הפרויקט."
 
-#: warehouse/templates/packaging/detail.html:251
-#: warehouse/templates/packaging/detail.html:287
+#: warehouse/templates/packaging/detail.html:259
+#: warehouse/templates/packaging/detail.html:295
 msgid "Project details"
 msgstr "פרטי הפרויקט"
 
-#: warehouse/templates/packaging/detail.html:280
+#: warehouse/templates/packaging/detail.html:288
 msgid "The author of this package has not provided a project description"
 msgstr "מחבר חבילה זו לא סיפק תיאור עבור הפרויקט"
 
-#: warehouse/templates/packaging/detail.html:297
+#: warehouse/templates/packaging/detail.html:305
 msgid "Release notifications"
 msgstr "התראות שחרורים"
 
-#: warehouse/templates/packaging/detail.html:298
+#: warehouse/templates/packaging/detail.html:306
 msgid "RSS feed"
 msgstr "ערוץ RSS"
 
-#: warehouse/templates/packaging/detail.html:310
+#: warehouse/templates/packaging/detail.html:318
 msgid "This version"
 msgstr "גרסה זו"
 
-#: warehouse/templates/packaging/detail.html:330
+#: warehouse/templates/packaging/detail.html:338
 msgid "pre-release"
 msgstr "שחרור מקדמי"
 
-#: warehouse/templates/packaging/detail.html:335
+#: warehouse/templates/packaging/detail.html:343
 msgid "yanked"
 msgstr "נגרע"
 
-#: warehouse/templates/packaging/detail.html:352
+#: warehouse/templates/packaging/detail.html:360
 #, python-format
 msgid ""
 "Download the file for your platform. If you're not sure which to choose, "
@@ -7010,7 +7010,7 @@ msgstr ""
 "אודות <a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel="
 "\"noopener\">התקנת חבילות</a>."
 
-#: warehouse/templates/packaging/detail.html:354
+#: warehouse/templates/packaging/detail.html:362
 msgid "Source Distribution"
 msgid_plural "Source Distributions"
 msgstr[0] ""
@@ -7018,11 +7018,11 @@ msgstr[1] ""
 msgstr[2] ""
 msgstr[3] ""
 
-#: warehouse/templates/packaging/detail.html:370
+#: warehouse/templates/packaging/detail.html:378
 msgid "No source distribution files available for this release."
 msgstr ""
 
-#: warehouse/templates/packaging/detail.html:371
+#: warehouse/templates/packaging/detail.html:379
 #, fuzzy, python-format
 #| msgid ""
 #| "Learn how to upload files on the <a href=\"%(href)s\" title=\"%(title)s\" "
@@ -7034,7 +7034,7 @@ msgstr ""
 "למד/י כיצד להעלות קבצים ב<a href=\"%(href)s\" title=\"%(title)s\" target="
 "\"_blank\" rel=\"noopener\">מדריך למשתמש באריזת חבילות פייתון</a>"
 
-#: warehouse/templates/packaging/detail.html:378
+#: warehouse/templates/packaging/detail.html:386
 msgid "Built Distribution"
 msgid_plural "Built Distributions"
 msgstr[0] ""
