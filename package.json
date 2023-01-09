@@ -28,6 +28,9 @@
     "jquery": "3.5.0",
     "normalize.css": "^8.0.1"
   },
+  "overrides": {
+    "sweetalert2": "11.4.8"
+  },
   "devDependencies": {
     "@babel/core": "^7.20.7",
     "@babel/eslint-parser": "7.17.0",
@@ -42,11 +45,6 @@
     "eslint": "8.16.0",
     "glob": "^8.0.3",
     "image-minimizer-webpack-plugin": "^3.8.1",
-    "imagemin": "^8.0.1",
-    "imagemin-gifsicle": "^7.0.0",
-    "imagemin-mozjpeg": "^10.0.0",
-    "imagemin-pngquant": "^9.0.2",
-    "imagemin-svgo": "^10.0.1",
     "jest": "28.1.0",
     "jest-environment-jsdom": "^28.1.0",
     "jest-fetch-mock": "^3.0.3",
@@ -55,9 +53,11 @@
     "rtlcss": "^4.0.0",
     "sass-embedded": "^1.57.1",
     "sass-loader": "^13.2.0",
+    "sharp": "^0.31.3",
     "stylelint": "^14.16.1",
     "stylelint-config-standard-scss": "^6.1.0",
     "stylelint-selector-bem-pattern": "^2.1.1",
+    "svgo": "^3.0.2",
     "webpack": "^5.75.0",
     "webpack-cli": "^5.0.1",
     "webpack-manifest-plugin": "^5.0.0",

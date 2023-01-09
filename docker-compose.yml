@@ -142,7 +142,7 @@ services:
   static:
     build:
       context: .
-      dockerfile: Dockerfile.static
+      target: static-deps
     environment:
       NODE_ENV: "development"
     command: bash -c "npm run watch"
