@@ -18,7 +18,7 @@
   },
   "dependencies": {
     "@fortawesome/fontawesome-free": "^6.2.1",
-    "@hotwired/stimulus": "^3.1.1",
+    "@hotwired/stimulus": "^3.2.1",
     "@hotwired/stimulus-webpack-helpers": "^1.0.1",
     "admin-lte": "^3.2.0",
     "clipboard": "1.7.1",
