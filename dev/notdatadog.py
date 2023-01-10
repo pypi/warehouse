@@ -13,7 +13,7 @@
 import asyncore
 import os
 import socket
-import smtpd
+import sys
 
 
 class AsyncoreSocketUDP(asyncore.dispatcher):
@@ -40,10 +40,16 @@ class AsyncoreSocketUDP(asyncore.dispatcher):
 
 
 if __name__ == "__main__":
-    options = smtpd.parseargs()
+    try:
+        host, port = sys.argv[1].split(":")
+        port = int(port)
+    except (ValueError, IndexError):
+        print("Usage: python3 notdatadog.py <host>:<port>")
+        sys.exit(1)
+
     AsyncoreSocketUDP(
-        options.localhost,
-        options.localport,
+        host,
+        port,
         os.environ.get("METRICS_OUTPUT", "").lower() == "true",
     )
     asyncore.loop()
