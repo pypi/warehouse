@@ -633,13 +633,13 @@ msgstr "Monty Python, L’esquetx de la formatgeria"
 #: warehouse/templates/404.html:34 warehouse/templates/500.html:28
 #: warehouse/templates/500.html:29
 #: warehouse/templates/accounts/two-factor.html:55
-#: warehouse/templates/base.html:271 warehouse/templates/base.html:272
-#: warehouse/templates/base.html:273 warehouse/templates/base.html:274
-#: warehouse/templates/base.html:284 warehouse/templates/base.html:285
-#: warehouse/templates/base.html:298 warehouse/templates/base.html:299
-#: warehouse/templates/base.html:301 warehouse/templates/base.html:310
-#: warehouse/templates/base.html:312 warehouse/templates/base.html:324
-#: warehouse/templates/base.html:337
+#: warehouse/templates/base.html:268 warehouse/templates/base.html:269
+#: warehouse/templates/base.html:270 warehouse/templates/base.html:271
+#: warehouse/templates/base.html:281 warehouse/templates/base.html:282
+#: warehouse/templates/base.html:295 warehouse/templates/base.html:296
+#: warehouse/templates/base.html:298 warehouse/templates/base.html:307
+#: warehouse/templates/base.html:309 warehouse/templates/base.html:321
+#: warehouse/templates/base.html:334
 #: warehouse/templates/includes/accounts/profile-actions.html:21
 #: warehouse/templates/includes/accounts/profile-actions.html:30
 #: warehouse/templates/includes/accounts/profile-callout.html:18
@@ -820,7 +820,7 @@ msgid "Main navigation"
 msgstr "Navegació principal"
 
 #: warehouse/templates/base.html:41 warehouse/templates/base.html:55
-#: warehouse/templates/base.html:268
+#: warehouse/templates/base.html:265
 #: warehouse/templates/includes/current-user-indicator.html:63
 #: warehouse/templates/pages/help.html:108
 #: warehouse/templates/pages/sitemap.html:27
@@ -884,24 +884,24 @@ msgstr ""
 "L’Índex de paquets per a Python (PyPI) és un dipòsit de programari per al "
 "llenguatge de programació Python."
 
-#: warehouse/templates/base.html:109
+#: warehouse/templates/base.html:106
 msgid "RSS: 40 latest updates"
 msgstr "RSS: les 40 actualitzacions més recents"
 
-#: warehouse/templates/base.html:110
+#: warehouse/templates/base.html:107
 msgid "RSS: 40 newest packages"
 msgstr "RSS: els 40 paquets més recents"
 
-#: warehouse/templates/base.html:153
+#: warehouse/templates/base.html:150
 msgid "Skip to main content"
 msgstr "Vés al contingut principal"
 
-#: warehouse/templates/base.html:156
+#: warehouse/templates/base.html:153
 msgid "Switch to mobile version"
 msgstr "Canvia a la versió per a mòbils"
 
-#: warehouse/templates/base.html:165 warehouse/templates/base.html:174
-#: warehouse/templates/base.html:184
+#: warehouse/templates/base.html:162 warehouse/templates/base.html:171
+#: warehouse/templates/base.html:181
 #: warehouse/templates/includes/flash-messages.html:30
 #: warehouse/templates/includes/session-notifications.html:20
 #: warehouse/templates/manage/account.html:716
@@ -918,13 +918,13 @@ msgstr "Canvia a la versió per a mòbils"
 msgid "Warning"
 msgstr "Avís"
 
-#: warehouse/templates/base.html:167
+#: warehouse/templates/base.html:164
 msgid "You are using an unsupported browser, upgrade to a newer version."
 msgstr ""
 "No s’admet el navegador que feu servir. Actualitzeu-lo a una versió més "
 "recent."
 
-#: warehouse/templates/base.html:176
+#: warehouse/templates/base.html:173
 msgid ""
 "You are using TestPyPI – a separate instance of the Python Package Index "
 "that allows you to try distribution tools and processes without affecting "
@@ -934,7 +934,7 @@ msgstr ""
 "l’Índex de paquets per a Python que us permet provar les eines i els "
 "processos de distribució sense afectar l’Índex real."
 
-#: warehouse/templates/base.html:186
+#: warehouse/templates/base.html:183
 msgid ""
 "Some features may not work without JavaScript. Please try enabling it if you "
 "encounter problems."
@@ -942,67 +942,67 @@ msgstr ""
 "Algunes funcions podrien no funcionar sense el JavaScript. Activeu-lo si "
 "trobeu problemes."
 
-#: warehouse/templates/base.html:224 warehouse/templates/base.html:245
+#: warehouse/templates/base.html:221 warehouse/templates/base.html:242
 #: warehouse/templates/error-base-with-search.html:20
 #: warehouse/templates/index.html:55
 msgid "Search PyPI"
 msgstr "Cerca al PyPI"
 
-#: warehouse/templates/base.html:225 warehouse/templates/base.html:246
+#: warehouse/templates/base.html:222 warehouse/templates/base.html:243
 #: warehouse/templates/error-base-with-search.html:21
 #: warehouse/templates/index.html:58
 msgid "Search projects"
 msgstr "Cerca projectes"
 
-#: warehouse/templates/base.html:229 warehouse/templates/base.html:250
+#: warehouse/templates/base.html:226 warehouse/templates/base.html:247
 #: warehouse/templates/error-base-with-search.html:24
 #: warehouse/templates/index.html:62
 msgid "Search"
 msgstr "Cerca"
 
-#: warehouse/templates/base.html:269
+#: warehouse/templates/base.html:266
 msgid "Help navigation"
 msgstr "Navegació per l’ajuda"
 
-#: warehouse/templates/base.html:271
+#: warehouse/templates/base.html:268
 msgid "Installing packages"
 msgstr "Instal·lació de paquets"
 
-#: warehouse/templates/base.html:272
+#: warehouse/templates/base.html:269
 msgid "Uploading packages"
 msgstr "Pujada de paquets"
 
-#: warehouse/templates/base.html:273
+#: warehouse/templates/base.html:270
 msgid "User guide"
 msgstr "Guia d’ús"
 
-#: warehouse/templates/base.html:274
+#: warehouse/templates/base.html:271
 #, fuzzy
 #| msgid "Project name"
 msgid "Project name retention"
 msgstr "Nom del projecte"
 
-#: warehouse/templates/base.html:275
+#: warehouse/templates/base.html:272
 msgid "FAQs"
 msgstr "Preguntes freqüents"
 
-#: warehouse/templates/base.html:281 warehouse/templates/pages/sitemap.html:37
+#: warehouse/templates/base.html:278 warehouse/templates/pages/sitemap.html:37
 msgid "About PyPI"
 msgstr "Quant al PyPI"
 
-#: warehouse/templates/base.html:282
+#: warehouse/templates/base.html:279
 msgid "About PyPI navigation"
 msgstr "Navegació per Quant al PyPI"
 
-#: warehouse/templates/base.html:284
+#: warehouse/templates/base.html:281
 msgid "PyPI on Twitter"
 msgstr "El PyPI al Twitter"
 
-#: warehouse/templates/base.html:285
+#: warehouse/templates/base.html:282
 msgid "Infrastructure dashboard"
 msgstr "Tauler d’infraestructura"
 
-#: warehouse/templates/base.html:286
+#: warehouse/templates/base.html:283
 #: warehouse/templates/includes/accounts/profile-actions.html:19
 #: warehouse/templates/includes/accounts/profile-actions.html:28
 #: warehouse/templates/includes/packaging/project-data.html:33
@@ -1011,98 +1011,98 @@ msgstr "Tauler d’infraestructura"
 msgid "Statistics"
 msgstr "Estadístiques"
 
-#: warehouse/templates/base.html:287
+#: warehouse/templates/base.html:284
 msgid "Logos & trademarks"
 msgstr ""
 
-#: warehouse/templates/base.html:288
+#: warehouse/templates/base.html:285
 msgid "Our sponsors"
 msgstr "Els nostres patrocinadors"
 
-#: warehouse/templates/base.html:294
+#: warehouse/templates/base.html:291
 msgid "Contributing to PyPI"
 msgstr "Col·laboració amb el PyPI"
 
-#: warehouse/templates/base.html:295
+#: warehouse/templates/base.html:292
 msgid "How to contribute navigation"
 msgstr "Navegació per Com col·laborar-hi"
 
-#: warehouse/templates/base.html:297
+#: warehouse/templates/base.html:294
 msgid "Bugs and feedback"
 msgstr "Errors i comentaris"
 
-#: warehouse/templates/base.html:298
+#: warehouse/templates/base.html:295
 msgid "Contribute on GitHub"
 msgstr "Col·laboració al GitHub"
 
-#: warehouse/templates/base.html:299
+#: warehouse/templates/base.html:296
 msgid "Translate PyPI"
 msgstr "Traducció del PyPI"
 
-#: warehouse/templates/base.html:300
+#: warehouse/templates/base.html:297
 #, fuzzy
 #| msgid "Search PyPI"
 msgid "Sponsor PyPI"
 msgstr "Cerca al PyPI"
 
-#: warehouse/templates/base.html:301
+#: warehouse/templates/base.html:298
 msgid "Development credits"
 msgstr "Crèdits de desenvolupament"
 
-#: warehouse/templates/base.html:307 warehouse/templates/pages/sitemap.html:23
+#: warehouse/templates/base.html:304 warehouse/templates/pages/sitemap.html:23
 msgid "Using PyPI"
 msgstr "Ús del PyPI"
 
-#: warehouse/templates/base.html:308
+#: warehouse/templates/base.html:305
 msgid "Using PyPI navigation"
 msgstr "Navegació per Ús del PyPI"
 
-#: warehouse/templates/base.html:310
+#: warehouse/templates/base.html:307
 msgid "Code of conduct"
 msgstr "Codi de conducta"
 
-#: warehouse/templates/base.html:311
+#: warehouse/templates/base.html:308
 msgid "Report security issue"
 msgstr "Informe de problemes de seguretat"
 
-#: warehouse/templates/base.html:312
+#: warehouse/templates/base.html:309
 msgid "Privacy policy"
 msgstr "Política de privadesa"
 
-#: warehouse/templates/base.html:313 warehouse/templates/pages/sitemap.html:43
+#: warehouse/templates/base.html:310 warehouse/templates/pages/sitemap.html:43
 msgid "Terms of use"
 msgstr "Condicions d’ús"
 
-#: warehouse/templates/base.html:314
+#: warehouse/templates/base.html:311
 msgid "Acceptable Use Policy"
 msgstr ""
 
-#: warehouse/templates/base.html:324
+#: warehouse/templates/base.html:321
 #, fuzzy
 #| msgid "Status: "
 msgid "Status:"
 msgstr "Estat: "
 
-#: warehouse/templates/base.html:325
+#: warehouse/templates/base.html:322
 msgid "all systems operational"
 msgstr "tots els sistemes funcionen"
 
-#: warehouse/templates/base.html:329
+#: warehouse/templates/base.html:326
 msgid ""
 "Developed and maintained by the Python community, for the Python community."
 msgstr ""
 "Desenvolupat i mantingut per la comunitat de Python, per a la comunitat de "
 "Python."
 
-#: warehouse/templates/base.html:331
+#: warehouse/templates/base.html:328
 msgid "Donate today!"
 msgstr "Feu un donatiu avui."
 
-#: warehouse/templates/base.html:338 warehouse/templates/pages/sitemap.html:16
+#: warehouse/templates/base.html:335 warehouse/templates/pages/sitemap.html:16
 msgid "Site map"
 msgstr "Mapa del lloc"
 
-#: warehouse/templates/base.html:344
+#: warehouse/templates/base.html:341
 msgid "Switch to desktop version"
 msgstr "Canvia a la versió per a escriptoris"
 
