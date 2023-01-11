@@ -119,7 +119,7 @@ jobs:
           script: |
             const prString = `${{ steps.fetch-branch-names.outputs.prs-string }}`;
             const body = 'This PR was created by the Combine PRs action by combining the following PRs:\n\n' + prString;
-            await github.pulls.create({
+            await github.rest.pulls.create({
               owner: context.repo.owner,
               repo: context.repo.repo,
               title: 'Combined PR',
