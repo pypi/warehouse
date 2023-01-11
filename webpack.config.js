@@ -92,11 +92,6 @@ const sharedResolve = {
   },
 };
 
-// FontAwesome resources helpers for dynamic entry points
-const fABasePath = path.dirname(require.resolve("@fortawesome/fontawesome-free/package.json"));
-const fACSSPath = path.resolve(fABasePath, "css", "*.css");
-// TODO: Do we need to handle the remaining fonts, or are imported-in-CSS sufficient?
-
 module.exports = [
   {
     name: "warehouse",
@@ -136,11 +131,6 @@ module.exports = [
 
       /* CSS */
       noscript: "./warehouse/static/sass/noscript.scss",
-      // Fontawesome is a special case, as it's many CSS files in a npm package.
-      // OPTIMIZE: Determine which ones we actually use, and import them directly.
-      ...glob.sync(fACSSPath).reduce((acc, curr) => {
-        return { ...acc, [path.basename(curr, ".css")]: curr };
-      }, {}),
 
       // Default CSS
       "warehouse-ltr": "./warehouse/static/sass/warehouse.scss",
@@ -150,6 +140,9 @@ module.exports = [
         import: "./warehouse/static/sass/warehouse.scss",
         layer: "rtl",
       },
+
+      /* Vendor Stuff */
+      fontawesome: "./warehouse/static/sass/vendor/fontawesome.scss",
     },
     // The default source map. Slowest, but best production-build optimizations.
     // See: https://webpack.js.org/configuration/devtool
