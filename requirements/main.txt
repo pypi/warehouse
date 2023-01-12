@@ -1234,9 +1234,9 @@ readme-renderer[md]==37.3 \
     --hash=sha256:cd653186dfc73055656f090f227f5cb22a046d7f71a841dfa305f55c9a513273 \
     --hash=sha256:f67a16caedfa71eef48a31b39708637a6f4664c4394801a7b0d6432d13907343
     # via -r requirements/main.in
-redis==4.4.1 \
-    --hash=sha256:a721fd4d715fcd947848ed8fa02c2efd8224279979e0b721d9fdac6c4db35e93 \
-    --hash=sha256:f7a870c44868ab87bbecd6211c6d7c8720b1e9a796b743fbc4725d7ec75651c3
+redis==4.4.2 \
+    --hash=sha256:a010f6cb7378065040a02839c3f75c7e0fb37a87116fb4a95be82a95552776c7 \
+    --hash=sha256:e6206448e2f8a432871d07d432c13ed6c2abcf6b74edb436c99752b1371be387
     # via
     #   -r requirements/main.in
     #   celery-redbeat
