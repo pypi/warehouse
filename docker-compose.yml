@@ -163,6 +163,8 @@ services:
   notdatadog:
     build:
       context: .
+      args:
+        DEVEL: "yes"
     command: python /opt/warehouse/dev/notdatadog.py 0.0.0.0:8125
     environment:
       METRICS_OUTPUT: "false"
