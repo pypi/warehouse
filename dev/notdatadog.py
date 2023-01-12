@@ -10,46 +10,28 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import asyncore
+import asyncio
+import asyncudp
 import os
-import socket
 import sys
 
 
-class AsyncoreSocketUDP(asyncore.dispatcher):
-    def __init__(self, host="127.0.0.1", port=8125, output=True):
-        asyncore.dispatcher.__init__(self)
-        self.create_socket(socket.AF_INET, socket.SOCK_DGRAM)
-        print(f"Listening on udp {host}:{port}")
-        self.bind((host, port))
-        self.output = output
+async def main(host, port, output):
+    sock = await asyncudp.create_socket(local_addr=(host, port))
+    print(f"Listening on udp {host}:{port}. Displaying metrics: {output}")
 
-    def handle_connect(self):
-        print("Server Started...")
+    while True:
+        data, _ = await sock.recvfrom()
+        if output:
+            message = data.decode().strip()
+            print(message)
 
-    def handle_read(self):
-        data = self.recv(8 * 1024)
-        if self.output:
-            print(data)
-
-    def handle_write(self):
-        pass
-
-    def writable(self):
-        return False
-
-
-if __name__ == "__main__":
+if __name__ == '__main__':
     try:
         host, port = sys.argv[1].split(":")
         port = int(port)
     except (ValueError, IndexError):
         print("Usage: python3 notdatadog.py <host>:<port>")
         sys.exit(1)
-
-    AsyncoreSocketUDP(
-        host,
-        port,
-        os.environ.get("METRICS_OUTPUT", "").lower() == "true",
-    )
-    asyncore.loop()
+    output = os.environ.get("METRICS_OUTPUT", "").lower() == "true"
+    asyncio.run(main(host, port, output))
