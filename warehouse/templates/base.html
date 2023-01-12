@@ -128,12 +128,18 @@
             {% if request.registry.settings.get("ga.tracking_id") -%}
             data-ga-id="{{ request.registry.settings['ga.tracking_id'] }}"
             {% endif -%}
+            {% if request.registry.settings.get("ga4.tracking_id") -%}
+            data-ga4-id="{{ request.registry.settings['ga4.tracking_id'] }}"
+            {% endif %}
             src="{{ request.static_path('warehouse:static/dist/js/warehouse.js') }}">
     </script>
     {% block extra_js %}
     {% endblock %}
     {% if request.registry.settings.get("ga.tracking_id") -%}
     <script async src="https://www.googletagmanager.com/gtag/js?id={{ request.registry.settings['ga.tracking_id'] }}"></script>
+    {% endif -%}
+    {% if request.registry.settings.get("ga4.tracking_id") -%}
+    <script async src="https://www.googletagmanager.com/gtag/js?id={{ request.registry.settings['ga4.tracking_id'] }}"></script>
     {% endif -%}
     <script defer src="https://www.fastly-insights.com/insights.js?k=6a52360a-f306-421e-8ed5-7417d0d4a4e9&dnt=true"></script>
     <script async
