@@ -35,10 +35,10 @@ export default () => {
 
       gtag("js", new Date());
       if (element) {
-          gtag("config", element.dataset.gaId, { "anonymize_ip": true });
+        gtag("config", element.dataset.gaId, { "anonymize_ip": true });
       }
       if (ga4element) {
-          gtag("config", element.dataset.ga4Id, { "anonymize_ip": true });
+        gtag("config", element.dataset.ga4Id, { "anonymize_ip": true });
       }
 
       // Determine if we have a user ID associated with this person, if so we'll
