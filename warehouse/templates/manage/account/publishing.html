@@ -77,7 +77,7 @@
       </label>
       {{ pending_github_provider_form.owner(placeholder=gettext("owner"), autocomplete="off", autocapitalize="off", spellcheck="false", class_="form-group__field", aria_describedby="owner-errors") }}
       <p class="form-group__help-text">
-        {% trans %}The organization name or username that owns the repository{% endtrans %}
+        {% trans %}The GitHub organization name or GitHub username that owns the repository{% endtrans %}
       </p>
       <div id="owner-errors">
         {{ field_errors(pending_github_provider_form.owner) }}
@@ -92,7 +92,7 @@
       </label>
       {{ pending_github_provider_form.repository(placeholder=gettext("repository"), autocomplete="off", autocapitalize="off", spellcheck="false", class_="form-group__field", **{"aria-describedby":"repository-errors"}) }}
       <p class="form-group__help-text">
-      {% trans %}The name of the repository that contains the publishing workflow{% endtrans %}
+      {% trans %}The name of the GitHub repository that contains the publishing workflow{% endtrans %}
       </p>
       <div id="repository-errors">
         {{ field_errors(pending_github_provider_form.repository) }}
@@ -107,7 +107,7 @@
       </label>
       {{ pending_github_provider_form.workflow_filename(placeholder=gettext("workflow.yml"), class_="form-group__field", autocomplete="off", **{"aria-describedby":"workflow_filename-errors"}) }}
       <p class="form-group__help-text">
-        {% trans %}The filename of the publishing workflow{% endtrans %}
+        {% trans %}The filename of the publishing workflow. This file should exist in the <code>.github/workflows/</code> directory in the repository configured above.{% endtrans %}
       </p>
       <div id="workflow_filename-errors">
         {{ field_errors(pending_github_provider_form.workflow_filename) }}
@@ -125,7 +125,7 @@
       <tr>
         <th scope="col">{% trans %}Pending project name{% endtrans %}</th>
         <th scope="col">{% trans %}Publisher{% endtrans %}</th>
-        <th scope="col">{% trans %}URL{% endtrans %}</th>
+        <th scope="col">{% trans %}Publishing workflow URL{% endtrans %}</th>
         <th></th>
       </tr>
     </thead>

@@ -523,15 +523,15 @@
         <h3 id="openid-connect">{{ openid_connect() }}</h3>
         <p>
           {% trans openid="https://openid.net/connect/", apitoken="#apitoken" %}
-          PyPI users and projects can use <a href="{{ openid }}">OpenID Connect</a> to delegate
+          PyPI users and projects can use <a href="{{ openid }}">OpenID Connect</a> (OIDC) to delegate
           publishing authority for a PyPI package to a trusted third party service, eliminating
-          the need to perform manual <a href="{{ apitoken }}">API token</a> management.
+          the need to use API tokens or passwords.
           {% endtrans %}
         </p>
         <p>
           {% trans %}
-          Publishing projects with OpenID Connect is done by registering "providers,"
-          which correspond to services like GitHub Actions.
+          Using OIDC to authenticate when publishing is done by registering "providers,"
+          which correspond to services with OIDC identities like GitHub Actions.
           Providers, in turn, come in two flavors:
           {% endtrans %}
         </p>

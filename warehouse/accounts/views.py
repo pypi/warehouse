@@ -1485,7 +1485,7 @@ class ManageAccountPublishingViews:
         )
 
         self.request.session.flash(
-            f"Registered {pending_provider} to create {pending_provider.project_name}",
+            f"Registered a new publishing provider to create the project '{pending_provider.project_name}'.",
             queue="success",
         )
 
@@ -1528,7 +1528,7 @@ class ManageAccountPublishingViews:
                 )
                 return self.default_response
 
-            self.request.session.flash(f"Removed {pending_provider}", queue="success")
+            self.request.session.flash(f"Removed provider for project '{pending_provider.project_name}'", queue="success")
 
             self.metrics.increment(
                 "warehouse.oidc.delete_pending_provider.ok",
