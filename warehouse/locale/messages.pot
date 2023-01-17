@@ -3481,16 +3481,15 @@ msgstr ""
 
 #: warehouse/templates/manage/manage_base.html:465
 msgid ""
-"OpenID Connect provides a flexible, credential-free mechanism for "
+"OpenID Connect (OIDC) provides a flexible, credential-free mechanism for "
 "delegating publishing authority for a PyPI package to a third party "
 "service, like GitHub Actions."
 msgstr ""
 
 #: warehouse/templates/manage/manage_base.html:473
 msgid ""
-"PyPI users and projects can use trusted OpenID Connect publishers to "
-"automate their release processes, without having to explicitly provision "
-"or manage API tokens."
+"PyPI users and projects can use trusted publishers to automate their "
+"release processes, without needing to use API tokens or passwords."
 msgstr ""
 
 #: warehouse/templates/manage/manage_base.html:480
@@ -3824,8 +3823,7 @@ msgid "owner"
 msgstr ""
 
 #: warehouse/templates/manage/account/publishing.html:80
-#: warehouse/templates/manage/project/publishing.html:58
-msgid "The organization name or username that owns the repository"
+msgid "The GitHub organization name or GitHub username that owns the repository"
 msgstr ""
 
 #: warehouse/templates/manage/account/publishing.html:88
@@ -3839,8 +3837,7 @@ msgid "repository"
 msgstr ""
 
 #: warehouse/templates/manage/account/publishing.html:95
-#: warehouse/templates/manage/project/publishing.html:73
-msgid "The name of the repository that contains the publishing workflow"
+msgid "The name of the GitHub repository that contains the publishing workflow"
 msgstr ""
 
 #: warehouse/templates/manage/account/publishing.html:103
@@ -3854,8 +3851,10 @@ msgid "workflow.yml"
 msgstr ""
 
 #: warehouse/templates/manage/account/publishing.html:110
-#: warehouse/templates/manage/project/publishing.html:88
-msgid "The filename of the publishing workflow"
+msgid ""
+"The filename of the publishing workflow. This file should exist in the "
+"<code>.github/workflows/</code> directory in the repository configured "
+"above."
 msgstr ""
 
 #: warehouse/templates/manage/account/publishing.html:117
@@ -3879,8 +3878,7 @@ msgid "Publisher"
 msgstr ""
 
 #: warehouse/templates/manage/account/publishing.html:128
-#: warehouse/templates/manage/project/publishing.html:108
-msgid "URL"
+msgid "Publishing workflow URL"
 msgstr ""
 
 #: warehouse/templates/manage/account/publishing.html:139
@@ -5031,6 +5029,18 @@ msgid ""
 "href=\"%(href)s\">here</a>."
 msgstr ""
 
+#: warehouse/templates/manage/project/publishing.html:58
+msgid "The organization name or username that owns the repository"
+msgstr ""
+
+#: warehouse/templates/manage/project/publishing.html:73
+msgid "The name of the repository that contains the publishing workflow"
+msgstr ""
+
+#: warehouse/templates/manage/project/publishing.html:88
+msgid "The filename of the publishing workflow"
+msgstr ""
+
 #: warehouse/templates/manage/project/publishing.html:99
 msgid "Manage current providers"
 msgstr ""
@@ -5038,6 +5048,10 @@ msgstr ""
 #: warehouse/templates/manage/project/publishing.html:103
 #, python-format
 msgid "OpenID Connect publishers associated with %(project_name)s"
+msgstr ""
+
+#: warehouse/templates/manage/project/publishing.html:108
+msgid "URL"
 msgstr ""
 
 #: warehouse/templates/manage/project/release.html:18
@@ -6803,16 +6817,15 @@ msgstr ""
 #, python-format
 msgid ""
 "PyPI users and projects can use <a href=\"%(openid)s\">OpenID Connect</a>"
-" to delegate publishing authority for a PyPI package to a trusted third "
-"party service, eliminating the need to perform manual <a "
-"href=\"%(apitoken)s\">API token</a> management."
+" (OIDC) to delegate publishing authority for a PyPI package to a trusted "
+"third party service, eliminating the need to use API tokens or passwords."
 msgstr ""
 
 #: warehouse/templates/pages/help.html:532
 msgid ""
-"Publishing projects with OpenID Connect is done by registering "
-"\"providers,\" which correspond to services like GitHub Actions. "
-"Providers, in turn, come in two flavors:"
+"Using OIDC to authenticate when publishing is done by registering "
+"\"providers,\" which correspond to services with OIDC identities like "
+"GitHub Actions. Providers, in turn, come in two flavors:"
 msgstr ""
 
 #: warehouse/templates/pages/help.html:539
