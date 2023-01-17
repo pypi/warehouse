@@ -17,7 +17,7 @@ msgstr ""
 "Project-Id-Version: Warehouse VERSION\n"
 "Report-Msgid-Bugs-To: admin@pypi.org\n"
 "POT-Creation-Date: 2020-04-06 17:52-0500\n"
-"PO-Revision-Date: 2023-01-09 18:04+0000\n"
+"PO-Revision-Date: 2023-01-17 06:59+0000\n"
 "Last-Translator: Diego Ramirez <dr01191115@gmail.com>\n"
 "Language-Team: Spanish <https://hosted.weblate.org/projects/pypa/warehouse/"
 "es/>\n"
@@ -619,13 +619,13 @@ msgstr "Monty Python, escena «La quesería»"
 #: warehouse/templates/404.html:34 warehouse/templates/500.html:28
 #: warehouse/templates/500.html:29
 #: warehouse/templates/accounts/two-factor.html:55
-#: warehouse/templates/base.html:268 warehouse/templates/base.html:269
-#: warehouse/templates/base.html:270 warehouse/templates/base.html:271
-#: warehouse/templates/base.html:281 warehouse/templates/base.html:282
-#: warehouse/templates/base.html:295 warehouse/templates/base.html:296
-#: warehouse/templates/base.html:298 warehouse/templates/base.html:307
-#: warehouse/templates/base.html:309 warehouse/templates/base.html:321
-#: warehouse/templates/base.html:334
+#: warehouse/templates/base.html:274 warehouse/templates/base.html:275
+#: warehouse/templates/base.html:276 warehouse/templates/base.html:277
+#: warehouse/templates/base.html:287 warehouse/templates/base.html:288
+#: warehouse/templates/base.html:301 warehouse/templates/base.html:302
+#: warehouse/templates/base.html:304 warehouse/templates/base.html:313
+#: warehouse/templates/base.html:315 warehouse/templates/base.html:327
+#: warehouse/templates/base.html:340
 #: warehouse/templates/includes/accounts/profile-actions.html:21
 #: warehouse/templates/includes/accounts/profile-actions.html:30
 #: warehouse/templates/includes/accounts/profile-callout.html:18
@@ -799,7 +799,7 @@ msgid "Main navigation"
 msgstr "Navegación principal"
 
 #: warehouse/templates/base.html:41 warehouse/templates/base.html:55
-#: warehouse/templates/base.html:265
+#: warehouse/templates/base.html:271
 #: warehouse/templates/includes/current-user-indicator.html:63
 #: warehouse/templates/pages/help.html:108
 #: warehouse/templates/pages/sitemap.html:27
@@ -889,16 +889,16 @@ msgstr "RSS: 40 actualizaciones más recientes"
 msgid "RSS: 40 newest packages"
 msgstr "RSS: 40 paquetes más recientes"
 
-#: warehouse/templates/base.html:150
+#: warehouse/templates/base.html:156
 msgid "Skip to main content"
 msgstr "Saltar al contenido principal"
 
-#: warehouse/templates/base.html:153
+#: warehouse/templates/base.html:159
 msgid "Switch to mobile version"
 msgstr "Cambiar a la versión para móviles"
 
-#: warehouse/templates/base.html:162 warehouse/templates/base.html:171
-#: warehouse/templates/base.html:181
+#: warehouse/templates/base.html:168 warehouse/templates/base.html:177
+#: warehouse/templates/base.html:187
 #: warehouse/templates/includes/flash-messages.html:30
 #: warehouse/templates/includes/session-notifications.html:20
 #: warehouse/templates/manage/account.html:716
@@ -915,13 +915,13 @@ msgstr "Cambiar a la versión para móviles"
 msgid "Warning"
 msgstr "Aviso"
 
-#: warehouse/templates/base.html:164
+#: warehouse/templates/base.html:170
 msgid "You are using an unsupported browser, upgrade to a newer version."
 msgstr ""
 "Está utilizando un navegador no admitido. Actualícelo a una versión más "
 "reciente."
 
-#: warehouse/templates/base.html:173
+#: warehouse/templates/base.html:179
 msgid ""
 "You are using TestPyPI – a separate instance of the Python Package Index "
 "that allows you to try distribution tools and processes without affecting "
@@ -931,7 +931,7 @@ msgstr ""
 "Índice de paquetes de Python que le permite poner a prueba las herramientas "
 "y los procesos de distribución sin afectar el Índice real."
 
-#: warehouse/templates/base.html:183
+#: warehouse/templates/base.html:189
 msgid ""
 "Some features may not work without JavaScript. Please try enabling it if you "
 "encounter problems."
@@ -939,65 +939,65 @@ msgstr ""
 "Algunas prestaciones pueden no funcionar sin JavaScript. Pruebe a activarlo "
 "si tiene problemas."
 
-#: warehouse/templates/base.html:221 warehouse/templates/base.html:242
+#: warehouse/templates/base.html:227 warehouse/templates/base.html:248
 #: warehouse/templates/error-base-with-search.html:20
 #: warehouse/templates/index.html:55
 msgid "Search PyPI"
 msgstr "Buscar en PyPI"
 
-#: warehouse/templates/base.html:222 warehouse/templates/base.html:243
+#: warehouse/templates/base.html:228 warehouse/templates/base.html:249
 #: warehouse/templates/error-base-with-search.html:21
 #: warehouse/templates/index.html:58
 msgid "Search projects"
 msgstr "Buscar proyectos"
 
-#: warehouse/templates/base.html:226 warehouse/templates/base.html:247
+#: warehouse/templates/base.html:232 warehouse/templates/base.html:253
 #: warehouse/templates/error-base-with-search.html:24
 #: warehouse/templates/index.html:62
 msgid "Search"
 msgstr "Buscar"
 
-#: warehouse/templates/base.html:266
+#: warehouse/templates/base.html:272
 msgid "Help navigation"
 msgstr "Navegación por la ayuda"
 
-#: warehouse/templates/base.html:268
+#: warehouse/templates/base.html:274
 msgid "Installing packages"
 msgstr "Instalación de paquetes"
 
-#: warehouse/templates/base.html:269
+#: warehouse/templates/base.html:275
 msgid "Uploading packages"
 msgstr "Carga de paquetes"
 
-#: warehouse/templates/base.html:270
+#: warehouse/templates/base.html:276
 msgid "User guide"
 msgstr "Manual de uso"
 
-#: warehouse/templates/base.html:271
+#: warehouse/templates/base.html:277
 msgid "Project name retention"
 msgstr "Retención de nombres de proyecto"
 
-#: warehouse/templates/base.html:272
+#: warehouse/templates/base.html:278
 msgid "FAQs"
 msgstr "Preguntas frecuentes"
 
-#: warehouse/templates/base.html:278 warehouse/templates/pages/sitemap.html:37
+#: warehouse/templates/base.html:284 warehouse/templates/pages/sitemap.html:37
 msgid "About PyPI"
 msgstr "Acerca de PyPI"
 
-#: warehouse/templates/base.html:279
+#: warehouse/templates/base.html:285
 msgid "About PyPI navigation"
 msgstr "Navegación por Acerca de PyPI"
 
-#: warehouse/templates/base.html:281
+#: warehouse/templates/base.html:287
 msgid "PyPI on Twitter"
 msgstr "PyPI en Twitter"
 
-#: warehouse/templates/base.html:282
+#: warehouse/templates/base.html:288
 msgid "Infrastructure dashboard"
 msgstr "Cuadro de mando de infraestructura"
 
-#: warehouse/templates/base.html:283
+#: warehouse/templates/base.html:289
 #: warehouse/templates/includes/accounts/profile-actions.html:19
 #: warehouse/templates/includes/accounts/profile-actions.html:28
 #: warehouse/templates/includes/packaging/project-data.html:33
@@ -1006,94 +1006,94 @@ msgstr "Cuadro de mando de infraestructura"
 msgid "Statistics"
 msgstr "Estadísticas"
 
-#: warehouse/templates/base.html:284
+#: warehouse/templates/base.html:290
 msgid "Logos & trademarks"
 msgstr "Logos y trademarks"
 
-#: warehouse/templates/base.html:285
+#: warehouse/templates/base.html:291
 msgid "Our sponsors"
 msgstr "Nuestros patrocinadores"
 
-#: warehouse/templates/base.html:291
+#: warehouse/templates/base.html:297
 msgid "Contributing to PyPI"
 msgstr "Contribuir con PyPI"
 
-#: warehouse/templates/base.html:292
+#: warehouse/templates/base.html:298
 msgid "How to contribute navigation"
 msgstr "Navegación por Cómo contribuir"
 
-#: warehouse/templates/base.html:294
+#: warehouse/templates/base.html:300
 msgid "Bugs and feedback"
 msgstr "Defectos y comentarios"
 
-#: warehouse/templates/base.html:295
+#: warehouse/templates/base.html:301
 msgid "Contribute on GitHub"
 msgstr "Contribuir en GitHub"
 
-#: warehouse/templates/base.html:296
+#: warehouse/templates/base.html:302
 msgid "Translate PyPI"
 msgstr "Traducir PyPI"
 
-#: warehouse/templates/base.html:297
+#: warehouse/templates/base.html:303
 msgid "Sponsor PyPI"
 msgstr "Patrocinar a PyPI"
 
-#: warehouse/templates/base.html:298
+#: warehouse/templates/base.html:304
 msgid "Development credits"
 msgstr "Créditos de desarrollo"
 
-#: warehouse/templates/base.html:304 warehouse/templates/pages/sitemap.html:23
+#: warehouse/templates/base.html:310 warehouse/templates/pages/sitemap.html:23
 msgid "Using PyPI"
 msgstr "Uso de PyPI"
 
-#: warehouse/templates/base.html:305
+#: warehouse/templates/base.html:311
 msgid "Using PyPI navigation"
 msgstr "Navegación por Uso de PyPI"
 
-#: warehouse/templates/base.html:307
+#: warehouse/templates/base.html:313
 msgid "Code of conduct"
 msgstr "Código de conducta"
 
-#: warehouse/templates/base.html:308
+#: warehouse/templates/base.html:314
 msgid "Report security issue"
 msgstr "Informar de un problema de seguridad"
 
-#: warehouse/templates/base.html:309
+#: warehouse/templates/base.html:315
 msgid "Privacy policy"
 msgstr "Normativa de privacidad"
 
-#: warehouse/templates/base.html:310 warehouse/templates/pages/sitemap.html:43
+#: warehouse/templates/base.html:316 warehouse/templates/pages/sitemap.html:43
 msgid "Terms of use"
 msgstr "Términos de uso"
 
-#: warehouse/templates/base.html:311
+#: warehouse/templates/base.html:317
 msgid "Acceptable Use Policy"
 msgstr "Políticas de Uso Aceptable"
 
-#: warehouse/templates/base.html:321
+#: warehouse/templates/base.html:327
 msgid "Status:"
 msgstr "Estado:"
 
-#: warehouse/templates/base.html:322
+#: warehouse/templates/base.html:328
 msgid "all systems operational"
 msgstr "todos los sistemas en servicio"
 
-#: warehouse/templates/base.html:326
+#: warehouse/templates/base.html:332
 msgid ""
 "Developed and maintained by the Python community, for the Python community."
 msgstr ""
 "Desarrollado y mantenido por la comunidad de Python para la comunidad de "
 "Python."
 
-#: warehouse/templates/base.html:328
+#: warehouse/templates/base.html:334
 msgid "Donate today!"
 msgstr "¡Done hoy mismo!"
 
-#: warehouse/templates/base.html:335 warehouse/templates/pages/sitemap.html:16
+#: warehouse/templates/base.html:341 warehouse/templates/pages/sitemap.html:16
 msgid "Site map"
 msgstr "Mapa del sitio"
 
-#: warehouse/templates/base.html:341
+#: warehouse/templates/base.html:347
 msgid "Switch to desktop version"
 msgstr "Cambiar a la versión de escritorio"
 
@@ -1962,7 +1962,6 @@ msgid "Publisher specification"
 msgstr "Especificación del editor"
 
 #: warehouse/templates/email/oidc-provider-added/body.html:36
-#, fuzzy
 msgid ""
 "If you did not make this change and you think it was made maliciously, you "
 "can remove it from the project via the \"Publishing\" tab on the project's "
@@ -1974,17 +1973,15 @@ msgstr ""
 
 #: warehouse/templates/email/oidc-provider-added/body.html:43
 #: warehouse/templates/email/oidc-provider-removed/body.html:41
-#, fuzzy, python-format
-#| msgid ""
-#| "If you did not make this change, you can email <a href=\"%(href)s\">"
-#| "%(email_address)s</a> to communicate with the PyPI administrators."
+#, python-format
 msgid ""
 "If you are unable to revert the change and need to do so, you can email <a "
 "href=\"%(href)s\">%(email_address)s</a> to communicate with the PyPI "
 "administrators."
 msgstr ""
-"Si no ha realizado este cambio, envíe un mensaje a <a href=\"%(href)s\">"
-"%(email_address)s</a> para comunicarse con los administradores de PyPI."
+"Si no puede revertir este cambio, y necesita hacerlo, envíe un mensaje a <a "
+"href=\"%(href)s\">%(email_address)s</a> para comunicarse con los "
+"administradores de PyPI."
 
 #: warehouse/templates/email/oidc-provider-removed/body.html:19
 #, python-format
@@ -1992,12 +1989,17 @@ msgid ""
 "PyPI user <strong>%(username)s</strong> has removed an OpenID Connect "
 "publisher from a project (<strong>%(project_name)s</strong>) that you manage."
 msgstr ""
+"El usuario de PyPI <strong>%(username)s</strong> ha removido a un editor de "
+"OpenID Connect de un proyecto (<strong>%(project_name)s</strong>) que usted "
+"maneja."
 
 #: warehouse/templates/email/oidc-provider-removed/body.html:34
 msgid ""
 "If you did not make this change and you think it was made maliciously, you "
 "can check the \"Security history\" tab on the project's page."
 msgstr ""
+"Si usted no hizo este cambio y considera que fue hecho maliciosamente, puede "
+"revisar la barra \"Histórico de Seguridad\" en la página del proyecto."
 
 #: warehouse/templates/email/organization-deleted/body.html:31
 #: warehouse/templates/email/organization-member-added/body.html:38
