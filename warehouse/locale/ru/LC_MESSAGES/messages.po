@@ -656,13 +656,13 @@ msgstr "Монти Пайтон — Магазин сыра (Monty Python — Th
 #: warehouse/templates/404.html:34 warehouse/templates/500.html:28
 #: warehouse/templates/500.html:29
 #: warehouse/templates/accounts/two-factor.html:55
-#: warehouse/templates/base.html:268 warehouse/templates/base.html:269
-#: warehouse/templates/base.html:270 warehouse/templates/base.html:271
-#: warehouse/templates/base.html:281 warehouse/templates/base.html:282
-#: warehouse/templates/base.html:295 warehouse/templates/base.html:296
-#: warehouse/templates/base.html:298 warehouse/templates/base.html:307
-#: warehouse/templates/base.html:309 warehouse/templates/base.html:321
-#: warehouse/templates/base.html:334
+#: warehouse/templates/base.html:274 warehouse/templates/base.html:275
+#: warehouse/templates/base.html:276 warehouse/templates/base.html:277
+#: warehouse/templates/base.html:287 warehouse/templates/base.html:288
+#: warehouse/templates/base.html:301 warehouse/templates/base.html:302
+#: warehouse/templates/base.html:304 warehouse/templates/base.html:313
+#: warehouse/templates/base.html:315 warehouse/templates/base.html:327
+#: warehouse/templates/base.html:340
 #: warehouse/templates/includes/accounts/profile-actions.html:21
 #: warehouse/templates/includes/accounts/profile-actions.html:30
 #: warehouse/templates/includes/accounts/profile-callout.html:18
@@ -843,7 +843,7 @@ msgid "Main navigation"
 msgstr "Основная навигация"
 
 #: warehouse/templates/base.html:41 warehouse/templates/base.html:55
-#: warehouse/templates/base.html:265
+#: warehouse/templates/base.html:271
 #: warehouse/templates/includes/current-user-indicator.html:63
 #: warehouse/templates/pages/help.html:108
 #: warehouse/templates/pages/sitemap.html:27
@@ -929,16 +929,16 @@ msgstr "RSS: 40 последних обновлений"
 msgid "RSS: 40 newest packages"
 msgstr "RSS: 40 новейших пакетов"
 
-#: warehouse/templates/base.html:150
+#: warehouse/templates/base.html:156
 msgid "Skip to main content"
 msgstr "Перейти к основному содержимому"
 
-#: warehouse/templates/base.html:153
+#: warehouse/templates/base.html:159
 msgid "Switch to mobile version"
 msgstr "Переключиться на мобильную версию"
 
-#: warehouse/templates/base.html:162 warehouse/templates/base.html:171
-#: warehouse/templates/base.html:181
+#: warehouse/templates/base.html:168 warehouse/templates/base.html:177
+#: warehouse/templates/base.html:187
 #: warehouse/templates/includes/flash-messages.html:30
 #: warehouse/templates/includes/session-notifications.html:20
 #: warehouse/templates/manage/account.html:716
@@ -955,12 +955,12 @@ msgstr "Переключиться на мобильную версию"
 msgid "Warning"
 msgstr "Предупреждение"
 
-#: warehouse/templates/base.html:164
+#: warehouse/templates/base.html:170
 msgid "You are using an unsupported browser, upgrade to a newer version."
 msgstr ""
 "Вы используете неподдерживаемый браузер, обновите его до более новой версии."
 
-#: warehouse/templates/base.html:173
+#: warehouse/templates/base.html:179
 msgid ""
 "You are using TestPyPI – a separate instance of the Python Package Index "
 "that allows you to try distribution tools and processes without affecting "
@@ -970,7 +970,7 @@ msgstr ""
 "которая позволяет вам попробовать инструменты распространения программного "
 "обеспечения и рабочие процессы, не влияя на реальный указатель."
 
-#: warehouse/templates/base.html:183
+#: warehouse/templates/base.html:189
 msgid ""
 "Some features may not work without JavaScript. Please try enabling it if you "
 "encounter problems."
@@ -978,67 +978,67 @@ msgstr ""
 "Некоторые функции могут не работать без JavaScript. Пожалуйста, попробуйте "
 "включить его, если у вас возникнут проблемы."
 
-#: warehouse/templates/base.html:221 warehouse/templates/base.html:242
+#: warehouse/templates/base.html:227 warehouse/templates/base.html:248
 #: warehouse/templates/error-base-with-search.html:20
 #: warehouse/templates/index.html:55
 msgid "Search PyPI"
 msgstr "Поиск по PyPI"
 
-#: warehouse/templates/base.html:222 warehouse/templates/base.html:243
+#: warehouse/templates/base.html:228 warehouse/templates/base.html:249
 #: warehouse/templates/error-base-with-search.html:21
 #: warehouse/templates/index.html:58
 msgid "Search projects"
 msgstr "Поиск проектов"
 
-#: warehouse/templates/base.html:226 warehouse/templates/base.html:247
+#: warehouse/templates/base.html:232 warehouse/templates/base.html:253
 #: warehouse/templates/error-base-with-search.html:24
 #: warehouse/templates/index.html:62
 msgid "Search"
 msgstr "Поиск"
 
-#: warehouse/templates/base.html:266
+#: warehouse/templates/base.html:272
 msgid "Help navigation"
 msgstr "Помощь с навигацией"
 
-#: warehouse/templates/base.html:268
+#: warehouse/templates/base.html:274
 msgid "Installing packages"
 msgstr "Установка пакетов"
 
-#: warehouse/templates/base.html:269
+#: warehouse/templates/base.html:275
 msgid "Uploading packages"
 msgstr "Загрузка пакетов"
 
-#: warehouse/templates/base.html:270
+#: warehouse/templates/base.html:276
 msgid "User guide"
 msgstr "Руководство пользователя"
 
-#: warehouse/templates/base.html:271
+#: warehouse/templates/base.html:277
 #, fuzzy
 #| msgid "Project name"
 msgid "Project name retention"
 msgstr "Название проекта"
 
-#: warehouse/templates/base.html:272
+#: warehouse/templates/base.html:278
 msgid "FAQs"
 msgstr "Часто задаваемые вопросы"
 
-#: warehouse/templates/base.html:278 warehouse/templates/pages/sitemap.html:37
+#: warehouse/templates/base.html:284 warehouse/templates/pages/sitemap.html:37
 msgid "About PyPI"
 msgstr "О PyPI"
 
-#: warehouse/templates/base.html:279
+#: warehouse/templates/base.html:285
 msgid "About PyPI navigation"
 msgstr "Навигация по блоку ссылок «О PyPI»"
 
-#: warehouse/templates/base.html:281
+#: warehouse/templates/base.html:287
 msgid "PyPI on Twitter"
 msgstr "PyPI в Twitter"
 
-#: warehouse/templates/base.html:282
+#: warehouse/templates/base.html:288
 msgid "Infrastructure dashboard"
 msgstr "Панель мониторинга инфраструктуры"
 
-#: warehouse/templates/base.html:283
+#: warehouse/templates/base.html:289
 #: warehouse/templates/includes/accounts/profile-actions.html:19
 #: warehouse/templates/includes/accounts/profile-actions.html:28
 #: warehouse/templates/includes/packaging/project-data.html:33
@@ -1047,97 +1047,97 @@ msgstr "Панель мониторинга инфраструктуры"
 msgid "Statistics"
 msgstr "Статистика"
 
-#: warehouse/templates/base.html:284
+#: warehouse/templates/base.html:290
 msgid "Logos & trademarks"
 msgstr ""
 
-#: warehouse/templates/base.html:285
+#: warehouse/templates/base.html:291
 msgid "Our sponsors"
 msgstr "Наши спонсоры"
 
-#: warehouse/templates/base.html:291
+#: warehouse/templates/base.html:297
 msgid "Contributing to PyPI"
 msgstr "Внесение вклада в PyPI"
 
-#: warehouse/templates/base.html:292
+#: warehouse/templates/base.html:298
 msgid "How to contribute navigation"
 msgstr "Навигация по блоку ссылок «Внесение вклада в PyPI»"
 
-#: warehouse/templates/base.html:294
+#: warehouse/templates/base.html:300
 msgid "Bugs and feedback"
 msgstr "Программные ошибки и обратная связь"
 
-#: warehouse/templates/base.html:295
+#: warehouse/templates/base.html:301
 msgid "Contribute on GitHub"
 msgstr "Внесение вклада на GitHub’е"
 
-#: warehouse/templates/base.html:296
+#: warehouse/templates/base.html:302
 msgid "Translate PyPI"
 msgstr "Перевод PyPI"
 
-#: warehouse/templates/base.html:297
+#: warehouse/templates/base.html:303
 #, fuzzy
 #| msgid "Sponsor"
 msgid "Sponsor PyPI"
 msgstr "Спонсорство"
 
-#: warehouse/templates/base.html:298
+#: warehouse/templates/base.html:304
 msgid "Development credits"
 msgstr "Вклад в разработку"
 
-#: warehouse/templates/base.html:304 warehouse/templates/pages/sitemap.html:23
+#: warehouse/templates/base.html:310 warehouse/templates/pages/sitemap.html:23
 msgid "Using PyPI"
 msgstr "Использование PyPI"
 
-#: warehouse/templates/base.html:305
+#: warehouse/templates/base.html:311
 msgid "Using PyPI navigation"
 msgstr "Навигация по блоку ссылок «Использование PyPI»"
 
-#: warehouse/templates/base.html:307
+#: warehouse/templates/base.html:313
 msgid "Code of conduct"
 msgstr "Нормы поведения"
 
-#: warehouse/templates/base.html:308
+#: warehouse/templates/base.html:314
 msgid "Report security issue"
 msgstr "Сообщить о проблеме безопасности"
 
-#: warehouse/templates/base.html:309
+#: warehouse/templates/base.html:315
 msgid "Privacy policy"
 msgstr "Политика конфиденциальности"
 
-#: warehouse/templates/base.html:310 warehouse/templates/pages/sitemap.html:43
+#: warehouse/templates/base.html:316 warehouse/templates/pages/sitemap.html:43
 msgid "Terms of use"
 msgstr "Условия пользования"
 
-#: warehouse/templates/base.html:311
+#: warehouse/templates/base.html:317
 msgid "Acceptable Use Policy"
 msgstr ""
 
-#: warehouse/templates/base.html:321
+#: warehouse/templates/base.html:327
 #, fuzzy
 #| msgid "Status: "
 msgid "Status:"
 msgstr "Статус: "
 
-#: warehouse/templates/base.html:322
+#: warehouse/templates/base.html:328
 msgid "all systems operational"
 msgstr "все системы в рабочем состоянии"
 
-#: warehouse/templates/base.html:326
+#: warehouse/templates/base.html:332
 msgid ""
 "Developed and maintained by the Python community, for the Python community."
 msgstr ""
 "Разработано и поддерживается сообществом Python’а для сообщества Python’а."
 
-#: warehouse/templates/base.html:328
+#: warehouse/templates/base.html:334
 msgid "Donate today!"
 msgstr "Пожертвуйте сегодня!"
 
-#: warehouse/templates/base.html:335 warehouse/templates/pages/sitemap.html:16
+#: warehouse/templates/base.html:341 warehouse/templates/pages/sitemap.html:16
 msgid "Site map"
 msgstr "Карта сайта"
 
-#: warehouse/templates/base.html:341
+#: warehouse/templates/base.html:347
 msgid "Switch to desktop version"
 msgstr "Переключиться на настольную версию"
 
