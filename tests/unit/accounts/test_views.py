@@ -3198,8 +3198,9 @@ class TestManageAccountPublishingViews:
         assert request.session.flash.calls == [
             pretend.call(
                 (
-                    "This account isn't allowed to register pending OpenID Connect "
-                    "providers. See https://pypi.org/help#openid-connect for details."
+                    "You must have a primary, verified email in order to register a "
+                    "pending OpenID Connect provider. "
+                    "See https://pypi.org/help#openid-connect for details."
                 ),
                 queue="error",
             )
@@ -3263,7 +3264,8 @@ class TestManageAccountPublishingViews:
             pretend.call(
                 (
                     "You can't register any more pending OpenID Connect providers "
-                    "at the moment."
+                    "until you remove or publish a package with one or more "
+                    "of your currently pending providers."
                 ),
                 queue="error",
             )
