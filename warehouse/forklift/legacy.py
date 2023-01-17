@@ -63,7 +63,7 @@ from warehouse.packaging.models import (
 )
 from warehouse.packaging.tasks import update_bigquery_release_files
 from warehouse.utils import http, readme
-from warehouse.utils.project import add_project, validate_project_name
+from warehouse.utils.project import PROJECT_NAME_RE, add_project, validate_project_name
 from warehouse.utils.security_policy import AuthenticationMethod
 
 ONE_MB = 1 * 1024 * 1024
@@ -186,11 +186,6 @@ _wheel_file_re = re.compile(
     $
     """,
     re.VERBOSE,
-)
-
-
-_project_name_re = re.compile(
-    r"^([A-Z0-9]|[A-Z0-9][A-Z0-9._-]*[A-Z0-9])$", re.IGNORECASE
 )
 
 
@@ -437,7 +432,7 @@ class MetadataForm(forms.Form):
         validators=[
             wtforms.validators.DataRequired(),
             wtforms.validators.Regexp(
-                _project_name_re,
+                PROJECT_NAME_RE,
                 re.IGNORECASE,
                 message=(
                     "Start and end with a letter or numeral containing "

@@ -18,13 +18,10 @@ import wtforms
 
 from warehouse import forms
 from warehouse.i18n import localize as _
+from warehouse.utils.project import PROJECT_NAME_RE
 
 _VALID_GITHUB_REPO = re.compile(r"^[a-zA-Z0-9-_.]+$")
 _VALID_GITHUB_OWNER = re.compile(r"^[a-zA-Z0-9][a-zA-Z0-9-]*$")
-
-_VALID_PROJECT_NAME = re.compile(
-    r"^([A-Z0-9]|[A-Z0-9][A-Z0-9._-]*[A-Z0-9])$", re.IGNORECASE
-)
 
 
 class GitHubProviderBase(forms.Form):
@@ -161,7 +158,7 @@ class PendingGitHubProviderForm(GitHubProviderBase):
                 message=_("Specify project name"),
             ),
             wtforms.validators.Regexp(
-                _VALID_PROJECT_NAME, message=_("Invalid project name")
+                PROJECT_NAME_RE, message=_("Invalid project name")
             ),
         ]
     )
