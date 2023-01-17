@@ -3580,8 +3580,8 @@ class TestManageAccountPublishingViews:
 
         assert request.session.flash.calls == [
             pretend.call(
-                f"Registered {pending_provider} to create "
-                f"{pending_provider.project_name}",
+                "Registered a new publishing provider to create "
+                f"the project '{pending_provider.project_name}'.",
                 queue="success",
             )
         ]
@@ -3781,7 +3781,9 @@ class TestManageAccountPublishingViews:
         assert delete_provider_form_cls.calls == [pretend.call(request.POST)]
         assert delete_provider_form_obj.validate.calls == [pretend.call()]
         assert request.session.flash.calls == [
-            pretend.call(f"Removed {pending_provider}", queue="success")
+            pretend.call(
+                "Removed provider for project 'some-project-name'", queue="success"
+            )
         ]
         assert request.user.record_event.calls == [
             pretend.call(
