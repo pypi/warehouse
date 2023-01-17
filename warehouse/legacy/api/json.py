@@ -102,7 +102,11 @@ def _json_data(request, project, release, *, all_releases):
                 "has_sig": f.has_signature,
                 "comment_text": f.comment_text,
                 "md5_digest": f.md5_digest,
-                "digests": {"md5": f.md5_digest, "sha256": f.sha256_digest},
+                "digests": {
+                    "md5": f.md5_digest,
+                    "sha256": f.sha256_digest,
+                    "blake2b_256": f.blake2_256_digest,
+                },
                 "size": f.size,
                 # TODO: Remove this once we've had a long enough time with it
                 #       here to consider it no longer in use.

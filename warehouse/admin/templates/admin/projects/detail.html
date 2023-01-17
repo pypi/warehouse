@@ -23,11 +23,11 @@
     {{ field(id=input_id, class=class, placeholder=placeholder)}}
 
     {% if field.errors %}
-    <span class="help-block">
-        {% for error in field.errors %}
-        <div>{{ error }}</div>
-        {% endfor %}
-    </span>
+    <div class="help-block">
+      {% for error in field.errors %}
+      <div>{{ error }}</div>
+      {% endfor %}
+    </div>
     {% endif %}
   </div>
 </div>
@@ -36,295 +36,326 @@
 {% block title %}{{ project.name }}{% endblock %}
 
 {% block breadcrumb %}
-  <li><a href="{{ request.route_path('admin.project.list') }}">Projects</a></li>
-  <li class="active">{{ project.name }}</li>
+  <li class="breadcrumb-item"><a href="{{ request.route_path('admin.project.list') }}">Projects</a></li>
+  <li class="breadcrumb-item active">{{ project.name }}</li>
 {% endblock %}
 
 {% block content %}
-  <div class="row">
-      <div class="col-md-12">
-        <div class="box box-primary">
-          <div class="box-body box-profile">
-            <h3 class="project-name text-center">{{ project.name }}</h3>
-            <h4>Attributes:</h4>
-            <div class="box-body box-attributes">
-              <table class="table table-hover">
-                <tr>
-                  <th>Attribute</th>
-                  <th>Value</th>
-                  <th>Set a new value<th>
-                  <th><th>
-                </tr>
-                <tr>
-                  <td>Total size</td>
-                  <td>{{ project.total_size|filesizeformat(binary=True) }}</td>
-                  <td></td>
-                  <td></td>
-                </tr>
-                <tr>
-                  <form method="POST" action="{{ request.route_path('admin.project.set_upload_limit', project_name=project.normalized_name) }}">
-                    <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
-                    <td>Upload limit</td>
-                    <td>
-                      {% if project.upload_limit %}
-                        {{ project.upload_limit|filesizeformat(binary=True) }}
-                      {% else %}
-                        Default ({{ MAX_FILESIZE|filesizeformat(binary=True) }})
-                      {% endif %}
-                    </td>
-                    <td>
-                      {% if project.upload_limit %}
-                        {% set upload_limit_value = project.upload_limit / ONE_MB %}
-                      {% else %}
-                        {% set upload_limit_value = '' %}
-                      {% endif %}
-                      <input type="number" name="upload_limit" id="uploadLimit" min="{{ MAX_FILESIZE / ONE_MB }}" max="{{ UPLOAD_LIMIT_CAP / ONE_MB }}" step=1 value="{{ upload_limit_value|int }}"> MiB
-                    </td>
-                    <td>
-                      <button type="submit" class="btn btn-primary">Submit</button>
-                    </td>
-
-                  </form>
-                </tr>
-                <tr>
-                  <form method="POST" action="{{ request.route_path('admin.project.set_total_size_limit', project_name=project.normalized_name) }}">
-                    <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
-                    <td>Total size limit</td>
-                    <td>
-                      {% if project.total_size_limit %}
-                        {{ project.total_size_limit|filesizeformat(binary=True) }}
-                      {% else %}
-                        Default ({{(MAX_PROJECT_SIZE)|filesizeformat(binary=True) }})
-                      {% endif %}
-                    </td>
-                    <td>
-                      {% if project.total_size_limit %}
-                        {% set total_size_limit_value = project.total_size_limit // ONE_GB %}
-                      {% else %}
-                        {% set total_size_limit_value = '' %}
-                      {% endif %}
-                      <input type="number" name="total_size_limit" id="totalSizeLimit" min="{{ MAX_PROJECT_SIZE // ONE_GB }}" value="{{total_size_limit_value}}"> GiB
-                    </td>
-                    <td>
-                      <button type="submit" class="btn btn-primary">Submit</button>
-                    </td>
-                  </form>
-                </tr>
-              </table>
-            </div>
-            <h4>Maintainers:</h4>
-            <div class="box-body box-maintainers">
-              <table class="table table-hover">
-                <tr>
-                  <th>User</th>
-                  <th>Role</th>
-                </tr>
-                {% for role in maintainers %}
-                <tr>
-                  <td><a href="{{ request.route_path('admin.user.detail', username=role.user.username) }}">{{ role.user.username }}</a></td>
-                  <td>{{ role.role_name }}</td>
-                  <td>
-                    <button type="button" class="btn-danger btn-sm" data-toggle="modal" data-target="#deleteRoleModal-{{ role.id }}" {{ "disabled" if not request.has_permission('moderator') }}>
-                      <i class="fa fa-trash"></i>
-                    </button>
-                    <div class="modal fade" id="deleteRoleModal-{{ role.id }}" tabindex="-1" role="dialog">
-                      <form method="POST" action="{{ request.route_path('admin.project.delete_role', project_name=project.name, role_id=role.id) }}">
-                        <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
-                        <div class="modal-dialog" role="document">
-                          <div class="modal-content">
-                            <div class="modal-header">
-                              <h4 class="modal-title" id="exampleModalLabel">Remove role for {{ role.user.username }}?</h4>
-                              <button type="button" class="close" data-dismiss="modal">
-                                <span>&times;</span>
-                              </button>
-                            </div>
-                            <div class="modal-body">
-                              <p>
-                                This will remove the role for the user.
-                              </p>
-                              <hr>
-                              <p>
-                                To delete role "{{ role.role_name }}" for "{{role.user.username}}", type the username:
-                              </p>
-                              <input type="text" name="username" placeholder="{{ role.user.username }}" required>
-                            </div>
-                            <div class="modal-footer">
-                              <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                              <button type="submit" class="btn btn-danger">Delete</button>
-                            </div>
-                          </div>
-                        </form>
-                      </div>
-                    </div>
-                  </td>
-                </tr>
-                {% endfor %}
-                <tr id="add_role">
-                  <form method="POST" action="{{ request.route_path('admin.project.add_role', project_name=project.name) }}">
-                  <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
-                  <td>
-                    <input name="username" class="form-control" placeholder="Username" required {{ "disabled" if not request.has_permission('moderator') }}>
-                  </td>
-                  <td>
-                    <select class="form-control" name="role_name" required {{ "disabled" if not request.has_permission('moderator') }}>
-                      <option disabled selected>Select a role</option>
-                      {% for role_name in ['Maintainer', 'Owner'] %}
-                      <option value="{{ role_name }}">
-                        {{ role_name }}
-                      </option>
-                      {% endfor %}
-                    </select>
-                  </td>
-                  <td>
-                    <button type="submit" class="btn btn-primary btn-sm" {{ "disabled" if not request.has_permission('moderator') }}>
-                      <i class="fa fa-plus"></i>
-                    </button>
-                  </td>
-                  </form>
-                </tr>
-              </table>
-            </div>
-            <h4>Releases:</h4>
-            <div class="box-body box-releases">
-              <table class="table table-hover">
-                <th>Release version</th>
-                <th>Created</th>
-                <th>Uploader</th>
-                <th>Author email</th>
-                {% for release in releases %}
-                <tr>
-                  <td><a href="{{ request.route_path('admin.project.release', project_name=release.project.normalized_name, version=release.version) }}">{{ release.project.name }}-{{ release.version }}</a></td>
-                  <td>{{ release.created }}</td>
-                  <td>
-                    {% if release.uploader %}
-                    <a href="{{ request.route_path('admin.user.detail', username=release.uploader.username) }}">{{ release.uploader.username }}</a>
-                    {% endif %}
-                  </td>
-                  <td>{{ release.author_email }}</td>
-                </tr>
-                {% endfor %}
-              </table>
-              <a href="{{ request.route_path('admin.project.releases', project_name=project.normalized_name) }}">All releases</a>
-            </div>
-
-
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <div class="box box-secondary collapsed-box">
-    <div class="box-header with-border">
-      <h3 class="box-title">Journals</h3>
-      <div class="box-tools">
-        <button class="btn btn-box-tool" data-widget="collapse" data-toggle="tooltip" title="Expand"><i class="fa fa-plus"></i></button>
-      </div>
-    </div>
-
-    <div class="box-body box-journals">
-      <table class="table table-hover">
-        <tr>
-          <th>name</th>
-          <th>version</th>
-          <th>date</th>
-          <th>submitted_by</th>
-          <th>submitted_from</th>
-          <th>action</th>
-        </tr>
-        {% for entry in journal %}
-        <tr>
-          <td>{{ entry.name }}</td>
-          <td>{{ entry.version }}</td>
-          <td>{{ entry.submitted_date }}</td>
-          <td><a href="{{ request.route_path('admin.user.detail', username=entry.submitted_by.username) }}">{{ entry.submitted_by.username }}</a></td>
-          <td>{{ entry.submitted_from }}</td>
-          <td>{{ entry.action }}</td>
-        </tr>
-        {% endfor %}
-      </table>
-      <a href="{{ request.route_path('admin.project.journals', project_name=project.normalized_name) }}">All journals</a>
-    </div>
-  </div>
-
-  <div class="box box-secondary collapsed-box">
-    <div class="box-header with-border">
-      <h3 class="box-title">Project activity</h3>
-      <div class="box-tools">
-        <button class="btn btn-box-tool" data-widget="collapse" data-toggle="tooltip" title="Expand"><i class="fa fa-plus"></i></button>
-      </div>
-    </div>
-    <div class="box-body">
+<div class="card card-primary" id="attributes">
+  <div class="card-header">Attributes</div>
+  <div class="card-body">
+    <div class="table-responsive p-0">
       <table class="table table-hover">
         <thead>
-          <th scope="col">Event</th>
-          <th scope="col">Time</th>
-          <th scope="col">IP address</th>
-          <th scope="col">Additional information</th>
+        <tr>
+          <th>Attribute</th>
+          <th>Value</th>
+          <th>Set a new value<th>
+          <th><th>
+        </tr>
         </thead>
         <tbody>
-          {% for event in project.events %}
+        <tr>
+          <td>Total size</td>
+          <td>{{ project.total_size|filesizeformat(binary=True) }}</td>
+          <td></td>
+          <td></td>
+        </tr>
+        <tr>
+          <form method="POST" action="{{ request.route_path('admin.project.set_upload_limit', project_name=project.normalized_name) }}">
+            <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
+            <td>Upload limit</td>
+            <td>
+              {% if project.upload_limit %}
+              {{ project.upload_limit|filesizeformat(binary=True) }}
+              {% else %}
+              Default ({{ MAX_FILESIZE|filesizeformat(binary=True) }})
+              {% endif %}
+            </td>
+            <td>
+              {% if project.upload_limit %}
+              {% set upload_limit_value = project.upload_limit / ONE_MB %}
+              {% else %}
+              {% set upload_limit_value = '' %}
+              {% endif %}
+              <input type="number" name="upload_limit" id="uploadLimit" min="{{ MAX_FILESIZE / ONE_MB }}" max="{{ UPLOAD_LIMIT_CAP / ONE_MB }}" step=1 value="{{ upload_limit_value|int }}"> MiB
+            </td>
+            <td>
+              <button type="submit" class="btn btn-primary btn-sm">Submit</button>
+            </td>
+          </form>
+        </tr>
+        <tr>
+          <form method="POST" action="{{ request.route_path('admin.project.set_total_size_limit', project_name=project.normalized_name) }}">
+            <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
+            <td>Total size limit</td>
+            <td>
+              {% if project.total_size_limit %}
+              {{ project.total_size_limit|filesizeformat(binary=True) }}
+              {% else %}
+              Default ({{(MAX_PROJECT_SIZE)|filesizeformat(binary=True) }})
+              {% endif %}
+            </td>
+            <td>
+              {% if project.total_size_limit %}
+              {% set total_size_limit_value = project.total_size_limit // ONE_GB %}
+              {% else %}
+              {% set total_size_limit_value = '' %}
+              {% endif %}
+              <input type="number" name="total_size_limit" id="totalSizeLimit" min="{{ MAX_PROJECT_SIZE // ONE_GB }}" value="{{total_size_limit_value}}"> GiB
+            </td>
+            <td>
+              <button type="submit" class="btn btn-primary btn-sm">Submit</button>
+            </td>
+          </form>
+        </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div> <!-- .card #attributes -->
+
+<div class="card card-secondary" id="maintainers">
+  <div class="card-header">Maintainers</div>
+  <div class="card-body">
+    <div class="table-responsive p-0">
+      <table class="table table-hover table-striped">
+        <thead>
           <tr>
-            <td>{{ event.tag }}</td>
-            <td>{{ event.time }}</td>
-            <td>{{ event.ip_address }}</td>
-            <td>{{ event.additional }}</td>
+            <th>Username</th>
+            <th>Role</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for role in maintainers %}
+          <tr>
+            <td><a href="{{ request.route_path('admin.user.detail', username=role.user.username) }}">{{ role.user.username }}</a></td>
+            <td>{{ role.role_name }}</td>
+            <td>
+              <button type="button" class="btn btn-danger" data-toggle="modal" data-target="#deleteRoleModal-{{ role.id }}" {{ "disabled" if not request.has_permission('moderator') }}>
+              <i class="fa fa-trash"></i>
+              </button>
+              <div class="modal fade" id="deleteRoleModal-{{ role.id }}" tabindex="-1" role="dialog">
+                <form method="POST" action="{{ request.route_path('admin.project.delete_role', project_name=project.name, role_id=role.id) }}">
+                  <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
+                  <div class="modal-dialog" role="document">
+                    <div class="modal-content">
+                      <div class="modal-header">
+                        <h4 class="modal-title" id="exampleModalLabel">Remove role for {{ role.user.username }}?</h4>
+                        <button type="button" class="close" data-dismiss="modal">
+                          <span>&times;</span>
+                        </button>
+                      </div>
+                      <div class="modal-body">
+                        <p>
+                          This will remove the role for the user.
+                        </p>
+                        <hr>
+                        <p>
+                          To delete role "{{ role.role_name }}" for "{{role.user.username}}", type the username:
+                        </p>
+                        <input type="text" name="username" placeholder="{{ role.user.username }}" required>
+                      </div>
+                      <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                        <button type="submit" class="btn btn-danger">Delete</button>
+                      </div>
+                    </div>
+                  </div>
+                </form>
+              </div>
+            </td>
+          </tr>
+          {% endfor %}
+
+          <tr id="add_role">
+            <form method="POST" action="{{ request.route_path('admin.project.add_role', project_name=project.name) }}">
+              <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
+              <td>
+                <input name="username" class="form-control" placeholder="Username" required {{ "disabled" if not request.has_permission('moderator') }}>
+              </td>
+              <td>
+                <select class="form-control" name="role_name" required {{ "disabled" if not request.has_permission('moderator') }}>
+                <option disabled selected>Select a role</option>
+                {% for role_name in ['Maintainer', 'Owner'] %}
+                <option value="{{ role_name }}">
+                  {{ role_name }}
+                </option>
+                {% endfor %}
+                </select>
+              </td>
+              <td>
+                <button type="submit" class="btn btn-primary" {{ "disabled" if not request.has_permission('moderator') }}>
+                <i class="fa fa-plus"></i>
+                </button>
+              </td>
+            </form>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div> <!-- .card #maintainers -->
+
+<div class="card card-info" id="releases">
+  <div class="card-header">Releases</div>
+  <div class="card-body">
+    <div class="table-responsive p-0">
+      <table class="table table-hover table-striped">
+        <thead>
+          <tr>
+            <th>Release version</th>
+            <th>Created</th>
+            <th>Uploader</th>
+            <th>Author email</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for release in releases %}
+          <tr>
+            <td><a href="{{ request.route_path('admin.project.release', project_name=release.project.normalized_name, version=release.version) }}">{{ release.project.name }}-{{ release.version }}</a></td>
+            <td>{{ release.created }}</td>
+            <td>
+              {% if release.uploader %}
+              <a href="{{ request.route_path('admin.user.detail', username=release.uploader.username) }}">{{ release.uploader.username }}</a>
+              {% endif %}
+            </td>
+            <td>{{ release.author_email }}</td>
           </tr>
           {% endfor %}
         </tbody>
       </table>
     </div>
   </div>
+  <div class="card-footer">
+    <a href="{{ request.route_path('admin.project.releases', project_name=project.normalized_name) }}">All releases</a>
+  </div>
+</div> <!-- .card #releases -->
 
-  <!-- Deletion form -->
-  {% include 'delete.html' %}
-
-  <!-- ProhibitedProjectName form -->
-  <div class="box box-secondary collapsed-box">
-    <div class="box-header with-border">
-      <h3 class="box-title">Prohibit Project Name</h3>
-      <div class="box-tools">
-        <button class="btn btn-box-tool" data-widget="collapse" data-toggle="tooltip" title="Expand"><i class="fa fa-plus"></i></button>
-      </div>
+<div class="card card-primary card-outline collapsed-card" id="journals">
+  <div class="card-header">
+    <h3 class="card-title">Journals</h3>
+    <div class="card-tools">
+      <button type="button" class="btn btn-tool" data-card-widget="collapse"><i class="fas fa-plus"></i>
+      </button>
     </div>
+  </div>
+  <div class="card-body">
+    <div class="table-responsive p-0">
+      <table class="table table-hover table-striped">
+        <thead>
+          <tr>
+            <th>name</th>
+            <th>version</th>
+            <th>date</th>
+            <th>submitted_by</th>
+            <th>submitted_from</th>
+            <th>action</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for entry in journal %}
+          <tr>
+            <td>{{ entry.name }}</td>
+            <td>{{ entry.version }}</td>
+            <td>{{ entry.submitted_date }}</td>
+            <td><a href="{{ request.route_path('admin.user.detail', username=entry.submitted_by.username) }}">{{ entry.submitted_by.username }}</a></td>
+            <td>{{ entry.submitted_from }}</td>
+            <td>{{ entry.action }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+  <div class="card-footer">
+    <a href="{{ request.route_path('admin.project.journals', project_name=project.normalized_name) }}">All journals</a>
+  </div>
+</div> <!-- .card #journals -->
 
-    <div class="box-body">
-      <form method="GET" action="{{ request.route_path('admin.prohibited_project_names.add') }}">
-        <input name="project" type="hidden" value="{{ project.normalized_name }}">
-        <div class="box-body">
-          <div class="form-group col-sm-12">
-            <label for="prohibitedComment">Comment</label>
-            <textarea name="comment" class="form-control" id="prohibitedComment" rows="3" placeholder="Enter comment ..." {{ "disabled" if not request.has_permission('admin') }}></textarea>
-          </div>
-        </div>
-
-        <div class="box-footer">
-          <div class="pull-right">
-            <button type="submit" class="btn btn-primary" title="{{ "Submitting requires superuser privileges" if not request.has_permission('admin') }}"  {{ "disabled" if not request.has_permission('admin') }}>Submit</button>
-          </div>
-        </div>
-      </form>
+<div class="card card-secondary card-outline collapsed-card" id="projectActivity">
+  <div class="card-header">
+    <h3 class="card-title">Project activity</h3>
+    <div class="card-tools">
+      <button type="button" class="btn btn-tool" data-card-widget="collapse"><i class="fas fa-plus"></i>
+      </button>
     </div>
   </div>
 
-  <!-- ReindexProject form -->
-  <div class="box box-secondary collapsed-box">
-    <div class="box-header with-border">
-      <h3 class="box-title">Reindex Project</h3>
-      <div class="box-tools">
-        <button class="btn btn-box-tool" data-widget="collapse" data-toggle="tooltip" title="Expand"><i class="fa fa-plus"></i></button>
-      </div>
-    </div>
+  <div class="card-body">
+    <table class="table table-hover">
+      <thead>
+        <tr>
+          <th scope="col">Event</th>
+          <th scope="col">Time</th>
+          <th scope="col">IP address</th>
+          <th scope="col">Additional information</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for event in project.events %}
+        <tr>
+          <td>{{ event.tag }}</td>
+          <td>{{ event.time }}</td>
+          <td>{{ event.ip_address }}</td>
+          <td>{{ event.additional }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div> <!-- .card #projectActivity -->
 
-    <div class="box-body">
-      <p>Trigger reindex for this project</p>
+<div class="card card-primary card-outline collapsed-card" id="reindex">
+  <div class="card-header">
+    <h3 class="card-title">Reindex Project</h3>
+    <div class="card-tools">
+      <button type="button" class="btn btn-tool" data-card-widget="collapse"><i class="fas fa-plus"></i>
+      </button>
+    </div>
+  </div>
+
+  <div class="card-body">
+    <p>Trigger reindex for this project</p>
+  </div>
+
+  <div class="card-footer">
+    <div class="float-right">
       <form method="GET" action="{{ request.route_path('admin.project.reindex', project_name=project.normalized_name) }}">
-        <div class="box-footer">
-          <div class="pull-right">
-            <button type="submit" class="btn btn-primary">Reindex</button>
-          </div>
-        </div>
+        <button type="submit" class="btn btn-primary">Reindex</button>
       </form>
     </div>
   </div>
+</div> <!-- .card #reindex -->
+
+<form method="GET" action="{{ request.route_path('admin.prohibited_project_names.add') }}">
+  <input name="project" type="hidden" value="{{ project.normalized_name }}">
+  <div class="card card-warning card-outline collapsed-card" id="prohibitedProjectName">
+    <div class="card-header">
+      <h3 class="card-title">Prohibit Project Name</h3>
+      <div class="card-tools">
+        <button type="button" class="btn btn-tool" data-card-widget="collapse"><i class="fas fa-plus"></i>
+        </button>
+      </div>
+    </div>
+
+    <div class="card-body">
+      <div class="form-group col-sm-12">
+        <label for="prohibitedComment">Comment</label>
+        <textarea name="comment" class="form-control" id="prohibitedComment" rows="3" placeholder="Enter comment ..." {{ "disabled" if not request.has_permission('admin') }}></textarea>
+      </div>
+    </div>
+
+    <div class="card-footer">
+      <div class="float-right">
+        <button type="submit" class="btn btn-primary" title="{{ 'Submitting requires superuser privileges' if not request.has_permission('admin') }}" {{ "disabled" if not request.has_permission('admin') }}>Submit</button>
+      </div>
+    </div>
+  </div>
+</form> <!-- .card #prohibitedProjectName -->
+
+<!-- Deletion form -->
+{% include 'delete.html' %}
 
 {% endblock %}

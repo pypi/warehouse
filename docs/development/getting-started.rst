@@ -223,20 +223,17 @@ the ``web`` service has started listening:
 
 .. code-block:: console
 
-    web_1 | [2018-05-01 20:28:14 +0000] [6] [INFO] Starting gunicorn 19.7.1
-    web_1 | [2018-05-01 20:28:14 +0000] [6] [INFO] Listening at: http://0.0.0.0:8000 (6)
-    web_1 | [2018-05-01 20:28:14 +0000] [6] [INFO] Using worker: sync
-    web_1 | [2018-05-01 20:28:14 +0000] [15] [INFO] Booting worker with pid: 15
+    warehouse-web-1   | [2022-12-26 19:27:12 +0000] [1] [INFO] Starting gunicorn 20.1.0
+    warehouse-web-1   | [2022-12-26 19:27:12 +0000] [1] [INFO] Listening at: http://0.0.0.0:8000 (1)
+    warehouse-web-1   | [2022-12-26 19:27:12 +0000] [1] [INFO] Using worker: sync
+    warehouse-web-1   | [2022-12-26 19:27:12 +0000] [7] [INFO] Booting worker with pid: 7
 
 or that the ``static`` container has finished compiling the static assets:
 
 .. code-block:: console
 
-    static_1 | [20:28:37] Starting 'dist:compress'...
-    static_1 | [20:28:37] Finished 'dist:compress' after 14 μs
-    static_1 | [20:28:37] Finished 'dist' after 43 s
-    static_1 | [20:28:37] Starting 'watch'...
-    static_1 | [20:28:37] Finished 'watch' after 11 ms
+    warehouse-static-1  |
+    warehouse-static-1  | webpack 5.75.0 compiled with 1 warning in 6610 ms
 
 or maybe something else.
 
@@ -485,7 +482,7 @@ Building Styles
 ---------------
 
 Styles are written in the scss variant of Sass and compiled using
-:command:`gulp`. They will be automatically built when changed when
+:command:`webpack`. They will be automatically built when changed when
 ``make serve`` is running.
 
 

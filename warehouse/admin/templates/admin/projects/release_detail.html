@@ -18,17 +18,17 @@
 {% block title %}Release {{ release.version }} of {{ release.project.name }}{% endblock %}
 
 {% block breadcrumb %}
-  <li><a href="{{ request.route_path('admin.project.list') }}">Projects</a></li>
-  <li><a href="{{ request.route_path('admin.project.detail', project_name=release.project.normalized_name) }}">{{ release.project.name }}</a></li>
-  <li class="active">Release {{ release.version }}</li>
+  <li class="breadcrumb-item"><a href="{{ request.route_path('admin.project.list') }}">Projects</a></li>
+  <li class="breadcrumb-item"><a href="{{ request.route_path('admin.project.detail', project_name=release.project.normalized_name) }}">{{ release.project.name }}</a></li>
+  <li class="breadcrumb-item active">Release {{ release.version }}</li>
 {% endblock %}
 
 {% block content %}
-  <div class="box">
-    <div class="box-header with-border">
+  <div class="card">
+    <div class="card-header">
       <h3>Details</h3>
     </div>
-    <div class="box-body table-responsive">
+    <div class="card-body table-responsive">
       <table class="table table-hover">
         <tr>
           <td>Canonical URL:</td>
@@ -58,18 +58,21 @@
       </table>
     </div>
   </div>
-  <div class="box">
-    <div class="box-header with-border">
+  <div class="card">
+    <div class="card-header">
       <h3>Files</h3>
     </div>
-    <div class="box-body table-responsive">
-      <table class="table table-hover">
+    <div class="card-body table-responsive">
+      <table class="table table-hover table-striped">
+        <thead>
         <tr>
           <th>Filename</th>
           <th>Package Type</th>
           <th>Python Version</th>
           <th>Uploaded via</th>
         </tr>
+        </thead>
+        <tbody>
         {% for file in release.files %}
         <tr>
           <td><a href="{{ request.route_url('packaging.file', path=file.path) }}">{{ file.filename }}</a></td>
@@ -78,20 +81,24 @@
           <td><code>{{ file.uploaded_via }}</code></td>
         </tr>
         {% endfor %}
+        </tbody>
       </table>
     </div>
   </div>
-  <div class="box">
-    <div class="box-header with-border">
+  <div class="card">
+    <div class="card-header">
       <h3>Journals</h3>
     </div>
-    <div class="box-body table-responsive">
-      <table class="table table-hover">
+    <div class="card-body table-responsive">
+      <table class="table table-hover table-striped">
+        <thead>
         <tr>
           <th>Action</th>
           <th>Date</th>
           <th>User</th>
         </tr>
+        </thead>
+        <tbody>
         {% for journal in journals %}
         <tr>
           <td>{{ journal.action }}</td>
@@ -99,14 +106,15 @@
           <td>{{ journal.submitted_by.username }} from {{ journal.submitted_from }}</td>
         </tr>
         {% endfor %}
+        </tbody>
       </table>
     </div>
   </div>
-  <div class="box">
-    <div class="box-header with-border">
+  <div class="card">
+    <div class="card-header">
       <h3>Metadata</h3>
     </div>
-    <div class="box-body table-responsive">
+    <div class="card-body table-responsive">
       <table class="table table-hover">
         <tr>
           <th>Field</th>

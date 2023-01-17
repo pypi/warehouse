@@ -16,11 +16,11 @@
 {% block title %}Bulk Project Name Prohibition{% endblock %}
 
 {% block content %}
-<div class="box box-primary">
-  <div class="box-header with-border">
-    <h3 class="box-title">Prohibit project name</h3>
+<div class="card card-danger">
+  <div class="card-header">
+    <h3 class="card-title">Prohibit project name</h3>
   </div>
-  <div class="box-body">
+  <div class="card-body">
     <p>
     Project names separated by whitespace. <b>Note: There is no confirmation step!</b>
     </p>
@@ -28,7 +28,7 @@
 
   <form method="POST" action="{{ request.route_path('admin.prohibited_project_names.bulk_add') }}">
     <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
-    <div class="box-body">
+    <div class="card-body">
       <div class="form-group">
         <label for="prohibitedProjectName">Project name(s)</label>
         <textarea name="projects" class="form-control" id="prohibitedProjectName" rows="20" placeholder="Enter project name(s) to prohibit " {{ "disabled" if not request.has_permission('admin') }} autocomplete="off" autocorrect="off" autocapitalize="off"></textarea>
@@ -40,9 +40,9 @@
       </div>
     </div>
 
-    <div class="box-footer">
-      <div class="pull-right">
-        <button type="submit" class="btn btn-primary" title="{{ "Submitting requires superuser privileges" if not request.has_permission('admin') }}" {{ "disabled" if not request.has_permission('admin') }}>Submit</button>
+    <div class="card-footer">
+      <div class="float-right">
+        <button type="submit" class="btn btn-danger" title="{{ 'Submitting requires superuser privileges' if not request.has_permission('admin') }}" {{ "disabled" if not request.has_permission('admin') }}>Submit</button>
       </div>
     </div>
   </form>

@@ -164,7 +164,7 @@ class SaveAccountForm(forms.Form):
             verified_emails = [e.email for e in user.emails if e.verified]
             if field.data not in verified_emails:
                 raise wtforms.validators.ValidationError(
-                    "%s is not a verified email for %s" % (field.data, user.username)
+                    f"{field.data} is not a verified email for {user.username}"
                 )
 
 
@@ -575,6 +575,10 @@ class SaveOrganizationForm(forms.Form):
                     "The organization URL is too long. "
                     "Choose a organization URL with 400 characters or less."
                 ),
+            ),
+            wtforms.validators.Regexp(
+                r"^https?://",
+                message=_("The organization URL must start with http:// or https://"),
             ),
         ]
     )

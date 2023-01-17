@@ -73,6 +73,7 @@
 {% macro APIs() %}{% trans %}Does PyPI have APIs I can use?{% endtrans %}{% endmacro %}
 {% macro project_release_notifications() %}{% trans %}How do I get notified when a new version of a project is released?{% endtrans %}{% endmacro %}
 {% macro statistics() %}{% trans %}Where can I see statistics about PyPI, downloads, and project/package usage?{% endtrans %}{% endmacro %}
+{% macro verify_hashes() %}{% trans %}What are the file hashes used for, and how can I verify them?{% endtrans %}{% endmacro %}
 
 {% macro login_problem() %}{% trans %}I forgot my PyPI password. Can you help me?{% endtrans %}{% endmacro %}
 {% macro account_recovery() %}{% trans %}I've lost access to my PyPI account. Can you help me?{% endtrans %}{% endmacro %}
@@ -149,6 +150,7 @@
           <li><a href="#mirroring">{{ mirroring() }}</a></li>
           <li><a href="#project-release-notifications">{{ project_release_notifications() }}</a></li>
           <li><a href="#statistics">{{ statistics() }}</a></li>
+          <li><a href="#verify-hashes">{{ verify_hashes() }}</a></li>
         </ul>
       </section>
 
@@ -567,6 +569,16 @@
           {% endtrans %}
         </p>
         <p>{% trans href='https://status.python.org/', title=gettext('External link') %}For recent statistics on uptime and performance, see <a href="{{ href }}" title="{{ title }}" target="_blank" rel="noopener">our status page</a>.{% endtrans %}</p>
+      
+        <h3 id="verify-hashes">{{ verify_hashes() }}</h3>
+        <p>{% trans %}For each package hosted on PyPI, there are corresponding hashes for that file. These hashes can be used to verify that the file you are downloading is the same one that the project maintainer uploaded. This is especially useful if downloading packages from a mirror. The hashes can be obtained from the project page in the "Download Files" section or from the JSON API. Here is an example of generating the hashes:{% endtrans %}</p>
+        <pre class="code-block">import hashlib
+with open("file-path-to-verify", "rb") as f:
+    file_contents = f.read()
+blake2b_hash = hashlib.blake2b(file_contents, digest_size=32).hexdigest()
+sha256_hash = hashlib.sha256(file_contents).hexdigest()
+print(f"BLAKE2b-256: {blake2b_hash}\nSHA256: {sha256_hash}")</pre>
+        <p>{% trans %}In practice, it would only be necessary to verify one of the hashes. It is not recommended to use the MD5 hash because of known security issues with the MD5 algorithm. This hash is provided for backwards compatibility only.{% endtrans %}</p>
       </section>
 
       <section class="faq-group" id="administration">
@@ -603,7 +615,7 @@
 
         <h3 id="file-size-limit">{{ file_size_limit() }}</h3>
         <p>
-          {% trans dev_release_href='https://www.python.org/dev/peps/pep-0440/#developmental-releases', file_issue_href='https://github.com/pypa/pypi-support/issues/new?labels=limit+request&template=limit-request.md', title=gettext('External link') %}
+          {% trans dev_release_href='https://www.python.org/dev/peps/pep-0440/#developmental-releases', file_issue_href='https://github.com/pypi/support/issues/new?assignees=&labels=limit+request&template=limit-request-file.yml&title=File+Limit+Request%3A+PROJECT_NAME+-+000+MB', title=gettext('External link') %}
             If you can't upload your project's release to PyPI because you're hitting the upload file size limit,
             we can sometimes increase your limit. Make sure you've uploaded at least one release
             for the project that's <em>under</em> the limit
@@ -628,7 +640,7 @@
           {% endtrans %}
         </p>
         <p>
-          {% trans file_issue_href='https://github.com/pypa/pypi-support/issues/new?labels=limit+request&template=limit-request.md', title=gettext('External link') %}
+          {% trans file_issue_href='https://github.com/pypi/support/issues/new?assignees=&labels=limit+request&template=limit-request-project.yml&title=Project+Limit+Request%3A+PROJECT_NAME+-+00+GB', title=gettext('External link') %}
             If that is not possible, we can sometimes increase your limit. <a href="{{ file_issue_href }}" title="{{ title }}" target="_blank" rel="noopener">File an issue</a> and tell us:
           {% endtrans %}
         </p>
@@ -679,7 +691,7 @@
           <li>{% trans %}Lost two factor authentication <a href="#totp">application</a>, <a href="#utfkey">device</a>, and <a href="#recoverycodes">recovery codes</a>{% endtrans %}</li>
         </ul>
         <p>
-          {% trans href='https://github.com/pypa/pypi-support/issues/new?labels=account-recovery&template=account-recovery.md&title=Account+recovery+request', title=gettext('External link') %}
+          {% trans href='https://github.com/pypi/support/issues/new?assignees=&labels=account-recovery&template=account-recovery.yml&title=Account+recovery+request', title=gettext('External link') %}
             You can proceed to <a href="{{ href }}" title="{{ title }}" target="_blank" rel="noopener">file an issue on our tracker</a> to request assistance with account recovery.
           {% endtrans %}
         </p>

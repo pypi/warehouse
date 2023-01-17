@@ -92,7 +92,7 @@ jobs:
       - uses: actions/setup-node@v3
         if: ${{ matrix.needs-node }}
         with:
-          node-version: 16.17.1
+          node-version: 18.13.0
           cache: 'npm'
       - name: Install Node dependencies
         if: ${{ matrix.needs-node }}

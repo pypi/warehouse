@@ -111,11 +111,9 @@ class TestDeleteOrganizations:
         delete_declined_organizations(db_request)
 
         assert not (
-            (
-                db_request.db.query(Organization.id)
-                .filter(Organization.id == organization.id)
-                .count()
-            )
+            db_request.db.query(Organization.id)
+            .filter(Organization.id == organization.id)
+            .count()
         )
 
         assert (

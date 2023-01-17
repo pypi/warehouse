@@ -15,9 +15,9 @@ import dataclasses
 import json
 import typing
 
-from collections.abc import Mapping, Sequence
+from collections.abc import Callable, Mapping, Sequence
 from dataclasses import dataclass
-from typing import Any, Callable, ClassVar, Type, TypeVar
+from typing import Any, ClassVar, TypeVar
 
 from pydantic import ValidationError
 from pydantic.dataclasses import dataclass as pydantic_dataclass
@@ -65,7 +65,7 @@ class Caveat:
         return (self.tag,) + dataclasses.astuple(self)
 
     @classmethod
-    def __deserialize__(cls: Type[S], data: Sequence) -> S:
+    def __deserialize__(cls: type[S], data: Sequence) -> S:
         kwargs = {}
         for i, field in enumerate(dataclasses.fields(cls)):
             if len(data) > i:
@@ -89,13 +89,13 @@ class Caveat:
 
 class _CaveatRegistry:
 
-    _tags: dict[int, Type[Caveat]]
+    _tags: dict[int, type[Caveat]]
 
     def __init__(self, *args: Any, **kwargs: Any):
         super().__init__(*args, **kwargs)
         self._tags = {}
 
-    def add(self, tag: int, cls: Type[Caveat]):
+    def add(self, tag: int, cls: type[Caveat]):
         if tag in self._tags:
             raise TypeError(
                 f"Cannot re-use tag: {tag}, already used by {self._tags[tag]}"
@@ -104,16 +104,16 @@ class _CaveatRegistry:
         self._tags[tag] = cls
         cls.tag = tag
 
-    def lookup(self, /, tag: int) -> Type[Caveat] | None:
+    def lookup(self, /, tag: int) -> type[Caveat] | None:
         return self._tags.get(tag)
 
 
 _caveat_registry = _CaveatRegistry()
 
 
-def as_caveat(*, tag: int) -> Callable[[Type[T]], Type[T]]:
-    def deco(cls: Type[T]) -> Type[T]:
-        _caveat_registry.add(tag, typing.cast(Type[Caveat], cls))
+def as_caveat(*, tag: int) -> Callable[[type[T]], type[T]]:
+    def deco(cls: type[T]) -> type[T]:
+        _caveat_registry.add(tag, typing.cast(type[Caveat], cls))
         return cls
 
     return deco

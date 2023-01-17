@@ -510,11 +510,9 @@ class TestStripeSubscriptionService:
 
         assert subscription_service.get_subscription(subscription.id) is None
         assert not (
-            (
-                db_request.db.query(OrganizationStripeSubscription)
-                .filter_by(subscription=subscription)
-                .count()
-            )
+            db_request.db.query(OrganizationStripeSubscription)
+            .filter_by(subscription=subscription)
+            .count()
         )
 
     def test_get_subscriptions_by_customer(self, subscription_service):
@@ -552,27 +550,21 @@ class TestStripeSubscriptionService:
 
         assert subscription_service.get_subscription(subscription.id) is None
         assert not (
-            (
-                db_request.db.query(OrganizationStripeSubscription)
-                .filter_by(subscription=subscription)
-                .count()
-            )
+            db_request.db.query(OrganizationStripeSubscription)
+            .filter_by(subscription=subscription)
+            .count()
         )
         assert subscription_service.get_subscription(subscription1.id) is None
         assert not (
-            (
-                db_request.db.query(OrganizationStripeSubscription)
-                .filter_by(subscription=subscription1)
-                .count()
-            )
+            db_request.db.query(OrganizationStripeSubscription)
+            .filter_by(subscription=subscription1)
+            .count()
         )
         # assert not
         assert not (
-            (
-                db_request.db.query(OrganizationStripeCustomer)
-                .filter_by(organization=organization)
-                .count()
-            )
+            db_request.db.query(OrganizationStripeCustomer)
+            .filter_by(organization=organization)
+            .count()
         )
 
     def test_update_customer_email(self, subscription_service, db_request):

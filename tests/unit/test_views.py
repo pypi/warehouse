@@ -27,6 +27,7 @@ from webob.multidict import MultiDict
 
 from warehouse import views
 from warehouse.errors import WarehouseDenied
+from warehouse.packaging.models import ProjectFactory as DBProjectFactory
 from warehouse.views import (
     SecurityKeyGiveaway,
     current_user_indicator,
@@ -58,39 +59,39 @@ class TestHTTPExceptionView:
         pyramid_config.testing_add_renderer("non-existent.html")
 
         response = context = pretend.stub(status_code=499)
-        request = pretend.stub()
+        request = pretend.stub(context=None)
         assert httpexception_view(context, request) is response
 
     @pytest.mark.parametrize("status_code", [403, 404, 410, 500])
     def test_renders_template(self, pyramid_config, status_code):
-        renderer = pyramid_config.testing_add_renderer("{}.html".format(status_code))
+        renderer = pyramid_config.testing_add_renderer(f"{status_code}.html")
 
         context = pretend.stub(
-            status="{} My Cool Status".format(status_code),
+            status=f"{status_code} My Cool Status",
             status_code=status_code,
             headers={},
         )
-        request = pretend.stub()
+        request = pretend.stub(context=None)
         response = httpexception_view(context, request)
 
         assert response.status_code == status_code
-        assert response.status == "{} My Cool Status".format(status_code)
+        assert response.status == f"{status_code} My Cool Status"
         renderer.assert_()
 
     @pytest.mark.parametrize("status_code", [403, 404, 410, 500])
     def test_renders_template_with_headers(self, pyramid_config, status_code):
-        renderer = pyramid_config.testing_add_renderer("{}.html".format(status_code))
+        renderer = pyramid_config.testing_add_renderer(f"{status_code}.html")
 
         context = pretend.stub(
-            status="{} My Cool Status".format(status_code),
+            status=f"{status_code} My Cool Status",
             status_code=status_code,
             headers={"Foo": "Bar"},
         )
-        request = pretend.stub()
+        request = pretend.stub(context=None)
         response = httpexception_view(context, request)
 
         assert response.status_code == status_code
-        assert response.status == "{} My Cool Status".format(status_code)
+        assert response.status == f"{status_code} My Cool Status"
         assert response.headers["Foo"] == "Bar"
         renderer.assert_()
 
@@ -101,7 +102,9 @@ class TestHTTPExceptionView:
         services = {"csp": pretend.stub(merge=csp.update)}
 
         context = HTTPNotFound()
-        request = pretend.stub(find_service=lambda name: services[name], path="")
+        request = pretend.stub(
+            find_service=lambda name: services[name], path="", context=None
+        )
         response = httpexception_view(context, request)
 
         assert response.status_code == 404
@@ -117,7 +120,9 @@ class TestHTTPExceptionView:
         services = {"csp": pretend.stub(merge=csp.update)}
         context = HTTPNotFound()
         for path in ("/simple/not_found_package", "/simple/some/unusual/path/"):
-            request = pretend.stub(find_service=lambda name: services[name], path=path)
+            request = pretend.stub(
+                find_service=lambda name: services[name], path=path, context=None
+            )
             response = httpexception_view(context, request)
             assert response.status_code == 404
             assert response.status == "404 Not Found"
@@ -132,12 +137,68 @@ class TestHTTPExceptionView:
             "/pypi/not_found_package/json",
             "/pypi/not_found_package/1.0.0/json",
         ):
-            request = pretend.stub(find_service=lambda name: services[name], path=path)
+            request = pretend.stub(
+                find_service=lambda name: services[name], path=path, context=None
+            )
             response = httpexception_view(context, request)
             assert response.status_code == 404
             assert response.status == "404 Not Found"
             assert response.content_type == "application/json"
             assert response.text == '{"message": "Not Found"}'
+
+    def test_context_is_project(self, pyramid_config, monkeypatch):
+        csp = {}
+        services = {"csp": pretend.stub(merge=csp.update)}
+
+        context = HTTPNotFound()
+        project = ProjectFactory.create()
+        request = pretend.stub(
+            find_service=lambda name: services[name],
+            path="",
+            context=project,
+        )
+        stub_response = pretend.stub(headers=[])
+        render_to_response = pretend.call_recorder(
+            lambda filename, kwargs, request: stub_response
+        )
+        monkeypatch.setattr(views, "render_to_response", render_to_response)
+        response = httpexception_view(context, request)
+
+        assert response == stub_response
+        assert render_to_response.calls == [
+            pretend.call(
+                "404.html",
+                {"project_name": project.name},
+                request=request,
+            )
+        ]
+
+    def test_context_is_projectfactory(self, pyramid_config, monkeypatch):
+        csp = {}
+        services = {"csp": pretend.stub(merge=csp.update)}
+
+        context = HTTPNotFound()
+        request = pretend.stub(
+            find_service=lambda name: services[name],
+            path="",
+            matchdict={"name": "missing-project"},
+        )
+        request.context = DBProjectFactory(request)
+        stub_response = pretend.stub(headers=[])
+        render_to_response = pretend.call_recorder(
+            lambda filename, kwargs, request: stub_response
+        )
+        monkeypatch.setattr(views, "render_to_response", render_to_response)
+        response = httpexception_view(context, request)
+
+        assert response == stub_response
+        assert render_to_response.calls == [
+            pretend.call(
+                "404.html",
+                {"project_name": "missing-project"},
+                request=request,
+            )
+        ]
 
 
 class TestForbiddenView:
@@ -147,7 +208,7 @@ class TestForbiddenView:
         exc = pretend.stub(
             status_code=403, status="403 Forbidden", headers={}, result=pretend.stub()
         )
-        request = pretend.stub(authenticated_userid=1)
+        request = pretend.stub(authenticated_userid=1, context=None)
         resp = forbidden(exc, request)
         assert resp.status_code == 403
         renderer.assert_()
@@ -160,6 +221,7 @@ class TestForbiddenView:
             route_url=pretend.call_recorder(
                 lambda route, _query: "/accounts/login/?next=/foo/bar/%3Fb%3Ds"
             ),
+            context=None,
         )
 
         resp = forbidden(exc, request)
@@ -209,7 +271,7 @@ class TestForbiddenView:
         exc = pretend.stub(
             status_code=403, status="403 Forbidden", headers={}, result=result
         )
-        request = pretend.stub(authenticated_userid=1)
+        request = pretend.stub(authenticated_userid=1, context=None)
         resp = forbidden(exc, request)
         assert resp.status_code == 403
         renderer.assert_()
@@ -259,7 +321,7 @@ class TestIndex:
         release2.created = datetime.date(2012, 1, 1)
         FileFactory.create(
             release=release1,
-            filename="{}-{}.tar.gz".format(project.name, release1.version),
+            filename=f"{project.name}-{release1.version}.tar.gz",
             python_version="source",
         )
         UserFactory.create()
@@ -527,7 +589,7 @@ def test_stats(db_request):
     release1.created = datetime.date(2011, 1, 1)
     FileFactory.create(
         release=release1,
-        filename="{}-{}.tar.gz".format(project.name, release1.version),
+        filename=f"{project.name}-{release1.version}.tar.gz",
         python_version="source",
         size=69,
     )
@@ -572,7 +634,6 @@ class TestSecurityKeyGiveaway:
                 settings={"warehouse.two_factor_mandate.available": True}
             )
         )
-        default_response = pretend.stub()
-        SecurityKeyGiveaway.default_response = default_response
+        view = SecurityKeyGiveaway(request)
 
-        assert SecurityKeyGiveaway(request).security_key_giveaway() == default_response
+        assert view.security_key_giveaway() == view.default_response

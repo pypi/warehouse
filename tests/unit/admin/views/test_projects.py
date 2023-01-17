@@ -170,13 +170,13 @@ class TestProjectReleasesList:
             reverse=True,
         )
         db_request.matchdict["project_name"] = project.normalized_name
-        db_request.GET["q"] = "version:{}".format(releases[3].version)
+        db_request.GET["q"] = f"version:{releases[3].version}"
         result = views.releases_list(project, db_request)
 
         assert result == {
             "releases": [releases[3]],
             "project": project,
-            "query": "version:{}".format(releases[3].version),
+            "query": f"version:{releases[3].version}",
         }
 
     def test_invalid_key_query(self, db_request):
@@ -187,13 +187,13 @@ class TestProjectReleasesList:
             reverse=True,
         )
         db_request.matchdict["project_name"] = project.normalized_name
-        db_request.GET["q"] = "user:{}".format(releases[3].uploader)
+        db_request.GET["q"] = f"user:{releases[3].uploader}"
         result = views.releases_list(project, db_request)
 
         assert result == {
             "releases": releases[:25],
             "project": project,
-            "query": "user:{}".format(releases[3].uploader),
+            "query": f"user:{releases[3].uploader}",
         }
 
     def test_basic_query(self, db_request):
@@ -204,13 +204,13 @@ class TestProjectReleasesList:
             reverse=True,
         )
         db_request.matchdict["project_name"] = project.normalized_name
-        db_request.GET["q"] = "{}".format(releases[3].version)
+        db_request.GET["q"] = f"{releases[3].version}"
         result = views.releases_list(project, db_request)
 
         assert result == {
             "releases": releases[:25],
             "project": project,
-            "query": "{}".format(releases[3].version),
+            "query": f"{releases[3].version}",
         }
 
     def test_non_normalized_name(self, db_request):
@@ -265,13 +265,13 @@ class TestProjectJournalsList:
             reverse=True,
         )
         db_request.matchdict["project_name"] = project.normalized_name
-        db_request.GET["q"] = "version:{}".format(journals[3].version)
+        db_request.GET["q"] = f"version:{journals[3].version}"
         result = views.journals_list(project, db_request)
 
         assert result == {
             "journals": [journals[3]],
             "project": project,
-            "query": "version:{}".format(journals[3].version),
+            "query": f"version:{journals[3].version}",
         }
 
     def test_invalid_key_query(self, db_request):
@@ -299,13 +299,13 @@ class TestProjectJournalsList:
             reverse=True,
         )
         db_request.matchdict["project_name"] = project.normalized_name
-        db_request.GET["q"] = "{}".format(journals[3].version)
+        db_request.GET["q"] = f"{journals[3].version}"
         result = views.journals_list(project, db_request)
 
         assert result == {
             "journals": journals[:25],
             "project": project,
-            "query": "{}".format(journals[3].version),
+            "query": f"{journals[3].version}",
         }
 
     def test_non_normalized_name(self, db_request):

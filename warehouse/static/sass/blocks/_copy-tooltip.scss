@@ -138,12 +138,12 @@ $tooltip-duration: 0.1s !default;
   &::after {
     right: auto;
     left: 50%;
-    margin-left: -($spacing-unit / 2);
+    margin-left: -$half-spacing-unit;
   }
 }
 
 .copy-tooltip-sw::after {
-  margin-right: -($spacing-unit / 2);
+  margin-right: -$half-spacing-unit;
 }
 
 // Tooltips above the object
@@ -169,12 +169,12 @@ $tooltip-duration: 0.1s !default;
   &::after {
     right: auto;
     left: 50%;
-    margin-left: -($spacing-unit / 2);
+    margin-left: -$half-spacing-unit;
   }
 }
 
 .copy-tooltip-nw::after {
-  margin-right: -($spacing-unit / 2);
+  margin-right: -$half-spacing-unit;
 }
 
 // Move the tooltip body to the center of the object.

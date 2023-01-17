@@ -37,7 +37,7 @@
   @include site-container;
   display: flex;
   direction: ltr;
-  text-align: left;  
+  text-align: left;
 
   button {
     color: $white;
@@ -64,7 +64,7 @@
     }
 
     &__right {
-      margin-top: $spacing-unit / 2;
+      margin-top: $half-spacing-unit;
     }
   }
 
@@ -102,7 +102,7 @@
       line-height: $spacing-unit;
       float: left;
       cursor: pointer;
-      padding: 8px ($spacing-unit / 2);
+      padding: 8px $half-spacing-unit;
       background-color: transparentize($black, 0.85);
       border-right: 1px dotted $transparent-white;
       border-top: 1px dotted $transparent-white;
@@ -122,7 +122,7 @@
     padding-bottom: 5px;
 
     @media screen and (max-width: $tablet) {
-      margin-top: $spacing-unit / 2;
+      margin-top: $half-spacing-unit;
       padding-bottom: 0;
     }
   }

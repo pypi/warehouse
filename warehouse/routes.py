@@ -115,8 +115,6 @@ def includeme(config):
     config.add_route(
         "includes.administer-project-include",
         "/_includes/administer-project-include/{project_name}",
-        factory="warehouse.packaging.models:ProjectFactory",
-        traverse="/{project_name}",
         domain=warehouse,
     )
     config.add_route(

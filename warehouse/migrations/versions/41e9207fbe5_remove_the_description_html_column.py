@@ -28,4 +28,4 @@ def upgrade():
 
 
 def downgrade():
-    raise RuntimeError("Cannot downgrade past {!r}".format(revision))
+    raise RuntimeError(f"Cannot downgrade past {revision!r}")

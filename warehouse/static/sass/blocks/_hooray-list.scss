@@ -30,8 +30,8 @@
     list-style-type: none;
     position: relative;
 
-    &:before {
-      font-family: "Font Awesome 5 Free";
+    &::before {
+      font-family: "Font Awesome 6 Free";
       font-weight: 900;
       content: "\f00c";
       color: $text-color;

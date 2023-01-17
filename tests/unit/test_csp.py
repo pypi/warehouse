@@ -13,6 +13,7 @@
 import collections
 
 import pretend
+import pytest
 
 from warehouse import csp
 
@@ -164,10 +165,25 @@ class TestCSPPolicy:
         policy = csp.CSPPolicy({"foo": ["bar"]})
         assert isinstance(policy, collections.defaultdict)
 
-    def test_merge(self):
-        policy = csp.CSPPolicy({"foo": ["bar"]})
-        policy.merge({"foo": ["baz"], "something": ["else"]})
-        assert policy == {"foo": ["bar", "baz"], "something": ["else"]}
+    @pytest.mark.parametrize(
+        "existing, incoming, expected",
+        [
+            (
+                {"foo": ["bar"]},
+                {"foo": ["baz"], "something": ["else"]},
+                {"foo": ["bar", "baz"], "something": ["else"]},
+            ),
+            (
+                {"foo": [csp.NONE]},
+                {"foo": ["baz"]},
+                {"foo": ["baz"]},
+            ),
+        ],
+    )
+    def test_merge(self, existing, incoming, expected):
+        policy = csp.CSPPolicy(existing)
+        policy.merge(incoming)
+        assert policy == expected
 
 
 def test_includeme():
@@ -201,6 +217,9 @@ def test_includeme():
                     "connect-src": [
                         "'self'",
                         "https://api.github.com/repos/",
+                        "https://*.google-analytics.com",
+                        "https://*.analytics.google.com",
+                        "https://*.googletagmanager.com",
                         "fastly-insights.com",
                         "*.fastly-insights.com",
                         "*.ethicalads.io",
@@ -216,14 +235,16 @@ def test_includeme():
                     "img-src": [
                         "'self'",
                         "camo.url.value",
-                        "www.google-analytics.com",
+                        "https://*.google-analytics.com",
+                        "https://*.googletagmanager.com",
                         "*.fastly-insights.com",
                         "*.ethicalads.io",
                     ],
                     "script-src": [
                         "'self'",
-                        "www.googletagmanager.com",
-                        "www.google-analytics.com",
+                        "https://*.googletagmanager.com",
+                        "https://www.google-analytics.com",
+                        "https://ssl.google-analytics.com",
                         "*.fastly-insights.com",
                         "*.ethicalads.io",
                         "'sha256-U3hKDidudIaxBDEzwGJApJgPEf2mWk6cfMWghrAa6i0='",

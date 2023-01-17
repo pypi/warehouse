@@ -16,7 +16,7 @@ import re
 import xmlrpc.client
 import xmlrpc.server
 
-from typing import List, Mapping, Union
+from collections.abc import Mapping
 
 import typeguard
 
@@ -227,7 +227,7 @@ def exception_view(exc, request):
 
 
 @xmlrpc_method(method="search")
-def search(request, spec: Mapping[str, Union[str, List[str]]], operator: str = "and"):
+def search(request, spec: Mapping[str, str | list[str]], operator: str = "and"):
     domain = request.registry.settings.get("warehouse.domain", request.domain)
     raise XMLRPCWrappedError(
         RuntimeError(
@@ -247,7 +247,7 @@ def list_packages(request):
 @xmlrpc_cache_all_projects(method="list_packages_with_serial")
 def list_packages_with_serial(request):
     serials = request.db.query(Project.name, Project.last_serial).all()
-    return dict((serial[0], serial[1]) for serial in serials)
+    return {serial[0]: serial[1] for serial in serials}
 
 
 @xmlrpc_method(method="package_hosting_mode")
@@ -305,10 +305,8 @@ def package_releases(request, package_name: str, show_hidden: bool = False):
 def package_data(request, package_name, version):
     raise XMLRPCWrappedError(
         RuntimeError(
-            (
-                "This API has been deprecated. "
-                f"See {XMLRPC_DEPRECATION_URL} for more information."
-            )
+            "This API has been deprecated. "
+            f"See {XMLRPC_DEPRECATION_URL} for more information."
         )
     )
 
@@ -377,10 +375,8 @@ def release_data(request, package_name: str, version: str):
 def package_urls(request, package_name, version):
     raise XMLRPCWrappedError(
         RuntimeError(
-            (
-                "This API has been deprecated. "
-                f"See {XMLRPC_DEPRECATION_URL} for more information."
-            )
+            "This API has been deprecated. "
+            f"See {XMLRPC_DEPRECATION_URL} for more information."
         )
     )
 
@@ -450,7 +446,7 @@ def changelog_since_serial(request, serial: int):
         (
             e.name,
             e.version,
-            int(e.submitted_date.replace(tzinfo=datetime.timezone.utc).timestamp()),
+            int(e.submitted_date.replace(tzinfo=datetime.UTC).timestamp()),
             _clean_for_xml(e.action),
             e.id,
         )
@@ -472,7 +468,7 @@ def changelog(request, since: int, with_ids: bool = False):
         (
             e.name,
             e.version,
-            int(e.submitted_date.replace(tzinfo=datetime.timezone.utc).timestamp()),
+            int(e.submitted_date.replace(tzinfo=datetime.UTC).timestamp()),
             e.action,
             e.id,
         )
@@ -486,7 +482,7 @@ def changelog(request, since: int, with_ids: bool = False):
 
 
 @xmlrpc_method(method="browse")
-def browse(request, classifiers: List[str]):
+def browse(request, classifiers: list[str]):
     classifiers_q = (
         request.db.query(Classifier)
         .filter(Classifier.classifier.in_(classifiers))

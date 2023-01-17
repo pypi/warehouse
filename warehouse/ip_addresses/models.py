@@ -31,10 +31,8 @@ class IpAddress(db.Model):
     __table_args__ = (
         Index("bans_idx", "is_banned"),
         CheckConstraint(
-            (
-                "(is_banned AND ban_reason IS NOT NULL AND ban_date IS NOT NULL)"
-                "OR (NOT is_banned AND ban_reason IS NULL AND ban_date IS NULL)"
-            )
+            "(is_banned AND ban_reason IS NOT NULL AND ban_date IS NOT NULL)"
+            "OR (NOT is_banned AND ban_reason IS NULL AND ban_date IS NULL)"
         ),
     )
 

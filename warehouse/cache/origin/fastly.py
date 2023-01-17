@@ -10,6 +10,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import time
 import urllib.parse
 
 import requests
@@ -66,7 +67,7 @@ class FastlyCache:
         *,
         seconds=None,
         stale_while_revalidate=None,
-        stale_if_error=None
+        stale_if_error=None,
     ):
         existing_keys = set(response.headers.get("Surrogate-Key", "").split())
 
@@ -75,13 +76,13 @@ class FastlyCache:
         values = []
 
         if seconds is not None:
-            values.append("max-age={}".format(seconds))
+            values.append(f"max-age={seconds}")
 
         if stale_while_revalidate is not None:
-            values.append("stale-while-revalidate={}".format(stale_while_revalidate))
+            values.append(f"stale-while-revalidate={stale_while_revalidate}")
 
         if stale_if_error is not None:
-            values.append("stale-if-error={}".format(stale_if_error))
+            values.append(f"stale-if-error={stale_if_error}")
 
         if values:
             response.headers["Surrogate-Control"] = ", ".join(values)
@@ -105,4 +106,12 @@ class FastlyCache:
         resp.raise_for_status()
 
         if resp.json().get("status") != "ok":
-            raise UnsuccessfulPurgeError("Could not purge {!r}".format(key))
+            raise UnsuccessfulPurgeError(f"Could not purge {key!r}")
+
+        time.sleep(2)
+
+        resp = requests.post(url, headers=headers)
+        resp.raise_for_status()
+
+        if resp.json().get("status") != "ok":
+            raise UnsuccessfulPurgeError(f"Could not double purge {key!r}")

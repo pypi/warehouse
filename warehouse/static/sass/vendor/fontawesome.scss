@@ -12,11 +12,8 @@
  * limitations under the License.
  */
 
-@charset "utf-8";
-
-/* Admin styles for the Warehouse project (PyPI) */
-
-.table td,
-.table th {
-  max-width: 30em;
-}
+$fa-font-path: "@fortawesome/fontawesome-free/webfonts";
+@import "@fortawesome/fontawesome-free/scss/fontawesome";
+@import "@fortawesome/fontawesome-free/scss/regular";
+@import "@fortawesome/fontawesome-free/scss/solid";
+@import "@fortawesome/fontawesome-free/scss/brands";
