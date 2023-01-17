@@ -1528,7 +1528,10 @@ class ManageAccountPublishingViews:
                 )
                 return self.default_response
 
-            self.request.session.flash(f"Removed provider for project '{pending_provider.project_name}'", queue="success")
+            self.request.session.flash(
+                f"Removed provider for project '{pending_provider.project_name}'",
+                queue="success",
+            )
 
             self.metrics.increment(
                 "warehouse.oidc.delete_pending_provider.ok",
