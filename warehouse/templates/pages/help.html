@@ -534,14 +534,10 @@
           {% trans %}
           Using OIDC to authenticate when publishing is done by registering "providers,"
           which correspond to services with OIDC identities like GitHub Actions.
-          Providers, in turn, come in two flavors:
+          Existing projects can add or remove OIDC providers at any time. OIDC providers
+          can also be created in advance for projects that don't exist yet.
           {% endtrans %}
         </p>
-        <ul>
-          <li>{% trans %}"Normal" providers, which are registered against individual PyPI projects;{% endtrans %}</li>
-          <li>{% trans %}"Pending" providers, which are registered against authorized users.{% endtrans %}</li>
-        </ul>
-
       </section>
 
       <section class="faq-group" id="integrating">
@@ -569,7 +565,7 @@
           {% endtrans %}
         </p>
         <p>{% trans href='https://status.python.org/', title=gettext('External link') %}For recent statistics on uptime and performance, see <a href="{{ href }}" title="{{ title }}" target="_blank" rel="noopener">our status page</a>.{% endtrans %}</p>
-      
+
         <h3 id="verify-hashes">{{ verify_hashes() }}</h3>
         <p>{% trans %}For each package hosted on PyPI, there are corresponding hashes for that file. These hashes can be used to verify that the file you are downloading is the same one that the project maintainer uploaded. This is especially useful if downloading packages from a mirror. The hashes can be obtained from the project page in the "Download Files" section or from the JSON API. Here is an example of generating the hashes:{% endtrans %}</p>
         <pre class="code-block">import hashlib
