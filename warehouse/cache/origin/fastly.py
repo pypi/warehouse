@@ -43,10 +43,8 @@ def purge_key(task, request, key):
 
 @implementer(IOriginCache)
 class FastlyCache:
-
-    _api_domain = "https://api.fastly.com"
-
-    def __init__(self, *, api_key, service_id, purger):
+    def __init__(self, *, api_endpoint, api_key, service_id, purger):
+        self.api_endpoint = api_endpoint
         self.api_key = api_key
         self.service_id = service_id
         self._purger = purger
@@ -54,6 +52,9 @@ class FastlyCache:
     @classmethod
     def create_service(cls, context, request):
         return cls(
+            api_endpoint=request.registry.settings.get(
+                "origin_cache.api_endpoint", "https://api.fastly.com"
+            ),
             api_key=request.registry.settings["origin_cache.api_key"],
             service_id=request.registry.settings["origin_cache.service_id"],
             purger=request.task(purge_key).delay,
@@ -95,7 +96,7 @@ class FastlyCache:
         path = "/service/{service_id}/purge/{key}".format(
             service_id=self.service_id, key=key
         )
-        url = urllib.parse.urljoin(self._api_domain, path)
+        url = urllib.parse.urljoin(self.api_endpoint, path)
         headers = {
             "Accept": "application/json",
             "Fastly-Key": self.api_key,
