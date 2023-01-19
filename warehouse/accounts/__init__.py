@@ -13,6 +13,7 @@
 from pyramid.authorization import ACLAuthorizationPolicy
 
 from warehouse.accounts.interfaces import (
+    IEmailBreachedService,
     IPasswordBreachedService,
     ITokenService,
     IUserService,
@@ -24,7 +25,9 @@ from warehouse.accounts.security_policy import (
     TwoFactorAuthorizationPolicy,
 )
 from warehouse.accounts.services import (
+    HaveIBeenPwnedEmailBreachedService,
     HaveIBeenPwnedPasswordBreachedService,
+    NullEmailBreachedService,
     NullPasswordBreachedService,
     TokenServiceFactory,
     database_login_factory,
@@ -36,7 +39,12 @@ from warehouse.macaroons.security_policy import (
 from warehouse.rate_limiting import IRateLimiter, RateLimit
 from warehouse.utils.security_policy import MultiSecurityPolicy
 
-__all__ = ["NullPasswordBreachedService", "HaveIBeenPwnedPasswordBreachedService"]
+__all__ = [
+    "NullPasswordBreachedService",
+    "HaveIBeenPwnedPasswordBreachedService",
+    "NullEmailBreachedService",
+    "HaveIBeenPwnedEmailBreachedService",
+]
 
 
 REDIRECT_FIELD_NAME = "next"
@@ -79,6 +87,15 @@ def includeme(config):
     )
     config.register_service_factory(
         breached_pw_class.create_service, IPasswordBreachedService
+    )
+    # Register our email breach detection service.
+    breached_email_class = config.maybe_dotted(
+        config.registry.settings.get(
+            "breached_emails.backend", HaveIBeenPwnedEmailBreachedService
+        )
+    )
+    config.register_service_factory(
+        breached_email_class.create_service, IEmailBreachedService
     )
 
     # Register our security policies (AuthN + AuthZ)

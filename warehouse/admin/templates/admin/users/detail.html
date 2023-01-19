@@ -259,6 +259,9 @@
                   <div class="col">
                     {{ render_checkbox("Public", field.public, "email-public-" ~ loop.index0) }}
                   </div>
+                  <div class="col">
+                    Breaches: {{ breached_email_count[field.email.data] }}
+                  </div>
                 </div>
                 {% endfor %}
               </div>

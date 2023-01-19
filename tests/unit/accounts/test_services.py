@@ -31,6 +31,7 @@ import warehouse.utils.webauthn as webauthn
 from warehouse.accounts import services
 from warehouse.accounts.interfaces import (
     BurnedRecoveryCode,
+    IEmailBreachedService,
     InvalidRecoveryCode,
     IPasswordBreachedService,
     ITokenService,
@@ -1337,3 +1338,12 @@ class TestNullPasswordBreachedService:
 
         assert isinstance(svc, services.NullPasswordBreachedService)
         assert not svc.check_password("hunter2")
+
+
+class TestNullEmailBreachedService:
+    def test_verify_service(self):
+        assert verifyClass(IEmailBreachedService, services.NullEmailBreachedService)
+
+    def test_check_email(self):
+        svc = services.NullEmailBreachedService()
+        assert svc.get_email_breach_count("foo@example.com") == 0

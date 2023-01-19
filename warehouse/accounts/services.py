@@ -14,6 +14,7 @@ import collections
 import datetime
 import functools
 import hashlib
+import http
 import logging
 import os
 import secrets
@@ -33,6 +34,7 @@ import warehouse.utils.webauthn as webauthn
 
 from warehouse.accounts.interfaces import (
     BurnedRecoveryCode,
+    IEmailBreachedService,
     InvalidRecoveryCode,
     IPasswordBreachedService,
     ITokenService,
@@ -812,3 +814,54 @@ class NullPasswordBreachedService:
         # This service allows *every* password as a non-breached password. It will never
         # tell a user their password isn't good enough.
         return False
+
+
+@implementer(IEmailBreachedService)
+class HaveIBeenPwnedEmailBreachedService:
+    def __init__(
+        self,
+        *,
+        session,
+        api_base="https://haveibeenpwned.com/api/v3/breachedaccount/",
+        api_key=None,
+    ):
+        self._http = session
+        self._api_base = api_base
+        self.api_key = api_key
+
+    @classmethod
+    def create_service(cls, context, request):
+        hibp_api_key = request.registry.settings.get("hibp.api_key")
+        return cls(session=request.http, api_key=hibp_api_key)
+
+    def get_email_breach_count(self, email: str) -> int | str:
+        """
+        Check if an email has been breached, return the number of breaches.
+        See https://haveibeenpwned.com/API/v3#BreachesForAccount
+        """
+
+        try:
+            resp = self._http.get(
+                urllib.parse.urljoin(self._api_base, email),
+                headers={"User-Agent": "PyPI.org", "hibp-api-key": self.api_key},
+            )
+            resp.raise_for_status()
+        except requests.RequestException as exc:
+            # 404 is expected if the email has **not** been breached
+            if exc.response.status_code == http.HTTPStatus.NOT_FOUND:
+                return 0
+            logger.warning("Error contacting HaveIBeenPwned: %r", exc)
+            return "?"
+
+        return len(resp.json())
+
+
+@implementer(IEmailBreachedService)
+class NullEmailBreachedService:
+    @classmethod
+    def create_service(cls, context, request):
+        return cls()
+
+    def get_email_breach_count(self, email):
+        # This service allows *every* email as a non-breached email.
+        return 0
