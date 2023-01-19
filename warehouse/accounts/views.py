@@ -1412,9 +1412,8 @@ class ManageAccountPublishingViews:
         if len(self.request.user.pending_oidc_providers) >= 3:
             self.request.session.flash(
                 self.request._(
-                    "You can't register any more pending OpenID Connect providers "
-                    "until you remove or publish a package with one or more "
-                    "of your currently pending providers."
+                    "You can't register more than 3 pending OpenID Connect "
+                    "providers at once."
                 ),
                 queue="error",
             )

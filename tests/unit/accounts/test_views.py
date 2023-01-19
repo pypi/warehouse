@@ -3198,7 +3198,7 @@ class TestManageAccountPublishingViews:
         assert request.session.flash.calls == [
             pretend.call(
                 (
-                    "You must have a primary, verified email in order to register a "
+                    "You must have a verified email in order to register a "
                     "pending OpenID Connect provider. "
                     "See https://pypi.org/help#openid-connect for details."
                 ),
@@ -3263,9 +3263,8 @@ class TestManageAccountPublishingViews:
         assert request.session.flash.calls == [
             pretend.call(
                 (
-                    "You can't register any more pending OpenID Connect providers "
-                    "until you remove or publish a package with one or more "
-                    "of your currently pending providers."
+                    "You can't register more than 3 pending OpenID Connect "
+                    "providers at once."
                 ),
                 queue="error",
             )

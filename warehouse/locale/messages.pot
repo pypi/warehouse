@@ -260,25 +260,21 @@ msgstr ""
 
 #: warehouse/accounts/views.py:1401
 msgid ""
-"You must have a primary, verified email in order to register a pending "
-"OpenID Connect provider. See https://pypi.org/help#openid-connect for "
-"details."
+"You must have a verified email in order to register a pending OpenID "
+"Connect provider. See https://pypi.org/help#openid-connect for details."
 msgstr ""
 
 #: warehouse/accounts/views.py:1414
-msgid ""
-"You can't register any more pending OpenID Connect providers until you "
-"remove or publish a package with one or more of your currently pending "
-"providers."
+msgid "You can't register more than 3 pending OpenID Connect providers at once."
 msgstr ""
 
-#: warehouse/accounts/views.py:1431 warehouse/manage/views.py:3107
+#: warehouse/accounts/views.py:1430 warehouse/manage/views.py:3107
 msgid ""
 "There have been too many attempted OpenID Connect registrations. Try "
 "again later."
 msgstr ""
 
-#: warehouse/accounts/views.py:1459
+#: warehouse/accounts/views.py:1458
 msgid ""
 "This OpenID Connect provider has already been registered. Please contact "
 "PyPI's admins if this wasn't intentional."
