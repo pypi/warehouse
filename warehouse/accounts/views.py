@@ -1399,7 +1399,7 @@ class ManageAccountPublishingViews:
         if not self.request.user.can_register_pending_oidc_providers:
             self.request.session.flash(
                 self.request._(
-                    "You must have a primary, verified email in order to register a "
+                    "You must have a verified email in order to register a "
                     "pending OpenID Connect provider. "
                     "See https://pypi.org/help#openid-connect for details."
                 ),
