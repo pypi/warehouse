@@ -17,7 +17,7 @@ from pyramid.httpexceptions import HTTPBadRequest, HTTPMovedPermanently
 from sqlalchemy.orm import joinedload
 from webob.multidict import MultiDict, NoVars
 
-from warehouse.accounts.interfaces import IUserService
+from warehouse.accounts.interfaces import IEmailBreachedService, IUserService
 from warehouse.accounts.models import DisableReason, ProhibitedUserName
 from warehouse.admin.views import users as views
 from warehouse.packaging.models import JournalEntry, Project
@@ -113,6 +113,12 @@ class TestUserDetail:
         roles = sorted([RoleFactory(project=project, user=user, role_name="Owner")])
         db_request.matchdict["username"] = str(user.username)
         db_request.POST = NoVars()
+
+        breach_service = pretend.stub(get_email_breach_count=lambda count: 0)
+        db_request.find_service = lambda interface, **kwargs: {
+            IEmailBreachedService: breach_service,
+        }[interface]
+
         result = views.user_detail(user, db_request)
 
         assert result["user"] == user
@@ -149,6 +155,11 @@ class TestUserDetail:
             lambda: f"/admin/users/{user.username}/"
         )
 
+        breach_service = pretend.stub(get_email_breach_count=lambda count: 0)
+        db_request.find_service = lambda interface, **kwargs: {
+            IEmailBreachedService: breach_service,
+        }[interface]
+
         resp = views.user_detail(user, db_request)
 
         assert resp["form"].errors == {
@@ -172,6 +183,11 @@ class TestUserDetail:
         db_request.current_route_path = pretend.call_recorder(
             lambda: f"/admin/users/{user.username}/"
         )
+
+        breach_service = pretend.stub(get_email_breach_count=lambda count: 0)
+        db_request.find_service = lambda interface, **kwargs: {
+            IEmailBreachedService: breach_service,
+        }[interface]
 
         resp = views.user_detail(user, db_request)
 
