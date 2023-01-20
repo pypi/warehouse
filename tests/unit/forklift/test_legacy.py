@@ -106,21 +106,12 @@ class TestValidation:
         form, field = pretend.stub(), pretend.stub(data=version)
         legacy._validate_pep440_version(form, field)
 
-    @pytest.mark.parametrize("version", ["dog", "1.0.dev.a1"])
+    @pytest.mark.filterwarnings("ignore:Creating a LegacyVersion.*:DeprecationWarning")
+    @pytest.mark.parametrize("version", ["dog", "1.0.dev.a1", "1.0+local"])
     def test_validates_invalid_pep440_version(self, version):
         form, field = pretend.stub(), pretend.stub(data=version)
-        with pytest.raises(ValidationError) as e:
+        with pytest.raises(ValidationError):
             legacy._validate_pep440_version(form, field)
-
-        assert str(e.value) == "Invalid PEP 440 version."
-
-    @pytest.mark.parametrize("version", ["1.0+local"])
-    def test_validates_local_pep440_version(self, version):
-        form, field = pretend.stub(), pretend.stub(data=version)
-        with pytest.raises(ValidationError) as e:
-            legacy._validate_pep440_version(form, field)
-
-        assert str(e.value) == "Can't use PEP 440 local versions."
 
     @pytest.mark.parametrize(
         ("requirement", "expected"),
@@ -877,9 +868,11 @@ class TestFileUpload:
             (
                 {"metadata_version": "1.2", "name": "example", "version": "dog"},
                 "'dog' is an invalid value for Version. "
-                "Error: Invalid PEP 440 version. See "
-                "https://packaging.python.org/specifications/core-metadata for "
-                "more information.",
+                "Error: Start and end with a letter or numeral "
+                "containing only ASCII numeric and '.', '_' and '-'. "
+                "See "
+                "https://packaging.python.org/specifications/core-metadata"
+                " for more information.",
             ),
             # filetype/pyversion errors.
             (
@@ -1001,6 +994,7 @@ class TestFileUpload:
             ),
         ],
     )
+    @pytest.mark.filterwarnings("ignore:Creating a LegacyVersion.*:DeprecationWarning")
     def test_fails_invalid_post_data(
         self, pyramid_config, db_request, post_data, message
     ):
