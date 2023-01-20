@@ -215,14 +215,10 @@ def _exc_with_message(exc, message, **kwargs):
 
 
 def _validate_pep440_version(form, field):
-    parsed = packaging.version.parse(field.data)
-
-    # Check that this version is a valid PEP 440 version at all.
-    if not isinstance(parsed, packaging.version.Version):
-        raise wtforms.validators.ValidationError(
-            "Start and end with a letter or numeral containing only "
-            "ASCII numeric and '.', '_' and '-'."
-        )
+    try:
+        parsed = packaging.version.parse(field.data)
+    except packaging.version.InvalidVersion:
+        raise wtforms.validators.ValidationError("Invalid PEP 440 version.")
 
     # Check that this version does not have a PEP 440 local segment attached
     # to it.

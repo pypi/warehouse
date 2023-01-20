@@ -70,5 +70,3 @@ WTForms[email]>=2.0.0
 yara-python
 zope.sqlalchemy
 zxcvbn
-# Until resolved https://github.com/googleapis/python-bigquery/issues/1435
-packaging<22.0
