@@ -840,6 +840,10 @@ class HaveIBeenPwnedEmailBreachedService:
         See https://haveibeenpwned.com/API/v3#BreachesForAccount
         """
 
+        # bail early if no api key is set, so we don't send failing requests
+        if not self.api_key:
+            return "!!!"
+
         try:
             resp = self._http.get(
                 urllib.parse.urljoin(self._api_base, email),

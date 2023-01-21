@@ -1351,13 +1351,15 @@ class TestHaveIBeenPwnedEmailBreachedService:
             json=lambda: [{"LinkedIn"}], raise_for_status=lambda: None
         )
         session = pretend.stub(get=pretend.call_recorder(lambda *a, **kw: response))
-        svc = services.HaveIBeenPwnedEmailBreachedService(session=session)
+        svc = services.HaveIBeenPwnedEmailBreachedService(
+            session=session, api_key="blowhole"
+        )
 
         assert svc.get_email_breach_count("foo@example.com") == 1
         assert session.get.calls == [
             pretend.call(
                 "https://haveibeenpwned.com/api/v3/breachedaccount/foo@example.com",
-                headers={"User-Agent": "PyPI.org", "hibp-api-key": None},
+                headers={"User-Agent": "PyPI.org", "hibp-api-key": "blowhole"},
             )
         ]
 
@@ -1370,13 +1372,15 @@ class TestHaveIBeenPwnedEmailBreachedService:
         session = pretend.stub(
             get=pretend.call_recorder(lambda *a, **kw: response),
         )
-        svc = services.HaveIBeenPwnedEmailBreachedService(session=session)
+        svc = services.HaveIBeenPwnedEmailBreachedService(
+            session=session, api_key="blowhole"
+        )
 
         assert svc.get_email_breach_count("new-email@gmail.com") == 0
         assert session.get.calls == [
             pretend.call(
                 "https://haveibeenpwned.com/api/v3/breachedaccount/new-email@gmail.com",
-                headers={"User-Agent": "PyPI.org", "hibp-api-key": None},
+                headers={"User-Agent": "PyPI.org", "hibp-api-key": "blowhole"},
             )
         ]
 
@@ -1389,13 +1393,15 @@ class TestHaveIBeenPwnedEmailBreachedService:
         session = pretend.stub(
             get=pretend.call_recorder(lambda *a, **kw: response),
         )
-        svc = services.HaveIBeenPwnedEmailBreachedService(session=session)
+        svc = services.HaveIBeenPwnedEmailBreachedService(
+            session=session, api_key="blowhole"
+        )
 
         assert svc.get_email_breach_count("invalid-address") == "?"
 
     def test_factory(self):
         context = pretend.stub()
-        hibp_api_key = "something-super-secret"
+        hibp_api_key = "blowhole"
         request = pretend.stub(
             http=pretend.stub(),
             registry=pretend.stub(settings={"hibp.api_key": hibp_api_key}),
