@@ -1346,6 +1346,10 @@ class TestHaveIBeenPwnedEmailBreachedService:
             IEmailBreachedService, services.HaveIBeenPwnedEmailBreachedService
         )
 
+    def test_no_api_key(self):
+        svc = services.HaveIBeenPwnedEmailBreachedService(session=pretend.stub())
+        assert svc.get_email_breach_count("anything") == "!!!"
+
     def test_successful_breach_count(self):
         response = pretend.stub(
             json=lambda: [{"LinkedIn"}], raise_for_status=lambda: None
