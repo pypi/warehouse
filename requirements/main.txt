@@ -1372,9 +1372,9 @@ sentry-sdk==1.13.0 \
     --hash=sha256:72da0766c3069a3941eadbdfa0996f83f5a33e55902a19ba399557cfee1dddcc \
     --hash=sha256:b7ff6318183e551145b5c4766eb65b59ad5b63ff234dffddc5fb50340cad6729
     # via -r requirements/main.in
-setuptools==66.0.0 \
-    --hash=sha256:a78d01d1e2c175c474884671dde039962c9d74c7223db7369771fcf6e29ceeab \
-    --hash=sha256:bd6eb2d6722568de6d14b87c44a96fac54b2a45ff5e940e639979a3d1792adb6
+setuptools==66.1.1 \
+    --hash=sha256:6f590d76b713d5de4e49fe4fbca24474469f53c83632d5d0fd056f7ff7e8112b \
+    --hash=sha256:ac4008d396bc9cd983ea483cb7139c0240a07bbc74ffb6232fceffedc6cf03a8
     # via
     #   -r requirements/main.in
     #   limits
