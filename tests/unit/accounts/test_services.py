@@ -1348,7 +1348,7 @@ class TestHaveIBeenPwnedEmailBreachedService:
 
     def test_no_api_key(self):
         svc = services.HaveIBeenPwnedEmailBreachedService(session=pretend.stub())
-        assert svc.get_email_breach_count("anything") == "!!!"
+        assert svc.get_email_breach_count("anything") is None
 
     def test_successful_breach_count(self):
         response = pretend.stub(
@@ -1401,7 +1401,7 @@ class TestHaveIBeenPwnedEmailBreachedService:
             session=session, api_key="blowhole"
         )
 
-        assert svc.get_email_breach_count("invalid-address") == "?"
+        assert svc.get_email_breach_count("invalid-address") == -1
 
     def test_factory(self):
         context = pretend.stub()

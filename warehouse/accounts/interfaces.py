@@ -283,7 +283,7 @@ class IPasswordBreachedService(Interface):
 
 
 class IEmailBreachedService(Interface):
-    def get_email_breach_count(email: str) -> int | str:
+    def get_email_breach_count(email: str) -> int | None:
         """
         Returns count of times the email appears in verified breaches.
         """

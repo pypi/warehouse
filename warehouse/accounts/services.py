@@ -834,7 +834,7 @@ class HaveIBeenPwnedEmailBreachedService:
         hibp_api_key = request.registry.settings.get("hibp.api_key")
         return cls(session=request.http, api_key=hibp_api_key)
 
-    def get_email_breach_count(self, email: str) -> int | str:
+    def get_email_breach_count(self, email: str) -> int | None:
         """
         Check if an email has been breached, return the number of breaches.
         See https://haveibeenpwned.com/API/v3#BreachesForAccount
@@ -842,7 +842,7 @@ class HaveIBeenPwnedEmailBreachedService:
 
         # bail early if no api key is set, so we don't send failing requests
         if not self.api_key:
-            return "!!!"
+            return None
 
         try:
             resp = self._http.get(
@@ -855,7 +855,7 @@ class HaveIBeenPwnedEmailBreachedService:
             if exc.response.status_code == http.HTTPStatus.NOT_FOUND:
                 return 0
             logger.warning("Error contacting HaveIBeenPwned: %r", exc)
-            return "?"
+            return -1
 
         return len(resp.json())
 
