@@ -93,7 +93,6 @@ def _project_docs(db, project_name=None):
             classifiers,
             Project.normalized_name,
             Project.name,
-            Project.zscore,
         )
         .select_from(releases_list)
         .join(Release, Release.id == releases_list.c.id)

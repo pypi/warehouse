@@ -15,18 +15,6 @@
 
 {% block title_base %}{{ request.registry.settings['site.name'] }} · {% trans %}The Python Package Index{% endtrans %}{% endblock %}
 
-{% macro project_snippet(release) -%}
-<li>
-  <a class="package-snippet" href="{{ request.route_path('packaging.project', name=release.project.normalized_name) }}" rel="nofollow">
-    <h3 class="package-snippet__title">
-      <span class="package-snippet__name">{{ release.project.name }}</span>
-      <span class="package-snippet__version">{{ release.version }}</span>
-    </h3>
-    <p class="package-snippet__description">{{ release.summary }}</p>
-  </a>
-</li>
-{%- endmacro %}
-
 {% block brand %}
 <div>
   <a class="site-header__logo" href="{{ request.route_path('index') }}">
@@ -118,32 +106,4 @@
     </div>
   </div>
 </div>
-
-<div class="horizontal-section horizontal-section--grey">
-  <div class="site-container">
-    <div class="col-half">
-      <div class="heading-wsubtitle" id="pypi-trending-packages">
-        <h2 class="heading-wsubtitle__heading">{% trans %}Trending projects{% endtrans %}</h2>
-        <p class="heading-wsubtitle__subtitle">{% trans %}Trending projects as downloaded by the community{% endtrans %}</p>
-      </div>
-      <ul class="unstyled" aria-labelledby="pypi-trending-packages">
-        {% for release in trending_projects %}
-          {{ project_snippet(release) }}
-        {% endfor %}
-      </ul>
-    </div>
-    <div class="col-half">
-      <div class="heading-wsubtitle" id="pypi-new-packages">
-        <h2 class="heading-wsubtitle__heading">{% trans %}New releases{% endtrans %}</h2>
-        <p class="heading-wsubtitle__subtitle">{% trans %}Hot off the press: the newest project releases{% endtrans %}</p>
-      </div>
-      <ul class="unstyled" aria-labelledby="pypi-new-packages">
-        {% for release in latest_releases %}
-          {{ project_snippet(release) }}
-        {% endfor %}
-      </ul>
-    </div>
-  </div>
-</div>
-
 {% endblock %}

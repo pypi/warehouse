@@ -327,9 +327,6 @@ class TestIndex:
         UserFactory.create()
 
         assert index(db_request) == {
-            # assert that ordering is correct
-            "latest_releases": [release2, release1],
-            "trending_projects": [release2],
             "num_projects": 1,
             "num_users": 3,
             "num_releases": 2,

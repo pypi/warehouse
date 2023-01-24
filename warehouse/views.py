@@ -38,7 +38,6 @@ from pyramid.view import (
     view_defaults,
 )
 from sqlalchemy import func
-from sqlalchemy.orm import aliased, joinedload
 from sqlalchemy.sql import exists, expression
 from trove_classifiers import deprecated_classifiers, sorted_classifiers
 
@@ -210,48 +209,12 @@ def opensearchxml(request):
             1 * 60 * 60,  # 1 hour
             stale_while_revalidate=10 * 60,  # 10 minutes
             stale_if_error=1 * 24 * 60 * 60,  # 1 day
-            keys=["all-projects", "trending"],
+            keys=["all-projects"],
         )
     ],
     has_translations=True,
 )
 def index(request):
-    project_ids = [
-        r[0]
-        for r in (
-            request.db.query(Project.id)
-            .order_by(Project.zscore.desc().nullslast(), func.random())
-            .limit(5)
-            .all()
-        )
-    ]
-    release_a = aliased(
-        Release,
-        request.db.query(Release)
-        .distinct(Release.project_id)
-        .filter(Release.project_id.in_(project_ids))
-        .order_by(
-            Release.project_id,
-            Release.is_prerelease.nullslast(),
-            Release._pypi_ordering.desc(),
-        )
-        .subquery(),
-    )
-    trending_projects = (
-        request.db.query(release_a)
-        .options(joinedload(release_a.project))
-        .order_by(func.array_idx(project_ids, release_a.project_id))
-        .all()
-    )
-
-    latest_releases = (
-        request.db.query(Release)
-        .options(joinedload(Release.project))
-        .order_by(Release.created.desc())
-        .limit(5)
-        .all()
-    )
-
     counts = dict(
         request.db.query(RowCount.table_name, RowCount.count)
         .filter(
@@ -268,8 +231,6 @@ def index(request):
     )
 
     return {
-        "latest_releases": latest_releases,
-        "trending_projects": trending_projects,
         "num_projects": counts.get(Project.__tablename__, 0),
         "num_releases": counts.get(Release.__tablename__, 0),
         "num_files": counts.get(File.__tablename__, 0),
