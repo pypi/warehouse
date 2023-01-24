@@ -176,7 +176,6 @@ def configure(settings=None):
         "GITHUB_TOKEN_SCANNING_META_API_URL",
         default="https://api.github.com/meta/public_keys/token_scanning",
     )
-    maybe_set(settings, "warehouse.trending_table", "WAREHOUSE_TRENDING_TABLE")
     maybe_set(settings, "warehouse.downloads_table", "WAREHOUSE_DOWNLOADS_TABLE")
     maybe_set(settings, "celery.broker_url", "BROKER_URL")
     maybe_set(settings, "celery.result_url", "REDIS_URL")

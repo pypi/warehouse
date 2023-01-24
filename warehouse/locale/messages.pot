@@ -1,10 +1,10 @@
-#: warehouse/views.py:141
+#: warehouse/views.py:140
 msgid ""
 "Two-factor authentication must be enabled on your account to perform this"
 " action."
 msgstr ""
 
-#: warehouse/views.py:304
+#: warehouse/views.py:265
 msgid "Locale updated"
 msgstr ""
 
@@ -520,7 +520,7 @@ msgstr ""
 #: warehouse/templates/includes/accounts/profile-callout.html:18
 #: warehouse/templates/includes/hash-modal.html:23
 #: warehouse/templates/includes/packaging/project-data.html:66
-#: warehouse/templates/index.html:112 warehouse/templates/index.html:116
+#: warehouse/templates/index.html:100 warehouse/templates/index.html:104
 #: warehouse/templates/manage/account.html:228
 #: warehouse/templates/manage/account.html:234
 #: warehouse/templates/manage/account/totp-provision.html:32
@@ -737,7 +737,7 @@ msgid ""
 "Foundation</a>."
 msgstr ""
 
-#: warehouse/templates/base.html:93 warehouse/templates/index.html:109
+#: warehouse/templates/base.html:93 warehouse/templates/index.html:97
 msgid ""
 "The Python Package Index (PyPI) is a repository of software for the "
 "Python programming language."
@@ -796,19 +796,19 @@ msgstr ""
 
 #: warehouse/templates/base.html:227 warehouse/templates/base.html:248
 #: warehouse/templates/error-base-with-search.html:20
-#: warehouse/templates/index.html:55
+#: warehouse/templates/index.html:43
 msgid "Search PyPI"
 msgstr ""
 
 #: warehouse/templates/base.html:228 warehouse/templates/base.html:249
 #: warehouse/templates/error-base-with-search.html:21
-#: warehouse/templates/index.html:58
+#: warehouse/templates/index.html:46
 msgid "Search projects"
 msgstr ""
 
 #: warehouse/templates/base.html:232 warehouse/templates/base.html:253
 #: warehouse/templates/error-base-with-search.html:24
-#: warehouse/templates/index.html:62
+#: warehouse/templates/index.html:50
 msgid "Search"
 msgstr ""
 
@@ -971,83 +971,67 @@ msgstr ""
 msgid "The Python Package Index"
 msgstr ""
 
-#: warehouse/templates/index.html:43
+#: warehouse/templates/index.html:31
 msgid "Test Python package publishing with the Test Python Package Index"
 msgstr ""
 
-#: warehouse/templates/index.html:45
+#: warehouse/templates/index.html:33
 msgid "Develop the codebase behind PyPI with the Dev Python Package Index"
 msgstr ""
 
-#: warehouse/templates/index.html:47
+#: warehouse/templates/index.html:35
 msgid "Find, install and publish Python packages with the Python Package Index"
 msgstr ""
 
-#: warehouse/templates/index.html:66
+#: warehouse/templates/index.html:54
 #, python-format
 msgid "Or <a href=\"%(href)s\">browse projects</a>"
 msgstr ""
 
-#: warehouse/templates/index.html:73
+#: warehouse/templates/index.html:61
 #, python-format
 msgid "%(num_projects_formatted)s project"
 msgid_plural "%(num_projects_formatted)s projects"
 msgstr[0] ""
 msgstr[1] ""
 
-#: warehouse/templates/index.html:80
+#: warehouse/templates/index.html:68
 #, python-format
 msgid "%(num_releases_formatted)s release"
 msgid_plural "%(num_releases_formatted)s releases"
 msgstr[0] ""
 msgstr[1] ""
 
-#: warehouse/templates/index.html:87
+#: warehouse/templates/index.html:75
 #, python-format
 msgid "%(num_files_formatted)s file"
 msgid_plural "%(num_files_formatted)s files"
 msgstr[0] ""
 msgstr[1] ""
 
-#: warehouse/templates/index.html:94
+#: warehouse/templates/index.html:82
 #, python-format
 msgid "%(num_users_formatted)s user"
 msgid_plural "%(num_users_formatted)s users"
 msgstr[0] ""
 msgstr[1] ""
 
-#: warehouse/templates/index.html:111
+#: warehouse/templates/index.html:99
 msgid ""
 "PyPI helps you find and install software developed and shared by the "
 "Python community."
 msgstr ""
 
-#: warehouse/templates/index.html:112
+#: warehouse/templates/index.html:100
 msgid "Learn about installing packages"
 msgstr ""
 
-#: warehouse/templates/index.html:115
+#: warehouse/templates/index.html:103
 msgid "Package authors use PyPI to distribute their software."
 msgstr ""
 
-#: warehouse/templates/index.html:116
+#: warehouse/templates/index.html:104
 msgid "Learn how to package your Python code for PyPI"
-msgstr ""
-
-#: warehouse/templates/index.html:126
-msgid "Trending projects"
-msgstr ""
-
-#: warehouse/templates/index.html:127
-msgid "Trending projects as downloaded by the community"
-msgstr ""
-
-#: warehouse/templates/index.html:137
-msgid "New releases"
-msgstr ""
-
-#: warehouse/templates/index.html:138
-msgid "Hot off the press: the newest project releases"
 msgstr ""
 
 #: warehouse/templates/accounts/login.html:17
@@ -2347,7 +2331,7 @@ msgstr ""
 #: warehouse/templates/manage/project/release.html:137
 #: warehouse/templates/manage/project/releases.html:178
 #: warehouse/templates/manage/project/settings.html:111
-#: warehouse/templates/search/results.html:199
+#: warehouse/templates/search/results.html:198
 msgid "Close"
 msgstr ""
 
@@ -7789,7 +7773,7 @@ msgstr ""
 
 #: warehouse/templates/search/results.html:18
 #: warehouse/templates/search/results.html:114
-#: warehouse/templates/search/results.html:212
+#: warehouse/templates/search/results.html:211
 msgid "Search results"
 msgstr ""
 
@@ -7861,24 +7845,20 @@ msgstr ""
 msgid "Date last updated"
 msgstr ""
 
-#: warehouse/templates/search/results.html:181
-msgid "Trending"
-msgstr ""
-
-#: warehouse/templates/search/results.html:194
+#: warehouse/templates/search/results.html:193
 msgid "Filter"
 msgstr ""
 
-#: warehouse/templates/search/results.html:205
+#: warehouse/templates/search/results.html:204
 msgid "Add filter"
 msgstr ""
 
-#: warehouse/templates/search/results.html:221
+#: warehouse/templates/search/results.html:220
 #, python-format
 msgid "There were no results for '%(term)s'"
 msgstr ""
 
-#: warehouse/templates/search/results.html:223
+#: warehouse/templates/search/results.html:222
 #, python-format
 msgid "There were no results for '%(filters)s' filter"
 msgid_plural "There were no results for '%(filters)s' filters"

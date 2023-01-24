@@ -142,9 +142,7 @@ class TestQueries:
             },
         }
 
-    @pytest.mark.parametrize(
-        "order,field", [("created", "created"), ("-zscore", "zscore")]
-    )
+    @pytest.mark.parametrize("order,field", [("created", "created")])
     def test_sort_order(self, order, field):
         es = Search()
         terms = "foo bar"
