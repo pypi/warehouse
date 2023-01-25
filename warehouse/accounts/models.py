@@ -195,17 +195,6 @@ class User(SitemapMixin, HasEvents, db.Model):
             ]
         )
 
-    @property
-    def can_register_pending_oidc_providers(self):
-        if self.is_superuser or self.is_moderator or self.is_psf_staff:
-            # Special users (superusers, moderators, PSF staff) can always
-            # register pending OIDC providers.
-            return True
-
-        # Ordinary users can register pending OIDC providers if
-        # they have a primary, verified email.
-        return self.has_primary_verified_email
-
     def __acl__(self):
         return [
             (Allow, "group:admins", "admin"),

@@ -3164,7 +3164,7 @@ class TestManageAccountPublishingViews:
             flags=pretend.stub(enabled=pretend.call_recorder(lambda f: False)),
             session=pretend.stub(flash=pretend.call_recorder(lambda *a, **kw: None)),
             POST=pretend.stub(),
-            user=pretend.stub(can_register_pending_oidc_providers=False),
+            user=pretend.stub(has_primary_verified_email=False),
             _=lambda s: s,
         )
 
@@ -3227,7 +3227,7 @@ class TestManageAccountPublishingViews:
             session=pretend.stub(flash=pretend.call_recorder(lambda *a, **kw: None)),
             POST=pretend.stub(),
             user=pretend.stub(
-                can_register_pending_oidc_providers=True,
+                has_primary_verified_email=True,
                 pending_oidc_providers=[pretend.stub(), pretend.stub(), pretend.stub()],
             ),
             _=lambda s: s,
@@ -3291,7 +3291,7 @@ class TestManageAccountPublishingViews:
             session=pretend.stub(flash=pretend.call_recorder(lambda *a, **kw: None)),
             POST=pretend.stub(),
             user=pretend.stub(
-                can_register_pending_oidc_providers=True,
+                has_primary_verified_email=True,
                 pending_oidc_providers=[],
             ),
             _=lambda s: s,
@@ -3347,7 +3347,7 @@ class TestManageAccountPublishingViews:
             session=pretend.stub(flash=pretend.call_recorder(lambda *a, **kw: None)),
             POST=pretend.stub(),
             user=pretend.stub(
-                can_register_pending_oidc_providers=True,
+                has_primary_verified_email=True,
                 pending_oidc_providers=[],
             ),
             _=lambda s: s,
@@ -3406,7 +3406,7 @@ class TestManageAccountPublishingViews:
             session=pretend.stub(flash=pretend.call_recorder(lambda *a, **kw: None)),
             POST=pretend.stub(),
             user=pretend.stub(
-                can_register_pending_oidc_providers=True,
+                has_primary_verified_email=True,
                 pending_oidc_providers=[],
             ),
             _=lambda s: s,
@@ -3481,7 +3481,7 @@ class TestManageAccountPublishingViews:
             session=pretend.stub(flash=pretend.call_recorder(lambda *a, **kw: None)),
             POST=pretend.stub(),
             user=pretend.stub(
-                can_register_pending_oidc_providers=True,
+                has_primary_verified_email=True,
                 pending_oidc_providers=[],
                 record_event=pretend.call_recorder(lambda **kw: None),
             ),

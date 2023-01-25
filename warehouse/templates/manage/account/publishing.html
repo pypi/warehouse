@@ -14,7 +14,7 @@
 {% extends "manage/manage_base.html" %}
 
 {% set user = request.user %}
-{% set pending_oidc_enabled = user.can_register_pending_oidc_providers %}
+{% set pending_oidc_enabled = user.has_primary_verified_email %}
 
 {% set active_tab = 'publishing' %}
 

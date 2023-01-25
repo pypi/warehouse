@@ -1396,7 +1396,7 @@ class ManageAccountPublishingViews:
             "warehouse.oidc.add_pending_provider.attempt", tags=["provider:GitHub"]
         )
 
-        if not self.request.user.can_register_pending_oidc_providers:
+        if not self.request.user.has_primary_verified_email:
             self.request.session.flash(
                 self.request._(
                     "You must have a verified email in order to register a "

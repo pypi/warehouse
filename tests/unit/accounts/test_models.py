@@ -156,40 +156,6 @@ class TestUser:
         user = DBUserFactory.create()
         assert user.has_burned_recovery_codes is False
 
-    @pytest.mark.parametrize(
-        ("is_superuser", "is_moderator", "is_psf_staff"),
-        [
-            (True, False, False),
-            (False, True, False),
-            (False, False, True),
-        ],
-    )
-    def test_special_users_can_register_pending_oidc_providers(
-        self, db_session, is_superuser, is_moderator, is_psf_staff
-    ):
-        user = DBUserFactory.create(
-            is_superuser=is_superuser,
-            is_moderator=is_moderator,
-            is_psf_staff=is_psf_staff,
-        )
-        assert user.can_register_pending_oidc_providers
-
-    def test_trivial_user_cannot_register_pending_oidc_providers(self, db_session):
-        user = DBUserFactory.create()
-        assert not user.can_register_pending_oidc_providers
-
-    def test_user_without_primary_email_cannot_register_pending_oidc_providers(
-        self, db_session
-    ):
-        date_joined = datetime.datetime.now() - datetime.timedelta(days=91)
-        user = DBUserFactory.create(totp_secret=b"fake secret", date_joined=date_joined)
-        assert not user.can_register_pending_oidc_providers
-
-    def test_qualifying_user_can_register_pending_oidc_providers(self, db_session):
-        user = DBUserFactory.create()
-        DBEmailFactory.create(user=user, primary=True)
-        assert user.can_register_pending_oidc_providers
-
     def test_acl(self, db_session):
         user = DBUserFactory.create()
         assert user.__acl__() == [
