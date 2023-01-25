@@ -23,7 +23,7 @@ from sqlalchemy import literal, or_, select
 from sqlalchemy.orm import joinedload
 
 from warehouse import forms
-from warehouse.accounts.interfaces import IUserService
+from warehouse.accounts.interfaces import IEmailBreachedService, IUserService
 from warehouse.accounts.models import DisableReason, Email, ProhibitedUserName, User
 from warehouse.email import send_password_compromised_email
 from warehouse.packaging.models import JournalEntry, Project, Role
@@ -143,7 +143,21 @@ def user_detail(user, request):
         request.session.flash(f"User {user.username!r} updated", queue="success")
         return HTTPSeeOther(location=request.current_route_path())
 
-    return {"user": user, "form": form, "roles": roles, "add_email_form": EmailForm()}
+    # Incurs API call for every email address stored.
+    breached_email_count = {
+        email_entry.data["email"]: request.find_service(
+            IEmailBreachedService
+        ).get_email_breach_count(email_entry.data["email"])
+        for email_entry in form.emails.entries
+    }
+
+    return {
+        "user": user,
+        "form": form,
+        "roles": roles,
+        "add_email_form": EmailForm(),
+        "breached_email_count": breached_email_count,
+    }
 
 
 @view_config(
