@@ -29,7 +29,6 @@ from sqlalchemy import (
     DateTime,
     Enum,
     FetchedValue,
-    Float,
     ForeignKey,
     Index,
     Integer,
@@ -196,7 +195,6 @@ class Project(SitemapMixin, TwoFactorRequireable, HasEvents, db.Model):
     upload_limit = Column(Integer, nullable=True)
     total_size_limit = Column(BigInteger, nullable=True)
     last_serial = Column(Integer, nullable=False, server_default=sql.text("0"))
-    zscore = Column(Float, nullable=True)
     total_size = Column(BigInteger, server_default=sql.text("0"))
 
     organization = orm.relationship(

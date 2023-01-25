@@ -176,7 +176,6 @@ def configure(settings=None):
         "GITHUB_TOKEN_SCANNING_META_API_URL",
         default="https://api.github.com/meta/public_keys/token_scanning",
     )
-    maybe_set(settings, "warehouse.trending_table", "WAREHOUSE_TRENDING_TABLE")
     maybe_set(settings, "warehouse.downloads_table", "WAREHOUSE_DOWNLOADS_TABLE")
     maybe_set(settings, "celery.broker_url", "BROKER_URL")
     maybe_set(settings, "celery.result_url", "REDIS_URL")
@@ -196,6 +195,7 @@ def configure(settings=None):
     maybe_set(settings, "ga.tracking_id", "GA_TRACKING_ID")
     maybe_set(settings, "ga4.tracking_id", "GA4_TRACKING_ID")
     maybe_set(settings, "statuspage.url", "STATUSPAGE_URL")
+    maybe_set(settings, "hibp.api_key", "HIBP_API_KEY")
     maybe_set(settings, "token.password.secret", "TOKEN_PASSWORD_SECRET")
     maybe_set(settings, "token.email.secret", "TOKEN_EMAIL_SECRET")
     maybe_set(settings, "token.two_factor.secret", "TOKEN_TWO_FACTOR_SECRET")
