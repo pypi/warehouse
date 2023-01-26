@@ -33,7 +33,7 @@ msgstr ""
 "X-Generator: Weblate 4.15-dev\n"
 "Generated-By: Babel 2.7.0\n"
 
-#: warehouse/views.py:141
+#: warehouse/views.py:140
 msgid ""
 "Two-factor authentication must be enabled on your account to perform this "
 "action."
@@ -41,7 +41,7 @@ msgstr ""
 "Hesabınızdaki bu değişikliği aktif etmek için iki aşamalı kimlik "
 "doğrulamasını aktif etmelisiniz."
 
-#: warehouse/views.py:304
+#: warehouse/views.py:265
 msgid "Locale updated"
 msgstr "Yerel ayarlarlar güncellendi"
 
@@ -88,7 +88,7 @@ msgstr ""
 msgid "Password too long."
 msgstr "Parola çok uzun."
 
-#: warehouse/accounts/forms.py:172 warehouse/accounts/views.py:88
+#: warehouse/accounts/forms.py:172 warehouse/accounts/views.py:94
 msgid "There have been too many unsuccessful login attempts. Try again later."
 msgstr "Çok fazla başarısız giriş denemesi oldu. Sonra tekrar deneyin."
 
@@ -147,7 +147,7 @@ msgstr "Kurtarma kodu daha önceden kullanıldı."
 msgid "No user found with that username or email"
 msgstr "Bu kullanıcı adı veya e-posta ile alakalı hiçbir kullanıcı bulunamadı"
 
-#: warehouse/accounts/views.py:105
+#: warehouse/accounts/views.py:111
 msgid ""
 "Too many emails have been added to this account without verifying them. "
 "Check your inbox and follow the verification links. (IP: ${ip})"
@@ -155,7 +155,7 @@ msgstr ""
 "Bu hesaba, doğrulanmamış çok fazla e-posta eklendi. Gelen kutunuzu kontrol "
 "edin ve doğrulama bağlantılarını takip edin. (IP: ${ip})"
 
-#: warehouse/accounts/views.py:117
+#: warehouse/accounts/views.py:123
 msgid ""
 "Too many password resets have been requested for this account without "
 "completing them. Check your inbox and follow the verification links. (IP: "
@@ -165,25 +165,25 @@ msgstr ""
 "Gelen kutunuzu kontrol edin ve doğrulama bağlantılarını kontrol edin. (IP: "
 "${ip})"
 
-#: warehouse/accounts/views.py:257 warehouse/accounts/views.py:321
-#: warehouse/accounts/views.py:323 warehouse/accounts/views.py:350
-#: warehouse/accounts/views.py:352 warehouse/accounts/views.py:418
+#: warehouse/accounts/views.py:263 warehouse/accounts/views.py:327
+#: warehouse/accounts/views.py:329 warehouse/accounts/views.py:356
+#: warehouse/accounts/views.py:358 warehouse/accounts/views.py:424
 msgid "Invalid or expired two factor login."
 msgstr "Geçersiz veya süresi dolmuş 2-aşamalı giriş."
 
-#: warehouse/accounts/views.py:315
+#: warehouse/accounts/views.py:321
 msgid "Already authenticated"
 msgstr "Zaten giriş yapılmış"
 
-#: warehouse/accounts/views.py:394
+#: warehouse/accounts/views.py:400
 msgid "Successful WebAuthn assertion"
 msgstr "Başarılı WebAuthn önermesi"
 
-#: warehouse/accounts/views.py:448 warehouse/manage/views.py:956
+#: warehouse/accounts/views.py:454 warehouse/manage/views.py:956
 msgid "Recovery code accepted. The supplied code cannot be used again."
 msgstr "Kurtarma kodu kabul edildi. Bu kod yeniden kullanılamaz."
 
-#: warehouse/accounts/views.py:534
+#: warehouse/accounts/views.py:540
 msgid ""
 "New user registration temporarily disabled. See https://pypi.org/help#admin-"
 "intervention for details."
@@ -191,128 +191,152 @@ msgstr ""
 "Yeni kullanıcı kayıtları geçici olarak kapatıldı. Detaylar için https://pypi."
 "org/help#admin-intervention sayfasını inceleyin."
 
-#: warehouse/accounts/views.py:654
+#: warehouse/accounts/views.py:660
 msgid "Expired token: request a new password reset link"
 msgstr "Süresi dolmuş belirteç: yeni bir parola sıfırlama bağlantısı isteyin"
 
-#: warehouse/accounts/views.py:656
+#: warehouse/accounts/views.py:662
 msgid "Invalid token: request a new password reset link"
 msgstr "Geçersiz belirteç: yeni bir parola sıfırlama bağlantısı isteyin"
 
-#: warehouse/accounts/views.py:658 warehouse/accounts/views.py:757
-#: warehouse/accounts/views.py:856 warehouse/accounts/views.py:1025
+#: warehouse/accounts/views.py:664 warehouse/accounts/views.py:763
+#: warehouse/accounts/views.py:862 warehouse/accounts/views.py:1031
 msgid "Invalid token: no token supplied"
 msgstr "Geçersiz belirteç: belirteç verilmedi"
 
-#: warehouse/accounts/views.py:662
+#: warehouse/accounts/views.py:668
 msgid "Invalid token: not a password reset token"
 msgstr "Geçersiz belirteç: bir parola sıfırlama belirteci değil"
 
-#: warehouse/accounts/views.py:667
+#: warehouse/accounts/views.py:673
 msgid "Invalid token: user not found"
 msgstr "Geçersiz belirteç: kullanıcı bulunamadı"
 
-#: warehouse/accounts/views.py:678
+#: warehouse/accounts/views.py:684
 msgid "Invalid token: user has logged in since this token was requested"
 msgstr "Geçersiz belirteç: kullanıcı bu belirteç istendikten sonra giriş yaptı"
 
-#: warehouse/accounts/views.py:696
+#: warehouse/accounts/views.py:702
 msgid ""
 "Invalid token: password has already been changed since this token was "
 "requested"
 msgstr "Geçersiz belirteç: parola bu belirteç istendikten sonra zaten değişti"
 
-#: warehouse/accounts/views.py:725
+#: warehouse/accounts/views.py:731
 msgid "You have reset your password"
 msgstr "Parolanızı sıfırladınız"
 
-#: warehouse/accounts/views.py:753
+#: warehouse/accounts/views.py:759
 msgid "Expired token: request a new email verification link"
 msgstr "Süresi dolmuş belirteç: yeni bir e-posta doğrulama bağlantısı isteyin"
 
-#: warehouse/accounts/views.py:755
+#: warehouse/accounts/views.py:761
 msgid "Invalid token: request a new email verification link"
 msgstr "Geçersiz belirteç: yeni bir e-posta doğrulama bağlantısı isteyin"
 
-#: warehouse/accounts/views.py:761
+#: warehouse/accounts/views.py:767
 msgid "Invalid token: not an email verification token"
 msgstr "Geçersiz belirteç: e-posta doğrulama belirteci değil"
 
-#: warehouse/accounts/views.py:770
+#: warehouse/accounts/views.py:776
 msgid "Email not found"
 msgstr "E-posta bulunamadı"
 
-#: warehouse/accounts/views.py:773
+#: warehouse/accounts/views.py:779
 msgid "Email already verified"
 msgstr "E-posta zaten onaylanmış"
 
-#: warehouse/accounts/views.py:790
+#: warehouse/accounts/views.py:796
 msgid "You can now set this email as your primary address"
 msgstr "Artık sen bu e-postayı birincil adresin olarak ayarlayabilirsin"
 
-#: warehouse/accounts/views.py:794
+#: warehouse/accounts/views.py:800
 msgid "This is your primary address"
 msgstr "Bu senin birincil adresin"
 
-#: warehouse/accounts/views.py:799
+#: warehouse/accounts/views.py:805
 msgid "Email address ${email_address} verified. ${confirm_message}."
 msgstr "E-posta adresin ${email_address} onaylandı. ${confirm_message}."
 
-#: warehouse/accounts/views.py:852
+#: warehouse/accounts/views.py:858
 msgid "Expired token: request a new organization invitation"
 msgstr "Süresi dolmuş anahtar: yeni bir davetiye talep edin"
 
-#: warehouse/accounts/views.py:854
+#: warehouse/accounts/views.py:860
 msgid "Invalid token: request a new organization invitation"
 msgstr "Geçersiz anahtar: yeni bir davetiye talep edin"
 
-#: warehouse/accounts/views.py:860
+#: warehouse/accounts/views.py:866
 msgid "Invalid token: not an organization invitation token"
 msgstr "Geçersiz anahtar: organizasyon davetiyesi geçersiz"
 
-#: warehouse/accounts/views.py:864
+#: warehouse/accounts/views.py:870
 msgid "Organization invitation is not valid."
 msgstr "Organizasyon davetiyesi geçerli değil."
 
-#: warehouse/accounts/views.py:873
+#: warehouse/accounts/views.py:879
 msgid "Organization invitation no longer exists."
 msgstr "Organizasyon daveti artık mevcut değil."
 
-#: warehouse/accounts/views.py:924
+#: warehouse/accounts/views.py:930
 msgid "Invitation for '${organization_name}' is declined."
 msgstr "'${project_name}' davetiyesi reddedildi."
 
-#: warehouse/accounts/views.py:987
+#: warehouse/accounts/views.py:993
 msgid "You are now ${role} of the '${organization_name}' organization."
 msgstr "Artık '${project_name}' projesinde ${role} oldunuz."
 
-#: warehouse/accounts/views.py:1021
+#: warehouse/accounts/views.py:1027
 msgid "Expired token: request a new project role invitation"
 msgstr "Süresi dolmuş anahtar: yeni bir proje rolü daveti isteyin"
 
-#: warehouse/accounts/views.py:1023
+#: warehouse/accounts/views.py:1029
 msgid "Invalid token: request a new project role invitation"
 msgstr "Geçersiz anahtar: yeni bir proje rolü daveti isteyin"
 
-#: warehouse/accounts/views.py:1029
+#: warehouse/accounts/views.py:1035
 msgid "Invalid token: not a collaboration invitation token"
 msgstr "Geçersiz belirteç: iş birliği daveti belirteci değil"
 
-#: warehouse/accounts/views.py:1033
+#: warehouse/accounts/views.py:1039
 msgid "Role invitation is not valid."
 msgstr "Rol daveti geçerli değil."
 
-#: warehouse/accounts/views.py:1048
+#: warehouse/accounts/views.py:1054
 msgid "Role invitation no longer exists."
 msgstr "Görev daveti artık mevcut değil."
 
-#: warehouse/accounts/views.py:1079
+#: warehouse/accounts/views.py:1085
 msgid "Invitation for '${project_name}' is declined."
 msgstr "'${project_name}' proje davetiyesi reddedildi."
 
-#: warehouse/accounts/views.py:1146
+#: warehouse/accounts/views.py:1152
 msgid "You are now ${role} of the '${project_name}' project."
 msgstr "Artık '${project_name}' projesinde ${role} oldunuz."
+
+#: warehouse/accounts/views.py:1401
+msgid ""
+"You must have a verified email in order to register a pending OpenID Connect "
+"provider. See https://pypi.org/help#openid-connect for details."
+msgstr ""
+
+#: warehouse/accounts/views.py:1414
+msgid ""
+"You can't register more than 3 pending OpenID Connect providers at once."
+msgstr ""
+
+#: warehouse/accounts/views.py:1430 warehouse/manage/views.py:3107
+msgid ""
+"There have been too many attempted OpenID Connect registrations. Try again "
+"later."
+msgstr ""
+"Çok fazla sayıda OpenID Connect kaydı denendi. Daha sonra tekrar deneyin."
+
+#: warehouse/accounts/views.py:1458
+msgid ""
+"This OpenID Connect provider has already been registered. Please contact "
+"PyPI's admins if this wasn't intentional."
+msgstr ""
 
 #: warehouse/admin/templates/admin/banners/preview.html:15
 msgid "Banner Preview"
@@ -341,15 +365,15 @@ msgstr ""
 "Bu organizasyon hesap adı kullanılıyor. Başka bir organizasyon hesap adı "
 "seçin."
 
-#: warehouse/manage/forms.py:476
+#: warehouse/manage/forms.py:472
 msgid "Select project"
 msgstr "Projeyi seç"
 
-#: warehouse/manage/forms.py:481
+#: warehouse/manage/forms.py:477 warehouse/oidc/forms.py:158
 msgid "Specify project name"
 msgstr "Proje adını belirtin"
 
-#: warehouse/manage/forms.py:484
+#: warehouse/manage/forms.py:480
 msgid ""
 "Start and end with a letter or numeral containing only ASCII numeric and "
 "'.', '_' and '-'."
@@ -357,12 +381,12 @@ msgstr ""
 "Yalnızca ASCII sayısal ve '.', '_' ve '-' içeren bir harf veya sayı ile "
 "başlayın ve bitirin."
 
-#: warehouse/manage/forms.py:491
+#: warehouse/manage/forms.py:487
 msgid ""
 "This project name has already been used. Choose a different project name."
 msgstr "Bu proje adı zaten kullanılmıştır. Farklı bir proje adı seçin."
 
-#: warehouse/manage/forms.py:562
+#: warehouse/manage/forms.py:558
 msgid ""
 "The organization name is too long. Choose a organization name with 100 "
 "characters or less."
@@ -370,7 +394,7 @@ msgstr ""
 "Organizasyon adı çok uzun. En fazla 100 karakter olacak şekilde başka bir "
 "isim seçin."
 
-#: warehouse/manage/forms.py:574
+#: warehouse/manage/forms.py:570
 msgid ""
 "The organization URL is too long. Choose a organization URL with 400 "
 "characters or less."
@@ -378,11 +402,11 @@ msgstr ""
 "Organizasyon site adresi çok uzun. En fazla 100 karakter olacak şekilde "
 "başka bir adres belirtin."
 
-#: warehouse/manage/forms.py:581
+#: warehouse/manage/forms.py:577
 msgid "The organization URL must start with http:// or https://"
 msgstr ""
 
-#: warehouse/manage/forms.py:592
+#: warehouse/manage/forms.py:588
 msgid ""
 "The organization description is too long. Choose a organization description "
 "with 400 characters or less."
@@ -390,11 +414,11 @@ msgstr ""
 "Organizasyon açıklaması çok uzun. En fazla 100 karakter olacak şekilde başka "
 "bir açıklama belirtin."
 
-#: warehouse/manage/forms.py:636
+#: warehouse/manage/forms.py:632
 msgid "Choose a team name with 50 characters or less."
 msgstr "En fazla 50 karakter olan bir takım adı seçin."
 
-#: warehouse/manage/forms.py:642
+#: warehouse/manage/forms.py:638
 msgid ""
 "The team name is invalid. Team names cannot start or end with a space, "
 "period, underscore, hyphen, or slash. Choose a different team name."
@@ -402,7 +426,7 @@ msgstr ""
 "Takım adı geçersiz. Takım adları boşluk, nokta, alt çizgi, kısa çizgi veya "
 "eğik çizgi ile başlayamaz veya bitemez. Farklı bir takım adı seçin."
 
-#: warehouse/manage/forms.py:670
+#: warehouse/manage/forms.py:666
 msgid "This team name has already been used. Choose a different team name."
 msgstr "Bu takım adı zaten kullanılmıştır. Farklı bir takım adı seçin."
 
@@ -457,13 +481,6 @@ msgstr "Davetin süresi zaten dolmuş."
 msgid "Invitation revoked from '${username}'."
 msgstr "'${username}' adlı kullanıcıdan gelen davetiye iptal edildi."
 
-#: warehouse/manage/views.py:3107
-msgid ""
-"There have been too many attempted OpenID Connect registrations. Try again "
-"later."
-msgstr ""
-"Çok fazla sayıda OpenID Connect kaydı denendi. Daha sonra tekrar deneyin."
-
 #: warehouse/manage/views.py:4144
 msgid "Team '${team_name}' already has ${role_name} role for project"
 msgstr "Takımın '${team_name}' zaten projede için ${role_name} rolü var"
@@ -488,52 +505,71 @@ msgstr ""
 msgid "Could not find role invitation."
 msgstr "Rol davetiyesi bulunamadı."
 
-#: warehouse/oidc/forms.py:32
+#: warehouse/oidc/forms.py:33
 msgid "Specify GitHub repository owner (username or organization)"
 msgstr "GitHub deposu sahibini belirtin (kullanıcı adı veya kuruluş)"
 
-#: warehouse/oidc/forms.py:39
+#: warehouse/oidc/forms.py:40
 msgid "Specify repository name"
 msgstr "Depo adını belirtin"
 
-#: warehouse/oidc/forms.py:41
+#: warehouse/oidc/forms.py:42
 msgid "Invalid repository name"
 msgstr "Geçersiz depo adı"
 
-#: warehouse/oidc/forms.py:48
+#: warehouse/oidc/forms.py:49
 msgid "Specify workflow filename"
 msgstr "İş akışı dosya adını belirtin"
 
-#: warehouse/oidc/forms.py:77
+#: warehouse/oidc/forms.py:78
 msgid "Unknown GitHub user or organization."
 msgstr "Bilinmeyen GitHub kullanıcısı veya kuruluşu."
 
-#: warehouse/oidc/forms.py:87
+#: warehouse/oidc/forms.py:88
 msgid "GitHub has rate-limited this action. Try again in a few minutes."
 msgstr "GitHub bu eylemi sınırladı. Birkaç dakika sonra tekrar deneyin."
 
-#: warehouse/oidc/forms.py:97
+#: warehouse/oidc/forms.py:98
 msgid "Unexpected error from GitHub. Try again."
 msgstr "GitHub'dan beklenmeyen hata. Tekrar deneyin."
 
-#: warehouse/oidc/forms.py:104
+#: warehouse/oidc/forms.py:105
+#, fuzzy
+#| msgid "Unexpected timeout from GitHub. Try again in a few minutes."
+msgid "Unexpected connection error from GitHub. Try again in a few minutes."
+msgstr ""
+"GitHub'dan beklenmeyen zaman aşımı. Birkaç dakika sonra tekrar deneyin."
+
+#: warehouse/oidc/forms.py:115
 msgid "Unexpected timeout from GitHub. Try again in a few minutes."
 msgstr ""
 "GitHub'dan beklenmeyen zaman aşımı. Birkaç dakika sonra tekrar deneyin."
 
-#: warehouse/oidc/forms.py:116
+#: warehouse/oidc/forms.py:127
 msgid "Invalid GitHub user or organization name."
 msgstr "Geçersiz GitHub kullanıcı veya kuruluş adı."
 
-#: warehouse/oidc/forms.py:132
+#: warehouse/oidc/forms.py:143
 msgid "Workflow name must end with .yml or .yaml"
 msgstr "İş akışı adı .yml veya .yaml ile bitmelidir"
 
-#: warehouse/oidc/forms.py:137
+#: warehouse/oidc/forms.py:148
 msgid "Workflow filename must be a filename only, without directories"
 msgstr "İş akışı dosya adı, dizinler olmadan yalnızca bir dosya adı olmalıdır"
 
-#: warehouse/oidc/forms.py:146
+#: warehouse/oidc/forms.py:161
+#, fuzzy
+#| msgid "Invalid repository name"
+msgid "Invalid project name"
+msgstr "Geçersiz depo adı"
+
+#: warehouse/oidc/forms.py:175
+#, fuzzy
+#| msgid "This project has no releases"
+msgid "This project name is already in use"
+msgstr "Bu proje için hiçbir sürüm yayınlanmadı"
+
+#: warehouse/oidc/forms.py:188
 msgid "Provider must be specified by ID"
 msgstr "Sağlayıcı kimlik ile belirtilmelidir"
 
@@ -605,7 +641,7 @@ msgstr "Monty Python - The Cheese Shop skeci"
 #: warehouse/templates/includes/accounts/profile-callout.html:18
 #: warehouse/templates/includes/hash-modal.html:23
 #: warehouse/templates/includes/packaging/project-data.html:66
-#: warehouse/templates/index.html:112 warehouse/templates/index.html:116
+#: warehouse/templates/index.html:100 warehouse/templates/index.html:104
 #: warehouse/templates/manage/account.html:228
 #: warehouse/templates/manage/account.html:234
 #: warehouse/templates/manage/account/totp-provision.html:32
@@ -622,67 +658,67 @@ msgstr "Monty Python - The Cheese Shop skeci"
 #: warehouse/templates/packaging/detail.html:379
 #: warehouse/templates/pages/classifiers.html:25
 #: warehouse/templates/pages/help.html:20
-#: warehouse/templates/pages/help.html:214
-#: warehouse/templates/pages/help.html:221
-#: warehouse/templates/pages/help.html:235
-#: warehouse/templates/pages/help.html:251
-#: warehouse/templates/pages/help.html:255
-#: warehouse/templates/pages/help.html:312
-#: warehouse/templates/pages/help.html:339
-#: warehouse/templates/pages/help.html:344
-#: warehouse/templates/pages/help.html:349
+#: warehouse/templates/pages/help.html:216
+#: warehouse/templates/pages/help.html:223
+#: warehouse/templates/pages/help.html:237
+#: warehouse/templates/pages/help.html:253
+#: warehouse/templates/pages/help.html:257
+#: warehouse/templates/pages/help.html:314
+#: warehouse/templates/pages/help.html:341
+#: warehouse/templates/pages/help.html:346
 #: warehouse/templates/pages/help.html:351
-#: warehouse/templates/pages/help.html:356
-#: warehouse/templates/pages/help.html:357
+#: warehouse/templates/pages/help.html:353
 #: warehouse/templates/pages/help.html:358
-#: warehouse/templates/pages/help.html:362
-#: warehouse/templates/pages/help.html:395
+#: warehouse/templates/pages/help.html:359
+#: warehouse/templates/pages/help.html:360
+#: warehouse/templates/pages/help.html:364
 #: warehouse/templates/pages/help.html:397
-#: warehouse/templates/pages/help.html:400
-#: warehouse/templates/pages/help.html:436
-#: warehouse/templates/pages/help.html:441
-#: warehouse/templates/pages/help.html:447
-#: warehouse/templates/pages/help.html:505
-#: warehouse/templates/pages/help.html:529
-#: warehouse/templates/pages/help.html:535
-#: warehouse/templates/pages/help.html:538
-#: warehouse/templates/pages/help.html:540
-#: warehouse/templates/pages/help.html:549
-#: warehouse/templates/pages/help.html:571
-#: warehouse/templates/pages/help.html:578
-#: warehouse/templates/pages/help.html:590
-#: warehouse/templates/pages/help.html:591
+#: warehouse/templates/pages/help.html:399
+#: warehouse/templates/pages/help.html:402
+#: warehouse/templates/pages/help.html:438
+#: warehouse/templates/pages/help.html:443
+#: warehouse/templates/pages/help.html:449
+#: warehouse/templates/pages/help.html:507
+#: warehouse/templates/pages/help.html:547
+#: warehouse/templates/pages/help.html:553
+#: warehouse/templates/pages/help.html:556
+#: warehouse/templates/pages/help.html:558
+#: warehouse/templates/pages/help.html:567
+#: warehouse/templates/pages/help.html:589
 #: warehouse/templates/pages/help.html:596
-#: warehouse/templates/pages/help.html:621
-#: warehouse/templates/pages/help.html:634
+#: warehouse/templates/pages/help.html:608
+#: warehouse/templates/pages/help.html:609
+#: warehouse/templates/pages/help.html:614
 #: warehouse/templates/pages/help.html:639
-#: warehouse/templates/pages/help.html:651
-#: warehouse/templates/pages/help.html:672
-#: warehouse/templates/pages/help.html:696
-#: warehouse/templates/pages/help.html:703
-#: warehouse/templates/pages/help.html:715
-#: warehouse/templates/pages/help.html:726
-#: warehouse/templates/pages/help.html:731
-#: warehouse/templates/pages/help.html:739
-#: warehouse/templates/pages/help.html:750
-#: warehouse/templates/pages/help.html:795
-#: warehouse/templates/pages/help.html:803
-#: warehouse/templates/pages/help.html:819
-#: warehouse/templates/pages/help.html:824
-#: warehouse/templates/pages/help.html:829
-#: warehouse/templates/pages/help.html:839
-#: warehouse/templates/pages/help.html:848
-#: warehouse/templates/pages/help.html:862
-#: warehouse/templates/pages/help.html:870
-#: warehouse/templates/pages/help.html:878
-#: warehouse/templates/pages/help.html:886
-#: warehouse/templates/pages/help.html:895
-#: warehouse/templates/pages/help.html:915
-#: warehouse/templates/pages/help.html:930
-#: warehouse/templates/pages/help.html:931
-#: warehouse/templates/pages/help.html:932
+#: warehouse/templates/pages/help.html:652
+#: warehouse/templates/pages/help.html:657
+#: warehouse/templates/pages/help.html:669
+#: warehouse/templates/pages/help.html:690
+#: warehouse/templates/pages/help.html:714
+#: warehouse/templates/pages/help.html:721
+#: warehouse/templates/pages/help.html:733
+#: warehouse/templates/pages/help.html:744
+#: warehouse/templates/pages/help.html:749
+#: warehouse/templates/pages/help.html:757
+#: warehouse/templates/pages/help.html:768
+#: warehouse/templates/pages/help.html:813
+#: warehouse/templates/pages/help.html:821
+#: warehouse/templates/pages/help.html:837
+#: warehouse/templates/pages/help.html:842
+#: warehouse/templates/pages/help.html:847
+#: warehouse/templates/pages/help.html:857
+#: warehouse/templates/pages/help.html:866
+#: warehouse/templates/pages/help.html:880
+#: warehouse/templates/pages/help.html:888
+#: warehouse/templates/pages/help.html:896
+#: warehouse/templates/pages/help.html:904
+#: warehouse/templates/pages/help.html:913
 #: warehouse/templates/pages/help.html:933
-#: warehouse/templates/pages/help.html:938
+#: warehouse/templates/pages/help.html:948
+#: warehouse/templates/pages/help.html:949
+#: warehouse/templates/pages/help.html:950
+#: warehouse/templates/pages/help.html:951
+#: warehouse/templates/pages/help.html:956
 #: warehouse/templates/pages/sponsors.html:33
 #: warehouse/templates/pages/sponsors.html:37
 #: warehouse/templates/pages/sponsors.html:41
@@ -775,7 +811,7 @@ msgstr "Ana navigasyon"
 #: warehouse/templates/base.html:41 warehouse/templates/base.html:55
 #: warehouse/templates/base.html:271
 #: warehouse/templates/includes/current-user-indicator.html:63
-#: warehouse/templates/pages/help.html:108
+#: warehouse/templates/pages/help.html:109
 #: warehouse/templates/pages/sitemap.html:27
 msgid "Help"
 msgstr "Yardım"
@@ -837,7 +873,7 @@ msgstr ""
 "\">trademarks</a> of the <a href=\"%(psf_href)s\" target=\"_blank\" rel="
 "\"noopener\">Python Software Foundation</a> olarak kaydedilir."
 
-#: warehouse/templates/base.html:93 warehouse/templates/index.html:109
+#: warehouse/templates/base.html:93 warehouse/templates/index.html:97
 msgid ""
 "The Python Package Index (PyPI) is a repository of software for the Python "
 "programming language."
@@ -865,9 +901,9 @@ msgstr "Mobil sürüme geç"
 #: warehouse/templates/base.html:187
 #: warehouse/templates/includes/flash-messages.html:30
 #: warehouse/templates/includes/session-notifications.html:20
-#: warehouse/templates/manage/account.html:716
-#: warehouse/templates/manage/manage_base.html:305
-#: warehouse/templates/manage/manage_base.html:364
+#: warehouse/templates/manage/account.html:728
+#: warehouse/templates/manage/manage_base.html:313
+#: warehouse/templates/manage/manage_base.html:372
 #: warehouse/templates/manage/organization/settings.html:194
 #: warehouse/templates/manage/organization/settings.html:249
 #: warehouse/templates/manage/project/documentation.html:27
@@ -902,19 +938,19 @@ msgstr ""
 
 #: warehouse/templates/base.html:227 warehouse/templates/base.html:248
 #: warehouse/templates/error-base-with-search.html:20
-#: warehouse/templates/index.html:55
+#: warehouse/templates/index.html:43
 msgid "Search PyPI"
 msgstr "PyPI'de ara"
 
 #: warehouse/templates/base.html:228 warehouse/templates/base.html:249
 #: warehouse/templates/error-base-with-search.html:21
-#: warehouse/templates/index.html:58
+#: warehouse/templates/index.html:46
 msgid "Search projects"
 msgstr "Proje ara"
 
 #: warehouse/templates/base.html:232 warehouse/templates/base.html:253
 #: warehouse/templates/error-base-with-search.html:24
-#: warehouse/templates/index.html:62
+#: warehouse/templates/index.html:50
 msgid "Search"
 msgstr "Ara"
 
@@ -1080,54 +1116,54 @@ msgstr "Ana sayfaya geri dön"
 msgid "The Python Package Index"
 msgstr "Python Paket Dizini"
 
-#: warehouse/templates/index.html:43
+#: warehouse/templates/index.html:31
 msgid "Test Python package publishing with the Test Python Package Index"
 msgstr "Python paket yayımlanmasını Test Python Paket Diziniyle test edin"
 
-#: warehouse/templates/index.html:45
+#: warehouse/templates/index.html:33
 msgid "Develop the codebase behind PyPI with the Dev Python Package Index"
 msgstr ""
 "Dev Python Paket Dizini ile PyPI'nin arkasındaki kod tabanını geliştirin"
 
-#: warehouse/templates/index.html:47
+#: warehouse/templates/index.html:35
 msgid "Find, install and publish Python packages with the Python Package Index"
 msgstr ""
 "Python Paket Diziniyle Python paketlerini bulun, yükleyin ve yayımlayın"
 
-#: warehouse/templates/index.html:66
+#: warehouse/templates/index.html:54
 #, python-format
 msgid "Or <a href=\"%(href)s\">browse projects</a>"
 msgstr "veya <a href=\"%(href)s\">projeleri inceleyin</a>"
 
-#: warehouse/templates/index.html:73
+#: warehouse/templates/index.html:61
 #, python-format
 msgid "%(num_projects_formatted)s project"
 msgid_plural "%(num_projects_formatted)s projects"
 msgstr[0] "%(num_projects_formatted)s proje"
 msgstr[1] "%(num_projects_formatted)s proje"
 
-#: warehouse/templates/index.html:80
+#: warehouse/templates/index.html:68
 #, python-format
 msgid "%(num_releases_formatted)s release"
 msgid_plural "%(num_releases_formatted)s releases"
 msgstr[0] "%(num_releases_formatted)s sürüm"
 msgstr[1] "%(num_releases_formatted)s sürüm"
 
-#: warehouse/templates/index.html:87
+#: warehouse/templates/index.html:75
 #, python-format
 msgid "%(num_files_formatted)s file"
 msgid_plural "%(num_files_formatted)s files"
 msgstr[0] "%(num_files_formatted)s dosya"
 msgstr[1] "%(num_files_formatted)s dosya"
 
-#: warehouse/templates/index.html:94
+#: warehouse/templates/index.html:82
 #, python-format
 msgid "%(num_users_formatted)s user"
 msgid_plural "%(num_users_formatted)s users"
 msgstr[0] "%(num_users_formatted)s kullanıcı"
 msgstr[1] "%(num_users_formatted)s kullanıcı"
 
-#: warehouse/templates/index.html:111
+#: warehouse/templates/index.html:99
 msgid ""
 "PyPI helps you find and install software developed and shared by the Python "
 "community."
@@ -1135,34 +1171,18 @@ msgstr ""
 "PyPI size Python topluluğu tarafından geliştirilip paylaşılan yazılımları "
 "bulmanız ve yüklemeniz konusunda yardım eder."
 
-#: warehouse/templates/index.html:112
+#: warehouse/templates/index.html:100
 msgid "Learn about installing packages"
 msgstr "Paketleri kurma hakkında bilgi edinin"
 
-#: warehouse/templates/index.html:115
+#: warehouse/templates/index.html:103
 msgid "Package authors use PyPI to distribute their software."
 msgstr ""
 "Paket oluşturanlar PyPI'yi kendi yazılımlarını dağıtmak için kullanırlar."
 
-#: warehouse/templates/index.html:116
+#: warehouse/templates/index.html:104
 msgid "Learn how to package your Python code for PyPI"
 msgstr "Python kodunuzu PyPI için nasıl paketleyeceğinizi öğrenin"
-
-#: warehouse/templates/index.html:126
-msgid "Trending projects"
-msgstr "Trend olan projeler"
-
-#: warehouse/templates/index.html:127
-msgid "Trending projects as downloaded by the community"
-msgstr "Topluluk tarafından indirilerek trend olan projeler"
-
-#: warehouse/templates/index.html:137
-msgid "New releases"
-msgstr "Yeni sürümler"
-
-#: warehouse/templates/index.html:138
-msgid "Hot off the press: the newest project releases"
-msgstr "Yeni çıkmış: en yeni proje sürümleri"
 
 #: warehouse/templates/accounts/login.html:17
 #: warehouse/templates/accounts/recovery-code.html:17
@@ -1193,7 +1213,7 @@ msgstr "Devam etmek için parolayı onaylayın"
 #: warehouse/templates/accounts/login.html:69
 #: warehouse/templates/accounts/register.html:110
 #: warehouse/templates/accounts/reset-password.html:38
-#: warehouse/templates/manage/manage_base.html:373
+#: warehouse/templates/manage/manage_base.html:381
 #: warehouse/templates/re-auth.html:49
 msgid "Password"
 msgstr "Parola"
@@ -1216,6 +1236,10 @@ msgstr "Parola"
 #: warehouse/templates/manage/account.html:369
 #: warehouse/templates/manage/account.html:386
 #: warehouse/templates/manage/account.html:402
+#: warehouse/templates/manage/account/publishing.html:60
+#: warehouse/templates/manage/account/publishing.html:75
+#: warehouse/templates/manage/account/publishing.html:90
+#: warehouse/templates/manage/account/publishing.html:105
 #: warehouse/templates/manage/account/recovery_codes-burn.html:70
 #: warehouse/templates/manage/account/token.html:133
 #: warehouse/templates/manage/account/token.html:150
@@ -1235,9 +1259,9 @@ msgstr "Parola"
 #: warehouse/templates/manage/organizations.html:204
 #: warehouse/templates/manage/organizations.html:222
 #: warehouse/templates/manage/organizations.html:241
-#: warehouse/templates/manage/project/publishing.html:85
-#: warehouse/templates/manage/project/publishing.html:100
-#: warehouse/templates/manage/project/publishing.html:115
+#: warehouse/templates/manage/project/publishing.html:53
+#: warehouse/templates/manage/project/publishing.html:68
+#: warehouse/templates/manage/project/publishing.html:83
 #: warehouse/templates/manage/project/roles.html:273
 #: warehouse/templates/manage/project/roles.html:284
 #: warehouse/templates/manage/project/roles.html:296
@@ -1256,7 +1280,7 @@ msgid "Your password"
 msgstr "Sizin parolanız"
 
 #: warehouse/templates/accounts/login.html:92
-#: warehouse/templates/manage/manage_base.html:376
+#: warehouse/templates/manage/manage_base.html:384
 #: warehouse/templates/re-auth.html:72
 msgid "Show password"
 msgstr "Parolayı göster"
@@ -2729,7 +2753,7 @@ msgstr "Yönetici"
 
 #: warehouse/templates/includes/current-user-indicator.html:37
 #: warehouse/templates/manage/manage_base.html:216
-#: warehouse/templates/manage/manage_base.html:244
+#: warehouse/templates/manage/manage_base.html:252
 #: warehouse/templates/manage/projects.html:18
 #: warehouse/templates/manage/projects.html:62
 msgid "Your projects"
@@ -2737,7 +2761,7 @@ msgstr "Sizin projeleriniz"
 
 #: warehouse/templates/includes/current-user-indicator.html:44
 #: warehouse/templates/manage/manage_base.html:223
-#: warehouse/templates/manage/manage_base.html:251
+#: warehouse/templates/manage/manage_base.html:259
 #: warehouse/templates/manage/organizations.html:18
 #: warehouse/templates/manage/organizations.html:63
 msgid "Your organizations"
@@ -2747,7 +2771,7 @@ msgstr ""
 #: warehouse/templates/manage/account.html:17
 #: warehouse/templates/manage/account/two-factor.html:17
 #: warehouse/templates/manage/manage_base.html:230
-#: warehouse/templates/manage/manage_base.html:258
+#: warehouse/templates/manage/manage_base.html:266
 msgid "Account settings"
 msgstr "Hesap ayarları"
 
@@ -2777,12 +2801,12 @@ msgstr "Bu bildirimi kapat"
 #: warehouse/templates/manage/account.html:199
 #: warehouse/templates/manage/account.html:201
 #: warehouse/templates/manage/account.html:211
-#: warehouse/templates/manage/manage_base.html:294
-#: warehouse/templates/manage/manage_base.html:296
+#: warehouse/templates/manage/manage_base.html:302
+#: warehouse/templates/manage/manage_base.html:304
 #: warehouse/templates/manage/project/release.html:137
 #: warehouse/templates/manage/project/releases.html:178
 #: warehouse/templates/manage/project/settings.html:111
-#: warehouse/templates/search/results.html:199
+#: warehouse/templates/search/results.html:198
 msgid "Close"
 msgstr "Kapat"
 
@@ -2995,6 +3019,7 @@ msgid "Documentation"
 msgstr "Dökümantasyon"
 
 #: warehouse/templates/includes/manage/manage-project-menu.html:52
+#: warehouse/templates/manage/manage_base.html:237
 msgid "Publishing"
 msgstr ""
 
@@ -3057,7 +3082,7 @@ msgstr "Yayımlayan:"
 
 #: warehouse/templates/includes/packaging/project-data.html:84
 #: warehouse/templates/includes/packaging/project-data.html:86
-#: warehouse/templates/pages/help.html:582
+#: warehouse/templates/pages/help.html:600
 msgid "Maintainer:"
 msgstr "İlgilenenler:"
 
@@ -3370,12 +3395,12 @@ msgstr ""
 "doğrulayın</a>."
 
 #: warehouse/templates/manage/account.html:467
-#: warehouse/templates/manage/account.html:637
+#: warehouse/templates/manage/account.html:649
 msgid "Token scope: entire account"
 msgstr "Token Kapsamı: Tüm Hesap"
 
 #: warehouse/templates/manage/account.html:469
-#: warehouse/templates/manage/account.html:639
+#: warehouse/templates/manage/account.html:651
 #, python-format
 msgid "Token scope: Project %(project_name)s"
 msgstr "Token Kapsamı: %(project_name)s Projesi"
@@ -3530,24 +3555,46 @@ msgstr "Şifre başarılı bir şekilde sıfırlandı"
 msgid "Password successfully changed"
 msgstr "Şifre başarılı bir şekilde değiştirildi"
 
-#: warehouse/templates/manage/account.html:574
+#: warehouse/templates/manage/account.html:575
+#: warehouse/templates/manage/account.html:581
+#: warehouse/templates/manage/account/token.html:158
+msgid "Project:"
+msgstr "Proje:"
+
+#: warehouse/templates/manage/account.html:576
+#: warehouse/templates/manage/account.html:582
+#: warehouse/templates/manage/project/history.html:223
+#: warehouse/templates/manage/project/history.html:227
+msgid "Provider:"
+msgstr ""
+
+#: warehouse/templates/manage/account.html:577
+#: warehouse/templates/manage/account.html:583
+#: warehouse/templates/manage/project/history.html:224
+#: warehouse/templates/manage/project/history.html:228
+#, fuzzy
+#| msgid "Username"
+msgid "Publisher:"
+msgstr "Kullanıcı adı"
+
+#: warehouse/templates/manage/account.html:586
 msgid "Two factor authentication added"
 msgstr "Çift faktörlü doğrulama eklendi"
 
-#: warehouse/templates/manage/account.html:577
-#: warehouse/templates/manage/account.html:587
+#: warehouse/templates/manage/account.html:589
+#: warehouse/templates/manage/account.html:599
 msgid ""
 "Method: Security device (<abbr title=\"web authentication\">WebAuthn</abbr>)"
 msgstr ""
 "Yöntem: Güvenlik Aygıtı (<abbr title=\"web authentication\">WebAuthn</abbr>)"
 
-#: warehouse/templates/manage/account.html:578
-#: warehouse/templates/manage/account.html:588
+#: warehouse/templates/manage/account.html:590
+#: warehouse/templates/manage/account.html:600
 msgid "Device name:"
 msgstr "Aygıt Adı:"
 
-#: warehouse/templates/manage/account.html:580
-#: warehouse/templates/manage/account.html:590
+#: warehouse/templates/manage/account.html:592
+#: warehouse/templates/manage/account.html:602
 msgid ""
 "Method: Authentication application (<abbr title=\"time-based one-time "
 "password\">TOTP</abbr>)"
@@ -3555,54 +3602,54 @@ msgstr ""
 "Yöntem: Kimlik Doğrulama Uygulaması (<abbr title=\"time-based one-time "
 "password\">TOTP</abbr>)"
 
-#: warehouse/templates/manage/account.html:584
+#: warehouse/templates/manage/account.html:596
 msgid "Two factor authentication removed"
 msgstr "Çift faktör kimlik doğrulama kaldırıldı"
 
-#: warehouse/templates/manage/account.html:595
+#: warehouse/templates/manage/account.html:607
 msgid "Recovery codes generated"
 msgstr "Kurtarma kodları oluşturuldu"
 
-#: warehouse/templates/manage/account.html:599
+#: warehouse/templates/manage/account.html:611
 msgid "Recovery codes regenerated"
 msgstr "Kurtarma kodları yeniden oluşturuldu"
 
-#: warehouse/templates/manage/account.html:603
+#: warehouse/templates/manage/account.html:615
 msgid "Recovery code used for login"
 msgstr "Oturum açma için kullanılan kurtarma kodu"
 
-#: warehouse/templates/manage/account.html:609
+#: warehouse/templates/manage/account.html:621
 msgid "API token added"
 msgstr "API tokeni eklendi"
 
-#: warehouse/templates/manage/account.html:611
-#: warehouse/templates/manage/account.html:634
+#: warehouse/templates/manage/account.html:623
+#: warehouse/templates/manage/account.html:646
 #: warehouse/templates/manage/project/history.html:208
 #: warehouse/templates/manage/project/history.html:215
 msgid "Token name:"
 msgstr "Token Adı:"
 
-#: warehouse/templates/manage/account.html:628
+#: warehouse/templates/manage/account.html:640
 #: warehouse/templates/manage/project/history.html:210
 msgid "API token removed"
 msgstr "API tokeni kaldırıldı"
 
-#: warehouse/templates/manage/account.html:629
-#: warehouse/templates/manage/account.html:635
+#: warehouse/templates/manage/account.html:641
+#: warehouse/templates/manage/account.html:647
 msgid "Unique identifier:"
 msgstr "Benzersiz tanımlayıcı:"
 
-#: warehouse/templates/manage/account.html:632
+#: warehouse/templates/manage/account.html:644
 msgid "API token automatically removed for security reasons"
 msgstr ""
 
-#: warehouse/templates/manage/account.html:641
+#: warehouse/templates/manage/account.html:653
 #, fuzzy, python-format
 #| msgid "Displayed on your <a href=\"%(href)s\">public profile</a>"
 msgid "Reason: Token found at <a href=\"%(public_url)s\">public url</a>"
 msgstr "<a href=\"%(href)s\">Açık profil</a>inizde görüntülenmektedir"
 
-#: warehouse/templates/manage/account.html:650
+#: warehouse/templates/manage/account.html:662
 #, python-format
 msgid ""
 "Events appear here as security-related actions occur on your account. If you "
@@ -3613,24 +3660,24 @@ msgstr ""
 "şüpheli bir durum olduğunu düşünüyorsanız, lütfen en kısa sürede hesabınızı "
 "<a href=\"%(faq_url)s\">güvene alın</a>."
 
-#: warehouse/templates/manage/account.html:655
+#: warehouse/templates/manage/account.html:667
 msgid "Recent account activity"
 msgstr "Son Hesap Hareketleri"
 
-#: warehouse/templates/manage/account.html:657
+#: warehouse/templates/manage/account.html:669
 #: warehouse/templates/manage/organization/history.html:196
 #: warehouse/templates/manage/project/history.html:251
 #: warehouse/templates/manage/team/history.html:108
 msgid "Event"
 msgstr "Olay"
 
-#: warehouse/templates/manage/account.html:658
-#: warehouse/templates/manage/account.html:666
+#: warehouse/templates/manage/account.html:670
+#: warehouse/templates/manage/account.html:678
 msgid "Date / time"
 msgstr "Tarih / Zaman"
 
-#: warehouse/templates/manage/account.html:659
-#: warehouse/templates/manage/account.html:670
+#: warehouse/templates/manage/account.html:671
+#: warehouse/templates/manage/account.html:682
 #: warehouse/templates/manage/organization/history.html:198
 #: warehouse/templates/manage/organization/history.html:210
 #: warehouse/templates/manage/project/history.html:253
@@ -3640,22 +3687,22 @@ msgstr "Tarih / Zaman"
 msgid "IP address"
 msgstr "IP Adresi"
 
-#: warehouse/templates/manage/account.html:678
+#: warehouse/templates/manage/account.html:690
 msgid ""
 "Events will appear here as security-related actions occur on your account."
 msgstr ""
 "Hesabınızda güvenlikle ilgili eylemler gerçekleştiğinde olaylar burada "
 "görünür."
 
-#: warehouse/templates/manage/account.html:685
+#: warehouse/templates/manage/account.html:697
 msgid "Delete account"
 msgstr "Hesabı Kaldır"
 
-#: warehouse/templates/manage/account.html:688
+#: warehouse/templates/manage/account.html:700
 msgid "Cannot delete account"
 msgstr "Hesap kaldırılamıyor"
 
-#: warehouse/templates/manage/account.html:690
+#: warehouse/templates/manage/account.html:702
 #, fuzzy, python-format
 #| msgid ""
 #| "\n"
@@ -3682,7 +3729,7 @@ msgstr[1] ""
 "          Hesabınız şu anda %(count)s projenin <strong>tek sahibi</strong>.\n"
 "        "
 
-#: warehouse/templates/manage/account.html:695
+#: warehouse/templates/manage/account.html:707
 #, fuzzy
 #| msgid ""
 #| "\n"
@@ -3711,7 +3758,7 @@ msgstr[1] ""
 "kaldırmanız gerekmektedir.\n"
 "        "
 
-#: warehouse/templates/manage/account.html:705
+#: warehouse/templates/manage/account.html:717
 #: warehouse/templates/manage/organization/settings.html:238
 #, python-format
 msgid ""
@@ -3721,7 +3768,7 @@ msgstr ""
 "<a href=\"%(transfer_href)s\">devret</a> veya <a href=\"%(delete_href)s"
 "\">kaldır</a>"
 
-#: warehouse/templates/manage/account.html:714
+#: warehouse/templates/manage/account.html:726
 #: warehouse/templates/manage/account/token.html:166
 #: warehouse/templates/manage/organization/settings.html:192
 #: warehouse/templates/manage/organization/settings.html:247
@@ -3729,11 +3776,11 @@ msgstr ""
 msgid "Proceed with caution!"
 msgstr "Dikkat edin!"
 
-#: warehouse/templates/manage/account.html:717
+#: warehouse/templates/manage/account.html:729
 msgid "You will not be able to recover your account after you delete it"
 msgstr "Hesabınızı kaldırdıktan sonra tekrar kurtaramazsınız"
 
-#: warehouse/templates/manage/account.html:719
+#: warehouse/templates/manage/account.html:731
 msgid "Delete your PyPI account"
 msgstr "PyPI hesabını kaldır"
 
@@ -3805,10 +3852,10 @@ msgstr "2 aşamalı method"
 
 #: warehouse/templates/manage/manage_base.html:64
 #: warehouse/templates/manage/manage_base.html:78
+#: warehouse/templates/manage/manage_base.html:513
 #: warehouse/templates/manage/organization/roles.html:123
 #: warehouse/templates/manage/organization/roles.html:125
 #: warehouse/templates/manage/organization/roles.html:130
-#: warehouse/templates/manage/project/publishing.html:44
 #: warehouse/templates/manage/project/roles.html:89
 #: warehouse/templates/manage/project/roles.html:143
 #: warehouse/templates/manage/project/roles.html:148
@@ -3974,37 +4021,66 @@ msgid "Your account"
 msgstr "Hesabınız"
 
 #: warehouse/templates/manage/manage_base.html:211
-#: warehouse/templates/manage/manage_base.html:239
+#: warehouse/templates/manage/manage_base.html:247
 msgid "Account navigation"
 msgstr "Hesap Menüsü"
 
-#: warehouse/templates/manage/manage_base.html:306
-#: warehouse/templates/manage/manage_base.html:365
+#: warehouse/templates/manage/manage_base.html:314
+#: warehouse/templates/manage/manage_base.html:373
 msgid "This action cannot be undone!"
 msgstr "Bu eylem geri alınamaz!"
 
-#: warehouse/templates/manage/manage_base.html:318
+#: warehouse/templates/manage/manage_base.html:326
 msgid "Confirm your username to continue."
 msgstr "Devam etmek için kullanıcı adınızı doğrulayın."
 
-#: warehouse/templates/manage/manage_base.html:320
+#: warehouse/templates/manage/manage_base.html:328
 #, python-format
 msgid "Confirm the %(item)s to continue."
 msgstr "Devam etmek için %(item)s 'ı onaylayın."
 
-#: warehouse/templates/manage/manage_base.html:331
-#: warehouse/templates/manage/manage_base.html:383
+#: warehouse/templates/manage/manage_base.html:339
+#: warehouse/templates/manage/manage_base.html:391
 #: warehouse/templates/manage/organization/activate_subscription.html:32
 msgid "Cancel"
 msgstr "İptal Et"
 
-#: warehouse/templates/manage/manage_base.html:354
+#: warehouse/templates/manage/manage_base.html:362
 msgid "close"
 msgstr "Kapat"
 
-#: warehouse/templates/manage/manage_base.html:370
+#: warehouse/templates/manage/manage_base.html:378
 msgid "Enter your password to continue."
 msgstr "Devam etmek için parolanızı girin."
+
+#: warehouse/templates/manage/manage_base.html:460
+msgid "OpenID Connect Publisher Management"
+msgstr ""
+
+#: warehouse/templates/manage/manage_base.html:465
+msgid ""
+"OpenID Connect (OIDC) provides a flexible, credential-free mechanism for "
+"delegating publishing authority for a PyPI package to a third party service, "
+"like GitHub Actions."
+msgstr ""
+
+#: warehouse/templates/manage/manage_base.html:473
+msgid ""
+"PyPI users and projects can use trusted publishers to automate their release "
+"processes, without needing to use API tokens or passwords."
+msgstr ""
+
+#: warehouse/templates/manage/manage_base.html:480
+#, fuzzy, python-format
+#| msgid ""
+#| "To regain access to your account, <a href=\"%(href)s\">reset your "
+#| "password</a> on PyPI."
+msgid ""
+"You can read more about OpenID Connect and how to use it <a href=\"%(href)s"
+"\">here</a>."
+msgstr ""
+"Hesabınıza tekrar erişim sağlayabilmeniz için lütfen PyPI'da <a href="
+"\"%(href)s\">şifrenizi sıfırlayın</a>."
 
 #: warehouse/templates/manage/organizations.html:23
 #: warehouse/templates/manage/projects.html:23
@@ -4078,10 +4154,11 @@ msgstr ""
 msgid "Manager"
 msgstr "Yönet"
 
+#: warehouse/templates/manage/account/publishing.html:73
 #: warehouse/templates/manage/organization/roles.html:48
 #: warehouse/templates/manage/organization/roles.html:93
 #: warehouse/templates/manage/organizations.html:85
-#: warehouse/templates/manage/project/publishing.html:83
+#: warehouse/templates/manage/project/publishing.html:51
 #: warehouse/templates/manage/project/roles.html:50
 #: warehouse/templates/manage/project/roles.html:85
 #: warehouse/templates/manage/project/roles.html:115
@@ -4325,6 +4402,120 @@ msgstr ""
 "için <a href=\"%(href)s\" target=\"_blank\" rel=\"noopener\">Python "
 "Paketleme Kullanım Kılavuzunu</a> ziyaret edin"
 
+#: warehouse/templates/manage/account/publishing.html:30
+#, fuzzy
+#| msgid "Manage this project"
+msgid "Add a new pending provider"
+msgstr "Bu Projeyi Yönet"
+
+#: warehouse/templates/manage/account/publishing.html:33
+msgid "You can use this page to register \"pending\" OpenID Connect providers."
+msgstr ""
+
+#: warehouse/templates/manage/account/publishing.html:40
+#, python-format
+msgid ""
+"These providers behave similarly to OpenID Connect providers registered "
+"against specific projects, except that they allow users to <strong>create</"
+"strong> the project if it doesn't already exist. Once the project is "
+"created, the \"pending\" provider becomes an ordinary OpenID Connect "
+"provider. You can read more about \"pending\" and ordinary OpenID Connect "
+"providers <a href=\"%(href)s\">here</a>."
+msgstr ""
+
+#: warehouse/templates/manage/account/publishing.html:58
+#, fuzzy
+#| msgid "Project Name"
+msgid "PyPI Project Name"
+msgstr "Proje Adı"
+
+#: warehouse/templates/manage/account/publishing.html:63
+#, fuzzy
+#| msgid "Project name"
+msgid "project name"
+msgstr "Proje Adı"
+
+#: warehouse/templates/manage/account/publishing.html:65
+msgid "The project (on PyPI) that will be created when this provider is used"
+msgstr ""
+
+#: warehouse/templates/manage/account/publishing.html:78
+#: warehouse/templates/manage/project/publishing.html:56
+#, fuzzy
+#| msgid "Owner"
+msgid "owner"
+msgstr "Sahip"
+
+#: warehouse/templates/manage/account/publishing.html:80
+msgid ""
+"The GitHub organization name or GitHub username that owns the repository"
+msgstr ""
+
+#: warehouse/templates/manage/account/publishing.html:88
+#: warehouse/templates/manage/project/publishing.html:66
+msgid "Repository name"
+msgstr ""
+
+#: warehouse/templates/manage/account/publishing.html:93
+#: warehouse/templates/manage/project/publishing.html:71
+msgid "repository"
+msgstr ""
+
+#: warehouse/templates/manage/account/publishing.html:95
+msgid "The name of the GitHub repository that contains the publishing workflow"
+msgstr ""
+
+#: warehouse/templates/manage/account/publishing.html:103
+#: warehouse/templates/manage/project/publishing.html:81
+#, fuzzy
+#| msgid "Your name"
+msgid "Workflow name"
+msgstr "Sizin adınız"
+
+#: warehouse/templates/manage/account/publishing.html:108
+#: warehouse/templates/manage/project/publishing.html:86
+msgid "workflow.yml"
+msgstr ""
+
+#: warehouse/templates/manage/account/publishing.html:110
+msgid ""
+"The filename of the publishing workflow. This file should exist in the "
+"<code>.github/workflows/</code> directory in the repository configured above."
+msgstr ""
+
+#: warehouse/templates/manage/account/publishing.html:117
+#: warehouse/templates/manage/project/publishing.html:95
+#: warehouse/templates/manage/project/roles.html:320
+#: warehouse/templates/manage/team/roles.html:123
+msgid "Add"
+msgstr ""
+
+#: warehouse/templates/manage/account/publishing.html:121
+#, fuzzy
+#| msgid "Manage this project"
+msgid "Manage pending providers"
+msgstr "Bu Projeyi Yönet"
+
+#: warehouse/templates/manage/account/publishing.html:126
+#, fuzzy
+#| msgid "Trending projects"
+msgid "Pending project name"
+msgstr "Trend olan projeler"
+
+#: warehouse/templates/manage/account/publishing.html:127
+#: warehouse/templates/manage/project/publishing.html:107
+msgid "Publisher"
+msgstr ""
+
+#: warehouse/templates/manage/account/publishing.html:128
+msgid "Publishing workflow URL"
+msgstr ""
+
+#: warehouse/templates/manage/account/publishing.html:139
+#: warehouse/templates/manage/project/publishing.html:119
+msgid "No publishers are currently configured."
+msgstr ""
+
 #: warehouse/templates/manage/account/recovery_codes-burn.html:34
 msgid ""
 "In order to verify that you have safely stored your recovery codes for use "
@@ -4541,10 +4732,6 @@ msgstr "Bu belirteç ne için?"
 #: warehouse/templates/manage/account/token.html:154
 msgid "Select scope..."
 msgstr "Kapsamı seçin."
-
-#: warehouse/templates/manage/account/token.html:158
-msgid "Project:"
-msgstr "Proje:"
 
 #: warehouse/templates/manage/account/token.html:167
 msgid ""
@@ -5730,18 +5917,6 @@ msgstr "Denetleyen:"
 msgid "OpenID Connect provider added"
 msgstr ""
 
-#: warehouse/templates/manage/project/history.html:223
-#: warehouse/templates/manage/project/history.html:227
-msgid "Provider:"
-msgstr ""
-
-#: warehouse/templates/manage/project/history.html:224
-#: warehouse/templates/manage/project/history.html:228
-#, fuzzy
-#| msgid "Username"
-msgid "Publisher:"
-msgstr "Kullanıcı adı"
-
 #: warehouse/templates/manage/project/history.html:226
 msgid "OpenID Connect provider removed"
 msgstr ""
@@ -5779,99 +5954,42 @@ msgstr "'%(project_name)s' Projesini Yönet"
 msgid "Back to projects"
 msgstr "Projelere Geri Dön"
 
-#: warehouse/templates/manage/project/publishing.html:20
-#: warehouse/templates/manage/project/publishing.html:51
-msgid "OpenID Connect publisher management"
-msgstr ""
-
-#: warehouse/templates/manage/project/publishing.html:54
-msgid ""
-"OpenID Connect provides a flexible, credential-free mechanism for delegating "
-"publishing authority for a PyPI package to a third party service, like "
-"GitHub Actions."
-msgstr ""
-
-#: warehouse/templates/manage/project/publishing.html:62
-msgid ""
-"PyPI projects can use trusted OpenID Connect publishers to automate their "
-"release processes, without having to explicitly provision or manage API "
-"tokens."
-msgstr ""
-
-#: warehouse/templates/manage/project/publishing.html:68
+#: warehouse/templates/manage/project/publishing.html:36
 msgid "Add a new provider"
 msgstr ""
 
-#: warehouse/templates/manage/project/publishing.html:72
+#: warehouse/templates/manage/project/publishing.html:40
 #, python-format
 msgid ""
 "Read more about GitHub's OpenID Connect provider <a href=\"%(href)s\">here</"
 "a>."
 msgstr ""
 
-#: warehouse/templates/manage/project/publishing.html:88
-#, fuzzy
-#| msgid "Owner"
-msgid "owner"
-msgstr "Sahip"
-
-#: warehouse/templates/manage/project/publishing.html:90
+#: warehouse/templates/manage/project/publishing.html:58
 msgid "The organization name or username that owns the repository"
 msgstr ""
 
-#: warehouse/templates/manage/project/publishing.html:98
-msgid "Repository name"
-msgstr ""
-
-#: warehouse/templates/manage/project/publishing.html:103
-msgid "repository"
-msgstr ""
-
-#: warehouse/templates/manage/project/publishing.html:105
+#: warehouse/templates/manage/project/publishing.html:73
 msgid "The name of the repository that contains the publishing workflow"
 msgstr ""
 
-#: warehouse/templates/manage/project/publishing.html:113
-#, fuzzy
-#| msgid "Your name"
-msgid "Workflow name"
-msgstr "Sizin adınız"
-
-#: warehouse/templates/manage/project/publishing.html:118
-msgid "workflow.yml"
-msgstr ""
-
-#: warehouse/templates/manage/project/publishing.html:120
+#: warehouse/templates/manage/project/publishing.html:88
 msgid "The filename of the publishing workflow"
 msgstr ""
 
-#: warehouse/templates/manage/project/publishing.html:127
-#: warehouse/templates/manage/project/roles.html:320
-#: warehouse/templates/manage/team/roles.html:123
-msgid "Add"
-msgstr ""
-
-#: warehouse/templates/manage/project/publishing.html:131
+#: warehouse/templates/manage/project/publishing.html:99
 #, fuzzy
 #| msgid "Manage this project"
 msgid "Manage current providers"
 msgstr "Bu Projeyi Yönet"
 
-#: warehouse/templates/manage/project/publishing.html:135
+#: warehouse/templates/manage/project/publishing.html:103
 #, python-format
 msgid "OpenID Connect publishers associated with %(project_name)s"
 msgstr ""
 
-#: warehouse/templates/manage/project/publishing.html:139
-msgid "Publisher"
-msgstr ""
-
-#: warehouse/templates/manage/project/publishing.html:140
+#: warehouse/templates/manage/project/publishing.html:108
 msgid "URL"
-msgstr ""
-
-#: warehouse/templates/manage/project/publishing.html:151
-msgid "No publishers are currently configured."
 msgstr ""
 
 #: warehouse/templates/manage/project/release.html:18
@@ -6246,7 +6364,7 @@ msgid "Project Roles"
 msgstr "Proje Bağlantıları"
 
 #: warehouse/templates/manage/project/roles.html:46
-#: warehouse/templates/pages/help.html:581
+#: warehouse/templates/pages/help.html:599
 msgid "There are two possible roles for collaborators:"
 msgstr "İlgililer için iki olası rol mevcut:"
 
@@ -7172,39 +7290,47 @@ msgstr "Neden bazı eylemler parolamı onaylamamı gerektiriyor?"
 msgid "How do I change my PyPI username?"
 msgstr ""
 
-#: warehouse/templates/pages/help.html:71
+#: warehouse/templates/pages/help.html:70
+#, fuzzy
+#| msgid "How can I use API tokens to authenticate with PyPI?"
+msgid "How can I use OpenID connect to authenticate with PyPI?"
+msgstr ""
+"PyPI ile kimlik doğrulaması yapmak için API belirteçlerini nasıl "
+"kullanabilirim?"
+
+#: warehouse/templates/pages/help.html:72
 msgid "How can I run a mirror of PyPI?"
 msgstr "PyPI'nin bir aynasını nasıl çalıştırabilirim?"
 
-#: warehouse/templates/pages/help.html:72
+#: warehouse/templates/pages/help.html:73
 msgid "Does PyPI have APIs I can use?"
 msgstr "PyPI' da kullanabileceğim API' lar var mı?"
 
-#: warehouse/templates/pages/help.html:73
+#: warehouse/templates/pages/help.html:74
 msgid "How do I get notified when a new version of a project is released?"
 msgstr "Projenin yayınlanan yeni sürümlerinden nasıl haberdar olabilirim?"
 
-#: warehouse/templates/pages/help.html:74
+#: warehouse/templates/pages/help.html:75
 msgid ""
 "Where can I see statistics about PyPI, downloads, and project/package usage?"
 msgstr ""
 "PyPI, indirilenler, ve proje/paket kullanımı hakkında ki istatistikleri "
 "nereden görebilirim?"
 
-#: warehouse/templates/pages/help.html:75
+#: warehouse/templates/pages/help.html:76
 msgid "What are the file hashes used for, and how can I verify them?"
 msgstr ""
 
-#: warehouse/templates/pages/help.html:77
+#: warehouse/templates/pages/help.html:78
 msgid "I forgot my PyPI password. Can you help me?"
 msgstr "PyPI parolamı unuttum. Bana yardım edebilir misiniz?"
 
-#: warehouse/templates/pages/help.html:78
+#: warehouse/templates/pages/help.html:79
 msgid "I've lost access to my PyPI account. Can you help me?"
 msgstr ""
 "PyPI hesabıma olan erişimimi kaybettim. Bana yardımcı olabilir misiniz?"
 
-#: warehouse/templates/pages/help.html:79
+#: warehouse/templates/pages/help.html:80
 msgid ""
 "Why am I getting a \"Invalid or non-existent authentication information.\" "
 "error when uploading files?"
@@ -7212,7 +7338,7 @@ msgstr ""
 "Dosyaları yüklerken neden \"Geçersiz veya var olmayan kimlik doğrulama "
 "bilgileri\" hatası alıyorum?"
 
-#: warehouse/templates/pages/help.html:80
+#: warehouse/templates/pages/help.html:81
 msgid ""
 "Why am I getting \"No matching distribution found\" or \"Could not fetch URL"
 "\" errors during <code>pip install</code>?"
@@ -7220,49 +7346,49 @@ msgstr ""
 "<code>pip install</code> sırasında neden \"No matching distribution found\" "
 "ya da \"Could not fetch URL\" hatalarını alıyorum?"
 
-#: warehouse/templates/pages/help.html:81
+#: warehouse/templates/pages/help.html:82
 msgid "I am having trouble using the PyPI website. Can you help me?"
 msgstr ""
 "PyPI internet sitesini kullanırken sorunlar yaşıyorum. Bana yardım edebilir "
 "misiniz?"
 
-#: warehouse/templates/pages/help.html:82
+#: warehouse/templates/pages/help.html:83
 msgid ""
 "Why can't I manually upload files to PyPI, through the browser interface?"
 msgstr "Neden tarayıcı arayüzünden PyPI' a manuel olarak dosya yükleyemiyorum?"
 
-#: warehouse/templates/pages/help.html:83
+#: warehouse/templates/pages/help.html:84
 msgid "How can I publish my private packages to PyPI?"
 msgstr "Kişisel(Private) paketlerimi PyPI'da nasıl yayınlayabilirim?"
 
-#: warehouse/templates/pages/help.html:84
+#: warehouse/templates/pages/help.html:85
 msgid "Why did my package or user registration get blocked?"
 msgstr "Neden paketım ya da kullanıcı hesabım bloklandı?"
 
-#: warehouse/templates/pages/help.html:85
+#: warehouse/templates/pages/help.html:86
 msgid "How do I get a file size limit exemption or increase for my project?"
 msgstr ""
 "Projem için dosya boyutu limitini nasıl yükseltebilirim veya tamamen "
 "kaldırabilirim?"
 
-#: warehouse/templates/pages/help.html:86
+#: warehouse/templates/pages/help.html:87
 msgid ""
 "How do I get a total project size limit exemption or increase for my project?"
 msgstr ""
 "Projem için toplam proje boyutu limitini nasıl yükseltebilirim veya tamamen "
 "kaldırabilirim?"
 
-#: warehouse/templates/pages/help.html:87
+#: warehouse/templates/pages/help.html:88
 msgid ""
 "Where does PyPI get its data on project vulnerabilities from, and how can I "
 "correct it?"
 msgstr ""
 
-#: warehouse/templates/pages/help.html:88
+#: warehouse/templates/pages/help.html:89
 msgid "Why am I getting \"the description failed to render\" error?"
 msgstr ""
 
-#: warehouse/templates/pages/help.html:90
+#: warehouse/templates/pages/help.html:91
 msgid ""
 "Why am I getting a \"Filename or contents already exists\" or \"Filename has "
 "been previously used\" error?"
@@ -7270,68 +7396,68 @@ msgstr ""
 "Neden \"Filename or contents already exists\" ya da\"Filename has been "
 "previously used\" hatalarını alıyorum?"
 
-#: warehouse/templates/pages/help.html:91
+#: warehouse/templates/pages/help.html:92
 msgid "Why isn't my desired project name available?"
 msgstr "Neden belirlediğim proje ismi müsait değil?"
 
-#: warehouse/templates/pages/help.html:92
+#: warehouse/templates/pages/help.html:93
 msgid "How do I claim an abandoned or previously registered project name?"
 msgstr ""
 "Önceden kaydedilmiş yahut terkedilmiş bir proje ismini nasıl talep "
 "edebilirim?"
 
-#: warehouse/templates/pages/help.html:93
+#: warehouse/templates/pages/help.html:94
 msgid "What collaborator roles are available for a project on PyPI?"
 msgstr ""
 "PyPI üzerinde bulunan bir projenin ortak geliştiricileri için mevcut olan "
 "roller nelerdir?"
 
-#: warehouse/templates/pages/help.html:94
+#: warehouse/templates/pages/help.html:95
 msgid "How do I become an owner/maintainer of a project on PyPI?"
 msgstr ""
 "Nasıl PyPI üzerinde bulunan bir projenin sahibi/geliştiricisi olabilirim?"
 
-#: warehouse/templates/pages/help.html:95
+#: warehouse/templates/pages/help.html:96
 msgid "How can I upload a project description in a different format?"
 msgstr "Bir projenin açıklamasını farklı bir formatta nasıl yükleyebilirim?"
 
-#: warehouse/templates/pages/help.html:96
+#: warehouse/templates/pages/help.html:97
 msgid "How do I request a new trove classifier?"
 msgstr "Yeni bir sınıflandırıcıyı nasıl talep edebilirim?"
 
-#: warehouse/templates/pages/help.html:97
+#: warehouse/templates/pages/help.html:98
 msgid "Where can I report a bug or provide feedback about PyPI?"
 msgstr ""
 "PyPI hakkında geribildirimlerimi ya da karşılaştığım bugları nereye "
 "bildirebilirim?"
 
-#: warehouse/templates/pages/help.html:99
+#: warehouse/templates/pages/help.html:100
 msgid "Who maintains PyPI?"
 msgstr "PyPI'yı kimler sürdürüyor?"
 
-#: warehouse/templates/pages/help.html:100
+#: warehouse/templates/pages/help.html:101
 msgid "What powers PyPI?"
 msgstr "PyPI'n gücü nereden geliyor?"
 
-#: warehouse/templates/pages/help.html:101
+#: warehouse/templates/pages/help.html:102
 msgid "Can I depend on PyPI being available?"
 msgstr "PYPI'nın kullanılabilir olmasına güvenebilir miyim?"
 
-#: warehouse/templates/pages/help.html:102
+#: warehouse/templates/pages/help.html:103
 msgid "How can I contribute to PyPI?"
 msgstr "Nasıl PyPI' a katkıda bulunabilirim?"
 
-#: warehouse/templates/pages/help.html:103
+#: warehouse/templates/pages/help.html:104
 msgid "How do I keep up with upcoming changes to PyPI?"
 msgstr "PyPI 'da yapılacak olan değişikliklerden nasıl haberdar olabilirim?"
 
-#: warehouse/templates/pages/help.html:104
+#: warehouse/templates/pages/help.html:105
 #, fuzzy
 #| msgid "How can I run a mirror of PyPI?"
 msgid "How can I get a list of PyPI's IP addresses?"
 msgstr "PyPI'nin bir aynasını nasıl çalıştırabilirim?"
 
-#: warehouse/templates/pages/help.html:105
+#: warehouse/templates/pages/help.html:106
 msgid ""
 "What does the \"beta feature\" badge mean? What are Warehouse's current beta "
 "features?"
@@ -7339,44 +7465,44 @@ msgstr ""
 "\"beta feature\" rozetinin anlamı nedir? Warehouse' un güncel beta "
 "özellikleri(beta features) nelerdir?"
 
-#: warehouse/templates/pages/help.html:106
+#: warehouse/templates/pages/help.html:107
 msgid "How do I pronounce \"PyPI\"?"
 msgstr "PyPI' ı nasıl telaffuz etmeliyim?"
 
-#: warehouse/templates/pages/help.html:113
+#: warehouse/templates/pages/help.html:114
 msgid "Common questions"
 msgstr "Sık sorulan sorular"
 
-#: warehouse/templates/pages/help.html:116
-#: warehouse/templates/pages/help.html:202
+#: warehouse/templates/pages/help.html:117
+#: warehouse/templates/pages/help.html:204
 msgid "Basics"
 msgstr "Temeller"
 
-#: warehouse/templates/pages/help.html:127
+#: warehouse/templates/pages/help.html:128
 msgid "My Account"
 msgstr "Hesabım"
 
-#: warehouse/templates/pages/help.html:145
-#: warehouse/templates/pages/help.html:526
+#: warehouse/templates/pages/help.html:147
+#: warehouse/templates/pages/help.html:544
 msgid "Integrating"
 msgstr "Birleştirme"
 
-#: warehouse/templates/pages/help.html:156
-#: warehouse/templates/pages/help.html:563
+#: warehouse/templates/pages/help.html:158
+#: warehouse/templates/pages/help.html:581
 msgid "Administration of projects on PyPI"
 msgstr "PyPI üzerinde ki projelerin yönetimi"
 
-#: warehouse/templates/pages/help.html:171
-#: warehouse/templates/pages/help.html:647
+#: warehouse/templates/pages/help.html:173
+#: warehouse/templates/pages/help.html:665
 msgid "Troubleshooting"
 msgstr "Sorun giderme"
 
-#: warehouse/templates/pages/help.html:188
-#: warehouse/templates/pages/help.html:815
+#: warehouse/templates/pages/help.html:190
+#: warehouse/templates/pages/help.html:833
 msgid "About"
 msgstr "Hakkında"
 
-#: warehouse/templates/pages/help.html:205
+#: warehouse/templates/pages/help.html:207
 #, fuzzy, python-format
 #| msgid ""
 #| "\n"
@@ -7435,7 +7561,7 @@ msgstr ""
 "(paketler)  bulunabilir. </p>\n"
 "        "
 
-#: warehouse/templates/pages/help.html:214
+#: warehouse/templates/pages/help.html:216
 #, python-format
 msgid ""
 "To learn how to install a file from PyPI, visit the <a href="
@@ -7450,7 +7576,7 @@ msgstr ""
 "\"%(installation_href)s\" title=\"%(title)s\" target=\"_blank\" rel="
 "\"noopener\">kurulum rehberine</a> göz atın."
 
-#: warehouse/templates/pages/help.html:221
+#: warehouse/templates/pages/help.html:223
 #, python-format
 msgid ""
 "For full instructions on configuring, packaging and distributing your Python "
@@ -7465,7 +7591,7 @@ msgstr ""
 "bulunan <a href=\"%(packaging_tutorial_href)s\" title=\"%(title)s\" target="
 "\"_blank\" rel=\"noopener\">paketleme eğitimine</a> bakın."
 
-#: warehouse/templates/pages/help.html:228
+#: warehouse/templates/pages/help.html:230
 #, python-format
 msgid ""
 "Classifiers are used to categorize projects on PyPI. See <a href=\"%(href)s"
@@ -7476,7 +7602,7 @@ msgstr ""
 "kullanılıyorlar. Daha fazla bilgi için lütfen <a href=\"%(href)s"
 "\">sınıflandırıcılar</a> sayfasına bakın."
 
-#: warehouse/templates/pages/help.html:235
+#: warehouse/templates/pages/help.html:237
 #, fuzzy, python-format
 #| msgid ""
 #| "There is currently no established process for performing this "
@@ -7497,11 +7623,11 @@ msgstr ""
 "\"><abbr title=\"Python enhancement proposal\">PEP</abbr> 541</a> uyarınca "
 "geliştirilmektedir."
 
-#: warehouse/templates/pages/help.html:242
+#: warehouse/templates/pages/help.html:244
 msgid "My account"
 msgstr "Hesabım"
 
-#: warehouse/templates/pages/help.html:245
+#: warehouse/templates/pages/help.html:247
 msgid ""
 "Currently, PyPI requires a verified email address to perform the following "
 "operations:"
@@ -7509,15 +7635,15 @@ msgstr ""
 "An itibarı ile aşağıda ki işlemleri gerçekleştirebilmek için PyPI' ın "
 "doğrulanmış bir e-posta adresine ihtiyacı var:"
 
-#: warehouse/templates/pages/help.html:247
+#: warehouse/templates/pages/help.html:249
 msgid "Register a new project."
 msgstr "Yeni bir proje kaydedin."
 
-#: warehouse/templates/pages/help.html:248
+#: warehouse/templates/pages/help.html:250
 msgid "Upload a new version or file."
 msgstr "Yeni bir sürüm yahut dosya yükleyin."
 
-#: warehouse/templates/pages/help.html:250
+#: warehouse/templates/pages/help.html:252
 msgid ""
 "The list of activities that require a verified email address is likely to "
 "grow over time."
@@ -7525,7 +7651,7 @@ msgstr ""
 "Zamanla doğrulanmış bir e-posta adresi gerektiren aktivitelerin sayısının "
 "artması beklenir."
 
-#: warehouse/templates/pages/help.html:251
+#: warehouse/templates/pages/help.html:253
 #, python-format
 msgid ""
 "This policy will allow us to enforce a key policy of <a href=\"%(href)s\" "
@@ -7540,7 +7666,7 @@ msgstr ""
 "uygulamamızı sağlayacak. Ayrıca, otomatik olarak bir çok hesap oluşturmaya "
 "yönelik spam saldırılarının uygulanabilirliğini de azaltacak."
 
-#: warehouse/templates/pages/help.html:252
+#: warehouse/templates/pages/help.html:254
 #, python-format
 msgid ""
 "You can manage your account's email addresses in your <a href=\"%(href)s"
@@ -7553,7 +7679,7 @@ msgstr ""
 "kaydolan kullanıcılar için yeni bir onay e-postası göndermemize olanak "
 "sağlar."
 
-#: warehouse/templates/pages/help.html:255
+#: warehouse/templates/pages/help.html:257
 #, python-format
 msgid ""
 "<p> PyPI itself has not suffered a breach. This is a protective measure to "
@@ -7598,7 +7724,7 @@ msgstr ""
 "ve <a href=\"%(reset_pwd_href)s\">parolanızı sıfırlayana kadar</a> PyPI "
 "üzerinde yeniden oturum açamazsınız. </p>"
 
-#: warehouse/templates/pages/help.html:290
+#: warehouse/templates/pages/help.html:292
 #, python-format
 msgid ""
 "<p> All PyPI user events are stored under security history in account "
@@ -7608,7 +7734,7 @@ msgid ""
 "%(admin_email)s\">%(admin_email)s</a></li> </ul> </p>"
 msgstr ""
 
-#: warehouse/templates/pages/help.html:302
+#: warehouse/templates/pages/help.html:304
 msgid ""
 "<p> A PyPI API token linked to your account was posted on a public website. "
 "It was automatically revoked, but before regenerating a new one, please "
@@ -7616,7 +7742,7 @@ msgid ""
 "\"#suspicious-activity\">suspicious activity</a> section applies too. </p>"
 msgstr ""
 
-#: warehouse/templates/pages/help.html:312
+#: warehouse/templates/pages/help.html:314
 #, python-format
 msgid ""
 "<p> Two factor authentication (2FA) makes your account more secure by "
@@ -7649,7 +7775,7 @@ msgstr ""
 "\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">discuss."
 "python.org</a>.</p>"
 
-#: warehouse/templates/pages/help.html:339
+#: warehouse/templates/pages/help.html:341
 #, python-format
 msgid ""
 "PyPI users can set up two-factor authentication using any authentication "
@@ -7662,7 +7788,7 @@ msgstr ""
 "abbr> standardı</a>' nı destekleyen herhangi bir kimlik doğrulama uygulaması "
 "ile 2-aşamalı kimlik doğrulama sistemini kurabilirler ."
 
-#: warehouse/templates/pages/help.html:340
+#: warehouse/templates/pages/help.html:342
 msgid ""
 "<abbr title=\"time-based one-time password\">TOTP</abbr> authentication "
 "applications generate a regularly changing authentication code to use when "
@@ -7672,7 +7798,7 @@ msgstr ""
 "sahip kimlik doğrulama uygulamaları, hesabınıza girerken kullanabileceğiniz "
 "sürekli değişen kimlik doğrulama kodları üretirler."
 
-#: warehouse/templates/pages/help.html:341
+#: warehouse/templates/pages/help.html:343
 msgid ""
 "Because <abbr title=\"time-based one-time password\">TOTP</abbr> is an open "
 "standard, there are many applications that are compatible with your PyPI "
@@ -7682,7 +7808,7 @@ msgstr ""
 "standart olduğu için, PyPI hesabınız ile uyumlu bir çok uygulama mevcut. "
 "Popüler uygulamalar:"
 
-#: warehouse/templates/pages/help.html:344
+#: warehouse/templates/pages/help.html:346
 #, python-format
 msgid ""
 "Google Authenticator for <a href=\"%(android_href)s\" title=\"%(title)s\" "
@@ -7693,14 +7819,14 @@ msgstr ""
 "\"noopener\">Android</a> yahut <a href=\"%(ios_href)s\" title=\"%(title)s\" "
 "target=\"_blank\" rel=\"noopener\">iOS</a> için Google Authenticator"
 
-#: warehouse/templates/pages/help.html:347
 #: warehouse/templates/pages/help.html:349
-#: warehouse/templates/pages/help.html:354
+#: warehouse/templates/pages/help.html:351
 #: warehouse/templates/pages/help.html:356
+#: warehouse/templates/pages/help.html:358
 msgid "(proprietary)"
 msgstr "(tescilli)"
 
-#: warehouse/templates/pages/help.html:351
+#: warehouse/templates/pages/help.html:353
 #, python-format
 msgid ""
 "Duo Mobile for <a href=\"%(android_href)s\" title=\"%(title)s\" target="
@@ -7711,12 +7837,12 @@ msgstr ""
 "\"noopener\">Android</a> yahut <a href=\"%(ios_href)s\" title=\"%(title)s\" "
 "target=\"_blank\" rel=\"noopener\">iOS</a> için Duo Mobile"
 
-#: warehouse/templates/pages/help.html:357
-#: warehouse/templates/pages/help.html:358
+#: warehouse/templates/pages/help.html:359
+#: warehouse/templates/pages/help.html:360
 msgid "(open source)"
 msgstr "(açık kaynak)"
 
-#: warehouse/templates/pages/help.html:362
+#: warehouse/templates/pages/help.html:364
 #, python-format
 msgid ""
 "Some password managers (e.g. <a href=\"%(href)s\" title=\"%(title)s\" target="
@@ -7729,7 +7855,7 @@ msgstr ""
 "doğrulama kodları oluşturabilir. PyPI güvenlik sebepleri yüzünden her hesap "
 "için sadece bir tane uygulama tanımlamanıza izin verir."
 
-#: warehouse/templates/pages/help.html:370
+#: warehouse/templates/pages/help.html:372
 msgid ""
 "To set up <abbr title=\"two factor authentication\">2FA</abbr> with an "
 "authentication application:"
@@ -7737,7 +7863,7 @@ msgstr ""
 "Kimlik doğrulama uygulaması ile <abbr title=\"2-aşamalı kimlik doğrulama"
 "\">2FA</abbr>' yı ayarlamak için:"
 
-#: warehouse/templates/pages/help.html:372
+#: warehouse/templates/pages/help.html:374
 msgid ""
 "Open an authentication (<abbr title=\"time-based one-time password\">TOTP</"
 "abbr>) application"
@@ -7745,7 +7871,7 @@ msgstr ""
 "Bir kimlik doğrulama (<abbr title=\"time-based one-time password\">TOTP</"
 "abbr>) uygulaması açın"
 
-#: warehouse/templates/pages/help.html:373
+#: warehouse/templates/pages/help.html:375
 msgid ""
 "Log in to your PyPI account, go to your account settings, and choose \"Add "
 "<abbr title=\"two factor authentication\">2FA</abbr> with authentication "
@@ -7755,7 +7881,7 @@ msgstr ""
 "doğrulama uygulaması ile <abbr title=\"2-aşamalı doğrulama\">2FA</abbr> ekle"
 "\" seçeneğini seçin"
 
-#: warehouse/templates/pages/help.html:374
+#: warehouse/templates/pages/help.html:376
 msgid ""
 "PyPI will generate a secret key, specific to your account. This is displayed "
 "as a QR code, and as a text code."
@@ -7763,7 +7889,7 @@ msgstr ""
 "PyPI hesabınıza özel bir gizli anahtar üretir. Bu anahtar hem QR kod hem de "
 "metin olarak görüntülenir."
 
-#: warehouse/templates/pages/help.html:375
+#: warehouse/templates/pages/help.html:377
 msgid ""
 "Scan the QR code with your authentication application, or type it in "
 "manually. The method of input will depend on the application you have chosen."
@@ -7772,7 +7898,7 @@ msgstr ""
 "metin olarak yazabilirsiniz. Seçtiğiniz kimlik doğrulama uygulamasına göre "
 "anahtar girdi yöntemi değişiklik gösterebilir."
 
-#: warehouse/templates/pages/help.html:376
+#: warehouse/templates/pages/help.html:378
 msgid ""
 "Your application will generate an authentication code - use this to verify "
 "your set up on PyPI"
@@ -7780,7 +7906,7 @@ msgstr ""
 "Kimlik doğrulama uygulamanız bir doğrulama kodu oluşturacaktır. PyPI "
 "kurulumunuzu doğrulamak için bu kodu kullanın"
 
-#: warehouse/templates/pages/help.html:379
+#: warehouse/templates/pages/help.html:381
 msgid ""
 "The PyPI server and your application now share your PyPI secret key, "
 "allowing your application to generate valid authentication codes for your "
@@ -7790,26 +7916,26 @@ msgstr ""
 "paylaşıyor. Bu sayede kimlik doğrulama uygulamanız PyPI hesabınız için "
 "geçerli kimlik doğrulama kodları oluşturabilecek."
 
-#: warehouse/templates/pages/help.html:381
-#: warehouse/templates/pages/help.html:423
+#: warehouse/templates/pages/help.html:383
+#: warehouse/templates/pages/help.html:425
 msgid "Next time you log in to PyPI you'll need to:"
 msgstr "PyPI hesabınıza bir sonraki girişinizde şunları yapmanız gerekecek:"
 
-#: warehouse/templates/pages/help.html:383
-#: warehouse/templates/pages/help.html:475
+#: warehouse/templates/pages/help.html:385
+#: warehouse/templates/pages/help.html:477
 msgid "Provide your username and password, as normal"
 msgstr "Normal bir şekilde kullanıcı adı ve parolanızı girin"
 
-#: warehouse/templates/pages/help.html:384
+#: warehouse/templates/pages/help.html:386
 msgid "Open your authentication application to generate an authentication code"
 msgstr ""
 "Kimlik doğrulama kodu oluşturabilmek için kimlik doğrulama uygulamanızı açın"
 
-#: warehouse/templates/pages/help.html:385
+#: warehouse/templates/pages/help.html:387
 msgid "Use this code to finish logging into PyPI"
 msgstr "PyPI' da oturum açma işleminizi tamamlamak için bu kodu kullanın"
 
-#: warehouse/templates/pages/help.html:391
+#: warehouse/templates/pages/help.html:393
 msgid ""
 "A security device is a USB key or <a href=\"#utfdevices\">other device</a> "
 "that generates a one-time password and sends that password to the browser. "
@@ -7820,12 +7946,12 @@ msgstr ""
 "gönderirler. Daha sonra bu parola PyPI tarafından kimliğinizi doğrulamak "
 "için kullanılır."
 
-#: warehouse/templates/pages/help.html:393
+#: warehouse/templates/pages/help.html:395
 msgid ""
 "To set up two factor authentication with a <em>USB key</em>, you'll need:"
 msgstr "Bir <em>USB anahtar</em> yardımıyla 2-aşamalı doğrulama kurmak için:"
 
-#: warehouse/templates/pages/help.html:395
+#: warehouse/templates/pages/help.html:397
 #, python-format
 msgid ""
 "To use a <a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel="
@@ -7834,11 +7960,11 @@ msgid ""
 "implemented by PyPI."
 msgstr ""
 
-#: warehouse/templates/pages/help.html:396
+#: warehouse/templates/pages/help.html:398
 msgid "To be running JavaScript on your browser"
 msgstr "Tarayıcınızda JavaScript koşturmak için"
 
-#: warehouse/templates/pages/help.html:397
+#: warehouse/templates/pages/help.html:399
 #, python-format
 msgid ""
 "To use a USB key that adheres to the <a href=\"%(href)s\" title=\"%(title)s"
@@ -7847,7 +7973,7 @@ msgstr ""
 "<a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener"
 "\">FIDO U2F özelliği</a>' ne uygun bir USB anahtar kullanmak için:"
 
-#: warehouse/templates/pages/help.html:400
+#: warehouse/templates/pages/help.html:402
 #, python-format
 msgid ""
 "Popular keys include <a href=\"%(yubikey_href)s\" title=\"%(title)s\" target="
@@ -7862,7 +7988,7 @@ msgstr ""
 "href=\"%(thetis_href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener"
 "\">Thetis</a>."
 
-#: warehouse/templates/pages/help.html:407
+#: warehouse/templates/pages/help.html:409
 msgid ""
 "Note that some older Yubico USB keys <strong>do not follow the FIDO "
 "specification</strong>, and will therefore not work with PyPI"
@@ -7870,11 +7996,11 @@ msgstr ""
 "Unutulmamalıdır ki <strong>FIDO şartnamesine uymayan</strong> bazı eski "
 "Yubico USB anahtarlar, PyPI ile çalışmayacaklardır"
 
-#: warehouse/templates/pages/help.html:412
+#: warehouse/templates/pages/help.html:414
 msgid "Follow these steps:"
 msgstr "Aşağıdaki adımları takip edin:"
 
-#: warehouse/templates/pages/help.html:414
+#: warehouse/templates/pages/help.html:416
 #, fuzzy
 #| msgid ""
 #| "\n"
@@ -7906,7 +8032,7 @@ msgstr ""
 "li>\n"
 "          "
 
-#: warehouse/templates/pages/help.html:421
+#: warehouse/templates/pages/help.html:423
 msgid ""
 "Once complete, your USB key will be registered to your PyPI account and can "
 "be used during the log in process."
@@ -7914,7 +8040,7 @@ msgstr ""
 "İşlem tamamlandığında USB anahtarınız PyPI hesabınıza tanımlanacak böylece "
 "USB anahtarınızı PyPI hesabınızda oturum açarken kullanabiliyor olacaksınız."
 
-#: warehouse/templates/pages/help.html:425
+#: warehouse/templates/pages/help.html:427
 #, fuzzy
 #| msgid ""
 #| "\n"
@@ -7932,7 +8058,7 @@ msgstr ""
 "yerleştirip tamamlayın</li>\n"
 "          "
 
-#: warehouse/templates/pages/help.html:436
+#: warehouse/templates/pages/help.html:438
 #, python-format
 msgid ""
 "There is a growing ecosystem of <a href=\"%(href)s\" title=\"%(title)s\" "
@@ -7943,7 +8069,7 @@ msgstr ""
 "\">FIDO uyumlu cihazların</a> kullanımı ve desteği git gide büyümektedir, ve "
 "bu cihazlar PyPI ile kullanılabilir."
 
-#: warehouse/templates/pages/help.html:441
+#: warehouse/templates/pages/help.html:443
 #, python-format
 msgid ""
 "Emerging solutions include biometric (facial and fingerprint) scanners and "
@@ -7956,7 +8082,7 @@ msgstr ""
 "\"%(title)s\" target=\"_blank\" rel=\"noopener\">güvenlik cihazı gibi "
 "davranan mobil telefonlar</a>' a da artan bir destek bulunmakta."
 
-#: warehouse/templates/pages/help.html:447
+#: warehouse/templates/pages/help.html:449
 #, python-format
 msgid ""
 "As PyPI's two factor implementation follows the <a href=\"%(href)s\" title="
@@ -7970,7 +8096,7 @@ msgstr ""
 "kullanıcıları bu alanda ortaya çıkan her tür yenilik ve avantaja sahip "
 "olacaklardır."
 
-#: warehouse/templates/pages/help.html:456
+#: warehouse/templates/pages/help.html:458
 msgid ""
 "If you lose access to your <a href=\"#totp\">authentication application</a> "
 "or <a href=\"#utfkey\">security device</a>, you can use these codes to sign "
@@ -7980,7 +8106,7 @@ msgstr ""
 "\"#utfkey\">güvenlik cihazınıza</a> erişiminizi kaybederseniz, PyPI'da "
 "oturum açmak için bu kodları kullanabilirsiniz."
 
-#: warehouse/templates/pages/help.html:459
+#: warehouse/templates/pages/help.html:461
 msgid ""
 "Recovery codes are <strong>one time use</strong>. They are not a substitute "
 "for a <a href=\"#totp\">authentication application</a> or <a href=\"#utfkey"
@@ -7993,11 +8119,11 @@ msgstr ""
 "işlemi için kullanılmalıdırlar. Bir kurtarma kodu kullanıldıktan sonra "
 "inaktif hale gelir ve tekrar kullanılamaz."
 
-#: warehouse/templates/pages/help.html:465
+#: warehouse/templates/pages/help.html:467
 msgid "To provision recovery codes:"
 msgstr "Kurtarma kodlarını sağlamak için:"
 
-#: warehouse/templates/pages/help.html:467
+#: warehouse/templates/pages/help.html:469
 msgid ""
 "Log in to your PyPI account, go to your account settings, and choose "
 "\"Generate recovery codes\""
@@ -8005,7 +8131,7 @@ msgstr ""
 "PyPI hesabınıza giriş yapın, hesap ayarlarına gidin ve \"Kurtarma kodları "
 "oluştur\" seçeneğini seçin"
 
-#: warehouse/templates/pages/help.html:468
+#: warehouse/templates/pages/help.html:470
 msgid ""
 "Securely store the displayed recovery codes! Consider printing them out and "
 "storing them in a safe location or saving them in a password manager."
@@ -8014,7 +8140,7 @@ msgstr ""
 "yazdırıp güvenli bir yerde saklayabilirsiniz veya parola yöneticisine "
 "kaydedebilirsiniz."
 
-#: warehouse/templates/pages/help.html:471
+#: warehouse/templates/pages/help.html:473
 msgid ""
 "If you lose access to your stored recovery codes or use all of them, you can "
 "get new ones by selecting \"Regenerate recovery codes\" in your account "
@@ -8024,11 +8150,11 @@ msgstr ""
 "tümünü kullandıysanız, hesap ayarlarınızdan \"Kurtarma kodlarını yeniden "
 "oluştur\" seçeneğini seçerek yenilerini oluşturabilirsiniz."
 
-#: warehouse/templates/pages/help.html:473
+#: warehouse/templates/pages/help.html:475
 msgid "To sign in with a recovery code:"
 msgstr "Bir kurtarma koduyla oturum açmak için:"
 
-#: warehouse/templates/pages/help.html:476
+#: warehouse/templates/pages/help.html:478
 msgid ""
 "When prompted for two factor authentication, select \"Login using recovery "
 "codes\""
@@ -8036,14 +8162,14 @@ msgstr ""
 "İki faktörlü kimlik doğrulaması istendiğinde \"Kurtarma kodu kullanarak "
 "oturum aç\" ı seçin"
 
-#: warehouse/templates/pages/help.html:477
+#: warehouse/templates/pages/help.html:479
 msgid ""
 "As each code can be used only once, you might want to mark the code as used"
 msgstr ""
 "Her kodu yalnızca bir kez kullanabileceğinizden, kullandığınız kodu "
 "\"kullanıldı\" olarak işaretlemek mantıklı olacaktır"
 
-#: warehouse/templates/pages/help.html:478
+#: warehouse/templates/pages/help.html:480
 msgid ""
 "If you have few recovery codes remaining, you may also want to generate a "
 "new set using the \"Regenerate recovery codes\" button in your account "
@@ -8053,7 +8179,7 @@ msgstr ""
 "\"Kurtarma kodlarını yeniden oluştur\" butonu yardımıyla yeni kurtarma "
 "kodları oluşturabilirsiniz."
 
-#: warehouse/templates/pages/help.html:483
+#: warehouse/templates/pages/help.html:485
 #, fuzzy
 #| msgid ""
 #| "\n"
@@ -8088,20 +8214,20 @@ msgstr ""
 "\n"
 "        "
 
-#: warehouse/templates/pages/help.html:490
+#: warehouse/templates/pages/help.html:492
 msgid "To make an API token:"
 msgstr "API belirteci oluşturmak için:"
 
-#: warehouse/templates/pages/help.html:493
+#: warehouse/templates/pages/help.html:495
 msgid "Verify your email address"
 msgstr "E-posta adresinizi doğrulayın"
 
-#: warehouse/templates/pages/help.html:493
+#: warehouse/templates/pages/help.html:495
 #, python-format
 msgid "(check your <a href=\"%(href)s\">account settings</a>)"
 msgstr "(<a href=\"%(href)s\">hesap ayarlarınızı</a> kontrol edin)"
 
-#: warehouse/templates/pages/help.html:494
+#: warehouse/templates/pages/help.html:496
 #, python-format
 msgid ""
 "In your <a href=\"%(href)s\">account settings</a>, go to the API tokens "
@@ -8110,21 +8236,21 @@ msgstr ""
 "<a href=\"%(href)s\">Hesap ayarları</a>' nızda iken, API beliteçleri "
 "bölümüne gidin ve \"API belirteci ekle\"' yi seçin"
 
-#: warehouse/templates/pages/help.html:497
+#: warehouse/templates/pages/help.html:499
 msgid "To use an API token:"
 msgstr "API beliteci kullanmak için:"
 
-#: warehouse/templates/pages/help.html:500
+#: warehouse/templates/pages/help.html:502
 msgid "Set your username to <code>__token__</code>"
 msgstr "Kullanıcı adınızı <code>__token__</code> olarak belirtin"
 
-#: warehouse/templates/pages/help.html:501
+#: warehouse/templates/pages/help.html:503
 msgid ""
 "Set your password to the token value, including the <code>pypi-</code> prefix"
 msgstr ""
 "Parolanızı <code>pypi-</code> ön eki ile beraber belitecin değerine ayarlayın"
 
-#: warehouse/templates/pages/help.html:505
+#: warehouse/templates/pages/help.html:507
 #, python-format
 msgid ""
 "Where you edit or add these values will depend on your individual use case. "
@@ -8142,7 +8268,7 @@ msgstr ""
 "\"%(travis_href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener"
 "\"><code>travis.yml</code> Travis kullanan kullanıcılar </a>)."
 
-#: warehouse/templates/pages/help.html:509
+#: warehouse/templates/pages/help.html:511
 msgid ""
 "Advanced users may wish to inspect their token by decoding it with base64, "
 "and checking the output against the unique identifier displayed on PyPI."
@@ -8151,7 +8277,7 @@ msgstr ""
 "ile çözüp, çıktıyı PyPI' da görüntülenen eşsiz tanımlayıcı ile "
 "karşılaştırarak incelemek isteyebilir."
 
-#: warehouse/templates/pages/help.html:513
+#: warehouse/templates/pages/help.html:515
 msgid ""
 "<p>PyPI asks you to confirm your password before you want to perform a "
 "<i>sensitive action</i>. Sensitive actions include things like adding or "
@@ -8162,26 +8288,43 @@ msgid ""
 "personal, password-protected computer.</strong></p>"
 msgstr ""
 
-#: warehouse/templates/pages/help.html:520
+#: warehouse/templates/pages/help.html:522
 msgid "PyPI does not currently support changing a username."
 msgstr ""
 
-#: warehouse/templates/pages/help.html:521
+#: warehouse/templates/pages/help.html:523
 msgid ""
 "Instead, you can create a new account with the desired username, add the new "
 "account as a maintainer of all the projects your old account owns, and then "
 "delete the old account, which will have the same effect."
 msgstr ""
 
-#: warehouse/templates/pages/help.html:529
+#: warehouse/templates/pages/help.html:527
+#, python-format
+msgid ""
+"PyPI users and projects can use <a href=\"%(openid)s\">OpenID Connect</a> "
+"(OIDC) to delegate publishing authority for a PyPI package to a trusted "
+"third party service, eliminating the need to use API tokens or passwords."
+msgstr ""
+
+#: warehouse/templates/pages/help.html:534
+msgid ""
+"Using OIDC to authenticate when publishing is done by registering "
+"\"providers,\" which correspond to services with OIDC identities like GitHub "
+"Actions. Existing projects can add or remove OIDC providers at any time. "
+"OIDC providers can also be created in advance for projects that don't exist "
+"yet."
+msgstr ""
+
+#: warehouse/templates/pages/help.html:547
 msgid "Yes, including RSS feeds of new packages and new releases."
 msgstr "Yeni paketlerin ve yeni sürümlerin RSS beslemeleri ile beraber evet."
 
-#: warehouse/templates/pages/help.html:529
+#: warehouse/templates/pages/help.html:547
 msgid "See the API reference."
 msgstr "API referansına bakın."
 
-#: warehouse/templates/pages/help.html:532
+#: warehouse/templates/pages/help.html:550
 #, python-format
 msgid ""
 "If you need to run your own mirror of PyPI, the <a href=\"%(href)s"
@@ -8193,7 +8336,7 @@ msgstr ""
 "unutmayın ki PyPI'ın bir kopyasının ihtiyacı olan depolama gereksinimi 1 "
 "terabyte'dan daha fazladır ve anlık olarak artmaya devam etmektedir!"
 
-#: warehouse/templates/pages/help.html:535
+#: warehouse/templates/pages/help.html:553
 #, fuzzy, python-format
 #| msgid ""
 #| "PyPI itself does not offer a way to get notified when a project uploads "
@@ -8216,7 +8359,7 @@ msgstr ""
 "sürümleri ve açıklar için geniş ve detaylı bir izleme ve bildirim hizmeti "
 "sağlamaktadır."
 
-#: warehouse/templates/pages/help.html:538
+#: warehouse/templates/pages/help.html:556
 #, fuzzy, python-format
 #| msgid ""
 #| "You can <a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel="
@@ -8231,7 +8374,7 @@ msgstr ""
 "\"%(title)s\" target=\"_blank\" rel=\"noopener\">Google BigQuery üzerinde "
 "bulunan açık verisetimizi kullanarak analiz edebilirsiniz</a>."
 
-#: warehouse/templates/pages/help.html:540
+#: warehouse/templates/pages/help.html:558
 #, python-format
 msgid ""
 "<a href=\"%(libs_io_href)s\" title=\"%(title)s\" target=\"_blank\" rel="
@@ -8255,7 +8398,7 @@ msgstr ""
 "title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">diğer ilgili "
 "faktörler</a> dahildir."
 
-#: warehouse/templates/pages/help.html:549
+#: warehouse/templates/pages/help.html:567
 #, python-format
 msgid ""
 "For recent statistics on uptime and performance, see <a href=\"%(href)s\" "
@@ -8265,7 +8408,7 @@ msgstr ""
 "\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">durum "
 "sayfamıza</a> göz atabilirsiniz."
 
-#: warehouse/templates/pages/help.html:552
+#: warehouse/templates/pages/help.html:570
 msgid ""
 "For each package hosted on PyPI, there are corresponding hashes for that "
 "file. These hashes can be used to verify that the file you are downloading "
@@ -8275,14 +8418,14 @@ msgid ""
 "API. Here is an example of generating the hashes:"
 msgstr ""
 
-#: warehouse/templates/pages/help.html:559
+#: warehouse/templates/pages/help.html:577
 msgid ""
 "In practice, it would only be necessary to verify one of the hashes. It is "
 "not recommended to use the MD5 hash because of known security issues with "
 "the MD5 algorithm. This hash is provided for backwards compatibility only."
 msgstr ""
 
-#: warehouse/templates/pages/help.html:566
+#: warehouse/templates/pages/help.html:584
 #, python-format
 msgid ""
 "PyPI does not support publishing private packages. If you need to publish "
@@ -8294,7 +8437,7 @@ msgstr ""
 "\"%(href)s\">devpi projesi</a>' ni kendi kullanımınız için özel olarak "
 "ayaklandırmanızdır."
 
-#: warehouse/templates/pages/help.html:569
+#: warehouse/templates/pages/help.html:587
 #, fuzzy
 #| msgid ""
 #| "Your publishing tool may return an error that your new project can't be "
@@ -8312,7 +8455,7 @@ msgstr ""
 "kullanılamayacağına dair bir hata dönebilir. (Şu anki sisteme göre) Böyle "
 "bir duruma neden olabilecek üç şey var:"
 
-#: warehouse/templates/pages/help.html:571
+#: warehouse/templates/pages/help.html:589
 #, python-format
 msgid ""
 "The project name conflicts with a <a href=\"%(href)s\" title=\"%(title)s\" "
@@ -8323,12 +8466,12 @@ msgstr ""
 "<a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener"
 "\">Python Standart Kütüphanesi</a> modülü ile çakışıyor."
 
-#: warehouse/templates/pages/help.html:572
+#: warehouse/templates/pages/help.html:590
 msgid ""
 "The project name is too similar to an existing project and may be confusable."
 msgstr ""
 
-#: warehouse/templates/pages/help.html:573
+#: warehouse/templates/pages/help.html:591
 #, python-format
 msgid ""
 "The project name has been explicitly prohibited by the PyPI administrators. "
@@ -8340,7 +8483,7 @@ msgstr ""
 "%(incorrect_code)s</code> <code>%(correct_code)s</code> için genel bir yazım "
 "hatasıdır, ve kötü amaçlı bir paket kullanıcıyı şaşırtmamalıdır."
 
-#: warehouse/templates/pages/help.html:574
+#: warehouse/templates/pages/help.html:592
 msgid ""
 "The project name has been registered by another user, but no releases have "
 "been created."
@@ -8348,7 +8491,7 @@ msgstr ""
 "Proje ismi başka bir kullanıcı tarafından kaydedildi ancak herhangi bir "
 "paket sürümü oluşturulmadı."
 
-#: warehouse/templates/pages/help.html:574
+#: warehouse/templates/pages/help.html:592
 #, fuzzy, python-format
 #| msgid ""
 #| "If the owner is unresponsive, see <a href=\"%(href)s\">%(anchor_text)s</a>"
@@ -8357,7 +8500,7 @@ msgstr ""
 "Eğer sahip yanıt vermiyorsa, şuraya <a href=\"%(href)s\">%(anchor_text)s</a> "
 "bakın"
 
-#: warehouse/templates/pages/help.html:578
+#: warehouse/templates/pages/help.html:596
 #, python-format
 msgid ""
 "Follow the <a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel="
@@ -8368,7 +8511,7 @@ msgstr ""
 "olan 541 <a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel="
 "\"noopener\">\"İsim transferi nasıl talep edilir\"</a> bölümünü izleyin."
 
-#: warehouse/templates/pages/help.html:582
+#: warehouse/templates/pages/help.html:600
 msgid ""
 "Can upload releases for a package. Cannot add collaborators. Cannot delete "
 "files, releases, or the project."
@@ -8376,11 +8519,11 @@ msgstr ""
 "Bir pakete yeni sürümler yükleyebilir. Yeni geliştiriciler ekleyemez. Dosya, "
 "sürüm veya projeyi kaldıramaz."
 
-#: warehouse/templates/pages/help.html:583
+#: warehouse/templates/pages/help.html:601
 msgid "Owner:"
 msgstr "Sahibi:"
 
-#: warehouse/templates/pages/help.html:583
+#: warehouse/templates/pages/help.html:601
 msgid ""
 "Can upload releases. Can add other collaborators. Can delete files, "
 "releases, or the entire project."
@@ -8388,7 +8531,7 @@ msgstr ""
 "Sürüm ekleyebilir. Başka ilgililer de ekleyebilir. Dosyaları, sürümleri ve "
 "tüm projeyi kaldırabilir."
 
-#: warehouse/templates/pages/help.html:586
+#: warehouse/templates/pages/help.html:604
 msgid ""
 "Only the current owners of a project have the ability to add new owners or "
 "maintainers. If you need to request ownership, you should contact the "
@@ -8402,7 +8545,7 @@ msgstr ""
 "sahipleri genelde iletişim bilgilerini proje sayfasında ki 'Meta' "
 "detaylarının 'Author' alanında paylaşıyorlar."
 
-#: warehouse/templates/pages/help.html:587
+#: warehouse/templates/pages/help.html:605
 #, python-format
 msgid ""
 "If the owner is unresponsive, see <a href=\"%(href)s\">%(anchor_text)s</a>"
@@ -8410,7 +8553,7 @@ msgstr ""
 "Eğer sahip yanıt vermiyorsa, şuraya <a href=\"%(href)s\">%(anchor_text)s</a> "
 "bakın"
 
-#: warehouse/templates/pages/help.html:590
+#: warehouse/templates/pages/help.html:608
 #, python-format
 msgid ""
 "By default, an upload's description will render with <a href=\"%(href)s\" "
@@ -8425,7 +8568,7 @@ msgstr ""
 "<code>setup.py</code> içerisinde ki <code>long_description_content_type</"
 "code> 'u ilgili alternatif formata ayarlayabilir."
 
-#: warehouse/templates/pages/help.html:591
+#: warehouse/templates/pages/help.html:609
 #, python-format
 msgid ""
 "Refer to the <a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel="
@@ -8436,7 +8579,7 @@ msgstr ""
 "\"%(title)s\" target=\"_blank\" rel=\"noopener\">Python Packaging User "
 "Guide</a>' na bakınız."
 
-#: warehouse/templates/pages/help.html:596
+#: warehouse/templates/pages/help.html:614
 #, python-format
 msgid ""
 "If you can't upload your project's release to PyPI because you're hitting "
@@ -8455,24 +8598,24 @@ msgstr ""
 "yeterli). Sonra, <a href=\"%(file_issue_href)s\" title=\"%(title)s\" target="
 "\"_blank\" rel=\"noopener\">sorun bildir</a> ile bize şunları bildirin:"
 
-#: warehouse/templates/pages/help.html:605
-#: warehouse/templates/pages/help.html:626
+#: warehouse/templates/pages/help.html:623
+#: warehouse/templates/pages/help.html:644
 msgid "A link to your project on PyPI (or Test PyPI)"
 msgstr "PyPI (yahut Test PyPI) üzerinde projenize doğru bir bağlantı"
 
-#: warehouse/templates/pages/help.html:606
+#: warehouse/templates/pages/help.html:624
 msgid "The size of your release, in megabytes"
 msgstr "Paket sürümünün megabyte cinsinden büyüklüğü"
 
-#: warehouse/templates/pages/help.html:607
+#: warehouse/templates/pages/help.html:625
 msgid ""
 "Which index/indexes you need the increase for (PyPI, Test PyPI, or both)"
 msgstr ""
 "(PyPI, Test PyPI yahut her ikisi) için hangi dizin/dizinler' de artışa "
 "ihtiyacınız var"
 
-#: warehouse/templates/pages/help.html:608
-#: warehouse/templates/pages/help.html:628
+#: warehouse/templates/pages/help.html:626
+#: warehouse/templates/pages/help.html:646
 msgid ""
 "A brief description of your project, including the reason for the additional "
 "size."
@@ -8480,14 +8623,14 @@ msgstr ""
 "Ek dosya boyutunun nedeni de dahil olmak üzere projeniz hakkında kısa bir "
 "açıklama."
 
-#: warehouse/templates/pages/help.html:614
+#: warehouse/templates/pages/help.html:632
 msgid ""
 "If you can't upload your project's release to PyPI because you're hitting "
 "the project size limit, first remove any unnecessary releases or individual "
 "files to lower your overall project size."
 msgstr ""
 
-#: warehouse/templates/pages/help.html:621
+#: warehouse/templates/pages/help.html:639
 #, python-format
 msgid ""
 "If that is not possible, we can sometimes increase your limit. <a href="
@@ -8498,11 +8641,11 @@ msgstr ""
 "\"%(file_issue_href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener"
 "\">Sorun bildir</a> ile bize şunları bildirin:"
 
-#: warehouse/templates/pages/help.html:627
+#: warehouse/templates/pages/help.html:645
 msgid "The total size of your project, in gigabytes"
 msgstr "Tüm projenizin megabyte cinsinden büyüklüğü"
 
-#: warehouse/templates/pages/help.html:634
+#: warehouse/templates/pages/help.html:652
 #, fuzzy, python-format
 #| msgid ""
 #| "To learn how to install a file from PyPI, visit the <a href="
@@ -8523,7 +8666,7 @@ msgstr ""
 "\"%(installation_href)s\" title=\"%(title)s\" target=\"_blank\" rel="
 "\"noopener\">kurulum rehberine</a> göz atın."
 
-#: warehouse/templates/pages/help.html:639
+#: warehouse/templates/pages/help.html:657
 #, fuzzy, python-format
 #| msgid ""
 #| "If that is not possible, we can sometimes increase your limit. <a href="
@@ -8538,7 +8681,7 @@ msgstr ""
 "\"%(file_issue_href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener"
 "\">Sorun bildir</a> ile bize şunları bildirin:"
 
-#: warehouse/templates/pages/help.html:651
+#: warehouse/templates/pages/help.html:669
 #, fuzzy, python-format
 #| msgid ""
 #| "PyPI will reject uploads if the description fails to render. To check a "
@@ -8554,7 +8697,7 @@ msgstr ""
 "Açklamanın işlenebilirliğini yerel olarak test etmek için PyPI tarafından da "
 "kullanılan <a href=\"%(href)s\">readme_renderer</a> 'yı kullanabilirsiniz."
 
-#: warehouse/templates/pages/help.html:657
+#: warehouse/templates/pages/help.html:675
 msgid ""
 "If you've forgotten your PyPI password but you remember your email address "
 "or username, follow these steps to reset your password:"
@@ -8563,31 +8706,31 @@ msgstr ""
 "isminizi hatırlıyorsanız, şu adımları takip ederek parolanızı "
 "sıfırlayabilirsiniz:"
 
-#: warehouse/templates/pages/help.html:659
+#: warehouse/templates/pages/help.html:677
 #, python-format
 msgid "Go to <a href=\"%(href)s\">reset your password</a>."
 msgstr "Şu link ile <a href=\"%(href)s\">parolanızı sıfırlayın</a>."
 
-#: warehouse/templates/pages/help.html:660
+#: warehouse/templates/pages/help.html:678
 msgid ""
 "Enter the email address or username you used for PyPI and submit the form."
 msgstr ""
 "PyPI' de kullandığınız e-posta adresinizi yahut kullanıcı isminizi girip "
 "formu gönderin."
 
-#: warehouse/templates/pages/help.html:661
+#: warehouse/templates/pages/help.html:679
 msgid "You'll receive an email with a password reset link."
 msgstr "Parola sıfırlama linki içeren bir e-posta alacaksınız."
 
-#: warehouse/templates/pages/help.html:666
+#: warehouse/templates/pages/help.html:684
 msgid "If you've lost access to your PyPI account due to:"
 msgstr "PyPI hesabınıza erişiminizi şu nedenler biri yüzünden kaybettiyseniz:"
 
-#: warehouse/templates/pages/help.html:668
+#: warehouse/templates/pages/help.html:686
 msgid "Lost access to the email address associated with your account"
 msgstr "Hesabınızla ilişkili olan e-posta adresine erişim kaybı"
 
-#: warehouse/templates/pages/help.html:669
+#: warehouse/templates/pages/help.html:687
 msgid ""
 "Lost two factor authentication <a href=\"#totp\">application</a>, <a href="
 "\"#utfkey\">device</a>, and <a href=\"#recoverycodes\">recovery codes</a>"
@@ -8596,7 +8739,7 @@ msgstr ""
 "\"#utfkey\">cihazı</a>, ve <a href=\"#recoverycodes\">kurtarma kodları</"
 "a>'na olan erişimin kaybedilmesi"
 
-#: warehouse/templates/pages/help.html:672
+#: warehouse/templates/pages/help.html:690
 #, python-format
 msgid ""
 "You can proceed to <a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank"
@@ -8607,16 +8750,16 @@ msgstr ""
 "\" target=\"_blank\" rel=\"noopener\">izleyicimiz üzerinden sorun bildirir</"
 "a> hesap kurtarma ile ilgili yardım alabilirsiniz."
 
-#: warehouse/templates/pages/help.html:679
+#: warehouse/templates/pages/help.html:697
 msgid "If you are using a username and password for uploads:"
 msgstr "Yüklemeler için bir kullanıcı adı ve parola kullanıyorsanız:"
 
-#: warehouse/templates/pages/help.html:681
+#: warehouse/templates/pages/help.html:699
 msgid "Ensure that your username and password are correct."
 msgstr ""
 "Kullanıcı adınızın veya parolanızın yanlış olup olmadığından emin olun."
 
-#: warehouse/templates/pages/help.html:682
+#: warehouse/templates/pages/help.html:700
 msgid ""
 "Ensure that your username and password do not contain any trailing "
 "characters such as newlines."
@@ -8624,17 +8767,17 @@ msgstr ""
 "Kullanıcı adınızın ve parolanızın yeni satır(/n/r) gibi herhangi bir "
 "trailing karakter içermediğinden emin olun."
 
-#: warehouse/templates/pages/help.html:684
+#: warehouse/templates/pages/help.html:702
 msgid "If you are using an <a href=\"#apitoken\">API Token</a> for uploads:"
 msgstr ""
 "Yüklemeler için bir <a href=\"#apitoken\">API Belirteci</a> kullanıyorsanız:"
 
-#: warehouse/templates/pages/help.html:686
+#: warehouse/templates/pages/help.html:704
 msgid "Ensure that your API Token is valid and has not been revoked."
 msgstr ""
 "API Belirteci'nizin geçerli olduğundan ve iptal edilmediğından emin olun."
 
-#: warehouse/templates/pages/help.html:687
+#: warehouse/templates/pages/help.html:705
 msgid ""
 "Ensure that your API Token is <a href=\"#apitoken\">properly formatted</a> "
 "and does not contain any trailing characters such as newlines."
@@ -8643,19 +8786,19 @@ msgstr ""
 "olduğundan</a> ve yeni satır(/n/r) gibi herhangi bir trailing karakter "
 "içermediğinden emin olun."
 
-#: warehouse/templates/pages/help.html:688
+#: warehouse/templates/pages/help.html:706
 #, fuzzy
 #| msgid "Set your username to <code>__token__</code>"
 msgid "Ensure that the username you are using is <code>__token__</code>."
 msgstr "Kullanıcı adınızı <code>__token__</code> olarak belirtin"
 
-#: warehouse/templates/pages/help.html:690
+#: warehouse/templates/pages/help.html:708
 msgid ""
 "In both cases, remember that PyPI and TestPyPI each require you to create an "
 "account, so your credentials may be different."
 msgstr ""
 
-#: warehouse/templates/pages/help.html:692
+#: warehouse/templates/pages/help.html:710
 msgid ""
 "If you're using Windows and trying to paste your password or token in the "
 "Command Prompt or PowerShell, note that Ctrl-V and Shift+Insert won't work. "
@@ -8663,7 +8806,7 @@ msgid ""
 "Ctrl+Shift+C/V as Copy/Paste\" in \"Properties\"."
 msgstr ""
 
-#: warehouse/templates/pages/help.html:696
+#: warehouse/templates/pages/help.html:714
 #, python-format
 msgid ""
 "This is a <a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel="
@@ -8672,7 +8815,7 @@ msgstr ""
 "Bu, Python'un <code>getpass</code> modülüyle ilgili <a href=\"%(href)s\" "
 "title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">bilinen bir sorun</a>."
 
-#: warehouse/templates/pages/help.html:703
+#: warehouse/templates/pages/help.html:721
 #, python-format
 msgid ""
 "Transport Layer Security, or TLS, is part of how we make sure connections "
@@ -8693,7 +8836,7 @@ msgstr ""
 "\">Konu hakkında detaylı bilgiler öğrenmek için PSF bloğuna göz "
 "atabilirsiniz</a>."
 
-#: warehouse/templates/pages/help.html:710
+#: warehouse/templates/pages/help.html:728
 #, python-format
 msgid ""
 "If you are having trouble with <code>%(command)s</code> and get a <code>No "
@@ -8705,7 +8848,7 @@ msgstr ""
 "hatası alıyorsanız, durum ile ilgili daha fazla bilgi öğrenmek için komuta "
 "<code>-v</code> ' ı eklemeyi deneyin:"
 
-#: warehouse/templates/pages/help.html:712
+#: warehouse/templates/pages/help.html:730
 msgid ""
 "If you see an error like <code>There was a problem confirming the ssl "
 "certificate</code> or <code>tlsv1 alert protocol version</code> or "
@@ -8717,7 +8860,7 @@ msgstr ""
 "<code>TLSV1_ALERT_PROTOCOL_VERSION</code> gibi bir hata görüyorsanız, PyPI'a "
 "daha güncel bir TLS destek kütüphanesi yardımı ile bağlanmayı deneyin."
 
-#: warehouse/templates/pages/help.html:713
+#: warehouse/templates/pages/help.html:731
 msgid ""
 "The specific steps you need to take will depend on your operating system "
 "version, where your installation of Python originated (python.org, your OS "
@@ -8729,7 +8872,7 @@ msgstr ""
 "sağlayıcınız, yahut ara dağıtıcı), ve Python'un yüklü sürümleri, "
 "<code>setuptools</code>, ve<code>pip</code>' e göre değişiklik gösterebilir."
 
-#: warehouse/templates/pages/help.html:715
+#: warehouse/templates/pages/help.html:733
 #, fuzzy, python-format
 #| msgid ""
 #| "For help, go to <a href=\"%(irc_href)s\" title=\"%(title)s\" target="
@@ -8758,7 +8901,7 @@ msgstr ""
 "sisteminiz, kurulum detaylarınız ve <code>%(command)s</code>' unuzun çıktısı "
 "ile ileti gönderin."
 
-#: warehouse/templates/pages/help.html:726
+#: warehouse/templates/pages/help.html:744
 #, python-format
 msgid ""
 "We take <a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel="
@@ -8769,7 +8912,7 @@ msgstr ""
 "\">Erişebilirliğe</a> çok büyük bir önem veriyoruz ve internet sitemizi her "
 "kullanıcının kullanabileceği düzeyde, basit hale getirmeye uğraşıyoruz."
 
-#: warehouse/templates/pages/help.html:731
+#: warehouse/templates/pages/help.html:749
 #, python-format
 msgid ""
 "If you are experiencing an accessibility problem, <a href=\"%(href)s\" title="
@@ -8781,7 +8924,7 @@ msgstr ""
 "bildirin</a>, böylece siz ve diğer kullanıcılarımız için problemi çözmeye "
 "çalışalım."
 
-#: warehouse/templates/pages/help.html:739
+#: warehouse/templates/pages/help.html:757
 #, python-format
 msgid ""
 "In a previous version of PyPI, it used to be possible for maintainers to "
@@ -8797,7 +8940,7 @@ msgstr ""
 "title=\"%(title)s\" target=\"_blank\" rel=\"noopener\"> projenizi PyPI' a "
 "yüklemeniz için twine kullanmanızı öneriyoruz.</a>."
 
-#: warehouse/templates/pages/help.html:748
+#: warehouse/templates/pages/help.html:766
 msgid ""
 "Spammers return to PyPI with some regularity hoping to place their Search "
 "Engine Optimized phishing, scam, and click-farming content on the site. "
@@ -8811,7 +8954,7 @@ msgstr ""
 "verilerin dizinine izin verdiği için Spammer' lara göre uygun ve öncelikli "
 "hedeflerden biridir."
 
-#: warehouse/templates/pages/help.html:750
+#: warehouse/templates/pages/help.html:768
 #, python-format
 msgid ""
 "When the PyPI administrators are overwhelmed by spam <strong>or</strong> "
@@ -8828,23 +8971,23 @@ msgstr ""
 "güncelleyeceğimiz <a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" "
 "rel=\"noopener\">durum sayfamız</a>' ı kontrol edin."
 
-#: warehouse/templates/pages/help.html:759
+#: warehouse/templates/pages/help.html:777
 msgid "PyPI will return these errors for one of these reasons:"
 msgstr "PyPI bu hataları, şu nedenlerden biri yüzünden üretebilir:"
 
-#: warehouse/templates/pages/help.html:761
+#: warehouse/templates/pages/help.html:779
 msgid "Filename has been used and file exists"
 msgstr "Dosya ismi kullanılmış ve dosya mevcut"
 
-#: warehouse/templates/pages/help.html:762
+#: warehouse/templates/pages/help.html:780
 msgid "Filename has been used but file no longer exists"
 msgstr "Dosya ismi kullanılmış ancak dosya artık mevcut değil"
 
-#: warehouse/templates/pages/help.html:763
+#: warehouse/templates/pages/help.html:781
 msgid "A file with the exact same content exists"
 msgstr "Tam olarak aynı içeriğe sahip bir dosya mevcut"
 
-#: warehouse/templates/pages/help.html:766
+#: warehouse/templates/pages/help.html:784
 msgid ""
 "PyPI does not allow for a filename to be reused, even once a project has "
 "been deleted and recreated."
@@ -8852,13 +8995,13 @@ msgstr ""
 "PyPI, bir proje silinip yeniden oluşturulsa dahi dosya isminin tekrar "
 "kullanılmasına izin vermez."
 
-#: warehouse/templates/pages/help.html:772
+#: warehouse/templates/pages/help.html:790
 msgid ""
 "A distribution filename on PyPI consists of the combination of project name, "
 "version number, and distribution type."
 msgstr ""
 
-#: warehouse/templates/pages/help.html:778
+#: warehouse/templates/pages/help.html:796
 msgid ""
 "This ensures that a given distribution for a given release for a given "
 "project will always resolve to the same file, and cannot be surreptitiously "
@@ -8866,14 +9009,14 @@ msgid ""
 "be removed)."
 msgstr ""
 
-#: warehouse/templates/pages/help.html:786
+#: warehouse/templates/pages/help.html:804
 msgid ""
 "To avoid this situation in most cases, you will need to change the version "
 "number to one that you haven't previously uploaded to PyPI, rebuild the "
 "distribution, and then upload the new distribution."
 msgstr ""
 
-#: warehouse/templates/pages/help.html:795
+#: warehouse/templates/pages/help.html:813
 #, python-format
 msgid ""
 "If you would like to request a new trove classifier file a pull request on "
@@ -8886,7 +9029,7 @@ msgstr ""
 "classifiers</code> projesine</a> bir pull request atın. Neden önemli "
 "olduğuna dair kısa bir gerekçe eklediğinizden emin olun."
 
-#: warehouse/templates/pages/help.html:803
+#: warehouse/templates/pages/help.html:821
 #, python-format
 msgid ""
 "If you're experiencing an issue with PyPI itself, we welcome "
@@ -8903,7 +9046,7 @@ msgstr ""
 "yazılımla ilgili sorunlar için olduğunu lütfen unutmayın. Yeni bir sorun "
 "yazmadan önce, benzer bir sorunun zaten var olup olmadığına göz atın."
 
-#: warehouse/templates/pages/help.html:810
+#: warehouse/templates/pages/help.html:828
 msgid ""
 "If you are having an issue is with a specific package installed from PyPI, "
 "you should reach out to the maintainers of that project directly instead."
@@ -8911,7 +9054,7 @@ msgstr ""
 "PyPI' den yüklenen belirli bir paketle ilgili bir sorun yaşıyorsanız, "
 "öncelikli olarak paketin geliştiricilerine ulaşmanız gerekmektedir."
 
-#: warehouse/templates/pages/help.html:819
+#: warehouse/templates/pages/help.html:837
 #, python-format
 msgid ""
 "PyPI is powered by the Warehouse project; <a href=\"%(href)s\" title="
@@ -8926,7 +9069,7 @@ msgstr ""
 "bir projedir ve Python Packaging Working Group (PackagingWG) tarafından "
 "desteklenmektedir."
 
-#: warehouse/templates/pages/help.html:824
+#: warehouse/templates/pages/help.html:842
 #, python-format
 msgid ""
 "The <a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener"
@@ -8938,7 +9081,7 @@ msgstr ""
 "geliştirmek ve sürdürmek amacıyla kurulan bağımsız bir geliştiriciler "
 "grubudur."
 
-#: warehouse/templates/pages/help.html:829
+#: warehouse/templates/pages/help.html:847
 #, python-format
 msgid ""
 "The <a href=\"%(packaging_wg_href)s\" title=\"%(title)s\" target=\"_blank\" "
@@ -8950,7 +9093,7 @@ msgid ""
 "enabling developers to improve Warehouse's security and accessibility."
 msgstr ""
 
-#: warehouse/templates/pages/help.html:839
+#: warehouse/templates/pages/help.html:857
 #, python-format
 msgid ""
 "PyPI is powered by <a href=\"%(warehouse_href)s\" title=\"%(title)s\" target="
@@ -8962,7 +9105,7 @@ msgstr ""
 "araçlar, servisler <a href=\"%(sponsors_href)s\">cömert sponsorlarımız</a> "
 "tarafından karşılanmaktadır."
 
-#: warehouse/templates/pages/help.html:846
+#: warehouse/templates/pages/help.html:864
 msgid ""
 "As of April 16, 2018, PyPI.org is at \"production\" status, meaning that it "
 "has moved out of beta and replaced the old site (pypi.python.org). It is now "
@@ -8972,7 +9115,7 @@ msgstr ""
 "beta dan çıkmış ve eski sitenin (pypi.python.org) yerini almıştır. Şimdi "
 "sağlam, test edilmiş ve yoğun tarayıcı ve API trafiği için hazırdır."
 
-#: warehouse/templates/pages/help.html:848
+#: warehouse/templates/pages/help.html:866
 #, python-format
 msgid ""
 "PyPI is heavily cached and distributed via <abbr title=\"content delivery "
@@ -8988,7 +9131,7 @@ msgid ""
 "\"%(private_index_href)s\">private index</a>."
 msgstr ""
 
-#: warehouse/templates/pages/help.html:862
+#: warehouse/templates/pages/help.html:880
 #, python-format
 msgid ""
 "We have a huge amount of work to do to continue to maintain and improve PyPI "
@@ -8999,11 +9142,11 @@ msgstr ""
 "\"noopener\">Warehouse projesi</a>)'ni geliştirmek ve sürdürülebilir kılmak "
 "için daha yapacağımız bir çok iş bulunmaktadır."
 
-#: warehouse/templates/pages/help.html:867
+#: warehouse/templates/pages/help.html:885
 msgid "Financial:"
 msgstr "Finansal:"
 
-#: warehouse/templates/pages/help.html:867
+#: warehouse/templates/pages/help.html:885
 #, python-format
 msgid ""
 "We would deeply appreciate <a href=\"%(href)s\">your donations to fund "
@@ -9012,11 +9155,11 @@ msgstr ""
 "<a href=\"%(href)s\">Geliştirme ve bakım amacıyla bağışlarınıza</a> son "
 "derece minnettarız."
 
-#: warehouse/templates/pages/help.html:868
+#: warehouse/templates/pages/help.html:886
 msgid "Development:"
 msgstr "Geliştirme:"
 
-#: warehouse/templates/pages/help.html:868
+#: warehouse/templates/pages/help.html:886
 msgid ""
 "Warehouse is open source, and we would love to see some new faces working on "
 "the project. You <strong>do not</strong> need to be an experienced open-"
@@ -9028,7 +9171,7 @@ msgstr ""
 "olmak zorunda <strong>değilsiniz</strong>. Hatta ilk açık-kaynak pull "
 "request'inizi yapmanıza yardımcı olmaktan mutluluk duyarız!"
 
-#: warehouse/templates/pages/help.html:870
+#: warehouse/templates/pages/help.html:888
 #, python-format
 msgid ""
 "If you have skills in Python, ElasticSearch, HTML, SCSS, JavaScript, or "
@@ -9041,7 +9184,7 @@ msgid ""
 "start here."
 msgstr ""
 
-#: warehouse/templates/pages/help.html:878
+#: warehouse/templates/pages/help.html:896
 #, python-format
 msgid ""
 "Issues are grouped into <a href=\"%(href)s\" title=\"%(title)s\" target="
@@ -9051,11 +9194,11 @@ msgid ""
 "guide you through the contribution process."
 msgstr ""
 
-#: warehouse/templates/pages/help.html:885
+#: warehouse/templates/pages/help.html:903
 msgid "Stay updated:"
 msgstr "Güncel kalın:"
 
-#: warehouse/templates/pages/help.html:886
+#: warehouse/templates/pages/help.html:904
 #, fuzzy, python-format
 #| msgid ""
 #| "To learn how to install a file from PyPI, visit the <a href="
@@ -9074,7 +9217,7 @@ msgstr ""
 "\"%(installation_href)s\" title=\"%(title)s\" target=\"_blank\" rel="
 "\"noopener\">kurulum rehberine</a> göz atın."
 
-#: warehouse/templates/pages/help.html:895
+#: warehouse/templates/pages/help.html:913
 #, python-format
 msgid ""
 "Changes to PyPI are generally announced on both the <a href="
@@ -9087,14 +9230,14 @@ msgid ""
 "a> feeds for the \"pypi\" label."
 msgstr ""
 
-#: warehouse/templates/pages/help.html:905
+#: warehouse/templates/pages/help.html:923
 #, python-format
 msgid ""
 "All traffic is routed through our global CDN, which lists their public IP "
 "addresses here: <a href=\"%(href)s\">%(href)s</a>."
 msgstr ""
 
-#: warehouse/templates/pages/help.html:906
+#: warehouse/templates/pages/help.html:924
 #, fuzzy, python-format
 #| msgid ""
 #| "To regain access to your account, <a href=\"%(href)s\">reset your "
@@ -9106,7 +9249,7 @@ msgstr ""
 "Hesabınıza tekrar erişim sağlayabilmeniz için lütfen PyPI'da <a href="
 "\"%(href)s\">şifrenizi sıfırlayın</a>."
 
-#: warehouse/templates/pages/help.html:910
+#: warehouse/templates/pages/help.html:928
 msgid ""
 "When Warehouse's maintainers are deploying new features, at first we mark "
 "them with a small \"beta feature\" symbol to tell you: this should probably "
@@ -9117,11 +9260,11 @@ msgstr ""
 "Bu şu anlama geliyor: bu özellik muhtemelen düzgün çalışacak, yinede daha "
 "yeni bir özellik ve diğer özelliklere göre daha az test edildi."
 
-#: warehouse/templates/pages/help.html:911
+#: warehouse/templates/pages/help.html:929
 msgid "Currently, no features are in beta."
 msgstr "Şu anda beta sürümünde hiçbir özellik yok."
 
-#: warehouse/templates/pages/help.html:915
+#: warehouse/templates/pages/help.html:933
 #, python-format
 msgid ""
 "\"PyPI\" should be pronounced like \"pie pea eye\", specifically with the "
@@ -9131,40 +9274,40 @@ msgid ""
 "language."
 msgstr ""
 
-#: warehouse/templates/pages/help.html:927
+#: warehouse/templates/pages/help.html:945
 msgid "Resources"
 msgstr "Kaynaklar"
 
-#: warehouse/templates/pages/help.html:928
+#: warehouse/templates/pages/help.html:946
 msgid "Looking for something else? Perhaps these links will help:"
 msgstr ""
 "Başka bir şey mi arıyorsunuz? Belki aşağıdaki linkler işinize yarayabilir:"
 
-#: warehouse/templates/pages/help.html:930
+#: warehouse/templates/pages/help.html:948
 msgid "Python Packaging User Guide"
 msgstr "Python Packaging Kullanıcı Kılavuzu"
 
-#: warehouse/templates/pages/help.html:931
+#: warehouse/templates/pages/help.html:949
 msgid "Python documentation"
 msgstr "Python dokümantasyonu"
 
-#: warehouse/templates/pages/help.html:932
+#: warehouse/templates/pages/help.html:950
 msgid "(main Python website)"
 msgstr "(resmi Python web sitesi)"
 
-#: warehouse/templates/pages/help.html:933
+#: warehouse/templates/pages/help.html:951
 msgid "Python community page"
 msgstr "Python topluluk sayfası"
 
-#: warehouse/templates/pages/help.html:933
+#: warehouse/templates/pages/help.html:951
 msgid "(lists IRC channels, mailing lists, etc.)"
 msgstr "(IRC kanallarının listeleri, e-posta listeleri, vb.)"
 
-#: warehouse/templates/pages/help.html:936
+#: warehouse/templates/pages/help.html:954
 msgid "Contact"
 msgstr "İletişim"
 
-#: warehouse/templates/pages/help.html:938
+#: warehouse/templates/pages/help.html:956
 #, fuzzy, python-format
 #| msgid ""
 #| "Popular keys include <a href=\"%(yubikey_href)s\" title=\"%(title)s\" "
@@ -9578,7 +9721,7 @@ msgstr ""
 
 #: warehouse/templates/search/results.html:18
 #: warehouse/templates/search/results.html:114
-#: warehouse/templates/search/results.html:212
+#: warehouse/templates/search/results.html:211
 msgid "Search results"
 msgstr "Arama sonuçları"
 
@@ -9655,30 +9798,35 @@ msgstr "İlgi"
 msgid "Date last updated"
 msgstr "Son güncellenen tarih"
 
-#: warehouse/templates/search/results.html:181
-msgid "Trending"
-msgstr ""
-
-#: warehouse/templates/search/results.html:194
+#: warehouse/templates/search/results.html:193
 msgid "Filter"
 msgstr "Filtre"
 
-#: warehouse/templates/search/results.html:205
+#: warehouse/templates/search/results.html:204
 msgid "Add filter"
 msgstr "Filtre ekle"
 
-#: warehouse/templates/search/results.html:221
+#: warehouse/templates/search/results.html:220
 #, python-format
 msgid "There were no results for '%(term)s'"
 msgstr "'%(term)s' için bir sonuç bulunamadı"
 
-#: warehouse/templates/search/results.html:223
+#: warehouse/templates/search/results.html:222
 #, fuzzy, python-format
 #| msgid "There were no results for '%(term)s'"
 msgid "There were no results for '%(filters)s' filter"
 msgid_plural "There were no results for '%(filters)s' filters"
 msgstr[0] "'%(term)s' için bir sonuç bulunamadı"
 msgstr[1] "'%(term)s' için bir sonuç bulunamadı"
+
+#~ msgid "Trending projects as downloaded by the community"
+#~ msgstr "Topluluk tarafından indirilerek trend olan projeler"
+
+#~ msgid "New releases"
+#~ msgstr "Yeni sürümler"
+
+#~ msgid "Hot off the press: the newest project releases"
+#~ msgstr "Yeni çıkmış: en yeni proje sürümleri"
 
 #, python-format
 #~ msgid ""
