@@ -230,6 +230,14 @@
                   {% trans %}Account settings{% endtrans %}
                 </a>
               </li>
+              {% if request.registry.settings["warehouse.oidc.enabled"] %}
+              <li>
+                <a href="{{ request.route_path('manage.account.publishing') }}" class="vertical-tabs__tab vertical-tabs__tab--with-icon {% if active_tab == 'publishing' %}vertical-tabs__tab--is-active{% endif %} {% if mode == 'mobile' %}vertical-tabs__tab--mobile{% endif %}" {% if active_tab == 'publishing' %}aria-selected="true"{% endif %}>
+                  <i class="fa fa-upload" aria-hidden="true"></i>
+                  {% trans %}Publishing{% endtrans %}
+                </a>
+              </li>
+              {% endif %}
             </ul>
           </nav>
         </div>
@@ -447,3 +455,62 @@
   </ul>
   {% endif %}
 {% endmacro %}
+
+{% macro oidc_title() %}
+  {% trans %}OpenID Connect Publisher Management{% endtrans %}
+{% endmacro %}
+
+{% macro oidc_desc() %}
+  <p>
+    {% trans %}
+      OpenID Connect (OIDC) provides a flexible, credential-free mechanism for delegating
+      publishing authority for a PyPI package to a third party service,
+      like GitHub Actions.
+    {% endtrans %}
+  </p>
+
+  <p>
+    {% trans %}
+      PyPI users and projects can use trusted publishers to automate
+      their release processes, without needing to use API tokens or passwords.
+    {% endtrans %}
+  </p>
+
+  <p class="no-bottom-padding">
+    {% trans href="/help#openid-connect" %}
+    You can read more about OpenID Connect and how to use it
+    <a href="{{ href }}">here</a>.
+    {% endtrans %}
+  </p>
+{% endmacro %}
+
+{% macro oidc_provider_row(provider) -%}
+{# project_name is only defined for pending OIDC providers -#}
+{% if provider.project_name is defined %}
+{% set delete_route = request.route_path('manage.account.publishing') %}
+{% else %}
+{% set delete_route = request.route_path('manage.project.settings.publishing', project_name=project.name) %}
+{% endif %}
+
+<form id="delete-provider-{{ provider.id }}" method="POST" action="{{ delete_route }}">
+  <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
+  <input name="provider_id" type="hidden" value="{{ provider.id }}">
+</form>
+
+<tr>
+  {% if provider.project_name is defined %}
+  <td scope="row">
+    {{ provider.project_name }}
+  </td>
+  {% endif %}
+  <td scope="row">
+    {{ provider.provider_name }}
+  </td>
+  <td scope="row">
+    <a href="{{ provider.provider_url }}">{{ provider.provider_url }}</a>
+  </td>
+  <td scope="row">
+    <input form="delete-provider-{{ provider.id }}" type="submit" value="{% trans %}Remove{% endtrans %}" class="button button--danger">
+  </td>
+</tr>
+{%- endmacro %}

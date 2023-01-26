@@ -14,10 +14,49 @@ import pretend
 import pytest
 import wtforms
 
-from requests import HTTPError, Timeout
+from requests import ConnectionError, HTTPError, Timeout
 from webob.multidict import MultiDict
 
 from warehouse.oidc import forms
+
+
+class TestPendingGitHubProviderForm:
+    def test_creation(self):
+        project_factory = pretend.stub()
+        form = forms.PendingGitHubProviderForm(
+            api_token="fake-token", project_factory=project_factory
+        )
+
+        assert form._project_factory == project_factory
+
+    def test_validate_project_name_already_in_use(self):
+        project_factory = ["some-project"]
+        form = forms.PendingGitHubProviderForm(
+            api_token="fake-token", project_factory=project_factory
+        )
+
+        field = pretend.stub(data="some-project")
+        with pytest.raises(wtforms.validators.ValidationError):
+            form.validate_project_name(field)
+
+    def test_validate(self, monkeypatch):
+        data = MultiDict(
+            {
+                "owner": "some-owner",
+                "repository": "some-repo",
+                "workflow_filename": "some-workflow.yml",
+                "project_name": "some-project",
+            }
+        )
+        form = forms.PendingGitHubProviderForm(
+            MultiDict(data), api_token=pretend.stub(), project_factory=[]
+        )
+
+        # We're testing only the basic validation here.
+        owner_info = {"login": "fake-username", "id": "1234"}
+        monkeypatch.setattr(form, "_lookup_owner", lambda o: owner_info)
+
+        assert form.validate()
 
 
 class TestGitHubProviderForm:
@@ -138,6 +177,7 @@ class TestGitHubProviderForm:
             get=pretend.raiser(Timeout),
             Timeout=Timeout,
             HTTPError=HTTPError,
+            ConnectionError=ConnectionError,
         )
         monkeypatch.setattr(forms, "requests", requests)
 
@@ -150,6 +190,28 @@ class TestGitHubProviderForm:
 
         assert sentry_sdk.capture_message.calls == [
             pretend.call("Timeout from GitHub user lookup API (possibly offline)")
+        ]
+
+    def test_lookup_owner_connection_error(self, monkeypatch):
+        requests = pretend.stub(
+            get=pretend.raiser(ConnectionError),
+            Timeout=Timeout,
+            HTTPError=HTTPError,
+            ConnectionError=ConnectionError,
+        )
+        monkeypatch.setattr(forms, "requests", requests)
+
+        sentry_sdk = pretend.stub(capture_message=pretend.call_recorder(lambda s: None))
+        monkeypatch.setattr(forms, "sentry_sdk", sentry_sdk)
+
+        form = forms.GitHubProviderForm(api_token="fake-token")
+        with pytest.raises(wtforms.validators.ValidationError):
+            form._lookup_owner("some-owner")
+
+        assert sentry_sdk.capture_message.calls == [
+            pretend.call(
+                "Connection error from GitHub user lookup API (possibly offline)"
+            )
         ]
 
     def test_lookup_owner_succeeds(self, monkeypatch):

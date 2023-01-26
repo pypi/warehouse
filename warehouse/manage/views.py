@@ -3083,10 +3083,6 @@ class ManageOIDCProviderViews:
         if not self.oidc_enabled:
             raise HTTPNotFound
 
-        self.metrics.increment(
-            "warehouse.oidc.add_provider.attempt", tags=["provider:GitHub"]
-        )
-
         if self.request.flags.enabled(AdminFlagValue.DISALLOW_OIDC):
             self.request.session.flash(
                 (
@@ -3096,6 +3092,10 @@ class ManageOIDCProviderViews:
                 queue="error",
             )
             return self.default_response
+
+        self.metrics.increment(
+            "warehouse.oidc.add_provider.attempt", tags=["provider:GitHub"]
+        )
 
         try:
             self._check_ratelimits()
@@ -3186,8 +3186,6 @@ class ManageOIDCProviderViews:
         if not self.oidc_enabled:
             raise HTTPNotFound
 
-        self.metrics.increment("warehouse.oidc.delete_provider.attempt")
-
         if self.request.flags.enabled(AdminFlagValue.DISALLOW_OIDC):
             self.request.session.flash(
                 (
@@ -3197,6 +3195,8 @@ class ManageOIDCProviderViews:
                 queue="error",
             )
             return self.default_response
+
+        self.metrics.increment("warehouse.oidc.delete_provider.attempt")
 
         form = DeleteProviderForm(self.request.POST)
 
