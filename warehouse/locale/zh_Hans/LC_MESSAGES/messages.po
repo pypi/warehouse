@@ -61,14 +61,14 @@ msgstr ""
 "X-Generator: Weblate 4.15.1-dev\n"
 "Generated-By: Babel 2.8.0\n"
 
-#: warehouse/views.py:141
+#: warehouse/views.py:140
 msgid ""
 "Two-factor authentication must be enabled on your account to perform this "
 "action."
 msgstr "必须在您的帐户上启用双因素身份验证才能执行此操作。"
 
 # | msgid "Stay updated:"
-#: warehouse/views.py:304
+#: warehouse/views.py:265
 msgid "Locale updated"
 msgstr "区域设置已更新"
 
@@ -112,7 +112,7 @@ msgstr "该用户名已被另一个帐户使用。请选择一个其他的用户
 msgid "Password too long."
 msgstr "密码过长。"
 
-#: warehouse/accounts/forms.py:172 warehouse/accounts/views.py:88
+#: warehouse/accounts/forms.py:172 warehouse/accounts/views.py:94
 msgid "There have been too many unsuccessful login attempts. Try again later."
 msgstr "尝试登录失败次数过多，请稍后重试。"
 
@@ -165,7 +165,7 @@ msgstr "恢复代码先前已用过。"
 msgid "No user found with that username or email"
 msgstr "未找到使用该用户名或电子邮件的用户"
 
-#: warehouse/accounts/views.py:105
+#: warehouse/accounts/views.py:111
 msgid ""
 "Too many emails have been added to this account without verifying them. "
 "Check your inbox and follow the verification links. (IP: ${ip})"
@@ -173,7 +173,7 @@ msgstr ""
 "本账号下添加了过多的电子邮箱，但都没有进行验证。检查你的收件箱，并遵照指示点"
 "击验证链接。(IP: ${ip})"
 
-#: warehouse/accounts/views.py:117
+#: warehouse/accounts/views.py:123
 msgid ""
 "Too many password resets have been requested for this account without "
 "completing them. Check your inbox and follow the verification links. (IP: "
@@ -182,25 +182,25 @@ msgstr ""
 "该帐户多次要求重置密码，且均未完成。检查你的收件箱，并遵照指示点击验证链接。"
 "(IP: ${ip})"
 
-#: warehouse/accounts/views.py:257 warehouse/accounts/views.py:321
-#: warehouse/accounts/views.py:323 warehouse/accounts/views.py:350
-#: warehouse/accounts/views.py:352 warehouse/accounts/views.py:418
+#: warehouse/accounts/views.py:263 warehouse/accounts/views.py:327
+#: warehouse/accounts/views.py:329 warehouse/accounts/views.py:356
+#: warehouse/accounts/views.py:358 warehouse/accounts/views.py:424
 msgid "Invalid or expired two factor login."
 msgstr "双因素登录无效或过期。"
 
-#: warehouse/accounts/views.py:315
+#: warehouse/accounts/views.py:321
 msgid "Already authenticated"
 msgstr "已通过身份验证"
 
-#: warehouse/accounts/views.py:394
+#: warehouse/accounts/views.py:400
 msgid "Successful WebAuthn assertion"
 msgstr "成功的 WebAuthn 断言"
 
-#: warehouse/accounts/views.py:448 warehouse/manage/views.py:956
+#: warehouse/accounts/views.py:454 warehouse/manage/views.py:956
 msgid "Recovery code accepted. The supplied code cannot be used again."
 msgstr "接受恢复代码。无法再次使用提供的代码。"
 
-#: warehouse/accounts/views.py:534
+#: warehouse/accounts/views.py:540
 msgid ""
 "New user registration temporarily disabled. See https://pypi.org/help#admin-"
 "intervention for details."
@@ -208,128 +208,151 @@ msgstr ""
 "新用户注册暂时被禁用。有关详细信息，请参见https://pypi.org/help#admin-"
 "intervention。"
 
-#: warehouse/accounts/views.py:654
+#: warehouse/accounts/views.py:660
 msgid "Expired token: request a new password reset link"
 msgstr "令牌已过期：请重新请求新的密码重置链接"
 
-#: warehouse/accounts/views.py:656
+#: warehouse/accounts/views.py:662
 msgid "Invalid token: request a new password reset link"
 msgstr "令牌无效：请再次请求新的密码重置链接"
 
-#: warehouse/accounts/views.py:658 warehouse/accounts/views.py:757
-#: warehouse/accounts/views.py:856 warehouse/accounts/views.py:1025
+#: warehouse/accounts/views.py:664 warehouse/accounts/views.py:763
+#: warehouse/accounts/views.py:862 warehouse/accounts/views.py:1031
 msgid "Invalid token: no token supplied"
 msgstr "令牌无效：未提供令牌"
 
-#: warehouse/accounts/views.py:662
+#: warehouse/accounts/views.py:668
 msgid "Invalid token: not a password reset token"
 msgstr "令牌无效：请再次请求新的密码重置链接"
 
-#: warehouse/accounts/views.py:667
+#: warehouse/accounts/views.py:673
 msgid "Invalid token: user not found"
 msgstr "令牌无效：找不到用户"
 
-#: warehouse/accounts/views.py:678
+#: warehouse/accounts/views.py:684
 msgid "Invalid token: user has logged in since this token was requested"
 msgstr "令牌无效：自请求此令牌以来，用户已登录"
 
-#: warehouse/accounts/views.py:696
+#: warehouse/accounts/views.py:702
 msgid ""
 "Invalid token: password has already been changed since this token was "
 "requested"
 msgstr "令牌无效：自请求此令牌以来，密码已更改"
 
-#: warehouse/accounts/views.py:725
+#: warehouse/accounts/views.py:731
 msgid "You have reset your password"
 msgstr "你已重置密码"
 
-#: warehouse/accounts/views.py:753
+#: warehouse/accounts/views.py:759
 msgid "Expired token: request a new email verification link"
 msgstr "令牌已过期：请重新请求新的电子邮件验证链接"
 
-#: warehouse/accounts/views.py:755
+#: warehouse/accounts/views.py:761
 msgid "Invalid token: request a new email verification link"
 msgstr "令牌无效：请重新请求新的电子邮件验证链接"
 
-#: warehouse/accounts/views.py:761
+#: warehouse/accounts/views.py:767
 msgid "Invalid token: not an email verification token"
 msgstr "无效令牌：不是电子邮件验证令牌"
 
-#: warehouse/accounts/views.py:770
+#: warehouse/accounts/views.py:776
 msgid "Email not found"
 msgstr "未找到电子邮件"
 
-#: warehouse/accounts/views.py:773
+#: warehouse/accounts/views.py:779
 msgid "Email already verified"
 msgstr "电子邮件已验证"
 
-#: warehouse/accounts/views.py:790
+#: warehouse/accounts/views.py:796
 msgid "You can now set this email as your primary address"
 msgstr "你现在可以将此电子邮件设置为你的主邮件地址"
 
-#: warehouse/accounts/views.py:794
+#: warehouse/accounts/views.py:800
 msgid "This is your primary address"
 msgstr "这是你的主邮件地址"
 
-#: warehouse/accounts/views.py:799
+#: warehouse/accounts/views.py:805
 msgid "Email address ${email_address} verified. ${confirm_message}."
 msgstr "电子邮件地址$ {email_address}已验证。 ${confirm_message}。"
 
-#: warehouse/accounts/views.py:852
+#: warehouse/accounts/views.py:858
 msgid "Expired token: request a new organization invitation"
 msgstr "令牌已过期：请求新的组织邀请"
 
-#: warehouse/accounts/views.py:854
+#: warehouse/accounts/views.py:860
 msgid "Invalid token: request a new organization invitation"
 msgstr "令牌无效：请求新的组织邀请"
 
-#: warehouse/accounts/views.py:860
+#: warehouse/accounts/views.py:866
 msgid "Invalid token: not an organization invitation token"
 msgstr "无效令牌：不是组织邀请令牌"
 
-#: warehouse/accounts/views.py:864
+#: warehouse/accounts/views.py:870
 msgid "Organization invitation is not valid."
 msgstr "组织邀请无效。"
 
-#: warehouse/accounts/views.py:873
+#: warehouse/accounts/views.py:879
 msgid "Organization invitation no longer exists."
 msgstr "组织邀请已不存在。"
 
-#: warehouse/accounts/views.py:924
+#: warehouse/accounts/views.py:930
 msgid "Invitation for '${organization_name}' is declined."
 msgstr "'${organization_name}'的邀请被拒绝。"
 
-#: warehouse/accounts/views.py:987
+#: warehouse/accounts/views.py:993
 msgid "You are now ${role} of the '${organization_name}' organization."
 msgstr "你现在是 '${organization_name}' 组织的 ${role}。"
 
-#: warehouse/accounts/views.py:1021
+#: warehouse/accounts/views.py:1027
 msgid "Expired token: request a new project role invitation"
 msgstr "令牌已过期：请求新的项目角色邀请"
 
-#: warehouse/accounts/views.py:1023
+#: warehouse/accounts/views.py:1029
 msgid "Invalid token: request a new project role invitation"
 msgstr "令牌无效：请求新的项目角色邀请"
 
-#: warehouse/accounts/views.py:1029
+#: warehouse/accounts/views.py:1035
 msgid "Invalid token: not a collaboration invitation token"
 msgstr "无效的令牌：不是协作邀请令牌"
 
-#: warehouse/accounts/views.py:1033
+#: warehouse/accounts/views.py:1039
 msgid "Role invitation is not valid."
 msgstr "角色邀请无效。"
 
-#: warehouse/accounts/views.py:1048
+#: warehouse/accounts/views.py:1054
 msgid "Role invitation no longer exists."
 msgstr "角色邀请已不存在。"
 
-#: warehouse/accounts/views.py:1079
+#: warehouse/accounts/views.py:1085
 msgid "Invitation for '${project_name}' is declined."
 msgstr "'${project_name}'的邀请已无效。"
 
-#: warehouse/accounts/views.py:1146
+#: warehouse/accounts/views.py:1152
 msgid "You are now ${role} of the '${project_name}' project."
 msgstr "你不是此项目的所有者。"
+
+#: warehouse/accounts/views.py:1401
+msgid ""
+"You must have a verified email in order to register a pending OpenID Connect "
+"provider. See https://pypi.org/help#openid-connect for details."
+msgstr ""
+
+#: warehouse/accounts/views.py:1414
+msgid ""
+"You can't register more than 3 pending OpenID Connect providers at once."
+msgstr ""
+
+#: warehouse/accounts/views.py:1430 warehouse/manage/views.py:3107
+msgid ""
+"There have been too many attempted OpenID Connect registrations. Try again "
+"later."
+msgstr "OpenID Connect 注册尝试次数过多。请稍后重试。"
+
+#: warehouse/accounts/views.py:1458
+msgid ""
+"This OpenID Connect provider has already been registered. Please contact "
+"PyPI's admins if this wasn't intentional."
+msgstr ""
 
 #: warehouse/admin/templates/admin/banners/preview.html:15
 msgid "Banner Preview"
@@ -355,53 +378,53 @@ msgid ""
 "organization account name."
 msgstr "此组织帐户名已被使用。选择不同的组织帐户名。"
 
-#: warehouse/manage/forms.py:476
+#: warehouse/manage/forms.py:472
 msgid "Select project"
 msgstr "选择项目"
 
-#: warehouse/manage/forms.py:481
+#: warehouse/manage/forms.py:477 warehouse/oidc/forms.py:158
 msgid "Specify project name"
 msgstr "指定项目名称"
 
-#: warehouse/manage/forms.py:484
+#: warehouse/manage/forms.py:480
 msgid ""
 "Start and end with a letter or numeral containing only ASCII numeric and "
 "'.', '_' and '-'."
 msgstr ""
 "从开始到结束，只能输入ASCII字母、数字以及句点（.）、下划线（_）和横杠（-）。"
 
-#: warehouse/manage/forms.py:491
+#: warehouse/manage/forms.py:487
 msgid ""
 "This project name has already been used. Choose a different project name."
 msgstr "此项目名已被使用。 选择不同的项目名称。"
 
-#: warehouse/manage/forms.py:562
+#: warehouse/manage/forms.py:558
 msgid ""
 "The organization name is too long. Choose a organization name with 100 "
 "characters or less."
 msgstr "该组织名太长。请选择一个不超过100个字符的组织名。"
 
-#: warehouse/manage/forms.py:574
+#: warehouse/manage/forms.py:570
 msgid ""
 "The organization URL is too long. Choose a organization URL with 400 "
 "characters or less."
 msgstr "该组织 URL 太长。请选择一个不超过400个字符的组织 URL。"
 
-#: warehouse/manage/forms.py:581
+#: warehouse/manage/forms.py:577
 msgid "The organization URL must start with http:// or https://"
 msgstr "组织 URL 必须以 http:// 或 https:// 开头"
 
-#: warehouse/manage/forms.py:592
+#: warehouse/manage/forms.py:588
 msgid ""
 "The organization description is too long. Choose a organization description "
 "with 400 characters or less."
 msgstr "组织描述太长。请选择一个不超过400个字符的组织描述。"
 
-#: warehouse/manage/forms.py:636
+#: warehouse/manage/forms.py:632
 msgid "Choose a team name with 50 characters or less."
 msgstr "选择一个不超过 50 个字符的团队名。"
 
-#: warehouse/manage/forms.py:642
+#: warehouse/manage/forms.py:638
 msgid ""
 "The team name is invalid. Team names cannot start or end with a space, "
 "period, underscore, hyphen, or slash. Choose a different team name."
@@ -409,7 +432,7 @@ msgstr ""
 "团队名称无效。 团队名称不能以空格、句点、下划线、连字符或斜杠开头或结尾。 选"
 "择不同的团队名称。"
 
-#: warehouse/manage/forms.py:670
+#: warehouse/manage/forms.py:666
 msgid "This team name has already been used. Choose a different team name."
 msgstr "此团队名已被使用。 选择不同的团队名称。"
 
@@ -458,12 +481,6 @@ msgstr "邀请已过期。"
 msgid "Invitation revoked from '${username}'."
 msgstr "从“${username}”撤回邀请。"
 
-#: warehouse/manage/views.py:3107
-msgid ""
-"There have been too many attempted OpenID Connect registrations. Try again "
-"later."
-msgstr "OpenID Connect 注册尝试次数过多。请稍后重试。"
-
 #: warehouse/manage/views.py:4144
 msgid "Team '${team_name}' already has ${role_name} role for project"
 msgstr "'${team_name}' 团队在项目中已经有 ${role_name} 角色"
@@ -488,52 +505,71 @@ msgstr ""
 msgid "Could not find role invitation."
 msgstr "找不到角色邀请。"
 
-#: warehouse/oidc/forms.py:32
+#: warehouse/oidc/forms.py:33
 msgid "Specify GitHub repository owner (username or organization)"
 msgstr "指定 GitHub 存储库所有者（用户名或组织）"
 
-#: warehouse/oidc/forms.py:39
+#: warehouse/oidc/forms.py:40
 msgid "Specify repository name"
 msgstr "指定存储库名称"
 
 # | msgid "Invalid TOTP code."
-#: warehouse/oidc/forms.py:41
+#: warehouse/oidc/forms.py:42
 msgid "Invalid repository name"
 msgstr "无效的仓库名"
 
-#: warehouse/oidc/forms.py:48
+#: warehouse/oidc/forms.py:49
 msgid "Specify workflow filename"
 msgstr "指定工作流文件名"
 
-#: warehouse/oidc/forms.py:77
+#: warehouse/oidc/forms.py:78
 msgid "Unknown GitHub user or organization."
 msgstr "未知的 GitHub 用户或组织。"
 
-#: warehouse/oidc/forms.py:87
+#: warehouse/oidc/forms.py:88
 msgid "GitHub has rate-limited this action. Try again in a few minutes."
 msgstr "GitHub 对此操作进行了速率限制。请在几分钟后重试。"
 
-#: warehouse/oidc/forms.py:97
+#: warehouse/oidc/forms.py:98
 msgid "Unexpected error from GitHub. Try again."
 msgstr "来自 GitHub 的意外错误。再试一次。"
 
-#: warehouse/oidc/forms.py:104
+#: warehouse/oidc/forms.py:105
+#, fuzzy
+#| msgid "Unexpected timeout from GitHub. Try again in a few minutes."
+msgid "Unexpected connection error from GitHub. Try again in a few minutes."
+msgstr "来自 GitHub 的意外超时。请在几分钟后重试。"
+
+#: warehouse/oidc/forms.py:115
 msgid "Unexpected timeout from GitHub. Try again in a few minutes."
 msgstr "来自 GitHub 的意外超时。请在几分钟后重试。"
 
-#: warehouse/oidc/forms.py:116
+#: warehouse/oidc/forms.py:127
 msgid "Invalid GitHub user or organization name."
 msgstr "无效的 GitHub 用户或组织名称。"
 
-#: warehouse/oidc/forms.py:132
+#: warehouse/oidc/forms.py:143
 msgid "Workflow name must end with .yml or .yaml"
 msgstr "工作流名称必须以 .yml 或 .yaml 结尾"
 
-#: warehouse/oidc/forms.py:137
+#: warehouse/oidc/forms.py:148
 msgid "Workflow filename must be a filename only, without directories"
 msgstr "工作流文件名必须仅为文件名，不能包含目录"
 
-#: warehouse/oidc/forms.py:146
+# | msgid "Invalid TOTP code."
+#: warehouse/oidc/forms.py:161
+#, fuzzy
+#| msgid "Invalid repository name"
+msgid "Invalid project name"
+msgstr "无效的仓库名"
+
+#: warehouse/oidc/forms.py:175
+#, fuzzy
+#| msgid "This project has no releases"
+msgid "This project name is already in use"
+msgstr "此项目没有发布过版本"
+
+#: warehouse/oidc/forms.py:188
 msgid "Provider must be specified by ID"
 msgstr "提供程序必须由 ID 指定"
 
@@ -605,7 +641,7 @@ msgstr "Monty Python - 奶酪店素描"
 #: warehouse/templates/includes/accounts/profile-callout.html:18
 #: warehouse/templates/includes/hash-modal.html:23
 #: warehouse/templates/includes/packaging/project-data.html:66
-#: warehouse/templates/index.html:112 warehouse/templates/index.html:116
+#: warehouse/templates/index.html:100 warehouse/templates/index.html:104
 #: warehouse/templates/manage/account.html:228
 #: warehouse/templates/manage/account.html:234
 #: warehouse/templates/manage/account/totp-provision.html:32
@@ -622,67 +658,67 @@ msgstr "Monty Python - 奶酪店素描"
 #: warehouse/templates/packaging/detail.html:379
 #: warehouse/templates/pages/classifiers.html:25
 #: warehouse/templates/pages/help.html:20
-#: warehouse/templates/pages/help.html:214
-#: warehouse/templates/pages/help.html:221
-#: warehouse/templates/pages/help.html:235
-#: warehouse/templates/pages/help.html:251
-#: warehouse/templates/pages/help.html:255
-#: warehouse/templates/pages/help.html:312
-#: warehouse/templates/pages/help.html:339
-#: warehouse/templates/pages/help.html:344
-#: warehouse/templates/pages/help.html:349
+#: warehouse/templates/pages/help.html:216
+#: warehouse/templates/pages/help.html:223
+#: warehouse/templates/pages/help.html:237
+#: warehouse/templates/pages/help.html:253
+#: warehouse/templates/pages/help.html:257
+#: warehouse/templates/pages/help.html:314
+#: warehouse/templates/pages/help.html:341
+#: warehouse/templates/pages/help.html:346
 #: warehouse/templates/pages/help.html:351
-#: warehouse/templates/pages/help.html:356
-#: warehouse/templates/pages/help.html:357
+#: warehouse/templates/pages/help.html:353
 #: warehouse/templates/pages/help.html:358
-#: warehouse/templates/pages/help.html:362
-#: warehouse/templates/pages/help.html:395
+#: warehouse/templates/pages/help.html:359
+#: warehouse/templates/pages/help.html:360
+#: warehouse/templates/pages/help.html:364
 #: warehouse/templates/pages/help.html:397
-#: warehouse/templates/pages/help.html:400
-#: warehouse/templates/pages/help.html:436
-#: warehouse/templates/pages/help.html:441
-#: warehouse/templates/pages/help.html:447
-#: warehouse/templates/pages/help.html:505
-#: warehouse/templates/pages/help.html:529
-#: warehouse/templates/pages/help.html:535
-#: warehouse/templates/pages/help.html:538
-#: warehouse/templates/pages/help.html:540
-#: warehouse/templates/pages/help.html:549
-#: warehouse/templates/pages/help.html:571
-#: warehouse/templates/pages/help.html:578
-#: warehouse/templates/pages/help.html:590
-#: warehouse/templates/pages/help.html:591
+#: warehouse/templates/pages/help.html:399
+#: warehouse/templates/pages/help.html:402
+#: warehouse/templates/pages/help.html:438
+#: warehouse/templates/pages/help.html:443
+#: warehouse/templates/pages/help.html:449
+#: warehouse/templates/pages/help.html:507
+#: warehouse/templates/pages/help.html:547
+#: warehouse/templates/pages/help.html:553
+#: warehouse/templates/pages/help.html:556
+#: warehouse/templates/pages/help.html:558
+#: warehouse/templates/pages/help.html:567
+#: warehouse/templates/pages/help.html:589
 #: warehouse/templates/pages/help.html:596
-#: warehouse/templates/pages/help.html:621
-#: warehouse/templates/pages/help.html:634
+#: warehouse/templates/pages/help.html:608
+#: warehouse/templates/pages/help.html:609
+#: warehouse/templates/pages/help.html:614
 #: warehouse/templates/pages/help.html:639
-#: warehouse/templates/pages/help.html:651
-#: warehouse/templates/pages/help.html:672
-#: warehouse/templates/pages/help.html:696
-#: warehouse/templates/pages/help.html:703
-#: warehouse/templates/pages/help.html:715
-#: warehouse/templates/pages/help.html:726
-#: warehouse/templates/pages/help.html:731
-#: warehouse/templates/pages/help.html:739
-#: warehouse/templates/pages/help.html:750
-#: warehouse/templates/pages/help.html:795
-#: warehouse/templates/pages/help.html:803
-#: warehouse/templates/pages/help.html:819
-#: warehouse/templates/pages/help.html:824
-#: warehouse/templates/pages/help.html:829
-#: warehouse/templates/pages/help.html:839
-#: warehouse/templates/pages/help.html:848
-#: warehouse/templates/pages/help.html:862
-#: warehouse/templates/pages/help.html:870
-#: warehouse/templates/pages/help.html:878
-#: warehouse/templates/pages/help.html:886
-#: warehouse/templates/pages/help.html:895
-#: warehouse/templates/pages/help.html:915
-#: warehouse/templates/pages/help.html:930
-#: warehouse/templates/pages/help.html:931
-#: warehouse/templates/pages/help.html:932
+#: warehouse/templates/pages/help.html:652
+#: warehouse/templates/pages/help.html:657
+#: warehouse/templates/pages/help.html:669
+#: warehouse/templates/pages/help.html:690
+#: warehouse/templates/pages/help.html:714
+#: warehouse/templates/pages/help.html:721
+#: warehouse/templates/pages/help.html:733
+#: warehouse/templates/pages/help.html:744
+#: warehouse/templates/pages/help.html:749
+#: warehouse/templates/pages/help.html:757
+#: warehouse/templates/pages/help.html:768
+#: warehouse/templates/pages/help.html:813
+#: warehouse/templates/pages/help.html:821
+#: warehouse/templates/pages/help.html:837
+#: warehouse/templates/pages/help.html:842
+#: warehouse/templates/pages/help.html:847
+#: warehouse/templates/pages/help.html:857
+#: warehouse/templates/pages/help.html:866
+#: warehouse/templates/pages/help.html:880
+#: warehouse/templates/pages/help.html:888
+#: warehouse/templates/pages/help.html:896
+#: warehouse/templates/pages/help.html:904
+#: warehouse/templates/pages/help.html:913
 #: warehouse/templates/pages/help.html:933
-#: warehouse/templates/pages/help.html:938
+#: warehouse/templates/pages/help.html:948
+#: warehouse/templates/pages/help.html:949
+#: warehouse/templates/pages/help.html:950
+#: warehouse/templates/pages/help.html:951
+#: warehouse/templates/pages/help.html:956
 #: warehouse/templates/pages/sponsors.html:33
 #: warehouse/templates/pages/sponsors.html:37
 #: warehouse/templates/pages/sponsors.html:41
@@ -773,7 +809,7 @@ msgstr "主导航"
 #: warehouse/templates/base.html:41 warehouse/templates/base.html:55
 #: warehouse/templates/base.html:271
 #: warehouse/templates/includes/current-user-indicator.html:63
-#: warehouse/templates/pages/help.html:108
+#: warehouse/templates/pages/help.html:109
 #: warehouse/templates/pages/sitemap.html:27
 msgid "Help"
 msgstr "帮助"
@@ -839,7 +875,7 @@ msgstr ""
 "\">商标</a>，所有权属于 <a href=\"%(psf_href)s\" target=\"_blank\" rel="
 "\"noopener\">Python 软件基金会</a>。"
 
-#: warehouse/templates/base.html:93 warehouse/templates/index.html:109
+#: warehouse/templates/base.html:93 warehouse/templates/index.html:97
 msgid ""
 "The Python Package Index (PyPI) is a repository of software for the Python "
 "programming language."
@@ -865,9 +901,9 @@ msgstr "切换到手机版本"
 #: warehouse/templates/base.html:187
 #: warehouse/templates/includes/flash-messages.html:30
 #: warehouse/templates/includes/session-notifications.html:20
-#: warehouse/templates/manage/account.html:716
-#: warehouse/templates/manage/manage_base.html:305
-#: warehouse/templates/manage/manage_base.html:364
+#: warehouse/templates/manage/account.html:728
+#: warehouse/templates/manage/manage_base.html:313
+#: warehouse/templates/manage/manage_base.html:372
 #: warehouse/templates/manage/organization/settings.html:194
 #: warehouse/templates/manage/organization/settings.html:249
 #: warehouse/templates/manage/project/documentation.html:27
@@ -901,19 +937,19 @@ msgstr ""
 
 #: warehouse/templates/base.html:227 warehouse/templates/base.html:248
 #: warehouse/templates/error-base-with-search.html:20
-#: warehouse/templates/index.html:55
+#: warehouse/templates/index.html:43
 msgid "Search PyPI"
 msgstr "在 PyPI 上搜索"
 
 #: warehouse/templates/base.html:228 warehouse/templates/base.html:249
 #: warehouse/templates/error-base-with-search.html:21
-#: warehouse/templates/index.html:58
+#: warehouse/templates/index.html:46
 msgid "Search projects"
 msgstr "搜索项目"
 
 #: warehouse/templates/base.html:232 warehouse/templates/base.html:253
 #: warehouse/templates/error-base-with-search.html:24
-#: warehouse/templates/index.html:62
+#: warehouse/templates/index.html:50
 msgid "Search"
 msgstr "搜索"
 
@@ -1076,80 +1112,64 @@ msgstr "返回首页"
 msgid "The Python Package Index"
 msgstr "Python 包索引"
 
-#: warehouse/templates/index.html:43
+#: warehouse/templates/index.html:31
 msgid "Test Python package publishing with the Test Python Package Index"
 msgstr "使用“测试 Python 包索引”测试 Python 软件包发布"
 
-#: warehouse/templates/index.html:45
+#: warehouse/templates/index.html:33
 msgid "Develop the codebase behind PyPI with the Dev Python Package Index"
 msgstr "使用 Dev Python 包索引 开发 PyPI 背后的代码库"
 
-#: warehouse/templates/index.html:47
+#: warehouse/templates/index.html:35
 msgid "Find, install and publish Python packages with the Python Package Index"
 msgstr "使用 Python 包索引查找、安装和发布 Python 软件包"
 
-#: warehouse/templates/index.html:66
+#: warehouse/templates/index.html:54
 #, python-format
 msgid "Or <a href=\"%(href)s\">browse projects</a>"
 msgstr "或 <a href=\"%(href)s\">浏览项目</a>"
 
-#: warehouse/templates/index.html:73
+#: warehouse/templates/index.html:61
 #, python-format
 msgid "%(num_projects_formatted)s project"
 msgid_plural "%(num_projects_formatted)s projects"
 msgstr[0] "%(num_projects_formatted)s 个项目"
 
-#: warehouse/templates/index.html:80
+#: warehouse/templates/index.html:68
 #, python-format
 msgid "%(num_releases_formatted)s release"
 msgid_plural "%(num_releases_formatted)s releases"
 msgstr[0] "%(num_releases_formatted)s 个发行版"
 
-#: warehouse/templates/index.html:87
+#: warehouse/templates/index.html:75
 #, python-format
 msgid "%(num_files_formatted)s file"
 msgid_plural "%(num_files_formatted)s files"
 msgstr[0] "%(num_files_formatted)s 个文件"
 
-#: warehouse/templates/index.html:94
+#: warehouse/templates/index.html:82
 #, python-format
 msgid "%(num_users_formatted)s user"
 msgid_plural "%(num_users_formatted)s users"
 msgstr[0] "%(num_users_formatted)s 个用户"
 
-#: warehouse/templates/index.html:111
+#: warehouse/templates/index.html:99
 msgid ""
 "PyPI helps you find and install software developed and shared by the Python "
 "community."
 msgstr "PyPI 帮助你查找与安装由 Python 社区开发和共享的软件。"
 
-#: warehouse/templates/index.html:112
+#: warehouse/templates/index.html:100
 msgid "Learn about installing packages"
 msgstr "了解安装包"
 
-#: warehouse/templates/index.html:115
+#: warehouse/templates/index.html:103
 msgid "Package authors use PyPI to distribute their software."
 msgstr "软件包作者使用 PyPI 来分发他们的软件。"
 
-#: warehouse/templates/index.html:116
+#: warehouse/templates/index.html:104
 msgid "Learn how to package your Python code for PyPI"
 msgstr "学习如何为PyPI打包你的Python代码"
-
-#: warehouse/templates/index.html:126
-msgid "Trending projects"
-msgstr "热门项目"
-
-#: warehouse/templates/index.html:127
-msgid "Trending projects as downloaded by the community"
-msgstr "社区下载的热门项目"
-
-#: warehouse/templates/index.html:137
-msgid "New releases"
-msgstr "新版本"
-
-#: warehouse/templates/index.html:138
-msgid "Hot off the press: the newest project releases"
-msgstr "热门新闻：最新项目发布"
 
 #: warehouse/templates/accounts/login.html:17
 #: warehouse/templates/accounts/recovery-code.html:17
@@ -1180,7 +1200,7 @@ msgstr "输入你的密码以继续"
 #: warehouse/templates/accounts/login.html:69
 #: warehouse/templates/accounts/register.html:110
 #: warehouse/templates/accounts/reset-password.html:38
-#: warehouse/templates/manage/manage_base.html:373
+#: warehouse/templates/manage/manage_base.html:381
 #: warehouse/templates/re-auth.html:49
 msgid "Password"
 msgstr "密码"
@@ -1203,6 +1223,10 @@ msgstr "密码"
 #: warehouse/templates/manage/account.html:369
 #: warehouse/templates/manage/account.html:386
 #: warehouse/templates/manage/account.html:402
+#: warehouse/templates/manage/account/publishing.html:60
+#: warehouse/templates/manage/account/publishing.html:75
+#: warehouse/templates/manage/account/publishing.html:90
+#: warehouse/templates/manage/account/publishing.html:105
 #: warehouse/templates/manage/account/recovery_codes-burn.html:70
 #: warehouse/templates/manage/account/token.html:133
 #: warehouse/templates/manage/account/token.html:150
@@ -1222,9 +1246,9 @@ msgstr "密码"
 #: warehouse/templates/manage/organizations.html:204
 #: warehouse/templates/manage/organizations.html:222
 #: warehouse/templates/manage/organizations.html:241
-#: warehouse/templates/manage/project/publishing.html:85
-#: warehouse/templates/manage/project/publishing.html:100
-#: warehouse/templates/manage/project/publishing.html:115
+#: warehouse/templates/manage/project/publishing.html:53
+#: warehouse/templates/manage/project/publishing.html:68
+#: warehouse/templates/manage/project/publishing.html:83
 #: warehouse/templates/manage/project/roles.html:273
 #: warehouse/templates/manage/project/roles.html:284
 #: warehouse/templates/manage/project/roles.html:296
@@ -1243,7 +1267,7 @@ msgid "Your password"
 msgstr "你的密码"
 
 #: warehouse/templates/accounts/login.html:92
-#: warehouse/templates/manage/manage_base.html:376
+#: warehouse/templates/manage/manage_base.html:384
 #: warehouse/templates/re-auth.html:72
 msgid "Show password"
 msgstr "显示密码"
@@ -2532,7 +2556,7 @@ msgstr "管理员"
 
 #: warehouse/templates/includes/current-user-indicator.html:37
 #: warehouse/templates/manage/manage_base.html:216
-#: warehouse/templates/manage/manage_base.html:244
+#: warehouse/templates/manage/manage_base.html:252
 #: warehouse/templates/manage/projects.html:18
 #: warehouse/templates/manage/projects.html:62
 msgid "Your projects"
@@ -2540,7 +2564,7 @@ msgstr "你的项目"
 
 #: warehouse/templates/includes/current-user-indicator.html:44
 #: warehouse/templates/manage/manage_base.html:223
-#: warehouse/templates/manage/manage_base.html:251
+#: warehouse/templates/manage/manage_base.html:259
 #: warehouse/templates/manage/organizations.html:18
 #: warehouse/templates/manage/organizations.html:63
 msgid "Your organizations"
@@ -2550,7 +2574,7 @@ msgstr "你的组织"
 #: warehouse/templates/manage/account.html:17
 #: warehouse/templates/manage/account/two-factor.html:17
 #: warehouse/templates/manage/manage_base.html:230
-#: warehouse/templates/manage/manage_base.html:258
+#: warehouse/templates/manage/manage_base.html:266
 msgid "Account settings"
 msgstr "帐户设置"
 
@@ -2580,12 +2604,12 @@ msgstr "关闭此通知"
 #: warehouse/templates/manage/account.html:199
 #: warehouse/templates/manage/account.html:201
 #: warehouse/templates/manage/account.html:211
-#: warehouse/templates/manage/manage_base.html:294
-#: warehouse/templates/manage/manage_base.html:296
+#: warehouse/templates/manage/manage_base.html:302
+#: warehouse/templates/manage/manage_base.html:304
 #: warehouse/templates/manage/project/release.html:137
 #: warehouse/templates/manage/project/releases.html:178
 #: warehouse/templates/manage/project/settings.html:111
-#: warehouse/templates/search/results.html:199
+#: warehouse/templates/search/results.html:198
 msgid "Close"
 msgstr "关闭"
 
@@ -2788,6 +2812,7 @@ msgid "Documentation"
 msgstr "文档"
 
 #: warehouse/templates/includes/manage/manage-project-menu.html:52
+#: warehouse/templates/manage/manage_base.html:237
 msgid "Publishing"
 msgstr "正在发布"
 
@@ -2849,7 +2874,7 @@ msgstr "作者："
 
 #: warehouse/templates/includes/packaging/project-data.html:84
 #: warehouse/templates/includes/packaging/project-data.html:86
-#: warehouse/templates/pages/help.html:582
+#: warehouse/templates/pages/help.html:600
 msgid "Maintainer:"
 msgstr "维护者："
 
@@ -3161,12 +3186,12 @@ msgstr ""
 "中。"
 
 #: warehouse/templates/manage/account.html:467
-#: warehouse/templates/manage/account.html:637
+#: warehouse/templates/manage/account.html:649
 msgid "Token scope: entire account"
 msgstr "令牌作用域：整个帐户"
 
 #: warehouse/templates/manage/account.html:469
-#: warehouse/templates/manage/account.html:639
+#: warehouse/templates/manage/account.html:651
 #, python-format
 msgid "Token scope: Project %(project_name)s"
 msgstr "令牌作用域：%(project_name)s 项目"
@@ -3310,23 +3335,43 @@ msgstr "密码重置成功"
 msgid "Password successfully changed"
 msgstr "密码已成功更改"
 
-#: warehouse/templates/manage/account.html:574
+#: warehouse/templates/manage/account.html:575
+#: warehouse/templates/manage/account.html:581
+#: warehouse/templates/manage/account/token.html:158
+msgid "Project:"
+msgstr "项目："
+
+#: warehouse/templates/manage/account.html:576
+#: warehouse/templates/manage/account.html:582
+#: warehouse/templates/manage/project/history.html:223
+#: warehouse/templates/manage/project/history.html:227
+msgid "Provider:"
+msgstr "提供方："
+
+#: warehouse/templates/manage/account.html:577
+#: warehouse/templates/manage/account.html:583
+#: warehouse/templates/manage/project/history.html:224
+#: warehouse/templates/manage/project/history.html:228
+msgid "Publisher:"
+msgstr "发布者："
+
+#: warehouse/templates/manage/account.html:586
 msgid "Two factor authentication added"
 msgstr "已添加双因素身份验证"
 
-#: warehouse/templates/manage/account.html:577
-#: warehouse/templates/manage/account.html:587
+#: warehouse/templates/manage/account.html:589
+#: warehouse/templates/manage/account.html:599
 msgid ""
 "Method: Security device (<abbr title=\"web authentication\">WebAuthn</abbr>)"
 msgstr "方式：安全设备（<abbr title=\"web authentication\">WebAuthn</abbr>）"
 
-#: warehouse/templates/manage/account.html:578
-#: warehouse/templates/manage/account.html:588
+#: warehouse/templates/manage/account.html:590
+#: warehouse/templates/manage/account.html:600
 msgid "Device name:"
 msgstr "设备名称："
 
-#: warehouse/templates/manage/account.html:580
-#: warehouse/templates/manage/account.html:590
+#: warehouse/templates/manage/account.html:592
+#: warehouse/templates/manage/account.html:602
 msgid ""
 "Method: Authentication application (<abbr title=\"time-based one-time "
 "password\">TOTP</abbr>)"
@@ -3334,53 +3379,53 @@ msgstr ""
 "方式：身份验证程序（<abbr title=\"time-based one-time password\">TOTP</"
 "abbr>）"
 
-#: warehouse/templates/manage/account.html:584
+#: warehouse/templates/manage/account.html:596
 msgid "Two factor authentication removed"
 msgstr "已删除双因素身份验证"
 
-#: warehouse/templates/manage/account.html:595
+#: warehouse/templates/manage/account.html:607
 msgid "Recovery codes generated"
 msgstr "生成的恢复代码"
 
-#: warehouse/templates/manage/account.html:599
+#: warehouse/templates/manage/account.html:611
 msgid "Recovery codes regenerated"
 msgstr "重新生成的恢复代码"
 
-#: warehouse/templates/manage/account.html:603
+#: warehouse/templates/manage/account.html:615
 msgid "Recovery code used for login"
 msgstr "用于登录的恢复代码"
 
-#: warehouse/templates/manage/account.html:609
+#: warehouse/templates/manage/account.html:621
 msgid "API token added"
 msgstr "已添加 API 令牌"
 
-#: warehouse/templates/manage/account.html:611
-#: warehouse/templates/manage/account.html:634
+#: warehouse/templates/manage/account.html:623
+#: warehouse/templates/manage/account.html:646
 #: warehouse/templates/manage/project/history.html:208
 #: warehouse/templates/manage/project/history.html:215
 msgid "Token name:"
 msgstr "令牌名称："
 
-#: warehouse/templates/manage/account.html:628
+#: warehouse/templates/manage/account.html:640
 #: warehouse/templates/manage/project/history.html:210
 msgid "API token removed"
 msgstr "已删除 API 令牌"
 
-#: warehouse/templates/manage/account.html:629
-#: warehouse/templates/manage/account.html:635
+#: warehouse/templates/manage/account.html:641
+#: warehouse/templates/manage/account.html:647
 msgid "Unique identifier:"
 msgstr "唯一标识符："
 
-#: warehouse/templates/manage/account.html:632
+#: warehouse/templates/manage/account.html:644
 msgid "API token automatically removed for security reasons"
 msgstr "出于安全原因，API令牌被自动删除"
 
-#: warehouse/templates/manage/account.html:641
+#: warehouse/templates/manage/account.html:653
 #, python-format
 msgid "Reason: Token found at <a href=\"%(public_url)s\">public url</a>"
 msgstr "原因：在 <a href=\"%(public_url)s\">公开 url</a>中找到了令牌"
 
-#: warehouse/templates/manage/account.html:650
+#: warehouse/templates/manage/account.html:662
 #, python-format
 msgid ""
 "Events appear here as security-related actions occur on your account. If you "
@@ -3390,24 +3435,24 @@ msgstr ""
 "这里将宣示你帐户的安全相关操作。如有可疑操作，请尽快<a href=\"%(faq_url)s\">"
 "确保你的帐户安全</a>。"
 
-#: warehouse/templates/manage/account.html:655
+#: warehouse/templates/manage/account.html:667
 msgid "Recent account activity"
 msgstr "最近的帐户活动"
 
-#: warehouse/templates/manage/account.html:657
+#: warehouse/templates/manage/account.html:669
 #: warehouse/templates/manage/organization/history.html:196
 #: warehouse/templates/manage/project/history.html:251
 #: warehouse/templates/manage/team/history.html:108
 msgid "Event"
 msgstr "事件"
 
-#: warehouse/templates/manage/account.html:658
-#: warehouse/templates/manage/account.html:666
+#: warehouse/templates/manage/account.html:670
+#: warehouse/templates/manage/account.html:678
 msgid "Date / time"
 msgstr "日期/时间"
 
-#: warehouse/templates/manage/account.html:659
-#: warehouse/templates/manage/account.html:670
+#: warehouse/templates/manage/account.html:671
+#: warehouse/templates/manage/account.html:682
 #: warehouse/templates/manage/organization/history.html:198
 #: warehouse/templates/manage/organization/history.html:210
 #: warehouse/templates/manage/project/history.html:253
@@ -3417,20 +3462,20 @@ msgstr "日期/时间"
 msgid "IP address"
 msgstr "IP 地址"
 
-#: warehouse/templates/manage/account.html:678
+#: warehouse/templates/manage/account.html:690
 msgid ""
 "Events will appear here as security-related actions occur on your account."
 msgstr "当你的帐户发生与安全相关的操作时，事件将显示在此处。"
 
-#: warehouse/templates/manage/account.html:685
+#: warehouse/templates/manage/account.html:697
 msgid "Delete account"
 msgstr "删除帐户"
 
-#: warehouse/templates/manage/account.html:688
+#: warehouse/templates/manage/account.html:700
 msgid "Cannot delete account"
 msgstr "无法删除帐户"
 
-#: warehouse/templates/manage/account.html:690
+#: warehouse/templates/manage/account.html:702
 #, python-format
 msgid ""
 "Your account is currently the <strong>sole owner</strong> of %(count)s "
@@ -3440,7 +3485,7 @@ msgid_plural ""
 "projects."
 msgstr[0] "你当前是 %(count)s 个项目的<strong>唯一所有者</strong>。"
 
-#: warehouse/templates/manage/account.html:695
+#: warehouse/templates/manage/account.html:707
 msgid ""
 "You must transfer ownership or delete this project before you can delete "
 "your account."
@@ -3449,7 +3494,7 @@ msgid_plural ""
 "your account."
 msgstr[0] "在删除你的帐号前，你必须将这些项目转移给他人或删除。"
 
-#: warehouse/templates/manage/account.html:705
+#: warehouse/templates/manage/account.html:717
 #: warehouse/templates/manage/organization/settings.html:238
 #, python-format
 msgid ""
@@ -3459,7 +3504,7 @@ msgstr ""
 "<a href=\"%(transfer_href)s\">转移</a>或者<a href=\"%(delete_href)s\">删除</"
 "a>"
 
-#: warehouse/templates/manage/account.html:714
+#: warehouse/templates/manage/account.html:726
 #: warehouse/templates/manage/account/token.html:166
 #: warehouse/templates/manage/organization/settings.html:192
 #: warehouse/templates/manage/organization/settings.html:247
@@ -3467,11 +3512,11 @@ msgstr ""
 msgid "Proceed with caution!"
 msgstr "请谨慎操作！"
 
-#: warehouse/templates/manage/account.html:717
+#: warehouse/templates/manage/account.html:729
 msgid "You will not be able to recover your account after you delete it"
 msgstr "删除帐户后，你将再也无法恢复你的帐户"
 
-#: warehouse/templates/manage/account.html:719
+#: warehouse/templates/manage/account.html:731
 msgid "Delete your PyPI account"
 msgstr "删除你的 PyPI 帐户"
 
@@ -3538,10 +3583,10 @@ msgstr "双因素身份验证"
 
 #: warehouse/templates/manage/manage_base.html:64
 #: warehouse/templates/manage/manage_base.html:78
+#: warehouse/templates/manage/manage_base.html:513
 #: warehouse/templates/manage/organization/roles.html:123
 #: warehouse/templates/manage/organization/roles.html:125
 #: warehouse/templates/manage/organization/roles.html:130
-#: warehouse/templates/manage/project/publishing.html:44
 #: warehouse/templates/manage/project/roles.html:89
 #: warehouse/templates/manage/project/roles.html:143
 #: warehouse/templates/manage/project/roles.html:148
@@ -3676,37 +3721,82 @@ msgid "Your account"
 msgstr "你的帐户"
 
 #: warehouse/templates/manage/manage_base.html:211
-#: warehouse/templates/manage/manage_base.html:239
+#: warehouse/templates/manage/manage_base.html:247
 msgid "Account navigation"
 msgstr "帐户导航"
 
-#: warehouse/templates/manage/manage_base.html:306
-#: warehouse/templates/manage/manage_base.html:365
+#: warehouse/templates/manage/manage_base.html:314
+#: warehouse/templates/manage/manage_base.html:373
 msgid "This action cannot be undone!"
 msgstr "此操作无法撤消！"
 
-#: warehouse/templates/manage/manage_base.html:318
+#: warehouse/templates/manage/manage_base.html:326
 msgid "Confirm your username to continue."
 msgstr "确认你的用户名以继续。"
 
-#: warehouse/templates/manage/manage_base.html:320
+#: warehouse/templates/manage/manage_base.html:328
 #, python-format
 msgid "Confirm the %(item)s to continue."
 msgstr "确认 %(item)s 以继续。"
 
-#: warehouse/templates/manage/manage_base.html:331
-#: warehouse/templates/manage/manage_base.html:383
+#: warehouse/templates/manage/manage_base.html:339
+#: warehouse/templates/manage/manage_base.html:391
 #: warehouse/templates/manage/organization/activate_subscription.html:32
 msgid "Cancel"
 msgstr "取消"
 
-#: warehouse/templates/manage/manage_base.html:354
+#: warehouse/templates/manage/manage_base.html:362
 msgid "close"
 msgstr "关闭"
 
-#: warehouse/templates/manage/manage_base.html:370
+#: warehouse/templates/manage/manage_base.html:378
 msgid "Enter your password to continue."
 msgstr "输入你的密码以继续。"
+
+#: warehouse/templates/manage/manage_base.html:460
+#, fuzzy
+#| msgid "OpenID Connect publisher management"
+msgid "OpenID Connect Publisher Management"
+msgstr "OpenID Connect 发布者管理"
+
+#: warehouse/templates/manage/manage_base.html:465
+#, fuzzy
+#| msgid ""
+#| "OpenID Connect provides a flexible, credential-free mechanism for "
+#| "delegating publishing authority for a PyPI package to a third party "
+#| "service, like GitHub Actions."
+msgid ""
+"OpenID Connect (OIDC) provides a flexible, credential-free mechanism for "
+"delegating publishing authority for a PyPI package to a third party service, "
+"like GitHub Actions."
+msgstr ""
+"OpenID Connect 提供了一种灵活、无凭据的机制，用于将 PyPI 包的发布权限委托给第"
+"三方服务，例如 GitHub Actions。"
+
+#: warehouse/templates/manage/manage_base.html:473
+#, fuzzy
+#| msgid ""
+#| "PyPI projects can use trusted OpenID Connect publishers to automate their "
+#| "release processes, without having to explicitly provision or manage API "
+#| "tokens."
+msgid ""
+"PyPI users and projects can use trusted publishers to automate their release "
+"processes, without needing to use API tokens or passwords."
+msgstr ""
+"PyPI 项目可以使用受信任的 OpenID Connect 发布者来自动执行其发布过程，而无需显"
+"式预置或管理 API 令牌。"
+
+#: warehouse/templates/manage/manage_base.html:480
+#, fuzzy, python-format
+#| msgid ""
+#| "Read more about GitHub's OpenID Connect provider <a href=\"%(href)s"
+#| "\">here</a>."
+msgid ""
+"You can read more about OpenID Connect and how to use it <a href=\"%(href)s"
+"\">here</a>."
+msgstr ""
+"如要获取更多关于GitHub的OpenID Connect提供商的信息，<a href=\"%(href)s\">请点"
+"击此处</a>。"
 
 #: warehouse/templates/manage/organizations.html:23
 #: warehouse/templates/manage/projects.html:23
@@ -3768,10 +3858,11 @@ msgstr "不活跃"
 msgid "Manager"
 msgstr "管理者"
 
+#: warehouse/templates/manage/account/publishing.html:73
 #: warehouse/templates/manage/organization/roles.html:48
 #: warehouse/templates/manage/organization/roles.html:93
 #: warehouse/templates/manage/organizations.html:85
-#: warehouse/templates/manage/project/publishing.html:83
+#: warehouse/templates/manage/project/publishing.html:51
 #: warehouse/templates/manage/project/roles.html:50
 #: warehouse/templates/manage/project/roles.html:85
 #: warehouse/templates/manage/project/roles.html:115
@@ -3996,6 +4087,122 @@ msgstr ""
 "您尚未将任何项目上传到 PyPI。要了解如何开始使用，请访问 <a href=\"%(href)s\" "
 "target=\"_blank\" rel=\"noopener\">Python 打包用户指南</a>"
 
+#: warehouse/templates/manage/account/publishing.html:30
+#, fuzzy
+#| msgid "Add a new provider"
+msgid "Add a new pending provider"
+msgstr "添加新的提供程序"
+
+#: warehouse/templates/manage/account/publishing.html:33
+msgid "You can use this page to register \"pending\" OpenID Connect providers."
+msgstr ""
+
+#: warehouse/templates/manage/account/publishing.html:40
+#, python-format
+msgid ""
+"These providers behave similarly to OpenID Connect providers registered "
+"against specific projects, except that they allow users to <strong>create</"
+"strong> the project if it doesn't already exist. Once the project is "
+"created, the \"pending\" provider becomes an ordinary OpenID Connect "
+"provider. You can read more about \"pending\" and ordinary OpenID Connect "
+"providers <a href=\"%(href)s\">here</a>."
+msgstr ""
+
+#: warehouse/templates/manage/account/publishing.html:58
+#, fuzzy
+#| msgid "Project Name"
+msgid "PyPI Project Name"
+msgstr "项目名称"
+
+#: warehouse/templates/manage/account/publishing.html:63
+#, fuzzy
+#| msgid "Project name"
+msgid "project name"
+msgstr "项目名称"
+
+#: warehouse/templates/manage/account/publishing.html:65
+msgid "The project (on PyPI) that will be created when this provider is used"
+msgstr ""
+
+#: warehouse/templates/manage/account/publishing.html:78
+#: warehouse/templates/manage/project/publishing.html:56
+msgid "owner"
+msgstr "所有者"
+
+#: warehouse/templates/manage/account/publishing.html:80
+#, fuzzy
+#| msgid "The organization name or username that owns the repository"
+msgid ""
+"The GitHub organization name or GitHub username that owns the repository"
+msgstr "拥有存储库的组织名或用户名"
+
+#: warehouse/templates/manage/account/publishing.html:88
+#: warehouse/templates/manage/project/publishing.html:66
+msgid "Repository name"
+msgstr "存储库名称"
+
+#: warehouse/templates/manage/account/publishing.html:93
+#: warehouse/templates/manage/project/publishing.html:71
+msgid "repository"
+msgstr "存储库"
+
+#: warehouse/templates/manage/account/publishing.html:95
+#, fuzzy
+#| msgid "The name of the repository that contains the publishing workflow"
+msgid "The name of the GitHub repository that contains the publishing workflow"
+msgstr "包含发布工作流的存储库的名称"
+
+#: warehouse/templates/manage/account/publishing.html:103
+#: warehouse/templates/manage/project/publishing.html:81
+msgid "Workflow name"
+msgstr "工作流名称"
+
+#: warehouse/templates/manage/account/publishing.html:108
+#: warehouse/templates/manage/project/publishing.html:86
+msgid "workflow.yml"
+msgstr "workflow.yml"
+
+#: warehouse/templates/manage/account/publishing.html:110
+msgid ""
+"The filename of the publishing workflow. This file should exist in the "
+"<code>.github/workflows/</code> directory in the repository configured above."
+msgstr ""
+
+#: warehouse/templates/manage/account/publishing.html:117
+#: warehouse/templates/manage/project/publishing.html:95
+#: warehouse/templates/manage/project/roles.html:320
+#: warehouse/templates/manage/team/roles.html:123
+msgid "Add"
+msgstr "添加"
+
+#: warehouse/templates/manage/account/publishing.html:121
+#, fuzzy
+#| msgid "Manage current providers"
+msgid "Manage pending providers"
+msgstr "管理当前提供商"
+
+#: warehouse/templates/manage/account/publishing.html:126
+#, fuzzy
+#| msgid "Trending projects"
+msgid "Pending project name"
+msgstr "热门项目"
+
+#: warehouse/templates/manage/account/publishing.html:127
+#: warehouse/templates/manage/project/publishing.html:107
+msgid "Publisher"
+msgstr "发布者"
+
+#: warehouse/templates/manage/account/publishing.html:128
+#, fuzzy
+#| msgid "Publishing"
+msgid "Publishing workflow URL"
+msgstr "正在发布"
+
+#: warehouse/templates/manage/account/publishing.html:139
+#: warehouse/templates/manage/project/publishing.html:119
+msgid "No publishers are currently configured."
+msgstr "当前未配置任何发布者。"
+
 #: warehouse/templates/manage/account/recovery_codes-burn.html:34
 msgid ""
 "In order to verify that you have safely stored your recovery codes for use "
@@ -4198,10 +4405,6 @@ msgstr "这个令牌是做什么用的？"
 #: warehouse/templates/manage/account/token.html:154
 msgid "Select scope..."
 msgstr "选择作用域…"
-
-#: warehouse/templates/manage/account/token.html:158
-msgid "Project:"
-msgstr "项目："
 
 #: warehouse/templates/manage/account/token.html:167
 msgid ""
@@ -5150,16 +5353,6 @@ msgstr "受控制于："
 msgid "OpenID Connect provider added"
 msgstr "添加了 OpenID Connect 提供方"
 
-#: warehouse/templates/manage/project/history.html:223
-#: warehouse/templates/manage/project/history.html:227
-msgid "Provider:"
-msgstr "提供方："
-
-#: warehouse/templates/manage/project/history.html:224
-#: warehouse/templates/manage/project/history.html:228
-msgid "Publisher:"
-msgstr "发布者："
-
 #: warehouse/templates/manage/project/history.html:226
 msgid "OpenID Connect provider removed"
 msgstr "删除了 OpenID Connect 提供方"
@@ -5189,34 +5382,11 @@ msgstr "管理 '%(project_name)s'"
 msgid "Back to projects"
 msgstr "返回项目"
 
-#: warehouse/templates/manage/project/publishing.html:20
-#: warehouse/templates/manage/project/publishing.html:51
-msgid "OpenID Connect publisher management"
-msgstr "OpenID Connect 发布者管理"
-
-#: warehouse/templates/manage/project/publishing.html:54
-msgid ""
-"OpenID Connect provides a flexible, credential-free mechanism for delegating "
-"publishing authority for a PyPI package to a third party service, like "
-"GitHub Actions."
-msgstr ""
-"OpenID Connect 提供了一种灵活、无凭据的机制，用于将 PyPI 包的发布权限委托给第"
-"三方服务，例如 GitHub Actions。"
-
-#: warehouse/templates/manage/project/publishing.html:62
-msgid ""
-"PyPI projects can use trusted OpenID Connect publishers to automate their "
-"release processes, without having to explicitly provision or manage API "
-"tokens."
-msgstr ""
-"PyPI 项目可以使用受信任的 OpenID Connect 发布者来自动执行其发布过程，而无需显"
-"式预置或管理 API 令牌。"
-
-#: warehouse/templates/manage/project/publishing.html:68
+#: warehouse/templates/manage/project/publishing.html:36
 msgid "Add a new provider"
 msgstr "添加新的提供程序"
 
-#: warehouse/templates/manage/project/publishing.html:72
+#: warehouse/templates/manage/project/publishing.html:40
 #, python-format
 msgid ""
 "Read more about GitHub's OpenID Connect provider <a href=\"%(href)s\">here</"
@@ -5225,64 +5395,30 @@ msgstr ""
 "如要获取更多关于GitHub的OpenID Connect提供商的信息，<a href=\"%(href)s\">请点"
 "击此处</a>。"
 
-#: warehouse/templates/manage/project/publishing.html:88
-msgid "owner"
-msgstr "所有者"
-
-#: warehouse/templates/manage/project/publishing.html:90
+#: warehouse/templates/manage/project/publishing.html:58
 msgid "The organization name or username that owns the repository"
 msgstr "拥有存储库的组织名或用户名"
 
-#: warehouse/templates/manage/project/publishing.html:98
-msgid "Repository name"
-msgstr "存储库名称"
-
-#: warehouse/templates/manage/project/publishing.html:103
-msgid "repository"
-msgstr "存储库"
-
-#: warehouse/templates/manage/project/publishing.html:105
+#: warehouse/templates/manage/project/publishing.html:73
 msgid "The name of the repository that contains the publishing workflow"
 msgstr "包含发布工作流的存储库的名称"
 
-#: warehouse/templates/manage/project/publishing.html:113
-msgid "Workflow name"
-msgstr "工作流名称"
-
-#: warehouse/templates/manage/project/publishing.html:118
-msgid "workflow.yml"
-msgstr "workflow.yml"
-
-#: warehouse/templates/manage/project/publishing.html:120
+#: warehouse/templates/manage/project/publishing.html:88
 msgid "The filename of the publishing workflow"
 msgstr "发布工作流的文件名"
 
-#: warehouse/templates/manage/project/publishing.html:127
-#: warehouse/templates/manage/project/roles.html:320
-#: warehouse/templates/manage/team/roles.html:123
-msgid "Add"
-msgstr "添加"
-
-#: warehouse/templates/manage/project/publishing.html:131
+#: warehouse/templates/manage/project/publishing.html:99
 msgid "Manage current providers"
 msgstr "管理当前提供商"
 
-#: warehouse/templates/manage/project/publishing.html:135
+#: warehouse/templates/manage/project/publishing.html:103
 #, python-format
 msgid "OpenID Connect publishers associated with %(project_name)s"
 msgstr "与 %(project_name)s 关联的 OpenID Connect 发布者"
 
-#: warehouse/templates/manage/project/publishing.html:139
-msgid "Publisher"
-msgstr "发布者"
-
-#: warehouse/templates/manage/project/publishing.html:140
+#: warehouse/templates/manage/project/publishing.html:108
 msgid "URL"
 msgstr "URL"
-
-#: warehouse/templates/manage/project/publishing.html:151
-msgid "No publishers are currently configured."
-msgstr "当前未配置任何发布者。"
 
 #: warehouse/templates/manage/project/release.html:18
 #, python-format
@@ -5606,7 +5742,7 @@ msgid "Project Roles"
 msgstr "项目角色"
 
 #: warehouse/templates/manage/project/roles.html:46
-#: warehouse/templates/pages/help.html:581
+#: warehouse/templates/pages/help.html:599
 msgid "There are two possible roles for collaborators:"
 msgstr "协作者有两种可能的角色："
 
@@ -6391,37 +6527,43 @@ msgstr "为什么某些操作需要我确认密码？"
 msgid "How do I change my PyPI username?"
 msgstr "如何更改我的 PyPI 用户名？"
 
-#: warehouse/templates/pages/help.html:71
+#: warehouse/templates/pages/help.html:70
+#, fuzzy
+#| msgid "How can I use API tokens to authenticate with PyPI?"
+msgid "How can I use OpenID connect to authenticate with PyPI?"
+msgstr "如何使用 API 令牌对 PyPI 进行身份验证？"
+
+#: warehouse/templates/pages/help.html:72
 msgid "How can I run a mirror of PyPI?"
 msgstr "如何运行 PyPI 的镜像？"
 
-#: warehouse/templates/pages/help.html:72
+#: warehouse/templates/pages/help.html:73
 msgid "Does PyPI have APIs I can use?"
 msgstr "PyPI 是否具有我可以使用的 API？"
 
-#: warehouse/templates/pages/help.html:73
+#: warehouse/templates/pages/help.html:74
 msgid "How do I get notified when a new version of a project is released?"
 msgstr "如何在项目的新版本发布时得到通知？"
 
-#: warehouse/templates/pages/help.html:74
+#: warehouse/templates/pages/help.html:75
 msgid ""
 "Where can I see statistics about PyPI, downloads, and project/package usage?"
 msgstr "在哪里可以查看有关 PyPI、下载和项目/包使用情况的统计信息？"
 
-#: warehouse/templates/pages/help.html:75
+#: warehouse/templates/pages/help.html:76
 msgid "What are the file hashes used for, and how can I verify them?"
 msgstr "文件哈希用于什么，且我应该如何验证它们？"
 
-#: warehouse/templates/pages/help.html:77
+#: warehouse/templates/pages/help.html:78
 msgid "I forgot my PyPI password. Can you help me?"
 msgstr "我忘记了我的 PyPI 密码。你可以帮我吗？"
 
 # | msgid "I forgot my PyPI password. Can you help me?"
-#: warehouse/templates/pages/help.html:78
+#: warehouse/templates/pages/help.html:79
 msgid "I've lost access to my PyPI account. Can you help me?"
 msgstr "我忘记了我的 PyPI 密码。你可以帮我吗？"
 
-#: warehouse/templates/pages/help.html:79
+#: warehouse/templates/pages/help.html:80
 msgid ""
 "Why am I getting a \"Invalid or non-existent authentication information.\" "
 "error when uploading files?"
@@ -6429,7 +6571,7 @@ msgstr ""
 "为什么我会收到“Invalid or non-existent authentication information.”（无效或不"
 "存在的身份验证信息）。上传文件时出错？"
 
-#: warehouse/templates/pages/help.html:80
+#: warehouse/templates/pages/help.html:81
 msgid ""
 "Why am I getting \"No matching distribution found\" or \"Could not fetch URL"
 "\" errors during <code>pip install</code>?"
@@ -6437,43 +6579,43 @@ msgstr ""
 "为什么我会在使用<code>pip install</code>时发现“No matching distribution "
 "found”（找不到匹配的分发）或“Could not fetch URL”（无法获取URL）错误？"
 
-#: warehouse/templates/pages/help.html:81
+#: warehouse/templates/pages/help.html:82
 msgid "I am having trouble using the PyPI website. Can you help me?"
 msgstr "我在使用 PyPI 网站时遇到问题。你可以帮我吗？"
 
-#: warehouse/templates/pages/help.html:82
+#: warehouse/templates/pages/help.html:83
 msgid ""
 "Why can't I manually upload files to PyPI, through the browser interface?"
 msgstr "为什么我不能通过浏览器界面手动将文件上载到 PyPI？"
 
-#: warehouse/templates/pages/help.html:83
+#: warehouse/templates/pages/help.html:84
 msgid "How can I publish my private packages to PyPI?"
 msgstr "如何将我的私有软件包发布到 PyPI？"
 
-#: warehouse/templates/pages/help.html:84
+#: warehouse/templates/pages/help.html:85
 msgid "Why did my package or user registration get blocked?"
 msgstr "为什么我的软件包或用户注册被阻止？"
 
-#: warehouse/templates/pages/help.html:85
+#: warehouse/templates/pages/help.html:86
 msgid "How do I get a file size limit exemption or increase for my project?"
 msgstr "如何获得项目的文件大小限制豁免或增加？"
 
-#: warehouse/templates/pages/help.html:86
+#: warehouse/templates/pages/help.html:87
 msgid ""
 "How do I get a total project size limit exemption or increase for my project?"
 msgstr "如何获得项目的文件大小限制豁免或增加？"
 
-#: warehouse/templates/pages/help.html:87
+#: warehouse/templates/pages/help.html:88
 msgid ""
 "Where does PyPI get its data on project vulnerabilities from, and how can I "
 "correct it?"
 msgstr "PyPI 从哪里获取有关项目漏洞的数据，我该如何纠正？"
 
-#: warehouse/templates/pages/help.html:88
+#: warehouse/templates/pages/help.html:89
 msgid "Why am I getting \"the description failed to render\" error?"
 msgstr "为什么我会收到“描述渲染失败”的错误？"
 
-#: warehouse/templates/pages/help.html:90
+#: warehouse/templates/pages/help.html:91
 msgid ""
 "Why am I getting a \"Filename or contents already exists\" or \"Filename has "
 "been previously used\" error?"
@@ -6481,103 +6623,103 @@ msgstr ""
 "为什么我得到一个“Filename or contents already exists”（文件名或内容已经存在）"
 "或“Filename has been previously used”（文件名已被使用）错误？"
 
-#: warehouse/templates/pages/help.html:91
+#: warehouse/templates/pages/help.html:92
 msgid "Why isn't my desired project name available?"
 msgstr "为什么我心仪的项目名称不可用？"
 
-#: warehouse/templates/pages/help.html:92
+#: warehouse/templates/pages/help.html:93
 msgid "How do I claim an abandoned or previously registered project name?"
 msgstr "如何申请一个已经放弃或以前注册过的项目名称？"
 
-#: warehouse/templates/pages/help.html:93
+#: warehouse/templates/pages/help.html:94
 msgid "What collaborator roles are available for a project on PyPI?"
 msgstr "PyPI 上的项目有哪些协作者角色？"
 
-#: warehouse/templates/pages/help.html:94
+#: warehouse/templates/pages/help.html:95
 msgid "How do I become an owner/maintainer of a project on PyPI?"
 msgstr "如何成为 PyPI 项目的所有者/维护者？"
 
-#: warehouse/templates/pages/help.html:95
+#: warehouse/templates/pages/help.html:96
 msgid "How can I upload a project description in a different format?"
 msgstr "如何上传不同格式的项目描述？"
 
-#: warehouse/templates/pages/help.html:96
+#: warehouse/templates/pages/help.html:97
 msgid "How do I request a new trove classifier?"
 msgstr "如何请求新的trove分类器？"
 
-#: warehouse/templates/pages/help.html:97
+#: warehouse/templates/pages/help.html:98
 msgid "Where can I report a bug or provide feedback about PyPI?"
 msgstr "在哪里可以报告 Bug 或提供有关 PyPI 的反馈？"
 
-#: warehouse/templates/pages/help.html:99
+#: warehouse/templates/pages/help.html:100
 msgid "Who maintains PyPI?"
 msgstr "谁在维护 PyPI？"
 
-#: warehouse/templates/pages/help.html:100
+#: warehouse/templates/pages/help.html:101
 msgid "What powers PyPI?"
 msgstr "什么使PyPI充满活力？"
 
-#: warehouse/templates/pages/help.html:101
+#: warehouse/templates/pages/help.html:102
 msgid "Can I depend on PyPI being available?"
 msgstr "我可以依赖 PyPI 吗？"
 
-#: warehouse/templates/pages/help.html:102
+#: warehouse/templates/pages/help.html:103
 msgid "How can I contribute to PyPI?"
 msgstr "如何为 PyPI 做出贡献？"
 
-#: warehouse/templates/pages/help.html:103
+#: warehouse/templates/pages/help.html:104
 msgid "How do I keep up with upcoming changes to PyPI?"
 msgstr "如何跟上 PyPI 的最新进展？"
 
-#: warehouse/templates/pages/help.html:104
+#: warehouse/templates/pages/help.html:105
 msgid "How can I get a list of PyPI's IP addresses?"
 msgstr "我如何获取 PyPI 的 IP 地址列表？"
 
-#: warehouse/templates/pages/help.html:105
+#: warehouse/templates/pages/help.html:106
 msgid ""
 "What does the \"beta feature\" badge mean? What are Warehouse's current beta "
 "features?"
 msgstr ""
 "“beta feature”（beta特性）徽章是什么意思？Warehouse当前的beta特性是什么？"
 
-#: warehouse/templates/pages/help.html:106
+#: warehouse/templates/pages/help.html:107
 msgid "How do I pronounce \"PyPI\"?"
 msgstr "\"PyPI\" 如何发音？"
 
-#: warehouse/templates/pages/help.html:113
+#: warehouse/templates/pages/help.html:114
 msgid "Common questions"
 msgstr "常见问题"
 
-#: warehouse/templates/pages/help.html:116
-#: warehouse/templates/pages/help.html:202
+#: warehouse/templates/pages/help.html:117
+#: warehouse/templates/pages/help.html:204
 msgid "Basics"
 msgstr "基础"
 
-#: warehouse/templates/pages/help.html:127
+#: warehouse/templates/pages/help.html:128
 msgid "My Account"
 msgstr "我的帐户"
 
-#: warehouse/templates/pages/help.html:145
-#: warehouse/templates/pages/help.html:526
+#: warehouse/templates/pages/help.html:147
+#: warehouse/templates/pages/help.html:544
 msgid "Integrating"
 msgstr "整合"
 
-#: warehouse/templates/pages/help.html:156
-#: warehouse/templates/pages/help.html:563
+#: warehouse/templates/pages/help.html:158
+#: warehouse/templates/pages/help.html:581
 msgid "Administration of projects on PyPI"
 msgstr "管理 PyPI 上的项目"
 
-#: warehouse/templates/pages/help.html:171
-#: warehouse/templates/pages/help.html:647
+#: warehouse/templates/pages/help.html:173
+#: warehouse/templates/pages/help.html:665
 msgid "Troubleshooting"
 msgstr "故障排除"
 
-#: warehouse/templates/pages/help.html:188
-#: warehouse/templates/pages/help.html:815
+#: warehouse/templates/pages/help.html:190
+#: warehouse/templates/pages/help.html:833
 msgid "About"
 msgstr "关于"
 
-#: warehouse/templates/pages/help.html:205
+#: warehouse/templates/pages/help.html:207
 #, python-format
 msgid ""
 "<p>We use a number of terms to describe software available on PyPI, like "
@@ -6606,7 +6748,7 @@ msgstr ""
 "由于不同的硬件、操作系统和文件格式，一个发行版可以有多个文件（包），像包含源"
 "代码或一个二进制的<a href=\"%(wheel_href)s\">wheel</a>。</p>"
 
-#: warehouse/templates/pages/help.html:214
+#: warehouse/templates/pages/help.html:216
 #, python-format
 msgid ""
 "To learn how to install a file from PyPI, visit the <a href="
@@ -6620,7 +6762,7 @@ msgstr ""
 "\"%(title)s\" target=\"_blank\" rel=\"noopener\">安装教程</a>学习如何从PyPI安"
 "装一个文件。"
 
-#: warehouse/templates/pages/help.html:221
+#: warehouse/templates/pages/help.html:223
 #, python-format
 msgid ""
 "For full instructions on configuring, packaging and distributing your Python "
@@ -6634,7 +6776,7 @@ msgstr ""
 "中的<a href=\"%(packaging_tutorial_href)s\" title=\"%(title)s\" target="
 "\"_blank\" rel=\"noopener\">打包教程</a>。"
 
-#: warehouse/templates/pages/help.html:228
+#: warehouse/templates/pages/help.html:230
 #, python-format
 msgid ""
 "Classifiers are used to categorize projects on PyPI. See <a href=\"%(href)s"
@@ -6644,7 +6786,7 @@ msgstr ""
 "分类器用于对PyPI上的项目进行分类。有关更多信息，请参见<a href=\"%(href)s\">分"
 "类器页面</a>，以及有效分类器的列表。"
 
-#: warehouse/templates/pages/help.html:235
+#: warehouse/templates/pages/help.html:237
 #, python-format
 msgid ""
 "A yanked release is a release that is always ignored by an installer, unless "
@@ -6658,31 +6800,31 @@ msgstr ""
 "\"%(title)s\" target=\"_blank\" rel=\"noopener\"><abbr title=\"Python "
 "enhancement proposal\">PEP</abbr> 592</a> 获取更多信息。"
 
-#: warehouse/templates/pages/help.html:242
+#: warehouse/templates/pages/help.html:244
 msgid "My account"
 msgstr "我的帐户"
 
-#: warehouse/templates/pages/help.html:245
+#: warehouse/templates/pages/help.html:247
 msgid ""
 "Currently, PyPI requires a verified email address to perform the following "
 "operations:"
 msgstr "目前，PyPI 需要经过验证的电子邮件地址才能执行以下操作："
 
-#: warehouse/templates/pages/help.html:247
+#: warehouse/templates/pages/help.html:249
 msgid "Register a new project."
 msgstr "注册新项目。"
 
-#: warehouse/templates/pages/help.html:248
+#: warehouse/templates/pages/help.html:250
 msgid "Upload a new version or file."
 msgstr "上传新版本或文件。"
 
-#: warehouse/templates/pages/help.html:250
+#: warehouse/templates/pages/help.html:252
 msgid ""
 "The list of activities that require a verified email address is likely to "
 "grow over time."
 msgstr "需要经过验证的电子邮件地址的活动列表可能会随着时间的推移而增长。"
 
-#: warehouse/templates/pages/help.html:251
+#: warehouse/templates/pages/help.html:253
 #, python-format
 msgid ""
 "This policy will allow us to enforce a key policy of <a href=\"%(href)s\" "
@@ -6696,7 +6838,7 @@ msgstr ""
 "541</a>中有关维护者可达性的关键策略。它还降低了垃圾邮件攻击以自动方式创建多个"
 "帐户的可行性。"
 
-#: warehouse/templates/pages/help.html:252
+#: warehouse/templates/pages/help.html:254
 #, python-format
 msgid ""
 "You can manage your account's email addresses in your <a href=\"%(href)s"
@@ -6707,7 +6849,7 @@ msgstr ""
 "你可以在<a href=\"%(href)s\">帐户设置</a>中管理帐户的电子邮件地址。这还允许在"
 "我们开始执行此策略之前，为以前注册的用户发送新的确认电子邮件。"
 
-#: warehouse/templates/pages/help.html:255
+#: warehouse/templates/pages/help.html:257
 #, python-format
 msgid ""
 "<p> PyPI itself has not suffered a breach. This is a protective measure to "
@@ -6746,7 +6888,7 @@ msgstr ""
 "密码已重置，在<a href=\"%(reset_pwd_href)s\">重置密码</a>之前无法登录到PyPI。"
 "</p>"
 
-#: warehouse/templates/pages/help.html:290
+#: warehouse/templates/pages/help.html:292
 #, python-format
 msgid ""
 "<p> All PyPI user events are stored under security history in account "
@@ -6760,7 +6902,7 @@ msgstr ""
 "a></li> <li>联系PyPI管理员了解事件，地址是<a href=\"mailto:%(admin_email)s\">"
 "%(admin_email)s</a></li> </ul> </p>"
 
-#: warehouse/templates/pages/help.html:302
+#: warehouse/templates/pages/help.html:304
 msgid ""
 "<p> A PyPI API token linked to your account was posted on a public website. "
 "It was automatically revoked, but before regenerating a new one, please "
@@ -6771,7 +6913,7 @@ msgstr ""
 "重新生成一个新的之前，请检查你收到的电子邮件并尝试确定原因。<a href="
 "\"#suspicious-activity\">可疑活动</a>部分也适用。</p>"
 
-#: warehouse/templates/pages/help.html:312
+#: warehouse/templates/pages/help.html:314
 #, python-format
 msgid ""
 "<p> Two factor authentication (2FA) makes your account more secure by "
@@ -6799,7 +6941,7 @@ msgstr ""
 "\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">discuss."
 "python.org</a>。</p>"
 
-#: warehouse/templates/pages/help.html:339
+#: warehouse/templates/pages/help.html:341
 #, python-format
 msgid ""
 "PyPI users can set up two-factor authentication using any authentication "
@@ -6811,7 +6953,7 @@ msgstr ""
 "\" rel=\"noopener\"><abbr title=\"time-based one-time password\">TOTP</abbr>"
 "标准</a>的任何身份验证应用程序设置双因素身份验证。"
 
-#: warehouse/templates/pages/help.html:340
+#: warehouse/templates/pages/help.html:342
 msgid ""
 "<abbr title=\"time-based one-time password\">TOTP</abbr> authentication "
 "applications generate a regularly changing authentication code to use when "
@@ -6820,7 +6962,7 @@ msgstr ""
 "<abbr title=\"time-based one-time password\">TOTP</abbr>身份验证应用程序生成"
 "定期更改的身份验证代码，以便在登录到你的帐户时使用。"
 
-#: warehouse/templates/pages/help.html:341
+#: warehouse/templates/pages/help.html:343
 msgid ""
 "Because <abbr title=\"time-based one-time password\">TOTP</abbr> is an open "
 "standard, there are many applications that are compatible with your PyPI "
@@ -6829,7 +6971,7 @@ msgstr ""
 "因为<abbr title=\"time-based one-time password\">TOTP</abbr>是一个开放的标"
 "准，所以有许多应用程序与你的PyPI帐户兼容。流行的应用程序包括："
 
-#: warehouse/templates/pages/help.html:344
+#: warehouse/templates/pages/help.html:346
 #, python-format
 msgid ""
 "Google Authenticator for <a href=\"%(android_href)s\" title=\"%(title)s\" "
@@ -6840,14 +6982,14 @@ msgstr ""
 "\"noopener\">Android</a>或<a href=\"%(ios_href)s\" title=\"%(title)s\" "
 "target=\"_blank\" rel=\"noopener\">iOS</a>的Google身份验证程序"
 
-#: warehouse/templates/pages/help.html:347
 #: warehouse/templates/pages/help.html:349
-#: warehouse/templates/pages/help.html:354
+#: warehouse/templates/pages/help.html:351
 #: warehouse/templates/pages/help.html:356
+#: warehouse/templates/pages/help.html:358
 msgid "(proprietary)"
 msgstr "（专有）"
 
-#: warehouse/templates/pages/help.html:351
+#: warehouse/templates/pages/help.html:353
 #, python-format
 msgid ""
 "Duo Mobile for <a href=\"%(android_href)s\" title=\"%(title)s\" target="
@@ -6858,12 +7000,12 @@ msgstr ""
 "\"noopener\">Android</a>或<a href=\"%(ios_href)s\" title=\"%(title)s\" "
 "target=\"_blank\" rel=\"noopener\">iOS</a>的Duo Mobile"
 
-#: warehouse/templates/pages/help.html:357
-#: warehouse/templates/pages/help.html:358
+#: warehouse/templates/pages/help.html:359
+#: warehouse/templates/pages/help.html:360
 msgid "(open source)"
 msgstr "（开源）"
 
-#: warehouse/templates/pages/help.html:362
+#: warehouse/templates/pages/help.html:364
 #, python-format
 msgid ""
 "Some password managers (e.g. <a href=\"%(href)s\" title=\"%(title)s\" target="
@@ -6875,7 +7017,7 @@ msgstr ""
 "\" rel=\"noopener\">1Password</a>）也可以生成身份验证码。出于安全原因，PyPI只"
 "允许你为每个帐户设置一个应用程序。"
 
-#: warehouse/templates/pages/help.html:370
+#: warehouse/templates/pages/help.html:372
 msgid ""
 "To set up <abbr title=\"two factor authentication\">2FA</abbr> with an "
 "authentication application:"
@@ -6883,7 +7025,7 @@ msgstr ""
 "要使用身份验证应用程序设置<abbr title=\"two factor authentication\">2FA</"
 "abbr>，请执行以下操作："
 
-#: warehouse/templates/pages/help.html:372
+#: warehouse/templates/pages/help.html:374
 msgid ""
 "Open an authentication (<abbr title=\"time-based one-time password\">TOTP</"
 "abbr>) application"
@@ -6891,7 +7033,7 @@ msgstr ""
 "打开身份验证（<abbr title=\"time-based one-time password\">TOTP</abbr>）应用"
 "程序"
 
-#: warehouse/templates/pages/help.html:373
+#: warehouse/templates/pages/help.html:375
 msgid ""
 "Log in to your PyPI account, go to your account settings, and choose \"Add "
 "<abbr title=\"two factor authentication\">2FA</abbr> with authentication "
@@ -6900,13 +7042,13 @@ msgstr ""
 "登录到你的PyPI帐户，转到你的帐户设置，然后选择“使用身份验证应用程序添加<abbr "
 "title=\"two factor authentication\">2FA</abbr>”"
 
-#: warehouse/templates/pages/help.html:374
+#: warehouse/templates/pages/help.html:376
 msgid ""
 "PyPI will generate a secret key, specific to your account. This is displayed "
 "as a QR code, and as a text code."
 msgstr "PyPI 将生成特定于你的帐户的密钥。这显示为二维码和文本代码。"
 
-#: warehouse/templates/pages/help.html:375
+#: warehouse/templates/pages/help.html:377
 msgid ""
 "Scan the QR code with your authentication application, or type it in "
 "manually. The method of input will depend on the application you have chosen."
@@ -6914,13 +7056,13 @@ msgstr ""
 "使用你的认证应用程序扫描二维码，或手动输入。输入方法将取决于你选择的应用程"
 "序。"
 
-#: warehouse/templates/pages/help.html:376
+#: warehouse/templates/pages/help.html:378
 msgid ""
 "Your application will generate an authentication code - use this to verify "
 "your set up on PyPI"
 msgstr "你的应用程序将生成一个身份验证代码——使用此代码验证你在PyPI上的设置"
 
-#: warehouse/templates/pages/help.html:379
+#: warehouse/templates/pages/help.html:381
 msgid ""
 "The PyPI server and your application now share your PyPI secret key, "
 "allowing your application to generate valid authentication codes for your "
@@ -6929,25 +7071,25 @@ msgstr ""
 "PyPI服务器和应用程序现在共享PyPI密钥，允许应用程序为PyPI帐户生成有效的身份验"
 "证代码。"
 
-#: warehouse/templates/pages/help.html:381
-#: warehouse/templates/pages/help.html:423
+#: warehouse/templates/pages/help.html:383
+#: warehouse/templates/pages/help.html:425
 msgid "Next time you log in to PyPI you'll need to:"
 msgstr "下次登录 PyPI 时，你需要："
 
-#: warehouse/templates/pages/help.html:383
-#: warehouse/templates/pages/help.html:475
+#: warehouse/templates/pages/help.html:385
+#: warehouse/templates/pages/help.html:477
 msgid "Provide your username and password, as normal"
 msgstr "像往常一样提供你的用户名和密码"
 
-#: warehouse/templates/pages/help.html:384
+#: warehouse/templates/pages/help.html:386
 msgid "Open your authentication application to generate an authentication code"
 msgstr "打开身份验证应用程序以生成身份验证代码"
 
-#: warehouse/templates/pages/help.html:385
+#: warehouse/templates/pages/help.html:387
 msgid "Use this code to finish logging into PyPI"
 msgstr "使用此代码完成登录 PyPI"
 
-#: warehouse/templates/pages/help.html:391
+#: warehouse/templates/pages/help.html:393
 msgid ""
 "A security device is a USB key or <a href=\"#utfdevices\">other device</a> "
 "that generates a one-time password and sends that password to the browser. "
@@ -6956,12 +7098,12 @@ msgstr ""
 "安全设备是生成一次性密码并将该密码发送到浏览器的USB密钥或<a href="
 "\"#utfdevices\">其他设备</a>。然后，PyPI使用这个密码来验证你的用户身份。"
 
-#: warehouse/templates/pages/help.html:393
+#: warehouse/templates/pages/help.html:395
 msgid ""
 "To set up two factor authentication with a <em>USB key</em>, you'll need:"
 msgstr "要使用<em>USB密钥</em>设置双因素身份验证，你需要："
 
-#: warehouse/templates/pages/help.html:395
+#: warehouse/templates/pages/help.html:397
 #, python-format
 msgid ""
 "To use a <a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel="
@@ -6973,11 +7115,11 @@ msgstr ""
 "\">支持<abbr title=\"web authentication\">WebAuthn</abbr>和"
 "PublicKeyCredential的浏览器</a>，因为这是PyPI实现的标准。"
 
-#: warehouse/templates/pages/help.html:396
+#: warehouse/templates/pages/help.html:398
 msgid "To be running JavaScript on your browser"
 msgstr "在浏览器上运行 JavaScript"
 
-#: warehouse/templates/pages/help.html:397
+#: warehouse/templates/pages/help.html:399
 #, python-format
 msgid ""
 "To use a USB key that adheres to the <a href=\"%(href)s\" title=\"%(title)s"
@@ -6986,7 +7128,7 @@ msgstr ""
 "要使用符合<a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel="
 "\"noopener\">FIDO U2F规范</a>的USB密钥："
 
-#: warehouse/templates/pages/help.html:400
+#: warehouse/templates/pages/help.html:402
 #, python-format
 msgid ""
 "Popular keys include <a href=\"%(yubikey_href)s\" title=\"%(title)s\" target="
@@ -7001,7 +7143,7 @@ msgstr ""
 "\"%(thetis_href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener"
 "\">Thetis</a>。"
 
-#: warehouse/templates/pages/help.html:407
+#: warehouse/templates/pages/help.html:409
 msgid ""
 "Note that some older Yubico USB keys <strong>do not follow the FIDO "
 "specification</strong>, and will therefore not work with PyPI"
@@ -7009,11 +7151,11 @@ msgstr ""
 "注意，一些旧的Yubico USB密钥<strong>不遵循FIDO规范</strong>，因此不能与PyPI一"
 "起使用"
 
-#: warehouse/templates/pages/help.html:412
+#: warehouse/templates/pages/help.html:414
 msgid "Follow these steps:"
 msgstr "按照以下步骤操作："
 
-#: warehouse/templates/pages/help.html:414
+#: warehouse/templates/pages/help.html:416
 msgid ""
 "<li>Log in to your PyPI account, go to your account settings, and choose "
 "\"Add <abbr title=\"two factor authentication\">2FA</abbr> with security "
@@ -7027,13 +7169,13 @@ msgstr ""
 "你的钥匙起个名字。这是必要的，因为可以向你的帐户添加多个安全设备。</li> </li>"
 "点击“设置安全设备”按钮</li> <li>按照浏览器的指示插入并触碰USB密钥</li>"
 
-#: warehouse/templates/pages/help.html:421
+#: warehouse/templates/pages/help.html:423
 msgid ""
 "Once complete, your USB key will be registered to your PyPI account and can "
 "be used during the log in process."
 msgstr "完成后，你的USB密钥将注册到你的PyPI帐户，并可在登录过程中使用。"
 
-#: warehouse/templates/pages/help.html:425
+#: warehouse/templates/pages/help.html:427
 msgid ""
 "<li>Provide your username and password, as normal</li> <li>Insert and touch "
 "your USB key to finish logging into PyPI</li>"
@@ -7041,7 +7183,7 @@ msgstr ""
 "<li>正常情况下，请提供你的用户名和密码</li> <li>插入并加载你的USB密钥以完成登"
 "录到PyPI</li>"
 
-#: warehouse/templates/pages/help.html:436
+#: warehouse/templates/pages/help.html:438
 #, python-format
 msgid ""
 "There is a growing ecosystem of <a href=\"%(href)s\" title=\"%(title)s\" "
@@ -7051,7 +7193,7 @@ msgstr ""
 "越来越多的设备<a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel="
 "\"noopener\">符合FIDO</a>，因此可以与PyPI一起使用。"
 
-#: warehouse/templates/pages/help.html:441
+#: warehouse/templates/pages/help.html:443
 #, python-format
 msgid ""
 "Emerging solutions include biometric (facial and fingerprint) scanners and "
@@ -7063,7 +7205,7 @@ msgstr ""
 "来越支持<a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel="
 "\"noopener\">手机作为安全设备</a>。"
 
-#: warehouse/templates/pages/help.html:447
+#: warehouse/templates/pages/help.html:449
 #, python-format
 msgid ""
 "As PyPI's two factor implementation follows the <a href=\"%(href)s\" title="
@@ -7075,7 +7217,7 @@ msgstr ""
 "\"_blank\" rel=\"noopener\"><abbr title=\"web authentication\">WebAuthn</"
 "abbr>标准</a>，PyPI用户将能够利用该领域未来的任何发展。"
 
-#: warehouse/templates/pages/help.html:456
+#: warehouse/templates/pages/help.html:458
 msgid ""
 "If you lose access to your <a href=\"#totp\">authentication application</a> "
 "or <a href=\"#utfkey\">security device</a>, you can use these codes to sign "
@@ -7084,7 +7226,7 @@ msgstr ""
 "如果你失去了对<a href=\"#totp\">身份验证应用程序</a>或<a href=\"#utfkey\">安"
 "全设备</a>的访问，可以使用这些代码登录到PyPI。"
 
-#: warehouse/templates/pages/help.html:459
+#: warehouse/templates/pages/help.html:461
 msgid ""
 "Recovery codes are <strong>one time use</strong>. They are not a substitute "
 "for a <a href=\"#totp\">authentication application</a> or <a href=\"#utfkey"
@@ -7095,7 +7237,7 @@ msgstr ""
 "证应用程序</a>或<a href=\"#utfkey\">安全设备</a>，只能用于恢复。使用恢复代码"
 "登录后，它将变为非活动状态。"
 
-#: warehouse/templates/pages/help.html:465
+#: warehouse/templates/pages/help.html:467
 msgid "To provision recovery codes:"
 msgstr "提供恢复代码："
 
@@ -7104,7 +7246,7 @@ msgstr "提供恢复代码："
 # choose "
 # | "\"Add <abbr title=\"two factor authentication\">2FA</abbr> with "
 # | "authentication application\""
-#: warehouse/templates/pages/help.html:467
+#: warehouse/templates/pages/help.html:469
 msgid ""
 "Log in to your PyPI account, go to your account settings, and choose "
 "\"Generate recovery codes\""
@@ -7112,7 +7254,7 @@ msgstr ""
 "登录到你的PyPI帐户，转到你的帐户设置，然后选择“使用身份验证应用程序添加<abbr "
 "title=\"two factor authentication\">2FA</abbr>”"
 
-#: warehouse/templates/pages/help.html:468
+#: warehouse/templates/pages/help.html:470
 msgid ""
 "Securely store the displayed recovery codes! Consider printing them out and "
 "storing them in a safe location or saving them in a password manager."
@@ -7120,7 +7262,7 @@ msgstr ""
 "安全存储显示的恢复代码！考虑将它们打印出来并存储在安全的位置，或者保存在密码"
 "管理器中。"
 
-#: warehouse/templates/pages/help.html:471
+#: warehouse/templates/pages/help.html:473
 msgid ""
 "If you lose access to your stored recovery codes or use all of them, you can "
 "get new ones by selecting \"Regenerate recovery codes\" in your account "
@@ -7129,22 +7271,22 @@ msgstr ""
 "如果你无法访问存储的恢复代码或使用所有恢复代码，可以通过在帐户设置中选"
 "择“Regenerate recovery codes”（重新生成恢复代码）来获取新的恢复代码。"
 
-#: warehouse/templates/pages/help.html:473
+#: warehouse/templates/pages/help.html:475
 msgid "To sign in with a recovery code:"
 msgstr "要使用恢复代码登录："
 
-#: warehouse/templates/pages/help.html:476
+#: warehouse/templates/pages/help.html:478
 msgid ""
 "When prompted for two factor authentication, select \"Login using recovery "
 "codes\""
 msgstr "当提示进行双因素认证时，选择 \"使用恢复码登录\""
 
-#: warehouse/templates/pages/help.html:477
+#: warehouse/templates/pages/help.html:479
 msgid ""
 "As each code can be used only once, you might want to mark the code as used"
 msgstr "由于每个代码只能使用一次，你可能希望将代码标记为已使用"
 
-#: warehouse/templates/pages/help.html:478
+#: warehouse/templates/pages/help.html:480
 msgid ""
 "If you have few recovery codes remaining, you may also want to generate a "
 "new set using the \"Regenerate recovery codes\" button in your account "
@@ -7171,7 +7313,7 @@ msgstr ""
 # API "
 # | "token where possible.</strong></p>\n"
 # | "        "
-#: warehouse/templates/pages/help.html:483
+#: warehouse/templates/pages/help.html:485
 msgid ""
 "<p>API tokens provide an alternative way (instead of username and password) "
 "to authenticate when <strong>uploading packages</strong> to PyPI.</p> <p>You "
@@ -7186,20 +7328,20 @@ msgstr ""
 "目。</p> <p><strong>我们强烈建议你尽可能使用API令牌进行身份验证。</strong></"
 "p>"
 
-#: warehouse/templates/pages/help.html:490
+#: warehouse/templates/pages/help.html:492
 msgid "To make an API token:"
 msgstr "如需生成 API 令牌："
 
-#: warehouse/templates/pages/help.html:493
+#: warehouse/templates/pages/help.html:495
 msgid "Verify your email address"
 msgstr "验证你的电子邮件地址"
 
-#: warehouse/templates/pages/help.html:493
+#: warehouse/templates/pages/help.html:495
 #, python-format
 msgid "(check your <a href=\"%(href)s\">account settings</a>)"
 msgstr "（检查<a href=\"%(href)s\">帐户设置</a>）"
 
-#: warehouse/templates/pages/help.html:494
+#: warehouse/templates/pages/help.html:496
 #, python-format
 msgid ""
 "In your <a href=\"%(href)s\">account settings</a>, go to the API tokens "
@@ -7207,20 +7349,20 @@ msgid ""
 msgstr ""
 "在你的<a href=\"%(href)s\">帐户设置</a>中，转到API令牌部分并选择“添加API令牌”"
 
-#: warehouse/templates/pages/help.html:497
+#: warehouse/templates/pages/help.html:499
 msgid "To use an API token:"
 msgstr "如需使用 API 令牌："
 
-#: warehouse/templates/pages/help.html:500
+#: warehouse/templates/pages/help.html:502
 msgid "Set your username to <code>__token__</code>"
 msgstr "将用户名设置为<code>__token__</code>"
 
-#: warehouse/templates/pages/help.html:501
+#: warehouse/templates/pages/help.html:503
 msgid ""
 "Set your password to the token value, including the <code>pypi-</code> prefix"
 msgstr "将密码设置为令牌值，包括<code>pypi-</code>前缀"
 
-#: warehouse/templates/pages/help.html:505
+#: warehouse/templates/pages/help.html:507
 #, python-format
 msgid ""
 "Where you edit or add these values will depend on your individual use case. "
@@ -7236,7 +7378,7 @@ msgstr ""
 "<a href=\"%(travis_href)s\" title=\"%(title)s\" target=\"_blank\" rel="
 "\"noopener\">如果使用travis，则需要更新<code>travis.yml</code></a>）。"
 
-#: warehouse/templates/pages/help.html:509
+#: warehouse/templates/pages/help.html:511
 msgid ""
 "Advanced users may wish to inspect their token by decoding it with base64, "
 "and checking the output against the unique identifier displayed on PyPI."
@@ -7244,7 +7386,7 @@ msgstr ""
 "高级用户可能希望通过使用base64解码令牌，并根据PyPI上显示的唯一标识符检查输出"
 "来检查其令牌。"
 
-#: warehouse/templates/pages/help.html:513
+#: warehouse/templates/pages/help.html:515
 msgid ""
 "<p>PyPI asks you to confirm your password before you want to perform a "
 "<i>sensitive action</i>. Sensitive actions include things like adding or "
@@ -7259,11 +7401,11 @@ msgstr ""
 "上次确认密码的时间已经超过一个小时，你需要重新确认密码。</p> <p><strong>我们"
 "强烈建议你只在你的个人、有密码保护的计算机上执行这些操作。</strong></p>"
 
-#: warehouse/templates/pages/help.html:520
+#: warehouse/templates/pages/help.html:522
 msgid "PyPI does not currently support changing a username."
 msgstr "PyPI 目前不支持更改用户名。"
 
-#: warehouse/templates/pages/help.html:521
+#: warehouse/templates/pages/help.html:523
 msgid ""
 "Instead, you can create a new account with the desired username, add the new "
 "account as a maintainer of all the projects your old account owns, and then "
@@ -7272,15 +7414,38 @@ msgstr ""
 "你可以使用所需的用户名创建一个新帐户，将新帐户添加为旧帐户拥有的所有项目的维"
 "护者，然后删除旧帐户，这具有相同的效果。"
 
-#: warehouse/templates/pages/help.html:529
+#: warehouse/templates/pages/help.html:527
+#, fuzzy, python-format
+#| msgid ""
+#| "OpenID Connect provides a flexible, credential-free mechanism for "
+#| "delegating publishing authority for a PyPI package to a third party "
+#| "service, like GitHub Actions."
+msgid ""
+"PyPI users and projects can use <a href=\"%(openid)s\">OpenID Connect</a> "
+"(OIDC) to delegate publishing authority for a PyPI package to a trusted "
+"third party service, eliminating the need to use API tokens or passwords."
+msgstr ""
+"OpenID Connect 提供了一种灵活、无凭据的机制，用于将 PyPI 包的发布权限委托给第"
+"三方服务，例如 GitHub Actions。"
+
+#: warehouse/templates/pages/help.html:534
+msgid ""
+"Using OIDC to authenticate when publishing is done by registering "
+"\"providers,\" which correspond to services with OIDC identities like GitHub "
+"Actions. Existing projects can add or remove OIDC providers at any time. "
+"OIDC providers can also be created in advance for projects that don't exist "
+"yet."
+msgstr ""
+
+#: warehouse/templates/pages/help.html:547
 msgid "Yes, including RSS feeds of new packages and new releases."
 msgstr "是的，包括新软件包和新版本的 RSS feed。"
 
-#: warehouse/templates/pages/help.html:529
+#: warehouse/templates/pages/help.html:547
 msgid "See the API reference."
 msgstr "请参阅 API 参考手册。"
 
-#: warehouse/templates/pages/help.html:532
+#: warehouse/templates/pages/help.html:550
 #, python-format
 msgid ""
 "If you need to run your own mirror of PyPI, the <a href=\"%(href)s"
@@ -7290,7 +7455,7 @@ msgstr ""
 "如果需要运行自己的PyPI镜像，建议使用<a href=\"%(href)s\">bandersnatch项目</"
 "a>。请注意，PyPI镜像的存储需求将超过1tb并不断增长！"
 
-#: warehouse/templates/pages/help.html:535
+#: warehouse/templates/pages/help.html:553
 #, python-format
 msgid ""
 "You can subscribe to the <a href=\"%(rss_href)s\" title=\"%(title)s\" target="
@@ -7311,7 +7476,7 @@ msgstr ""
 # | "account, <a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\"
 # rel="
 # | "\"noopener\">file an issue on our tracker</a>."
-#: warehouse/templates/pages/help.html:538
+#: warehouse/templates/pages/help.html:556
 #, python-format
 msgid ""
 "You can analyze PyPI project/package metadata and <a href=\"%(href)s\" title="
@@ -7322,7 +7487,7 @@ msgstr ""
 "href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">下载"
 "使用统计</a>。"
 
-#: warehouse/templates/pages/help.html:540
+#: warehouse/templates/pages/help.html:558
 #, python-format
 msgid ""
 "<a href=\"%(libs_io_href)s\" title=\"%(title)s\" target=\"_blank\" rel="
@@ -7345,7 +7510,7 @@ msgstr ""
 "\"%(other_factors_href)s\" title=\"%(title)s\" target=\"_blank\" rel="
 "\"noopener\">其他相关因素</a>。"
 
-#: warehouse/templates/pages/help.html:549
+#: warehouse/templates/pages/help.html:567
 #, python-format
 msgid ""
 "For recent statistics on uptime and performance, see <a href=\"%(href)s\" "
@@ -7354,7 +7519,7 @@ msgstr ""
 "有关正常运行时间和性能的最新统计信息，请参阅<a href=\"%(href)s\" title="
 "\"%(title)s\" target=\"_blank\" rel=\"noopener\">我们的状态页</a>。"
 
-#: warehouse/templates/pages/help.html:552
+#: warehouse/templates/pages/help.html:570
 msgid ""
 "For each package hosted on PyPI, there are corresponding hashes for that "
 "file. These hashes can be used to verify that the file you are downloading "
@@ -7367,7 +7532,7 @@ msgstr ""
 "文件是否与项目维护人员的相同，在从镜像下载包时尤其有用。可以从“下载文件”部分"
 "的项目页面或JSON API获取哈希值。以下是生成哈希值的示例："
 
-#: warehouse/templates/pages/help.html:559
+#: warehouse/templates/pages/help.html:577
 msgid ""
 "In practice, it would only be necessary to verify one of the hashes. It is "
 "not recommended to use the MD5 hash because of known security issues with "
@@ -7376,7 +7541,7 @@ msgstr ""
 "在实践中，只需验证一个哈希值即可。不过不推荐使用 MD5 哈希，因 MD5 算法包含已"
 "知的安全问题。提供 MD5 哈希的唯一原因是向后兼容性。"
 
-#: warehouse/templates/pages/help.html:566
+#: warehouse/templates/pages/help.html:584
 #, python-format
 msgid ""
 "PyPI does not support publishing private packages. If you need to publish "
@@ -7386,7 +7551,7 @@ msgstr ""
 "PyPI不支持发布私有包。如果需要将私有包发布到包索引，建议的解决方案是运行自己"
 "的<a href=\"%(href)s\">devpi项目</a>部署。"
 
-#: warehouse/templates/pages/help.html:569
+#: warehouse/templates/pages/help.html:587
 msgid ""
 "Your publishing tool may return an error that your new project can't be "
 "created with your desired name, despite no evidence of a project or release "
@@ -7396,7 +7561,7 @@ msgstr ""
 "你的发布工具可能会返回一个错误，即无法使用所需的名称创建新项目，尽管在PyPI上"
 "没有相同名称的项目或版本的证据。目前，这可能有四个主要原因："
 
-#: warehouse/templates/pages/help.html:571
+#: warehouse/templates/pages/help.html:589
 #, python-format
 msgid ""
 "The project name conflicts with a <a href=\"%(href)s\" title=\"%(title)s\" "
@@ -7406,12 +7571,12 @@ msgstr ""
 "项目名称与从2.5到现在的任何主要版本的<a href=\"%(href)s\" title=\"%(title)s"
 "\" target=\"_blank\" rel=\"noopener\">Python标准库</a>模块冲突。"
 
-#: warehouse/templates/pages/help.html:572
+#: warehouse/templates/pages/help.html:590
 msgid ""
 "The project name is too similar to an existing project and may be confusable."
 msgstr "此项目名称与现有项目太相似，可能会造成混淆。"
 
-#: warehouse/templates/pages/help.html:573
+#: warehouse/templates/pages/help.html:591
 #, python-format
 msgid ""
 "The project name has been explicitly prohibited by the PyPI administrators. "
@@ -7422,18 +7587,18 @@ msgstr ""
 "PyPI管理员已明确禁止该项目名称。例如，<code>%(incorrect_code)s</code>是<code>"
 "%(correct_code)s</code>的常见拼写错误，不应使用恶意软件包让用户感到惊讶。"
 
-#: warehouse/templates/pages/help.html:574
+#: warehouse/templates/pages/help.html:592
 msgid ""
 "The project name has been registered by another user, but no releases have "
 "been created."
 msgstr "项目名称已由其他用户注册，但尚未创建任何版本。"
 
-#: warehouse/templates/pages/help.html:574
+#: warehouse/templates/pages/help.html:592
 #, python-format
 msgid "See <a href=\"%(href)s\">%(anchor_text)s</a>"
 msgstr "见 <a href=\"%(href)s\">%(anchor_text)s</a>"
 
-#: warehouse/templates/pages/help.html:578
+#: warehouse/templates/pages/help.html:596
 #, python-format
 msgid ""
 "Follow the <a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel="
@@ -7444,23 +7609,23 @@ msgstr ""
 "\"noopener\">\"如何申请名称转移\"</a> 操作，这一节内容属于 <abbr title="
 "\"Python enhancement proposal\">PEP</abbr> 541。"
 
-#: warehouse/templates/pages/help.html:582
+#: warehouse/templates/pages/help.html:600
 msgid ""
 "Can upload releases for a package. Cannot add collaborators. Cannot delete "
 "files, releases, or the project."
 msgstr "可以上传软件包的发行版。无法添加协作者。无法删除文件，发行版或项目。"
 
-#: warehouse/templates/pages/help.html:583
+#: warehouse/templates/pages/help.html:601
 msgid "Owner:"
 msgstr "所有者："
 
-#: warehouse/templates/pages/help.html:583
+#: warehouse/templates/pages/help.html:601
 msgid ""
 "Can upload releases. Can add other collaborators. Can delete files, "
 "releases, or the entire project."
 msgstr "可以上传版本。可以添加其他协作者。可以删除文件、版本或整个项目。"
 
-#: warehouse/templates/pages/help.html:586
+#: warehouse/templates/pages/help.html:604
 msgid ""
 "Only the current owners of a project have the ability to add new owners or "
 "maintainers. If you need to request ownership, you should contact the "
@@ -7472,13 +7637,13 @@ msgstr ""
 "项目的当前所有者联系。许多项目所有者在项目页面的“Meta”详细信息的“Author”字段"
 "中提供了他们的联系方式。"
 
-#: warehouse/templates/pages/help.html:587
+#: warehouse/templates/pages/help.html:605
 #, python-format
 msgid ""
 "If the owner is unresponsive, see <a href=\"%(href)s\">%(anchor_text)s</a>"
 msgstr "如果所有者没有响应，前往<a href=\"%(href)s\">%(anchor_text)s</a>"
 
-#: warehouse/templates/pages/help.html:590
+#: warehouse/templates/pages/help.html:608
 #, python-format
 msgid ""
 "By default, an upload's description will render with <a href=\"%(href)s\" "
@@ -7492,7 +7657,7 @@ msgstr ""
 "Markdown的替代格式，则包可以将<code>setup.py</code>中的"
 "<code>long_description_content_type</code>设置为替代格式。"
 
-#: warehouse/templates/pages/help.html:591
+#: warehouse/templates/pages/help.html:609
 #, python-format
 msgid ""
 "Refer to the <a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel="
@@ -7502,7 +7667,7 @@ msgstr ""
 "有关可用格式的详细信息，请参阅<a href=\"%(href)s\" title=\"%(title)s\" "
 "target=\"_blank\" rel=\"noopener\">Python打包指南</a>。"
 
-#: warehouse/templates/pages/help.html:596
+#: warehouse/templates/pages/help.html:614
 #, python-format
 msgid ""
 "If you can't upload your project's release to PyPI because you're hitting "
@@ -7519,28 +7684,28 @@ msgstr ""
 "\">开发版本号可以</a>）。然后，<a href=\"%(file_issue_href)s\" title="
 "\"%(title)s\" target=\"_blank\" rel=\"noopener\">提出一个问题</a>并告诉我们："
 
-#: warehouse/templates/pages/help.html:605
-#: warehouse/templates/pages/help.html:626
+#: warehouse/templates/pages/help.html:623
+#: warehouse/templates/pages/help.html:644
 msgid "A link to your project on PyPI (or Test PyPI)"
 msgstr "指向PyPI（或Test PyPI）上你的项目的链接"
 
-#: warehouse/templates/pages/help.html:606
+#: warehouse/templates/pages/help.html:624
 msgid "The size of your release, in megabytes"
 msgstr "发布的大小，以兆字节为单位"
 
-#: warehouse/templates/pages/help.html:607
+#: warehouse/templates/pages/help.html:625
 msgid ""
 "Which index/indexes you need the increase for (PyPI, Test PyPI, or both)"
 msgstr "需要增加哪些索引（PyPI、Test PyPI或两者都增加）"
 
-#: warehouse/templates/pages/help.html:608
-#: warehouse/templates/pages/help.html:628
+#: warehouse/templates/pages/help.html:626
+#: warehouse/templates/pages/help.html:646
 msgid ""
 "A brief description of your project, including the reason for the additional "
 "size."
 msgstr "对你的项目的简要描述，包括额外大小的原因。"
 
-#: warehouse/templates/pages/help.html:614
+#: warehouse/templates/pages/help.html:632
 msgid ""
 "If you can't upload your project's release to PyPI because you're hitting "
 "the project size limit, first remove any unnecessary releases or individual "
@@ -7549,7 +7714,7 @@ msgstr ""
 "如果由于达到项目大小限制而无法将项目的版本上传到 PyPI，请首先删除所有不必要的"
 "版本或单个文件以降低整体项目大小。"
 
-#: warehouse/templates/pages/help.html:621
+#: warehouse/templates/pages/help.html:639
 #, python-format
 msgid ""
 "If that is not possible, we can sometimes increase your limit. <a href="
@@ -7559,11 +7724,11 @@ msgstr ""
 "如果这不可能，我们有时会提高你的限额。 <a href=\"%(file_issue_href)s\" title="
 "\"%(title)s\" target=\"_blank\" rel=\"noopener\">提出问题</a>，并告诉我们："
 
-#: warehouse/templates/pages/help.html:627
+#: warehouse/templates/pages/help.html:645
 msgid "The total size of your project, in gigabytes"
 msgstr "你的项目的总大小，以GB为单位"
 
-#: warehouse/templates/pages/help.html:634
+#: warehouse/templates/pages/help.html:652
 #, python-format
 msgid ""
 "PyPI receives reports on vulnerabilities in the packages hosted on it from "
@@ -7577,7 +7742,7 @@ msgstr ""
 "href=\"%(vulns_href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener"
 "\">Python 包安全通告数据库</a>摄取漏洞信息。"
 
-#: warehouse/templates/pages/help.html:639
+#: warehouse/templates/pages/help.html:657
 #, python-format
 msgid ""
 "If you believe vulnerability data for your project is invalid or incorrect, "
@@ -7588,7 +7753,7 @@ msgstr ""
 "title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">提交问题</a>并提供详细"
 "信息。"
 
-#: warehouse/templates/pages/help.html:651
+#: warehouse/templates/pages/help.html:669
 #, python-format
 msgid ""
 "PyPI will reject uploads if the package description fails to render. You may "
@@ -7598,37 +7763,37 @@ msgstr ""
 "如果包描述无法呈现，PyPI 将拒绝上传。你可以<a href=\"%(href)s\" title="
 "\"%(title)s\">使用 twine 的检查命令</a>在本地检查描述的有效性。"
 
-#: warehouse/templates/pages/help.html:657
+#: warehouse/templates/pages/help.html:675
 msgid ""
 "If you've forgotten your PyPI password but you remember your email address "
 "or username, follow these steps to reset your password:"
 msgstr ""
 "如果你忘记了PyPI密码，但记住了电子邮件地址或用户名，请按照以下步骤重置密码："
 
-#: warehouse/templates/pages/help.html:659
+#: warehouse/templates/pages/help.html:677
 #, python-format
 msgid "Go to <a href=\"%(href)s\">reset your password</a>."
 msgstr "去<a href=\"%(href)s\">重置你的密码</a>。"
 
-#: warehouse/templates/pages/help.html:660
+#: warehouse/templates/pages/help.html:678
 msgid ""
 "Enter the email address or username you used for PyPI and submit the form."
 msgstr "输入用于PyPI的电子邮件地址或用户名并提交表单。"
 
-#: warehouse/templates/pages/help.html:661
+#: warehouse/templates/pages/help.html:679
 msgid "You'll receive an email with a password reset link."
 msgstr "你将收到一封带有密码重置链接的电子邮件。"
 
-#: warehouse/templates/pages/help.html:666
+#: warehouse/templates/pages/help.html:684
 msgid "If you've lost access to your PyPI account due to:"
 msgstr "如果由于以下原因而无法访问PyPI帐户："
 
 # | msgid "Emails associated with your account"
-#: warehouse/templates/pages/help.html:668
+#: warehouse/templates/pages/help.html:686
 msgid "Lost access to the email address associated with your account"
 msgstr "失去了与你的帐户关联的电子邮件地址的访问权"
 
-#: warehouse/templates/pages/help.html:669
+#: warehouse/templates/pages/help.html:687
 msgid ""
 "Lost two factor authentication <a href=\"#totp\">application</a>, <a href="
 "\"#utfkey\">device</a>, and <a href=\"#recoverycodes\">recovery codes</a>"
@@ -7642,7 +7807,7 @@ msgstr ""
 # | "account, <a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\"
 # rel="
 # | "\"noopener\">file an issue on our tracker</a>."
-#: warehouse/templates/pages/help.html:672
+#: warehouse/templates/pages/help.html:690
 #, python-format
 msgid ""
 "You can proceed to <a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank"
@@ -7653,30 +7818,30 @@ msgstr ""
 "\"noopener\">在我们的问题跟踪系统上提交一个 issue</a>来请求请求帐户恢复援助。"
 
 # | msgid "Provide your username and password, as normal"
-#: warehouse/templates/pages/help.html:679
+#: warehouse/templates/pages/help.html:697
 msgid "If you are using a username and password for uploads:"
 msgstr "像往常一样提供你的用户名和密码:"
 
 # | msgid "Provide your username and password, as normal"
-#: warehouse/templates/pages/help.html:681
+#: warehouse/templates/pages/help.html:699
 msgid "Ensure that your username and password are correct."
 msgstr "像往常一样提供你的用户名和密码."
 
-#: warehouse/templates/pages/help.html:682
+#: warehouse/templates/pages/help.html:700
 msgid ""
 "Ensure that your username and password do not contain any trailing "
 "characters such as newlines."
 msgstr "确保你的用户名和密码不包含任何尾随字符，如换行符。"
 
-#: warehouse/templates/pages/help.html:684
+#: warehouse/templates/pages/help.html:702
 msgid "If you are using an <a href=\"#apitoken\">API Token</a> for uploads:"
 msgstr "如果你使用<a href=\"#apitoken\">API Token</a>进行上传："
 
-#: warehouse/templates/pages/help.html:686
+#: warehouse/templates/pages/help.html:704
 msgid "Ensure that your API Token is valid and has not been revoked."
 msgstr "确保你的 API 令牌有效且未被撤销。"
 
-#: warehouse/templates/pages/help.html:687
+#: warehouse/templates/pages/help.html:705
 msgid ""
 "Ensure that your API Token is <a href=\"#apitoken\">properly formatted</a> "
 "and does not contain any trailing characters such as newlines."
@@ -7684,11 +7849,11 @@ msgstr ""
 "确保你的API令牌是<a href=\"#apitoken\">正确的格式</a>，不包含任何尾部字符，如"
 "换行。"
 
-#: warehouse/templates/pages/help.html:688
+#: warehouse/templates/pages/help.html:706
 msgid "Ensure that the username you are using is <code>__token__</code>."
 msgstr "确保你在使用的用户名是 <code>__token__</code>。"
 
-#: warehouse/templates/pages/help.html:690
+#: warehouse/templates/pages/help.html:708
 msgid ""
 "In both cases, remember that PyPI and TestPyPI each require you to create an "
 "account, so your credentials may be different."
@@ -7696,7 +7861,7 @@ msgstr ""
 "在这两种情况下，请记住，PyPI和TestPyPI都需要你创建一个帐户，所以你的凭证可能"
 "是不同的。"
 
-#: warehouse/templates/pages/help.html:692
+#: warehouse/templates/pages/help.html:710
 msgid ""
 "If you're using Windows and trying to paste your password or token in the "
 "Command Prompt or PowerShell, note that Ctrl-V and Shift+Insert won't work. "
@@ -7707,7 +7872,7 @@ msgstr ""
 "Ctrl-V和Shift+Insert无法正常工作。相反，你可以在窗口菜单中使用“编辑>粘贴”，或"
 "者在“属性”中启用“使用Ctrl+Shift+C/V作为复制/粘贴”。"
 
-#: warehouse/templates/pages/help.html:696
+#: warehouse/templates/pages/help.html:714
 #, python-format
 msgid ""
 "This is a <a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel="
@@ -7716,7 +7881,7 @@ msgstr ""
 "这是一个 %(title)s<a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" "
 "rel=\"noopener\">已知问题</a>，问题出在 Python 的<code>getpass</code>模块。"
 
-#: warehouse/templates/pages/help.html:703
+#: warehouse/templates/pages/help.html:721
 #, python-format
 msgid ""
 "Transport Layer Security, or TLS, is part of how we make sure connections "
@@ -7734,7 +7899,7 @@ msgstr ""
 "\"%(reason_href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">在"
 "PSF博客上了解原因</a>。"
 
-#: warehouse/templates/pages/help.html:710
+#: warehouse/templates/pages/help.html:728
 #, python-format
 msgid ""
 "If you are having trouble with <code>%(command)s</code> and get a <code>No "
@@ -7746,7 +7911,7 @@ msgstr ""
 "fetch URL</code>（无法获取URL）错误，请尝试将<code>-v</code>添加到命令以获取"
 "更多信息："
 
-#: warehouse/templates/pages/help.html:712
+#: warehouse/templates/pages/help.html:730
 msgid ""
 "If you see an error like <code>There was a problem confirming the ssl "
 "certificate</code> or <code>tlsv1 alert protocol version</code> or "
@@ -7758,7 +7923,7 @@ msgstr ""
 "议版本）或<code>TLSV1_ALERT_PROTOCOL_VERSION</code>（TLSV1_警报协议版本）之类"
 "的错误，则需要使用更新的TLS支持库连接到PyPI。"
 
-#: warehouse/templates/pages/help.html:713
+#: warehouse/templates/pages/help.html:731
 msgid ""
 "The specific steps you need to take will depend on your operating system "
 "version, where your installation of Python originated (python.org, your OS "
@@ -7769,7 +7934,7 @@ msgstr ""
 "或中间发行商）以及Python、<code>setuptools</code>和<code>pip</code>的安装版"
 "本。"
 
-#: warehouse/templates/pages/help.html:715
+#: warehouse/templates/pages/help.html:733
 #, python-format
 msgid ""
 "For help, go to <a href=\"%(irc_href)s\" title=\"%(title)s\" target=\"_blank"
@@ -7788,7 +7953,7 @@ msgstr ""
 "\">在 Discourse 上讨论</a>，包括操作系统和安装详细信息以及<code>%(command)s</"
 "code>的输出。"
 
-#: warehouse/templates/pages/help.html:726
+#: warehouse/templates/pages/help.html:744
 #, python-format
 msgid ""
 "We take <a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel="
@@ -7798,7 +7963,7 @@ msgstr ""
 "我们非常重视<a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel="
 "\"noopener\">可访问性</a>，并希望使网站易于每个人使用。"
 
-#: warehouse/templates/pages/help.html:731
+#: warehouse/templates/pages/help.html:749
 #, python-format
 msgid ""
 "If you are experiencing an accessibility problem, <a href=\"%(href)s\" title="
@@ -7809,7 +7974,7 @@ msgstr ""
 "\"_blank\" rel=\"noopener\">请在GitHub上向我们报告</a>，以便我们可以尝试为你"
 "和其他人修复该问题。"
 
-#: warehouse/templates/pages/help.html:739
+#: warehouse/templates/pages/help.html:757
 #, python-format
 msgid ""
 "In a previous version of PyPI, it used to be possible for maintainers to "
@@ -7822,7 +7987,7 @@ msgstr ""
 "的PyPI不赞成使用此功能，我们建议你<a href=\"%(href)s\" title=\"%(title)s\" "
 "target=\"_blank\" rel=\"noopener\">使用twine将项目上载到PyPI</a>。"
 
-#: warehouse/templates/pages/help.html:748
+#: warehouse/templates/pages/help.html:766
 msgid ""
 "Spammers return to PyPI with some regularity hoping to place their Search "
 "Engine Optimized phishing, scam, and click-farming content on the site. "
@@ -7834,7 +7999,7 @@ msgstr ""
 "内容放到网站上。由于PyPI允许对长描述和其他与项目相关的数据进行索引，并且通常"
 "具有良好的搜索信誉，所以它是首要目标。"
 
-#: warehouse/templates/pages/help.html:750
+#: warehouse/templates/pages/help.html:768
 #, python-format
 msgid ""
 "When the PyPI administrators are overwhelmed by spam <strong>or</strong> "
@@ -7849,35 +8014,35 @@ msgstr ""
 "target=\"_blank\" rel=\"noopener\">我们的状态页面</a>了解更多详细信息，因为我"
 "们可能已经用干预的理由更新了它。"
 
-#: warehouse/templates/pages/help.html:759
+#: warehouse/templates/pages/help.html:777
 msgid "PyPI will return these errors for one of these reasons:"
 msgstr "PyPI将返回这些错误，原因如下："
 
-#: warehouse/templates/pages/help.html:761
+#: warehouse/templates/pages/help.html:779
 msgid "Filename has been used and file exists"
 msgstr "文件名已被使用，文件存在"
 
-#: warehouse/templates/pages/help.html:762
+#: warehouse/templates/pages/help.html:780
 msgid "Filename has been used but file no longer exists"
 msgstr "文件名已被使用但文件已不存在"
 
-#: warehouse/templates/pages/help.html:763
+#: warehouse/templates/pages/help.html:781
 msgid "A file with the exact same content exists"
 msgstr "存在完全相同内容的文件"
 
-#: warehouse/templates/pages/help.html:766
+#: warehouse/templates/pages/help.html:784
 msgid ""
 "PyPI does not allow for a filename to be reused, even once a project has "
 "been deleted and recreated."
 msgstr "PyPI不允许重用文件名，即使项目已被删除并重新创建。"
 
-#: warehouse/templates/pages/help.html:772
+#: warehouse/templates/pages/help.html:790
 msgid ""
 "A distribution filename on PyPI consists of the combination of project name, "
 "version number, and distribution type."
 msgstr "PyPI 上的分发文件名是项目名称、版本号和分发类型的组合。"
 
-#: warehouse/templates/pages/help.html:778
+#: warehouse/templates/pages/help.html:796
 msgid ""
 "This ensures that a given distribution for a given release for a given "
 "project will always resolve to the same file, and cannot be surreptitiously "
@@ -7887,7 +8052,7 @@ msgstr ""
 "这确保给定项目的给定版本的给定分发将始终解析到相同的文件，并且不会在某一天被"
 "项目维护者或恶意方偷偷更改（它只能被删除）。"
 
-#: warehouse/templates/pages/help.html:786
+#: warehouse/templates/pages/help.html:804
 msgid ""
 "To avoid this situation in most cases, you will need to change the version "
 "number to one that you haven't previously uploaded to PyPI, rebuild the "
@@ -7905,7 +8070,7 @@ msgstr ""
 # | "\">issue tracker</a>. Include the name of the requested classifier
 # and a
 # | "brief justification of why it is important."
-#: warehouse/templates/pages/help.html:795
+#: warehouse/templates/pages/help.html:813
 #, python-format
 msgid ""
 "If you would like to request a new trove classifier file a pull request on "
@@ -7917,7 +8082,7 @@ msgstr ""
 "\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener\"><code>pypa/trove-"
 "classifiers</code>项目</a>。确保包含一个简短的理由来说明为何它是重要的。"
 
-#: warehouse/templates/pages/help.html:803
+#: warehouse/templates/pages/help.html:821
 #, python-format
 msgid ""
 "If you're experiencing an issue with PyPI itself, we welcome "
@@ -7932,14 +8097,14 @@ msgstr ""
 "设性</strong>的反馈和错误报告。请注意，此跟踪器仅针对运行 PyPI 的软件的问题。"
 "在编写新问题之前，请先检查是否存在类似问题。"
 
-#: warehouse/templates/pages/help.html:810
+#: warehouse/templates/pages/help.html:828
 msgid ""
 "If you are having an issue is with a specific package installed from PyPI, "
 "you should reach out to the maintainers of that project directly instead."
 msgstr ""
 "如果你遇到的问题是从PyPI安装的特定包，那么你应该直接联系该项目的维护人员。"
 
-#: warehouse/templates/pages/help.html:819
+#: warehouse/templates/pages/help.html:837
 #, python-format
 msgid ""
 "PyPI is powered by the Warehouse project; <a href=\"%(href)s\" title="
@@ -7952,7 +8117,7 @@ msgstr ""
 "\"_blank\" rel=\"noopener\">Warehouse</a>是在Python打包组织（PyPA）的保护下开"
 "发的一个开源项目，由Python打包工作组（PackagingWG）提供支持。"
 
-#: warehouse/templates/pages/help.html:824
+#: warehouse/templates/pages/help.html:842
 #, python-format
 msgid ""
 "The <a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener"
@@ -7963,7 +8128,7 @@ msgstr ""
 "\">PyPA</a>是一个独立的开发团队，其目标是改进和维护与Python打包相关的许多核心"
 "项目。"
 
-#: warehouse/templates/pages/help.html:829
+#: warehouse/templates/pages/help.html:847
 #, python-format
 msgid ""
 "The <a href=\"%(packaging_wg_href)s\" title=\"%(title)s\" target=\"_blank\" "
@@ -7981,7 +8146,7 @@ msgstr ""
 "\">获得了开放技术基金的一个奖项</a>，该基金的资金使开发人员能够提高仓库的安全"
 "性和可访问性。"
 
-#: warehouse/templates/pages/help.html:839
+#: warehouse/templates/pages/help.html:857
 #, python-format
 msgid ""
 "PyPI is powered by <a href=\"%(warehouse_href)s\" title=\"%(title)s\" target="
@@ -7992,7 +8157,7 @@ msgstr ""
 "rel=\"noopener\">Warehouse</a>和我们<a href=\"%(sponsors_href)s\">慷慨的赞助"
 "商</a>提供的各种工具和服务提供动力。"
 
-#: warehouse/templates/pages/help.html:846
+#: warehouse/templates/pages/help.html:864
 msgid ""
 "As of April 16, 2018, PyPI.org is at \"production\" status, meaning that it "
 "has moved out of beta and replaced the old site (pypi.python.org). It is now "
@@ -8002,7 +8167,7 @@ msgstr ""
 "站点（pypi.python.org）。它现在是健壮的，经过测试的，并且已经为预期的浏览器和"
 "API流量做好了准备。"
 
-#: warehouse/templates/pages/help.html:848
+#: warehouse/templates/pages/help.html:866
 #, python-format
 msgid ""
 "PyPI is heavily cached and distributed via <abbr title=\"content delivery "
@@ -8027,7 +8192,7 @@ msgstr ""
 "考虑使用 <a href=\"%(mirror_href)s\"> 镜像 </a> 或 <a href="
 "\"%(private_index_href)s\"> 私有索引 </a>。"
 
-#: warehouse/templates/pages/help.html:862
+#: warehouse/templates/pages/help.html:880
 #, python-format
 msgid ""
 "We have a huge amount of work to do to continue to maintain and improve PyPI "
@@ -8038,22 +8203,22 @@ msgstr ""
 "target=\"_blank\" rel=\"noopener\">Warehouse项目</a>），我们还有大量的工作要"
 "做。"
 
-#: warehouse/templates/pages/help.html:867
+#: warehouse/templates/pages/help.html:885
 msgid "Financial:"
 msgstr "财务："
 
-#: warehouse/templates/pages/help.html:867
+#: warehouse/templates/pages/help.html:885
 #, python-format
 msgid ""
 "We would deeply appreciate <a href=\"%(href)s\">your donations to fund "
 "development and maintenance</a>."
 msgstr "我们将非常感谢<a href=\"%(href)s\">你为开发和维护提供资金</a>。"
 
-#: warehouse/templates/pages/help.html:868
+#: warehouse/templates/pages/help.html:886
 msgid "Development:"
 msgstr "发展："
 
-#: warehouse/templates/pages/help.html:868
+#: warehouse/templates/pages/help.html:886
 msgid ""
 "Warehouse is open source, and we would love to see some new faces working on "
 "the project. You <strong>do not</strong> need to be an experienced open-"
@@ -8064,7 +8229,7 @@ msgstr ""
 "strong>需要成为一个有经验的开源开发人员就可以做出贡献——事实上，我们很乐意帮助"
 "你提出第一个开源请求！"
 
-#: warehouse/templates/pages/help.html:870
+#: warehouse/templates/pages/help.html:888
 #, python-format
 msgid ""
 "If you have skills in Python, ElasticSearch, HTML, SCSS, JavaScript, or "
@@ -8084,7 +8249,7 @@ msgstr ""
 "\"%(good_first_issue_href)s\" title=\"%(title)s\" target=\"_blank\" rel="
 "\"noopener\">“好的第一期”</a>标签——我们建议你从这里开始。"
 
-#: warehouse/templates/pages/help.html:878
+#: warehouse/templates/pages/help.html:896
 #, python-format
 msgid ""
 "Issues are grouped into <a href=\"%(href)s\" title=\"%(title)s\" target="
@@ -8097,11 +8262,11 @@ msgstr ""
 "\"noopener\">里程碑</a>；在当前里程碑中处理问题是帮助推进项目的一个好方法。如"
 "果你对某个特定问题感兴趣，请留下评论，我们可以指导你完成贡献过程。"
 
-#: warehouse/templates/pages/help.html:885
+#: warehouse/templates/pages/help.html:903
 msgid "Stay updated:"
 msgstr "保持更新："
 
-#: warehouse/templates/pages/help.html:886
+#: warehouse/templates/pages/help.html:904
 #, python-format
 msgid ""
 "You can also follow the ongoing development of the project on the <a href="
@@ -8112,7 +8277,7 @@ msgstr ""
 "\"%(title)s\" target=\"_blank\" rel=\"noopener\">Discourse 上的Python "
 "packaging 论坛</a>。"
 
-#: warehouse/templates/pages/help.html:895
+#: warehouse/templates/pages/help.html:913
 #, python-format
 msgid ""
 "Changes to PyPI are generally announced on both the <a href="
@@ -8132,7 +8297,7 @@ msgstr ""
 "\">Atom</a>和<a href=\"%(rss_href)s\" title=\"%(title)s\" target=\"_blank\" "
 "rel=\"noopener\">RSS</a>提要。"
 
-#: warehouse/templates/pages/help.html:905
+#: warehouse/templates/pages/help.html:923
 #, python-format
 msgid ""
 "All traffic is routed through our global CDN, which lists their public IP "
@@ -8141,14 +8306,14 @@ msgstr ""
 "所有流量都通过我们的全球 CDN 路由，这里列出了它们的公共 IP 地址：<a href="
 "\"%(href)s\">%(href)s</a>。"
 
-#: warehouse/templates/pages/help.html:906
+#: warehouse/templates/pages/help.html:924
 #, python-format
 msgid ""
 "More information about this list can be found here: <a href=\"%(href)s\">"
 "%(href)s</a>."
 msgstr "可在此处找到此列表的更多信息：<a href=\"%(href)s\">%(href)s</a>。"
 
-#: warehouse/templates/pages/help.html:910
+#: warehouse/templates/pages/help.html:928
 msgid ""
 "When Warehouse's maintainers are deploying new features, at first we mark "
 "them with a small \"beta feature\" symbol to tell you: this should probably "
@@ -8158,11 +8323,11 @@ msgstr ""
 "们，告诉你：这可能工作得很好，但它是新的，比其他站点功能测试得更少。"
 
 # | msgid "Currently, the following features are in beta:"
-#: warehouse/templates/pages/help.html:911
+#: warehouse/templates/pages/help.html:929
 msgid "Currently, no features are in beta."
 msgstr "目前，以下功能处于测试阶段."
 
-#: warehouse/templates/pages/help.html:915
+#: warehouse/templates/pages/help.html:933
 #, python-format
 msgid ""
 "\"PyPI\" should be pronounced like \"pie pea eye\", specifically with the "
@@ -8175,39 +8340,39 @@ msgstr ""
 "将减少与<a href=\"%(href)s\" title=\"%(title)s\">PyPy</a>项目的混淆，PyPy项目"
 "是Python语言的一种流行的替代实现。"
 
-#: warehouse/templates/pages/help.html:927
+#: warehouse/templates/pages/help.html:945
 msgid "Resources"
 msgstr "资源"
 
-#: warehouse/templates/pages/help.html:928
+#: warehouse/templates/pages/help.html:946
 msgid "Looking for something else? Perhaps these links will help:"
 msgstr "在找别的吗？或许这些链接将有助于："
 
-#: warehouse/templates/pages/help.html:930
+#: warehouse/templates/pages/help.html:948
 msgid "Python Packaging User Guide"
 msgstr "Python 包装用户指南"
 
-#: warehouse/templates/pages/help.html:931
+#: warehouse/templates/pages/help.html:949
 msgid "Python documentation"
 msgstr "Python文档"
 
-#: warehouse/templates/pages/help.html:932
+#: warehouse/templates/pages/help.html:950
 msgid "(main Python website)"
 msgstr "（主Python网站）"
 
-#: warehouse/templates/pages/help.html:933
+#: warehouse/templates/pages/help.html:951
 msgid "Python community page"
 msgstr "Python社区页面"
 
-#: warehouse/templates/pages/help.html:933
+#: warehouse/templates/pages/help.html:951
 msgid "(lists IRC channels, mailing lists, etc.)"
 msgstr "（列出IRC频道、邮件列表等）"
 
-#: warehouse/templates/pages/help.html:936
+#: warehouse/templates/pages/help.html:954
 msgid "Contact"
 msgstr "联系"
 
-#: warehouse/templates/pages/help.html:938
+#: warehouse/templates/pages/help.html:956
 #, python-format
 msgid ""
 "The <a href=\"%(pypa_href)s\" title=\"%(title)s\" target=\"_blank\" rel="
@@ -8628,7 +8793,7 @@ msgstr "图标"
 
 #: warehouse/templates/search/results.html:18
 #: warehouse/templates/search/results.html:114
-#: warehouse/templates/search/results.html:212
+#: warehouse/templates/search/results.html:211
 msgid "Search results"
 msgstr "搜索结果"
 
@@ -8698,28 +8863,36 @@ msgstr "相关性"
 msgid "Date last updated"
 msgstr "最后更新时间"
 
-#: warehouse/templates/search/results.html:181
-msgid "Trending"
-msgstr "趋势"
-
-#: warehouse/templates/search/results.html:194
+#: warehouse/templates/search/results.html:193
 msgid "Filter"
 msgstr "过滤器"
 
-#: warehouse/templates/search/results.html:205
+#: warehouse/templates/search/results.html:204
 msgid "Add filter"
 msgstr "添加筛选器"
 
-#: warehouse/templates/search/results.html:221
+#: warehouse/templates/search/results.html:220
 #, python-format
 msgid "There were no results for '%(term)s'"
 msgstr "“%(term)s”没有结果"
 
-#: warehouse/templates/search/results.html:223
+#: warehouse/templates/search/results.html:222
 #, python-format
 msgid "There were no results for '%(filters)s' filter"
 msgid_plural "There were no results for '%(filters)s' filters"
 msgstr[0] "“%(filters)s”筛选器没有结果"
+
+#~ msgid "Trending projects as downloaded by the community"
+#~ msgstr "社区下载的热门项目"
+
+#~ msgid "New releases"
+#~ msgstr "新版本"
+
+#~ msgid "Hot off the press: the newest project releases"
+#~ msgstr "热门新闻：最新项目发布"
+
+#~ msgid "Trending"
+#~ msgstr "趋势"
 
 #, python-format
 #~ msgid ""
