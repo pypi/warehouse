@@ -3,9 +3,14 @@ GITHUB_ACTIONS := $(shell echo "$${GITHUB_ACTIONS:-false}")
 compile-pot:
 	cd ../../; \
 	PYTHONPATH=$(PWD) pybabel extract \
-		-F babel.cfg \
+		-F warehouse/locale/babel.cfg \
 		--omit-header \
 		--output="warehouse/locale/messages.pot" \
+		warehouse; \
+	PYTHONPATH=$(PWD) pybabel extract \
+		-F warehouse/locale/babel-loggedin.cfg \
+		--omit-header \
+		--output="warehouse/locale/messages-loggedin.pot" \
 		warehouse
 
 init-po:
