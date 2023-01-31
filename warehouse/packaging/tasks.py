@@ -219,9 +219,14 @@ def update_bigquery_release_files(task, request, dist_metadata):
     """
     Adds release file metadata to public BigQuery database
     """
+    release_files_table = request.registry.settings.get("warehouse.release_files_table")
+    if release_files_table is None:
+        return
+
     bq = request.find_service(name="gcloud.bigquery")
+
     # Multiple table names can be specified by separating them with whitespace
-    table_names = request.registry.settings["warehouse.release_files_table"].split()
+    table_names = release_files_table.split()
 
     for table_name in table_names:
         table_schema = bq.get_table(table_name).schema
@@ -263,9 +268,14 @@ def update_bigquery_release_files(task, request, dist_metadata):
 
 @tasks.task(ignore_result=True, acks_late=True)
 def sync_bigquery_release_files(request):
+    release_files_table = request.registry.settings.get("warehouse.release_files_table")
+    if release_files_table is None:
+        return
+
     bq = request.find_service(name="gcloud.bigquery")
+
     # Multiple table names can be specified by separating them with whitespace
-    table_names = request.registry.settings["warehouse.release_files_table"].split()
+    table_names = release_files_table.split()
 
     for table_name in table_names:
         table_schema = bq.get_table(table_name).schema
