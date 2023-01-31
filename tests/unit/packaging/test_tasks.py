@@ -319,6 +319,14 @@ class TestUpdateBigQueryMetadata:
             for table in release_files_table.split()
         ]
 
+    def test_var_is_none(self):
+        request = pretend.stub(
+            registry=pretend.stub(settings={"warehouse.release_files_table": None})
+        )
+        task = pretend.stub()
+        dist_metadata = pretend.stub()
+        update_bigquery_release_files(task, request, dist_metadata)
+
 
 class TestSyncBigQueryMetadata:
     @pytest.mark.filterwarnings(
@@ -501,6 +509,12 @@ class TestSyncBigQueryMetadata:
             )
             for first, second in product("fedcba9876543210", repeat=2)
         ]
+
+    def test_var_is_none(self):
+        request = pretend.stub(
+            registry=pretend.stub(settings={"warehouse.release_files_table": None})
+        )
+        sync_bigquery_release_files(request)
 
 
 def test_compute_2fa_mandate(db_request, monkeypatch):
