@@ -10,6 +10,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import json
+import re
 import pretend
 import pytest
 
@@ -40,26 +42,6 @@ def test_mint_token_from_oidc_not_enabled(registry, admin):
     }
 
 
-def test_mint_token_from_oidc_invalid_json():
-    class Request:
-        def __init__(self):
-            self.response = pretend.stub(status=None)
-            self.registry = pretend.stub(settings={"warehouse.oidc.enabled": True})
-            self.flags = pretend.stub(enabled=lambda *a: False)
-
-        @property
-        def json_body(self):
-            raise ValueError
-
-    req = Request()
-    resp = views.mint_token_from_oidc(req)
-    assert req.response.status == 422
-    assert resp == {
-        "message": "Token request failed",
-        "errors": [{"code": "invalid-json", "description": "missing JSON body"}],
-    }
-
-
 @pytest.mark.parametrize(
     "body",
     [
@@ -69,6 +51,14 @@ def test_mint_token_from_oidc_invalid_json():
         12345,
         3.14,
         None,
+        {},
+        {"token": None},
+        {"wrongkey": ""},
+        {"token": 3.14},
+        {"token": 0},
+        {"token": [""]},
+        {"token": []},
+        {"token": {}},
     ],
 )
 def test_mint_token_from_oidc_invalid_payload(body):
@@ -79,69 +69,19 @@ def test_mint_token_from_oidc_invalid_payload(body):
             self.flags = pretend.stub(enabled=lambda *a: False)
 
         @property
-        def json_body(self):
-            return body
+        def body(self):
+            return json.dumps(body)
 
     req = Request()
     resp = views.mint_token_from_oidc(req)
+
     assert req.response.status == 422
-    assert resp == {
-        "message": "Token request failed",
-        "errors": [
-            {
-                "code": "invalid-payload",
-                "description": "payload is not a JSON dictionary",
-            }
-        ],
-    }
-
-
-@pytest.mark.parametrize(
-    "body",
-    [
-        {},
-        {"token": None},
-        {"wrongkey": ""},
-    ],
-)
-def test_mint_token_from_oidc_missing_token(body):
-    request = pretend.stub(
-        response=pretend.stub(status=None),
-        json_body=body,
-        registry=pretend.stub(settings={"warehouse.oidc.enabled": True}),
-        flags=pretend.stub(enabled=lambda *a: False),
-    )
-    resp = views.mint_token_from_oidc(request)
-    assert request.response.status == 422
-    assert resp == {
-        "message": "Token request failed",
-        "errors": [{"code": "invalid-token", "description": "token is missing"}],
-    }
-
-
-@pytest.mark.parametrize(
-    "body",
-    [
-        {"token": 3.14},
-        {"token": 0},
-        {"token": [""]},
-        {"token": []},
-        {"token": {}},
-    ],
-)
-def test_mint_token_from_oidc_nonstring_token(body):
-    request = pretend.stub(
-        response=pretend.stub(status=None),
-        json_body=body,
-        registry=pretend.stub(settings={"warehouse.oidc.enabled": True}),
-        flags=pretend.stub(enabled=lambda *a: False),
-    )
-    resp = views.mint_token_from_oidc(request)
-    assert request.response.status == 422
-    assert resp == {
-        "message": "Token request failed",
-        "errors": [{"code": "invalid-token", "description": "token is not a string"}],
-    }
+    assert resp["message"] == "Token request failed"
+    assert isinstance(resp["errors"], list)
+    for err in resp["errors"]:
+        assert isinstance(err, dict)
+        assert err["code"] == "invalid-payload"
+        assert isinstance(err["description"], str)
 
 
 def test_mint_token_from_oidc_provider_verify_jwt_signature_fails():
@@ -150,7 +90,7 @@ def test_mint_token_from_oidc_provider_verify_jwt_signature_fails():
     )
     request = pretend.stub(
         response=pretend.stub(status=None),
-        json_body={"token": "faketoken"},
+        body=json.dumps({"token": "faketoken"}),
         find_service=pretend.call_recorder(lambda cls, **kw: oidc_service),
         registry=pretend.stub(settings={"warehouse.oidc.enabled": True}),
         flags=pretend.stub(enabled=lambda *a: False),
@@ -182,7 +122,7 @@ def test_mint_token_from_oidc_provider_lookup_fails():
     )
     request = pretend.stub(
         response=pretend.stub(status=None),
-        json_body={"token": "faketoken"},
+        body=json.dumps({"token": "faketoken"}),
         find_service=pretend.call_recorder(lambda cls, **kw: oidc_service),
         registry=pretend.stub(settings={"warehouse.oidc.enabled": True}),
         flags=pretend.stub(enabled=lambda *a: False),
@@ -246,7 +186,7 @@ def test_mint_token_from_oidc_ok(monkeypatch):
 
     request = pretend.stub(
         response=pretend.stub(status=None),
-        json_body={"token": "faketoken"},
+        body=json.dumps({"token": "faketoken"}),
         find_service=find_service,
         domain="fakedomain",
         remote_addr="0.0.0.0",

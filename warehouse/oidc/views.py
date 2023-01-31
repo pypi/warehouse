@@ -20,6 +20,12 @@ from warehouse.macaroons import caveats
 from warehouse.macaroons.interfaces import IMacaroonService
 from warehouse.oidc.interfaces import IOIDCProviderService
 
+from pydantic import BaseModel, StrictStr, ValidationError
+
+
+class TokenPayload(BaseModel):
+    token: StrictStr
+
 
 @view_config(
     route_name="oidc.mint_token",
@@ -47,34 +53,10 @@ def mint_token_from_oidc(request):
         )
 
     try:
-        body = request.json_body
-    except ValueError:
-        return _invalid(
-            errors=[{"code": "invalid-json", "description": "missing JSON body"}]
-        )
-
-    # `json_body` can return any valid top-level JSON type, so we have
-    # to make sure we're actually receiving a dictionary.
-    if not isinstance(body, dict):
-        return _invalid(
-            errors=[
-                {
-                    "code": "invalid-payload",
-                    "description": "payload is not a JSON dictionary",
-                }
-            ]
-        )
-
-    unverified_jwt = body.get("token")
-    if unverified_jwt is None:
-        return _invalid(
-            errors=[{"code": "invalid-token", "description": "token is missing"}]
-        )
-
-    if not isinstance(unverified_jwt, str):
-        return _invalid(
-            errors=[{"code": "invalid-token", "description": "token is not a string"}]
-        )
+        payload = TokenPayload.parse_raw(request.body)
+        unverified_jwt = payload.token
+    except ValidationError as exc:
+        return _invalid(errors=[{"code": "invalid-payload", "description": str(exc)}])
 
     # For the time being, GitHub is our only OIDC provider.
     # In the future, this should locate the correct service based on an
