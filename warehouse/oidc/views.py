@@ -12,6 +12,7 @@
 
 import time
 
+from pydantic import BaseModel, StrictStr, ValidationError
 from pyramid.view import view_config
 
 from warehouse.admin.flags import AdminFlagValue
@@ -19,8 +20,6 @@ from warehouse.events.tags import EventTag
 from warehouse.macaroons import caveats
 from warehouse.macaroons.interfaces import IMacaroonService
 from warehouse.oidc.interfaces import IOIDCProviderService
-
-from pydantic import BaseModel, StrictStr, ValidationError
 
 
 class TokenPayload(BaseModel):
