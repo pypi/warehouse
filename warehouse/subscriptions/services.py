@@ -17,7 +17,7 @@ from string import ascii_letters, digits
 import stripe
 
 from sqlalchemy import or_
-from sqlalchemy.orm.exc import NoResultFound
+from sqlalchemy.exc import NoResultFound
 from zope.interface import implementer
 
 from warehouse.organizations.models import (

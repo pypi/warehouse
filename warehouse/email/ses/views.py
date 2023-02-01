@@ -17,7 +17,7 @@ import requests
 from pyramid.httpexceptions import HTTPBadRequest, HTTPServiceUnavailable
 from pyramid.response import Response
 from pyramid.view import view_config
-from sqlalchemy.orm.exc import NoResultFound
+from sqlalchemy.exc import NoResultFound
 from sqlalchemy.sql import exists
 
 from warehouse.email.ses.models import EmailMessage, EmailStatus, Event, EventTypes

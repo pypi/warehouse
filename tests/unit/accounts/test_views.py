@@ -25,7 +25,7 @@ from pyramid.httpexceptions import (
     HTTPSeeOther,
     HTTPTooManyRequests,
 )
-from sqlalchemy.orm.exc import NoResultFound
+from sqlalchemy.exc import NoResultFound
 from webauthn.authentication.verify_authentication_response import (
     VerifiedAuthentication,
 )

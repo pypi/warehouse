@@ -29,7 +29,7 @@ from pyramid.response import Response
 from pyramid.view import view_config, view_defaults
 from sqlalchemy import func
 from sqlalchemy.orm import Load, joinedload
-from sqlalchemy.orm.exc import NoResultFound
+from sqlalchemy.exc import NoResultFound
 from webauthn.helpers import bytes_to_base64url
 
 import warehouse.utils.otp as otp

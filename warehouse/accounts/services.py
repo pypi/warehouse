@@ -24,7 +24,7 @@ import requests
 
 from passlib.context import CryptContext
 from sqlalchemy.orm import joinedload
-from sqlalchemy.orm.exc import NoResultFound
+from sqlalchemy.exc import NoResultFound
 from sqlalchemy.sql import exists
 from webauthn.helpers import bytes_to_base64url
 from zope.interface import implementer

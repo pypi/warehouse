@@ -14,7 +14,7 @@ import wtforms
 
 from pyramid.httpexceptions import HTTPNotFound, HTTPSeeOther
 from pyramid.view import view_config
-from sqlalchemy.orm.exc import NoResultFound
+from sqlalchemy.exc import NoResultFound
 
 from warehouse.banners.models import Banner
 from warehouse.forms import Form, URIValidator

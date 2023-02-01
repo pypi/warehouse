@@ -26,7 +26,7 @@ from pyramid.httpexceptions import (
 )
 from pyramid.security import forget, remember
 from pyramid.view import view_config, view_defaults
-from sqlalchemy.orm.exc import NoResultFound
+from sqlalchemy.exc import NoResultFound
 from webauthn.helpers import bytes_to_base64url
 
 from warehouse.accounts import REDIRECT_FIELD_NAME

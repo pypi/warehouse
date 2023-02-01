@@ -40,7 +40,7 @@ from pyramid.httpexceptions import (
 from pyramid.response import Response
 from pyramid.view import view_config
 from sqlalchemy import func, orm
-from sqlalchemy.orm.exc import MultipleResultsFound, NoResultFound
+from sqlalchemy.exc import MultipleResultsFound, NoResultFound
 from trove_classifiers import classifiers, deprecated_classifiers
 
 from warehouse import forms

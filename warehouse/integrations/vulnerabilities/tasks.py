@@ -11,7 +11,7 @@
 # limitations under the License.
 
 from sqlalchemy import func, orm
-from sqlalchemy.orm.exc import NoResultFound
+from sqlalchemy.exc import NoResultFound
 
 from warehouse import tasks
 from warehouse.integrations import vulnerabilities

@@ -27,7 +27,7 @@ from pyramid.httpexceptions import (
 )
 from pyramid.response import Response
 from sqlalchemy.orm import joinedload
-from sqlalchemy.orm.exc import NoResultFound
+from sqlalchemy.exc import NoResultFound
 from webauthn.helpers import bytes_to_base64url
 from webob.multidict import MultiDict
 
