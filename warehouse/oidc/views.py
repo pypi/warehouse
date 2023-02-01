@@ -77,6 +77,8 @@ def mint_token_from_oidc(request):
 
         # If the project already exists, this pending provider is no longer
         # valid and needs to be removed.
+        # NOTE: This is mostly a sanity check, since pending providers should
+        # be disposed of as part of the ordinary project creation flow.
         if pending_provider.project_name in factory:
             request.db.delete(pending_provider)
             return _invalid(
