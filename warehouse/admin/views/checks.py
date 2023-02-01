@@ -12,7 +12,7 @@
 
 from pyramid.httpexceptions import HTTPNotFound, HTTPSeeOther
 from pyramid.view import view_config
-from sqlalchemy.orm.exc import NoResultFound
+from sqlalchemy.exc import NoResultFound
 
 from warehouse.malware.models import MalwareCheck, MalwareCheckState, MalwareCheckType
 from warehouse.malware.tasks import backfill, remove_verdicts, run_scheduled_check

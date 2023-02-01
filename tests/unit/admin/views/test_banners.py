@@ -16,7 +16,7 @@ import pretend
 import pytest
 
 from pyramid.httpexceptions import HTTPNotFound
-from sqlalchemy.orm.exc import NoResultFound
+from sqlalchemy.exc import NoResultFound
 from webob.multidict import MultiDict
 
 from warehouse.admin.views import banners as views

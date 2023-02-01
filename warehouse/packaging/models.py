@@ -41,12 +41,12 @@ from sqlalchemy import (
     sql,
 )
 from sqlalchemy.dialects.postgresql import UUID
+from sqlalchemy.exc import MultipleResultsFound, NoResultFound
 from sqlalchemy.ext.associationproxy import association_proxy
 from sqlalchemy.ext.declarative import declared_attr  # type: ignore
 from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy.orm import validates
 from sqlalchemy.orm.collections import attribute_mapped_collection
-from sqlalchemy.orm.exc import MultipleResultsFound, NoResultFound
 
 from warehouse import db
 from warehouse.accounts.models import User

@@ -31,7 +31,7 @@ from pyramid_rpc.xmlrpc import (
     xmlrpc_method as _xmlrpc_method,
 )
 from sqlalchemy import func, orm, select
-from sqlalchemy.orm.exc import NoResultFound
+from sqlalchemy.exc import NoResultFound
 
 from warehouse.accounts.models import User
 from warehouse.classifiers.models import Classifier

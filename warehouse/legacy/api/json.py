@@ -13,8 +13,8 @@
 from packaging.utils import canonicalize_name, canonicalize_version
 from pyramid.httpexceptions import HTTPMovedPermanently, HTTPNotFound
 from pyramid.view import view_config
+from sqlalchemy.exc import MultipleResultsFound, NoResultFound
 from sqlalchemy.orm import Load, contains_eager, joinedload
-from sqlalchemy.orm.exc import MultipleResultsFound, NoResultFound
 
 from warehouse.cache.http import cache_control
 from warehouse.cache.origin import origin_cache

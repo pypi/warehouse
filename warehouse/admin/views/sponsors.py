@@ -19,7 +19,7 @@ import wtforms
 from pyramid.httpexceptions import HTTPNotFound, HTTPSeeOther
 from pyramid.view import view_config
 from slugify import slugify
-from sqlalchemy.orm.exc import NoResultFound
+from sqlalchemy.exc import NoResultFound
 
 from warehouse.admin.interfaces import ISponsorLogoStorage
 from warehouse.forms import Form, URIValidator

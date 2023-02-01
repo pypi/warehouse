@@ -24,7 +24,7 @@ from pyramid.httpexceptions import (
     HTTPSeeOther,
 )
 from sqlalchemy import exists, func
-from sqlalchemy.orm.exc import NoResultFound
+from sqlalchemy.exc import NoResultFound
 
 from warehouse.admin.flags import AdminFlagValue
 from warehouse.events.tags import EventTag
