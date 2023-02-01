@@ -1114,10 +1114,10 @@ msgstr ""
 #: warehouse/templates/manage/account.html:369
 #: warehouse/templates/manage/account.html:386
 #: warehouse/templates/manage/account.html:402
-#: warehouse/templates/manage/account/publishing.html:60
-#: warehouse/templates/manage/account/publishing.html:75
-#: warehouse/templates/manage/account/publishing.html:90
-#: warehouse/templates/manage/account/publishing.html:105
+#: warehouse/templates/manage/account/publishing.html:81
+#: warehouse/templates/manage/account/publishing.html:96
+#: warehouse/templates/manage/account/publishing.html:111
+#: warehouse/templates/manage/account/publishing.html:126
 #: warehouse/templates/manage/account/recovery_codes-burn.html:70
 #: warehouse/templates/manage/account/token.html:133
 #: warehouse/templates/manage/account/token.html:150
@@ -1137,9 +1137,9 @@ msgstr ""
 #: warehouse/templates/manage/organizations.html:204
 #: warehouse/templates/manage/organizations.html:222
 #: warehouse/templates/manage/organizations.html:241
-#: warehouse/templates/manage/project/publishing.html:53
-#: warehouse/templates/manage/project/publishing.html:68
-#: warehouse/templates/manage/project/publishing.html:83
+#: warehouse/templates/manage/project/publishing.html:76
+#: warehouse/templates/manage/project/publishing.html:91
+#: warehouse/templates/manage/project/publishing.html:106
 #: warehouse/templates/manage/project/roles.html:273
 #: warehouse/templates/manage/project/roles.html:284
 #: warehouse/templates/manage/project/roles.html:296
@@ -3549,11 +3549,11 @@ msgstr ""
 msgid "Manager"
 msgstr ""
 
-#: warehouse/templates/manage/account/publishing.html:73
+#: warehouse/templates/manage/account/publishing.html:94
 #: warehouse/templates/manage/organization/roles.html:48
 #: warehouse/templates/manage/organization/roles.html:93
 #: warehouse/templates/manage/organizations.html:85
-#: warehouse/templates/manage/project/publishing.html:51
+#: warehouse/templates/manage/project/publishing.html:74
 #: warehouse/templates/manage/project/roles.html:50
 #: warehouse/templates/manage/project/roles.html:85
 #: warehouse/templates/manage/project/roles.html:115
@@ -3777,14 +3777,36 @@ msgid ""
 msgstr ""
 
 #: warehouse/templates/manage/account/publishing.html:30
+msgid "Manage pending providers"
+msgstr ""
+
+#: warehouse/templates/manage/account/publishing.html:35
+msgid "Pending project name"
+msgstr ""
+
+#: warehouse/templates/manage/account/publishing.html:36
+#: warehouse/templates/manage/project/publishing.html:44
+msgid "Publisher"
+msgstr ""
+
+#: warehouse/templates/manage/account/publishing.html:37
+msgid "Publishing workflow URL"
+msgstr ""
+
+#: warehouse/templates/manage/account/publishing.html:48
+#: warehouse/templates/manage/project/publishing.html:56
+msgid "No publishers are currently configured."
+msgstr ""
+
+#: warehouse/templates/manage/account/publishing.html:51
 msgid "Add a new pending provider"
 msgstr ""
 
-#: warehouse/templates/manage/account/publishing.html:33
+#: warehouse/templates/manage/account/publishing.html:54
 msgid "You can use this page to register \"pending\" OpenID Connect providers."
 msgstr ""
 
-#: warehouse/templates/manage/account/publishing.html:40
+#: warehouse/templates/manage/account/publishing.html:61
 #, python-format
 msgid ""
 "These providers behave similarly to OpenID Connect providers registered "
@@ -3795,85 +3817,63 @@ msgid ""
 " Connect providers <a href=\"%(href)s\">here</a>."
 msgstr ""
 
-#: warehouse/templates/manage/account/publishing.html:58
+#: warehouse/templates/manage/account/publishing.html:79
 msgid "PyPI Project Name"
 msgstr ""
 
-#: warehouse/templates/manage/account/publishing.html:63
+#: warehouse/templates/manage/account/publishing.html:84
 msgid "project name"
 msgstr ""
 
-#: warehouse/templates/manage/account/publishing.html:65
+#: warehouse/templates/manage/account/publishing.html:86
 msgid "The project (on PyPI) that will be created when this provider is used"
 msgstr ""
 
-#: warehouse/templates/manage/account/publishing.html:78
-#: warehouse/templates/manage/project/publishing.html:56
+#: warehouse/templates/manage/account/publishing.html:99
+#: warehouse/templates/manage/project/publishing.html:79
 msgid "owner"
 msgstr ""
 
-#: warehouse/templates/manage/account/publishing.html:80
+#: warehouse/templates/manage/account/publishing.html:101
 msgid "The GitHub organization name or GitHub username that owns the repository"
 msgstr ""
 
-#: warehouse/templates/manage/account/publishing.html:88
-#: warehouse/templates/manage/project/publishing.html:66
+#: warehouse/templates/manage/account/publishing.html:109
+#: warehouse/templates/manage/project/publishing.html:89
 msgid "Repository name"
 msgstr ""
 
-#: warehouse/templates/manage/account/publishing.html:93
-#: warehouse/templates/manage/project/publishing.html:71
+#: warehouse/templates/manage/account/publishing.html:114
+#: warehouse/templates/manage/project/publishing.html:94
 msgid "repository"
 msgstr ""
 
-#: warehouse/templates/manage/account/publishing.html:95
+#: warehouse/templates/manage/account/publishing.html:116
 msgid "The name of the GitHub repository that contains the publishing workflow"
 msgstr ""
 
-#: warehouse/templates/manage/account/publishing.html:103
-#: warehouse/templates/manage/project/publishing.html:81
+#: warehouse/templates/manage/account/publishing.html:124
+#: warehouse/templates/manage/project/publishing.html:104
 msgid "Workflow name"
 msgstr ""
 
-#: warehouse/templates/manage/account/publishing.html:108
-#: warehouse/templates/manage/project/publishing.html:86
+#: warehouse/templates/manage/account/publishing.html:129
+#: warehouse/templates/manage/project/publishing.html:109
 msgid "workflow.yml"
 msgstr ""
 
-#: warehouse/templates/manage/account/publishing.html:110
+#: warehouse/templates/manage/account/publishing.html:131
 msgid ""
 "The filename of the publishing workflow. This file should exist in the "
 "<code>.github/workflows/</code> directory in the repository configured "
 "above."
 msgstr ""
 
-#: warehouse/templates/manage/account/publishing.html:117
-#: warehouse/templates/manage/project/publishing.html:95
+#: warehouse/templates/manage/account/publishing.html:138
+#: warehouse/templates/manage/project/publishing.html:118
 #: warehouse/templates/manage/project/roles.html:320
 #: warehouse/templates/manage/team/roles.html:123
 msgid "Add"
-msgstr ""
-
-#: warehouse/templates/manage/account/publishing.html:121
-msgid "Manage pending providers"
-msgstr ""
-
-#: warehouse/templates/manage/account/publishing.html:126
-msgid "Pending project name"
-msgstr ""
-
-#: warehouse/templates/manage/account/publishing.html:127
-#: warehouse/templates/manage/project/publishing.html:107
-msgid "Publisher"
-msgstr ""
-
-#: warehouse/templates/manage/account/publishing.html:128
-msgid "Publishing workflow URL"
-msgstr ""
-
-#: warehouse/templates/manage/account/publishing.html:139
-#: warehouse/templates/manage/project/publishing.html:119
-msgid "No publishers are currently configured."
 msgstr ""
 
 #: warehouse/templates/manage/account/recovery_codes-burn.html:34
@@ -5009,39 +5009,39 @@ msgid "Back to projects"
 msgstr ""
 
 #: warehouse/templates/manage/project/publishing.html:36
-msgid "Add a new provider"
+msgid "Manage current providers"
 msgstr ""
 
 #: warehouse/templates/manage/project/publishing.html:40
+#, python-format
+msgid "OpenID Connect publishers associated with %(project_name)s"
+msgstr ""
+
+#: warehouse/templates/manage/project/publishing.html:45
+msgid "URL"
+msgstr ""
+
+#: warehouse/templates/manage/project/publishing.html:59
+msgid "Add a new provider"
+msgstr ""
+
+#: warehouse/templates/manage/project/publishing.html:63
 #, python-format
 msgid ""
 "Read more about GitHub's OpenID Connect provider <a "
 "href=\"%(href)s\">here</a>."
 msgstr ""
 
-#: warehouse/templates/manage/project/publishing.html:58
+#: warehouse/templates/manage/project/publishing.html:81
 msgid "The organization name or username that owns the repository"
 msgstr ""
 
-#: warehouse/templates/manage/project/publishing.html:73
+#: warehouse/templates/manage/project/publishing.html:96
 msgid "The name of the repository that contains the publishing workflow"
 msgstr ""
 
-#: warehouse/templates/manage/project/publishing.html:88
+#: warehouse/templates/manage/project/publishing.html:111
 msgid "The filename of the publishing workflow"
-msgstr ""
-
-#: warehouse/templates/manage/project/publishing.html:99
-msgid "Manage current providers"
-msgstr ""
-
-#: warehouse/templates/manage/project/publishing.html:103
-#, python-format
-msgid "OpenID Connect publishers associated with %(project_name)s"
-msgstr ""
-
-#: warehouse/templates/manage/project/publishing.html:108
-msgid "URL"
 msgstr ""
 
 #: warehouse/templates/manage/project/release.html:18
