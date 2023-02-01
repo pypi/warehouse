@@ -16,8 +16,8 @@ from paginate_sqlalchemy import SqlalchemyOrmPage as SQLAlchemyORMPage
 from pyramid.httpexceptions import HTTPBadRequest, HTTPMovedPermanently, HTTPSeeOther
 from pyramid.view import view_config
 from sqlalchemy import func, or_
-from sqlalchemy.orm import joinedload
 from sqlalchemy.exc import NoResultFound
+from sqlalchemy.orm import joinedload
 
 from warehouse.accounts.models import User
 from warehouse.forklift.legacy import MAX_FILESIZE, MAX_PROJECT_SIZE

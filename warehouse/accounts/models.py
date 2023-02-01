@@ -33,8 +33,8 @@ from sqlalchemy import (
     sql,
 )
 from sqlalchemy.dialects.postgresql import UUID
-from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy.exc import NoResultFound
+from sqlalchemy.ext.hybrid import hybrid_property
 
 from warehouse import db
 from warehouse.events.models import HasEvents
