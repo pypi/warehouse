@@ -32,12 +32,13 @@ class IOIDCProviderService(Interface):
         """
         pass
 
-    def find_provider(signed_claims: SignedClaims):
+    def find_provider(signed_claims: SignedClaims, *, pending: bool = False):
         """
         Given a mapping of signed claims produced by `verify_jwt_signature`,
-        attempt to find and return an `OIDCProvider` that matches them.
+        attempt to find and return either a `OIDCProvider` or `PendingOIDCProvider`
+        that matches them, depending on the value of `pending`.
 
-        If no `OIDCProvider` matches the claims, `None` is returned.
+        If no provider matches the claims, `None` is returned.
         """
         pass
 

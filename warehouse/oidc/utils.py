@@ -15,7 +15,12 @@ from __future__ import annotations
 from sqlalchemy.sql.expression import func, literal
 
 from warehouse.oidc.interfaces import SignedClaims
-from warehouse.oidc.models import GitHubProvider, OIDCProvider
+from warehouse.oidc.models import (
+    GitHubProvider,
+    OIDCProvider,
+    PendingGitHubProvider,
+    PendingOIDCProvider,
+)
 
 GITHUB_OIDC_ISSUER_URL = "https://token.actions.githubusercontent.com"
 
@@ -23,12 +28,15 @@ OIDC_ISSUER_URLS = {GITHUB_OIDC_ISSUER_URL}
 
 
 def find_provider_by_issuer(
-    session, issuer_url: str, signed_claims: SignedClaims
-) -> OIDCProvider | None:
+    session, issuer_url: str, signed_claims: SignedClaims, *, pending: bool = False
+) -> OIDCProvider | PendingOIDCProvider | None:
     """
     Given an OIDC issuer URL and a dictionary of claims that have been verified
-    for a token from that OIDC issuer, retrieve a concrete `OIDCProvider` registered
-    to one or more projects.
+    for a token from that OIDC issuer, retrieve either an `OIDCProvider` registered
+    to one or more projects or a `PendingOIDCProvider`, varying with the
+    `pending` parameter.
+
+    Returns `None` if no provider can be found.
     """
 
     if issuer_url not in OIDC_ISSUER_URLS:
@@ -36,17 +44,19 @@ def find_provider_by_issuer(
         # claims for an issuer that we don't recognize and support.
         return None
 
-    # This is the ugly part: OIDCProvider is polymorphic, and retrieving
-    # the correct provider requires us to query based on provider-specific
-    # claims.
+    # This is the ugly part: OIDCProvider and PendingOIDCProvider are both
+    # polymorphic, and retrieving the correct provider requires us to query
+    # based on provider-specific claims.
     if issuer_url == GITHUB_OIDC_ISSUER_URL:
         repository = signed_claims["repository"]
         repository_owner, repository_name = repository.split("/", 1)
         workflow_prefix = f"{repository}/.github/workflows/"
         workflow_ref = signed_claims["job_workflow_ref"].removeprefix(workflow_prefix)
 
+        provider_cls = GitHubProvider if not pending else PendingGitHubProvider
+
         return (
-            session.query(GitHubProvider)
+            session.query(provider_cls)
             .filter_by(
                 repository_name=repository_name,
                 repository_owner=repository_owner,
@@ -54,7 +64,7 @@ def find_provider_by_issuer(
             )
             .filter(
                 literal(workflow_ref).like(
-                    func.concat(GitHubProvider.workflow_filename, "%")
+                    func.concat(provider_cls.workflow_filename, "%")
                 )
             )
             .one_or_none()

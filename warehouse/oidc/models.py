@@ -200,6 +200,14 @@ class PendingOIDCProvider(OIDCProviderMixin, db.Model):
         "polymorphic_on": OIDCProviderMixin.discriminator,
     }
 
+    def reify(self):  # pragma: no cover
+        """
+        Return an equivalent "normal" OIDC provider model for this pending provider.
+        """
+
+        # Only concrete subclasses are constructed.
+        return NotImplemented
+
 
 class GitHubProviderMixin:
     """
@@ -212,6 +220,7 @@ class GitHubProviderMixin:
     workflow_filename = Column(String)
 
     __verifiable_claims__ = {
+        "sub": _check_claim_binary(str.__eq__),
         "repository": _check_claim_binary(str.__eq__),
         "repository_owner": _check_claim_binary(str.__eq__),
         "repository_owner_id": _check_claim_binary(str.__eq__),
@@ -222,7 +231,6 @@ class GitHubProviderMixin:
         "actor",
         "actor_id",
         "jti",
-        "sub",
         "ref",
         "sha",
         "run_id",
@@ -258,6 +266,10 @@ class GitHubProviderMixin:
     def job_workflow_ref(self):
         return f"{self.repository}/{self._workflow_slug}"
 
+    @property
+    def sub(self):
+        return f"repo:{self.repository}"
+
     def __str__(self):
         return f"{self.workflow_filename} @ {self.repository}"
 
@@ -292,3 +304,14 @@ class PendingGitHubProvider(GitHubProviderMixin, PendingOIDCProvider):
     id = Column(
         UUID(as_uuid=True), ForeignKey(PendingOIDCProvider.id), primary_key=True
     )
+
+    def reify(self) -> GitHubProvider:
+        """
+        Returns a `GitHubProvider` for this `PendingGitHubProvider`.
+        """
+        return GitHubProvider(
+            repository_name=self.repository_name,
+            repository_owner=self.repository_owner,
+            repository_owner_id=self.repository_owner_id,
+            workflow_filename=self.workflow_filename,
+        )
