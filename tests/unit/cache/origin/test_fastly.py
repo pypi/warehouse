@@ -104,7 +104,7 @@ class TestFastlyCache:
         cacher = fastly.FastlyCache.create_service(None, request)
         assert isinstance(cacher, fastly.FastlyCache)
         assert cacher.api_endpoint == "https://api.example.com"
-        assert cacher.api_connect_via == None
+        assert cacher.api_connect_via is None
         assert cacher.api_key == "the api key"
         assert cacher.service_id == "the service id"
         assert cacher._purger is purge_key.delay
@@ -123,7 +123,7 @@ class TestFastlyCache:
         cacher = fastly.FastlyCache.create_service(None, request)
         assert isinstance(cacher, fastly.FastlyCache)
         assert cacher.api_endpoint == "https://api.fastly.com"
-        assert cacher.api_connect_via == None
+        assert cacher.api_connect_via is None
         assert cacher.api_key == "the api key"
         assert cacher.service_id == "the service id"
         assert cacher._purger is purge_key.delay
@@ -254,11 +254,14 @@ class TestFastlyCache:
             json=lambda: {"status": "ok"},
         )
         requests_post = pretend.call_recorder(lambda *a, **kw: response)
-        requests_Session = lambda *a, **kw: pretend.stub(
-            mount=requests_mount,
-            post=requests_post,
-        )
-        monkeypatch.setattr(requests, "Session", requests_Session)
+
+        def requests_session(*a, **kw):
+            return pretend.stub(
+                mount=requests_mount,
+                post=requests_post,
+            )
+
+        monkeypatch.setattr(requests, "Session", requests_session)
 
         cacher.purge_key("one")
 
@@ -302,11 +305,14 @@ class TestFastlyCache:
             json=lambda: {"status": "ok"},
         )
         requests_post = pretend.call_recorder(lambda *a, **kw: response)
-        requests_Session = lambda *a, **kw: pretend.stub(
-            mount=requests_mount,
-            post=requests_post,
-        )
-        monkeypatch.setattr(requests, "Session", requests_Session)
+
+        def requests_session(*a, **kw):
+            return pretend.stub(
+                mount=requests_mount,
+                post=requests_post,
+            )
+
+        monkeypatch.setattr(requests, "Session", requests_session)
 
         cacher.purge_key("one")
 
@@ -338,11 +344,14 @@ class TestFastlyCache:
             raise_for_status=pretend.call_recorder(lambda: None), json=lambda: result
         )
         requests_post = pretend.call_recorder(lambda *a, **kw: response)
-        requests_Session = lambda *a, **kw: pretend.stub(
-            mount=requests_mount,
-            post=requests_post,
-        )
-        monkeypatch.setattr(requests, "Session", requests_Session)
+
+        def requests_session(*a, **kw):
+            return pretend.stub(
+                mount=requests_mount,
+                post=requests_post,
+            )
+
+        monkeypatch.setattr(requests, "Session", requests_session)
 
         with pytest.raises(fastly.UnsuccessfulPurgeError):
             cacher.purge_key("one")
