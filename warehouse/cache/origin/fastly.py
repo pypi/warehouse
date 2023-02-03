@@ -13,6 +13,7 @@
 import time
 import urllib.parse
 
+import forcediphttpsadapter.adapters
 import requests
 
 from zope.interface import implementer
@@ -43,8 +44,9 @@ def purge_key(task, request, key):
 
 @implementer(IOriginCache)
 class FastlyCache:
-    def __init__(self, *, api_endpoint, api_key, service_id, purger):
+    def __init__(self, *, api_endpoint, api_connect_via, api_key, service_id, purger):
         self.api_endpoint = api_endpoint
+        self.api_connect_via = api_connect_via
         self.api_key = api_key
         self.service_id = service_id
         self._purger = purger
@@ -54,6 +56,9 @@ class FastlyCache:
         return cls(
             api_endpoint=request.registry.settings.get(
                 "origin_cache.api_endpoint", "https://api.fastly.com"
+            ),
+            api_connect_via=request.registry.settings.get(
+                "origin_cache.api_connect_via", None
             ),
             api_key=request.registry.settings["origin_cache.api_key"],
             service_id=request.registry.settings["origin_cache.service_id"],
@@ -103,16 +108,18 @@ class FastlyCache:
             "Fastly-Soft-Purge": "1",
         }
 
-        resp = requests.post(url, headers=headers)
+        session = requests.Session()
+
+        if self.api_connect_via is not None:
+            session.mount(
+                self.api_endpoint,
+                forcediphttpsadapter.adapters.ForcedIPHTTPSAdapter(
+                    dest_ip=self.api_connect_via
+                ),
+            )
+
+        resp = session.post(url, headers=headers)
         resp.raise_for_status()
 
         if resp.json().get("status") != "ok":
             raise UnsuccessfulPurgeError(f"Could not purge {key!r}")
-
-        time.sleep(2)
-
-        resp = requests.post(url, headers=headers)
-        resp.raise_for_status()
-
-        if resp.json().get("status") != "ok":
-            raise UnsuccessfulPurgeError(f"Could not double purge {key!r}")
