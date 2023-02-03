@@ -71,6 +71,9 @@ lint: .state/docker-build-web
 docs: .state/docker-build-web
 	docker compose run --rm web bin/docs
 
+user-docs: .state/docker-build-web
+	docker-compose run --rm web bin/user-docs
+
 licenses: .state/docker-build-web
 	docker compose run --rm web bin/licenses
 
