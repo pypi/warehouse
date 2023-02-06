@@ -24,21 +24,32 @@ from zope.interface.verify import verifyClass
 
 from warehouse.cache.origin import fastly
 from warehouse.cache.origin.interfaces import IOriginCache
+from warehouse.metrics.interfaces import IMetricsService
 
 
 class TestPurgeKey:
-    def test_purges_successfully(self, monkeypatch):
+    def test_purges_successfully(self, monkeypatch, metrics):
         task = pretend.stub()
-        cacher = pretend.stub(purge_key=pretend.call_recorder(lambda k: None))
+        cacher = pretend.stub(
+            purge_key=pretend.call_recorder(lambda k, metrics=None: None)
+        )
         request = pretend.stub(
-            find_service=pretend.call_recorder(lambda iface: cacher),
+            find_service=pretend.call_recorder(
+                lambda svc, context=None, name=None: {
+                    IOriginCache: cacher,
+                    IMetricsService: metrics,
+                }.get(svc)
+            ),
             log=pretend.stub(info=pretend.call_recorder(lambda *args, **kwargs: None)),
         )
 
         fastly.purge_key(task, request, "foo")
 
-        assert request.find_service.calls == [pretend.call(IOriginCache)]
-        assert cacher.purge_key.calls == [pretend.call("foo")]
+        assert request.find_service.calls == [
+            pretend.call(IOriginCache),
+            pretend.call(IMetricsService, context=None),
+        ]
+        assert cacher.purge_key.calls == [pretend.call("foo", metrics=metrics)]
         assert request.log.info.calls == [pretend.call("Purging %s", "foo")]
 
     @pytest.mark.parametrize(
@@ -50,13 +61,13 @@ class TestPurgeKey:
             fastly.UnsuccessfulPurgeError,
         ],
     )
-    def test_purges_fails(self, monkeypatch, exception_type):
+    def test_purges_fails(self, monkeypatch, metrics, exception_type):
         exc = exception_type()
 
         class Cacher:
             @staticmethod
             @pretend.call_recorder
-            def purge_key(key):
+            def purge_key(key, metrics=None):
                 raise exc
 
         class Task:
@@ -68,7 +79,12 @@ class TestPurgeKey:
         task = Task()
         cacher = Cacher()
         request = pretend.stub(
-            find_service=pretend.call_recorder(lambda iface: cacher),
+            find_service=pretend.call_recorder(
+                lambda svc, context=None, name=None: {
+                    IOriginCache: cacher,
+                    IMetricsService: metrics,
+                }.get(svc)
+            ),
             log=pretend.stub(
                 info=pretend.call_recorder(lambda *args, **kwargs: None),
                 error=pretend.call_recorder(lambda *args, **kwargs: None),
@@ -78,8 +94,11 @@ class TestPurgeKey:
         with pytest.raises(celery.exceptions.Retry):
             fastly.purge_key(task, request, "foo")
 
-        assert request.find_service.calls == [pretend.call(IOriginCache)]
-        assert cacher.purge_key.calls == [pretend.call("foo")]
+        assert request.find_service.calls == [
+            pretend.call(IOriginCache),
+            pretend.call(IMetricsService, context=None),
+        ]
+        assert cacher.purge_key.calls == [pretend.call("foo", metrics=metrics)]
         assert task.retry.calls == [pretend.call(exc=exc)]
         assert request.log.info.calls == [pretend.call("Purging %s", "foo")]
         assert request.log.error.calls == [
@@ -474,7 +493,7 @@ class TestFastlyCache:
         assert cacher._purge_key.calls == _purge_key_calls
 
     @pytest.mark.parametrize(
-        "connect_via,_purge_key_mock_effects,_purge_key_calls",
+        "connect_via,_purge_key_mock_effects,_purge_key_calls,metrics_calls",
         [
             (
                 "172.16.0.1",
@@ -483,6 +502,12 @@ class TestFastlyCache:
                     pretend.call("one", connect_via="172.16.0.1"),
                     pretend.call("one", connect_via=None),
                     pretend.call("one", connect_via=None),
+                ],
+                [
+                    pretend.call(
+                        "warehouse.cache.origin.fastly.connect_via.failed",
+                        tags="ip_address:172.16.0.1",
+                    )
                 ],
             ),
             (
@@ -493,11 +518,23 @@ class TestFastlyCache:
                     pretend.call("one", connect_via=None),
                     pretend.call("one", connect_via=None),
                 ],
+                [
+                    pretend.call(
+                        "warehouse.cache.origin.fastly.connect_via.failed",
+                        tags="ip_address:172.16.0.1",
+                    )
+                ],
             ),
         ],
     )
     def test_purge_key_fallback(
-        self, monkeypatch, connect_via, _purge_key_mock_effects, _purge_key_calls
+        self,
+        monkeypatch,
+        metrics,
+        connect_via,
+        _purge_key_mock_effects,
+        _purge_key_calls,
+        metrics_calls,
     ):
         monkeypatch.setattr(time, "sleep", lambda x: None)
         cacher = fastly.FastlyCache(
@@ -512,9 +549,10 @@ class TestFastlyCache:
         _purge_key_mock.side_effect = _purge_key_mock_effects
         cacher._purge_key = pretend.call_recorder(_purge_key_mock)
 
-        cacher.purge_key("one")
+        cacher.purge_key("one", metrics=metrics)
 
         assert cacher._purge_key.calls == _purge_key_calls
+        assert metrics.increment.calls == metrics_calls
 
     @pytest.mark.parametrize(
         "connect_via,_purge_key_mock_effects,expected_raise,_purge_key_calls",
@@ -548,6 +586,7 @@ class TestFastlyCache:
     def test_purge_key_no_fallback(
         self,
         monkeypatch,
+        metrics,
         connect_via,
         _purge_key_mock_effects,
         expected_raise,
@@ -567,6 +606,7 @@ class TestFastlyCache:
         cacher._purge_key = pretend.call_recorder(_purge_key_mock)
 
         with pytest.raises(expected_raise):
-            cacher.purge_key("one")
+            cacher.purge_key("one", metrics=metrics)
 
         assert cacher._purge_key.calls == _purge_key_calls
+        assert metrics.increment.calls == []

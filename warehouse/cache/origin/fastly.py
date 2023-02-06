@@ -20,6 +20,7 @@ from zope.interface import implementer
 
 from warehouse import tasks
 from warehouse.cache.origin.interfaces import IOriginCache
+from warehouse.metrics.interfaces import IMetricsService
 
 
 class UnsuccessfulPurgeError(Exception):
@@ -29,9 +30,10 @@ class UnsuccessfulPurgeError(Exception):
 @tasks.task(bind=True, ignore_result=True, acks_late=True)
 def purge_key(task, request, key):
     cacher = request.find_service(IOriginCache)
+    metrics = request.find_service(IMetricsService, context=None)
     request.log.info("Purging %s", key)
     try:
-        cacher.purge_key(key)
+        cacher.purge_key(key, metrics=metrics)
     except (
         requests.ConnectionError,
         requests.HTTPError,
@@ -136,4 +138,8 @@ class FastlyCache:
             if self.api_connect_via is None:
                 raise
             else:
+                metrics.increment(
+                    "warehouse.cache.origin.fastly.connect_via.failed",
+                    tags=f"ip_address:{self.api_connect_via}",
+                )
                 self._double_purge_key(key)  # Do not connect via on fallback
