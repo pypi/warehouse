@@ -13,12 +13,14 @@
 import time
 import urllib.parse
 
+import forcediphttpsadapter.adapters
 import requests
 
 from zope.interface import implementer
 
 from warehouse import tasks
 from warehouse.cache.origin.interfaces import IOriginCache
+from warehouse.metrics.interfaces import IMetricsService
 
 
 class UnsuccessfulPurgeError(Exception):
@@ -28,9 +30,10 @@ class UnsuccessfulPurgeError(Exception):
 @tasks.task(bind=True, ignore_result=True, acks_late=True)
 def purge_key(task, request, key):
     cacher = request.find_service(IOriginCache)
+    metrics = request.find_service(IMetricsService, context=None)
     request.log.info("Purging %s", key)
     try:
-        cacher.purge_key(key)
+        cacher.purge_key(key, metrics=metrics)
     except (
         requests.ConnectionError,
         requests.HTTPError,
@@ -43,8 +46,9 @@ def purge_key(task, request, key):
 
 @implementer(IOriginCache)
 class FastlyCache:
-    def __init__(self, *, api_endpoint, api_key, service_id, purger):
+    def __init__(self, *, api_endpoint, api_connect_via, api_key, service_id, purger):
         self.api_endpoint = api_endpoint
+        self.api_connect_via = api_connect_via
         self.api_key = api_key
         self.service_id = service_id
         self._purger = purger
@@ -54,6 +58,9 @@ class FastlyCache:
         return cls(
             api_endpoint=request.registry.settings.get(
                 "origin_cache.api_endpoint", "https://api.fastly.com"
+            ),
+            api_connect_via=request.registry.settings.get(
+                "origin_cache.api_connect_via", None
             ),
             api_key=request.registry.settings["origin_cache.api_key"],
             service_id=request.registry.settings["origin_cache.service_id"],
@@ -92,7 +99,7 @@ class FastlyCache:
         for key in keys:
             self._purger(key)
 
-    def purge_key(self, key):
+    def _purge_key(self, key, connect_via=None):
         path = "/service/{service_id}/purge/{key}".format(
             service_id=self.service_id, key=key
         )
@@ -103,16 +110,36 @@ class FastlyCache:
             "Fastly-Soft-Purge": "1",
         }
 
-        resp = requests.post(url, headers=headers)
-        resp.raise_for_status()
+        session = requests.Session()
 
+        if connect_via is not None:
+            session.mount(
+                self.api_endpoint,
+                forcediphttpsadapter.adapters.ForcedIPHTTPSAdapter(
+                    dest_ip=self.api_connect_via
+                ),
+            )
+
+        resp = session.post(url, headers=headers)
+        resp.raise_for_status()
         if resp.json().get("status") != "ok":
             raise UnsuccessfulPurgeError(f"Could not purge {key!r}")
 
+    def _double_purge_key(self, key, connect_via=None):
+        self._purge_key(key, connect_via=connect_via)
+        # https://developer.fastly.com/learning/concepts/purging/#race-conditions
         time.sleep(2)
+        self._purge_key(key, connect_via=connect_via)
 
-        resp = requests.post(url, headers=headers)
-        resp.raise_for_status()
-
-        if resp.json().get("status") != "ok":
-            raise UnsuccessfulPurgeError(f"Could not double purge {key!r}")
+    def purge_key(self, key, metrics=None):
+        try:
+            self._purge_key(key, connect_via=self.api_connect_via)
+        except requests.ConnectionError:
+            if self.api_connect_via is None:
+                raise
+            else:
+                metrics.increment(
+                    "warehouse.cache.origin.fastly.connect_via.failed",
+                    tags=f"ip_address:{self.api_connect_via}",
+                )
+                self._double_purge_key(key)  # Do not connect via on fallback

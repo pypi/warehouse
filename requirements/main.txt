@@ -480,6 +480,9 @@ first==2.0.2 \
     --hash=sha256:8d8e46e115ea8ac652c76123c0865e3ff18372aef6f03c22809ceefcea9dec86 \
     --hash=sha256:ff285b08c55f8c97ce4ea7012743af2495c9f1291785f163722bd36f6af6d3bf
     # via -r requirements/main.in
+forcediphttpsadapter==1.0.2 \
+    --hash=sha256:f7582b34aaa6ab6b17f69ab1abbfe67097b952ed0682b758b5e01e18fe24433e
+    # via -r requirements/main.in
 github-reserved-names==1.0.1 \
     --hash=sha256:c9acc3c8e573e303e962496308553241db6f306290a09be7d2c6d60cdcda0bb9 \
     --hash=sha256:f10b8df2b01d76022b144a17381782b63205b2f2cefdfc145c984d16cb4e9733
@@ -1346,6 +1349,7 @@ requests==2.28.2 \
     # via
     #   -r requirements/main.in
     #   datadog
+    #   forcediphttpsadapter
     #   google-api-core
     #   google-cloud-bigquery
     #   google-cloud-storage
