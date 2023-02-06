@@ -10,7 +10,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import itertools
+import time
+
+from unittest.mock import Mock
 
 import celery.exceptions
 import forcediphttpsadapter.adapters
@@ -239,46 +241,13 @@ class TestFastlyCache:
 
         assert purge_delay.calls == [pretend.call("one"), pretend.call("two")]
 
-    def test_purge_key_ok(self, monkeypatch):
-        cacher = fastly.FastlyCache(
-            api_endpoint="https://api.fastly.com",
-            api_connect_via=None,
-            api_key="an api key",
-            service_id="the-service-id",
-            purger=None,
-        )
-
-        requests_mount = pretend.call_recorder(lambda *a, **kw: None)
-        response = pretend.stub(
-            raise_for_status=pretend.call_recorder(lambda: None),
-            json=lambda: {"status": "ok"},
-        )
-        requests_post = pretend.call_recorder(lambda *a, **kw: response)
-
-        def requests_session(*a, **kw):
-            return pretend.stub(
-                mount=requests_mount,
-                post=requests_post,
-            )
-
-        monkeypatch.setattr(requests, "Session", requests_session)
-
-        cacher.purge_key("one")
-
-        assert requests_mount.calls == []
-        assert requests_post.calls == [
-            pretend.call(
-                "https://api.fastly.com/service/the-service-id/purge/one",
-                headers={
-                    "Accept": "application/json",
-                    "Fastly-Key": "an api key",
-                    "Fastly-Soft-Purge": "1",
-                },
-            ),
-        ]
-        assert response.raise_for_status.calls == [pretend.call()]
-
-    def test_purge_key_ok_connect_via(self, monkeypatch):
+    @pytest.mark.parametrize(
+        "connect_via,forced_ip_https_adapter_calls",
+        [(None, []), ("172.16.0.1", [pretend.call(dest_ip="172.16.0.1")])],
+    )
+    def test__purge_key_ok(
+        self, monkeypatch, connect_via, forced_ip_https_adapter_calls
+    ):
         forced_ip_https_adapter = pretend.call_recorder(lambda *a, **kw: None)
 
         class MockForcedIPHTTPSAdapter:
@@ -293,7 +262,7 @@ class TestFastlyCache:
 
         cacher = fastly.FastlyCache(
             api_endpoint="https://api.fastly.com",
-            api_connect_via="172.16.0.1",
+            api_connect_via=connect_via,
             api_key="an api key",
             service_id="the-service-id",
             purger=None,
@@ -314,9 +283,9 @@ class TestFastlyCache:
 
         monkeypatch.setattr(requests, "Session", requests_session)
 
-        cacher.purge_key("one")
+        cacher._purge_key("one", connect_via=connect_via)
 
-        assert forced_ip_https_adapter.calls == [pretend.call(dest_ip="172.16.0.1")]
+        assert forced_ip_https_adapter.calls == forced_ip_https_adapter_calls
         assert requests_post.calls == [
             pretend.call(
                 "https://api.fastly.com/service/the-service-id/purge/one",
@@ -329,11 +298,33 @@ class TestFastlyCache:
         ]
         assert response.raise_for_status.calls == [pretend.call()]
 
-    @pytest.mark.parametrize("result", [{"status": "fail"}, {}])
-    def test_purge_key_unsuccessful(self, monkeypatch, result):
+    @pytest.mark.parametrize(
+        "connect_via,forced_ip_https_adapter_calls,result",
+        [
+            (None, [], {"status": "fail"}),
+            (None, [], {}),
+            ("172.16.0.1", [pretend.call(dest_ip="172.16.0.1")], {"status": "fail"}),
+            ("172.16.0.1", [pretend.call(dest_ip="172.16.0.1")], {}),
+        ],
+    )
+    def test__purge_key_unsuccessful(
+        self, monkeypatch, connect_via, forced_ip_https_adapter_calls, result
+    ):
+        forced_ip_https_adapter = pretend.call_recorder(lambda *a, **kw: None)
+
+        class MockForcedIPHTTPSAdapter:
+            def __init__(self, *a, **kw):
+                return forced_ip_https_adapter(*a, **kw)
+
+        monkeypatch.setattr(
+            forcediphttpsadapter.adapters,
+            "ForcedIPHTTPSAdapter",
+            MockForcedIPHTTPSAdapter,
+        )
+
         cacher = fastly.FastlyCache(
             api_endpoint="https://api.fastly.com",
-            api_connect_via=None,
+            api_connect_via=connect_via,
             api_key="an api key",
             service_id="the-service-id",
             purger=None,
@@ -354,9 +345,9 @@ class TestFastlyCache:
         monkeypatch.setattr(requests, "Session", requests_session)
 
         with pytest.raises(fastly.UnsuccessfulPurgeError):
-            cacher.purge_key("one")
+            cacher._purge_key("one", connect_via=connect_via)
 
-        assert requests_mount.calls == []
+        assert forced_ip_https_adapter.calls == forced_ip_https_adapter_calls
         assert requests_post.calls == [
             pretend.call(
                 "https://api.fastly.com/service/the-service-id/purge/one",
@@ -368,3 +359,214 @@ class TestFastlyCache:
             )
         ]
         assert response.raise_for_status.calls == [pretend.call()]
+
+    @pytest.mark.parametrize(
+        "connect_via,_purge_key_calls",
+        [
+            (
+                None,
+                [
+                    pretend.call("one", connect_via=None),
+                    pretend.call("one", connect_via=None),
+                ],
+            ),
+            (
+                "172.16.0.1",
+                [
+                    pretend.call("one", connect_via="172.16.0.1"),
+                    pretend.call("one", connect_via="172.16.0.1"),
+                ],
+            ),
+        ],
+    )
+    def test__double_purge_key_ok(self, monkeypatch, connect_via, _purge_key_calls):
+        monkeypatch.setattr(time, "sleep", lambda x: None)
+        cacher = fastly.FastlyCache(
+            api_endpoint="https://api.fastly.com",
+            api_connect_via=connect_via,
+            api_key="an api key",
+            service_id="the-service-id",
+            purger=None,
+        )
+
+        cacher._purge_key = pretend.call_recorder(lambda *a, **kw: None)
+
+        cacher._double_purge_key("one", connect_via=connect_via)
+
+        assert cacher._purge_key.calls == _purge_key_calls
+
+    @pytest.mark.parametrize(
+        "connect_via,_purge_key_calls",
+        [
+            (
+                None,
+                [
+                    pretend.call("one", connect_via=None),
+                ],
+            ),
+            (
+                "172.16.0.1",
+                [
+                    pretend.call("one", connect_via="172.16.0.1"),
+                ],
+            ),
+        ],
+    )
+    def test__double_purge_key_unsuccessful_first(
+        self, monkeypatch, connect_via, _purge_key_calls
+    ):
+        monkeypatch.setattr(time, "sleep", lambda x: None)
+        cacher = fastly.FastlyCache(
+            api_endpoint="https://api.fastly.com",
+            api_connect_via=connect_via,
+            api_key="an api key",
+            service_id="the-service-id",
+            purger=None,
+        )
+
+        cacher._purge_key = pretend.call_recorder(
+            pretend.raiser(fastly.UnsuccessfulPurgeError)
+        )
+
+        with pytest.raises(fastly.UnsuccessfulPurgeError):
+            cacher._double_purge_key("one", connect_via=connect_via)
+
+        assert cacher._purge_key.calls == _purge_key_calls
+
+    @pytest.mark.parametrize(
+        "connect_via,_purge_key_calls",
+        [
+            (
+                None,
+                [
+                    pretend.call("one", connect_via=None),
+                    pretend.call("one", connect_via=None),
+                ],
+            ),
+            (
+                "172.16.0.1",
+                [
+                    pretend.call("one", connect_via="172.16.0.1"),
+                    pretend.call("one", connect_via="172.16.0.1"),
+                ],
+            ),
+        ],
+    )
+    def test__double_purge_key_unsuccessful_second(
+        self, monkeypatch, connect_via, _purge_key_calls
+    ):
+        monkeypatch.setattr(time, "sleep", lambda x: None)
+        cacher = fastly.FastlyCache(
+            api_endpoint="https://api.fastly.com",
+            api_connect_via=connect_via,
+            api_key="an api key",
+            service_id="the-service-id",
+            purger=None,
+        )
+
+        _purge_key_mock = Mock()
+        _purge_key_mock.side_effect = [None, fastly.UnsuccessfulPurgeError]
+        cacher._purge_key = pretend.call_recorder(_purge_key_mock)
+
+        with pytest.raises(fastly.UnsuccessfulPurgeError):
+            cacher._double_purge_key("one", connect_via=connect_via)
+
+        assert cacher._purge_key.calls == _purge_key_calls
+
+    @pytest.mark.parametrize(
+        "connect_via,_purge_key_mock_effects,_purge_key_calls",
+        [
+            (
+                "172.16.0.1",
+                [requests.ConnectionError, None, None],
+                [
+                    pretend.call("one", connect_via="172.16.0.1"),
+                    pretend.call("one", connect_via=None),
+                    pretend.call("one", connect_via=None),
+                ],
+            ),
+            (
+                "172.16.0.1",
+                [requests.exceptions.SSLError, None, None],
+                [
+                    pretend.call("one", connect_via="172.16.0.1"),
+                    pretend.call("one", connect_via=None),
+                    pretend.call("one", connect_via=None),
+                ],
+            ),
+        ],
+    )
+    def test_purge_key_fallback(
+        self, monkeypatch, connect_via, _purge_key_mock_effects, _purge_key_calls
+    ):
+        monkeypatch.setattr(time, "sleep", lambda x: None)
+        cacher = fastly.FastlyCache(
+            api_endpoint="https://api.fastly.com",
+            api_connect_via=connect_via,
+            api_key="an api key",
+            service_id="the-service-id",
+            purger=None,
+        )
+
+        _purge_key_mock = Mock()
+        _purge_key_mock.side_effect = _purge_key_mock_effects
+        cacher._purge_key = pretend.call_recorder(_purge_key_mock)
+
+        cacher.purge_key("one")
+
+        assert cacher._purge_key.calls == _purge_key_calls
+
+    @pytest.mark.parametrize(
+        "connect_via,_purge_key_mock_effects,expected_raise,_purge_key_calls",
+        [
+            (
+                None,
+                [requests.ConnectionError, None, None],
+                requests.ConnectionError,
+                [pretend.call("one", connect_via=None)],
+            ),
+            (
+                None,
+                [requests.exceptions.SSLError, None, None],
+                requests.exceptions.SSLError,
+                [pretend.call("one", connect_via=None)],
+            ),
+            (
+                None,
+                [fastly.UnsuccessfulPurgeError, None, None],
+                fastly.UnsuccessfulPurgeError,
+                [pretend.call("one", connect_via=None)],
+            ),
+            (
+                "172.16.0.1",
+                [fastly.UnsuccessfulPurgeError, None, None],
+                fastly.UnsuccessfulPurgeError,
+                [pretend.call("one", connect_via="172.16.0.1")],
+            ),
+        ],
+    )
+    def test_purge_key_no_fallback(
+        self,
+        monkeypatch,
+        connect_via,
+        _purge_key_mock_effects,
+        expected_raise,
+        _purge_key_calls,
+    ):
+        monkeypatch.setattr(time, "sleep", lambda x: None)
+        cacher = fastly.FastlyCache(
+            api_endpoint="https://api.fastly.com",
+            api_connect_via=connect_via,
+            api_key="an api key",
+            service_id="the-service-id",
+            purger=None,
+        )
+
+        _purge_key_mock = Mock()
+        _purge_key_mock.side_effect = _purge_key_mock_effects
+        cacher._purge_key = pretend.call_recorder(_purge_key_mock)
+
+        with pytest.raises(expected_raise):
+            cacher.purge_key("one")
+
+        assert cacher._purge_key.calls == _purge_key_calls

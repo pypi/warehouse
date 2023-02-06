@@ -97,7 +97,7 @@ class FastlyCache:
         for key in keys:
             self._purger(key)
 
-    def purge_key(self, key):
+    def _purge_key(self, key, connect_via=None):
         path = "/service/{service_id}/purge/{key}".format(
             service_id=self.service_id, key=key
         )
@@ -110,7 +110,7 @@ class FastlyCache:
 
         session = requests.Session()
 
-        if self.api_connect_via is not None:
+        if connect_via is not None:
             session.mount(
                 self.api_endpoint,
                 forcediphttpsadapter.adapters.ForcedIPHTTPSAdapter(
@@ -120,6 +120,20 @@ class FastlyCache:
 
         resp = session.post(url, headers=headers)
         resp.raise_for_status()
-
         if resp.json().get("status") != "ok":
             raise UnsuccessfulPurgeError(f"Could not purge {key!r}")
+
+    def _double_purge_key(self, key, connect_via=None):
+        self._purge_key(key, connect_via=connect_via)
+        # https://developer.fastly.com/learning/concepts/purging/#race-conditions
+        time.sleep(2)
+        self._purge_key(key, connect_via=connect_via)
+
+    def purge_key(self, key, metrics=None):
+        try:
+            self._purge_key(key, connect_via=self.api_connect_via)
+        except requests.ConnectionError:
+            if self.api_connect_via is None:
+                raise
+            else:
+                self._double_purge_key(key)  # Do not connect via on fallback
