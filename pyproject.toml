@@ -53,6 +53,7 @@ module = [
 ignore_missing_imports = true
 
 [tool.pytest.ini_options]
+addopts = "--disable-socket --allow-hosts=stripe"
 norecursedirs = ['build', 'dist', 'node_modules', '*.egg-info', '.state requirements']
 markers = [
     'unit: Quick running unit tests which test small units of functionality.',
