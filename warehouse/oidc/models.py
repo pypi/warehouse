@@ -200,9 +200,10 @@ class PendingOIDCProvider(OIDCProviderMixin, db.Model):
         "polymorphic_on": OIDCProviderMixin.discriminator,
     }
 
-    def reify(self):  # pragma: no cover
+    def reify(self, session):  # pragma: no cover
         """
-        Return an equivalent "normal" OIDC provider model for this pending provider.
+        Return an equivalent "normal" OIDC provider model for this pending provider,
+        deleting the pending provider in the process.
         """
 
         # Only concrete subclasses are constructed.
@@ -305,13 +306,31 @@ class PendingGitHubProvider(GitHubProviderMixin, PendingOIDCProvider):
         UUID(as_uuid=True), ForeignKey(PendingOIDCProvider.id), primary_key=True
     )
 
-    def reify(self) -> GitHubProvider:
+    def reify(self, session) -> GitHubProvider:
         """
-        Returns a `GitHubProvider` for this `PendingGitHubProvider`.
+        Returns a `GitHubProvider` for this `PendingGitHubProvider`,
+        deleting the `PendingGitHubProvider` in the process.
         """
-        return GitHubProvider(
-            repository_name=self.repository_name,
-            repository_owner=self.repository_owner,
-            repository_owner_id=self.repository_owner_id,
-            workflow_filename=self.workflow_filename,
+
+        maybe_provider = (
+            session.query(GitHubProvider)
+            .filter(
+                GitHubProvider.repository_name == self.repository_name,
+                GitHubProvider.repository_owner == self.repository_owner,
+                GitHubProvider.workflow_filename == self.workflow_filename,
+            )
+            .one_or_none()
         )
+
+        if maybe_provider is not None:
+            provider = maybe_provider
+        else:
+            provider = GitHubProvider(
+                repository_name=self.repository_name,
+                repository_owner=self.repository_owner,
+                repository_owner_id=self.repository_owner_id,
+                workflow_filename=self.workflow_filename,
+            )
+
+        session.delete(self)
+        return provider

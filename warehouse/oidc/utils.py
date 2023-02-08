@@ -14,6 +14,7 @@ from __future__ import annotations
 
 from sqlalchemy.sql.expression import func, literal
 
+from warehouse.events.tags import EventTag
 from warehouse.oidc.interfaces import SignedClaims
 from warehouse.oidc.models import (
     GitHubProvider,
@@ -21,6 +22,7 @@ from warehouse.oidc.models import (
     PendingGitHubProvider,
     PendingOIDCProvider,
 )
+from warehouse.packaging.models import JournalEntry, Project, Role
 
 GITHUB_OIDC_ISSUER_URL = "https://token.actions.githubusercontent.com"
 
@@ -72,3 +74,65 @@ def find_provider_by_issuer(
     else:
         # Unreachable; same logic error as above.
         return None  # pragma: no cover
+
+
+def reify_pending_provider(
+    session, pending_provider: PendingOIDCProvider, remote_addr: str
+):
+    """
+    Reify a `PendingOIDCProvider` into an `OIDCProvider`, creating its
+    project in the process.
+
+    `remote_addr` is the IP address to attribute the changes to, in both the journal
+    and event logs.
+
+    Deletes the pending OIDC provider once complete.
+
+    Returns the a tuple of the new project and new OIDC provider.
+    """
+    new_project = Project(name=pending_provider.project_name)
+    session.add(new_project)
+
+    session.add(
+        JournalEntry(
+            name=new_project.name,
+            action="create",
+            submitted_by=pending_provider.added_by,
+            submitted_from=remote_addr,
+        )
+    )
+
+    new_project.record_event(
+        tag=EventTag.Project.ProjectCreate,
+        ip_address=remote_addr,
+        additional={"created_by": pending_provider.added_by.username},
+    )
+
+    session.add(
+        Role(user=pending_provider.added_by, project=new_project, role_name="Owner")
+    )
+
+    session.add(
+        JournalEntry(
+            name=new_project.name,
+            action=f"add Owner {pending_provider.added_by.username}",
+            submitted_by=pending_provider.added_by,
+            submitted_from=remote_addr,
+        )
+    )
+    new_project.record_event(
+        tag=EventTag.Project.RoleAdd,
+        ip_address=remote_addr,
+        additional={
+            "submitted_by": pending_provider.added_by.username,
+            "role_name": "Owner",
+            "target_user": pending_provider.added_by.username,
+        },
+    )
+
+    new_provider = pending_provider.reify(session)
+    new_project.oidc_providers.append(new_provider)
+
+    session.flush()
+
+    return new_project, new_provider

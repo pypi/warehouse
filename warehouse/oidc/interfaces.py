@@ -42,6 +42,16 @@ class IOIDCProviderService(Interface):
         """
         pass
 
+    def reify_pending_provider(pending_provider):
+        """
+        Reify the given pending `PendingOIDCProvider` into an `OIDCProvider`,
+        creating its reserved project in the process and deleting the pending
+        provider once inactive.
+
+        Returns the reified provider.
+        """
+        pass
+
 
 class TooManyOIDCRegistrations(RateLimiterException):
     pass

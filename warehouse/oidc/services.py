@@ -23,7 +23,7 @@ from zope.interface import implementer
 from warehouse.metrics.interfaces import IMetricsService
 from warehouse.oidc.interfaces import IOIDCProviderService, SignedClaims
 from warehouse.oidc.models import OIDCProvider, PendingOIDCProvider
-from warehouse.oidc.utils import find_provider_by_issuer
+from warehouse.oidc.utils import find_provider_by_issuer, reify_pending_provider
 
 
 class InsecureOIDCProviderWarning(UserWarning):
@@ -73,6 +73,9 @@ class NullOIDCProviderService:
         return find_provider_by_issuer(
             self.db, self.issuer_url, signed_claims, pending=pending
         )
+
+    def reify_pending_provider(self, pending_provider, remote_addr):
+        return reify_pending_provider(self.db, pending_provider, remote_addr)
 
 
 @implementer(IOIDCProviderService)
@@ -284,6 +287,9 @@ class OIDCProviderService:
             )
 
         return provider
+
+    def reify_pending_provider(self, pending_provider, remote_addr):
+        return reify_pending_provider(self.db, pending_provider, remote_addr)
 
 
 class OIDCProviderServiceFactory:
