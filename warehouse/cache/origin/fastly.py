@@ -140,6 +140,6 @@ class FastlyCache:
             else:
                 metrics.increment(
                     "warehouse.cache.origin.fastly.connect_via.failed",
-                    tags=f"ip_address:{self.api_connect_via}",
+                    tags=[f"ip_address:{self.api_connect_via}"],
                 )
                 self._double_purge_key(key)  # Do not connect via on fallback

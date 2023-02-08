@@ -506,7 +506,7 @@ class TestFastlyCache:
                 [
                     pretend.call(
                         "warehouse.cache.origin.fastly.connect_via.failed",
-                        tags="ip_address:172.16.0.1",
+                        tags=["ip_address:172.16.0.1"],
                     )
                 ],
             ),
@@ -521,7 +521,7 @@ class TestFastlyCache:
                 [
                     pretend.call(
                         "warehouse.cache.origin.fastly.connect_via.failed",
-                        tags="ip_address:172.16.0.1",
+                        tags=["ip_address:172.16.0.1"],
                     )
                 ],
             ),

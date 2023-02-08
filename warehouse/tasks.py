@@ -122,6 +122,12 @@ class WarehouseTask(celery.Task):
             self._after_commit_hook, args=args, kws=kwargs
         )
 
+    def retry(self, *args, **kwargs):
+        request = get_current_request()
+        metrics = request.find_service(IMetricsService, context=None)
+        metrics.increment("warehouse.task.retried", tags=[f"task:{self.name}"])
+        return super().retry(*args, **kwargs)
+
     def _after_commit_hook(self, success, *args, **kwargs):
         if success:
             super().apply_async(*args, **kwargs)

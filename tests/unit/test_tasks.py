@@ -76,6 +76,27 @@ class TestWarehouseTask:
         assert prepare.calls == [pretend.call(registry=registry)]
         assert runner.calls == [pretend.call(request)]
 
+    def test_retry(self, monkeypatch, metrics):
+        def runner(self):
+            raise self.retry(exc=Exception())
+
+        request = pretend.stub(
+            find_service=lambda *a, **kw: metrics,
+        )
+        monkeypatch.setattr(tasks, "get_current_request", lambda: request)
+
+        task = tasks.WarehouseTask()
+        task.app = Celery()
+        task.name = "warehouse.test.task"
+        task.run = runner
+
+        with pytest.raises(Exception):
+            task.run(task)
+
+        assert metrics.increment.calls == [
+            pretend.call("warehouse.task.retried", tags=["task:warehouse.test.task"])
+        ]
+
     def test_without_request(self, monkeypatch):
         async_result = pretend.stub()
         apply_async = pretend.call_recorder(lambda *a, **kw: async_result)
