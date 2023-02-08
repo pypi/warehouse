@@ -136,7 +136,7 @@ class TestOIDCProviderService:
         token = pretend.stub()
 
         provider = pretend.stub(verify_claims=pretend.call_recorder(lambda c: True))
-        find_provider_by_issuer = pretend.call_recorder(lambda *a: provider)
+        find_provider_by_issuer = pretend.call_recorder(lambda *a, **kw: provider)
         monkeypatch.setattr(
             services, "find_provider_by_issuer", find_provider_by_issuer
         )
@@ -164,7 +164,7 @@ class TestOIDCProviderService:
             ),
         )
 
-        find_provider_by_issuer = pretend.call_recorder(lambda *a: None)
+        find_provider_by_issuer = pretend.call_recorder(lambda *a, **kw: None)
         monkeypatch.setattr(
             services, "find_provider_by_issuer", find_provider_by_issuer
         )
@@ -194,7 +194,7 @@ class TestOIDCProviderService:
         )
 
         provider = pretend.stub(verify_claims=pretend.call_recorder(lambda c: False))
-        find_provider_by_issuer = pretend.call_recorder(lambda *a: provider)
+        find_provider_by_issuer = pretend.call_recorder(lambda *a, **kw: provider)
         monkeypatch.setattr(
             services, "find_provider_by_issuer", find_provider_by_issuer
         )
@@ -706,7 +706,7 @@ class TestNullOIDCProviderService:
         )
 
         provider = pretend.stub(verify_claims=pretend.call_recorder(lambda c: True))
-        find_provider_by_issuer = pretend.call_recorder(lambda *a: provider)
+        find_provider_by_issuer = pretend.call_recorder(lambda *a, **kw: provider)
         monkeypatch.setattr(
             services, "find_provider_by_issuer", find_provider_by_issuer
         )

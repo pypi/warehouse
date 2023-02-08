@@ -12,11 +12,14 @@
 
 from __future__ import annotations
 
-from typing import Any, NewType
+from typing import TYPE_CHECKING, Any, NewType
 
 from zope.interface import Interface
 
 from warehouse.rate_limiting.interfaces import RateLimiterException
+
+if TYPE_CHECKING:
+    from warehouse.oidc.models import PendingOIDCProvider
 
 SignedClaims = NewType("SignedClaims", dict[str, Any])
 
@@ -42,7 +45,7 @@ class IOIDCProviderService(Interface):
         """
         pass
 
-    def reify_pending_provider(pending_provider):
+    def reify_pending_provider(pending_provider: PendingOIDCProvider, remote_addr: str):
         """
         Reify the given pending `PendingOIDCProvider` into an `OIDCProvider`,
         creating its reserved project in the process and deleting the pending

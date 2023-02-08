@@ -118,10 +118,13 @@ class TestGitHubProvider:
             claim_name: "fake"
             for claim_name in models.GitHubProvider.all_known_claims()
         }
-        signed_claims.pop("repository")
+        # Pop the first signed claim, so that it's the first one to fail.
+        signed_claims.pop("sub")
+        assert "sub" not in signed_claims
+        assert provider.__verifiable_claims__
         assert not provider.verify_claims(signed_claims=signed_claims)
         assert sentry_sdk.capture_message.calls == [
-            pretend.call("JWT for GitHubProvider is missing claim: repository")
+            pretend.call("JWT for GitHubProvider is missing claim: sub")
         ]
 
     def test_github_provider_verifies(self, monkeypatch):
