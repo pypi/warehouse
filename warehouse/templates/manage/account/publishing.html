@@ -27,7 +27,35 @@
 
   {{ oidc_desc() }}
 
-  <h2>{% trans %}Manage pending providers{% endtrans %}</h2>
+  <h2>{% trans %}Manage providers{% endtrans %}</h2>
+  
+  <h3>Projects with active providers</h3>
+  <table class="table">
+    <thead>
+      <tr scope="col">
+        <th scope="col">{% trans %}Project{% endtrans %}</th>
+        <th></th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for project in user.projects %}
+      {% if project.oidc_providers %}
+      <tr>
+        <td scope="row">{{ project.name }}</td>
+        <td scope="row">
+          <a href="{{ request.route_path('manage.project.settings.publishing', project_name=project.name) }}"
+            class="button button--primary">
+            Manage
+          </a>
+        </td>
+      </tr>
+      {% endif %}
+      {% endfor %}
+    </tbody>
+  </table>
+  
+  <h3>Pending providers</h3>
+
   {% if user.pending_oidc_providers %}
   <table class="table table--publisher-list">
     <thead>
