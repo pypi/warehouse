@@ -12,7 +12,7 @@
 # Dustin Ingram <dustin.ingram@gmail.com>, 2020, 2022.
 # Kenichi Maehashi <webmaster@kenichimaehashi.com>, 2021, 2022.
 # Nanashi. <sevenc_nanashi@yahoo.co.jp>, 2021, 2022.
-# moto kawasaki <moto@kawasaki3.org>, 2021, 2022.
+# moto kawasaki <moto@kawasaki3.org>, 2021, 2022, 2023.
 # YangYulin <yylteam@icloud.com>, 2022.
 # 金城翔平 <job.kinjo@gmail.com>, 2022.
 # Deleted User <noreply+53680@weblate.org>, 2022.
@@ -21,8 +21,8 @@ msgstr ""
 "Project-Id-Version: Warehouse VERSION\n"
 "Report-Msgid-Bugs-To: admin@pypi.org\n"
 "POT-Creation-Date: 2020-04-06 17:52-0500\n"
-"PO-Revision-Date: 2022-12-12 08:49+0000\n"
-"Last-Translator: Deleted User <noreply+53680@weblate.org>\n"
+"PO-Revision-Date: 2023-02-06 21:39+0000\n"
+"Last-Translator: moto kawasaki <moto@kawasaki3.org>\n"
 "Language-Team: Japanese <https://hosted.weblate.org/projects/pypa/warehouse/"
 "ja/>\n"
 "Language: ja\n"
@@ -30,7 +30,7 @@ msgstr ""
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Generator: Weblate 4.15-dev\n"
+"X-Generator: Weblate 4.16-dev\n"
 "Generated-By: Babel 2.8.0\n"
 
 #: warehouse/views.py:140
@@ -6212,7 +6212,7 @@ msgstr "種類"
 #: warehouse/templates/manage/project/release.html:58
 #: warehouse/templates/manage/project/release.html:76
 msgid "Python version"
-msgstr "Pythonのバージョン"
+msgstr "Pythonバージョン"
 
 #: warehouse/templates/manage/project/release.html:59
 #: warehouse/templates/manage/project/release.html:80
@@ -6541,7 +6541,7 @@ msgstr "共同編集者（collaborators）には、以下の2つの役割があ�
 #: warehouse/templates/manage/project/roles.html:174
 #: warehouse/templates/manage/project/roles.html:184
 msgid "Maintainer"
-msgstr "Maintainer"
+msgstr "メンテナ"
 
 #: warehouse/templates/manage/project/roles.html:49
 #, fuzzy
@@ -9489,7 +9489,7 @@ msgstr "他に何かお探しですか？ おそらく、以下のリンクが�
 
 #: warehouse/templates/pages/help.html:948
 msgid "Python Packaging User Guide"
-msgstr "Python パッケージングユーザガイド"
+msgstr "Pythonパッケージユーザーガイド（Python Packaging User Guide）"
 
 #: warehouse/templates/pages/help.html:949
 msgid "Python documentation"

@@ -15,13 +15,14 @@
 # Hila <hip023@g.harvard.edu>, 2022.
 # אברהם רוזנטל <tcruo123@gmail.com>, 2022.
 # Mike Fiedler <miketheman@gmail.com>, 2022.
+# Eytan Goldshmidt <eitntt@gmail.com>, 2023.
 msgid ""
 msgstr ""
 "Project-Id-Version: Warehouse VERSION\n"
 "Report-Msgid-Bugs-To: admin@pypi.org\n"
 "POT-Creation-Date: 2020-01-15 20:11+0200\n"
-"PO-Revision-Date: 2022-11-11 15:05+0000\n"
-"Last-Translator: Mike Fiedler <miketheman@gmail.com>\n"
+"PO-Revision-Date: 2023-02-08 22:56+0000\n"
+"Last-Translator: Eytan Goldshmidt <eitntt@gmail.com>\n"
 "Language-Team: Hebrew <https://hosted.weblate.org/projects/pypa/warehouse/he/"
 ">\n"
 "Language: he\n"
@@ -30,7 +31,7 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=4; plural=(n == 1) ? 0 : ((n == 2) ? 1 : ((n > 10 && "
 "n % 10 == 0) ? 2 : 3));\n"
-"X-Generator: Weblate 4.15-dev\n"
+"X-Generator: Weblate 4.16-dev\n"
 "Generated-By: Babel 2.7.0\n"
 
 #: warehouse/views.py:140
@@ -56,9 +57,8 @@ msgid "TOTP code must be ${totp_length} digits."
 msgstr "קוד TOTP חייב להכיל ${totp_length} ספרות."
 
 #: warehouse/accounts/forms.py:90
-#, fuzzy
 msgid "Recovery Codes must be ${recovery_code_length} characters."
-msgstr "קודי השחזור חייבים להיות ${אורך שחזור תווים}תווים."
+msgstr "קודי השחזור חייבים להיות ${אורך שחזור תווים} תווים."
 
 #: warehouse/accounts/forms.py:105
 msgid "Choose a username with 50 characters or less."
@@ -134,10 +134,8 @@ msgid "Invalid recovery code."
 msgstr "קוד שחזור לא תקין."
 
 #: warehouse/accounts/forms.py:450
-#, fuzzy
-#| msgid "Recovery codes regenerated"
 msgid "Recovery code has been previously used."
-msgstr "קודים לשחזור יוצרו מחדש"
+msgstr "קוד השחזור היה בשימוש בעבר."
 
 #: warehouse/accounts/forms.py:469
 msgid "No user found with that username or email"
