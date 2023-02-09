@@ -12,20 +12,16 @@
 
 import json
 
-from urllib import request
-
 import pretend
 import pytest
 
 from tests.common.db.oidc import GitHubProviderFactory, PendingGitHubProviderFactory
 from tests.common.db.packaging import ProjectFactory
-from warehouse import oidc
 from warehouse.events.tags import EventTag
 from warehouse.macaroons import caveats
 from warehouse.macaroons.interfaces import IMacaroonService
 from warehouse.oidc import views
 from warehouse.oidc.interfaces import IOIDCProviderService
-from warehouse.oidc.utils import reify_pending_provider
 
 
 @pytest.mark.parametrize(

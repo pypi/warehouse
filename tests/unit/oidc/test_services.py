@@ -17,7 +17,6 @@ from jwt import PyJWK, PyJWTError
 from zope.interface.verify import verifyClass
 
 from warehouse.oidc import interfaces, services
-from warehouse.oidc.utils import reify_pending_provider
 
 
 def test_oidc_provider_service_factory():
