@@ -22,7 +22,7 @@ from zope.interface import implementer
 
 from warehouse.metrics.interfaces import IMetricsService
 from warehouse.oidc.interfaces import IOIDCProviderService, SignedClaims
-from warehouse.oidc.models import OIDCProvider
+from warehouse.oidc.models import OIDCProvider, PendingOIDCProvider
 from warehouse.oidc.utils import find_provider_by_issuer, reify_pending_provider
 
 
@@ -67,7 +67,7 @@ class NullOIDCProviderService:
 
     def find_provider(
         self, signed_claims: SignedClaims, *, pending: bool = False
-    ) -> OIDCProvider | None:
+    ) -> OIDCProvider | PendingOIDCProvider | None:
         # NOTE: We do NOT verify the claims against the provider, since this
         # service is for development purposes only.
         return find_provider_by_issuer(
@@ -257,7 +257,7 @@ class OIDCProviderService:
 
     def find_provider(
         self, signed_claims: SignedClaims, *, pending: bool = False
-    ) -> OIDCProvider | None:
+    ) -> OIDCProvider | PendingOIDCProvider | None:
         metrics_tags = [f"provider:{self.provider}"]
         self.metrics.increment(
             "warehouse.oidc.find_provider.attempt",
