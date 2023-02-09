@@ -17,6 +17,7 @@ from jwt import PyJWK, PyJWTError
 from zope.interface.verify import verifyClass
 
 from warehouse.oidc import interfaces, services
+from warehouse.oidc.utils import reify_pending_provider
 
 
 def test_oidc_provider_service_factory():
@@ -592,6 +593,26 @@ class TestOIDCProviderService:
         assert service._get_key.calls == [pretend.call("fake-key-id")]
         assert services.jwt.get_unverified_header.calls == [pretend.call(token)]
 
+    def test_reify_provider(self, monkeypatch):
+        service = services.OIDCProviderService(
+            session=pretend.stub(),
+            provider="example",
+            issuer_url="https://example.com",
+            cache_url="rediss://fake.example.com",
+            metrics=pretend.stub(),
+        )
+
+        reify_pending_provider = pretend.call_recorder(lambda *a: None)
+        monkeypatch.setattr(services, "reify_pending_provider", reify_pending_provider)
+
+        pending_provider = pretend.stub()
+        remote_addr = pretend.stub()
+        service.reify_pending_provider(pending_provider, remote_addr)
+
+        assert reify_pending_provider.calls == [
+            pretend.call(service.db, pending_provider, remote_addr)
+        ]
+
 
 class TestNullOIDCProviderService:
     def test_interface_matches(self):
@@ -712,3 +733,23 @@ class TestNullOIDCProviderService:
         )
 
         assert service.find_provider(claims) == provider
+
+    def test_reify_provider(self, monkeypatch):
+        service = services.NullOIDCProviderService(
+            session=pretend.stub(),
+            provider="example",
+            issuer_url="https://example.com",
+            cache_url="rediss://fake.example.com",
+            metrics=pretend.stub(),
+        )
+
+        reify_pending_provider = pretend.call_recorder(lambda *a: None)
+        monkeypatch.setattr(services, "reify_pending_provider", reify_pending_provider)
+
+        pending_provider = pretend.stub()
+        remote_addr = pretend.stub()
+        service.reify_pending_provider(pending_provider, remote_addr)
+
+        assert reify_pending_provider.calls == [
+            pretend.call(service.db, pending_provider, remote_addr)
+        ]

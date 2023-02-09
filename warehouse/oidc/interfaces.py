@@ -19,7 +19,7 @@ from zope.interface import Interface
 from warehouse.rate_limiting.interfaces import RateLimiterException
 
 if TYPE_CHECKING:
-    from warehouse.oidc.models import PendingOIDCProvider
+    from warehouse.oidc.models import PendingOIDCProvider  # pragma: no cover
 
 SignedClaims = NewType("SignedClaims", dict[str, Any])
 

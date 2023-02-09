@@ -14,8 +14,12 @@ import pretend
 
 from sqlalchemy.sql.expression import func, literal
 
+from tests.common.db.accounts import UserFactory
+from tests.common.db.oidc import PendingGitHubProviderFactory
+from warehouse.events.tags import EventTag
 from warehouse.oidc import utils
-from warehouse.oidc.models import GitHubProvider
+from warehouse.oidc.models import GitHubProvider, PendingGitHubProvider
+from warehouse.packaging.models import Project
 
 
 def test_find_provider_by_issuer_bad_issuer_url():
@@ -70,3 +74,43 @@ def test_find_provider_by_issuer_github():
     )
 
     assert one_or_none.calls == [pretend.call()]
+
+
+def test_reify_pending_provider(db_request):
+    user = UserFactory.create()
+    pending_provider = PendingGitHubProviderFactory.create(added_by=user)
+
+    project, provider = utils.reify_pending_provider(
+        db_request.db, pending_provider, "0.0.0.0"
+    )
+
+    assert (project.events[0].tag, project.events[0].additional) == (
+        EventTag.Project.ProjectCreate,
+        {"created_by": user.username},
+    )
+    assert (project.events[1].tag, project.events[1].additional) == (
+        EventTag.Project.RoleAdd,
+        {
+            "submitted_by": user.username,
+            "role_name": "Owner",
+            "target_user": user.username,
+        },
+    )
+
+    assert isinstance(project, Project)
+    assert project.name == pending_provider.project_name
+    assert user.projects == [project]
+
+    assert isinstance(provider, GitHubProvider)
+    # The pending provider should no longer exist.
+    assert (
+        db_request.db.query(PendingGitHubProvider)
+        .filter_by(
+            repository_name=provider.repository_name,
+            repository_owner=provider.repository_owner,
+            repository_owner_id=provider.repository_owner_id,
+            workflow_filename=provider.workflow_filename,
+        )
+        .one_or_none()
+        is None
+    )

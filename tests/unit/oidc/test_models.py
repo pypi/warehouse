@@ -13,6 +13,7 @@
 import pretend
 import pytest
 
+from tests.common.db.oidc import GitHubProviderFactory, PendingGitHubProviderFactory
 from warehouse.oidc import models
 
 
@@ -206,3 +207,44 @@ class TestGitHubProvider:
 
         check = models.GitHubProvider.__verifiable_claims__["job_workflow_ref"]
         assert check(provider.job_workflow_ref, claim, {"ref": ref}) is valid
+
+
+class TestPendingGitHubProvider:
+    def test_reify_does_not_exist_yet(self, db_request):
+        pending_provider = PendingGitHubProviderFactory.create()
+        assert (
+            db_request.db.query(models.GitHubProvider)
+            .filter_by(
+                repository_name=pending_provider.repository_name,
+                repository_owner=pending_provider.repository_owner,
+                repository_owner_id=pending_provider.repository_owner_id,
+                workflow_filename=pending_provider.workflow_filename,
+            )
+            .one_or_none()
+            is None
+        )
+        provider = pending_provider.reify(db_request.db)
+
+        # If an OIDC provider for this pending provider does not already exist,
+        # a new one is created and the pending provider is marked for deletion.
+        assert isinstance(provider, models.GitHubProvider)
+        assert pending_provider in db_request.db.deleted
+        assert provider.repository_name == pending_provider.repository_name
+        assert provider.repository_owner == pending_provider.repository_owner
+        assert provider.repository_owner_id == pending_provider.repository_owner_id
+        assert provider.workflow_filename == pending_provider.workflow_filename
+
+    def test_reify_already_exists(self, db_request):
+        existing_provider = GitHubProviderFactory.create()
+        pending_provider = PendingGitHubProviderFactory.create(
+            repository_name=existing_provider.repository_name,
+            repository_owner=existing_provider.repository_owner,
+            repository_owner_id=existing_provider.repository_owner_id,
+            workflow_filename=existing_provider.workflow_filename,
+        )
+        provider = pending_provider.reify(db_request.db)
+
+        # If an OIDC provider for this pending provider already exists,
+        # it is returned and the pending provider is marked for deletion.
+        assert existing_provider == provider
+        assert pending_provider in db_request.db.deleted

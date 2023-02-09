@@ -88,7 +88,7 @@ def reify_pending_provider(
 
     Deletes the pending OIDC provider once complete.
 
-    Returns the a tuple of the new project and new OIDC provider.
+    Returns the a tuple of the new project and reified OIDC provider.
     """
     new_project = Project(name=pending_provider.project_name)
     session.add(new_project)
