@@ -2,7 +2,7 @@ Frontend
 ========
 
 The Warehouse frontend is (as you might suspect) written in JavaScript with the
-CSS handled by SCSS. It uses ``gulp`` to process these files and prepare them for
+CSS handled by SCSS. It uses ``webpack`` to process these files and prepare them for
 serving.
 
 All of the static files are located in ``warehouse/static/`` and external
@@ -14,8 +14,8 @@ Building
 
 Static files should be automatically built when ``make serve`` is running;
 however, you can trigger a manual build of them by installing
-`NodeJS 14.x <https://nodejs.org/en/download/releases/>`_, installing
-the dependencies using ``npm install`` and then running ``gulp dist``.
+`NodeJS 16.x <https://nodejs.org/en/download/releases/>`_, installing
+the dependencies using ``npm install`` and then running ``npm run build``.
 
 If you're in a POSIX environment you may find
 `NVM <https://github.com/nvm-sh/nvm>`_ useful to have multiple NodeJS

@@ -28,7 +28,6 @@ body {
   line-height: $base-line-height;
   font-weight: $base-font-weight;
   color: $text-color;
-  -webkit-text-size-adjust: 100%;
   background-color: $background-color;
   direction: ltr;
 }
@@ -45,7 +44,7 @@ tt,
   font-family: $code-font;
   background-color: lighten($base-grey, 5);
   border: 1px solid $border-color;
-  padding: 0 2px 1px 2px;
+  padding: 0 2px 1px;
   font-size: 0.85rem;
   color: lighten($text-color, 15);
 }
@@ -115,11 +114,11 @@ a {
   @include primary-underlined-link;
 
   // Add 'external link' icon to most external links
-  &[target="_blank"]:not(.copy-tooltip):not(.sponsors__sponsor) {
+  &[target="_blank"]:not(.copy-tooltip, .sponsors__sponsor) {
     &::after {
       white-space: nowrap;
       font-size: 0.8em;
-      font-family: "Font Awesome 5 Free";
+      font-family: "Font Awesome 6 Free";
       font-weight: 900;
       content: "\f35d" #{"/*rtl:remove*/"};
       margin: 0 0 0 4px;
@@ -133,7 +132,7 @@ a {
   &[href^="mailto:"] {
     &::after {
       font-size: 0.9rem;
-      font-family: "Font Awesome 5 Free";
+      font-family: "Font Awesome 6 Free";
       font-weight: 400;
       content: "\f0e0";
       color: inherit;
@@ -189,7 +188,7 @@ ul,
 ol,
 dl,
 figure {
-  padding-bottom: $spacing-unit / 2;
+  padding-bottom: $half-spacing-unit;
 }
 
 p:last-child,

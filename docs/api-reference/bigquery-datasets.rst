@@ -22,5 +22,5 @@ as outlined by the `core metadata specifications <https://packaging.python.org/s
 The table is meant to be a data dump of metadata from every
 release on PyPI, which means that the rows in this BigQuery table
 are immutable and are not removed even if a release or project is deleted.
-This data can be accessible under the ``the-psf.pypi.distribution_metadata``
-public dataset on BigQuery.
+This data can be accessible under the
+``bigquery-public-data.pypi.distribution_metadata`` public dataset on BigQuery.

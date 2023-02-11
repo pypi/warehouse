@@ -130,8 +130,6 @@ def test_routes(warehouse):
         pretend.call(
             "includes.administer-project-include",
             "/_includes/administer-project-include/{project_name}",
-            factory="warehouse.packaging.models:ProjectFactory",
-            traverse="/{project_name}",
             domain=warehouse,
         ),
         pretend.call(
@@ -199,6 +197,9 @@ def test_routes(warehouse):
             domain=warehouse,
         ),
         pretend.call("manage.account", "/manage/account/", domain=warehouse),
+        pretend.call(
+            "manage.account.publishing", "/manage/account/publishing/", domain=warehouse
+        ),
         pretend.call(
             "manage.account.two-factor",
             "/manage/account/two-factor/",

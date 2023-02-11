@@ -18,17 +18,28 @@ import * as cookie from "cookie";
 
 export default () => {
   let element = document.querySelector("script[data-ga-id]");
-  if (element) {
+  let ga4element = document.querySelector("script[data-ga4-id]");
+  if (element || ga4element) {
     var dnt = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
     if (dnt == "1" || dnt == "yes") {
-      window["ga-disable-" + element.dataset.gaId] = true;
+      if (element) {
+        window["ga-disable-" + element.dataset.gaId] = true;
+      }
+      if (ga4element) {
+        window["ga-disable-" + element.dataset.ga4Id] = true;
+      }
     } else {
       // This is more or less taken straight from Google Analytics Control Panel
       window.dataLayer = window.dataLayer || [];
       var gtag = function(){ dataLayer.push(arguments); };
 
       gtag("js", new Date());
-      gtag("config", element.dataset.gaId, { "anonymize_ip": true });
+      if (element) {
+        gtag("config", element.dataset.gaId, { "anonymize_ip": true });
+      }
+      if (ga4element) {
+        gtag("config", element.dataset.ga4Id, { "anonymize_ip": true });
+      }
 
       // Determine if we have a user ID associated with this person, if so we'll
       // go ahead and tell Google it to enable better tracking of individual

@@ -17,7 +17,7 @@ from pyramid.httpexceptions import HTTPBadRequest, HTTPMovedPermanently
 from sqlalchemy.orm import joinedload
 from webob.multidict import MultiDict, NoVars
 
-from warehouse.accounts.interfaces import IUserService
+from warehouse.accounts.interfaces import IEmailBreachedService, IUserService
 from warehouse.accounts.models import DisableReason, ProhibitedUserName
 from warehouse.admin.views import users as views
 from warehouse.packaging.models import JournalEntry, Project
@@ -113,6 +113,12 @@ class TestUserDetail:
         roles = sorted([RoleFactory(project=project, user=user, role_name="Owner")])
         db_request.matchdict["username"] = str(user.username)
         db_request.POST = NoVars()
+
+        breach_service = pretend.stub(get_email_breach_count=lambda count: 0)
+        db_request.find_service = lambda interface, **kwargs: {
+            IEmailBreachedService: breach_service,
+        }[interface]
+
         result = views.user_detail(user, db_request)
 
         assert result["user"] == user
@@ -126,13 +132,13 @@ class TestUserDetail:
         db_request.POST["name"] = "Jane Doe"
         db_request.POST = MultiDict(db_request.POST)
         db_request.current_route_path = pretend.call_recorder(
-            lambda: "/admin/users/{}/".format(user.username)
+            lambda: f"/admin/users/{user.username}/"
         )
 
         resp = views.user_detail(user, db_request)
 
         assert resp.status_code == 303
-        assert resp.location == "/admin/users/{}/".format(user.username)
+        assert resp.location == f"/admin/users/{user.username}/"
         assert user.name == "Jane Doe"
 
     def test_updates_user_no_primary_email(self, db_request):
@@ -146,8 +152,13 @@ class TestUserDetail:
 
         db_request.POST = MultiDict(db_request.POST)
         db_request.current_route_path = pretend.call_recorder(
-            lambda: "/admin/users/{}/".format(user.username)
+            lambda: f"/admin/users/{user.username}/"
         )
+
+        breach_service = pretend.stub(get_email_breach_count=lambda count: 0)
+        db_request.find_service = lambda interface, **kwargs: {
+            IEmailBreachedService: breach_service,
+        }[interface]
 
         resp = views.user_detail(user, db_request)
 
@@ -170,8 +181,13 @@ class TestUserDetail:
 
         db_request.POST = MultiDict(db_request.POST)
         db_request.current_route_path = pretend.call_recorder(
-            lambda: "/admin/users/{}/".format(user.username)
+            lambda: f"/admin/users/{user.username}/"
         )
+
+        breach_service = pretend.stub(get_email_breach_count=lambda count: 0)
+        db_request.find_service = lambda interface, **kwargs: {
+            IEmailBreachedService: breach_service,
+        }[interface]
 
         resp = views.user_detail(user, db_request)
 
@@ -206,7 +222,7 @@ class TestUserAddEmail:
         db_request.POST["verified"] = True
         db_request.POST = MultiDict(db_request.POST)
         db_request.route_path = pretend.call_recorder(
-            lambda *a, **kw: "/admin/users/{}/".format(user.username)
+            lambda *a, **kw: f"/admin/users/{user.username}/"
         )
 
         resp = views.user_add_email(user, db_request)
@@ -214,7 +230,7 @@ class TestUserAddEmail:
         db_request.db.flush()
 
         assert resp.status_code == 303
-        assert resp.location == "/admin/users/{}/".format(user.username)
+        assert resp.location == f"/admin/users/{user.username}/"
         assert len(user.emails) == 2
 
         emails = {e.email: e for e in user.emails}
@@ -233,7 +249,7 @@ class TestUserAddEmail:
         db_request.POST["verified"] = True
         db_request.POST = MultiDict(db_request.POST)
         db_request.route_path = pretend.call_recorder(
-            lambda *a, **kw: "/admin/users/{}/".format(user.username)
+            lambda *a, **kw: f"/admin/users/{user.username}/"
         )
 
         resp = views.user_add_email(user, db_request)
@@ -241,7 +257,7 @@ class TestUserAddEmail:
         db_request.db.flush()
 
         assert resp.status_code == 303
-        assert resp.location == "/admin/users/{}/".format(user.username)
+        assert resp.location == f"/admin/users/{user.username}/"
         assert len(user.emails) == 2
 
         emails = {e.email: e for e in user.emails}
@@ -258,7 +274,7 @@ class TestUserAddEmail:
         db_request.POST["verified"] = True
         db_request.POST = MultiDict(db_request.POST)
         db_request.route_path = pretend.call_recorder(
-            lambda *a, **kw: "/admin/users/{}/".format(user.username)
+            lambda *a, **kw: f"/admin/users/{user.username}/"
         )
 
         resp = views.user_add_email(user, db_request)
@@ -266,7 +282,7 @@ class TestUserAddEmail:
         db_request.db.flush()
 
         assert resp.status_code == 303
-        assert resp.location == "/admin/users/{}/".format(user.username)
+        assert resp.location == f"/admin/users/{user.username}/"
         assert user.emails == []
 
     def test_user_add_email_redirects_actual_name(self, db_request):
@@ -295,7 +311,7 @@ class TestUserDelete:
 
         # Create an extra JournalEntry by this user which should be
         # updated with the deleted-user user.
-        JournalEntryFactory(submitted_by=user, action="some old journal")
+        JournalEntryFactory.create(submitted_by=user, action="some old journal")
 
         db_request.matchdict["username"] = str(user.username)
         db_request.params = {"username": user.username}

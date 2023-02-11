@@ -13,7 +13,7 @@
 import datetime
 
 from sqlalchemy import func
-from sqlalchemy.orm.exc import NoResultFound
+from sqlalchemy.exc import NoResultFound
 from zope.interface import implementer
 
 from warehouse.accounts.models import User

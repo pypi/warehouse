@@ -10,8 +10,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from typing import List
-
 from pyramid import predicates
 from pyramid.exceptions import ConfigurationError
 from pyramid.httpexceptions import HTTPSeeOther
@@ -26,7 +24,7 @@ class DomainPredicate:
         self.val = val
 
     def text(self):
-        return "domain = {!r}".format(self.val)
+        return f"domain = {self.val!r}"
 
     phash = text
 
@@ -40,7 +38,7 @@ class DomainPredicate:
 
 
 class HeadersPredicate:
-    def __init__(self, val: List[str], config):
+    def __init__(self, val: list[str], config):
         if not val:
             raise ConfigurationError(
                 "Excpected at least one value in headers predicate"

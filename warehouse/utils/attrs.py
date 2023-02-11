@@ -21,9 +21,9 @@ def make_repr(*attrs, _self=None):
         try:
             return "{}({})".format(
                 self.__class__.__name__,
-                ", ".join("{}={}".format(a, repr(getattr(self, a))) for a in attrs),
+                ", ".join(f"{a}={repr(getattr(self, a))}" for a in attrs),
             )
         except DetachedInstanceError:
-            return "{}(<detached>)".format(self.__class__.__name__)
+            return f"{self.__class__.__name__}(<detached>)"
 
     return _repr

@@ -1,10 +1,10 @@
-bok-choy>=0.6.0
 coverage
 factory_boy
 freezegun
 pretend
 pytest>=3.0.0
 pytest-postgresql>=3.1.3,<4.0.0
+pytest-socket
 responses>=0.5.1
 webtest
 # Until resolved https://github.com/googleapis/python-bigquery/issues/1435

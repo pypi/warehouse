@@ -21,6 +21,8 @@ export default class extends Controller {
   connect() {
     this.buttonTarget.disabled = true;
     this.setPasswordVisibility();
+    // In case the browser beat us to it (e.g. Firefox Password Manager)
+    this.check();
   }
 
   setPasswordVisibility() {

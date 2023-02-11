@@ -14,6 +14,7 @@ import collections
 import datetime
 import functools
 import hashlib
+import http
 import logging
 import os
 import secrets
@@ -22,8 +23,8 @@ import urllib.parse
 import requests
 
 from passlib.context import CryptContext
+from sqlalchemy.exc import NoResultFound
 from sqlalchemy.orm import joinedload
-from sqlalchemy.orm.exc import NoResultFound
 from sqlalchemy.sql import exists
 from webauthn.helpers import bytes_to_base64url
 from zope.interface import implementer
@@ -33,6 +34,7 @@ import warehouse.utils.webauthn as webauthn
 
 from warehouse.accounts.interfaces import (
     BurnedRecoveryCode,
+    IEmailBreachedService,
     InvalidRecoveryCode,
     IPasswordBreachedService,
     ITokenService,
@@ -90,7 +92,7 @@ class DatabaseUserService:
         )
         self.remote_addr = remote_addr
         self._metrics = metrics
-        self.cached_get_user = functools.lru_cache()(self._get_user)
+        self.cached_get_user = functools.lru_cache(self._get_user)
 
     def _get_user(self, userid):
         # TODO: We probably don't actually want to just return the database
@@ -105,17 +107,17 @@ class DatabaseUserService:
     def get_user(self, userid):
         return self.cached_get_user(userid)
 
-    @functools.lru_cache()
+    @functools.lru_cache
     def get_user_by_username(self, username):
         user_id = self.find_userid(username)
         return None if user_id is None else self.get_user(user_id)
 
-    @functools.lru_cache()
+    @functools.lru_cache
     def get_user_by_email(self, email):
         user_id = self.find_userid_by_email(email)
         return None if user_id is None else self.get_user(user_id)
 
-    @functools.lru_cache()
+    @functools.lru_cache
     def get_admins(self):
         return self.db.query(User).filter(User.is_superuser.is_(True)).all()
 
@@ -124,7 +126,7 @@ class DatabaseUserService:
             exists().where(ProhibitedUserName.name == username.lower())
         ).scalar()
 
-    @functools.lru_cache()
+    @functools.lru_cache
     def find_userid(self, username):
         try:
             user = self.db.query(User.id).filter(User.username == username).one()
@@ -133,7 +135,7 @@ class DatabaseUserService:
 
         return user.id
 
-    @functools.lru_cache()
+    @functools.lru_cache
     def find_userid_by_email(self, email):
         try:
             user_id = (self.db.query(Email.user_id).filter(Email.email == email).one())[
@@ -812,3 +814,58 @@ class NullPasswordBreachedService:
         # This service allows *every* password as a non-breached password. It will never
         # tell a user their password isn't good enough.
         return False
+
+
+@implementer(IEmailBreachedService)
+class HaveIBeenPwnedEmailBreachedService:
+    def __init__(
+        self,
+        *,
+        session,
+        api_base="https://haveibeenpwned.com/api/v3/breachedaccount/",
+        api_key=None,
+    ):
+        self._http = session
+        self._api_base = api_base
+        self.api_key = api_key
+
+    @classmethod
+    def create_service(cls, context, request):
+        hibp_api_key = request.registry.settings.get("hibp.api_key")
+        return cls(session=request.http, api_key=hibp_api_key)
+
+    def get_email_breach_count(self, email: str) -> int | None:
+        """
+        Check if an email has been breached, return the number of breaches.
+        See https://haveibeenpwned.com/API/v3#BreachesForAccount
+        """
+
+        # bail early if no api key is set, so we don't send failing requests
+        if not self.api_key:
+            return None
+
+        try:
+            resp = self._http.get(
+                urllib.parse.urljoin(self._api_base, email),
+                headers={"User-Agent": "PyPI.org", "hibp-api-key": self.api_key},
+            )
+            resp.raise_for_status()
+        except requests.RequestException as exc:
+            # 404 is expected if the email has **not** been breached
+            if exc.response.status_code == http.HTTPStatus.NOT_FOUND:
+                return 0
+            logger.warning("Error contacting HaveIBeenPwned: %r", exc)
+            return -1
+
+        return len(resp.json())
+
+
+@implementer(IEmailBreachedService)
+class NullEmailBreachedService:
+    @classmethod
+    def create_service(cls, context, request):
+        return cls()
+
+    def get_email_breach_count(self, email):
+        # This service allows *every* email as a non-breached email.
+        return 0

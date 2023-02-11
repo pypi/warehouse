@@ -14,7 +14,7 @@ import wtforms
 
 from pyramid.httpexceptions import HTTPNotFound, HTTPSeeOther
 from pyramid.view import view_config
-from sqlalchemy.orm.exc import NoResultFound
+from sqlalchemy.exc import NoResultFound
 
 from warehouse.banners.models import Banner
 from warehouse.forms import Form, URIValidator
@@ -171,7 +171,7 @@ class BannerForm(Form):
     )
     fa_icon = wtforms.fields.StringField(
         validators=[
-            wtforms.validators.Length(max=20),
+            wtforms.validators.Length(max=40),
             wtforms.validators.Optional(),
         ],
         default=Banner.DEFAULT_FA_ICON,

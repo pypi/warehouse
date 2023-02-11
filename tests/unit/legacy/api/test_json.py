@@ -192,7 +192,7 @@ class TestJSONProject:
         files = [
             FileFactory.create(
                 release=r,
-                filename="{}-{}.tar.gz".format(project.name, r.version),
+                filename=f"{project.name}-{r.version}.tar.gz",
                 python_version="source",
                 size=200,
                 has_signature=True,
@@ -263,6 +263,7 @@ class TestJSONProject:
                         "digests": {
                             "md5": files[0].md5_digest,
                             "sha256": files[0].sha256_digest,
+                            "blake2b_256": files[0].blake2_256_digest,
                         },
                         "packagetype": None,
                         "python_version": "source",
@@ -287,6 +288,7 @@ class TestJSONProject:
                         "digests": {
                             "md5": files[1].md5_digest,
                             "sha256": files[1].sha256_digest,
+                            "blake2b_256": files[1].blake2_256_digest,
                         },
                         "packagetype": None,
                         "python_version": "source",
@@ -309,6 +311,7 @@ class TestJSONProject:
                         "has_sig": True,
                         "md5_digest": files[2].md5_digest,
                         "digests": {
+                            "blake2b_256": files[2].blake2_256_digest,
                             "md5": files[2].md5_digest,
                             "sha256": files[2].sha256_digest,
                         },
@@ -336,6 +339,7 @@ class TestJSONProject:
                     "digests": {
                         "md5": files[2].md5_digest,
                         "sha256": files[2].sha256_digest,
+                        "blake2b_256": files[2].blake2_256_digest,
                     },
                     "packagetype": None,
                     "python_version": "source",
@@ -496,7 +500,7 @@ class TestJSONRelease:
         files = [
             FileFactory.create(
                 release=r,
-                filename="{}-{}.tar.gz".format(project.name, r.version),
+                filename=f"{project.name}-{r.version}.tar.gz",
                 python_version="source",
                 size=200,
                 has_signature=True,
@@ -566,6 +570,7 @@ class TestJSONRelease:
                     "digests": {
                         "md5": files[-1].md5_digest,
                         "sha256": files[-1].sha256_digest,
+                        "blake2b_256": files[-1].blake2_256_digest,
                     },
                     "packagetype": None,
                     "python_version": "source",
@@ -587,7 +592,7 @@ class TestJSONRelease:
         release = ReleaseFactory.create(project=project, version="0.1")
         file = FileFactory.create(
             release=release,
-            filename="{}-{}.tar.gz".format(project.name, release.version),
+            filename=f"{project.name}-{release.version}.tar.gz",
             python_version="source",
             size=200,
             has_signature=True,
@@ -653,7 +658,11 @@ class TestJSONRelease:
                     "filename": file.filename,
                     "has_sig": True,
                     "md5_digest": file.md5_digest,
-                    "digests": {"md5": file.md5_digest, "sha256": file.sha256_digest},
+                    "digests": {
+                        "md5": file.md5_digest,
+                        "sha256": file.sha256_digest,
+                        "blake2b_256": file.blake2_256_digest,
+                    },
                     "packagetype": None,
                     "python_version": "source",
                     "size": 200,

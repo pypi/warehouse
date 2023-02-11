@@ -21,6 +21,7 @@ from pyramid.httpexceptions import HTTPUnauthorized
 from warehouse import accounts
 from warehouse.accounts import security_policy
 from warehouse.accounts.interfaces import (
+    IEmailBreachedService,
     IPasswordBreachedService,
     ITokenService,
     IUserService,
@@ -28,6 +29,7 @@ from warehouse.accounts.interfaces import (
 from warehouse.accounts.models import DisableReason
 from warehouse.accounts.security_policy import _basic_auth_check
 from warehouse.accounts.services import (
+    HaveIBeenPwnedEmailBreachedService,
     HaveIBeenPwnedPasswordBreachedService,
     TokenServiceFactory,
     database_login_factory,
@@ -384,6 +386,10 @@ def test_includeme(monkeypatch):
         pretend.call(
             HaveIBeenPwnedPasswordBreachedService.create_service,
             IPasswordBreachedService,
+        ),
+        pretend.call(
+            HaveIBeenPwnedEmailBreachedService.create_service,
+            IEmailBreachedService,
         ),
         pretend.call(RateLimit("10 per 5 minutes"), IRateLimiter, name="user.login"),
         pretend.call(RateLimit("10 per 5 minutes"), IRateLimiter, name="ip.login"),

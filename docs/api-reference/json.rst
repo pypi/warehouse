@@ -18,11 +18,11 @@ Project
 
     Returns metadata (info) about an individual project at the latest version,
     a list of all releases for that project, and project URLs. Releases include
-    the release name, URL, and MD5 and SHA256 hash digests, and are keyed by
-    the release version string. Metadata returned comes from the values provided
-    at upload time and does not necessarily match the content of the uploaded
-    files. The first uploaded data for a release is stored, subsequent uploads
-    do not update it.
+    the release name, URL, and hash digests for MD5, SHA256, and BLAKE2b-256,
+    and are keyed by the release version string. Metadata returned comes from
+    the values provided at upload time and does not necessarily match the
+    content of the uploaded files. The first uploaded data for a release is
+    stored, subsequent uploads do not update it.
 
     **Example Request**:
 
@@ -101,6 +101,7 @@ Project
                     {
                         "comment_text": "",
                         "digests": {
+                            "blake2b_256": "3052547eb3719d0e872bdd6fe3ab60cef92596f95262e925e1943f68f840df88",
                             "md5": "bab8eb22e6710eddae3c6c7ac3453bd9",
                             "sha256": "7a7a8b91086deccc54cac8d631e33f6a0e232ce5775c6be3dc44f86c2154019d"
                         },
@@ -121,6 +122,7 @@ Project
                     {
                         "comment_text": "",
                         "digests": {
+                            "blake2b_256": "eb4579be82bdeafcecb9dca474cad4003e32ef8e4a0dec6abbd4145ccb02abe1",
                             "md5": "d3bd605f932b3fb6e91f49be2d6f9479",
                             "sha256": "3427a8a5dd0c1e176da48a44efb410875b3973bd9843403a0997e4187c408dc1"
                         },
@@ -152,6 +154,7 @@ Project
                     {
                         "comment_text": "",
                         "digests": {
+                            "blake2b_256": "eca85ec62d18adde798d33a170e7f72930357aa69a60839194c93eb0fb05e59c",
                             "md5": "e46bfece301c915db29ade44a4932039",
                             "sha256": "2e52702990c22cf1ce50206606b769fe0dbd5646a32873916144bd5aec5473b3"
                         },
@@ -172,6 +175,7 @@ Project
                     {
                         "comment_text": "",
                         "digests": {
+                            "blake2b_256": "672a9f056e5fa36e43ef1037ff85581a2963cde420457de0ef29c779d41058ca",
                             "md5": "46a92a8a919062028405fdf232b508b0",
                             "sha256": "117ed88e5db073bb92969a7545745fd977ee85b7019706dd256a64058f70963d"
                         },
@@ -195,6 +199,7 @@ Project
                 {
                     "comment_text": "",
                     "digests": {
+                        "blake2b_256": "eca85ec62d18adde798d33a170e7f72930357aa69a60839194c93eb0fb05e59c",
                         "md5": "e46bfece301c915db29ade44a4932039",
                         "sha256": "2e52702990c22cf1ce50206606b769fe0dbd5646a32873916144bd5aec5473b3"
                     },
@@ -215,6 +220,7 @@ Project
                 {
                     "comment_text": "",
                     "digests": {
+                        "blake2b_256": "672a9f056e5fa36e43ef1037ff85581a2963cde420457de0ef29c779d41058ca",
                         "md5": "46a92a8a919062028405fdf232b508b0",
                         "sha256": "117ed88e5db073bb92969a7545745fd977ee85b7019706dd256a64058f70963d"
                     },
@@ -337,6 +343,7 @@ Release
                 {
                     "comment_text": "",
                     "digests": {
+                        "blake2b_256": "eca85ec62d18adde798d33a170e7f72930357aa69a60839194c93eb0fb05e59c",
                         "md5": "e46bfece301c915db29ade44a4932039",
                         "sha256": "2e52702990c22cf1ce50206606b769fe0dbd5646a32873916144bd5aec5473b3"
                     },
@@ -357,6 +364,7 @@ Release
                 {
                     "comment_text": "",
                     "digests": {
+                        "blake2b_256": "672a9f056e5fa36e43ef1037ff85581a2963cde420457de0ef29c779d41058ca",
                         "md5": "46a92a8a919062028405fdf232b508b0",
                         "sha256": "117ed88e5db073bb92969a7545745fd977ee85b7019706dd256a64058f70963d"
                     },

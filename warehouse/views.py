@@ -38,7 +38,6 @@ from pyramid.view import (
     view_defaults,
 )
 from sqlalchemy import func
-from sqlalchemy.orm import aliased, joinedload
 from sqlalchemy.sql import exists, expression
 from trove_classifiers import deprecated_classifiers, sorted_classifiers
 
@@ -52,7 +51,13 @@ from warehouse.errors import WarehouseDenied
 from warehouse.forms import SetLocaleForm
 from warehouse.i18n import LOCALE_ATTR
 from warehouse.metrics import IMetricsService
-from warehouse.packaging.models import File, Project, Release, release_classifiers
+from warehouse.packaging.models import (
+    File,
+    Project,
+    ProjectFactory,
+    Release,
+    release_classifiers,
+)
 from warehouse.search.queries import SEARCH_FILTER_ORDER, get_es_query
 from warehouse.utils.http import is_safe_url
 from warehouse.utils.paginate import ElasticsearchPage, paginate_url_factory
@@ -66,6 +71,14 @@ json_path = re.compile(JSON_REGEX)
 @notfound_view_config(append_slash=HTTPMovedPermanently)
 @notfound_view_config(path_info=JSON_REGEX, append_slash=False)
 def httpexception_view(exc, request):
+    # If this is a 404 for a Project, provide the project name requested
+    if isinstance(request.context, Project):
+        project_name = request.context.name
+    elif isinstance(request.context, ProjectFactory):
+        project_name = request.matchdict.get("name")
+    else:
+        project_name = None
+
     # This special case exists for the easter egg that appears on the 404
     # response page. We don't generally allow youtube embeds, but we make an
     # except for this one.
@@ -88,7 +101,9 @@ def httpexception_view(exc, request):
             )
         else:
             response = render_to_response(
-                "{}.html".format(exc.status_code), {}, request=request
+                f"{exc.status_code}.html",
+                {"project_name": project_name},
+                request=request,
             )
     except LookupError:
         # We don't have a customized template for this error, so we'll just let
@@ -194,48 +209,12 @@ def opensearchxml(request):
             1 * 60 * 60,  # 1 hour
             stale_while_revalidate=10 * 60,  # 10 minutes
             stale_if_error=1 * 24 * 60 * 60,  # 1 day
-            keys=["all-projects", "trending"],
+            keys=["all-projects"],
         )
     ],
     has_translations=True,
 )
 def index(request):
-    project_ids = [
-        r[0]
-        for r in (
-            request.db.query(Project.id)
-            .order_by(Project.zscore.desc().nullslast(), func.random())
-            .limit(5)
-            .all()
-        )
-    ]
-    release_a = aliased(
-        Release,
-        request.db.query(Release)
-        .distinct(Release.project_id)
-        .filter(Release.project_id.in_(project_ids))
-        .order_by(
-            Release.project_id,
-            Release.is_prerelease.nullslast(),
-            Release._pypi_ordering.desc(),
-        )
-        .subquery(),
-    )
-    trending_projects = (
-        request.db.query(release_a)
-        .options(joinedload(release_a.project))
-        .order_by(func.array_idx(project_ids, release_a.project_id))
-        .all()
-    )
-
-    latest_releases = (
-        request.db.query(Release)
-        .options(joinedload(Release.project))
-        .order_by(Release.created.desc())
-        .limit(5)
-        .all()
-    )
-
     counts = dict(
         request.db.query(RowCount.table_name, RowCount.count)
         .filter(
@@ -252,8 +231,6 @@ def index(request):
     )
 
     return {
-        "latest_releases": latest_releases,
-        "trending_projects": trending_projects,
         "num_projects": counts.get(Project.__tablename__, 0),
         "num_releases": counts.get(Release.__tablename__, 0),
         "num_files": counts.get(File.__tablename__, 0),

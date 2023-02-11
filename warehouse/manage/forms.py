@@ -11,7 +11,6 @@
 # limitations under the License.
 
 import json
-import re
 
 import wtforms
 
@@ -32,6 +31,7 @@ from warehouse.organizations.models import (
     OrganizationType,
     TeamProjectRoleType,
 )
+from warehouse.utils.project import PROJECT_NAME_RE
 
 # /manage/account/ forms
 
@@ -164,7 +164,7 @@ class SaveAccountForm(forms.Form):
             verified_emails = [e.email for e in user.emails if e.verified]
             if field.data not in verified_emails:
                 raise wtforms.validators.ValidationError(
-                    "%s is not a verified email for %s" % (field.data, user.username)
+                    f"{field.data} is not a verified email for {user.username}"
                 )
 
 
@@ -459,10 +459,6 @@ class AddOrganizationProjectForm(forms.Form):
 
     new_project_name = wtforms.StringField()
 
-    _project_name_re = re.compile(
-        r"^([A-Z0-9]|[A-Z0-9][A-Z0-9._-]*[A-Z0-9])$", re.IGNORECASE
-    )
-
     def __init__(self, *args, project_choices, project_factory, **kwargs):
         super().__init__(*args, **kwargs)
         self.existing_project_name.choices += [
@@ -479,7 +475,7 @@ class AddOrganizationProjectForm(forms.Form):
         if not self.add_existing_project.data:
             if not field.data:
                 raise wtforms.validators.StopValidation(_("Specify project name"))
-            if not self._project_name_re.match(field.data):
+            if not PROJECT_NAME_RE.match(field.data):
                 raise wtforms.validators.ValidationError(
                     _(
                         "Start and end with a letter or numeral containing "

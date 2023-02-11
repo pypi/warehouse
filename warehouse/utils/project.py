@@ -10,6 +10,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import re
+
 from itertools import chain
 
 import stdlib_list
@@ -22,7 +24,7 @@ from pyramid.httpexceptions import (
     HTTPSeeOther,
 )
 from sqlalchemy import exists, func
-from sqlalchemy.orm.exc import NoResultFound
+from sqlalchemy.exc import NoResultFound
 
 from warehouse.admin.flags import AdminFlagValue
 from warehouse.events.tags import EventTag
@@ -55,6 +57,10 @@ STDLIB_PROHIBITED = {
         for version in stdlib_list.short_versions
     )
 }
+
+PROJECT_NAME_RE = re.compile(
+    r"^([A-Z0-9]|[A-Z0-9][A-Z0-9._-]*[A-Z0-9])$", re.IGNORECASE
+)
 
 
 def validate_project_name(name, request):

@@ -11,11 +11,6 @@
  * limitations under the License.
  */
 
-// The nature of the web being what it is, we often will need to use Polyfills
-// to get support for what we want. This will pull in babel-polyfill which will
-// ensure we have an ES6 like environment.
-import "@babel/polyfill";
-
 // Import stimulus
 import { Application } from "@hotwired/stimulus";
 import { definitionsFromContext } from "@hotwired/stimulus-webpack-helpers";
@@ -131,25 +126,6 @@ docReady(() => {
     resizeTimer = setTimeout(PositionWarning, 200);
   };
   window.addEventListener("resize", onResize, false);
-});
-
-docReady(() => {
-  let changeRoleForms = document.querySelectorAll("form.table__change-role");
-
-  if (changeRoleForms) {
-    for (let form of changeRoleForms) {
-      let changeButton = form.querySelector("button.table__change-button");
-      let changeSelect = form.querySelector("select.table__change-field");
-
-      changeSelect.addEventListener("change", function (event) {
-        if (event.target.value === changeSelect.dataset.original) {
-          changeButton.style.visibility = "hidden";
-        } else {
-          changeButton.style.visibility = "visible";
-        }
-      });
-    }
-  }
 });
 
 let bindDropdowns = function () {

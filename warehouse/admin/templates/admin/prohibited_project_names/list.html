@@ -18,16 +18,16 @@
 {% block title %}Prohibited Project Names{% endblock %}
 
 {% block breadcrumb %}
-  <li class="active">Prohibited Project Names</li>
+  <li class="breadcrumb-item active">Prohibited Project Names</li>
 {% endblock %}
 
 {% block content %}
-<div class="box">
-  <div class="box-body">
+<div class="card">
+  <div class="card-body">
     <form>
       <div class="input-group input-group-lg">
         <input name="q" type="text" class="form-control input-lg" placeholder="Search"{% if query %} value="{{ query }}"{% endif %}>
-        <div class="input-group-btn">
+        <div class="input-group-btn input-group-append">
           <button type="submit" class="btn btn-default"><i class="fa fa-search"></i></button>
         </div>
       </div>
@@ -35,9 +35,10 @@
   </div>
 </div>
 
-<div class="box">
-  <div class="box-body table-responsive no-padding">
-    <table class="table table-hover">
+<div class="card">
+  <div class="card-body table-responsive p-0">
+    <table class="table table-hover table-striped">
+      <thead>
       <tr>
         <th>Name</th>
         <th>Prohibited by</th>
@@ -45,7 +46,9 @@
         <th>Comment</th>
         <th>Actions</th>
       </tr>
+      </thead>
 
+      <tbody>
       {% for prohibited_project_name in prohibited_project_names %}
       <tr>
         <td>{{ prohibited_project_name.name }}</td>
@@ -63,7 +66,7 @@
             <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
             <input name="prohibited_project_name_id" type="hidden" value="{{ prohibited_project_name.id }}">
             <input name="next" type="hidden" value="{{ request.current_route_path() }}">
-            <button type="submit" class="btn btn-link" title="{{ "Submitting requires superuser privileges" if not request.has_permission('admin') }}" {{ "disabled" if not request.has_permission('admin') }}>
+            <button type="submit" class="btn btn-link" title="{{ 'Submitting requires superuser privileges' if not request.has_permission('admin') }}" {{ "disabled" if not request.has_permission('admin') }}>
               <i class="fa fa-times"></i>
             </button>
           </form>
@@ -71,7 +74,7 @@
             <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
             <input name="project_name" type="hidden" value="{{ prohibited_project_name.name }}">
             <input name="next" type="hidden" value="{{ request.current_route_path() }}">
-            <button type="submit" class="btn btn-link" title="{{ "Submitting requires superuser privileges" if not request.has_permission('admin') }}" {{ "disabled" if not request.has_permission('admin') }}>
+            <button type="submit" class="btn btn-link" title="{{ 'Submitting requires superuser privileges' if not request.has_permission('admin') }}" {{ "disabled" if not request.has_permission('admin') }}>
               <i class="fa fa-hands"></i>
             </button>
             <input name="username" type="text">
@@ -79,15 +82,16 @@
         </td>
       </tr>
       {% endfor %}
+      </tbody>
     </table>
 
-    <div class="box-footer">
+    <div class="card-footer">
       <div class="col-sm-5">
           {{ pagination.summary(prohibited_project_names) }}
       </div>
 
       <div class="col-sm-7">
-        <div class="pull-right">
+        <div class="float-right">
             {{ pagination.paginate(prohibited_project_names) }}
         </div>
       </div>
@@ -96,13 +100,13 @@
   </div>
 </div>
 
-<div class="box box-primary">
-  <div class="box-header with-border">
-    <h3 class="box-title">Prohibit project name</h3>
+<div class="card card-primary">
+  <div class="card-header">
+    <h3 class="card-title">Prohibit project name</h3>
   </div>
 
   <form method="GET" action="{{ request.route_path('admin.prohibited_project_names.add') }}">
-    <div class="box-body">
+    <div class="card-body">
       <div class="form-group col-sm-4">
         <label for="prohibitedProjectName">Project name</label>
         <input name="project" class="form-control" id="prohibitedProjectName" placeholder="Enter project name to prohibit " {{ "disabled" if not request.has_permission('admin') }} autocomplete="off" autocorrect="off" autocapitalize="off">
@@ -115,9 +119,9 @@
     </div>
 
 
-    <div class="box-footer">
-      <div class="pull-right">
-        <button type="submit" class="btn btn-primary" title="{{ "Submitting requires superuser privileges" if not request.has_permission('admin') }}" {{ "disabled" if not request.has_permission('admin') }}>Submit</button>
+    <div class="card-footer">
+      <div class="float-right">
+        <button type="submit" class="btn btn-primary" title="{{ 'Submitting requires superuser privileges' if not request.has_permission('admin') }}" {{ "disabled" if not request.has_permission('admin') }}>Submit</button>
       </div>
     </div>
   </form>

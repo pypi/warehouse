@@ -28,8 +28,8 @@ from pyramid.httpexceptions import (
 from pyramid.response import Response
 from pyramid.view import view_config, view_defaults
 from sqlalchemy import func
+from sqlalchemy.exc import NoResultFound
 from sqlalchemy.orm import Load, joinedload
-from sqlalchemy.orm.exc import NoResultFound
 from webauthn.helpers import bytes_to_base64url
 
 import warehouse.utils.otp as otp
@@ -1821,20 +1821,20 @@ class ManageOrganizationProjectsViews:
     def default_response(self):
         active_projects = self.active_projects
         all_user_projects = user_projects(self.request)
-        projects_owned = set(
+        projects_owned = {
             project.name for project in all_user_projects["projects_owned"]
-        )
-        projects_sole_owned = set(
+        }
+        projects_sole_owned = {
             project.name for project in all_user_projects["projects_sole_owned"]
-        )
-        projects_requiring_2fa = set(
+        }
+        projects_requiring_2fa = {
             project.name for project in all_user_projects["projects_requiring_2fa"]
-        )
-        project_choices = set(
+        }
+        project_choices = {
             project.name
             for project in all_user_projects["projects_owned"]
             if not project.organization
-        )
+        }
         project_factory = self.project_factory
 
         return {
@@ -2303,10 +2303,10 @@ def delete_organization_role(organization, request):
     organization_service = request.find_service(IOrganizationService, context=None)
     role_id = request.POST["role_id"]
     role = organization_service.get_organization_role(role_id)
-    organizations_sole_owned = set(
+    organizations_sole_owned = {
         organization.id
         for organization in user_organizations(request)["organizations_with_sole_owner"]
-    )
+    }
     is_sole_owner = organization.id in organizations_sole_owned
 
     if not role or role.organization_id != organization.id:
@@ -2574,15 +2574,15 @@ class ManageTeamProjectsViews:
     def default_response(self):
         active_projects = self.active_projects
         all_user_projects = user_projects(self.request)
-        projects_owned = set(
+        projects_owned = {
             project.name for project in all_user_projects["projects_owned"]
-        )
-        projects_sole_owned = set(
+        }
+        projects_sole_owned = {
             project.name for project in all_user_projects["projects_sole_owned"]
-        )
-        projects_requiring_2fa = set(
+        }
+        projects_requiring_2fa = {
             project.name for project in all_user_projects["projects_requiring_2fa"]
-        )
+        }
 
         return {
             "team": self.team,
@@ -2869,15 +2869,13 @@ def manage_projects(request):
 
     all_user_projects = user_projects(request)
     projects |= set(all_user_projects["projects_owned"])
-    projects_owned = set(
-        project.name for project in all_user_projects["projects_owned"]
-    )
-    projects_sole_owned = set(
+    projects_owned = {project.name for project in all_user_projects["projects_owned"]}
+    projects_sole_owned = {
         project.name for project in all_user_projects["projects_sole_owned"]
-    )
-    projects_requiring_2fa = set(
+    }
+    projects_requiring_2fa = {
         project.name for project in all_user_projects["projects_requiring_2fa"]
-    )
+    }
 
     for team in request.user.teams:
         projects |= set(team.projects)
@@ -2925,16 +2923,16 @@ class ManageProjectSettingsViews:
         else:
             # Allow transfer of project to active orgs owned or managed by user.
             all_user_organizations = user_organizations(self.request)
-            active_organizations_owned = set(
+            active_organizations_owned = {
                 organization.name
                 for organization in all_user_organizations["organizations_owned"]
                 if organization.is_active
-            )
-            active_organizations_managed = set(
+            }
+            active_organizations_managed = {
                 organization.name
                 for organization in all_user_organizations["organizations_managed"]
                 if organization.is_active
-            )
+            }
             current_organization = (
                 {self.project.organization.name} if self.project.organization else set()
             )
@@ -3085,10 +3083,6 @@ class ManageOIDCProviderViews:
         if not self.oidc_enabled:
             raise HTTPNotFound
 
-        self.metrics.increment(
-            "warehouse.oidc.add_provider.attempt", tags=["provider:GitHub"]
-        )
-
         if self.request.flags.enabled(AdminFlagValue.DISALLOW_OIDC):
             self.request.session.flash(
                 (
@@ -3098,6 +3092,10 @@ class ManageOIDCProviderViews:
                 queue="error",
             )
             return self.default_response
+
+        self.metrics.increment(
+            "warehouse.oidc.add_provider.attempt", tags=["provider:GitHub"]
+        )
 
         try:
             self._check_ratelimits()
@@ -3188,8 +3186,6 @@ class ManageOIDCProviderViews:
         if not self.oidc_enabled:
             raise HTTPNotFound
 
-        self.metrics.increment("warehouse.oidc.delete_provider.attempt")
-
         if self.request.flags.enabled(AdminFlagValue.DISALLOW_OIDC):
             self.request.session.flash(
                 (
@@ -3199,6 +3195,8 @@ class ManageOIDCProviderViews:
                 queue="error",
             )
             return self.default_response
+
+        self.metrics.increment("warehouse.oidc.delete_provider.attempt")
 
         form = DeleteProviderForm(self.request.POST)
 
@@ -3381,16 +3379,16 @@ def transfer_organization_project(project, request):
     )
 
     all_user_organizations = user_organizations(request)
-    active_organizations_owned = set(
+    active_organizations_owned = {
         organization.name
         for organization in all_user_organizations["organizations_owned"]
         if organization.is_active
-    )
-    active_organizations_managed = set(
+    }
+    active_organizations_managed = {
         organization.name
         for organization in all_user_organizations["organizations_managed"]
         if organization.is_active
-    )
+    }
     current_organization = (
         {project.organization.name} if project.organization else set()
     )
@@ -4624,9 +4622,9 @@ def delete_project_role(project, request):
             .filter(Role.id == request.POST["role_id"])
             .one()
         )
-        projects_sole_owned = set(
+        projects_sole_owned = {
             project.name for project in user_projects(request)["projects_sole_owned"]
-        )
+        }
         removing_self = role.role_name == "Owner" and role.user == request.user
         is_sole_owner = project.name in projects_sole_owned
         if removing_self and is_sole_owner:

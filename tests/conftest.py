@@ -71,7 +71,7 @@ def pytest_collection_modifyitems(items):
         elif module_root_dir.startswith("unit"):
             item.add_marker(pytest.mark.unit)
         else:
-            raise RuntimeError("Unknown test type (filename = {0})".format(module_path))
+            raise RuntimeError(f"Unknown test type (filename = {module_path})")
 
 
 @contextmanager
@@ -220,7 +220,7 @@ def database(request):
     def drop_database():
         janitor.drop()
 
-    return "postgresql://{}@{}:{}/{}".format(pg_user, pg_host, pg_port, pg_db)
+    return f"postgresql://{pg_user}@{pg_host}:{pg_port}/{pg_db}"
 
 
 class MockManifestCacheBuster(ManifestCacheBuster):
@@ -460,26 +460,6 @@ def webtest(app_config):
         yield _TestApp(app_config.make_wsgi_app())
     finally:
         app_config.registry["sqlalchemy.engine"].dispose()
-
-
-@pytest.hookimpl(tryfirst=True, hookwrapper=True)
-def pytest_runtest_makereport(item, call):
-    # execute all other hooks to obtain the report object
-    outcome = yield
-    rep = outcome.get_result()
-
-    # we only look at actual failing test calls, not setup/teardown
-    if rep.when == "call" and rep.failed:
-        if "browser" in item.fixturenames:
-            browser = item.funcargs["browser"]
-            for log_type in set(browser.log_types) - {"har"}:
-                data = "\n\n".join(
-                    filter(
-                        None, (log.get("message") for log in browser.get_log(log_type))
-                    )
-                )
-                if data:
-                    rep.sections.append(("Captured {} log".format(log_type), data))
 
 
 @pytest.fixture(scope="session")

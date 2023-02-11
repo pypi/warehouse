@@ -55,8 +55,8 @@
     <caption class="sr-only">{% trans project_name=project.name %}Collaborators who can manage {{ project_name }}{% endtrans %}</caption>
     <thead>
       <tr>
-        <th scope="col" class="table__align-left">{% trans %}Collaborator{% endtrans %}</th>
-        <th scope="col" class="table__align-left">{% trans %}Role{% endtrans %}</th>
+        <th scope="col">{% trans %}Collaborator{% endtrans %}</th>
+        <th scope="col">{% trans %}Role{% endtrans %}</th>
         <th scope="col" class="table__align-center">{% trans %}2FA{% endtrans %}</th>
         <th scope="col" class="table__align-right"></th>
       </tr>
@@ -84,7 +84,7 @@
         <td>
           {% trans %}Owner{% endtrans %}
         </td>
-        <td class="table__align-center"></td>
+        <td></td>
         <td class="table__align-right">
           <button class="button" title="{% trans %}Cannot remove organization owners{% endtrans %}" disabled>{% trans %}Remove{% endtrans %}</button>
         </td>
@@ -117,22 +117,24 @@
             {% trans %}Maintainer{% endtrans %}
           {% endif %}
         {% else %}
+        <div data-controller="change-role" data-change-role-current-value="{{ role.role_name }}">
           <form class="table__change-role" method="POST" action="{{ request.route_path('manage.project.change_team_project_role', project_name=project.name) }}">
             <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
             <input type="hidden" name="role_id" value="{{ role.id }}">
 
             <label for="role-for-{{ role.id }}" class="sr-only">{% trans %}Role{% endtrans %}</label>
-            <select id="role-for-{{ role.id }}" class="table__change-field" name="team_project_role_name" data-original="{{ role.role_name.value }}" autocomplete="off">
+            <select id="role-for-{{ role.id }}" class="table__change-field" name="team_project_role_name" data-action="change-role#change" autocomplete="off">
             {% for role_name, role_name_label in [('Maintainer', gettext('Maintainer')), ('Owner', gettext('Owner'))] %}
             <option value="{{ role_name }}" {{ 'selected' if role_name == role.role_name.value else '' }}>
               {{ role_name_label }}
             </option>
             {% endfor %}
             </select>
-            <button type="submit" class="button button--primary table__change-button" title="{% trans %}Save role{% endtrans %}">
+            <button type="submit" class="button button--primary table__change-button" title="{% trans %}Save role{% endtrans %}" data-change-role-target="saveButton">
               {% trans %}Save{% endtrans %}
             </button>
           </form>
+        </div>
         {% endif %}
         </td>
         <td class="table__align-center"></td>
@@ -172,22 +174,24 @@
             {% trans %}Maintainer{% endtrans %}
           {% endif %}
         {% else %}
+        <div data-controller="change-role" data-change-role-current-value="{{ role.role_name }}">
           <form class="table__change-role" method="POST" action="{{ request.route_path('manage.project.change_role', project_name=project.name) }}">
             <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
             <input type="hidden" name="role_id" value="{{ role.id }}">
 
             <label for="role-for-{{ role.id }}" class="sr-only">{% trans %}Role{% endtrans %}</label>
-            <select id="role-for-{{ role.id }}" class="table__change-field" name="role_name" data-original="{{ role.role_name }}" autocomplete="off">
+            <select id="role-for-{{ role.id }}" class="table__change-field" name="role_name" data-action="change-role#change" autocomplete="off">
             {% for role_name, role_name_label in [('Owner', gettext('Owner')), ('Maintainer', gettext('Maintainer'))] %}
             <option value="{{ role_name }}" {{ 'selected' if role_name == role.role_name else '' }}>
               {{ role_name_label }}
             </option>
             {% endfor %}
             </select>
-            <button class="button button--primary table__change-button" title="{% trans %}Save role{% endtrans %}">
+            <button class="button button--primary table__change-button" title="{% trans %}Save role{% endtrans %}" data-change-role-target="saveButton">
               {% trans %}Save{% endtrans %}
             </button>
           </form>
+        </div>
         {% endif %}
         </td>
         <td class="table__align-center">{{ two_factor_badge(role.user) }}</td>

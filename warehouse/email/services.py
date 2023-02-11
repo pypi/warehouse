@@ -13,7 +13,6 @@
 from email.headerregistry import Address
 from email.message import EmailMessage as RawEmailMessage
 from email.utils import parseaddr
-from typing import Optional
 
 import premailer
 
@@ -33,7 +32,7 @@ def _format_sender(sitename, sender):
 
 
 class EmailMessage:
-    def __init__(self, subject: str, body_text: str, body_html: Optional[str] = None):
+    def __init__(self, subject: str, body_text: str, body_html: str | None = None):
         self.subject = subject
         self.body_text = body_text
         self.body_html = body_html

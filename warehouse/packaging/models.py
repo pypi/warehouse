@@ -18,6 +18,7 @@ from urllib.parse import urlparse
 import packaging.utils
 
 from citext import CIText
+from github_reserved_names import ALL as GITHUB_RESERVED_NAMES
 from pyramid.authorization import Allow
 from pyramid.threadlocal import get_current_request
 from sqlalchemy import (
@@ -28,7 +29,6 @@ from sqlalchemy import (
     DateTime,
     Enum,
     FetchedValue,
-    Float,
     ForeignKey,
     Index,
     Integer,
@@ -41,12 +41,12 @@ from sqlalchemy import (
     sql,
 )
 from sqlalchemy.dialects.postgresql import UUID
+from sqlalchemy.exc import MultipleResultsFound, NoResultFound
 from sqlalchemy.ext.associationproxy import association_proxy
 from sqlalchemy.ext.declarative import declared_attr  # type: ignore
 from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy.orm import validates
 from sqlalchemy.orm.collections import attribute_mapped_collection
-from sqlalchemy.orm.exc import MultipleResultsFound, NoResultFound
 
 from warehouse import db
 from warehouse.accounts.models import User
@@ -195,7 +195,6 @@ class Project(SitemapMixin, TwoFactorRequireable, HasEvents, db.Model):
     upload_limit = Column(Integer, nullable=True)
     total_size_limit = Column(BigInteger, nullable=True)
     last_serial = Column(Integer, nullable=False, server_default=sql.text("0"))
-    zscore = Column(Float, nullable=True)
     total_size = Column(BigInteger, server_default=sql.text("0"))
 
     organization = orm.relationship(
@@ -591,6 +590,10 @@ class Release(db.Model):
             segments = parsed.path.strip("/").split("/")
             if parsed.netloc in {"github.com", "www.github.com"} and len(segments) >= 2:
                 user_name, repo_name = segments[:2]
+                if user_name in GITHUB_RESERVED_NAMES:
+                    continue
+                if repo_name.endswith(".git"):
+                    repo_name = repo_name.removesuffix(".git")
                 return f"https://api.github.com/repos/{user_name}/{repo_name}"
 
     @property

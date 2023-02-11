@@ -16,7 +16,7 @@ import celery.exceptions
 import pretend
 import pytest
 
-from sqlalchemy.orm.exc import NoResultFound
+from sqlalchemy.exc import NoResultFound
 
 from warehouse import email
 from warehouse.accounts.interfaces import IUserService

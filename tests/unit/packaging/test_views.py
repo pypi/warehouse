@@ -194,7 +194,7 @@ class TestReleaseDetail:
         files = [
             FileFactory.create(
                 release=r,
-                filename="{}-{}.tar.gz".format(project.name, r.version),
+                filename=f"{project.name}-{r.version}.tar.gz",
                 python_version="source",
                 packagetype="sdist",
             )
@@ -241,7 +241,7 @@ class TestReleaseDetail:
         files = [
             FileFactory.create(
                 release=r,
-                filename="{}-{}.tar.gz".format(project.name, r.version),
+                filename=f"{project.name}-{r.version}.tar.gz",
                 python_version="source",
                 packagetype="sdist",
             )
@@ -286,7 +286,7 @@ class TestReleaseDetail:
         files = [
             FileFactory.create(
                 release=r,
-                filename="{}-{}.tar.gz".format(project.name, r.version),
+                filename=f"{project.name}-{r.version}.tar.gz",
                 python_version="source",
                 packagetype="sdist",
             )
@@ -333,7 +333,7 @@ class TestReleaseDetail:
         files = [
             FileFactory.create(
                 release=release,
-                filename="{}-{}-{}.whl".format(project.name, release.version, py_ver),
+                filename=f"{project.name}-{release.version}-{py_ver}.whl",
                 python_version="py2.py3",
                 packagetype="bdist_wheel",
             )

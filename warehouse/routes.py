@@ -115,8 +115,6 @@ def includeme(config):
     config.add_route(
         "includes.administer-project-include",
         "/_includes/administer-project-include/{project_name}",
-        factory="warehouse.packaging.models:ProjectFactory",
-        traverse="/{project_name}",
         domain=warehouse,
     )
     config.add_route(
@@ -197,6 +195,9 @@ def includeme(config):
 
     # Management (views for logged-in users)
     config.add_route("manage.account", "/manage/account/", domain=warehouse)
+    config.add_route(
+        "manage.account.publishing", "/manage/account/publishing/", domain=warehouse
+    )
     config.add_route(
         "manage.account.two-factor", "/manage/account/two-factor/", domain=warehouse
     )

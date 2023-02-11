@@ -39,6 +39,10 @@ jobs:
     steps:
     - name: Checkout repository
       uses: actions/checkout@v3
+      
+    - name: Install dependencies
+      # Needed for pycurl
+      run: sudo apt install libcurl4-openssl-dev libssl-dev
 
     # Initializes the CodeQL tools for scanning.
     - name: Initialize CodeQL

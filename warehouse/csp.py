@@ -61,6 +61,12 @@ class CSPPolicy(collections.defaultdict):
         for key, attrs in policy.items():
             self[key].extend(attrs)
 
+            # The keyword 'none' must be the only source expression in the
+            # directive value, otherwise it is ignored. If there's more than
+            # one directive set, attempt to remove 'none' if it is present
+            if NONE in self[key] and len(self[key]) > 1:
+                self[key].remove(NONE)
+
 
 def csp_factory(_, request):
     try:
@@ -80,6 +86,9 @@ def includeme(config):
                 "connect-src": [
                     SELF,
                     "https://api.github.com/repos/",
+                    "https://*.google-analytics.com",
+                    "https://*.analytics.google.com",
+                    "https://*.googletagmanager.com",
                     "fastly-insights.com",
                     "*.fastly-insights.com",
                     "*.ethicalads.io",
@@ -100,14 +109,16 @@ def includeme(config):
                 "img-src": [
                     SELF,
                     config.registry.settings["camo.url"],
-                    "www.google-analytics.com",
+                    "https://*.google-analytics.com",
+                    "https://*.googletagmanager.com",
                     "*.fastly-insights.com",
                     "*.ethicalads.io",
                 ],
                 "script-src": [
                     SELF,
-                    "www.googletagmanager.com",
-                    "www.google-analytics.com",
+                    "https://*.googletagmanager.com",
+                    "https://www.google-analytics.com",  # Remove when disabling UA
+                    "https://ssl.google-analytics.com",  # Remove when disabling UA
                     "*.fastly-insights.com",
                     "*.ethicalads.io",
                     # Hash for v1.4.0 of ethicalads.min.js

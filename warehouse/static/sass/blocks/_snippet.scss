@@ -23,11 +23,11 @@
   direction: ltr;
   text-align: left;
   display: block;
-  padding: ($spacing-unit / 2) 20px ($spacing-unit / 2) 75px;
+  padding: $half-spacing-unit 20px $half-spacing-unit 75px;
   margin: 0 0 20px;
 
   @media only screen and (max-width: $tablet) {
-    padding: $spacing-unit / 2;
+    padding: $half-spacing-unit;
   }
 
   @media only screen and (min-width: $tablet + 1px) {
@@ -35,6 +35,7 @@
     &:hover {
       // Use png fallback
       background: $white $snippet-icon-png no-repeat;
+
       // Or svg if the browser supports it
       background-image: $snippet-icon-svg, linear-gradient(transparent, transparent);
       background-position: 18px;

@@ -82,7 +82,10 @@ def test_listens_for(monkeypatch):
 
 
 def test_configure_alembic(monkeypatch):
-    config_obj = pretend.stub(set_main_option=pretend.call_recorder(lambda *a: None))
+    config_obj = pretend.stub(
+        set_main_option=pretend.call_recorder(lambda *a: None),
+        set_section_option=pretend.call_recorder(lambda *a: None),
+    )
 
     def config_cls():
         return config_obj
@@ -99,6 +102,13 @@ def test_configure_alembic(monkeypatch):
     assert alembic_config.set_main_option.calls == [
         pretend.call("script_location", "warehouse:migrations"),
         pretend.call("url", config.registry.settings["database.url"]),
+    ]
+    assert alembic_config.set_section_option.calls == [
+        pretend.call("post_write_hooks", "hooks", "black, isort"),
+        pretend.call("post_write_hooks", "black.type", "console_scripts"),
+        pretend.call("post_write_hooks", "black.entrypoint", "black"),
+        pretend.call("post_write_hooks", "isort.type", "console_scripts"),
+        pretend.call("post_write_hooks", "isort.entrypoint", "isort"),
     ]
 
 

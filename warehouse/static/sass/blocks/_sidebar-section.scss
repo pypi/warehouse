@@ -42,7 +42,7 @@
   .ethical-sidebar {
     border: 2px solid $border-color;
     border-radius: 5px;
-    padding: 1rem 1rem .25rem 1em;
+    padding: 1rem 1rem 0.25rem 1em;
   }
 
   .ethical-content {
@@ -91,7 +91,7 @@
     li {
       margin: 0;
       padding: 0;
-      margin-top: $spacing-unit / 2;
+      margin-top: $half-spacing-unit;
 
       &:first-of-type,
       ul li {

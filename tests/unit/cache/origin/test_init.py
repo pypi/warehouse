@@ -54,11 +54,10 @@ def test_store_purge_keys():
     }
 
 
-def test_execute_purge_success(app_config):
+def test_execute_purge_success(app_config, monkeypatch):
     cacher = pretend.stub(purge=pretend.call_recorder(lambda purges: None))
     factory = pretend.call_recorder(lambda ctx, config: cacher)
-    app_config.register_service_factory(factory, IOriginCache)
-    app_config.commit()
+    monkeypatch.setattr(app_config, "find_service_factory", lambda *a, **kw: factory)
     session = pretend.stub(
         info={"warehouse.cache.origin.purges": {"type_1", "type_2", "foobar"}}
     )

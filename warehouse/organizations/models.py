@@ -29,7 +29,7 @@ from sqlalchemy import (
     sql,
 )
 from sqlalchemy.dialects.postgresql import UUID
-from sqlalchemy.orm.exc import NoResultFound
+from sqlalchemy.exc import NoResultFound
 from sqlalchemy_utils.types.url import URLType
 
 from warehouse import db

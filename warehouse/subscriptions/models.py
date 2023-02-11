@@ -49,7 +49,7 @@ class StripeSubscriptionStatus(StrLabelEnum):
 
     @classmethod
     def has_value(cls, value):
-        return value in set(item.value for item in StripeSubscriptionStatus)
+        return value in {item.value for item in StripeSubscriptionStatus}
 
 
 class StripeSubscriptionPriceInterval(str, enum.Enum):

@@ -427,9 +427,18 @@ class TestRelease:
                 "https://api.github.com/repos/pypi/warehouse",
             ),
             ("https://github.com/pypa/", None),
+            ("https://github.com/sponsors/pypa/", None),
             ("https://google.com/pypi/warehouse/tree/main", None),
             ("https://google.com", None),
             ("incorrect url", None),
+            (
+                "https://www.github.com/pypi/warehouse.git",
+                "https://api.github.com/repos/pypi/warehouse",
+            ),
+            (
+                "https://www.github.com/pypi/warehouse.git/",
+                "https://api.github.com/repos/pypi/warehouse",
+            ),
         ],
     )
     def test_github_repo_info_url(self, db_session, home_page, expected):
@@ -448,7 +457,7 @@ class TestFile:
             release = DBReleaseFactory.create(project=project)
             DBFileFactory.create(
                 release=release,
-                filename="{}-{}.tar.gz".format(project.name, release.version),
+                filename=f"{project.name}-{release.version}.tar.gz",
                 python_version="source",
                 requires_python="1.0",
             )
@@ -458,7 +467,7 @@ class TestFile:
         release = DBReleaseFactory.create(project=project)
         rfile = DBFileFactory.create(
             release=release,
-            filename="{}-{}.tar.gz".format(project.name, release.version),
+            filename=f"{project.name}-{release.version}.tar.gz",
             python_version="source",
         )
 
@@ -479,7 +488,7 @@ class TestFile:
         release = DBReleaseFactory.create(project=project)
         rfile = DBFileFactory.create(
             release=release,
-            filename="{}-{}.tar.gz".format(project.name, release.version),
+            filename=f"{project.name}-{release.version}.tar.gz",
             python_version="source",
         )
 
