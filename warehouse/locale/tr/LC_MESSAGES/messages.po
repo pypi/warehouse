@@ -16,13 +16,14 @@
 # Fatih Arda Zengin <fatihardazengin@gmail.com>, 2022.
 # Yourredyknowwhoitisss <dirt@stu.khas.edu.tr>, 2022.
 # JokerSob <joker.sob@hotmail.com>, 2022.
+# Mehmet Keçeci <bilginomi@gmail.com>, 2023.
 msgid ""
 msgstr ""
 "Project-Id-Version: Warehouse VERSION\n"
 "Report-Msgid-Bugs-To: admin@pypi.org\n"
 "POT-Creation-Date: 2020-01-15 20:11+0200\n"
-"PO-Revision-Date: 2022-11-09 18:47+0000\n"
-"Last-Translator: JokerSob <joker.sob@hotmail.com>\n"
+"PO-Revision-Date: 2023-01-30 07:07+0000\n"
+"Last-Translator: Mehmet Keçeci <bilginomi@gmail.com>\n"
 "Language-Team: Turkish <https://hosted.weblate.org/projects/pypa/warehouse/"
 "tr/>\n"
 "Language: tr\n"
@@ -30,7 +31,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Generator: Weblate 4.15-dev\n"
+"X-Generator: Weblate 4.16-dev\n"
 "Generated-By: Babel 2.7.0\n"
 
 #: warehouse/views.py:140
@@ -319,11 +320,15 @@ msgid ""
 "You must have a verified email in order to register a pending OpenID Connect "
 "provider. See https://pypi.org/help#openid-connect for details."
 msgstr ""
+"Bekleyen bir OpenID Bağlantı sağlayıcısına kaydolmak için doğrulanmış bir e-"
+"postanız olmalıdır. Ayrıntılar için https://pypi.org/help#openid-connect'e "
+"bakın."
 
 #: warehouse/accounts/views.py:1414
 msgid ""
 "You can't register more than 3 pending OpenID Connect providers at once."
 msgstr ""
+"Aynı anda 3'ten fazla bekleyen OpenID Connect sağlayıcısını kaydedemezsiniz."
 
 #: warehouse/accounts/views.py:1430 warehouse/manage/views.py:3107
 msgid ""
@@ -337,6 +342,8 @@ msgid ""
 "This OpenID Connect provider has already been registered. Please contact "
 "PyPI's admins if this wasn't intentional."
 msgstr ""
+"Bu OpenID Connect sağlayıcısı zaten kayıtlı. Bu kasıtlı değilse lütfen PyPI "
+"yöneticileriyle iletişime geçin."
 
 #: warehouse/admin/templates/admin/banners/preview.html:15
 msgid "Banner Preview"
@@ -404,7 +411,7 @@ msgstr ""
 
 #: warehouse/manage/forms.py:577
 msgid "The organization URL must start with http:// or https://"
-msgstr ""
+msgstr "Kuruluş URL'si http:// veya https:// ile başlamalıdır."
 
 #: warehouse/manage/forms.py:588
 msgid ""
@@ -534,11 +541,9 @@ msgid "Unexpected error from GitHub. Try again."
 msgstr "GitHub'dan beklenmeyen hata. Tekrar deneyin."
 
 #: warehouse/oidc/forms.py:105
-#, fuzzy
-#| msgid "Unexpected timeout from GitHub. Try again in a few minutes."
 msgid "Unexpected connection error from GitHub. Try again in a few minutes."
 msgstr ""
-"GitHub'dan beklenmeyen zaman aşımı. Birkaç dakika sonra tekrar deneyin."
+"GitHub'dan beklenmeyen bağlantı hatası. Birkaç dakika sonra tekrar deneyin."
 
 #: warehouse/oidc/forms.py:115
 msgid "Unexpected timeout from GitHub. Try again in a few minutes."
@@ -558,16 +563,12 @@ msgid "Workflow filename must be a filename only, without directories"
 msgstr "İş akışı dosya adı, dizinler olmadan yalnızca bir dosya adı olmalıdır"
 
 #: warehouse/oidc/forms.py:161
-#, fuzzy
-#| msgid "Invalid repository name"
 msgid "Invalid project name"
-msgstr "Geçersiz depo adı"
+msgstr "Geçersiz proje adı"
 
 #: warehouse/oidc/forms.py:175
-#, fuzzy
-#| msgid "This project has no releases"
 msgid "This project name is already in use"
-msgstr "Bu proje için hiçbir sürüm yayınlanmadı"
+msgstr "Bu proje adı zaten kullanılıyor"
 
 #: warehouse/oidc/forms.py:188
 msgid "Provider must be specified by ID"
@@ -971,10 +972,8 @@ msgid "User guide"
 msgstr "Kullanıcı kılavuzu"
 
 #: warehouse/templates/base.html:277
-#, fuzzy
-#| msgid "Project name"
 msgid "Project name retention"
-msgstr "Proje Adı"
+msgstr "Proje adını saklama"
 
 #: warehouse/templates/base.html:278
 msgid "FAQs"
@@ -1007,7 +1006,7 @@ msgstr "İstatistikler"
 
 #: warehouse/templates/base.html:290
 msgid "Logos & trademarks"
-msgstr ""
+msgstr "Logolar & ticari markalar"
 
 #: warehouse/templates/base.html:291
 msgid "Our sponsors"
@@ -1034,10 +1033,8 @@ msgid "Translate PyPI"
 msgstr "PyPI'ı Çevir"
 
 #: warehouse/templates/base.html:303
-#, fuzzy
-#| msgid "Sponsor"
 msgid "Sponsor PyPI"
-msgstr "Sponsor"
+msgstr "PyPI Sponsoru"
 
 #: warehouse/templates/base.html:304
 msgid "Development credits"
@@ -1069,7 +1066,7 @@ msgstr "Kullanım şartları"
 
 #: warehouse/templates/base.html:317
 msgid "Acceptable Use Policy"
-msgstr ""
+msgstr "Kabul Edilebilir Kullanım Politikası"
 
 #: warehouse/templates/base.html:327
 msgid "Status:"

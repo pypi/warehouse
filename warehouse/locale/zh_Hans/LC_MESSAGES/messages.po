@@ -44,13 +44,14 @@
 # Eric <hamburger1024@duck.com>, 2022.
 # Eric <hamburger2048@users.noreply.hosted.weblate.org>, 2023.
 # 陈星宇 <jgbsxx20130315@163.com>, 2023.
+# Y.D.X. <shyxx_4g@163.com>, 2023.
 msgid ""
 msgstr ""
 "Project-Id-Version: Warehouse VERSION\n"
 "Report-Msgid-Bugs-To: admin@pypi.org\n"
 "POT-Creation-Date: 2020-04-06 17:52-0500\n"
-"PO-Revision-Date: 2023-01-09 18:04+0000\n"
-"Last-Translator: 陈星宇 <jgbsxx20130315@163.com>\n"
+"PO-Revision-Date: 2023-02-01 02:57+0000\n"
+"Last-Translator: Y.D.X. <shyxx_4g@163.com>\n"
 "Language-Team: Chinese (Simplified) <https://hosted.weblate.org/projects/"
 "pypa/warehouse/zh_Hans/>\n"
 "Language: zh_Hans\n"
@@ -58,7 +59,7 @@ msgstr ""
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Generator: Weblate 4.15.1-dev\n"
+"X-Generator: Weblate 4.16-dev\n"
 "Generated-By: Babel 2.8.0\n"
 
 #: warehouse/views.py:140
@@ -74,7 +75,7 @@ msgstr "区域设置已更新"
 
 #: warehouse/accounts/forms.py:46
 msgid "The password is invalid. Try again."
-msgstr "密码错误。请重新输入。"
+msgstr "密码无效，请重试。"
 
 #: warehouse/accounts/forms.py:58
 msgid "No user found with that username"
@@ -105,7 +106,7 @@ msgstr ""
 msgid ""
 "This username is already being used by another account. Choose a different "
 "username."
-msgstr "该用户名已被另一个帐户使用。请选择一个其他的用户名。"
+msgstr "此用户名已被其他用户使用。请换个用户名。"
 
 #: warehouse/accounts/forms.py:142 warehouse/accounts/forms.py:186
 #: warehouse/accounts/forms.py:199
@@ -336,11 +337,13 @@ msgid ""
 "You must have a verified email in order to register a pending OpenID Connect "
 "provider. See https://pypi.org/help#openid-connect for details."
 msgstr ""
+"要注册待定的 OpenID Connect 提供商，你必须有一个经验证的电子邮箱。详见 "
+"https://pypi.org/help#openid-connect。"
 
 #: warehouse/accounts/views.py:1414
 msgid ""
 "You can't register more than 3 pending OpenID Connect providers at once."
-msgstr ""
+msgstr "你不能一下子注册超过三个待定的 OpenID Connect 提供商。"
 
 #: warehouse/accounts/views.py:1430 warehouse/manage/views.py:3107
 msgid ""
@@ -352,7 +355,8 @@ msgstr "OpenID Connect 注册尝试次数过多。请稍后重试。"
 msgid ""
 "This OpenID Connect provider has already been registered. Please contact "
 "PyPI's admins if this wasn't intentional."
-msgstr ""
+msgstr "这个 OpenID Connect 提供商已被注册。如果这不是有意为之，请联系 PyPI "
+"的管理员。"
 
 #: warehouse/admin/templates/admin/banners/preview.html:15
 msgid "Banner Preview"
@@ -535,10 +539,8 @@ msgid "Unexpected error from GitHub. Try again."
 msgstr "来自 GitHub 的意外错误。再试一次。"
 
 #: warehouse/oidc/forms.py:105
-#, fuzzy
-#| msgid "Unexpected timeout from GitHub. Try again in a few minutes."
 msgid "Unexpected connection error from GitHub. Try again in a few minutes."
-msgstr "来自 GitHub 的意外超时。请在几分钟后重试。"
+msgstr "来自 GitHub 的意外连接错误。请在几分钟后重试。"
 
 #: warehouse/oidc/forms.py:115
 msgid "Unexpected timeout from GitHub. Try again in a few minutes."
@@ -558,16 +560,12 @@ msgstr "工作流文件名必须仅为文件名，不能包含目录"
 
 # | msgid "Invalid TOTP code."
 #: warehouse/oidc/forms.py:161
-#, fuzzy
-#| msgid "Invalid repository name"
 msgid "Invalid project name"
-msgstr "无效的仓库名"
+msgstr "无效的项目名"
 
 #: warehouse/oidc/forms.py:175
-#, fuzzy
-#| msgid "This project has no releases"
 msgid "This project name is already in use"
-msgstr "此项目没有发布过版本"
+msgstr "已存在同名项目"
 
 #: warehouse/oidc/forms.py:188
 msgid "Provider must be specified by ID"
@@ -3754,49 +3752,32 @@ msgid "Enter your password to continue."
 msgstr "输入你的密码以继续。"
 
 #: warehouse/templates/manage/manage_base.html:460
-#, fuzzy
-#| msgid "OpenID Connect publisher management"
 msgid "OpenID Connect Publisher Management"
 msgstr "OpenID Connect 发布者管理"
 
 #: warehouse/templates/manage/manage_base.html:465
-#, fuzzy
-#| msgid ""
-#| "OpenID Connect provides a flexible, credential-free mechanism for "
-#| "delegating publishing authority for a PyPI package to a third party "
-#| "service, like GitHub Actions."
 msgid ""
 "OpenID Connect (OIDC) provides a flexible, credential-free mechanism for "
 "delegating publishing authority for a PyPI package to a third party service, "
 "like GitHub Actions."
 msgstr ""
-"OpenID Connect 提供了一种灵活、无凭据的机制，用于将 PyPI 包的发布权限委托给第"
-"三方服务，例如 GitHub Actions。"
+"OpenID Connect（OIDC）提供了一种灵活、无凭据的机制，用于将 PyPI "
+"包的发布权限委托给第三方服务，例如 GitHub Actions。"
 
 #: warehouse/templates/manage/manage_base.html:473
-#, fuzzy
-#| msgid ""
-#| "PyPI projects can use trusted OpenID Connect publishers to automate their "
-#| "release processes, without having to explicitly provision or manage API "
-#| "tokens."
 msgid ""
 "PyPI users and projects can use trusted publishers to automate their release "
 "processes, without needing to use API tokens or passwords."
-msgstr ""
-"PyPI 项目可以使用受信任的 OpenID Connect 发布者来自动执行其发布过程，而无需显"
-"式预置或管理 API 令牌。"
+msgstr "PyPI 用户和项目可以使用受信任的发布者来自动化发布过程，无需使用 API "
+"令牌和密码。"
 
 #: warehouse/templates/manage/manage_base.html:480
-#, fuzzy, python-format
-#| msgid ""
-#| "Read more about GitHub's OpenID Connect provider <a href=\"%(href)s"
-#| "\">here</a>."
+#, python-format
 msgid ""
 "You can read more about OpenID Connect and how to use it <a href=\"%(href)s"
 "\">here</a>."
-msgstr ""
-"如要获取更多关于GitHub的OpenID Connect提供商的信息，<a href=\"%(href)s\">请点"
-"击此处</a>。"
+msgstr "要获取更多关于 OpenID Connect 及其使用方法的信息，<a href=\"%(href)s\""
+">请点击此处</a>。"
 
 #: warehouse/templates/manage/organizations.html:23
 #: warehouse/templates/manage/projects.html:23
@@ -4088,14 +4069,12 @@ msgstr ""
 "target=\"_blank\" rel=\"noopener\">Python 打包用户指南</a>"
 
 #: warehouse/templates/manage/account/publishing.html:30
-#, fuzzy
-#| msgid "Add a new provider"
 msgid "Add a new pending provider"
-msgstr "添加新的提供程序"
+msgstr "添加新的待定提供商"
 
 #: warehouse/templates/manage/account/publishing.html:33
 msgid "You can use this page to register \"pending\" OpenID Connect providers."
-msgstr ""
+msgstr "你可以使用此页面注册“待定”的 OpenID Connect 提供商。"
 
 #: warehouse/templates/manage/account/publishing.html:40
 #, python-format
@@ -4107,22 +4086,22 @@ msgid ""
 "provider. You can read more about \"pending\" and ordinary OpenID Connect "
 "providers <a href=\"%(href)s\">here</a>."
 msgstr ""
+"这些提供商和特定项目的 OpenID Connect 提供商的行为差不多，除了它们允许用户<st"
+"rong>创建</strong>项目，即使它尚不存在。一旦项目被创建，这个“待定的”"
+"提供商便成为普通的 OpenID Connect 提供商。要了解关于“待定”和普通 OpenID "
+"Connect 提供商的更多信息，请访问 <a href=\"%(href)s\">此处</a>。"
 
 #: warehouse/templates/manage/account/publishing.html:58
-#, fuzzy
-#| msgid "Project Name"
 msgid "PyPI Project Name"
-msgstr "项目名称"
+msgstr "PyPI 项目名称"
 
 #: warehouse/templates/manage/account/publishing.html:63
-#, fuzzy
-#| msgid "Project name"
 msgid "project name"
 msgstr "项目名称"
 
 #: warehouse/templates/manage/account/publishing.html:65
 msgid "The project (on PyPI) that will be created when this provider is used"
-msgstr ""
+msgstr "使用此提供商时将在 PyPI 上被创建的项目"
 
 #: warehouse/templates/manage/account/publishing.html:78
 #: warehouse/templates/manage/project/publishing.html:56
@@ -4130,11 +4109,9 @@ msgid "owner"
 msgstr "所有者"
 
 #: warehouse/templates/manage/account/publishing.html:80
-#, fuzzy
-#| msgid "The organization name or username that owns the repository"
 msgid ""
 "The GitHub organization name or GitHub username that owns the repository"
-msgstr "拥有存储库的组织名或用户名"
+msgstr "拥有存储库的 Github 组织名或 Github 用户名"
 
 #: warehouse/templates/manage/account/publishing.html:88
 #: warehouse/templates/manage/project/publishing.html:66
@@ -4147,10 +4124,8 @@ msgid "repository"
 msgstr "存储库"
 
 #: warehouse/templates/manage/account/publishing.html:95
-#, fuzzy
-#| msgid "The name of the repository that contains the publishing workflow"
 msgid "The name of the GitHub repository that contains the publishing workflow"
-msgstr "包含发布工作流的存储库的名称"
+msgstr "包含发布工作流的 Github 存储库的名称"
 
 #: warehouse/templates/manage/account/publishing.html:103
 #: warehouse/templates/manage/project/publishing.html:81
@@ -4166,7 +4141,8 @@ msgstr "workflow.yml"
 msgid ""
 "The filename of the publishing workflow. This file should exist in the "
 "<code>.github/workflows/</code> directory in the repository configured above."
-msgstr ""
+msgstr "发布工作流的文件名。这个文件应该存在于上文所配置的存储库中的 <code>.github/"
+"workflows/</code>目录中。"
 
 #: warehouse/templates/manage/account/publishing.html:117
 #: warehouse/templates/manage/project/publishing.html:95
@@ -4176,16 +4152,12 @@ msgid "Add"
 msgstr "添加"
 
 #: warehouse/templates/manage/account/publishing.html:121
-#, fuzzy
-#| msgid "Manage current providers"
 msgid "Manage pending providers"
-msgstr "管理当前提供商"
+msgstr "管理待定提供商"
 
 #: warehouse/templates/manage/account/publishing.html:126
-#, fuzzy
-#| msgid "Trending projects"
 msgid "Pending project name"
-msgstr "热门项目"
+msgstr "待定项目名"
 
 #: warehouse/templates/manage/account/publishing.html:127
 #: warehouse/templates/manage/project/publishing.html:107
@@ -4193,10 +4165,8 @@ msgid "Publisher"
 msgstr "发布者"
 
 #: warehouse/templates/manage/account/publishing.html:128
-#, fuzzy
-#| msgid "Publishing"
 msgid "Publishing workflow URL"
-msgstr "正在发布"
+msgstr "发布工作流 URL"
 
 #: warehouse/templates/manage/account/publishing.html:139
 #: warehouse/templates/manage/project/publishing.html:119
@@ -6528,10 +6498,8 @@ msgid "How do I change my PyPI username?"
 msgstr "如何更改我的 PyPI 用户名？"
 
 #: warehouse/templates/pages/help.html:70
-#, fuzzy
-#| msgid "How can I use API tokens to authenticate with PyPI?"
 msgid "How can I use OpenID connect to authenticate with PyPI?"
-msgstr "如何使用 API 令牌对 PyPI 进行身份验证？"
+msgstr "我怎么才能在 PyPI 中用 OpenID connect 进行身份验证？"
 
 #: warehouse/templates/pages/help.html:72
 msgid "How can I run a mirror of PyPI?"
@@ -7415,18 +7383,14 @@ msgstr ""
 "护者，然后删除旧帐户，这具有相同的效果。"
 
 #: warehouse/templates/pages/help.html:527
-#, fuzzy, python-format
-#| msgid ""
-#| "OpenID Connect provides a flexible, credential-free mechanism for "
-#| "delegating publishing authority for a PyPI package to a third party "
-#| "service, like GitHub Actions."
+#, python-format
 msgid ""
 "PyPI users and projects can use <a href=\"%(openid)s\">OpenID Connect</a> "
 "(OIDC) to delegate publishing authority for a PyPI package to a trusted "
 "third party service, eliminating the need to use API tokens or passwords."
 msgstr ""
-"OpenID Connect 提供了一种灵活、无凭据的机制，用于将 PyPI 包的发布权限委托给第"
-"三方服务，例如 GitHub Actions。"
+"PyPI 用户和项目可使用 <a href=\"%(openid)s\">OpenID Connect</a>（OIDC）将 "
+"PyPI 包的发布权委托给受信任的第三方服务，这样便无需使用 API 令牌或密码。"
 
 #: warehouse/templates/pages/help.html:534
 msgid ""
@@ -7436,6 +7400,9 @@ msgid ""
 "OIDC providers can also be created in advance for projects that don't exist "
 "yet."
 msgstr ""
+"发布完毕时通过注册“提供商”使用 OIDC 进行身份验证，这些“提供商”相当于像 "
+"Github Action 这样有 OIDC 身份的服务。现有的项目可以随时添加或删除 OIDC "
+"提供商。也可以为还不存在的项目提前创建 OIDC 提供商。"
 
 #: warehouse/templates/pages/help.html:547
 msgid "Yes, including RSS feeds of new packages and new releases."
@@ -8829,7 +8796,7 @@ msgstr "Python 3兼容项目"
 
 #: warehouse/templates/search/results.html:128
 msgid "Sphinx extensions that have a stable/production status"
-msgstr "具有稳定/生产状态的狮身人面像扩展"
+msgstr "具有稳定/生产状态的 Sphinx 扩展"
 
 #: warehouse/templates/search/results.html:133
 msgid "Projects related to \"graphics\" with OSI-approved licenses"
