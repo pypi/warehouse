@@ -445,6 +445,45 @@ class TestRelease:
         release = DBReleaseFactory.create(home_page=home_page)
         assert release.github_repo_info_url == expected
 
+    @pytest.mark.parametrize(
+        ("home_page", "expected"),
+        [
+            (None, None),
+            (
+                "https://github.com/pypi/warehouse",
+                "https://api.github.com/search/issues?q=repo:pypi/warehouse+type:issue+state:open&per_page=1"
+            ),
+            (
+                "https://github.com/pypi/warehouse/",
+                "https://api.github.com/search/issues?q=repo:pypi/warehouse+type:issue+state:open&per_page=1",
+            ),
+            (
+                "https://github.com/pypi/warehouse/tree/main",
+                "https://api.github.com/search/issues?q=repo:pypi/warehouse+type:issue+state:open&per_page=1",
+            ),
+            (
+                "https://www.github.com/pypi/warehouse",
+                "https://api.github.com/search/issues?q=repo:pypi/warehouse+type:issue+state:open&per_page=1",
+            ),
+            ("https://github.com/pypa/", None),
+            ("https://github.com/sponsors/pypa/", None),
+            ("https://google.com/pypi/warehouse/tree/main", None),
+            ("https://google.com", None),
+            ("incorrect url", None),
+            (
+                "https://www.github.com/pypi/warehouse.git",
+                "https://api.github.com/search/issues?q=repo:pypi/warehouse+type:issue+state:open&per_page=1",
+            ),
+            (
+                "https://www.github.com/pypi/warehouse.git/",
+                "https://api.github.com/search/issues?q=repo:pypi/warehouse+type:issue+state:open&per_page=1",
+            ),
+        ],
+    )
+    def test_github_open_issue_info_url(self, db_session, home_page, expected):
+        release = DBReleaseFactory.create(home_page=home_page)
+        assert release.github_open_issue_info_url == expected
+
 
 class TestFile:
     def test_requires_python(self, db_session):
