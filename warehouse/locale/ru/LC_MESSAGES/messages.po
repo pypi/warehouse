@@ -23,22 +23,23 @@
 # Vik <xasertop@gmail.com>, 2022.
 # imartemy1524 <imartemy1524@gmail.com>, 2022.
 # Alexander Teryohin <erma4o4ek1@gmail.com>, 2022.
+# Andrej730 <azhilenkov@gmail.com>, 2023.
 msgid ""
 msgstr ""
 "Project-Id-Version: Warehouse VERSION\n"
 "Report-Msgid-Bugs-To: admin@pypi.org\n"
 "POT-Creation-Date: 2020-04-06 17:52-0500\n"
-"PO-Revision-Date: 2022-12-31 17:51+0000\n"
-"Last-Translator: Alexander Teryohin <erma4o4ek1@gmail.com>\n"
+"PO-Revision-Date: 2023-02-12 20:38+0000\n"
+"Last-Translator: Andrej730 <azhilenkov@gmail.com>\n"
 "Language-Team: Russian <https://hosted.weblate.org/projects/pypa/warehouse/"
 "ru/>\n"
 "Language: ru\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Plural-Forms: nplurals=3; plural=n%10==1 && n%100!=11 ? 0 : n%10>=2 && n"
-"%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2;\n"
-"X-Generator: Weblate 4.15.1-dev\n"
+"Plural-Forms: nplurals=3; plural=n%10==1 && n%100!=11 ? 0 : n%10>=2 && "
+"n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2;\n"
+"X-Generator: Weblate 4.16-dev\n"
 "Generated-By: Babel 2.8.0\n"
 
 #: warehouse/views.py:140
@@ -1109,8 +1110,6 @@ msgid "Translate PyPI"
 msgstr "Перевод PyPI"
 
 #: warehouse/templates/base.html:303
-#, fuzzy
-#| msgid "Sponsor"
 msgid "Sponsor PyPI"
 msgstr "Спонсорство"
 
