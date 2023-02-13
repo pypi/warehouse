@@ -451,19 +451,23 @@ class TestRelease:
             (None, None),
             (
                 "https://github.com/pypi/warehouse",
-                "https://api.github.com/search/issues?q=repo:pypi/warehouse+type:issue+state:open&per_page=1"
+                "https://api.github.com/search/issues?q=repo:pypi/warehouse"
+                "+type:issue+state:open&per_page=1",
             ),
             (
                 "https://github.com/pypi/warehouse/",
-                "https://api.github.com/search/issues?q=repo:pypi/warehouse+type:issue+state:open&per_page=1",
+                "https://api.github.com/search/issues?q=repo:pypi/warehouse+"
+                "type:issue+state:open&per_page=1",
             ),
             (
                 "https://github.com/pypi/warehouse/tree/main",
-                "https://api.github.com/search/issues?q=repo:pypi/warehouse+type:issue+state:open&per_page=1",
+                "https://api.github.com/search/issues?q=repo:pypi/warehouse"
+                "+type:issue+state:open&per_page=1",
             ),
             (
                 "https://www.github.com/pypi/warehouse",
-                "https://api.github.com/search/issues?q=repo:pypi/warehouse+type:issue+state:open&per_page=1",
+                "https://api.github.com/search/issues?q=repo:pypi/warehouse"
+                "+type:issue+state:open&per_page=1",
             ),
             ("https://github.com/pypa/", None),
             ("https://github.com/sponsors/pypa/", None),
@@ -472,11 +476,13 @@ class TestRelease:
             ("incorrect url", None),
             (
                 "https://www.github.com/pypi/warehouse.git",
-                "https://api.github.com/search/issues?q=repo:pypi/warehouse+type:issue+state:open&per_page=1",
+                "https://api.github.com/search/issues?q=repo:pypi/warehouse"
+                "+type:issue+state:open&per_page=1",
             ),
             (
                 "https://www.github.com/pypi/warehouse.git/",
-                "https://api.github.com/search/issues?q=repo:pypi/warehouse+type:issue+state:open&per_page=1",
+                "https://api.github.com/search/issues?q=repo:pypi/warehouse"
+                "+type:issue+state:open&per_page=1",
             ),
         ],
     )
