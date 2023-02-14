@@ -66,7 +66,7 @@ def find_provider_by_issuer(
             )
             .filter(
                 literal(workflow_ref).like(
-                    func.concat(provider_cls.workflow_filename, "%")
+                    func.concat(provider_cls.workflow_filename, "%")  # type: ignore
                 )
             )
             .one_or_none()
@@ -90,14 +90,14 @@ def reify_pending_provider(
 
     Returns the a tuple of the new project and reified OIDC provider.
     """
-    new_project = Project(name=pending_provider.project_name)
+    new_project = Project(name=pending_provider.project_name)  # type: ignore
     session.add(new_project)
 
     session.add(
         JournalEntry(
             name=new_project.name,
             action="create",
-            submitted_by=pending_provider.added_by,
+            submitted_by=pending_provider.added_by,  # type: ignore
             submitted_from=remote_addr,
         )
     )
@@ -105,18 +105,22 @@ def reify_pending_provider(
     new_project.record_event(
         tag=EventTag.Project.ProjectCreate,
         ip_address=remote_addr,
-        additional={"created_by": pending_provider.added_by.username},
+        additional={"created_by": pending_provider.added_by.username},  # type: ignore
     )
 
     session.add(
-        Role(user=pending_provider.added_by, project=new_project, role_name="Owner")
+        Role(
+            user=pending_provider.added_by,  # type: ignore
+            project=new_project,
+            role_name="Owner",
+        )
     )
 
     session.add(
         JournalEntry(
             name=new_project.name,
-            action=f"add Owner {pending_provider.added_by.username}",
-            submitted_by=pending_provider.added_by,
+            action=f"add Owner {pending_provider.added_by.username}",  # type: ignore
+            submitted_by=pending_provider.added_by,  # type: ignore
             submitted_from=remote_addr,
         )
     )
@@ -124,14 +128,14 @@ def reify_pending_provider(
         tag=EventTag.Project.RoleAdd,
         ip_address=remote_addr,
         additional={
-            "submitted_by": pending_provider.added_by.username,
+            "submitted_by": pending_provider.added_by.username,  # type: ignore
             "role_name": "Owner",
-            "target_user": pending_provider.added_by.username,
+            "target_user": pending_provider.added_by.username,  # type: ignore
         },
     )
 
     new_provider = pending_provider.reify(session)
-    new_project.oidc_providers.append(new_provider)
+    new_project.oidc_providers.append(new_provider)  # type: ignore
 
     session.flush()
 

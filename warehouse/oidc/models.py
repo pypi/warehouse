@@ -200,7 +200,7 @@ class PendingOIDCProvider(OIDCProviderMixin, db.Model):
         "polymorphic_on": OIDCProviderMixin.discriminator,
     }
 
-    def reify(self, session):  # pragma: no cover
+    def reify(self, session) -> OIDCProvider:  # pragma: no cover
         """
         Return an equivalent "normal" OIDC provider model for this pending provider,
         deleting the pending provider in the process.
@@ -326,10 +326,10 @@ class PendingGitHubProvider(GitHubProviderMixin, PendingOIDCProvider):
             provider = maybe_provider
         else:
             provider = GitHubProvider(
-                repository_name=self.repository_name,
-                repository_owner=self.repository_owner,
-                repository_owner_id=self.repository_owner_id,
-                workflow_filename=self.workflow_filename,
+                repository_name=self.repository_name,  # type: ignore
+                repository_owner=self.repository_owner,  # type: ignore
+                repository_owner_id=self.repository_owner_id,  # type: ignore
+                workflow_filename=self.workflow_filename,  # type: ignore
             )
 
         session.delete(self)
