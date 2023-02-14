@@ -355,8 +355,9 @@ msgstr "OpenID Connect 注册尝试次数过多。请稍后重试。"
 msgid ""
 "This OpenID Connect provider has already been registered. Please contact "
 "PyPI's admins if this wasn't intentional."
-msgstr "这个 OpenID Connect 提供商已被注册。如果这不是有意为之，请联系 PyPI "
-"的管理员。"
+msgstr ""
+"这个 OpenID Connect 提供商已被注册。如果这不是有意为之，请联系 PyPI 的管理"
+"员。"
 
 #: warehouse/admin/templates/admin/banners/preview.html:15
 msgid "Banner Preview"
@@ -638,7 +639,7 @@ msgstr "Monty Python - 奶酪店素描"
 #: warehouse/templates/includes/accounts/profile-actions.html:30
 #: warehouse/templates/includes/accounts/profile-callout.html:18
 #: warehouse/templates/includes/hash-modal.html:23
-#: warehouse/templates/includes/packaging/project-data.html:66
+#: warehouse/templates/includes/packaging/project-data.html:74
 #: warehouse/templates/index.html:100 warehouse/templates/index.html:104
 #: warehouse/templates/manage/account.html:228
 #: warehouse/templates/manage/account.html:234
@@ -652,8 +653,8 @@ msgstr "Monty Python - 奶酪店素描"
 #: warehouse/templates/manage/project/release.html:194
 #: warehouse/templates/manage/project/releases.html:140
 #: warehouse/templates/manage/project/releases.html:179
-#: warehouse/templates/packaging/detail.html:360
-#: warehouse/templates/packaging/detail.html:379
+#: warehouse/templates/packaging/detail.html:361
+#: warehouse/templates/packaging/detail.html:380
 #: warehouse/templates/pages/classifiers.html:25
 #: warehouse/templates/pages/help.html:20
 #: warehouse/templates/pages/help.html:216
@@ -2643,7 +2644,7 @@ msgstr "哈希摘要"
 #: warehouse/templates/manage/account.html:206
 #: warehouse/templates/manage/account/recovery_codes-provision.html:57
 #: warehouse/templates/manage/account/totp-provision.html:57
-#: warehouse/templates/packaging/detail.html:160
+#: warehouse/templates/packaging/detail.html:161
 #: warehouse/templates/pages/classifiers.html:38
 msgid "Copy to clipboard"
 msgstr "复制到剪贴板"
@@ -2841,10 +2842,18 @@ msgid "Forks:"
 msgstr "分支数："
 
 #: warehouse/templates/includes/packaging/project-data.html:58
-msgid "Open issues/PRs:"
+#, fuzzy
+#| msgid "Open issues/PRs:"
+msgid "Open issues:"
 msgstr "未解决的问题/拉取请求："
 
 #: warehouse/templates/includes/packaging/project-data.html:66
+#, fuzzy
+#| msgid "Open issues/PRs:"
+msgid "Open PRs:"
+msgstr "未解决的问题/拉取请求："
+
+#: warehouse/templates/includes/packaging/project-data.html:74
 #, python-format
 msgid ""
 "View statistics for this project via <a href=\"%(libs_io_href)s\" title="
@@ -2857,42 +2866,42 @@ msgstr ""
 "\"_blank\" rel=\"noopener\">Google BigQuery上公开的数据集</a> 查看此项目的统"
 "计信息"
 
-#: warehouse/templates/includes/packaging/project-data.html:74
+#: warehouse/templates/includes/packaging/project-data.html:82
 msgid "Meta"
 msgstr "元数据"
 
-#: warehouse/templates/includes/packaging/project-data.html:76
+#: warehouse/templates/includes/packaging/project-data.html:84
 msgid "License:"
 msgstr "许可证："
 
-#: warehouse/templates/includes/packaging/project-data.html:79
-#: warehouse/templates/includes/packaging/project-data.html:81
+#: warehouse/templates/includes/packaging/project-data.html:87
+#: warehouse/templates/includes/packaging/project-data.html:89
 msgid "Author:"
 msgstr "作者："
 
-#: warehouse/templates/includes/packaging/project-data.html:84
-#: warehouse/templates/includes/packaging/project-data.html:86
+#: warehouse/templates/includes/packaging/project-data.html:92
+#: warehouse/templates/includes/packaging/project-data.html:94
 #: warehouse/templates/pages/help.html:600
 msgid "Maintainer:"
 msgstr "维护者："
 
-#: warehouse/templates/includes/packaging/project-data.html:91
+#: warehouse/templates/includes/packaging/project-data.html:99
 msgid "Tags"
 msgstr "标签"
 
-#: warehouse/templates/includes/packaging/project-data.html:101
+#: warehouse/templates/includes/packaging/project-data.html:109
 msgid "Requires:"
 msgstr "需要："
 
-#: warehouse/templates/includes/packaging/project-data.html:108
+#: warehouse/templates/includes/packaging/project-data.html:116
 msgid "Maintainers"
 msgstr "维护者"
 
-#: warehouse/templates/includes/packaging/project-data.html:110
+#: warehouse/templates/includes/packaging/project-data.html:118
 msgid "Avatar for {username} from gravatar.com"
 msgstr "gravatar.com 上 {username} 的头像"
 
-#: warehouse/templates/includes/packaging/project-data.html:126
+#: warehouse/templates/includes/packaging/project-data.html:134
 #: warehouse/templates/pages/classifiers.html:16
 #: warehouse/templates/pages/classifiers.html:21
 #: warehouse/templates/pages/sitemap.html:39
@@ -3761,23 +3770,25 @@ msgid ""
 "delegating publishing authority for a PyPI package to a third party service, "
 "like GitHub Actions."
 msgstr ""
-"OpenID Connect（OIDC）提供了一种灵活、无凭据的机制，用于将 PyPI "
-"包的发布权限委托给第三方服务，例如 GitHub Actions。"
+"OpenID Connect（OIDC）提供了一种灵活、无凭据的机制，用于将 PyPI 包的发布权限"
+"委托给第三方服务，例如 GitHub Actions。"
 
 #: warehouse/templates/manage/manage_base.html:473
 msgid ""
 "PyPI users and projects can use trusted publishers to automate their release "
 "processes, without needing to use API tokens or passwords."
-msgstr "PyPI 用户和项目可以使用受信任的发布者来自动化发布过程，无需使用 API "
-"令牌和密码。"
+msgstr ""
+"PyPI 用户和项目可以使用受信任的发布者来自动化发布过程，无需使用 API 令牌和密"
+"码。"
 
 #: warehouse/templates/manage/manage_base.html:480
 #, python-format
 msgid ""
 "You can read more about OpenID Connect and how to use it <a href=\"%(href)s"
 "\">here</a>."
-msgstr "要获取更多关于 OpenID Connect 及其使用方法的信息，<a href=\"%(href)s\""
-">请点击此处</a>。"
+msgstr ""
+"要获取更多关于 OpenID Connect 及其使用方法的信息，<a href=\"%(href)s\">请点击"
+"此处</a>。"
 
 #: warehouse/templates/manage/organizations.html:23
 #: warehouse/templates/manage/projects.html:23
@@ -4086,10 +4097,10 @@ msgid ""
 "provider. You can read more about \"pending\" and ordinary OpenID Connect "
 "providers <a href=\"%(href)s\">here</a>."
 msgstr ""
-"这些提供商和特定项目的 OpenID Connect 提供商的行为差不多，除了它们允许用户<st"
-"rong>创建</strong>项目，即使它尚不存在。一旦项目被创建，这个“待定的”"
-"提供商便成为普通的 OpenID Connect 提供商。要了解关于“待定”和普通 OpenID "
-"Connect 提供商的更多信息，请访问 <a href=\"%(href)s\">此处</a>。"
+"这些提供商和特定项目的 OpenID Connect 提供商的行为差不多，除了它们允许用户"
+"<strong>创建</strong>项目，即使它尚不存在。一旦项目被创建，这个“待定的”提供商"
+"便成为普通的 OpenID Connect 提供商。要了解关于“待定”和普通 OpenID Connect 提"
+"供商的更多信息，请访问 <a href=\"%(href)s\">此处</a>。"
 
 #: warehouse/templates/manage/account/publishing.html:58
 msgid "PyPI Project Name"
@@ -4141,7 +4152,8 @@ msgstr "workflow.yml"
 msgid ""
 "The filename of the publishing workflow. This file should exist in the "
 "<code>.github/workflows/</code> directory in the repository configured above."
-msgstr "发布工作流的文件名。这个文件应该存在于上文所配置的存储库中的 <code>.github/"
+msgstr ""
+"发布工作流的文件名。这个文件应该存在于上文所配置的存储库中的 <code>.github/"
 "workflows/</code>目录中。"
 
 #: warehouse/templates/manage/account/publishing.html:117
@@ -6183,114 +6195,114 @@ msgstr "查看哈希值"
 msgid "RSS: latest releases for %(project_name)s"
 msgstr "RSS: 最新发布的%(project_name)s"
 
-#: warehouse/templates/packaging/detail.html:162
+#: warehouse/templates/packaging/detail.html:163
 msgid "Copy PIP instructions"
 msgstr "复制PIP命令"
 
-#: warehouse/templates/packaging/detail.html:172
+#: warehouse/templates/packaging/detail.html:173
 msgid "This release has been yanked"
 msgstr "该版本已被撤销"
 
-#: warehouse/templates/packaging/detail.html:178
+#: warehouse/templates/packaging/detail.html:179
 #, python-format
 msgid "Stable version available (%(version)s)"
 msgstr "发布版本 %(version)s"
 
-#: warehouse/templates/packaging/detail.html:182
+#: warehouse/templates/packaging/detail.html:183
 #, python-format
 msgid "Newer version available (%(version)s)"
 msgstr "发布版本 %(version)s"
 
-#: warehouse/templates/packaging/detail.html:186
+#: warehouse/templates/packaging/detail.html:187
 msgid "Latest version"
 msgstr "最新版本"
 
-#: warehouse/templates/packaging/detail.html:191
+#: warehouse/templates/packaging/detail.html:192
 #, python-format
 msgid "Released: %(release_date)s"
 msgstr "上次发布于 %(release_date)s"
 
-#: warehouse/templates/packaging/detail.html:203
+#: warehouse/templates/packaging/detail.html:204
 msgid "No project description provided"
 msgstr "未提供项目描述"
 
-#: warehouse/templates/packaging/detail.html:216
+#: warehouse/templates/packaging/detail.html:217
 msgid "Navigation"
 msgstr "导航栏"
 
-#: warehouse/templates/packaging/detail.html:217
-#: warehouse/templates/packaging/detail.html:248
+#: warehouse/templates/packaging/detail.html:218
+#: warehouse/templates/packaging/detail.html:249
 #, python-format
 msgid "Navigation for %(project)s"
 msgstr "%(project)s 项目的导航"
 
-#: warehouse/templates/packaging/detail.html:220
-#: warehouse/templates/packaging/detail.html:251
+#: warehouse/templates/packaging/detail.html:221
+#: warehouse/templates/packaging/detail.html:252
 msgid "Project description. Focus will be moved to the description."
 msgstr "项目描述。焦点将移至描述。"
 
-#: warehouse/templates/packaging/detail.html:222
-#: warehouse/templates/packaging/detail.html:253
-#: warehouse/templates/packaging/detail.html:281
+#: warehouse/templates/packaging/detail.html:223
+#: warehouse/templates/packaging/detail.html:254
+#: warehouse/templates/packaging/detail.html:282
 msgid "Project description"
 msgstr "项目描述"
 
-#: warehouse/templates/packaging/detail.html:226
-#: warehouse/templates/packaging/detail.html:263
+#: warehouse/templates/packaging/detail.html:227
+#: warehouse/templates/packaging/detail.html:264
 msgid "Release history. Focus will be moved to the history panel."
 msgstr "发布历史记录。焦点将移到“历史记录”面板。"
 
-#: warehouse/templates/packaging/detail.html:228
-#: warehouse/templates/packaging/detail.html:265
-#: warehouse/templates/packaging/detail.html:303
+#: warehouse/templates/packaging/detail.html:229
+#: warehouse/templates/packaging/detail.html:266
+#: warehouse/templates/packaging/detail.html:304
 msgid "Release history"
 msgstr "发行版"
 
-#: warehouse/templates/packaging/detail.html:233
-#: warehouse/templates/packaging/detail.html:270
+#: warehouse/templates/packaging/detail.html:234
+#: warehouse/templates/packaging/detail.html:271
 msgid "Download files. Focus will be moved to the project files."
 msgstr "下载文件。焦点将移到项目文件。"
 
-#: warehouse/templates/packaging/detail.html:235
-#: warehouse/templates/packaging/detail.html:272
-#: warehouse/templates/packaging/detail.html:359
+#: warehouse/templates/packaging/detail.html:236
+#: warehouse/templates/packaging/detail.html:273
+#: warehouse/templates/packaging/detail.html:360
 msgid "Download files"
 msgstr "下载文件"
 
-#: warehouse/templates/packaging/detail.html:257
+#: warehouse/templates/packaging/detail.html:258
 msgid "Project details. Focus will be moved to the project details."
 msgstr "项目详细信息。焦点将移到项目详细信息。"
 
-#: warehouse/templates/packaging/detail.html:259
-#: warehouse/templates/packaging/detail.html:295
+#: warehouse/templates/packaging/detail.html:260
+#: warehouse/templates/packaging/detail.html:296
 msgid "Project details"
 msgstr "项目详情"
 
-#: warehouse/templates/packaging/detail.html:288
+#: warehouse/templates/packaging/detail.html:289
 msgid "The author of this package has not provided a project description"
 msgstr "该软件包的作者没有提供项目描述"
 
-#: warehouse/templates/packaging/detail.html:305
+#: warehouse/templates/packaging/detail.html:306
 msgid "Release notifications"
 msgstr "版本发布设置"
 
-#: warehouse/templates/packaging/detail.html:306
+#: warehouse/templates/packaging/detail.html:307
 msgid "RSS feed"
 msgstr "RSS 订阅源"
 
-#: warehouse/templates/packaging/detail.html:318
+#: warehouse/templates/packaging/detail.html:319
 msgid "This version"
 msgstr "当前版本"
 
-#: warehouse/templates/packaging/detail.html:338
+#: warehouse/templates/packaging/detail.html:339
 msgid "pre-release"
 msgstr "预览版"
 
-#: warehouse/templates/packaging/detail.html:343
+#: warehouse/templates/packaging/detail.html:344
 msgid "yanked"
 msgstr "撤销"
 
-#: warehouse/templates/packaging/detail.html:360
+#: warehouse/templates/packaging/detail.html:361
 #, python-format
 msgid ""
 "Download the file for your platform. If you're not sure which to choose, "
@@ -6301,16 +6313,16 @@ msgstr ""
 "\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">安装软件包（英文）"
 "</a> 的更多信息。"
 
-#: warehouse/templates/packaging/detail.html:362
+#: warehouse/templates/packaging/detail.html:363
 msgid "Source Distribution"
 msgid_plural "Source Distributions"
 msgstr[0] "源分发"
 
-#: warehouse/templates/packaging/detail.html:378
+#: warehouse/templates/packaging/detail.html:379
 msgid "No source distribution files available for this release."
 msgstr "没有可用于此版本的源代码分发文件。"
 
-#: warehouse/templates/packaging/detail.html:379
+#: warehouse/templates/packaging/detail.html:380
 #, python-format
 msgid ""
 "See tutorial on <a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" "
@@ -6319,7 +6331,7 @@ msgstr ""
 "参考<a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener"
 "\">生成分发文件</a>的教程。"
 
-#: warehouse/templates/packaging/detail.html:386
+#: warehouse/templates/packaging/detail.html:387
 msgid "Built Distribution"
 msgid_plural "Built Distributions"
 msgstr[0] "构建分发"
@@ -7401,8 +7413,8 @@ msgid ""
 "yet."
 msgstr ""
 "发布完毕时通过注册“提供商”使用 OIDC 进行身份验证，这些“提供商”相当于像 "
-"Github Action 这样有 OIDC 身份的服务。现有的项目可以随时添加或删除 OIDC "
-"提供商。也可以为还不存在的项目提前创建 OIDC 提供商。"
+"Github Action 这样有 OIDC 身份的服务。现有的项目可以随时添加或删除 OIDC 提供"
+"商。也可以为还不存在的项目提前创建 OIDC 提供商。"
 
 #: warehouse/templates/pages/help.html:547
 msgid "Yes, including RSS feeds of new packages and new releases."
