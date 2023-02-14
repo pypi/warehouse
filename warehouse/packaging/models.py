@@ -627,6 +627,10 @@ class Release(db.Model):
             ]
         )
 
+    @property
+    def keywords_csv(self) -> str | None:
+        return ",".join(self.keywords_array) if self.keywords_array else None
+
 
 class File(db.Model):
 
