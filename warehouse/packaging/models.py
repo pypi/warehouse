@@ -619,7 +619,7 @@ class Release(db.Model):
         return any(
             [
                 self.license,
-                self.keywords,
+                self.keywords_array,
                 self.author,
                 self.author_email,
                 self.maintainer,

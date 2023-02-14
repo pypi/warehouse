@@ -201,7 +201,7 @@ class TestReleaseURL:
 
 class TestRelease:
     def test_has_meta_true_with_keywords(self, db_session):
-        release = DBReleaseFactory.create(keywords="foo, bar")
+        release = DBReleaseFactory.create(keywords_array=["foo", "bar"])
         assert release.has_meta
 
     def test_has_meta_true_with_author(self, db_session):
