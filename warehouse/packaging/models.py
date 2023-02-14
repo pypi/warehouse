@@ -11,6 +11,7 @@
 # limitations under the License.
 
 import enum
+import warnings
 
 from collections import OrderedDict
 from urllib.parse import urlparse
@@ -455,7 +456,7 @@ class Release(db.Model):
     home_page = Column(Text)
     license = Column(Text)
     summary = Column(Text)
-    keywords = Column(Text)
+    _keywords = Column("keywords", Text)  # deprecated, see `keywords()`
     keywords_array = Column(ARRAY(Text))
     platform = Column(Text)
     download_url = Column(Text)
@@ -630,6 +631,22 @@ class Release(db.Model):
     @property
     def keywords_csv(self) -> str | None:
         return ",".join(self.keywords_array) if self.keywords_array else None
+
+    @property
+    def keywords(self):
+        warnings.warn(
+            "The keywords attribute is deprecated, use keywords_array instead",
+            DeprecationWarning,
+        )
+        return self._keywords
+
+    @keywords.setter
+    def keywords(self, value):
+        warnings.warn(
+            "The keywords attribute is deprecated, use keywords_array instead",
+            DeprecationWarning,
+        )
+        self._keywords = value
 
 
 class File(db.Model):
