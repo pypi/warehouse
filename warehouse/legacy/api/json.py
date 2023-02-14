@@ -149,7 +149,7 @@ def _json_data(request, project, release, *, all_releases):
             "summary": release.summary,
             "description_content_type": release.description.content_type,
             "description": release.description.raw,
-            "keywords": release.keywords,
+            "keywords": release.keywords_csv,
             "license": release.license,
             "classifiers": list(release.classifiers),
             "author": release.author,

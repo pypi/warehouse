@@ -352,7 +352,7 @@ def release_data(request, package_name: str, version: str):
         "summary": _clean_for_xml(release.summary),
         "description": _clean_for_xml(release.description.raw),
         "license": _clean_for_xml(release.license),
-        "keywords": _clean_for_xml(release.keywords),
+        "keywords": _clean_for_xml(release.keywords_csv),
         "platform": release.platform,
         "classifiers": list(release.classifiers),
         "requires": list(release.requires),

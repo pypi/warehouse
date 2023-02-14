@@ -298,7 +298,7 @@ def test_release_data(db_request):
         "summary": release.summary,
         "description": release.description.raw,
         "license": release.license,
-        "keywords": release.keywords,
+        "keywords": release.keywords_csv,
         "platform": release.platform,
         "classifiers": list(release.classifiers),
         "requires": list(release.requires),

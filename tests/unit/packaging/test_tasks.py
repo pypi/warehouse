@@ -433,7 +433,7 @@ class TestSyncBigQueryMetadata:
                         "maintainer": release.maintainer or None,
                         "maintainer_email": release.maintainer_email or None,
                         "license": release.license or None,
-                        "keywords": release.keywords or None,
+                        "keywords": release.keywords_csv or None,
                         "classifiers": release.classifiers or [],
                         "platform": [release.platform] or [],
                         "home_page": release.home_page or None,
