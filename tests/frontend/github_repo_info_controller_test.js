@@ -41,6 +41,11 @@ const mountDom = async () => {
           <span data-github-repo-info-target="openIssuesCount"></span>
         </a>
       </li>
+      <li>
+        <a data-github-repo-info-target="openPRsUrl">
+          <span data-github-repo-info-target="openPRsCount"></span>
+        </a>
+      </li>
     </div>
   `;
   document.body.innerHTML = `
@@ -48,6 +53,7 @@ const mountDom = async () => {
           data-controller="github-repo-stats"
           data-github-repo-stats-github-repo-info-outlet=".github-repo-info">
           data-github-repo-stats-url-value="https://api.github.com/repos/pypi/warehouse">
+          data-github-repo-stats-issue-url-value="https://api.github.com/search/issues?q=repo:pypi/warehouse+type:issue+state:open&per_page=1">
     </div>
     <div id="sidebar">${gitHubRepoInfo}</div>
     <div id="tabs">${gitHubRepoInfo}</div>
@@ -69,7 +75,7 @@ describe("GitHub Repo Info controller", () => {
       try {
         const el = document.querySelector("#sidebar .github-repo-info");
         expect(el).toHaveClass("hidden");
-        expect(fetch.mock.calls.length).toEqual(1);
+        expect(fetch.mock.calls.length).toEqual(2);
         done();
       } catch (error) {
         done(error);
@@ -93,7 +99,7 @@ describe("GitHub Repo Info controller", () => {
       try {
         const el = document.querySelector("#sidebar .github-repo-info");
         expect(el).toHaveClass("hidden");
-        expect(fetch.mock.calls.length).toEqual(2);
+        expect(fetch.mock.calls.length).toEqual(4);
         done();
       } catch (error) {
         done(error);
@@ -108,6 +114,7 @@ describe("GitHub Repo Info controller", () => {
         stargazers_count: 100,
         forks_count: 200,
         open_issues_count: 300,
+        total_count: 50,
       })
     );
 
@@ -118,7 +125,7 @@ describe("GitHub Repo Info controller", () => {
       try {
         const el = document.querySelector("#sidebar .github-repo-info");
         expect(el).not.toHaveClass("hidden");
-        expect(fetch.mock.calls.length).toEqual(3);
+        expect(fetch.mock.calls.length).toEqual(6);
 
         const stargazersCount = el.querySelector(
           "[data-github-repo-info-target='stargazersCount']"
@@ -129,10 +136,14 @@ describe("GitHub Repo Info controller", () => {
         const openIssuesCount = el.querySelector(
           "[data-github-repo-info-target='openIssuesCount']"
         );
+        const openPRsCount = el.querySelector(
+          "[data-github-repo-info-target='openPRsCount']"
+        );
 
         expect(stargazersCount.textContent).toBe("100");
         expect(forksCount.textContent).toBe("200");
-        expect(openIssuesCount.textContent).toBe("300");
+        expect(openIssuesCount.textContent).toBe("50");
+        expect(openPRsCount.textContent).toBe("250");
 
         done();
       } catch (error) {

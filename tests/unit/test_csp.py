@@ -217,6 +217,7 @@ def test_includeme():
                     "connect-src": [
                         "'self'",
                         "https://api.github.com/repos/",
+                        "https://api.github.com/search/issues",
                         "https://*.google-analytics.com",
                         "https://*.analytics.google.com",
                         "https://*.googletagmanager.com",

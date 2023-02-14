@@ -583,9 +583,9 @@ class Release(db.Model):
 
         return _urls
 
-    @property
-    def github_repo_info_url(self):
-        for url in self.urls.values():
+    @staticmethod
+    def get_user_name_and_repo_name(urls):
+        for url in urls:
             parsed = urlparse(url)
             segments = parsed.path.strip("/").split("/")
             if parsed.netloc in {"github.com", "www.github.com"} and len(segments) >= 2:
@@ -594,7 +594,23 @@ class Release(db.Model):
                     continue
                 if repo_name.endswith(".git"):
                     repo_name = repo_name.removesuffix(".git")
-                return f"https://api.github.com/repos/{user_name}/{repo_name}"
+                return user_name, repo_name
+        return None, None
+
+    @property
+    def github_repo_info_url(self):
+        user_name, repo_name = self.get_user_name_and_repo_name(self.urls.values())
+        if user_name and repo_name:
+            return f"https://api.github.com/repos/{user_name}/{repo_name}"
+
+    @property
+    def github_open_issue_info_url(self):
+        user_name, repo_name = self.get_user_name_and_repo_name(self.urls.values())
+        if user_name and repo_name:
+            return (
+                f"https://api.github.com/search/issues?q=repo:{user_name}/{repo_name}"
+                "+type:issue+state:open&per_page=1"
+            )
 
     @property
     def has_meta(self):

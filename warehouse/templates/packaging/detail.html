@@ -139,11 +139,12 @@
 {% block content %}
 {% csi request.route_path("includes.administer-project-include", project_name=project.normalized_name) %}
 {% endcsi %}
-{% if release.github_repo_info_url %}
+{% if release.github_repo_info_url and release.github_open_issue_info_url %}
 <div class="hidden"
   data-controller="github-repo-stats"
   data-github-repo-stats-github-repo-info-outlet=".github-repo-info"
-  data-github-repo-stats-url-value="{{release.github_repo_info_url}}">
+  data-github-repo-stats-url-value="{{release.github_repo_info_url}}"
+  data-github-repo-stats-issue-url-value="{{release.github_open_issue_info_url}}">
 </div>
 {% endif %}
 
