@@ -63,6 +63,7 @@ from warehouse.packaging.models import (
 from warehouse.packaging.tasks import update_bigquery_release_files
 from warehouse.utils import http, readme
 from warehouse.utils.project import PROJECT_NAME_RE, validate_project_name
+from warehouse.utils.release import split_and_strip_keywords
 from warehouse.utils.security_policy import AuthenticationMethod
 
 ONE_MB = 1 * 1024 * 1024
@@ -1075,6 +1076,7 @@ def file_upload(request):
                     "requires_python",
                 }
             },
+            keywords_array=split_and_strip_keywords(form.keywords.data),
             uploader=request.user if request.user else None,
             uploaded_via=request.user_agent,
         )
