@@ -455,7 +455,6 @@ class Release(db.Model):
     home_page = Column(Text)
     license = Column(Text)
     summary = Column(Text)
-    keywords = Column(Text)
     keywords_array = Column(ARRAY(Text))
     platform = Column(Text)
     download_url = Column(Text)
