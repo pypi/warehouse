@@ -306,7 +306,7 @@ class PendingGitHubProvider(GitHubProviderMixin, PendingOIDCProvider):
         UUID(as_uuid=True), ForeignKey(PendingOIDCProvider.id), primary_key=True
     )
 
-    def reify(self, session) -> GitHubProvider:
+    def reify(self, session):
         """
         Returns a `GitHubProvider` for this `PendingGitHubProvider`,
         deleting the `PendingGitHubProvider` in the process.
