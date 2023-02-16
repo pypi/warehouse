@@ -260,9 +260,9 @@ toml==0.10.2 \
     --hash=sha256:806143ae5bfb6a3c6e736a764057db0e6a0e05e338b5630894a5f779cabb4f9b \
     --hash=sha256:b3bda1d108d5dd99f4a20d24d9c348e91c4db7ab1b749200bded2f839ccbe68f
     # via responses
-types-toml==0.10.8.3 \
-    --hash=sha256:a2286a053aea6ab6ff814659272b1d4a05d86a1dd52b807a87b23511993b46c5 \
-    --hash=sha256:f37244eff4cd7eace9cb70d0bac54d3eba77973aa4ef26c271ac3d1c6503a48e
+types-toml==0.10.8.4 \
+    --hash=sha256:306b1bb8b5bbc5f1b60387dbcc4b489e79f8490ce20e93af5f422a68b470d94b \
+    --hash=sha256:c8748dd225b28eb80ce712e2d7d61b57599815e7b48d07ef53df51ed148fa6b1
     # via responses
 urllib3==1.26.14 \
     --hash=sha256:076907bf8fd355cde77728471316625a4d2f7e713c125f51953bb5b3eecf4f72 \
