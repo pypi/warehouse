@@ -3901,7 +3901,7 @@ class TestManageOrganizationProjects:
         assert isinstance(result, HTTPSeeOther)
         assert result.headers["Location"] == db_request.path
         assert validate_project_name.calls == [pretend.call("fakepackage", db_request)]
-        assert len(organization.projects) == 2
+        assert len(organization.projects) == 1
         assert send_organization_project_added_email.calls == [
             pretend.call(
                 db_request,
