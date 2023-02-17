@@ -53,3 +53,16 @@ class IDocsStorage(Interface):
         """
         Remove all files matching the given prefix.
         """
+
+
+class IProjectService(Interface):
+    def create_service(context, request):
+        """
+        Create the service, given the context and request for which it
+        is being created.
+        """
+
+    def create_project(name, owner):
+        """
+        Creates a new project, associating it with a user as its owner.
+        """
