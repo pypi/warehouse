@@ -59,7 +59,6 @@ from warehouse.packaging.models import (
     JournalEntry,
     Project,
     Release,
-    Role,
 )
 from warehouse.packaging.tasks import update_bigquery_release_files
 from warehouse.utils import http, readme

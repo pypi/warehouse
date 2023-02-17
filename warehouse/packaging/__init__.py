@@ -24,7 +24,7 @@ from warehouse.packaging.interfaces import (
     ISimpleStorage,
 )
 from warehouse.packaging.models import File, Project, Release, Role
-from warehouse.packaging.services import ProjectService, project_service_factory
+from warehouse.packaging.services import project_service_factory
 from warehouse.packaging.tasks import (
     compute_2fa_mandate,
     compute_2fa_metrics,

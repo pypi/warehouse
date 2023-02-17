@@ -60,7 +60,6 @@ from warehouse.organizations.models import (
     TeamProjectRoleType,
     TeamRoleType,
 )
-from warehouse.packaging.interfaces import IProjectService
 from warehouse.packaging.models import (
     File,
     JournalEntry,
@@ -3893,11 +3892,6 @@ class TestManageOrganizationProjects:
         validate_project_name = pretend.call_recorder(lambda *a, **kw: True)
         monkeypatch.setattr(views, "validate_project_name", validate_project_name)
 
-        # project_service = pretend.stub(
-        #     create_project=pretend.call_recorder(lambda *a: None)
-        # )
-        # db_request.find_service = pretend.call_recorder(lambda *a: project_service)
-
         def add_organization_project(*args, **kwargs):
             OrganizationProjectFactory.create(
                 organization=organization, project=project
@@ -3922,10 +3916,6 @@ class TestManageOrganizationProjects:
         assert isinstance(result, HTTPSeeOther)
         assert result.headers["Location"] == db_request.path
         assert validate_project_name.calls == [pretend.call(project.name, db_request)]
-        # assert db_request.find_service.calls == [pretend.call(IProjectService)]
-        # assert project_service.create_project.calls == [
-        #     pretend.call(project.name, db_request.user)
-        # ]
         assert len(organization.projects) == 2
         assert send_organization_project_added_email.calls == [
             pretend.call(

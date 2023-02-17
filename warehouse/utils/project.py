@@ -27,7 +27,6 @@ from sqlalchemy import exists, func
 from sqlalchemy.exc import NoResultFound
 
 from warehouse.admin.flags import AdminFlagValue
-from warehouse.events.tags import EventTag
 from warehouse.packaging.interfaces import IDocsStorage
 from warehouse.packaging.models import JournalEntry, ProhibitedProjectName, Project
 from warehouse.tasks import task
