@@ -3859,7 +3859,6 @@ class TestManageOrganizationProjects:
         self,
         db_request,
         pyramid_user,
-        organization_service,
         enable_organizations,
         monkeypatch,
     ):
@@ -3897,6 +3896,9 @@ class TestManageOrganizationProjects:
 
         view = views.ManageOrganizationProjectsViews(organization, db_request)
         result = view.add_organization_project()
+
+        # The project was created.
+        db_request.db.query(Project).filter_by(name="fakepackage").one_or_none() is not None
 
         assert isinstance(result, HTTPSeeOther)
         assert result.headers["Location"] == db_request.path
