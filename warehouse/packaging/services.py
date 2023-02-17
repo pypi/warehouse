@@ -263,7 +263,7 @@ class ProjectService:
         self.db = session
         self.remote_addr = remote_addr
 
-    def create_project(self, name, owner):
+    def create_project(self, name, creator, *, creator_is_owner=True):
         project = Project(name=name)
         self.db.add(project)
 
@@ -274,39 +274,39 @@ class ProjectService:
             JournalEntry(
                 name=project.name,
                 action="create",
-                submitted_by=owner,
+                submitted_by=creator,
                 submitted_from=self.remote_addr,
             )
         )
         project.record_event(
             tag=EventTag.Project.ProjectCreate,
             ip_address=self.remote_addr,
-            additional={"created_by": owner.username},
+            additional={"created_by": creator.username},
         )
 
-        # Then we'll add a role setting the current user as the "Owner" of the
-        # project.
-        self.db.add(Role(user=owner, project=project, role_name="Owner"))
-        # TODO: This should be handled by some sort of database trigger or a
-        #       SQLAlchemy hook or the like instead of doing it inline in this
-        #       service.
-        self.db.add(
-            JournalEntry(
-                name=project.name,
-                action=f"add Owner {owner.username}",
-                submitted_by=owner,
-                submitted_from=self.remote_addr,
+        # Mark the creator as the newly created project's owner, if configured.
+        if creator_is_owner:
+            self.db.add(Role(user=creator, project=project, role_name="Owner"))
+            # TODO: This should be handled by some sort of database trigger or a
+            #       SQLAlchemy hook or the like instead of doing it inline in this
+            #       service.
+            self.db.add(
+                JournalEntry(
+                    name=project.name,
+                    action=f"add Owner {creator.username}",
+                    submitted_by=creator,
+                    submitted_from=self.remote_addr,
+                )
             )
-        )
-        project.record_event(
-            tag=EventTag.Project.RoleAdd,
-            ip_address=self.remote_addr,
-            additional={
-                "submitted_by": owner.username,
-                "role_name": "Owner",
-                "target_user": owner.username,
-            },
-        )
+            project.record_event(
+                tag=EventTag.Project.RoleAdd,
+                ip_address=self.remote_addr,
+                additional={
+                    "submitted_by": creator.username,
+                    "role_name": "Owner",
+                    "target_user": creator.username,
+                },
+            )
 
         return project
 

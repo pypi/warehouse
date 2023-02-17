@@ -3866,20 +3866,14 @@ class TestManageOrganizationProjects:
         db_request.help_url = lambda *a, **kw: ""
 
         organization = OrganizationFactory.create()
-        OrganizationProjectFactory(
-            organization=organization, project=ProjectFactory.create()
-        )
-
-        project = ProjectFactory.create()
 
         OrganizationRoleFactory.create(
             organization=organization, user=db_request.user, role_name="Owner"
         )
-        RoleFactory.create(project=project, user=db_request.user, role_name="Owner")
 
         add_organization_project_obj = pretend.stub(
             add_existing_project=pretend.stub(data=False),
-            new_project_name=pretend.stub(data=project.name),
+            new_project_name=pretend.stub(data="fakepackage"),
             validate=lambda *a, **kw: True,
         )
         add_organization_project_cls = pretend.call_recorder(
@@ -3891,15 +3885,6 @@ class TestManageOrganizationProjects:
 
         validate_project_name = pretend.call_recorder(lambda *a, **kw: True)
         monkeypatch.setattr(views, "validate_project_name", validate_project_name)
-
-        def add_organization_project(*args, **kwargs):
-            OrganizationProjectFactory.create(
-                organization=organization, project=project
-            )
-
-        monkeypatch.setattr(
-            organization_service, "add_organization_project", add_organization_project
-        )
 
         send_organization_project_added_email = pretend.call_recorder(
             lambda req, user, **k: None
@@ -3915,14 +3900,14 @@ class TestManageOrganizationProjects:
 
         assert isinstance(result, HTTPSeeOther)
         assert result.headers["Location"] == db_request.path
-        assert validate_project_name.calls == [pretend.call(project.name, db_request)]
+        assert validate_project_name.calls == [pretend.call("fakepackage", db_request)]
         assert len(organization.projects) == 2
         assert send_organization_project_added_email.calls == [
             pretend.call(
                 db_request,
                 {db_request.user},
                 organization_name=organization.name,
-                project_name=project.name,
+                project_name="fakepackage",
             )
         ]
 

@@ -1914,9 +1914,11 @@ class ManageOrganizationProjectsViews:
                 return default_response
 
             # Add new project.
+            # Note that we pass `creator_is_owner=False`, since the project being
+            # created is controlled by the organization and not the user creating it.
             project_service = self.request.find_service(IProjectService)
-            project_service.create_project(
-                form.new_project_name.data, self.request.user
+            project = project_service.create_project(
+                form.new_project_name.data, self.request.user, creator_is_owner=False
             )
 
         # Add project to organization.
