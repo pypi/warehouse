@@ -3897,13 +3897,16 @@ class TestManageOrganizationProjects:
         view = views.ManageOrganizationProjectsViews(organization, db_request)
         result = view.add_organization_project()
 
-        # The project was created.
-        db_request.db.query(Project).filter_by(name="fakepackage").one_or_none() is not None
+        # The project was created, and belongs to the organization.
+        project = (
+            db_request.db.query(Project).filter_by(name="fakepackage").one_or_none()
+        )
+        assert project is not None
+        assert project.organization == organization
 
         assert isinstance(result, HTTPSeeOther)
         assert result.headers["Location"] == db_request.path
         assert validate_project_name.calls == [pretend.call("fakepackage", db_request)]
-        assert len(organization.projects) == 1
         assert send_organization_project_added_email.calls == [
             pretend.call(
                 db_request,
