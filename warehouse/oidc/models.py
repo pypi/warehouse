@@ -322,15 +322,12 @@ class PendingGitHubProvider(GitHubProviderMixin, PendingOIDCProvider):
             .one_or_none()
         )
 
-        if maybe_provider is not None:
-            provider = maybe_provider
-        else:
-            provider = GitHubProvider(
-                repository_name=self.repository_name,
-                repository_owner=self.repository_owner,
-                repository_owner_id=self.repository_owner_id,
-                workflow_filename=self.workflow_filename,
-            )
+        provider = maybe_provider or GitHubProvider(
+            repository_name=self.repository_name,
+            repository_owner=self.repository_owner,
+            repository_owner_id=self.repository_owner_id,
+            workflow_filename=self.workflow_filename,
+        )
 
         session.delete(self)
         return provider
