@@ -49,7 +49,7 @@ from warehouse.classifiers.models import Classifier
 from warehouse.email import send_basic_auth_with_two_factor_email
 from warehouse.events.tags import EventTag
 from warehouse.metrics import IMetricsService
-from warehouse.packaging.interfaces import IFileStorage
+from warehouse.packaging.interfaces import IFileStorage, IProjectService
 from warehouse.packaging.models import (
     Dependency,
     DependencyKind,
@@ -63,7 +63,7 @@ from warehouse.packaging.models import (
 )
 from warehouse.packaging.tasks import update_bigquery_release_files
 from warehouse.utils import http, readme
-from warehouse.utils.project import PROJECT_NAME_RE, add_project, validate_project_name
+from warehouse.utils.project import PROJECT_NAME_RE, validate_project_name
 from warehouse.utils.security_policy import AuthenticationMethod
 
 ONE_MB = 1 * 1024 * 1024
@@ -908,31 +908,9 @@ def file_upload(request):
             validate_project_name(form.name.data, request)
         except HTTPException as exc:
             raise _exc_with_message(exc.__class__, exc.detail) from None
-        project = add_project(form.name.data, request)
 
-        # Then we'll add a role setting the current user as the "Owner" of the
-        # project.
-        request.db.add(Role(user=request.user, project=project, role_name="Owner"))
-        # TODO: This should be handled by some sort of database trigger or a
-        #       SQLAlchemy hook or the like instead of doing it inline in this
-        #       view.
-        request.db.add(
-            JournalEntry(
-                name=project.name,
-                action=f"add Owner {request.user.username}",
-                submitted_by=request.user,
-                submitted_from=request.remote_addr,
-            )
-        )
-        project.record_event(
-            tag=EventTag.Project.RoleAdd,
-            ip_address=request.remote_addr,
-            additional={
-                "submitted_by": request.user.username,
-                "role_name": "Owner",
-                "target_user": request.user.username,
-            },
-        )
+        project_service = request.find_service(IProjectService)
+        project_service.create_project(form.name.data, request.user)
 
     # Check that the identity has permission to do things to this project, if this
     # is a new project this will act as a sanity check for the role we just

@@ -24,7 +24,7 @@ from warehouse.packaging.interfaces import (
     ISimpleStorage,
 )
 from warehouse.packaging.models import File, Project, Release, Role
-from warehouse.packaging.services import ProjectService
+from warehouse.packaging.services import ProjectService, project_service_factory
 from warehouse.packaging.tasks import (
     compute_2fa_mandate,
     compute_2fa_metrics,
@@ -58,7 +58,7 @@ def includeme(config):
     docs_storage_class = config.maybe_dotted(config.registry.settings["docs.backend"])
     config.register_service_factory(docs_storage_class.create_service, IDocsStorage)
 
-    config.register_service_factory(ProjectService.create_service, IProjectService)
+    config.register_service_factory(project_service_factory, IProjectService)
 
     # Register our origin cache keys
     config.register_origin_cache_keys(

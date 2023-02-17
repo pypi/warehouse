@@ -145,6 +145,7 @@ from warehouse.organizations.models import (
     TeamRole,
     TeamRoleType,
 )
+from warehouse.packaging.interfaces import IProjectService
 from warehouse.packaging.models import (
     File,
     JournalEntry,
@@ -162,7 +163,6 @@ from warehouse.utils.http import is_safe_url
 from warehouse.utils.organization import confirm_organization, confirm_team
 from warehouse.utils.paginate import paginate_url_factory
 from warehouse.utils.project import (
-    add_project,
     confirm_project,
     destroy_docs,
     remove_project,
@@ -1912,8 +1912,12 @@ class ManageOrganizationProjectsViews:
             except HTTPException as exc:
                 form.new_project_name.errors.append(exc.detail)
                 return default_response
+
             # Add new project.
-            project = add_project(form.new_project_name.data, self.request)
+            project_service = self.request.find_service(IProjectService)
+            project_service.create_project(
+                form.new_project_name.data, self.request.user
+            )
 
         # Add project to organization.
         self.organization_service.add_organization_project(

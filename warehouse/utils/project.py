@@ -153,33 +153,6 @@ def validate_project_name(name, request):
         return True
 
 
-def add_project(name, request):
-    """
-    Attempts to create a project with the given name.
-    """
-    project = Project(name=name)
-    request.db.add(project)
-
-    # TODO: This should be handled by some sort of database trigger or a
-    #       SQLAlchemy hook or the like instead of doing it inline in this
-    #       view.
-    request.db.add(
-        JournalEntry(
-            name=project.name,
-            action="create",
-            submitted_by=request.user,
-            submitted_from=request.remote_addr,
-        )
-    )
-    project.record_event(
-        tag=EventTag.Project.ProjectCreate,
-        ip_address=request.remote_addr,
-        additional={"created_by": request.user.username},
-    )
-
-    return project
-
-
 def confirm_project(
     project,
     request,

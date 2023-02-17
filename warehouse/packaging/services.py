@@ -263,10 +263,6 @@ class ProjectService:
         self.db = session
         self.remote_addr = remote_addr
 
-    @classmethod
-    def create_service(cls, context, request):
-        return cls(request.db, request.remote_addr)
-
     def create_project(self, name, owner):
         project = Project(name=name)
         self.db.add(project)
@@ -313,3 +309,7 @@ class ProjectService:
         )
 
         return project
+
+
+def project_service_factory(context, request):
+    return ProjectService(request.db, request.remote_addr)
