@@ -909,7 +909,7 @@ def file_upload(request):
             raise _exc_with_message(exc.__class__, exc.detail) from None
 
         project_service = request.find_service(IProjectService)
-        project_service.create_project(form.name.data, request.user)
+        project = project_service.create_project(form.name.data, request.user)
 
     # Check that the identity has permission to do things to this project, if this
     # is a new project this will act as a sanity check for the role we just
