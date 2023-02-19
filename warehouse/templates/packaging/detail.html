@@ -203,8 +203,10 @@
     {% else %}
       <p class="package-description__summary">{% trans %}No project description provided{% endtrans %}</p>
     {% endif %}
+  {% if request.user %}
     {% csi request.route_path("includes.edit-project-button", project_name=project.normalized_name) %}
     {% endcsi %}
+  {% endif %}
     </div>
   </div>
 </div>
