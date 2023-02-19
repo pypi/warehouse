@@ -561,8 +561,8 @@ msgstr ""
 #: warehouse/templates/manage/project/release.html:194
 #: warehouse/templates/manage/project/releases.html:140
 #: warehouse/templates/manage/project/releases.html:179
-#: warehouse/templates/packaging/detail.html:361
-#: warehouse/templates/packaging/detail.html:380
+#: warehouse/templates/packaging/detail.html:363
+#: warehouse/templates/packaging/detail.html:382
 #: warehouse/templates/pages/classifiers.html:25
 #: warehouse/templates/pages/help.html:20
 #: warehouse/templates/pages/help.html:216
@@ -5831,83 +5831,83 @@ msgstr ""
 msgid "No project description provided"
 msgstr ""
 
-#: warehouse/templates/packaging/detail.html:217
+#: warehouse/templates/packaging/detail.html:219
 msgid "Navigation"
 msgstr ""
 
-#: warehouse/templates/packaging/detail.html:218
-#: warehouse/templates/packaging/detail.html:249
+#: warehouse/templates/packaging/detail.html:220
+#: warehouse/templates/packaging/detail.html:251
 #, python-format
 msgid "Navigation for %(project)s"
 msgstr ""
 
-#: warehouse/templates/packaging/detail.html:221
-#: warehouse/templates/packaging/detail.html:252
+#: warehouse/templates/packaging/detail.html:223
+#: warehouse/templates/packaging/detail.html:254
 msgid "Project description. Focus will be moved to the description."
 msgstr ""
 
-#: warehouse/templates/packaging/detail.html:223
-#: warehouse/templates/packaging/detail.html:254
-#: warehouse/templates/packaging/detail.html:282
+#: warehouse/templates/packaging/detail.html:225
+#: warehouse/templates/packaging/detail.html:256
+#: warehouse/templates/packaging/detail.html:284
 msgid "Project description"
-msgstr ""
-
-#: warehouse/templates/packaging/detail.html:227
-#: warehouse/templates/packaging/detail.html:264
-msgid "Release history. Focus will be moved to the history panel."
 msgstr ""
 
 #: warehouse/templates/packaging/detail.html:229
 #: warehouse/templates/packaging/detail.html:266
-#: warehouse/templates/packaging/detail.html:304
-msgid "Release history"
+msgid "Release history. Focus will be moved to the history panel."
 msgstr ""
 
-#: warehouse/templates/packaging/detail.html:234
-#: warehouse/templates/packaging/detail.html:271
-msgid "Download files. Focus will be moved to the project files."
+#: warehouse/templates/packaging/detail.html:231
+#: warehouse/templates/packaging/detail.html:268
+#: warehouse/templates/packaging/detail.html:306
+msgid "Release history"
 msgstr ""
 
 #: warehouse/templates/packaging/detail.html:236
 #: warehouse/templates/packaging/detail.html:273
-#: warehouse/templates/packaging/detail.html:360
+msgid "Download files. Focus will be moved to the project files."
+msgstr ""
+
+#: warehouse/templates/packaging/detail.html:238
+#: warehouse/templates/packaging/detail.html:275
+#: warehouse/templates/packaging/detail.html:362
 msgid "Download files"
 msgstr ""
 
-#: warehouse/templates/packaging/detail.html:258
+#: warehouse/templates/packaging/detail.html:260
 msgid "Project details. Focus will be moved to the project details."
 msgstr ""
 
-#: warehouse/templates/packaging/detail.html:260
-#: warehouse/templates/packaging/detail.html:296
+#: warehouse/templates/packaging/detail.html:262
+#: warehouse/templates/packaging/detail.html:298
 msgid "Project details"
 msgstr ""
 
-#: warehouse/templates/packaging/detail.html:289
+#: warehouse/templates/packaging/detail.html:291
 msgid "The author of this package has not provided a project description"
 msgstr ""
 
-#: warehouse/templates/packaging/detail.html:306
+#: warehouse/templates/packaging/detail.html:308
 msgid "Release notifications"
 msgstr ""
 
-#: warehouse/templates/packaging/detail.html:307
+#: warehouse/templates/packaging/detail.html:309
 msgid "RSS feed"
 msgstr ""
 
-#: warehouse/templates/packaging/detail.html:319
+#: warehouse/templates/packaging/detail.html:321
 msgid "This version"
 msgstr ""
 
-#: warehouse/templates/packaging/detail.html:339
+#: warehouse/templates/packaging/detail.html:341
 msgid "pre-release"
 msgstr ""
 
-#: warehouse/templates/packaging/detail.html:344
+#: warehouse/templates/packaging/detail.html:346
 msgid "yanked"
 msgstr ""
 
-#: warehouse/templates/packaging/detail.html:361
+#: warehouse/templates/packaging/detail.html:363
 #, python-format
 msgid ""
 "Download the file for your platform. If you're not sure which to choose, "
@@ -5915,24 +5915,24 @@ msgid ""
 "target=\"_blank\" rel=\"noopener\">installing packages</a>."
 msgstr ""
 
-#: warehouse/templates/packaging/detail.html:363
+#: warehouse/templates/packaging/detail.html:365
 msgid "Source Distribution"
 msgid_plural "Source Distributions"
 msgstr[0] ""
 msgstr[1] ""
 
-#: warehouse/templates/packaging/detail.html:379
+#: warehouse/templates/packaging/detail.html:381
 msgid "No source distribution files available for this release."
 msgstr ""
 
-#: warehouse/templates/packaging/detail.html:380
+#: warehouse/templates/packaging/detail.html:382
 #, python-format
 msgid ""
 "See tutorial on <a href=\"%(href)s\" title=\"%(title)s\" "
 "target=\"_blank\" rel=\"noopener\">generating distribution archives</a>."
 msgstr ""
 
-#: warehouse/templates/packaging/detail.html:387
+#: warehouse/templates/packaging/detail.html:389
 msgid "Built Distribution"
 msgid_plural "Built Distributions"
 msgstr[0] ""
