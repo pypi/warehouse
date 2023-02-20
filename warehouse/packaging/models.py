@@ -40,7 +40,7 @@ from sqlalchemy import (
     orm,
     sql,
 )
-from sqlalchemy.dialects.postgresql import UUID
+from sqlalchemy.dialects.postgresql import ARRAY, UUID
 from sqlalchemy.exc import MultipleResultsFound, NoResultFound
 from sqlalchemy.ext.associationproxy import association_proxy
 from sqlalchemy.ext.declarative import declared_attr  # type: ignore
@@ -455,7 +455,7 @@ class Release(db.Model):
     home_page = Column(Text)
     license = Column(Text)
     summary = Column(Text)
-    keywords = Column(Text)
+    keywords_array = Column(ARRAY(Text))
     platform = Column(Text)
     download_url = Column(Text)
     _pypi_ordering = Column(Integer)
@@ -617,7 +617,7 @@ class Release(db.Model):
         return any(
             [
                 self.license,
-                self.keywords,
+                self.keywords_array,
                 self.author,
                 self.author_email,
                 self.maintainer,
@@ -625,6 +625,10 @@ class Release(db.Model):
                 self.requires_python,
             ]
         )
+
+    @property
+    def keywords_csv(self) -> str | None:
+        return ",".join(self.keywords_array) if self.keywords_array else None
 
 
 class File(db.Model):

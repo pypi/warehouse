@@ -86,7 +86,7 @@ def _project_docs(db, project_name=None):
             Release.maintainer_email,
             Release.home_page,
             Release.summary,
-            Release.keywords,
+            Release.keywords_array,
             Release.platform,
             Release.download_url,
             Release.created,

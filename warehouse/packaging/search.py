@@ -67,7 +67,12 @@ class Project(Document):
         obj["maintainer_email"] = release.maintainer_email
         obj["home_page"] = release.home_page
         obj["download_url"] = release.download_url
-        obj["keywords"] = release.keywords
+        obj["keywords"] = (
+            # can't use `release.keywords_csv` because it's a property
+            ",".join(release.keywords_array)
+            if release.keywords_array
+            else None
+        )
         obj["platform"] = release.platform
         obj["created"] = release.created
         obj["classifiers"] = release.classifiers
