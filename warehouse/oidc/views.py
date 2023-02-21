@@ -14,12 +14,15 @@ import time
 
 from pydantic import BaseModel, StrictStr, ValidationError
 from pyramid.view import view_config
+from sqlalchemy import func
 
 from warehouse.admin.flags import AdminFlagValue
+from warehouse.email import send_pending_oidc_provider_invalidated_email
 from warehouse.events.tags import EventTag
 from warehouse.macaroons import caveats
 from warehouse.macaroons.interfaces import IMacaroonService
 from warehouse.oidc.interfaces import IOIDCProviderService
+from warehouse.oidc.models import PendingOIDCProvider
 from warehouse.packaging.interfaces import IProjectService
 from warehouse.packaging.models import ProjectFactory
 
@@ -78,8 +81,8 @@ def mint_token_from_oidc(request):
 
         # If the project already exists, this pending provider is no longer
         # valid and needs to be removed.
-        # NOTE: This is mostly a sanity check, since pending providers should
-        # be disposed of as part of the ordinary project creation flow.
+        # NOTE: This is mostly a sanity check, since we dispose of invalidated
+        # pending providers below.
         if pending_provider.project_name in factory:
             request.db.delete(pending_provider)
             return _invalid(
@@ -98,9 +101,29 @@ def mint_token_from_oidc(request):
         )
         oidc_service.reify_pending_provider(pending_provider, new_project)
 
+        # There might be other pending providers for the same project name,
+        # which we've now invalidated by creating the project. These would
+        # be disposed of on use, but we explicitly dispose of them here while
+        # also sending emails to their owners.
+        stale_pending_providers = (
+            request.db.query(PendingOIDCProvider)
+            .filter(
+                func.normalize_pep426_name(PendingOIDCProvider.project_name)
+                == func.normalize_pep426_name(pending_provider.project_name)
+            )
+            .all()
+        )
+        for stale_provider in stale_pending_providers:
+            send_pending_oidc_provider_invalidated_email(
+                request,
+                stale_provider.added_by,
+                project_name=stale_provider.project_name,
+            )
+            request.db.delete(stale_provider)
+
     # We either don't have a pending OIDC provider, or we *did*
-    # have one and we've just converted it. Either way, we look for a full
-    # provider to actually do the macaroon minting with.
+    # have one and we've just converted it. Either way, look for a full provider
+    # to actually do the macaroon minting with.
     provider = oidc_service.find_provider(claims, pending=False)
     if not provider:
         return _invalid(

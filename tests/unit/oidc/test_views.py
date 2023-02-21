@@ -14,6 +14,7 @@ import json
 
 import pretend
 import pytest
+from sqlalchemy import literal, func
 
 from tests.common.db.oidc import GitHubProviderFactory, PendingGitHubProviderFactory
 from tests.common.db.packaging import ProjectFactory
@@ -22,6 +23,7 @@ from warehouse.macaroons import caveats
 from warehouse.macaroons.interfaces import IMacaroonService
 from warehouse.oidc import views
 from warehouse.oidc.interfaces import IOIDCProviderService
+from warehouse.oidc.models import PendingGitHubProvider
 from warehouse.packaging.interfaces import IProjectService
 
 
@@ -189,44 +191,51 @@ def test_mint_token_from_oidc_pending_provider_project_already_exists(db_request
     ]
 
 
-def test_mint_token_from_oidc_pending_provider_ok(monkeypatch, db_request):
+def test_mint_token_from_oidc_pending_provider_ok(
+    monkeypatch, db_request, oidc_service, project_service
+):
     time = pretend.stub(time=pretend.call_recorder(lambda: 0))
     monkeypatch.setattr(views, "time", time)
 
     pending_provider = PendingGitHubProviderFactory.create(
         project_name="does-not-exist"
     )
-    provider = GitHubProviderFactory.create(
-        repository_name=pending_provider.repository_name,
-        repository_owner=pending_provider.repository_owner,
-        repository_owner_id=pending_provider.repository_owner_id,
-        workflow_filename=pending_provider.workflow_filename,
+
+    assert pending_provider.repository_name == "foo"
+    assert pending_provider.repository_owner == "bar"
+    assert pending_provider.repository_owner_id == "123"
+    assert pending_provider.workflow_filename == "example.yml"
+
+    assert (
+        db_request.db.query(PendingGitHubProvider)
+        .filter_by(
+            repository_name=pending_provider.repository_name,
+            repository_owner=pending_provider.repository_owner,
+            repository_owner_id=pending_provider.repository_owner_id,
+        )
+        .filter(
+            literal("example.yml@fake").like(
+                func.concat(PendingGitHubProvider.workflow_filename, "%")
+            )
+        )
+        .one_or_none()
+        is not None
     )
 
     db_request.registry.settings = {"warehouse.oidc.enabled": True}
     db_request.flags.enabled = lambda f: False
-    db_request.body = json.dumps({"token": "faketoken"})
-    db_request.remote_addr = "0.0.0.0"
-
-    claims = pretend.stub()
-    oidc_service = pretend.stub(
-        verify_jwt_signature=pretend.call_recorder(lambda token: claims),
-        find_provider=pretend.call_recorder(
-            lambda claims, pending=False: pending_provider if pending else provider
-        ),
-        reify_pending_provider=pretend.call_recorder(lambda *a: None),
+    db_request.body = json.dumps(
+        {
+            "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiI2ZTY3YjFjYi0yYjhkLTRiZTUtOTFjYi03NTdlZGIyZWM5NzAiLCJzdWIiOiJyZXBvOmZvby9iYXIiLCJhdWQiOiJweXBpIiwicmVmIjoiZmFrZSIsInNoYSI6ImZha2UiLCJyZXBvc2l0b3J5IjoiZm9vL2JhciIsInJlcG9zaXRvcnlfb3duZXIiOiJmb28iLCJyZXBvc2l0b3J5X293bmVyX2lkIjoiMTIzIiwicnVuX2lkIjoiZmFrZSIsInJ1bl9udW1iZXIiOiJmYWtlIiwicnVuX2F0dGVtcHQiOiIxIiwicmVwb3NpdG9yeV9pZCI6ImZha2UiLCJhY3Rvcl9pZCI6ImZha2UiLCJhY3RvciI6ImZvbyIsIndvcmtmbG93IjoiZmFrZSIsImhlYWRfcmVmIjoiZmFrZSIsImJhc2VfcmVmIjoiZmFrZSIsImV2ZW50X25hbWUiOiJmYWtlIiwicmVmX3R5cGUiOiJmYWtlIiwiZW52aXJvbm1lbnQiOiJmYWtlIiwiam9iX3dvcmtmbG93X3JlZiI6ImZvby9iYXIvLmdpdGh1Yi93b3JrZmxvd3MvZXhhbXBsZS55bWxAZmFrZSIsImlzcyI6Imh0dHBzOi8vdG9rZW4uYWN0aW9ucy5naXRodWJ1c2VyY29udGVudC5jb20iLCJuYmYiOjE2NTA2NjMyNjUsImV4cCI6MTY1MDY2NDE2NSwiaWF0IjoxNjUwNjYzODY1fQ.f-FMv5FF5sdxAWeUilYDt9NoE7Et0vbdNhK32c2oC-E"
+        }
     )
+    db_request.remote_addr = "0.0.0.0"
 
     db_macaroon = pretend.stub(description="fakemacaroon")
     macaroon_service = pretend.stub(
         create_macaroon=pretend.call_recorder(
             lambda *a, **kw: ("raw-macaroon", db_macaroon)
         )
-    )
-
-    new_project = pretend.stub()
-    project_service = pretend.stub(
-        create_project=pretend.call_recorder(lambda *a: new_project)
     )
 
     def find_service(iface, **kw):
@@ -245,18 +254,6 @@ def test_mint_token_from_oidc_pending_provider_ok(monkeypatch, db_request):
         "success": True,
         "token": "raw-macaroon",
     }
-
-    assert oidc_service.verify_jwt_signature.calls == [pretend.call("faketoken")]
-    assert oidc_service.find_provider.calls == [
-        pretend.call(claims, pending=True),
-        pretend.call(claims, pending=False),
-    ]
-    assert project_service.create_project.calls == [
-        pretend.call("does-not-exist", pending_provider.added_by)
-    ]
-    assert oidc_service.reify_pending_provider.calls == [
-        pretend.call(pending_provider, new_project)
-    ]
 
 
 def test_mint_token_from_oidc_no_pending_provider_ok(monkeypatch):

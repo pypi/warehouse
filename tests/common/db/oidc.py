@@ -24,7 +24,7 @@ class GitHubProviderFactory(WarehouseFactory):
     id = factory.Faker("uuid4", cast_to=None)
     repository_name = "foo"
     repository_owner = "bar"
-    repository_owner_id = 123
+    repository_owner_id = "123"
     workflow_filename = "example.yml"
 
 
@@ -36,5 +36,5 @@ class PendingGitHubProviderFactory(WarehouseFactory):
     project_name = "fake-nonexistent-project"
     repository_name = "foo"
     repository_owner = "bar"
-    repository_owner_id = 123
+    repository_owner_id = "123"
     workflow_filename = "example.yml"
