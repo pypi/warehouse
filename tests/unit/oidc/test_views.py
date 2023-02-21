@@ -22,6 +22,7 @@ from warehouse.macaroons import caveats
 from warehouse.macaroons.interfaces import IMacaroonService
 from warehouse.oidc import views
 from warehouse.oidc.interfaces import IOIDCProviderService
+from warehouse.packaging.interfaces import IProjectService
 
 
 @pytest.mark.parametrize(
@@ -223,11 +224,18 @@ def test_mint_token_from_oidc_pending_provider_ok(monkeypatch, db_request):
         )
     )
 
+    new_project = pretend.stub()
+    project_service = pretend.stub(
+        create_project=pretend.call_recorder(lambda *a: new_project)
+    )
+
     def find_service(iface, **kw):
         if iface == IOIDCProviderService:
             return oidc_service
         elif iface == IMacaroonService:
             return macaroon_service
+        elif iface == IProjectService:
+            return project_service
         assert False, iface
 
     db_request.find_service = find_service
@@ -243,8 +251,11 @@ def test_mint_token_from_oidc_pending_provider_ok(monkeypatch, db_request):
         pretend.call(claims, pending=True),
         pretend.call(claims, pending=False),
     ]
+    assert project_service.create_project.calls == [
+        pretend.call("does-not-exist", pending_provider.added_by)
+    ]
     assert oidc_service.reify_pending_provider.calls == [
-        pretend.call(pending_provider, db_request.remote_addr)
+        pretend.call(pending_provider, new_project)
     ]
 
 

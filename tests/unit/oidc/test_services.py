@@ -601,16 +601,17 @@ class TestOIDCProviderService:
             metrics=pretend.stub(),
         )
 
-        reify_pending_provider = pretend.call_recorder(lambda *a: None)
-        monkeypatch.setattr(services, "reify_pending_provider", reify_pending_provider)
+        provider = pretend.stub()
+        pending_provider = pretend.stub(
+            reify=pretend.call_recorder(lambda *a: provider)
+        )
+        project = pretend.stub(
+            oidc_providers=[],
+        )
 
-        pending_provider = pretend.stub()
-        remote_addr = pretend.stub()
-        service.reify_pending_provider(pending_provider, remote_addr)
-
-        assert reify_pending_provider.calls == [
-            pretend.call(service.db, pending_provider, remote_addr)
-        ]
+        assert service.reify_pending_provider(pending_provider, project) == provider
+        assert pending_provider.reify.calls == [pretend.call(service.db)]
+        assert project.oidc_providers == [provider]
 
 
 class TestNullOIDCProviderService:
@@ -742,13 +743,14 @@ class TestNullOIDCProviderService:
             metrics=pretend.stub(),
         )
 
-        reify_pending_provider = pretend.call_recorder(lambda *a: None)
-        monkeypatch.setattr(services, "reify_pending_provider", reify_pending_provider)
+        provider = pretend.stub()
+        pending_provider = pretend.stub(
+            reify=pretend.call_recorder(lambda *a: provider)
+        )
+        project = pretend.stub(
+            oidc_providers=[],
+        )
 
-        pending_provider = pretend.stub()
-        remote_addr = pretend.stub()
-        service.reify_pending_provider(pending_provider, remote_addr)
-
-        assert reify_pending_provider.calls == [
-            pretend.call(service.db, pending_provider, remote_addr)
-        ]
+        assert service.reify_pending_provider(pending_provider, project) == provider
+        assert pending_provider.reify.calls == [pretend.call(service.db)]
+        assert project.oidc_providers == [provider]
