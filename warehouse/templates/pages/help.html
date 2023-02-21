@@ -139,7 +139,9 @@
           <li><a href="#apitoken">{{ apitoken() }}</a></li>
           <li><a href="#sensitiveactions">{{ sensitiveactions() }}</a></li>
           <li><a href="#username-change">{{ username_change() }}</a></li>
+          {% if request.registry.settings["warehouse.oidc.enabled"] %}
           <li><a href="#openid-connect">{{ openid_connect() }}</a></li>
+          {% endif %}
         </ul>
       </section>
 
@@ -522,6 +524,7 @@
         <p>{% trans %}PyPI does not currently support changing a username.{% endtrans %}</p>
         <p>{% trans %}Instead, you can create a new account with the desired username, add the new account as a maintainer of all the projects your old account owns, and then delete the old account, which will have the same effect.{% endtrans %}</p>
 
+        {% if request.registry.settings["warehouse.oidc.enabled"] %}
         <h3 id="openid-connect">{{ openid_connect() }}</h3>
         <p>
           {% trans openid="https://openid.net/connect/", apitoken="#apitoken" %}
@@ -538,6 +541,7 @@
           can also be created in advance for projects that don't exist yet.
           {% endtrans %}
         </p>
+        {% endif %}
       </section>
 
       <section class="faq-group" id="integrating">

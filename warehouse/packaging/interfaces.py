@@ -53,3 +53,13 @@ class IDocsStorage(Interface):
         """
         Remove all files matching the given prefix.
         """
+
+
+class IProjectService(Interface):
+    def create_project(name, creator, *, creator_is_owner=True):
+        """
+        Creates a new project, recording a user as its creator.
+
+        If `creator_is_owner`, a `Role` is also added to the project
+        marking `creator` as a project owner.
+        """
