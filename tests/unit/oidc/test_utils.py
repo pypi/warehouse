@@ -14,12 +14,8 @@ import pretend
 
 from sqlalchemy.sql.expression import func, literal
 
-from tests.common.db.accounts import UserFactory
-from tests.common.db.oidc import PendingGitHubProviderFactory
-from warehouse.events.tags import EventTag
 from warehouse.oidc import utils
-from warehouse.oidc.models import GitHubProvider, PendingGitHubProvider
-from warehouse.packaging.models import Project
+from warehouse.oidc.models import GitHubProvider
 
 
 def test_find_provider_by_issuer_bad_issuer_url():

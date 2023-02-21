@@ -25,8 +25,6 @@ import pretend
 import pyramid.testing
 import pytest
 import stripe
-from warehouse.oidc.interfaces import IOIDCProviderService
-from warehouse.oidc.utils import GITHUB_OIDC_ISSUER_URL
 import webtest as _webtest
 
 from jinja2 import Environment, FileSystemLoader
@@ -49,10 +47,12 @@ from warehouse.email import services as email_services
 from warehouse.email.interfaces import IEmailSender
 from warehouse.macaroons import services as macaroon_services
 from warehouse.metrics import IMetricsService
+from warehouse.oidc import services as oidc_services
+from warehouse.oidc.interfaces import IOIDCProviderService
+from warehouse.oidc.utils import GITHUB_OIDC_ISSUER_URL
 from warehouse.organizations import services as organization_services
 from warehouse.organizations.interfaces import IOrganizationService
 from warehouse.packaging import services as packaging_services
-from warehouse.oidc import services as oidc_services
 from warehouse.packaging.interfaces import IProjectService
 from warehouse.subscriptions import services as subscription_services
 from warehouse.subscriptions.interfaces import IBillingService, ISubscriptionService
