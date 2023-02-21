@@ -91,11 +91,12 @@ def mint_token_from_oidc(request):
                 ]
             )
 
+        # Create the new project, and reify the pending provider against it.
         project_service = request.find_service(IProjectService)
-        project_service.create_project(
+        new_project = project_service.create_project(
             pending_provider.project_name, pending_provider.added_by
         )
-        oidc_service.reify_pending_provider(pending_provider, request.remote_addr)
+        oidc_service.reify_pending_provider(pending_provider, new_project)
 
     # We either don't have a pending OIDC provider, or we *did*
     # have one and we've just converted it. Either way, we look for a full

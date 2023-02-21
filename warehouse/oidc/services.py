@@ -23,7 +23,7 @@ from zope.interface import implementer
 from warehouse.metrics.interfaces import IMetricsService
 from warehouse.oidc.interfaces import IOIDCProviderService, SignedClaims
 from warehouse.oidc.models import OIDCProvider, PendingOIDCProvider
-from warehouse.oidc.utils import find_provider_by_issuer, reify_pending_provider
+from warehouse.oidc.utils import find_provider_by_issuer
 
 
 class InsecureOIDCProviderWarning(UserWarning):
