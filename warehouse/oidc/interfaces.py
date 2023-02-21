@@ -13,10 +13,10 @@
 from __future__ import annotations
 
 from typing import TYPE_CHECKING, Any, NewType
-from warehouse.packaging.models import Project
 
 from zope.interface import Interface
 
+from warehouse.packaging.models import Project
 from warehouse.rate_limiting.interfaces import RateLimiterException
 
 if TYPE_CHECKING:

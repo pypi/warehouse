@@ -14,9 +14,7 @@ from __future__ import annotations
 
 from sqlalchemy.sql.expression import func, literal
 
-from warehouse.events.tags import EventTag
 from warehouse.oidc.models import GitHubProvider, PendingGitHubProvider
-from warehouse.packaging.models import JournalEntry, Project, Role
 
 GITHUB_OIDC_ISSUER_URL = "https://token.actions.githubusercontent.com"
 
