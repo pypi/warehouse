@@ -3859,27 +3859,20 @@ class TestManageOrganizationProjects:
         self,
         db_request,
         pyramid_user,
-        organization_service,
         enable_organizations,
         monkeypatch,
     ):
         db_request.help_url = lambda *a, **kw: ""
 
         organization = OrganizationFactory.create()
-        OrganizationProjectFactory(
-            organization=organization, project=ProjectFactory.create()
-        )
-
-        project = ProjectFactory.create()
 
         OrganizationRoleFactory.create(
             organization=organization, user=db_request.user, role_name="Owner"
         )
-        RoleFactory.create(project=project, user=db_request.user, role_name="Owner")
 
         add_organization_project_obj = pretend.stub(
             add_existing_project=pretend.stub(data=False),
-            new_project_name=pretend.stub(data=project.name),
+            new_project_name=pretend.stub(data="fakepackage"),
             validate=lambda *a, **kw: True,
         )
         add_organization_project_cls = pretend.call_recorder(
@@ -3891,18 +3884,6 @@ class TestManageOrganizationProjects:
 
         validate_project_name = pretend.call_recorder(lambda *a, **kw: True)
         monkeypatch.setattr(views, "validate_project_name", validate_project_name)
-
-        add_project = pretend.call_recorder(lambda *a, **kw: project)
-        monkeypatch.setattr(views, "add_project", add_project)
-
-        def add_organization_project(*args, **kwargs):
-            OrganizationProjectFactory.create(
-                organization=organization, project=project
-            )
-
-        monkeypatch.setattr(
-            organization_service, "add_organization_project", add_organization_project
-        )
 
         send_organization_project_added_email = pretend.call_recorder(
             lambda req, user, **k: None
@@ -3916,17 +3897,22 @@ class TestManageOrganizationProjects:
         view = views.ManageOrganizationProjectsViews(organization, db_request)
         result = view.add_organization_project()
 
+        # The project was created, and belongs to the organization.
+        project = (
+            db_request.db.query(Project).filter_by(name="fakepackage").one_or_none()
+        )
+        assert project is not None
+        assert project.organization == organization
+
         assert isinstance(result, HTTPSeeOther)
         assert result.headers["Location"] == db_request.path
-        assert validate_project_name.calls == [pretend.call(project.name, db_request)]
-        assert add_project.calls == [pretend.call(project.name, db_request)]
-        assert len(organization.projects) == 2
+        assert validate_project_name.calls == [pretend.call("fakepackage", db_request)]
         assert send_organization_project_added_email.calls == [
             pretend.call(
                 db_request,
                 {db_request.user},
                 organization_name=organization.name,
-                project_name=project.name,
+                project_name="fakepackage",
             )
         ]
 

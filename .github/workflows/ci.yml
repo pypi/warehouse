@@ -84,6 +84,14 @@ jobs:
           cache-dependency-path: |
             requirements.txt
             requirements/*.txt
+      - name: Cache common Python cache paths
+        if: ${{ matrix.needs-python }}
+        uses: actions/cache@v3
+        with:
+          path: |
+            .cache
+            .mypy_cache
+          key: ${{ runner.os }}-pip-${{ hashFiles('requirements.txt', 'requirements/lint.txt') }}
       - name: Install Python dependencies
         if: ${{ matrix.needs-python }}
         run: |

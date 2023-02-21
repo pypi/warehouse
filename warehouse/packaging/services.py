@@ -21,7 +21,14 @@ import sentry_sdk
 
 from zope.interface import implementer
 
-from warehouse.packaging.interfaces import IDocsStorage, IFileStorage, ISimpleStorage
+from warehouse.events.tags import EventTag
+from warehouse.packaging.interfaces import (
+    IDocsStorage,
+    IFileStorage,
+    IProjectService,
+    ISimpleStorage,
+)
+from warehouse.packaging.models import JournalEntry, Project, Role
 
 
 class InsecureStorageWarning(UserWarning):
@@ -248,3 +255,61 @@ class GCSSimpleStorage(GenericGCSBlobStorage):
         prefix = request.registry.settings.get("simple.prefix")
 
         return cls(bucket, prefix=prefix)
+
+
+@implementer(IProjectService)
+class ProjectService:
+    def __init__(self, session, remote_addr) -> None:
+        self.db = session
+        self.remote_addr = remote_addr
+
+    def create_project(self, name, creator, *, creator_is_owner=True):
+        project = Project(name=name)
+        self.db.add(project)
+
+        # TODO: This should be handled by some sort of database trigger or a
+        #       SQLAlchemy hook or the like instead of doing it inline in this
+        #       service.
+        self.db.add(
+            JournalEntry(
+                name=project.name,
+                action="create",
+                submitted_by=creator,
+                submitted_from=self.remote_addr,
+            )
+        )
+        project.record_event(
+            tag=EventTag.Project.ProjectCreate,
+            ip_address=self.remote_addr,
+            additional={"created_by": creator.username},
+        )
+
+        # Mark the creator as the newly created project's owner, if configured.
+        if creator_is_owner:
+            self.db.add(Role(user=creator, project=project, role_name="Owner"))
+            # TODO: This should be handled by some sort of database trigger or a
+            #       SQLAlchemy hook or the like instead of doing it inline in this
+            #       service.
+            self.db.add(
+                JournalEntry(
+                    name=project.name,
+                    action=f"add Owner {creator.username}",
+                    submitted_by=creator,
+                    submitted_from=self.remote_addr,
+                )
+            )
+            project.record_event(
+                tag=EventTag.Project.RoleAdd,
+                ip_address=self.remote_addr,
+                additional={
+                    "submitted_by": creator.username,
+                    "role_name": "Owner",
+                    "target_user": creator.username,
+                },
+            )
+
+        return project
+
+
+def project_service_factory(context, request):
+    return ProjectService(request.db, request.remote_addr)
