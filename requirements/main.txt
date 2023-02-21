@@ -501,9 +501,9 @@ google-auth==2.16.0 \
     #   google-api-core
     #   google-cloud-core
     #   google-cloud-storage
-google-cloud-bigquery==3.4.2 \
-    --hash=sha256:224dc329bc5ad09d614db765c95f0bb8b24f0881b3d2a4854062ca346f8896f0 \
-    --hash=sha256:2d9f59f4e23cb796877ed89cb626013eae437457dc5b268b67072f3bdc6255cb
+google-cloud-bigquery==3.5.0 \
+    --hash=sha256:358f54c473938b2d022335118b4e56cdcdaf22a5a112fa0cfeb888fd8814ba62 \
+    --hash=sha256:dd3ca84e5be6fa9e0570fb21665a902cc5651cbd045842fb714164c99a2639c4
     # via -r requirements/main.in
 google-cloud-core==2.3.2 \
     --hash=sha256:8417acf6466be2fa85123441696c4badda48db314c607cf1e5d543fa8bdc22fe \
@@ -1116,10 +1116,6 @@ pastedeploy==3.0.1 \
     --hash=sha256:5f4b4d5fddd39b8947ea727161e366bf55b90efc60a4d1dd7976b9031d0b4e5f \
     --hash=sha256:6195c921b1c3ed9722e4e3e6aa29b70deebb2429b4ca3ff3d49185c8e80003bb
     # via plaster-pastedeploy
-pip==22.3.1 \
-    --hash=sha256:65fd48317359f3af8e593943e6ae1506b66325085ea64b706a998c6e83eeaf38 \
-    --hash=sha256:908c78e6bc29b676ede1c4d57981d490cb892eb45cd8c214ab6298125119e077
-    # via pip-api
 pip-api==0.0.30 \
     --hash=sha256:2a0314bd31522eb9ffe8a99668b0d07fee34ebc537931e7b6483001dbedcbdc9 \
     --hash=sha256:a05df2c7aa9b7157374bcf4273544201a0c7bae60a9c65bcf84f3959ef3896f3
@@ -1376,17 +1372,6 @@ sentry-sdk==1.14.0 \
     --hash=sha256:273fe05adf052b40fd19f6d4b9a5556316807246bd817e5e3482930730726bb0 \
     --hash=sha256:72c00322217d813cf493fe76590b23a757e063ff62fec59299f4af7201dd4448
     # via -r requirements/main.in
-setuptools==66.1.1 \
-    --hash=sha256:6f590d76b713d5de4e49fe4fbca24474469f53c83632d5d0fd056f7ff7e8112b \
-    --hash=sha256:ac4008d396bc9cd983ea483cb7139c0240a07bbc74ffb6232fceffedc6cf03a8
-    # via
-    #   -r requirements/main.in
-    #   limits
-    #   pyramid
-    #   repoze-sendmail
-    #   zope-deprecation
-    #   zope-interface
-    #   zope-sqlalchemy
 six==1.16.0 \
     --hash=sha256:1e61c37477a1626458e36f7b1d82aa5c9b094fa4802892072e49de9c60c4c926 \
     --hash=sha256:8abb2f1d86890a2dfb989f9a77cfcfd3e47c2a354b01111771326f8aa26e0254
