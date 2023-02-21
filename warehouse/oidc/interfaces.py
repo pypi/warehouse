@@ -13,6 +13,7 @@
 from __future__ import annotations
 
 from typing import TYPE_CHECKING, Any, NewType
+from warehouse.packaging.models import Project
 
 from zope.interface import Interface
 
@@ -45,11 +46,10 @@ class IOIDCProviderService(Interface):
         """
         pass
 
-    def reify_pending_provider(pending_provider: PendingOIDCProvider, remote_addr: str):
+    def reify_pending_provider(pending_provider: PendingOIDCProvider, project: Project):
         """
         Reify the given pending `PendingOIDCProvider` into an `OIDCProvider`,
-        creating its reserved project in the process and deleting the pending
-        provider once inactive.
+        adding it to the given project (presumed newly created) in the process.
 
         Returns the reified provider.
         """

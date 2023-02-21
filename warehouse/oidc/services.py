@@ -74,8 +74,10 @@ class NullOIDCProviderService:
             self.db, self.issuer_url, signed_claims, pending=pending
         )
 
-    def reify_pending_provider(self, pending_provider, remote_addr):
-        return reify_pending_provider(self.db, pending_provider, remote_addr)
+    def reify_pending_provider(self, pending_provider, project):
+        new_provider = pending_provider.reify(self.db)
+        project.oidc_providers.append(new_provider)
+        return new_provider
 
 
 @implementer(IOIDCProviderService)
@@ -288,8 +290,10 @@ class OIDCProviderService:
 
         return provider
 
-    def reify_pending_provider(self, pending_provider, remote_addr):
-        return reify_pending_provider(self.db, pending_provider, remote_addr)
+    def reify_pending_provider(self, pending_provider, project):
+        new_provider = pending_provider.reify(self.db)
+        project.oidc_providers.append(new_provider)
+        return new_provider
 
 
 class OIDCProviderServiceFactory:

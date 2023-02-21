@@ -20,6 +20,7 @@ from warehouse.events.tags import EventTag
 from warehouse.macaroons import caveats
 from warehouse.macaroons.interfaces import IMacaroonService
 from warehouse.oidc.interfaces import IOIDCProviderService
+from warehouse.packaging.interfaces import IProjectService
 from warehouse.packaging.models import ProjectFactory
 
 
@@ -90,6 +91,10 @@ def mint_token_from_oidc(request):
                 ]
             )
 
+        project_service = request.find_service(IProjectService)
+        project_service.create_project(
+            pending_provider.project_name, pending_provider.added_by
+        )
         oidc_service.reify_pending_provider(pending_provider, request.remote_addr)
 
     # We either don't have a pending OIDC provider, or we *did*
