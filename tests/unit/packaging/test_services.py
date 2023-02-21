@@ -32,6 +32,7 @@ from warehouse.packaging.services import (
     LocalSimpleStorage,
     S3DocsStorage,
     S3FileStorage,
+    project_service_factory,
 )
 
 
@@ -665,3 +666,13 @@ class TestGenericLocalBlobStorage:
     def test_notimplementederror(self):
         with pytest.raises(NotImplementedError):
             GenericLocalBlobStorage.create_service(pretend.stub(), pretend.stub())
+
+
+def test_project_service_factory():
+    db = pretend.stub()
+    remote_addr = pretend.stub()
+    request = pretend.stub(db=db, remote_addr=remote_addr)
+
+    service = project_service_factory(pretend.stub(), request)
+    assert service.db == db
+    assert service.remote_addr == remote_addr

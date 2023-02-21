@@ -18,8 +18,14 @@ from celery.schedules import crontab
 from warehouse import packaging
 from warehouse.accounts.models import Email, User
 from warehouse.manage.tasks import update_role_invitation_status
-from warehouse.packaging.interfaces import IDocsStorage, IFileStorage, ISimpleStorage
+from warehouse.packaging.interfaces import (
+    IDocsStorage,
+    IFileStorage,
+    IProjectService,
+    ISimpleStorage,
+)
 from warehouse.packaging.models import File, Project, Release, Role
+from warehouse.packaging.services import project_service_factory
 from warehouse.packaging.tasks import (  # sync_bigquery_release_files,
     compute_2fa_mandate,
     update_description_html,
@@ -66,6 +72,7 @@ def test_includeme(monkeypatch, with_bq_sync, with_2fa_mandate):
         pretend.call(storage_class.create_service, IFileStorage),
         pretend.call(storage_class.create_service, ISimpleStorage),
         pretend.call(storage_class.create_service, IDocsStorage),
+        pretend.call(project_service_factory, IProjectService),
     ]
     assert config.register_origin_cache_keys.calls == [
         pretend.call(
