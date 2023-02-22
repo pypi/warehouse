@@ -18,8 +18,8 @@ import pretend
 import pytest
 
 from pyramid.httpexceptions import HTTPBadRequest, HTTPMovedPermanently, HTTPSeeOther
-from tests.common.db.oidc import GitHubPublisherFactory
 
+from tests.common.db.oidc import GitHubPublisherFactory
 from warehouse.admin.views import projects as views
 from warehouse.packaging.models import Project, Role
 from warehouse.search.tasks import reindex_project
