@@ -22,9 +22,9 @@ class GitHubProviderFactory(WarehouseFactory):
         model = GitHubProvider
 
     id = factory.Faker("uuid4", cast_to=None)
-    repository_name = "foo"
-    repository_owner = "bar"
-    repository_owner_id = "123"
+    repository_name = factory.Faker("pystr", max_chars=12)
+    repository_owner = factory.Faker("pystr", max_chars=12)
+    repository_owner_id = factory.Faker("pystr", max_chars=12)
     workflow_filename = "example.yml"
 
 
@@ -34,7 +34,7 @@ class PendingGitHubProviderFactory(WarehouseFactory):
 
     id = factory.Faker("uuid4", cast_to=None)
     project_name = "fake-nonexistent-project"
-    repository_name = "foo"
-    repository_owner = "bar"
-    repository_owner_id = "123"
+    repository_name = factory.Faker("pystr", max_chars=12)
+    repository_owner = factory.Faker("pystr", max_chars=12)
+    repository_owner_id = factory.Faker("pystr", max_chars=12)
     workflow_filename = "example.yml"

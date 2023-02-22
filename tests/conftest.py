@@ -46,6 +46,7 @@ from warehouse.admin.flags import AdminFlag, AdminFlagValue
 from warehouse.email import services as email_services
 from warehouse.email.interfaces import IEmailSender
 from warehouse.macaroons import services as macaroon_services
+from warehouse.macaroons.interfaces import IMacaroonService
 from warehouse.metrics import IMetricsService
 from warehouse.oidc import services as oidc_services
 from warehouse.oidc.interfaces import IOIDCProviderService
@@ -140,6 +141,7 @@ def pyramid_services(
     user_service,
     project_service,
     oidc_service,
+    macaroon_service,
 ):
     services = _Services()
 
@@ -154,6 +156,7 @@ def pyramid_services(
     services.register_service(user_service, IUserService, None, name="")
     services.register_service(project_service, IProjectService, None, name="")
     services.register_service(oidc_service, IOIDCProviderService, None, name="github")
+    services.register_service(macaroon_service, IMacaroonService, None, name="")
 
     return services
 

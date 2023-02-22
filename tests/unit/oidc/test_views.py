@@ -17,6 +17,7 @@ import pytest
 
 from sqlalchemy import func, literal
 
+from tests.common.db.accounts import UserFactory
 from tests.common.db.oidc import PendingGitHubProviderFactory
 from tests.common.db.packaging import ProjectFactory
 from warehouse.events.tags import EventTag
@@ -193,34 +194,16 @@ def test_mint_token_from_oidc_pending_provider_project_already_exists(db_request
 
 
 def test_mint_token_from_oidc_pending_provider_ok(
-    monkeypatch, db_request, oidc_service, project_service
+    db_request,
 ):
-    time = pretend.stub(time=pretend.call_recorder(lambda: 0))
-    monkeypatch.setattr(views, "time", time)
-
-    pending_provider = PendingGitHubProviderFactory.create(
-        project_name="does-not-exist"
-    )
-
-    assert pending_provider.repository_name == "foo"
-    assert pending_provider.repository_owner == "bar"
-    assert pending_provider.repository_owner_id == "123"
-    assert pending_provider.workflow_filename == "example.yml"
-
-    assert (
-        db_request.db.query(PendingGitHubProvider)
-        .filter_by(
-            repository_name=pending_provider.repository_name,
-            repository_owner=pending_provider.repository_owner,
-            repository_owner_id=pending_provider.repository_owner_id,
-        )
-        .filter(
-            literal("example.yml@fake").like(
-                func.concat(PendingGitHubProvider.workflow_filename, "%")
-            )
-        )
-        .one_or_none()
-        is not None
+    user = UserFactory.create()
+    PendingGitHubProviderFactory.create(
+        project_name="does-not-exist",
+        added_by=user,
+        repository_name="bar",
+        repository_owner="foo",
+        repository_owner_id="123",
+        workflow_filename="example.yml",
     )
 
     db_request.registry.settings = {"warehouse.oidc.enabled": True}
@@ -246,29 +229,82 @@ def test_mint_token_from_oidc_pending_provider_ok(
     )
     db_request.remote_addr = "0.0.0.0"
 
-    db_macaroon = pretend.stub(description="fakemacaroon")
-    macaroon_service = pretend.stub(
-        create_macaroon=pretend.call_recorder(
-            lambda *a, **kw: ("raw-macaroon", db_macaroon)
-        )
+    resp = views.mint_token_from_oidc(db_request)
+    assert resp["success"]
+    assert resp["token"].startswith("pypi-")
+
+
+def test_mint_token_from_pending_oidc_provider_invalidates_others(
+    monkeypatch, db_request
+):
+    time = pretend.stub(time=pretend.call_recorder(lambda: 0))
+    monkeypatch.setattr(views, "time", time)
+
+    user = UserFactory.create()
+    PendingGitHubProviderFactory.create(
+        project_name="does-not-exist",
+        added_by=user,
+        repository_name="bar",
+        repository_owner="foo",
+        repository_owner_id="123",
+        workflow_filename="example.yml",
     )
 
-    def find_service(iface, **kw):
-        if iface == IOIDCProviderService:
-            return oidc_service
-        elif iface == IMacaroonService:
-            return macaroon_service
-        elif iface == IProjectService:
-            return project_service
-        assert False, iface
+    # Create some other pending providers for the same nonexistent project,
+    # each of which should be invalidated. Invalidations occur based on the
+    # normalized project name.
+    emailed_users = []
+    for project_name in ["does_not_exist", "does-not-exist", "dOeS-NoT-ExISt"]:
+        user = UserFactory.create()
+        PendingGitHubProviderFactory.create(
+            project_name=project_name,
+            added_by=user,
+        )
+        emailed_users.append(user)
 
-    db_request.find_service = find_service
+    send_pending_oidc_provider_invalidated_email = pretend.call_recorder(
+        lambda *a, **kw: None
+    )
+    monkeypatch.setattr(
+        views,
+        "send_pending_oidc_provider_invalidated_email",
+        send_pending_oidc_provider_invalidated_email,
+    )
+
+    db_request.registry.settings = {"warehouse.oidc.enabled": True}
+    db_request.flags.enabled = lambda f: False
+    db_request.body = json.dumps(
+        {
+            "token": (
+                "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiI2ZTY3YjFjYi0yYjhkLTRi"
+                "ZTUtOTFjYi03NTdlZGIyZWM5NzAiLCJzdWIiOiJyZXBvOmZvby9iYXIiLCJhdWQiOiJwe"
+                "XBpIiwicmVmIjoiZmFrZSIsInNoYSI6ImZha2UiLCJyZXBvc2l0b3J5IjoiZm9vL2Jhci"
+                "IsInJlcG9zaXRvcnlfb3duZXIiOiJmb28iLCJyZXBvc2l0b3J5X293bmVyX2lkIjoiMTI"
+                "zIiwicnVuX2lkIjoiZmFrZSIsInJ1bl9udW1iZXIiOiJmYWtlIiwicnVuX2F0dGVtcHQi"
+                "OiIxIiwicmVwb3NpdG9yeV9pZCI6ImZha2UiLCJhY3Rvcl9pZCI6ImZha2UiLCJhY3Rvc"
+                "iI6ImZvbyIsIndvcmtmbG93IjoiZmFrZSIsImhlYWRfcmVmIjoiZmFrZSIsImJhc2Vfcm"
+                "VmIjoiZmFrZSIsImV2ZW50X25hbWUiOiJmYWtlIiwicmVmX3R5cGUiOiJmYWtlIiwiZW5"
+                "2aXJvbm1lbnQiOiJmYWtlIiwiam9iX3dvcmtmbG93X3JlZiI6ImZvby9iYXIvLmdpdGh1"
+                "Yi93b3JrZmxvd3MvZXhhbXBsZS55bWxAZmFrZSIsImlzcyI6Imh0dHBzOi8vdG9rZW4uY"
+                "WN0aW9ucy5naXRodWJ1c2VyY29udGVudC5jb20iLCJuYmYiOjE2NTA2NjMyNjUsImV4cC"
+                "I6MTY1MDY2NDE2NSwiaWF0IjoxNjUwNjYzODY1fQ.f-FMv5FF5sdxAWeUilYDt9NoE7Et"
+                "0vbdNhK32c2oC-E"
+            )
+        }
+    )
+    db_request.remote_addr = "0.0.0.0"
 
     resp = views.mint_token_from_oidc(db_request)
-    assert resp == {
-        "success": True,
-        "token": "raw-macaroon",
-    }
+    assert resp["success"]
+    assert resp["token"].startswith("pypi-")
+
+    # We should have sent one invalidation email for each pending provider that
+    # was invalidated by the minting operation.
+    assert send_pending_oidc_provider_invalidated_email.calls == [
+        pretend.call(db_request, emailed_users[0], project_name="does_not_exist"),
+        pretend.call(db_request, emailed_users[1], project_name="does-not-exist"),
+        pretend.call(db_request, emailed_users[2], project_name="dOeS-NoT-ExISt"),
+    ]
 
 
 def test_mint_token_from_oidc_no_pending_provider_ok(monkeypatch):
