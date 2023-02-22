@@ -249,7 +249,7 @@
             <tr>
               <td>{{ pub.publisher_name }}</td>
               <td><a href="{{ pub.publisher_url }}">{{ pub.publisher_url }}</a></td>
-              <td>{{ pub }}</td>
+              <td><pre>{{ pub }}</pre></td>
             </tr>
             {% endfor %}
           </tbody>
@@ -257,7 +257,7 @@
       </table>
     </div>
   </div>
-</div>
+</div> <!-- .card #oidc-publishers -->
 
 <div class="card card-primary card-outline collapsed-card" id="journals">
   <div class="card-header">
