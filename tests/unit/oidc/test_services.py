@@ -18,7 +18,6 @@ from zope.interface.verify import verifyClass
 
 from tests.common.db.oidc import GitHubProviderFactory, PendingGitHubProviderFactory
 from warehouse.oidc import interfaces, services
-from warehouse.oidc.models import GitHubProvider
 
 
 def test_oidc_provider_service_factory():

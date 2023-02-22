@@ -15,8 +15,6 @@ import json
 import pretend
 import pytest
 
-from sqlalchemy import func, literal
-
 from tests.common.db.accounts import UserFactory
 from tests.common.db.oidc import PendingGitHubProviderFactory
 from tests.common.db.packaging import ProjectFactory
@@ -25,8 +23,6 @@ from warehouse.macaroons import caveats
 from warehouse.macaroons.interfaces import IMacaroonService
 from warehouse.oidc import views
 from warehouse.oidc.interfaces import IOIDCProviderService
-from warehouse.oidc.models import PendingGitHubProvider
-from warehouse.packaging.interfaces import IProjectService
 
 
 @pytest.mark.parametrize(
