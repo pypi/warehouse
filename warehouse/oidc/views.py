@@ -37,7 +37,9 @@ def _ratelimiters(request):
         "user.oidc": request.find_service(
             IRateLimiter, name="user_oidc.publisher.register"
         ),
-        "ip.oidc": request.find_service(IRateLimiter, name="ip_oidc.publisher.register"),
+        "ip.oidc": request.find_service(
+            IRateLimiter, name="ip_oidc.publisher.register"
+        ),
     }
 
 

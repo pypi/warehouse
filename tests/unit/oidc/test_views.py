@@ -208,6 +208,7 @@ def test_mint_token_from_oidc_pending_publisher_project_already_exists(db_reques
 
 
 def test_mint_token_from_oidc_pending_publisher_ok(
+    monkeypatch,
     db_request,
 ):
     user = UserFactory.create()
