@@ -1381,10 +1381,6 @@ def file_upload(request):
                 },
             )
 
-    # TODO: Prune any pending OIDC provider associated with this project,
-    # and send an email to its associated user (if said user is different
-    # from the one that just created the project).
-
     # We are flushing the database requests so that we
     # can access the server default values when initiating celery
     # tasks.
