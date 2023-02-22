@@ -69,9 +69,9 @@ from warehouse.email import (
 )
 from warehouse.events.tags import EventTag
 from warehouse.metrics.interfaces import IMetricsService
-from warehouse.oidc.forms import DeleteProviderForm, PendingGitHubProviderForm
+from warehouse.oidc.forms import DeletePublisherForm, PendingGitHubPublisherForm
 from warehouse.oidc.interfaces import TooManyOIDCRegistrations
-from warehouse.oidc.models import PendingGitHubProvider, PendingOIDCProvider
+from warehouse.oidc.models import PendingGitHubPublisher, PendingOIDCPublisher
 from warehouse.organizations.interfaces import IOrganizationService
 from warehouse.organizations.models import OrganizationRole, OrganizationRoleType
 from warehouse.packaging.models import (
@@ -1317,10 +1317,10 @@ class ManageAccountPublishingViews:
     def _ratelimiters(self):
         return {
             "user.oidc": self.request.find_service(
-                IRateLimiter, name="user_oidc.provider.register"
+                IRateLimiter, name="user_oidc.publisher.register"
             ),
             "ip.oidc": self.request.find_service(
-                IRateLimiter, name="ip_oidc.provider.register"
+                IRateLimiter, name="ip_oidc.publisher.register"
             ),
         }
 
@@ -1344,8 +1344,8 @@ class ManageAccountPublishingViews:
             )
 
     @property
-    def pending_github_provider_form(self):
-        return PendingGitHubProviderForm(
+    def pending_github_publisher_form(self):
+        return PendingGitHubPublisherForm(
             self.request.POST,
             api_token=self.request.registry.settings.get("github.token"),
             project_factory=self.project_factory,
@@ -1355,7 +1355,7 @@ class ManageAccountPublishingViews:
     def default_response(self):
         return {
             "oidc_enabled": self.oidc_enabled,
-            "pending_github_provider_form": self.pending_github_provider_form,
+            "pending_github_publisher_form": self.pending_github_publisher_form,
         }
 
     @view_config(request_method="GET")
@@ -1376,9 +1376,9 @@ class ManageAccountPublishingViews:
         return self.default_response
 
     @view_config(
-        request_method="POST", request_param=PendingGitHubProviderForm.__params__
+        request_method="POST", request_param=PendingGitHubPublisherForm.__params__
     )
-    def add_pending_github_oidc_provider(self):
+    def add_pending_github_oidc_publisher(self):
         if not self.oidc_enabled:
             raise HTTPNotFound
 
@@ -1393,27 +1393,27 @@ class ManageAccountPublishingViews:
             return self.default_response
 
         self.metrics.increment(
-            "warehouse.oidc.add_pending_provider.attempt", tags=["provider:GitHub"]
+            "warehouse.oidc.add_pending_publisher.attempt", tags=["publisher:GitHub"]
         )
 
         if not self.request.user.has_primary_verified_email:
             self.request.session.flash(
                 self.request._(
                     "You must have a verified email in order to register a "
-                    "pending OpenID Connect provider. "
+                    "pending OpenID Connect publisher. "
                     "See https://pypi.org/help#openid-connect for details."
                 ),
                 queue="error",
             )
             return self.default_response
 
-        # Separately from having permission to register pending OIDC providers,
-        # we limit users to no more than 3 pending providers at once.
-        if len(self.request.user.pending_oidc_providers) >= 3:
+        # Separately from having permission to register pending OIDC publishers,
+        # we limit users to no more than 3 pending publishers at once.
+        if len(self.request.user.pending_oidc_publishers) >= 3:
             self.request.session.flash(
                 self.request._(
                     "You can't register more than 3 pending OpenID Connect "
-                    "providers at once."
+                    "publishers at once."
                 ),
                 queue="error",
             )
@@ -1423,8 +1423,8 @@ class ManageAccountPublishingViews:
             self._check_ratelimits()
         except TooManyOIDCRegistrations as exc:
             self.metrics.increment(
-                "warehouse.oidc.add_pending_provider.ratelimited",
-                tags=["provider:GitHub"],
+                "warehouse.oidc.add_pending_publisher.ratelimited",
+                tags=["publisher:GitHub"],
             )
             return HTTPTooManyRequests(
                 self.request._(
@@ -1437,13 +1437,13 @@ class ManageAccountPublishingViews:
         self._hit_ratelimits()
 
         response = self.default_response
-        form = response["pending_github_provider_form"]
+        form = response["pending_github_publisher_form"]
 
         if not form.validate():
             return response
 
-        provider_already_exists = (
-            self.request.db.query(PendingGitHubProvider)
+        publisher_already_exists = (
+            self.request.db.query(PendingGitHubPublisher)
             .filter_by(
                 repository_name=form.repository.data,
                 repository_owner=form.normalized_owner,
@@ -1453,17 +1453,17 @@ class ManageAccountPublishingViews:
             is not None
         )
 
-        if provider_already_exists:
+        if publisher_already_exists:
             self.request.session.flash(
                 self.request._(
-                    "This OpenID Connect provider has already been registered. "
+                    "This OpenID Connect publisher has already been registered. "
                     "Please contact PyPI's admins if this wasn't intentional."
                 ),
                 queue="error",
             )
             return response
 
-        pending_provider = PendingGitHubProvider(
+        pending_publisher = PendingGitHubPublisher(
             project_name=form.project_name.data,
             added_by=self.request.user,
             repository_name=form.repository.data,
@@ -1472,33 +1472,33 @@ class ManageAccountPublishingViews:
             workflow_filename=form.workflow_filename.data,
         )
 
-        self.request.db.add(pending_provider)
+        self.request.db.add(pending_publisher)
 
         self.request.user.record_event(
-            tag=EventTag.Account.PendingOIDCProviderAdded,
+            tag=EventTag.Account.PendingOIDCPublisherAdded,
             ip_address=self.request.remote_addr,
             additional={
-                "project": pending_provider.project_name,
-                "provider": pending_provider.provider_name,
-                "id": str(pending_provider.id),
-                "specifier": str(pending_provider),
+                "project": pending_publisher.project_name,
+                "publisher": pending_publisher.publisher_name,
+                "id": str(pending_publisher.id),
+                "specifier": str(pending_publisher),
             },
         )
 
         self.request.session.flash(
-            "Registered a new publishing provider to create "
-            f"the project '{pending_provider.project_name}'.",
+            "Registered a new publishing publisher to create "
+            f"the project '{pending_publisher.project_name}'.",
             queue="success",
         )
 
         self.metrics.increment(
-            "warehouse.oidc.add_pending_provider.ok", tags=["provider:GitHub"]
+            "warehouse.oidc.add_pending_publisher.ok", tags=["publisher:GitHub"]
         )
 
         return HTTPSeeOther(self.request.path)
 
-    @view_config(request_method="POST", request_param=DeleteProviderForm.__params__)
-    def delete_pending_oidc_provider(self):
+    @view_config(request_method="POST", request_param=DeletePublisherForm.__params__)
+    def delete_pending_oidc_publisher(self):
         if not self.oidc_enabled:
             raise HTTPNotFound
 
@@ -1512,18 +1512,18 @@ class ManageAccountPublishingViews:
             )
             return self.default_response
 
-        self.metrics.increment("warehouse.oidc.delete_pending_provider.attempt")
+        self.metrics.increment("warehouse.oidc.delete_pending_publisher.attempt")
 
-        form = DeleteProviderForm(self.request.POST)
+        form = DeletePublisherForm(self.request.POST)
 
         if form.validate():
-            pending_provider = self.request.db.query(PendingOIDCProvider).get(
-                form.provider_id.data
+            pending_publisher = self.request.db.query(PendingOIDCPublisher).get(
+                form.publisher_id.data
             )
 
-            # pending_provider will be `None` here if someone manually
+            # pending_publisher will be `None` here if someone manually
             # futzes with the form.
-            if pending_provider is None:
+            if pending_publisher is None:
                 self.request.session.flash(
                     "Invalid publisher for user",
                     queue="error",
@@ -1531,27 +1531,27 @@ class ManageAccountPublishingViews:
                 return self.default_response
 
             self.request.session.flash(
-                f"Removed provider for project '{pending_provider.project_name}'",
+                f"Removed publisher for project '{pending_publisher.project_name}'",
                 queue="success",
             )
 
             self.metrics.increment(
-                "warehouse.oidc.delete_pending_provider.ok",
-                tags=[f"provider:{pending_provider.provider_name}"],
+                "warehouse.oidc.delete_pending_publisher.ok",
+                tags=[f"publisher:{pending_publisher.publisher_name}"],
             )
 
             self.request.user.record_event(
-                tag=EventTag.Account.PendingOIDCProviderRemoved,
+                tag=EventTag.Account.PendingOIDCPublisherRemoved,
                 ip_address=self.request.remote_addr,
                 additional={
-                    "project": pending_provider.project_name,
-                    "provider": pending_provider.provider_name,
-                    "id": str(pending_provider.id),
-                    "specifier": str(pending_provider),
+                    "project": pending_publisher.project_name,
+                    "publisher": pending_publisher.publisher_name,
+                    "id": str(pending_publisher.id),
+                    "specifier": str(pending_publisher),
                 },
             )
 
-            self.request.db.delete(pending_provider)
+            self.request.db.delete(pending_publisher)
 
             return HTTPSeeOther(self.request.path)
 

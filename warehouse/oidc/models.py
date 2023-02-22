@@ -57,12 +57,12 @@ def _check_job_workflow_ref(ground_truth, signed_claim, all_signed_claims):
     return f"{ground_truth}@{ref}" == signed_claim
 
 
-class OIDCProviderProjectAssociation(db.Model):
-    __tablename__ = "oidc_provider_project_association"
+class OIDCPublisherProjectAssociation(db.Model):
+    __tablename__ = "oidc_publisher_project_association"
 
-    oidc_provider_id = Column(
+    oidc_publisher_id = Column(
         UUID(as_uuid=True),
-        ForeignKey("oidc_providers.id"),
+        ForeignKey("oidc_publishers.id"),
         nullable=False,
         primary_key=True,
     )
@@ -71,14 +71,14 @@ class OIDCProviderProjectAssociation(db.Model):
     )
 
 
-class OIDCProviderMixin:
+class OIDCPublisherMixin:
     """
-    A mixin for common functionality between all OIDC providers, including
-    "pending" providers that don't correspond to an extant project yet.
+    A mixin for common functionality between all OIDC publishers, including
+    "pending" publishers that don't correspond to an extant project yet.
     """
 
-    # Each hierarchy of OIDC providers (both `OIDCProvider` and
-    # `PendingOIDCProvider`) use a `discriminator` column for model
+    # Each hierarchy of OIDC publishers (both `OIDCPublisher` and
+    # `PendingOIDCPublisher`) use a `discriminator` column for model
     # polymorphism, but the two are not mutually polymorphic at the DB level.
     discriminator = Column(String)
 
@@ -98,7 +98,7 @@ class OIDCProviderMixin:
         "aud",
     }
 
-    # Individual providers should explicitly override this set,
+    # Individual publishers should explicitly override this set,
     # indicating any custom claims that are known to be present but are
     # not checked as part of verifying the JWT.
     __unchecked_claims__: set[str] = set()
@@ -106,7 +106,7 @@ class OIDCProviderMixin:
     @classmethod
     def all_known_claims(cls):
         """
-        Returns all claims "known" to this provider.
+        Returns all claims "known" to this publisher.
         """
         return (
             cls.__verifiable_claims__.keys()
@@ -118,7 +118,7 @@ class OIDCProviderMixin:
         """
         Given a JWT that has been successfully decoded (checked for a valid
         signature and basic claims), verify it against the more specific
-        claims of this provider.
+        claims of this publisher.
         """
 
         # Defensive programming: treat the absence of any claims to verify
@@ -154,41 +154,41 @@ class OIDCProviderMixin:
         return True
 
     @property
-    def provider_name(self):  # pragma: no cover
+    def publisher_name(self):  # pragma: no cover
         # Only concrete subclasses are constructed.
         return NotImplemented
 
     @property
-    def provider_url(self):  # pragma: no cover
+    def publisher_url(self):  # pragma: no cover
         # Only concrete subclasses are constructed.
         return NotImplemented
 
 
-class OIDCProvider(OIDCProviderMixin, db.Model):
-    __tablename__ = "oidc_providers"
+class OIDCPublisher(OIDCPublisherMixin, db.Model):
+    __tablename__ = "oidc_publishers"
 
     projects = orm.relationship(
         Project,
-        secondary=OIDCProviderProjectAssociation.__table__,  # type: ignore
-        backref="oidc_providers",
+        secondary=OIDCPublisherProjectAssociation.__table__,  # type: ignore
+        backref="oidc_publishers",
     )
     macaroons = orm.relationship(
-        Macaroon, backref="oidc_provider", cascade="all, delete-orphan", lazy=True
+        Macaroon, backref="oidc_publisher", cascade="all, delete-orphan", lazy=True
     )
 
     __mapper_args__ = {
-        "polymorphic_identity": "oidc_providers",
-        "polymorphic_on": OIDCProviderMixin.discriminator,
+        "polymorphic_identity": "oidc_publishers",
+        "polymorphic_on": OIDCPublisherMixin.discriminator,
     }
 
 
-class PendingOIDCProvider(OIDCProviderMixin, db.Model):
+class PendingOIDCPublisher(OIDCPublisherMixin, db.Model):
     """
-    A "pending" OIDC provider, i.e. one that's been registered by a user
+    A "pending" OIDC publisher, i.e. one that's been registered by a user
     but doesn't correspond to an existing PyPI project yet.
     """
 
-    __tablename__ = "pending_oidc_providers"
+    __tablename__ = "pending_oidc_publishers"
 
     project_name = Column(String, nullable=False)
     added_by_id = Column(
@@ -196,23 +196,23 @@ class PendingOIDCProvider(OIDCProviderMixin, db.Model):
     )
 
     __mapper_args__ = {
-        "polymorphic_identity": "pending_oidc_providers",
-        "polymorphic_on": OIDCProviderMixin.discriminator,
+        "polymorphic_identity": "pending_oidc_publishers",
+        "polymorphic_on": OIDCPublisherMixin.discriminator,
     }
 
     def reify(self, session):  # pragma: no cover
         """
-        Return an equivalent "normal" OIDC provider model for this pending provider,
-        deleting the pending provider in the process.
+        Return an equivalent "normal" OIDC publisher model for this pending publisher,
+        deleting the pending publisher in the process.
         """
 
         # Only concrete subclasses are constructed.
         return NotImplemented
 
 
-class GitHubProviderMixin:
+class GitHubPublisherMixin:
     """
-    Common functionality for both pending and concrete GitHub OIDC providers.
+    Common functionality for both pending and concrete GitHub OIDC publishers.
     """
 
     repository_name = Column(String)
@@ -250,13 +250,13 @@ class GitHubProviderMixin:
         return f".github/workflows/{self.workflow_filename}"
 
     @property
-    def provider_name(self):
+    def publisher_name(self):
         return "GitHub"
 
     @property
-    def provider_url(self):
+    def publisher_url(self):
         # NOTE: Until we embed the SHA, this URL is not guaranteed to contain
-        # the exact contents of the workflow that their OIDC provider corresponds to.
+        # the exact contents of the workflow that their OIDC publisher corresponds to.
         return f"https://github.com/{self.repository}/blob/HEAD/{self._workflow_slug}"
 
     @property
@@ -275,54 +275,54 @@ class GitHubProviderMixin:
         return f"{self.workflow_filename} @ {self.repository}"
 
 
-class GitHubProvider(GitHubProviderMixin, OIDCProvider):
-    __tablename__ = "github_oidc_providers"
-    __mapper_args__ = {"polymorphic_identity": "github_oidc_providers"}
+class GitHubPublisher(GitHubPublisherMixin, OIDCPublisher):
+    __tablename__ = "github_oidc_publishers"
+    __mapper_args__ = {"polymorphic_identity": "github_oidc_publishers"}
     __table_args__ = (
         UniqueConstraint(
             "repository_name",
             "repository_owner",
             "workflow_filename",
-            name="_github_oidc_provider_uc",
+            name="_github_oidc_publisher_uc",
         ),
     )
 
-    id = Column(UUID(as_uuid=True), ForeignKey(OIDCProvider.id), primary_key=True)
+    id = Column(UUID(as_uuid=True), ForeignKey(OIDCPublisher.id), primary_key=True)
 
 
-class PendingGitHubProvider(GitHubProviderMixin, PendingOIDCProvider):
-    __tablename__ = "pending_github_oidc_providers"
-    __mapper_args__ = {"polymorphic_identity": "pending_github_oidc_providers"}
+class PendingGitHubPublisher(GitHubPublisherMixin, PendingOIDCPublisher):
+    __tablename__ = "pending_github_oidc_publishers"
+    __mapper_args__ = {"polymorphic_identity": "pending_github_oidc_publishers"}
     __table_args__ = (
         UniqueConstraint(
             "repository_name",
             "repository_owner",
             "workflow_filename",
-            name="_pending_github_oidc_provider_uc",
+            name="_pending_github_oidc_publisher_uc",
         ),
     )
 
     id = Column(
-        UUID(as_uuid=True), ForeignKey(PendingOIDCProvider.id), primary_key=True
+        UUID(as_uuid=True), ForeignKey(PendingOIDCPublisher.id), primary_key=True
     )
 
     def reify(self, session):
         """
-        Returns a `GitHubProvider` for this `PendingGitHubProvider`,
-        deleting the `PendingGitHubProvider` in the process.
+        Returns a `GitHubPublisher` for this `PendingGitHubPublisher`,
+        deleting the `PendingGitHubPublisher` in the process.
         """
 
-        maybe_provider = (
-            session.query(GitHubProvider)
+        maybe_publisher = (
+            session.query(GitHubPublisher)
             .filter(
-                GitHubProvider.repository_name == self.repository_name,
-                GitHubProvider.repository_owner == self.repository_owner,
-                GitHubProvider.workflow_filename == self.workflow_filename,
+                GitHubPublisher.repository_name == self.repository_name,
+                GitHubPublisher.repository_owner == self.repository_owner,
+                GitHubPublisher.workflow_filename == self.workflow_filename,
             )
             .one_or_none()
         )
 
-        provider = maybe_provider or GitHubProvider(
+        publisher = maybe_publisher or GitHubPublisher(
             repository_name=self.repository_name,
             repository_owner=self.repository_owner,
             repository_owner_id=self.repository_owner_id,
@@ -330,4 +330,4 @@ class PendingGitHubProvider(GitHubProviderMixin, PendingOIDCProvider):
         )
 
         session.delete(self)
-        return provider
+        return publisher
