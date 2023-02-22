@@ -20,12 +20,12 @@ from warehouse.packaging.models import Project
 from warehouse.rate_limiting.interfaces import RateLimiterException
 
 if TYPE_CHECKING:
-    from warehouse.oidc.models import PendingOIDCProvider  # pragma: no cover
+    from warehouse.oidc.models import PendingOIDCPublisher  # pragma: no cover
 
 SignedClaims = NewType("SignedClaims", dict[str, Any])
 
 
-class IOIDCProviderService(Interface):
+class IOIDCPublisherService(Interface):
     def verify_jwt_signature(unverified_token: str):
         """
         Verify the given JWT's signature, returning its signed claims if
@@ -36,22 +36,24 @@ class IOIDCProviderService(Interface):
         """
         pass
 
-    def find_provider(signed_claims: SignedClaims, *, pending: bool = False):
+    def find_publisher(signed_claims: SignedClaims, *, pending: bool = False):
         """
         Given a mapping of signed claims produced by `verify_jwt_signature`,
-        attempt to find and return either a `OIDCProvider` or `PendingOIDCProvider`
+        attempt to find and return either a `OIDCPublisher` or `PendingOIDCPublisher`
         that matches them, depending on the value of `pending`.
 
-        If no provider matches the claims, `None` is returned.
+        If no publisher matches the claims, `None` is returned.
         """
         pass
 
-    def reify_pending_provider(pending_provider: PendingOIDCProvider, project: Project):
+    def reify_pending_publisher(
+        pending_publisher: PendingOIDCPublisher, project: Project
+    ):
         """
-        Reify the given pending `PendingOIDCProvider` into an `OIDCProvider`,
+        Reify the given pending `PendingOIDCPublisher` into an `OIDCPublisher`,
         adding it to the given project (presumed newly created) in the process.
 
-        Returns the reified provider.
+        Returns the reified publisher.
         """
         pass
 

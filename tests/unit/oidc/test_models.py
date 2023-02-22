@@ -13,7 +13,7 @@
 import pretend
 import pytest
 
-from tests.common.db.oidc import GitHubProviderFactory, PendingGitHubProviderFactory
+from tests.common.db.oidc import GitHubPublisherFactory, PendingGitHubPublisherFactory
 from warehouse.oidc import models
 
 
@@ -24,16 +24,16 @@ def test_check_claim_binary():
     assert wrapped("foo", "foo", pretend.stub()) is True
 
 
-class TestOIDCProvider:
-    def test_oidc_provider_not_default_verifiable(self):
-        provider = models.OIDCProvider(projects=[])
+class TestOIDCPublisher:
+    def test_oidc_publisher_not_default_verifiable(self):
+        publisher = models.OIDCPublisher(projects=[])
 
-        assert not provider.verify_claims(signed_claims={})
+        assert not publisher.verify_claims(signed_claims={})
 
 
-class TestGitHubProvider:
-    def test_github_provider_all_known_claims(self):
-        assert models.GitHubProvider.all_known_claims() == {
+class TestGitHubPublisher:
+    def test_github_publisher_all_known_claims(self):
+        assert models.GitHubPublisher.all_known_claims() == {
             # verifiable claims
             "repository",
             "repository_owner",
@@ -63,25 +63,26 @@ class TestGitHubProvider:
             "workflow",
         }
 
-    def test_github_provider_computed_properties(self):
-        provider = models.GitHubProvider(
+    def test_github_publisher_computed_properties(self):
+        publisher = models.GitHubPublisher(
             repository_name="fakerepo",
             repository_owner="fakeowner",
             repository_owner_id="fakeid",
             workflow_filename="fakeworkflow.yml",
         )
 
-        for claim_name in provider.__verifiable_claims__.keys():
-            assert getattr(provider, claim_name) is not None
+        for claim_name in publisher.__verifiable_claims__.keys():
+            assert getattr(publisher, claim_name) is not None
 
-        assert str(provider) == "fakeworkflow.yml @ fakeowner/fakerepo"
+        assert str(publisher) == "fakeworkflow.yml @ fakeowner/fakerepo"
         assert (
-            provider.provider_url == "https://github.com/fakeowner/fakerepo/blob/HEAD/"
-            f".github/workflows/{provider.workflow_filename}"
+            publisher.publisher_url
+            == "https://github.com/fakeowner/fakerepo/blob/HEAD/"
+            f".github/workflows/{publisher.workflow_filename}"
         )
 
-    def test_github_provider_unaccounted_claims(self, monkeypatch):
-        provider = models.GitHubProvider(
+    def test_github_publisher_unaccounted_claims(self, monkeypatch):
+        publisher = models.GitHubPublisher(
             repository_name="fakerepo",
             repository_owner="fakeowner",
             repository_owner_id="fakeid",
@@ -94,18 +95,18 @@ class TestGitHubProvider:
         # We don't care if these actually verify, only that they're present.
         signed_claims = {
             claim_name: "fake"
-            for claim_name in models.GitHubProvider.all_known_claims()
+            for claim_name in models.GitHubPublisher.all_known_claims()
         }
         signed_claims["fake-claim"] = "fake"
-        assert not provider.verify_claims(signed_claims=signed_claims)
+        assert not publisher.verify_claims(signed_claims=signed_claims)
         assert sentry_sdk.capture_message.calls == [
             pretend.call(
-                "JWT for GitHubProvider has unaccounted claims: {'fake-claim'}"
+                "JWT for GitHubPublisher has unaccounted claims: {'fake-claim'}"
             )
         ]
 
-    def test_github_provider_missing_claims(self, monkeypatch):
-        provider = models.GitHubProvider(
+    def test_github_publisher_missing_claims(self, monkeypatch):
+        publisher = models.GitHubPublisher(
             repository_name="fakerepo",
             repository_owner="fakeowner",
             repository_owner_id="fakeid",
@@ -117,19 +118,19 @@ class TestGitHubProvider:
 
         signed_claims = {
             claim_name: "fake"
-            for claim_name in models.GitHubProvider.all_known_claims()
+            for claim_name in models.GitHubPublisher.all_known_claims()
         }
         # Pop the first signed claim, so that it's the first one to fail.
         signed_claims.pop("sub")
         assert "sub" not in signed_claims
-        assert provider.__verifiable_claims__
-        assert not provider.verify_claims(signed_claims=signed_claims)
+        assert publisher.__verifiable_claims__
+        assert not publisher.verify_claims(signed_claims=signed_claims)
         assert sentry_sdk.capture_message.calls == [
-            pretend.call("JWT for GitHubProvider is missing claim: sub")
+            pretend.call("JWT for GitHubPublisher is missing claim: sub")
         ]
 
-    def test_github_provider_verifies(self, monkeypatch):
-        provider = models.GitHubProvider(
+    def test_github_publisher_verifies(self, monkeypatch):
+        publisher = models.GitHubPublisher(
             repository_name="fakerepo",
             repository_owner="fakeowner",
             repository_owner_id="fakeid",
@@ -138,15 +139,15 @@ class TestGitHubProvider:
 
         noop_check = pretend.call_recorder(lambda gt, sc, ac: True)
         verifiable_claims = {
-            claim_name: noop_check for claim_name in provider.__verifiable_claims__
+            claim_name: noop_check for claim_name in publisher.__verifiable_claims__
         }
-        monkeypatch.setattr(provider, "__verifiable_claims__", verifiable_claims)
+        monkeypatch.setattr(publisher, "__verifiable_claims__", verifiable_claims)
 
         signed_claims = {
             claim_name: "fake"
-            for claim_name in models.GitHubProvider.all_known_claims()
+            for claim_name in models.GitHubPublisher.all_known_claims()
         }
-        assert provider.verify_claims(signed_claims=signed_claims)
+        assert publisher.verify_claims(signed_claims=signed_claims)
         assert len(noop_check.calls) == len(verifiable_claims)
 
     @pytest.mark.parametrize(
@@ -197,54 +198,54 @@ class TestGitHubProvider:
             ("", "notrailingslash", False),
         ],
     )
-    def test_github_provider_job_workflow_ref(self, claim, ref, valid):
-        provider = models.GitHubProvider(
+    def test_github_publisher_job_workflow_ref(self, claim, ref, valid):
+        publisher = models.GitHubPublisher(
             repository_name="bar",
             repository_owner="foo",
             repository_owner_id=pretend.stub(),
             workflow_filename="baz.yml",
         )
 
-        check = models.GitHubProvider.__verifiable_claims__["job_workflow_ref"]
-        assert check(provider.job_workflow_ref, claim, {"ref": ref}) is valid
+        check = models.GitHubPublisher.__verifiable_claims__["job_workflow_ref"]
+        assert check(publisher.job_workflow_ref, claim, {"ref": ref}) is valid
 
 
-class TestPendingGitHubProvider:
+class TestPendingGitHubPublisher:
     def test_reify_does_not_exist_yet(self, db_request):
-        pending_provider = PendingGitHubProviderFactory.create()
+        pending_publisher = PendingGitHubPublisherFactory.create()
         assert (
-            db_request.db.query(models.GitHubProvider)
+            db_request.db.query(models.GitHubPublisher)
             .filter_by(
-                repository_name=pending_provider.repository_name,
-                repository_owner=pending_provider.repository_owner,
-                repository_owner_id=pending_provider.repository_owner_id,
-                workflow_filename=pending_provider.workflow_filename,
+                repository_name=pending_publisher.repository_name,
+                repository_owner=pending_publisher.repository_owner,
+                repository_owner_id=pending_publisher.repository_owner_id,
+                workflow_filename=pending_publisher.workflow_filename,
             )
             .one_or_none()
             is None
         )
-        provider = pending_provider.reify(db_request.db)
+        publisher = pending_publisher.reify(db_request.db)
 
-        # If an OIDC provider for this pending provider does not already exist,
-        # a new one is created and the pending provider is marked for deletion.
-        assert isinstance(provider, models.GitHubProvider)
-        assert pending_provider in db_request.db.deleted
-        assert provider.repository_name == pending_provider.repository_name
-        assert provider.repository_owner == pending_provider.repository_owner
-        assert provider.repository_owner_id == pending_provider.repository_owner_id
-        assert provider.workflow_filename == pending_provider.workflow_filename
+        # If an OIDC publisher for this pending publisher does not already exist,
+        # a new one is created and the pending publisher is marked for deletion.
+        assert isinstance(publisher, models.GitHubPublisher)
+        assert pending_publisher in db_request.db.deleted
+        assert publisher.repository_name == pending_publisher.repository_name
+        assert publisher.repository_owner == pending_publisher.repository_owner
+        assert publisher.repository_owner_id == pending_publisher.repository_owner_id
+        assert publisher.workflow_filename == pending_publisher.workflow_filename
 
     def test_reify_already_exists(self, db_request):
-        existing_provider = GitHubProviderFactory.create()
-        pending_provider = PendingGitHubProviderFactory.create(
-            repository_name=existing_provider.repository_name,
-            repository_owner=existing_provider.repository_owner,
-            repository_owner_id=existing_provider.repository_owner_id,
-            workflow_filename=existing_provider.workflow_filename,
+        existing_publisher = GitHubPublisherFactory.create()
+        pending_publisher = PendingGitHubPublisherFactory.create(
+            repository_name=existing_publisher.repository_name,
+            repository_owner=existing_publisher.repository_owner,
+            repository_owner_id=existing_publisher.repository_owner_id,
+            workflow_filename=existing_publisher.workflow_filename,
         )
-        provider = pending_provider.reify(db_request.db)
+        publisher = pending_publisher.reify(db_request.db)
 
-        # If an OIDC provider for this pending provider already exists,
-        # it is returned and the pending provider is marked for deletion.
-        assert existing_provider == provider
-        assert pending_provider in db_request.db.deleted
+        # If an OIDC publisher for this pending publisher already exists,
+        # it is returned and the pending publisher is marked for deletion.
+        assert existing_publisher == publisher
+        assert pending_publisher in db_request.db.deleted

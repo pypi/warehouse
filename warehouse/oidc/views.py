@@ -17,18 +17,30 @@ from pyramid.view import view_config
 from sqlalchemy import func
 
 from warehouse.admin.flags import AdminFlagValue
-from warehouse.email import send_pending_oidc_provider_invalidated_email
+from warehouse.email import send_pending_oidc_publisher_invalidated_email
 from warehouse.events.tags import EventTag
 from warehouse.macaroons import caveats
 from warehouse.macaroons.interfaces import IMacaroonService
-from warehouse.oidc.interfaces import IOIDCProviderService
-from warehouse.oidc.models import PendingOIDCProvider
+from warehouse.oidc.interfaces import IOIDCPublisherService
+from warehouse.oidc.models import PendingOIDCPublisher
 from warehouse.packaging.interfaces import IProjectService
 from warehouse.packaging.models import ProjectFactory
+from warehouse.rate_limiting.interfaces import IRateLimiter
 
 
 class TokenPayload(BaseModel):
     token: StrictStr
+
+
+def _ratelimiters(request):
+    return {
+        "user.oidc": request.find_service(
+            IRateLimiter, name="user_oidc.publisher.register"
+        ),
+        "ip.oidc": request.find_service(
+            IRateLimiter, name="ip_oidc.publisher.register"
+        ),
+    }
 
 
 @view_config(
@@ -62,10 +74,10 @@ def mint_token_from_oidc(request):
     except ValidationError as exc:
         return _invalid(errors=[{"code": "invalid-payload", "description": str(exc)}])
 
-    # For the time being, GitHub is our only OIDC provider.
+    # For the time being, GitHub is our only OIDC publisher.
     # In the future, this should locate the correct service based on an
     # identifier in the request body.
-    oidc_service = request.find_service(IOIDCProviderService, name="github")
+    oidc_service = request.find_service(IOIDCPublisherService, name="github")
     claims = oidc_service.verify_jwt_signature(unverified_jwt)
     if not claims:
         return _invalid(
@@ -74,63 +86,69 @@ def mint_token_from_oidc(request):
             ]
         )
 
-    # First, try to find a pending provider.
-    pending_provider = oidc_service.find_provider(claims, pending=True)
-    if pending_provider is not None:
+    # First, try to find a pending publisher.
+    pending_publisher = oidc_service.find_publisher(claims, pending=True)
+    if pending_publisher is not None:
         factory = ProjectFactory(request)
 
-        # If the project already exists, this pending provider is no longer
+        # If the project already exists, this pending publisher is no longer
         # valid and needs to be removed.
         # NOTE: This is mostly a sanity check, since we dispose of invalidated
-        # pending providers below.
-        if pending_provider.project_name in factory:
-            request.db.delete(pending_provider)
+        # pending publishers below.
+        if pending_publisher.project_name in factory:
+            request.db.delete(pending_publisher)
             return _invalid(
                 errors=[
                     {
-                        "code": "invalid-pending-provider",
+                        "code": "invalid-pending-publisher",
                         "description": "valid token, but project already exists",
                     }
                 ]
             )
 
-        # Create the new project, and reify the pending provider against it.
+        # Create the new project, and reify the pending publisher against it.
         project_service = request.find_service(IProjectService)
         new_project = project_service.create_project(
-            pending_provider.project_name, pending_provider.added_by
+            pending_publisher.project_name, pending_publisher.added_by
         )
-        oidc_service.reify_pending_provider(pending_provider, new_project)
+        oidc_service.reify_pending_publisher(pending_publisher, new_project)
 
-        # There might be other pending providers for the same project name,
+        # Successfully converting a pending publisher into a normal publisher
+        # is a positive signal, so we reset the associated ratelimits.
+        ratelimiters = _ratelimiters(request)
+        ratelimiters["user.oidc"].clear(pending_publisher.added_by.id)
+        ratelimiters["ip.oidc"].clear(request.remote_addr)
+
+        # There might be other pending publishers for the same project name,
         # which we've now invalidated by creating the project. These would
         # be disposed of on use, but we explicitly dispose of them here while
         # also sending emails to their owners.
-        stale_pending_providers = (
-            request.db.query(PendingOIDCProvider)
+        stale_pending_publishers = (
+            request.db.query(PendingOIDCPublisher)
             .filter(
-                func.normalize_pep426_name(PendingOIDCProvider.project_name)
-                == func.normalize_pep426_name(pending_provider.project_name)
+                func.normalize_pep426_name(PendingOIDCPublisher.project_name)
+                == func.normalize_pep426_name(pending_publisher.project_name)
             )
             .all()
         )
-        for stale_provider in stale_pending_providers:
-            send_pending_oidc_provider_invalidated_email(
+        for stale_publisher in stale_pending_publishers:
+            send_pending_oidc_publisher_invalidated_email(
                 request,
-                stale_provider.added_by,
-                project_name=stale_provider.project_name,
+                stale_publisher.added_by,
+                project_name=stale_publisher.project_name,
             )
-            request.db.delete(stale_provider)
+            request.db.delete(stale_publisher)
 
-    # We either don't have a pending OIDC provider, or we *did*
-    # have one and we've just converted it. Either way, look for a full provider
+    # We either don't have a pending OIDC publisher, or we *did*
+    # have one and we've just converted it. Either way, look for a full publisher
     # to actually do the macaroon minting with.
-    provider = oidc_service.find_provider(claims, pending=False)
-    if not provider:
+    publisher = oidc_service.find_publisher(claims, pending=False)
+    if not publisher:
         return _invalid(
             errors=[
                 {
-                    "code": "invalid-provider",
-                    "description": "valid token, but no corresponding provider",
+                    "code": "invalid-publisher",
+                    "description": "valid token, but no corresponding publisher",
                 }
             ]
         )
@@ -144,22 +162,22 @@ def mint_token_from_oidc(request):
     expires_at = not_before + 900
     serialized, dm = macaroon_service.create_macaroon(
         request.domain,
-        f"OpenID token: {provider.provider_url} ({not_before})",
+        f"OpenID token: {publisher.publisher_url} ({not_before})",
         [
-            caveats.OIDCProvider(oidc_provider_id=str(provider.id)),
-            caveats.ProjectID(project_ids=[str(p.id) for p in provider.projects]),
+            caveats.OIDCPublisher(oidc_publisher_id=str(publisher.id)),
+            caveats.ProjectID(project_ids=[str(p.id) for p in publisher.projects]),
             caveats.Expiration(expires_at=expires_at, not_before=not_before),
         ],
-        oidc_provider_id=provider.id,
+        oidc_publisher_id=publisher.id,
     )
-    for project in provider.projects:
+    for project in publisher.projects:
         project.record_event(
             tag=EventTag.Project.ShortLivedAPITokenAdded,
             ip_address=request.remote_addr,
             additional={
                 "expires": expires_at,
-                "provider_name": provider.provider_name,
-                "provider_url": provider.provider_url,
+                "publisher_name": publisher.publisher_name,
+                "publisher_url": publisher.publisher_url,
             },
         )
     return {"success": True, "token": serialized}

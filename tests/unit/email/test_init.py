@@ -5463,17 +5463,17 @@ class TestRecoveryCodeEmails:
         ]
 
 
-class TestOIDCProviderEmails:
+class TestOIDCPublisherEmails:
     @pytest.mark.parametrize(
         "fn, template_name",
         [
             (
-                email.send_pending_oidc_provider_invalidated_email,
-                "pending-oidc-provider-invalidated",
+                email.send_pending_oidc_publisher_invalidated_email,
+                "pending-oidc-publisher-invalidated",
             ),
         ],
     )
-    def test_pending_oidc_provider_emails(
+    def test_pending_oidc_publisher_emails(
         self, pyramid_request, pyramid_config, monkeypatch, fn, template_name
     ):
         stub_user = pretend.stub(
@@ -5553,11 +5553,11 @@ class TestOIDCProviderEmails:
     @pytest.mark.parametrize(
         "fn, template_name",
         [
-            (email.send_oidc_provider_added_email, "oidc-provider-added"),
-            (email.send_oidc_provider_removed_email, "oidc-provider-removed"),
+            (email.send_oidc_publisher_added_email, "oidc-publisher-added"),
+            (email.send_oidc_publisher_removed_email, "oidc-publisher-removed"),
         ],
     )
-    def test_oidc_provider_emails(
+    def test_oidc_publisher_emails(
         self, pyramid_request, pyramid_config, monkeypatch, fn, template_name
     ):
         stub_user = pretend.stub(
@@ -5597,21 +5597,24 @@ class TestOIDCProviderEmails:
         pyramid_request.registry.settings = {"mail.sender": "noreply@example.com"}
 
         project_name = "test_project"
-        fakeprovider = pretend.stub(provider_name="fakeprovider")
+        fakepublisher = pretend.stub(publisher_name="fakepublisher")
         # NOTE: Can't set __str__ using pretend.stub()
         monkeypatch.setattr(
-            fakeprovider.__class__, "__str__", lambda s: "fakespecifier"
+            fakepublisher.__class__, "__str__", lambda s: "fakespecifier"
         )
 
         result = fn(
-            pyramid_request, stub_user, project_name=project_name, provider=fakeprovider
+            pyramid_request,
+            stub_user,
+            project_name=project_name,
+            publisher=fakepublisher,
         )
 
         assert result == {
             "username": stub_user.username,
             "project_name": project_name,
-            "provider_name": "fakeprovider",
-            "provider_spec": "fakespecifier",
+            "publisher_name": "fakepublisher",
+            "publisher_spec": "fakespecifier",
         }
         subject_renderer.assert_()
         body_renderer.assert_(username=stub_user.username, project_name=project_name)
