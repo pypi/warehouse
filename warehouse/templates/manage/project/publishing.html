@@ -33,7 +33,7 @@
 
     {{ oidc_desc() }}
 
-    <h2>{% trans %}Manage current providers{% endtrans %}</h2>
+    <h2>{% trans %}Manage current publishers{% endtrans %}</h2>
     {% if project.oidc_providers %}
     <table class="table table--publisher-list">
       <caption class="sr-only">
@@ -56,12 +56,12 @@
     <p class="no-bottom-padding">{% trans %}No publishers are currently configured.{% endtrans %}</p>
     {% endif %}
 
-    <h2 class="no-bottom-padding">{% trans %}Add a new provider{% endtrans %}</h2>
+    <h2 class="no-bottom-padding">{% trans %}Add a new publisher{% endtrans %}</h2>
     <h3>GitHub</h3>
 
     <p>
       {% trans href="https://docs.github.com/en/actions/deployment/security-hardening-your-deployments/about-security-hardening-with-openid-connect" %}
-      Read more about GitHub's OpenID Connect provider <a href="{{ href }}">here</a>.
+      Read more about GitHub Actions's OpenID Connect support <a href="{{ href }}">here</a>.
       {% endtrans %}
     </p>
 
