@@ -23,6 +23,24 @@ from warehouse.macaroons import caveats
 from warehouse.macaroons.interfaces import IMacaroonService
 from warehouse.oidc import views
 from warehouse.oidc.interfaces import IOIDCProviderService
+from warehouse.rate_limiting.interfaces import IRateLimiter
+
+
+def test_ratelimiters():
+    ratelimiter = pretend.stub()
+    request = pretend.stub(
+        find_service=pretend.call_recorder(lambda *a, **kw: ratelimiter)
+    )
+
+    assert views._ratelimiters(request) == {
+        "user.oidc": ratelimiter,
+        "ip.oidc": ratelimiter,
+    }
+
+    assert request.find_service.calls == [
+        pretend.call(IRateLimiter, name="user_oidc.provider.register"),
+        pretend.call(IRateLimiter, name="ip_oidc.provider.register"),
+    ]
 
 
 @pytest.mark.parametrize(
@@ -190,10 +208,11 @@ def test_mint_token_from_oidc_pending_provider_project_already_exists(db_request
 
 
 def test_mint_token_from_oidc_pending_provider_ok(
+    monkeypatch,
     db_request,
 ):
     user = UserFactory.create()
-    PendingGitHubProviderFactory.create(
+    pending_provider = PendingGitHubProviderFactory.create(
         project_name="does-not-exist",
         added_by=user,
         repository_name="bar",
@@ -225,9 +244,21 @@ def test_mint_token_from_oidc_pending_provider_ok(
     )
     db_request.remote_addr = "0.0.0.0"
 
+    ratelimiter = pretend.stub(clear=pretend.call_recorder(lambda id: None))
+    ratelimiters = {
+        "user.oidc": ratelimiter,
+        "ip.oidc": ratelimiter,
+    }
+    monkeypatch.setattr(views, "_ratelimiters", lambda r: ratelimiters)
+
     resp = views.mint_token_from_oidc(db_request)
     assert resp["success"]
     assert resp["token"].startswith("pypi-")
+
+    assert ratelimiter.clear.calls == [
+        pretend.call(pending_provider.added_by.id),
+        pretend.call(db_request.remote_addr),
+    ]
 
 
 def test_mint_token_from_pending_oidc_provider_invalidates_others(
@@ -237,7 +268,7 @@ def test_mint_token_from_pending_oidc_provider_invalidates_others(
     monkeypatch.setattr(views, "time", time)
 
     user = UserFactory.create()
-    PendingGitHubProviderFactory.create(
+    pending_provider = PendingGitHubProviderFactory.create(
         project_name="does-not-exist",
         added_by=user,
         repository_name="bar",
@@ -290,6 +321,13 @@ def test_mint_token_from_pending_oidc_provider_invalidates_others(
     )
     db_request.remote_addr = "0.0.0.0"
 
+    ratelimiter = pretend.stub(clear=pretend.call_recorder(lambda id: None))
+    ratelimiters = {
+        "user.oidc": ratelimiter,
+        "ip.oidc": ratelimiter,
+    }
+    monkeypatch.setattr(views, "_ratelimiters", lambda r: ratelimiters)
+
     resp = views.mint_token_from_oidc(db_request)
     assert resp["success"]
     assert resp["token"].startswith("pypi-")
@@ -300,6 +338,11 @@ def test_mint_token_from_pending_oidc_provider_invalidates_others(
         pretend.call(db_request, emailed_users[0], project_name="does_not_exist"),
         pretend.call(db_request, emailed_users[1], project_name="does-not-exist"),
         pretend.call(db_request, emailed_users[2], project_name="dOeS-NoT-ExISt"),
+    ]
+
+    assert ratelimiter.clear.calls == [
+        pretend.call(pending_provider.added_by.id),
+        pretend.call(db_request.remote_addr),
     ]
 
 

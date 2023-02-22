@@ -25,10 +25,20 @@ from warehouse.oidc.interfaces import IOIDCProviderService
 from warehouse.oidc.models import PendingOIDCProvider
 from warehouse.packaging.interfaces import IProjectService
 from warehouse.packaging.models import ProjectFactory
+from warehouse.rate_limiting.interfaces import IRateLimiter
 
 
 class TokenPayload(BaseModel):
     token: StrictStr
+
+
+def _ratelimiters(request):
+    return {
+        "user.oidc": request.find_service(
+            IRateLimiter, name="user_oidc.provider.register"
+        ),
+        "ip.oidc": request.find_service(IRateLimiter, name="ip_oidc.provider.register"),
+    }
 
 
 @view_config(
@@ -100,6 +110,12 @@ def mint_token_from_oidc(request):
             pending_provider.project_name, pending_provider.added_by
         )
         oidc_service.reify_pending_provider(pending_provider, new_project)
+
+        # Successfully converting a pending provider into a normal provider
+        # is a positive signal, so we reset the associated ratelimits.
+        ratelimiters = _ratelimiters(request)
+        ratelimiters["user.oidc"].clear(pending_provider.added_by.id)
+        ratelimiters["ip.oidc"].clear(request.remote_addr)
 
         # There might be other pending providers for the same project name,
         # which we've now invalidated by creating the project. These would
