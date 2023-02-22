@@ -243,7 +243,7 @@ def configure(settings=None):
         settings,
         "oidc.backend",
         "OIDC_BACKEND",
-        default="warehouse.oidc.services.OIDCProviderService",
+        default="warehouse.oidc.services.OIDCPublisherService",
     )
 
     # Pythondotorg integration settings
@@ -561,7 +561,7 @@ def configure(settings=None):
     # Register support for Macaroon based authentication
     config.include(".macaroons")
 
-    # Register support for OIDC provider based authentication
+    # Register support for OIDC based authentication
     config.include(".oidc")
 
     # Register support for malware checks

@@ -187,9 +187,9 @@
     {% endif %}
     <small>
       {% trans %}Creator: {% endtrans %}
-      {{ event.additional.provider_name }}:
-      <a href="{{ event.additional.provider_url }}">
-        {{ event.additional.provider_url }}
+      {{ event.additional.publisher_name }}:
+      <a href="{{ event.additional.publisher_url }}">
+        {{ event.additional.publisher_url }}
       </a>
     </small>
     {% elif event.tag == EventTag.Project.APITokenAdded %}
@@ -217,14 +217,14 @@
     <small>{% trans %}Reason:{% endtrans %} {{ event.additional.yanked_reason }}</small>
     {% endif %}
 
-    {# Display OIDC provider events #}
-    {% elif event.tag == EventTag.Project.OIDCProviderAdded %}
-    <strong>{% trans %}OpenID Connect provider added{% endtrans %}</strong>
-    <small>{% trans %}Provider:{% endtrans %} {{ event.additional.provider }}</small>
+    {# Display OIDC publisher events #}
+    {% elif event.tag == EventTag.Project.OIDCPublisherAdded %}
+    <strong>{% trans %}OpenID Connect publisher added{% endtrans %}</strong>
+    <small>{% trans %}Publisher:{% endtrans %} {{ event.additional.publisher }}</small>
     <small>{% trans %}Publisher:{% endtrans %} {{ event.additional.specifier }}</small>
-    {% elif event.tag == EventTag.Project.OIDCProviderRemoved %}
-    <strong>{% trans %}OpenID Connect provider removed{% endtrans %}</strong>
-    <small>{% trans %}Provider:{% endtrans %} {{ event.additional.provider }}</small>
+    {% elif event.tag == EventTag.Project.OIDCPublisherRemoved %}
+    <strong>{% trans %}OpenID Connect publisher removed{% endtrans %}</strong>
+    <small>{% trans %}Publisher:{% endtrans %} {{ event.additional.publisher }}</small>
     <small>{% trans %}Publisher:{% endtrans %} {{ event.additional.specifier }}</small>
 
     {# Display 2FA events #}

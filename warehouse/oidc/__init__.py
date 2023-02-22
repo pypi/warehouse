@@ -10,23 +10,23 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from warehouse.oidc.interfaces import IOIDCProviderService
-from warehouse.oidc.services import OIDCProviderServiceFactory
+from warehouse.oidc.interfaces import IOIDCPublisherService
+from warehouse.oidc.services import OIDCPublisherServiceFactory
 from warehouse.oidc.utils import GITHUB_OIDC_ISSUER_URL
 
 
 def includeme(config):
-    oidc_provider_service_class = config.maybe_dotted(
+    oidc_publisher_service_class = config.maybe_dotted(
         config.registry.settings["oidc.backend"]
     )
 
     config.register_service_factory(
-        OIDCProviderServiceFactory(
-            provider="github",
+        OIDCPublisherServiceFactory(
+            publisher="github",
             issuer_url=GITHUB_OIDC_ISSUER_URL,
-            service_class=oidc_provider_service_class,
+            service_class=oidc_publisher_service_class,
         ),
-        IOIDCProviderService,
+        IOIDCPublisherService,
         name="github",
     )
 

@@ -9454,7 +9454,7 @@ class TestManageProjectHistory:
             assert views.manage_project_history(project, db_request)
 
 
-class TestManageOIDCProviderViews:
+class TestManageOIDCPublisherViews:
     def test_initializes(self):
         metrics = pretend.stub()
         project = pretend.stub()
@@ -9462,7 +9462,7 @@ class TestManageOIDCProviderViews:
             registry=pretend.stub(settings={"warehouse.oidc.enabled": True}),
             find_service=pretend.call_recorder(lambda *a, **kw: metrics),
         )
-        view = views.ManageOIDCProviderViews(project, request)
+        view = views.ManageOIDCPublisherViews(project, request)
 
         assert view.project is project
         assert view.request is request
@@ -9500,7 +9500,7 @@ class TestManageOIDCProviderViews:
             if iface is IMetricsService:
                 return metrics
 
-            if name == "user_oidc.provider.register":
+            if name == "user_oidc.publisher.register":
                 return user_rate_limiter
             else:
                 return ip_rate_limiter
@@ -9512,7 +9512,7 @@ class TestManageOIDCProviderViews:
             remote_addr=pretend.stub(),
         )
 
-        view = views.ManageOIDCProviderViews(project, request)
+        view = views.ManageOIDCPublisherViews(project, request)
 
         assert view._ratelimiters == {
             "user.oidc": user_rate_limiter,
@@ -9520,8 +9520,8 @@ class TestManageOIDCProviderViews:
         }
         assert request.find_service.calls == [
             pretend.call(IMetricsService, context=None),
-            pretend.call(IRateLimiter, name="user_oidc.provider.register"),
-            pretend.call(IRateLimiter, name="ip_oidc.provider.register"),
+            pretend.call(IRateLimiter, name="user_oidc.publisher.register"),
+            pretend.call(IRateLimiter, name="ip_oidc.publisher.register"),
         ]
 
         view._hit_ratelimits()
@@ -9537,7 +9537,7 @@ class TestManageOIDCProviderViews:
         else:
             view._check_ratelimits()
 
-    def test_manage_project_oidc_providers(self, monkeypatch):
+    def test_manage_project_oidc_publishers(self, monkeypatch):
         project = pretend.stub()
         request = pretend.stub(
             registry=pretend.stub(
@@ -9551,27 +9551,27 @@ class TestManageOIDCProviderViews:
             POST=pretend.stub(),
         )
 
-        github_provider_form_obj = pretend.stub()
-        github_provider_form_cls = pretend.call_recorder(
-            lambda *a, **kw: github_provider_form_obj
+        github_publisher_form_obj = pretend.stub()
+        github_publisher_form_cls = pretend.call_recorder(
+            lambda *a, **kw: github_publisher_form_obj
         )
-        monkeypatch.setattr(views, "GitHubProviderForm", github_provider_form_cls)
+        monkeypatch.setattr(views, "GitHubPublisherForm", github_publisher_form_cls)
 
-        view = views.ManageOIDCProviderViews(project, request)
-        assert view.manage_project_oidc_providers() == {
+        view = views.ManageOIDCPublisherViews(project, request)
+        assert view.manage_project_oidc_publishers() == {
             "oidc_enabled": True,
             "project": project,
-            "github_provider_form": github_provider_form_obj,
+            "github_publisher_form": github_publisher_form_obj,
         }
 
         assert request.flags.enabled.calls == [
             pretend.call(AdminFlagValue.DISALLOW_OIDC)
         ]
-        assert github_provider_form_cls.calls == [
+        assert github_publisher_form_cls.calls == [
             pretend.call(request.POST, api_token="fake-api-token")
         ]
 
-    def test_manage_project_oidc_providers_admin_disabled(self, monkeypatch):
+    def test_manage_project_oidc_publishers_admin_disabled(self, monkeypatch):
         project = pretend.stub()
         request = pretend.stub(
             registry=pretend.stub(
@@ -9586,18 +9586,18 @@ class TestManageOIDCProviderViews:
             POST=pretend.stub(),
         )
 
-        view = views.ManageOIDCProviderViews(project, request)
-        github_provider_form_obj = pretend.stub()
-        github_provider_form_cls = pretend.call_recorder(
-            lambda *a, **kw: github_provider_form_obj
+        view = views.ManageOIDCPublisherViews(project, request)
+        github_publisher_form_obj = pretend.stub()
+        github_publisher_form_cls = pretend.call_recorder(
+            lambda *a, **kw: github_publisher_form_obj
         )
-        monkeypatch.setattr(views, "GitHubProviderForm", github_provider_form_cls)
+        monkeypatch.setattr(views, "GitHubPublisherForm", github_publisher_form_cls)
 
-        view = views.ManageOIDCProviderViews(project, request)
-        assert view.manage_project_oidc_providers() == {
+        view = views.ManageOIDCPublisherViews(project, request)
+        assert view.manage_project_oidc_publishers() == {
             "oidc_enabled": True,
             "project": project,
-            "github_provider_form": github_provider_form_obj,
+            "github_publisher_form": github_publisher_form_obj,
         }
 
         assert request.flags.enabled.calls == [
@@ -9612,37 +9612,37 @@ class TestManageOIDCProviderViews:
                 queue="error",
             )
         ]
-        assert github_provider_form_cls.calls == [
+        assert github_publisher_form_cls.calls == [
             pretend.call(request.POST, api_token="fake-api-token")
         ]
 
-    def test_manage_project_oidc_providers_oidc_not_enabled(self):
+    def test_manage_project_oidc_publishers_oidc_not_enabled(self):
         project = pretend.stub()
         request = pretend.stub(
             registry=pretend.stub(settings={"warehouse.oidc.enabled": False}),
             find_service=lambda *a, **kw: None,
         )
 
-        view = views.ManageOIDCProviderViews(project, request)
+        view = views.ManageOIDCPublisherViews(project, request)
 
         with pytest.raises(HTTPNotFound):
-            view.manage_project_oidc_providers()
+            view.manage_project_oidc_publishers()
 
-    def test_add_github_oidc_provider_preexisting(self, monkeypatch):
-        provider = pretend.stub(
+    def test_add_github_oidc_publisher_preexisting(self, monkeypatch):
+        publisher = pretend.stub(
             id="fakeid",
-            provider_name="GitHub",
+            publisher_name="GitHub",
             repository_name="fakerepo",
             owner="fakeowner",
             owner_id="1234",
             workflow_filename="fakeworkflow.yml",
         )
         # NOTE: Can't set __str__ using pretend.stub()
-        monkeypatch.setattr(provider.__class__, "__str__", lambda s: "fakespecifier")
+        monkeypatch.setattr(publisher.__class__, "__str__", lambda s: "fakespecifier")
 
         project = pretend.stub(
             name="fakeproject",
-            oidc_providers=[],
+            oidc_publishers=[],
             record_event=pretend.call_recorder(lambda *a, **kw: None),
             users=[],
         )
@@ -9662,7 +9662,7 @@ class TestManageOIDCProviderViews:
             POST=pretend.stub(),
             db=pretend.stub(
                 query=lambda *a: pretend.stub(
-                    filter=lambda *a: pretend.stub(one_or_none=lambda: provider)
+                    filter=lambda *a: pretend.stub(one_or_none=lambda: publisher)
                 ),
                 add=pretend.call_recorder(lambda o: None),
             ),
@@ -9670,18 +9670,18 @@ class TestManageOIDCProviderViews:
             path="request-path",
         )
 
-        github_provider_form_obj = pretend.stub(
+        github_publisher_form_obj = pretend.stub(
             validate=pretend.call_recorder(lambda: True),
-            repository=pretend.stub(data=provider.repository_name),
-            normalized_owner=provider.owner,
-            workflow_filename=pretend.stub(data=provider.workflow_filename),
+            repository=pretend.stub(data=publisher.repository_name),
+            normalized_owner=publisher.owner,
+            workflow_filename=pretend.stub(data=publisher.workflow_filename),
         )
-        github_provider_form_cls = pretend.call_recorder(
-            lambda *a, **kw: github_provider_form_obj
+        github_publisher_form_cls = pretend.call_recorder(
+            lambda *a, **kw: github_publisher_form_obj
         )
-        monkeypatch.setattr(views, "GitHubProviderForm", github_provider_form_cls)
+        monkeypatch.setattr(views, "GitHubPublisherForm", github_publisher_form_cls)
 
-        view = views.ManageOIDCProviderViews(project, request)
+        view = views.ManageOIDCPublisherViews(project, request)
         monkeypatch.setattr(
             view, "_hit_ratelimits", pretend.call_recorder(lambda: None)
         )
@@ -9689,19 +9689,19 @@ class TestManageOIDCProviderViews:
             view, "_check_ratelimits", pretend.call_recorder(lambda: None)
         )
 
-        assert isinstance(view.add_github_oidc_provider(), HTTPSeeOther)
+        assert isinstance(view.add_github_oidc_publisher(), HTTPSeeOther)
         assert view.metrics.increment.calls == [
             pretend.call(
-                "warehouse.oidc.add_provider.attempt", tags=["provider:GitHub"]
+                "warehouse.oidc.add_publisher.attempt", tags=["publisher:GitHub"]
             ),
-            pretend.call("warehouse.oidc.add_provider.ok", tags=["provider:GitHub"]),
+            pretend.call("warehouse.oidc.add_publisher.ok", tags=["publisher:GitHub"]),
         ]
         assert project.record_event.calls == [
             pretend.call(
-                tag=EventTag.Project.OIDCProviderAdded,
+                tag=EventTag.Project.OIDCPublisherAdded,
                 ip_address=request.remote_addr,
                 additional={
-                    "provider": "GitHub",
+                    "publisher": "GitHub",
                     "id": "fakeid",
                     "specifier": "fakespecifier",
                 },
@@ -9714,16 +9714,16 @@ class TestManageOIDCProviderViews:
             )
         ]
         assert request.db.add.calls == []
-        assert github_provider_form_obj.validate.calls == [pretend.call()]
+        assert github_publisher_form_obj.validate.calls == [pretend.call()]
         assert view._hit_ratelimits.calls == [pretend.call()]
         assert view._check_ratelimits.calls == [pretend.call()]
-        assert project.oidc_providers == [provider]
+        assert project.oidc_publishers == [publisher]
 
-    def test_add_github_oidc_provider_created(self, monkeypatch):
+    def test_add_github_oidc_publisher_created(self, monkeypatch):
         fakeusers = [pretend.stub(), pretend.stub(), pretend.stub()]
         project = pretend.stub(
             name="fakeproject",
-            oidc_providers=[],
+            oidc_publishers=[],
             record_event=pretend.call_recorder(lambda *a, **kw: None),
             users=fakeusers,
         )
@@ -9751,24 +9751,24 @@ class TestManageOIDCProviderViews:
             path="request-path",
         )
 
-        github_provider_form_obj = pretend.stub(
+        github_publisher_form_obj = pretend.stub(
             validate=pretend.call_recorder(lambda: True),
             repository=pretend.stub(data="fakerepo"),
             normalized_owner="fakeowner",
             owner_id="1234",
             workflow_filename=pretend.stub(data="fakeworkflow.yml"),
         )
-        github_provider_form_cls = pretend.call_recorder(
-            lambda *a, **kw: github_provider_form_obj
+        github_publisher_form_cls = pretend.call_recorder(
+            lambda *a, **kw: github_publisher_form_obj
         )
-        monkeypatch.setattr(views, "GitHubProviderForm", github_provider_form_cls)
+        monkeypatch.setattr(views, "GitHubPublisherForm", github_publisher_form_cls)
         monkeypatch.setattr(
             views,
-            "send_oidc_provider_added_email",
+            "send_oidc_publisher_added_email",
             pretend.call_recorder(lambda *a, **kw: None),
         )
 
-        view = views.ManageOIDCProviderViews(project, request)
+        view = views.ManageOIDCPublisherViews(project, request)
         monkeypatch.setattr(
             view, "_hit_ratelimits", pretend.call_recorder(lambda: None)
         )
@@ -9776,19 +9776,19 @@ class TestManageOIDCProviderViews:
             view, "_check_ratelimits", pretend.call_recorder(lambda: None)
         )
 
-        assert isinstance(view.add_github_oidc_provider(), HTTPSeeOther)
+        assert isinstance(view.add_github_oidc_publisher(), HTTPSeeOther)
         assert view.metrics.increment.calls == [
             pretend.call(
-                "warehouse.oidc.add_provider.attempt", tags=["provider:GitHub"]
+                "warehouse.oidc.add_publisher.attempt", tags=["publisher:GitHub"]
             ),
-            pretend.call("warehouse.oidc.add_provider.ok", tags=["provider:GitHub"]),
+            pretend.call("warehouse.oidc.add_publisher.ok", tags=["publisher:GitHub"]),
         ]
         assert project.record_event.calls == [
             pretend.call(
-                tag=EventTag.Project.OIDCProviderAdded,
+                tag=EventTag.Project.OIDCPublisherAdded,
                 ip_address=request.remote_addr,
                 additional={
-                    "provider": "GitHub",
+                    "publisher": "GitHub",
                     "id": "fakeid",
                     "specifier": "fakeworkflow.yml @ fakeowner/fakerepo",
                 },
@@ -9800,40 +9800,40 @@ class TestManageOIDCProviderViews:
                 queue="success",
             )
         ]
-        assert request.db.add.calls == [pretend.call(project.oidc_providers[0])]
-        assert github_provider_form_obj.validate.calls == [pretend.call()]
-        assert views.send_oidc_provider_added_email.calls == [
+        assert request.db.add.calls == [pretend.call(project.oidc_publishers[0])]
+        assert github_publisher_form_obj.validate.calls == [pretend.call()]
+        assert views.send_oidc_publisher_added_email.calls == [
             pretend.call(
                 request,
                 fakeuser,
                 project_name="fakeproject",
-                provider=project.oidc_providers[0],
+                publisher=project.oidc_publishers[0],
             )
             for fakeuser in fakeusers
         ]
         assert view._hit_ratelimits.calls == [pretend.call()]
         assert view._check_ratelimits.calls == [pretend.call()]
-        assert len(project.oidc_providers) == 1
+        assert len(project.oidc_publishers) == 1
 
-    def test_add_github_oidc_provider_already_registered_with_project(
+    def test_add_github_oidc_publisher_already_registered_with_project(
         self, monkeypatch
     ):
-        provider = pretend.stub(
+        publisher = pretend.stub(
             id="fakeid",
-            provider_name="GitHub",
+            publisher_name="GitHub",
             repository_name="fakerepo",
             owner="fakeowner",
             owner_id="1234",
             workflow_filename="fakeworkflow.yml",
         )
         # NOTE: Can't set __str__ using pretend.stub()
-        monkeypatch.setattr(provider.__class__, "__str__", lambda s: "fakespecifier")
+        monkeypatch.setattr(publisher.__class__, "__str__", lambda s: "fakespecifier")
 
         metrics = pretend.stub(increment=pretend.call_recorder(lambda *a, **kw: None))
 
         project = pretend.stub(
             name="fakeproject",
-            oidc_providers=[provider],
+            oidc_publishers=[publisher],
             record_event=pretend.call_recorder(lambda *a, **kw: None),
         )
 
@@ -9850,23 +9850,23 @@ class TestManageOIDCProviderViews:
             POST=pretend.stub(),
             db=pretend.stub(
                 query=lambda *a: pretend.stub(
-                    filter=lambda *a: pretend.stub(one_or_none=lambda: provider)
+                    filter=lambda *a: pretend.stub(one_or_none=lambda: publisher)
                 ),
             ),
         )
 
-        github_provider_form_obj = pretend.stub(
+        github_publisher_form_obj = pretend.stub(
             validate=pretend.call_recorder(lambda: True),
-            repository=pretend.stub(data=provider.repository_name),
-            normalized_owner=provider.owner,
-            workflow_filename=pretend.stub(data=provider.workflow_filename),
+            repository=pretend.stub(data=publisher.repository_name),
+            normalized_owner=publisher.owner,
+            workflow_filename=pretend.stub(data=publisher.workflow_filename),
         )
-        github_provider_form_cls = pretend.call_recorder(
-            lambda *a, **kw: github_provider_form_obj
+        github_publisher_form_cls = pretend.call_recorder(
+            lambda *a, **kw: github_publisher_form_obj
         )
-        monkeypatch.setattr(views, "GitHubProviderForm", github_provider_form_cls)
+        monkeypatch.setattr(views, "GitHubPublisherForm", github_publisher_form_cls)
 
-        view = views.ManageOIDCProviderViews(project, request)
+        view = views.ManageOIDCPublisherViews(project, request)
         monkeypatch.setattr(
             view, "_hit_ratelimits", pretend.call_recorder(lambda: None)
         )
@@ -9874,14 +9874,14 @@ class TestManageOIDCProviderViews:
             view, "_check_ratelimits", pretend.call_recorder(lambda: None)
         )
 
-        assert view.add_github_oidc_provider() == {
+        assert view.add_github_oidc_publisher() == {
             "oidc_enabled": True,
             "project": project,
-            "github_provider_form": github_provider_form_obj,
+            "github_publisher_form": github_publisher_form_obj,
         }
         assert view.metrics.increment.calls == [
             pretend.call(
-                "warehouse.oidc.add_provider.attempt", tags=["provider:GitHub"]
+                "warehouse.oidc.add_publisher.attempt", tags=["publisher:GitHub"]
             ),
         ]
         assert project.record_event.calls == []
@@ -9892,7 +9892,7 @@ class TestManageOIDCProviderViews:
             )
         ]
 
-    def test_add_github_oidc_provider_ratelimited(self, monkeypatch):
+    def test_add_github_oidc_publisher_ratelimited(self, monkeypatch):
         project = pretend.stub()
 
         metrics = pretend.stub(increment=pretend.call_recorder(lambda *a, **kw: None))
@@ -9908,7 +9908,7 @@ class TestManageOIDCProviderViews:
             _=lambda s: s,
         )
 
-        view = views.ManageOIDCProviderViews(project, request)
+        view = views.ManageOIDCPublisherViews(project, request)
         monkeypatch.setattr(
             view,
             "_check_ratelimits",
@@ -9921,29 +9921,29 @@ class TestManageOIDCProviderViews:
             ),
         )
 
-        assert view.add_github_oidc_provider().__class__ == HTTPTooManyRequests
+        assert view.add_github_oidc_publisher().__class__ == HTTPTooManyRequests
         assert view.metrics.increment.calls == [
             pretend.call(
-                "warehouse.oidc.add_provider.attempt", tags=["provider:GitHub"]
+                "warehouse.oidc.add_publisher.attempt", tags=["publisher:GitHub"]
             ),
             pretend.call(
-                "warehouse.oidc.add_provider.ratelimited", tags=["provider:GitHub"]
+                "warehouse.oidc.add_publisher.ratelimited", tags=["publisher:GitHub"]
             ),
         ]
 
-    def test_add_github_oidc_provider_oidc_not_enabled(self):
+    def test_add_github_oidc_publisher_oidc_not_enabled(self):
         project = pretend.stub()
         request = pretend.stub(
             registry=pretend.stub(settings={"warehouse.oidc.enabled": False}),
             find_service=lambda *a, **kw: None,
         )
 
-        view = views.ManageOIDCProviderViews(project, request)
+        view = views.ManageOIDCPublisherViews(project, request)
 
         with pytest.raises(HTTPNotFound):
-            view.add_github_oidc_provider()
+            view.add_github_oidc_publisher()
 
-    def test_add_github_oidc_provider_admin_disabled(self, monkeypatch):
+    def test_add_github_oidc_publisher_admin_disabled(self, monkeypatch):
         project = pretend.stub()
         request = pretend.stub(
             registry=pretend.stub(settings={"warehouse.oidc.enabled": True}),
@@ -9953,13 +9953,13 @@ class TestManageOIDCProviderViews:
             _=lambda s: s,
         )
 
-        view = views.ManageOIDCProviderViews(project, request)
+        view = views.ManageOIDCPublisherViews(project, request)
         default_response = {"_": pretend.stub()}
         monkeypatch.setattr(
-            views.ManageOIDCProviderViews, "default_response", default_response
+            views.ManageOIDCPublisherViews, "default_response", default_response
         )
 
-        assert view.add_github_oidc_provider() == default_response
+        assert view.add_github_oidc_publisher() == default_response
         assert request.session.flash.calls == [
             pretend.call(
                 (
@@ -9970,7 +9970,7 @@ class TestManageOIDCProviderViews:
             )
         ]
 
-    def test_add_github_oidc_provider_invalid_form(self, monkeypatch):
+    def test_add_github_oidc_publisher_invalid_form(self, monkeypatch):
         project = pretend.stub()
         metrics = pretend.stub(increment=pretend.call_recorder(lambda *a, **kw: None))
         request = pretend.stub(
@@ -9981,18 +9981,18 @@ class TestManageOIDCProviderViews:
             _=lambda s: s,
         )
 
-        github_provider_form_obj = pretend.stub(
+        github_publisher_form_obj = pretend.stub(
             validate=pretend.call_recorder(lambda: False),
         )
-        github_provider_form_cls = pretend.call_recorder(
-            lambda *a, **kw: github_provider_form_obj
+        github_publisher_form_cls = pretend.call_recorder(
+            lambda *a, **kw: github_publisher_form_obj
         )
-        monkeypatch.setattr(views, "GitHubProviderForm", github_provider_form_cls)
+        monkeypatch.setattr(views, "GitHubPublisherForm", github_publisher_form_cls)
 
-        view = views.ManageOIDCProviderViews(project, request)
-        default_response = {"github_provider_form": github_provider_form_obj}
+        view = views.ManageOIDCPublisherViews(project, request)
+        default_response = {"github_publisher_form": github_publisher_form_obj}
         monkeypatch.setattr(
-            views.ManageOIDCProviderViews, "default_response", default_response
+            views.ManageOIDCPublisherViews, "default_response", default_response
         )
         monkeypatch.setattr(
             view, "_check_ratelimits", pretend.call_recorder(lambda: None)
@@ -10001,29 +10001,29 @@ class TestManageOIDCProviderViews:
             view, "_hit_ratelimits", pretend.call_recorder(lambda: None)
         )
 
-        assert view.add_github_oidc_provider() == default_response
+        assert view.add_github_oidc_publisher() == default_response
         assert view.metrics.increment.calls == [
             pretend.call(
-                "warehouse.oidc.add_provider.attempt", tags=["provider:GitHub"]
+                "warehouse.oidc.add_publisher.attempt", tags=["publisher:GitHub"]
             ),
         ]
         assert view._hit_ratelimits.calls == [pretend.call()]
         assert view._check_ratelimits.calls == [pretend.call()]
-        assert github_provider_form_obj.validate.calls == [pretend.call()]
+        assert github_publisher_form_obj.validate.calls == [pretend.call()]
 
-    def test_delete_oidc_provider_registered_to_multiple_projects(self, monkeypatch):
-        provider = pretend.stub(
-            provider_name="fakeprovider",
+    def test_delete_oidc_publisher_registered_to_multiple_projects(self, monkeypatch):
+        publisher = pretend.stub(
+            publisher_name="fakepublisher",
             id="fakeid",
             projects=[pretend.stub(), pretend.stub()],
         )
 
         # NOTE: Can't set __str__ using pretend.stub()
-        monkeypatch.setattr(provider.__class__, "__str__", lambda s: "fakespecifier")
+        monkeypatch.setattr(publisher.__class__, "__str__", lambda s: "fakespecifier")
 
         fakeusers = [pretend.stub(), pretend.stub(), pretend.stub()]
         project = pretend.stub(
-            oidc_providers=[provider],
+            oidc_publishers=[publisher],
             name="fakeproject",
             record_event=pretend.call_recorder(lambda *a, **kw: None),
             users=fakeusers,
@@ -10036,51 +10036,51 @@ class TestManageOIDCProviderViews:
             session=pretend.stub(flash=pretend.call_recorder(lambda *a, **kw: None)),
             POST=pretend.stub(),
             db=pretend.stub(
-                query=lambda *a: pretend.stub(get=lambda id: provider),
+                query=lambda *a: pretend.stub(get=lambda id: publisher),
                 delete=pretend.call_recorder(lambda o: None),
             ),
             remote_addr="0.0.0.0",
             path="request-path",
         )
 
-        delete_provider_form_obj = pretend.stub(
+        delete_publisher_form_obj = pretend.stub(
             validate=pretend.call_recorder(lambda: True),
-            provider_id=pretend.stub(data="fakeid"),
+            publisher_id=pretend.stub(data="fakeid"),
         )
-        delete_provider_form_cls = pretend.call_recorder(
-            lambda *a, **kw: delete_provider_form_obj
+        delete_publisher_form_cls = pretend.call_recorder(
+            lambda *a, **kw: delete_publisher_form_obj
         )
-        monkeypatch.setattr(views, "DeleteProviderForm", delete_provider_form_cls)
+        monkeypatch.setattr(views, "DeletePublisherForm", delete_publisher_form_cls)
         monkeypatch.setattr(
             views,
-            "send_oidc_provider_removed_email",
+            "send_oidc_publisher_removed_email",
             pretend.call_recorder(lambda *a, **kw: None),
         )
 
-        view = views.ManageOIDCProviderViews(project, request)
+        view = views.ManageOIDCPublisherViews(project, request)
         default_response = {"_": pretend.stub()}
         monkeypatch.setattr(
-            views.ManageOIDCProviderViews, "default_response", default_response
+            views.ManageOIDCPublisherViews, "default_response", default_response
         )
 
-        assert isinstance(view.delete_oidc_provider(), HTTPSeeOther)
-        assert provider not in project.oidc_providers
+        assert isinstance(view.delete_oidc_publisher(), HTTPSeeOther)
+        assert publisher not in project.oidc_publishers
 
         assert view.metrics.increment.calls == [
             pretend.call(
-                "warehouse.oidc.delete_provider.attempt",
+                "warehouse.oidc.delete_publisher.attempt",
             ),
             pretend.call(
-                "warehouse.oidc.delete_provider.ok", tags=["provider:fakeprovider"]
+                "warehouse.oidc.delete_publisher.ok", tags=["publisher:fakepublisher"]
             ),
         ]
 
         assert project.record_event.calls == [
             pretend.call(
-                tag=EventTag.Project.OIDCProviderRemoved,
+                tag=EventTag.Project.OIDCPublisherRemoved,
                 ip_address=request.remote_addr,
                 additional={
-                    "provider": "fakeprovider",
+                    "publisher": "fakepublisher",
                     "id": "fakeid",
                     "specifier": "fakespecifier",
                 },
@@ -10093,23 +10093,23 @@ class TestManageOIDCProviderViews:
         assert request.session.flash.calls == [
             pretend.call("Removed fakespecifier from fakeproject", queue="success")
         ]
-        # The provider is not actually removed entirely from the DB, since it's
+        # The publisher is not actually removed entirely from the DB, since it's
         # registered to other projects that haven't removed it.
         assert request.db.delete.calls == []
 
-        assert delete_provider_form_cls.calls == [pretend.call(request.POST)]
-        assert delete_provider_form_obj.validate.calls == [pretend.call()]
+        assert delete_publisher_form_cls.calls == [pretend.call(request.POST)]
+        assert delete_publisher_form_obj.validate.calls == [pretend.call()]
 
-        assert views.send_oidc_provider_removed_email.calls == [
+        assert views.send_oidc_publisher_removed_email.calls == [
             pretend.call(
-                request, fakeuser, project_name="fakeproject", provider=provider
+                request, fakeuser, project_name="fakeproject", publisher=publisher
             )
             for fakeuser in fakeusers
         ]
 
-    def test_delete_oidc_provider_entirely(self, monkeypatch):
-        provider = pretend.stub(
-            provider_name="fakeprovider",
+    def test_delete_oidc_publisher_entirely(self, monkeypatch):
+        publisher = pretend.stub(
+            publisher_name="fakepublisher",
             id="fakeid",
             # NOTE: This is technically out of sync with the state below;
             # it should be projects=[project], but we make it empty
@@ -10117,11 +10117,11 @@ class TestManageOIDCProviderViews:
             projects=[],
         )
         # NOTE: Can't set __str__ using pretend.stub()
-        monkeypatch.setattr(provider.__class__, "__str__", lambda s: "fakespecifier")
+        monkeypatch.setattr(publisher.__class__, "__str__", lambda s: "fakespecifier")
 
         fakeusers = [pretend.stub(), pretend.stub(), pretend.stub()]
         project = pretend.stub(
-            oidc_providers=[provider],
+            oidc_publishers=[publisher],
             name="fakeproject",
             record_event=pretend.call_recorder(lambda *a, **kw: None),
             users=fakeusers,
@@ -10134,51 +10134,51 @@ class TestManageOIDCProviderViews:
             session=pretend.stub(flash=pretend.call_recorder(lambda *a, **kw: None)),
             POST=pretend.stub(),
             db=pretend.stub(
-                query=lambda *a: pretend.stub(get=lambda id: provider),
+                query=lambda *a: pretend.stub(get=lambda id: publisher),
                 delete=pretend.call_recorder(lambda o: None),
             ),
             remote_addr="0.0.0.0",
             path="request-path",
         )
 
-        delete_provider_form_obj = pretend.stub(
+        delete_publisher_form_obj = pretend.stub(
             validate=pretend.call_recorder(lambda: True),
-            provider_id=pretend.stub(data="fakeid"),
+            publisher_id=pretend.stub(data="fakeid"),
         )
-        delete_provider_form_cls = pretend.call_recorder(
-            lambda *a, **kw: delete_provider_form_obj
+        delete_publisher_form_cls = pretend.call_recorder(
+            lambda *a, **kw: delete_publisher_form_obj
         )
-        monkeypatch.setattr(views, "DeleteProviderForm", delete_provider_form_cls)
+        monkeypatch.setattr(views, "DeletePublisherForm", delete_publisher_form_cls)
         monkeypatch.setattr(
             views,
-            "send_oidc_provider_removed_email",
+            "send_oidc_publisher_removed_email",
             pretend.call_recorder(lambda *a, **kw: None),
         )
 
-        view = views.ManageOIDCProviderViews(project, request)
+        view = views.ManageOIDCPublisherViews(project, request)
         default_response = {"_": pretend.stub()}
         monkeypatch.setattr(
-            views.ManageOIDCProviderViews, "default_response", default_response
+            views.ManageOIDCPublisherViews, "default_response", default_response
         )
 
-        assert isinstance(view.delete_oidc_provider(), HTTPSeeOther)
-        assert provider not in project.oidc_providers
+        assert isinstance(view.delete_oidc_publisher(), HTTPSeeOther)
+        assert publisher not in project.oidc_publishers
 
         assert view.metrics.increment.calls == [
             pretend.call(
-                "warehouse.oidc.delete_provider.attempt",
+                "warehouse.oidc.delete_publisher.attempt",
             ),
             pretend.call(
-                "warehouse.oidc.delete_provider.ok", tags=["provider:fakeprovider"]
+                "warehouse.oidc.delete_publisher.ok", tags=["publisher:fakepublisher"]
             ),
         ]
 
         assert project.record_event.calls == [
             pretend.call(
-                tag="project:oidc:provider-removed",
+                tag="project:oidc:publisher-removed",
                 ip_address=request.remote_addr,
                 additional={
-                    "provider": "fakeprovider",
+                    "publisher": "fakepublisher",
                     "id": "fakeid",
                     "specifier": "fakespecifier",
                 },
@@ -10191,21 +10191,21 @@ class TestManageOIDCProviderViews:
         assert request.session.flash.calls == [
             pretend.call("Removed fakespecifier from fakeproject", queue="success")
         ]
-        assert request.db.delete.calls == [pretend.call(provider)]
+        assert request.db.delete.calls == [pretend.call(publisher)]
 
-        assert delete_provider_form_cls.calls == [pretend.call(request.POST)]
-        assert delete_provider_form_obj.validate.calls == [pretend.call()]
+        assert delete_publisher_form_cls.calls == [pretend.call(request.POST)]
+        assert delete_publisher_form_obj.validate.calls == [pretend.call()]
 
-        assert views.send_oidc_provider_removed_email.calls == [
+        assert views.send_oidc_publisher_removed_email.calls == [
             pretend.call(
-                request, fakeuser, project_name="fakeproject", provider=provider
+                request, fakeuser, project_name="fakeproject", publisher=publisher
             )
             for fakeuser in fakeusers
         ]
 
-    def test_delete_oidc_provider_invalid_form(self, monkeypatch):
-        provider = pretend.stub()
-        project = pretend.stub(oidc_providers=[provider])
+    def test_delete_oidc_publisher_invalid_form(self, monkeypatch):
+        publisher = pretend.stub()
+        project = pretend.stub(oidc_publishers=[publisher])
         metrics = pretend.stub(increment=pretend.call_recorder(lambda *a, **kw: None))
         request = pretend.stub(
             registry=pretend.stub(settings={"warehouse.oidc.enabled": True}),
@@ -10214,45 +10214,45 @@ class TestManageOIDCProviderViews:
             POST=pretend.stub(),
         )
 
-        delete_provider_form_obj = pretend.stub(
+        delete_publisher_form_obj = pretend.stub(
             validate=pretend.call_recorder(lambda: False),
         )
-        delete_provider_form_cls = pretend.call_recorder(
-            lambda *a, **kw: delete_provider_form_obj
+        delete_publisher_form_cls = pretend.call_recorder(
+            lambda *a, **kw: delete_publisher_form_obj
         )
-        monkeypatch.setattr(views, "DeleteProviderForm", delete_provider_form_cls)
+        monkeypatch.setattr(views, "DeletePublisherForm", delete_publisher_form_cls)
 
-        view = views.ManageOIDCProviderViews(project, request)
+        view = views.ManageOIDCPublisherViews(project, request)
         default_response = {"_": pretend.stub()}
         monkeypatch.setattr(
-            views.ManageOIDCProviderViews, "default_response", default_response
+            views.ManageOIDCPublisherViews, "default_response", default_response
         )
 
-        assert view.delete_oidc_provider() == default_response
-        assert len(project.oidc_providers) == 1
+        assert view.delete_oidc_publisher() == default_response
+        assert len(project.oidc_publishers) == 1
 
         assert view.metrics.increment.calls == [
             pretend.call(
-                "warehouse.oidc.delete_provider.attempt",
+                "warehouse.oidc.delete_publisher.attempt",
             ),
         ]
 
-        assert delete_provider_form_cls.calls == [pretend.call(request.POST)]
-        assert delete_provider_form_obj.validate.calls == [pretend.call()]
+        assert delete_publisher_form_cls.calls == [pretend.call(request.POST)]
+        assert delete_publisher_form_obj.validate.calls == [pretend.call()]
 
     @pytest.mark.parametrize(
-        "other_provider", [None, pretend.stub(id="different-fakeid")]
+        "other_publisher", [None, pretend.stub(id="different-fakeid")]
     )
-    def test_delete_oidc_provider_not_found(self, monkeypatch, other_provider):
-        provider = pretend.stub(
-            provider_name="fakeprovider",
+    def test_delete_oidc_publisher_not_found(self, monkeypatch, other_publisher):
+        publisher = pretend.stub(
+            publisher_name="fakepublisher",
             id="fakeid",
         )
         # NOTE: Can't set __str__ using pretend.stub()
-        monkeypatch.setattr(provider.__class__, "__str__", lambda s: "fakespecifier")
+        monkeypatch.setattr(publisher.__class__, "__str__", lambda s: "fakespecifier")
 
         project = pretend.stub(
-            oidc_providers=[provider],
+            oidc_publishers=[publisher],
             name="fakeproject",
             record_event=pretend.call_recorder(lambda *a, **kw: None),
         )
@@ -10264,33 +10264,33 @@ class TestManageOIDCProviderViews:
             session=pretend.stub(flash=pretend.call_recorder(lambda *a, **kw: None)),
             POST=pretend.stub(),
             db=pretend.stub(
-                query=lambda *a: pretend.stub(get=lambda id: other_provider),
+                query=lambda *a: pretend.stub(get=lambda id: other_publisher),
             ),
             remote_addr="0.0.0.0",
         )
 
-        delete_provider_form_obj = pretend.stub(
+        delete_publisher_form_obj = pretend.stub(
             validate=pretend.call_recorder(lambda: True),
-            provider_id=pretend.stub(data="different-fakeid"),
+            publisher_id=pretend.stub(data="different-fakeid"),
         )
-        delete_provider_form_cls = pretend.call_recorder(
-            lambda *a, **kw: delete_provider_form_obj
+        delete_publisher_form_cls = pretend.call_recorder(
+            lambda *a, **kw: delete_publisher_form_obj
         )
-        monkeypatch.setattr(views, "DeleteProviderForm", delete_provider_form_cls)
+        monkeypatch.setattr(views, "DeletePublisherForm", delete_publisher_form_cls)
 
-        view = views.ManageOIDCProviderViews(project, request)
+        view = views.ManageOIDCPublisherViews(project, request)
         default_response = {"_": pretend.stub()}
         monkeypatch.setattr(
-            views.ManageOIDCProviderViews, "default_response", default_response
+            views.ManageOIDCPublisherViews, "default_response", default_response
         )
 
-        assert view.delete_oidc_provider() == default_response
-        assert provider in project.oidc_providers  # not deleted
-        assert other_provider not in project.oidc_providers
+        assert view.delete_oidc_publisher() == default_response
+        assert publisher in project.oidc_publishers  # not deleted
+        assert other_publisher not in project.oidc_publishers
 
         assert view.metrics.increment.calls == [
             pretend.call(
-                "warehouse.oidc.delete_provider.attempt",
+                "warehouse.oidc.delete_publisher.attempt",
             ),
         ]
 
@@ -10299,22 +10299,22 @@ class TestManageOIDCProviderViews:
             pretend.call("Invalid publisher for project", queue="error")
         ]
 
-        assert delete_provider_form_cls.calls == [pretend.call(request.POST)]
-        assert delete_provider_form_obj.validate.calls == [pretend.call()]
+        assert delete_publisher_form_cls.calls == [pretend.call(request.POST)]
+        assert delete_publisher_form_obj.validate.calls == [pretend.call()]
 
-    def test_delete_oidc_provider_oidc_not_enabled(self):
+    def test_delete_oidc_publisher_oidc_not_enabled(self):
         project = pretend.stub()
         request = pretend.stub(
             registry=pretend.stub(settings={"warehouse.oidc.enabled": False}),
             find_service=lambda *a, **kw: None,
         )
 
-        view = views.ManageOIDCProviderViews(project, request)
+        view = views.ManageOIDCPublisherViews(project, request)
 
         with pytest.raises(HTTPNotFound):
-            view.delete_oidc_provider()
+            view.delete_oidc_publisher()
 
-    def test_delete_oidc_provider_admin_disabled(self, monkeypatch):
+    def test_delete_oidc_publisher_admin_disabled(self, monkeypatch):
         project = pretend.stub()
         request = pretend.stub(
             registry=pretend.stub(settings={"warehouse.oidc.enabled": True}),
@@ -10323,13 +10323,13 @@ class TestManageOIDCProviderViews:
             session=pretend.stub(flash=pretend.call_recorder(lambda *a, **kw: None)),
         )
 
-        view = views.ManageOIDCProviderViews(project, request)
+        view = views.ManageOIDCPublisherViews(project, request)
         default_response = {"_": pretend.stub()}
         monkeypatch.setattr(
-            views.ManageOIDCProviderViews, "default_response", default_response
+            views.ManageOIDCPublisherViews, "default_response", default_response
         )
 
-        assert view.delete_oidc_provider() == default_response
+        assert view.delete_oidc_publisher() == default_response
         assert request.session.flash.calls == [
             pretend.call(
                 (

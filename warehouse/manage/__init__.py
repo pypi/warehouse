@@ -70,7 +70,7 @@ def includeme(config):
     config.register_service_factory(
         RateLimit(user_oidc_registration_ratelimit_string),
         IRateLimiter,
-        name="user_oidc.provider.register",
+        name="user_oidc.publisher.register",
     )
 
     ip_oidc_registration_ratelimit_string = config.registry.settings.get(
@@ -79,5 +79,5 @@ def includeme(config):
     config.register_service_factory(
         RateLimit(ip_oidc_registration_ratelimit_string),
         IRateLimiter,
-        name="ip_oidc.provider.register",
+        name="ip_oidc.publisher.register",
     )

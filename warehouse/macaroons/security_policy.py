@@ -93,10 +93,10 @@ class MacaroonSecurityPolicy:
         except InvalidMacaroonError:
             return None
 
-        # Every Macaroon is either associated with a user or an OIDC provider.
+        # Every Macaroon is either associated with a user or an OIDC publisher.
         if dm.user is not None:
             return dm.user
-        return dm.oidc_provider
+        return dm.oidc_publisher
 
     def remember(self, request, userid, **kw):
         # This is a NO-OP because our Macaroon header policy doesn't allow

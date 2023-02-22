@@ -261,11 +261,11 @@ msgstr ""
 #: warehouse/accounts/views.py:1401
 msgid ""
 "You must have a verified email in order to register a pending OpenID "
-"Connect provider. See https://pypi.org/help#openid-connect for details."
+"Connect publisher. See https://pypi.org/help#openid-connect for details."
 msgstr ""
 
 #: warehouse/accounts/views.py:1414
-msgid "You can't register more than 3 pending OpenID Connect providers at once."
+msgid "You can't register more than 3 pending OpenID Connect publishers at once."
 msgstr ""
 
 #: warehouse/accounts/views.py:1430 warehouse/manage/views.py:3113
@@ -276,8 +276,8 @@ msgstr ""
 
 #: warehouse/accounts/views.py:1458
 msgid ""
-"This OpenID Connect provider has already been registered. Please contact "
-"PyPI's admins if this wasn't intentional."
+"This OpenID Connect publisher has already been registered. Please contact"
+" PyPI's admins if this wasn't intentional."
 msgstr ""
 
 #: warehouse/admin/templates/admin/banners/preview.html:15
@@ -477,7 +477,7 @@ msgid "This project name is already in use"
 msgstr ""
 
 #: warehouse/oidc/forms.py:188
-msgid "Provider must be specified by ID"
+msgid "Publisher must be specified by ID"
 msgstr ""
 
 #: warehouse/subscriptions/models.py:42
@@ -1717,7 +1717,7 @@ msgstr ""
 msgid "You will receive an email when the organization has been approved"
 msgstr ""
 
-#: warehouse/templates/email/oidc-provider-added/body.html:19
+#: warehouse/templates/email/oidc-publisher-added/body.html:19
 #, python-format
 msgid ""
 "PyPI user <strong>%(username)s</strong> has added a new OpenID Connect "
@@ -1726,30 +1726,30 @@ msgid ""
 "project releases automatically."
 msgstr ""
 
-#: warehouse/templates/email/oidc-provider-added/body.html:28
-#: warehouse/templates/email/oidc-provider-removed/body.html:26
+#: warehouse/templates/email/oidc-publisher-added/body.html:28
+#: warehouse/templates/email/oidc-publisher-removed/body.html:26
 msgid "Publisher information"
 msgstr ""
 
-#: warehouse/templates/email/oidc-provider-added/body.html:30
-#: warehouse/templates/email/oidc-provider-removed/body.html:28
+#: warehouse/templates/email/oidc-publisher-added/body.html:30
+#: warehouse/templates/email/oidc-publisher-removed/body.html:28
 msgid "Publisher name"
 msgstr ""
 
-#: warehouse/templates/email/oidc-provider-added/body.html:31
-#: warehouse/templates/email/oidc-provider-removed/body.html:29
+#: warehouse/templates/email/oidc-publisher-added/body.html:31
+#: warehouse/templates/email/oidc-publisher-removed/body.html:29
 msgid "Publisher specification"
 msgstr ""
 
-#: warehouse/templates/email/oidc-provider-added/body.html:36
+#: warehouse/templates/email/oidc-publisher-added/body.html:36
 msgid ""
 "If you did not make this change and you think it was made maliciously, "
 "you can remove it from the project via the \"Publishing\" tab on the "
 "project's page."
 msgstr ""
 
-#: warehouse/templates/email/oidc-provider-added/body.html:43
-#: warehouse/templates/email/oidc-provider-removed/body.html:41
+#: warehouse/templates/email/oidc-publisher-added/body.html:43
+#: warehouse/templates/email/oidc-publisher-removed/body.html:41
 #, python-format
 msgid ""
 "If you are unable to revert the change and need to do so, you can email "
@@ -1757,7 +1757,7 @@ msgid ""
 "administrators."
 msgstr ""
 
-#: warehouse/templates/email/oidc-provider-removed/body.html:19
+#: warehouse/templates/email/oidc-publisher-removed/body.html:19
 #, python-format
 msgid ""
 "PyPI user <strong>%(username)s</strong> has removed an OpenID Connect "
@@ -1765,10 +1765,10 @@ msgid ""
 "manage."
 msgstr ""
 
-#: warehouse/templates/email/oidc-provider-removed/body.html:34
+#: warehouse/templates/email/oidc-publisher-removed/body.html:34
 msgid ""
-"If you did not make this change and you think it was made maliciously, "
-"you can check the \"Security history\" tab on the project's page."
+"If you did not make this change and you think it was made in error, you "
+"can check the \"Security history\" tab on the project's page."
 msgstr ""
 
 #: warehouse/templates/email/organization-deleted/body.html:31
@@ -2060,15 +2060,15 @@ msgstr[1] ""
 msgid "If you did not make this request, you can safely ignore this email."
 msgstr ""
 
-#: warehouse/templates/email/pending-oidc-provider-invalidated/body.html:19
+#: warehouse/templates/email/pending-oidc-publisher-invalidated/body.html:19
 #, python-format
 msgid ""
 "You registered an pending OpenID Connect publisher for a project "
 "(<strong>%(project_name)s</strong>), but someone else has invalidated "
-"your pending provider by creating the project before you did."
+"your pending publisher by creating the project before you did."
 msgstr ""
 
-#: warehouse/templates/email/pending-oidc-provider-invalidated/body.html:27
+#: warehouse/templates/email/pending-oidc-publisher-invalidated/body.html:27
 #, python-format
 msgid ""
 "If you believe this was done in error, you can email <a "
@@ -3086,15 +3086,12 @@ msgid "Project:"
 msgstr ""
 
 #: warehouse/templates/manage/account.html:576
-#: warehouse/templates/manage/account.html:582
-#: warehouse/templates/manage/project/history.html:223
-#: warehouse/templates/manage/project/history.html:227
-msgid "Provider:"
-msgstr ""
-
 #: warehouse/templates/manage/account.html:577
+#: warehouse/templates/manage/account.html:582
 #: warehouse/templates/manage/account.html:583
+#: warehouse/templates/manage/project/history.html:223
 #: warehouse/templates/manage/project/history.html:224
+#: warehouse/templates/manage/project/history.html:227
 #: warehouse/templates/manage/project/history.html:228
 msgid "Publisher:"
 msgstr ""
@@ -5000,11 +4997,11 @@ msgid "Controlled by:"
 msgstr ""
 
 #: warehouse/templates/manage/project/history.html:222
-msgid "OpenID Connect provider added"
+msgid "OpenID Connect publisher added"
 msgstr ""
 
 #: warehouse/templates/manage/project/history.html:226
-msgid "OpenID Connect provider removed"
+msgid "OpenID Connect publisher removed"
 msgstr ""
 
 #: warehouse/templates/manage/project/history.html:232

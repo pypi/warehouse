@@ -25,7 +25,7 @@ from warehouse.macaroons.caveats import (
     CaveatError,
     Expiration,
     Failure,
-    OIDCProvider,
+    OIDCPublisher,
     ProjectID,
     ProjectName,
     RequestUser,
@@ -37,7 +37,7 @@ from warehouse.macaroons.caveats import (
 from warehouse.macaroons.caveats._core import _CaveatRegistry
 
 from ...common.db.accounts import UserFactory
-from ...common.db.oidc import GitHubProviderFactory
+from ...common.db.oidc import GitHubPublisherFactory
 from ...common.db.packaging import ProjectFactory
 
 
@@ -275,9 +275,9 @@ class TestRequestUserCaveat:
         assert result == Success()
 
 
-class TestOIDCProviderCaveat:
+class TestOIDCPublisherCaveat:
     def test_verify_no_identity(self):
-        caveat = OIDCProvider(oidc_provider_id="invalid")
+        caveat = OIDCPublisher(oidc_publisher_id="invalid")
         result = caveat.verify(
             pretend.stub(identity=None), pretend.stub(), pretend.stub()
         )
@@ -286,24 +286,24 @@ class TestOIDCProviderCaveat:
             "OIDC scoped token used outside of an OIDC identified request"
         )
 
-    def test_verify_invalid_provider_id(self, db_request):
-        provider = GitHubProviderFactory.create()
+    def test_verify_invalid_publisher_id(self, db_request):
+        publisher = GitHubPublisherFactory.create()
 
-        caveat = OIDCProvider(oidc_provider_id="invalid")
+        caveat = OIDCPublisher(oidc_publisher_id="invalid")
         result = caveat.verify(
-            pretend.stub(identity=provider), pretend.stub(), pretend.stub()
+            pretend.stub(identity=publisher), pretend.stub(), pretend.stub()
         )
 
         assert result == Failure(
-            "current OIDC provider does not match provider restriction in token"
+            "current OIDC publisher does not match publisher restriction in token"
         )
 
     def test_verify_invalid_context(self, db_request):
-        provider = GitHubProviderFactory.create()
+        publisher = GitHubPublisherFactory.create()
 
-        caveat = OIDCProvider(oidc_provider_id=str(provider.id))
+        caveat = OIDCPublisher(oidc_publisher_id=str(publisher.id))
         result = caveat.verify(
-            pretend.stub(identity=provider), pretend.stub(), pretend.stub()
+            pretend.stub(identity=publisher), pretend.stub(), pretend.stub()
         )
 
         assert result == Failure("OIDC scoped token used outside of a project context")
@@ -312,24 +312,24 @@ class TestOIDCProviderCaveat:
         foobar = ProjectFactory.create(name="foobar")
         foobaz = ProjectFactory.create(name="foobaz")
 
-        # This OIDC provider is only registered to "foobar", so it should
+        # This OIDC publisher is only registered to "foobar", so it should
         # not verify a caveat presented for "foobaz".
-        provider = GitHubProviderFactory.create(projects=[foobar])
-        caveat = OIDCProvider(oidc_provider_id=str(provider.id))
+        publisher = GitHubPublisherFactory.create(projects=[foobar])
+        caveat = OIDCPublisher(oidc_publisher_id=str(publisher.id))
 
-        result = caveat.verify(pretend.stub(identity=provider), foobaz, pretend.stub())
+        result = caveat.verify(pretend.stub(identity=publisher), foobaz, pretend.stub())
 
         assert result == Failure("OIDC scoped token is not valid for project 'foobaz'")
 
     def test_verify_ok(self, db_request):
         foobar = ProjectFactory.create(name="foobar")
 
-        # This OIDC provider is only registered to "foobar", so it should
+        # This OIDC publisher is only registered to "foobar", so it should
         # not verify a caveat presented for "foobaz".
-        provider = GitHubProviderFactory.create(projects=[foobar])
-        caveat = OIDCProvider(oidc_provider_id=str(provider.id))
+        publisher = GitHubPublisherFactory.create(projects=[foobar])
+        caveat = OIDCPublisher(oidc_publisher_id=str(publisher.id))
 
-        result = caveat.verify(pretend.stub(identity=provider), foobar, pretend.stub())
+        result = caveat.verify(pretend.stub(identity=publisher), foobar, pretend.stub())
 
         assert result == Success()
 

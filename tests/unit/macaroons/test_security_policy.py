@@ -164,7 +164,7 @@ class TestMacaroonSecurityPolicy:
         assert add_vary_cb.calls == [pretend.call("Authorization")]
         assert request.add_response_callback.calls == [pretend.call(vary_cb)]
 
-    def test_identity_oidc_provider(self, monkeypatch):
+    def test_identity_oidc_publisher(self, monkeypatch):
         policy = security_policy.MacaroonSecurityPolicy()
 
         vary_cb = pretend.stub()
@@ -177,8 +177,8 @@ class TestMacaroonSecurityPolicy:
             security_policy, "_extract_http_macaroon", extract_http_macaroon
         )
 
-        oidc_provider = pretend.stub()
-        macaroon = pretend.stub(user=None, oidc_provider=oidc_provider)
+        oidc_publisher = pretend.stub()
+        macaroon = pretend.stub(user=None, oidc_publisher=oidc_publisher)
         macaroon_service = pretend.stub(
             find_from_raw=pretend.call_recorder(lambda rm: macaroon),
         )
@@ -188,7 +188,7 @@ class TestMacaroonSecurityPolicy:
             find_service=pretend.call_recorder(lambda iface, **kw: macaroon_service),
         )
 
-        assert policy.identity(request) is oidc_provider
+        assert policy.identity(request) is oidc_publisher
         assert extract_http_macaroon.calls == [pretend.call(request)]
         assert request.find_service.calls == [
             pretend.call(IMacaroonService, context=None),

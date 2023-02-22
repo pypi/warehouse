@@ -116,8 +116,8 @@ class User(SitemapMixin, HasEvents, db.Model):
         order_by="Macaroon.created.desc()",
     )
 
-    pending_oidc_providers = orm.relationship(
-        "PendingOIDCProvider",
+    pending_oidc_publishers = orm.relationship(
+        "PendingOIDCPublisher",
         backref="added_by",
         cascade="all, delete-orphan",
         lazy=True,

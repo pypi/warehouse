@@ -103,20 +103,20 @@ class RequestUser(Caveat):
 
 @as_caveat(tag=4)
 @dataclass(frozen=True)
-class OIDCProvider(Caveat):
-    oidc_provider_id: StrictStr
+class OIDCPublisher(Caveat):
+    oidc_publisher_id: StrictStr
 
     def verify(self, request: Request, context: Any, permission: str) -> Result:
-        # If the identity associated with this macaroon is not an OpenID provider,
-        # then it doesn't make sense to restrict it with an `OIDCProvider` caveat.
-        if not isinstance(request.identity, oidc_models.OIDCProvider):
+        # If the identity associated with this macaroon is not an OpenID publisher,
+        # then it doesn't make sense to restrict it with an `OIDCPublisher` caveat.
+        if not isinstance(request.identity, oidc_models.OIDCPublisher):
             return Failure(
                 "OIDC scoped token used outside of an OIDC identified request"
             )
 
-        if str(request.identity.id) != self.oidc_provider_id:
+        if str(request.identity.id) != self.oidc_publisher_id:
             return Failure(
-                "current OIDC provider does not match provider restriction in token"
+                "current OIDC publisher does not match publisher restriction in token"
             )
 
         # OpenID-scoped tokens are only valid against projects.
@@ -124,7 +124,7 @@ class OIDCProvider(Caveat):
             return Failure("OIDC scoped token used outside of a project context")
 
         # Specifically, they are only valid against projects that are registered
-        # to the current identifying OpenID provider.
+        # to the current identifying OpenID publisher.
         if context not in request.identity.projects:
             return Failure(
                 f"OIDC scoped token is not valid for project '{context.name}'"

@@ -18,7 +18,7 @@ from pyramid.security import Denied
 from zope.interface import implementer
 
 from warehouse.accounts.models import User
-from warehouse.oidc.models import OIDCProvider
+from warehouse.oidc.models import OIDCPublisher
 
 
 class AuthenticationMethod(enum.Enum):
@@ -104,7 +104,7 @@ class MultiSecurityPolicy:
             if isinstance(identity, User):
                 principals.append(f"user:{identity.id}")
                 principals.extend(_principals_for_authenticated_user(identity))
-            elif isinstance(identity, OIDCProvider):
+            elif isinstance(identity, OIDCPublisher):
                 principals.append(f"oidc:{identity.id}")
             else:
                 return Denied("unknown identity")

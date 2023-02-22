@@ -27,7 +27,7 @@ from warehouse.macaroons import caveats, services
 from warehouse.macaroons.models import Macaroon
 
 from ...common.db.accounts import UserFactory
-from ...common.db.oidc import GitHubProviderFactory
+from ...common.db.oidc import GitHubPublisherFactory
 
 
 def test_database_macaroon_factory():
@@ -155,12 +155,12 @@ class TestDatabaseMacaroonService:
         assert macaroon_service.find_userid(f"{raw_macaroon}\n") is None
 
     def test_find_userid_oidc_macaroon(self, macaroon_service):
-        provider = GitHubProviderFactory.create()
+        publisher = GitHubPublisherFactory.create()
         raw_macaroon, _, = macaroon_service.create_macaroon(
             "fake location",
             "fake description",
-            [caveats.OIDCProvider(oidc_provider_id=str(provider.id))],
-            oidc_provider_id=provider.id,
+            [caveats.OIDCPublisher(oidc_publisher_id=str(publisher.id))],
+            oidc_publisher_id=publisher.id,
         )
         assert macaroon_service.find_userid(raw_macaroon) is None
 

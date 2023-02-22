@@ -484,33 +484,33 @@
   </p>
 {% endmacro %}
 
-{% macro oidc_provider_row(provider) -%}
-{# project_name is only defined for pending OIDC providers -#}
-{% if provider.project_name is defined %}
+{% macro oidc_publisher_row(publisher) -%}
+{# project_name is only defined for pending OIDC publishers -#}
+{% if publisher.project_name is defined %}
 {% set delete_route = request.route_path('manage.account.publishing') %}
 {% else %}
 {% set delete_route = request.route_path('manage.project.settings.publishing', project_name=project.name) %}
 {% endif %}
 
-<form id="delete-provider-{{ provider.id }}" method="POST" action="{{ delete_route }}">
+<form id="delete-publisher-{{ publisher.id }}" method="POST" action="{{ delete_route }}">
   <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
-  <input name="provider_id" type="hidden" value="{{ provider.id }}">
+  <input name="publisher_id" type="hidden" value="{{ publisher.id }}">
 </form>
 
 <tr>
-  {% if provider.project_name is defined %}
+  {% if publisher.project_name is defined %}
   <td scope="row">
-    {{ provider.project_name }}
+    {{ publisher.project_name }}
   </td>
   {% endif %}
   <td scope="row">
-    {{ provider.provider_name }}
+    {{ publisher.publisher_name }}
   </td>
   <td scope="row">
-    <a href="{{ provider.provider_url }}">{{ provider.provider_url }}</a>
+    <a href="{{ publisher.publisher_url }}">{{ publisher.publisher_url }}</a>
   </td>
   <td scope="row">
-    <input form="delete-provider-{{ provider.id }}" type="submit" value="{% trans %}Remove{% endtrans %}" class="button button--danger">
+    <input form="delete-publisher-{{ publisher.id }}" type="submit" value="{% trans %}Remove{% endtrans %}" class="button button--danger">
   </td>
 </tr>
 {%- endmacro %}
