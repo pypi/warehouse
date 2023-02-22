@@ -14,21 +14,21 @@ from __future__ import annotations
 
 from sqlalchemy.sql.expression import func, literal
 
-from warehouse.oidc.models import GitHubProvider, PendingGitHubProvider
+from warehouse.oidc.models import GitHubPublisher, PendingGitHubPublisher
 
 GITHUB_OIDC_ISSUER_URL = "https://token.actions.githubusercontent.com"
 
 OIDC_ISSUER_URLS = {GITHUB_OIDC_ISSUER_URL}
 
 
-def find_provider_by_issuer(session, issuer_url, signed_claims, *, pending=False):
+def find_publisher_by_issuer(session, issuer_url, signed_claims, *, pending=False):
     """
     Given an OIDC issuer URL and a dictionary of claims that have been verified
-    for a token from that OIDC issuer, retrieve either an `OIDCProvider` registered
-    to one or more projects or a `PendingOIDCProvider`, varying with the
+    for a token from that OIDC issuer, retrieve either an `OIDCPublisher` registered
+    to one or more projects or a `PendingOIDCPublisher`, varying with the
     `pending` parameter.
 
-    Returns `None` if no provider can be found.
+    Returns `None` if no publisher can be found.
     """
 
     if issuer_url not in OIDC_ISSUER_URLS:
@@ -36,19 +36,19 @@ def find_provider_by_issuer(session, issuer_url, signed_claims, *, pending=False
         # claims for an issuer that we don't recognize and support.
         return None
 
-    # This is the ugly part: OIDCProvider and PendingOIDCProvider are both
-    # polymorphic, and retrieving the correct provider requires us to query
-    # based on provider-specific claims.
+    # This is the ugly part: OIDCPublisher and PendingOIDCPublisher are both
+    # polymorphic, and retrieving the correct publisher requires us to query
+    # based on publisher-specific claims.
     if issuer_url == GITHUB_OIDC_ISSUER_URL:
         repository = signed_claims["repository"]
         repository_owner, repository_name = repository.split("/", 1)
         workflow_prefix = f"{repository}/.github/workflows/"
         workflow_ref = signed_claims["job_workflow_ref"].removeprefix(workflow_prefix)
 
-        provider_cls = GitHubProvider if not pending else PendingGitHubProvider
+        publisher_cls = GitHubPublisher if not pending else PendingGitHubPublisher
 
         return (
-            session.query(provider_cls)
+            session.query(publisher_cls)
             .filter_by(
                 repository_name=repository_name,
                 repository_owner=repository_owner,
@@ -56,7 +56,7 @@ def find_provider_by_issuer(session, issuer_url, signed_claims, *, pending=False
             )
             .filter(
                 literal(workflow_ref).like(
-                    func.concat(provider_cls.workflow_filename, "%")
+                    func.concat(publisher_cls.workflow_filename, "%")
                 )
             )
             .one_or_none()

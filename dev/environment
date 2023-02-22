@@ -41,7 +41,7 @@ BREACHED_PASSWORDS=warehouse.accounts.NullPasswordBreachedService
 
 MALWARE_CHECK_BACKEND=warehouse.malware.services.PrinterMalwareCheckService
 
-OIDC_BACKEND=warehouse.oidc.services.NullOIDCProviderService
+OIDC_BACKEND=warehouse.oidc.services.NullOIDCPublisherService
 
 METRICS_BACKEND=warehouse.metrics.DataDogMetrics host=notdatadog
 

@@ -24,7 +24,7 @@ _VALID_GITHUB_REPO = re.compile(r"^[a-zA-Z0-9-_.]+$")
 _VALID_GITHUB_OWNER = re.compile(r"^[a-zA-Z0-9][a-zA-Z0-9-]*$")
 
 
-class GitHubProviderBase(forms.Form):
+class GitHubPublisherBase(forms.Form):
     __params__ = ["owner", "repository", "workflow_filename"]
 
     owner = wtforms.StringField(
@@ -149,8 +149,8 @@ class GitHubProviderBase(forms.Form):
             )
 
 
-class PendingGitHubProviderForm(GitHubProviderBase):
-    __params__ = GitHubProviderBase.__params__ + ["project_name"]
+class PendingGitHubPublisherForm(GitHubPublisherBase):
+    __params__ = GitHubPublisherBase.__params__ + ["project_name"]
 
     project_name = wtforms.StringField(
         validators=[
@@ -176,15 +176,15 @@ class PendingGitHubProviderForm(GitHubProviderBase):
             )
 
 
-class GitHubProviderForm(GitHubProviderBase):
+class GitHubPublisherForm(GitHubPublisherBase):
     pass
 
 
-class DeleteProviderForm(forms.Form):
-    __params__ = ["provider_id"]
+class DeletePublisherForm(forms.Form):
+    __params__ = ["publisher_id"]
 
-    provider_id = wtforms.StringField(
+    publisher_id = wtforms.StringField(
         validators=[
-            wtforms.validators.UUID(message=_("Provider must be specified by ID"))
+            wtforms.validators.UUID(message=_("Publisher must be specified by ID"))
         ]
     )

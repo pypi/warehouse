@@ -120,9 +120,11 @@ def test_includeme(monkeypatch):
     ]
     assert config.register_service_factory.calls == [
         pretend.call(
-            "10 per day", rate_limit_iface, name="user_oidc.provider.register"
+            "10 per day", rate_limit_iface, name="user_oidc.publisher.register"
         ),
-        pretend.call("100 per day", rate_limit_iface, name="ip_oidc.provider.register"),
+        pretend.call(
+            "100 per day", rate_limit_iface, name="ip_oidc.publisher.register"
+        ),
     ]
     assert config.registry.settings.get.calls == [
         pretend.call("warehouse.manage.oidc.user_registration_ratelimit_string"),

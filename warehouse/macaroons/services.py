@@ -59,7 +59,7 @@ class DatabaseMacaroonService:
             return None
 
         return self.db.get(
-            Macaroon, macaroon_id, (joinedload("user"), joinedload("oidc_provider"))
+            Macaroon, macaroon_id, (joinedload("user"), joinedload("oidc_publisher"))
         )
 
     def _deserialize_raw_macaroon(self, raw_macaroon):
@@ -141,7 +141,7 @@ class DatabaseMacaroonService:
         raise InvalidMacaroonError(verified.msg)
 
     def create_macaroon(
-        self, location, description, scopes, *, user_id=None, oidc_provider_id=None
+        self, location, description, scopes, *, user_id=None, oidc_publisher_id=None
     ):
         """
         Returns a tuple of a new raw (serialized) macaroon and its DB model.
@@ -167,7 +167,7 @@ class DatabaseMacaroonService:
 
         dm = Macaroon(
             user_id=user_id,
-            oidc_provider_id=oidc_provider_id,
+            oidc_publisher_id=oidc_publisher_id,
             description=description,
             permissions_caveat={"permissions": permissions},
         )
