@@ -129,6 +129,7 @@ def project_detail(project, request):
         "releases": releases,
         "maintainers": maintainers,
         "journal": journal,
+        "oidc_publishers": project.oidc_publishers,
         "ONE_MB": ONE_MB,
         "MAX_FILESIZE": MAX_FILESIZE,
         "ONE_GB": ONE_GB,
