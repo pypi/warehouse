@@ -22,7 +22,7 @@ from zope.interface import implementer
 
 from warehouse.metrics.interfaces import IMetricsService
 from warehouse.oidc.interfaces import IOIDCProviderService, SignedClaims
-from warehouse.oidc.models import OIDCProvider
+from warehouse.oidc.models import OIDCProvider, PendingOIDCProvider
 from warehouse.oidc.utils import find_provider_by_issuer
 
 
@@ -65,10 +65,19 @@ class NullOIDCProviderService:
         except jwt.PyJWTError:
             return None
 
-    def find_provider(self, signed_claims: SignedClaims) -> OIDCProvider | None:
+    def find_provider(
+        self, signed_claims: SignedClaims, *, pending: bool = False
+    ) -> OIDCProvider | PendingOIDCProvider | None:
         # NOTE: We do NOT verify the claims against the provider, since this
         # service is for development purposes only.
-        return find_provider_by_issuer(self.db, self.issuer_url, signed_claims)
+        return find_provider_by_issuer(
+            self.db, self.issuer_url, signed_claims, pending=pending
+        )
+
+    def reify_pending_provider(self, pending_provider, project):
+        new_provider = pending_provider.reify(self.db)
+        project.oidc_providers.append(new_provider)
+        return new_provider
 
 
 @implementer(IOIDCProviderService)
@@ -248,14 +257,18 @@ class OIDCProviderService:
                 sentry_sdk.capture_message(f"JWT verify raised generic error: {e}")
             return None
 
-    def find_provider(self, signed_claims: SignedClaims) -> OIDCProvider | None:
+    def find_provider(
+        self, signed_claims: SignedClaims, *, pending: bool = False
+    ) -> OIDCProvider | PendingOIDCProvider | None:
         metrics_tags = [f"provider:{self.provider}"]
         self.metrics.increment(
             "warehouse.oidc.find_provider.attempt",
             tags=metrics_tags,
         )
 
-        provider = find_provider_by_issuer(self.db, self.issuer_url, signed_claims)
+        provider = find_provider_by_issuer(
+            self.db, self.issuer_url, signed_claims, pending=pending
+        )
         if provider is None:
             self.metrics.increment(
                 "warehouse.oidc.find_provider.provider_not_found",
@@ -276,6 +289,11 @@ class OIDCProviderService:
             )
 
         return provider
+
+    def reify_pending_provider(self, pending_provider, project):
+        new_provider = pending_provider.reify(self.db)
+        project.oidc_providers.append(new_provider)
+        return new_provider
 
 
 class OIDCProviderServiceFactory:

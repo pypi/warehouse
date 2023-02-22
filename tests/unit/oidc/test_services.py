@@ -16,6 +16,7 @@ import pytest
 from jwt import PyJWK, PyJWTError
 from zope.interface.verify import verifyClass
 
+from tests.common.db.oidc import GitHubProviderFactory, PendingGitHubProviderFactory
 from warehouse.oidc import interfaces, services
 
 
@@ -136,7 +137,7 @@ class TestOIDCProviderService:
         token = pretend.stub()
 
         provider = pretend.stub(verify_claims=pretend.call_recorder(lambda c: True))
-        find_provider_by_issuer = pretend.call_recorder(lambda *a: provider)
+        find_provider_by_issuer = pretend.call_recorder(lambda *a, **kw: provider)
         monkeypatch.setattr(
             services, "find_provider_by_issuer", find_provider_by_issuer
         )
@@ -164,7 +165,7 @@ class TestOIDCProviderService:
             ),
         )
 
-        find_provider_by_issuer = pretend.call_recorder(lambda *a: None)
+        find_provider_by_issuer = pretend.call_recorder(lambda *a, **kw: None)
         monkeypatch.setattr(
             services, "find_provider_by_issuer", find_provider_by_issuer
         )
@@ -194,7 +195,7 @@ class TestOIDCProviderService:
         )
 
         provider = pretend.stub(verify_claims=pretend.call_recorder(lambda c: False))
-        find_provider_by_issuer = pretend.call_recorder(lambda *a: provider)
+        find_provider_by_issuer = pretend.call_recorder(lambda *a, **kw: provider)
         monkeypatch.setattr(
             services, "find_provider_by_issuer", find_provider_by_issuer
         )
@@ -592,6 +593,27 @@ class TestOIDCProviderService:
         assert service._get_key.calls == [pretend.call("fake-key-id")]
         assert services.jwt.get_unverified_header.calls == [pretend.call(token)]
 
+    def test_reify_provider(self, monkeypatch):
+        service = services.OIDCProviderService(
+            session=pretend.stub(),
+            provider="example",
+            issuer_url="https://example.com",
+            cache_url="rediss://fake.example.com",
+            metrics=pretend.stub(),
+        )
+
+        provider = pretend.stub()
+        pending_provider = pretend.stub(
+            reify=pretend.call_recorder(lambda *a: provider)
+        )
+        project = pretend.stub(
+            oidc_providers=[],
+        )
+
+        assert service.reify_pending_provider(pending_provider, project) == provider
+        assert pending_provider.reify.calls == [pretend.call(service.db)]
+        assert project.oidc_providers == [provider]
+
 
 class TestNullOIDCProviderService:
     def test_interface_matches(self):
@@ -706,9 +728,109 @@ class TestNullOIDCProviderService:
         )
 
         provider = pretend.stub(verify_claims=pretend.call_recorder(lambda c: True))
-        find_provider_by_issuer = pretend.call_recorder(lambda *a: provider)
+        find_provider_by_issuer = pretend.call_recorder(lambda *a, **kw: provider)
         monkeypatch.setattr(
             services, "find_provider_by_issuer", find_provider_by_issuer
         )
 
         assert service.find_provider(claims) == provider
+
+    def test_find_provider_full_pending(self, oidc_service):
+        pending_provider = PendingGitHubProviderFactory.create(
+            project_name="does-not-exist",
+            repository_name="bar",
+            repository_owner="foo",
+            repository_owner_id="123",
+            workflow_filename="example.yml",
+        )
+
+        claims = {
+            "jti": "6e67b1cb-2b8d-4be5-91cb-757edb2ec970",
+            "sub": "repo:foo/bar",
+            "aud": "pypi",
+            "ref": "fake",
+            "sha": "fake",
+            "repository": "foo/bar",
+            "repository_owner": "foo",
+            "repository_owner_id": "123",
+            "run_id": "fake",
+            "run_number": "fake",
+            "run_attempt": "1",
+            "repository_id": "fake",
+            "actor_id": "fake",
+            "actor": "foo",
+            "workflow": "fake",
+            "head_ref": "fake",
+            "base_ref": "fake",
+            "event_name": "fake",
+            "ref_type": "fake",
+            "environment": "fake",
+            "job_workflow_ref": "foo/bar/.github/workflows/example.yml@fake",
+            "iss": "https://token.actions.githubusercontent.com",
+            "nbf": 1650663265,
+            "exp": 1650664165,
+            "iat": 1650663865,
+        }
+
+        expected_pending_provider = oidc_service.find_provider(claims, pending=True)
+        assert expected_pending_provider == pending_provider
+
+    def test_find_provider_full(self, oidc_service):
+        provider = GitHubProviderFactory.create(
+            repository_name="bar",
+            repository_owner="foo",
+            repository_owner_id="123",
+            workflow_filename="example.yml",
+        )
+
+        claims = {
+            "jti": "6e67b1cb-2b8d-4be5-91cb-757edb2ec970",
+            "sub": "repo:foo/bar",
+            "aud": "pypi",
+            "ref": "fake",
+            "sha": "fake",
+            "repository": "foo/bar",
+            "repository_owner": "foo",
+            "repository_owner_id": "123",
+            "run_id": "fake",
+            "run_number": "fake",
+            "run_attempt": "1",
+            "repository_id": "fake",
+            "actor_id": "fake",
+            "actor": "foo",
+            "workflow": "fake",
+            "head_ref": "fake",
+            "base_ref": "fake",
+            "event_name": "fake",
+            "ref_type": "fake",
+            "environment": "fake",
+            "job_workflow_ref": "foo/bar/.github/workflows/example.yml@fake",
+            "iss": "https://token.actions.githubusercontent.com",
+            "nbf": 1650663265,
+            "exp": 1650664165,
+            "iat": 1650663865,
+        }
+
+        expected_provider = oidc_service.find_provider(claims, pending=False)
+        assert expected_provider == provider
+
+    def test_reify_provider(self):
+        service = services.NullOIDCProviderService(
+            session=pretend.stub(),
+            provider="example",
+            issuer_url="https://example.com",
+            cache_url="rediss://fake.example.com",
+            metrics=pretend.stub(),
+        )
+
+        provider = pretend.stub()
+        pending_provider = pretend.stub(
+            reify=pretend.call_recorder(lambda *a: provider)
+        )
+        project = pretend.stub(
+            oidc_providers=[],
+        )
+
+        assert service.reify_pending_provider(pending_provider, project) == provider
+        assert pending_provider.reify.calls == [pretend.call(service.db)]
+        assert project.oidc_providers == [provider]

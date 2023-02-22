@@ -12,13 +12,23 @@
 
 import time
 
+from pydantic import BaseModel, StrictStr, ValidationError
 from pyramid.view import view_config
+from sqlalchemy import func
 
 from warehouse.admin.flags import AdminFlagValue
+from warehouse.email import send_pending_oidc_provider_invalidated_email
 from warehouse.events.tags import EventTag
 from warehouse.macaroons import caveats
 from warehouse.macaroons.interfaces import IMacaroonService
 from warehouse.oidc.interfaces import IOIDCProviderService
+from warehouse.oidc.models import PendingOIDCProvider
+from warehouse.packaging.interfaces import IProjectService
+from warehouse.packaging.models import ProjectFactory
+
+
+class TokenPayload(BaseModel):
+    token: StrictStr
 
 
 @view_config(
@@ -47,34 +57,10 @@ def mint_token_from_oidc(request):
         )
 
     try:
-        body = request.json_body
-    except ValueError:
-        return _invalid(
-            errors=[{"code": "invalid-json", "description": "missing JSON body"}]
-        )
-
-    # `json_body` can return any valid top-level JSON type, so we have
-    # to make sure we're actually receiving a dictionary.
-    if not isinstance(body, dict):
-        return _invalid(
-            errors=[
-                {
-                    "code": "invalid-payload",
-                    "description": "payload is not a JSON dictionary",
-                }
-            ]
-        )
-
-    unverified_jwt = body.get("token")
-    if unverified_jwt is None:
-        return _invalid(
-            errors=[{"code": "invalid-token", "description": "token is missing"}]
-        )
-
-    if not isinstance(unverified_jwt, str):
-        return _invalid(
-            errors=[{"code": "invalid-token", "description": "token is not a string"}]
-        )
+        payload = TokenPayload.parse_raw(request.body)
+        unverified_jwt = payload.token
+    except ValidationError as exc:
+        return _invalid(errors=[{"code": "invalid-payload", "description": str(exc)}])
 
     # For the time being, GitHub is our only OIDC provider.
     # In the future, this should locate the correct service based on an
@@ -88,7 +74,57 @@ def mint_token_from_oidc(request):
             ]
         )
 
-    provider = oidc_service.find_provider(claims)
+    # First, try to find a pending provider.
+    pending_provider = oidc_service.find_provider(claims, pending=True)
+    if pending_provider is not None:
+        factory = ProjectFactory(request)
+
+        # If the project already exists, this pending provider is no longer
+        # valid and needs to be removed.
+        # NOTE: This is mostly a sanity check, since we dispose of invalidated
+        # pending providers below.
+        if pending_provider.project_name in factory:
+            request.db.delete(pending_provider)
+            return _invalid(
+                errors=[
+                    {
+                        "code": "invalid-pending-provider",
+                        "description": "valid token, but project already exists",
+                    }
+                ]
+            )
+
+        # Create the new project, and reify the pending provider against it.
+        project_service = request.find_service(IProjectService)
+        new_project = project_service.create_project(
+            pending_provider.project_name, pending_provider.added_by
+        )
+        oidc_service.reify_pending_provider(pending_provider, new_project)
+
+        # There might be other pending providers for the same project name,
+        # which we've now invalidated by creating the project. These would
+        # be disposed of on use, but we explicitly dispose of them here while
+        # also sending emails to their owners.
+        stale_pending_providers = (
+            request.db.query(PendingOIDCProvider)
+            .filter(
+                func.normalize_pep426_name(PendingOIDCProvider.project_name)
+                == func.normalize_pep426_name(pending_provider.project_name)
+            )
+            .all()
+        )
+        for stale_provider in stale_pending_providers:
+            send_pending_oidc_provider_invalidated_email(
+                request,
+                stale_provider.added_by,
+                project_name=stale_provider.project_name,
+            )
+            request.db.delete(stale_provider)
+
+    # We either don't have a pending OIDC provider, or we *did*
+    # have one and we've just converted it. Either way, look for a full provider
+    # to actually do the macaroon minting with.
+    provider = oidc_service.find_provider(claims, pending=False)
     if not provider:
         return _invalid(
             errors=[

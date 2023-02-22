@@ -33,12 +33,35 @@
 
     {{ oidc_desc() }}
 
-    <h2 class="no-bottom-padding">{% trans %}Add a new provider{% endtrans %}</h2>
+    <h2>{% trans %}Manage current publishers{% endtrans %}</h2>
+    {% if project.oidc_providers %}
+    <table class="table table--publisher-list">
+      <caption class="sr-only">
+        {% trans project_name=project.name %}OpenID Connect publishers associated with {{ project_name }}{% endtrans %}
+      </caption>
+      <thead>
+        <tr>
+          <th scope="col">{% trans %}Publisher{% endtrans %}</th>
+          <th scope="col">{% trans %}URL{% endtrans %}</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for provider in project.oidc_providers %}
+        {{ oidc_provider_row(provider) }}
+        {% endfor %}
+      </tbody>
+    </table>
+    {% else %}
+    <p class="no-bottom-padding">{% trans %}No publishers are currently configured.{% endtrans %}</p>
+    {% endif %}
+
+    <h2 class="no-bottom-padding">{% trans %}Add a new publisher{% endtrans %}</h2>
     <h3>GitHub</h3>
 
     <p>
       {% trans href="https://docs.github.com/en/actions/deployment/security-hardening-your-deployments/about-security-hardening-with-openid-connect" %}
-      Read more about GitHub's OpenID Connect provider <a href="{{ href }}">here</a>.
+      Read more about GitHub Actions's OpenID Connect support <a href="{{ href }}">here</a>.
       {% endtrans %}
     </p>
 
@@ -95,29 +118,6 @@
         <input type="submit" value="{% trans %}Add{% endtrans %}" class="button button--primary">
       </div>
     </form>
-
-    <h2>{% trans %}Manage current providers{% endtrans %}</h2>
-    {% if project.oidc_providers %}
-    <table class="table table--publisher-list">
-      <caption class="sr-only">
-        {% trans project_name=project.name %}OpenID Connect publishers associated with {{ project_name }}{% endtrans %}
-      </caption>
-      <thead>
-        <tr>
-          <th scope="col">{% trans %}Publisher{% endtrans %}</th>
-          <th scope="col">{% trans %}URL{% endtrans %}</th>
-          <th></th>
-        </tr>
-      </thead>
-      <tbody>
-        {% for provider in project.oidc_providers %}
-        {{ oidc_provider_row(provider) }}
-        {% endfor %}
-      </tbody>
-    </table>
-    {% else %}
-    <p class="no-bottom-padding">{% trans %}No publishers are currently configured.{% endtrans %}</p>
-    {% endif %}
   </div>
 </div>
 

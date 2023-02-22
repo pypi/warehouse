@@ -200,6 +200,15 @@ class PendingOIDCProvider(OIDCProviderMixin, db.Model):
         "polymorphic_on": OIDCProviderMixin.discriminator,
     }
 
+    def reify(self, session):  # pragma: no cover
+        """
+        Return an equivalent "normal" OIDC provider model for this pending provider,
+        deleting the pending provider in the process.
+        """
+
+        # Only concrete subclasses are constructed.
+        return NotImplemented
+
 
 class GitHubProviderMixin:
     """
@@ -212,6 +221,7 @@ class GitHubProviderMixin:
     workflow_filename = Column(String)
 
     __verifiable_claims__ = {
+        "sub": _check_claim_binary(str.__eq__),
         "repository": _check_claim_binary(str.__eq__),
         "repository_owner": _check_claim_binary(str.__eq__),
         "repository_owner_id": _check_claim_binary(str.__eq__),
@@ -222,7 +232,6 @@ class GitHubProviderMixin:
         "actor",
         "actor_id",
         "jti",
-        "sub",
         "ref",
         "sha",
         "run_id",
@@ -258,6 +267,10 @@ class GitHubProviderMixin:
     def job_workflow_ref(self):
         return f"{self.repository}/{self._workflow_slug}"
 
+    @property
+    def sub(self):
+        return f"repo:{self.repository}"
+
     def __str__(self):
         return f"{self.workflow_filename} @ {self.repository}"
 
@@ -292,3 +305,29 @@ class PendingGitHubProvider(GitHubProviderMixin, PendingOIDCProvider):
     id = Column(
         UUID(as_uuid=True), ForeignKey(PendingOIDCProvider.id), primary_key=True
     )
+
+    def reify(self, session):
+        """
+        Returns a `GitHubProvider` for this `PendingGitHubProvider`,
+        deleting the `PendingGitHubProvider` in the process.
+        """
+
+        maybe_provider = (
+            session.query(GitHubProvider)
+            .filter(
+                GitHubProvider.repository_name == self.repository_name,
+                GitHubProvider.repository_owner == self.repository_owner,
+                GitHubProvider.workflow_filename == self.workflow_filename,
+            )
+            .one_or_none()
+        )
+
+        provider = maybe_provider or GitHubProvider(
+            repository_name=self.repository_name,
+            repository_owner=self.repository_owner,
+            repository_owner_id=self.repository_owner_id,
+            workflow_filename=self.workflow_filename,
+        )
+
+        session.delete(self)
+        return provider

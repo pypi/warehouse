@@ -993,6 +993,13 @@ def send_oidc_provider_removed_email(request, user, project_name, provider):
     }
 
 
+@_email("pending-oidc-provider-invalidated")
+def send_pending_oidc_provider_invalidated_email(request, user, project_name):
+    return {
+        "project_name": project_name,
+    }
+
+
 @_email("two-factor-mandate")
 def send_two_factor_mandate_email(request, user):
     return {"username": user.username, "has_two_factor": user.has_two_factor}

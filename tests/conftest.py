@@ -46,7 +46,11 @@ from warehouse.admin.flags import AdminFlag, AdminFlagValue
 from warehouse.email import services as email_services
 from warehouse.email.interfaces import IEmailSender
 from warehouse.macaroons import services as macaroon_services
+from warehouse.macaroons.interfaces import IMacaroonService
 from warehouse.metrics import IMetricsService
+from warehouse.oidc import services as oidc_services
+from warehouse.oidc.interfaces import IOIDCProviderService
+from warehouse.oidc.utils import GITHUB_OIDC_ISSUER_URL
 from warehouse.organizations import services as organization_services
 from warehouse.organizations.interfaces import IOrganizationService
 from warehouse.packaging import services as packaging_services
@@ -136,6 +140,8 @@ def pyramid_services(
     token_service,
     user_service,
     project_service,
+    oidc_service,
+    macaroon_service,
 ):
     services = _Services()
 
@@ -149,6 +155,8 @@ def pyramid_services(
     services.register_service(token_service, ITokenService, None, name="email")
     services.register_service(user_service, IUserService, None, name="")
     services.register_service(project_service, IProjectService, None, name="")
+    services.register_service(oidc_service, IOIDCProviderService, None, name="github")
+    services.register_service(macaroon_service, IMacaroonService, None, name="")
 
     return services
 
@@ -316,6 +324,18 @@ def user_service(db_session, metrics, remote_addr):
 @pytest.fixture
 def project_service(db_session, remote_addr):
     return packaging_services.ProjectService(db_session, remote_addr)
+
+
+@pytest.fixture
+def oidc_service(db_session):
+    # We pretend to be a verifier for GitHub OIDC JWTs, for the purposes of testing.
+    return oidc_services.NullOIDCProviderService(
+        db_session,
+        pretend.stub(),
+        GITHUB_OIDC_ISSUER_URL,
+        pretend.stub(),
+        pretend.stub(),
+    )
 
 
 @pytest.fixture

@@ -12,11 +12,15 @@
 
 from __future__ import annotations
 
-from typing import Any, NewType
+from typing import TYPE_CHECKING, Any, NewType
 
 from zope.interface import Interface
 
+from warehouse.packaging.models import Project
 from warehouse.rate_limiting.interfaces import RateLimiterException
+
+if TYPE_CHECKING:
+    from warehouse.oidc.models import PendingOIDCProvider  # pragma: no cover
 
 SignedClaims = NewType("SignedClaims", dict[str, Any])
 
@@ -32,12 +36,22 @@ class IOIDCProviderService(Interface):
         """
         pass
 
-    def find_provider(signed_claims: SignedClaims):
+    def find_provider(signed_claims: SignedClaims, *, pending: bool = False):
         """
         Given a mapping of signed claims produced by `verify_jwt_signature`,
-        attempt to find and return an `OIDCProvider` that matches them.
+        attempt to find and return either a `OIDCProvider` or `PendingOIDCProvider`
+        that matches them, depending on the value of `pending`.
 
-        If no `OIDCProvider` matches the claims, `None` is returned.
+        If no provider matches the claims, `None` is returned.
+        """
+        pass
+
+    def reify_pending_provider(pending_provider: PendingOIDCProvider, project: Project):
+        """
+        Reify the given pending `PendingOIDCProvider` into an `OIDCProvider`,
+        adding it to the given project (presumed newly created) in the process.
+
+        Returns the reified provider.
         """
         pass
 
