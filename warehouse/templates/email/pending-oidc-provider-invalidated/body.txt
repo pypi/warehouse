@@ -21,7 +21,7 @@ by creating the project before you did.
 {% endtrans %}
 
 {% trans email_address='admin@pypi.org' %}
-If you believe this was done maliciously, you can email
+If you believe this was done in error, you can email
 {{ email_address }} to communicate with the PyPI administrators.
 {% endtrans %}
 
