@@ -72,3 +72,5 @@ jobs:
           pip install -r requirements.txt --no-deps
           pip install -r requirements/dev.txt
           pip check
+      - name: Run ${{ matrix.name }}
+        run: ${{ matrix.command }}
