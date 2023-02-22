@@ -16,7 +16,7 @@
 {% block content %}
 {% trans project_name=project_name %}
 You registered an pending OpenID Connect publisher for a project
-({{ project_name }}), but someone else has invalidated your pending provider
+({{ project_name }}), but someone else has invalidated your pending publisher
 by creating the project before you did.
 {% endtrans %}
 

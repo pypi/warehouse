@@ -15,21 +15,21 @@ import pretend
 from sqlalchemy.sql.expression import func, literal
 
 from warehouse.oidc import utils
-from warehouse.oidc.models import GitHubProvider
+from warehouse.oidc.models import GitHubPublisher
 
 
-def test_find_provider_by_issuer_bad_issuer_url():
+def test_find_publisher_by_issuer_bad_issuer_url():
     assert (
-        utils.find_provider_by_issuer(
+        utils.find_publisher_by_issuer(
             pretend.stub(), "https://fake-issuer.url", pretend.stub()
         )
         is None
     )
 
 
-def test_find_provider_by_issuer_github():
-    provider = pretend.stub()
-    one_or_none = pretend.call_recorder(lambda: provider)
+def test_find_publisher_by_issuer_github():
+    publisher = pretend.stub()
+    one_or_none = pretend.call_recorder(lambda: publisher)
     filter_ = pretend.call_recorder(lambda *a: pretend.stub(one_or_none=one_or_none))
     filter_by = pretend.call_recorder(lambda **kw: pretend.stub(filter=filter_))
     session = pretend.stub(
@@ -42,13 +42,13 @@ def test_find_provider_by_issuer_github():
     }
 
     assert (
-        utils.find_provider_by_issuer(
+        utils.find_publisher_by_issuer(
             session, "https://token.actions.githubusercontent.com", signed_claims
         )
-        == provider
+        == publisher
     )
 
-    assert session.query.calls == [pretend.call(GitHubProvider)]
+    assert session.query.calls == [pretend.call(GitHubPublisher)]
     assert filter_by.calls == [
         pretend.call(
             repository_name="bar", repository_owner="foo", repository_owner_id="1234"
@@ -64,7 +64,7 @@ def test_find_provider_by_issuer_github():
         .args[0]
         .compare(
             literal("ci.yml@refs/heads/main").like(
-                func.concat(GitHubProvider.workflow_filename, "%")
+                func.concat(GitHubPublisher.workflow_filename, "%")
             )
         )
     )

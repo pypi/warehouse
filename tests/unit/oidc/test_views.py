@@ -16,13 +16,13 @@ import pretend
 import pytest
 
 from tests.common.db.accounts import UserFactory
-from tests.common.db.oidc import PendingGitHubProviderFactory
+from tests.common.db.oidc import PendingGitHubPublisherFactory
 from tests.common.db.packaging import ProjectFactory
 from warehouse.events.tags import EventTag
 from warehouse.macaroons import caveats
 from warehouse.macaroons.interfaces import IMacaroonService
 from warehouse.oidc import views
-from warehouse.oidc.interfaces import IOIDCProviderService
+from warehouse.oidc.interfaces import IOIDCPublisherService
 from warehouse.rate_limiting.interfaces import IRateLimiter
 
 
@@ -38,8 +38,8 @@ def test_ratelimiters():
     }
 
     assert request.find_service.calls == [
-        pretend.call(IRateLimiter, name="user_oidc.provider.register"),
-        pretend.call(IRateLimiter, name="ip_oidc.provider.register"),
+        pretend.call(IRateLimiter, name="user_oidc.publisher.register"),
+        pretend.call(IRateLimiter, name="ip_oidc.publisher.register"),
     ]
 
 
@@ -105,7 +105,7 @@ def test_mint_token_from_oidc_invalid_payload(body):
         assert isinstance(err["description"], str)
 
 
-def test_mint_token_from_oidc_provider_verify_jwt_signature_fails():
+def test_mint_token_from_oidc_publisher_verify_jwt_signature_fails():
     oidc_service = pretend.stub(
         verify_jwt_signature=pretend.call_recorder(lambda token: None),
     )
@@ -130,16 +130,16 @@ def test_mint_token_from_oidc_provider_verify_jwt_signature_fails():
     }
 
     assert request.find_service.calls == [
-        pretend.call(IOIDCProviderService, name="github")
+        pretend.call(IOIDCPublisherService, name="github")
     ]
     assert oidc_service.verify_jwt_signature.calls == [pretend.call("faketoken")]
 
 
-def test_mint_token_from_oidc_provider_lookup_fails():
+def test_mint_token_from_oidc_publisher_lookup_fails():
     claims = pretend.stub()
     oidc_service = pretend.stub(
         verify_jwt_signature=pretend.call_recorder(lambda token: claims),
-        find_provider=pretend.call_recorder(lambda claims, **kw: None),
+        find_publisher=pretend.call_recorder(lambda claims, **kw: None),
     )
     request = pretend.stub(
         response=pretend.stub(status=None),
@@ -155,25 +155,25 @@ def test_mint_token_from_oidc_provider_lookup_fails():
         "message": "Token request failed",
         "errors": [
             {
-                "code": "invalid-provider",
-                "description": "valid token, but no corresponding provider",
+                "code": "invalid-publisher",
+                "description": "valid token, but no corresponding publisher",
             }
         ],
     }
 
     assert request.find_service.calls == [
-        pretend.call(IOIDCProviderService, name="github")
+        pretend.call(IOIDCPublisherService, name="github")
     ]
     assert oidc_service.verify_jwt_signature.calls == [pretend.call("faketoken")]
-    assert oidc_service.find_provider.calls == [
+    assert oidc_service.find_publisher.calls == [
         pretend.call(claims, pending=True),
         pretend.call(claims, pending=False),
     ]
 
 
-def test_mint_token_from_oidc_pending_provider_project_already_exists(db_request):
+def test_mint_token_from_oidc_pending_publisher_project_already_exists(db_request):
     project = ProjectFactory.create()
-    pending_provider = PendingGitHubProviderFactory.create(project_name=project.name)
+    pending_publisher = PendingGitHubPublisherFactory.create(project_name=project.name)
 
     db_request.registry.settings = {"warehouse.oidc.enabled": True}
     db_request.flags.enabled = lambda f: False
@@ -182,8 +182,8 @@ def test_mint_token_from_oidc_pending_provider_project_already_exists(db_request
     claims = pretend.stub()
     oidc_service = pretend.stub(
         verify_jwt_signature=pretend.call_recorder(lambda token: claims),
-        find_provider=pretend.call_recorder(
-            lambda claims, pending=False: pending_provider
+        find_publisher=pretend.call_recorder(
+            lambda claims, pending=False: pending_publisher
         ),
     )
     db_request.find_service = pretend.call_recorder(lambda *a, **kw: oidc_service)
@@ -194,25 +194,24 @@ def test_mint_token_from_oidc_pending_provider_project_already_exists(db_request
         "message": "Token request failed",
         "errors": [
             {
-                "code": "invalid-pending-provider",
+                "code": "invalid-pending-publisher",
                 "description": "valid token, but project already exists",
             }
         ],
     }
 
     assert oidc_service.verify_jwt_signature.calls == [pretend.call("faketoken")]
-    assert oidc_service.find_provider.calls == [pretend.call(claims, pending=True)]
+    assert oidc_service.find_publisher.calls == [pretend.call(claims, pending=True)]
     assert db_request.find_service.calls == [
-        pretend.call(IOIDCProviderService, name="github")
+        pretend.call(IOIDCPublisherService, name="github")
     ]
 
 
-def test_mint_token_from_oidc_pending_provider_ok(
-    monkeypatch,
+def test_mint_token_from_oidc_pending_publisher_ok(
     db_request,
 ):
     user = UserFactory.create()
-    pending_provider = PendingGitHubProviderFactory.create(
+    pending_publisher = PendingGitHubPublisherFactory.create(
         project_name="does-not-exist",
         added_by=user,
         repository_name="bar",
@@ -256,19 +255,19 @@ def test_mint_token_from_oidc_pending_provider_ok(
     assert resp["token"].startswith("pypi-")
 
     assert ratelimiter.clear.calls == [
-        pretend.call(pending_provider.added_by.id),
+        pretend.call(pending_publisher.added_by.id),
         pretend.call(db_request.remote_addr),
     ]
 
 
-def test_mint_token_from_pending_oidc_provider_invalidates_others(
+def test_mint_token_from_pending_oidc_publisher_invalidates_others(
     monkeypatch, db_request
 ):
     time = pretend.stub(time=pretend.call_recorder(lambda: 0))
     monkeypatch.setattr(views, "time", time)
 
     user = UserFactory.create()
-    pending_provider = PendingGitHubProviderFactory.create(
+    pending_publisher = PendingGitHubPublisherFactory.create(
         project_name="does-not-exist",
         added_by=user,
         repository_name="bar",
@@ -277,25 +276,25 @@ def test_mint_token_from_pending_oidc_provider_invalidates_others(
         workflow_filename="example.yml",
     )
 
-    # Create some other pending providers for the same nonexistent project,
+    # Create some other pending publishers for the same nonexistent project,
     # each of which should be invalidated. Invalidations occur based on the
     # normalized project name.
     emailed_users = []
     for project_name in ["does_not_exist", "does-not-exist", "dOeS-NoT-ExISt"]:
         user = UserFactory.create()
-        PendingGitHubProviderFactory.create(
+        PendingGitHubPublisherFactory.create(
             project_name=project_name,
             added_by=user,
         )
         emailed_users.append(user)
 
-    send_pending_oidc_provider_invalidated_email = pretend.call_recorder(
+    send_pending_oidc_publisher_invalidated_email = pretend.call_recorder(
         lambda *a, **kw: None
     )
     monkeypatch.setattr(
         views,
-        "send_pending_oidc_provider_invalidated_email",
-        send_pending_oidc_provider_invalidated_email,
+        "send_pending_oidc_publisher_invalidated_email",
+        send_pending_oidc_publisher_invalidated_email,
     )
 
     db_request.registry.settings = {"warehouse.oidc.enabled": True}
@@ -332,21 +331,21 @@ def test_mint_token_from_pending_oidc_provider_invalidates_others(
     assert resp["success"]
     assert resp["token"].startswith("pypi-")
 
-    # We should have sent one invalidation email for each pending provider that
+    # We should have sent one invalidation email for each pending publisher that
     # was invalidated by the minting operation.
-    assert send_pending_oidc_provider_invalidated_email.calls == [
+    assert send_pending_oidc_publisher_invalidated_email.calls == [
         pretend.call(db_request, emailed_users[0], project_name="does_not_exist"),
         pretend.call(db_request, emailed_users[1], project_name="does-not-exist"),
         pretend.call(db_request, emailed_users[2], project_name="dOeS-NoT-ExISt"),
     ]
 
     assert ratelimiter.clear.calls == [
-        pretend.call(pending_provider.added_by.id),
+        pretend.call(pending_publisher.added_by.id),
         pretend.call(db_request.remote_addr),
     ]
 
 
-def test_mint_token_from_oidc_no_pending_provider_ok(monkeypatch):
+def test_mint_token_from_oidc_no_pending_publisher_ok(monkeypatch):
     time = pretend.stub(time=pretend.call_recorder(lambda: 0))
     monkeypatch.setattr(views, "time", time)
 
@@ -354,20 +353,20 @@ def test_mint_token_from_oidc_no_pending_provider_ok(monkeypatch):
         id="fakeprojectid",
         record_event=pretend.call_recorder(lambda **kw: None),
     )
-    provider = pretend.stub(
-        id="fakeproviderid",
+    publisher = pretend.stub(
+        id="fakepublisherid",
         projects=[project],
-        provider_name="fakeprovidername",
-        provider_url="https://fake/url",
+        publisher_name="fakepublishername",
+        publisher_url="https://fake/url",
     )
     # NOTE: Can't set __str__ using pretend.stub()
-    monkeypatch.setattr(provider.__class__, "__str__", lambda s: "fakespecifier")
+    monkeypatch.setattr(publisher.__class__, "__str__", lambda s: "fakespecifier")
 
     claims = pretend.stub()
     oidc_service = pretend.stub(
         verify_jwt_signature=pretend.call_recorder(lambda token: claims),
-        find_provider=pretend.call_recorder(
-            lambda claims, pending=False: provider if not pending else None
+        find_publisher=pretend.call_recorder(
+            lambda claims, pending=False: publisher if not pending else None
         ),
     )
 
@@ -379,7 +378,7 @@ def test_mint_token_from_oidc_no_pending_provider_ok(monkeypatch):
     )
 
     def find_service(iface, **kw):
-        if iface == IOIDCProviderService:
+        if iface == IOIDCPublisherService:
             return oidc_service
         elif iface == IMacaroonService:
             return macaroon_service
@@ -402,7 +401,7 @@ def test_mint_token_from_oidc_no_pending_provider_ok(monkeypatch):
     }
 
     assert oidc_service.verify_jwt_signature.calls == [pretend.call("faketoken")]
-    assert oidc_service.find_provider.calls == [
+    assert oidc_service.find_publisher.calls == [
         pretend.call(claims, pending=True),
         pretend.call(claims, pending=False),
     ]
@@ -411,11 +410,11 @@ def test_mint_token_from_oidc_no_pending_provider_ok(monkeypatch):
             "fakedomain",
             "OpenID token: https://fake/url (0)",
             [
-                caveats.OIDCProvider(oidc_provider_id="fakeproviderid"),
+                caveats.OIDCPublisher(oidc_publisher_id="fakepublisherid"),
                 caveats.ProjectID(project_ids=["fakeprojectid"]),
                 caveats.Expiration(expires_at=900, not_before=0),
             ],
-            oidc_provider_id="fakeproviderid",
+            oidc_publisher_id="fakepublisherid",
         )
     ]
     assert project.record_event.calls == [
@@ -424,8 +423,8 @@ def test_mint_token_from_oidc_no_pending_provider_ok(monkeypatch):
             ip_address="0.0.0.0",
             additional={
                 "expires": 900,
-                "provider_name": "fakeprovidername",
-                "provider_url": "https://fake/url",
+                "publisher_name": "fakepublishername",
+                "publisher_url": "https://fake/url",
             },
         )
     ]
