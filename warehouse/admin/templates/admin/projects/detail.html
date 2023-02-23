@@ -233,10 +233,10 @@
   </div>
 </div> <!-- .card #releases -->
 
-{% if oidc_publishers %}
 <div class="card card-info" id="oidc-publishers">
   <div class="card-header">OpenID Connect Publishers</div>
   <div class="card-body">
+    {% if oidc_publishers %}
     <div class="table-responsive p-0">
       <table class="table table-hover table-striped">
         <thead>
@@ -257,11 +257,11 @@
         </thead>
       </table>
     </div>
+    {% else %}
+    No publishers configured.
+    {% endif %}
   </div>
 </div> <!-- .card #oidc-publishers -->
-{% else %}
-No publishers configured.
-{% endif %}
 
 <div class="card card-primary card-outline collapsed-card" id="journals">
   <div class="card-header">
