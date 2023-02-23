@@ -41,6 +41,10 @@ def _principals_for_authenticated_user(user):
     if principals:
         principals.append("group:with_admin_dashboard_access")
 
+    # Admins have access to the full OIDC beta.
+    if user.is_superuser:
+        principals.append("group:oidc_beta")
+
     return principals
 
 

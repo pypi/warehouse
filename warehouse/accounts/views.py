@@ -1378,7 +1378,6 @@ class ManageAccountPublishingViews:
     @view_config(
         request_method="POST",
         request_param=PendingGitHubPublisherForm.__params__,
-        permission="manage:user:oidc:modify",
     )
     def add_pending_github_oidc_publisher(self):
         if not self.oidc_enabled:
@@ -1502,7 +1501,6 @@ class ManageAccountPublishingViews:
     @view_config(
         request_method="POST",
         request_param=DeletePublisherForm.__params__,
-        permission="manage:user:oidc:modify",
     )
     def delete_pending_oidc_publisher(self):
         if not self.oidc_enabled:

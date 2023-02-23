@@ -63,12 +63,11 @@ class RootFactory:
         (Allow, "group:psf_staff", "psf_staff"),
         (Allow, "group:with_admin_dashboard_access", "admin_dashboard_access"),
         (Allow, Authenticated, "manage:user"),
-        # Admins can also use the OIDC beta, even if they're not explicitly
-        # added to the beta list.
+        # OIDC beta users can view and modify both user and project OIDC settings.
         (
             Allow,
-            "group:admins",
-            ["manage:user:oidc", "manage:user:oidc:modify"],
+            "group:oidc_beta",
+            ["manage:user:oidc", "manage:project:oidc", "manage:project:oidc:modify"],
         ),
     ]
 
