@@ -27,12 +27,28 @@ from ...common.db.oidc import GitHubPublisherFactory
         "is_superuser",
         "is_moderator",
         "is_psf_staff",
+        "has_oidc_beta_access",
         "expected",
     ),
     [
-        (False, False, False, []),
+        (False, False, False, False, []),
+        (False, False, False, True, ["group:oidc_beta"]),
         (
             True,
+            False,
+            False,
+            True,
+            [
+                "group:admins",
+                "group:moderators",
+                "group:psf_staff",
+                "group:with_admin_dashboard_access",
+                "group:oidc_beta",
+            ],
+        ),
+        (
+            True,
+            False,
             False,
             False,
             [
@@ -40,11 +56,13 @@ from ...common.db.oidc import GitHubPublisherFactory
                 "group:moderators",
                 "group:psf_staff",
                 "group:with_admin_dashboard_access",
+                "group:oidc_beta",
             ],
         ),
         (
             False,
             True,
+            False,
             False,
             ["group:moderators", "group:with_admin_dashboard_access"],
         ),
@@ -52,23 +70,27 @@ from ...common.db.oidc import GitHubPublisherFactory
             True,
             True,
             False,
+            False,
             [
                 "group:admins",
                 "group:moderators",
                 "group:psf_staff",
                 "group:with_admin_dashboard_access",
+                "group:oidc_beta",
             ],
         ),
         (
             False,
             False,
             True,
+            False,
             ["group:psf_staff", "group:with_admin_dashboard_access"],
         ),
         (
             False,
             True,
             True,
+            False,
             [
                 "group:moderators",
                 "group:psf_staff",
@@ -81,6 +103,7 @@ def test_principals_for_authenticated_user(
     is_superuser,
     is_moderator,
     is_psf_staff,
+    has_oidc_beta_access,
     expected,
 ):
     user = pretend.stub(
@@ -88,6 +111,7 @@ def test_principals_for_authenticated_user(
         is_superuser=is_superuser,
         is_moderator=is_moderator,
         is_psf_staff=is_psf_staff,
+        has_oidc_beta_access=has_oidc_beta_access,
     )
     assert security_policy._principals_for_authenticated_user(user) == expected
 
