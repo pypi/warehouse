@@ -147,9 +147,9 @@ docutils==0.19 \
     # via
     #   doc8
     #   restructuredtext-lint
-flake8==4.0.1 \
-    --hash=sha256:479b1304f72536a55948cb40a32dce8bb0ffe3501e26eaf292c7e60eb5e0428d \
-    --hash=sha256:806e034dda44114815e23c16ef92f95c91e4c71100ff52813adf7132a6ad870d
+flake8==6.0.0 \
+    --hash=sha256:3833794e27ff64ea4e9cf5d410082a8b97ff1a06c16aa3d2027339cd0f1195c7 \
+    --hash=sha256:c61007e76655af75e6785a931f452915b371dc48f56efd765247c8fe68f2b181
     # via
     #   -r requirements/lint.in
     #   pep8-naming
@@ -157,9 +157,9 @@ isort==5.11.4 \
     --hash=sha256:6db30c5ded9815d813932c04c2f85a360bcdd35fed496f4d8f35495ef0a261b6 \
     --hash=sha256:c033fd0edb91000a7f09527fe5c75321878f98322a77ddcc81adbd83724afb7b
     # via -r requirements/lint.in
-mccabe==0.6.1 \
-    --hash=sha256:ab8a6258860da4b6677da4bd2fe5dc2c659cff31b3ee4f7f5d64e79735b80d42 \
-    --hash=sha256:dd8d182285a0fe56bace7f45b5e7d1a6ebcbf524e8f3bd87eb0f125271b8831f
+mccabe==0.7.0 \
+    --hash=sha256:348e0240c33b60bbdf4e523192ef919f28cb2c3d7d5c7794f74009290f236325 \
+    --hash=sha256:6c2d30ab6be0e4a46919781807b4f0d834ebdd6c6e3dca0bda5a15f863427b6e
     # via flake8
 msgpack-types==0.2.0 \
     --hash=sha256:7e5bce9e3bba9fe08ed14005ad107aa44ea8d4b779ec28b8db880826d4c67303 \
@@ -217,25 +217,25 @@ pbr==5.11.1 \
     --hash=sha256:567f09558bae2b3ab53cb3c1e2e33e726ff3338e7bae3db5dc954b3a44eef12b \
     --hash=sha256:aefc51675b0b533d56bb5fd1c8c6c0522fe31896679882e1c4c63d5e4a0fccb3
     # via stevedore
-pep8-naming==0.13.2 \
-    --hash=sha256:59e29e55c478db69cffbe14ab24b5bd2cd615c0413edf790d47d3fb7ba9a4e23 \
-    --hash=sha256:93eef62f525fd12a6f8c98f4dcc17fa70baae2f37fa1f73bec00e3e44392fa48
+pep8-naming==0.13.3 \
+    --hash=sha256:1705f046dfcd851378aac3be1cd1551c7c1e5ff363bacad707d43007877fa971 \
+    --hash=sha256:1a86b8c71a03337c97181917e2b472f0f5e4ccb06844a0d6f0a33522549e7a80
     # via -r requirements/lint.in
 platformdirs==2.6.2 \
     --hash=sha256:83c8f6d04389165de7c9b6f0c682439697887bca0aa2f1c87ef1826be3584490 \
     --hash=sha256:e1fea1fe471b9ff8332e229df3cb7de4f53eeea4998d3b6bfff542115e998bd2
     # via black
-pycodestyle==2.8.0 \
-    --hash=sha256:720f8b39dde8b293825e7ff02c475f3077124006db4f440dcbc9a20b76548a20 \
-    --hash=sha256:eddd5847ef438ea1c7870ca7eb78a9d47ce0cdb4851a5523949f2601d0cbbe7f
+pycodestyle==2.10.0 \
+    --hash=sha256:347187bdb476329d98f695c213d7295a846d1152ff4fe9bacb8a9590b8ee7053 \
+    --hash=sha256:8a4eaf0d0495c7395bdab3589ac2db602797d76207242c17d470186815706610
     # via flake8
 pycparser==2.21 \
     --hash=sha256:8ee45429555515e1f6b185e78100aea234072576aa43ab53aefcae078162fca9 \
     --hash=sha256:e644fdec12f7872f86c58ff790da456218b10f863970249516d60a5eaca77206
     # via cffi
-pyflakes==2.4.0 \
-    --hash=sha256:05a85c2872edf37a4ed30b0cce2f6093e1d0581f8c19d7393122da7e25b2b24c \
-    --hash=sha256:3bb3a3f256f4b7968c9c788781e4ff07dce46bdf12339dcda61053375426ee2e
+pyflakes==3.0.1 \
+    --hash=sha256:ec55bf7fe21fff7f1ad2f7da62363d749e2a470500eab1b555334b67aa1ef8cf \
+    --hash=sha256:ec8b276a6b60bd80defed25add7e439881c19e64850afd9b346283d4165fd0fd
     # via flake8
 pygments==2.14.0 \
     --hash=sha256:b3ed06a9e8ac9a9aae5a6f5dbe78a8a58655d17b43b93c078f094ddc476ae297 \
@@ -248,13 +248,6 @@ pyupgrade==3.3.1 \
 restructuredtext-lint==1.4.0 \
     --hash=sha256:1b235c0c922341ab6c530390892eb9e92f90b9b75046063e047cacfb0f050c45
     # via doc8
-setuptools==66.1.1 \
-    --hash=sha256:6f590d76b713d5de4e49fe4fbca24474469f53c83632d5d0fd056f7ff7e8112b \
-    --hash=sha256:ac4008d396bc9cd983ea483cb7139c0240a07bbc74ffb6232fceffedc6cf03a8
-    # via
-    #   zope-event
-    #   zope-interface
-    #   zope-schema
 stevedore==4.1.1 \
     --hash=sha256:7f8aeb6e3f90f96832c301bff21a7eb5eefbe894c88c506483d355565d88cc1a \
     --hash=sha256:aa6436565c069b2946fe4ebff07f5041e0c8bf18c7376dd29edf80cf7d524e4e
