@@ -259,6 +259,11 @@ class Project(SitemapMixin, TwoFactorRequireable, HasEvents, db.Model):
         acls = [
             (Allow, "group:admins", "admin"),
             (Allow, "group:moderators", "moderator"),
+            (
+                Allow,
+                "group:oidc_beta",
+                ["manage:project:oidc", "manage:project:oidc:modify"],
+            ),
         ]
 
         # The project has zero or more OIDC publishers registered to it,
