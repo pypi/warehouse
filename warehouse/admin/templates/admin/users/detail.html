@@ -411,6 +411,7 @@
         </div>
       </div> <!-- .card -->
 
+      {% if user.pending_oidc_publishers %}
       <div class="card">
         <div class="card-header with-border">
           <h3 class="card-title">Pending OpenID Connect Publishers</h3>
@@ -439,6 +440,7 @@
           </table>
         </div>
       </div> <!-- .card -->
+      {% endif %}
 
       <div class="card">
         <div class="card-header with-border">
