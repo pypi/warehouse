@@ -64,6 +64,7 @@ class RootFactory:
         (Allow, "group:with_admin_dashboard_access", "admin_dashboard_access"),
         (Allow, Authenticated, "manage:user"),
         # OIDC beta users can see their user-level OIDC settings.
+        # XXX: Can be removed once OIDC is removed from beta.
         (
             Allow,
             "group:oidc_beta",

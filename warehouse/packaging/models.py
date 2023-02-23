@@ -259,6 +259,8 @@ class Project(SitemapMixin, TwoFactorRequireable, HasEvents, db.Model):
         acls = [
             (Allow, "group:admins", "admin"),
             (Allow, "group:moderators", "moderator"),
+            # OIDC beta users can see and manage project-level OIDC settings.
+            # XXX: Can be removed once OIDC is removed from beta.
             (
                 Allow,
                 "group:oidc_beta",
