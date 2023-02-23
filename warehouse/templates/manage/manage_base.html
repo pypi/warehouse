@@ -230,7 +230,7 @@
                   {% trans %}Account settings{% endtrans %}
                 </a>
               </li>
-              {% if request.registry.settings["warehouse.oidc.enabled"] %}
+              {% if request.registry.settings["warehouse.oidc.enabled"] and request.has_permission("manage:user:oidc") %}
               <li>
                 <a href="{{ request.route_path('manage.account.publishing') }}" class="vertical-tabs__tab vertical-tabs__tab--with-icon {% if active_tab == 'publishing' %}vertical-tabs__tab--is-active{% endif %} {% if mode == 'mobile' %}vertical-tabs__tab--mobile{% endif %}" {% if active_tab == 'publishing' %}aria-selected="true"{% endif %}>
                   <i class="fa fa-upload" aria-hidden="true"></i>

@@ -199,6 +199,13 @@ class User(SitemapMixin, HasEvents, db.Model):
         return [
             (Allow, "group:admins", "admin"),
             (Allow, "group:moderators", "moderator"),
+            # Admins can also use the OIDC beta, even if they're not explicitly
+            # added to the beta list.
+            (
+                Allow,
+                "group:admins",
+                ["manage:user:oidc", "manage:user:oidc:modify"],
+            ),
         ]
 
 

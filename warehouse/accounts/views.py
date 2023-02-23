@@ -1302,7 +1302,7 @@ def reauthenticate(request, _form_class=ReAuthenticateForm):
     uses_session=True,
     require_csrf=True,
     require_methods=False,
-    permission="manage:user",
+    permission="manage:user:oidc",
     has_translations=True,
     require_reauth=True,
 )
@@ -1376,7 +1376,9 @@ class ManageAccountPublishingViews:
         return self.default_response
 
     @view_config(
-        request_method="POST", request_param=PendingGitHubPublisherForm.__params__
+        request_method="POST",
+        request_param=PendingGitHubPublisherForm.__params__,
+        permission="manage:user:oidc:modify",
     )
     def add_pending_github_oidc_publisher(self):
         if not self.oidc_enabled:
@@ -1497,7 +1499,11 @@ class ManageAccountPublishingViews:
 
         return HTTPSeeOther(self.request.path)
 
-    @view_config(request_method="POST", request_param=DeletePublisherForm.__params__)
+    @view_config(
+        request_method="POST",
+        request_param=DeletePublisherForm.__params__,
+        permission="manage:user:oidc:modify",
+    )
     def delete_pending_oidc_publisher(self):
         if not self.oidc_enabled:
             raise HTTPNotFound

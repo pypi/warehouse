@@ -3011,7 +3011,7 @@ class ManageProjectSettingsViews:
     uses_session=True,
     require_csrf=True,
     require_methods=False,
-    permission="manage:project",
+    permission="manage:project:oidc",
     has_translations=True,
     require_reauth=True,
     http_cache=0,
@@ -3084,7 +3084,11 @@ class ManageOIDCPublisherViews:
 
         return self.default_response
 
-    @view_config(request_method="POST", request_param=GitHubPublisherForm.__params__)
+    @view_config(
+        request_method="POST",
+        request_param=GitHubPublisherForm.__params__,
+        permission="manage:project:oidc:modify",
+    )
     def add_github_oidc_publisher(self):
         if not self.oidc_enabled:
             raise HTTPNotFound
@@ -3187,7 +3191,11 @@ class ManageOIDCPublisherViews:
 
         return response
 
-    @view_config(request_method="POST", request_param=DeletePublisherForm.__params__)
+    @view_config(
+        request_method="POST",
+        request_param=DeletePublisherForm.__params__,
+        permission="manage:project:oidc:modify",
+    )
     def delete_oidc_publisher(self):
         if not self.oidc_enabled:
             raise HTTPNotFound
