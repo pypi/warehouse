@@ -63,6 +63,13 @@ class RootFactory:
         (Allow, "group:psf_staff", "psf_staff"),
         (Allow, "group:with_admin_dashboard_access", "admin_dashboard_access"),
         (Allow, Authenticated, "manage:user"),
+        # Admins can also use the OIDC beta, even if they're not explicitly
+        # added to the beta list.
+        (
+            Allow,
+            "group:admins",
+            ["manage:user:oidc", "manage:user:oidc:modify"],
+        ),
     ]
 
     def __init__(self, request):
