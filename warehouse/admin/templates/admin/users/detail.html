@@ -413,6 +413,41 @@
 
       <div class="card">
         <div class="card-header with-border">
+          <h3 class="card-title">Pending OpenID Connect Publishers</h3>
+        </div>
+
+        <div class="card-body">
+          {% if user.pending_oidc_publishers %}
+          <div class="table-responsive p-0">
+            <table class="table table-hover" id="pending-oidc-publishers">
+              <thead>
+                <tr>
+                  <th scope="col">Project name</th>
+                  <th scope="col">Publisher name</th>
+                  <th scope="col">URL</th>
+                  <th scope="col">repr</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for pub in user.pending_oidc_publishers %}
+                <tr>
+                  <td>{{ pub.project_name }}</td>
+                  <td>{{ pub.publisher_name }}</td>
+                  <td><a href="{{ pub.publisher_url }}">{{ pub.publisher_url }}</a></td>
+                  <td><code>{{ pub }}</code></td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+          {% else %}
+          No publishers configured.
+          {% endif %}
+        </div>
+      </div> <!-- .card -->
+
+      <div class="card">
+        <div class="card-header with-border">
           <h3 class="card-title">Account activity</h3>
         </div>
         <div class="card-body">

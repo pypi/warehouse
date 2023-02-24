@@ -86,8 +86,8 @@ def run_evaluation(request):
 
     if check.check_type == MalwareCheckType.EventHook:
         request.session.flash(
-            f"Running {check.name} on {EVALUATION_RUN_SIZE} {check.hooked_object.value}s\
-!",
+            f"Running {check.name} on {EVALUATION_RUN_SIZE} "
+            f"{check.hooked_object.value}s!",
             queue="success",
         )
         request.task(backfill).delay(check.name, EVALUATION_RUN_SIZE)
