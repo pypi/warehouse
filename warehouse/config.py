@@ -63,13 +63,6 @@ class RootFactory:
         (Allow, "group:psf_staff", "psf_staff"),
         (Allow, "group:with_admin_dashboard_access", "admin_dashboard_access"),
         (Allow, Authenticated, "manage:user"),
-        # OIDC beta users can see their user-level OIDC settings.
-        # XXX: Can be removed once OIDC is removed from beta.
-        (
-            Allow,
-            "group:oidc_beta",
-            "manage:user:oidc",
-        ),
     ]
 
     def __init__(self, request):

@@ -259,13 +259,6 @@ class Project(SitemapMixin, TwoFactorRequireable, HasEvents, db.Model):
         acls = [
             (Allow, "group:admins", "admin"),
             (Allow, "group:moderators", "moderator"),
-            # OIDC beta users can see and manage project-level OIDC settings.
-            # XXX: Can be removed once OIDC is removed from beta.
-            (
-                Allow,
-                "group:oidc_beta",
-                ["manage:project:oidc", "manage:project:oidc:modify"],
-            ),
         ]
 
         # The project has zero or more OIDC publishers registered to it,
@@ -302,20 +295,10 @@ class Project(SitemapMixin, TwoFactorRequireable, HasEvents, db.Model):
             query = query.options(orm.lazyload("user"))
             permissions |= {(role.user_id, "Administer") for role in query.all()}
 
-        # If this project has any OIDC publishers registered to it,
-        # then all users can see (but not modify) those publishers.
-        # This allows non-OIDC-beta-access users to see that beta access
-        # users are configuring OIDC on their projects.
-        # XXX: Can be removed once OIDC is removed from beta.
-        has_oidc_publishers = bool(self.oidc_publishers)
-
         for user_id, permission_name in sorted(permissions, key=lambda x: (x[1], x[0])):
             permissions = ["upload"]
             if permission_name == "Administer":
                 permissions.append("manage:project")
-
-            if has_oidc_publishers:
-                permissions.append("manage:project:oidc")
 
             acls.append((Allow, f"user:{user_id}", permissions))
 

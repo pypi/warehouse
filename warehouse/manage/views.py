@@ -3011,7 +3011,7 @@ class ManageProjectSettingsViews:
     uses_session=True,
     require_csrf=True,
     require_methods=False,
-    permission="manage:project:oidc",
+    permission="manage:project",
     has_translations=True,
     require_reauth=True,
     http_cache=0,
@@ -3073,6 +3073,9 @@ class ManageOIDCPublisherViews:
         if not self.oidc_enabled:
             raise HTTPNotFound
 
+        if not self.request.user.in_oidc_beta or self.project.oidc_providers:
+            return Response(status=403)
+
         if self.request.flags.enabled(AdminFlagValue.DISALLOW_OIDC):
             self.request.session.flash(
                 (
@@ -3087,11 +3090,13 @@ class ManageOIDCPublisherViews:
     @view_config(
         request_method="POST",
         request_param=GitHubPublisherForm.__params__,
-        permission="manage:project:oidc:modify",
     )
     def add_github_oidc_publisher(self):
         if not self.oidc_enabled:
             raise HTTPNotFound
+
+        if not self.request.user.in_oidc_beta:
+            return Response(status=403)
 
         if self.request.flags.enabled(AdminFlagValue.DISALLOW_OIDC):
             self.request.session.flash(
@@ -3194,11 +3199,13 @@ class ManageOIDCPublisherViews:
     @view_config(
         request_method="POST",
         request_param=DeletePublisherForm.__params__,
-        permission="manage:project:oidc:modify",
     )
     def delete_oidc_publisher(self):
         if not self.oidc_enabled:
             raise HTTPNotFound
+
+        if not self.request.user.in_oidc_beta:
+            return Response(status=403)
 
         if self.request.flags.enabled(AdminFlagValue.DISALLOW_OIDC):
             self.request.session.flash(

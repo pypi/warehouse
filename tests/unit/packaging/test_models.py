@@ -159,11 +159,6 @@ class TestProject:
         assert acls == [
             (Allow, "group:admins", "admin"),
             (Allow, "group:moderators", "moderator"),
-            (
-                Allow,
-                "group:oidc_beta",
-                ["manage:project:oidc", "manage:project:oidc:modify"],
-            ),
         ] + sorted(
             [(Allow, f"oidc:{publisher.id}", ["upload"])], key=lambda x: x[1]
         ) + sorted(
@@ -171,22 +166,22 @@ class TestProject:
                 (
                     Allow,
                     f"user:{owner1.user.id}",
-                    ["upload", "manage:project", "manage:project:oidc"],
+                    ["upload", "manage:project"],
                 ),
                 (
                     Allow,
                     f"user:{owner2.user.id}",
-                    ["upload", "manage:project", "manage:project:oidc"],
+                    ["upload", "manage:project"],
                 ),
                 (
                     Allow,
                     f"user:{owner3.user.id}",
-                    ["upload", "manage:project", "manage:project:oidc"],
+                    ["upload", "manage:project"],
                 ),
                 (
                     Allow,
                     f"user:{owner4.user.id}",
-                    ["upload", "manage:project", "manage:project:oidc"],
+                    ["upload", "manage:project"],
                 ),
             ],
             key=lambda x: x[1],
@@ -195,12 +190,12 @@ class TestProject:
                 (
                     Allow,
                     f"user:{maintainer1.user.id}",
-                    ["upload", "manage:project:oidc"],
+                    ["upload"],
                 ),
                 (
                     Allow,
                     f"user:{maintainer2.user.id}",
-                    ["upload", "manage:project:oidc"],
+                    ["upload"],
                 ),
             ],
             key=lambda x: x[1],
@@ -421,11 +416,6 @@ class TestRelease:
         assert acls == [
             (Allow, "group:admins", "admin"),
             (Allow, "group:moderators", "moderator"),
-            (
-                Allow,
-                "group:oidc_beta",
-                ["manage:project:oidc", "manage:project:oidc:modify"],
-            ),
         ] + sorted(
             [
                 (Allow, f"user:{owner1.user.id}", ["upload", "manage:project"]),
