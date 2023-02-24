@@ -119,7 +119,7 @@ class TestRateLimiter:
             ]
         )
 
-        limiter._window = pretend.stub(get_window_stats=lambda l, *a: next(stats))
+        limiter._window = pretend.stub(get_window_stats=lambda L, *a: next(stats))
 
         resets_in = limiter.resets_in("foo")
 
