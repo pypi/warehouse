@@ -10,10 +10,12 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import itertools
 import time
 import urllib.parse
 
 import forcediphttpsadapter.adapters
+import redis
 import requests
 
 from zope.interface import implementer
@@ -25,6 +27,23 @@ from warehouse.metrics.interfaces import IMetricsService
 
 class UnsuccessfulPurgeError(Exception):
     pass
+
+
+@tasks.task(bind=True, ignore_result=True, acks_late=True)
+def batch_purge(task, request, key):
+    """Cron job to pull all pending purges out of redis"""
+    cacher = request.find_service(IOriginCache)
+
+    try:
+        cacher.purge_batched_keys()
+    except (
+        requests.ConnectionError,
+        requests.HTTPError,
+        requests.Timeout,
+        UnsuccessfulPurgeError,
+    ) as exc:
+        request.log.error("Error purging %s: %s", key, str(exc))
+        raise task.retry(exc=exc)
 
 
 @tasks.task(bind=True, ignore_result=True, acks_late=True)
@@ -46,12 +65,19 @@ def purge_key(task, request, key):
 
 @implementer(IOriginCache)
 class FastlyCache:
-    def __init__(self, *, api_endpoint, api_connect_via, api_key, service_id, purger):
+    def __init__(
+        self, *, api_endpoint, api_connect_via, api_key, redis_url, service_id, purger
+    ):
         self.api_endpoint = api_endpoint
         self.api_connect_via = api_connect_via
         self.api_key = api_key
         self.service_id = service_id
-        self._purger = purger
+
+        self.redis = redis.StrictRedis.from_url(redis_url)
+
+    def get_batch_purge_keys(self):
+
+        pass
 
     @classmethod
     def create_service(cls, context, request):
@@ -63,8 +89,8 @@ class FastlyCache:
                 "origin_cache.api_connect_via", None
             ),
             api_key=request.registry.settings["origin_cache.api_key"],
+            redis_url=request.registry.settings["origin_cache.redis_url"],
             service_id=request.registry.settings["origin_cache.service_id"],
-            purger=request.task(purge_key).delay,
         )
 
     def cache(
@@ -96,8 +122,8 @@ class FastlyCache:
             response.headers["Surrogate-Control"] = ", ".join(values)
 
     def purge(self, keys):
-        for key in keys:
-            self._purger(key)
+        timestamp = int(time.time()) % 10
+        self.redis.sadd(f"batch-purge:{timestamp}", *keys)
 
     def _purge_key(self, key, connect_via=None):
         path = "/service/{service_id}/purge/{key}".format(
@@ -143,3 +169,36 @@ class FastlyCache:
                     tags=[f"ip_address:{self.api_connect_via}"],
                 )
                 self._double_purge_key(key)  # Do not connect via on fallback
+
+    def _purge_multiple_keys(self, keys):
+        path = "/service/{service_id}/purge/".format(service_id=self.service_id)
+        url = urllib.parse.urljoin(self.api_endpoint, path)
+        headers = {
+            "Accept": "application/json",
+            "Fastly-Key": self.api_key,
+            "Fastly-Soft-Purge": "1",
+        }
+        session = requests.Session()
+        data = {"surrogate_keys": list(keys)}
+
+        resp = session.post(url, headers=headers, data=data)
+
+        resp.raise_for_status()
+        if resp.json().get("status") != "ok":
+            raise UnsuccessfulPurgeError(f"Could not purge {len(keys)!r}")
+
+    def purge_batched_keys(self, keys, metrics=None):
+        # list all batches older than current timestamp, ordered by key/timestamp
+        timestamp = int(time.time()) % 10
+        batch_keys = [
+            key
+            for key in sorted(redis.keys(pattern="batch-purge:*"))
+            if key.split(":")[1] < str(timestamp)
+        ]
+
+        # for each batch, purge at most 256 at a time, and remove from the batch
+        for batch_key in batch_keys:
+            keys_to_purge = self.redis.smembers(batch_key)
+            for key_chunk in itertools.chunked(keys_to_purge, 256):
+                self.purge_multiple_keys(key_chunk)
+                self.redis.srem(batch_key, *key_chunk)
