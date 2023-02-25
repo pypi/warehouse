@@ -16,8 +16,8 @@ from paginate_sqlalchemy import SqlalchemyOrmPage as SQLAlchemyORMPage
 from pyramid.httpexceptions import HTTPBadRequest, HTTPMovedPermanently, HTTPSeeOther
 from pyramid.view import view_config
 from sqlalchemy import func, or_
+from sqlalchemy.exc import NoResultFound
 from sqlalchemy.orm import joinedload
-from sqlalchemy.orm.exc import NoResultFound
 
 from warehouse.accounts.models import User
 from warehouse.forklift.legacy import MAX_FILESIZE, MAX_PROJECT_SIZE
@@ -129,6 +129,7 @@ def project_detail(project, request):
         "releases": releases,
         "maintainers": maintainers,
         "journal": journal,
+        "oidc_publishers": project.oidc_publishers,
         "ONE_MB": ONE_MB,
         "MAX_FILESIZE": MAX_FILESIZE,
         "ONE_GB": ONE_GB,

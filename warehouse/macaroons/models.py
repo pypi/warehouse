@@ -39,8 +39,8 @@ class Macaroon(db.Model):
             "description", "user_id", name="_user_macaroons_description_uc"
         ),
         CheckConstraint(
-            "(user_id::text IS NULL) <> (oidc_provider_id::text IS NULL)",
-            name="_user_xor_oidc_provider_macaroon",
+            "(user_id::text IS NULL) <> (oidc_publisher_id::text IS NULL)",
+            name="_user_xor_oidc_publisher_macaroon",
         ),
     )
 
@@ -55,8 +55,8 @@ class Macaroon(db.Model):
         UUID(as_uuid=True), ForeignKey("users.id"), nullable=True, index=True
     )
 
-    oidc_provider_id = Column(
-        UUID(as_uuid=True), ForeignKey("oidc_providers.id"), nullable=True, index=True
+    oidc_publisher_id = Column(
+        UUID(as_uuid=True), ForeignKey("oidc_publishers.id"), nullable=True, index=True
     )
 
     # Store some information about the Macaroon to give users some mechanism

@@ -21,23 +21,23 @@ import sentry_sdk
 from zope.interface import implementer
 
 from warehouse.metrics.interfaces import IMetricsService
-from warehouse.oidc.interfaces import IOIDCProviderService, SignedClaims
-from warehouse.oidc.models import OIDCProvider
-from warehouse.oidc.utils import find_provider_by_issuer
+from warehouse.oidc.interfaces import IOIDCPublisherService, SignedClaims
+from warehouse.oidc.models import OIDCPublisher, PendingOIDCPublisher
+from warehouse.oidc.utils import find_publisher_by_issuer
 
 
-class InsecureOIDCProviderWarning(UserWarning):
+class InsecureOIDCPublisherWarning(UserWarning):
     pass
 
 
-@implementer(IOIDCProviderService)
-class NullOIDCProviderService:
-    def __init__(self, session, provider, issuer_url, cache_url, metrics):
+@implementer(IOIDCPublisherService)
+class NullOIDCPublisherService:
+    def __init__(self, session, publisher, issuer_url, cache_url, metrics):
         warnings.warn(
-            "NullOIDCProviderService is intended only for use in development, "
+            "NullOIDCPublisherService is intended only for use in development, "
             "you should not use it in production due to the lack of actual "
             "JWT verification.",
-            InsecureOIDCProviderWarning,
+            InsecureOIDCPublisherWarning,
         )
 
         self.db = session
@@ -51,7 +51,7 @@ class NullOIDCProviderService:
                     options=dict(
                         verify_signature=False,
                         # We require all of these to be present, but for the
-                        # null provider we only actually verify the audience.
+                        # null publisher we only actually verify the audience.
                         require=["iss", "iat", "nbf", "exp", "aud"],
                         verify_iss=False,
                         verify_iat=False,
@@ -65,43 +65,52 @@ class NullOIDCProviderService:
         except jwt.PyJWTError:
             return None
 
-    def find_provider(self, signed_claims: SignedClaims) -> OIDCProvider | None:
-        # NOTE: We do NOT verify the claims against the provider, since this
+    def find_publisher(
+        self, signed_claims: SignedClaims, *, pending: bool = False
+    ) -> OIDCPublisher | PendingOIDCPublisher | None:
+        # NOTE: We do NOT verify the claims against the publisher, since this
         # service is for development purposes only.
-        return find_provider_by_issuer(self.db, self.issuer_url, signed_claims)
+        return find_publisher_by_issuer(
+            self.db, self.issuer_url, signed_claims, pending=pending
+        )
+
+    def reify_pending_publisher(self, pending_publisher, project):
+        new_publisher = pending_publisher.reify(self.db)
+        project.oidc_publishers.append(new_publisher)
+        return new_publisher
 
 
-@implementer(IOIDCProviderService)
-class OIDCProviderService:
-    def __init__(self, session, provider, issuer_url, cache_url, metrics):
+@implementer(IOIDCPublisherService)
+class OIDCPublisherService:
+    def __init__(self, session, publisher, issuer_url, cache_url, metrics):
         self.db = session
-        self.provider = provider
+        self.publisher = publisher
         self.issuer_url = issuer_url
         self.cache_url = cache_url
         self.metrics = metrics
 
-        self._provider_jwk_key = f"/warehouse/oidc/jwks/{self.provider}"
-        self._provider_timeout_key = f"{self._provider_jwk_key}/timeout"
+        self._publisher_jwk_key = f"/warehouse/oidc/jwks/{self.publisher}"
+        self._publisher_timeout_key = f"{self._publisher_jwk_key}/timeout"
 
     def _store_keyset(self, keys):
         """
-        Store the given keyset for the given provider, setting the timeout key
+        Store the given keyset for the given publisher, setting the timeout key
         in the process.
         """
 
         with redis.StrictRedis.from_url(self.cache_url) as r:
-            r.set(self._provider_jwk_key, json.dumps(keys))
-            r.setex(self._provider_timeout_key, 60, "placeholder")
+            r.set(self._publisher_jwk_key, json.dumps(keys))
+            r.setex(self._publisher_timeout_key, 60, "placeholder")
 
     def _get_keyset(self):
         """
-        Return the cached keyset for the given provider, or an empty
+        Return the cached keyset for the given publisher, or an empty
         keyset if no keys are currently cached.
         """
 
         with redis.StrictRedis.from_url(self.cache_url) as r:
-            keys = r.get(self._provider_jwk_key)
-            timeout = bool(r.exists(self._provider_timeout_key))
+            keys = r.get(self._publisher_jwk_key)
+            timeout = bool(r.exists(self._publisher_timeout_key))
             if keys is not None:
                 return (json.loads(keys), timeout)
             else:
@@ -109,13 +118,13 @@ class OIDCProviderService:
 
     def _refresh_keyset(self):
         """
-        Attempt to refresh the keyset from the OIDC provider, assuming no
+        Attempt to refresh the keyset from the OIDC publisher, assuming no
         timeout is in effect.
 
         Returns the refreshed keyset, or the cached keyset if a timeout is
         in effect.
 
-        Returns the cached keyset on any provider access or format errors.
+        Returns the cached keyset on any publisher access or format errors.
         """
 
         # Fast path: we're in a cooldown from a previous refresh.
@@ -123,7 +132,7 @@ class OIDCProviderService:
         if timeout:
             self.metrics.increment(
                 "warehouse.oidc.refresh_keyset.timeout",
-                tags=[f"provider:{self.provider}"],
+                tags=[f"publisher:{self.publisher}"],
             )
             return keys
 
@@ -131,13 +140,13 @@ class OIDCProviderService:
 
         resp = requests.get(oidc_url)
 
-        # For whatever reason, an OIDC provider's configuration URL might be
+        # For whatever reason, an OIDC publisher's configuration URL might be
         # offline. We don't want to completely explode here, since other
-        # providers might still be online (and need updating), so we spit
+        # publishers might still be online (and need updating), so we spit
         # out an error and return None instead of raising.
         if not resp.ok:
             sentry_sdk.capture_message(
-                f"OIDC provider {self.provider} failed to return configuration: "
+                f"OIDC publisher {self.publisher} failed to return configuration: "
                 f"{oidc_url}"
             )
             return keys
@@ -149,7 +158,7 @@ class OIDCProviderService:
         # defend against its absence anyways.
         if jwks_url is None:
             sentry_sdk.capture_message(
-                f"OIDC provider {self.provider} is returning malformed "
+                f"OIDC publisher {self.publisher} is returning malformed "
                 "configuration (no jwks_uri)"
             )
             return keys
@@ -159,7 +168,7 @@ class OIDCProviderService:
         # Same reasoning as above.
         if not resp.ok:
             sentry_sdk.capture_message(
-                f"OIDC provider {self.provider} failed to return JWKS JSON: "
+                f"OIDC publisher {self.publisher} failed to return JWKS JSON: "
                 f"{jwks_url}"
             )
             return keys
@@ -167,13 +176,13 @@ class OIDCProviderService:
         jwks_conf = resp.json()
         new_keys = jwks_conf.get("keys")
 
-        # Another sanity test: an OIDC provider should never return an empty
+        # Another sanity test: an OIDC publisher should never return an empty
         # keyset, but there's nothing stopping them from doing so. We don't
         # want to cache an empty keyset just in case it's a short-lived error,
         # so we check here, error, and return the current cache instead.
         if not new_keys:
             sentry_sdk.capture_message(
-                f"OIDC provider {self.provider} returned JWKS JSON but no keys"
+                f"OIDC publisher {self.publisher} returned JWKS JSON but no keys"
             )
             return keys
 
@@ -185,7 +194,7 @@ class OIDCProviderService:
     def _get_key(self, key_id):
         """
         Return a JWK for the given key ID, or None if the key can't be found
-        in this provider's keyset.
+        in this publisher's keyset.
         """
 
         keyset, _ = self._get_keyset()
@@ -194,7 +203,7 @@ class OIDCProviderService:
         if key_id not in keyset:
             self.metrics.increment(
                 "warehouse.oidc.get_key.error",
-                tags=[f"provider:{self.provider}", f"key_id:{key_id}"],
+                tags=[f"publisher:{self.publisher}", f"key_id:{key_id}"],
             )
             return None
         return jwt.PyJWK(keyset[key_id])
@@ -239,7 +248,7 @@ class OIDCProviderService:
         except Exception as e:
             self.metrics.increment(
                 "warehouse.oidc.verify_jwt_signature.invalid_signature",
-                tags=[f"provider:{self.provider}"],
+                tags=[f"publisher:{self.publisher}"],
             )
             if not isinstance(e, jwt.PyJWTError):
                 # We expect pyjwt to only raise subclasses of PyJWTError, but
@@ -248,39 +257,48 @@ class OIDCProviderService:
                 sentry_sdk.capture_message(f"JWT verify raised generic error: {e}")
             return None
 
-    def find_provider(self, signed_claims: SignedClaims) -> OIDCProvider | None:
-        metrics_tags = [f"provider:{self.provider}"]
+    def find_publisher(
+        self, signed_claims: SignedClaims, *, pending: bool = False
+    ) -> OIDCPublisher | PendingOIDCPublisher | None:
+        metrics_tags = [f"publisher:{self.publisher}"]
         self.metrics.increment(
-            "warehouse.oidc.find_provider.attempt",
+            "warehouse.oidc.find_publisher.attempt",
             tags=metrics_tags,
         )
 
-        provider = find_provider_by_issuer(self.db, self.issuer_url, signed_claims)
-        if provider is None:
+        publisher = find_publisher_by_issuer(
+            self.db, self.issuer_url, signed_claims, pending=pending
+        )
+        if publisher is None:
             self.metrics.increment(
-                "warehouse.oidc.find_provider.provider_not_found",
+                "warehouse.oidc.find_publisher.publisher_not_found",
                 tags=metrics_tags,
             )
             return None
 
-        if not provider.verify_claims(signed_claims):
+        if not publisher.verify_claims(signed_claims):
             self.metrics.increment(
-                "warehouse.oidc.find_provider.invalid_claims",
+                "warehouse.oidc.find_publisher.invalid_claims",
                 tags=metrics_tags,
             )
             return None
         else:
             self.metrics.increment(
-                "warehouse.oidc.find_provider.ok",
+                "warehouse.oidc.find_publisher.ok",
                 tags=metrics_tags,
             )
 
-        return provider
+        return publisher
+
+    def reify_pending_publisher(self, pending_publisher, project):
+        new_publisher = pending_publisher.reify(self.db)
+        project.oidc_publishers.append(new_publisher)
+        return new_publisher
 
 
-class OIDCProviderServiceFactory:
-    def __init__(self, provider, issuer_url, service_class=OIDCProviderService):
-        self.provider = provider
+class OIDCPublisherServiceFactory:
+    def __init__(self, publisher, issuer_url, service_class=OIDCPublisherService):
+        self.publisher = publisher
         self.issuer_url = issuer_url
         self.service_class = service_class
 
@@ -289,15 +307,15 @@ class OIDCProviderServiceFactory:
         metrics = request.find_service(IMetricsService, context=None)
 
         return self.service_class(
-            request.db, self.provider, self.issuer_url, cache_url, metrics
+            request.db, self.publisher, self.issuer_url, cache_url, metrics
         )
 
     def __eq__(self, other):
-        if not isinstance(other, OIDCProviderServiceFactory):
+        if not isinstance(other, OIDCPublisherServiceFactory):
             return NotImplemented
 
-        return (self.provider, self.issuer_url, self.service_class) == (
-            other.provider,
+        return (self.publisher, self.issuer_url, self.service_class) == (
+            other.publisher,
             other.issuer_url,
             other.service_class,
         )

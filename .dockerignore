@@ -1,4 +1,5 @@
 .git/*
+.stylelintcache
 node_modules
 dev/*
 **/*.pyc

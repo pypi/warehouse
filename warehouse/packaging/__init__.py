@@ -17,12 +17,17 @@ from warehouse import db
 from warehouse.accounts.models import Email, User
 from warehouse.cache.origin import key_factory, receive_set
 from warehouse.manage.tasks import update_role_invitation_status
-from warehouse.packaging.interfaces import IDocsStorage, IFileStorage, ISimpleStorage
+from warehouse.packaging.interfaces import (
+    IDocsStorage,
+    IFileStorage,
+    IProjectService,
+    ISimpleStorage,
+)
 from warehouse.packaging.models import File, Project, Release, Role
+from warehouse.packaging.services import project_service_factory
 from warehouse.packaging.tasks import (
     compute_2fa_mandate,
     compute_2fa_metrics,
-    compute_trending,
     update_description_html,
 )
 
@@ -52,6 +57,8 @@ def includeme(config):
 
     docs_storage_class = config.maybe_dotted(config.registry.settings["docs.backend"])
     config.register_service_factory(docs_storage_class.create_service, IDocsStorage)
+
+    config.register_service_factory(project_service_factory, IProjectService)
 
     # Register our origin cache keys
     config.register_origin_cache_keys(
@@ -109,11 +116,6 @@ def includeme(config):
 
     # Add a periodic task to generate 2FA metrics
     config.add_periodic_task(crontab(minute="*/5"), compute_2fa_metrics)
-
-    # Add a periodic task to compute trending once a day, assuming we have
-    # been configured to be able to access BigQuery.
-    if config.get_settings().get("warehouse.trending_table"):
-        config.add_periodic_task(crontab(minute=0, hour=3), compute_trending)
 
     # TODO: restore this
     # if config.get_settings().get("warehouse.release_files_table"):

@@ -48,7 +48,7 @@
     line-height: $spacing-unit;
     float: left;
     cursor: pointer;
-    padding: 8px ($spacing-unit / 2);
+    padding: 8px $half-spacing-unit;
     background-color: transparentize($black, 0.85);
     border-right: 1px dotted $transparent-white;
     border-top: 1px dotted $transparent-white;

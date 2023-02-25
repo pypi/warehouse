@@ -10,6 +10,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import re
+
 from itertools import chain
 
 import stdlib_list
@@ -22,10 +24,9 @@ from pyramid.httpexceptions import (
     HTTPSeeOther,
 )
 from sqlalchemy import exists, func
-from sqlalchemy.orm.exc import NoResultFound
+from sqlalchemy.exc import NoResultFound
 
 from warehouse.admin.flags import AdminFlagValue
-from warehouse.events.tags import EventTag
 from warehouse.packaging.interfaces import IDocsStorage
 from warehouse.packaging.models import JournalEntry, ProhibitedProjectName, Project
 from warehouse.tasks import task
@@ -55,6 +56,10 @@ STDLIB_PROHIBITED = {
         for version in stdlib_list.short_versions
     )
 }
+
+PROJECT_NAME_RE = re.compile(
+    r"^([A-Z0-9]|[A-Z0-9][A-Z0-9._-]*[A-Z0-9])$", re.IGNORECASE
+)
 
 
 def validate_project_name(name, request):
@@ -145,33 +150,6 @@ def validate_project_name(name, request):
 
         # Project name is valid.
         return True
-
-
-def add_project(name, request):
-    """
-    Attempts to create a project with the given name.
-    """
-    project = Project(name=name)
-    request.db.add(project)
-
-    # TODO: This should be handled by some sort of database trigger or a
-    #       SQLAlchemy hook or the like instead of doing it inline in this
-    #       view.
-    request.db.add(
-        JournalEntry(
-            name=project.name,
-            action="create",
-            submitted_by=request.user,
-            submitted_from=request.remote_addr,
-        )
-    )
-    project.record_event(
-        tag=EventTag.Project.ProjectCreate,
-        ip_address=request.remote_addr,
-        additional={"created_by": request.user.username},
-    )
-
-    return project
 
 
 def confirm_project(

@@ -31,8 +31,8 @@
 
 <div class="sidebar-section">
   <h3 class="sidebar-section__title">{% trans %}Statistics{% endtrans %}</h3>
-  {% if release.github_repo_info_url %}
-  <div class="hidden" data-controller="github-repo-info" data-github-repo-info-url-value="{{release.github_repo_info_url}}">
+  {% if release.github_repo_info_url and release.github_open_issue_info_url %}
+  <div class="hidden github-repo-info" data-controller="github-repo-info">
     {% trans %}GitHub statistics:{% endtrans %}
     <ul class="vertical-tabs__list">
       <li>
@@ -55,8 +55,16 @@
         <a class="vertical-tabs__tab vertical-tabs__tab--with-icon vertical-tabs__tab--condensed"
            data-github-repo-info-target="openIssuesUrl" rel="noopener">
           <i class="fa fa-exclamation-circle" aria-hidden="true"></i>
-          <strong>{% trans %}Open issues/PRs:{% endtrans %}</strong>
+          <strong>{% trans %}Open issues:{% endtrans %}</strong>
           <span data-github-repo-info-target="openIssuesCount"></span>
+        </a>
+      </li>
+      <li>
+        <a class="vertical-tabs__tab vertical-tabs__tab--with-icon vertical-tabs__tab--condensed"
+           data-github-repo-info-target="openPRsUrl" rel="noopener">
+          <i class="fa fa-code-pull-request" aria-hidden="true"></i>
+          <strong>{% trans %}Open PRs:{% endtrans %}</strong>
+          <span data-github-repo-info-target="openPRsCount"></span>
         </a>
       </li>
     </ul>

@@ -12,13 +12,35 @@
 
 import time
 
+from pydantic import BaseModel, StrictStr, ValidationError
 from pyramid.view import view_config
+from sqlalchemy import func
 
 from warehouse.admin.flags import AdminFlagValue
+from warehouse.email import send_pending_oidc_publisher_invalidated_email
 from warehouse.events.tags import EventTag
 from warehouse.macaroons import caveats
 from warehouse.macaroons.interfaces import IMacaroonService
-from warehouse.oidc.interfaces import IOIDCProviderService
+from warehouse.oidc.interfaces import IOIDCPublisherService
+from warehouse.oidc.models import PendingOIDCPublisher
+from warehouse.packaging.interfaces import IProjectService
+from warehouse.packaging.models import ProjectFactory
+from warehouse.rate_limiting.interfaces import IRateLimiter
+
+
+class TokenPayload(BaseModel):
+    token: StrictStr
+
+
+def _ratelimiters(request):
+    return {
+        "user.oidc": request.find_service(
+            IRateLimiter, name="user_oidc.publisher.register"
+        ),
+        "ip.oidc": request.find_service(
+            IRateLimiter, name="ip_oidc.publisher.register"
+        ),
+    }
 
 
 @view_config(
@@ -47,39 +69,15 @@ def mint_token_from_oidc(request):
         )
 
     try:
-        body = request.json_body
-    except ValueError:
-        return _invalid(
-            errors=[{"code": "invalid-json", "description": "missing JSON body"}]
-        )
+        payload = TokenPayload.parse_raw(request.body)
+        unverified_jwt = payload.token
+    except ValidationError as exc:
+        return _invalid(errors=[{"code": "invalid-payload", "description": str(exc)}])
 
-    # `json_body` can return any valid top-level JSON type, so we have
-    # to make sure we're actually receiving a dictionary.
-    if not isinstance(body, dict):
-        return _invalid(
-            errors=[
-                {
-                    "code": "invalid-payload",
-                    "description": "payload is not a JSON dictionary",
-                }
-            ]
-        )
-
-    unverified_jwt = body.get("token")
-    if unverified_jwt is None:
-        return _invalid(
-            errors=[{"code": "invalid-token", "description": "token is missing"}]
-        )
-
-    if not isinstance(unverified_jwt, str):
-        return _invalid(
-            errors=[{"code": "invalid-token", "description": "token is not a string"}]
-        )
-
-    # For the time being, GitHub is our only OIDC provider.
+    # For the time being, GitHub is our only OIDC publisher.
     # In the future, this should locate the correct service based on an
     # identifier in the request body.
-    oidc_service = request.find_service(IOIDCProviderService, name="github")
+    oidc_service = request.find_service(IOIDCPublisherService, name="github")
     claims = oidc_service.verify_jwt_signature(unverified_jwt)
     if not claims:
         return _invalid(
@@ -88,13 +86,69 @@ def mint_token_from_oidc(request):
             ]
         )
 
-    provider = oidc_service.find_provider(claims)
-    if not provider:
+    # First, try to find a pending publisher.
+    pending_publisher = oidc_service.find_publisher(claims, pending=True)
+    if pending_publisher is not None:
+        factory = ProjectFactory(request)
+
+        # If the project already exists, this pending publisher is no longer
+        # valid and needs to be removed.
+        # NOTE: This is mostly a sanity check, since we dispose of invalidated
+        # pending publishers below.
+        if pending_publisher.project_name in factory:
+            request.db.delete(pending_publisher)
+            return _invalid(
+                errors=[
+                    {
+                        "code": "invalid-pending-publisher",
+                        "description": "valid token, but project already exists",
+                    }
+                ]
+            )
+
+        # Create the new project, and reify the pending publisher against it.
+        project_service = request.find_service(IProjectService)
+        new_project = project_service.create_project(
+            pending_publisher.project_name, pending_publisher.added_by
+        )
+        oidc_service.reify_pending_publisher(pending_publisher, new_project)
+
+        # Successfully converting a pending publisher into a normal publisher
+        # is a positive signal, so we reset the associated ratelimits.
+        ratelimiters = _ratelimiters(request)
+        ratelimiters["user.oidc"].clear(pending_publisher.added_by.id)
+        ratelimiters["ip.oidc"].clear(request.remote_addr)
+
+        # There might be other pending publishers for the same project name,
+        # which we've now invalidated by creating the project. These would
+        # be disposed of on use, but we explicitly dispose of them here while
+        # also sending emails to their owners.
+        stale_pending_publishers = (
+            request.db.query(PendingOIDCPublisher)
+            .filter(
+                func.normalize_pep426_name(PendingOIDCPublisher.project_name)
+                == func.normalize_pep426_name(pending_publisher.project_name)
+            )
+            .all()
+        )
+        for stale_publisher in stale_pending_publishers:
+            send_pending_oidc_publisher_invalidated_email(
+                request,
+                stale_publisher.added_by,
+                project_name=stale_publisher.project_name,
+            )
+            request.db.delete(stale_publisher)
+
+    # We either don't have a pending OIDC publisher, or we *did*
+    # have one and we've just converted it. Either way, look for a full publisher
+    # to actually do the macaroon minting with.
+    publisher = oidc_service.find_publisher(claims, pending=False)
+    if not publisher:
         return _invalid(
             errors=[
                 {
-                    "code": "invalid-provider",
-                    "description": "valid token, but no corresponding provider",
+                    "code": "invalid-publisher",
+                    "description": "valid token, but no corresponding publisher",
                 }
             ]
         )
@@ -108,22 +162,22 @@ def mint_token_from_oidc(request):
     expires_at = not_before + 900
     serialized, dm = macaroon_service.create_macaroon(
         request.domain,
-        f"OpenID token: {provider.provider_url} ({not_before})",
+        f"OpenID token: {publisher.publisher_url} ({not_before})",
         [
-            caveats.OIDCProvider(oidc_provider_id=str(provider.id)),
-            caveats.ProjectID(project_ids=[str(p.id) for p in provider.projects]),
+            caveats.OIDCPublisher(oidc_publisher_id=str(publisher.id)),
+            caveats.ProjectID(project_ids=[str(p.id) for p in publisher.projects]),
             caveats.Expiration(expires_at=expires_at, not_before=not_before),
         ],
-        oidc_provider_id=provider.id,
+        oidc_publisher_id=publisher.id,
     )
-    for project in provider.projects:
+    for project in publisher.projects:
         project.record_event(
             tag=EventTag.Project.ShortLivedAPITokenAdded,
             ip_address=request.remote_addr,
             additional={
                 "expires": expires_at,
-                "provider_name": provider.provider_name,
-                "provider_url": provider.provider_url,
+                "publisher_name": publisher.publisher_name,
+                "publisher_url": publisher.publisher_url,
             },
         )
     return {"success": True, "token": serialized}

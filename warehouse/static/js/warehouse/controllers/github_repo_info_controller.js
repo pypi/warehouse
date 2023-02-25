@@ -19,33 +19,23 @@ export default class extends Controller {
     "forksUrl",
     "openIssuesCount",
     "openIssuesUrl",
+    "openPRsCount",
+    "openPRsUrl",
     "stargazersCount",
     "stargazersUrl",
   ];
-  static values = { url: String };
 
-  // TODO: Why does this fire twice? Is it because of the position of CSI?
-  connect() {
-    this.load();
-  }
+  updateStats(stats) {
+    this.forksCountTarget.textContent = stats.forks;
+    this.forksUrlTarget.href = stats.forks_url;
+    this.openIssuesCountTarget.textContent = stats.issues;
+    this.openIssuesUrlTarget.href = stats.issues_url;
+    this.openPRsCountTarget.textContent = stats.PRs;
+    this.openPRsUrlTarget.href = stats.PRs_url;
+    this.stargazersCountTarget.textContent = stats.followers;
+    this.stargazersUrlTarget.href = stats.followers_url;
 
-  load() {
-    fetch(this.urlValue, {
-      method: "GET",
-      mode: "cors",
-    })
-      .then((response) => response.json())
-      .then((data) => {
-        this.forksCountTarget.textContent = data.forks_count;
-        this.forksUrlTarget.href = data.html_url + "/network/members";
-        this.openIssuesCountTarget.textContent = data.open_issues_count;
-        this.openIssuesUrlTarget.href = data.html_url + "/issues";
-        this.stargazersCountTarget.textContent = data.stargazers_count;
-        this.stargazersUrlTarget.href = data.html_url + "/stargazers";
-        // unhide the container now that the data is populated
-        this.element.classList.remove("hidden");
-      })
-      // swallow errors, we don't want to show them to the user
-      .catch(() => {});
+    // unhide the container now that the data is populated
+    this.element.classList.remove("hidden");
   }
 }

@@ -12,17 +12,29 @@
 
 import factory
 
-from warehouse.oidc.models import GitHubProvider
+from warehouse.oidc.models import GitHubPublisher, PendingGitHubPublisher
 
 from .base import WarehouseFactory
 
 
-class GitHubProviderFactory(WarehouseFactory):
+class GitHubPublisherFactory(WarehouseFactory):
     class Meta:
-        model = GitHubProvider
+        model = GitHubPublisher
 
     id = factory.Faker("uuid4", cast_to=None)
-    repository_name = "foo"
-    repository_owner = "bar"
-    repository_owner_id = 123
+    repository_name = factory.Faker("pystr", max_chars=12)
+    repository_owner = factory.Faker("pystr", max_chars=12)
+    repository_owner_id = factory.Faker("pystr", max_chars=12)
+    workflow_filename = "example.yml"
+
+
+class PendingGitHubPublisherFactory(WarehouseFactory):
+    class Meta:
+        model = PendingGitHubPublisher
+
+    id = factory.Faker("uuid4", cast_to=None)
+    project_name = "fake-nonexistent-project"
+    repository_name = factory.Faker("pystr", max_chars=12)
+    repository_owner = factory.Faker("pystr", max_chars=12)
+    repository_owner_id = factory.Faker("pystr", max_chars=12)
     workflow_filename = "example.yml"

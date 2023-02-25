@@ -33,8 +33,8 @@ from sqlalchemy import (
     sql,
 )
 from sqlalchemy.dialects.postgresql import UUID
+from sqlalchemy.exc import NoResultFound
 from sqlalchemy.ext.hybrid import hybrid_property
-from sqlalchemy.orm.exc import NoResultFound
 
 from warehouse import db
 from warehouse.events.models import HasEvents
@@ -109,11 +109,15 @@ class User(SitemapMixin, HasEvents, db.Model):
     )
 
     macaroons = orm.relationship(
-        "Macaroon", backref="user", cascade="all, delete-orphan", lazy=True
+        "Macaroon",
+        backref="user",
+        cascade="all, delete-orphan",
+        lazy=True,
+        order_by="Macaroon.created.desc()",
     )
 
-    pending_oidc_providers = orm.relationship(
-        "PendingOIDCProvider",
+    pending_oidc_publishers = orm.relationship(
+        "PendingOIDCPublisher",
         backref="added_by",
         cascade="all, delete-orphan",
         lazy=True,

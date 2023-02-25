@@ -19,7 +19,7 @@ import pytz
 
 from celery.schedules import crontab
 from first import first
-from sqlalchemy.orm.exc import NoResultFound
+from sqlalchemy.exc import NoResultFound
 
 from warehouse import tasks
 from warehouse.accounts.interfaces import ITokenService, IUserService
@@ -971,25 +971,32 @@ def send_recovery_code_reminder_email(request, user):
     return {"username": user.username}
 
 
-@_email("oidc-provider-added")
-def send_oidc_provider_added_email(request, user, project_name, provider):
+@_email("oidc-publisher-added")
+def send_oidc_publisher_added_email(request, user, project_name, publisher):
     # We use the request's user, since they're the one triggering the action.
     return {
         "username": request.user.username,
         "project_name": project_name,
-        "provider_name": provider.provider_name,
-        "provider_spec": str(provider),
+        "publisher_name": publisher.publisher_name,
+        "publisher_spec": str(publisher),
     }
 
 
-@_email("oidc-provider-removed")
-def send_oidc_provider_removed_email(request, user, project_name, provider):
+@_email("oidc-publisher-removed")
+def send_oidc_publisher_removed_email(request, user, project_name, publisher):
     # We use the request's user, since they're the one triggering the action.
     return {
         "username": request.user.username,
         "project_name": project_name,
-        "provider_name": provider.provider_name,
-        "provider_spec": str(provider),
+        "publisher_name": publisher.publisher_name,
+        "publisher_spec": str(publisher),
+    }
+
+
+@_email("pending-oidc-publisher-invalidated")
+def send_pending_oidc_publisher_invalidated_email(request, user, project_name):
+    return {
+        "project_name": project_name,
     }
 
 

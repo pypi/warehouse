@@ -31,6 +31,7 @@ import warehouse.utils.webauthn as webauthn
 from warehouse.accounts import services
 from warehouse.accounts.interfaces import (
     BurnedRecoveryCode,
+    IEmailBreachedService,
     InvalidRecoveryCode,
     IPasswordBreachedService,
     ITokenService,
@@ -241,7 +242,7 @@ class TestDatabaseUserService:
     def test_check_password_invalid(self, user_service, metrics):
         user = UserFactory.create()
         user_service.hasher = pretend.stub(
-            verify_and_update=pretend.call_recorder(lambda l, r: (False, None))
+            verify_and_update=pretend.call_recorder(lambda L, r: (False, None))
         )
 
         assert not user_service.check_password(user.id, "user password")
@@ -261,7 +262,7 @@ class TestDatabaseUserService:
     def test_check_password_valid(self, user_service, metrics):
         user = UserFactory.create()
         user_service.hasher = pretend.stub(
-            verify_and_update=pretend.call_recorder(lambda l, r: (True, None))
+            verify_and_update=pretend.call_recorder(lambda L, r: (True, None))
         )
 
         assert user_service.check_password(user.id, "user password", tags=["bar"])
@@ -282,7 +283,7 @@ class TestDatabaseUserService:
         user = UserFactory.create()
         password = user.password
         user_service.hasher = pretend.stub(
-            verify_and_update=pretend.call_recorder(lambda l, r: (True, "new password"))
+            verify_and_update=pretend.call_recorder(lambda L, r: (True, "new password"))
         )
 
         assert user_service.check_password(user.id, "user password")
@@ -1337,3 +1338,98 @@ class TestNullPasswordBreachedService:
 
         assert isinstance(svc, services.NullPasswordBreachedService)
         assert not svc.check_password("hunter2")
+
+
+class TestHaveIBeenPwnedEmailBreachedService:
+    def test_verify_service(self):
+        assert verifyClass(
+            IEmailBreachedService, services.HaveIBeenPwnedEmailBreachedService
+        )
+
+    def test_no_api_key(self):
+        svc = services.HaveIBeenPwnedEmailBreachedService(session=pretend.stub())
+        assert svc.get_email_breach_count("anything") is None
+
+    def test_successful_breach_count(self):
+        response = pretend.stub(
+            json=lambda: [{"LinkedIn"}], raise_for_status=lambda: None
+        )
+        session = pretend.stub(get=pretend.call_recorder(lambda *a, **kw: response))
+        svc = services.HaveIBeenPwnedEmailBreachedService(
+            session=session, api_key="blowhole"
+        )
+
+        assert svc.get_email_breach_count("foo@example.com") == 1
+        assert session.get.calls == [
+            pretend.call(
+                "https://haveibeenpwned.com/api/v3/breachedaccount/foo@example.com",
+                headers={"User-Agent": "PyPI.org", "hibp-api-key": "blowhole"},
+            )
+        ]
+
+    def test_no_breaches(self):
+        class NotFoundException(requests.HTTPError):
+            def __init__(self):
+                self.response = pretend.stub(status_code=404)
+
+        response = pretend.stub(raise_for_status=pretend.raiser(NotFoundException))
+        session = pretend.stub(
+            get=pretend.call_recorder(lambda *a, **kw: response),
+        )
+        svc = services.HaveIBeenPwnedEmailBreachedService(
+            session=session, api_key="blowhole"
+        )
+
+        assert svc.get_email_breach_count("new-email@gmail.com") == 0
+        assert session.get.calls == [
+            pretend.call(
+                "https://haveibeenpwned.com/api/v3/breachedaccount/new-email@gmail.com",
+                headers={"User-Agent": "PyPI.org", "hibp-api-key": "blowhole"},
+            )
+        ]
+
+    def test_other_failure(self):
+        class OtherHTTPException(requests.HTTPError):
+            def __init__(self):
+                self.response = pretend.stub(status_code=401)
+
+        response = pretend.stub(raise_for_status=pretend.raiser(OtherHTTPException))
+        session = pretend.stub(
+            get=pretend.call_recorder(lambda *a, **kw: response),
+        )
+        svc = services.HaveIBeenPwnedEmailBreachedService(
+            session=session, api_key="blowhole"
+        )
+
+        assert svc.get_email_breach_count("invalid-address") == -1
+
+    def test_factory(self):
+        context = pretend.stub()
+        hibp_api_key = "blowhole"
+        request = pretend.stub(
+            http=pretend.stub(),
+            registry=pretend.stub(settings={"hibp.api_key": hibp_api_key}),
+        )
+        svc = services.HaveIBeenPwnedEmailBreachedService.create_service(
+            context, request
+        )
+
+        assert svc._http is request.http
+        assert svc.api_key == hibp_api_key
+
+
+class TestNullEmailBreachedService:
+    def test_verify_service(self):
+        assert verifyClass(IEmailBreachedService, services.NullEmailBreachedService)
+
+    def test_check_email(self):
+        svc = services.NullEmailBreachedService()
+        assert svc.get_email_breach_count("foo@example.com") == 0
+
+    def test_factory(self):
+        context = pretend.stub()
+        request = pretend.stub()
+        svc = services.NullEmailBreachedService.create_service(context, request)
+
+        assert isinstance(svc, services.NullEmailBreachedService)
+        assert svc.get_email_breach_count("foo@example.com") == 0

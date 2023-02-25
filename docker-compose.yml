@@ -6,6 +6,7 @@ volumes:
   sponsorlogos:
   policies:
   vault:
+  caches:
 
 services:
   vault:
@@ -101,6 +102,9 @@ services:
       - simple:/var/opt/warehouse/simple
       - ./bin:/opt/warehouse/src/bin:z
       - ./requirements:/opt/warehouse/src/requirements:z
+      - caches:/root/.cache
+      - caches:/opt/warehouse/src/.mypy_cache
+      - caches:/opt/warehouse/src/.pytest_cache
     ports:
       - "${WEB_PORT:-80}:8000"
     depends_on:
@@ -142,15 +146,18 @@ services:
   static:
     build:
       context: .
-      dockerfile: Dockerfile.static
-    command: bash -c "node --trace-warnings `which gulp` watch"
+      target: static-deps
+    environment:
+      NODE_ENV: "development"
+    command: bash -c "npm run watch"
     volumes:
       - ./warehouse:/opt/warehouse/src/warehouse:z
-      - ./Gulpfile.babel.js:/opt/warehouse/src/Gulpfile.babel.js:z
+      - ./webpack.config.js:/opt/warehouse/src/webpack.config.js:z
       - ./.babelrc:/opt/warehouse/src/.babelrc:z
-      - ./.sass-lint.yml:/opt/warehouse/src/.sass-lint.yml:z
+      - ./.stylelintrc.json:/opt/warehouse/src/.stylelintrc.json:z
       - ./tests/frontend:/opt/warehouse/src/tests/frontend:z
       - ./bin:/opt/warehouse/src/bin:z
+      - caches:/opt/warehouse/src/.stylelintcache
 
   maildev:
     image: maildev/maildev:2.0.2
@@ -161,6 +168,8 @@ services:
   notdatadog:
     build:
       context: .
+      args:
+        DEVEL: "yes"
     command: python /opt/warehouse/dev/notdatadog.py 0.0.0.0:8125
     environment:
       METRICS_OUTPUT: "false"

@@ -18,6 +18,7 @@ from urllib.parse import urlparse
 import packaging.utils
 
 from citext import CIText
+from github_reserved_names import ALL as GITHUB_RESERVED_NAMES
 from pyramid.authorization import Allow
 from pyramid.threadlocal import get_current_request
 from sqlalchemy import (
@@ -28,7 +29,6 @@ from sqlalchemy import (
     DateTime,
     Enum,
     FetchedValue,
-    Float,
     ForeignKey,
     Index,
     Integer,
@@ -41,12 +41,12 @@ from sqlalchemy import (
     sql,
 )
 from sqlalchemy.dialects.postgresql import UUID
+from sqlalchemy.exc import MultipleResultsFound, NoResultFound
 from sqlalchemy.ext.associationproxy import association_proxy
 from sqlalchemy.ext.declarative import declared_attr  # type: ignore
 from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy.orm import validates
 from sqlalchemy.orm.collections import attribute_mapped_collection
-from sqlalchemy.orm.exc import MultipleResultsFound, NoResultFound
 
 from warehouse import db
 from warehouse.accounts.models import User
@@ -195,7 +195,6 @@ class Project(SitemapMixin, TwoFactorRequireable, HasEvents, db.Model):
     upload_limit = Column(Integer, nullable=True)
     total_size_limit = Column(BigInteger, nullable=True)
     last_serial = Column(Integer, nullable=False, server_default=sql.text("0"))
-    zscore = Column(Float, nullable=True)
     total_size = Column(BigInteger, server_default=sql.text("0"))
 
     organization = orm.relationship(
@@ -262,10 +261,10 @@ class Project(SitemapMixin, TwoFactorRequireable, HasEvents, db.Model):
             (Allow, "group:moderators", "moderator"),
         ]
 
-        # The project has zero or more OIDC "providers" registered to it,
+        # The project has zero or more OIDC publishers registered to it,
         # each of which serves as an identity with the ability to upload releases.
-        for provider in self.oidc_providers:
-            acls.append((Allow, f"oidc:{provider.id}", ["upload"]))
+        for publisher in self.oidc_publishers:
+            acls.append((Allow, f"oidc:{publisher.id}", ["upload"]))
 
         # Get all of the users for this project.
         query = session.query(Role).filter(Role.project == self)
@@ -584,14 +583,34 @@ class Release(db.Model):
 
         return _urls
 
-    @property
-    def github_repo_info_url(self):
-        for url in self.urls.values():
+    @staticmethod
+    def get_user_name_and_repo_name(urls):
+        for url in urls:
             parsed = urlparse(url)
             segments = parsed.path.strip("/").split("/")
             if parsed.netloc in {"github.com", "www.github.com"} and len(segments) >= 2:
                 user_name, repo_name = segments[:2]
-                return f"https://api.github.com/repos/{user_name}/{repo_name}"
+                if user_name in GITHUB_RESERVED_NAMES:
+                    continue
+                if repo_name.endswith(".git"):
+                    repo_name = repo_name.removesuffix(".git")
+                return user_name, repo_name
+        return None, None
+
+    @property
+    def github_repo_info_url(self):
+        user_name, repo_name = self.get_user_name_and_repo_name(self.urls.values())
+        if user_name and repo_name:
+            return f"https://api.github.com/repos/{user_name}/{repo_name}"
+
+    @property
+    def github_open_issue_info_url(self):
+        user_name, repo_name = self.get_user_name_and_repo_name(self.urls.values())
+        if user_name and repo_name:
+            return (
+                f"https://api.github.com/search/issues?q=repo:{user_name}/{repo_name}"
+                "+type:issue+state:open&per_page=1"
+            )
 
     @property
     def has_meta(self):

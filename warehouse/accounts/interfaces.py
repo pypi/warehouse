@@ -280,3 +280,10 @@ class IPasswordBreachedService(Interface):
         May have an optional list of tags, which allows identifying the purpose of
         checking the password.
         """
+
+
+class IEmailBreachedService(Interface):
+    def get_email_breach_count(email: str) -> int | None:
+        """
+        Returns count of times the email appears in verified breaches.
+        """

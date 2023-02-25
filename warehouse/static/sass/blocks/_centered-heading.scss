@@ -32,7 +32,7 @@
 
   &__rule {
     max-width: 300px;
-    margin: ($spacing-unit / 2) auto ($spacing-unit * 2);
+    margin: $half-spacing-unit auto ($spacing-unit * 2);
     background: $base-grey;
 
     @media only screen and (max-width: $tablet) {

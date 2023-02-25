@@ -570,6 +570,18 @@
       {% elif event.tag  == EventTag.Account.PasswordChange %}
       <strong>{% trans %}Password successfully changed{% endtrans %}</strong>
 
+      {% elif event.tag == EventTag.Account.PendingOIDCPublisherAdded %}
+      <strong>Pending OpenID Connect publisher added</strong>
+      <small>{% trans %}Project:{% endtrans %} {{ event.additional.project }}</small>
+      <small>{% trans %}Publisher:{% endtrans %} {{ event.additional.publisher }}</small>
+      <small>{% trans %}Publisher:{% endtrans %} {{ event.additional.specifier }}</small>
+
+      {% elif event.tag == EventTag.Account.PendingOIDCPublisherRemoved %}
+      <strong>Pending OpenID Connect publisher removed</strong>
+      <small>{% trans %}Project:{% endtrans %} {{ event.additional.project }}</small>
+      <small>{% trans %}Publisher:{% endtrans %} {{ event.additional.publisher }}</small>
+      <small>{% trans %}Publisher:{% endtrans %} {{ event.additional.specifier }}</small>
+
       {% elif event.tag  == EventTag.Account.TwoFactorMethodAdded %}
       <strong>{% trans %}Two factor authentication added{% endtrans %}</strong><br>
       <small>

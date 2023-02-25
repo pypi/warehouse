@@ -32,6 +32,7 @@ from warehouse.packaging.services import (
     LocalSimpleStorage,
     S3DocsStorage,
     S3FileStorage,
+    project_service_factory,
 )
 
 
@@ -211,7 +212,9 @@ class TestS3FileStorage:
         assert storage.bucket is bucket
 
     def test_create_service(self):
-        session = boto3.session.Session()
+        session = boto3.session.Session(
+            aws_access_key_id="foo", aws_secret_access_key="bar"
+        )
         request = pretend.stub(
             find_service=pretend.call_recorder(lambda name: session),
             registry=pretend.stub(settings={"files.bucket": "froblob"}),
@@ -475,7 +478,9 @@ class TestS3DocsStorage:
         assert verifyClass(IDocsStorage, S3DocsStorage)
 
     def test_create_service(self):
-        session = boto3.session.Session()
+        session = boto3.session.Session(
+            aws_access_key_id="foo", aws_secret_access_key="bar"
+        )
         request = pretend.stub(
             find_service=pretend.call_recorder(lambda name: session),
             registry=pretend.stub(settings={"docs.bucket": "froblob"}),
@@ -661,3 +666,13 @@ class TestGenericLocalBlobStorage:
     def test_notimplementederror(self):
         with pytest.raises(NotImplementedError):
             GenericLocalBlobStorage.create_service(pretend.stub(), pretend.stub())
+
+
+def test_project_service_factory():
+    db = pretend.stub()
+    remote_addr = pretend.stub()
+    request = pretend.stub(db=db, remote_addr=remote_addr)
+
+    service = project_service_factory(pretend.stub(), request)
+    assert service.db == db
+    assert service.remote_addr == remote_addr

@@ -105,12 +105,12 @@
 
   &__tab {
     display: block;
-    padding: $spacing-unit / 2;
+    padding: $half-spacing-unit;
     cursor: pointer;
     @include link-without-underline;
 
     &:hover {
-      color: darken($primary-color, 10)
+      color: darken($primary-color, 10);
     }
 
     &:active,
@@ -145,8 +145,8 @@
     }
 
     &--condensed {
-      padding-top: $spacing-unit / 4;
-      padding-bottom: $spacing-unit / 4;
+      padding-top: $quarter-spacing-unit;
+      padding-bottom: $quarter-spacing-unit;
     }
 
     &--with-icon {
@@ -183,7 +183,7 @@
     }
 
     @media only screen and (max-width: $tablet) {
-      margin: 25px 10px 10px 10px;
+      margin: 25px 10px 10px;
     }
   }
 }

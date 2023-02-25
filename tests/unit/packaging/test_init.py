@@ -18,19 +18,23 @@ from celery.schedules import crontab
 from warehouse import packaging
 from warehouse.accounts.models import Email, User
 from warehouse.manage.tasks import update_role_invitation_status
-from warehouse.packaging.interfaces import IDocsStorage, IFileStorage, ISimpleStorage
+from warehouse.packaging.interfaces import (
+    IDocsStorage,
+    IFileStorage,
+    IProjectService,
+    ISimpleStorage,
+)
 from warehouse.packaging.models import File, Project, Release, Role
+from warehouse.packaging.services import project_service_factory
 from warehouse.packaging.tasks import (  # sync_bigquery_release_files,
     compute_2fa_mandate,
-    compute_trending,
     update_description_html,
 )
 
 
-@pytest.mark.parametrize("with_trending", [True, False])
 @pytest.mark.parametrize("with_bq_sync", [True, False])
 @pytest.mark.parametrize("with_2fa_mandate", [True, False])
-def test_includeme(monkeypatch, with_trending, with_bq_sync, with_2fa_mandate):
+def test_includeme(monkeypatch, with_bq_sync, with_2fa_mandate):
     storage_class = pretend.stub(
         create_service=pretend.call_recorder(lambda *a, **kw: pretend.stub())
     )
@@ -40,8 +44,6 @@ def test_includeme(monkeypatch, with_trending, with_bq_sync, with_2fa_mandate):
 
     monkeypatch.setattr(packaging, "key_factory", key_factory)
     settings = dict()
-    if with_trending:
-        settings["warehouse.trending_table"] = "foobar"
     if with_bq_sync:
         settings["warehouse.release_files_table"] = "fizzbuzz"
     if with_2fa_mandate:
@@ -70,6 +72,7 @@ def test_includeme(monkeypatch, with_trending, with_bq_sync, with_2fa_mandate):
         pretend.call(storage_class.create_service, IFileStorage),
         pretend.call(storage_class.create_service, ISimpleStorage),
         pretend.call(storage_class.create_service, IDocsStorage),
+        pretend.call(project_service_factory, IProjectService),
     ]
     assert config.register_origin_cache_keys.calls == [
         pretend.call(
@@ -127,12 +130,6 @@ def test_includeme(monkeypatch, with_trending, with_bq_sync, with_2fa_mandate):
         #    in config.add_periodic_task.calls
         # )
         pass
-
-    if with_trending:
-        assert (
-            pretend.call(crontab(minute=0, hour=3), compute_trending)
-            in config.add_periodic_task.calls
-        )
 
     if with_2fa_mandate:
         assert (

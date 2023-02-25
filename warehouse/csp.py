@@ -86,6 +86,10 @@ def includeme(config):
                 "connect-src": [
                     SELF,
                     "https://api.github.com/repos/",
+                    "https://api.github.com/search/issues",
+                    "https://*.google-analytics.com",
+                    "https://*.analytics.google.com",
+                    "https://*.googletagmanager.com",
                     "fastly-insights.com",
                     "*.fastly-insights.com",
                     "*.ethicalads.io",
@@ -106,14 +110,16 @@ def includeme(config):
                 "img-src": [
                     SELF,
                     config.registry.settings["camo.url"],
-                    "www.google-analytics.com",
+                    "https://*.google-analytics.com",
+                    "https://*.googletagmanager.com",
                     "*.fastly-insights.com",
                     "*.ethicalads.io",
                 ],
                 "script-src": [
                     SELF,
-                    "www.googletagmanager.com",
-                    "www.google-analytics.com",
+                    "https://*.googletagmanager.com",
+                    "https://www.google-analytics.com",  # Remove when disabling UA
+                    "https://ssl.google-analytics.com",  # Remove when disabling UA
                     "*.fastly-insights.com",
                     "*.ethicalads.io",
                     # Hash for v1.4.0 of ethicalads.min.js

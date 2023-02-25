@@ -37,7 +37,7 @@ from warehouse.admin.flags import AdminFlag, AdminFlagValue
 from warehouse.classifiers.models import Classifier
 from warehouse.forklift import legacy
 from warehouse.metrics import IMetricsService
-from warehouse.packaging.interfaces import IFileStorage
+from warehouse.packaging.interfaces import IFileStorage, IProjectService
 from warehouse.packaging.models import (
     Dependency,
     DependencyKind,
@@ -53,7 +53,7 @@ from warehouse.utils.security_policy import AuthenticationMethod
 
 from ...common.db.accounts import EmailFactory, UserFactory
 from ...common.db.classifiers import ClassifierFactory
-from ...common.db.oidc import GitHubProviderFactory
+from ...common.db.oidc import GitHubPublisherFactory
 from ...common.db.packaging import (
     FileFactory,
     ProjectFactory,
@@ -1918,8 +1918,9 @@ class TestFileUpload:
         assert resp.status_code == 400
         assert resp.status == "400 Invalid distribution file."
 
-    def test_upload_fails_end_of_file_error(self, pyramid_config, db_request, metrics):
-
+    def test_upload_fails_end_of_file_error(
+        self, pyramid_config, db_request, metrics, project_service
+    ):
         user = UserFactory.create()
         EmailFactory.create(user=user)
         project = ProjectFactory.create(name="Package-Name")
@@ -1951,6 +1952,7 @@ class TestFileUpload:
         db_request.find_service = lambda svc, name=None, context=None: {
             IFileStorage: storage_service,
             IMetricsService: metrics,
+            IProjectService: project_service,
         }.get(svc)
         db_request.user_agent = "warehouse-tests/6.6.6"
 
@@ -2100,7 +2102,11 @@ class TestFileUpload:
         )
 
     def test_upload_succeeds_custom_project_size_limit(
-        self, pyramid_config, db_request, metrics
+        self,
+        pyramid_config,
+        db_request,
+        metrics,
+        project_service,
     ):
 
         user = UserFactory.create()
@@ -2139,6 +2145,7 @@ class TestFileUpload:
         db_request.find_service = lambda svc, name=None, context=None: {
             IFileStorage: storage_service,
             IMetricsService: metrics,
+            IProjectService: project_service,
         }.get(svc)
         db_request.user_agent = "warehouse-tests/6.6.6"
 
@@ -2603,17 +2610,17 @@ class TestFileUpload:
             "See /the/help/url/ for more information."
         ).format(user2.username, project.name)
 
-    def test_upload_fails_without_oidc_provider_permission(
+    def test_upload_fails_without_oidc_publisher_permission(
         self, pyramid_config, db_request
     ):
         project = ProjectFactory.create()
         release = ReleaseFactory.create(project=project, version="1.0")
 
-        provider = GitHubProviderFactory.create(projects=[project])
+        publisher = GitHubPublisherFactory.create(projects=[project])
 
         filename = f"{project.name}-{release.version}.tar.wat"
 
-        pyramid_config.testing_securitypolicy(identity=provider, permissive=False)
+        pyramid_config.testing_securitypolicy(identity=publisher, permissive=False)
         db_request.user = None
         db_request.POST = MultiDict(
             {
@@ -3272,11 +3279,11 @@ class TestFileUpload:
     def test_upload_fails_nonuser_identity_cannot_create_project(
         self, pyramid_config, db_request, metrics
     ):
-        provider = GitHubProviderFactory.create()
+        publisher = GitHubPublisherFactory.create()
 
         filename = "{}-{}.tar.gz".format("example", "1.0")
 
-        pyramid_config.testing_securitypolicy(identity=provider)
+        pyramid_config.testing_securitypolicy(identity=publisher)
         db_request.user = None
         db_request.POST = MultiDict(
             {
@@ -3312,7 +3319,9 @@ class TestFileUpload:
             "configure the project to use OpenID Connect."
         )
 
-    def test_upload_succeeds_creates_project(self, pyramid_config, db_request, metrics):
+    def test_upload_succeeds_creates_project(
+        self, pyramid_config, db_request, metrics, project_service
+    ):
 
         user = UserFactory.create()
         EmailFactory.create(user=user)
@@ -3340,6 +3349,7 @@ class TestFileUpload:
         db_request.find_service = lambda svc, name=None, context=None: {
             IFileStorage: storage_service,
             IMetricsService: metrics,
+            IProjectService: project_service,
         }.get(svc)
         db_request.user_agent = "warehouse-tests/6.6.6"
 
@@ -3417,7 +3427,13 @@ class TestFileUpload:
         ],
     )
     def test_upload_requires_verified_email(
-        self, pyramid_config, db_request, emails_verified, expected_success, metrics
+        self,
+        pyramid_config,
+        db_request,
+        emails_verified,
+        expected_success,
+        metrics,
+        project_service,
     ):
 
         user = UserFactory.create()
@@ -3447,6 +3463,7 @@ class TestFileUpload:
         db_request.find_service = lambda svc, name=None, context=None: {
             IFileStorage: storage_service,
             IMetricsService: metrics,
+            IProjectService: project_service,
         }.get(svc)
         db_request.user_agent = "warehouse-tests/6.6.6"
 
@@ -3473,7 +3490,12 @@ class TestFileUpload:
             )
 
     def test_upload_purges_legacy(
-        self, pyramid_config, db_request, monkeypatch, metrics
+        self,
+        pyramid_config,
+        db_request,
+        monkeypatch,
+        metrics,
+        project_service,
     ):
 
         user = UserFactory.create()
@@ -3502,6 +3524,7 @@ class TestFileUpload:
         db_request.find_service = lambda svc, name=None, context=None: {
             IFileStorage: storage_service,
             IMetricsService: metrics,
+            IProjectService: project_service,
         }.get(svc)
         db_request.user_agent = "warehouse-tests/6.6.6"
 

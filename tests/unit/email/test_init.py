@@ -16,7 +16,7 @@ import celery.exceptions
 import pretend
 import pytest
 
-from sqlalchemy.orm.exc import NoResultFound
+from sqlalchemy.exc import NoResultFound
 
 from warehouse import email
 from warehouse.accounts.interfaces import IUserService
@@ -5463,15 +5463,17 @@ class TestRecoveryCodeEmails:
         ]
 
 
-class TestOIDCProviderEmails:
+class TestOIDCPublisherEmails:
     @pytest.mark.parametrize(
         "fn, template_name",
         [
-            (email.send_oidc_provider_added_email, "oidc-provider-added"),
-            (email.send_oidc_provider_removed_email, "oidc-provider-removed"),
+            (
+                email.send_pending_oidc_publisher_invalidated_email,
+                "pending-oidc-publisher-invalidated",
+            ),
         ],
     )
-    def test_oidc_provider_emails(
+    def test_pending_oidc_publisher_emails(
         self, pyramid_request, pyramid_config, monkeypatch, fn, template_name
     ):
         stub_user = pretend.stub(
@@ -5511,21 +5513,108 @@ class TestOIDCProviderEmails:
         pyramid_request.registry.settings = {"mail.sender": "noreply@example.com"}
 
         project_name = "test_project"
-        fakeprovider = pretend.stub(provider_name="fakeprovider")
+        result = fn(
+            pyramid_request,
+            stub_user,
+            project_name=project_name,
+        )
+
+        assert result == {
+            "project_name": project_name,
+        }
+        subject_renderer.assert_()
+        body_renderer.assert_(project_name=project_name)
+        html_renderer.assert_(project_name=project_name)
+        assert pyramid_request.task.calls == [pretend.call(send_email)]
+        assert send_email.delay.calls == [
+            pretend.call(
+                f"{stub_user.username} <{stub_user.email}>",
+                {
+                    "subject": "Email Subject",
+                    "body_text": "Email Body",
+                    "body_html": (
+                        "<html>\n<head></head>\n"
+                        "<body><p>Email HTML Body</p></body>\n</html>\n"
+                    ),
+                },
+                {
+                    "tag": "account:email:sent",
+                    "user_id": stub_user.id,
+                    "additional": {
+                        "from_": "noreply@example.com",
+                        "to": stub_user.email,
+                        "subject": "Email Subject",
+                        "redact_ip": False,
+                    },
+                },
+            )
+        ]
+
+    @pytest.mark.parametrize(
+        "fn, template_name",
+        [
+            (email.send_oidc_publisher_added_email, "oidc-publisher-added"),
+            (email.send_oidc_publisher_removed_email, "oidc-publisher-removed"),
+        ],
+    )
+    def test_oidc_publisher_emails(
+        self, pyramid_request, pyramid_config, monkeypatch, fn, template_name
+    ):
+        stub_user = pretend.stub(
+            id="id",
+            username="username",
+            name="",
+            email="email@example.com",
+            primary_email=pretend.stub(email="email@example.com", verified=True),
+        )
+        subject_renderer = pyramid_config.testing_add_renderer(
+            f"email/{ template_name }/subject.txt"
+        )
+        subject_renderer.string_response = "Email Subject"
+        body_renderer = pyramid_config.testing_add_renderer(
+            f"email/{ template_name }/body.txt"
+        )
+        body_renderer.string_response = "Email Body"
+        html_renderer = pyramid_config.testing_add_renderer(
+            f"email/{ template_name }/body.html"
+        )
+        html_renderer.string_response = "Email HTML Body"
+
+        send_email = pretend.stub(
+            delay=pretend.call_recorder(lambda *args, **kwargs: None)
+        )
+        pyramid_request.task = pretend.call_recorder(lambda *args, **kwargs: send_email)
+        monkeypatch.setattr(email, "send_email", send_email)
+
+        pyramid_request.db = pretend.stub(
+            query=lambda a: pretend.stub(
+                filter=lambda *a: pretend.stub(
+                    one=lambda: pretend.stub(user_id=stub_user.id)
+                )
+            ),
+        )
+        pyramid_request.user = stub_user
+        pyramid_request.registry.settings = {"mail.sender": "noreply@example.com"}
+
+        project_name = "test_project"
+        fakepublisher = pretend.stub(publisher_name="fakepublisher")
         # NOTE: Can't set __str__ using pretend.stub()
         monkeypatch.setattr(
-            fakeprovider.__class__, "__str__", lambda s: "fakespecifier"
+            fakepublisher.__class__, "__str__", lambda s: "fakespecifier"
         )
 
         result = fn(
-            pyramid_request, stub_user, project_name=project_name, provider=fakeprovider
+            pyramid_request,
+            stub_user,
+            project_name=project_name,
+            publisher=fakepublisher,
         )
 
         assert result == {
             "username": stub_user.username,
             "project_name": project_name,
-            "provider_name": "fakeprovider",
-            "provider_spec": "fakespecifier",
+            "publisher_name": "fakepublisher",
+            "publisher_spec": "fakespecifier",
         }
         subject_renderer.assert_()
         body_renderer.assert_(username=stub_user.username, project_name=project_name)

@@ -41,7 +41,7 @@ class IMacaroonService(Interface):
         """
 
     def create_macaroon(
-        location, description, scopes, *, user_id=None, oidc_provider_id=None
+        location, description, scopes, *, user_id=None, oidc_publisher_id=None
     ):
         """
         Returns a tuple of a new raw (serialized) macaroon and its DB model.

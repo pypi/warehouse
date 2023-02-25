@@ -26,6 +26,8 @@ BILLING_BACKEND=warehouse.subscriptions.services.MockStripeBillingService api_ba
 CAMO_URL={request.scheme}://{request.domain}:9000/
 CAMO_KEY=insecurecamokey
 
+HIBP_API_KEY="something-not-real"
+
 DOCS_URL="https://pythonhosted.org/{project}/"
 
 FILES_BACKEND=warehouse.packaging.services.LocalFileStorage path=/var/opt/warehouse/packages/ url=http://localhost:9001/packages/{path}
@@ -39,7 +41,7 @@ BREACHED_PASSWORDS=warehouse.accounts.NullPasswordBreachedService
 
 MALWARE_CHECK_BACKEND=warehouse.malware.services.PrinterMalwareCheckService
 
-OIDC_BACKEND=warehouse.oidc.services.NullOIDCProviderService
+OIDC_BACKEND=warehouse.oidc.services.NullOIDCPublisherService
 
 METRICS_BACKEND=warehouse.metrics.DataDogMetrics host=notdatadog
 

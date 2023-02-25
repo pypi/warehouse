@@ -327,9 +327,6 @@ class TestIndex:
         UserFactory.create()
 
         assert index(db_request) == {
-            # assert that ordering is correct
-            "latest_releases": [release2, release1],
-            "trending_projects": [release2],
             "num_projects": 1,
             "num_users": 3,
             "num_releases": 2,
@@ -634,7 +631,6 @@ class TestSecurityKeyGiveaway:
                 settings={"warehouse.two_factor_mandate.available": True}
             )
         )
-        default_response = pretend.stub()
-        SecurityKeyGiveaway.default_response = default_response
+        view = SecurityKeyGiveaway(request)
 
-        assert SecurityKeyGiveaway(request).security_key_giveaway() == default_response
+        assert view.security_key_giveaway() == view.default_response

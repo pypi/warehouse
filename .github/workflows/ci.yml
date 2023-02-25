@@ -4,6 +4,8 @@ on:
     branches:
       - main
   pull_request:
+  merge_group:
+    types: [checks_requested]
 permissions:
   contents: read
 concurrency:
@@ -16,40 +18,16 @@ jobs:
         include:
           - name: Tests
             command: bin/tests --postgresql-host localhost
-            needs-python: ${{ true }}
-            needs-node: ${{ false }}
           - name: Lint
             command: bin/lint
-            needs-python: ${{ true }}
-            needs-node: ${{ false }}
           - name: Documentation
             command: bin/docs
-            needs-python: ${{ true }}
-            needs-node: ${{ false }}
           - name: Dependencies
             command: bin/github-actions-deps
-            needs-python: ${{ true }}
-            needs-node: ${{ false }}
           - name: Licenses
             command: bin/licenses
-            needs-python: ${{ true }}
-            needs-node: ${{ false }}
           - name: Translations
             command: bin/translations
-            needs-python: ${{ true }}
-            needs-node: ${{ false }}
-          - name: Static Tests
-            command: bin/static_tests
-            needs-python: ${{ false }}
-            needs-node: ${{ true }}
-          - name: Static Lint
-            command: bin/static_lint
-            needs-python: ${{ false }}
-            needs-node: ${{ true }}
-          - name: Static Pipeline
-            command: bin/static_pipeline
-            needs-python: ${{ false }}
-            needs-node: ${{ true }}
     runs-on: ubuntu-latest
     services:
       postgres:
@@ -75,27 +53,25 @@ jobs:
           sudo apt -y update
           sudo apt -y install libcurl4-openssl-dev libssl-dev pkg-config
       - uses: actions/setup-python@v4
-        if: ${{ matrix.needs-python }}
         with:
           python-version-file: '.python-version'
           cache: 'pip'
           cache-dependency-path: |
             requirements.txt
             requirements/*.txt
+      - name: Cache common Python cache paths
+        uses: actions/cache@v3
+        with:
+          path: |
+            .cache
+            .mypy_cache
+            ${{ env.pythonLocation }}
+          key: ${{ runner.os }}-${{ env.pythonLocation }}-${{ hashFiles('requirements.txt', 'requirements/*.txt') }}
       - name: Install Python dependencies
-        if: ${{ matrix.needs-python }}
         run: |
           pip install -U pip setuptools wheel
           pip install -r requirements.txt --no-deps
           pip install -r requirements/dev.txt
           pip check
-      - uses: actions/setup-node@v3
-        if: ${{ matrix.needs-node }}
-        with:
-          node-version: 16.17.1
-          cache: 'npm'
-      - name: Install Node dependencies
-        if: ${{ matrix.needs-node }}
-        run: npm ci
       - name: Run ${{ matrix.name }}
         run: ${{ matrix.command }}

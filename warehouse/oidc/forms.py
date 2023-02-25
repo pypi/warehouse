@@ -18,12 +18,13 @@ import wtforms
 
 from warehouse import forms
 from warehouse.i18n import localize as _
+from warehouse.utils.project import PROJECT_NAME_RE
 
 _VALID_GITHUB_REPO = re.compile(r"^[a-zA-Z0-9-_.]+$")
 _VALID_GITHUB_OWNER = re.compile(r"^[a-zA-Z0-9][a-zA-Z0-9-]*$")
 
 
-class GitHubProviderForm(forms.Form):
+class GitHubPublisherBase(forms.Form):
     __params__ = ["owner", "repository", "workflow_filename"]
 
     owner = wtforms.StringField(
@@ -96,6 +97,16 @@ class GitHubProviderForm(forms.Form):
                 raise wtforms.validators.ValidationError(
                     _("Unexpected error from GitHub. Try again.")
                 )
+        except requests.ConnectionError:
+            sentry_sdk.capture_message(
+                "Connection error from GitHub user lookup API (possibly offline)"
+            )
+            raise wtforms.validators.ValidationError(
+                _(
+                    "Unexpected connection error from GitHub. "
+                    "Try again in a few minutes."
+                )
+            )
         except requests.Timeout:
             sentry_sdk.capture_message(
                 "Timeout from GitHub user lookup API (possibly offline)"
@@ -138,11 +149,42 @@ class GitHubProviderForm(forms.Form):
             )
 
 
-class DeleteProviderForm(forms.Form):
-    __params__ = ["provider_id"]
+class PendingGitHubPublisherForm(GitHubPublisherBase):
+    __params__ = GitHubPublisherBase.__params__ + ["project_name"]
 
-    provider_id = wtforms.StringField(
+    project_name = wtforms.StringField(
         validators=[
-            wtforms.validators.UUID(message=_("Provider must be specified by ID"))
+            wtforms.validators.DataRequired(
+                message=_("Specify project name"),
+            ),
+            wtforms.validators.Regexp(
+                PROJECT_NAME_RE, message=_("Invalid project name")
+            ),
+        ]
+    )
+
+    def __init__(self, *args, project_factory, **kwargs):
+        super().__init__(*args, **kwargs)
+        self._project_factory = project_factory
+
+    def validate_project_name(self, field):
+        project_name = field.data
+
+        if project_name in self._project_factory:
+            raise wtforms.validators.ValidationError(
+                _("This project name is already in use")
+            )
+
+
+class GitHubPublisherForm(GitHubPublisherBase):
+    pass
+
+
+class DeletePublisherForm(forms.Form):
+    __params__ = ["publisher_id"]
+
+    publisher_id = wtforms.StringField(
+        validators=[
+            wtforms.validators.UUID(message=_("Publisher must be specified by ID"))
         ]
     )

@@ -28,8 +28,8 @@ from pyramid.httpexceptions import (
 from pyramid.response import Response
 from pyramid.view import view_config, view_defaults
 from sqlalchemy import func
+from sqlalchemy.exc import NoResultFound
 from sqlalchemy.orm import Load, joinedload
-from sqlalchemy.orm.exc import NoResultFound
 from webauthn.helpers import bytes_to_base64url
 
 import warehouse.utils.otp as otp
@@ -58,8 +58,8 @@ from warehouse.email import (
     send_collaborator_role_changed_email,
     send_email_verification_email,
     send_new_organization_requested_email,
-    send_oidc_provider_added_email,
-    send_oidc_provider_removed_email,
+    send_oidc_publisher_added_email,
+    send_oidc_publisher_removed_email,
     send_organization_deleted_email,
     send_organization_member_invite_canceled_email,
     send_organization_member_invited_email,
@@ -128,9 +128,9 @@ from warehouse.manage.forms import (
     TransferOrganizationProjectForm,
 )
 from warehouse.metrics.interfaces import IMetricsService
-from warehouse.oidc.forms import DeleteProviderForm, GitHubProviderForm
+from warehouse.oidc.forms import DeletePublisherForm, GitHubPublisherForm
 from warehouse.oidc.interfaces import TooManyOIDCRegistrations
-from warehouse.oidc.models import GitHubProvider, OIDCProvider
+from warehouse.oidc.models import GitHubPublisher, OIDCPublisher
 from warehouse.organizations.interfaces import IOrganizationService
 from warehouse.organizations.models import (
     Organization,
@@ -145,6 +145,7 @@ from warehouse.organizations.models import (
     TeamRole,
     TeamRoleType,
 )
+from warehouse.packaging.interfaces import IProjectService
 from warehouse.packaging.models import (
     File,
     JournalEntry,
@@ -162,7 +163,6 @@ from warehouse.utils.http import is_safe_url
 from warehouse.utils.organization import confirm_organization, confirm_team
 from warehouse.utils.paginate import paginate_url_factory
 from warehouse.utils.project import (
-    add_project,
     confirm_project,
     destroy_docs,
     remove_project,
@@ -1912,8 +1912,14 @@ class ManageOrganizationProjectsViews:
             except HTTPException as exc:
                 form.new_project_name.errors.append(exc.detail)
                 return default_response
+
             # Add new project.
-            project = add_project(form.new_project_name.data, self.request)
+            # Note that we pass `creator_is_owner=False`, since the project being
+            # created is controlled by the organization and not the user creating it.
+            project_service = self.request.find_service(IProjectService)
+            project = project_service.create_project(
+                form.new_project_name.data, self.request.user, creator_is_owner=False
+            )
 
         # Add project to organization.
         self.organization_service.add_organization_project(
@@ -3010,7 +3016,7 @@ class ManageProjectSettingsViews:
     require_reauth=True,
     http_cache=0,
 )
-class ManageOIDCProviderViews:
+class ManageOIDCPublisherViews:
     def __init__(self, project, request):
         self.request = request
         self.project = project
@@ -3021,10 +3027,10 @@ class ManageOIDCProviderViews:
     def _ratelimiters(self):
         return {
             "user.oidc": self.request.find_service(
-                IRateLimiter, name="user_oidc.provider.register"
+                IRateLimiter, name="user_oidc.publisher.register"
             ),
             "ip.oidc": self.request.find_service(
-                IRateLimiter, name="ip_oidc.provider.register"
+                IRateLimiter, name="ip_oidc.publisher.register"
             ),
         }
 
@@ -3048,8 +3054,8 @@ class ManageOIDCProviderViews:
             )
 
     @property
-    def github_provider_form(self):
-        return GitHubProviderForm(
+    def github_publisher_form(self):
+        return GitHubPublisherForm(
             self.request.POST,
             api_token=self.request.registry.settings.get("github.token"),
         )
@@ -3059,11 +3065,11 @@ class ManageOIDCProviderViews:
         return {
             "oidc_enabled": self.oidc_enabled,
             "project": self.project,
-            "github_provider_form": self.github_provider_form,
+            "github_publisher_form": self.github_publisher_form,
         }
 
     @view_config(request_method="GET")
-    def manage_project_oidc_providers(self):
+    def manage_project_oidc_publishers(self):
         if not self.oidc_enabled:
             raise HTTPNotFound
 
@@ -3078,14 +3084,10 @@ class ManageOIDCProviderViews:
 
         return self.default_response
 
-    @view_config(request_method="POST", request_param=GitHubProviderForm.__params__)
-    def add_github_oidc_provider(self):
+    @view_config(request_method="POST", request_param=GitHubPublisherForm.__params__)
+    def add_github_oidc_publisher(self):
         if not self.oidc_enabled:
             raise HTTPNotFound
-
-        self.metrics.increment(
-            "warehouse.oidc.add_provider.attempt", tags=["provider:GitHub"]
-        )
 
         if self.request.flags.enabled(AdminFlagValue.DISALLOW_OIDC):
             self.request.session.flash(
@@ -3097,11 +3099,15 @@ class ManageOIDCProviderViews:
             )
             return self.default_response
 
+        self.metrics.increment(
+            "warehouse.oidc.add_publisher.attempt", tags=["publisher:GitHub"]
+        )
+
         try:
             self._check_ratelimits()
         except TooManyOIDCRegistrations as exc:
             self.metrics.increment(
-                "warehouse.oidc.add_provider.ratelimited", tags=["provider:GitHub"]
+                "warehouse.oidc.add_publisher.ratelimited", tags=["publisher:GitHub"]
             )
             return HTTPTooManyRequests(
                 self.request._(
@@ -3114,79 +3120,77 @@ class ManageOIDCProviderViews:
         self._hit_ratelimits()
 
         response = self.default_response
-        form = response["github_provider_form"]
+        form = response["github_publisher_form"]
 
         if form.validate():
-            # GitHub OIDC providers are unique on the tuple of
+            # GitHub OIDC publishers are unique on the tuple of
             # (repository_name, repository_owner, workflow_filename), so we check for
             # an already registered one before creating.
-            provider = (
-                self.request.db.query(GitHubProvider)
+            publisher = (
+                self.request.db.query(GitHubPublisher)
                 .filter(
-                    GitHubProvider.repository_name == form.repository.data,
-                    GitHubProvider.repository_owner == form.normalized_owner,
-                    GitHubProvider.workflow_filename == form.workflow_filename.data,
+                    GitHubPublisher.repository_name == form.repository.data,
+                    GitHubPublisher.repository_owner == form.normalized_owner,
+                    GitHubPublisher.workflow_filename == form.workflow_filename.data,
                 )
                 .one_or_none()
             )
-            if provider is None:
-                provider = GitHubProvider(
+            if publisher is None:
+                publisher = GitHubPublisher(
                     repository_name=form.repository.data,
                     repository_owner=form.normalized_owner,
                     repository_owner_id=form.owner_id,
                     workflow_filename=form.workflow_filename.data,
                 )
 
-                self.request.db.add(provider)
+                self.request.db.add(publisher)
 
-            # Each project has a unique set of OIDC providers; the same
-            # provider can't be registered to the project more than once.
-            if provider in self.project.oidc_providers:
+            # Each project has a unique set of OIDC publishers; the same
+            # publisher can't be registered to the project more than once.
+            if publisher in self.project.oidc_publishers:
                 self.request.session.flash(
-                    f"{provider} is already registered with {self.project.name}",
+                    f"{publisher} is already registered with {self.project.name}",
                     queue="error",
                 )
                 return response
 
             for user in self.project.users:
-                send_oidc_provider_added_email(
+                send_oidc_publisher_added_email(
                     self.request,
                     user,
                     project_name=self.project.name,
-                    provider=provider,
+                    publisher=publisher,
                 )
 
-            self.project.oidc_providers.append(provider)
+            self.project.oidc_publishers.append(publisher)
 
             self.project.record_event(
-                tag=EventTag.Project.OIDCProviderAdded,
+                tag=EventTag.Project.OIDCPublisherAdded,
                 ip_address=self.request.remote_addr,
                 additional={
-                    "provider": provider.provider_name,
-                    "id": str(provider.id),
-                    "specifier": str(provider),
+                    "publisher": publisher.publisher_name,
+                    "id": str(publisher.id),
+                    "specifier": str(publisher),
                 },
             )
 
             self.request.session.flash(
-                f"Added {provider} to {self.project.name}",
+                f"Added {publisher} to {self.project.name}",
                 queue="success",
             )
 
             self.metrics.increment(
-                "warehouse.oidc.add_provider.ok", tags=["provider:GitHub"]
+                "warehouse.oidc.add_publisher.ok", tags=["publisher:GitHub"]
             )
 
             return HTTPSeeOther(self.request.path)
 
         return response
 
-    @view_config(request_method="POST", request_param=DeleteProviderForm.__params__)
-    def delete_oidc_provider(self):
+    @view_config(request_method="POST", request_param=DeletePublisherForm.__params__)
+    def delete_oidc_publisher(self):
         if not self.oidc_enabled:
             raise HTTPNotFound
-
-        self.metrics.increment("warehouse.oidc.delete_provider.attempt")
 
         if self.request.flags.enabled(AdminFlagValue.DISALLOW_OIDC):
             self.request.session.flash(
@@ -3198,13 +3202,15 @@ class ManageOIDCProviderViews:
             )
             return self.default_response
 
-        form = DeleteProviderForm(self.request.POST)
+        self.metrics.increment("warehouse.oidc.delete_publisher.attempt")
+
+        form = DeletePublisherForm(self.request.POST)
 
         if form.validate():
-            provider = self.request.db.query(OIDCProvider).get(form.provider_id.data)
+            publisher = self.request.db.query(OIDCPublisher).get(form.publisher_id.data)
 
-            # provider will be `None` here if someone manually futzes with the form.
-            if provider is None or provider not in self.project.oidc_providers:
+            # publisher will be `None` here if someone manually futzes with the form.
+            if publisher is None or publisher not in self.project.oidc_publishers:
                 self.request.session.flash(
                     "Invalid publisher for project",
                     queue="error",
@@ -3212,37 +3218,37 @@ class ManageOIDCProviderViews:
                 return self.default_response
 
             for user in self.project.users:
-                send_oidc_provider_removed_email(
+                send_oidc_publisher_removed_email(
                     self.request,
                     user,
                     project_name=self.project.name,
-                    provider=provider,
+                    publisher=publisher,
                 )
 
-            # We remove this provider from the project's list of providers
-            # and, if there are no projects left associated with the provider,
+            # We remove this publisher from the project's list of publishers
+            # and, if there are no projects left associated with the publisher,
             # we delete it entirely.
-            self.project.oidc_providers.remove(provider)
-            if len(provider.projects) == 0:
-                self.request.db.delete(provider)
+            self.project.oidc_publishers.remove(publisher)
+            if len(publisher.projects) == 0:
+                self.request.db.delete(publisher)
 
             self.project.record_event(
-                tag=EventTag.Project.OIDCProviderRemoved,
+                tag=EventTag.Project.OIDCPublisherRemoved,
                 ip_address=self.request.remote_addr,
                 additional={
-                    "provider": provider.provider_name,
-                    "id": str(provider.id),
-                    "specifier": str(provider),
+                    "publisher": publisher.publisher_name,
+                    "id": str(publisher.id),
+                    "specifier": str(publisher),
                 },
             )
 
             self.request.session.flash(
-                f"Removed {provider} from {self.project.name}", queue="success"
+                f"Removed {publisher} from {self.project.name}", queue="success"
             )
 
             self.metrics.increment(
-                "warehouse.oidc.delete_provider.ok",
-                tags=[f"provider:{provider.provider_name}"],
+                "warehouse.oidc.delete_publisher.ok",
+                tags=[f"publisher:{publisher.publisher_name}"],
             )
 
             return HTTPSeeOther(self.request.path)

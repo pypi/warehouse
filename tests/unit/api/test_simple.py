@@ -194,6 +194,7 @@ class TestSimpleDetail:
             "files": [],
             "versions": [],
         }
+
         assert db_request.response.headers["X-PyPI-Last-Serial"] == "0"
         assert db_request.response.content_type == content_type
 
@@ -217,6 +218,7 @@ class TestSimpleDetail:
             "files": [],
             "versions": [],
         }
+
         assert db_request.response.headers["X-PyPI-Last-Serial"] == str(je.id)
         assert db_request.response.content_type == content_type
 
@@ -261,6 +263,7 @@ class TestSimpleDetail:
                 for f in files
             ],
         }
+
         assert db_request.response.headers["X-PyPI-Last-Serial"] == "0"
         assert db_request.response.content_type == content_type
 
@@ -305,6 +308,7 @@ class TestSimpleDetail:
                 for f in files
             ],
         }
+
         assert db_request.response.headers["X-PyPI-Last-Serial"] == str(je.id)
         assert db_request.response.content_type == content_type
 

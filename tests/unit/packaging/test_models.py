@@ -21,7 +21,7 @@ from pyramid.location import lineage
 from warehouse.organizations.models import TeamProjectRoleType
 from warehouse.packaging.models import File, ProjectFactory, ReleaseURL
 
-from ...common.db.oidc import GitHubProviderFactory
+from ...common.db.oidc import GitHubPublisherFactory
 from ...common.db.organizations import (
     OrganizationFactory as DBOrganizationFactory,
     OrganizationProjectFactory as DBOrganizationProjectFactory,
@@ -142,7 +142,7 @@ class TestProject:
             team=team, project=project, role_name=TeamProjectRoleType.Owner
         )
 
-        provider = GitHubProviderFactory.create(projects=[project])
+        publisher = GitHubPublisherFactory.create(projects=[project])
 
         acls = []
         for location in lineage(project):
@@ -160,7 +160,7 @@ class TestProject:
             (Allow, "group:admins", "admin"),
             (Allow, "group:moderators", "moderator"),
         ] + sorted(
-            [(Allow, f"oidc:{provider.id}", ["upload"])], key=lambda x: x[1]
+            [(Allow, f"oidc:{publisher.id}", ["upload"])], key=lambda x: x[1]
         ) + sorted(
             [
                 (Allow, f"user:{owner1.user.id}", ["manage:project", "upload"]),
@@ -427,14 +427,68 @@ class TestRelease:
                 "https://api.github.com/repos/pypi/warehouse",
             ),
             ("https://github.com/pypa/", None),
+            ("https://github.com/sponsors/pypa/", None),
             ("https://google.com/pypi/warehouse/tree/main", None),
             ("https://google.com", None),
             ("incorrect url", None),
+            (
+                "https://www.github.com/pypi/warehouse.git",
+                "https://api.github.com/repos/pypi/warehouse",
+            ),
+            (
+                "https://www.github.com/pypi/warehouse.git/",
+                "https://api.github.com/repos/pypi/warehouse",
+            ),
         ],
     )
     def test_github_repo_info_url(self, db_session, home_page, expected):
         release = DBReleaseFactory.create(home_page=home_page)
         assert release.github_repo_info_url == expected
+
+    @pytest.mark.parametrize(
+        ("home_page", "expected"),
+        [
+            (None, None),
+            (
+                "https://github.com/pypi/warehouse",
+                "https://api.github.com/search/issues?q=repo:pypi/warehouse"
+                "+type:issue+state:open&per_page=1",
+            ),
+            (
+                "https://github.com/pypi/warehouse/",
+                "https://api.github.com/search/issues?q=repo:pypi/warehouse+"
+                "type:issue+state:open&per_page=1",
+            ),
+            (
+                "https://github.com/pypi/warehouse/tree/main",
+                "https://api.github.com/search/issues?q=repo:pypi/warehouse"
+                "+type:issue+state:open&per_page=1",
+            ),
+            (
+                "https://www.github.com/pypi/warehouse",
+                "https://api.github.com/search/issues?q=repo:pypi/warehouse"
+                "+type:issue+state:open&per_page=1",
+            ),
+            ("https://github.com/pypa/", None),
+            ("https://github.com/sponsors/pypa/", None),
+            ("https://google.com/pypi/warehouse/tree/main", None),
+            ("https://google.com", None),
+            ("incorrect url", None),
+            (
+                "https://www.github.com/pypi/warehouse.git",
+                "https://api.github.com/search/issues?q=repo:pypi/warehouse"
+                "+type:issue+state:open&per_page=1",
+            ),
+            (
+                "https://www.github.com/pypi/warehouse.git/",
+                "https://api.github.com/search/issues?q=repo:pypi/warehouse"
+                "+type:issue+state:open&per_page=1",
+            ),
+        ],
+    )
+    def test_github_open_issue_info_url(self, db_session, home_page, expected):
+        release = DBReleaseFactory.create(home_page=home_page)
+        assert release.github_open_issue_info_url == expected
 
 
 class TestFile:
