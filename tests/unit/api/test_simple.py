@@ -186,11 +186,11 @@ class TestSimpleDetail:
         user = UserFactory.create()
         JournalEntryFactory.create(submitted_by=user)
 
-        result = simple.simple_detail(project, db_request)
-
-        assert result["meta"] == {"_last-serial": 0, "api-version": "1.0"}
-        assert result["name"] == project.normalized_name
-        assert result["files"] == []
+        assert simple.simple_detail(project, db_request) == {
+            "meta": {"_last-serial": 0, "api-version": "1.0"},
+            "name": project.normalized_name,
+            "files": [],
+        }
 
         assert db_request.response.headers["X-PyPI-Last-Serial"] == "0"
         assert db_request.response.content_type == content_type
@@ -209,11 +209,11 @@ class TestSimpleDetail:
         user = UserFactory.create()
         je = JournalEntryFactory.create(name=project.name, submitted_by=user)
 
-        result = simple.simple_detail(project, db_request)
-
-        assert result["meta"] == {"_last-serial": je.id, "api-version": "1.0"}
-        assert result["name"] == project.normalized_name
-        assert result["files"] == []
+        assert simple.simple_detail(project, db_request) == {
+            "meta": {"_last-serial": je.id, "api-version": "1.0"},
+            "name": project.normalized_name,
+            "files": [],
+        }
 
         assert db_request.response.headers["X-PyPI-Last-Serial"] == str(je.id)
         assert db_request.response.content_type == content_type
@@ -241,19 +241,20 @@ class TestSimpleDetail:
         user = UserFactory.create()
         JournalEntryFactory.create(submitted_by=user)
 
-        result = simple.simple_detail(project, db_request)
-
-        assert result["meta"] == {"_last-serial": 0, "api-version": "1.0"}
-        assert result["name"] == project.normalized_name
-
-        for f in files:
-            assert {
-                "filename": f.filename,
-                "url": f"/file/{f.filename}",
-                "hashes": {"sha256": f.sha256_digest},
-                "requires-python": f.requires_python,
-                "yanked": False,
-            } in result["files"]
+        assert simple.simple_detail(project, db_request) == {
+            "meta": {"_last-serial": 0, "api-version": "1.0"},
+            "name": project.normalized_name,
+            "files": [
+                {
+                    "filename": f.filename,
+                    "url": f"/file/{f.filename}",
+                    "hashes": {"sha256": f.sha256_digest},
+                    "requires-python": f.requires_python,
+                    "yanked": False,
+                }
+                for f in files
+            ],
+        }
 
         assert db_request.response.headers["X-PyPI-Last-Serial"] == "0"
         assert db_request.response.content_type == content_type
@@ -281,19 +282,20 @@ class TestSimpleDetail:
         user = UserFactory.create()
         je = JournalEntryFactory.create(name=project.name, submitted_by=user)
 
-        result = simple.simple_detail(project, db_request)
-
-        assert result["meta"] == {"_last-serial": je.id, "api-version": "1.0"}
-        assert result["name"] == project.normalized_name
-
-        for f in files:
-            assert {
-                "filename": f.filename,
-                "url": f"/file/{f.filename}",
-                "hashes": {"sha256": f.sha256_digest},
-                "requires-python": f.requires_python,
-                "yanked": False,
-            } in result["files"]
+        assert simple.simple_detail(project, db_request) == {
+            "meta": {"_last-serial": je.id, "api-version": "1.0"},
+            "name": project.normalized_name,
+            "files": [
+                {
+                    "filename": f.filename,
+                    "url": f"/file/{f.filename}",
+                    "hashes": {"sha256": f.sha256_digest},
+                    "requires-python": f.requires_python,
+                    "yanked": False,
+                }
+                for f in files
+            ],
+        }
 
         assert db_request.response.headers["X-PyPI-Last-Serial"] == str(je.id)
         assert db_request.response.content_type == content_type
@@ -358,19 +360,20 @@ class TestSimpleDetail:
         user = UserFactory.create()
         je = JournalEntryFactory.create(name=project.name, submitted_by=user)
 
-        result = simple.simple_detail(project, db_request)
-
-        assert result["meta"] == {"_last-serial": je.id, "api-version": "1.0"}
-        assert result["name"] == project.normalized_name
-
-        for f in files:
-            assert {
-                "filename": f.filename,
-                "url": f"/file/{f.filename}",
-                "hashes": {"sha256": f.sha256_digest},
-                "requires-python": f.requires_python,
-                "yanked": False,
-            } in result["files"]
+        assert simple.simple_detail(project, db_request) == {
+            "meta": {"_last-serial": je.id, "api-version": "1.0"},
+            "name": project.normalized_name,
+            "files": [
+                {
+                    "filename": f.filename,
+                    "url": f"/file/{f.filename}",
+                    "hashes": {"sha256": f.sha256_digest},
+                    "requires-python": f.requires_python,
+                    "yanked": False,
+                }
+                for f in files
+            ],
+        }
 
         assert db_request.response.headers["X-PyPI-Last-Serial"] == str(je.id)
         assert db_request.response.content_type == content_type
