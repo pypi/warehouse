@@ -21,7 +21,7 @@ from sqlalchemy.orm import joinedload
 from warehouse.packaging.interfaces import ISimpleStorage
 from warehouse.packaging.models import File, Project, Release
 
-API_VERSION = "1.0"
+API_VERSION = "1.1"
 
 
 def _simple_index(request, serial):
@@ -48,10 +48,12 @@ def _simple_detail(project, request):
         .all(),
         key=lambda f: (parse(f.release.version), f.filename),
     )
+    versions = sorted({f.release.version for f in files}, key=parse)
 
     return {
         "meta": {"api-version": API_VERSION, "_last-serial": project.last_serial},
         "name": project.normalized_name,
+        "versions": versions,
         "files": [
             {
                 "filename": file.filename,
@@ -60,6 +62,8 @@ def _simple_detail(project, request):
                     "sha256": file.sha256_digest,
                 },
                 "requires-python": file.release.requires_python,
+                "size": file.size,
+                "upload-time": file.upload_time.isoformat() + "Z",
                 "yanked": file.release.yanked_reason
                 if file.release.yanked and file.release.yanked_reason
                 else file.release.yanked,
