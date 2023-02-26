@@ -3073,7 +3073,7 @@ class ManageOIDCPublisherViews:
         if not self.oidc_enabled:
             raise HTTPNotFound
 
-        if not self.request.user.in_oidc_beta or not self.project.oidc_providers:
+        if not self.request.user.in_oidc_beta and not self.project.oidc_providers:
             return Response(status=403)
 
         if self.request.flags.enabled(AdminFlagValue.DISALLOW_OIDC):

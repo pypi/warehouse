@@ -9538,7 +9538,7 @@ class TestManageOIDCPublisherViews:
             view._check_ratelimits()
 
     def test_manage_project_oidc_publishers(self, monkeypatch):
-        project = pretend.stub(oidc_providers=[pretend.stub()])
+        project = pretend.stub(oidc_providers=[])
         request = pretend.stub(
             user=pretend.stub(
                 in_oidc_beta=True,
@@ -9575,7 +9575,7 @@ class TestManageOIDCPublisherViews:
         ]
 
     def test_manage_project_oidc_publishers_admin_disabled(self, monkeypatch):
-        project = pretend.stub(oidc_providers=[pretend.stub()])
+        project = pretend.stub(oidc_providers=[])
         request = pretend.stub(
             user=pretend.stub(
                 in_oidc_beta=True,
