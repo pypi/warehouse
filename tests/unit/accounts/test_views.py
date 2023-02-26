@@ -25,6 +25,7 @@ from pyramid.httpexceptions import (
     HTTPSeeOther,
     HTTPTooManyRequests,
 )
+from pyramid.response import Response
 from sqlalchemy.exc import NoResultFound
 from webauthn.authentication.verify_authentication_response import (
     VerifiedAuthentication,
@@ -3037,6 +3038,19 @@ class TestManageAccountPublishingViews:
         with pytest.raises(HTTPNotFound):
             view.manage_publishing()
 
+    def test_manage_publishing_not_in_beta(self):
+        request = pretend.stub(
+            user=pretend.stub(in_oidc_beta=False),
+            registry=pretend.stub(settings={"warehouse.oidc.enabled": True}),
+            find_service=lambda *a, **kw: None,
+        )
+
+        view = views.ManageAccountPublishingViews(request)
+        resp = view.manage_publishing()
+
+        assert isinstance(resp, Response)
+        assert resp.status_code == 403
+
     def test_manage_publishing_admin_disabled(self, monkeypatch):
         request = pretend.stub(
             user=pretend.stub(
@@ -3103,6 +3117,19 @@ class TestManageAccountPublishingViews:
 
         with pytest.raises(HTTPNotFound):
             view.add_pending_github_oidc_publisher()
+
+    def test_add_pending_github_oidc_publisher_not_in_beta(self):
+        request = pretend.stub(
+            user=pretend.stub(in_oidc_beta=False),
+            registry=pretend.stub(settings={"warehouse.oidc.enabled": True}),
+            find_service=lambda *a, **kw: None,
+        )
+
+        view = views.ManageAccountPublishingViews(request)
+        resp = view.add_pending_github_oidc_publisher()
+
+        assert isinstance(resp, Response)
+        assert resp.status_code == 403
 
     def test_add_pending_github_oidc_publisher_admin_disabled(self, monkeypatch):
         request = pretend.stub(
@@ -3621,6 +3648,19 @@ class TestManageAccountPublishingViews:
 
         with pytest.raises(HTTPNotFound):
             view.delete_pending_oidc_publisher()
+
+    def test_delete_pending_oidc_publisher_not_in_beta(self):
+        request = pretend.stub(
+            user=pretend.stub(in_oidc_beta=False),
+            registry=pretend.stub(settings={"warehouse.oidc.enabled": True}),
+            find_service=lambda *a, **kw: None,
+        )
+
+        view = views.ManageAccountPublishingViews(request)
+        resp = view.delete_pending_oidc_publisher()
+
+        assert isinstance(resp, Response)
+        assert resp.status_code == 403
 
     def test_delete_pending_oidc_publisher_admin_disabled(self, monkeypatch):
         request = pretend.stub(
