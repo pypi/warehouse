@@ -307,8 +307,9 @@ class ProjectService:
         self.ratelimiters["project.create.user"].hit(creator.id)
         self.ratelimiters["project.create.ip"].hit(self.remote_addr)
 
-    def create_project(self, name, creator, *, creator_is_owner=True):
-        self._check_ratelimits(creator)
+    def create_project(self, name, creator, *, creator_is_owner=True, ratelimited=True):
+        if ratelimited:
+            self._check_ratelimits(creator)
 
         project = Project(name=name)
         self.db.add(project)
@@ -354,7 +355,8 @@ class ProjectService:
                 },
             )
 
-        self._hit_ratelimits(creator)
+        if ratelimited:
+            self._hit_ratelimits(creator)
         return project
 
 

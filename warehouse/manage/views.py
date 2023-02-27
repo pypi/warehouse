@@ -1918,7 +1918,10 @@ class ManageOrganizationProjectsViews:
             # created is controlled by the organization and not the user creating it.
             project_service = self.request.find_service(IProjectService)
             project = project_service.create_project(
-                form.new_project_name.data, self.request.user, creator_is_owner=False
+                form.new_project_name.data,
+                self.request.user,
+                creator_is_owner=False,
+                ratelimited=False,
             )
 
         # Add project to organization.
