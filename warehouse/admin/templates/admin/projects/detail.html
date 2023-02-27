@@ -233,6 +233,36 @@
   </div>
 </div> <!-- .card #releases -->
 
+<div class="card card-info" id="oidc-publishers">
+  <div class="card-header">OpenID Connect Publishers</div>
+  <div class="card-body">
+    {% if oidc_publishers %}
+    <div class="table-responsive p-0">
+      <table class="table table-hover table-striped">
+        <thead>
+          <tr>
+            <th>Publisher name</th>
+            <th>URL</th>
+            <th>repr</th>
+          </tr>
+          <tbody>
+            {% for pub in oidc_publishers %}
+            <tr>
+              <td>{{ pub.publisher_name }}</td>
+              <td><a href="{{ pub.publisher_url }}">{{ pub.publisher_url }}</a></td>
+              <td><code>{{ pub }}</code></td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </thead>
+      </table>
+    </div>
+    {% else %}
+    No publishers configured.
+    {% endif %}
+  </div>
+</div> <!-- .card #oidc-publishers -->
+
 <div class="card card-primary card-outline collapsed-card" id="journals">
   <div class="card-header">
     <h3 class="card-title">Journals</h3>

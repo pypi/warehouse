@@ -25,7 +25,6 @@ from webauthn.helpers.structs import (
     AttestationConveyancePreference,
     AuthenticationCredential,
     AuthenticatorSelectionCriteria,
-    AuthenticatorTransport,
     PublicKeyCredentialDescriptor,
     RegistrationCredential,
     UserVerificationRequirement,
@@ -47,15 +46,7 @@ def _get_webauthn_user_public_key_credential_descriptors(user, *, rp_id):
     usage within the webauthn API.
     """
     return [
-        PublicKeyCredentialDescriptor(
-            id=base64url_to_bytes(credential.credential_id),
-            transports=[
-                AuthenticatorTransport.USB,
-                AuthenticatorTransport.NFC,
-                AuthenticatorTransport.BLE,
-                AuthenticatorTransport.INTERNAL,
-            ],
-        )
+        PublicKeyCredentialDescriptor(id=base64url_to_bytes(credential.credential_id))
         for credential in user.webauthn
     ]
 

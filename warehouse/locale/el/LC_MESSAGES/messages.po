@@ -344,12 +344,12 @@ msgstr "Δεν είστε ο κάτοχος αυτού του project"
 #: warehouse/accounts/views.py:1401
 msgid ""
 "You must have a verified email in order to register a pending OpenID Connect "
-"provider. See https://pypi.org/help#openid-connect for details."
+"publisher. See https://pypi.org/help#openid-connect for details."
 msgstr ""
 
 #: warehouse/accounts/views.py:1414
 msgid ""
-"You can't register more than 3 pending OpenID Connect providers at once."
+"You can't register more than 3 pending OpenID Connect publishers at once."
 msgstr ""
 
 #: warehouse/accounts/views.py:1430 warehouse/manage/views.py:3113
@@ -363,7 +363,7 @@ msgstr "Έγιναν πολλές ανεπιτυχείς απόπειρες σύ
 
 #: warehouse/accounts/views.py:1458
 msgid ""
-"This OpenID Connect provider has already been registered. Please contact "
+"This OpenID Connect publisher has already been registered. Please contact "
 "PyPI's admins if this wasn't intentional."
 msgstr ""
 
@@ -626,7 +626,7 @@ msgid "This project name is already in use"
 msgstr "Αυτό το project δεν έχει κυκλοφορίες"
 
 #: warehouse/oidc/forms.py:188
-msgid "Provider must be specified by ID"
+msgid "Publisher must be specified by ID"
 msgstr ""
 
 #: warehouse/subscriptions/models.py:42
@@ -1334,10 +1334,10 @@ msgstr "Κωδικός πρόσβασης"
 #: warehouse/templates/manage/account.html:369
 #: warehouse/templates/manage/account.html:386
 #: warehouse/templates/manage/account.html:402
-#: warehouse/templates/manage/account/publishing.html:60
-#: warehouse/templates/manage/account/publishing.html:75
-#: warehouse/templates/manage/account/publishing.html:90
-#: warehouse/templates/manage/account/publishing.html:105
+#: warehouse/templates/manage/account/publishing.html:121
+#: warehouse/templates/manage/account/publishing.html:136
+#: warehouse/templates/manage/account/publishing.html:151
+#: warehouse/templates/manage/account/publishing.html:166
 #: warehouse/templates/manage/account/recovery_codes-burn.html:70
 #: warehouse/templates/manage/account/token.html:133
 #: warehouse/templates/manage/account/token.html:150
@@ -1357,9 +1357,9 @@ msgstr "Κωδικός πρόσβασης"
 #: warehouse/templates/manage/organizations.html:204
 #: warehouse/templates/manage/organizations.html:222
 #: warehouse/templates/manage/organizations.html:241
-#: warehouse/templates/manage/project/publishing.html:53
-#: warehouse/templates/manage/project/publishing.html:68
-#: warehouse/templates/manage/project/publishing.html:83
+#: warehouse/templates/manage/project/publishing.html:76
+#: warehouse/templates/manage/project/publishing.html:91
+#: warehouse/templates/manage/project/publishing.html:106
 #: warehouse/templates/manage/project/roles.html:273
 #: warehouse/templates/manage/project/roles.html:284
 #: warehouse/templates/manage/project/roles.html:296
@@ -2024,7 +2024,7 @@ msgid "You will receive an email when the organization has been approved"
 msgstr ""
 "Θα λάβετε ένα email που θα περιέχει ένα σύνδεσμο για μηδενισμό του κωδικού."
 
-#: warehouse/templates/email/oidc-provider-added/body.html:19
+#: warehouse/templates/email/oidc-publisher-added/body.html:19
 #, python-format
 msgid ""
 "PyPI user <strong>%(username)s</strong> has added a new OpenID Connect "
@@ -2033,32 +2033,32 @@ msgid ""
 "releases automatically."
 msgstr ""
 
-#: warehouse/templates/email/oidc-provider-added/body.html:28
-#: warehouse/templates/email/oidc-provider-removed/body.html:26
+#: warehouse/templates/email/oidc-publisher-added/body.html:28
+#: warehouse/templates/email/oidc-publisher-removed/body.html:26
 msgid "Publisher information"
 msgstr ""
 
-#: warehouse/templates/email/oidc-provider-added/body.html:30
-#: warehouse/templates/email/oidc-provider-removed/body.html:28
+#: warehouse/templates/email/oidc-publisher-added/body.html:30
+#: warehouse/templates/email/oidc-publisher-removed/body.html:28
 #, fuzzy
 #| msgid "Username"
 msgid "Publisher name"
 msgstr "Όνομα χρήστη"
 
-#: warehouse/templates/email/oidc-provider-added/body.html:31
-#: warehouse/templates/email/oidc-provider-removed/body.html:29
+#: warehouse/templates/email/oidc-publisher-added/body.html:31
+#: warehouse/templates/email/oidc-publisher-removed/body.html:29
 msgid "Publisher specification"
 msgstr ""
 
-#: warehouse/templates/email/oidc-provider-added/body.html:36
+#: warehouse/templates/email/oidc-publisher-added/body.html:36
 msgid ""
 "If you did not make this change and you think it was made maliciously, you "
 "can remove it from the project via the \"Publishing\" tab on the project's "
 "page."
 msgstr ""
 
-#: warehouse/templates/email/oidc-provider-added/body.html:43
-#: warehouse/templates/email/oidc-provider-removed/body.html:41
+#: warehouse/templates/email/oidc-publisher-added/body.html:43
+#: warehouse/templates/email/oidc-publisher-removed/body.html:41
 #, fuzzy, python-format
 #| msgid ""
 #| "If you did not make this change, you can email <a href=\"%(href)s\">"
@@ -2072,17 +2072,17 @@ msgstr ""
 "\"%(href)s\">%(email_address)s</a> προκειμένου να επικοινωνήσετε με τους "
 "διαχειριστές του PyPI."
 
-#: warehouse/templates/email/oidc-provider-removed/body.html:19
+#: warehouse/templates/email/oidc-publisher-removed/body.html:19
 #, python-format
 msgid ""
 "PyPI user <strong>%(username)s</strong> has removed an OpenID Connect "
 "publisher from a project (<strong>%(project_name)s</strong>) that you manage."
 msgstr ""
 
-#: warehouse/templates/email/oidc-provider-removed/body.html:34
+#: warehouse/templates/email/oidc-publisher-removed/body.html:34
 msgid ""
-"If you did not make this change and you think it was made maliciously, you "
-"can check the \"Security history\" tab on the project's page."
+"If you did not make this change and you think it was made in error, you can "
+"check the \"Security history\" tab on the project's page."
 msgstr ""
 
 #: warehouse/templates/email/organization-deleted/body.html:31
@@ -2498,6 +2498,27 @@ msgstr[1] "Αυτός ο σύνδεσμος θα λήξει σε %(n_hours)s ώ�
 #: warehouse/templates/email/verify-email/body.html:24
 msgid "If you did not make this request, you can safely ignore this email."
 msgstr "Αν δεν κάνατε αυτή την αίτηση, μπορείτε να αγνοήσετε αυτό το email."
+
+#: warehouse/templates/email/pending-oidc-publisher-invalidated/body.html:19
+#, python-format
+msgid ""
+"You registered an pending OpenID Connect publisher for a project (<strong>"
+"%(project_name)s</strong>), but someone else has invalidated your pending "
+"publisher by creating the project before you did."
+msgstr ""
+
+#: warehouse/templates/email/pending-oidc-publisher-invalidated/body.html:27
+#, fuzzy, python-format
+#| msgid ""
+#| "If you did not make this change, you can email <a href=\"%(href)s\">"
+#| "%(email_address)s</a> to communicate with the PyPI administrators."
+msgid ""
+"If you believe this was done in error, you can email <a href=\"%(href)s\">"
+"%(email_address)s</a> to communicate with the PyPI administrators."
+msgstr ""
+"Αν δεν κάνατε αυτή την αλλαγή, μπορείτε να στείλετε email στο <a href="
+"\"%(href)s\">%(email_address)s</a> προκειμένου να επικοινωνήσετε με τους "
+"διαχειριστές του PyPI."
 
 #: warehouse/templates/email/primary-email-change/body.html:18
 #, python-format
@@ -3705,15 +3726,12 @@ msgid "Project:"
 msgstr "Project:"
 
 #: warehouse/templates/manage/account.html:576
-#: warehouse/templates/manage/account.html:582
-#: warehouse/templates/manage/project/history.html:223
-#: warehouse/templates/manage/project/history.html:227
-msgid "Provider:"
-msgstr ""
-
 #: warehouse/templates/manage/account.html:577
+#: warehouse/templates/manage/account.html:582
 #: warehouse/templates/manage/account.html:583
+#: warehouse/templates/manage/project/history.html:223
 #: warehouse/templates/manage/project/history.html:224
+#: warehouse/templates/manage/project/history.html:227
 #: warehouse/templates/manage/project/history.html:228
 #, fuzzy
 #| msgid "Username"
@@ -4309,11 +4327,11 @@ msgstr ""
 msgid "Manager"
 msgstr "Διαχείριση"
 
-#: warehouse/templates/manage/account/publishing.html:73
+#: warehouse/templates/manage/account/publishing.html:134
 #: warehouse/templates/manage/organization/roles.html:48
 #: warehouse/templates/manage/organization/roles.html:93
 #: warehouse/templates/manage/organizations.html:85
-#: warehouse/templates/manage/project/publishing.html:51
+#: warehouse/templates/manage/project/publishing.html:74
 #: warehouse/templates/manage/project/roles.html:50
 #: warehouse/templates/manage/project/roles.html:85
 #: warehouse/templates/manage/project/roles.html:115
@@ -4559,116 +4577,130 @@ msgstr ""
 
 #: warehouse/templates/manage/account/publishing.html:30
 #, fuzzy
-#| msgid "Manage this project"
-msgid "Add a new pending provider"
-msgstr "Διαχείριση αυτού του project"
+#| msgid "Manage version"
+msgid "Manage publishers"
+msgstr "Διαχείριση έκδοσης"
 
-#: warehouse/templates/manage/account/publishing.html:33
-msgid "You can use this page to register \"pending\" OpenID Connect providers."
-msgstr ""
-
-#: warehouse/templates/manage/account/publishing.html:40
-#, python-format
-msgid ""
-"These providers behave similarly to OpenID Connect providers registered "
-"against specific projects, except that they allow users to <strong>create</"
-"strong> the project if it doesn't already exist. Once the project is "
-"created, the \"pending\" provider becomes an ordinary OpenID Connect "
-"provider. You can read more about \"pending\" and ordinary OpenID Connect "
-"providers <a href=\"%(href)s\">here</a>."
-msgstr ""
-
-#: warehouse/templates/manage/account/publishing.html:58
+#: warehouse/templates/manage/account/publishing.html:45
 #, fuzzy
-#| msgid "Project Name"
-msgid "PyPI Project Name"
-msgstr "Όνομα project"
+#| msgid "Project:"
+msgid "Project"
+msgstr "Project:"
 
-#: warehouse/templates/manage/account/publishing.html:63
-#, fuzzy
-#| msgid "Project name"
-msgid "project name"
-msgstr "Όνομα project"
-
-#: warehouse/templates/manage/account/publishing.html:65
-msgid "The project (on PyPI) that will be created when this provider is used"
-msgstr ""
-
-#: warehouse/templates/manage/account/publishing.html:78
+#: warehouse/templates/manage/account/publishing.html:66
 #: warehouse/templates/manage/project/publishing.html:56
-#, fuzzy
-#| msgid "Owner"
-msgid "owner"
-msgstr "Κάτοχος"
-
-#: warehouse/templates/manage/account/publishing.html:80
-msgid ""
-"The GitHub organization name or GitHub username that owns the repository"
+msgid "No publishers are currently configured."
 msgstr ""
 
-#: warehouse/templates/manage/account/publishing.html:88
-#: warehouse/templates/manage/project/publishing.html:66
-msgid "Repository name"
-msgstr ""
-
-#: warehouse/templates/manage/account/publishing.html:93
-#: warehouse/templates/manage/project/publishing.html:71
-msgid "repository"
-msgstr ""
-
-#: warehouse/templates/manage/account/publishing.html:95
-msgid "The name of the GitHub repository that contains the publishing workflow"
-msgstr ""
-
-#: warehouse/templates/manage/account/publishing.html:103
-#: warehouse/templates/manage/project/publishing.html:81
-#, fuzzy
-#| msgid "Your name"
-msgid "Workflow name"
-msgstr "Το όνομα σας"
-
-#: warehouse/templates/manage/account/publishing.html:108
-#: warehouse/templates/manage/project/publishing.html:86
-msgid "workflow.yml"
-msgstr ""
-
-#: warehouse/templates/manage/account/publishing.html:110
-msgid ""
-"The filename of the publishing workflow. This file should exist in the "
-"<code>.github/workflows/</code> directory in the repository configured above."
-msgstr ""
-
-#: warehouse/templates/manage/account/publishing.html:117
-#: warehouse/templates/manage/project/publishing.html:95
-#: warehouse/templates/manage/project/roles.html:320
-#: warehouse/templates/manage/team/roles.html:123
-msgid "Add"
-msgstr ""
-
-#: warehouse/templates/manage/account/publishing.html:121
-#, fuzzy
-#| msgid "Manage this project"
-msgid "Manage pending providers"
-msgstr "Διαχείριση αυτού του project"
-
-#: warehouse/templates/manage/account/publishing.html:126
+#: warehouse/templates/manage/account/publishing.html:75
 #, fuzzy
 #| msgid "Trending projects"
 msgid "Pending project name"
 msgstr "Τα projects στην τάση"
 
-#: warehouse/templates/manage/account/publishing.html:127
-#: warehouse/templates/manage/project/publishing.html:107
+#: warehouse/templates/manage/account/publishing.html:76
+#: warehouse/templates/manage/project/publishing.html:44
 msgid "Publisher"
 msgstr ""
 
-#: warehouse/templates/manage/account/publishing.html:128
+#: warehouse/templates/manage/account/publishing.html:77
 msgid "Publishing workflow URL"
 msgstr ""
 
+#: warehouse/templates/manage/account/publishing.html:88
+msgid "No pending publishers are currently configured."
+msgstr ""
+
+#: warehouse/templates/manage/account/publishing.html:91
+#, fuzzy
+#| msgid "Manage this project"
+msgid "Add a new pending publisher"
+msgstr "Διαχείριση αυτού του project"
+
+#: warehouse/templates/manage/account/publishing.html:94
+msgid ""
+"You can use this page to register \"pending\" OpenID Connect publishers."
+msgstr ""
+
+#: warehouse/templates/manage/account/publishing.html:101
+#, python-format
+msgid ""
+"These publishers behave similarly to OpenID Connect publishers registered "
+"against specific projects, except that they allow users to <strong>create</"
+"strong> the project if it doesn't already exist. Once the project is "
+"created, the \"pending\" publisher becomes an ordinary OpenID Connect "
+"publisher. You can read more about \"pending\" and ordinary OpenID Connect "
+"publishers <a href=\"%(href)s\">here</a>."
+msgstr ""
+
+#: warehouse/templates/manage/account/publishing.html:119
+#, fuzzy
+#| msgid "Project Name"
+msgid "PyPI Project Name"
+msgstr "Όνομα project"
+
+#: warehouse/templates/manage/account/publishing.html:124
+#, fuzzy
+#| msgid "Project name"
+msgid "project name"
+msgstr "Όνομα project"
+
+#: warehouse/templates/manage/account/publishing.html:126
+msgid "The project (on PyPI) that will be created when this publisher is used"
+msgstr ""
+
 #: warehouse/templates/manage/account/publishing.html:139
-#: warehouse/templates/manage/project/publishing.html:119
-msgid "No publishers are currently configured."
+#: warehouse/templates/manage/project/publishing.html:79
+#, fuzzy
+#| msgid "Owner"
+msgid "owner"
+msgstr "Κάτοχος"
+
+#: warehouse/templates/manage/account/publishing.html:141
+#: warehouse/templates/manage/project/publishing.html:81
+msgid ""
+"The GitHub organization name or GitHub username that owns the repository"
+msgstr ""
+
+#: warehouse/templates/manage/account/publishing.html:149
+#: warehouse/templates/manage/project/publishing.html:89
+msgid "Repository name"
+msgstr ""
+
+#: warehouse/templates/manage/account/publishing.html:154
+#: warehouse/templates/manage/project/publishing.html:94
+msgid "repository"
+msgstr ""
+
+#: warehouse/templates/manage/account/publishing.html:156
+#: warehouse/templates/manage/project/publishing.html:96
+msgid "The name of the GitHub repository that contains the publishing workflow"
+msgstr ""
+
+#: warehouse/templates/manage/account/publishing.html:164
+#: warehouse/templates/manage/project/publishing.html:104
+#, fuzzy
+#| msgid "Your name"
+msgid "Workflow name"
+msgstr "Το όνομα σας"
+
+#: warehouse/templates/manage/account/publishing.html:169
+#: warehouse/templates/manage/project/publishing.html:109
+msgid "workflow.yml"
+msgstr ""
+
+#: warehouse/templates/manage/account/publishing.html:171
+#: warehouse/templates/manage/project/publishing.html:111
+msgid ""
+"The filename of the publishing workflow. This file should exist in the "
+"<code>.github/workflows/</code> directory in the repository configured above."
+msgstr ""
+
+#: warehouse/templates/manage/account/publishing.html:178
+#: warehouse/templates/manage/project/publishing.html:118
+#: warehouse/templates/manage/project/roles.html:320
+#: warehouse/templates/manage/team/roles.html:123
+msgid "Add"
 msgstr ""
 
 #: warehouse/templates/manage/account/recovery_codes-burn.html:34
@@ -6069,11 +6101,11 @@ msgid "Controlled by:"
 msgstr "Ελέγχεται από:"
 
 #: warehouse/templates/manage/project/history.html:222
-msgid "OpenID Connect provider added"
+msgid "OpenID Connect publisher added"
 msgstr ""
 
 #: warehouse/templates/manage/project/history.html:226
-msgid "OpenID Connect provider removed"
+msgid "OpenID Connect publisher removed"
 msgstr ""
 
 #: warehouse/templates/manage/project/history.html:232
@@ -6110,42 +6142,37 @@ msgid "Back to projects"
 msgstr "Πίσω στα projects"
 
 #: warehouse/templates/manage/project/publishing.html:36
-msgid "Add a new provider"
-msgstr ""
-
-#: warehouse/templates/manage/project/publishing.html:40
-#, python-format
-msgid ""
-"Read more about GitHub's OpenID Connect provider <a href=\"%(href)s\">here</"
-"a>."
-msgstr ""
-
-#: warehouse/templates/manage/project/publishing.html:58
-msgid "The organization name or username that owns the repository"
-msgstr ""
-
-#: warehouse/templates/manage/project/publishing.html:73
-msgid "The name of the repository that contains the publishing workflow"
-msgstr ""
-
-#: warehouse/templates/manage/project/publishing.html:88
-msgid "The filename of the publishing workflow"
-msgstr ""
-
-#: warehouse/templates/manage/project/publishing.html:99
 #, fuzzy
 #| msgid "Manage this project"
-msgid "Manage current providers"
+msgid "Manage current publishers"
 msgstr "Διαχείριση αυτού του project"
 
-#: warehouse/templates/manage/project/publishing.html:103
+#: warehouse/templates/manage/project/publishing.html:40
 #, python-format
 msgid "OpenID Connect publishers associated with %(project_name)s"
 msgstr ""
 
-#: warehouse/templates/manage/project/publishing.html:108
+#: warehouse/templates/manage/project/publishing.html:45
 msgid "URL"
 msgstr ""
+
+#: warehouse/templates/manage/project/publishing.html:59
+#, fuzzy
+#| msgid "Manage this project"
+msgid "Add a new publisher"
+msgstr "Διαχείριση αυτού του project"
+
+#: warehouse/templates/manage/project/publishing.html:63
+#, fuzzy, python-format
+#| msgid ""
+#| "To regain access to your account, <a href=\"%(href)s\">reset your "
+#| "password</a> on PyPI."
+msgid ""
+"Read more about GitHub Actions's OpenID Connect support <a href=\"%(href)s"
+"\">here</a>."
+msgstr ""
+"Για να μπορείτε να ανακτήσετε την πρόσβαση στο λογαριασμό σας, <a href="
+"\"%(href)s\">μηδενίστε τον κωδικό σας</a> στο PyPI."
 
 #: warehouse/templates/manage/project/release.html:18
 #, python-format
@@ -8473,10 +8500,10 @@ msgstr ""
 #: warehouse/templates/pages/help.html:537
 msgid ""
 "Using OIDC to authenticate when publishing is done by registering "
-"\"providers,\" which correspond to services with OIDC identities like GitHub "
-"Actions. Existing projects can add or remove OIDC providers at any time. "
-"OIDC providers can also be created in advance for projects that don't exist "
-"yet."
+"\"publishers,\" which correspond to services with OIDC identities like "
+"GitHub Actions. Existing projects can add or remove OIDC publishers at any "
+"time. OIDC publishers can also be created in advance for projects that don't "
+"exist yet."
 msgstr ""
 
 #: warehouse/templates/pages/help.html:551
@@ -10141,6 +10168,11 @@ msgid "There were no results for '%(filters)s' filter"
 msgid_plural "There were no results for '%(filters)s' filters"
 msgstr[0] "Δεν βρέθηκαν αποτελέσματα για '%(term)s'"
 msgstr[1] "Δεν βρέθηκαν αποτελέσματα για '%(term)s'"
+
+#, fuzzy
+#~| msgid "Manage this project"
+#~ msgid "Manage pending providers"
+#~ msgstr "Διαχείριση αυτού του project"
 
 #~ msgid "Trending projects as downloaded by the community"
 #~ msgstr "Τα projects στην τάση όπως έγιναν download από την κοινότητα"

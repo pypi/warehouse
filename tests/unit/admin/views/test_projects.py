@@ -19,6 +19,7 @@ import pytest
 
 from pyramid.httpexceptions import HTTPBadRequest, HTTPMovedPermanently, HTTPSeeOther
 
+from tests.common.db.oidc import GitHubPublisherFactory
 from warehouse.admin.views import projects as views
 from warehouse.packaging.models import Project, Role
 from warehouse.search.tasks import reindex_project
@@ -84,6 +85,7 @@ class TestProjectDetail:
             [RoleFactory(project=project) for _ in range(5)],
             key=lambda x: (x.role_name, x.user.username),
         )
+        oidc_publishers = [GitHubPublisherFactory(projects=[project]) for _ in range(5)]
         db_request.matchdict["project_name"] = str(project.normalized_name)
         result = views.project_detail(project, db_request)
 
@@ -92,6 +94,7 @@ class TestProjectDetail:
             "releases": [],
             "maintainers": roles,
             "journal": journals[:30],
+            "oidc_publishers": oidc_publishers,
             "ONE_MB": views.ONE_MB,
             "MAX_FILESIZE": views.MAX_FILESIZE,
             "MAX_PROJECT_SIZE": views.MAX_PROJECT_SIZE,

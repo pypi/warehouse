@@ -13,10 +13,12 @@
 import pretend
 import pytest
 
+from packaging.version import parse
 from pyramid.httpexceptions import HTTPMovedPermanently
 from pyramid.testing import DummyRequest
 
 from warehouse.api import simple
+from warehouse.packaging.utils import API_VERSION
 
 from ...common.db.accounts import UserFactory
 from ...common.db.packaging import (
@@ -81,7 +83,7 @@ class TestSimpleIndex:
     def test_no_results_no_serial(self, db_request, content_type, renderer_override):
         db_request.accept = content_type
         assert simple.simple_index(db_request) == {
-            "meta": {"_last-serial": 0, "api-version": "1.0"},
+            "meta": {"_last-serial": 0, "api-version": API_VERSION},
             "projects": [],
         }
         assert db_request.response.headers["X-PyPI-Last-Serial"] == "0"
@@ -99,7 +101,7 @@ class TestSimpleIndex:
         user = UserFactory.create()
         je = JournalEntryFactory.create(submitted_by=user)
         assert simple.simple_index(db_request) == {
-            "meta": {"_last-serial": je.id, "api-version": "1.0"},
+            "meta": {"_last-serial": je.id, "api-version": API_VERSION},
             "projects": [],
         }
         assert db_request.response.headers["X-PyPI-Last-Serial"] == str(je.id)
@@ -119,7 +121,7 @@ class TestSimpleIndex:
             for x in [ProjectFactory.create() for _ in range(3)]
         ]
         assert simple.simple_index(db_request) == {
-            "meta": {"_last-serial": 0, "api-version": "1.0"},
+            "meta": {"_last-serial": 0, "api-version": API_VERSION},
             "projects": [
                 {"name": x[0], "_last-serial": 0}
                 for x in sorted(projects, key=lambda x: x[1])
@@ -147,7 +149,7 @@ class TestSimpleIndex:
         je = JournalEntryFactory.create(submitted_by=user)
 
         assert simple.simple_index(db_request) == {
-            "meta": {"_last-serial": je.id, "api-version": "1.0"},
+            "meta": {"_last-serial": je.id, "api-version": API_VERSION},
             "projects": [
                 {"name": x[0], "_last-serial": 0}
                 for x in sorted(projects, key=lambda x: x[1])
@@ -186,11 +188,12 @@ class TestSimpleDetail:
         user = UserFactory.create()
         JournalEntryFactory.create(submitted_by=user)
 
-        result = simple.simple_detail(project, db_request)
-
-        assert result["meta"] == {"_last-serial": 0, "api-version": "1.0"}
-        assert result["name"] == project.normalized_name
-        assert result["files"] == []
+        assert simple.simple_detail(project, db_request) == {
+            "meta": {"_last-serial": 0, "api-version": API_VERSION},
+            "name": project.normalized_name,
+            "files": [],
+            "versions": [],
+        }
 
         assert db_request.response.headers["X-PyPI-Last-Serial"] == "0"
         assert db_request.response.content_type == content_type
@@ -209,11 +212,12 @@ class TestSimpleDetail:
         user = UserFactory.create()
         je = JournalEntryFactory.create(name=project.name, submitted_by=user)
 
-        result = simple.simple_detail(project, db_request)
-
-        assert result["meta"] == {"_last-serial": je.id, "api-version": "1.0"}
-        assert result["name"] == project.normalized_name
-        assert result["files"] == []
+        assert simple.simple_detail(project, db_request) == {
+            "meta": {"_last-serial": je.id, "api-version": API_VERSION},
+            "name": project.normalized_name,
+            "files": [],
+            "versions": [],
+        }
 
         assert db_request.response.headers["X-PyPI-Last-Serial"] == str(je.id)
         assert db_request.response.content_type == content_type
@@ -229,6 +233,7 @@ class TestSimpleDetail:
         db_request.accept = content_type
         project = ProjectFactory.create()
         releases = [ReleaseFactory.create(project=project) for _ in range(3)]
+        release_versions = sorted([r.version for r in releases], key=parse)
         files = [
             FileFactory.create(release=r, filename=f"{project.name}-{r.version}.tar.gz")
             for r in releases
@@ -241,19 +246,23 @@ class TestSimpleDetail:
         user = UserFactory.create()
         JournalEntryFactory.create(submitted_by=user)
 
-        result = simple.simple_detail(project, db_request)
-
-        assert result["meta"] == {"_last-serial": 0, "api-version": "1.0"}
-        assert result["name"] == project.normalized_name
-
-        for f in files:
-            assert {
-                "filename": f.filename,
-                "url": f"/file/{f.filename}",
-                "hashes": {"sha256": f.sha256_digest},
-                "requires-python": f.requires_python,
-                "yanked": False,
-            } in result["files"]
+        assert simple.simple_detail(project, db_request) == {
+            "meta": {"_last-serial": 0, "api-version": API_VERSION},
+            "name": project.normalized_name,
+            "versions": release_versions,
+            "files": [
+                {
+                    "filename": f.filename,
+                    "url": f"/file/{f.filename}",
+                    "hashes": {"sha256": f.sha256_digest},
+                    "requires-python": f.requires_python,
+                    "yanked": False,
+                    "size": f.size,
+                    "upload-time": f.upload_time.isoformat() + "Z",
+                }
+                for f in files
+            ],
+        }
 
         assert db_request.response.headers["X-PyPI-Last-Serial"] == "0"
         assert db_request.response.content_type == content_type
@@ -269,31 +278,36 @@ class TestSimpleDetail:
         db_request.accept = content_type
         project = ProjectFactory.create()
         releases = [ReleaseFactory.create(project=project) for _ in range(3)]
+        release_versions = sorted([r.version for r in releases], key=parse)
         files = [
             FileFactory.create(release=r, filename=f"{project.name}-{r.version}.tar.gz")
             for r in releases
         ]
-        # let's assert the result is ordered by string comparison of filename
-        files = sorted(files, key=lambda key: key.filename)
+        # let's assert the result is ordered by version and filename
+        files = sorted(files, key=lambda f: (parse(f.release.version), f.filename))
         urls_iter = (f"/file/{f.filename}" for f in files)
         db_request.matchdict["name"] = project.normalized_name
         db_request.route_url = lambda *a, **kw: next(urls_iter)
         user = UserFactory.create()
         je = JournalEntryFactory.create(name=project.name, submitted_by=user)
 
-        result = simple.simple_detail(project, db_request)
-
-        assert result["meta"] == {"_last-serial": je.id, "api-version": "1.0"}
-        assert result["name"] == project.normalized_name
-
-        for f in files:
-            assert {
-                "filename": f.filename,
-                "url": f"/file/{f.filename}",
-                "hashes": {"sha256": f.sha256_digest},
-                "requires-python": f.requires_python,
-                "yanked": False,
-            } in result["files"]
+        assert simple.simple_detail(project, db_request) == {
+            "meta": {"_last-serial": je.id, "api-version": API_VERSION},
+            "name": project.normalized_name,
+            "versions": release_versions,
+            "files": [
+                {
+                    "filename": f.filename,
+                    "url": f"/file/{f.filename}",
+                    "hashes": {"sha256": f.sha256_digest},
+                    "requires-python": f.requires_python,
+                    "yanked": False,
+                    "size": f.size,
+                    "upload-time": f.upload_time.isoformat() + "Z",
+                }
+                for f in files
+            ],
+        }
 
         assert db_request.response.headers["X-PyPI-Last-Serial"] == str(je.id)
         assert db_request.response.content_type == content_type
@@ -358,19 +372,23 @@ class TestSimpleDetail:
         user = UserFactory.create()
         je = JournalEntryFactory.create(name=project.name, submitted_by=user)
 
-        result = simple.simple_detail(project, db_request)
-
-        assert result["meta"] == {"_last-serial": je.id, "api-version": "1.0"}
-        assert result["name"] == project.normalized_name
-
-        for f in files:
-            assert {
-                "filename": f.filename,
-                "url": f"/file/{f.filename}",
-                "hashes": {"sha256": f.sha256_digest},
-                "requires-python": f.requires_python,
-                "yanked": False,
-            } in result["files"]
+        assert simple.simple_detail(project, db_request) == {
+            "meta": {"_last-serial": je.id, "api-version": API_VERSION},
+            "name": project.normalized_name,
+            "versions": release_versions,
+            "files": [
+                {
+                    "filename": f.filename,
+                    "url": f"/file/{f.filename}",
+                    "hashes": {"sha256": f.sha256_digest},
+                    "requires-python": f.requires_python,
+                    "yanked": False,
+                    "size": f.size,
+                    "upload-time": f.upload_time.isoformat() + "Z",
+                }
+                for f in files
+            ],
+        }
 
         assert db_request.response.headers["X-PyPI-Last-Serial"] == str(je.id)
         assert db_request.response.content_type == content_type
