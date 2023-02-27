@@ -268,7 +268,7 @@ msgstr ""
 msgid "You can't register more than 3 pending OpenID Connect publishers at once."
 msgstr ""
 
-#: warehouse/accounts/views.py:1430 warehouse/manage/views.py:3113
+#: warehouse/accounts/views.py:1430 warehouse/manage/views.py:3116
 msgid ""
 "There have been too many attempted OpenID Connect registrations. Try "
 "again later."
@@ -368,55 +368,55 @@ msgstr ""
 msgid "Generating new recovery codes will invalidate your existing codes."
 msgstr ""
 
-#: warehouse/manage/views.py:2015
+#: warehouse/manage/views.py:2018
 msgid "User '${username}' already has ${role_name} role for organization"
 msgstr ""
 
-#: warehouse/manage/views.py:2026
+#: warehouse/manage/views.py:2029
 msgid ""
 "User '${username}' does not have a verified primary email address and "
 "cannot be added as a ${role_name} for organization"
 msgstr ""
 
-#: warehouse/manage/views.py:2040 warehouse/manage/views.py:4373
+#: warehouse/manage/views.py:2043 warehouse/manage/views.py:4376
 msgid "User '${username}' already has an active invite. Please try again later."
 msgstr ""
 
-#: warehouse/manage/views.py:2106 warehouse/manage/views.py:4440
+#: warehouse/manage/views.py:2109 warehouse/manage/views.py:4443
 msgid "Invitation sent to '${username}'"
 msgstr ""
 
-#: warehouse/manage/views.py:2152
+#: warehouse/manage/views.py:2155
 msgid "Could not find organization invitation."
 msgstr ""
 
-#: warehouse/manage/views.py:2166 warehouse/manage/views.py:4484
+#: warehouse/manage/views.py:2169 warehouse/manage/views.py:4487
 msgid "Invitation already expired."
 msgstr ""
 
-#: warehouse/manage/views.py:2208 warehouse/manage/views.py:4517
+#: warehouse/manage/views.py:2211 warehouse/manage/views.py:4520
 msgid "Invitation revoked from '${username}'."
 msgstr ""
 
-#: warehouse/manage/views.py:4150
+#: warehouse/manage/views.py:4153
 msgid "Team '${team_name}' already has ${role_name} role for project"
 msgstr ""
 
-#: warehouse/manage/views.py:4258
+#: warehouse/manage/views.py:4261
 msgid "User '${username}' already has ${role_name} role for project"
 msgstr ""
 
-#: warehouse/manage/views.py:4327
+#: warehouse/manage/views.py:4330
 msgid "${username} is now ${role} of the '${project_name}' project."
 msgstr ""
 
-#: warehouse/manage/views.py:4360
+#: warehouse/manage/views.py:4363
 msgid ""
 "User '${username}' does not have a verified primary email address and "
 "cannot be added as a ${role_name} for project"
 msgstr ""
 
-#: warehouse/manage/views.py:4473
+#: warehouse/manage/views.py:4476
 msgid "Could not find role invitation."
 msgstr ""
 

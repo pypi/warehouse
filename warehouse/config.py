@@ -299,6 +299,18 @@ def configure(settings=None):
         "IP_OIDC_REGISTRATION_RATELIMIT_STRING",
         default="20 per day",
     )
+    maybe_set(
+        settings,
+        "warehouse.packaging.project_create_user_ratelimit_string",
+        "PROJECT_CREATE_USER_RATELIMIT_STRING",
+        default="20 per hour",
+    )
+    maybe_set(
+        settings,
+        "warehouse.packaging.project_create_ip_ratelimit_string",
+        "PROJECT_CREATE_IP_RATELIMIT_STRING",
+        default="40 per hour",
+    )
 
     # 2FA feature flags
     maybe_set(

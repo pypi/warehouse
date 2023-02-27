@@ -109,7 +109,9 @@ def mint_token_from_oidc(request):
         # Create the new project, and reify the pending publisher against it.
         project_service = request.find_service(IProjectService)
         new_project = project_service.create_project(
-            pending_publisher.project_name, pending_publisher.added_by
+            pending_publisher.project_name,
+            pending_publisher.added_by,
+            ratelimited=False,
         )
         oidc_service.reify_pending_publisher(pending_publisher, new_project)
 

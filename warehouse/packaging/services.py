@@ -10,6 +10,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import collections
+import logging
 import os.path
 import shutil
 import warnings
@@ -22,13 +24,18 @@ import sentry_sdk
 from zope.interface import implementer
 
 from warehouse.events.tags import EventTag
+from warehouse.metrics import IMetricsService
 from warehouse.packaging.interfaces import (
     IDocsStorage,
     IFileStorage,
     IProjectService,
     ISimpleStorage,
+    TooManyProjectsCreated,
 )
 from warehouse.packaging.models import JournalEntry, Project, Role
+from warehouse.rate_limiting import DummyRateLimiter, IRateLimiter
+
+logger = logging.getLogger(__name__)
 
 
 class InsecureStorageWarning(UserWarning):
@@ -259,11 +266,51 @@ class GCSSimpleStorage(GenericGCSBlobStorage):
 
 @implementer(IProjectService)
 class ProjectService:
-    def __init__(self, session, remote_addr) -> None:
+    def __init__(self, session, remote_addr, metrics=None, ratelimiters=None) -> None:
+        if ratelimiters is None:
+            ratelimiters = {}
+
         self.db = session
         self.remote_addr = remote_addr
+        self.ratelimiters = collections.defaultdict(DummyRateLimiter, ratelimiters)
+        self._metrics = metrics
 
-    def create_project(self, name, creator, *, creator_is_owner=True):
+    def _check_ratelimits(self, creator):
+        # First we want to check if a single IP is exceeding our rate limiter.
+        print(self.ratelimiters)
+        if self.remote_addr is not None:
+            if not self.ratelimiters["project.create.ip"].test(self.remote_addr):
+                logger.warning("IP failed project create threshold reached.")
+                self._metrics.increment(
+                    "warehouse.project.create.ratelimited",
+                    tags=["ratelimiter:ip"],
+                )
+                raise TooManyProjectsCreated(
+                    resets_in=self.ratelimiters["project.create.ip"].resets_in(
+                        self.remote_addr
+                    )
+                )
+
+        if not self.ratelimiters["project.create.user"].test(creator.id):
+            logger.warning("User failed project create threshold reached.")
+            self._metrics.increment(
+                "warehouse.project.create.ratelimited",
+                tags=["ratelimiter:user"],
+            )
+            raise TooManyProjectsCreated(
+                resets_in=self.ratelimiters["project.create.user"].resets_in(
+                    self.remote_addr
+                )
+            )
+
+    def _hit_ratelimits(self, creator):
+        self.ratelimiters["project.create.user"].hit(creator.id)
+        self.ratelimiters["project.create.ip"].hit(self.remote_addr)
+
+    def create_project(self, name, creator, *, creator_is_owner=True, ratelimited=True):
+        if ratelimited:
+            self._check_ratelimits(creator)
+
         project = Project(name=name)
         self.db.add(project)
 
@@ -308,8 +355,21 @@ class ProjectService:
                 },
             )
 
+        if ratelimited:
+            self._hit_ratelimits(creator)
         return project
 
 
 def project_service_factory(context, request):
-    return ProjectService(request.db, request.remote_addr)
+    metrics = request.find_service(IMetricsService, context=None)
+    ratelimiters = {
+        "project.create.user": request.find_service(
+            IRateLimiter, name="project.create.user", context=None
+        ),
+        "project.create.ip": request.find_service(
+            IRateLimiter, name="project.create.ip", context=None
+        ),
+    }
+    return ProjectService(
+        request.db, request.remote_addr, metrics=metrics, ratelimiters=ratelimiters
+    )

@@ -25,7 +25,7 @@ import pretend
 import pytest
 import requests
 
-from pyramid.httpexceptions import HTTPBadRequest, HTTPForbidden
+from pyramid.httpexceptions import HTTPBadRequest, HTTPForbidden, HTTPTooManyRequests
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import joinedload
 from trove_classifiers import classifiers
@@ -3318,6 +3318,67 @@ class TestFileUpload:
             "You must first create a project as a user, and then "
             "configure the project to use OpenID Connect."
         )
+
+    @pytest.mark.parametrize(
+        "failing_limiter,remote_addr",
+        [
+            ("project.create.ip", "127.0.0.1"),
+            ("project.create.user", "127.0.0.1"),
+            ("project.create.user", None),
+        ],
+    )
+    def test_upload_new_project_fails_ratelimited(
+        self,
+        pyramid_config,
+        db_request,
+        metrics,
+        project_service,
+        failing_limiter,
+        remote_addr,
+    ):
+
+        user = UserFactory.create()
+        EmailFactory.create(user=user)
+
+        filename = "{}-{}.tar.gz".format("example", "1.0")
+
+        pyramid_config.testing_securitypolicy(identity=user)
+        db_request.user = user
+        db_request.POST = MultiDict(
+            {
+                "metadata_version": "1.2",
+                "name": "example",
+                "version": "1.0",
+                "filetype": "sdist",
+                "md5_digest": _TAR_GZ_PKG_MD5,
+                "content": pretend.stub(
+                    filename=filename,
+                    file=io.BytesIO(_TAR_GZ_PKG_TESTDATA),
+                    type="application/tar",
+                ),
+            }
+        )
+        db_request.remote_addr = remote_addr
+
+        project_service.ratelimiters[failing_limiter] = pretend.stub(
+            test=lambda *a, **kw: False,
+            resets_in=lambda *a, **kw: 60,
+        )
+        storage_service = pretend.stub(store=lambda path, filepath, meta: None)
+        db_request.find_service = lambda svc, name=None, context=None: {
+            IFileStorage: storage_service,
+            IMetricsService: metrics,
+            IProjectService: project_service,
+        }.get(svc)
+        db_request.user_agent = "warehouse-tests/6.6.6"
+
+        with pytest.raises(HTTPTooManyRequests) as excinfo:
+            legacy.file_upload(db_request)
+
+        resp = excinfo.value
+
+        assert resp.status_code == 429
+        assert resp.status == ("429 Too many new projects created")
 
     def test_upload_succeeds_creates_project(
         self, pyramid_config, db_request, metrics, project_service

@@ -671,7 +671,11 @@ class TestGenericLocalBlobStorage:
 def test_project_service_factory():
     db = pretend.stub()
     remote_addr = pretend.stub()
-    request = pretend.stub(db=db, remote_addr=remote_addr)
+    request = pretend.stub(
+        db=db,
+        remote_addr=remote_addr,
+        find_service=lambda iface, name=None, context=None: None,
+    )
 
     service = project_service_factory(pretend.stub(), request)
     assert service.db == db

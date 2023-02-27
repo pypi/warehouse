@@ -12,6 +12,12 @@
 
 from zope.interface import Interface
 
+from warehouse.rate_limiting.interfaces import RateLimiterException
+
+
+class TooManyProjectsCreated(RateLimiterException):
+    pass
+
 
 class IGenericFileStorage(Interface):
     def create_service(context, request):
