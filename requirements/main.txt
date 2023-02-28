@@ -55,9 +55,9 @@ automat==22.10.0 \
     --hash=sha256:c3164f8742b9dc440f3682482d32aaff7bb53f71740dd018533f9de286b64180 \
     --hash=sha256:e56beb84edad19dcc11d30e8d9b895f75deeb5ef5e96b84a467066b3b84bb04e
     # via -r requirements/main.in
-babel==2.11.0 \
-    --hash=sha256:1ad3eca1c885218f6dce2ab67291178944f810a10a9b5f3cb8382a5a232b64fe \
-    --hash=sha256:5ef4b3226b0180dedded4229651c8b0e1a3a6a2837d45a073272f313e4cf97f6
+babel==2.12.0 \
+    --hash=sha256:468e6cd1e2b571a1663110fc737e3a7d9069d038e0c9c4a7f158caeeafe4089c \
+    --hash=sha256:8f8b752c803e9f9e03ff219b644aceb0dbcf081c55a88ea11f86291e60a7bb68
     # via -r requirements/main.in
 bcrypt==4.0.1 \
     --hash=sha256:089098effa1bc35dc055366740a067a2fc76987e8ec75349eb9484061c54f535 \
@@ -1134,9 +1134,9 @@ premailer==3.10.0 \
     --hash=sha256:021b8196364d7df96d04f9ade51b794d0b77bcc19e998321c515633a2273be1a \
     --hash=sha256:d1875a8411f5dc92b53ef9f193db6c0f879dc378d618e0ad292723e388bfe4c2
     # via -r requirements/main.in
-prompt-toolkit==3.0.37 \
-    --hash=sha256:6a2948ec427dfcc7c983027b1044b355db6aaa8be374f54ad2015471f7d81c5b \
-    --hash=sha256:d5d73d4b5eb1a92ba884a88962b157f49b71e06c4348b417dd622b25cdd3800b
+prompt-toolkit==3.0.38 \
+    --hash=sha256:23ac5d50538a9a38c8bde05fecb47d0b403ecd0662857a86f886f798563d5b9b \
+    --hash=sha256:45ea77a2f7c60418850331366c81cf6b5b9cf4c7fd34616f733c5427e6abbb1f
     # via click-repl
 proto-plus==1.22.2 \
     --hash=sha256:0e8cda3d5a634d9895b75c573c9352c16486cb75deb0e078b5fda34db4243165 \
@@ -1323,9 +1323,7 @@ python-slugify==8.0.1 \
 pytz==2022.7.1 \
     --hash=sha256:01a0681c4b9684a28304615eba55d1ab31ae00bf68ec157ec3708a8182dbbcd0 \
     --hash=sha256:78f4f37d8198e0627c5f1143240bb0206b8691d8d7ac6d78fee88b78733f8c4a
-    # via
-    #   babel
-    #   celery
+    # via celery
 readme-renderer[md]==37.3 \
     --hash=sha256:cd653186dfc73055656f090f227f5cb22a046d7f71a841dfa305f55c9a513273 \
     --hash=sha256:f67a16caedfa71eef48a31b39708637a6f4664c4394801a7b0d6432d13907343
@@ -1454,9 +1452,9 @@ structlog==22.3.0 \
     --hash=sha256:b403f344f902b220648fa9f286a23c0cc5439a5844d271fec40562dbadbc70ad \
     --hash=sha256:e7509391f215e4afb88b1b80fa3ea074be57a5a17d794bd436a5c949da023333
     # via -r requirements/main.in
-tenacity==8.1.0 \
-    --hash=sha256:35525cd47f82830069f0d6b73f7eb83bc5b73ee2fff0437952cedf98b27653ac \
-    --hash=sha256:e48c437fdf9340f5666b92cd7990e96bc5fc955e1298baf4a907e3972067a445
+tenacity==8.2.2 \
+    --hash=sha256:2f277afb21b851637e8f52e6a613ff08734c347dc19ade928e519d7d2d8569b0 \
+    --hash=sha256:43af037822bd0029025877f3b2d97cc4d7bb0c2991000a3d59d71517c5c969e0
     # via celery-redbeat
 text-unidecode==1.3 \
     --hash=sha256:1311f10e8b895935241623731c2ba64f4c455287888b18189350b67134a822e8 \
