@@ -71,7 +71,7 @@ jobs:
                     }
                   }
                 }
-                if(${{ github.event.inputs.mustBeUnblocked }}) {
+                if(${{ github.event.inputs.mustBeUnblocked && statusOK }}) {
                   console.log('Checking blocked status: ' + pull['number']);
                   const labels = await github.paginate('GET /repos/{owner}/{repo}/issues/{issue_number}/labels', {
                     owner: context.repo.owner,
