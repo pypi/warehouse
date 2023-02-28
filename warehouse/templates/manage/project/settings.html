@@ -234,7 +234,7 @@
   <hr>
   {% endif %}
 
-  <div class="callout-block callout-block--danger">
+  <div class="callout-block callout-block--danger" data-controller="delete-confirm">
     <h3>{% trans %}Delete project{% endtrans %}</h3>
     <p>
       <i class="fa fa-exclamation-triangle" aria-hidden="true"><span class="sr-only">{% trans %}Warning{% endtrans %}</span></i>
@@ -265,7 +265,13 @@
         </small>
       </li>
     </ul>
+    <ul class="no-bullets">
+      <li><input type="checkbox" data-action="input->delete-confirm#check" data-delete-confirm-target="input"> I understand that I will not be able to re-upload any deleted versions.</li>
+      <li><input type="checkbox" data-action="input->delete-confirm#check" data-delete-confirm-target="input"> I understand that I am permanently deleting all releases for this project.</li>
+      <li><input type="checkbox" data-action="input->delete-confirm#check" data-delete-confirm-target="input"> I understand that I am releasing this project name for use by any other PyPI user.</li>
+      <li><input type="checkbox" data-action="input->delete-confirm#check" data-delete-confirm-target="input"> I understand that I cannot undo this.</li>
+    </ul>
     {% set action = request.route_path('manage.project.delete_project', project_name=project.normalized_name) %}
-    {{ confirm_button(gettext("Delete project"), gettext("Project Name"), "project_name", project.name, action=action) }}
+    {{ confirm_button(gettext("Delete project"), gettext("Project Name"), "project_name", project.name, action=action, additional_attributes="data-delete-confirm-target=button") }}
   </div>
 {% endblock %}
