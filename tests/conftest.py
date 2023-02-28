@@ -322,8 +322,10 @@ def user_service(db_session, metrics, remote_addr):
 
 
 @pytest.fixture
-def project_service(db_session, remote_addr):
-    return packaging_services.ProjectService(db_session, remote_addr)
+def project_service(db_session, remote_addr, metrics, ratelimiters=None):
+    return packaging_services.ProjectService(
+        db_session, remote_addr, metrics, ratelimiters=ratelimiters
+    )
 
 
 @pytest.fixture

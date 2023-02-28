@@ -259,6 +259,8 @@ def test_configure(monkeypatch, settings, environment):
         "warehouse.account.password_reset_ratelimit_string": "5 per day",
         "warehouse.manage.oidc.user_registration_ratelimit_string": "20 per day",
         "warehouse.manage.oidc.ip_registration_ratelimit_string": "20 per day",
+        "warehouse.packaging.project_create_user_ratelimit_string": "20 per hour",
+        "warehouse.packaging.project_create_ip_ratelimit_string": "40 per hour",
         "warehouse.two_factor_requirement.enabled": False,
         "warehouse.two_factor_mandate.available": False,
         "warehouse.two_factor_mandate.enabled": False,

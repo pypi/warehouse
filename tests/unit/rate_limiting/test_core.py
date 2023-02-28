@@ -159,6 +159,12 @@ class TestRateLimit:
             )
         ]
 
+    def test_repr(self):
+        assert repr(RateLimit("one per hour")) == (
+            'RateLimit("one per hour", identifiers=None, '
+            "limiter_class=<class 'warehouse.rate_limiting.RateLimiter'>)"
+        )
+
     def test_eq(self):
         assert RateLimit("1 per 5 minutes", identifiers=["foo"]) == RateLimit(
             "1 per 5 minutes", identifiers=["foo"]

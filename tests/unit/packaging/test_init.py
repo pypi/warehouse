@@ -30,6 +30,7 @@ from warehouse.packaging.tasks import (  # sync_bigquery_release_files,
     compute_2fa_mandate,
     update_description_html,
 )
+from warehouse.rate_limiting import IRateLimiter, RateLimit
 
 
 @pytest.mark.parametrize("with_bq_sync", [True, False])
@@ -43,7 +44,13 @@ def test_includeme(monkeypatch, with_bq_sync, with_2fa_mandate):
         return pretend.call(keystring, iterate_on=iterate_on)
 
     monkeypatch.setattr(packaging, "key_factory", key_factory)
-    settings = dict()
+    settings = {
+        "files.backend": "foo.bar",
+        "simple.backend": "bread.butter",
+        "docs.backend": "wu.tang",
+        "warehouse.packaging.project_create_user_ratelimit_string": "20 per hour",
+        "warehouse.packaging.project_create_ip_ratelimit_string": "40 per hour",
+    }
     if with_bq_sync:
         settings["warehouse.release_files_table"] = "fizzbuzz"
     if with_2fa_mandate:
@@ -54,13 +61,7 @@ def test_includeme(monkeypatch, with_bq_sync, with_2fa_mandate):
         register_service_factory=pretend.call_recorder(
             lambda factory, iface, name=None: None
         ),
-        registry=pretend.stub(
-            settings={
-                "files.backend": "foo.bar",
-                "simple.backend": "bread.butter",
-                "docs.backend": "wu.tang",
-            }
-        ),
+        registry=pretend.stub(settings=settings),
         register_origin_cache_keys=pretend.call_recorder(lambda c, **kw: None),
         get_settings=lambda: settings,
         add_periodic_task=pretend.call_recorder(lambda *a, **kw: None),
@@ -72,6 +73,10 @@ def test_includeme(monkeypatch, with_bq_sync, with_2fa_mandate):
         pretend.call(storage_class.create_service, IFileStorage),
         pretend.call(storage_class.create_service, ISimpleStorage),
         pretend.call(storage_class.create_service, IDocsStorage),
+        pretend.call(
+            RateLimit("20 per hour"), IRateLimiter, name="project.create.user"
+        ),
+        pretend.call(RateLimit("40 per hour"), IRateLimiter, name="project.create.ip"),
         pretend.call(project_service_factory, IProjectService),
     ]
     assert config.register_origin_cache_keys.calls == [
