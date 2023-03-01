@@ -36,7 +36,7 @@
     "@babel/eslint-parser": "7.17.0",
     "@babel/preset-env": "^7.20.2",
     "@testing-library/dom": "6.2.0",
-    "@testing-library/jest-dom": "4.1.0",
+    "@testing-library/jest-dom": "^5.16.5",
     "babel-jest": "28.1.0",
     "compression-webpack-plugin": "^10.0.0",
     "copy-webpack-plugin": "^11.0.0",
