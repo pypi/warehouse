@@ -5585,7 +5585,7 @@ msgstr ""
 
 #: warehouse/templates/manage/project/settings.html:147
 #: warehouse/templates/manage/project/settings.html:211
-#: warehouse/templates/manage/project/settings.html:275
+#: warehouse/templates/manage/project/settings.html:278
 msgid "Project Name"
 msgstr ""
 
@@ -5657,7 +5657,7 @@ msgid "You are not an owner or manager of any organizations."
 msgstr ""
 
 #: warehouse/templates/manage/project/settings.html:238
-#: warehouse/templates/manage/project/settings.html:275
+#: warehouse/templates/manage/project/settings.html:278
 msgid "Delete project"
 msgstr ""
 
