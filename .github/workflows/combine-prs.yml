@@ -9,6 +9,11 @@ on:
         type: boolean
         required: true
         default: true
+      mustBeUnblocked:
+        description: 'Exclude PRs that have the `blocked` label'
+        type: boolean
+        required: true
+        default: true
       combineBranchName:
         description: 'Name of the branch to combine PRs into'
         type: string
@@ -61,6 +66,24 @@ jobs:
                       console.log('Validating conclusion: ' + latest_conclusion);
                       if(latest_conclusion == 'failure') {
                         console.log('Discarding ' + branch + ' with failed check');
+                        statusOK = false;
+                      }
+                    }
+                  }
+                }
+                if(${{ github.event.inputs.mustBeUnblocked }} && statusOK) {
+                  console.log('Checking blocked status: ' + pull['number']);
+                  const labels = await github.paginate('GET /repos/{owner}/{repo}/issues/{issue_number}/labels', {
+                    owner: context.repo.owner,
+                    repo: context.repo.repo,
+                    issue_number: pull['number']
+                  });
+                  if(labels.length > 0) {
+                    for (const label of labels) {
+                      const label_name = label['name'];
+                      console.log('Validating label: ' + label_name);
+                      if(label_name == 'blocked') {
+                        console.log('Discarding ' + branch + ' with blocked label on PR');
                         statusOK = false;
                       }
                     }
