@@ -111,7 +111,7 @@ Install Docker Compose using the Docker-provided
 Verifying Docker Compose installation
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Check that Docker Compose is installed: ``docker-compose -v``
+Check that Docker Compose is installed: ``docker compose version``
 
 
 Verifying the necessary ports are available
@@ -132,7 +132,7 @@ determine what is occupying the port and shut down the corresponding service.
 Otherwise, the port is available for Warehouse to use, and you can continue.
 
 Alternately, you may set the ``WEB_HOST`` environment variable for
-docker-compose to use instead. An example:
+``docker compose`` to use instead. An example:
 
 .. code-block:: console
 
@@ -350,7 +350,7 @@ Errors when executing ``make purge``
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 * If ``make purge`` fails with a permission error, check ownership
-  and permissions on ``warehouse/static``. ``docker-compose`` is spawning
+  and permissions on ``warehouse/static``. ``docker compose`` is spawning
   containers with docker. Generally on Linux that process is running as root.
   So when it writes files back to the file system as the static container
   does those are owned by root. So your docker daemon would be running as root,
@@ -369,10 +369,10 @@ Errors when executing ``make initdb``
   Refer to the tip under :ref:`running-warehouse-containers` section for more details.
 
 
-"no space left on device" when using ``docker-compose``
+"no space left on device" when using ``docker compose``
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-:command:`docker-compose` may leave orphaned volumes during
+:command:`docker compose` may leave orphaned volumes during
 teardown. If you run into the message "no space left on device", try
 running the following command (assuming Docker >= 1.9):
 
@@ -462,7 +462,7 @@ installation, but this is a summary of the required steps:
 1. In WSL, run ``sudo mkdir /c`` and ``sudo mount --bind /mnt/c /c``
 to mount your root drive at :file:`/c` (or whichever drive you are
 using).  You should clone into this mount and run
-:command:`docker-compose` from within it, to ensure that when volumes
+:command:`docker compose` from within it, to ensure that when volumes
 are linked into the container they can be found by Hyper-V.
 
 2. In Windows, configure Docker to enable "Expose daemon on
@@ -517,7 +517,7 @@ do this:
 .. code-block:: console
 
     $ make shell
-    docker-compose run --rm web python -m warehouse shell
+    docker compose run --rm web python -m warehouse shell
     Starting warehouse_redis_1 ...
     ...
     (InteractiveConsole)

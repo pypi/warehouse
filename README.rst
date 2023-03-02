@@ -10,7 +10,7 @@ Getting Started
 ---------------
 
 You can run Warehouse locally in a development environment using
-``docker`` and ``docker-compose``. See `Getting started`_
+``docker``. See `Getting started`_
 documentation for instructions on how to set it up.
 
 The canonical deployment of Warehouse is in production at `pypi.org`_.

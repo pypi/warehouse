@@ -46,7 +46,7 @@ ARG DEVEL=no
 
 # To enable Ipython in the development environment set to yes (for using ipython
 # as the warehouse shell interpreter,
-# i.e. 'docker-compose run --rm web python -m warehouse shell --type=ipython')
+# i.e. 'docker compose run --rm web python -m warehouse shell --type=ipython')
 ARG IPYTHON=no
 
 # Install System level Warehouse build requirements, this is done before
