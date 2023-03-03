@@ -46,12 +46,13 @@ services:
     image: redis:4.0
 
   localstack:
-    image: localstack/localstack:0.12.19.1
+    image: localstack/localstack:1.4
     environment:
       SERVICES: "sqs"
       HOSTNAME: "localstack"
       HOSTNAME_EXTERNAL: "localstack"
       DEFAULT_REGION: "us-east-2"
+      LS_LOG: "error"
     ports:
       - "4566:4566"
 
