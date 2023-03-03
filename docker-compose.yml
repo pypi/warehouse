@@ -10,8 +10,8 @@ volumes:
 
 services:
   vault:
-    # NOTE: intentionally an older version, for consistency with cabotage
-    image: vault:1.3.4
+    # NOTE: pinned for consistency with whats available in our deployment
+    image: vault:1.12.3
     restart: on-failure
     entrypoint: /bin/sh
     command: ["/etc/vault/entry.sh"]
