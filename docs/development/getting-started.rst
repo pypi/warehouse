@@ -394,9 +394,6 @@ This typically occur when Docker is not allocated enough memory to perform the
 migrations. Try modifying your Docker configuration to allow more RAM for each
 container, temporarily stop ``make_serve`` and run ``make initdb`` again.
 
-This may also be due to enabling Compose V2 (see
-https://github.com/pypi/warehouse/issues/10772 for more details).
-
 
 ``make initdb`` complains about PostgreSQL Version
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
