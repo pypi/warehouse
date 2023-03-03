@@ -79,6 +79,7 @@ services:
       args:
         DEVEL: "yes"
         IPYTHON: "no"
+    image: warehouse:docker-compose
     command: gunicorn --reload -b 0.0.0.0:8000 warehouse.wsgi:application
     env_file: dev/environment
     volumes:
@@ -118,8 +119,7 @@ services:
         condition: service_started
 
   files:
-    build:
-      context: .
+    image: warehouse:docker-compose
     working_dir: /var/opt/warehouse
     command: python -m http.server 9001
     volumes:
@@ -128,12 +128,10 @@ services:
       - simple:/var/opt/warehouse/simple
     ports:
       - "9001:9001"
+    depends_on: [web]
 
   worker:
-    build:
-      context: .
-      args:
-        DEVEL: "yes"
+    image: warehouse:docker-compose
     command: hupper -m celery -A warehouse worker -B -S redbeat.RedBeatScheduler -l info
     volumes:
       - ./warehouse:/opt/warehouse/src/warehouse:z
@@ -142,11 +140,13 @@ services:
       C_FORCE_ROOT: "1"
       FILES_BACKEND: "warehouse.packaging.services.LocalFileStorage path=/var/opt/warehouse/packages/ url=http://files:9001/packages/{path}"
       SIMPLE_BACKEND: "warehouse.packaging.services.LocalSimpleStorage path=/var/opt/warehouse/simple/ url=http://files:9001/simple/{path}"
+    depends_on: [web]
 
   static:
     build:
       context: .
       target: static-deps
+    image: warehouse:docker-compose-static
     environment:
       NODE_ENV: "development"
     command: bash -c "npm run watch"
@@ -166,10 +166,7 @@ services:
       - "1025:1025"
 
   notdatadog:
-    build:
-      context: .
-      args:
-        DEVEL: "yes"
+    image: warehouse:docker-compose
     command: python /opt/warehouse/dev/notdatadog.py 0.0.0.0:8125
     environment:
       METRICS_OUTPUT: "false"
@@ -177,6 +174,7 @@ services:
       - "8125:8125/udp"
     volumes:
       - ./dev/notdatadog.py:/opt/warehouse/dev/notdatadog.py
+    depends_on: [web]
 
   notgithub:
     image: ewjoachim/notgithub-token-scanning
