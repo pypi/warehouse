@@ -82,29 +82,19 @@ services:
     command: gunicorn --reload -b 0.0.0.0:8000 warehouse.wsgi:application
     env_file: dev/environment
     volumes:
-      # We specify all of these directories instead of just . because we want to
-      # avoid having ./node_modules from the host OS being shared with the docker
-      # container, and since there's no way to exclude a directory, the only way
-      # to make this work is to share multiple, smaller directories. These cover
-      # the important things that we want to share, but changes to requirements
-      # or any file not in these directories will require a rebuild.
       # The :z option fixes permission issues with SELinux by setting a
       # permissive security context.
-      - ./dev:/opt/warehouse/src/dev:z
-      - ./docs:/opt/warehouse/src/docs:z
-      - ./warehouse:/opt/warehouse/src/warehouse:z
-      - ./tests:/opt/warehouse/src/tests:z
-      - ./htmlcov:/opt/warehouse/src/htmlcov:z
-      - .coveragerc:/opt/warehouse/src/.coveragerc:z
+      - .:/opt/warehouse/src:z
       - packages:/var/opt/warehouse/packages
       - sponsorlogos:/var/opt/warehouse/sponsorlogos
       - policies:/var/opt/warehouse/policies
       - simple:/var/opt/warehouse/simple
-      - ./bin:/opt/warehouse/src/bin:z
-      - ./requirements:/opt/warehouse/src/requirements:z
       - caches:/root/.cache
       - caches:/opt/warehouse/src/.mypy_cache
       - caches:/opt/warehouse/src/.pytest_cache
+      # We want to avoid having ./node_modules from the host OS being shared, so
+      # we mount an anonymous volume instead. Keep anonymous volumes last.
+      - /opt/warehouse/src/node_modules
     ports:
       - "${WEB_PORT:-80}:8000"
     depends_on:
