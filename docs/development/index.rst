@@ -39,6 +39,7 @@ Get involved or find help using:
     email
     malware-checks
     token-scanning
+    remote-access
 
 .. _`GitHub`: https://github.com/pypi/warehouse
 .. _`"What to put in your bug report"`: https://www.contribution-guide.org/#what-to-put-in-your-bug-report
