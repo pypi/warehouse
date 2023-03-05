@@ -3551,13 +3551,13 @@ msgstr "Активні API-токени для цього облікового �
 
 #: warehouse/templates/manage/account.html:449
 #: warehouse/templates/manage/account/token.html:17
-msgid "Add API token"
+msgid "Create API token"
 msgstr "Додати API-токен"
 
 #: warehouse/templates/manage/account.html:451
 #, python-format
 msgid ""
-"<a href=\"%(href)s\">Verify your primary email address</a> to add API tokens "
+"<a href=\"%(href)s\">Verify your primary email address</a> to create API tokens "
 "to your account."
 msgstr ""
 "<a href=\"%(href)s\">Підтвердіть свою основну електронну адресу</a>, щоб "
@@ -8514,7 +8514,7 @@ msgstr ""
 #, python-format
 msgid ""
 "In your <a href=\"%(href)s\">account settings</a>, go to the API tokens "
-"section and select \"Add API token\""
+"section and select \"Create API token\""
 msgstr ""
 "У <a href=\"%(href)s\">налаштуваннях свого облікового запису</a>, перейдіть "
 "до секції API-токени та оберіть «Додати API-токен»"

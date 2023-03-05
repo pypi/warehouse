@@ -3651,13 +3651,13 @@ msgstr "アカウントでアクティブな APIトークン"
 
 #: warehouse/templates/manage/account.html:449
 #: warehouse/templates/manage/account/token.html:17
-msgid "Add API token"
+msgid "Create API token"
 msgstr "APIトークンの追加"
 
 #: warehouse/templates/manage/account.html:451
 #, python-format
 msgid ""
-"<a href=\"%(href)s\">Verify your primary email address</a> to add API tokens "
+"<a href=\"%(href)s\">Verify your primary email address</a> to create API tokens "
 "to your account."
 msgstr ""
 "アカウントに APIトークンを追加するには<a href=\"%(href)s\">主要メールアドレス"
@@ -8425,10 +8425,10 @@ msgstr "（ <a href=\"%(href)s\">アカウント設定</a>を確認してくだ�
 #, python-format
 msgid ""
 "In your <a href=\"%(href)s\">account settings</a>, go to the API tokens "
-"section and select \"Add API token\""
+"section and select \"Create API token\""
 msgstr ""
 "<a href=\"%(href)s\">アカウント設定</a>でAPIトークンの選択に進み「APIトークン"
-"の追加（Add API token）」を選択する"
+"の追加（Create API token）」を選択する"
 
 #: warehouse/templates/pages/help.html:501
 msgid "To use an API token:"

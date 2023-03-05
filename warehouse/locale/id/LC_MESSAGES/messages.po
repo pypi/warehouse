@@ -3609,13 +3609,13 @@ msgstr "Token API aktif untuk akun ini"
 
 #: warehouse/templates/manage/account.html:449
 #: warehouse/templates/manage/account/token.html:17
-msgid "Add API token"
+msgid "Create API token"
 msgstr "Tambah API token"
 
 #: warehouse/templates/manage/account.html:451
 #, python-format
 msgid ""
-"<a href=\"%(href)s\">Verify your primary email address</a> to add API tokens "
+"<a href=\"%(href)s\">Verify your primary email address</a> to create API tokens "
 "to your account."
 msgstr ""
 "<a href=\"%(href)s\">Verifikasikan alamat email utama Anda</a> untuk "
@@ -8497,7 +8497,7 @@ msgstr "(periksa <a href=\"%(href)s\">pengaturan akun</a> Anda)"
 #, python-format
 msgid ""
 "In your <a href=\"%(href)s\">account settings</a>, go to the API tokens "
-"section and select \"Add API token\""
+"section and select \"Create API token\""
 msgstr ""
 "Di <a href=\"%(href)s\">pengaturan akun</a> Anda, buka bagian token API dan "
 "pilih \"Tambahkan token API\""

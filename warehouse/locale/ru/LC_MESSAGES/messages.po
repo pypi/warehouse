@@ -3463,13 +3463,13 @@ msgstr "Активные API-токены этой учётной записи"
 
 #: warehouse/templates/manage/account.html:449
 #: warehouse/templates/manage/account/token.html:17
-msgid "Add API token"
+msgid "Create API token"
 msgstr "Добавить API-токен"
 
 #: warehouse/templates/manage/account.html:451
 #, python-format
 msgid ""
-"<a href=\"%(href)s\">Verify your primary email address</a> to add API tokens "
+"<a href=\"%(href)s\">Verify your primary email address</a> to create API tokens "
 "to your account."
 msgstr ""
 "Чтобы добавить API-токены в свою учётную запись, <a href=\"%(href)s"
@@ -8186,7 +8186,7 @@ msgstr "(проверьте <a href=\"%(href)s\">настройки своей �
 #, python-format
 msgid ""
 "In your <a href=\"%(href)s\">account settings</a>, go to the API tokens "
-"section and select \"Add API token\""
+"section and select \"Create API token\""
 msgstr ""
 "В <a href=\"%(href)s\">настройках своей учётной записи</a> перейдите в "
 "раздел «API-токены» и нажмите на кнопку «Добавить API-токен»"

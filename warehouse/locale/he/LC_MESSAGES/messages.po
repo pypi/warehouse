@@ -3426,13 +3426,13 @@ msgstr "אסימוני API פעילים עבור חשבון זה"
 
 #: warehouse/templates/manage/account.html:449
 #: warehouse/templates/manage/account/token.html:17
-msgid "Add API token"
+msgid "Create API token"
 msgstr "הוספת אסימון API"
 
 #: warehouse/templates/manage/account.html:451
 #, python-format
 msgid ""
-"<a href=\"%(href)s\">Verify your primary email address</a> to add API tokens "
+"<a href=\"%(href)s\">Verify your primary email address</a> to create API tokens "
 "to your account."
 msgstr ""
 "<a href=\"%(href)s\">אמת/י את כתובת האי-מייל הראשית שלך</a> כדי להוסיף "
@@ -8259,7 +8259,7 @@ msgstr "(בדק/י את <a href=\"%(href)s\">הגדרות החשבון</a> של�
 #, python-format
 msgid ""
 "In your <a href=\"%(href)s\">account settings</a>, go to the API tokens "
-"section and select \"Add API token\""
+"section and select \"Create API token\""
 msgstr ""
 "ב<a href=\"%(href)s\">הגדרות החשבון</a> שלך, גש/י אל אזור אסימוני ה-API "
 "ובחר/י ב-\"הוספת אסימון API\""

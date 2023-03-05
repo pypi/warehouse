@@ -3458,13 +3458,13 @@ msgstr "Aktivaj API-ĵetonoj de ĉi tiu konto"
 
 #: warehouse/templates/manage/account.html:449
 #: warehouse/templates/manage/account/token.html:17
-msgid "Add API token"
+msgid "Create API token"
 msgstr "Aldoni API-ĵetonon"
 
 #: warehouse/templates/manage/account.html:451
 #, python-format
 msgid ""
-"<a href=\"%(href)s\">Verify your primary email address</a> to add API tokens "
+"<a href=\"%(href)s\">Verify your primary email address</a> to create API tokens "
 "to your account."
 msgstr ""
 "<a href=\"%(href)s\">Kontrolu vian ĉefan retpoŝtan adreson</a> por aldoni "
@@ -8276,7 +8276,7 @@ msgstr "(kontrolu viajn <a href=\"%(href)s\">kontajn agordojn</a>)"
 #, python-format
 msgid ""
 "In your <a href=\"%(href)s\">account settings</a>, go to the API tokens "
-"section and select \"Add API token\""
+"section and select \"Create API token\""
 msgstr ""
 "En la <a href=\"%(href)s\">agordoj pri via konto</a>, iru al la paragrafo "
 "pri la API-ĵetonoj, kaj elektu \"Aldoni API-ĵetonon\""

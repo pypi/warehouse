@@ -3452,13 +3452,13 @@ msgstr "Kích hoạt mã khóa API cho tài khoản này"
 
 #: warehouse/templates/manage/account.html:449
 #: warehouse/templates/manage/account/token.html:17
-msgid "Add API token"
+msgid "Create API token"
 msgstr "Thêm mã khóa API"
 
 #: warehouse/templates/manage/account.html:451
 #, python-format
 msgid ""
-"<a href=\"%(href)s\">Verify your primary email address</a> to add API tokens "
+"<a href=\"%(href)s\">Verify your primary email address</a> to create API tokens "
 "to your account."
 msgstr ""
 "<a href=\"%(href)s\">Xác minh địa chỉ email chính của bạn</a> để thêm mã "
@@ -7925,7 +7925,7 @@ msgstr ""
 #, python-format
 msgid ""
 "In your <a href=\"%(href)s\">account settings</a>, go to the API tokens "
-"section and select \"Add API token\""
+"section and select \"Create API token\""
 msgstr ""
 "Trong mục <a href=\"%(href)s\">cài đặt tài khoản</a>, đi tới phần mã khóa "
 "API và chọn \"Thêm mã khóa API\""

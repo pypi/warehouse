@@ -3537,13 +3537,13 @@ msgstr "Ενεργά API tokens για αυτόν τον λογαριασμό"
 
 #: warehouse/templates/manage/account.html:449
 #: warehouse/templates/manage/account/token.html:17
-msgid "Add API token"
+msgid "Create API token"
 msgstr "Προσθήκη API token"
 
 #: warehouse/templates/manage/account.html:451
 #, python-format
 msgid ""
-"<a href=\"%(href)s\">Verify your primary email address</a> to add API tokens "
+"<a href=\"%(href)s\">Verify your primary email address</a> to create API tokens "
 "to your account."
 msgstr ""
 "<a href=\"%(href)s\">Επιβεβαιώστε την κύρια διεύθυνση email σας</a> "
@@ -8420,7 +8420,7 @@ msgstr "(ελέγξτε τις <a href=\"%(href)s\">ρυθμίσεις λογα�
 #, python-format
 msgid ""
 "In your <a href=\"%(href)s\">account settings</a>, go to the API tokens "
-"section and select \"Add API token\""
+"section and select \"Create API token\""
 msgstr ""
 "Μέσα από τις <a href=\"%(href)s\">ρυθμίσεις λογαριασμού</a>, πηγαίνετε στο "
 "πεδίο API tokens και επιλέξτε \"Προσθήκη API token\""

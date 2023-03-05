@@ -3372,13 +3372,13 @@ msgstr "Jetons d'API actifs pour ce compte"
 
 #: warehouse/templates/manage/account.html:449
 #: warehouse/templates/manage/account/token.html:17
-msgid "Add API token"
+msgid "Create API token"
 msgstr "Ajouter un jeton d'API"
 
 #: warehouse/templates/manage/account.html:451
 #, python-format
 msgid ""
-"<a href=\"%(href)s\">Verify your primary email address</a> to add API tokens "
+"<a href=\"%(href)s\">Verify your primary email address</a> to create API tokens "
 "to your account."
 msgstr ""
 "<a href=\"%(href)s\">Vérifiez votre adresse e-mail principale</a> pour "
@@ -7893,7 +7893,7 @@ msgstr "(vérifiez vos <a href=\"%(href)s\">paramètres de compte</a>)"
 #, python-format
 msgid ""
 "In your <a href=\"%(href)s\">account settings</a>, go to the API tokens "
-"section and select \"Add API token\""
+"section and select \"Create API token\""
 msgstr ""
 "Dans les <a href=\"%(href)s\">paramètres de votre compte</a>, rendez-vous "
 "dans la section des jetons d'API et sélectionnez « Ajouter un jeton d'API »"
