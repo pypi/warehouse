@@ -345,7 +345,7 @@ msgid ""
 "You can't register more than 3 pending OpenID Connect publishers at once."
 msgstr "你不能一下子注册超过三个待定的 OpenID Connect 发布者。"
 
-#: warehouse/accounts/views.py:1430 warehouse/manage/views.py:3113
+#: warehouse/accounts/views.py:1430 warehouse/manage/views.py:3116
 msgid ""
 "There have been too many attempted OpenID Connect registrations. Try again "
 "later."
@@ -453,11 +453,11 @@ msgstr "已生成恢复代码"
 msgid "Generating new recovery codes will invalidate your existing codes."
 msgstr "生成新的恢复代码将使现有代码失效。"
 
-#: warehouse/manage/views.py:2015
+#: warehouse/manage/views.py:2018
 msgid "User '${username}' already has ${role_name} role for organization"
 msgstr "用户 '${username}' 已在组织中任 ${role_name}"
 
-#: warehouse/manage/views.py:2026
+#: warehouse/manage/views.py:2029
 msgid ""
 "User '${username}' does not have a verified primary email address and cannot "
 "be added as a ${role_name} for organization"
@@ -465,40 +465,40 @@ msgstr ""
 "用户'$ {username}'没有经过验证的主电子邮件地址，因此不能被加为组织的$ "
 "{role_name}"
 
-#: warehouse/manage/views.py:2040 warehouse/manage/views.py:4373
+#: warehouse/manage/views.py:2043 warehouse/manage/views.py:4376
 msgid ""
 "User '${username}' already has an active invite. Please try again later."
 msgstr "用户'$ {username}'已经具有有效的邀请。请稍后再试。"
 
-#: warehouse/manage/views.py:2106 warehouse/manage/views.py:4440
+#: warehouse/manage/views.py:2109 warehouse/manage/views.py:4443
 msgid "Invitation sent to '${username}'"
 msgstr "邀请已发送到“ $ {username}”"
 
-#: warehouse/manage/views.py:2152
+#: warehouse/manage/views.py:2155
 msgid "Could not find organization invitation."
 msgstr "找不到组织邀请。"
 
-#: warehouse/manage/views.py:2166 warehouse/manage/views.py:4484
+#: warehouse/manage/views.py:2169 warehouse/manage/views.py:4487
 msgid "Invitation already expired."
 msgstr "邀请已过期。"
 
-#: warehouse/manage/views.py:2208 warehouse/manage/views.py:4517
+#: warehouse/manage/views.py:2211 warehouse/manage/views.py:4520
 msgid "Invitation revoked from '${username}'."
 msgstr "从“${username}”撤回邀请。"
 
-#: warehouse/manage/views.py:4150
+#: warehouse/manage/views.py:4153
 msgid "Team '${team_name}' already has ${role_name} role for project"
 msgstr "'${team_name}' 团队在项目中已经有 ${role_name} 角色"
 
-#: warehouse/manage/views.py:4258
+#: warehouse/manage/views.py:4261
 msgid "User '${username}' already has ${role_name} role for project"
 msgstr "用户“${username}”在这个项目中已有${role_name}"
 
-#: warehouse/manage/views.py:4327
+#: warehouse/manage/views.py:4330
 msgid "${username} is now ${role} of the '${project_name}' project."
 msgstr "${username} 现为 '${project_name}' 项目的 ${role}。"
 
-#: warehouse/manage/views.py:4360
+#: warehouse/manage/views.py:4363
 msgid ""
 "User '${username}' does not have a verified primary email address and cannot "
 "be added as a ${role_name} for project"
@@ -506,7 +506,7 @@ msgstr ""
 "用户'$ {username}'没有经过验证的主电子邮件地址，因此不能作为项目的$ "
 "{role_name}添加"
 
-#: warehouse/manage/views.py:4473
+#: warehouse/manage/views.py:4476
 msgid "Could not find role invitation."
 msgstr "找不到角色邀请。"
 
@@ -3602,7 +3602,7 @@ msgstr "双因素身份验证"
 
 #: warehouse/templates/manage/manage_base.html:64
 #: warehouse/templates/manage/manage_base.html:78
-#: warehouse/templates/manage/manage_base.html:513
+#: warehouse/templates/manage/manage_base.html:514
 #: warehouse/templates/manage/organization/roles.html:123
 #: warehouse/templates/manage/organization/roles.html:125
 #: warehouse/templates/manage/organization/roles.html:130
@@ -3772,11 +3772,11 @@ msgstr "关闭"
 msgid "Enter your password to continue."
 msgstr "输入你的密码以继续。"
 
-#: warehouse/templates/manage/manage_base.html:460
+#: warehouse/templates/manage/manage_base.html:461
 msgid "OpenID Connect Publisher Management"
 msgstr "OpenID Connect 发布者管理"
 
-#: warehouse/templates/manage/manage_base.html:465
+#: warehouse/templates/manage/manage_base.html:466
 msgid ""
 "OpenID Connect (OIDC) provides a flexible, credential-free mechanism for "
 "delegating publishing authority for a PyPI package to a third party service, "
@@ -3785,7 +3785,7 @@ msgstr ""
 "OpenID Connect（OIDC）提供了一种灵活、无凭据的机制，用于将 PyPI 包的发布权限"
 "委托给第三方服务，例如 GitHub Actions。"
 
-#: warehouse/templates/manage/manage_base.html:473
+#: warehouse/templates/manage/manage_base.html:474
 msgid ""
 "PyPI users and projects can use trusted publishers to automate their release "
 "processes, without needing to use API tokens or passwords."
@@ -3793,7 +3793,7 @@ msgstr ""
 "PyPI 用户和项目可以使用受信任的发布者来自动化发布过程，无需使用 API 令牌和密"
 "码。"
 
-#: warehouse/templates/manage/manage_base.html:480
+#: warehouse/templates/manage/manage_base.html:481
 #, python-format
 msgid ""
 "You can read more about OpenID Connect and how to use it <a href=\"%(href)s"
@@ -5967,7 +5967,7 @@ msgstr "删除项目"
 
 #: warehouse/templates/manage/project/settings.html:147
 #: warehouse/templates/manage/project/settings.html:211
-#: warehouse/templates/manage/project/settings.html:269
+#: warehouse/templates/manage/project/settings.html:278
 msgid "Project Name"
 msgstr "项目名称"
 
@@ -6041,7 +6041,7 @@ msgid "You are not an owner or manager of any organizations."
 msgstr "你不是任何组织的所有者或管理者。"
 
 #: warehouse/templates/manage/project/settings.html:238
-#: warehouse/templates/manage/project/settings.html:269
+#: warehouse/templates/manage/project/settings.html:278
 msgid "Delete project"
 msgstr "删除项目"
 

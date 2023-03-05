@@ -352,7 +352,7 @@ msgid ""
 "You can't register more than 3 pending OpenID Connect publishers at once."
 msgstr ""
 
-#: warehouse/accounts/views.py:1430 warehouse/manage/views.py:3113
+#: warehouse/accounts/views.py:1430 warehouse/manage/views.py:3116
 #, fuzzy
 #| msgid ""
 #| "There have been too many unsuccessful login attempts. Try again later."
@@ -502,62 +502,62 @@ msgstr "Οι κωδικοί ανάκτησης έχουν ήδη δημιουρ�
 msgid "Generating new recovery codes will invalidate your existing codes."
 msgstr ""
 
-#: warehouse/manage/views.py:2015
+#: warehouse/manage/views.py:2018
 msgid "User '${username}' already has ${role_name} role for organization"
 msgstr ""
 
-#: warehouse/manage/views.py:2026
+#: warehouse/manage/views.py:2029
 msgid ""
 "User '${username}' does not have a verified primary email address and cannot "
 "be added as a ${role_name} for organization"
 msgstr ""
 
-#: warehouse/manage/views.py:2040 warehouse/manage/views.py:4373
+#: warehouse/manage/views.py:2043 warehouse/manage/views.py:4376
 msgid ""
 "User '${username}' already has an active invite. Please try again later."
 msgstr ""
 
-#: warehouse/manage/views.py:2106 warehouse/manage/views.py:4440
+#: warehouse/manage/views.py:2109 warehouse/manage/views.py:4443
 msgid "Invitation sent to '${username}'"
 msgstr ""
 
-#: warehouse/manage/views.py:2152
+#: warehouse/manage/views.py:2155
 #, fuzzy
 #| msgid "%(user)s has not uploaded any projects to PyPI, yet"
 msgid "Could not find organization invitation."
 msgstr "Ο χρήστης %(user)s δεν έχει ανεβάσει projects στο PyPI, ακόμα"
 
-#: warehouse/manage/views.py:2166 warehouse/manage/views.py:4484
+#: warehouse/manage/views.py:2169 warehouse/manage/views.py:4487
 #, fuzzy
 #| msgid "Email already verified"
 msgid "Invitation already expired."
 msgstr "Το email είναι ήδη επιβεβαιωμένο"
 
-#: warehouse/manage/views.py:2208 warehouse/manage/views.py:4517
+#: warehouse/manage/views.py:2211 warehouse/manage/views.py:4520
 msgid "Invitation revoked from '${username}'."
 msgstr ""
 
-#: warehouse/manage/views.py:4150
+#: warehouse/manage/views.py:4153
 msgid "Team '${team_name}' already has ${role_name} role for project"
 msgstr ""
 
-#: warehouse/manage/views.py:4258
+#: warehouse/manage/views.py:4261
 msgid "User '${username}' already has ${role_name} role for project"
 msgstr ""
 
-#: warehouse/manage/views.py:4327
+#: warehouse/manage/views.py:4330
 #, fuzzy
 #| msgid "You are not an owner of this project"
 msgid "${username} is now ${role} of the '${project_name}' project."
 msgstr "Δεν είστε ο κάτοχος αυτού του project"
 
-#: warehouse/manage/views.py:4360
+#: warehouse/manage/views.py:4363
 msgid ""
 "User '${username}' does not have a verified primary email address and cannot "
 "be added as a ${role_name} for project"
 msgstr ""
 
-#: warehouse/manage/views.py:4473
+#: warehouse/manage/views.py:4476
 msgid "Could not find role invitation."
 msgstr ""
 
@@ -4020,7 +4020,7 @@ msgstr "Μέθοδος δύο-παραγόντων"
 
 #: warehouse/templates/manage/manage_base.html:64
 #: warehouse/templates/manage/manage_base.html:78
-#: warehouse/templates/manage/manage_base.html:513
+#: warehouse/templates/manage/manage_base.html:514
 #: warehouse/templates/manage/organization/roles.html:123
 #: warehouse/templates/manage/organization/roles.html:125
 #: warehouse/templates/manage/organization/roles.html:130
@@ -4228,24 +4228,24 @@ msgstr "κλείσιμο"
 msgid "Enter your password to continue."
 msgstr "Εισάγετε τον κωδικό χρήστη σας για να συνεχίσετε."
 
-#: warehouse/templates/manage/manage_base.html:460
+#: warehouse/templates/manage/manage_base.html:461
 msgid "OpenID Connect Publisher Management"
 msgstr ""
 
-#: warehouse/templates/manage/manage_base.html:465
+#: warehouse/templates/manage/manage_base.html:466
 msgid ""
 "OpenID Connect (OIDC) provides a flexible, credential-free mechanism for "
 "delegating publishing authority for a PyPI package to a third party service, "
 "like GitHub Actions."
 msgstr ""
 
-#: warehouse/templates/manage/manage_base.html:473
+#: warehouse/templates/manage/manage_base.html:474
 msgid ""
 "PyPI users and projects can use trusted publishers to automate their release "
 "processes, without needing to use API tokens or passwords."
 msgstr ""
 
-#: warehouse/templates/manage/manage_base.html:480
+#: warehouse/templates/manage/manage_base.html:481
 #, fuzzy, python-format
 #| msgid ""
 #| "To regain access to your account, <a href=\"%(href)s\">reset your "
@@ -6826,7 +6826,7 @@ msgstr "Χωρίς projects"
 
 #: warehouse/templates/manage/project/settings.html:147
 #: warehouse/templates/manage/project/settings.html:211
-#: warehouse/templates/manage/project/settings.html:269
+#: warehouse/templates/manage/project/settings.html:278
 msgid "Project Name"
 msgstr "Όνομα project"
 
@@ -6922,7 +6922,7 @@ msgid "You are not an owner or manager of any organizations."
 msgstr "Ο χρήστης %(user)s δεν έχει ανεβάσει projects στο PyPI, ακόμα"
 
 #: warehouse/templates/manage/project/settings.html:238
-#: warehouse/templates/manage/project/settings.html:269
+#: warehouse/templates/manage/project/settings.html:278
 msgid "Delete project"
 msgstr "Διαγραφή project"
 

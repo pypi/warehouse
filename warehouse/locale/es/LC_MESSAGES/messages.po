@@ -2,7 +2,7 @@
 # Copyright (C) 2019 PyPA
 # This file is distributed under the same license as the Warehouse project.
 # FIRST AUTHOR <EMAIL@ADDRESS>, 2019.
-# Adolfo Jayme Barrientos <fitojb@ubuntu.com>, 2019, 2020, 2021, 2022.
+# Adolfo Jayme Barrientos <fitojb@ubuntu.com>, 2019, 2020, 2021, 2022, 2023.
 # Alan Velasco <AlanVelasco.A@gmail.com>, 2019, 2022.
 # Katia Lira <katialira.villena@gmail.com>, 2019, 2022.
 # Juan Funez <juan.funez@gmail.com>, 2019.
@@ -17,8 +17,8 @@ msgstr ""
 "Project-Id-Version: Warehouse VERSION\n"
 "Report-Msgid-Bugs-To: admin@pypi.org\n"
 "POT-Creation-Date: 2020-04-06 17:52-0500\n"
-"PO-Revision-Date: 2023-01-22 02:31+0000\n"
-"Last-Translator: Diego Ramirez <dr01191115@gmail.com>\n"
+"PO-Revision-Date: 2023-03-05 08:51+0000\n"
+"Last-Translator: Adolfo Jayme Barrientos <fitojb@ubuntu.com>\n"
 "Language-Team: Spanish <https://hosted.weblate.org/projects/pypa/warehouse/"
 "es/>\n"
 "Language: es\n"
@@ -26,7 +26,7 @@ msgstr ""
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Generator: Weblate 4.15.1\n"
+"X-Generator: Weblate 4.16.2-dev\n"
 "Generated-By: Babel 2.8.0\n"
 
 #: warehouse/views.py:140
@@ -338,7 +338,7 @@ msgid ""
 "You can't register more than 3 pending OpenID Connect publishers at once."
 msgstr ""
 
-#: warehouse/accounts/views.py:1430 warehouse/manage/views.py:3113
+#: warehouse/accounts/views.py:1430 warehouse/manage/views.py:3116
 msgid ""
 "There have been too many attempted OpenID Connect registrations. Try again "
 "later."
@@ -464,11 +464,11 @@ msgid "Generating new recovery codes will invalidate your existing codes."
 msgstr ""
 "Generar códigos de recuperación nuevos invalidará sus códigos existentes."
 
-#: warehouse/manage/views.py:2015
+#: warehouse/manage/views.py:2018
 msgid "User '${username}' already has ${role_name} role for organization"
 msgstr "«${username}» ya funge como ${role_name} en la organización"
 
-#: warehouse/manage/views.py:2026
+#: warehouse/manage/views.py:2029
 msgid ""
 "User '${username}' does not have a verified primary email address and cannot "
 "be added as a ${role_name} for organization"
@@ -476,42 +476,42 @@ msgstr ""
 "No se puede añadir a «${username}» como ${role_name} de la organización "
 "porque no tiene verificada ninguna dirección de correo principal"
 
-#: warehouse/manage/views.py:2040 warehouse/manage/views.py:4373
+#: warehouse/manage/views.py:2043 warehouse/manage/views.py:4376
 msgid ""
 "User '${username}' already has an active invite. Please try again later."
 msgstr ""
 "«${username}» ya tiene una invitación activa. Inténtelo de nuevo más "
 "adelante."
 
-#: warehouse/manage/views.py:2106 warehouse/manage/views.py:4440
+#: warehouse/manage/views.py:2109 warehouse/manage/views.py:4443
 msgid "Invitation sent to '${username}'"
 msgstr "Se envió la invitación a «${username}»"
 
-#: warehouse/manage/views.py:2152
+#: warehouse/manage/views.py:2155
 msgid "Could not find organization invitation."
 msgstr "No se encontró la invitación a la organización."
 
-#: warehouse/manage/views.py:2166 warehouse/manage/views.py:4484
+#: warehouse/manage/views.py:2169 warehouse/manage/views.py:4487
 msgid "Invitation already expired."
 msgstr "Ya caducó la invitación."
 
-#: warehouse/manage/views.py:2208 warehouse/manage/views.py:4517
+#: warehouse/manage/views.py:2211 warehouse/manage/views.py:4520
 msgid "Invitation revoked from '${username}'."
 msgstr "Se revocó la invitación para «${username}»."
 
-#: warehouse/manage/views.py:4150
+#: warehouse/manage/views.py:4153
 msgid "Team '${team_name}' already has ${role_name} role for project"
 msgstr "El equipo «${team_name}» ya tiene el rol ${role_name} en el proyecto"
 
-#: warehouse/manage/views.py:4258
+#: warehouse/manage/views.py:4261
 msgid "User '${username}' already has ${role_name} role for project"
 msgstr "«${username}» ya funge como ${role_name} en el proyecto"
 
-#: warehouse/manage/views.py:4327
+#: warehouse/manage/views.py:4330
 msgid "${username} is now ${role} of the '${project_name}' project."
 msgstr "${username} es ahora ${role} del proyecto «${project_name}»."
 
-#: warehouse/manage/views.py:4360
+#: warehouse/manage/views.py:4363
 msgid ""
 "User '${username}' does not have a verified primary email address and cannot "
 "be added as a ${role_name} for project"
@@ -519,7 +519,7 @@ msgstr ""
 "No se puede añadir a «${username}» como ${role_name} del proyecto porque no "
 "tiene verificada ninguna dirección de correo principal"
 
-#: warehouse/manage/views.py:4473
+#: warehouse/manage/views.py:4476
 msgid "Could not find role invitation."
 msgstr "No se encontró la invitación al puesto."
 
@@ -2221,11 +2221,11 @@ msgstr ""
 
 #: warehouse/templates/email/organization-updated/body.html:44
 msgid "Old URL:"
-msgstr ""
+msgstr "URL antiguo:"
 
 #: warehouse/templates/email/organization-updated/body.html:47
 msgid "New URL:"
-msgstr ""
+msgstr "URL nuevo:"
 
 #: warehouse/templates/email/organization-updated/body.html:52
 #, fuzzy
@@ -2859,7 +2859,7 @@ msgstr "Sus proyectos"
 #: warehouse/templates/manage/organizations.html:18
 #: warehouse/templates/manage/organizations.html:63
 msgid "Your organizations"
-msgstr ""
+msgstr "Sus organizaciones"
 
 #: warehouse/templates/includes/current-user-indicator.html:51
 #: warehouse/templates/manage/account.html:17
@@ -3068,12 +3068,12 @@ msgstr "Proyecto:"
 #: warehouse/templates/includes/manage/manage-organization-menu.html:26
 #: warehouse/templates/manage/organization/roles.html:36
 msgid "People"
-msgstr ""
+msgstr "Personas"
 
 #: warehouse/templates/includes/manage/manage-organization-menu.html:33
 #: warehouse/templates/manage/organization/teams.html:25
 msgid "Teams"
-msgstr ""
+msgstr "Equipos"
 
 #: warehouse/templates/includes/manage/manage-organization-menu.html:41
 #: warehouse/templates/includes/manage/manage-project-menu.html:37
@@ -3948,7 +3948,7 @@ msgstr "Método de dos fases"
 
 #: warehouse/templates/manage/manage_base.html:64
 #: warehouse/templates/manage/manage_base.html:78
-#: warehouse/templates/manage/manage_base.html:513
+#: warehouse/templates/manage/manage_base.html:514
 #: warehouse/templates/manage/organization/roles.html:123
 #: warehouse/templates/manage/organization/roles.html:125
 #: warehouse/templates/manage/organization/roles.html:130
@@ -4151,24 +4151,24 @@ msgstr "cerrar"
 msgid "Enter your password to continue."
 msgstr "Proporcione su contraseña para continuar."
 
-#: warehouse/templates/manage/manage_base.html:460
+#: warehouse/templates/manage/manage_base.html:461
 msgid "OpenID Connect Publisher Management"
 msgstr ""
 
-#: warehouse/templates/manage/manage_base.html:465
+#: warehouse/templates/manage/manage_base.html:466
 msgid ""
 "OpenID Connect (OIDC) provides a flexible, credential-free mechanism for "
 "delegating publishing authority for a PyPI package to a third party service, "
 "like GitHub Actions."
 msgstr ""
 
-#: warehouse/templates/manage/manage_base.html:473
+#: warehouse/templates/manage/manage_base.html:474
 msgid ""
 "PyPI users and projects can use trusted publishers to automate their release "
 "processes, without needing to use API tokens or passwords."
 msgstr ""
 
-#: warehouse/templates/manage/manage_base.html:480
+#: warehouse/templates/manage/manage_base.html:481
 #, fuzzy, python-format
 #| msgid ""
 #| "To regain access to your account, <a href=\"%(href)s\">reset your "
@@ -4498,10 +4498,8 @@ msgid "Manage publishers"
 msgstr "Gestionar versión"
 
 #: warehouse/templates/manage/account/publishing.html:45
-#, fuzzy
-#| msgid "Project:"
 msgid "Project"
-msgstr "Proyecto:"
+msgstr "Proyecto"
 
 #: warehouse/templates/manage/account/publishing.html:66
 #: warehouse/templates/manage/project/publishing.html:56
@@ -4550,16 +4548,12 @@ msgid ""
 msgstr ""
 
 #: warehouse/templates/manage/account/publishing.html:119
-#, fuzzy
-#| msgid "Project Name"
 msgid "PyPI Project Name"
-msgstr "Nombre del proyecto"
+msgstr "Nombre de proyecto en PyPI"
 
 #: warehouse/templates/manage/account/publishing.html:124
-#, fuzzy
-#| msgid "Project name"
 msgid "project name"
-msgstr "Nombre de proyecto"
+msgstr "nombre de proyecto"
 
 #: warehouse/templates/manage/account/publishing.html:126
 msgid "The project (on PyPI) that will be created when this publisher is used"
@@ -5456,7 +5450,7 @@ msgstr "Los colaboradores pueden ocupar dos puestos:"
 #: warehouse/templates/manage/organization/roles.html:89
 #: warehouse/templates/manage/project/roles.html:295
 msgid "Member"
-msgstr ""
+msgstr "Miembro"
 
 #: warehouse/templates/manage/organization/roles.html:45
 msgid ""
@@ -6772,7 +6766,7 @@ msgstr "No hay ningún proyecto"
 
 #: warehouse/templates/manage/project/settings.html:147
 #: warehouse/templates/manage/project/settings.html:211
-#: warehouse/templates/manage/project/settings.html:269
+#: warehouse/templates/manage/project/settings.html:278
 msgid "Project Name"
 msgstr "Nombre del proyecto"
 
@@ -6874,7 +6868,7 @@ msgid "You are not an owner or manager of any organizations."
 msgstr "%(user)s aún no ha cargado ningún proyecto en PyPI"
 
 #: warehouse/templates/manage/project/settings.html:238
-#: warehouse/templates/manage/project/settings.html:269
+#: warehouse/templates/manage/project/settings.html:278
 msgid "Delete project"
 msgstr "Eliminar proyecto"
 
@@ -9684,7 +9678,7 @@ msgstr "Normativa de seguridad"
 #: warehouse/templates/pages/sitemap.html:44
 #: warehouse/templates/pages/trademarks.html:20
 msgid "PyPI Trademarks"
-msgstr ""
+msgstr "Marcas comerciales de PyPI"
 
 #: warehouse/templates/pages/sponsors.html:23
 msgid "Support PyPI and related projects"
@@ -9909,7 +9903,7 @@ msgstr "Todo PyPI"
 
 #: warehouse/templates/pages/trademarks.html:15
 msgid "Trademarks"
-msgstr ""
+msgstr "Marcas comerciales"
 
 #: warehouse/templates/pages/trademarks.html:24
 msgid "Wordmarks"
@@ -9920,14 +9914,14 @@ msgstr ""
 #: warehouse/templates/pages/trademarks.html:41
 #: warehouse/templates/pages/trademarks.html:47
 msgid "USPTO Registration Number"
-msgstr ""
+msgstr "Número de registro de USPTO"
 
 #: warehouse/templates/pages/trademarks.html:29
 #: warehouse/templates/pages/trademarks.html:35
 #: warehouse/templates/pages/trademarks.html:42
 #: warehouse/templates/pages/trademarks.html:48
 msgid "International Registration Number"
-msgstr ""
+msgstr "Número de registro internacional"
 
 #: warehouse/templates/pages/trademarks.html:37
 msgid "Logos"

@@ -5,13 +5,14 @@
 # Rafael Fontenelle <rafaelff@gnome.org>, 2019, 2020, 2021, 2022.
 # Sviatoslav Sydorenko <wk+weblate.org@sydorenko.org.ua>, 2021.
 # Kalingth <wallace13@hotmail.com.br>, 2022.
+# Felipe Nogueira <contato.fnog@gmail.com>, 2023.
 msgid ""
 msgstr ""
 "Project-Id-Version: Warehouse VERSION\n"
 "Report-Msgid-Bugs-To: admin@pypi.org\n"
 "POT-Creation-Date: 2020-04-06 17:52-0500\n"
-"PO-Revision-Date: 2022-12-21 19:57+0000\n"
-"Last-Translator: Rafael Fontenelle <rafaelff@gnome.org>\n"
+"PO-Revision-Date: 2023-03-03 16:19+0000\n"
+"Last-Translator: Felipe Nogueira <contato.fnog@gmail.com>\n"
 "Language-Team: Portuguese (Brazil) <https://hosted.weblate.org/projects/pypa/"
 "warehouse/pt_BR/>\n"
 "Language: pt_BR\n"
@@ -19,7 +20,7 @@ msgstr ""
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n > 1;\n"
-"X-Generator: Weblate 4.15.1-dev\n"
+"X-Generator: Weblate 4.16.2-dev\n"
 "Generated-By: Babel 2.8.0\n"
 
 #: warehouse/views.py:140
@@ -320,7 +321,7 @@ msgid ""
 "You can't register more than 3 pending OpenID Connect publishers at once."
 msgstr ""
 
-#: warehouse/accounts/views.py:1430 warehouse/manage/views.py:3113
+#: warehouse/accounts/views.py:1430 warehouse/manage/views.py:3116
 msgid ""
 "There have been too many attempted OpenID Connect registrations. Try again "
 "later."
@@ -448,12 +449,12 @@ msgstr ""
 "A geração de novos códigos de recuperação invalidará os seus códigos "
 "existentes."
 
-#: warehouse/manage/views.py:2015
+#: warehouse/manage/views.py:2018
 msgid "User '${username}' already has ${role_name} role for organization"
 msgstr ""
 "O usuário \"${username}\" já tem a função de ${role_name} para a organização"
 
-#: warehouse/manage/views.py:2026
+#: warehouse/manage/views.py:2029
 msgid ""
 "User '${username}' does not have a verified primary email address and cannot "
 "be added as a ${role_name} for organization"
@@ -461,44 +462,44 @@ msgstr ""
 "O usuário \"${username}\" não tem um endereço de e-mail principal verificado "
 "e não pode ser adicionado como um ${role_name} para a organização"
 
-#: warehouse/manage/views.py:2040 warehouse/manage/views.py:4373
+#: warehouse/manage/views.py:2043 warehouse/manage/views.py:4376
 msgid ""
 "User '${username}' already has an active invite. Please try again later."
 msgstr ""
 "O usuário \"${username}\" já tem um convite ativo. Tente novamente mais "
 "tarde."
 
-#: warehouse/manage/views.py:2106 warehouse/manage/views.py:4440
+#: warehouse/manage/views.py:2109 warehouse/manage/views.py:4443
 msgid "Invitation sent to '${username}'"
 msgstr "Convite enviado para \"${username}\""
 
-#: warehouse/manage/views.py:2152
+#: warehouse/manage/views.py:2155
 msgid "Could not find organization invitation."
 msgstr "Não foi possível encontrar o convite da organização."
 
-#: warehouse/manage/views.py:2166 warehouse/manage/views.py:4484
+#: warehouse/manage/views.py:2169 warehouse/manage/views.py:4487
 msgid "Invitation already expired."
 msgstr "O convite já expirado."
 
-#: warehouse/manage/views.py:2208 warehouse/manage/views.py:4517
+#: warehouse/manage/views.py:2211 warehouse/manage/views.py:4520
 msgid "Invitation revoked from '${username}'."
 msgstr "Convite revogado de \"${username}\"."
 
-#: warehouse/manage/views.py:4150
+#: warehouse/manage/views.py:4153
 msgid "Team '${team_name}' already has ${role_name} role for project"
 msgstr ""
 "A equipe \"${username}\" já tem a função de ${role_name} para o projeto"
 
-#: warehouse/manage/views.py:4258
+#: warehouse/manage/views.py:4261
 msgid "User '${username}' already has ${role_name} role for project"
 msgstr ""
 "O usuário \"${username}\" já tem a função de ${role_name} para o projeto"
 
-#: warehouse/manage/views.py:4327
+#: warehouse/manage/views.py:4330
 msgid "${username} is now ${role} of the '${project_name}' project."
 msgstr "${username} é um ${role} do projeto \"${project_name}\"."
 
-#: warehouse/manage/views.py:4360
+#: warehouse/manage/views.py:4363
 msgid ""
 "User '${username}' does not have a verified primary email address and cannot "
 "be added as a ${role_name} for project"
@@ -506,7 +507,7 @@ msgstr ""
 "O usuário \"${username}\" não tem um endereço de e-mail principal verificado "
 "e não pode ser adicionado como um ${role_name} para o projeto"
 
-#: warehouse/manage/views.py:4473
+#: warehouse/manage/views.py:4476
 msgid "Could not find role invitation."
 msgstr "Não foi possível encontrar o convite para uma função."
 
@@ -564,10 +565,8 @@ msgstr ""
 "sem diretórios"
 
 #: warehouse/oidc/forms.py:161
-#, fuzzy
-#| msgid "Invalid repository name"
 msgid "Invalid project name"
-msgstr "Nome de repositório inválido"
+msgstr "Nome de projeto inválido"
 
 #: warehouse/oidc/forms.py:175
 #, fuzzy
@@ -1089,10 +1088,8 @@ msgid "Acceptable Use Policy"
 msgstr ""
 
 #: warehouse/templates/base.html:327
-#, fuzzy
-#| msgid "Status: "
 msgid "Status:"
-msgstr "Status: "
+msgstr "Status:"
 
 #: warehouse/templates/base.html:328
 msgid "all systems operational"
@@ -1477,12 +1474,11 @@ msgid "Joined %(start_date)s"
 msgstr "Entrou em %(start_date)s"
 
 #: warehouse/templates/accounts/profile.html:67
-#, fuzzy, python-format
-#| msgid "%(num_projects)s projects"
+#, python-format
 msgid "%(count)s project"
 msgid_plural "%(count)s projects"
-msgstr[0] "%(num_projects)s projetos"
-msgstr[1] "%(num_projects)s projetos"
+msgstr[0] "%(count)s projeto"
+msgstr[1] "%(count)s projetos"
 
 #: warehouse/templates/accounts/profile.html:73
 msgid "No projects"
@@ -2259,35 +2255,27 @@ msgstr ""
 
 #: warehouse/templates/email/organization-updated/body.html:44
 msgid "Old URL:"
-msgstr ""
+msgstr "URL antiga:"
 
 #: warehouse/templates/email/organization-updated/body.html:47
 msgid "New URL:"
-msgstr ""
+msgstr "Nova URL:"
 
 #: warehouse/templates/email/organization-updated/body.html:52
-#, fuzzy
-#| msgid "Project description"
 msgid "Old description:"
-msgstr "Descrição do projeto"
+msgstr "Descrição antiga:"
 
 #: warehouse/templates/email/organization-updated/body.html:55
-#, fuzzy
-#| msgid "Project description"
 msgid "New description:"
-msgstr "Descrição do projeto"
+msgstr "Nova descrição:"
 
 #: warehouse/templates/email/organization-updated/body.html:60
-#, fuzzy
-#| msgid "️Organization type"
 msgid "Old organization type:"
-msgstr "Tipo da organização"
+msgstr "Antigo tipo de organização:"
 
 #: warehouse/templates/email/organization-updated/body.html:63
-#, fuzzy
-#| msgid "️Organization type"
 msgid "New organization type:"
-msgstr "Tipo da organização"
+msgstr "Novo tipo de organização:"
 
 #: warehouse/templates/email/password-change/body.html:18
 #, python-format
@@ -2875,11 +2863,9 @@ msgstr ""
 "Se você não fez esse pedido, você pode ignorar com segurança este e-mail."
 
 #: warehouse/templates/email/verify-organization-role/body.html:30
-#, fuzzy, python-format
-#| msgid "This link will expire in %(n_hours)s hour."
-#| msgid_plural "This link will expire in %(n_hours)s hours."
+#, python-format
 msgid "This link will expire in %(n_hours)s hours."
-msgstr "Esse link vai expirar em %(n_hours)s hora."
+msgstr "Este link vai expirar em %(n_hours)s horas."
 
 #: warehouse/templates/includes/current-user-indicator.html:30
 msgid "Admin"
@@ -3096,10 +3082,8 @@ msgstr "Navegação para gerenciar %(organization)s"
 #: warehouse/templates/includes/manage/manage-team-menu.html:19
 #: warehouse/templates/manage/organization/projects.html:25
 #: warehouse/templates/manage/team/projects.html:25
-#, fuzzy
-#| msgid "Project:"
 msgid "Projects"
-msgstr "Projeto:"
+msgstr "Projetos"
 
 #: warehouse/templates/includes/manage/manage-organization-menu.html:26
 #: warehouse/templates/manage/organization/roles.html:36
@@ -3109,7 +3093,7 @@ msgstr "Pessoas"
 #: warehouse/templates/includes/manage/manage-organization-menu.html:33
 #: warehouse/templates/manage/organization/teams.html:25
 msgid "Teams"
-msgstr ""
+msgstr "Equipes"
 
 #: warehouse/templates/includes/manage/manage-organization-menu.html:41
 #: warehouse/templates/includes/manage/manage-project-menu.html:37
@@ -3183,16 +3167,12 @@ msgid "Forks:"
 msgstr "Forks:"
 
 #: warehouse/templates/includes/packaging/project-data.html:58
-#, fuzzy
-#| msgid "Open issues/PRs:"
 msgid "Open issues:"
-msgstr "Abrir relatório de issues/PRs:"
+msgstr "Abrir issues:"
 
 #: warehouse/templates/includes/packaging/project-data.html:66
-#, fuzzy
-#| msgid "Open issues/PRs:"
 msgid "Open PRs:"
-msgstr "Abrir relatório de issues/PRs:"
+msgstr "Abrir PRs:"
 
 #: warehouse/templates/includes/packaging/project-data.html:74
 #, python-format
@@ -3979,7 +3959,7 @@ msgstr "Método de dois fatores"
 
 #: warehouse/templates/manage/manage_base.html:64
 #: warehouse/templates/manage/manage_base.html:78
-#: warehouse/templates/manage/manage_base.html:513
+#: warehouse/templates/manage/manage_base.html:514
 #: warehouse/templates/manage/organization/roles.html:123
 #: warehouse/templates/manage/organization/roles.html:125
 #: warehouse/templates/manage/organization/roles.html:130
@@ -4232,13 +4212,13 @@ msgstr "fechar"
 msgid "Enter your password to continue."
 msgstr "Insira sua senha para continuar."
 
-#: warehouse/templates/manage/manage_base.html:460
+#: warehouse/templates/manage/manage_base.html:461
 #, fuzzy
 #| msgid "OpenID Connect publisher management"
 msgid "OpenID Connect Publisher Management"
 msgstr "Gerenciamento de editores do OpenID Connect"
 
-#: warehouse/templates/manage/manage_base.html:465
+#: warehouse/templates/manage/manage_base.html:466
 #, fuzzy
 #| msgid ""
 #| "OpenID Connect provides a flexible, credential-free mechanism for "
@@ -4253,7 +4233,7 @@ msgstr ""
 "delegar autoridade de publicação de um pacote PyPI a um serviço de "
 "terceiros, como o GitHub Actions."
 
-#: warehouse/templates/manage/manage_base.html:473
+#: warehouse/templates/manage/manage_base.html:474
 #, fuzzy
 #| msgid ""
 #| "PyPI projects can use trusted OpenID Connect publishers to automate their "
@@ -4267,7 +4247,7 @@ msgstr ""
 "automatizar seus processos de lançamento, sem precisar provisionar ou "
 "gerenciar explicitamente os tokens de API."
 
-#: warehouse/templates/manage/manage_base.html:480
+#: warehouse/templates/manage/manage_base.html:481
 #, fuzzy, python-format
 #| msgid ""
 #| "Read more about GitHub's OpenID Connect provider <a href=\"%(href)s"
@@ -4595,10 +4575,8 @@ msgid "Manage publishers"
 msgstr "Gerenciar versão"
 
 #: warehouse/templates/manage/account/publishing.html:45
-#, fuzzy
-#| msgid "Project:"
 msgid "Project"
-msgstr "Projeto:"
+msgstr "Projeto"
 
 #: warehouse/templates/manage/account/publishing.html:66
 #: warehouse/templates/manage/project/publishing.html:56
@@ -6909,7 +6887,7 @@ msgstr "Nenhum projeto"
 
 #: warehouse/templates/manage/project/settings.html:147
 #: warehouse/templates/manage/project/settings.html:211
-#: warehouse/templates/manage/project/settings.html:269
+#: warehouse/templates/manage/project/settings.html:278
 msgid "Project Name"
 msgstr "Nome do projeto"
 
@@ -7005,7 +6983,7 @@ msgid "You are not an owner or manager of any organizations."
 msgstr "Você ainda não ingressou em nenhuma organização no PyPI."
 
 #: warehouse/templates/manage/project/settings.html:238
-#: warehouse/templates/manage/project/settings.html:269
+#: warehouse/templates/manage/project/settings.html:278
 msgid "Delete project"
 msgstr "Excluir projeto"
 
