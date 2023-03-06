@@ -296,12 +296,10 @@ class Project(SitemapMixin, TwoFactorRequireable, HasEvents, db.Model):
             permissions |= {(role.user_id, "Administer") for role in query.all()}
 
         for user_id, permission_name in sorted(permissions, key=lambda x: (x[1], x[0])):
-            permissions = ["upload"]
             if permission_name == "Administer":
-                permissions.append("manage:project")
-
-            acls.append((Allow, f"user:{user_id}", permissions))
-
+                acls.append((Allow, f"user:{user_id}", ["manage:project", "upload"]))
+            else:
+                acls.append((Allow, f"user:{user_id}", ["upload"]))
         return acls
 
     @property
