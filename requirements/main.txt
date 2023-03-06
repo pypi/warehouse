@@ -1042,9 +1042,9 @@ msgpack==1.0.4 \
     --hash=sha256:fb62ea4b62bfcb0b380d5680f9a4b3f9a2d166d9394e9bbd9666c0ee09a3645c \
     --hash=sha256:fcb8a47f43acc113e24e910399376f7277cf8508b27e5b88499f053de6b115a8
     # via -r requirements/main.in
-natsort==8.3.0 \
-    --hash=sha256:5c64ff0743181dfbb4dd5f0b211434e734992b308ec54b6fa24e0f77f4678ed2 \
-    --hash=sha256:6c15c663d3fc57dd2af52a56ffa06e9fdf2edfcf8d2e129bf115941a7aeec61e
+natsort==8.3.1 \
+    --hash=sha256:517595492dde570a4fd6b6a76f644440c1ba51e2338c8a671d7f0475fda8f9fd \
+    --hash=sha256:d583bc9050dd10538de36297c960b93f873f0cd01671a3c50df5bd86dd391dcb
     # via -r requirements/main.in
 orjson==3.8.7 \
     --hash=sha256:010e2970ec9e826c332819e0da4b14b29b19641da0f1a6af4cec91629ef9b988 \
