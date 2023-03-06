@@ -96,6 +96,9 @@ class User(SitemapMixin, HasEvents, db.Model):
     totp_secret = Column(LargeBinary(length=20), nullable=True)
     last_totp_value = Column(String, nullable=True)
 
+    # XXX: Can be removed once OIDC is removed from beta.
+    has_oidc_beta_access = Column(Boolean, nullable=False, server_default=sql.false())
+
     webauthn = orm.relationship(
         "WebAuthn", backref="user", cascade="all, delete-orphan", lazy=True
     )
@@ -194,6 +197,11 @@ class User(SitemapMixin, HasEvents, db.Model):
                 self.prohibit_password_reset,
             ]
         )
+
+    # XXX: Can be removed once OIDC is removed from beta.
+    @property
+    def in_oidc_beta(self):
+        return self.is_superuser or self.has_oidc_beta_access
 
     def __acl__(self):
         return [

@@ -163,16 +163,40 @@ class TestProject:
             [(Allow, f"oidc:{publisher.id}", ["upload"])], key=lambda x: x[1]
         ) + sorted(
             [
-                (Allow, f"user:{owner1.user.id}", ["manage:project", "upload"]),
-                (Allow, f"user:{owner2.user.id}", ["manage:project", "upload"]),
-                (Allow, f"user:{owner3.user.id}", ["manage:project", "upload"]),
-                (Allow, f"user:{owner4.user.id}", ["manage:project", "upload"]),
+                (
+                    Allow,
+                    f"user:{owner1.user.id}",
+                    ["manage:project", "upload"],
+                ),
+                (
+                    Allow,
+                    f"user:{owner2.user.id}",
+                    ["manage:project", "upload"],
+                ),
+                (
+                    Allow,
+                    f"user:{owner3.user.id}",
+                    ["manage:project", "upload"],
+                ),
+                (
+                    Allow,
+                    f"user:{owner4.user.id}",
+                    ["manage:project", "upload"],
+                ),
             ],
             key=lambda x: x[1],
         ) + sorted(
             [
-                (Allow, f"user:{maintainer1.user.id}", ["upload"]),
-                (Allow, f"user:{maintainer2.user.id}", ["upload"]),
+                (
+                    Allow,
+                    f"user:{maintainer1.user.id}",
+                    ["upload"],
+                ),
+                (
+                    Allow,
+                    f"user:{maintainer2.user.id}",
+                    ["upload"],
+                ),
             ],
             key=lambda x: x[1],
         )

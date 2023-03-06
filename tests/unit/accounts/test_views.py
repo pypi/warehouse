@@ -25,6 +25,7 @@ from pyramid.httpexceptions import (
     HTTPSeeOther,
     HTTPTooManyRequests,
 )
+from pyramid.response import Response
 from sqlalchemy.exc import NoResultFound
 from webauthn.authentication.verify_authentication_response import (
     VerifiedAuthentication,
@@ -2981,6 +2982,9 @@ class TestManageAccountPublishingViews:
     def test_manage_publishing(self, monkeypatch):
         metrics = pretend.stub()
         request = pretend.stub(
+            user=pretend.stub(
+                in_oidc_beta=True,
+            ),
             registry=pretend.stub(
                 settings={
                     "warehouse.oidc.enabled": True,
@@ -3034,8 +3038,24 @@ class TestManageAccountPublishingViews:
         with pytest.raises(HTTPNotFound):
             view.manage_publishing()
 
+    def test_manage_publishing_not_in_beta(self):
+        request = pretend.stub(
+            user=pretend.stub(in_oidc_beta=False),
+            registry=pretend.stub(settings={"warehouse.oidc.enabled": True}),
+            find_service=lambda *a, **kw: None,
+        )
+
+        view = views.ManageAccountPublishingViews(request)
+        resp = view.manage_publishing()
+
+        assert isinstance(resp, Response)
+        assert resp.status_code == 403
+
     def test_manage_publishing_admin_disabled(self, monkeypatch):
         request = pretend.stub(
+            user=pretend.stub(
+                in_oidc_beta=True,
+            ),
             registry=pretend.stub(
                 settings={
                     "warehouse.oidc.enabled": True,
@@ -3098,8 +3118,24 @@ class TestManageAccountPublishingViews:
         with pytest.raises(HTTPNotFound):
             view.add_pending_github_oidc_publisher()
 
+    def test_add_pending_github_oidc_publisher_not_in_beta(self):
+        request = pretend.stub(
+            user=pretend.stub(in_oidc_beta=False),
+            registry=pretend.stub(settings={"warehouse.oidc.enabled": True}),
+            find_service=lambda *a, **kw: None,
+        )
+
+        view = views.ManageAccountPublishingViews(request)
+        resp = view.add_pending_github_oidc_publisher()
+
+        assert isinstance(resp, Response)
+        assert resp.status_code == 403
+
     def test_add_pending_github_oidc_publisher_admin_disabled(self, monkeypatch):
         request = pretend.stub(
+            user=pretend.stub(
+                in_oidc_beta=True,
+            ),
             registry=pretend.stub(
                 settings={
                     "warehouse.oidc.enabled": True,
@@ -3164,7 +3200,7 @@ class TestManageAccountPublishingViews:
             flags=pretend.stub(enabled=pretend.call_recorder(lambda f: False)),
             session=pretend.stub(flash=pretend.call_recorder(lambda *a, **kw: None)),
             POST=pretend.stub(),
-            user=pretend.stub(has_primary_verified_email=False),
+            user=pretend.stub(has_primary_verified_email=False, in_oidc_beta=True),
             _=lambda s: s,
         )
 
@@ -3228,6 +3264,7 @@ class TestManageAccountPublishingViews:
             session=pretend.stub(flash=pretend.call_recorder(lambda *a, **kw: None)),
             POST=pretend.stub(),
             user=pretend.stub(
+                in_oidc_beta=True,
                 has_primary_verified_email=True,
                 pending_oidc_publishers=[
                     pretend.stub(),
@@ -3297,6 +3334,7 @@ class TestManageAccountPublishingViews:
             session=pretend.stub(flash=pretend.call_recorder(lambda *a, **kw: None)),
             POST=pretend.stub(),
             user=pretend.stub(
+                in_oidc_beta=True,
                 has_primary_verified_email=True,
                 pending_oidc_publishers=[],
             ),
@@ -3354,6 +3392,7 @@ class TestManageAccountPublishingViews:
             session=pretend.stub(flash=pretend.call_recorder(lambda *a, **kw: None)),
             POST=pretend.stub(),
             user=pretend.stub(
+                in_oidc_beta=True,
                 has_primary_verified_email=True,
                 pending_oidc_publishers=[],
             ),
@@ -3414,6 +3453,7 @@ class TestManageAccountPublishingViews:
             session=pretend.stub(flash=pretend.call_recorder(lambda *a, **kw: None)),
             POST=pretend.stub(),
             user=pretend.stub(
+                in_oidc_beta=True,
                 has_primary_verified_email=True,
                 pending_oidc_publishers=[],
             ),
@@ -3490,6 +3530,7 @@ class TestManageAccountPublishingViews:
             session=pretend.stub(flash=pretend.call_recorder(lambda *a, **kw: None)),
             POST=pretend.stub(),
             user=pretend.stub(
+                in_oidc_beta=True,
                 has_primary_verified_email=True,
                 pending_oidc_publishers=[],
                 record_event=pretend.call_recorder(lambda **kw: None),
@@ -3608,8 +3649,24 @@ class TestManageAccountPublishingViews:
         with pytest.raises(HTTPNotFound):
             view.delete_pending_oidc_publisher()
 
+    def test_delete_pending_oidc_publisher_not_in_beta(self):
+        request = pretend.stub(
+            user=pretend.stub(in_oidc_beta=False),
+            registry=pretend.stub(settings={"warehouse.oidc.enabled": True}),
+            find_service=lambda *a, **kw: None,
+        )
+
+        view = views.ManageAccountPublishingViews(request)
+        resp = view.delete_pending_oidc_publisher()
+
+        assert isinstance(resp, Response)
+        assert resp.status_code == 403
+
     def test_delete_pending_oidc_publisher_admin_disabled(self, monkeypatch):
         request = pretend.stub(
+            user=pretend.stub(
+                in_oidc_beta=True,
+            ),
             registry=pretend.stub(
                 settings={
                     "warehouse.oidc.enabled": True,
@@ -3664,6 +3721,9 @@ class TestManageAccountPublishingViews:
     def test_delete_pending_oidc_publisher_invalid_form(self, monkeypatch):
         metrics = pretend.stub(increment=pretend.call_recorder(lambda *a, **kw: None))
         request = pretend.stub(
+            user=pretend.stub(
+                in_oidc_beta=True,
+            ),
             registry=pretend.stub(settings={"warehouse.oidc.enabled": True}),
             find_service=lambda *a, **kw: metrics,
             flags=pretend.stub(enabled=pretend.call_recorder(lambda f: False)),
@@ -3698,6 +3758,9 @@ class TestManageAccountPublishingViews:
     def test_delete_pending_oidc_publisher_not_found(self, monkeypatch):
         metrics = pretend.stub(increment=pretend.call_recorder(lambda *a, **kw: None))
         request = pretend.stub(
+            user=pretend.stub(
+                in_oidc_beta=True,
+            ),
             registry=pretend.stub(settings={"warehouse.oidc.enabled": True}),
             find_service=lambda *a, **kw: metrics,
             flags=pretend.stub(enabled=pretend.call_recorder(lambda f: False)),
@@ -3758,7 +3821,9 @@ class TestManageAccountPublishingViews:
                 delete=pretend.call_recorder(lambda m: None),
             ),
             session=pretend.stub(flash=pretend.call_recorder(lambda *a, **kw: None)),
-            user=pretend.stub(record_event=pretend.call_recorder(lambda **kw: None)),
+            user=pretend.stub(
+                in_oidc_beta=True, record_event=pretend.call_recorder(lambda **kw: None)
+            ),
             remote_addr="0.0.0.0",
             path="some-path",
         )
