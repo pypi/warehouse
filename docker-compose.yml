@@ -83,7 +83,7 @@ services:
         DEVEL: "yes"
         IPYTHON: "no"
     image: warehouse:docker-compose
-    command: gunicorn --reload -b 0.0.0.0:8000 warehouse.wsgi:application
+    command: gunicorn --reload -b 0.0.0.0:8000 --access-logfile - --error-logfile - warehouse.wsgi:application
     env_file: dev/environment
     volumes:
       # We specify paths explicitly to only add what we need, and to avoid
