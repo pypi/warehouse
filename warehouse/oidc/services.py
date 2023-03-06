@@ -32,7 +32,7 @@ class InsecureOIDCPublisherWarning(UserWarning):
 
 @implementer(IOIDCPublisherService)
 class NullOIDCPublisherService:
-    def __init__(self, session, publisher, issuer_url, cache_url, metrics):
+    def __init__(self, session, publisher, issuer_url, audience, cache_url, metrics):
         warnings.warn(
             "NullOIDCPublisherService is intended only for use in development, "
             "you should not use it in production due to the lack of actual "
@@ -82,10 +82,11 @@ class NullOIDCPublisherService:
 
 @implementer(IOIDCPublisherService)
 class OIDCPublisherService:
-    def __init__(self, session, publisher, issuer_url, cache_url, metrics):
+    def __init__(self, session, publisher, issuer_url, audience, cache_url, metrics):
         self.db = session
         self.publisher = publisher
         self.issuer_url = issuer_url
+        self.audience = audience
         self.cache_url = cache_url
         self.metrics = metrics
 
@@ -241,7 +242,7 @@ class OIDCPublisherService:
                     verify_aud=True,
                 ),
                 issuer=self.issuer_url,
-                audience="pypi",
+                audience=self.audience,
                 leeway=30,
             )
             return SignedClaims(signed_payload)
@@ -304,10 +305,16 @@ class OIDCPublisherServiceFactory:
 
     def __call__(self, _context, request):
         cache_url = request.registry.settings["oidc.jwk_cache_url"]
+        audience = request.registry.settings["warehouse.oidc.audience"]
         metrics = request.find_service(IMetricsService, context=None)
 
         return self.service_class(
-            request.db, self.publisher, self.issuer_url, cache_url, metrics
+            request.db,
+            self.publisher,
+            self.issuer_url,
+            audience,
+            cache_url,
+            metrics,
         )
 
     def __eq__(self, other):

@@ -337,6 +337,7 @@ def oidc_service(db_session):
         GITHUB_OIDC_ISSUER_URL,
         pretend.stub(),
         pretend.stub(),
+        pretend.stub(),
     )
 
 

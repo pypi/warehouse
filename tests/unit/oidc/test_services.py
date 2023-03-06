@@ -33,7 +33,10 @@ def test_oidc_publisher_service_factory():
     request = pretend.stub(
         db=pretend.stub(),
         registry=pretend.stub(
-            settings={"oidc.jwk_cache_url": "rediss://another.example.com"}
+            settings={
+                "oidc.jwk_cache_url": "rediss://another.example.com",
+                "warehouse.oidc.audience": "fakeaudience",
+            }
         ),
         find_service=lambda *a, **kw: metrics,
     )
@@ -43,6 +46,7 @@ def test_oidc_publisher_service_factory():
     assert service.db == request.db
     assert service.publisher == factory.publisher
     assert service.issuer_url == factory.issuer_url
+    assert service.audience == "fakeaudience"
     assert service.cache_url == "rediss://another.example.com"
     assert service.metrics == metrics
 
@@ -63,6 +67,7 @@ class TestOIDCPublisherService:
             session=pretend.stub(),
             publisher=pretend.stub(),
             issuer_url=pretend.stub(),
+            audience="fakeaudience",
             cache_url=pretend.stub(),
             metrics=pretend.stub(),
         )
@@ -91,7 +96,7 @@ class TestOIDCPublisherService:
                     verify_aud=True,
                 ),
                 issuer=service.issuer_url,
-                audience="pypi",
+                audience="fakeaudience",
                 leeway=30,
             )
         ]
@@ -102,6 +107,7 @@ class TestOIDCPublisherService:
             session=pretend.stub(),
             publisher="fakepublisher",
             issuer_url=pretend.stub(),
+            audience="fakeaudience",
             cache_url=pretend.stub(),
             metrics=pretend.stub(
                 increment=pretend.call_recorder(lambda *a, **kw: None)
@@ -128,6 +134,7 @@ class TestOIDCPublisherService:
             session=pretend.stub(),
             publisher="fakepublisher",
             issuer_url=pretend.stub(),
+            audience="fakeaudience",
             cache_url=pretend.stub(),
             metrics=pretend.stub(
                 increment=pretend.call_recorder(lambda *a, **kw: None)
@@ -159,6 +166,7 @@ class TestOIDCPublisherService:
             session=pretend.stub(),
             publisher="fakepublisher",
             issuer_url=pretend.stub(),
+            audience="fakeaudience",
             cache_url=pretend.stub(),
             metrics=pretend.stub(
                 increment=pretend.call_recorder(lambda *a, **kw: None)
@@ -188,6 +196,7 @@ class TestOIDCPublisherService:
             session=pretend.stub(),
             publisher="fakepublisher",
             issuer_url=pretend.stub(),
+            audience="fakeaudience",
             cache_url=pretend.stub(),
             metrics=pretend.stub(
                 increment=pretend.call_recorder(lambda *a, **kw: None)
@@ -219,6 +228,7 @@ class TestOIDCPublisherService:
             session=pretend.stub(),
             publisher="example",
             issuer_url=pretend.stub(),
+            audience="fakeaudience",
             cache_url="rediss://fake.example.com",
             metrics=pretend.stub(),
         )
@@ -235,6 +245,7 @@ class TestOIDCPublisherService:
             session=pretend.stub(),
             publisher="example",
             issuer_url=pretend.stub(),
+            audience="fakeaudience",
             cache_url="rediss://fake.example.com",
             metrics=pretend.stub(),
         )
@@ -254,6 +265,7 @@ class TestOIDCPublisherService:
             session=pretend.stub(),
             publisher="example",
             issuer_url="https://example.com",
+            audience="fakeaudience",
             cache_url="rediss://fake.example.com",
             metrics=metrics,
         )
@@ -277,6 +289,7 @@ class TestOIDCPublisherService:
             session=pretend.stub(),
             publisher="example",
             issuer_url="https://example.com",
+            audience="fakeaudience",
             cache_url="rediss://fake.example.com",
             metrics=metrics,
         )
@@ -312,6 +325,7 @@ class TestOIDCPublisherService:
             session=pretend.stub(),
             publisher="example",
             issuer_url="https://example.com",
+            audience="fakeaudience",
             cache_url="rediss://fake.example.com",
             metrics=metrics,
         )
@@ -349,6 +363,7 @@ class TestOIDCPublisherService:
             session=pretend.stub(),
             publisher="example",
             issuer_url="https://example.com",
+            audience="fakeaudience",
             cache_url="rediss://fake.example.com",
             metrics=metrics,
         )
@@ -397,6 +412,7 @@ class TestOIDCPublisherService:
             session=pretend.stub(),
             publisher="example",
             issuer_url="https://example.com",
+            audience="fakeaudience",
             cache_url="rediss://fake.example.com",
             metrics=metrics,
         )
@@ -442,6 +458,7 @@ class TestOIDCPublisherService:
             session=pretend.stub(),
             publisher="example",
             issuer_url="https://example.com",
+            audience="fakeaudience",
             cache_url="rediss://fake.example.com",
             metrics=metrics,
         )
@@ -492,6 +509,7 @@ class TestOIDCPublisherService:
             session=pretend.stub(),
             publisher="example",
             issuer_url="https://example.com",
+            audience="fakeaudience",
             cache_url="rediss://fake.example.com",
             metrics=metrics,
         )
@@ -522,6 +540,7 @@ class TestOIDCPublisherService:
             session=pretend.stub(),
             publisher="example",
             issuer_url="https://example.com",
+            audience="fakeaudience",
             cache_url="rediss://fake.example.com",
             metrics=metrics,
         )
@@ -553,6 +572,7 @@ class TestOIDCPublisherService:
             session=pretend.stub(),
             publisher="example",
             issuer_url="https://example.com",
+            audience="fakeaudience",
             cache_url="rediss://fake.example.com",
             metrics=metrics,
         )
@@ -578,6 +598,7 @@ class TestOIDCPublisherService:
             session=pretend.stub(),
             publisher="example",
             issuer_url="https://example.com",
+            audience="fakeaudience",
             cache_url="rediss://fake.example.com",
             metrics=pretend.stub(),
         )
@@ -598,6 +619,7 @@ class TestOIDCPublisherService:
             session=pretend.stub(),
             publisher="example",
             issuer_url="https://example.com",
+            audience="fakeaudience",
             cache_url="rediss://fake.example.com",
             metrics=pretend.stub(),
         )
@@ -629,6 +651,7 @@ class TestNullOIDCPublisherService:
             session=pretend.stub(),
             publisher="example",
             issuer_url="https://example.com",
+            audience="fakeaudience",
             cache_url="rediss://fake.example.com",
             metrics=pretend.stub(),
         )
@@ -648,6 +671,7 @@ class TestNullOIDCPublisherService:
             session=pretend.stub(),
             publisher="example",
             issuer_url="https://example.com",
+            audience="fakeaudience",
             cache_url="rediss://fake.example.com",
             metrics=pretend.stub(),
         )
@@ -675,6 +699,7 @@ class TestNullOIDCPublisherService:
             session=pretend.stub(),
             publisher="example",
             issuer_url="https://example.com",
+            audience="fakeaudience",
             cache_url="rediss://fake.example.com",
             metrics=pretend.stub(),
         )
@@ -704,6 +729,7 @@ class TestNullOIDCPublisherService:
             session=pretend.stub(),
             publisher="example",
             issuer_url="https://example.com",
+            audience="fakeaudience",
             cache_url="rediss://fake.example.com",
             metrics=pretend.stub(),
         )
@@ -723,6 +749,7 @@ class TestNullOIDCPublisherService:
             session=pretend.stub(),
             publisher="example",
             issuer_url="https://example.com",
+            audience="pypi",
             cache_url="rediss://fake.example.com",
             metrics=pretend.stub(),
         )
@@ -819,6 +846,7 @@ class TestNullOIDCPublisherService:
             session=pretend.stub(),
             publisher="example",
             issuer_url="https://example.com",
+            audience="fakeaudience",
             cache_url="rediss://fake.example.com",
             metrics=pretend.stub(),
         )
