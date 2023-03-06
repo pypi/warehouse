@@ -344,7 +344,7 @@ msgid ""
 "You can't register more than 3 pending OpenID Connect publishers at once."
 msgstr ""
 
-#: warehouse/accounts/views.py:1430 warehouse/manage/views.py:3113
+#: warehouse/accounts/views.py:1430 warehouse/manage/views.py:3116
 #, fuzzy
 #| msgid ""
 #| "There have been too many unsuccessful login attempts. Try again later."
@@ -473,13 +473,13 @@ msgstr "복구 코드가 이미 생성되었습니다"
 msgid "Generating new recovery codes will invalidate your existing codes."
 msgstr "복구 코드를 새로 생성하면 기존 코드가 무효화됩니다."
 
-#: warehouse/manage/views.py:2015
+#: warehouse/manage/views.py:2018
 msgid "User '${username}' already has ${role_name} role for organization"
 msgstr ""
 "사용자 '${username}'는 이미 ${role_name}이라는 이 조직의 역할을 가지고 있습니"
 "다"
 
-#: warehouse/manage/views.py:2026
+#: warehouse/manage/views.py:2029
 msgid ""
 "User '${username}' does not have a verified primary email address and cannot "
 "be added as a ${role_name} for organization"
@@ -487,30 +487,30 @@ msgstr ""
 "사용자 '${username}'는 인증된 이메일을 가지고 있지 않으므로 이 프로젝트에서 "
 "${role_name}으로 추가될 수 없습니다"
 
-#: warehouse/manage/views.py:2040 warehouse/manage/views.py:4373
+#: warehouse/manage/views.py:2043 warehouse/manage/views.py:4376
 msgid ""
 "User '${username}' already has an active invite. Please try again later."
 msgstr ""
 "사용자 '${username}'는 이미 활성화되어 있는 초대를 가지고 있습니다. 나중에 다"
 "시 시도해보세요."
 
-#: warehouse/manage/views.py:2106 warehouse/manage/views.py:4440
+#: warehouse/manage/views.py:2109 warehouse/manage/views.py:4443
 msgid "Invitation sent to '${username}'"
 msgstr "'${username}'에게 초대가 전송되었습니다"
 
-#: warehouse/manage/views.py:2152
+#: warehouse/manage/views.py:2155
 msgid "Could not find organization invitation."
 msgstr "팀 초대를 찾을 수 없습니다."
 
-#: warehouse/manage/views.py:2166 warehouse/manage/views.py:4484
+#: warehouse/manage/views.py:2169 warehouse/manage/views.py:4487
 msgid "Invitation already expired."
 msgstr "초대가 이미 만료되었습니다."
 
-#: warehouse/manage/views.py:2208 warehouse/manage/views.py:4517
+#: warehouse/manage/views.py:2211 warehouse/manage/views.py:4520
 msgid "Invitation revoked from '${username}'."
 msgstr "'${username}'의 초대가 취소되었습니다."
 
-#: warehouse/manage/views.py:4150
+#: warehouse/manage/views.py:4153
 #, fuzzy
 #| msgid "User '${username}' already has ${role_name} role for project"
 msgid "Team '${team_name}' already has ${role_name} role for project"
@@ -518,19 +518,19 @@ msgstr ""
 "사용자 '${username}'는 이미 ${role_name}이라는 이 프로젝트의 역할을 가지고 있"
 "습니다"
 
-#: warehouse/manage/views.py:4258
+#: warehouse/manage/views.py:4261
 msgid "User '${username}' already has ${role_name} role for project"
 msgstr ""
 "사용자 '${username}'는 이미 ${role_name}이라는 이 프로젝트의 역할을 가지고 있"
 "습니다"
 
-#: warehouse/manage/views.py:4327
+#: warehouse/manage/views.py:4330
 #, fuzzy
 #| msgid "You are now ${role} of the '${project_name}' project."
 msgid "${username} is now ${role} of the '${project_name}' project."
 msgstr "당신은 이제 '${project_name}' 프로젝트의 ${role} 역할 입니다."
 
-#: warehouse/manage/views.py:4360
+#: warehouse/manage/views.py:4363
 msgid ""
 "User '${username}' does not have a verified primary email address and cannot "
 "be added as a ${role_name} for project"
@@ -538,7 +538,7 @@ msgstr ""
 "사용자 '${username}'는 인증된 이메일을 가지고 있지 않으므로 이 프로젝트에서 "
 "${role_name}으로 추가될 수 없습니다"
 
-#: warehouse/manage/views.py:4473
+#: warehouse/manage/views.py:4476
 msgid "Could not find role invitation."
 msgstr "역할 초대를 찾을 수 없습니다."
 
@@ -3880,7 +3880,7 @@ msgstr "2단계 인증 방법"
 
 #: warehouse/templates/manage/manage_base.html:64
 #: warehouse/templates/manage/manage_base.html:78
-#: warehouse/templates/manage/manage_base.html:513
+#: warehouse/templates/manage/manage_base.html:514
 #: warehouse/templates/manage/organization/roles.html:123
 #: warehouse/templates/manage/organization/roles.html:125
 #: warehouse/templates/manage/organization/roles.html:130
@@ -4079,24 +4079,24 @@ msgstr "닫기"
 msgid "Enter your password to continue."
 msgstr "계속하기 위해 패스워드를 확인해주세요."
 
-#: warehouse/templates/manage/manage_base.html:460
+#: warehouse/templates/manage/manage_base.html:461
 msgid "OpenID Connect Publisher Management"
 msgstr ""
 
-#: warehouse/templates/manage/manage_base.html:465
+#: warehouse/templates/manage/manage_base.html:466
 msgid ""
 "OpenID Connect (OIDC) provides a flexible, credential-free mechanism for "
 "delegating publishing authority for a PyPI package to a third party service, "
 "like GitHub Actions."
 msgstr ""
 
-#: warehouse/templates/manage/manage_base.html:473
+#: warehouse/templates/manage/manage_base.html:474
 msgid ""
 "PyPI users and projects can use trusted publishers to automate their release "
 "processes, without needing to use API tokens or passwords."
 msgstr ""
 
-#: warehouse/templates/manage/manage_base.html:480
+#: warehouse/templates/manage/manage_base.html:481
 #, fuzzy, python-format
 #| msgid ""
 #| "To regain access to your account, <a href=\"%(href)s\">reset your "
@@ -6583,7 +6583,7 @@ msgstr "프로젝트 없음"
 
 #: warehouse/templates/manage/project/settings.html:147
 #: warehouse/templates/manage/project/settings.html:211
-#: warehouse/templates/manage/project/settings.html:269
+#: warehouse/templates/manage/project/settings.html:278
 msgid "Project Name"
 msgstr "프로젝트 이름"
 
@@ -6679,7 +6679,7 @@ msgid "You are not an owner or manager of any organizations."
 msgstr "%(user)s 사용자는 아직 PyPI에 프로젝트를 등록하지 않았습니다"
 
 #: warehouse/templates/manage/project/settings.html:238
-#: warehouse/templates/manage/project/settings.html:269
+#: warehouse/templates/manage/project/settings.html:278
 msgid "Delete project"
 msgstr "프로젝트 삭제"
 
