@@ -113,6 +113,7 @@
   &__dismiss {
     @include dismiss-button;
     @include link-focus-state($white);
+    color: $white;
   }
 
   // Indicates that a notification is dismissable.
