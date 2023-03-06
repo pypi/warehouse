@@ -166,22 +166,22 @@ class TestProject:
                 (
                     Allow,
                     f"user:{owner1.user.id}",
-                    ["upload", "manage:project"],
+                    ["manage:project", "upload"],
                 ),
                 (
                     Allow,
                     f"user:{owner2.user.id}",
-                    ["upload", "manage:project"],
+                    ["manage:project", "upload"],
                 ),
                 (
                     Allow,
                     f"user:{owner3.user.id}",
-                    ["upload", "manage:project"],
+                    ["manage:project", "upload"],
                 ),
                 (
                     Allow,
                     f"user:{owner4.user.id}",
-                    ["upload", "manage:project"],
+                    ["manage:project", "upload"],
                 ),
             ],
             key=lambda x: x[1],
@@ -418,8 +418,8 @@ class TestRelease:
             (Allow, "group:moderators", "moderator"),
         ] + sorted(
             [
-                (Allow, f"user:{owner1.user.id}", ["upload", "manage:project"]),
-                (Allow, f"user:{owner2.user.id}", ["upload", "manage:project"]),
+                (Allow, f"user:{owner1.user.id}", ["manage:project", "upload"]),
+                (Allow, f"user:{owner2.user.id}", ["manage:project", "upload"]),
             ],
             key=lambda x: x[1],
         ) + sorted(
