@@ -326,7 +326,7 @@ msgid ""
 "You can't register more than 3 pending OpenID Connect publishers at once."
 msgstr ""
 
-#: warehouse/accounts/views.py:1430 warehouse/manage/views.py:3113
+#: warehouse/accounts/views.py:1430 warehouse/manage/views.py:3116
 msgid ""
 "There have been too many attempted OpenID Connect registrations. Try again "
 "later."
@@ -448,12 +448,12 @@ msgstr ""
 "A geração dos novos códigos de recuperação invalidará os seus códigos "
 "existentes."
 
-#: warehouse/manage/views.py:2015
+#: warehouse/manage/views.py:2018
 msgid "User '${username}' already has ${role_name} role for organization"
 msgstr ""
 "O usuário \"${username}\" já tem a função de ${role_name} para a equipe"
 
-#: warehouse/manage/views.py:2026
+#: warehouse/manage/views.py:2029
 msgid ""
 "User '${username}' does not have a verified primary email address and cannot "
 "be added as a ${role_name} for organization"
@@ -461,44 +461,44 @@ msgstr ""
 "O usuário \"${username}\" não tem um endereço de e-mail principal verificado "
 "e não pode ser adicionado como um ${role_name} para a equipe"
 
-#: warehouse/manage/views.py:2040 warehouse/manage/views.py:4373
+#: warehouse/manage/views.py:2043 warehouse/manage/views.py:4376
 msgid ""
 "User '${username}' already has an active invite. Please try again later."
 msgstr ""
 "O utilizador \"${username}\" já tem um convite ativo. Tente novamente mais "
 "tarde."
 
-#: warehouse/manage/views.py:2106 warehouse/manage/views.py:4440
+#: warehouse/manage/views.py:2109 warehouse/manage/views.py:4443
 msgid "Invitation sent to '${username}'"
 msgstr "Convite enviado para \"${username}\""
 
-#: warehouse/manage/views.py:2152
+#: warehouse/manage/views.py:2155
 msgid "Could not find organization invitation."
 msgstr "Não foi possível encontrar o convite para uma equipe."
 
-#: warehouse/manage/views.py:2166 warehouse/manage/views.py:4484
+#: warehouse/manage/views.py:2169 warehouse/manage/views.py:4487
 msgid "Invitation already expired."
 msgstr "O convite já expirou."
 
-#: warehouse/manage/views.py:2208 warehouse/manage/views.py:4517
+#: warehouse/manage/views.py:2211 warehouse/manage/views.py:4520
 msgid "Invitation revoked from '${username}'."
 msgstr "Convite revogado de \"${username}\"."
 
-#: warehouse/manage/views.py:4150
+#: warehouse/manage/views.py:4153
 msgid "Team '${team_name}' already has ${role_name} role for project"
 msgstr ""
 "A equipa \"${username}\" já tem a função de ${role_name} para o projeto"
 
-#: warehouse/manage/views.py:4258
+#: warehouse/manage/views.py:4261
 msgid "User '${username}' already has ${role_name} role for project"
 msgstr ""
 "O utilizador \"${username}\" já tem a função de ${role_name} para o projeto"
 
-#: warehouse/manage/views.py:4327
+#: warehouse/manage/views.py:4330
 msgid "${username} is now ${role} of the '${project_name}' project."
 msgstr "${username} agora é ${role} do projeto '${nome_do_projeto}'."
 
-#: warehouse/manage/views.py:4360
+#: warehouse/manage/views.py:4363
 msgid ""
 "User '${username}' does not have a verified primary email address and cannot "
 "be added as a ${role_name} for project"
@@ -506,7 +506,7 @@ msgstr ""
 "O utilizador \"${username}\" não tem um endereço de e-mail principal "
 "verificado e não pode ser adicionado como um ${role_name} para o projeto"
 
-#: warehouse/manage/views.py:4473
+#: warehouse/manage/views.py:4476
 msgid "Could not find role invitation."
 msgstr "Não foi possível encontrar o convite para uma função."
 
@@ -3856,7 +3856,7 @@ msgstr "Método de dois fatores"
 
 #: warehouse/templates/manage/manage_base.html:64
 #: warehouse/templates/manage/manage_base.html:78
-#: warehouse/templates/manage/manage_base.html:513
+#: warehouse/templates/manage/manage_base.html:514
 #: warehouse/templates/manage/organization/roles.html:123
 #: warehouse/templates/manage/organization/roles.html:125
 #: warehouse/templates/manage/organization/roles.html:130
@@ -4055,13 +4055,13 @@ msgstr "fechar"
 msgid "Enter your password to continue."
 msgstr "Insira sua palavra-passe para continuar."
 
-#: warehouse/templates/manage/manage_base.html:460
+#: warehouse/templates/manage/manage_base.html:461
 #, fuzzy
 #| msgid "OpenID Connect publisher management"
 msgid "OpenID Connect Publisher Management"
 msgstr "Gestão de editores do OpenID Connect"
 
-#: warehouse/templates/manage/manage_base.html:465
+#: warehouse/templates/manage/manage_base.html:466
 #, fuzzy
 #| msgid ""
 #| "OpenID Connect provides a flexible, credential-free mechanism for "
@@ -4076,7 +4076,7 @@ msgstr ""
 "delegar autoridade de publicação de um pacote PyPI a um serviço de "
 "terceiros, como o GitHub Actions."
 
-#: warehouse/templates/manage/manage_base.html:473
+#: warehouse/templates/manage/manage_base.html:474
 #, fuzzy
 #| msgid ""
 #| "PyPI projects can use trusted OpenID Connect publishers to automate their "
@@ -4090,7 +4090,7 @@ msgstr ""
 "automatizar os seus processos de lançamento, sem precisar provisionar ou "
 "gerir explicitamente os tokens de API."
 
-#: warehouse/templates/manage/manage_base.html:480
+#: warehouse/templates/manage/manage_base.html:481
 #, fuzzy, python-format
 #| msgid ""
 #| "Read more about GitHub's OpenID Connect provider <a href=\"%(href)s"
@@ -6674,7 +6674,7 @@ msgstr "Sem projectos"
 
 #: warehouse/templates/manage/project/settings.html:147
 #: warehouse/templates/manage/project/settings.html:211
-#: warehouse/templates/manage/project/settings.html:269
+#: warehouse/templates/manage/project/settings.html:278
 msgid "Project Name"
 msgstr "Nome do projeto"
 
@@ -6770,7 +6770,7 @@ msgid "You are not an owner or manager of any organizations."
 msgstr "%(user)s ainda não enviou nenhum projeto para PyPI"
 
 #: warehouse/templates/manage/project/settings.html:238
-#: warehouse/templates/manage/project/settings.html:269
+#: warehouse/templates/manage/project/settings.html:278
 msgid "Delete project"
 msgstr "Apagar projeto"
 
