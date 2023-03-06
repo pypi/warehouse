@@ -30,6 +30,7 @@ from warehouse.packaging.tasks import (
     compute_2fa_metrics,
     update_description_html,
 )
+from warehouse.rate_limiting import IRateLimiter, RateLimit
 
 
 @db.listens_for(User.name, "set")
@@ -57,6 +58,23 @@ def includeme(config):
 
     docs_storage_class = config.maybe_dotted(config.registry.settings["docs.backend"])
     config.register_service_factory(docs_storage_class.create_service, IDocsStorage)
+
+    project_create_user_limit_string = config.registry.settings.get(
+        "warehouse.packaging.project_create_user_ratelimit_string"
+    )
+    config.register_service_factory(
+        RateLimit(project_create_user_limit_string),
+        IRateLimiter,
+        name="project.create.user",
+    )
+    project_create_ip_limit_string = config.registry.settings.get(
+        "warehouse.packaging.project_create_ip_ratelimit_string"
+    )
+    config.register_service_factory(
+        RateLimit(project_create_ip_limit_string),
+        IRateLimiter,
+        name="project.create.ip",
+    )
 
     config.register_service_factory(project_service_factory, IProjectService)
 

@@ -36,6 +36,7 @@ from pyramid.httpexceptions import (
     HTTPForbidden,
     HTTPGone,
     HTTPPermanentRedirect,
+    HTTPTooManyRequests,
 )
 from pyramid.response import Response
 from pyramid.view import view_config
@@ -61,6 +62,7 @@ from warehouse.packaging.models import (
     Release,
 )
 from warehouse.packaging.tasks import update_bigquery_release_files
+from warehouse.rate_limiting.interfaces import RateLimiterException
 from warehouse.utils import http, readme
 from warehouse.utils.project import PROJECT_NAME_RE, validate_project_name
 from warehouse.utils.security_policy import AuthenticationMethod
@@ -909,7 +911,11 @@ def file_upload(request):
             raise _exc_with_message(exc.__class__, exc.detail) from None
 
         project_service = request.find_service(IProjectService)
-        project = project_service.create_project(form.name.data, request.user)
+        try:
+            project = project_service.create_project(form.name.data, request.user)
+        except RateLimiterException:
+            msg = "Too many new projects created"
+            raise _exc_with_message(HTTPTooManyRequests, msg)
 
     # Check that the identity has permission to do things to this project, if this
     # is a new project this will act as a sanity check for the role we just

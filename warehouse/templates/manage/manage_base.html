@@ -408,10 +408,11 @@
   warning=True,
   confirm_string_in_title=True,
   modifier="--danger",
-  tooltip=None)
+  tooltip=None,
+  additional_attributes=None)
 %}
   {% set slug = confirm_name.lower().replace(' ', '-') + '-modal' %}
-  <a href="#{{ slug }}" class="button button{{ modifier }}" {% if tooltip != None %}title="{{ tooltip }}"{% endif %}>
+  <a href="#{{ slug }}" class="button button{{ modifier }}" {% if tooltip != None %}title="{{ tooltip }}"{% endif %} {{ additional_attributes or '' }}>
     {{ confirm_button_label if confirm_button_label else title }}
   </a>
   {{ confirm_modal(title, label, confirm_name, confirm_string, slug, confirm_button_label=confirm_button_label, extra_fields=extra_fields, extra_description=extra_description, action=action, warning=warning, confirm_string_in_title=confirm_string_in_title, modifier=modifier) }}
