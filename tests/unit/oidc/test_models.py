@@ -35,6 +35,7 @@ class TestGitHubPublisher:
     def test_github_publisher_all_known_claims(self):
         assert models.GitHubPublisher.all_known_claims() == {
             # verifiable claims
+            "sub",
             "repository",
             "repository_owner",
             "repository_owner_id",
@@ -49,7 +50,6 @@ class TestGitHubPublisher:
             "actor",
             "actor_id",
             "jti",
-            "sub",
             "ref",
             "sha",
             "run_id",
@@ -61,6 +61,11 @@ class TestGitHubPublisher:
             "ref_type",
             "repository_id",
             "workflow",
+            "repository_visibility",
+            "workflow_sha",
+            "job_workflow_sha",
+            "workflow_ref",
+            "runner_environment",
         }
 
     def test_github_publisher_computed_properties(self):
@@ -208,6 +213,18 @@ class TestGitHubPublisher:
 
         check = models.GitHubPublisher.__verifiable_claims__["job_workflow_ref"]
         assert check(publisher.job_workflow_ref, claim, {"ref": ref}) is valid
+
+    def test_github_publisher_sub_claim(self):
+        publisher = models.GitHubPublisher(
+            repository_name="bar",
+            repository_owner="foo",
+            repository_owner_id=pretend.stub(),
+            workflow_filename="baz.yml",
+        )
+
+        check = models.GitHubPublisher.__verifiable_claims__["sub"]
+        assert check("repo:foo/bar", "repo:foo/bar:someotherstuff", pretend.stub())
+        assert not check("repo:foo/bar:someotherstuff", "repo:foo/bar", pretend.stub())
 
 
 class TestPendingGitHubPublisher:

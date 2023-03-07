@@ -221,7 +221,10 @@ class GitHubPublisherMixin:
     workflow_filename = Column(String)
 
     __verifiable_claims__ = {
-        "sub": _check_claim_binary(str.startswith),
+        # NOTE: `sub` looks like `repo:org/name`, with some optional suffixes.
+        # We don't have the context to check those suffixes, so we check that
+        # the `repo:org/name` prefix matches.
+        "sub": _check_claim_binary(lambda truth, claim: claim.startswith(truth)),
         "repository": _check_claim_binary(str.__eq__),
         "repository_owner": _check_claim_binary(str.__eq__),
         "repository_owner_id": _check_claim_binary(str.__eq__),
