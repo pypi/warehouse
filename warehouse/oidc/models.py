@@ -57,6 +57,25 @@ def _check_job_workflow_ref(ground_truth, signed_claim, all_signed_claims):
     return f"{ground_truth}@{ref}" == signed_claim
 
 
+def _check_sub(ground_truth, signed_claim, _all_signed_claims):
+    # We expect a string formatted as follows:
+    #  repo:ORG/REPO[:OPTIONAL-STUFF]
+    # where :OPTIONAL-STUFF is a concatenation of other job context
+    # metadata. We currently lack the ground context to verify that
+    # additional metadata, so we limit our verification to just the ORG/REPO
+    # component.
+
+    # Defensive: GitHub should never give us an empty subject.
+    if not signed_claim:
+        return False
+
+    components = signed_claim.split(":")
+    if len(components) < 2:
+        return False
+
+    return f"{components[0]}:{components[1]}" == ground_truth
+
+
 class OIDCPublisherProjectAssociation(db.Model):
     __tablename__ = "oidc_publisher_project_association"
 
@@ -221,7 +240,7 @@ class GitHubPublisherMixin:
     workflow_filename = Column(String)
 
     __verifiable_claims__ = {
-        "sub": _check_claim_binary(str.__eq__),
+        "sub": _check_sub,
         "repository": _check_claim_binary(str.__eq__),
         "repository_owner": _check_claim_binary(str.__eq__),
         "repository_owner_id": _check_claim_binary(str.__eq__),
@@ -243,6 +262,11 @@ class GitHubPublisherMixin:
         "ref_type",
         "repository_id",
         "workflow",
+        "repository_visibility",
+        "workflow_sha",
+        "job_workflow_sha",
+        "workflow_ref",
+        "runner_environment",
     }
 
     @property
