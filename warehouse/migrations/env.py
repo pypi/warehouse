@@ -29,7 +29,7 @@ def run_migrations_offline():
     script output.
     """
     url = context.config.get_main_option("sqlalchemy.url")
-    context.configure(url=url, compare_server_default=True)
+    context.configure(url=url, compare_server_default=True, compare_type=True)
 
     with context.begin_transaction():
         context.run_migrations()
@@ -58,6 +58,7 @@ def run_migrations_online():
             target_metadata=db.metadata,
             compare_server_default=True,
             transaction_per_migration=True,
+            compare_type=True,
         )
         with context.begin_transaction():
             context.run_migrations()
