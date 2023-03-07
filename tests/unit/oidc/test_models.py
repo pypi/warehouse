@@ -217,7 +217,10 @@ class TestGitHubPublisher:
     def test_github_publisher_sub_claim(self):
         check = models.GitHubPublisher.__verifiable_claims__["sub"]
         assert check("repo:foo/bar", "repo:foo/bar:someotherstuff", pretend.stub())
+        assert check("repo:foo/bar", "repo:foo/bar:", pretend.stub())
         assert not check("repo:foo/bar:someotherstuff", "repo:foo/bar", pretend.stub())
+        assert not check("repo:foo/bar-baz", "repo:foo/bar", pretend.stub())
+        assert not check("repo:foo/bar", "repo:foo/bar-baz", pretend.stub())
 
 
 class TestPendingGitHubPublisher:
