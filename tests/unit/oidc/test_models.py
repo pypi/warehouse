@@ -24,13 +24,9 @@ def test_check_claim_binary():
     assert wrapped("foo", "foo", pretend.stub()) is True
 
 
-def test_check_sub():
-    # Empty claims always fail.
-    assert models._check_sub(pretend.stub(), "", pretend.stub()) is False
-
-    # Malformed claims always fail.
-    assert models._check_sub(pretend.stub(), "repo", pretend.stub()) is False
-    assert models._check_sub(pretend.stub(), "repo:", pretend.stub()) is False
+@pytest.mark.parametrize("claim", ["", "repo", "repo:"])
+def test_check_sub(claim):
+    assert models._check_sub(pretend.stub(), claim, pretend.stub()) is False
 
 
 class TestOIDCPublisher:
@@ -223,13 +219,19 @@ class TestGitHubPublisher:
         check = models.GitHubPublisher.__verifiable_claims__["job_workflow_ref"]
         assert check(publisher.job_workflow_ref, claim, {"ref": ref}) is valid
 
-    def test_github_publisher_sub_claim(self):
+    @pytest.mark.parametrize(
+        ("truth", "claim", "valid"),
+        [
+            ("repo:foo/bar", "repo:foo/bar:someotherstuff", True),
+            ("repo:foo/bar", "repo:foo/bar:", True),
+            ("repo:foo/bar:someotherstuff", "repo:foo/bar", False),
+            ("repo:foo/bar-baz", "repo:foo/bar", False),
+            ("repo:foo/bar", "repo:foo/bar-baz", False),
+        ],
+    )
+    def test_github_publisher_sub_claim(self, truth, claim, valid):
         check = models.GitHubPublisher.__verifiable_claims__["sub"]
-        assert check("repo:foo/bar", "repo:foo/bar:someotherstuff", pretend.stub())
-        assert check("repo:foo/bar", "repo:foo/bar:", pretend.stub())
-        assert not check("repo:foo/bar:someotherstuff", "repo:foo/bar", pretend.stub())
-        assert not check("repo:foo/bar-baz", "repo:foo/bar", pretend.stub())
-        assert not check("repo:foo/bar", "repo:foo/bar-baz", pretend.stub())
+        assert check(truth, claim, pretend.stub()) is valid
 
 
 class TestPendingGitHubPublisher:
