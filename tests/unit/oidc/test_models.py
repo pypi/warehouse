@@ -215,13 +215,6 @@ class TestGitHubPublisher:
         assert check(publisher.job_workflow_ref, claim, {"ref": ref}) is valid
 
     def test_github_publisher_sub_claim(self):
-        publisher = models.GitHubPublisher(
-            repository_name="bar",
-            repository_owner="foo",
-            repository_owner_id=pretend.stub(),
-            workflow_filename="baz.yml",
-        )
-
         check = models.GitHubPublisher.__verifiable_claims__["sub"]
         assert check("repo:foo/bar", "repo:foo/bar:someotherstuff", pretend.stub())
         assert not check("repo:foo/bar:someotherstuff", "repo:foo/bar", pretend.stub())
