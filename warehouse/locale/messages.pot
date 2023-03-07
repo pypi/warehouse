@@ -2158,7 +2158,7 @@ msgstr ""
 #, python-format
 msgid ""
 "Your role in the \"%(organization_name)s\" organization has been changed "
-"to <strong>%(role)s</strong>"
+"to <strong>%(role)s</strong> by %(submitter)s"
 msgstr ""
 
 #: warehouse/templates/email/role-changed-as-team-collaborator/body.html:20
