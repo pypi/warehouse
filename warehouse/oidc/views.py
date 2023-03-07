@@ -13,6 +13,7 @@
 import time
 
 from pydantic import BaseModel, StrictStr, ValidationError
+from pyramid.response import Response
 from pyramid.view import view_config
 from sqlalchemy import func
 
@@ -44,7 +45,26 @@ def _ratelimiters(request):
 
 
 @view_config(
-    route_name="oidc.mint_token",
+    route_name="oidc.audience",
+    require_methods=["GET"],
+    renderer="json",
+    require_csrf=False,
+    has_translations=False,
+)
+def oidc_audience(request):
+    oidc_enabled = request.registry.settings[
+        "warehouse.oidc.enabled"
+    ] and not request.flags.enabled(AdminFlagValue.DISALLOW_OIDC)
+
+    if not oidc_enabled:
+        return Response(status=403, json={"message": "OIDC functionality not enabled"})
+
+    audience = request.registry.settings["warehouse.oidc.audience"]
+    return {"audience": audience}
+
+
+@view_config(
+    route_name="oidc.github.mint_token",
     require_methods=["POST"],
     renderer="json",
     require_csrf=False,
