@@ -34,4 +34,5 @@ def includeme(config):
     # to simplify caching exclusion.
     auth = config.get_settings().get("auth.domain")
 
-    config.add_route("oidc.mint_token", "/_/oidc/github/mint-token", domain=auth)
+    config.add_route("oidc.audience", "/_/oidc/audience", domain=auth)
+    config.add_route("oidc.github.mint_token", "/_/oidc/github/mint-token", domain=auth)

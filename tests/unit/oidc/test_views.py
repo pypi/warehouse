@@ -46,6 +46,35 @@ def test_ratelimiters():
 @pytest.mark.parametrize(
     ("registry", "admin"), [(False, False), (False, True), (True, True)]
 )
+def test_oidc_audience_not_enabled(registry, admin):
+    request = pretend.stub(
+        registry=pretend.stub(settings={"warehouse.oidc.enabled": registry}),
+        flags=pretend.stub(enabled=lambda *a: admin),
+    )
+
+    response = views.oidc_audience(request)
+    assert response.status_code == 403
+    assert response.json == {"message": "OIDC functionality not enabled"}
+
+
+def test_oidc_audience():
+    request = pretend.stub(
+        registry=pretend.stub(
+            settings={
+                "warehouse.oidc.enabled": True,
+                "warehouse.oidc.audience": "fakeaudience",
+            }
+        ),
+        flags=pretend.stub(enabled=lambda *a: False),
+    )
+
+    response = views.oidc_audience(request)
+    assert response == {"audience": "fakeaudience"}
+
+
+@pytest.mark.parametrize(
+    ("registry", "admin"), [(False, False), (False, True), (True, True)]
+)
 def test_mint_token_from_oidc_not_enabled(registry, admin):
     request = pretend.stub(
         response=pretend.stub(status=None),
