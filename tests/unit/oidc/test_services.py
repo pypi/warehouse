@@ -75,8 +75,9 @@ class TestOIDCPublisherService:
         token = pretend.stub()
         decoded = pretend.stub()
         jwt = pretend.stub(decode=pretend.call_recorder(lambda t, **kwargs: decoded))
+        key = pretend.stub(key="fake-key")
         monkeypatch.setattr(
-            service, "_get_key_for_token", pretend.call_recorder(lambda t: "fake-key")
+            service, "_get_key_for_token", pretend.call_recorder(lambda t: key)
         )
         monkeypatch.setattr(services, "jwt", jwt)
 
@@ -84,7 +85,7 @@ class TestOIDCPublisherService:
         assert jwt.decode.calls == [
             pretend.call(
                 token,
-                key="fake-key",
+                key=key.key,
                 algorithms=["RS256"],
                 options=dict(
                     verify_signature=True,
