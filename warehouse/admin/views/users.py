@@ -55,6 +55,8 @@ def user_list(request):
                 field, value = term.split(":", 1)
                 if field.lower() == "email":
                     filters.append(User.emails.any(Email.email.ilike(value)))
+                elif field.lower() == "id":
+                    filters.append(User.id == value)
             else:
                 filters.append(User.username.ilike(term))
 
