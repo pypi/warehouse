@@ -227,7 +227,7 @@ class OIDCPublisherService:
             # set them explicitly to assert the intended verification behavior.
             signed_payload = jwt.decode(
                 unverified_token,
-                key=key,
+                key=key.key,
                 algorithms=["RS256"],
                 options=dict(
                     verify_signature=True,
