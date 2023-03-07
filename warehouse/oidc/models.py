@@ -221,7 +221,7 @@ class GitHubPublisherMixin:
     workflow_filename = Column(String)
 
     __verifiable_claims__ = {
-        "sub": _check_claim_binary(str.__eq__),
+        "sub": _check_claim_binary(str.startswith),
         "repository": _check_claim_binary(str.__eq__),
         "repository_owner": _check_claim_binary(str.__eq__),
         "repository_owner_id": _check_claim_binary(str.__eq__),
@@ -243,6 +243,11 @@ class GitHubPublisherMixin:
         "ref_type",
         "repository_id",
         "workflow",
+        "repository_visibility",
+        "workflow_sha",
+        "job_workflow_sha",
+        "workflow_ref",
+        "runner_environment",
     }
 
     @property
