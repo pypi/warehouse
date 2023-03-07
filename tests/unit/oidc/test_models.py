@@ -24,6 +24,15 @@ def test_check_claim_binary():
     assert wrapped("foo", "foo", pretend.stub()) is True
 
 
+def test_check_sub():
+    # Empty claims always fail.
+    assert models._check_sub(pretend.stub(), "", pretend.stub()) is False
+
+    # Malformed claims always fail.
+    assert models._check_sub(pretend.stub(), "repo", pretend.stub()) is False
+    assert models._check_sub(pretend.stub(), "repo:", pretend.stub()) is False
+
+
 class TestOIDCPublisher:
     def test_oidc_publisher_not_default_verifiable(self):
         publisher = models.OIDCPublisher(projects=[])
