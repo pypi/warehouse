@@ -24,6 +24,11 @@ def test_check_claim_binary():
     assert wrapped("foo", "foo", pretend.stub()) is True
 
 
+@pytest.mark.parametrize("claim", ["", "repo", "repo:"])
+def test_check_sub(claim):
+    assert models._check_sub(pretend.stub(), claim, pretend.stub()) is False
+
+
 class TestOIDCPublisher:
     def test_oidc_publisher_not_default_verifiable(self):
         publisher = models.OIDCPublisher(projects=[])
@@ -35,6 +40,7 @@ class TestGitHubPublisher:
     def test_github_publisher_all_known_claims(self):
         assert models.GitHubPublisher.all_known_claims() == {
             # verifiable claims
+            "sub",
             "repository",
             "repository_owner",
             "repository_owner_id",
@@ -49,7 +55,6 @@ class TestGitHubPublisher:
             "actor",
             "actor_id",
             "jti",
-            "sub",
             "ref",
             "sha",
             "run_id",
@@ -61,6 +66,11 @@ class TestGitHubPublisher:
             "ref_type",
             "repository_id",
             "workflow",
+            "repository_visibility",
+            "workflow_sha",
+            "job_workflow_sha",
+            "workflow_ref",
+            "runner_environment",
         }
 
     def test_github_publisher_computed_properties(self):
@@ -208,6 +218,20 @@ class TestGitHubPublisher:
 
         check = models.GitHubPublisher.__verifiable_claims__["job_workflow_ref"]
         assert check(publisher.job_workflow_ref, claim, {"ref": ref}) is valid
+
+    @pytest.mark.parametrize(
+        ("truth", "claim", "valid"),
+        [
+            ("repo:foo/bar", "repo:foo/bar:someotherstuff", True),
+            ("repo:foo/bar", "repo:foo/bar:", True),
+            ("repo:foo/bar:someotherstuff", "repo:foo/bar", False),
+            ("repo:foo/bar-baz", "repo:foo/bar", False),
+            ("repo:foo/bar", "repo:foo/bar-baz", False),
+        ],
+    )
+    def test_github_publisher_sub_claim(self, truth, claim, valid):
+        check = models.GitHubPublisher.__verifiable_claims__["sub"]
+        assert check(truth, claim, pretend.stub()) is valid
 
 
 class TestPendingGitHubPublisher:
