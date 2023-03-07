@@ -78,6 +78,15 @@ class TestUserList:
 
         assert result == {"users": [users[0]], "query": "email:" + emails[0].email}
 
+    def test_id_query(self, db_request):
+        users = sorted(
+            [UserFactory.create() for _ in range(5)], key=lambda u: u.username.lower()
+        )
+        db_request.GET["q"] = "id:" + str(users[0].id)
+        result = views.user_list(db_request)
+
+        assert result == {"users": [users[0]], "query": "id:" + str(users[0].id)}
+
     def test_or_query(self, db_request):
         users = sorted(
             [UserFactory.create() for _ in range(5)], key=lambda u: u.username.lower()
