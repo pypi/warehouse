@@ -10,6 +10,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from datetime import datetime
 import json
 
 import pretend
@@ -438,7 +439,7 @@ def test_mint_token_from_oidc_no_pending_publisher_ok(monkeypatch):
     assert macaroon_service.create_macaroon.calls == [
         pretend.call(
             "fakedomain",
-            "OpenID token: https://fake/url (0)",
+            f"OpenID token: https://fake/url ({datetime.fromtimestamp(0).isoformat()})",
             [
                 caveats.OIDCPublisher(oidc_publisher_id="fakepublisherid"),
                 caveats.ProjectID(project_ids=["fakeprojectid"]),

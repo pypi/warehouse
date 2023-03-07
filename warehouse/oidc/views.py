@@ -10,6 +10,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from datetime import datetime
 import time
 
 from pydantic import BaseModel, StrictStr, ValidationError
@@ -184,7 +185,10 @@ def mint_token_from_oidc(request):
     expires_at = not_before + 900
     serialized, dm = macaroon_service.create_macaroon(
         request.domain,
-        f"OpenID token: {publisher.publisher_url} ({not_before})",
+        (
+            f"OpenID token: {publisher.publisher_url} "
+            f"({datetime.fromtimestamp(not_before).isoformat()})"
+        ),
         [
             caveats.OIDCPublisher(oidc_publisher_id=str(publisher.id)),
             caveats.ProjectID(project_ids=[str(p.id) for p in publisher.projects]),
