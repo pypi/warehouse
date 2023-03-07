@@ -36,10 +36,4 @@ def upgrade():
 
 
 def downgrade():
-    op.alter_column(
-        "macaroons",
-        "description",
-        existing_type=sa.String(),
-        type_=sa.VARCHAR(length=100),
-        existing_nullable=False,
-    )
+    raise RuntimeError("Order No. 227 - Ни шагу назад!")
