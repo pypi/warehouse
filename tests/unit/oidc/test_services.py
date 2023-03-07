@@ -10,10 +10,12 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import jwt
 import pretend
 import pytest
 
-from jwt import PyJWK, PyJWTError
+from cryptography.hazmat.primitives.asymmetric import rsa
+from jwt import PyJWK, PyJWTError, algorithms
 from zope.interface.verify import verifyClass
 
 from tests.common.db.oidc import GitHubPublisherFactory, PendingGitHubPublisherFactory
@@ -102,7 +104,7 @@ class TestOIDCPublisherService:
             )
         ]
 
-    @pytest.mark.parametrize("exc", [PyJWTError, ValueError])
+    @pytest.mark.parametrize("exc", [PyJWTError, TypeError])
     def test_verify_jwt_signature_fails(self, monkeypatch, exc):
         service = services.OIDCPublisherService(
             session=pretend.stub(),
@@ -863,3 +865,45 @@ class TestNullOIDCPublisherService:
         assert service.reify_pending_publisher(pending_publisher, project) == publisher
         assert pending_publisher.reify.calls == [pretend.call(service.db)]
         assert project.oidc_publishers == [publisher]
+
+
+class TestPyJWTBackstop:
+    """
+    "Backstop" tests against unexpected PyJWT API changes.
+    """
+
+    def test_decodes_token_bare_key(self):
+        privkey = rsa.generate_private_key(65537, 2048)
+        pubkey = privkey.public_key()
+
+        # Bare cryptography key objects work.
+        token = jwt.encode({"foo": "bar"}, privkey, algorithm="RS256")
+        decoded = jwt.decode(token, pubkey, algorithms=["RS256"])
+
+        assert decoded == {"foo": "bar"}
+
+    def test_decodes_token_jwk_roundtrip(self):
+        privkey = rsa.generate_private_key(65537, 2048)
+        pubkey = privkey.public_key()
+
+        privkey_jwk = PyJWK.from_json(algorithms.RSAAlgorithm.to_jwk(privkey))
+        pubkey_jwk = PyJWK.from_json(algorithms.RSAAlgorithm.to_jwk(pubkey))
+
+        # Each PyJWK's `key` attribute works.
+        token = jwt.encode({"foo": "bar"}, privkey_jwk.key, algorithm="RS256")
+        decoded = jwt.decode(token, pubkey_jwk.key, algorithms=["RS256"])
+
+        assert decoded == {"foo": "bar"}
+
+    def test_decodes_token_typeerror_on_pyjwk(self):
+        privkey = rsa.generate_private_key(65537, 2048)
+        pubkey = privkey.public_key()
+
+        privkey_jwk = PyJWK.from_json(algorithms.RSAAlgorithm.to_jwk(privkey))
+        pubkey_jwk = PyJWK.from_json(algorithms.RSAAlgorithm.to_jwk(pubkey))
+
+        token = jwt.encode({"foo": "bar"}, privkey_jwk.key, algorithm="RS256")
+
+        # Passing a `PyJWK` directly into `jwt.decode` does not work.
+        with pytest.raises(TypeError, match=r"Expecting a PEM-formatted key\."):
+            jwt.decode(token, pubkey_jwk, algorithms=["RS256"])
