@@ -17,6 +17,7 @@ from warehouse import db
 from warehouse.accounts.models import Email, User
 from warehouse.cache.origin import key_factory, receive_set
 from warehouse.manage.tasks import update_role_invitation_status
+from warehouse.organizations.models import Organization
 from warehouse.packaging.interfaces import (
     IDocsStorage,
     IFileStorage,
@@ -43,6 +44,18 @@ def user_name_receive_set(config, target, value, oldvalue, initiator):
 def email_primary_receive_set(config, target, value, oldvalue, initiator):
     if oldvalue is not NO_VALUE:
         receive_set(Email.primary, config, target)
+
+
+@db.listens_for(Organization.name, "set")
+def org_name_receive_set(config, target, value, oldvalue, initiator):
+    if oldvalue is not NO_VALUE:
+        receive_set(Organization.name, config, target)
+
+
+@db.listens_for(Organization.display_name, "set")
+def org_display_name_receive_set(config, target, value, oldvalue, initiator):
+    if oldvalue is not NO_VALUE:
+        receive_set(Organization.display_name, config, target)
 
 
 def includeme(config):
@@ -91,6 +104,7 @@ def includeme(config):
             key_factory("project/{obj.normalized_name}"),
             key_factory("user/{itr.username}", iterate_on="users"),
             key_factory("all-projects"),
+            key_factory("org/{attr.normalized_name}", if_attr_exists="organization"),
         ],
     )
     config.register_origin_cache_keys(
@@ -100,6 +114,9 @@ def includeme(config):
             key_factory("project/{obj.project.normalized_name}"),
             key_factory("user/{itr.username}", iterate_on="project.users"),
             key_factory("all-projects"),
+            key_factory(
+                "org/{attr.normalized_name}", if_attr_exists="project.organization"
+            ),
         ],
     )
     config.register_origin_cache_keys(
@@ -109,11 +126,15 @@ def includeme(config):
             key_factory("project/{obj.project.normalized_name}"),
         ],
     )
-    config.register_origin_cache_keys(User, cache_keys=["user/{obj.username}"])
+    config.register_origin_cache_keys(
+        User,
+        cache_keys=["user/{obj.username}"],
+    )
     config.register_origin_cache_keys(
         User.name,
         purge_keys=[
             key_factory("user/{obj.username}"),
+            key_factory("org/{itr.normalized_name}", iterate_on="organizations"),
             key_factory("project/{itr.normalized_name}", iterate_on="projects"),
         ],
     )
@@ -122,6 +143,25 @@ def includeme(config):
         purge_keys=[
             key_factory("user/{obj.user.username}"),
             key_factory("project/{itr.normalized_name}", iterate_on="user.projects"),
+        ],
+    )
+    config.register_origin_cache_keys(
+        Organization, cache_keys=["org/{obj.normalized_name}"]
+    )
+    config.register_origin_cache_keys(
+        Organization.name,
+        purge_keys=[
+            key_factory("user/{itr.username}", iterate_on="users"),
+            key_factory("org/{obj.normalized_name}"),
+            key_factory("project/{itr.normalized_name}", iterate_on="projects"),
+        ],
+    )
+    config.register_origin_cache_keys(
+        Organization.display_name,
+        purge_keys=[
+            key_factory("user/{itr.username}", iterate_on="users"),
+            key_factory("org/{obj.normalized_name}"),
+            key_factory("project/{itr.normalized_name}", iterate_on="projects"),
         ],
     )
 

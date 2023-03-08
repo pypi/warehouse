@@ -40,8 +40,10 @@ def test_includeme(monkeypatch, with_bq_sync, with_2fa_mandate):
         create_service=pretend.call_recorder(lambda *a, **kw: pretend.stub())
     )
 
-    def key_factory(keystring, iterate_on=None):
-        return pretend.call(keystring, iterate_on=iterate_on)
+    def key_factory(keystring, iterate_on=None, if_attr_exists=None):
+        return pretend.call(
+            keystring, iterate_on=iterate_on, if_attr_exists=if_attr_exists
+        )
 
     monkeypatch.setattr(packaging, "key_factory", key_factory)
     settings = {

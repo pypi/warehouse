@@ -230,6 +230,62 @@ class TestKeyMaker:
         assert cache_keys.cache == ["foo"]
         assert list(cache_keys.purge) == ["bar", "bar/biz", "bar/baz"]
 
+    def test_if_attr_exists_exists(self):
+        key_maker = origin.key_maker_factory(
+            cache_keys=["foo"],
+            purge_keys=[
+                origin.key_factory("bar"),
+                origin.key_factory("bar/{attr}", if_attr_exists="foo"),
+            ],
+        )
+        cache_keys = key_maker(pretend.stub(foo="bar"))
+
+        assert isinstance(cache_keys, origin.CacheKeys)
+        assert cache_keys.cache == ["foo"]
+        assert list(cache_keys.purge) == ["bar", "bar/bar"]
+
+    def test_if_attr_exists_nested(self):
+        key_maker = origin.key_maker_factory(
+            cache_keys=["foo"],
+            purge_keys=[
+                origin.key_factory("bar"),
+                origin.key_factory("bar/{attr}", if_attr_exists="foo.bar"),
+            ],
+        )
+        cache_keys = key_maker(pretend.stub(foo=pretend.stub(bar="bar")))
+
+        assert isinstance(cache_keys, origin.CacheKeys)
+        assert cache_keys.cache == ["foo"]
+        assert list(cache_keys.purge) == ["bar", "bar/bar"]
+
+    def test_if_attr_exists_does_not_exist(self):
+        key_maker = origin.key_maker_factory(
+            cache_keys=["foo"],
+            purge_keys=[
+                origin.key_factory("bar"),
+                origin.key_factory("bar/{attr}", if_attr_exists="foo"),
+            ],
+        )
+        cache_keys = key_maker(pretend.stub())
+
+        assert isinstance(cache_keys, origin.CacheKeys)
+        assert cache_keys.cache == ["foo"]
+        assert list(cache_keys.purge) == ["bar"]
+
+    def test_if_attr_exists_nested_does_not_exist(self):
+        key_maker = origin.key_maker_factory(
+            cache_keys=["foo"],
+            purge_keys=[
+                origin.key_factory("bar"),
+                origin.key_factory("bar/{attr}", if_attr_exists="foo.bar"),
+            ],
+        )
+        cache_keys = key_maker(pretend.stub())
+
+        assert isinstance(cache_keys, origin.CacheKeys)
+        assert cache_keys.cache == ["foo"]
+        assert list(cache_keys.purge) == ["bar"]
+
 
 def test_register_origin_keys(monkeypatch):
     class Fake1:
