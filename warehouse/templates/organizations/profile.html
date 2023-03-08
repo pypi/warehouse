@@ -47,7 +47,7 @@
     <div class="left-layout__main">
       <h2>
         {% if organization.projects %}
-          {% trans count=projects|length %}
+          {% trans count=organization.projects|length %}
             {{ count }} project
           {% pluralize %}
             {{ count }} projects
