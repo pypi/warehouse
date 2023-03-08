@@ -19,10 +19,11 @@ from pyramid.authentication import (
 from pyramid.httpexceptions import HTTPUnauthorized
 from pyramid.interfaces import IAuthorizationPolicy, ISecurityPolicy
 from pyramid.threadlocal import get_current_request
+from warehouse.oidc.models import OIDCPublisher
 from zope.interface import implementer
 
 from warehouse.accounts.interfaces import IPasswordBreachedService, IUserService
-from warehouse.accounts.models import DisableReason
+from warehouse.accounts.models import DisableReason, User
 from warehouse.cache.http import add_vary_callback
 from warehouse.email import send_password_compromised_email_hibp
 from warehouse.errors import (
@@ -251,13 +252,31 @@ class TwoFactorAuthorizationPolicy:
         subpolicy_permits = self.policy.permits(context, principals, permission)
 
         # If the request is permitted by the subpolicy, check if the context is
-        # 2FA requireable, if 2FA is indeed required, and if the user has 2FA
+        # 2FA requireable, if 2FA is indeed required, and if the identity has 2FA
         # enabled
         if subpolicy_permits and isinstance(context, TwoFactorRequireable):
+            if isinstance(request.identity, User):
+                # If this is a user-identified request, then we can simply ask
+                # whether the user has 2FA enabled.
+                has_two_factor = request.identity.has_two_factor
+            elif isinstance(request.identity, OIDCPublisher):
+                # Otherwise, if it's an OIDC-identified request, then we can
+                # ask whether the context (a project) has users who all
+                # have 2FA enabled.
+                # NOTE: TwoFactorRequireable applies to models other than projects,
+                # but we can assume that the context is a project here because of
+                # our subpolicy: OIDC identities only appear with macaroons,
+                # and macaroons are only permitted on the `upload` permission
+                # with a project context.
+                has_two_factor = all(user.has_two_factor for user in context.users)
+            else:
+                # Unreachable; see `MultiSecurityPolicy.permits`.
+                return WarehouseDenied("unknown identity")
+
             if (
                 request.registry.settings["warehouse.two_factor_requirement.enabled"]
                 and context.owners_require_2fa
-                and not request.user.has_two_factor
+                and not has_two_factor
             ):
                 return WarehouseDenied(
                     "This project requires two factor authentication to be enabled "
@@ -267,7 +286,7 @@ class TwoFactorAuthorizationPolicy:
             if (
                 request.registry.settings["warehouse.two_factor_mandate.enabled"]
                 and context.pypi_mandates_2fa
-                and not request.user.has_two_factor
+                and not has_two_factor
             ):
                 return WarehouseDenied(
                     "PyPI requires two factor authentication to be enabled "
@@ -277,7 +296,7 @@ class TwoFactorAuthorizationPolicy:
             if (
                 request.registry.settings["warehouse.two_factor_mandate.available"]
                 and context.pypi_mandates_2fa
-                and not request.user.has_two_factor
+                and not has_two_factor
             ):
                 request.session.flash(
                     "This project is included in PyPI's two-factor mandate "
