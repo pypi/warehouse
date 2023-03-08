@@ -11,6 +11,6 @@
  # See the License for the specific language governing permissions and
  # limitations under the License.
 -#}
-{% if project.organization and (project.organization.orgtype != OrganizationType.Company) %}
+{% if include_sponsor_logos %}
 <div class="sidebar-section" data-ea-publisher="psf" data-ea-type="psf" data-ea-keywords="pypi-sidebar"></div>
 {% endif %}

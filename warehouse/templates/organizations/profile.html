@@ -17,10 +17,10 @@
 
 {% block content %}
 <div class="horizontal-section horizontal-section--medium">
-  <div class="left-layout">
-    <div class="left-layout__sidebar">
-      <div class="author-profile">
-        <div class="author-profile__info">
+  <div class="tabs-container">
+    <div class="vertical-tabs">
+      <div class="vertical-tabs__tabs">
+        <div class="sidebar-section">
           {% if organization.display_name %}
           <h1 class="author-profile__name">{{ organization.display_name }}</h1>
           {% endif %}
@@ -40,38 +40,39 @@
             {% endif %}
           </div>
         </div>
-
+        {% set include_sponsor_logos = organization.orgtype != OrganizationType.Company %}
+        {% include "warehouse:templates/includes/sidebar-sponsor-logo.html" %}
       </div>
-    </div>
 
-    <div class="left-layout__main">
-      <h2>
-        {% if organization.projects %}
-          {% trans count=organization.projects|length %}
-            {{ count }} project
-          {% pluralize %}
-            {{ count }} projects
-          {% endtrans %}
-        {% else %}
-          {% trans %}No projects{% endtrans %}
-        {% endif %}
-      </h2>
-      <div class="package-list">
-        {% if organization.projects %}
-        {% for project in organization.projects %}
-        <a class="package-snippet" href="{{ request.route_path('packaging.project', name=project.normalized_name) }}">
-          <h3 class="package-snippet__title">{{ project.name }}</h3>
-          <p class="package-snippet__meta">
-            {% trans release_date=humanize(project.releases[0].created) %}Last released {{ release_date }}{% endtrans %}
-          </p>
-          <p class="package-snippet__description">{{ project.releases[0].summary }}</p>
-        </a>
-        {% endfor %}
-        {% else %}
-          <div class="callout-block no-top-margin">
-            <p>{% trans org=organization.display_name|default(organization.name, true) %}{{ org }} has not uploaded any projects to PyPI, yet{% endtrans %}</p>
-          </div>
-        {% endif %}
+      <div class="vertical-tabs__panel">
+        <h2>
+          {% if organization.projects %}
+            {% trans count=organization.projects|length %}
+              {{ count }} project
+            {% pluralize %}
+              {{ count }} projects
+            {% endtrans %}
+          {% else %}
+            {% trans %}No projects{% endtrans %}
+          {% endif %}
+        </h2>
+        <div class="package-list">
+          {% if organization.projects %}
+          {% for project in organization.projects %}
+          <a class="package-snippet" href="{{ request.route_path('packaging.project', name=project.normalized_name) }}">
+            <h3 class="package-snippet__title">{{ project.name }}</h3>
+            <p class="package-snippet__meta">
+              {% trans release_date=humanize(project.releases[0].created) %}Last released {{ release_date }}{% endtrans %}
+            </p>
+            <p class="package-snippet__description">{{ project.releases[0].summary }}</p>
+          </a>
+          {% endfor %}
+          {% else %}
+            <div class="callout-block no-top-margin">
+              <p>{% trans org=organization.display_name|default(organization.name, true) %}{{ org }} has not uploaded any projects to PyPI, yet{% endtrans %}</p>
+            </div>
+          {% endif %}
+        </div>
       </div>
     </div>
   </div>
