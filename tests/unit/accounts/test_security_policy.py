@@ -561,6 +561,7 @@ class TestTwoFactorAuthorizationPolicy:
         assert result == permits_result
 
     def test_permits_if_context_does_not_require_2fa(self, monkeypatch, db_request):
+        db_request.user = pretend.stub()
         db_request.registry.settings = {
             "warehouse.two_factor_mandate.enabled": True,
             "warehouse.two_factor_mandate.available": True,
