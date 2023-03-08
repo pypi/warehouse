@@ -89,7 +89,11 @@ class User(SitemapMixin, HasEvents, db.Model):
     date_joined = Column(DateTime, server_default=sql.func.now())
     last_login = Column(TZDateTime, nullable=False, server_default=sql.func.now())
     disabled_for = Column(
-        Enum(DisableReason, values_callable=lambda x: [e.value for e in x]),
+        Enum(
+            DisableReason,
+            values_callable=lambda x: [e.value for e in x],
+            name="disable_reason",
+        ),
         nullable=True,
     )
 
@@ -270,7 +274,11 @@ class Email(db.ModelBase):
 
     # Deliverability information
     unverify_reason = Column(
-        Enum(UnverifyReasons, values_callable=lambda x: [e.value for e in x]),
+        Enum(
+            UnverifyReasons,
+            values_callable=lambda x: [e.value for e in x],
+            name="accounts_email_failure_types",
+        ),
         nullable=True,
     )
     transient_bounces = Column(Integer, nullable=False, server_default=sql.text("0"))

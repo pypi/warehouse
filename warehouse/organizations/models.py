@@ -62,7 +62,11 @@ class OrganizationRole(db.Model):
     __repr__ = make_repr("role_name")
 
     role_name = Column(
-        Enum(OrganizationRoleType, values_callable=lambda x: [e.value for e in x]),
+        Enum(
+            OrganizationRoleType,
+            values_callable=lambda x: [e.value for e in x],
+            name="role_name",
+        ),
         nullable=False,
     )
     user_id = Column(
@@ -237,7 +241,11 @@ class Organization(HasEvents, db.Model):
     normalized_name = orm.column_property(func.normalize_pep426_name(name))
     display_name = Column(Text, nullable=False)
     orgtype = Column(
-        Enum(OrganizationType, values_callable=lambda x: [e.value for e in x]),
+        Enum(
+            OrganizationType,
+            values_callable=lambda x: [e.value for e in x],
+            name="orgtype",
+        ),
         nullable=False,
     )
     link_url = Column(URLType, nullable=False)
@@ -454,7 +462,9 @@ class OrganizationInvitation(db.Model):
 
     invite_status = Column(
         Enum(
-            OrganizationInvitationStatus, values_callable=lambda x: [e.value for e in x]
+            OrganizationInvitationStatus,
+            values_callable=lambda x: [e.value for e in x],
+            name="invite_status",
         ),
         nullable=False,
     )
@@ -495,7 +505,11 @@ class TeamRole(db.Model):
     __repr__ = make_repr("role_name", "team", "user")
 
     role_name = Column(
-        Enum(TeamRoleType, values_callable=lambda x: [e.value for e in x]),
+        Enum(
+            TeamRoleType,
+            values_callable=lambda x: [e.value for e in x],
+            name="role_name",
+        ),
         nullable=False,
     )
     user_id = Column(
@@ -532,7 +546,11 @@ class TeamProjectRole(db.Model):
     __repr__ = make_repr("role_name", "team", "project")
 
     role_name = Column(
-        Enum(TeamProjectRoleType, values_callable=lambda x: [e.value for e in x]),
+        Enum(
+            TeamProjectRoleType,
+            values_callable=lambda x: [e.value for e in x],
+            name="role_name",
+        ),
         nullable=False,
     )
     project_id = Column(

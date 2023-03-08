@@ -42,7 +42,9 @@ class IpAddress(db.Model):
     ip_address = Column(INET, nullable=False, unique=True)
     is_banned = Column(Boolean, nullable=False, server_default=sql.false())
     ban_reason = Column(
-        Enum(BanReason, values_callable=lambda x: [e.value for e in x]),
+        Enum(
+            BanReason, values_callable=lambda x: [e.value for e in x], name="banreason"
+        ),
         nullable=True,
     )
     ban_date = Column(DateTime, nullable=True)

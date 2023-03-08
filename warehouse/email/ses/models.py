@@ -234,7 +234,11 @@ class EmailMessage(db.Model):
 
     created = Column(DateTime, nullable=False, server_default=sql.func.now())
     status = Column(
-        Enum(EmailStatuses, values_callable=lambda x: [e.value for e in x]),
+        Enum(
+            EmailStatuses,
+            values_callable=lambda x: [e.value for e in x],
+            name="ses_email_statuses",
+        ),
         nullable=False,
         server_default=EmailStatuses.Accepted.value,
     )
@@ -279,7 +283,12 @@ class Event(db.Model):
 
     event_id = Column(Text, nullable=False, unique=True, index=True)
     event_type = Column(
-        Enum(EventTypes, values_callable=lambda x: [e.value for e in x]), nullable=False
+        Enum(
+            EventTypes,
+            values_callable=lambda x: [e.value for e in x],
+            name="ses_event_types",
+        ),
+        nullable=False,
     )
 
     data = Column(

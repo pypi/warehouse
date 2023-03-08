@@ -108,7 +108,11 @@ class RoleInvitation(db.Model):
     __repr__ = make_repr("invite_status", "user", "project")
 
     invite_status = Column(
-        Enum(RoleInvitationStatus, values_callable=lambda x: [e.value for e in x]),
+        Enum(
+            RoleInvitationStatus,
+            values_callable=lambda x: [e.value for e in x],
+            name="invite_status",
+        ),
         nullable=False,
     )
     token = Column(Text, nullable=False)
@@ -665,6 +669,7 @@ class File(db.Model):
             "bdist_wheel",
             "bdist_wininst",
             "sdist",
+            name="package_type",
         )
     )
     comment_text = Column(Text)

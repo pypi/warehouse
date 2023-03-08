@@ -112,7 +112,11 @@ class StripeSubscription(db.Model):
         nullable=False,
     )
     status = Column(
-        Enum(StripeSubscriptionStatus, values_callable=lambda x: [e.value for e in x]),
+        Enum(
+            StripeSubscriptionStatus,
+            values_callable=lambda x: [e.value for e in x],
+            name="stripesubscriptionstatus",
+        ),
         nullable=False,
     )
 
@@ -179,6 +183,7 @@ class StripeSubscriptionPrice(db.Model):
         Enum(
             StripeSubscriptionPriceInterval,
             values_callable=lambda x: [e.value for e in x],
+            name="stripesubscriptionpriceinterval",
         ),
         nullable=False,
     )
