@@ -560,12 +560,7 @@ class TestTwoFactorAuthorizationPolicy:
 
         assert result == permits_result
 
-    def test_permits_if_context_does_not_require_2fa(
-        self, monkeypatch, db_request, pyramid_config
-    ):
-        user = UserFactory()
-        pyramid_config.testing_securitypolicy(identity=user)
-
+    def test_permits_if_context_does_not_require_2fa(self, monkeypatch, db_request):
         db_request.registry.settings = {
             "warehouse.two_factor_mandate.enabled": True,
             "warehouse.two_factor_mandate.available": True,
@@ -588,17 +583,15 @@ class TestTwoFactorAuthorizationPolicy:
         assert result == permits_result
 
     def test_flashes_if_context_requires_2fa_but_not_enabled(
-        self, monkeypatch, db_request, pyramid_config
+        self, monkeypatch, db_request
     ):
-        user = UserFactory()
-        pyramid_config.testing_securitypolicy(identity=user)
-
         db_request.registry.settings = {
             "warehouse.two_factor_mandate.enabled": False,
             "warehouse.two_factor_mandate.available": True,
             "warehouse.two_factor_requirement.enabled": True,
         }
         db_request.session.flash = pretend.call_recorder(lambda m, queue: None)
+        db_request.user = pretend.stub(has_two_factor=False)
         get_current_request = pretend.call_recorder(lambda: db_request)
         monkeypatch.setattr(security_policy, "get_current_request", get_current_request)
 
@@ -637,16 +630,14 @@ class TestTwoFactorAuthorizationPolicy:
         two_factor_mandate_available,
         two_factor_mandate_enabled,
         db_request,
-        pyramid_config,
     ):
         db_request.registry.settings = {
             "warehouse.two_factor_requirement.enabled": two_factor_requirement_enabled,
             "warehouse.two_factor_mandate.available": two_factor_mandate_available,
             "warehouse.two_factor_mandate.enabled": two_factor_mandate_enabled,
         }
-        user = UserFactory(totp_secret=b"fakesecret")
-        pyramid_config.testing_securitypolicy(identity=user)
-
+        user = pretend.stub(has_two_factor=True)
+        db_request.user = user
         get_current_request = pretend.call_recorder(lambda: db_request)
         monkeypatch.setattr(security_policy, "get_current_request", get_current_request)
 
