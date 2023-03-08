@@ -10,7 +10,8 @@
 .idea
 .envrc
 
-docs/_build/
+docs/dev/_build/
+docs/user/_build/
 build/
 dist/*.tar.gz
 dist/*.whl
