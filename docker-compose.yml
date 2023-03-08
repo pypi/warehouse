@@ -92,6 +92,8 @@ services:
       # permissive security context.
       - ./dev:/opt/warehouse/src/dev:z
       - ./docs:/opt/warehouse/src/docs:z
+      - ./mkdocs-user-docs.yml:/opt/warehouse/src/mkdocs-user-docs.yml:z
+      - ./docs/user:/opt/warehouse/src/docs/user:z
       - ./warehouse:/opt/warehouse/src/warehouse:z
       - ./tests:/opt/warehouse/src/tests:z
       - ./htmlcov:/opt/warehouse/src/htmlcov:z
@@ -185,3 +187,15 @@ services:
       NOTGITHUB_DEFAULT_URL: "http://web:8000/_/github/disclose-token"
     ports:
       - "8964:8000"
+
+  user-docs:
+    build:
+      context: .
+      args:
+        DEVEL: "yes"
+    command: mkdocs serve -a 0.0.0.0:8000 -f mkdocs-user-docs.yml
+    volumes:
+      - ./mkdocs-user-docs.yml:/opt/warehouse/src/mkdocs-user-docs.yml:z
+      - ./docs/user:/opt/warehouse/src/docs/user:z
+    ports:
+      - "10000:8000"

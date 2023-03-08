@@ -20,8 +20,10 @@ jobs:
             command: bin/tests --postgresql-host localhost
           - name: Lint
             command: bin/lint
-          - name: Documentation
-            command: bin/docs
+          - name: User Documentation
+            command: bin/user-docs
+          - name: Developer Documentation
+            command: bin/dev-docs
           - name: Dependencies
             command: bin/github-actions-deps
           - name: Licenses
