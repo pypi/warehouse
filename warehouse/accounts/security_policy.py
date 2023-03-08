@@ -19,7 +19,6 @@ from pyramid.authentication import (
 from pyramid.httpexceptions import HTTPUnauthorized
 from pyramid.interfaces import IAuthorizationPolicy, ISecurityPolicy
 from pyramid.threadlocal import get_current_request
-from warehouse.oidc.models import OIDCPublisher
 from zope.interface import implementer
 
 from warehouse.accounts.interfaces import IPasswordBreachedService, IUserService

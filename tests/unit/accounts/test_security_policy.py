@@ -16,7 +16,6 @@ import pytest
 
 from pyramid.interfaces import IAuthorizationPolicy, ISecurityPolicy
 from pyramid.security import Allowed, Denied
-from tests.common.db.accounts import UserFactory
 from zope.interface.verify import verifyClass
 
 from warehouse.accounts import security_policy
