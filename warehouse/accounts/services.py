@@ -643,6 +643,11 @@ class TokenService:
 
         return data
 
+    def unsafe_load_payload(self, token):
+        _, data = self.serializer.loads_unsafe(token)
+
+        return data
+
 
 def database_login_factory(context, request):
     return DatabaseUserService(

@@ -1970,6 +1970,122 @@ class ManageOrganizationProjectsViews:
         return HTTPSeeOther(self.request.path)
 
 
+def _send_organization_invitation(request, organization, role_name, user):
+    organization_service = request.find_service(IOrganizationService, context=None)
+    token_service = request.find_service(ITokenService, name="email")
+
+    existing_role = organization_service.get_organization_role_by_user(
+        organization.id, user.id
+    )
+    organization_invite = organization_service.get_organization_invite_by_user(
+        organization.id, user.id
+    )
+    # Cover edge case where invite is invalid but task
+    # has not updated invite status
+    try:
+        invite_token = token_service.loads(organization_invite.token)
+    except (TokenExpired, AttributeError):
+        invite_token = None
+
+    if existing_role:
+        request.session.flash(
+            request._(
+                "User '${username}' already has ${role_name} role for organization",
+                mapping={
+                    "username": user.username,
+                    "role_name": existing_role.role_name.value,
+                },
+            ),
+            queue="error",
+        )
+    elif user.primary_email is None or not user.primary_email.verified:
+        request.session.flash(
+            request._(
+                "User '${username}' does not have a verified primary email "
+                "address and cannot be added as a ${role_name} for organization",
+                mapping={"username": user.username, "role_name": role_name.value},
+            ),
+            queue="error",
+        )
+    elif (
+        organization_invite
+        and organization_invite.invite_status == OrganizationInvitationStatus.Pending
+        and invite_token
+    ):
+        request.session.flash(
+            request._(
+                "User '${username}' already has an active invite. "
+                "Please try again later.",
+                mapping={"username": user.username},
+            ),
+            queue="error",
+        )
+    else:
+        invite_token = token_service.dumps(
+            {
+                "action": "email-organization-role-verify",
+                "desired_role": role_name,
+                "user_id": user.id,
+                "organization_id": organization.id,
+                "submitter_id": request.user.id,
+            }
+        )
+        if organization_invite:
+            organization_invite.invite_status = OrganizationInvitationStatus.Pending
+            organization_invite.token = invite_token
+        else:
+            organization_service.add_organization_invite(
+                organization_id=organization.id,
+                user_id=user.id,
+                invite_token=invite_token,
+            )
+        organization.record_event(
+            tag=EventTag.Organization.OrganizationRoleInvite,
+            ip_address=request.remote_addr,
+            additional={
+                "submitted_by_user_id": str(request.user.id),
+                "role_name": role_name,
+                "target_user_id": str(user.id),
+            },
+        )
+        user.record_event(
+            tag=EventTag.Account.OrganizationRoleInvite,
+            ip_address=request.remote_addr,
+            additional={
+                "submitted_by_user_id": str(request.user.id),
+                "organization_name": organization.name,
+                "role_name": role_name,
+            },
+        )
+        owner_users = set(organization_owners(request, organization))
+        send_organization_member_invited_email(
+            request,
+            owner_users,
+            user=user,
+            desired_role=role_name,
+            initiator_username=request.user.username,
+            organization_name=organization.name,
+            email_token=invite_token,
+            token_age=token_service.max_age,
+        )
+        send_organization_role_verification_email(
+            request,
+            user,
+            desired_role=role_name,
+            initiator_username=request.user.username,
+            organization_name=organization.name,
+            email_token=invite_token,
+            token_age=token_service.max_age,
+        )
+        request.session.flash(
+            request._(
+                "Invitation sent to '${username}'",
+                mapping={"username": user.username},
+            ),
+            queue="success",
+        )
+
+
 @view_config(
     route_name="manage.organization.roles",
     context=Organization,
@@ -1998,119 +2114,8 @@ def manage_organization_roles(
         role_name = form.role_name.data
         userid = user_service.find_userid(username)
         user = user_service.get_user(userid)
-        token_service = request.find_service(ITokenService, name="email")
 
-        existing_role = organization_service.get_organization_role_by_user(
-            organization.id, user.id
-        )
-        organization_invite = organization_service.get_organization_invite_by_user(
-            organization.id, user.id
-        )
-        # Cover edge case where invite is invalid but task
-        # has not updated invite status
-        try:
-            invite_token = token_service.loads(organization_invite.token)
-        except (TokenExpired, AttributeError):
-            invite_token = None
-
-        if existing_role:
-            request.session.flash(
-                request._(
-                    "User '${username}' already has ${role_name} role for organization",
-                    mapping={
-                        "username": username,
-                        "role_name": existing_role.role_name.value,
-                    },
-                ),
-                queue="error",
-            )
-        elif user.primary_email is None or not user.primary_email.verified:
-            request.session.flash(
-                request._(
-                    "User '${username}' does not have a verified primary email "
-                    "address and cannot be added as a ${role_name} for organization",
-                    mapping={"username": username, "role_name": role_name.value},
-                ),
-                queue="error",
-            )
-        elif (
-            organization_invite
-            and organization_invite.invite_status
-            == OrganizationInvitationStatus.Pending
-            and invite_token
-        ):
-            request.session.flash(
-                request._(
-                    "User '${username}' already has an active invite. "
-                    "Please try again later.",
-                    mapping={"username": username},
-                ),
-                queue="error",
-            )
-        else:
-            invite_token = token_service.dumps(
-                {
-                    "action": "email-organization-role-verify",
-                    "desired_role": role_name.value,
-                    "user_id": user.id,
-                    "organization_id": organization.id,
-                    "submitter_id": request.user.id,
-                }
-            )
-            if organization_invite:
-                organization_invite.invite_status = OrganizationInvitationStatus.Pending
-                organization_invite.token = invite_token
-            else:
-                organization_service.add_organization_invite(
-                    organization_id=organization.id,
-                    user_id=user.id,
-                    invite_token=invite_token,
-                )
-            organization.record_event(
-                tag=EventTag.Organization.OrganizationRoleInvite,
-                ip_address=request.remote_addr,
-                additional={
-                    "submitted_by_user_id": str(request.user.id),
-                    "role_name": role_name.value,
-                    "target_user_id": str(userid),
-                },
-            )
-            user.record_event(
-                tag=EventTag.Account.OrganizationRoleInvite,
-                ip_address=request.remote_addr,
-                additional={
-                    "submitted_by_user_id": str(request.user.id),
-                    "organization_name": organization.name,
-                    "role_name": role_name.value,
-                },
-            )
-            owner_users = set(organization_owners(request, organization))
-            send_organization_member_invited_email(
-                request,
-                owner_users,
-                user=user,
-                desired_role=role_name.value,
-                initiator_username=request.user.username,
-                organization_name=organization.name,
-                email_token=invite_token,
-                token_age=token_service.max_age,
-            )
-            send_organization_role_verification_email(
-                request,
-                user,
-                desired_role=role_name.value,
-                initiator_username=request.user.username,
-                organization_name=organization.name,
-                email_token=invite_token,
-                token_age=token_service.max_age,
-            )
-            request.session.flash(
-                request._(
-                    "Invitation sent to '${username}'",
-                    mapping={"username": username},
-                ),
-                queue="success",
-            )
+        _send_organization_invitation(request, organization, role_name.value, user)
 
         return HTTPSeeOther(request.path)
 
@@ -2129,6 +2134,51 @@ def manage_organization_roles(
             ]
         ),
     }
+
+
+@view_config(
+    route_name="manage.organization.resend_invite",
+    context=Organization,
+    uses_session=True,
+    require_active_organization=True,
+    require_methods=["POST"],
+    permission="manage:organization",
+    has_translations=True,
+)
+def resend_organization_invitation(organization, request):
+    organization_service = request.find_service(IOrganizationService, context=None)
+    user_service = request.find_service(IUserService, context=None)
+    token_service = request.find_service(ITokenService, name="email")
+    user = user_service.get_user(request.POST["user_id"])
+
+    _next = request.route_path(
+        "manage.organization.roles",
+        organization_name=organization.normalized_name,
+    )
+
+    organization_invite = organization_service.get_organization_invite_by_user(
+        organization.id, user.id
+    )
+    if organization_invite is None:
+        request.session.flash(
+            request._("Could not find organization invitation."), queue="error"
+        )
+        return HTTPSeeOther(_next)
+
+    # Note: underlying itsdangerous method never fails
+    token_data = token_service.unsafe_load_payload(organization_invite.token)
+    if token_data is None:
+        request.session.flash(
+            request._("Organization invitation could not be re-sent."), queue="error"
+        )
+        return HTTPSeeOther(_next)
+
+    role_name = token_data.get("desired_role")
+    _send_organization_invitation(
+        request, organization, role_name, organization_invite.user
+    )
+
+    return HTTPSeeOther(_next)
 
 
 @view_config(
@@ -2165,7 +2215,13 @@ def revoke_organization_invitation(organization, request):
     try:
         token_data = token_service.loads(organization_invite.token)
     except TokenExpired:
-        request.session.flash(request._("Invitation already expired."), queue="success")
+        request.session.flash(
+            request._(
+                "Expired invitation for '${username}' deleted.",
+                mapping={"username": user.username},
+            ),
+            queue="success",
+        )
         return HTTPSeeOther(
             request.route_path(
                 "manage.organization.roles",

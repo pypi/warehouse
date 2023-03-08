@@ -1014,6 +1014,18 @@ class TestTokenService:
         with pytest.raises(TokenInvalid):
             token_service.loads("invalid")
 
+    def test_unsafe_load_payload(self, token_service):
+        sign_time = pytz.UTC.localize(
+            datetime.datetime.utcnow() - datetime.timedelta(days=1)
+        )
+        with freezegun.freeze_time(sign_time):
+            token = token_service.dumps({"foo": "bar"})
+
+        with pytest.raises(TokenExpired):
+            token_service.loads(token)
+
+        assert token_service.unsafe_load_payload(token) == {"foo": "bar"}
+
 
 def test_database_login_factory(monkeypatch, pyramid_services, metrics, remote_addr):
     service_obj = pretend.stub()
