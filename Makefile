@@ -17,7 +17,7 @@ default:
 	@echo
 	@exit 1
 
-.state/docker-build-web: Dockerfile package.json package-lock.json requirements/main.txt requirements/deploy.txt requirements/lint.txt requirements/docs.txt requirements/dev.txt requirements/tests.txt
+.state/docker-build-web: Dockerfile package.json package-lock.json requirements/main.txt requirements/deploy.txt requirements/lint.txt requirements/docs/dev.txt requirements/docs/user.txt requirements/dev.txt requirements/tests.txt
 	# Build our web container for this project.
 	docker compose build --build-arg IPYTHON=$(IPYTHON) --force-rm web
 
@@ -68,8 +68,8 @@ lint: .state/docker-build-web
 	docker compose run --rm web bin/lint
 	docker compose run --rm static bin/static_lint
 
-docs: .state/docker-build-web
-	docker compose run --rm web bin/docs
+dev-docs: .state/docker-build-web
+	docker compose run --rm web bin/dev-docs
 
 user-docs: .state/docker-build-web
 	docker-compose run --rm web bin/user-docs
@@ -113,4 +113,4 @@ purge: stop clean
 stop:
 	docker compose down -v
 
-.PHONY: default build serve initdb shell tests docs deps clean purge debug stop compile-pot
+.PHONY: default build serve initdb shell tests dev-docs user-docs deps clean purge debug stop compile-pot

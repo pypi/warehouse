@@ -93,7 +93,7 @@ services:
       - ./dev:/opt/warehouse/src/dev:z
       - ./docs:/opt/warehouse/src/docs:z
       - ./mkdocs-user-docs.yml:/opt/warehouse/src/mkdocs-user-docs.yml:z
-      - ./user-docs:/opt/warehouse/src/user-docs:z
+      - ./docs/user:/opt/warehouse/src/docs/user:z
       - ./warehouse:/opt/warehouse/src/warehouse:z
       - ./tests:/opt/warehouse/src/tests:z
       - ./htmlcov:/opt/warehouse/src/htmlcov:z
@@ -196,6 +196,6 @@ services:
     command: mkdocs serve -a 0.0.0.0:8000 -f mkdocs-user-docs.yml
     volumes:
       - ./mkdocs-user-docs.yml:/opt/warehouse/src/mkdocs-user-docs.yml:z
-      - ./user-docs:/opt/warehouse/src/user-docs:z
+      - ./docs/user:/opt/warehouse/src/docs/user:z
     ports:
       - "10000:8000"

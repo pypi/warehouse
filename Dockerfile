@@ -96,7 +96,7 @@ RUN set -x \
             install --no-deps \
                     -r /tmp/requirements/deploy.txt \
                     -r /tmp/requirements/main.txt \
-                    $(if [ "$DEVEL" = "yes" ]; then echo '-r /tmp/requirements/tests.txt -r /tmp/requirements/lint.txt -r /tmp/requirements/docs.txt -r /tmp/requirements/user-docs.txt'; fi) \
+                    $(if [ "$DEVEL" = "yes" ]; then echo '-r /tmp/requirements/tests.txt -r /tmp/requirements/lint.txt -r /tmp/requirements/docs/dev.txt -r /tmp/requirements/docs/user.txt'; fi) \
     && pip check \
     && find /opt/warehouse -name '*.pyc' -delete
 

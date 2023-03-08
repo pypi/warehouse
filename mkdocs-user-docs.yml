@@ -1,6 +1,6 @@
 site_name: PyPI Docs
-docs_dir: user-docs
-site_dir: user-docs/site
+docs_dir: docs/user
+site_dir: docs/user-site
 theme:
   name: material
   logo: assets/logo.png
@@ -18,4 +18,4 @@ extra:
     - icon: fontawesome/brands/twitter
       link: https://twitter.com/pypi
 repo_url: https://github.com/pypi/warehouse
-edit_uri: blob/main/user-docs/
+edit_uri: blob/main/docs/user/
