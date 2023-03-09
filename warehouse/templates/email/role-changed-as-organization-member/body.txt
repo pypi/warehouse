@@ -14,7 +14,7 @@
 {% extends "email/_base/body.txt" %}
 
 {% block content %}
-{% trans organization_name=organization_name, role=role %}Your role in the "{{ organization_name }}" organization has been changed to {{ role }}{% endtrans %}.
+{% trans organization_name=organization_name, role=role, submitter=submitter %}Your role in the "{{ organization_name }}" organization has been changed to {{ role }} by {{ submitter }}{% endtrans %}.
 {% endblock %}
 
 {% block reason %}
