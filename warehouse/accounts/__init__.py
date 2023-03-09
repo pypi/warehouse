@@ -32,6 +32,7 @@ from warehouse.accounts.services import (
     TokenServiceFactory,
     database_login_factory,
 )
+from warehouse.macaroons.caveats import OIDCPublisher
 from warehouse.macaroons.security_policy import (
     MacaroonAuthorizationPolicy,
     MacaroonSecurityPolicy,
@@ -55,6 +56,16 @@ def _user(request):
         return None
 
     if not isinstance(request.identity, User):
+        return None
+
+    return request.identity
+
+
+def _oidc_publisher(request):
+    if request.identity is None:
+        return None
+
+    if not isinstance(request.identity, OIDCPublisher):
         return None
 
     return request.identity
@@ -113,8 +124,10 @@ def includeme(config):
         )
     )
 
-    # Add a request method which will allow people to access the user object.
+    # Add a request method which will allow people to access the specific current
+    # request identity by type, if they know it.
     config.add_request_method(_user, name="user", reify=True)
+    config.add_request_method(_oidc_publisher, name="oidc_publisher", reify=True)
 
     config.add_request_method(_unauthenticated_userid, name="_unauthenticated_userid")
 

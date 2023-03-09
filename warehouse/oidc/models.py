@@ -22,7 +22,7 @@ from sqlalchemy.dialects.postgresql import UUID
 from warehouse import db
 from warehouse.macaroons.models import Macaroon
 from warehouse.oidc.interfaces import SignedClaims
-from warehouse.packaging.models import Project
+from warehouse.packaging.models import Project, Release
 
 
 def _check_claim_binary(binary_func):
@@ -193,6 +193,12 @@ class OIDCPublisher(OIDCPublisherMixin, db.Model):
     )
     macaroons = orm.relationship(
         Macaroon, backref="oidc_publisher", cascade="all, delete-orphan", lazy=True
+    )
+    releases = orm.relationship(
+        Release,
+        backref="oidc_publisher",
+        cascade="all, delete-orphan",
+        lazy=True,
     )
 
     __mapper_args__ = {
