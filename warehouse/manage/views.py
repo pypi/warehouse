@@ -2003,7 +2003,7 @@ def _send_organization_invitation(request, organization, role_name, user):
             request._(
                 "User '${username}' does not have a verified primary email "
                 "address and cannot be added as a ${role_name} for organization",
-                mapping={"username": user.username, "role_name": role_name.value},
+                mapping={"username": user.username, "role_name": role_name},
             ),
             queue="error",
         )
