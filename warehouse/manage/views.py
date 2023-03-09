@@ -3612,7 +3612,7 @@ def delete_project(project, request):
     if project.organization:
         contributors += project.organization.owners
 
-    for contributor in contributors:
+    for contributor in sorted(contributors):
         contributor_role = get_user_role_in_project(project, contributor, request)
 
         send_removed_project_email(
