@@ -1081,7 +1081,9 @@ def file_upload(request):
                     "requires_python",
                 }
             },
-            uploader=request.user if request.user else None,
+            # User and OIDC publisher are mutually exclusive here.
+            uploader=request.user,
+            oidc_publisher=request.oidc_publisher,
             uploaded_via=request.user_agent,
         )
         request.db.add(release)
