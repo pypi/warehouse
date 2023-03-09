@@ -402,6 +402,7 @@ def test_includeme(monkeypatch):
     ]
     assert config.add_request_method.calls == [
         pretend.call(accounts._user, name="user", reify=True),
+        pretend.call(accounts._oidc_publisher, name="oidc_publisher", reify=True),
         pretend.call(accounts._unauthenticated_userid, name="_unauthenticated_userid"),
     ]
     assert config.set_security_policy.calls == [pretend.call(multi_policy_obj)]
