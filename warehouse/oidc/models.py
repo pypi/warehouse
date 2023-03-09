@@ -197,7 +197,6 @@ class OIDCPublisher(OIDCPublisherMixin, db.Model):
     files = orm.relationship(
         File,
         backref="oidc_publisher",
-        cascade="all, delete-orphan",
         lazy=True,
     )
 
