@@ -7009,7 +7009,7 @@ class TestManageProjectSettings:
         project = ProjectFactory.create(name="foo")
         OrganizationProjectFactory.create(organization=organization, project=project)
 
-        db_request.user = UserFactory.create()
+        db_request.user = UserFactory.create(username="owner1")
         OrganizationRoleFactory.create(
             organization=organization,
             user=db_request.user,
@@ -7017,7 +7017,7 @@ class TestManageProjectSettings:
         )
 
         # Add a second Owner
-        owner2 = UserFactory.create()
+        owner2 = UserFactory.create(username="owner2")
         OrganizationRoleFactory.create(
             organization=organization,
             user=owner2,
