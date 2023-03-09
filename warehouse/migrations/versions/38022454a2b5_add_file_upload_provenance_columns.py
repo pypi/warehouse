@@ -66,6 +66,17 @@ def upgrade():
         ondelete="SET NULL",
     )
 
+    # Each File has an uploading user, an OIDC publisher, or neither,
+    # but not both.
+    op.create_check_constraint(
+        "_file_has_exactly_one_uploader",
+        table_name="release_files",
+        condition=(
+            "NOT((uploading_user_id::text IS NOT NULL) "
+            "AND (oidc_publisher_id::text IS NOT NULL))"
+        ),
+    )
+
 
 def downgrade():
     op.drop_constraint(None, "release_files", type_="foreignkey")

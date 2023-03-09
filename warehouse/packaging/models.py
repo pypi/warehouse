@@ -636,6 +636,13 @@ class File(db.Model):
         return (
             CheckConstraint("sha256_digest ~* '^[A-F0-9]{64}$'"),
             CheckConstraint("blake2_256_digest ~* '^[A-F0-9]{64}$'"),
+            CheckConstraint(
+                (
+                    "NOT((uploading_user_id::text IS NOT NULL) "
+                    "AND (oidc_publisher_id::text IS NOT NULL))"
+                ),
+                name="_file_has_exactly_one_uploader",
+            ),
             Index(
                 "release_files_single_sdist",
                 "release_id",
