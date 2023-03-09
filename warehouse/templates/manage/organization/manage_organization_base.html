@@ -58,7 +58,9 @@
         </a>
         <div class="vertical-tabs__content">
           <div class="organization-snippet organization-snippet--margin-bottom">
-            <h1 class="organization-snippet__title organization-snippet__title--page-title">{{ organization.name }}</h1>
+            <h1 class="organization-snippet__title organization-snippet__title--page-title">
+              <a href="{{ request.route_path('organizations.profile', organization=organization.name) }}">{{ organization.name }}</a>
+            </h1>
             <p class="organization-snippet__description">{{ organization.display_name }}</p>
           </div>
           <!-- mobile nav -->

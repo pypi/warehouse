@@ -67,7 +67,9 @@
         <div class="vertical-tabs__content">
           {% if not request.flags.enabled(AdminFlagValue.DISABLE_ORGANIZATIONS) and project.organization %}
             <div class="organization-snippet organization-snippet--margin-bottom">
-              <h1 class="organization-snippet__title organization-snippet__title--page-title">{{ project.organization.name }}</h1>
+              <h1 class="organization-snippet__title organization-snippet__title--page-title">
+                <a href="{{ request.route_path('organizations.profile', organization=project.organization.name) }}">{{ project.organization.name }}</a>
+              </h1>
               <p class="organization-snippet__description">{{ project.organization.display_name }}</p>
             </div>
           {% endif %}
