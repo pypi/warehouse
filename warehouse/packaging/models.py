@@ -552,9 +552,6 @@ class Release(db.Model):
     _requires_external = _dependency_relation(DependencyKind.requires_external)
     requires_external = association_proxy("_requires_external", "specifier")
 
-    # NOTE: Ideally `uploader` and `publisher` would have an XOR constraint,
-    # but both can be nulled out if the uploading user and/or OIDC publisher
-    # is deleted.
     uploader_id = Column(
         ForeignKey("users.id", onupdate="CASCADE", ondelete="SET NULL"),
         nullable=True,
@@ -562,12 +559,6 @@ class Release(db.Model):
     )
     uploader = orm.relationship(User)
     uploaded_via = Column(Text)
-
-    oidc_publisher_id = Column(
-        ForeignKey("oidc_publishers.id", onupdate="CASCADE", ondelete="SET NULL"),
-        nullable=True,
-        index=True,
-    )
 
     @property
     def urls(self):
@@ -691,6 +682,19 @@ class File(db.Model):
     # sdists that exist in our database. Eventually we should try to get rid
     # of all of them and then remove this column.
     allow_multiple_sdist = Column(Boolean, nullable=False, server_default=sql.false())
+
+    uploading_user_id = Column(
+        ForeignKey("users.id", onupdate="CASCADE", ondelete="SET NULL"),
+        nullable=True,
+        index=True,
+    )
+    uploading_user = orm.relationship(User)
+
+    oidc_publisher_id = Column(
+        ForeignKey("oidc_publishers.id", onupdate="CASCADE", ondelete="SET NULL"),
+        nullable=True,
+        index=True,
+    )
 
     @hybrid_property
     def pgp_path(self):

@@ -44,8 +44,6 @@
           <td>
             {% if release.uploader %}
             <a href="{{ request.route_path('admin.user.detail', username=release.uploader.username) }}">{{ release.uploader.username }}</a>
-            {% elif release.oidc_publisher %}
-            OpenID Connect (<a href="{{ request.oidc_publisher.publisher_url }}">{{ request.oidc_publisher.publisher_url }}</a>)
             {% endif %}
           </td>
         </tr>
