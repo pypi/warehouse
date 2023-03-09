@@ -433,7 +433,7 @@ class StripeSubscriptionService:
 
         self.db.add(subscription)
         self.db.add(organization_subscription)
-        self.db.flush()  # get back the subscription id
+        self.db.flush()  # flush db now so we have acccess to subscription.id
 
         # Create new subscription item.
         subscription_item = StripeSubscriptionItem(
@@ -444,7 +444,6 @@ class StripeSubscriptionService:
         )
 
         self.db.add(subscription_item)
-        self.db.flush()
 
         return subscription
 
@@ -473,7 +472,6 @@ class StripeSubscriptionService:
         ).delete()
 
         self.db.delete(subscription)
-        self.db.flush()
 
     def get_subscriptions_by_customer(self, customer_id):
         """
@@ -538,7 +536,7 @@ class StripeSubscriptionService:
         )
 
         self.db.add(stripe_customer)
-        self.db.flush()
+        self.db.flush()  # flush db now so we have access to stripe_customer.id
 
         return stripe_customer
 
@@ -600,7 +598,7 @@ class StripeSubscriptionService:
         )
 
         self.db.add(subscription_product)
-        self.db.flush()
+        self.db.flush()  # flush db now so we have access to subscription_product.id
 
         return subscription_product
 
@@ -622,7 +620,6 @@ class StripeSubscriptionService:
         subscription_product = self.get_subscription_product(subscription_product_id)
 
         self.db.delete(subscription_product)
-        self.db.flush()
 
     def get_or_create_default_subscription_price(self):
         """
@@ -709,7 +706,7 @@ class StripeSubscriptionService:
         )
 
         self.db.add(subscription_price)
-        self.db.flush()
+        self.db.flush()  # flush db now so we have access to subscription_price.id
 
         return subscription_price
 
@@ -731,7 +728,6 @@ class StripeSubscriptionService:
         subscription_price = self.get_subscription_price(subscription_price_id)
 
         self.db.delete(subscription_price)
-        self.db.flush()
 
 
 def subscription_factory(context, request):

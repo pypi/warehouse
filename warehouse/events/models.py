@@ -122,6 +122,5 @@ class HasEvents:
             additional=additional,
         )
         session.add(event)
-        session.flush()
 
         return event

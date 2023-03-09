@@ -17,7 +17,7 @@
 
 {% block content %}
 <p>
-  {% trans organization_name=organization_name, role=role %}Your role in the "{{ organization_name }}" organization has been changed to <strong>{{ role }}</strong>{% endtrans %}.
+  {% trans organization_name=organization_name, role=role, submitter=submitter %}Your role in the "{{ organization_name }}" organization has been changed to <strong>{{ role }}</strong> by {{ submitter }}{% endtrans %}.
 </p>
 {% endblock %}
 

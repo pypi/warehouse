@@ -119,7 +119,7 @@ class DatabaseOrganizationService:
             description=description,
         )
         self.db.add(organization)
-        self.db.flush()
+        self.db.flush()  # flush the db now so organization.id is available
 
         self.add_catalog_entry(organization.id)
 
@@ -147,7 +147,6 @@ class DatabaseOrganizationService:
             )
         except NoResultFound:
             self.db.add(catalog_entry)
-            self.db.flush()
 
         return catalog_entry
 
@@ -198,7 +197,6 @@ class DatabaseOrganizationService:
         )
 
         self.db.add(role)
-        self.db.flush()
 
         return role
 
@@ -209,7 +207,6 @@ class DatabaseOrganizationService:
         role = self.get_organization_role(organization_role_id)
 
         self.db.delete(role)
-        self.db.flush()
 
     def get_organization_invite(self, organization_invite_id):
         """
@@ -274,7 +271,6 @@ class DatabaseOrganizationService:
         )
 
         self.db.add(organization_invite)
-        self.db.flush()
 
         return organization_invite
 
@@ -285,7 +281,6 @@ class DatabaseOrganizationService:
         organization_invite = self.get_organization_invite(organization_invite_id)
 
         self.db.delete(organization_invite)
-        self.db.flush()
 
     def approve_organization(self, organization_id):
         """
@@ -295,7 +290,6 @@ class DatabaseOrganizationService:
         organization.is_active = True
         organization.is_approved = True
         organization.date_approved = datetime.datetime.now()
-        # self.db.flush()
 
         return organization
 
@@ -307,7 +301,6 @@ class DatabaseOrganizationService:
         organization.is_active = False
         organization.is_approved = False
         organization.date_approved = datetime.datetime.now()
-        # self.db.flush()
 
         return organization
 
@@ -352,17 +345,15 @@ class DatabaseOrganizationService:
         self.delete_teams_by_organization(organization_id)
         # Delete organization
         self.db.delete(organization)
-        self.db.flush()
 
     def rename_organization(self, organization_id, name):
         """
         Performs operations necessary to rename an Organization
         """
         organization = self.get_organization(organization_id)
-
         organization.name = name
-        self.db.flush()
 
+        self.db.flush()  # flush db now so organization.normalized_name available
         self.add_catalog_entry(organization_id)
 
         return organization
@@ -405,7 +396,6 @@ class DatabaseOrganizationService:
         )
 
         self.db.add(organization_project)
-        self.db.flush()
 
         return organization_project
 
@@ -418,7 +408,6 @@ class DatabaseOrganizationService:
         )
 
         self.db.delete(organization_project)
-        self.db.flush()
 
     def get_organization_subscription(self, organization_id, subscription_id):
         """
@@ -444,7 +433,6 @@ class DatabaseOrganizationService:
         )
 
         self.db.add(organization_subscription)
-        self.db.flush()
 
         return organization_subscription
 
@@ -457,7 +445,6 @@ class DatabaseOrganizationService:
         )
 
         self.db.delete(organization_subscription)
-        self.db.flush()
 
     def get_organization_stripe_customer(self, organization_id):
         """
@@ -482,7 +469,6 @@ class DatabaseOrganizationService:
         )
 
         self.db.add(organization_stripe_customer)
-        self.db.flush()
 
         return organization_stripe_customer
 
@@ -540,7 +526,6 @@ class DatabaseOrganizationService:
             organization_id=organization_id,
         )
         self.db.add(team)
-        self.db.flush()
 
         return team
 
@@ -551,7 +536,6 @@ class DatabaseOrganizationService:
         team = self.get_team(team_id)
 
         team.name = name
-        self.db.flush()
 
         return team
 
@@ -566,7 +550,6 @@ class DatabaseOrganizationService:
         self.db.query(TeamProjectRole).filter_by(team=team).delete()
         # Delete team
         self.db.delete(team)
-        self.db.flush()
 
     def delete_teams_by_organization(self, organization_id):
         """
@@ -601,7 +584,6 @@ class DatabaseOrganizationService:
         )
 
         self.db.add(member)
-        self.db.flush()
 
         return member
 
@@ -612,7 +594,6 @@ class DatabaseOrganizationService:
         member = self.get_team_role(team_role_id)
 
         self.db.delete(member)
-        self.db.flush()
 
     def get_team_project_role(self, team_project_role_id):
         """
@@ -632,7 +613,6 @@ class DatabaseOrganizationService:
         )
 
         self.db.add(team_project_role)
-        self.db.flush()
 
         return team_project_role
 
@@ -643,7 +623,6 @@ class DatabaseOrganizationService:
         team_project_role = self.get_team_project_role(team_project_role_id)
 
         self.db.delete(team_project_role)
-        self.db.flush()
 
     def record_event(self, organization_id, *, tag, additional=None):
         """

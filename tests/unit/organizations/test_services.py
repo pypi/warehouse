@@ -304,6 +304,7 @@ class TestDatabaseOrganizationService:
         organization_invite = OrganizationInvitationFactory.create()
 
         organization_service.delete_organization_invite(organization_invite.id)
+        organization_service.db.flush()
 
         assert (
             organization_service.get_organization_invite(organization_invite.id) is None
@@ -387,6 +388,7 @@ class TestDatabaseOrganizationService:
         db_organization = organization_service.get_organization(organization.id)
         assert db_organization.name == "some_new_name"
 
+        organization_service.db.flush()
         assert (
             db_request.db.query(OrganizationNameCatalog)
             .filter(
@@ -413,6 +415,7 @@ class TestDatabaseOrganizationService:
         assert db_organization.display_name == "Some New Name"
         assert db_organization.orgtype == OrganizationType.Company
 
+        organization_service.db.flush()
         assert (
             db_request.db.query(OrganizationNameCatalog)
             .filter(
@@ -667,6 +670,7 @@ class TestDatabaseOrganizationService:
         team_role_id = team_role.id
 
         organization_service.delete_team_role(team_role.id)
+        organization_service.db.flush()
         assert organization_service.get_team_role(team_role_id) is None
 
     def test_get_team_project_role(self, organization_service):

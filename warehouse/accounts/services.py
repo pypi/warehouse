@@ -589,8 +589,6 @@ class DatabaseUserService:
         for recovery_code in recovery_codes:
             self.db.add(RecoveryCode(user=user, code=self.hasher.hash(recovery_code)))
 
-        self.db.flush()
-
         return recovery_codes
 
     def check_recovery_code(self, user_id, code):
@@ -613,7 +611,6 @@ class DatabaseUserService:
 
         # The code is valid and not burned. Mark it as burned
         stored_recovery_code.burned = datetime.datetime.now()
-        self.db.flush()
         self._metrics.increment("warehouse.authentication.recovery_code.ok")
         return True
 

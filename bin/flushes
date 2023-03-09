@@ -1,0 +1,31 @@
+#!/bin/bash
+
+EXIT_CODE=0
+
+MISSING_COMMENTS=$(egrep -nr 'db.flush()|session.flush()' ./warehouse | grep -v '  #.*$')
+if [ $? -ne 1 ]; then
+  echo "Missing comments for use of flush():"
+  echo "$MISSING_COMMENTS"
+  echo ""
+  cat <<EOF
+Use of flush() is _often_ unnecessary and should be annotated with a comment:
+
+    my_object = MyObject(
+        name=name,
+        display_name=display_name,
+    )
+    self.db.add(my_object)
+    self.db.flush()  # flush the db now so my_object.id is available
+    method_that_depends_on_id(my_object)
+
+is a common pattern when auto-generated ids are needed.
+
+Parts of the warehouse codebase (namely our cache_key/purge_key machinery)
+react to flushes and may have unintended side-effects as a result of calls to
+flush().
+
+EOF
+  EXIT_CODE=1
+fi
+
+exit $EXIT_CODE

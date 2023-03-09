@@ -172,7 +172,7 @@ class DatabaseMacaroonService:
             permissions_caveat={"permissions": permissions},
         )
         self.db.add(dm)
-        self.db.flush()
+        self.db.flush()  # flush db now so dm.id is available
 
         m = pymacaroons.Macaroon(
             location=location,
@@ -191,7 +191,6 @@ class DatabaseMacaroonService:
         """
         dm = self.find_macaroon(macaroon_id)
         self.db.delete(dm)
-        self.db.flush()
 
     def get_macaroon_by_description(self, user_id, description):
         """
