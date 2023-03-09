@@ -241,6 +241,7 @@
           </nav>
         </div>
         {% include "warehouse:templates/includes/packaging/project-data.html" %}
+        {% set include_sponsor_logos = project.organization.orgtype != OrganizationType.Company %}
         {% include "warehouse:templates/includes/sidebar-sponsor-logo.html" %}
 
       </div>
