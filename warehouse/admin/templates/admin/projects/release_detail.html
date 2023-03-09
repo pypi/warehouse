@@ -70,6 +70,7 @@
           <th>Package Type</th>
           <th>Python Version</th>
           <th>Uploaded via</th>
+          <td>Uploaded by</td>
         </tr>
         </thead>
         <tbody>
@@ -79,6 +80,13 @@
           <td>{{ file.packagetype }}</td>
           <td>{{ file.python_version }}</td>
           <td><code>{{ file.uploaded_via }}</code></td>
+          <td>
+            {% if file.uploading_user %}
+            <a href="{{ request.route_path('admin.user.detail', username=file.uploading_user.username) }}">{{ file.uploading_user.username }}</a>
+            {% elif file.oidc_publisher %}
+            OpenID Connect <a href="{{ file.oidc_publisher.publisher_url }}">{{ file.oidc_publisher.publisher_url }}</a>
+            {% endif %}
+          </td>
         </tr>
         {% endfor %}
         </tbody>
