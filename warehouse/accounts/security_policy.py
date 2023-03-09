@@ -252,8 +252,17 @@ class TwoFactorAuthorizationPolicy:
 
         # If the request is permitted by the subpolicy, check if the context is
         # 2FA requireable, if 2FA is indeed required, and if the user has 2FA
-        # enabled
-        if subpolicy_permits and isinstance(context, TwoFactorRequireable):
+        # enabled.
+        #
+        # We check for `request.user` explicitly because we don't perform
+        # this check for non-user identities: the only way a non-user
+        # identity can be created is after a 2FA check on a 2FA-mandated
+        # project.
+        if (
+            subpolicy_permits
+            and isinstance(context, TwoFactorRequireable)
+            and request.user
+        ):
             if (
                 request.registry.settings["warehouse.two_factor_requirement.enabled"]
                 and context.owners_require_2fa
