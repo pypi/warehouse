@@ -47,11 +47,13 @@ from warehouse.accounts.interfaces import (
     TooManyFailedLogins,
 )
 from warehouse.accounts.models import (
+    DeviceIdSecret,
     DisableReason,
     Email,
     ProhibitedUserName,
     RecoveryCode,
     User,
+    UserDevice,
     WebAuthn,
 )
 from warehouse.events.tags import EventTag
@@ -64,6 +66,9 @@ logger = logging.getLogger(__name__)
 PASSWORD_FIELD = "password"
 RECOVERY_CODE_COUNT = 8
 RECOVERY_CODE_BYTES = 8
+SAVED_DEVICE_VALID_DAYS = 30
+DEVICE_ID_BYTES = 6
+DEVICE_SECRET_BYTES = 16
 
 
 @implementer(IUserService)
@@ -617,6 +622,78 @@ class DatabaseUserService:
     def get_password_timestamp(self, user_id):
         user = self.get_user(user_id)
         return user.password_date.timestamp() if user.password_date is not None else 0
+
+    def check_device_valid(self, user_id: str, device_id_secret_b64: str) -> bool:
+        """
+        Checks whether the given device id and secret are valid for the given user.
+        """
+        self._metrics.increment("warehouse.authentication.check_device_valid.start")
+
+        if device_id_secret_b64 is None:
+            return False
+        try:
+            device_id_secret = DeviceIdSecret.from_base64(device_id_secret_b64)
+        except (KeyError, ValueError):
+            return False
+
+        self._check_ratelimits(
+            userid=user_id,
+            tags=["mechanism:check_device_valid"],
+        )
+
+        user = self.get_user(user_id)
+        for device in user.user_devices:
+            if device.device_id != device_id_secret.device_id:
+                continue
+
+            is_expired = (
+                datetime.datetime.now() - device.saved_date
+                > datetime.timedelta(days=SAVED_DEVICE_VALID_DAYS)
+            )
+            if is_expired:
+                continue
+
+            if self.hasher.verify(device_id_secret.secret, device.device_secret):
+                self._metrics.increment(
+                    "warehouse.authentication.check_device_valid.ok"
+                )
+                return True
+
+        self._metrics.increment("warehouse.authentication.check_device_valid.failure")
+        return False
+
+    def generate_device_id_secret(self, user_id: str) -> str:
+        """
+        Generates and saves to the database a new device id and secret for the given
+        user. Returns the device id and secret as a base64 encoded string.
+        """
+        user = self.get_user(user_id)
+
+        device_id = self._generate_device_id(user)
+        device_secret = secrets.token_urlsafe(DEVICE_SECRET_BYTES)
+
+        self.db.add(
+            UserDevice(  # type: ignore
+                user=user,
+                device_id=device_id,
+                device_secret=self.hasher.hash(device_secret),
+            )
+        )
+
+        return DeviceIdSecret(device_id, device_secret).to_base64()
+
+    def _generate_device_id(self, user: User) -> str:
+        """
+        Generates a unique device id for the given user.
+        """
+        attempts_max = 1000
+        attempts = 0
+        while attempts < attempts_max:
+            device_id = secrets.token_urlsafe(DEVICE_ID_BYTES)
+            if not any(device.device_id == device_id for device in user.user_devices):
+                return device_id
+            attempts += 1
+        raise RuntimeError("Failed to generate device id")
 
 
 @implementer(ITokenService)

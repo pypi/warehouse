@@ -253,6 +253,17 @@ class IUserService(Interface):
         was most recently updated
         """
 
+    def check_device_valid(user_id: str, device_id_secret_b64: str) -> bool:
+        """
+        Checks whether the given device id and secret are valid for the given user.
+        """
+
+    def generate_device_id_secret(user_id: str) -> str:
+        """
+        Generates and saves to the database a new device id and secret for the given
+        user. Returns the device id and secret as a base64 encoded string.
+        """
+
 
 class ITokenService(Interface):
     def dumps(data):

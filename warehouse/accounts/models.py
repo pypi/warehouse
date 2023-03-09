@@ -10,8 +10,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import base64
 import datetime
 import enum
+import json
 
 from citext import CIText
 from pyramid.authorization import Allow
@@ -124,6 +126,10 @@ class User(SitemapMixin, HasEvents, db.Model):
         backref="added_by",
         cascade="all, delete-orphan",
         lazy=True,
+    )
+
+    user_devices = orm.relationship(
+        "UserDevice", backref="user", cascade="all, delete-orphan", lazy=True
     )
 
     @property
@@ -303,3 +309,41 @@ class ProhibitedUserName(db.Model):
     )
     prohibited_by = orm.relationship(User)
     comment = Column(Text, nullable=False, server_default="")
+
+
+class UserDevice(db.Model):
+    __tablename__ = "user_devices"
+
+    user_id = Column(
+        UUID(as_uuid=True), ForeignKey("users.id"), nullable=False, index=True
+    )
+    saved_date = Column(
+        DateTime(timezone=False), nullable=False, server_default=sql.func.now()
+    )
+    # Stored as a hash of the device secret
+    device_secret = Column(String(length=128), unique=False, nullable=False)
+    device_id = Column(String(length=128), unique=False, nullable=False)
+
+
+class DeviceIdSecret:
+    """
+    A class that stores the data used to authenticate a device.
+    """
+
+    def __init__(self, device_id: str, secret: str):
+        self.device_id = device_id
+        self.secret = secret
+
+    def to_base64(self) -> str:
+        json_str = json.dumps(
+            {
+                "i": self.device_id,
+                "s": self.secret,
+            }
+        )
+        return base64.b64encode(json_str.encode("utf-8")).decode("utf-8")
+
+    @staticmethod
+    def from_base64(b64: str) -> "DeviceIdSecret":
+        json_obj = json.loads(base64.b64decode(b64).decode("utf-8"))
+        return DeviceIdSecret(json_obj["i"], json_obj["s"])
