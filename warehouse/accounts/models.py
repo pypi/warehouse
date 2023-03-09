@@ -209,6 +209,9 @@ class User(SitemapMixin, HasEvents, db.Model):
             (Allow, "group:moderators", "moderator"),
         ]
 
+    def __lt__(self, other):
+        return self.username < other.username
+
 
 class WebAuthn(db.Model):
     __tablename__ = "user_security_keys"
