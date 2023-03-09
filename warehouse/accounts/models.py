@@ -73,8 +73,6 @@ class User(SitemapMixin, HasEvents, db.Model):
 
     __repr__ = make_repr("username")
 
-    __lt__ = lambda self, other: self.username < other.username
-
     username = Column(CIText, nullable=False, unique=True)
     name = Column(String(length=100), nullable=False)
     password = Column(String(length=128), nullable=False)
@@ -210,6 +208,9 @@ class User(SitemapMixin, HasEvents, db.Model):
             (Allow, "group:admins", "admin"),
             (Allow, "group:moderators", "moderator"),
         ]
+
+    def __lt__(self, other):
+        return self.username < other.username
 
 
 class WebAuthn(db.Model):
