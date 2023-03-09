@@ -18,6 +18,7 @@ import pytest
 
 from pyramid.httpexceptions import HTTPUnauthorized
 
+from tests.common.db.oidc import GitHubPublisherFactory
 from warehouse import accounts
 from warehouse.accounts import security_policy
 from warehouse.accounts.interfaces import (
@@ -36,6 +37,7 @@ from warehouse.accounts.services import (
 )
 from warehouse.errors import BasicAuthBreachedPassword, BasicAuthFailedPassword
 from warehouse.events.tags import EventTag
+from warehouse.oidc.models import OIDCPublisher
 from warehouse.rate_limiting import IRateLimiter, RateLimit
 
 from ...common.db.accounts import UserFactory
@@ -321,6 +323,25 @@ class TestUser:
     def test_without_identity(self):
         request = pretend.stub(identity=None)
         assert accounts._user(request) is None
+
+
+class TestOIDCPublisher:
+    def test_with_oidc_publisher(self, db_request):
+        publisher = GitHubPublisherFactory.create()
+        assert isinstance(publisher, OIDCPublisher)
+        request = pretend.stub(identity=publisher)
+
+        assert accounts._oidc_publisher(request) is publisher
+
+    def test_without_oidc_publisher_identity(self):
+        nonpublisher = pretend.stub()
+        request = pretend.stub(identity=nonpublisher)
+
+        assert accounts._oidc_publisher(request) is None
+
+    def test_without_identity(self):
+        request = pretend.stub(identity=None)
+        assert accounts._oidc_publisher(request) is None
 
 
 class TestUnauthenticatedUserid:

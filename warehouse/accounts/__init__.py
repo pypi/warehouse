@@ -32,11 +32,11 @@ from warehouse.accounts.services import (
     TokenServiceFactory,
     database_login_factory,
 )
-from warehouse.macaroons.caveats import OIDCPublisher
 from warehouse.macaroons.security_policy import (
     MacaroonAuthorizationPolicy,
     MacaroonSecurityPolicy,
 )
+from warehouse.oidc.models import OIDCPublisher
 from warehouse.rate_limiting import IRateLimiter, RateLimit
 from warehouse.utils.security_policy import MultiSecurityPolicy
 
