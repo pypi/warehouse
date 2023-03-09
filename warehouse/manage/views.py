@@ -3608,7 +3608,11 @@ def delete_project(project, request):
 
     submitter_role = get_user_role_in_project(project, request.user, request)
 
-    for contributor in project.users:
+    contributors = project.users
+    if project.organization:
+        contributors += project.organization.owners
+
+    for contributor in contributors:
         contributor_role = get_user_role_in_project(project, contributor, request)
 
         send_removed_project_email(
