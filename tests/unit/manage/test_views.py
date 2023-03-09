@@ -7005,6 +7005,86 @@ class TestManageProjectSettings:
         assert not (db_request.db.query(Project).filter(Project.name == "foo").count())
 
 
+    def test_delete_project_sends_emails_to_owners(self, monkeypatch, db_request):
+        organization = OrganizationFactory.create(name="baz")
+        project = ProjectFactory.create(name="foo")
+        OrganizationProjectFactory.create(organization=organization, project=project)
+
+        db_request.user = UserFactory.create()
+        OrganizationRoleFactory.create(
+            organization=organization,
+            user=db_request.user,
+            role_name=OrganizationRoleType.Owner,
+        )
+
+        # Add a second Owner
+        owner2 = UserFactory.create()
+        OrganizationRoleFactory.create(
+            organization=organization,
+            user=owner2,
+            role_name=OrganizationRoleType.Owner,
+        )
+        # Add a Manager, who won't receive the email
+        manager = UserFactory.create()
+        OrganizationRoleFactory.create(
+            organization=organization,
+            user=manager,
+            role_name=OrganizationRoleType.Manager,
+        )
+
+        db_request.route_path = pretend.call_recorder(lambda *a, **kw: "/the-redirect")
+        db_request.session = pretend.stub(
+            flash=pretend.call_recorder(lambda *a, **kw: None)
+        )
+        db_request.POST["confirm_project_name"] = project.name
+
+
+        get_user_role_in_project = pretend.call_recorder(
+            lambda project, user, req: "Owner"
+        )
+        monkeypatch.setattr(views, "get_user_role_in_project", get_user_role_in_project)
+
+        send_removed_project_email = pretend.call_recorder(lambda req, user, **k: None)
+        monkeypatch.setattr(
+            views, "send_removed_project_email", send_removed_project_email
+        )
+
+        result = views.delete_project(project, db_request)
+
+        assert db_request.session.flash.calls == [
+            pretend.call("Deleted the project 'foo'", queue="success")
+        ]
+        assert db_request.route_path.calls == [pretend.call("manage.projects")]
+        assert isinstance(result, HTTPSeeOther)
+        assert result.headers["Location"] == "/the-redirect"
+
+        assert get_user_role_in_project.calls == [
+            pretend.call(project, db_request.user, db_request),
+            pretend.call(project, db_request.user, db_request),
+            pretend.call(project, owner2, db_request),
+        ]
+
+        assert send_removed_project_email.calls == [
+            pretend.call(
+                db_request,
+                db_request.user,
+                project_name=project.name,
+                submitter_name=db_request.user.username,
+                submitter_role="Owner",
+                recipient_role="Owner",
+            ),
+            pretend.call(
+                db_request,
+                owner2,
+                project_name=project.name,
+                submitter_name=db_request.user.username,
+                submitter_role="Owner",
+                recipient_role="Owner",
+            )
+        ]
+        assert not (db_request.db.query(Project).filter(Project.name == "foo").count())
+
+
 class TestManageProjectDocumentation:
     def test_manage_project_documentation(self):
         request = pretend.stub()
