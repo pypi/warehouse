@@ -150,3 +150,18 @@ jobs:
               base: '${{ steps.fetch-branch-names.outputs.base-branch }}',
               body: body
             });
+      # Trigger downstream workflows
+      # https://github.blog/changelog/2022-09-08-github-actions-use-github_token-with-workflow_dispatch-and-repository_dispatch/
+      - uses: actions/github-script@v6
+        name: Trigger CI
+        with:
+          github-token: ${{secrets.GITHUB_TOKEN}}
+          script: |
+            for (const workflow_id in ['ci.yml', 'node-ci.yml']) {
+              await github.rest.actions.createWorkflowDispatch({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                workflow_id: workflow_id,
+                ref: '${{ github.event.inputs.combineBranchName }}'
+              });
+            }
