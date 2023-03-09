@@ -7004,7 +7004,6 @@ class TestManageProjectSettings:
         ]
         assert not (db_request.db.query(Project).filter(Project.name == "foo").count())
 
-
     def test_delete_project_sends_emails_to_owners(self, monkeypatch, db_request):
         organization = OrganizationFactory.create(name="baz")
         project = ProjectFactory.create(name="foo")
@@ -7037,7 +7036,6 @@ class TestManageProjectSettings:
             flash=pretend.call_recorder(lambda *a, **kw: None)
         )
         db_request.POST["confirm_project_name"] = project.name
-
 
         get_user_role_in_project = pretend.call_recorder(
             lambda project, user, req: "Owner"
@@ -7080,7 +7078,7 @@ class TestManageProjectSettings:
                 submitter_name=db_request.user.username,
                 submitter_role="Owner",
                 recipient_role="Owner",
-            )
+            ),
         ]
         assert not (db_request.db.query(Project).filter(Project.name == "foo").count())
 
