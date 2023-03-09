@@ -17,7 +17,9 @@ import pytest
 
 from pyramid.authorization import Allow
 from pyramid.location import lineage
+from sqlalchemy.exc import IntegrityError
 
+from tests.common.db.accounts import UserFactory
 from warehouse.organizations.models import TeamProjectRoleType
 from warehouse.packaging.models import File, ProjectFactory, ReleaseURL
 
@@ -578,3 +580,46 @@ class TestFile:
         )
 
         assert results == (expected, expected + ".asc")
+
+    @pytest.mark.parametrize(
+        ("has_user", "has_publisher"),
+        [
+            (False, True),
+            (True, False),
+            (False, False),
+        ],
+    )
+    def test_file_uploader_kinds(self, db_session, has_user, has_publisher):
+        user, publisher = None, None
+
+        if has_user:
+            user = UserFactory.create()
+        if has_publisher:
+            publisher = GitHubPublisherFactory.create()
+
+        project = DBProjectFactory.create()
+        release = DBReleaseFactory.create(project=project)
+
+        assert DBFileFactory.create(
+            release=release,
+            filename=f"{project.name}-{release.version}.tar.gz",
+            python_version="source",
+            uploading_user=user,
+            oidc_publisher=publisher,
+        )
+
+    def test_file_uploader_constraint_violated(self, db_session):
+        user = UserFactory.create()
+        publisher = GitHubPublisherFactory.create()
+        project = DBProjectFactory.create()
+        release = DBReleaseFactory.create(project=project)
+
+        with pytest.raises(IntegrityError, match="violates check constraint"):
+            DBFileFactory.create(
+                release=release,
+                filename=f"{project.name}-{release.version}.tar.gz",
+                python_version="source",
+                # A file can only have one uploader.
+                uploading_user=user,
+                oidc_publisher=publisher,
+            )
