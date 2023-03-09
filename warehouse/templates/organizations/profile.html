@@ -44,10 +44,11 @@
         {% include "warehouse:templates/includes/sidebar-sponsor-logo.html" %}
       </div>
 
+      {% set projects_with_releases = organization.projects|selectattr("latest_version")|list %}
       <div class="vertical-tabs__panel">
         <h2>
           {% if organization.projects %}
-            {% trans count=organization.projects|length %}
+            {% trans count=projects_with_releases|length %}
               {{ count }} project
             {% pluralize %}
               {{ count }} projects
@@ -57,8 +58,8 @@
           {% endif %}
         </h2>
         <div class="package-list">
-          {% if organization.projects %}
-          {% for project in organization.projects %}
+          {% if projects_with_releases %}
+          {% for project in projects_with_releases %}
           <a class="package-snippet" href="{{ request.route_path('packaging.project', name=project.normalized_name) }}">
             <h3 class="package-snippet__title">{{ project.name }}</h3>
             <p class="package-snippet__meta">
