@@ -64,7 +64,7 @@ jobs:
                     for (const check of checks) {
                       const latest_conclusion = check['conclusion'];
                       console.log('Validating conclusion: ' + latest_conclusion);
-                      if(latest_conclusion == 'failure') {
+                      if(latest_conclusion != 'success') {
                         console.log('Discarding ' + branch + ' with failed check');
                         statusOK = false;
                       }
