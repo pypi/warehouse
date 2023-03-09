@@ -268,7 +268,7 @@ msgstr ""
 msgid "You can't register more than 3 pending OpenID Connect publishers at once."
 msgstr ""
 
-#: warehouse/accounts/views.py:1438 warehouse/manage/views.py:3125
+#: warehouse/accounts/views.py:1438 warehouse/manage/views.py:3124
 msgid ""
 "There have been too many attempted OpenID Connect registrations. Try "
 "again later."
@@ -378,45 +378,45 @@ msgid ""
 "cannot be added as a ${role_name} for organization"
 msgstr ""
 
-#: warehouse/manage/views.py:2043 warehouse/manage/views.py:4391
+#: warehouse/manage/views.py:2043 warehouse/manage/views.py:4390
 msgid "User '${username}' already has an active invite. Please try again later."
 msgstr ""
 
-#: warehouse/manage/views.py:2109 warehouse/manage/views.py:4458
+#: warehouse/manage/views.py:2108 warehouse/manage/views.py:4456
 msgid "Invitation sent to '${username}'"
 msgstr ""
 
-#: warehouse/manage/views.py:2155
+#: warehouse/manage/views.py:2154
 msgid "Could not find organization invitation."
 msgstr ""
 
-#: warehouse/manage/views.py:2169 warehouse/manage/views.py:4502
+#: warehouse/manage/views.py:2168 warehouse/manage/views.py:4500
 msgid "Invitation already expired."
 msgstr ""
 
-#: warehouse/manage/views.py:2211 warehouse/manage/views.py:4535
+#: warehouse/manage/views.py:2210 warehouse/manage/views.py:4533
 msgid "Invitation revoked from '${username}'."
 msgstr ""
 
-#: warehouse/manage/views.py:4168
+#: warehouse/manage/views.py:4167
 msgid "Team '${team_name}' already has ${role_name} role for project"
 msgstr ""
 
-#: warehouse/manage/views.py:4276
+#: warehouse/manage/views.py:4275
 msgid "User '${username}' already has ${role_name} role for project"
 msgstr ""
 
-#: warehouse/manage/views.py:4345
+#: warehouse/manage/views.py:4344
 msgid "${username} is now ${role} of the '${project_name}' project."
 msgstr ""
 
-#: warehouse/manage/views.py:4378
+#: warehouse/manage/views.py:4377
 msgid ""
 "User '${username}' does not have a verified primary email address and "
 "cannot be added as a ${role_name} for project"
 msgstr ""
 
-#: warehouse/manage/views.py:4491
+#: warehouse/manage/views.py:4489
 msgid "Could not find role invitation."
 msgstr ""
 

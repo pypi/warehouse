@@ -1387,10 +1387,7 @@ def file_upload(request):
                 },
             )
 
-    # We are flushing the database requests so that we
-    # can access the server default values when initiating celery
-    # tasks.
-    request.db.flush()
+    request.db.flush()  # flush db now so server default values are populated for celery
 
     # Push updates to BigQuery
     dist_metadata = {

@@ -507,6 +507,7 @@ class TestStripeSubscriptionService:
         )
 
         subscription_service.delete_subscription(subscription.id)
+        subscription_service.db.flush()
 
         assert subscription_service.get_subscription(subscription.id) is None
         assert not (
@@ -647,6 +648,7 @@ class TestStripeSubscriptionService:
         subscription_product = StripeSubscriptionProductFactory.create()
 
         subscription_service.delete_subscription_product(subscription_product.id)
+        subscription_service.db.flush()
 
         assert (
             subscription_service.get_subscription_product(subscription_product.id)
@@ -730,6 +732,7 @@ class TestStripeSubscriptionService:
         assert db_request.db.query(StripeSubscriptionPrice).get(subscription_price.id)
 
         subscription_service.delete_subscription_price(subscription_price.id)
+        subscription_service.db.flush()
 
         assert not (
             db_request.db.query(StripeSubscriptionPrice).get(subscription_price.id)
