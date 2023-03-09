@@ -525,7 +525,7 @@ class ManageAccountViews:
                 tag=EventTag.Account.PasswordChange,
             )
             send_password_change_email(self.request, self.request.user)
-            self.request.db.flush()  # Ensure changes are persisted to DB
+            self.request.db.flush()  # ensure password_date is available
             self.request.db.refresh(self.request.user)  # Pickup new password_date
             self.request.session.record_password_timestamp(
                 self.user_service.get_password_timestamp(self.request.user.id)
@@ -2084,7 +2084,6 @@ def manage_organization_roles(
                     "role_name": role_name.value,
                 },
             )
-            request.db.flush()  # in order to get id
             owner_users = set(organization_owners(request, organization))
             send_organization_member_invited_email(
                 request,
@@ -4453,7 +4452,6 @@ def manage_project_roles(project, request, _form_class=CreateRoleForm):
                     "role_name": role_name,
                 },
             )
-            request.db.flush()  # in order to get id
             request.session.flash(
                 request._(
                     "Invitation sent to '${username}'",

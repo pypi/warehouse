@@ -12,6 +12,7 @@ set -x
 
 # Actually run our tests.
 find . -name '*.py' -exec python -m pyupgrade --py311-plus {} +
+./bin/flushes
 python -m flake8 .
 python -m black --check *.py warehouse/ tests/
 python -m isort --check *.py warehouse/ tests/
