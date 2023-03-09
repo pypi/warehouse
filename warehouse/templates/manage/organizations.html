@@ -29,7 +29,7 @@
       <div class="split-layout split-layout--no-wrap split-layout--wrap-on-tablet">
         <div>
           <h3 class="organization-snippet__title">
-            {{ organization.name }}
+            <a href="{{ request.route_path('organizations.profile', organization=organization.name) }}">{{ organization.name }}</a>
           </h3>
           <p class="organization-snippet__meta">
             {% trans creation_date=humanize(organization.created) %}Created {{ creation_date }}{% endtrans %}
@@ -68,7 +68,10 @@
     <div class="organization-snippet">
       <div class="split-layout split-layout--no-wrap split-layout--wrap-on-tablet">
         <div>
-          <h3 class="organization-snippet__title">{{ organization.name }}
+          <h3 class="organization-snippet__title">
+            {% if organization.is_approved and organization.is_active %}
+            <a href="{{ request.route_path('organizations.profile', organization=organization.name) }}">{{ organization.name }}</a>
+            {% else %}{{ organization.name }}{% endif %}
             {% if organization.orgtype == OrganizationType.Company and not organization.active_subscription %}
               {% if organization.name in (organizations_owned + organizations_billing) %}
               <a class="badge badge--danger" href="{{ request.route_path('manage.organization.activate_subscription', organization_name=organization.normalized_name) }}">{% trans %}Billing Inactive{% endtrans %}</a>

@@ -18,6 +18,7 @@ from celery.schedules import crontab
 from warehouse import packaging
 from warehouse.accounts.models import Email, User
 from warehouse.manage.tasks import update_role_invitation_status
+from warehouse.organizations.models import Organization
 from warehouse.packaging.interfaces import (
     IDocsStorage,
     IFileStorage,
@@ -40,8 +41,10 @@ def test_includeme(monkeypatch, with_bq_sync, with_2fa_mandate):
         create_service=pretend.call_recorder(lambda *a, **kw: pretend.stub())
     )
 
-    def key_factory(keystring, iterate_on=None):
-        return pretend.call(keystring, iterate_on=iterate_on)
+    def key_factory(keystring, iterate_on=None, if_attr_exists=None):
+        return pretend.call(
+            keystring, iterate_on=iterate_on, if_attr_exists=if_attr_exists
+        )
 
     monkeypatch.setattr(packaging, "key_factory", key_factory)
     settings = {
@@ -92,6 +95,9 @@ def test_includeme(monkeypatch, with_bq_sync, with_2fa_mandate):
                 key_factory("project/{obj.normalized_name}"),
                 key_factory("user/{itr.username}", iterate_on="users"),
                 key_factory("all-projects"),
+                key_factory(
+                    "org/{attr.normalized_name}", if_attr_exists="organization"
+                ),
             ],
         ),
         pretend.call(
@@ -101,6 +107,9 @@ def test_includeme(monkeypatch, with_bq_sync, with_2fa_mandate):
                 key_factory("project/{obj.project.normalized_name}"),
                 key_factory("user/{itr.username}", iterate_on="project.users"),
                 key_factory("all-projects"),
+                key_factory(
+                    "org/{attr.normalized_name}", if_attr_exists="project.organization"
+                ),
             ],
         ),
         pretend.call(
@@ -115,6 +124,7 @@ def test_includeme(monkeypatch, with_bq_sync, with_2fa_mandate):
             User.name,
             purge_keys=[
                 key_factory("user/{obj.username}"),
+                key_factory("org/{itr.normalized_name}", iterate_on="organizations"),
                 key_factory("project/{itr.normalized_name}", iterate_on="projects"),
             ],
         ),
@@ -125,6 +135,23 @@ def test_includeme(monkeypatch, with_bq_sync, with_2fa_mandate):
                 key_factory(
                     "project/{itr.normalized_name}", iterate_on="user.projects"
                 ),
+            ],
+        ),
+        pretend.call(Organization, cache_keys=["org/{obj.normalized_name}"]),
+        pretend.call(
+            Organization.name,
+            purge_keys=[
+                key_factory("user/{itr.username}", iterate_on="users"),
+                key_factory("org/{obj.normalized_name}"),
+                key_factory("project/{itr.normalized_name}", iterate_on="projects"),
+            ],
+        ),
+        pretend.call(
+            Organization.display_name,
+            purge_keys=[
+                key_factory("user/{itr.username}", iterate_on="users"),
+                key_factory("org/{obj.normalized_name}"),
+                key_factory("project/{itr.normalized_name}", iterate_on="projects"),
             ],
         ),
     ]

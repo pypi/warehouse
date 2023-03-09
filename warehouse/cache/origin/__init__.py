@@ -93,11 +93,17 @@ def origin_cache(seconds, keys=None, stale_while_revalidate=None, stale_if_error
 CacheKeys = collections.namedtuple("CacheKeys", ["cache", "purge"])
 
 
-def key_factory(keystring, iterate_on=None):
+def key_factory(keystring, iterate_on=None, if_attr_exists=None):
     def generate_key(obj):
         if iterate_on:
             for itr in operator.attrgetter(iterate_on)(obj):
                 yield keystring.format(itr=itr, obj=obj)
+        elif if_attr_exists:
+            try:
+                attr = operator.attrgetter(if_attr_exists)(obj)
+                yield keystring.format(attr=attr, obj=obj)
+            except AttributeError:
+                pass
         else:
             yield keystring.format(obj=obj)
 

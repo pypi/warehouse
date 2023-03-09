@@ -155,6 +155,13 @@ def test_routes(warehouse):
             traverse="/{username}",
             domain=warehouse,
         ),
+        pretend.call(
+            "organizations.profile",
+            "/org/{organization}/",
+            factory="warehouse.organizations.models:OrganizationFactory",
+            traverse="/{organization}",
+            domain=warehouse,
+        ),
         pretend.call("accounts.login", "/account/login/", domain=warehouse),
         pretend.call("accounts.two-factor", "/account/two-factor/", domain=warehouse),
         pretend.call(

@@ -151,6 +151,13 @@ def includeme(config):
         traverse="/{username}",
         domain=warehouse,
     )
+    config.add_route(
+        "organizations.profile",
+        "/org/{organization}/",
+        factory="warehouse.organizations.models:OrganizationFactory",
+        traverse="/{organization}",
+        domain=warehouse,
+    )
     config.add_route("accounts.login", "/account/login/", domain=warehouse)
     config.add_route("accounts.two-factor", "/account/two-factor/", domain=warehouse)
     config.add_route(
