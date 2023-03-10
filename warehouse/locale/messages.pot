@@ -3195,7 +3195,7 @@ msgstr ""
 
 #: warehouse/templates/manage/account.html:658
 #, python-format
-msgid "Invitation to join <a href=\"%(href)s\">%(organization_name)s</a> received"
+msgid "Invited to join <a href=\"%(href)s\">%(organization_name)s</a>"
 msgstr ""
 
 #: warehouse/templates/manage/account.html:662
@@ -3653,10 +3653,6 @@ msgstr ""
 msgid "Create new organization"
 msgstr ""
 
-#: warehouse/templates/manage/organization/roles.html:128
-#: warehouse/templates/manage/organization/roles.html:164
-#: warehouse/templates/manage/organization/roles.html:168
-#: warehouse/templates/manage/organization/roles.html:172
 #: warehouse/templates/manage/organizations.html:152
 #: warehouse/templates/manage/project/roles.html:146
 #: warehouse/templates/manage/project/roles.html:203
@@ -4685,6 +4681,10 @@ msgid "Cannot remove yourself as Sole Owner"
 msgstr ""
 
 #: warehouse/templates/manage/organization/roles.html:128
+#, python-format
+msgid "Remove %(user)s from this organization."
+msgstr ""
+
 #: warehouse/templates/manage/organization/roles.html:129
 #, python-format
 msgid "Remove %(user)s from this organization"
@@ -4701,6 +4701,10 @@ msgid "Invite expired"
 msgstr ""
 
 #: warehouse/templates/manage/organization/roles.html:164
+#, python-format
+msgid "Revoke invitation for %(user)s."
+msgstr ""
+
 #: warehouse/templates/manage/organization/roles.html:165
 #: warehouse/templates/manage/project/roles.html:236
 #: warehouse/templates/manage/project/roles.html:237
@@ -4714,6 +4718,10 @@ msgid "Revoke invite"
 msgstr ""
 
 #: warehouse/templates/manage/organization/roles.html:168
+#, python-format
+msgid "Re-send invitation for %(user)s."
+msgstr ""
+
 #: warehouse/templates/manage/organization/roles.html:169
 #, python-format
 msgid "Re-send invitation for %(user)s"
@@ -4723,13 +4731,17 @@ msgstr ""
 msgid "Re-send"
 msgstr ""
 
+#: warehouse/templates/manage/organization/roles.html:171
+#, python-format
+msgid "Delete expired invitation for %(user)s."
+msgstr ""
+
 #: warehouse/templates/manage/organization/roles.html:172
-#: warehouse/templates/manage/organization/roles.html:173
 #, python-format
 msgid "Delete expired invitation for %(user)s"
 msgstr ""
 
-#: warehouse/templates/manage/organization/roles.html:174
+#: warehouse/templates/manage/organization/roles.html:173
 #: warehouse/templates/manage/project/release.html:112
 #: warehouse/templates/manage/project/releases.html:109
 msgid "Delete"
