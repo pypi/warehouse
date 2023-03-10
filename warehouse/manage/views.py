@@ -2165,7 +2165,9 @@ def resend_organization_invitation(organization, request):
         )
         return HTTPSeeOther(_next)
 
-    # Note: underlying itsdangerous method never fails
+    # Note: underlying itsdangerous method of "token_service.unsafe_load_payload never
+    # fails, it just returns None if the payload is not deserializable. Our wrapper
+    # does at least validate that the signature was valid.
     token_data = token_service.unsafe_load_payload(organization_invite.token)
     if token_data is None:
         request.session.flash(
