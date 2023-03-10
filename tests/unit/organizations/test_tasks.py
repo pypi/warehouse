@@ -15,6 +15,7 @@ import datetime
 import pretend
 
 from warehouse.accounts.interfaces import ITokenService, TokenExpired
+from warehouse.events.tags import EventTag
 from warehouse.organizations.models import (
     Organization,
     OrganizationInvitationStatus,
@@ -45,9 +46,14 @@ from ...common.db.subscriptions import (
 
 
 class TestUpdateInvitationStatus:
-    def test_update_invitation_status(self, db_request):
+    def test_update_invitation_status(
+        self, db_request, user_service, organization_service
+    ):
         organization = OrganizationFactory.create()
+        organization.record_event = pretend.call_recorder(lambda *a, **kw: None)
         user = UserFactory.create()
+        user.record_event = pretend.call_recorder(lambda *a, **kw: None)
+
         invite = OrganizationInvitationFactory(user=user, organization=organization)
 
         token_service = pretend.stub(loads=pretend.raiser(TokenExpired))
@@ -60,9 +66,27 @@ class TestUpdateInvitationStatus:
         ]
         assert invite.invite_status == OrganizationInvitationStatus.Expired
 
-    def test_no_updates(self, db_request):
+        assert user.record_event.calls == [
+            pretend.call(
+                tag=EventTag.Account.OrganizationRoleExpireInvite,
+                ip_address="1.2.3.4",
+                additional={"organization_name": invite.organization.name},
+            )
+        ]
+        assert organization.record_event.calls == [
+            pretend.call(
+                tag=EventTag.Organization.OrganizationRoleExpireInvite,
+                ip_address="1.2.3.4",
+                additional={"target_user_id": str(invite.user.id)},
+            )
+        ]
+
+    def test_no_updates(self, db_request, user_service, organization_service):
         organization = OrganizationFactory.create()
+        organization.record_event = pretend.call_recorder(lambda *a, **kw: None)
         user = UserFactory.create()
+        user.record_event = pretend.call_recorder(lambda *a, **kw: None)
+
         invite = OrganizationInvitationFactory(user=user, organization=organization)
 
         token_service = pretend.stub(loads=lambda token: {})
@@ -74,6 +98,9 @@ class TestUpdateInvitationStatus:
             pretend.call(ITokenService, name="email")
         ]
         assert invite.invite_status == OrganizationInvitationStatus.Pending
+
+        assert user.record_event.calls == []
+        assert organization.record_event.calls == []
 
 
 class TestDeleteOrganizations:

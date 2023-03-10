@@ -306,6 +306,13 @@ def includeme(config):
         domain=warehouse,
     )
     config.add_route(
+        "manage.organization.resend_invite",
+        "/manage/organization/{organization_name}/people/resend_invite/",
+        factory="warehouse.organizations.models:OrganizationFactory",
+        traverse="/{organization_name}",
+        domain=warehouse,
+    )
+    config.add_route(
         "manage.organization.change_role",
         "/manage/organization/{organization_name}/people/change/",
         factory="warehouse.organizations.models:OrganizationFactory",
