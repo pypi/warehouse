@@ -655,7 +655,7 @@
 
       {% elif event.tag == EventTag.Account.OrganizationRoleInvite %}
       <strong>
-        {% trans href=request.route_path('organizations.profile', organization=event.additional.organization_name), organization_name=event.additional.organization_name, role_name=event.additional.role_name|lower %}Invitation to join <a href="{{ href }}">{{ organization_name }}</a> received{% endtrans %}
+        {% trans href=request.route_path('organizations.profile', organization=event.additional.organization_name), organization_name=event.additional.organization_name, role_name=event.additional.role_name|lower %}Invited to join <a href="{{ href }}">{{ organization_name }}</a>{% endtrans %}
       </strong>
       {% elif event.tag == EventTag.Account.OrganizationRoleDeclineInvite %}
       <strong>
